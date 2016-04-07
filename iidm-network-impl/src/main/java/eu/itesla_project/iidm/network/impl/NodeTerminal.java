@@ -1,0 +1,183 @@
+/**
+ * Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+package eu.itesla_project.iidm.network.impl;
+
+import eu.itesla_project.iidm.network.impl.util.Ref;
+import gnu.trove.list.array.TFloatArrayList;
+import gnu.trove.list.array.TIntArrayList;
+
+import java.util.ArrayList;
+
+/**
+ * A terminal connected to a node breaker topology.
+ *
+ * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ */
+class NodeTerminal extends AbstractTerminal {
+
+    private final int node;
+
+    // attributes depending on the state
+
+    protected final TFloatArrayList v;
+
+    protected final TFloatArrayList angle;
+
+    protected final TIntArrayList connectedComponentNumber;
+
+    private final NodeBreakerView nodeBreakerView = new NodeBreakerView() {
+
+        @Override
+        public int getNode() {
+            return node;
+        }
+    };
+
+    private final BusBreakerViewExt busBreakerView = new BusBreakerViewExt() {
+
+        @Override
+        public BusExt getBus() {
+            return ((NodeBreakerVoltageLevel) voltageLevel).getCalculatedBusBreakerTopology().getBus(node);
+        }
+
+        @Override
+        public BusExt getConnectableBus() {
+            ArrayList<Integer> nodes = new ArrayList<>();
+            nodes.add(node);
+            return ((NodeBreakerVoltageLevel) voltageLevel).getCalculatedBusBreakerTopology().getConnectableBus(node);
+        }
+
+        @Override
+        public void setConnectableBus(String busId) {
+            throw NodeBreakerVoltageLevel.createNotSupportedNodeBreakerTopologyException();
+        }
+
+    };
+
+    private final BusViewExt busView = new BusViewExt() {
+
+        @Override
+        public BusExt getBus() {
+            return ((NodeBreakerVoltageLevel) voltageLevel).getCalculatedBusTopology().getBus(node);
+        }
+
+        @Override
+        public BusExt getConnectableBus() {
+            throw new UnsupportedOperationException("TODO");
+        }
+
+    };
+
+    NodeTerminal(Ref<? extends MultiStateObject> network, int node) {
+        super(network);
+        this.node = node;
+        int stateArraySize = network.get().getStateManager().getStateArraySize();
+        v = new TFloatArrayList(stateArraySize);
+        angle = new TFloatArrayList(stateArraySize);
+        connectedComponentNumber = new TIntArrayList(stateArraySize);
+        for (int i = 0; i < stateArraySize; i++) {
+            v.add(Float.NaN);
+            angle.add(Float.NaN);
+            connectedComponentNumber.add(0);
+        }
+    }
+
+    public int getNode() {
+        return node;
+    }
+
+    @Override
+    protected float getV() {
+        return v.get(network.get().getStateIndex());
+    }
+
+    void setV(float v) {
+        if (v <= 0) {
+            throw new ValidationException(connectable, "voltage cannot be <= 0");
+        }
+        this.v.set(network.get().getStateIndex(), v);
+    }
+
+    float getAngle() {
+        return angle.get(network.get().getStateIndex());
+    }
+
+    void setAngle(float angle) {
+        this.angle.set(network.get().getStateIndex(), angle);
+    }
+
+    int getConnectedComponentNumber() {
+        return connectedComponentNumber.get(network.get().getStateIndex());
+    }
+
+    void setConnectedComponentNumber(int connectedComponentNumber) {
+        this.connectedComponentNumber.set(network.get().getStateIndex(), connectedComponentNumber);
+    }
+
+    @Override
+    public NodeBreakerView getNodeBreakerView() {
+        return nodeBreakerView;
+    }
+
+    @Override
+    public BusBreakerViewExt getBusBreakerView() {
+        return busBreakerView;
+    }
+
+    @Override
+    public BusViewExt getBusView() {
+        return busView;
+    }
+
+    @Override
+    public boolean isConnected() {
+        return ((NodeBreakerVoltageLevel) voltageLevel).isConnected(this);
+    }
+
+    @Override
+    public void extendStateArraySize(int initStateArraySize, int number, int sourceIndex) {
+        super.extendStateArraySize(initStateArraySize, number, sourceIndex);
+        v.ensureCapacity(v.size() + number);
+        angle.ensureCapacity(angle.size() + number);
+        connectedComponentNumber.ensureCapacity(connectedComponentNumber.size() + number);
+        for (int i = 0; i < number; i++) {
+            v.add(v.get(sourceIndex));
+            angle.add(angle.get(sourceIndex));
+            connectedComponentNumber.add(connectedComponentNumber.get(sourceIndex));
+        }
+    }
+
+    @Override
+    public void reduceStateArraySize(int number) {
+        super.reduceStateArraySize(number);
+        v.remove(v.size() - number, number);
+        angle.remove(angle.size() - number, number);
+        connectedComponentNumber.remove(connectedComponentNumber.size() - number, number);
+    }
+
+    @Override
+    public void deleteStateArrayElement(int index) {
+        super.deleteStateArrayElement(index);
+        // nothing to do
+    }
+
+    @Override
+    public void allocateStateArrayElement(int[] indexes, int sourceIndex) {
+        super.allocateStateArrayElement(indexes, sourceIndex);
+        for (int index : indexes) {
+            v.set(index, v.get(sourceIndex));
+            angle.set(index, angle.get(sourceIndex));
+            connectedComponentNumber.set(index, connectedComponentNumber.get(sourceIndex));
+        }
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "[" + node + "]";
+    }
+
+}

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+    This Source Code Form is subject to the terms of the Mozilla Public
+    License, v. 2.0. If a copy of the MPL was not distributed with this
+    file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+-->
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:p="http://primefaces.org/ui"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:c="http://java.sun.com/jsp/jstl/core"
+    template="/WEB-INF/templates/basicTemplate.xhtml">  
+    
+ <ui:define name="metadata">  
+  <f:metadata>
+  <f:viewParam name="cimId" value="#{equipmentController.cimId}"/>
+  </f:metadata>
+    </ui:define>
+      
+<ui:define name="content">
+
+<f:view>
+  	<p:panel id="panel" header="#{msg['equipment.title']} #{msg['list.title']}" style="margin-bottom:10px;">   
+	    <h:panelGroup rendered="#{equipmentController.equipmentsCount eq 0}">   
+	    	<em>"#{msg['equipment.title']} #{msg['notFound.msg']} </em>:	
+	    </h:panelGroup>	    
+		<h:form id="listEquipments" rendered="#{equipmentController.equipmentsCount gt 0}">	
+ 
+		
+		<p:dataTable var="_equipment" value="#{equipmentController.lazyDataModel}" rendered="#{equipmentController.equipmentsCount gt 0}"
+		paginator="true" rows="10"  
+                 paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"  
+                 rowsPerPageTemplate="5,10,15"   lazy="true"
+  		style="width:100%"   resizableColumns="true"
+		>
+		
+			<p:column headerText="CimId">  
+				<h:outputText value="#{_equipment.cimId}" />  
+				
+			</p:column>
+			<p:column headerText="Model Template Container">
+				
+			  	<p:commandLink  id="ViewMTC" value="#{_equipment.modelContainer.ddbId}" action="#{modelTemplateContainerController.view(_equipment.modelContainer.ddbId)}" ajax="false" outcome="/modelTemplateContaier/details"/>
+			  		
+				<p:dataList value="#{_equipment.modelContainer.modelTemplates}" var="_modelTemplate" itemType="disc" render="#{not empty _equipment.modelContainer.modelTemplates}">  
+    			 #{_modelTemplate.simulator.toString()}    #{_modelTemplate.comment}  
+				</p:dataList>  
+			</p:column>  		
+			<p:column headerText="Parameters Container">  
+					<p:commandLink  id="ViewPC" value="#{_equipment.parametersContainer.ddbId}" action="#{parametersContainerController.view(_equipment.parametersContainer.ddbId)}" ajax="false" outcome="/parametersContainer/details"/>
+			</p:column>
+			<p:column>	
+				<p:commandButton  id="Edit" value="Edit" action="#{equipmentController.edit(_equipment)}" ajax="false" icon="ui-icon-pencil"/>
+			</p:column>
+		</p:dataTable>  
+		</h:form>
+	</p:panel>	 
+</f:view>
+</ui:define>
+</ui:composition>

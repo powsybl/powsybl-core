@@ -1,0 +1,59 @@
+<!--
+
+    Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+    This Source Code Form is subject to the terms of the Mozilla Public
+    License, v. 2.0. If a copy of the MPL was not distributed with this
+    file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:p="http://primefaces.org/ui"
+    xmlns:f="http://java.sun.com/jsf/core">
+    
+
+<f:view contentType="text/html" id="fview">
+	<h:head>
+    	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    	<title>iTESLA-iidm-ddb</title>
+    	<h:outputStylesheet name="css/screen.css" />
+    	<ui:debug />
+    	<f:metadata>
+        	<ui:insert name="metadata" />
+    	</f:metadata>
+	</h:head>
+    <h:body>
+    <p:layout fullPage="true" resizeTitle="resize" style="background-color:#FFFFFF;">
+        <p:layoutUnit position="north" size="68" id="north" >
+            <ui:include src="header.xhtml"/>            
+        </p:layoutUnit>
+
+        <p:layoutUnit position="west" id="west" resizable="false" header="#{msg['menu.title']}" style="height:580px;overflow:hidden;" size="225">
+            <ui:include src="menu.xhtml"/>            
+        </p:layoutUnit>
+
+        <p:layoutUnit styleClass="layoutUnitCenter" position="center">
+            
+                <p:messages autoUpdate="true" id="msgs" showDetail="true" showSummary="true" />
+                <ui:insert name="content"/>
+            
+        </p:layoutUnit>
+
+        <!-- p:layoutUnit position="east" size="0" style="width:0px; display:none;" id="east">
+        <p>iTESLA:</p>
+         <ul>
+            <li><a href="https://itesla.atlassian.net">Confluence</a></li>
+            <li><a href="http://www.itesla-project.eu/">Project Information</a></li>
+         </ul>
+        </p:layoutUnit>
+-->
+        <p:layoutUnit position="south" resizable="true" id="south">
+            <ui:include src="footer.xhtml" />
+        </p:layoutUnit>
+    </p:layout>
+    </h:body>
+</f:view>
+</html>

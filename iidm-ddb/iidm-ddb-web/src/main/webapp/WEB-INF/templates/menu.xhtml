@@ -1,0 +1,46 @@
+<!--
+
+    Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+    This Source Code Form is subject to the terms of the Mozilla Public
+    License, v. 2.0. If a copy of the MPL was not distributed with this
+    file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns:ui="http://java.sun.com/jsf/facelets"
+				xmlns:h="http://java.sun.com/jsf/html"
+        		xmlns:p="http://primefaces.org/ui"
+        		xmlns:f="http://java.sun.com/jsf/core">
+        		
+
+	<p:outputPanel id="menuPanel" layout="block">
+    <p:menu autoSubmenuDisplay="true" style="width:213px;height:483px;border:none;font-size:small;padding:0px;"
+			ajax="false" type="sliding" backLabel="#{msg['menu.back']}">
+		<p:submenu label="Simulator" icon="ui-icon ui-icon-refresh">
+			<p:menuitem value="create" url="/simulator/create.jsf" />
+			<p:menuitem value="list" url="/simulator/list.jsf" />			
+		</p:submenu>
+		<p:submenu label="ModelTemplateContainer" icon="ui-icon ui-icon-refresh">
+			<p:menuitem value="create" url="/modelTemplateContainer/create.jsf" />
+			<p:menuitem value="list" url="/modelTemplateContainer/list.jsf" />			
+		</p:submenu>
+		
+		<p:submenu label="ParametersContainer" icon="ui-icon ui-icon-refresh">
+			<p:menuitem value="create" url="/parametersContainer/create.jsf" />		
+			<p:menuitem value="list" url="/parametersContainer/list.jsf" />				
+		</p:submenu>
+		
+		<p:submenu label="Equipments" icon="ui-icon ui-icon-refresh">
+			<p:menuitem value="create" url="/equipments/create.jsf" />			
+			<p:menuitem value="list" url="/equipments/list.jsf" />			
+		</p:submenu>		
+		
+		<p:submenu label="Internals" icon="ui-icon ui-icon-refresh">
+			<p:menuitem value="create" url="/internals/create.jsf" />
+			<p:menuitem value="list" url="/internals/list.jsf" />
+		</p:submenu>
+		</p:menu>
+	</p:outputPanel>
+
+</ui:composition>

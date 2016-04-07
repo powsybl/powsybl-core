@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+    This Source Code Form is subject to the terms of the Mozilla Public
+    License, v. 2.0. If a copy of the MPL was not distributed with this
+    file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+-->
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+   xmlns:ui="http://java.sun.com/jsf/facelets"
+   xmlns:f="http://java.sun.com/jsf/core"
+   xmlns:h="http://java.sun.com/jsf/html"
+   xmlns:c="http://java.sun.com/jsp/jstl/core"
+   xmlns:p="http://primefaces.org/ui"
+   template="/WEB-INF/templates/basicTemplate.xhtml">
+
+ 
+<ui:define name="content">
+<f:view>
+	<p:panel id="panelEquipDetails" header="#{msg['equipment.title']} #{msg['view.title']}" style="margin-bottom:10px;" >
+		<p:panelGrid columns="2">
+			<p:outputLabel value="cimId:"/>	<h:outputText value="#{newEquipment.cimId}" readonly="true"/> 
+			<p:outputLabel value="ModelContainer::" /><h:outputText value="#{newEquipment.modelContainer.ddbId}" />
+			<p:outputLabel value="ParametersContainer:" /><h:outputText value="#{newEquipment.parametersContainer.ddbId}" />
+		</p:panelGrid>
+	</p:panel>	
+</f:view>
+</ui:define>   
+</ui:composition>

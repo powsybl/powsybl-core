@@ -1,0 +1,12 @@
+{
+    "attributes": {},
+    "elements": {
+        "progressbar": {
+            "attributes": {
+                "max": {},
+                "value": {},
+                "class": {}
+            }
+        }
+    }
+}

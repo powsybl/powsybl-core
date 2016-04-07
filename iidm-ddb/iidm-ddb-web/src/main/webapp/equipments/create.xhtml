@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+    This Source Code Form is subject to the terms of the Mozilla Public
+    License, v. 2.0. If a copy of the MPL was not distributed with this
+    file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+-->
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+   xmlns:ui="http://java.sun.com/jsf/facelets"
+   xmlns:f="http://java.sun.com/jsf/core"
+   xmlns:h="http://java.sun.com/jsf/html"
+   xmlns:c="http://java.sun.com/jsp/jstl/core"
+   xmlns:p="http://primefaces.org/ui"
+   template="/WEB-INF/templates/basicTemplate.xhtml">
+   
+<ui:define name="content">
+<f:view>
+
+	<h:form id="createForm">     
+		<p:panel id="panelMTList" header="#{msg['equipment.title']}" style="margin-bottom:10px;">
+			<p:panelGrid columns="3">  
+		   		<f:facet name="header">
+					#{msg['new.title']} #{msg['equipment.title']}
+				</f:facet>	    
+				<p:outputLabel for="cimId" value="cimId" />  
+				<h:inputText id="cimId"  value="#{equipmentController.newEquipment.cimId}" required="true" label="cimId"/>
+				<p:message for="cimId" />
+					
+				<p:outputLabel for="modelContainer" value="modelTemplateContainer"/>
+				<h:selectOneMenu id="modelContainer" value="#{equipmentController.selectedModelTemplateContainer}" required="true" label="modelContainer">				 	  	
+					<f:selectItems value="#{equipmentController.modelTemplateContainersValues}"/>
+					
+				</h:selectOneMenu>
+				<p:message for="modelContainer" />			
+				
+				<p:outputLabel for="parametersContainer" value="parametersContainer" />
+				<h:selectOneMenu id="parametersContainer" value="#{equipmentController.selectedParametersContainer}"  required="true" label="parametersContainer">				 	  	
+					<f:selectItems value="#{equipmentController.parametersContainerValues}"/>
+					
+				</h:selectOneMenu>
+					<p:message for="parametersContainer" />	
+				<f:facet name="footer">
+					<p:commandButton id="create" action="#{equipmentController.create}" value="#{msg['button.label.create']}" ajax="false"/>
+				</f:facet>
+			</p:panelGrid>
+		</p:panel>
+	</h:form> 
+</f:view>
+</ui:define>
+</ui:composition>

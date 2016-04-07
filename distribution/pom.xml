@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+    This Source Code Form is subject to the terms of the Mozilla Public
+    License, v. 2.0. If a copy of the MPL was not distributed with this
+    file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+-->
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>eu.itesla_project</groupId>
+        <artifactId>itesla-parent</artifactId>
+        <version>0.1-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>distribution</artifactId>
+
+    <packaging>pom</packaging>
+
+    <name>Distribution</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>offline-mpi</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>eu.itesla_project</groupId>
+            <artifactId>online-mpi</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- importers -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>cim1-import</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ucte-import</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- Dynamic database (mysql) -->
+        <dependency>
+            <groupId>eu.itesla_project.iidm-ddb</groupId>
+            <artifactId>iidm-ddb-eurostag-import-export</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+
+        <!-- Data mining -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>histodb-client</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- Sampler (WP4.1) -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>sampling-integration</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- Eurostag simulator (WP4.3) -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>eurostag-integration</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>eurostag-step-up-transformer</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- load flow based simulator -->
+        <dependency>
+            <groupId>eu.itesla_project</groupId>
+            <artifactId>pclfsim-integration</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- offline DB -->
+        <dependency>
+            <groupId>eu.itesla_project</groupId>
+            <artifactId>mmap-offline-db</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- rules DB -->
+        <dependency>
+            <groupId>eu.itesla_project</groupId>
+            <artifactId>file-system-rules-db</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- WCA -->
+        <dependency>
+            <groupId>eu.itesla_project</groupId>
+            <artifactId>wca-integration</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- XML contingencies -->
+        <dependency>
+            <groupId>eu.itesla_project</groupId>
+            <artifactId>iidm-actions-contingencies-xml-client</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>log4j-over-slf4j</artifactId>
+            <version>1.7.19</version>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>distro-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <descriptors>
+                                <descriptor>src/main/resources/assemblies/full.xml</descriptor>
+                            </descriptors>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+    This Source Code Form is subject to the terms of the Mozilla Public
+    License, v. 2.0. If a copy of the MPL was not distributed with this
+    file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+-->
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+   xmlns:ui="http://java.sun.com/jsf/facelets"
+   xmlns:f="http://java.sun.com/jsf/core"
+   xmlns:h="http://java.sun.com/jsf/html"
+   xmlns:c="http://java.sun.com/jsp/jstl/core"
+   xmlns:p="http://primefaces.org/ui"
+   template="/WEB-INF/templates/basicTemplate.xhtml">
+
+ <ui:define name="metadata">
+	<f:metadata>
+		<f:viewParam name="currentId" value="#{modelTemplateController.currentId}"/>
+		<f:viewParam name="currentContainerId" value="#{modelTemplateController.currentddbid}"/>
+	</f:metadata>
+</ui:define>
+    
+<ui:define name="content">
+<f:view>
+	<p:panel id="panelMTDetails" header="#{msg['modelTemplate.title']}  #{msg['view.title']}" style="margin-bottom:10px;" >
+		<h:form id="formViewMTC">
+			<h:panelGrid columns="2" styleClass="innerContent">
+				<p:outputLabel value="Container_ddbId:" /><p:commandLink  id="ViewMTC" value="#{modelTemplateController.currentddbid}" action="#{modelTemplateContainerController.view(modelTemplateController.currentddbid)}" ajax="false" outcome="/modelTemplateContainer/details"/>
+				<h:outputLabel value="Simulator:" /><h:outputText value="#{modelTemplateController.modelTemplate.simulator.toString()}"/>
+				<h:outputLabel value="Comment" /><h:outputText value="#{modelTemplateController.modelTemplate.comment}"/>
+			</h:panelGrid>
+		</h:form>
+		
+		<p:panel  id="panelMTDefParams" header="#{msg['defaultParameters.title']}" style="margin-bottom:10px;" rendered="#{!empty modelTemplateController.keydbDefParams}">
+			<p:dataTable value="#{modelTemplateController.keydbDefParams}" var="_keySetNum" rendered="#{!empty modelTemplateController.keydbDefParams}">
+			<p:column headerText="setNum"  width="3%">	
+				<h:outputText value="#{_keySetNum}"/>
+		   	</p:column>
+		   	<p:column headerText="#{msg['defaultParameters.columnHeader']}">  
+				<p:dataTable value="#{modelTemplateController.dbDefParams.get(_keySetNum)}" var="_dbParams" render="#{not empty modelTemplateController.dbDefParams.get(keySetNum)}">
+	   				<p:column  headerText="#{msg['name.columnHeader']}">
+						<h:outputText id="paramName" value="#{_dbParams.name}" label="Name"/> 
+					</p:column>
+					<p:column  headerText="#{msg['value.columnHeader']}">
+						<h:outputText id="paramValue" value="#{_dbParams.value}" label="Value"/> 
+					</p:column>
+					<p:column  headerText="#{msg['type.columnHeader']}"  width="10%">
+						<h:outputText id="paramType" value="#{_dbParams.type}" label="Type"/> 
+					</p:column>
+				</p:dataTable>
+			</p:column>
+			</p:dataTable>
+    	</p:panel>
+    	<h:form> 
+			 <p:dataTable value="#{modelTemplateController.keyList}" var="_dataKey" render="#{not empty modelTemplateController.keyList}">
+			 <p:column headerText="Data">
+		 			#{_dataKey} 
+			</p:column>
+			<p:column>
+					<p:commandButton value="#{msg['button.label.download']}" action="#{modelTemplateController.downloadData(_dataKey)}" icon="ui-icon-arrowthick-1-s" ajax="false"/>
+			</p:column>
+			<!-- p:column>
+			 <p:commandButton id="downloadLink" value="Download" ajax="false"  icon="ui-icon-arrowthichk-s">  
+    			<p:fileDownload value="#{modelTemplateController.getModelTemplateData(_dataKey)}" />  
+			</p:commandButton>  
+			</p:column  -->
+			</p:dataTable>
+		</h:form>
+	</p:panel>
+</f:view>
+</ui:define>   
+</ui:composition>

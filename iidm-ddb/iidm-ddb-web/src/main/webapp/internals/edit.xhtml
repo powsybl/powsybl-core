@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+    This Source Code Form is subject to the terms of the Mozilla Public
+    License, v. 2.0. If a copy of the MPL was not distributed with this
+    file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+-->
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+   xmlns:ui="http://java.sun.com/jsf/facelets"
+   xmlns:f="http://java.sun.com/jsf/core"
+   xmlns:h="http://java.sun.com/jsf/html"
+   xmlns:c="http://java.sun.com/jsp/jstl/core"
+   xmlns:p="http://primefaces.org/ui"
+   template="/WEB-INF/templates/basicTemplate.xhtml">
+  
+  <ui:define name="metadata">  
+  <f:metadata>
+  <f:viewParam name="nativeId" value="#{internalController.nativeId}"/>
+  </f:metadata>
+    </ui:define>
+<ui:define name="content">
+<f:view>
+	<p:panel  id="panelMTEdit" header="#{msg['internal.title']}" style="margin-bottom:10px;">
+	<h:form id="formEditEq">
+		<p:panelGrid columns="2" styleClass="innerContent">
+			<f:facet name="header">
+				#{msg['edit.header']} #{msg['internal.title']} 
+			</f:facet>	    
+			<p:outputLabel value="nativeId:" for="nativeId" /><h:outputText value="#{internalController.newInternal.nativeId}" readonly="true"/> 
+			<p:outputLabel value="ModelContainer::" /><h:outputText value="#{internalController.newInternal.modelContainer.ddbId}" />
+				<p:dataList value="#{internalController.newInternal.modelContainer.modelTemplates}" var="_modelTemplate" itemType="disc" render="#{not empty internalController.newInternal.modelContainer.modelTemplates}">  
+    				#{_modelTemplate.simulator.toString()}    #{_modelTemplate.comment}  
+				</p:dataList>  
+				<p:panelGrid columns="2">  
+					<p:outputLabel for="eurostagSimulatorVersion" value="Eurostag" />  
+					<h:selectOneMenu id="eurostagSimulatorVersion" value="#{internalController.eurostagVersion}" required="true">				 	  	
+						<f:selectItems value="#{eurostagVersions}"/>
+					</h:selectOneMenu>		  
+					<p:outputLabel for="modelicaSimulatorVersion" value="Modelica" />  
+					<h:selectOneMenu id="modelicaSimulatorVersion" value="#{internalController.modelicaVersion}" required="true">				 	  	
+						<f:selectItems value="#{modelicaVersions}"/>
+					</h:selectOneMenu>	
+					<div></div>
+					<p:commandButton  id="Convert" value="#{msg['button.label.convert']}" action="#{internalController.convertToModelica(internalController.newInternal)}" ajax="false"  icon="ui-icon-arrowrefresh-1-s"/>
+					
+				</p:panelGrid>
+	
+				
+			<p:outputLabel value="ParametersContainer:" /><h:outputText value="#{internalController.newInternal.parametersContainer.ddbId}" />
+			
+			
+	
+			
+			
+			
+			<f:facet name="footer">
+				<h:inputHidden id="nativeId"  value="#{internalController.newInternal.nativeId}"/> 
+				<p:commandButton id="delete" value="#{msg['button.label.delete']}" action="#{internalController.delete(internalController.newInternal.nativeId)}" ajax="false" icon="ui-icon-trash"/>   
+			</f:facet>
+		</p:panelGrid>
+		
+	</h:form>
+</p:panel>	
+</f:view>
+</ui:define>   
+</ui:composition>

@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+    This Source Code Form is subject to the terms of the Mozilla Public
+    License, v. 2.0. If a copy of the MPL was not distributed with this
+    file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+-->
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+   xmlns:ui="http://java.sun.com/jsf/facelets"
+   xmlns:f="http://java.sun.com/jsf/core"
+   xmlns:h="http://java.sun.com/jsf/html"
+   xmlns:c="http://java.sun.com/jsp/jstl/core"
+   xmlns:p="http://primefaces.org/ui"
+   template="/WEB-INF/templates/basicTemplate.xhtml">
+
+ <ui:define name="metadata">
+   <f:metadata>
+  	<f:viewParam name="currentId" value="#{modelTemplateController.currentId}"/>
+  	<f:viewParam name="currentContainerId" value="#{modelTemplateController.currentddbid}"/>
+  </f:metadata>
+ </ui:define>
+    
+<ui:define name="content">
+
+<f:view>
+	<p:panel  id="panelMTEdit" header="#{msg['modelTemplate.title']}" style="margin-bottom:10px;">
+		<h:form id="formEditMT">
+			<p:panelGrid columns="2" styleClass="innerContent">
+				<f:facet name="header">	#{msg['modelTemplate.title']} #{msg['edit.header']}		</f:facet>	  
+				<p:outputLabel value="Container_ddbId:" /><p:commandLink  id="EditMTC" value="#{modelTemplateController.currentddbid}" action="#{modelTemplateContainerController.edit(modelTemplateController.currentddbid)}" ajax="false" outcome="/modelTemplateContainer/edit"/>
+				<h:outputLabel value="Simulator:" /><h:outputText value="#{modelTemplateController.modelTemplate.simulator.toString()}"/>
+				<h:outputLabel value="Comment:" /><h:inputText id="comment"  value="#{modelTemplateController.modelTemplate.comment}" required="true" label="comment"/>
+			 	<f:facet name="footer">
+					<p:commandButton id="delete" value="#{msg['button.label.delete']}" action="#{modelTemplateController.deleteMT()}" ajax="false" icon="ui-icon-trash"/>		
+					<p:commandButton id="update" value="#{msg['button.label.update']}" action="#{modelTemplateController.updateMT()}"  ajax="false" icon="ui-icon-arrowrefresh-1-w"/>				 	
+				</f:facet>	  
+			</p:panelGrid>	   
+		</h:form>
+	</p:panel>
+		
+	<p:panel  id="panelMTDefParams" header="#{msg['defaultParameters.title']}" style="margin-bottom:10px;" rendered="#{!empty modelTemplateController.keydbDefParams}">
+	<h:form id="UpdateDefParams">	
+		<p:dataTable value="#{modelTemplateController.keydbDefParams}" var="_keySetNum" rendered="#{!empty modelTemplateController.keydbDefParams}">
+		<p:column headerText="setNum"  width="3%">	
+			<h:outputText value="#{_keySetNum}"/>
+	   	</p:column>
+	   	<p:column headerText="#{msg['defaultParameters.columnHeader']}">  
+			<p:dataTable value="#{modelTemplateController.dbDefParams.get(_keySetNum)}" var="_dbParams" render="#{not empty modelTemplateController.dbDefParams.get(keySetNum)}">
+   				<p:column  headerText="#{msg['name.columnHeader']}">
+					<h:outputText id="paramName" value="#{_dbParams.name}" label="Name"/> 
+				</p:column>
+				<p:column  headerText="#{msg['value.columnHeader']}">
+					<h:outputText id="paramValue" value="#{_dbParams.value}" label="Value"/> 
+				</p:column>
+				<p:column  headerText="#{msg['type.columnHeader']}"  width="10%">
+					<h:outputText id="paramType" value="#{_dbParams.type}" label="Type"/> 
+				</p:column>
+				<p:column width="5%" headerText="#{msg['operation.columnHeader']}">					
+					<p:commandButton id="delete"  action="#{modelTemplateController.deleteDefaultParamerter(_dbParams)}" ajax="false"  icon="ui-icon-trash"/>
+		    	</p:column>  
+			</p:dataTable>
+		</p:column>
+		</p:dataTable>
+    </h:form>
+    </p:panel>
+    
+	<h:form id="formCollector">  
+    <p:growl id="msgs" />  
+    
+    <p:panel header="#{msg['defaultParameter.add.header']}">  
+        
+           	<h:panelGroup >
+            	<h:outputLabel for="setNum" value="setNum * "/>
+            	<p:inputText id="setNum"  value="#{modelTemplateController.defParameterWeb.setNum}" required="true" label="setNum:" >  
+            	<f:convertNumber integerOnly="true" type="number" />
+            	</p:inputText>
+            	<p:message for="setNum" id="msgsetNum"/>            	  
+        	</h:panelGroup>  
+        	<h:panelGroup>
+           		<h:outputLabel for="name" value="#{msg['name.columnHeader']} * "/>  
+            	<p:inputText id="name"  value="#{modelTemplateController.defParameterWeb.name}" required="true" label="Name" />  
+            	<p:message for="name" id="msgName"/>  
+            </h:panelGroup>
+            <h:panelGroup>
+            	<h:outputLabel for="type"  value="#{msg['type.columnHeader']} * " />  
+				<p:selectOneListbox id="type" value="#{modelTemplateController.defParameterWeb.type}"  required="true"> 
+		    		<f:selectItem itemLabel="String" itemValue="String" />  
+			    	<f:selectItem itemLabel="Integer" itemValue="Integer" />  
+			    	<f:selectItem itemLabel="Float" itemValue="Float" />
+			    	<f:selectItem itemLabel="Boolean" itemValue="Boolean" />
+			    	<f:ajax render="values idButtonGroup"/>
+		    	</p:selectOneListbox>   
+		    	<p:message for="type" id="msgType" />
+		    </h:panelGroup>
+		    
+		    <h:panelGroup id="values"> 
+		   		<h:outputLabel value="#{msg['value.columnHeader']} * " id="idValueS" for="c_valueS" rendered="#{modelTemplateController.defParameterWeb.type =='String'}"/>  
+		    	<p:inputText id="c_valueS"  value="#{modelTemplateController.defParameterWeb.value}" rendered="#{modelTemplateController.defParameterWeb.type =='String'}" required="true" label="Value"/>
+		    	<p:message for="c_valueS" id="msgValueS" rendered="#{modelTemplateController.defParameterWeb.type =='String'}"/>  
+                        
+				<h:outputLabel value="#{msg['value.columnHeader']} * " id="idValueI" for="c_valueI" rendered="#{modelTemplateController.defParameterWeb.type =='Integer'}"></h:outputLabel>  
+		    	<p:inputText id="c_valueI"  value="#{modelTemplateController.defParameterWeb.value}" rendered="#{modelTemplateController.defParameterWeb.type =='Integer'}" required="true" label="Value" >
+		    		<f:validator validatorId="integerValidator" />
+		    	</p:inputText>
+            	<p:message for="c_valueI" id="msgValueI" rendered="#{modelTemplateController.defParameterWeb.type =='Integer'}"/>  
+ 	
+				<h:outputLabel value="#{msg['value.columnHeader']} * " id="idValueF" for="c_valueF" rendered="#{modelTemplateController.defParameterWeb.type =='Float'}"></h:outputLabel>  
+		    	<p:inputText id="c_valueF"  value="#{modelTemplateController.defParameterWeb.value}" rendered="#{modelTemplateController.defParameterWeb.type =='Float'}" required="true" label="Value">
+		    		<f:validator validatorId="floatValidator" />
+		    	 </p:inputText>
+            	<p:message for="c_valueF"  id="msgValueF" rendered="#{modelTemplateController.defParameterWeb.type =='Float'}"/>  
+
+				<h:outputLabel value="#{msg['value.columnHeader']} * " id="idValueB" for="c_valueB" rendered="#{modelTemplateController.defParameterWeb.type =='Boolean'}"></h:outputLabel>  
+		    	<p:inputText id="c_valueB"   value="#{modelTemplateController.defParameterWeb.value}" rendered="#{modelTemplateController.defParameterWeb.type =='Boolean'}" required="true" label="Value">
+		    		<f:validator validatorId="booleanValidator" />
+		    	 </p:inputText>
+            	<p:message for="c_valueB" id="msgValueB" rendered="#{modelTemplateController.defParameterWeb.type =='Boolean'}"/> 			
+            </h:panelGroup>   
+            
+      		 <h:panelGroup id="idButtonGroup" >   
+            	<p:commandButton id="btn_add" value="#{msg['button.label.add']}" update="addedParamsID msgs msgValueB msgValueI msgValueF msgValueS msgName msgType values @parent" action="#{modelTemplateController.reinit}" rendered="#{modelTemplateController.defParameterWeb.type !=''}" >  
+             		<p:collector value="#{modelTemplateController.defParameterWeb}" addTo="#{modelTemplateController.addedDefParams}" />  
+            	</p:commandButton>
+        	</h:panelGroup>
+		
+	</p:panel>  
+        <!--  p:log/ -->  
+    <p:outputPanel id="addedParamsID" >  
+        <p:dataTable id="paramsWebTable" value="#{modelTemplateController.addedDefParams}" var="p" >    
+        	<p:column width="30%">
+        	    <f:facet name="header">
+        		  	<h:outputLabel value="setNum"/>
+        		 </f:facet>  
+                <h:outputText value="#{p.setNum}" />
+			</p:column>	  
+            <p:column>  
+                <f:facet name="header">  
+                    <h:outputText value="#{msg['name.columnHeader']}" />  
+                </f:facet>  
+                <h:outputText value="#{p.name}" />  
+            </p:column>  
+  
+            <p:column>  
+                <f:facet name="header">  
+                    <h:outputText value="#{msg['value.columnHeader']}" />  
+                </f:facet>  
+                <h:outputText value="#{p.value}" />  
+            </p:column>  
+    		<p:column>  
+                <f:facet name="header">  
+                    <h:outputText value="#{msg['type.columnHeader']}" />  
+                </f:facet>  
+                <h:outputText value="#{p.type}" />  
+            </p:column>  
+            <p:column>  
+                <f:facet name="header">  
+                    <h:outputText value="#{msg['operation.columnHeader']}"/>  
+                </f:facet>  
+                <p:commandLink value="#{msg['link.label.remove']}" update=":formCollector:addedParamsID"  process=":formCollector:addedParamsID">  
+                    <p:collector value="#{p}"  removeFrom="#{modelTemplateController.addedDefParams}" />  
+                </p:commandLink>  
+            </p:column>    
+        </p:dataTable>  
+  	<h:commandButton id="saveAddeParams"  value="#{msg['button.label.save']}" action="#{modelTemplateController.saveDefParameters()}"  process=":formCollector:addedParamsID" immediate="true" rendered="#{ not empty modelTemplateController.addedDefParams}"/>
+    </p:outputPanel>  
+</h:form>  
+
+<p:panel  id="panelMTNewData" header="#{msg['newData.add.header']}">
+	<h:form id="downloadDataMT">
+		<p:dataTable value="#{modelTemplateController.keyList}" var="_dataKey" render="#{not empty modelTemplateController.keyList}">
+			<p:column headerText="Data">
+			  	 <h:outputText value="#{_dataKey}"/> 
+			</p:column>
+			<p:column> 
+				<p:commandButton value="#{msg['button.label.download']}" action="#{modelTemplateController.downloadData(_dataKey)}"  icon="ui-icon-arrowthick-1-s"  ajax="false"/>				
+			</p:column>
+			<p:column>
+		  		<p:commandButton value="#{msg['button.label.delete']}" action="#{modelTemplateController.deleteData(_dataKey)}" icon="ui-icon-trash" ajax="false"/>
+			</p:column>
+		</p:dataTable>			
+	</h:form>
+	</p:panel>
+		
+	<p:panel id="panelUploadNewData" header="#{msg['newData.add.header']} - Upload">
+		<h:form id="uploadDataMT" enctype="multipart/form-data">	  
+		 	<p:column>  
+	    		<p:outputLabel for="name" value="DName" />
+	    	</p:column>
+	    	<p:column>  
+	    		<h:inputText id="name"  value="#{modelTemplateController.dataName}"/>
+	    	</p:column>
+	    	<p:column>		     								
+				<p:fileUpload value="#{modelTemplateController.dataFile}" mode="simple" />
+			</p:column>
+			<p:column>
+				<h:commandButton value="#{msg['button.label.upload']}" action="#{modelTemplateController.updloadData()}" />			
+			</p:column>
+		</h:form>	
+	</p:panel>
+
+
+</f:view>
+</ui:define>   
+</ui:composition>

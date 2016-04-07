@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/" debug="false">
+
+   <!-- ============================== -->
+   <!-- Append messages to the console -->
+   <!-- ============================== -->
+
+   <appender name="CONSOLE" class="org.apache.log4j.ConsoleAppender">
+      <errorHandler class="org.apache.log4j.helpers.OnlyOnceErrorHandler"/>
+      <param name="Target" value="System.out"/>
+      <param name="Threshold" value="INFO"/>
+
+      <layout class="org.apache.log4j.PatternLayout">
+         <!-- The default pattern: Date Priority [Category] Message\n -->
+         <param name="ConversionPattern" value="%d{ABSOLUTE} %-5p [%t][%c{1}] %m%n"/>
+      </layout>
+   </appender>
+
+   <!-- ================================= -->
+   <!-- Preserve messages in a local file -->
+   <!-- ================================= -->
+
+   <!-- A size based file rolling appender -->
+   <!-- appender name="FILE" class="org.apache.log4j.RollingFileAppender">
+      <errorHandler class="org.apache.log4j.helpers.OnlyOnceErrorHandler"/>
+     <param name="File" value="./remoteejbclient.log"/>
+     <param name="Append" value="false"/>
+     <param name="MaxFileSize" value="500KB"/>
+     <param name="MaxBackupIndex" value="1"/>
+
+     <layout class="org.apache.log4j.PatternLayout">
+       <param name="ConversionPattern" value="%d %-5p [%t][%c] %m%n"/>
+     </layout>	    
+   </appender-->
+
+   <!-- ================ -->
+   <!-- Limit categories -->
+   <!-- ================ -->
+
+   <category name="org.jboss">
+      <priority value="FATAL"/>
+   </category>
+   <category name="org.apache">
+      <priority value="ERROR"/>
+   </category>
+   <category name="org.xnio">
+      <priority value="ERROR"/>
+   </category>
+   <category name="eu.itesla_project.iidm.ddb">
+      <priority value="DEBUG"/>
+   </category>
+   <!-- ======================= -->
+   <!-- Setup the Root category -->
+   <!-- ======================= -->
+
+   <root>
+      <appender-ref ref="CONSOLE"/>
+      <!--  appender-ref ref="FILE"/-->
+   </root>
+
+</log4j:configuration>

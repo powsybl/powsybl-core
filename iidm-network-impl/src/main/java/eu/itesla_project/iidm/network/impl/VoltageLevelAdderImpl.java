@@ -1,0 +1,128 @@
+/**
+ * Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+package eu.itesla_project.iidm.network.impl;
+
+import eu.itesla_project.iidm.network.*;
+import org.joda.time.DateTime;
+
+/**
+ *
+ * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ */
+class VoltageLevelAdderImpl extends IdentifiableAdderImpl<VoltageLevelAdderImpl> implements VoltageLevelAdder {
+
+    private final SubstationImpl substation;
+
+    private DateTime date = DateTime.now();
+
+    private Horizon horizon = Horizon.OTHER;
+
+    private int forecastDistance = 0;
+
+    private float nominalV = Float.NaN;
+
+    private float lowVoltageLimit = Float.NaN;
+
+    private float highVoltageLimit = Float.NaN;
+
+    private TopologyKind topologyKind;
+
+    VoltageLevelAdderImpl(SubstationImpl substation) {
+        this.substation = substation;
+    }
+
+    @Override
+    protected NetworkImpl getNetwork() {
+        return substation.getNetwork();
+    }
+
+    @Override
+    protected String getTypeDescription() {
+        return "Voltage level";
+    }
+
+    @Override
+    public VoltageLevelAdder setDate(DateTime date) {
+        this.date = date;
+        return this;
+    }
+
+    @Override
+    public VoltageLevelAdder setHorizon(Horizon horizon) {
+        this.horizon = horizon;
+        return this;
+    }
+
+    @Override
+    public VoltageLevelAdder setForecastDistance(int forecastDistance) {
+        this.forecastDistance = forecastDistance;
+        return this;
+    }
+
+    @Override
+    public VoltageLevelAdder setNominalV(float nominalV) {
+        this.nominalV = nominalV;
+        return this;
+    }
+
+    @Override
+    public VoltageLevelAdder setLowVoltageLimit(float lowVoltageLimit) {
+        this.lowVoltageLimit = lowVoltageLimit;
+        return this;
+    }
+
+    @Override
+    public VoltageLevelAdder setHighVoltageLimit(float highVoltageLimit) {
+        this.highVoltageLimit = highVoltageLimit;
+        return this;
+    }
+
+    @Override
+    public VoltageLevelAdder setTopologyKind(String topologyKind) {
+        this.topologyKind = TopologyKind.valueOf(topologyKind);
+        return this;
+    }
+
+    @Override
+    public VoltageLevelAdder setTopologyKind(TopologyKind topologyKind) {
+        this.topologyKind = topologyKind;
+        return this;
+    }
+
+    @Override
+    public VoltageLevel add() {
+        String id = checkAndGetUniqueId();
+        // TODO : ckeck that there are not another voltage level with same base voltage
+
+        ValidationUtil.checkNominalV(this, nominalV);
+        ValidationUtil.checkLowVoltageLimit(this, lowVoltageLimit);
+        ValidationUtil.checkHighVoltageLimit(this, highVoltageLimit);
+        ValidationUtil.checkTopologyKind(this, topologyKind);
+        ValidationUtil.checkDate(this, date);
+        ValidationUtil.checkHorizon(this, horizon);
+        ValidationUtil.checkForecastDistance(this, forecastDistance);
+
+        VoltageLevelExt voltageLevel;
+        switch (topologyKind) {
+            case NODE_BREAKER:
+                voltageLevel = new NodeBreakerVoltageLevel(id, getName(), substation, date, horizon, forecastDistance,
+                        nominalV, lowVoltageLimit, highVoltageLimit);
+                break;
+            case BUS_BREAKER:
+                voltageLevel = new BusBreakerVoltageLevel(id, getName(), substation, date, horizon, forecastDistance,
+                        nominalV, lowVoltageLimit, highVoltageLimit);
+                break;
+            default:
+                throw new AssertionError();
+        }
+        getNetwork().getObjectStore().checkAndAdd(voltageLevel);
+        substation.addVoltageLevel(voltageLevel);
+        getNetwork().getListeners().notifyCreation(voltageLevel);
+        return voltageLevel;
+    }
+
+}

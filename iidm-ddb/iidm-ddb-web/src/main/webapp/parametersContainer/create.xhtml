@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+    This Source Code Form is subject to the terms of the Mozilla Public
+    License, v. 2.0. If a copy of the MPL was not distributed with this
+    file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+-->
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+   xmlns:ui="http://java.sun.com/jsf/facelets"
+   xmlns:f="http://java.sun.com/jsf/core"
+   xmlns:h="http://java.sun.com/jsf/html"
+   xmlns:c="http://java.sun.com/jsp/jstl/core"
+   xmlns:p="http://primefaces.org/ui"
+   template="/WEB-INF/templates/basicTemplate.xhtml">
+   
+<ui:define name="content">
+<f:view>
+    <h:form id="createForm">     
+		<p:panel id="panelPC" header="#{msg['parametersContainer.title']}" style="margin-bottom:10px;">
+		<p:panelGrid columns="3">  
+    		<f:facet name="header">
+				#{msg['new.title']} #{msg['parametersContainer.title']}  
+			</f:facet>	    
+			<p:outputLabel for="ddbId" value="ddbId:" />  
+			<h:inputText id="ddbId"  value="#{parametersContainerController.parametersContainer.ddbId}" required="true" label="ddbId"/>
+			<p:message for="ddbId" />
+		</p:panelGrid>
+
+		<p> </p>		
+						
+		<p:panelGrid columns="3">  
+	   		<f:facet name="header">
+				#{msg['new.title']} #{msg['parameters.title']}  
+			</f:facet>
+			<p:outputLabel for="defParamSetNum" value="defParamSetNum" />  
+			<h:inputText id="defParamSetNum" value="#{parametersContainerController.newParameters.defParamSetNum}" required="true" label="MTcomment"/> 
+			 <p:message for="defParamSetNum" />			  
+			<p:outputLabel for="simulator" value="Simulator" />
+			<h:selectOneMenu id="simulator" value="#{parametersContainerController.newParameters.simulator}" required="true">				 	  	
+				<f:selectItems value="#{simulatorsAll}"/>
+				<f:converter converterId="simulatorInstConverter" />
+			</h:selectOneMenu>
+			<p:message for="simulator" />	
+		</p:panelGrid>
+			<f:facet name="footer">
+				<p:commandButton id="create" action="#{parametersContainerController.create}" value="	#{msg['button.label.create']}" ajax="false"/>
+			</f:facet>
+		</p:panel>
+	</h:form>    
+</f:view>
+</ui:define>
+</ui:composition>

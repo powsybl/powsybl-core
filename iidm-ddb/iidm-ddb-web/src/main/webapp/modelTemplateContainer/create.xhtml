@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+    This Source Code Form is subject to the terms of the Mozilla Public
+    License, v. 2.0. If a copy of the MPL was not distributed with this
+    file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+-->
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+   xmlns:ui="http://java.sun.com/jsf/facelets"
+   xmlns:f="http://java.sun.com/jsf/core"
+   xmlns:h="http://java.sun.com/jsf/html"
+   xmlns:c="http://java.sun.com/jsp/jstl/core"
+   xmlns:p="http://primefaces.org/ui"
+   template="/WEB-INF/templates/basicTemplate.xhtml">
+   
+<ui:define name="content">
+<f:view>
+	<h:form id="createForm">     
+		<p:panel id="panelMTList" header="#{msg['modelTemplateContainer.title']}" style="margin-bottom:10px;">
+		<p:panelGrid columns="3">  
+    		<f:facet name="header">
+				#{msg['new.title']}	 #{msg['modelTemplateContainer.title']} 
+			</f:facet>	    
+			<p:outputLabel for="ddbId" value="ddbId:" />  
+			<h:inputText id="ddbId"  value="#{modelTemplateContainerController.modelTemplateContainer.ddbId}" required="true" label="ddbId"/>
+			<p:message for="ddbId" />
+			<p:outputLabel for="comment" value="comment" />  
+			<h:inputText id="comment"  value="#{modelTemplateContainerController.modelTemplateContainer.comment}"  label="comment"/> 
+			<p:message for="comment" />				
+		</p:panelGrid>
+		<p> </p>		
+		<p:panelGrid columns="3">  
+	   		<f:facet name="header">
+					#{msg['new.title']}	 #{msg['modelTemplate.title']} 
+			</f:facet>
+			<p:outputLabel for="MTcomment" value="MTcomment" />  
+			<h:inputText id="MTcomment" value="#{modelTemplateContainerController.modelTemplate.comment}" label="MTcomment"/> 
+			<p:message for="MTcomment" />			  
+			<p:outputLabel for="simulator" value="Simulator:" />
+			<h:selectOneMenu id="simulator" value="#{modelTemplateContainerController.modelTemplate.simulator}" required="true">				 	  	
+				<f:selectItems value="#{simulatorsAll}"/>
+				<f:converter converterId="simulatorInstConverter" />
+			</h:selectOneMenu>
+			<p:message for="simulator" />	
+		</p:panelGrid>
+			<f:facet name="footer">
+				<p:commandButton id="create" action="#{modelTemplateContainerController.create}" value="#{msg['button.label.create']}" ajax="false"/>
+			</f:facet>
+		</p:panel>
+	</h:form>    
+</f:view>
+</ui:define>
+</ui:composition>

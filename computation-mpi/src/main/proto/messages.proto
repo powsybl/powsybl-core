@@ -1,0 +1,91 @@
+// Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+package messages;
+
+// Author: Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+
+option java_package = "eu.itesla_project.computation.mpi.messages";
+option java_outer_classname = "Messages";
+
+message CommonFile {
+    required string name = 1;
+    required int32 chunk = 2;
+    required bool last = 3;
+    required bytes data = 4;
+}
+
+message Task {
+
+    message InputFile {
+        enum PreProcessor {
+            NONE = 1;
+            ARCHIVE_UNZIP = 2;
+            FILE_GUNZIP = 3;
+        }
+
+        enum Scope {
+            RUN = 1;
+            JOB = 2;
+            TASK = 3;
+        }
+
+        required string name = 1;
+        required Scope scope = 2;
+        optional bytes data = 3;
+        required PreProcessor preProcessor = 4;
+    }
+
+    message OutputFile {
+        enum PostProcessor {
+            NONE = 1;
+            FILE_GZIP = 2;
+        }
+
+        required string name = 1;
+        required PostProcessor postProcessor = 2;
+    }
+
+    message Variable {
+        required string name = 1;
+        required string value = 2;
+    }
+
+    message Environment {
+        repeated Variable variable = 1;
+    }
+
+    message Command {
+        required string program = 1;
+        repeated string argument = 2;
+	optional int32 timeout = 3;
+    }
+
+    required int32 jobId = 1;
+    required int32 index = 2;
+    required Environment env = 3;
+    required string cmdId = 4;
+    repeated Command command = 5;
+    repeated InputFile inputFile = 6;
+    repeated OutputFile outputFile = 7;
+    
+    required bool initJob = 8;
+
+    // for cleanup
+    repeated int32 completedJobId = 9;
+}
+
+message TaskResult {
+    message OutputFile {
+        required string name = 1;
+        optional bytes data = 2;
+    }
+
+    required int32 exitCode = 1;
+    required int64 taskDuration = 2; // in ms 
+    repeated int64 commandDuration = 3; // in ms 
+    required int64 workingDataSize = 4; // in bytes
+    repeated OutputFile outputFile = 5;
+}
+

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+    This Source Code Form is subject to the terms of the Mozilla Public
+    License, v. 2.0. If a copy of the MPL was not distributed with this
+    file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+-->
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+   xmlns:ui="http://java.sun.com/jsf/facelets"
+   xmlns:f="http://java.sun.com/jsf/core"
+   xmlns:h="http://java.sun.com/jsf/html"
+   xmlns:c="http://java.sun.com/jsp/jstl/core"
+   xmlns:p="http://primefaces.org/ui"
+   template="/WEB-INF/templates/basicTemplate.xhtml">
+
+  <ui:define name="metadata">  
+  <f:metadata>
+  <f:viewParam name="cimId" value="#{equipmentController.cimId}"/>
+  </f:metadata>
+    </ui:define>
+<ui:define name="content">
+<f:view>
+     
+<p:panel  id="panelEquipEdit" header="#{msg['equipment.title']} #{msg['view.title']}" style="margin-bottom:10px;">
+	<h:form id="formEditEq">
+		<p:panelGrid columns="2" styleClass="innerContent">
+			<f:facet name="header">
+				#{msg['equipment.title']} #{msg['edit.header']}
+			</f:facet>	    
+			<p:outputLabel value="cimId:" for="cimId" />
+				<h:outputText value="#{equipmentController.newEquipment.cimId}" readonly="true"/> 
+				<h:outputLabel value="ModelContainer::" /><h:outputText value="#{equipmentController.newEquipment.modelContainer.ddbId}" />
+				<h:outputLabel value="ParametersContainer:" /><h:outputText value="#{equipmentController.newEquipment.parametersContainer.ddbId}" />
+			<f:facet name="footer">
+				<h:inputHidden id="cimId"  value="#{equipmentController.newEquipment.cimId}"/> 
+				<p:commandButton id="delete" value="#{msg['button.label.delete']}" action="#{equipmentController.delete(equipmentController.newEquipment.cimId)}" ajax="false" icon="ui-icon-trash"/>
+			</f:facet>
+		</p:panelGrid>		
+	</h:form>
+</p:panel>
+<p:spacer heigth="20"></p:spacer>
+	
+<h:form id="formConnection">      
+	<p:panel  id="panelMTConnectionList" header="#{msg['connectionSchema.header']}" style="margin-bottom:10px;">
+		<p:column headerText="Connections">  
+			<p:dataTable value="#{equipmentController.schemaConnections}" var="_connection" render="#{not empty equipmentController.schemaConnections}">
+				<p:column  headerText="Type">
+					<h:outputText id="conType" value="#{(_connection.conType == 0) ? 'inside' : 'outside'}" label="conType"/> 
+				</p:column>
+	   			<p:column  headerText="id1">
+					<h:outputText id="id1" value=" (#{((_connection.id1Type == 0) ? 'Equipment' : 'Internal')})  #{_connection.id1}" label="id1"/> 
+				</p:column>
+	   			<p:column  headerText="conPointName1">
+					<h:outputText id="cn11" value="#{_connection.conPointName1}" label="conPointName1"/> 
+				</p:column>
+	   			<p:column  headerText="conPointName2">
+					<h:outputText id="cn21" value="#{_connection.conPointName2}" label="conPointName2"/> 
+				</p:column>
+				<p:column  headerText="id2">
+				 <h:outputLink value="../internals/edit.jsf" rendered ="#{_connection.id2Type==1}">
+                    <h:outputText value="(Internal)#{_connection.id2}" />
+                    <f:param name='nativeId' value="#{_connection.id2}"/>                  
+                  </h:outputLink>
+					
+	   			<h:outputLink value="details.jsf" rendered ="#{_connection.id2Type==0}">
+                    <h:outputText value="(Equipment)#{_connection.id2}" />
+                   <f:param name='cimId' value="#{_connection.id2}"/>               
+                  </h:outputLink>
+	   				
+					</p:column>
+			</p:dataTable>
+		</p:column>
+	</p:panel>
+	<p:growl id="msg" showDetail="true" escape="false" />  
+<ui:remove>
+	<h3 style="margin-top:0">#{msg['connectionSchema.add.title']}</h3>  
+	<h:inputHidden id="cimId2"  value="#{equipmentController.newEquipment.cimId}"/> 
+	<p:pickList id="pojoPickList" value="#{equipmentController.internals}" var="internal"   itemValue="#{internal}" itemLabel="#{internal}" 
+                    showSourceControls="true" showTargetControls="true" showCheckbox="true"  showSourceFilter="true" showTargetFilter="true" filterMatchMode="contains">  
+    	<f:facet name="sourceCaption">Available</f:facet>  
+  		<f:facet name="targetCaption">Selected</f:facet>  
+    	<p:ajax event="transfer" listener="#{equipmentController.onTransfer}" update="msg" />  
+     	<p:column style="width:75%;"> 
+            #{internal}
+        </p:column>  
+     </p:pickList>  
+    <p:commandButton id="pojoSubmit" value="#{msg['connectionSchema.add.button']}" action ="#{equipmentController.addConnectionWithInternal(equipmentController.newEquipment.cimId)}" update="panelMTConnectionList"  style="margin-top:5px" />   
+</ui:remove>
+</h:form>
+</f:view>
+</ui:define>   
+</ui:composition>

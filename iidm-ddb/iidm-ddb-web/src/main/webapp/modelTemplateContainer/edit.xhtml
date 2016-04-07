@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+    This Source Code Form is subject to the terms of the Mozilla Public
+    License, v. 2.0. If a copy of the MPL was not distributed with this
+    file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+-->
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+   xmlns:ui="http://java.sun.com/jsf/facelets"
+   xmlns:f="http://java.sun.com/jsf/core"
+   xmlns:h="http://java.sun.com/jsf/html"
+   xmlns:c="http://java.sun.com/jsp/jstl/core"
+   xmlns:p="http://primefaces.org/ui"
+   template="/WEB-INF/templates/basicTemplate.xhtml">
+     	
+ <ui:define name="metadata">  
+  <f:metadata>
+  <f:viewParam name="ddbId" value="#{modelTemplateContainerController.ddbId}"/>
+  </f:metadata>
+</ui:define>
+
+<ui:define name="content"> 	
+<f:view>
+	<script type="text/javascript">
+		function showHide(id) {
+        	//alert (id);
+        	var element = document.getElementById(id);
+        	if(element.style.display == 'block') {
+          		element.style.display = 'none';
+        	} 
+        	else {
+          		element.style.display = 'block'
+			}
+      }
+    </script>
+    
+
+<p:panel id="panel" header="#{msg['modelTemplateContainer.title']}" style="margin-bottom:10px;">
+	<h:form id="formMTC">   
+		<h:panelGrid columns="3" >  
+			<p:outputLabel for="ddbId" value="ddbId:" />   
+			<h:outputText value="#{modelTemplateContainerController.modelTemplateContainer.ddbId}" readonly="true"/>  
+			<h:inputHidden id="ddbId"  value="#{modelTemplateContainerController.modelTemplateContainer.ddbId}"/>
+			<p:outputLabel for="comment" value="comment" />  
+			<h:inputText id="comment"  value="#{modelTemplateContainerController.modelTemplateContainer.comment}"  label="comment"/>
+			<p:message for="comment"/>
+			<f:facet name="footer">
+				<p:commandButton id="update" value="#{msg['button.label.update']}" action="#{modelTemplateContainerController.update(modelTemplateContainerController.modelTemplateContainer.ddbId)}"  icon="ui-icon-arrowrefresh-1-w"/>    
+	    		<p:commandButton id="delete" value="#{msg['button.label.delete']}" 	action="#{modelTemplateContainerController.delete(modelTemplateContainerController.modelTemplateContainer.ddbId)}" icon="ui-icon-trash"/>
+	    		<p:commandButton id="new"    value="#{msg['button.label.modelTemplate']}" onclick="showHide('newMT'); return false;" icon="ui-icon-plus"/> 					
+	    	</f:facet>				      
+		</h:panelGrid>
+	 	<p></p>
+	    <div id="newMT" style="display:none">
+	    	<p:panelGrid columns="3">  
+				<f:facet name="header">
+					#{msg['new.title']}  #{msg['modelTemplate.title']}
+				</f:facet>
+				<p:outputLabel for="mtComment" value="mtComment" />  
+				<h:inputText id="mtComment" value="#{modelTemplateContainerController.modelTemplate.comment}"  label="mtComment"/>  <p:message for="mtComment" />
+				<p:outputLabel for="simulator" value="#{msg['simulator.columnHeader']}" required="true"/>
+				<h:selectOneMenu id="simulator" value="#{modelTemplateContainerController.modelTemplate.simulator}">				 	  	
+				<f:selectItems value="#{simulatorsAll}"/>
+					<f:converter converterId="simulatorInstConverter" />
+				</h:selectOneMenu>
+			<p:message for="simulator" />			  
+		   	<f:facet name="footer">
+				<h:inputHidden id="ddbId2" value="#{modelTemplateContainerController.modelTemplateContainer.ddbId}"/>
+				<p:commandButton id="add" action="#{modelTemplateContainerController.addModelTemplate(modelTemplateContainerController.modelTemplateContainer.ddbId)}" value="#{msg['button.label.add']}" icon="ui-icon-disk" ajax="false"/> 
+			</f:facet>
+			</p:panelGrid>
+		</div>	 
+	</h:form>  
+</p:panel>
+  
+<p:panel id="panelMTList" header="#{msg['modelTemplate.title']} #{msg['list.title']}" style="margin-bottom:10px;">
+	<p:dataTable value="#{modelTemplateContainerController.modelTemplateContainer.modelTemplates}" var="_modelTemplate" render="#{not empty modelTemplateContainerController.modelTemplateContainer.modelTemplates}">  
+		<p:column  headerText="#{msg['comment.columnHeader']}">
+			<h:outputText value="#{_modelTemplate.comment}"/>
+		</p:column>
+		<p:column  headerText="Simulator">
+			<a href="../modelTemplate/details.jsf?currentId=#{_modelTemplate.id}">#{_modelTemplate.simulator.toString()}</a>    	    
+		</p:column>  
+		<p:column headerText="#{msg['edit.columnHeader']}">
+			 <h:outputLink value="../modelTemplate/edit.jsf">
+                    <h:outputText value="#{msg['link.label.edit']}" />
+				   	<f:param name='currentId' value='#{_modelTemplate.id}'/>
+				   	<f:param name='currentContainerId' value='#{modelTemplateContainerController.modelTemplateContainer.ddbId}'/>
+
+            </h:outputLink>
+		
+
+		</p:column>  
+		<p:column headerText="#{msg['view.columnHeader']}">
+			<h:outputLink value="../modelTemplate/details.jsf">
+                    <h:outputText value="#{msg['link.label.view']}" />
+				   	<f:param name='currentId' value='#{_modelTemplate.id}'/>
+				   	<f:param name='currentContainerId' value='#{modelTemplateContainer.ddbId}'/>
+            </h:outputLink>
+		
+
+		</p:column>
+	   	<p:column headerText="#{msg['defaultParameters.columnHeader']}">
+    		<p:dataTable value="#{modelTemplateContainerController.modelTemplateList.get(_modelTemplate)}" var="_setNum"  rendered="#{not empty modelTemplateContainerController.modelTemplateList.get(_modelTemplate)}">
+    			<p:column  headerText="setNum">
+					<h:outputText value="#{_setNum}" />
+	    		</p:column>
+	    		<p:column headerText="#{msg['defaultParameters.columnHeader']}">
+	    			<p:dataTable value="#{modelTemplateContainerController.getMtDefParams(_modelTemplate, _setNum)}" var="_mtDefParam">
+	    				<p:column  headerText="#{msg['name.columnHeader']}">
+						<h:outputText id="paramName" value="#{_mtDefParam.name}" label="Name"/> 
+						</p:column>
+						<p:column  headerText="#{msg['value.columnHeader']}">
+						<h:outputText id="paramValue" value="#{_mtDefParam.value}" label="Value"/> 
+						</p:column>
+		 			</p:dataTable>
+	    		</p:column>
+		 	</p:dataTable>
+		 </p:column>
+</p:dataTable>
+</p:panel>
+</f:view>
+</ui:define>   
+</ui:composition>

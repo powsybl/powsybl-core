@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ -->
+<faces-config version="2.0" xmlns="http://java.sun.com/xml/ns/javaee"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="
+        http://java.sun.com/xml/ns/javaee
+        http://java.sun.com/xml/ns/javaee/web-facesconfig_2_0.xsd">
+	<application>
+        <resource-bundle>
+                  <base-name>eu.itesla_project.iidm.ddb.web.controller.messages</base-name>
+                   <var>msg</var>
+         </resource-bundle>
+         <locale-config>
+                   <default-locale>en</default-locale>
+                   <supported-locale>it</supported-locale>
+                   <supported-locale>fr</supported-locale>
+          </locale-config>
+	</application>
+    <!-- Standard Enum Converter -->
+   		<converter>
+        	<converter-for-class>java.lang.Enum</converter-for-class>
+        	<converter-class>javax.faces.convert.EnumConverter</converter-class>
+    </converter>   		
+	
+  <!-- Navigation Rules -->
+   
+   
+   
+   
+</faces-config> 
+
+
+

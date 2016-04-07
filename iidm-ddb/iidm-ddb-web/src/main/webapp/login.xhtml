@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+    This Source Code Form is subject to the terms of the Mozilla Public
+    License, v. 2.0. If a copy of the MPL was not distributed with this
+    file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+-->
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	template="/WEB-INF/templates/default.xhtml">
+	<ui:define name="content">
+		<f:view>
+			<p>iTesla DDB</p>
+
+		<c:if test="#{request.remoteUser != null}">
+         #{request.remoteUser} is already logged.
+         <p>
+         	<h:link value="Back to home page" outcome="/index" />
+         </p>
+         </c:if>
+         <c:if test="#{request.remoteUser == null}">
+				<form method="post" action="j_security_check">
+					<h:messages layout="table" errorStyle="background: #AFEEEE;"
+						infoStyle="background: #AFEEEE;" globalOnly="true" />
+					<h:panelGrid columns="2">
+						<h:outputLabel value="Username: " />
+						<input type="text" id="j_username" name="j_username" />
+						<h:outputLabel value="Password: " />
+						<input type="password" id="j_password" name="j_password" />
+						<h:outputText value="" />
+						<h:panelGrid columns="1">
+							<input type="submit" name="submit" value="Login" />
+						</h:panelGrid>
+					</h:panelGrid>
+					<br />
+				</form>
+			</c:if>
+		</f:view>
+	</ui:define>
+
+</ui:composition>

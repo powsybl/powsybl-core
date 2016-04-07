@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+    This Source Code Form is subject to the terms of the Mozilla Public
+    License, v. 2.0. If a copy of the MPL was not distributed with this
+    file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+  <xs:element name="actionsContingencies">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="zones"/>
+        <xs:element ref="contingencies"/>
+        <xs:element ref="elementaryActions"/>
+        <xs:element ref="actionPlans"/>
+        <xs:element ref="actionCtgAssociations"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="contingencies">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="contingency"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="elementaryActions">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="elementaryAction"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="elementaryAction">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="description"/>
+        <xs:element minOccurs="0" ref="zones"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="lineOperation"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="switchOperation"/>
+		<xs:element minOccurs="0" maxOccurs="unbounded" ref="generationOperation"/>
+		<xs:element minOccurs="0" maxOccurs="unbounded" ref="pstOperation"/>
+		<xs:element minOccurs="0" maxOccurs="unbounded" ref="redispatching"/>
+      </xs:sequence>
+      <xs:attribute name="curativeType" use="required" type="xs:boolean"/>
+      <xs:attribute name="name" use="required" type="xs:NCName"/>
+      <xs:attribute name="preventiveType" use="required" type="xs:boolean"/>
+      <xs:attribute name="startTime" use="required" type="xs:integer"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="generationOperation">
+    <xs:complexType>
+      <xs:attribute name="achievmentIndex" use="required" type="xs:integer"/>
+      <xs:attribute name="action" use="required" type="xs:NCName"/>
+      <xs:attribute name="id" use="required" type="xs:NCName"/>
+      <xs:attribute name="implementationTime" use="required" type="xs:integer"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="pstOperation">
+    <xs:complexType>
+      <xs:attribute name="achievmentIndex" use="required" type="xs:integer"/>
+      <xs:attribute name="action" use="required" type="xs:NCName"/>
+      <xs:attribute name="id" use="required" type="xs:NCName"/>
+      <xs:attribute name="implementationTime" use="required" type="xs:integer"/>
+      <xs:attribute name="substation" type="xs:NCName"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="lineOperation">
+    <xs:complexType>
+      <xs:attribute name="achievmentIndex" use="required" type="xs:integer"/>
+      <xs:attribute name="action" use="required" type="xs:NCName"/>
+      <xs:attribute name="id" use="required" type="xs:NCName"/>
+      <xs:attribute name="implementationTime" use="required" type="xs:integer"/>
+      <xs:attribute name="substation" use="required" type="xs:NCName"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="switchOperation">
+    <xs:complexType>
+      <xs:attribute name="achievmentIndex" use="required" type="xs:integer"/>
+      <xs:attribute name="action" use="required" type="xs:NCName"/>
+      <xs:attribute name="id" use="required" type="xs:NCName"/>
+      <xs:attribute name="implementationTime" use="required" type="xs:integer"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="redispatching">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="generator" maxOccurs="unbounded" type="xs:NCName" />
+      </xs:sequence>
+      <xs:attribute name="achievmentIndex" use="required" type="xs:integer"/>
+      <xs:attribute name="implementationTime" use="required" type="xs:integer"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="actionPlans">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="actionPlan"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="actionPlan">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="description"/>
+        <xs:element minOccurs="0" ref="zones"/>
+        <xs:element maxOccurs="unbounded" ref="option"/>
+      </xs:sequence>
+      <xs:attribute name="name" use="required" type="xs:NCName"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="option">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="logicalExpression"/>
+        <xs:element maxOccurs="unbounded" ref="action"/>
+      </xs:sequence>
+      <xs:attribute name="priority" use="required" type="xs:integer"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="logicalExpression">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="and"/>
+        <xs:element ref="operand"/>
+        <xs:element ref="then"/>
+		<xs:element ref="or"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="actionCtgAssociations">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="association"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="association">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="contingency"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="constraint"/>
+        <xs:element maxOccurs="unbounded" ref="action"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="constraint">
+    <xs:complexType>
+      <xs:attribute name="equipment" use="required"/>
+      <xs:attribute name="type" use="required" type="xs:NCName"/>
+      <xs:attribute name="value" use="required" type="xs:integer"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="zones">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element maxOccurs="unbounded" ref="zone"/>
+        <xs:element maxOccurs="unbounded" ref="num"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="zone">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="voltageLevels"/>
+      </xs:sequence>
+      <xs:attribute name="description" use="required"/>
+      <xs:attribute name="name" use="required" type="xs:NCName"/>
+      <xs:attribute name="number" use="required" type="xs:integer"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="voltageLevels">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="voltageLevel"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="voltageLevel">
+    <xs:complexType>
+      <xs:attribute name="ID" use="required" type="xs:NCName"/>
+      <xs:attribute name="level" use="required" type="xs:integer"/>
+      <xs:attribute name="name" use="required"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="num" type="xs:integer"/>
+  <xs:element name="contingency">
+    <xs:complexType>
+      <xs:sequence minOccurs="0">
+        <xs:element ref="name"/>
+        <xs:element minOccurs="0" ref="zones"/>
+        <xs:element ref="equipments"/>
+      </xs:sequence>
+      <xs:attribute name="id" type="xs:NCName"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="name" type="xs:NCName"/>
+  <xs:element name="equipments">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="equipment"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="equipment">
+    <xs:complexType>
+      <xs:attribute name="id" use="required" type="xs:NMTOKEN"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="description">
+    <xs:complexType>
+      <xs:attribute name="info" use="required"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="then">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="2" maxOccurs="2" ref="operand"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="operand">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="1">
+        <xs:element ref="and"/>
+        <xs:element ref="then"/>
+		<xs:element ref="or"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="and">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="2" maxOccurs="2" ref="operand"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+ <xs:element name="or">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="2" maxOccurs="2" ref="operand"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>  
+  <xs:element name="action">
+    <xs:complexType>
+      <xs:attribute name="achievmentIndex" type="xs:integer"/>
+      <xs:attribute name="id" use="required"/>
+      <xs:attribute name="num" type="xs:integer"/>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

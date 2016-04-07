@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+    This Source Code Form is subject to the terms of the Mozilla Public
+    License, v. 2.0. If a copy of the MPL was not distributed with this
+    file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+-->
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:p="http://primefaces.org/ui"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:c="http://java.sun.com/jsp/jstl/core"
+    template="/WEB-INF/templates/basicTemplate.xhtml">
+    
+<ui:define name="content">
+<f:view>	
+	
+  	<p:panel id="panel" header="Simulator List:" style="margin-bottom:10px;">   
+    <h:panelGroup rendered="#{empty simulatorsAll}">   
+    	<em>No registered Simulator.</em>:	
+    </h:panelGroup>
+    
+	<h:form id="listFormSimulator">	
+	<p:dataTable var="_simulator" value="#{simulatorsAll}">  
+		<p:column  headerText="Simulator">  
+			<h:outputText value="#{_simulator.simulator}" />  
+		</p:column>    
+		<p:column headerText="Version">  
+			<h:outputText value=" #{_simulator.version}" />  
+		</p:column>  
+		<p:column>	
+			<p:commandButton  id="Edit" value="Edit" action="#{simulatorInstController.edit(_simulator)}" ajax="false" icon="ui-icon-pencil"/>
+		</p:column>
+		
+		</p:dataTable>  
+	</h:form>
+	</p:panel>	 
+</f:view>
+</ui:define>
+</ui:composition>

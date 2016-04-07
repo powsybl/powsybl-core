@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at http://mozilla.org/MPL/2.0/.
+-->
+<!--
+CREATE DATABASE iddbtest01DS CHARACTER SET utf8 COLLATE utf8_general_ci;
+GRANT ALL ON iddbtest01DS.* TO 'itesla'@'localhost' IDENTIFIED BY 'itesla';
+GRANT ALL ON iddbtest01DS.* TO 'itesla'@'%' IDENTIFIED BY 'itesla';
+ -->
+    
+<datasources xmlns="http://www.jboss.org/ironjacamar/schema"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://www.jboss.org/ironjacamar/schema http://docs.jboss.org/ironjacamar/schema/datasources_1_0.xsd">
+   <!-- The datasource is bound into JNDI at this location. We reference 
+      this in META-INF/test-persistence.xml -->
+   <datasource jndi-name="java:jboss/datasources/iddbtest01DS"
+      pool-name="itesladdbtestDS" enabled="true"
+      use-java-context="true">
+      <connection-url>jdbc:mysql://localhost:3306/iddbtest01DS?useUnicode=true&amp;connectionCollation=utf8_general_ci&amp;characterSetResults=utf8&amp;characterEncoding=utf8</connection-url>
+      <driver>mysqlDriver</driver>
+      <security>
+         <user-name>itesla</user-name>
+         <password>itesla</password>
+      </security>
+   </datasource>
+</datasources>
+ 

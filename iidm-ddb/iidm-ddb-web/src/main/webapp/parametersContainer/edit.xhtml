@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+    This Source Code Form is subject to the terms of the Mozilla Public
+    License, v. 2.0. If a copy of the MPL was not distributed with this
+    file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+-->
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+   xmlns:ui="http://java.sun.com/jsf/facelets"
+   xmlns:f="http://java.sun.com/jsf/core"
+   xmlns:h="http://java.sun.com/jsf/html"
+   xmlns:c="http://java.sun.com/jsp/jstl/core"
+   xmlns:p="http://primefaces.org/ui"
+   template="/WEB-INF/templates/basicTemplate.xhtml">
+
+
+
+ <ui:define name="metadata">  
+  <f:metadata>
+  <f:viewParam name="ddbId" value="#{parametersContainerController.ddbId}"/>
+  </f:metadata>
+ </ui:define>
+
+<ui:define name="content">
+<f:view>
+	<script type="text/javascript">
+		function showHide(id) {
+        	//alert (id);
+        	var element = document.getElementById(id);
+        	if(element.style.display == 'block') {
+          		element.style.display = 'none';
+        	} 
+        	else {
+          		element.style.display = 'block'
+			}
+      }
+    </script>
+
+<p:panel id="panel" header="#{msg['parametersContainer.title']}  #{msg['edit.title']}:"  style="margin-bottom:10px;">
+<h:form id="formPC">   
+	<h:panelGrid columns="3">  
+		<h:outputLabel for="ddbId" value="ddbId:" />  
+	    <h:outputText value="#{parametersContainerController.parametersContainer.ddbId}" readonly="true"/>  
+	    <h:inputHidden id="ddbId"  value="#{parametersContainerController.parametersContainer.ddbId}" />		    		      
+	</h:panelGrid>	
+	<p:commandButton id="delete" value="#{msg['button.label.delete']}" 	action="#{parametersContainerController.delete()}" icon="ui-icon-trash"/>    
+    <p:commandButton id="new"    value="#{msg['button.label.parameters']}" onclick="showHide('newP'); return false;" icon="ui-icon-plus"/> 				
+	    
+    <p></p>
+    <div id="newP" style="display:none">     	  
+	    <p:panelGrid columns="3">  
+	   		<f:facet name="header">
+				#{msg['parameters.title']} #{msg['new.title']}
+			</f:facet>
+				<p:outputLabel for="defParamSetNum" value="defParamSetNum" />  
+				<h:inputText id="defParamSetNum" value="#{parametersContainerController.newParameters.defParamSetNum}" label="defParamSetNum"/> 
+				 <p:message for="defParamSetNum" />			  
+				<p:outputLabel for="simulator" value="Simulator *" />
+				<h:selectOneMenu id="simulator" value="#{parametersContainerController.newParameters.simulator}">				 	  	
+					<f:selectItems value="#{simulatorsAll}"/>
+				<f:converter converterId="simulatorInstConverter" />
+				</h:selectOneMenu>
+				<p:message for="simulator" />
+				<f:facet name="footer">
+					<p:commandButton id="add" value="#{msg['button.label.add']}"  action="#{parametersContainerController.addParameters()}"   ajax="false"/>
+				</f:facet>
+			</p:panelGrid>      	   
+		</div>	 
+	</h:form>  
+</p:panel>
+
+<p:panel id="panelParamList" header="#{msg['parameters.title']} #{msg['list.title']}" style="margin-bottom:10px;">
+	<p:dataTable value="#{ parametersContainerController.parametersContainer.parameters}" var="_params"  render="#{not empty parametersContainerController.parametersContainer.parameters}">  
+		<p:column  headerText="defParamSetNum">
+			<h:outputText id="defParamSetNumList" value="#{_params.defParamSetNum}" label="defParamSetNum"/> 
+		</p:column>
+		<p:column  headerText="#{msg['simulator.columnHeader']}">
+			<!-- h:outputText id="Simulator" value="#{_params.simulator.toString()}" label="simulator" / -->    
+			<a href="../parameters/details.jsf?currentId=#{_params.id}">#{_params.simulator.toString()}</a>	    
+		</p:column> 
+		<p:column>
+		 <h:outputLink value="../parameters/details.jsf">
+                    <h:outputText value="#{msg['link.label.view']}" />
+                    <f:param name='currentId' value='#{_params.id}'/>
+				   	<f:param name='currentContainerId' value='#{parametersContainerController.parametersContainer.ddbId}'/>
+                    
+         </h:outputLink>
+
+		</p:column>
+		<p:column>  
+		
+				 <h:outputLink value="../parameters/edit.jsf">
+                    <h:outputText value="#{msg['link.label.edit']}" />
+				   	<f:param name='currentId' value='#{_params.id}'/>
+				   	<f:param name='currentContainerId' value='#{parametersContainerController.parametersContainer.ddbId}'/>
+                    
+         		</h:outputLink>
+		
+			
+		</p:column>		
+	</p:dataTable>	
+</p:panel>					
+		
+		
+
+</f:view>
+</ui:define>   
+</ui:composition>

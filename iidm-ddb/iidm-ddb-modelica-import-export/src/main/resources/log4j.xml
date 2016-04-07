@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd" >
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+
+	<!-- *APPENDERS* -->
+
+	<appender name="consoleAppender" class="org.apache.log4j.ConsoleAppender">
+		<param name="Target" value="System.out" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%-7r %d{yyyyMMdd HH:mm:ss,SSS} %-5p %-12C{1}%-4L %x - %m%n" />
+		</layout>
+	</appender>
+
+
+	<!-- *LOGGERS* -->
+	<logger name="org.application">
+		<level value="debug" />
+	</logger>
+
+	<logger name="org.springframework.core">
+		<level value="warn" />
+	</logger>
+
+	<logger name="org.springframework.security">
+		<level value="warn" />
+	</logger>
+
+	<logger name="org.springframework.beans">
+		<level value="warn" />
+	</logger>
+
+	<logger name="org.springframework.context">
+		<level value="warn" />
+	</logger>
+
+	<logger name="org.springframework.web">
+		<level value="warn" />
+	</logger>
+
+	<logger name="org.hibernate">
+		<level value="warn" />
+	</logger>
+
+
+	<!-- ROOT -->
+	<root>
+		<priority value="info" />
+		<appender-ref ref="consoleAppender" />
+<!-- 		<appender-ref ref="appenderFile" /> -->
+	</root>
+
+</log4j:configuration>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <Pattern>%d{yyyy-MM-dd_HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</Pattern>
+        </encoder>
+    </appender>
+    
+    <logger name="cim1" level="WARN" />
+    <logger name="org.xnio" level="WARN" />
+    <logger name="org.jboss" level="ERROR" />
+    <logger name="org.jboss.naming.remote.protocol.v1.RemoteNamingStoreV1" level="FATAL" />
+    <logger name="eu.itesla_project.iidm.ddb.eurostag_modelica" level="INFO" />
+    
+    <root level="DEBUG">
+        <appender-ref ref="STDOUT" />
+    </root>    
+</configuration>
+
+

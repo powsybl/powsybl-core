@@ -1,0 +1,41 @@
+#!/bin/bash
+#
+# Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#
+
+if [ -z $JAVA_HOME ]; then
+    echo "JAVA_HOME is not defined"
+    exit -1
+fi
+
+installBinDir=$(dirname $(readlink -f $0))
+installDir=${installBinDir%/*}
+
+. $installDir/etc/itesla.conf
+    
+args=($@)
+for ((i=0; i<${#args[@]}; i++)); do
+    current=${args[i]}
+    next=${args[$((i+1))]}
+    case $current in
+        --config-name)
+           itesla_config_name=$next
+           unset args[i]
+           unset args[$((i+1))]
+           ;;
+    esac
+done
+
+[ -n "$itesla_cache_dir" ] && options+="-Ditesla.cache.dir=$itesla_cache_dir"
+[ -n "$itesla_config_dir" ] && options+=" -Ditesla.config.dir=$itesla_config_dir"
+[ -n "$itesla_config_name" ] && options+=" -Ditesla.config.name=$itesla_config_name"
+options+=" -Dlogback.configurationFile=$installDir/share/java/logback-cmdline.xml"
+
+$JAVA_HOME/bin/java \
+-Xmx8G \
+-cp "$installDir/share/java/*:$installDir/share/java" \
+$options \
+eu.itesla_project.commons.tools.Main ${args[@]}

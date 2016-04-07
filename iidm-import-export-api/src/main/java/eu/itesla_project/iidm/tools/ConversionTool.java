@@ -1,0 +1,72 @@
+/**
+ * Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+package eu.itesla_project.iidm.tools;
+
+import eu.itesla_project.commons.tools.Tool;
+import eu.itesla_project.commons.tools.Command;
+import com.google.auto.service.AutoService;
+import eu.itesla_project.commons.ITeslaException;
+import eu.itesla_project.iidm.datasource.AbstractDataSourceObserver;
+import eu.itesla_project.iidm.datasource.DataSource;
+import eu.itesla_project.iidm.datasource.FileDataSource;
+import eu.itesla_project.iidm.datasource.GenericReadOnlyDataSource;
+import eu.itesla_project.iidm.export.Exporter;
+import eu.itesla_project.iidm.export.Exporters;
+import eu.itesla_project.iidm.import_.Importer;
+import eu.itesla_project.iidm.import_.Importers;
+import eu.itesla_project.iidm.network.Network;
+import java.nio.file.Paths;
+import java.util.Properties;
+import org.apache.commons.cli.CommandLine;
+
+/**
+ *
+ * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ */
+@AutoService(Tool.class)
+public class ConversionTool implements Tool {
+
+    @Override
+    public Command getCommand() {
+        return ConversionCommand.INSTANCE;
+    }
+
+    @Override
+    public void run(CommandLine line) throws Exception {
+        String sourceFormat = line.getOptionValue("source");
+        String targetFormat = line.getOptionValue("target");
+        String inputDirName = line.getOptionValue("input-dir");
+        String inputBaseName = line.getOptionValue("input-basename");
+        String outputDirName = line.getOptionValue("output-dir");
+        String outputBaseName = line.getOptionValue("output-basename");
+
+        Importer importer = Importers.getImporter(sourceFormat);
+        if (importer == null) {
+            throw new ITeslaException("Source format " + sourceFormat + " not supported");
+        }
+        Exporter exporter = Exporters.getExporter(targetFormat);
+        if (exporter == null) {
+            throw new ITeslaException("Target format " + targetFormat + " not supported");
+        }
+
+        Properties inputParams = new Properties();
+        // TODO get parameters through the command line
+        DataSource ds1= new GenericReadOnlyDataSource(Paths.get(inputDirName), inputBaseName);
+        Network network = importer.import_(ds1, inputParams);
+
+        Properties outputParams = new Properties();
+        // TODO get parameters through the command line
+        DataSource ds2 = new FileDataSource(Paths.get(outputDirName), outputBaseName, new AbstractDataSourceObserver() {
+            @Override
+            public void opened(String streamName) {
+                System.out.println("Generating file " + streamName + "...");
+            }
+        });
+        exporter.export(network, outputParams, ds2);
+    }
+
+}

@@ -1,0 +1,166 @@
+<?xml version="1.0"?>
+<!--
+
+    Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+    This Source Code Form is subject to the terms of the Mozilla Public
+    License, v. 2.0. If a copy of the MPL was not distributed with this
+    file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+-->
+<project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>eu.itesla_project</groupId>
+		<artifactId>itesla-parent</artifactId>
+		<version>0.1-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>modelica-export</artifactId>
+	<packaging>jar</packaging>
+	<name>Modelica export</name>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+
+		<!-- other plugin versions -->
+		<version.compiler.plugin>2.3.1</version.compiler.plugin>
+		<version.exec.plugin>1.2.1</version.exec.plugin>
+
+		<!-- maven-compiler-plugin -->
+		<maven.compiler.target>1.7</maven.compiler.target>
+		<maven.compiler.source>1.7</maven.compiler.source>
+
+		<!-- Properties used in exec goal -->
+		<execClass>eu.itesla_project.modelica_export.test.ModelicaExporterTestLF</execClass>
+		<cimFile>C:/Users/machadosc/Dropbox/Trabajo/Silvia iTesla Data/Modelo 22 Buses/CIM2_TP.xml</cimFile>
+		<host>127.0.0.1</host> 
+		<port>8080</port> 
+		<user>user</user> 
+		<password>password</password> 
+		<modelicaVersion>3.2</modelicaVersion> 
+		<sourceEngine>psse</sourceEngine>
+		<sourceVersion>32.1</sourceVersion>
+		<hasEvents>false</hasEvents>
+		<eventsFile>dummy</eventsFile>
+		<!-- modelicaLibPath is required if sourceEngine is eurostag -->
+		<modelicaLibPath>dummy</modelicaLibPath>
+		<!-- ddbDir,  genDictFile and auxDictFile are required if sourceEngine is eurostag and step-up transformer insertion is required --> 
+		<ddbDir>dummy</ddbDir>
+		<genDictFile>dummy</genDictFile>
+		<auxDictFile>dummy</auxDictFile>
+	</properties>
+
+	<dependencyManagement>
+		<dependencies>
+		</dependencies>
+	</dependencyManagement>
+
+	<dependencies>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>iidm-network-api</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>iidm-network-impl</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>iidm-import-export-api</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>eu.itesla_project</groupId>
+			<artifactId>loadflow-api</artifactId>
+			<version>${project.version}</version>
+
+		</dependency>
+		<dependency>
+			<groupId>eu.itesla_project.iidm-ddb</groupId>
+			<artifactId>iidm-ddb-ejb</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>eu.itesla_project.iidm-ddb</groupId>
+			<artifactId>iidm-ddb-ejb-remote-client-wildfly</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>eu.itesla_project.iidm-ddb</groupId>
+			<artifactId>iidm-ddb-eurostag-modelica-converter</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+
+	</dependencies>
+
+
+	
+	<!-- </build> -->
+
+	<build>
+		<plugins>
+
+	<!-- <plugin> -->
+	<!-- <groupId>org.apache.maven.plugins</groupId> -->
+	<!-- <artifactId>maven-surefire-plugin</artifactId> -->
+	<!-- <version>2.16</version> -->
+	<!-- <configuration> -->
+	<!-- <skipTests>true</skipTests> -->
+	<!-- </configuration> -->
+	<!-- </plugin> -->
+
+			<plugin>  
+				<groupId>org.codehaus.mojo</groupId>  
+				<artifactId>exec-maven-plugin</artifactId>  
+				<version>${version.exec.plugin}</version>  
+				<executions>  
+					<execution>  
+						<goals>  
+							<goal>exec</goal>  
+						</goals>  
+					</execution>  
+				</executions>  
+				<configuration>  
+					<executable>java</executable>  
+					<workingDirectory>${project.build.directory}/..</workingDirectory>  
+					<arguments>  
+						<argument>-classpath</argument>  
+						<classpath>  
+						</classpath>  
+						<argument>${execClass}</argument>  
+						<argument>${cimFile}</argument>  
+						<argument>${slackAt}</argument>
+						<argument>${host}</argument>  
+						<argument>${port}</argument>  
+						<argument>${user}</argument>  
+						<argument>${password}</argument>  
+						<argument>${modelicaVersion}</argument>  
+						<argument>${sourceEngine}</argument>
+						<argument>${sourceVersion}</argument>
+						<argument>${hasEvents}</argument>
+						<argument>${eventsFile}</argument>
+						<argument>${modelicaLibPath}</argument>
+						<argument>${ddbDir}</argument>
+						<argument>${genDictFile}</argument>
+						<argument>${auxDictFile}</argument>
+					</arguments>  
+				</configuration>  
+			</plugin>  
+		</plugins>  
+	</build>  
+</project>

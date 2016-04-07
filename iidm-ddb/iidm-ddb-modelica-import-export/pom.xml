@@ -1,0 +1,129 @@
+<?xml version="1.0"?>
+<!--
+
+    Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+    This Source Code Form is subject to the terms of the Mozilla Public
+    License, v. 2.0. If a copy of the MPL was not distributed with this
+    file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+-->
+<project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<artifactId>iidm-ddb</artifactId>
+		<groupId>eu.itesla_project.iidm-ddb</groupId>
+		<version>0.0.1-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>iidm-ddb-modelica-import-export</artifactId>
+	<packaging>jar</packaging>
+	<name>iidm-ddb-modelica-import-export</name>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+		<!-- other plugin versions -->
+		<version.compiler.plugin>2.3.1</version.compiler.plugin>
+		<version.exec.plugin>1.2.1</version.exec.plugin>
+
+		<!-- maven-compiler-plugin -->
+		<maven.compiler.target>1.7</maven.compiler.target>
+		<maven.compiler.source>1.7</maven.compiler.source>
+
+		<!-- used in exec goal, only; must point to a jboss server -->
+		<!-- other plugin versions -->
+		<version.exec.plugin>1.2.1</version.exec.plugin>
+
+		<Inputdir>C:/Users/machadosc/Dropbox/Trabajo/Silvia iTesla
+			Data/PowerSystems_withoutConnectors.mo</Inputdir>
+		<Tempdir>C:/Users/machadosc/Dropbox/Trabajo/Silvia iTesla
+			Data/DDB/rte22MOD/data/elements</Tempdir>
+		<Mapperdir>C:/Users/machadosc/Dropbox/Trabajo/Silvia iTesla
+			Data/DDB/rte22MOD/EUR2MOD.txt</Mapperdir>
+		<Host>127.0.0.1</Host>
+		<Port>4447</Port>
+		<User>user</User>
+		<Password>password</Password>
+		<Islibrary>true</Islibrary>
+		<Isregulator>true</Isregulator>
+		<execClass>eu.itesla_project.iidm.ddb.modelica_imp.test.LibUploaderTest</execClass>
+	</properties>
+
+	<dependencyManagement>
+		<dependencies>
+		</dependencies>
+	</dependencyManagement>
+
+	<dependencies>
+		<!-- We depend on the EJB remote interfaces of this application -->
+		<dependency>
+			<groupId>eu.itesla_project.iidm-ddb</groupId>
+			<artifactId>iidm-ddb-ejb</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+
+        <dependency>
+            <groupId>eu.itesla_project.iidm-ddb</groupId>
+            <artifactId>iidm-ddb-ejb-remote-client-wildfly</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>1.7.10</version>
+		</dependency>
+
+    </dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.16</version>
+				<configuration>
+					<skipTests>true</skipTests>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<version>${version.exec.plugin}</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<executable>java</executable>
+					<workingDirectory>${project.build.directory}/..</workingDirectory>
+					<arguments>
+						<argument>-DJBHOST=${Host}</argument>
+						<argument>-classpath</argument>
+						<classpath>
+						</classpath>
+						<argument>${execClass}</argument>
+						<argument>${Inputdir}</argument>
+						<argument>${Tempdir}</argument>
+						<argument>${Mapperdir}</argument>
+						<argument>${Host}</argument>
+						<argument>${Port}</argument>
+						<argument>${User}</argument>
+						<argument>${Password}</argument>
+						<argument>${Islibrary}</argument>
+						<argument>${Isregulator}</argument>
+					</arguments>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<description>Modelica import export api</description>
+</project>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+    This Source Code Form is subject to the terms of the Mozilla Public
+    License, v. 2.0. If a copy of the MPL was not distributed with this
+    file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+-->
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+   xmlns:ui="http://java.sun.com/jsf/facelets"
+   xmlns:f="http://java.sun.com/jsf/core"
+   xmlns:h="http://java.sun.com/jsf/html"
+   xmlns:c="http://java.sun.com/jsp/jstl/core"
+   xmlns:p="http://primefaces.org/ui"
+   template="/WEB-INF/templates/basicTemplate.xhtml">
+
+ <ui:define name="metadata">
+  <f:metadata>
+	  <f:viewParam name="currentId" value="#{parametersController.currentId}"/>
+	  <f:viewParam name="currentContainerId" value="#{parametersController.currentddbid}"/>
+  </f:metadata>
+</ui:define>
+    
+<ui:define name="content">
+<f:view>
+	<p:panel id="panelParamDetails" header="#{msg['parameters.title']} #{msg['view.title']}" style="margin-bottom:10px;" >
+		<h:form id="formViewContainer">
+			<h:panelGrid columns="2" styleClass="innerContent">
+				<p:outputLabel value="Container_ddbId:" /><p:commandLink  id="ViewParamContainer" value="#{parametersController.currentddbid}" action="#{parametersContainerController.view(parametersController.currentddbid)}" ajax="false" outcome="/parametersContainer/view"/>
+				<h:outputLabel value="Simulator:" /><h:outputText value="#{parametersController.parameters.simulator.toString()}"/>
+				<h:outputLabel value="defParamSetNum" /><h:outputText value="#{parametersController.parameters.defParamSetNum}"/>
+			</h:panelGrid>
+		</h:form>
+		<p:dataTable value="#{parametersController.parameters.parameters}" var="_params" render="#{not empty parametersController.parameters.parameters}">
+			<p:column  headerText="#{msg['name.columnHeader']}">
+				<h:outputText id="pname" value="#{_params.name}" label="pname"/> 
+			</p:column>
+			<p:column  headerText="#{msg['value.columnHeader']}">
+				<h:outputText id="pvalue" value="#{_params.value}" label="pvalue"/> 
+			</p:column>
+		</p:dataTable>
+	</p:panel> 
+</f:view>
+</ui:define>   
+</ui:composition>
