@@ -26,6 +26,7 @@
 /iidm-ddb/iidm-ddb-modelica-import-export/target/
 /iidm-ddb/iidm-ddb-psse-import-export/target/
 /iidm-ddb/iidm-ddb-web/target/
+/iidm-ddb/iidm-ddb-example-ejb-client/target/
 /iidm-import-export-api/target/
 /iidm-network-api/target/
 /iidm-network-impl/target/
