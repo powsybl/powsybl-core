@@ -48,6 +48,11 @@
             <artifactId>ucte-import</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>eu.itesla_project</groupId>
+            <artifactId>iidm-xml-import-export</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <!-- Dynamic database (mysql) -->
         <dependency>

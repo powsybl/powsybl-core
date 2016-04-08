@@ -8,64 +8,65 @@
 
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-	<groupId>eu.itesla_project</groupId>
-	<artifactId>itesla-parent</artifactId>
-	<version>0.1-SNAPSHOT</version>
-	<packaging>pom</packaging>
+    <groupId>eu.itesla_project</groupId>
+    <artifactId>itesla-parent</artifactId>
+    <version>0.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
 
-	<name>iTESLA platform</name>
-	<url>http://www.itesla-project.eu/</url>
+    <name>iTESLA platform</name>
+    <url>http://www.itesla-project.eu/</url>
 
-	<modules>
-		<module>commons</module>
-		<module>graph</module>
-		<module>iidm-network-api</module>
-		<module>iidm-network-impl</module>
-		<module>iidm-network-test</module>
-		<module>iidm-import-export-api</module>
-		<module>iidm-ddb</module>
-		<module>eurostag-ech-export</module>
+    <modules>
+        <module>commons</module>
+        <module>graph</module>
+        <module>iidm-network-api</module>
+        <module>iidm-network-impl</module>
+        <module>iidm-network-test</module>
+        <module>iidm-import-export-api</module>
+        <module>iidm-ddb</module>
+        <module>eurostag-ech-export</module>
         <module>cim1-model</module>
-		<module>cim1-import</module>
-		<module>computation</module>
-		<module>eurostag-integration</module>
-		<module>offline-workflow</module>
-		<module>eurostag-step-up-transformer</module>
-		<module>sampling-integration</module>
-		<module>modules</module>
-		<module>computation-local</module>
-		<module>histodb-client</module>
-		<module>offline-server</module>
-		<module>modelica-export</module>
-		<module>modelica-events-adder</module>
+        <module>cim1-import</module>
+        <module>computation</module>
+        <module>eurostag-integration</module>
+        <module>offline-workflow</module>
+        <module>eurostag-step-up-transformer</module>
+        <module>sampling-integration</module>
+        <module>modules</module>
+        <module>computation-local</module>
+        <module>histodb-client</module>
+        <module>offline-server</module>
+        <module>modelica-export</module>
+        <module>modelica-events-adder</module>
         <module>ucte-util</module>
-	    <module>ucte-network</module>
-	    <module>ucte-import</module>
-		<module>mcla-integration</module>
-		<module>online-workflow</module>
-	    <module>wca-integration</module>
+        <module>ucte-network</module>
+        <module>ucte-import</module>
+        <module>mcla-integration</module>
+        <module>online-workflow</module>
+        <module>wca-integration</module>
         <module>ampl-export</module>
         <module>offline-mpi</module>
         <module>computation-mpi</module>
         <module>online-mpi</module>
         <module>online-server</module>
         <module>iidm-actions-contingencies-xml-client</module>
-		<module>eurostag-network</module>
+        <module>eurostag-network</module>
         <module>mmap-offline-db</module>
-		<module>file-system-rules-db</module>
-		<module>pclfsim-integration</module>
-		<module>EU2Mod_MB</module>
+        <module>file-system-rules-db</module>
+        <module>pclfsim-integration</module>
+        <module>EU2Mod_MB</module>
         <module>loadflow-api</module>
         <module>dymola-integration</module>
         <module>fpf-integration</module>
+        <module>iidm-xml-import-export</module>
         <module>distribution</module>
-	</modules>
+    </modules>
 
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <java.version>1.8</java.version>
 
@@ -110,9 +111,9 @@
         <mockito.version>1.10.19</mockito.version>
         <commonsconfiguration.version>1.10</commonsconfiguration.version>
         <poi.version>3.14</poi.version>
-		<gson.version>2.6.2</gson.version>
-		<jsonlib.version>2.4</jsonlib.version>
-	</properties>
+        <gson.version>2.6.2</gson.version>
+        <jsonlib.version>2.4</jsonlib.version>
+    </properties>
 
     <licenses>
         <license>
@@ -127,96 +128,96 @@
         <url>https://bitbucket.org/itesla/itesla.git</url>
     </scm>
 
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>${maven.compiler.version}</version>
-				<configuration>
-					<source>${java.version}</source>
-					<target>${java.version}</target>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>findbugs-maven-plugin</artifactId>
-				<version>${maven.findbugs.version}</version>
-				<configuration>
-					<findbugsXmlOutput>true</findbugsXmlOutput>
-					<xmlOutput>true</xmlOutput>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>${maven.javadoc.version}</version>
-				<configuration>
-					<doclet>org.umlgraph.doclet.UmlGraphDoc</doclet>
-					<docletArtifact>
-						<groupId>org.umlgraph</groupId>
-						<artifactId>umlgraph</artifactId>
-						<version>5.6</version>
-					</docletArtifact>
-					<additionalparam>-views -all</additionalparam>
-					<additionalparam>-Xdoclint:none</additionalparam>
-					<useStandardDocletOptions>true</useStandardDocletOptions>
-					<excludePackageNames>cim1*</excludePackageNames>
-					<docfilessubdirs>true</docfilessubdirs>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.jacoco</groupId>
-				<artifactId>jacoco-maven-plugin</artifactId>
-				<version>${maven.jacoco.version}</version>
-				<executions>
-					<!--
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven.compiler.version}</version>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>findbugs-maven-plugin</artifactId>
+                <version>${maven.findbugs.version}</version>
+                <configuration>
+                    <findbugsXmlOutput>true</findbugsXmlOutput>
+                    <xmlOutput>true</xmlOutput>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>${maven.javadoc.version}</version>
+                <configuration>
+                    <doclet>org.umlgraph.doclet.UmlGraphDoc</doclet>
+                    <docletArtifact>
+                        <groupId>org.umlgraph</groupId>
+                        <artifactId>umlgraph</artifactId>
+                        <version>5.6</version>
+                    </docletArtifact>
+                    <additionalparam>-views -all</additionalparam>
+                    <additionalparam>-Xdoclint:none</additionalparam>
+                    <useStandardDocletOptions>true</useStandardDocletOptions>
+                    <excludePackageNames>cim1*</excludePackageNames>
+                    <docfilessubdirs>true</docfilessubdirs>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${maven.jacoco.version}</version>
+                <executions>
+                    <!--
                         Prepares the property pointing to the JaCoCo runtime agent which
                         is passed as VM argument when Maven the Surefire plugin is executed.
                     -->
-					<execution>
-						<id>pre-unit-test</id>
-						<goals>
-							<goal>prepare-agent</goal>
-						</goals>
-						<configuration>
-							<!-- Sets the path to the file which contains the execution data. -->
-							<destFile>${project.build.directory}/coverage-reports/jacoco-ut.exec</destFile>
-							<!--
+                    <execution>
+                        <id>pre-unit-test</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                        <configuration>
+                            <!-- Sets the path to the file which contains the execution data. -->
+                            <destFile>${project.build.directory}/coverage-reports/jacoco-ut.exec</destFile>
+                            <!--
                                 Sets the name of the property containing the settings
                                 for JaCoCo runtime agent.
                             -->
-							<propertyName>surefireArgLine</propertyName>
-						</configuration>
-					</execution>
-					<!--
+                            <propertyName>surefireArgLine</propertyName>
+                        </configuration>
+                    </execution>
+                    <!--
                         Ensures that the code coverage report for unit tests is created after
                         unit tests have been run.
                     -->
-					<execution>
-						<id>post-unit-test</id>
-						<phase>test</phase>
-						<goals>
-							<goal>report</goal>
-						</goals>
-						<configuration>
-							<!-- Sets the path to the file which contains the execution data. -->
-							<dataFile>${project.build.directory}/coverage-reports/jacoco-ut.exec</dataFile>
-							<!-- Sets the output directory for the code coverage report. -->
-							<outputDirectory>${project.reporting.outputDirectory}/jacoco-ut</outputDirectory>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<version>${maven.surefire.version}</version>
-				<configuration>
-					<!-- Sets the VM argument line used when unit tests are run. -->
-					<argLine>${surefireArgLine}</argLine>
-				</configuration>
-			</plugin>
+                    <execution>
+                        <id>post-unit-test</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                        <configuration>
+                            <!-- Sets the path to the file which contains the execution data. -->
+                            <dataFile>${project.build.directory}/coverage-reports/jacoco-ut.exec</dataFile>
+                            <!-- Sets the output directory for the code coverage report. -->
+                            <outputDirectory>${project.reporting.outputDirectory}/jacoco-ut</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven.surefire.version}</version>
+                <configuration>
+                    <!-- Sets the VM argument line used when unit tests are run. -->
+                    <argLine>${surefireArgLine}</argLine>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>com.mycila</groupId>
                 <artifactId>license-maven-plugin</artifactId>
@@ -243,23 +244,23 @@
         </plugins>
         <pluginManagement>
             <plugins>
-				<plugin>
-					<groupId>org.codehaus.mojo</groupId>
-					<artifactId>buildnumber-maven-plugin</artifactId>
-					<version>${maven.buildnumber.version}</version>
-					<executions>
-						<execution>
-							<phase>validate</phase>
-							<goals>
-								<goal>create</goal>
-							</goals>
-						</execution>
-					</executions>
-					<configuration>
-						<doCheck>false</doCheck>
-						<doUpdate>false</doUpdate>
-					</configuration>
-				</plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>buildnumber-maven-plugin</artifactId>
+                    <version>${maven.buildnumber.version}</version>
+                    <executions>
+                        <execution>
+                            <phase>validate</phase>
+                            <goals>
+                                <goal>create</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <doCheck>false</doCheck>
+                        <doUpdate>false</doUpdate>
+                    </configuration>
+                </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>templating-maven-plugin</artifactId>
@@ -273,11 +274,11 @@
                         </execution>
                     </executions>
                 </plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-jar-plugin</artifactId>
-					<version>${maven.jar.version}</version>
-				</plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>${maven.jar.version}</version>
+                </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-assembly-plugin</artifactId>
@@ -285,55 +286,55 @@
                 </plugin>
             </plugins>
         </pluginManagement>
-	</build>
+    </build>
 
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>org.slf4j</groupId>
-				<artifactId>slf4j-api</artifactId>
-				<version>${slf4j.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.slf4j</groupId>
-				<artifactId>slf4j-simple</artifactId>
-				<version>${slf4j.version}</version>
-			</dependency>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-simple</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>log4j-over-slf4j</artifactId>
                 <version>${slf4j.version}</version>
             </dependency>
-			<dependency>
-				<groupId>ch.qos.logback</groupId>
-				<artifactId>logback-classic</artifactId>
-				<version>${logback.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.google.guava</groupId>
-				<artifactId>guava</artifactId>
-				<version>${guava.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>net.sf.trove4j</groupId>
-				<artifactId>trove4j</artifactId>
-				<version>${trove4j.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.commons</groupId>
-				<artifactId>commons-math3</artifactId>
-				<version>${commonsmath3.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>commons-io</groupId>
-				<artifactId>commons-io</artifactId>
-				<version>${commonsio.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>commons-cli</groupId>
-				<artifactId>commons-cli</artifactId>
-				<version>${commonscli.version}</version>
-			</dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>${logback.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.sf.trove4j</groupId>
+                <artifactId>trove4j</artifactId>
+                <version>${trove4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-math3</artifactId>
+                <version>${commonsmath3.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>${commonsio.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-cli</groupId>
+                <artifactId>commons-cli</artifactId>
+                <version>${commonscli.version}</version>
+            </dependency>
             <dependency>
                 <groupId>commons-lang</groupId>
                 <artifactId>commons-lang</artifactId>
@@ -355,35 +356,35 @@
                 <version>${commonslang3.version}</version>
             </dependency>
             <dependency>
-				<groupId>net.sf.supercsv</groupId>
-				<artifactId>super-csv</artifactId>
-				<version>${supercsv.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.httpcomponents</groupId>
-				<artifactId>httpclient</artifactId>
-				<version>${httpclient.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.jboss.shrinkwrap</groupId>
-				<artifactId>shrinkwrap-impl-nio2</artifactId>
-				<version>${shrinkwrap.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.jboss.shrinkwrap</groupId>
-				<artifactId>shrinkwrap-impl-base</artifactId>
-				<version>${shrinkwrap.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>joda-time</groupId>
-				<artifactId>joda-time</artifactId>
-				<version>${jodatime.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.google.auto.service</groupId>
-				<artifactId>auto-service</artifactId>
-				<version>${autoservice.version}</version>
-			</dependency>
+                <groupId>net.sf.supercsv</groupId>
+                <artifactId>super-csv</artifactId>
+                <version>${supercsv.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpclient</artifactId>
+                <version>${httpclient.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.shrinkwrap</groupId>
+                <artifactId>shrinkwrap-impl-nio2</artifactId>
+                <version>${shrinkwrap.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.shrinkwrap</groupId>
+                <artifactId>shrinkwrap-impl-base</artifactId>
+                <version>${shrinkwrap.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>joda-time</groupId>
+                <artifactId>joda-time</artifactId>
+                <version>${jodatime.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.auto.service</groupId>
+                <artifactId>auto-service</artifactId>
+                <version>${autoservice.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.ow2.sirocco</groupId>
                 <artifactId>sirocco-text-table-formatter</artifactId>
@@ -395,67 +396,67 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-			<dependency>
-				<groupId>com.fasterxml.jackson.core</groupId>
-				<artifactId>jackson-core</artifactId>
-				<version>${jackson.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.h2database</groupId>
-				<artifactId>h2</artifactId>
-				<version>${h2database.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.h2database</groupId>
-				<artifactId>h2-mvstore</artifactId>
-				<version>${h2database.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.servicemix.bundles</groupId>
-				<artifactId>org.apache.servicemix.bundles.gdata</artifactId>
-				<version>${gdata.version}</version>
-			</dependency>
             <dependency>
-				<groupId>org.json</groupId>
-				<artifactId>json</artifactId>
-				<version>${json.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>net.sourceforge.javacsv</groupId>
-				<artifactId>javacsv</artifactId>
-				<version>${javacsv.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>net.sourceforge.jmatio</groupId>
-				<artifactId>jmatio</artifactId>
-				<version>${jmatio.version}</version>
-			</dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.h2database</groupId>
+                <artifactId>h2</artifactId>
+                <version>${h2database.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.h2database</groupId>
+                <artifactId>h2-mvstore</artifactId>
+                <version>${h2database.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.servicemix.bundles</groupId>
+                <artifactId>org.apache.servicemix.bundles.gdata</artifactId>
+                <version>${gdata.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.json</groupId>
+                <artifactId>json</artifactId>
+                <version>${json.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.sourceforge.javacsv</groupId>
+                <artifactId>javacsv</artifactId>
+                <version>${javacsv.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.sourceforge.jmatio</groupId>
+                <artifactId>jmatio</artifactId>
+                <version>${jmatio.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.jgrapht</groupId>
                 <artifactId>jgrapht-core</artifactId>
                 <version>${jgrapht.version}</version>
             </dependency>
-			<dependency>
-				<groupId>org.kohsuke</groupId>
-				<artifactId>graphviz-api</artifactId>
-				<version>${graphvizapi.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.poi</groupId>
-				<artifactId>poi-ooxml</artifactId>
-				<version>${poi.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.google.code.gson</groupId>
-				<artifactId>gson</artifactId>
-				<version>${gson.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>net.sf.json-lib</groupId>
-				<artifactId>json-lib</artifactId>
-				<classifier>jdk15</classifier>
-				<version>${jsonlib.version}</version>
-			</dependency>
+            <dependency>
+                <groupId>org.kohsuke</groupId>
+                <artifactId>graphviz-api</artifactId>
+                <version>${graphvizapi.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.poi</groupId>
+                <artifactId>poi-ooxml</artifactId>
+                <version>${poi.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.code.gson</groupId>
+                <artifactId>gson</artifactId>
+                <version>${gson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.sf.json-lib</groupId>
+                <artifactId>json-lib</artifactId>
+                <classifier>jdk15</classifier>
+                <version>${jsonlib.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>junit</groupId>
@@ -469,7 +470,7 @@
                 <version>${mockito.version}</version>
                 <scope>test</scope>
             </dependency>
-		</dependencies>
-	</dependencyManagement>
+        </dependencies>
+    </dependencyManagement>
 
 </project>
