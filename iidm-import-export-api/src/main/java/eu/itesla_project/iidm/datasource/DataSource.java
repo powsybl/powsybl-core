@@ -7,24 +7,13 @@
 package eu.itesla_project.iidm.datasource;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface DataSource {
+public interface DataSource extends ReadOnlyDataSource {
 
     OutputStream newOutputStream(String suffix, String ext, boolean append) throws IOException;
-
-    String getBaseName();
-
-    boolean exists(String suffix, String ext) throws IOException;
-
-    boolean exists(String fileName) throws IOException;
-
-    InputStream newInputStream(String suffix, String ext) throws IOException;
-
-    InputStream newInputStream(String fileName) throws IOException;
 
 }

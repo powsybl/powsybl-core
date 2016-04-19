@@ -13,7 +13,7 @@ import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.gdata.util.io.base.UnicodeReader;
 import eu.itesla_project.commons.io.PlatformConfig;
-import eu.itesla_project.iidm.datasource.DataSource;
+import eu.itesla_project.iidm.datasource.ReadOnlyDataSource;
 import eu.itesla_project.iidm.import_.Importer;
 import eu.itesla_project.iidm.import_.Importers;
 import eu.itesla_project.iidm.network.Country;
@@ -98,7 +98,7 @@ public class CIM1Importer implements Importer, CIM1Constants {
         return "CIM ENTSOE profile V1";
     }
 
-    private Packaging detectPackaging(DataSource dataSource) throws IOException {
+    private Packaging detectPackaging(ReadOnlyDataSource dataSource) throws IOException {
         if (dataSource.exists("_ME", "xml")) {
             return Packaging.MERGED;
         }
@@ -152,7 +152,7 @@ public class CIM1Importer implements Importer, CIM1Constants {
     }
 
     @Override
-    public boolean exists(DataSource dataSource) {
+    public boolean exists(ReadOnlyDataSource dataSource) {
         try {
             Packaging packaging = detectPackaging(dataSource);
             if (packaging != null) {
@@ -177,7 +177,7 @@ public class CIM1Importer implements Importer, CIM1Constants {
         }
     }
 
-    private CIMModel loadMergedModel(DataSource dataSource, Reader bseqr, Reader bstpr) throws Exception {
+    private CIMModel loadMergedModel(ReadOnlyDataSource dataSource, Reader bseqr, Reader bstpr) throws Exception {
         CIMModel model = new CIMModel();
         try (Reader mer = new UnicodeReader(dataSource.newInputStream("_ME", "xml"), null)) {
 
@@ -193,7 +193,7 @@ public class CIM1Importer implements Importer, CIM1Constants {
         return model;
     }
 
-    private CIMModel loadSplitModel(DataSource dataSource, Reader bseqr, Reader bstpr) throws Exception {
+    private CIMModel loadSplitModel(ReadOnlyDataSource dataSource, Reader bseqr, Reader bstpr) throws Exception {
         CIMModel model = new CIMModel();
         try (Reader eqr = new UnicodeReader(dataSource.newInputStream("_EQ", "xml"), null);
              Reader tpr = new UnicodeReader(dataSource.newInputStream("_TP", "xml"), null);
@@ -211,7 +211,7 @@ public class CIM1Importer implements Importer, CIM1Constants {
         return model;
     }
 
-    private CIMModel loadModel(DataSource dataSource, Reader bseqr, Reader bstpr) throws Exception {
+    private CIMModel loadModel(ReadOnlyDataSource dataSource, Reader bseqr, Reader bstpr) throws Exception {
         Packaging packaging = detectPackaging(dataSource);
         if (packaging != null) {
             switch (packaging) {
@@ -227,7 +227,7 @@ public class CIM1Importer implements Importer, CIM1Constants {
         }
     }
 
-    private InputStream getEqBoundaryFile(DataSource dataSource) throws IOException {
+    private InputStream getEqBoundaryFile(ReadOnlyDataSource dataSource) throws IOException {
         if (dataSource.exists(EQ_BOUNDARY_FILE_NAME)) {
             LOGGER.debug("Using custom EQ boundary file");
             return dataSource.newInputStream(EQ_BOUNDARY_FILE_NAME);
@@ -241,7 +241,7 @@ public class CIM1Importer implements Importer, CIM1Constants {
         }
     }
 
-    private InputStream getTpBoundaryFile(DataSource dataSource) throws IOException {
+    private InputStream getTpBoundaryFile(ReadOnlyDataSource dataSource) throws IOException {
         if (dataSource.exists(TP_BOUNDARY_FILE_NAME)) {
             LOGGER.debug("Using custom TP boundary file");
             return dataSource.newInputStream(TP_BOUNDARY_FILE_NAME);
@@ -256,7 +256,7 @@ public class CIM1Importer implements Importer, CIM1Constants {
     }
 
     @Override
-    public Network import_(DataSource dataSource, Properties parameters) {
+    public Network import_(ReadOnlyDataSource dataSource, Properties parameters) {
 
         Network network;
 

@@ -14,6 +14,7 @@ import eu.itesla_project.computation.local.LocalComputationManager;
 import eu.itesla_project.iidm.datasource.DataSource;
 import eu.itesla_project.iidm.datasource.FileDataSource;
 import eu.itesla_project.iidm.datasource.GenericReadOnlyDataSource;
+import eu.itesla_project.iidm.datasource.ReadOnlyDataSource;
 import eu.itesla_project.iidm.network.Network;
 import eu.itesla_project.iidm.parameters.Parameter;
 import eu.itesla_project.iidm.parameters.ParameterDefaultValueConfig;
@@ -144,12 +145,12 @@ public class Importers {
         }
 
         @Override
-        public boolean exists(DataSource dataSource) {
+        public boolean exists(ReadOnlyDataSource dataSource) {
             return importer.exists(dataSource);
         }
 
         @Override
-        public Network import_(DataSource dataSource, Properties parameters) {
+        public Network import_(ReadOnlyDataSource dataSource, Properties parameters) {
             Network network = importer.import_(dataSource, parameters);
             for (String name : names) {
                 try {
@@ -196,7 +197,7 @@ public class Importers {
      * @param computationManager computation manager to use for default post processors
      * @return the model
      */
-    public static Network import_(String format, DataSource dataSource, Properties parameters, ComputationManager computationManager) {
+    public static Network import_(String format, ReadOnlyDataSource dataSource, Properties parameters, ComputationManager computationManager) {
         Importer importer = getImporter(format, computationManager);
         if (importer == null) {
             throw new RuntimeException("Import format " + format + " not supported");
@@ -204,7 +205,7 @@ public class Importers {
         return importer.import_(dataSource, parameters);
     }
 
-    public static Network import_(String format, DataSource dataSource, Properties parameters) {
+    public static Network import_(String format, ReadOnlyDataSource dataSource, Properties parameters) {
         return import_(format, dataSource, parameters, LocalComputationManager.getDefault());
     }
 
@@ -225,7 +226,7 @@ public class Importers {
         importAll(dir, importer, parallel, consumer, null);
     }
 
-    private static void doImport(DataSource dataSource, Importer importer, Consumer<Network> consumer, Consumer<DataSource> listener) {
+    private static void doImport(ReadOnlyDataSource dataSource, Importer importer, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener) {
         try {
             if (listener != null) {
                 listener.accept(dataSource);
@@ -237,14 +238,14 @@ public class Importers {
         }
     }
 
-    public static void importAll(Path dir, Importer importer, boolean parallel, Consumer<Network> consumer, Consumer<DataSource> listener) throws IOException, InterruptedException, ExecutionException {
-        List<DataSource> dataSources = new ArrayList<>();
+    public static void importAll(Path dir, Importer importer, boolean parallel, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener) throws IOException, InterruptedException, ExecutionException {
+        List<ReadOnlyDataSource> dataSources = new ArrayList<>();
         importAll(dir, importer, dataSources);
         if (parallel) {
             ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
             List<Future<?>> futures = new ArrayList<>();
             try {
-                for (DataSource dataSource : dataSources) {
+                for (ReadOnlyDataSource dataSource : dataSources) {
                     futures.add(executor.submit(() -> {
                         doImport(dataSource, importer, consumer, listener);
                     }));
@@ -256,7 +257,7 @@ public class Importers {
                 executor.shutdownNow();
             }
         } else {
-            for (DataSource dataSource : dataSources) {
+            for (ReadOnlyDataSource dataSource : dataSources) {
                 doImport(dataSource, importer, consumer, listener);
             }
         }
@@ -268,7 +269,7 @@ public class Importers {
         return pos == -1 ? fileName : fileName.substring(0, pos);
     }
 
-    private static void addDataSource(Path dir, Path file, Importer importer, List<DataSource> dataSources) {
+    private static void addDataSource(Path dir, Path file, Importer importer, List<ReadOnlyDataSource> dataSources) {
         String caseBaseName = getBaseName(file);
         DataSource ds = new GenericReadOnlyDataSource(dir, caseBaseName);
         if (importer.exists(ds)) {
@@ -276,7 +277,7 @@ public class Importers {
         }
     }
 
-    private static void importAll(Path parent, Importer importer, List<DataSource> dataSources) throws IOException {
+    private static void importAll(Path parent, Importer importer, List<ReadOnlyDataSource> dataSources) throws IOException {
         if (Files.isDirectory(parent)) {
             try (Stream<Path> stream = Files.list(parent)) {
                 stream.sorted().forEach(child -> {

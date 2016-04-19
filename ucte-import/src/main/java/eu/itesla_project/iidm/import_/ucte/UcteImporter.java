@@ -9,7 +9,7 @@ package eu.itesla_project.iidm.import_.ucte;
 import com.google.auto.service.AutoService;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Iterables;
-import eu.itesla_project.iidm.datasource.DataSource;
+import eu.itesla_project.iidm.datasource.ReadOnlyDataSource;
 import eu.itesla_project.iidm.import_.Importer;
 import eu.itesla_project.iidm.network.*;
 import eu.itesla_project.ucte.network.*;
@@ -666,7 +666,7 @@ public class UcteImporter implements Importer {
         }
     }
 
-    private String findExtension(DataSource dataSource) throws IOException {
+    private String findExtension(ReadOnlyDataSource dataSource) throws IOException {
         for (String ext : EXTENSIONS) {
             if (dataSource.exists(null, ext)) {
                 return ext;
@@ -676,7 +676,7 @@ public class UcteImporter implements Importer {
     }
 
     @Override
-    public boolean exists(DataSource dataSource) {
+    public boolean exists(ReadOnlyDataSource dataSource) {
         try {
             String ext = findExtension(dataSource);
             if (ext != null) {
@@ -691,7 +691,7 @@ public class UcteImporter implements Importer {
     }
 
     @Override
-    public Network import_(DataSource dataSource, Properties parameters) {
+    public Network import_(ReadOnlyDataSource dataSource, Properties parameters) {
         try {
             String ext = findExtension(dataSource);
             if (ext == null) {

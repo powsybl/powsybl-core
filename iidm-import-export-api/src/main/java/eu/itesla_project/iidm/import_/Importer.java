@@ -6,7 +6,7 @@
  */
 package eu.itesla_project.iidm.import_;
 
-import eu.itesla_project.iidm.datasource.DataSource;
+import eu.itesla_project.iidm.datasource.ReadOnlyDataSource;
 import eu.itesla_project.iidm.network.Network;
 import eu.itesla_project.iidm.parameters.Parameter;
 
@@ -61,7 +61,7 @@ public interface Importer {
      * @param dataSource the data source
      * @return true if the data source is importable, false otherwise
      */
-    boolean exists(DataSource dataSource);
+    boolean exists(ReadOnlyDataSource dataSource);
 
     /**
      * Create a model.
@@ -70,6 +70,6 @@ public interface Importer {
      * @param parameters some properties to configure the import
      * @return the model
      */
-    Network import_(DataSource dataSource, Properties parameters);
+    Network import_(ReadOnlyDataSource dataSource, Properties parameters);
 
 }
