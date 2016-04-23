@@ -87,8 +87,8 @@ public class NetworkXmlTest {
     public void testEurostagTutorialExample1Write() throws Exception {
         Network network = createEurostagTutorialExample1();
         Path xmlFile = writeNetwork(network);
-        assertTrue(new String(Files.readAllBytes(xmlFile), StandardCharsets.UTF_8)
-                .equals(new String(ByteStreams.toByteArray(getClass().getResourceAsStream("/eurostag-tutorial-example1.xml")), StandardCharsets.UTF_8)));
+        assertEquals(new String(Files.readAllBytes(xmlFile), StandardCharsets.UTF_8),
+                     new String(ByteStreams.toByteArray(getClass().getResourceAsStream("/eurostag-tutorial-example1.xml")), StandardCharsets.UTF_8));
         validateXsd(xmlFile);
     }
 
@@ -107,7 +107,8 @@ public class NetworkXmlTest {
         Network network2 = NetworkXml.read(xmlFile);
         Path xmlFile2 = tmpDir.resolve("n2.xml");
         NetworkXml.write(network2, xmlFile2);
-        assertTrue(new String(Files.readAllBytes(xmlFile), StandardCharsets.UTF_8).equals(new String(Files.readAllBytes(xmlFile2), StandardCharsets.UTF_8)));
+        assertEquals(new String(Files.readAllBytes(xmlFile), StandardCharsets.UTF_8),
+                     new String(Files.readAllBytes(xmlFile2), StandardCharsets.UTF_8));
     }
 
 }
