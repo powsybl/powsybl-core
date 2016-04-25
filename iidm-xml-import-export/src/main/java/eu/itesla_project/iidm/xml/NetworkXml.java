@@ -11,7 +11,6 @@ import com.google.common.base.Suppliers;
 import eu.itesla_project.iidm.network.*;
 import javanet.staxutils.IndentingXMLStreamWriter;
 import org.joda.time.DateTime;
-import org.joda.time.format.ISODateTimeFormat;
 
 import javax.xml.stream.*;
 import java.io.IOException;
@@ -58,7 +57,7 @@ public class NetworkXml implements XmlConstants {
         writer.writeStartElement(IIDM_URI, NETWORK_ROOT_ELEMENT_NAME);
         writer.writeNamespace(IIDM_PREFIX, IIDM_URI);
         writer.writeAttribute("id", n.getId());
-        writer.writeAttribute("date", n.getDate().toString(ISODateTimeFormat.dateTime()));
+        writer.writeAttribute("date", n.getDate().toString());
         writer.writeAttribute("sourceFormat", n.getSourceFormat());
         BusFilter filter = BusFilter.create(n, options);
         XmlWriterContext context = new XmlWriterContext(writer, options, filter);
@@ -90,7 +89,7 @@ public class NetworkXml implements XmlConstants {
         reader.next();
 
         String id = reader.getAttributeValue(null, "id");
-        DateTime date = ISODateTimeFormat.dateTime().parseDateTime(reader.getAttributeValue(null, "date"));
+        DateTime date = DateTime.parse(reader.getAttributeValue(null, "date"));
         String sourceFormat = reader.getAttributeValue(null, "sourceFormat");
 
         Network network = NetworkFactory.create(id, sourceFormat);

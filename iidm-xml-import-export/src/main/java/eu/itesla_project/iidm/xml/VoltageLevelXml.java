@@ -8,7 +8,6 @@ package eu.itesla_project.iidm.xml;
 
 import eu.itesla_project.iidm.network.*;
 import org.joda.time.DateTime;
-import org.joda.time.format.ISODateTimeFormat;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
@@ -36,7 +35,7 @@ class VoltageLevelXml extends IdentifiableXml<VoltageLevel, VoltageLevelAdder, S
 
     @Override
     protected void writeRootElementAttributes(VoltageLevel vl, Substation s, XmlWriterContext context) throws XMLStreamException {
-        context.getWriter().writeAttribute("date", vl.getDate().toString(ISODateTimeFormat.dateTime()));
+        context.getWriter().writeAttribute("date", vl.getDate().toString());
         context.getWriter().writeAttribute("horizon", vl.getHorizon().name());
         context.getWriter().writeAttribute("forecastDistance", Integer.toString(vl.getForecastDistance()));
         writeFloat("nominalV", vl.getNominalV(), context.getWriter());
@@ -135,7 +134,7 @@ class VoltageLevelXml extends IdentifiableXml<VoltageLevel, VoltageLevelAdder, S
 
     @Override
     protected VoltageLevel readRootElementAttributes(VoltageLevelAdder adder, XMLStreamReader reader, List<Runnable> endTasks) {
-        DateTime date = ISODateTimeFormat.dateTime().parseDateTime(reader.getAttributeValue(null, "date"));
+        DateTime date = DateTime.parse(reader.getAttributeValue(null, "date"));
         Horizon horizon = Horizon.valueOf(reader.getAttributeValue(null, "horizon"));
         int forecastDistance = readIntAttribute(reader, "forecastDistance");
         float nominalV = readFloatAttribute(reader, "nominalV");
