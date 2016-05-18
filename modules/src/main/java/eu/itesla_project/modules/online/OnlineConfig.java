@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+ * Copyright (c) 2016, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -52,6 +52,8 @@ public class OnlineConfig {
     caseRepositoryFactoryClass=eu.itesla_project.modules.cases.EntsoeCaseRepositoryFactory
     #montecarloSamplerFactoryClass=eu.itesla_project.online.modules.mock.MontecarloSamplerFactoryMock
     montecarloSamplerFactoryClass=eu.itesla_project.matlab.mcla.montecarlo.MontecarloSamplerFactoryImpl
+    mergeOptimizerFactoryClass=com.rte_france.itesla.merge.MergeOptimizerFactoryImpl
+    rulesFacadeFactoryClass=eu.itesla_project.online.security_rules.SecurityRulesFacadeFactory
 	*/
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OnlineConfig.class);
@@ -69,8 +71,9 @@ public class OnlineConfig {
     private final Class<? extends CaseRepositoryFactory> caseRepositoryFactoryClass;
     private final Class<? extends MontecarloSamplerFactory>  montecarloSamplerFactory;
     private final Class<? extends MergeOptimizerFactory>  mergeOptimizerFactory;
+    private final Class<? extends RulesFacadeFactory>  rulesFacadeFactory;
 
-    public static OnlineConfig create(Class<? extends DynamicDatabaseClientFactory> dynamicDbClientFactoryClass,
+	public static OnlineConfig create(Class<? extends DynamicDatabaseClientFactory> dynamicDbClientFactoryClass,
                                        Class<? extends ContingenciesAndActionsDatabaseClientFactory> contingencyDbClientFactoryClass,
                                        Class<? extends HistoDbClientFactory> histoDbClientFactoryClass,
                                        Class<? extends RulesDbClientFactory> rulesDbClientFactoryClass,
@@ -82,19 +85,20 @@ public class OnlineConfig {
                                        Class<? extends SimulatorFactory> simulatorFactoryClass, 
                                        Class<? extends CaseRepositoryFactory> caseRepositoryFactoryClass,
                                        Class<? extends MontecarloSamplerFactory>  montecarloSamplerFactory,
-                                       Class<? extends MergeOptimizerFactory>  mergeOptimizerFactory) {
-        LOGGER.info("Offline workflow config: " +
+                                       Class<? extends MergeOptimizerFactory>  mergeOptimizerFactory,
+                                       Class<? extends RulesFacadeFactory>  rulesFacadeFactory) {
+        LOGGER.info("Online workflow config: " +
                         "dynamicDbClientFactoryClass={}, contingencyDbClientFactoryClass={}, " +
                         "histoDbClientFactoryClass={}, rulesDbClientFactoryClass={}, " +
                         "wcaFactoryClass={}, loadFlowFactoryClass={}, onlineDbFactoryClass={}, " +
-                        "uncertaintiesAnalyserFactoryClass={}, correctiveControlOptimizerFactoryClass={}" +
-                        "simulatorFactoryClass={}" +
-                        "caseRepositoryFactoryClass={}, montecarloSamplerFactory={}, mergeOptimizerFactory={}",
+                        "uncertaintiesAnalyserFactoryClass={}, correctiveControlOptimizerFactoryClass={}, " +
+                        "simulatorFactoryClass={}, caseRepositoryFactoryClass={}, montecarloSamplerFactory={}, " + 
+                        "mergeOptimizerFactory={}, rulesFacadeFactory={}",
                 dynamicDbClientFactoryClass.getName(), contingencyDbClientFactoryClass.getName(),
                 histoDbClientFactoryClass.getName(), rulesDbClientFactoryClass.getName(), wcaFactoryClass.getName(), 
                 loadFlowFactoryClass.getName(), onlineDbFactoryClass.getName(), uncertaintiesAnalyserFactoryClass.getName(),
                 correctiveControlOptimizerFactoryClass.getName(), simulatorFactoryClass.getName(), caseRepositoryFactoryClass.getName(),
-                montecarloSamplerFactory.getName(), mergeOptimizerFactory.getName());
+                montecarloSamplerFactory.getName(), mergeOptimizerFactory.getName(), rulesFacadeFactory.getName());
         return new OnlineConfig(
                 dynamicDbClientFactoryClass,
                 contingencyDbClientFactoryClass,
@@ -108,7 +112,8 @@ public class OnlineConfig {
                 simulatorFactoryClass,
                 caseRepositoryFactoryClass,
                 montecarloSamplerFactory,
-                mergeOptimizerFactory);
+                mergeOptimizerFactory,
+                rulesFacadeFactory);
     }
 
     public static OnlineConfig load() throws IOException, ParseException, ClassNotFoundException {
@@ -126,11 +131,12 @@ public class OnlineConfig {
         Class<? extends CaseRepositoryFactory> caseRepositoryFactoryClass = config.getClassProperty("caseRepositoryFactoryClass", CaseRepositoryFactory.class);
         Class<? extends MontecarloSamplerFactory> montecarloSamplerFactory = config.getClassProperty("montecarloSamplerFactoryClass", MontecarloSamplerFactory.class);
         Class<? extends MergeOptimizerFactory> mergeOptimizerFactoryClass = config.getClassProperty("mergeOptimizerFactoryClass", MergeOptimizerFactory.class);
+        Class<? extends RulesFacadeFactory> rulesFacadeFactoryClass = config.getClassProperty("rulesFacadeFactoryClass", RulesFacadeFactory.class);
         return create(
                 dynamicDbClientFactoryClass, contingencyDbClientFactoryClass, histoDbClientFactoryClass, 
                 rulesDbClientFactoryClass, wcaFactoryClass, loadFlowFactoryClass, onlineDbFactoryClass,
                 uncertaintiesAnalyserFactoryClass, correctiveControlOptimizerFactoryClass, simulatorFactoryClass,
-                caseRepositoryFactoryClass, montecarloSamplerFactory, mergeOptimizerFactoryClass);
+                caseRepositoryFactoryClass, montecarloSamplerFactory, mergeOptimizerFactoryClass, rulesFacadeFactoryClass);
     }
 
     private OnlineConfig(Class<? extends DynamicDatabaseClientFactory> dynamicDbClientFactoryClass,
@@ -145,7 +151,8 @@ public class OnlineConfig {
                           Class<? extends SimulatorFactory> simulatorFactoryClass,
                           Class<? extends CaseRepositoryFactory> caseRepositoryFactoryClass,
                           Class<? extends MontecarloSamplerFactory> montecarloSamplerFactory,
-                         Class<? extends MergeOptimizerFactory>  mergeOptimizerFactory) {
+                         Class<? extends MergeOptimizerFactory>  mergeOptimizerFactory,
+                         Class<? extends RulesFacadeFactory>  rulesFacadeFactory) {
         this.dynamicDbClientFactoryClass = Objects.requireNonNull(dynamicDbClientFactoryClass);
         this.contingencyDbClientFactoryClass = Objects.requireNonNull(contingencyDbClientFactoryClass);
         this.histoDbClientFactoryClass = Objects.requireNonNull(histoDbClientFactoryClass);
@@ -159,6 +166,7 @@ public class OnlineConfig {
         this.caseRepositoryFactoryClass = Objects.requireNonNull(caseRepositoryFactoryClass);
         this.montecarloSamplerFactory = montecarloSamplerFactory;
         this.mergeOptimizerFactory = mergeOptimizerFactory;
+        this.rulesFacadeFactory = rulesFacadeFactory;
     }
 
     public Class<? extends ContingenciesAndActionsDatabaseClientFactory> getContingencyDbClientFactoryClass() {
@@ -210,4 +218,8 @@ public class OnlineConfig {
     public Class<? extends MergeOptimizerFactory> getMergeOptimizerFactory() {
         return mergeOptimizerFactory;
     }
+    
+    public Class<? extends RulesFacadeFactory> getRulesFacadeFactory() {
+		return rulesFacadeFactory;
+	}
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+ * Copyright (c) 2016, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -33,8 +33,10 @@ import eu.itesla_project.modules.contingencies.ActionParameters;
 import eu.itesla_project.modules.contingencies.Contingency;
 import eu.itesla_project.modules.mcla.MontecarloSampler;
 import eu.itesla_project.modules.online.OnlineDb;
+import eu.itesla_project.modules.online.OnlineRulesFacade;
 import eu.itesla_project.modules.online.OnlineStep;
 import eu.itesla_project.modules.online.OnlineWorkflowParameters;
+import eu.itesla_project.modules.online.RulesFacadeResults;
 import eu.itesla_project.modules.online.StateStatus;
 import eu.itesla_project.modules.optimizer.CCOFinalStatus;
 import eu.itesla_project.modules.optimizer.CorrectiveControlOptimizer;
@@ -50,9 +52,6 @@ import eu.itesla_project.modules.simulation.Stabilization;
 import eu.itesla_project.modules.simulation.StabilizationResult;
 import eu.itesla_project.modules.simulation.StabilizationStatus;
 import eu.itesla_project.online.OnlineWorkflowImpl.StateAnalizerListener;
-import eu.itesla_project.online.security_rules.ContingencyEvaluator;
-import eu.itesla_project.online.security_rules.SecurityRulesFacade;
-import eu.itesla_project.online.security_rules.SecurityRulesResults;
 
 /**
  *
@@ -65,7 +64,7 @@ public class StateAnalyzer implements Callable<Void> {
 	private OnlineWorkflowContext context;
 	private MontecarloSampler sampler;
 	private LoadFlow loadFlow;
-	private SecurityRulesFacade securityRulesFacade;
+	private OnlineRulesFacade rulesFacade;
 	private CorrectiveControlOptimizer optimizer;
 	private Stabilization stabilization;
 	private ImpactAnalysis impactAnalysis;
@@ -77,12 +76,12 @@ public class StateAnalyzer implements Callable<Void> {
 	Map<String, Boolean> loadflowResults = new HashMap<String, Boolean>();
 
 	public StateAnalyzer(OnlineWorkflowContext context, MontecarloSampler sampler, LoadFlow loadFlow,
-			SecurityRulesFacade securityRulesFacade, CorrectiveControlOptimizer optimizer, Stabilization stabilization,
+			OnlineRulesFacade rulesFacade, CorrectiveControlOptimizer optimizer, Stabilization stabilization,
 			ImpactAnalysis impactAnalysis, OnlineDb onlineDb, StateAnalizerListener stateListener, OnlineWorkflowParameters parameters) {
 		this.context = context;
 		this.sampler = sampler;
 		this.loadFlow = loadFlow;
-		this.securityRulesFacade = securityRulesFacade;
+		this.rulesFacade = rulesFacade;
 		this.optimizer = optimizer;
 		this.stabilization = stabilization;
 		this.impactAnalysis = impactAnalysis;
@@ -146,14 +145,16 @@ public class StateAnalyzer implements Callable<Void> {
 				onlineDb.storeState(context.getWorkflowId(), stateId, context.getNetwork());
 			}
 			
-			logger.info("{}: storing violations after {} in online db", stateId, OnlineStep.LOAD_FLOW);
-			List<LimitViolation> violations = Security.checkLimits(context.getNetwork(), CurrentLimitType.PATL, Integer.MAX_VALUE, parameters.getLimitReduction());
-			if ( violations != null && !violations.isEmpty() )
-				onlineDb.storeViolations(context.getWorkflowId(), stateId, OnlineStep.LOAD_FLOW, violations);
-			else
-				logger.info("{}: no violations after {}", stateId, OnlineStep.LOAD_FLOW);
-			
 			if ( result.isOk() ) {
+				// stores violations only if loadflow converges
+				logger.info("{}: storing violations after {} in online db", stateId, OnlineStep.LOAD_FLOW);
+				List<LimitViolation> violations = Security.checkLimits(context.getNetwork(), CurrentLimitType.PATL, Integer.MAX_VALUE, parameters.getLimitReduction());
+				if ( violations != null && !violations.isEmpty() )
+					onlineDb.storeViolations(context.getWorkflowId(), stateId, OnlineStep.LOAD_FLOW, violations);
+				else
+					logger.info("{}: no violations after {}", stateId, OnlineStep.LOAD_FLOW);
+
+				
 				stateListener.onUpdate(stateId, status,context.timeHorizon);
 				// check state against contingencies
 				boolean isStateSafe = true;
@@ -165,9 +166,8 @@ public class StateAnalyzer implements Callable<Void> {
 				
 				for (Contingency contingency : context.getContingenciesToAnalyze()) {
 					logger.info("{}: check security rules against contingency {}", stateId, contingency.getId());
-					ContingencyEvaluator evaluator = securityRulesFacade.getContingencyEvaluator(contingency);
-					SecurityRulesResults results = evaluator.evaluate(context.getNetwork());
-					if ( results.getStateStatus() == StateStatus.SAFE ) {  // check if this contingency is ok
+					RulesFacadeResults rulesResults = rulesFacade.evaluate(contingency, context.getNetwork());
+					if ( rulesResults.getStateStatus() == StateStatus.SAFE ) {  // check if this contingency is ok
 						logger.info("{}: is safe for contingency {}", stateId, contingency.getId());
 						if ( parameters.validation() ) { // if validation
 							// send all [contingency,state] pairs to simulation
@@ -175,7 +175,7 @@ public class StateAnalyzer implements Callable<Void> {
 							// send safe [contingency,state] pairs to optimizer
 							contingenciesForOptimizer.add(contingency);
 						}
-					} else if( results.getStateStatus() == StateStatus.SAFE_WITH_CORRECTIVE_ACTIONS ) { // check if this contingency could be ok with corrective actions
+					} else if( rulesResults.getStateStatus() == StateStatus.SAFE_WITH_CORRECTIVE_ACTIONS ) { // check if this contingency could be ok with corrective actions
 						logger.info("{}: requires corrective actions for contingency {}", stateId, contingency.getId());
 						isStateSafe = false;
 						contingenciesForOptimizer.add(contingency);
@@ -190,14 +190,14 @@ public class StateAnalyzer implements Callable<Void> {
 					}
 
 					synchronized (context.getSecurityRulesResults()) {
-						context.getSecurityRulesResults().addStateWithSecurityRulesResults(contingency.getId(), stateId, results.getStateStatus(), results.getIndexesResults());
+						context.getSecurityRulesResults().addStateWithSecurityRulesResults(contingency.getId(), stateId, rulesResults.getStateStatus(), rulesResults.getIndexesResults());
 						stateListener.onSecurityRulesApplicationResults(contingency.getId(),stateId, context);
 					}
 					
 					if ( parameters.validation() ) {
-						SecurityRulesResults wcaResults = evaluator.wcaEvaluate(context.getNetwork());
+						RulesFacadeResults wcaRulesResults = rulesFacade.wcaEvaluate(contingency, context.getNetwork());
 						synchronized (context.getWcaSecurityRulesResults()) {
-							context.getWcaSecurityRulesResults().addStateWithSecurityRulesResults(contingency.getId(), stateId, wcaResults.getStateStatus(), wcaResults.getIndexesResults());
+							context.getWcaSecurityRulesResults().addStateWithSecurityRulesResults(contingency.getId(), stateId, wcaRulesResults.getStateStatus(), wcaRulesResults.getIndexesResults());
 						}
 					}	
                 }
@@ -207,7 +207,7 @@ public class StateAnalyzer implements Callable<Void> {
 				if ( isStateSafe && !parameters.validation() ) {
 					// state is safe: stop analysis and destroy the state
 					logger.info("{}: is safe for every contingency: stopping analysis", stateId);
-		            context.getNetwork().getStateManager().removeState(stateIdStr);
+		            //context.getNetwork().getStateManager().removeState(stateIdStr); // the state is still needed
 		            return null;
 				} else {
 					if ( contingenciesForOptimizer.size() > 0 ) {
@@ -216,16 +216,6 @@ public class StateAnalyzer implements Callable<Void> {
 						status.put(currentStatus, OnlineTaskStatus.RUNNING);
 						stateListener.onUpdate(stateId, status,context.timeHorizon);
 						logger.info("{}: corrective control optimization started - working on {} contingencies", stateId, contingenciesForOptimizer.size());
-//						List<PostContingencyState> postContingencyStates = computePostContingencyStates(context.getNetwork(), contingenciesForOptimizer, contingenciesForSimulator);
-//						if ( !postContingencyStates.isEmpty() ) {
-//							CorrectiveControlOptimizerResult optimizerResult = optimizer.run(new CorrectiveControlOptimizerParameters(postContingencyStates));
-//							putResultsIntoContext(stateId, optimizerResult, context.getResults());
-//							if ( !parameters.validation() ) { // if validation -> all the [contingency,state] pairs have already been added to the list for simulation -> no need to do it here
-//								// add contingencies with no curative actions found by the optimizer to the contingencies list for T-D simulation
-//								contingenciesForSimulator.addAll(OnlineUtils.filterContingencies(contingenciesForOptimizer, optimizerResult.getContingenciesWithoutActions()));
-//							}
-//						} else
-//							logger.warn("{}: no post contingency states suitable for corrective control optimization: skipping the step", stateId);
 						runOptimizer(context.getNetwork(), contingenciesForOptimizer, contingenciesForSimulator, context.getResults());
 						// the optimizer could possibly have changed the network working state: set the original one
 						context.getNetwork().getStateManager().setWorkingState(stateIdStr);
@@ -281,68 +271,6 @@ public class StateAnalyzer implements Callable<Void> {
         }
 		return null;
 	}
-	
-//	private List<PostContingencyState> computePostContingencyStates(Network network, List<Contingency> contingencies, List<Contingency> contingenciesForSimulator) {
-//		List<PostContingencyState> postContingencyStates = new ArrayList<PostContingencyState>();
-//		String stateId = network.getStateManager().getWorkingStateId();
-//		logger.info("{}: computing post contingency states for optimizer", stateId);
-//		List<Callable<Void>> postContingencyStateComputations = new ArrayList<>(contingencies.size());
-//		for (Contingency contingency : contingencies) {
-//			postContingencyStateComputations.add(
-//					new Callable<Void>() {
-//
-//						@Override
-//						public Void call() throws Exception {
-//							logger.info("{}: computing post contingency state for contingency {}", stateId, contingency.getId());
-//							// create post contingency state
-//							String postContingencyStateId = stateId + "-post-" + contingency.getId();
-//							network.getStateManager().cloneState(stateId, postContingencyStateId);
-//							// apply contingency to post contingency state
-//							network.getStateManager().setWorkingState(postContingencyStateId);
-//							contingency.toTask().modify(network);
-//							// run load flow on post contingency state
-//				            try {
-//				            	logger.info("{}: running load flow to post contingency state {}", stateId, postContingencyStateId);
-//				            	LoadFlowResult result = null;
-//				            	result = loadFlow.run();
-//				            	if ( result.isOk() ) {
-//				            		logger.info("{}: adding state {} to post contingency states for contingency {}", stateId, postContingencyStateId, contingency.getId());
-//				            		PostContingencyState postContingencyState = new PostContingencyState(network, postContingencyStateId, contingency);
-//				            		synchronized(postContingencyStates) {
-//				            			postContingencyStates.add(postContingencyState);
-//				            		}
-//				            	} else {
-//				            		logger.error("{}: Error: loadflow on post contingency state {} does not converge", stateId, postContingencyStateId);
-//				            		if ( !parameters.validation() ) { // if validation -> all the [contingency,state] pairs have already been added to the list for simulation -> no need to do it here
-//					            		// add to contingencies for simulator
-//				            			synchronized(contingenciesForSimulator) {
-//				            				contingenciesForSimulator.add(contingency);
-//				            			}
-//				            		}
-//				            	}
-//							} catch (Exception e) {
-//								logger.error("{}: Error running load flow on post contingency state {}: {}", stateId, postContingencyStateId, e.getMessage());
-//								if ( !parameters.validation() ) { // if validation -> all the [contingency,state] pairs have already been added to the list for simulation -> no need to do it here
-//									// add to contingencies for simulator
-//				            		contingenciesForSimulator.add(contingency);
-//								}
-//							}
-//							return null;
-//						}
-//						
-//					}
-//				);
-//		}
-//		ExecutorService taskExecutor = Executors.newFixedThreadPool(contingencies.size());
-//		try {
-//			taskExecutor.invokeAll(postContingencyStateComputations);
-//		} catch (InterruptedException e) {
-//			logger.error("{}: Error computing post contingency states: {}", stateId, e.getMessage());
-//		}
-//		taskExecutor.shutdown();
-//		network.getStateManager().setWorkingState(stateId);
-//		return postContingencyStates;
-//	}
 	
 	private void runOptimizer(Network network, List<Contingency> contingencies, List<Contingency> contingenciesForSimulator, ForecastAnalysisResults results) {
 		String stateId = network.getStateManager().getWorkingStateId();
@@ -430,33 +358,21 @@ public class StateAnalyzer implements Callable<Void> {
 
 						@Override
 						public Void call() throws Exception {
-							logger.info("{}: computing post contingency violations for contingency {}", stateId, contingency.getId());
-//							// create post contingency state
-//							String postContingencyStateId = stateId + "-" + contingency.getId();
-//							network.getStateManager().cloneState(stateId, postContingencyStateId);
-//							// apply contingency to post contingency state
-//							network.getStateManager().setWorkingState(postContingencyStateId);
-//							contingency.toTask().modify(network);
-//							boolean loadflowConverge = false;
-//							// run load flow on post contingency state
-//				            try {
-//				            	logger.info("{}: running load flow to post contingency state {}", stateId, postContingencyStateId);
-//				            	LoadFlowResult result = null;
-//				            	result = loadFlow.run();
-//				            	if ( result.isOk() ) {
-//				            		loadflowConverge = true;
-//				            	} 
-//							} catch (Exception e) {
-//							}
+							List<LimitViolation> violations = new ArrayList<LimitViolation>();
 							// compute post contingency state
 							String postContingencyStateId = stateId + "-post-" + contingency.getId();
 							boolean loadflowConverge = computePostContingencyState(network, stateId, contingency, postContingencyStateId);
-				            logger.info("{}: storing post contingency violations for state {} and contingency {} in online db", stateId, contingency.getId());
-							List<LimitViolation> violations = Security.checkLimits(network, CurrentLimitType.PATL, Integer.MAX_VALUE, parameters.getLimitReduction());
-							if ( violations == null || violations.isEmpty() ) {
-								logger.info("{}: no post contingency violations for state {} and contingency {}", stateId, contingency.getId());
-								violations = new ArrayList<LimitViolation>();
+							if ( loadflowConverge ) {
+								logger.info("{}: computing post contingency violations for contingency {}", stateId, contingency.getId());
+								violations = Security.checkLimits(network, CurrentLimitType.PATL, Integer.MAX_VALUE, parameters.getLimitReduction());
+								if ( violations == null || violations.isEmpty() ) {
+									logger.info("{}: no post contingency violations for state {} and contingency {}", stateId, contingency.getId());
+									violations = new ArrayList<LimitViolation>();
+								}
+							} else {
+								logger.info("{}: post contingency loadflow does not converge for contingency {}, skipping computing post contingency violations", stateId, contingency.getId());
 							}
+							logger.info("{}: storing post contingency violations for state {} and contingency {} in online db", stateId, contingency.getId());
 							onlineDb.storePostContingencyViolations(context.getWorkflowId(), Integer.valueOf(stateId), contingency.getId(), loadflowConverge, violations);
 							network.getStateManager().setWorkingState(stateId);
 //							network.getStateManager().removeState(postContingencyStateId);
@@ -519,18 +435,6 @@ public class StateAnalyzer implements Callable<Void> {
 		//network.getStateManager().setWorkingState(stateId);
 		return loadflowConverge;
 	}
-
-//	private void putResultsIntoContext(Integer stateId, CorrectiveControlOptimizerResult optimizerResult, ForecastAnalysisResults results) {
-//		Objects.requireNonNull(stateId, "state id is null");
-//		Objects.requireNonNull(optimizerResult, "optimizer result is null");
-//		Objects.requireNonNull(results, "forecast analysis result is null");
-//		synchronized (results) {
-//			for(String contingencyId : optimizerResult.getContingenciesWithActions()) {
-//				results.addStateWithActions(contingencyId, stateId, optimizerResult.getCorrectiveActions(contingencyId));
-//			}
-//		}
-//
-//	}
 
 	private void putResultsIntoContext(Integer stateId, ImpactAnalysisResult simulationResult, ForecastAnalysisResults results) {
 		Objects.requireNonNull(stateId, "state id is null");

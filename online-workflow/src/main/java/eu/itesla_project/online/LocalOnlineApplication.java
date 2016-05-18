@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+ * Copyright (c) 2016, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -8,6 +8,7 @@ package eu.itesla_project.online;
 
 import com.csvreader.CsvWriter;
 import com.google.common.collect.Sets;
+
 import eu.itesla_project.commons.Version;
 import eu.itesla_project.computation.ComputationManager;
 import eu.itesla_project.computation.ComputationResourcesStatus;
@@ -27,6 +28,7 @@ import eu.itesla_project.modules.mcla.MontecarloSamplerFactory;
 import eu.itesla_project.modules.online.OnlineConfig;
 import eu.itesla_project.modules.online.OnlineDb;
 import eu.itesla_project.modules.online.OnlineWorkflowParameters;
+import eu.itesla_project.modules.online.RulesFacadeFactory;
 import eu.itesla_project.modules.online.TimeHorizon;
 import eu.itesla_project.modules.optimizer.CorrectiveControlOptimizerFactory;
 import eu.itesla_project.modules.rules.RulesDbClient;
@@ -40,10 +42,12 @@ import eu.itesla_project.offline.forecast_errors.ForecastErrorsAnalysis;
 import eu.itesla_project.offline.forecast_errors.ForecastErrorsAnalysisConfig;
 import eu.itesla_project.offline.forecast_errors.ForecastErrorsAnalysisParameters;
 import gnu.trove.list.array.TIntArrayList;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.management.*;
+
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
@@ -106,6 +110,8 @@ public class LocalOnlineApplication extends NotificationBroadcasterSupport imple
     private  MontecarloSamplerFactory montecarloSamplerFactory;
     
     private MergeOptimizerFactory mergeOptimizerFactory;
+    
+    private RulesFacadeFactory rulesFacadeFactory;
 
     private final ScheduledFuture<?> future;
 
@@ -181,6 +187,7 @@ public class LocalOnlineApplication extends NotificationBroadcasterSupport imple
          montecarloSamplerFactory = config.getMontecarloSamplerFactory().newInstance();
          caseRepository = config.getCaseRepositoryFactoryClass().newInstance().create(computationManager);
          mergeOptimizerFactory = config.getMergeOptimizerFactory().newInstance();
+         rulesFacadeFactory = config.getRulesFacadeFactory().newInstance();
 
     	this.feDataStorage = new ForecastErrorsDataStorageImpl(); //TODO ...
     	
@@ -260,7 +267,7 @@ public class LocalOnlineApplication extends NotificationBroadcasterSupport imple
         try {
 			workflow =startParams.getOnlineWorkflowFactoryClass().newInstance().create(computationManager, cadbClient, ddbClientFactory, histoDbClient, rulesDb, wcaFactory, loadFlowFactory, feDataStorage,
 			        onlineDb, uncertaintiesAnalyserFactory, correctiveControlOptimizerFactory, simulatorFactory, caseRepository,
-			        montecarloSamplerFactory,mergeOptimizerFactory, onlineParams, startParams);
+			        montecarloSamplerFactory, mergeOptimizerFactory, rulesFacadeFactory, onlineParams, startParams);
 		} catch (InstantiationException  | IllegalAccessException e1  ) {
 			e1.printStackTrace();
 			throw new RuntimeException(e1.getMessage());

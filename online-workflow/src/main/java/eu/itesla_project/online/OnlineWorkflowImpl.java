@@ -1,19 +1,36 @@
 /**
- * Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+ * Copyright (c) 2016, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 package eu.itesla_project.online;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import org.joda.time.format.DateTimeFormat;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import eu.itesla_project.computation.ComputationManager;
-import eu.itesla_project.iidm.network.Country;
 import eu.itesla_project.iidm.network.Network;
 import eu.itesla_project.loadflow.api.LoadFlow;
 import eu.itesla_project.loadflow.api.LoadFlowFactory;
-import eu.itesla_project.modules.*;
+import eu.itesla_project.modules.MergeOptimizerFactory;
+import eu.itesla_project.modules.MergeUtil;
 import eu.itesla_project.modules.cases.CaseRepository;
-import eu.itesla_project.modules.cases.CaseType;
 import eu.itesla_project.modules.contingencies.ContingenciesAndActionsDatabaseClient;
 import eu.itesla_project.modules.ddb.DynamicDatabaseClientFactory;
 import eu.itesla_project.modules.histo.HistoDbClient;
@@ -22,7 +39,10 @@ import eu.itesla_project.modules.mcla.MontecarloSampler;
 import eu.itesla_project.modules.mcla.MontecarloSamplerFactory;
 import eu.itesla_project.modules.mcla.MontecarloSamplerParameters;
 import eu.itesla_project.modules.online.OnlineDb;
+import eu.itesla_project.modules.online.OnlineRulesFacade;
 import eu.itesla_project.modules.online.OnlineWorkflowParameters;
+import eu.itesla_project.modules.online.RulesFacadeFactory;
+import eu.itesla_project.modules.online.RulesFacadeParameters;
 import eu.itesla_project.modules.online.TimeHorizon;
 import eu.itesla_project.modules.optimizer.CorrectiveControlOptimizer;
 import eu.itesla_project.modules.optimizer.CorrectiveControlOptimizerFactory;
@@ -33,20 +53,14 @@ import eu.itesla_project.modules.simulation.ImpactAnalysis;
 import eu.itesla_project.modules.simulation.SimulationParameters;
 import eu.itesla_project.modules.simulation.SimulatorFactory;
 import eu.itesla_project.modules.simulation.Stabilization;
-import eu.itesla_project.modules.wca.*;
+import eu.itesla_project.modules.wca.UncertaintiesAnalyserFactory;
+import eu.itesla_project.modules.wca.WCA;
+import eu.itesla_project.modules.wca.WCACluster;
+import eu.itesla_project.modules.wca.WCAClusterNum;
+import eu.itesla_project.modules.wca.WCAFactory;
+import eu.itesla_project.modules.wca.WCAParameters;
+import eu.itesla_project.modules.wca.WCAResult;
 import eu.itesla_project.online.ContingencyStatesIndexesSynthesis.SecurityIndexInfo;
-import eu.itesla_project.online.security_rules.SecurityRulesFacade;
-import eu.itesla_project.online.security_rules.SecurityRulesParameters;
-
-import org.joda.time.format.DateTimeFormat;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  *
@@ -73,6 +87,7 @@ public class OnlineWorkflowImpl implements OnlineWorkflow {
 	private final SimulatorFactory simulatorFactory;
 	private final MontecarloSamplerFactory montecarloSamplerFactory;
 	private final MergeOptimizerFactory mergeOptimizerFactory;
+	private final RulesFacadeFactory rulesFacadeFactory;
 	private final OnlineWorkflowStartParameters startParameters;
     
     private String id;
@@ -93,6 +108,7 @@ public class OnlineWorkflowImpl implements OnlineWorkflow {
             CaseRepository caseRepository,
 			MontecarloSamplerFactory montecarloSamplerFactory,
 			MergeOptimizerFactory mergeOptimizerFactory,
+			RulesFacadeFactory rulesFacadeFactory,
             OnlineWorkflowParameters parameters,
             OnlineWorkflowStartParameters startParameters
 			) {
@@ -123,13 +139,12 @@ public class OnlineWorkflowImpl implements OnlineWorkflow {
         this.uncertaintiesAnalyserFactory = Objects.requireNonNull(uncertaintiesAnalyserFactory);
         this.optimizerFactory = optimizerFactory;
         this.simulatorFactory = simulatorFactory;
-        //caseRepository = EntsoeCaseRepository.create(computationManager);
         this.caseRepository = caseRepository;
 		this.montecarloSamplerFactory = montecarloSamplerFactory;
 		this.mergeOptimizerFactory = Objects.requireNonNull(mergeOptimizerFactory);
+		this.rulesFacadeFactory = rulesFacadeFactory;
 		this.parameters = parameters;
 		this.startParameters = startParameters;
-		//this.id = new SimpleDateFormat("yyyyMMddHHmmssSSS").format(new Date());
 		this.id = DateTimeFormat.forPattern("yyyyMMdd_HHmm_").print(parameters.getBaseCaseDate())+new SimpleDateFormat("yyyyMMddHHmmssSSS").format(new Date());
 		logger.info(parameters.toString());
 	}
@@ -211,18 +226,18 @@ public class OnlineWorkflowImpl implements OnlineWorkflow {
 
 		// create modules used in the states analysis
 		MontecarloSampler sampler = montecarloSamplerFactory.create(oCtx.getNetwork(), computationManager, feDataStorage);
-		SecurityRulesFacade securityRulesFacade = new SecurityRulesFacade(rulesDbClient);
+		OnlineRulesFacade rulesFacade = rulesFacadeFactory.create(rulesDbClient);
 		CorrectiveControlOptimizer optimizer = optimizerFactory.create(cadbClient,computationManager);
 		Stabilization stabilization = simulatorFactory.createStabilization(oCtx.getNetwork(), computationManager, Integer.MAX_VALUE, ddbClientFactory);
 		ImpactAnalysis impactAnalysis = simulatorFactory.createImpactAnalysis(oCtx.getNetwork(), computationManager, Integer.MAX_VALUE, cadbClient);
 
 		// initialize modules
 		sampler.init(new MontecarloSamplerParameters(oCtx.getTimeHorizon(), parameters.getFeAnalysisId(), parameters.getStates()));
-		securityRulesFacade.init(new SecurityRulesParameters(oCtx.getOfflineWorkflowId(), 
-															 oCtx.getContingenciesToAnalyze(), 
-															 parameters.getRulesPurityThreshold(), 
-															 parameters.getSecurityIndexes(),
-															 parameters.validation()));
+		rulesFacade.init(new RulesFacadeParameters(oCtx.getOfflineWorkflowId(), 
+												   oCtx.getContingenciesToAnalyze(), 
+												   parameters.getRulesPurityThreshold(), 
+												   parameters.getSecurityIndexes(),
+												   parameters.validation()));
 		Map<String, Object> simulationInitContext = new HashMap<>();
         SimulationParameters simulationParameters = SimulationParameters.load();
         stabilization.init(simulationParameters, simulationInitContext);
@@ -234,7 +249,7 @@ public class OnlineWorkflowImpl implements OnlineWorkflow {
 		// run states analysis
 		List<Callable<Void>> tasks = new ArrayList<>(parameters.getStates());
 		for ( int i=0; i<parameters.getStates(); i++ ) {
-			tasks.add(new StateAnalyzer(oCtx, sampler, loadflow, securityRulesFacade, optimizer, stabilization, impactAnalysis, onlineDb, stateListener, parameters));
+			tasks.add(new StateAnalyzer(oCtx, sampler, loadflow, rulesFacade, optimizer, stabilization, impactAnalysis, onlineDb, stateListener, parameters));
 		}
 		ExecutorService taskExecutor = Executors.newFixedThreadPool(startParameters.getThreads());
 		taskExecutor.invokeAll(tasks);
@@ -315,15 +330,6 @@ public class OnlineWorkflowImpl implements OnlineWorkflow {
         {
         	
         	SecurityRulesApplicationResults rulesApplicationResults = oCtx.getSecurityRulesResults();
-        	//Set<String> contingency	=rulesApplicationResults.getContingenciesWithSecurityRulesResults();
-			//Map<SecurityIndexType, StateStatus> indexStatus =rulesApplicationResults.getSecurityRulesResults(contingencyId,stateId);
-			//ArrayList<SecurityRulesResults> results=new ArrayList<SecurityRulesResults>();
-				
-			//for(Map.Entry<SecurityIndexType, StateStatus>  indexTypeStatus: indexStatus.entrySet())									
-				//results.add(stateWithSecRulesResults.new SecurityRulesResults(indexTypeStatus.getKey(),indexTypeStatus.getValue()));
-					
-			//StateStatus stateStatus=rulesApplicationResults.getStateStatus(contingencyId, stateId);
-			//stateWithSecRulesResults.addStateSecurityRuleIndexes(contingencyId, stateWithSecRulesResults.new StateInfo(stateId, stateStatus) , results);
         	stateWithSecRulesResults.addStateSecurityRuleIndexes(contingencyId, stateId, rulesApplicationResults);
 			for (OnlineApplicationListener l : listeners)
                 l.onStatesWithSecurityRulesResultsUpdate(stateWithSecRulesResults);
@@ -412,19 +418,4 @@ public class OnlineWorkflowImpl implements OnlineWorkflow {
 		}
     }
 
-
-    public static void main(String[] args) {
-        ArrayList<String> te1=new ArrayList<>();
-        te1.add("a1");
-        te1.add("a2");
-        te1.add("a3");
-
-        String[] teString= (String[]) te1.toArray(new String[te1.size()]);
-        for (int i = 0; i <teString.length ; i++) {
-            System.out.println(teString[i]);
-        }
-
-    }
-
-	
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+ * Copyright (c) 2016, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -10,9 +10,11 @@ import eu.itesla_project.iidm.network.Network;
 import eu.itesla_project.modules.contingencies.Contingency;
 import eu.itesla_project.modules.histo.HistoDbAttributeId;
 import eu.itesla_project.modules.histo.IIDM2DB;
+import eu.itesla_project.modules.online.RulesFacadeResults;
 import eu.itesla_project.modules.online.StateStatus;
 import eu.itesla_project.modules.rules.SecurityRule;
 import eu.itesla_project.modules.securityindexes.SecurityIndexType;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,29 +55,29 @@ public class ContingencyEvaluator {
 		return contingency;
 	}
 
-	public SecurityRulesResults evaluate(Network network) {
+	public RulesFacadeResults evaluate(Network network) {
 		return evaluate(network, mcRules);
 	}
 	
-	public SecurityRulesResults evaluate(String networkId, String stateId, Map<HistoDbAttributeId, Object> networkValues) {
+	public RulesFacadeResults evaluate(String networkId, String stateId, Map<HistoDbAttributeId, Object> networkValues) {
 		return evaluate(networkId, stateId, networkValues, mcRules);
 	}
 	
-	public SecurityRulesResults wcaEvaluate(Network network) {
+	public RulesFacadeResults wcaEvaluate(Network network) {
 		return evaluate(network, wcaRules);
 	}
 	
-	public SecurityRulesResults wcaEvaluate(String networkId, String stateId, Map<HistoDbAttributeId, Object> networkValues) {
+	public RulesFacadeResults wcaEvaluate(String networkId, String stateId, Map<HistoDbAttributeId, Object> networkValues) {
 		return evaluate(networkId, stateId, networkValues, wcaRules);
 	}
 	
-	private SecurityRulesResults evaluate(Network network, List<SecurityRule> rules) {
+	private RulesFacadeResults evaluate(Network network, List<SecurityRule> rules) {
 		Objects.requireNonNull(network, "network is null");
 		HashMap<HistoDbAttributeId, Object> networkValues = IIDM2DB.extractCimValues(network, new IIDM2DB.Config(null, true)).getSingleValueMap();
 		return evaluate(network.getId(), network.getStateManager().getWorkingStateId(), networkValues, rules);
 	}
 
-	private SecurityRulesResults evaluate(String networkId, String stateId, Map<HistoDbAttributeId, Object> networkValues, List<SecurityRule> rules) {
+	private RulesFacadeResults evaluate(String networkId, String stateId, Map<HistoDbAttributeId, Object> networkValues, List<SecurityRule> rules) {
 		Objects.requireNonNull(networkValues, "networkValues is null");
 		LOGGER.info("Evaluating {} network, {} state, {} contingency", networkId, stateId, contingency.getId());
 		StateStatus stateStatus = StateStatus.SAFE;
@@ -103,7 +105,7 @@ public class ContingencyEvaluator {
 			stateStatus = StateStatus.SAFE_WITH_CORRECTIVE_ACTIONS;
         }
 		LOGGER.info("Result on {} network, {} state, {} contingency: {}", networkId, stateId, contingency.getId(), stateStatus);
-		return new SecurityRulesResults(stateId, contingency.getId(), stateStatus, indexesResults);
+		return new RulesFacadeResults(stateId, contingency.getId(), stateStatus, indexesResults);
 	}
 
 }
