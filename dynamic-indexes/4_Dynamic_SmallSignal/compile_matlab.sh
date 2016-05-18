@@ -42,7 +42,7 @@ mcc -o $exename \
  -v \
  smallsignal_HELPER.m \
  Dynamic_smallsignal_example.m \
- pronyiTesla.p \
+ pronyiTesla.m \
  signal_filter.m \
  sssi.m
 
