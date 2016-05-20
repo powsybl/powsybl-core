@@ -47,7 +47,9 @@ public class RulesFacadeMock implements OnlineRulesFacade {
 	
 	private RulesFacadeResults getMockResults(Contingency contingency, Network network) {
 		Map<SecurityIndexType, StateStatus> indexesResults = new EnumMap<>(SecurityIndexType.class);
-		for (SecurityIndexType indexType : parameters.getSecurityIndexTypes()) {
+		SecurityIndexType[] securityIndexTypes = parameters.getSecurityIndexTypes() == null ? SecurityIndexType.values()
+                : parameters.getSecurityIndexTypes().toArray(new SecurityIndexType[parameters.getSecurityIndexTypes().size()]);
+		for (SecurityIndexType indexType : securityIndexTypes) {
 			indexesResults.put(indexType, StateStatus.SAFE);
 		}
 		return new RulesFacadeResults(network.getStateManager().getWorkingStateId(), contingency.getId(), StateStatus.SAFE, indexesResults);
