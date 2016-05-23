@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
+import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Objects;
@@ -18,6 +19,9 @@ import java.util.Objects;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class FileDataSource extends AbstractDataSource {
+
+    private static final OpenOption[] DEFAULT_OPEN_OPTIONS = { StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING };
+    private static final OpenOption[] APPEND_OPEN_OPTIONS = { StandardOpenOption.APPEND };
 
     private final Path directory;
 
@@ -47,7 +51,7 @@ public class FileDataSource extends AbstractDataSource {
     @Override
     public OutputStream newOutputStream(String suffix, String ext, boolean append) throws IOException {
         Path path = getPath(suffix, ext);
-        OutputStream os = Files.newOutputStream(path, append ? StandardOpenOption.APPEND : StandardOpenOption.CREATE);
+        OutputStream os = Files.newOutputStream(path, append ? APPEND_OPEN_OPTIONS : DEFAULT_OPEN_OPTIONS);
         return observer != null ? new ObservableOutputStream(os, path.toString(), observer) : os;
     }
 

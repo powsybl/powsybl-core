@@ -34,4 +34,13 @@ class BusbarSectionImpl extends ConnectableImpl implements BusbarSection {
         return "Busbar section";
     }
 
+    @Override
+    public float getV() {
+        return ((NodeTerminal) getTerminal()).getV();
+    }
+
+    @Override
+    public float getAngle() {
+        return ((NodeTerminal) getTerminal()).getAngle();
+    }
 }

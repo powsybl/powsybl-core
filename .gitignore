@@ -31,6 +31,7 @@
 /iidm-network-api/target/
 /iidm-network-impl/target/
 /iidm-network-test/target/
+/iidm-xml-import-export/target/
 /loadflow-api/target/
 /mcla-integration/target/
 /mmap-offline-db/target/
