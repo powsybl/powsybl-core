@@ -52,7 +52,8 @@ class LoadXml extends ConnectableXml<Load, LoadAdder, VoltageLevel> {
 
     @Override
     protected Load readRootElementAttributes(LoadAdder adder, XMLStreamReader reader, List<Runnable> endTasks) {
-        LoadType loadType = LoadType.valueOf(reader.getAttributeValue(null, "loadType"));
+        String loadTypeStr = reader.getAttributeValue(null, "loadType");
+        LoadType loadType = loadTypeStr == null ? LoadType.UNDEFINED : LoadType.valueOf(loadTypeStr);
         float p0 = readFloatAttribute(reader, "p0");
         float q0 = readFloatAttribute(reader, "q0");
         readNodeOrBus(adder, reader);
