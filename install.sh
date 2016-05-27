@@ -5,13 +5,6 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-
-## ipst installation target directory
-installDir=$HOME/itesla
-## ipst thirdparty
-thirdpartyDir=$HOME/itesla_thirdparty
-
-
 ##
 ## before setting these settings to true, make sure that these enviroment variables are available 
 ## - EUROSTAG_SRC_HOME and  INTEL_HOME (to compile EUROSTAG based modules)
@@ -21,6 +14,75 @@ thirdpartyDir=$HOME/itesla_thirdparty
 BUILD_EUROSTAG=false
 BUILD_MATLAB=false
 BUILD_DYMOLA=false
+
+## default ipst installation target directory
+installDir=$HOME/itesla
+## default ipst thirdparty directory
+thirdpartyDir=$HOME/itesla_thirdparty
+
+## stop script execution if installDir already exists
+wipeInstallDir=false
+
+cmd=$0
+usage() {
+    echo "usage: $cmd [--help] [--installDir <installation path>] [--thirdpartyDir <thirdparty path>] [--wipeInstallDir] [--buildMATLAB] [--buildEUROSTAG] [--buildDYMOLA]";
+    echo ""
+    exit
+}
+
+help() {
+    echo "usage: $cmd [--help] [--installDir <installation path>] [--thirdpartyDir <thirdparty path>] [--wipeInstallDir]";
+    echo "   --installDir       the target directory; default is <HOME>/itesla;  installation will not proceed if it already exists,";
+    echo "                      unless --wipeInstallDir is set (in this case the existing path will be removed)";
+    echo "   --thirdpartyDir    the target path for the thirdparty libraries, required to build IPST (default is <HOME>/itesla_thirdparty)";
+    echo "   --wipeInstallDir   if set, installDir will be deleted (default is true)";
+    echo "   --buildMATLAB      if set, build MATLAB components (default is false, this option requires installation of MATLAB and MATLAB compiler)";
+    echo "   --buildEUROSTAG    if set, build EUROSTAG components (default is false, this option requires installation of EUROSTAG and EUROSTAG SDK)";
+    echo "   --buildDYMOLA      if set, build DYMOLA components (default is false, this option requires installation of DYMOLA)";
+    echo "   --help  ";
+    echo ""
+    exit
+}
+
+
+for ((i=1;i<=$#;i++)); 
+do
+    if [ ${!i} = "--installDir" ] 
+    then ((i++)) 
+        installDir=${!i};
+    elif [ ${!i} = "--thirdpartyDir" ];
+    then ((i++)) 
+        thirdpartyDir=${!i};  
+    elif [ ${!i} = "--wipeInstallDir" ];
+    then 
+        wipeInstallDir=true;  
+    elif [ ${!i} = "--buildMATLAB" ];
+    then 
+        BUILD_MATLAB=true;  
+    elif [ ${!i} = "--buildEUROSTAG" ];
+    then 
+        BUILD_EUROSTAG=true;  
+    elif [ ${!i} = "--buildDYMOLA" ];
+    then 
+        BUILD_DYMOLA=true;  
+    elif [ ${!i} = "--help" ];    
+    then ((i++)) 
+        help;
+    fi
+done;
+
+echo "installDir:" $installDir
+echo "thirdpartyDir:" $thirdpartyDir
+echo "wipeInstallDir:" $wipeInstallDir
+
+if [ -d $installDir ] &&
+   [ $wipeInstallDir != true ]
+then
+    echo "ERROR: the target installation directory '"$installDir"' already exists"
+    echo ""
+    usage;
+fi
+
 
 ###############################
 # remove  previous installation
