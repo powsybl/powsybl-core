@@ -18,9 +18,12 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.xml.sax.SAXException;
-
+import org.xmlunit.builder.DiffBuilder;
+import org.xmlunit.builder.Input;
+import org.xmlunit.diff.Diff;
 import javax.xml.XMLConstants;
 import javax.xml.stream.XMLStreamException;
+import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
@@ -52,6 +55,14 @@ public class NetworkXmlTest {
     @After
     public void tearDown() throws Exception {
         fileSystem.close();
+    }
+    
+    private void assertXMLEquals(String expectedXML, String actualXML) throws Exception {
+    	
+    	Source control = Input.fromString(expectedXML).build();
+    	Source test = Input.fromString(actualXML).build();
+    	Diff myDiff=DiffBuilder.compare(control).withTest(test).ignoreWhitespace().build();
+    	assertFalse( myDiff.hasDifferences());
     }
 
     private void validateXsd(Path xmlFile) throws SAXException, IOException {
@@ -87,10 +98,12 @@ public class NetworkXmlTest {
     public void testEurostagTutorialExample1Write() throws Exception {
         Network network = createEurostagTutorialExample1();
         Path xmlFile = writeNetwork(network);
-        assertEquals(new String(Files.readAllBytes(xmlFile), StandardCharsets.UTF_8),
-                     new String(ByteStreams.toByteArray(getClass().getResourceAsStream("/eurostag-tutorial-example1.xml")), StandardCharsets.UTF_8));
+        assertXMLEquals(new String(Files.readAllBytes(xmlFile), StandardCharsets.UTF_8),
+                    new String(ByteStreams.toByteArray(getClass().getResourceAsStream("/eurostag-tutorial-example1.xml")), StandardCharsets.UTF_8));
         validateXsd(xmlFile);
     }
+    
+   
 
     @Test
     public void testValidationIssueWithProperties() throws Exception {

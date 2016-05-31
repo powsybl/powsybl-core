@@ -23,8 +23,9 @@ import org.joda.time.Interval;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
@@ -110,8 +111,12 @@ public class AbstractOfflineDbTest {
         StringWriter writer = new StringWriter();
         offlineDb.exportCsv(workflowId, writer, new OfflineDbCsvExportConfig(';', OfflineAttributesFilter.ALL, false, true));
         writer.close();
-        String offlineDbCsvRef = new String(ByteStreams.toByteArray(getClass().getResourceAsStream("/offlinedb.csv")), StandardCharsets.UTF_8);
-        Assert.assertTrue(writer.toString().equals(offlineDbCsvRef));
+        String offlineDbCsvRef = new String(ByteStreams.toByteArray(getClass().getResourceAsStream("/offlinedb.csv")), StandardCharsets.UTF_8);    
+        String[] lines1= new BufferedReader(new StringReader(writer.toString())).lines().toArray(String[]::new); 
+        String[] lines2= new BufferedReader(new StringReader(offlineDbCsvRef)).lines().toArray(String[]::new);
+        
+        Assert.assertTrue (Arrays.equals(lines1,lines2));             
+      //  Assert.assertTrue(writer.toString().equals(offlineDbCsvRef));
         offlineDb.deleteWorkflow(workflowId);
         Assert.assertTrue(offlineDb.listWorkflows().isEmpty());
         Assert.assertTrue(!Files.exists(workflowDir));
