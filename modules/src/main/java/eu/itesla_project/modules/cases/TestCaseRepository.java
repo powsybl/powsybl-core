@@ -8,8 +8,8 @@ package eu.itesla_project.modules.cases;
 
 import eu.itesla_project.commons.io.ModuleConfig;
 import eu.itesla_project.commons.io.PlatformConfig;
-import eu.itesla_project.iidm.datasource.DataSource;
 import eu.itesla_project.iidm.datasource.GenericReadOnlyDataSource;
+import eu.itesla_project.iidm.datasource.ReadOnlyDataSource;
 import eu.itesla_project.iidm.import_.Importer;
 import eu.itesla_project.iidm.import_.Importers;
 import eu.itesla_project.iidm.network.Country;
@@ -60,7 +60,7 @@ public class TestCaseRepository implements CaseRepository {
 	
 	private boolean isNetworkDataAvailable() {
 		Importer importer = Importers.getImporter("CIM1");
-		DataSource ds = new GenericReadOnlyDataSource(dir, baseName);
+		ReadOnlyDataSource ds = new GenericReadOnlyDataSource(dir, baseName);
 		if (importer.exists(ds)) {
             return true;
         }

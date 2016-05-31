@@ -8,15 +8,14 @@ package eu.itesla_project.iidm.datasource;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.file.Path;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class GenericReadOnlyDataSource extends AbstractDataSource {
+public class GenericReadOnlyDataSource implements ReadOnlyDataSource {
 
-    private final DataSource[] dataSources;
+    private final ReadOnlyDataSource[] dataSources;
 
     public GenericReadOnlyDataSource(Path directory, String baseName, DataSourceObserver observer) {
         dataSources = new DataSource[] { new FileDataSource(directory, baseName, observer),
@@ -35,7 +34,7 @@ public class GenericReadOnlyDataSource extends AbstractDataSource {
 
     @Override
     public boolean exists(String suffix, String ext) throws IOException {
-        for (DataSource dataSource : dataSources) {
+        for (ReadOnlyDataSource dataSource : dataSources) {
             if (dataSource.exists(suffix, ext)) {
                 return true;
             }
@@ -45,7 +44,7 @@ public class GenericReadOnlyDataSource extends AbstractDataSource {
 
     @Override
     public boolean exists(String fileName) throws IOException {
-        for (DataSource dataSource : dataSources) {
+        for (ReadOnlyDataSource dataSource : dataSources) {
             if (dataSource.exists(fileName)) {
                 return true;
             }
@@ -55,26 +54,21 @@ public class GenericReadOnlyDataSource extends AbstractDataSource {
 
     @Override
     public InputStream newInputStream(String suffix, String ext) throws IOException {
-        for (DataSource dataSource : dataSources) {
+        for (ReadOnlyDataSource dataSource : dataSources) {
             if (dataSource.exists(suffix, ext)) {
                 return dataSource.newInputStream(suffix, ext);
             }
         }
-        throw new IOException(getFileName(getBaseName(), suffix, ext) + " not found");
+        throw new IOException(DataSourceUtil.getFileName(getBaseName(), suffix, ext) + " not found");
     }
 
     @Override
     public InputStream newInputStream(String fileName) throws IOException {
-        for (DataSource dataSource : dataSources) {
+        for (ReadOnlyDataSource dataSource : dataSources) {
             if (dataSource.exists(fileName)) {
                 return dataSource.newInputStream(fileName);
             }
         }
         throw new IOException(fileName + " not found");
-    }
-
-    @Override
-    public OutputStream newOutputStream(String suffix, String ext, boolean append) throws IOException {
-        throw new UnsupportedOperationException();
     }
 }

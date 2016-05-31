@@ -6,13 +6,13 @@
  */
 package eu.itesla_project.iidm.datasource;
 
+import java.nio.file.Path;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public abstract class AbstractDataSource implements DataSource {
+public interface ReadOnlyDataSourceFactory {
 
-    protected static String getFileName(String baseName, String suffix, String ext) {
-        return baseName + (suffix != null ? suffix : "") + (ext != null ? "." + ext : "");
-    }
+    ReadOnlyDataSource create(Path directory, String baseName);
 
 }

@@ -19,7 +19,7 @@ import java.util.Objects;
  */
 public class ImportConfig {
 
-    public static final List<String> DEFAULT_POST_PROCESSORS = Arrays.asList("stepUpTransformers", "javaScript");
+    public static final List<String> DEFAULT_POST_PROCESSORS = Arrays.asList(JavaScriptPostProcessor.NAME);
 
     private final List<String> postProcessors;
 
@@ -35,7 +35,7 @@ public class ImportConfig {
     }
 
     public ImportConfig() {
-        this(Collections.<String>emptyList());
+        this(Collections.emptyList());
     }
 
     public ImportConfig(String... postProcessors) {
