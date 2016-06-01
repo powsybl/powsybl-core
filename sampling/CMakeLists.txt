@@ -18,6 +18,7 @@ set(builddir ${CMAKE_CURRENT_BINARY_DIR})
 add_custom_command(
     COMMENT "Compiling ${exec_name1}"
     OUTPUT  ${exec_name1}
+    DEPENDS ${sdir}/MODULE1_HELPERS.m ${sdir}/MODULE1_HELPER.m ${sdir}/MODULE1.m
     COMMAND ${matlabhome}/bin/mcc
     ARGS -o ${exec_name1} 
     -W main:${exec_name1} 
@@ -42,6 +43,7 @@ add_custom_command(
 add_custom_command(
     COMMENT "Compiling ${exec_name2}"
     OUTPUT  ${exec_name2}
+    DEPENDS ${sdir}/MODULE2_HELPERS.m ${sdir}/MODULE2_HELPER.m ${sdir}/MODULE2.m ${sdir}/h.m ${sdir}/NEW_PIT.m ${sdir}/copulachoose.m ${sdir}/map_ecdf.m ${sdir}/copulaName.m ${sdir}/modU.m
     COMMAND ${matlabhome}/bin/mcc
     ARGS -o ${exec_name2} 
     -W main:${exec_name2} 
@@ -72,6 +74,7 @@ add_custom_command(
 add_custom_command(
     COMMENT "Compiling ${exec_name3}"
     OUTPUT  ${exec_name3}
+    DEPENDS ${sdir}/MODULE3PRE_HELPERS.m
     COMMAND ${matlabhome}/bin/mcc
     ARGS -o ${exec_name3} 
     -W main:${exec_name3} 
@@ -94,6 +97,7 @@ add_custom_command(
 add_custom_command(
     COMMENT "Compiling ${exec_name4}"
     OUTPUT  ${exec_name4}
+    DEPENDS ${sdir}/MODULE3_HELPERS.m ${sdir}/MODULE3_HELPER.m ${sdir}/MODULE3.m ${sdir}/h_inv_ex.m ${sdir}/modU.m ${sdir}/sQuantile.m 
     COMMAND ${matlabhome}/bin/mcc
     ARGS -o ${exec_name4} 
     -W main:${exec_name4} 
@@ -121,6 +125,7 @@ add_custom_command(
 add_custom_command(
     COMMENT "Compiling ${exec_name5}"
     OUTPUT  ${exec_name5}
+    DEPENDS ${sdir}/AGGREGATORS.m ${sdir}/AGGREGATOR.m ${sdir}/insert_ind.m
     COMMAND ${matlabhome}/bin/mcc
     ARGS -o ${exec_name5} 
     -W main:${exec_name5} 

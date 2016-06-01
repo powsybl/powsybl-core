@@ -17,6 +17,7 @@ set(builddir ${CMAKE_CURRENT_BINARY_DIR})
 add_custom_command(
     COMMENT "Compiling ${exec_name1}"
     OUTPUT  ${exec_name1}
+    DEPENDS ${sdir}/1_Static_Overload/sources/overload_HELPER.m ${sdir}/1_Static_Overload/sources/static_overload.m
     COMMAND ${matlabhome}/bin/mcc
     ARGS -o ${exec_name1} 
     -W main:${exec_name1} 
@@ -34,12 +35,13 @@ add_custom_command(
 	-R -singleCompThread  
 	-R -nosplash  
 	-v ${sdir}/1_Static_Overload/sources/overload_HELPER.m 
-    -a ${sdir}/1_Static_Overload//sources/static_overload.m 
+        -a ${sdir}/1_Static_Overload/sources/static_overload.m 
 )
 
 add_custom_command(
     COMMENT "Compiling ${exec_name2}"
     OUTPUT  ${exec_name2}
+    DEPENDS ${sdir}/2_Static_UnderOver_Voltage/sources/underovervoltage_HELPER.m ${sdir}/2_Static_UnderOver_Voltage/sources/static_voltage.m
     COMMAND ${matlabhome}/bin/mcc
     ARGS -o ${exec_name2} 
     -W main:${exec_name2} 
@@ -57,12 +59,13 @@ add_custom_command(
 	-R -singleCompThread  
 	-R -nosplash  
 	-v ${sdir}/2_Static_UnderOver_Voltage/sources/underovervoltage_HELPER.m 
-    -a ${sdir}/2_Static_UnderOver_Voltage/sources/static_voltage.m 
+        -a ${sdir}/2_Static_UnderOver_Voltage/sources/static_voltage.m 
 )
 
 add_custom_command(
     COMMENT "Compiling ${exec_name3}"    
     OUTPUT  ${exec_name3}
+    DEPENDS ${sdir}/3_Dynamic_Transient/sources/transient_HELPER.m ${sdir}/3_Dynamic_Transient/sources/dynamic_transient.m
     COMMAND ${matlabhome}/bin/mcc
     ARGS -o ${exec_name3} 
     -W main:${exec_name3} 
@@ -80,12 +83,13 @@ add_custom_command(
 	-R -singleCompThread  
 	-R -nosplash  
 	-v ${sdir}/3_Dynamic_Transient/sources/transient_HELPER.m 
-    -a ${sdir}/3_Dynamic_Transient/sources/dynamic_transient.m 
+        -a ${sdir}/3_Dynamic_Transient/sources/dynamic_transient.m 
 )
 
 add_custom_command(
     COMMENT "Compiling ${exec_name4}"
     OUTPUT  ${exec_name4}
+    DEPENDS ${sdir}/4_Dynamic_SmallSignal/sources/smallsignal_HELPER.m ${sdir}/4_Dynamic_SmallSignal/sources/pronyiTesla.m ${sdir}/4_Dynamic_SmallSignal/sources/signal_filter.m ${sdir}/4_Dynamic_SmallSignal/sources/sssi.m
     COMMAND ${matlabhome}/bin/mcc
     ARGS -o ${exec_name4} 
     -W main:${exec_name4} 
@@ -103,9 +107,9 @@ add_custom_command(
 	-R -singleCompThread  
 	-R -nosplash  
 	-v ${sdir}/4_Dynamic_SmallSignal/sources/smallsignal_HELPER.m 
-    -a ${sdir}/4_Dynamic_SmallSignal/sources/pronyiTesla.m
-    -a ${sdir}/4_Dynamic_SmallSignal/sources/signal_filter.m
-    -a ${sdir}/4_Dynamic_SmallSignal/sources/sssi.m
+        -a ${sdir}/4_Dynamic_SmallSignal/sources/pronyiTesla.m
+        -a ${sdir}/4_Dynamic_SmallSignal/sources/signal_filter.m
+        -a ${sdir}/4_Dynamic_SmallSignal/sources/sssi.m
 )
 
 

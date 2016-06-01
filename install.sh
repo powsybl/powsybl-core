@@ -27,7 +27,7 @@ cmd=$0
 usage() {
     echo "usage: $cmd [--help] [--installDir <installation path>] [--thirdpartyDir <thirdparty path>] [--wipeInstallDir] [--buildMATLAB] [--buildEUROSTAG] [--buildDYMOLA]";
     echo ""
-    exit
+    exit 1
 }
 
 help() {
@@ -70,10 +70,39 @@ do
         help;
     fi
 done;
+echo ""
+echo "** Building and installing ipst:"
+echo "** -----------------------------"
+echo "** installDir:" $installDir
+echo "** thirdpartyDir:" $thirdpartyDir
+echo "** wipeInstallDir:" $wipeInstallDir
+echo "** buildMATLAB:" $BUILD_MATLAB
+echo "** buildEUROSTAG:" $BUILD_EUROSTAG
+echo "** buildDYMOLA:" $BUILD_DYMOLA
 
-echo "installDir:" $installDir
-echo "thirdpartyDir:" $thirdpartyDir
-echo "wipeInstallDir:" $wipeInstallDir
+if [ $BUILD_MATLAB = true ] ; then
+ if [ -z "$MATLABHOME" ] ; then
+    echo ""
+    echo "ERROR: to build MATLAB modules, MATLABHOME environment variable is required; MATLABHOME must point to the root of a licensed MATLAB installation (with MATLAB compiler)"
+    exit 1
+ fi  
+fi
+
+if [ $BUILD_EUROSTAG = true ] ; then
+ if [ -z "$EUROSTAG_SRC_HOME" ] ; then
+    echo ""
+    echo "ERROR: to build EUROSTAG modules, EUROSTAG_SRC_HOME environment variable is required. It must point to an EUROSTAG SDK."
+    exit 1
+ fi  
+fi
+
+if [ $BUILD_DYMOLA = true ] ; then
+ if [ -z "$DYMOLAHOME" ] ; then
+    echo ""
+    echo "ERROR: to build DYMOLA modules, DYMOLAHOME environment variable is required. It must point to the root of a DYMOLA installation."
+    exit 1
+ fi  
+fi
 
 if [ -d $installDir ] &&
    [ $wipeInstallDir != true ]
@@ -84,39 +113,80 @@ then
 fi
 
 
+############################################
+# build required C/C++ thirdparty libraries:
+# - boost, build, hdf5, libarchive, log4cpp, matio, protobuf, szip, zlib
+#
+echo ""
+echo "** Building thirdparty libraries"
+echo ""
+buildThirdpartyDir=$thirdpartyDir/build
+cmake -Dthirdparty_prefix=$thirdpartyDir -G "Unix Makefiles" -Hthirdparty -B$buildThirdpartyDir 
+cr=$?
+if [ $cr -ne 0 ] ; then
+exit $cr
+fi
+make -C $buildThirdpartyDir
+cr=$?
+if [ $cr -ne 0 ] ; then
+exit $cr
+fi
+
+###########################################################################################
+# build IPST (C/C++ and MATLAB modules, if enabled by the above declared BUILD_MATLAB flag)
+#
+echo ""
+echo "** Building IPST platform: C/C++ and MATLAB (when configured) modules"
+echo ""
+buildDir=./build
+cmake -DCMAKE_INSTALL_PREFIX=$installDir -Dthirdparty_prefix=$thirdpartyDir -DBUILD_EUROSTAG=$BUILD_EUROSTAG -DBUILD_MATLAB=$BUILD_MATLAB -DBUILD_DYMOLA=$BUILD_DYMOLA  -G "Unix Makefiles" -H. -B$buildDir 
+cr=$?
+if [ $cr -ne 0 ] ; then
+exit $cr
+fi
+make -C $buildDir
+cr=$?
+if [ $cr -ne 0 ] ; then
+exit $cr
+fi
+
+
 ###############################
 # remove  previous installation
 rm -rf $installDir
 mkdir -p $installDir
 
-############################################
-# build required C/C++ thirdparty libraries:
-# - boost, build, hdf5, libarchive, log4cpp, matio, protobuf, szip, zlib
-#
-buildThirdpartyDir=$thirdpartyDir/build
-cmake -Dthirdparty_prefix=$thirdpartyDir -G "Unix Makefiles" -Hthirdparty -B$buildThirdpartyDir 
-make -C $buildThirdpartyDir
-
-###########################################################################################
-# build IPST (C/C++ and MATLAB modules, if enabled by the above declared BUILD_MATLAB flag)
-#
-buildDir=./build
-cmake -DCMAKE_INSTALL_PREFIX=$installDir -Dthirdparty_prefix=$thirdpartyDir -DBUILD_EUROSTAG=$BUILD_EUROSTAG -DBUILD_MATLAB=$BUILD_MATLAB -DBUILD_DYMOLA=$BUILD_DYMOLA  -G "Unix Makefiles" -H. -B$buildDir 
-make -C $buildDir
 
 ###########################
 # build IPST (Java modules)
 #
+echo ""
+echo "** Building IPST platform: java modules"
+echo ""
 mvn -f ./pom.xml clean install
+cr=$?
+if [ $cr -ne 0 ] ; then
+exit $cr
+fi
 
 ################################################
 #install IPST to the target directory: installDir
 #
+echo ""
+echo "** Copying distribution files to "$installDir
+echo ""
 cp -r ./distribution/target/distribution-*-full/itesla/* $installDir/
+cr=$?
+if [ $cr -ne 0 ] ; then
+exit $cr
+fi
 
 ################################
 # create a default configuration
 #
+echo ""
+echo "** Creating a default itesla.conf file "
+echo ""
 mkdir $installDir/etc
 echo "#itesla_cache_dir=" >> $installDir/etc/itesla.conf
 echo "#itesla_config_dir=" >> $installDir/etc/itesla.conf
@@ -124,3 +194,4 @@ echo "itesla_config_name=config" >> $installDir/etc/itesla.conf
 echo "mpi_tasks=3" >> $installDir/etc/itesla.conf
 echo "mpi_hosts=localhost" >> $installDir/etc/itesla.conf
 
+exit 0
