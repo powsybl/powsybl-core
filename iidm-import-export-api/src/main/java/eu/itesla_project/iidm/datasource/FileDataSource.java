@@ -18,7 +18,7 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class FileDataSource extends AbstractDataSource {
+public class FileDataSource implements DataSource {
 
     private static final OpenOption[] DEFAULT_OPEN_OPTIONS = { StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING };
     private static final OpenOption[] APPEND_OPEN_OPTIONS = { StandardOpenOption.APPEND };
@@ -45,7 +45,7 @@ public class FileDataSource extends AbstractDataSource {
     }
 
     private Path getPath(String suffix, String ext) {
-        return directory.resolve(getFileName(baseName, suffix, ext));
+        return directory.resolve(DataSourceUtil.getFileName(baseName, suffix, ext));
     }
 
     @Override

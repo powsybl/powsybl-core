@@ -9,8 +9,8 @@ package eu.itesla_project.modules.cases;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import eu.itesla_project.computation.ComputationManager;
-import eu.itesla_project.iidm.datasource.DataSource;
-import eu.itesla_project.iidm.datasource.DataSourceFactory;
+import eu.itesla_project.iidm.datasource.ReadOnlyDataSource;
+import eu.itesla_project.iidm.datasource.ReadOnlyDataSourceFactory;
 import eu.itesla_project.iidm.datasource.GenericReadOnlyDataSource;
 import eu.itesla_project.iidm.import_.Importer;
 import eu.itesla_project.iidm.import_.Importers;
@@ -71,13 +71,13 @@ public class EntsoeCaseRepository implements CaseRepository {
 
     private final List<EntsoeFormat> formats;
 
-    private final DataSourceFactory dataSourceFactory;
+    private final ReadOnlyDataSourceFactory dataSourceFactory;
 
     public static CaseRepository create(ComputationManager computationManager) {
         return new EntsoeCaseRepository(EntsoeCaseRepositoryConfig.load(), computationManager);
     }
 
-    EntsoeCaseRepository(EntsoeCaseRepositoryConfig config, List<EntsoeFormat> formats, DataSourceFactory dataSourceFactory) {
+    EntsoeCaseRepository(EntsoeCaseRepositoryConfig config, List<EntsoeFormat> formats, ReadOnlyDataSourceFactory dataSourceFactory) {
         this.config = Objects.requireNonNull(config);
         this.formats = Objects.requireNonNull(formats);
         this.dataSourceFactory = Objects.requireNonNull(dataSourceFactory);
@@ -97,9 +97,9 @@ public class EntsoeCaseRepository implements CaseRepository {
 
     private static class ImportContext {
         private final Importer importer;
-        private final DataSource ds;
+        private final ReadOnlyDataSource ds;
 
-        private ImportContext(Importer importer, DataSource ds) {
+        private ImportContext(Importer importer, ReadOnlyDataSource ds) {
             this.importer = importer;
             this.ds = ds;
         }
@@ -132,7 +132,7 @@ public class EntsoeCaseRepository implements CaseRepository {
                                     String baseName = String.format("%04d%02d%02d_%02d%02d_" + type + "%01d_" + geographicalCode.name() + "%01d",
                                             date.getYear(), date.getMonthOfYear(), date.getDayOfMonth(), date.getHourOfDay(), date.getMinuteOfHour(),
                                             date.getDayOfWeek(), i);
-                                    DataSource ds = dataSourceFactory.create(dayDir, baseName);
+                                    ReadOnlyDataSource ds = dataSourceFactory.create(dayDir, baseName);
                                     if (importContexts == null) {
                                         importContexts = new ArrayList<>();
                                     }

@@ -58,8 +58,24 @@ public class Importers {
         return LOADER.loadImporters().stream().map(Importer::getFormat).collect(Collectors.toList());
     }
 
+    private static Importer wrapImporter(Importer importer, ComputationManager computationManager, ImportConfig config) {
+        Objects.requireNonNull(computationManager);
+        Objects.requireNonNull(config);
+        List<String> postProcessorNames = config.getPostProcessors();
+        if (postProcessorNames != null && postProcessorNames.size() > 0) {
+            return new ImporterWrapper(importer, computationManager, postProcessorNames);
+        }
+        return importer;
+    }
+
+    public static Collection<Importer> list(ComputationManager computationManager, ImportConfig config) {
+        return LOADER.loadImporters().stream()
+                .map(importer -> wrapImporter(importer, computationManager, config))
+                .collect(Collectors.toList());
+    }
+
     public static Collection<Importer> list() {
-        return LOADER.loadImporters();
+        return list(LocalComputationManager.getDefault(), CONFIG.get());
     }
 
     /**
@@ -70,16 +86,10 @@ public class Importers {
      * <code>null</code> otherwise.
      */
     public static Importer getImporter(String format, ComputationManager computationManager, ImportConfig config) {
-        if (format == null) {
-            throw new IllegalArgumentException("format is null");
-        }
+        Objects.requireNonNull(format);
         for (Importer importer : LOADER.loadImporters()) {
             if (format.equals(importer.getFormat())) {
-                List<String> postProcessorNames = config.getPostProcessors();
-                if (postProcessorNames != null && postProcessorNames.size() > 0) {
-                    importer = new ImporterWrapper(importer, computationManager, postProcessorNames);
-                }
-                return importer;
+                return wrapImporter(importer, computationManager, config);
             }
         }
         return null;
@@ -271,7 +281,7 @@ public class Importers {
 
     private static void addDataSource(Path dir, Path file, Importer importer, List<ReadOnlyDataSource> dataSources) {
         String caseBaseName = getBaseName(file);
-        DataSource ds = new GenericReadOnlyDataSource(dir, caseBaseName);
+        ReadOnlyDataSource ds = new GenericReadOnlyDataSource(dir, caseBaseName);
         if (importer.exists(ds)) {
             dataSources.add(ds);
         }
