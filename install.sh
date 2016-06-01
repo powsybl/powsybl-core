@@ -14,6 +14,7 @@
 BUILD_EUROSTAG=false
 BUILD_MATLAB=false
 BUILD_DYMOLA=false
+BUILD_THIRDPARTY=true
 
 ## default ipst installation target directory
 installDir=$HOME/itesla
@@ -65,6 +66,9 @@ do
     elif [ ${!i} = "--buildDYMOLA" ];
     then 
         BUILD_DYMOLA=true;  
+    elif [ ${!i} = "--skipThirdpartyBuild" ];
+    then 
+        BUILD_THIRDPARTY=false;  
     elif [ ${!i} = "--help" ];    
     then ((i++)) 
         help;
@@ -107,7 +111,8 @@ fi
 if [ -d $installDir ] &&
    [ $wipeInstallDir != true ]
 then
-    echo "ERROR: the target installation directory '"$installDir"' already exists"
+    echo ""
+    echo "ERROR: the target installation directory '"$installDir"' already exists; make sure that you really want to overwrite it (ref. --wipeInstallDir parameter)"
     echo ""
     usage;
 fi
@@ -117,19 +122,25 @@ fi
 # build required C/C++ thirdparty libraries:
 # - boost, build, hdf5, libarchive, log4cpp, matio, protobuf, szip, zlib
 #
-echo ""
-echo "** Building thirdparty libraries"
-echo ""
-buildThirdpartyDir=$thirdpartyDir/build
-cmake -Dthirdparty_prefix=$thirdpartyDir -G "Unix Makefiles" -Hthirdparty -B$buildThirdpartyDir 
-cr=$?
-if [ $cr -ne 0 ] ; then
-exit $cr
-fi
-make -C $buildThirdpartyDir
-cr=$?
-if [ $cr -ne 0 ] ; then
-exit $cr
+if [ $BUILD_THIRDPARTY = true ] ; then
+ echo ""
+ echo "** Building thirdparty libraries"
+ echo ""
+ buildThirdpartyDir=$thirdpartyDir/build
+ cmake -Dthirdparty_prefix=$thirdpartyDir -G "Unix Makefiles" -Hthirdparty -B$buildThirdpartyDir 
+ cr=$?
+ if [ $cr -ne 0 ] ; then
+  exit $cr
+ fi
+ make -C $buildThirdpartyDir
+ cr=$?
+ if [ $cr -ne 0 ] ; then
+  exit $cr
+ fi
+else
+ echo ""
+ echo "** Exclude required thirdparty from build; libraries are assumed to be already available here: "$thirdpartyDir
+ echo ""
 fi
 
 ###########################################################################################
