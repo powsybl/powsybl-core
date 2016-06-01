@@ -19,7 +19,7 @@ import java.util.zip.GZIPOutputStream;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class GzFileDataSource extends AbstractDataSource {
+public class GzFileDataSource implements DataSource {
 
     private final Path directory;
 
@@ -43,7 +43,7 @@ public class GzFileDataSource extends AbstractDataSource {
     }
 
     private Path getPath(String suffix, String ext) {
-        return directory.resolve(getFileName(baseName, suffix, ext) + ".gz");
+        return directory.resolve(DataSourceUtil.getFileName(baseName, suffix, ext) + ".gz");
     }
 
     @Override

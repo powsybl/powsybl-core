@@ -26,6 +26,8 @@ import java.nio.file.Path;
 @AutoService(ImportPostProcessor.class)
 public class JavaScriptPostProcessor implements ImportPostProcessor {
 
+    public static final String NAME = "javaScript";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(JavaScriptPostProcessor.class);
 
     private static final boolean DEFAULT_PRINT_TO_STD_OUT = true;
@@ -34,7 +36,7 @@ public class JavaScriptPostProcessor implements ImportPostProcessor {
 
     @Override
     public String getName() {
-        return "javaScript";
+        return NAME;
     }
 
     public JavaScriptPostProcessor() {

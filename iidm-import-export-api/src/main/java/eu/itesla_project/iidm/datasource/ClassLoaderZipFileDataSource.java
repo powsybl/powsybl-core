@@ -11,15 +11,13 @@ import org.jboss.shrinkwrap.api.Node;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.importer.ZipImporter;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class ClassLoaderZipFileDataSource extends AbstractDataSource {
+public class ClassLoaderZipFileDataSource implements ReadOnlyDataSource {
 
     private final String baseName;
 
@@ -32,13 +30,8 @@ public class ClassLoaderZipFileDataSource extends AbstractDataSource {
     }
 
     @Override
-    public OutputStream newOutputStream(String suffix, String ext, boolean append) throws IOException {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public boolean exists(String suffix, String ext) {
-        return exists(getFileName(baseName, suffix, ext));
+        return exists(DataSourceUtil.getFileName(baseName, suffix, ext));
     }
 
     @Override
@@ -53,7 +46,7 @@ public class ClassLoaderZipFileDataSource extends AbstractDataSource {
 
     @Override
     public InputStream newInputStream(String suffix, String ext) {
-        String fileName = getFileName(baseName, suffix, ext);
+        String fileName = DataSourceUtil.getFileName(baseName, suffix, ext);
         return newInputStream(fileName);
     }
 

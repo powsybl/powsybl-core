@@ -25,7 +25,7 @@ import java.util.zip.ZipOutputStream;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class ZipFileDataSource extends AbstractDataSource {
+public class ZipFileDataSource implements DataSource {
 
     private final Path directory;
 
@@ -61,7 +61,7 @@ public class ZipFileDataSource extends AbstractDataSource {
 
     @Override
     public boolean exists(String suffix, String ext) throws IOException {
-        return exists(getFileName(baseName, suffix, ext));
+        return exists(DataSourceUtil.getFileName(baseName, suffix, ext));
     }
 
     @Override
@@ -81,7 +81,7 @@ public class ZipFileDataSource extends AbstractDataSource {
 
     @Override
     public InputStream newInputStream(String suffix, String ext) throws IOException {
-        return newInputStream(getFileName(baseName, suffix, ext));
+        return newInputStream(DataSourceUtil.getFileName(baseName, suffix, ext));
     }
 
     @Override
@@ -109,7 +109,7 @@ public class ZipFileDataSource extends AbstractDataSource {
         Path tmpZipFilePath = Files.createTempFile(directory, null, null);
         ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(tmpZipFilePath));
         Path zipFilePath = getZipFilePath();
-        String entryName = getFileName(baseName, suffix, ext);
+        String entryName = DataSourceUtil.getFileName(baseName, suffix, ext);
         zos.putNextEntry(new ZipEntry(entryName));
         return new ForwardingOutputStream<ZipOutputStream>(zos) {
             @Override

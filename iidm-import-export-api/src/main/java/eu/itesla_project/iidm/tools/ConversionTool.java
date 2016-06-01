@@ -10,10 +10,7 @@ import eu.itesla_project.commons.tools.Tool;
 import eu.itesla_project.commons.tools.Command;
 import com.google.auto.service.AutoService;
 import eu.itesla_project.commons.ITeslaException;
-import eu.itesla_project.iidm.datasource.AbstractDataSourceObserver;
-import eu.itesla_project.iidm.datasource.DataSource;
-import eu.itesla_project.iidm.datasource.FileDataSource;
-import eu.itesla_project.iidm.datasource.GenericReadOnlyDataSource;
+import eu.itesla_project.iidm.datasource.*;
 import eu.itesla_project.iidm.export.Exporter;
 import eu.itesla_project.iidm.export.Exporters;
 import eu.itesla_project.iidm.import_.Importer;
@@ -55,7 +52,7 @@ public class ConversionTool implements Tool {
 
         Properties inputParams = new Properties();
         // TODO get parameters through the command line
-        DataSource ds1= new GenericReadOnlyDataSource(Paths.get(inputDirName), inputBaseName);
+        ReadOnlyDataSource ds1 = new GenericReadOnlyDataSource(Paths.get(inputDirName), inputBaseName);
         Network network = importer.import_(ds1, inputParams);
 
         Properties outputParams = new Properties();
