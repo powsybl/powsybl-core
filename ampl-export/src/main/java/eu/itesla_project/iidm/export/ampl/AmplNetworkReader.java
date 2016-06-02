@@ -21,6 +21,7 @@ import eu.itesla_project.iidm.network.TwoWindingsTransformer;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -57,7 +58,7 @@ public class AmplNetworkReader implements AmplConstants {
         for (Generator g : network.getGenerators()) {
             g.setTargetV(g.getTerminal().getVoltageLevel().getNominalV());
         }
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream("_generators", "txt")))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream("_generators", "txt"), StandardCharsets.UTF_8))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 String trimedLine = line.trim();
@@ -100,7 +101,7 @@ public class AmplNetworkReader implements AmplConstants {
     }
 
     public AmplNetworkReader readLoads() throws IOException {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream("_loads", "txt")))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream("_loads", "txt"), StandardCharsets.UTF_8))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 String trimedLine = line.trim();
@@ -136,7 +137,7 @@ public class AmplNetworkReader implements AmplConstants {
     }
 
     public AmplNetworkReader readRatioTapChangers() throws IOException {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream("_rtc", "txt")))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream("_rtc", "txt"), StandardCharsets.UTF_8))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 String trimedLine = line.trim();
@@ -180,7 +181,7 @@ public class AmplNetworkReader implements AmplConstants {
     }
 
     public AmplNetworkReader readPhaseTapChangers() throws IOException {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream("_ptc", "txt")))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream("_ptc", "txt"), StandardCharsets.UTF_8))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 String trimedLine = line.trim();
@@ -208,7 +209,7 @@ public class AmplNetworkReader implements AmplConstants {
     }
 
     public AmplNetworkReader readShunts() throws IOException {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream("_shunts", "txt")))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream("_shunts", "txt"), StandardCharsets.UTF_8))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 String trimedLine = line.trim();
@@ -254,7 +255,7 @@ public class AmplNetworkReader implements AmplConstants {
     }
 
     public AmplNetworkReader readMetrics(Map<String, String> metrics) throws IOException {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream("_indic", "txt")))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream("_indic", "txt"), StandardCharsets.UTF_8))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 String trimedLine = line.trim();
