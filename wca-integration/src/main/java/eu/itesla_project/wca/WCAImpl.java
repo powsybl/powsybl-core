@@ -226,7 +226,7 @@ public class WCAImpl implements WCA, WCAConstants, AmplConstants {
     }
 
     private static void writeContingencies(Collection<Contingency> contingencies, DataSource dataSource, StringToIntMapper<AmplSubset> mapper) {
-        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream(FAULTS_FILE_SUFFIX, TXT_EXT, false))) {
+        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream(FAULTS_FILE_SUFFIX, TXT_EXT, false), StandardCharsets.UTF_8)) {
             TableFormatter formatter = new TableFormatter(LOCALE, writer, "Contingencies",
                     INVALID_FLOAT_VALUE,
                     new Column("num"),
@@ -244,7 +244,7 @@ public class WCAImpl implements WCA, WCAConstants, AmplConstants {
     }
 
     private static void writeCurativeActions(Collection<String> curativeActionIds, DataSource dataSource, StringToIntMapper<AmplSubset> mapper) {
-        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream(ACTIONS_FILE_SUFFIX, TXT_EXT, false))) {
+        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream(ACTIONS_FILE_SUFFIX, TXT_EXT, false), StandardCharsets.UTF_8)) {
             TableFormatter formatter = new TableFormatter(LOCALE, writer, "Curative actions",
                     INVALID_FLOAT_VALUE,
                     new Column("num"),
