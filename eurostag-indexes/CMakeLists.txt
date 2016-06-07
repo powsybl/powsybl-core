@@ -1,4 +1,5 @@
 # Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+# Copyright (c) 2016, RTE (http://www.rte-france.com)
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -17,8 +18,8 @@ if (DEFINED ENV{INTEL_HOME})
 else()
     message(FATAL_ERROR "INTEL_HOME is NOT defined")
 endif()
-if (DEFINED ENV{BOOST_HOME})
-    message("BOOST_HOME=$ENV{BOOST_HOME}")
+if (DEFINED BOOST_HOME)
+    message("BOOST_HOME=${BOOST_HOME}")
 else()
     message(FATAL_ERROR "BOOST_HOME is NOT defined")
 endif()
@@ -54,7 +55,7 @@ SET_TARGET_PROPERTIES(util PROPERTIES IMPORTED_LOCATION $ENV{EUROSTAG_SRC_HOME}/
 SET_TARGET_PROPERTIES(klu PROPERTIES IMPORTED_LOCATION $ENV{EUROSTAG_SRC_HOME}/src/klu/bin/libklu.a)
 SET_TARGET_PROPERTIES(amd PROPERTIES IMPORTED_LOCATION $ENV{EUROSTAG_SRC_HOME}/src/amd/bin/libamd.a)
 
-include_directories($ENV{BOOST_HOME}/include $ENV{EUROSTAG_SRC_HOME}/src/eustagcpt/sources)
+include_directories(${BOOST_HOME}/include $ENV{EUROSTAG_SRC_HOME}/src/eustagcpt/sources)
 link_directories($ENV{INTEL_HOME}/lib/intel64/)
 add_executable(tsoindexes src/TimeSeries.cpp src/EurostagTimeSeries.cpp src/tsoindexes.cpp)
 add_executable(tsextract src/TimeSeries.cpp src/EurostagTimeSeries.cpp src/tsextract.cpp)

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-
     Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+    Copyright (c) 2016, RTE (http://www.rte-france.com)
     This Source Code Form is subject to the terms of the Mozilla Public
     License, v. 2.0. If a copy of the MPL was not distributed with this
     file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -127,6 +127,31 @@
             <artifactId>log4j-over-slf4j</artifactId>
             <version>1.7.19</version>
         </dependency>
+
+        <!-- Modelica exporter -->
+        <dependency>
+            <groupId>eu.itesla_project.iidm-ddb</groupId>
+            <artifactId>iidm-ddb-eurostag-modelica-converter</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>modelica-export</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>modelica-events-adder</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- fpf integration -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>fpf-integration</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
 
     </dependencies>
 

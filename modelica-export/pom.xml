@@ -87,6 +87,7 @@
 			<groupId>eu.itesla_project.iidm-ddb</groupId>
 			<artifactId>iidm-ddb-ejb</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
+			<type>ejb-client</type>
 		</dependency>
 
 		<dependency>
