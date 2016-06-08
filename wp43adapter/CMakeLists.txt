@@ -1,17 +1,18 @@
 # Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+# Copyright (c) 2016, RTE (http://www.rte-france.com)
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 cmake_minimum_required(VERSION 2.6)
 
-if (DEFINED ENV{LOG4CPP_HOME})
-    message("LOG4CPP_HOME=$ENV{LOG4CPP_HOME}")
+if (DEFINED LOG4CPP_HOME)
+    message("LOG4CPP_HOME=${LOG4CPP_HOME}")
 else()
     message(FATAL_ERROR "LOG4CPP_HOME is NOT defined")
 endif()
-if (DEFINED ENV{BOOST_HOME})
-    message("BOOST_HOME=$ENV{BOOST_HOME}")
+if (DEFINED BOOST_HOME)
+    message("BOOST_HOME=${BOOST_HOME}")
 else()
     message(FATAL_ERROR "BOOST_HOME is NOT defined")
 endif()
@@ -25,13 +26,13 @@ if (DEFINED ENV{EUROSTAG_SRC_HOME})
 else()
     message(FATAL_ERROR "EUROSTAG_SRC_HOME is NOT defined")
 endif()
-if (DEFINED ENV{HDF5_HOME})
-    message("HDF5_HOME=$ENV{HDF5_HOME}")
+if (DEFINED HDF5_HOME)
+    message("HDF5_HOME=${HDF5_HOME}")
 else()
     message(FATAL_ERROR "HDF5_HOME is NOT defined")
 endif()
-if (DEFINED ENV{MATIO_HOME})
-    message("MATIO_HOME=$ENV{MATIO_HOME}")
+if (DEFINED MATIO_HOME)
+    message("MATIO_HOME=${MATIO_HOME}")
 else()
     message(FATAL_ERROR "MATIO_HOME is NOT defined")
 endif()
@@ -71,13 +72,22 @@ SET_TARGET_PROPERTIES(eustag_bld PROPERTIES IMPORTED_LOCATION $ENV{EUROSTAG_SRC_
 SET_TARGET_PROPERTIES(util PROPERTIES IMPORTED_LOCATION $ENV{EUROSTAG_SRC_HOME}/src/util/bin/libutil.a)
 SET_TARGET_PROPERTIES(klu PROPERTIES IMPORTED_LOCATION $ENV{EUROSTAG_SRC_HOME}/src/klu/bin/libklu.a)
 SET_TARGET_PROPERTIES(amd PROPERTIES IMPORTED_LOCATION $ENV{EUROSTAG_SRC_HOME}/src/amd/bin/libamd.a)
-SET_TARGET_PROPERTIES(log4cpp PROPERTIES IMPORTED_LOCATION $ENV{LOG4CPP_HOME}/lib/liblog4cpp.a)
-SET_TARGET_PROPERTIES(hdf5 PROPERTIES IMPORTED_LOCATION $ENV{HDF5_HOME}/lib/libhdf5.a)
-SET_TARGET_PROPERTIES(hdf5_z PROPERTIES IMPORTED_LOCATION $ENV{HDF5_HOME}/lib/libz.a)
-SET_TARGET_PROPERTIES(hdf5_sz PROPERTIES IMPORTED_LOCATION $ENV{HDF5_HOME}/lib/libsz.a)
-SET_TARGET_PROPERTIES(matio PROPERTIES IMPORTED_LOCATION $ENV{MATIO_HOME}/lib/libmatio.a)
+SET_TARGET_PROPERTIES(log4cpp PROPERTIES IMPORTED_LOCATION ${LOG4CPP_HOME}/lib/liblog4cpp.a)
+SET_TARGET_PROPERTIES(hdf5 PROPERTIES IMPORTED_LOCATION ${HDF5_HOME}/lib/libhdf5.a)
+SET_TARGET_PROPERTIES(hdf5_z PROPERTIES IMPORTED_LOCATION ${ZLIB_HOME}/lib/libz.a)
+SET_TARGET_PROPERTIES(hdf5_sz PROPERTIES IMPORTED_LOCATION ${SZIP_HOME}/lib/libszip.a)
+SET_TARGET_PROPERTIES(matio PROPERTIES IMPORTED_LOCATION ${MATIO_HOME}/lib/libmatio.a)
 
-include_directories($ENV{BOOST_HOME}/include $ENV{EUROSTAG_SRC_HOME}/src/eustagcpt/sources $ENV{LOG4CPP_HOME}/include $ENV{MATIO_HOME}/include)
+include_directories(${BOOST_HOME}/include $ENV{EUROSTAG_SRC_HOME}/src/eustagcpt/sources ${LOG4CPP_HOME}/include ${MATIO_HOME}/include)
 link_directories($ENV{INTEL_HOME}/lib/intel64/)
 add_executable(wp43adapter ${source_files})
 target_link_libraries(wp43adapter eustag_esg eustag_cpt eustag_a light_lib_a_t eustag_i eustag_s light_lib_s eustag_lf light_lib_t_s light_lib_t eustag_bld util klu amd ifcore ifport intlc imf irc svml log4cpp matio hdf5 hdf5_z hdf5_sz dl pthread)
+
+#add the wp43_eurostag.sh script to the output path
+add_custom_target(copy_scripts ALL
+     DEPENDS wp43adapter
+     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/src/wp43_eurostag.sh ${EXECUTABLE_OUTPUT_PATH}
+)
+
+
+

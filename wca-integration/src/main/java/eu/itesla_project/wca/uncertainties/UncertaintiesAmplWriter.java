@@ -20,6 +20,7 @@ import eu.itesla_project.wca.WCAConstants;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 /**
@@ -52,7 +53,7 @@ public class UncertaintiesAmplWriter implements WCAConstants {
     }
 
     private void writeReductionMatrix(Uncertainties uncertainties, DataSource dataSource, StringToIntMapper<AmplSubset> mapper) throws IOException {
-        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream(REDUCTION_MATRIX_FILE_SUFFIX, TXT_EXT, false))) {
+        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream(REDUCTION_MATRIX_FILE_SUFFIX, TXT_EXT, false), StandardCharsets.UTF_8)) {
             TableFormatter formatter = new TableFormatter(LOCALE, writer, "Reduction matrix", INVALID_FLOAT_VALUE,
                     new Column("inj. type"),
                     new Column("inj. num"),
@@ -76,7 +77,7 @@ public class UncertaintiesAmplWriter implements WCAConstants {
     }
 
     private void writeTrustIntervals(Uncertainties uncertainties, DataSource dataSource) throws IOException {
-        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream(TRUST_INTERVAL_FILE_SUFFIX, TXT_EXT, false))) {
+        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream(TRUST_INTERVAL_FILE_SUFFIX, TXT_EXT, false), StandardCharsets.UTF_8)) {
             TableFormatter formatter = new TableFormatter(LOCALE, writer, "Trust intervals", INVALID_FLOAT_VALUE,
                     new Column("var. num"),
                     new Column("min"),
@@ -92,7 +93,7 @@ public class UncertaintiesAmplWriter implements WCAConstants {
     }
 
     private void writeMeans(Uncertainties uncertainties, DataSource dataSource, StringToIntMapper<AmplSubset> mapper) throws IOException {
-        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream(MEANS_FILE_SUFFIX, TXT_EXT, false))) {
+        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream(MEANS_FILE_SUFFIX, TXT_EXT, false), StandardCharsets.UTF_8)) {
             TableFormatter formatter = new TableFormatter(LOCALE, writer, "Means", INVALID_FLOAT_VALUE,
                     new Column("inj. type"),
                     new Column("inj. num"),

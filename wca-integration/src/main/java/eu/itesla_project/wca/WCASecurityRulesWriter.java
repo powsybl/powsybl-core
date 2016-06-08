@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
 
@@ -133,7 +134,7 @@ public class WCASecurityRulesWriter implements AmplConstants, WCAConstants {
     }
 
     public void write() {
-        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream(SECURITY_RULES_FILE_SUFFIX, TXT_EXT, false))) {
+        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream(SECURITY_RULES_FILE_SUFFIX, TXT_EXT, false), StandardCharsets.UTF_8)) {
             final TableFormatter formatter = new TableFormatter(LOCALE, writer, "Security rules", INVALID_FLOAT_VALUE,
                     new Column("inequality num"),
                     new Column("convex num"),

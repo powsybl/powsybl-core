@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+# Copyright (c) 2016, RTE (http://www.rte-france.com)
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -17,23 +18,13 @@ else
    	CORES=1
 fi
 
-#TODO specific tmp?
-#tmpdir=$HOME/tmp 
 tmpdir=$installDir/tmp
 mkdir $tmpdir > /dev/null 2>&1
 
-export MCRROOT=/usr/local/MATLAB/MATLAB_Compiler_Runtime/v81
-export PATH=$installBinDir:$HELMFLOW:$PATH
+export PATH=$installBinDir:$PATH
 
 export CLASSPATH=$installDir/share/java/*:$installDir/share/java:$CLASSPATH
 rank=$OMPI_COMM_WORLD_RANK
-#TODO needed HELMFLOW in path here ?
-export PATH=$installBinDir:$HELMFLOW:$PATH
-
-
-#TODO check logback: is it ok, here ?
-#TODO statistics-db-dir $HOME ? 
-#TODO $HOME/archive ??
 
 if [ $rank = 0 ]; then
     if [ -z $JAVA_HOME ]; then
@@ -67,5 +58,5 @@ else
     rm -r $tmpdir/itesla_common_${rank}* > /dev/null 2>&1
     rm -r $tmpdir/itesla_job_${rank}* > /dev/null 2>&1
     rm -r $tmpdir/itesla_work_${rank}* > /dev/null 2>&1
-    ${installDir}/bin/slave --tmp-dir=$tmpdir --archive-dir=$installDir/archive --log-file=$instsallDir/logs/slave.log --cores=$CORES
+    ${installDir}/bin/slave --tmp-dir=$tmpdir --archive-dir=$installDir/archive --log-file=$installDir/logs/slave.log --cores=$CORES
 fi

@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -109,7 +110,7 @@ public class AmplNetworkWriter implements AmplConstants {
     }
 
     private void writeSubstations(AmplExportContext context) throws IOException {
-        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_substations", "txt", append))) {
+        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_substations", "txt", append), StandardCharsets.UTF_8)) {
             TableFormatter formatter = new TableFormatter(LOCALE, writer,
                     getTableTitle("Substations"),
                     INVALID_FLOAT_VALUE,
@@ -236,7 +237,7 @@ public class AmplNetworkWriter implements AmplConstants {
     }
 
     private void writeBuses(AmplExportContext context) throws IOException {
-        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_buses", "txt", append))) {
+        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_buses", "txt", append), StandardCharsets.UTF_8)) {
             TableFormatter formatter = new TableFormatter(LOCALE, writer,
                     getTableTitle("Buses"),
                     INVALID_FLOAT_VALUE,
@@ -403,7 +404,7 @@ public class AmplNetworkWriter implements AmplConstants {
     }
 
     private void writeBranches(AmplExportContext context) throws IOException {
-        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_branches", "txt", append))) {
+        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_branches", "txt", append), StandardCharsets.UTF_8)) {
             TableFormatter formatter = new TableFormatter(LOCALE, writer,
                     getTableTitle("Branches"),
                     INVALID_FLOAT_VALUE,
@@ -862,7 +863,7 @@ public class AmplNetworkWriter implements AmplConstants {
     }
 
     private void writeTapChangerTable() throws IOException {
-        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_tct", "txt", append))) {
+        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_tct", "txt", append), StandardCharsets.UTF_8)) {
             TableFormatter formatter = new TableFormatter(LOCALE, writer,
                     getTableTitle("Tap changer table"),
                     INVALID_FLOAT_VALUE,
@@ -979,7 +980,7 @@ public class AmplNetworkWriter implements AmplConstants {
     }
 
     private void writeRatioTapChangers() throws IOException {
-        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_rtc", "txt", append))) {
+        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_rtc", "txt", append), StandardCharsets.UTF_8)) {
             List<Column> columns = new ArrayList<>(8);
             columns.add(new Column("num"));
             columns.add(new Column("tap"));
@@ -1024,7 +1025,7 @@ public class AmplNetworkWriter implements AmplConstants {
     }
 
     private void writePhaseTapChangers() throws IOException {
-        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_ptc", "txt", append))) {
+        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_ptc", "txt", append), StandardCharsets.UTF_8)) {
             TableFormatter formatter = new TableFormatter(LOCALE, writer,
                     getTableTitle("Phase tap changers"),
                     INVALID_FLOAT_VALUE,
@@ -1070,7 +1071,7 @@ public class AmplNetworkWriter implements AmplConstants {
     }
 
     private void writeLoads(AmplExportContext context) throws IOException {
-        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_loads", "txt", append))) {
+        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_loads", "txt", append), StandardCharsets.UTF_8)) {
             TableFormatter formatter = new TableFormatter(LOCALE, writer,
                     getTableTitle("Loads"),
                     INVALID_FLOAT_VALUE,
@@ -1158,7 +1159,7 @@ public class AmplNetworkWriter implements AmplConstants {
     }
 
     private void writeShunts(AmplExportContext context) throws IOException {
-        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_shunts", "txt", append))) {
+        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_shunts", "txt", append), StandardCharsets.UTF_8)) {
             TableFormatter formatter = new TableFormatter(LOCALE, writer,
                     getTableTitle("Shunts"),
                     INVALID_FLOAT_VALUE,
@@ -1231,7 +1232,7 @@ public class AmplNetworkWriter implements AmplConstants {
     }
 
     private void writeGenerators(AmplExportContext context) throws IOException {
-        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_generators", "txt", append))) {
+        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_generators", "txt", append), StandardCharsets.UTF_8)) {
             TableFormatter formatter = new TableFormatter(LOCALE, writer,
                     getTableTitle("Generators"),
                     INVALID_FLOAT_VALUE,
@@ -1328,7 +1329,7 @@ public class AmplNetworkWriter implements AmplConstants {
     }
 
     private void writeTemporaryCurrentLimits() throws IOException {
-        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_limits", "txt", append))) {
+        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_limits", "txt", append), StandardCharsets.UTF_8)) {
             TableFormatter formatter = new TableFormatter(LOCALE, writer,
                     getTableTitle("Temporary current limits"),
                     INVALID_FLOAT_VALUE,

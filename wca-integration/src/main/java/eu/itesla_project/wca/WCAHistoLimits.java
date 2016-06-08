@@ -20,6 +20,7 @@ import org.joda.time.Interval;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 /**
@@ -78,7 +79,7 @@ public class WCAHistoLimits implements AmplConstants, WCAConstants {
 
     public void write(DataSource dataSource, StringToIntMapper<AmplSubset> mapper) throws IOException {
 
-        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream(HISTO_LOADS_FILE_SUFFIX, TXT_EXT, false))) {
+        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream(HISTO_LOADS_FILE_SUFFIX, TXT_EXT, false), StandardCharsets.UTF_8)) {
             TableFormatter formatter = new TableFormatter(LOCALE, writer,
                     "loads historical data " + histoInterval,
                     INVALID_FLOAT_VALUE,
@@ -110,7 +111,7 @@ public class WCAHistoLimits implements AmplConstants, WCAConstants {
             }
         }
 
-        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream(HISTO_GENERATORS_FILE_SUFFIX, TXT_EXT, false))) {
+        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream(HISTO_GENERATORS_FILE_SUFFIX, TXT_EXT, false), StandardCharsets.UTF_8)) {
             TableFormatter formatter = new TableFormatter(LOCALE, writer,
                     "generators historical data " + histoInterval,
                     INVALID_FLOAT_VALUE,

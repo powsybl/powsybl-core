@@ -1,10 +1,11 @@
 /**
  * Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+ * Copyright (c) 2016, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-	package eu.itesla_project.mcla.forecast_errors;
+package eu.itesla_project.mcla.forecast_errors;
 
 import eu.itesla_project.computation.*;
 import eu.itesla_project.iidm.network.Network;
@@ -295,6 +296,7 @@ public class ForecastErrorsAnalyzerImpl implements ForecastErrorsAnalyzer {
 
 	private Map<String, String> createEnv() {
 		Map<String, String> env = new HashMap<>();
+		env.put("MCRROOT", config.getRuntimeHomeDir().toString());
 		env.put("LD_LIBRARY_PATH", config.getRuntimeHomeDir().resolve("runtime").resolve("glnxa64").toString()
 				+ ":" + config.getRuntimeHomeDir().resolve("bin").resolve("glnxa64").toString()
 				+ ":" + config.getRuntimeHomeDir().resolve("sys").resolve("os").resolve("glnxa64").toString());
