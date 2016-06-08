@@ -95,9 +95,6 @@ public class UcteImporter implements Importer {
 
                 VoltageLevel voltageLevel = substation.newVoltageLevel()
                         .setId(ucteVoltageLevel.getName())
-                        .setDate(ucteFileName.getDate())
-                        .setHorizon(ucteFileName.getHorizon())
-                        .setForecastDistance(ucteFileName.getForecastDistance())
                         .setNominalV(ucteVoltageLevelCode.getVoltageLevel())
                         .setTopologyKind(TopologyKind.BUS_BREAKER)
                     .add();
@@ -510,9 +507,6 @@ public class UcteImporter implements Importer {
 
         VoltageLevel yVoltageLevel = substation.newVoltageLevel()
                 .setId(yNodeName + "_VL")
-                .setDate(ucteFileName.getDate())
-                .setHorizon(ucteFileName.getHorizon())
-                .setForecastDistance(ucteFileName.getForecastDistance())
                 .setNominalV(xNodeCode.getVoltageLevelCode().getVoltageLevel()) // nominal voltage of the XNODE
                 .setTopologyKind(TopologyKind.BUS_BREAKER)
             .add();
@@ -706,7 +700,8 @@ public class UcteImporter implements Importer {
                 UcteFileName ucteFileName = UcteFileName.parse(fileName);
 
                 Network network = NetworkFactory.create(fileName, "UCTE");
-                network.setDate(ucteFileName.getDate());
+                network.setCaseDate(ucteFileName.getDate());
+                network.setForecastDistance(ucteFileName.getForecastDistance());
 
                 createBuses(ucteNetwork, network, ucteFileName);
                 createLines(ucteNetwork, network);

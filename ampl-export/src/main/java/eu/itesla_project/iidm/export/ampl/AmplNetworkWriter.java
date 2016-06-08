@@ -14,7 +14,7 @@ import eu.itesla_project.iidm.network.*;
 import eu.itesla_project.iidm.network.CurrentLimits.TemporaryLimit;
 import eu.itesla_project.iidm.network.util.ConnectedComponents;
 import eu.itesla_project.iidm.network.util.SV;
-import org.joda.time.Duration;
+import eu.itesla_project.merge.MergeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -108,10 +108,6 @@ public class AmplNetworkWriter implements AmplConstants {
         return dl.getId(); // same id as the dangling line
     }
 
-    private int getReferenceDateDistance(VoltageLevel vl) {
-        return (int) new Duration(vl.getDate(), network.getDate()).getStandardMinutes();
-    }
-
     private void writeSubstations(AmplExportContext context) throws IOException {
         try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_substations", "txt", append))) {
             TableFormatter formatter = new TableFormatter(LOCALE, writer,
@@ -140,8 +136,8 @@ public class AmplNetworkWriter implements AmplConstants {
                 float minV = vl.getLowVoltageLimit() / nomV;
                 float maxV = vl.getHighVoltageLimit() / nomV;
                 formatter.writeCell(num)
-                         .writeCell(vl.getHorizon().name())
-                         .writeCell(getReferenceDateDistance(vl))
+                         .writeCell(MergeUtil.getHorizon(vl))
+                         .writeCell(MergeUtil.getDateDistanceToReference(vl))
                          .writeCell(nomV)
                          .writeCell(minV)
                          .writeCell(maxV)
@@ -163,8 +159,8 @@ public class AmplNetworkWriter implements AmplConstants {
                 Terminal t1 = twt.getLeg1().getTerminal();
                 VoltageLevel vl1 = t1.getVoltageLevel();
                 formatter.writeCell(num)
-                         .writeCell(vl1.getHorizon().name())
-                         .writeCell(getReferenceDateDistance(vl1))
+                         .writeCell(MergeUtil.getHorizon(vl1))
+                         .writeCell(MergeUtil.getDateDistanceToReference(vl1))
                          .writeCell(vl1.getNominalV())
                          .writeCell(Float.NaN)
                          .writeCell(Float.NaN)
@@ -187,8 +183,8 @@ public class AmplNetworkWriter implements AmplConstants {
                 float minV = vl.getLowVoltageLimit() / nomV;
                 float maxV = vl.getHighVoltageLimit() / nomV;
                 formatter.writeCell(num)
-                         .writeCell(vl.getHorizon().name())
-                         .writeCell(getReferenceDateDistance(vl))
+                         .writeCell(MergeUtil.getHorizon(vl))
+                         .writeCell(MergeUtil.getDateDistanceToReference(vl))
                          .writeCell(nomV)
                          .writeCell(minV)
                          .writeCell(maxV)
@@ -208,8 +204,8 @@ public class AmplNetworkWriter implements AmplConstants {
                     String vlId = AmplUtil.getXnodeVoltageLevelId(tieLine);
                     int num = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, vlId);
                     formatter.writeCell(num)
-                            .writeCell(Horizon.OTHER.name())
-                            .writeCell(0)
+                            .writeCell(MergeUtil.getHorizon(tieLine.getTerminal1().getVoltageLevel()))
+                            .writeCell(MergeUtil.getDateDistanceToReference(tieLine.getTerminal1().getVoltageLevel()))
                             .writeCell(l.getTerminal1().getVoltageLevel().getNominalV())
                             .writeCell(Float.NaN)
                             .writeCell(Float.NaN)

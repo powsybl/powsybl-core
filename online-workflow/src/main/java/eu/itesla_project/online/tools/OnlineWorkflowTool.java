@@ -7,13 +7,12 @@
 package eu.itesla_project.online.tools;
 
 import com.google.auto.service.AutoService;
-import com.google.common.collect.Sets;
 import eu.itesla_project.commons.tools.Command;
 import eu.itesla_project.commons.tools.Tool;
 import eu.itesla_project.computation.local.LocalComputationManager;
 import eu.itesla_project.iidm.network.Country;
-import eu.itesla_project.modules.cases.CaseRepository;
-import eu.itesla_project.modules.cases.CaseType;
+import eu.itesla_project.cases.CaseRepository;
+import eu.itesla_project.cases.CaseType;
 import eu.itesla_project.modules.online.OnlineConfig;
 import eu.itesla_project.modules.online.OnlineWorkflowParameters;
 import eu.itesla_project.modules.online.TimeHorizon;

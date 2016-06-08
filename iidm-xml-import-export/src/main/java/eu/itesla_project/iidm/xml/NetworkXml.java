@@ -57,7 +57,8 @@ public class NetworkXml implements XmlConstants {
         writer.writeStartElement(IIDM_URI, NETWORK_ROOT_ELEMENT_NAME);
         writer.writeNamespace(IIDM_PREFIX, IIDM_URI);
         writer.writeAttribute("id", n.getId());
-        writer.writeAttribute("date", n.getDate().toString());
+        writer.writeAttribute("date", n.getCaseDate().toString());
+        writer.writeAttribute("forecastDistance", Integer.toString(n.getForecastDistance()));
         writer.writeAttribute("sourceFormat", n.getSourceFormat());
         BusFilter filter = BusFilter.create(n, options);
         XmlWriterContext context = new XmlWriterContext(writer, options, filter);
@@ -90,10 +91,12 @@ public class NetworkXml implements XmlConstants {
 
         String id = reader.getAttributeValue(null, "id");
         DateTime date = DateTime.parse(reader.getAttributeValue(null, "date"));
+        int forecastDistance = IdentifiableXml.readOptionalIntegerAttributeValue(reader, "forecastDistance", 0);
         String sourceFormat = reader.getAttributeValue(null, "sourceFormat");
 
         Network network = NetworkFactory.create(id, sourceFormat);
-        network.setDate(date);
+        network.setCaseDate(date);
+        network.setForecastDistance(forecastDistance);
 
         List<Runnable> endTasks = new ArrayList<>();
 

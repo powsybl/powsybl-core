@@ -4,18 +4,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.modules;
+package eu.itesla_project.merge;
 
 import eu.itesla_project.computation.ComputationManager;
 import eu.itesla_project.iidm.network.Country;
 import eu.itesla_project.iidm.network.Network;
+import eu.itesla_project.iidm.network.VoltageLevel;
 import eu.itesla_project.loadflow.api.LoadFlow;
 import eu.itesla_project.loadflow.api.LoadFlowFactory;
 import eu.itesla_project.loadflow.api.LoadFlowParameters;
 import eu.itesla_project.loadflow.api.LoadFlowResult;
-import eu.itesla_project.modules.cases.CaseRepository;
-import eu.itesla_project.modules.cases.CaseType;
+import eu.itesla_project.cases.CaseRepository;
+import eu.itesla_project.cases.CaseType;
 import org.joda.time.DateTime;
+import org.joda.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +33,34 @@ public class MergeUtil {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MergeUtil.class);
 
+    public static final String CASE_DATE = "merge.caseDate";
+    public static final String FORECAST_DISTANCE = "merge.forecastDistance";
+
     private MergeUtil() {
+    }
+
+    public static int getDateDistanceToReference(VoltageLevel vl) {
+        DateTime caseDate;
+        String caseDateStr = vl.getProperties().getProperty(CASE_DATE);
+        if (caseDateStr == null) {
+            caseDate = vl.getSubstation().getNetwork().getCaseDate();
+        } else {
+            caseDate = DateTime.parse(caseDateStr);
+        }
+        return (int) new Duration(caseDate, vl.getSubstation().getNetwork().getCaseDate()).getStandardMinutes();
+    }
+
+    public static int getForecastDistance(VoltageLevel vl) {
+        String forecastDistanceStr = vl.getProperties().getProperty(FORECAST_DISTANCE);
+        if (forecastDistanceStr != null) {
+            return Integer.parseInt(forecastDistanceStr);
+        } else {
+            return vl.getSubstation().getNetwork().getForecastDistance();
+        }
+    }
+
+    public static String getHorizon(VoltageLevel vl) {
+        return getForecastDistance(vl) > 0 ? "FO" : "SN";
     }
 
     public static Network merge(CaseRepository caseRepository, DateTime date, CaseType caseType, Set<Country> countries, LoadFlowFactory loadFlowFactory,
@@ -72,6 +101,14 @@ public class MergeUtil {
             }
             if (networksToMerge.isEmpty()) {
                 throw new RuntimeException("Empty network list to merge");
+            }
+
+            // store initial case date in properties for maybe later use
+            for (Network network : networksToMerge) {
+                for (VoltageLevel vl : network.getVoltageLevels()) {
+                    vl.getProperties().setProperty(CASE_DATE, network.getCaseDate().toString());
+                    vl.getProperties().setProperty(FORECAST_DISTANCE, Integer.toString(network.getForecastDistance()));
+                }
             }
 
             // topological merge

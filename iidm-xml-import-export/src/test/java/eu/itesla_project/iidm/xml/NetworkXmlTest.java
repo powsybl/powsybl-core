@@ -81,10 +81,8 @@ public class NetworkXmlTest {
     private Network createEurostagTutorialExample1() {
         Network network = EurostagTutorialExample1Factory.create();
         DateTime date = DateTime.parse("2013-01-15T18:45:00+01:00");
-        network.setDate(date);
-        for (VoltageLevel vl : network.getVoltageLevels()) {
-            vl.setDate(date);
-        }
+        network.setCaseDate(date);
+        network.setForecastDistance(0);
         return network;
     }
 

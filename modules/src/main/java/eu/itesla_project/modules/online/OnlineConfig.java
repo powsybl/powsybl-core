@@ -11,14 +11,14 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.Objects;
 
-import eu.itesla_project.modules.MergeOptimizerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import eu.itesla_project.commons.io.ModuleConfig;
 import eu.itesla_project.commons.io.PlatformConfig;
 import eu.itesla_project.loadflow.api.LoadFlowFactory;
-import eu.itesla_project.modules.cases.CaseRepositoryFactory;
+import eu.itesla_project.cases.CaseRepositoryFactory;
+import eu.itesla_project.merge.MergeOptimizerFactory;
 import eu.itesla_project.modules.contingencies.ContingenciesAndActionsDatabaseClientFactory;
 import eu.itesla_project.modules.ddb.DynamicDatabaseClientFactory;
 import eu.itesla_project.modules.histo.HistoDbClientFactory;
@@ -50,7 +50,7 @@ public class OnlineConfig {
     uncertaintiesAnalyserFactoryClass=eu.itesla_project.wca.uncertainties.UncertaintiesAnalyserFactoryTestImpl
     correctiveControlOptimizerFactoryClass=eu.itesla_project.online.modules.mock.CorrectiveControlOptimizerMockFactoryImpl
     simulatorFactoryClass=eu.itesla_project.eurostag.EurostagFactory
-    caseRepositoryFactoryClass=eu.itesla_project.modules.cases.EntsoeCaseRepositoryFactory
+    caseRepositoryFactoryClass=eu.itesla_project.cases.EntsoeCaseRepositoryFactory
     #montecarloSamplerFactoryClass=eu.itesla_project.online.modules.mock.MontecarloSamplerFactoryMock
     montecarloSamplerFactoryClass=eu.itesla_project.matlab.mcla.montecarlo.MontecarloSamplerFactoryImpl
     mergeOptimizerFactoryClass=com.rte_france.itesla.merge.MergeOptimizerFactoryImpl

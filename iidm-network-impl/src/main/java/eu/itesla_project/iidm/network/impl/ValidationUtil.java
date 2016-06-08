@@ -177,15 +177,9 @@ public class ValidationUtil {
         }
     }
 
-    static void checkDate(Validable validable, DateTime date) {
-        if (date == null) {
-            throw new ValidationException(validable, "date is invalid");
-        }
-    }
-
-    static void checkHorizon(Validable validable, Horizon horizon) {
-        if (horizon == null) {
-            throw new ValidationException(validable, "horizon is invalid");
+    static void checkCaseDate(Validable validable, DateTime caseDate) {
+        if (caseDate == null) {
+            throw new ValidationException(validable, "case date is invalid");
         }
     }
 

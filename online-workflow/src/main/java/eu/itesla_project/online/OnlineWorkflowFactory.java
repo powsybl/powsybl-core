@@ -9,8 +9,8 @@ package eu.itesla_project.online;
 
 import eu.itesla_project.computation.ComputationManager;
 import eu.itesla_project.loadflow.api.LoadFlowFactory;
-import eu.itesla_project.modules.MergeOptimizerFactory;
-import eu.itesla_project.modules.cases.CaseRepository;
+import eu.itesla_project.merge.MergeOptimizerFactory;
+import eu.itesla_project.cases.CaseRepository;
 import eu.itesla_project.modules.contingencies.ContingenciesAndActionsDatabaseClient;
 import eu.itesla_project.modules.ddb.DynamicDatabaseClientFactory;
 import eu.itesla_project.modules.histo.HistoDbClient;

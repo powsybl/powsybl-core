@@ -427,9 +427,6 @@ public class EurostagStepUpTransformerInserter {
                 .setId(hvGen.getId() + "_VL")
                 .setNominalV(vbaseLvBdd)
                 .setTopologyKind(TopologyKind.BUS_BREAKER)
-                .setDate(hvVl.getDate())
-                .setHorizon(hvVl.getHorizon())
-                .setForecastDistance(hvVl.getForecastDistance())
             .add();
         LOGGER.trace("Creating voltage level '{}' in substation '{}'", lvVl.getId(), s.getId());
 

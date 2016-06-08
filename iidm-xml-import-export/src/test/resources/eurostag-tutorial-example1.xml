@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<iidm:network xmlns:iidm="http://www.itesla_project.eu/schema/iidm/1_0" id="sim1" date="2013-01-15T18:45:00.000+01:00" sourceFormat="test">
+<iidm:network xmlns:iidm="http://www.itesla_project.eu/schema/iidm/1_0" id="sim1" date="2013-01-15T18:45:00.000+01:00" forecastDistance="0" sourceFormat="test">
     <iidm:substation id="P1" country="FR" tso="RTE" geographicalTags="A">
-        <iidm:voltageLevel id="VLGEN" date="2013-01-15T18:45:00.000+01:00" horizon="OTHER" forecastDistance="0" nominalV="24.0" topologyKind="BUS_BREAKER">
+        <iidm:voltageLevel id="VLGEN" nominalV="24.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="NGEN"/>
             </iidm:busBreakerTopology>
@@ -9,7 +9,7 @@
                 <iidm:minMaxReactiveLimits minQ="-9999.99" maxQ="9999.99"/>
             </iidm:generator>
         </iidm:voltageLevel>
-        <iidm:voltageLevel id="VLHV1" date="2013-01-15T18:45:00.000+01:00" horizon="OTHER" forecastDistance="0" nominalV="380.0" topologyKind="BUS_BREAKER">
+        <iidm:voltageLevel id="VLHV1" nominalV="380.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="NHV1"/>
             </iidm:busBreakerTopology>
@@ -17,12 +17,12 @@
         <iidm:twoWindingsTransformer id="NGEN_NHV1" r="0.2665846" x="11.104493" g="0.0" b="0.0" ratedU1="24.0" ratedU2="400.0" bus1="NGEN" connectableBus1="NGEN" voltageLevelId1="VLGEN" bus2="NHV1" connectableBus2="NHV1" voltageLevelId2="VLHV1"/>
     </iidm:substation>
     <iidm:substation id="P2" country="FR" tso="RTE" geographicalTags="B">
-        <iidm:voltageLevel id="VLHV2" date="2013-01-15T18:45:00.000+01:00" horizon="OTHER" forecastDistance="0" nominalV="380.0" topologyKind="BUS_BREAKER">
+        <iidm:voltageLevel id="VLHV2" nominalV="380.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="NHV2"/>
             </iidm:busBreakerTopology>
         </iidm:voltageLevel>
-        <iidm:voltageLevel id="VLLOAD" date="2013-01-15T18:45:00.000+01:00" horizon="OTHER" forecastDistance="0" nominalV="150.0" topologyKind="BUS_BREAKER">
+        <iidm:voltageLevel id="VLLOAD" nominalV="150.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="NLOAD"/>
             </iidm:busBreakerTopology>

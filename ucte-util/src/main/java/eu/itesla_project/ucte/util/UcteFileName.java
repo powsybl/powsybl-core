@@ -6,7 +6,6 @@
  */
 package eu.itesla_project.ucte.util;
 
-import eu.itesla_project.iidm.network.Horizon;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
@@ -23,15 +22,12 @@ public class UcteFileName {
 
     private final DateTime date;
 
-    private final Horizon horizon;
-
     private final int forecastDistance;
 
     private final UcteGeographicalCode geographicalCode;
 
     public static UcteFileName parse(String str) {
         DateTime date = DateTime.now();
-        Horizon horizon = Horizon.OTHER;
         int forecastDistance = 0;
         UcteGeographicalCode geographicalCode = null;
         Matcher m = DATE_REGEX.matcher(str);
@@ -46,10 +42,8 @@ public class UcteFileName {
 
             // extract horizon and forecast distance
             if (str.contains("FO")) {
-                horizon = Horizon.DACF;
                 forecastDistance = 60 * (6 + hourOfDay) + minute; // DACF generated at 18:00 one day ahead7
             } else if (str.contains("SN")) {
-                horizon = Horizon.SN;
                 forecastDistance = 0;
             }
         }
@@ -57,22 +51,17 @@ public class UcteFileName {
             geographicalCode = UcteGeographicalCode.valueOf(str.substring(18, 20));
         }
 
-        return new UcteFileName(date, horizon, forecastDistance, geographicalCode);
+        return new UcteFileName(date, forecastDistance, geographicalCode);
     }
 
-    private UcteFileName(DateTime date, Horizon horizon, int forecastDistance, UcteGeographicalCode geographicalCode) {
+    private UcteFileName(DateTime date, int forecastDistance, UcteGeographicalCode geographicalCode) {
         this.date = date;
-        this.horizon = horizon;
         this.forecastDistance = forecastDistance;
         this.geographicalCode = geographicalCode;
     }
 
     public DateTime getDate() {
         return date;
-    }
-
-    public Horizon getHorizon() {
-        return horizon;
     }
 
     public int getForecastDistance() {

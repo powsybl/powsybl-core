@@ -304,9 +304,8 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
     protected final StateArray<StateImpl> states;
 
     BusBreakerVoltageLevel(String id, String name, SubstationImpl substation,
-                           DateTime date, Horizon horizon, int forecastDistance,
                            float nominalV, float lowVoltageLimit, float highVoltageLimit) {
-        super(id, name, substation, date, horizon, forecastDistance, nominalV, lowVoltageLimit, highVoltageLimit);
+        super(id, name, substation, nominalV, lowVoltageLimit, highVoltageLimit);
         states = new StateArray<>(substation.getNetwork().getRef(), () -> new StateImpl());
         graph.addListener(() -> {
             // invalidate topology and connected components

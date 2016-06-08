@@ -1189,7 +1189,8 @@ class CIM1Converter implements CIM1Constants {
         UcteFileName ucteFileName = UcteFileName.parse(fileName);
 
         Network network = NetworkFactory.create(fileName, FORMAT);
-        network.setDate(ucteFileName.getDate());
+        network.setCaseDate(ucteFileName.getDate());
+        network.setForecastDistance(ucteFileName.getForecastDistance());
 
         // Ends of transformers need to be in the same substation in the IIDM model, so check that a mapping is
         // not needed
@@ -1379,9 +1380,6 @@ class CIM1Converter implements CIM1Constants {
                                 .setId(voltageLevelId)
                                 .setName(vl.getName())
                                 .setEnsureIdUnicity(false)
-                                .setDate(ucteFileName.getDate())
-                                .setHorizon(ucteFileName.getHorizon())
-                                .setForecastDistance(ucteFileName.getForecastDistance())
                                 .setNominalV(vl.getBaseVoltage().getNominalVoltage())
                                 .setTopologyKind(TopologyKind.BUS_BREAKER)
                                 .setLowVoltageLimit(limits[0])

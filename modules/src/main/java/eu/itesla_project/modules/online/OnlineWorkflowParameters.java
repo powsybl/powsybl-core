@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 import eu.itesla_project.commons.io.ModuleConfig;
 import eu.itesla_project.commons.io.PlatformConfig;
 import eu.itesla_project.iidm.network.Country;
-import eu.itesla_project.modules.cases.CaseType;
+import eu.itesla_project.cases.CaseType;
 import eu.itesla_project.modules.securityindexes.SecurityIndexType;
 
 import org.joda.time.DateTime;

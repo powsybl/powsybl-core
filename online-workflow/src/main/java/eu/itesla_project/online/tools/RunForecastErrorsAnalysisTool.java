@@ -23,7 +23,7 @@ import eu.itesla_project.commons.tools.Tool;
 import eu.itesla_project.computation.ComputationManager;
 import eu.itesla_project.computation.local.LocalComputationManager;
 import eu.itesla_project.iidm.network.Country;
-import eu.itesla_project.modules.cases.CaseType;
+import eu.itesla_project.cases.CaseType;
 import eu.itesla_project.modules.online.TimeHorizon;
 import eu.itesla_project.offline.forecast_errors.ForecastErrorsAnalysisConfig;
 import eu.itesla_project.offline.forecast_errors.ForecastErrorsAnalysisParameters;

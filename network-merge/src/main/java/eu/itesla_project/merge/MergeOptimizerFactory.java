@@ -4,16 +4,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.modules.cases;
+package eu.itesla_project.merge;
 
 import eu.itesla_project.computation.ComputationManager;
+import eu.itesla_project.iidm.network.Network;
 
 /**
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class TestCaseRepositoryFactory implements CaseRepositoryFactory {
-    @Override
-    public CaseRepository create(ComputationManager computationManager) {
-        return new TestCaseRepository();
-    }
+public interface MergeOptimizerFactory {
+
+    MergeOptimizer newMergeOptimizer(Network network, ComputationManager computationManager);
+
 }

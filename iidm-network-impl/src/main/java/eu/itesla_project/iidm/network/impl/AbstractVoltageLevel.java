@@ -7,7 +7,6 @@
 package eu.itesla_project.iidm.network.impl;
 
 import eu.itesla_project.iidm.network.*;
-import org.joda.time.DateTime;
 
 /**
  *
@@ -17,12 +16,6 @@ abstract class AbstractVoltageLevel extends IdentifiableImpl implements VoltageL
 
     private final SubstationImpl substation;
 
-    private DateTime date;
-
-    private Horizon horizon;
-
-    private int forecastDistance;
-
     private float nominalV;
 
     private float lowVoltageLimit;
@@ -30,13 +23,9 @@ abstract class AbstractVoltageLevel extends IdentifiableImpl implements VoltageL
     private float highVoltageLimit;
 
     AbstractVoltageLevel(String id, String name, SubstationImpl substation,
-                         DateTime date, Horizon horizon, int forecastDistance,
                          float nominalV, float lowVoltageLimit, float highVoltageLimit) {
         super(id, name);
         this.substation = substation;
-        this.date = date;
-        this.horizon = horizon;
-        this.forecastDistance = forecastDistance;
         this.nominalV = nominalV;
         this.lowVoltageLimit = lowVoltageLimit;
         this.highVoltageLimit = highVoltageLimit;
@@ -59,48 +48,6 @@ abstract class AbstractVoltageLevel extends IdentifiableImpl implements VoltageL
 
     private void notifyUpdate(String attribute, Object oldValue, Object newValue) {
         getNetwork().getListeners().notifyUpdate(this, attribute, oldValue, newValue);
-    }
-
-    @Override
-    public Horizon getHorizon() {
-        return horizon;
-    }
-
-    @Override
-    public VoltageLevelExt setHorizon(Horizon horizon) {
-        ValidationUtil.checkHorizon(this, horizon);
-        Horizon oldValue = this.horizon;
-        this.horizon = horizon;
-        notifyUpdate("horizon", oldValue, horizon);
-        return this;
-    }
-
-    @Override
-    public int getForecastDistance() {
-        return forecastDistance;
-    }
-
-    @Override
-    public VoltageLevelExt setForecastDistance(int forecastDistance) {
-        ValidationUtil.checkForecastDistance(this, forecastDistance);
-        int oldValue = this.forecastDistance;
-        this.forecastDistance = forecastDistance;
-        notifyUpdate("forecastDistance", oldValue, forecastDistance);
-        return this;
-    }
-
-    @Override
-    public DateTime getDate() {
-        return date;
-    }
-
-    @Override
-    public VoltageLevelExt setDate(DateTime date) {
-        ValidationUtil.checkDate(this, date);
-        DateTime oldValue = this.date;
-        this.date = date;
-        notifyUpdate("date", oldValue, date);
-        return this;
     }
 
     @Override

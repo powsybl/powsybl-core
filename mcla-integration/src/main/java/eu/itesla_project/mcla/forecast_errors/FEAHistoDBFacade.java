@@ -69,8 +69,13 @@ public class FEAHistoDBFacade {
 		DateTime intervalStart = histoInterval.getStart();
 	    DateTime intervalEnd = histoInterval.getEnd();
 		query += "&time=[" + intervalStart.toString(dateFormatter) + "," + intervalEnd.toString(dateFormatter) + "]";
-		if ( timeHorizon.getHorizon() != null )
-			query += "&horizon=" + timeHorizon.getHorizon();
+		switch (timeHorizon) {
+			case DACF:
+				query += "&horizon=" + timeHorizon.getName();
+				break;
+			default:
+				throw new AssertionError();
+		}
 		if ( timeHorizon.getForecastTime() >= 0 )
 			query += "&forecast=" + timeHorizon.getForecastTime();
 		query += "&cols=datetime,horizon,forecastTime";
