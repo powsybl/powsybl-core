@@ -1,5 +1,6 @@
 /**
  * Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+ * Copyright (c) 2016, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -48,6 +49,7 @@ public class EntsoeCaseRepositoryTest {
     private EntsoeCaseRepository caseRepository;
     private Network cimNetwork;
     private Network uctNetwork;
+    private Network xmlNetwork;
 
     private class DataSourceMock implements DataSource {
         private final Path directory;
@@ -131,9 +133,24 @@ public class EntsoeCaseRepositoryTest {
         Mockito.when(uctImporter.import_(Matchers.isA(DataSource.class), Matchers.any()))
                 .thenReturn(uctNetwork);
 
+        Importer xmlImporter = Mockito.mock(Importer.class);
+        Mockito.when(xmlImporter.exists(Matchers.isA(DataSource.class)))
+                .thenAnswer(invocation -> {
+                    DataSourceMock dataSource = invocation.getArgumentAt(0, DataSourceMock.class);
+                    Path file = dataSource.getDirectory().resolve(dataSource.getBaseName() + ".xml");
+                    return Files.isRegularFile(file) && Files.exists(file);
+                });
+        Mockito.when(xmlImporter.getFormat())
+                .thenReturn("XML");
+        xmlNetwork = Mockito.mock(Network.class);
+        Mockito.when(xmlImporter.import_(Matchers.isA(DataSource.class), Matchers.any()))
+                .thenReturn(xmlNetwork);
+
+
         caseRepository = new EntsoeCaseRepository(new EntsoeCaseRepositoryConfig(rootDir, HashMultimap.create()),
                 Arrays.asList(new EntsoeCaseRepository.EntsoeFormat(cimImporter, "CIM"),
-                        new EntsoeCaseRepository.EntsoeFormat(uctImporter, "UCT")),
+                        new EntsoeCaseRepository.EntsoeFormat(uctImporter, "UCT"),
+                            new EntsoeCaseRepository.EntsoeFormat(xmlImporter, "XML")),
                 (directory, baseName) -> new DataSourceMock(directory, baseName));
         Path dir1 = fileSystem.getPath("/CIM/SN/2013/01/13");
         Files.createDirectories(dir1);
@@ -152,6 +169,14 @@ public class EntsoeCaseRepositoryTest {
         createFile(dir4, "20130115_0015_SN2_D40.uct");
         createFile(dir4, "20130115_0015_SN2_D70.uct");
         createFile(dir4, "20130115_0015_SN2_D80.uct");
+        Path dir5 = fileSystem.getPath("/XML/SN/2013/01/14");
+        Files.createDirectories(dir5);
+        createFile(dir5, "20130114_0015_SN1_FR0.xml");
+        Path dir6 = fileSystem.getPath("/XML/SN/2016/01/01");
+        Files.createDirectories(dir6);
+        createFile(dir6, "20160101_0015_SN5_FR0.xml");
+        createFile(dir6, "20160101_0045_SN5_FR0.xml");
+
     }
 
     @After
@@ -169,17 +194,24 @@ public class EntsoeCaseRepositoryTest {
         // check that cim network is loaded instead of uct network
         assertTrue(caseRepository.load(DateTime.parse("2013-01-14T00:15:00+01:00"), CaseType.SN, Country.FR).equals(Collections.singletonList(cimNetwork)));
 
-        // check that if cim is vorbidden for france, uct is loaded
+        // check that if cim is forbidden for france, uct is loaded
         caseRepository.getConfig().getForbiddenFormatsByGeographicalCode().put(UcteGeographicalCode.FR, "CIM1");
         assertTrue(caseRepository.load(DateTime.parse("2013-01-14T00:15:00+01:00"), CaseType.SN, Country.FR).equals(Collections.singletonList(uctNetwork)));
 
         assertTrue(caseRepository.load(DateTime.parse("2013-01-15T00:15:00+01:00"), CaseType.SN, Country.DE).size() == 4);
+
+        // check that, when cim and ucte is forbidden for france, xml is loaded
+        caseRepository.getConfig().getForbiddenFormatsByGeographicalCode().put(UcteGeographicalCode.FR, "CIM1");
+        caseRepository.getConfig().getForbiddenFormatsByGeographicalCode().put(UcteGeographicalCode.FR, "UCTE");
+        assertTrue(caseRepository.load(DateTime.parse("2013-01-14T00:15:00+01:00"), CaseType.SN, Country.FR).equals(Collections.singletonList(xmlNetwork)));
     }
 
     @Test
     public void testIsDataAvailable() throws Exception {
         assertTrue(caseRepository.isDataAvailable(DateTime.parse("2013-01-13T00:15:00+01:00"), CaseType.SN, Country.FR));
         assertFalse(caseRepository.isDataAvailable(DateTime.parse("2013-01-13T00:30:00+01:00"), CaseType.SN, Country.FR));
+        assertTrue(caseRepository.isDataAvailable(DateTime.parse("2016-01-01T00:15:00+01:00"), CaseType.SN, Country.FR));
+        assertFalse(caseRepository.isDataAvailable(DateTime.parse("2016-01-01T00:30:00+01:00"), CaseType.SN, Country.FR));
     }
 
     @Test
@@ -192,5 +224,7 @@ public class EntsoeCaseRepositoryTest {
                 .isEmpty());
         assertTrue(caseRepository.dataAvailable(CaseType.SN, EnumSet.of(Country.FR), Interval.parse("2013-01-14T00:00:00+01:00/2013-01-14T01:00:00+01:00"))
                 .equals(Sets.newHashSet(DateTime.parse("2013-01-14T00:15:00+01:00"), DateTime.parse("2013-01-14T00:30:00+01:00"))));
+        assertTrue(caseRepository.dataAvailable(CaseType.SN, EnumSet.of(Country.FR), Interval.parse("2016-01-01T00:00:00+01:00/2016-01-14T01:00:00+01:00"))
+                .equals(Sets.newHashSet(DateTime.parse("2016-01-01T00:15:00+01:00"), DateTime.parse("2016-01-01T00:45:00+01:00"))));
     }
 }
