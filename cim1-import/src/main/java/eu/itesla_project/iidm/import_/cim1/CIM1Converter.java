@@ -926,6 +926,11 @@ class CIM1Converter implements CIM1Constants {
 
         int sectionCount = (int) sc.getSvShuntCompensatorSections().getContinuousSections();
         sectionCount = Math.abs(sectionCount); // RTE Convergence CIM export bug (SVC)
+        float bPerSection = sc.getBPerSection();
+        if (bPerSection == 0) {
+            bPerSection = Float.MIN_VALUE;
+            LOGGER.warn("Fix {} susceptance per section: 0 -> {}", sc.getId(), bPerSection);
+        }
 
         ShuntCompensator shunt = voltageLevel.newShunt()
                 .setId(namingStrategy.getId(sc))
@@ -934,7 +939,7 @@ class CIM1Converter implements CIM1Constants {
                 .setBus(t.isConnected() ? namingStrategy.getId(tn) : null)
                 .setConnectableBus(namingStrategy.getId(tn))
                 .setCurrentSectionCount(sectionCount)
-                .setbPerSection(sc.getBPerSection())
+                .setbPerSection(bPerSection)
                 .setMaximumSectionCount(sc.getMaximumSections())
             .add();
         addTerminalMapping(tn, shunt.getTerminal());
