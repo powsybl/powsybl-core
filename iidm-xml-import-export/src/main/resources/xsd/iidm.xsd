@@ -339,18 +339,6 @@
             <xs:enumeration value="THREE"/>
         </xs:restriction>
     </xs:simpleType>
-    <xs:simpleType name="ConnectableType">
-        <xs:restriction base="xs:string">
-            <xs:enumeration value="BUSBAR_SECTION"/>
-            <xs:enumeration value="LINE" />
-            <xs:enumeration value="TWO_WINDINGS_TRANSFORMER"/>
-            <xs:enumeration value="THREE_WINDINGS_TRANSFORMER"/>
-            <xs:enumeration value="GENERATOR"/>
-            <xs:enumeration value="LOAD"/>
-            <xs:enumeration value="SHUNT_COMPENSATOR"/>
-            <xs:enumeration value="DANGLING_LINE"/>
-        </xs:restriction>
-    </xs:simpleType>
     <xs:complexType name="TerminalRef">
         <xs:attribute name="id" use="required" type="xs:string"/>
         <xs:attribute name="side" use="optional" type="iidm:Side"/>
