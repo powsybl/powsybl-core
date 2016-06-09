@@ -22,7 +22,7 @@
                  </xs:choice>
             </xs:sequence>
             <xs:attribute name="id" use="required" type="xs:string"/>
-            <xs:attribute name="date" use="required" type="xs:dateTime"/>
+            <xs:attribute name="caseDate" use="required" type="xs:dateTime"/>
             <xs:attribute name="forecastDistance" use="optional" type="xs:int"/>
             <xs:attribute name="sourceFormat" use="required" type="xs:string"/>
         </xs:complexType>
