@@ -1,6 +1,5 @@
 /**
  * Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
- * Copyright (c) 2016, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -40,8 +39,6 @@ import java.util.stream.Stream;
  * CIM/SN/2013/01/15/20130115_0620_SN2_FR0.zip
  *    /FO/...
  * UCT/SN/...
- *    /FO/...
- * XML/SN/2013/01/15/20130115_0720_SN2_FR0.xml
  *    /FO/...
  * </pre>
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -90,8 +87,7 @@ public class EntsoeCaseRepository implements CaseRepository {
     EntsoeCaseRepository(EntsoeCaseRepositoryConfig config, ComputationManager computationManager) {
         this(config,
                 Arrays.asList(new EntsoeFormat(Importers.getImporter("CIM1", computationManager), "CIM"),
-                              new EntsoeFormat(Importers.getImporter("UCTE", computationManager), "UCT"), // official ENTSOE formats)
-                              new EntsoeFormat(Importers.getImporter("XML", computationManager), "XML")),
+                              new EntsoeFormat(Importers.getImporter("UCTE", computationManager), "UCT")), // official ENTSOE formats)
                 (directory, baseName) -> new GenericReadOnlyDataSource(directory, baseName));
     }
 

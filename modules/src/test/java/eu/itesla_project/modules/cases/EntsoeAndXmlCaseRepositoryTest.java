@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+ * Copyright (c) 2016, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -39,15 +39,17 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ *
+ * @author Quinary <itesla@quinary.com>
  */
-public class EntsoeCaseRepositoryTest {
+public class EntsoeAndXmlCaseRepositoryTest {
 
     private FileSystem fileSystem;
     private Path rootDir;
-    private EntsoeCaseRepository caseRepository;
+    private EntsoeAndXmlCaseRepository caseRepository;
     private Network cimNetwork;
     private Network uctNetwork;
+    private Network xmlNetwork;
 
     private class DataSourceMock implements DataSource {
         private final Path directory;
@@ -131,27 +133,34 @@ public class EntsoeCaseRepositoryTest {
         Mockito.when(uctImporter.import_(Matchers.isA(DataSource.class), Matchers.any()))
                 .thenReturn(uctNetwork);
 
-        caseRepository = new EntsoeCaseRepository(new EntsoeCaseRepositoryConfig(rootDir, HashMultimap.create()),
+        Importer xmlImporter = Mockito.mock(Importer.class);
+        Mockito.when(xmlImporter.exists(Matchers.isA(DataSource.class)))
+                .thenAnswer(invocation -> {
+                    DataSourceMock dataSource = invocation.getArgumentAt(0, DataSourceMock.class);
+                    Path file = dataSource.getDirectory().resolve(dataSource.getBaseName() + ".xml");
+                    return Files.isRegularFile(file) && Files.exists(file);
+                });
+        Mockito.when(xmlImporter.getFormat())
+                .thenReturn("XML");
+        xmlNetwork = Mockito.mock(Network.class);
+        Mockito.when(xmlImporter.import_(Matchers.isA(DataSource.class), Matchers.any()))
+                .thenReturn(xmlNetwork);
+
+
+        caseRepository = new EntsoeAndXmlCaseRepository(new EntsoeAndXmlCaseRepositoryConfig(rootDir, HashMultimap.create()),
                 Arrays.asList(new EntsoeCaseRepository.EntsoeFormat(cimImporter, "CIM"),
-                        new EntsoeCaseRepository.EntsoeFormat(uctImporter, "UCT")),
+                        new EntsoeCaseRepository.EntsoeFormat(uctImporter, "UCT"),
+                        new EntsoeCaseRepository.EntsoeFormat(xmlImporter, "XML")
+                ),
                 (directory, baseName) -> new DataSourceMock(directory, baseName));
-        Path dir1 = fileSystem.getPath("/CIM/SN/2013/01/13");
-        Files.createDirectories(dir1);
-        createFile(dir1, "20130113_0015_SN7_FR0.zip");
-        createFile(dir1, "20130113_0045_SN7_FR0.zip");
-        Path dir2 = fileSystem.getPath("/CIM/SN/2013/01/14");
-        Files.createDirectories(dir2);
-        createFile(dir2, "20130114_0015_SN1_FR0.zip");
-        Path dir3 = fileSystem.getPath("/UCT/SN/2013/01/14");
-        Files.createDirectories(dir3);
-        createFile(dir3, "20130114_0015_SN1_FR0.uct");
-        createFile(dir3, "20130114_0030_SN1_FR0.uct");
-        Path dir4 = fileSystem.getPath("/UCT/SN/2013/01/15");
-        Files.createDirectories(dir4);
-        createFile(dir4, "20130115_0015_SN2_D20.uct");
-        createFile(dir4, "20130115_0015_SN2_D40.uct");
-        createFile(dir4, "20130115_0015_SN2_D70.uct");
-        createFile(dir4, "20130115_0015_SN2_D80.uct");
+
+        Path dir5 = fileSystem.getPath("/XML/SN/2013/01/14");
+        Files.createDirectories(dir5);
+        createFile(dir5, "20130114_0015_SN1_FR0.xml");
+        Path dir6 = fileSystem.getPath("/XML/SN/2016/01/01");
+        Files.createDirectories(dir6);
+        createFile(dir6, "20160101_0015_SN5_FR0.xml");
+        createFile(dir6, "20160101_0045_SN5_FR0.xml");
     }
 
     @After
@@ -161,36 +170,15 @@ public class EntsoeCaseRepositoryTest {
 
     @Test
     public void testLoad() throws Exception {
-        assertTrue(caseRepository.load(DateTime.parse("2013-01-13T00:15:00+01:00"), CaseType.SN, Country.FR).size() == 1);
-        assertTrue(caseRepository.load(DateTime.parse("2013-01-13T00:30:00+01:00"), CaseType.SN, Country.FR).isEmpty());
-        assertTrue(caseRepository.load(DateTime.parse("2013-01-13T00:15:00+01:00"), CaseType.FO, Country.FR).isEmpty());
-        assertTrue(caseRepository.load(DateTime.parse("2013-01-13T00:15:00+01:00"), CaseType.SN, Country.BE).isEmpty());
-
-        // check that cim network is loaded instead of uct network
-        assertTrue(caseRepository.load(DateTime.parse("2013-01-14T00:15:00+01:00"), CaseType.SN, Country.FR).equals(Collections.singletonList(cimNetwork)));
-
-        // check that if cim is vorbidden for france, uct is loaded
+        // check that, when cim and ucte is forbidden for france, xml is loaded
         caseRepository.getConfig().getForbiddenFormatsByGeographicalCode().put(UcteGeographicalCode.FR, "CIM1");
-        assertTrue(caseRepository.load(DateTime.parse("2013-01-14T00:15:00+01:00"), CaseType.SN, Country.FR).equals(Collections.singletonList(uctNetwork)));
-
-        assertTrue(caseRepository.load(DateTime.parse("2013-01-15T00:15:00+01:00"), CaseType.SN, Country.DE).size() == 4);
-    }
-
-    @Test
-    public void testIsDataAvailable() throws Exception {
-        assertTrue(caseRepository.isDataAvailable(DateTime.parse("2013-01-13T00:15:00+01:00"), CaseType.SN, Country.FR));
-        assertFalse(caseRepository.isDataAvailable(DateTime.parse("2013-01-13T00:30:00+01:00"), CaseType.SN, Country.FR));
+        caseRepository.getConfig().getForbiddenFormatsByGeographicalCode().put(UcteGeographicalCode.FR, "UCTE");
+        assertTrue(caseRepository.load(DateTime.parse("2013-01-14T00:15:00+01:00"), CaseType.SN, Country.FR).equals(Collections.singletonList(xmlNetwork)));
     }
 
     @Test
     public void testDataAvailable() throws Exception {
-        assertTrue(caseRepository.dataAvailable(CaseType.SN, EnumSet.of(Country.FR), Interval.parse("2013-01-13T00:00:00+01:00/2013-01-13T00:30:00+01:00"))
-                .equals(Sets.newHashSet(DateTime.parse("2013-01-13T00:15:00+01:00"))));
-        assertTrue(caseRepository.dataAvailable(CaseType.SN, EnumSet.of(Country.FR), Interval.parse("2013-01-13T00:00:00+01:00/2013-01-13T01:00:00+01:00"))
-                .equals(Sets.newHashSet(DateTime.parse("2013-01-13T00:15:00+01:00"), DateTime.parse("2013-01-13T00:45:00+01:00"))));
-        assertTrue(caseRepository.dataAvailable(CaseType.SN, EnumSet.of(Country.BE, Country.DE), Interval.parse("2013-01-13T00:00:00+01:00/2013-01-13T01:00:00+01:00"))
-                .isEmpty());
-        assertTrue(caseRepository.dataAvailable(CaseType.SN, EnumSet.of(Country.FR), Interval.parse("2013-01-14T00:00:00+01:00/2013-01-14T01:00:00+01:00"))
-                .equals(Sets.newHashSet(DateTime.parse("2013-01-14T00:15:00+01:00"), DateTime.parse("2013-01-14T00:30:00+01:00"))));
+        assertTrue(caseRepository.dataAvailable(CaseType.SN, EnumSet.of(Country.FR), Interval.parse("2016-01-01T00:00:00+01:00/2016-01-14T01:00:00+01:00"))
+                .equals(Sets.newHashSet(DateTime.parse("2016-01-01T00:15:00+01:00"), DateTime.parse("2016-01-01T00:45:00+01:00"))));
     }
 }
