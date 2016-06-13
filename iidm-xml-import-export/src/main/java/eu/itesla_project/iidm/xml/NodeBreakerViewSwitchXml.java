@@ -31,13 +31,21 @@ public class NodeBreakerViewSwitchXml extends SwitchXml<VoltageLevel.NodeBreaker
 
     @Override
     protected VoltageLevel.NodeBreakerView.SwitchAdder createAdder(VoltageLevel vl) {
-        throw new AssertionError("TODO"); // FIXME
+        return vl.getNodeBreakerView().newSwitch();
     }
 
     @Override
     protected Switch readRootElementAttributes(VoltageLevel.NodeBreakerView.SwitchAdder adder, XMLStreamReader reader, List<Runnable> endTasks) {
-        SwitchKind kind = SwitchKind.valueOf("kind");
+        boolean open = readBoolAttribute(reader, "open");
+        SwitchKind kind = SwitchKind.valueOf(reader.getAttributeValue(null, "kind"));
         boolean retained = readBoolAttribute(reader, "retained");
-        throw new AssertionError("TODO"); // FIXME
+        int node1 = readIntAttribute(reader, "node1");
+        int node2 = readIntAttribute(reader, "node2");
+        return adder.setKind(kind)
+                .setRetained(retained)
+                .setOpen(open)
+                .setNode1(node1)
+                .setNode2(node2)
+                .add();
     }
 }

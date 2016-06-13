@@ -79,13 +79,21 @@ public interface Network extends Identifiable, Container {
     /**
      * Get the date that the network represents.
      */
-    DateTime getDate();
+    DateTime getCaseDate();
 
     /**
      * Set the date that the network represents.
      * @throws IllegalArgumentException if date is null.
      */
-    void setDate(DateTime date);
+    Network setCaseDate(DateTime date);
+
+    /**
+     * Get the forecast distance in minutes.
+     * <p>Example: 0 for a snapshot, 6*60 to 30*60 for a DACF.
+     */
+    int getForecastDistance();
+
+    Network setForecastDistance(int forecastDistance);
 
     /**
      * Get the source format.

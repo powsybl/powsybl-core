@@ -22,7 +22,8 @@
                  </xs:choice>
             </xs:sequence>
             <xs:attribute name="id" use="required" type="xs:string"/>
-            <xs:attribute name="date" use="required" type="xs:dateTime"/>
+            <xs:attribute name="caseDate" use="required" type="xs:dateTime"/>
+            <xs:attribute name="forecastDistance" use="required" type="xs:int"/>
             <xs:attribute name="sourceFormat" use="required" type="xs:string"/>
         </xs:complexType>
     </xs:element>
@@ -83,9 +84,6 @@
                     <xs:element name="shunt" minOccurs="0" maxOccurs="unbounded" type="iidm:ShuntCompensator"/>
                     <xs:element name="danglingLine" minOccurs="0" maxOccurs="unbounded" type="iidm:DanglingLine"/>
                 </xs:sequence>
-                <xs:attribute name="horizon" use="required" type="iidm:Horizon"/>
-                <xs:attribute name="forecastDistance" use="required" type="xs:int"/>
-                <xs:attribute name="date" use="required" type="xs:dateTime"/>
                 <xs:attribute name="nominalV" use="required" type="xs:float"/>
                 <xs:attribute name="topologyKind" use="required" type="iidm:TopologyKind"/>
                 <xs:attribute name="lowVoltageLimit" use="optional" type="xs:float"/>

@@ -7,13 +7,13 @@
 package eu.itesla_project.offline.forecast_errors;
 
 import eu.itesla_project.loadflow.api.LoadFlowFactory;
-import eu.itesla_project.modules.MergeOptimizerFactory;
+import eu.itesla_project.merge.MergeOptimizerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import eu.itesla_project.commons.io.ModuleConfig;
 import eu.itesla_project.commons.io.PlatformConfig;
-import eu.itesla_project.modules.cases.CaseRepositoryFactory;
+import eu.itesla_project.cases.CaseRepositoryFactory;
 import eu.itesla_project.modules.mcla.ForecastErrorsAnalyzerFactory;
 import eu.itesla_project.modules.mcla.ForecastErrorsDataStorageFactory;
 
@@ -27,7 +27,7 @@ public class ForecastErrorsAnalysisConfig {
 	 * example of forecastErrorsAnalysis.properties file.
 	 *
 
-	caseRepositoryFactoryClass=eu.itesla_project.modules.cases.EntsoeCaseRepositoryFactory
+	caseRepositoryFactoryClass=eu.itesla_project.cases.EntsoeCaseRepositoryFactory
 	forecastErrorsDataStorageFactoryClass=eu.itesla_project.matlab.mcla.ForecastErrorsDataStorageFactoryImpl
 	forecastErrorsAnalyzerFactoryClass=eu.itesla_project.matlab.mcla.forecast_errors.ForecastErrorsAnalyzerFactoryImpl
 	

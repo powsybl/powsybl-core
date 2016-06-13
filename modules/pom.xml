@@ -64,7 +64,12 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>ucte-util</artifactId>
+            <artifactId>case-repository</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>network-merge</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

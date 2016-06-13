@@ -12,7 +12,7 @@ import org.joda.time.Interval;
 import eu.itesla_project.commons.io.ModuleConfig;
 import eu.itesla_project.commons.io.PlatformConfig;
 import eu.itesla_project.iidm.network.Country;
-import eu.itesla_project.modules.cases.CaseType;
+import eu.itesla_project.cases.CaseType;
 
 import java.io.Serializable;
 import java.util.Arrays;

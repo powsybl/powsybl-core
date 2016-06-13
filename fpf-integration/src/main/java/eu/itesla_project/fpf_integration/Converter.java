@@ -203,13 +203,13 @@ public class Converter {
 		// ********************************** Data Reading ********************************** //
 				
 		// Reads basic power system data
-		String date = String.format( "%02d", n.getDate().dayOfMonth().get() ) + "/"
-				+ String.format( "%02d", n.getDate().getMonthOfYear() ) + "/"
-				+ String.format( "%02d", n.getDate().getYearOfCentury() );
+		String date = String.format( "%02d", n.getCaseDate().dayOfMonth().get() ) + "/"
+				+ String.format( "%02d", n.getCaseDate().getMonthOfYear() ) + "/"
+				+ String.format( "%02d", n.getCaseDate().getYearOfCentury() );
 		String originatorName = n.getSourceFormat();
 		double baseMVA = defaultBaseMVA;
-		int year = n.getDate().getYear();
-		String season = getSeason( n.getDate().getMonthOfYear() );
+		int year = n.getCaseDate().getYear();
+		String season = getSeason( n.getCaseDate().getMonthOfYear() );
 		String caseId = n.getId();
 		powerSystem = new CFPFPowerSystem( date, originatorName, baseMVA, year, season, caseId );
 		

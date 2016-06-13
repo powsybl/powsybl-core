@@ -32,9 +32,9 @@ public class IIDM2DB {
 
     public static class HorizonKey {
         public final int forecastDistance;
-        public final Horizon horizon;
+        public final String horizon;
 
-        public HorizonKey(int forecastDistance, Horizon horizon) {
+        public HorizonKey(int forecastDistance, String horizon) {
             this.forecastDistance = forecastDistance;
             this.horizon = horizon;
         }
@@ -51,7 +51,7 @@ public class IIDM2DB {
 
         @Override
         public String toString() {
-            return (horizon.toString()+forecastDistance);
+            return (horizon + forecastDistance);
         }
     }
 
@@ -215,16 +215,17 @@ public class IIDM2DB {
                     continue;
                 }
 
-                final LinkedHashMap<HistoDbAttributeId, Object> valueMap = valuesMap.getValueMap(new HorizonKey(vl.getForecastDistance(), vl.getHorizon()));
+                String horizon = n.getForecastDistance() > 0 ? "DACF" : "SN"; // for backward compatibility
+                final LinkedHashMap<HistoDbAttributeId, Object> valueMap = valuesMap.getValueMap(new HorizonKey(n.getForecastDistance(), horizon));
 
                 if (config.getCimName() != null && !valueMap.containsKey(HistoDbMetaAttributeId.cimName)) valueMap.put(HistoDbMetaAttributeId.cimName, config.getCimName());
 
                 if (config.isExtractTemporalFields()) {
-                    if (!valueMap.containsKey(HistoDbMetaAttributeId.datetime)) valueMap.put(HistoDbMetaAttributeId.datetime, n.getDate().toDate());
-                    if (!valueMap.containsKey(HistoDbMetaAttributeId.daytime)) valueMap.put(HistoDbMetaAttributeId.daytime, n.getDate().getMillisOfDay());
-                    if (!valueMap.containsKey(HistoDbMetaAttributeId.month)) valueMap.put(HistoDbMetaAttributeId.month, n.getDate().getMonthOfYear());
-                    if (!valueMap.containsKey(HistoDbMetaAttributeId.forecastTime)) valueMap.put(HistoDbMetaAttributeId.forecastTime, vl.getForecastDistance());
-                    if (!valueMap.containsKey(HistoDbMetaAttributeId.horizon)) valueMap.put(HistoDbMetaAttributeId.horizon, vl.getHorizon().toString());
+                    if (!valueMap.containsKey(HistoDbMetaAttributeId.datetime)) valueMap.put(HistoDbMetaAttributeId.datetime, n.getCaseDate().toDate());
+                    if (!valueMap.containsKey(HistoDbMetaAttributeId.daytime)) valueMap.put(HistoDbMetaAttributeId.daytime, n.getCaseDate().getMillisOfDay());
+                    if (!valueMap.containsKey(HistoDbMetaAttributeId.month)) valueMap.put(HistoDbMetaAttributeId.month, n.getCaseDate().getMonthOfYear());
+                    if (!valueMap.containsKey(HistoDbMetaAttributeId.forecastTime)) valueMap.put(HistoDbMetaAttributeId.forecastTime, n.getForecastDistance());
+                    if (!valueMap.containsKey(HistoDbMetaAttributeId.horizon)) valueMap.put(HistoDbMetaAttributeId.horizon, horizon);
                 }
 
                 vl.visitEquipments(new AbstractTopologyVisitor() {

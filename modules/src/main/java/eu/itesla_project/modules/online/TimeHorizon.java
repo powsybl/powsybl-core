@@ -6,8 +6,6 @@
  */
 package eu.itesla_project.modules.online;
 
-import eu.itesla_project.iidm.network.Horizon;
-
 /**
  *
  * @author Quinary <itesla@quinary.com>
@@ -15,25 +13,19 @@ import eu.itesla_project.iidm.network.Horizon;
 public enum TimeHorizon {
 	 
 		//HOUR24("24 hours", null, 1440);
-		DACF("DACF", Horizon.DACF, -1);
+		DACF("DACF", -1);
 		private String name;
-		private Horizon horizon;
 		private int forecastTime;
-		TimeHorizon(String name, Horizon horizon, int forecastTime) {
+		TimeHorizon(String name, int forecastTime) {
 			this.name = name;
-			this.horizon = horizon;
 			this.forecastTime = forecastTime;
 		}
 		public String getName() { return name; }
-		public Horizon getHorizon() { return horizon; }
 		public int getForecastTime() { return forecastTime; }
 		public String getLabel() {
-			String timeHorizon = "";
-			if ( horizon != null )
-				timeHorizon += horizon;
+			String timeHorizon = name;
 			if ( forecastTime > 0 ) {
-				if ( horizon != null )
-					timeHorizon += "-";
+				timeHorizon += "-";
 				timeHorizon += forecastTime;
 			}
 			return timeHorizon;

@@ -11,7 +11,7 @@ import com.google.auto.service.AutoService;
 import eu.itesla_project.commons.tools.Command;
 import eu.itesla_project.commons.tools.Tool;
 import eu.itesla_project.iidm.network.Country;
-import eu.itesla_project.modules.cases.CaseType;
+import eu.itesla_project.cases.CaseType;
 import eu.itesla_project.offline.forecast_errors.ForecastErrorsAnalysisParameters;
 import eu.itesla_project.online.LocalOnlineApplicationMBean;
 import eu.itesla_project.online.OnlineWorkflowStartParameters;

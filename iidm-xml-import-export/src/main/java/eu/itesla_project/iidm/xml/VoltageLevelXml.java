@@ -35,9 +35,6 @@ class VoltageLevelXml extends IdentifiableXml<VoltageLevel, VoltageLevelAdder, S
 
     @Override
     protected void writeRootElementAttributes(VoltageLevel vl, Substation s, XmlWriterContext context) throws XMLStreamException {
-        context.getWriter().writeAttribute("date", vl.getDate().toString());
-        context.getWriter().writeAttribute("horizon", vl.getHorizon().name());
-        context.getWriter().writeAttribute("forecastDistance", Integer.toString(vl.getForecastDistance()));
         writeFloat("nominalV", vl.getNominalV(), context.getWriter());
         writeFloat("lowVoltageLimit", vl.getLowVoltageLimit(), context.getWriter());
         writeFloat("highVoltageLimit", vl.getHighVoltageLimit(), context.getWriter());
@@ -134,16 +131,11 @@ class VoltageLevelXml extends IdentifiableXml<VoltageLevel, VoltageLevelAdder, S
 
     @Override
     protected VoltageLevel readRootElementAttributes(VoltageLevelAdder adder, XMLStreamReader reader, List<Runnable> endTasks) {
-        DateTime date = DateTime.parse(reader.getAttributeValue(null, "date"));
-        Horizon horizon = Horizon.valueOf(reader.getAttributeValue(null, "horizon"));
-        int forecastDistance = readIntAttribute(reader, "forecastDistance");
         float nominalV = readFloatAttribute(reader, "nominalV");
         float lowVoltageLimit = readOptionalFloatAttribute(reader, "lowVoltageLimit");
         float highVoltageLimit = readOptionalFloatAttribute(reader, "highVoltageLimit");
         TopologyKind topologyKind = TopologyKind.valueOf(reader.getAttributeValue(null, "topologyKind"));
-        return adder.setDate(date)
-                .setHorizon(horizon)
-                .setForecastDistance(forecastDistance)
+        return adder
                 .setNominalV(nominalV)
                 .setLowVoltageLimit(lowVoltageLimit)
                 .setHighVoltageLimit(highVoltageLimit)
