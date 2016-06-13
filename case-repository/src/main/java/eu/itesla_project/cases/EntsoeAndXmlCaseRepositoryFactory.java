@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package eu.itesla_project.modules.cases;
+package eu.itesla_project.cases;
 
 import eu.itesla_project.computation.ComputationManager;
 
