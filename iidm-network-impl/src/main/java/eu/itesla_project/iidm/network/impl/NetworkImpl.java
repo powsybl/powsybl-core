@@ -18,7 +18,6 @@ import gnu.trove.list.array.TIntArrayList;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import org.apache.commons.math3.geometry.partitioning.BoundaryAttribute;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +53,9 @@ class NetworkImpl extends IdentifiableImpl implements Network, MultiStateObject,
 
     private final RefChain<NetworkImpl> ref = new RefChain<>(new RefObj<>(this));
 
-    private DateTime date = new DateTime(); // default is the time at which the network has been created
+    private DateTime caseDate = new DateTime(); // default is the time at which the network has been created
+
+    private int forecastDistance = 0;
 
     private String sourceFormat;
 
@@ -122,16 +123,27 @@ class NetworkImpl extends IdentifiableImpl implements Network, MultiStateObject,
     }
 
     @Override
-    public DateTime getDate() {
-        return date;
+    public DateTime getCaseDate() {
+        return caseDate;
     }
 
     @Override
-    public void setDate(DateTime date) {
-        if (date == null) {
-            throw new IllegalArgumentException("date is null");
-        }
-        this.date = date;
+    public NetworkImpl setCaseDate(DateTime caseDate) {
+        ValidationUtil.checkCaseDate(this, caseDate);
+        this.caseDate = caseDate;
+        return this;
+    }
+
+    @Override
+    public int getForecastDistance() {
+        return forecastDistance;
+    }
+
+    @Override
+    public NetworkImpl setForecastDistance(int forecastDistance) {
+        ValidationUtil.checkForecastDistance(this, forecastDistance);
+        this.forecastDistance = forecastDistance;
+        return this;
     }
 
     @Override

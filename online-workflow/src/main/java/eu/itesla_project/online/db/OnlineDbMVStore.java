@@ -51,7 +51,7 @@ import eu.itesla_project.iidm.import_.Importer;
 import eu.itesla_project.iidm.import_.Importers;
 import eu.itesla_project.iidm.network.Country;
 import eu.itesla_project.iidm.network.Network;
-import eu.itesla_project.modules.cases.CaseType;
+import eu.itesla_project.cases.CaseType;
 import eu.itesla_project.modules.contingencies.ActionParameters;
 import eu.itesla_project.modules.histo.HistoDbAttributeId;
 import eu.itesla_project.modules.histo.IIDM2DB;

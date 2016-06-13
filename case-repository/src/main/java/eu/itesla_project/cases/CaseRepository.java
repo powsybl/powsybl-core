@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.modules.cases;
+package eu.itesla_project.cases;
 
 import eu.itesla_project.iidm.network.Country;
 import eu.itesla_project.iidm.network.Network;
@@ -40,17 +40,6 @@ public interface CaseRepository {
      * @return true if all the data of a case is available, false otherwise
      */
     boolean isDataAvailable(DateTime date, CaseType type, Country country);
-    
-    /**
-     * Provide information about what data of the case is available
-     * 
-     * @param date date of the case
-     * @param type type of the case, snapshot (SN) or forecast (FO)
-     * @param country case perimeter, merge if null
-     * @return a map containing, for each case perimeter, a boolean representing the availability of the data
-     */
-    Map<Country, Boolean> dataAvailable(DateTime date, CaseType type, Country country);
-
 
     Set<DateTime> dataAvailable(CaseType type, Set<Country> countries, Interval interval);
 }

@@ -8,7 +8,6 @@ package eu.itesla_project.iidm.network;
 
 import eu.itesla_project.commons.ITeslaException;
 import eu.itesla_project.iidm.network.util.ShortIdDictionary;
-import org.joda.time.DateTime;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -603,29 +602,6 @@ public interface VoltageLevel extends Container {
         Bus getBus(String id);
 
     }
-
-    Horizon getHorizon();
-
-    VoltageLevel setHorizon(Horizon horizon);
-
-    /**
-     * Get the forecast distance in minutes.
-     * <p>Example: 0 for a snapshot, 6*60 to 30*60 for a DACF.
-     */
-    int getForecastDistance();
-
-    VoltageLevel setForecastDistance(int forecastDistance);
-
-    /**
-     * Get the date that this substation represents.
-     */
-    DateTime getDate();
-
-    /**
-     * Set the date that the substation represents.
-     * @throws IllegalArgumentException if date is null.
-     */
-    VoltageLevel setDate(DateTime date);
 
     /**
      * Get the substation to which the voltage level belongs.

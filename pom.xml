@@ -63,6 +63,8 @@
         <module>fpf-integration</module>
         <module>iidm-xml-import-export</module>
         <module>distribution</module>
+        <module>case-repository</module>
+        <module>network-merge</module>
     </modules>
 
     <properties>

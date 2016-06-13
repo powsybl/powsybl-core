@@ -6,7 +6,6 @@
  */
 package eu.itesla_project.ucte.util;
 
-import eu.itesla_project.iidm.network.Horizon;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
@@ -22,7 +21,6 @@ public class UcteFileNameTest {
         String fileName = "20140213_0830_SN4_D20";
         UcteFileName ucteFileName = UcteFileName.parse(fileName);
         assertTrue(ucteFileName.getDate().isEqual(DateTime.parse("2014-02-13T08:30:00.000+01:00")));
-        assertTrue(ucteFileName.getHorizon() == Horizon.SN);
         assertTrue(ucteFileName.getForecastDistance() == 0);
         assertTrue(ucteFileName.getCountry().equals("DE"));
         assertTrue(ucteFileName.getGeographicalCode() == UcteGeographicalCode.D2);
@@ -32,7 +30,6 @@ public class UcteFileNameTest {
     public void testInvalidName() {
         String fileName = "???";
         UcteFileName ucteFileName = UcteFileName.parse(fileName);
-        assertTrue(ucteFileName.getHorizon() == Horizon.OTHER);
         assertTrue(ucteFileName.getForecastDistance() == 0);
         assertTrue(ucteFileName.getCountry() == null);
     }

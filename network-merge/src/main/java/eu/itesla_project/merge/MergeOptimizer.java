@@ -4,16 +4,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.modules.cases;
-
-import eu.itesla_project.computation.ComputationManager;
+package eu.itesla_project.merge;
 
 /**
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class EntsoeCaseRepositoryFactory implements CaseRepositoryFactory {
-    @Override
-    public CaseRepository create(ComputationManager computationManager) {
-        return EntsoeCaseRepository.create(computationManager);
-    }
+public interface MergeOptimizer {
+
+    String getName();
+
+    String getVersion();
+
+    boolean optimize() throws Exception;
+
 }

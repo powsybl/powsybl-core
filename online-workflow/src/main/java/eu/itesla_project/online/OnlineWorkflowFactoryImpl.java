@@ -9,8 +9,8 @@ package eu.itesla_project.online;
 
 import eu.itesla_project.computation.ComputationManager;
 import eu.itesla_project.loadflow.api.LoadFlowFactory;
-import eu.itesla_project.modules.MergeOptimizerFactory;
-import eu.itesla_project.modules.cases.CaseRepository;
+import eu.itesla_project.merge.MergeOptimizerFactory;
+import eu.itesla_project.cases.CaseRepository;
 import eu.itesla_project.modules.contingencies.ContingenciesAndActionsDatabaseClient;
 import eu.itesla_project.modules.ddb.DynamicDatabaseClientFactory;
 import eu.itesla_project.modules.histo.HistoDbClient;
@@ -32,7 +32,7 @@ import eu.itesla_project.modules.wca.WCAFactory;
 public class OnlineWorkflowFactoryImpl implements OnlineWorkflowFactory {
 
 	/* (non-Javadoc)
-	 * @see eu.itesla_project.online.OnlineWorkflowFactoryInterface#create(eu.itesla_project.computation.ComputationManager, eu.itesla_project.modules.contingencies.ContingenciesAndActionsDatabaseClient, eu.itesla_project.modules.ddb.DynamicDatabaseClientFactory, eu.itesla_project.modules.histo.HistoDbClient, eu.itesla_project.modules.rules.RulesDbClient, eu.itesla_project.modules.wca.WCAFactory, eu.itesla_project.loadflow.api.LoadFlowFactory, eu.itesla_project.modules.mcla.ForecastErrorsDataStorage, eu.itesla_project.modules.online.OnlineDb, eu.itesla_project.modules.wca.UncertaintiesAnalyserFactory, eu.itesla_project.modules.optimizer.CorrectiveControlOptimizerFactory, eu.itesla_project.modules.simulation.SimulatorFactory, eu.itesla_project.modules.cases.CaseRepository, eu.itesla_project.modules.mcla.MontecarloSamplerFactory, eu.itesla_project.modules.MergeOptimizerFactory, eu.itesla_project.modules.online.OnlineWorkflowParameters, eu.itesla_project.online.OnlineWorkflowStartParameters)
+	 * @see eu.itesla_project.online.OnlineWorkflowFactoryInterface#create(eu.itesla_project.computation.ComputationManager, eu.itesla_project.modules.contingencies.ContingenciesAndActionsDatabaseClient, eu.itesla_project.modules.ddb.DynamicDatabaseClientFactory, eu.itesla_project.modules.histo.HistoDbClient, eu.itesla_project.modules.rules.RulesDbClient, eu.itesla_project.modules.wca.WCAFactory, eu.itesla_project.loadflow.api.LoadFlowFactory, eu.itesla_project.modules.mcla.ForecastErrorsDataStorage, eu.itesla_project.modules.online.OnlineDb, eu.itesla_project.modules.wca.UncertaintiesAnalyserFactory, eu.itesla_project.modules.optimizer.CorrectiveControlOptimizerFactory, eu.itesla_project.modules.simulation.SimulatorFactory, eu.itesla_project.cases.CaseRepository, eu.itesla_project.modules.mcla.MontecarloSamplerFactory, eu.itesla_project.merge.MergeOptimizerFactory, eu.itesla_project.modules.online.OnlineWorkflowParameters, eu.itesla_project.online.OnlineWorkflowStartParameters)
 	 */
 	@Override
 	public OnlineWorkflow create(ComputationManager computationManager,

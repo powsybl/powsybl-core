@@ -6,19 +6,11 @@
  */
 package eu.itesla_project.iidm.network;
 
-import org.joda.time.DateTime;
-
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public interface VoltageLevelAdder extends IdentifiableAdder<VoltageLevelAdder> {
-
-    VoltageLevelAdder setDate(DateTime date);
-
-    VoltageLevelAdder setHorizon(Horizon horizon);
-
-    VoltageLevelAdder setForecastDistance(int forecastDistance);
 
     VoltageLevelAdder setNominalV(float nominalV);
 

@@ -70,7 +70,7 @@ abstract class IdentifiableXml<T extends Identifiable, A extends IdentifiableAdd
         XmlUtil.readUntilEndElement(getRootElementName(), reader, eventHandler);
     }
 
-    protected static int readIntAttribute(XMLStreamReader reader, String attributeName) {
+    static int readIntAttribute(XMLStreamReader reader, String attributeName) {
         return Integer.valueOf(reader.getAttributeValue(null, attributeName));
     }
 
@@ -81,6 +81,11 @@ abstract class IdentifiableXml<T extends Identifiable, A extends IdentifiableAdd
     protected static Integer getOptionalIntegerAttributeValue(XMLStreamReader reader, String attributeName) {
         String attributeValue = reader.getAttributeValue(null, attributeName);
         return attributeValue != null ? Integer.valueOf(attributeValue) : null;
+    }
+
+    static int readOptionalIntegerAttributeValue(XMLStreamReader reader, String attributeName, int defaultValue) {
+        String attributeValue = reader.getAttributeValue(null, attributeName);
+        return attributeValue != null ? Integer.valueOf(attributeValue) : defaultValue;
     }
 
     protected static float readFloatAttribute(XMLStreamReader reader, String attributeName) {

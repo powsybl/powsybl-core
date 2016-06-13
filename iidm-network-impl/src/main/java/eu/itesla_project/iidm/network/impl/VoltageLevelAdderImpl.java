@@ -6,8 +6,9 @@
  */
 package eu.itesla_project.iidm.network.impl;
 
-import eu.itesla_project.iidm.network.*;
-import org.joda.time.DateTime;
+import eu.itesla_project.iidm.network.TopologyKind;
+import eu.itesla_project.iidm.network.VoltageLevel;
+import eu.itesla_project.iidm.network.VoltageLevelAdder;
 
 /**
  *
@@ -16,12 +17,6 @@ import org.joda.time.DateTime;
 class VoltageLevelAdderImpl extends IdentifiableAdderImpl<VoltageLevelAdderImpl> implements VoltageLevelAdder {
 
     private final SubstationImpl substation;
-
-    private DateTime date = DateTime.now();
-
-    private Horizon horizon = Horizon.OTHER;
-
-    private int forecastDistance = 0;
 
     private float nominalV = Float.NaN;
 
@@ -43,24 +38,6 @@ class VoltageLevelAdderImpl extends IdentifiableAdderImpl<VoltageLevelAdderImpl>
     @Override
     protected String getTypeDescription() {
         return "Voltage level";
-    }
-
-    @Override
-    public VoltageLevelAdder setDate(DateTime date) {
-        this.date = date;
-        return this;
-    }
-
-    @Override
-    public VoltageLevelAdder setHorizon(Horizon horizon) {
-        this.horizon = horizon;
-        return this;
-    }
-
-    @Override
-    public VoltageLevelAdder setForecastDistance(int forecastDistance) {
-        this.forecastDistance = forecastDistance;
-        return this;
     }
 
     @Override
@@ -102,19 +79,14 @@ class VoltageLevelAdderImpl extends IdentifiableAdderImpl<VoltageLevelAdderImpl>
         ValidationUtil.checkLowVoltageLimit(this, lowVoltageLimit);
         ValidationUtil.checkHighVoltageLimit(this, highVoltageLimit);
         ValidationUtil.checkTopologyKind(this, topologyKind);
-        ValidationUtil.checkDate(this, date);
-        ValidationUtil.checkHorizon(this, horizon);
-        ValidationUtil.checkForecastDistance(this, forecastDistance);
 
         VoltageLevelExt voltageLevel;
         switch (topologyKind) {
             case NODE_BREAKER:
-                voltageLevel = new NodeBreakerVoltageLevel(id, getName(), substation, date, horizon, forecastDistance,
-                        nominalV, lowVoltageLimit, highVoltageLimit);
+                voltageLevel = new NodeBreakerVoltageLevel(id, getName(), substation, nominalV, lowVoltageLimit, highVoltageLimit);
                 break;
             case BUS_BREAKER:
-                voltageLevel = new BusBreakerVoltageLevel(id, getName(), substation, date, horizon, forecastDistance,
-                        nominalV, lowVoltageLimit, highVoltageLimit);
+                voltageLevel = new BusBreakerVoltageLevel(id, getName(), substation, nominalV, lowVoltageLimit, highVoltageLimit);
                 break;
             default:
                 throw new AssertionError();

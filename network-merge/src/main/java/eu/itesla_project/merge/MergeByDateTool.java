@@ -4,9 +4,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.modules;
+package eu.itesla_project.merge;
 
 import com.google.auto.service.AutoService;
+import eu.itesla_project.cases.CaseRepository;
+import eu.itesla_project.cases.CaseRepositoryFactory;
+import eu.itesla_project.cases.CaseType;
+import eu.itesla_project.commons.io.ComponentDefaultConfig;
 import eu.itesla_project.commons.tools.Command;
 import eu.itesla_project.commons.tools.Tool;
 import eu.itesla_project.computation.local.LocalComputationManager;
@@ -16,9 +20,6 @@ import eu.itesla_project.iidm.export.Exporters;
 import eu.itesla_project.iidm.network.Country;
 import eu.itesla_project.iidm.network.Network;
 import eu.itesla_project.loadflow.api.LoadFlowFactory;
-import eu.itesla_project.modules.cases.CaseRepository;
-import eu.itesla_project.modules.cases.CaseType;
-import eu.itesla_project.modules.offline.OfflineConfig;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
@@ -98,10 +99,10 @@ public class MergeByDateTool implements Tool {
 
     @Override
     public void run(CommandLine line) throws Exception {
-        OfflineConfig config = OfflineConfig.load();
-        CaseRepository caseRepository = config.getCaseRepositoryFactoryClass().newInstance().create(LocalComputationManager.getDefault());
-        LoadFlowFactory loadFlowFactory = config.getLoadFlowFactoryClass().newInstance();
-        MergeOptimizerFactory mergeOptimizerFactory = config.getMergeOptimizerFactoryClass().newInstance();
+        ComponentDefaultConfig config = new ComponentDefaultConfig();
+        CaseRepository caseRepository = config.findFactoryImplClass(CaseRepositoryFactory.class).newInstance().create(LocalComputationManager.getDefault());
+        LoadFlowFactory loadFlowFactory = config.findFactoryImplClass(LoadFlowFactory.class).newInstance();
+        MergeOptimizerFactory mergeOptimizerFactory = config.findFactoryImplClass(MergeOptimizerFactory.class).newInstance();
         Set<Country> countries = Arrays.stream(line.getOptionValue("countries").split(",")).map(Country::valueOf).collect(Collectors.toSet());
         DateTime date = DateTime.parse(line.getOptionValue("date"));
         Path outputDir = Paths.get(line.getOptionValue("output-dir"));

@@ -41,12 +41,6 @@ abstract class SwitchXml<A extends IdentifiableAdder<A>> extends IdentifiableXml
     protected void writeSubElements(Switch s, VoltageLevel vl, XmlWriterContext context) throws XMLStreamException {
     }
 
-    protected Switch readRootElementAttributes(VoltageLevel.BusBreakerView.SwitchAdder adder, XMLStreamReader reader, List<Runnable> endTasks) {
-        boolean open = readBoolAttribute(reader, "open");
-        adder.setOpen(open);
-        return null;
-    }
-
     @Override
     protected void readSubElements(Switch s, XMLStreamReader reader, List<Runnable> endTasks) throws XMLStreamException {
         readUntilEndRootElement(reader, () -> SwitchXml.super.readSubElements(s, reader,endTasks));
