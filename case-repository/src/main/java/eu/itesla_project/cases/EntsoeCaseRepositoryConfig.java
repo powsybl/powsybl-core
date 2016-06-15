@@ -1,5 +1,6 @@
 /**
  * Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+ * Copyright (c) 2016, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -36,7 +37,11 @@ public class EntsoeCaseRepositoryConfig {
     }
 
     static EntsoeCaseRepositoryConfig load(PlatformConfig platformConfig, Collection<String> supportedFormats) {
-        ModuleConfig config = platformConfig.getModuleConfig("entsoecaserepo");
+        return load("entsoecaserepo", platformConfig, supportedFormats);
+    }
+
+    static EntsoeCaseRepositoryConfig load(String moduleConfigName, PlatformConfig platformConfig, Collection<String> supportedFormats) {
+        ModuleConfig config = platformConfig.getModuleConfig(moduleConfigName);
         Path rootDir = config.getPathProperty("rootDir");
         Multimap<UcteGeographicalCode, String> forbiddenFormatsByCountry = HashMultimap.create();
         for (UcteGeographicalCode geographicalCode : UcteGeographicalCode.values()) {
