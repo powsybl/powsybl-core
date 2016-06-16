@@ -22,21 +22,21 @@ installDir=$HOME/itesla
 thirdpartyDir=$HOME/itesla_thirdparty
 
 ## stop script execution if installDir already exists
-wipeInstallDir=false
+overwriteInstallDir=false
 
 cmd=$0
 usage() {
-    echo "usage: $cmd [--help] [--installDir <installation path>] [--thirdpartyDir <thirdparty path>] [--wipeInstallDir] [--buildMATLAB] [--buildEUROSTAG] [--buildDYMOLA]";
+    echo "usage: $cmd [--help] [--installDir <installation path>] [--thirdpartyDir <thirdparty path>] [--overwriteInstallDir] [--buildMATLAB] [--buildEUROSTAG] [--buildDYMOLA]";
     echo ""
     exit 1
 }
 
 help() {
-    echo "usage: $cmd [--help] [--installDir <installation path>] [--thirdpartyDir <thirdparty path>] [--wipeInstallDir]";
+    echo "usage: $cmd [--help] [--installDir <installation path>] [--thirdpartyDir <thirdparty path>] [--overwriteInstallDir]";
     echo "   --installDir       the target directory; default is <HOME>/itesla;  installation will not proceed if it already exists,";
-    echo "                      unless --wipeInstallDir is set (in this case the existing path will be removed)";
+    echo "                      unless --overwriteInstallDir is set (in this case the existing installation will be overwritten)";
     echo "   --thirdpartyDir    the target path for the thirdparty libraries, required to build IPST (default is <HOME>/itesla_thirdparty)";
-    echo "   --wipeInstallDir   if set, installDir will be deleted (default is true)";
+    echo "   --overwriteInstallDir   if set, installDir will be deleted (default is not set)";
     echo "   --buildMATLAB      if set, build MATLAB components (default is false, this option requires installation of MATLAB and MATLAB compiler)";
     echo "   --buildEUROSTAG    if set, build EUROSTAG components (default is false, this option requires installation of EUROSTAG and EUROSTAG SDK)";
     echo "   --buildDYMOLA      if set, build DYMOLA components (default is false, this option requires installation of DYMOLA)";
@@ -54,9 +54,9 @@ do
     elif [ ${!i} = "--thirdpartyDir" ];
     then ((i++)) 
         thirdpartyDir=${!i};  
-    elif [ ${!i} = "--wipeInstallDir" ];
+    elif [ ${!i} = "--overwriteInstallDir" ];
     then 
-        wipeInstallDir=true;  
+        overwriteInstallDir=true;  
     elif [ ${!i} = "--buildMATLAB" ];
     then 
         BUILD_MATLAB=true;  
@@ -79,7 +79,7 @@ echo "** Building and installing ipst:"
 echo "** -----------------------------"
 echo "** installDir:" $installDir
 echo "** thirdpartyDir:" $thirdpartyDir
-echo "** wipeInstallDir:" $wipeInstallDir
+echo "** overwriteInstallDir:" $overwriteInstallDir
 echo "** buildMATLAB:" $BUILD_MATLAB
 echo "** buildEUROSTAG:" $BUILD_EUROSTAG
 echo "** buildDYMOLA:" $BUILD_DYMOLA
@@ -109,10 +109,10 @@ if [ $BUILD_DYMOLA = true ] ; then
 fi
 
 if [ -d $installDir ] &&
-   [ $wipeInstallDir != true ]
+   [ $overwriteInstallDir != true ]
 then
     echo ""
-    echo "ERROR: the target installation directory '"$installDir"' already exists; make sure that you really want to overwrite it (ref. --wipeInstallDir parameter)"
+    echo "ERROR: the target installation directory '"$installDir"' already exists; make sure that you really want to overwrite it (ref. --overwriteInstallDir parameter)"
     echo ""
     usage;
 fi
@@ -164,8 +164,8 @@ fi
 
 ###############################
 # remove  previous installation
-rm -rf $installDir
-mkdir -p $installDir
+#rm -rf $installDir
+#mkdir -p $installDir
 
 
 ###########################
@@ -192,17 +192,20 @@ if [ $cr -ne 0 ] ; then
 exit $cr
 fi
 
-################################
-# create a default configuration
+mkdir -p $installDir/etc
+
+######################################################################################
+# create a default configuration file, if a configuration file  does not already exist
 #
+if [ ! -f $installDir/etc/itesla.conf ]; then
 echo ""
-echo "** Creating a default itesla.conf file "
+echo "** Creating a default itesla.conf file"
 echo ""
-mkdir $installDir/etc
 echo "#itesla_cache_dir=" >> $installDir/etc/itesla.conf
 echo "#itesla_config_dir=" >> $installDir/etc/itesla.conf
 echo "itesla_config_name=config" >> $installDir/etc/itesla.conf
 echo "mpi_tasks=3" >> $installDir/etc/itesla.conf
 echo "mpi_hosts=localhost" >> $installDir/etc/itesla.conf
+fi
 
 exit 0
