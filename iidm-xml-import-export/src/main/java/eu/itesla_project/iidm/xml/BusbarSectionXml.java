@@ -36,7 +36,7 @@ class BusbarSectionXml extends IdentifiableXml<BusbarSection, BusbarSectionAdder
 
     @Override
     protected void writeRootElementAttributes(BusbarSection bs, VoltageLevel vl, XmlWriterContext context) throws XMLStreamException {
-        writeInt("node", bs.getTerminal().getNodeBreakerView().getNode(), context.getWriter());
+        XmlUtil.writeInt("node", bs.getTerminal().getNodeBreakerView().getNode(), context.getWriter());
     }
 
     @Override
@@ -50,7 +50,7 @@ class BusbarSectionXml extends IdentifiableXml<BusbarSection, BusbarSectionAdder
 
     @Override
     protected BusbarSection readRootElementAttributes(BusbarSectionAdder adder, XMLStreamReader reader, List<Runnable> endTasks) {
-        int node = readIntAttribute(reader, "node");
+        int node = XmlUtil.readIntAttribute(reader, "node");
         return adder.setNode(node)
                 .add();
     }

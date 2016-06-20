@@ -36,12 +36,12 @@ class LineXml extends ConnectableXml<Line, LineAdder, Network> {
 
     @Override
     protected void writeRootElementAttributes(Line l, Network n, XmlWriterContext context) throws XMLStreamException {
-        writeFloat("r", l.getR(), context.getWriter());
-        writeFloat("x", l.getX(), context.getWriter());
-        writeFloat("g1", l.getG1(), context.getWriter());
-        writeFloat("b1", l.getB1(), context.getWriter());
-        writeFloat("g2", l.getG2(), context.getWriter());
-        writeFloat("b2", l.getB2(), context.getWriter());
+        XmlUtil.writeFloat("r", l.getR(), context.getWriter());
+        XmlUtil.writeFloat("x", l.getX(), context.getWriter());
+        XmlUtil.writeFloat("g1", l.getG1(), context.getWriter());
+        XmlUtil.writeFloat("b1", l.getB1(), context.getWriter());
+        XmlUtil.writeFloat("g2", l.getG2(), context.getWriter());
+        XmlUtil.writeFloat("b2", l.getB2(), context.getWriter());
         writeNodeOrBus(1, l.getTerminal1(), context);
         writeNodeOrBus(2, l.getTerminal2(), context);
         if (context.getOptions().isWithBranchSV()) {
@@ -67,12 +67,12 @@ class LineXml extends ConnectableXml<Line, LineAdder, Network> {
 
     @Override
     protected Line readRootElementAttributes(LineAdder adder, XMLStreamReader reader, List<Runnable> endTasks) {
-        float r = readFloatAttribute(reader, "r");
-        float x = readFloatAttribute(reader, "x");
-        float g1 = readFloatAttribute(reader, "g1");
-        float b1 = readFloatAttribute(reader, "b1");
-        float g2 = readFloatAttribute(reader, "g2");
-        float b2 = readFloatAttribute(reader, "b2");
+        float r = XmlUtil.readFloatAttribute(reader, "r");
+        float x = XmlUtil.readFloatAttribute(reader, "x");
+        float g1 = XmlUtil.readFloatAttribute(reader, "g1");
+        float b1 = XmlUtil.readFloatAttribute(reader, "b1");
+        float g2 = XmlUtil.readFloatAttribute(reader, "g2");
+        float b2 = XmlUtil.readFloatAttribute(reader, "b2");
         adder.setR(r)
                 .setX(x)
                 .setG1(g1)

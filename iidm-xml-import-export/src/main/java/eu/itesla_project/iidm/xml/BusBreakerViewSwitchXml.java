@@ -38,7 +38,7 @@ public class BusBreakerViewSwitchXml extends SwitchXml<VoltageLevel.BusBreakerVi
 
     @Override
     protected Switch readRootElementAttributes(VoltageLevel.BusBreakerView.SwitchAdder adder, XMLStreamReader reader, List<Runnable> endTasks) {
-        boolean open = readBoolAttribute(reader, "open");
+        boolean open = XmlUtil.readBoolAttribute(reader, "open");
         String bus1 = reader.getAttributeValue(null, "bus1");
         String bus2 = reader.getAttributeValue(null, "bus2");
         return adder.setOpen(open)

@@ -40,14 +40,14 @@ class TieLineXml extends ConnectableXml<TieLine, TieLineAdder, Network> {
         if (halfLine.getName() != null) {
             writer.writeAttribute("name_" + side, halfLine.getName());
         }
-        writeFloat("r_" + side, halfLine.getR(), writer);
-        writeFloat("x_" + side, halfLine.getX(), writer);
-        writeFloat("g1_" + side, halfLine.getG1(), writer);
-        writeFloat("b1_" + side, halfLine.getB1(), writer);
-        writeFloat("g2_" + side, halfLine.getG2(), writer);
-        writeFloat("b2_" + side, halfLine.getB2(), writer);
-        writeFloat("xnodeP_" + side, halfLine.getXnodeP(), writer);
-        writeFloat("xnodeQ_" + side, halfLine.getXnodeQ(), writer);
+        XmlUtil.writeFloat("r_" + side, halfLine.getR(), writer);
+        XmlUtil.writeFloat("x_" + side, halfLine.getX(), writer);
+        XmlUtil.writeFloat("g1_" + side, halfLine.getG1(), writer);
+        XmlUtil.writeFloat("b1_" + side, halfLine.getB1(), writer);
+        XmlUtil.writeFloat("g2_" + side, halfLine.getG2(), writer);
+        XmlUtil.writeFloat("b2_" + side, halfLine.getB2(), writer);
+        XmlUtil.writeFloat("xnodeP_" + side, halfLine.getXnodeP(), writer);
+        XmlUtil.writeFloat("xnodeQ_" + side, halfLine.getXnodeQ(), writer);
     }
 
     @Override
@@ -81,14 +81,14 @@ class TieLineXml extends ConnectableXml<TieLine, TieLineAdder, Network> {
     private static void readHalf(TieLineAdder adder, XMLStreamReader reader, int side) {
         String id = reader.getAttributeValue(null, "id_" + side);
         String name = reader.getAttributeValue(null, "name_" + side);
-        float r = readFloatAttribute(reader, "r_" + side);
-        float x = readFloatAttribute(reader, "x_" + side);
-        float g1 = readFloatAttribute(reader, "g1_" + side);
-        float b1 = readFloatAttribute(reader, "b1_" + side);
-        float g2 = readFloatAttribute(reader, "g2_" + side);
-        float b2 = readFloatAttribute(reader, "b2_" + side);
-        float xnodeP = readFloatAttribute(reader, "xnodeP_" + side);
-        float xnodeQ = readFloatAttribute(reader, "xnodeQ_" + side);
+        float r = XmlUtil.readFloatAttribute(reader, "r_" + side);
+        float x = XmlUtil.readFloatAttribute(reader, "x_" + side);
+        float g1 = XmlUtil.readFloatAttribute(reader, "g1_" + side);
+        float b1 = XmlUtil.readFloatAttribute(reader, "b1_" + side);
+        float g2 = XmlUtil.readFloatAttribute(reader, "g2_" + side);
+        float b2 = XmlUtil.readFloatAttribute(reader, "b2_" + side);
+        float xnodeP = XmlUtil.readFloatAttribute(reader, "xnodeP_" + side);
+        float xnodeQ = XmlUtil.readFloatAttribute(reader, "xnodeQ_" + side);
         adder.setId(id)
                 .setName(name)
                 .setR(r)
