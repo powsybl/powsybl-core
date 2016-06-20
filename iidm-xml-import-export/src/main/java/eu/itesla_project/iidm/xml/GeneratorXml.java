@@ -36,13 +36,13 @@ class GeneratorXml extends ConnectableXml<Generator, GeneratorAdder, VoltageLeve
     @Override
     protected void writeRootElementAttributes(Generator g, VoltageLevel vl, XmlWriterContext context) throws XMLStreamException {
         context.getWriter().writeAttribute("energySource", g.getEnergySource().name());
-        writeFloat("minP", g.getMinP(), context.getWriter());
-        writeFloat("maxP", g.getMaxP(), context.getWriter());
-        writeFloat("ratedS", g.getRatedS(), context.getWriter());
+        XmlUtil.writeFloat("minP", g.getMinP(), context.getWriter());
+        XmlUtil.writeFloat("maxP", g.getMaxP(), context.getWriter());
+        XmlUtil.writeFloat("ratedS", g.getRatedS(), context.getWriter());
         context.getWriter().writeAttribute("voltageRegulatorOn", Boolean.toString(g.isVoltageRegulatorOn()));
-        writeFloat("targetP", g.getTargetP(), context.getWriter());
-        writeFloat("targetV", g.getTargetV(), context.getWriter());
-        writeFloat("targetQ", g.getTargetQ(), context.getWriter());
+        XmlUtil.writeFloat("targetP", g.getTargetP(), context.getWriter());
+        XmlUtil.writeFloat("targetV", g.getTargetV(), context.getWriter());
+        XmlUtil.writeFloat("targetQ", g.getTargetQ(), context.getWriter());
         writeNodeOrBus(null, g.getTerminal(), context);
         writePQ(null, g.getTerminal(), context.getWriter());
     }
@@ -60,9 +60,9 @@ class GeneratorXml extends ConnectableXml<Generator, GeneratorAdder, VoltageLeve
                 context.getWriter().writeStartElement(IIDM_URI, "reactiveCapabilityCurve");
                 for (ReactiveCapabilityCurve.Point point : curve.getPoints()) {
                     context.getWriter().writeEmptyElement(IIDM_URI, "point");
-                    writeFloat("p", point.getP(), context.getWriter());
-                    writeFloat("minQ", point.getMinQ(), context.getWriter());
-                    writeFloat("maxQ", point.getMaxQ(), context.getWriter());
+                    XmlUtil.writeFloat("p", point.getP(), context.getWriter());
+                    XmlUtil.writeFloat("minQ", point.getMinQ(), context.getWriter());
+                    XmlUtil.writeFloat("maxQ", point.getMaxQ(), context.getWriter());
                 }
                 context.getWriter().writeEndElement();
             }
@@ -71,8 +71,8 @@ class GeneratorXml extends ConnectableXml<Generator, GeneratorAdder, VoltageLeve
             case MIN_MAX: {
                 MinMaxReactiveLimits limits = g.getReactiveLimits(MinMaxReactiveLimits.class);
                 context.getWriter().writeEmptyElement(IIDM_URI, "minMaxReactiveLimits");
-                writeFloat("minQ", limits.getMinQ(), context.getWriter());
-                writeFloat("maxQ", limits.getMaxQ(), context.getWriter());
+                XmlUtil.writeFloat("minQ", limits.getMinQ(), context.getWriter());
+                XmlUtil.writeFloat("maxQ", limits.getMaxQ(), context.getWriter());
             }
             break;
 
@@ -89,13 +89,13 @@ class GeneratorXml extends ConnectableXml<Generator, GeneratorAdder, VoltageLeve
     @Override
     protected Generator readRootElementAttributes(GeneratorAdder adder, XMLStreamReader reader, List<Runnable> endTasks) {
         EnergySource energySource = EnergySource.valueOf(reader.getAttributeValue(null, "energySource"));
-        float minP = readFloatAttribute(reader, "minP");
-        float maxP = readFloatAttribute(reader, "maxP");
-        float ratedS = readOptionalFloatAttribute(reader, "ratedS");
-        boolean voltageRegulatorOn = readBoolAttribute(reader, "voltageRegulatorOn");
-        float targetP = readFloatAttribute(reader, "targetP");
-        float targetV = readOptionalFloatAttribute(reader, "targetV");
-        float targetQ = readOptionalFloatAttribute(reader, "targetQ");
+        float minP = XmlUtil.readFloatAttribute(reader, "minP");
+        float maxP = XmlUtil.readFloatAttribute(reader, "maxP");
+        float ratedS = XmlUtil.readOptionalFloatAttribute(reader, "ratedS");
+        boolean voltageRegulatorOn = XmlUtil.readBoolAttribute(reader, "voltageRegulatorOn");
+        float targetP = XmlUtil.readFloatAttribute(reader, "targetP");
+        float targetV = XmlUtil.readOptionalFloatAttribute(reader, "targetV");
+        float targetQ = XmlUtil.readOptionalFloatAttribute(reader, "targetQ");
         readNodeOrBus(adder, reader);
         Generator g = adder.setEnergySource(energySource)
                 .setMinP(minP)
@@ -124,9 +124,9 @@ class GeneratorXml extends ConnectableXml<Generator, GeneratorAdder, VoltageLeve
                     ReactiveCapabilityCurveAdder curveAdder = g.newReactiveCapabilityCurve();
                     XmlUtil.readUntilEndElement("reactiveCapabilityCurve", reader, () -> {
                         if (reader.getLocalName().equals("point")) {
-                            float p = readFloatAttribute(reader, "p");
-                            float minQ = readFloatAttribute(reader, "minQ");
-                            float maxQ = readFloatAttribute(reader, "maxQ");
+                            float p = XmlUtil.readFloatAttribute(reader, "p");
+                            float minQ = XmlUtil.readFloatAttribute(reader, "minQ");
+                            float maxQ = XmlUtil.readFloatAttribute(reader, "maxQ");
                             curveAdder.beginPoint()
                                     .setP(p)
                                     .setMinQ(minQ)
@@ -138,8 +138,8 @@ class GeneratorXml extends ConnectableXml<Generator, GeneratorAdder, VoltageLeve
                     break;
 
                 case "minMaxReactiveLimits":
-                    float min = readFloatAttribute(reader, "minQ");
-                    float max = readFloatAttribute(reader, "maxQ");
+                    float min = XmlUtil.readFloatAttribute(reader, "minQ");
+                    float max = XmlUtil.readFloatAttribute(reader, "maxQ");
                     g.newMinMaxReactiveLimits()
                             .setMinQ(min)
                             .setMaxQ(max)

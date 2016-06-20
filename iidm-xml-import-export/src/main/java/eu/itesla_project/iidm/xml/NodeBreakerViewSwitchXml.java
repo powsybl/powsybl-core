@@ -36,11 +36,11 @@ public class NodeBreakerViewSwitchXml extends SwitchXml<VoltageLevel.NodeBreaker
 
     @Override
     protected Switch readRootElementAttributes(VoltageLevel.NodeBreakerView.SwitchAdder adder, XMLStreamReader reader, List<Runnable> endTasks) {
-        boolean open = readBoolAttribute(reader, "open");
+        boolean open = XmlUtil.readBoolAttribute(reader, "open");
         SwitchKind kind = SwitchKind.valueOf(reader.getAttributeValue(null, "kind"));
-        boolean retained = readBoolAttribute(reader, "retained");
-        int node1 = readIntAttribute(reader, "node1");
-        int node2 = readIntAttribute(reader, "node2");
+        boolean retained = XmlUtil.readBoolAttribute(reader, "retained");
+        int node1 = XmlUtil.readIntAttribute(reader, "node1");
+        int node2 = XmlUtil.readIntAttribute(reader, "node2");
         return adder.setKind(kind)
                 .setRetained(retained)
                 .setOpen(open)

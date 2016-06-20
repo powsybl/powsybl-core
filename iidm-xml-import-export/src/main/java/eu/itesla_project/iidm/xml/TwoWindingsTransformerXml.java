@@ -37,12 +37,12 @@ class TwoWindingsTransformerXml extends TransformerXml<TwoWindingsTransformer, T
 
     @Override
     protected void writeRootElementAttributes(TwoWindingsTransformer twt, Substation s, XmlWriterContext context) throws XMLStreamException {
-        writeFloat("r", twt.getR(), context.getWriter());
-        writeFloat("x", twt.getX(), context.getWriter());
-        writeFloat("g", twt.getG(), context.getWriter());
-        writeFloat("b", twt.getB(), context.getWriter());
-        writeFloat("ratedU1", twt.getRatedU1(), context.getWriter());
-        writeFloat("ratedU2", twt.getRatedU2(), context.getWriter());
+        XmlUtil.writeFloat("r", twt.getR(), context.getWriter());
+        XmlUtil.writeFloat("x", twt.getX(), context.getWriter());
+        XmlUtil.writeFloat("g", twt.getG(), context.getWriter());
+        XmlUtil.writeFloat("b", twt.getB(), context.getWriter());
+        XmlUtil.writeFloat("ratedU1", twt.getRatedU1(), context.getWriter());
+        XmlUtil.writeFloat("ratedU2", twt.getRatedU2(), context.getWriter());
         writeNodeOrBus(1, twt.getTerminal1(), context);
         writeNodeOrBus(2, twt.getTerminal2(), context);
         if (context.getOptions().isWithBranchSV()) {
@@ -76,12 +76,12 @@ class TwoWindingsTransformerXml extends TransformerXml<TwoWindingsTransformer, T
 
     @Override
     protected TwoWindingsTransformer readRootElementAttributes(TwoWindingsTransformerAdder adder, XMLStreamReader reader, List<Runnable> endTasks) {
-        float r = readFloatAttribute(reader, "r");
-        float x = readFloatAttribute(reader, "x");
-        float g = readFloatAttribute(reader, "g");
-        float b = readFloatAttribute(reader, "b");
-        float ratedU1 = readFloatAttribute(reader, "ratedU1");
-        float ratedU2 = readFloatAttribute(reader, "ratedU2");
+        float r = XmlUtil.readFloatAttribute(reader, "r");
+        float x = XmlUtil.readFloatAttribute(reader, "x");
+        float g = XmlUtil.readFloatAttribute(reader, "g");
+        float b = XmlUtil.readFloatAttribute(reader, "b");
+        float ratedU1 = XmlUtil.readFloatAttribute(reader, "ratedU1");
+        float ratedU2 = XmlUtil.readFloatAttribute(reader, "ratedU2");
         adder.setR(r)
                 .setX(x)
                 .setG(g)
