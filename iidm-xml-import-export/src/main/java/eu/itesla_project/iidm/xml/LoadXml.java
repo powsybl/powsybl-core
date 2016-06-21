@@ -35,8 +35,8 @@ class LoadXml extends ConnectableXml<Load, LoadAdder, VoltageLevel> {
     @Override
     protected void writeRootElementAttributes(Load l, VoltageLevel vl, XmlWriterContext context) throws XMLStreamException {
         context.getWriter().writeAttribute("loadType", l.getLoadType().name());
-        writeFloat("p0", l.getP0(), context.getWriter());
-        writeFloat("q0", l.getQ0(), context.getWriter());
+        XmlUtil.writeFloat("p0", l.getP0(), context.getWriter());
+        XmlUtil.writeFloat("q0", l.getQ0(), context.getWriter());
         writeNodeOrBus(null, l.getTerminal(), context);
         writePQ(null, l.getTerminal(), context.getWriter());
     }
@@ -54,8 +54,8 @@ class LoadXml extends ConnectableXml<Load, LoadAdder, VoltageLevel> {
     protected Load readRootElementAttributes(LoadAdder adder, XMLStreamReader reader, List<Runnable> endTasks) {
         String loadTypeStr = reader.getAttributeValue(null, "loadType");
         LoadType loadType = loadTypeStr == null ? LoadType.UNDEFINED : LoadType.valueOf(loadTypeStr);
-        float p0 = readFloatAttribute(reader, "p0");
-        float q0 = readFloatAttribute(reader, "q0");
+        float p0 = XmlUtil.readFloatAttribute(reader, "p0");
+        float q0 = XmlUtil.readFloatAttribute(reader, "q0");
         readNodeOrBus(adder, reader);
         Load l = adder.setLoadType(loadType)
                 .setP0(p0)

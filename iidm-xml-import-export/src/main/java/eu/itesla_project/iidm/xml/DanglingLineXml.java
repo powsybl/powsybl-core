@@ -34,12 +34,12 @@ class DanglingLineXml extends ConnectableXml<DanglingLine, DanglingLineAdder, Vo
 
     @Override
     protected void writeRootElementAttributes(DanglingLine dl, VoltageLevel vl, XmlWriterContext context) throws XMLStreamException {
-        writeFloat("p0", dl.getP0(), context.getWriter());
-        writeFloat("q0", dl.getQ0(), context.getWriter());
-        writeFloat("r", dl.getR(), context.getWriter());
-        writeFloat("x", dl.getX(), context.getWriter());
-        writeFloat("g", dl.getG(), context.getWriter());
-        writeFloat("b", dl.getB(), context.getWriter());
+        XmlUtil.writeFloat("p0", dl.getP0(), context.getWriter());
+        XmlUtil.writeFloat("q0", dl.getQ0(), context.getWriter());
+        XmlUtil.writeFloat("r", dl.getR(), context.getWriter());
+        XmlUtil.writeFloat("x", dl.getX(), context.getWriter());
+        XmlUtil.writeFloat("g", dl.getG(), context.getWriter());
+        XmlUtil.writeFloat("b", dl.getB(), context.getWriter());
         if (dl.getUcteXnodeCode() != null) {
             context.getWriter().writeAttribute("ucteXnodeCode", dl.getUcteXnodeCode());
         }
@@ -61,12 +61,12 @@ class DanglingLineXml extends ConnectableXml<DanglingLine, DanglingLineAdder, Vo
 
     @Override
     protected DanglingLine readRootElementAttributes(DanglingLineAdder adder, XMLStreamReader reader, List<Runnable> endTasks) {
-        float p0 = readFloatAttribute(reader, "p0");
-        float q0 = readFloatAttribute(reader, "q0");
-        float r = readFloatAttribute(reader, "r");
-        float x = readFloatAttribute(reader, "x");
-        float g = readFloatAttribute(reader, "g");
-        float b = readFloatAttribute(reader, "b");
+        float p0 = XmlUtil.readFloatAttribute(reader, "p0");
+        float q0 = XmlUtil.readFloatAttribute(reader, "q0");
+        float r = XmlUtil.readFloatAttribute(reader, "r");
+        float x = XmlUtil.readFloatAttribute(reader, "x");
+        float g = XmlUtil.readFloatAttribute(reader, "g");
+        float b = XmlUtil.readFloatAttribute(reader, "b");
         String ucteXnodeCode = reader.getAttributeValue(null, "ucteXnodeCode");
         readNodeOrBus(adder, reader);
         DanglingLine dl = adder.setP0(p0)

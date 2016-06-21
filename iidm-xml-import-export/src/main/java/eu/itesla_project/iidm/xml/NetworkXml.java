@@ -140,7 +140,7 @@ public class NetworkXml implements XmlConstants {
 
         String id = reader.getAttributeValue(null, "id");
         DateTime date = DateTime.parse(reader.getAttributeValue(null, "caseDate"));
-        int forecastDistance = IdentifiableXml.readOptionalIntegerAttributeValue(reader, "forecastDistance", 0);
+        int forecastDistance = XmlUtil.readOptionalIntegerAttributeValue(reader, "forecastDistance", 0);
         String sourceFormat = reader.getAttributeValue(null, "sourceFormat");
 
         Network network = NetworkFactory.create(id, sourceFormat);
@@ -207,8 +207,8 @@ public class NetworkXml implements XmlConstants {
 
                 case BusXml.ROOT_ELEMENT_NAME: {
                     String id = reader.getAttributeValue(null, "id");
-                    float v = IdentifiableXml.readFloatAttribute(reader, "v");
-                    float angle = IdentifiableXml.readFloatAttribute(reader, "angle");
+                    float v = XmlUtil.readFloatAttribute(reader, "v");
+                    float angle = XmlUtil.readFloatAttribute(reader, "angle");
                     Bus b = vl[0].getBusBreakerView().getBus(id);
                     if (b == null) {
                         b = vl[0].getBusView().getBus(id);
@@ -222,8 +222,8 @@ public class NetworkXml implements XmlConstants {
                 case ShuntXml.ROOT_ELEMENT_NAME:
                 case DanglingLineXml.ROOT_ELEMENT_NAME: {
                     String id = reader.getAttributeValue(null, "id");
-                    float p = IdentifiableXml.readOptionalFloatAttribute(reader, "p");
-                    float q = IdentifiableXml.readOptionalFloatAttribute(reader, "q");
+                    float p = XmlUtil.readOptionalFloatAttribute(reader, "p");
+                    float q = XmlUtil.readOptionalFloatAttribute(reader, "q");
                     SingleTerminalConnectable inj = (SingleTerminalConnectable) network.getIdentifiable(id);
                     inj.getTerminal().setP(p).setQ(q);
                     break;
@@ -232,10 +232,10 @@ public class NetworkXml implements XmlConstants {
                 case LineXml.ROOT_ELEMENT_NAME:
                 case TwoWindingsTransformerXml.ROOT_ELEMENT_NAME: {
                     String id = reader.getAttributeValue(null, "id");
-                    float p1 = IdentifiableXml.readOptionalFloatAttribute(reader, "p1");
-                    float q1 = IdentifiableXml.readOptionalFloatAttribute(reader, "q1");
-                    float p2 = IdentifiableXml.readOptionalFloatAttribute(reader, "p2");
-                    float q2 = IdentifiableXml.readOptionalFloatAttribute(reader, "q2");
+                    float p1 = XmlUtil.readOptionalFloatAttribute(reader, "p1");
+                    float q1 = XmlUtil.readOptionalFloatAttribute(reader, "q1");
+                    float p2 = XmlUtil.readOptionalFloatAttribute(reader, "p2");
+                    float q2 = XmlUtil.readOptionalFloatAttribute(reader, "q2");
                     TwoTerminalsConnectable branch = (TwoTerminalsConnectable) network.getIdentifiable(id);
                     branch.getTerminal1().setP(p1).setQ(q1);
                     branch.getTerminal2().setP(p2).setQ(q2);
