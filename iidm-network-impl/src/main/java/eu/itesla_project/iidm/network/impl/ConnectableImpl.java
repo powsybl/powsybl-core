@@ -7,6 +7,8 @@
 package eu.itesla_project.iidm.network.impl;
 
 import eu.itesla_project.iidm.network.Connectable;
+import eu.itesla_project.iidm.network.Identifiable;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,7 +16,7 @@ import java.util.List;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-abstract class ConnectableImpl extends IdentifiableImpl implements Connectable, Stateful {
+abstract class ConnectableImpl<I extends Identifiable<I>> extends IdentifiableImpl<I> implements Connectable<I>, Stateful {
 
     protected final List<TerminalExt> terminals = new ArrayList<>();
 

@@ -11,7 +11,7 @@ package eu.itesla_project.iidm.network;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface TwoTerminalsConnectable extends Connectable {
+public interface TwoTerminalsConnectable<I extends Identifiable<I>> extends Connectable<I> {
 
     enum Side {
         ONE,

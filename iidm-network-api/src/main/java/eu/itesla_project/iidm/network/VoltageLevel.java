@@ -312,7 +312,7 @@ import java.io.PrintStream;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @see VoltageLevelAdder
  */
-public interface VoltageLevel extends Container {
+public interface VoltageLevel extends Container<VoltageLevel> {
 
     /**
      * A node/breaker view of the topology.

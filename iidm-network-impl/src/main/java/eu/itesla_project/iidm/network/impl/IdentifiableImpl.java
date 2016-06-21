@@ -6,13 +6,15 @@
  */
 package eu.itesla_project.iidm.network.impl;
 
-import java.util.Properties;
+import eu.itesla_project.iidm.network.Identifiable;
+
+import java.util.*;
 
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-abstract class IdentifiableImpl implements Validable {
+abstract class IdentifiableImpl<I extends Identifiable<I>> implements Identifiable<I>, Validable {
 
     protected String id;
 
@@ -20,15 +22,19 @@ abstract class IdentifiableImpl implements Validable {
 
     protected Properties properties;
 
+    protected final Map<Class<?>, Extension<I>> extensions = new HashMap<>();
+
     IdentifiableImpl(String id, String name) {
         this.id = id;
         this.name = name;
     }
 
+    @Override
     public String getId() {
         return id;
     }
 
+    @Override
     public String getName() {
         return name != null ? name : id;
     }
@@ -40,15 +46,45 @@ abstract class IdentifiableImpl implements Validable {
         return getTypeDescription() + " '" + id + "': ";
     }
 
+    @Override
     public boolean hasProperty() {
         return properties != null && properties.size() > 0;
     }
 
+    @Override
     public Properties getProperties() {
         if (properties == null) {
             properties = new Properties();
         }
         return properties;
+    }
+
+    @Override
+    public <E extends Extension<I>> void addExtension(Class<? super E> type, E extension) {
+        Objects.requireNonNull(type);
+        Objects.requireNonNull(extension);
+        extensions.put(type, extension);
+    }
+
+    @Override
+    public <E extends Extension<I>> E getExtension(Class<E> type) {
+        Objects.requireNonNull(type);
+        E extension = (E) extensions.get(type);
+        if (extension == null) {
+            throw new RuntimeException("Extension " + type + " not found");
+        }
+        return extension;
+    }
+
+    @Override
+    public <E extends Extension<I>> boolean removeExtension(Class<E> type) {
+        Objects.requireNonNull(type);
+        return extensions.remove(type) != null;
+    }
+
+    @Override
+    public Collection<Extension<I>> getExtensions() {
+        return extensions.values();
     }
 
     @Override

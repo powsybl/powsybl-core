@@ -82,7 +82,7 @@ class BusFilter {
         return buses == null || buses.contains(b.getId());
     }
 
-    boolean test(Connectable connectable) {
+    boolean test(Connectable<?> connectable) {
         if (buses == null) {
             return true;
         }

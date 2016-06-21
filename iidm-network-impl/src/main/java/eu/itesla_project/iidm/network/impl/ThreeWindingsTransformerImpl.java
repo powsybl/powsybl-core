@@ -12,7 +12,7 @@ import eu.itesla_project.iidm.network.*;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class ThreeWindingsTransformerImpl extends ConnectableImpl implements ThreeWindingsTransformer {
+class ThreeWindingsTransformerImpl extends ConnectableImpl<ThreeWindingsTransformer> implements ThreeWindingsTransformer {
 
     static abstract class LegBaseImpl<T extends LegBaseImpl<T>> implements Validable, CurrentLimitsOwner<Void> {
 

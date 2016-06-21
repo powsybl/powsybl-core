@@ -8,6 +8,9 @@ package eu.itesla_project.iidm.xml;
 
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
+import eu.itesla_project.commons.util.ServiceLoaderCache;
 import eu.itesla_project.iidm.network.*;
 import javanet.staxutils.IndentingXMLStreamWriter;
 import org.joda.time.DateTime;
@@ -21,6 +24,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -29,11 +34,18 @@ import java.util.List;
 public class NetworkXml implements XmlConstants {
 
     static final String NETWORK_ROOT_ELEMENT_NAME = "network";
+    private static final String EXTENSION_ELEMENT_NAME = "extension";
 
     // cache XMLOutputFactory to improve performance
     private static final Supplier<XMLOutputFactory> XML_OUTPUT_FACTORY_SUPPLIER = Suppliers.memoize(XMLOutputFactory::newFactory);
 
     private static final Supplier<XMLInputFactory> XML_INPUT_FACTORY_SUPPLIER = Suppliers.memoize(XMLInputFactory::newInstance);
+
+    private static final Supplier<Map<String, ExtensionXml>> EXTENSIONS_SUPPLIER
+            = Suppliers.memoize(() -> {
+                return new ServiceLoaderCache<>(ExtensionXml.class).getServices().stream()
+                        .collect(Collectors.toMap(extensionXml -> extensionXml.getExtensionName(), e -> e));
+            });
 
     public static void write(Network n, Path xmlFile) throws XMLStreamException, IOException {
         write(n, new XMLExportOptions(), xmlFile);
@@ -45,13 +57,26 @@ public class NetworkXml implements XmlConstants {
         }
     }
 
-    public static void write(Network n, XMLExportOptions options, OutputStream os) throws XMLStreamException {
+    private static XMLStreamWriter createXmlStreamWriter(XMLExportOptions options, OutputStream os) throws XMLStreamException {
         XMLStreamWriter writer = XML_OUTPUT_FACTORY_SUPPLIER.get().createXMLStreamWriter(os, StandardCharsets.UTF_8.toString());
         if (options.isIndent()) {
             IndentingXMLStreamWriter indentingWriter = new IndentingXMLStreamWriter(writer);
             indentingWriter.setIndent(INDENT);
             writer = indentingWriter;
         }
+        return writer;
+    }
+
+    private static ExtensionXml getExtensionXml(String name) {
+        ExtensionXml extensionXml = EXTENSIONS_SUPPLIER.get().get(name);
+        if (extensionXml == null) {
+            throw new RuntimeException("Xml serializer not found for extension " + name);
+        }
+        return extensionXml;
+    }
+
+    public static void write(Network n, XMLExportOptions options, OutputStream os) throws XMLStreamException {
+        final XMLStreamWriter writer = createXmlStreamWriter(options, os);
         writer.writeStartDocument(StandardCharsets.UTF_8.toString(), "1.0");
         writer.setPrefix(IIDM_PREFIX, IIDM_URI);
         writer.writeStartElement(IIDM_URI, NETWORK_ROOT_ELEMENT_NAME);
@@ -74,6 +99,30 @@ public class NetworkXml implements XmlConstants {
             } else {
                 LineXml.INSTANCE.write(l, n, context);
             }
+        }
+        // index extension by name
+        Multimap<String, Identifiable.Extension<?>> extensionsByName = HashMultimap.create();
+        for (Identifiable<?> identifiable : n.getIdentifiables()) {
+            for (Identifiable.Extension<?> extension : identifiable.getExtensions()) {
+                extensionsByName.put(extension.getName(), extension);
+            }
+        }
+        if (extensionsByName.size() > 0) {
+            // write extensions
+            extensionsByName.asMap().forEach((name, extensions) -> {
+                try {
+                    writer.writeStartElement(IIDM_URI, EXTENSION_ELEMENT_NAME);
+                    writer.writeAttribute("name", name);
+                    // index per identifiable
+                    for (Identifiable.Extension<?> extension : extensions) {
+                        ExtensionXml extensionXml = getExtensionXml(extension.getName());
+                        extensionXml.write(extension, context);
+                    }
+                    writer.writeEndElement();
+                } catch (XMLStreamException e) {
+                    throw new RuntimeException(e);
+                }
+            });
         }
         writer.writeEndElement();
         writer.writeEndDocument();
@@ -112,6 +161,14 @@ public class NetworkXml implements XmlConstants {
 
                 case TieLineXml.ROOT_ELEMENT_NAME:
                     TieLineXml.INSTANCE.read(reader, network, endTasks);
+                    break;
+
+                case EXTENSION_ELEMENT_NAME:
+                    String name = reader.getAttributeValue(null, "name");
+                    XmlUtil.readUntilEndElement(EXTENSION_ELEMENT_NAME, reader, () -> {
+                        ExtensionXml extensionXml = getExtensionXml(name);
+                        extensionXml.read(network, reader);
+                    });
                     break;
 
                 default:
