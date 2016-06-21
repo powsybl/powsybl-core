@@ -29,13 +29,13 @@ public class LoadZipModelXml implements ExtensionXml<Load, LoadZipModel> {
     public void write(LoadZipModel zipModel, XmlWriterContext context) throws XMLStreamException {
         context.getWriter().writeEmptyElement("loadZipModel");
         context.getWriter().writeAttribute("id", zipModel.getIdentifiable().getId());
-        IdentifiableXml.writeFloat("a1", zipModel.getA1(), context.getWriter());
-        IdentifiableXml.writeFloat("a2", zipModel.getA2(), context.getWriter());
-        IdentifiableXml.writeFloat("a3", zipModel.getA3(), context.getWriter());
-        IdentifiableXml.writeFloat("a4", zipModel.getA4(), context.getWriter());
-        IdentifiableXml.writeFloat("a5", zipModel.getA5(), context.getWriter());
-        IdentifiableXml.writeFloat("a6", zipModel.getA6(), context.getWriter());
-        IdentifiableXml.writeFloat("v0", zipModel.getV0(), context.getWriter());
+        XmlUtil.writeFloat("a1", zipModel.getA1(), context.getWriter());
+        XmlUtil.writeFloat("a2", zipModel.getA2(), context.getWriter());
+        XmlUtil.writeFloat("a3", zipModel.getA3(), context.getWriter());
+        XmlUtil.writeFloat("a4", zipModel.getA4(), context.getWriter());
+        XmlUtil.writeFloat("a5", zipModel.getA5(), context.getWriter());
+        XmlUtil.writeFloat("a6", zipModel.getA6(), context.getWriter());
+        XmlUtil.writeFloat("v0", zipModel.getV0(), context.getWriter());
     }
 
     @Override
@@ -45,13 +45,13 @@ public class LoadZipModelXml implements ExtensionXml<Load, LoadZipModel> {
         if (load == null) {
             throw new RuntimeException("Load " + id + " not found");
         }
-        float a1 = IdentifiableXml.readFloatAttribute(reader, "a1");
-        float a2 = IdentifiableXml.readFloatAttribute(reader, "a2");
-        float a3 = IdentifiableXml.readFloatAttribute(reader, "a3");
-        float a4 = IdentifiableXml.readFloatAttribute(reader, "a4");
-        float a5 = IdentifiableXml.readFloatAttribute(reader, "a5");
-        float a6 = IdentifiableXml.readFloatAttribute(reader, "a6");
-        float v0 = IdentifiableXml.readFloatAttribute(reader, "v0");
+        float a1 = XmlUtil.readFloatAttribute(reader, "a1");
+        float a2 = XmlUtil.readFloatAttribute(reader, "a2");
+        float a3 = XmlUtil.readFloatAttribute(reader, "a3");
+        float a4 = XmlUtil.readFloatAttribute(reader, "a4");
+        float a5 = XmlUtil.readFloatAttribute(reader, "a5");
+        float a6 = XmlUtil.readFloatAttribute(reader, "a6");
+        float v0 = XmlUtil.readFloatAttribute(reader, "v0");
         load.addExtension(LoadZipModel.class, new LoadZipModel(load, a1, a2, a3, a4, a5, a6, v0));
     }
 }
