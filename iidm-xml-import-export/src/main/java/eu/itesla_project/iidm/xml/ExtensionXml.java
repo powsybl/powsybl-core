@@ -7,10 +7,10 @@
 package eu.itesla_project.iidm.xml;
 
 import eu.itesla_project.iidm.network.Identifiable;
-import eu.itesla_project.iidm.network.Network;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
+import java.io.InputStream;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -19,7 +19,17 @@ public interface ExtensionXml<I extends Identifiable<I>, E extends Identifiable.
 
     String getExtensionName();
 
+    Class<? super E> getExtensionClass();
+
+    boolean hasSubElements();
+
+    InputStream getXsdAsStream();
+
+    String getNamespaceUri();
+
+    String getNamespacePrefix();
+
     void write(E extension, XmlWriterContext context) throws XMLStreamException;
 
-    void read(Network network, XMLStreamReader reader);
+    E read(I identifiable, XMLStreamReader reader);
 }

@@ -11,11 +11,14 @@ import eu.itesla_project.iidm.network.Network;
 import eu.itesla_project.iidm.network.test.EurostagTutorialExample1Factory;
 import eu.itesla_project.iidm.network.test.LoadZipModel;
 import org.junit.Test;
+import org.xml.sax.SAXException;
 
 import javax.xml.stream.XMLStreamException;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -23,7 +26,7 @@ import static org.junit.Assert.*;
 public class IdentifiableExtensionXmlTest {
 
     @Test
-    public void test() throws XMLStreamException, IOException {
+    public void test() throws XMLStreamException, IOException, SAXException {
         Network network = EurostagTutorialExample1Factory.create();
         Load load = network.getLoad("LOAD");
         LoadZipModel zipModel = new LoadZipModel(load, 1, 2, 3, 4, 5, 6, 380);
@@ -32,6 +35,10 @@ public class IdentifiableExtensionXmlTest {
         try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
             NetworkXml.write(network, new XMLExportOptions(), os);
             buffer = os.toByteArray();
+        }
+        // try to validate the schema with extensions
+        try (ByteArrayInputStream is = new ByteArrayInputStream(buffer)) {
+            NetworkXml.validateWithExtensions(is);
         }
         try (ByteArrayInputStream is = new ByteArrayInputStream(buffer)) {
             Network network2 = NetworkXml.read(is);

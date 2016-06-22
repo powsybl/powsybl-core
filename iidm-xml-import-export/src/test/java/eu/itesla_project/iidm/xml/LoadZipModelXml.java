@@ -8,11 +8,11 @@ package eu.itesla_project.iidm.xml;
 
 import com.google.auto.service.AutoService;
 import eu.itesla_project.iidm.network.Load;
-import eu.itesla_project.iidm.network.Network;
 import eu.itesla_project.iidm.network.test.LoadZipModel;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
+import java.io.InputStream;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -26,9 +26,32 @@ public class LoadZipModelXml implements ExtensionXml<Load, LoadZipModel> {
     }
 
     @Override
+    public Class<? super LoadZipModel> getExtensionClass() {
+        return LoadZipModel.class;
+    }
+
+    @Override
+    public boolean hasSubElements() {
+        return false;
+    }
+
+    @Override
+    public InputStream getXsdAsStream() {
+        return getClass().getResourceAsStream("/xsd/loadZipModel.xsd");
+    }
+
+    @Override
+    public String getNamespaceUri() {
+        return "http://www.itesla_project.eu/schema/iidm/ext/loadzipmodel/1_0";
+    }
+
+    @Override
+    public String getNamespacePrefix() {
+        return "extZip";
+    }
+
+    @Override
     public void write(LoadZipModel zipModel, XmlWriterContext context) throws XMLStreamException {
-        context.getWriter().writeEmptyElement("loadZipModel");
-        context.getWriter().writeAttribute("id", zipModel.getIdentifiable().getId());
         XmlUtil.writeFloat("a1", zipModel.getA1(), context.getWriter());
         XmlUtil.writeFloat("a2", zipModel.getA2(), context.getWriter());
         XmlUtil.writeFloat("a3", zipModel.getA3(), context.getWriter());
@@ -39,12 +62,7 @@ public class LoadZipModelXml implements ExtensionXml<Load, LoadZipModel> {
     }
 
     @Override
-    public void read(Network network, XMLStreamReader reader) {
-        String id = reader.getAttributeValue(null, "id");
-        Load load = network.getLoad(id);
-        if (load == null) {
-            throw new RuntimeException("Load " + id + " not found");
-        }
+    public LoadZipModel read(Load load, XMLStreamReader reader) {
         float a1 = XmlUtil.readFloatAttribute(reader, "a1");
         float a2 = XmlUtil.readFloatAttribute(reader, "a2");
         float a3 = XmlUtil.readFloatAttribute(reader, "a3");
@@ -52,6 +70,6 @@ public class LoadZipModelXml implements ExtensionXml<Load, LoadZipModel> {
         float a5 = XmlUtil.readFloatAttribute(reader, "a5");
         float a6 = XmlUtil.readFloatAttribute(reader, "a6");
         float v0 = XmlUtil.readFloatAttribute(reader, "v0");
-        load.addExtension(LoadZipModel.class, new LoadZipModel(load, a1, a2, a3, a4, a5, a6, v0));
+        return new LoadZipModel(load, a1, a2, a3, a4, a5, a6, v0);
     }
 }

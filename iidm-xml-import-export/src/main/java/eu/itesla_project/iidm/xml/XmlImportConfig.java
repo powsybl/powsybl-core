@@ -6,19 +6,22 @@
  */
 package eu.itesla_project.iidm.xml;
 
-import org.junit.Test;
-import org.xml.sax.SAXException;
-
-import javax.xml.stream.XMLStreamException;
-import java.io.IOException;
-
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class OptionalLoadTypeBugTest {
+public class XmlImportConfig {
 
-    @Test
-    public void shouldNotThrowNullPointerExceptionTest() throws XMLStreamException, SAXException, IOException {
-        NetworkXml.read(getClass().getResourceAsStream("/optionalLoadTypeBug.xml"));
+    private final boolean schemaValidation;
+
+    public XmlImportConfig() {
+        this(false);
+    }
+
+    public XmlImportConfig(boolean schemaValidation) {
+        this.schemaValidation = schemaValidation;
+    }
+
+    public boolean isSchemaValidation() {
+        return schemaValidation;
     }
 }
