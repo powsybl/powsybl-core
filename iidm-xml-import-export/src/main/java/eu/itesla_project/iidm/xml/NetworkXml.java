@@ -38,6 +38,7 @@ public class NetworkXml implements XmlConstants {
 
     static final String NETWORK_ROOT_ELEMENT_NAME = "network";
     private static final String EXTENSION_ELEMENT_NAME = "extension";
+    private static final String IIDM_XSD = "iidm.xsd";
 
     // cache XMLOutputFactory to improve performance
     private static final Supplier<XMLOutputFactory> XML_OUTPUT_FACTORY_SUPPLIER = Suppliers.memoize(XMLOutputFactory::newFactory);
@@ -177,7 +178,7 @@ public class NetworkXml implements XmlConstants {
     private static void validate(Source xml, List<Source> additionalSchemas) throws SAXException, IOException {
         SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
         Source[] sources = new Source[additionalSchemas.size() + 1];
-        sources[0] = new StreamSource(NetworkXml.class.getResourceAsStream("/xsd/iidm.xsd"));
+        sources[0] = new StreamSource(NetworkXml.class.getResourceAsStream("/xsd/" + IIDM_XSD));
         for (int i = 0 ; i < additionalSchemas.size(); i++) {
             sources[i+1] = additionalSchemas.get(i);
         }
