@@ -11,7 +11,7 @@ package eu.itesla_project.iidm.network;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface SingleTerminalConnectable extends Connectable {
+public interface SingleTerminalConnectable<I extends Identifiable<I>> extends Connectable<I> {
 
     /**
      * Get the terminal.

@@ -19,7 +19,7 @@ import java.util.Set;
  * @see Country
  * @see SubstationAdder
  */
-public interface Substation extends Container {
+public interface Substation extends Container<Substation> {
 
     Network getNetwork();
 

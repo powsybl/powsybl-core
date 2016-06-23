@@ -14,7 +14,7 @@ package eu.itesla_project.iidm.network;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface Bus extends Identifiable {
+public interface Bus extends Identifiable<Bus> {
 
     /**
      * Get the voltage level to which the bus belongs.

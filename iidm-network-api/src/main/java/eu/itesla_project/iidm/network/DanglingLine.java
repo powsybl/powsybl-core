@@ -22,7 +22,7 @@ package eu.itesla_project.iidm.network;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @see DanglingLineAdder
  */
-public interface DanglingLine extends SingleTerminalConnectable {
+public interface DanglingLine extends SingleTerminalConnectable<DanglingLine> {
 
     /**
      * Get the constant active power in MW.

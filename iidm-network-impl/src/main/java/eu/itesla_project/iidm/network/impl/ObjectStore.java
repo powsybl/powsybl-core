@@ -24,9 +24,9 @@ class ObjectStore {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ObjectStore.class);
 
-    private final Map<String, Identifiable> objectsById = new HashMap<>();
+    private final Map<String, Identifiable<?>> objectsById = new HashMap<>();
 
-    private final Map<Class<? extends Identifiable>, Set<Identifiable>> objectsByClass = new HashMap<>();
+    private final Map<Class<? extends Identifiable>, Set<Identifiable<?>>> objectsByClass = new HashMap<>();
 
     static void checkId(String id) {
         if (id == null || id.isEmpty()) {
@@ -59,14 +59,14 @@ class ObjectStore {
         return uniqueId;
     }
 
-    void checkAndAdd(Identifiable obj) {
+    void checkAndAdd(Identifiable<?> obj) {
         checkId(obj.getId());
         if (objectsById.containsKey(obj.getId())) {
             throw new ITeslaException("Object (" + obj.getClass().getName()
                     + ") '" + obj.getId() + "' already exists");
         }
         objectsById.put(obj.getId(), obj);
-        Set<Identifiable> all = objectsByClass.get(obj.getClass());
+        Set<Identifiable<?>> all = objectsByClass.get(obj.getClass());
         if (all == null) {
             all = new LinkedHashSet<>();
             objectsByClass.put(obj.getClass(), all);
@@ -89,12 +89,12 @@ class ObjectStore {
         }
     }
 
-    Collection<Identifiable> getAll() {
+    Collection<Identifiable<?>> getAll() {
         return objectsById.values();
     }
 
     <T extends Identifiable> Set<T> getAll(Class<T> clazz) {
-        Set<Identifiable> all = objectsByClass.get(clazz);
+        Set<Identifiable<?>> all = objectsByClass.get(clazz);
         if (all == null) {
             return Collections.emptySet();
         }
@@ -113,7 +113,7 @@ class ObjectStore {
             throw new ITeslaException("Object (" + obj.getClass().getName()
                     + ") '" + obj.getId() + "' not found");
         }
-        Set<Identifiable> all = objectsByClass.get(obj.getClass());
+        Set<Identifiable<?>> all = objectsByClass.get(obj.getClass());
         if (all != null) {
             all.remove(obj);
         }
@@ -131,9 +131,9 @@ class ObjectStore {
      */
     Multimap<Class<? extends Identifiable>, String> intersection(ObjectStore other) {
         Multimap<Class<? extends Identifiable>, String> intersection = HashMultimap.create();
-        for (Map.Entry<Class<? extends Identifiable>, Set<Identifiable>> entry : other.objectsByClass.entrySet()) {
+        for (Map.Entry<Class<? extends Identifiable>, Set<Identifiable<?>>> entry : other.objectsByClass.entrySet()) {
             Class<? extends Identifiable> clazz = entry.getKey();
-            Set<Identifiable> objects = entry.getValue();
+            Set<Identifiable<?>> objects = entry.getValue();
             for (Identifiable obj : objects) {
                 if (objectsById.containsKey(obj.getId())) {
                     intersection.put(clazz, obj.getId());
@@ -156,10 +156,10 @@ class ObjectStore {
     }
 
     void printForDebug() {
-        for (Map.Entry<String, Identifiable> entry : objectsById.entrySet()) {
+        for (Map.Entry<String, Identifiable<?>> entry : objectsById.entrySet()) {
             System.out.println(entry.getKey() + " " + System.identityHashCode(entry.getValue()));
         }
-        for (Map.Entry<Class<? extends Identifiable>, Set<Identifiable>> entry : objectsByClass.entrySet()) {
+        for (Map.Entry<Class<? extends Identifiable>, Set<Identifiable<?>>> entry : objectsByClass.entrySet()) {
             System.out.println(entry.getKey() + " " + entry.getValue().stream().map(System::identityHashCode).collect(Collectors.toList()));
         }
     }

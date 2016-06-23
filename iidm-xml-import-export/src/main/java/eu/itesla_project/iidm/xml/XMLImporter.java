@@ -16,6 +16,7 @@ import eu.itesla_project.iidm.import_.Importer;
 import eu.itesla_project.iidm.network.Network;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -98,7 +99,7 @@ public class XMLImporter implements Importer, XmlConstants {
     }
 
     @Override
-    public Network import_(ReadOnlyDataSource dataSource, Properties parameters){
+    public Network import_(ReadOnlyDataSource dataSource, Properties parameters) {
         Network network;
         long startTime = System.currentTimeMillis();
         try {
@@ -111,7 +112,7 @@ public class XMLImporter implements Importer, XmlConstants {
                 network = NetworkXml.read(is);
             }
             LOGGER.debug("XML import done in {} ms", (System.currentTimeMillis() - startTime));
-        } catch (XMLStreamException | IOException e) {
+        } catch (XMLStreamException | SAXException | IOException e) {
             throw new ITeslaException(e);
         }
         return network;

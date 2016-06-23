@@ -11,7 +11,7 @@ package eu.itesla_project.iidm.network;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface Switch extends Identifiable {
+public interface Switch extends Identifiable<Switch> {
 
     /**
      * Get the kind of switch.

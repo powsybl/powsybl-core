@@ -26,7 +26,7 @@ package eu.itesla_project.iidm.network;
  * @see PhaseTapChanger
  * @see ThreeWindingsTransformerAdder
  */
-public interface ThreeWindingsTransformer extends Connectable {
+public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTransformer> {
 
     enum Side {
         ONE,

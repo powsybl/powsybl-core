@@ -25,6 +25,14 @@
                      <xs:element name="line" type="iidm:Line"/>
                      <xs:element name="tieLine" type="iidm:TieLine"/>
                  </xs:choice>
+                 <xs:element name="extension" minOccurs="0" maxOccurs="unbounded">
+                     <xs:complexType>
+                         <xs:sequence>
+                             <xs:any minOccurs="1"/>
+                         </xs:sequence>
+                         <xs:attribute name="id" use="required" type="xs:string"/>
+                     </xs:complexType>
+                 </xs:element>
             </xs:sequence>
             <xs:attribute name="id" use="required" type="iidm:nonEmptyString"/>
             <xs:attribute name="caseDate" use="required" type="xs:dateTime"/>

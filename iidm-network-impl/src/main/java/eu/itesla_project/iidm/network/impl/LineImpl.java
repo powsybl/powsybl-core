@@ -13,7 +13,7 @@ import eu.itesla_project.iidm.network.Line;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class LineImpl extends AbstractTwoTerminalsConnectable implements Line {
+class LineImpl extends AbstractTwoTerminalsConnectable<Line> implements Line {
 
     private float r;
 

@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class NetworkImpl extends IdentifiableImpl implements Network, MultiStateObject, Stateful {
+class NetworkImpl extends IdentifiableImpl<Network> implements Network, MultiStateObject, Stateful {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NetworkImpl.class);
 
@@ -350,8 +350,13 @@ class NetworkImpl extends IdentifiableImpl implements Network, MultiStateObject,
     }
 
     @Override
-    public Identifiable getIdentifiable(String id) {
+    public Identifiable<?> getIdentifiable(String id) {
         return objectStore.get(id, Identifiable.class);
+    }
+
+    @Override
+    public Collection<Identifiable<?>> getIdentifiables() {
+        return objectStore.getAll();
     }
 
     @Override
