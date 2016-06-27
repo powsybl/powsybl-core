@@ -14,7 +14,7 @@ import javax.xml.stream.XMLStreamWriter;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class XmlUtil {
+public class XmlUtil {
 
     private XmlUtil() {
     }
@@ -25,7 +25,7 @@ class XmlUtil {
 
     }
 
-    static String readUntilEndElement(String endElementName, XMLStreamReader reader, XmlEventHandler eventHandler) throws XMLStreamException {
+    public static String readUntilEndElement(String endElementName, XMLStreamReader reader, XmlEventHandler eventHandler) throws XMLStreamException {
         String text = null;
         int event;
         while (!((event = reader.next()) == XMLStreamConstants.END_ELEMENT
@@ -46,39 +46,39 @@ class XmlUtil {
         return text;
     }
 
-    static void writeFloat(String name, float value, XMLStreamWriter writer) throws XMLStreamException {
+    public static void writeFloat(String name, float value, XMLStreamWriter writer) throws XMLStreamException {
         if (!Float.isNaN(value)) {
             writer.writeAttribute(name, Float.toString(value));
         }
     }
 
-    static void writeInt(String name, int value, XMLStreamWriter writer) throws XMLStreamException {
+    public static void writeInt(String name, int value, XMLStreamWriter writer) throws XMLStreamException {
         writer.writeAttribute(name, Integer.toString(value));
     }
 
-    static int readIntAttribute(XMLStreamReader reader, String attributeName) {
+    public static int readIntAttribute(XMLStreamReader reader, String attributeName) {
         return Integer.valueOf(reader.getAttributeValue(null, attributeName));
     }
 
-    static boolean readBoolAttribute(XMLStreamReader reader, String attributeName) {
+    public static boolean readBoolAttribute(XMLStreamReader reader, String attributeName) {
         return Boolean.valueOf(reader.getAttributeValue(null, attributeName));
     }
 
-    static Integer readOptionalIntegerAttribute(XMLStreamReader reader, String attributeName) {
+    public static Integer readOptionalIntegerAttribute(XMLStreamReader reader, String attributeName) {
         String attributeValue = reader.getAttributeValue(null, attributeName);
         return attributeValue != null ? Integer.valueOf(attributeValue) : null;
     }
 
-    static int readOptionalIntegerAttributeValue(XMLStreamReader reader, String attributeName, int defaultValue) {
+    public static int readOptionalIntegerAttributeValue(XMLStreamReader reader, String attributeName, int defaultValue) {
         String attributeValue = reader.getAttributeValue(null, attributeName);
         return attributeValue != null ? Integer.valueOf(attributeValue) : defaultValue;
     }
 
-    static float readFloatAttribute(XMLStreamReader reader, String attributeName) {
+    public static float readFloatAttribute(XMLStreamReader reader, String attributeName) {
         return Float.valueOf(reader.getAttributeValue(null, attributeName));
     }
 
-    static float readOptionalFloatAttribute(XMLStreamReader reader, String attributeName) {
+    public static float readOptionalFloatAttribute(XMLStreamReader reader, String attributeName) {
         String attributeValue = reader.getAttributeValue(null, attributeName);
         return attributeValue != null ? Float.valueOf(attributeValue) : Float.NaN;
     }
