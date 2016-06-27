@@ -12,7 +12,7 @@ package eu.itesla_project.iidm.network;
  */
 public interface PhaseTapChangerAdder {
 
-    public interface StepAdder {
+    interface StepAdder {
 
         StepAdder setAlpha(float alpha);
 
@@ -29,9 +29,9 @@ public interface PhaseTapChangerAdder {
         PhaseTapChangerAdder endStep();
     }
 
-    PhaseTapChangerAdder setLowStepPosition(int lowStepPosition);
+    PhaseTapChangerAdder setLowTapPosition(int lowTapPosition);
 
-    PhaseTapChangerAdder setCurrentStepPosition(int currentStepPosition);
+    PhaseTapChangerAdder setTapPosition(int tapPosition);
 
     PhaseTapChangerAdder setRegulating(boolean regulating);
 

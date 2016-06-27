@@ -23,10 +23,10 @@ class RatioTapChangerImpl extends TapChangerImpl<RatioTapChangerParent, RatioTap
 
     private final TFloatArrayList targetV;
 
-    RatioTapChangerImpl(RatioTapChangerParent parent, int lowStepPosition,
+    RatioTapChangerImpl(RatioTapChangerParent parent, int lowTapPosition,
                         List<RatioTapChangerStepImpl> steps, TerminalExt terminal, boolean loadTapChangingCapabilities,
-                        int currentStepPosition, boolean regulating, float targetV) {
-        super(parent.getNetwork().getRef(), parent, lowStepPosition, steps, terminal, currentStepPosition, regulating);
+                        int tapPosition, boolean regulating, float targetV) {
+        super(parent.getNetwork().getRef(), parent, lowTapPosition, steps, terminal, tapPosition, regulating);
         this.loadTapChangingCapabilities = loadTapChangingCapabilities;
         int stateArraySize = network.get().getStateManager().getStateArraySize();
         this.targetV = new TFloatArrayList(stateArraySize);

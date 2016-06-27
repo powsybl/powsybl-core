@@ -384,8 +384,8 @@
             <xs:element name="terminalRef" minOccurs="0" type="iidm:TerminalRef"/>
             <xs:element name="step" minOccurs="1" maxOccurs="unbounded" type="iidm:RatioTapChangerStep"/>
         </xs:sequence>
-        <xs:attribute name="lowStepPosition" use="required" type="xs:int"/>
-        <xs:attribute name="position" use="required" type="xs:int"/>
+        <xs:attribute name="lowTapPosition" use="required" type="xs:int"/>
+        <xs:attribute name="tapPosition" use="required" type="xs:int"/>
         <xs:attribute name="regulating" use="required" type="xs:boolean"/>
         <xs:attribute name="loadTapChangingCapabilities" use="required" type="xs:boolean"/>
         <xs:attribute name="targetV" use="optional" type="xs:float"/>
@@ -395,8 +395,8 @@
             <xs:element name="terminalRef" minOccurs="0" type="iidm:TerminalRef"/>
             <xs:element name="step" minOccurs="1" maxOccurs="unbounded" type="iidm:PhaseTapChangerStep"/>
         </xs:sequence>
-        <xs:attribute name="lowStepPosition" use="required" type="xs:int"/>
-        <xs:attribute name="position" use="required" type="xs:int"/>
+        <xs:attribute name="lowTapPosition" use="required" type="xs:int"/>
+        <xs:attribute name="tapPosition" use="required" type="xs:int"/>
         <xs:attribute name="regulating" use="required" type="xs:boolean"/>
         <xs:attribute name="thresholdI" use="optional" type="xs:float"/>
     </xs:complexType>

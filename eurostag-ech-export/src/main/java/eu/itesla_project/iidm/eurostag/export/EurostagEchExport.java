@@ -264,10 +264,10 @@ public class EurostagEchExport {
                     }
                 }
                 voltr = rtc.getTargetV();
-                ktap8 = rtc.getCurrentStepPosition() - rtc.getLowStepPosition() + 1;
+                ktap8 = rtc.getTapPosition() - rtc.getLowTapPosition() + 1;
                 ktpnom = rtc.getStepCount() / 2 + 1;
-                for (int p = rtc.getLowStepPosition(); p <= rtc.getHighStepPosition(); p++) {
-                    int iplo = p - rtc.getLowStepPosition() + 1;
+                for (int p = rtc.getLowTapPosition(); p <= rtc.getHighTapPosition(); p++) {
+                    int iplo = p - rtc.getLowTapPosition() + 1;
                     taps.add(createTap(twt, iplo, rtc.getStep(p).getRho(), rtc.getStep(p).getR(), rtc.getStep(p).getX(), 0f, rate, parameters));
                 }
 
@@ -284,10 +284,10 @@ public class EurostagEchExport {
                         throw new ITeslaException("Phase transformer " + twt.getId() + " has an unknown regulated node");
                     }
                 }
-                ktap8 = ptc.getCurrentStepPosition() - ptc.getLowStepPosition() + 1;
+                ktap8 = ptc.getTapPosition() - ptc.getLowTapPosition() + 1;
                 ktpnom = ptc.getStepCount() / 2 + 1;
-                for (int p = ptc.getLowStepPosition(); p <= ptc.getHighStepPosition(); p++) {
-                    int iplo = p - ptc.getLowStepPosition() + 1;
+                for (int p = ptc.getLowTapPosition(); p <= ptc.getHighTapPosition(); p++) {
+                    int iplo = p - ptc.getLowTapPosition() + 1;
                     taps.add(createTap(twt, iplo, ptc.getStep(p).getRho(), ptc.getStep(p).getR(), ptc.getStep(p).getX(), ptc.getStep(p).getAlpha(), rate, parameters));
                 }
             } else if (rtc == null && ptc == null) {

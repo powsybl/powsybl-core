@@ -28,8 +28,8 @@ abstract class TransformerXml<T extends Connectable, A extends IdentifiableAdder
     }
 
     protected static void writeTapChanger(TapChanger<?, ?> tc, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeAttribute("lowStepPosition", Integer.toString(tc.getLowStepPosition()));
-        writer.writeAttribute("position", Integer.toString(tc.getCurrentStepPosition()));
+        writer.writeAttribute("lowTapPosition", Integer.toString(tc.getLowTapPosition()));
+        writer.writeAttribute("tapPosition", Integer.toString(tc.getTapPosition()));
         writer.writeAttribute("regulating", Boolean.toString(tc.isRegulating()));
     }
 
@@ -41,7 +41,7 @@ abstract class TransformerXml<T extends Connectable, A extends IdentifiableAdder
         if (rtc.getTerminal() != null) {
             writeTerminalRef(rtc.getTerminal(), context, "terminalRef");
         }
-        for (int p = rtc.getLowStepPosition(); p <= rtc.getHighStepPosition(); p++) {
+        for (int p = rtc.getLowTapPosition(); p <= rtc.getHighTapPosition(); p++) {
             RatioTapChangerStep rtcs = rtc.getStep(p);
             context.getWriter().writeEmptyElement(IIDM_URI, "step");
             writeTapChangerStep(rtcs, context.getWriter());
@@ -50,14 +50,14 @@ abstract class TransformerXml<T extends Connectable, A extends IdentifiableAdder
     }
 
     protected static void readRatioTapChanger(TwoWindingsTransformer twt, XMLStreamReader reader, List<Runnable> endTasks) throws XMLStreamException {
-        int lowStepPosition = XmlUtil.readIntAttribute(reader, "lowStepPosition");
-        int position = XmlUtil.readIntAttribute(reader, "position");
+        int lowTapPosition = XmlUtil.readIntAttribute(reader, "lowTapPosition");
+        int tapPosition = XmlUtil.readIntAttribute(reader, "tapPosition");
         boolean regulating = XmlUtil.readBoolAttribute(reader, "regulating");
         boolean loadTapChangingCapabilities = XmlUtil.readBoolAttribute(reader, "loadTapChangingCapabilities");
         float targetV = XmlUtil.readOptionalFloatAttribute(reader, "targetV");
         RatioTapChangerAdder adder = twt.newRatioTapChanger()
-                .setLowStepPosition(lowStepPosition)
-                .setCurrentStepPosition(position)
+                .setLowTapPosition(lowTapPosition)
+                .setTapPosition(tapPosition)
                 .setLoadTapChangingCapabilities(loadTapChangingCapabilities)
                 .setTargetV(targetV);
         if (loadTapChangingCapabilities) {
@@ -107,7 +107,7 @@ abstract class TransformerXml<T extends Connectable, A extends IdentifiableAdder
         if (ptc.getTerminal() != null) {
             writeTerminalRef(ptc.getTerminal(), context, "terminalRef");
         }
-        for (int p = ptc.getLowStepPosition(); p <= ptc.getHighStepPosition(); p++) {
+        for (int p = ptc.getLowTapPosition(); p <= ptc.getHighTapPosition(); p++) {
             PhaseTapChangerStep ptcs = ptc.getStep(p);
             context.getWriter().writeEmptyElement(IIDM_URI, "step");
             writeTapChangerStep(ptcs, context.getWriter());
@@ -117,13 +117,13 @@ abstract class TransformerXml<T extends Connectable, A extends IdentifiableAdder
     }
 
     protected static void readPhaseTapChanger(TwoWindingsTransformer twt, XMLStreamReader reader, List<Runnable> endTasks) throws XMLStreamException {
-        int lowStepPosition = XmlUtil.readIntAttribute(reader, "lowStepPosition");
-        int position = XmlUtil.readIntAttribute(reader, "position");
+        int lowTapPosition = XmlUtil.readIntAttribute(reader, "lowTapPosition");
+        int tapPosition = XmlUtil.readIntAttribute(reader, "tapPosition");
         boolean regulating = XmlUtil.readBoolAttribute(reader, "regulating");
         float thresholdI = XmlUtil.readOptionalFloatAttribute(reader, "thresholdI");
         PhaseTapChangerAdder adder = twt.newPhaseTapChanger()
-                .setLowStepPosition(lowStepPosition)
-                .setCurrentStepPosition(position)
+                .setLowTapPosition(lowTapPosition)
+                .setTapPosition(tapPosition)
                 .setRegulating(regulating)
                 .setThresholdI(thresholdI);
         boolean[] hasTerminalRef = new boolean[1];

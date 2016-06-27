@@ -13,47 +13,47 @@ package eu.itesla_project.iidm.network;
 public interface TapChanger<TC extends TapChanger<TC, TCS>, TCS extends TapChangerStep<TCS>> {
 
     /**
+     * Get the lowest tap position corresponding to the first step of the tap changer.
+     */
+    int getLowTapPosition();
+
+    /**
+     * Get the highest tap position corresponding to the last step of the tap changer.
+     */
+    int getHighTapPosition();
+
+    /**
+     * Get the current tap position.
+     * <p>
+     * Depends on the working state.
+     * @see StateManager
+     */
+    int getTapPosition();
+
+    /**
+     * Set the current tap position.
+     * <p>
+     * It is expected to be contained between the lowest and the highest tap position.
+     * <p>
+     * Depends on the working state.
+     * @see StateManager
+     *
+     * @param tapPosition the current tap position
+     */
+    TC setTapPosition(int tapPosition);
+
+    /**
      * Get the number of steps.
      */
     int getStepCount();
 
     /**
-     * Get the lowest step position.
-     */
-    int getLowStepPosition();
-
-    /**
-     * Get the highest step position.
-     */
-    int getHighStepPosition();
-
-    /**
-     * Get the current step position.
-     * <p>
-     * Depends on the working state.
-     * @see StateManager
-     */
-    int getCurrentStepPosition();
-
-    /**
-     * Set the current step position.
-     * <p>
-     * It is expected to be contained between the lowest and the highest step position.
-     * <p>
-     * Depends on the working state.
-     * @see StateManager
-     *
-     * @param currentStepPosition the current step position
-     */
-    TC setCurrentStepPosition(int currentStepPosition);
-
-    /**
      * Get a step.
      *
-     * @param position position of the step
+     * @param tapPosition position of the tap
      * @return the step
      */
-    TCS getStep(int position);
+    TCS getStep(int tapPosition);
 
     /**
      * Get the current step.

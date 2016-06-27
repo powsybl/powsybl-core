@@ -27,9 +27,9 @@ public interface RatioTapChangerAdder {
         RatioTapChangerAdder endStep();
     }
 
-    RatioTapChangerAdder setLowStepPosition(int lowStepPosition);
+    RatioTapChangerAdder setLowTapPosition(int lowTapPosition);
 
-    RatioTapChangerAdder setCurrentStepPosition(int currentStepPosition);
+    RatioTapChangerAdder setTapPosition(int tapPosition);
 
     RatioTapChangerAdder setLoadTapChangingCapabilities(boolean loadTapChangingCapabilities);
 

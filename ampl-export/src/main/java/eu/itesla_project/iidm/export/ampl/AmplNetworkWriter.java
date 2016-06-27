@@ -886,11 +886,11 @@ public class AmplNetworkWriter implements AmplConstants {
                     String id = twt.getId() + "_ratio_table";
                     int num = mapper.getInt(AmplSubset.TAP_CHANGER_TABLE, id);
 
-                    for (int position = rtc.getLowStepPosition(); position <= rtc.getHighStepPosition(); position++) {
+                    for (int position = rtc.getLowTapPosition(); position <= rtc.getHighTapPosition(); position++) {
                         RatioTapChangerStep step = rtc.getStep(position);
                         float x = twt.getX() * (1 + step.getX() / 100) / zb2;
                         formatter.writeCell(num)
-                                 .writeCell(position - rtc.getLowStepPosition() + 1)
+                                 .writeCell(position - rtc.getLowTapPosition() + 1)
                                  .writeCell(step.getRho())
                                  .writeCell(x)
                                  .writeCell(0f)
@@ -903,11 +903,11 @@ public class AmplNetworkWriter implements AmplConstants {
                 if (ptc != null) {
                     String id = twt.getId() + "_phase_table";
                     int num = mapper.getInt(AmplSubset.TAP_CHANGER_TABLE, id);
-                    for (int position = ptc.getLowStepPosition(); position <= ptc.getHighStepPosition(); position++) {
+                    for (int position = ptc.getLowTapPosition(); position <= ptc.getHighTapPosition(); position++) {
                         PhaseTapChangerStep step = ptc.getStep(position);
                         float x = twt.getX() * (1 + step.getX() / 100) / zb2;
                         formatter.writeCell(num)
-                                 .writeCell(position - ptc.getLowStepPosition() + 1)
+                                 .writeCell(position - ptc.getLowTapPosition() + 1)
                                  .writeCell(step.getRho())
                                  .writeCell(x)
                                  .writeCell((float) Math.toRadians(step.getAlpha()))
@@ -928,11 +928,11 @@ public class AmplNetworkWriter implements AmplConstants {
                 if (rtc2 != null) {
                     String id = twt.getId() + "_leg2_ratio_table";
                     int num = mapper.getInt(AmplSubset.TAP_CHANGER_TABLE, id);
-                    for (int position = rtc2.getLowStepPosition(); position <= rtc2.getHighStepPosition(); position++) {
+                    for (int position = rtc2.getLowTapPosition(); position <= rtc2.getHighTapPosition(); position++) {
                         RatioTapChangerStep step = rtc2.getStep(position);
                         float x = twt.getLeg2().getX() * (1 + step.getX() / 100) / zb2;
                         formatter.writeCell(num)
-                                 .writeCell(position - rtc2.getLowStepPosition() + 1)
+                                 .writeCell(position - rtc2.getLowTapPosition() + 1)
                                  .writeCell(step.getRho())
                                  .writeCell(x)
                                  .writeCell(0f)
@@ -945,11 +945,11 @@ public class AmplNetworkWriter implements AmplConstants {
                 if (rtc3 != null) {
                     String id = twt.getId() + "_leg3_ratio_table";
                     int num = mapper.getInt(AmplSubset.TAP_CHANGER_TABLE, id);
-                    for (int position = rtc3.getLowStepPosition(); position <= rtc3.getHighStepPosition(); position++) {
+                    for (int position = rtc3.getLowTapPosition(); position <= rtc3.getHighTapPosition(); position++) {
                         RatioTapChangerStep step = rtc3.getStep(position);
                         float x = twt.getLeg3().getX() * (1 + step.getX() / 100) / zb3;
                         formatter.writeCell(num)
-                                 .writeCell(position - rtc3.getLowStepPosition() + 1)
+                                 .writeCell(position - rtc3.getLowTapPosition() + 1)
                                  .writeCell(step.getRho())
                                  .writeCell(x)
                                  .writeCell(0f)
@@ -967,7 +967,7 @@ public class AmplNetworkWriter implements AmplConstants {
         int rtcNum = mapper.getInt(AmplSubset.RATIO_TAP_CHANGER, rtcId);
         int tcsNum = mapper.getInt(AmplSubset.TAP_CHANGER_TABLE, tcsId);
         formatter.writeCell(rtcNum)
-             .writeCell(rtc.getCurrentStepPosition() - rtc.getLowStepPosition() + 1)
+             .writeCell(rtc.getTapPosition() - rtc.getLowTapPosition() + 1)
              .writeCell(tcsNum)
              .writeCell(rtc.hasLoadTapChangingCapabilities() && rtc.isRegulating());
         if (config.isExportRatioTapChangerVoltageTarget()) {
@@ -1046,7 +1046,7 @@ public class AmplNetworkWriter implements AmplConstants {
                     String tcsId = twt.getId() + "_phase_table";
                     int tcsNum = mapper.getInt(AmplSubset.TAP_CHANGER_TABLE, tcsId);
                     formatter.writeCell(num)
-                             .writeCell(ptc.getCurrentStepPosition() - ptc.getLowStepPosition() + 1)
+                             .writeCell(ptc.getTapPosition() - ptc.getLowTapPosition() + 1)
                              .writeCell(tcsNum)
                              .writeCell(faultNum)
                              .writeCell(curativeActionNum)

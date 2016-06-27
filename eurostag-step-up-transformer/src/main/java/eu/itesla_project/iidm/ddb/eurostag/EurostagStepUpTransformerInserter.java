@@ -201,7 +201,7 @@ public class EurostagStepUpTransformerInserter {
                         .setB(0f)
                         .endStep();
             }
-            rtca.setCurrentStepPosition(tg.t4x.ktap8 - 1)
+            rtca.setTapPosition(tg.t4x.ktap8 - 1)
                     .add();
         }
         return twt;
