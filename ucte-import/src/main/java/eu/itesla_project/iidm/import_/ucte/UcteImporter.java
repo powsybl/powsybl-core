@@ -430,8 +430,8 @@ public class UcteImporter implements Importer {
         LOGGER.trace("Create ratio tap changer '{}'", transformer.getId());
 
         RatioTapChangerAdder rtca = transformer.newRatioTapChanger()
-                .setLowStepPosition(-uctePhaseRegulation.getN())
-                .setCurrentStepPosition(uctePhaseRegulation.getNp())
+                .setLowTapPosition(-uctePhaseRegulation.getN())
+                .setTapPosition(uctePhaseRegulation.getNp())
                 .setLoadTapChangingCapabilities(!Float.isNaN(uctePhaseRegulation.getU()));
         if (!Float.isNaN(uctePhaseRegulation.getU())) {
             rtca.setLoadTapChangingCapabilities(true)
@@ -457,8 +457,8 @@ public class UcteImporter implements Importer {
         LOGGER.trace("Create phase tap changer '{}'", transformer.getId());
 
         PhaseTapChangerAdder ptca = transformer.newPhaseTapChanger()
-                .setLowStepPosition(-ucteAngleRegulation.getN())
-                .setCurrentStepPosition(ucteAngleRegulation.getNp());
+                .setLowTapPosition(-ucteAngleRegulation.getN())
+                .setTapPosition(ucteAngleRegulation.getNp());
         if (!Float.isNaN(ucteAngleRegulation.getP())) {
             ptca.setRegulating(true)
                     .setThresholdI(ucteAngleRegulation.getP())

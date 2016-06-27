@@ -417,11 +417,11 @@ class CIM1Converter implements CIM1Constants {
                     + neutralStep + ") isn't between low (" + lowStep + ") and high ("
                     + highStep + ")");
         }
-        int currentStep = (int) ptc.svTapStep.getContinuousPosition();
+        int position = (int) ptc.svTapStep.getContinuousPosition();
 
         PhaseTapChangerAdder ptca = transfo.newPhaseTapChanger()
-                .setLowStepPosition(lowStep)
-                .setCurrentStepPosition(currentStep);
+                .setLowTapPosition(lowStep)
+                .setTapPosition(position);
 
         double du0 = ptc.neutralU / ptc.transformerWinding.ratedU;
         if (Math.abs(du0) > 0.5) {
@@ -579,11 +579,11 @@ class CIM1Converter implements CIM1Constants {
                     + neutralStep + ") isn't between low (" + lowStep + ") and high ("
                     + highStep + ")");
         }
-        int currentStep = (int) rtc.svTapStep.getContinuousPosition();
+        int position = (int) rtc.svTapStep.getContinuousPosition();
 
         RatioTapChangerAdder rtca = transfo.get()
-                .setLowStepPosition(lowStep)
-                .setCurrentStepPosition(currentStep);
+                .setLowTapPosition(lowStep)
+                .setTapPosition(position);
 
         for (int step = lowStep; step <= highStep; step++) {
             int n = step - neutralStep;

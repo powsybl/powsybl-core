@@ -22,7 +22,7 @@ abstract class TapChangerImpl<H extends TapChangerParent, C extends TapChangerIm
 
     protected final H parent;
 
-    protected int lowStepPosition;
+    protected int lowTapPosition;
 
     protected final List<S> steps;
 
@@ -30,24 +30,24 @@ abstract class TapChangerImpl<H extends TapChangerParent, C extends TapChangerIm
 
     // attributes depending on the state
 
-    protected final TIntArrayList currentStepPosition;
+    protected final TIntArrayList tapPosition;
 
     protected final BitSet regulating;
 
     protected TapChangerImpl(Ref<? extends MultiStateObject> network, H parent,
-                             int lowStepPosition, List<S> steps, TerminalExt terminal,
-                             int currentStepPosition, boolean regulating) {
+                             int lowTapPosition, List<S> steps, TerminalExt terminal,
+                             int tapPosition, boolean regulating) {
         this.network = network;
         this.parent = parent;
-        this.lowStepPosition = lowStepPosition;
+        this.lowTapPosition = lowTapPosition;
         this.steps = steps;
         this.terminal = terminal;
         int stateArraySize = network.get().getStateManager().getStateArraySize();
-        this.currentStepPosition = new TIntArrayList(stateArraySize);
+        this.tapPosition = new TIntArrayList(stateArraySize);
         this.regulating = new BitSet(stateArraySize);
         this.regulating.set(0, stateArraySize, regulating);
         for (int i = 0; i < stateArraySize; i++) {
-            this.currentStepPosition.add(currentStepPosition);
+            this.tapPosition.add(tapPosition);
         }
     }
 
@@ -57,43 +57,43 @@ abstract class TapChangerImpl<H extends TapChangerParent, C extends TapChangerIm
         return steps.size();
     }
 
-    public int getLowStepPosition() {
-        return lowStepPosition;
+    public int getLowTapPosition() {
+        return lowTapPosition;
     }
 
-    public int getHighStepPosition() {
-        return lowStepPosition + steps.size() - 1;
+    public int getHighTapPosition() {
+        return lowTapPosition + steps.size() - 1;
     }
 
-    public int getCurrentStepPosition() {
-        return currentStepPosition.get(network.get().getStateIndex());
+    public int getTapPosition() {
+        return tapPosition.get(network.get().getStateIndex());
     }
 
     protected abstract String getTapChangerAttribute();
 
-    public C setCurrentStepPosition(int currentStepPosition) {
-        if (currentStepPosition < lowStepPosition
-                || currentStepPosition > getHighStepPosition()) {
-            throw new ValidationException(parent, "incorrect current step position "
-                    + currentStepPosition + " [" + lowStepPosition + ", "
-                    + getHighStepPosition() + "]");
+    public C setTapPosition(int tapPosition) {
+        if (tapPosition < lowTapPosition
+                || tapPosition > getHighTapPosition()) {
+            throw new ValidationException(parent, "incorrect tap position "
+                    + tapPosition + " [" + lowTapPosition + ", "
+                    + getHighTapPosition() + "]");
         }
-        int oldValue = this.currentStepPosition.set(network.get().getStateIndex(), currentStepPosition);
-        parent.getNetwork().getListeners().notifyUpdate(parent.getTransformer(), getTapChangerAttribute() + ".tapPosition", oldValue, currentStepPosition);
+        int oldValue = this.tapPosition.set(network.get().getStateIndex(), tapPosition);
+        parent.getNetwork().getListeners().notifyUpdate(parent.getTransformer(), getTapChangerAttribute() + ".tapPosition", oldValue, tapPosition);
         return (C) this;
     }
 
-    public S getStep(int position) {
-        if (position < lowStepPosition || position > getHighStepPosition()) {
-            throw new ValidationException(parent, "incorrect step position "
-                    + position + " [" + lowStepPosition + ", " + getHighStepPosition()
+    public S getStep(int tapPosition) {
+        if (tapPosition < lowTapPosition || tapPosition > getHighTapPosition()) {
+            throw new ValidationException(parent, "incorrect tap position "
+                    + tapPosition + " [" + lowTapPosition + ", " + getHighTapPosition()
                     + "]");
         }
-        return steps.get(position - lowStepPosition);
+        return steps.get(tapPosition - lowTapPosition);
     }
 
     public S getCurrentStep() {
-        return getStep(getCurrentStepPosition());
+        return getStep(getTapPosition());
     }
 
     public boolean isRegulating() {
@@ -124,16 +124,16 @@ abstract class TapChangerImpl<H extends TapChangerParent, C extends TapChangerIm
 
     @Override
     public void extendStateArraySize(int initStateArraySize, int number, int sourceIndex) {
-        currentStepPosition.ensureCapacity(currentStepPosition.size() + number);
+        tapPosition.ensureCapacity(tapPosition.size() + number);
         for (int i = 0; i < number; i++) {
             regulating.set(initStateArraySize + i, regulating.get(sourceIndex));
-            currentStepPosition.add(currentStepPosition.get(sourceIndex));
+            tapPosition.add(tapPosition.get(sourceIndex));
         }
     }
 
     @Override
     public void reduceStateArraySize(int number) {
-        currentStepPosition.remove(currentStepPosition.size() - number, number);
+        tapPosition.remove(tapPosition.size() - number, number);
     }
 
     @Override
@@ -145,7 +145,7 @@ abstract class TapChangerImpl<H extends TapChangerParent, C extends TapChangerIm
     public void allocateStateArrayElement(int[] indexes, final int sourceIndex) {
         for (int index : indexes) {
             regulating.set(index, regulating.get(sourceIndex));
-            currentStepPosition.set(index, currentStepPosition.get(sourceIndex));
+            tapPosition.set(index, tapPosition.get(sourceIndex));
         }
     }
 
