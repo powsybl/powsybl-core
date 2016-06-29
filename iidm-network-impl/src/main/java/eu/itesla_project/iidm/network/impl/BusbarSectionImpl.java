@@ -13,7 +13,7 @@ import eu.itesla_project.iidm.network.ConnectableType;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class BusbarSectionImpl extends ConnectableImpl implements BusbarSection {
+class BusbarSectionImpl extends ConnectableImpl<BusbarSection> implements BusbarSection {
 
     BusbarSectionImpl(String id, String name) {
         super(id, name);

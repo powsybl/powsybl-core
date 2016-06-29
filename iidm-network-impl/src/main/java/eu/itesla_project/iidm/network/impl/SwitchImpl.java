@@ -15,7 +15,7 @@ import java.util.BitSet;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class SwitchImpl extends IdentifiableImpl implements Switch, Stateful {
+class SwitchImpl extends IdentifiableImpl<Switch> implements Switch, Stateful {
 
     private final Ref<NetworkImpl> network;
 

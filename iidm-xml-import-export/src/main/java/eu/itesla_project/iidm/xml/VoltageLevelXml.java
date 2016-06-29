@@ -35,9 +35,9 @@ class VoltageLevelXml extends IdentifiableXml<VoltageLevel, VoltageLevelAdder, S
 
     @Override
     protected void writeRootElementAttributes(VoltageLevel vl, Substation s, XmlWriterContext context) throws XMLStreamException {
-        writeFloat("nominalV", vl.getNominalV(), context.getWriter());
-        writeFloat("lowVoltageLimit", vl.getLowVoltageLimit(), context.getWriter());
-        writeFloat("highVoltageLimit", vl.getHighVoltageLimit(), context.getWriter());
+        XmlUtil.writeFloat("nominalV", vl.getNominalV(), context.getWriter());
+        XmlUtil.writeFloat("lowVoltageLimit", vl.getLowVoltageLimit(), context.getWriter());
+        XmlUtil.writeFloat("highVoltageLimit", vl.getHighVoltageLimit(), context.getWriter());
         context.getWriter().writeAttribute("topologyKind", vl.getTopologyKind().name());
     }
 
@@ -131,9 +131,9 @@ class VoltageLevelXml extends IdentifiableXml<VoltageLevel, VoltageLevelAdder, S
 
     @Override
     protected VoltageLevel readRootElementAttributes(VoltageLevelAdder adder, XMLStreamReader reader, List<Runnable> endTasks) {
-        float nominalV = readFloatAttribute(reader, "nominalV");
-        float lowVoltageLimit = readOptionalFloatAttribute(reader, "lowVoltageLimit");
-        float highVoltageLimit = readOptionalFloatAttribute(reader, "highVoltageLimit");
+        float nominalV = XmlUtil.readFloatAttribute(reader, "nominalV");
+        float lowVoltageLimit = XmlUtil.readOptionalFloatAttribute(reader, "lowVoltageLimit");
+        float highVoltageLimit = XmlUtil.readOptionalFloatAttribute(reader, "highVoltageLimit");
         TopologyKind topologyKind = TopologyKind.valueOf(reader.getAttributeValue(null, "topologyKind"));
         return adder
                 .setNominalV(nominalV)
@@ -148,7 +148,7 @@ class VoltageLevelXml extends IdentifiableXml<VoltageLevel, VoltageLevelAdder, S
         readUntilEndRootElement(reader, () -> {
             switch (reader.getLocalName()) {
                 case "nodeBreakerTopology":
-                    int nodeCount = readIntAttribute(reader, "nodeCount");
+                    int nodeCount = XmlUtil.readIntAttribute(reader, "nodeCount");
                     vl.getNodeBreakerView().setNodeCount(nodeCount);
                     XmlUtil.readUntilEndElement("nodeBreakerTopology", reader, () -> {
                         switch (reader.getLocalName()) {

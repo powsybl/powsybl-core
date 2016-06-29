@@ -388,15 +388,15 @@ public class IIDM2DB {
                 // taps
                 for (TwoWindingsTransformer twt : ss.getTwoWindingsTransformers()) {
                     if (twt.getPhaseTapChanger() != null) {
-                        valueMap.put(new HistoDbNetworkAttributeId(twt.getId(), HistoDbAttr.PTC), twt.getPhaseTapChanger().getCurrentStepPosition());
+                        valueMap.put(new HistoDbNetworkAttributeId(twt.getId(), HistoDbAttr.PTC), twt.getPhaseTapChanger().getTapPosition());
                     }
                     if (twt.getRatioTapChanger() != null) {
-                        valueMap.put(new HistoDbNetworkAttributeId(twt.getId(), HistoDbAttr.RTC), twt.getRatioTapChanger().getCurrentStepPosition());
+                        valueMap.put(new HistoDbNetworkAttributeId(twt.getId(), HistoDbAttr.RTC), twt.getRatioTapChanger().getTapPosition());
                     }
                 }
                 for (ThreeWindingsTransformer twt : ss.getThreeWindingsTransformers()) {
-                    valueMap.put(new HistoDbNetworkAttributeId(twt.getId(), twt.getLeg2().getTerminal().getVoltageLevel().getId(), HistoDbAttr.RTC), twt.getLeg2().getRatioTapChanger().getCurrentStepPosition());
-                    valueMap.put(new HistoDbNetworkAttributeId(twt.getId(), twt.getLeg3().getTerminal().getVoltageLevel().getId(), HistoDbAttr.RTC), twt.getLeg3().getRatioTapChanger().getCurrentStepPosition());
+                    valueMap.put(new HistoDbNetworkAttributeId(twt.getId(), twt.getLeg2().getTerminal().getVoltageLevel().getId(), HistoDbAttr.RTC), twt.getLeg2().getRatioTapChanger().getTapPosition());
+                    valueMap.put(new HistoDbNetworkAttributeId(twt.getId(), twt.getLeg3().getTerminal().getVoltageLevel().getId(), HistoDbAttr.RTC), twt.getLeg3().getRatioTapChanger().getTapPosition());
                 }
 
                 /**

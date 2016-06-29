@@ -8,7 +8,6 @@ package eu.itesla_project.iidm.xml;
 
 import com.google.common.io.ByteStreams;
 import eu.itesla_project.iidm.network.Network;
-import eu.itesla_project.iidm.network.VoltageLevel;
 import eu.itesla_project.iidm.network.test.EurostagTutorialExample1Factory;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.nio.file.ShrinkWrapFileSystems;
@@ -17,19 +16,13 @@ import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.xml.sax.SAXException;
 import org.xmlunit.builder.DiffBuilder;
 import org.xmlunit.builder.Input;
 import org.xmlunit.diff.Diff;
-import javax.xml.XMLConstants;
+
 import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.Source;
-import javax.xml.transform.stream.StreamSource;
-import javax.xml.validation.Schema;
-import javax.xml.validation.SchemaFactory;
-import javax.xml.validation.Validator;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
@@ -65,19 +58,6 @@ public class NetworkXmlTest {
     	assertFalse( myDiff.hasDifferences());
     }
 
-    private void validateXsd(Path xmlFile) throws SAXException, IOException {
-        try (InputStream is = Files.newInputStream(xmlFile)) {
-            validateXsd(is);
-        }
-    }
-
-    private void validateXsd(InputStream is) throws SAXException, IOException {
-        SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-        Schema schema = factory.newSchema(new StreamSource(getClass().getResourceAsStream("/xsd/iidm.xsd")));
-        Validator validator = schema.newValidator();
-        validator.validate(new StreamSource(is));
-    }
-
     private Network createEurostagTutorialExample1() {
         Network network = EurostagTutorialExample1Factory.create();
         DateTime date = DateTime.parse("2013-01-15T18:45:00+01:00");
@@ -98,7 +78,7 @@ public class NetworkXmlTest {
         Path xmlFile = writeNetwork(network);
         assertXMLEquals(new String(Files.readAllBytes(xmlFile), StandardCharsets.UTF_8),
                     new String(ByteStreams.toByteArray(getClass().getResourceAsStream("/eurostag-tutorial-example1.xml")), StandardCharsets.UTF_8));
-        validateXsd(xmlFile);
+        NetworkXml.validate(xmlFile);
     }
     
    
@@ -108,7 +88,7 @@ public class NetworkXmlTest {
         Network network = createEurostagTutorialExample1();
         network.getGenerator("GEN").getProperties().setProperty("test", "foo");
         Path xmlFile = writeNetwork(network);
-        validateXsd(xmlFile);
+        NetworkXml.validate(xmlFile);
     }
 
     @Test

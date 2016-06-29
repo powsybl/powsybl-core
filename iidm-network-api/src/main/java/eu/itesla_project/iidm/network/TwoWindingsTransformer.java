@@ -45,7 +45,7 @@ package eu.itesla_project.iidm.network;
  * @see PhaseTapChanger
  * @see TwoWindingsTransformerAdder
  */
-public interface TwoWindingsTransformer extends TwoTerminalsConnectable, RatioTapChangerHolder, PhaseTapChangerHolder {
+public interface TwoWindingsTransformer extends TwoTerminalsConnectable<TwoWindingsTransformer>, RatioTapChangerHolder, PhaseTapChangerHolder {
 
     /**
      * Get the substation to which the transformer belongs.

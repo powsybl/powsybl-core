@@ -16,7 +16,7 @@ import java.util.Collections;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-abstract class AbstractBus extends IdentifiableImpl {
+abstract class AbstractBus extends IdentifiableImpl<Bus> {
 
     protected VoltageLevelExt voltageLevel;
 

@@ -28,7 +28,7 @@ import org.joda.time.DateTime;
  * @see NetworkFactory
  * @see StateManager
  */
-public interface Network extends Identifiable, Container {
+public interface Network extends Container<Network> {
 
     /**
      * A global bus/breaker view of the network.
@@ -301,7 +301,14 @@ public interface Network extends Identifiable, Container {
      *
      * @param id the id of the equipment
      */
-    public Identifiable getIdentifiable(String id);
+    Identifiable<?> getIdentifiable(String id);
+
+    /**
+     * Get all identifiables of the network.
+     *
+     * @return all identifiables of the network
+     */
+    Collection<Identifiable<?>> getIdentifiables();
 
     /**
      * Get a bus/breaker view of the network.

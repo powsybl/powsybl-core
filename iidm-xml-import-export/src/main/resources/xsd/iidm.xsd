@@ -12,6 +12,11 @@
            xmlns:iidm="http://www.itesla_project.eu/schema/iidm/1_0"
            targetNamespace="http://www.itesla_project.eu/schema/iidm/1_0"
            elementFormDefault="qualified">
+    <xs:simpleType name='nonEmptyString'>
+        <xs:restriction base='xs:string'>
+            <xs:minLength value='1'/>
+        </xs:restriction>
+    </xs:simpleType>
     <xs:element name="network">
         <xs:complexType>
              <xs:sequence>
@@ -20,22 +25,30 @@
                      <xs:element name="line" type="iidm:Line"/>
                      <xs:element name="tieLine" type="iidm:TieLine"/>
                  </xs:choice>
+                 <xs:element name="extension" minOccurs="0" maxOccurs="unbounded">
+                     <xs:complexType>
+                         <xs:sequence>
+                             <xs:any minOccurs="1"/>
+                         </xs:sequence>
+                         <xs:attribute name="id" use="required" type="xs:string"/>
+                     </xs:complexType>
+                 </xs:element>
             </xs:sequence>
-            <xs:attribute name="id" use="required" type="xs:string"/>
+            <xs:attribute name="id" use="required" type="iidm:nonEmptyString"/>
             <xs:attribute name="caseDate" use="required" type="xs:dateTime"/>
             <xs:attribute name="forecastDistance" use="required" type="xs:int"/>
-            <xs:attribute name="sourceFormat" use="required" type="xs:string"/>
+            <xs:attribute name="sourceFormat" use="required" type="iidm:nonEmptyString"/>
         </xs:complexType>
     </xs:element>
     <xs:complexType name="Identifiable">
         <xs:sequence>
             <xs:element name="property" type="iidm:Property" minOccurs="0" maxOccurs="unbounded" />
         </xs:sequence>
-        <xs:attribute name="id" use="required" type="xs:string"/>
+        <xs:attribute name="id" use="required" type="iidm:nonEmptyString"/>
         <xs:attribute name="name" use="optional" type="xs:string"/>
     </xs:complexType>
     <xs:complexType name="Property">
-        <xs:attribute name="name" use="required" type="xs:string"/>
+        <xs:attribute name="name" use="required" type="iidm:nonEmptyString"/>
         <xs:attribute name="value" use="required" type="xs:string"/>
     </xs:complexType>
     <xs:complexType name="Country">
@@ -51,9 +64,9 @@
                     <xs:element name="twoWindingsTransformer" type="iidm:TwoWindingsTransformer" minOccurs="0" maxOccurs="unbounded"/>
                     <xs:element name="threeWindingsTransformer" type="iidm:ThreeWindingsTransformer" minOccurs="0" maxOccurs="unbounded"/>
                 </xs:sequence>
-                <xs:attribute name="tso" use="optional" type="xs:string"/>
-                <xs:attribute name="country" use="required" type="xs:string"/>
-                <xs:attribute name="geographicalTags" use="optional" type="xs:string"/>
+                <xs:attribute name="tso" use="optional" type="iidm:nonEmptyString"/>
+                <xs:attribute name="country" use="required" type="iidm:nonEmptyString"/>
+                <xs:attribute name="geographicalTags" use="optional" type="iidm:nonEmptyString"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -146,8 +159,8 @@
     <xs:complexType name="SwitchBus">
         <xs:complexContent>
             <xs:extension base="iidm:Switch">
-                <xs:attribute name="bus1" use="required" type="xs:string"/>
-                <xs:attribute name="bus2" use="required" type="xs:string"/>
+                <xs:attribute name="bus1" use="required" type="iidm:nonEmptyString"/>
+                <xs:attribute name="bus2" use="required" type="iidm:nonEmptyString"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -165,6 +178,16 @@
         <xs:attribute name="minQ" use="required" type="xs:float"/>
         <xs:attribute name="maxQ" use="required" type="xs:float"/>
     </xs:complexType>
+    <xs:simpleType name="EnergySource">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="HYDRO"/>
+            <xs:enumeration value="NUCLEAR"/>
+            <xs:enumeration value="WIND"/>
+            <xs:enumeration value="THERMAL"/>
+            <xs:enumeration value="SOLAR"/>
+            <xs:enumeration value="OTHER"/>
+        </xs:restriction>
+    </xs:simpleType>
     <xs:complexType name="Generator">
         <xs:complexContent>
             <xs:extension base="iidm:Identifiable">
@@ -173,7 +196,7 @@
                     <xs:element name="reactiveCapabilityCurve" minOccurs="0" type="iidm:ReactiveCapabilityCurve"/>
                     <xs:element name="minMaxReactiveLimits" minOccurs="0" type="iidm:MinMaxReactiveLimits"/>
                 </xs:sequence>
-                <xs:attribute name="energySource" use="required" type="xs:string"/>
+                <xs:attribute name="energySource" use="required" type="iidm:EnergySource"/>
                 <xs:attribute name="maxP" use="required" type="xs:float"/>
                 <xs:attribute name="minP" use="required" type="xs:float"/>
                 <xs:attribute name="ratedS" use="optional" type="xs:float"/>
@@ -182,8 +205,8 @@
                 <xs:attribute name="targetQ" use="optional" type="xs:float"/>
                 <xs:attribute name="targetV" use="optional" type="xs:float"/>
                 <xs:attribute name="node" use="optional" type="xs:int"/>
-                <xs:attribute name="bus" use="optional" type="xs:string"/>
-                <xs:attribute name="connectableBus" use="optional" type="xs:string"/>
+                <xs:attribute name="bus" use="optional" type="iidm:nonEmptyString"/>
+                <xs:attribute name="connectableBus" use="optional" type="iidm:nonEmptyString"/>
                 <xs:attribute name="p" use="optional" type="xs:float"/>
                 <xs:attribute name="q" use="optional" type="xs:float"/>
             </xs:extension>
@@ -203,8 +226,8 @@
                 <xs:attribute name="q0" use="required" type="xs:float"/>
                 <xs:attribute name="loadType" use="optional" type="iidm:LoadType"/>
                 <xs:attribute name="node" use="optional" type="xs:int"/>
-                <xs:attribute name="bus" use="optional" type="xs:string"/>
-                <xs:attribute name="connectableBus" use="optional" type="xs:string"/>
+                <xs:attribute name="bus" use="optional" type="iidm:nonEmptyString"/>
+                <xs:attribute name="connectableBus" use="optional" type="iidm:nonEmptyString"/>
                 <xs:attribute name="p" use="optional" type="xs:float"/>
                 <xs:attribute name="q" use="optional" type="xs:float"/>
             </xs:extension>
@@ -217,8 +240,8 @@
                 <xs:attribute name="maximumSectionCount" use="required" type="xs:int"/>
                 <xs:attribute name="currentSectionCount" use="required" type="xs:int"/>
                 <xs:attribute name="node" use="optional" type="xs:int"/>
-                <xs:attribute name="bus" use="optional" type="xs:string"/>
-                <xs:attribute name="connectableBus" use="optional" type="xs:string"/>
+                <xs:attribute name="bus" use="optional" type="iidm:nonEmptyString"/>
+                <xs:attribute name="connectableBus" use="optional" type="iidm:nonEmptyString"/>
                 <xs:attribute name="q" use="optional" type="xs:float"/>
             </xs:extension>
         </xs:complexContent>
@@ -249,10 +272,10 @@
                 <xs:attribute name="x" use="required" type="xs:float"/>
                 <xs:attribute name="g" use="required" type="xs:float"/>
                 <xs:attribute name="b" use="required" type="xs:float"/>
-                <xs:attribute name="ucteXnodeCode" use="optional" type="xs:string"/>
+                <xs:attribute name="ucteXnodeCode" use="optional" type="iidm:nonEmptyString"/>
                 <xs:attribute name="node" use="optional" type="xs:int"/>
-                <xs:attribute name="bus" use="optional" type="xs:string"/>
-                <xs:attribute name="connectableBus" use="optional" type="xs:string"/>
+                <xs:attribute name="bus" use="optional" type="iidm:nonEmptyString"/>
+                <xs:attribute name="connectableBus" use="optional" type="iidm:nonEmptyString"/>
                 <xs:attribute name="p" use="optional" type="xs:float"/>
                 <xs:attribute name="q" use="optional" type="xs:float"/>
             </xs:extension>
@@ -274,13 +297,13 @@
                 <xs:attribute name="ratedU1" use="required" type="xs:float"/>
                 <xs:attribute name="ratedU2" use="required" type="xs:float"/>
                 <xs:attribute name="node1" use="optional" type="xs:int"/>
-                <xs:attribute name="bus1" use="optional" type="xs:string"/>
-                <xs:attribute name="connectableBus1" use="optional" type="xs:string"/>
-                <xs:attribute name="voltageLevelId1" use="required" type="xs:string"/>
+                <xs:attribute name="bus1" use="optional" type="iidm:nonEmptyString"/>
+                <xs:attribute name="connectableBus1" use="optional" type="iidm:nonEmptyString"/>
+                <xs:attribute name="voltageLevelId1" use="required" type="iidm:nonEmptyString"/>
                 <xs:attribute name="node2" use="optional" type="xs:int"/>
-                <xs:attribute name="bus2" use="optional" type="xs:string"/>
-                <xs:attribute name="connectableBus2" use="optional" type="xs:string"/>
-                <xs:attribute name="voltageLevelId2" use="required" type="xs:string"/>
+                <xs:attribute name="bus2" use="optional" type="iidm:nonEmptyString"/>
+                <xs:attribute name="connectableBus2" use="optional" type="iidm:nonEmptyString"/>
+                <xs:attribute name="voltageLevelId2" use="required" type="iidm:nonEmptyString"/>
                 <xs:attribute name="p1" use="optional" type="xs:float"/>
                 <xs:attribute name="q1" use="optional" type="xs:float"/>
                 <xs:attribute name="p2" use="optional" type="xs:float"/>
@@ -310,17 +333,17 @@
                 <xs:attribute name="g1" use="required" type="xs:float"/>
                 <xs:attribute name="b1" use="required" type="xs:float"/>
                 <xs:attribute name="node1" use="optional" type="xs:int"/>
-                <xs:attribute name="bus1" use="optional" type="xs:string"/>
-                <xs:attribute name="voltageLevelId1" use="required" type="xs:string"/>
-                <xs:attribute name="connectableBus1" use="optional" type="xs:string"/>
+                <xs:attribute name="bus1" use="optional" type="iidm:nonEmptyString"/>
+                <xs:attribute name="voltageLevelId1" use="required" type="iidm:nonEmptyString"/>
+                <xs:attribute name="connectableBus1" use="optional" type="iidm:nonEmptyString"/>
                 <xs:attribute name="node2" use="optional" type="xs:int"/>
-                <xs:attribute name="bus2" use="optional" type="xs:string"/>
-                <xs:attribute name="connectableBus2" use="optional" type="xs:string"/>
-                <xs:attribute name="voltageLevelId2" use="required" type="xs:string"/>
+                <xs:attribute name="bus2" use="optional" type="iidm:nonEmptyString"/>
+                <xs:attribute name="connectableBus2" use="optional" type="iidm:nonEmptyString"/>
+                <xs:attribute name="voltageLevelId2" use="required" type="iidm:nonEmptyString"/>
                 <xs:attribute name="node3" use="optional" type="xs:int"/>
-                <xs:attribute name="bus3" use="optional" type="xs:string"/>
-                <xs:attribute name="connectableBus3" use="optional" type="xs:string"/>
-                <xs:attribute name="voltageLevelId3" use="required" type="xs:string"/>
+                <xs:attribute name="bus3" use="optional" type="iidm:nonEmptyString"/>
+                <xs:attribute name="connectableBus3" use="optional" type="iidm:nonEmptyString"/>
+                <xs:attribute name="voltageLevelId3" use="required" type="iidm:nonEmptyString"/>
                 <xs:attribute name="p1" use="optional" type="xs:float"/>
                 <xs:attribute name="q1" use="optional" type="xs:float"/>
                 <xs:attribute name="p2" use="optional" type="xs:float"/>
@@ -338,7 +361,7 @@
         </xs:restriction>
     </xs:simpleType>
     <xs:complexType name="TerminalRef">
-        <xs:attribute name="id" use="required" type="xs:string"/>
+        <xs:attribute name="id" use="required" type="iidm:nonEmptyString"/>
         <xs:attribute name="side" use="optional" type="iidm:Side"/>
     </xs:complexType>
     <xs:complexType name="RatioTapChangerStep">
@@ -361,8 +384,8 @@
             <xs:element name="terminalRef" minOccurs="0" type="iidm:TerminalRef"/>
             <xs:element name="step" minOccurs="1" maxOccurs="unbounded" type="iidm:RatioTapChangerStep"/>
         </xs:sequence>
-        <xs:attribute name="lowStepPosition" use="required" type="xs:int"/>
-        <xs:attribute name="position" use="required" type="xs:int"/>
+        <xs:attribute name="lowTapPosition" use="required" type="xs:int"/>
+        <xs:attribute name="tapPosition" use="required" type="xs:int"/>
         <xs:attribute name="regulating" use="required" type="xs:boolean"/>
         <xs:attribute name="loadTapChangingCapabilities" use="required" type="xs:boolean"/>
         <xs:attribute name="targetV" use="optional" type="xs:float"/>
@@ -372,8 +395,8 @@
             <xs:element name="terminalRef" minOccurs="0" type="iidm:TerminalRef"/>
             <xs:element name="step" minOccurs="1" maxOccurs="unbounded" type="iidm:PhaseTapChangerStep"/>
         </xs:sequence>
-        <xs:attribute name="lowStepPosition" use="required" type="xs:int"/>
-        <xs:attribute name="position" use="required" type="xs:int"/>
+        <xs:attribute name="lowTapPosition" use="required" type="xs:int"/>
+        <xs:attribute name="tapPosition" use="required" type="xs:int"/>
         <xs:attribute name="regulating" use="required" type="xs:boolean"/>
         <xs:attribute name="thresholdI" use="optional" type="xs:float"/>
     </xs:complexType>
@@ -391,13 +414,13 @@
                 <xs:attribute name="b1" use="required" type="xs:float"/>
                 <xs:attribute name="b2" use="required" type="xs:float"/>
                 <xs:attribute name="node1" use="optional" type="xs:int"/>
-                <xs:attribute name="bus1" use="optional" type="xs:string"/>
-                <xs:attribute name="connectableBus1" use="optional" type="xs:string"/>
-                <xs:attribute name="voltageLevelId1" use="required" type="xs:string"/>
+                <xs:attribute name="bus1" use="optional" type="iidm:nonEmptyString"/>
+                <xs:attribute name="connectableBus1" use="optional" type="iidm:nonEmptyString"/>
+                <xs:attribute name="voltageLevelId1" use="required" type="iidm:nonEmptyString"/>
                 <xs:attribute name="node2" use="optional" type="xs:int"/>
-                <xs:attribute name="bus2" use="optional" type="xs:string"/>
-                <xs:attribute name="connectableBus2" use="optional" type="xs:string"/>
-                <xs:attribute name="voltageLevelId2" use="required" type="xs:string"/>
+                <xs:attribute name="bus2" use="optional" type="iidm:nonEmptyString"/>
+                <xs:attribute name="connectableBus2" use="optional" type="iidm:nonEmptyString"/>
+                <xs:attribute name="voltageLevelId2" use="required" type="iidm:nonEmptyString"/>
                 <xs:attribute name="p1" use="optional" type="xs:float"/>
                 <xs:attribute name="q1" use="optional" type="xs:float"/>
                 <xs:attribute name="p2" use="optional" type="xs:float"/>
@@ -413,19 +436,19 @@
                     <xs:element name="currentLimits2" type="iidm:CurrentLimit" minOccurs="0"/>
                 </xs:sequence>
                 <xs:attribute name="node1" use="optional" type="xs:int"/>
-                <xs:attribute name="bus1" use="optional" type="xs:string"/>
-                <xs:attribute name="connectableBus1" use="optional" type="xs:string"/>
-                <xs:attribute name="voltageLevelId1" use="required" type="xs:string"/>
+                <xs:attribute name="bus1" use="optional" type="iidm:nonEmptyString"/>
+                <xs:attribute name="connectableBus1" use="optional" type="iidm:nonEmptyString"/>
+                <xs:attribute name="voltageLevelId1" use="required" type="iidm:nonEmptyString"/>
                 <xs:attribute name="node2" use="optional" type="xs:int"/>
-                <xs:attribute name="bus2" use="optional" type="xs:string"/>
-                <xs:attribute name="connectableBus2" use="optional" type="xs:string"/>
-                <xs:attribute name="voltageLevelId2" use="required" type="xs:string"/>
+                <xs:attribute name="bus2" use="optional" type="iidm:nonEmptyString"/>
+                <xs:attribute name="connectableBus2" use="optional" type="iidm:nonEmptyString"/>
+                <xs:attribute name="voltageLevelId2" use="required" type="iidm:nonEmptyString"/>
                 <xs:attribute name="p1" use="optional" type="xs:float"/>
                 <xs:attribute name="q1" use="optional" type="xs:float"/>
                 <xs:attribute name="p2" use="optional" type="xs:float"/>
                 <xs:attribute name="q2" use="optional" type="xs:float"/>
-                <xs:attribute name="ucteXnodeCode" use="optional" type="xs:string"/>
-                <xs:attribute name="id_1" use="required" type="xs:string"/>
+                <xs:attribute name="ucteXnodeCode" use="optional" type="iidm:nonEmptyString"/>
+                <xs:attribute name="id_1" use="required" type="iidm:nonEmptyString"/>
                 <xs:attribute name="name_1" use="optional" type="xs:string"/>
                 <xs:attribute name="r_1" use="required" type="xs:float"/>
                 <xs:attribute name="x_1" use="required" type="xs:float"/>
@@ -435,7 +458,7 @@
                 <xs:attribute name="b2_1" use="required" type="xs:float"/>
                 <xs:attribute name="xnodeP_1" use="required" type="xs:float"/>
                 <xs:attribute name="xnodeQ_1" use="required" type="xs:float"/>
-                <xs:attribute name="id_2" use="required" type="xs:string"/>
+                <xs:attribute name="id_2" use="required" type="iidm:nonEmptyString"/>
                 <xs:attribute name="name_2" use="optional" type="xs:string"/>
                 <xs:attribute name="r_2" use="required" type="xs:float"/>
                 <xs:attribute name="x_2" use="required" type="xs:float"/>

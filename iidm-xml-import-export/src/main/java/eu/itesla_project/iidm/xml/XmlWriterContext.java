@@ -11,7 +11,7 @@ import javax.xml.stream.XMLStreamWriter;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class XmlWriterContext {
+public class XmlWriterContext {
 
     private final XMLStreamWriter writer;
     private final XMLExportOptions options;
@@ -23,15 +23,15 @@ class XmlWriterContext {
         this.filter = filter;
     }
 
-    XMLStreamWriter getWriter() {
+    public XMLStreamWriter getWriter() {
         return writer;
     }
 
-    XMLExportOptions getOptions() {
+    public XMLExportOptions getOptions() {
         return options;
     }
 
-    BusFilter getFilter() {
+    public BusFilter getFilter() {
         return filter;
     }
 }

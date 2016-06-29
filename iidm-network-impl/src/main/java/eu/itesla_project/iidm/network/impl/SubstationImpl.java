@@ -19,7 +19,7 @@ import java.util.Set;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class SubstationImpl extends IdentifiableImpl implements Substation {
+class SubstationImpl extends IdentifiableImpl<Substation> implements Substation {
 
     private static final Function<VoltageLevelExt, Iterable<TwoWindingsTransformer>> toTwoWindingsTransformers
             = new Function<VoltageLevelExt, Iterable<TwoWindingsTransformer>>() {

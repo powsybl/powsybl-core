@@ -160,10 +160,10 @@ public class AmplNetworkReader implements AmplConstants {
                     }
                     if (id.endsWith("_leg2")) {
                         RatioTapChanger rtc2 = twt.getLeg2().getRatioTapChanger();
-                        rtc2.setCurrentStepPosition(rtc2.getLowStepPosition() + tap - 1);
+                        rtc2.setTapPosition(rtc2.getLowTapPosition() + tap - 1);
                     } else if (id.endsWith("_leg3")) {
                         RatioTapChanger rtc3 = twt.getLeg3().getRatioTapChanger();
-                        rtc3.setCurrentStepPosition(rtc3.getLowStepPosition() + tap - 1);
+                        rtc3.setTapPosition(rtc3.getLowTapPosition() + tap - 1);
                     } else {
                         throw new InternalError();
                     }
@@ -173,7 +173,7 @@ public class AmplNetworkReader implements AmplConstants {
                         throw new RuntimeException("Invalid two windings transformer id '" + id + "'");
                     }
                     RatioTapChanger rtc = twt.getRatioTapChanger();
-                    rtc.setCurrentStepPosition(rtc.getLowStepPosition() + tap - 1);
+                    rtc.setTapPosition(rtc.getLowTapPosition() + tap - 1);
                 }
             }
         }
@@ -202,7 +202,7 @@ public class AmplNetworkReader implements AmplConstants {
                     throw new RuntimeException("Invalid two windings transformer id '" + id + "'");
                 }
                 PhaseTapChanger ptc = twt.getPhaseTapChanger();
-                ptc.setCurrentStepPosition(ptc.getLowStepPosition() + tap - 1);
+                ptc.setTapPosition(ptc.getLowTapPosition() + tap - 1);
             }
         }
         return this;
