@@ -16,30 +16,42 @@ BUILD_MATLAB=false
 BUILD_DYMOLA=false
 BUILD_THIRDPARTY=true
 
+## ipst top source directory
+sourceDir=$(dirname $(readlink -f $0))
+
 ## default ipst installation target directory
 installDir=$HOME/itesla
 ## default ipst thirdparty directory
 thirdpartyDir=$HOME/itesla_thirdparty
 
 ## stop script execution if installDir already exists
-overwriteInstallDir=false
+overwriteInstallation=false
+
+## remove non java ipst build dir, before triggering a new build
+removeNonJavaBuildDir=false
+
+## remove thord-party build dir, before triggering a new build
+removeThirdpartyBuildDir=false
+
 
 cmd=$0
 usage() {
-    echo "usage: $cmd [--help] [--installDir <installation path>] [--thirdpartyDir <thirdparty path>] [--overwriteInstallDir] [--buildMATLAB] [--buildEUROSTAG] [--buildDYMOLA]";
+    echo "usage: $cmd [--help] [--installDir <installation path>] [--thirdpartyDir <thirdparty path>] [--overwriteInstallation] [--removeNonJavaBuildDir] [--removeThirdpartyBuildDir] [--buildMATLAB] [--buildEUROSTAG] [--buildDYMOLA]";
     echo ""
     exit 1
 }
 
 help() {
-    echo "usage: $cmd [--help] [--installDir <installation path>] [--thirdpartyDir <thirdparty path>] [--overwriteInstallDir]";
-    echo "   --installDir       the target directory; default is <HOME>/itesla;  installation will not proceed if it already exists,";
-    echo "                      unless --overwriteInstallDir is set (in this case the existing installation will be overwritten)";
-    echo "   --thirdpartyDir    the target path for the thirdparty libraries, required to build IPST (default is <HOME>/itesla_thirdparty)";
-    echo "   --overwriteInstallDir   if set, installDir will be deleted (default is not set)";
-    echo "   --buildMATLAB      if set, build MATLAB components (default is false, this option requires installation of MATLAB and MATLAB compiler)";
-    echo "   --buildEUROSTAG    if set, build EUROSTAG components (default is false, this option requires installation of EUROSTAG and EUROSTAG SDK)";
-    echo "   --buildDYMOLA      if set, build DYMOLA components (default is false, this option requires installation of DYMOLA)";
+    echo "usage: $cmd [--help] [--installDir <installation path>] [--thirdpartyDir <thirdparty path>] [--overwriteInstallation]";
+    echo "   --installDir               the target directory; default is <HOME>/itesla;  installation will not proceed if it already exists,";
+    echo "                              unless --overwriteInstallation is set (in this case the existing installation will be overwritten)";
+    echo "   --thirdpartyDir            the target path for the thirdparty libraries, required to build IPST (default is <HOME>/itesla_thirdparty)";
+    echo "   --overwriteInstallation    if set, the install script overwrites an existing installation (default is not set: stop script execution if installDir already exists)";
+    echo "   --buildMATLAB              if set, build MATLAB components (default is false, this option requires installation of MATLAB and MATLAB compiler)";
+    echo "   --buildEUROSTAG            if set, build EUROSTAG components (default is false, this option requires installation of EUROSTAG and EUROSTAG SDK)";
+    echo "   --buildDYMOLA              if set, build DYMOLA components (default is false, this option requires installation of DYMOLA)";
+    echo "   --removeThirdpartyBuildDir if set, remove an already existing third-party build dir before starting a new build (default is false)";
+    echo "   --removeNonJavaBuildDir    if set, remove an already existing non java ipst  build dir before starting a new build (default is false)";
     echo "   --help  ";
     echo ""
     exit
@@ -54,9 +66,9 @@ do
     elif [ ${!i} = "--thirdpartyDir" ];
     then ((i++)) 
         thirdpartyDir=${!i};  
-    elif [ ${!i} = "--overwriteInstallDir" ];
+    elif [ ${!i} = "--overwriteInstallation" ];
     then 
-        overwriteInstallDir=true;  
+        overwriteInstallation=true;  
     elif [ ${!i} = "--buildMATLAB" ];
     then 
         BUILD_MATLAB=true;  
@@ -69,6 +81,12 @@ do
     elif [ ${!i} = "--skipThirdpartyBuild" ];
     then 
         BUILD_THIRDPARTY=false;  
+    elif [ ${!i} = "--removeThirdpartyBuildDir" ];
+    then 
+        removeThirdpartyBuildDir=true;  
+    elif [ ${!i} = "--removeNonJavaBuildDir" ];
+    then 
+        removeNonJavaBuildDir=true;  
     elif [ ${!i} = "--help" ];    
     then ((i++)) 
         help;
@@ -79,7 +97,9 @@ echo "** Building and installing ipst:"
 echo "** -----------------------------"
 echo "** installDir:" $installDir
 echo "** thirdpartyDir:" $thirdpartyDir
-echo "** overwriteInstallDir:" $overwriteInstallDir
+echo "** overwriteInstallation:" $overwriteInstallation
+echo "** removeThirdpartyBuildDir:" $removeThirdpartyBuildDir
+echo "** removeNonJavaBuildDir:" $removeNonJavaBuildDir
 echo "** buildMATLAB:" $BUILD_MATLAB
 echo "** buildEUROSTAG:" $BUILD_EUROSTAG
 echo "** buildDYMOLA:" $BUILD_DYMOLA
@@ -109,10 +129,10 @@ if [ $BUILD_DYMOLA = true ] ; then
 fi
 
 if [ -d $installDir ] &&
-   [ $overwriteInstallDir != true ]
+   [ $overwriteInstallation != true ]
 then
     echo ""
-    echo "ERROR: the target installation directory '"$installDir"' already exists; make sure that you really want to overwrite it (ref. --overwriteInstallDir parameter)"
+    echo "ERROR: installation cannot continue: the target directory '"$installDir"' already exists (to allow overwrite it, set the --overtriteInstallation parameter)."
     echo ""
     usage;
 fi
@@ -127,7 +147,13 @@ if [ $BUILD_THIRDPARTY = true ] ; then
  echo "** Building thirdparty libraries"
  echo ""
  buildThirdpartyDir=$thirdpartyDir/build
- cmake -Dthirdparty_prefix=$thirdpartyDir -G "Unix Makefiles" -Hthirdparty -B$buildThirdpartyDir 
+ if [ $removeThirdpartyBuildDir = true  ] ; then
+   echo ""
+   echo "*** removing third-party build dir (if it already exists). Triggers a clean third-party build."
+   echo ""
+   rm -rf $buildThirdpartyDir
+ fi
+ cmake -Dthirdparty_prefix=$thirdpartyDir -G "Unix Makefiles" -H$sourceDir/thirdparty -B$buildThirdpartyDir 
  cr=$?
  if [ $cr -ne 0 ] ; then
   exit $cr
@@ -149,8 +175,14 @@ fi
 echo ""
 echo "** Building IPST platform: C/C++ and MATLAB (when configured) modules"
 echo ""
-buildDir=./build
-cmake -DCMAKE_INSTALL_PREFIX=$installDir -Dthirdparty_prefix=$thirdpartyDir -DBUILD_EUROSTAG=$BUILD_EUROSTAG -DBUILD_MATLAB=$BUILD_MATLAB -DBUILD_DYMOLA=$BUILD_DYMOLA  -G "Unix Makefiles" -H. -B$buildDir 
+buildDir=$sourceDir/build
+if [ $removeNonJavaBuildDir = true  ] ; then
+   echo ""
+   echo "*** removing non java build dir (if it already exists). Triggers a clean build."
+   echo ""
+   rm -rf $buildDir
+fi
+cmake -DCMAKE_INSTALL_PREFIX=$installDir -Dthirdparty_prefix=$thirdpartyDir -DBUILD_EUROSTAG=$BUILD_EUROSTAG -DBUILD_MATLAB=$BUILD_MATLAB -DBUILD_DYMOLA=$BUILD_DYMOLA  -G "Unix Makefiles" -H$sourceDir -B$buildDir 
 cr=$?
 if [ $cr -ne 0 ] ; then
 exit $cr
@@ -162,19 +194,13 @@ exit $cr
 fi
 
 
-###############################
-# remove  previous installation
-#rm -rf $installDir
-#mkdir -p $installDir
-
-
 ###########################
 # build IPST (Java modules)
 #
 echo ""
 echo "** Building IPST platform: java modules"
 echo ""
-mvn -f ./pom.xml clean install
+mvn -f $sourceDir/pom.xml clean install
 cr=$?
 if [ $cr -ne 0 ] ; then
 exit $cr
@@ -186,7 +212,7 @@ fi
 echo ""
 echo "** Copying distribution files to "$installDir
 echo ""
-cp -r ./distribution/target/distribution-*-full/itesla/* $installDir/
+cp -r $sourceDir/distribution/target/distribution-*-full/itesla/* $installDir/
 cr=$?
 if [ $cr -ne 0 ] ; then
 exit $cr
@@ -199,13 +225,16 @@ mkdir -p $installDir/etc
 #
 if [ ! -f $installDir/etc/itesla.conf ]; then
 echo ""
-echo "** Creating a default itesla.conf file"
+echo "*** Creating a default itesla.conf file"
 echo ""
 echo "#itesla_cache_dir=" >> $installDir/etc/itesla.conf
 echo "#itesla_config_dir=" >> $installDir/etc/itesla.conf
 echo "itesla_config_name=config" >> $installDir/etc/itesla.conf
 echo "mpi_tasks=3" >> $installDir/etc/itesla.conf
 echo "mpi_hosts=localhost" >> $installDir/etc/itesla.conf
+else
+echo "*** Configuration file " $installDir/etc/itesla.conf " already exists: it will not be replaced."
 fi
+echo ""
 
 exit 0
