@@ -158,7 +158,7 @@ public class EurostagTutorialExample1Factory {
                     .setG(0f)
                     .setB(0f)
                 .endStep()
-                .setCurrentStepPosition(1)
+                .setTapPosition(1)
                 .setLoadTapChangingCapabilities(true)
                 .setRegulating(true)
                 .setTargetV(158)

@@ -36,7 +36,7 @@ class ShuntXml extends ConnectableXml<ShuntCompensator, ShuntCompensatorAdder, V
 
     @Override
     protected void writeRootElementAttributes(ShuntCompensator sc, VoltageLevel vl, XmlWriterContext context) throws XMLStreamException {
-        writeFloat("bPerSection", sc.getbPerSection(), context.getWriter());
+        XmlUtil.writeFloat("bPerSection", sc.getbPerSection(), context.getWriter());
         context.getWriter().writeAttribute("maximumSectionCount", Integer.toString(sc.getMaximumSectionCount()));
         context.getWriter().writeAttribute("currentSectionCount", Integer.toString(sc.getCurrentSectionCount()));
         writeNodeOrBus(null, sc.getTerminal(), context);
@@ -54,9 +54,9 @@ class ShuntXml extends ConnectableXml<ShuntCompensator, ShuntCompensatorAdder, V
 
     @Override
     protected ShuntCompensator readRootElementAttributes(ShuntCompensatorAdder adder, XMLStreamReader reader, List<Runnable> endTasks) {
-        float bPerSection = readFloatAttribute(reader, "bPerSection");
-        int maximumSectionCount = readIntAttribute(reader, "maximumSectionCount");
-        int currentSectionCount = readIntAttribute(reader, "currentSectionCount");
+        float bPerSection = XmlUtil.readFloatAttribute(reader, "bPerSection");
+        int maximumSectionCount = XmlUtil.readIntAttribute(reader, "maximumSectionCount");
+        int currentSectionCount = XmlUtil.readIntAttribute(reader, "currentSectionCount");
         adder.setbPerSection(bPerSection)
                 .setMaximumSectionCount(maximumSectionCount)
                 .setCurrentSectionCount(currentSectionCount);

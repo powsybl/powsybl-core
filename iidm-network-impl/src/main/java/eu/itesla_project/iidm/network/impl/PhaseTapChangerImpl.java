@@ -21,10 +21,10 @@ class PhaseTapChangerImpl extends TapChangerImpl<TwoWindingsTransformerImpl, Pha
 
     private final TFloatArrayList thresholdI;
 
-    PhaseTapChangerImpl(TwoWindingsTransformerImpl parent, int lowStepPosition,
+    PhaseTapChangerImpl(TwoWindingsTransformerImpl parent, int lowTapPosition,
                         List<PhaseTapChangerStepImpl> steps, TerminalExt terminal,
-                        int currentStepPosition, boolean regulating, float thresholdI) {
-        super(parent.getNetwork().getRef(), parent, lowStepPosition, steps, terminal, currentStepPosition, regulating);
+                        int tapPosition, boolean regulating, float thresholdI) {
+        super(parent.getNetwork().getRef(), parent, lowTapPosition, steps, terminal, tapPosition, regulating);
         int stateArraySize = network.get().getStateManager().getStateArraySize();
         this.thresholdI = new TFloatArrayList(stateArraySize);
         for (int i = 0; i < stateArraySize; i++) {

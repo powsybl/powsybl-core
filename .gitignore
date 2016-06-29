@@ -51,6 +51,8 @@
 /ucte-network/target/
 /ucte-util/target/
 /wca-integration/target/
+/case-repository/target/
+/network-merge/target/
 
 # CMake projects
 /build/

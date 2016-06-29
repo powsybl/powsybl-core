@@ -6,10 +6,7 @@
  */
 package eu.itesla_project.iidm.network.impl;
 
-import eu.itesla_project.iidm.network.CurrentLimits;
-import eu.itesla_project.iidm.network.CurrentLimitsAdder;
-import eu.itesla_project.iidm.network.Terminal;
-import eu.itesla_project.iidm.network.TwoTerminalsConnectable;
+import eu.itesla_project.iidm.network.*;
 import eu.itesla_project.iidm.network.TwoTerminalsConnectable.Side;
 
 import java.util.Objects;
@@ -18,7 +15,7 @@ import java.util.Objects;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-abstract class AbstractTwoTerminalsConnectable extends ConnectableImpl implements CurrentLimitsOwner<Side> {
+abstract class AbstractTwoTerminalsConnectable<I extends Identifiable<I>> extends ConnectableImpl<I> implements CurrentLimitsOwner<Side> {
 
     private CurrentLimits limits1;
 

@@ -16,7 +16,7 @@ package eu.itesla_project.iidm.network;
  * @see MinMaxReactiveLimits
  * @see ReactiveCapabilityCurve
  */
-public interface Generator extends SingleTerminalConnectable {
+public interface Generator extends SingleTerminalConnectable<Generator> {
 
     /**
      * Get the energy source.

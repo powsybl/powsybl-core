@@ -20,16 +20,16 @@ import java.util.List;
 abstract class TransformerXml<T extends Connectable, A extends IdentifiableAdder<A>> extends ConnectableXml<T, A, Substation> {
 
     protected static void writeTapChangerStep(TapChangerStep<?> tcs, XMLStreamWriter writer) throws XMLStreamException {
-        writeFloat("r", tcs.getR(), writer);
-        writeFloat("x", tcs.getX(), writer);
-        writeFloat("g", tcs.getG(), writer);
-        writeFloat("b", tcs.getB(), writer);
-        writeFloat("rho", tcs.getRho(), writer);
+        XmlUtil.writeFloat("r", tcs.getR(), writer);
+        XmlUtil.writeFloat("x", tcs.getX(), writer);
+        XmlUtil.writeFloat("g", tcs.getG(), writer);
+        XmlUtil.writeFloat("b", tcs.getB(), writer);
+        XmlUtil.writeFloat("rho", tcs.getRho(), writer);
     }
 
     protected static void writeTapChanger(TapChanger<?, ?> tc, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeAttribute("lowStepPosition", Integer.toString(tc.getLowStepPosition()));
-        writer.writeAttribute("position", Integer.toString(tc.getCurrentStepPosition()));
+        writer.writeAttribute("lowTapPosition", Integer.toString(tc.getLowTapPosition()));
+        writer.writeAttribute("tapPosition", Integer.toString(tc.getTapPosition()));
         writer.writeAttribute("regulating", Boolean.toString(tc.isRegulating()));
     }
 
@@ -37,11 +37,11 @@ abstract class TransformerXml<T extends Connectable, A extends IdentifiableAdder
         context.getWriter().writeStartElement(IIDM_URI, name);
         writeTapChanger(rtc, context.getWriter());
         context.getWriter().writeAttribute("loadTapChangingCapabilities", Boolean.toString(rtc.hasLoadTapChangingCapabilities()));
-        writeFloat("targetV", rtc.getTargetV(), context.getWriter());
+        XmlUtil.writeFloat("targetV", rtc.getTargetV(), context.getWriter());
         if (rtc.getTerminal() != null) {
             writeTerminalRef(rtc.getTerminal(), context, "terminalRef");
         }
-        for (int p = rtc.getLowStepPosition(); p <= rtc.getHighStepPosition(); p++) {
+        for (int p = rtc.getLowTapPosition(); p <= rtc.getHighTapPosition(); p++) {
             RatioTapChangerStep rtcs = rtc.getStep(p);
             context.getWriter().writeEmptyElement(IIDM_URI, "step");
             writeTapChangerStep(rtcs, context.getWriter());
@@ -50,14 +50,14 @@ abstract class TransformerXml<T extends Connectable, A extends IdentifiableAdder
     }
 
     protected static void readRatioTapChanger(TwoWindingsTransformer twt, XMLStreamReader reader, List<Runnable> endTasks) throws XMLStreamException {
-        int lowStepPosition = readIntAttribute(reader, "lowStepPosition");
-        int position = readIntAttribute(reader, "position");
-        boolean regulating = readBoolAttribute(reader, "regulating");
-        boolean loadTapChangingCapabilities = readBoolAttribute(reader, "loadTapChangingCapabilities");
-        float targetV = readOptionalFloatAttribute(reader, "targetV");
+        int lowTapPosition = XmlUtil.readIntAttribute(reader, "lowTapPosition");
+        int tapPosition = XmlUtil.readIntAttribute(reader, "tapPosition");
+        boolean regulating = XmlUtil.readBoolAttribute(reader, "regulating");
+        boolean loadTapChangingCapabilities = XmlUtil.readBoolAttribute(reader, "loadTapChangingCapabilities");
+        float targetV = XmlUtil.readOptionalFloatAttribute(reader, "targetV");
         RatioTapChangerAdder adder = twt.newRatioTapChanger()
-                .setLowStepPosition(lowStepPosition)
-                .setCurrentStepPosition(position)
+                .setLowTapPosition(lowTapPosition)
+                .setTapPosition(tapPosition)
                 .setLoadTapChangingCapabilities(loadTapChangingCapabilities)
                 .setTargetV(targetV);
         if (loadTapChangingCapabilities) {
@@ -77,11 +77,11 @@ abstract class TransformerXml<T extends Connectable, A extends IdentifiableAdder
                     break;
 
                 case "step":
-                    float r = readFloatAttribute(reader, "r");
-                    float x = readFloatAttribute(reader, "x");
-                    float g = readFloatAttribute(reader, "g");
-                    float b = readFloatAttribute(reader, "b");
-                    float rho = readFloatAttribute(reader, "rho");
+                    float r = XmlUtil.readFloatAttribute(reader, "r");
+                    float x = XmlUtil.readFloatAttribute(reader, "x");
+                    float g = XmlUtil.readFloatAttribute(reader, "g");
+                    float b = XmlUtil.readFloatAttribute(reader, "b");
+                    float rho = XmlUtil.readFloatAttribute(reader, "rho");
                     adder.beginStep()
                             .setR(r)
                             .setX(x)
@@ -103,27 +103,27 @@ abstract class TransformerXml<T extends Connectable, A extends IdentifiableAdder
     protected static void writePhaseTapChanger(String name, PhaseTapChanger ptc, XmlWriterContext context) throws XMLStreamException {
         context.getWriter().writeStartElement(IIDM_URI, name);
         writeTapChanger(ptc, context.getWriter());
-        writeFloat("thresholdI", ptc.getThresholdI(), context.getWriter());
+        XmlUtil.writeFloat("thresholdI", ptc.getThresholdI(), context.getWriter());
         if (ptc.getTerminal() != null) {
             writeTerminalRef(ptc.getTerminal(), context, "terminalRef");
         }
-        for (int p = ptc.getLowStepPosition(); p <= ptc.getHighStepPosition(); p++) {
+        for (int p = ptc.getLowTapPosition(); p <= ptc.getHighTapPosition(); p++) {
             PhaseTapChangerStep ptcs = ptc.getStep(p);
             context.getWriter().writeEmptyElement(IIDM_URI, "step");
             writeTapChangerStep(ptcs, context.getWriter());
-            writeFloat("alpha", ptcs.getAlpha(), context.getWriter());
+            XmlUtil.writeFloat("alpha", ptcs.getAlpha(), context.getWriter());
         }
         context.getWriter().writeEndElement();
     }
 
     protected static void readPhaseTapChanger(TwoWindingsTransformer twt, XMLStreamReader reader, List<Runnable> endTasks) throws XMLStreamException {
-        int lowStepPosition = readIntAttribute(reader, "lowStepPosition");
-        int position = readIntAttribute(reader, "position");
-        boolean regulating = readBoolAttribute(reader, "regulating");
-        float thresholdI = readOptionalFloatAttribute(reader, "thresholdI");
+        int lowTapPosition = XmlUtil.readIntAttribute(reader, "lowTapPosition");
+        int tapPosition = XmlUtil.readIntAttribute(reader, "tapPosition");
+        boolean regulating = XmlUtil.readBoolAttribute(reader, "regulating");
+        float thresholdI = XmlUtil.readOptionalFloatAttribute(reader, "thresholdI");
         PhaseTapChangerAdder adder = twt.newPhaseTapChanger()
-                .setLowStepPosition(lowStepPosition)
-                .setCurrentStepPosition(position)
+                .setLowTapPosition(lowTapPosition)
+                .setTapPosition(tapPosition)
                 .setRegulating(regulating)
                 .setThresholdI(thresholdI);
         boolean[] hasTerminalRef = new boolean[1];
@@ -140,12 +140,12 @@ abstract class TransformerXml<T extends Connectable, A extends IdentifiableAdder
                     break;
 
                 case "step":
-                    float r = readFloatAttribute(reader, "r");
-                    float x = readFloatAttribute(reader, "x");
-                    float g = readFloatAttribute(reader, "g");
-                    float b = readFloatAttribute(reader, "b");
-                    float rho = readFloatAttribute(reader, "rho");
-                    float alpha = readFloatAttribute(reader, "alpha");
+                    float r = XmlUtil.readFloatAttribute(reader, "r");
+                    float x = XmlUtil.readFloatAttribute(reader, "x");
+                    float g = XmlUtil.readFloatAttribute(reader, "g");
+                    float b = XmlUtil.readFloatAttribute(reader, "b");
+                    float rho = XmlUtil.readFloatAttribute(reader, "rho");
+                    float alpha = XmlUtil.readFloatAttribute(reader, "alpha");
                     adder.beginStep()
                             .setR(r)
                             .setX(x)

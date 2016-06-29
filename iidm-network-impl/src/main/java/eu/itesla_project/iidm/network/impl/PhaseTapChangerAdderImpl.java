@@ -20,9 +20,9 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
 
     private final TwoWindingsTransformerImpl transformer;
 
-    private int lowStepPosition = 0;
+    private int lowTapPosition = 0;
 
-    private Integer currentStepPosition;
+    private Integer tapPosition;
 
     private final List<PhaseTapChangerStepImpl> steps = new ArrayList<>();
 
@@ -118,14 +118,14 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
     }
 
     @Override
-    public PhaseTapChangerAdder setLowStepPosition(int lowStepPosition) {
-        this.lowStepPosition = lowStepPosition;
+    public PhaseTapChangerAdder setLowTapPosition(int lowTapPosition) {
+        this.lowTapPosition = lowTapPosition;
         return this;
     }
 
     @Override
-    public PhaseTapChangerAdder setCurrentStepPosition(int currentStepPosition) {
-        this.currentStepPosition = currentStepPosition;
+    public PhaseTapChangerAdder setTapPosition(int tapPosition) {
+        this.tapPosition = tapPosition;
         return this;
     }
 
@@ -154,17 +154,17 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
 
     @Override
     public PhaseTapChanger add() {
-        if (currentStepPosition == null) {
-            throw new ValidationException(transformer, "current step position is not set");
+        if (tapPosition == null) {
+            throw new ValidationException(transformer, "tap position is not set");
         }
         if (steps.isEmpty()) {
             throw new ValidationException(transformer, "a phase tap changer shall have at least one step");
         }
-        int highStepPosition = lowStepPosition + steps.size() - 1;
-        if (currentStepPosition < lowStepPosition || currentStepPosition > highStepPosition) {
-            throw new ValidationException(transformer, "incorrect current step position "
-                    + currentStepPosition + " [" + lowStepPosition + ", "
-                    + highStepPosition + "]");
+        int highTapPosition = lowTapPosition + steps.size() - 1;
+        if (tapPosition < lowTapPosition || tapPosition > highTapPosition) {
+            throw new ValidationException(transformer, "incorrect tap position "
+                    + tapPosition + " [" + lowTapPosition + ", "
+                    + highTapPosition + "]");
         }
         if (regulating == null) {
             throw new ValidationException(transformer, "regulating status is not set");
@@ -181,8 +181,8 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
             }
         }
         PhaseTapChangerImpl tapChanger
-                = new PhaseTapChangerImpl(transformer, lowStepPosition, steps, terminal, 
-                                          currentStepPosition, regulating, thresholdI);
+                = new PhaseTapChangerImpl(transformer, lowTapPosition, steps, terminal,
+                tapPosition, regulating, thresholdI);
         transformer.setPhaseTapChanger(tapChanger);
         return tapChanger;
     }

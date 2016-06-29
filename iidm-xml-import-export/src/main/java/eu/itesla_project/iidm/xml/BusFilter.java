@@ -16,7 +16,7 @@ import java.util.Set;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class BusFilter {
+public class BusFilter {
 
     private final Set<String> buses;
 
@@ -78,11 +78,11 @@ class BusFilter {
         this(null, options);
     }
 
-    boolean test(Bus b) {
+    public boolean test(Bus b) {
         return buses == null || buses.contains(b.getId());
     }
 
-    boolean test(Connectable connectable) {
+    public boolean test(Connectable<?> connectable) {
         if (buses == null) {
             return true;
         }

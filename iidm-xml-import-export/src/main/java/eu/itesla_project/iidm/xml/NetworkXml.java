@@ -8,19 +8,27 @@ package eu.itesla_project.iidm.xml;
 
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
+import eu.itesla_project.commons.util.ServiceLoaderCache;
 import eu.itesla_project.iidm.network.*;
 import javanet.staxutils.IndentingXMLStreamWriter;
 import org.joda.time.DateTime;
+import org.xml.sax.SAXException;
 
+import javax.xml.XMLConstants;
 import javax.xml.stream.*;
+import javax.xml.transform.Source;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
+import javax.xml.validation.Validator;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -29,11 +37,17 @@ import java.util.List;
 public class NetworkXml implements XmlConstants {
 
     static final String NETWORK_ROOT_ELEMENT_NAME = "network";
+    private static final String EXTENSION_ELEMENT_NAME = "extension";
+    private static final String IIDM_XSD = "iidm.xsd";
 
     // cache XMLOutputFactory to improve performance
     private static final Supplier<XMLOutputFactory> XML_OUTPUT_FACTORY_SUPPLIER = Suppliers.memoize(XMLOutputFactory::newFactory);
 
     private static final Supplier<XMLInputFactory> XML_INPUT_FACTORY_SUPPLIER = Suppliers.memoize(XMLInputFactory::newInstance);
+
+    private static final Supplier<Map<String, ExtensionXml>> EXTENSIONS_SUPPLIER
+            = Suppliers.memoize(() -> new ServiceLoaderCache<>(ExtensionXml.class).getServices().stream()
+                    .collect(Collectors.toMap(extensionXml -> extensionXml.getExtensionName(), e -> e)));
 
     public static void write(Network n, Path xmlFile) throws XMLStreamException, IOException {
         write(n, new XMLExportOptions(), xmlFile);
@@ -45,17 +59,85 @@ public class NetworkXml implements XmlConstants {
         }
     }
 
-    public static void write(Network n, XMLExportOptions options, OutputStream os) throws XMLStreamException {
+    private static XMLStreamWriter createXmlStreamWriter(XMLExportOptions options, OutputStream os) throws XMLStreamException {
         XMLStreamWriter writer = XML_OUTPUT_FACTORY_SUPPLIER.get().createXMLStreamWriter(os, StandardCharsets.UTF_8.toString());
         if (options.isIndent()) {
             IndentingXMLStreamWriter indentingWriter = new IndentingXMLStreamWriter(writer);
             indentingWriter.setIndent(INDENT);
             writer = indentingWriter;
         }
+        return writer;
+    }
+
+    private static ExtensionXml findExtensionXml(String name) {
+        ExtensionXml extensionXml = EXTENSIONS_SUPPLIER.get().get(name);
+        if (extensionXml == null) {
+            throw new RuntimeException("Xml serializer not found for extension " + name);
+        }
+        return extensionXml;
+    }
+
+    private static Set<String> getNetworkExtensions(Network n) {
+        Set<String> extensions = new TreeSet<>();
+        for (Identifiable<?> identifiable : n.getIdentifiables()) {
+            for (Identifiable.Extension<? extends Identifiable<?>> extension : identifiable.getExtensions()) {
+                extensions.add(extension.getName());
+            }
+        }
+        return extensions;
+    }
+
+    private static void writeExtensionNamespaces(Network n, XMLStreamWriter writer) throws XMLStreamException {
+        Set<String> extensionUris = new HashSet<>();
+        Set<String> extensionPrefixes = new HashSet<>();
+        for (String extensionName : getNetworkExtensions(n)) {
+            ExtensionXml extensionXml = findExtensionXml(extensionName);
+            if (extensionUris.contains(extensionXml.getNamespaceUri())) {
+                throw new RuntimeException("Extension namespace URI collision");
+            } else {
+                extensionUris.add(extensionXml.getNamespaceUri());
+            }
+            if (extensionPrefixes.contains(extensionXml.getNamespacePrefix())) {
+                throw new RuntimeException("Extension namespace prefix collision");
+            } else {
+                extensionPrefixes.add(extensionXml.getNamespacePrefix());
+            }
+            writer.setPrefix(extensionXml.getNamespacePrefix(), extensionXml.getNamespaceUri());
+            writer.writeNamespace(extensionXml.getNamespacePrefix(), extensionXml.getNamespaceUri());
+        }
+    }
+
+    private static void writeExtensions(Network n, XmlWriterContext context) throws XMLStreamException {
+        for (Identifiable<?> identifiable : n.getIdentifiables()) {
+            for (Identifiable.Extension<? extends Identifiable<?>> extension : identifiable.getExtensions()) {
+                ExtensionXml extensionXml = findExtensionXml(extension.getName());
+                context.getWriter().writeStartElement(IIDM_URI, EXTENSION_ELEMENT_NAME);
+                context.getWriter().writeAttribute("id", extension.getIdentifiable().getId());
+                if (extensionXml.hasSubElements()) {
+                    context.getWriter().writeStartElement(extensionXml.getNamespaceUri(), extension.getName());
+                } else {
+                    context.getWriter().writeEmptyElement(extensionXml.getNamespaceUri(), extension.getName());
+                }
+                extensionXml.write(extension, context);
+                if (extensionXml.hasSubElements()) {
+                    context.getWriter().writeEndElement();
+                }
+                context.getWriter().writeEndElement();
+            }
+        }
+    }
+
+    public static void write(Network n, XMLExportOptions options, OutputStream os) throws XMLStreamException {
+        final XMLStreamWriter writer = createXmlStreamWriter(options, os);
         writer.writeStartDocument(StandardCharsets.UTF_8.toString(), "1.0");
+
         writer.setPrefix(IIDM_PREFIX, IIDM_URI);
         writer.writeStartElement(IIDM_URI, NETWORK_ROOT_ELEMENT_NAME);
         writer.writeNamespace(IIDM_PREFIX, IIDM_URI);
+
+        // add additional extension namespaces and check there is no collision between extensions
+        writeExtensionNamespaces(n, writer);
+
         writer.writeAttribute("id", n.getId());
         writer.writeAttribute("caseDate", n.getCaseDate().toString());
         writer.writeAttribute("forecastDistance", Integer.toString(n.getForecastDistance()));
@@ -75,23 +157,65 @@ public class NetworkXml implements XmlConstants {
                 LineXml.INSTANCE.write(l, n, context);
             }
         }
+
+        // write extensions
+        writeExtensions(n, context);
+
         writer.writeEndElement();
         writer.writeEndDocument();
     }
 
-    public static Network read(Path xmlFile) throws XMLStreamException, IOException {
+    public static Network read(Path xmlFile, XmlImportConfig config) throws XMLStreamException, SAXException, IOException {
         try (InputStream is = Files.newInputStream(xmlFile)) {
-            return read(is);
+            return read(is, config);
         }
     }
 
-    public static Network read(InputStream is) throws XMLStreamException {
+    public static Network read(Path xmlFile) throws XMLStreamException, SAXException, IOException {
+        return read(xmlFile, new XmlImportConfig());
+    }
+
+    private static void validate(Source xml, List<Source> additionalSchemas) throws SAXException, IOException {
+        SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+        Source[] sources = new Source[additionalSchemas.size() + 1];
+        sources[0] = new StreamSource(NetworkXml.class.getResourceAsStream("/xsd/" + IIDM_XSD));
+        for (int i = 0 ; i < additionalSchemas.size(); i++) {
+            sources[i+1] = additionalSchemas.get(i);
+        }
+        Schema schema = factory.newSchema(sources);
+        Validator validator = schema.newValidator();
+        validator.validate(xml);
+    }
+
+    static void validate(InputStream is) throws SAXException, IOException {
+        validate(new StreamSource(is), Collections.emptyList());
+    }
+
+    static void validate(Path file) throws SAXException, IOException {
+        try (InputStream is = Files.newInputStream(file)) {
+            validate(is);
+        }
+    }
+
+    static void validateWithExtensions(InputStream is) throws SAXException, IOException {
+        List<Source> additionalSchemas = EXTENSIONS_SUPPLIER.get().entrySet().stream()
+                .map(e -> new StreamSource(e.getValue().getXsdAsStream()))
+                .collect(Collectors.toList());
+        validate(new StreamSource(is), additionalSchemas);
+    }
+
+    public static Network read(InputStream is, XmlImportConfig config) throws XMLStreamException, SAXException, IOException {
+        // validate with schema
+        if (config.isSchemaValidation()) {
+            validateWithExtensions(is);
+        }
+
         XMLStreamReader reader = XML_INPUT_FACTORY_SUPPLIER.get().createXMLStreamReader(is);
         reader.next();
 
         String id = reader.getAttributeValue(null, "id");
         DateTime date = DateTime.parse(reader.getAttributeValue(null, "caseDate"));
-        int forecastDistance = IdentifiableXml.readOptionalIntegerAttributeValue(reader, "forecastDistance", 0);
+        int forecastDistance = XmlUtil.readOptionalIntegerAttributeValue(reader, "forecastDistance", 0);
         String sourceFormat = reader.getAttributeValue(null, "sourceFormat");
 
         Network network = NetworkFactory.create(id, sourceFormat);
@@ -114,6 +238,20 @@ public class NetworkXml implements XmlConstants {
                     TieLineXml.INSTANCE.read(reader, network, endTasks);
                     break;
 
+                case EXTENSION_ELEMENT_NAME:
+                    String id2 = reader.getAttributeValue(null, "id");
+                    Identifiable identifiable = network.getIdentifiable(id2);
+                    if (identifiable == null) {
+                        throw new RuntimeException("Identifiable " + id2 + " not found");
+                    }
+                    XmlUtil.readUntilEndElement(EXTENSION_ELEMENT_NAME, reader, () -> {
+                        String extensionName = reader.getLocalName();
+                        ExtensionXml extensionXml = findExtensionXml(extensionName);
+                        Identifiable.Extension<? extends Identifiable<?>> extension = extensionXml.read(identifiable, reader);
+                        identifiable.addExtension(extensionXml.getExtensionClass(), extension);
+                    });
+                    break;
+
                 default:
                     throw new AssertionError();
             }
@@ -122,6 +260,10 @@ public class NetworkXml implements XmlConstants {
         endTasks.forEach(Runnable::run);
 
         return network;
+    }
+
+    public static Network read(InputStream is) throws XMLStreamException, SAXException, IOException {
+        return read(is, new XmlImportConfig());
     }
 
     public static void update(Network network, Path xmlFile) throws XMLStreamException, IOException {
@@ -150,8 +292,8 @@ public class NetworkXml implements XmlConstants {
 
                 case BusXml.ROOT_ELEMENT_NAME: {
                     String id = reader.getAttributeValue(null, "id");
-                    float v = IdentifiableXml.readFloatAttribute(reader, "v");
-                    float angle = IdentifiableXml.readFloatAttribute(reader, "angle");
+                    float v = XmlUtil.readFloatAttribute(reader, "v");
+                    float angle = XmlUtil.readFloatAttribute(reader, "angle");
                     Bus b = vl[0].getBusBreakerView().getBus(id);
                     if (b == null) {
                         b = vl[0].getBusView().getBus(id);
@@ -165,8 +307,8 @@ public class NetworkXml implements XmlConstants {
                 case ShuntXml.ROOT_ELEMENT_NAME:
                 case DanglingLineXml.ROOT_ELEMENT_NAME: {
                     String id = reader.getAttributeValue(null, "id");
-                    float p = IdentifiableXml.readOptionalFloatAttribute(reader, "p");
-                    float q = IdentifiableXml.readOptionalFloatAttribute(reader, "q");
+                    float p = XmlUtil.readOptionalFloatAttribute(reader, "p");
+                    float q = XmlUtil.readOptionalFloatAttribute(reader, "q");
                     SingleTerminalConnectable inj = (SingleTerminalConnectable) network.getIdentifiable(id);
                     inj.getTerminal().setP(p).setQ(q);
                     break;
@@ -175,10 +317,10 @@ public class NetworkXml implements XmlConstants {
                 case LineXml.ROOT_ELEMENT_NAME:
                 case TwoWindingsTransformerXml.ROOT_ELEMENT_NAME: {
                     String id = reader.getAttributeValue(null, "id");
-                    float p1 = IdentifiableXml.readOptionalFloatAttribute(reader, "p1");
-                    float q1 = IdentifiableXml.readOptionalFloatAttribute(reader, "q1");
-                    float p2 = IdentifiableXml.readOptionalFloatAttribute(reader, "p2");
-                    float q2 = IdentifiableXml.readOptionalFloatAttribute(reader, "q2");
+                    float p1 = XmlUtil.readOptionalFloatAttribute(reader, "p1");
+                    float q1 = XmlUtil.readOptionalFloatAttribute(reader, "q1");
+                    float p2 = XmlUtil.readOptionalFloatAttribute(reader, "p2");
+                    float q2 = XmlUtil.readOptionalFloatAttribute(reader, "q2");
                     TwoTerminalsConnectable branch = (TwoTerminalsConnectable) network.getIdentifiable(id);
                     branch.getTerminal1().setP(p1).setQ(q1);
                     branch.getTerminal2().setP(p2).setQ(q2);

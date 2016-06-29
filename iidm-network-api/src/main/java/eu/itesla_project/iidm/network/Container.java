@@ -9,7 +9,7 @@ package eu.itesla_project.iidm.network;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface Container extends Identifiable {
+public interface Container<I extends Identifiable<I>> extends Identifiable<I> {
 
     ContainerType getContainerType();
 }

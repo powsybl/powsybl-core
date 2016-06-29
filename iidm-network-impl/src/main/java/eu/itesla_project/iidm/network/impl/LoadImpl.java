@@ -16,7 +16,7 @@ import gnu.trove.list.array.TFloatArrayList;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class LoadImpl extends ConnectableImpl implements Load {
+class LoadImpl extends ConnectableImpl<Load> implements Load {
 
     private final Ref<? extends MultiStateObject> network;
 

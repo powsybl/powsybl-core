@@ -63,7 +63,7 @@ abstract class ConnectableXml<T extends Connectable, A extends IdentifiableAdder
     protected static void readNodeOrBus(SingleTerminalConnectableAdder adder, XMLStreamReader reader) {
         String bus = reader.getAttributeValue(null, "bus");
         String connectableBus = reader.getAttributeValue(null, "connectableBus");
-        Integer node = getOptionalIntegerAttributeValue(reader, "node");
+        Integer node = XmlUtil.readOptionalIntegerAttribute(reader, "node");
         if (bus != null) {
             adder.setBus(bus);
         }
@@ -78,11 +78,11 @@ abstract class ConnectableXml<T extends Connectable, A extends IdentifiableAdder
     protected static void readNodeOrBus(TwoTerminalsConnectableAdder adder, XMLStreamReader reader) {
         String bus1 = reader.getAttributeValue(null, "bus1");
         String connectableBus1 = reader.getAttributeValue(null, "connectableBus1");
-        Integer node1 = getOptionalIntegerAttributeValue(reader, "node1");
+        Integer node1 = XmlUtil.readOptionalIntegerAttribute(reader, "node1");
         String voltageLevelId1 = reader.getAttributeValue(null, "voltageLevelId1");
         String bus2 = reader.getAttributeValue(null, "bus2");
         String connectableBus2 = reader.getAttributeValue(null, "connectableBus2");
-        Integer node2 = getOptionalIntegerAttributeValue(reader, "node2");
+        Integer node2 = XmlUtil.readOptionalIntegerAttribute(reader, "node2");
         String voltageLevelId2 = reader.getAttributeValue(null, "voltageLevelId2");
         if (bus1 != null) {
             adder.setBus1(bus1);
@@ -108,23 +108,23 @@ abstract class ConnectableXml<T extends Connectable, A extends IdentifiableAdder
 
     protected static void writePQ(Integer index, Terminal t, XMLStreamWriter writer) throws XMLStreamException {
         if (!Float.isNaN(t.getP())) {
-            writeFloat("p" + indexToString(index), t.getP(), writer);
+            XmlUtil.writeFloat("p" + indexToString(index), t.getP(), writer);
         }
         if (!Float.isNaN(t.getQ())) {
-            writeFloat("q" + indexToString(index), t.getQ(), writer);
+            XmlUtil.writeFloat("q" + indexToString(index), t.getQ(), writer);
         }
     }
 
     protected static void readPQ(Integer index, Terminal t, XMLStreamReader reader) {
-        float p = readOptionalFloatAttribute(reader, "p" + indexToString(index));
-        float q = readOptionalFloatAttribute(reader, "q" + indexToString(index));
+        float p = XmlUtil.readOptionalFloatAttribute(reader, "p" + indexToString(index));
+        float q = XmlUtil.readOptionalFloatAttribute(reader, "q" + indexToString(index));
         t.setP(p)
                 .setQ(q);
     }
 
     protected void readCurrentLimits(Integer index, Supplier<CurrentLimitsAdder> currentLimitOwner, XMLStreamReader reader) throws XMLStreamException {
         CurrentLimitsAdder adder = currentLimitOwner.get();
-        float permanentLimit = readOptionalFloatAttribute(reader, "permanentLimit");
+        float permanentLimit = XmlUtil.readOptionalFloatAttribute(reader, "permanentLimit");
         adder.setPermanentLimit(permanentLimit);
         XmlUtil.readUntilEndElement("currentLimits" + indexToString(index), reader, () -> {
             if ("temporaryLimit".equals(reader.getLocalName())) {
@@ -147,7 +147,7 @@ abstract class ConnectableXml<T extends Connectable, A extends IdentifiableAdder
             } else {
                 writer.writeStartElement(IIDM_URI, "currentLimits" + indexToString(index));
             }
-            writeFloat("permanentLimit", limits.getPermanentLimit(), writer);
+            XmlUtil.writeFloat("permanentLimit", limits.getPermanentLimit(), writer);
             for (CurrentLimits.TemporaryLimit tl : limits.getTemporaryLimits()) {
                 writer.writeStartElement(IIDM_URI, "temporaryLimit");
                 writer.writeAttribute("acceptableDuration", Integer.toString(tl.getAcceptableDuration()));

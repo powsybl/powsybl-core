@@ -213,9 +213,9 @@ public class NetworkDataExtractor {
 	
 	private static int correntStepPosition(TwoWindingsTransformer tfo) {
 		if ( tfo.getPhaseTapChanger() != null )
-			return tfo.getPhaseTapChanger().getCurrentStepPosition();
+			return tfo.getPhaseTapChanger().getTapPosition();
 		if ( tfo.getRatioTapChanger() != null )
-			return tfo.getRatioTapChanger().getCurrentStepPosition();
+			return tfo.getRatioTapChanger().getTapPosition();
 		return 0;
 	}
 		

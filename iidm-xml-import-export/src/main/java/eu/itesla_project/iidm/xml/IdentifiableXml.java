@@ -11,7 +11,6 @@ import eu.itesla_project.iidm.network.IdentifiableAdder;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.XMLStreamWriter;
 import java.util.List;
 import java.util.Properties;
 
@@ -20,16 +19,6 @@ import java.util.Properties;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 abstract class IdentifiableXml<T extends Identifiable, A extends IdentifiableAdder<A>, P extends Identifiable> implements XmlConstants {
-
-    protected static void writeFloat(String name, float value, XMLStreamWriter writer) throws XMLStreamException {
-        if (!Float.isNaN(value)) {
-            writer.writeAttribute(name, Float.toString(value));
-        }
-    }
-
-    protected static void writeInt(String name, int value, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeAttribute(name, Integer.toString(value));
-    }
 
     protected abstract String getRootElementName();
 
@@ -68,33 +57,6 @@ abstract class IdentifiableXml<T extends Identifiable, A extends IdentifiableAdd
 
     protected void readUntilEndRootElement(XMLStreamReader reader, XmlUtil.XmlEventHandler eventHandler) throws XMLStreamException {
         XmlUtil.readUntilEndElement(getRootElementName(), reader, eventHandler);
-    }
-
-    static int readIntAttribute(XMLStreamReader reader, String attributeName) {
-        return Integer.valueOf(reader.getAttributeValue(null, attributeName));
-    }
-
-    protected static boolean readBoolAttribute(XMLStreamReader reader, String attributeName) {
-        return Boolean.valueOf(reader.getAttributeValue(null, attributeName));
-    }
-
-    protected static Integer getOptionalIntegerAttributeValue(XMLStreamReader reader, String attributeName) {
-        String attributeValue = reader.getAttributeValue(null, attributeName);
-        return attributeValue != null ? Integer.valueOf(attributeValue) : null;
-    }
-
-    static int readOptionalIntegerAttributeValue(XMLStreamReader reader, String attributeName, int defaultValue) {
-        String attributeValue = reader.getAttributeValue(null, attributeName);
-        return attributeValue != null ? Integer.valueOf(attributeValue) : defaultValue;
-    }
-
-    protected static float readFloatAttribute(XMLStreamReader reader, String attributeName) {
-        return Float.valueOf(reader.getAttributeValue(null, attributeName));
-    }
-
-    protected static float readOptionalFloatAttribute(XMLStreamReader reader, String attributeName) {
-        String attributeValue = reader.getAttributeValue(null, attributeName);
-        return attributeValue != null ? Float.valueOf(attributeValue) : Float.NaN;
     }
 
     protected abstract A createAdder(P parent);

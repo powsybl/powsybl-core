@@ -16,7 +16,7 @@ import java.util.BitSet;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class GeneratorImpl extends ConnectableImpl implements Generator {
+class GeneratorImpl extends ConnectableImpl<Generator> implements Generator {
 
     private EnergySource energySource;
 

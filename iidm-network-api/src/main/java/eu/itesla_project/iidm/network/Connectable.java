@@ -13,7 +13,7 @@ import java.util.List;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface Connectable extends Identifiable {
+public interface Connectable<I extends Identifiable<I>> extends Identifiable<I> {
 
     /**
      * Get the connectable type.

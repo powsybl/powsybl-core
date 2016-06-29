@@ -10,6 +10,8 @@ import com.google.common.collect.Sets;
 import eu.itesla_project.commons.ITeslaException;
 import eu.itesla_project.iidm.network.Identifiable;
 import eu.itesla_project.iidm.network.StateManager;
+
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
@@ -77,6 +79,25 @@ public class StateManagerImplTest {
         public void allocateStateArrayElement(int[] indexes, int sourceIndex) {
         }
 
+        @Override
+        public void addExtension(Class type, Extension extension) {
+            throw new AssertionError();
+        }
+
+        @Override
+        public boolean removeExtension(Class type) {
+            throw new AssertionError();
+        }
+
+        @Override
+        public Extension getExtension(Class type) {
+            throw new AssertionError();
+        }
+
+        @Override
+        public Collection<Extension> getExtensions() {
+            throw new AssertionError();
+        }
     }
 
     public StateManagerImplTest() {
