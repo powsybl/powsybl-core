@@ -69,11 +69,7 @@ abstract class IdentifiableImpl<I extends Identifiable<I>> implements Identifiab
     @Override
     public <E extends Extension<I>> E getExtension(Class<E> type) {
         Objects.requireNonNull(type);
-        E extension = (E) extensions.get(type);
-        if (extension == null) {
-            throw new RuntimeException("Extension " + type + " not found");
-        }
-        return extension;
+        return (E) extensions.get(type);
     }
 
     @Override

@@ -18,5 +18,6 @@ public enum ConnectableType {
     GENERATOR,
     LOAD,
     SHUNT_COMPENSATOR,
-    DANGLING_LINE
+    DANGLING_LINE,
+    STATIC_VAR_COMPENSATOR
 }

@@ -9,14 +9,14 @@ package eu.itesla_project.iidm.xml;
 import com.google.auto.service.AutoService;
 import eu.itesla_project.iidm.datasource.DataSource;
 import eu.itesla_project.iidm.export.Exporter;
-import eu.itesla_project.iidm.network.*;
+import eu.itesla_project.iidm.network.Network;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Properties;
-import javax.xml.stream.XMLStreamException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * XML export of an IIDM model.<p>
@@ -102,7 +102,7 @@ public class XMLExporter implements Exporter, XmlConstants {
             }
 
             LOGGER.debug("XML export done in {} ms", (System.currentTimeMillis() - startTime));
-        } catch (XMLStreamException|IOException e) {
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }

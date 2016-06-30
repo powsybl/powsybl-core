@@ -177,6 +177,21 @@ abstract class AbstractVoltageLevel extends IdentifiableImpl<VoltageLevel> imple
     }
 
     @Override
+    public StaticVarCompensatorAdderImpl newStaticVarCompensator() {
+        return new StaticVarCompensatorAdderImpl(this);
+    }
+
+    @Override
+    public Iterable<StaticVarCompensator> getStaticVarCompensators() {
+        return getConnectables(StaticVarCompensator.class);
+    }
+
+    @Override
+    public int getStaticVarCompensatorCount() {
+        return getConnectableCount(StaticVarCompensator.class);
+    }
+
+    @Override
     protected String getTypeDescription() {
         return "Voltage level";
     }

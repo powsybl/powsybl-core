@@ -52,6 +52,7 @@ abstract class AbstractBus extends IdentifiableImpl<Bus> {
             switch (connectable.getType()) {
                 case BUSBAR_SECTION:
                 case SHUNT_COMPENSATOR:
+                case STATIC_VAR_COMPENSATOR:
                 case LINE:
                 case TWO_WINDINGS_TRANSFORMER:
                 case THREE_WINDINGS_TRANSFORMER:
@@ -89,6 +90,7 @@ abstract class AbstractBus extends IdentifiableImpl<Bus> {
                 case GENERATOR:
                 case LOAD:
                 case SHUNT_COMPENSATOR:
+                case STATIC_VAR_COMPENSATOR:
                     if (!Float.isNaN(terminal.getQ())) {
                         q += terminal.getQ();
                     }

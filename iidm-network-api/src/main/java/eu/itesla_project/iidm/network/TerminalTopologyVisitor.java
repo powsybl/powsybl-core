@@ -77,4 +77,9 @@ public abstract class TerminalTopologyVisitor extends AbstractTopologyVisitor {
     public void visitDanglingLine(DanglingLine danglingLine) {
         visitInjection(danglingLine);
     }
+
+    @Override
+    public void visitStaticVarCompensator(StaticVarCompensator staticVarCompensator) {
+        visitInjection(staticVarCompensator);
+    }
 }

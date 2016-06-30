@@ -193,6 +193,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
                     case LOAD:
                     case GENERATOR:
                     case SHUNT_COMPENSATOR:
+                    case STATIC_VAR_COMPENSATOR:
                         feederCount++;
                         break;
 
