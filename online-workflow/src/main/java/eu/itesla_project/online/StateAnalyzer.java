@@ -367,13 +367,13 @@ public class StateAnalyzer implements Callable<Void> {
 								logger.info("{}: computing post contingency violations for contingency {}", stateId, contingency.getId());
 								violations = Security.checkLimits(network, CurrentLimitType.PATL, Integer.MAX_VALUE, parameters.getLimitReduction());
 								if ( violations == null || violations.isEmpty() ) {
-									logger.info("{}: no post contingency violations for state {} and contingency {}", stateId, contingency.getId());
+									logger.info("{}: no post contingency violations for contingency {}", stateId, contingency.getId());
 									violations = new ArrayList<LimitViolation>();
 								}
 							} else {
 								logger.info("{}: post contingency loadflow does not converge for contingency {}, skipping computing post contingency violations", stateId, contingency.getId());
 							}
-							logger.info("{}: storing post contingency violations for state {} and contingency {} in online db", stateId, contingency.getId());
+							logger.info("{}: storing post contingency violations/loadflow results for contingency {} in online db", stateId, contingency.getId());
 							onlineDb.storePostContingencyViolations(context.getWorkflowId(), Integer.valueOf(stateId), contingency.getId(), loadflowConverge, violations);
 							network.getStateManager().setWorkingState(stateId);
 //							network.getStateManager().removeState(postContingencyStateId);

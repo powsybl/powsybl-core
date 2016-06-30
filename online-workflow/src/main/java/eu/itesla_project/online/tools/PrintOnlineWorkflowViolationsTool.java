@@ -96,7 +96,7 @@ public class PrintOnlineWorkflowViolationsTool implements Tool {
 			OnlineStep step = OnlineStep.valueOf(line.getOptionValue("step"));
 			List<LimitViolation> violations = onlinedb.getViolations(workflowId, stateId, step);
 			if ( violations != null && !violations.isEmpty() ) {
-				Table table = new Table(7, BorderStyle.CLASSIC_WIDE);
+				Table table = new Table(8, BorderStyle.CLASSIC_WIDE);
 				StringWriter content = new StringWriter();
 				CsvWriter cvsWriter = new CsvWriter(content, ',');
 				printHeaders(table, cvsWriter);
@@ -109,7 +109,7 @@ public class PrintOnlineWorkflowViolationsTool implements Tool {
 			Integer stateId = Integer.parseInt(line.getOptionValue("state"));
 			Map<OnlineStep, List<LimitViolation>> stateViolations = onlinedb.getViolations(workflowId, stateId);
 			if ( stateViolations != null && !stateViolations.keySet().isEmpty() ) { 
-				Table table = new Table(7, BorderStyle.CLASSIC_WIDE);
+				Table table = new Table(8, BorderStyle.CLASSIC_WIDE);
 				StringWriter content = new StringWriter();
 				CsvWriter cvsWriter = new CsvWriter(content, ',');
 				printHeaders(table, cvsWriter);
@@ -130,7 +130,7 @@ public class PrintOnlineWorkflowViolationsTool implements Tool {
 			OnlineStep step = OnlineStep.valueOf(line.getOptionValue("step"));
 			Map<Integer, List<LimitViolation>> stepViolations = onlinedb.getViolations(workflowId, step);
 			if ( stepViolations != null && !stepViolations.keySet().isEmpty() ) { 
-				Table table = new Table(7, BorderStyle.CLASSIC_WIDE);
+				Table table = new Table(8, BorderStyle.CLASSIC_WIDE);
 				StringWriter content = new StringWriter();
 				CsvWriter cvsWriter = new CsvWriter(content, ',');
 				printHeaders(table, cvsWriter);
@@ -150,7 +150,7 @@ public class PrintOnlineWorkflowViolationsTool implements Tool {
 		} else {		
 			Map<Integer, Map<OnlineStep, List<LimitViolation>>> wfViolations = onlinedb.getViolations(workflowId);
 			if ( wfViolations != null && !wfViolations.keySet().isEmpty() ) { 
-				Table table = new Table(7, BorderStyle.CLASSIC_WIDE);
+				Table table = new Table(8, BorderStyle.CLASSIC_WIDE);
 				StringWriter content = new StringWriter();
 				CsvWriter cvsWriter = new CsvWriter(content, ',');
 				printHeaders(table, cvsWriter);
@@ -179,7 +179,7 @@ public class PrintOnlineWorkflowViolationsTool implements Tool {
 	}
 	
 	private void printHeaders(Table table, CsvWriter cvsWriter) throws IOException {
-		String[] headers = new String[7];
+		String[] headers = new String[8];
 		int i = 0;
         table.addCell("State", new CellStyle(CellStyle.HorizontalAlign.center));
         headers[i++] = "State";
@@ -195,6 +195,8 @@ public class PrintOnlineWorkflowViolationsTool implements Tool {
         headers[i++] = "Limit";
         table.addCell("Limit Reduction", new CellStyle(CellStyle.HorizontalAlign.center));
         headers[i++] = "Limit Reduction";
+        table.addCell("Voltage Level", new CellStyle(CellStyle.HorizontalAlign.center));
+        headers[i++] = "Voltage Level";
         cvsWriter.writeRecord(headers);
 	}
 	
@@ -205,7 +207,7 @@ public class PrintOnlineWorkflowViolationsTool implements Tool {
 		    }
 		});
 		for (LimitViolation violation : violations) {
-			String[] values = new String[7];
+			String[] values = new String[8];
 			int i = 0;
 			table.addCell(Integer.toString(stateId), new CellStyle(CellStyle.HorizontalAlign.right));
 			values[i++] = Integer.toString(stateId);
@@ -221,6 +223,8 @@ public class PrintOnlineWorkflowViolationsTool implements Tool {
 			values[i++] = Float.toString(violation.getLimit());
 			table.addCell(Float.toString(violation.getLimitReduction()), new CellStyle(CellStyle.HorizontalAlign.right));
 			values[i++] = Float.toString(violation.getLimitReduction());
+			table.addCell(Float.toString(violation.getBaseVoltage()), new CellStyle(CellStyle.HorizontalAlign.right));
+			values[i++] = Float.toString(violation.getBaseVoltage());
 			cvsWriter.writeRecord(values);
 		}
 	}
