@@ -73,6 +73,11 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.xmlunit</groupId>
+            <artifactId>xmlunit-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>eu.itesla_project</groupId>
             <artifactId>iidm-network-test</artifactId>
             <version>${project.version}</version>
@@ -85,10 +90,11 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-		  <groupId>org.xmlunit</groupId>
-		  <artifactId>xmlunit-core</artifactId>
-		  <version>2.1.1</version>
-		   <scope>test</scope>
-		</dependency>
+            <groupId>eu.itesla_project</groupId>
+            <artifactId>commons</artifactId>
+            <version>${project.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>

@@ -44,4 +44,7 @@ public class AbstractTopologyVisitor implements TopologyVisitor {
     public void visitDanglingLine(DanglingLine danglingLine) {
     }
 
+    @Override
+    public void visitStaticVarCompensator(StaticVarCompensator staticVarCompensator) {
+    }
 }

@@ -122,6 +122,14 @@ class VoltageLevelXml extends IdentifiableXml<VoltageLevel, VoltageLevelAdder, S
                 DanglingLineXml.INSTANCE.write(dl, null, context);
             }
         }
+        if (vl.getStaticVarCompensatorCount() > 0) {
+            for (StaticVarCompensator svc : vl.getStaticVarCompensators()) {
+                if (!context.getFilter().test(svc)) {
+                    continue;
+                }
+                StaticVarCompensatorXml.INSTANCE.write(svc, null, context);
+            }
+        }
     }
 
     @Override
@@ -197,6 +205,10 @@ class VoltageLevelXml extends IdentifiableXml<VoltageLevel, VoltageLevelAdder, S
 
                 case DanglingLineXml.ROOT_ELEMENT_NAME:
                     DanglingLineXml.INSTANCE.read(reader, vl, endTasks);
+                    break;
+
+                case StaticVarCompensatorXml.ROOT_ELEMENT_NAME:
+                    StaticVarCompensatorXml.INSTANCE.read(reader, vl, endTasks);
                     break;
 
                 default:

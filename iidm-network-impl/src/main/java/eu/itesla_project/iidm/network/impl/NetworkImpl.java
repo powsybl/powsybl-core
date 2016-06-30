@@ -350,6 +350,21 @@ class NetworkImpl extends IdentifiableImpl<Network> implements Network, MultiSta
     }
 
     @Override
+    public Iterable<StaticVarCompensator> getStaticVarCompensators() {
+        return Collections.unmodifiableCollection(objectStore.getAll(StaticVarCompensatorImpl.class));
+    }
+
+    @Override
+    public int getStaticVarCompensatorCount() {
+        return objectStore.getAll(StaticVarCompensatorImpl.class).size();
+    }
+
+    @Override
+    public StaticVarCompensatorImpl getStaticVarCompensator(String id) {
+        return objectStore.get(id, StaticVarCompensatorImpl.class);
+    }
+
+    @Override
     public Identifiable<?> getIdentifiable(String id) {
         return objectStore.get(id, Identifiable.class);
     }

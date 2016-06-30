@@ -297,6 +297,23 @@ public interface Network extends Container<Network> {
     DanglingLine getDanglingLine(String id);
 
     /**
+     * Get all static var compensators.
+     */
+    Iterable<StaticVarCompensator> getStaticVarCompensators();
+
+    /**
+     * Get the static var compensator count.
+     */
+    int getStaticVarCompensatorCount();
+
+    /**
+     * Get a static var compensator.
+     *
+     * @param id the id of the static var compensator
+     */
+    StaticVarCompensator getStaticVarCompensator(String id);
+
+    /**
      * Get a equipment.
      *
      * @param id the id of the equipment

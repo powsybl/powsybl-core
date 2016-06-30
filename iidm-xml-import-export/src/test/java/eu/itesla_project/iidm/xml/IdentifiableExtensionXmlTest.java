@@ -11,9 +11,7 @@ import eu.itesla_project.iidm.network.Network;
 import eu.itesla_project.iidm.network.test.EurostagTutorialExample1Factory;
 import eu.itesla_project.iidm.network.test.LoadZipModel;
 import org.junit.Test;
-import org.xml.sax.SAXException;
 
-import javax.xml.stream.XMLStreamException;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -26,7 +24,7 @@ import static org.junit.Assert.assertTrue;
 public class IdentifiableExtensionXmlTest {
 
     @Test
-    public void test() throws XMLStreamException, IOException, SAXException {
+    public void test() throws IOException {
         Network network = EurostagTutorialExample1Factory.create();
         Load load = network.getLoad("LOAD");
         LoadZipModel zipModel = new LoadZipModel(load, 1, 2, 3, 4, 5, 6, 380);

@@ -50,11 +50,7 @@ public class IdentifiableExtensionTest {
         load.addExtension(LoadZipModel.class, zipModel);
         assertTrue(zipModel != null);
         assertTrue(load.getExtension(LoadZipModel.class) == zipModel);
-        try {
-            load.getExtension(LoadFooModel.class);
-            fail();
-        } catch (Exception e) {
-        }
+        assertTrue(load.getExtension(LoadFooModel.class) == null);
         assertTrue(load.getExtensions().size() == 1);
         assertArrayEquals(load.getExtensions().toArray(new Identifiable.Extension[0]), new Identifiable.Extension[] {zipModel});
     }

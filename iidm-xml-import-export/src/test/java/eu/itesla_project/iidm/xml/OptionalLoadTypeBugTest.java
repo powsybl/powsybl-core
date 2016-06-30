@@ -7,10 +7,6 @@
 package eu.itesla_project.iidm.xml;
 
 import org.junit.Test;
-import org.xml.sax.SAXException;
-
-import javax.xml.stream.XMLStreamException;
-import java.io.IOException;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -18,7 +14,7 @@ import java.io.IOException;
 public class OptionalLoadTypeBugTest {
 
     @Test
-    public void shouldNotThrowNullPointerExceptionTest() throws XMLStreamException, SAXException, IOException {
+    public void shouldNotThrowNullPointerExceptionTest() {
         NetworkXml.read(getClass().getResourceAsStream("/optionalLoadTypeBug.xml"));
     }
 }

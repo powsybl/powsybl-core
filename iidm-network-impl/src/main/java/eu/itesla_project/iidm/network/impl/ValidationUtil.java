@@ -229,4 +229,44 @@ public class ValidationUtil {
         }
     }
 
+    static void checkSvcRegulator(Validable validable, float voltageSetPoint, float reactivePowerSetPoint, StaticVarCompensator.RegulationMode regulationMode) {
+        if (regulationMode == null) {
+            throw new ValidationException(validable, "Regulation mode is invalid");
+        }
+        switch (regulationMode) {
+            case VOLTAGE:
+                if (Float.isNaN(voltageSetPoint)) {
+                    throw new ValidationException(validable, "invalid value (" + voltageSetPoint
+                            + ") for voltage set point");
+                }
+                break;
+
+            case REACTIVE_POWER:
+                if (Float.isNaN(reactivePowerSetPoint)) {
+                    throw new ValidationException(validable, "invalid value (" + reactivePowerSetPoint
+                            + ") for reactive power set point");
+                }
+                break;
+
+            case OFF:
+                // nothing to check
+                break;
+
+            default:
+                throw new AssertionError();
+        }
+
+    }
+
+    static void checkBmin(Validable validable, float bMin) {
+        if (Float.isNaN(bMin)) {
+            throw new ValidationException(validable, "bmin is invalid");
+        }
+    }
+
+    static void checkBmax(Validable validable, float bMax) {
+        if (Float.isNaN(bMax)) {
+            throw new ValidationException(validable, "bmax is invalid");
+        }
+    }
 }

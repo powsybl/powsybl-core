@@ -96,6 +96,7 @@
                     <xs:element name="load" minOccurs="0" maxOccurs="unbounded" type="iidm:Load"/>
                     <xs:element name="shunt" minOccurs="0" maxOccurs="unbounded" type="iidm:ShuntCompensator"/>
                     <xs:element name="danglingLine" minOccurs="0" maxOccurs="unbounded" type="iidm:DanglingLine"/>
+                    <xs:element name="staticVarCompensator" minOccurs="0" maxOccurs="unbounded" type="iidm:StaticVarCompensator"/>
                 </xs:sequence>
                 <xs:attribute name="nominalV" use="required" type="xs:float"/>
                 <xs:attribute name="topologyKind" use="required" type="iidm:TopologyKind"/>
@@ -273,6 +274,29 @@
                 <xs:attribute name="g" use="required" type="xs:float"/>
                 <xs:attribute name="b" use="required" type="xs:float"/>
                 <xs:attribute name="ucteXnodeCode" use="optional" type="iidm:nonEmptyString"/>
+                <xs:attribute name="node" use="optional" type="xs:int"/>
+                <xs:attribute name="bus" use="optional" type="iidm:nonEmptyString"/>
+                <xs:attribute name="connectableBus" use="optional" type="iidm:nonEmptyString"/>
+                <xs:attribute name="p" use="optional" type="xs:float"/>
+                <xs:attribute name="q" use="optional" type="xs:float"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:simpleType name="StaticVarCompensatorRegulationMode">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="VOLTAGE"/>
+            <xs:enumeration value="REACTIVE_POWER"/>
+            <xs:enumeration value="OFF"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:complexType name="StaticVarCompensator">
+        <xs:complexContent>
+            <xs:extension base="iidm:Identifiable">
+                <xs:attribute name="bMin" use="required" type="xs:float"/>
+                <xs:attribute name="bMax" use="required" type="xs:float"/>
+                <xs:attribute name="voltageSetPoint" use="optional" type="xs:float"/>
+                <xs:attribute name="reactivePowerSetPoint" use="optional" type="xs:float"/>
+                <xs:attribute name="regulationMode" use="required" type="iidm:StaticVarCompensatorRegulationMode"/>
                 <xs:attribute name="node" use="optional" type="xs:int"/>
                 <xs:attribute name="bus" use="optional" type="iidm:nonEmptyString"/>
                 <xs:attribute name="connectableBus" use="optional" type="iidm:nonEmptyString"/>

@@ -28,4 +28,6 @@ public interface TopologyVisitor {
 
     void visitDanglingLine(DanglingLine danglingLine);
 
+    void visitStaticVarCompensator(StaticVarCompensator staticVarCompensator);
+
 }
