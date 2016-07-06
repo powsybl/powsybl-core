@@ -97,7 +97,7 @@ public class PrintOnlineWorkflowPostContingencyViolationsTool implements Tool {
 			String contingencyId = line.getOptionValue("contingency");
 			List<LimitViolation> violations = onlinedb.getPostContingencyViolations(workflowId, stateId, contingencyId);
 			if ( violations != null && !violations.isEmpty() ) {
-				Table table = new Table(7, BorderStyle.CLASSIC_WIDE);
+				Table table = new Table(8, BorderStyle.CLASSIC_WIDE);
 				StringWriter content = new StringWriter();
 				CsvWriter cvsWriter = new CsvWriter(content, ',');
 				printHeaders(table, cvsWriter);
@@ -110,7 +110,7 @@ public class PrintOnlineWorkflowPostContingencyViolationsTool implements Tool {
 			Integer stateId = Integer.parseInt(line.getOptionValue("state"));
 			Map<String, List<LimitViolation>> stateViolations = onlinedb.getPostContingencyViolations(workflowId, stateId);
 			if ( stateViolations != null && !stateViolations.keySet().isEmpty() ) { 
-				Table table = new Table(7, BorderStyle.CLASSIC_WIDE);
+				Table table = new Table(8, BorderStyle.CLASSIC_WIDE);
 				StringWriter content = new StringWriter();
 				CsvWriter cvsWriter = new CsvWriter(content, ',');
 				printHeaders(table, cvsWriter);
@@ -131,7 +131,7 @@ public class PrintOnlineWorkflowPostContingencyViolationsTool implements Tool {
 			String contingencyId = line.getOptionValue("contingency");
 			Map<Integer, List<LimitViolation>> contingencyViolations = onlinedb.getPostContingencyViolations(workflowId, contingencyId);
 			if ( contingencyViolations != null && !contingencyViolations.keySet().isEmpty() ) { 
-				Table table = new Table(7, BorderStyle.CLASSIC_WIDE);
+				Table table = new Table(8, BorderStyle.CLASSIC_WIDE);
 				StringWriter content = new StringWriter();
 				CsvWriter cvsWriter = new CsvWriter(content, ',');
 				printHeaders(table, cvsWriter);
@@ -151,7 +151,7 @@ public class PrintOnlineWorkflowPostContingencyViolationsTool implements Tool {
 		} else {		
 			Map<Integer, Map<String, List<LimitViolation>>> wfViolations = onlinedb.getPostContingencyViolations(workflowId);
 			if ( wfViolations != null && !wfViolations.keySet().isEmpty() ) { 
-				Table table = new Table(7, BorderStyle.CLASSIC_WIDE);
+				Table table = new Table(8, BorderStyle.CLASSIC_WIDE);
 				StringWriter content = new StringWriter();
 				CsvWriter cvsWriter = new CsvWriter(content, ',');
 				printHeaders(table, cvsWriter);
@@ -180,7 +180,7 @@ public class PrintOnlineWorkflowPostContingencyViolationsTool implements Tool {
 	}
 	
 	private void printHeaders(Table table, CsvWriter cvsWriter) throws IOException {
-		String[] headers = new String[7];
+		String[] headers = new String[8];
 		int i = 0;
         table.addCell("State", new CellStyle(CellStyle.HorizontalAlign.center));
         headers[i++] = "State";
@@ -196,6 +196,8 @@ public class PrintOnlineWorkflowPostContingencyViolationsTool implements Tool {
         headers[i++] = "Limit";
         table.addCell("Limit Reduction", new CellStyle(CellStyle.HorizontalAlign.center));
         headers[i++] = "Limit Reduction";
+        table.addCell("Voltage Level", new CellStyle(CellStyle.HorizontalAlign.center));
+        headers[i++] = "Voltage Level";
         cvsWriter.writeRecord(headers);
 	}
 	
@@ -206,7 +208,7 @@ public class PrintOnlineWorkflowPostContingencyViolationsTool implements Tool {
 		    }
 		});
 		for (LimitViolation violation : violations) {
-			String[] values = new String[7];
+			String[] values = new String[8];
 			int i = 0;
 			table.addCell(Integer.toString(stateId), new CellStyle(CellStyle.HorizontalAlign.right));
 			values[i++] = Integer.toString(stateId);
@@ -222,6 +224,8 @@ public class PrintOnlineWorkflowPostContingencyViolationsTool implements Tool {
 			values[i++] = Float.toString(violation.getLimit());
 			table.addCell(Float.toString(violation.getLimitReduction()), new CellStyle(CellStyle.HorizontalAlign.right));
 			values[i++] = Float.toString(violation.getLimitReduction());
+			table.addCell(Float.toString(violation.getBaseVoltage()), new CellStyle(CellStyle.HorizontalAlign.right));
+			values[i++] = Float.toString(violation.getBaseVoltage());
 			cvsWriter.writeRecord(values);
 		}
 	}

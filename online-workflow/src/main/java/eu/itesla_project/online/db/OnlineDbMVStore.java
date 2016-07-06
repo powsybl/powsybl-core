@@ -1380,7 +1380,7 @@ public class OnlineDbMVStore implements OnlineDb {
 		storePSLoadflowConvergence(workflowId, stateIdStr, contingencyId, loadflowConverge);
 	}
 
-	private void storePCViolationsMetadata(String workflowId, String stateId, String contingencyId, List<LimitViolation> violations) {
+	private synchronized void storePCViolationsMetadata(String workflowId, String stateId, String contingencyId, List<LimitViolation> violations) {
 		try {
 			MVStore wfMVStore = getStore(workflowId);
 			
@@ -1396,7 +1396,14 @@ public class OnlineDbMVStore implements OnlineDb {
 			storedStatesMap.putIfAbsent(stateId, "1");
 			// save info about stored contingencies per state
 			MVMap<String, String> stateContingencyMap = wfMVStore.openMap(stateId + STORED_PC_VIOLATIONS_CONTINGENCIES_MAP_SUFFIX, mapBuilder);
-			stateContingencyMap.putIfAbsent(contingencyId, "");				
+			LOGGER.info("storePCViolationsMetadata: Adding contingency {} to map {} for workflow {}, state {}", 
+					contingencyId,
+					stateId + STORED_PC_VIOLATIONS_CONTINGENCIES_MAP_SUFFIX, 
+					workflowId, 
+					stateId
+					);
+			//stateContingencyMap.putIfAbsent(contingencyId, "");				
+			stateContingencyMap.put(contingencyId, "");
 			
 			wfMVStore.commit();
 		} catch(Throwable e) {
@@ -1406,7 +1413,7 @@ public class OnlineDbMVStore implements OnlineDb {
 		}
 	}
 	
-	private void storePSLoadflowConvergence(String workflowId, String stateId, String contingencyId, boolean loadflowConverge) {
+	private synchronized void storePSLoadflowConvergence(String workflowId, String stateId, String contingencyId, boolean loadflowConverge) {
 		try {
 			MVStore wfMVStore = getStore(workflowId);
 			
@@ -1422,7 +1429,14 @@ public class OnlineDbMVStore implements OnlineDb {
 			storedStatesMap.putIfAbsent(stateId, "1");
 			// save info about stored contingencies per state
 			MVMap<String, String> stateContingencyMap = wfMVStore.openMap(stateId + STORED_PC_LOADFLOW_CONTINGENCIES_MAP_SUFFIX, mapBuilder);
-			stateContingencyMap.putIfAbsent(contingencyId, Boolean.toString(loadflowConverge));				
+			LOGGER.info("storePSLoadflowConvergence: Adding contingency {} to map {} for workflow {}, state {}", 
+					contingencyId,
+					stateId + STORED_PC_LOADFLOW_CONTINGENCIES_MAP_SUFFIX, 
+					workflowId, 
+					stateId
+					);
+			//stateContingencyMap.putIfAbsent(contingencyId, Boolean.toString(loadflowConverge));				
+			stateContingencyMap.put(contingencyId, Boolean.toString(loadflowConverge));
 			
 			wfMVStore.commit();
 		} catch(Throwable e) {
