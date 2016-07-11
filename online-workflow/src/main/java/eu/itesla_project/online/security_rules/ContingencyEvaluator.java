@@ -7,6 +7,16 @@
  */
 package eu.itesla_project.online.security_rules;
 
+import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import eu.itesla_project.iidm.network.Network;
 import eu.itesla_project.modules.contingencies.Contingency;
 import eu.itesla_project.modules.histo.HistoDbAttributeId;
@@ -15,11 +25,6 @@ import eu.itesla_project.modules.online.RulesFacadeResults;
 import eu.itesla_project.modules.online.StateStatus;
 import eu.itesla_project.modules.rules.SecurityRule;
 import eu.itesla_project.modules.securityindexes.SecurityIndexType;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.*;
 
 /**
  *
@@ -33,16 +38,26 @@ public class ContingencyEvaluator {
 	private final List<SecurityRule> mcRules;
 	private final double purityThreshold;
 	private List<SecurityRule> wcaRules = new ArrayList<SecurityRule>();
-
-	public ContingencyEvaluator(Contingency contingency, List<SecurityRule> mcRules, double purityThreshold) {
+	private Map<SecurityIndexType, List<String>> mcViolatedEquipment = new HashMap<>();
+	private Map<SecurityIndexType, List<String>> wcaViolatedEquipment = new HashMap<>();
+	private final boolean checkRules;
+	private List<SecurityIndexType> bacecaseInvalidMcRulesIndexes = new ArrayList<SecurityIndexType>();
+	private List<SecurityIndexType> bacecaseInvalidWcaRulesIndexes = new ArrayList<SecurityIndexType>();
+	
+	public ContingencyEvaluator(Contingency contingency, List<SecurityRule> mcRules, double purityThreshold, Map<SecurityIndexType, 
+								List<String>> mcViolatedEquipment, boolean checkRules) {
 		Objects.requireNonNull(contingency, "contingency is null");
 		Objects.requireNonNull(mcRules, "mc rules is null");
 		this.contingency = contingency;
 		this.mcRules = mcRules;
 		this.purityThreshold = purityThreshold;
+		this.mcViolatedEquipment = mcViolatedEquipment;
+		this.checkRules = checkRules;
 	}
 	
-	public ContingencyEvaluator(Contingency contingency, List<SecurityRule> mcRules, List<SecurityRule> wcaRules, double purityThreshold) {
+	public ContingencyEvaluator(Contingency contingency, List<SecurityRule> mcRules, List<SecurityRule> wcaRules, double purityThreshold,
+								Map<SecurityIndexType, List<String>> mcViolatedEquipment, Map<SecurityIndexType, List<String>> wcaViolatedEquipment,
+								boolean checkRules) {
 		Objects.requireNonNull(contingency, "contingency is null");
 		Objects.requireNonNull(mcRules, "mc rules is null");
 		Objects.requireNonNull(wcaRules, "wca rules is null");
@@ -50,6 +65,9 @@ public class ContingencyEvaluator {
 		this.mcRules = mcRules;
 		this.wcaRules = wcaRules;
 		this.purityThreshold = purityThreshold;
+		this.mcViolatedEquipment = mcViolatedEquipment;
+		this.wcaViolatedEquipment = wcaViolatedEquipment;
+		this.checkRules = checkRules;
 	}
 
 	public Contingency getContingency() {
@@ -57,33 +75,40 @@ public class ContingencyEvaluator {
 	}
 
 	public RulesFacadeResults evaluate(Network network) {
-		return evaluate(network, mcRules);
+		return evaluate(network, mcRules, bacecaseInvalidMcRulesIndexes);
 	}
 	
 	public RulesFacadeResults evaluate(String networkId, String stateId, Map<HistoDbAttributeId, Object> networkValues) {
-		return evaluate(networkId, stateId, networkValues, mcRules);
+		return evaluate(networkId, stateId, networkValues, mcRules, bacecaseInvalidMcRulesIndexes);
 	}
 	
 	public RulesFacadeResults wcaEvaluate(Network network) {
-		return evaluate(network, wcaRules);
+		return evaluate(network, wcaRules, bacecaseInvalidWcaRulesIndexes);
 	}
 	
 	public RulesFacadeResults wcaEvaluate(String networkId, String stateId, Map<HistoDbAttributeId, Object> networkValues) {
-		return evaluate(networkId, stateId, networkValues, wcaRules);
+		return evaluate(networkId, stateId, networkValues, wcaRules, bacecaseInvalidWcaRulesIndexes);
 	}
 	
-	private RulesFacadeResults evaluate(Network network, List<SecurityRule> rules) {
+	private RulesFacadeResults evaluate(Network network, List<SecurityRule> rules, List<SecurityIndexType> bacecaseInvalidRulesIndexes) {
 		Objects.requireNonNull(network, "network is null");
 		HashMap<HistoDbAttributeId, Object> networkValues = IIDM2DB.extractCimValues(network, new IIDM2DB.Config(null, true)).getSingleValueMap();
-		return evaluate(network.getId(), network.getStateManager().getWorkingStateId(), networkValues, rules);
+		return evaluate(network.getId(), network.getStateManager().getWorkingStateId(), networkValues, rules, bacecaseInvalidRulesIndexes);
 	}
 
-	private RulesFacadeResults evaluate(String networkId, String stateId, Map<HistoDbAttributeId, Object> networkValues, List<SecurityRule> rules) {
+	private RulesFacadeResults evaluate(String networkId, String stateId, Map<HistoDbAttributeId, Object> networkValues, List<SecurityRule> rules,
+										List<SecurityIndexType> bacecaseInvalidRulesIndexes) {
 		Objects.requireNonNull(networkValues, "networkValues is null");
 		LOGGER.info("Evaluating {} network, {} state, {} contingency", networkId, stateId, contingency.getId());
 		StateStatus stateStatus = StateStatus.SAFE;
+		List<SecurityIndexType> invalidRulesIndexes = new ArrayList<SecurityIndexType>();
 		boolean staticIndexUnsafe = false;
 		boolean dynamicIndexUnsafe = false;
+		if ( checkRules ) {
+			checkRules(rules, invalidRulesIndexes, bacecaseInvalidRulesIndexes);
+			if ( "0".equals(stateId) )
+				bacecaseInvalidRulesIndexes = invalidRulesIndexes; // keep for samples evaluation -> rules invalid on basecase are invalid for all samples
+ 		}
 		Map<SecurityIndexType, StateStatus> indexesResults = new EnumMap<>(SecurityIndexType.class);
 		for (SecurityRule rule : rules) {
 			boolean safe = rule.toExpression(purityThreshold).check(networkValues).isSafe();
@@ -106,7 +131,13 @@ public class ContingencyEvaluator {
 			stateStatus = StateStatus.SAFE_WITH_CORRECTIVE_ACTIONS;
         }
 		LOGGER.info("Result on {} network, {} state, {} contingency: {}", networkId, stateId, contingency.getId(), stateStatus);
-		return new RulesFacadeResults(stateId, contingency.getId(), stateStatus, indexesResults);
+		return new RulesFacadeResults(stateId, contingency.getId(), stateStatus, indexesResults, invalidRulesIndexes, !rules.isEmpty());
+	}
+	
+	private void checkRules(List<SecurityRule> rules, List<SecurityIndexType> invalidRulesIndexes,
+							List<SecurityIndexType> bacecaseInvalidRulesIndexes) {
+		// TODO: check if the rules are still valid, using the violations
+		// and keeping into account the rules invalid on basecase
 	}
 
 }

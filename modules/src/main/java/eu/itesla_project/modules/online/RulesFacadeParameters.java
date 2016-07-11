@@ -24,14 +24,16 @@ public class RulesFacadeParameters {
 	private final double purityThreshold;
 	private final Set<SecurityIndexType> securityIndexTypes; // all security index types if null
 	private final boolean wcaRules;
+	private final boolean checkRules;
 
 	public RulesFacadeParameters(String offlineWorkflowId, List<Contingency> contingencies, double purityThreshold, 
-								   Set<SecurityIndexType> securityIndexTypes, boolean wcaRules) {
+								 Set<SecurityIndexType> securityIndexTypes, boolean wcaRules, boolean checkRules) {
         this.offlineWorkflowId = offlineWorkflowId;
 		this.contingencies = contingencies;
 		this.purityThreshold = purityThreshold;
 		this.securityIndexTypes = securityIndexTypes;
 		this.wcaRules = wcaRules;
+		this.checkRules = checkRules;
 	}
 
     public String getOfflineWorkflowId() {
@@ -53,4 +55,9 @@ public class RulesFacadeParameters {
 	public boolean wcaRules() {
 		return wcaRules;
 	}
+	
+	public boolean isCheckRules() {
+		return checkRules;
+	}
+
 }

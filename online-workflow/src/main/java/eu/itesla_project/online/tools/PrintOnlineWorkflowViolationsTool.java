@@ -1,19 +1,22 @@
 /**
  * Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+ * Copyright (c) 2016, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 package eu.itesla_project.online.tools;
 
-import com.csvreader.CsvWriter;
-import com.google.auto.service.AutoService;
-import eu.itesla_project.commons.tools.Command;
-import eu.itesla_project.commons.tools.Tool;
-import eu.itesla_project.modules.online.OnlineConfig;
-import eu.itesla_project.modules.online.OnlineDb;
-import eu.itesla_project.modules.online.OnlineStep;
-import eu.itesla_project.modules.security.LimitViolation;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
@@ -21,9 +24,17 @@ import org.nocrala.tools.texttablefmt.BorderStyle;
 import org.nocrala.tools.texttablefmt.CellStyle;
 import org.nocrala.tools.texttablefmt.Table;
 
-import java.io.IOException;
-import java.io.StringWriter;
-import java.util.*;
+import com.csvreader.CsvWriter;
+import com.google.auto.service.AutoService;
+
+import eu.itesla_project.commons.tools.Command;
+import eu.itesla_project.commons.tools.Tool;
+import eu.itesla_project.modules.online.OnlineConfig;
+import eu.itesla_project.modules.online.OnlineDb;
+import eu.itesla_project.modules.online.OnlineStep;
+import eu.itesla_project.modules.security.LimitViolation;
+import eu.itesla_project.modules.security.LimitViolationFilter;
+import eu.itesla_project.modules.security.LimitViolationType;
 
 /**
  *
@@ -68,6 +79,11 @@ public class PrintOnlineWorkflowViolationsTool implements Tool {
 	                .hasArg()
 	                .argName("STEP")
 	                .build());
+			options.addOption(Option.builder().longOpt("type")
+	                .desc("sub list of violations types (CURRENT, HIGH_VOLTAGE, LOW_VOLTAGE) to use")
+	                .hasArg()
+	                .argName("VIOLATION_TYPE,VIOLATION_TYPE,...")
+	                .build());
 			options.addOption(Option.builder().longOpt("csv")
 	                .desc("export in csv format")
 	                .build());
@@ -91,6 +107,13 @@ public class PrintOnlineWorkflowViolationsTool implements Tool {
 		OnlineConfig config = OnlineConfig.load();
 		OnlineDb onlinedb = config.getOnlineDbFactoryClass().newInstance().create();
 		String workflowId = line.getOptionValue("workflow");
+		LimitViolationFilter violationsFilter = null;
+		if (line.hasOption("type")) {
+			Set<LimitViolationType> limitViolationTypes = Arrays.stream(line.getOptionValue("type").split(","))
+                    .map(LimitViolationType::valueOf)
+                    .collect(Collectors.toSet());
+			violationsFilter = new LimitViolationFilter(limitViolationTypes, 0);
+		}
 		if ( line.hasOption("state") && line.hasOption("step")) {
 			Integer stateId = Integer.parseInt(line.getOptionValue("state"));
 			OnlineStep step = OnlineStep.valueOf(line.getOptionValue("step"));
@@ -100,7 +123,7 @@ public class PrintOnlineWorkflowViolationsTool implements Tool {
 				StringWriter content = new StringWriter();
 				CsvWriter cvsWriter = new CsvWriter(content, ',');
 				printHeaders(table, cvsWriter);
-				printValues(table, cvsWriter, stateId, step, violations);
+				printValues(table, cvsWriter, stateId, step, violations, violationsFilter);
 				printOutput(table, content, line.hasOption("csv"));
 				cvsWriter.close();
 			} else
@@ -118,7 +141,7 @@ public class PrintOnlineWorkflowViolationsTool implements Tool {
 				for(OnlineStep step : steps) {
 					List<LimitViolation> violations = stateViolations.get(step);
 					if ( violations != null && !violations.isEmpty() ) {
-						printValues(table, cvsWriter, stateId, step, violations);
+						printValues(table, cvsWriter, stateId, step, violations, violationsFilter);
 					}
 				}
 				cvsWriter.flush();
@@ -139,7 +162,7 @@ public class PrintOnlineWorkflowViolationsTool implements Tool {
 				for(Integer stateId : stateIds) {
 					List<LimitViolation> violations = stepViolations.get(stateId);
 					if ( violations != null && !violations.isEmpty() ) {
-						printValues(table, cvsWriter, stateId, step, violations);
+						printValues(table, cvsWriter, stateId, step, violations, violationsFilter);
 					}
 				}
 				cvsWriter.flush();
@@ -164,7 +187,7 @@ public class PrintOnlineWorkflowViolationsTool implements Tool {
 						for(OnlineStep step : steps) {
 							List<LimitViolation> violations = stateViolations.get(step);
 							if ( violations != null && !violations.isEmpty() ) {
-								printValues(table, cvsWriter, stateId, step, violations);
+								printValues(table, cvsWriter, stateId, step, violations, violationsFilter);
 							}
 						}
 					}
@@ -200,7 +223,10 @@ public class PrintOnlineWorkflowViolationsTool implements Tool {
         cvsWriter.writeRecord(headers);
 	}
 	
-	private void printValues(Table table, CsvWriter cvsWriter, Integer stateId, OnlineStep step, List<LimitViolation> violations) throws IOException {
+	private void printValues(Table table, CsvWriter cvsWriter, Integer stateId, OnlineStep step, List<LimitViolation> violations, 
+							 LimitViolationFilter violationsFilter) throws IOException {
+		if ( violationsFilter != null )
+			violations = violationsFilter.apply(violations);
 		Collections.sort(violations, new Comparator<LimitViolation>() {
 		    public int compare(LimitViolation o1, LimitViolation o2) {
 		        return o1.getSubject().getId().compareTo(o2.getSubject().getId());

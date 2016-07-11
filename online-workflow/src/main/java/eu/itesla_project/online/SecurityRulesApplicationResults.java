@@ -1,5 +1,6 @@
 /**
  * Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+ * Copyright (c) 2016, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -47,14 +48,14 @@ public class SecurityRulesApplicationResults implements OnlineWorkflowRulesResul
 	}
 	
 	
-	public void addStateWithSecurityRulesResults(String contingencyId, Integer stateId, StateStatus stateStatus, Map<SecurityIndexType, StateStatus> securityRulesResults) {
+	public void addStateWithSecurityRulesResults(String contingencyId, Integer stateId, StateStatus stateStatus, Map<SecurityIndexType, StateStatus> securityRulesResults,
+												 boolean rulesAvailable, List<SecurityIndexType> invalidRules) {
 		StatesWithSecurityRulesResults statesWithSecurityRulesResults = new StatesWithSecurityRulesResults();
 		if ( contingenciesWithSecurityRulesResults.containsKey(contingencyId) ) {
 			statesWithSecurityRulesResults = contingenciesWithSecurityRulesResults.get(contingencyId);
 		}
-		statesWithSecurityRulesResults.addState(stateId, stateStatus, securityRulesResults);
+		statesWithSecurityRulesResults.addState(stateId, stateStatus, securityRulesResults, rulesAvailable, invalidRules);
 		contingenciesWithSecurityRulesResults.put(contingencyId, statesWithSecurityRulesResults);
-		
 	}
 	
 	@Override
@@ -102,6 +103,22 @@ public class SecurityRulesApplicationResults implements OnlineWorkflowRulesResul
 		return contingenciesWithSecurityRulesResults.get(contingencyId);
 	}
 	
+	@Override
+	public boolean areValidRulesAvailable(String contingencyId, Integer stateId) {
+		boolean rulesAvailable = false;
+		if ( contingenciesWithSecurityRulesResults.containsKey(contingencyId) )
+			rulesAvailable = contingenciesWithSecurityRulesResults.get(contingencyId).getRulesAvailability(stateId);
+		return rulesAvailable;
+	}
+
+	@Override
+	public List<SecurityIndexType> getInvalidRules(String contingencyId, Integer stateId) {
+		List<SecurityIndexType> invalidRules = new ArrayList<SecurityIndexType>();
+		if ( contingenciesWithSecurityRulesResults.containsKey(contingencyId) )
+			invalidRules = contingenciesWithSecurityRulesResults.get(contingencyId).getInvalidRules(stateId);
+		return invalidRules;
+	}
+	
 	public String toString() {
 		String output = "time horizon: "+ timeHorizon.getName();
 		output += "\n" + "contingencies with security rules results: " + getContingenciesWithSecurityRulesResults();
@@ -116,27 +133,42 @@ public class SecurityRulesApplicationResults implements OnlineWorkflowRulesResul
 		Map<Integer, Map<SecurityIndexType, StateStatus>> states = new HashMap<Integer, Map<SecurityIndexType, StateStatus>>();
 		// <stateId, state status>
 		Map<Integer, StateStatus> statesStatus = new HashMap<Integer, StateStatus>();
+		// <stateId, available rules flag>
+		Map<Integer, Boolean> statesWithRules = new HashMap<Integer, Boolean>();
+		// <stateId, list of invalid rules>
+		Map<Integer, List<SecurityIndexType>> statesWithInvalidRules = new HashMap<Integer, List<SecurityIndexType>>();
 		
-		public boolean addState(Integer stateId, StateStatus stateStatus, Map<SecurityIndexType, StateStatus> securityRulesResults) {
+		boolean addState(Integer stateId, StateStatus stateStatus, Map<SecurityIndexType, StateStatus> securityRulesResults,
+								Boolean rulesAvailable, List<SecurityIndexType> invalidRules) {
 			boolean added = false;
 			if ( !states.containsKey(stateId) && !statesStatus.containsKey(stateId) ) {
 				states.put(stateId, securityRulesResults);
 				statesStatus.put(stateId, stateStatus);
+				statesWithRules.put(stateId, rulesAvailable);
+				statesWithInvalidRules.put(stateId, invalidRules);
 				added = true;
 			}
 			return added;
 		}
 		
-		public Set<Integer> getStates() {
+		Set<Integer> getStates() {
 			return states.keySet();
 		}
 		
-		public Map<SecurityIndexType, StateStatus> getSecurityRulesResults(Integer stateId) {
+		Map<SecurityIndexType, StateStatus> getSecurityRulesResults(Integer stateId) {
 			return states.get(stateId);
 		}
 		
-		public StateStatus getStateStatus(Integer stateId) {
+		StateStatus getStateStatus(Integer stateId) {
 			return statesStatus.get(stateId);
+		}
+		
+		boolean getRulesAvailability(Integer stateId) {
+			return statesWithRules.get(stateId);
+		}
+		
+		List<SecurityIndexType> getInvalidRules(Integer stateId) {
+			return statesWithInvalidRules.get(stateId);
 		}
 		
 		public String toString() {

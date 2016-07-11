@@ -1,5 +1,6 @@
 /**
  * Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+ * Copyright (c) 2016, RTE (http://www.rte-france.com
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -98,6 +99,8 @@ public class OnlineDbMVStore implements OnlineDb {
 	private static final String STORED_RULES_RESULTS_MAP_NAME = "wfRulesResults";
 	private static final String STORED_RULES_RESULTS_STATE_RESULTS_MAP_SUFFIX = "_rulesresults";
 	private static final String STORED_RULES_RESULTS_STATE_STATUS_MAP_SUFFIX = "_rulesstatus";
+	private static final String STORED_RULES_RESULTS_STATE_RULES_AVAILABLE_MAP_SUFFIX = "_rulesavailable";
+	private static final String STORED_RULES_RESULTS_STATE_INVALID_RULES_MAP_SUFFIX = "_rulesinvalid";
 	private static final String STORED_RULES_RESULTS_CONTINGENCIES_WITH_RULES_KEY = "contingiencies_with_rules";
 	private static final String STORED_WCA_RESULTS_MAP_NAME = "wfWcaResults";
 	private static final String STORED_WCA_RESULTS_CLUSTERS_MAP_NAME = "contingencies_wcaclusters";
@@ -117,6 +120,8 @@ public class OnlineDbMVStore implements OnlineDb {
 	private static final String STORED_PARAMETERS_COUNTRIES_KEY = "countries";
 	private static final String STORED_PARAMETERS_MERGE_OPTIMIZED_KEY = "merge_optimized";
 	private static final String STORED_PARAMETERS_LIMIT_REDUCTION_KEY = "limit_reduction";
+	private static final String STORED_PARAMETERS_HANDLE_VIOLATIONS_KEY = "handle_violations";
+	private static final String STORED_PARAMETERS_CONSTRAINT_MARGIN_KEY = "constraint_margin";
 	private static final String STORED_STATES_PROCESSING_STATUS_MAP_NAME = "statesProcessingStatus";
 	private static final String STORED_STATES_LIST_KEY = "states";
 	private static final String STORED_STATES_STATE_DETAILS_KEY = "stateStatusDetails";
@@ -140,6 +145,8 @@ public class OnlineDbMVStore implements OnlineDb {
 	private static final String STORED_WCA_RULES_RESULTS_MAP_NAME = "wfWcaRulesResults";
 	private static final String STORED_WCA_RULES_RESULTS_STATE_RESULTS_MAP_SUFFIX = "_wcarulesresults";
 	private static final String STORED_WCA_RULES_RESULTS_STATE_STATUS_MAP_SUFFIX = "_wcarulesstatus";
+	private static final String STORED_WCA_RULES_RESULTS_STATE_RULES_AVAILABLE_MAP_SUFFIX = "_wcarulesavailable";
+	private static final String STORED_WCA_RULES_RESULTS_STATE_INVALID_RULES_MAP_SUFFIX = "_wcarulesinvalid";
 	private static final String SERIALIZED_STATES_FILENAME = "network-states.csv";	
 	
 	
@@ -601,6 +608,8 @@ public class OnlineDbMVStore implements OnlineDb {
 		for (String contingencyId : results.getContingenciesWithSecurityRulesResults()) {
 			MVMap<String, String> storedStateStatusMap = wfMVStore.openMap(contingencyId + STORED_RULES_RESULTS_STATE_STATUS_MAP_SUFFIX, mapBuilder);
 			MVMap<String, String> storedStateResultsMap = wfMVStore.openMap(contingencyId + STORED_RULES_RESULTS_STATE_RESULTS_MAP_SUFFIX, mapBuilder);
+			MVMap<String, String> storedStateAvailableRulesMap = wfMVStore.openMap(contingencyId + STORED_RULES_RESULTS_STATE_RULES_AVAILABLE_MAP_SUFFIX, mapBuilder);
+			MVMap<String, String> storedStateInvalidRulesMap = wfMVStore.openMap(contingencyId + STORED_RULES_RESULTS_STATE_INVALID_RULES_MAP_SUFFIX, mapBuilder);
 			for (Integer stateId : results.getStatesWithSecurityRulesResults(contingencyId)) {
 				// store state status
 				StateStatus status = results.getStateStatus(contingencyId, stateId);
@@ -608,6 +617,12 @@ public class OnlineDbMVStore implements OnlineDb {
 				// store state rules results
 				Map<String, Boolean> stateResults = results.getStateResults(contingencyId, stateId);
 				storedStateResultsMap.put(stateId.toString(), OnlineDbMVStoreUtils.indexesDataToJson(stateResults));
+				// store state rules available flag
+				boolean rulesAvalable = results.areValidRulesAvailable(contingencyId, stateId);
+				storedStateAvailableRulesMap.put(stateId.toString(), Boolean.toString(rulesAvalable));
+				// store state invalid rules
+				List<SecurityIndexType> invalidRules = results.getInvalidRules(contingencyId, stateId);
+				storedStateInvalidRulesMap.put(stateId.toString(), OnlineDbMVStoreUtils.indexesTypesToJson(new HashSet<SecurityIndexType>(invalidRules)));
 			}
 		}
 		wfMVStore.commit();
@@ -624,6 +639,10 @@ public class OnlineDbMVStore implements OnlineDb {
 			wfMVStore.removeMap(storedStateStatusMap);
 			MVMap<String, String> storedStateResultsMap = wfMVStore.openMap(contingencyId + STORED_RULES_RESULTS_STATE_RESULTS_MAP_SUFFIX, mapBuilder);
 			wfMVStore.removeMap(storedStateResultsMap);
+			MVMap<String, String> storedStateAvailableRulesMap = wfMVStore.openMap(contingencyId + STORED_RULES_RESULTS_STATE_RULES_AVAILABLE_MAP_SUFFIX, mapBuilder);
+			wfMVStore.removeMap(storedStateAvailableRulesMap);
+			MVMap<String, String> storedStateInvalidRulesMap = wfMVStore.openMap(contingencyId + STORED_RULES_RESULTS_STATE_INVALID_RULES_MAP_SUFFIX, mapBuilder);
+			wfMVStore.removeMap(storedStateInvalidRulesMap);
 		}
 		// remove info about stored rules results
 		wfMVStore.removeMap(storedRulesResultsMap);
@@ -649,10 +668,19 @@ public class OnlineDbMVStore implements OnlineDb {
 				for (String contingencyId : contingenciesWithRules) {
 					MVMap<String, String> storedStateStatusMap = wfMVStore.openMap(contingencyId + STORED_RULES_RESULTS_STATE_STATUS_MAP_SUFFIX, mapBuilder);
 					MVMap<String, String> storedStateResultsMap = wfMVStore.openMap(contingencyId + STORED_RULES_RESULTS_STATE_RESULTS_MAP_SUFFIX, mapBuilder);
+					MVMap<String, String> storedStateAvailableRulesMap = wfMVStore.openMap(contingencyId + STORED_RULES_RESULTS_STATE_RULES_AVAILABLE_MAP_SUFFIX, mapBuilder);
+					MVMap<String, String> storedStateInvalidRulesMap = wfMVStore.openMap(contingencyId + STORED_RULES_RESULTS_STATE_INVALID_RULES_MAP_SUFFIX, mapBuilder);
 					for (String stateId : storedStateStatusMap.keySet()) {
 						Map<String, Boolean> stateResults = OnlineDbMVStoreUtils.jsonToIndexesData(storedStateResultsMap.get(stateId));
 						StateStatus stateStatus = StateStatus.valueOf(storedStateStatusMap.get(stateId));
-						wfRulesResults.addContingencyWithSecurityRulesResults(contingencyId, Integer.parseInt(stateId), stateStatus, stateResults);
+						boolean rulesAvailable = true;
+						if ( storedStateAvailableRulesMap.containsKey(stateId) )
+							rulesAvailable = Boolean.parseBoolean(storedStateAvailableRulesMap.get(stateId));
+						List<SecurityIndexType> invalidRules = new ArrayList<SecurityIndexType>();
+						if ( storedStateInvalidRulesMap.containsKey(stateId) )
+							invalidRules.addAll(OnlineDbMVStoreUtils.jsonToIndexesTypes(storedStateInvalidRulesMap.get(stateId)));
+						wfRulesResults.addContingencyWithSecurityRulesResults(contingencyId, Integer.parseInt(stateId), stateStatus, stateResults,
+																			  rulesAvailable, invalidRules);
 					}
 				}
 				return wfRulesResults;
@@ -778,6 +806,10 @@ public class OnlineDbMVStore implements OnlineDb {
 		storedParametersMap.put(STORED_PARAMETERS_MERGE_OPTIMIZED_KEY, Boolean.toString(parameters.isMergeOptimized()));
 		// store merge optimized flag
 		storedParametersMap.put(STORED_PARAMETERS_LIMIT_REDUCTION_KEY, Float.toString(parameters.getLimitReduction()));
+		// store handle violations in N flag
+		storedParametersMap.put(STORED_PARAMETERS_HANDLE_VIOLATIONS_KEY, Boolean.toString(parameters.isHandleViolationsInN()));
+		// store merge constraint margin
+		storedParametersMap.put(STORED_PARAMETERS_CONSTRAINT_MARGIN_KEY, Float.toString(parameters.getConstraintMargin()));
 
 		wfMVStore.commit();
 	}
@@ -824,6 +856,12 @@ public class OnlineDbMVStore implements OnlineDb {
 		       float limitReduction = OnlineWorkflowParameters.DEFAULT_LIMIT_REDUCTION;
 		       if ( storedParametersMap.containsKey(STORED_PARAMETERS_LIMIT_REDUCTION_KEY))
 		    	   limitReduction = Float.parseFloat(storedParametersMap.get(STORED_PARAMETERS_LIMIT_REDUCTION_KEY));
+		       boolean handleViolations = OnlineWorkflowParameters.DAFAULT_HANDLE_VIOLATIONS_IN_N;
+		       if ( storedParametersMap.containsKey(STORED_PARAMETERS_HANDLE_VIOLATIONS_KEY))
+		    	   handleViolations = Boolean.parseBoolean(storedParametersMap.get(STORED_PARAMETERS_HANDLE_VIOLATIONS_KEY));
+		       float constraintMargin = OnlineWorkflowParameters.DEFAULT_CONSTRAINT_MARGIN;
+		       if ( storedParametersMap.containsKey(STORED_PARAMETERS_CONSTRAINT_MARGIN_KEY))
+		    	   constraintMargin = Float.parseFloat(storedParametersMap.get(STORED_PARAMETERS_CONSTRAINT_MARGIN_KEY));
 		        
 		       return new OnlineWorkflowParameters(baseCaseDate, 
 		    		   							   states,
@@ -839,7 +877,9 @@ public class OnlineDbMVStore implements OnlineDb {
 		    		   							   caseType,
 		    		   							   countries,
 		    		   							   mergeOptimized,
-		    		   							   limitReduction
+		    		   							   limitReduction,
+		    		   							   handleViolations,
+		    		   							   constraintMargin
 		    		   							   );
 			} else {
 				LOGGER.warn("No configuration parameters of wf {} stored in online db", workflowId);
@@ -1168,17 +1208,11 @@ public class OnlineDbMVStore implements OnlineDb {
 		try {
 			MVStore wfMVStore = getStore(workflowId);
 			Map<String, String> metricsMap = wfMVStore.openMap(mapName, mapBuilder);
+			int violationIndex = 0;
 			for ( LimitViolation limitViolation : violations ) {
-//				Violation violation = new Violation(limitViolation.getSubject().getId(),
-//													limitViolation.getLimitType(), 
-//													limitViolation.getLimit(), 
-//													limitViolation.getValue());
-//				metricsMap.put(violation.getId(), OnlineDbMVStoreUtils.violationToJson(violation));
-				String violationId = limitViolation.getSubject().getId();
-				// there could be 2 violations on the same line, on both terminals: I need to store both
-				if ( metricsMap.containsKey(violationId) )
-					violationId += "__1"; 
+				String violationId = limitViolation.getSubject().getId() + "_" + violationIndex;
 				metricsMap.put(violationId, OnlineDbMVStoreUtils.limitViolationToJson(limitViolation));
+				violationIndex++;
 			}
 			wfMVStore.commit();
 		} catch(Throwable e) {
@@ -1232,13 +1266,6 @@ public class OnlineDbMVStore implements OnlineDb {
 					List<LimitViolation> violations = new ArrayList<LimitViolation>();
 					Map<String, String> storedMap = wfMVStore.openMap(mapName, mapBuilder);
 					for ( String violationId : storedMap.keySet() ) {
-//						Violation violation = OnlineDbMVStoreUtils.jsonToViolation(storedMap.get(violationId));
-//						Identifiable subject = network.getIdentifiable(violation.getSubject());
-//						if ( subject!= null )
-//							violations.add(new LimitViolation(subject, 
-//															  violation.getLimitType(), 
-//															  violation.getLimit(), 
-//															  violation.getValue()));
 						LimitViolation violation = OnlineDbMVStoreUtils.jsonToLimitViolation(storedMap.get(violationId), network);
 						if ( violation != null )
 							violations.add(violation);
@@ -1661,6 +1688,8 @@ public class OnlineDbMVStore implements OnlineDb {
 		for (String contingencyId : results.getContingenciesWithSecurityRulesResults()) {
 			MVMap<String, String> storedStateStatusMap = wfMVStore.openMap(contingencyId + STORED_WCA_RULES_RESULTS_STATE_STATUS_MAP_SUFFIX, mapBuilder);
 			MVMap<String, String> storedStateResultsMap = wfMVStore.openMap(contingencyId + STORED_WCA_RULES_RESULTS_STATE_RESULTS_MAP_SUFFIX, mapBuilder);
+			MVMap<String, String> storedStateAvailableRulesMap = wfMVStore.openMap(contingencyId + STORED_WCA_RULES_RESULTS_STATE_RULES_AVAILABLE_MAP_SUFFIX, mapBuilder);
+			MVMap<String, String> storedStateInvalidRulesMap = wfMVStore.openMap(contingencyId + STORED_WCA_RULES_RESULTS_STATE_INVALID_RULES_MAP_SUFFIX, mapBuilder);
 			for (Integer stateId : results.getStatesWithSecurityRulesResults(contingencyId)) {
 				// store state status
 				StateStatus status = results.getStateStatus(contingencyId, stateId);
@@ -1668,6 +1697,12 @@ public class OnlineDbMVStore implements OnlineDb {
 				// store state rules results
 				Map<String, Boolean> stateResults = results.getStateResults(contingencyId, stateId);
 				storedStateResultsMap.put(stateId.toString(), OnlineDbMVStoreUtils.indexesDataToJson(stateResults));
+				// store state rules available flag
+				boolean rulesAvalable = results.areValidRulesAvailable(contingencyId, stateId);
+				storedStateAvailableRulesMap.put(stateId.toString(), Boolean.toString(rulesAvalable));
+				// store state invalid rules
+				List<SecurityIndexType> invalidRules = results.getInvalidRules(contingencyId, stateId);
+				storedStateInvalidRulesMap.put(stateId.toString(), OnlineDbMVStoreUtils.indexesTypesToJson(new HashSet<SecurityIndexType>(invalidRules)));
 			}
 		}
 		wfMVStore.commit();
@@ -1684,6 +1719,10 @@ public class OnlineDbMVStore implements OnlineDb {
 			wfMVStore.removeMap(storedStateStatusMap);
 			MVMap<String, String> storedStateResultsMap = wfMVStore.openMap(contingencyId + STORED_WCA_RULES_RESULTS_STATE_RESULTS_MAP_SUFFIX, mapBuilder);
 			wfMVStore.removeMap(storedStateResultsMap);
+			MVMap<String, String> storedStateAvailableRulesMap = wfMVStore.openMap(contingencyId + STORED_WCA_RULES_RESULTS_STATE_RULES_AVAILABLE_MAP_SUFFIX, mapBuilder);
+			wfMVStore.removeMap(storedStateAvailableRulesMap);
+			MVMap<String, String> storedStateInvalidRulesMap = wfMVStore.openMap(contingencyId + STORED_WCA_RULES_RESULTS_STATE_INVALID_RULES_MAP_SUFFIX, mapBuilder);
+			wfMVStore.removeMap(storedStateInvalidRulesMap);
 		}
 		// remove info about stored rules results
 		wfMVStore.removeMap(storedRulesResultsMap);
@@ -1709,10 +1748,19 @@ public class OnlineDbMVStore implements OnlineDb {
 				for (String contingencyId : contingenciesWithRules) {
 					MVMap<String, String> storedStateStatusMap = wfMVStore.openMap(contingencyId + STORED_WCA_RULES_RESULTS_STATE_STATUS_MAP_SUFFIX, mapBuilder);
 					MVMap<String, String> storedStateResultsMap = wfMVStore.openMap(contingencyId + STORED_WCA_RULES_RESULTS_STATE_RESULTS_MAP_SUFFIX, mapBuilder);
+					MVMap<String, String> storedStateAvailableRulesMap = wfMVStore.openMap(contingencyId + STORED_WCA_RULES_RESULTS_STATE_RULES_AVAILABLE_MAP_SUFFIX, mapBuilder);
+					MVMap<String, String> storedStateInvalidRulesMap = wfMVStore.openMap(contingencyId + STORED_WCA_RULES_RESULTS_STATE_INVALID_RULES_MAP_SUFFIX, mapBuilder);
 					for (String stateId : storedStateStatusMap.keySet()) {
 						Map<String, Boolean> stateResults = OnlineDbMVStoreUtils.jsonToIndexesData(storedStateResultsMap.get(stateId));
 						StateStatus stateStatus = StateStatus.valueOf(storedStateStatusMap.get(stateId));
-						wfRulesResults.addContingencyWithSecurityRulesResults(contingencyId, Integer.parseInt(stateId), stateStatus, stateResults);
+						boolean rulesAvailable = true;
+						if ( storedStateAvailableRulesMap.containsKey(stateId) )
+							rulesAvailable = Boolean.parseBoolean(storedStateAvailableRulesMap.get(stateId));
+						List<SecurityIndexType> invalidRules = new ArrayList<SecurityIndexType>();
+						if ( storedStateInvalidRulesMap.containsKey(stateId) )
+							invalidRules.addAll(OnlineDbMVStoreUtils.jsonToIndexesTypes(storedStateInvalidRulesMap.get(stateId)));
+						wfRulesResults.addContingencyWithSecurityRulesResults(contingencyId, Integer.parseInt(stateId), stateStatus, stateResults,
+																			  rulesAvailable, invalidRules);
 					}
 				}
 				return wfRulesResults;
@@ -1830,5 +1878,30 @@ public class OnlineDbMVStore implements OnlineDb {
 		}
 		return storedMapList.toString();
 	}
+	
+//	public void storeValue(String workflowId, int value) {
+//		try {
+//			LOGGER.info("Storing value {} of wf {}", value, workflowId);
+//			LOGGER.info("Getting store for value {} of wf {}", value, workflowId);
+//			MVStore wfMVStore = getStore(workflowId);
+//			LOGGER.info("Store got for value {} of wf {}", value, workflowId);
+//			Thread.sleep(100*value);
+//			LOGGER.info("Opening map for value {} of wf {}", value, workflowId);
+//			MVMap<String, String> valuesMap = wfMVStore.openMap("values", mapBuilder);
+//			LOGGER.info("Map opened for value {} of wf {}", value, workflowId);
+//			LOGGER.info("Putting value {} of wf {} in map", value, workflowId);
+//			valuesMap.putIfAbsent(Integer.toString(value), "");
+//			LOGGER.info("Value {} of wf {} put in map", value, workflowId);
+//			Thread.sleep(300*value);
+////			Thread.sleep(1000);
+//			LOGGER.info("Committing for value {} of wf {}", value, workflowId);
+//			wfMVStore.commit();
+//			LOGGER.info("Committed for value {} of wf {}", value, workflowId);
+//		} catch(Throwable e) {
+//			String errorMessage = "Error storing value " + value + " for wf " +  workflowId + ": " + e.getMessage();
+//			LOGGER.error(errorMessage);
+//			throw new RuntimeException(errorMessage);
+//		}
+//	}
 
 }

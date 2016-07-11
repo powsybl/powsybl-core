@@ -30,6 +30,7 @@ import eu.itesla_project.iidm.network.Network;
 import eu.itesla_project.iidm.network.StateManager;
 import eu.itesla_project.loadflow.api.LoadFlow;
 import eu.itesla_project.loadflow.api.LoadFlowResult;
+import eu.itesla_project.modules.constraints.ConstraintsModifier;
 import eu.itesla_project.modules.contingencies.ActionParameters;
 import eu.itesla_project.modules.contingencies.Contingency;
 import eu.itesla_project.modules.mcla.MontecarloSampler;
@@ -75,10 +76,12 @@ public class StateAnalyzer implements Callable<Void> {
 	private StateAnalizerListener stateListener;
 	private EnumMap<OnlineTaskType,OnlineTaskStatus> status=new EnumMap<OnlineTaskType, OnlineTaskStatus>(OnlineTaskType.class);
 	Map<String, Boolean> loadflowResults = new HashMap<String, Boolean>();
+	private ConstraintsModifier constraintsModifier; 
 
 	public StateAnalyzer(OnlineWorkflowContext context, MontecarloSampler sampler, LoadFlow loadFlow,
 			OnlineRulesFacade rulesFacade, CorrectiveControlOptimizer optimizer, Stabilization stabilization,
-			ImpactAnalysis impactAnalysis, OnlineDb onlineDb, StateAnalizerListener stateListener, OnlineWorkflowParameters parameters) {
+			ImpactAnalysis impactAnalysis, OnlineDb onlineDb, StateAnalizerListener stateListener, ConstraintsModifier constraintsModifier,
+			OnlineWorkflowParameters parameters) {
 		this.context = context;
 		this.sampler = sampler;
 		this.loadFlow = loadFlow;
@@ -88,6 +91,7 @@ public class StateAnalyzer implements Callable<Void> {
 		this.impactAnalysis = impactAnalysis;
 		this.onlineDb = onlineDb;
 		this.stateListener=stateListener;
+		this.constraintsModifier = constraintsModifier;
 		this.parameters = parameters;
 		//stateId = "STATE-" + context.incrementStateCounter();
 		stateId =  context.incrementStateCounter();
@@ -149,13 +153,25 @@ public class StateAnalyzer implements Callable<Void> {
 			if ( result.isOk() ) {
 				// stores violations only if loadflow converges
 				logger.info("{}: storing violations after {} in online db", stateId, OnlineStep.LOAD_FLOW);
-				List<LimitViolation> violations = Security.checkLimits(context.getNetwork(), CurrentLimitType.PATL, Integer.MAX_VALUE, parameters.getLimitReduction());
-				if ( violations != null && !violations.isEmpty() )
+				List<LimitViolation> violations = Security.checkLimits(context.getNetwork(), 
+																	   CurrentLimitType.PATL, 
+																	   Integer.MAX_VALUE, 
+																	   parameters.getLimitReduction());
+				if ( violations != null && !violations.isEmpty() ) {
 					onlineDb.storeViolations(context.getWorkflowId(), stateId, OnlineStep.LOAD_FLOW, violations);
-				else
+					if ( parameters.isHandleViolationsInN() ) {
+						if ( parameters.analyseBasecase() && stateId == 0 ) {
+							constraintsModifier.looseConstraints(stateIdStr, 
+																 violations, 
+																 parameters.getConstraintMargin(),
+																 true); // loose constraints on state 0 (=basecase)
+						} else {
+							constraintsModifier.looseConstraints(stateIdStr, violations); // loose constraints on sampled state
+						}
+					}
+				} else
 					logger.info("{}: no violations after {}", stateId, OnlineStep.LOAD_FLOW);
 
-				
 				stateListener.onUpdate(stateId, status,context.timeHorizon);
 				// check state against contingencies
 				boolean isStateSafe = true;
@@ -168,37 +184,46 @@ public class StateAnalyzer implements Callable<Void> {
 				for (Contingency contingency : context.getContingenciesToAnalyze()) {
 					logger.info("{}: check security rules against contingency {}", stateId, contingency.getId());
 					RulesFacadeResults rulesResults = rulesFacade.evaluate(contingency, context.getNetwork());
-					if ( rulesResults.getStateStatus() == StateStatus.SAFE ) {  // check if this contingency is ok
-						logger.info("{}: is safe for contingency {}", stateId, contingency.getId());
-						if ( parameters.validation() ) { // if validation
-							// send all [contingency,state] pairs to simulation
-							contingenciesForSimulator.add(contingency);
-							// send safe [contingency,state] pairs to optimizer
+					if ( rulesResults.areRulesAvailable() ) {
+						if ( rulesResults.getStateStatus() == StateStatus.SAFE ) {  // check if this contingency is ok
+							logger.info("{}: is safe for contingency {}", stateId, contingency.getId());
+							if ( parameters.validation() ) { // if validation
+								// send all [contingency,state] pairs to simulation
+								contingenciesForSimulator.add(contingency);
+								// send safe [contingency,state] pairs to optimizer
+								contingenciesForOptimizer.add(contingency);
+							}
+						} else if( rulesResults.getStateStatus() == StateStatus.SAFE_WITH_CORRECTIVE_ACTIONS ) { // check if this contingency could be ok with corrective actions
+							logger.info("{}: requires corrective actions for contingency {}", stateId, contingency.getId());
+							isStateSafe = false;
 							contingenciesForOptimizer.add(contingency);
-						}
-					} else if( rulesResults.getStateStatus() == StateStatus.SAFE_WITH_CORRECTIVE_ACTIONS ) { // check if this contingency could be ok with corrective actions
-						logger.info("{}: requires corrective actions for contingency {}", stateId, contingency.getId());
-						isStateSafe = false;
-						contingenciesForOptimizer.add(contingency);
-						if ( parameters.validation() ) { // if validation
-							// send all [contingency,state] pairs to simulation
+							if ( parameters.validation() ) { // if validation
+								// send all [contingency,state] pairs to simulation
+								contingenciesForSimulator.add(contingency);
+							}
+						} else { // we need to perform a time-domain simulation on this state for this contingency
+							logger.info("{}: requires time-domain simulation for contingency {}", stateId, contingency.getId());
+							isStateSafe = false;
 							contingenciesForSimulator.add(contingency);
 						}
-					} else { // we need to perform a time-domain simulation on this state for this contingency
-						logger.info("{}: requires time-domain simulation for contingency {}", stateId, contingency.getId());
-						isStateSafe = false;
+					} else {
+						logger.warn("{}: no valid rules for contingency {}", stateId, contingency.getId());
 						contingenciesForSimulator.add(contingency);
 					}
 
 					synchronized (context.getSecurityRulesResults()) {
-						context.getSecurityRulesResults().addStateWithSecurityRulesResults(contingency.getId(), stateId, rulesResults.getStateStatus(), rulesResults.getIndexesResults());
+						context.getSecurityRulesResults().addStateWithSecurityRulesResults(contingency.getId(), stateId, rulesResults.getStateStatus(), 
+																						   rulesResults.getIndexesResults(), rulesResults.areRulesAvailable(), 
+																						   rulesResults.getInvalidRules());
 						stateListener.onSecurityRulesApplicationResults(contingency.getId(),stateId, context);
 					}
 					
 					if ( parameters.validation() ) {
 						RulesFacadeResults wcaRulesResults = rulesFacade.wcaEvaluate(contingency, context.getNetwork());
 						synchronized (context.getWcaSecurityRulesResults()) {
-							context.getWcaSecurityRulesResults().addStateWithSecurityRulesResults(contingency.getId(), stateId, wcaRulesResults.getStateStatus(), wcaRulesResults.getIndexesResults());
+							context.getWcaSecurityRulesResults().addStateWithSecurityRulesResults(contingency.getId(), stateId, wcaRulesResults.getStateStatus(), 
+																								  wcaRulesResults.getIndexesResults(), rulesResults.areRulesAvailable(), 
+																								  rulesResults.getInvalidRules());
 						}
 					}	
                 }

@@ -1,5 +1,6 @@
 /**
  * Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+ * Copyright (c) 2016, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -40,6 +41,8 @@ public class OnlineWorkflowCommand implements Command {
 	public static final String COUNTRIES = "countries";
 	public static final String MERGE_OPTIMIZED = "merge-optimized";
 	public static final String LIMIT_REDUCTION = "limits-reduction";
+	public static final String HANDLE_VIOLATION_IN_N = "handle-violations";
+	public static final String CONSTRAINT_MARGIN = "constraint-margin";
 
 	@Override
 	public String getName() {
@@ -179,12 +182,21 @@ public class OnlineWorkflowCommand implements Command {
 		opts.addOption(Option.builder().longOpt(MERGE_OPTIMIZED)
 				.desc("merge optimized")
 				.build());
-
 		
 		opts.addOption(Option.builder().longOpt(LIMIT_REDUCTION)
                 .desc("limits reduction")
-                 .hasArg()
-	             .argName(LIMIT_REDUCTION)
+                .hasArg()
+	            .argName(LIMIT_REDUCTION)
+                .build());
+		
+		opts.addOption(Option.builder().longOpt(HANDLE_VIOLATION_IN_N)
+				.desc("handle violation in n")
+				.build());
+		
+		opts.addOption(Option.builder().longOpt(CONSTRAINT_MARGIN)
+                .desc("constraint margin")
+                .hasArg()
+	            .argName(CONSTRAINT_MARGIN)
                 .build());
 
 		 /*

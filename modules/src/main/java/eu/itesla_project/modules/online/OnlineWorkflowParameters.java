@@ -1,5 +1,6 @@
 /**
  * Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+ * Copyright (c) 2016, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -63,6 +64,8 @@ public class OnlineWorkflowParameters implements Serializable {
     public static final List<Country> DEFAULT_COUNTRIES = Arrays.asList(Country.FR);
     public static final boolean DAFAULT_MERGE_OPTIMIZED = false;
     public static final float DEFAULT_LIMIT_REDUCTION = 1f;
+    public static final boolean DAFAULT_HANDLE_VIOLATIONS_IN_N = false;
+    public static final float DEFAULT_CONSTRAINT_MARGIN = 0f;
 
     private DateTime baseCaseDate;
     private int states;
@@ -79,6 +82,8 @@ public class OnlineWorkflowParameters implements Serializable {
     private Set<Country> countries;
     private boolean mergeOptimized;
     private float limitReduction;
+    private boolean handleViolationsInN;
+	private float constraintMargin;
 
 	public static OnlineWorkflowParameters loadDefault() {
         ModuleConfig config = PlatformConfig.defaultConfig().getModuleConfig("online-default-parameters");
@@ -103,6 +108,8 @@ public class OnlineWorkflowParameters implements Serializable {
 		Set<Country> countries = new HashSet<>(config.getEnumListProperty("countries", Country.class, DEFAULT_COUNTRIES));
 		boolean mergeOptimized = config.getBooleanProperty("mergeOptimized", DAFAULT_MERGE_OPTIMIZED);
 		float limitReduction = config.getFloatProperty("limitReduction", DEFAULT_LIMIT_REDUCTION);
+		boolean handleViolationsInN = config.getBooleanProperty("handleViolationsInN", DAFAULT_HANDLE_VIOLATIONS_IN_N);
+		float constraintMargin = config.getFloatProperty("constraintMargin", DEFAULT_CONSTRAINT_MARGIN);
 		
         return new OnlineWorkflowParameters(baseCaseDate, 
         									states, 
@@ -118,13 +125,16 @@ public class OnlineWorkflowParameters implements Serializable {
         									caseType,
         									countries,
         									mergeOptimized,
-        									limitReduction
+        									limitReduction,
+        									handleViolationsInN,
+        									constraintMargin
         									);
     }
 
     public OnlineWorkflowParameters(DateTime baseCaseDate, int states, Interval histoInterval, String offlineWorkflowId, TimeHorizon timeHorizon, 
     								String feAnalysisId, double rulesPurityThreshold, boolean storeStates, boolean analyseBasecase, boolean validation, 
-    								Set<SecurityIndexType> securityIndexes, CaseType caseType, Set<Country> countries, boolean mergeOptimized, float limitReduction) {
+    								Set<SecurityIndexType> securityIndexes, CaseType caseType, Set<Country> countries, boolean mergeOptimized, 
+    								float limitReduction, boolean handleViolationsInN, float constraintMargin) {
         Objects.requireNonNull(baseCaseDate);
         Objects.requireNonNull(histoInterval);
         this.baseCaseDate = baseCaseDate;
@@ -142,6 +152,8 @@ public class OnlineWorkflowParameters implements Serializable {
         this.countries = countries;
         this.mergeOptimized = mergeOptimized;
         this.limitReduction = limitReduction;
+        this.handleViolationsInN = handleViolationsInN;
+        this.constraintMargin = constraintMargin;
     }
 
     public DateTime getBaseCaseDate() {
@@ -203,6 +215,14 @@ public class OnlineWorkflowParameters implements Serializable {
 	public float getLimitReduction() {
 		return limitReduction;
 	}
+	
+    public boolean isHandleViolationsInN() {
+		return handleViolationsInN;
+	}
+
+	public float getConstraintMargin() {
+		return constraintMargin;
+	}
 
     @Override
     public String toString() {
@@ -221,6 +241,8 @@ public class OnlineWorkflowParameters implements Serializable {
                 + ", countries=" + countries
                 + ", mergeOptimized=" + mergeOptimized
                 + ", limitReduction=" + limitReduction
+                + ", handleViolationsInN=" + handleViolationsInN
+                + ", constraintMargin=" + constraintMargin
                 + "}";
     }
 
@@ -284,4 +306,12 @@ public class OnlineWorkflowParameters implements Serializable {
 		this.limitReduction = limitReduction;
 	}
     
+	public void setHandleViolationsInN(boolean handleViolationsInN) {
+		this.handleViolationsInN = handleViolationsInN;
+	}
+
+	public void setConstraintMargin(float constraintMargin) {
+		this.constraintMargin = constraintMargin;
+	}
+
 }

@@ -32,6 +32,7 @@ import eu.itesla_project.loadflow.api.LoadFlowFactory;
 import eu.itesla_project.merge.MergeOptimizerFactory;
 import eu.itesla_project.merge.MergeUtil;
 import eu.itesla_project.cases.CaseRepository;
+import eu.itesla_project.modules.constraints.ConstraintsModifier;
 import eu.itesla_project.modules.contingencies.ContingenciesAndActionsDatabaseClient;
 import eu.itesla_project.modules.ddb.DynamicDatabaseClientFactory;
 import eu.itesla_project.modules.histo.HistoDbClient;
@@ -231,26 +232,36 @@ public class OnlineWorkflowImpl implements OnlineWorkflow {
 		CorrectiveControlOptimizer optimizer = optimizerFactory.create(cadbClient,computationManager);
 		Stabilization stabilization = simulatorFactory.createStabilization(oCtx.getNetwork(), computationManager, Integer.MAX_VALUE, ddbClientFactory);
 		ImpactAnalysis impactAnalysis = simulatorFactory.createImpactAnalysis(oCtx.getNetwork(), computationManager, Integer.MAX_VALUE, cadbClient);
-
+		LoadFlow loadflow = loadFlowFactory.create(oCtx.getNetwork(), computationManager, 0);
+		ConstraintsModifier constraintsModifier = new ConstraintsModifier(oCtx.getNetwork());
+		StateAnalizerListener stateListener = new StateAnalizerListener();
+		
 		// initialize modules
-		sampler.init(new MontecarloSamplerParameters(oCtx.getTimeHorizon(), parameters.getFeAnalysisId(), parameters.getStates()));
 		rulesFacade.init(new RulesFacadeParameters(oCtx.getOfflineWorkflowId(), 
 												   oCtx.getContingenciesToAnalyze(), 
 												   parameters.getRulesPurityThreshold(), 
 												   parameters.getSecurityIndexes(),
-												   parameters.validation()));
+												   parameters.validation(),
+												   parameters.isHandleViolationsInN()));
 		Map<String, Object> simulationInitContext = new HashMap<>();
         SimulationParameters simulationParameters = SimulationParameters.load();
         stabilization.init(simulationParameters, simulationInitContext);
         impactAnalysis.init(simulationParameters, simulationInitContext);
 		optimizer.init(new CorrectiveControlOptimizerParameters());
+		if ( parameters.isHandleViolationsInN() && parameters.analyseBasecase() ) { // I need to analyze basecase before initializing the sampler
+			new StateAnalyzer(oCtx, sampler, loadflow, rulesFacade, optimizer, stabilization, impactAnalysis, onlineDb, stateListener, 
+							  constraintsModifier, parameters).call();
+		}
+		sampler.init(new MontecarloSamplerParameters(oCtx.getTimeHorizon(), parameters.getFeAnalysisId(), parameters.getStates()));
 
-		LoadFlow loadflow = loadFlowFactory.create(oCtx.getNetwork(), computationManager, 0);
-		StateAnalizerListener stateListener = new StateAnalizerListener();
 		// run states analysis
-		List<Callable<Void>> tasks = new ArrayList<>(parameters.getStates());
-		for ( int i=0; i<parameters.getStates(); i++ ) {
-			tasks.add(new StateAnalyzer(oCtx, sampler, loadflow, rulesFacade, optimizer, stabilization, impactAnalysis, onlineDb, stateListener, parameters));
+		int statesNumber = parameters.getStates();
+		if ( parameters.isHandleViolationsInN() && parameters.analyseBasecase() ) // I already analyzed basecase
+			statesNumber--;
+		List<Callable<Void>> tasks = new ArrayList<>(statesNumber);
+		for ( int i=0; i<statesNumber; i++ ) {
+			tasks.add(new StateAnalyzer(oCtx, sampler, loadflow, rulesFacade, optimizer, stabilization, impactAnalysis, onlineDb, stateListener, 
+										constraintsModifier, parameters));
 		}
 		ExecutorService taskExecutor = Executors.newFixedThreadPool(startParameters.getThreads());
 		taskExecutor.invokeAll(tasks);

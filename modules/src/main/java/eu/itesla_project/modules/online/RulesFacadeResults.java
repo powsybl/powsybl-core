@@ -7,9 +7,10 @@
  */
 package eu.itesla_project.modules.online;
 
-import eu.itesla_project.modules.securityindexes.SecurityIndexType;
-
+import java.util.List;
 import java.util.Map;
+
+import eu.itesla_project.modules.securityindexes.SecurityIndexType;
 
 /**
  *
@@ -21,12 +22,17 @@ public class RulesFacadeResults {
 	private final String contingencyId;
 	private final StateStatus stateStatus;
 	private final Map<SecurityIndexType, StateStatus> indexesResults;
-
-	public RulesFacadeResults(String stateId, String contingencyId, StateStatus stateStatus, Map<SecurityIndexType, StateStatus> indexesResults) {
+	private final List<SecurityIndexType> invalidRules;
+	private final boolean rulesAvailable;
+	
+	public RulesFacadeResults(String stateId, String contingencyId, StateStatus stateStatus, Map<SecurityIndexType, StateStatus> indexesResults, 
+							  List<SecurityIndexType> invalidRules, boolean rulesAvailable) {
 		this.stateId = stateId;
 		this.contingencyId = contingencyId;
 		this.stateStatus = stateStatus;
 		this.indexesResults = indexesResults;
+		this.invalidRules = invalidRules;
+		this.rulesAvailable = rulesAvailable;
 	}
 
 	public String getStateId() {
@@ -43,6 +49,14 @@ public class RulesFacadeResults {
 
 	public Map<SecurityIndexType, StateStatus> getIndexesResults() {
 		return indexesResults;
+	}
+
+	public List<SecurityIndexType> getInvalidRules() {
+		return invalidRules;
+	}
+	
+	public boolean areRulesAvailable() {
+		return rulesAvailable;
 	}
 
 }

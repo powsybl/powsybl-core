@@ -51,18 +51,25 @@ public class SecurityRulesFacade implements OnlineRulesFacade {
         for (Contingency contingency : parameters.getContingencies()) {
             List<SecurityRule> mcRules = new ArrayList<>(); // rules for the current contingency
             List<SecurityRule> wcaRules = new ArrayList<>(); // wca rules for the current contingency
+            Map<SecurityIndexType, List<String>> mcViolatedEquipmentForContingency = new HashMap<>();
+            Map<SecurityIndexType, List<String>> wcaViolatedEquipmentForContingency = new HashMap<>();
             for (SecurityIndexType securityIndexType :securityIndexTypes) {
                 LOGGER.info("Getting mc security rule for {} contingency and {} index", contingency.getId(), securityIndexType);
                 mcRules.addAll(rulesDbClient.getRules(parameters.getOfflineWorkflowId(), RuleAttributeSet.MONTE_CARLO, contingency.getId(), securityIndexType));
+                mcViolatedEquipmentForContingency.put(securityIndexType, new ArrayList<String>()); // so far we do not have the violated components for a rule/index
                 if ( parameters.wcaRules() )  { // get wca rules for validation
                 	LOGGER.info("Getting wca security rule for {} contingency and {} index", contingency.getId(), securityIndexType);
                 	wcaRules.addAll(rulesDbClient.getRules(parameters.getOfflineWorkflowId(), RuleAttributeSet.WORST_CASE, contingency.getId(), securityIndexType));
+                	wcaViolatedEquipmentForContingency.put(securityIndexType, new ArrayList<String>()); // so far we do not have the violated components for a rule/index
                 }
             }
             if ( parameters.wcaRules() ) // store wca rules for validation
-            	evaluators.put(contingency.getId(), new ContingencyEvaluator(contingency, mcRules, wcaRules, parameters.getPurityThreshold()));
+            	evaluators.put(contingency.getId(), new ContingencyEvaluator(contingency, mcRules, wcaRules, parameters.getPurityThreshold(), 
+            																 mcViolatedEquipmentForContingency, wcaViolatedEquipmentForContingency,
+            																 parameters.isCheckRules()));
             else
-            	evaluators.put(contingency.getId(), new ContingencyEvaluator(contingency, mcRules, parameters.getPurityThreshold()));
+            	evaluators.put(contingency.getId(), new ContingencyEvaluator(contingency, mcRules, parameters.getPurityThreshold(), 
+            																 mcViolatedEquipmentForContingency, parameters.isCheckRules()));
         }
 	}
 
@@ -84,7 +91,5 @@ public class SecurityRulesFacade implements OnlineRulesFacade {
 	public RulesFacadeResults wcaEvaluate(Contingency contingency, Network network) {
 		return getContingencyEvaluator(contingency).wcaEvaluate(network);
 	}
-
-
 
 }

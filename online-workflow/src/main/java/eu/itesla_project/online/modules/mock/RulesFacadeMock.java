@@ -6,10 +6,13 @@
  */
 package eu.itesla_project.online.modules.mock;
 
+import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Objects;
 
+import eu.itesla_project.commons.io.ModuleConfig;
+import eu.itesla_project.commons.io.PlatformConfig;
 import eu.itesla_project.iidm.network.Network;
 import eu.itesla_project.modules.contingencies.Contingency;
 import eu.itesla_project.modules.online.OnlineRulesFacade;
@@ -25,10 +28,15 @@ import eu.itesla_project.modules.securityindexes.SecurityIndexType;
 public class RulesFacadeMock implements OnlineRulesFacade {
 
 	RulesFacadeParameters parameters;
+	SecurityIndexType[] securityIndexTypes;
+	StateStatus rulesResults = StateStatus.SAFE;
 	
 	@Override
 	public void init(RulesFacadeParameters parameters) throws Exception {
 		this.parameters = parameters;
+		securityIndexTypes = parameters.getSecurityIndexTypes() == null ? SecurityIndexType.values()
+                : parameters.getSecurityIndexTypes().toArray(new SecurityIndexType[parameters.getSecurityIndexTypes().size()]);
+		readConfig();
 	}
 
 	@Override
@@ -47,12 +55,19 @@ public class RulesFacadeMock implements OnlineRulesFacade {
 	
 	private RulesFacadeResults getMockResults(Contingency contingency, Network network) {
 		Map<SecurityIndexType, StateStatus> indexesResults = new EnumMap<>(SecurityIndexType.class);
-		SecurityIndexType[] securityIndexTypes = parameters.getSecurityIndexTypes() == null ? SecurityIndexType.values()
-                : parameters.getSecurityIndexTypes().toArray(new SecurityIndexType[parameters.getSecurityIndexTypes().size()]);
 		for (SecurityIndexType indexType : securityIndexTypes) {
-			indexesResults.put(indexType, StateStatus.SAFE);
+			StateStatus ruleResults = (rulesResults == StateStatus.SAFE) ? StateStatus.SAFE : StateStatus.UNSAFE;
+			indexesResults.put(indexType, ruleResults);
 		}
-		return new RulesFacadeResults(network.getStateManager().getWorkingStateId(), contingency.getId(), StateStatus.SAFE, indexesResults);
+		return new RulesFacadeResults(network.getStateManager().getWorkingStateId(), contingency.getId(), rulesResults, indexesResults, 
+									  new ArrayList<>(), true);
+	}
+	
+	private void readConfig() {
+		if (PlatformConfig.defaultConfig().moduleExists("rulesFacadeMock")) {
+			ModuleConfig config = PlatformConfig.defaultConfig().getModuleConfig("rulesFacadeMock");
+			rulesResults = config.getEnumProperty("rulesResults", StateStatus.class, StateStatus.SAFE);
+		}
 	}
 
 }

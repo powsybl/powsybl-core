@@ -1,20 +1,17 @@
 /**
  * Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+ * Copyright (c) 2016, RTE (http://www.rte-france.com
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 package eu.itesla_project.online.tools;
 
-import com.csvreader.CsvWriter;
-import com.google.auto.service.AutoService;
-import eu.itesla_project.commons.tools.Command;
-import eu.itesla_project.commons.tools.Tool;
-import eu.itesla_project.modules.online.OnlineConfig;
-import eu.itesla_project.modules.online.OnlineDb;
-import eu.itesla_project.modules.online.OnlineWorkflowParameters;
-import eu.itesla_project.modules.online.OnlineWorkflowRulesResults;
-import eu.itesla_project.modules.securityindexes.SecurityIndexType;
+import java.io.StringWriter;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
@@ -22,9 +19,16 @@ import org.nocrala.tools.texttablefmt.BorderStyle;
 import org.nocrala.tools.texttablefmt.CellStyle;
 import org.nocrala.tools.texttablefmt.Table;
 
-import java.io.StringWriter;
-import java.util.HashMap;
-import java.util.Map;
+import com.csvreader.CsvWriter;
+import com.google.auto.service.AutoService;
+
+import eu.itesla_project.commons.tools.Command;
+import eu.itesla_project.commons.tools.Tool;
+import eu.itesla_project.modules.online.OnlineConfig;
+import eu.itesla_project.modules.online.OnlineDb;
+import eu.itesla_project.modules.online.OnlineWorkflowParameters;
+import eu.itesla_project.modules.online.OnlineWorkflowRulesResults;
+import eu.itesla_project.modules.securityindexes.SecurityIndexType;
 
 /**
  *
@@ -32,6 +36,9 @@ import java.util.Map;
  */
 @AutoService(Tool.class)
 public class PrintOnlineWorkflowRulesResultsTool implements Tool {
+	
+	private static String NO_RULES_AVAILABLE = "NO_RULES_AVAILABLE";
+	private static String INVALID_RULE = "Invalid Rule";
 
 	private static Command COMMAND = new Command() {
 		
@@ -117,9 +124,15 @@ public class PrintOnlineWorkflowRulesResultsTool implements Tool {
 						values[i++] = contingencyId;
 						table.addCell(stateId.toString(), new CellStyle(CellStyle.HorizontalAlign.right));
 						values[i++] = stateId.toString();
-						table.addCell(wfRulesResults.getStateStatus(contingencyId, stateId).name());
-						values[i++] = wfRulesResults.getStateStatus(contingencyId, stateId).name();
-						HashMap<String, String> rulesResults = getRulesResults(wfRulesResults.getStateResults(contingencyId, stateId), securityIndexTypes);
+						if ( wfRulesResults.areValidRulesAvailable(contingencyId, stateId) ) {
+							table.addCell(wfRulesResults.getStateStatus(contingencyId, stateId).name());
+							values[i++] = wfRulesResults.getStateStatus(contingencyId, stateId).name();
+						} else {
+							table.addCell(NO_RULES_AVAILABLE);
+							values[i++] = NO_RULES_AVAILABLE;
+						}
+						HashMap<String, String> rulesResults = getRulesResults(wfRulesResults.getStateResults(contingencyId, stateId), securityIndexTypes, 
+																			   wfRulesResults.getInvalidRules(contingencyId, stateId));
 						for (SecurityIndexType securityIndexType : securityIndexTypes) {
 							table.addCell(rulesResults.get(securityIndexType.getLabel()), new CellStyle(CellStyle.HorizontalAlign.center));
 							values[i++] = rulesResults.get(securityIndexType.getLabel());
@@ -140,11 +153,13 @@ public class PrintOnlineWorkflowRulesResultsTool implements Tool {
 		onlinedb.close();
 	}
 	
-	private HashMap<String, String> getRulesResults(Map<String,Boolean> stateResults, SecurityIndexType[] securityIndexTypes) {
+	private HashMap<String, String> getRulesResults(Map<String,Boolean> stateResults, SecurityIndexType[] securityIndexTypes, List<SecurityIndexType> invalidRules) {
 		HashMap<String, String> rulesResults = new HashMap<String, String>();
 		for (SecurityIndexType securityIndexType : securityIndexTypes) {
 			if ( stateResults.containsKey(securityIndexType.getLabel()) )
 				rulesResults.put(securityIndexType.getLabel(), stateResults.get(securityIndexType.getLabel()) ? "Safe" : "Unsafe");
+			else if ( invalidRules.contains(securityIndexType) )
+				rulesResults.put(securityIndexType.getLabel(), INVALID_RULE);
 			else
 				rulesResults.put(securityIndexType.getLabel(), "-");
 		}

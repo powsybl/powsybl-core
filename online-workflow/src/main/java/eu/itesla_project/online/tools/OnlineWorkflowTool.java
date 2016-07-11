@@ -1,5 +1,6 @@
 /**
  * Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+ * Copyright (c) 2016, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -149,7 +150,16 @@ public class OnlineWorkflowTool implements Tool {
         String limitReduction=line.getOptionValue(OnlineWorkflowCommand.LIMIT_REDUCTION);
 		if(limitReduction!=null)
 			params.setLimitReduction(Float.parseFloat(limitReduction));
-        		
+		
+		 if(line.hasOption(OnlineWorkflowCommand.HANDLE_VIOLATION_IN_N)) {
+			params.setHandleViolationsInN(true);
+			params.setAnalyseBasecase(true); // if I need to handle violations in N, I need to analyze base case
+		 }
+        
+		 String constraintMargin=line.getOptionValue(OnlineWorkflowCommand.CONSTRAINT_MARGIN);
+		 if(constraintMargin!=null)
+			 params.setConstraintMargin(Float.parseFloat(constraintMargin));
+			
 		String urlString = "service:jmx:rmi:///jndi/rmi://"+startconfig.getJmxHost()+":"+startconfig.getJmxPort()+"/jmxrmi";
 		//System.out.println("urlString="+urlString);
 		
