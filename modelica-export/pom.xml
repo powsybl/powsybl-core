@@ -35,6 +35,7 @@
 		<maven.compiler.source>1.7</maven.compiler.source>
 
 		<!-- Properties used in exec goal -->
+		<!--<execClass>eu.itesla_project.modelica_export.test.OMInitTest</execClass>-->
 		<execClass>eu.itesla_project.modelica_export.test.ModelicaExporterTestLF</execClass>
 		<cimFile>C:/Users/machadosc/Dropbox/Trabajo/Silvia iTesla Data/Modelo 22 Buses/CIM2_TP.xml</cimFile>
 		<host>127.0.0.1</host> 
@@ -44,14 +45,8 @@
 		<modelicaVersion>3.2</modelicaVersion> 
 		<sourceEngine>psse</sourceEngine>
 		<sourceVersion>32.1</sourceVersion>
-		<hasEvents>false</hasEvents>
-		<eventsFile>dummy</eventsFile>
 		<!-- modelicaLibPath is required if sourceEngine is eurostag -->
 		<modelicaLibPath>dummy</modelicaLibPath>
-		<!-- ddbDir,  genDictFile and auxDictFile are required if sourceEngine is eurostag and step-up transformer insertion is required --> 
-		<ddbDir>dummy</ddbDir>
-		<genDictFile>dummy</genDictFile>
-		<auxDictFile>dummy</auxDictFile>
 	</properties>
 
 	<dependencyManagement>
@@ -87,7 +82,6 @@
 			<groupId>eu.itesla_project.iidm-ddb</groupId>
 			<artifactId>iidm-ddb-ejb</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
-			<type>ejb-client</type>
 		</dependency>
 
 		<dependency>
@@ -106,7 +100,6 @@
 			<artifactId>iidm-ddb-eurostag-modelica-converter</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
-
 	</dependencies>
 
 
@@ -124,7 +117,6 @@
 	<!-- <skipTests>true</skipTests> -->
 	<!-- </configuration> -->
 	<!-- </plugin> -->
-
 			<plugin>  
 				<groupId>org.codehaus.mojo</groupId>  
 				<artifactId>exec-maven-plugin</artifactId>  
@@ -153,12 +145,7 @@
 						<argument>${modelicaVersion}</argument>  
 						<argument>${sourceEngine}</argument>
 						<argument>${sourceVersion}</argument>
-						<argument>${hasEvents}</argument>
-						<argument>${eventsFile}</argument>
 						<argument>${modelicaLibPath}</argument>
-						<argument>${ddbDir}</argument>
-						<argument>${genDictFile}</argument>
-						<argument>${auxDictFile}</argument>
 					</arguments>  
 				</configuration>  
 			</plugin>  
