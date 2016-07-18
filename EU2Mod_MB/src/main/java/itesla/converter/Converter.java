@@ -9,8 +9,6 @@ package itesla.converter;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,9 +18,6 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 
-/**
- * @author Marc Sabate <sabatem@aia.es>
- */
 public class Converter {
 	public String pathfrm;
 	public String pathOut;
@@ -210,8 +205,11 @@ public class Converter {
 			if (!MO.outputZeroPins.isEmpty()){
 				for (int i=0; i<MO.outputZeroPins.size(); i++){
 					out.write(MO.outputZeroPins.get(i) + "\n");
+					
+					
 				}
 			}
+			
 		} else {
 			for (int i=0; i<MO.outputParamDeclaration.size(); i++){
 				out.write(MO.outputParamDeclaration.get(i) + "\n");

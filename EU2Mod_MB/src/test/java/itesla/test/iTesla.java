@@ -6,25 +6,20 @@
  */
 package itesla.test;
 
-import java.util.ArrayList;
+import itesla.converter.Converter;
+
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.io.File;
-import java.io.IOException;
 
-import itesla.converter.Converter;
-import itesla.converter.ParParser;
 
-/**
- * @author Marc Sabate <sabatem@aia.es>
- */
 public class iTesla {
 
 	private static Converter converter;
 	private static Converter converter_init;
-	private static final String pathFRM = "C:\\Users\\sabaterm\\Documents\\iTesla\\Conversor Proves Nom\\edftur1c.frm";
-	private static final String pathOUT = "C:\\Users\\sabaterm\\Documents\\iTesla\\Conversor Proves Nom\\";
+	private static final String pathFRM = "C:\\Users\\viruezr\\Desktop\\Conversiones\\goverRTE22\\edftur1c.frm";
+	private static final String pathOUT = "C:\\Users\\viruezr\\Desktop\\Conversiones\\goverRTE22\\modelica\\";
 
 	public static void main(String[] args) throws IOException {
 		converter = new Converter(pathFRM, pathOUT, false);
@@ -49,7 +44,7 @@ public class iTesla {
 		/*
 		 * Function that returns a specific set of parameters given by its reference id
 		 */
-		Integer idSet = 2;
+		Integer idSet = 1;
 		HashMap<String, String> nthParameterSet = converter.parData.getSetParameters(idSet);
 		
 		for (Map.Entry<String, String> entry : nthParameterSet.entrySet()) {

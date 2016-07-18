@@ -13,9 +13,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author Marc Sabate <sabatem@aia.es>
- */
 public class EU_MBparser {
 	
 	

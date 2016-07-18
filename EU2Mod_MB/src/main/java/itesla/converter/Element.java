@@ -9,7 +9,7 @@ package itesla.converter;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
+/*
  * Element de la librería PowerSystems. Hace una correspondencia con el elemento de Eurostag.
  * idEu: cada bloque del macrobloque tiene un id de Eurostag asignado.
  * nameEu: nombre del bloque de Eurostag
@@ -17,8 +17,8 @@ import java.util.List;
  * nameModelica: nombre del bloque dentro de la librería de PowerSystems.
  * nInputpins: numero de input pins del modelo en Modelica
  * param: nombre de los parametros del modelo en Modelica 
- * @author Marc Sabate <sabatem@aia.es>
  */
+
 public class Element {
 	public Integer idEu;
 	public String nameEu;
