@@ -110,7 +110,7 @@ public class FixedTransformerRecord extends BranchRecord {
 	 */
 	@Override
 	void setParameters(float SNREF) {
-		super.iidmbranchParameters = new ArrayList<IIDMParameter>();
+		//super.iidmbranchParameters = new ArrayList<IIDMParameter>();
 
 		float t1NomV = this.transformer.getTerminal1().getVoltageLevel().getNominalV();
 		float t2NomV = this.transformer.getTerminal2().getVoltageLevel().getNominalV(); 

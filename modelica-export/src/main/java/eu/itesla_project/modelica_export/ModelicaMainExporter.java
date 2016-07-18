@@ -18,6 +18,7 @@ import eu.itesla_project.modelica_export.util.PsseEngine;
 import eu.itesla_project.modelica_export.util.SourceEngine;
 import eu.itesla_project.modelica_export.util.StaticData;
 import eu.itesla_project.loadflow.api.LoadFlowResult;
+import eu.itesla_project.helmflow.HELMLoadFlow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -114,6 +115,17 @@ public class ModelicaMainExporter {
 			ModelicaExport export = null;
 			
 			if(this._sourceEngine instanceof EurostagEngine) {
+				//To have the same representation/results between HELM and PSS/E the sign of P and Q in generators have been changed
+				//Moreover, for Eurostag the sign must be the same in IIDM and HELM and as it has been changed in the HELM integration
+				//i should be changed after this in the IIDM
+				for(Generator gen : _network.getGenerators()) {
+					float P = -gen.getTerminal().getP();
+					float Q = -gen.getTerminal().getQ();
+					
+					gen.getTerminal().setP(P);
+					gen.getTerminal().setQ(Q);
+				}
+				
 				export = new ModelicaExport(_network, ddbmanager, paramsDictionary, this._modelicaLibPath.toFile(), _sourceEngine);
 			}
 			else if(this._sourceEngine instanceof PsseEngine) {
@@ -135,6 +147,7 @@ public class ModelicaMainExporter {
 			
 			_log.debug("ModelicaMainExporter. Duration: " + (duration));
 			_log.info("Conversion finished.");
+			System.exit(0);
 		} catch (Exception e) {
 			_log.error(e.getMessage(), e);
 		}
@@ -143,9 +156,11 @@ public class ModelicaMainExporter {
 	private void runLoadFlow(ComputationManager _computationManager) throws Exception {
 		int priority = 1;
 		LoadFlow loadflow = loadFlowFactory.create(_network, _computationManager, priority);
+		((HELMLoadFlow) loadflow).setSlack(this._slackId);
 		LoadFlowResult lfResults = loadflow.run();
 
 		if(!lfResults.isOk()) {
+			System.out.println("LF has not been successfuly completed.");
 			_log.info("Loadflow finished. isOk == false");
 			System.exit(-1);
 		}

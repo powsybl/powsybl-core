@@ -23,6 +23,7 @@ import eu.itesla_project.modelica_export.util.eurostag.EurostagModDefaultTypes;
 import eu.itesla_project.modelica_export.util.psse.PsseFixedData;
 import eu.itesla_project.modelica_export.util.psse.PsseModDefaultTypes;
 import org.openmodelica.javaomc.JavaOMCAPI;
+import org.openmodelica.javaomc.ConnectException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,6 +75,8 @@ public class ModelicaExport {
 			if (this._sourceEngine instanceof EurostagEngine) {
 				// Load PowerSystems library
 				omc.loadFile(this.modelicaLibFile.getPath());
+				//omc.loadFile("/home/machados/sources/data/ipsl_Raul/iPSL.mo");
+				//omc.loadFile("/home/machados/sources/data/IPSL/PowerSystems.mo"); // Temporal mientras se arregla el macroblock converter
 				omc.getStandardLibrary();
 			}
 		} catch (Exception e) {
@@ -166,7 +169,7 @@ public class ModelicaExport {
 		GlobalVariable SNREF_Var = new GlobalVariable(StaticData.PARAM_TYPE, StaticData.SNREF, SNREF);
 		globalVars.add(SNREF_Var);
 		if (this._sourceEngine instanceof EurostagEngine) {
-			OMEGAREF_Var = new GlobalVariable(EurostagModDefaultTypes.DEFAULT_PIN_TYPE, EurostagFixedData.OMEGAREF_NAME);
+			OMEGAREF_Var = new GlobalVariable(EurostagModDefaultTypes.OUTPUT_PIN_TYPE, EurostagFixedData.OMEGAREF_NAME);
 			globalVars.add(OMEGAREF_Var);
 		}
 
@@ -408,7 +411,7 @@ public class ModelicaExport {
 				float p0 = dl.getP0(); 
 				float q0 = dl.getQ0();  
 				String loadId = "ext_" + dl.getId();
-				LoadRecord loadRecord = ModelConverter.getModelicaRecord(loadId, p0, q0, busVoltage, busAngle, modContext, _ddbManager, modelicaSim, SNREF);
+				LoadRecord loadRecord = ModelConverter.getModelicaRecord(loadId, p0, q0, busVoltage, busAngle, modContext, _ddbManager, modelicaSim, SNREF, this._sourceEngine);
 //				FixedInjectionRecord fixInjRecord = ModelConverter.getModelicaRecord(loadId, p0, q0, busVoltage, busAngle,modContext, _ddbManager, modelicaSim, SNREF, this._sourceEngine);
 				this.danglingLoads.add(loadRecord);
 				this.addRecord(loadRecord, writerMo, modContext, _ddbManager, modelicaSim);
@@ -449,7 +452,7 @@ public class ModelicaExport {
 					String loadId = "ext_" + dl.getId();
 					
 					BusRecord busRecord = ModelConverter.getModelicaRecord(busName, busVoltage, busAngle, modContext, _ddbManager, modelicaSim);
-					LoadRecord loadRecord = ModelConverter.getModelicaRecord(loadId, p0, q0, busVoltage, busAngle, modContext, _ddbManager, modelicaSim, SNREF);
+					LoadRecord loadRecord = ModelConverter.getModelicaRecord(loadId, p0, q0, busVoltage, busAngle, modContext, _ddbManager, modelicaSim, SNREF, this._sourceEngine);
 					
 					DanglingLineRecord dlineRecord = ModelConverter.getModelicaRecord(dl, busRecord.getModelicaName(), loadRecord.getModelicaName(), modContext, _ddbManager, modelicaSim, SNREF);
 					danglingLines.add(dlineRecord);
@@ -583,7 +586,7 @@ public class ModelicaExport {
 				ConnectBusInfo busInfo = findBus(load.getTerminal(), load.getId());
 				// If load's disconnected we remove it from list in order to
 				// didn't corresponding connects
-				LoadRecord loadRecord = ModelConverter.getModelicaRecord(load, busInfo, modContext, _ddbManager, modelicaSim, SNREF);
+				LoadRecord loadRecord = ModelConverter.getModelicaRecord(load, busInfo, modContext, _ddbManager, modelicaSim, SNREF, this._sourceEngine);
 				this.addRecord(loadRecord, writerMo, modContext, _ddbManager, modelicaSim);
 			}
 			loadsList = null;
@@ -941,10 +944,17 @@ public class ModelicaExport {
 				// The initialization is only performed if the source engine is
 				// EUROSTAG
 				if (this._sourceEngine instanceof EurostagEngine) {
+					System.out.println("Initializing generators");
 					initialization = new Initialization(omc, _ddbManager, tmpDir, initializationDataList);
-					initialization.init();
+					//initialization.init();
+					try {
+						initialization.init();
+					} catch (ConnectException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
-
+								
 				for (GeneratorRecord genRecord : generatorsRecords) {
 					// El generatorRecord y los regulatorsRecords se anaden
 					// despues de la inicializacion para poder
@@ -952,7 +962,7 @@ public class ModelicaExport {
 					this.addRecord(genRecord, writerMo, modContext, _ddbManager, modelicaSim);
 				}
 			}
-
+			
 			// Export Regulators
 			if ((regulatorsList.size() != 0) && (!regulatorsList.isEmpty())) {
 				_log.info("EXPORTING REGULATORS");
@@ -963,7 +973,6 @@ public class ModelicaExport {
 					this.addRecord(reg, writerMo, modContext, _ddbManager, modelicaSim);
 				}
 			}
-
 			// Add special connection between Reg.VOTHSG and Constant.y if
 			// needed for conversion from PSSE
 			if (this._sourceEngine instanceof PsseEngine) {

@@ -121,7 +121,7 @@ public class DanglingLineRecord extends ModelicaRecord {
 	 * Add IIDM parameters to Dangling Line Modelica Model in p.u
 	 */
 	private void setParameters(float SNREF) {
-		this.iidmbranchParameters = new ArrayList<IIDMParameter>();
+		//this.iidmbranchParameters = new ArrayList<IIDMParameter>();
 		float tNominalV = this.danglingLine.getTerminal().getVoltageLevel().getNominalV();
 		float voltage = Float.isNaN(tNominalV) == false ? tNominalV : 0;
 		float Z = (voltage * voltage)/SNREF;

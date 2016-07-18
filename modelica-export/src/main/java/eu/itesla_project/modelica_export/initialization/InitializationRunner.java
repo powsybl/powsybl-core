@@ -19,6 +19,7 @@ import java.util.Map;
 import org.openmodelica.javaomc.JavaOMCAPI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.util.Scanner;
 
 import eu.itesla_project.modelica_export.util.StaticData;
 import eu.itesla_project.modelica_export.util.eurostag.EurostagFixedData;
@@ -41,8 +42,9 @@ public class InitializationRunner {
 			Map<String, Map<String, List<String>>> regInitVarsFromOtherRegs;
 			Map<String, List<String>> regInitOtherVars;
 			
+			
 			omc.loadFile(this.fileName.getAbsolutePath());
-			omc.getClassNamesList().toString();
+			//String content = new Scanner(this.fileName).useDelimiter("\\Z").next();
 			for(InitializationData initData : initializationDataList) {
 				this.genInitValues = new HashMap<String, String>();
 				this.regInitValues = new HashMap<String, Map<String, String>>();
@@ -52,6 +54,12 @@ public class InitializationRunner {
 				regInitOtherVars = initData.getRegInitOtherVars();
 				
 				this.modelName = initData.getModelName();
+				
+				//omc.loadFile("log/" + this.modelName + StaticData.MO_EXTENSION);
+//				omc.loadFile("/home/machados/sources/ITESLA_FINAL/ipst/modelica-export/log/" + this.modelName + StaticData.MO_EXTENSION);
+	//			String content = new Scanner(new File("log/" + this.modelName + StaticData.MO_EXTENSION)).useDelimiter("\\Z").next();
+				//System.out.println(content);
+			
 				String compString = omc.getComponents(this.modelName);
 				String[] compList = compString.contains("},{") == true ? compString.split("\\},\\{") : null;
 				String machine = compList != null ? compList[0].split(",")[1] : compString.split(",")[1];
@@ -69,6 +77,9 @@ public class InitializationRunner {
 				 */
 				long init = System.currentTimeMillis();
 				omc.simulate(initData.getModelName(), "0", "1", "dassl");
+				//omc.getSimulationVars(initData.getModelName() + "_res.mat");
+				omc.getErrorString();
+				
 				_log.debug("Inicialización (ms) = " + (System.currentTimeMillis()-init));
 				
 				/**
@@ -161,13 +172,14 @@ public class InitializationRunner {
 						}
 					}
 				}
-
+				
 				initData.setRegInitializedValues(regInitValues);
 				
 				// Delete .xml, .c, .h, .o and other files created by JavaOMC
-				deleteInitFiles();	
+				//deleteInitFiles();
 			}
 			omc.clear();
+			
 			
 ////			String compString = omc.getComponents(modelName);
 ////			String[] compList = compString.contains("},{") == true ? compString.split("\\},\\{") : null;
@@ -289,7 +301,7 @@ public class InitializationRunner {
 
 	private void deleteInitFiles() throws IOException {
 		String workingDir = System.getProperty("user.dir");
-
+		System.out.println("Working directory = " + workingDir);
 		Path dirPath = Paths.get(workingDir);
 		File[] initFiles = dirPath.toFile().listFiles(new FilenameFilter() {
 			@Override
@@ -302,7 +314,7 @@ public class InitializationRunner {
 			try {
 				boolean deleted = Files.deleteIfExists(Paths.get(f.getPath()));
 				if (!deleted)
-					_log.error("File " + f + " is not deleted.");
+					_log.error("File " + f + " has not been deleted.");
 				else
 					_log.info("Deleted: " + f.getName());
 			} catch (FileSystemException exc) {

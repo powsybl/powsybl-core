@@ -69,7 +69,7 @@ public class RegulatorInitData {
 			if(regInitValues != null && !regInitValues.isEmpty()) {
 				for(String param : regInitValues.keySet()) {
 					String paramValue = regInitValues.get(param);
-					param = param.trim().replace(StaticData.PIN, "pin_");
+//					param = param.trim().replace(StaticData.PIN, "pin_");
 					if(initList.contains(param)) {
 						parameter = new IIDMParameter(param, paramValue.trim());
 						this.regRecord.getIidmregParameters().add(parameter);

@@ -40,11 +40,25 @@ public class GeneratorRecord extends ModelicaRecord {
 		
 
 		if (!isInyection) {
+			if(this.sourceEngine instanceof EurostagEngine) {
+				this.DEFAULT_GEN_TYPE = EurostagModDefaultTypes.DEFAULT_GEN_TYPE; 
+			}
+			else if(this.sourceEngine instanceof PsseEngine) {
+				this.DEFAULT_GEN_TYPE = PsseModDefaultTypes.DEFAULT_GENROU_TYPE;
+			}
+			
 			if (DEFAULT_GEN_TYPE.contains("."))
 				DEFAULT_GEN_PREFIX = DEFAULT_GEN_TYPE.substring(DEFAULT_GEN_TYPE.lastIndexOf(".") + 1);
 			else
 				DEFAULT_GEN_PREFIX = DEFAULT_GEN_TYPE;
 		} else {
+			if(this.sourceEngine instanceof EurostagEngine) {
+				this.DEFAULT_GEN_LOAD_TYPE = EurostagModDefaultTypes.DEFAULT_GEN_LOAD_TYPE;
+			}
+			else if(this.sourceEngine instanceof PsseEngine) {
+				this.DEFAULT_GEN_LOAD_TYPE = PsseModDefaultTypes.DEFAULT_GEN_LOAD_TYPE;
+			}
+			
 			if (DEFAULT_GEN_LOAD_TYPE.contains("."))
 				DEFAULT_GEN_LOAD_PREFIX = DEFAULT_GEN_LOAD_TYPE.substring(DEFAULT_GEN_LOAD_TYPE.lastIndexOf(".") + 1);
 			else
@@ -393,28 +407,94 @@ public class GeneratorRecord extends ModelicaRecord {
 				parameter = new IIDMParameter(StaticData.SNREF, StaticData.SNREF);
 				this.iidmgenParameters.add(parameter);
 				addParamInMap(parameter.getName(),  parameter.getValue().toString());
-			} else {
+				
 				float modulo = voltage / generator.getTerminal().getVoltageLevel().getNominalV();
-				float angulo = (float) (angle * Math.PI / 180);
+				float angulo =  (float) (angle*Math.PI/180);
+		
+				double ur0 = modulo * Math.cos(angulo);
+				double ui0 = modulo * Math.sin(angulo);
+				
+				parameter = new IIDMParameter(EurostagFixedData.UR0, ur0);
+				this.iidmgenParameters.add(parameter);
+				addParamInMap(parameter.getName(),  parameter.getValue().toString());
+
+				parameter = new IIDMParameter(EurostagFixedData.UI0, ui0);
+				this.iidmgenParameters.add(parameter);
+				addParamInMap(parameter.getName(),  parameter.getValue().toString());
+				
+			} else {
+				parameter = new IIDMParameter(EurostagFixedData.V_0, voltage/generator.getTerminal().getVoltageLevel().getNominalV());
+				this.iidmgenParameters.add(parameter);
+				addParamInMap(parameter.getName(),  parameter.getValue().toString());
+				
+				parameter = new IIDMParameter(EurostagFixedData.ANGLE_0, angle);
+				this.iidmgenParameters.add(parameter);
+				addParamInMap(parameter.getName(),  parameter.getValue().toString());
+				
+				//SMF 2015-05-28 PREVIOUS: no se cambiaba el signo a pelec y qelec
+				//A partir de ahora le anadimos el -
+				float pelec = -this.generator.getTerminal().getP()/SNREF;
+				parameter = new IIDMParameter(EurostagFixedData.P, pelec);
+				this.iidmgenParameters.add(parameter);
+				addParamInMap(parameter.getName(),  parameter.getValue().toString());
+				
+				float qelec = -this.generator.getTerminal().getQ()/SNREF;
+				parameter = new IIDMParameter(EurostagFixedData.Q, qelec);
+				this.iidmgenParameters.add(parameter);
+				addParamInMap(parameter.getName(),  parameter.getValue().toString());
+				
+//				float modulo = voltage / generator.getTerminal().getVoltageLevel().getNominalV();
+//				float angulo = (float) (angle * Math.PI / 180);
 	
-				parameter = new IIDMParameter(EurostagFixedData.VO_REAL, modulo * Math.cos(angulo));
-				this.iidmgenParameters.add(parameter);
-				addParamInMap(parameter.getName(),  parameter.getValue().toString());
-				
-				parameter = new IIDMParameter(EurostagFixedData.VO_IMG, modulo * Math.sin(angulo));
-				this.iidmgenParameters.add(parameter);
-				addParamInMap(parameter.getName(),  parameter.getValue().toString());
-				
-				parameter = new IIDMParameter(EurostagFixedData.P, (float) -this.generator.getTerminal().getP() / SNREF);
-				this.iidmgenParameters.add(parameter);
-				addParamInMap(parameter.getName(),  parameter.getValue().toString());
-				
-				parameter = new IIDMParameter(EurostagFixedData.Q, (float) -this.generator.getTerminal().getQ() / SNREF);
-				this.iidmgenParameters.add(parameter);
-				addParamInMap(parameter.getName(),  parameter.getValue().toString());
+//				parameter = new IIDMParameter(EurostagFixedData.VO_REAL, modulo * Math.cos(angulo));
+//				this.iidmgenParameters.add(parameter);
+//				addParamInMap(parameter.getName(),  parameter.getValue().toString());
+//				
+//				parameter = new IIDMParameter(EurostagFixedData.VO_IMG, modulo * Math.sin(angulo));
+//				this.iidmgenParameters.add(parameter);
+//				addParamInMap(parameter.getName(),  parameter.getValue().toString());
+//				
+//				parameter = new IIDMParameter(EurostagFixedData.P, (float) -this.generator.getTerminal().getP() / SNREF);
+//				this.iidmgenParameters.add(parameter);
+//				addParamInMap(parameter.getName(),  parameter.getValue().toString());
+//				
+//				parameter = new IIDMParameter(EurostagFixedData.Q, (float) -this.generator.getTerminal().getQ() / SNREF);
+//				this.iidmgenParameters.add(parameter);
+//				addParamInMap(parameter.getName(),  parameter.getValue().toString());
 			}
 		} else if (this.sourceEngine instanceof PsseEngine) {
 			if(!isInyection ) {
+//				if(this.generator.getEnergySource().name().equalsIgnoreCase("WIND")) {
+//					parameter = new IIDMParameter(PsseFixedData.ETERM, voltage/generator.getTerminal().getVoltageLevel().getNominalV());
+//					this.iidmgenParameters.add(parameter);
+//					addParamInMap(parameter.getName(),  parameter.getValue().toString());
+//					
+//					parameter = new IIDMParameter(PsseFixedData.ANGLEV0, angle);
+//					this.iidmgenParameters.add(parameter);
+//					addParamInMap(parameter.getName(),  parameter.getValue().toString());
+//					
+//					//SMF 2015-05-28 PREVIOUS: no se cambiaba el signo a pelec y qelec
+//					//A partir de ahora le anadimos el -
+//					float pelec = -this.generator.getTerminal().getP();
+//					parameter = new IIDMParameter(PsseFixedData.PELEC, pelec);
+//					this.iidmgenParameters.add(parameter);
+//					addParamInMap(parameter.getName(),  parameter.getValue().toString());
+//					
+//					float qelec = -this.generator.getTerminal().getQ();
+//					parameter = new IIDMParameter(PsseFixedData.QELEC, qelec);
+//					this.iidmgenParameters.add(parameter);
+//					addParamInMap(parameter.getName(),  parameter.getValue().toString());
+//	
+//					double mbase = this.generator.getRatedS();
+//					double refValue = Math.sqrt(Math.pow(pelec, 2) + Math.pow(qelec, 2));
+//					if(mbase <= refValue) {
+//						mbase = 1.1*refValue;
+//						changedMbse = true;
+//					}
+//					parameter = new IIDMParameter(PsseFixedData.Mbase, mbase);
+//					this.iidmgenParameters.add(parameter);
+//					addParamInMap(parameter.getName(),  parameter.getValue().toString());
+//				} else {
 					parameter = new IIDMParameter(PsseFixedData.V_0, voltage/generator.getTerminal().getVoltageLevel().getNominalV());
 					this.iidmgenParameters.add(parameter);
 					addParamInMap(parameter.getName(),  parameter.getValue().toString());
@@ -444,6 +524,7 @@ public class GeneratorRecord extends ModelicaRecord {
 					parameter = new IIDMParameter(PsseFixedData.M_b, mbase);
 					this.iidmgenParameters.add(parameter);
 					addParamInMap(parameter.getName(),  parameter.getValue().toString());
+//				}
 			}
 			else {
 				parameter = new IIDMParameter(PsseFixedData.V_0, voltage/generator.getTerminal().getVoltageLevel().getNominalV());
@@ -455,7 +536,7 @@ public class GeneratorRecord extends ModelicaRecord {
 				addParamInMap(parameter.getName(),  parameter.getValue().toString());
 				
 				//SMF 2015-05-28 PREVIOUS: no se cambiaba el signo a pelec y qelec
-				//A partir de ahora le anadimos el -
+//				A partir de ahora le anadimos el -
 				float pelec = -this.generator.getTerminal().getP();
 				parameter = new IIDMParameter(PsseFixedData.P_0, pelec);
 				this.iidmgenParameters.add(parameter);
@@ -504,8 +585,8 @@ public class GeneratorRecord extends ModelicaRecord {
 
 	private ConnectBusInfo busInfo;
 	
-	private String DEFAULT_GEN_TYPE = EurostagModDefaultTypes.DEFAULT_GEN_TYPE;
-	private String DEFAULT_GEN_LOAD_TYPE = PsseModDefaultTypes.DEFAULT_GEN_LOAD_TYPE;
+	private String DEFAULT_GEN_TYPE; // = EurostagModDefaultTypes.DEFAULT_GEN_TYPE;
+	private String DEFAULT_GEN_LOAD_TYPE; // = PsseModDefaultTypes.DEFAULT_GEN_LOAD_TYPE;
 
 	private String DEFAULT_GEN_PREFIX;
 	private String DEFAULT_GEN_LOAD_PREFIX;

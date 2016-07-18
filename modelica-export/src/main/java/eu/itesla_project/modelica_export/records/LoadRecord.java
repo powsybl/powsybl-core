@@ -15,8 +15,12 @@ import eu.itesla_project.iidm.network.Load;
 import eu.itesla_project.modelica_export.ModExportContext;
 import eu.itesla_project.modelica_export.ModelicaRecord;
 import eu.itesla_project.modelica_export.util.IIDMParameter;
+import eu.itesla_project.modelica_export.util.EurostagEngine;
+import eu.itesla_project.modelica_export.util.PsseEngine;
+import eu.itesla_project.modelica_export.util.SourceEngine;
 import eu.itesla_project.modelica_export.util.StaticData;
 import eu.itesla_project.modelica_export.util.eurostag.EurostagFixedData;
+import eu.itesla_project.modelica_export.util.eurostag.EurostagModDefaultTypes;
 import eu.itesla_project.modelica_export.util.psse.PsseFixedData;
 import eu.itesla_project.modelica_export.util.psse.PsseModDefaultTypes;
 import org.apache.commons.lang3.text.WordUtils;
@@ -32,7 +36,7 @@ import java.util.List;
  */
 public class LoadRecord extends ModelicaRecord {
 
-	public LoadRecord(Load load, ConnectBusInfo busInfo, float SNREF) {
+	public LoadRecord(Load load, ConnectBusInfo busInfo, float SNREF, SourceEngine sourceEngine) {
 		this.load = load;
 		this.busInfo = busInfo;
 		this.loadId = load.getId();
@@ -41,7 +45,8 @@ public class LoadRecord extends ModelicaRecord {
 		this.q0 = this.load.getQ0();
 		this.busVoltage = Float.NaN;
 		this.busAngle = Float.NaN;
-	
+		this.sourceEngine = sourceEngine;
+		
 		if(this.busConnected) {
 	        if (load.getTerminal().getBusView().getBus() != null) {
 	        	if(!Float.isNaN(load.getTerminal().getBusView().getBus().getV())) 
@@ -63,13 +68,14 @@ public class LoadRecord extends ModelicaRecord {
 		}
 	}
 	
-	public LoadRecord(String loadId, float p0, float q0, float busVoltage, float busAngle, float SNREF) {
+	public LoadRecord(String loadId, float p0, float q0, float busVoltage, float busAngle, float SNREF, SourceEngine sourceEngine) {
 		this.loadId = loadId;
 		this.busVoltage = busVoltage;
 		this.busAngle = busAngle;
 		this.p0 = p0;
 		this.q0 = q0;
 		this.busConnected= true;
+		this.sourceEngine = sourceEngine;
 		
 		addLfParameters();
 	}
@@ -157,22 +163,24 @@ public class LoadRecord extends ModelicaRecord {
 	private void addLfParameters() {
 		float modulo = this.busVoltage;
 		float angulo = this.busAngle;
+
 		this.iidmloadParameters.add(new IIDMParameter(PsseFixedData.V_0, modulo));
 		this.iidmloadParameters.add(new IIDMParameter(PsseFixedData.P_0, this.p0));
 		this.iidmloadParameters.add(new IIDMParameter(PsseFixedData.Q_0, this.q0));
 		
-		this.iidmloadParameters.add(new IIDMParameter(PsseFixedData.PQBRAK, 0.7));
+		if(this.sourceEngine instanceof EurostagEngine) {
+			DEFAULT_LOAD_TYPE = EurostagModDefaultTypes.DEFAULT_LOAD_TYPE;
+			//Harcoded values because we don't have it anywhere. Add these values only when PwLoadVoltageDependence is used
+			this.iidmloadParameters.add(new IIDMParameter(EurostagFixedData.ALPHA, 1));
+			this.iidmloadParameters.add(new IIDMParameter(EurostagFixedData.BETA, 2));
+		} else if(this.sourceEngine instanceof PsseEngine) {
+			DEFAULT_LOAD_TYPE = PsseModDefaultTypes.DEFAULT_LOAD_TYPE;
+			this.iidmloadParameters.add(new IIDMParameter(PsseFixedData.PQBRAK, 0.7));
+		}
 		
 		if(DEFAULT_LOAD_TYPE.contains(".")) DEFAULT_LOAD_PREFIX = DEFAULT_LOAD_TYPE.substring(DEFAULT_LOAD_TYPE.lastIndexOf(".") + 1);
 		else DEFAULT_LOAD_PREFIX = DEFAULT_LOAD_TYPE;
 		
-		//TODO Harcoded values because we don't have it anywhere
-		//Add these values only when PwLoadVoltageDependence is used
-//		if(EurostagModDefaultTypes.LOAD_VOLTAGE_DEP_TYPE.contains(DEFAULT_LOAD_PREFIX)) {
-//			this.iidmloadParameters.add(new IIDMParameter(EurostagFixedData.ALPHA, 1));
-//			this.iidmloadParameters.add(new IIDMParameter(EurostagFixedData.BETA, 2));
-//			angulo = (float) (angle*Math.PI/180);
-//		}
 		this.iidmloadParameters.add(new IIDMParameter(PsseFixedData.ANGLE_0, angulo));
 	}
 	
@@ -201,8 +209,9 @@ public class LoadRecord extends ModelicaRecord {
 	private float busAngle;
 	private boolean busConnected;
 	private ConnectBusInfo busInfo;
-	
-	private String				DEFAULT_LOAD_TYPE	= PsseModDefaultTypes.CONSTANT_LOAD_TYPE;
+	private SourceEngine sourceEngine;
+		
+	private String				DEFAULT_LOAD_TYPE;
 	private String				DEFAULT_LOAD_PREFIX;
 	
 	private List<Parameter>		loadParameters		= new ArrayList<Parameter>();
