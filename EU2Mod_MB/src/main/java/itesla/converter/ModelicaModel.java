@@ -46,19 +46,19 @@ public class ModelicaModel {
 	 * parData: lista parametros definidos dentro del archivo .par
 	 * outputHeading: la cabecera de un modelo de modelica (e.g: model PwLine)
 	 * outputEnd: end de un modelo de Modelica (e.g: end model;)
-	 * outputPositiveImPin: lista de strings donde cada elemento es la declaración de cada input pin del modelo
-	 * outputNegativeImPin: lista de strings donde cada elemento es la declaración de cada output pin del modelo
-	 * outputParamInit: lista de strings donde cada elemento es la declaración de los parámetros de inicialización de los modelos que tengan parámetro de inicialización
-	 * outputParamDeclaration: lista de strings donde cada elemento es la declaración de los parámetros dentro del *.par (e.g. parameter Real T1;)
-	 * outputBlocksDeclaration: lista de strings donde cada elemento es la declaración de la instancia de un bloque dentro del macrobloque (e.g. PowerSystems.Math.ImSetPoint setPoint(V=1);)
+	 * outputPositiveImPin: lista de strings donde cada elemento es la declaraciÃ³n de cada input pin del modelo
+	 * outputNegativeImPin: lista de strings donde cada elemento es la declaraciÃ³n de cada output pin del modelo
+	 * outputParamInit: lista de strings donde cada elemento es la declaraciÃ³n de los parÃ¡metros de inicializaciÃ³n de los modelos que tengan parÃ¡metro de inicializaciÃ³n
+	 * outputParamDeclaration: lista de strings donde cada elemento es la declaraciÃ³n de los parÃ¡metros dentro del *.par (e.g. parameter Real T1;)
+	 * outputBlocksDeclaration: lista de strings donde cada elemento es la declaraciÃ³n de la instancia de un bloque dentro del macrobloque (e.g. PowerSystems.Math.ImSetPoint setPoint(V=1);)
 	 * outputZeroPins: los pines de entrada de algunos bloques que no se usan (como por ejemplo, en un bloque suma, si solo se usan 3 pines de entrada, 2 quedan sin usar), entonces se ponen a 0 en las ecuaciones, para tener un sistema determinado.
-	 * outputConnection: lista de strings con la conexión entre bloques
-	 * outputInputConnection: lista de strings con la conexión de los bloques con los inputpins del macrobloque (e.g. connect(pin_CM,suma.p1))
-	 * outputOutputConnection: lista de strings con la conexión de los bloques con los outputpins del macrobloque
+	 * outputConnection: lista de strings con la conexiÃ³n entre bloques
+	 * outputInputConnection: lista de strings con la conexiÃ³n de los bloques con los inputpins del macrobloque (e.g. connect(pin_CM,suma.p1))
+	 * outputOutputConnection: lista de strings con la conexiÃ³n de los bloques con los outputpins del macrobloque
 	 * NamedLinks: lista de strings con los links que tienen nombre
 	 * interfaceVariables: lista de strings con los nombres de las Interface Variables
 	 * init_friParameters: lista de strings con los nombres de los paramatros calculados en el .fri
-	 * init_InterfaceParameters: lista de strings con los nombres de las variables de inicialización de las interface variables
+	 * init_InterfaceParameters: lista de strings con los nombres de las variables de inicializaciÃ³n de las interface variables
 	 */
 	public ModelicaModel (Block[] Blocks, Integer[][] Link, String pathEu , Hashtable<Integer,Element> CT, ParParser parData) {
 		this.Blocks = Blocks;
@@ -327,7 +327,7 @@ public class ModelicaModel {
 			}
 		}
 		
-		//Parche: si el macrobloque es OELPSAT se añaden los parametros XD y XQ de la maquina
+		//Parche: si el macrobloque es OELPSAT se aÃ±aden los parametros XD y XQ de la maquina
 		if (outputHeading.toLowerCase().equals("model oelpsat")) {
 			outputParamDeclaration.add("  parameter Real XD;");
 			outputParamDeclaration.add("  parameter Real XQ;");
@@ -622,7 +622,7 @@ public class ModelicaModel {
 				ConnLeft = model.nameModelica + "_" + Blocks[Link[i][0]-1].GraphicalNumber.toString() + ".y";
 			}
 			model = CT.get(Blocks[Link[i][1]-1].idEu);
-			//Cambios por Ra�l:  .y antes .p .u antes .n 
+			//Cambios por Raul:  .y antes .p .u antes .n 
 			if(Blocks[Link[i][1]-1].UsedInputPins.size() == 1){
 				ConnRight = model.nameModelica + "_" + Blocks[Link[i][1]-1].GraphicalNumber.toString() + ".u";
 			}else{
@@ -659,7 +659,7 @@ public class ModelicaModel {
 		}
 	}
 	
-	//cambios por Ra�l: imputs u outputs connections antes .p y .n ahora .y y .p
+	//cambios por Raul: imputs u outputs connections antes .p y .n ahora .y y .p
      
 	public void InputConnection() {
 		//List<String> ImPins = new ArrayList<String>();
