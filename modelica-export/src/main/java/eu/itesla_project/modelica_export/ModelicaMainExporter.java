@@ -18,7 +18,7 @@ import eu.itesla_project.modelica_export.util.PsseEngine;
 import eu.itesla_project.modelica_export.util.SourceEngine;
 import eu.itesla_project.modelica_export.util.StaticData;
 import eu.itesla_project.loadflow.api.LoadFlowResult;
-import eu.itesla_project.helmflow.HELMLoadFlow;
+//import eu.itesla_project.helmflow.HELMLoadFlow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -156,7 +156,7 @@ public class ModelicaMainExporter {
 	private void runLoadFlow(ComputationManager _computationManager) throws Exception {
 		int priority = 1;
 		LoadFlow loadflow = loadFlowFactory.create(_network, _computationManager, priority);
-		((HELMLoadFlow) loadflow).setSlack(this._slackId);
+		//((HELMLoadFlow) loadflow).setSlack(this._slackId);
 		LoadFlowResult lfResults = loadflow.run();
 
 		if(!lfResults.isOk()) {
