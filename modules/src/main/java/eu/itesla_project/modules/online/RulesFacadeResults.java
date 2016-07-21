@@ -18,38 +18,38 @@ import eu.itesla_project.modules.securityindexes.SecurityIndexType;
  */
 public class RulesFacadeResults {
 
-	private final String stateId;
-	private final String contingencyId;
-	private final StateStatus stateStatus;
-	private final Map<SecurityIndexType, StateStatus> indexesResults;
-	private final List<SecurityIndexType> invalidRules;
-	private final boolean rulesAvailable;
-	
-	public RulesFacadeResults(String stateId, String contingencyId, StateStatus stateStatus, Map<SecurityIndexType, StateStatus> indexesResults, 
-							  List<SecurityIndexType> invalidRules, boolean rulesAvailable) {
-		this.stateId = stateId;
-		this.contingencyId = contingencyId;
-		this.stateStatus = stateStatus;
-		this.indexesResults = indexesResults;
-		this.invalidRules = invalidRules;
-		this.rulesAvailable = rulesAvailable;
-	}
+    private final String stateId;
+    private final String contingencyId;
+    private final StateStatus stateStatus;
+    private final Map<SecurityIndexType, StateStatus> indexesResults;
+    private final List<SecurityIndexType> invalidRules;
+    private final boolean rulesAvailable;
 
-	public String getStateId() {
-		return stateId;
-	}
+    public RulesFacadeResults(String stateId, String contingencyId, StateStatus stateStatus, Map<SecurityIndexType, StateStatus> indexesResults, 
+            List<SecurityIndexType> invalidRules, boolean rulesAvailable) {
+        this.stateId = stateId;
+        this.contingencyId = contingencyId;
+        this.stateStatus = stateStatus;
+        this.indexesResults = indexesResults;
+        this.invalidRules = invalidRules;
+        this.rulesAvailable = rulesAvailable;
+    }
 
-	public String getContingencyId() {
-		return contingencyId;
-	}
+    public String getStateId() {
+        return stateId;
+    }
 
-	public StateStatus getStateStatus() {
-		return stateStatus;
-	}
+    public String getContingencyId() {
+        return contingencyId;
+    }
 
-	public Map<SecurityIndexType, StateStatus> getIndexesResults() {
-		return indexesResults;
-	}
+    public StateStatus getStateStatus() {
+        return stateStatus;
+    }
+
+    public Map<SecurityIndexType, StateStatus> getIndexesResults() {
+        return indexesResults;
+    }
 
 	public List<SecurityIndexType> getInvalidRules() {
 		return invalidRules;

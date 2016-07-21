@@ -32,21 +32,21 @@ import eu.itesla_project.modules.securityindexes.SecurityIndexType;
  */
 public class SecurityRulesFacade implements OnlineRulesFacade {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(SecurityRulesFacade.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SecurityRulesFacade.class);
 
-	private final RulesDbClient rulesDbClient;
+    private final RulesDbClient rulesDbClient;
 
-	private final Map<String, ContingencyEvaluator> evaluators = new HashMap<>();
+    private final Map<String, ContingencyEvaluator> evaluators = new HashMap<>();
 
-	public SecurityRulesFacade(RulesDbClient rulesDbClient) {
-		this.rulesDbClient = rulesDbClient;
-	}
+    public SecurityRulesFacade(RulesDbClient rulesDbClient) {
+        this.rulesDbClient = rulesDbClient;
+    }
 
-	@Override
-	public void init(RulesFacadeParameters parameters) throws Exception {
-		Objects.requireNonNull(parameters, "parameters is null");
+    @Override
+    public void init(RulesFacadeParameters parameters) throws Exception {
+        Objects.requireNonNull(parameters, "parameters is null");
         // preload security rules
-		SecurityIndexType[] securityIndexTypes = parameters.getSecurityIndexTypes() == null ? SecurityIndexType.values()
+        SecurityIndexType[] securityIndexTypes = parameters.getSecurityIndexTypes() == null ? SecurityIndexType.values()
                 : parameters.getSecurityIndexTypes().toArray(new SecurityIndexType[parameters.getSecurityIndexTypes().size()]);
         for (Contingency contingency : parameters.getContingencies()) {
             List<SecurityRule> mcRules = new ArrayList<>(); // rules for the current contingency
@@ -58,38 +58,38 @@ public class SecurityRulesFacade implements OnlineRulesFacade {
                 mcRules.addAll(rulesDbClient.getRules(parameters.getOfflineWorkflowId(), RuleAttributeSet.MONTE_CARLO, contingency.getId(), securityIndexType));
                 mcViolatedEquipmentForContingency.put(securityIndexType, new ArrayList<String>()); // so far we do not have the violated components for a rule/index
                 if ( parameters.wcaRules() )  { // get wca rules for validation
-                	LOGGER.info("Getting wca security rule for {} contingency and {} index", contingency.getId(), securityIndexType);
-                	wcaRules.addAll(rulesDbClient.getRules(parameters.getOfflineWorkflowId(), RuleAttributeSet.WORST_CASE, contingency.getId(), securityIndexType));
-                	wcaViolatedEquipmentForContingency.put(securityIndexType, new ArrayList<String>()); // so far we do not have the violated components for a rule/index
+                    LOGGER.info("Getting wca security rule for {} contingency and {} index", contingency.getId(), securityIndexType);
+                    wcaRules.addAll(rulesDbClient.getRules(parameters.getOfflineWorkflowId(), RuleAttributeSet.WORST_CASE, contingency.getId(), securityIndexType));
+                    wcaViolatedEquipmentForContingency.put(securityIndexType, new ArrayList<String>()); // so far we do not have the violated components for a rule/index
                 }
             }
             if ( parameters.wcaRules() ) // store wca rules for validation
-            	evaluators.put(contingency.getId(), new ContingencyEvaluator(contingency, mcRules, wcaRules, parameters.getPurityThreshold(), 
-            																 mcViolatedEquipmentForContingency, wcaViolatedEquipmentForContingency,
-            																 parameters.isCheckRules()));
+                evaluators.put(contingency.getId(), new ContingencyEvaluator(contingency, mcRules, wcaRules, parameters.getPurityThreshold(), 
+                        mcViolatedEquipmentForContingency, wcaViolatedEquipmentForContingency,
+                        parameters.isCheckRules()));
             else
-            	evaluators.put(contingency.getId(), new ContingencyEvaluator(contingency, mcRules, parameters.getPurityThreshold(), 
-            																 mcViolatedEquipmentForContingency, parameters.isCheckRules()));
+                evaluators.put(contingency.getId(), new ContingencyEvaluator(contingency, mcRules, parameters.getPurityThreshold(), 
+                        mcViolatedEquipmentForContingency, parameters.isCheckRules()));
         }
-	}
+    }
 
-	public ContingencyEvaluator getContingencyEvaluator(Contingency contingency) {
-		Objects.requireNonNull(contingency, "contingency is null");
+    public ContingencyEvaluator getContingencyEvaluator(Contingency contingency) {
+        Objects.requireNonNull(contingency, "contingency is null");
         ContingencyEvaluator evaluator = evaluators.get(contingency.getId());
         if (evaluator == null) {
             throw new RuntimeException("Security rules for contingency {} has not been preloaded");
         }
         return evaluator;
-	}
+    }
 
-	@Override
-	public RulesFacadeResults evaluate(Contingency contingency, Network network) {
-		return getContingencyEvaluator(contingency).evaluate(network);
-	}
+    @Override
+    public RulesFacadeResults evaluate(Contingency contingency, Network network) {
+        return getContingencyEvaluator(contingency).evaluate(network);
+    }
 
-	@Override
-	public RulesFacadeResults wcaEvaluate(Contingency contingency, Network network) {
-		return getContingencyEvaluator(contingency).wcaEvaluate(network);
-	}
+    @Override
+    public RulesFacadeResults wcaEvaluate(Contingency contingency, Network network) {
+        return getContingencyEvaluator(contingency).wcaEvaluate(network);
+    }
 
 }

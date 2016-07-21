@@ -22,52 +22,52 @@ import eu.itesla_project.modules.online.StateStatus;
 import eu.itesla_project.modules.securityindexes.SecurityIndexType;
 
 /**
-*
-* @author Quinary <itesla@quinary.com>
-*/
+ *
+ * @author Quinary <itesla@quinary.com>
+ */
 public class RulesFacadeMock implements OnlineRulesFacade {
 
-	RulesFacadeParameters parameters;
-	SecurityIndexType[] securityIndexTypes;
-	StateStatus rulesResults = StateStatus.SAFE;
-	
-	@Override
-	public void init(RulesFacadeParameters parameters) throws Exception {
-		this.parameters = parameters;
-		securityIndexTypes = parameters.getSecurityIndexTypes() == null ? SecurityIndexType.values()
+    RulesFacadeParameters parameters;
+    SecurityIndexType[] securityIndexTypes;
+    StateStatus rulesResults = StateStatus.SAFE;
+
+    @Override
+    public void init(RulesFacadeParameters parameters) throws Exception {
+        this.parameters = parameters;
+        securityIndexTypes = parameters.getSecurityIndexTypes() == null ? SecurityIndexType.values()
                 : parameters.getSecurityIndexTypes().toArray(new SecurityIndexType[parameters.getSecurityIndexTypes().size()]);
-		readConfig();
-	}
+        readConfig();
+    }
 
-	@Override
-	public RulesFacadeResults evaluate(Contingency contingency, Network network) {
-		Objects.requireNonNull(contingency, "contingency is null");
-		Objects.requireNonNull(network, "network is null");
-		return getMockResults(contingency, network);
-	}
+    @Override
+    public RulesFacadeResults evaluate(Contingency contingency, Network network) {
+        Objects.requireNonNull(contingency, "contingency is null");
+        Objects.requireNonNull(network, "network is null");
+        return getMockResults(contingency, network);
+    }
 
-	@Override
-	public RulesFacadeResults wcaEvaluate(Contingency contingency, Network network) {
-		Objects.requireNonNull(contingency, "contingency is null");
-		Objects.requireNonNull(network, "network is null");
-		return getMockResults(contingency, network);
-	}
-	
-	private RulesFacadeResults getMockResults(Contingency contingency, Network network) {
-		Map<SecurityIndexType, StateStatus> indexesResults = new EnumMap<>(SecurityIndexType.class);
-		for (SecurityIndexType indexType : securityIndexTypes) {
-			StateStatus ruleResults = (rulesResults == StateStatus.SAFE) ? StateStatus.SAFE : StateStatus.UNSAFE;
-			indexesResults.put(indexType, ruleResults);
-		}
-		return new RulesFacadeResults(network.getStateManager().getWorkingStateId(), contingency.getId(), rulesResults, indexesResults, 
-									  new ArrayList<>(), true);
-	}
-	
-	private void readConfig() {
-		if (PlatformConfig.defaultConfig().moduleExists("rulesFacadeMock")) {
-			ModuleConfig config = PlatformConfig.defaultConfig().getModuleConfig("rulesFacadeMock");
-			rulesResults = config.getEnumProperty("rulesResults", StateStatus.class, StateStatus.SAFE);
-		}
-	}
+    @Override
+    public RulesFacadeResults wcaEvaluate(Contingency contingency, Network network) {
+        Objects.requireNonNull(contingency, "contingency is null");
+        Objects.requireNonNull(network, "network is null");
+        return getMockResults(contingency, network);
+    }
+
+    private RulesFacadeResults getMockResults(Contingency contingency, Network network) {
+        Map<SecurityIndexType, StateStatus> indexesResults = new EnumMap<>(SecurityIndexType.class);
+        for (SecurityIndexType indexType : securityIndexTypes) {
+            StateStatus ruleResults = (rulesResults == StateStatus.SAFE) ? StateStatus.SAFE : StateStatus.UNSAFE;
+            indexesResults.put(indexType, ruleResults);
+        }
+        return new RulesFacadeResults(network.getStateManager().getWorkingStateId(), contingency.getId(), rulesResults, indexesResults, 
+                new ArrayList<>(), true);
+    }
+
+    private void readConfig() {
+        if (PlatformConfig.defaultConfig().moduleExists("rulesFacadeMock")) {
+            ModuleConfig config = PlatformConfig.defaultConfig().getModuleConfig("rulesFacadeMock");
+            rulesResults = config.getEnumProperty("rulesResults", StateStatus.class, StateStatus.SAFE);
+        }
+    }
 
 }

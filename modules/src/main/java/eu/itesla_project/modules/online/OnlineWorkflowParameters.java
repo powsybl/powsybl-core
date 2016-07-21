@@ -29,11 +29,11 @@ import org.joda.time.Interval;
  * @author Quinary <itesla@quinary.com>
  */
 public class OnlineWorkflowParameters implements Serializable {
-	
-	/*
-	 * example of online-default-parameters.properties file.
-	 *
-	
+
+    /*
+     * example of online-default-parameters.properties file.
+     *
+
 	# basecase to be analyzed
 	baseCaseDate=2013-01-15T18:30:00+01:00
 	# number of states
@@ -57,7 +57,7 @@ public class OnlineWorkflowParameters implements Serializable {
     # list of security indexes to be used by the workflow, leave empty to use all the available ones
     securityIndexes=SMALLSIGNAL,TSO_SYNCHROLOSS,TSO_GENERATOR_VOLTAGE_AUTOMATON
 
-	*/
+     */
 
     private static final long serialVersionUID = 1L;
     public static final CaseType DEFAULT_CASE_TYPE = CaseType.FO;
@@ -74,7 +74,7 @@ public class OnlineWorkflowParameters implements Serializable {
     private TimeHorizon timeHorizon;
     private String feAnalysisId;
     private double rulesPurityThreshold;
-	private boolean storeStates;
+    private boolean storeStates;
     private boolean analyseBasecase;
     private boolean validation;
     private Set<SecurityIndexType> securityIndexes;
@@ -83,9 +83,9 @@ public class OnlineWorkflowParameters implements Serializable {
     private boolean mergeOptimized;
     private float limitReduction;
     private boolean handleViolationsInN;
-	private float constraintMargin;
+    private float constraintMargin;
 
-	public static OnlineWorkflowParameters loadDefault() {
+    public static OnlineWorkflowParameters loadDefault() {
         ModuleConfig config = PlatformConfig.defaultConfig().getModuleConfig("online-default-parameters");
         DateTime baseCaseDate = DateTime.parse(config.getStringProperty("baseCaseDate"));
         int states = config.getIntProperty("states");
@@ -98,43 +98,43 @@ public class OnlineWorkflowParameters implements Serializable {
         boolean analyseBasecase = config.getBooleanProperty("analyseBasecase", true);
         boolean validation = config.getBooleanProperty("validation", false);
         Set<SecurityIndexType> securityIndexes = null;
-		String securityIndexesAsString = config.getStringProperty("securityIndexes", "");
-		if ( !"".equals(securityIndexesAsString) ) {
-			securityIndexes = Arrays.stream(securityIndexesAsString.split(","))
+        String securityIndexesAsString = config.getStringProperty("securityIndexes", "");
+        if ( !"".equals(securityIndexesAsString) ) {
+            securityIndexes = Arrays.stream(securityIndexesAsString.split(","))
                     .map(SecurityIndexType::valueOf)
                     .collect(Collectors.toSet());
-		}
-		CaseType caseType = config.getEnumProperty("caseType", CaseType.class, DEFAULT_CASE_TYPE);
-		Set<Country> countries = new HashSet<>(config.getEnumListProperty("countries", Country.class, DEFAULT_COUNTRIES));
-		boolean mergeOptimized = config.getBooleanProperty("mergeOptimized", DAFAULT_MERGE_OPTIMIZED);
-		float limitReduction = config.getFloatProperty("limitReduction", DEFAULT_LIMIT_REDUCTION);
-		boolean handleViolationsInN = config.getBooleanProperty("handleViolationsInN", DAFAULT_HANDLE_VIOLATIONS_IN_N);
-		float constraintMargin = config.getFloatProperty("constraintMargin", DEFAULT_CONSTRAINT_MARGIN);
-		
+        }
+        CaseType caseType = config.getEnumProperty("caseType", CaseType.class, DEFAULT_CASE_TYPE);
+        Set<Country> countries = new HashSet<>(config.getEnumListProperty("countries", Country.class, DEFAULT_COUNTRIES));
+        boolean mergeOptimized = config.getBooleanProperty("mergeOptimized", DAFAULT_MERGE_OPTIMIZED);
+        float limitReduction = config.getFloatProperty("limitReduction", DEFAULT_LIMIT_REDUCTION);
+        boolean handleViolationsInN = config.getBooleanProperty("handleViolationsInN", DAFAULT_HANDLE_VIOLATIONS_IN_N);
+        float constraintMargin = config.getFloatProperty("constraintMargin", DEFAULT_CONSTRAINT_MARGIN);
+
         return new OnlineWorkflowParameters(baseCaseDate, 
-        									states, 
-        									histoInterval, 
-        									offlineWorkflowId, 
-        									timeHorizon, 
-        									feAnalysisId, 
-        									rulesPurityThreshold, 
-        									storeStates, 
-        									analyseBasecase, 
-        									validation,
-        									securityIndexes,
-        									caseType,
-        									countries,
-        									mergeOptimized,
-        									limitReduction,
-        									handleViolationsInN,
-        									constraintMargin
-        									);
+                states, 
+                histoInterval, 
+                offlineWorkflowId, 
+                timeHorizon, 
+                feAnalysisId, 
+                rulesPurityThreshold, 
+                storeStates, 
+                analyseBasecase, 
+                validation,
+                securityIndexes,
+                caseType,
+                countries,
+                mergeOptimized,
+                limitReduction,
+                handleViolationsInN,
+                constraintMargin
+                );
     }
 
     public OnlineWorkflowParameters(DateTime baseCaseDate, int states, Interval histoInterval, String offlineWorkflowId, TimeHorizon timeHorizon, 
-    								String feAnalysisId, double rulesPurityThreshold, boolean storeStates, boolean analyseBasecase, boolean validation, 
-    								Set<SecurityIndexType> securityIndexes, CaseType caseType, Set<Country> countries, boolean mergeOptimized, 
-    								float limitReduction, boolean handleViolationsInN, float constraintMargin) {
+            String feAnalysisId, double rulesPurityThreshold, boolean storeStates, boolean analyseBasecase, boolean validation, 
+            Set<SecurityIndexType> securityIndexes, CaseType caseType, Set<Country> countries, boolean mergeOptimized, 
+            float limitReduction, boolean handleViolationsInN, float constraintMargin) {
         Objects.requireNonNull(baseCaseDate);
         Objects.requireNonNull(histoInterval);
         this.baseCaseDate = baseCaseDate;
@@ -165,64 +165,64 @@ public class OnlineWorkflowParameters implements Serializable {
     }
 
     public int getStates() { 
-    	return states; 
+        return states; 
     }
 
     public String getOfflineWorkflowId() { 
-    	return offlineWorkflowId; 
+        return offlineWorkflowId; 
     }
 
     public TimeHorizon getTimeHorizon() { 
-    	return timeHorizon; 
+        return timeHorizon; 
     }
-    
+
     public String getFeAnalysisId() { 
-    	return feAnalysisId; 
+        return feAnalysisId; 
     }
-    
+
     public double getRulesPurityThreshold() {
-		return rulesPurityThreshold;
-	}
+        return rulesPurityThreshold;
+    }
 
     public boolean storeStates() {
-    	return storeStates;
+        return storeStates;
     }
-    
-    public boolean analyseBasecase() {
-    	return analyseBasecase;
-    }
-    
-    public boolean validation() {
-    	return validation;
-    }
-    
-    public Set<SecurityIndexType> getSecurityIndexes() {
-		return securityIndexes;
-	}
-    
-    public CaseType getCaseType() {
-		return caseType;
-	}
-    
-    public Set<Country> getCountries() {
-		return countries;
-	}
-    
-	public boolean isMergeOptimized() {
-		return mergeOptimized;
-	}
-    
-	public float getLimitReduction() {
-		return limitReduction;
-	}
-	
-    public boolean isHandleViolationsInN() {
-		return handleViolationsInN;
-	}
 
-	public float getConstraintMargin() {
-		return constraintMargin;
-	}
+    public boolean analyseBasecase() {
+        return analyseBasecase;
+    }
+
+    public boolean validation() {
+        return validation;
+    }
+
+    public Set<SecurityIndexType> getSecurityIndexes() {
+        return securityIndexes;
+    }
+
+    public CaseType getCaseType() {
+        return caseType;
+    }
+
+    public Set<Country> getCountries() {
+        return countries;
+    }
+
+    public boolean isMergeOptimized() {
+        return mergeOptimized;
+    }
+
+    public float getLimitReduction() {
+        return limitReduction;
+    }
+
+    public boolean isHandleViolationsInN() {
+        return handleViolationsInN;
+    }
+
+    public float getConstraintMargin() {
+        return constraintMargin;
+    }
 
     @Override
     public String toString() {
@@ -246,72 +246,72 @@ public class OnlineWorkflowParameters implements Serializable {
                 + "}";
     }
 
-	public void setStates(int states) {
-		this.states = states;
-	}
+    public void setStates(int states) {
+        this.states = states;
+    }
 
-	public void setBaseCaseDate(DateTime baseCaseDate) {
-		this.baseCaseDate = baseCaseDate;
-	}
+    public void setBaseCaseDate(DateTime baseCaseDate) {
+        this.baseCaseDate = baseCaseDate;
+    }
 
-	public void setHistoInterval(Interval histoInterval) {
-		this.histoInterval = histoInterval;
-	}
+    public void setHistoInterval(Interval histoInterval) {
+        this.histoInterval = histoInterval;
+    }
 
-	public void setOfflineWorkflowId(String offlineWorkflowId) {
-		this.offlineWorkflowId = offlineWorkflowId;
-	}
+    public void setOfflineWorkflowId(String offlineWorkflowId) {
+        this.offlineWorkflowId = offlineWorkflowId;
+    }
 
-	public void setTimeHorizon(TimeHorizon timeHorizon) {
-		this.timeHorizon = timeHorizon;
-	}
+    public void setTimeHorizon(TimeHorizon timeHorizon) {
+        this.timeHorizon = timeHorizon;
+    }
 
-	public void setFeAnalysisId(String feAnalysisId) {
-		this.feAnalysisId = feAnalysisId;
-	}
+    public void setFeAnalysisId(String feAnalysisId) {
+        this.feAnalysisId = feAnalysisId;
+    }
 
-	public void setRulesPurityThreshold(double rulesPurityThreshold) {
-		this.rulesPurityThreshold = rulesPurityThreshold;
-	}
-    
-	public void setStoreStates(boolean storeStates) {
-		this.storeStates = storeStates;
-	}
-	
-	public void setAnalyseBasecase(boolean analyseBasecase) {
-		this.analyseBasecase = analyseBasecase;
-	}
-	
-	public void setValidation(boolean validation) {
-		this.validation = validation;
-	}
-	
-	public void setSecurityIndexes(Set<SecurityIndexType> securityIndexes) {
-		this.securityIndexes = securityIndexes;
-	}
-	
-	public void setCaseType(CaseType caseType) {
-		this.caseType = caseType;
-	}
-	
-	public void setCountries(Set<Country> countries) {
-		this.countries = countries;
-	}
+    public void setRulesPurityThreshold(double rulesPurityThreshold) {
+        this.rulesPurityThreshold = rulesPurityThreshold;
+    }
 
-	public void setMergeOptimized(boolean mergeOptimized) {
-		this.mergeOptimized = mergeOptimized;
-	}
+    public void setStoreStates(boolean storeStates) {
+        this.storeStates = storeStates;
+    }
 
-	public void setLimitReduction(float limitReduction) {
-		this.limitReduction = limitReduction;
-	}
-    
-	public void setHandleViolationsInN(boolean handleViolationsInN) {
-		this.handleViolationsInN = handleViolationsInN;
-	}
+    public void setAnalyseBasecase(boolean analyseBasecase) {
+        this.analyseBasecase = analyseBasecase;
+    }
 
-	public void setConstraintMargin(float constraintMargin) {
-		this.constraintMargin = constraintMargin;
-	}
+    public void setValidation(boolean validation) {
+        this.validation = validation;
+    }
+
+    public void setSecurityIndexes(Set<SecurityIndexType> securityIndexes) {
+        this.securityIndexes = securityIndexes;
+    }
+
+    public void setCaseType(CaseType caseType) {
+        this.caseType = caseType;
+    }
+
+    public void setCountries(Set<Country> countries) {
+        this.countries = countries;
+    }
+
+    public void setMergeOptimized(boolean mergeOptimized) {
+        this.mergeOptimized = mergeOptimized;
+    }
+
+    public void setLimitReduction(float limitReduction) {
+        this.limitReduction = limitReduction;
+    }
+
+    public void setHandleViolationsInN(boolean handleViolationsInN) {
+        this.handleViolationsInN = handleViolationsInN;
+    }
+
+    public void setConstraintMargin(float constraintMargin) {
+        this.constraintMargin = constraintMargin;
+    }
 
 }

@@ -29,53 +29,53 @@ import eu.itesla_project.modules.security.LimitViolation;
 import eu.itesla_project.modules.security.LimitViolationType;
 
 /**
-*
-* @author Quinary <itesla@quinary.com>
-*/
+ *
+ * @author Quinary <itesla@quinary.com>
+ */
 public class ConstraintsModifierConfigTest {
-	
-	private FileSystem fileSystem;
+
+    private FileSystem fileSystem;
     private InMemoryPlatformConfig platformConfig;
     private Network network;
     private List<LimitViolation> violations;
-    
+
     @Before
     public void setUp() throws Exception {
         JavaArchive archive = ShrinkWrap.create(JavaArchive.class);
         fileSystem = ShrinkWrapFileSystems.newFileSystem(archive);
         platformConfig = new InMemoryPlatformConfig(fileSystem);
         network = ConstraintsModifierTestUtils.getNetwork();
-    	violations = ConstraintsModifierTestUtils.getViolations(network);
+        violations = ConstraintsModifierTestUtils.getViolations(network);
     }
-    
+
     @After
     public void tearDown() throws Exception {
         fileSystem.close();
     }
-    
+
     @Test
     public void testNoConfig() throws Exception {
-    	ConstraintsModifierConfig config = ConstraintsModifierConfig.load(platformConfig);
-    	checkValues(config, ConstraintsModifierConfig.DEFAULT_COUNTRY, ConstraintsModifierConfig.DEFAULT_VIOLATION_TYPES);
+        ConstraintsModifierConfig config = ConstraintsModifierConfig.load(platformConfig);
+        checkValues(config, ConstraintsModifierConfig.DEFAULT_COUNTRY, ConstraintsModifierConfig.DEFAULT_VIOLATION_TYPES);
     }
-    
+
     @Test
     public void testLoadConfig() throws Exception {
-    	Country country = Country.FR;
-    	LimitViolationType violationType = LimitViolationType.CURRENT;
-    	MapModuleConfig moduleConfig = platformConfig.createModuleConfig("constraintsModifier");
-    	moduleConfig.setStringListProperty("country", Arrays.asList(country.name()));
-    	moduleConfig.setStringListProperty("violationsTypes", Arrays.asList(violationType.name()));
-    	ConstraintsModifierConfig config = ConstraintsModifierConfig.load(platformConfig);
-    	checkValues(config, country, Arrays.asList(violationType));
+        Country country = Country.FR;
+        LimitViolationType violationType = LimitViolationType.CURRENT;
+        MapModuleConfig moduleConfig = platformConfig.createModuleConfig("constraintsModifier");
+        moduleConfig.setStringListProperty("country", Arrays.asList(country.name()));
+        moduleConfig.setStringListProperty("violationsTypes", Arrays.asList(violationType.name()));
+        ConstraintsModifierConfig config = ConstraintsModifierConfig.load(platformConfig);
+        checkValues(config, country, Arrays.asList(violationType));
     }
-    
+
     private void checkValues(ConstraintsModifierConfig config, Country expectedCountry, List<LimitViolationType> expectedViolationTypes) {
-    	assertEquals(expectedCountry, config.getCountry());
-    	assertArrayEquals(expectedViolationTypes.toArray(), config.getViolationsTypes().toArray());
-    	for(LimitViolation violation : violations) {
-    		assertTrue(config.isInAreaOfInterest(violation, network));
-    	}
+        assertEquals(expectedCountry, config.getCountry());
+        assertArrayEquals(expectedViolationTypes.toArray(), config.getViolationsTypes().toArray());
+        for(LimitViolation violation : violations) {
+            assertTrue(config.isInAreaOfInterest(violation, network));
+        }
     }
 
 }
