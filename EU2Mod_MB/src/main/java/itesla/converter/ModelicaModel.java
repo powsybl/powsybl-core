@@ -14,11 +14,11 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
-/*
- * Class that has all the needed information to create the block model in Modelica.
+/**
+ * Class that represents the block model in Modelica.
  * @author Marc Sabate <sabatem@aia.es>
  * @author Raul Viruez <viruezr@aia.es>
- * /
+ **/
 public class ModelicaModel {
 	private Block[] Blocks;
 	private Integer[][] Link;
@@ -43,7 +43,7 @@ public class ModelicaModel {
 	private ParParser parData;
 	
 	/*
-	 * Class that represents the block model in Modelica:
+	 * Class that has all the needed information to create the block model in Modelica:
 	 * parData: list of parameters in the .par file.
 	 * outputHeading: header of the model in Modelica (e.g: model PwLine).
 	 * outputEnd: end of a model in Modelica (e.g: end model;).
@@ -83,6 +83,7 @@ public class ModelicaModel {
 		this.init_friParameters = new ArrayList<String>();
 		this.init_InterfaceParameters = new ArrayList<String>();
 		this.LinksBlocksId1 = new int[Blocks.length][7];
+		
 		Heading();
 		paramDeclaration();
 		BlocksDeclaration();
@@ -108,7 +109,6 @@ public class ModelicaModel {
 		paramDeclaration();
 		BlocksDeclaration();
 		End();
-		
 	}
 	
 	public void Heading() {
@@ -116,7 +116,6 @@ public class ModelicaModel {
 		String name = EuFile.getName().split("\\.")[0];
 		String output = "model " + name;
 		outputHeading=output;
-		//return output;
 	}
 	
 	public void End() {
@@ -132,35 +131,46 @@ public class ModelicaModel {
 		Boolean ActivePower = false;
 		String name;
 		String base;
-		for (int i=0; i<Blocks.length; i++) {
-			if (Blocks[i].idEu == 27) {
+		for (int i=0; i<Blocks.length; i++) 
+		{
+			if (Blocks[i].idEu == 27) 
+			{
 				TerminalVoltage = true;
-				if(!NamedLinks.contains("TerminalVoltage")) {
+				if(!NamedLinks.contains("TerminalVoltage")) 
+				{
 					NamedLinks.add("TerminalVoltage");
 					outputPositiveImPin.add("  Modelica.Blocks.Interfaces.RealInput pin_TerminalVoltage;"); //Terminal Voltage");
 				}
-			} else if (Blocks[i].idEu == 50) {
+			} else if (Blocks[i].idEu == 50) 
+			{
 				FieldCurrent = true;
-				if(!NamedLinks.contains("FieldCurrent")) {
+				if(!NamedLinks.contains("FieldCurrent")) 
+				{
 					NamedLinks.add("FieldCurrent");
 					outputPositiveImPin.add("  Modelica.Blocks.Interfaces.RealInput pin_FieldCurrent;");
 				}
-			} else if (Blocks[i].idEu == 28) {
+			} else if (Blocks[i].idEu == 28) 
+			{
 				ActivePower = true;
 				base = Blocks[i].param[2].replaceAll("([\\W|[_]])+", "");
-				if(!NamedLinks.contains("ActivePower"+base)) {
+				if(!NamedLinks.contains("ActivePower"+base)) 
+				{
 					NamedLinks.add("ActivePower"+base);
 					outputPositiveImPin.add("  Modelica.Blocks.Interfaces.RealInput pin_ActivePower"+base+";");
 				}
-			} else if (Blocks[i].idEu==31) {
+			} else if (Blocks[i].idEu==31) 
+			{
 				base = Blocks[i].param[2].replaceAll("([\\W|[_]])+", "");
-				if(!NamedLinks.contains("ReactivePower"+base)) {
+				if(!NamedLinks.contains("ReactivePower"+base)) 
+				{
 					NamedLinks.add("ReactivePower"+base);
 					outputPositiveImPin.add("  Modelica.Blocks.Interfaces.RealInput pin_ReactivePower"+base+";");
 				}
-			}  else if (Blocks[i].idEu==49) {
+			}  else if (Blocks[i].idEu==49) 
+			{
 				base = Blocks[i].param[2].replaceAll("([\\W|[_]])+", "");
-				if(!NamedLinks.contains("FRZ"+base)) {
+				if(!NamedLinks.contains("FRZ"+base)) 
+				{
 					NamedLinks.add("FRZ"+base);
 					outputPositiveImPin.add("  Modelica.Blocks.Interfaces.RealInput pin_FRZ"+base+";");
 				}
@@ -169,15 +179,20 @@ public class ModelicaModel {
 					NamedLinks.add("Current");
 					outputPositiveImPin.add("  Modelica.Blocks.Interfaces.RealInput pin_Current;");
 				}
-			} else {
-				for (int j=0; j<Blocks[i].entries.length; j++) {
-					if (Blocks[i].entries[j].contains("@")) {
+			} else
+			{
+				for (int j=0; j<Blocks[i].entries.length; j++) 
+				{
+					if (Blocks[i].entries[j].contains("@")) 
+					{
 						name = "At_" +Blocks[i].entries[j].replaceAll("([\\W|[_]])+", "");
-					}else{
+					} else
+					{
 						name = Blocks[i].entries[j].replaceAll("([\\W|[_]])+", "");
 					}
 					
-					if (!Blocks[i].entries[j].equals("?") && !NamedLinks.contains(name)) {
+					if (!Blocks[i].entries[j].equals("?") && !NamedLinks.contains(name)) 
+					{
 						NamedLinks.add(name);
 						outputPositiveImPin.add("  Modelica.Blocks.Interfaces.RealInput pin_" + name + ";"); 
 					}
@@ -190,42 +205,57 @@ public class ModelicaModel {
 		String namePin;
 		String nameInitPin;
 		Boolean isInitValue;
-		for (int i=0; i<Blocks.length; i++){
+		for (int i=0; i<Blocks.length; i++)
+		{
 			nameInitPin = "";
-			if (Blocks[i].output.length()>1){
-				if (Blocks[i].output.contains("^")) {
+			if (Blocks[i].output.length()>1)
+			{
+				if (Blocks[i].output.contains("^")) 
+				{
 					isInitValue = true;
-				} else {
+				} else 
+				{
 					isInitValue = false;
 				}
 				
-				if (Blocks[i].output.contains("@")) {
+				if (Blocks[i].output.contains("@")) 
+				{
 					namePin = "At_"+Blocks[i].output.replaceAll("([\\W|[_]])+", "");
 					
-				}else{
+				} else
+				{
 				    namePin = Blocks[i].output.replaceAll("([\\W|[_]])+", "");
 				}
 
-				if (!Blocks[i].param[7].equals("?")) {
-					if (Blocks[i].param[7].contains("_") || Blocks[i].param[7].contains("^")) {
-						if (Blocks[i].output.contains("@")) {
+				if (!Blocks[i].param[7].equals("?")) 
+				{
+					if (Blocks[i].param[7].contains("_") || Blocks[i].param[7].contains("^")) 
+					{
+						if (Blocks[i].output.contains("@")) 
+						{
 							nameInitPin = "At_" +Blocks[i].param[7].replaceAll("([\\W|[_]])+", "");
-						}else{
+						} else
+						{
 							nameInitPin = Blocks[i].param[7].replaceAll("([\\W|[_]])+", "");
 						}
 					}
 				} 
-				if (!NamedLinks.contains(namePin)) {
+				if (!NamedLinks.contains(namePin)) 
+				{
 					NamedLinks.add(namePin);
-					if (!nameInitPin.equals("")) {
+					if (!nameInitPin.equals("")) 
+					{
 						interfaceVariables.put(namePin, nameInitPin);
 						outputNegativeImPin.add("  Modelica.Blocks.Interfaces.RealOutput pin_" + namePin +"; //" + nameInitPin);
-					} else if (isInitValue) {
+					} else if (isInitValue) 
+					{
 						outputNegativeImPin.add("  Modelica.Blocks.Interfaces.RealOutput pin_" + namePin +"; //" + "isInitValue");
-					} else {
+					} else 
+					{
 						outputNegativeImPin.add("  Modelica.Blocks.Interfaces.RealOutput pin_" + namePin +";");
 					}
-				} else {
+				} else 
+				{
 					interfaceVariables.put(namePin, nameInitPin);
 					outputNegativeImPin.remove("  Modelica.Blocks.Interfaces.RealOutput pin_" + namePin +";");
 					outputPositiveImPin.remove("  Modelica.Blocks.Interfaces.RealInput pin_" + namePin + ";");
@@ -238,30 +268,41 @@ public class ModelicaModel {
 	public void paramInit(){
 		String aux;
 		Boolean found;
-		for (int i=0; i<Blocks.length; i++){
-			if (!Blocks[i].param[7].equals("?")) {
-				if (Blocks[i].param[7].substring(0, 1).equals("^") || Blocks[i].param[7].substring(0, 1).equals("_")){
+		for (int i=0; i<Blocks.length; i++)
+		{
+			if (!Blocks[i].param[7].equals("?")) 
+			{
+				if (Blocks[i].param[7].substring(0, 1).equals("^") || Blocks[i].param[7].substring(0, 1).equals("_"))
+				{
 					aux = "init_"+Blocks[i].param[7].substring(1);
 					found = false;
-					if (Blocks[i].param[7].substring(0, 1).equals("^")) {
-						if (!init_friParameters.contains(Blocks[i].param[7].substring(1))) {
+					if (Blocks[i].param[7].substring(0, 1).equals("^")) 
+					{
+						if (!init_friParameters.contains(Blocks[i].param[7].substring(1))) 
+						{
 							init_friParameters.add(Blocks[i].param[7].substring(1));
 						}
-					} else {
-						if (!init_InterfaceParameters.contains(Blocks[i].param[7].substring(1))) {
+					} else 
+					{
+						if (!init_InterfaceParameters.contains(Blocks[i].param[7].substring(1))) 
+						{
 							init_InterfaceParameters.add(Blocks[i].param[7].substring(1));
 						}
 					}
-					for (int j=0; j<outputParamDeclaration.size(); j++) {
-						if (outputParamDeclaration.get(j).contains("parameter Real " + aux + ";") || outputParamDeclaration.get(j).contains("parameter Real " + aux + "=")){
+					for (int j=0; j<outputParamDeclaration.size(); j++) 
+					{
+						if (outputParamDeclaration.get(j).contains("parameter Real " + aux + ";") || outputParamDeclaration.get(j).contains("parameter Real " + aux + "="))
+						{
 							found = true;
 						}
 					}
-					if (!found) {
+					if (!found) 
+					{
 						outputParamDeclaration.add("  parameter Real " + aux + ";");
 					}
-						 outputParamInit.add("  parameter Real init_" + Blocks[i].GraphicalNumber.toString() + "=" + aux + ";");
-				} else {
+					outputParamInit.add("  parameter Real init_" + Blocks[i].GraphicalNumber.toString() + "=" + aux + ";");
+				} else 
+				{
 					aux = Blocks[i].param[7];
 					outputParamInit.add("  parameter Real init_" + Blocks[i].GraphicalNumber.toString() + "=" + aux +";");
 				}
@@ -269,19 +310,21 @@ public class ModelicaModel {
 		}
 	}
 
-	public void paramDeclaration(){
+	public void paramDeclaration() {
 		String line;
 		List<String> parNames = parData.getParNames();
 		HashMap<String, String> parTypes = parData.getParTypes();
-		for (int i=0; i<parNames.size(); i++) {
-			if (!parNames.get(i).substring(0, 1).equals("\u00a7")) {
+		for (int i=0; i<parNames.size(); i++) 
+		{
+			if (!parNames.get(i).substring(0, 1).equals("\u00a7")) 
+			{
 				line = "  " + parTypes.get(parNames.get(i)) + " " + parNames.get(i) + ";";
 				outputParamDeclaration.add(line);
 			}
 		}
-		
-		//Parche: si el macrobloque es OELPSAT se aÃ±aden los parametros XD y XQ de la maquina
-		if (outputHeading.toLowerCase().equals("model oelpsat")) {
+		//If the macroblock is OELPSAT the parameters XQ and XQ from the machine are added.
+		if (outputHeading.toLowerCase().equals("model oelpsat")) 
+		{
 			outputParamDeclaration.add("  parameter Real XD;");
 			outputParamDeclaration.add("  parameter Real XQ;");
 		}
@@ -296,167 +339,232 @@ public class ModelicaModel {
 		
 		int[] ind = new int[Blocks.length];
 		
-		for (int i=0; i<Blocks.length; i++) {
+		for (int i=0; i<Blocks.length; i++) 
+		{
 			ind[i] = 0;
-			for (int j=0; j<7; j++) {
+			for (int j=0; j<7; j++) 
+			{
 			
-				if (!Blocks[i].param[j].equals("?")) {
-					if(Blocks[i].idEu.equals(1) && !Blocks[i].param[j].equals("0") && !Blocks[i].param[j].equals("0.") && !Blocks[i].param[j].equals("0.0")){
+				if (!Blocks[i].param[j].equals("?")) 
+				{
+					if(Blocks[i].idEu.equals(1) && !Blocks[i].param[j].equals("0") && !Blocks[i].param[j].equals("0.") && !Blocks[i].param[j].equals("0.0"))
+					{
 						ind[i]= ++ind[i];
 						LinksBlocksId1[i][j] = ind[i];
-					}else if (Blocks[i].idEu.equals(2) && j<6){
+					}else if (Blocks[i].idEu.equals(2) && j<6)
+					{
 						ind[i]= ++ind[i];
 						LinksBlocksId1[i][j] = ind[i];
 					}
-
-				}else{			
+				} else
+				{
 					LinksBlocksId1[i][j] = 0;
 				}		
 			}	
 		}
-		if(Link != null){
-	        	for (int i = 0; i < Link.length; i++) {
-				if(Blocks[Link[i][1]-1].idEu == 23 || Blocks[Link[i][1]-1].idEu == 22 || Blocks[Link[i][1]-1].idEu == 13 ||  Blocks[Link[i][1]-1].idEu == 14){
+		if(Link != null)
+		{
+	        	for (int i = 0; i < Link.length; i++) 
+	        	{
+				if(Blocks[Link[i][1]-1].idEu == 23 || Blocks[Link[i][1]-1].idEu == 22 || Blocks[Link[i][1]-1].idEu == 13 ||  Blocks[Link[i][1]-1].idEu == 14)
+				{
 					ind[Link[i][1]-1]= ++ind[Link[i][1]-1];
 					LinksBlocksId1[Link[i][1]-1][Link[i][2]-1] = ind[Link[i][1]-1];
 				}
 			}
 		}
         
-		for (int i=0; i<Blocks.length; i++){
-			if (Blocks[i].idEu!=27 && Blocks[i].idEu!=50 && Blocks[i].idEu!=28 && Blocks[i].idEu!=31 && Blocks[i].idEu!=49 && Blocks[i].idEu!=60) {
+		for (int i=0; i<Blocks.length; i++)
+		{
+			if (Blocks[i].idEu!=27 && Blocks[i].idEu!=50 && Blocks[i].idEu!=28 && Blocks[i].idEu!=31 && Blocks[i].idEu!=49 && Blocks[i].idEu!=60) 
+			{
 				String modelDeclaration;
 				String modelParameters;
 				Boolean first;
 				Boolean initBlock = false;
 				Boolean previous;
 				Element model = CT.get(Blocks[i].idEu);
-				if(Blocks[i].idEu == 22) {
+				if(Blocks[i].idEu == 22) 
+				{
 					modelDeclaration = "  " + model.pathModelica + " " + "Min" + "_" + Blocks[i].GraphicalNumber.toString(); 
-				} else if(Blocks[i].idEu == 23) {
+				} else if(Blocks[i].idEu == 23) 
+				{
 					modelDeclaration = "  " + model.pathModelica + " " + "Max" + "_" + Blocks[i].GraphicalNumber.toString(); 
-				} else{
+				} else
+				{
 					modelDeclaration = "  " + model.pathModelica + " " + model.nameModelica + "_" + Blocks[i].GraphicalNumber.toString(); 					
 				}
-				if (model.param.size()>0) {
+				if (model.param.size()>0) 
+				{
 					modelParameters = " (";
-				} else {
+				} else 
+				{
 					modelParameters = ";";
 				}
 				first = true;
 				previous = true;
 			
-				for (int j=0; j<model.param.size(); j++) {
-					if (!model.param.get(j).isEmpty()) {
-						if (!first && previous ) {					
-							if(!Blocks[i].idEu.equals(1) && !Blocks[i].idEu.equals(2) ){
+				for (int j=0; j<model.param.size(); j++) 
+				{
+					if (!model.param.get(j).isEmpty()) 
+					{
+						if (!first && previous ) 
+						{
+							if(!Blocks[i].idEu.equals(1) && !Blocks[i].idEu.equals(2) )
+							{
 								modelParameters = modelParameters+", ";
 							}
-						} else {
+						} else 
+						{
 							first = false;
 						}
-						if (j==7) {
-							if (!Blocks[i].param[7].equals("?")) { 
-								if(!Blocks[i].idEu.equals(1) && !Blocks[i].idEu.equals(2)) {
-									if(Blocks[i].idEu.equals(6)){
+						if (j==7) 
+						{
+							if (!Blocks[i].param[7].equals("?")) 
+							{
+								if(!Blocks[i].idEu.equals(1) && !Blocks[i].idEu.equals(2)) 
+								{
+									if(Blocks[i].idEu.equals(6))
+									{
 										modelParameters = modelParameters + model.param.get(j) + "=" + "init_" + Blocks[i].GraphicalNumber.toString() + ", "+ "initType = Modelica.Blocks.Types.Init.SteadyState";	
-									}else{
-									modelParameters = modelParameters + model.param.get(j) + "=" + "init_" + Blocks[i].GraphicalNumber.toString();
+									} else
+									{
+										modelParameters = modelParameters + model.param.get(j) + "=" + "init_" + Blocks[i].GraphicalNumber.toString();
 									}
 								}
 								previous = false;
-								if (Blocks[i].idEu.equals(1) || Blocks[i].idEu.equals(35)) {
-									if (Blocks[i].idEu.equals(1)){
+								if (Blocks[i].idEu.equals(1) || Blocks[i].idEu.equals(35)) 
+								{
+									if (Blocks[i].idEu.equals(1))
+									{
 										modelParameters = modelParameters + "}"+", y(start ="+ "init_" + Blocks[i].GraphicalNumber.toString() + ")" ;
-									}else{
+									} else
+									{
 										modelParameters = modelParameters + ", StartValue=true";
 									}
 								}
-							} else if (Blocks[i].idEu.equals(1) || Blocks[i].idEu.equals(35)){
-								if (Blocks[i].idEu.equals(1)){
+							} else if (Blocks[i].idEu.equals(1) || Blocks[i].idEu.equals(35))
+							{
+								if (Blocks[i].idEu.equals(1))
+								{
 									modelParameters = modelParameters + "}" ;
-								}else{
+								} else
+								{
 									 modelParameters = modelParameters + "StartValue=false";
 								}	
 							}
-						} else if (j<7) {
-							if (!model.param.get(j).isEmpty()){
-								if (!Blocks[i].param[j].equals("?") && !Blocks[i].param[j].substring(0,1).equals("%") && !Blocks[i].param[j].substring(0, 1).equals("_") && !Blocks[i].param[j].substring(0, 1).equals("^")) {
-									if (Blocks[i].idEu==69) { 
-										if (Blocks[i].param[j].contains("SND")) { //cas ImTimer mode=SEND
+						} else if (j<7) 
+						{
+							if (!model.param.get(j).isEmpty())
+							{
+								if (!Blocks[i].param[j].equals("?") && !Blocks[i].param[j].substring(0,1).equals("%") && !Blocks[i].param[j].substring(0, 1).equals("_") && !Blocks[i].param[j].substring(0, 1).equals("^")) 
+								{
+									if (Blocks[i].idEu==69) 
+									{
+										if (Blocks[i].param[j].contains("SND")) //cas ImTimer mode=SEND
+										{
 											modelParameters = modelParameters + model.param.get(j) + "= \"SEND\"";
-										} else if (Blocks[i].param[j].contains("INT")) { //cas ImTimer mode=INTEGRATOR
+										} else if (Blocks[i].param[j].contains("INT")) //cas ImTimer mode=INTEGRATOR
+										{
 											modelParameters = modelParameters + model.param.get(j) + "= \"INTEGRATOR\"";
 										}
 									} else {
-										if (Blocks[i].idEu.equals(1) || Blocks[i].idEu.equals(2)){
-										if(!Blocks[i].param[j].equals("0") && !Blocks[i].param[j].equals("0.") && !Blocks[i].param[j].equals("0.0")){
-					                        if(!initBlock){
-					                        	modelParameters = modelParameters +"nu ="+ind [i]+ ", " + model.param.get(1)+ "=" + "{" + Blocks[i].param[j] ;		        
-					                        	initBlock = true;
-					                        }else if(Blocks[i].idEu ==2 && j==6){
-					                        	modelParameters = modelParameters +"}, "+ model.param.get(j) + "=" +  Blocks[i].param[j];
-					                        }else{
-					                        	modelParameters = modelParameters + ", "+  Blocks[i].param[j] ;
-					                        }
-										}else if(Blocks[i].idEu ==2 && j==6){
-				                        	modelParameters = modelParameters +"}";
-										}
-										}else{	
+										if (Blocks[i].idEu.equals(1) || Blocks[i].idEu.equals(2))
+										{
+											if(!Blocks[i].param[j].equals("0") && !Blocks[i].param[j].equals("0.") && !Blocks[i].param[j].equals("0.0"))
+											{
+									                        if(!initBlock)
+									                        {
+									                        	modelParameters = modelParameters +"nu ="+ind [i]+ ", " + model.param.get(1)+ "=" + "{" + Blocks[i].param[j];
+									                        	initBlock = true;
+									                        } else if(Blocks[i].idEu ==2 && j==6)
+									                        {
+									                        	modelParameters = modelParameters +"}, "+ model.param.get(j) + "=" +  Blocks[i].param[j];
+									                        } else {
+									                        	modelParameters = modelParameters + ", "+  Blocks[i].param[j];
+									                        }
+											} else if(Blocks[i].idEu ==2 && j==6)
+											{
+							                        		modelParameters = modelParameters +"}";
+											}
+										} else
+										{	
 											modelParameters = modelParameters + model.param.get(j) + "=" + Blocks[i].param[j];
 										}
 									}
-								} else if (Blocks[i].param[j].substring(0,1).equals("%")) {
-									if(Blocks[i].idEu == 1 || Blocks[i].idEu ==2){
-										 if(!initBlock){	 
-					                        	modelParameters = modelParameters +"nu ="+ind [i]+ ", "  + model.param.get(1)+ "=" + "{" + Blocks[i].param[j].substring(1) ;
-					                        	initBlock = true;
-					                        }else if(Blocks[i].idEu ==2 && j==6){
-					                        	modelParameters = modelParameters +"}, "+ model.param.get(j) + "=" + Blocks[i].param[j].substring(1);
-					                        }else{			
-					                        	modelParameters = modelParameters + ", "+ Blocks[i].param[j].substring(1) ;
-					                        }
-									}else{
+								} else if (Blocks[i].param[j].substring(0,1).equals("%"))
+								{
+									if(Blocks[i].idEu == 1 || Blocks[i].idEu ==2)
+									{
+										if(!initBlock) 
+										{
+											modelParameters = modelParameters +"nu ="+ind [i]+ ", "  + model.param.get(1)+ "=" + "{" + Blocks[i].param[j].substring(1) ;
+											initBlock = true;
+										} else if(Blocks[i].idEu ==2 && j==6)
+										{
+											modelParameters = modelParameters +"}, "+ model.param.get(j) + "=" + Blocks[i].param[j].substring(1);
+										} else
+										{
+											modelParameters = modelParameters + ", "+ Blocks[i].param[j].substring(1) ;
+										}
+									} else
+									{
 										modelParameters = modelParameters + model.param.get(j) + "=" + Blocks[i].param[j].substring(1);
 									}
-								} else if (Blocks[i].param[j].substring(0, 1).equals("_") || Blocks[i].param[j].substring(0, 1).equals("^")) {
+								} else if (Blocks[i].param[j].substring(0, 1).equals("_") || Blocks[i].param[j].substring(0, 1).equals("^")) 
+								{
 									found_init = false;
-									for (int k=0; k<outputParamDeclaration.size(); k++) {
-										if (outputParamDeclaration.get(k).contains("parameter Real init_" + Blocks[i].param[j].substring(1) + ";")){
+									for (int k=0; k<outputParamDeclaration.size(); k++) 
+									{
+										if (outputParamDeclaration.get(k).contains("parameter Real init_" + Blocks[i].param[j].substring(1) + ";"))
+										{
 											found_init = true;
 										}
 									}
-									if (!found_init) {
+									if (!found_init) 
+									{
 										outputParamDeclaration.add("  parameter Real init_" + Blocks[i].param[j].substring(1) + ";");
 									}
-									if (Blocks[i].idEu.equals(1) || Blocks[i].idEu.equals(2)) {
-										 if(!initBlock){
-					                        	modelParameters = modelParameters +"nu ="+ind [i]+ ", " + model.param.get(1)+ "=" + "{" + "init_" + Blocks[i].param[j].substring(1) ;
-					                        	initBlock = true;
-										    }else if(Blocks[i].idEu ==2 && j==6){
-					                        	modelParameters = modelParameters +"}, "+ model.param.get(j) + "=init_" + Blocks[i].param[j].substring(1);
-					                        }else{			
-					                        	modelParameters = modelParameters + ", init_" + Blocks[i].param[j].substring(1) ;
-					                        }
-									}else{
+									if (Blocks[i].idEu.equals(1) || Blocks[i].idEu.equals(2)) 
+									{
+										if(!initBlock)
+										{
+											modelParameters = modelParameters +"nu ="+ind [i]+ ", " + model.param.get(1)+ "=" + "{" + "init_" + Blocks[i].param[j].substring(1) ;
+											initBlock = true;
+										} else if(Blocks[i].idEu ==2 && j==6)
+										{
+											modelParameters = modelParameters +"}, "+ model.param.get(j) + "=init_" + Blocks[i].param[j].substring(1);
+										} else {
+											modelParameters = modelParameters + ", init_" + Blocks[i].param[j].substring(1) ;
+										}
+									} else
+									{
 										modelParameters = modelParameters + model.param.get(j) + "=init_" + Blocks[i].param[j].substring(1);
 									}
-								}else if (!Blocks[i].idEu.equals(1) && !Blocks[i].idEu.equals(2)){
+								}else if (!Blocks[i].idEu.equals(1) && !Blocks[i].idEu.equals(2))
+								{
 									modelParameters = modelParameters + model.param.get(j) + "=0";
-								}else if(Blocks[i].idEu==2 && j==6){
+								} else if(Blocks[i].idEu==2 && j==6)
+								{
 									modelParameters = modelParameters +"}";
 								}
 								previous = true;
-							} else {previous = false;}
+							} else 
+							{
+								previous = false;
+							}
 						}
 					}
 				}
-				if (model.param.size()>0) {
+				if (model.param.size()>0) 
+				{
 					modelParameters = modelParameters + ");";
 				}
-				if(Blocks[i].idEu==22 ||Blocks[i].idEu==23 || Blocks[i].idEu == 13 ||  Blocks[i].idEu == 14){
+				if(Blocks[i].idEu==22 ||Blocks[i].idEu==23 || Blocks[i].idEu == 13 ||  Blocks[i].idEu == 14)
+				{
 					outputBlocksDeclaration.add(modelDeclaration + " (nu = "+ind[i] + ")"+ modelParameters + " //Eurostag Block number: " + Blocks[i].GraphicalNumber.toString());
-				}else{
+				} else
+				{
 					outputBlocksDeclaration.add(modelDeclaration + modelParameters + " //Eurostag Block number: " + Blocks[i].GraphicalNumber.toString());
 				}
 			}
@@ -466,21 +574,29 @@ public class ModelicaModel {
 	public void ZeroPins() {
 		Integer ind;
 		boolean added;
-		for (int i=0; i<Blocks.length; i++){
+		for (int i=0; i<Blocks.length; i++)
+		{
 			added = false;
-			if (Blocks[i].idEu.intValue()!=27 && Blocks[i].idEu.intValue()!=50 && Blocks[i].idEu.intValue()!=28 && Blocks[i].idEu.intValue()!=31 && Blocks[i].idEu.intValue()!=49){
+			if (Blocks[i].idEu.intValue()!=27 && Blocks[i].idEu.intValue()!=50 && Blocks[i].idEu.intValue()!=28 && Blocks[i].idEu.intValue()!=31 && Blocks[i].idEu.intValue()!=49)
+			{
 				Element model = CT.get(Blocks[i].idEu);
-				for (int j=0; j<model.nInputPins; j++){
-					if (!Blocks[i].UsedInputPins.get(j)){
+				for (int j=0; j<model.nInputPins; j++)
+				{
+					if (!Blocks[i].UsedInputPins.get(j))
+					{
 						ind = j+1;
-						if (Blocks[i].idEu.intValue()!=2 && Blocks[i].idEu.intValue()!=13 && Blocks[i].idEu.intValue()!=22  && Blocks[i].idEu.intValue()!=23 && Blocks[i].idEu.intValue()!=14) {
-							if(!Blocks[i].idEu.equals(1)){
-								outputZeroPins.add("  " + model.nameModelica + "_" + Blocks[i].GraphicalNumber.toString() + ".u" + ind.toString() + "=0;");		
+						if (Blocks[i].idEu.intValue()!=2 && Blocks[i].idEu.intValue()!=13 && Blocks[i].idEu.intValue()!=22  && Blocks[i].idEu.intValue()!=23 && Blocks[i].idEu.intValue()!=14) 
+						{
+							if(!Blocks[i].idEu.equals(1))
+							{
+								outputZeroPins.add("  " + model.nameModelica + "_" + Blocks[i].GraphicalNumber.toString() + ".u" + ind.toString() + "=0;");
 							}		
-						} else if (Blocks[i].idEu.intValue()!=2 && Blocks[i].idEu.intValue()!=22  && Blocks[i].idEu.intValue()!=23 && Blocks[i].idEu.intValue()!=13 && Blocks[i].idEu.intValue()!=14){
+						} else if (Blocks[i].idEu.intValue()!=2 && Blocks[i].idEu.intValue()!=22  && Blocks[i].idEu.intValue()!=23 && Blocks[i].idEu.intValue()!=13 && Blocks[i].idEu.intValue()!=14)
+						{
 							outputZeroPins.add("  " + model.nameModelica + "_" +Blocks[i].GraphicalNumber.toString() + ".u" + ind.toString() + "=1;");
 						}
-					}else if(Blocks[i].idEu.equals(1) && !added && LinksBlocksId1[i][6]!=0){
+					} else if(Blocks[i].idEu.equals(1) && !added && LinksBlocksId1[i][6]!=0)
+					{
 						outputZeroPins.add("  " + model.nameModelica + "_" +Blocks[i].GraphicalNumber.toString() + ".u["+LinksBlocksId1[i][6] +"] =1;");
 						added = true;
 					}
@@ -496,68 +612,84 @@ public class ModelicaModel {
 		String ConnRight;
 		Element model;
 		String base;
-		for (int i=0; i<nLinks; i++){
+		for (int i=0; i<nLinks; i++)
+		{
 			Conn = "  connect(";
 			model = CT.get(Blocks[Link[i][0]-1].idEu);
-			if (Blocks[Link[i][0]-1].idEu == 27) {
+			if (Blocks[Link[i][0]-1].idEu == 27) 
+			{
 				ConnLeft = "pin_TerminalVoltage";
-			} else if (Blocks[Link[i][0]-1].idEu == 50) {
+			} else if (Blocks[Link[i][0]-1].idEu == 50) 
+			{
 				ConnLeft = "pin_FieldCurrent";
-			} else if (Blocks[Link[i][0]-1].idEu == 28) {
+			} else if (Blocks[Link[i][0]-1].idEu == 28) 
+			{
 				base = Blocks[Link[i][0]-1].param[2].replaceAll("([\\W|[_]])+", "");
 				ConnLeft = "pin_ActivePower" + base;
-			} else if (Blocks[Link[i][0]-1].idEu == 31) {
+			} else if (Blocks[Link[i][0]-1].idEu == 31) 
+			{
 				base = Blocks[Link[i][0]-1].param[2].replaceAll("([\\W|[_]])+", "");
 				ConnLeft = "pin_ReactivePower" + base;
-			} else if (Blocks[Link[i][0]-1].idEu == 49) {
+			} else if (Blocks[Link[i][0]-1].idEu == 49) 
+			{
 				base = Blocks[Link[i][0]-1].param[2].replaceAll("([\\W|[_]])+", "");
 				ConnLeft = "pin_FRZ" + base;
-			} else if (Blocks[Link[i][0]-1].idEu == 60) {
+			} else if (Blocks[Link[i][0]-1].idEu == 60) 
+			{
 				base = Blocks[Link[i][0]-1].param[2].replaceAll("([\\W|[_]])+", "");
 				ConnLeft = "pin_Current";
-			}else if (Blocks[Link[i][0]-1].idEu == 22) {
+			} else if (Blocks[Link[i][0]-1].idEu == 22) 
+			{
 				ConnLeft = "Min" + "_" + Blocks[Link[i][0]-1].GraphicalNumber.toString() + ".yMin";
-
-			}else if (Blocks[Link[i][0]-1].idEu == 23) {
+			} else if (Blocks[Link[i][0]-1].idEu == 23) 
+			{
 				ConnLeft = "Max" + "_" + Blocks[Link[i][0]-1].GraphicalNumber.toString() + ".yMax";
 
-			}else {
+			} else 
+			{
 				ConnLeft = model.nameModelica + "_" + Blocks[Link[i][0]-1].GraphicalNumber.toString() + ".y";
 			}
 			model = CT.get(Blocks[Link[i][1]-1].idEu);
 			//Before: .p and .n. Now: .y and .u respectively
-			if(Blocks[Link[i][1]-1].UsedInputPins.size() == 1){
+			if(Blocks[Link[i][1]-1].UsedInputPins.size() == 1)
+			{
 				ConnRight = model.nameModelica + "_" + Blocks[Link[i][1]-1].GraphicalNumber.toString() + ".u";
-			}else{
-				if(Blocks[Link[i][1]-1].idEu.equals(1) || Blocks[Link[i][1]-1].idEu.equals(2)|| Blocks[Link[i][1]-1].idEu.equals(22) || Blocks[Link[i][1]-1].idEu.equals(23) ||  Blocks[Link[i][1]-1].idEu.equals(13) || Blocks[Link[i][1]-1].idEu.equals(14)){
-			       if(Blocks[Link[i][1]-1].idEu.equals(22)){
+			} else
+			{
+				if(Blocks[Link[i][1]-1].idEu.equals(1) || Blocks[Link[i][1]-1].idEu.equals(2)|| Blocks[Link[i][1]-1].idEu.equals(22) || Blocks[Link[i][1]-1].idEu.equals(23) ||  Blocks[Link[i][1]-1].idEu.equals(13) || Blocks[Link[i][1]-1].idEu.equals(14))
+				{
+					if(Blocks[Link[i][1]-1].idEu.equals(22))
+					{
 						ConnRight = "Min" + "_" + Blocks[Link[i][1]-1].GraphicalNumber.toString() + ".u["+LinksBlocksId1[Link[i][1]-1][Link[i][2]-1]+"]";
-			       }else if(Blocks[Link[i][1]-1].idEu.equals(23)){
-						ConnRight = "Max" + "_" + Blocks[Link[i][1]-1].GraphicalNumber.toString() + ".u["+LinksBlocksId1[Link[i][1]-1][Link[i][2]-1]+"]";	
-
-			       }else{
-						ConnRight = model.nameModelica + "_" + Blocks[Link[i][1]-1].GraphicalNumber.toString() + ".u["+LinksBlocksId1[Link[i][1]-1][Link[i][2]-1]+"]";	 
-			       }	
-				}else if(Blocks[Link[i][1]-1].idEu.equals(24)){
-					if(Link[i][2] == 2){
+					} else if(Blocks[Link[i][1]-1].idEu.equals(23))
+					{
+						ConnRight = "Max" + "_" + Blocks[Link[i][1]-1].GraphicalNumber.toString() + ".u["+LinksBlocksId1[Link[i][1]-1][Link[i][2]-1]+"]";
+					} else
+					{
+						ConnRight = model.nameModelica + "_" + Blocks[Link[i][1]-1].GraphicalNumber.toString() + ".u["+LinksBlocksId1[Link[i][1]-1][Link[i][2]-1]+"]";
+					}	
+				} else if(Blocks[Link[i][1]-1].idEu.equals(24))
+				{
+					if(Link[i][2] == 2) 
+					{
 						ConnRight = model.nameModelica + "_" + Blocks[Link[i][1]-1].GraphicalNumber.toString() + ".u";
-					}else if(Link[i][2] == 3){
+					} else if(Link[i][2] == 3)
+					{
 						ConnRight = model.nameModelica + "_" +Blocks[Link[i][1]-1].GraphicalNumber.toString() + ".limit2";
-					}else{
+					} else {
 						ConnRight = model.nameModelica + "_" +Blocks[Link[i][1]-1].GraphicalNumber.toString() + ".limit1";
 					}
-				}else{
+				} else {
 					ConnRight = model.nameModelica + "_" + Blocks[Link[i][1]-1].GraphicalNumber.toString() + ".u" + Link[i][2].toString();
-				}	
+				}
 			}
-			
 			Blocks[Link[i][1]-1].UsedInputPins.set(Link[i][2]-1, true);
 			Conn = Conn + ConnLeft + ", " + ConnRight + ");";
 			outputConnection.add(Conn);
 		}
 	}
 	
-	//Inputs and output connections. Before: .p and .n. now: .y and .u respectively
+	//Input and output connections. Before: .p and .n. now: .y and .u respectively
 	public void InputConnection() {
 		String Conn;
 		String ConnLeft;
@@ -565,40 +697,57 @@ public class ModelicaModel {
 		String nameLink;
 		Element model;
 		Integer indConnRight;
-		for (int i=0; i<Blocks.length; i++) {
+		for (int i=0; i<Blocks.length; i++) 
+		{
 			indConnRight=0;
-			for (int j=0; j<Blocks[i].entries.length; j++) {
+			for (int j=0; j<Blocks[i].entries.length; j++)
+			{
 			    nameLink = Blocks[i].entries[j].replaceAll("([\\W|[_]])+", "");
-				if (!Blocks[i].entries[j].equals("?")) {
+				if (!Blocks[i].entries[j].equals("?")) 
+				{
 					model = CT.get(Blocks[i].idEu);
-					if ( Blocks[i].entries[j].contains("@")) {						
+					if ( Blocks[i].entries[j].contains("@"))
+					{						
 						ConnLeft = "pin_At_" + Blocks[i].entries[j].replaceAll("([\\W|[_]])+", "");
-					}else{			
+					} else
+					{
 						ConnLeft = "pin_" + Blocks[i].entries[j].replaceAll("([\\W|[_]])+", "");
 					}
-					   indConnRight = j+1;
-					if(Blocks[i].UsedInputPins.size() == 1){
+					indConnRight = j+1;
+					if(Blocks[i].UsedInputPins.size() == 1)
+					{
 						ConnRight = model.nameModelica + "_" + Blocks[i].GraphicalNumber.toString() + ".u";
-					}else{
-						if(Blocks[i].idEu.equals(1) || Blocks[i].idEu.equals(2) || Blocks[i].idEu.equals(23) || Blocks[i].idEu.equals(22) || Blocks[i].idEu.equals(13) || Blocks[i].idEu.equals(14)){
-							if(Blocks[i].idEu.equals(22)){
-								ConnRight = "Min" + "_" + Blocks[i].GraphicalNumber.toString() + ".u["+LinksBlocksId1[i][j]+"]";	
-							}else if (Blocks[i].idEu.equals(23)){
-								ConnRight = "Max" + "_" + Blocks[i].GraphicalNumber.toString() + ".u["+LinksBlocksId1[i][j]+"]";			
-							}else{
-								ConnRight = model.nameModelica + "_" + Blocks[i].GraphicalNumber.toString() + ".u["+LinksBlocksId1[i][j]+"]";		
+					} else
+					{
+						if(Blocks[i].idEu.equals(1) || Blocks[i].idEu.equals(2) || Blocks[i].idEu.equals(23) || Blocks[i].idEu.equals(22) || Blocks[i].idEu.equals(13) || Blocks[i].idEu.equals(14))
+						{
+							if(Blocks[i].idEu.equals(22))
+							{
+								ConnRight = "Min" + "_" + Blocks[i].GraphicalNumber.toString() + ".u["+LinksBlocksId1[i][j]+"]";
+							} else if (Blocks[i].idEu.equals(23))
+							{
+								ConnRight = "Max" + "_" + Blocks[i].GraphicalNumber.toString() + ".u["+LinksBlocksId1[i][j]+"]";
+							} else 
+							{
+								ConnRight = model.nameModelica + "_" + Blocks[i].GraphicalNumber.toString() + ".u["+LinksBlocksId1[i][j]+"]";
 							}
-						}else if(Blocks[i].idEu.equals(24)){
-							if(indConnRight==2){
+						} else if(Blocks[i].idEu.equals(24))
+						{
+							if(indConnRight==2)
+							{
 								ConnRight = model.nameModelica + "_" + Blocks[i].GraphicalNumber.toString() + ".u";
-							}else if(indConnRight==3){
+							} else if(indConnRight==3)
+							{
 								ConnRight = model.nameModelica + "_" + Blocks[i].GraphicalNumber.toString() + ".limit2";
-							}else if(indConnRight==1){
+							} else if(indConnRight==1)
+							{
 								ConnRight = model.nameModelica + "_" + Blocks[i].GraphicalNumber.toString() + ".limit1";
-							}else {
+							} else
+							{
 								ConnRight = "fallo";
 							}
-						}else{
+						} else
+						{
 							ConnRight = model.nameModelica + "_" + Blocks[i].GraphicalNumber.toString() + ".u" + indConnRight.toString();
 						}
 					}
@@ -616,36 +765,48 @@ public class ModelicaModel {
 		String ConnRight;
 		String base;
 		Element model;
-		for (int i=0; i<Blocks.length; i++){
-			if (Blocks[i].output.length()>1) {
+		for (int i=0; i<Blocks.length; i++)
+		{
+			if (Blocks[i].output.length()>1)
+			{
 				model = CT.get(Blocks[i].idEu);
-				if (Blocks[i].output.contains("@")) {
+				if (Blocks[i].output.contains("@"))
+				{
 					ConnLeft = "pin_At_"+Blocks[i].output.replaceAll("([\\W|[_]])+", "");
-				}else{
+				} else
+				{
 					ConnLeft = "pin_"+Blocks[i].output.replaceAll("([\\W|[_]])+", "");
 				}
-				if (model.idEu.equals(27)) {
+				if (model.idEu.equals(27))
+				{
 					ConnRight = "pin_TerminalVoltage";
-				} else if (model.idEu.equals(50)) {
+				} else if (model.idEu.equals(50))
+				{
 					ConnRight = "pin_FieldCurrent";
-				} else if (model.idEu.equals(28)) {
+				} else if (model.idEu.equals(28))
+				{
 					base = Blocks[i].param[2].replaceAll("([\\W|[_]])+", "");
 					ConnRight = "pin_ActivePower" + base;
-				} else if (model.idEu.equals(31)) {
+				} else if (model.idEu.equals(31))
+				{
 					base = Blocks[i].param[2].replaceAll("([\\W|[_]])+", "");
 					ConnRight = "pin_ReactivePower" + base;
-				} else if (model.idEu.equals(49)) {
+				} else if (model.idEu.equals(49))
+				{
 					base = Blocks[i].param[2].replaceAll("([\\W|[_]])+", "");
 					ConnRight = "pin_FRZ" + base;
-				} else if (model.idEu.equals(60)) {
+				} else if (model.idEu.equals(60))
+				{
 					base = Blocks[i].param[2].replaceAll("([\\W|[_]])+", "");
 					ConnRight = "pin_Current";
-				} else if (model.idEu.equals(22)) {
+				} else if (model.idEu.equals(22))
+				{
 					ConnRight = "Min" + "_" + Blocks[Link[i][0]-1].GraphicalNumber.toString() + ".yMin";
-
-				} else if (model.idEu.equals(23)) {
+				} else if (model.idEu.equals(23))
+				{
 					ConnRight = "Max" + "_" + Blocks[Link[i][0]-1].GraphicalNumber.toString() + ".yMax";
-				} else {
+				} else
+				{
 					ConnRight = model.nameModelica + "_" + Blocks[i].GraphicalNumber.toString() + ".y";
 				}
 				Conn = "  connect(" + ConnLeft + ", " + ConnRight + ");";
