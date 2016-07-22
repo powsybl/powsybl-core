@@ -18,6 +18,11 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 
+/**
+ * Class to convert macroblocks from Eurostag to Modelica
+ * @author Marc Sabate <sabatem@aia.es>
+ * @author Raul Viruez <viruezr@aia.es>
+ */
 public class Converter {
 	public String pathfrm;
 	public String pathOut;
@@ -28,9 +33,7 @@ public class Converter {
 	private Boolean init;
 	private ModelicaModel MO;
 	private Boolean isEmpty;
-	
-	
-	
+
 	public Converter(String pathfrm, String pathOut, Boolean init) {
 		this.pathfrm = pathfrm;
 		this.pathOut = pathOut;
@@ -50,10 +53,7 @@ public class Converter {
 		}
 	}
 	
-	
-	private ModelicaModel EUparser() throws IOException{	
-			
-
+	private ModelicaModel EUparser() throws IOException{
 		String sep = ";";
 		String line;
 		Hashtable<Integer,Element> CT = new Hashtable<Integer,Element>(); //correspondance table
@@ -85,7 +85,6 @@ public class Converter {
 			}
 			Element elt = new Element(CTidEu, nameEu, nameModelica, param, nInputPins); 
 			CT.put(CTidEu, elt);
-			
 		}
 		bufferCT.close();
 
@@ -105,7 +104,6 @@ public class Converter {
 			isEmpty=true;
 			MO = new ModelicaModel(pathfrm,parData);
 		} else {
-
 			String[][] paramEu = EUfile.getParamEU();
 			Integer[] GraphicalNumber = EUfile.getGraphicalNumber();
 			String[][] entries = EUfile.getEntries();
@@ -113,12 +111,7 @@ public class Converter {
 			Integer[] idEu = EUfile.getIdEu();
 			Integer[][] link = EUfile.getLink();
 			Integer nLinks = EUfile.getnLinks();
-	
-			
-			//.par file lecture
-//			File parFile = new File(pathPar);
-//			ParParser parData = new ParParser(parFile);
-			
+
 			//creation of the n blocks
 			//counter of the blocks of the same type
 			Block[] Macroblock = new Block[nBlocks];
@@ -141,21 +134,14 @@ public class Converter {
 			}
 			MO = new ModelicaModel(Macroblock, link, pathfrm, CT, parData);
 		}
-			
-		
 		return MO;
 	}
 	
-	
 	public void convert2MO() throws IOException {
-//		File parFile = new File(pathPar);
-//		ParParser parData = new ParParser(parFile);
-			
-		
 		File frm = new File(pathfrm);
 		String nameModel = frm.getName().split("\\.")[0];
 		if (init) nameModel = nameModel+"_init";
-		File outFile = new	File(pathOut, nameModel + ".mo");
+		File outFile = new File(pathOut, nameModel + ".mo");
 		BufferedWriter out = new BufferedWriter(new FileWriter(outFile));
 
 		if (init) {
@@ -163,7 +149,6 @@ public class Converter {
 		} else {
 			out.write(MO.outputHeading + "\n");
 		}
-		
 		
 		if (!isEmpty) {
 			List<Integer> setIds = parData.getSetIds();
@@ -188,7 +173,6 @@ public class Converter {
 			}
 	
 			out.write("equation\n");
-			//if (nLinks>0) {
 			if (MO.outputConnection.size()>0) {
 				for (int i=0; i<MO.outputConnection.size(); i++){
 					out.write(MO.outputConnection.get(i) + "\n");
@@ -205,17 +189,13 @@ public class Converter {
 			if (!MO.outputZeroPins.isEmpty()){
 				for (int i=0; i<MO.outputZeroPins.size(); i++){
 					out.write(MO.outputZeroPins.get(i) + "\n");
-					
-					
 				}
 			}
-			
 		} else {
 			for (int i=0; i<MO.outputParamDeclaration.size(); i++){
 				out.write(MO.outputParamDeclaration.get(i) + "\n");
 			}
 			out.write("equation\n");
-
 		}
 		if (init) {
 			out.write(MO.outputEnd + "_init" + ";");
@@ -224,7 +204,6 @@ public class Converter {
 		}
 		out.close();
 	}
-	
 	
 	public void printLinkNames() throws IOException {
 
@@ -253,7 +232,4 @@ public class Converter {
 	public List<String> getInit_InterfaceParameters() {
 		return MO.init_InterfaceParameters;
 	}
-	
-	
-	
 }
