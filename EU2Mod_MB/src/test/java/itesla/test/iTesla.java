@@ -12,33 +12,24 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import org.junit.Test;
 
 public class iTesla {
 	private static Converter converter;
 	private static Converter converter_init;
-	private static final String pathFRM;
-	private static final String pathOUT;
 
-	public static void main(String[] args) throws IOException {
-		pathFRM = args[1];
-		pathOUT = args[2];
+	@Test
+	public void test() throws IOException {
+		String pathFRM = getClass().getResource("/edftur1c.frm").toString();
+		String pathOUT = getClass().getResource("/output").toString();
 		converter = new Converter(pathFRM, pathOUT, false);
 		converter_init = new Converter(pathFRM, pathOUT, true);
 		try {
 			converter.convert2MO();
-			//converter.printLinkNames();
 			converter_init.convert2MO();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
-		/*
-		 * Function that returns all the sets of parameters in a hashmap.
-		 * The key of this hashmap is the reference id of the parameters set.
-		 * The value of this hashmap is another hashmap wih the name of the parameter and its value
-		 */
-		HashMap<Integer, HashMap<String, String>> allParameterSets = converter.parData.getParameters();
 		
 		/*
 		 * Function that returns a specific set of parameters given by its reference id
