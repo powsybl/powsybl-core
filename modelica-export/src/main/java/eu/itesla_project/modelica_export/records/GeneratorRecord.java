@@ -279,7 +279,7 @@ public class GeneratorRecord extends ModelicaRecord {
 				}
 				if(!this.busInfo.isConnected())
 				{
-					his.addValue(StaticData.COMMENT);
+					this.addValue(StaticData.COMMENT);
 				}
 				this.addValue("\t " + EurostagFixedData.ANNOT);
 				genParameters = null;
