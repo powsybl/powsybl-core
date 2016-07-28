@@ -76,8 +76,7 @@ class VoltageLevelAdderImpl extends IdentifiableAdderImpl<VoltageLevelAdderImpl>
         // TODO : ckeck that there are not another voltage level with same base voltage
 
         ValidationUtil.checkNominalV(this, nominalV);
-        ValidationUtil.checkLowVoltageLimit(this, lowVoltageLimit);
-        ValidationUtil.checkHighVoltageLimit(this, highVoltageLimit);
+        ValidationUtil.checkVoltageLimits(this, lowVoltageLimit, highVoltageLimit);
         ValidationUtil.checkTopologyKind(this, topologyKind);
 
         VoltageLevelExt voltageLevel;
