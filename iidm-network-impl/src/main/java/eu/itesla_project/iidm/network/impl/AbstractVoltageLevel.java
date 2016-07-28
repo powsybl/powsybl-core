@@ -71,7 +71,7 @@ abstract class AbstractVoltageLevel extends IdentifiableImpl<VoltageLevel> imple
 
     @Override
     public VoltageLevel setLowVoltageLimit(float lowVoltageLimit) {
-        ValidationUtil.checkLowVoltageLimit(this, lowVoltageLimit);
+        ValidationUtil.checkVoltageLimits(this, lowVoltageLimit, highVoltageLimit);
         float oldValue = this.lowVoltageLimit;
         this.lowVoltageLimit = lowVoltageLimit;
         notifyUpdate("lowVoltageLimit", oldValue, lowVoltageLimit);
@@ -85,7 +85,7 @@ abstract class AbstractVoltageLevel extends IdentifiableImpl<VoltageLevel> imple
 
     @Override
     public VoltageLevel setHighVoltageLimit(float highVoltageLimit) {
-        ValidationUtil.checkHighVoltageLimit(this, highVoltageLimit);
+        ValidationUtil.checkVoltageLimits(this, lowVoltageLimit, highVoltageLimit);
         float oldValue = this.highVoltageLimit;
         this.highVoltageLimit = highVoltageLimit;
         notifyUpdate("highVoltageLimit", oldValue, highVoltageLimit);
