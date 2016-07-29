@@ -184,19 +184,6 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
                             "a regulation terminal has to be set for a regulating ratio tap changer");
                 }
             }
-        } else {
-            if (regulating != null) {
-                throw new ValidationException(parent,
-                        "a regulating status is useless for a ratio tap changer without any load tap changing capabilities");
-            }
-            if (!Float.isNaN(targetV)) {
-                throw new ValidationException(parent,
-                        "a target voltage is useless for a ratio tap changer without any load tap changing capabilities");
-            }
-            if (terminal != null) {
-                throw new ValidationException(parent,
-                        "a regulation terminal is useless for a ratio tap changer without any load tap changing capabilities");
-            }
         }
         if (terminal != null && terminal.getVoltageLevel().getNetwork() != getNetwork()) {
             throw new ValidationException(parent, "regulation terminal is not part of the network");
