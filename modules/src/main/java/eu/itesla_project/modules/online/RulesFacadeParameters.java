@@ -20,37 +20,44 @@ import java.util.Set;
 public class RulesFacadeParameters {
 
     private final String offlineWorkflowId;
-	private final List<Contingency> contingencies;
-	private final double purityThreshold;
-	private final Set<SecurityIndexType> securityIndexTypes; // all security index types if null
-	private final boolean wcaRules;
+    private final List<Contingency> contingencies;
+    private final double purityThreshold;
+    private final Set<SecurityIndexType> securityIndexTypes; // all security index types if null
+    private final boolean wcaRules;
+    private final boolean checkRules;
 
-	public RulesFacadeParameters(String offlineWorkflowId, List<Contingency> contingencies, double purityThreshold, 
-								   Set<SecurityIndexType> securityIndexTypes, boolean wcaRules) {
+    public RulesFacadeParameters(String offlineWorkflowId, List<Contingency> contingencies, double purityThreshold, 
+            Set<SecurityIndexType> securityIndexTypes, boolean wcaRules, boolean checkRules) {
         this.offlineWorkflowId = offlineWorkflowId;
-		this.contingencies = contingencies;
-		this.purityThreshold = purityThreshold;
-		this.securityIndexTypes = securityIndexTypes;
-		this.wcaRules = wcaRules;
-	}
+        this.contingencies = contingencies;
+        this.purityThreshold = purityThreshold;
+        this.securityIndexTypes = securityIndexTypes;
+        this.wcaRules = wcaRules;
+        this.checkRules = checkRules;
+    }
 
     public String getOfflineWorkflowId() {
         return offlineWorkflowId;
     }
 
-	public List<Contingency> getContingencies() {
-		return contingencies;
-	}
+    public List<Contingency> getContingencies() {
+        return contingencies;
+    }
 
-	public double getPurityThreshold() {
-		return purityThreshold;
-	}
-	
-	public Set<SecurityIndexType> getSecurityIndexTypes() {
-		return securityIndexTypes;
-	}
+    public double getPurityThreshold() {
+        return purityThreshold;
+    }
 
-	public boolean wcaRules() {
-		return wcaRules;
-	}
+    public Set<SecurityIndexType> getSecurityIndexTypes() {
+        return securityIndexTypes;
+    }
+
+    public boolean wcaRules() {
+        return wcaRules;
+    }
+
+    public boolean isCheckRules() {
+        return checkRules;
+    }
+
 }

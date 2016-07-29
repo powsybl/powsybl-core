@@ -159,15 +159,16 @@ public class ValidationUtil {
         }
     }
 
-    static void checkLowVoltageLimit(Validable validable, float lowVoltageLimit) {
-        if (lowVoltageLimit <= 0) {
-            throw new ValidationException(validable, "low voltage limit is <= 0");
+    static void checkVoltageLimits(Validable validable, float lowVoltageLimit, float highVoltageLimit) {
+        if (lowVoltageLimit < 0) {
+            throw new ValidationException(validable, "low voltage limit is < 0");
         }
-    }
-
-    static void checkHighVoltageLimit(Validable validable, float highVoltageLimit) {
-        if (highVoltageLimit <= 0) {
-            throw new ValidationException(validable, "high voltage limit is <= 0");
+        if (highVoltageLimit < 0) {
+            throw new ValidationException(validable, "high voltage limit is < 0");
+        }
+        if (lowVoltageLimit >= highVoltageLimit) {
+            throw new ValidationException(validable, "Inconsistent voltage limit range ["
+                    + lowVoltageLimit + ", " + highVoltageLimit + "]");
         }
     }
 
