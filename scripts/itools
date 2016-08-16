@@ -32,7 +32,9 @@ done
 [ -n "$itesla_cache_dir" ] && options+="-Ditesla.cache.dir=$itesla_cache_dir"
 [ -n "$itesla_config_dir" ] && options+=" -Ditesla.config.dir=$itesla_config_dir"
 [ -n "$itesla_config_name" ] && options+=" -Ditesla.config.name=$itesla_config_name"
-options+=" -Dlogback.configurationFile=$installDir/share/java/logback-cmdline.xml"
+options+=" -Dlogback.configurationFile="
+[ -f "$itesla_config_dir/logback-cmdline.xml" ] && options+="$itesla_config_dir" || options+="$installDir/etc"
+options+="/logback-cmdline.xml"
 
 $JAVA_HOME/bin/java \
 -Xmx8G \
