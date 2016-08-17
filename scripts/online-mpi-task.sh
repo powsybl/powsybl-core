@@ -23,7 +23,7 @@ mkdir $tmpdir > /dev/null 2>&1
 
 export PATH=$installBinDir:$PATH
 
-export CLASSPATH=$installDir/share/java/*:$installDir/share/java:$CLASSPATH
+export CLASSPATH=$installDir/share/java/*:$CLASSPATH
 rank=$OMPI_COMM_WORLD_RANK
 
 if [ $rank = 0 ]; then

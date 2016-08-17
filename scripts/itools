@@ -38,6 +38,6 @@ options+="/logback-cmdline.xml"
 
 $JAVA_HOME/bin/java \
 -Xmx8G \
--cp "$installDir/share/java/*:$installDir/share/java" \
+-cp "$installDir/share/java/*" \
 $options \
 eu.itesla_project.commons.tools.Main ${args[@]}

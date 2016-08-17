@@ -20,7 +20,7 @@ fi
 tmpdir=$HOME/tmp 
 mkdir $tmpdir > /dev/null 2>&1
 
-export CLASSPATH=$installDir/share/java/*:$installDir/share/java:$CLASSPATH
+export CLASSPATH=$installDir/share/java/*:$CLASSPATH
 rank=$OMPI_COMM_WORLD_RANK
 if [ $rank = 0 ]; then
     if [ -z $JAVA_HOME ]; then
@@ -34,6 +34,9 @@ if [ $rank = 0 ]; then
     options+=" -Dcom.sun.management.jmxremote.port=6666"
     options+=" -Dcom.sun.management.jmxremote.authenticate=false"
     options+=" -Dcom.sun.management.jmxremote.ssl=false"
+    options+=" -Dlogback.configurationFile="
+    [ -f "$itesla_config_dir/logback.xml" ] && options+="$itesla_config_dir" || options+="$installDir/etc"
+    options+="/logback.xml"
     $JAVA_HOME/bin/java \
 -Xmx8G \
 -verbose:gc -XX:+PrintGCTimeStamps -Xloggc:$tmpdir/gc.log \
