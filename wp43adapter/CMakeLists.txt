@@ -4,90 +4,32 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-cmake_minimum_required(VERSION 2.6)
+# Find external packages
+find_package(Boost REQUIRED)
+find_package(Eurostag REQUIRED)
+find_package(HDF5)
+find_package(IntelFortran REQUIRED COMPONENTS ifcore ifport imf intlc)
+find_package(Log4cpp REQUIRED)
+find_package(Matio REQUIRED)
+find_package(Threads)
+find_package(ZLIB REQUIRED)
 
-if (DEFINED LOG4CPP_HOME)
-    message("LOG4CPP_HOME=${LOG4CPP_HOME}")
-else()
-    message(FATAL_ERROR "LOG4CPP_HOME is NOT defined")
-endif()
-if (DEFINED BOOST_HOME)
-    message("BOOST_HOME=${BOOST_HOME}")
-else()
-    message(FATAL_ERROR "BOOST_HOME is NOT defined")
-endif()
-if (DEFINED ENV{INTEL_HOME})
-    message("INTEL_HOME=$ENV{INTEL_HOME}")
-else()
-    message(FATAL_ERROR "INTEL_HOME is NOT defined")
-endif()
-if (DEFINED ENV{EUROSTAG_SRC_HOME})
-    message("EUROSTAG_SRC_HOME=$ENV{EUROSTAG_SRC_HOME}")
-else()
-    message(FATAL_ERROR "EUROSTAG_SRC_HOME is NOT defined")
-endif()
-if (DEFINED HDF5_HOME)
-    message("HDF5_HOME=${HDF5_HOME}")
-else()
-    message(FATAL_ERROR "HDF5_HOME is NOT defined")
-endif()
-if (DEFINED MATIO_HOME)
-    message("MATIO_HOME=${MATIO_HOME}")
-else()
-    message(FATAL_ERROR "MATIO_HOME is NOT defined")
-endif()
+# wp43adapter
+set(WP43ADAPTER_SOURCES
+    src/Chameleon.cpp
+    src/ConfigFile.cpp
+    src/wp43adapter.cpp
+)
+add_executable(wp43adapter ${WP43ADAPTER_SOURCES})
+target_link_libraries(wp43adapter ${Eurostag_LIBRARIES} ${IntelFortran_LIBRARIES} ${Log4cpp_LIBRARIES} ${Matio_LIBRARIES} ${HDF5_LIBRARIES} ${ZLIB_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${CMAKE_DL_LIBS})
 
-file(GLOB_RECURSE source_files src/*)
-
-ADD_LIBRARY(eustag_cpt STATIC IMPORTED)
-ADD_LIBRARY(eustag_esg STATIC IMPORTED)
-ADD_LIBRARY(eustag_a STATIC IMPORTED)
-ADD_LIBRARY(light_lib_a_t STATIC IMPORTED)
-ADD_LIBRARY(eustag_i STATIC IMPORTED)
-ADD_LIBRARY(eustag_s STATIC IMPORTED)
-ADD_LIBRARY(light_lib_s STATIC IMPORTED)
-ADD_LIBRARY(eustag_lf STATIC IMPORTED)
-ADD_LIBRARY(light_lib_t_s STATIC IMPORTED)
-ADD_LIBRARY(light_lib_t STATIC IMPORTED)
-ADD_LIBRARY(eustag_bld STATIC IMPORTED)
-ADD_LIBRARY(util STATIC IMPORTED)
-ADD_LIBRARY(klu STATIC IMPORTED)
-ADD_LIBRARY(amd STATIC IMPORTED)
-ADD_LIBRARY(log4cpp STATIC IMPORTED)
-ADD_LIBRARY(hdf5 STATIC IMPORTED)
-ADD_LIBRARY(hdf5_z STATIC IMPORTED)
-ADD_LIBRARY(hdf5_sz STATIC IMPORTED)
-ADD_LIBRARY(matio STATIC IMPORTED)
-SET_TARGET_PROPERTIES(eustag_cpt PROPERTIES IMPORTED_LOCATION $ENV{EUROSTAG_SRC_HOME}/src/eustagcpt/bin/libeustag_cpt.a)
-SET_TARGET_PROPERTIES(eustag_esg PROPERTIES IMPORTED_LOCATION $ENV{EUROSTAG_SRC_HOME}/src/eustagcpt/bin/libeustag_esg.a)
-SET_TARGET_PROPERTIES(eustag_a PROPERTIES IMPORTED_LOCATION $ENV{EUROSTAG_SRC_HOME}/src/eustaga/bin/libeustag_a.a)
-SET_TARGET_PROPERTIES(light_lib_a_t PROPERTIES IMPORTED_LOCATION $ENV{EUROSTAG_SRC_HOME}/src/eustaga/bin/liblight_lib_a_t.a)
-SET_TARGET_PROPERTIES(eustag_i PROPERTIES IMPORTED_LOCATION $ENV{EUROSTAG_SRC_HOME}/src/eustagi/bin/libeustag_i.a)
-SET_TARGET_PROPERTIES(eustag_s PROPERTIES IMPORTED_LOCATION $ENV{EUROSTAG_SRC_HOME}/src/eustags/bin/libeustag_s.a)
-SET_TARGET_PROPERTIES(light_lib_s PROPERTIES IMPORTED_LOCATION $ENV{EUROSTAG_SRC_HOME}/src/eustags/bin/liblight_lib_s.a)
-SET_TARGET_PROPERTIES(eustag_lf PROPERTIES IMPORTED_LOCATION $ENV{EUROSTAG_SRC_HOME}/src/eustaglf/bin/libeustag_lf.a)
-SET_TARGET_PROPERTIES(light_lib_t_s PROPERTIES IMPORTED_LOCATION $ENV{EUROSTAG_SRC_HOME}/src/eustagt/bin/liblight_lib_t_s.a)
-SET_TARGET_PROPERTIES(light_lib_t PROPERTIES IMPORTED_LOCATION $ENV{EUROSTAG_SRC_HOME}/src/eustagt/bin/liblight_lib_t.a)
-SET_TARGET_PROPERTIES(eustag_bld PROPERTIES IMPORTED_LOCATION $ENV{EUROSTAG_SRC_HOME}/src/eustagbld/bin/libeustag_bld.a)
-SET_TARGET_PROPERTIES(util PROPERTIES IMPORTED_LOCATION $ENV{EUROSTAG_SRC_HOME}/src/util/bin/libutil.a)
-SET_TARGET_PROPERTIES(klu PROPERTIES IMPORTED_LOCATION $ENV{EUROSTAG_SRC_HOME}/src/klu/bin/libklu.a)
-SET_TARGET_PROPERTIES(amd PROPERTIES IMPORTED_LOCATION $ENV{EUROSTAG_SRC_HOME}/src/amd/bin/libamd.a)
-SET_TARGET_PROPERTIES(log4cpp PROPERTIES IMPORTED_LOCATION ${LOG4CPP_HOME}/lib/liblog4cpp.a)
-SET_TARGET_PROPERTIES(hdf5 PROPERTIES IMPORTED_LOCATION ${HDF5_HOME}/lib/libhdf5.a)
-SET_TARGET_PROPERTIES(hdf5_z PROPERTIES IMPORTED_LOCATION ${ZLIB_HOME}/lib/libz.a)
-SET_TARGET_PROPERTIES(hdf5_sz PROPERTIES IMPORTED_LOCATION ${SZIP_HOME}/lib/libszip.a)
-SET_TARGET_PROPERTIES(matio PROPERTIES IMPORTED_LOCATION ${MATIO_HOME}/lib/libmatio.a)
-
-include_directories(${BOOST_HOME}/include $ENV{EUROSTAG_SRC_HOME}/src/eustagcpt/sources ${LOG4CPP_HOME}/include ${MATIO_HOME}/include)
-link_directories($ENV{INTEL_HOME}/lib/intel64/)
-add_executable(wp43adapter ${source_files})
-target_link_libraries(wp43adapter eustag_esg eustag_cpt eustag_a light_lib_a_t eustag_i eustag_s light_lib_s eustag_lf light_lib_t_s light_lib_t eustag_bld util klu amd ifcore ifport intlc imf irc svml log4cpp matio hdf5 hdf5_z hdf5_sz dl pthread)
+include_directories(${Boost_INCLUDE_DIRS})
+include_directories(${Eurostag_INCLUDE_DIRS})
+include_directories(${Log4cpp_INCLUDE_DIRS})
+include_directories(${Matio_INCLUDE_DIRS})
 
 #add the wp43_eurostag.sh script to the output path
 add_custom_target(copy_scripts ALL
-     DEPENDS wp43adapter
-     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/src/wp43_eurostag.sh ${EXECUTABLE_OUTPUT_PATH}
+    DEPENDS wp43adapter
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/src/wp43_eurostag.sh ${EXECUTABLE_OUTPUT_PATH}
 )
-
-
-

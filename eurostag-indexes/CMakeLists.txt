@@ -8,56 +8,28 @@ cmake_minimum_required(VERSION 2.6)
 
 project(indexes)
 
-if (DEFINED ENV{EUROSTAG_SRC_HOME})
-    message("EUROSTAG_SRC_HOME=$ENV{EUROSTAG_SRC_HOME}")
-else()
-    message(FATAL_ERROR "EUROSTAG_SRC_HOME is NOT defined")
-endif()
-if (DEFINED ENV{INTEL_HOME})
-    message("INTEL_HOME=$ENV{INTEL_HOME}")
-else()
-    message(FATAL_ERROR "INTEL_HOME is NOT defined")
-endif()
-if (DEFINED BOOST_HOME)
-    message("BOOST_HOME=${BOOST_HOME}")
-else()
-    message(FATAL_ERROR "BOOST_HOME is NOT defined")
-endif()
+find_package(Boost 1.57 REQUIRED)
+find_package(Eurostag REQUIRED)
+find_package(IntelFortran REQUIRED COMPONENTS ifcore ifport imf intlc)
 
-file(GLOB_RECURSE source_files src/*)
+# tsoindexes executable
+set(TSOINDEXES_SOURCES
+    src/TimeSeries.cpp
+    src/EurostagTimeSeries.cpp
+    src/tsoindexes.cpp
+)
+add_executable(tsoindexes ${TSOINDEXES_SOURCES})
+target_link_libraries(tsoindexes ${Eurostag_LIBRARIES} ${IntelFortran_LIBRARIES} ${CMAKE_DL_LIBS})
 
-ADD_LIBRARY(eustag_cpt STATIC IMPORTED)
-ADD_LIBRARY(eustag_esg STATIC IMPORTED)
-ADD_LIBRARY(eustag_a STATIC IMPORTED)
-ADD_LIBRARY(light_lib_a_t STATIC IMPORTED)
-ADD_LIBRARY(eustag_i STATIC IMPORTED)
-ADD_LIBRARY(eustag_s STATIC IMPORTED)
-ADD_LIBRARY(light_lib_s STATIC IMPORTED)
-ADD_LIBRARY(eustag_lf STATIC IMPORTED)
-ADD_LIBRARY(light_lib_t_s STATIC IMPORTED)
-ADD_LIBRARY(light_lib_t STATIC IMPORTED)
-ADD_LIBRARY(eustag_bld STATIC IMPORTED)
-ADD_LIBRARY(util STATIC IMPORTED)
-ADD_LIBRARY(klu STATIC IMPORTED)
-ADD_LIBRARY(amd STATIC IMPORTED)
-SET_TARGET_PROPERTIES(eustag_cpt PROPERTIES IMPORTED_LOCATION $ENV{EUROSTAG_SRC_HOME}/src/eustagcpt/bin/libeustag_cpt.a)
-SET_TARGET_PROPERTIES(eustag_esg PROPERTIES IMPORTED_LOCATION $ENV{EUROSTAG_SRC_HOME}/src/eustagcpt/bin/libeustag_esg.a)
-SET_TARGET_PROPERTIES(eustag_a PROPERTIES IMPORTED_LOCATION $ENV{EUROSTAG_SRC_HOME}/src/eustaga/bin/libeustag_a.a)
-SET_TARGET_PROPERTIES(light_lib_a_t PROPERTIES IMPORTED_LOCATION $ENV{EUROSTAG_SRC_HOME}/src/eustaga/bin/liblight_lib_a_t.a)
-SET_TARGET_PROPERTIES(eustag_i PROPERTIES IMPORTED_LOCATION $ENV{EUROSTAG_SRC_HOME}/src/eustagi/bin/libeustag_i.a)
-SET_TARGET_PROPERTIES(eustag_s PROPERTIES IMPORTED_LOCATION $ENV{EUROSTAG_SRC_HOME}/src/eustags/bin/libeustag_s.a)
-SET_TARGET_PROPERTIES(light_lib_s PROPERTIES IMPORTED_LOCATION $ENV{EUROSTAG_SRC_HOME}/src/eustags/bin/liblight_lib_s.a)
-SET_TARGET_PROPERTIES(eustag_lf PROPERTIES IMPORTED_LOCATION $ENV{EUROSTAG_SRC_HOME}/src/eustaglf/bin/libeustag_lf.a)
-SET_TARGET_PROPERTIES(light_lib_t_s PROPERTIES IMPORTED_LOCATION $ENV{EUROSTAG_SRC_HOME}/src/eustagt/bin/liblight_lib_t_s.a)
-SET_TARGET_PROPERTIES(light_lib_t PROPERTIES IMPORTED_LOCATION $ENV{EUROSTAG_SRC_HOME}/src/eustagt/bin/liblight_lib_t.a)
-SET_TARGET_PROPERTIES(eustag_bld PROPERTIES IMPORTED_LOCATION $ENV{EUROSTAG_SRC_HOME}/src/eustagbld/bin/libeustag_bld.a)
-SET_TARGET_PROPERTIES(util PROPERTIES IMPORTED_LOCATION $ENV{EUROSTAG_SRC_HOME}/src/util/bin/libutil.a)
-SET_TARGET_PROPERTIES(klu PROPERTIES IMPORTED_LOCATION $ENV{EUROSTAG_SRC_HOME}/src/klu/bin/libklu.a)
-SET_TARGET_PROPERTIES(amd PROPERTIES IMPORTED_LOCATION $ENV{EUROSTAG_SRC_HOME}/src/amd/bin/libamd.a)
+# tsextract executable
+set(TSEXTRACT_SOURCES
+    src/TimeSeries.cpp
+    src/EurostagTimeSeries.cpp
+    src/tsextract.cpp
+)
+add_executable(tsextract ${TSEXTRACT_SOURCES})
+message(STATUS, "ESG-Libs: ${Eurostag_LIBRARIES}")
+target_link_libraries(tsextract ${Eurostag_LIBRARIES} ${IntelFortran_LIBRARIES} ${CMAKE_DL_LIBS})
 
-include_directories(${BOOST_HOME}/include $ENV{EUROSTAG_SRC_HOME}/src/eustagcpt/sources)
-link_directories($ENV{INTEL_HOME}/lib/intel64/)
-add_executable(tsoindexes src/TimeSeries.cpp src/EurostagTimeSeries.cpp src/tsoindexes.cpp)
-add_executable(tsextract src/TimeSeries.cpp src/EurostagTimeSeries.cpp src/tsextract.cpp)
-target_link_libraries(tsoindexes eustag_esg eustag_cpt eustag_a light_lib_a_t eustag_i eustag_s light_lib_s eustag_lf light_lib_t_s light_lib_t eustag_bld util klu amd ifcore ifport intlc imf irc svml dl pthread)
-target_link_libraries(tsextract eustag_esg eustag_cpt eustag_a light_lib_a_t eustag_i eustag_s light_lib_s eustag_lf light_lib_t_s light_lib_t eustag_bld util klu amd ifcore ifport intlc imf irc svml dl pthread)
+include_directories(${Boost_INCLUDE_DIRS})
+include_directories(${Eurostag_INCLUDE_DIRS})

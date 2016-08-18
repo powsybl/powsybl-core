@@ -5,263 +5,365 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-##
-## before setting these settings to true, make sure that these enviroment variables are available 
-## - EUROSTAG_SRC_HOME and  INTEL_HOME (to compile EUROSTAG based modules)
-## - MATLABHOME: to compile MATLAB CODE, must point to the root of a MATLAB v>R2015 installation
-## - DYMOLAHOME: to compile the matlab integration module)
-##
-BUILD_EUROSTAG=false
-BUILD_MATLAB=false
-BUILD_DYMOLA=false
-BUILD_THIRDPARTY=true
-
-## ipst top source directory
 sourceDir=$(dirname $(readlink -f $0))
 
-## default ipst installation target directory
-installDir=$HOME/itesla
-## default ipst thirdparty directory
-thirdpartyDir=$HOME/itesla_thirdparty
 
-## stop script execution if installDir already exists
-overwriteInstallation=false
+## install default settings
+###############################################################################
+ipst_prefix=$HOME/itesla
+ipst_package_version=` mvn -f "$sourceDir/pom.xml" org.apache.maven.plugins:maven-help-plugin:evaluate -Dexpression=project.version | grep -v "\["`
+ipst_package_name=ipst-$ipst_package_version
+ipst_package_type=zip
 
-## remove non java ipst build dir, before triggering a new build
-removeNonJavaBuildDir=false
+dymola_build=false
+dymola_home=
+eurostag_build=false
+eurostag_home=
+matlab_build=false
+matlab_home=
 
-## remove thord-party build dir, before triggering a new build
-removeThirdpartyBuildDir=false
+thirdparty_build=true
+thirdparty_prefix=$HOME/itesla_thirdparty
+thirdparty_download=true
+thirdparty_packs=$HOME/itesla_packs
+
+# Targets
+ipst_clean=false
+ipst_compile=false
+ipst_docs=false
+ipst_package=false
+ipst_install=false
+thirdparty_clean=false
 
 
+## read settings from configuration file
+###############################################################################
+settings="$sourceDir/install.cfg"
+if [ -f "${settings}" ]; then
+     source "${settings}"
+fi
+
+
+## Usage/Help
+###############################################################################
 cmd=$0
 usage() {
-    echo "usage: $cmd [--help] [--installDir <installation path>] [--thirdpartyDir <thirdparty path>] [--overwriteInstallation] [--clean] [--removeNonJavaBuildDir] [--removeThirdpartyBuildDir] [--buildMATLAB] [--buildEUROSTAG] [--buildDYMOLA]";
+    echo "usage: $cmd [options] [target...]"
     echo ""
-    exit 1
+    echo "Available targets:"
+    echo "  clean                    Clean iPST modules"
+    echo "  clean-thirdparty         Clean the thirdparty libraries"
+    echo "  compile                  Compile iPST modules"
+    echo "  package                  Compile iPST modules and create a distributable package"
+    echo "  install                  Compile iPST modules and install it (default target)"
+    echo "  help                     Display this help"
+    echo "  docs                     Generate the documentation (Doxygen/Javadoc)"
+    echo ""
+    echo "iPST options:"
+    echo "  --help                   Display this help"
+    echo "  --prefix                 Set the installation directory (default is $HOME/itesla)"
+    echo "  --package-type           Set the package format. The supported formats are zip, tar, tar.gz and tar.bz2 (default is zip)"
+    echo ""
+    echo "iPST C++ options:"
+    echo "  --with-dymola            Enable the compilation of Dymola dependant modules (DYMOLA_HOME)"
+    echo "  --without-dymola         Disable the compilation of Dymola dependant modules (default)"
+    echo "  --with-eurostag          Enable the compilation of Eurostag dependant modules (EUROSTAG_SDK_HOME)"
+    echo "  --without-eurostag       Disable the compilation of Eurostag dependant modules (default)"
+    echo "  --with-matlab            Enable the compilation of Matlab dependant modules (MATLAB_HOME)"
+    echo "  --without-matlab         Disable the compilation of Matlab dependant modules (default)"
+    echo ""
+    echo "Thirdparty options:"
+    echo "  --with-thirdparty        Enable the compilation of thirdparty libraries (default)"
+    echo "  --without-thirdparty     Disable the compilation of thirdparty libraries"
+    echo "  --thirdparty-prefix      Set the thirdparty installation directory (default is $HOME/itesla_thirdparty)"
+    echo "  --thirdparty-download    Sets false to compile thirdparty libraries from a local repository (default is true)"
+    echo "  --thirdparty-packs       Sets the thirdparty libraries local repository (default is $HOME/itesla_packs)"
+    echo ""
 }
 
-help() {
-    echo "usage: $cmd [--help] [--installDir <installation path>] [--thirdpartyDir <thirdparty path>] [--overwriteInstallation]";
-    echo "   --installDir               the target directory; default is <HOME>/itesla;  installation will not proceed if it already exists,";
-    echo "                              unless --overwriteInstallation is set (in this case the existing installation will be overwritten)";
-    echo "   --thirdpartyDir            the target path for the thirdparty libraries, required to build IPST (default is <HOME>/itesla_thirdparty)";
-    echo "   --overwriteInstallation    if set, the install script overwrites an existing installation (default is not set: stop script execution if installDir already exists)";
-    echo "   --buildMATLAB              if set, build MATLAB components (default is false, this option requires installation of MATLAB and MATLAB compiler)";
-    echo "   --buildEUROSTAG            if set, build EUROSTAG components (default is false, this option requires installation of EUROSTAG and EUROSTAG SDK)";
-    echo "   --buildDYMOLA              if set, build DYMOLA components (default is false, this option requires installation of DYMOLA)";
-    echo "   --removeThirdpartyBuildDir if set, remove an already existing third-party build dir before starting a new build (default is false)";
-    echo "   --removeNonJavaBuildDir    if set, remove an already existing non java ipst  build dir before starting a new build (default is false)";
-    echo "   --clean                    remove compiled files and directories generated during a build (thirdpartyDir excluded) and exit.";
-    echo "   --help  ";
+
+## Write Settings functions
+###############################################################################
+writeSetting() {
+    if [[ $# -lt 2 || $# -gt 3 ]]; then
+        echo "WARNING: writeSetting <setting> <value> [comment (true|false)]"
+        exit 1
+    fi
+
+    SETTING=$1
+    VALUE=$2
+    if [[ $# -eq 3 ]]; then
+        echo -ne "# "
+    fi
+    echo "${SETTING}=${VALUE}"
+
+    return 0
+}
+
+writeComment() {
+    echo "# $*"
+    return 0
+}
+
+writeEmptyLine() {
     echo ""
-    exit
+    return 0
+}
+
+writeSettings() {
+    writeComment " -- iPST global options --"
+    writeSetting "ipst_prefix" ${ipst_prefix}
+    writeSetting "ipst_package_type" ${ipst_package_type}
+
+    writeEmptyLine
+
+    writeComment " -- iPST C++ modules options --"
+    writeSetting "eurostag_build" ${eurostag_build}
+    writeSetting "eurostag_home" "${eurostag_home}"
+    writeSetting "dymola_build" ${dymola_build}
+    writeSetting "dymola_home" "${dymola_home}"
+    writeSetting "matlab_build" ${matlab_build}
+    writeSetting "matlab_home" "${matlab_home}"
+
+    writeEmptyLine
+
+    writeComment " -- iPST thirdparty libraries --"
+    writeSetting "thirdparty_build" ${thirdparty_build}
+    writeSetting "thirdparty_prefix" ${thirdparty_prefix}
+    writeSetting "thirdparty_download" ${thirdparty_download}
+    writeSetting "thirdparty_packs" ${thirdparty_packs}
+
+    return 0
 }
 
 
-cleanIPST=false;
+## Build required C++ thirdparty libraries
+###############################################################################
+buildthirdparty()
+{
+    if [[ $thirdparty_clean = true || $ipst_compile = true ]]; then
+        echo "** C++ thirdparty libraries"
 
-for ((i=1;i<=$#;i++));
-do
-    if [ ${!i} = "--installDir" ] 
-    then ((i++)) 
-        installDir=${!i};
-    elif [ ${!i} = "--thirdpartyDir" ];
-    then ((i++)) 
-        thirdpartyDir=${!i};  
-    elif [ ${!i} = "--overwriteInstallation" ];
-    then 
-        overwriteInstallation=true;  
-    elif [ ${!i} = "--buildMATLAB" ];
-    then 
-        BUILD_MATLAB=true;  
-    elif [ ${!i} = "--buildEUROSTAG" ];
-    then 
-        BUILD_EUROSTAG=true;  
-    elif [ ${!i} = "--buildDYMOLA" ];
-    then 
-        BUILD_DYMOLA=true;  
-    elif [ ${!i} = "--skipThirdpartyBuild" ];
-    then 
-        BUILD_THIRDPARTY=false;  
-    elif [ ${!i} = "--removeThirdpartyBuildDir" ];
-    then 
-        removeThirdpartyBuildDir=true;  
-    elif [ ${!i} = "--removeNonJavaBuildDir" ];
-    then 
-        removeNonJavaBuildDir=true;  
-    elif [ ${!i} = "--clean" ];
-    then 
-        cleanIPST=true;  
-    elif [ ${!i} = "--help" ];    
-    then ((i++)) 
-        help;
+        if [ $thirdparty_clean = true ]; then
+            echo "**** Removing thirdparty install directory (if already exists)."
+            rm -rf "$thirdparty_prefix"
+        fi
+
+        if [ $ipst_compile = true ]; then
+            if [ $thirdparty_build = true ]; then
+                 echo "**** Building the C++ thirdparty libraries"
+                 thirdparty_builddir="${thirdparty_prefix}/build"
+                 cmake -Dprefix="$thirdparty_prefix" -Ddownload="$thirdparty_download" -Dpacks="$thirdparty_packs" -G "Unix Makefiles" -H"$sourceDir/thirdparty" -B"$thirdparty_builddir" || exit $?
+                 make -C "$thirdparty_builddir" || exit $?
+
+                 thirdparty_build=false
+            else
+                echo "**** Skipping the build of the required thirdparty libraries, assuming a previous build in $thirdparty_prefix"
+            fi
+        fi
     fi
-done;
+}
 
-buildDir=$sourceDir/build
-buildThirdpartyDir=$thirdpartyDir/build
+## Build C++ modules
+###############################################################################
+ipst_cpp()
+{
+    if [[ $ipst_clean = true || $ipst_compile = true || $ipst_docs = true ]]; then
+        echo "** iPST C++ modules"
 
-if [ $cleanIPST = true ] ; then
-    echo ""
-    echo "** cleaning ipst"
-    echo ""
-    mvn -f $sourceDir/pom.xml clean
-    cr=$?
-    if [ $cr -ne 0 ] ; then
-        exit $cr
+        ipst_builddir=$sourceDir/build
+
+        if [ $ipst_clean = true ]; then
+            echo "**** Removing build directory (if already exists)."
+            rm -rf "$ipst_builddir"
+        fi
+
+        if [[ $ipst_compile = true || $ipst_docs = true ]]; then
+            # TODO: rename variable
+            cmake -DCMAKE_INSTALL_PREFIX="$ipst_prefix" -Dthirdparty_prefix="$thirdparty_prefix" -DBUILD_EUROSTAG=$eurostag_build -DEUROSTAG_SDK_HOME="${eurostag_home}" -DBUILD_MATLAB=$matlab_build -DMATLAB_HOME="${matlab_home}" -DBUILD_DYMOLA=$dymola_build -DDYMOLA_HOME="${dymola_home}" -G "Unix Makefiles" -H"$sourceDir" -B"$ipst_builddir" || exit $?
+
+            if [ $ipst_docs = true ]; then
+                echo "**** Compiling C++ modules"
+                make -C "$ipst_builddir" || exit $?
+            fi
+
+            if [ $ipst_docs = true ]; then
+                echo "**** Generating Doxygen documentation"
+                make -C "$ipst_builddir" doc || exit $?
+            fi
+        fi
     fi
-    rm -rf $buildDir
+}
 
-    echo ""
-    echo "** cleaned."
-    echo ""
+## Build Java Modules
+###############################################################################
+ipst_java()
+{
+    if [[ $ipst_clean = true || $ipst_compile = true || $ipst_docs = true ]]; then
+        echo "** Building iPST Java modules"
 
-    exit 0
-fi
+        mvn_options=""
+        [ $ipst_clean = true ] && mvn_options="$mvn_options clean"
+        [ $ipst_compile = true ] && mvn_options="$mvn_options install"
+        if [ ! -z "$mvn_options" ]; then
+            mvn -f "$sourceDir/pom.xml" $mvn_options || exit $?
+        fi
 
-echo ""
-echo "** Building and installing ipst:"
-echo "** -----------------------------"
-echo "** installDir:" $installDir
-echo "** thirdpartyDir:" $thirdpartyDir
-echo "** overwriteInstallation:" $overwriteInstallation
-echo "** removeThirdpartyBuildDir:" $removeThirdpartyBuildDir
-echo "** removeNonJavaBuildDir:" $removeNonJavaBuildDir
-echo "** buildMATLAB:" $BUILD_MATLAB
-echo "** buildEUROSTAG:" $BUILD_EUROSTAG
-echo "** buildDYMOLA:" $BUILD_DYMOLA
+        if [ $ipst_docs = true ]; then
+            echo "**** Generating Javadoc documentation"
+            mvn -f "$sourceDir/pom.xml" javadoc:javadoc || exit $?
+            mvn -f "$sourceDir/distribution/pom.xml" install || exit $?
+        fi
+    fi
+}
 
-if [ $BUILD_MATLAB = true ] ; then
- if [ -z "$MATLABHOME" ] ; then
-    echo ""
-    echo "ERROR: to build MATLAB modules, MATLABHOME environment variable is required; MATLABHOME must point to the root of a licensed MATLAB installation (with MATLAB compiler)"
-    exit 1
- fi  
-fi
+## Package iPST
+###############################################################################
+ipst_package()
+{
+    if [ $ipst_package = true ]; then
+        echo "** Packaging iPST"
 
-if [ $BUILD_EUROSTAG = true ] ; then
- if [ -z "$EUROSTAG_SRC_HOME" ] ; then
-    echo ""
-    echo "ERROR: to build EUROSTAG modules, EUROSTAG_SRC_HOME environment variable is required. It must point to an EUROSTAG SDK."
-    exit 1
- fi  
-fi
+        case "$ipst_package_type" in
+            zip)
+                [ -f "${ipst_package_name}.zip" ] && rm -f "${ipst_package_name}.zip"
+                $(cd "$sourceDir/distribution/target/distribution-${ipst_package_version}-full" && zip -rq "$sourceDir/${ipst_package_name}.zip" "itesla")
+                zip -qT "${ipst_package_name}.zip" > /dev/null 2>&1 || exit $?
+                ;;
 
-if [ $BUILD_DYMOLA = true ] ; then
- if [ -z "$DYMOLAHOME" ] ; then
-    echo ""
-    echo "ERROR: to build DYMOLA modules, DYMOLAHOME environment variable is required. It must point to the root of a DYMOLA installation."
-    exit 1
- fi  
-fi
+            tar)
+                [ -f "${ipst_package_name}.tar" ] && rm -f "${ipst_package_name}.tar"
+                tar -cf "${ipst_package_name}.tar" -C "$sourceDir/distribution/target/distribution-${ipst_package_version}-full" . || exit $?
+                ;;
 
-if [ -d $installDir ] &&
-   [ $overwriteInstallation != true ]
-then
-    echo ""
-    echo "ERROR: installation cannot continue: the target directory '"$installDir"' already exists (to allow overwrite it, set the --overwriteInstallation parameter)."
-    echo ""
-    usage;
-fi
+            tar.gz | tgz)
+                [ -f "${ipst_package_name}.tar.gz" ] && rm -f "${ipst_package_name}.tar.gz"
+                [ -f "${ipst_package_name}.tgz" ] && rm -f "${ipst_package_name}.tgz"
+                tar -czf "${ipst_package_name}.tar.gz" -C "$sourceDir/distribution/target/distribution-${ipst_package_version}-full" . || exit $?
+                ;;
 
+            tar.bz2 | tbz)
+                [ -f "${ipst_package_name}.tar.bz2" ] && rm -f "${ipst_package_name}.tar.bz2"
+                [ -f "${ipst_package_name}.tbz" ] && rm -f "${ipst_package_name}.tbz"
+                tar -cjf "${ipst_package_name}.tar.bz2" -C "$sourceDir/distribution/target/distribution-${ipst_package_version}-full" . || exit $?
+                ;;
 
-############################################
-# build required C/C++ thirdparty libraries:
-# - boost, build, hdf5, libarchive, log4cpp, matio, protobuf, szip, zlib
-#
-if [ $BUILD_THIRDPARTY = true ] ; then
- echo ""
- echo "** Building thirdparty libraries"
- echo ""
- if [ $removeThirdpartyBuildDir = true  ] ; then
-   echo ""
-   echo "*** removing third-party build dir (if it already exists). Triggers a clean third-party build."
-   echo ""
-   rm -rf $buildThirdpartyDir
- fi
- cmake -Dthirdparty_prefix=$thirdpartyDir -G "Unix Makefiles" -H$sourceDir/thirdparty -B$buildThirdpartyDir 
- cr=$?
- if [ $cr -ne 0 ] ; then
-  exit $cr
- fi
- make -C $buildThirdpartyDir
- cr=$?
- if [ $cr -ne 0 ] ; then
-  exit $cr
- fi
+            *)
+                echo "Invalid package format: zip, tar, tar.gz, tar.bz2 are supported."
+                exit 1;
+                ;;
+        esac
+    fi
+}
+
+## Install iPST
+###############################################################################
+ipst_install()
+{
+    if [ $ipst_install = true ]; then
+        echo "** Installing iPST"
+
+        echo "**** Copying files"
+        mkdir -p "$ipst_prefix" || exit $?
+        cp -Rp "$sourceDir/distribution/target/distribution-${ipst_package_version}-full/itesla"/* "$ipst_prefix" || exit $?
+
+        if [ ! -f "$ipst_prefix/etc/itesla.conf" ]; then
+            echo "**** Copying configuration files"
+            mkdir -p "$ipst_prefix/etc" || exit $?
+
+            echo "#itesla_cache_dir=" >> "$ipst_prefix/etc/itesla.conf"
+            echo "#itesla_config_dir=" >> "$ipst_prefix/etc/itesla.conf"
+            echo "itesla_config_name=config" >> "$ipst_prefix/etc/itesla.conf"
+            echo "mpi_tasks=3" >> "$ipst_prefix/etc/itesla.conf"
+            echo "mpi_hosts=localhost" >> "$ipst_prefix/etc/itesla.conf"
+        fi
+    fi
+}
+
+## Parse command line
+###############################################################################
+ipst_options="prefix:,package-type:"
+ipst_cpp_options="with-eurostag::,without-eurostag,with-dymola::,without-dymola,with-matlab::,without-matlab"
+thirdparty_options="with-thirdparty,without-thirdparty,thirdparty-prefix:,thirdparty-download,thirdparty-packs:"
+
+opts=`getopt -o '' --long "help,$ipst_options,$ipst_cpp_options,$thirdparty_options" -n 'install.sh' -- "$@"`
+eval set -- "$opts"
+while true; do
+    case "$1" in
+        # iPST options
+        --prefix) ipst_prefix=$2 ; shift 2 ;;
+        --package-type) ipst_package_type=$2 ; shift 2 ;;
+
+        # iPST C++ options
+        --with-dymola)
+            case "$2" in
+                "") dymola_build=true ; dymola_home=${DYMOLA_HOME} ; shift 2 ;;
+                *) dymola_build=true ; dymola_home=$2 ; shift 2 ;;
+            esac ;;
+        --without-dymola) dymola_build=false ; shift ;;
+        --with-eurostag)
+            case "$2" in
+                "") eurostag_build=true ; eurostag_home=${EUROSTAG_SDK_HOME} ; shift 2 ;;
+                *) eurostag_build=true ; eurostag_home=$2 ; shift 2 ;;
+            esac ;;
+        --without-eurostag) eurostag_build=false ; shift ;;
+        --with-matlab)
+            case "$2" in
+                "") matlab_build=true ; matlab_home=${MATLAB_HOME} ; shift 2 ;;
+                *) matlab_build=true ; matlab_home=$2 ; shift 2 ;;
+            esac ;;
+        --without-matlab) matlab_build=false ; shift ;;
+
+        # Third-party options
+        --with-thirdparty) thirdparty_build=true ; shift ;;
+        --without-thirdparty) thirdparty_build=false ; shift ;;
+        --thirdparty-prefix) thirdparty_prefix=$2 ; shift 2 ;;
+        --thirdparty-download) thirdparty_download=true ; shift ;;
+        --thirdparty-packs) thirdparty_packs=$2 ; thirdparty_download=false ; shift 2 ;;
+
+        # Help
+        --help) usage ; exit 0 ;;
+
+        --) shift ; break ;;
+        *) usage ; exit 1 ;;
+    esac
+done
+
+if [ $# -ne 0 ]; then
+    for command in $*; do
+        case "$command" in
+            clean) ipst_clean=true ;;
+            clean-thirdparty) thirdparty_clean=true ; thirdparty_build=true ;;
+            compile) ipst_compile=true ;;
+            docs) ipst_docs=true ;;
+            package) ipst_package=true ; ipst_compile=true ;;
+            install) ipst_install=true ; ipst_compile=true ;;
+            help) usage; exit 0 ;;
+            *) usage ; exit 1 ;;
+        esac
+    done
 else
- echo ""
- echo "** Exclude required thirdparty from build; libraries are assumed to be already available here: "$thirdpartyDir
- echo ""
+    ipst_compile=true
+    ipst_install=true
 fi
 
-###########################################################################################
-# build IPST (C/C++ and MATLAB modules, if enabled by the above declared BUILD_MATLAB flag)
-#
-echo ""
-echo "** Building IPST platform: C/C++ and MATLAB (when configured) modules"
-echo ""
-if [ $removeNonJavaBuildDir = true  ] ; then
-   echo ""
-   echo "*** removing non java build dir (if it already exists). Triggers a clean build."
-   echo ""
-   rm -rf $buildDir
-fi
-cmake -DCMAKE_INSTALL_PREFIX=$installDir -Dthirdparty_prefix=$thirdpartyDir -DBUILD_EUROSTAG=$BUILD_EUROSTAG -DBUILD_MATLAB=$BUILD_MATLAB -DBUILD_DYMOLA=$BUILD_DYMOLA  -G "Unix Makefiles" -H$sourceDir -B$buildDir 
-cr=$?
-if [ $cr -ne 0 ] ; then
-exit $cr
-fi
-make -C $buildDir
-cr=$?
-if [ $cr -ne 0 ] ; then
-exit $cr
-fi
+## Build iPST platform
+###############################################################################
 
+# Build required C++ thirdparty libraries
+buildthirdparty
 
-###########################
-# build IPST (Java modules)
-#
-echo ""
-echo "** Building IPST platform: java modules"
-echo ""
-mvn -f $sourceDir/pom.xml clean install
-cr=$?
-if [ $cr -ne 0 ] ; then
-exit $cr
-fi
+# Build C++ modules
+ipst_cpp
 
-################################################
-#install IPST to the target directory: installDir
-#
-echo ""
-echo "** Copying distribution files to "$installDir
-echo ""
-mkdir -p $installDir
-cp -r $sourceDir/distribution/target/distribution-*-full/itesla/* $installDir/
-cr=$?
-if [ $cr -ne 0 ] ; then
-exit $cr
-fi
+# Build Java modules
+ipst_java
 
-mkdir -p $installDir/etc
+# Package iPST
+ipst_package
 
-######################################################################################
-# create a default configuration file, if a configuration file  does not already exist
-#
-if [ ! -f $installDir/etc/itesla.conf ]; then
-echo ""
-echo "*** Creating a default itesla.conf file"
-echo ""
-echo "#itesla_cache_dir=" >> $installDir/etc/itesla.conf
-echo "#itesla_config_dir=" >> $installDir/etc/itesla.conf
-echo "itesla_config_name=config" >> $installDir/etc/itesla.conf
-echo "mpi_tasks=3" >> $installDir/etc/itesla.conf
-echo "mpi_hosts=localhost" >> $installDir/etc/itesla.conf
-else
-echo "*** Configuration file " $installDir/etc/itesla.conf " already exists: it will not be replaced."
-fi
-echo ""
+# Install iPST
+ipst_install
 
-exit 0
+# Save settings
+writeSettings > "${settings}"
