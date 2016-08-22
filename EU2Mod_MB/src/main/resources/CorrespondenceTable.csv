@@ -43,7 +43,7 @@ EU num;Eurostag Name;nInputPins;Modelica model;param 1;param 2;param 3;param 4;p
 42; COSINE;1;Modelica.Blocks.Math.Cos;;;;;;;;;
 43; SINE;1;Modelica.Blocks.Math.Sin;;;;;;;;;
 44; TANGENT;;;;;;;;;;;
-45; ARC –TANGENT;2;iPSL.NonElectrical.Eurostag.Math.ImArcTangent;;;;;;;offset;;
+45; ARCâ€“TANGENT;2;iPSL.NonElectrical.Eurostag.Math.ImArcTangent;;;;;;;offset;;
 46; ARC-COSINE;;;;;;;;;;;
 47; ARC-SINE;;;;;;;;;;;
 48; COUNTER;;;;;;;;;;;
