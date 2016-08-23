@@ -9,15 +9,16 @@ package itesla.converter;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Element de la librería PowerSystems. Hace una correspondencia con el elemento de Eurostag.
- * idEu: cada bloque del macrobloque tiene un id de Eurostag asignado.
- * nameEu: nombre del bloque de Eurostag
- * pathModelica: path del correpsondiente bloque dentro de la librería de PowerSystems
- * nameModelica: nombre del bloque dentro de la librería de PowerSystems.
- * nInputpins: numero de input pins del modelo en Modelica
- * param: nombre de los parametros del modelo en Modelica 
+/*
+ * Class representing the iPSL model that corresponds to the Eurostag device.
+ * idEu: each block inside the macroblock has an Eurostag id.
+ * nameEu: name of the block in Eurostag.
+ * pathModelica: path of the iPSL model that represents this block.
+ * nameModelica: name of the iPSL model that represents this block.
+ * nInputpins: number of the input pins in Modelica.
+ * param: name of the parameters in the Modelica model.
  * @author Marc Sabate <sabatem@aia.es>
+ * @author Raul Viruez <viruezr@aia.es>
  */
 public class Element {
 	public Integer idEu;
@@ -37,5 +38,4 @@ public class Element {
 		this.param = param;		
 		this.nInputPins = nInputPins;
 	}
-	
 }

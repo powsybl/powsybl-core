@@ -67,8 +67,13 @@ public class Initialization {
 		}
 		
 		this.fileName = "log/machines" + StaticData.MO_INIT_EXTENSION;
+		File file = new File(this.fileName);
+		if(!file.exists()) {
+			file.getParentFile().mkdir();
+		}
+		
 		try {
-			this.writerMo = new FileWriter(this.fileName);
+			this.writerMo = new FileWriter(file);
 		} catch (IOException e) {
 			_log.error(e.getMessage(), e);
 		}
@@ -108,7 +113,7 @@ public class Initialization {
 			fileWriter.write(writer.toString());
 			fileWriter.close();
 			
-			this.omc.loadFile(filePath.toString());
+			this.omc.loadFile(filePath.toAbsolutePath().toString());
 		} catch (IOException e) {
 			_log.error(e.getMessage(), e);
 		} catch (ConnectException e) {
@@ -116,7 +121,7 @@ public class Initialization {
 		}
 	}
 	
-	private void writeInitMachines() {
+	private void writeInitMachines() throws ConnectException {
 		String modelName = null;
 		
 		//File header
@@ -125,6 +130,24 @@ public class Initialization {
 	        writerMo.append(StaticData.NEW_LINE);
 	        
 			for(InitializationData initData : this.initializationDataList) {
+				/*this.fileName = "log/";
+				File file = new File(this.fileName);
+				if(!file.exists()) {
+					file.mkdir();
+				}
+				
+				modelName = initData.getModelName();
+				String fileInitName = "log/" + modelName + StaticData.MO_EXTENSION;
+				try {
+					this.writerMo = new FileWriter(fileInitName);
+				} catch (IOException e) {
+					_log.error(e.getMessage(), e);
+				}
+				
+				writerMo.append(StaticData.WITHIN);
+		        writerMo.append(StaticData.NEW_LINE);*/
+				
+				
 				modelName = initData.getModelName();
 				
 		        writerMo.append(StaticData.MODEL + modelName);
@@ -153,6 +176,7 @@ public class Initialization {
 				
 				writerMo.append(StaticData.END_MODEL + modelName + StaticData.SEMICOLON);
 		        writerMo.append(StaticData.NEW_LINE);
+				//writerMo.close();
 			}
 			writerMo.close();
 		} catch (IOException e) {
@@ -165,7 +189,7 @@ public class Initialization {
 	 * Creates the initialization Modelica file in order to initialize all machines.
 	 * @throws IOException
 	 */
-	public void init() throws IOException {
+	public void init() throws IOException, ConnectException {
 		
 		writeInitRegulatorsModels();
 		
@@ -178,7 +202,7 @@ public class Initialization {
 			List<RegulatorInitData> regInitDataList = initData.getRegulatorsInitDataList();
 			
 			for(RegulatorInitData regInit : regInitDataList) {
-				regInit.addRegRecordParameters(initData.getRegInitializedValues().get(regInit.getRegRecord().getModelicaName()));
+				regInit.addRegRecordParameters(initData.getRegInitializedValues().get(regInit.getRegName()));
 			}
 			
 			initData.getGeneratorInitData().addGenRecordParameters(initData.getGenInitializedValues());
@@ -231,20 +255,25 @@ public class Initialization {
 	}
 	
 	private void addConnections(GeneratorInitData genInitData, List<RegulatorInitData> regInitData) throws IOException {
+		List<String> connectedPins = new ArrayList<String>();
+		String deviceFrom, deviceTo;
 		
 		// Connect between GEN_INIT and REG_INIT
 		for(RegulatorInitData reg : regInitData) {
 			for(String pinName : reg.getPinsList()) {
 				if(genInitData.getPinsList().contains(pinName)) {
+					deviceFrom = genInitData.getGenRecord().getModelicaName().concat(".").concat(pinName);
+					deviceTo = reg.getRegName().concat(".").concat(pinName);
+					
+					if(connectedPins.contains(deviceFrom) && connectedPins.contains(deviceTo)) continue; 
+					
 					writerMo.append("\t" + EurostagFixedData.CONNECT);
-					
-					writerMo.append(genInitData.getGenRecord().getModelicaName());
-					writerMo.append("." + pinName);
+					writerMo.append(deviceFrom);
+					connectedPins.add(deviceFrom);
 					writerMo.append(", ");
-					writerMo.append(reg.getRegName());
-					writerMo.append("." + pinName);
-					
-					writerMo.append(EurostagFixedData.ANNOT_CONNECT);
+					writerMo.append(deviceTo);
+					connectedPins.add(deviceTo);
+					writerMo.append(StaticData.ANNOT_CONNECT);
 					writerMo.append(StaticData.NEW_LINE);
 				}
 			}
@@ -258,8 +287,8 @@ public class Initialization {
 					for(String pin : reg.getPinsList()) {
 						conName = findConnection(pin, reg2.getRegRecord().getModelData());
 
-						if(conName != null) {
-							if(genInitData.getPinsList().contains(conName)) {
+						if(conName != null && !genInitData.getPinsList().contains(conName)) {
+							/*if(genInitData.getPinsList().contains(conName)) {
 								writerMo.append("\t" + EurostagFixedData.CONNECT);
 								
 								writerMo.append(reg.getRegName());
@@ -271,18 +300,21 @@ public class Initialization {
 								writerMo.append(EurostagFixedData.ANNOT_CONNECT);
 								writerMo.append(StaticData.NEW_LINE);
 							}
-							else  {
-								writerMo.append("\t" + EurostagFixedData.CONNECT);
+							else  {*/
+								deviceFrom = reg.getRegName().concat(".").concat(pin);
+								deviceTo = reg2.getRegName().concat(".").concat(conName);
 								
-								writerMo.append(reg.getRegName());
-								writerMo.append("." + pin);
+								if(connectedPins.contains(deviceFrom) && connectedPins.contains(deviceTo)) continue; 
+								
+								writerMo.append("\t" + EurostagFixedData.CONNECT);							
+								writerMo.append(deviceFrom);
+								connectedPins.add(deviceFrom);
 								writerMo.append(", ");
-								writerMo.append(reg2.getRegName());
-								writerMo.append("." + conName);
-								
+								writerMo.append(deviceTo);
+								connectedPins.add(deviceTo);
 								writerMo.append(EurostagFixedData.ANNOT_CONNECT);
 								writerMo.append(StaticData.NEW_LINE);
-							}
+							//}
 						}
 					}
 				}
@@ -300,11 +332,14 @@ public class Initialization {
 		try {
 			while (!(line=buffer.readLine()).equals(StaticData.EQUATION)) {
 				line = line.trim();
-				if (line.contains("Connectors")) {
+				//if (line.contains("Connectors")) {
+				if (line.contains("RealOutput") || line.contains("RealInput")) {
 					pinName = line.split(" ")[1];
 					pinName = pinName.substring(0, pinName.length()-1);
 					if (pinName.equals(pin) &&  line.split(" ").length>2) {
 						conName = StaticData.PIN +  line.split(" ")[2].replaceAll("([\\W|[_]])+", "");
+					} else if(pinName.equals(pin) &&  line.split(" ").length==2) {
+						conName = pinName;
 					}
 				}
 			}
@@ -433,7 +468,7 @@ public class Initialization {
 						}
 						else {
 							for(String r : regulatorInitVarsByRegulator.keySet()) {
-								if(!r.equals(regName)) {
+							//	if(!r.equals(regName)) {
 									if(regulatorInitVarsByRegulator.get(r).contains(varPin)) {
 										if(!regInitVarsFromOtherRegs.containsKey(regName)) {
 											Map<String, List<String>> mapReg = new HashMap<>();
@@ -467,7 +502,7 @@ public class Initialization {
 											}
 										}
 									}
-								}
+								//}
 							}
 						}
 					}
