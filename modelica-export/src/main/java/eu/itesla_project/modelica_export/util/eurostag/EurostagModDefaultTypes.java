@@ -10,7 +10,10 @@ package eu.itesla_project.modelica_export.util.eurostag;
  * @author Silvia Machado <machados@aia.es>
  */
 public class EurostagModDefaultTypes {
-	public final static String PIN_TYPE							= "iPSL.Connectors.ImPin";
+	//	public final static String PIN_TYPE							= "iPSL.Connectors.ImPin";
+	public final static String PIN_TYPE							= "PowerSystems.Connectors.ImPin";
+	public final static String INPUT_PIN_TYPE					= "Modelica.Blocks.Interfaces.RealInput";
+	public final static String OUTPUT_PIN_TYPE					= "Modelica.Blocks.Interfaces.RealOutput";
 	
 	public final static String DEFAULT_PIN_TYPE					= "iPSL.Connectors.ImPin"; // iPSL.Connectors.PwPin 20140515
 
@@ -22,7 +25,7 @@ public class EurostagModDefaultTypes {
 	
 	public final static String DEFAULT_GEN_TYPE					= "iPSL.Electrical.Machines.Eurostag.PwGeneratorM2S";
 	
-	public final static String DEFAULT_GEN_LOAD_TYPE			= "iPSL.Electrical.Loads.PwLoadPQ";
+	public final static String DEFAULT_GEN_LOAD_TYPE			= "iPSL.Electrical.Loads.Eurostag.PwLoadPQ";
 	
 	public final static String DEFAULT_LINE_TYPE				= "iPSL.Electrical.Branches.PwLine_2";
 	
@@ -32,7 +35,7 @@ public class EurostagModDefaultTypes {
 	
 	public final static String DEF_REC_OPEN_LINE_TYPE			= "iPSL.Electrical.Branches.PwLinewithOpeningReceiving";
 	
-	public final static String DEFAULT_LOAD_TYPE				= "iPSL.Electrical.Loads.PwLoadPQ";
+	public final static String DEFAULT_LOAD_TYPE				= "iPSL.Electrical.Loads.Eurostag.PwLoadVoltageDependence";
 	
 	public final static String LOAD_VOLTAGE_DEP_TYPE			= "iPSL.Electrical.Loads.PwLoadVoltageDependence";
 	

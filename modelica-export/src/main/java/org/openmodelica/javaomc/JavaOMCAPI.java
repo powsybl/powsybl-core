@@ -39,6 +39,8 @@
 
 package org.openmodelica.javaomc;
 
+import java.util.List;
+
 public class JavaOMCAPI extends OMCProxy {
 	/**
 	 * Constructor
@@ -1009,13 +1011,22 @@ public class JavaOMCAPI extends OMCProxy {
 	 * @return
 	 * @throws ConnectException
 	 */
-	public boolean simulate(String modelname,String tstart, String tstop, String method, 
+	public boolean simulate(String modelname, String tstart, String tstop, String method, 
 			String noofinterval) throws ConnectException
 	{
 		String retval=sendExpression("simulate("+modelname+",startTime="+tstart+
 					",stopTime="+tstop+",method=\""+method+
 					"\",numberOfIntervals="+noofinterval+")");
 		return retval.contains("plt");
+	}
+	
+	/**
+	 * 
+	 */
+	public boolean simulate() throws ConnectException {
+//		simulate(className, [startTime], [stopTime], [numberOfIntervals], [tolerance], [method], [fileNamePrefix], [options], [outputFormat], [variableFilter], [cflags], [simflags])
+		
+		return false;
 	}
 	
 	/**
@@ -1062,4 +1073,58 @@ public class JavaOMCAPI extends OMCProxy {
 		String retval = sendExpression("val("+variableName+","+t+")");
 		return retval;
 	}
+
+	/**
+	 * @author Silvia Machado
+	 * Gets results variables and values from a simulation file
+	 * @param fileName
+	 * @param readParameters
+	 * @param openmodelicaStyle
+	 * @throws ConnectException
+	 */
+	public String getSimulationVars(String fileName, boolean readParameters, boolean openmodelicaStyle) throws ConnectException {
+		return sendExpression("readSimulationResultVars(\"" + fileName + "\"," + readParameters + "," + openmodelicaStyle + ")");
+		
+	}
+	
+	public String getSimulationVars(String fileName) throws ConnectException {
+		return getSimulationVars(fileName, true, false);
+	}
+	
+	/**
+	 * @author Silvia Machado
+	 * Gets the selected variables from the simulation results producing the output file.
+	 * @param fileName
+	 * @param readParameters
+	 * @param openmodelicaStyle
+	 * @throws ConnectException
+	 */
+	public String filterSimulationResults(String inFileName, String outFileName, List<String> varsList, int numberOfIntervals) throws ConnectException {
+		String vars = varsList.toString();
+		String retval = sendExpression("filterSimulationResults(" + inFileName + "," + outFileName + "," + vars + "," + numberOfIntervals + ")");
+		return retval;
+	}
+	
+	public String filterSimulationResults(String inFileName, String outFileName, List<String> varsList) throws ConnectException {
+		return filterSimulationResults(inFileName, outFileName, varsList, 0);
+	}
+	
+	public String readSimulationResultSize(String fileName) throws ConnectException {
+		return sendExpression("readSimulationResultSize(" + fileName + ")");
+	}
+	
+		/**
+	 * @author Silvia Machado
+	 * Returns a user-friendly string containing the errors stored in the buffer. With warningsAsErrors=true, it reports warnings as if they were errors.
+	 * @param warningAsErrors
+	 * @throws ConnectException 
+	 */
+	public String getErrorString(boolean warningsAsErrors) throws ConnectException {
+		return sendExpression("getErrorString(" + warningsAsErrors + ")");
+	}
+	
+	public String getErrorString() throws ConnectException {
+		return sendExpression("getErrorString(" + false + ")");
+	}
+
 }

@@ -12,14 +12,9 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map.Entry;
-import java.util.Set;
-
-import javax.swing.JComboBox.KeySelectionManager;
 
 
 /*
@@ -31,8 +26,10 @@ import javax.swing.JComboBox.KeySelectionManager;
  * setIds: lista con los ids de parametros definidos (OJO, es posible que no esten ordenados o que se salten ids)
  * idset: hashmap que indica para cada id la correspondiente columna de parametros
  * linesxBlock: parametro interno necesario para el parseo correcto de los parametros. 
- * @author Marc Sabate <sabatem@aia.es>
  */
+
+
+
 public class ParParser {
 	
 	private String modelName;

@@ -61,6 +61,7 @@ public class GeneratorInitData {
 		params.put(EurostagFixedData.INIT_SN, this.genRecord.getGenParamsMap().get(EurostagFixedData.SN.toUpperCase()));
 		params.put(EurostagFixedData.INIT_PN, this.genRecord.getGenParamsMap().get(EurostagFixedData.PN.toUpperCase()));
 		params.put(EurostagFixedData.INIT_PNALT, this.genRecord.getGenParamsMap().get(EurostagFixedData.PNALT.toUpperCase()));
+		params.put(EurostagFixedData.TRAFOINCLUDED, this.genRecord.getGenParamsMap().get(EurostagFixedData.TRAFOINCLUDED.toUpperCase()));
 
 		
 		float voltage = 0;
@@ -91,7 +92,7 @@ public class GeneratorInitData {
 		params.put(EurostagFixedData.INIT_LSTATIN, this.genRecord.getGenParamsMap().get(EurostagFixedData.LSTATIN.toUpperCase()));
 		if(this.genRecord.getGenParamsMap().get(EurostagFixedData.MD0PU.toUpperCase()) != null)
 			params.put(EurostagFixedData.INIT_MD0PU, this.genRecord.getGenParamsMap().get(EurostagFixedData.MD0PU.toUpperCase()));
-		params.put(EurostagFixedData.INIT_OMEGA0, "1");
+		params.put(EurostagFixedData.INIT_OMEGA0, "1.0");
 		params.put(EurostagFixedData.INIT_PPUWLMDV, this.genRecord.getGenParamsMap().get(EurostagFixedData.PNALT.toUpperCase()));
 		params.put(EurostagFixedData.SATURATED, this.genRecord.getGenParamsMap().get(EurostagFixedData.SATURATED.toUpperCase()));
 		params.put(EurostagFixedData.INLMDV, this.genRecord.getGenParamsMap().get(EurostagFixedData.INLMDV.toUpperCase()));
