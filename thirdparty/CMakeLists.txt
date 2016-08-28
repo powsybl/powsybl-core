@@ -29,7 +29,7 @@ set(CMAKE_BINARY_DIR ${thirdparty_prefix}/build)
 
 set(boost_md5 25f9a8ac28beeb5ab84aa98510305299)
 if (download) 
-  set(protobuf_url https://protobuf.googlecode.com/files/protobuf-2.5.0.tar.bz2)
+  set(protobuf_url https://github.com/google/protobuf/releases/download/v2.5.0/protobuf-2.5.0.tar.bz2)
   set(libarchive_url http://www.libarchive.org/downloads/libarchive-3.1.2.tar.gz)
   set(boost_url http://sourceforge.net/projects/boost/files/boost/1.57.0/boost_1_57_0.tar.gz/download)
   set(log4cpp_url http://sourceforge.net/projects/log4cpp/files/log4cpp-1.1.x%20%28new%29/log4cpp-1.1/log4cpp-1.1.1.tar.gz)
