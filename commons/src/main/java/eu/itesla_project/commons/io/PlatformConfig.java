@@ -40,7 +40,8 @@ public abstract class PlatformConfig {
             CONFIG_DIR = Paths.get(System.getProperty("user.home"), ".itesla");
         }
         try {
-            Files.createDirectories(CONFIG_DIR);
+            if (! (Files.isDirectory(CONFIG_DIR)))
+                Files.createDirectories(CONFIG_DIR);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
