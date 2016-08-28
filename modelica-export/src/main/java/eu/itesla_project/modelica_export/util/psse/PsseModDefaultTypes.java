@@ -73,7 +73,7 @@ public class PsseModDefaultTypes {
 	
 	public final static String DEF_REC_OPEN_LINE_TYPE			= "iPSL.Electrical.Branches.PwLinewithOpening";
 	
-	public final static String DEFAULT_LOAD_TYPE				= "iPSL.Electrical.Loads.PwLoadPQ";
+	public final static String DEFAULT_LOAD_TYPE				= "iPSL.Electrical.Loads.PSSE.Load";
 	
 	public final static String LOAD_VOLTAGE_DEP_TYPE			= "iPSL.Electrical.Loads.PwLoadVoltageDependence";
 	

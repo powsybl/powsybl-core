@@ -12,6 +12,7 @@ import java.util.List;
 /**
  * Single block of the Eurostag macroblock
  * @author Marc Sabate <sabatem@aia.es>
+ * @author Raul Viruez <viruezr@aia.es>
  */
 public class Block {
 	public String[] param = new String[8];

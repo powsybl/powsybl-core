@@ -14,11 +14,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Class to parse macroblocks in Eurostag
  * @author Marc Sabate <sabatem@aia.es>
+ * @author Raul Viruez <viruezr@aia.es>
  */
 public class EU_MBparser {
-	
-	
 	private File EUfile;
 	private String[][] paramEu;
 	private String[][] entries;
@@ -29,33 +29,28 @@ public class EU_MBparser {
 	private Integer nLinks;
 	private Integer nBlocks;
 	
-	
 	/*
-	 * Clase que parsea un archivo *.frm o un archivo *.fri guardado en EUfile y lo parsea, con el metodo parser. Los elementos que guarda de un macrobloque son:
-	 * EUfile: la ruta del archivo que se esta parseando.
-	 * nBlocks: numero de bloques del macrobloque
-	 * paramEu: array de 8 filas, i nBlocks columnas. Cada bloque matematico puede tener como maximo 8 parametros: 6 parametros, el offset y el init_value
-	 * entries: array de 5 filas y nBlocks columnas. Cada bloque matematico tiene 5 pins de entrada
-	 * Blocksoutput: array de nBlocks posiciones. Cada bloque tiene un pin de salida   
-	 * GraphicalNumber: array de nBlocks posiciones. Cada instancia de un bloque tiene un id gráfico (es el id que vemos en el model Editor de Eurostag)
-	 * idEu: array de nBlocks posiciones. Cada tipo de bloque tiene un id de Eurostag asignado.
-	 * nLinks: numero de links definidos
-	 * link: array de nLinks filas, y 3 columnas. Cada fila es un link: el bloque de salida, el bloque de entrada, y el pin del bloque de entrada. 
+	 * Class to parse an *.frm/*.fri files. It saves the following information regarding the macroblocks:
+	 * EUfile: path of the file that will be parsed.
+	 * nBlocks: number of blocks inside the macroblock.
+	 * paramEu: an 8 x nBlocks array. Each mathematic block has a maximum of 8 parameters: 6 parameters, offset and init_value.
+	 * entries: an 5 x nBlocks array. Each mathematic block has 5 input pins.
+	 * Blocksoutput: nBlocks array. Each block has 1 output pin.
+	 * GraphicalNumber: nBLocks array. Each instance of a block has an graphical id
+	 * idEu: nBlocks array. Each type of a block has an Eurostag id.
+	 * nLinks: number of links.
+	 * link: nLinks x 3 array. Each row is a link: the output block and the input block.
 	 */
 	public EU_MBparser(File EUfile) {
 		this.EUfile = EUfile;
 		try {
 			parser();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 	
-	
-	
 	private void parser() throws IOException {
-		
 		String sep = "\\s+";
 		String line;
 		List<String[]> dataFile = new ArrayList<String[]>();
@@ -84,8 +79,6 @@ public class EU_MBparser {
 			Blocksoutput = new String[nBlocks];
 			GraphicalNumber = new Integer[nBlocks];
 			idEu = new Integer[nBlocks];
-			
-			
 			
 			//parameters
 			int rowIni = 3;
@@ -147,13 +140,7 @@ public class EU_MBparser {
 				}
 			}
 		}
-		
-		
-		
 	}
-	
-	
-
 	
 	public String[][] getParamEU() {
 		return paramEu;
@@ -203,7 +190,4 @@ public class EU_MBparser {
 		}
 		return output;
 	}
-	
-	
-
 }
