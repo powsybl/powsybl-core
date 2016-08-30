@@ -268,13 +268,7 @@ public class ConstraintsModifier {
     private float getNewUpperLimit(LimitViolation violation, float margin) {
         float newLimit = 9999;
         if ( config.isInAreaOfInterest(violation, network) ) {
-            float increment = (float) ((violation.getLimit() == 0) 
-                    ? Math.ceil(violation.getValue()*100) 
-                            : Math.ceil((violation.getValue()-violation.getLimit())*100/violation.getLimit()));
-            increment += margin;
-            newLimit = (violation.getLimit() == 0) 
-                    ? (increment/100) 
-                            : (violation.getLimit()+(violation.getLimit()*increment/100));
+            newLimit = violation.getValue() * (1.0f + margin/100.0f);
         }
         return newLimit;
     }
@@ -282,13 +276,7 @@ public class ConstraintsModifier {
     private float getNewLowerLimit(LimitViolation violation, float margin) {
         float newLimit = -9999;
         if ( config.isInAreaOfInterest(violation, network) ) {
-            float increment = (float) ((violation.getLimit() == 0) 
-                    ? Math.ceil(-violation.getValue()*100) 
-                            : Math.ceil((violation.getLimit()-violation.getValue())*100/violation.getLimit()));
-            increment += margin;
-            newLimit = (violation.getLimit() == 0) 
-                    ? (increment/100) 
-                            : (violation.getLimit()-(violation.getLimit()*increment/100));
+            newLimit = violation.getValue() * (1.0f - margin/100.0f);
         }
         return newLimit;
     }

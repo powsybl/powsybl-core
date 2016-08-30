@@ -53,13 +53,13 @@ public class ConstraintsModifierTest {
 
     private void checkModifiedNetworkLimits(int margin) {
         Line line = network.getLine(ConstraintsModifierTestUtils.LINE_ID);
-        float newCurrentLimit = ConstraintsModifierTestUtils.NEW_CURRENT_LIMIT + (ConstraintsModifierTestUtils.CURRENT_LIMIT * margin / 100);
+        float newCurrentLimit = ConstraintsModifierTestUtils.CURRENT_VALUE * (1.0f + margin / 100.0f);
         assertEquals(newCurrentLimit, line.getCurrentLimits1().getPermanentLimit(), 0);
         VoltageLevel voltageLevel1 = network.getVoltageLevel(ConstraintsModifierTestUtils.VOLTAGE_LEVEL_1_ID);
-        float newHighVoltageLimit = ConstraintsModifierTestUtils.NEW_HIGH_VOLTAGE_LIMIT + (ConstraintsModifierTestUtils.HIGH_VOLTAGE_LIMIT * margin / 100);
+        float newHighVoltageLimit = ConstraintsModifierTestUtils.V * (1.0f + margin / 100.0f);
         assertEquals(newHighVoltageLimit, voltageLevel1.getHighVoltageLimit(), 0);
         VoltageLevel voltageLevel2 = network.getVoltageLevel(ConstraintsModifierTestUtils.VOLTAGE_LEVEL_2_ID);
-        float newLowVoltageLimit = ConstraintsModifierTestUtils.NEW_LOW_VOLTAGE_LIMIT - (ConstraintsModifierTestUtils.LOW_VOLTAGE_LIMIT * margin / 100);
+        float newLowVoltageLimit = ConstraintsModifierTestUtils.V * (1.0f - margin / 100.0f);
         assertEquals(newLowVoltageLimit, voltageLevel2.getLowVoltageLimit(), 0);
     }
 
