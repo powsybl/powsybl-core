@@ -208,6 +208,10 @@ abstract class AbstractBus extends IdentifiableImpl<Bus> {
                     visitor.visitDanglingLine((DanglingLineImpl) connectable);
                     break;
 
+                case STATIC_VAR_COMPENSATOR:
+                    visitor.visitStaticVarCompensator((StaticVarCompensator) connectable);
+                    break;
+
                 default:
                     throw new AssertionError();
             }

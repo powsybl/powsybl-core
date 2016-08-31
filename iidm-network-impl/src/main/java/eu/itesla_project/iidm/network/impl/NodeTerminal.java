@@ -67,7 +67,7 @@ class NodeTerminal extends AbstractTerminal {
 
         @Override
         public BusExt getConnectableBus() {
-            throw new UnsupportedOperationException("TODO");
+            return ((NodeBreakerVoltageLevel) voltageLevel).getCalculatedBusTopology().getConnectableBus(node);
         }
 
     };

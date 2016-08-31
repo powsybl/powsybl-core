@@ -336,6 +336,33 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             }
             return bus;
         }
+
+        BusExt getConnectableBus(int node) {
+            // check id the node is associated to a bus
+            BusExt connectableBus = getBus(node);
+            if (connectableBus != null) {
+                return connectableBus;
+            }
+            // if not traverse the graph starting from the node (without stopping at open switches) until finding another
+            // node associated to a bus
+            BusExt[] connectableBus2 = new BusExt[1];
+            graph.traverse(node, (v1, e, v2) -> {
+                connectableBus2[0] = getBus(v2);
+                if (connectableBus2[0] != null) {
+                    return TraverseResult.TERMINATE;
+                }
+                return TraverseResult.CONTINUE;
+            });
+            // if nothing found, just take the first bus
+            if (connectableBus2[0] != null) {
+                Iterator<CalculatedBus> it = getBuses().iterator();
+                if (!it.hasNext()) {
+                    throw new AssertionError("Should not happen");
+                }
+                return it.next();
+            }
+            return connectableBus2[0];
+        }
     }
 
     /**
@@ -409,38 +436,6 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                 throw new ITeslaException("Switch " + switchId + " not found");
             }
             return null;
-        }
-
-        BusExt getConnectableBus(int node) {
-            if (getBus(node) != null) return getBus(node);
-            ArrayList<Integer> distance = new ArrayList<>(graph.getMaxVertex());
-            ArrayList<Integer> busBarSectionDistance = new ArrayList<>(graph.getMaxVertex());
-            for (int i = 0 ; i < graph.getMaxVertex() ; i++) {
-                distance.add(Integer.MAX_VALUE);
-                busBarSectionDistance.add(Integer.MAX_VALUE);
-            }
-            distance.set(node, 0);
-            graph.traverse(node, new Traverser<SwitchImpl>() {
-                @Override
-                public TraverseResult traverse(int v1, int e, int v2) {
-                    if (graph.getEdgeObject(e) != null) {
-                        distance.set(v2, distance.get(v1) + 1);
-                    } else {
-                        distance.set(v2, distance.get(v1));
-                    }
-                    if (graph.getVertexObject(v2) instanceof BusbarSection) {
-                        busBarSectionDistance.set(v2, distance.get(v2));
-                        return TraverseResult.TERMINATE;
-                    } else {
-                        return TraverseResult.CONTINUE;
-                    }
-                }
-            });
-            int minIndex = busBarSectionDistance.indexOf(Collections.min(busBarSectionDistance));
-            if (getBus(minIndex) == null) {
-                LOGGER.warn("No connectable bus for node " + node + " in voltage level " + getId());
-            }
-            return getBus(minIndex);
         }
     }
 
