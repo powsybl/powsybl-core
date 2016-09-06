@@ -19,7 +19,7 @@ public class XmlUtil {
     private XmlUtil() {
     }
 
-    interface XmlEventHandler {
+    public interface XmlEventHandler {
 
         void onStartElement() throws XMLStreamException;
 
