@@ -22,7 +22,6 @@ import eu.itesla_project.iidm.network.*;
 import eu.itesla_project.iidm.network.VoltageLevel.NodeBreakerView.SwitchAdder;
 import eu.itesla_project.iidm.network.util.ShortIdDictionary;
 import gnu.trove.list.array.TIntArrayList;
-import org.joda.time.DateTime;
 import org.kohsuke.graphviz.Edge;
 import org.kohsuke.graphviz.Graph;
 import org.kohsuke.graphviz.Node;
@@ -36,6 +35,8 @@ import java.io.PrintStream;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  *
@@ -336,6 +337,33 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             }
             return bus;
         }
+
+        BusExt getConnectableBus(int node) {
+            // check id the node is associated to a bus
+            BusExt connectableBus = getBus(node);
+            if (connectableBus != null) {
+                return connectableBus;
+            }
+            // if not traverse the graph starting from the node (without stopping at open switches) until finding another
+            // node associated to a bus
+            BusExt[] connectableBus2 = new BusExt[1];
+            graph.traverse(node, (v1, e, v2) -> {
+                connectableBus2[0] = getBus(v2);
+                if (connectableBus2[0] != null) {
+                    return TraverseResult.TERMINATE;
+                }
+                return TraverseResult.CONTINUE;
+            });
+            // if nothing found, just take the first bus
+            if (connectableBus2[0] != null) {
+                Iterator<CalculatedBus> it = getBuses().iterator();
+                if (!it.hasNext()) {
+                    throw new AssertionError("Should not happen");
+                }
+                return it.next();
+            }
+            return connectableBus2[0];
+        }
     }
 
     /**
@@ -410,38 +438,6 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             }
             return null;
         }
-
-        BusExt getConnectableBus(int node) {
-            if (getBus(node) != null) return getBus(node);
-            ArrayList<Integer> distance = new ArrayList<>(graph.getMaxVertex());
-            ArrayList<Integer> busBarSectionDistance = new ArrayList<>(graph.getMaxVertex());
-            for (int i = 0 ; i < graph.getMaxVertex() ; i++) {
-                distance.add(Integer.MAX_VALUE);
-                busBarSectionDistance.add(Integer.MAX_VALUE);
-            }
-            distance.set(node, 0);
-            graph.traverse(node, new Traverser<SwitchImpl>() {
-                @Override
-                public TraverseResult traverse(int v1, int e, int v2) {
-                    if (graph.getEdgeObject(e) != null) {
-                        distance.set(v2, distance.get(v1) + 1);
-                    } else {
-                        distance.set(v2, distance.get(v1));
-                    }
-                    if (graph.getVertexObject(v2) instanceof BusbarSection) {
-                        busBarSectionDistance.set(v2, distance.get(v2));
-                        return TraverseResult.TERMINATE;
-                    } else {
-                        return TraverseResult.CONTINUE;
-                    }
-                }
-            });
-            int minIndex = busBarSectionDistance.indexOf(Collections.min(busBarSectionDistance));
-            if (getBus(minIndex) == null) {
-                LOGGER.warn("No connectable bus for node " + node + " in voltage level " + getId());
-            }
-            return getBus(minIndex);
-        }
     }
 
     private static interface BusChecker {
@@ -512,12 +508,20 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
         private final Map<VoltageLevel, AtomicInteger> counter = new WeakHashMap<>();
 
+        private final Lock lock = new ReentrantLock();
+
         @Override
         public String getName(VoltageLevel voltageLevel, TIntArrayList nodes) {
-            AtomicInteger i = counter.get(voltageLevel);
-            if (i == null) {
-                i = new AtomicInteger();
-                counter.put(voltageLevel, i);
+            AtomicInteger i;
+            lock.lock();
+            try {
+                i = counter.get(voltageLevel);
+                if (i == null) {
+                    i = new AtomicInteger();
+                    counter.put(voltageLevel, i);
+                }
+            } finally {
+                lock.unlock();
             }
             return voltageLevel.getId() + "_" + i.getAndIncrement();
         }

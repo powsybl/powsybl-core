@@ -325,8 +325,8 @@ public final class ModelConverter {
 	 * @param modContext
 	 * @return
 	 */
-	public static LoadRecord getModelicaRecord(Load load, ConnectBusInfo busInfo, ModExportContext modContext, DDBManager ddbManager, SimulatorInst simulator, float snref) {
-		LoadRecord loadRecord = new LoadRecord(load, busInfo, snref);
+	public static LoadRecord getModelicaRecord(Load load, ConnectBusInfo busInfo, ModExportContext modContext, DDBManager ddbManager, SimulatorInst simulator, float snref, SourceEngine sourceEngine) {
+		LoadRecord loadRecord = new LoadRecord(load, busInfo, snref, sourceEngine);
 		loadRecord.createModelicaName(modContext, ddbManager, simulator);
 		
 		return loadRecord;
@@ -344,8 +344,8 @@ public final class ModelConverter {
 //		
 //		return fixInjRecord;
 //	}
-	public static LoadRecord getModelicaRecord(String loadId, float p0, float q0, float busVoltage, float busAngle, ModExportContext modContext, DDBManager ddbManager, SimulatorInst simulator, float snref) {
-		LoadRecord loadRecord = new LoadRecord(loadId, p0, q0, busVoltage, busAngle, snref);
+	public static LoadRecord getModelicaRecord(String loadId, float p0, float q0, float busVoltage, float busAngle, ModExportContext modContext, DDBManager ddbManager, SimulatorInst simulator, float snref, SourceEngine sourceEngine) {
+		LoadRecord loadRecord = new LoadRecord(loadId, p0, q0, busVoltage, busAngle, snref, sourceEngine);
 		loadRecord.createModelicaName(modContext, ddbManager, simulator);
 		
 		return loadRecord;

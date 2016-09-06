@@ -10,7 +10,7 @@ package eu.itesla_project.iidm.network.impl;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-interface Validable {
+public interface Validable {
 
     String getMessageHeader();
 

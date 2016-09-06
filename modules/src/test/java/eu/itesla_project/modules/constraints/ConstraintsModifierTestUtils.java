@@ -28,15 +28,12 @@ public class ConstraintsModifierTestUtils {
 
     public static final String VOLTAGE_LEVEL_1_ID = "vl1";
     public static final float HIGH_VOLTAGE_LIMIT = 300f;
-    public static final float NEW_HIGH_VOLTAGE_LIMIT = 381f;
     public static final String VOLTAGE_LEVEL_2_ID = "vl2";
     public static final float LOW_VOLTAGE_LIMIT = 420f;
-    public static final float NEW_LOW_VOLTAGE_LIMIT = 378f;
     public static final String LINE_ID = "line1";
     public static final float CURRENT_LIMIT = 100f;
-    public static final float NEW_CURRENT_LIMIT = 120f;
-    private static final float CURRENT_VALUE = 119.25632f;
-    private static final float V = 380f;
+    public static final float CURRENT_VALUE = 119.25632f;
+    public static final float V = 380f;
     private static final float Q = 55f;
     private static final float P = 56f;
     private static final Country COUNTRY = Country.FR;

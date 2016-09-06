@@ -17,7 +17,7 @@ import java.util.function.Supplier;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-abstract class ConnectableXml<T extends Connectable, A extends IdentifiableAdder<A>, P extends Container> extends IdentifiableXml<T, A, P> {
+public abstract class ConnectableXml<T extends Connectable, A extends IdentifiableAdder<A>, P extends Container> extends IdentifiableXml<T, A, P> {
 
     private static String indexToString(Integer index) {
         return index != null ? index.toString() : "";
@@ -122,7 +122,7 @@ abstract class ConnectableXml<T extends Connectable, A extends IdentifiableAdder
                 .setQ(q);
     }
 
-    protected void readCurrentLimits(Integer index, Supplier<CurrentLimitsAdder> currentLimitOwner, XMLStreamReader reader) throws XMLStreamException {
+    public static void readCurrentLimits(Integer index, Supplier<CurrentLimitsAdder> currentLimitOwner, XMLStreamReader reader) throws XMLStreamException {
         CurrentLimitsAdder adder = currentLimitOwner.get();
         float permanentLimit = XmlUtil.readOptionalFloatAttribute(reader, "permanentLimit");
         adder.setPermanentLimit(permanentLimit);
@@ -139,13 +139,17 @@ abstract class ConnectableXml<T extends Connectable, A extends IdentifiableAdder
         adder.add();
     }
 
-    protected static void writeCurrentLimits(Integer index, CurrentLimits limits, XMLStreamWriter writer) throws XMLStreamException {
+    public static void writeCurrentLimits(Integer index, CurrentLimits limits, XMLStreamWriter writer) throws XMLStreamException {
+        writeCurrentLimits(index, limits, writer, IIDM_URI);
+    }
+
+    public static void writeCurrentLimits(Integer index, CurrentLimits limits, XMLStreamWriter writer, String nsUri) throws XMLStreamException {
         if (!Float.isNaN(limits.getPermanentLimit())
                 || limits.getTemporaryLimits().size() > 0) {
             if (limits.getTemporaryLimits().isEmpty()) {
-                writer.writeEmptyElement(IIDM_URI, "currentLimits" + indexToString(index));
+                writer.writeEmptyElement(nsUri, "currentLimits" + indexToString(index));
             } else {
-                writer.writeStartElement(IIDM_URI, "currentLimits" + indexToString(index));
+                writer.writeStartElement(nsUri, "currentLimits" + indexToString(index));
             }
             XmlUtil.writeFloat("permanentLimit", limits.getPermanentLimit(), writer);
             for (CurrentLimits.TemporaryLimit tl : limits.getTemporaryLimits()) {

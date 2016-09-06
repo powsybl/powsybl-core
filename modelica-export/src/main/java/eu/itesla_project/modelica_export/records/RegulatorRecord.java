@@ -140,7 +140,8 @@ public class RegulatorRecord extends ModelicaRecord {
 				Parameters modelicaParameters = null;
 				if (parameters != null) {
 					modelicaParameters = parameters;
-				} else {
+				} 
+				else {
 					// Cogemos directamente los de PSSE (que en teoria tienen el
 					// mismo nombre)
 					modelicaParameters = ddbManager.findParameters(in, this.sourceSim);

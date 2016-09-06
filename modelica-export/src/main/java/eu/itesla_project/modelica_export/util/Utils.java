@@ -96,7 +96,8 @@ public class Utils {
 		
 		String line =buffer.readLine();
 		while(line != null) {
-			if(line.trim().startsWith(EurostagModDefaultTypes.PIN_TYPE) && !line.contains("isInitValue")) {
+			//if(line.trim().startsWith(EurostagModDefaultTypes.PIN_TYPE) && !line.contains("isInitValue")) {
+			if((line.trim().startsWith(EurostagModDefaultTypes.PIN_TYPE) || line.trim().startsWith(EurostagModDefaultTypes.INPUT_PIN_TYPE) || line.trim().startsWith(EurostagModDefaultTypes.OUTPUT_PIN_TYPE)) && !line.contains("isInitValue")) { //Parseo de pines //21-8-2014 modificación && line.contains("isInitValue")
 				lineData = line.trim().split(StaticData.WHITE_SPACE);
 				if(lineData.length >= 2) {
 					String pinName = lineData[1].endsWith(StaticData.SEMICOLON) == true ? lineData[1].substring(0, lineData[1].length()-1) : lineData[1];

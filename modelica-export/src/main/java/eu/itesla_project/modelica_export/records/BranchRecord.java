@@ -47,14 +47,7 @@ public abstract class BranchRecord extends ModelicaRecord {
 
         nodeName1 = parseName(bus1.getId());
         nodeName2 = parseName(bus2.getId());
-
-        //Parallel element        
-        //while(modContext.dictionary.isModelicaNameDefined(DEFAULT_BRANCH_PREFIX + nodeName1 + "_" + nodeName2 + "_" + parallelIndex) ||
-        //		modContext.dictionary.isModelicaNameDefined(DEFAULT_BRANCH_PREFIX + nodeName2 + "_" + nodeName1 + "_" + parallelIndex)) {
-        //	parallelIndex++;
-		//}
         
-        //String modelicaName = DEFAULT_BRANCH_PREFIX + nodeName1 + "_" + nodeName2 + "_" + parallelIndex;
 		String branchName = parseName(twoTerminalsConnectable.getId()); //CIM ID
         String modelicaName = DEFAULT_BRANCH_PREFIX + branchName; //CIM ID
         modelicaName = WordUtils.uncapitalize(modelicaName.substring(0,1)) + modelicaName.substring(1);
@@ -80,13 +73,7 @@ public abstract class BranchRecord extends ModelicaRecord {
 			
 			if(model != null)
 			{
-//				String data = new String(model.getData("mo"));
-//				super.setModelData(data);
-				super.setModelicaType(model.getTypeName());
-				
-//				List<DefaultParameters> defSetParams = model.getDefaultParameters();
-//				List<Parameter> defParameters = defSetParams.get(0).getParameters();
-//				for(Parameter param : defParameters) branchParameters.add(param);
+				super.setModelicaType(model.getTypeName());				
 			}
 			else {
 				super.setCorrect(false);
