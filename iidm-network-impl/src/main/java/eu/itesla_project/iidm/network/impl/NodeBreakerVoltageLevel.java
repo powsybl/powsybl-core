@@ -22,7 +22,6 @@ import eu.itesla_project.iidm.network.*;
 import eu.itesla_project.iidm.network.VoltageLevel.NodeBreakerView.SwitchAdder;
 import eu.itesla_project.iidm.network.util.ShortIdDictionary;
 import gnu.trove.list.array.TIntArrayList;
-import org.joda.time.DateTime;
 import org.kohsuke.graphviz.Edge;
 import org.kohsuke.graphviz.Graph;
 import org.kohsuke.graphviz.Node;
@@ -36,6 +35,8 @@ import java.io.PrintStream;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  *
@@ -512,12 +513,20 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
         private final Map<VoltageLevel, AtomicInteger> counter = new WeakHashMap<>();
 
+        private final Lock lock = new ReentrantLock();
+
         @Override
         public String getName(VoltageLevel voltageLevel, TIntArrayList nodes) {
-            AtomicInteger i = counter.get(voltageLevel);
-            if (i == null) {
-                i = new AtomicInteger();
-                counter.put(voltageLevel, i);
+            AtomicInteger i;
+            lock.lock();
+            try {
+                i = counter.get(voltageLevel);
+                if (i == null) {
+                    i = new AtomicInteger();
+                    counter.put(voltageLevel, i);
+                }
+            } finally {
+                lock.unlock();
             }
             return voltageLevel.getId() + "_" + i.getAndIncrement();
         }
