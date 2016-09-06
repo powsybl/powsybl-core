@@ -15,7 +15,7 @@ import java.io.InputStream;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface ExtensionXml<I extends Identifiable<I>, E extends Identifiable.Extension<I>> {
+public interface ExtensionXml<I extends Identifiable, E extends Identifiable.Extension<I>> {
 
     String getExtensionName();
 
@@ -31,5 +31,5 @@ public interface ExtensionXml<I extends Identifiable<I>, E extends Identifiable.
 
     void write(E extension, XmlWriterContext context) throws XMLStreamException;
 
-    E read(I identifiable, XMLStreamReader reader);
+    E read(I identifiable, XMLStreamReader reader) throws XMLStreamException;
 }

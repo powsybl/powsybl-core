@@ -16,7 +16,7 @@ import java.util.List;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-abstract class ConnectableImpl<I extends Identifiable<I>> extends IdentifiableImpl<I> implements Connectable<I>, Stateful {
+abstract class ConnectableImpl<I extends Connectable<I>> extends IdentifiableImpl<I> implements Connectable<I>, Stateful {
 
     protected final List<TerminalExt> terminals = new ArrayList<>();
 
