@@ -17,7 +17,7 @@ import java.util.TreeMap;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class CurrentLimitsAdderImpl<SIDE, OWNER extends CurrentLimitsOwner<SIDE> & Validable> implements CurrentLimitsAdder {
+public class CurrentLimitsAdderImpl<SIDE, OWNER extends CurrentLimitsOwner<SIDE> & Validable> implements CurrentLimitsAdder {
 
     private static final Comparator<Integer> ACCEPTABLE_DURATION_COMPARATOR = new Comparator<Integer>() {
         @Override
@@ -72,7 +72,7 @@ class CurrentLimitsAdderImpl<SIDE, OWNER extends CurrentLimitsOwner<SIDE> & Vali
 
     }
 
-    CurrentLimitsAdderImpl(SIDE side, OWNER owner) {
+    public CurrentLimitsAdderImpl(SIDE side, OWNER owner) {
         this.side = side;
         this.owner = owner;
     }

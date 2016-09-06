@@ -14,7 +14,7 @@ import java.util.TreeMap;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class CurrentLimitsImpl implements CurrentLimits {
+public class CurrentLimitsImpl implements CurrentLimits {
 
     private final float permanentLimit;
 
