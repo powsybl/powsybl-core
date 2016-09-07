@@ -23,7 +23,7 @@ mkdir $tmpdir > /dev/null 2>&1
 
 export PATH=$installBinDir:$PATH
 
-export CLASSPATH=$installDir/share/java/*:$installDir/share/java:$CLASSPATH
+export CLASSPATH=$installDir/share/java/*:$CLASSPATH
 rank=$OMPI_COMM_WORLD_RANK
 
 if [ $rank = 0 ]; then
@@ -38,8 +38,10 @@ if [ $rank = 0 ]; then
     options+=" -Dcom.sun.management.jmxremote.port=6667"
     options+=" -Dcom.sun.management.jmxremote.authenticate=false"
     options+=" -Dcom.sun.management.jmxremote.ssl=false"
-    options+=" -Djava.io.tmpdir=$installDir/tmp" 
-    options+=" -Dlogback.configurationFile=$installDir/share/java/logback_wp5.xml"
+    options+=" -Djava.io.tmpdir=$installDir/tmp"
+    options+=" -Dlogback.configurationFile="
+    [ -f "$itesla_config_dir/logback-wp5.xml" ] && options+="$itesla_config_dir" || options+="$installDir/etc"
+    options+="/logback-wp5.xml"
     $JAVA_HOME/bin/java \
 -Xmx2048m \
 -verbose:gc -XX:+PrintGCTimeStamps -Xloggc:$installDir/logs/gc.log \
