@@ -12,6 +12,8 @@ import eu.itesla_project.commons.util.ServiceLoaderCache;
 import eu.itesla_project.iidm.network.*;
 import javanet.staxutils.IndentingXMLStreamWriter;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import javax.xml.XMLConstants;
@@ -35,6 +37,8 @@ import java.util.stream.Collectors;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class NetworkXml implements XmlConstants {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(NetworkXml.class);
 
     static final String NETWORK_ROOT_ELEMENT_NAME = "network";
     private static final String EXTENSION_ELEMENT_NAME = "extension";
@@ -60,7 +64,11 @@ public class NetworkXml implements XmlConstants {
     }
 
     private static ExtensionXml findExtensionXml(String name) {
-        ExtensionXml extensionXml = EXTENSIONS_SUPPLIER.get().get(name);
+        return EXTENSIONS_SUPPLIER.get().get(name);
+    }
+
+    private static ExtensionXml findExtensionXmlOrThrowException(String name) {
+        ExtensionXml extensionXml = findExtensionXml(name);
         if (extensionXml == null) {
             throw new RuntimeException("Xml serializer not found for extension " + name);
         }
@@ -124,7 +132,7 @@ public class NetworkXml implements XmlConstants {
         Set<String> extensionUris = new HashSet<>();
         Set<String> extensionPrefixes = new HashSet<>();
         for (String extensionName : getNetworkExtensions(n)) {
-            ExtensionXml extensionXml = findExtensionXml(extensionName);
+            ExtensionXml extensionXml = findExtensionXmlOrThrowException(extensionName);
             if (extensionUris.contains(extensionXml.getNamespaceUri())) {
                 throw new RuntimeException("Extension namespace URI collision");
             } else {
@@ -143,7 +151,7 @@ public class NetworkXml implements XmlConstants {
     private static void writeExtensions(Network n, XmlWriterContext context) throws XMLStreamException {
         for (Identifiable<?> identifiable : n.getIdentifiables()) {
             for (Identifiable.Extension<? extends Identifiable<?>> extension : identifiable.getExtensions()) {
-                ExtensionXml extensionXml = findExtensionXml(extension.getName());
+                ExtensionXml extensionXml = findExtensionXmlOrThrowException(extension.getName());
                 context.getWriter().writeStartElement(IIDM_URI, EXTENSION_ELEMENT_NAME);
                 context.getWriter().writeAttribute("id", extension.getIdentifiable().getId());
                 if (extensionXml.hasSubElements()) {
@@ -224,6 +232,10 @@ public class NetworkXml implements XmlConstants {
     }
 
     public static Network read(InputStream is) {
+        return read(is, new XmlImportConfig());
+    }
+
+    public static Network read(InputStream is, XmlImportConfig config) {
         try {
             XMLStreamReader reader = XML_INPUT_FACTORY_SUPPLIER.get().createXMLStreamReader(is);
             reader.next();
@@ -238,6 +250,8 @@ public class NetworkXml implements XmlConstants {
             network.setForecastDistance(forecastDistance);
 
             List<Runnable> endTasks = new ArrayList<>();
+
+            Set<String> extensionNamesNotFound = new TreeSet<>();
 
             XmlUtil.readUntilEndElement(NETWORK_ROOT_ELEMENT_NAME, reader, () -> {
                 switch (reader.getLocalName()) {
@@ -262,8 +276,12 @@ public class NetworkXml implements XmlConstants {
                         XmlUtil.readUntilEndElement(EXTENSION_ELEMENT_NAME, reader, () -> {
                             String extensionName = reader.getLocalName();
                             ExtensionXml extensionXml = findExtensionXml(extensionName);
-                            Identifiable.Extension<? extends Identifiable<?>> extension = extensionXml.read(identifiable, reader);
-                            identifiable.addExtension(extensionXml.getExtensionClass(), extension);
+                            if (extensionXml != null) {
+                                Identifiable.Extension<? extends Identifiable<?>> extension = extensionXml.read(identifiable, reader);
+                                identifiable.addExtension(extensionXml.getExtensionClass(), extension);
+                            } else {
+                                extensionNamesNotFound.add(extensionName);
+                            }
                         });
                         break;
 
@@ -273,6 +291,14 @@ public class NetworkXml implements XmlConstants {
             });
 
             endTasks.forEach(Runnable::run);
+
+            if (extensionNamesNotFound.size() > 0) {
+                if (config.isThrowExceptionIfExtensionNotFound()) {
+                    throw new RuntimeException("Extensions " + extensionNamesNotFound + " not found");
+                } else {
+                    LOGGER.error("Extensions {} not found", extensionNamesNotFound);
+                }
+            }
 
             return network;
         } catch (XMLStreamException e) {

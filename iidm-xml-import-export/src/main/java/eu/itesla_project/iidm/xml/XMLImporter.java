@@ -13,7 +13,10 @@ import com.google.common.base.Suppliers;
 import eu.itesla_project.commons.ITeslaException;
 import eu.itesla_project.iidm.datasource.ReadOnlyDataSource;
 import eu.itesla_project.iidm.import_.Importer;
+import eu.itesla_project.iidm.import_.Importers;
 import eu.itesla_project.iidm.network.Network;
+import eu.itesla_project.iidm.parameters.Parameter;
+import eu.itesla_project.iidm.parameters.ParameterType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,6 +26,8 @@ import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.events.XMLEvent;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -37,6 +42,9 @@ public class XMLImporter implements Importer, XmlConstants {
 
     private static final Supplier<XMLInputFactory> XML_INPUT_FACTORY_SUPPLIER = Suppliers.memoize(XMLInputFactory::newInstance);
 
+    private static final Parameter THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND
+            = new Parameter("throwExceptionIfExtensionNotFound", ParameterType.BOOLEAN, "Throw exception if extension not found", Boolean.FALSE);
+
     @Override
     public String getFormat() {
         return "XML";
@@ -45,6 +53,11 @@ public class XMLImporter implements Importer, XmlConstants {
     @Override
     public InputStream get16x16Icon() {
         return XMLImporter.class.getResourceAsStream("/icons/itesla16x16.png");
+    }
+
+    @Override
+    public List<Parameter> getParameters() {
+        return Arrays.asList(THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND);
     }
 
     @Override
@@ -91,8 +104,7 @@ public class XMLImporter implements Importer, XmlConstants {
         } catch (XMLStreamException e) {
             // not a valid xml file
             return false;
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
@@ -107,8 +119,9 @@ public class XMLImporter implements Importer, XmlConstants {
                 throw new RuntimeException("File " + dataSource.getBaseName()
                         + "." + Joiner.on("|").join(EXTENSIONS) + " not found");
             }
+            boolean throwExceptionIfExtensionNotFound = (Boolean) Importers.readParameter(getFormat(), parameters, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND);
             try (InputStream is = dataSource.newInputStream(null, ext)) {
-                network = NetworkXml.read(is);
+                network = NetworkXml.read(is, new XmlImportConfig(throwExceptionIfExtensionNotFound));
             }
             LOGGER.debug("XML import done in {} ms", (System.currentTimeMillis() - startTime));
         } catch (IOException e) {
