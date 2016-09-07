@@ -23,11 +23,12 @@
             <fileMode>0755</fileMode>
         </fileSet>
         <fileSet>
-            <directory>${project.basedir}/..</directory>
-            <outputDirectory>share/java</outputDirectory>
+            <directory>${project.basedir}/../config</directory>
+            <outputDirectory>etc</outputDirectory>
             <includes>
                 <include>logback*.xml</include>
             </includes>
+            <fileMode>0644</fileMode>
         </fileSet>
         <fileSet>
             <directory>${project.basedir}/../build/bin</directory>
