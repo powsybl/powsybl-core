@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
- * Copyright (c) 2016, RTE (http://www.rte-france.com
+ * Copyright (c) 2016, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -45,6 +45,7 @@ import org.supercsv.prefs.CsvPreference;
 
 import com.csvreader.CsvWriter;
 
+import eu.itesla_project.cases.CaseType;
 import eu.itesla_project.iidm.datasource.DataSource;
 import eu.itesla_project.iidm.datasource.FileDataSource;
 import eu.itesla_project.iidm.export.Exporters;
@@ -52,7 +53,6 @@ import eu.itesla_project.iidm.import_.Importer;
 import eu.itesla_project.iidm.import_.Importers;
 import eu.itesla_project.iidm.network.Country;
 import eu.itesla_project.iidm.network.Network;
-import eu.itesla_project.cases.CaseType;
 import eu.itesla_project.modules.contingencies.ActionParameters;
 import eu.itesla_project.modules.histo.HistoDbAttributeId;
 import eu.itesla_project.modules.histo.IIDM2DB;
@@ -354,6 +354,15 @@ public class OnlineDbMVStore implements OnlineDb {
         return values;
     }
 
+    private DateTime getWorkflowDate(String workflowId) {
+        DateTime workflowDate = null;
+        if ( workflowId.contains("_") ) {
+            String workflowStringDate = workflowId.substring(workflowId.lastIndexOf("_") + 1);
+            workflowDate = DateTimeFormat.forPattern("yyyyMMddHHmmssSSS").parseDateTime(workflowStringDate);
+        }
+        return workflowDate;
+    }
+
     @Override
     public List<OnlineWorkflowDetails> listWorkflows() {
         LOGGER.info("Getting list of stored workflows");
@@ -363,18 +372,20 @@ public class OnlineDbMVStore implements OnlineDb {
                 return name.toLowerCase().startsWith(STORED_WORKFLOW_PREFIX);
             }
         });
-        Arrays.sort(files, new Comparator<File>(){
-            public int compare(File f1, File f2)
-            {
-                return Long.valueOf(f1.lastModified()).compareTo(f2.lastModified());
-            } });
         for (File file : files) {
             if ( file.isFile() ) {
-                OnlineWorkflowDetails workflowDetails = new OnlineWorkflowDetails(file.getName().substring(STORED_WORKFLOW_PREFIX.length()));
-                workflowDetails.setWorkflowDate(new DateTime(file.lastModified()));
+                String workflowId = file.getName().substring(STORED_WORKFLOW_PREFIX.length());
+                OnlineWorkflowDetails workflowDetails = new OnlineWorkflowDetails(workflowId);
+                workflowDetails.setWorkflowDate(getWorkflowDate(workflowId));
                 workflowIds.add(workflowDetails);
             }
         }
+        Collections.sort(workflowIds, new Comparator<OnlineWorkflowDetails>() {
+            @Override
+            public int compare(OnlineWorkflowDetails wfDetails1, OnlineWorkflowDetails wfDetails2) {
+                return wfDetails1.getWorkflowDate().compareTo(wfDetails2.getWorkflowDate());
+            }
+        });
         LOGGER.info("Found {} workflow(s)", workflowIds.size());
         return workflowIds;
     }
@@ -389,18 +400,20 @@ public class OnlineDbMVStore implements OnlineDb {
                 return name.toLowerCase().startsWith(STORED_WORKFLOW_PREFIX+wfNamePrefix);
             }
         });
-        Arrays.sort(files, new Comparator<File>(){
-            public int compare(File f1, File f2)
-            {
-                return Long.valueOf(f1.lastModified()).compareTo(f2.lastModified());
-            } });
         for (File file : files) {
             if ( file.isFile() ) {
-                OnlineWorkflowDetails workflowDetails = new OnlineWorkflowDetails(file.getName().substring(STORED_WORKFLOW_PREFIX.length()));
-                workflowDetails.setWorkflowDate(new DateTime(file.lastModified()));
+                String workflowId = file.getName().substring(STORED_WORKFLOW_PREFIX.length());
+                OnlineWorkflowDetails workflowDetails = new OnlineWorkflowDetails(workflowId);
+                workflowDetails.setWorkflowDate(getWorkflowDate(workflowId));
                 workflowIds.add(workflowDetails);
             }
         }
+        Collections.sort(workflowIds, new Comparator<OnlineWorkflowDetails>() {
+            @Override
+            public int compare(OnlineWorkflowDetails wfDetails1, OnlineWorkflowDetails wfDetails2) {
+                return wfDetails1.getWorkflowDate().compareTo(wfDetails2.getWorkflowDate());
+            }
+        });
         LOGGER.info("Found {} workflow(s)", workflowIds.size());
         return workflowIds;
     }
@@ -416,27 +429,45 @@ public class OnlineDbMVStore implements OnlineDb {
                 return name.toLowerCase().startsWith(STORED_WORKFLOW_PREFIX);
             }
         });
-        Arrays.sort(files, new Comparator<File>(){
-            public int compare(File f1, File f2)
-            {
-                return Long.valueOf(f1.lastModified()).compareTo(f2.lastModified());
-            } });
         for (File file : files) {
             if ( file.isFile() ) {
-                String wfId = file.getName().substring(STORED_WORKFLOW_PREFIX.length());
-                if ( wfId.length() > dateFormatPattern.length() && wfId.substring(dateFormatPattern.length(),dateFormatPattern.length()+1).equals("_")) {
-                    String basecaseName = wfId.substring(0, dateFormatPattern.length()-1);
+                String workflowId = file.getName().substring(STORED_WORKFLOW_PREFIX.length());
+                if ( workflowId.length() > dateFormatPattern.length() && workflowId.substring(dateFormatPattern.length(),dateFormatPattern.length()+1).equals("_")) {
+                    String basecaseName = workflowId.substring(0, dateFormatPattern.length()-1);
                     DateTime basecaseDate = DateTime.parse(basecaseName, formatter);
                     if ( basecaseInterval.contains(basecaseDate.getMillis())) {
-                        OnlineWorkflowDetails workflowDetails = new OnlineWorkflowDetails(wfId);
-                        workflowDetails.setWorkflowDate(new DateTime(file.lastModified()));
+                        OnlineWorkflowDetails workflowDetails = new OnlineWorkflowDetails(workflowId);
+                        workflowDetails.setWorkflowDate(getWorkflowDate(workflowId));
                         workflowIds.add(workflowDetails);
                     }
                 }
             }
         }
+        Collections.sort(workflowIds, new Comparator<OnlineWorkflowDetails>() {
+            @Override
+            public int compare(OnlineWorkflowDetails wfDetails1, OnlineWorkflowDetails wfDetails2) {
+                return wfDetails1.getWorkflowDate().compareTo(wfDetails2.getWorkflowDate());
+            }
+        });
         LOGGER.info("Found {} workflow(s)", workflowIds.size());
         return workflowIds;
+    }
+
+
+    @Override
+    public OnlineWorkflowDetails getWorkflowDetails(String workflowId) {
+        LOGGER.info("Getting details of stored workflow {}", workflowId);
+        OnlineWorkflowDetails workflowDetails = null;
+        File[] files = config.getOnlineDbDir().toFile().listFiles(new FilenameFilter() {
+            public boolean accept(File dir, String name) {
+                return name.toLowerCase().equals(STORED_WORKFLOW_PREFIX+workflowId);
+            }
+        });
+        if ( files != null && files.length == 1 ) {
+            workflowDetails = new OnlineWorkflowDetails(workflowId);
+            workflowDetails.setWorkflowDate(new DateTime(files[0].lastModified()));
+        }
+        return workflowDetails;
     }
 
     @Override
