@@ -56,7 +56,7 @@ public class Main {
         Options optionsWithHelp = new Options();
         options.getOptions().forEach(optionsWithHelp::addOption);
         optionsWithHelp.addOption(Option.builder().longOpt("help")
-                .desc("display the help and quit)")
+                .desc("display the help and quit")
                 .build());
         return optionsWithHelp;
     }
