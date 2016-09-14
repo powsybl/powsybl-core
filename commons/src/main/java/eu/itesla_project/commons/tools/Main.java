@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.google.common.collect.TreeMultimap;
 import org.apache.commons.cli.*;
 
 /**
@@ -35,9 +36,8 @@ public class Main {
                 .filter(t -> !t.getCommand().isHidden()).collect(Collectors.toList());
 
         // group commands by theme
-        Multimap<String, Tool> toolsByTheme = Multimaps.index(allTools, tool -> tool.getCommand().getTheme());
-
-        for (Map.Entry<String, Collection<Tool>> entry : toolsByTheme.asMap().entrySet()) {
+        Map<String, Collection<Tool>> toolsByTheme = new TreeMap<>(Multimaps.index(allTools, tool -> tool.getCommand().getTheme()).asMap());
+        for (Map.Entry<String, Collection<Tool>> entry : toolsByTheme.entrySet()) {
             String theme = entry.getKey();
             List<Tool> tools = new ArrayList<>(entry.getValue());
             Collections.sort(tools, (t1, t2) -> t1.getCommand().getName().compareTo(t2.getCommand().getName()));
