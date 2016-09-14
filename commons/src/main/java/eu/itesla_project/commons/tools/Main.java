@@ -6,20 +6,11 @@
  */
 package eu.itesla_project.commons.tools;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.ServiceLoader;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.apache.commons.cli.*;
@@ -27,6 +18,7 @@ import org.apache.commons.cli.*;
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
 public class Main {
 
@@ -43,22 +35,12 @@ public class Main {
                 .filter(t -> !t.getCommand().isHidden()).collect(Collectors.toList());
 
         // group commands by theme
-        Multimap<String, Tool> toolsByTheme = Multimaps.index(allTools, new Function<Tool, String>() {
-            @Override
-            public String apply(Tool tool) {
-                return tool.getCommand().getTheme();
-            }
-        });
+        Multimap<String, Tool> toolsByTheme = Multimaps.index(allTools, tool -> tool.getCommand().getTheme());
 
         for (Map.Entry<String, Collection<Tool>> entry : toolsByTheme.asMap().entrySet()) {
             String theme = entry.getKey();
             List<Tool> tools = new ArrayList<>(entry.getValue());
-            Collections.sort(tools, new Comparator<Tool>() {
-                @Override
-                public int compare(Tool t1, Tool t2) {
-                    return t1.getCommand().getName().compareTo(t2.getCommand().getName());
-                }
-            });
+            Collections.sort(tools, (t1, t2) -> t1.getCommand().getName().compareTo(t2.getCommand().getName()));
             usage.append(theme != null ? theme : "Others").append(":\n");
             for (Tool tool : tools) {
                 usage.append(String.format("   %-40s %s", tool.getCommand().getName(), tool.getCommand().getDescription())).append("\n");
@@ -72,7 +54,7 @@ public class Main {
 
     private static Options getOptionsWithHelp(Options options) {
         Options optionsWithHelp = new Options();
-        options.getOptions().forEach(o -> optionsWithHelp.addOption((Option) o));
+        options.getOptions().forEach(optionsWithHelp::addOption);
         optionsWithHelp.addOption(Option.builder().longOpt("help")
                 .desc("display the help and quit)")
                 .build());
@@ -105,7 +87,7 @@ public class Main {
         }
 
         try {
-            CommandLineParser parser = new PosixParser();
+            CommandLineParser parser = new DefaultParser();
             CommandLine line = parser.parse(getOptionsWithHelp(tool.getCommand().getOptions()), Arrays.copyOfRange(args, 1, args.length));
             if (line.hasOption("help")) {
                 printCommandUsage(tool.getCommand());
