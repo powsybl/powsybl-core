@@ -126,6 +126,8 @@
         <xs:complexContent>
             <xs:extension base="iidm:Identifiable">
                 <xs:attribute name="node" use="required" type="xs:int"/>
+                <xs:attribute name="v" use="optional" type="xs:float"/>
+                <xs:attribute name="angle" use="optional" type="xs:float"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
