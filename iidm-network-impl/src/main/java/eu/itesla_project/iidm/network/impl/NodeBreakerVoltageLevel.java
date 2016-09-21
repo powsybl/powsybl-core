@@ -153,8 +153,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             if (kind == null) {
                 throw new ValidationException(this, "kind is not set");
             }
-            SwitchImpl _switch = new SwitchImpl(getNetwork().getRef(),
-                    id, getName(), kind, open, retained);
+            SwitchImpl _switch = new SwitchImpl(NodeBreakerVoltageLevel.this, id, getName(), kind, open, retained);
             getNetwork().getObjectStore().checkAndAdd(_switch);
             int e = graph.addEdge(node1, node2, _switch);
             switches.put(id, e);
@@ -553,7 +552,8 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         });
     }
 
-    private void invalidateCache() {
+    @Override
+    public void invalidateCache() {
         states.get().calculatedBusBreakerTopology.invalidateCache();
         states.get().calculatedBusTopology.invalidateCache();
         getNetwork().getConnectedComponentsManager().invalidate();
@@ -666,28 +666,6 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         @Override
-        public NodeBreakerViewExt openSwitch(String switchId) {
-            Integer edge = getEdge(switchId, true);
-            SwitchImpl _switch = graph.getEdgeObject(edge);
-            if (!_switch.isOpen()) {
-                _switch.setOpen(true);
-                invalidateCache();
-            }
-            return this;
-        }
-
-        @Override
-        public NodeBreakerViewExt closeSwitch(String switchId) {
-            Integer edge = getEdge(switchId, true);
-            SwitchImpl _switch = graph.getEdgeObject(edge);
-            if (_switch.isOpen()) {
-                _switch.setOpen(false);
-                invalidateCache();
-            }
-            return this;
-        }
-
-        @Override
         public BusbarSectionAdder newBusbarSection() {
             return new BusbarSectionAdderImpl(NodeBreakerVoltageLevel.this);
         }
@@ -758,26 +736,6 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         @Override
         public void removeAllBuses() {
             throw createNotSupportedNodeBreakerTopologyException();
-        }
-
-        @Override
-        public BusBreakerView openSwitch(String switchId) {
-            SwitchImpl _switch = states.get().calculatedBusBreakerTopology.getSwitch(switchId, true);
-            if (!_switch.isOpen()) {
-                _switch.setOpen(true);
-                invalidateCache();
-            }
-            return this;
-        }
-
-        @Override
-        public BusBreakerView closeSwitch(String switchId) {
-            SwitchImpl _switch = states.get().calculatedBusBreakerTopology.getSwitch(switchId, true);
-            if (_switch.isOpen()) {
-                _switch.setOpen(false);
-                invalidateCache();
-            }
-            return this;
         }
 
         @Override
@@ -891,27 +849,63 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         // TODO remove unused connection nodes
     }
 
-    @Override
-    public void connect(TerminalExt terminal) {
-        assert terminal instanceof NodeTerminal;
-        int node = ((NodeTerminal) terminal).getNode();
-        // TODO
-        throw new UnsupportedOperationException("TODO");
+    private static boolean isBusbarSection(Terminal t) {
+        return t != null && t.getConnectable().getType() == ConnectableType.BUSBAR_SECTION;
+    }
+
+    private static boolean isOpenedDisconnector(Switch s) {
+        return s.getKind() == SwitchKind.DISCONNECTOR && s.isOpen();
     }
 
     @Override
-    public void disconnect(TerminalExt terminal) {
+    public boolean connect(TerminalExt terminal) {
         assert terminal instanceof NodeTerminal;
         int node = ((NodeTerminal) terminal).getNode();
-        // TODO
-        throw new IllegalStateException("TODO");
+        // find all paths starting from the current terminal to a busbar section that does not contain an open disconnector
+        // paths are already sorted
+        List<TIntArrayList> paths = graph.findAllPaths(node, NodeBreakerVoltageLevel::isBusbarSection, NodeBreakerVoltageLevel::isOpenedDisconnector);
+        boolean connected = false;
+        if (paths.size() > 0) {
+            // the shorted path is the best, close all opened breakers of the path
+            TIntArrayList shortestPath = paths.get(0);
+            for (int i = 0; i < shortestPath.size(); i++) {
+                int e = shortestPath.get(i);
+                SwitchImpl sw = graph.getEdgeObject(e);
+                if (sw.getKind() == SwitchKind.BREAKER && sw.isOpen()) {
+                    sw.setOpen(false);
+                    connected = true;
+                }
+            }
+        }
+        return connected;
+    }
+
+    @Override
+    public boolean disconnect(TerminalExt terminal) {
+        assert terminal instanceof NodeTerminal;
+        int node = ((NodeTerminal) terminal).getNode();
+        // find all paths starting from the current terminal to a busbar section that does not contain an open disconnector
+        // (because otherwise there is nothing we can do to connected the terminal using only breakers)
+        List<TIntArrayList> paths = graph.findAllPaths(node, NodeBreakerVoltageLevel::isBusbarSection, NodeBreakerVoltageLevel::isOpenedDisconnector);
+        for (TIntArrayList path : paths) {
+            for (int i = 0; i < path.size(); i++) {
+                int e = path.get(i);
+                SwitchImpl sw = graph.getEdgeObject(e);
+                if (sw.getKind() == SwitchKind.BREAKER && !sw.isOpen()) {
+                    sw.setOpen(true);
+                    // open just one breaker is enough to disconnect the terminal, so we can stop
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     boolean isConnected(TerminalExt terminal) {
         assert terminal instanceof NodeTerminal;
         int node = ((NodeTerminal) terminal).getNode();
-        // TODO
-        throw new IllegalStateException("TODO");
+        List<TIntArrayList> paths = graph.findAllPaths(node, NodeBreakerVoltageLevel::isBusbarSection, s -> s.isOpen());
+        return paths.size() > 0;
     }
 
     @Override

@@ -14,10 +14,7 @@ import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.list.linked.TIntLinkedList;
 
 import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -351,6 +348,66 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
         boolean[] encountered = new boolean[vertices.size()];
         Arrays.fill(encountered, false);
         traverse(v, traverser, encountered);
+    }
+
+    @Override
+    public List<TIntArrayList> findAllPaths(int from, Function<V, Boolean> pathComplete, Function<E, Boolean> pathCanceled) {
+        Objects.requireNonNull(pathComplete);
+        Objects.requireNonNull(pathCanceled);
+        List<TIntArrayList> paths = new ArrayList<>();
+        BitSet encountered = new BitSet(vertices.size());
+        TIntArrayList path = new TIntArrayList(1);
+        findAllPaths(from, pathComplete, pathCanceled, path, encountered, paths);
+        // sort paths by size
+        paths.sort((o1, o2) -> o1.size() - o2.size());
+        return paths;
+    }
+
+    private boolean findAllPaths(int e, int v1or2, Function<V, Boolean> pathComplete, Function<E, Boolean> pathCanceled,
+                                 TIntArrayList adjacentEdges, int i, TIntArrayList path, BitSet encountered,
+                                 List<TIntArrayList> paths) {
+        Vertex<V> obj1or2 = vertices.get(v1or2);
+        if (pathComplete.apply(obj1or2.getObject())) {
+            paths.add(path);
+            return true;
+        } else {
+            path.add(e);
+            if (i < adjacentEdges.size () - 1){
+                TIntArrayList path2 = new TIntArrayList(path);
+                BitSet encountered2 = new BitSet(vertices.size());
+                encountered2.or(encountered);
+                findAllPaths(v1or2, pathComplete, pathCanceled, path2, encountered2, paths);
+            } else{
+                findAllPaths(v1or2, pathComplete, pathCanceled, path, encountered, paths);
+            }
+            return false;
+        }
+    }
+
+    private void findAllPaths(int v, Function<V, Boolean> pathComplete, Function<E, Boolean> pathCanceled,
+                              TIntArrayList path, BitSet encountered, List<TIntArrayList> paths) {
+        checkVertex(v);
+        encountered.set(v, true);
+        TIntArrayList[] adjacencyList = getAdjacencyList();
+        TIntArrayList adjacentEdges = adjacencyList[v];
+        for (int i = 0; i < adjacentEdges.size(); i++) {
+            int e = adjacentEdges.getQuick(i);
+            Edge<E> edge = edges.get(e);
+            if (pathCanceled.apply(edge.getObject())) {
+                return;
+            }
+            int v1 = edge.getV1();
+            int v2 = edge.getV2();
+            if (!encountered.get(v1)) {
+                if (findAllPaths(e, v1, pathComplete, pathCanceled, adjacentEdges, i, path, encountered, paths)) {
+                    return;
+                }
+            } else if (!encountered.get(v2)) {
+                if (findAllPaths(e, v2, pathComplete, pathCanceled, adjacentEdges, i, path, encountered, paths)) {
+                    return;
+                }
+            }
+        }
     }
 
     @Override

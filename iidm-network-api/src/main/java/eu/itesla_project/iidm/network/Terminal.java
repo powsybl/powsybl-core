@@ -135,16 +135,18 @@ public interface Terminal {
     /**
      * Try to connect the terminal.
      * <p>Depends on the working state.
+     * @return true if terminal has been connected, false otherwise
      * @see StateManager
      */
-    void connect();
+    boolean connect();
 
     /**
      * Disconnect the terminal.
      * <p>Depends on the working state.
+     * @return true if terminal has been disconnected, false otherwise
      * @see StateManager
      */
-    void disconnect();
+    boolean disconnect();
 
     /**
      * Test if the terminal is connected.

@@ -377,26 +377,6 @@ public interface VoltageLevel extends Container<VoltageLevel> {
         SwitchAdder newDisconnector();
 
         /**
-         * Open a switch.
-         * <p>
-         * Depends on the working state.
-         * @param switchId the id of the switch to open
-         * @throws ITeslaException if switch is not found
-         * @see StateManager
-         */
-        NodeBreakerView openSwitch(String switchId);
-
-        /**
-         * Close a switch.
-         * <p>
-         * Depends on the working state.
-         * @param switchId the id of the switch to close
-         * @throws ITeslaException if switch is not found
-         * @see StateManager
-         */
-        NodeBreakerView closeSwitch(String switchId);
-
-        /**
          * Get the first node to which a switch is connected.
          *
          * @param switchId the id of the switch
@@ -505,26 +485,6 @@ public interface VoltageLevel extends Container<VoltageLevel> {
          * Remove all buses.
          */
         void removeAllBuses();
-
-        /**
-         * Open a switch.
-         * <p>
-         * Depends on the working state.
-         * @param switchId the id of the switch to open
-         * @throws ITeslaException if switch is not found
-         * @see StateManager
-         */
-        BusBreakerView openSwitch(String switchId);
-
-        /**
-         * Close a switch.
-         * <p>
-         * Depends on the working state.
-         * @param switchId the id of the switch to close
-         * @throws ITeslaException if switch is not found
-         * @see StateManager
-         */
-        BusBreakerView closeSwitch(String switchId);
 
         /**
          * Get switches.

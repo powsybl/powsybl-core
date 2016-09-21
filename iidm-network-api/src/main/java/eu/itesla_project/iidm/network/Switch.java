@@ -27,6 +27,15 @@ public interface Switch extends Identifiable<Switch> {
     boolean isOpen();
 
     /**
+     * Change the switch status.
+     * <p>
+     * Depends on the working state.
+     * @param open the new switch status
+     * @see StateManager
+     */
+    void setOpen(boolean open);
+
+    /**
      * Get the retain status of the switch. A retained switch is a switch that
      * will be part of the bus/breaker topology.
      */
