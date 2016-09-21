@@ -8,7 +8,6 @@ package eu.itesla_project.iidm.network.impl;
 
 import eu.itesla_project.iidm.network.Switch;
 import eu.itesla_project.iidm.network.SwitchKind;
-import eu.itesla_project.iidm.network.impl.util.Ref;
 import java.util.BitSet;
 
 /**
@@ -17,7 +16,7 @@ import java.util.BitSet;
  */
 class SwitchImpl extends IdentifiableImpl<Switch> implements Switch, Stateful {
 
-    private final Ref<NetworkImpl> network;
+    private final VoltageLevelExt voltageLevel;
 
     private final SwitchKind kind;
 
@@ -25,13 +24,13 @@ class SwitchImpl extends IdentifiableImpl<Switch> implements Switch, Stateful {
 
     private final BitSet open;
 
-    SwitchImpl(Ref<NetworkImpl> network,
+    SwitchImpl(VoltageLevelExt voltageLevel,
                String id, String name, SwitchKind kind, final boolean open, boolean retained) {
         super(id, name);
-        this.network = network;
+        this.voltageLevel = voltageLevel;
         this.kind = kind;
         this.retained = retained;
-        int stateArraySize = network.get().getStateManager().getStateArraySize();
+        int stateArraySize = voltageLevel.getNetwork().getStateManager().getStateArraySize();
         this.open = new BitSet(stateArraySize);
         this.open.set(0, stateArraySize, open);
     }
@@ -43,14 +42,19 @@ class SwitchImpl extends IdentifiableImpl<Switch> implements Switch, Stateful {
 
     @Override
     public boolean isOpen() {
-        return open.get(network.get().getStateIndex());
+        return open.get(voltageLevel.getNetwork().getStateIndex());
     }
 
-    void setOpen(boolean open) {
-        int index = network.get().getStateIndex();
+    @Override
+    public void setOpen(boolean open) {
+        NetworkImpl network = voltageLevel.getNetwork();
+        int index = network.getStateIndex();
         boolean oldValue = this.open.get(index);
-        this.open.set(index, open);
-        network.get().getListeners().notifyUpdate(this, "open", oldValue, open);
+        if (oldValue != open) {
+            this.open.set(index, open);
+            voltageLevel.invalidateCache();
+            network.getListeners().notifyUpdate(this, "open", oldValue, open);
+        }
     }
 
     @Override

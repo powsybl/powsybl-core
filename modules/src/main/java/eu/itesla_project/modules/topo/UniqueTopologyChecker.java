@@ -122,11 +122,11 @@ public class UniqueTopologyChecker {
                         for (Map.Entry<String, Boolean> entry : possibleSubstation.getSwitches().entrySet()) {
                             String switchId = entry.getKey();
                             boolean open = entry.getValue();
-                            if (open) {
-                                vl.getBusBreakerView().openSwitch(switchId);
-                            } else {
-                                vl.getBusBreakerView().closeSwitch(switchId);
+                            Switch s = vl.getBusBreakerView().getSwitch(switchId);
+                            if (s == null) {
+                                throw new AssertionError();
                             }
+                            s.setOpen(open);
                         }
 
                         Set<Set<String>> topoSet = toTopoSet(possibleSubstation, dict);

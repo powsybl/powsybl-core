@@ -78,8 +78,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
                 throw new ValidationException(this, "second connection bus is not set");
             }
 
-            SwitchImpl _switch = new SwitchImpl(getNetwork().getRef(),
-                                                id, getName(), SwitchKind.BREAKER, open, true);
+            SwitchImpl _switch = new SwitchImpl(BusBreakerVoltageLevel.this, id, getName(), SwitchKind.BREAKER, open, true);
             addSwitch(_switch, busId1, busId2);
             getNetwork().getListeners().notifyCreation(_switch);
             return _switch;
@@ -314,7 +313,8 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         });
     }
 
-    private void invalidateCache() {
+    @Override
+    public void invalidateCache() {
         calculatedBusTopology.invalidateCache();
         getNetwork().getConnectedComponentsManager().invalidate();
     }
@@ -380,16 +380,6 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
 
         @Override
         public SwitchAdder newDisconnector() {
-            throw createNotSupportedBusBreakerTopologyException();
-        }
-
-        @Override
-        public NodeBreakerView openSwitch(String switchId) {
-            throw createNotSupportedBusBreakerTopologyException();
-        }
-
-        @Override
-        public NodeBreakerView closeSwitch(String switchId) {
             throw createNotSupportedBusBreakerTopologyException();
         }
 
@@ -460,26 +450,6 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         @Override
         public void removeAllBuses() {
             BusBreakerVoltageLevel.this.removeAllBuses();
-        }
-
-        @Override
-        public BusBreakerView openSwitch(String switchId) {
-            SwitchImpl _switch = BusBreakerVoltageLevel.this.getSwitch(switchId, true);
-            if (!_switch.isOpen()) {
-                _switch.setOpen(true);
-                invalidateCache();
-            }
-            return this;
-        }
-
-        @Override
-        public BusBreakerView closeSwitch(String switchId) {
-            SwitchImpl _switch = BusBreakerVoltageLevel.this.getSwitch(switchId, true);
-            if (_switch.isOpen()) {
-                _switch.setOpen(false);
-                invalidateCache();
-            }
-            return this;
         }
 
         @Override
@@ -693,33 +663,37 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
     }
 
     @Override
-    public void connect(TerminalExt terminal) {
+    public boolean connect(TerminalExt terminal) {
         assert terminal instanceof BusTerminal;
 
         // already connected?
         if (((BusTerminal) terminal).isConnected()) {
-            return;
+            return false;
         }
 
         ((BusTerminal) terminal).setConnected(true);
 
         // invalidate connected components
         invalidateCache();
+
+        return true;
     }
 
     @Override
-    public void disconnect(TerminalExt terminal) {
+    public boolean disconnect(TerminalExt terminal) {
         assert terminal instanceof BusTerminal;
 
         // already connected?
         if (!terminal.isConnected()) {
-            return;
+            return false;
         }
 
         ((BusTerminal) terminal).setConnected(false);
 
         // invalidate connected components
         invalidateCache();
+
+        return true;
     }
 
     @Override
