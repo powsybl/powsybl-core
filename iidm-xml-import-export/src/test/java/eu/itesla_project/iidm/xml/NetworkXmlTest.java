@@ -11,8 +11,10 @@ import eu.itesla_project.iidm.network.Network;
 import eu.itesla_project.iidm.network.test.EurostagTutorialExample1Factory;
 import org.joda.time.DateTime;
 import org.junit.Test;
+import static org.junit.Assert.*;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
@@ -42,4 +44,14 @@ public class NetworkXmlTest extends ConverterBaseTest {
         NetworkXml.writeAndValidate(network, xmlFile);
     }
 
+    @Test
+    public void testGzipGunzip() throws IOException {
+        Network network = createEurostagTutorialExample1();
+        Path file1 = tmpDir.resolve("n.xml");
+        NetworkXml.write(network, file1);
+        Network network2 = NetworkXml.copy(network);
+        Path file2 = tmpDir.resolve("n2.xml");
+        NetworkXml.write(network2, file2);
+        assertArrayEquals(Files.readAllBytes(file1), Files.readAllBytes(file2));
+    }
 }
