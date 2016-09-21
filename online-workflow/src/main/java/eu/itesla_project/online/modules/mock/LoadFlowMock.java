@@ -33,6 +33,11 @@ public class LoadFlowMock implements LoadFlow {
     }
 
     @Override
+    public LoadFlowResult run() throws Exception {
+        return run(null);
+    }
+
+    @Override
     public LoadFlowResult run(LoadFlowParameters parameters) throws Exception {
         LOGGER.warn("Running loadflow mock");
         final boolean[] ok = new boolean[1];

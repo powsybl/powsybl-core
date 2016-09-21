@@ -20,9 +20,7 @@ public interface LoadFlow {
 
     LoadFlowResult run(LoadFlowParameters parameters) throws Exception;
 
-    default LoadFlowResult run() throws Exception {
-        return run(new LoadFlowParameters());
-    }
+    LoadFlowResult run() throws Exception;
 
     default CompletableFuture<LoadFlowResult> runAsync(String workingStateId, LoadFlowParameters parameters) {
         throw new UnsupportedOperationException();
