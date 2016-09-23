@@ -96,7 +96,7 @@ public class XMLExporter implements Exporter, XmlConstants {
         try {
             long startTime = System.currentTimeMillis();
 
-            try (OutputStream os = dataSource.newOutputStream(null, "xml", false);
+            try (OutputStream os = dataSource.newOutputStream(null, "xiidm", false);
                  BufferedOutputStream bos = new BufferedOutputStream(os)) {
                 NetworkXml.write(network, options, bos);
             }
