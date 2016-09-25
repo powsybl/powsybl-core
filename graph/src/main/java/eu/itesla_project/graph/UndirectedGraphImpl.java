@@ -353,7 +353,6 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     @Override
     public List<TIntArrayList> findAllPaths(int from, Function<V, Boolean> pathComplete, Function<E, Boolean> pathCanceled) {
         Objects.requireNonNull(pathComplete);
-        Objects.requireNonNull(pathCanceled);
         List<TIntArrayList> paths = new ArrayList<>();
         BitSet encountered = new BitSet(vertices.size());
         TIntArrayList path = new TIntArrayList(1);
@@ -366,18 +365,23 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     private boolean findAllPaths(int e, int v1or2, Function<V, Boolean> pathComplete, Function<E, Boolean> pathCanceled,
                                  TIntArrayList adjacentEdges, int i, TIntArrayList path, BitSet encountered,
                                  List<TIntArrayList> paths) {
+        if (encountered.get(v1or2)) {
+            return false;
+        }
         Vertex<V> obj1or2 = vertices.get(v1or2);
         if (pathComplete.apply(obj1or2.getObject())) {
+            path.add(e);
             paths.add(path);
             return true;
         } else {
-            path.add(e);
-            if (i < adjacentEdges.size () - 1){
+            if (i < adjacentEdges.size () - 1) {
                 TIntArrayList path2 = new TIntArrayList(path);
                 BitSet encountered2 = new BitSet(vertices.size());
                 encountered2.or(encountered);
+                path2.add(e);
                 findAllPaths(v1or2, pathComplete, pathCanceled, path2, encountered2, paths);
-            } else{
+            } else {
+                path.add(e);
                 findAllPaths(v1or2, pathComplete, pathCanceled, path, encountered, paths);
             }
             return false;
@@ -393,19 +397,21 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
         for (int i = 0; i < adjacentEdges.size(); i++) {
             int e = adjacentEdges.getQuick(i);
             Edge<E> edge = edges.get(e);
-            if (pathCanceled.apply(edge.getObject())) {
+            if (pathCanceled != null && pathCanceled.apply(edge.getObject())) {
                 return;
             }
             int v1 = edge.getV1();
             int v2 = edge.getV2();
-            if (!encountered.get(v1)) {
+            if (v == v2) {
                 if (findAllPaths(e, v1, pathComplete, pathCanceled, adjacentEdges, i, path, encountered, paths)) {
                     return;
                 }
-            } else if (!encountered.get(v2)) {
+            } else if (v == v1) {
                 if (findAllPaths(e, v2, pathComplete, pathCanceled, adjacentEdges, i, path, encountered, paths)) {
                     return;
                 }
+            } else {
+                throw new AssertionError();
             }
         }
     }
