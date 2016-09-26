@@ -43,7 +43,7 @@ public class LimitViolationFilter {
         LimitViolationFilter filter = new LimitViolationFilter();
         ModuleConfig moduleConfig = platformConfig.getModuleConfigIfExists("limit-violation-default-filter");
         if (moduleConfig != null) {
-            filter.setViolationTypes(moduleConfig.getEnumSetProperty("violationTypes", LimitViolationType.class, null));
+            filter.setViolationTypes(moduleConfig.getEnumSetProperty("violationTypes", LimitViolationType.class, DEFAULT_VIOLATION_TYPES));
             filter.setMinBaseVoltage(moduleConfig.getFloatProperty("minBaseVoltage", DEFAULT_MIN_BASE_VOLTAGE));
         }
         return filter;
