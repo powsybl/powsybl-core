@@ -85,8 +85,8 @@ public class Security {
 
     public static List<LimitViolation> checkLimits(Network network, CurrentLimitType currentLimitType, int maxAcceptableDuration, float limitReduction) {
         //if (limitReduction <= 0 || limitReduction > 1) {
-    	// allow to increase the limits
-    	if (limitReduction <= 0) {
+        // allow to increase the limits
+        if (limitReduction <= 0) {
             throw new IllegalArgumentException("Bad limit reduction " + limitReduction);
         }
         List<LimitViolation> violations = new ArrayList<>();
@@ -124,11 +124,15 @@ public class Security {
     }
 
     public static String printLimitsViolations(Network network) {
-        return printLimitsViolations(network, new LimitViolationFilter());
+        return printLimitsViolations(network, LimitViolationFilter.load());
     }
 
     public static String printLimitsViolations(Network network, LimitViolationFilter filter) {
         return printLimitsViolations(checkLimits(network), filter);
+    }
+
+    public static String printLimitsViolations(List<LimitViolation> violations) {
+        return printLimitsViolations(violations, LimitViolationFilter.load());
     }
 
     public static String printLimitsViolations(List<LimitViolation> violations, LimitViolationFilter filter) {
@@ -136,7 +140,7 @@ public class Security {
         List<LimitViolation> filteredViolations = filter.apply(violations);
         if (filteredViolations.size() > 0) {
             Collections.sort(filteredViolations, (o1, o2) -> o1.getSubject().getId().compareTo(o2.getSubject().getId()));
-            Table table = new Table(7, BorderStyle.CLASSIC_WIDE);
+            Table table = new Table(8, BorderStyle.CLASSIC_WIDE);
             table.addCell("Country");
             table.addCell("Base voltage");
             table.addCell("Equipment (" + filteredViolations.size() + ")");
@@ -144,6 +148,7 @@ public class Security {
             table.addCell("value");
             table.addCell("limit");
             table.addCell("abs(value-limit)");
+            table.addCell("charge %");
             for (LimitViolation violation : filteredViolations) {
                 table.addCell(violation.getCountry() != null ? violation.getCountry().name() : "");
                 table.addCell(Float.isNaN(violation.getBaseVoltage()) ? "" : Float.toString(violation.getBaseVoltage()));
@@ -152,6 +157,7 @@ public class Security {
                 table.addCell(Float.toString(violation.getValue()));
                 table.addCell(Float.toString(violation.getLimit()) + (violation.getLimitReduction() != 1f ? " * " + violation.getLimitReduction() : ""));
                 table.addCell(Float.toString(Math.abs(violation.getValue() - violation.getLimit() * violation.getLimitReduction())));
+                table.addCell(Integer.toString(Math.round(Math.abs(violation.getValue()) / violation.getLimit() * 100f)));
             }
             return table.render();
         }

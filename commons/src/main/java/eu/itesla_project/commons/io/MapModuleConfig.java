@@ -75,6 +75,10 @@ public class MapModuleConfig implements ModuleConfig {
         return substitureEnvVar(value == null ? defaultValue : (String) value);
     }
 
+    public void setStringProperty(String name, String value) {
+        properties.put(name, Objects.requireNonNull(value));
+    }
+
     @Override
     public List<String> getStringListProperty(String name) {
         return new ArrayList<>(Arrays.asList(getStringProperty(name).split("[:,]")));
@@ -120,6 +124,30 @@ public class MapModuleConfig implements ModuleConfig {
             return defaultValue;
         }
         List<E> enums = new ArrayList<>(strings.size());
+        for (String s : strings) {
+            enums.add(Enum.valueOf(clazz, s));
+        }
+        return enums;
+    }
+
+
+    @Override
+    public <E extends Enum<E>> Set<E> getEnumSetProperty(String name, Class<E> clazz) {
+        List<String> strings = getStringListProperty(name);
+        Set<E> enums = EnumSet.noneOf(clazz);
+        for (String s : strings) {
+            enums.add(Enum.valueOf(clazz, s));
+        }
+        return enums;
+    }
+
+    @Override
+    public <E extends Enum<E>> Set<E> getEnumSetProperty(String name, Class<E> clazz, Set<E> defaultValue) {
+        List<String> strings = getStringListProperty(name, null);
+        if (strings == null) {
+            return defaultValue;
+        }
+        Set<E> enums = EnumSet.noneOf(clazz);
         for (String s : strings) {
             enums.add(Enum.valueOf(clazz, s));
         }
