@@ -1,5 +1,6 @@
 /**
  * Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+ * Copyright (c) 2016, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -7,6 +8,7 @@
 package eu.itesla_project.online.tools;
 
 import com.google.auto.service.AutoService;
+
 import eu.itesla_project.commons.tools.Command;
 import eu.itesla_project.commons.tools.Tool;
 import eu.itesla_project.computation.ComputationManager;
@@ -21,6 +23,7 @@ import eu.itesla_project.modules.online.OnlineWorkflowParameters;
 import eu.itesla_project.modules.rules.RulesDbClient;
 import eu.itesla_project.modules.securityindexes.SecurityIndexType;
 import eu.itesla_project.modules.wca.*;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
@@ -62,17 +65,17 @@ public class RunWcaOnStateTool implements Tool {
         public Options getOptions() {
             Options options = new Options();
             options.addOption(Option.builder().longOpt("workflow")
-	                .desc("the online workflow id")
-	                .hasArg()
-	                .required()
-	                .argName("ID")
-	                .build());
-			options.addOption(Option.builder().longOpt("state")
-	                .desc("the state id")
-	                .hasArg()
-	                .required()
-	                .argName("STATE")
-	                .build());
+                    .desc("the online workflow id")
+                    .hasArg()
+                    .required()
+                    .argName("ID")
+                    .build());
+            options.addOption(Option.builder().longOpt("state")
+                    .desc("the state id")
+                    .hasArg()
+                    .required()
+                    .argName("STATE")
+                    .build());
             options.addOption(Option.builder().longOpt("offline-workflow-id")
                     .desc("the offline workflow id (to get security rules)")
                     .hasArg()
@@ -93,6 +96,11 @@ public class RunWcaOnStateTool implements Tool {
                     .hasArg()
                     .argName("INDEX_TYPE,INDEX_TYPE,...")
                     .build());
+            options.addOption(Option.builder().longOpt("stop-on-violations")
+                    .desc("stop WCA if there are limit violarions in the base state, default is true")
+                    .hasArg()
+                    .argName("THRESHOLD")
+                    .build());
             return options;
         }
 
@@ -110,63 +118,67 @@ public class RunWcaOnStateTool implements Tool {
 
     @Override
     public void run(CommandLine line) throws Exception {
-		String workflowId = line.getOptionValue("workflow");
-		Integer stateId = Integer.valueOf(line.getOptionValue("state"));
-		System.out.println("loading state " + stateId + " of workflow " + workflowId + " from the online db ...");
+        String workflowId = line.getOptionValue("workflow");
+        Integer stateId = Integer.valueOf(line.getOptionValue("state"));
+        System.out.println("loading state " + stateId + " of workflow " + workflowId + " from the online db ...");
         OnlineConfig config = OnlineConfig.load();
-		OnlineDb onlinedb = config.getOnlineDbFactoryClass().newInstance().create();
+        OnlineDb onlinedb = config.getOnlineDbFactoryClass().newInstance().create();
         // load the network
         Network network = onlinedb.getState(workflowId, stateId);
         if ( network != null ) {
-        	OnlineWorkflowParameters parameters = onlinedb.getWorkflowParameters(workflowId);
-        	String offlineWorkflowId = parameters.getOfflineWorkflowId();
-        	if (line.hasOption("offline-workflow"))
-        		offlineWorkflowId = line.getOptionValue("offline-workflow");
-        	Interval histoInterval = parameters.getHistoInterval();
-        	if (line.hasOption("history-interval"))
-        		histoInterval = Interval.parse(line.getOptionValue("history-interval"));
-        	double purityThreshold = parameters.getRulesPurityThreshold();
-		    if (line.hasOption("purity-threshold"))
-		        purityThreshold = Double.parseDouble(line.getOptionValue("purity-threshold"));
-		    Set<SecurityIndexType> securityIndexTypes = parameters.getSecurityIndexes();
-		    if (line.hasOption("security-index-types")) {
-		        securityIndexTypes = Arrays.stream(line.getOptionValue("security-index-types").split(","))
-		                .map(SecurityIndexType::valueOf)
-		                .collect(Collectors.toSet());
-		    }
-		    ComputationManager computationManager = new LocalComputationManager();
-		    network.getStateManager().allowStateMultiThreadAccess(true);
-		    WCAParameters wcaParameters = new WCAParameters(histoInterval, offlineWorkflowId, securityIndexTypes, purityThreshold);
-	        ContingenciesAndActionsDatabaseClient contingenciesDb = config.getContingencyDbClientFactoryClass().newInstance().create();
-	        LoadFlowFactory loadFlowFactory = config.getLoadFlowFactoryClass().newInstance();
-	        try (HistoDbClient histoDbClient = config.getHistoDbClientFactoryClass().newInstance().create();
-	             RulesDbClient rulesDbClient = config.getRulesDbClientFactoryClass().newInstance().create("rulesdb")) {
-	            UncertaintiesAnalyserFactory uncertaintiesAnalyserFactory = config.getUncertaintiesAnalyserFactoryClass().newInstance();
-	            WCA wca = config.getWcaFactoryClass().newInstance().create(network, computationManager, histoDbClient, rulesDbClient, uncertaintiesAnalyserFactory, contingenciesDb, loadFlowFactory);
-	            WCAResult result = wca.run(wcaParameters);
-	            Table table = new Table(7, BorderStyle.CLASSIC_WIDE);
-	            table.addCell("Contingency", new CellStyle(CellStyle.HorizontalAlign.center));
-		        table.addCell("Cluster 1", new CellStyle(CellStyle.HorizontalAlign.center));
-		        table.addCell("Cluster 2", new CellStyle(CellStyle.HorizontalAlign.center));
-		        table.addCell("Cluster 3", new CellStyle(CellStyle.HorizontalAlign.center));
-		        table.addCell("Cluster 4", new CellStyle(CellStyle.HorizontalAlign.center));
-		        table.addCell("Undefined", new CellStyle(CellStyle.HorizontalAlign.center));
-		        table.addCell("Cause", new CellStyle(CellStyle.HorizontalAlign.center));
-		        for (WCACluster cluster : result.getClusters()) {
-		        	table.addCell(cluster.getContingency().getId());
-		        	int[] clusterIndexes = new int[]{1, 2, 3, 4, -1};
-					for (int k = 0; k < clusterIndexes.length; k++) {
-						if ( clusterIndexes[k] == cluster.getNum().toIntValue() ) {
-							table.addCell("X", new CellStyle(CellStyle.HorizontalAlign.center));
-						} else {
-							table.addCell("-", new CellStyle(CellStyle.HorizontalAlign.center));
-						}
-					}
-					table.addCell(Objects.toString(cluster.getCauses(), ""), new CellStyle(CellStyle.HorizontalAlign.center));
-		        }
-	            System.out.println(table.render());
-	        }
-	    }
+            OnlineWorkflowParameters parameters = onlinedb.getWorkflowParameters(workflowId);
+            String offlineWorkflowId = parameters.getOfflineWorkflowId();
+            if (line.hasOption("offline-workflow"))
+                offlineWorkflowId = line.getOptionValue("offline-workflow");
+            Interval histoInterval = parameters.getHistoInterval();
+            if (line.hasOption("history-interval"))
+                histoInterval = Interval.parse(line.getOptionValue("history-interval"));
+            double purityThreshold = parameters.getRulesPurityThreshold();
+            if (line.hasOption("purity-threshold"))
+                purityThreshold = Double.parseDouble(line.getOptionValue("purity-threshold"));
+            Set<SecurityIndexType> securityIndexTypes = parameters.getSecurityIndexes();
+            if (line.hasOption("security-index-types")) {
+                securityIndexTypes = Arrays.stream(line.getOptionValue("security-index-types").split(","))
+                        .map(SecurityIndexType::valueOf)
+                        .collect(Collectors.toSet());
+            }
+            boolean stopWCAifBaseStateLimitViolations = true;
+            if (line.hasOption("stop-on-violations")) {
+                stopWCAifBaseStateLimitViolations = Boolean.parseBoolean(line.getOptionValue("stop-on-violations"));
+            }
+            ComputationManager computationManager = new LocalComputationManager();
+            network.getStateManager().allowStateMultiThreadAccess(true);
+            WCAParameters wcaParameters = new WCAParameters(histoInterval, offlineWorkflowId, securityIndexTypes, purityThreshold, stopWCAifBaseStateLimitViolations);
+            ContingenciesAndActionsDatabaseClient contingenciesDb = config.getContingencyDbClientFactoryClass().newInstance().create();
+            LoadFlowFactory loadFlowFactory = config.getLoadFlowFactoryClass().newInstance();
+            try (HistoDbClient histoDbClient = config.getHistoDbClientFactoryClass().newInstance().create();
+                    RulesDbClient rulesDbClient = config.getRulesDbClientFactoryClass().newInstance().create("rulesdb")) {
+                UncertaintiesAnalyserFactory uncertaintiesAnalyserFactory = config.getUncertaintiesAnalyserFactoryClass().newInstance();
+                WCA wca = config.getWcaFactoryClass().newInstance().create(network, computationManager, histoDbClient, rulesDbClient, uncertaintiesAnalyserFactory, contingenciesDb, loadFlowFactory);
+                WCAResult result = wca.run(wcaParameters);
+                Table table = new Table(7, BorderStyle.CLASSIC_WIDE);
+                table.addCell("Contingency", new CellStyle(CellStyle.HorizontalAlign.center));
+                table.addCell("Cluster 1", new CellStyle(CellStyle.HorizontalAlign.center));
+                table.addCell("Cluster 2", new CellStyle(CellStyle.HorizontalAlign.center));
+                table.addCell("Cluster 3", new CellStyle(CellStyle.HorizontalAlign.center));
+                table.addCell("Cluster 4", new CellStyle(CellStyle.HorizontalAlign.center));
+                table.addCell("Undefined", new CellStyle(CellStyle.HorizontalAlign.center));
+                table.addCell("Cause", new CellStyle(CellStyle.HorizontalAlign.center));
+                for (WCACluster cluster : result.getClusters()) {
+                    table.addCell(cluster.getContingency().getId());
+                    int[] clusterIndexes = new int[]{1, 2, 3, 4, -1};
+                    for (int k = 0; k < clusterIndexes.length; k++) {
+                        if ( clusterIndexes[k] == cluster.getNum().toIntValue() ) {
+                            table.addCell("X", new CellStyle(CellStyle.HorizontalAlign.center));
+                        } else {
+                            table.addCell("-", new CellStyle(CellStyle.HorizontalAlign.center));
+                        }
+                    }
+                    table.addCell(Objects.toString(cluster.getCauses(), ""), new CellStyle(CellStyle.HorizontalAlign.center));
+                }
+                System.out.println(table.render());
+            }
+        }
     }
 
 }
