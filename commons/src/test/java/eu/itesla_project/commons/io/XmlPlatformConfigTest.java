@@ -13,10 +13,7 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
@@ -106,6 +103,12 @@ public class XmlPlatformConfigTest {
             Assert.assertTrue(modConfig.getEnumListProperty("el", StandardOpenOption.class).equals(Arrays.asList(StandardOpenOption.APPEND, StandardOpenOption.CREATE)));
             try {
                 modConfig.getEnumListProperty("el2", StandardOpenOption.class);
+                Assert.fail();
+            } catch (Exception e) {
+            }
+            Assert.assertTrue(modConfig.getEnumSetProperty("el", StandardOpenOption.class).equals(EnumSet.of(StandardOpenOption.APPEND, StandardOpenOption.CREATE)));
+            try {
+                modConfig.getEnumSetProperty("el2", StandardOpenOption.class);
                 Assert.fail();
             } catch (Exception e) {
             }

@@ -12,6 +12,7 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import com.google.common.base.Joiner;
 import org.joda.time.DateTime;
@@ -75,6 +76,10 @@ public class MapModuleConfig implements ModuleConfig {
         return substitureEnvVar(value == null ? defaultValue : (String) value);
     }
 
+    public void setStringProperty(String name, String value) {
+        properties.put(name, Objects.requireNonNull(value));
+    }
+
     @Override
     public List<String> getStringListProperty(String name) {
         return new ArrayList<>(Arrays.asList(getStringProperty(name).split("[:,]")));
@@ -124,6 +129,22 @@ public class MapModuleConfig implements ModuleConfig {
             enums.add(Enum.valueOf(clazz, s));
         }
         return enums;
+    }
+
+
+    @Override
+    public <E extends Enum<E>> Set<E> getEnumSetProperty(String name, Class<E> clazz) {
+        List<String> strings = getStringListProperty(name);
+        return strings.stream().map(s -> Enum.valueOf(clazz, s)).collect(Collectors.toSet());
+    }
+
+    @Override
+    public <E extends Enum<E>> Set<E> getEnumSetProperty(String name, Class<E> clazz, Set<E> defaultValue) {
+        List<String> strings = getStringListProperty(name, null);
+        if (strings == null) {
+            return defaultValue;
+        }
+        return strings.stream().map(s -> Enum.valueOf(clazz, s)).collect(Collectors.toSet());
     }
 
     @Override
