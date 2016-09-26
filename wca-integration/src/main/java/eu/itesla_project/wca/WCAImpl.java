@@ -218,7 +218,8 @@ public class WCAImpl implements WCA, WCAConstants, AmplConstants {
             .setNoGeneratorReactiveLimits(false)
             .setPhaseShifterRegulationOn(false);
 
-    private static final LimitViolationFilter CURRENT_FILTER = new LimitViolationFilter(EnumSet.of(LimitViolationType.CURRENT), 0);
+    private static final LimitViolationFilter CURRENT_FILTER = LimitViolationFilter.load()
+                                                                                   .setViolationTypes(EnumSet.of(LimitViolationType.CURRENT));
 
     private SecurityIndexType[] getSecurityIndexTypes(WCAParameters parameters) {
         return parameters.getSecurityIndexTypes() != null
