@@ -7,6 +7,7 @@
 package eu.itesla_project.modules;
 
 import com.google.auto.service.AutoService;
+import eu.itesla_project.commons.io.ComponentDefaultConfig;
 import eu.itesla_project.commons.tools.Command;
 import eu.itesla_project.commons.tools.Tool;
 import eu.itesla_project.computation.ComputationManager;
@@ -17,8 +18,8 @@ import eu.itesla_project.iidm.import_.Importers;
 import eu.itesla_project.iidm.network.Network;
 import eu.itesla_project.loadflow.api.LoadFlowFactory;
 import eu.itesla_project.modules.contingencies.ContingenciesAndActionsDatabaseClient;
+import eu.itesla_project.modules.contingencies.ContingenciesAndActionsDatabaseClientFactory;
 import eu.itesla_project.modules.contingencies.Contingency;
-import eu.itesla_project.modules.offline.OfflineConfig;
 import eu.itesla_project.modules.security.LimitViolation;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -36,6 +37,7 @@ import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
 @AutoService(Tool.class)
 public class RunSecurityAnalysisTool implements Tool {
@@ -123,15 +125,15 @@ public class RunSecurityAnalysisTool implements Tool {
 
     @Override
     public void run(CommandLine line) throws Exception {
-        OfflineConfig config = OfflineConfig.load();
+        ComponentDefaultConfig config = new ComponentDefaultConfig();
         String caseFormat = line.getOptionValue("case-format");
         Path caseDir = Paths.get(line.getOptionValue("case-dir"));
         String caseBaseName = line.getOptionValue("case-basename");
         Path outputCsvFile = Paths.get(line.getOptionValue("output-csv-file"));
         boolean detailed = line.hasOption("detailed");
 
-        ContingenciesAndActionsDatabaseClient contingencyDb = config.getContingencyDbClientFactoryClass().newInstance().create();
-        LoadFlowFactory loadFlowFactory = config.getLoadFlowFactoryClass().newInstance();
+        ContingenciesAndActionsDatabaseClient contingencyDb = config.findFactoryImplClass(ContingenciesAndActionsDatabaseClientFactory.class).newInstance().create();
+        LoadFlowFactory loadFlowFactory = config.findFactoryImplClass(LoadFlowFactory.class).newInstance();
 
         try (ComputationManager computationManager = new LocalComputationManager()) {
 
