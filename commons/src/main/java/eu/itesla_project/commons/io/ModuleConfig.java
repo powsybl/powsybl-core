@@ -8,6 +8,8 @@ package eu.itesla_project.commons.io;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Set;
+
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
@@ -32,6 +34,10 @@ public interface ModuleConfig {
     <E extends Enum<E>> List<E> getEnumListProperty(String name, Class<E> clazz);
 
     <E extends Enum<E>> List<E> getEnumListProperty(String name, Class<E> clazz, List<E> defaultValue);
+
+    <E extends Enum<E>> Set<E> getEnumSetProperty(String name, Class<E> clazz);
+
+    <E extends Enum<E>> Set<E> getEnumSetProperty(String name, Class<E> clazz, Set<E> defaultValue);
 
     int getIntProperty(String name);
 
