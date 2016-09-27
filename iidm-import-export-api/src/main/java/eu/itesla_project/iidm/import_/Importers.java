@@ -340,6 +340,8 @@ public class Importers {
             return new ZipFileDataSource(directory, getBaseName(fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 4)));
         } else if (fileNameOrBaseName.endsWith(".gz")) {
             return new GzFileDataSource(directory, getBaseName(fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 3)));
+        } else if (fileNameOrBaseName.endsWith(".bz2")) {
+            return new Bzip2FileDataSource(directory, getBaseName(fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 4)));
         } else {
             return new FileDataSource(directory, getBaseName(fileNameOrBaseName));
         }

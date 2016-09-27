@@ -64,7 +64,7 @@ public class XMLExporter implements Exporter, XmlConstants {
 
     @Override
     public String getFormat() {
-        return "XML";
+        return "XIIDM";
     }
 
     @Override
@@ -101,7 +101,7 @@ public class XMLExporter implements Exporter, XmlConstants {
                 NetworkXml.write(network, options, bos);
             }
 
-            LOGGER.debug("XML export done in {} ms", (System.currentTimeMillis() - startTime));
+            LOGGER.debug("XIIDM export done in {} ms", (System.currentTimeMillis() - startTime));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

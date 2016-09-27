@@ -47,7 +47,7 @@ public class XMLImporter implements Importer, XmlConstants {
 
     @Override
     public String getFormat() {
-        return "XML";
+        return "XIIDM";
     }
 
     @Override
@@ -123,7 +123,7 @@ public class XMLImporter implements Importer, XmlConstants {
             try (InputStream is = dataSource.newInputStream(null, ext)) {
                 network = NetworkXml.read(is, new XmlImportConfig(throwExceptionIfExtensionNotFound));
             }
-            LOGGER.debug("XML import done in {} ms", (System.currentTimeMillis() - startTime));
+            LOGGER.debug("XIIDM import done in {} ms", (System.currentTimeMillis() - startTime));
         } catch (IOException e) {
             throw new ITeslaException(e);
         }

@@ -37,7 +37,7 @@ public class EntsoeAndXmlCaseRepository extends EntsoeCaseRepository{
         super(config,
                 Arrays.asList(new EntsoeFormat(Importers.getImporter("CIM1", computationManager), "CIM"),
                         new EntsoeFormat(Importers.getImporter("UCTE", computationManager), "UCT"), // official ENTSOE formats)
-                        new EntsoeFormat(Importers.getImporter("XML", computationManager), "IIDM")), // IIDM XML format
+                        new EntsoeFormat(Importers.getImporter("XIIDM", computationManager), "IIDM")), // XIIDM format
                 (directory, baseName) -> new GenericReadOnlyDataSource(directory, baseName));
     }
 

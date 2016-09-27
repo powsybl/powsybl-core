@@ -143,7 +143,7 @@ public class EntsoeAndXmlCaseRepositoryTest {
                     return ((Files.isRegularFile(file_xiidm)) || Files.isRegularFile(file_xml));
                 });
         Mockito.when(iidmImporter.getFormat())
-                .thenReturn("XML");
+                .thenReturn("XIIDM");
         xmlNetwork = Mockito.mock(Network.class);
         Mockito.when(iidmImporter.import_(Matchers.isA(DataSource.class), Matchers.any()))
                 .thenReturn(xmlNetwork);
