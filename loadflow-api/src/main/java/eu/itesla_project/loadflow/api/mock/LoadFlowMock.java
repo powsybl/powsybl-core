@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.online.modules.mock;
+package eu.itesla_project.loadflow.api.mock;
 
 import eu.itesla_project.loadflow.api.LoadFlow;
 import eu.itesla_project.loadflow.api.LoadFlowParameters;
@@ -16,11 +16,11 @@ import java.util.Collections;
 import java.util.Map;
 
 /**
- *
  * @author Quinary <itesla@quinary.com>
+ * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public class LoadFlowMock implements LoadFlow {
-    Logger LOGGER = LoggerFactory.getLogger(LoadFlowMock.class);
+class LoadFlowMock implements LoadFlow {
+    private Logger LOGGER = LoggerFactory.getLogger(LoadFlowMock.class);
 
     @Override
     public String getName() {
@@ -40,13 +40,12 @@ public class LoadFlowMock implements LoadFlow {
     @Override
     public LoadFlowResult run(LoadFlowParameters parameters) throws Exception {
         LOGGER.warn("Running loadflow mock");
-        final boolean[] ok = new boolean[1];
-        ok[0] = true;
+
         return new LoadFlowResult() {
 
             @Override
             public boolean isOk() {
-                return ok[0];
+                return true;
             }
 
             @Override
@@ -60,5 +59,4 @@ public class LoadFlowMock implements LoadFlow {
             }
         };
     }
-
 };
