@@ -41,7 +41,7 @@ public class Bzip2FileDataSource implements DataSource {
     }
 
     private Path getPath(String suffix, String ext) {
-        return directory.resolve(DataSourceUtil.getFileName(baseName, suffix, ext) + ".bz2");
+        return directory.resolve(DataSourceUtil.getFileName(baseName, suffix, ext + ".bz2"));
     }
 
     @Override
@@ -54,13 +54,13 @@ public class Bzip2FileDataSource implements DataSource {
     @Override
     public boolean exists(String suffix, String ext) {
         Path path = getPath(suffix, ext);
-        return Files.exists(path) && Files.isRegularFile(path);
+        return Files.isRegularFile(path);
     }
 
     @Override
     public boolean exists(String fileName) throws IOException {
         Path path = directory.resolve(fileName + ".bz2");
-        return Files.exists(path) && Files.isRegularFile(path);
+        return Files.isRegularFile(path);
     }
 
     @Override

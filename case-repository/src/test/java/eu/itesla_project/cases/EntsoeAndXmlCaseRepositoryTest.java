@@ -113,7 +113,7 @@ public class EntsoeAndXmlCaseRepositoryTest {
                 .thenAnswer(invocation -> {
                     DataSourceMock dataSource = invocation.getArgumentAt(0, DataSourceMock.class);
                     Path file = dataSource.getDirectory().resolve(dataSource.getBaseName() + ".zip");
-                    return Files.isRegularFile(file) && Files.exists(file);
+                    return Files.isRegularFile(file);
                 });
         Mockito.when(cimImporter.getFormat())
                 .thenReturn("CIM1");
@@ -126,7 +126,7 @@ public class EntsoeAndXmlCaseRepositoryTest {
                 .thenAnswer(invocation -> {
                     DataSourceMock dataSource = invocation.getArgumentAt(0, DataSourceMock.class);
                     Path file = dataSource.getDirectory().resolve(dataSource.getBaseName() + ".uct");
-                    return Files.isRegularFile(file) && Files.exists(file);
+                    return Files.isRegularFile(file);
                 });
         Mockito.when(uctImporter.getFormat())
                 .thenReturn("UCTE");
@@ -134,25 +134,25 @@ public class EntsoeAndXmlCaseRepositoryTest {
         Mockito.when(uctImporter.import_(Matchers.isA(DataSource.class), Matchers.any()))
                 .thenReturn(uctNetwork);
 
-        Importer xmlImporter = Mockito.mock(Importer.class);
-        Mockito.when(xmlImporter.exists(Matchers.isA(DataSource.class)))
+        Importer iidmImporter = Mockito.mock(Importer.class);
+        Mockito.when(iidmImporter.exists(Matchers.isA(DataSource.class)))
                 .thenAnswer(invocation -> {
                     DataSourceMock dataSource = invocation.getArgumentAt(0, DataSourceMock.class);
                     Path file_xiidm = dataSource.getDirectory().resolve(dataSource.getBaseName() + ".xiidm");
                     Path file_xml = dataSource.getDirectory().resolve(dataSource.getBaseName() + ".xml");
-                    return ((Files.isRegularFile(file_xiidm) && Files.exists(file_xiidm)) || (Files.isRegularFile(file_xml) && Files.exists(file_xml)));
+                    return ((Files.isRegularFile(file_xiidm)) || Files.isRegularFile(file_xml));
                 });
-        Mockito.when(xmlImporter.getFormat())
+        Mockito.when(iidmImporter.getFormat())
                 .thenReturn("XML");
         xmlNetwork = Mockito.mock(Network.class);
-        Mockito.when(xmlImporter.import_(Matchers.isA(DataSource.class), Matchers.any()))
+        Mockito.when(iidmImporter.import_(Matchers.isA(DataSource.class), Matchers.any()))
                 .thenReturn(xmlNetwork);
 
 
         caseRepository = new EntsoeAndXmlCaseRepository(new EntsoeAndXmlCaseRepositoryConfig(rootDir, HashMultimap.create()),
                 Arrays.asList(new EntsoeCaseRepository.EntsoeFormat(cimImporter, "CIM"),
                         new EntsoeCaseRepository.EntsoeFormat(uctImporter, "UCT"),
-                        new EntsoeCaseRepository.EntsoeFormat(xmlImporter, "IIDM")
+                        new EntsoeCaseRepository.EntsoeFormat(iidmImporter, "IIDM")
                 ),
                 (directory, baseName) -> new DataSourceMock(directory, baseName));
 
