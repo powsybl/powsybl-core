@@ -8,12 +8,14 @@ package eu.itesla_project.commons.io;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
 public class ComponentDefaultConfig {
 
     private final ModuleConfig config = PlatformConfig.defaultConfig().getModuleConfig("componentDefaultConfig");
 
     public <T, U extends T> Class<? extends T> findFactoryImplClass(Class<T> factoryBaseClass) {
-        return config.getClassProperty(factoryBaseClass.getName(), factoryBaseClass);
+        String propertyName = factoryBaseClass.getSimpleName();
+        return config.getClassProperty(propertyName, factoryBaseClass);
     }
 }
