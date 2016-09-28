@@ -6,13 +6,23 @@
  */
 package eu.itesla_project.commons.io;
 
+import java.util.Objects;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
 public class ComponentDefaultConfig {
 
-    private final ModuleConfig config = PlatformConfig.defaultConfig().getModuleConfig("componentDefaultConfig");
+    private final ModuleConfig config;
+
+    public ComponentDefaultConfig() {
+        this(PlatformConfig.defaultConfig().getModuleConfig("componentDefaultConfig"));
+    }
+
+    public ComponentDefaultConfig(ModuleConfig config) {
+        this.config = Objects.requireNonNull(config);
+    }
 
     public <T, U extends T> Class<? extends T> findFactoryImplClass(Class<T> factoryBaseClass) {
         String propertyName = factoryBaseClass.getSimpleName();

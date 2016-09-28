@@ -6,11 +6,16 @@
  */
 package eu.itesla_project.commons.io;
 
+import org.jboss.shrinkwrap.api.ShrinkWrap;
+import org.jboss.shrinkwrap.api.nio.file.ShrinkWrapFileSystems;
+import org.jboss.shrinkwrap.api.spec.JavaArchive;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 
 /**
@@ -18,18 +23,16 @@ import java.nio.file.FileSystems;
  */
 public class ComponentDefaultConfigTest {
 
-    @Before
-    public void setUp() throws IOException {
-        InMemoryPlatformConfig config = new InMemoryPlatformConfig(FileSystems.getDefault());
-        MapModuleConfig moduleConfig = config.createModuleConfig("componentDefaultConfig");
-        moduleConfig.setStringProperty("Test", "org.junit.Test");
-
-        PlatformConfig.setDefaultConfig(config);
-    }
-
     @Test
-    public void findFactoryImplClassTest() {
-        ComponentDefaultConfig config = new ComponentDefaultConfig();
-        Assert.assertEquals(Test.class, config.findFactoryImplClass(Test.class));
+    public void findFactoryImplClassTest() throws IOException {
+        JavaArchive archive = ShrinkWrap.create(JavaArchive.class);
+        try (FileSystem fileSystem = ShrinkWrapFileSystems.newFileSystem(archive)) {
+            InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
+            MapModuleConfig moduleConfig = platformConfig.createModuleConfig("componentDefaultConfig");
+            moduleConfig.setStringProperty("Test", "org.junit.Test");
+
+            ComponentDefaultConfig config = new ComponentDefaultConfig(moduleConfig);
+            Assert.assertEquals(Test.class, config.findFactoryImplClass(Test.class));
+        }
     }
 }
