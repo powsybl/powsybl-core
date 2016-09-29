@@ -11,11 +11,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Objects;
-import org.jboss.shrinkwrap.impl.base.io.tar.bzip.BZip2CompressorInputStream;
-import org.jboss.shrinkwrap.impl.base.io.tar.bzip.BZip2CompressorOutputStream;
+import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
+import org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream;
+
 
 /**
- * @author Quinary <itesla@quinary.com>
+ * @author Christian Biasuzzi <christian.biasuzzi@techrain.it>
  */
 public class Bzip2FileDataSource implements DataSource {
 

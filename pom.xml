@@ -119,6 +119,7 @@
         <gson.version>2.6.2</gson.version>
         <jsonlib.version>2.4</jsonlib.version>
         <xmlunit.version>2.1.1</xmlunit.version>
+        <commons-compress.version>1.12</commons-compress.version>
     </properties>
 
     <licenses>
@@ -429,6 +430,11 @@
                 <artifactId>json-lib</artifactId>
                 <classifier>jdk15</classifier>
                 <version>${jsonlib.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-compress</artifactId>
+                <version>${commons-compress.version}</version>
             </dependency>
 
             <dependency>
