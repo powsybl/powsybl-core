@@ -6,6 +6,7 @@
  */
 package eu.itesla_project.modules.contingencies.mock;
 
+import eu.itesla_project.contingency.Contingency;
 import eu.itesla_project.iidm.network.Network;
 import eu.itesla_project.modules.contingencies.*;
 
