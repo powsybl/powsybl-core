@@ -19,12 +19,7 @@ import java.util.TreeMap;
  */
 public class CurrentLimitsAdderImpl<SIDE, OWNER extends CurrentLimitsOwner<SIDE> & Validable> implements CurrentLimitsAdder {
 
-    private static final Comparator<Integer> ACCEPTABLE_DURATION_COMPARATOR = new Comparator<Integer>() {
-        @Override
-        public int compare(Integer acceptableDuraction1, Integer acceptableDuraction2) {
-            return acceptableDuraction2 - acceptableDuraction1;
-        }
-    };
+    private static final Comparator<Integer> ACCEPTABLE_DURATION_COMPARATOR = (acceptableDuraction1, acceptableDuraction2) -> acceptableDuraction2 - acceptableDuraction1;
 
     private final SIDE side;
 
@@ -67,7 +62,7 @@ public class CurrentLimitsAdderImpl<SIDE, OWNER extends CurrentLimitsOwner<SIDE>
                 throw new ValidationException(owner, "acceptable duration must be >= 0");
             }
             temporaryLimits.put(acceptableDuration, new TemporaryLimitImpl(limit, acceptableDuration));
-            return (CurrentLimitsAdder) CurrentLimitsAdderImpl.this;
+            return CurrentLimitsAdderImpl.this;
         }
 
     }
@@ -86,6 +81,23 @@ public class CurrentLimitsAdderImpl<SIDE, OWNER extends CurrentLimitsOwner<SIDE>
     @Override
     public TemporaryLimitAdder beginTemporaryLimit() {
         return new TemporaryLimitAdderImpl();
+    }
+
+    private void check() {
+        // check temporary limits are consistents with permanent
+        float previousLimit = Float.NaN;
+        for (TemporaryLimit tl : temporaryLimits.values()) { // iterate in ascending order
+            if (tl.getLimit() <= permanentLimit) {
+                throw new ValidationException(owner, "Temporary limit should be greather than permanent limit");
+            }
+            if (Float.isNaN(previousLimit)) {
+                previousLimit = tl.getLimit();
+            } else {
+                if (tl.getLimit() <= previousLimit) {
+                    throw new ValidationException(owner, "Temporary limit inconsistency");
+                }
+            }
+        }
     }
 
     @Override

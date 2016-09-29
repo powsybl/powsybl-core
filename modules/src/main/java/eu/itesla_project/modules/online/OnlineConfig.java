@@ -43,7 +43,7 @@ public class OnlineConfig {
     rulesDbClientFactoryClass=eu.itesla_project.histodb.client.impl.RulesDbClientFactoryImpl
     #wcaFactoryClass=eu.itesla_project.online.modules.mock.WCAMockFactoryImpl
     wcaFactoryClass=eu.itesla_project.wca.WCAFactoryImpl
-    #loadFlowFactoryClass=eu.itesla_project.online.modules.mock.LoadFlowMockFactoryImpl
+    #loadFlowFactoryClass=eu.itesla_project.loadflow.api.mock.LoadFlowFactoryMock
     loadFlowFactoryClass=eu.itesla_project.helmflow.HelmFlowFactoryImpl
     onlineDbFactoryClass=eu.itesla_project.online.db.OnlineDbMVStoreFactory
     uncertaintiesAnalyserFactoryClass=eu.itesla_project.wca.uncertainties.UncertaintiesAnalyserFactoryTestImpl
