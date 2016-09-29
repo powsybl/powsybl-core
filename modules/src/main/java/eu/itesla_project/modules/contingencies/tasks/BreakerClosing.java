@@ -7,6 +7,7 @@
 package eu.itesla_project.modules.contingencies.tasks;
 
 import eu.itesla_project.commons.ITeslaException;
+import eu.itesla_project.contingency.tasks.ModificationTask;
 import eu.itesla_project.iidm.network.Network;
 import eu.itesla_project.iidm.network.Switch;
 import eu.itesla_project.iidm.network.VoltageLevel;

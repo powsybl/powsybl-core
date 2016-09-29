@@ -32,9 +32,9 @@ import eu.itesla_project.commons.tools.Tool;
 import eu.itesla_project.modules.online.OnlineConfig;
 import eu.itesla_project.modules.online.OnlineDb;
 import eu.itesla_project.modules.online.OnlineStep;
-import eu.itesla_project.modules.security.LimitViolation;
-import eu.itesla_project.modules.security.LimitViolationFilter;
-import eu.itesla_project.modules.security.LimitViolationType;
+import eu.itesla_project.security.LimitViolation;
+import eu.itesla_project.security.LimitViolationFilter;
+import eu.itesla_project.security.LimitViolationType;
 
 /**
  *

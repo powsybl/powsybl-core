@@ -10,8 +10,8 @@ import eu.itesla_project.modules.contingencies.Action;
 import eu.itesla_project.modules.contingencies.ActionElement;
 import eu.itesla_project.modules.contingencies.ActionParameters;
 import eu.itesla_project.modules.contingencies.GenerationRedispatching;
-import eu.itesla_project.modules.contingencies.tasks.CompoundModificationTask;
-import eu.itesla_project.modules.contingencies.tasks.ModificationTask;
+import eu.itesla_project.contingency.tasks.CompoundModificationTask;
+import eu.itesla_project.contingency.tasks.ModificationTask;
 
 import java.util.*;
 

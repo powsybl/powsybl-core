@@ -22,7 +22,6 @@ import eu.itesla_project.mcla.ForecastErrorsDataStorageImpl;
 import eu.itesla_project.merge.MergeOptimizerFactory;
 import eu.itesla_project.cases.CaseRepository;
 import eu.itesla_project.modules.contingencies.ContingenciesAndActionsDatabaseClient;
-import eu.itesla_project.modules.ddb.DynamicDatabaseClientFactory;
 import eu.itesla_project.modules.histo.HistoDbClient;
 import eu.itesla_project.modules.mcla.ForecastErrorsDataStorage;
 import eu.itesla_project.modules.mcla.MontecarloSamplerFactory;
@@ -33,10 +32,10 @@ import eu.itesla_project.modules.online.RulesFacadeFactory;
 import eu.itesla_project.modules.online.TimeHorizon;
 import eu.itesla_project.modules.optimizer.CorrectiveControlOptimizerFactory;
 import eu.itesla_project.modules.rules.RulesDbClient;
-import eu.itesla_project.modules.security.LimitViolation;
-import eu.itesla_project.modules.security.Security;
-import eu.itesla_project.modules.securityindexes.SecurityIndex;
-import eu.itesla_project.modules.simulation.*;
+import eu.itesla_project.security.LimitViolation;
+import eu.itesla_project.security.Security;
+import eu.itesla_project.simulation.securityindexes.SecurityIndex;
+import eu.itesla_project.simulation.*;
 import eu.itesla_project.modules.wca.UncertaintiesAnalyserFactory;
 import eu.itesla_project.modules.wca.WCAFactory;
 import eu.itesla_project.offline.forecast_errors.ForecastErrorsAnalysis;
@@ -85,8 +84,6 @@ public class LocalOnlineApplication extends NotificationBroadcasterSupport imple
     private OnlineWorkflow workflow ;
 
     private  HistoDbClient histoDbClient;
-
-    private  DynamicDatabaseClientFactory   ddbClientFactory;
 
     private  ContingenciesAndActionsDatabaseClient cadbClient;
 
@@ -176,7 +173,6 @@ public class LocalOnlineApplication extends NotificationBroadcasterSupport imple
     private  void init() throws InstantiationException, IllegalAccessException{
     
          histoDbClient = config.getHistoDbClientFactoryClass().newInstance().create();
-         ddbClientFactory = config.getDynamicDbClientFactoryClass().newInstance();
          cadbClient = config.getContingencyDbClientFactoryClass().newInstance().create();
          rulesDb = config.getRulesDbClientFactoryClass().newInstance().create("rulesdb");
          wcaFactory = config.getWcaFactoryClass().newInstance();
@@ -266,7 +262,7 @@ public class LocalOnlineApplication extends NotificationBroadcasterSupport imple
         }
        
         try {
-			workflow =startParams.getOnlineWorkflowFactoryClass().newInstance().create(computationManager, cadbClient, ddbClientFactory, histoDbClient, rulesDb, wcaFactory, loadFlowFactory, feDataStorage,
+			workflow =startParams.getOnlineWorkflowFactoryClass().newInstance().create(computationManager, cadbClient, histoDbClient, rulesDb, wcaFactory, loadFlowFactory, feDataStorage,
 			        onlineDb, uncertaintiesAnalyserFactory, correctiveControlOptimizerFactory, simulatorFactory, caseRepository,
 			        montecarloSamplerFactory, mergeOptimizerFactory, rulesFacadeFactory, onlineParams, startParams);
 		} catch (InstantiationException  | IllegalAccessException e1  ) {
@@ -547,13 +543,13 @@ public class LocalOnlineApplication extends NotificationBroadcasterSupport imple
     private static final String EMPTY_CONTINGENCY_ID = "Empty-Contingency";
     private Map<String, Boolean> runTDSimulation(Network network, Set<String> contingencyIds, boolean emptyContingency,
                                                  ComputationManager computationManager, SimulatorFactory simulatorFactory,
-                                                 DynamicDatabaseClientFactory ddbFactory, ContingenciesAndActionsDatabaseClient contingencyDb,
+                                                 ContingenciesAndActionsDatabaseClient contingencyDb,
                                                  Writer metricsContent) throws Exception {
         Map<String, Boolean> tdSimulationResults = new HashMap<String, Boolean>();
         Map<String, Object> initContext = new HashMap<>();
         SimulationParameters simulationParameters = SimulationParameters.load();
         // run stabilization
-        Stabilization stabilization = simulatorFactory.createStabilization(network, computationManager, 0, ddbFactory);
+        Stabilization stabilization = simulatorFactory.createStabilization(network, computationManager, 0);
         stabilization.init(simulationParameters, initContext);
         ImpactAnalysis impactAnalysis = null;
         System.out.println("running stabilization on network " + network.getId());
@@ -667,7 +663,6 @@ public class LocalOnlineApplication extends NotificationBroadcasterSupport imple
 	                        emptyContingency,
 	                        computationManager,
 	                        simulatorFactory,
-	                        ddbClientFactory,
 	                        cadbClient,
 	                        metricsContent);
 	                securityIndexIds.addAll(tdSimulationResults.keySet());
@@ -683,7 +678,6 @@ public class LocalOnlineApplication extends NotificationBroadcasterSupport imple
 	                                emptyContingency,
 	                                computationManager,
 	                                simulatorFactory,
-	                                ddbClientFactory,
 	                                cadbClient,
 	                                metricsContent);
 	                        boolean writeHeaders = false;

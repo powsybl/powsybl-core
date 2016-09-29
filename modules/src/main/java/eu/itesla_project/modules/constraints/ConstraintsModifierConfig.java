@@ -13,8 +13,8 @@ import eu.itesla_project.commons.io.ModuleConfig;
 import eu.itesla_project.commons.io.PlatformConfig;
 import eu.itesla_project.iidm.network.Country;
 import eu.itesla_project.iidm.network.Network;
-import eu.itesla_project.modules.security.LimitViolation;
-import eu.itesla_project.modules.security.LimitViolationType;
+import eu.itesla_project.security.LimitViolation;
+import eu.itesla_project.security.LimitViolationType;
 
 /**
  *

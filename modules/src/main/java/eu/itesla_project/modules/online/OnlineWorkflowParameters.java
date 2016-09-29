@@ -19,7 +19,7 @@ import eu.itesla_project.commons.io.ModuleConfig;
 import eu.itesla_project.commons.io.PlatformConfig;
 import eu.itesla_project.iidm.network.Country;
 import eu.itesla_project.cases.CaseType;
-import eu.itesla_project.modules.securityindexes.SecurityIndexType;
+import eu.itesla_project.simulation.securityindexes.SecurityIndexType;
 
 import org.joda.time.DateTime;
 import org.joda.time.Interval;

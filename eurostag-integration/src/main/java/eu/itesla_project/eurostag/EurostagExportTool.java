@@ -16,6 +16,8 @@ import eu.itesla_project.eurostag.network.EsgNetwork;
 import eu.itesla_project.eurostag.network.io.EsgWriter;
 import eu.itesla_project.eurostag.tools.EurostagNetworkModifier;
 import eu.itesla_project.iidm.datasource.GenericReadOnlyDataSource;
+import eu.itesla_project.iidm.ddb.eurostag_imp_exp.DynamicDatabaseClient;
+import eu.itesla_project.iidm.ddb.eurostag_imp_exp.IIDMDynamicDatabaseFactory;
 import eu.itesla_project.iidm.eurostag.export.BranchParallelIndexes;
 import eu.itesla_project.iidm.eurostag.export.EurostagDictionary;
 import eu.itesla_project.iidm.eurostag.export.EurostagEchExport;
@@ -24,9 +26,8 @@ import eu.itesla_project.iidm.import_.Importer;
 import eu.itesla_project.iidm.import_.Importers;
 import eu.itesla_project.iidm.network.Network;
 import eu.itesla_project.modules.contingencies.ContingenciesAndActionsDatabaseClient;
-import eu.itesla_project.modules.ddb.DynamicDatabaseClient;
 import eu.itesla_project.modules.offline.OfflineConfig;
-import eu.itesla_project.modules.simulation.SimulationParameters;
+import eu.itesla_project.simulation.SimulationParameters;
 import org.apache.commons.cli.CommandLine;
 import org.jboss.shrinkwrap.api.exporter.ZipExporter;
 
@@ -62,7 +63,7 @@ public class EurostagExportTool implements Tool, EurostagConstants {
         if (!Files.isDirectory(outputDir)) {
             throw new RuntimeException(outputDir + " is not a directory");
         }
-        DynamicDatabaseClient ddbClient = offlineConfig.getDynamicDbClientFactoryClass().newInstance().create(eurostagConfig.isDdbCaching());
+        DynamicDatabaseClient ddbClient = new IIDMDynamicDatabaseFactory().create(eurostagConfig.isDdbCaching());
 
         try (ComputationManager computationManager = new LocalComputationManager()) {
 

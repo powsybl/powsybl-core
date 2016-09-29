@@ -6,14 +6,14 @@
  */
 package eu.itesla_project.modules.mcla;
 
-import eu.itesla_project.modules.Module;
+import eu.itesla_project.commons.Versionable;
 import eu.itesla_project.modules.online.TimeHorizon;
 
 /**
  *
  * @author Quinary <itesla@quinary.com>
  */
-public interface ForecastErrorsAnalyzer extends  Module {
+public interface ForecastErrorsAnalyzer extends Versionable {
 
     void init(ForecastErrorsAnalyzerParameters parameters);
     

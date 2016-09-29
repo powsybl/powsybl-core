@@ -9,7 +9,7 @@ package eu.itesla_project.modules.offline;
 import eu.itesla_project.commons.tools.Tool;
 import eu.itesla_project.commons.tools.Command;
 import com.google.auto.service.AutoService;
-import eu.itesla_project.modules.securityindexes.SecurityIndexType;
+import eu.itesla_project.simulation.securityindexes.SecurityIndexType;
 import org.apache.commons.cli.CommandLine;
 import org.nocrala.tools.texttablefmt.BorderStyle;
 import org.nocrala.tools.texttablefmt.Table;

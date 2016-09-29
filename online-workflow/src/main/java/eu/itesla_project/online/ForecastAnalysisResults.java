@@ -17,7 +17,7 @@ import eu.itesla_project.modules.contingencies.ActionParameters;
 import eu.itesla_project.modules.online.OnlineWorkflowResults;
 import eu.itesla_project.modules.online.TimeHorizon;
 import eu.itesla_project.modules.optimizer.CCOFinalStatus;
-import eu.itesla_project.modules.securityindexes.SecurityIndex;
+import eu.itesla_project.simulation.securityindexes.SecurityIndex;
 
 /**
  *

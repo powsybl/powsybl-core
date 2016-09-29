@@ -24,9 +24,9 @@ import eu.itesla_project.modules.contingencies.ActionParameterFloatValue;
 import eu.itesla_project.modules.contingencies.ActionParameterIntegerValue;
 import eu.itesla_project.modules.contingencies.ActionParameterStringValue;
 import eu.itesla_project.modules.contingencies.ActionParameters;
-import eu.itesla_project.modules.security.LimitViolation;
-import eu.itesla_project.modules.security.LimitViolationType;
-import eu.itesla_project.modules.securityindexes.SecurityIndexType;
+import eu.itesla_project.security.LimitViolation;
+import eu.itesla_project.security.LimitViolationType;
+import eu.itesla_project.simulation.securityindexes.SecurityIndexType;
 
 /**
  *

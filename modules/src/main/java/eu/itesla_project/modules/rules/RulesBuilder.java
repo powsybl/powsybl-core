@@ -6,9 +6,9 @@
  */
 package eu.itesla_project.modules.rules;
 
-import eu.itesla_project.modules.Module;
+import eu.itesla_project.commons.Versionable;
 import eu.itesla_project.modules.offline.OfflineDb;
-import eu.itesla_project.modules.securityindexes.SecurityIndexId;
+import eu.itesla_project.simulation.securityindexes.SecurityIndexId;
 
 import java.util.*;
 
@@ -16,7 +16,7 @@ import java.util.*;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public abstract class RulesBuilder implements Module {
+public abstract class RulesBuilder implements Versionable {
 
     public void build(String workflowId, Set<RuleAttributeSet> attributeSets, RulesBuildListener listener) throws Exception {
         build(workflowId, attributeSets, getOfflineDb().getSecurityIndexIds(workflowId), listener);

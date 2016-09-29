@@ -6,10 +6,6 @@
  */
 package eu.itesla_project.iidm.ddb.eurostag_imp_exp;
 
-import eu.itesla_project.modules.ddb.DynamicDatabaseCacheClient;
-import eu.itesla_project.modules.ddb.DynamicDatabaseClient;
-import eu.itesla_project.modules.ddb.DynamicDatabaseClientFactory;
-
 /**
  *
  * @author Quinary <itesla@quinary.com>

@@ -65,6 +65,9 @@
         <module>distribution</module>
         <module>case-repository</module>
         <module>network-merge</module>
+        <module>simulation-api</module>
+        <module>contingency-api</module>
+        <module>security-analysis</module>
         <!--
         <module>histoDB</module>
         -->

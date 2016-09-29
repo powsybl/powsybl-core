@@ -12,7 +12,7 @@ import eu.itesla_project.commons.tools.Command;
 import eu.itesla_project.commons.tools.Tool;
 import eu.itesla_project.iidm.network.Network;
 import eu.itesla_project.modules.online.*;
-import eu.itesla_project.modules.security.LimitViolation;
+import eu.itesla_project.security.LimitViolation;
 import eu.itesla_project.online.OnlineTaskStatus;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;

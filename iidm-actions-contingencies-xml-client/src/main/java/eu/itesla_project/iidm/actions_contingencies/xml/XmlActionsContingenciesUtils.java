@@ -216,10 +216,10 @@ public class XmlActionsContingenciesUtils {
 	}
 	
 	
-	public  static boolean containsContingency(String id, List<eu.itesla_project.modules.contingencies.Contingency> contingency)
+	public  static boolean containsContingency(String id, List<eu.itesla_project.contingency.Contingency> contingency)
 	{
 		System.out.println(" Contingency: "+ id);
-		for (eu.itesla_project.modules.contingencies.Contingency ctg : contingency) 
+		for (eu.itesla_project.contingency.Contingency ctg : contingency)
 			if ( ctg.equals(id) )	return true;			
 		return false;		
 	}

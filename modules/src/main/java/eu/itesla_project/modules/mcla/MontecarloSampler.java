@@ -6,13 +6,13 @@
  */
 package eu.itesla_project.modules.mcla;
 
-import eu.itesla_project.modules.Module;
+import eu.itesla_project.commons.Versionable;
 
 /**
  *
  * @author Quinary <itesla@quinary.com>
  */
-public interface MontecarloSampler extends Module {
+public interface MontecarloSampler extends Versionable {
 
     void init(MontecarloSamplerParameters parameters) throws Exception;
 
