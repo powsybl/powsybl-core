@@ -131,8 +131,6 @@ public class RunSecurityAnalysisTool implements Tool {
         Path outputCsvFile = Paths.get(line.getOptionValue("output-csv-file"));
         boolean detailed = line.hasOption("detailed");
 
-        ContingenciesAndActionsDatabaseClient contingencyDb = config.findFactoryImplClass(ContingenciesAndActionsDatabaseClientFactory.class).newInstance().create();
-        LoadFlowFactory loadFlowFactory = config.findFactoryImplClass(LoadFlowFactory.class).newInstance();
         ContingenciesProvider contingencyProvider = config.findFactoryImplClass(ContingenciesProviderFactory.class).newInstance().create();
         LoadFlowFactory loadFlowFactory = config.findFactoryImplClass(LoadFlowFactory.class).newInstance();
 
