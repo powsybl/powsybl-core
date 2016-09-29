@@ -35,7 +35,6 @@
         <module>offline-workflow</module>
         <module>eurostag-step-up-transformer</module>
         <module>sampling-integration</module>
-        <module>contingency-api</module>
         <module>modules</module>
         <module>computation-local</module>
         <module>histodb-client</module>
@@ -67,6 +66,7 @@
         <module>case-repository</module>
         <module>network-merge</module>
         <module>simulation-api</module>
+        <module>contingency-api</module>
         <module>security-analysis</module>
         <!--
         <module>histoDB</module>
