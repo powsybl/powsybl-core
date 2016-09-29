@@ -34,8 +34,7 @@ import org.jboss.shrinkwrap.api.Domain;
 import org.jboss.shrinkwrap.api.GenericArchive;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.exporter.ZipExporter;
-import org.jboss.shrinkwrap.impl.nio.file.ShrinkWrapFileSystem;
-import org.jboss.shrinkwrap.impl.nio.file.ShrinkWrapFileSystemProvider;
+import org.jboss.shrinkwrap.api.nio.file.ShrinkWrapFileSystems;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -161,7 +160,7 @@ public class EurostagStabilization implements Stabilization, EurostagConstants {
 
     private void writeDtaAndControls(Domain domain, OutputStream ddbOs, OutputStream dictGensOs) throws IOException {
         GenericArchive archive = domain.getArchiveFactory().create(GenericArchive.class);
-        try (FileSystem fileSystem = new ShrinkWrapFileSystem(new ShrinkWrapFileSystemProvider(), archive)) {
+        try (FileSystem fileSystem = ShrinkWrapFileSystems.newFileSystem(archive)) {
             Path rootDir = fileSystem.getPath("/");
             ddbClient.dumpDtaFile(rootDir, DTA_FILE_NAME, network, parallelIndexes.toMap(), EurostagUtil.VERSION, dictionary.toMap());
         }

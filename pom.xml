@@ -343,12 +343,22 @@
             </dependency>
             <dependency>
                 <groupId>org.jboss.shrinkwrap</groupId>
-                <artifactId>shrinkwrap-impl-nio2</artifactId>
+                <artifactId>shrinkwrap-api</artifactId>
+                <version>${shrinkwrap.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.shrinkwrap</groupId>
+                <artifactId>shrinkwrap-api-nio2</artifactId>
                 <version>${shrinkwrap.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jboss.shrinkwrap</groupId>
                 <artifactId>shrinkwrap-impl-base</artifactId>
+                <version>${shrinkwrap.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.shrinkwrap</groupId>
+                <artifactId>shrinkwrap-impl-nio2</artifactId>
                 <version>${shrinkwrap.version}</version>
             </dependency>
             <dependency>
