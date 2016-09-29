@@ -17,12 +17,11 @@ import eu.itesla_project.computation.ComputationManager;
 import eu.itesla_project.computation.local.LocalComputationManager;
 import eu.itesla_project.iidm.network.Network;
 import eu.itesla_project.modules.contingencies.ContingenciesAndActionsDatabaseClient;
-import eu.itesla_project.modules.ddb.DynamicDatabaseClientFactory;
 import eu.itesla_project.modules.online.OnlineConfig;
 import eu.itesla_project.modules.online.OnlineDb;
-import eu.itesla_project.modules.securityindexes.SecurityIndex;
-import eu.itesla_project.modules.securityindexes.SecurityIndexType;
-import eu.itesla_project.modules.simulation.*;
+import eu.itesla_project.simulation.securityindexes.SecurityIndex;
+import eu.itesla_project.simulation.securityindexes.SecurityIndexType;
+import eu.itesla_project.simulation.*;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
@@ -105,10 +104,9 @@ public class RunImpactAnalysisOnStateTool implements Tool {
         Network network = onlinedb.getState(workflowId, stateId);
         if ( network != null ) {
 	        ComputationManager computationManager = new LocalComputationManager();
-	        DynamicDatabaseClientFactory ddbFactory = config.getDynamicDbClientFactoryClass().newInstance();
 	        ContingenciesAndActionsDatabaseClient contingencyDb = config.getContingencyDbClientFactoryClass().newInstance().create();
 	        SimulatorFactory simulatorFactory = config.getSimulatorFactoryClass().newInstance();
-	        Stabilization stabilization = simulatorFactory.createStabilization(network, computationManager, 0, ddbFactory);
+	        Stabilization stabilization = simulatorFactory.createStabilization(network, computationManager, 0);
 			ImpactAnalysis impactAnalysis = simulatorFactory.createImpactAnalysis(network, computationManager, 0, contingencyDb);
 			Map<String, Object> initContext = new HashMap<>();
 			SimulationParameters simulationParameters = SimulationParameters.load();

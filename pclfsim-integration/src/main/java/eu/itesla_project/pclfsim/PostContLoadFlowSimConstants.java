@@ -6,8 +6,8 @@
  */
 package eu.itesla_project.pclfsim;
 
-import eu.itesla_project.modules.security.LimitViolationFilter;
-import eu.itesla_project.modules.security.LimitViolationType;
+import eu.itesla_project.security.LimitViolationFilter;
+import eu.itesla_project.security.LimitViolationType;
 
 import java.util.EnumSet;
 

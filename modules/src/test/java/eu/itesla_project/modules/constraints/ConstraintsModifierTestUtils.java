@@ -17,8 +17,8 @@ import eu.itesla_project.iidm.network.NetworkFactory;
 import eu.itesla_project.iidm.network.Substation;
 import eu.itesla_project.iidm.network.TopologyKind;
 import eu.itesla_project.iidm.network.VoltageLevel;
-import eu.itesla_project.modules.security.LimitViolation;
-import eu.itesla_project.modules.security.LimitViolationType;
+import eu.itesla_project.security.LimitViolation;
+import eu.itesla_project.security.LimitViolationType;
 
 /**
  *

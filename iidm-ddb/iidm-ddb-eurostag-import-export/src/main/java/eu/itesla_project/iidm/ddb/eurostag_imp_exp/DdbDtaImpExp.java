@@ -14,8 +14,6 @@ import eu.itesla_project.iidm.ddb.service.DDBManager;
 import eu.itesla_project.iidm.ejbclient.EjbClientCtx;
 import eu.itesla_project.iidm.network.*;
 import eu.itesla_project.iidm.network.util.Identifiables;
-import eu.itesla_project.modules.ddb.DdExportConfig;
-import eu.itesla_project.modules.ddb.DynamicDatabaseClient;
 import itesla.converter.Converter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

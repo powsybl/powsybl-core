@@ -13,14 +13,13 @@ import eu.itesla_project.merge.MergeOptimizerFactory;
 import eu.itesla_project.modules.OptimizerFactory;
 import eu.itesla_project.cases.CaseRepository;
 import eu.itesla_project.modules.contingencies.ContingenciesAndActionsDatabaseClientFactory;
-import eu.itesla_project.modules.ddb.DynamicDatabaseClientFactory;
 import eu.itesla_project.modules.histo.HistoDbClientFactory;
 import eu.itesla_project.modules.offline.*;
 import eu.itesla_project.modules.rules.*;
 import eu.itesla_project.modules.sampling.SamplerFactory;
-import eu.itesla_project.modules.securityindexes.SecurityIndexId;
-import eu.itesla_project.modules.securityindexes.SecurityIndexType;
-import eu.itesla_project.modules.simulation.SimulatorFactory;
+import eu.itesla_project.simulation.securityindexes.SecurityIndexId;
+import eu.itesla_project.simulation.securityindexes.SecurityIndexType;
+import eu.itesla_project.simulation.SimulatorFactory;
 import eu.itesla_project.modules.topo.TopologyMinerFactory;
 import eu.itesla_project.modules.validation.ValidationDb;
 import eu.itesla_project.offline.monitoring.BusyCoresSeries;
@@ -58,8 +57,6 @@ public class LocalOfflineApplication extends NotificationBroadcasterSupport impl
     private final OfflineDb offlineDb;
 
     private final HistoDbClientFactory histoDbClientFactory;
-
-    private final DynamicDatabaseClientFactory ddbClientFactory;
 
     private final ContingenciesAndActionsDatabaseClientFactory cadbClientFactory;
 
@@ -117,7 +114,6 @@ public class LocalOfflineApplication extends NotificationBroadcasterSupport impl
 
         offlineDb = config.getOfflineDbFactoryClass().newInstance().create(simulationDbName);
         histoDbClientFactory = config.getHistoDbClientFactoryClass().newInstance();
-        ddbClientFactory = config.getDynamicDbClientFactoryClass().newInstance();
         cadbClientFactory = config.getContingencyDbClientFactoryClass().newInstance();
         rulesDb = config.getRulesDbClientFactoryClass().newInstance().create(rulesDbName);
         metricsDb = config.getMetricsDbFactoryClass().newInstance().create(metricsDbName);
@@ -391,7 +387,6 @@ public class LocalOfflineApplication extends NotificationBroadcasterSupport impl
         final OfflineWorkflow workflow = offlineWorkflowFactory.create(workflowId,
                                                                      parameters,
                                                                      computationManager,
-                                                                     ddbClientFactory,
                                                                      cadbClientFactory,
                                                                      histoDbClientFactory,
                                                                      topologyMinerFactory,

@@ -17,12 +17,11 @@ import eu.itesla_project.iidm.import_.Importer;
 import eu.itesla_project.iidm.import_.Importers;
 import eu.itesla_project.iidm.network.Network;
 import eu.itesla_project.modules.contingencies.ContingenciesAndActionsDatabaseClient;
-import eu.itesla_project.modules.ddb.DynamicDatabaseClientFactory;
 import eu.itesla_project.modules.online.OnlineConfig;
-import eu.itesla_project.modules.security.LimitViolation;
-import eu.itesla_project.modules.security.Security;
-import eu.itesla_project.modules.securityindexes.SecurityIndex;
-import eu.itesla_project.modules.simulation.*;
+import eu.itesla_project.security.LimitViolation;
+import eu.itesla_project.security.Security;
+import eu.itesla_project.simulation.securityindexes.SecurityIndex;
+import eu.itesla_project.simulation.*;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
@@ -104,13 +103,13 @@ public class RunTDSimulation implements Tool {
 	
 	private Map<String, Boolean> runTDSimulation(Network network, Set<String> contingencyIds, boolean emptyContingency,
 												 ComputationManager computationManager, SimulatorFactory simulatorFactory,
-												 DynamicDatabaseClientFactory ddbFactory, ContingenciesAndActionsDatabaseClient contingencyDb,
+												 ContingenciesAndActionsDatabaseClient contingencyDb,
 												 Writer metricsContent) throws Exception {
 		Map<String, Boolean> tdSimulationResults = new HashMap<String, Boolean>();
 		Map<String, Object> initContext = new HashMap<>();
 		SimulationParameters simulationParameters = SimulationParameters.load();
 		// run stabilization 
-		Stabilization stabilization = simulatorFactory.createStabilization(network, computationManager, 0, ddbFactory);
+		Stabilization stabilization = simulatorFactory.createStabilization(network, computationManager, 0);
 		stabilization.init(simulationParameters, initContext);
 		ImpactAnalysis impactAnalysis = null;
 		System.out.println("running stabilization on network " + network.getId());
@@ -250,7 +249,6 @@ public class RunTDSimulation implements Tool {
              FileWriter metricsContent = new FileWriter(metricsFile.toFile())) {
 
         	OnlineConfig config = OnlineConfig.load();
-            DynamicDatabaseClientFactory ddbFactory = config.getDynamicDbClientFactoryClass().newInstance();
             ContingenciesAndActionsDatabaseClient contingencyDb = config.getContingencyDbClientFactoryClass().newInstance().create();
             SimulatorFactory simulatorFactory = config.getSimulatorFactoryClass().newInstance();
 
@@ -264,8 +262,7 @@ public class RunTDSimulation implements Tool {
             															   contingencyIds, 
             															   emptyContingency, 
             															   computationManager, 
-            															   simulatorFactory, 
-            															   ddbFactory,
+            															   simulatorFactory,
             															   contingencyDb,
             															   metricsContent);
             	tdSimulationsResults.put(network.getId(), tdSimulationResults);
@@ -278,8 +275,7 @@ public class RunTDSimulation implements Tool {
                     															   contingencyIds, 
                     															   emptyContingency, 
                     															   computationManager, 
-                    															   simulatorFactory, 
-                    															   ddbFactory,
+                    															   simulatorFactory,
                     															   contingencyDb,
                     															   metricsContent);
                     	tdSimulationsResults.put(network.getId(), tdSimulationResults);

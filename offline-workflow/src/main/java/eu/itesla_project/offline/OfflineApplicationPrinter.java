@@ -10,7 +10,7 @@ import eu.itesla_project.modules.offline.SecurityIndexSynthesis;
 import eu.itesla_project.modules.offline.SecurityIndexSynthesis.SecurityBalance;
 import eu.itesla_project.modules.rules.RuleId;
 import eu.itesla_project.modules.rules.SecurityRule;
-import eu.itesla_project.modules.securityindexes.SecurityIndexType;
+import eu.itesla_project.simulation.securityindexes.SecurityIndexType;
 import eu.itesla_project.offline.monitoring.BusyCoresSeries;
 
 import java.util.Collection;

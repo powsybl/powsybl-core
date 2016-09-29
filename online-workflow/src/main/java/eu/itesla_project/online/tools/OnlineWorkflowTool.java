@@ -17,7 +17,7 @@ import eu.itesla_project.cases.CaseType;
 import eu.itesla_project.modules.online.OnlineConfig;
 import eu.itesla_project.modules.online.OnlineWorkflowParameters;
 import eu.itesla_project.modules.online.TimeHorizon;
-import eu.itesla_project.modules.securityindexes.SecurityIndexType;
+import eu.itesla_project.simulation.securityindexes.SecurityIndexType;
 import eu.itesla_project.online.LocalOnlineApplicationMBean;
 import eu.itesla_project.online.OnlineWorkflowStartParameters;
 import org.apache.commons.cli.CommandLine;

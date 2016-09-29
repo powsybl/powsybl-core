@@ -9,7 +9,7 @@ package eu.itesla_project.pclfsim;
 import eu.itesla_project.commons.io.ModuleConfig;
 import eu.itesla_project.commons.io.PlatformConfig;
 import eu.itesla_project.loadflow.api.LoadFlowFactory;
-import eu.itesla_project.modules.security.Security;
+import eu.itesla_project.security.Security;
 
 import java.util.Objects;
 

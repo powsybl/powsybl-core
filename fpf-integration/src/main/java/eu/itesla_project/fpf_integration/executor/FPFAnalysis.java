@@ -12,7 +12,7 @@ import eu.itesla_project.iidm.network.Network;
 import eu.itesla_project.mcla.ForecastErrorsDataStorageImpl;
 import eu.itesla_project.mcla.Utils;
 import eu.itesla_project.mcla.montecarlo.StatsCondCalculator;
-import eu.itesla_project.modules.contingencies.Contingency;
+import eu.itesla_project.contingency.Contingency;
 import eu.itesla_project.modules.mcla.ForecastErrorsStatistics;
 import eu.itesla_project.modules.mcla.MontecarloSamplerParameters;
 import eu.itesla_project.modules.online.TimeHorizon;

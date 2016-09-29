@@ -6,14 +6,14 @@
  */
 package eu.itesla_project.modules.sampling;
 
-import eu.itesla_project.modules.Module;
+import eu.itesla_project.commons.Versionable;
 
 /**
  *
  * @author Quinary <itesla@quinary.com>
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface Sampler extends  Module {
+public interface Sampler extends Versionable {
 
     void init(SamplerParameters sParams) throws Exception;
 

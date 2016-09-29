@@ -7,13 +7,11 @@
 package eu.itesla_project.dymola;
 
 import eu.itesla_project.computation.ComputationManager;
+import eu.itesla_project.contingency.ContingenciesProvider;
 import eu.itesla_project.iidm.network.Network;
-import eu.itesla_project.modules.contingencies.ContingenciesAndActionsDatabaseClient;
-import eu.itesla_project.modules.ddb.DynamicDatabaseClient;
-import eu.itesla_project.modules.ddb.DynamicDatabaseClientFactory;
-import eu.itesla_project.modules.simulation.ImpactAnalysis;
-import eu.itesla_project.modules.simulation.SimulatorFactory;
-import eu.itesla_project.modules.simulation.Stabilization;
+import eu.itesla_project.simulation.ImpactAnalysis;
+import eu.itesla_project.simulation.SimulatorFactory;
+import eu.itesla_project.simulation.Stabilization;
 
 /**
  *
@@ -22,13 +20,13 @@ import eu.itesla_project.modules.simulation.Stabilization;
 public class DymolaFactory implements SimulatorFactory {
 
     @Override
-    public Stabilization createStabilization(Network network, ComputationManager computationManager, int priority, DynamicDatabaseClientFactory ddbClientFactory) {
-        return new DymolaStabilization(network, computationManager, priority, ddbClientFactory);
+    public Stabilization createStabilization(Network network, ComputationManager computationManager, int priority) {
+        return new DymolaStabilization(network, computationManager, priority);
     }
 
     @Override
-    public ImpactAnalysis createImpactAnalysis(Network network, ComputationManager computationManager, int priority, ContingenciesAndActionsDatabaseClient cadbClient) {
-        return new DymolaImpactAnalysis(network, computationManager, priority, cadbClient);
+    public ImpactAnalysis createImpactAnalysis(Network network, ComputationManager computationManager, int priority, ContingenciesProvider contingenciesProvider) {
+        return new DymolaImpactAnalysis(network, computationManager, priority, contingenciesProvider);
     }
 
 }

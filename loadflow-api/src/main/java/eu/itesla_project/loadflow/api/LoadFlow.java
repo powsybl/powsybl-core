@@ -6,17 +6,15 @@
  */
 package eu.itesla_project.loadflow.api;
 
+import eu.itesla_project.commons.Versionable;
+
 import java.util.concurrent.CompletableFuture;
 
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface LoadFlow {
-
-    String getName();
-
-    String getVersion();
+public interface LoadFlow extends Versionable {
 
     LoadFlowResult run(LoadFlowParameters parameters) throws Exception;
 

@@ -27,6 +27,10 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 
+import eu.itesla_project.contingency.ContingencyElement;
+import eu.itesla_project.contingency.ContingencyImpl;
+import eu.itesla_project.contingency.GeneratorContingency;
+import eu.itesla_project.contingency.LineContingency;
 import eu.itesla_project.iidm.actions_contingencies.xml.mapping.*;
 import eu.itesla_project.iidm.actions_contingencies.xml.mapping.Action;
 import eu.itesla_project.iidm.actions_contingencies.xml.mapping.ActionPlan;
@@ -210,15 +214,15 @@ public class XmlFileContingenciesAndActionsDatabaseClient implements Contingenci
 	
 	/** 
 	 * @param Network
-	 * @return List<eu.itesla_project.modules.contingencies.Contingency>
+	 * @return List<eu.itesla_project.contingency.Contingency>
 	 * */
 	@Override
-	public List<eu.itesla_project.modules.contingencies.Contingency> getContingencies(Network network) 
+	public List<eu.itesla_project.contingency.Contingency> getContingencies(Network network)
 	{
 		LOGGER.info("Getting contingencies for network {}", network.getId());
 		if ( zonesMapping.isEmpty() )
 			getZones();
-		List<eu.itesla_project.modules.contingencies.Contingency> contingencies = new ArrayList<>();
+		List<eu.itesla_project.contingency.Contingency> contingencies = new ArrayList<>();
 		
 		try {
 			// pre-index tie lines
@@ -256,7 +260,7 @@ public class XmlFileContingenciesAndActionsDatabaseClient implements Contingenci
 						zones.add(zonesMapping.get(z));
 				}
 				if ( elements.size() > 0 )
-					contingencies.add(new eu.itesla_project.modules.contingencies.impl.ContingencyImpl(contingency, elements, zones));
+					contingencies.add(new ContingencyImpl(contingency, elements));
 			}
 
 		} catch (Exception e) {
@@ -268,11 +272,11 @@ public class XmlFileContingenciesAndActionsDatabaseClient implements Contingenci
 
 	/** 
 	 * @param Contingency's name, Network
-	 * @return List<eu.itesla_project.modules.contingencies.Contingency> 
+	 * @return List<eu.itesla_project.contingency.Contingency>
 	 * */
-	public eu.itesla_project.modules.contingencies.Contingency getContingency(String name, Network network) {
+	public eu.itesla_project.contingency.Contingency getContingency(String name, Network network) {
 		if (name != null) {
-			for (eu.itesla_project.modules.contingencies.Contingency c : getContingencies(network))
+			for (eu.itesla_project.contingency.Contingency c : getContingencies(network))
 				if (c.getId().equals(name))
 					return c;
 

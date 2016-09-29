@@ -20,7 +20,7 @@ import eu.itesla_project.modules.rules.RuleId;
 import eu.itesla_project.modules.rules.SecurityRuleExpression;
 import eu.itesla_project.modules.rules.SecurityRuleStatus;
 import eu.itesla_project.modules.rules.expr.*;
-import eu.itesla_project.modules.securityindexes.SecurityIndexType;
+import eu.itesla_project.simulation.securityindexes.SecurityIndexType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

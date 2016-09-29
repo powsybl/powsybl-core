@@ -6,8 +6,8 @@
  */
 package eu.itesla_project.modules.contingencies;
 
-import eu.itesla_project.modules.contingencies.tasks.GeneratorTripping;
-import eu.itesla_project.modules.contingencies.tasks.ModificationTask;
+import eu.itesla_project.contingency.tasks.GeneratorTripping;
+import eu.itesla_project.contingency.tasks.ModificationTask;
 
 /**
  *

@@ -6,7 +6,7 @@
  */
 package eu.itesla_project.modules.rules;
 
-import eu.itesla_project.modules.securityindexes.SecurityIndexId;
+import eu.itesla_project.simulation.securityindexes.SecurityIndexId;
 
 import java.io.Serializable;
 import java.util.Objects;

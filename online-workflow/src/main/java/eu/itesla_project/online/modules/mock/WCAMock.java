@@ -8,7 +8,7 @@ package eu.itesla_project.online.modules.mock;
 
 import eu.itesla_project.iidm.network.Network;
 import eu.itesla_project.modules.contingencies.ContingenciesAndActionsDatabaseClient;
-import eu.itesla_project.modules.contingencies.Contingency;
+import eu.itesla_project.contingency.Contingency;
 import eu.itesla_project.modules.wca.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

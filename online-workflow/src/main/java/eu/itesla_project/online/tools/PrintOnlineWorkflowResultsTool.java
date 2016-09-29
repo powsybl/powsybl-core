@@ -11,7 +11,7 @@ import eu.itesla_project.commons.tools.Tool;
 import eu.itesla_project.modules.online.OnlineConfig;
 import eu.itesla_project.modules.online.OnlineDb;
 import eu.itesla_project.modules.online.OnlineWorkflowResults;
-import eu.itesla_project.modules.securityindexes.SecurityIndexType;
+import eu.itesla_project.simulation.securityindexes.SecurityIndexType;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;

@@ -11,8 +11,8 @@ import eu.itesla_project.iidm.network.Country;
 import eu.itesla_project.iidm.network.Network;
 import eu.itesla_project.modules.histo.HistoDbAttr;
 import eu.itesla_project.modules.histo.HistoDbNetworkAttributeId;
-import eu.itesla_project.modules.securityindexes.SecurityIndex;
-import eu.itesla_project.modules.securityindexes.SecurityIndexId;
+import eu.itesla_project.simulation.securityindexes.SecurityIndex;
+import eu.itesla_project.simulation.securityindexes.SecurityIndexId;
 
 import java.io.Writer;
 import java.util.Collection;

@@ -19,10 +19,10 @@ import eu.itesla_project.iidm.network.StateManager;
 import eu.itesla_project.iidm.network.TwoTerminalsConnectable;
 import eu.itesla_project.iidm.network.TwoWindingsTransformer;
 import eu.itesla_project.iidm.network.VoltageLevel;
-import eu.itesla_project.modules.security.LimitViolation;
-import eu.itesla_project.modules.security.LimitViolationFilter;
-import eu.itesla_project.modules.security.LimitViolationType;
-import eu.itesla_project.modules.security.Security;
+import eu.itesla_project.security.LimitViolation;
+import eu.itesla_project.security.LimitViolationFilter;
+import eu.itesla_project.security.LimitViolationType;
+import eu.itesla_project.security.Security;
 
 /**
  *

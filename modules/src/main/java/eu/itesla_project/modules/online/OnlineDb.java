@@ -8,7 +8,7 @@
 package eu.itesla_project.modules.online;
 
 import eu.itesla_project.iidm.network.Network;
-import eu.itesla_project.modules.security.LimitViolation;
+import eu.itesla_project.security.LimitViolation;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 

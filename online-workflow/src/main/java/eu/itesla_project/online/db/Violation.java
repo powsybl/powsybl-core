@@ -8,8 +8,7 @@ package eu.itesla_project.online.db;
 
 import java.util.Objects;
 
-import eu.itesla_project.modules.security.LimitViolationType;
-import eu.itesla_project.modules.security.SecurityIssueType;
+import eu.itesla_project.security.LimitViolationType;
 
 /**
  *
@@ -27,10 +26,6 @@ public class Violation {
         this.limitType = Objects.requireNonNull(limitType);
         this.limit = limit;
         this.value = value;
-    }
-
-    public SecurityIssueType getIssueType() {
-        return SecurityIssueType.LIMIT;
     }
 
     public String getSubject() {

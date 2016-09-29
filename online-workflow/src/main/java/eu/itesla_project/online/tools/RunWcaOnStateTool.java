@@ -21,7 +21,7 @@ import eu.itesla_project.modules.online.OnlineConfig;
 import eu.itesla_project.modules.online.OnlineDb;
 import eu.itesla_project.modules.online.OnlineWorkflowParameters;
 import eu.itesla_project.modules.rules.RulesDbClient;
-import eu.itesla_project.modules.securityindexes.SecurityIndexType;
+import eu.itesla_project.simulation.securityindexes.SecurityIndexType;
 import eu.itesla_project.modules.wca.*;
 
 import org.apache.commons.cli.CommandLine;
