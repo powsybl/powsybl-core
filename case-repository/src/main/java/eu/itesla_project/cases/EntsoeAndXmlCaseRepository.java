@@ -17,13 +17,13 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Common ENTSOE and XML case repository layout:
+ * Common ENTSOE and IIDM case repository layout:
  * <pre>
  * CIM/SN/2013/01/15/20130115_0620_SN2_FR0.zip
  *    /FO/...
  * UCT/SN/...
  *    /FO/...
- * XML/SN/2013/01/15/20130115_0720_SN2_FR0.xml
+ * IIDM/SN/2013/01/15/20130115_0720_SN2_FR0.xml
  *    /FO/...
  * </pre>
  *
@@ -37,7 +37,7 @@ public class EntsoeAndXmlCaseRepository extends EntsoeCaseRepository{
         super(config,
                 Arrays.asList(new EntsoeFormat(Importers.getImporter("CIM1", computationManager), "CIM"),
                         new EntsoeFormat(Importers.getImporter("UCTE", computationManager), "UCT"), // official ENTSOE formats)
-                        new EntsoeFormat(Importers.getImporter("XML", computationManager), "XML")), // IIDM XML format
+                        new EntsoeFormat(Importers.getImporter("XIIDM", computationManager), "IIDM")), // XIIDM format
                 (directory, baseName) -> new GenericReadOnlyDataSource(directory, baseName));
     }
 

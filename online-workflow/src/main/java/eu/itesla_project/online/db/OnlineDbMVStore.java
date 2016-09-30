@@ -1021,7 +1021,7 @@ public class OnlineDbMVStore implements OnlineDb {
             parameters.setProperty("iidm.export.xml.with-branch-state-variables", "true");
             parameters.setProperty("iidm.export.xml.with-breakers", "true");
             parameters.setProperty("iidm.export.xml.with-properties", "true");
-            Exporters.export("XML", network, parameters, dataSource);
+            Exporters.export("XIIDM", network, parameters, dataSource);
             // store network state values, for later serialization
             Map<HistoDbAttributeId, Object> networkValues = IIDM2DB.extractCimValues(network, new IIDM2DB.Config(network.getId(), true, true)).getSingleValueMap();
             ConcurrentHashMap<Integer, Map<HistoDbAttributeId, Object>> workflowStates = new ConcurrentHashMap<Integer, Map<HistoDbAttributeId,Object>>();
@@ -1116,9 +1116,9 @@ public class OnlineDbMVStore implements OnlineDb {
                 if ( stateFileName.endsWith(".xml"));
                 String basename = stateFileName.substring(0, stateFileName.length()-4);
                 DataSource dataSource = new FileDataSource(stateFolder, basename);
-                //Network network = Importers.import_("XML", dataSource, null);
+                //Network network = Importers.import_("XIIDM", dataSource, null);
                 // with the new post processors configuration, the post processing is applied also to xml import
-                Importer xmlImporter = Importers.getImporter("XML");
+                Importer xmlImporter = Importers.getImporter("XIIDM");
                 Importer noppImporter = Importers.removePostProcessors(xmlImporter);
                 Network network = noppImporter.import_(dataSource, null);
                 return network;
