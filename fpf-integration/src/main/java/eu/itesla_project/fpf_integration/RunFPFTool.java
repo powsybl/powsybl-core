@@ -18,7 +18,7 @@ import eu.itesla_project.mcla.ForecastErrorsDataStorageImpl;
 import eu.itesla_project.cases.CaseRepository;
 import eu.itesla_project.cases.CaseType;
 import eu.itesla_project.modules.contingencies.ContingenciesAndActionsDatabaseClient;
-import eu.itesla_project.modules.contingencies.Contingency;
+import eu.itesla_project.contingency.Contingency;
 import eu.itesla_project.modules.online.OnlineConfig;
 import eu.itesla_project.modules.online.OnlineWorkflowParameters;
 import eu.itesla_project.modules.online.TimeHorizon;

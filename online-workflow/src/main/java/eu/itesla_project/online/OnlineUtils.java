@@ -6,15 +6,10 @@
  */
 package eu.itesla_project.online;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
-import eu.itesla_project.modules.contingencies.Contingency;
-import eu.itesla_project.modules.securityindexes.SecurityIndex;
+import eu.itesla_project.contingency.Contingency;
+import eu.itesla_project.simulation.securityindexes.SecurityIndex;
 
 /**
  *
@@ -25,7 +20,7 @@ public class OnlineUtils {
 	public static Collection<Contingency> filterContingencies(List<Contingency> contingencies, List<String> contingenciesIds) {
 		Objects.requireNonNull(contingencies, "contingencies list is null");
 		Objects.requireNonNull(contingenciesIds, "contingenciesIds list is null");
-		List<Contingency> filteredContingencies = new ArrayList<Contingency>();
+		List<Contingency> filteredContingencies = new ArrayList<>();
 		for (Contingency contingency : contingencies) {
 			if ( contingenciesIds.contains(contingency.getId()) )
 					filteredContingencies.add(contingency);

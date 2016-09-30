@@ -7,7 +7,7 @@
 package eu.itesla_project.iidm.actions_contingencies.xml.test;
 
 import static org.junit.Assert.*;
-import java.net.URL;
+
 import java.nio.file.Path;
 import java.nio.file.Paths;
 

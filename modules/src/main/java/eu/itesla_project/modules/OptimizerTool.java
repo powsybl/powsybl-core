@@ -21,7 +21,7 @@ import eu.itesla_project.loadflow.api.LoadFlowResult;
 import eu.itesla_project.modules.histo.HistoDbClient;
 import eu.itesla_project.modules.offline.OfflineConfig;
 import eu.itesla_project.modules.sampling.SampleCharacteritics;
-import eu.itesla_project.modules.security.Security;
+import eu.itesla_project.security.Security;
 import eu.itesla_project.modules.topo.TopologyContext;
 import eu.itesla_project.modules.topo.TopologyMiner;
 import org.apache.commons.cli.CommandLine;

@@ -15,7 +15,6 @@ import eu.itesla_project.merge.MergeUtil;
 import eu.itesla_project.cases.CaseRepository;
 import eu.itesla_project.cases.CaseType;
 import eu.itesla_project.modules.contingencies.ContingenciesAndActionsDatabaseClientFactory;
-import eu.itesla_project.modules.ddb.DynamicDatabaseClientFactory;
 import eu.itesla_project.modules.offline.MetricsDb;
 import eu.itesla_project.modules.offline.OfflineDb;
 import eu.itesla_project.modules.offline.OfflineWorkflowCreationParameters;
@@ -23,7 +22,7 @@ import eu.itesla_project.modules.rules.RuleAttributeSet;
 import eu.itesla_project.modules.rules.RuleId;
 import eu.itesla_project.modules.rules.RulesBuildListener;
 import eu.itesla_project.modules.rules.RulesBuilder;
-import eu.itesla_project.modules.simulation.SimulatorFactory;
+import eu.itesla_project.simulation.SimulatorFactory;
 import eu.itesla_project.modules.validation.ValidationDb;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -52,8 +51,6 @@ abstract class AbstractOfflineWorkflow implements OfflineWorkflow {
 
     protected final ComputationManager computationManager;
 
-    protected final DynamicDatabaseClientFactory ddbClientFactory;
-
     protected final ContingenciesAndActionsDatabaseClientFactory cadbClientFactory;
 
     protected final RulesBuilder rulesBuilder;
@@ -81,14 +78,13 @@ abstract class AbstractOfflineWorkflow implements OfflineWorkflow {
     protected final AtomicBoolean stopRequested = new AtomicBoolean(false);
 
     protected AbstractOfflineWorkflow(String id, OfflineWorkflowCreationParameters creationParameters, ComputationManager computationManager,
-                                      DynamicDatabaseClientFactory ddbClientFactory, ContingenciesAndActionsDatabaseClientFactory cadbClientFactory,
+                                      ContingenciesAndActionsDatabaseClientFactory cadbClientFactory,
                                       RulesBuilder rulesBuilder, OfflineDb offlineDb, CaseRepository caseRepository,
                                       LoadFlowFactory loadFlowFactory,  SimulatorFactory simulatorFactory, MergeOptimizerFactory mergeOptimizerFactory,
                                       MetricsDb metricsDb, ValidationDb validationDb, ExecutorService executorService) throws IOException {
         this.id = Objects.requireNonNull(id);
         this.creationParameters = Objects.requireNonNull(creationParameters);
         this.computationManager = Objects.requireNonNull(computationManager);
-        this.ddbClientFactory = Objects.requireNonNull(ddbClientFactory);
         this.cadbClientFactory = Objects.requireNonNull(cadbClientFactory);
         this.rulesBuilder = Objects.requireNonNull(rulesBuilder);
         this.offlineDb = Objects.requireNonNull(offlineDb);

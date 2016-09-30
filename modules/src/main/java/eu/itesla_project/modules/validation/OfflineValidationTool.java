@@ -24,16 +24,15 @@ import eu.itesla_project.cases.CaseType;
 import eu.itesla_project.merge.MergeOptimizerFactory;
 import eu.itesla_project.merge.MergeUtil;
 import eu.itesla_project.modules.contingencies.ContingenciesAndActionsDatabaseClient;
-import eu.itesla_project.modules.contingencies.Contingency;
-import eu.itesla_project.modules.ddb.DynamicDatabaseClientFactory;
+import eu.itesla_project.contingency.Contingency;
 import eu.itesla_project.modules.histo.HistoDbAttributeId;
 import eu.itesla_project.modules.histo.IIDM2DB;
 import eu.itesla_project.modules.offline.CsvMetricsDb;
 import eu.itesla_project.modules.offline.OfflineConfig;
 import eu.itesla_project.modules.rules.*;
 import eu.itesla_project.modules.rules.expr.ExpressionAttributeList;
-import eu.itesla_project.modules.securityindexes.SecurityIndex;
-import eu.itesla_project.modules.simulation.*;
+import eu.itesla_project.simulation.securityindexes.SecurityIndex;
+import eu.itesla_project.simulation.*;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
@@ -345,7 +344,6 @@ public class OfflineValidationTool implements Tool {
         RulesDbClientFactory rulesDbClientFactory = config.getRulesDbClientFactoryClass().newInstance();
         ContingenciesAndActionsDatabaseClient contingencyDb = config.getContingencyDbClientFactoryClass().newInstance().create();
         SimulatorFactory simulatorFactory = config.getSimulatorFactoryClass().newInstance();
-        DynamicDatabaseClientFactory dynamicDatabaseClientFactory = config.getDynamicDbClientFactoryClass().newInstance();
         LoadFlowFactory loadFlowFactory = config.getLoadFlowFactoryClass().newInstance();
         MergeOptimizerFactory mergeOptimizerFactory = config.getMergeOptimizerFactoryClass().newInstance();
 
@@ -392,7 +390,7 @@ public class OfflineValidationTool implements Tool {
                                 System.err.println("load flow terminated (" + loadFlowResult.isOk() + ") on " + network.getId());
 
                                 if (loadFlowResult.isOk()) {
-                                    Stabilization stabilization = simulatorFactory.createStabilization(network, computationManager, 0, dynamicDatabaseClientFactory);
+                                    Stabilization stabilization = simulatorFactory.createStabilization(network, computationManager, 0);
                                     ImpactAnalysis impactAnalysis = simulatorFactory.createImpactAnalysis(network, computationManager, 0, contingencyDb);
                                     Map<String, Object> context = new HashMap<>();
                                     stabilization.init(simulationParameters, context);

@@ -7,7 +7,7 @@
  */
 package eu.itesla_project.modules.wca;
 
-import eu.itesla_project.modules.securityindexes.SecurityIndexType;
+import eu.itesla_project.simulation.securityindexes.SecurityIndexType;
 import org.joda.time.Interval;
 
 import java.util.Objects;

@@ -9,12 +9,12 @@ package eu.itesla_project.pclfsim;
 import com.google.common.collect.ImmutableMap;
 import eu.itesla_project.commons.Version;
 import eu.itesla_project.iidm.network.Network;
-import eu.itesla_project.modules.security.LimitViolation;
-import eu.itesla_project.modules.security.LimitViolationFilter;
-import eu.itesla_project.modules.security.Security;
-import eu.itesla_project.modules.simulation.SimulationParameters;
-import eu.itesla_project.modules.simulation.Stabilization;
-import eu.itesla_project.modules.simulation.StabilizationResult;
+import eu.itesla_project.security.LimitViolation;
+import eu.itesla_project.security.LimitViolationFilter;
+import eu.itesla_project.security.Security;
+import eu.itesla_project.simulation.SimulationParameters;
+import eu.itesla_project.simulation.Stabilization;
+import eu.itesla_project.simulation.StabilizationResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

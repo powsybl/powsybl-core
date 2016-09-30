@@ -6,6 +6,7 @@
  */
 package eu.itesla_project.modules;
 
+import eu.itesla_project.commons.Versionable;
 import eu.itesla_project.modules.topo.TopologyContext;
 
 import java.util.concurrent.CompletableFuture;
@@ -14,7 +15,7 @@ import java.util.concurrent.CompletableFuture;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface Optimizer extends Module {
+public interface Optimizer extends Versionable {
 
     void init(OptimizerParameters parameters, TopologyContext topologyContext) throws Exception;
 

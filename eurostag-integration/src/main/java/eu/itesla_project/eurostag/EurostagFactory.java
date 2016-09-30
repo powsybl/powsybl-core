@@ -7,12 +7,11 @@
 package eu.itesla_project.eurostag;
 
 import eu.itesla_project.computation.ComputationManager;
+import eu.itesla_project.contingency.ContingenciesProvider;
 import eu.itesla_project.iidm.network.Network;
-import eu.itesla_project.modules.contingencies.ContingenciesAndActionsDatabaseClient;
-import eu.itesla_project.modules.ddb.DynamicDatabaseClientFactory;
-import eu.itesla_project.modules.simulation.ImpactAnalysis;
-import eu.itesla_project.modules.simulation.SimulatorFactory;
-import eu.itesla_project.modules.simulation.Stabilization;
+import eu.itesla_project.simulation.ImpactAnalysis;
+import eu.itesla_project.simulation.SimulatorFactory;
+import eu.itesla_project.simulation.Stabilization;
 
 /**
  *
@@ -21,13 +20,13 @@ import eu.itesla_project.modules.simulation.Stabilization;
 public class EurostagFactory implements SimulatorFactory {
 
     @Override
-    public Stabilization createStabilization(Network network, ComputationManager computationManager, int priority, DynamicDatabaseClientFactory ddbClientFactory) {
-        return new EurostagStabilization(network, computationManager, priority, ddbClientFactory);
+    public Stabilization createStabilization(Network network, ComputationManager computationManager, int priority) {
+        return new EurostagStabilization(network, computationManager, priority);
     }
 
     @Override
-    public ImpactAnalysis createImpactAnalysis(Network network, ComputationManager computationManager, int priority, ContingenciesAndActionsDatabaseClient cadbClient) {
-        return new EurostagImpactAnalysis(network, computationManager, priority, cadbClient);
+    public ImpactAnalysis createImpactAnalysis(Network network, ComputationManager computationManager, int priority, ContingenciesProvider contingenciesProvider) {
+        return new EurostagImpactAnalysis(network, computationManager, priority, contingenciesProvider);
     }
 
 }
