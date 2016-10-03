@@ -53,6 +53,9 @@
 /wca-integration/target/
 /case-repository/target/
 /network-merge/target/
+/contingency-api/target/
+/security-analysis/target/
+/simulation-api/target/
 
 # CMake projects
 /build/

@@ -19,7 +19,7 @@
 
     <artifactId>iidm-xml-import-export</artifactId>
 
-    <name>XML import export</name>
+    <name>IIDM XML import export</name>
 
     <dependencies>
         <dependency>

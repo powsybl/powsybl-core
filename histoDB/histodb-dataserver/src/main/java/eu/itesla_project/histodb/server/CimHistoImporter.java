@@ -55,7 +55,7 @@ public class CimHistoImporter {
             } else {
                 log.warn("CIM importer implementation not found");
             }
-            importerXml = Importers.getImporter("XML", computationManager);
+            importerXml = Importers.getImporter("XIIDM", computationManager);
             if (importerXml!=null) {
                 importers.add(importerXml);
             } else {
