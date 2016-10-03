@@ -33,11 +33,11 @@
         </dependency>
         <dependency>
             <groupId>org.jboss.shrinkwrap</groupId>
-            <artifactId>shrinkwrap-impl-nio2</artifactId>
+            <artifactId>shrinkwrap-api-nio2</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jboss.shrinkwrap</groupId>
-            <artifactId>shrinkwrap-impl-base</artifactId>
+            <artifactId>shrinkwrap-api</artifactId>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>

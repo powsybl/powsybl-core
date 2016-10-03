@@ -15,8 +15,7 @@ import eu.itesla_project.simulation.SimulationParameters;
 import org.jboss.shrinkwrap.api.Domain;
 import org.jboss.shrinkwrap.api.GenericArchive;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
-import org.jboss.shrinkwrap.impl.nio.file.ShrinkWrapFileSystem;
-import org.jboss.shrinkwrap.impl.nio.file.ShrinkWrapFileSystemProvider;
+import org.jboss.shrinkwrap.api.nio.file.ShrinkWrapFileSystems;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -254,7 +253,7 @@ public class EurostagScenario {
 
     public GenericArchive writeFaultSeqArchive(Domain domain, List<Contingency> contingencies, Network network, EurostagDictionary dictionary, Function<Integer, String> seqFileNameFct) throws IOException {
         GenericArchive archive = domain.getArchiveFactory().create(GenericArchive.class);
-        try (FileSystem fileSystem = new ShrinkWrapFileSystem(new ShrinkWrapFileSystemProvider(), archive)) {
+        try (FileSystem fileSystem = ShrinkWrapFileSystems.newFileSystem(archive)) {
             Path rootDir = fileSystem.getPath("/");
             for (int i = 0; i < contingencies.size(); i++) {
                 Contingency contingency = contingencies.get(i);

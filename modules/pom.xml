@@ -111,12 +111,22 @@
         </dependency>
         <dependency>
             <groupId>org.jboss.shrinkwrap</groupId>
-            <artifactId>shrinkwrap-impl-nio2</artifactId>
+            <artifactId>shrinkwrap-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.shrinkwrap</groupId>
+            <artifactId>shrinkwrap-api-nio2</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jboss.shrinkwrap</groupId>
             <artifactId>shrinkwrap-impl-base</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.shrinkwrap</groupId>
+            <artifactId>shrinkwrap-impl-nio2</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

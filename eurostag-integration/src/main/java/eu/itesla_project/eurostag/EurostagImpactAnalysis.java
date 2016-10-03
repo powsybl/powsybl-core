@@ -31,8 +31,7 @@ import org.jboss.shrinkwrap.api.Domain;
 import org.jboss.shrinkwrap.api.GenericArchive;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.exporter.ZipExporter;
-import org.jboss.shrinkwrap.impl.nio.file.ShrinkWrapFileSystem;
-import org.jboss.shrinkwrap.impl.nio.file.ShrinkWrapFileSystemProvider;
+import org.jboss.shrinkwrap.api.nio.file.ShrinkWrapFileSystems;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -252,7 +251,7 @@ public class EurostagImpactAnalysis implements ImpactAnalysis, EurostagConstants
 
     private static void writeLimits(Network network, EurostagDictionary dictionary, Domain domain, OutputStream os) throws IOException {
         GenericArchive archive = domain.getArchiveFactory().create(GenericArchive.class);
-        try (FileSystem fileSystem = new ShrinkWrapFileSystem(new ShrinkWrapFileSystemProvider(), archive)) {
+        try (FileSystem fileSystem = ShrinkWrapFileSystems.newFileSystem(archive)) {
             Path rootDir = fileSystem.getPath("/");
             // dump first current limits for each of the branches
             try (BufferedWriter writer = Files.newBufferedWriter(rootDir.resolve(CURRENT_LIMITS_CSV), StandardCharsets.UTF_8)) {
@@ -353,7 +352,7 @@ public class EurostagImpactAnalysis implements ImpactAnalysis, EurostagConstants
     private void writeWp43Configs(Domain domain, List<Contingency> contingencies, OutputStream os) throws IOException, ConfigurationException {
         // copy wp43 configuration files
         GenericArchive archive = domain.getArchiveFactory().create(GenericArchive.class);
-        try (FileSystem fileSystem = new ShrinkWrapFileSystem(new ShrinkWrapFileSystemProvider(), archive)) {
+        try (FileSystem fileSystem = ShrinkWrapFileSystems.newFileSystem(archive)) {
             Path rootDir = fileSystem.getPath("/");
             writeWp43Configs(contingencies, rootDir);
         }
