@@ -44,6 +44,8 @@ import java.util.stream.Collectors;
 @AutoService(Tool.class)
 public class RunWcaOnStateTool implements Tool {
 
+    private static final boolean DEFAULT_STOP_WCA_ON_VIOLATIONS = true;
+
     private static Command COMMAND = new Command() {
 
         @Override
@@ -142,7 +144,7 @@ public class RunWcaOnStateTool implements Tool {
                         .map(SecurityIndexType::valueOf)
                         .collect(Collectors.toSet());
             }
-            boolean stopWcaOnViolations = true;
+            boolean stopWcaOnViolations = DEFAULT_STOP_WCA_ON_VIOLATIONS;
             if (line.hasOption("stop-on-violations")) {
                 stopWcaOnViolations = Boolean.parseBoolean(line.getOptionValue("stop-on-violations"));
             }
@@ -152,7 +154,7 @@ public class RunWcaOnStateTool implements Tool {
             ContingenciesAndActionsDatabaseClient contingenciesDb = config.getContingencyDbClientFactoryClass().newInstance().create();
             LoadFlowFactory loadFlowFactory = config.getLoadFlowFactoryClass().newInstance();
             try (HistoDbClient histoDbClient = config.getHistoDbClientFactoryClass().newInstance().create();
-                    RulesDbClient rulesDbClient = config.getRulesDbClientFactoryClass().newInstance().create("rulesdb")) {
+                 RulesDbClient rulesDbClient = config.getRulesDbClientFactoryClass().newInstance().create("rulesdb")) {
                 UncertaintiesAnalyserFactory uncertaintiesAnalyserFactory = config.getUncertaintiesAnalyserFactoryClass().newInstance();
                 WCA wca = config.getWcaFactoryClass().newInstance().create(network, computationManager, histoDbClient, rulesDbClient, uncertaintiesAnalyserFactory, contingenciesDb, loadFlowFactory);
                 WCAResult result = wca.run(wcaParameters);
