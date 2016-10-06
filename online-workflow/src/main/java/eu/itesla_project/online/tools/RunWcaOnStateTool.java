@@ -44,6 +44,8 @@ import java.util.stream.Collectors;
 @AutoService(Tool.class)
 public class RunWcaOnStateTool implements Tool {
 
+    private static final boolean DEFAULT_STOP_WCA_ON_VIOLATIONS = true;
+
     private static Command COMMAND = new Command() {
 
         @Override
@@ -97,9 +99,9 @@ public class RunWcaOnStateTool implements Tool {
                     .argName("INDEX_TYPE,INDEX_TYPE,...")
                     .build());
             options.addOption(Option.builder().longOpt("stop-on-violations")
-                    .desc("stop WCA if there are limit violarions in the base state, default is true")
+                    .desc("stop WCA if there are violations, default is true")
                     .hasArg()
-                    .argName("THRESHOLD")
+                    .argName("true/false")
                     .build());
             return options;
         }
@@ -142,17 +144,17 @@ public class RunWcaOnStateTool implements Tool {
                         .map(SecurityIndexType::valueOf)
                         .collect(Collectors.toSet());
             }
-            boolean stopWCAifBaseStateLimitViolations = true;
+            boolean stopWcaOnViolations = DEFAULT_STOP_WCA_ON_VIOLATIONS;
             if (line.hasOption("stop-on-violations")) {
-                stopWCAifBaseStateLimitViolations = Boolean.parseBoolean(line.getOptionValue("stop-on-violations"));
+                stopWcaOnViolations = Boolean.parseBoolean(line.getOptionValue("stop-on-violations"));
             }
             ComputationManager computationManager = new LocalComputationManager();
             network.getStateManager().allowStateMultiThreadAccess(true);
-            WCAParameters wcaParameters = new WCAParameters(histoInterval, offlineWorkflowId, securityIndexTypes, purityThreshold, stopWCAifBaseStateLimitViolations);
+            WCAParameters wcaParameters = new WCAParameters(histoInterval, offlineWorkflowId, securityIndexTypes, purityThreshold, stopWcaOnViolations);
             ContingenciesAndActionsDatabaseClient contingenciesDb = config.getContingencyDbClientFactoryClass().newInstance().create();
             LoadFlowFactory loadFlowFactory = config.getLoadFlowFactoryClass().newInstance();
             try (HistoDbClient histoDbClient = config.getHistoDbClientFactoryClass().newInstance().create();
-                    RulesDbClient rulesDbClient = config.getRulesDbClientFactoryClass().newInstance().create("rulesdb")) {
+                 RulesDbClient rulesDbClient = config.getRulesDbClientFactoryClass().newInstance().create("rulesdb")) {
                 UncertaintiesAnalyserFactory uncertaintiesAnalyserFactory = config.getUncertaintiesAnalyserFactoryClass().newInstance();
                 WCA wca = config.getWcaFactoryClass().newInstance().create(network, computationManager, histoDbClient, rulesDbClient, uncertaintiesAnalyserFactory, contingenciesDb, loadFlowFactory);
                 WCAResult result = wca.run(wcaParameters);

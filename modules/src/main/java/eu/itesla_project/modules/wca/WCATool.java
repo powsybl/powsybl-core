@@ -60,7 +60,7 @@ public class WCATool implements Tool {
 
     private static final char CSV_SEPARATOR = ';';
 
-    private static final boolean DEFAULT_STOP_WCA_FOR_BASESTATE_VIOLATIONS = true;
+    private static final boolean DEFAULT_STOP_WCA_ON_VIOLATIONS = true;
 
     private static Command COMMAND = new Command() {
 
@@ -131,9 +131,9 @@ public class WCATool implements Tool {
                     .argName("FILE")
                     .build());
             options.addOption(Option.builder().longOpt("stop-on-violations")
-                    .desc("stop WCA if there are limit violarions in the base state, default is " + DEFAULT_STOP_WCA_FOR_BASESTATE_VIOLATIONS)
+                    .desc("stop WCA if there are violations, default is " + DEFAULT_STOP_WCA_ON_VIOLATIONS)
                     .hasArg()
-                    .argName("THRESHOLD")
+                    .argName("true/false")
                     .build());
             return options;
         }
@@ -247,9 +247,9 @@ public class WCATool implements Tool {
         if (line.hasOption("output-csv-file")) {
             outputCsvFile = Paths.get(line.getOptionValue("output-csv-file"));
         }
-        boolean stopWCAifBaseStateLimitViolations = DEFAULT_STOP_WCA_FOR_BASESTATE_VIOLATIONS;
+        boolean stopWcaOnViolations = DEFAULT_STOP_WCA_ON_VIOLATIONS;
         if (line.hasOption("stop-on-violations")) {
-            stopWCAifBaseStateLimitViolations = Boolean.parseBoolean(line.getOptionValue("stop-on-violations"));
+            stopWcaOnViolations = Boolean.parseBoolean(line.getOptionValue("stop-on-violations"));
         }
 
         try (ComputationManager computationManager = new LocalComputationManager()) {
@@ -259,7 +259,7 @@ public class WCATool implements Tool {
                 throw new ITeslaException("Format " + caseFormat + " not supported");
             }
 
-            WCAParameters parameters = new WCAParameters(histoInterval, offlineWorkflowId, securityIndexTypes, purityThreshold, stopWCAifBaseStateLimitViolations);
+            WCAParameters parameters = new WCAParameters(histoInterval, offlineWorkflowId, securityIndexTypes, purityThreshold, stopWcaOnViolations);
             OnlineConfig config = OnlineConfig.load();
             ContingenciesAndActionsDatabaseClient contingenciesDb = config.getContingencyDbClientFactoryClass().newInstance().create();
             LoadFlowFactory loadFlowFactory = config.getLoadFlowFactoryClass().newInstance();

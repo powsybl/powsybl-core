@@ -27,15 +27,15 @@ public class WCAParameters {
 
     private final double purityThreshold;
 
-    private final boolean stopWCAifBaseStateLimitViolations;
+    private final boolean stopWcaOnViolations;
 
     public WCAParameters(Interval histoInterval, String offlineWorkflowId, Set<SecurityIndexType> securityIndexTypes, double purityThreshold, 
-            boolean stopWCAifBaseStateLimitViolations) {
+            boolean stopWcaOnViolations) {
         this.histoInterval = Objects.requireNonNull(histoInterval);
         this.offlineWorkflowId = offlineWorkflowId;
         this.securityIndexTypes = securityIndexTypes;
         this.purityThreshold = purityThreshold;
-        this.stopWCAifBaseStateLimitViolations = stopWCAifBaseStateLimitViolations;
+        this.stopWcaOnViolations = stopWcaOnViolations;
     }
 
     public Interval getHistoInterval() {
@@ -54,8 +54,8 @@ public class WCAParameters {
         return purityThreshold;
     }
 
-    public boolean isStopWCAifBaseStateLimitViolations() {
-        return stopWCAifBaseStateLimitViolations;
+    public boolean stopWcaOnViolations() {
+        return stopWcaOnViolations;
     }
 
     @Override
@@ -64,7 +64,7 @@ public class WCAParameters {
                 ", offlineWorkflowId=" + offlineWorkflowId +
                 ", securityIndexTypes=" + securityIndexTypes +
                 ", purityThreshold=" + purityThreshold +
-                ", stopWCAifBaseStateLimitViolations=" + stopWCAifBaseStateLimitViolations +
+                ", stopWcaOnViolations=" + stopWcaOnViolations +
                 "]";
     }
 }
