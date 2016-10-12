@@ -909,7 +909,7 @@ public class XmlFileContingenciesAndActionsDatabaseClient implements Contingenci
 						}
 					}
 					if ( !found )
-						LOGGER.warn("Contingency {} referred in actions/contigencies associations not in th DB: skipping it", c.getId());
+						LOGGER.warn("Contingency {} referred in actions/contingencies associations not in the DB: skipping it", c.getId());
 					
 				}
 
@@ -943,7 +943,7 @@ public class XmlFileContingenciesAndActionsDatabaseClient implements Contingenci
 						}
 					}
 					if ( !found )
-						LOGGER.warn("Action/Action Plan {} referred in actions/contigencies associations not in th DB: skipping it", a.getId());
+						LOGGER.warn("Action/Action Plan {} referred in actions/contingencies associations not in the DB: skipping it", a.getId());
 				}
 				
 				accociationList.add(new ActionsContingenciesAssociationImpl(ctgIds , constraints, actionIds) );

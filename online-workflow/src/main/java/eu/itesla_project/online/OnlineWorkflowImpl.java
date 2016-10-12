@@ -190,7 +190,7 @@ public class OnlineWorkflowImpl implements OnlineWorkflow {
         for (OnlineApplicationListener l :listeners)
             l.onWcaUpdate(new RunningSynthesis(id,true));
 
-        // maybe we should put also the stopWCAifBaseStateLimitViolations wca parameter as online workflow parameter
+        // maybe we should put also the stopWcaOnViolations wca parameter as online workflow parameter
         WCAParameters wcaParameters = new WCAParameters(parameters.getHistoInterval(), parameters.getOfflineWorkflowId(), parameters.getSecurityIndexes(), parameters.getRulesPurityThreshold(), true);
         WCA wca = wcaFactory.create(oCtx.getNetwork(), computationManager, histoDbClient, rulesDbClient, uncertaintiesAnalyserFactory, cadbClient, loadFlowFactory);
         WCAResult result = wca.run(wcaParameters);

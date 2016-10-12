@@ -283,7 +283,8 @@ public class WCAImpl implements WCA, WCAConstants, AmplConstants {
                                                             String baseStateId, String contingencyStateId,
                                                             List<String> curativeStateIds, List<SecurityRuleExpression> securityRuleExpressions,
                                                             Uncertainties uncertainties, WCAHistoLimits histoLimits,
-                                                            StringToIntMapper<AmplSubset> mapper) {
+                                                            StringToIntMapper<AmplSubset> mapper,
+                                                            boolean stopWcaOnViolations) {
         return computationManager.execute(new ExecutionEnvironment(env, CLUSTERS_WORKING_DIR_PREFIX, config.isDebug()),
                 new DefaultExecutionHandler<WCACluster>() {
 
@@ -319,7 +320,7 @@ public class WCAImpl implements WCA, WCAConstants, AmplConstants {
                         writeContingencies(Collections.singleton(contingency), dataSource, mapper);
 
                         // write security rules corresponding to the contingency
-                        new WCASecurityRulesWriter(network, securityRuleExpressions, dataSource, mapper, false).write();
+                        new WCASecurityRulesWriter(network, securityRuleExpressions, dataSource, mapper, false, stopWcaOnViolations).write();
 
                         // write post curative state
                         for (int i = 0; i < curativeActionIds.size(); i++) {
@@ -364,7 +365,8 @@ public class WCAImpl implements WCA, WCAConstants, AmplConstants {
     private CompletableFuture<WCACluster> createDomainTask(Contingency contingency, String baseStateId,
                                                            List<SecurityRuleExpression> securityRuleExpressions,
                                                            Uncertainties uncertainties, WCAHistoLimits histoLimits,
-                                                           StringToIntMapper<AmplSubset> mapper) {
+                                                           StringToIntMapper<AmplSubset> mapper,
+                                                           boolean stopWcaOnViolations) {
         return computationManager.execute(new ExecutionEnvironment(env, DOMAINS_WORKING_DIR_PREFIX, config.isDebug()),
                 new DefaultExecutionHandler<WCACluster>() {
 
@@ -398,7 +400,7 @@ public class WCAImpl implements WCA, WCAConstants, AmplConstants {
                         writeCurativeActions(Collections.emptyList(), dataSource, mapper);
 
                         // write security rules corresponding to the contingency
-                        new WCASecurityRulesWriter(network, securityRuleExpressions, dataSource, mapper, false).write();
+                        new WCASecurityRulesWriter(network, securityRuleExpressions, dataSource, mapper, false, stopWcaOnViolations).write();
 
                         Command cmd = new SimpleCommandBuilder()
                                 .id(DOMAINS_CMD_ID)
@@ -434,21 +436,23 @@ public class WCAImpl implements WCA, WCAConstants, AmplConstants {
                                                                     List<String> curativeStateIds, List<SecurityRuleExpression> securityRuleExpressions,
                                                                     Supplier<CompletableFuture<Uncertainties>> memoizedUncertaintiesFuture,
                                                                     Supplier<CompletableFuture<WCAHistoLimits>> histoLimitsFuture,
-                                                                    StringToIntMapper<AmplSubset> mapper) {
+                                                                    StringToIntMapper<AmplSubset> mapper,
+                                                                    boolean stopWcaOnViolations) {
         return memoizedUncertaintiesFuture.get()
                 .thenCombine(histoLimitsFuture.get(), (uncertainties, histoLimits) -> Pair.of(uncertainties, histoLimits))
                 .thenCompose(p -> createClusterTask(contingency, curativeActionIds, baseStateId, contingencyStateId,
-                        curativeStateIds, securityRuleExpressions, p.getFirst(), p.getSecond(), mapper));
+                        curativeStateIds, securityRuleExpressions, p.getFirst(), p.getSecond(), mapper, stopWcaOnViolations));
     }
 
     private CompletableFuture<WCACluster> createDomainTaskWithDeps(Contingency contingency, String baseStateId,
                                                                    List<SecurityRuleExpression> securityRuleExpressions,
                                                                    Supplier<CompletableFuture<Uncertainties>> memoizedUncertaintiesFuture,
                                                                    Supplier<CompletableFuture<WCAHistoLimits>> histoLimitsFuture,
-                                                                   StringToIntMapper<AmplSubset> mapper) {
+                                                                   StringToIntMapper<AmplSubset> mapper,
+                                                                   boolean stopWcaOnViolations) {
         return memoizedUncertaintiesFuture.get()
                 .thenCombine(histoLimitsFuture.get(), (uncertainties, histoLimits) -> Pair.of(uncertainties, histoLimits))
-                .thenCompose(p -> createDomainTask(contingency, baseStateId, securityRuleExpressions, p.getFirst(), p.getSecond(), mapper));
+                .thenCompose(p -> createDomainTask(contingency, baseStateId, securityRuleExpressions, p.getFirst(), p.getSecond(), mapper, stopWcaOnViolations));
     }
 
     private CompletableFuture<WCACluster> createClusterWorkflowTask(Contingency contingency, String baseStateId,
@@ -457,7 +461,8 @@ public class WCAImpl implements WCA, WCAConstants, AmplConstants {
                                                                     Supplier<CompletableFuture<Uncertainties>> memoizedUncertaintiesFuture,
                                                                     Supplier<CompletableFuture<WCAHistoLimits>> histoLimitsFuture,
                                                                     StringToIntMapper<AmplSubset> mapper,
-                                                                    LoadFlow loadFlow) {
+                                                                    LoadFlow loadFlow,
+                                                                    boolean stopWcaOnViolations) {
         String[] contingencyStateId = new String[1];
         List<String> curativeStateIds = Collections.synchronizedList(new ArrayList<>());
         List<String> curativeActionIds = Collections.synchronizedList(new ArrayList<>());
@@ -489,7 +494,7 @@ public class WCAImpl implements WCA, WCAConstants, AmplConstants {
 
                         if (curativeActions.isEmpty()) {
                             // check limits on contingency state
-                            if (contingencyStateLimitViolations.size() > 0) {
+                            if (contingencyStateLimitViolations.size() > 0 && stopWcaOnViolations) {
                                 return CompletableFuture.completedFuture(new WCAClusterImpl(contingency,
                                                                                             WCAClusterNum.FOUR,
                                                                                             WCAClusterOrigin.HADES_POST_CONTINGENCY_LIMIT,
@@ -497,7 +502,7 @@ public class WCAImpl implements WCA, WCAConstants, AmplConstants {
                             } else {
                                 return createClusterTaskWithDeps(contingency, Collections.emptyList(), baseStateId, contingencyStateId[0],
                                                                  Collections.emptyList(), securityRuleExpressions, memoizedUncertaintiesFuture,
-                                                                 histoLimitsFuture, mapper);
+                                                                 histoLimitsFuture, mapper, stopWcaOnViolations);
                             }
                         } else {
                             CompletableFuture<?>[] curativeActionTasks = new CompletableFuture[curativeActions.size()];
@@ -528,7 +533,7 @@ public class WCAImpl implements WCA, WCAConstants, AmplConstants {
                                         network.getStateManager().setWorkingState(curativeStateId);
 
                                         List<LimitViolation> curativeStateLimitViolations = CURRENT_FILTER.apply(Security.checkLimits(network));
-                                        if (curativeStateLimitViolations.isEmpty()) {
+                                        if (curativeStateLimitViolations.isEmpty() || !stopWcaOnViolations) {
                                             curativeStateIdsForClusters.add(curativeStateId);
                                             curativeActionIdsForClusters.add(curativeActionId);
                                         }
@@ -545,7 +550,7 @@ public class WCAImpl implements WCA, WCAConstants, AmplConstants {
                             return CompletableFuture.allOf(curativeActionTasks)
                                     .thenComposeAsync(aVoid -> createClusterTaskWithDeps(contingency, curativeActionIds, baseStateId, contingencyStateId[0],
                                                                                          curativeStateIds, securityRuleExpressions, memoizedUncertaintiesFuture,
-                                                                                         histoLimitsFuture, mapper));
+                                                                                         histoLimitsFuture, mapper, stopWcaOnViolations));
                         }
                     }
                 })
@@ -596,7 +601,7 @@ public class WCAImpl implements WCA, WCAConstants, AmplConstants {
                     } else {
                         // check limits on base state
                         List<LimitViolation> baseStateLimitViolations = CURRENT_FILTER.apply(Security.checkLimits(network));
-                        if (baseStateLimitViolations.size() > 0 && parameters.isStopWCAifBaseStateLimitViolations()) {
+                        if (baseStateLimitViolations.size() > 0 && parameters.stopWcaOnViolations()) {
                             for (Contingency contingency : contingencies) {
                                 clusters.add(CompletableFuture.completedFuture(new WCAClusterImpl(contingency,
                                                                                                   WCAClusterNum.FOUR,
@@ -664,19 +669,19 @@ public class WCAImpl implements WCA, WCAConstants, AmplConstants {
                                                     }
                                                 }
                                             }
-                                            if (causes.size() > 0) {
+                                            if (causes.size() > 0 && parameters.stopWcaOnViolations()) {
                                                 return CompletableFuture.completedFuture(new WCAClusterImpl(contingency,
                                                                                                             WCAClusterNum.FOUR,
                                                                                                             WCAClusterOrigin.HADES_BASE_OFFLINE_RULE,
                                                                                                             causes));
                                             } else {
-                                                return createDomainTaskWithDeps(contingency, baseStateId, securityRuleExpressions, uncertainties, histoLimits, mapper)
+                                                return createDomainTaskWithDeps(contingency, baseStateId, securityRuleExpressions, uncertainties, histoLimits, mapper, parameters.stopWcaOnViolations())
                                                         .thenCompose(cluster -> {
-                                                            if (cluster != null) {
+                                                            if (cluster != null && parameters.stopWcaOnViolations()) {
                                                                 return CompletableFuture.completedFuture(cluster);
                                                             }
                                                             return createClusterWorkflowTask(contingency, baseStateId, contingencyDbFacade, securityRuleExpressions,
-                                                                                             uncertainties, histoLimits, mapper, loadFlow);
+                                                                                             uncertainties, histoLimits, mapper, loadFlow, parameters.stopWcaOnViolations());
                                                         });
                                             }
                                         }, computationManager.getExecutor()));

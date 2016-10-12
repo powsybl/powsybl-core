@@ -28,8 +28,6 @@ import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.exporter.ZipExporter;
 import org.jboss.shrinkwrap.api.nio.file.ShrinkWrapFileSystems;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
-import org.jboss.shrinkwrap.impl.nio.file.ShrinkWrapFileSystem;
-import org.jboss.shrinkwrap.impl.nio.file.ShrinkWrapFileSystemProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -435,7 +433,7 @@ public class DymolaImpactAnalysis implements ImpactAnalysis {
             pathStream.filter((p) -> !p.toFile().isDirectory() && p.toFile().getAbsolutePath().contains("events_") && p.toFile().getAbsolutePath().endsWith(".mo")).
                     forEach(p -> {
                         GenericArchive archive = ShrinkWrap.createDomain().getArchiveFactory().create(GenericArchive.class);
-                        try (FileSystem fileSystem = new ShrinkWrapFileSystem(new ShrinkWrapFileSystemProvider(), archive)) {
+                        try (FileSystem fileSystem = ShrinkWrapFileSystems.newFileSystem(archive)) {
                             Path rootDir = fileSystem.getPath("/");
                             Files.copy(modelicaPowerSystemLibraryPath, rootDir.resolve(modelicaPowerSystemLibraryPath.getFileName()));
                             Files.copy(Paths.get(p.toString()), rootDir.resolve(DymolaUtil.DYMOLA_SIM_MODEL_INPUT_PREFIX+".mo"));
