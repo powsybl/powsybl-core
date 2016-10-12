@@ -47,12 +47,15 @@ public class TableFormatter {
         if (bodyOngoing) {
             throw new IllegalArgumentException("Table body is ongoing, cannot insert a header");
         }
-        writer.append("#").append(title).append("\n")
+        writer.append("#").append(title).append(System.lineSeparator())
               .append("#");
         for (int i = 0; i < columns.length; i++) {
-            writer.append("\"").append(columns[i].getName()).append("\" ");
+            writer.append("\"").append(columns[i].getName()).append("\"");
+            if (i < columns.length-1) {
+                writer.append(" ");
+            }
         }
-        writer.append("\n");
+        writer.append(System.lineSeparator());
         headerDone = true;
         return this;
     }
@@ -63,7 +66,7 @@ public class TableFormatter {
         }
         writer.write("#");
         writer.write(comment);
-        writer.write("\n");
+        writer.write(System.lineSeparator());
         return this;
     }
 
@@ -72,7 +75,7 @@ public class TableFormatter {
             throw new IllegalStateException("The current row does not have enough column: "
                     + column + ", required " + columns.length);
         }
-        writer.write("\n");
+        writer.write(System.lineSeparator());
         column = 0;
         return this;
     }
@@ -82,7 +85,10 @@ public class TableFormatter {
             throw new IllegalStateException("The current row has too many column: "
                     + (column + 1) + ", required " + columns.length);
         }
-        writer.append(value).append(" ");
+        writer.append(value);
+        if (column < columns.length-1) {
+            writer.append(" ");
+        }
         column++;
         bodyOngoing = true;
         return this;
