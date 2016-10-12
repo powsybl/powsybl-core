@@ -1043,7 +1043,7 @@ public class XmlFileContingenciesAndActionsDatabaseClient implements Contingenci
 
 			if (vlId == null) // search all network
 			{
-				LOGGER.info("VoltageLevel for switch "+switchId +" not found on referred zones, searching all network... " );
+				LOGGER.info("No match found for "+switchId +" among the switches of the switch zones voltage levels. Search continues on all network switches... " );
 				Iterator<eu.itesla_project.iidm.network.VoltageLevel> it = network
 						.getVoltageLevels().iterator();
 				while (it.hasNext()) {
@@ -1062,7 +1062,7 @@ public class XmlFileContingenciesAndActionsDatabaseClient implements Contingenci
 				else if (sw.getAction().equals("closing"))
 					elements.add(new SwitchClosingAction(vlId, switchId, sw.getImplementationTime(), sw.getAchievmentIndex()));
 			} else
-				LOGGER.warn("VoltageLevel not found for switch : " + switchId);
+				LOGGER.warn("No match found for " + switchId + " among all network switches. The switch is eliminated from the action element list" );
 
 		}
 
