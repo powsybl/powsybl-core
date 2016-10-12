@@ -8,6 +8,9 @@ package eu.itesla_project.iidm.network.impl;
 
 import eu.itesla_project.iidm.network.*;
 
+import java.util.List;
+import java.util.Objects;
+
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -203,4 +206,33 @@ abstract class AbstractVoltageLevel extends IdentifiableImpl<VoltageLevel> imple
         AbstractBus.visitEquipments(getTerminals(), visitor);
     }
 
+    protected static void addNextTerminals(TerminalExt otherTerminal, List<TerminalExt> nextTerminals) {
+        Objects.requireNonNull(otherTerminal);
+        Objects.requireNonNull(nextTerminals);
+        Connectable otherConnectable = otherTerminal.getConnectable();
+        if (otherConnectable instanceof TwoTerminalsConnectable) {
+            TwoTerminalsConnectable ttc = (TwoTerminalsConnectable) otherConnectable;
+            if (ttc.getTerminal1() == otherTerminal) {
+                nextTerminals.add((TerminalExt) ttc.getTerminal2());
+            } else if (ttc.getTerminal2() == otherTerminal) {
+                nextTerminals.add(((TerminalExt) ttc.getTerminal1()));
+            } else {
+                throw new AssertionError();
+            }
+        } else if (otherConnectable instanceof ThreeWindingsTransformer) {
+            ThreeWindingsTransformer ttc = (ThreeWindingsTransformer) otherConnectable;
+            if (ttc.getLeg1().getTerminal() == otherTerminal) {
+                nextTerminals.add(((TerminalExt) ttc.getLeg2().getTerminal()));
+                nextTerminals.add(((TerminalExt) ttc.getLeg3().getTerminal()));
+            } else if (ttc.getLeg2().getTerminal() == otherTerminal) {
+                nextTerminals.add(((TerminalExt) ttc.getLeg1().getTerminal()));
+                nextTerminals.add(((TerminalExt) ttc.getLeg3().getTerminal()));
+            } else if (ttc.getLeg3().getTerminal() == otherTerminal) {
+                nextTerminals.add(((TerminalExt) ttc.getLeg1().getTerminal()));
+                nextTerminals.add(((TerminalExt) ttc.getLeg2().getTerminal()));
+            } else {
+                throw new AssertionError();
+            }
+        }
+    }
 }

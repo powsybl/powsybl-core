@@ -36,6 +36,11 @@ class SwitchImpl extends IdentifiableImpl<Switch> implements Switch, Stateful {
     }
 
     @Override
+    public VoltageLevelExt getVoltageLevel() {
+        return voltageLevel;
+    }
+
+    @Override
     public SwitchKind getKind() {
         return kind;
     }
