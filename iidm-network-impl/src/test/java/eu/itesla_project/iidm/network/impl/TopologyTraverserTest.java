@@ -161,7 +161,7 @@ public class TopologyTraverserTest {
         return network;
     }
 
-        @Test
+    @Test
     public void test1() {
         Network network = createNodeBreakerNetwork();
 
@@ -179,8 +179,6 @@ public class TopologyTraverserTest {
             }
         });
         Assert.assertEquals(traversed, Arrays.asList("G", "BBS1", "L1", "L1", "BBS2", "LD"));
-
-
     }
 
     @Test

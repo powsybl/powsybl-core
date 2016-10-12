@@ -712,7 +712,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
 
         // check if we are allowed to traverse the terminal itself
         if (traverser.traverse(terminal, terminal.isConnected())) {
-            NodeBreakerVoltageLevel.addNextTerminals(terminal, nextTerminals);
+            addNextTerminals(terminal, nextTerminals);
 
             // then check we can traverse terminal connected to same bus
             int v = getVertex(terminal.getConnectableBusId(), true);
@@ -720,7 +720,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
             for (BusTerminal otherTerminal : bus.getTerminals()) {
                 if (otherTerminal != terminal) {
                     if (traverser.traverse(otherTerminal, otherTerminal.isConnected())) {
-                        NodeBreakerVoltageLevel.addNextTerminals(otherTerminal, nextTerminals);
+                        addNextTerminals(otherTerminal, nextTerminals);
                     }
                 }
             }
@@ -732,7 +732,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
                 if (traverser.traverse(aSwitch)) {
                     for (BusTerminal otherTerminal : otherBus.getTerminals()) {
                         if (traverser.traverse(otherTerminal, otherTerminal.isConnected())) {
-                            NodeBreakerVoltageLevel.addNextTerminals(otherTerminal, nextTerminals);
+                            addNextTerminals(otherTerminal, nextTerminals);
                             return TraverseResult.CONTINUE;
                         } else {
                             return TraverseResult.TERMINATE;
