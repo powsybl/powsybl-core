@@ -14,11 +14,9 @@ import eu.itesla_project.commons.collect.Downcast;
 import eu.itesla_project.graph.TraverseResult;
 import eu.itesla_project.graph.Traverser;
 import eu.itesla_project.graph.UndirectedGraphImpl;
-import eu.itesla_project.graph.UndirectedGraphListener;
 import eu.itesla_project.iidm.network.*;
 import eu.itesla_project.iidm.network.util.Networks;
 import eu.itesla_project.iidm.network.util.ShortIdDictionary;
-import org.joda.time.DateTime;
 
 import java.io.*;
 import java.util.*;
@@ -694,6 +692,62 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         invalidateCache();
 
         return true;
+    }
+
+    void traverse(BusTerminal terminal, VoltageLevel.TopologyTraverser traverser) {
+        traverse(terminal, traverser, new HashSet<>());
+    }
+
+    void traverse(BusTerminal terminal, VoltageLevel.TopologyTraverser traverser, Set<String> traversedVoltageLevelsIds) {
+        Objects.requireNonNull(terminal);
+        Objects.requireNonNull(traverser);
+        Objects.requireNonNull(traversedVoltageLevelsIds);
+
+        if (traversedVoltageLevelsIds.contains(terminal.getVoltageLevel().getId())) {
+            return;
+        }
+        traversedVoltageLevelsIds.add(terminal.getVoltageLevel().getId());
+
+        List<TerminalExt> nextTerminals = new ArrayList<>();
+
+        // check if we are allowed to traverse the terminal itself
+        if (traverser.traverse(terminal, terminal.isConnected())) {
+            NodeBreakerVoltageLevel.addNextTerminals(terminal, nextTerminals);
+
+            // then check we can traverse terminal connected to same bus
+            int v = getVertex(terminal.getConnectableBusId(), true);
+            ConfiguredBus bus = graph.getVertexObject(v);
+            for (BusTerminal otherTerminal : bus.getTerminals()) {
+                if (otherTerminal != terminal) {
+                    if (traverser.traverse(otherTerminal, otherTerminal.isConnected())) {
+                        NodeBreakerVoltageLevel.addNextTerminals(otherTerminal, nextTerminals);
+                    }
+                }
+            }
+
+            // then go through other buses of the substation
+            graph.traverse(v, (v1, e, v2) -> {
+                SwitchImpl aSwitch = graph.getEdgeObject(e);
+                ConfiguredBus otherBus = graph.getVertexObject(v2);
+                if (traverser.traverse(aSwitch)) {
+                    for (BusTerminal otherTerminal : otherBus.getTerminals()) {
+                        if (traverser.traverse(otherTerminal, otherTerminal.isConnected())) {
+                            NodeBreakerVoltageLevel.addNextTerminals(otherTerminal, nextTerminals);
+                            return TraverseResult.CONTINUE;
+                        } else {
+                            return TraverseResult.TERMINATE;
+                        }
+                    }
+                    return TraverseResult.CONTINUE;
+                } else {
+                    return TraverseResult.TERMINATE;
+                }
+            });
+
+            for (TerminalExt nextTerminal : nextTerminals) {
+                nextTerminal.traverse(traverser, traversedVoltageLevelsIds);
+            }
+        }
     }
 
     @Override

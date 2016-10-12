@@ -14,6 +14,12 @@ package eu.itesla_project.iidm.network;
 public interface Switch extends Identifiable<Switch> {
 
     /**
+     * Get the parent voltage level.
+     * @return the parent voltage level
+     */
+    VoltageLevel getVoltageLevel();
+
+    /**
      * Get the kind of switch.
      */
     SwitchKind getKind();

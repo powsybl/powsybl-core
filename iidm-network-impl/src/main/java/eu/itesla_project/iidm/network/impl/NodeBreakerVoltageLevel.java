@@ -904,8 +904,80 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
     boolean isConnected(TerminalExt terminal) {
         assert terminal instanceof NodeTerminal;
         int node = ((NodeTerminal) terminal).getNode();
-        List<TIntArrayList> paths = graph.findAllPaths(node, NodeBreakerVoltageLevel::isBusbarSection, s -> s.isOpen());
+        List<TIntArrayList> paths = graph.findAllPaths(node, NodeBreakerVoltageLevel::isBusbarSection, Switch::isOpen);
         return paths.size() > 0;
+    }
+
+    void traverse(NodeTerminal terminal, VoltageLevel.TopologyTraverser traverser) {
+        traverse(terminal, traverser, new HashSet<>());
+    }
+
+    static void addNextTerminals(TerminalExt otherTerminal, List<TerminalExt> nextTerminals) {
+        Connectable otherConnectable = otherTerminal.getConnectable();
+        if (otherConnectable instanceof TwoTerminalsConnectable) {
+            TwoTerminalsConnectable ttc = (TwoTerminalsConnectable) otherConnectable;
+            if (ttc.getTerminal1() == otherTerminal) {
+                nextTerminals.add((TerminalExt) ttc.getTerminal2());
+            } else if (ttc.getTerminal2() == otherTerminal) {
+                nextTerminals.add(((TerminalExt) ttc.getTerminal1()));
+            } else {
+                throw new AssertionError();
+            }
+        } else if (otherConnectable instanceof ThreeWindingsTransformer) {
+            ThreeWindingsTransformer ttc = (ThreeWindingsTransformer) otherConnectable;
+            if (ttc.getLeg1().getTerminal() == otherTerminal) {
+                nextTerminals.add(((TerminalExt) ttc.getLeg2().getTerminal()));
+                nextTerminals.add(((TerminalExt) ttc.getLeg3().getTerminal()));
+            } else if (ttc.getLeg2().getTerminal() == otherTerminal) {
+                nextTerminals.add(((TerminalExt) ttc.getLeg1().getTerminal()));
+                nextTerminals.add(((TerminalExt) ttc.getLeg3().getTerminal()));
+            } else if (ttc.getLeg3().getTerminal() == otherTerminal) {
+                nextTerminals.add(((TerminalExt) ttc.getLeg1().getTerminal()));
+                nextTerminals.add(((TerminalExt) ttc.getLeg2().getTerminal()));
+            } else {
+                throw new AssertionError();
+            }
+        }
+    }
+
+    void traverse(NodeTerminal terminal, VoltageLevel.TopologyTraverser traverser, Set<String> traversedVoltageLevelsIds) {
+        Objects.requireNonNull(terminal);
+        Objects.requireNonNull(traverser);
+        Objects.requireNonNull(traversedVoltageLevelsIds);
+
+        if (traversedVoltageLevelsIds.contains(terminal.getVoltageLevel().getId())) {
+            return;
+        }
+        traversedVoltageLevelsIds.add(terminal.getVoltageLevel().getId());
+
+        if (traverser.traverse(terminal, true)) {
+            int node = terminal.getNode();
+            List<TerminalExt> nextTerminals = new ArrayList<>();
+
+            addNextTerminals(terminal, nextTerminals);
+
+            graph.traverse(node, (v1, e, v2) -> {
+                SwitchImpl aSwitch = graph.getEdgeObject(e);
+                NodeTerminal otherTerminal = graph.getVertexObject(v2);
+                if (traverser.traverse(aSwitch)) {
+                    if (otherTerminal == null) {
+                        return TraverseResult.CONTINUE;
+                    } else if ((otherTerminal != null && traverser.traverse(otherTerminal, true))) {
+                        addNextTerminals(otherTerminal, nextTerminals);
+                        addNextTerminals(otherTerminal, nextTerminals);
+                        return TraverseResult.CONTINUE;
+                    } else {
+                        return TraverseResult.TERMINATE;
+                    }
+                } else {
+                    return TraverseResult.TERMINATE;
+                }
+            });
+
+            for (TerminalExt nextTerminal : nextTerminals) {
+                nextTerminal.traverse(traverser, traversedVoltageLevelsIds);
+            }
+        }
     }
 
     @Override

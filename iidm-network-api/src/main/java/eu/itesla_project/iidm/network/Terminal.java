@@ -154,4 +154,10 @@ public interface Terminal {
      */
     boolean isConnected();
 
+    /**
+     * Traverse the full network topology graph.
+     * @param traverser traversal handler
+     */
+    void traverse(VoltageLevel.TopologyTraverser traverser);
+
 }
