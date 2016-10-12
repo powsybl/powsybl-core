@@ -564,6 +564,30 @@ public interface VoltageLevel extends Container<VoltageLevel> {
     }
 
     /**
+     * Topology traversal handler
+     */
+    interface TopologyTraverser {
+
+        /**
+         * Called when a terminal in encountered.
+         *
+         * @param terminal the encountered terminal
+         * @param connected in bus/breaker topology, give the terminal connection status
+         * @return true to continue the graph traversal, false otherwise
+         */
+        boolean traverse(Terminal terminal, boolean connected);
+
+        /**
+         * Called when a switch in encountered
+         *
+         * @param aSwitch the encountered switch
+         * @return true to continue the graph traversal, false otherwise
+         */
+        boolean traverse(Switch aSwitch);
+
+    }
+
+    /**
      * Get the substation to which the voltage level belongs.
      */
     Substation getSubstation();

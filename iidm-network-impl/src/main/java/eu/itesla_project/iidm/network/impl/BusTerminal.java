@@ -6,11 +6,13 @@
  */
 package eu.itesla_project.iidm.network.impl;
 
+import eu.itesla_project.iidm.network.VoltageLevel;
 import eu.itesla_project.iidm.network.impl.util.Ref;
 
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * A terminal connected to a bus/breaker topology.
@@ -97,6 +99,16 @@ class BusTerminal extends AbstractTerminal {
     @Override
     public boolean isConnected() {
         return this.connected.get(network.get().getStateIndex());
+    }
+
+    @Override
+    public void traverse(VoltageLevel.TopologyTraverser traverser, Set<String> traversedVoltageLevelsIds) {
+        ((BusBreakerVoltageLevel) voltageLevel).traverse(this, traverser, traversedVoltageLevelsIds);
+    }
+
+    @Override
+    public void traverse(VoltageLevel.TopologyTraverser traverser) {
+        ((BusBreakerVoltageLevel) voltageLevel).traverse(this, traverser);
     }
 
     @Override
