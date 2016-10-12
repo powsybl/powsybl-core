@@ -147,7 +147,8 @@ public class OnlineDbMVStore implements OnlineDb {
     private static final String STORED_WCA_RULES_RESULTS_STATE_STATUS_MAP_SUFFIX = "_wcarulesstatus";
     private static final String STORED_WCA_RULES_RESULTS_STATE_RULES_AVAILABLE_MAP_SUFFIX = "_wcarulesavailable";
     private static final String STORED_WCA_RULES_RESULTS_STATE_INVALID_RULES_MAP_SUFFIX = "_wcarulesinvalid";
-    private static final String SERIALIZED_STATES_FILENAME = "network-states.csv";	
+    private static final String SERIALIZED_STATES_FILENAME = "network-states.csv";
+    private final String[] XIIDMEXTENSIONS = { ".xiidm", ".iidm", ".xml" };
 
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OnlineDbMVStore.class);
@@ -1003,8 +1004,18 @@ public class OnlineDbMVStore implements OnlineDb {
             Path workflowStatesFolder = getWorkflowStatesFolder(workflowId);
             Path stateFolder = Paths.get(workflowStatesFolder.toString(), STORED_STATE_PREFIX + stateId);
             if ( Files.exists(stateFolder) ) {
-                Path stateFile = Paths.get(stateFolder.toString(), network.getId() + ".xml");
-                stateFile.toFile().delete();
+                //remove current state file, if it already exists
+                for (int i = 0; i < XIIDMEXTENSIONS.length; i++) {
+                    Path stateFile = Paths.get(stateFolder.toString(), network.getId() + XIIDMEXTENSIONS[i]);
+                    try {
+                        Files.deleteIfExists(stateFile);
+                    } catch (IOException e) {
+                        String errorMessage = "online db: folder " + workflowStatesFolder + " for workflow " + workflowId
+                                + " , state " + stateIdStr + " ; cannot remove existing state file: " + e.getMessage();
+                        LOGGER.error(errorMessage);
+                        throw new RuntimeException(errorMessage);
+                    }
+                }
             } else {
                 try {
                     Files.createDirectories(stateFolder);
@@ -1112,9 +1123,11 @@ public class OnlineDbMVStore implements OnlineDb {
         if ( Files.exists(stateFolder) && Files.isDirectory(stateFolder) ) {
             if ( stateFolder.toFile().list().length == 1 ) {
                 File stateFile = stateFolder.toFile().listFiles()[0];
-                String stateFileName = stateFile.getName();
-                if ( stateFileName.endsWith(".xml"));
-                String basename = stateFileName.substring(0, stateFileName.length()-4);
+                String basename = stateFile.getName();
+                int extIndex = basename.lastIndexOf(".");
+                if (extIndex > 0) {
+                    basename = basename.substring(0, extIndex);
+                }
                 DataSource dataSource = new FileDataSource(stateFolder, basename);
                 //Network network = Importers.import_("XIIDM", dataSource, null);
                 // with the new post processors configuration, the post processing is applied also to xml import
