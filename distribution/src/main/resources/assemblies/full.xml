@@ -45,5 +45,16 @@
                 <include>*.so</include>
             </includes>
         </fileSet>
+
+        <!-- include further resources -->
+        <!-- actions.xsd from iidm-actions-contingencies-xml-client module,  to be put in etc -->
+        <fileSet>
+            <directory>${project.basedir}/../iidm-actions-contingencies-xml-client/src/main/resources</directory>
+            <outputDirectory>etc</outputDirectory>
+            <includes>
+                <include>actions.xsd</include>
+            </includes>
+            <fileMode>0644</fileMode>
+        </fileSet>
     </fileSets>
 </assembly>
