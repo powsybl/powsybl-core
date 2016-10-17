@@ -13,8 +13,9 @@ import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian@ at rte-france.com>
+ * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public class PostContingencyResult extends PreContingencyResult {
+public class PostContingencyResult extends ContingencyResult {
 
     private final Contingency contingency;
 

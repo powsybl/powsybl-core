@@ -248,7 +248,7 @@ public class OverloadValidationTool implements Tool {
                     for (PostContingencyResult postContingencyResult : securityAnalysisResult.getPostContingencyResults()) {
                         Contingency contingency = postContingencyResult.getContingency();
                         boolean lfOk = postContingencyResult.isComputationOk()
-                                && postContingencyResult.getLimitViolations().isEmpty() ;
+                                && postContingencyResult.getLimitViolations().isEmpty();
                         Map<SecurityIndexType, SecurityRuleCheckStatus> offlineRuleCheck = offlineRuleCheckPerContingency.get(contingency.getId());
                         boolean offlineRuleOk = offlineRuleCheck != null && offlineRuleCheck.get(SecurityIndexType.TSO_OVERLOAD) == SecurityRuleCheckStatus.OK;
                         statusPerContingency.put(contingency.getId(), new OverloadStatus(offlineRuleOk, lfOk));

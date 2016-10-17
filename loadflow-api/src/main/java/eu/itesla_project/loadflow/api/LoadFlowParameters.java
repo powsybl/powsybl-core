@@ -73,7 +73,8 @@ public class LoadFlowParameters implements Cloneable {
         this(DEFAULT_VOLTAGE_INIT_MODE, DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON, DEFAULT_NO_GENERATOR_REACTIVE_LIMITS, DEFAULT_PHASE_SHIFTER_REGULATION_ON);
     }
 
-    public LoadFlowParameters(LoadFlowParameters other) {
+    private LoadFlowParameters(LoadFlowParameters other) {
+        Objects.requireNonNull(other);
         voltageInitMode = other.voltageInitMode;
         transformerVoltageControlOn = other.transformerVoltageControlOn;
         noGeneratorReactiveLimits = other.noGeneratorReactiveLimits;

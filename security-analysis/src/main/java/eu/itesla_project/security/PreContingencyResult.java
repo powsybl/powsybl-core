@@ -7,27 +7,14 @@
 package eu.itesla_project.security;
 
 import java.util.List;
-import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public class PreContingencyResult {
-
-    private final boolean computationOk;
-
-    private final List<LimitViolation> limitViolations;
+public class PreContingencyResult extends ContingencyResult {
 
     public PreContingencyResult(boolean computationOk, List<LimitViolation> limitViolations) {
-        this.computationOk = computationOk;
-        this.limitViolations = Objects.requireNonNull(limitViolations);
-    }
-
-    public boolean isComputationOk() {
-        return computationOk;
-    }
-
-    public List<LimitViolation> getLimitViolations() {
-        return limitViolations;
+        super(computationOk, limitViolations);
     }
 }
