@@ -12,7 +12,7 @@ import java.util.List;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public class PreContingencyResult extends ContingencyResult {
+public class PreContingencyResult extends LimitViolationsResult {
 
     public PreContingencyResult(boolean computationOk, List<LimitViolation> limitViolations) {
         super(computationOk, limitViolations);

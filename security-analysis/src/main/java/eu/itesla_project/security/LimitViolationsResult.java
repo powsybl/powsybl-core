@@ -12,13 +12,13 @@ import java.util.Objects;
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-abstract class ContingencyResult {
+abstract class LimitViolationsResult {
 
     private final boolean computationOk;
 
     private final List<LimitViolation> limitViolations;
 
-    public ContingencyResult(boolean computationOk, List<LimitViolation> limitViolations) {
+    public LimitViolationsResult(boolean computationOk, List<LimitViolation> limitViolations) {
         this.computationOk = computationOk;
         this.limitViolations = Objects.requireNonNull(limitViolations);
     }
