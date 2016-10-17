@@ -11,13 +11,14 @@ import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableMap;
 import com.google.gdata.util.common.base.Pair;
+import eu.itesla_project.commons.io.table.Column;
+import eu.itesla_project.commons.io.table.TableFormatter;
 import eu.itesla_project.commons.util.StringToIntMapper;
 import eu.itesla_project.computation.*;
 import eu.itesla_project.iidm.datasource.DataSource;
 import eu.itesla_project.iidm.datasource.FileDataSource;
 import eu.itesla_project.iidm.export.ampl.*;
-import eu.itesla_project.iidm.export.ampl.util.Column;
-import eu.itesla_project.iidm.export.ampl.util.TableFormatter;
+import eu.itesla_project.iidm.export.ampl.util.AmplDatTableFormatter;
 import eu.itesla_project.iidm.network.Identifiable;
 import eu.itesla_project.iidm.network.Network;
 import eu.itesla_project.loadflow.api.LoadFlow;
@@ -228,17 +229,18 @@ public class WCAImpl implements WCA, WCAConstants, AmplConstants {
     }
 
     private static void writeContingencies(Collection<Contingency> contingencies, DataSource dataSource, StringToIntMapper<AmplSubset> mapper) {
-        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream(FAULTS_FILE_SUFFIX, TXT_EXT, false), StandardCharsets.UTF_8)) {
-            TableFormatter formatter = new TableFormatter(LOCALE, writer, "Contingencies",
+        try (TableFormatter formatter = new AmplDatTableFormatter(
+                    new OutputStreamWriter(dataSource.newOutputStream(FAULTS_FILE_SUFFIX, TXT_EXT, false), StandardCharsets.UTF_8),
+                    "Contingencies",
                     INVALID_FLOAT_VALUE,
+                    true,
+                    LOCALE,
                     new Column("num"),
-                    new Column("id"));
-            formatter.writeHeader();
+                    new Column("id"))) {
             for (Contingency contingency : contingencies) {
                 int contingencyNum = mapper.getInt(AmplSubset.FAULT, contingency.getId());
                 formatter.writeCell(contingencyNum)
-                        .writeCell(contingency.getId())
-                        .newRow();
+                        .writeCell(contingency.getId());
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -246,17 +248,18 @@ public class WCAImpl implements WCA, WCAConstants, AmplConstants {
     }
 
     private static void writeCurativeActions(Collection<String> curativeActionIds, DataSource dataSource, StringToIntMapper<AmplSubset> mapper) {
-        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream(ACTIONS_FILE_SUFFIX, TXT_EXT, false), StandardCharsets.UTF_8)) {
-            TableFormatter formatter = new TableFormatter(LOCALE, writer, "Curative actions",
+        try (TableFormatter formatter = new AmplDatTableFormatter(
+                    new OutputStreamWriter(dataSource.newOutputStream(ACTIONS_FILE_SUFFIX, TXT_EXT, false), StandardCharsets.UTF_8),
+                    "Curative actions",
                     INVALID_FLOAT_VALUE,
+                    true,
+                    LOCALE,
                     new Column("num"),
-                    new Column("id"));
-            formatter.writeHeader();
+                    new Column("id"))) {
             for (String curativeActionId : curativeActionIds) {
                 int actionNum = mapper.getInt(AmplSubset.CURATIVE_ACTION, curativeActionId);
                 formatter.writeCell(actionNum)
-                        .writeCell(curativeActionId)
-                        .newRow();
+                        .writeCell(curativeActionId);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
