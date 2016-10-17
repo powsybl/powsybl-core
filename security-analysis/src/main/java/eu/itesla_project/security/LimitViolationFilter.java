@@ -53,6 +53,10 @@ public class LimitViolationFilter {
 
     private float minBaseVoltage;
 
+    public LimitViolationFilter(Set<LimitViolationType> violationTypes) {
+        this(violationTypes, DEFAULT_MIN_BASE_VOLTAGE);
+    }
+
     public LimitViolationFilter() {
         this(DEFAULT_VIOLATION_TYPES, DEFAULT_MIN_BASE_VOLTAGE);
     }
