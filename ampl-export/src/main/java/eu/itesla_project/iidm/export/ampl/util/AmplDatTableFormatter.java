@@ -41,13 +41,12 @@ public class AmplDatTableFormatter extends CsvTableFormatter {
     }
 
     @Override
-    public AmplDatTableFormatter writeCell(String s) throws IOException {
-        write("\"" + s + "\"");
-        return this;
+    public TableFormatter writeCell(String s) throws IOException {
+        return write("\"" + s + "\"");
     }
 
     @Override
-    public AmplDatTableFormatter writeComment(String comment) throws IOException {
+    public TableFormatter writeComment(String comment) throws IOException {
         if (column != 0) {
             throw new IllegalStateException("Row has to be completed to start a comment");
         }

@@ -66,12 +66,12 @@ public class CsvTableFormatter extends AbstractTableFormatter {
     }
 
     @Override
-    public CsvTableFormatter writeComment(String comment) throws IOException {
+    public TableFormatter writeComment(String comment) throws IOException {
         return this;
     }
 
     @Override
-    protected CsvTableFormatter write(String value) throws IOException {
+    protected TableFormatter write(String value) throws IOException {
         writeHeaderIfNotDone();
         writer.append(value);
         if (column < columns.length-1) {

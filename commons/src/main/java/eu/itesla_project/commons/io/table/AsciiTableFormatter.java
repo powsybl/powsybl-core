@@ -40,13 +40,13 @@ public class AsciiTableFormatter extends AbstractTableFormatter {
     }
 
     @Override
-    public AsciiTableFormatter writeComment(String comment) throws IOException {
+    public TableFormatter writeComment(String comment) throws IOException {
         // not supported
         return this;
     }
 
     @Override
-    protected AsciiTableFormatter write(String value) throws IOException {
+    protected TableFormatter write(String value) throws IOException {
         table.addCell(value);
         return this;
     }
