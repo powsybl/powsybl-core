@@ -46,7 +46,7 @@ public class AsciiTableFormatter extends AbstractTableFormatter {
     }
 
     @Override
-    protected TableFormatter write(String value) throws IOException {
+    protected AsciiTableFormatter write(String value) throws IOException {
         table.addCell(value);
         return this;
     }

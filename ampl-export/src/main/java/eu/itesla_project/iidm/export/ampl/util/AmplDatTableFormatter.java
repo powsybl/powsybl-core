@@ -24,8 +24,8 @@ import java.util.Locale;
  */
 public class AmplDatTableFormatter extends CsvTableFormatter {
 
-    public AmplDatTableFormatter(Writer writer, String title, float invalidFloatValue, boolean header, Locale locale, Column... columns) {
-        super(writer, title, ' ', Float.toString(invalidFloatValue), header, locale, columns);
+    public AmplDatTableFormatter(Writer writer, String title, float invalidFloatValue, boolean writeHeader, Locale locale, Column... columns) {
+        super(writer, title, ' ', Float.toString(invalidFloatValue), writeHeader, locale, columns);
     }
 
     protected void writeHeader() throws IOException {
@@ -41,8 +41,9 @@ public class AmplDatTableFormatter extends CsvTableFormatter {
     }
 
     @Override
-    public TableFormatter writeCell(String s) throws IOException {
-        return write("\"" + s + "\"");
+    public AmplDatTableFormatter writeCell(String s) throws IOException {
+        write("\"" + s + "\"");
+        return this;
     }
 
     @Override

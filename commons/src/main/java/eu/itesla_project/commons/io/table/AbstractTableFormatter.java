@@ -32,6 +32,11 @@ public abstract class AbstractTableFormatter implements TableFormatter {
     }
 
     @Override
+    public TableFormatter writeEmptyCell() throws IOException {
+        return writeCell("");
+    }
+
+    @Override
     public TableFormatter writeCell(char c) throws IOException {
         return write(Character.toString(c));
     }

@@ -37,13 +37,13 @@ public class CsvTableFormatter extends AbstractTableFormatter {
         this(writer, title, ';', "inv", true, locale, columns);
     }
 
-    public CsvTableFormatter(Writer writer, String title, char separator, String invalidString, boolean header, Locale locale, Column... columns) {
+    public CsvTableFormatter(Writer writer, String title, char separator, String invalidString, boolean writeHeader, Locale locale, Column... columns) {
         super(locale, invalidString);
         this.writer = Objects.requireNonNull(writer);
         this.title = Objects.requireNonNull(title);
         this.separator = separator;
         this.columns = Objects.requireNonNull(columns);
-        headerDone = !header;
+        headerDone = !writeHeader;
     }
 
     private void writeHeaderIfNotDone() throws IOException {
