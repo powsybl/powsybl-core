@@ -16,7 +16,7 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class LoadFlowParameters {
+public class LoadFlowParameters implements Cloneable {
 
     private static final VoltageInitMode DEFAULT_VOLTAGE_INIT_MODE = VoltageInitMode.UNIFORM_VALUES;
     private static final boolean DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON = false;
@@ -73,6 +73,14 @@ public class LoadFlowParameters {
         this(DEFAULT_VOLTAGE_INIT_MODE, DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON, DEFAULT_NO_GENERATOR_REACTIVE_LIMITS, DEFAULT_PHASE_SHIFTER_REGULATION_ON);
     }
 
+    private LoadFlowParameters(LoadFlowParameters other) {
+        Objects.requireNonNull(other);
+        voltageInitMode = other.voltageInitMode;
+        transformerVoltageControlOn = other.transformerVoltageControlOn;
+        noGeneratorReactiveLimits = other.noGeneratorReactiveLimits;
+        phaseShifterRegulationOn = other.phaseShifterRegulationOn;
+    }
+
     public VoltageInitMode getVoltageInitMode() {
         return voltageInitMode;
     }
@@ -114,6 +122,11 @@ public class LoadFlowParameters {
                                "transformerVoltageControlOn", transformerVoltageControlOn,
                                "noGeneratorReactiveLimits", noGeneratorReactiveLimits,
                                "phaseShifterRegulationOn", phaseShifterRegulationOn);
+    }
+
+    @Override
+    public LoadFlowParameters clone() {
+        return new LoadFlowParameters(this);
     }
 
     @Override
