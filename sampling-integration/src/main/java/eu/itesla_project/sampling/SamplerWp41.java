@@ -12,7 +12,7 @@ import com.jmatio.types.MLArray;
 import com.jmatio.types.MLChar;
 import com.jmatio.types.MLDouble;
 import eu.itesla_project.commons.Version;
-import eu.itesla_project.commons.io.PlatformConfig;
+import eu.itesla_project.commons.config.PlatformConfig;
 import eu.itesla_project.computation.*;
 import eu.itesla_project.iidm.network.Network;
 import eu.itesla_project.modules.histo.HistoDbClient;

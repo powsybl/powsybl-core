@@ -16,6 +16,10 @@ import java.nio.file.StandardOpenOption;
 import java.util.*;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
+
+import eu.itesla_project.commons.config.ModuleConfig;
+import eu.itesla_project.commons.config.PropertiesPlatformConfig;
+import eu.itesla_project.commons.config.XmlPlatformConfig;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.nio.file.ShrinkWrapFileSystems;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;

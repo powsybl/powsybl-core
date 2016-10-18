@@ -11,7 +11,7 @@ import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import eu.itesla_project.commons.Version;
-import eu.itesla_project.commons.io.PlatformConfig;
+import eu.itesla_project.commons.config.PlatformConfig;
 import eu.itesla_project.computation.*;
 import eu.itesla_project.contingency.ContingenciesProvider;
 import eu.itesla_project.iidm.eurostag.export.EurostagDictionary;

@@ -6,8 +6,8 @@
  */
 package eu.itesla_project.simulation;
 
-import eu.itesla_project.commons.io.ModuleConfig;
-import eu.itesla_project.commons.io.PlatformConfig;
+import eu.itesla_project.commons.config.ModuleConfig;
+import eu.itesla_project.commons.config.PlatformConfig;
 
 /**
  * Parameters used to convert a contingency static description to a dynamic simulation scenario.

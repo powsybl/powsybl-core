@@ -6,8 +6,8 @@
  */
 package eu.itesla_project.dymola.contingency;
 
-import eu.itesla_project.commons.io.ModuleConfig;
-import eu.itesla_project.commons.io.PlatformConfig;
+import eu.itesla_project.commons.config.ModuleConfig;
+import eu.itesla_project.commons.config.PlatformConfig;
 import eu.itesla_project.contingency.ContingenciesProviderFactory;
 
 import java.nio.file.Path;

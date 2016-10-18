@@ -6,8 +6,8 @@
  */
 package eu.itesla_project.rulesdb.fs;
 
-import eu.itesla_project.commons.io.ModuleConfig;
-import eu.itesla_project.commons.io.PlatformConfig;
+import eu.itesla_project.commons.config.ModuleConfig;
+import eu.itesla_project.commons.config.PlatformConfig;
 import eu.itesla_project.modules.rules.RulesDbClient;
 import eu.itesla_project.modules.rules.RulesDbClientFactory;
 

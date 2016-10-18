@@ -9,8 +9,8 @@ package eu.itesla_project.cases;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import eu.itesla_project.commons.io.ModuleConfig;
-import eu.itesla_project.commons.io.PlatformConfig;
+import eu.itesla_project.commons.config.ModuleConfig;
+import eu.itesla_project.commons.config.PlatformConfig;
 import eu.itesla_project.iidm.import_.Importers;
 import eu.itesla_project.ucte.util.UcteGeographicalCode;
 

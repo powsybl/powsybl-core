@@ -8,8 +8,8 @@ package eu.itesla_project.modules.offline;
 
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
-import eu.itesla_project.commons.io.ModuleConfig;
-import eu.itesla_project.commons.io.PlatformConfig;
+import eu.itesla_project.commons.config.ModuleConfig;
+import eu.itesla_project.commons.config.PlatformConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
