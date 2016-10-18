@@ -42,7 +42,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>ucte-util</artifactId>
+            <artifactId>entsoe-util</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

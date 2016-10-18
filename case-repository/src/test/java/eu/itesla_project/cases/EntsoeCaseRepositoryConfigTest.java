@@ -9,7 +9,7 @@ package eu.itesla_project.cases;
 import com.google.common.collect.Sets;
 import eu.itesla_project.commons.config.InMemoryPlatformConfig;
 import eu.itesla_project.commons.config.MapModuleConfig;
-import eu.itesla_project.ucte.util.UcteGeographicalCode;
+import eu.itesla_project.entsoe.util.EntsoeGeographicalCode;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.nio.file.ShrinkWrapFileSystems;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
@@ -57,9 +57,9 @@ public class EntsoeCaseRepositoryConfigTest {
         config = EntsoeCaseRepositoryConfig.load(platformConfig, Arrays.asList("CIM1", "UCTE"));
         assertTrue(config.getRootDir().toString().equals("/config"));
         assertTrue(config.getForbiddenFormatsByGeographicalCode().size() == 2);
-        assertTrue(config.getForbiddenFormatsByGeographicalCode().get(UcteGeographicalCode.FR).equals(Sets.newHashSet("CIM1")));
-        assertTrue(config.getForbiddenFormatsByGeographicalCode().get(UcteGeographicalCode.BE).equals(Sets.newHashSet("CIM1")));
-        assertTrue(config.getForbiddenFormatsByGeographicalCode().get(UcteGeographicalCode.D2).isEmpty());
+        assertTrue(config.getForbiddenFormatsByGeographicalCode().get(EntsoeGeographicalCode.FR).equals(Sets.newHashSet("CIM1")));
+        assertTrue(config.getForbiddenFormatsByGeographicalCode().get(EntsoeGeographicalCode.BE).equals(Sets.newHashSet("CIM1")));
+        assertTrue(config.getForbiddenFormatsByGeographicalCode().get(EntsoeGeographicalCode.D2).isEmpty());
     }
 
     @Test
