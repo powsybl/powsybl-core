@@ -9,8 +9,8 @@ package eu.itesla_project.modules.wca;
 import eu.itesla_project.iidm.network.*;
 import eu.itesla_project.iidm.network.util.ConnectedComponents;
 import eu.itesla_project.iidm.network.util.Identifiables;
-import eu.itesla_project.ucte.util.BoundaryPoint;
-import eu.itesla_project.ucte.util.BoundaryPointXlsParser;
+import eu.itesla_project.entsoe.util.BoundaryPoint;
+import eu.itesla_project.entsoe.util.BoundaryPointXlsParser;
 
 import java.io.IOException;
 import java.util.ArrayList;

@@ -18,10 +18,10 @@
         <version>0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>ucte-util</artifactId>
+    <artifactId>entsoe-util</artifactId>
 
-    <name>UCTE util</name>
-    <description>Utilities for working with UCTE data</description>
+    <name>ENTSO-E util</name>
+    <description>Utilities for working with ENTSO-E data</description>
 
     <dependencies>
         <dependency>

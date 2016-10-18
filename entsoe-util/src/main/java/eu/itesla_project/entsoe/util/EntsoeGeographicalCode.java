@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.ucte.util;
+package eu.itesla_project.entsoe.util;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
@@ -17,7 +17,7 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public enum UcteGeographicalCode {
+public enum EntsoeGeographicalCode {
     AT(Country.AT),
     BE(Country.BE),
     CH(Country.CH),
@@ -36,16 +36,16 @@ public enum UcteGeographicalCode {
     NO(Country.NO), // not a real UCTE geo code but necessary to work with nordic
     UX(null);
 
-    private static Multimap<Country, UcteGeographicalCode> COUNTRY_TO_GEOGRAPHICAL_CODES;
+    private static Multimap<Country, EntsoeGeographicalCode> COUNTRY_TO_GEOGRAPHICAL_CODES;
 
     private static final Lock LOCK = new ReentrantLock();
 
-    public static Collection<UcteGeographicalCode> forCountry(Country country) {
+    public static Collection<EntsoeGeographicalCode> forCountry(Country country) {
         LOCK.lock();
         try {
             if (COUNTRY_TO_GEOGRAPHICAL_CODES == null) {
                 COUNTRY_TO_GEOGRAPHICAL_CODES = HashMultimap.create();
-                for (UcteGeographicalCode geographicalCode : UcteGeographicalCode.values()) {
+                for (EntsoeGeographicalCode geographicalCode : EntsoeGeographicalCode.values()) {
                     COUNTRY_TO_GEOGRAPHICAL_CODES.put(geographicalCode.getCountry(), geographicalCode);
                 }
             }
@@ -57,7 +57,7 @@ public enum UcteGeographicalCode {
 
     private final Country country;
 
-    UcteGeographicalCode(Country country) {
+    EntsoeGeographicalCode(Country country) {
         this.country = country;
     }
 

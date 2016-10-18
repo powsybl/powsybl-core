@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.ucte.util;
+package eu.itesla_project.entsoe.util;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class UcteFileName {
+public class EntsoeFileName {
 
     private static final Pattern DATE_REGEX = Pattern.compile(".*(\\d{4})[- /._]?(\\d{2})[- /._]?(\\d{2})[- /._]?(\\d{2})[- /._]?(\\d{2}).*");
 
@@ -24,12 +24,12 @@ public class UcteFileName {
 
     private final int forecastDistance;
 
-    private final UcteGeographicalCode geographicalCode;
+    private final EntsoeGeographicalCode geographicalCode;
 
-    public static UcteFileName parse(String str) {
+    public static EntsoeFileName parse(String str) {
         DateTime date = DateTime.now();
         int forecastDistance = 0;
-        UcteGeographicalCode geographicalCode = null;
+        EntsoeGeographicalCode geographicalCode = null;
         Matcher m = DATE_REGEX.matcher(str);
         if (m.matches()) {
             // time zone is Europe/Paris
@@ -48,13 +48,13 @@ public class UcteFileName {
             }
         }
         if (str.length() >= 19) {
-            geographicalCode = UcteGeographicalCode.valueOf(str.substring(18, 20));
+            geographicalCode = EntsoeGeographicalCode.valueOf(str.substring(18, 20));
         }
 
-        return new UcteFileName(date, forecastDistance, geographicalCode);
+        return new EntsoeFileName(date, forecastDistance, geographicalCode);
     }
 
-    private UcteFileName(DateTime date, int forecastDistance, UcteGeographicalCode geographicalCode) {
+    private EntsoeFileName(DateTime date, int forecastDistance, EntsoeGeographicalCode geographicalCode) {
         this.date = date;
         this.forecastDistance = forecastDistance;
         this.geographicalCode = geographicalCode;
@@ -68,7 +68,7 @@ public class UcteFileName {
         return forecastDistance;
     }
 
-    public UcteGeographicalCode getGeographicalCode() {
+    public EntsoeGeographicalCode getGeographicalCode() {
         return geographicalCode;
     }
 

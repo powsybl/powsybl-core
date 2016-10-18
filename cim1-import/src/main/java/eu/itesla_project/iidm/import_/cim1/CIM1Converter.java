@@ -10,7 +10,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Multimap;
 import eu.itesla_project.iidm.network.*;
-import eu.itesla_project.ucte.util.UcteFileName;
+import eu.itesla_project.entsoe.util.EntsoeFileName;
 import org.jgrapht.UndirectedGraph;
 import org.jgrapht.alg.ConnectivityInspector;
 import org.jgrapht.graph.Pseudograph;
@@ -1191,11 +1191,11 @@ class CIM1Converter implements CIM1Constants {
             }
         }
 
-        UcteFileName ucteFileName = UcteFileName.parse(fileName);
+        EntsoeFileName entsoeFileName = EntsoeFileName.parse(fileName);
 
         Network network = NetworkFactory.create(fileName, FORMAT);
-        network.setCaseDate(ucteFileName.getDate());
-        network.setForecastDistance(ucteFileName.getForecastDistance());
+        network.setCaseDate(entsoeFileName.getDate());
+        network.setForecastDistance(entsoeFileName.getForecastDistance());
 
         // Ends of transformers need to be in the same substation in the IIDM model, so check that a mapping is
         // not needed
