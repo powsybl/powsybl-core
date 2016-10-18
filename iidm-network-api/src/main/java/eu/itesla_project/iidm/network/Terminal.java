@@ -135,21 +135,29 @@ public interface Terminal {
     /**
      * Try to connect the terminal.
      * <p>Depends on the working state.
+     * @return true if terminal has been connected, false otherwise
      * @see StateManager
      */
-    void connect();
+    boolean connect();
 
     /**
      * Disconnect the terminal.
      * <p>Depends on the working state.
+     * @return true if terminal has been disconnected, false otherwise
      * @see StateManager
      */
-    void disconnect();
+    boolean disconnect();
 
     /**
      * Test if the terminal is connected.
      * @return true if the terminal is connected, false otherwise
      */
     boolean isConnected();
+
+    /**
+     * Traverse the full network topology graph.
+     * @param traverser traversal handler
+     */
+    void traverse(VoltageLevel.TopologyTraverser traverser);
 
 }

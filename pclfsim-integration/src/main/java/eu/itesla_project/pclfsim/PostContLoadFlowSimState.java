@@ -6,8 +6,8 @@
  */
 package eu.itesla_project.pclfsim;
 
-import eu.itesla_project.modules.security.LimitViolation;
-import eu.itesla_project.modules.simulation.SimulationState;
+import eu.itesla_project.security.LimitViolation;
+import eu.itesla_project.simulation.SimulationState;
 
 import java.util.List;
 import java.util.Objects;

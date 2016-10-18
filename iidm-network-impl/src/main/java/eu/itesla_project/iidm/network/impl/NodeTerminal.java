@@ -6,11 +6,13 @@
  */
 package eu.itesla_project.iidm.network.impl;
 
+import eu.itesla_project.iidm.network.VoltageLevel;
 import eu.itesla_project.iidm.network.impl.util.Ref;
 import gnu.trove.list.array.TFloatArrayList;
 import gnu.trove.list.array.TIntArrayList;
 
 import java.util.ArrayList;
+import java.util.Set;
 
 /**
  * A terminal connected to a node breaker topology.
@@ -136,6 +138,16 @@ class NodeTerminal extends AbstractTerminal {
     @Override
     public boolean isConnected() {
         return ((NodeBreakerVoltageLevel) voltageLevel).isConnected(this);
+    }
+
+    @Override
+    public void traverse(VoltageLevel.TopologyTraverser traverser, Set<String> traversedVoltageLevelsIds) {
+        ((NodeBreakerVoltageLevel) voltageLevel).traverse(this, traverser, traversedVoltageLevelsIds);
+    }
+
+    @Override
+    public void traverse(VoltageLevel.TopologyTraverser traverser) {
+        ((NodeBreakerVoltageLevel) voltageLevel).traverse(this, traverser);
     }
 
     @Override

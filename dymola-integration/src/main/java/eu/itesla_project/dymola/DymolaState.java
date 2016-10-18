@@ -6,7 +6,7 @@
  */
 package eu.itesla_project.dymola;
 
-import eu.itesla_project.modules.simulation.SimulationState;
+import eu.itesla_project.simulation.SimulationState;
 
 /**
  *

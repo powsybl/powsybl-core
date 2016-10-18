@@ -13,7 +13,7 @@ import java.util.Hashtable;
 import java.util.Map;
 
 import eu.itesla_project.modules.online.StateStatus;
-import eu.itesla_project.modules.securityindexes.SecurityIndexType;
+import eu.itesla_project.simulation.securityindexes.SecurityIndexType;
 
 
 /**

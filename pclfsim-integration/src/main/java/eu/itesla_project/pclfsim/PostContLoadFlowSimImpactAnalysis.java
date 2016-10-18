@@ -9,22 +9,22 @@ package eu.itesla_project.pclfsim;
 import com.google.common.collect.ImmutableMap;
 import eu.itesla_project.commons.Version;
 import eu.itesla_project.computation.ComputationManager;
+import eu.itesla_project.contingency.ContingenciesProvider;
 import eu.itesla_project.iidm.network.Network;
 import eu.itesla_project.loadflow.api.LoadFlow;
 import eu.itesla_project.loadflow.api.LoadFlowFactory;
 import eu.itesla_project.loadflow.api.LoadFlowParameters;
 import eu.itesla_project.loadflow.api.LoadFlowResult;
-import eu.itesla_project.modules.contingencies.ContingenciesAndActionsDatabaseClient;
-import eu.itesla_project.modules.contingencies.Contingency;
-import eu.itesla_project.modules.security.LimitViolation;
-import eu.itesla_project.modules.security.LimitViolationFilter;
-import eu.itesla_project.modules.security.LimitViolationType;
-import eu.itesla_project.modules.security.Security;
-import eu.itesla_project.modules.securityindexes.SecurityIndex;
-import eu.itesla_project.modules.securityindexes.TsoOverloadSecurityIndex;
-import eu.itesla_project.modules.securityindexes.TsoOvervoltageSecurityIndex;
-import eu.itesla_project.modules.securityindexes.TsoUndervoltageSecurityIndex;
-import eu.itesla_project.modules.simulation.*;
+import eu.itesla_project.contingency.Contingency;
+import eu.itesla_project.security.LimitViolation;
+import eu.itesla_project.security.LimitViolationFilter;
+import eu.itesla_project.security.LimitViolationType;
+import eu.itesla_project.security.Security;
+import eu.itesla_project.simulation.securityindexes.SecurityIndex;
+import eu.itesla_project.simulation.securityindexes.TsoOverloadSecurityIndex;
+import eu.itesla_project.simulation.securityindexes.TsoOvervoltageSecurityIndex;
+import eu.itesla_project.simulation.securityindexes.TsoUndervoltageSecurityIndex;
+import eu.itesla_project.simulation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,7 +47,7 @@ class PostContLoadFlowSimImpactAnalysis implements ImpactAnalysis, PostContLoadF
 
     private final ComputationManager computationManager;
 
-    private final ContingenciesAndActionsDatabaseClient cadbClient;
+    private final ContingenciesProvider contingenciesProvider;
 
     private final PostContLoadFlowSimConfig config;
 
@@ -60,15 +60,15 @@ class PostContLoadFlowSimImpactAnalysis implements ImpactAnalysis, PostContLoadF
     private final LimitViolationFilter baseVoltageFilter;
 
     PostContLoadFlowSimImpactAnalysis(Network network, ComputationManager computationManager, int priority,
-                                      ContingenciesAndActionsDatabaseClient cadbClient, PostContLoadFlowSimConfig config,
+                                      ContingenciesProvider contingenciesProvider, PostContLoadFlowSimConfig config,
                                       LoadFlowFactory loadFlowFactory) {
         Objects.requireNonNull(network, "network is null");
         Objects.requireNonNull(computationManager, "computation manager is null");
-        Objects.requireNonNull(cadbClient, "contingencies and actions database client is null");
+        Objects.requireNonNull(contingenciesProvider, "contingencies provider is null");
         Objects.requireNonNull(config, "config is null");
         this.network = network;
         this.computationManager = computationManager;
-        this.cadbClient = cadbClient;
+        this.contingenciesProvider = contingenciesProvider;
         this.config = config;
         loadFlow = loadFlowFactory.create(network, computationManager, priority);
         loadFlowParameters = new LoadFlowParameters().setVoltageInitMode(config.isWarnStartActivated()
@@ -93,7 +93,7 @@ class PostContLoadFlowSimImpactAnalysis implements ImpactAnalysis, PostContLoadF
     @Override
     public void init(SimulationParameters parameters, Map<String, Object> context) throws Exception {
         // read all contingencies
-        allContingencies.addAll(cadbClient.getContingencies(network));
+        allContingencies.addAll(contingenciesProvider.getContingencies(network));
     }
 
     private List<Contingency> getContingenciesToSimulate(Set<String> contingencyIds) {

@@ -6,10 +6,15 @@
  */
 package eu.itesla_project.graph;
 
+import gnu.trove.list.array.TIntArrayList;
 import org.junit.After;
+
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.List;
 
 /**
  *
@@ -89,4 +94,55 @@ public class UndirectedGraphImplTest {
         assertTrue(graph.getEdgeCount() == 0);
     }
 
+    /**
+     *           0
+     *           |
+     *         ---------
+     *         |   |   |
+     *         1   2   3
+     *         |   |   |
+     *         -----   |
+     *           |     |
+     *           4     |
+     *           |     |
+     *           -------
+     *              |
+     *              5
+     *
+     *  edges:
+     *  0 <-> 1 : 0
+     *  0 <-> 2 : 1
+     *  0 <-> 3 : 2
+     *  1 <-> 4 : 3
+     *  2 <-> 4 : 4
+     *  4 <-> 5 : 5
+     *  3 <-> 5 : 6
+     *
+     *  all paths (edge numbers) between vertex 0 and 5:
+     *  0, 3, 5
+     *  1, 4, 5
+     *  2, 6
+     */
+    @Test
+    public void testFindAllPaths() {
+        graph.addVertex();
+        graph.addVertex();
+        graph.addVertex();
+        graph.addVertex();
+        graph.addVertex();
+        graph.addVertex();
+        graph.setVertexObject(5, new Vertex("end"));
+        graph.addEdge(0, 1, null); // 0
+        graph.addEdge(0, 2, null); // 1
+        graph.addEdge(0, 3, null); // 2
+        graph.addEdge(1, 4, null); // 3
+        graph.addEdge(2, 4, null); // 4
+        graph.addEdge(4, 5, null); // 5
+        graph.addEdge(3, 5, null); // 6
+        List<TIntArrayList> paths = graph.findAllPaths(0, vertex -> vertex != null && "end".equals(vertex.name), null);
+        assertTrue(paths.size() == 3);
+        assertArrayEquals(paths.get(0).toArray(), new int[] {2, 6});
+        assertArrayEquals(paths.get(1).toArray(), new int[] {0, 3, 5});
+        assertArrayEquals(paths.get(2).toArray(), new int[] {1, 4, 5});
+    }
 }

@@ -7,7 +7,9 @@
 package eu.itesla_project.modules.contingencies.tasks;
 
 import eu.itesla_project.commons.ITeslaException;
+import eu.itesla_project.contingency.tasks.ModificationTask;
 import eu.itesla_project.iidm.network.Network;
+import eu.itesla_project.iidm.network.Switch;
 import eu.itesla_project.iidm.network.VoltageLevel;
 
 /**
@@ -31,7 +33,11 @@ public class BreakerClosing implements ModificationTask {
         if (vl == null) {
             throw new ITeslaException("Voltage level '" + voltageLevelId + "' not found");
         }
-        vl.getBusBreakerView().closeSwitch(breakerId);
+        Switch s = vl.getBusBreakerView().getSwitch(breakerId);
+        if (s == null) {
+            throw new ITeslaException("Breaker '" + breakerId + "' not found");
+        }
+        s.setOpen(false);
     }
 
 }

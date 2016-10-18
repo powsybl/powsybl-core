@@ -19,7 +19,7 @@
 
     <artifactId>iidm-xml-import-export</artifactId>
 
-    <name>XML import export</name>
+    <name>IIDM XML import export</name>
 
     <dependencies>
         <dependency>
@@ -64,12 +64,12 @@
         </dependency>
         <dependency>
             <groupId>org.jboss.shrinkwrap</groupId>
-            <artifactId>shrinkwrap-impl-nio2</artifactId>
+            <artifactId>shrinkwrap-impl-base</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jboss.shrinkwrap</groupId>
-            <artifactId>shrinkwrap-impl-base</artifactId>
+            <artifactId>shrinkwrap-impl-nio2</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

@@ -6,8 +6,8 @@
  */
 package eu.itesla_project.offline.db.mmap;
 
-import eu.itesla_project.commons.io.ModuleConfig;
-import eu.itesla_project.commons.io.PlatformConfig;
+import eu.itesla_project.commons.config.ModuleConfig;
+import eu.itesla_project.commons.config.PlatformConfig;
 
 import java.nio.file.Path;
 import java.util.Objects;

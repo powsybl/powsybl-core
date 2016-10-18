@@ -6,12 +6,15 @@
  */
 package eu.itesla_project.modules.contingencies;
 
+import eu.itesla_project.contingency.ContingenciesProviderFactory;
+
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface ContingenciesAndActionsDatabaseClientFactory {
+public interface ContingenciesAndActionsDatabaseClientFactory extends ContingenciesProviderFactory {
 
+    @Override
     ContingenciesAndActionsDatabaseClient create();
     
 }

@@ -8,13 +8,10 @@ package eu.itesla_project.iidm.import_;
 
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
-import eu.itesla_project.commons.io.MapModuleConfig;
+import eu.itesla_project.commons.config.MapModuleConfig;
 import eu.itesla_project.computation.ComputationManager;
 import eu.itesla_project.computation.local.LocalComputationManager;
-import eu.itesla_project.iidm.datasource.DataSource;
-import eu.itesla_project.iidm.datasource.FileDataSource;
-import eu.itesla_project.iidm.datasource.GenericReadOnlyDataSource;
-import eu.itesla_project.iidm.datasource.ReadOnlyDataSource;
+import eu.itesla_project.iidm.datasource.*;
 import eu.itesla_project.iidm.network.Network;
 import eu.itesla_project.iidm.parameters.Parameter;
 import eu.itesla_project.iidm.parameters.ParameterDefaultValueConfig;
@@ -274,7 +271,10 @@ public class Importers {
     }
 
     public static String getBaseName(Path file) {
-        String fileName = file.getFileName().toString();
+        return getBaseName(file.getFileName().toString());
+    }
+
+    public static String getBaseName(String fileName) {
         int pos = fileName.indexOf('.'); // find first dot in case of double extension (.xml.gz)
         return pos == -1 ? fileName : fileName.substring(0, pos);
     }
@@ -335,4 +335,41 @@ public class Importers {
         return value;
     }
 
+    public static ReadOnlyDataSource createReadOnly(Path directory, String fileNameOrBaseName) {
+        if (fileNameOrBaseName.endsWith(".zip")) {
+            return new ZipFileDataSource(directory, getBaseName(fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 4)));
+        } else if (fileNameOrBaseName.endsWith(".gz")) {
+            return new GzFileDataSource(directory, getBaseName(fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 3)));
+        } else if (fileNameOrBaseName.endsWith(".bz2")) {
+            return new Bzip2FileDataSource(directory, getBaseName(fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 4)));
+        } else {
+            return new FileDataSource(directory, getBaseName(fileNameOrBaseName));
+        }
+    }
+
+    public static ReadOnlyDataSource createReadOnly(Path file) {
+        if (!Files.isRegularFile(file)) {
+            throw new RuntimeException("File " + file + " does not exist or is not a regular file");
+        }
+        return createReadOnly(file.getParent(), file.getFileName().toString());
+    }
+
+    public static Network loadNetwork(Path file, ComputationManager computationManager, ImportConfig config, Properties parameters) {
+        ReadOnlyDataSource dataSource = createReadOnly(file);
+        for (Importer importer : Importers.list(computationManager, config)) {
+            if (importer.exists(dataSource)) {
+                return importer.import_(dataSource, parameters);
+            }
+        }
+        return null;
+    }
+
+    public static Network loadNetwork(Path file) {
+        return loadNetwork(file, LocalComputationManager.getDefault(), CONFIG.get(), null);
+    }
+
+    public static Network loadNetwork(String file) {
+        return loadNetwork(Paths.get(file));
+    }
+    
 }

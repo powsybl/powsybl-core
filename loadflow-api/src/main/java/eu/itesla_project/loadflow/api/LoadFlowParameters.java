@@ -6,15 +6,43 @@
  */
 package eu.itesla_project.loadflow.api;
 
+import com.google.common.collect.ImmutableMap;
+import eu.itesla_project.commons.config.ModuleConfig;
+import eu.itesla_project.commons.config.PlatformConfig;
+
+import java.util.Map;
+import java.util.Objects;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class LoadFlowParameters {
+public class LoadFlowParameters implements Cloneable {
+
+    private static final VoltageInitMode DEFAULT_VOLTAGE_INIT_MODE = VoltageInitMode.UNIFORM_VALUES;
+    private static final boolean DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON = false;
+    private static final boolean DEFAULT_NO_GENERATOR_REACTIVE_LIMITS = false;
+    private static final boolean DEFAULT_PHASE_SHIFTER_REGULATION_ON = false;
 
     public enum VoltageInitMode {
         UNIFORM_VALUES, // v=1pu, theta=0
         PREVIOUS_VALUES,
         DC_VALUES // preprocessing to compute DC angles
+    }
+
+    public static LoadFlowParameters load() {
+        LoadFlowParameters parameters = new LoadFlowParameters();
+        load(parameters);
+        return parameters;
+    }
+
+    protected static void load(LoadFlowParameters parameters) {
+        ModuleConfig config = PlatformConfig.defaultConfig().getModuleConfigIfExists("load-flow-default-parameters");
+        if (config != null) {
+            parameters.setVoltageInitMode(config.getEnumProperty("voltageInitMode", VoltageInitMode.class, DEFAULT_VOLTAGE_INIT_MODE));
+            parameters.setTransformerVoltageControlOn(config.getBooleanProperty("transformerVoltageControlOn", DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON));
+            parameters.setNoGeneratorReactiveLimits(config.getBooleanProperty("noGeneratorReactiveLimits", DEFAULT_NO_GENERATOR_REACTIVE_LIMITS));
+            parameters.setPhaseShifterRegulationOn(config.getBooleanProperty("phaseShifterRegulationOn", DEFAULT_PHASE_SHIFTER_REGULATION_ON));
+        }
     }
 
     private VoltageInitMode voltageInitMode;
@@ -34,15 +62,23 @@ public class LoadFlowParameters {
     }
 
     public LoadFlowParameters(VoltageInitMode voltageInitMode, boolean transformerVoltageControlOn) {
-        this(voltageInitMode, transformerVoltageControlOn, false, false);
+        this(voltageInitMode, transformerVoltageControlOn, DEFAULT_NO_GENERATOR_REACTIVE_LIMITS, DEFAULT_PHASE_SHIFTER_REGULATION_ON);
     }
 
     public LoadFlowParameters(VoltageInitMode voltageInitMode) {
-        this(voltageInitMode, false, false, false);
+        this(voltageInitMode, DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON, DEFAULT_NO_GENERATOR_REACTIVE_LIMITS, DEFAULT_PHASE_SHIFTER_REGULATION_ON);
     }
 
     public LoadFlowParameters() {
-        this(VoltageInitMode.UNIFORM_VALUES, false, false, false);
+        this(DEFAULT_VOLTAGE_INIT_MODE, DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON, DEFAULT_NO_GENERATOR_REACTIVE_LIMITS, DEFAULT_PHASE_SHIFTER_REGULATION_ON);
+    }
+
+    protected LoadFlowParameters(LoadFlowParameters other) {
+        Objects.requireNonNull(other);
+        voltageInitMode = other.voltageInitMode;
+        transformerVoltageControlOn = other.transformerVoltageControlOn;
+        noGeneratorReactiveLimits = other.noGeneratorReactiveLimits;
+        phaseShifterRegulationOn = other.phaseShifterRegulationOn;
     }
 
     public VoltageInitMode getVoltageInitMode() {
@@ -50,7 +86,7 @@ public class LoadFlowParameters {
     }
 
     public LoadFlowParameters setVoltageInitMode(VoltageInitMode voltageInitMode) {
-        this.voltageInitMode = voltageInitMode;
+        this.voltageInitMode = Objects.requireNonNull(voltageInitMode);
         return this;
     }
 
@@ -79,5 +115,22 @@ public class LoadFlowParameters {
     public LoadFlowParameters setPhaseShifterRegulationOn(boolean phaseShifterRegulationOn) {
         this.phaseShifterRegulationOn = phaseShifterRegulationOn;
         return this;
+    }
+
+    protected Map<String, Object> toMap() {
+        return ImmutableMap.of("voltageInitMode", voltageInitMode,
+                               "transformerVoltageControlOn", transformerVoltageControlOn,
+                               "noGeneratorReactiveLimits", noGeneratorReactiveLimits,
+                               "phaseShifterRegulationOn", phaseShifterRegulationOn);
+    }
+
+    @Override
+    public LoadFlowParameters clone() {
+        return new LoadFlowParameters(this);
+    }
+
+    @Override
+    public String toString() {
+        return toMap().toString();
     }
 }

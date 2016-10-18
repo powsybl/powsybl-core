@@ -11,7 +11,7 @@ import com.google.common.collect.Multimaps;
 import eu.itesla_project.iidm.network.Network;
 import eu.itesla_project.modules.histo.HistoDbAttributeId;
 import eu.itesla_project.modules.histo.IIDM2DB;
-import eu.itesla_project.modules.securityindexes.SecurityIndexType;
+import eu.itesla_project.simulation.securityindexes.SecurityIndexType;
 
 import java.util.*;
 import java.util.stream.Collectors;

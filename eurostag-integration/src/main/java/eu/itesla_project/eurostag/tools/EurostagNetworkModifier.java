@@ -23,7 +23,7 @@ import eu.itesla_project.eurostag.network.EsgNetwork;
 import eu.itesla_project.eurostag.network.EsgNode;
 import eu.itesla_project.eurostag.network.EsgDetailedTwoWindingTransformer.RegulatingMode;
 import eu.itesla_project.eurostag.network.EsgLoad.ConnectionStatus;
-import eu.itesla_project.modules.ddb.DdExportConfig;
+import eu.itesla_project.iidm.ddb.eurostag_imp_exp.DdExportConfig;
 
 /**
  *

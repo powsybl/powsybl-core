@@ -6,19 +6,18 @@
  */
 package eu.itesla_project.modules.offline;
 
-import eu.itesla_project.commons.io.ModuleConfig;
-import eu.itesla_project.commons.io.PlatformConfig;
+import eu.itesla_project.commons.config.ModuleConfig;
+import eu.itesla_project.commons.config.PlatformConfig;
 import eu.itesla_project.loadflow.api.LoadFlowFactory;
 import eu.itesla_project.merge.MergeOptimizerFactory;
 import eu.itesla_project.cases.CaseRepositoryFactory;
 import eu.itesla_project.modules.OptimizerFactory;
 import eu.itesla_project.modules.contingencies.ContingenciesAndActionsDatabaseClientFactory;
-import eu.itesla_project.modules.ddb.DynamicDatabaseClientFactory;
 import eu.itesla_project.modules.histo.HistoDbClientFactory;
 import eu.itesla_project.modules.rules.RulesBuilderFactory;
 import eu.itesla_project.modules.rules.RulesDbClientFactory;
 import eu.itesla_project.modules.sampling.SamplerFactory;
-import eu.itesla_project.modules.simulation.SimulatorFactory;
+import eu.itesla_project.simulation.SimulatorFactory;
 import eu.itesla_project.modules.topo.TopologyMinerFactory;
 import eu.itesla_project.modules.validation.DefaultValidationDbFactory;
 import eu.itesla_project.modules.validation.ValidationDbFactory;
@@ -40,8 +39,6 @@ public class OfflineConfig {
     public static final String DEFAULT_METRICS_DB_NAME = "metricsdb";
 
     private final Class<? extends OfflineDbFactory> offlineDbFactoryClass;
-
-    private final Class<? extends DynamicDatabaseClientFactory> dynamicDbClientFactoryClass;
 
     private final Class<? extends ContingenciesAndActionsDatabaseClientFactory> contingencyDbClientFactoryClass;
 
@@ -70,7 +67,6 @@ public class OfflineConfig {
     private final Class<? extends MergeOptimizerFactory> mergeOptimizerFactoryClass;
 
     public static OfflineConfig create(Class<? extends OfflineDbFactory> offlineDbFactoryClass,
-                                       Class<? extends DynamicDatabaseClientFactory> dynamicDbClientFactoryClass,
                                        Class<? extends ContingenciesAndActionsDatabaseClientFactory> contingencyDbClientFactoryClass,
                                        Class<? extends HistoDbClientFactory> histoDbClientFactoryClass,
                                        Class<? extends RulesDbClientFactory> rulesDbClientFactoryClass,
@@ -84,7 +80,7 @@ public class OfflineConfig {
                                        Class<? extends SimulatorFactory> simulatorFactoryClass,
                                        Class<? extends MetricsDbFactory> metricsDbFactoryClass,
                                        Class<? extends MergeOptimizerFactory> mergeOptimizerFactoryClass) {
-        LOGGER.info("Offline workflow config:\nofflineDbFactoryClass={}\ndynamicDbClientFactoryClass={}\n" +
+        LOGGER.info("Offline workflow config:\nofflineDbFactoryClass={}\n" +
                         "contingencyDbClientFactoryClass={}\nhistoDbClientFactoryClass={}\n" +
                         "rulesDbClientFactoryClass={}\nrulesBuilderFactoryClass={}\n" +
                         "topologyMinerFactoryClass={}\nvalidationDbFactoryClass={}\n" +
@@ -92,7 +88,7 @@ public class OfflineConfig {
                         "loadFlowFactoryClass={}\noptimizerFactoryClass={}\n" +
                         "simulatorFactoryClass={}\nmetricsDbFactoryClass={}\n" +
                         "mergeOptimizerFactoryClass={}",
-                offlineDbFactoryClass.getName(), dynamicDbClientFactoryClass.getName(),
+                offlineDbFactoryClass.getName(),
                 contingencyDbClientFactoryClass.getName(), histoDbClientFactoryClass.getName(),
                 rulesDbClientFactoryClass.getName(), rulesBuilderFactoryClass.getName(),
                 topologyMinerFactoryClass.getName(), validationDbFactoryClass.getName(),
@@ -101,7 +97,6 @@ public class OfflineConfig {
                 simulatorFactoryClass.getName(), metricsDbFactoryClass.getName(),
                 mergeOptimizerFactoryClass.getName());
         return new OfflineConfig(offlineDbFactoryClass,
-                                 dynamicDbClientFactoryClass,
                                  contingencyDbClientFactoryClass,
                                  histoDbClientFactoryClass,
                                  rulesDbClientFactoryClass,
@@ -120,7 +115,6 @@ public class OfflineConfig {
     public static OfflineConfig load() {
         ModuleConfig config = PlatformConfig.defaultConfig().getModuleConfig("offline");
         Class<? extends OfflineDbFactory> offlineDbFactoryClass = config.getClassProperty("offlineDbFactoryClass", OfflineDbFactory.class);
-        Class<? extends DynamicDatabaseClientFactory> dynamicDbClientFactoryClass = config.getClassProperty("dynamicDbClientFactoryClass", DynamicDatabaseClientFactory.class);
         Class<? extends ContingenciesAndActionsDatabaseClientFactory> contingencyDbClientFactoryClass = config.getClassProperty("contingencyDbClientFactoryClass", ContingenciesAndActionsDatabaseClientFactory.class);
         Class<? extends HistoDbClientFactory> histoDbClientFactoryClass = config.getClassProperty("histoDbClientFactoryClass", HistoDbClientFactory.class);
         Class<? extends RulesDbClientFactory> rulesDbClientFactoryClass = config.getClassProperty("rulesDbClientFactoryClass", RulesDbClientFactory.class);
@@ -135,7 +129,6 @@ public class OfflineConfig {
         Class<? extends MetricsDbFactory> metricsDbFactoryClass = config.getClassProperty("metricsDbFactoryClass", MetricsDbFactory.class);
         Class<? extends MergeOptimizerFactory> mergeOptimizerFactoryClass = config.getClassProperty("mergeOptimizerFactoryClass", MergeOptimizerFactory.class);
         return create(offlineDbFactoryClass,
-                      dynamicDbClientFactoryClass,
                       contingencyDbClientFactoryClass,
                       histoDbClientFactoryClass,
                       rulesDbClientFactoryClass,
@@ -152,7 +145,6 @@ public class OfflineConfig {
     }
 
     private OfflineConfig(Class<? extends OfflineDbFactory> offlineDbFactoryClass,
-                          Class<? extends DynamicDatabaseClientFactory> dynamicDbClientFactoryClass,
                           Class<? extends ContingenciesAndActionsDatabaseClientFactory> contingencyDbClientFactoryClass,
                           Class<? extends HistoDbClientFactory> histoDbClientFactoryClass,
                           Class<? extends RulesDbClientFactory> rulesDbClientFactoryClass,
@@ -167,7 +159,6 @@ public class OfflineConfig {
                           Class<? extends MetricsDbFactory> metricsDbFactoryClass,
                           Class<? extends MergeOptimizerFactory> mergeOptimizerFactoryClass) {
         this.offlineDbFactoryClass = Objects.requireNonNull(offlineDbFactoryClass);
-        this.dynamicDbClientFactoryClass = Objects.requireNonNull(dynamicDbClientFactoryClass);
         this.contingencyDbClientFactoryClass = Objects.requireNonNull(contingencyDbClientFactoryClass);
         this.histoDbClientFactoryClass = Objects.requireNonNull(histoDbClientFactoryClass);
         this.rulesDbClientFactoryClass = Objects.requireNonNull(rulesDbClientFactoryClass);
@@ -185,10 +176,6 @@ public class OfflineConfig {
 
     public Class<? extends OfflineDbFactory> getOfflineDbFactoryClass() {
         return offlineDbFactoryClass;
-    }
-
-    public Class<? extends DynamicDatabaseClientFactory> getDynamicDbClientFactoryClass() {
-        return dynamicDbClientFactoryClass;
     }
 
     public Class<? extends ContingenciesAndActionsDatabaseClientFactory> getContingencyDbClientFactoryClass() {

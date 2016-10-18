@@ -28,10 +28,6 @@
        <version.compiler.plugin>2.3.1</version.compiler.plugin>
        <version.exec.plugin>1.2.1</version.exec.plugin>
 
-       <!-- maven-compiler-plugin -->
-       <maven.compiler.target>1.7</maven.compiler.target>
-       <maven.compiler.source>1.7</maven.compiler.source>
-
        <!-- used in exec goal, only;  must point to a jboss server -->
        <JBHOST>127.0.0.1</JBHOST>
    </properties>
@@ -65,9 +61,15 @@
 
       <dependency>
          <groupId>eu.itesla_project</groupId>
-         <artifactId>modules</artifactId>
+         <artifactId>commons</artifactId>
          <version>0.1-SNAPSHOT</version>
       </dependency>
+
+       <dependency>
+           <groupId>eu.itesla_project</groupId>
+           <artifactId>iidm-network-api</artifactId>
+           <version>0.1-SNAPSHOT</version>
+       </dependency>
 
       <dependency>
         <groupId>eu.itesla_project</groupId>
@@ -84,14 +86,6 @@
 
    <build>
       <plugins>
-         <plugin>
-            <artifactId>maven-compiler-plugin</artifactId>
-             <version>${version.compiler.plugin}</version>
-             <configuration>
-                 <source>${maven.compiler.source}</source>
-                 <target>${maven.compiler.target}</target>
-            </configuration>
-         </plugin>
 
          <!-- Add the maven exec plugin to allow us to run a java program via maven -->
          <plugin>

@@ -12,7 +12,6 @@ import eu.itesla_project.loadflow.api.LoadFlowFactory;
 import eu.itesla_project.merge.MergeOptimizerFactory;
 import eu.itesla_project.cases.CaseRepository;
 import eu.itesla_project.modules.contingencies.ContingenciesAndActionsDatabaseClient;
-import eu.itesla_project.modules.ddb.DynamicDatabaseClientFactory;
 import eu.itesla_project.modules.histo.HistoDbClient;
 import eu.itesla_project.modules.mcla.ForecastErrorsDataStorage;
 import eu.itesla_project.modules.mcla.MontecarloSamplerFactory;
@@ -21,7 +20,7 @@ import eu.itesla_project.modules.online.OnlineWorkflowParameters;
 import eu.itesla_project.modules.online.RulesFacadeFactory;
 import eu.itesla_project.modules.optimizer.CorrectiveControlOptimizerFactory;
 import eu.itesla_project.modules.rules.RulesDbClient;
-import eu.itesla_project.modules.simulation.SimulatorFactory;
+import eu.itesla_project.simulation.SimulatorFactory;
 import eu.itesla_project.modules.wca.UncertaintiesAnalyserFactory;
 import eu.itesla_project.modules.wca.WCAFactory;
 
@@ -32,12 +31,11 @@ import eu.itesla_project.modules.wca.WCAFactory;
 public class OnlineWorkflowFactoryImpl implements OnlineWorkflowFactory {
 
 	/* (non-Javadoc)
-	 * @see eu.itesla_project.online.OnlineWorkflowFactoryInterface#create(eu.itesla_project.computation.ComputationManager, eu.itesla_project.modules.contingencies.ContingenciesAndActionsDatabaseClient, eu.itesla_project.modules.ddb.DynamicDatabaseClientFactory, eu.itesla_project.modules.histo.HistoDbClient, eu.itesla_project.modules.rules.RulesDbClient, eu.itesla_project.modules.wca.WCAFactory, eu.itesla_project.loadflow.api.LoadFlowFactory, eu.itesla_project.modules.mcla.ForecastErrorsDataStorage, eu.itesla_project.modules.online.OnlineDb, eu.itesla_project.modules.wca.UncertaintiesAnalyserFactory, eu.itesla_project.modules.optimizer.CorrectiveControlOptimizerFactory, eu.itesla_project.modules.simulation.SimulatorFactory, eu.itesla_project.cases.CaseRepository, eu.itesla_project.modules.mcla.MontecarloSamplerFactory, eu.itesla_project.merge.MergeOptimizerFactory, eu.itesla_project.modules.online.OnlineWorkflowParameters, eu.itesla_project.online.OnlineWorkflowStartParameters)
+	 * @see eu.itesla_project.online.OnlineWorkflowFactoryInterface#create(eu.itesla_project.computation.ComputationManager, eu.itesla_project.contingency.ContingenciesAndActionsDatabaseClient, eu.itesla_project.iidm.ddb.eurostag_imp_exp.DynamicDatabaseClientFactory, eu.itesla_project.modules.histo.HistoDbClient, eu.itesla_project.modules.rules.RulesDbClient, eu.itesla_project.modules.wca.WCAFactory, eu.itesla_project.loadflow.api.LoadFlowFactory, eu.itesla_project.modules.mcla.ForecastErrorsDataStorage, eu.itesla_project.modules.online.OnlineDb, eu.itesla_project.modules.wca.UncertaintiesAnalyserFactory, eu.itesla_project.modules.optimizer.CorrectiveControlOptimizerFactory, SimulatorFactory, eu.itesla_project.cases.CaseRepository, eu.itesla_project.modules.mcla.MontecarloSamplerFactory, eu.itesla_project.merge.MergeOptimizerFactory, eu.itesla_project.modules.online.OnlineWorkflowParameters, eu.itesla_project.online.OnlineWorkflowStartParameters)
 	 */
 	@Override
 	public OnlineWorkflow create(ComputationManager computationManager,
 			ContingenciesAndActionsDatabaseClient cadbClient,
-			DynamicDatabaseClientFactory ddbClientFactory,
 			HistoDbClient histoDbClient,
 			RulesDbClient rulesDbClient,
             WCAFactory wcaFactory,
@@ -54,7 +52,7 @@ public class OnlineWorkflowFactoryImpl implements OnlineWorkflowFactory {
             OnlineWorkflowParameters parameters,
             OnlineWorkflowStartParameters startParameters){
 		
-		return   new OnlineWorkflowImpl(computationManager, cadbClient, ddbClientFactory, histoDbClient, rulesDbClient, wcaFactory, loadFlowFactory, feDataStorage,
+		return   new OnlineWorkflowImpl(computationManager, cadbClient, histoDbClient, rulesDbClient, wcaFactory, loadFlowFactory, feDataStorage,
 				onlineDB, uncertaintiesAnalyserFactory, optimizerFactory, simulatorFactory, caseRepository,
                 montecarloSamplerFactory,mergeOptimizerFactory, rulesFacadeFactory, parameters, startParameters); 
 		

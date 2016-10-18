@@ -6,6 +6,7 @@
  */
 package eu.itesla_project.iidm.xml;
 
+import eu.itesla_project.iidm.network.Bus;
 import eu.itesla_project.iidm.network.BusbarSection;
 import eu.itesla_project.iidm.network.BusbarSectionAdder;
 import eu.itesla_project.iidm.network.VoltageLevel;
@@ -37,6 +38,8 @@ class BusbarSectionXml extends IdentifiableXml<BusbarSection, BusbarSectionAdder
     @Override
     protected void writeRootElementAttributes(BusbarSection bs, VoltageLevel vl, XmlWriterContext context) throws XMLStreamException {
         XmlUtil.writeInt("node", bs.getTerminal().getNodeBreakerView().getNode(), context.getWriter());
+        XmlUtil.writeFloat("v", bs.getV(), context.getWriter());
+        XmlUtil.writeFloat("angle", bs.getAngle(), context.getWriter());
     }
 
     @Override
@@ -51,8 +54,17 @@ class BusbarSectionXml extends IdentifiableXml<BusbarSection, BusbarSectionAdder
     @Override
     protected BusbarSection readRootElementAttributes(BusbarSectionAdder adder, XMLStreamReader reader, List<Runnable> endTasks) {
         int node = XmlUtil.readIntAttribute(reader, "node");
-        return adder.setNode(node)
+        float v = XmlUtil.readOptionalFloatAttribute(reader, "v");
+        float angle = XmlUtil.readOptionalFloatAttribute(reader, "angle");
+        BusbarSection bbs = adder.setNode(node)
                 .add();
+        endTasks.add(() -> {
+            Bus b = bbs.getTerminal().getBusView().getBus();
+            if (b != null) {
+                b.setV(v).setAngle(angle);
+            }
+        });
+        return bbs;
     }
 
     @Override

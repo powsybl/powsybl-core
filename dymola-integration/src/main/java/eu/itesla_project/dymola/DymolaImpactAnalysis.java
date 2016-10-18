@@ -8,17 +8,18 @@ package eu.itesla_project.dymola;
 
 import com.google.common.collect.ImmutableMap;
 import eu.itesla_project.commons.Version;
-import eu.itesla_project.commons.io.PlatformConfig;
+import eu.itesla_project.commons.config.PlatformConfig;
 import eu.itesla_project.computation.*;
+import eu.itesla_project.contingency.*;
+import eu.itesla_project.dymola.contingency.*;
 import eu.itesla_project.iidm.network.Network;
 import eu.itesla_project.iidm.network.util.Networks;
 import eu.itesla_project.loadflow.api.LoadFlowFactory;
 import eu.itesla_project.modelica_events_adder.events.ModEventsExport;
 import eu.itesla_project.modelica_export.ModelicaMainExporter;
-import eu.itesla_project.modules.contingencies.*;
-import eu.itesla_project.modules.securityindexes.SecurityIndex;
-import eu.itesla_project.modules.securityindexes.SecurityIndexParser;
-import eu.itesla_project.modules.simulation.*;
+import eu.itesla_project.simulation.securityindexes.SecurityIndex;
+import eu.itesla_project.simulation.securityindexes.SecurityIndexParser;
+import eu.itesla_project.simulation.*;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalINIConfiguration;
 import org.apache.commons.configuration.SubnodeConfiguration;
@@ -27,8 +28,6 @@ import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.exporter.ZipExporter;
 import org.jboss.shrinkwrap.api.nio.file.ShrinkWrapFileSystems;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
-import org.jboss.shrinkwrap.impl.nio.file.ShrinkWrapFileSystem;
-import org.jboss.shrinkwrap.impl.nio.file.ShrinkWrapFileSystemProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,7 +70,7 @@ public class DymolaImpactAnalysis implements ImpactAnalysis {
 
     private final ComputationManager computationManager;
 
-    private final ContingenciesAndActionsDatabaseClient cadbClient;
+    private final ContingenciesProvider contingenciesProvider;
 
     private final int priority;
 
@@ -83,20 +82,20 @@ public class DymolaImpactAnalysis implements ImpactAnalysis {
 
 
     public DymolaImpactAnalysis(Network network, ComputationManager computationManager, int priority,
-                                ContingenciesAndActionsDatabaseClient cadbClient) {
-        this(network, computationManager, priority, cadbClient, DymolaConfig.load());
+                                ContingenciesProvider contingenciesProvider) {
+        this(network, computationManager, priority, contingenciesProvider, DymolaConfig.load());
     }
 
     public DymolaImpactAnalysis(Network network, ComputationManager computationManager, int priority,
-                                ContingenciesAndActionsDatabaseClient cadbClient, DymolaConfig config) {
+                                ContingenciesProvider contingenciesProvider, DymolaConfig config) {
         Objects.requireNonNull(network, "network is null");
         Objects.requireNonNull(computationManager, "computation manager is null");
-        Objects.requireNonNull(cadbClient, "contingencies and actions database client is null");
+        Objects.requireNonNull(contingenciesProvider, "contingencies provider is null");
         Objects.requireNonNull(config, "config is null");
         this.network = network;
         this.computationManager = computationManager;
         this.priority = priority;
-        this.cadbClient = cadbClient;
+        this.contingenciesProvider = contingenciesProvider;
         this.config = config;
     }
 
@@ -123,28 +122,33 @@ public class DymolaImpactAnalysis implements ImpactAnalysis {
 
     //OK
     private double getFaultDuration(ContingencyElement element) {
-        switch (element.getType()) {
+        if (element instanceof MoContingency) {
+            switch (((MoContingency) element).getMoType()) {
 //            case GENERATOR:
 //                return parameters.getGeneratorFaultShortCircuitDuration();
 //            case LINE:
 //                return parameters.getBranchFaultShortCircuitDuration();
-            case MO_BUS_FAULT:
-                return ((MoBusFaultContingency)element).getT2() - ((MoBusFaultContingency)element).getT1();
-            case MO_LINE_FAULT:
-                return ((MoLineFaultContingency)element).getT2() - ((MoLineFaultContingency)element).getT1();
-            case MO_LINE_OPEN_REC:
-                return ((MoLineOpenRecContingency)element).getT2() - ((MoLineOpenRecContingency)element).getT1();
-            case MO_LINE_2_OPEN:
-                return (parameters.getPostFaultSimulationStopInstant() - ((MoLine2OpenContingency)element).getT1());
-            case MO_BANK_MODIF:
-                return (parameters.getPostFaultSimulationStopInstant() - ((MoBankModifContingency)element).getT1());
-            case MO_LOAD_MODIF:
-                return (parameters.getPostFaultSimulationStopInstant() - ((MoLoadModifContingency)element).getT1());
-            case MO_BREAKER:
-                return (parameters.getPostFaultSimulationStopInstant() - ((MoBreakerContingency)element).getT1());
-            case MO_SETPOINT_MODIF:
-                return (parameters.getPostFaultSimulationStopInstant() - ((MoSetPointModifContingency)element).getT1());
-            default: throw new AssertionError();
+                case MO_BUS_FAULT:
+                    return ((MoBusFaultContingency) element).getT2() - ((MoBusFaultContingency) element).getT1();
+                case MO_LINE_FAULT:
+                    return ((MoLineFaultContingency) element).getT2() - ((MoLineFaultContingency) element).getT1();
+                case MO_LINE_OPEN_REC:
+                    return ((MoLineOpenRecContingency) element).getT2() - ((MoLineOpenRecContingency) element).getT1();
+                case MO_LINE_2_OPEN:
+                    return (parameters.getPostFaultSimulationStopInstant() - ((MoLine2OpenContingency) element).getT1());
+                case MO_BANK_MODIF:
+                    return (parameters.getPostFaultSimulationStopInstant() - ((MoBankModifContingency) element).getT1());
+                case MO_LOAD_MODIF:
+                    return (parameters.getPostFaultSimulationStopInstant() - ((MoLoadModifContingency) element).getT1());
+                case MO_BREAKER:
+                    return (parameters.getPostFaultSimulationStopInstant() - ((MoBreakerContingency) element).getT1());
+                case MO_SETPOINT_MODIF:
+                    return (parameters.getPostFaultSimulationStopInstant() - ((MoSetPointModifContingency) element).getT1());
+                default:
+                    throw new AssertionError();
+            }
+        } else {
+            throw new AssertionError();
         }
     }
 
@@ -186,7 +190,7 @@ public class DymolaImpactAnalysis implements ImpactAnalysis {
         Objects.requireNonNull(context, "context is null");
 
         this.parameters = parameters;
-        allContingencies.addAll(cadbClient.getContingencies(network));
+        allContingencies.addAll(contingenciesProvider.getContingencies(network));
     }
 
 
@@ -216,7 +220,7 @@ public class DymolaImpactAnalysis implements ImpactAnalysis {
             contingencies.addAll(allContingencies);
         } else {
             // filter contingencies
-            for (Contingency c : cadbClient.getContingencies(network)) {
+            for (Contingency c : contingenciesProvider.getContingencies(network)) {
                 if (contingencyIds.contains(c.getId())) {
                     contingencies.add(c);
                 }
@@ -429,7 +433,7 @@ public class DymolaImpactAnalysis implements ImpactAnalysis {
             pathStream.filter((p) -> !p.toFile().isDirectory() && p.toFile().getAbsolutePath().contains("events_") && p.toFile().getAbsolutePath().endsWith(".mo")).
                     forEach(p -> {
                         GenericArchive archive = ShrinkWrap.createDomain().getArchiveFactory().create(GenericArchive.class);
-                        try (FileSystem fileSystem = new ShrinkWrapFileSystem(new ShrinkWrapFileSystemProvider(), archive)) {
+                        try (FileSystem fileSystem = ShrinkWrapFileSystems.newFileSystem(archive)) {
                             Path rootDir = fileSystem.getPath("/");
                             Files.copy(modelicaPowerSystemLibraryPath, rootDir.resolve(modelicaPowerSystemLibraryPath.getFileName()));
                             Files.copy(Paths.get(p.toString()), rootDir.resolve(DymolaUtil.DYMOLA_SIM_MODEL_INPUT_PREFIX+".mo"));

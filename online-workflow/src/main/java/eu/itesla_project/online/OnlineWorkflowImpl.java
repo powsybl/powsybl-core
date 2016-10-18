@@ -34,7 +34,6 @@ import eu.itesla_project.merge.MergeUtil;
 import eu.itesla_project.cases.CaseRepository;
 import eu.itesla_project.modules.constraints.ConstraintsModifier;
 import eu.itesla_project.modules.contingencies.ContingenciesAndActionsDatabaseClient;
-import eu.itesla_project.modules.ddb.DynamicDatabaseClientFactory;
 import eu.itesla_project.modules.histo.HistoDbClient;
 import eu.itesla_project.modules.mcla.ForecastErrorsDataStorage;
 import eu.itesla_project.modules.mcla.MontecarloSampler;
@@ -50,11 +49,11 @@ import eu.itesla_project.modules.optimizer.CorrectiveControlOptimizer;
 import eu.itesla_project.modules.optimizer.CorrectiveControlOptimizerFactory;
 import eu.itesla_project.modules.optimizer.CorrectiveControlOptimizerParameters;
 import eu.itesla_project.modules.rules.RulesDbClient;
-import eu.itesla_project.modules.securityindexes.SecurityIndex;
-import eu.itesla_project.modules.simulation.ImpactAnalysis;
-import eu.itesla_project.modules.simulation.SimulationParameters;
-import eu.itesla_project.modules.simulation.SimulatorFactory;
-import eu.itesla_project.modules.simulation.Stabilization;
+import eu.itesla_project.simulation.securityindexes.SecurityIndex;
+import eu.itesla_project.simulation.ImpactAnalysis;
+import eu.itesla_project.simulation.SimulationParameters;
+import eu.itesla_project.simulation.SimulatorFactory;
+import eu.itesla_project.simulation.Stabilization;
 import eu.itesla_project.modules.wca.UncertaintiesAnalyserFactory;
 import eu.itesla_project.modules.wca.WCA;
 import eu.itesla_project.modules.wca.WCACluster;
@@ -74,7 +73,6 @@ public class OnlineWorkflowImpl implements OnlineWorkflow {
 
     private final ComputationManager computationManager;
     private final ContingenciesAndActionsDatabaseClient cadbClient;
-    private final DynamicDatabaseClientFactory ddbClientFactory;
     private final HistoDbClient histoDbClient;
     private final RulesDbClient rulesDbClient;
     private final ForecastErrorsDataStorage feDataStorage;
@@ -97,7 +95,6 @@ public class OnlineWorkflowImpl implements OnlineWorkflow {
     public OnlineWorkflowImpl(
             ComputationManager computationManager,
             ContingenciesAndActionsDatabaseClient cadbClient,
-            DynamicDatabaseClientFactory ddbClientFactory,
             HistoDbClient histoDbClient,
             RulesDbClient rulesDbClient,
             WCAFactory wcaFactory,
@@ -116,7 +113,6 @@ public class OnlineWorkflowImpl implements OnlineWorkflow {
             ) {
         Objects.requireNonNull(computationManager, "computation manager is null");
         Objects.requireNonNull(cadbClient, "contingencies and actions DB client is null");
-        Objects.requireNonNull(ddbClientFactory, "dynamic DB client factory is null");
         Objects.requireNonNull(histoDbClient, "histo DB client is null");
         Objects.requireNonNull(rulesDbClient, "rules DB client is null");
         Objects.requireNonNull(wcaFactory, "WCA factory is null");
@@ -131,7 +127,6 @@ public class OnlineWorkflowImpl implements OnlineWorkflow {
         Objects.requireNonNull(startParameters, "start parameters is null");
         this.computationManager = computationManager;
         this.cadbClient = cadbClient;
-        this.ddbClientFactory = ddbClientFactory;
         this.histoDbClient = histoDbClient;
         this.rulesDbClient = rulesDbClient;
         this.wcaFactory = wcaFactory;
@@ -195,7 +190,8 @@ public class OnlineWorkflowImpl implements OnlineWorkflow {
         for (OnlineApplicationListener l :listeners)
             l.onWcaUpdate(new RunningSynthesis(id,true));
 
-        WCAParameters wcaParameters = new WCAParameters(parameters.getHistoInterval(), parameters.getOfflineWorkflowId(), parameters.getSecurityIndexes(), parameters.getRulesPurityThreshold());
+        // maybe we should put also the stopWcaOnViolations wca parameter as online workflow parameter
+        WCAParameters wcaParameters = new WCAParameters(parameters.getHistoInterval(), parameters.getOfflineWorkflowId(), parameters.getSecurityIndexes(), parameters.getRulesPurityThreshold(), true);
         WCA wca = wcaFactory.create(oCtx.getNetwork(), computationManager, histoDbClient, rulesDbClient, uncertaintiesAnalyserFactory, cadbClient, loadFlowFactory);
         WCAResult result = wca.run(wcaParameters);
 
@@ -230,7 +226,7 @@ public class OnlineWorkflowImpl implements OnlineWorkflow {
         MontecarloSampler sampler = montecarloSamplerFactory.create(oCtx.getNetwork(), computationManager, feDataStorage);
         OnlineRulesFacade rulesFacade = rulesFacadeFactory.create(rulesDbClient);
         CorrectiveControlOptimizer optimizer = optimizerFactory.create(cadbClient,computationManager);
-        Stabilization stabilization = simulatorFactory.createStabilization(oCtx.getNetwork(), computationManager, Integer.MAX_VALUE, ddbClientFactory);
+        Stabilization stabilization = simulatorFactory.createStabilization(oCtx.getNetwork(), computationManager, Integer.MAX_VALUE);
         ImpactAnalysis impactAnalysis = simulatorFactory.createImpactAnalysis(oCtx.getNetwork(), computationManager, Integer.MAX_VALUE, cadbClient);
         LoadFlow loadflow = loadFlowFactory.create(oCtx.getNetwork(), computationManager, 0);
         ConstraintsModifier constraintsModifier = new ConstraintsModifier(oCtx.getNetwork());

@@ -1,5 +1,6 @@
 /**
  * Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+ * Copyright (c) 2016, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -23,7 +24,7 @@ import eu.itesla_project.modules.histo.*;
 import eu.itesla_project.modules.offline.OfflineConfig;
 import eu.itesla_project.modules.online.OnlineConfig;
 import eu.itesla_project.modules.rules.RulesDbClient;
-import eu.itesla_project.modules.securityindexes.SecurityIndexType;
+import eu.itesla_project.simulation.securityindexes.SecurityIndexType;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
@@ -59,6 +60,8 @@ public class WCATool implements Tool {
 
     private static final char CSV_SEPARATOR = ';';
 
+    private static final boolean DEFAULT_STOP_WCA_ON_VIOLATIONS = true;
+
     private static Command COMMAND = new Command() {
 
         @Override
@@ -77,7 +80,6 @@ public class WCATool implements Tool {
         }
 
         @Override
-        @SuppressWarnings("static-access")
         public Options getOptions() {
             Options options = new Options();
             options.addOption(Option.builder().longOpt("case-format")
@@ -127,6 +129,11 @@ public class WCATool implements Tool {
                     .desc("output CSV file path, only needed in case of multiple run")
                     .hasArg()
                     .argName("FILE")
+                    .build());
+            options.addOption(Option.builder().longOpt("stop-on-violations")
+                    .desc("stop WCA if there are violations, default is " + DEFAULT_STOP_WCA_ON_VIOLATIONS)
+                    .hasArg()
+                    .argName("true/false")
                     .build());
             return options;
         }
@@ -240,6 +247,10 @@ public class WCATool implements Tool {
         if (line.hasOption("output-csv-file")) {
             outputCsvFile = Paths.get(line.getOptionValue("output-csv-file"));
         }
+        boolean stopWcaOnViolations = DEFAULT_STOP_WCA_ON_VIOLATIONS;
+        if (line.hasOption("stop-on-violations")) {
+            stopWcaOnViolations = Boolean.parseBoolean(line.getOptionValue("stop-on-violations"));
+        }
 
         try (ComputationManager computationManager = new LocalComputationManager()) {
 
@@ -248,7 +259,7 @@ public class WCATool implements Tool {
                 throw new ITeslaException("Format " + caseFormat + " not supported");
             }
 
-            WCAParameters parameters = new WCAParameters(histoInterval, offlineWorkflowId, securityIndexTypes, purityThreshold);
+            WCAParameters parameters = new WCAParameters(histoInterval, offlineWorkflowId, securityIndexTypes, purityThreshold, stopWcaOnViolations);
             OnlineConfig config = OnlineConfig.load();
             ContingenciesAndActionsDatabaseClient contingenciesDb = config.getContingencyDbClientFactoryClass().newInstance().create();
             LoadFlowFactory loadFlowFactory = config.getLoadFlowFactoryClass().newInstance();
@@ -279,8 +290,7 @@ public class WCATool implements Tool {
 
                     List<CompletableFuture<WCACluster>> futureClusters = new LinkedList<>(result.getClusters());
                     while (futureClusters.size() > 0) {
-                        CompletableFuture.anyOf(futureClusters.toArray(new CompletableFuture[futureClusters.size()]))
-                                .join();
+                        CompletableFuture.anyOf(futureClusters.toArray(new CompletableFuture[futureClusters.size()])).join();
                         for (Iterator<CompletableFuture<WCACluster>> it = futureClusters.iterator(); it.hasNext(); ) {
                             CompletableFuture<WCACluster> futureCluster = it.next();
                             if (futureCluster.isDone()) {
@@ -332,8 +342,7 @@ public class WCATool implements Tool {
 
                             List<CompletableFuture<WCACluster>> futureClusters = new LinkedList<>(result.getClusters());
                             while (futureClusters.size() > 0) {
-                                CompletableFuture.anyOf(futureClusters.toArray(new CompletableFuture[futureClusters.size()]))
-                                        .join();
+                                CompletableFuture.anyOf(futureClusters.toArray(new CompletableFuture[futureClusters.size()])).join();
                                 for (Iterator<CompletableFuture<WCACluster>> it = futureClusters.iterator(); it.hasNext(); ) {
                                     CompletableFuture<WCACluster> futureCluster = it.next();
                                     if (futureCluster.isDone()) {

@@ -11,8 +11,8 @@ import eu.itesla_project.loadflow.api.LoadFlow;
 import eu.itesla_project.loadflow.api.LoadFlowParameters;
 import eu.itesla_project.modules.Optimizer;
 import eu.itesla_project.modules.sampling.Sampler;
-import eu.itesla_project.modules.simulation.ImpactAnalysis;
-import eu.itesla_project.modules.simulation.Stabilization;
+import eu.itesla_project.simulation.ImpactAnalysis;
+import eu.itesla_project.simulation.Stabilization;
 
 /**
  *

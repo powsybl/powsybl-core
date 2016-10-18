@@ -7,8 +7,8 @@
  */
 package eu.itesla_project.modules.online;
 
-import eu.itesla_project.modules.contingencies.Contingency;
-import eu.itesla_project.modules.securityindexes.SecurityIndexType;
+import eu.itesla_project.contingency.Contingency;
+import eu.itesla_project.simulation.securityindexes.SecurityIndexType;
 
 import java.util.List;
 import java.util.Set;

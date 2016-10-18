@@ -40,4 +40,7 @@ public interface TwoTerminalsConnectable<I extends TwoTerminalsConnectable<I>> e
 
     CurrentLimitsAdder newCurrentLimits2();
 
+    boolean isOverloaded();
+
+    int getOverloadDuration();
 }

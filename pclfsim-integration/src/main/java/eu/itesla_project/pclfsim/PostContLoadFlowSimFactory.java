@@ -7,13 +7,12 @@
 package eu.itesla_project.pclfsim;
 
 import eu.itesla_project.computation.ComputationManager;
+import eu.itesla_project.contingency.ContingenciesProvider;
 import eu.itesla_project.iidm.network.Network;
 import eu.itesla_project.loadflow.api.LoadFlowFactory;
-import eu.itesla_project.modules.contingencies.ContingenciesAndActionsDatabaseClient;
-import eu.itesla_project.modules.ddb.DynamicDatabaseClientFactory;
-import eu.itesla_project.modules.simulation.ImpactAnalysis;
-import eu.itesla_project.modules.simulation.SimulatorFactory;
-import eu.itesla_project.modules.simulation.Stabilization;
+import eu.itesla_project.simulation.ImpactAnalysis;
+import eu.itesla_project.simulation.SimulatorFactory;
+import eu.itesla_project.simulation.Stabilization;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,13 +39,13 @@ public class PostContLoadFlowSimFactory implements SimulatorFactory {
     }
 
     @Override
-    public Stabilization createStabilization(Network network, ComputationManager computationManager, int priority, DynamicDatabaseClientFactory ddbClientFactory) {
+    public Stabilization createStabilization(Network network, ComputationManager computationManager, int priority) {
         return new PostContLoadFlowSimStabilization(network, config);
     }
 
     @Override
-    public ImpactAnalysis createImpactAnalysis(Network network, ComputationManager computationManager, int priority, ContingenciesAndActionsDatabaseClient cadbClient) {
-        return new PostContLoadFlowSimImpactAnalysis(network, computationManager, priority, cadbClient, config, loadFlowFactory);
+    public ImpactAnalysis createImpactAnalysis(Network network, ComputationManager computationManager, int priority, ContingenciesProvider contingenciesProvider) {
+        return new PostContLoadFlowSimImpactAnalysis(network, computationManager, priority, contingenciesProvider, config, loadFlowFactory);
     }
 
 }

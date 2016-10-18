@@ -14,12 +14,12 @@ import eu.itesla_project.modules.contingencies.Action;
 import eu.itesla_project.modules.contingencies.ActionPlan;
 import eu.itesla_project.modules.contingencies.ActionsContingenciesAssociation;
 import eu.itesla_project.modules.contingencies.ContingenciesAndActionsDatabaseClient;
-import eu.itesla_project.modules.contingencies.Contingency;
-import eu.itesla_project.modules.contingencies.ContingencyElement;
-import eu.itesla_project.modules.contingencies.LineContingency;
+import eu.itesla_project.contingency.Contingency;
+import eu.itesla_project.contingency.ContingencyElement;
+import eu.itesla_project.contingency.LineContingency;
+import eu.itesla_project.contingency.ContingencyImpl;
 import eu.itesla_project.modules.contingencies.Scenario;
 import eu.itesla_project.modules.contingencies.Zone;
-import eu.itesla_project.modules.contingencies.impl.ContingencyImpl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
