@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.commons.io;
+package eu.itesla_project.commons.config;
 
 import java.io.IOException;
 import java.nio.file.FileSystems;
@@ -12,8 +12,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import javax.xml.parsers.ParserConfigurationException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import eu.itesla_project.commons.io.CacheManager;
 import org.xml.sax.SAXException;
 
 /**

@@ -4,19 +4,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.commons.io;
+package eu.itesla_project.commons.config;
 
+import eu.itesla_project.commons.config.ComponentDefaultConfig;
+import eu.itesla_project.commons.config.InMemoryPlatformConfig;
+import eu.itesla_project.commons.config.MapModuleConfig;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.nio.file.ShrinkWrapFileSystems;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>

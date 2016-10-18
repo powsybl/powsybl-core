@@ -14,8 +14,8 @@ import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.itesla_project.commons.io.ModuleConfig;
-import eu.itesla_project.commons.io.PlatformConfig;
+import eu.itesla_project.commons.config.ModuleConfig;
+import eu.itesla_project.commons.config.PlatformConfig;
 import eu.itesla_project.loadflow.api.LoadFlowFactory;
 import eu.itesla_project.cases.CaseRepositoryFactory;
 import eu.itesla_project.merge.MergeOptimizerFactory;

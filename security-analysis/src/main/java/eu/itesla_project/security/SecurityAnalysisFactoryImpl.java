@@ -6,7 +6,7 @@
  */
 package eu.itesla_project.security;
 
-import eu.itesla_project.commons.io.ComponentDefaultConfig;
+import eu.itesla_project.commons.config.ComponentDefaultConfig;
 import eu.itesla_project.computation.ComputationManager;
 import eu.itesla_project.iidm.network.Network;
 import eu.itesla_project.loadflow.api.LoadFlowFactory;

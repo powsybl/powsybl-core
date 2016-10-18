@@ -14,8 +14,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
-import eu.itesla_project.commons.io.ModuleConfig;
-import eu.itesla_project.commons.io.PlatformConfig;
+import eu.itesla_project.commons.config.ModuleConfig;
+import eu.itesla_project.commons.config.PlatformConfig;
 import eu.itesla_project.modules.contingencies.ContingenciesAndActionsDatabaseClient;
 import eu.itesla_project.modules.contingencies.ContingenciesAndActionsDatabaseClientFactory;
 

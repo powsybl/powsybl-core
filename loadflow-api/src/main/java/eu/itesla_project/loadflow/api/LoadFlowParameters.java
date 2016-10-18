@@ -7,8 +7,8 @@
 package eu.itesla_project.loadflow.api;
 
 import com.google.common.collect.ImmutableMap;
-import eu.itesla_project.commons.io.ModuleConfig;
-import eu.itesla_project.commons.io.PlatformConfig;
+import eu.itesla_project.commons.config.ModuleConfig;
+import eu.itesla_project.commons.config.PlatformConfig;
 
 import java.util.Map;
 import java.util.Objects;

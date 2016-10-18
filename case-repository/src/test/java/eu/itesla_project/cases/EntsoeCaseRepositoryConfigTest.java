@@ -7,8 +7,8 @@
 package eu.itesla_project.cases;
 
 import com.google.common.collect.Sets;
-import eu.itesla_project.commons.io.InMemoryPlatformConfig;
-import eu.itesla_project.commons.io.MapModuleConfig;
+import eu.itesla_project.commons.config.InMemoryPlatformConfig;
+import eu.itesla_project.commons.config.MapModuleConfig;
 import eu.itesla_project.ucte.util.UcteGeographicalCode;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.nio.file.ShrinkWrapFileSystems;

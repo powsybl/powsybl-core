@@ -7,7 +7,7 @@
 package eu.itesla_project.eurostag;
 
 import com.google.auto.service.AutoService;
-import eu.itesla_project.commons.io.ComponentDefaultConfig;
+import eu.itesla_project.commons.config.ComponentDefaultConfig;
 import eu.itesla_project.commons.tools.Command;
 import eu.itesla_project.commons.tools.Tool;
 import eu.itesla_project.computation.ComputationManager;

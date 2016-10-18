@@ -8,7 +8,7 @@ package eu.itesla_project.dymola;
 
 import com.google.common.collect.ImmutableMap;
 import eu.itesla_project.commons.Version;
-import eu.itesla_project.commons.io.PlatformConfig;
+import eu.itesla_project.commons.config.PlatformConfig;
 import eu.itesla_project.computation.*;
 import eu.itesla_project.contingency.*;
 import eu.itesla_project.dymola.contingency.*;

@@ -6,7 +6,7 @@
  */
 package eu.itesla_project.modules.topo;
 
-import eu.itesla_project.commons.io.PlatformConfig;
+import eu.itesla_project.commons.config.PlatformConfig;
 import eu.itesla_project.computation.ComputationManager;
 import eu.itesla_project.iidm.network.Identifiable;
 import eu.itesla_project.iidm.network.Network;

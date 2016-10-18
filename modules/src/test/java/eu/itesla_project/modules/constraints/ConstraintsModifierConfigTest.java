@@ -21,8 +21,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import eu.itesla_project.commons.io.InMemoryPlatformConfig;
-import eu.itesla_project.commons.io.MapModuleConfig;
+import eu.itesla_project.commons.config.InMemoryPlatformConfig;
+import eu.itesla_project.commons.config.MapModuleConfig;
 import eu.itesla_project.iidm.network.Country;
 import eu.itesla_project.iidm.network.Network;
 import eu.itesla_project.security.LimitViolation;

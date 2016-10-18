@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.commons.io;
+package eu.itesla_project.commons.config;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -16,6 +16,10 @@ import java.nio.file.StandardOpenOption;
 import java.util.*;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
+
+import eu.itesla_project.commons.config.ModuleConfig;
+import eu.itesla_project.commons.config.PropertiesPlatformConfig;
+import eu.itesla_project.commons.config.XmlPlatformConfig;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.nio.file.ShrinkWrapFileSystems;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
