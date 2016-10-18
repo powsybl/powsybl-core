@@ -284,8 +284,8 @@ public class Networks {
 
     private static double EPSILON_X = 0.01;
 
-    public static void checkFlows(String id, double r, double x, double rho1, double rho2, double u1, double u2, double theta1, double theta2, double alpha1,
-                                  double alpha2, double g1, double g2, double b1, double b2, float p1, float q1, float p2, float q2) {
+    public static boolean checkFlows(String id, double r, double x, double rho1, double rho2, double u1, double u2, double theta1, double theta2, double alpha1,
+                                     double alpha2, double g1, double g2, double b1, double b2, float p1, float q1, float p2, float q2) {
         if (Math.abs(x) < EPSILON_X) {
             // System.out.println("x " + x + " -> " + EPSILON_X);
             // x = EPSILON_X;
@@ -323,21 +323,27 @@ public class Networks {
             System.out.println("q2=" + q2);
         }
         float seuil = 0.1f;
+        boolean ok = true;
         if (Math.abs(p1 - p1_calc) > seuil) {
             System.out.println(id + " P1 " + p1 + " " + p1_calc);
+            ok = false;
         }
         if (Math.abs(q1 - q1_calc) > seuil) {
             System.out.println(id + " Q1 " + q1 + " " + q1_calc);
+            ok = false;
         }
         if (Math.abs(p2 - p2_calc) > seuil) {
             System.out.println(id + " P2 " + p2 + " " + p2_calc);
+            ok = false;
         }
         if (Math.abs(q2 - q2_calc) > seuil) {
             System.out.println(id + " Q2 " + q2 + " " + q2_calc);
+            ok = false;
         }
+        return ok;
     }
 
-    public static void checkFlows(Line l) {
+    public static boolean checkFlows(Line l) {
         float p1 = l.getTerminal1().getP();
         float q1 = l.getTerminal1().getQ();
         float p2 = l.getTerminal2().getP();
@@ -359,11 +365,12 @@ public class Networks {
             double g2 = l.getG2();
             double b1 = l.getB1();
             double b2 = l.getB2();
-            checkFlows(l.getId(), r, x, rho1, rho2, u1, u2, theta1, theta2, alpha1, alpha2, g1, g2, b1, b2, p1, q1, p2, q2);
+            return checkFlows(l.getId(), r, x, rho1, rho2, u1, u2, theta1, theta2, alpha1, alpha2, g1, g2, b1, b2, p1, q1, p2, q2);
         }
+        return true;
     }
 
-    public static void checkFlows(TwoWindingsTransformer twt) {
+    public static boolean checkFlows(TwoWindingsTransformer twt) {
         if (twt.getRatioTapChanger() != null && twt.getPhaseTapChanger() != null) {
             throw new AssertionError();
         }
@@ -407,17 +414,24 @@ public class Networks {
             double theta2 = Math.toRadians(bus2.getAngle());
             double alpha1 = twt.getPhaseTapChanger() != null ? Math.toRadians(twt.getPhaseTapChanger().getCurrentStep().getAlpha()) : 0f;
             double alpha2 = 0f;
-            checkFlows(twt.getId(), r, x, rho1, rho2, u1, u2, theta1, theta2, alpha1, alpha2, g1, g2, b1, b2, p1, q1, p2, q2);
+            return checkFlows(twt.getId(), r, x, rho1, rho2, u1, u2, theta1, theta2, alpha1, alpha2, g1, g2, b1, b2, p1, q1, p2, q2);
         }
+        return true;
     }
 
-    public static void checkFlows(Network network) {
+    public static boolean checkFlows(Network network) {
+        boolean ok = true;
         for (Line l : network.getLines()) {
-            checkFlows(l);
+            if (!checkFlows(l)) {
+                ok = false;
+            }
         }
         for (TwoWindingsTransformer twt : network.getTwoWindingsTransformers()) {
-            checkFlows(twt);
+            if (!checkFlows(twt)) {
+                ok = false;
+            }
         }
+        return ok;
     }
 
 }
