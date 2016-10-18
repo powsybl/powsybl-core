@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.ucte.util;
+package eu.itesla_project.entsoe.util;
 
 import com.google.common.collect.Sets;
 import eu.itesla_project.iidm.network.Country;
@@ -15,12 +15,12 @@ import static org.junit.Assert.*;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class UcteGeographicalCodeTest {
+public class EntsoeGeographicalCodeTest {
 
     @Test
     public void testForCountry() throws Exception {
-        assertTrue(UcteGeographicalCode.forCountry(Country.FR).equals(Sets.newHashSet(UcteGeographicalCode.FR)));
-        assertTrue(UcteGeographicalCode.forCountry(Country.DE).equals(Sets.newHashSet(
-                UcteGeographicalCode.D1, UcteGeographicalCode.D2, UcteGeographicalCode.D4, UcteGeographicalCode.D7, UcteGeographicalCode.D8)));
+        assertTrue(EntsoeGeographicalCode.forCountry(Country.FR).equals(Sets.newHashSet(EntsoeGeographicalCode.FR)));
+        assertTrue(EntsoeGeographicalCode.forCountry(Country.DE).equals(Sets.newHashSet(
+                EntsoeGeographicalCode.D1, EntsoeGeographicalCode.D2, EntsoeGeographicalCode.D4, EntsoeGeographicalCode.D7, EntsoeGeographicalCode.D8)));
     }
 }
