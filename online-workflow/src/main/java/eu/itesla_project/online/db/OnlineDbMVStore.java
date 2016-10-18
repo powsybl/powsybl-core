@@ -67,8 +67,8 @@ import eu.itesla_project.modules.online.StateProcessingStatus;
 import eu.itesla_project.modules.online.StateStatus;
 import eu.itesla_project.modules.online.TimeHorizon;
 import eu.itesla_project.modules.optimizer.CCOFinalStatus;
-import eu.itesla_project.modules.security.LimitViolation;
-import eu.itesla_project.modules.securityindexes.SecurityIndexType;
+import eu.itesla_project.security.LimitViolation;
+import eu.itesla_project.simulation.securityindexes.SecurityIndexType;
 import eu.itesla_project.online.db.debug.NetworkData;
 import eu.itesla_project.online.db.debug.NetworkDataExporter;
 import eu.itesla_project.online.db.debug.NetworkDataExtractor;
@@ -147,7 +147,8 @@ public class OnlineDbMVStore implements OnlineDb {
     private static final String STORED_WCA_RULES_RESULTS_STATE_STATUS_MAP_SUFFIX = "_wcarulesstatus";
     private static final String STORED_WCA_RULES_RESULTS_STATE_RULES_AVAILABLE_MAP_SUFFIX = "_wcarulesavailable";
     private static final String STORED_WCA_RULES_RESULTS_STATE_INVALID_RULES_MAP_SUFFIX = "_wcarulesinvalid";
-    private static final String SERIALIZED_STATES_FILENAME = "network-states.csv";	
+    private static final String SERIALIZED_STATES_FILENAME = "network-states.csv";
+    private final String[] XIIDMEXTENSIONS = { ".xiidm", ".iidm", ".xml" };
 
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OnlineDbMVStore.class);
@@ -1003,8 +1004,18 @@ public class OnlineDbMVStore implements OnlineDb {
             Path workflowStatesFolder = getWorkflowStatesFolder(workflowId);
             Path stateFolder = Paths.get(workflowStatesFolder.toString(), STORED_STATE_PREFIX + stateId);
             if ( Files.exists(stateFolder) ) {
-                Path stateFile = Paths.get(stateFolder.toString(), network.getId() + ".xml");
-                stateFile.toFile().delete();
+                //remove current state file, if it already exists
+                for (int i = 0; i < XIIDMEXTENSIONS.length; i++) {
+                    Path stateFile = Paths.get(stateFolder.toString(), network.getId() + XIIDMEXTENSIONS[i]);
+                    try {
+                        Files.deleteIfExists(stateFile);
+                    } catch (IOException e) {
+                        String errorMessage = "online db: folder " + workflowStatesFolder + " for workflow " + workflowId
+                                + " , state " + stateIdStr + " ; cannot remove existing state file: " + e.getMessage();
+                        LOGGER.error(errorMessage);
+                        throw new RuntimeException(errorMessage);
+                    }
+                }
             } else {
                 try {
                     Files.createDirectories(stateFolder);
@@ -1021,7 +1032,7 @@ public class OnlineDbMVStore implements OnlineDb {
             parameters.setProperty("iidm.export.xml.with-branch-state-variables", "true");
             parameters.setProperty("iidm.export.xml.with-breakers", "true");
             parameters.setProperty("iidm.export.xml.with-properties", "true");
-            Exporters.export("XML", network, parameters, dataSource);
+            Exporters.export("XIIDM", network, parameters, dataSource);
             // store network state values, for later serialization
             Map<HistoDbAttributeId, Object> networkValues = IIDM2DB.extractCimValues(network, new IIDM2DB.Config(network.getId(), true, true)).getSingleValueMap();
             ConcurrentHashMap<Integer, Map<HistoDbAttributeId, Object>> workflowStates = new ConcurrentHashMap<Integer, Map<HistoDbAttributeId,Object>>();
@@ -1112,13 +1123,15 @@ public class OnlineDbMVStore implements OnlineDb {
         if ( Files.exists(stateFolder) && Files.isDirectory(stateFolder) ) {
             if ( stateFolder.toFile().list().length == 1 ) {
                 File stateFile = stateFolder.toFile().listFiles()[0];
-                String stateFileName = stateFile.getName();
-                if ( stateFileName.endsWith(".xml"));
-                String basename = stateFileName.substring(0, stateFileName.length()-4);
+                String basename = stateFile.getName();
+                int extIndex = basename.lastIndexOf(".");
+                if (extIndex > 0) {
+                    basename = basename.substring(0, extIndex);
+                }
                 DataSource dataSource = new FileDataSource(stateFolder, basename);
-                //Network network = Importers.import_("XML", dataSource, null);
+                //Network network = Importers.import_("XIIDM", dataSource, null);
                 // with the new post processors configuration, the post processing is applied also to xml import
-                Importer xmlImporter = Importers.getImporter("XML");
+                Importer xmlImporter = Importers.getImporter("XIIDM");
                 Importer noppImporter = Importers.removePostProcessors(xmlImporter);
                 Network network = noppImporter.import_(dataSource, null);
                 return network;

@@ -8,8 +8,8 @@ package eu.itesla_project.online;
 
 import java.io.Serializable;
 
-import eu.itesla_project.commons.io.ModuleConfig;
-import eu.itesla_project.commons.io.PlatformConfig;
+import eu.itesla_project.commons.config.ModuleConfig;
+import eu.itesla_project.commons.config.PlatformConfig;
 
 /**
  *

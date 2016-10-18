@@ -6,8 +6,8 @@
  */
 package eu.itesla_project.iidm.import_;
 
-import eu.itesla_project.commons.io.ModuleConfig;
-import eu.itesla_project.commons.io.PlatformConfig;
+import eu.itesla_project.commons.config.ModuleConfig;
+import eu.itesla_project.commons.config.PlatformConfig;
 
 import java.util.Arrays;
 import java.util.Collections;

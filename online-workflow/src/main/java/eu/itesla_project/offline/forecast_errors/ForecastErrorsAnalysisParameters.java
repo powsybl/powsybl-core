@@ -9,8 +9,8 @@ package eu.itesla_project.offline.forecast_errors;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
-import eu.itesla_project.commons.io.ModuleConfig;
-import eu.itesla_project.commons.io.PlatformConfig;
+import eu.itesla_project.commons.config.ModuleConfig;
+import eu.itesla_project.commons.config.PlatformConfig;
 import eu.itesla_project.iidm.network.Country;
 import eu.itesla_project.cases.CaseType;
 

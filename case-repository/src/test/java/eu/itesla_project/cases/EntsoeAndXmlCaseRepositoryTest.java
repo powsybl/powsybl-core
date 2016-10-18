@@ -34,6 +34,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.List;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -112,7 +113,7 @@ public class EntsoeAndXmlCaseRepositoryTest {
                 .thenAnswer(invocation -> {
                     DataSourceMock dataSource = invocation.getArgumentAt(0, DataSourceMock.class);
                     Path file = dataSource.getDirectory().resolve(dataSource.getBaseName() + ".zip");
-                    return Files.isRegularFile(file) && Files.exists(file);
+                    return Files.isRegularFile(file);
                 });
         Mockito.when(cimImporter.getFormat())
                 .thenReturn("CIM1");
@@ -125,7 +126,7 @@ public class EntsoeAndXmlCaseRepositoryTest {
                 .thenAnswer(invocation -> {
                     DataSourceMock dataSource = invocation.getArgumentAt(0, DataSourceMock.class);
                     Path file = dataSource.getDirectory().resolve(dataSource.getBaseName() + ".uct");
-                    return Files.isRegularFile(file) && Files.exists(file);
+                    return Files.isRegularFile(file);
                 });
         Mockito.when(uctImporter.getFormat())
                 .thenReturn("UCTE");
@@ -133,34 +134,39 @@ public class EntsoeAndXmlCaseRepositoryTest {
         Mockito.when(uctImporter.import_(Matchers.isA(DataSource.class), Matchers.any()))
                 .thenReturn(uctNetwork);
 
-        Importer xmlImporter = Mockito.mock(Importer.class);
-        Mockito.when(xmlImporter.exists(Matchers.isA(DataSource.class)))
+        Importer iidmImporter = Mockito.mock(Importer.class);
+        Mockito.when(iidmImporter.exists(Matchers.isA(DataSource.class)))
                 .thenAnswer(invocation -> {
                     DataSourceMock dataSource = invocation.getArgumentAt(0, DataSourceMock.class);
-                    Path file = dataSource.getDirectory().resolve(dataSource.getBaseName() + ".xml");
-                    return Files.isRegularFile(file) && Files.exists(file);
+                    Path file_xiidm = dataSource.getDirectory().resolve(dataSource.getBaseName() + ".xiidm");
+                    Path file_xml = dataSource.getDirectory().resolve(dataSource.getBaseName() + ".xml");
+                    return ((Files.isRegularFile(file_xiidm)) || Files.isRegularFile(file_xml));
                 });
-        Mockito.when(xmlImporter.getFormat())
-                .thenReturn("XML");
+        Mockito.when(iidmImporter.getFormat())
+                .thenReturn("XIIDM");
         xmlNetwork = Mockito.mock(Network.class);
-        Mockito.when(xmlImporter.import_(Matchers.isA(DataSource.class), Matchers.any()))
+        Mockito.when(iidmImporter.import_(Matchers.isA(DataSource.class), Matchers.any()))
                 .thenReturn(xmlNetwork);
 
 
         caseRepository = new EntsoeAndXmlCaseRepository(new EntsoeAndXmlCaseRepositoryConfig(rootDir, HashMultimap.create()),
                 Arrays.asList(new EntsoeCaseRepository.EntsoeFormat(cimImporter, "CIM"),
                         new EntsoeCaseRepository.EntsoeFormat(uctImporter, "UCT"),
-                        new EntsoeCaseRepository.EntsoeFormat(xmlImporter, "XML")
+                        new EntsoeCaseRepository.EntsoeFormat(iidmImporter, "IIDM")
                 ),
                 (directory, baseName) -> new DataSourceMock(directory, baseName));
 
-        Path dir5 = fileSystem.getPath("/XML/SN/2013/01/14");
+        Path dir5 = fileSystem.getPath("/IIDM/SN/2013/01/14");
         Files.createDirectories(dir5);
         createFile(dir5, "20130114_0015_SN1_FR0.xml");
-        Path dir6 = fileSystem.getPath("/XML/SN/2016/01/01");
+        Path dir6 = fileSystem.getPath("/IIDM/SN/2016/01/01");
         Files.createDirectories(dir6);
         createFile(dir6, "20160101_0015_SN5_FR0.xml");
         createFile(dir6, "20160101_0045_SN5_FR0.xml");
+
+        Path dir7 = fileSystem.getPath("/IIDM/SN/2016/02/02");
+        Files.createDirectories(dir7);
+        createFile(dir7, "20160202_0115_SN2_FR0.xiidm");
     }
 
     @After
@@ -181,4 +187,14 @@ public class EntsoeAndXmlCaseRepositoryTest {
         assertTrue(caseRepository.dataAvailable(CaseType.SN, EnumSet.of(Country.FR), Interval.parse("2016-01-01T00:00:00+01:00/2016-01-14T01:00:00+01:00"))
                 .equals(Sets.newHashSet(DateTime.parse("2016-01-01T00:15:00+01:00"), DateTime.parse("2016-01-01T00:45:00+01:00"))));
     }
+
+    @Test
+    public void testLoadXiidm() throws Exception {
+        // check that, when cim and ucte is forbidden for france, xml is loaded
+        // file suffix .xiidm
+        caseRepository.getConfig().getForbiddenFormatsByGeographicalCode().put(UcteGeographicalCode.FR, "CIM1");
+        caseRepository.getConfig().getForbiddenFormatsByGeographicalCode().put(UcteGeographicalCode.FR, "UCTE");
+        assertTrue(caseRepository.load(DateTime.parse("2016-02-02T01:15:00+01:00"), CaseType.SN, Country.FR).equals(Collections.singletonList(xmlNetwork)));
+    }
+
 }

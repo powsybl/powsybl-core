@@ -38,7 +38,7 @@ public class XMLImporter implements Importer, XmlConstants {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(XMLImporter.class);
 
-    private final String[] EXTENSIONS = { "xml", "iidm" };
+    private final String[] EXTENSIONS = { "xiidm", "iidm", "xml" };
 
     private static final Supplier<XMLInputFactory> XML_INPUT_FACTORY_SUPPLIER = Suppliers.memoize(XMLInputFactory::newInstance);
 
@@ -47,7 +47,7 @@ public class XMLImporter implements Importer, XmlConstants {
 
     @Override
     public String getFormat() {
-        return "XML";
+        return "XIIDM";
     }
 
     @Override
@@ -123,7 +123,7 @@ public class XMLImporter implements Importer, XmlConstants {
             try (InputStream is = dataSource.newInputStream(null, ext)) {
                 network = NetworkXml.read(is, new XmlImportConfig(throwExceptionIfExtensionNotFound));
             }
-            LOGGER.debug("XML import done in {} ms", (System.currentTimeMillis() - startTime));
+            LOGGER.debug("XIIDM import done in {} ms", (System.currentTimeMillis() - startTime));
         } catch (IOException e) {
             throw new ITeslaException(e);
         }

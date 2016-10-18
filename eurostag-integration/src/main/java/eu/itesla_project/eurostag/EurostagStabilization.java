@@ -15,6 +15,7 @@ import eu.itesla_project.eurostag.network.EsgNetwork;
 import eu.itesla_project.eurostag.network.io.EsgWriter;
 import eu.itesla_project.eurostag.tools.EurostagNetworkModifier;
 import eu.itesla_project.iidm.datasource.FileDataSource;
+import eu.itesla_project.iidm.ddb.eurostag_imp_exp.IIDMDynamicDatabaseFactory;
 import eu.itesla_project.iidm.eurostag.export.BranchParallelIndexes;
 import eu.itesla_project.iidm.eurostag.export.EurostagDictionary;
 import eu.itesla_project.iidm.eurostag.export.EurostagEchExport;
@@ -23,18 +24,17 @@ import eu.itesla_project.iidm.export.Exporter;
 import eu.itesla_project.iidm.export.Exporters;
 import eu.itesla_project.iidm.network.Network;
 import eu.itesla_project.iidm.network.util.Networks;
-import eu.itesla_project.modules.ddb.DynamicDatabaseClient;
-import eu.itesla_project.modules.ddb.DynamicDatabaseClientFactory;
-import eu.itesla_project.modules.simulation.SimulationParameters;
-import eu.itesla_project.modules.simulation.Stabilization;
-import eu.itesla_project.modules.simulation.StabilizationResult;
-import eu.itesla_project.modules.simulation.StabilizationStatus;
+import eu.itesla_project.iidm.ddb.eurostag_imp_exp.DynamicDatabaseClient;
+import eu.itesla_project.iidm.ddb.eurostag_imp_exp.DynamicDatabaseClientFactory;
+import eu.itesla_project.simulation.SimulationParameters;
+import eu.itesla_project.simulation.Stabilization;
+import eu.itesla_project.simulation.StabilizationResult;
+import eu.itesla_project.simulation.StabilizationStatus;
 import org.jboss.shrinkwrap.api.Domain;
 import org.jboss.shrinkwrap.api.GenericArchive;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.exporter.ZipExporter;
-import org.jboss.shrinkwrap.impl.nio.file.ShrinkWrapFileSystem;
-import org.jboss.shrinkwrap.impl.nio.file.ShrinkWrapFileSystemProvider;
+import org.jboss.shrinkwrap.api.nio.file.ShrinkWrapFileSystems;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -102,20 +102,18 @@ public class EurostagStabilization implements Stabilization, EurostagConstants {
 
     private SimulationParameters parameters;
 
-    public EurostagStabilization(Network network, ComputationManager computationManager, int priority, DynamicDatabaseClientFactory ddbClientFactory) {
-        this(network, computationManager, priority, ddbClientFactory, EurostagConfig.load());
+    public EurostagStabilization(Network network, ComputationManager computationManager, int priority) {
+        this(network, computationManager, priority, EurostagConfig.load());
     }
 
-    public EurostagStabilization(Network network, ComputationManager computationManager, int priority, DynamicDatabaseClientFactory ddbClientFactory,
-                                 EurostagConfig config) {
+    public EurostagStabilization(Network network, ComputationManager computationManager, int priority, EurostagConfig config) {
         Objects.requireNonNull(network, "network is null");
         Objects.requireNonNull(computationManager, "computation manager is null");
-        Objects.requireNonNull(ddbClientFactory, "dynamic database client factory is null");
         Objects.requireNonNull(config, "config is null");
         this.network = network;
         this.computationManager = computationManager;
         this.priority = priority;
-        this.ddbClient = ddbClientFactory.create(config.isDdbCaching());
+        this.ddbClient = new IIDMDynamicDatabaseFactory().create(config.isDdbCaching());
         this.config = config;
 
         LOGGER.info(config.toString());
@@ -162,7 +160,7 @@ public class EurostagStabilization implements Stabilization, EurostagConstants {
 
     private void writeDtaAndControls(Domain domain, OutputStream ddbOs, OutputStream dictGensOs) throws IOException {
         GenericArchive archive = domain.getArchiveFactory().create(GenericArchive.class);
-        try (FileSystem fileSystem = new ShrinkWrapFileSystem(new ShrinkWrapFileSystemProvider(), archive)) {
+        try (FileSystem fileSystem = ShrinkWrapFileSystems.newFileSystem(archive)) {
             Path rootDir = fileSystem.getPath("/");
             ddbClient.dumpDtaFile(rootDir, DTA_FILE_NAME, network, parallelIndexes.toMap(), EurostagUtil.VERSION, dictionary.toMap());
         }

@@ -9,6 +9,8 @@ package eu.itesla_project.modules.contingencies;
 import java.util.Collection;
 import java.util.List;
 
+import eu.itesla_project.contingency.ContingenciesProvider;
+import eu.itesla_project.contingency.Contingency;
 import eu.itesla_project.iidm.network.Network;
 
 /**
@@ -17,7 +19,7 @@ import eu.itesla_project.iidm.network.Network;
  * @author Quinary <itesla@quinary.com>
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface ContingenciesAndActionsDatabaseClient {
+public interface ContingenciesAndActionsDatabaseClient extends ContingenciesProvider {
 
 	/**
 	 * Get a contingency of a network

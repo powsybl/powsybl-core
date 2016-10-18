@@ -12,14 +12,13 @@ import eu.itesla_project.merge.MergeOptimizerFactory;
 import eu.itesla_project.modules.OptimizerFactory;
 import eu.itesla_project.cases.CaseRepository;
 import eu.itesla_project.modules.contingencies.ContingenciesAndActionsDatabaseClientFactory;
-import eu.itesla_project.modules.ddb.DynamicDatabaseClientFactory;
 import eu.itesla_project.modules.histo.HistoDbClientFactory;
 import eu.itesla_project.modules.offline.MetricsDb;
 import eu.itesla_project.modules.offline.OfflineDb;
 import eu.itesla_project.modules.offline.OfflineWorkflowCreationParameters;
 import eu.itesla_project.modules.rules.RulesBuilder;
 import eu.itesla_project.modules.sampling.SamplerFactory;
-import eu.itesla_project.modules.simulation.SimulatorFactory;
+import eu.itesla_project.simulation.SimulatorFactory;
 import eu.itesla_project.modules.topo.TopologyMinerFactory;
 import eu.itesla_project.modules.validation.ValidationDb;
 
@@ -31,7 +30,7 @@ import java.util.concurrent.ExecutorService;
 public interface OfflineWorkflowFactory {
 
     OfflineWorkflow create(String id, OfflineWorkflowCreationParameters creationParameters, ComputationManager computationManager,
-                           DynamicDatabaseClientFactory ddbClientFactory, ContingenciesAndActionsDatabaseClientFactory cadbClientFactory,
+                           ContingenciesAndActionsDatabaseClientFactory cadbClientFactory,
                            HistoDbClientFactory histoDbClientFactory, TopologyMinerFactory topologyMinerFactory,
                            RulesBuilder rulesBuilder, OfflineDb offlineDb, ValidationDb validationDb, CaseRepository caseRepository,
                            SamplerFactory samplerFactory, LoadFlowFactory loadFlowFactory, OptimizerFactory optimizerFactory,

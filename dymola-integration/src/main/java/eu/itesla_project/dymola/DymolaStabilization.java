@@ -6,16 +6,14 @@
  */
 package eu.itesla_project.dymola;
 
-import com.google.common.collect.ImmutableMap;
 import eu.itesla_project.computation.ComputationManager;
+import eu.itesla_project.iidm.ddb.eurostag_imp_exp.IIDMDynamicDatabaseFactory;
 import eu.itesla_project.iidm.network.Network;
-import eu.itesla_project.modules.ddb.DynamicDatabaseClient;
-import eu.itesla_project.modules.ddb.DynamicDatabaseClientFactory;
-import eu.itesla_project.modules.simulation.*;
+import eu.itesla_project.iidm.ddb.eurostag_imp_exp.DynamicDatabaseClient;
+import eu.itesla_project.simulation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -37,14 +35,13 @@ public class DymolaStabilization implements Stabilization {
     private final int priority;
 
 
-    public DymolaStabilization(Network network, ComputationManager computationManager, int priority, DynamicDatabaseClientFactory ddbClientFactory) {
+    public DymolaStabilization(Network network, ComputationManager computationManager, int priority) {
         Objects.requireNonNull(network, "network is null");
         Objects.requireNonNull(computationManager, "computation manager is null");
-        Objects.requireNonNull(ddbClientFactory, "dynamic database client factory is null");
         this.network = network;
         this.computationManager = computationManager;
         this.priority = priority;
-        this.ddbClient = ddbClientFactory.create(false);
+        this.ddbClient = new IIDMDynamicDatabaseFactory().create(false);
     }
 
     @Override

@@ -14,7 +14,7 @@ import eu.itesla_project.modules.rules.expr.ExpressionFlatPrinter;
 import eu.itesla_project.modules.rules.expr.ExpressionGraphvizPrinter;
 import eu.itesla_project.modules.rules.expr.ExpressionNode;
 import eu.itesla_project.modules.rules.expr.ExpressionTreePrinter;
-import eu.itesla_project.modules.securityindexes.SecurityIndexType;
+import eu.itesla_project.simulation.securityindexes.SecurityIndexType;
 import org.apache.commons.cli.CommandLine;
 
 import java.util.List;

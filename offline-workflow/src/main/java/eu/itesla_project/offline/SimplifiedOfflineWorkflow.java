@@ -18,12 +18,11 @@ import eu.itesla_project.cases.CaseRepository;
 import eu.itesla_project.cases.CaseType;
 import eu.itesla_project.modules.contingencies.ContingenciesAndActionsDatabaseClient;
 import eu.itesla_project.modules.contingencies.ContingenciesAndActionsDatabaseClientFactory;
-import eu.itesla_project.modules.ddb.DynamicDatabaseClientFactory;
 import eu.itesla_project.modules.offline.MetricsDb;
 import eu.itesla_project.modules.offline.OfflineDb;
 import eu.itesla_project.modules.offline.OfflineWorkflowCreationParameters;
 import eu.itesla_project.modules.rules.RulesBuilder;
-import eu.itesla_project.modules.simulation.*;
+import eu.itesla_project.simulation.*;
 import eu.itesla_project.modules.validation.ValidationDb;
 import org.joda.time.DateTime;
 
@@ -47,11 +46,11 @@ public class SimplifiedOfflineWorkflow extends AbstractOfflineWorkflow {
     static final int IMPACT_ANALYSIS_PRIORITY = 2;
 
     public SimplifiedOfflineWorkflow(String id, OfflineWorkflowCreationParameters creationParameters, ComputationManager computationManager,
-                                     DynamicDatabaseClientFactory ddbClientFactory, ContingenciesAndActionsDatabaseClientFactory cadbClientFactory,
+                                     ContingenciesAndActionsDatabaseClientFactory cadbClientFactory,
                                      RulesBuilder rulesBuilder, OfflineDb offlineDb, CaseRepository caseRepository,
                                      LoadFlowFactory loadFlowFactory, SimulatorFactory simulatorFactory, MergeOptimizerFactory mergeOptimizerFactory,
                                      MetricsDb metricsDb, ValidationDb validationDb, ExecutorService executorService) throws IOException {
-        super(id, creationParameters, computationManager, ddbClientFactory, cadbClientFactory, rulesBuilder, offlineDb, caseRepository,
+        super(id, creationParameters, computationManager, cadbClientFactory, rulesBuilder, offlineDb, caseRepository,
                 loadFlowFactory, simulatorFactory, mergeOptimizerFactory, metricsDb, validationDb, executorService);
     }
 
@@ -81,7 +80,7 @@ public class SimplifiedOfflineWorkflow extends AbstractOfflineWorkflow {
                 .runAsync(() -> {
                     context.network = loadAndMergeNetwork(date, LOADFLOW_PRIORITY);
                     context.loadFlow = loadFlowFactory.create(context.network, computationManager, LOADFLOW_PRIORITY);
-                    context.stabilization = simulatorFactory.createStabilization(context.network, computationManager, STABILIZATION_PRIORITY, ddbClientFactory);
+                    context.stabilization = simulatorFactory.createStabilization(context.network, computationManager, STABILIZATION_PRIORITY);
                     context.impactAnalysis = simulatorFactory.createImpactAnalysis(context.network, computationManager, IMPACT_ANALYSIS_PRIORITY, cadbClient);
 
                     LOGGER.debug("Workflow {}, case {}: loaded {}", id, caseNum, context.network.getId());

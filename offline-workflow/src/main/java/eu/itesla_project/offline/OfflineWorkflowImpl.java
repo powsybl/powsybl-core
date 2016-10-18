@@ -20,7 +20,6 @@ import eu.itesla_project.modules.*;
 import eu.itesla_project.cases.CaseRepository;
 import eu.itesla_project.modules.contingencies.ContingenciesAndActionsDatabaseClient;
 import eu.itesla_project.modules.contingencies.ContingenciesAndActionsDatabaseClientFactory;
-import eu.itesla_project.modules.ddb.DynamicDatabaseClientFactory;
 import eu.itesla_project.modules.histo.HistoDbClient;
 import eu.itesla_project.modules.histo.HistoDbClientFactory;
 import eu.itesla_project.modules.histo.HistoDbUtil;
@@ -28,14 +27,14 @@ import eu.itesla_project.modules.offline.*;
 import eu.itesla_project.modules.rules.RuleId;
 import eu.itesla_project.modules.rules.RulesBuilder;
 import eu.itesla_project.modules.sampling.*;
-import eu.itesla_project.modules.security.Security;
-import eu.itesla_project.modules.securityindexes.SecurityIndex;
-import eu.itesla_project.modules.simulation.*;
 import eu.itesla_project.modules.topo.TopologyContext;
 import eu.itesla_project.modules.topo.TopologyMiner;
 import eu.itesla_project.modules.topo.TopologyMinerFactory;
 import eu.itesla_project.modules.topo.UniqueTopologyBuilder;
 import eu.itesla_project.modules.validation.ValidationDb;
+import eu.itesla_project.security.Security;
+import eu.itesla_project.simulation.securityindexes.SecurityIndex;
+import eu.itesla_project.simulation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -108,13 +107,13 @@ public class OfflineWorkflowImpl extends AbstractOfflineWorkflow {
     private final SampleIdGenerator idGenerator;
 
     public OfflineWorkflowImpl(String id, OfflineWorkflowCreationParameters creationParameters, ComputationManager computationManager,
-                               DynamicDatabaseClientFactory ddbClientFactory, ContingenciesAndActionsDatabaseClientFactory cadbClientFactory,
+                               ContingenciesAndActionsDatabaseClientFactory cadbClientFactory,
                                HistoDbClientFactory histoDbClientFactory, TopologyMinerFactory topologyMinerFactory,
                                RulesBuilder rulesBuilder, OfflineDb offlineDb, ValidationDb validationDb, CaseRepository caseRepository,
                                SamplerFactory samplerFactory, LoadFlowFactory loadFlowFactory, OptimizerFactory optimizerFactory,
                                SimulatorFactory simulatorFactory, MergeOptimizerFactory mergeOptimizerFactory,
                                MetricsDb metricsDb, ExecutorService executorService) throws IOException {
-        super(id, creationParameters, computationManager, ddbClientFactory, cadbClientFactory, rulesBuilder, offlineDb, caseRepository,
+        super(id, creationParameters, computationManager, cadbClientFactory, rulesBuilder, offlineDb, caseRepository,
                 loadFlowFactory, simulatorFactory, mergeOptimizerFactory, metricsDb, validationDb, executorService);
         this.histoDbClientFactory = Objects.requireNonNull(histoDbClientFactory);
         this.topologyMinerFactory = Objects.requireNonNull(topologyMinerFactory);
@@ -430,7 +429,7 @@ public class OfflineWorkflowImpl extends AbstractOfflineWorkflow {
 
             LOGGER.info("Sampling module: {} {}", sampler.getName(), Objects.toString(sampler.getVersion(), ""));
 
-            Stabilization stabilization = simulatorFactory.createStabilization(network, computationManager, STABILIZATION_PRIORITY, ddbClientFactory);
+            Stabilization stabilization = simulatorFactory.createStabilization(network, computationManager, STABILIZATION_PRIORITY);
             ImpactAnalysis impactAnalysis = simulatorFactory.createImpactAnalysis(network, computationManager, IMPACT_ANALYSIS_PRIORITY, cadbClient);
             Optimizer optimizer = optimizerFactory.create(network, computationManager, STARTING_POINT_INIT_PRIORITY, histoDbClient, topologyMiner);
             LoadFlow loadFlow = loadFlowFactory.create(network, computationManager, LOAD_FLOW_PRIORITY);

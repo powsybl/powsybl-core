@@ -7,15 +7,20 @@
 package eu.itesla_project.eurostag;
 
 import com.google.auto.service.AutoService;
+import eu.itesla_project.commons.config.ComponentDefaultConfig;
 import eu.itesla_project.commons.tools.Command;
 import eu.itesla_project.commons.tools.Tool;
 import eu.itesla_project.computation.ComputationManager;
 import eu.itesla_project.computation.local.LocalComputationManager;
+import eu.itesla_project.contingency.ContingenciesProvider;
+import eu.itesla_project.contingency.ContingenciesProviderFactory;
 import eu.itesla_project.eurostag.network.EsgGeneralParameters;
 import eu.itesla_project.eurostag.network.EsgNetwork;
 import eu.itesla_project.eurostag.network.io.EsgWriter;
 import eu.itesla_project.eurostag.tools.EurostagNetworkModifier;
 import eu.itesla_project.iidm.datasource.GenericReadOnlyDataSource;
+import eu.itesla_project.iidm.ddb.eurostag_imp_exp.DynamicDatabaseClient;
+import eu.itesla_project.iidm.ddb.eurostag_imp_exp.IIDMDynamicDatabaseFactory;
 import eu.itesla_project.iidm.eurostag.export.BranchParallelIndexes;
 import eu.itesla_project.iidm.eurostag.export.EurostagDictionary;
 import eu.itesla_project.iidm.eurostag.export.EurostagEchExport;
@@ -23,10 +28,7 @@ import eu.itesla_project.iidm.eurostag.export.EurostagEchExportConfig;
 import eu.itesla_project.iidm.import_.Importer;
 import eu.itesla_project.iidm.import_.Importers;
 import eu.itesla_project.iidm.network.Network;
-import eu.itesla_project.modules.contingencies.ContingenciesAndActionsDatabaseClient;
-import eu.itesla_project.modules.ddb.DynamicDatabaseClient;
-import eu.itesla_project.modules.offline.OfflineConfig;
-import eu.itesla_project.modules.simulation.SimulationParameters;
+import eu.itesla_project.simulation.SimulationParameters;
 import org.apache.commons.cli.CommandLine;
 import org.jboss.shrinkwrap.api.exporter.ZipExporter;
 
@@ -53,7 +55,7 @@ public class EurostagExportTool implements Tool, EurostagConstants {
 
     @Override
     public void run(CommandLine line) throws Exception {
-        OfflineConfig offlineConfig = OfflineConfig.load();
+        ComponentDefaultConfig config = new ComponentDefaultConfig();
         EurostagConfig eurostagConfig = EurostagConfig.load();
         String caseFormat = line.getOptionValue("case-format");
         String caseDirName = line.getOptionValue("case-dir");
@@ -62,7 +64,7 @@ public class EurostagExportTool implements Tool, EurostagConstants {
         if (!Files.isDirectory(outputDir)) {
             throw new RuntimeException(outputDir + " is not a directory");
         }
-        DynamicDatabaseClient ddbClient = offlineConfig.getDynamicDbClientFactoryClass().newInstance().create(eurostagConfig.isDdbCaching());
+        DynamicDatabaseClient ddbClient = new IIDMDynamicDatabaseFactory().create(eurostagConfig.isDdbCaching());
 
         try (ComputationManager computationManager = new LocalComputationManager()) {
 
@@ -104,8 +106,8 @@ public class EurostagExportTool implements Tool, EurostagConstants {
             try (BufferedWriter writer = Files.newBufferedWriter(outputDir.resolve(PRE_FAULT_SEQ_FILE_NAME), StandardCharsets.UTF_8)) {
                 scenario.writePreFaultSeq(writer, PRE_FAULT_SAC_FILE_NAME);
             }
-            ContingenciesAndActionsDatabaseClient cdb = offlineConfig.getContingencyDbClientFactoryClass().newInstance().create();
-            scenario.writeFaultSeqArchive(cdb.getContingencies(network), network, dictionary, faultNum -> FAULT_SEQ_FILE_NAME.replace(eu.itesla_project.computation.Command.EXECUTION_NUMBER_PATTERN, Integer.toString(faultNum)))
+            ContingenciesProvider contingenciesProvider = config.findFactoryImplClass(ContingenciesProviderFactory.class).newInstance().create();
+            scenario.writeFaultSeqArchive(contingenciesProvider.getContingencies(network), network, dictionary, faultNum -> FAULT_SEQ_FILE_NAME.replace(eu.itesla_project.computation.Command.EXECUTION_NUMBER_PATTERN, Integer.toString(faultNum)))
                     .as(ZipExporter.class).exportTo(outputDir.resolve(ALL_SCENARIOS_ZIP_FILE_NAME).toFile());
 
             // export limits

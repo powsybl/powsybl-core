@@ -18,13 +18,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import eu.itesla_project.iidm.network.Network;
-import eu.itesla_project.modules.contingencies.Contingency;
+import eu.itesla_project.contingency.Contingency;
 import eu.itesla_project.modules.histo.HistoDbAttributeId;
 import eu.itesla_project.modules.histo.IIDM2DB;
 import eu.itesla_project.modules.online.RulesFacadeResults;
 import eu.itesla_project.modules.online.StateStatus;
 import eu.itesla_project.modules.rules.SecurityRule;
-import eu.itesla_project.modules.securityindexes.SecurityIndexType;
+import eu.itesla_project.simulation.securityindexes.SecurityIndexType;
 
 /**
  *

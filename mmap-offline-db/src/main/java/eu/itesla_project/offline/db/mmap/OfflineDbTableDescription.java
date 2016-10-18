@@ -13,7 +13,7 @@ import eu.itesla_project.modules.histo.HistoDbAttributeIdParser;
 import eu.itesla_project.modules.histo.HistoDbNetworkAttributeId;
 import eu.itesla_project.modules.offline.OfflineTaskStatus;
 import eu.itesla_project.modules.offline.OfflineTaskType;
-import eu.itesla_project.modules.securityindexes.SecurityIndexId;
+import eu.itesla_project.simulation.securityindexes.SecurityIndexId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

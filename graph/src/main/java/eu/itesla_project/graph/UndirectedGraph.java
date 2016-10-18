@@ -7,6 +7,8 @@
 package eu.itesla_project.graph;
 
 import com.google.common.base.Function;
+import gnu.trove.list.array.TIntArrayList;
+
 import java.io.PrintStream;
 import java.util.List;
 
@@ -55,6 +57,8 @@ public interface UndirectedGraph<V, E> {
     void traverse(int v, Traverser<E> traverser, boolean[] encountered);
 
     void traverse(int v, Traverser<E> traverser);
+
+    List<TIntArrayList> findAllPaths(int from, Function<V, Boolean> pathComplete, Function<E, Boolean> pathCanceled);
 
     void addListener(UndirectedGraphListener l);
 

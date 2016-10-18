@@ -36,7 +36,7 @@ removeThirdpartyBuildDir=false
 
 cmd=$0
 usage() {
-    echo "usage: $cmd [--help] [--installDir <installation path>] [--thirdpartyDir <thirdparty path>] [--overwriteInstallation] [--removeNonJavaBuildDir] [--removeThirdpartyBuildDir] [--buildMATLAB] [--buildEUROSTAG] [--buildDYMOLA]";
+    echo "usage: $cmd [--help] [--installDir <installation path>] [--thirdpartyDir <thirdparty path>] [--overwriteInstallation] [--clean] [--removeNonJavaBuildDir] [--removeThirdpartyBuildDir] [--buildMATLAB] [--buildEUROSTAG] [--buildDYMOLA]";
     echo ""
     exit 1
 }
@@ -52,13 +52,16 @@ help() {
     echo "   --buildDYMOLA              if set, build DYMOLA components (default is false, this option requires installation of DYMOLA)";
     echo "   --removeThirdpartyBuildDir if set, remove an already existing third-party build dir before starting a new build (default is false)";
     echo "   --removeNonJavaBuildDir    if set, remove an already existing non java ipst  build dir before starting a new build (default is false)";
+    echo "   --clean                    remove compiled files and directories generated during a build (thirdpartyDir excluded) and exit.";
     echo "   --help  ";
     echo ""
     exit
 }
 
 
-for ((i=1;i<=$#;i++)); 
+cleanIPST=false;
+
+for ((i=1;i<=$#;i++));
 do
     if [ ${!i} = "--installDir" ] 
     then ((i++)) 
@@ -87,11 +90,36 @@ do
     elif [ ${!i} = "--removeNonJavaBuildDir" ];
     then 
         removeNonJavaBuildDir=true;  
+    elif [ ${!i} = "--clean" ];
+    then 
+        cleanIPST=true;  
     elif [ ${!i} = "--help" ];    
     then ((i++)) 
         help;
     fi
 done;
+
+buildDir=$sourceDir/build
+buildThirdpartyDir=$thirdpartyDir/build
+
+if [ $cleanIPST = true ] ; then
+    echo ""
+    echo "** cleaning ipst"
+    echo ""
+    mvn -f $sourceDir/pom.xml clean
+    cr=$?
+    if [ $cr -ne 0 ] ; then
+        exit $cr
+    fi
+    rm -rf $buildDir
+
+    echo ""
+    echo "** cleaned."
+    echo ""
+
+    exit 0
+fi
+
 echo ""
 echo "** Building and installing ipst:"
 echo "** -----------------------------"
@@ -146,7 +174,6 @@ if [ $BUILD_THIRDPARTY = true ] ; then
  echo ""
  echo "** Building thirdparty libraries"
  echo ""
- buildThirdpartyDir=$thirdpartyDir/build
  if [ $removeThirdpartyBuildDir = true  ] ; then
    echo ""
    echo "*** removing third-party build dir (if it already exists). Triggers a clean third-party build."
@@ -175,7 +202,6 @@ fi
 echo ""
 echo "** Building IPST platform: C/C++ and MATLAB (when configured) modules"
 echo ""
-buildDir=$sourceDir/build
 if [ $removeNonJavaBuildDir = true  ] ; then
    echo ""
    echo "*** removing non java build dir (if it already exists). Triggers a clean build."
@@ -212,6 +238,7 @@ fi
 echo ""
 echo "** Copying distribution files to "$installDir
 echo ""
+mkdir -p $installDir
 cp -r $sourceDir/distribution/target/distribution-*-full/itesla/* $installDir/
 cr=$?
 if [ $cr -ne 0 ] ; then

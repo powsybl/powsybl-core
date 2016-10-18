@@ -9,8 +9,8 @@ package eu.itesla_project.offline;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.ByteStreams;
 import eu.itesla_project.commons.io.CacheManager;
-import eu.itesla_project.commons.io.PlatformConfig;
-import eu.itesla_project.commons.io.XmlPlatformConfig;
+import eu.itesla_project.commons.config.PlatformConfig;
+import eu.itesla_project.commons.config.XmlPlatformConfig;
 import eu.itesla_project.computation.ComputationManager;
 import eu.itesla_project.computation.ComputationResourcesStatus;
 import eu.itesla_project.iidm.network.Country;
@@ -27,18 +27,16 @@ import eu.itesla_project.cases.CaseRepository;
 import eu.itesla_project.cases.CaseType;
 import eu.itesla_project.modules.contingencies.ContingenciesAndActionsDatabaseClient;
 import eu.itesla_project.modules.contingencies.ContingenciesAndActionsDatabaseClientFactory;
-import eu.itesla_project.modules.contingencies.Contingency;
-import eu.itesla_project.modules.contingencies.LineContingency;
-import eu.itesla_project.modules.contingencies.impl.ContingencyImpl;
-import eu.itesla_project.modules.ddb.DynamicDatabaseCacheClient;
-import eu.itesla_project.modules.ddb.DynamicDatabaseClientFactory;
+import eu.itesla_project.contingency.Contingency;
+import eu.itesla_project.contingency.LineContingency;
+import eu.itesla_project.contingency.ContingencyImpl;
 import eu.itesla_project.modules.histo.*;
 import eu.itesla_project.modules.offline.MetricsDb;
 import eu.itesla_project.modules.offline.OfflineDb;
 import eu.itesla_project.modules.offline.OfflineWorkflowCreationParameters;
 import eu.itesla_project.modules.rules.RulesBuilder;
 import eu.itesla_project.modules.sampling.*;
-import eu.itesla_project.modules.simulation.*;
+import eu.itesla_project.simulation.*;
 import eu.itesla_project.modules.topo.TopologyMiner;
 import eu.itesla_project.modules.topo.TopologyMinerFactory;
 import eu.itesla_project.modules.validation.ValidationDb;
@@ -143,11 +141,6 @@ public class OfflineWorkflowTest {
             };
             Mockito.when(computationManager.getResourcesStatus())
                     .thenReturn(status);
-
-            // dynamic database mock (should not be called)
-            DynamicDatabaseCacheClient ddbClient = Mockito.mock(DynamicDatabaseCacheClient.class, new ThrowsException(new UnsupportedOperationException()));
-            DynamicDatabaseClientFactory ddbClientFactory = Mockito.mock(DynamicDatabaseClientFactory.class);
-            Mockito.when(ddbClientFactory.create(true)).thenReturn(ddbClient);
 
             // contingencies db mock
             ContingenciesAndActionsDatabaseClient cadbClient = Mockito.mock(ContingenciesAndActionsDatabaseClient.class);
@@ -290,7 +283,7 @@ public class OfflineWorkflowTest {
             ImpactAnalysis impactAnalysis = Mockito.mock(ImpactAnalysis.class);
             Mockito.when(impactAnalysis.getName()).thenReturn("impact analysis mock");
             SimulatorFactory simulatorFactory = Mockito.mock(SimulatorFactory.class);
-            Mockito.when(simulatorFactory.createStabilization(network, computationManager, OfflineWorkflowImpl.STABILIZATION_PRIORITY, ddbClientFactory))
+            Mockito.when(simulatorFactory.createStabilization(network, computationManager, OfflineWorkflowImpl.STABILIZATION_PRIORITY))
                     .thenReturn(stabilization);
             Mockito.when(simulatorFactory.createImpactAnalysis(network, computationManager, OfflineWorkflowImpl.IMPACT_ANALYSIS_PRIORITY, cadbClient))
                     .thenReturn(impactAnalysis);
@@ -334,7 +327,7 @@ public class OfflineWorkflowTest {
             ExecutorService executorService = Executors.newCachedThreadPool();
             try {
                 // start the workflow !
-                new OfflineWorkflowImpl("test", creationParameters, computationManager, ddbClientFactory, cadbClientFactory, histoDbClientFactory,
+                new OfflineWorkflowImpl("test", creationParameters, computationManager, cadbClientFactory, histoDbClientFactory,
                         topologyMinerFactory, rulesBuilder, offlineDb, validationDb, caseRepository, samplerFactory, loadFlowFactory,
                         optimizerFactory, simulatorFactory, mergeOptimizerFactory, metricsDb, executorService)
                         .start(startParameters);

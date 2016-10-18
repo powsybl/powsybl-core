@@ -11,18 +11,19 @@ import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import eu.itesla_project.commons.Version;
-import eu.itesla_project.commons.io.PlatformConfig;
+import eu.itesla_project.commons.config.PlatformConfig;
 import eu.itesla_project.computation.*;
+import eu.itesla_project.contingency.ContingenciesProvider;
 import eu.itesla_project.iidm.eurostag.export.EurostagDictionary;
 import eu.itesla_project.iidm.network.*;
 import eu.itesla_project.iidm.network.util.Identifiables;
 import eu.itesla_project.iidm.network.util.Networks;
-import eu.itesla_project.modules.contingencies.ContingenciesAndActionsDatabaseClient;
-import eu.itesla_project.modules.contingencies.Contingency;
-import eu.itesla_project.modules.contingencies.ContingencyElement;
-import eu.itesla_project.modules.securityindexes.SecurityIndex;
-import eu.itesla_project.modules.securityindexes.SecurityIndexParser;
-import eu.itesla_project.modules.simulation.*;
+import eu.itesla_project.contingency.Contingency;
+import eu.itesla_project.contingency.ContingencyElement;
+import eu.itesla_project.simulation.securityindexes.SecurityIndex;
+import eu.itesla_project.simulation.securityindexes.SecurityIndexParser;
+import eu.itesla_project.simulation.*;
+import eu.itesla_project.simulation.ImpactAnalysis;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalINIConfiguration;
 import org.apache.commons.configuration.SubnodeConfiguration;
@@ -30,8 +31,7 @@ import org.jboss.shrinkwrap.api.Domain;
 import org.jboss.shrinkwrap.api.GenericArchive;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.exporter.ZipExporter;
-import org.jboss.shrinkwrap.impl.nio.file.ShrinkWrapFileSystem;
-import org.jboss.shrinkwrap.impl.nio.file.ShrinkWrapFileSystemProvider;
+import org.jboss.shrinkwrap.api.nio.file.ShrinkWrapFileSystems;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,7 +55,7 @@ import static eu.itesla_project.computation.FilePreProcessor.FILE_GUNZIP;
  *import eu.itesla_project.modules.SimulationParameters;
  *import eu.itesla_project.modules.StabilizationResult;
  *import eu.itesla_project.modules.ImpactAnalysisResult;
- *import eu.itesla_project.modules.ddb.DynamicDatabaseClient;
+ *import eu.itesla_project.iidm.ddb.eurostag_imp_exp.DynamicDatabaseClient;
  *import eu.itesla_project.modules.ContingenciesAndActionsDatabaseClient;
  *import eu.itesla_project.modules.test.AutomaticContingenciesAndActionsDatabaseClient;
  *import eu.itesla_project.computation.ComputationPlatformClient;
@@ -117,7 +117,7 @@ public class EurostagImpactAnalysis implements ImpactAnalysis, EurostagConstants
 
     private final ComputationManager computationManager;
 
-    private final ContingenciesAndActionsDatabaseClient cadbClient;
+    private final ContingenciesProvider contingenciesProvider;
 
     private final int priority;
 
@@ -134,20 +134,20 @@ public class EurostagImpactAnalysis implements ImpactAnalysis, EurostagConstants
     private SimulationParameters parameters;
 
     public EurostagImpactAnalysis(Network network, ComputationManager computationManager, int priority,
-                                  ContingenciesAndActionsDatabaseClient cadbClient) {
-        this(network, computationManager, priority, cadbClient, EurostagConfig.load());
+                                  ContingenciesProvider contingenciesProvider) {
+        this(network, computationManager, priority, contingenciesProvider, EurostagConfig.load());
     }
 
     public EurostagImpactAnalysis(Network network, ComputationManager computationManager, int priority,
-                                  ContingenciesAndActionsDatabaseClient cadbClient, EurostagConfig config) {
+                                  ContingenciesProvider contingenciesProvider, EurostagConfig config) {
         Objects.requireNonNull(network, "network is null");
         Objects.requireNonNull(computationManager, "computation manager is null");
-        Objects.requireNonNull(cadbClient, "contingencies and actions database client is null");
+        Objects.requireNonNull(contingenciesProvider, "contingencies provider is null");
         Objects.requireNonNull(config, "config is null");
         this.network = network;
         this.computationManager = computationManager;
         this.priority = priority;
-        this.cadbClient = cadbClient;
+        this.contingenciesProvider = contingenciesProvider;
         this.config = config;
         allCmd = createCommand(ALL_SCENARIOS_ZIP_FILE_NAME, WP43_ALL_CONFIGS_ZIP_FILE_NAME);
         subsetCmd = createCommand(PARTIAL_SCENARIOS_ZIP_FILE_NAME, WP43_PARTIAL_CONFIGS_ZIP_FILE_NAME);
@@ -251,7 +251,7 @@ public class EurostagImpactAnalysis implements ImpactAnalysis, EurostagConstants
 
     private static void writeLimits(Network network, EurostagDictionary dictionary, Domain domain, OutputStream os) throws IOException {
         GenericArchive archive = domain.getArchiveFactory().create(GenericArchive.class);
-        try (FileSystem fileSystem = new ShrinkWrapFileSystem(new ShrinkWrapFileSystemProvider(), archive)) {
+        try (FileSystem fileSystem = ShrinkWrapFileSystems.newFileSystem(archive)) {
             Path rootDir = fileSystem.getPath("/");
             // dump first current limits for each of the branches
             try (BufferedWriter writer = Files.newBufferedWriter(rootDir.resolve(CURRENT_LIMITS_CSV), StandardCharsets.UTF_8)) {
@@ -352,7 +352,7 @@ public class EurostagImpactAnalysis implements ImpactAnalysis, EurostagConstants
     private void writeWp43Configs(Domain domain, List<Contingency> contingencies, OutputStream os) throws IOException, ConfigurationException {
         // copy wp43 configuration files
         GenericArchive archive = domain.getArchiveFactory().create(GenericArchive.class);
-        try (FileSystem fileSystem = new ShrinkWrapFileSystem(new ShrinkWrapFileSystemProvider(), archive)) {
+        try (FileSystem fileSystem = ShrinkWrapFileSystems.newFileSystem(archive)) {
             Path rootDir = fileSystem.getPath("/");
             writeWp43Configs(contingencies, rootDir);
         }
@@ -411,7 +411,7 @@ public class EurostagImpactAnalysis implements ImpactAnalysis, EurostagConstants
         dictionary = getDictionary(context);
 
         // read all contingencies
-        allContingencies.addAll(cadbClient.getContingencies(network));
+        allContingencies.addAll(contingenciesProvider.getContingencies(network));
 
         if (config.isUseBroadcast()) {
             Domain domain = ShrinkWrap.createDomain();
@@ -478,7 +478,7 @@ public class EurostagImpactAnalysis implements ImpactAnalysis, EurostagConstants
             }
         } else {
             // filter contingencies
-            for (Contingency c : cadbClient.getContingencies(network)) {
+            for (Contingency c : contingenciesProvider.getContingencies(network)) {
                 if (contingencyIds.contains(c.getId())) {
                     contingencies.add(c);
                 }

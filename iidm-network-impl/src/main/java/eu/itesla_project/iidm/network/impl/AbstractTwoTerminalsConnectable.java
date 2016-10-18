@@ -91,4 +91,28 @@ abstract class AbstractTwoTerminalsConnectable<I extends Connectable<I>> extends
         return new CurrentLimitsAdderImpl<>(TwoTerminalsConnectable.Side.TWO, this);
     }
 
+    public boolean isOverloaded() {
+        return (limits1 != null && getTerminal1().getI() >= limits1.getPermanentLimit())
+                || (limits2 != null && getTerminal2().getI() >= limits2.getPermanentLimit());
+    }
+
+    private static int getOverloadDuration(CurrentLimits limits, Terminal t) {
+        if (limits != null) {
+            float i1 = t.getI();
+            float previousLimit = limits.getPermanentLimit();
+            for (CurrentLimits.TemporaryLimit tl : limits.getTemporaryLimits()) {
+                if (i1 >= previousLimit && i1 < tl.getLimit()) {
+                    return tl.getAcceptableDuration();
+                }
+                previousLimit = tl.getLimit();
+            }
+        }
+        return Integer.MAX_VALUE;
+    }
+
+    public int getOverloadDuration() {
+        int duration1 = getOverloadDuration(limits1, getTerminal1());
+        int duration2 = getOverloadDuration(limits2, getTerminal2());
+        return Math.min(duration1, duration2);
+    }
 }

@@ -113,13 +113,13 @@ abstract class AbstractTerminal implements TerminalExt {
     }
 
     @Override
-    public void connect() {
-        voltageLevel.connect(this);
+    public boolean connect() {
+        return voltageLevel.connect(this);
     }
 
     @Override
-    public void disconnect() {
-        voltageLevel.disconnect(this);
+    public boolean disconnect() {
+        return voltageLevel.disconnect(this);
     }
 
     @Override

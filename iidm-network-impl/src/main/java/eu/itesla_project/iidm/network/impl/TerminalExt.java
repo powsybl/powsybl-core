@@ -7,6 +7,9 @@
 package eu.itesla_project.iidm.network.impl;
 
 import eu.itesla_project.iidm.network.Terminal;
+import eu.itesla_project.iidm.network.VoltageLevel;
+
+import java.util.Set;
 
 /**
  *
@@ -39,4 +42,7 @@ interface TerminalExt extends Terminal, Stateful {
     @Override BusViewExt getBusView();
 
     void setNum(int num);
+
+    void traverse(VoltageLevel.TopologyTraverser traverser, Set<String> traversedVoltageLevelsIds);
+
 }

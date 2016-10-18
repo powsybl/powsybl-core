@@ -23,14 +23,14 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 /**
  *
@@ -392,4 +392,30 @@ public class NetworkXml implements XmlConstants {
         }
     }
 
+    public static byte[] gzip(Network network) {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        try (GZIPOutputStream gzos = new GZIPOutputStream(bos)) {
+            NetworkXml.write(network, gzos);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return bos.toByteArray();
+    }
+
+    public static Network gunzip(byte[] networkXmlGz) {
+        try (InputStream is = new GZIPInputStream(new ByteArrayInputStream(networkXmlGz))) {
+            return NetworkXml.read(is);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Deep copy of the network using XML converter.
+     * @param network the network to copy
+     * @return the copy of the network
+     */
+    public static Network copy(Network network) {
+        return gunzip(gzip(network));
+    }
 }

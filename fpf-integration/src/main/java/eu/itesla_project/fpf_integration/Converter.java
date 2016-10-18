@@ -31,9 +31,9 @@ import eu.itesla_project.iidm.network.ShuntCompensator;
 import eu.itesla_project.iidm.network.ThreeWindingsTransformer;
 import eu.itesla_project.iidm.network.TwoWindingsTransformer;
 import eu.itesla_project.modules.contingencies.ContingenciesAndActionsDatabaseClient;
-import eu.itesla_project.modules.contingencies.Contingency;
-import eu.itesla_project.modules.contingencies.ContingencyElement;
-import eu.itesla_project.modules.contingencies.ContingencyElementType;
+import eu.itesla_project.contingency.Contingency;
+import eu.itesla_project.contingency.ContingencyElement;
+import eu.itesla_project.contingency.ContingencyElementType;
 import eu.itesla_project.modules.mcla.ForecastErrorsStatistics;
 import eu.itesla_project.modules.test.AutomaticContingenciesAndActionsDatabaseClient;
 

@@ -6,7 +6,7 @@
  */
 package eu.itesla_project.wca;
 
-import eu.itesla_project.modules.contingencies.Contingency;
+import eu.itesla_project.contingency.Contingency;
 import eu.itesla_project.modules.wca.WCACluster;
 import eu.itesla_project.modules.wca.WCAClusterNum;
 

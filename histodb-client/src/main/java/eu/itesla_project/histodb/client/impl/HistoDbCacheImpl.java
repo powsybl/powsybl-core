@@ -7,7 +7,7 @@
 package eu.itesla_project.histodb.client.impl;
 
 import eu.itesla_project.commons.io.CacheManager;
-import eu.itesla_project.commons.io.PlatformConfig;
+import eu.itesla_project.commons.config.PlatformConfig;
 import eu.itesla_project.modules.histo.cache.HistoDbCache;
 
 import java.io.IOException;

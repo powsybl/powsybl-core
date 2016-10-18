@@ -8,7 +8,7 @@ package eu.itesla_project.modules.topo;
 
 import eu.itesla_project.computation.ComputationManager;
 import eu.itesla_project.iidm.network.Network;
-import eu.itesla_project.modules.Module;
+import eu.itesla_project.commons.Versionable;
 import eu.itesla_project.modules.histo.HistoDbClient;
 import org.joda.time.Interval;
 
@@ -18,7 +18,7 @@ import java.nio.file.Path;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface TopologyMiner extends Module, AutoCloseable {
+public interface TopologyMiner extends Versionable, AutoCloseable {
 
     TopologyContext initContext(Network network, Interval histoInterval, double correlationThreshold, double probabilityThreshold, HistoDbClient histoDbClient, ComputationManager computationManager);
 

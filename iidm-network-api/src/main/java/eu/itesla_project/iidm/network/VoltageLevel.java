@@ -377,26 +377,6 @@ public interface VoltageLevel extends Container<VoltageLevel> {
         SwitchAdder newDisconnector();
 
         /**
-         * Open a switch.
-         * <p>
-         * Depends on the working state.
-         * @param switchId the id of the switch to open
-         * @throws ITeslaException if switch is not found
-         * @see StateManager
-         */
-        NodeBreakerView openSwitch(String switchId);
-
-        /**
-         * Close a switch.
-         * <p>
-         * Depends on the working state.
-         * @param switchId the id of the switch to close
-         * @throws ITeslaException if switch is not found
-         * @see StateManager
-         */
-        NodeBreakerView closeSwitch(String switchId);
-
-        /**
          * Get the first node to which a switch is connected.
          *
          * @param switchId the id of the switch
@@ -507,26 +487,6 @@ public interface VoltageLevel extends Container<VoltageLevel> {
         void removeAllBuses();
 
         /**
-         * Open a switch.
-         * <p>
-         * Depends on the working state.
-         * @param switchId the id of the switch to open
-         * @throws ITeslaException if switch is not found
-         * @see StateManager
-         */
-        BusBreakerView openSwitch(String switchId);
-
-        /**
-         * Close a switch.
-         * <p>
-         * Depends on the working state.
-         * @param switchId the id of the switch to close
-         * @throws ITeslaException if switch is not found
-         * @see StateManager
-         */
-        BusBreakerView closeSwitch(String switchId);
-
-        /**
          * Get switches.
          */
         Iterable<Switch> getSwitches();
@@ -600,6 +560,30 @@ public interface VoltageLevel extends Container<VoltageLevel> {
          * @see StateManager
          */
         Bus getBus(String id);
+
+    }
+
+    /**
+     * Topology traversal handler
+     */
+    interface TopologyTraverser {
+
+        /**
+         * Called when a terminal in encountered.
+         *
+         * @param terminal the encountered terminal
+         * @param connected in bus/breaker topology, give the terminal connection status
+         * @return true to continue the graph traversal, false otherwise
+         */
+        boolean traverse(Terminal terminal, boolean connected);
+
+        /**
+         * Called when a switch in encountered
+         *
+         * @param aSwitch the encountered switch
+         * @return true to continue the graph traversal, false otherwise
+         */
+        boolean traverse(Switch aSwitch);
 
     }
 

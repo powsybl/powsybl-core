@@ -57,8 +57,9 @@ interface VoltageLevelExt extends VoltageLevel, Stateful {
 
     void clean();
 
-    void connect(TerminalExt terminal);
+    boolean connect(TerminalExt terminal);
 
-    void disconnect(TerminalExt terminal);
+    boolean disconnect(TerminalExt terminal);
 
+    void invalidateCache();
 }
