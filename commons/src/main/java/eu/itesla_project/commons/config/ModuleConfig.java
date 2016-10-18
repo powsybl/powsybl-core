@@ -31,10 +31,6 @@ public interface ModuleConfig {
 
     <E extends Enum<E>> E getEnumProperty(String name, Class<E> clazz, E defaultValue);
 
-    <E extends Enum<E>> List<E> getEnumListProperty(String name, Class<E> clazz);
-
-    <E extends Enum<E>> List<E> getEnumListProperty(String name, Class<E> clazz, List<E> defaultValue);
-
     <E extends Enum<E>> Set<E> getEnumSetProperty(String name, Class<E> clazz);
 
     <E extends Enum<E>> Set<E> getEnumSetProperty(String name, Class<E> clazz, Set<E> defaultValue);

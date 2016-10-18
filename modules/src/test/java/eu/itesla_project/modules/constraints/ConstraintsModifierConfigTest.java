@@ -12,7 +12,9 @@ import static org.junit.Assert.assertTrue;
 
 import java.nio.file.FileSystem;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.nio.file.ShrinkWrapFileSystems;
@@ -67,10 +69,10 @@ public class ConstraintsModifierConfigTest {
         moduleConfig.setStringListProperty("country", Arrays.asList(country.name()));
         moduleConfig.setStringListProperty("violationsTypes", Arrays.asList(violationType.name()));
         ConstraintsModifierConfig config = ConstraintsModifierConfig.load(platformConfig);
-        checkValues(config, country, Arrays.asList(violationType));
+        checkValues(config, country, EnumSet.of(violationType));
     }
 
-    private void checkValues(ConstraintsModifierConfig config, Country expectedCountry, List<LimitViolationType> expectedViolationTypes) {
+    private void checkValues(ConstraintsModifierConfig config, Country expectedCountry, Set<LimitViolationType> expectedViolationTypes) {
         assertEquals(expectedCountry, config.getCountry());
         assertArrayEquals(expectedViolationTypes.toArray(), config.getViolationsTypes().toArray());
         for(LimitViolation violation : violations) {

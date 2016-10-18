@@ -6,8 +6,8 @@
  */
 package eu.itesla_project.modules.constraints;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.EnumSet;
+import java.util.Set;
 
 import eu.itesla_project.commons.config.ModuleConfig;
 import eu.itesla_project.commons.config.PlatformConfig;
@@ -22,22 +22,22 @@ import eu.itesla_project.security.LimitViolationType;
  */
 public class ConstraintsModifierConfig {
 
-    public static final List<LimitViolationType> DEFAULT_VIOLATION_TYPES = Arrays.asList(LimitViolationType.CURRENT);
+    public static final Set<LimitViolationType> DEFAULT_VIOLATION_TYPES = EnumSet.of(LimitViolationType.CURRENT);
     public static final Country DEFAULT_COUNTRY = null;
 
     private final Country country;
-    private final List<LimitViolationType> violationsTypes;
+    private final Set<LimitViolationType> violationsTypes;
 
     public static ConstraintsModifierConfig load() {
         return load(PlatformConfig.defaultConfig());
     }
 
     public static ConstraintsModifierConfig load(PlatformConfig platformConfig) {
-        List<LimitViolationType> violationsTypes;
+        Set<LimitViolationType> violationsTypes;
         Country country;
         if (platformConfig.moduleExists("constraintsModifier")) {
             ModuleConfig config = platformConfig.getModuleConfig("constraintsModifier");
-            violationsTypes = config.getEnumListProperty("violationsTypes", LimitViolationType.class, DEFAULT_VIOLATION_TYPES);
+            violationsTypes = config.getEnumSetProperty("violationsTypes", LimitViolationType.class, DEFAULT_VIOLATION_TYPES);
             String countryStr = config.getStringProperty("country", null);
             country = ( countryStr == null ) ? DEFAULT_COUNTRY : Country.valueOf(countryStr);
         } else {
@@ -47,7 +47,7 @@ public class ConstraintsModifierConfig {
         return new ConstraintsModifierConfig(country, violationsTypes);
     }
 
-    public ConstraintsModifierConfig(Country country, List<LimitViolationType> violationsTypes) {
+    public ConstraintsModifierConfig(Country country, Set<LimitViolationType> violationsTypes) {
         this.country = country;
         this.violationsTypes = violationsTypes;
     }
@@ -56,7 +56,7 @@ public class ConstraintsModifierConfig {
         return country;
     }
 
-    public List<LimitViolationType> getViolationsTypes() {
+    public Set<LimitViolationType> getViolationsTypes() {
         return violationsTypes;
     }
 

@@ -9,8 +9,9 @@ package eu.itesla_project.modules.constraints;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -36,7 +37,7 @@ public class ConstraintsModifierTest {
     public void setUp() throws Exception {
         network = ConstraintsModifierTestUtils.getNetwork();
         violations = ConstraintsModifierTestUtils.getViolations(network);
-        List<LimitViolationType> violationTypes = Arrays.asList(LimitViolationType.CURRENT, 
+        Set<LimitViolationType> violationTypes = EnumSet.of(LimitViolationType.CURRENT,
                 LimitViolationType.HIGH_VOLTAGE,
                 LimitViolationType.LOW_VOLTAGE);
         config = new ConstraintsModifierConfig(ConstraintsModifierConfig.DEFAULT_COUNTRY, violationTypes);
