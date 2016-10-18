@@ -83,7 +83,7 @@ public class ConstraintsModifier {
                     network.getId(), 
                     network.getStateManager().getWorkingStateId(), 
                     margin);
-            LimitViolationFilter violationsFilter = new LimitViolationFilter(new HashSet<LimitViolationType>(config.getViolationsTypes()), 0);
+            LimitViolationFilter violationsFilter = new LimitViolationFilter(config.getViolationsTypes(), 0);
             List<LimitViolation> filteredViolations = violationsFilter.apply(violations);
             String report = Security.printLimitsViolations(violations, violationsFilter);;
             if (report != null) {

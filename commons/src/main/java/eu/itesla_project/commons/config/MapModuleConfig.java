@@ -109,30 +109,6 @@ public class MapModuleConfig implements ModuleConfig {
     }
 
     @Override
-    public <E extends Enum<E>> List<E> getEnumListProperty(String name, Class<E> clazz) {
-        List<String> strings = getStringListProperty(name);
-        List<E> enums = new ArrayList<>(strings.size());
-        for (String s : strings) {
-            enums.add(Enum.valueOf(clazz, s));
-        }
-        return enums;
-    }
-
-    @Override
-    public <E extends Enum<E>> List<E> getEnumListProperty(String name, Class<E> clazz, List<E> defaultValue) {
-        List<String> strings = getStringListProperty(name, null);
-        if (strings == null) {
-            return defaultValue;
-        }
-        List<E> enums = new ArrayList<>(strings.size());
-        for (String s : strings) {
-            enums.add(Enum.valueOf(clazz, s));
-        }
-        return enums;
-    }
-
-
-    @Override
     public <E extends Enum<E>> Set<E> getEnumSetProperty(String name, Class<E> clazz) {
         List<String> strings = getStringListProperty(name);
         return strings.stream().map(s -> Enum.valueOf(clazz, s)).collect(Collectors.toSet());

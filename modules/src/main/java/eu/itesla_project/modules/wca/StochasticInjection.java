@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  *
@@ -115,7 +116,7 @@ public abstract class StochasticInjection {
     }
 
     public static List<StochasticInjection> create(Network network, boolean onlyMainCC, boolean onlyIntermittentGeneration,
-                                                   boolean withBoundaries, List<Country> boundariesFilter) throws IOException {
+                                                   boolean withBoundaries, Set<Country> boundariesFilter) throws IOException {
         List<StochasticInjection> injections = new ArrayList<>(network.getLoadCount());
 
         // all loads

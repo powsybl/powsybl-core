@@ -11,8 +11,6 @@ import eu.itesla_project.commons.config.PlatformConfig;
 import eu.itesla_project.iidm.network.Country;
 import java.io.PrintStream;
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import org.joda.time.DateTime;
@@ -70,7 +68,7 @@ public class OfflineWorkflowCreationParameters implements Serializable {
 
     public static OfflineWorkflowCreationParameters load() {
         ModuleConfig config = PlatformConfig.defaultConfig().getModuleConfig("offline-default-creation-parameters");
-        Set<Country> countries = new HashSet<>(config.getEnumListProperty("countries", Country.class));
+        Set<Country> countries = config.getEnumSetProperty("countries", Country.class);
         DateTime baseCaseDate = config.getDateTimeProperty("baseCaseDate");
         Interval histoInterval = config.getIntervalProperty("histoInterval");
         boolean generationSampled = config.getBooleanProperty("generationSampled", false);
@@ -81,8 +79,7 @@ public class OfflineWorkflowCreationParameters implements Serializable {
         boolean loadFlowTransformerVoltageControlOn = config.getBooleanProperty("loadFlowTransformerVoltageControlOn", DEFAULT_LOAD_FLOW_TRANSFORMER_VOLTAGE_CONTROL_ON);
         boolean simplifiedWorkflow = config.getBooleanProperty("simplifiedWorkflow", DEFAULT_SIMPLIFIED_WORKFLOW);
         boolean mergeOptimized = config.getBooleanProperty("mergeOptimized", DEFAULT_MERGE_OPTIMIZED);
-        List<Country> attributesCountryFilterList = config.getEnumListProperty("attributesCountryFilter", Country.class, (List<Country>) DEFAULT_ATTRIBUTES_COUNTRY_FILTER);
-        Set<Country> attributesCountryFilter = attributesCountryFilterList != null ? new HashSet<>(attributesCountryFilterList) : null;
+        Set<Country> attributesCountryFilter = config.getEnumSetProperty("attributesCountryFilter", Country.class, DEFAULT_ATTRIBUTES_COUNTRY_FILTER);
         int attributesMinBaseVoltageFilter = config.getIntProperty("attributesMinBaseVoltageFilter", DEFAULT_ATTRIBUTES_MIN_BASE_VOLTAGE_FILTER);
         return new OfflineWorkflowCreationParameters(countries, baseCaseDate, histoInterval, generationSampled, boundariesSampled,
                                                      initTopo, correlationThreshold, probabilityThreshold, loadFlowTransformerVoltageControlOn,

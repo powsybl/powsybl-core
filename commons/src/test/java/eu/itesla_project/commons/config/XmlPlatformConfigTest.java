@@ -17,9 +17,6 @@ import java.util.*;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
 
-import eu.itesla_project.commons.config.ModuleConfig;
-import eu.itesla_project.commons.config.PropertiesPlatformConfig;
-import eu.itesla_project.commons.config.XmlPlatformConfig;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.nio.file.ShrinkWrapFileSystems;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
@@ -101,12 +98,6 @@ public class XmlPlatformConfigTest {
             Assert.assertTrue(modConfig.getEnumProperty("e", StandardOpenOption.class) == StandardOpenOption.APPEND);
             try {
                 modConfig.getEnumProperty("e2", StandardOpenOption.class);
-                Assert.fail();
-            } catch (Exception e) {
-            }
-            Assert.assertTrue(modConfig.getEnumListProperty("el", StandardOpenOption.class).equals(Arrays.asList(StandardOpenOption.APPEND, StandardOpenOption.CREATE)));
-            try {
-                modConfig.getEnumListProperty("el2", StandardOpenOption.class);
                 Assert.fail();
             } catch (Exception e) {
             }
