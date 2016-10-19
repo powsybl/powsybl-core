@@ -12,7 +12,7 @@ import com.google.common.collect.Multimap;
 import eu.itesla_project.commons.config.ModuleConfig;
 import eu.itesla_project.commons.config.PlatformConfig;
 import eu.itesla_project.iidm.import_.Importers;
-import eu.itesla_project.ucte.util.UcteGeographicalCode;
+import eu.itesla_project.entsoe.util.EntsoeGeographicalCode;
 
 import java.nio.file.Path;
 import java.util.Collection;
@@ -26,7 +26,7 @@ public class EntsoeCaseRepositoryConfig {
 
     private final Path rootDir;
 
-    private final Multimap<UcteGeographicalCode, String> forbiddenFormatsByGeographicalCode;
+    private final Multimap<EntsoeGeographicalCode, String> forbiddenFormatsByGeographicalCode;
 
     public static EntsoeCaseRepositoryConfig load() {
         return load(PlatformConfig.defaultConfig());
@@ -43,8 +43,8 @@ public class EntsoeCaseRepositoryConfig {
     static EntsoeCaseRepositoryConfig load(String moduleConfigName, PlatformConfig platformConfig, Collection<String> supportedFormats) {
         ModuleConfig config = platformConfig.getModuleConfig(moduleConfigName);
         Path rootDir = config.getPathProperty("rootDir");
-        Multimap<UcteGeographicalCode, String> forbiddenFormatsByCountry = HashMultimap.create();
-        for (UcteGeographicalCode geographicalCode : UcteGeographicalCode.values()) {
+        Multimap<EntsoeGeographicalCode, String> forbiddenFormatsByCountry = HashMultimap.create();
+        for (EntsoeGeographicalCode geographicalCode : EntsoeGeographicalCode.values()) {
             List<String> forbiddenFormats = config.getStringListProperty("forbiddenFormats_" + geographicalCode, Collections.emptyList());
             if (forbiddenFormats.size() > 0) {
                 forbiddenFormatsByCountry.putAll(geographicalCode, forbiddenFormats);
@@ -53,7 +53,7 @@ public class EntsoeCaseRepositoryConfig {
         return new EntsoeCaseRepositoryConfig(rootDir, checkedFormats(forbiddenFormatsByCountry, supportedFormats));
     }
 
-    private static Multimap<UcteGeographicalCode, String> checkedFormats(Multimap<UcteGeographicalCode, String> forbiddenFormatsByGeographicalCode,
+    private static Multimap<EntsoeGeographicalCode, String> checkedFormats(Multimap<EntsoeGeographicalCode, String> forbiddenFormatsByGeographicalCode,
                                                                   Collection<String> supportedFormats) {
         // check that formats are valids
         for (String format : forbiddenFormatsByGeographicalCode.values()) {
@@ -64,7 +64,7 @@ public class EntsoeCaseRepositoryConfig {
         return forbiddenFormatsByGeographicalCode;
     }
 
-    public EntsoeCaseRepositoryConfig(Path rootDir, Multimap<UcteGeographicalCode, String> forbiddenFormatsByGeographicalCode) {
+    public EntsoeCaseRepositoryConfig(Path rootDir, Multimap<EntsoeGeographicalCode, String> forbiddenFormatsByGeographicalCode) {
         this.rootDir = rootDir;
         this.forbiddenFormatsByGeographicalCode = forbiddenFormatsByGeographicalCode;
     }
@@ -73,7 +73,7 @@ public class EntsoeCaseRepositoryConfig {
         return rootDir;
     }
 
-    public Multimap<UcteGeographicalCode, String> getForbiddenFormatsByGeographicalCode() {
+    public Multimap<EntsoeGeographicalCode, String> getForbiddenFormatsByGeographicalCode() {
         return forbiddenFormatsByGeographicalCode;
     }
 

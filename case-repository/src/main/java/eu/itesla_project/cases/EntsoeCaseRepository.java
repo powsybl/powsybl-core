@@ -16,8 +16,8 @@ import eu.itesla_project.iidm.import_.Importer;
 import eu.itesla_project.iidm.import_.Importers;
 import eu.itesla_project.iidm.network.Country;
 import eu.itesla_project.iidm.network.Network;
-import eu.itesla_project.ucte.util.UcteFileName;
-import eu.itesla_project.ucte.util.UcteGeographicalCode;
+import eu.itesla_project.entsoe.util.EntsoeFileName;
+import eu.itesla_project.entsoe.util.EntsoeGeographicalCode;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Interval;
@@ -106,15 +106,15 @@ public class EntsoeCaseRepository implements CaseRepository {
     }
 
     // because D1 snapshot does not exist and forecast replacement is not yet implemented
-    private static Collection<UcteGeographicalCode> forCountryHacked(Country country) {
-        return UcteGeographicalCode.forCountry(country).stream()
-                .filter(ucteGeographicalCode -> ucteGeographicalCode != UcteGeographicalCode.D1)
+    private static Collection<EntsoeGeographicalCode> forCountryHacked(Country country) {
+        return EntsoeGeographicalCode.forCountry(country).stream()
+                .filter(EntsoeGeographicalCode -> EntsoeGeographicalCode != EntsoeGeographicalCode.D1)
                 .collect(Collectors.toList());
     }
 
     private <R> R scanRepository(DateTime date, CaseType type, Country country, Function<List<ImportContext>, R> handler) {
-        Collection<UcteGeographicalCode> geographicalCodes = country != null ? forCountryHacked(country)
-                                                                             : Collections.singleton(UcteGeographicalCode.UX);
+        Collection<EntsoeGeographicalCode> geographicalCodes = country != null ? forCountryHacked(country)
+                                                                             : Collections.singleton(EntsoeGeographicalCode.UX);
         for (EntsoeFormat format : formats) {
             Path formatDir = config.getRootDir().resolve(format.getDirName());
             if (Files.exists(formatDir)) {
@@ -125,7 +125,7 @@ public class EntsoeCaseRepository implements CaseRepository {
                             .resolve(String.format("%02d", date.getDayOfMonth()));
                     if (Files.exists(dayDir)) {
                         List<ImportContext> importContexts = null;
-                        for (UcteGeographicalCode geographicalCode : geographicalCodes) {
+                        for (EntsoeGeographicalCode geographicalCode : geographicalCodes) {
                             Collection<String> forbiddenFormats = config.getForbiddenFormatsByGeographicalCode().get(geographicalCode);
                             if (!forbiddenFormats.contains(format.getImporter().getFormat())) {
                                 for (int i = 9; i >= 0; i--) {
@@ -224,27 +224,27 @@ public class EntsoeCaseRepository implements CaseRepository {
 
     @Override
     public Set<DateTime> dataAvailable(CaseType type, Set<Country> countries, Interval interval) {
-        Set<UcteGeographicalCode> geographicalCodes = new HashSet<>();
+        Set<EntsoeGeographicalCode> geographicalCodes = new HashSet<>();
         if (countries == null) {
-            geographicalCodes.add(UcteGeographicalCode.UX);
+            geographicalCodes.add(EntsoeGeographicalCode.UX);
         } else {
             for (Country country : countries) {
                 geographicalCodes.addAll(forCountryHacked(country));
             }
         }
-        Multimap<DateTime, UcteGeographicalCode> dates = HashMultimap.create();
+        Multimap<DateTime, EntsoeGeographicalCode> dates = HashMultimap.create();
         for (EntsoeFormat format : formats) {
             Path formatDir = config.getRootDir().resolve(format.getDirName());
             if (Files.exists(formatDir)) {
                 Path typeDir = formatDir.resolve(type.name());
                 if (Files.exists(typeDir)) {
                     browse(typeDir, path -> {
-                        UcteFileName ucteFileName = UcteFileName.parse(path.getFileName().toString());
-                        UcteGeographicalCode geographicalCode = ucteFileName.getGeographicalCode();
+                        EntsoeFileName entsoeFileName = EntsoeFileName.parse(path.getFileName().toString());
+                        EntsoeGeographicalCode geographicalCode = entsoeFileName.getGeographicalCode();
                         if (geographicalCode != null
                                 && !config.getForbiddenFormatsByGeographicalCode().get(geographicalCode).contains(format.getImporter().getFormat())
-                                && interval.contains(ucteFileName.getDate())) {
-                            dates.put(ucteFileName.getDate(), geographicalCode);
+                                && interval.contains(entsoeFileName.getDate())) {
+                            dates.put(entsoeFileName.getDate(), geographicalCode);
                         }
                     });
                 }

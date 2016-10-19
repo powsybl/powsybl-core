@@ -92,6 +92,8 @@ public class LocalComputationManager implements ComputationManager {
         this.config = Objects.requireNonNull(config, "config is null");
         status = new LocalComputationResourcesStatus(config.getAvailableCore());
         permits = new Semaphore(config.getAvailableCore());
+        //make sure the localdir exists
+        Files.createDirectories(config.getLocalDir());
         commonDir = new WorkingDirectory(config.getLocalDir(), "itesla_common_", false);
         LOGGER.info(config.toString());
     }

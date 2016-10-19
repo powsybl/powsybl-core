@@ -41,7 +41,7 @@
         <module>offline-server</module>
         <module>modelica-export</module>
         <module>modelica-events-adder</module>
-        <module>ucte-util</module>
+        <module>entsoe-util</module>
         <module>ucte-network</module>
         <module>ucte-import</module>
         <module>mcla-integration</module>
