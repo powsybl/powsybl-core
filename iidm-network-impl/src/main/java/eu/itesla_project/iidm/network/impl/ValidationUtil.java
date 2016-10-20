@@ -270,4 +270,20 @@ public class ValidationUtil {
             throw new ValidationException(validable, "bmax is invalid");
         }
     }
+
+    static void checkPhaseTapChangerRegulation(Validable validable, PhaseTapChanger.RegulationMode regulationMode,
+                                               float regulationValue, Terminal regulatedTerminal, Network network) {
+        if (regulationMode == null) {
+            throw new ValidationException(validable, "phase regulation mode is not set");
+        }
+        if (regulationMode != PhaseTapChanger.RegulationMode.OFF && Float.isNaN(regulationValue)) {
+            throw new ValidationException(validable, "phase regulation is on and threshold/setpoint value is not set");
+        }
+        if (regulationMode != PhaseTapChanger.RegulationMode.OFF && regulatedTerminal == null) {
+            throw new ValidationException(validable, "phase regulation is on and regulated terminal is not set");
+        }
+        if (regulatedTerminal != null && regulatedTerminal.getVoltageLevel().getSubstation().getNetwork() != network) {
+            throw new ValidationException(validable, "phase regulation terminal is not part of the network");
+        }
+    }
 }

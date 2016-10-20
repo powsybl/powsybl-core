@@ -548,23 +548,19 @@ class CIM1Converter implements CIM1Constants {
                     } else {
                         regulatingTerminal = getTerminalMapping(rc.getTerminal().getTopologicalNode());
                     }
-                    ptca.setRegulating(true)
-                            .setThresholdI(rc.getTargetValue())
+                    ptca.setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
+                            .setRegulationValue(rc.getTargetValue())
                             .setTerminal(regulatingTerminal);
                     break;
 
                 case fixed:
-                    ptca.setRegulating(false);
                     break;
 
                 default:
-                    ptca.setRegulating(false);
                     LOGGER.warn("Phase tap changer '{}' of power transformer '{}'" +
                                 " has an unsupported regulating mode: {}",
                             ptc.getId(), transfo.getId(), rc.getMode());
             }
-        } else {
-            ptca.setRegulating(false);
         }
         ptca.add();
     }

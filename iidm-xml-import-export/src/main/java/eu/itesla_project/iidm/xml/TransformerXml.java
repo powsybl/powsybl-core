@@ -30,12 +30,12 @@ abstract class TransformerXml<T extends Connectable, A extends IdentifiableAdder
     protected static void writeTapChanger(TapChanger<?, ?> tc, XMLStreamWriter writer) throws XMLStreamException {
         writer.writeAttribute("lowTapPosition", Integer.toString(tc.getLowTapPosition()));
         writer.writeAttribute("tapPosition", Integer.toString(tc.getTapPosition()));
-        writer.writeAttribute("regulating", Boolean.toString(tc.isRegulating()));
     }
 
     protected static void writeRatioTapChanger(String name, RatioTapChanger rtc, XmlWriterContext context) throws XMLStreamException {
         context.getWriter().writeStartElement(IIDM_URI, name);
         writeTapChanger(rtc, context.getWriter());
+        context.getWriter().writeAttribute("regulating", Boolean.toString(rtc.isRegulating()));
         context.getWriter().writeAttribute("loadTapChangingCapabilities", Boolean.toString(rtc.hasLoadTapChangingCapabilities()));
         XmlUtil.writeFloat("targetV", rtc.getTargetV(), context.getWriter());
         if (rtc.getTerminal() != null) {
@@ -103,7 +103,8 @@ abstract class TransformerXml<T extends Connectable, A extends IdentifiableAdder
     protected static void writePhaseTapChanger(String name, PhaseTapChanger ptc, XmlWriterContext context) throws XMLStreamException {
         context.getWriter().writeStartElement(IIDM_URI, name);
         writeTapChanger(ptc, context.getWriter());
-        XmlUtil.writeFloat("thresholdI", ptc.getThresholdI(), context.getWriter());
+        context.getWriter().writeAttribute("regulationMode", ptc.getRegulationMode().name());
+        XmlUtil.writeFloat("regulationValue", ptc.getRegulationValue(), context.getWriter());
         if (ptc.getTerminal() != null) {
             writeTerminalRef(ptc.getTerminal(), context, "terminalRef");
         }
@@ -119,13 +120,13 @@ abstract class TransformerXml<T extends Connectable, A extends IdentifiableAdder
     protected static void readPhaseTapChanger(TwoWindingsTransformer twt, XMLStreamReader reader, List<Runnable> endTasks) throws XMLStreamException {
         int lowTapPosition = XmlUtil.readIntAttribute(reader, "lowTapPosition");
         int tapPosition = XmlUtil.readIntAttribute(reader, "tapPosition");
-        boolean regulating = XmlUtil.readBoolAttribute(reader, "regulating");
-        float thresholdI = XmlUtil.readOptionalFloatAttribute(reader, "thresholdI");
+        PhaseTapChanger.RegulationMode regulationMode = PhaseTapChanger.RegulationMode.valueOf(reader.getAttributeValue(null, "regulationMode"));
+        float regulationValue = XmlUtil.readOptionalFloatAttribute(reader, "regulationValue");
         PhaseTapChangerAdder adder = twt.newPhaseTapChanger()
                 .setLowTapPosition(lowTapPosition)
                 .setTapPosition(tapPosition)
-                .setRegulating(regulating)
-                .setThresholdI(thresholdI);
+                .setRegulationMode(regulationMode)
+                .setRegulationValue(regulationValue);
         boolean[] hasTerminalRef = new boolean[1];
         XmlUtil.readUntilEndElement("phaseTapChanger", reader, () -> {
             switch (reader.getLocalName()) {

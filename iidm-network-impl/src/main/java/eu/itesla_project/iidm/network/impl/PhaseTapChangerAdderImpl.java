@@ -8,6 +8,7 @@ package eu.itesla_project.iidm.network.impl;
 
 import eu.itesla_project.iidm.network.PhaseTapChanger;
 import eu.itesla_project.iidm.network.PhaseTapChangerAdder;
+import eu.itesla_project.iidm.network.RatioTapChangerAdder;
 import eu.itesla_project.iidm.network.Terminal;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,9 +27,9 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
 
     private final List<PhaseTapChangerStepImpl> steps = new ArrayList<>();
 
-    private Boolean regulating;
+    private PhaseTapChanger.RegulationMode regulationMode = PhaseTapChanger.RegulationMode.OFF;
 
-    private float thresholdI = Float.NaN;
+    private float regulationValue = Float.NaN;
 
     private TerminalExt terminal;
 
@@ -130,14 +131,14 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
     }
 
     @Override
-    public PhaseTapChangerAdder setRegulating(boolean regulating) {
-        this.regulating = regulating;
+    public PhaseTapChangerAdder setRegulationMode(PhaseTapChanger.RegulationMode regulationMode) {
+        this.regulationMode = regulationMode;
         return this;
     }
 
     @Override
-    public PhaseTapChangerAdder setThresholdI(float thresholdI) {
-        this.thresholdI = thresholdI;
+    public PhaseTapChangerAdder setRegulationValue(float regulationValue) {
+        this.regulationValue = regulationValue;
         return this;
     }
 
@@ -166,23 +167,9 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
                     + tapPosition + " [" + lowTapPosition + ", "
                     + highTapPosition + "]");
         }
-        if (regulating == null) {
-            throw new ValidationException(transformer, "regulating status is not set");
-        }
-        if (regulating) {
-            if (Float.isNaN(thresholdI)) {
-                throw new ValidationException(transformer, "a threshold current has to be set for a regulating phase tap changer");
-            }
-            if (terminal == null) {
-                throw new ValidationException(transformer, "a regulation terminal has to be set for a regulating phase tap changer");
-            }
-            if (terminal.getVoltageLevel().getNetwork() != getNetwork()) {
-                throw new ValidationException(transformer, "terminal is not part of the network");
-            }
-        }
+        ValidationUtil.checkPhaseTapChangerRegulation(transformer, regulationMode, regulationValue, terminal, getNetwork());
         PhaseTapChangerImpl tapChanger
-                = new PhaseTapChangerImpl(transformer, lowTapPosition, steps, terminal,
-                tapPosition, regulating, thresholdI);
+                = new PhaseTapChangerImpl(transformer, lowTapPosition, steps, terminal, tapPosition, regulationMode, regulationValue);
         transformer.setPhaseTapChanger(tapChanger);
         return tapChanger;
     }

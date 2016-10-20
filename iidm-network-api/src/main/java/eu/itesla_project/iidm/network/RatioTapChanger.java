@@ -34,4 +34,20 @@ public interface RatioTapChanger extends TapChanger<RatioTapChanger, RatioTapCha
      */
     boolean hasLoadTapChangingCapabilities();
 
+    /**
+     * Get the regulating status.
+     * <p>
+     * Depends on the working state.
+     * @see StateManager
+     */
+    boolean isRegulating();
+
+    /**
+     * Set the regulating status.
+     * <p>
+     * Depends on the working state.
+     * @see StateManager
+     */
+    RatioTapChanger setRegulating(boolean regulating);
+
 }

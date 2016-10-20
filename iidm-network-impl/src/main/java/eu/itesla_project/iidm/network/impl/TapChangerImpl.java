@@ -26,17 +26,15 @@ abstract class TapChangerImpl<H extends TapChangerParent, C extends TapChangerIm
 
     protected final List<S> steps;
 
-    private final TerminalExt terminal;
+    protected final TerminalExt terminal;
 
     // attributes depending on the state
 
     protected final TIntArrayList tapPosition;
 
-    protected final BitSet regulating;
-
     protected TapChangerImpl(Ref<? extends MultiStateObject> network, H parent,
                              int lowTapPosition, List<S> steps, TerminalExt terminal,
-                             int tapPosition, boolean regulating) {
+                             int tapPosition) {
         this.network = network;
         this.parent = parent;
         this.lowTapPosition = lowTapPosition;
@@ -44,8 +42,6 @@ abstract class TapChangerImpl<H extends TapChangerParent, C extends TapChangerIm
         this.terminal = terminal;
         int stateArraySize = network.get().getStateManager().getStateArraySize();
         this.tapPosition = new TIntArrayList(stateArraySize);
-        this.regulating = new BitSet(stateArraySize);
-        this.regulating.set(0, stateArraySize, regulating);
         for (int i = 0; i < stateArraySize; i++) {
             this.tapPosition.add(tapPosition);
         }
@@ -96,19 +92,6 @@ abstract class TapChangerImpl<H extends TapChangerParent, C extends TapChangerIm
         return getStep(getTapPosition());
     }
 
-    public boolean isRegulating() {
-        return regulating.get(network.get().getStateIndex());
-    }
-
-    public C setRegulating(boolean regulating) {
-        if (regulating && terminal == null) {
-            throw new ValidationException(parent,
-                    "cannot change the regulating status if the regulation terminal is not set");
-        }
-        this.regulating.set(network.get().getStateIndex(), regulating);
-        return (C) this;
-    }
-
     public TerminalExt getTerminal() {
         return terminal;
     }
@@ -126,7 +109,6 @@ abstract class TapChangerImpl<H extends TapChangerParent, C extends TapChangerIm
     public void extendStateArraySize(int initStateArraySize, int number, int sourceIndex) {
         tapPosition.ensureCapacity(tapPosition.size() + number);
         for (int i = 0; i < number; i++) {
-            regulating.set(initStateArraySize + i, regulating.get(sourceIndex));
             tapPosition.add(tapPosition.get(sourceIndex));
         }
     }
@@ -144,7 +126,6 @@ abstract class TapChangerImpl<H extends TapChangerParent, C extends TapChangerIm
     @Override
     public void allocateStateArrayElement(int[] indexes, final int sourceIndex) {
         for (int index : indexes) {
-            regulating.set(index, regulating.get(sourceIndex));
             tapPosition.set(index, tapPosition.get(sourceIndex));
         }
     }

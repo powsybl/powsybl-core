@@ -272,7 +272,7 @@ public class EurostagEchExport {
                 }
 
             } else if (ptc != null && rtc == null) {
-                if (ptc.isRegulating()) {
+                if (ptc.getRegulationMode() == PhaseTapChanger.RegulationMode.CURRENT_LIMITER) {
                     String regulbus = EchUtil.getBus(ptc.getTerminal(), config).getId();
                     if (regulbus.equals(bus1.getId())) {
                         regulatingMode = EsgDetailedTwoWindingTransformer.RegulatingMode.ACTIVE_FLUX_SIDE_1;
