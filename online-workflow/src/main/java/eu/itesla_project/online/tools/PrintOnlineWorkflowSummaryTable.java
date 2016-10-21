@@ -143,7 +143,7 @@ public class PrintOnlineWorkflowSummaryTable implements Tool {
 				cvsWriter.writeRecord(headers);
 				// cycle over the workflows
 				for (String workflowId : workflowsIds) {
-					System.out.println("Printing violations and failues of workflow " + workflowId);
+					System.out.println("Printing violations and failures of workflow " + workflowId);
 					Network basecase = onlinedb.getState(workflowId, 0);
 					String basecaseId = basecase.getId(); 
 					// print pre-contingency violations
