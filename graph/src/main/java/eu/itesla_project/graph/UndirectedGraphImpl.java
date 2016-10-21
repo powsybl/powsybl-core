@@ -369,21 +369,12 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
             return false;
         }
         Vertex<V> obj1or2 = vertices.get(v1or2);
+        path.add(e);
         if (pathComplete.apply(obj1or2.getObject())) {
-            path.add(e);
             paths.add(path);
             return true;
         } else {
-            if (i < adjacentEdges.size () - 1) {
-                TIntArrayList path2 = new TIntArrayList(path);
-                BitSet encountered2 = new BitSet(vertices.size());
-                encountered2.or(encountered);
-                path2.add(e);
-                findAllPaths(v1or2, pathComplete, pathCanceled, path2, encountered2, paths);
-            } else {
-                path.add(e);
-                findAllPaths(v1or2, pathComplete, pathCanceled, path, encountered, paths);
-            }
+            findAllPaths(v1or2, pathComplete, pathCanceled, path, encountered, paths);
             return false;
         }
     }
@@ -398,17 +389,27 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
             int e = adjacentEdges.getQuick(i);
             Edge<E> edge = edges.get(e);
             if (pathCanceled != null && pathCanceled.apply(edge.getObject())) {
-                return;
+                continue;
             }
             int v1 = edge.getV1();
             int v2 = edge.getV2();
+            TIntArrayList path2;
+            BitSet encountered2;
+            if (i < adjacentEdges.size () - 1) {
+                path2 = new TIntArrayList(path);
+                encountered2 = new BitSet(vertices.size());
+                encountered2.or(encountered);
+            } else {
+                path2 = path;
+                encountered2 = encountered;
+            }
             if (v == v2) {
-                if (findAllPaths(e, v1, pathComplete, pathCanceled, adjacentEdges, i, path, encountered, paths)) {
-                    return;
+                if (findAllPaths(e, v1, pathComplete, pathCanceled, adjacentEdges, i, path2, encountered2, paths)) {
+                    continue;
                 }
             } else if (v == v1) {
-                if (findAllPaths(e, v2, pathComplete, pathCanceled, adjacentEdges, i, path, encountered, paths)) {
-                    return;
+                if (findAllPaths(e, v2, pathComplete, pathCanceled, adjacentEdges, i, path2, encountered2, paths)) {
+                    continue;
                 }
             } else {
                 throw new AssertionError();
