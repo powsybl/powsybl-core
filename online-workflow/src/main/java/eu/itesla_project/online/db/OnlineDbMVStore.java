@@ -882,13 +882,13 @@ public class OnlineDbMVStore implements OnlineDb {
                 Set<Country> countries = new HashSet<Country>(OnlineWorkflowParameters.DEFAULT_COUNTRIES);
                 if ( storedParametersMap.containsKey(STORED_PARAMETERS_COUNTRIES_KEY))
                     countries = OnlineDbMVStoreUtils.jsonToCountries(storedParametersMap.get(STORED_PARAMETERS_COUNTRIES_KEY));
-                boolean mergeOptimized = OnlineWorkflowParameters.DAFAULT_MERGE_OPTIMIZED;
+                boolean mergeOptimized = OnlineWorkflowParameters.DEFAULT_MERGE_OPTIMIZED;
                 if ( storedParametersMap.containsKey(STORED_PARAMETERS_MERGE_OPTIMIZED_KEY))
                     mergeOptimized = Boolean.parseBoolean(storedParametersMap.get(STORED_PARAMETERS_MERGE_OPTIMIZED_KEY));
                 float limitReduction = OnlineWorkflowParameters.DEFAULT_LIMIT_REDUCTION;
                 if ( storedParametersMap.containsKey(STORED_PARAMETERS_LIMIT_REDUCTION_KEY))
                     limitReduction = Float.parseFloat(storedParametersMap.get(STORED_PARAMETERS_LIMIT_REDUCTION_KEY));
-                boolean handleViolations = OnlineWorkflowParameters.DAFAULT_HANDLE_VIOLATIONS_IN_N;
+                boolean handleViolations = OnlineWorkflowParameters.DEFAULT_HANDLE_VIOLATIONS_IN_N;
                 if ( storedParametersMap.containsKey(STORED_PARAMETERS_HANDLE_VIOLATIONS_KEY))
                     handleViolations = Boolean.parseBoolean(storedParametersMap.get(STORED_PARAMETERS_HANDLE_VIOLATIONS_KEY));
                 float constraintMargin = OnlineWorkflowParameters.DEFAULT_CONSTRAINT_MARGIN;

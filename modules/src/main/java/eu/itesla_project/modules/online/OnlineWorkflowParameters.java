@@ -9,7 +9,6 @@ package eu.itesla_project.modules.online;
 
 import java.io.Serializable;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import eu.itesla_project.commons.config.ModuleConfig;
 import eu.itesla_project.commons.config.PlatformConfig;
@@ -58,9 +57,9 @@ public class OnlineWorkflowParameters implements Serializable {
     private static final long serialVersionUID = 1L;
     public static final CaseType DEFAULT_CASE_TYPE = CaseType.FO;
     public static final Set<Country> DEFAULT_COUNTRIES = EnumSet.of(Country.FR);
-    public static final boolean DAFAULT_MERGE_OPTIMIZED = false;
+    public static final boolean DEFAULT_MERGE_OPTIMIZED = false;
     public static final float DEFAULT_LIMIT_REDUCTION = 1f;
-    public static final boolean DAFAULT_HANDLE_VIOLATIONS_IN_N = false;
+    public static final boolean DEFAULT_HANDLE_VIOLATIONS_IN_N = false;
     public static final float DEFAULT_CONSTRAINT_MARGIN = 0f;
 
     private DateTime baseCaseDate;
@@ -93,18 +92,12 @@ public class OnlineWorkflowParameters implements Serializable {
         boolean storeStates = config.getBooleanProperty("storeStates", false);
         boolean analyseBasecase = config.getBooleanProperty("analyseBasecase", true);
         boolean validation = config.getBooleanProperty("validation", false);
-        Set<SecurityIndexType> securityIndexes = null;
-        String securityIndexesAsString = config.getStringProperty("securityIndexes", "");
-        if ( !"".equals(securityIndexesAsString) ) {
-            securityIndexes = Arrays.stream(securityIndexesAsString.split(","))
-                    .map(SecurityIndexType::valueOf)
-                    .collect(Collectors.toSet());
-        }
+        Set<SecurityIndexType> securityIndexes = config.getEnumSetProperty("securityIndexes", SecurityIndexType.class, null);
         CaseType caseType = config.getEnumProperty("caseType", CaseType.class, DEFAULT_CASE_TYPE);
         Set<Country> countries = config.getEnumSetProperty("countries", Country.class, DEFAULT_COUNTRIES);
-        boolean mergeOptimized = config.getBooleanProperty("mergeOptimized", DAFAULT_MERGE_OPTIMIZED);
+        boolean mergeOptimized = config.getBooleanProperty("mergeOptimized", DEFAULT_MERGE_OPTIMIZED);
         float limitReduction = config.getFloatProperty("limitReduction", DEFAULT_LIMIT_REDUCTION);
-        boolean handleViolationsInN = config.getBooleanProperty("handleViolationsInN", DAFAULT_HANDLE_VIOLATIONS_IN_N);
+        boolean handleViolationsInN = config.getBooleanProperty("handleViolationsInN", DEFAULT_HANDLE_VIOLATIONS_IN_N);
         float constraintMargin = config.getFloatProperty("constraintMargin", DEFAULT_CONSTRAINT_MARGIN);
 
         return new OnlineWorkflowParameters(baseCaseDate, 
@@ -133,6 +126,8 @@ public class OnlineWorkflowParameters implements Serializable {
             float limitReduction, boolean handleViolationsInN, float constraintMargin) {
         Objects.requireNonNull(baseCaseDate);
         Objects.requireNonNull(histoInterval);
+        Objects.requireNonNull(countries);
+        Objects.requireNonNull(caseType);
         this.baseCaseDate = baseCaseDate;
         this.states=states;
         this.histoInterval = histoInterval;
