@@ -8,8 +8,9 @@ package eu.itesla_project.iidm.export.ampl;
 
 import eu.itesla_project.commons.util.StringToIntMapper;
 import eu.itesla_project.iidm.datasource.DataSource;
-import eu.itesla_project.iidm.export.ampl.util.Column;
-import eu.itesla_project.iidm.export.ampl.util.TableFormatter;
+import eu.itesla_project.commons.io.table.Column;
+import eu.itesla_project.commons.io.table.TableFormatter;
+import eu.itesla_project.iidm.export.ampl.util.AmplDatTableFormatter;
 import eu.itesla_project.iidm.network.*;
 import eu.itesla_project.iidm.network.CurrentLimits.TemporaryLimit;
 import eu.itesla_project.iidm.network.util.ConnectedComponents;
@@ -20,7 +21,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -110,24 +110,23 @@ public class AmplNetworkWriter implements AmplConstants {
     }
 
     private void writeSubstations(AmplExportContext context) throws IOException {
-        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_substations", "txt", append), StandardCharsets.UTF_8)) {
-            TableFormatter formatter = new TableFormatter(LOCALE, writer,
-                    getTableTitle("Substations"),
-                    INVALID_FLOAT_VALUE,
-                    new Column("num"),
-                    new Column("horizon"),
-                    new Column("reference date distance (minutes)"),
-                    new Column("nomV (KV)"),
-                    new Column("minV (pu)"),
-                    new Column("maxV (pu)"),
-                    new Column("fault"),
-                    new Column("curative"),
-                    new Column("country"),
-                    new Column("id"),
-                    new Column("description"));
-            if (!append) {
-                formatter.writeHeader();
-            }
+        try (TableFormatter formatter = new AmplDatTableFormatter(
+                new OutputStreamWriter(dataSource.newOutputStream("_network_substations", "txt", append), StandardCharsets.UTF_8),
+                getTableTitle("Substations"),
+                INVALID_FLOAT_VALUE,
+                !append,
+                LOCALE,
+                new Column("num"),
+                new Column("horizon"),
+                new Column("reference date distance (minutes)"),
+                new Column("nomV (KV)"),
+                new Column("minV (pu)"),
+                new Column("maxV (pu)"),
+                new Column("fault"),
+                new Column("curative"),
+                new Column("country"),
+                new Column("id"),
+                new Column("description"))) {
             for (VoltageLevel vl : network.getVoltageLevels()) {
 //                if (!context.voltageLevelIdsToExport.contains(vl.getId())) {
 //                    continue;
@@ -146,8 +145,7 @@ public class AmplNetworkWriter implements AmplConstants {
                          .writeCell(curativeActionNum)
                          .writeCell(vl.getSubstation().getCountry().toString())
                          .writeCell(vl.getId())
-                         .writeCell(vl.getName())
-                         .newRow();
+                         .writeCell(vl.getName());
 
             }
             // voltage level associated to 3 windings transformers middle bus
@@ -169,8 +167,7 @@ public class AmplNetworkWriter implements AmplConstants {
                          .writeCell(curativeActionNum)
                          .writeCell(vl1.getSubstation().getCountry().toString())
                          .writeCell(vlId)
-                         .writeCell("")
-                         .newRow();
+                         .writeEmptyCell();
             }
             // voltage level associated to dangling lines middle bus
             for (DanglingLine dl : network.getDanglingLines()) {
@@ -193,8 +190,7 @@ public class AmplNetworkWriter implements AmplConstants {
                          .writeCell(curativeActionNum)
                          .writeCell(vl.getSubstation().getCountry().toString())
                          .writeCell(dl.getId() + "_voltageLevel")
-                         .writeCell("")
-                         .newRow();
+                         .writeEmptyCell();
             }
             if (config.isExportXNodes()) {
                 for (Line l : network.getLines()) {
@@ -214,8 +210,7 @@ public class AmplNetworkWriter implements AmplConstants {
                             .writeCell(curativeActionNum)
                             .writeCell(XNODE_COUNTRY_NAME)
                             .writeCell(AmplUtil.getXnodeBusId(tieLine) + "_voltageLevel")
-                            .writeCell("")
-                            .newRow();
+                            .writeEmptyCell();
                 }
             }
         }
@@ -237,22 +232,21 @@ public class AmplNetworkWriter implements AmplConstants {
     }
 
     private void writeBuses(AmplExportContext context) throws IOException {
-        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_buses", "txt", append), StandardCharsets.UTF_8)) {
-            TableFormatter formatter = new TableFormatter(LOCALE, writer,
-                    getTableTitle("Buses"),
-                    INVALID_FLOAT_VALUE,
-                    new Column("num"),
-                    new Column("substation"),
-                    new Column("cc"),
-                    new Column("v (pu)"),
-                    new Column("theta (rad)"),
-                    new Column("p (MW)"),
-                    new Column("q (MVar)"),
-                    new Column("fault"),
-                    new Column("curative"));
-            if (!append) {
-                formatter.writeHeader();
-            }
+        try (TableFormatter formatter = new AmplDatTableFormatter(
+                new OutputStreamWriter(dataSource.newOutputStream("_network_buses", "txt", append), StandardCharsets.UTF_8),
+                getTableTitle("Buses"),
+                INVALID_FLOAT_VALUE,
+                !append,
+                LOCALE,
+                new Column("num"),
+                new Column("substation"),
+                new Column("cc"),
+                new Column("v (pu)"),
+                new Column("theta (rad)"),
+                new Column("p (MW)"),
+                new Column("q (MVar)"),
+                new Column("fault"),
+                new Column("curative"))) {
             for (Bus b : AmplUtil.getBuses(network)) {
                 int ccNum = ConnectedComponents.getCcNum(b);
                 // skip buses not in the main connected component
@@ -275,8 +269,7 @@ public class AmplNetworkWriter implements AmplConstants {
                          .writeCell(b.getP())
                          .writeCell(b.getQ())
                          .writeCell(faultNum)
-                         .writeCell(curativeActionNum)
-                         .newRow();
+                         .writeCell(curativeActionNum);
             }
             // 3 windings transformers middle bus
             for (ThreeWindingsTransformer twt : network.getThreeWindingsTransformers()) {
@@ -313,8 +306,7 @@ public class AmplNetworkWriter implements AmplConstants {
                          .writeCell(0f)
                          .writeCell(0f)
                          .writeCell(faultNum)
-                         .writeCell(curativeActionNum)
-                         .newRow();
+                         .writeCell(curativeActionNum);
             }
             // dangling line middle bus
             for (DanglingLine dl : network.getDanglingLines()) {
@@ -349,8 +341,7 @@ public class AmplNetworkWriter implements AmplConstants {
                          .writeCell(0f) // 0 MW injected at dangling line internal bus
                          .writeCell(0f) // 0 MVar injected at dangling line internal bus
                          .writeCell(faultNum)
-                         .writeCell(curativeActionNum)
-                         .newRow();
+                         .writeCell(curativeActionNum);
             }
             if (config.isExportXNodes()) {
                 for (Line l : network.getLines()) {
@@ -385,8 +376,7 @@ public class AmplNetworkWriter implements AmplConstants {
                             .writeCell(0f)
                             .writeCell(0f)
                             .writeCell(faultNum)
-                            .writeCell(curativeActionNum)
-                            .newRow();
+                            .writeCell(curativeActionNum);
                 }
             }
         }
@@ -404,39 +394,38 @@ public class AmplNetworkWriter implements AmplConstants {
     }
 
     private void writeBranches(AmplExportContext context) throws IOException {
-        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_branches", "txt", append), StandardCharsets.UTF_8)) {
-            TableFormatter formatter = new TableFormatter(LOCALE, writer,
-                    getTableTitle("Branches"),
-                    INVALID_FLOAT_VALUE,
-                    new Column("num"),
-                    new Column("bus1"),
-                    new Column("bus2"),
-                    new Column("3wt num"),
-                    new Column("sub.1"),
-                    new Column("sub.2"),
-                    new Column("r (pu)"),
-                    new Column("x (pu)"),
-                    new Column("g1 (pu)"),
-                    new Column("g2 (pu)"),
-                    new Column("b1 (pu)"),
-                    new Column("b2 (pu)"),
-                    new Column("cst ratio (pu)"),
-                    new Column("ratio tc"),
-                    new Column("phase tc"),
-                    new Column("p1 (MW)"),
-                    new Column("p2 (MW)"),
-                    new Column("q1 (MVar)"),
-                    new Column("q2 (MVar)"),
-                    new Column("patl1 (A)"),
-                    new Column("patl2 (A)"),
-                    new Column("merged"),
-                    new Column("fault"),
-                    new Column("curative"),
-                    new Column("id"),
-                    new Column("description"));
-            if (!append) {
-                formatter.writeHeader();
-            }
+        try (TableFormatter formatter = new AmplDatTableFormatter(
+                new OutputStreamWriter(dataSource.newOutputStream("_network_branches", "txt", append), StandardCharsets.UTF_8),
+                getTableTitle("Branches"),
+                INVALID_FLOAT_VALUE,
+                !append,
+                LOCALE,
+                new Column("num"),
+                new Column("bus1"),
+                new Column("bus2"),
+                new Column("3wt num"),
+                new Column("sub.1"),
+                new Column("sub.2"),
+                new Column("r (pu)"),
+                new Column("x (pu)"),
+                new Column("g1 (pu)"),
+                new Column("g2 (pu)"),
+                new Column("b1 (pu)"),
+                new Column("b2 (pu)"),
+                new Column("cst ratio (pu)"),
+                new Column("ratio tc"),
+                new Column("phase tc"),
+                new Column("p1 (MW)"),
+                new Column("p2 (MW)"),
+                new Column("q1 (MVar)"),
+                new Column("q2 (MVar)"),
+                new Column("patl1 (A)"),
+                new Column("patl2 (A)"),
+                new Column("merged"),
+                new Column("fault"),
+                new Column("curative"),
+                new Column("id"),
+                new Column("description"))) {
             for (Line l : network.getLines()) {
                 Terminal t1 = l.getTerminal1();
                 Terminal t2 = l.getTerminal2();
@@ -510,8 +499,7 @@ public class AmplNetworkWriter implements AmplConstants {
                             .writeCell(faultNum)
                             .writeCell(curativeActionNum)
                             .writeCell(half1Id)
-                            .writeCell(tl.getHalf1().getName())
-                            .newRow();
+                            .writeCell(tl.getHalf1().getName());
                     formatter.writeCell(half2Num)
                             .writeCell(xNodeBusNum)
                             .writeCell(bus2Num)
@@ -537,8 +525,7 @@ public class AmplNetworkWriter implements AmplConstants {
                             .writeCell(faultNum)
                             .writeCell(curativeActionNum)
                             .writeCell(half2Id)
-                            .writeCell(tl.getHalf2().getName())
-                            .newRow();
+                            .writeCell(tl.getHalf2().getName());
                 } else {
                     formatter.writeCell(num)
                             .writeCell(bus1Num)
@@ -565,8 +552,7 @@ public class AmplNetworkWriter implements AmplConstants {
                             .writeCell(faultNum)
                             .writeCell(curativeActionNum)
                             .writeCell(id)
-                            .writeCell(l.getName())
-                            .newRow();
+                            .writeCell(l.getName());
                 }
             }
             for (TwoWindingsTransformer twt : network.getTwoWindingsTransformers()) {
@@ -640,8 +626,7 @@ public class AmplNetworkWriter implements AmplConstants {
                          .writeCell(faultNum)
                          .writeCell(curativeActionNum)
                          .writeCell(id)
-                         .writeCell(twt.getName())
-                         .newRow();
+                         .writeCell(twt.getName());
             }
             for (ThreeWindingsTransformer twt : network.getThreeWindingsTransformers()) {
                 Terminal t1 = twt.getLeg1().getTerminal();
@@ -739,8 +724,7 @@ public class AmplNetworkWriter implements AmplConstants {
                             .writeCell(faultNum)
                             .writeCell(curativeActionNum)
                             .writeCell(id1)
-                            .writeCell("")
-                            .newRow();
+                            .writeEmptyCell();
                 }
                 if (!isOnlyMainCc() || isBusExported(context, middleBusId) || isBusExported(context, bus2Id)) {
                     formatter.writeCell(num2)
@@ -768,8 +752,7 @@ public class AmplNetworkWriter implements AmplConstants {
                             .writeCell(faultNum)
                             .writeCell(curativeActionNum)
                             .writeCell(id2)
-                            .writeCell("")
-                            .newRow();
+                            .writeEmptyCell();
                 }
                 if (!isOnlyMainCc() || isBusExported(context, middleBusId) || isBusExported(context, bus3Id)) {
                     formatter.writeCell(num3)
@@ -797,8 +780,7 @@ public class AmplNetworkWriter implements AmplConstants {
                             .writeCell(faultNum)
                             .writeCell(curativeActionNum)
                             .writeCell(id3)
-                            .writeCell("")
-                            .newRow();
+                            .writeEmptyCell();
                 }
             }
             for (DanglingLine dl : network.getDanglingLines()) {
@@ -856,27 +838,25 @@ public class AmplNetworkWriter implements AmplConstants {
                          .writeCell(faultNum)
                          .writeCell(curativeActionNum)
                          .writeCell(id)
-                         .writeCell(dl.getName())
-                         .newRow();
+                         .writeCell(dl.getName());
             }
         }
     }
 
     private void writeTapChangerTable() throws IOException {
-        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_tct", "txt", append), StandardCharsets.UTF_8)) {
-            TableFormatter formatter = new TableFormatter(LOCALE, writer,
-                    getTableTitle("Tap changer table"),
-                    INVALID_FLOAT_VALUE,
-                    new Column("num"),
-                    new Column("tap"),
-                    new Column("var ratio"),
-                    new Column("x (pu)"),
-                    new Column("angle (rad)"),
-                    new Column("fault"),
-                    new Column("curative"));
-            if (!append) {
-                formatter.writeHeader();
-            }
+        try (TableFormatter formatter = new AmplDatTableFormatter(
+                new OutputStreamWriter(dataSource.newOutputStream("_network_tct", "txt", append), StandardCharsets.UTF_8),
+                getTableTitle("Tap changer table"),
+                INVALID_FLOAT_VALUE,
+                !append,
+                LOCALE,
+                new Column("num"),
+                new Column("tap"),
+                new Column("var ratio"),
+                new Column("x (pu)"),
+                new Column("angle (rad)"),
+                new Column("fault"),
+                new Column("curative"))) {
             for (TwoWindingsTransformer twt : network.getTwoWindingsTransformers()) {
                 Terminal t2 = twt.getTerminal2();
                 float vb2 = t2.getVoltageLevel().getNominalV();
@@ -895,8 +875,7 @@ public class AmplNetworkWriter implements AmplConstants {
                                  .writeCell(x)
                                  .writeCell(0f)
                                  .writeCell(faultNum)
-                                 .writeCell(curativeActionNum)
-                                 .newRow();
+                                 .writeCell(curativeActionNum);
                     }
                 }
                 PhaseTapChanger ptc = twt.getPhaseTapChanger();
@@ -912,8 +891,7 @@ public class AmplNetworkWriter implements AmplConstants {
                                  .writeCell(x)
                                  .writeCell((float) Math.toRadians(step.getAlpha()))
                                  .writeCell(faultNum)
-                                 .writeCell(curativeActionNum)
-                                 .newRow();
+                                 .writeCell(curativeActionNum);
                     }
                 }
             }
@@ -937,8 +915,7 @@ public class AmplNetworkWriter implements AmplConstants {
                                  .writeCell(x)
                                  .writeCell(0f)
                                  .writeCell(faultNum)
-                                 .writeCell(curativeActionNum)
-                                 .newRow();
+                                 .writeCell(curativeActionNum);
                     }
                 }
                 RatioTapChanger rtc3 = twt.getLeg3().getRatioTapChanger();
@@ -954,8 +931,7 @@ public class AmplNetworkWriter implements AmplConstants {
                                  .writeCell(x)
                                  .writeCell(0f)
                                  .writeCell(faultNum)
-                                 .writeCell(curativeActionNum)
-                                 .newRow();
+                                 .writeCell(curativeActionNum);
                     }
                 }
             }
@@ -975,30 +951,28 @@ public class AmplNetworkWriter implements AmplConstants {
         }
         formatter.writeCell(faultNum)
                 .writeCell(curativeActionNum)
-                .writeCell(rtcId)
-                .newRow();
+                .writeCell(rtcId);
     }
 
     private void writeRatioTapChangers() throws IOException {
-        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_rtc", "txt", append), StandardCharsets.UTF_8)) {
-            List<Column> columns = new ArrayList<>(8);
-            columns.add(new Column("num"));
-            columns.add(new Column("tap"));
-            columns.add(new Column("table"));
-            columns.add(new Column("onLoad"));
-            if (config.isExportRatioTapChangerVoltageTarget()) {
-                columns.add(new Column("targetV"));
-            }
-            columns.add(new Column("fault"));
-            columns.add(new Column("curative"));
-            columns.add(new Column("id"));
-            TableFormatter formatter = new TableFormatter(LOCALE, writer,
-                    getTableTitle("Ratio tap changers"),
-                    INVALID_FLOAT_VALUE,
-                    columns.toArray(new Column[columns.size()]));
-            if (!append) {
-                formatter.writeHeader();
-            }
+        List<Column> columns = new ArrayList<>(8);
+        columns.add(new Column("num"));
+        columns.add(new Column("tap"));
+        columns.add(new Column("table"));
+        columns.add(new Column("onLoad"));
+        if (config.isExportRatioTapChangerVoltageTarget()) {
+            columns.add(new Column("targetV"));
+        }
+        columns.add(new Column("fault"));
+        columns.add(new Column("curative"));
+        columns.add(new Column("id"));
+        try (TableFormatter formatter = new AmplDatTableFormatter(
+                new OutputStreamWriter(dataSource.newOutputStream("_network_rtc", "txt", append), StandardCharsets.UTF_8),
+                getTableTitle("Ratio tap changers"),
+                INVALID_FLOAT_VALUE,
+                !append,
+                LOCALE,
+                columns.toArray(new Column[columns.size()]))) {
             for (TwoWindingsTransformer twt : network.getTwoWindingsTransformers()) {
                 RatioTapChanger rtc = twt.getRatioTapChanger();
                 if (rtc != null) {
@@ -1025,19 +999,18 @@ public class AmplNetworkWriter implements AmplConstants {
     }
 
     private void writePhaseTapChangers() throws IOException {
-        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_ptc", "txt", append), StandardCharsets.UTF_8)) {
-            TableFormatter formatter = new TableFormatter(LOCALE, writer,
-                    getTableTitle("Phase tap changers"),
-                    INVALID_FLOAT_VALUE,
-                    new Column("num"),
-                    new Column("tap"),
-                    new Column("table"),
-                    new Column("fault"),
-                    new Column("curative"),
-                    new Column("id"));
-            if (!append) {
-                formatter.writeHeader();
-            }
+        try (TableFormatter formatter = new AmplDatTableFormatter(
+                new OutputStreamWriter(dataSource.newOutputStream("_network_ptc", "txt", append), StandardCharsets.UTF_8),
+                getTableTitle("Phase tap changers"),
+                INVALID_FLOAT_VALUE,
+                !append,
+                LOCALE,
+                new Column("num"),
+                new Column("tap"),
+                new Column("table"),
+                new Column("fault"),
+                new Column("curative"),
+                new Column("id"))) {
             for (TwoWindingsTransformer twt : network.getTwoWindingsTransformers()) {
                 PhaseTapChanger ptc = twt.getPhaseTapChanger();
                 if (ptc != null) {
@@ -1050,8 +1023,7 @@ public class AmplNetworkWriter implements AmplConstants {
                              .writeCell(tcsNum)
                              .writeCell(faultNum)
                              .writeCell(curativeActionNum)
-                             .writeCell(ptcId)
-                             .newRow();
+                             .writeCell(ptcId);
                 }
             }
         }
@@ -1071,22 +1043,21 @@ public class AmplNetworkWriter implements AmplConstants {
     }
 
     private void writeLoads(AmplExportContext context) throws IOException {
-        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_loads", "txt", append), StandardCharsets.UTF_8)) {
-            TableFormatter formatter = new TableFormatter(LOCALE, writer,
-                    getTableTitle("Loads"),
-                    INVALID_FLOAT_VALUE,
-                    new Column("num"),
-                    new Column("bus"),
-                    new Column("substation"),
-                    new Column("p (MW)"),
-                    new Column("q (MVar)"),
-                    new Column("fault"),
-                    new Column("curative"),
-                    new Column("id"),
-                    new Column("description"));
-            if (!append) {
-                formatter.writeHeader();
-            }
+        try (TableFormatter formatter = new AmplDatTableFormatter(
+                new OutputStreamWriter(dataSource.newOutputStream("_network_loads", "txt", append), StandardCharsets.UTF_8),
+                getTableTitle("Loads"),
+                INVALID_FLOAT_VALUE,
+                !append,
+                LOCALE,
+                new Column("num"),
+                new Column("bus"),
+                new Column("substation"),
+                new Column("p (MW)"),
+                new Column("q (MVar)"),
+                new Column("fault"),
+                new Column("curative"),
+                new Column("id"),
+                new Column("description"))) {
             List<String> skipped = new ArrayList<>();
             for (Load l : network.getLoads()) {
                 Terminal t = l.getTerminal();
@@ -1113,8 +1084,7 @@ public class AmplNetworkWriter implements AmplConstants {
                          .writeCell(faultNum)
                          .writeCell(curativeActionNum)
                          .writeCell(id)
-                         .writeCell(l.getName())
-                         .newRow();
+                         .writeCell(l.getName());
             }
             for (DanglingLine dl : network.getDanglingLines()) {
                 String middleBusId = getDanglingLineMiddleBusId(dl);
@@ -1135,8 +1105,7 @@ public class AmplNetworkWriter implements AmplConstants {
                          .writeCell(faultNum)
                          .writeCell(curativeActionNum)
                          .writeCell(dl.getId() + "_load")
-                         .writeCell("")
-                         .newRow();
+                         .writeEmptyCell();
             }
             if (skipped.size() > 0) {
                 LOGGER.trace("Skip loads {} because not connected and not connectable", skipped);
@@ -1159,25 +1128,24 @@ public class AmplNetworkWriter implements AmplConstants {
     }
 
     private void writeShunts(AmplExportContext context) throws IOException {
-        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_shunts", "txt", append), StandardCharsets.UTF_8)) {
-            TableFormatter formatter = new TableFormatter(LOCALE, writer,
-                    getTableTitle("Shunts"),
-                    INVALID_FLOAT_VALUE,
-                    new Column("num"),
-                    new Column("bus"),
-                    new Column("con. bus"),
-                    new Column("substation"),
-                    new Column("minB (pu)"),
-                    new Column("maxB (pu)"),
-                    new Column("inter. points"),
-                    new Column("b (pu)"),
-                    new Column("fault"),
-                    new Column("curative"),
-                    new Column("id"),
-                    new Column("description"));
-            if (!append) {
-                formatter.writeHeader();
-            }
+        try (TableFormatter formatter = new AmplDatTableFormatter(
+                new OutputStreamWriter(dataSource.newOutputStream("_network_shunts", "txt", append), StandardCharsets.UTF_8),
+                getTableTitle("Shunts"),
+                INVALID_FLOAT_VALUE,
+                !append,
+                LOCALE,
+                new Column("num"),
+                new Column("bus"),
+                new Column("con. bus"),
+                new Column("substation"),
+                new Column("minB (pu)"),
+                new Column("maxB (pu)"),
+                new Column("inter. points"),
+                new Column("b (pu)"),
+                new Column("fault"),
+                new Column("curative"),
+                new Column("id"),
+                new Column("description"))) {
             List<String> skipped = new ArrayList<>();
             for (ShuntCompensator sc : network.getShunts()) {
                 Terminal t = sc.getTerminal();
@@ -1222,8 +1190,7 @@ public class AmplNetworkWriter implements AmplConstants {
                          .writeCell(faultNum)
                          .writeCell(curativeActionNum)
                          .writeCell(id)
-                         .writeCell(sc.getName())
-                         .newRow();
+                         .writeCell(sc.getName());
             }
             if (skipped.size() > 0) {
                 LOGGER.trace("Skip shunts {} because not connected and not connectable", skipped);
@@ -1232,31 +1199,30 @@ public class AmplNetworkWriter implements AmplConstants {
     }
 
     private void writeGenerators(AmplExportContext context) throws IOException {
-        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_generators", "txt", append), StandardCharsets.UTF_8)) {
-            TableFormatter formatter = new TableFormatter(LOCALE, writer,
-                    getTableTitle("Generators"),
-                    INVALID_FLOAT_VALUE,
-                    new Column("num"),
-                    new Column("bus"),
-                    new Column("con. bus"),
-                    new Column("substation"),
-                    new Column("minP (MW)"),
-                    new Column("maxP (MW)"),
-                    new Column("minQmaxP (MVar)"),
-                    new Column("minQminP (MVar)"),
-                    new Column("maxQmaxP (MVar)"),
-                    new Column("maxQminP (MVar)"),
-                    new Column("v regul."),
-                    new Column("targetV (pu)"),
-                    new Column("targetP (MW)"),
-                    new Column("targetQ (MVar)"),
-                    new Column("fault"),
-                    new Column("curative"),
-                    new Column("id"),
-                    new Column("description"));
-            if (!append) {
-                formatter.writeHeader();
-            }
+        try (TableFormatter formatter = new AmplDatTableFormatter(
+                new OutputStreamWriter(dataSource.newOutputStream("_network_generators", "txt", append), StandardCharsets.UTF_8),
+                getTableTitle("Generators"),
+                INVALID_FLOAT_VALUE,
+                !append,
+                LOCALE,
+                new Column("num"),
+                new Column("bus"),
+                new Column("con. bus"),
+                new Column("substation"),
+                new Column("minP (MW)"),
+                new Column("maxP (MW)"),
+                new Column("minQmaxP (MVar)"),
+                new Column("minQminP (MVar)"),
+                new Column("maxQmaxP (MVar)"),
+                new Column("maxQminP (MVar)"),
+                new Column("v regul."),
+                new Column("targetV (pu)"),
+                new Column("targetP (MW)"),
+                new Column("targetQ (MVar)"),
+                new Column("fault"),
+                new Column("curative"),
+                new Column("id"),
+                new Column("description"))) {
             List<String> skipped = new ArrayList<>();
             for (Generator g : network.getGenerators()) {
                 Terminal t = g.getTerminal();
@@ -1303,8 +1269,7 @@ public class AmplNetworkWriter implements AmplConstants {
                          .writeCell(faultNum)
                          .writeCell(curativeActionNum)
                          .writeCell(id)
-                         .writeCell(g.getName())
-                         .newRow();
+                         .writeCell(g.getName());
             }
             if (skipped.size() > 0) {
                 LOGGER.trace("Skip generators {} because not connected and not connectable", skipped);
@@ -1323,26 +1288,24 @@ public class AmplNetworkWriter implements AmplConstants {
                     .writeCell(tl.getLimit())
                     .writeCell(tl.getAcceptableDuration())
                     .writeCell(faultNum)
-                    .writeCell(curativeActionNum)
-                    .newRow();
+                    .writeCell(curativeActionNum);
         }
     }
 
     private void writeTemporaryCurrentLimits() throws IOException {
-        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_limits", "txt", append), StandardCharsets.UTF_8)) {
-            TableFormatter formatter = new TableFormatter(LOCALE, writer,
-                    getTableTitle("Temporary current limits"),
-                    INVALID_FLOAT_VALUE,
-                    new Column("num"),
-                    new Column("branch"),
-                    new Column("side"),
-                    new Column("limit (A)"),
-                    new Column("accept. duration (s)"),
-                    new Column("fault"),
-                    new Column("curative"));
-            if (!append) {
-                formatter.writeHeader();
-            }
+        try (TableFormatter formatter = new AmplDatTableFormatter(
+                new OutputStreamWriter(dataSource.newOutputStream("_network_limits", "txt", append), StandardCharsets.UTF_8),
+                getTableTitle("Temporary current limits"),
+                INVALID_FLOAT_VALUE,
+                !append,
+                LOCALE,
+                new Column("num"),
+                new Column("branch"),
+                new Column("side"),
+                new Column("limit (A)"),
+                new Column("accept. duration (s)"),
+                new Column("fault"),
+                new Column("curative"))) {
             for (Line l : network.getLines()) {
                 String branchId = l.getId();
                 if (l.getCurrentLimits1() != null) {

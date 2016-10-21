@@ -9,15 +9,13 @@ package eu.itesla_project.offline.forecast_errors;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
-import eu.itesla_project.commons.io.ModuleConfig;
-import eu.itesla_project.commons.io.PlatformConfig;
+import eu.itesla_project.commons.config.ModuleConfig;
+import eu.itesla_project.commons.config.PlatformConfig;
 import eu.itesla_project.iidm.network.Country;
 import eu.itesla_project.cases.CaseType;
 
 import java.io.Serializable;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
+import java.util.EnumSet;
 import java.util.Set;
 
 /**
@@ -71,7 +69,7 @@ public class ForecastErrorsAnalysisParameters implements Serializable{
 
 	*/
 
-	public static final List<Country> DEFAULT_COUNTRIES = Arrays.asList(Country.FR);
+	public static final Set<Country> DEFAULT_COUNTRIES = EnumSet.of(Country.FR);
 	public static final CaseType DEFAULT_CASE_TYPE = CaseType.FO;
 	
 	private final DateTime baseCaseDate;
@@ -123,7 +121,7 @@ public class ForecastErrorsAnalysisParameters implements Serializable{
 		Integer outliers = config.getOptionalIntProperty("outliers");
 		Integer conditionalSampling = config.getOptionalIntProperty("conditionalSampling");
 		Integer nSamples = config.getIntProperty("nSamples");
-		Set<Country> countries = new HashSet<>(config.getEnumListProperty("countries", Country.class, DEFAULT_COUNTRIES));
+		Set<Country> countries = config.getEnumSetProperty("countries", Country.class, DEFAULT_COUNTRIES);
 		CaseType caseType = config.getEnumProperty("caseType", CaseType.class, DEFAULT_CASE_TYPE);
 
 		return new ForecastErrorsAnalysisParameters(baseCaseDate, histoInterval, feAnalysisId, ir, flagPQ, method, nClusters, percentileHistorical, 

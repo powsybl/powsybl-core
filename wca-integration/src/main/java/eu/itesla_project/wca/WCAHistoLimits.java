@@ -7,19 +7,19 @@
 package eu.itesla_project.wca;
 
 import com.google.common.collect.Range;
+import eu.itesla_project.commons.io.table.Column;
+import eu.itesla_project.commons.io.table.TableFormatter;
 import eu.itesla_project.commons.util.StringToIntMapper;
 import eu.itesla_project.iidm.datasource.DataSource;
 import eu.itesla_project.iidm.export.ampl.AmplConstants;
 import eu.itesla_project.iidm.export.ampl.AmplSubset;
-import eu.itesla_project.iidm.export.ampl.util.Column;
-import eu.itesla_project.iidm.export.ampl.util.TableFormatter;
+import eu.itesla_project.iidm.export.ampl.util.AmplDatTableFormatter;
 import eu.itesla_project.iidm.network.*;
 import eu.itesla_project.modules.histo.*;
 import org.joda.time.Interval;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
@@ -79,15 +79,16 @@ public class WCAHistoLimits implements AmplConstants, WCAConstants {
 
     public void write(DataSource dataSource, StringToIntMapper<AmplSubset> mapper) throws IOException {
 
-        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream(HISTO_LOADS_FILE_SUFFIX, TXT_EXT, false), StandardCharsets.UTF_8)) {
-            TableFormatter formatter = new TableFormatter(LOCALE, writer,
+        try (TableFormatter formatter = new AmplDatTableFormatter(
+                    new OutputStreamWriter(dataSource.newOutputStream(HISTO_LOADS_FILE_SUFFIX, TXT_EXT, false), StandardCharsets.UTF_8),
                     "loads historical data " + histoInterval,
                     INVALID_FLOAT_VALUE,
+                    true,
+                    LOCALE,
                     new Column("num"),
                     new Column("min p (MW)"),
                     new Column("max p (MW)"),
-                    new Column("id"));
-            formatter.writeHeader();
+                    new Column("id"))) {
 
             for (Map.Entry<String, Range<Float>> e : loadLimits.entrySet()) {
                 String id = e.getKey();
@@ -96,8 +97,7 @@ public class WCAHistoLimits implements AmplConstants, WCAConstants {
                 formatter.writeCell(num)
                         .writeCell(range.lowerEndpoint())
                         .writeCell(range.upperEndpoint())
-                        .writeCell(id)
-                        .newRow();
+                        .writeCell(id);
             }
             for (Map.Entry<String, Range<Float>> e : danglingLineLimits.entrySet()) {
                 String id = e.getKey();
@@ -106,20 +106,20 @@ public class WCAHistoLimits implements AmplConstants, WCAConstants {
                 formatter.writeCell(num)
                         .writeCell(range.lowerEndpoint())
                         .writeCell(range.upperEndpoint())
-                        .writeCell(id + "_load")
-                        .newRow();
+                        .writeCell(id + "_load");
             }
         }
 
-        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream(HISTO_GENERATORS_FILE_SUFFIX, TXT_EXT, false), StandardCharsets.UTF_8)) {
-            TableFormatter formatter = new TableFormatter(LOCALE, writer,
+        try (TableFormatter formatter = new AmplDatTableFormatter(
+                    new OutputStreamWriter(dataSource.newOutputStream(HISTO_GENERATORS_FILE_SUFFIX, TXT_EXT, false), StandardCharsets.UTF_8),
                     "generators historical data " + histoInterval,
                     INVALID_FLOAT_VALUE,
+                    true,
+                    LOCALE,
                     new Column("num"),
                     new Column("min p (MW)"),
                     new Column("max p (MW)"),
-                    new Column("id"));
-            formatter.writeHeader();
+                    new Column("id"))) {
 
             for (Map.Entry<String, Range<Float>> e : generatorLimits.entrySet()) {
                 String id = e.getKey();
@@ -128,8 +128,7 @@ public class WCAHistoLimits implements AmplConstants, WCAConstants {
                 formatter.writeCell(num)
                         .writeCell(range.lowerEndpoint())
                         .writeCell(range.upperEndpoint())
-                        .writeCell(id)
-                        .newRow();
+                        .writeCell(id);
             }
         }
     }

@@ -8,8 +8,8 @@ package eu.itesla_project.iidm.import_;
 
 import com.google.auto.service.AutoService;
 import com.google.common.io.CharStreams;
-import eu.itesla_project.commons.io.ModuleConfig;
-import eu.itesla_project.commons.io.PlatformConfig;
+import eu.itesla_project.commons.config.ModuleConfig;
+import eu.itesla_project.commons.config.PlatformConfig;
 import eu.itesla_project.computation.ComputationManager;
 import eu.itesla_project.iidm.network.Network;
 import eu.itesla_project.iidm.network.util.Networks;

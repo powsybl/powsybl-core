@@ -12,7 +12,7 @@ import eu.itesla_project.iidm.datasource.DataSource;
 import eu.itesla_project.iidm.import_.Importer;
 import eu.itesla_project.iidm.network.Country;
 import eu.itesla_project.iidm.network.Network;
-import eu.itesla_project.ucte.util.UcteGeographicalCode;
+import eu.itesla_project.entsoe.util.EntsoeGeographicalCode;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.nio.file.ShrinkWrapFileSystems;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
@@ -170,7 +170,7 @@ public class EntsoeCaseRepositoryTest {
         assertTrue(caseRepository.load(DateTime.parse("2013-01-14T00:15:00+01:00"), CaseType.SN, Country.FR).equals(Collections.singletonList(cimNetwork)));
 
         // check that if cim is vorbidden for france, uct is loaded
-        caseRepository.getConfig().getForbiddenFormatsByGeographicalCode().put(UcteGeographicalCode.FR, "CIM1");
+        caseRepository.getConfig().getForbiddenFormatsByGeographicalCode().put(EntsoeGeographicalCode.FR, "CIM1");
         assertTrue(caseRepository.load(DateTime.parse("2013-01-14T00:15:00+01:00"), CaseType.SN, Country.FR).equals(Collections.singletonList(uctNetwork)));
 
         assertTrue(caseRepository.load(DateTime.parse("2013-01-15T00:15:00+01:00"), CaseType.SN, Country.DE).size() == 4);

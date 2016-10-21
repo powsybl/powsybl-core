@@ -6,11 +6,12 @@
  */
 package eu.itesla_project.modules.constraints;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.EnumSet;
+import java.util.Objects;
+import java.util.Set;
 
-import eu.itesla_project.commons.io.ModuleConfig;
-import eu.itesla_project.commons.io.PlatformConfig;
+import eu.itesla_project.commons.config.ModuleConfig;
+import eu.itesla_project.commons.config.PlatformConfig;
 import eu.itesla_project.iidm.network.Country;
 import eu.itesla_project.iidm.network.Network;
 import eu.itesla_project.security.LimitViolation;
@@ -22,53 +23,50 @@ import eu.itesla_project.security.LimitViolationType;
  */
 public class ConstraintsModifierConfig {
 
-    public static final List<LimitViolationType> DEFAULT_VIOLATION_TYPES = Arrays.asList(LimitViolationType.CURRENT);
-    public static final Country DEFAULT_COUNTRY = null;
+    public static final Set<LimitViolationType> DEFAULT_VIOLATION_TYPES = EnumSet.of(LimitViolationType.CURRENT);
+    public static final Set<Country> DEFAULT_COUNTRIES = EnumSet.noneOf(Country.class);
 
-    private final Country country;
-    private final List<LimitViolationType> violationsTypes;
+    private final Set<Country> countries;
+    private final Set<LimitViolationType> violationsTypes;
 
     public static ConstraintsModifierConfig load() {
         return load(PlatformConfig.defaultConfig());
     }
 
     public static ConstraintsModifierConfig load(PlatformConfig platformConfig) {
-        List<LimitViolationType> violationsTypes;
-        Country country;
+        Set<LimitViolationType> violationsTypes;
+        Set<Country> countries;
         if (platformConfig.moduleExists("constraintsModifier")) {
             ModuleConfig config = platformConfig.getModuleConfig("constraintsModifier");
-            violationsTypes = config.getEnumListProperty("violationsTypes", LimitViolationType.class, DEFAULT_VIOLATION_TYPES);
-            String countryStr = config.getStringProperty("country", null);
-            country = ( countryStr == null ) ? DEFAULT_COUNTRY : Country.valueOf(countryStr);
+            violationsTypes = config.getEnumSetProperty("violationsTypes", LimitViolationType.class, DEFAULT_VIOLATION_TYPES);
+            countries = config.getEnumSetProperty("countries", Country.class, DEFAULT_COUNTRIES);
         } else {
             violationsTypes = DEFAULT_VIOLATION_TYPES;
-            country = DEFAULT_COUNTRY;
+            countries = DEFAULT_COUNTRIES;
         }
-        return new ConstraintsModifierConfig(country, violationsTypes);
+        return new ConstraintsModifierConfig(countries, violationsTypes);
     }
 
-    public ConstraintsModifierConfig(Country country, List<LimitViolationType> violationsTypes) {
-        this.country = country;
-        this.violationsTypes = violationsTypes;
+    public ConstraintsModifierConfig(Set<Country> countries, Set<LimitViolationType> violationsTypes) {
+        this.countries = Objects.requireNonNull(countries);
+        this.violationsTypes = Objects.requireNonNull(violationsTypes);
     }
 
-    public Country getCountry() {
-        return country;
+    public Set<Country> getCountries() {
+        return countries;
     }
 
-    public List<LimitViolationType> getViolationsTypes() {
+    public Set<LimitViolationType> getViolationsTypes() {
         return violationsTypes;
     }
 
     public boolean isInAreaOfInterest(LimitViolation violation, Network network) {
-        if ( country != null )
-            return violation.getCountry() == country;
-        return true;
+        return (countries.isEmpty() || countries.contains(violation.getCountry()));
     }
 
     @Override
     public String toString() {
-        return "ConstraintsModifierConfig[country="+country+",violation types="+violationsTypes.toString()+"]";
+        return "ConstraintsModifierConfig[country="+countries+",violation types="+violationsTypes.toString()+"]";
     }
 
 }

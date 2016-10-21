@@ -17,7 +17,7 @@ import eu.itesla_project.ucte.network.ext.UcteNetworkExt;
 import eu.itesla_project.ucte.network.ext.UcteSubstation;
 import eu.itesla_project.ucte.network.ext.UcteVoltageLevel;
 import eu.itesla_project.ucte.network.io.UcteReader;
-import eu.itesla_project.ucte.util.UcteFileName;
+import eu.itesla_project.entsoe.util.EntsoeFileName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,7 +71,7 @@ public class UcteImporter implements Importer {
         return b;
     }
 
-    private static void createBuses(UcteNetworkExt ucteNetwork, Network network, UcteFileName ucteFileName) {
+    private static void createBuses(UcteNetworkExt ucteNetwork, Network network, EntsoeFileName ucteFileName) {
         for (UcteSubstation ucteSubstation : ucteNetwork.getSubstations()) {
 
             // skip substations with only one Xnode
@@ -499,7 +499,7 @@ public class UcteImporter implements Importer {
 
     private static TwoWindingsTransformer createXnodeTransfo(UcteNetworkExt ucteNetwork, UcteTransformer ucteTransfo, boolean connected,
                                                              UcteNodeCode xNodeCode, UcteNodeCode ucteOtherNodeCode, UcteVoltageLevel ucteOtherVoltageLevel,
-                                                             Substation substation, UcteFileName ucteFileName) {
+                                                             Substation substation, EntsoeFileName ucteFileName) {
         // transfo connected to a XNODE, create an intermediate YNODE and small impedance line
         // otherNode--transfo--XNODE => otherNode--transfo--YNODE--line--XNODE
         String xNodeName = xNodeCode.toString();
@@ -583,7 +583,7 @@ public class UcteImporter implements Importer {
             .add();
     }
 
-    private static void createTransformers(UcteNetworkExt ucteNetwork, Network network, UcteFileName ucteFileName) {
+    private static void createTransformers(UcteNetworkExt ucteNetwork, Network network, EntsoeFileName ucteFileName) {
         for (UcteTransformer ucteTransfo : ucteNetwork.getTransformers()) {
             UcteNodeCode nodeCode1 = ucteTransfo.getId().getNodeCode1();
             UcteNodeCode nodeCode2 = ucteTransfo.getId().getNodeCode2();
@@ -697,7 +697,7 @@ public class UcteImporter implements Importer {
                 UcteNetworkExt ucteNetwork = new UcteNetworkExt(new UcteReader().read(reader), LINE_MIN_Z);
                 String fileName = dataSource.getBaseName();
 
-                UcteFileName ucteFileName = UcteFileName.parse(fileName);
+                EntsoeFileName ucteFileName = EntsoeFileName.parse(fileName);
 
                 Network network = NetworkFactory.create(fileName, "UCTE");
                 network.setCaseDate(ucteFileName.getDate());

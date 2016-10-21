@@ -7,9 +7,9 @@
 package eu.itesla_project.cases;
 
 import com.google.common.collect.Multimap;
-import eu.itesla_project.commons.io.PlatformConfig;
+import eu.itesla_project.commons.config.PlatformConfig;
 import eu.itesla_project.iidm.import_.Importers;
-import eu.itesla_project.ucte.util.UcteGeographicalCode;
+import eu.itesla_project.entsoe.util.EntsoeGeographicalCode;
 
 import java.nio.file.Path;
 import java.util.Collection;
@@ -20,7 +20,7 @@ import java.util.Collection;
  */
 public class EntsoeAndXmlCaseRepositoryConfig extends EntsoeCaseRepositoryConfig {
 
-    public EntsoeAndXmlCaseRepositoryConfig(Path rootDir, Multimap<UcteGeographicalCode, String> forbiddenFormatsByGeographicalCode) {
+    public EntsoeAndXmlCaseRepositoryConfig(Path rootDir, Multimap<EntsoeGeographicalCode, String> forbiddenFormatsByGeographicalCode) {
         super(rootDir, forbiddenFormatsByGeographicalCode);
     }
 

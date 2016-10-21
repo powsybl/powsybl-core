@@ -11,15 +11,14 @@ import eu.itesla_project.commons.tools.Command;
 import eu.itesla_project.commons.tools.Tool;
 import eu.itesla_project.computation.ComputationManager;
 import eu.itesla_project.computation.local.LocalComputationManager;
+import eu.itesla_project.contingency.Contingency;
 import eu.itesla_project.iidm.import_.Importer;
 import eu.itesla_project.iidm.import_.Importers;
 import eu.itesla_project.loadflow.api.LoadFlowFactory;
-import eu.itesla_project.security.StaticSecurityAnalysis;
-import eu.itesla_project.security.LimitViolation;
 import eu.itesla_project.modules.contingencies.ContingenciesAndActionsDatabaseClient;
-import eu.itesla_project.contingency.Contingency;
 import eu.itesla_project.modules.offline.OfflineConfig;
 import eu.itesla_project.modules.rules.*;
+import eu.itesla_project.security.*;
 import eu.itesla_project.simulation.securityindexes.SecurityIndexType;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -235,8 +234,8 @@ public class OverloadValidationTool implements Tool {
 
                     System.out.println("running security analysis...");
 
-                    StaticSecurityAnalysis securityAnalysis = new StaticSecurityAnalysis(network, loadFlowFactory, computationManager);
-                    Map<String, List<LimitViolation>> violationsPerContingency = securityAnalysis.run(contingencies);
+                    SecurityAnalysis securityAnalysis = new SecurityAnalysisImpl(network, computationManager, loadFlowFactory);
+                    SecurityAnalysisResult securityAnalysisResult = securityAnalysis.runAsync(network1 -> contingencies).join();
 
                     System.out.println("checking rules...");
 
@@ -246,9 +245,10 @@ public class OverloadValidationTool implements Tool {
 
                     Map<String, OverloadStatus> statusPerContingency = new HashMap<>();
 
-                    for (Contingency contingency : contingencies) {
-                        List<LimitViolation> violations = violationsPerContingency.get(contingency.getId());
-                        boolean lfOk = violations != null && violations.isEmpty();
+                    for (PostContingencyResult postContingencyResult : securityAnalysisResult.getPostContingencyResults()) {
+                        Contingency contingency = postContingencyResult.getContingency();
+                        boolean lfOk = postContingencyResult.isComputationOk()
+                                && postContingencyResult.getLimitViolations().isEmpty();
                         Map<SecurityIndexType, SecurityRuleCheckStatus> offlineRuleCheck = offlineRuleCheckPerContingency.get(contingency.getId());
                         boolean offlineRuleOk = offlineRuleCheck != null && offlineRuleCheck.get(SecurityIndexType.TSO_OVERLOAD) == SecurityRuleCheckStatus.OK;
                         statusPerContingency.put(contingency.getId(), new OverloadStatus(offlineRuleOk, lfOk));

@@ -11,8 +11,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.nio.file.FileSystem;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.nio.file.ShrinkWrapFileSystems;
@@ -21,8 +21,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import eu.itesla_project.commons.io.InMemoryPlatformConfig;
-import eu.itesla_project.commons.io.MapModuleConfig;
+import eu.itesla_project.commons.config.InMemoryPlatformConfig;
+import eu.itesla_project.commons.config.MapModuleConfig;
 import eu.itesla_project.iidm.network.Country;
 import eu.itesla_project.iidm.network.Network;
 import eu.itesla_project.security.LimitViolation;
@@ -56,22 +56,33 @@ public class ConstraintsModifierConfigTest {
     @Test
     public void testNoConfig() throws Exception {
         ConstraintsModifierConfig config = ConstraintsModifierConfig.load(platformConfig);
-        checkValues(config, ConstraintsModifierConfig.DEFAULT_COUNTRY, ConstraintsModifierConfig.DEFAULT_VIOLATION_TYPES);
+        checkValues(config, ConstraintsModifierConfig.DEFAULT_COUNTRIES, ConstraintsModifierConfig.DEFAULT_VIOLATION_TYPES);
     }
 
     @Test
     public void testLoadConfig() throws Exception {
-        Country country = Country.FR;
-        LimitViolationType violationType = LimitViolationType.CURRENT;
-        MapModuleConfig moduleConfig = platformConfig.createModuleConfig("constraintsModifier");
-        moduleConfig.setStringListProperty("country", Arrays.asList(country.name()));
-        moduleConfig.setStringListProperty("violationsTypes", Arrays.asList(violationType.name()));
-        ConstraintsModifierConfig config = ConstraintsModifierConfig.load(platformConfig);
-        checkValues(config, country, Arrays.asList(violationType));
+        Set<Country> countries = EnumSet.of(Country.FR);
+        checkConfig(countries);
     }
 
-    private void checkValues(ConstraintsModifierConfig config, Country expectedCountry, List<LimitViolationType> expectedViolationTypes) {
-        assertEquals(expectedCountry, config.getCountry());
+    @Test
+    public void testLoadConfigMultipleCountries() throws Exception {
+        Set<Country> countries = EnumSet.allOf(Country.class);
+        checkConfig(countries);
+    }
+
+    private void checkConfig(Set<Country> countries) throws Exception {
+        LimitViolationType violationType = LimitViolationType.CURRENT;
+        MapModuleConfig moduleConfig = platformConfig.createModuleConfig("constraintsModifier");
+        moduleConfig.setStringListProperty("countries", countries.stream().map(Enum::name).collect(Collectors.toList()));
+        moduleConfig.setStringListProperty("violationsTypes", Arrays.asList(violationType.name()));
+        ConstraintsModifierConfig config = ConstraintsModifierConfig.load(platformConfig);
+        checkValues(config, countries, EnumSet.of(violationType));
+    }
+
+
+    private void checkValues(ConstraintsModifierConfig config, Set<Country> expectedCountries, Set<LimitViolationType> expectedViolationTypes) {
+        assertEquals(expectedCountries, config.getCountries());
         assertArrayEquals(expectedViolationTypes.toArray(), config.getViolationsTypes().toArray());
         for(LimitViolation violation : violations) {
             assertTrue(config.isInAreaOfInterest(violation, network));

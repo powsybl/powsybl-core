@@ -6,8 +6,8 @@
  */
 package eu.itesla_project.security;
 
-import eu.itesla_project.commons.io.InMemoryPlatformConfig;
-import eu.itesla_project.commons.io.MapModuleConfig;
+import eu.itesla_project.commons.config.InMemoryPlatformConfig;
+import eu.itesla_project.commons.config.MapModuleConfig;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.nio.file.ShrinkWrapFileSystems;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;

@@ -6,8 +6,8 @@
  */
 package eu.itesla_project.security;
 
-import eu.itesla_project.commons.io.ModuleConfig;
-import eu.itesla_project.commons.io.PlatformConfig;
+import eu.itesla_project.commons.config.ModuleConfig;
+import eu.itesla_project.commons.config.PlatformConfig;
 
 import java.util.List;
 import java.util.Set;
@@ -52,6 +52,10 @@ public class LimitViolationFilter {
     private Set<LimitViolationType> violationTypes;
 
     private float minBaseVoltage;
+
+    public LimitViolationFilter(Set<LimitViolationType> violationTypes) {
+        this(violationTypes, DEFAULT_MIN_BASE_VOLTAGE);
+    }
 
     public LimitViolationFilter() {
         this(DEFAULT_VIOLATION_TYPES, DEFAULT_MIN_BASE_VOLTAGE);

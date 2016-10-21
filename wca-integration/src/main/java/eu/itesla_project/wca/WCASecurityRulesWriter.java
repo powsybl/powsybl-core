@@ -7,12 +7,13 @@
  */
 package eu.itesla_project.wca;
 
+import eu.itesla_project.commons.io.table.Column;
+import eu.itesla_project.commons.io.table.TableFormatter;
 import eu.itesla_project.commons.util.StringToIntMapper;
 import eu.itesla_project.iidm.datasource.DataSource;
 import eu.itesla_project.iidm.export.ampl.AmplConstants;
 import eu.itesla_project.iidm.export.ampl.AmplSubset;
-import eu.itesla_project.iidm.export.ampl.util.Column;
-import eu.itesla_project.iidm.export.ampl.util.TableFormatter;
+import eu.itesla_project.iidm.export.ampl.util.AmplDatTableFormatter;
 import eu.itesla_project.iidm.network.*;
 import eu.itesla_project.modules.histo.HistoDbAttr;
 import eu.itesla_project.modules.histo.HistoDbNetworkAttributeId;
@@ -27,7 +28,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
@@ -138,8 +138,12 @@ public class WCASecurityRulesWriter implements AmplConstants, WCAConstants {
     }
 
     public void write() {
-        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream(SECURITY_RULES_FILE_SUFFIX, TXT_EXT, false), StandardCharsets.UTF_8)) {
-            final TableFormatter formatter = new TableFormatter(LOCALE, writer, "Security rules", INVALID_FLOAT_VALUE,
+        try (TableFormatter formatter = new AmplDatTableFormatter(
+                    new OutputStreamWriter(dataSource.newOutputStream(SECURITY_RULES_FILE_SUFFIX, TXT_EXT, false), StandardCharsets.UTF_8),
+                    "Security rules",
+                    INVALID_FLOAT_VALUE,
+                    true,
+                    LOCALE,
                     new Column("inequality num"),
                     new Column("convex num"),
                     new Column("var type (1: P, 2: Q, 3: V)"),
@@ -150,8 +154,7 @@ public class WCASecurityRulesWriter implements AmplConstants, WCAConstants {
                     new Column("constant value"),
                     new Column("contingency num"),
                     new Column("security index type"),
-                    new Column("attribute set (0: active only, 1: active/reactive)"));
-            formatter.writeHeader();
+                    new Column("attribute set (0: active only, 1: active/reactive)"))) {
 
             class Context {
 
@@ -257,8 +260,7 @@ public class WCASecurityRulesWriter implements AmplConstants, WCAConstants {
                                 }
                                 formatter.writeCell(mapper.getInt(AmplSubset.FAULT, ruleId.getSecurityIndexId().getContingencyId()))
                                         .writeCell(indexTypeNum)
-                                        .writeCell(attributeSetNum)
-                                        .newRow();
+                                        .writeCell(attributeSetNum);
                             } catch (IOException e) {
                                 throw new RuntimeException(e);
                             }

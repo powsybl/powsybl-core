@@ -6,8 +6,8 @@
  */
 package eu.itesla_project.computation.local;
 
-import eu.itesla_project.commons.io.ModuleConfig;
-import eu.itesla_project.commons.io.PlatformConfig;
+import eu.itesla_project.commons.config.ModuleConfig;
+import eu.itesla_project.commons.config.PlatformConfig;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -19,7 +19,7 @@ public class LocalComputationConfig {
 
     private static final String CONFIG_MODULE_NAME = "computation-local";
 
-    private static final Path DEFAULT_LOCAL_DIR = Paths.get("/tmp");
+    private static final Path DEFAULT_LOCAL_DIR = Paths.get(System.getProperty("java.io.tmpdir"));
 
     private static final int DEFAULT_AVAILABLE_CORE = 1;
 
@@ -35,7 +35,7 @@ public class LocalComputationConfig {
             localDir = config.getPathProperty("tmpDir", DEFAULT_LOCAL_DIR);
             availableCore = config.getIntProperty("availableCore", DEFAULT_AVAILABLE_CORE);
         }
-        if (availableCore == -1) {
+        if (availableCore <= 0) {
             availableCore = Runtime.getRuntime().availableProcessors();
         }
         return new LocalComputationConfig(localDir, availableCore);

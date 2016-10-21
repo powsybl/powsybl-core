@@ -8,7 +8,7 @@ package eu.itesla_project.iidm.import_;
 
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
-import eu.itesla_project.commons.io.MapModuleConfig;
+import eu.itesla_project.commons.config.MapModuleConfig;
 import eu.itesla_project.computation.ComputationManager;
 import eu.itesla_project.computation.local.LocalComputationManager;
 import eu.itesla_project.iidm.datasource.*;
