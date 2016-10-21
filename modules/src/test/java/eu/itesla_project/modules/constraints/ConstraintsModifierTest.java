@@ -40,7 +40,7 @@ public class ConstraintsModifierTest {
         Set<LimitViolationType> violationTypes = EnumSet.of(LimitViolationType.CURRENT,
                 LimitViolationType.HIGH_VOLTAGE,
                 LimitViolationType.LOW_VOLTAGE);
-        config = new ConstraintsModifierConfig(ConstraintsModifierConfig.DEFAULT_COUNTRY, violationTypes);
+        config = new ConstraintsModifierConfig(ConstraintsModifierConfig.DEFAULT_COUNTRIES, violationTypes);
     }
 
     private void checkOriginalNetworkLimits() {
