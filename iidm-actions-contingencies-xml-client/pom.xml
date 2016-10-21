@@ -51,7 +51,7 @@
 					<packageName>eu.itesla_project.iidm.actions_contingencies.xml.mapping</packageName>				
 					 <locale>en_US</locale>
 					 <sources>
-                    	<source>src/main/resources/actions.xsd</source>
+                    	<source>src/main/resources/xsd/actions.xsd</source>
                 	</sources>
 				</configuration>
 				
