@@ -6,8 +6,8 @@
  */
 package eu.itesla_project.modules.constraints;
 
-import java.util.Collections;
 import java.util.EnumSet;
+import java.util.Objects;
 import java.util.Set;
 
 import eu.itesla_project.commons.config.ModuleConfig;
@@ -24,7 +24,7 @@ import eu.itesla_project.security.LimitViolationType;
 public class ConstraintsModifierConfig {
 
     public static final Set<LimitViolationType> DEFAULT_VIOLATION_TYPES = EnumSet.of(LimitViolationType.CURRENT);
-    public static final Set<Country> DEFAULT_COUNTRIES = Collections.emptySet();
+    public static final Set<Country> DEFAULT_COUNTRIES = EnumSet.noneOf(Country.class);
 
     private final Set<Country> countries;
     private final Set<LimitViolationType> violationsTypes;
@@ -48,8 +48,8 @@ public class ConstraintsModifierConfig {
     }
 
     public ConstraintsModifierConfig(Set<Country> countries, Set<LimitViolationType> violationsTypes) {
-        this.countries = countries;
-        this.violationsTypes = violationsTypes;
+        this.countries = Objects.requireNonNull(countries);
+        this.violationsTypes = Objects.requireNonNull(violationsTypes);
     }
 
     public Set<Country> getCountries() {

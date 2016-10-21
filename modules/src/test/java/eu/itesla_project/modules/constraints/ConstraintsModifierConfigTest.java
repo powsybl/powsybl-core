@@ -61,13 +61,13 @@ public class ConstraintsModifierConfigTest {
 
     @Test
     public void testLoadConfig() throws Exception {
-        Set<Country> countries = new HashSet(Arrays.asList(Country.FR));
+        Set<Country> countries = EnumSet.of(Country.FR);
         checkConfig(countries);
     }
 
     @Test
     public void testLoadConfigMultipleCountries() throws Exception {
-        Set<Country> countries = new HashSet(Arrays.asList(Country.values()));
+        Set<Country> countries = EnumSet.allOf(Country.class);
         checkConfig(countries);
     }
 
