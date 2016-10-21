@@ -314,6 +314,13 @@ public interface Network extends Container<Network> {
     StaticVarCompensator getStaticVarCompensator(String id);
 
     /**
+     * Get a switch from its id.
+     * @param id id of the switch
+     * @return the switch
+     */
+    Switch getSwitch(String id);
+
+    /**
      * Get a equipment.
      *
      * @param id the id of the equipment
