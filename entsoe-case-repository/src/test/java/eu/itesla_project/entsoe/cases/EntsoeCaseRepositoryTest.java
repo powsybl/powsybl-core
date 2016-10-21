@@ -4,10 +4,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.cases;
+package eu.itesla_project.entsoe.cases;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Sets;
+import eu.itesla_project.cases.CaseType;
 import eu.itesla_project.iidm.datasource.DataSource;
 import eu.itesla_project.iidm.import_.Importer;
 import eu.itesla_project.iidm.network.Country;
@@ -19,6 +20,7 @@ import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
@@ -34,9 +36,6 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -161,36 +160,36 @@ public class EntsoeCaseRepositoryTest {
 
     @Test
     public void testLoad() throws Exception {
-        assertTrue(caseRepository.load(DateTime.parse("2013-01-13T00:15:00+01:00"), CaseType.SN, Country.FR).size() == 1);
-        assertTrue(caseRepository.load(DateTime.parse("2013-01-13T00:30:00+01:00"), CaseType.SN, Country.FR).isEmpty());
-        assertTrue(caseRepository.load(DateTime.parse("2013-01-13T00:15:00+01:00"), CaseType.FO, Country.FR).isEmpty());
-        assertTrue(caseRepository.load(DateTime.parse("2013-01-13T00:15:00+01:00"), CaseType.SN, Country.BE).isEmpty());
+        Assert.assertTrue(caseRepository.load(DateTime.parse("2013-01-13T00:15:00+01:00"), CaseType.SN, Country.FR).size() == 1);
+        Assert.assertTrue(caseRepository.load(DateTime.parse("2013-01-13T00:30:00+01:00"), CaseType.SN, Country.FR).isEmpty());
+        Assert.assertTrue(caseRepository.load(DateTime.parse("2013-01-13T00:15:00+01:00"), CaseType.FO, Country.FR).isEmpty());
+        Assert.assertTrue(caseRepository.load(DateTime.parse("2013-01-13T00:15:00+01:00"), CaseType.SN, Country.BE).isEmpty());
 
         // check that cim network is loaded instead of uct network
-        assertTrue(caseRepository.load(DateTime.parse("2013-01-14T00:15:00+01:00"), CaseType.SN, Country.FR).equals(Collections.singletonList(cimNetwork)));
+        Assert.assertTrue(caseRepository.load(DateTime.parse("2013-01-14T00:15:00+01:00"), CaseType.SN, Country.FR).equals(Collections.singletonList(cimNetwork)));
 
         // check that if cim is vorbidden for france, uct is loaded
         caseRepository.getConfig().getForbiddenFormatsByGeographicalCode().put(EntsoeGeographicalCode.FR, "CIM1");
-        assertTrue(caseRepository.load(DateTime.parse("2013-01-14T00:15:00+01:00"), CaseType.SN, Country.FR).equals(Collections.singletonList(uctNetwork)));
+        Assert.assertTrue(caseRepository.load(DateTime.parse("2013-01-14T00:15:00+01:00"), CaseType.SN, Country.FR).equals(Collections.singletonList(uctNetwork)));
 
-        assertTrue(caseRepository.load(DateTime.parse("2013-01-15T00:15:00+01:00"), CaseType.SN, Country.DE).size() == 4);
+        Assert.assertTrue(caseRepository.load(DateTime.parse("2013-01-15T00:15:00+01:00"), CaseType.SN, Country.DE).size() == 4);
     }
 
     @Test
     public void testIsDataAvailable() throws Exception {
-        assertTrue(caseRepository.isDataAvailable(DateTime.parse("2013-01-13T00:15:00+01:00"), CaseType.SN, Country.FR));
-        assertFalse(caseRepository.isDataAvailable(DateTime.parse("2013-01-13T00:30:00+01:00"), CaseType.SN, Country.FR));
+        Assert.assertTrue(caseRepository.isDataAvailable(DateTime.parse("2013-01-13T00:15:00+01:00"), CaseType.SN, Country.FR));
+        Assert.assertFalse(caseRepository.isDataAvailable(DateTime.parse("2013-01-13T00:30:00+01:00"), CaseType.SN, Country.FR));
     }
 
     @Test
     public void testDataAvailable() throws Exception {
-        assertTrue(caseRepository.dataAvailable(CaseType.SN, EnumSet.of(Country.FR), Interval.parse("2013-01-13T00:00:00+01:00/2013-01-13T00:30:00+01:00"))
+        Assert.assertTrue(caseRepository.dataAvailable(CaseType.SN, EnumSet.of(Country.FR), Interval.parse("2013-01-13T00:00:00+01:00/2013-01-13T00:30:00+01:00"))
                 .equals(Sets.newHashSet(DateTime.parse("2013-01-13T00:15:00+01:00"))));
-        assertTrue(caseRepository.dataAvailable(CaseType.SN, EnumSet.of(Country.FR), Interval.parse("2013-01-13T00:00:00+01:00/2013-01-13T01:00:00+01:00"))
+        Assert.assertTrue(caseRepository.dataAvailable(CaseType.SN, EnumSet.of(Country.FR), Interval.parse("2013-01-13T00:00:00+01:00/2013-01-13T01:00:00+01:00"))
                 .equals(Sets.newHashSet(DateTime.parse("2013-01-13T00:15:00+01:00"), DateTime.parse("2013-01-13T00:45:00+01:00"))));
-        assertTrue(caseRepository.dataAvailable(CaseType.SN, EnumSet.of(Country.BE, Country.DE), Interval.parse("2013-01-13T00:00:00+01:00/2013-01-13T01:00:00+01:00"))
+        Assert.assertTrue(caseRepository.dataAvailable(CaseType.SN, EnumSet.of(Country.BE, Country.DE), Interval.parse("2013-01-13T00:00:00+01:00/2013-01-13T01:00:00+01:00"))
                 .isEmpty());
-        assertTrue(caseRepository.dataAvailable(CaseType.SN, EnumSet.of(Country.FR), Interval.parse("2013-01-14T00:00:00+01:00/2013-01-14T01:00:00+01:00"))
+        Assert.assertTrue(caseRepository.dataAvailable(CaseType.SN, EnumSet.of(Country.FR), Interval.parse("2013-01-14T00:00:00+01:00/2013-01-14T01:00:00+01:00"))
                 .equals(Sets.newHashSet(DateTime.parse("2013-01-14T00:15:00+01:00"), DateTime.parse("2013-01-14T00:30:00+01:00"))));
     }
 }

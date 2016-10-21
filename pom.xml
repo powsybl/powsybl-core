@@ -64,6 +64,7 @@
         <module>iidm-xml-import-export</module>
         <module>distribution</module>
         <module>case-repository</module>
+        <module>entsoe-case-repository</module>
         <module>network-merge</module>
         <module>simulation-api</module>
         <module>contingency-api</module>
