@@ -365,6 +365,11 @@ class NetworkImpl extends IdentifiableImpl<Network> implements Network, MultiSta
     }
 
     @Override
+    public Switch getSwitch(String id) {
+        return objectStore.get(id, SwitchImpl.class);
+    }
+
+    @Override
     public Identifiable<?> getIdentifiable(String id) {
         return objectStore.get(id, Identifiable.class);
     }
