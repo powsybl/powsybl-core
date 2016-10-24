@@ -1,3 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+    Copyright (c) 2016, RTE (http://www.rte-france.com)
+    This Source Code Form is subject to the terms of the Mozilla Public
+    License, v. 2.0. If a copy of the MPL was not distributed with this
+    file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+-->
 <assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.3"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.3 http://maven.apache.org/xsd/assembly-1.1.3.xsd">
@@ -44,6 +53,27 @@
             <includes>
                 <include>*.so</include>
             </includes>
+        </fileSet>
+
+        <!-- include further resources -->
+        <!-- copy actions.xsd from iidm-actions-contingencies-xml-client module to etc -->
+        <fileSet>
+            <directory>${project.basedir}/../iidm-actions-contingencies-xml-client/src/main/resources</directory>
+            <outputDirectory>etc</outputDirectory>
+            <includes>
+                <include>xsd/actions.xsd</include>
+            </includes>
+            <fileMode>0644</fileMode>
+        </fileSet>
+
+        <!-- copy iidm.xsd from iidm-xml-import-export to etc -->
+        <fileSet>
+            <directory>${project.basedir}/../iidm-xml-import-export/src/main/resources</directory>
+            <outputDirectory>etc</outputDirectory>
+            <includes>
+                <include>xsd/iidm.xsd</include>
+            </includes>
+            <fileMode>0644</fileMode>
         </fileSet>
     </fileSets>
 </assembly>

@@ -76,7 +76,7 @@ public class XmlFileContingenciesAndActionsDatabaseClient implements Contingenci
 		Unmarshaller jaxbMarshaller = jaxbContext.createUnmarshaller();
 		
 		SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI); 
-		URL res=XmlFileContingenciesAndActionsDatabaseClient.class.getClassLoader().getResource("actions.xsd");
+		URL res=XmlFileContingenciesAndActionsDatabaseClient.class.getClassLoader().getResource("xsd/actions.xsd");
 		Schema schema = sf.newSchema(res); 
 		jaxbMarshaller.setSchema(schema);
 		

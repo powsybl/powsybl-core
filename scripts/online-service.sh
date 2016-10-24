@@ -16,7 +16,7 @@ pidFile=$HOME/.itesla_online_pid
 TIME=`date +%Y-%m-%d_%H_%M_%S`
 
 usage() {
-   echo "`basename $0` {start|stop|restart|status|clean-cache|clean-tmp}"
+   echo "`basename $0` {start|stop|restart|status|clean-cache}"
 }
 
 readPid() {
@@ -36,15 +36,15 @@ start() {
     if [ -n "$pid" ]; then
         echo "online service already started ($pid)"
     else
-        echo "starting online service"
         logsDir=$installDir/logs
         mkdir $logsDir >> /dev/null 2>&1
         mv $logsDir/online.log $logsDir/online.log_${TIME} >> /dev/null 2>&1
+        echo "starting online service ( execution details and errors will be logged in file: "$logsDir"/online.log )"
         nohup mpirun -n $mpi_tasks -map-by node -host $mpi_hosts $mpirun_options $installBinDir/online-mpi-task.sh "ui" > $logsDir/online.log 2>&1&
         pid=$!
         [ $? -eq 0 ] && echo $pid > $pidFile
-        sleep 3
-        head -4 $logsDir/online.log
+        sleep 5
+        grep -q " ERROR " $logsDir/online.log  && echo "errors starting the online service. Please check the log file for details:  "$logsDir"/online.log" || head -5 $logsDir/online.log
     fi
 }
 
@@ -83,20 +83,6 @@ clean_cache() {
     fi
 }
 
-clean_tmp() {
-    readPid
-    if [ -n "$pid" ]; then
-        echo "cannot clean tmp directory: online service is running ($pid)"
-    else
-        echo "cleaning tmp directory...."
-        rm -r $installDir/tmp >> /dev/null 2>&1
-        mkdir $installDir/tmp >> /dev/null 2>&1
-        touch $installDir/tmp/dontdeleteme >> /dev/null 2>&1
-        echo "tmp directory cleaned."
-    fi
-}
-
-
 
 case "$1" in
 "start")
@@ -114,9 +100,6 @@ case "$1" in
     ;;
 "clean-cache")
     clean_cache
-    ;;
-"clean-tmp")
-    clean_tmp
     ;;
 *)
     usage

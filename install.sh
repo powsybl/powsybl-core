@@ -160,7 +160,7 @@ if [ -d $installDir ] &&
    [ $overwriteInstallation != true ]
 then
     echo ""
-    echo "ERROR: installation cannot continue: the target directory '"$installDir"' already exists (to allow overwrite it, set the --overtriteInstallation parameter)."
+    echo "ERROR: installation cannot continue: the target directory '"$installDir"' already exists (to allow overwrite it, set the --overwriteInstallation parameter)."
     echo ""
     usage;
 fi
