@@ -33,7 +33,7 @@ public interface PhaseTapChanger extends TapChanger<PhaseTapChanger, PhaseTapCha
     PhaseTapChanger setRegulationMode(RegulationMode regulationMode);
 
     /**
-     * Get the the regulation value.
+     * Get the regulation value.
      *   - a threshold in A in case of current limiter regulation
      *   - a setpoint in MW in case of active power control regulation
      * <p>
