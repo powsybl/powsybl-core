@@ -20,7 +20,6 @@ import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
@@ -36,6 +35,8 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  *
@@ -177,12 +178,12 @@ public class EntsoeAndXmlCaseRepositoryTest {
         // check that, when cim and ucte is forbidden for france, xml is loaded
         caseRepository.getConfig().getForbiddenFormatsByGeographicalCode().put(EntsoeGeographicalCode.FR, "CIM1");
         caseRepository.getConfig().getForbiddenFormatsByGeographicalCode().put(EntsoeGeographicalCode.FR, "UCTE");
-        Assert.assertTrue(caseRepository.load(DateTime.parse("2013-01-14T00:15:00+01:00"), CaseType.SN, Country.FR).equals(Collections.singletonList(xmlNetwork)));
+        assertTrue(caseRepository.load(DateTime.parse("2013-01-14T00:15:00+01:00"), CaseType.SN, Country.FR).equals(Collections.singletonList(xmlNetwork)));
     }
 
     @Test
     public void testDataAvailable() throws Exception {
-        Assert.assertTrue(caseRepository.dataAvailable(CaseType.SN, EnumSet.of(Country.FR), Interval.parse("2016-01-01T00:00:00+01:00/2016-01-14T01:00:00+01:00"))
+        assertTrue(caseRepository.dataAvailable(CaseType.SN, EnumSet.of(Country.FR), Interval.parse("2016-01-01T00:00:00+01:00/2016-01-14T01:00:00+01:00"))
                 .equals(Sets.newHashSet(DateTime.parse("2016-01-01T00:15:00+01:00"), DateTime.parse("2016-01-01T00:45:00+01:00"))));
     }
 
@@ -192,7 +193,7 @@ public class EntsoeAndXmlCaseRepositoryTest {
         // file suffix .xiidm
         caseRepository.getConfig().getForbiddenFormatsByGeographicalCode().put(EntsoeGeographicalCode.FR, "CIM1");
         caseRepository.getConfig().getForbiddenFormatsByGeographicalCode().put(EntsoeGeographicalCode.FR, "UCTE");
-        Assert.assertTrue(caseRepository.load(DateTime.parse("2016-02-02T01:15:00+01:00"), CaseType.SN, Country.FR).equals(Collections.singletonList(xmlNetwork)));
+        assertTrue(caseRepository.load(DateTime.parse("2016-02-02T01:15:00+01:00"), CaseType.SN, Country.FR).equals(Collections.singletonList(xmlNetwork)));
     }
 
 }

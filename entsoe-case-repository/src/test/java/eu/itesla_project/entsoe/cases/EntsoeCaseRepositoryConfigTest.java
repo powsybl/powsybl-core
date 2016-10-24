@@ -14,13 +14,15 @@ import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.nio.file.ShrinkWrapFileSystems;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.nio.file.FileSystem;
 import java.nio.file.Path;
 import java.util.Arrays;
+
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -53,11 +55,11 @@ public class EntsoeCaseRepositoryConfigTest {
         moduleConfig.setStringListProperty("forbiddenFormats_FR", Arrays.asList("CIM1"));
         moduleConfig.setStringListProperty("forbiddenFormats_BE", Arrays.asList("CIM1"));
         config = EntsoeCaseRepositoryConfig.load(platformConfig, Arrays.asList("CIM1", "UCTE"));
-        Assert.assertTrue(config.getRootDir().toString().equals("/config"));
-        Assert.assertTrue(config.getForbiddenFormatsByGeographicalCode().size() == 2);
-        Assert.assertTrue(config.getForbiddenFormatsByGeographicalCode().get(EntsoeGeographicalCode.FR).equals(Sets.newHashSet("CIM1")));
-        Assert.assertTrue(config.getForbiddenFormatsByGeographicalCode().get(EntsoeGeographicalCode.BE).equals(Sets.newHashSet("CIM1")));
-        Assert.assertTrue(config.getForbiddenFormatsByGeographicalCode().get(EntsoeGeographicalCode.D2).isEmpty());
+        assertTrue(config.getRootDir().toString().equals("/config"));
+        assertTrue(config.getForbiddenFormatsByGeographicalCode().size() == 2);
+        assertTrue(config.getForbiddenFormatsByGeographicalCode().get(EntsoeGeographicalCode.FR).equals(Sets.newHashSet("CIM1")));
+        assertTrue(config.getForbiddenFormatsByGeographicalCode().get(EntsoeGeographicalCode.BE).equals(Sets.newHashSet("CIM1")));
+        assertTrue(config.getForbiddenFormatsByGeographicalCode().get(EntsoeGeographicalCode.D2).isEmpty());
     }
 
     @Test
@@ -65,7 +67,7 @@ public class EntsoeCaseRepositoryConfigTest {
         moduleConfig.setStringListProperty("forbiddenFormats_FR", Arrays.asList("UCT"));
         try {
             config = EntsoeCaseRepositoryConfig.load(platformConfig, Arrays.asList("UCTE"));
-            Assert.fail();
+            fail();
         } catch (Exception e) {
         }
     }
