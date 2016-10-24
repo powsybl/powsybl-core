@@ -540,17 +540,18 @@ class CIM1Converter implements CIM1Constants {
             cim1.model.RegulatingControl rc = ptc.getRegulatingControl();
             switch (rc.getMode()) {
                 case currentFlow:
-                    Terminal regulatingTerminal;
+                    Terminal regulationTerminal;
                     if (rc.getTerminal() == t1) {
-                        regulatingTerminal = transfo.getTerminal1();
+                        regulationTerminal = transfo.getTerminal1();
                     } else if (rc.getTerminal() == t2) {
-                        regulatingTerminal = transfo.getTerminal2();
+                        regulationTerminal = transfo.getTerminal2();
                     } else {
-                        regulatingTerminal = getTerminalMapping(rc.getTerminal().getTopologicalNode());
+                        regulationTerminal = getTerminalMapping(rc.getTerminal().getTopologicalNode());
                     }
                     ptca.setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
                             .setRegulationValue(rc.getTargetValue())
-                            .setTerminal(regulatingTerminal);
+                            .setRegulating(true)
+                            .setRegulationTerminal(regulationTerminal);
                     break;
 
                 case fixed:
@@ -607,19 +608,19 @@ class CIM1Converter implements CIM1Constants {
                         regulating = false;
                         targetV = Float.NaN;
                     }
-                    Terminal regulatingTerminal = null;
+                    Terminal regulationTerminal = null;
                     for (Map.Entry<cim1.model.Terminal, Terminal> e : terminals.entrySet()) {
                         if (rc.getTerminal() == e.getKey()) {
-                            regulatingTerminal = e.getValue();
+                            regulationTerminal = e.getValue();
                         }
                     }
-                    if (regulatingTerminal == null) {
-                        regulatingTerminal = getTerminalMapping(rc.getTerminal().getTopologicalNode());
+                    if (regulationTerminal == null) {
+                        regulationTerminal = getTerminalMapping(rc.getTerminal().getTopologicalNode());
                     }
                     rtca.setLoadTapChangingCapabilities(true)
                             .setRegulating(regulating)
                             .setTargetV(targetV)
-                            .setTerminal(regulatingTerminal);
+                            .setRegulationTerminal(regulationTerminal);
                     break;
 
                 case fixed:

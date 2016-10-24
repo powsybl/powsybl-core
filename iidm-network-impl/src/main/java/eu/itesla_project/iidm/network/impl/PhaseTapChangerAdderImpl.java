@@ -8,7 +8,6 @@ package eu.itesla_project.iidm.network.impl;
 
 import eu.itesla_project.iidm.network.PhaseTapChanger;
 import eu.itesla_project.iidm.network.PhaseTapChangerAdder;
-import eu.itesla_project.iidm.network.RatioTapChangerAdder;
 import eu.itesla_project.iidm.network.Terminal;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,11 +26,13 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
 
     private final List<PhaseTapChangerStepImpl> steps = new ArrayList<>();
 
-    private PhaseTapChanger.RegulationMode regulationMode = PhaseTapChanger.RegulationMode.OFF;
+    private PhaseTapChanger.RegulationMode regulationMode = PhaseTapChanger.RegulationMode.FIXED_TAP;
 
     private float regulationValue = Float.NaN;
 
-    private TerminalExt terminal;
+    private boolean regulating = false;
+
+    private TerminalExt regulationTerminal;
 
     class StepAdderImpl implements StepAdder {
 
@@ -143,8 +144,14 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
     }
 
     @Override
-    public PhaseTapChangerAdder setTerminal(Terminal terminal) {
-        this.terminal = (TerminalExt) terminal;
+    public PhaseTapChangerAdder setRegulating(boolean regulating) {
+        this.regulating = regulating;
+        return this;
+    }
+
+    @Override
+    public PhaseTapChangerAdder setRegulationTerminal(Terminal regulationTerminal) {
+        this.regulationTerminal = (TerminalExt) regulationTerminal;
         return this;
     }
 
@@ -167,9 +174,9 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
                     + tapPosition + " [" + lowTapPosition + ", "
                     + highTapPosition + "]");
         }
-        ValidationUtil.checkPhaseTapChangerRegulation(transformer, regulationMode, regulationValue, terminal, getNetwork());
+        ValidationUtil.checkPhaseTapChangerRegulation(transformer, regulationMode, regulationValue, regulating, regulationTerminal, getNetwork());
         PhaseTapChangerImpl tapChanger
-                = new PhaseTapChangerImpl(transformer, lowTapPosition, steps, terminal, tapPosition, regulationMode, regulationValue);
+                = new PhaseTapChangerImpl(transformer, lowTapPosition, steps, regulationTerminal, tapPosition, regulating, regulationMode, regulationValue);
         transformer.setPhaseTapChanger(tapChanger);
         return tapChanger;
     }

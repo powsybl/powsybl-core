@@ -9,8 +9,6 @@ package eu.itesla_project.iidm.network.impl;
 import eu.itesla_project.iidm.network.RatioTapChanger;
 import eu.itesla_project.iidm.network.Terminal;
 import gnu.trove.list.array.TFloatArrayList;
-
-import java.util.BitSet;
 import java.util.List;
 
 /**
@@ -25,20 +23,16 @@ class RatioTapChangerImpl extends TapChangerImpl<RatioTapChangerParent, RatioTap
 
     private final TFloatArrayList targetV;
 
-    protected final BitSet regulating;
-
     RatioTapChangerImpl(RatioTapChangerParent parent, int lowTapPosition,
-                        List<RatioTapChangerStepImpl> steps, TerminalExt terminal, boolean loadTapChangingCapabilities,
+                        List<RatioTapChangerStepImpl> steps, TerminalExt regulationTerminal, boolean loadTapChangingCapabilities,
                         int tapPosition, boolean regulating, float targetV) {
-        super(parent.getNetwork().getRef(), parent, lowTapPosition, steps, terminal, tapPosition);
+        super(parent.getNetwork().getRef(), parent, lowTapPosition, steps, regulationTerminal, tapPosition, regulating);
         this.loadTapChangingCapabilities = loadTapChangingCapabilities;
         int stateArraySize = network.get().getStateManager().getStateArraySize();
         this.targetV = new TFloatArrayList(stateArraySize);
         for (int i = 0; i < stateArraySize; i++) {
             this.targetV.add(targetV);
         }
-        this.regulating = new BitSet(stateArraySize);
-        this.regulating.set(0, stateArraySize, regulating);
     }
 
     @Override
@@ -46,27 +40,10 @@ class RatioTapChangerImpl extends TapChangerImpl<RatioTapChangerParent, RatioTap
         return parent.getNetwork();
     }
 
-    public boolean isRegulating() {
-        return regulating.get(network.get().getStateIndex());
-    }
-
     @Override
     public RatioTapChangerImpl setRegulating(boolean regulating) {
-        if (!loadTapChangingCapabilities) {
-            throw new ValidationException(parent,
-                    "cannot change the regulating status of a ratio tap "
-                    + "changer without any load tap changing capabilities");
-        }
-        if (Float.isNaN(getTargetV())) {
-            throw new ValidationException(parent,
-                    "cannot change the regulating status if the target voltage is not set");
-        }
-        if (regulating && terminal == null) {
-            throw new ValidationException(parent,
-                    "cannot change the regulating status if the regulation terminal is not set");
-        }
-        this.regulating.set(network.get().getStateIndex(), regulating);
-        return this;
+        ValidationUtil.checkRatioTapChangerRegulation(parent, loadTapChangingCapabilities, regulating, regulationTerminal, getTargetV(), getNetwork());
+        return super.setRegulating(regulating);
     }
 
     @Override
@@ -81,26 +58,15 @@ class RatioTapChangerImpl extends TapChangerImpl<RatioTapChangerParent, RatioTap
 
     @Override
     public RatioTapChangerImpl setTargetV(float targetV) {
-        if (!loadTapChangingCapabilities) {
-            throw new ValidationException(parent,
-                    "cannot change the target voltage of a ration tap "
-                    + "changer without any load tap changing capabilities");
-        }
-        if (Float.isNaN(targetV)) {
-            throw new ValidationException(parent, "invalid target voltage value (NaN)");
-        }
+        ValidationUtil.checkRatioTapChangerRegulation(parent, loadTapChangingCapabilities, isRegulating(), regulationTerminal, targetV, getNetwork());
         this.targetV.set(network.get().getStateIndex(), targetV);
         return this;
     }
 
     @Override
-    public void setTerminal(Terminal t) {
-        if (!loadTapChangingCapabilities) {
-            throw new ValidationException(parent,
-                    "cannot change the regulation terminal of a ration tap "
-                    + "changer without any load tap changing capabilities");
-        }
-        super.setTerminal(t);
+    public RatioTapChangerImpl setRegulationTerminal(Terminal regulationTerminal) {
+        ValidationUtil.checkRatioTapChangerRegulation(parent, loadTapChangingCapabilities, isRegulating(), regulationTerminal, getTargetV(), getNetwork());
+        return super.setRegulationTerminal(regulationTerminal);
     }
 
     @Override
@@ -114,7 +80,6 @@ class RatioTapChangerImpl extends TapChangerImpl<RatioTapChangerParent, RatioTap
         targetV.ensureCapacity(targetV.size() + number);
         for (int i = 0; i < number; i++) {
             targetV.add(targetV.get(sourceIndex));
-            regulating.set(initStateArraySize + i, regulating.get(sourceIndex));
         }
     }
 
@@ -135,7 +100,6 @@ class RatioTapChangerImpl extends TapChangerImpl<RatioTapChangerParent, RatioTap
         super.allocateStateArrayElement(indexes, sourceIndex);
         for (int index : indexes) {
             targetV.set(index, targetV.get(sourceIndex));
-            regulating.set(index, regulating.get(sourceIndex));
         }
     }
 

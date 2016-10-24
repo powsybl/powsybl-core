@@ -64,14 +64,30 @@ public interface TapChanger<TC extends TapChanger<TC, TCS>, TCS extends TapChang
     TCS getCurrentStep();
 
     /**
+     * Get the regulating status.
+     * <p>
+     * Depends on the working state.
+     * @see StateManager
+     */
+    boolean isRegulating();
+
+    /**
+     * Set the regulating status.
+     * <p>
+     * Depends on the working state.
+     * @see StateManager
+     */
+    TC setRegulating(boolean regulating);
+
+    /**
      * Get the terminal used for regulation.
      */
-    Terminal getTerminal();
+    Terminal getRegulationTerminal();
 
     /**
      * Set the terminal used for regulation.
      */
-    void setTerminal(Terminal t);
+    TC setRegulationTerminal(Terminal regulationTerminal);
 
     /**
      * Remove the tap changer.

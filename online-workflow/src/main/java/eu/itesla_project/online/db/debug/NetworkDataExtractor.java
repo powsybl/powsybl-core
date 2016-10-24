@@ -197,7 +197,8 @@ public class NetworkDataExtractor {
 
 	private static boolean isRegulating(TwoWindingsTransformer tfo) {
 		if ( tfo.getPhaseTapChanger() != null )
-			return tfo.getPhaseTapChanger().getRegulationMode() != PhaseTapChanger.RegulationMode.OFF;
+			return tfo.getPhaseTapChanger().getRegulationMode() != PhaseTapChanger.RegulationMode.FIXED_TAP
+					&& tfo.getPhaseTapChanger().isRegulating();
 		if ( tfo.getRatioTapChanger() != null )
 			return tfo.getRatioTapChanger().isRegulating();
 		return false;

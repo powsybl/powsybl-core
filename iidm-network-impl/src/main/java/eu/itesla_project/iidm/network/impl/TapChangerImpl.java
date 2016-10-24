@@ -26,22 +26,26 @@ abstract class TapChangerImpl<H extends TapChangerParent, C extends TapChangerIm
 
     protected final List<S> steps;
 
-    protected final TerminalExt terminal;
+    protected TerminalExt regulationTerminal;
 
     // attributes depending on the state
 
     protected final TIntArrayList tapPosition;
 
+    protected final BitSet regulating;
+
     protected TapChangerImpl(Ref<? extends MultiStateObject> network, H parent,
-                             int lowTapPosition, List<S> steps, TerminalExt terminal,
-                             int tapPosition) {
+                             int lowTapPosition, List<S> steps, TerminalExt regulationTerminal,
+                             int tapPosition, boolean regulating) {
         this.network = network;
         this.parent = parent;
         this.lowTapPosition = lowTapPosition;
         this.steps = steps;
-        this.terminal = terminal;
+        this.regulationTerminal = regulationTerminal;
         int stateArraySize = network.get().getStateManager().getStateArraySize();
         this.tapPosition = new TIntArrayList(stateArraySize);
+        this.regulating = new BitSet(stateArraySize);
+        this.regulating.set(0, stateArraySize, regulating);
         for (int i = 0; i < stateArraySize; i++) {
             this.tapPosition.add(tapPosition);
         }
@@ -92,23 +96,35 @@ abstract class TapChangerImpl<H extends TapChangerParent, C extends TapChangerIm
         return getStep(getTapPosition());
     }
 
-    public TerminalExt getTerminal() {
-        return terminal;
+    public boolean isRegulating() {
+        return regulating.get(network.get().getStateIndex());
     }
 
-    public void setTerminal(Terminal t) {
-        if (terminal == null) {
+    public C setRegulating(boolean regulating) {
+        this.regulating.set(network.get().getStateIndex(), regulating);
+        return (C) this;
+    }
+
+    public TerminalExt getRegulationTerminal() {
+        return regulationTerminal;
+    }
+
+    public C setRegulationTerminal(Terminal regulationTerminal) {
+        if (regulationTerminal == null) {
             throw new ValidationException(parent, "regulation terminal is null");
         }
-        if (terminal.getVoltageLevel().getNetwork() != getNetwork()) {
+        if (((TerminalExt) regulationTerminal).getVoltageLevel().getNetwork() != getNetwork()) {
             throw new ValidationException(parent, "regulation terminal is not part of the network");
         }
+        this.regulationTerminal = (TerminalExt) regulationTerminal;
+        return (C) this;
     }
 
     @Override
     public void extendStateArraySize(int initStateArraySize, int number, int sourceIndex) {
         tapPosition.ensureCapacity(tapPosition.size() + number);
         for (int i = 0; i < number; i++) {
+            regulating.set(initStateArraySize + i, regulating.get(sourceIndex));
             tapPosition.add(tapPosition.get(sourceIndex));
         }
     }
@@ -126,6 +142,7 @@ abstract class TapChangerImpl<H extends TapChangerParent, C extends TapChangerIm
     @Override
     public void allocateStateArrayElement(int[] indexes, final int sourceIndex) {
         for (int index : indexes) {
+            regulating.set(index, regulating.get(sourceIndex));
             tapPosition.set(index, tapPosition.get(sourceIndex));
         }
     }

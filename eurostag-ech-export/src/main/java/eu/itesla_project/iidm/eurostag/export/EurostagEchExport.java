@@ -257,7 +257,7 @@ public class EurostagEchExport {
             PhaseTapChanger ptc = twt.getPhaseTapChanger();
             if (rtc != null && ptc == null) {
                 if (rtc.isRegulating()) {
-                    ConnectionBus regulatingBus = ConnectionBus.fromTerminal(rtc.getTerminal(), config, null);
+                    ConnectionBus regulatingBus = ConnectionBus.fromTerminal(rtc.getRegulationTerminal(), config, null);
                     if (regulatingBus.getId() != null) {
                         regulatingMode = EsgDetailedTwoWindingTransformer.RegulatingMode.VOLTAGE;
                         zbusr = new Esg8charName(dictionary.getEsgId(regulatingBus.getId()));
@@ -272,8 +272,8 @@ public class EurostagEchExport {
                 }
 
             } else if (ptc != null && rtc == null) {
-                if (ptc.getRegulationMode() == PhaseTapChanger.RegulationMode.CURRENT_LIMITER) {
-                    String regulbus = EchUtil.getBus(ptc.getTerminal(), config).getId();
+                if (ptc.getRegulationMode() == PhaseTapChanger.RegulationMode.CURRENT_LIMITER && ptc.isRegulating()) {
+                    String regulbus = EchUtil.getBus(ptc.getRegulationTerminal(), config).getId();
                     if (regulbus.equals(bus1.getId())) {
                         regulatingMode = EsgDetailedTwoWindingTransformer.RegulatingMode.ACTIVE_FLUX_SIDE_1;
                     }

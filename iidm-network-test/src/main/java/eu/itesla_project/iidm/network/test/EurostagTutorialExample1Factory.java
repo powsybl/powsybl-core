@@ -162,7 +162,7 @@ public class EurostagTutorialExample1Factory {
                 .setLoadTapChangingCapabilities(true)
                 .setRegulating(true)
                 .setTargetV(158)
-                .setTerminal(nhv2_nload.getTerminal2())
+                .setRegulationTerminal(nhv2_nload.getTerminal2())
             .add();
         Load load = vlload.newLoad()
                 .setId("LOAD")

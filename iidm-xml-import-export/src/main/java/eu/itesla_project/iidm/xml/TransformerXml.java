@@ -35,11 +35,15 @@ abstract class TransformerXml<T extends Connectable, A extends IdentifiableAdder
     protected static void writeRatioTapChanger(String name, RatioTapChanger rtc, XmlWriterContext context) throws XMLStreamException {
         context.getWriter().writeStartElement(IIDM_URI, name);
         writeTapChanger(rtc, context.getWriter());
-        context.getWriter().writeAttribute("regulating", Boolean.toString(rtc.isRegulating()));
         context.getWriter().writeAttribute("loadTapChangingCapabilities", Boolean.toString(rtc.hasLoadTapChangingCapabilities()));
-        XmlUtil.writeFloat("targetV", rtc.getTargetV(), context.getWriter());
-        if (rtc.getTerminal() != null) {
-            writeTerminalRef(rtc.getTerminal(), context, "terminalRef");
+        if (rtc.hasLoadTapChangingCapabilities() || rtc.isRegulating()) {
+            context.getWriter().writeAttribute("regulating", Boolean.toString(rtc.isRegulating()));
+        }
+        if (rtc.hasLoadTapChangingCapabilities() || !Float.isNaN(rtc.getTargetV())) {
+            XmlUtil.writeFloat("targetV", rtc.getTargetV(), context.getWriter());
+        }
+        if (rtc.hasLoadTapChangingCapabilities() || rtc.getRegulationTerminal() != null) {
+            writeTerminalRef(rtc.getRegulationTerminal(), context, "terminalRef");
         }
         for (int p = rtc.getLowTapPosition(); p <= rtc.getHighTapPosition(); p++) {
             RatioTapChangerStep rtcs = rtc.getStep(p);
@@ -52,7 +56,7 @@ abstract class TransformerXml<T extends Connectable, A extends IdentifiableAdder
     protected static void readRatioTapChanger(TwoWindingsTransformer twt, XMLStreamReader reader, List<Runnable> endTasks) throws XMLStreamException {
         int lowTapPosition = XmlUtil.readIntAttribute(reader, "lowTapPosition");
         int tapPosition = XmlUtil.readIntAttribute(reader, "tapPosition");
-        boolean regulating = XmlUtil.readBoolAttribute(reader, "regulating");
+        boolean regulating = XmlUtil.readOptionalBoolAttribute(reader, "regulating", false);
         boolean loadTapChangingCapabilities = XmlUtil.readBoolAttribute(reader, "loadTapChangingCapabilities");
         float targetV = XmlUtil.readOptionalFloatAttribute(reader, "targetV");
         RatioTapChangerAdder adder = twt.newRatioTapChanger()
@@ -70,7 +74,7 @@ abstract class TransformerXml<T extends Connectable, A extends IdentifiableAdder
                     String id = reader.getAttributeValue(null, "id");
                     String side = reader.getAttributeValue(null, "side");
                     endTasks.add(() ->  {
-                        adder.setTerminal(readTerminalRef(twt.getTerminal1().getVoltageLevel().getSubstation().getNetwork(), id, side));
+                        adder.setRegulationTerminal(readTerminalRef(twt.getTerminal1().getVoltageLevel().getSubstation().getNetwork(), id, side));
                         adder.add();
                     });
                     hasTerminalRef[0] = true;
@@ -104,9 +108,14 @@ abstract class TransformerXml<T extends Connectable, A extends IdentifiableAdder
         context.getWriter().writeStartElement(IIDM_URI, name);
         writeTapChanger(ptc, context.getWriter());
         context.getWriter().writeAttribute("regulationMode", ptc.getRegulationMode().name());
-        XmlUtil.writeFloat("regulationValue", ptc.getRegulationValue(), context.getWriter());
-        if (ptc.getTerminal() != null) {
-            writeTerminalRef(ptc.getTerminal(), context, "terminalRef");
+        if (ptc.getRegulationMode() != PhaseTapChanger.RegulationMode.FIXED_TAP || !Float.isNaN(ptc.getRegulationValue())) {
+            XmlUtil.writeFloat("regulationValue", ptc.getRegulationValue(), context.getWriter());
+        }
+        if (ptc.getRegulationMode() != PhaseTapChanger.RegulationMode.FIXED_TAP || ptc.isRegulating()) {
+            context.getWriter().writeAttribute("regulating", Boolean.toString(ptc.isRegulating()));
+        }
+        if (ptc.getRegulationMode() != PhaseTapChanger.RegulationMode.FIXED_TAP || ptc.getRegulationTerminal() != null) {
+            writeTerminalRef(ptc.getRegulationTerminal(), context, "terminalRef");
         }
         for (int p = ptc.getLowTapPosition(); p <= ptc.getHighTapPosition(); p++) {
             PhaseTapChangerStep ptcs = ptc.getStep(p);
@@ -122,11 +131,13 @@ abstract class TransformerXml<T extends Connectable, A extends IdentifiableAdder
         int tapPosition = XmlUtil.readIntAttribute(reader, "tapPosition");
         PhaseTapChanger.RegulationMode regulationMode = PhaseTapChanger.RegulationMode.valueOf(reader.getAttributeValue(null, "regulationMode"));
         float regulationValue = XmlUtil.readOptionalFloatAttribute(reader, "regulationValue");
+        boolean regulating = XmlUtil.readOptionalBoolAttribute(reader, "regulating", false);
         PhaseTapChangerAdder adder = twt.newPhaseTapChanger()
                 .setLowTapPosition(lowTapPosition)
                 .setTapPosition(tapPosition)
                 .setRegulationMode(regulationMode)
-                .setRegulationValue(regulationValue);
+                .setRegulationValue(regulationValue)
+                .setRegulating(regulating);
         boolean[] hasTerminalRef = new boolean[1];
         XmlUtil.readUntilEndElement("phaseTapChanger", reader, () -> {
             switch (reader.getLocalName()) {
@@ -134,7 +145,7 @@ abstract class TransformerXml<T extends Connectable, A extends IdentifiableAdder
                     String id = reader.getAttributeValue(null, "id");
                     String side = reader.getAttributeValue(null, "side");
                     endTasks.add(() ->  {
-                        adder.setTerminal(readTerminalRef(twt.getTerminal1().getVoltageLevel().getSubstation().getNetwork(), id, side));
+                        adder.setRegulationTerminal(readTerminalRef(twt.getTerminal1().getVoltageLevel().getSubstation().getNetwork(), id, side));
                         adder.add();
                     });
                     hasTerminalRef[0] = true;
