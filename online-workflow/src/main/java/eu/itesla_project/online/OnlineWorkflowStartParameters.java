@@ -10,25 +10,12 @@ import eu.itesla_project.commons.config.ModuleConfig;
 import eu.itesla_project.commons.config.PlatformConfig;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * @author Quinary <itesla@quinary.com>
  */
 public class OnlineWorkflowStartParameters implements Serializable {
-
-	/*
-     * example of online-start-parameters.properties file.
-	 *
-
-	# number of thread
-	threads=20
-	# JMX host and port
-	jmxHost=127.0.0.1
-	jmxPort=6667
-	#listenerFactoryClasses=eu.itesla_project.apogee_client.ApogeeOnlineApplicationListenerFactory
-	#onlineWorkflowFactoryClass=eu.itesla_project.quinary_utils.online.OnlineWorkFlowFactory
-
-	*/
 
     private static final long serialVersionUID = 1L;
     public static final int DEFAULT_THREADS = 1;
@@ -42,28 +29,21 @@ public class OnlineWorkflowStartParameters implements Serializable {
     public static OnlineWorkflowStartParameters loadDefault() {
         ModuleConfig config = PlatformConfig.defaultConfig().getModuleConfig("online-start-parameters");
         int threads = config.getIntProperty("threads", DEFAULT_THREADS);
-        if (threads <= 0) {
-            threads = DEFAULT_THREADS;
-        }
         String jmxHost = config.getStringProperty("jmxHost");
         int jmxPort = config.getIntProperty("jmxPort");
-
         Class<? extends OnlineWorkflowFactory> onlineWorkflowFactory = config.getClassProperty("onlineWorkflowFactoryClass", OnlineWorkflowFactory.class, OnlineWorkflowFactoryImpl.class);
-        String listenerFactoryClassName = config.getStringProperty("listenerFactoryClasses", null);
-        if (listenerFactoryClassName != null) {
-            Class<? extends OnlineApplicationListenerFactory> listenerFactoryClass = config.getClassProperty("listenerFactoryClasses", OnlineApplicationListenerFactory.class);
-            return new OnlineWorkflowStartParameters(threads, jmxHost, jmxPort, listenerFactoryClass, onlineWorkflowFactory);
-        }
+        Class<? extends OnlineApplicationListenerFactory> listenerFactoryClass = config.getClassProperty("listenerFactoryClasses", OnlineApplicationListenerFactory.class, null);
 
-        return new OnlineWorkflowStartParameters(threads, jmxHost, jmxPort, null, onlineWorkflowFactory);
+        return new OnlineWorkflowStartParameters(threads, jmxHost, jmxPort, listenerFactoryClass, onlineWorkflowFactory);
     }
 
     public OnlineWorkflowStartParameters(int threads, String jmxHost, int jmxPort, Class<? extends OnlineApplicationListenerFactory> listenerFactoryClass, Class<? extends OnlineWorkflowFactory> onlineWorkflowFactory) {
-        this.threads = threads;
-        this.jmxHost = jmxHost;
-        this.jmxPort = jmxPort;
-        this.listenerFactoryClasses = listenerFactoryClass;
+        Objects.requireNonNull(onlineWorkflowFactory);
         this.onlineWorkflowFactory = onlineWorkflowFactory;
+        this.listenerFactoryClasses = listenerFactoryClass;
+        setJmxHost(jmxHost);
+        setJmxPort(jmxPort);
+        setThreads(threads);
     }
 
     public int getThreads() {
@@ -86,14 +66,21 @@ public class OnlineWorkflowStartParameters implements Serializable {
     }
 
     public void setThreads(int threads) {
+        if (threads <= 0) {
+            throw new IllegalArgumentException("threads must be greater than zero: " + threads);
+        }
         this.threads = threads;
     }
 
     public void setJmxHost(String jmxHost) {
+        Objects.requireNonNull(jmxHost);
         this.jmxHost = jmxHost;
     }
 
     public void setJmxPort(int jmxPort) {
+        if (jmxPort <= 0) {
+            throw new IllegalArgumentException("jmxPort must be greater than zero: " + jmxPort);
+        }
         this.jmxPort = jmxPort;
     }
 

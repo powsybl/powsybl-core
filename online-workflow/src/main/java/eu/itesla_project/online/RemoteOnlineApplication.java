@@ -7,6 +7,8 @@
 package eu.itesla_project.online;
 
 import eu.itesla_project.modules.online.OnlineWorkflowParameters;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.management.*;
 import javax.management.remote.JMXConnector;
@@ -22,6 +24,8 @@ import java.util.concurrent.*;
  * @author Quinary <itesla@quinary.com>
  */
 public class RemoteOnlineApplication implements OnlineApplication, NotificationListener {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(RemoteOnlineApplication.class);
 
     private final List<OnlineApplicationListener> listeners = new CopyOnWriteArrayList<>();
 
@@ -73,8 +77,7 @@ public class RemoteOnlineApplication implements OnlineApplication, NotificationL
                 l.onConnection();
             }
         } catch (Exception ex) {
-            //ex.printStackTrace();
-            System.out.println("Exception connecting JMX " + ex);
+            LOGGER.error("Exception connecting JMX to "+ serviceURL + ": " + ex.getMessage(), ex);
         }
     }
 
@@ -172,7 +175,7 @@ public class RemoteOnlineApplication implements OnlineApplication, NotificationL
         try {
             cores = application.getAvailableCores();
         } catch (JMRuntimeException e) {
-            e.printStackTrace();
+            LOGGER.error(e.getMessage(),e);
             notifyDisconnection();
         }
         return cores;
@@ -183,25 +186,21 @@ public class RemoteOnlineApplication implements OnlineApplication, NotificationL
     public void startWorkflow(OnlineWorkflowStartParameters start, OnlineWorkflowParameters params) {
         try {
             application.startWorkflow(start, params);
-
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error(e.getMessage(),e);
             notifyDisconnection();
         }
     }
 
     @Override
     public void stopWorkflow() {
-
         try {
             application.stopWorkflow();
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error(e.getMessage(),e);
             notifyDisconnection();
         }
-
     }
-
 
     @Override
     public void notifyListeners() {
