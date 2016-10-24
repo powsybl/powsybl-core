@@ -1,13 +1,17 @@
 # Maven projects
 /ampl-export/target/
+/case-repository/target/
 /cim1-import/target/
 /cim1-model/target/
 /commons/target/
 /computation-local/target/
 /computation-mpi/target/
 /computation/target/
+/contingency-api/target/
 /distribution/target
 /dymola-integration/target/
+/entsoe-case-repository/target
+/entsoe-util/target/
 /EU2Mod_MB/target/
 /eurostag-ech-export/target/
 /eurostag-integration/target/
@@ -38,6 +42,7 @@
 /modelica-events-adder/target/
 /modelica-export/target
 /modules/target/
+/network-merge/target/
 /offline-mpi/target/
 /offline-server/target/
 /offline-workflow/target/
@@ -46,16 +51,12 @@
 /online-workflow/target/
 /pclfsim-integration/target/
 /sampling-integration/target/
+/security-analysis/target/
+/simulation-api/target/
 /target/
 /ucte-import/target/
 /ucte-network/target/
-/entsoe-util/target/
 /wca-integration/target/
-/case-repository/target/
-/network-merge/target/
-/contingency-api/target/
-/security-analysis/target/
-/simulation-api/target/
 
 # CMake projects
 /build/
