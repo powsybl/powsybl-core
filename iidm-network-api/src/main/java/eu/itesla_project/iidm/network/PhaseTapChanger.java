@@ -13,20 +13,41 @@ package eu.itesla_project.iidm.network;
  */
 public interface PhaseTapChanger extends TapChanger<PhaseTapChanger, PhaseTapChangerStep> {
 
-    /**
-     * Get the threshold current in A.
-     * <p>
-     * Depends on the working state.
-     * @see StateManager
-     */
-    float getThresholdI();
+    enum RegulationMode {
+        CURRENT_LIMITER,
+        ACTIVE_POWER_CONTROL,
+        FIXED_TAP
+    }
 
     /**
-     * Set the threshold current in A.
+     * Get the regulation mode.
+     * @return the regulation mode
+     */
+    RegulationMode getRegulationMode();
+
+    /**
+     * Set the regulation mode
+     * @param regulationMode the regulation mode
+     * @return itself for method chaining
+     */
+    PhaseTapChanger setRegulationMode(RegulationMode regulationMode);
+
+    /**
+     * Get the regulation value.
+     *   - a threshold in A in case of current limiter regulation
+     *   - a setpoint in MW in case of active power control regulation
      * <p>
      * Depends on the working state.
      * @see StateManager
      */
-    PhaseTapChanger setThresholdI(float thresholdI);
+    float getRegulationValue();
+
+    /**
+     * Set the regulation value.
+     * <p>
+     * Depends on the working state.
+     * @see StateManager
+     */
+    PhaseTapChanger setRegulationValue(float regulationValue);
 
 }

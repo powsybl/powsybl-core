@@ -26,13 +26,13 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
 
     private final List<RatioTapChangerStepImpl> steps = new ArrayList<>();
 
-    private Boolean loadTapChangingCapabilities;
+    private boolean loadTapChangingCapabilities = false;
 
-    private Boolean regulating;
+    private boolean regulating = false;
 
     private float targetV = Float.NaN;
 
-    private TerminalExt terminal;
+    private TerminalExt regulationTerminal;
 
     class StepAdderImpl implements StepAdder {
 
@@ -139,8 +139,8 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
     }
 
     @Override
-    public RatioTapChangerAdder setTerminal(Terminal terminal) {
-        this.terminal = (TerminalExt) terminal;
+    public RatioTapChangerAdder setRegulationTerminal(Terminal regulationTerminal) {
+        this.regulationTerminal = (TerminalExt) regulationTerminal;
         return this;
     }
 
@@ -163,34 +163,10 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
                     + tapPosition + " [" + lowTapPosition + ", "
                     + highTapPosition + "]");
         }
-        if (loadTapChangingCapabilities == null) {
-            throw new ValidationException(parent, "load tap changing capabilities is not set");
-        }
-        if (loadTapChangingCapabilities) {
-            if (regulating == null) {
-                throw new ValidationException(parent,
-                        "a regulating status has to be set for a ratio tap changer with load tap changing capabilities");
-            }
-            if (regulating) {
-                if (Float.isNaN(targetV)) {
-                    throw new ValidationException(parent,
-                            "a target voltage has to be set for a regulating ratio tap changer");
-                }
-                if (targetV <= 0) {
-                    throw new ValidationException(parent, "bad target voltage " + targetV);
-                }
-                if (terminal == null) {
-                    throw new ValidationException(parent,
-                            "a regulation terminal has to be set for a regulating ratio tap changer");
-                }
-            }
-        }
-        if (terminal != null && terminal.getVoltageLevel().getNetwork() != getNetwork()) {
-            throw new ValidationException(parent, "regulation terminal is not part of the network");
-        }
+        ValidationUtil.checkRatioTapChangerRegulation(parent, loadTapChangingCapabilities, regulating, regulationTerminal, targetV, getNetwork());
         RatioTapChangerImpl tapChanger
-                = new RatioTapChangerImpl(parent, lowTapPosition, steps, terminal, loadTapChangingCapabilities,
-                tapPosition, regulating != null ? regulating : false, targetV);
+                = new RatioTapChangerImpl(parent, lowTapPosition, steps, regulationTerminal, loadTapChangingCapabilities,
+                                          tapPosition, regulating, targetV);
         parent.setRatioTapChanger(tapChanger);
         return tapChanger;
     }

@@ -1443,6 +1443,7 @@ public class DdbDtaImpExp implements DynamicDatabaseClient {
 						) {
 					dumpDataTransformerAutomaton(t, eurostagSim, "A14_HT", dtaOutStream, iidm2eurostagId);
 				} else if(t.getPhaseTapChanger() != null 
+						&& t.getPhaseTapChanger().getRegulationMode() != PhaseTapChanger.RegulationMode.FIXED_TAP
 						&& t.getPhaseTapChanger().isRegulating()) { // TD
 					//TODO
 					//dumpDataTransformerAutomaton(t, eurostagSim, "A14_TD", dtaOutStream, iidm2eurostagId);

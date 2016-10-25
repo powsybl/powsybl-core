@@ -24,9 +24,9 @@ class RatioTapChangerImpl extends TapChangerImpl<RatioTapChangerParent, RatioTap
     private final TFloatArrayList targetV;
 
     RatioTapChangerImpl(RatioTapChangerParent parent, int lowTapPosition,
-                        List<RatioTapChangerStepImpl> steps, TerminalExt terminal, boolean loadTapChangingCapabilities,
+                        List<RatioTapChangerStepImpl> steps, TerminalExt regulationTerminal, boolean loadTapChangingCapabilities,
                         int tapPosition, boolean regulating, float targetV) {
-        super(parent.getNetwork().getRef(), parent, lowTapPosition, steps, terminal, tapPosition, regulating);
+        super(parent.getNetwork().getRef(), parent, lowTapPosition, steps, regulationTerminal, tapPosition, regulating);
         this.loadTapChangingCapabilities = loadTapChangingCapabilities;
         int stateArraySize = network.get().getStateManager().getStateArraySize();
         this.targetV = new TFloatArrayList(stateArraySize);
@@ -42,15 +42,7 @@ class RatioTapChangerImpl extends TapChangerImpl<RatioTapChangerParent, RatioTap
 
     @Override
     public RatioTapChangerImpl setRegulating(boolean regulating) {
-        if (!loadTapChangingCapabilities) {
-            throw new ValidationException(parent,
-                    "cannot change the regulating status of a ratio tap "
-                    + "changer without any load tap changing capabilities");
-        }
-        if (Float.isNaN(getTargetV())) {
-            throw new ValidationException(parent,
-                    "cannot change the regulating status if the target voltage is not set");
-        }
+        ValidationUtil.checkRatioTapChangerRegulation(parent, loadTapChangingCapabilities, regulating, regulationTerminal, getTargetV(), getNetwork());
         return super.setRegulating(regulating);
     }
 
@@ -66,26 +58,15 @@ class RatioTapChangerImpl extends TapChangerImpl<RatioTapChangerParent, RatioTap
 
     @Override
     public RatioTapChangerImpl setTargetV(float targetV) {
-        if (!loadTapChangingCapabilities) {
-            throw new ValidationException(parent,
-                    "cannot change the target voltage of a ration tap "
-                    + "changer without any load tap changing capabilities");
-        }
-        if (Float.isNaN(targetV)) {
-            throw new ValidationException(parent, "invalid target voltage value (NaN)");
-        }
+        ValidationUtil.checkRatioTapChangerRegulation(parent, loadTapChangingCapabilities, isRegulating(), regulationTerminal, targetV, getNetwork());
         this.targetV.set(network.get().getStateIndex(), targetV);
         return this;
     }
 
     @Override
-    public void setTerminal(Terminal t) {
-        if (!loadTapChangingCapabilities) {
-            throw new ValidationException(parent,
-                    "cannot change the regulation terminal of a ration tap "
-                    + "changer without any load tap changing capabilities");
-        }
-        super.setTerminal(t);
+    public RatioTapChangerImpl setRegulationTerminal(Terminal regulationTerminal) {
+        ValidationUtil.checkRatioTapChangerRegulation(parent, loadTapChangingCapabilities, isRegulating(), regulationTerminal, getTargetV(), getNetwork());
+        return super.setRegulationTerminal(regulationTerminal);
     }
 
     @Override
