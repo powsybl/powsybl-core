@@ -10,17 +10,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import eu.itesla_project.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import eu.itesla_project.iidm.network.Bus;
-import eu.itesla_project.iidm.network.Generator;
-import eu.itesla_project.iidm.network.Line;
-import eu.itesla_project.iidm.network.Load;
-import eu.itesla_project.iidm.network.Network;
-import eu.itesla_project.iidm.network.Terminal;
-import eu.itesla_project.iidm.network.ThreeWindingsTransformer;
-import eu.itesla_project.iidm.network.TwoWindingsTransformer;
 
 /**
  *
@@ -205,7 +197,8 @@ public class NetworkDataExtractor {
 
 	private static boolean isRegulating(TwoWindingsTransformer tfo) {
 		if ( tfo.getPhaseTapChanger() != null )
-			return tfo.getPhaseTapChanger().isRegulating();
+			return tfo.getPhaseTapChanger().getRegulationMode() != PhaseTapChanger.RegulationMode.FIXED_TAP
+					&& tfo.getPhaseTapChanger().isRegulating();
 		if ( tfo.getRatioTapChanger() != null )
 			return tfo.getRatioTapChanger().isRegulating();
 		return false;

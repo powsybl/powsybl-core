@@ -26,7 +26,7 @@ abstract class TapChangerImpl<H extends TapChangerParent, C extends TapChangerIm
 
     protected final List<S> steps;
 
-    private final TerminalExt terminal;
+    protected TerminalExt regulationTerminal;
 
     // attributes depending on the state
 
@@ -35,13 +35,13 @@ abstract class TapChangerImpl<H extends TapChangerParent, C extends TapChangerIm
     protected final BitSet regulating;
 
     protected TapChangerImpl(Ref<? extends MultiStateObject> network, H parent,
-                             int lowTapPosition, List<S> steps, TerminalExt terminal,
+                             int lowTapPosition, List<S> steps, TerminalExt regulationTerminal,
                              int tapPosition, boolean regulating) {
         this.network = network;
         this.parent = parent;
         this.lowTapPosition = lowTapPosition;
         this.steps = steps;
-        this.terminal = terminal;
+        this.regulationTerminal = regulationTerminal;
         int stateArraySize = network.get().getStateManager().getStateArraySize();
         this.tapPosition = new TIntArrayList(stateArraySize);
         this.regulating = new BitSet(stateArraySize);
@@ -101,25 +101,23 @@ abstract class TapChangerImpl<H extends TapChangerParent, C extends TapChangerIm
     }
 
     public C setRegulating(boolean regulating) {
-        if (regulating && terminal == null) {
-            throw new ValidationException(parent,
-                    "cannot change the regulating status if the regulation terminal is not set");
-        }
         this.regulating.set(network.get().getStateIndex(), regulating);
         return (C) this;
     }
 
-    public TerminalExt getTerminal() {
-        return terminal;
+    public TerminalExt getRegulationTerminal() {
+        return regulationTerminal;
     }
 
-    public void setTerminal(Terminal t) {
-        if (terminal == null) {
+    public C setRegulationTerminal(Terminal regulationTerminal) {
+        if (regulationTerminal == null) {
             throw new ValidationException(parent, "regulation terminal is null");
         }
-        if (terminal.getVoltageLevel().getNetwork() != getNetwork()) {
+        if (((TerminalExt) regulationTerminal).getVoltageLevel().getNetwork() != getNetwork()) {
             throw new ValidationException(parent, "regulation terminal is not part of the network");
         }
+        this.regulationTerminal = (TerminalExt) regulationTerminal;
+        return (C) this;
     }
 
     @Override

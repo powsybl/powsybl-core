@@ -82,12 +82,12 @@ public interface TapChanger<TC extends TapChanger<TC, TCS>, TCS extends TapChang
     /**
      * Get the terminal used for regulation.
      */
-    Terminal getTerminal();
+    Terminal getRegulationTerminal();
 
     /**
      * Set the terminal used for regulation.
      */
-    void setTerminal(Terminal t);
+    TC setRegulationTerminal(Terminal regulationTerminal);
 
     /**
      * Remove the tap changer.

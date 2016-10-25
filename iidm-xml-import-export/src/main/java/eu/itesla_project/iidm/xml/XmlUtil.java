@@ -64,6 +64,11 @@ public class XmlUtil {
         return Boolean.valueOf(reader.getAttributeValue(null, attributeName));
     }
 
+    public static boolean readOptionalBoolAttribute(XMLStreamReader reader, String attributeName, boolean defaultValue) {
+        String attributeValue = reader.getAttributeValue(null, attributeName);
+        return attributeValue != null ? Boolean.valueOf(attributeValue) : defaultValue;
+    }
+
     public static Integer readOptionalIntegerAttribute(XMLStreamReader reader, String attributeName) {
         String attributeValue = reader.getAttributeValue(null, attributeName);
         return attributeValue != null ? Integer.valueOf(attributeValue) : null;
