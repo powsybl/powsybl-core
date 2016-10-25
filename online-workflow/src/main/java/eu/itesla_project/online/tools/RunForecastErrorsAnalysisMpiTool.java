@@ -175,7 +175,7 @@ public class RunForecastErrorsAnalysisMpiTool implements Tool {
 		if(host!=null)
 			startconfig.setJmxHost(host);
 		if(port!=null)
-			startconfig.setJmxPort(port);
+			startconfig.setJmxPort(Integer.valueOf(port));
 		if(threads!=null)
 			startconfig.setThreads(Integer.valueOf(threads));
 
