@@ -25,38 +25,7 @@ import org.joda.time.Interval;
  */
 public class OnlineWorkflowParameters implements Serializable {
 
-    /*
-     * example of online-default-parameters.properties file.
-     *
-
-	# basecase to be analyzed
-	baseCaseDate=2013-01-15T18:30:00+01:00
-	# number of states
-	states=10
-	# interval of historical data to be used for WCA
-	histoInterval=2013-01-01T00:00:00+01:00/2013-01-31T23:59:00+01:00
-	# offline workflow id that produced the security rules
-	offlineWorkflowId=1358271900000-1356994800000-1359673140000
-	# time horizon for the online analysis
-	timeHorizon=DACF 
-	# id of the forecast error analysis
-    feAnalysisId = France_flagPQ0_ir06
-    # purity threshold for the rules
-    rulesPurityThreshold=0.95
-    # flag for the storage of sampled states
-    storeStates=true
-    # flag for analyzing the basecase with the sampled states
-    analyseBasecase=true
-    # flag for performing an online workflow aimed at the validation
-    validation=false
-    # list of security indexes to be used by the workflow, leave empty to use all the available ones
-    securityIndexes=SMALLSIGNAL,TSO_SYNCHROLOSS,TSO_GENERATOR_VOLTAGE_AUTOMATON
-
-     */
-
     private static final long serialVersionUID = 1L;
-    public static final CaseType DEFAULT_CASE_TYPE = CaseType.FO;
-    public static final Set<Country> DEFAULT_COUNTRIES = EnumSet.of(Country.FR);
     public static final boolean DEFAULT_MERGE_OPTIMIZED = false;
     public static final float DEFAULT_LIMIT_REDUCTION = 1f;
     public static final boolean DEFAULT_HANDLE_VIOLATIONS_IN_N = false;
@@ -93,8 +62,8 @@ public class OnlineWorkflowParameters implements Serializable {
         boolean analyseBasecase = config.getBooleanProperty("analyseBasecase", true);
         boolean validation = config.getBooleanProperty("validation", false);
         Set<SecurityIndexType> securityIndexes = config.getEnumSetProperty("securityIndexes", SecurityIndexType.class, null);
-        CaseType caseType = config.getEnumProperty("caseType", CaseType.class, DEFAULT_CASE_TYPE);
-        Set<Country> countries = config.getEnumSetProperty("countries", Country.class, DEFAULT_COUNTRIES);
+        CaseType caseType = config.getEnumProperty("caseType", CaseType.class);
+        Set<Country> countries = config.getEnumSetProperty("countries", Country.class);
         boolean mergeOptimized = config.getBooleanProperty("mergeOptimized", DEFAULT_MERGE_OPTIMIZED);
         float limitReduction = config.getFloatProperty("limitReduction", DEFAULT_LIMIT_REDUCTION);
         boolean handleViolationsInN = config.getBooleanProperty("handleViolationsInN", DEFAULT_HANDLE_VIOLATIONS_IN_N);
