@@ -37,7 +37,7 @@ public interface RatioTapChangerAdder {
 
     RatioTapChangerAdder setTargetV(float targetV);
 
-    RatioTapChangerAdder setTerminal(Terminal terminal);
+    RatioTapChangerAdder setRegulationTerminal(Terminal regulationTerminal);
 
     StepAdder beginStep();
 

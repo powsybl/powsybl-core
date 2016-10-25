@@ -437,7 +437,7 @@ public class UcteImporter implements Importer {
             rtca.setLoadTapChangingCapabilities(true)
                     .setRegulating(true)
                     .setTargetV(uctePhaseRegulation.getU())
-                    .setTerminal(transformer.getTerminal1());
+                    .setRegulationTerminal(transformer.getTerminal1());
         }
         for (int i = -uctePhaseRegulation.getN(); i <= uctePhaseRegulation.getN(); i++) {
             float rho = 1 / (1 + i * uctePhaseRegulation.getDu() / 100f);
@@ -458,14 +458,9 @@ public class UcteImporter implements Importer {
 
         PhaseTapChangerAdder ptca = transformer.newPhaseTapChanger()
                 .setLowTapPosition(-ucteAngleRegulation.getN())
-                .setTapPosition(ucteAngleRegulation.getNp());
-        if (!Float.isNaN(ucteAngleRegulation.getP())) {
-            ptca.setRegulating(true)
-                    .setThresholdI(ucteAngleRegulation.getP())
-                    .setTerminal(transformer.getTerminal1());
-        } else {
-            ptca.setRegulating(false);
-        }
+                .setTapPosition(ucteAngleRegulation.getNp())
+                .setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP);
+
         for (int i = -ucteAngleRegulation.getN(); i <= ucteAngleRegulation.getN(); i++) {
             float rho;
             float alpha;

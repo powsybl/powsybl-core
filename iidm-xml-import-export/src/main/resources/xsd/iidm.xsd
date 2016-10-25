@@ -404,10 +404,17 @@
         </xs:sequence>
         <xs:attribute name="lowTapPosition" use="required" type="xs:int"/>
         <xs:attribute name="tapPosition" use="required" type="xs:int"/>
-        <xs:attribute name="regulating" use="required" type="xs:boolean"/>
         <xs:attribute name="loadTapChangingCapabilities" use="required" type="xs:boolean"/>
+        <xs:attribute name="regulating" use="optional" type="xs:boolean"/>
         <xs:attribute name="targetV" use="optional" type="xs:float"/>
     </xs:complexType>
+    <xs:simpleType name="PhaseRegulationMode">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="CURRENT_LIMITER"/>
+            <xs:enumeration value="ACTIVE_POWER_CONTROL"/>
+            <xs:enumeration value="FIXED_TAP"/>
+        </xs:restriction>
+    </xs:simpleType>
     <xs:complexType name="PhaseTapChanger">
         <xs:sequence>
             <xs:element name="terminalRef" minOccurs="0" type="iidm:TerminalRef"/>
@@ -415,8 +422,9 @@
         </xs:sequence>
         <xs:attribute name="lowTapPosition" use="required" type="xs:int"/>
         <xs:attribute name="tapPosition" use="required" type="xs:int"/>
-        <xs:attribute name="regulating" use="required" type="xs:boolean"/>
-        <xs:attribute name="thresholdI" use="optional" type="xs:float"/>
+        <xs:attribute name="regulationMode" use="required" type="iidm:PhaseRegulationMode"/>
+        <xs:attribute name="regulationValue" use="optional" type="xs:float"/>
+        <xs:attribute name="regulating" use="optional" type="xs:boolean"/>
     </xs:complexType>
     <xs:complexType name="Line">
         <xs:complexContent>

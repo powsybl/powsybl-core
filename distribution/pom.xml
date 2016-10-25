@@ -54,6 +54,13 @@
             <version>${project.version}</version>
         </dependency>
 
+        <!-- case-repositories -->
+        <dependency>
+            <groupId>eu.itesla_project</groupId>
+            <artifactId>entsoe-case-repository</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <!-- Dynamic database (mysql) -->
         <dependency>
             <groupId>eu.itesla_project.iidm-ddb</groupId>

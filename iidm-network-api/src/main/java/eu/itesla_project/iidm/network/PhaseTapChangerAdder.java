@@ -35,9 +35,11 @@ public interface PhaseTapChangerAdder {
 
     PhaseTapChangerAdder setRegulating(boolean regulating);
 
-    PhaseTapChangerAdder setThresholdI(float thresholdI);
+    PhaseTapChangerAdder setRegulationMode(PhaseTapChanger.RegulationMode regulationMode);
 
-    PhaseTapChangerAdder setTerminal(Terminal terminal);
+    PhaseTapChangerAdder setRegulationValue(float regulationValue);
+
+    PhaseTapChangerAdder setRegulationTerminal(Terminal regulationTerminal);
 
     StepAdder beginStep();
 
