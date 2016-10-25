@@ -17,9 +17,9 @@
         <version>0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>iidm-import-export-api</artifactId>
+    <artifactId>iidm-converter-api</artifactId>
 
-    <name>IIDM import/export API</name>
+    <name>IIDM converter API</name>
     <description>This is the API for IIDM importers and exporters</description>
 
     <dependencies>

@@ -34,7 +34,7 @@
         </dependency>
         <dependency>
             <groupId>eu.itesla_project</groupId>
-            <artifactId>iidm-import-export-api</artifactId>
+            <artifactId>iidm-converter-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

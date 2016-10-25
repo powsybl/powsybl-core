@@ -17,9 +17,9 @@
         <version>0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>iidm-xml-import-export</artifactId>
+    <artifactId>iidm-xml-converter</artifactId>
 
-    <name>IIDM XML import export</name>
+    <name>IIDM XML converter</name>
 
     <dependencies>
         <dependency>
@@ -44,7 +44,7 @@
         </dependency>
         <dependency>
             <groupId>eu.itesla_project</groupId>
-            <artifactId>iidm-import-export-api</artifactId>
+            <artifactId>iidm-converter-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
