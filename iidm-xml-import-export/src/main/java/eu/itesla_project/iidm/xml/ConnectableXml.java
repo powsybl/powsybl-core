@@ -27,11 +27,11 @@ public abstract class ConnectableXml<T extends Connectable, A extends Identifiab
         if (context.getOptions().isForceBusBranchTopo()) {
             Bus bus = t.getBusView().getBus();
             if (bus != null) {
-                context.getWriter().writeAttribute("bus" + indexToString(index), bus.getId());
+                context.getWriter().writeAttribute("bus" + indexToString(index), context.getAnonymizer().anonymizeString(bus.getId()));
             }
             Bus connectableBus = t.getBusView().getConnectableBus();
             if (connectableBus != null) {
-                context.getWriter().writeAttribute("connectableBus" + indexToString(index), connectableBus.getId());
+                context.getWriter().writeAttribute("connectableBus" + indexToString(index), context.getAnonymizer().anonymizeString(connectableBus.getId()));
             }
         } else {
             switch (t.getVoltageLevel().getTopologyKind()) {
@@ -43,11 +43,11 @@ public abstract class ConnectableXml<T extends Connectable, A extends Identifiab
                 case BUS_BREAKER:
                     Bus bus = t.getBusBreakerView().getBus();
                     if (bus != null) {
-                        context.getWriter().writeAttribute("bus" + indexToString(index), bus.getId());
+                        context.getWriter().writeAttribute("bus" + indexToString(index), context.getAnonymizer().anonymizeString(bus.getId()));
                     }
                     Bus connectableBus = t.getBusBreakerView().getConnectableBus();
                     if (connectableBus != null) {
-                        context.getWriter().writeAttribute("connectableBus" + indexToString(index), connectableBus.getId());
+                        context.getWriter().writeAttribute("connectableBus" + indexToString(index), context.getAnonymizer().anonymizeString(connectableBus.getId()));
                     }
                     break;
 
@@ -56,14 +56,14 @@ public abstract class ConnectableXml<T extends Connectable, A extends Identifiab
             }
         }
         if (index != null) {
-            context.getWriter().writeAttribute("voltageLevelId" + index, t.getVoltageLevel().getId());
+            context.getWriter().writeAttribute("voltageLevelId" + index, context.getAnonymizer().anonymizeString(t.getVoltageLevel().getId()));
         }
     }
 
-    protected static void readNodeOrBus(SingleTerminalConnectableAdder adder, XMLStreamReader reader) {
-        String bus = reader.getAttributeValue(null, "bus");
-        String connectableBus = reader.getAttributeValue(null, "connectableBus");
-        Integer node = XmlUtil.readOptionalIntegerAttribute(reader, "node");
+    protected static void readNodeOrBus(SingleTerminalConnectableAdder adder, XmlReaderContext context) {
+        String bus = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "bus"));
+        String connectableBus = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "connectableBus"));
+        Integer node = XmlUtil.readOptionalIntegerAttribute(context.getReader(), "node");
         if (bus != null) {
             adder.setBus(bus);
         }
@@ -75,15 +75,15 @@ public abstract class ConnectableXml<T extends Connectable, A extends Identifiab
         }
     }
 
-    protected static void readNodeOrBus(TwoTerminalsConnectableAdder adder, XMLStreamReader reader) {
-        String bus1 = reader.getAttributeValue(null, "bus1");
-        String connectableBus1 = reader.getAttributeValue(null, "connectableBus1");
-        Integer node1 = XmlUtil.readOptionalIntegerAttribute(reader, "node1");
-        String voltageLevelId1 = reader.getAttributeValue(null, "voltageLevelId1");
-        String bus2 = reader.getAttributeValue(null, "bus2");
-        String connectableBus2 = reader.getAttributeValue(null, "connectableBus2");
-        Integer node2 = XmlUtil.readOptionalIntegerAttribute(reader, "node2");
-        String voltageLevelId2 = reader.getAttributeValue(null, "voltageLevelId2");
+    protected static void readNodeOrBus(TwoTerminalsConnectableAdder adder, XmlReaderContext context) {
+        String bus1 = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "bus1"));
+        String connectableBus1 = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "connectableBus1"));
+        Integer node1 = XmlUtil.readOptionalIntegerAttribute(context.getReader(), "node1");
+        String voltageLevelId1 = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "voltageLevelId1"));
+        String bus2 = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "bus2"));
+        String connectableBus2 = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "connectableBus2"));
+        Integer node2 = XmlUtil.readOptionalIntegerAttribute(context.getReader(), "node2");
+        String voltageLevelId2 = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "voltageLevelId2"));
         if (bus1 != null) {
             adder.setBus1(bus1);
         }
@@ -170,7 +170,7 @@ public abstract class ConnectableXml<T extends Connectable, A extends Identifiab
             throw new RuntimeException("Oups, terminal ref point to a filtered equipment " + c.getId());
         }
         context.getWriter().writeEmptyElement(IIDM_URI, elementName);
-        context.getWriter().writeAttribute("id", c.getId());
+        context.getWriter().writeAttribute("id", context.getAnonymizer().anonymizeString(c.getId()));
         if (c.getTerminals().size() > 1) {
             if (c instanceof SingleTerminalConnectable) {
                 // nothing to do

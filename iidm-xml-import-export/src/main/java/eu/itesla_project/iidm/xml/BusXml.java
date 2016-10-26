@@ -11,8 +11,6 @@ import eu.itesla_project.iidm.network.BusAdder;
 import eu.itesla_project.iidm.network.VoltageLevel;
 
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-import java.util.List;
 
 /**
  *
@@ -50,9 +48,9 @@ class BusXml extends IdentifiableXml<Bus, BusAdder, VoltageLevel> {
     }
 
     @Override
-    protected Bus readRootElementAttributes(BusAdder adder, XMLStreamReader reader, List<Runnable> endTasks) {
-        float v = XmlUtil.readOptionalFloatAttribute(reader, "v");
-        float angle = XmlUtil.readOptionalFloatAttribute(reader, "angle");
+    protected Bus readRootElementAttributes(BusAdder adder, XmlReaderContext context) {
+        float v = XmlUtil.readOptionalFloatAttribute(context.getReader(), "v");
+        float angle = XmlUtil.readOptionalFloatAttribute(context.getReader(), "angle");
         Bus b = adder.add();
         b.setV(v);
         b.setAngle(angle);
@@ -60,7 +58,7 @@ class BusXml extends IdentifiableXml<Bus, BusAdder, VoltageLevel> {
     }
 
     @Override
-    protected void readSubElements(Bus b, XMLStreamReader reader, List<Runnable> endTasks) throws XMLStreamException {
-        readUntilEndRootElement(reader, () -> BusXml.super.readSubElements(b, reader,endTasks));
+    protected void readSubElements(Bus b, XmlReaderContext context) throws XMLStreamException {
+        readUntilEndRootElement(context.getReader(), () -> BusXml.super.readSubElements(b, context));
     }
 }

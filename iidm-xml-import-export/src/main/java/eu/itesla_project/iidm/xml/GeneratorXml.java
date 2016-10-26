@@ -9,8 +9,6 @@ package eu.itesla_project.iidm.xml;
 import eu.itesla_project.iidm.network.*;
 
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -87,16 +85,16 @@ class GeneratorXml extends ConnectableXml<Generator, GeneratorAdder, VoltageLeve
     }
 
     @Override
-    protected Generator readRootElementAttributes(GeneratorAdder adder, XMLStreamReader reader, List<Runnable> endTasks) {
-        EnergySource energySource = EnergySource.valueOf(reader.getAttributeValue(null, "energySource"));
-        float minP = XmlUtil.readFloatAttribute(reader, "minP");
-        float maxP = XmlUtil.readFloatAttribute(reader, "maxP");
-        float ratedS = XmlUtil.readOptionalFloatAttribute(reader, "ratedS");
-        boolean voltageRegulatorOn = XmlUtil.readBoolAttribute(reader, "voltageRegulatorOn");
-        float targetP = XmlUtil.readFloatAttribute(reader, "targetP");
-        float targetV = XmlUtil.readOptionalFloatAttribute(reader, "targetV");
-        float targetQ = XmlUtil.readOptionalFloatAttribute(reader, "targetQ");
-        readNodeOrBus(adder, reader);
+    protected Generator readRootElementAttributes(GeneratorAdder adder, XmlReaderContext context) {
+        EnergySource energySource = EnergySource.valueOf(context.getReader().getAttributeValue(null, "energySource"));
+        float minP = XmlUtil.readFloatAttribute(context.getReader(), "minP");
+        float maxP = XmlUtil.readFloatAttribute(context.getReader(), "maxP");
+        float ratedS = XmlUtil.readOptionalFloatAttribute(context.getReader(), "ratedS");
+        boolean voltageRegulatorOn = XmlUtil.readBoolAttribute(context.getReader(), "voltageRegulatorOn");
+        float targetP = XmlUtil.readFloatAttribute(context.getReader(), "targetP");
+        float targetV = XmlUtil.readOptionalFloatAttribute(context.getReader(), "targetV");
+        float targetQ = XmlUtil.readOptionalFloatAttribute(context.getReader(), "targetQ");
+        readNodeOrBus(adder, context);
         Generator g = adder.setEnergySource(energySource)
                 .setMinP(minP)
                 .setMaxP(maxP)
@@ -106,27 +104,27 @@ class GeneratorXml extends ConnectableXml<Generator, GeneratorAdder, VoltageLeve
                 .setTargetV(targetV)
                 .setTargetQ(targetQ)
                 .add();
-        readPQ(null, g.getTerminal(), reader);
+        readPQ(null, g.getTerminal(), context.getReader());
         return g;
     }
 
     @Override
-    protected void readSubElements(Generator g, XMLStreamReader reader, List<Runnable> endTasks) throws XMLStreamException {
-        readUntilEndRootElement(reader, () -> {
-            switch (reader.getLocalName()) {
+    protected void readSubElements(Generator g, XmlReaderContext context) throws XMLStreamException {
+        readUntilEndRootElement(context.getReader(), () -> {
+            switch (context.getReader().getLocalName()) {
                 case "regulatingTerminal":
-                    String id = reader.getAttributeValue(null, "id");
-                    String side = reader.getAttributeValue(null, "side");
-                    endTasks.add(() -> g.setRegulatingTerminal(readTerminalRef(g.getTerminal().getVoltageLevel().getSubstation().getNetwork(), id, side)));
+                    String id = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "id"));
+                    String side = context.getReader().getAttributeValue(null, "side");
+                    context.getEndTasks().add(() -> g.setRegulatingTerminal(readTerminalRef(g.getTerminal().getVoltageLevel().getSubstation().getNetwork(), id, side)));
                     break;
 
                 case "reactiveCapabilityCurve":
                     ReactiveCapabilityCurveAdder curveAdder = g.newReactiveCapabilityCurve();
-                    XmlUtil.readUntilEndElement("reactiveCapabilityCurve", reader, () -> {
-                        if (reader.getLocalName().equals("point")) {
-                            float p = XmlUtil.readFloatAttribute(reader, "p");
-                            float minQ = XmlUtil.readFloatAttribute(reader, "minQ");
-                            float maxQ = XmlUtil.readFloatAttribute(reader, "maxQ");
+                    XmlUtil.readUntilEndElement("reactiveCapabilityCurve", context.getReader(), () -> {
+                        if (context.getReader().getLocalName().equals("point")) {
+                            float p = XmlUtil.readFloatAttribute(context.getReader(), "p");
+                            float minQ = XmlUtil.readFloatAttribute(context.getReader(), "minQ");
+                            float maxQ = XmlUtil.readFloatAttribute(context.getReader(), "maxQ");
                             curveAdder.beginPoint()
                                     .setP(p)
                                     .setMinQ(minQ)
@@ -138,8 +136,8 @@ class GeneratorXml extends ConnectableXml<Generator, GeneratorAdder, VoltageLeve
                     break;
 
                 case "minMaxReactiveLimits":
-                    float min = XmlUtil.readFloatAttribute(reader, "minQ");
-                    float max = XmlUtil.readFloatAttribute(reader, "maxQ");
+                    float min = XmlUtil.readFloatAttribute(context.getReader(), "minQ");
+                    float max = XmlUtil.readFloatAttribute(context.getReader(), "maxQ");
                     g.newMinMaxReactiveLimits()
                             .setMinQ(min)
                             .setMaxQ(max)
@@ -147,7 +145,7 @@ class GeneratorXml extends ConnectableXml<Generator, GeneratorAdder, VoltageLeve
                     break;
 
                 default:
-                    super.readSubElements(g, reader, endTasks);
+                    super.readSubElements(g, context);
             }
         });
     }

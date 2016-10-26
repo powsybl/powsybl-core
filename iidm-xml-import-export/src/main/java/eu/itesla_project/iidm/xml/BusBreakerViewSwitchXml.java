@@ -11,8 +11,6 @@ import eu.itesla_project.iidm.network.Switch;
 import eu.itesla_project.iidm.network.VoltageLevel;
 
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-import java.util.List;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -27,8 +25,8 @@ public class BusBreakerViewSwitchXml extends SwitchXml<VoltageLevel.BusBreakerVi
         VoltageLevel.BusBreakerView v = vl.getBusBreakerView();
         Bus bus1 = v.getBus1(s.getId());
         Bus bus2 = v.getBus2(s.getId());
-        context.getWriter().writeAttribute("bus1", bus1.getId());
-        context.getWriter().writeAttribute("bus2", bus2.getId());
+        context.getWriter().writeAttribute("bus1", context.getAnonymizer().anonymizeString(bus1.getId()));
+        context.getWriter().writeAttribute("bus2", context.getAnonymizer().anonymizeString(bus2.getId()));
     }
 
     @Override
@@ -37,10 +35,10 @@ public class BusBreakerViewSwitchXml extends SwitchXml<VoltageLevel.BusBreakerVi
     }
 
     @Override
-    protected Switch readRootElementAttributes(VoltageLevel.BusBreakerView.SwitchAdder adder, XMLStreamReader reader, List<Runnable> endTasks) {
-        boolean open = XmlUtil.readBoolAttribute(reader, "open");
-        String bus1 = reader.getAttributeValue(null, "bus1");
-        String bus2 = reader.getAttributeValue(null, "bus2");
+    protected Switch readRootElementAttributes(VoltageLevel.BusBreakerView.SwitchAdder adder, XmlReaderContext context) {
+        boolean open = XmlUtil.readBoolAttribute(context.getReader(), "open");
+        String bus1 = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "bus1"));
+        String bus2 = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "bus2"));
         return adder.setOpen(open)
                 .setBus1(bus1)
                 .setBus2(bus2)

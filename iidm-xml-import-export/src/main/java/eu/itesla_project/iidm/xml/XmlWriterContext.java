@@ -11,13 +11,14 @@ import javax.xml.stream.XMLStreamWriter;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class XmlWriterContext {
+public class XmlWriterContext extends XmlContext {
 
     private final XMLStreamWriter writer;
     private final XMLExportOptions options;
     private final BusFilter filter;
 
-    XmlWriterContext(XMLStreamWriter writer, XMLExportOptions options, BusFilter filter) {
+    XmlWriterContext(Anonymizer anonymizer, XMLStreamWriter writer, XMLExportOptions options, BusFilter filter) {
+        super(anonymizer);
         this.writer = writer;
         this.options = options;
         this.filter = filter;

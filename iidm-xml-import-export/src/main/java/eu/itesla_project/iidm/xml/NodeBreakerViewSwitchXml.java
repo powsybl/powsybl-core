@@ -11,8 +11,6 @@ import eu.itesla_project.iidm.network.SwitchKind;
 import eu.itesla_project.iidm.network.VoltageLevel;
 
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-import java.util.List;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -35,12 +33,12 @@ public class NodeBreakerViewSwitchXml extends SwitchXml<VoltageLevel.NodeBreaker
     }
 
     @Override
-    protected Switch readRootElementAttributes(VoltageLevel.NodeBreakerView.SwitchAdder adder, XMLStreamReader reader, List<Runnable> endTasks) {
-        boolean open = XmlUtil.readBoolAttribute(reader, "open");
-        SwitchKind kind = SwitchKind.valueOf(reader.getAttributeValue(null, "kind"));
-        boolean retained = XmlUtil.readBoolAttribute(reader, "retained");
-        int node1 = XmlUtil.readIntAttribute(reader, "node1");
-        int node2 = XmlUtil.readIntAttribute(reader, "node2");
+    protected Switch readRootElementAttributes(VoltageLevel.NodeBreakerView.SwitchAdder adder, XmlReaderContext context) {
+        boolean open = XmlUtil.readBoolAttribute(context.getReader(), "open");
+        SwitchKind kind = SwitchKind.valueOf(context.getReader().getAttributeValue(null, "kind"));
+        boolean retained = XmlUtil.readBoolAttribute(context.getReader(), "retained");
+        int node1 = XmlUtil.readIntAttribute(context.getReader(), "node1");
+        int node2 = XmlUtil.readIntAttribute(context.getReader(), "node2");
         return adder.setKind(kind)
                 .setRetained(retained)
                 .setOpen(open)

@@ -31,5 +31,5 @@ public interface ExtensionXml<I extends Identifiable, E extends Identifiable.Ext
 
     void write(E extension, XmlWriterContext context) throws XMLStreamException;
 
-    E read(I identifiable, XMLStreamReader reader) throws XMLStreamException;
+    E read(I identifiable, XmlReaderContext context) throws XMLStreamException;
 }

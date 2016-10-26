@@ -9,8 +9,6 @@ package eu.itesla_project.iidm.xml;
 import eu.itesla_project.iidm.network.*;
 
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-import java.util.List;
 
 /**
  *
@@ -75,48 +73,48 @@ class TwoWindingsTransformerXml extends TransformerXml<TwoWindingsTransformer, T
     }
 
     @Override
-    protected TwoWindingsTransformer readRootElementAttributes(TwoWindingsTransformerAdder adder, XMLStreamReader reader, List<Runnable> endTasks) {
-        float r = XmlUtil.readFloatAttribute(reader, "r");
-        float x = XmlUtil.readFloatAttribute(reader, "x");
-        float g = XmlUtil.readFloatAttribute(reader, "g");
-        float b = XmlUtil.readFloatAttribute(reader, "b");
-        float ratedU1 = XmlUtil.readFloatAttribute(reader, "ratedU1");
-        float ratedU2 = XmlUtil.readFloatAttribute(reader, "ratedU2");
+    protected TwoWindingsTransformer readRootElementAttributes(TwoWindingsTransformerAdder adder, XmlReaderContext context) {
+        float r = XmlUtil.readFloatAttribute(context.getReader(), "r");
+        float x = XmlUtil.readFloatAttribute(context.getReader(), "x");
+        float g = XmlUtil.readFloatAttribute(context.getReader(), "g");
+        float b = XmlUtil.readFloatAttribute(context.getReader(), "b");
+        float ratedU1 = XmlUtil.readFloatAttribute(context.getReader(), "ratedU1");
+        float ratedU2 = XmlUtil.readFloatAttribute(context.getReader(), "ratedU2");
         adder.setR(r)
                 .setX(x)
                 .setG(g)
                 .setB(b)
                 .setRatedU1(ratedU1)
                 .setRatedU2(ratedU2);
-        readNodeOrBus(adder, reader);
+        readNodeOrBus(adder, context);
         TwoWindingsTransformer twt = adder.add();
-        readPQ(1, twt.getTerminal1(), reader);
-        readPQ(2, twt.getTerminal2(), reader);
+        readPQ(1, twt.getTerminal1(), context.getReader());
+        readPQ(2, twt.getTerminal2(), context.getReader());
         return twt;
     }
 
     @Override
-    protected void readSubElements(TwoWindingsTransformer twt, XMLStreamReader reader, List<Runnable> endTasks) throws XMLStreamException {
-        readUntilEndRootElement(reader, () -> {
-            switch (reader.getLocalName()) {
+    protected void readSubElements(TwoWindingsTransformer twt, XmlReaderContext context) throws XMLStreamException {
+        readUntilEndRootElement(context.getReader(), () -> {
+            switch (context.getReader().getLocalName()) {
                 case "currentLimits1":
-                    readCurrentLimits(1, twt::newCurrentLimits1, reader);
+                    readCurrentLimits(1, twt::newCurrentLimits1, context.getReader());
                     break;
 
                 case "currentLimits2":
-                    readCurrentLimits(2, twt::newCurrentLimits2, reader);
+                    readCurrentLimits(2, twt::newCurrentLimits2, context.getReader());
                     break;
 
                 case "ratioTapChanger":
-                    readRatioTapChanger(twt, reader, endTasks);
+                    readRatioTapChanger(twt, context);
                     break;
 
                 case "phaseTapChanger":
-                    readPhaseTapChanger(twt, reader, endTasks);
+                    readPhaseTapChanger(twt, context);
                     break;
 
                 default:
-                    super.readSubElements(twt, reader, endTasks);
+                    super.readSubElements(twt, context);
             }
         });
     }

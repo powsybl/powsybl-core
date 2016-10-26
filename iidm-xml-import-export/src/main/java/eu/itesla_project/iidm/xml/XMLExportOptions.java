@@ -12,16 +12,17 @@ package eu.itesla_project.iidm.xml;
  */
 public class XMLExportOptions {
 
-    private final boolean withBranchSV;
+    private boolean withBranchSV = true;
 
-    private final boolean forceBusBranchTopo;
+    private boolean forceBusBranchTopo = false;
 
-    private final boolean indent;
+    private boolean indent = true;
 
-    private final boolean onlyMainCc;
+    private boolean onlyMainCc = false;
+
+    private boolean anonymized = false;
 
     public XMLExportOptions() {
-        this(true, false, true, false);
     }
 
     public XMLExportOptions(boolean withBranchSV, boolean forceBusBranchTopo, boolean indent, boolean onlyMainCc) {
@@ -35,15 +36,44 @@ public class XMLExportOptions {
         return withBranchSV;
     }
 
+    public XMLExportOptions setWithBranchSV(boolean withBranchSV) {
+        this.withBranchSV = withBranchSV;
+        return this;
+    }
+
     public boolean isForceBusBranchTopo() {
         return forceBusBranchTopo;
+    }
+
+    public XMLExportOptions setForceBusBranchTopo(boolean forceBusBranchTopo) {
+        this.forceBusBranchTopo = forceBusBranchTopo;
+        return this;
     }
 
     public boolean isIndent() {
         return indent;
     }
 
+    public XMLExportOptions setIndent(boolean indent) {
+        this.indent = indent;
+        return this;
+    }
+
     public boolean isOnlyMainCc() {
         return onlyMainCc;
+    }
+
+    public XMLExportOptions setOnlyMainCc(boolean onlyMainCc) {
+        this.onlyMainCc = onlyMainCc;
+        return this;
+    }
+
+    public boolean isAnonymized() {
+        return anonymized;
+    }
+
+    public XMLExportOptions setAnonymized(boolean anonymized) {
+        this.anonymized = anonymized;
+        return this;
     }
 }

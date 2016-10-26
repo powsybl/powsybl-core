@@ -12,8 +12,6 @@ import eu.itesla_project.iidm.network.BusbarSectionAdder;
 import eu.itesla_project.iidm.network.VoltageLevel;
 
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-import java.util.List;
 
 /**
  *
@@ -52,13 +50,13 @@ class BusbarSectionXml extends IdentifiableXml<BusbarSection, BusbarSectionAdder
     }
 
     @Override
-    protected BusbarSection readRootElementAttributes(BusbarSectionAdder adder, XMLStreamReader reader, List<Runnable> endTasks) {
-        int node = XmlUtil.readIntAttribute(reader, "node");
-        float v = XmlUtil.readOptionalFloatAttribute(reader, "v");
-        float angle = XmlUtil.readOptionalFloatAttribute(reader, "angle");
+    protected BusbarSection readRootElementAttributes(BusbarSectionAdder adder, XmlReaderContext context) {
+        int node = XmlUtil.readIntAttribute(context.getReader(), "node");
+        float v = XmlUtil.readOptionalFloatAttribute(context.getReader(), "v");
+        float angle = XmlUtil.readOptionalFloatAttribute(context.getReader(), "angle");
         BusbarSection bbs = adder.setNode(node)
                 .add();
-        endTasks.add(() -> {
+        context.getEndTasks().add(() -> {
             Bus b = bbs.getTerminal().getBusView().getBus();
             if (b != null) {
                 b.setV(v).setAngle(angle);
@@ -68,7 +66,7 @@ class BusbarSectionXml extends IdentifiableXml<BusbarSection, BusbarSectionAdder
     }
 
     @Override
-    protected void readSubElements(BusbarSection bs, XMLStreamReader reader, List<Runnable> endTasks) throws XMLStreamException {
-        readUntilEndRootElement(reader, () -> BusbarSectionXml.super.readSubElements(bs, reader,endTasks));
+    protected void readSubElements(BusbarSection bs, XmlReaderContext context) throws XMLStreamException {
+        readUntilEndRootElement(context.getReader(), () -> BusbarSectionXml.super.readSubElements(bs, context));
     }
 }

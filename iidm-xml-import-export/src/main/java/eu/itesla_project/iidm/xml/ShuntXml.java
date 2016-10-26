@@ -11,8 +11,6 @@ import eu.itesla_project.iidm.network.ShuntCompensatorAdder;
 import eu.itesla_project.iidm.network.VoltageLevel;
 
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-import java.util.List;
 
 /**
  *
@@ -53,21 +51,21 @@ class ShuntXml extends ConnectableXml<ShuntCompensator, ShuntCompensatorAdder, V
     }
 
     @Override
-    protected ShuntCompensator readRootElementAttributes(ShuntCompensatorAdder adder, XMLStreamReader reader, List<Runnable> endTasks) {
-        float bPerSection = XmlUtil.readFloatAttribute(reader, "bPerSection");
-        int maximumSectionCount = XmlUtil.readIntAttribute(reader, "maximumSectionCount");
-        int currentSectionCount = XmlUtil.readIntAttribute(reader, "currentSectionCount");
+    protected ShuntCompensator readRootElementAttributes(ShuntCompensatorAdder adder, XmlReaderContext context) {
+        float bPerSection = XmlUtil.readFloatAttribute(context.getReader(), "bPerSection");
+        int maximumSectionCount = XmlUtil.readIntAttribute(context.getReader(), "maximumSectionCount");
+        int currentSectionCount = XmlUtil.readIntAttribute(context.getReader(), "currentSectionCount");
         adder.setbPerSection(bPerSection)
                 .setMaximumSectionCount(maximumSectionCount)
                 .setCurrentSectionCount(currentSectionCount);
-        readNodeOrBus(adder, reader);
+        readNodeOrBus(adder, context);
         ShuntCompensator sc = adder.add();
-        readPQ(null, sc.getTerminal(), reader);
+        readPQ(null, sc.getTerminal(), context.getReader());
         return sc;
     }
 
     @Override
-    protected void readSubElements(ShuntCompensator sc, XMLStreamReader reader, List<Runnable> endTasks) throws XMLStreamException {
-        readUntilEndRootElement(reader, () -> ShuntXml.super.readSubElements(sc, reader,endTasks));
+    protected void readSubElements(ShuntCompensator sc, XmlReaderContext context) throws XMLStreamException {
+        readUntilEndRootElement(context.getReader(), () -> ShuntXml.super.readSubElements(sc, context));
     }
 }

@@ -153,7 +153,7 @@ public class NetworkXml implements XmlConstants {
             for (Identifiable.Extension<? extends Identifiable<?>> extension : identifiable.getExtensions()) {
                 ExtensionXml extensionXml = findExtensionXmlOrThrowException(extension.getName());
                 context.getWriter().writeStartElement(IIDM_URI, EXTENSION_ELEMENT_NAME);
-                context.getWriter().writeAttribute("id", extension.getIdentifiable().getId());
+                context.getWriter().writeAttribute("id", context.getAnonymizer().anonymizeString(extension.getIdentifiable().getId()));
                 if (extensionXml.hasSubElements()) {
                     context.getWriter().writeStartElement(extensionXml.getNamespaceUri(), extension.getName());
                 } else {
@@ -168,7 +168,7 @@ public class NetworkXml implements XmlConstants {
         }
     }
 
-    public static void write(Network n, XMLExportOptions options, OutputStream os) {
+    public static Anonymizer write(Network n, XMLExportOptions options, OutputStream os) {
         try {
             final XMLStreamWriter writer = createXmlStreamWriter(options, os);
             writer.writeStartDocument(StandardCharsets.UTF_8.toString(), "1.0");
@@ -185,7 +185,8 @@ public class NetworkXml implements XmlConstants {
             writer.writeAttribute("forecastDistance", Integer.toString(n.getForecastDistance()));
             writer.writeAttribute("sourceFormat", n.getSourceFormat());
             BusFilter filter = BusFilter.create(n, options);
-            XmlWriterContext context = new XmlWriterContext(writer, options, filter);
+            Anonymizer anonymizer = options.isAnonymized() ? new SimpleAnonymizer() : null;
+            XmlWriterContext context = new XmlWriterContext(anonymizer, writer, options, filter);
             for (Substation s : n.getSubstations()) {
                 SubstationXml.INSTANCE.write(s, null, context);
             }
@@ -205,6 +206,8 @@ public class NetworkXml implements XmlConstants {
 
             writer.writeEndElement();
             writer.writeEndDocument();
+
+            return anonymizer;
         } catch (XMLStreamException e) {
             throw new RuntimeException(e);
         }
@@ -232,10 +235,10 @@ public class NetworkXml implements XmlConstants {
     }
 
     public static Network read(InputStream is) {
-        return read(is, new XmlImportConfig());
+        return read(is, new XmlImportConfig(), null);
     }
 
-    public static Network read(InputStream is, XmlImportConfig config) {
+    public static Network read(InputStream is, XmlImportConfig config, Anonymizer anonymizer) {
         try {
             XMLStreamReader reader = XML_INPUT_FACTORY_SUPPLIER.get().createXMLStreamReader(is);
             reader.next();
@@ -249,26 +252,26 @@ public class NetworkXml implements XmlConstants {
             network.setCaseDate(date);
             network.setForecastDistance(forecastDistance);
 
-            List<Runnable> endTasks = new ArrayList<>();
+            XmlReaderContext context = new XmlReaderContext(anonymizer, reader);
 
             Set<String> extensionNamesNotFound = new TreeSet<>();
 
             XmlUtil.readUntilEndElement(NETWORK_ROOT_ELEMENT_NAME, reader, () -> {
                 switch (reader.getLocalName()) {
                     case SubstationXml.ROOT_ELEMENT_NAME:
-                        SubstationXml.INSTANCE.read(reader, network, endTasks);
+                        SubstationXml.INSTANCE.read(network, context);
                         break;
 
                     case LineXml.ROOT_ELEMENT_NAME:
-                        LineXml.INSTANCE.read(reader, network, endTasks);
+                        LineXml.INSTANCE.read(network, context);
                         break;
 
                     case TieLineXml.ROOT_ELEMENT_NAME:
-                        TieLineXml.INSTANCE.read(reader, network, endTasks);
+                        TieLineXml.INSTANCE.read(network, context);
                         break;
 
                     case EXTENSION_ELEMENT_NAME:
-                        String id2 = reader.getAttributeValue(null, "id");
+                        String id2 = context.getAnonymizer().deanonymizeString(reader.getAttributeValue(null, "id"));
                         Identifiable identifiable = network.getIdentifiable(id2);
                         if (identifiable == null) {
                             throw new RuntimeException("Identifiable " + id2 + " not found");
@@ -277,7 +280,7 @@ public class NetworkXml implements XmlConstants {
                             String extensionName = reader.getLocalName();
                             ExtensionXml extensionXml = findExtensionXml(extensionName);
                             if (extensionXml != null) {
-                                Identifiable.Extension<? extends Identifiable<?>> extension = extensionXml.read(identifiable, reader);
+                                Identifiable.Extension<? extends Identifiable<?>> extension = extensionXml.read(identifiable, context);
                                 identifiable.addExtension(extensionXml.getExtensionClass(), extension);
                             } else {
                                 extensionNamesNotFound.add(extensionName);
@@ -290,7 +293,7 @@ public class NetworkXml implements XmlConstants {
                 }
             });
 
-            endTasks.forEach(Runnable::run);
+            context.getEndTasks().forEach(Runnable::run);
 
             if (extensionNamesNotFound.size() > 0) {
                 if (config.isThrowExceptionIfExtensionNotFound()) {

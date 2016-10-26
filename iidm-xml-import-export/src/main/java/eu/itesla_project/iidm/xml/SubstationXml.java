@@ -9,8 +9,7 @@ package eu.itesla_project.iidm.xml;
 import eu.itesla_project.iidm.network.*;
 
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-import java.util.List;
+import java.util.Arrays;
 import java.util.stream.Collectors;
 
 /**
@@ -35,12 +34,14 @@ class SubstationXml extends IdentifiableXml<Substation, SubstationAdder, Network
 
     @Override
     protected void writeRootElementAttributes(Substation s, Network n, XmlWriterContext context) throws XMLStreamException {
-        context.getWriter().writeAttribute("country", s.getCountry().toString());
+        context.getWriter().writeAttribute("country", context.getAnonymizer().anonymizeCountry(s.getCountry()).toString());
         if (s.getTso() != null) {
-            context.getWriter().writeAttribute("tso", s.getTso());
+            context.getWriter().writeAttribute("tso", context.getAnonymizer().anonymizeString(s.getTso()));
         }
         if (s.getGeographicalTags().size() > 0) {
-            context.getWriter().writeAttribute("geographicalTags", s.getGeographicalTags().stream().collect(Collectors.joining(",")));
+            context.getWriter().writeAttribute("geographicalTags", s.getGeographicalTags().stream()
+                    .map(tag -> context.getAnonymizer().anonymizeString(tag))
+                    .collect(Collectors.joining(",")));
         }
     }
 
@@ -71,12 +72,14 @@ class SubstationXml extends IdentifiableXml<Substation, SubstationAdder, Network
     }
 
     @Override
-    protected Substation readRootElementAttributes(SubstationAdder adder, XMLStreamReader reader, List<Runnable> endTasks) {
-        Country country = Country.valueOf(reader.getAttributeValue(null, "country"));
-        String tso = reader.getAttributeValue(null, "tso");
-        String geographicalTags = reader.getAttributeValue(null, "geographicalTags");
+    protected Substation readRootElementAttributes(SubstationAdder adder, XmlReaderContext context) {
+        Country country = context.getAnonymizer().deanonymizeCountry(Country.valueOf(context.getReader().getAttributeValue(null, "country")));
+        String tso = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "tso"));
+        String geographicalTags = context.getReader().getAttributeValue(null, "geographicalTags");
         if (geographicalTags != null) {
-            adder.setGeographicalTags(geographicalTags.split(","));
+            adder.setGeographicalTags(Arrays.stream(geographicalTags.split(","))
+                    .map(tag -> context.getAnonymizer().deanonymizeString(tag))
+                    .toArray(size -> new String[size]));
         }
         return adder.setCountry(country)
                 .setTso(tso)
@@ -84,23 +87,23 @@ class SubstationXml extends IdentifiableXml<Substation, SubstationAdder, Network
     }
 
     @Override
-    protected void readSubElements(Substation s, XMLStreamReader reader, List<Runnable> endTasks) throws XMLStreamException {
-        readUntilEndRootElement(reader, () -> {
-            switch (reader.getLocalName()) {
+    protected void readSubElements(Substation s, XmlReaderContext context) throws XMLStreamException {
+        readUntilEndRootElement(context.getReader(), () -> {
+            switch (context.getReader().getLocalName()) {
                 case VoltageLevelXml.ROOT_ELEMENT_NAME:
-                    VoltageLevelXml.INSTANCE.read(reader, s, endTasks);
+                    VoltageLevelXml.INSTANCE.read(s, context);
                     break;
 
                 case TwoWindingsTransformerXml.ROOT_ELEMENT_NAME:
-                    TwoWindingsTransformerXml.INSTANCE.read(reader, s, endTasks);
+                    TwoWindingsTransformerXml.INSTANCE.read(s, context);
                     break;
 
                 case ThreeWindingsTransformerXml.ROOT_ELEMENT_NAME:
-                    ThreeWindingsTransformerXml.INSTANCE.read(reader, s, endTasks);
+                    ThreeWindingsTransformerXml.INSTANCE.read(s, context);
                     break;
 
                 default:
-                    super.readSubElements(s, reader, endTasks);
+                    super.readSubElements(s, context);
             }
         });
     }

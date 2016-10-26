@@ -11,8 +11,6 @@ import eu.itesla_project.iidm.network.LineAdder;
 import eu.itesla_project.iidm.network.Network;
 
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-import java.util.List;
 
 /**
  *
@@ -66,40 +64,40 @@ class LineXml extends ConnectableXml<Line, LineAdder, Network> {
     }
 
     @Override
-    protected Line readRootElementAttributes(LineAdder adder, XMLStreamReader reader, List<Runnable> endTasks) {
-        float r = XmlUtil.readFloatAttribute(reader, "r");
-        float x = XmlUtil.readFloatAttribute(reader, "x");
-        float g1 = XmlUtil.readFloatAttribute(reader, "g1");
-        float b1 = XmlUtil.readFloatAttribute(reader, "b1");
-        float g2 = XmlUtil.readFloatAttribute(reader, "g2");
-        float b2 = XmlUtil.readFloatAttribute(reader, "b2");
+    protected Line readRootElementAttributes(LineAdder adder, XmlReaderContext context) {
+        float r = XmlUtil.readFloatAttribute(context.getReader(), "r");
+        float x = XmlUtil.readFloatAttribute(context.getReader(), "x");
+        float g1 = XmlUtil.readFloatAttribute(context.getReader(), "g1");
+        float b1 = XmlUtil.readFloatAttribute(context.getReader(), "b1");
+        float g2 = XmlUtil.readFloatAttribute(context.getReader(), "g2");
+        float b2 = XmlUtil.readFloatAttribute(context.getReader(), "b2");
         adder.setR(r)
                 .setX(x)
                 .setG1(g1)
                 .setB1(b1)
                 .setG2(g2)
                 .setB2(b2);
-        readNodeOrBus(adder, reader);
+        readNodeOrBus(adder, context);
         Line l = adder.add();
-        readPQ(1, l.getTerminal1(), reader);
-        readPQ(2, l.getTerminal2(), reader);
+        readPQ(1, l.getTerminal1(), context.getReader());
+        readPQ(2, l.getTerminal2(), context.getReader());
         return l;
     }
 
     @Override
-    protected void readSubElements(Line l, XMLStreamReader reader, List<Runnable> endTasks) throws XMLStreamException {
-        readUntilEndRootElement(reader, () -> {
-            switch (reader.getLocalName()) {
+    protected void readSubElements(Line l, XmlReaderContext context) throws XMLStreamException {
+        readUntilEndRootElement(context.getReader(), () -> {
+            switch (context.getReader().getLocalName()) {
                 case "currentLimits1":
-                    readCurrentLimits(1, l::newCurrentLimits1, reader);
+                    readCurrentLimits(1, l::newCurrentLimits1, context.getReader());
                     break;
 
                 case "currentLimits2":
-                    readCurrentLimits(2, l::newCurrentLimits2, reader);
+                    readCurrentLimits(2, l::newCurrentLimits2, context.getReader());
                     break;
 
                 default:
-                    super.readSubElements(l, reader, endTasks);
+                    super.readSubElements(l, context);
             }
         });
     }

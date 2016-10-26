@@ -22,7 +22,7 @@ import java.nio.file.Path;
  */
 public class NetworkXmlTest extends ConverterBaseTest {
 
-    private Network createEurostagTutorialExample1() {
+    static Network createEurostagTutorialExample1() {
         Network network = EurostagTutorialExample1Factory.create();
         network.setCaseDate(DateTime.parse("2013-01-15T18:45:00+01:00"));
         return network;

@@ -11,7 +11,6 @@ import eu.itesla_project.iidm.network.IdentifiableAdder;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-import java.util.List;
 import java.util.Properties;
 
 /**
@@ -35,9 +34,9 @@ abstract class IdentifiableXml<T extends Identifiable, A extends IdentifiableAdd
         } else {
             context.getWriter().writeEmptyElement(IIDM_URI, getRootElementName());
         }
-        context.getWriter().writeAttribute("id", identifiable.getId());
+        context.getWriter().writeAttribute("id", context.getAnonymizer().anonymizeString(identifiable.getId()));
         if (!identifiable.getId().equals(identifiable.getName())) {
-            context.getWriter().writeAttribute("name", identifiable.getName());
+            context.getWriter().writeAttribute("name", context.getAnonymizer().anonymizeString(identifiable.getName()));
         }
         writeRootElementAttributes(identifiable, parent, context);
         if (identifiable.hasProperty()) {
@@ -61,25 +60,25 @@ abstract class IdentifiableXml<T extends Identifiable, A extends IdentifiableAdd
 
     protected abstract A createAdder(P parent);
 
-    protected abstract T readRootElementAttributes(A adder, XMLStreamReader reader, List<Runnable> endTasks);
+    protected abstract T readRootElementAttributes(A adder, XmlReaderContext context);
 
-    protected void readSubElements(T identifiable, XMLStreamReader reader, List<Runnable> endTasks) throws XMLStreamException {
-        if (reader.getLocalName().equals("property")) {
-            String name = reader.getAttributeValue(null, "name");
-            String value = reader.getAttributeValue(null, "value");
+    protected void readSubElements(T identifiable, XmlReaderContext context) throws XMLStreamException {
+        if (context.getReader().getLocalName().equals("property")) {
+            String name = context.getReader().getAttributeValue(null, "name");
+            String value = context.getReader().getAttributeValue(null, "value");
             identifiable.getProperties().put(name, value);
         } else {
             throw new AssertionError();
         }
     }
 
-    final public void read(XMLStreamReader reader, P parent, List<Runnable> endTasks) throws XMLStreamException {
+    final public void read(P parent, XmlReaderContext context) throws XMLStreamException {
         A adder = createAdder(parent);
-        String id = reader.getAttributeValue(null, "id");
-        String name = reader.getAttributeValue(null, "name");
+        String id = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "id"));
+        String name = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "name"));
         adder.setId(id)
                 .setName(name);
-        T identifiable = readRootElementAttributes(adder, reader, endTasks);
-        readSubElements(identifiable, reader, endTasks);
+        T identifiable = readRootElementAttributes(adder, context);
+        readSubElements(identifiable, context);
     }
 }

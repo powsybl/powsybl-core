@@ -7,11 +7,8 @@
 package eu.itesla_project.iidm.xml;
 
 import eu.itesla_project.iidm.network.*;
-import org.joda.time.DateTime;
 
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-import java.util.List;
 
 /**
  *
@@ -75,8 +72,8 @@ class VoltageLevelXml extends IdentifiableXml<VoltageLevel, VoltageLevelAdder, S
                         BusXml.INSTANCE.write(b, null, context);
                     }
                     for (Switch sw : vl.getBusBreakerView().getSwitches()) {
-                        Bus b1 = vl.getBusBreakerView().getBus1(sw.getId());
-                        Bus b2 = vl.getBusBreakerView().getBus2(sw.getId());
+                        Bus b1 = vl.getBusBreakerView().getBus1(context.getAnonymizer().anonymizeString(sw.getId()));
+                        Bus b2 = vl.getBusBreakerView().getBus2(context.getAnonymizer().anonymizeString(sw.getId()));
                         if (!context.getFilter().test(b1) || !context.getFilter().test(b2)) {
                             continue;
                         }
@@ -138,11 +135,11 @@ class VoltageLevelXml extends IdentifiableXml<VoltageLevel, VoltageLevelAdder, S
     }
 
     @Override
-    protected VoltageLevel readRootElementAttributes(VoltageLevelAdder adder, XMLStreamReader reader, List<Runnable> endTasks) {
-        float nominalV = XmlUtil.readFloatAttribute(reader, "nominalV");
-        float lowVoltageLimit = XmlUtil.readOptionalFloatAttribute(reader, "lowVoltageLimit");
-        float highVoltageLimit = XmlUtil.readOptionalFloatAttribute(reader, "highVoltageLimit");
-        TopologyKind topologyKind = TopologyKind.valueOf(reader.getAttributeValue(null, "topologyKind"));
+    protected VoltageLevel readRootElementAttributes(VoltageLevelAdder adder, XmlReaderContext context) {
+        float nominalV = XmlUtil.readFloatAttribute(context.getReader(), "nominalV");
+        float lowVoltageLimit = XmlUtil.readOptionalFloatAttribute(context.getReader(), "lowVoltageLimit");
+        float highVoltageLimit = XmlUtil.readOptionalFloatAttribute(context.getReader(), "highVoltageLimit");
+        TopologyKind topologyKind = TopologyKind.valueOf(context.getReader().getAttributeValue(null, "topologyKind"));
         return adder
                 .setNominalV(nominalV)
                 .setLowVoltageLimit(lowVoltageLimit)
@@ -152,20 +149,20 @@ class VoltageLevelXml extends IdentifiableXml<VoltageLevel, VoltageLevelAdder, S
     }
 
     @Override
-    protected void readSubElements(VoltageLevel vl, XMLStreamReader reader, List<Runnable> endTasks) throws XMLStreamException {
-        readUntilEndRootElement(reader, () -> {
-            switch (reader.getLocalName()) {
+    protected void readSubElements(VoltageLevel vl, XmlReaderContext context) throws XMLStreamException {
+        readUntilEndRootElement(context.getReader(), () -> {
+            switch (context.getReader().getLocalName()) {
                 case "nodeBreakerTopology":
-                    int nodeCount = XmlUtil.readIntAttribute(reader, "nodeCount");
+                    int nodeCount = XmlUtil.readIntAttribute(context.getReader(), "nodeCount");
                     vl.getNodeBreakerView().setNodeCount(nodeCount);
-                    XmlUtil.readUntilEndElement("nodeBreakerTopology", reader, () -> {
-                        switch (reader.getLocalName()) {
+                    XmlUtil.readUntilEndElement("nodeBreakerTopology", context.getReader(), () -> {
+                        switch (context.getReader().getLocalName()) {
                             case BusbarSectionXml.ROOT_ELEMENT_NAME:
-                                BusbarSectionXml.INSTANCE.read(reader, vl, endTasks);
+                                BusbarSectionXml.INSTANCE.read(vl, context);
                                 break;
 
                             case NodeBreakerViewSwitchXml.ROOT_ELEMENT_NAME:
-                                NodeBreakerViewSwitchXml.INSTANCE.read(reader, vl, endTasks);
+                                NodeBreakerViewSwitchXml.INSTANCE.read(vl, context);
                                 break;
 
                             default:
@@ -175,14 +172,14 @@ class VoltageLevelXml extends IdentifiableXml<VoltageLevel, VoltageLevelAdder, S
                     break;
 
                 case "busBreakerTopology":
-                    XmlUtil.readUntilEndElement("busBreakerTopology", reader, () -> {
-                        switch (reader.getLocalName()) {
+                    XmlUtil.readUntilEndElement("busBreakerTopology", context.getReader(), () -> {
+                        switch (context.getReader().getLocalName()) {
                             case BusXml.ROOT_ELEMENT_NAME:
-                                BusXml.INSTANCE.read(reader, vl, endTasks);
+                                BusXml.INSTANCE.read(vl, context);
                                 break;
 
                             case BusBreakerViewSwitchXml.ROOT_ELEMENT_NAME:
-                                BusBreakerViewSwitchXml.INSTANCE.read(reader, vl, endTasks);
+                                BusBreakerViewSwitchXml.INSTANCE.read(vl, context);
                                 break;
 
                             default:
@@ -192,27 +189,27 @@ class VoltageLevelXml extends IdentifiableXml<VoltageLevel, VoltageLevelAdder, S
                     break;
 
                 case GeneratorXml.ROOT_ELEMENT_NAME:
-                    GeneratorXml.INSTANCE.read(reader, vl, endTasks);
+                    GeneratorXml.INSTANCE.read(vl, context);
                     break;
 
                 case LoadXml.ROOT_ELEMENT_NAME:
-                    LoadXml.INSTANCE.read(reader, vl, endTasks);
+                    LoadXml.INSTANCE.read(vl, context);
                     break;
 
                 case ShuntXml.ROOT_ELEMENT_NAME:
-                    ShuntXml.INSTANCE.read(reader, vl, endTasks);
+                    ShuntXml.INSTANCE.read(vl, context);
                     break;
 
                 case DanglingLineXml.ROOT_ELEMENT_NAME:
-                    DanglingLineXml.INSTANCE.read(reader, vl, endTasks);
+                    DanglingLineXml.INSTANCE.read(vl, context);
                     break;
 
                 case StaticVarCompensatorXml.ROOT_ELEMENT_NAME:
-                    StaticVarCompensatorXml.INSTANCE.read(reader, vl, endTasks);
+                    StaticVarCompensatorXml.INSTANCE.read(vl, context);
                     break;
 
                 default:
-                    super.readSubElements(vl, reader, endTasks);
+                    super.readSubElements(vl, context);
             }
         });
     }
