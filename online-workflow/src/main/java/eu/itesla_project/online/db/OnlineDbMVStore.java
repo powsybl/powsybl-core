@@ -876,12 +876,8 @@ public class OnlineDbMVStore implements OnlineDb {
                 Set<SecurityIndexType> securityIndexes = null;
                 if ( storedParametersMap.containsKey(STORED_PARAMETERS_SECURITY_INDEXES_KEY) )
                     securityIndexes = OnlineDbMVStoreUtils.jsonToIndexesTypes(storedParametersMap.get(STORED_PARAMETERS_SECURITY_INDEXES_KEY));
-                CaseType caseType = OnlineWorkflowParameters.DEFAULT_CASE_TYPE;
-                if ( storedParametersMap.containsKey(STORED_PARAMETERS_CASE_TYPE_KEY))
-                    caseType = CaseType.valueOf(storedParametersMap.get(STORED_PARAMETERS_CASE_TYPE_KEY));
-                Set<Country> countries = new HashSet<Country>(OnlineWorkflowParameters.DEFAULT_COUNTRIES);
-                if ( storedParametersMap.containsKey(STORED_PARAMETERS_COUNTRIES_KEY))
-                    countries = OnlineDbMVStoreUtils.jsonToCountries(storedParametersMap.get(STORED_PARAMETERS_COUNTRIES_KEY));
+                CaseType caseType = CaseType.valueOf(storedParametersMap.get(STORED_PARAMETERS_CASE_TYPE_KEY));
+                Set<Country> countries = OnlineDbMVStoreUtils.jsonToCountries(storedParametersMap.get(STORED_PARAMETERS_COUNTRIES_KEY));
                 boolean mergeOptimized = OnlineWorkflowParameters.DEFAULT_MERGE_OPTIMIZED;
                 if ( storedParametersMap.containsKey(STORED_PARAMETERS_MERGE_OPTIMIZED_KEY))
                     mergeOptimized = Boolean.parseBoolean(storedParametersMap.get(STORED_PARAMETERS_MERGE_OPTIMIZED_KEY));
