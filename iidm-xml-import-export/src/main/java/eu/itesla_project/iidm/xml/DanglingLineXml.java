@@ -6,11 +6,11 @@
  */
 package eu.itesla_project.iidm.xml;
 
-import eu.itesla_project.iidm.network.*;
+import eu.itesla_project.iidm.network.DanglingLine;
+import eu.itesla_project.iidm.network.DanglingLineAdder;
+import eu.itesla_project.iidm.network.VoltageLevel;
 
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-import java.util.List;
 
 /**
  *
@@ -60,15 +60,15 @@ class DanglingLineXml extends ConnectableXml<DanglingLine, DanglingLineAdder, Vo
     }
 
     @Override
-    protected DanglingLine readRootElementAttributes(DanglingLineAdder adder, XMLStreamReader reader, List<Runnable> endTasks) {
-        float p0 = XmlUtil.readFloatAttribute(reader, "p0");
-        float q0 = XmlUtil.readFloatAttribute(reader, "q0");
-        float r = XmlUtil.readFloatAttribute(reader, "r");
-        float x = XmlUtil.readFloatAttribute(reader, "x");
-        float g = XmlUtil.readFloatAttribute(reader, "g");
-        float b = XmlUtil.readFloatAttribute(reader, "b");
-        String ucteXnodeCode = reader.getAttributeValue(null, "ucteXnodeCode");
-        readNodeOrBus(adder, reader);
+    protected DanglingLine readRootElementAttributes(DanglingLineAdder adder, XmlReaderContext context) {
+        float p0 = XmlUtil.readFloatAttribute(context.getReader(), "p0");
+        float q0 = XmlUtil.readFloatAttribute(context.getReader(), "q0");
+        float r = XmlUtil.readFloatAttribute(context.getReader(), "r");
+        float x = XmlUtil.readFloatAttribute(context.getReader(), "x");
+        float g = XmlUtil.readFloatAttribute(context.getReader(), "g");
+        float b = XmlUtil.readFloatAttribute(context.getReader(), "b");
+        String ucteXnodeCode = context.getReader().getAttributeValue(null, "ucteXnodeCode");
+        readNodeOrBus(adder, context);
         DanglingLine dl = adder.setP0(p0)
                 .setQ0(q0)
                 .setR(r)
@@ -77,17 +77,17 @@ class DanglingLineXml extends ConnectableXml<DanglingLine, DanglingLineAdder, Vo
                 .setB(b)
                 .setUcteXnodeCode(ucteXnodeCode)
                 .add();
-        readPQ(null, dl.getTerminal(), reader);
+        readPQ(null, dl.getTerminal(), context.getReader());
         return dl;
     }
 
     @Override
-    protected void readSubElements(DanglingLine dl, XMLStreamReader reader, List<Runnable> endTasks) throws XMLStreamException {
-        readUntilEndRootElement(reader, () -> {
-            if ("currentLimits".equals(reader.getLocalName())) {
-                readCurrentLimits(null, dl::newCurrentLimits, reader);
+    protected void readSubElements(DanglingLine dl, XmlReaderContext context) throws XMLStreamException {
+        readUntilEndRootElement(context.getReader(), () -> {
+            if ("currentLimits".equals(context.getReader().getLocalName())) {
+                readCurrentLimits(null, dl::newCurrentLimits, context.getReader());
             } else {
-                super.readSubElements(dl, reader, endTasks);
+                super.readSubElements(dl, context);
             }
         });
     }

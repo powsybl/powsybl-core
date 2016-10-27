@@ -13,9 +13,7 @@ import eu.itesla_project.iidm.network.Network;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.Properties;
 
 /**
@@ -62,6 +60,8 @@ public class XMLExporter implements Exporter, XmlConstants {
 
     public static final String ONLY_MAIN_CC_PROPERTIES = "iidm.export.xml.only-main-cc";
 
+    public static final String ANONYMISED_PROPERTIES = "iidm.export.xml.anonymised";
+
     @Override
     public String getFormat() {
         return "XIIDM";
@@ -77,28 +77,27 @@ public class XMLExporter implements Exporter, XmlConstants {
         if (network == null) {
             throw new IllegalArgumentException("network is null");
         }
-        boolean indent = true;
+
+        XMLExportOptions options = new XMLExportOptions();
         if (parameters != null) {
-            indent = !"false".equals(parameters.getProperty(INDENT_PROPERTY));
-        }
-        boolean withBranchSV = (parameters != null
-                && "true".equals(parameters.getProperty(WITH_BRANCH_STATE_VARIABLES_PROPERTY)));
-        boolean forceBusBranchTopo = false;
-        if (parameters != null) {
-            forceBusBranchTopo = "true".equals(parameters.getProperty(FORCE_BUS_BRANCH_TOPO_PROPERTY, "false"));
-        }
-        boolean onlyMainCc = false;
-        if (parameters != null) {
-            onlyMainCc = "true".equals(parameters.getProperty(ONLY_MAIN_CC_PROPERTIES));
+            options.setIndent(!"false".equals(parameters.getProperty(INDENT_PROPERTY)))
+                    .setWithBranchSV("true".equals(parameters.getProperty(WITH_BRANCH_STATE_VARIABLES_PROPERTY)))
+                    .setForceBusBranchTopo("true".equals(parameters.getProperty(FORCE_BUS_BRANCH_TOPO_PROPERTY, "false")))
+                    .setOnlyMainCc("true".equals(parameters.getProperty(ONLY_MAIN_CC_PROPERTIES)))
+                    .setAnonymized("true".equals(parameters.getProperty(ANONYMISED_PROPERTIES)));
         }
 
-        XMLExportOptions options = new XMLExportOptions(withBranchSV, forceBusBranchTopo, indent, onlyMainCc);
         try {
             long startTime = System.currentTimeMillis();
 
             try (OutputStream os = dataSource.newOutputStream(null, "xiidm", false);
                  BufferedOutputStream bos = new BufferedOutputStream(os)) {
-                NetworkXml.write(network, options, bos);
+                Anonymizer anonymizer = NetworkXml.write(network, options, bos);
+                if (anonymizer != null) {
+                    try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(dataSource.newOutputStream("_mapping", "csv", false)))) {
+                        anonymizer.write(writer);
+                    }
+                }
             }
 
             LOGGER.debug("XIIDM export done in {} ms", (System.currentTimeMillis() - startTime));

@@ -6,11 +6,11 @@
  */
 package eu.itesla_project.iidm.xml;
 
-import eu.itesla_project.iidm.network.*;
+import eu.itesla_project.iidm.network.IdentifiableAdder;
+import eu.itesla_project.iidm.network.Switch;
+import eu.itesla_project.iidm.network.VoltageLevel;
 
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-import java.util.List;
 
 /**
  *
@@ -42,7 +42,7 @@ abstract class SwitchXml<A extends IdentifiableAdder<A>> extends IdentifiableXml
     }
 
     @Override
-    protected void readSubElements(Switch s, XMLStreamReader reader, List<Runnable> endTasks) throws XMLStreamException {
-        readUntilEndRootElement(reader, () -> SwitchXml.super.readSubElements(s, reader,endTasks));
+    protected void readSubElements(Switch s, XmlReaderContext context) throws XMLStreamException {
+        readUntilEndRootElement(context.getReader(), () -> SwitchXml.super.readSubElements(s, context));
     }
 }

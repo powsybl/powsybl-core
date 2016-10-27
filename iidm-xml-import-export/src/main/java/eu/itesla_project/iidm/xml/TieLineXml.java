@@ -11,9 +11,6 @@ import eu.itesla_project.iidm.network.TieLine;
 import eu.itesla_project.iidm.network.TieLineAdder;
 
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.XMLStreamWriter;
-import java.util.List;
 
 /**
  *
@@ -35,19 +32,19 @@ class TieLineXml extends ConnectableXml<TieLine, TieLineAdder, Network> {
         return tl.getCurrentLimits1() != null || tl.getCurrentLimits2() != null;
     }
 
-    private static void writeHalf(TieLine.HalfLine halfLine, XMLStreamWriter writer, int side) throws XMLStreamException {
-        writer.writeAttribute("id_" + side, halfLine.getId());
+    private static void writeHalf(TieLine.HalfLine halfLine, XmlWriterContext context, int side) throws XMLStreamException {
+        context.getWriter().writeAttribute("id_" + side, context.getAnonymizer().anonymizeString(halfLine.getId()));
         if (halfLine.getName() != null) {
-            writer.writeAttribute("name_" + side, halfLine.getName());
+            context.getWriter().writeAttribute("name_" + side, context.getAnonymizer().anonymizeString(halfLine.getName()));
         }
-        XmlUtil.writeFloat("r_" + side, halfLine.getR(), writer);
-        XmlUtil.writeFloat("x_" + side, halfLine.getX(), writer);
-        XmlUtil.writeFloat("g1_" + side, halfLine.getG1(), writer);
-        XmlUtil.writeFloat("b1_" + side, halfLine.getB1(), writer);
-        XmlUtil.writeFloat("g2_" + side, halfLine.getG2(), writer);
-        XmlUtil.writeFloat("b2_" + side, halfLine.getB2(), writer);
-        XmlUtil.writeFloat("xnodeP_" + side, halfLine.getXnodeP(), writer);
-        XmlUtil.writeFloat("xnodeQ_" + side, halfLine.getXnodeQ(), writer);
+        XmlUtil.writeFloat("r_" + side, halfLine.getR(), context.getWriter());
+        XmlUtil.writeFloat("x_" + side, halfLine.getX(), context.getWriter());
+        XmlUtil.writeFloat("g1_" + side, halfLine.getG1(), context.getWriter());
+        XmlUtil.writeFloat("b1_" + side, halfLine.getB1(), context.getWriter());
+        XmlUtil.writeFloat("g2_" + side, halfLine.getG2(), context.getWriter());
+        XmlUtil.writeFloat("b2_" + side, halfLine.getB2(), context.getWriter());
+        XmlUtil.writeFloat("xnodeP_" + side, halfLine.getXnodeP(), context.getWriter());
+        XmlUtil.writeFloat("xnodeQ_" + side, halfLine.getXnodeQ(), context.getWriter());
     }
 
     @Override
@@ -59,8 +56,8 @@ class TieLineXml extends ConnectableXml<TieLine, TieLineAdder, Network> {
             writePQ(1, tl.getTerminal1(), context.getWriter());
             writePQ(2, tl.getTerminal2(), context.getWriter());
         }
-        writeHalf(tl.getHalf1(), context.getWriter(), 1);
-        writeHalf(tl.getHalf2(), context.getWriter(), 2);
+        writeHalf(tl.getHalf1(), context, 1);
+        writeHalf(tl.getHalf2(), context, 2);
     }
 
     @Override
@@ -78,17 +75,17 @@ class TieLineXml extends ConnectableXml<TieLine, TieLineAdder, Network> {
         return n.newTieLine();
     }
 
-    private static void readHalf(TieLineAdder adder, XMLStreamReader reader, int side) {
-        String id = reader.getAttributeValue(null, "id_" + side);
-        String name = reader.getAttributeValue(null, "name_" + side);
-        float r = XmlUtil.readFloatAttribute(reader, "r_" + side);
-        float x = XmlUtil.readFloatAttribute(reader, "x_" + side);
-        float g1 = XmlUtil.readFloatAttribute(reader, "g1_" + side);
-        float b1 = XmlUtil.readFloatAttribute(reader, "b1_" + side);
-        float g2 = XmlUtil.readFloatAttribute(reader, "g2_" + side);
-        float b2 = XmlUtil.readFloatAttribute(reader, "b2_" + side);
-        float xnodeP = XmlUtil.readFloatAttribute(reader, "xnodeP_" + side);
-        float xnodeQ = XmlUtil.readFloatAttribute(reader, "xnodeQ_" + side);
+    private static void readHalf(TieLineAdder adder, XmlReaderContext context, int side) {
+        String id = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "id_" + side));
+        String name = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "name_" + side));
+        float r = XmlUtil.readFloatAttribute(context.getReader(), "r_" + side);
+        float x = XmlUtil.readFloatAttribute(context.getReader(), "x_" + side);
+        float g1 = XmlUtil.readFloatAttribute(context.getReader(), "g1_" + side);
+        float b1 = XmlUtil.readFloatAttribute(context.getReader(), "b1_" + side);
+        float g2 = XmlUtil.readFloatAttribute(context.getReader(), "g2_" + side);
+        float b2 = XmlUtil.readFloatAttribute(context.getReader(), "b2_" + side);
+        float xnodeP = XmlUtil.readFloatAttribute(context.getReader(), "xnodeP_" + side);
+        float xnodeQ = XmlUtil.readFloatAttribute(context.getReader(), "xnodeQ_" + side);
         adder.setId(id)
                 .setName(name)
                 .setR(r)
@@ -102,32 +99,32 @@ class TieLineXml extends ConnectableXml<TieLine, TieLineAdder, Network> {
     }
 
     @Override
-    protected TieLine readRootElementAttributes(TieLineAdder adder, XMLStreamReader reader, List<Runnable> endTasks) {
-        readHalf(adder.line1(), reader, 1);
-        readHalf(adder.line2(), reader, 2);
-        readNodeOrBus(adder, reader);
-        String ucteXnodeCode = reader.getAttributeValue(null, "ucteXnodeCode");
+    protected TieLine readRootElementAttributes(TieLineAdder adder, XmlReaderContext context) {
+        readHalf(adder.line1(), context, 1);
+        readHalf(adder.line2(), context, 2);
+        readNodeOrBus(adder, context);
+        String ucteXnodeCode = context.getReader().getAttributeValue(null, "ucteXnodeCode");
         TieLine tl  = adder.setUcteXnodeCode(ucteXnodeCode)
                 .add();
-        readPQ(1, tl.getTerminal1(), reader);
-        readPQ(2, tl.getTerminal2(), reader);
+        readPQ(1, tl.getTerminal1(), context.getReader());
+        readPQ(2, tl.getTerminal2(), context.getReader());
         return tl;
     }
 
     @Override
-    protected void readSubElements(TieLine tl, XMLStreamReader reader, List<Runnable> endTasks) throws XMLStreamException {
-        readUntilEndRootElement(reader, () -> {
-            switch (reader.getLocalName()) {
+    protected void readSubElements(TieLine tl, XmlReaderContext context) throws XMLStreamException {
+        readUntilEndRootElement(context.getReader(), () -> {
+            switch (context.getReader().getLocalName()) {
                 case "currentLimits1":
-                    readCurrentLimits(1, tl::newCurrentLimits1, reader);
+                    readCurrentLimits(1, tl::newCurrentLimits1, context.getReader());
                     break;
 
                 case "currentLimits2":
-                    readCurrentLimits(2, tl::newCurrentLimits2, reader);
+                    readCurrentLimits(2, tl::newCurrentLimits2, context.getReader());
                     break;
 
                 default:
-                    super.readSubElements(tl, reader, endTasks);
+                    super.readSubElements(tl, context);
             }
         });
     }

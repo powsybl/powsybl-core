@@ -6,11 +6,11 @@
  */
 package eu.itesla_project.iidm.xml;
 
-import eu.itesla_project.iidm.network.*;
+import eu.itesla_project.iidm.network.StaticVarCompensator;
+import eu.itesla_project.iidm.network.StaticVarCompensatorAdder;
+import eu.itesla_project.iidm.network.VoltageLevel;
 
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-import java.util.List;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -52,25 +52,25 @@ public class StaticVarCompensatorXml extends ConnectableXml<StaticVarCompensator
     }
 
     @Override
-    protected StaticVarCompensator readRootElementAttributes(StaticVarCompensatorAdder adder, XMLStreamReader reader, List<Runnable> endTasks) {
-        float bMin = XmlUtil.readFloatAttribute(reader, "bMin");
-        float bMax = XmlUtil.readFloatAttribute(reader, "bMax");
-        float voltageSetPoint = XmlUtil.readOptionalFloatAttribute(reader, "voltageSetPoint");
-        float reactivePowerSetPoint = XmlUtil.readOptionalFloatAttribute(reader, "reactivePowerSetPoint");
-        StaticVarCompensator.RegulationMode regulationMode = StaticVarCompensator.RegulationMode.valueOf(reader.getAttributeValue(null, "regulationMode"));
+    protected StaticVarCompensator readRootElementAttributes(StaticVarCompensatorAdder adder, XmlReaderContext context) {
+        float bMin = XmlUtil.readFloatAttribute(context.getReader(), "bMin");
+        float bMax = XmlUtil.readFloatAttribute(context.getReader(), "bMax");
+        float voltageSetPoint = XmlUtil.readOptionalFloatAttribute(context.getReader(), "voltageSetPoint");
+        float reactivePowerSetPoint = XmlUtil.readOptionalFloatAttribute(context.getReader(), "reactivePowerSetPoint");
+        StaticVarCompensator.RegulationMode regulationMode = StaticVarCompensator.RegulationMode.valueOf(context.getReader().getAttributeValue(null, "regulationMode"));
         adder.setBmin(bMin)
                 .setBmax(bMax)
                 .setVoltageSetPoint(voltageSetPoint)
                 .setReactivePowerSetPoint(reactivePowerSetPoint)
                 .setRegulationMode(regulationMode);
-        readNodeOrBus(adder, reader);
+        readNodeOrBus(adder, context);
         StaticVarCompensator svc = adder.add();
-        readPQ(null, svc.getTerminal(), reader);
+        readPQ(null, svc.getTerminal(), context.getReader());
         return svc;
     }
 
     @Override
-    protected void readSubElements(StaticVarCompensator svc, XMLStreamReader reader, List<Runnable> endTasks) throws XMLStreamException {
-        readUntilEndRootElement(reader, () -> super.readSubElements(svc, reader,endTasks));
+    protected void readSubElements(StaticVarCompensator svc, XmlReaderContext context) throws XMLStreamException {
+        readUntilEndRootElement(context.getReader(), () -> super.readSubElements(svc, context));
     }
 }

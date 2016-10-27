@@ -6,11 +6,12 @@
  */
 package eu.itesla_project.iidm.xml;
 
-import eu.itesla_project.iidm.network.*;
+import eu.itesla_project.iidm.network.Load;
+import eu.itesla_project.iidm.network.LoadAdder;
+import eu.itesla_project.iidm.network.LoadType;
+import eu.itesla_project.iidm.network.VoltageLevel;
 
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-import java.util.List;
 
 /**
  *
@@ -51,22 +52,22 @@ class LoadXml extends ConnectableXml<Load, LoadAdder, VoltageLevel> {
     }
 
     @Override
-    protected Load readRootElementAttributes(LoadAdder adder, XMLStreamReader reader, List<Runnable> endTasks) {
-        String loadTypeStr = reader.getAttributeValue(null, "loadType");
+    protected Load readRootElementAttributes(LoadAdder adder, XmlReaderContext context) {
+        String loadTypeStr = context.getReader().getAttributeValue(null, "loadType");
         LoadType loadType = loadTypeStr == null ? LoadType.UNDEFINED : LoadType.valueOf(loadTypeStr);
-        float p0 = XmlUtil.readFloatAttribute(reader, "p0");
-        float q0 = XmlUtil.readFloatAttribute(reader, "q0");
-        readNodeOrBus(adder, reader);
+        float p0 = XmlUtil.readFloatAttribute(context.getReader(), "p0");
+        float q0 = XmlUtil.readFloatAttribute(context.getReader(), "q0");
+        readNodeOrBus(adder, context);
         Load l = adder.setLoadType(loadType)
                 .setP0(p0)
                 .setQ0(q0)
                 .add();
-        readPQ(null, l.getTerminal(), reader);
+        readPQ(null, l.getTerminal(), context.getReader());
         return l;
     }
 
     @Override
-    protected void readSubElements(Load l, XMLStreamReader reader, List<Runnable> endTasks) throws XMLStreamException {
-        readUntilEndRootElement(reader, () -> LoadXml.super.readSubElements(l, reader,endTasks));
+    protected void readSubElements(Load l, XmlReaderContext context) throws XMLStreamException {
+        readUntilEndRootElement(context.getReader(), () -> LoadXml.super.readSubElements(l, context));
     }
 }

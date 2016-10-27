@@ -12,8 +12,6 @@ import eu.itesla_project.iidm.network.ThreeWindingsTransformer;
 import eu.itesla_project.iidm.network.ThreeWindingsTransformerAdder;
 
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-import java.util.List;
 
 /**
  *
@@ -89,12 +87,12 @@ class ThreeWindingsTransformerXml extends TransformerXml<ThreeWindingsTransforme
     }
 
     @Override
-    protected ThreeWindingsTransformer readRootElementAttributes(ThreeWindingsTransformerAdder adder, XMLStreamReader reader, List<Runnable> endTasks) {
+    protected ThreeWindingsTransformer readRootElementAttributes(ThreeWindingsTransformerAdder adder, XmlReaderContext context) {
         throw new AssertionError("TODO"); // FIXME
     }
 
     @Override
-    protected void readSubElements(ThreeWindingsTransformer identifiable, XMLStreamReader reader, List<Runnable> endTasks) throws XMLStreamException {
+    protected void readSubElements(ThreeWindingsTransformer identifiable, XmlReaderContext context) throws XMLStreamException {
         throw new AssertionError("TODO"); // FIXME
     }
 }

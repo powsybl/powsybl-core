@@ -24,8 +24,10 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.events.XMLEvent;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
@@ -120,8 +122,15 @@ public class XMLImporter implements Importer, XmlConstants {
                         + "." + Joiner.on("|").join(EXTENSIONS) + " not found");
             }
             boolean throwExceptionIfExtensionNotFound = (Boolean) Importers.readParameter(getFormat(), parameters, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND);
+            Anonymizer anonymizer = null;
+            if (dataSource.exists("_mapping", "csv")) {
+                anonymizer = new SimpleAnonymizer();
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream("_mapping", "csv")))) {
+                    anonymizer.read(reader);
+                }
+            }
             try (InputStream is = dataSource.newInputStream(null, ext)) {
-                network = NetworkXml.read(is, new XmlImportConfig(throwExceptionIfExtensionNotFound));
+                network = NetworkXml.read(is, new XmlImportConfig(throwExceptionIfExtensionNotFound), anonymizer);
             }
             LOGGER.debug("XIIDM import done in {} ms", (System.currentTimeMillis() - startTime));
         } catch (IOException e) {

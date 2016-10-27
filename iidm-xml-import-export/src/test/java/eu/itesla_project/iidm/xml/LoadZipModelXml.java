@@ -62,14 +62,14 @@ public class LoadZipModelXml implements ExtensionXml<Load, LoadZipModel> {
     }
 
     @Override
-    public LoadZipModel read(Load load, XMLStreamReader reader) {
-        float a1 = XmlUtil.readFloatAttribute(reader, "a1");
-        float a2 = XmlUtil.readFloatAttribute(reader, "a2");
-        float a3 = XmlUtil.readFloatAttribute(reader, "a3");
-        float a4 = XmlUtil.readFloatAttribute(reader, "a4");
-        float a5 = XmlUtil.readFloatAttribute(reader, "a5");
-        float a6 = XmlUtil.readFloatAttribute(reader, "a6");
-        float v0 = XmlUtil.readFloatAttribute(reader, "v0");
+    public LoadZipModel read(Load load, XmlReaderContext context) {
+        float a1 = XmlUtil.readFloatAttribute(context.getReader(), "a1");
+        float a2 = XmlUtil.readFloatAttribute(context.getReader(), "a2");
+        float a3 = XmlUtil.readFloatAttribute(context.getReader(), "a3");
+        float a4 = XmlUtil.readFloatAttribute(context.getReader(), "a4");
+        float a5 = XmlUtil.readFloatAttribute(context.getReader(), "a5");
+        float a6 = XmlUtil.readFloatAttribute(context.getReader(), "a6");
+        float v0 = XmlUtil.readFloatAttribute(context.getReader(), "v0");
         return new LoadZipModel(load, a1, a2, a3, a4, a5, a6, v0);
     }
 }
