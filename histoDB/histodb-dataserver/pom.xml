@@ -112,7 +112,7 @@
 
         <dependency>
             <groupId>eu.itesla_project</groupId>
-            <artifactId>iidm-import-export-api</artifactId>
+            <artifactId>iidm-converter-api</artifactId>
             <version>0.1-SNAPSHOT</version>
         </dependency>
 
@@ -142,7 +142,7 @@
 
         <dependency>
             <groupId>eu.itesla_project</groupId>
-            <artifactId>iidm-xml-import-export</artifactId>
+            <artifactId>iidm-xml-converter</artifactId>
             <version>0.1-SNAPSHOT</version>
         </dependency>
 

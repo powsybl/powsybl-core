@@ -27,7 +27,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>iidm-import-export-api</artifactId>
+            <artifactId>iidm-converter-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

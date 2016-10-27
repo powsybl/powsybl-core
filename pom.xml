@@ -20,58 +20,56 @@
     <url>http://www.itesla-project.eu/</url>
 
     <modules>
+        <module>ampl-export</module>
+        <module>case-repository</module>
+        <module>cim1-model</module>
+        <module>cim1-import</module>
         <module>commons</module>
+        <module>computation</module>
+        <module>computation-local</module>
+        <module>computation-mpi</module>
+        <module>contingency-api</module>
+        <module>distribution</module>
+        <module>dymola-integration</module>
+        <module>entsoe-case-repository</module>
+        <module>entsoe-util</module>
+        <module>EU2Mod_MB</module>
+        <module>eurostag-ech-export</module>
+        <module>eurostag-integration</module>
+        <module>eurostag-network</module>
+        <module>eurostag-step-up-transformer</module>
+        <module>file-system-rules-db</module>
+        <module>fpf-integration</module>
         <module>graph</module>
+        <!-- <module>histoDB</module> -->
+        <module>histodb-client</module>
+        <module>iidm-actions-contingencies-xml-client</module>
+        <module>iidm-converter-api</module>
+        <module>iidm-ddb</module>
         <module>iidm-network-api</module>
         <module>iidm-network-impl</module>
         <module>iidm-network-test</module>
-        <module>iidm-import-export-api</module>
-        <module>iidm-ddb</module>
-        <module>eurostag-ech-export</module>
-        <module>cim1-model</module>
-        <module>cim1-import</module>
-        <module>computation</module>
-        <module>eurostag-integration</module>
-        <module>offline-workflow</module>
-        <module>eurostag-step-up-transformer</module>
-        <module>sampling-integration</module>
-        <module>modules</module>
-        <module>computation-local</module>
-        <module>histodb-client</module>
-        <module>offline-server</module>
-        <module>modelica-export</module>
-        <module>modelica-events-adder</module>
-        <module>entsoe-util</module>
-        <module>ucte-network</module>
-        <module>ucte-import</module>
+        <module>iidm-xml-converter</module>
+        <module>loadflow-api</module>
         <module>mcla-integration</module>
-        <module>online-workflow</module>
-        <module>wca-integration</module>
-        <module>ampl-export</module>
+        <module>mmap-offline-db</module>
+        <module>modelica-events-adder</module>
+        <module>modelica-export</module>
+        <module>modules</module>
+        <module>network-merge</module>
         <module>offline-mpi</module>
-        <module>computation-mpi</module>
+        <module>offline-server</module>
+        <module>offline-workflow</module>
         <module>online-mpi</module>
         <module>online-server</module>
-        <module>iidm-actions-contingencies-xml-client</module>
-        <module>eurostag-network</module>
-        <module>mmap-offline-db</module>
-        <module>file-system-rules-db</module>
+        <module>online-workflow</module>
         <module>pclfsim-integration</module>
-        <module>EU2Mod_MB</module>
-        <module>loadflow-api</module>
-        <module>dymola-integration</module>
-        <module>fpf-integration</module>
-        <module>iidm-xml-import-export</module>
-        <module>distribution</module>
-        <module>case-repository</module>
-        <module>entsoe-case-repository</module>
-        <module>network-merge</module>
-        <module>simulation-api</module>
-        <module>contingency-api</module>
+        <module>sampling-integration</module>
         <module>security-analysis</module>
-        <!--
-        <module>histoDB</module>
-        -->
+        <module>simulation-api</module>
+        <module>ucte-import</module>
+        <module>ucte-network</module>
+        <module>wca-integration</module>
     </modules>
 
     <properties>

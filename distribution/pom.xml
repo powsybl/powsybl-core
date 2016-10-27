@@ -50,7 +50,7 @@
         </dependency>
         <dependency>
             <groupId>eu.itesla_project</groupId>
-            <artifactId>iidm-xml-import-export</artifactId>
+            <artifactId>iidm-xml-converter</artifactId>
             <version>${project.version}</version>
         </dependency>
 
