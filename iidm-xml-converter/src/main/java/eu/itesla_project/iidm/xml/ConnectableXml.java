@@ -129,13 +129,13 @@ public abstract class ConnectableXml<T extends Connectable, A extends Identifiab
         XmlUtil.readUntilEndElement("currentLimits" + indexToString(index), reader, () -> {
             if ("temporaryLimit".equals(reader.getLocalName())) {
                 String name = reader.getAttributeValue(null, "name");
-                Integer acceptableDuration = XmlUtil.readOptionalIntegerAttribute(reader, "acceptableDuration");
-                float value = XmlUtil.readOptionalFloatAttribute(reader, "value");
+                int acceptableDuration = XmlUtil.readOptionalIntegerAttribute(reader, "acceptableDuration", Integer.MAX_VALUE);
+                float value = XmlUtil.readOptionalFloatAttribute(reader, "value", Float.MAX_VALUE);
                 boolean fictitious = XmlUtil.readOptionalBoolAttribute(reader, "fictitious", false);
                 adder.beginTemporaryLimit()
                         .setName(name)
-                        .setAcceptableDuration(acceptableDuration == null ? Integer.MAX_VALUE : acceptableDuration)
-                        .setValue(Float.isNaN(value) ? Float.MAX_VALUE : value)
+                        .setAcceptableDuration(acceptableDuration)
+                        .setValue(value)
                         .setFictitious(fictitious)
                         .endTemporaryLimit();
             }

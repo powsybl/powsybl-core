@@ -245,7 +245,7 @@ public class NetworkXml implements XmlConstants {
 
             String id = reader.getAttributeValue(null, "id");
             DateTime date = DateTime.parse(reader.getAttributeValue(null, "caseDate"));
-            int forecastDistance = XmlUtil.readOptionalIntegerAttributeValue(reader, "forecastDistance", 0);
+            int forecastDistance = XmlUtil.readOptionalIntegerAttribute(reader, "forecastDistance", 0);
             String sourceFormat = reader.getAttributeValue(null, "sourceFormat");
 
             Network network = NetworkFactory.create(id, sourceFormat);

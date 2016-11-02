@@ -38,8 +38,8 @@ public class Security {
                         branch.getTerminal2().getVoltageLevel().getNominalV());
     }
 
-    public static void checkCurrentLimits(Iterable<? extends TwoTerminalsConnectable> branches, CurrentLimitType currentLimitType,
-                                          float limitReduction, List<LimitViolation> violations) {
+    private static void checkCurrentLimits(Iterable<? extends TwoTerminalsConnectable> branches, CurrentLimitType currentLimitType,
+                                           float limitReduction, List<LimitViolation> violations) {
         for (TwoTerminalsConnectable branch : branches) {
             switch (currentLimitType) {
                 case PATL:
@@ -101,6 +101,8 @@ public class Security {
     }
 
     public static List<LimitViolation> checkLimits(Network network, CurrentLimitType currentLimitType, float limitReduction) {
+        Objects.requireNonNull(network);
+        Objects.requireNonNull(currentLimitType);
         //if (limitReduction <= 0 || limitReduction > 1) {
         // allow to increase the limits
         if (limitReduction <= 0) {
@@ -147,6 +149,7 @@ public class Security {
     }
 
     public static String printLimitsViolations(List<LimitViolation> violations, LimitViolationFilter filter) {
+        Objects.requireNonNull(violations);
         Objects.requireNonNull(filter);
         List<LimitViolation> filteredViolations = filter.apply(violations);
         if (filteredViolations.size() > 0) {

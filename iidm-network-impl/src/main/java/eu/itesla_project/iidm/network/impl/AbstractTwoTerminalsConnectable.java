@@ -97,7 +97,7 @@ abstract class AbstractTwoTerminalsConnectable<I extends Connectable<I>> extends
 
     public int getOverloadDuration() {
         TwoTerminalsConnectable.Overload o1 = checkTemporaryLimits1();
-        TwoTerminalsConnectable.Overload o2 = checkTemporaryLimits1();
+        TwoTerminalsConnectable.Overload o2 = checkTemporaryLimits2();
         int duration1 = o1 != null ? o1.getTemporaryLimit().getAcceptableDuration() : Integer.MAX_VALUE;
         int duration2 = o2 != null ? o2.getTemporaryLimit().getAcceptableDuration() : Integer.MAX_VALUE;
         return Math.min(duration1, duration2);
@@ -137,7 +137,7 @@ abstract class AbstractTwoTerminalsConnectable<I extends Connectable<I>> extends
         return checkPermanentLimit2(1f);
     }
 
-    public static boolean checkPermanentLimit(Terminal terminal, CurrentLimits limits, float limitReduction) {
+    private static boolean checkPermanentLimit(Terminal terminal, CurrentLimits limits, float limitReduction) {
         float i = terminal.getI();
         if (limits != null && !Float.isNaN(limits.getPermanentLimit()) && !Float.isNaN(i) ) {
             if (i > limits.getPermanentLimit() * limitReduction) {
