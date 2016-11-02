@@ -36,8 +36,6 @@ public class PostContLoadFlowSimConfig {
 
     private Security.CurrentLimitType currentLimitType;
 
-    private int maxAcceptableDuration; // only used in case of current limite type TATL
-
     private float limitReduction;
 
     public synchronized static PostContLoadFlowSimConfig load() {
@@ -47,10 +45,9 @@ public class PostContLoadFlowSimConfig {
         boolean warnStartActivated = config.getBooleanProperty("warnStartActivated", false);
         float baseVoltageFilter = config.getFloatProperty("minBaseVoltageFilter", DEFAULT_MIN_BASE_VOLTAGE_FILTER);
         Security.CurrentLimitType currentLimitType = config.getEnumProperty("currentLimitType", Security.CurrentLimitType.class, DEFAULT_CURRENT_LIMITE_TYPE);
-        int maxAcceptableDuration = config.getIntProperty("maxAcceptableDuration", Integer.MAX_VALUE);
         float limitReduction = config.getFloatProperty("limitReduction", DEFAULT_LIMIT_REDUCTION);
         return new PostContLoadFlowSimConfig(loadFlowFactoryClass, baseCaseConstraintsFiltered, warnStartActivated,
-                baseVoltageFilter, currentLimitType, maxAcceptableDuration, limitReduction);
+                baseVoltageFilter, currentLimitType, limitReduction);
     }
 
     private static float checkBaseVoltageFilter(float baseVoltageFilter) {
@@ -62,7 +59,7 @@ public class PostContLoadFlowSimConfig {
 
     public PostContLoadFlowSimConfig(Class<? extends LoadFlowFactory> loadFlowFactoryClass, boolean baseCaseConstraintsFiltered,
                                      boolean warnStartActivated, float minBaseVoltageFilter, Security.CurrentLimitType currentLimitType,
-                                     int maxAcceptableDuration, float limitReduction) {
+                                     float limitReduction) {
         if (limitReduction <= 0 || limitReduction > 1) {
             throw new IllegalArgumentException("Bad limit reduction " + limitReduction);
         }
@@ -71,7 +68,6 @@ public class PostContLoadFlowSimConfig {
         this.warnStartActivated = warnStartActivated;
         this.minBaseVoltageFilter = checkBaseVoltageFilter(minBaseVoltageFilter);
         this.currentLimitType = Objects.requireNonNull(currentLimitType);
-        this.maxAcceptableDuration = maxAcceptableDuration;
         this.limitReduction = limitReduction;
     }
 
@@ -115,14 +111,6 @@ public class PostContLoadFlowSimConfig {
         this.currentLimitType = Objects.requireNonNull(currentLimitType);
     }
 
-    public int getMaxAcceptableDuration() {
-        return maxAcceptableDuration;
-    }
-
-    public void setMaxAcceptableDuration(int maxAcceptableDuration) {
-        this.maxAcceptableDuration = maxAcceptableDuration;
-    }
-
     public float getLimitReduction() {
         return limitReduction;
     }
@@ -139,7 +127,6 @@ public class PostContLoadFlowSimConfig {
                 " , warnStartActivated=" + warnStartActivated +
                 " , minBaseVoltageFilter=" + minBaseVoltageFilter +
                 " , currentLimitType=" + currentLimitType +
-                " , maxAcceptableDuration=" + maxAcceptableDuration +
                 " , limitReduction=" + limitReduction +
                 "]";
     }

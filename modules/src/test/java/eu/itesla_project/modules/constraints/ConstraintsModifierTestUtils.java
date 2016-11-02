@@ -101,11 +101,11 @@ public class ConstraintsModifierTestUtils {
     public static List<LimitViolation> getViolations(Network network) {
         List<LimitViolation> violations = new ArrayList<LimitViolation>();
         Line line = network.getLine(LINE_ID);
-        violations.add(new LimitViolation(line, LimitViolationType.CURRENT, CURRENT_LIMIT, 1, CURRENT_VALUE, COUNTRY, Float.NaN));
+        violations.add(new LimitViolation(line, LimitViolationType.CURRENT, CURRENT_LIMIT, null, 1, CURRENT_VALUE, COUNTRY, Float.NaN));
         VoltageLevel voltageLevel = network.getVoltageLevel(VOLTAGE_LEVEL_1_ID);
-        violations.add(new LimitViolation(voltageLevel, LimitViolationType.HIGH_VOLTAGE, HIGH_VOLTAGE_LIMIT, 1, V, COUNTRY, Float.NaN));
+        violations.add(new LimitViolation(voltageLevel, LimitViolationType.HIGH_VOLTAGE, HIGH_VOLTAGE_LIMIT, null, 1, V, COUNTRY, Float.NaN));
         VoltageLevel voltageLevel2 = network.getVoltageLevel(VOLTAGE_LEVEL_2_ID);
-        violations.add(new LimitViolation(voltageLevel2, LimitViolationType.LOW_VOLTAGE, LOW_VOLTAGE_LIMIT, 1, V, COUNTRY, Float.NaN));
+        violations.add(new LimitViolation(voltageLevel2, LimitViolationType.LOW_VOLTAGE, LOW_VOLTAGE_LIMIT, null, 1, V, COUNTRY, Float.NaN));
         return violations;
     }
 

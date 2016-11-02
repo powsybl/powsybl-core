@@ -128,11 +128,15 @@ public abstract class ConnectableXml<T extends Connectable, A extends Identifiab
         adder.setPermanentLimit(permanentLimit);
         XmlUtil.readUntilEndElement("currentLimits" + indexToString(index), reader, () -> {
             if ("temporaryLimit".equals(reader.getLocalName())) {
-                int acceptableDuration = Integer.valueOf(reader.getAttributeValue(null, "acceptableDuration"));
-                float limit = Float.valueOf(XmlUtil.readUntilEndElement("temporaryLimit", reader, null));
+                String name = reader.getAttributeValue(null, "name");
+                Integer acceptableDuration = XmlUtil.readOptionalIntegerAttribute(reader, "acceptableDuration");
+                float value = XmlUtil.readOptionalFloatAttribute(reader, "value");
+                boolean fictitious = XmlUtil.readOptionalBoolAttribute(reader, "fictitious", false);
                 adder.beginTemporaryLimit()
-                        .setAcceptableDuration(acceptableDuration)
-                        .setLimit(limit)
+                        .setName(name)
+                        .setAcceptableDuration(acceptableDuration == null ? Integer.MAX_VALUE : acceptableDuration)
+                        .setValue(Float.isNaN(value) ? Float.MAX_VALUE : value)
+                        .setFictitious(fictitious)
                         .endTemporaryLimit();
             }
         });
@@ -154,8 +158,16 @@ public abstract class ConnectableXml<T extends Connectable, A extends Identifiab
             XmlUtil.writeFloat("permanentLimit", limits.getPermanentLimit(), writer);
             for (CurrentLimits.TemporaryLimit tl : limits.getTemporaryLimits()) {
                 writer.writeStartElement(IIDM_URI, "temporaryLimit");
-                writer.writeAttribute("acceptableDuration", Integer.toString(tl.getAcceptableDuration()));
-                writer.writeCharacters(Float.toString(tl.getLimit()));
+                writer.writeAttribute("name", tl.getName());
+                if (tl.getAcceptableDuration() != Integer.MAX_VALUE) {
+                    writer.writeAttribute("acceptableDuration", Integer.toString(tl.getAcceptableDuration()));
+                }
+                if (tl.getValue() != Float.MAX_VALUE) {
+                    writer.writeAttribute("value", Float.toString(tl.getValue()));
+                }
+                if (tl.isFictitious()) {
+                    writer.writeAttribute("fictitious", Boolean.toString(tl.isFictitious()));
+                }
                 writer.writeEndElement();
             }
             if (!limits.getTemporaryLimits().isEmpty()) {

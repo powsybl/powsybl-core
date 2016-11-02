@@ -8,6 +8,7 @@ package eu.itesla_project.iidm.network.impl;
 
 import eu.itesla_project.iidm.network.CurrentLimits;
 import java.util.Collection;
+import java.util.Objects;
 import java.util.TreeMap;
 
 /**
@@ -22,18 +23,29 @@ public class CurrentLimitsImpl implements CurrentLimits {
 
     static class TemporaryLimitImpl implements TemporaryLimit {
 
-        private final float limit;
+        private final String name;
+
+        private final float value;
 
         private final int acceptableDuration;
 
-        TemporaryLimitImpl(float limit, int acceptableDuration) {
-            this.limit = limit;
+        private boolean fictitious;
+
+        TemporaryLimitImpl(String name, float value, int acceptableDuration, boolean fictitious) {
+            this.name = Objects.requireNonNull(name);
+            this.value = value;
             this.acceptableDuration = acceptableDuration;
+            this.fictitious = fictitious;
         }
 
         @Override
-        public float getLimit() {
-            return limit;
+        public String getName() {
+            return name;
+        }
+
+        @Override
+        public float getValue() {
+            return value;
         }
 
         @Override
@@ -41,6 +53,10 @@ public class CurrentLimitsImpl implements CurrentLimits {
             return acceptableDuration;
         }
 
+        @Override
+        public boolean isFictitious() {
+            return fictitious;
+        }
     }
 
     CurrentLimitsImpl(float permanentLimit, TreeMap<Integer, TemporaryLimit> temporaryLimits) {
@@ -58,4 +74,8 @@ public class CurrentLimitsImpl implements CurrentLimits {
         return temporaryLimits.values();
     }
 
+    @Override
+    public TemporaryLimit getTemporaryLimit(int acceptableDuration) {
+        return temporaryLimits.get(acceptableDuration);
+    }
 }

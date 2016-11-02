@@ -92,27 +92,129 @@ abstract class AbstractTwoTerminalsConnectable<I extends Connectable<I>> extends
     }
 
     public boolean isOverloaded() {
-        return (limits1 != null && getTerminal1().getI() >= limits1.getPermanentLimit())
-                || (limits2 != null && getTerminal2().getI() >= limits2.getPermanentLimit());
-    }
-
-    private static int getOverloadDuration(CurrentLimits limits, Terminal t) {
-        if (limits != null) {
-            float i1 = t.getI();
-            float previousLimit = limits.getPermanentLimit();
-            for (CurrentLimits.TemporaryLimit tl : limits.getTemporaryLimits()) {
-                if (i1 >= previousLimit && i1 < tl.getLimit()) {
-                    return tl.getAcceptableDuration();
-                }
-                previousLimit = tl.getLimit();
-            }
-        }
-        return Integer.MAX_VALUE;
+        return checkTemporaryLimits1() != null || checkTemporaryLimits2() != null;
     }
 
     public int getOverloadDuration() {
-        int duration1 = getOverloadDuration(limits1, getTerminal1());
-        int duration2 = getOverloadDuration(limits2, getTerminal2());
+        TwoTerminalsConnectable.Overload o1 = checkTemporaryLimits1();
+        TwoTerminalsConnectable.Overload o2 = checkTemporaryLimits1();
+        int duration1 = o1 != null ? o1.getTemporaryLimit().getAcceptableDuration() : Integer.MAX_VALUE;
+        int duration2 = o2 != null ? o2.getTemporaryLimit().getAcceptableDuration() : Integer.MAX_VALUE;
         return Math.min(duration1, duration2);
+    }
+
+    public boolean checkPermanentLimit(Side side, float limitReduction) {
+        Objects.requireNonNull(side);
+        switch (side) {
+            case ONE:
+                return checkPermanentLimit1(limitReduction);
+
+            case TWO:
+                return checkPermanentLimit2(limitReduction);
+
+            default:
+                throw new AssertionError();
+        }
+    }
+
+    public boolean checkPermanentLimit(Side side) {
+        return checkPermanentLimit(side, 1f);
+    }
+
+    public boolean checkPermanentLimit1(float limitReduction) {
+        return checkPermanentLimit(getTerminal1(), getCurrentLimits1(), limitReduction);
+    }
+
+    public boolean checkPermanentLimit1() {
+        return checkPermanentLimit1(1f);
+    }
+
+    public boolean checkPermanentLimit2(float limitReduction) {
+        return checkPermanentLimit(getTerminal2(), getCurrentLimits2(), limitReduction);
+    }
+
+    public boolean checkPermanentLimit2() {
+        return checkPermanentLimit2(1f);
+    }
+
+    public static boolean checkPermanentLimit(Terminal terminal, CurrentLimits limits, float limitReduction) {
+        float i = terminal.getI();
+        if (limits != null && !Float.isNaN(limits.getPermanentLimit()) && !Float.isNaN(i) ) {
+            if (i > limits.getPermanentLimit() * limitReduction) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    static class OverloadImpl implements TwoTerminalsConnectable.Overload {
+
+        private final CurrentLimits.TemporaryLimit temporaryLimit;
+
+        private final float previousLimit;
+
+        private OverloadImpl(CurrentLimits.TemporaryLimit temporaryLimit, float previousLimit) {
+            this.temporaryLimit = Objects.requireNonNull(temporaryLimit);
+            this.previousLimit = previousLimit;
+        }
+
+        @Override
+        public CurrentLimits.TemporaryLimit getTemporaryLimit() {
+            return temporaryLimit;
+        }
+
+        @Override
+        public float getPreviousLimit() {
+            return previousLimit;
+        }
+    }
+
+    public OverloadImpl checkTemporaryLimits(Side side, float limitReduction) {
+        Objects.requireNonNull(side);
+        switch (side) {
+            case ONE:
+                return checkTemporaryLimits1(limitReduction);
+
+            case TWO:
+                return checkTemporaryLimits2(limitReduction);
+
+            default:
+                throw new AssertionError();
+        }
+    }
+
+    public OverloadImpl checkTemporaryLimits(Side side) {
+        return checkTemporaryLimits(side, 1f);
+    }
+
+    public OverloadImpl checkTemporaryLimits1(float limitReduction) {
+        return checkTemporaryLimits(getTerminal1(), limits1, limitReduction);
+    }
+
+    public OverloadImpl checkTemporaryLimits1() {
+        return checkTemporaryLimits1(1f);
+    }
+
+    public OverloadImpl checkTemporaryLimits2(float limitReduction) {
+        return checkTemporaryLimits(getTerminal2(), limits2, limitReduction);
+    }
+
+    public OverloadImpl checkTemporaryLimits2() {
+        return checkTemporaryLimits2(1f);
+    }
+
+    private static OverloadImpl checkTemporaryLimits(TerminalExt t, CurrentLimits limits, float limitReduction) {
+        Objects.requireNonNull(t);
+        float i = t.getI();
+        if (limits != null && !Float.isNaN(limits.getPermanentLimit()) && !Float.isNaN(i)) {
+            float previousLimit = limits.getPermanentLimit();
+            for (CurrentLimits.TemporaryLimit tl : limits.getTemporaryLimits()) { // iterate in ascending order
+                if (i >= previousLimit * limitReduction && i < tl.getValue() * limitReduction) {
+                    return new OverloadImpl(tl, previousLimit);
+                }
+                previousLimit = tl.getValue();
+            }
+        }
+        return null;
     }
 }

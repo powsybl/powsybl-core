@@ -12,11 +12,15 @@ package eu.itesla_project.iidm.network;
  */
 public interface CurrentLimitsAdder {
 
-    public static interface TemporaryLimitAdder {
+    interface TemporaryLimitAdder {
 
-        TemporaryLimitAdder setLimit(float limit);
+        TemporaryLimitAdder setName(String name);
+
+        TemporaryLimitAdder setValue(float value);
 
         TemporaryLimitAdder setAcceptableDuration(int duration);
+
+        TemporaryLimitAdder setFictitious(boolean fictitious);
 
         CurrentLimitsAdder endTemporaryLimit();
     }

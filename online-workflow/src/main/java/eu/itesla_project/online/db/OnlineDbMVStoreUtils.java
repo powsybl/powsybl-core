@@ -127,6 +127,7 @@ public class OnlineDbMVStoreUtils {
 			return new LimitViolation(subject, 
 								 LimitViolationType.valueOf(limitViolation.get("LimitType")), 
 								 Float.parseFloat(limitViolation.get("Limit")),
+							 	 null,
 								 limitReduction,
 								 Float.parseFloat(limitViolation.get("Value")),
 								 country,

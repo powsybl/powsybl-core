@@ -40,6 +40,10 @@ public class SecurityAnalysisImpl implements SecurityAnalysis {
         this.loadFlowFactory = Objects.requireNonNull(loadFlowFactory);
     }
 
+    private static List<LimitViolation> checkLimits(Network network) {
+        return Security.checkLimits(network, Security.CurrentLimitType.TATL, 1f);
+    }
+
     @Override
     public CompletableFuture<SecurityAnalysisResult> runAsync(ContingenciesProvider contingenciesProvider, String workingStateId, LoadFlowParameters parameters) {
         Objects.requireNonNull(contingenciesProvider);
@@ -58,7 +62,7 @@ public class SecurityAnalysisImpl implements SecurityAnalysis {
         return loadFlow.runAsync(workingStateId, parameters) // run base load flow
                 .thenComposeAsync(loadFlowResult -> {
                     preContingencyComputationOk[0] = loadFlowResult.isOk();
-                    preContingencyLimitViolations.addAll(Security.checkLimits(network));
+                    preContingencyLimitViolations.addAll(checkLimits(network));
 
                     CompletableFuture<Void>[] futures;
 
@@ -95,7 +99,7 @@ public class SecurityAnalysisImpl implements SecurityAnalysis {
 
                                             postContingencyResults.add(new PostContingencyResult(contingency,
                                                                                                     loadFlowResult.isOk(),
-                                                                                                    Security.checkLimits(network)));
+                                                                                                    checkLimits(network)));
 
                                             network.getStateManager().removeState(postContStateId);
 

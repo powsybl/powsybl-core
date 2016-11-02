@@ -66,7 +66,7 @@ class PostContLoadFlowSimStabilization implements Stabilization, PostContLoadFlo
         String baseStateId = network.getStateManager().getWorkingStateId();
 
         List<LimitViolation> violations = baseVoltageFilter.apply(Security.checkLimits(network, config.getCurrentLimitType(),
-                config.getMaxAcceptableDuration(), config.getLimitReduction()));
+                config.getLimitReduction()));
         String report = Security.printLimitsViolations(violations, CURRENT_FILTER);
         if (report != null) {
             LOGGER.warn("Constraints after stabilization for {}:\n{}", baseStateId, report);

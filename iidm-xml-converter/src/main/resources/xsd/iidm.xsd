@@ -248,11 +248,10 @@
         <xs:sequence>
             <xs:element name="temporaryLimit" minOccurs="0" maxOccurs="unbounded">
                 <xs:complexType>
-                    <xs:simpleContent>
-                        <xs:extension base="xs:float">
-                            <xs:attribute name="acceptableDuration" use="required" type="xs:int"/>
-                        </xs:extension>
-                    </xs:simpleContent>
+                    <xs:attribute name="name" use="required" type="iidm:nonEmptyString"/>
+                    <xs:attribute name="acceptableDuration" use="optional" type="xs:int"/>
+                    <xs:attribute name="value" use="optional" type="xs:float"/>
+                    <xs:attribute name="fictitious" use="optional" type="xs:boolean"/>
                 </xs:complexType>
             </xs:element>
         </xs:sequence>

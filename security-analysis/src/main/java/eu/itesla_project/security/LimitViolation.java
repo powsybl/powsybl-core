@@ -22,6 +22,8 @@ public class LimitViolation {
 
     private final float limit;
 
+    private final String limitName;
+
     private final float limitReduction;
 
     private final float value;
@@ -30,18 +32,19 @@ public class LimitViolation {
 
     private final float baseVoltage;
 
-    public LimitViolation(Identifiable subject, LimitViolationType limitType, float limit, float limitReduction, float value, Country country, float baseVoltage) {
+    public LimitViolation(Identifiable subject, LimitViolationType limitType, float limit, String limitName, float limitReduction, float value, Country country, float baseVoltage) {
         this.subject = Objects.requireNonNull(subject);
         this.limitType = Objects.requireNonNull(limitType);
         this.limit = limit;
+        this.limitName = limitName;
         this.limitReduction = limitReduction;
         this.value = value;
         this.country = country;
         this.baseVoltage = baseVoltage;
     }
 
-    public LimitViolation(Identifiable subject, LimitViolationType limitType, float limit, float value) {
-        this(subject, limitType, limit, 1, value, null, Float.NaN);
+    public LimitViolation(Identifiable subject, LimitViolationType limitType, float limit, String limitName, float value) {
+        this(subject, limitType, limit, limitName, 1, value, null, Float.NaN);
     }
 
     public Identifiable getSubject() {
@@ -54,6 +57,10 @@ public class LimitViolation {
 
     public float getLimit() {
         return limit;
+    }
+
+    public String getLimitName() {
+        return limitName;
     }
 
     public float getLimitReduction() {
