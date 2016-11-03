@@ -92,6 +92,7 @@ public class SecurityAnalysisTool implements Tool {
                                                                     Locale.getDefault(),
                                                                     new Column("Equipment"),
                                                                     new Column("Violation type"),
+                                                                    new Column("Violation name"),
                                                                     new Column("Value"),
                                                                     new Column("Limit"),
                                                                     new Column("Charge %"))) {
@@ -101,6 +102,7 @@ public class SecurityAnalysisTool implements Tool {
                             try {
                                 formatter.writeCell(violation.getSubject().getId())
                                         .writeCell(violation.getLimitType().name())
+                                        .writeCell(Objects.toString(violation.getLimitName(), ""))
                                         .writeCell(violation.getValue())
                                         .writeCell(Float.toString(violation.getLimit()) + (violation.getLimitReduction() != 1f ? " * " + violation.getLimitReduction() : ""))
                                         .writeCell(Math.round(Math.abs(violation.getValue()) / violation.getLimit() * 100f));
@@ -122,6 +124,7 @@ public class SecurityAnalysisTool implements Tool {
                                                                     new Column("Status"),
                                                                     new Column("Equipment"),
                                                                     new Column("Violation type"),
+                                                                    new Column("Violation name"),
                                                                     new Column("Value"),
                                                                     new Column("Limit"),
                                                                     new Column("Charge %"))) {
@@ -138,6 +141,7 @@ public class SecurityAnalysisTool implements Tool {
                                             .writeEmptyCell()
                                             .writeEmptyCell()
                                             .writeEmptyCell()
+                                            .writeEmptyCell()
                                             .writeEmptyCell();
 
                                     filteredLimitViolations.stream()
@@ -148,6 +152,7 @@ public class SecurityAnalysisTool implements Tool {
                                                             .writeEmptyCell()
                                                             .writeCell(violation.getSubject().getId())
                                                             .writeCell(violation.getLimitType().name())
+                                                            .writeCell(Objects.toString(violation.getLimitName(), ""))
                                                             .writeCell(violation.getValue())
                                                             .writeCell(Float.toString(violation.getLimit()) + (violation.getLimitReduction() != 1f ? " * " + violation.getLimitReduction() : ""))
                                                             .writeCell(Math.round(Math.abs(violation.getValue()) / violation.getLimit() * 100f));

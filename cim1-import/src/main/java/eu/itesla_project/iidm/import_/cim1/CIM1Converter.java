@@ -158,9 +158,11 @@ class CIM1Converter implements CIM1Constants {
                                     if (olt.getDirection() != cim1.model.OperationalLimitDirectionKind.absoluteValue) {
                                         throw new RuntimeException("Direction not supported " + olt.getDirection());
                                     }
+                                    int acceptableDuration = (int) olt.getAcceptableDuration();
                                     cla.beginTemporaryLimit()
-                                            .setLimit(value)
-                                            .setAcceptableDuration((int) olt.getAcceptableDuration())
+                                            .setName(Integer.toString(acceptableDuration))
+                                            .setValue(value)
+                                            .setAcceptableDuration(acceptableDuration)
                                             .endTemporaryLimit();
                             }
                         }

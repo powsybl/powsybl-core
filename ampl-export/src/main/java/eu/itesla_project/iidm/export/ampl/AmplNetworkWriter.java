@@ -1285,7 +1285,7 @@ public class AmplNetworkWriter implements AmplConstants {
             formatter.writeCell(limitNum)
                     .writeCell(branchNum)
                     .writeCell(side1 ? 1 : 2)
-                    .writeCell(tl.getLimit())
+                    .writeCell(tl.getValue())
                     .writeCell(tl.getAcceptableDuration())
                     .writeCell(faultNum)
                     .writeCell(curativeActionNum);

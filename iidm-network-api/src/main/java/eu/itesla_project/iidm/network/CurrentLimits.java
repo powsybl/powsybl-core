@@ -18,13 +18,19 @@ public interface CurrentLimits {
     /**
      * Temporary current limit.
      */
-    public interface TemporaryLimit {
+    interface TemporaryLimit {
 
         /**
-         * Get the temporary limit in A.
-         * @return the temporary limit in A
+         * Get the temporary limit name
+         * @return the temporary limit name
          */
-        float getLimit();
+        String getName();
+
+        /**
+         * Get the temporary limit value in A.
+         * @return the temporary limit value in A
+         */
+        float getValue();
 
         /**
          * Get the acceptable duration of the limit in second.
@@ -32,6 +38,12 @@ public interface CurrentLimits {
          */
         int getAcceptableDuration();
 
+        /**
+         * Check if the temporary limit is a real limit corresponding to an overloading  protection or just an operating
+         * rule
+         * @return false if it is a real limit, false otherwise
+         */
+        boolean isFictitious();
     }
 
     /**
@@ -46,4 +58,11 @@ public interface CurrentLimits {
      */
     Collection<TemporaryLimit> getTemporaryLimits();
 
+    /**
+     * Get a temporary limit from its acceptable duration. Return null if there is non temporay limit with this
+     * acceptable duration.
+     * @param acceptableDuration acceptable duration in second
+     * @return the temporary limit
+     */
+    TemporaryLimit getTemporaryLimit(int acceptableDuration);
 }

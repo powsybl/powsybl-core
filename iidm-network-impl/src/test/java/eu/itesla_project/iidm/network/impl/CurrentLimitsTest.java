@@ -59,16 +59,19 @@ public class CurrentLimitsTest {
         l.newCurrentLimits1()
                 .setPermanentLimit(1000)
                 .beginTemporaryLimit()
+                    .setName("20'")
                     .setAcceptableDuration(20 * 60)
-                    .setLimit(1200)
+                    .setValue(1200)
                 .endTemporaryLimit()
                 .beginTemporaryLimit()
+                    .setName("5'")
                     .setAcceptableDuration(5 * 60)
-                    .setLimit(1400)
+                    .setValue(1400)
                 .endTemporaryLimit()
                 .beginTemporaryLimit()
+                    .setName("1'")
                     .setAcceptableDuration(60)
-                    .setLimit(1600)
+                    .setValue(1600)
                 .endTemporaryLimit()
             .add();
         return network;
@@ -80,13 +83,24 @@ public class CurrentLimitsTest {
         Line l = network.getLine("L");
         assertFalse(l.isOverloaded());
         l.getTerminal1().getBusBreakerView().getBus().setV(390);
-        l.getTerminal1().setP(100).setQ(50);
+        l.getTerminal1().setP(100).setQ(50); // i = 165.51212
         assertTrue(!Float.isNaN(l.getTerminal1().getI()));
         assertFalse(l.isOverloaded());
-        l.getTerminal1().setP(800).setQ(400);
+        assertFalse(l.checkPermanentLimit1());
+        assertNull(l.checkTemporaryLimits1());
+
+        l.getTerminal1().setP(800).setQ(400); // i = 1324.0969
         assertTrue(l.isOverloaded());
         assertTrue(l.getOverloadDuration() == 5 * 60);
-        l.getTerminal1().setP(900).setQ(500);
+        assertTrue(l.checkPermanentLimit1());
+        assertNotNull(l.checkTemporaryLimits1());
+        assertTrue(l.checkTemporaryLimits1().getTemporaryLimit().getAcceptableDuration() == 5 * 60);
+        assertTrue(l.checkTemporaryLimits1().getPreviousLimit() == 1200);
+
+        l.getTerminal1().setP(900).setQ(500); // i = 1524.1499
         assertTrue(l.getOverloadDuration() == 60);
+        assertNotNull(l.checkTemporaryLimits1());
+        assertTrue(l.checkTemporaryLimits1().getTemporaryLimit().getAcceptableDuration() == 60);
+        assertTrue(l.checkTemporaryLimits1().getPreviousLimit() == 1400);
     }
 }

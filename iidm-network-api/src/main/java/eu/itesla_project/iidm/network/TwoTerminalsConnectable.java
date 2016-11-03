@@ -18,6 +18,13 @@ public interface TwoTerminalsConnectable<I extends TwoTerminalsConnectable<I>> e
         TWO
     }
 
+    interface Overload {
+
+        CurrentLimits.TemporaryLimit getTemporaryLimit();
+
+        float getPreviousLimit();
+    }
+
     /**
      * Get the first terminal.
      */
@@ -43,4 +50,28 @@ public interface TwoTerminalsConnectable<I extends TwoTerminalsConnectable<I>> e
     boolean isOverloaded();
 
     int getOverloadDuration();
+
+    boolean checkPermanentLimit(Side side, float limitReduction);
+
+    boolean checkPermanentLimit(Side side);
+
+    boolean checkPermanentLimit1(float limitReduction);
+
+    boolean checkPermanentLimit1();
+
+    boolean checkPermanentLimit2(float limitReduction);
+
+    boolean checkPermanentLimit2();
+
+    Overload checkTemporaryLimits(Side side, float limitReduction);
+
+    Overload checkTemporaryLimits(Side side);
+
+    Overload checkTemporaryLimits1(float limitReduction);
+
+    Overload checkTemporaryLimits1();
+
+    Overload checkTemporaryLimits2(float limitReduction);
+
+    Overload checkTemporaryLimits2();
 }

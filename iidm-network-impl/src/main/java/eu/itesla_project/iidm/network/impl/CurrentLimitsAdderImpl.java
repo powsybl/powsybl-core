@@ -10,8 +10,12 @@ import eu.itesla_project.iidm.network.CurrentLimits;
 import eu.itesla_project.iidm.network.CurrentLimits.TemporaryLimit;
 import eu.itesla_project.iidm.network.CurrentLimitsAdder;
 import eu.itesla_project.iidm.network.impl.CurrentLimitsImpl.TemporaryLimitImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Comparator;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -20,6 +24,8 @@ import java.util.TreeMap;
 public class CurrentLimitsAdderImpl<SIDE, OWNER extends CurrentLimitsOwner<SIDE> & Validable> implements CurrentLimitsAdder {
 
     private static final Comparator<Integer> ACCEPTABLE_DURATION_COMPARATOR = (acceptableDuraction1, acceptableDuraction2) -> acceptableDuraction2 - acceptableDuraction1;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(CurrentLimitsAdderImpl.class);
 
     private final SIDE side;
 
@@ -31,13 +37,23 @@ public class CurrentLimitsAdderImpl<SIDE, OWNER extends CurrentLimitsOwner<SIDE>
 
     public class TemporaryLimitAdderImpl implements TemporaryLimitAdder {
 
-        private float limit = Float.NaN;
+        private String name;
+
+        private float value = Float.NaN;
 
         private Integer acceptableDuration;
 
+        private boolean fictitious = false;
+
         @Override
-        public TemporaryLimitAdder setLimit(float limit) {
-            this.limit = limit;
+        public TemporaryLimitAdder setName(String name) {
+            this.name = name;
+            return this;
+        }
+
+        @Override
+        public TemporaryLimitAdder setValue(float value) {
+            this.value = value;
             return this;
         }
 
@@ -48,12 +64,18 @@ public class CurrentLimitsAdderImpl<SIDE, OWNER extends CurrentLimitsOwner<SIDE>
         }
 
         @Override
+        public TemporaryLimitAdder setFictitious(boolean fictitious) {
+            this.fictitious = fictitious;
+            return this;
+        }
+
+        @Override
         public CurrentLimitsAdder endTemporaryLimit() {
-            if (Float.isNaN(limit)) {
-                throw new ValidationException(owner, "temporary limit is not set");
+            if (Float.isNaN(value)) {
+                throw new ValidationException(owner, "temporary limit value is not set");
             }
-            if (limit <= 0) {
-                throw new ValidationException(owner, "temporary limit must be > 0");
+            if (value <= 0) {
+                throw new ValidationException(owner, "temporary limit value must be > 0");
             }
             if (acceptableDuration == null) {
                 throw new ValidationException(owner, "acceptable duration is not set");
@@ -61,7 +83,10 @@ public class CurrentLimitsAdderImpl<SIDE, OWNER extends CurrentLimitsOwner<SIDE>
             if (acceptableDuration < 0) {
                 throw new ValidationException(owner, "acceptable duration must be >= 0");
             }
-            temporaryLimits.put(acceptableDuration, new TemporaryLimitImpl(limit, acceptableDuration));
+            if (name == null) {
+                throw new ValidationException(owner, "name is not set");
+            }
+            temporaryLimits.put(acceptableDuration, new TemporaryLimitImpl(name, value, acceptableDuration, fictitious));
             return CurrentLimitsAdderImpl.this;
         }
 
@@ -83,21 +108,29 @@ public class CurrentLimitsAdderImpl<SIDE, OWNER extends CurrentLimitsOwner<SIDE>
         return new TemporaryLimitAdderImpl();
     }
 
-    private void check() {
+    private void checkTemporaryLimits() {
         // check temporary limits are consistents with permanent
         float previousLimit = Float.NaN;
         for (TemporaryLimit tl : temporaryLimits.values()) { // iterate in ascending order
-            if (tl.getLimit() <= permanentLimit) {
-                throw new ValidationException(owner, "Temporary limit should be greather than permanent limit");
+            if (tl.getValue() <= permanentLimit) {
+                LOGGER.debug("{}, temporary limit should be greather than permanent limit", owner.getMessageHeader());
             }
             if (Float.isNaN(previousLimit)) {
-                previousLimit = tl.getLimit();
+                previousLimit = tl.getValue();
             } else {
-                if (tl.getLimit() <= previousLimit) {
-                    throw new ValidationException(owner, "Temporary limit inconsistency");
+                if (tl.getValue() <= previousLimit) {
+                    LOGGER.debug("{} : temporary limits should be in ascending value order", owner.getMessageHeader());
                 }
             }
         }
+        // check name unicity
+        temporaryLimits.values().stream()
+                .collect(Collectors.groupingBy(tl -> tl.getName()))
+                .forEach((name, temporaryLimits1) -> {
+                    if (temporaryLimits1.size() > 1) {
+                        throw new ValidationException(owner, temporaryLimits1.size() + "temporary limits have the same name " + name);
+                    }
+                });
     }
 
     @Override
@@ -105,6 +138,7 @@ public class CurrentLimitsAdderImpl<SIDE, OWNER extends CurrentLimitsOwner<SIDE>
         if (permanentLimit <= 0) {
             throw new ValidationException(owner, "permanent limit must be > 0");
         }
+        checkTemporaryLimits();
         CurrentLimitsImpl limits = new CurrentLimitsImpl(permanentLimit, temporaryLimits);
         owner.setCurrentLimits(side, limits);
         return limits;

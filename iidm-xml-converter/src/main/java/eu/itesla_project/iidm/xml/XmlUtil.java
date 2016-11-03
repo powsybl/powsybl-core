@@ -74,7 +74,7 @@ public class XmlUtil {
         return attributeValue != null ? Integer.valueOf(attributeValue) : null;
     }
 
-    public static int readOptionalIntegerAttributeValue(XMLStreamReader reader, String attributeName, int defaultValue) {
+    public static int readOptionalIntegerAttribute(XMLStreamReader reader, String attributeName, int defaultValue) {
         String attributeValue = reader.getAttributeValue(null, attributeName);
         return attributeValue != null ? Integer.valueOf(attributeValue) : defaultValue;
     }
@@ -84,8 +84,11 @@ public class XmlUtil {
     }
 
     public static float readOptionalFloatAttribute(XMLStreamReader reader, String attributeName) {
-        String attributeValue = reader.getAttributeValue(null, attributeName);
-        return attributeValue != null ? Float.valueOf(attributeValue) : Float.NaN;
+        return readOptionalFloatAttribute(reader, attributeName, Float.NaN);
     }
 
+    public static float readOptionalFloatAttribute(XMLStreamReader reader, String attributeName, float defaultValue) {
+        String attributeValue = reader.getAttributeValue(null, attributeName);
+        return attributeValue != null ? Float.valueOf(attributeValue) : defaultValue;
+    }
 }

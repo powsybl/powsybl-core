@@ -159,8 +159,7 @@ class PostContLoadFlowSimImpactAnalysis implements ImpactAnalysis, PostContLoadF
 
             network.getStateManager().setWorkingState(contingencyStateId);
 
-            List<LimitViolation> violations = baseVoltageFilter.apply(Security.checkLimits(network, config.getCurrentLimitType(),
-                    config.getMaxAcceptableDuration(), 1));
+            List<LimitViolation> violations = baseVoltageFilter.apply(Security.checkLimits(network, config.getCurrentLimitType(), 1f));
             String report = Security.printLimitsViolations(violations, CURRENT_FILTER);
             if (report != null) {
                 LOGGER.info("Constraints after contingency {} for {}:\n{}", contingency.getId(), baseStateId, report);
