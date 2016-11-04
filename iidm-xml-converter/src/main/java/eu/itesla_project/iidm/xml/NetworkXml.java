@@ -177,8 +177,10 @@ public class NetworkXml implements XmlConstants {
             writer.writeStartElement(IIDM_URI, NETWORK_ROOT_ELEMENT_NAME);
             writer.writeNamespace(IIDM_PREFIX, IIDM_URI);
 
-            // add additional extension namespaces and check there is no collision between extensions
-            writeExtensionNamespaces(n, writer);
+            if (!options.isSkipExtensions()) {
+                // add additional extension namespaces and check there is no collision between extensions
+                writeExtensionNamespaces(n, writer);
+            }
 
             writer.writeAttribute("id", n.getId());
             writer.writeAttribute("caseDate", n.getCaseDate().toString());
@@ -201,8 +203,10 @@ public class NetworkXml implements XmlConstants {
                 }
             }
 
-            // write extensions
-            writeExtensions(n, context);
+            if (!options.isSkipExtensions()) {
+                // write extensions
+                writeExtensions(n, context);
+            }
 
             writer.writeEndElement();
             writer.writeEndDocument();
@@ -213,25 +217,26 @@ public class NetworkXml implements XmlConstants {
         }
     }
 
-    public static void write(Network n, OutputStream os) {
-        write(n, new XMLExportOptions(), os);
+    public static Anonymizer write(Network n, OutputStream os) {
+        return write(n, new XMLExportOptions(), os);
     }
 
-    public static void write(Network n, XMLExportOptions options, Path xmlFile) {
+    public static Anonymizer write(Network n, XMLExportOptions options, Path xmlFile) {
         try (OutputStream os = Files.newOutputStream(xmlFile)) {
-            write(n, options, os);
+            return write(n, options, os);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public static void write(Network n, Path xmlFile) {
-        write(n, new XMLExportOptions(), xmlFile);
+    public static Anonymizer write(Network n, Path xmlFile) {
+        return write(n, new XMLExportOptions(), xmlFile);
     }
 
-    public static void writeAndValidate(Network n, Path xmlFile) {
-        write(n, xmlFile);
+    public static Anonymizer writeAndValidate(Network n, Path xmlFile) {
+        Anonymizer anonymizer = write(n, xmlFile);
         validateWithExtensions(xmlFile);
+        return anonymizer;
     }
 
     public static Network read(InputStream is) {
