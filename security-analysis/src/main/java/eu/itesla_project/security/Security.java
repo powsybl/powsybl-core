@@ -6,14 +6,16 @@
  */
 package eu.itesla_project.security;
 
+import eu.itesla_project.commons.io.table.Column;
+import eu.itesla_project.commons.io.table.TableFormatter;
+import eu.itesla_project.commons.io.table.TableFormatterFactory;
 import eu.itesla_project.iidm.network.*;
 import org.nocrala.tools.texttablefmt.BorderStyle;
 import org.nocrala.tools.texttablefmt.Table;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.io.IOException;
+import java.io.Writer;
+import java.util.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -154,7 +156,7 @@ public class Security {
         List<LimitViolation> filteredViolations = filter.apply(violations);
         if (filteredViolations.size() > 0) {
             Collections.sort(filteredViolations, (o1, o2) -> o1.getSubject().getId().compareTo(o2.getSubject().getId()));
-            Table table = new Table(8, BorderStyle.CLASSIC_WIDE);
+            Table table = new Table(9, BorderStyle.CLASSIC_WIDE);
             table.addCell("Country");
             table.addCell("Base voltage");
             table.addCell("Equipment (" + filteredViolations.size() + ")");
@@ -180,4 +182,101 @@ public class Security {
         return null;
     }
 
+    public static void printPreContingencyViolations(SecurityAnalysisResult result, Writer writer, TableFormatterFactory formatterFactory,
+                                                     LimitViolationFilter limitViolationFilter) {
+        Objects.requireNonNull(result);
+        Objects.requireNonNull(writer);
+        Objects.requireNonNull(formatterFactory);
+        List<LimitViolation> filteredLimitViolations = limitViolationFilter != null
+                ? limitViolationFilter.apply(result.getPreContingencyResult().getLimitViolations())
+                : result.getPreContingencyResult().getLimitViolations();
+        try (TableFormatter formatter = formatterFactory.create(writer,
+                "Pre-contingency violations",
+                Locale.getDefault(),
+                new Column("Equipment"),
+                new Column("Violation type"),
+                new Column("Violation name"),
+                new Column("Value"),
+                new Column("Limit"),
+                new Column("Charge %"))) {
+            filteredLimitViolations.stream()
+                    .sorted((o1, o2) -> o1.getSubject().getId().compareTo(o2.getSubject().getId()))
+                    .forEach(violation -> {
+                        try {
+                            formatter.writeCell(violation.getSubject().getId())
+                                    .writeCell(violation.getLimitType().name())
+                                    .writeCell(Objects.toString(violation.getLimitName(), ""))
+                                    .writeCell(violation.getValue())
+                                    .writeCell(Float.toString(violation.getLimit()) + (violation.getLimitReduction() != 1f ? " * " + violation.getLimitReduction() : ""))
+                                    .writeCell(Math.round(Math.abs(violation.getValue()) / violation.getLimit() * 100f));
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    });
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void printPostContingencyViolations(SecurityAnalysisResult result, Writer writer, TableFormatterFactory formatterFactory,
+                                                      LimitViolationFilter limitViolationFilter) {
+        Objects.requireNonNull(result);
+        Objects.requireNonNull(writer);
+        Objects.requireNonNull(formatterFactory);
+        if (result.getPostContingencyResults().size() > 0) {
+            try (TableFormatter formatter = formatterFactory.create(writer,
+                    "Post-contingency limit violations",
+                    Locale.getDefault(),
+                    new Column("Contingency"),
+                    new Column("Status"),
+                    new Column("Equipment"),
+                    new Column("Violation type"),
+                    new Column("Violation name"),
+                    new Column("Value"),
+                    new Column("Limit"),
+                    new Column("Charge %"))) {
+                result.getPostContingencyResults()
+                        .stream()
+                        .sorted((o1, o2) -> o1.getContingency().getId().compareTo(o2.getContingency().getId()))
+                        .forEach(postContingencyResult -> {
+                            try {
+                                List<LimitViolation> filteredLimitViolations = limitViolationFilter != null
+                                        ? limitViolationFilter.apply(postContingencyResult.getLimitViolations())
+                                        : postContingencyResult.getLimitViolations();
+                                if (filteredLimitViolations.size() > 0 || !postContingencyResult.isComputationOk()) {
+                                    formatter.writeCell(postContingencyResult.getContingency().getId())
+                                            .writeCell(postContingencyResult.isComputationOk() ? "converge" : "diverge")
+                                            .writeEmptyCell()
+                                            .writeEmptyCell()
+                                            .writeEmptyCell()
+                                            .writeEmptyCell()
+                                            .writeEmptyCell()
+                                            .writeEmptyCell();
+
+                                    filteredLimitViolations.stream()
+                                            .sorted((o1, o2) -> o1.getSubject().getId().compareTo(o2.getSubject().getId()))
+                                            .forEach(violation -> {
+                                                try {
+                                                    formatter.writeEmptyCell()
+                                                            .writeEmptyCell()
+                                                            .writeCell(violation.getSubject().getId())
+                                                            .writeCell(violation.getLimitType().name())
+                                                            .writeCell(Objects.toString(violation.getLimitName(), ""))
+                                                            .writeCell(violation.getValue())
+                                                            .writeCell(Float.toString(violation.getLimit()) + (violation.getLimitReduction() != 1f ? " * " + violation.getLimitReduction() : ""))
+                                                            .writeCell(Math.round(Math.abs(violation.getValue()) / violation.getLimit() * 100f));
+                                                } catch (IOException e) {
+                                                    throw new RuntimeException(e);
+                                                }
+                                            });
+                                }
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
+                            }
+                        });
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
 }
