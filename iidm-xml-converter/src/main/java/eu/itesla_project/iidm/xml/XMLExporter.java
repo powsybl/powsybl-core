@@ -62,6 +62,8 @@ public class XMLExporter implements Exporter, XmlConstants {
 
     public static final String ANONYMISED_PROPERTIES = "iidm.export.xml.anonymised";
 
+    public static final String SKIP_EXTENSIONS_PROPERTIES = "iidm.export.xml.skip-extensions";
+
     @Override
     public String getFormat() {
         return "XIIDM";
@@ -84,7 +86,8 @@ public class XMLExporter implements Exporter, XmlConstants {
                     .setWithBranchSV("true".equals(parameters.getProperty(WITH_BRANCH_STATE_VARIABLES_PROPERTY)))
                     .setForceBusBranchTopo("true".equals(parameters.getProperty(FORCE_BUS_BRANCH_TOPO_PROPERTY, "false")))
                     .setOnlyMainCc("true".equals(parameters.getProperty(ONLY_MAIN_CC_PROPERTIES)))
-                    .setAnonymized("true".equals(parameters.getProperty(ANONYMISED_PROPERTIES)));
+                    .setAnonymized("true".equals(parameters.getProperty(ANONYMISED_PROPERTIES)))
+                    .setSkipExtensions("true".equals(parameters.getProperty(SKIP_EXTENSIONS_PROPERTIES)));
         }
 
         try {
