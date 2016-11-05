@@ -102,50 +102,43 @@
       	<version>2.0.0</version>
       	<scope>provided</scope>
       </dependency>
-      
-      
       <dependency>
    		<groupId>org.apache.ws.security</groupId>
    		<artifactId>wss4j</artifactId>
    		<version>1.6.5</version>
    		<scope>provided</scope>
-	  </dependency>
-
-	<dependency>
+      </dependency>
+      <dependency>
 		<groupId>org.apache.cxf</groupId>
 		<artifactId>cxf-rt-frontend-jaxws</artifactId>
 		<version>2.4.6</version>
 		<scope>provided</scope>
-	</dependency>
-	<dependency>
+      </dependency>
+      <dependency>
 		<groupId>org.apache.cxf</groupId>
 		<artifactId>cxf-rt-transports-http</artifactId>
 		<version>2.4.6</version>
 		<scope>provided</scope>
-	</dependency>
-
-	<dependency>
+      </dependency>
+      <dependency>
 		<groupId>org.apache.cxf</groupId>
 		<artifactId>cxf-rt-transports-http-jetty</artifactId>
 		<version>2.4.6</version>
 		<scope>provided</scope>
-	</dependency>
-		<dependency>
+      </dependency>
+      <dependency>
 		<groupId>org.apache.cxf</groupId>
 		<artifactId>cxf-rt-ws-security</artifactId>
 		<version>2.4.6</version>
 		<scope>provided</scope>
-	</dependency>
-	
-    <dependency>
+      </dependency>
+      <dependency>
             <groupId>org.jboss.spec.javax.annotation</groupId>
             <artifactId>jboss-annotations-api_1.2_spec</artifactId>
             <version>1.0.0.Final</version>
             <scope>provided</scope>
-    </dependency>
-    	
+      </dependency>	
    </dependencies>
-
    <build>
       <plugins>
          <plugin>
