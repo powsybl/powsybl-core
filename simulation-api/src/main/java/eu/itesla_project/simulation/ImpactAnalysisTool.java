@@ -204,7 +204,7 @@ public class ImpactAnalysisTool implements Tool {
 
     @Override
     public void run(CommandLine line) throws Exception {
-        ComponentDefaultConfig config = new ComponentDefaultConfig();
+        ComponentDefaultConfig config = ComponentDefaultConfig.load();
         String caseFormat = line.getOptionValue("case-format");
         Path caseDir = Paths.get(line.getOptionValue("case-dir"));
         String caseBaseName = null;

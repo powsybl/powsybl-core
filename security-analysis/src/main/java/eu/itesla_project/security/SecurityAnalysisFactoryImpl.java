@@ -17,7 +17,7 @@ import eu.itesla_project.loadflow.api.LoadFlowFactory;
 public class SecurityAnalysisFactoryImpl implements SecurityAnalysisFactory {
     @Override
     public SecurityAnalysis create(Network network, ComputationManager computationManager, int priority) {
-        ComponentDefaultConfig defaultConfig = new ComponentDefaultConfig();
+        ComponentDefaultConfig defaultConfig = ComponentDefaultConfig.load();
         try {
             LoadFlowFactory loadFlowFactory = defaultConfig.findFactoryImplClass(LoadFlowFactory.class).newInstance();
             return new SecurityAnalysisImpl(network, computationManager, loadFlowFactory);

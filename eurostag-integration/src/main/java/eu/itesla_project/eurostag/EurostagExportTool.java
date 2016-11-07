@@ -55,7 +55,7 @@ public class EurostagExportTool implements Tool, EurostagConstants {
 
     @Override
     public void run(CommandLine line) throws Exception {
-        ComponentDefaultConfig config = new ComponentDefaultConfig();
+        ComponentDefaultConfig config = ComponentDefaultConfig.load();
         EurostagConfig eurostagConfig = EurostagConfig.load();
         String caseFormat = line.getOptionValue("case-format");
         String caseDirName = line.getOptionValue("case-dir");
