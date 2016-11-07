@@ -105,7 +105,7 @@ public class SecurityAnalysisTool implements Tool {
         }
         network.getStateManager().allowStateMultiThreadAccess(true);
 
-        ComponentDefaultConfig defaultConfig = new ComponentDefaultConfig();
+        ComponentDefaultConfig defaultConfig = ComponentDefaultConfig.load();
         SecurityAnalysisFactory securityAnalysisFactory = defaultConfig.findFactoryImplClass(SecurityAnalysisFactory.class).newInstance();
         SecurityAnalysis securityAnalysis = securityAnalysisFactory.create(network, LocalComputationManager.getDefault(), 0);
 

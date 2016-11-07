@@ -99,7 +99,7 @@ public class MergeByDateTool implements Tool {
 
     @Override
     public void run(CommandLine line) throws Exception {
-        ComponentDefaultConfig config = new ComponentDefaultConfig();
+        ComponentDefaultConfig config = ComponentDefaultConfig.load();
         CaseRepository caseRepository = config.findFactoryImplClass(CaseRepositoryFactory.class).newInstance().create(LocalComputationManager.getDefault());
         LoadFlowFactory loadFlowFactory = config.findFactoryImplClass(LoadFlowFactory.class).newInstance();
         MergeOptimizerFactory mergeOptimizerFactory = config.findFactoryImplClass(MergeOptimizerFactory.class).newInstance();
