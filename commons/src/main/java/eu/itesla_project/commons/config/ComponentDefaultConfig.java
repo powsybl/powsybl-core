@@ -14,18 +14,50 @@ import java.util.Objects;
  */
 public class ComponentDefaultConfig {
 
+    public static ComponentDefaultConfig load() {
+        return new ComponentDefaultConfig();
+    }
+
     private final ModuleConfig config;
 
     public ComponentDefaultConfig() {
-        this(PlatformConfig.defaultConfig().getModuleConfig("componentDefaultConfig"));
+        this(PlatformConfig.defaultConfig().getModuleConfigIfExists("componentDefaultConfig"));
     }
 
     public ComponentDefaultConfig(ModuleConfig config) {
-        this.config = Objects.requireNonNull(config);
+        this.config = config;
     }
 
-    public <T, U extends T> Class<? extends T> findFactoryImplClass(Class<T> factoryBaseClass) {
+    public <T> Class<? extends T> findFactoryImplClass(Class<T> factoryBaseClass) {
+        Objects.requireNonNull(factoryBaseClass);
         String propertyName = factoryBaseClass.getSimpleName();
+        if (config == null) {
+            throw new RuntimeException("Property " + propertyName + " is not set");
+        }
         return config.getClassProperty(propertyName, factoryBaseClass);
+    }
+
+    public <T, U extends T> Class<? extends T> findFactoryImplClass(Class<T> factoryBaseClass, Class<U> defaultFactoryImplClass) {
+        Objects.requireNonNull(factoryBaseClass);
+        Objects.requireNonNull(defaultFactoryImplClass);
+        String propertyName = factoryBaseClass.getSimpleName();
+        return config != null ? config.getClassProperty(propertyName, factoryBaseClass, defaultFactoryImplClass)
+                              : defaultFactoryImplClass;
+    }
+
+    public <T> T newFactoryImpl(Class<T> factoryBaseClass) {
+        try {
+            return findFactoryImplClass(factoryBaseClass).newInstance();
+        } catch (IllegalAccessException|InstantiationException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public <T, U extends T> T newFactoryImpl(Class<T> factoryBaseClass, Class<U> defaultFactoryImplClass) {
+        try {
+            return findFactoryImplClass(factoryBaseClass, defaultFactoryImplClass).newInstance();
+        } catch (IllegalAccessException|InstantiationException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

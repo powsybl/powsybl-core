@@ -6,33 +6,69 @@
  */
 package eu.itesla_project.commons.config;
 
-import eu.itesla_project.commons.config.ComponentDefaultConfig;
-import eu.itesla_project.commons.config.InMemoryPlatformConfig;
-import eu.itesla_project.commons.config.MapModuleConfig;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.nio.file.ShrinkWrapFileSystems;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+interface A {
+}
+
+class B implements A {
+}
+
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class ComponentDefaultConfigTest {
 
+    private FileSystem fileSystem;
+    private MapModuleConfig moduleConfig;
+    private ComponentDefaultConfig config;
+
+    @Before
+    public void setUp() throws IOException {
+        JavaArchive archive = ShrinkWrap.create(JavaArchive.class);
+        fileSystem = ShrinkWrapFileSystems.newFileSystem(archive);
+        InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
+        moduleConfig = platformConfig.createModuleConfig("componentDefaultConfig");
+        config = new ComponentDefaultConfig(moduleConfig);
+    }
+
+    @After
+    public void tearDown() throws IOException {
+        fileSystem.close();
+    }
+
     @Test
     public void findFactoryImplClassTest() throws IOException {
-        JavaArchive archive = ShrinkWrap.create(JavaArchive.class);
-        try (FileSystem fileSystem = ShrinkWrapFileSystems.newFileSystem(archive)) {
-            InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
-            MapModuleConfig moduleConfig = platformConfig.createModuleConfig("componentDefaultConfig");
-            moduleConfig.setStringProperty("Test", "org.junit.Test");
+        moduleConfig.setStringProperty(A.class.getSimpleName(), B.class.getName());
+        assertEquals(B.class, config.findFactoryImplClass(A.class));
+    }
 
-            ComponentDefaultConfig config = new ComponentDefaultConfig(moduleConfig);
-            Assert.assertEquals(Test.class, config.findFactoryImplClass(Test.class));
-        }
+    @Test
+    public void findFactoryImplClassDefaultTest() throws IOException {
+        assertEquals(B.class, config.findFactoryImplClass(A.class, B.class));
+    }
+
+    @Test
+    public void newFactoryImplTest() throws IOException {
+        moduleConfig.setStringProperty(A.class.getSimpleName(), B.class.getName());
+        assertTrue(config.newFactoryImpl(A.class) instanceof B);
+    }
+
+    @Test
+    public void newFactoryImplDefaultTest() throws IOException {
+        assertTrue(config.newFactoryImpl(A.class, B.class) instanceof B);
     }
 }
