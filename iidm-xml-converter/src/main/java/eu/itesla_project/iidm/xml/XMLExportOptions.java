@@ -22,6 +22,8 @@ public class XMLExportOptions {
 
     private boolean anonymized = false;
 
+    private boolean skipExtensions = false;
+
     public XMLExportOptions() {
     }
 
@@ -74,6 +76,15 @@ public class XMLExportOptions {
 
     public XMLExportOptions setAnonymized(boolean anonymized) {
         this.anonymized = anonymized;
+        return this;
+    }
+
+    public boolean isSkipExtensions() {
+        return skipExtensions;
+    }
+
+    public XMLExportOptions setSkipExtensions(boolean skipExtensions) {
+        this.skipExtensions = skipExtensions;
         return this;
     }
 }

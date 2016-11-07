@@ -157,7 +157,7 @@ public abstract class ConnectableXml<T extends Connectable, A extends Identifiab
             }
             XmlUtil.writeFloat("permanentLimit", limits.getPermanentLimit(), writer);
             for (CurrentLimits.TemporaryLimit tl : limits.getTemporaryLimits()) {
-                writer.writeStartElement(IIDM_URI, "temporaryLimit");
+                writer.writeEmptyElement(IIDM_URI, "temporaryLimit");
                 writer.writeAttribute("name", tl.getName());
                 if (tl.getAcceptableDuration() != Integer.MAX_VALUE) {
                     writer.writeAttribute("acceptableDuration", Integer.toString(tl.getAcceptableDuration()));
@@ -168,7 +168,6 @@ public abstract class ConnectableXml<T extends Connectable, A extends Identifiab
                 if (tl.isFictitious()) {
                     writer.writeAttribute("fictitious", Boolean.toString(tl.isFictitious()));
                 }
-                writer.writeEndElement();
             }
             if (!limits.getTemporaryLimits().isEmpty()) {
                 writer.writeEndElement();
