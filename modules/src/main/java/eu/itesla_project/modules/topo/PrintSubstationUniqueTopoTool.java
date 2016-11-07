@@ -53,6 +53,12 @@ public class PrintSubstationUniqueTopoTool implements Tool {
             @Override
             public Options getOptions() {
                 Options options = new Options();
+                options.addOption(Option.builder().longOpt("case-file")
+                        .desc("the case path")
+                        .hasArg()
+                        .argName("FILE")
+                        .required()
+                        .build());
                 options.addOption(Option.builder().longOpt("substation-id")
                         .desc("substation id")
                         .hasArg()
@@ -69,24 +75,6 @@ public class PrintSubstationUniqueTopoTool implements Tool {
                         .desc("replace real ids by short ones of the dictionary")
                         .hasArg()
                         .argName("DICT_PATH")
-                        .build());
-                options.addOption(Option.builder().longOpt("case-format")
-                        .desc("the case format")
-                        .hasArg()
-                        .argName("FORMAT")
-                        .required()
-                        .build());
-                options.addOption(Option.builder().longOpt("case-dir")
-                        .desc("the directory where the case is")
-                        .hasArg()
-                        .argName("DIR")
-                        .required()
-                        .build());
-                options.addOption(Option.builder().longOpt("case-basename")
-                        .desc("the case base name (all cases of the directory if not set)")
-                        .hasArg()
-                        .argName("NAME")
-                        .required()
                         .build());
                 options.addOption(Option.builder().longOpt("correlation-threshold")
                         .desc("the correlation threshold")
@@ -105,16 +93,14 @@ public class PrintSubstationUniqueTopoTool implements Tool {
 
             @Override
             public String getUsageFooter() {
-                return "Where FORMAT is one of " + Importers.getFormats();
+                return null;
             }
         };
     }
 
     @Override
     public void run(CommandLine line) throws Exception {
-        String caseFormat = line.getOptionValue("case-format");
-        Path caseDir = Paths.get(line.getOptionValue("case-dir"));
-        String caseBaseName = line.getOptionValue("case-basename");
+        Path caseFile = Paths.get(line.getOptionValue("case-file"));
         String substationId = line.getOptionValue("substation-id");
         Interval interval = Interval.parse(line.getOptionValue("interval"));
         Path dictFile = null;
@@ -124,27 +110,26 @@ public class PrintSubstationUniqueTopoTool implements Tool {
         double correlationThreshold = Double.parseDouble(line.getOptionValue("correlation-threshold"));
         double probabilityThreshold = Double.parseDouble(line.getOptionValue("probability-threshold"));
 
-        try (ComputationManager computationManager = new LocalComputationManager()) {
-            Importer importer = Importers.getImporter(caseFormat, computationManager);
-            if (importer == null) {
-                throw new ITeslaException("Format " + caseFormat + " not supported");
+        Network network = Importers.loadNetwork(caseFile);
+        if (network == null) {
+            throw new RuntimeException("Case '" + caseFile + "' not found");
+        }
+        network.getStateManager().allowStateMultiThreadAccess(true);
+
+        OfflineConfig config = OfflineConfig.load();
+        try (TopologyMiner topologyMiner = config.getTopologyMinerFactoryClass().newInstance().create()) {
+            Path topoCacheDir = TopologyContext.createTopoCacheDir(network, interval, correlationThreshold, probabilityThreshold);
+            TopologyContext topologyContext = topologyMiner.loadContext(topoCacheDir, interval, correlationThreshold, probabilityThreshold);
+            Map<String, UniqueTopology> uniqueTopologies = new UniqueTopologyBuilder(topologyContext.getTopologyHistory()).build();
+            UniqueTopology uniqueTopology = uniqueTopologies.get(substationId);
+            if (uniqueTopology == null) {
+                throw new RuntimeException("Unique topology not found for substation " + substationId);
             }
-            Network network = importer.import_(new GenericReadOnlyDataSource(caseDir, caseBaseName), null);
-            OfflineConfig config = OfflineConfig.load();
-            try (TopologyMiner topologyMiner = config.getTopologyMinerFactoryClass().newInstance().create()) {
-                Path topoCacheDir = TopologyContext.createTopoCacheDir(network, interval, correlationThreshold, probabilityThreshold);
-                TopologyContext topologyContext = topologyMiner.loadContext(topoCacheDir, interval, correlationThreshold, probabilityThreshold);
-                Map<String, UniqueTopology> uniqueTopologies = new UniqueTopologyBuilder(topologyContext.getTopologyHistory()).build();
-                UniqueTopology uniqueTopology = uniqueTopologies.get(substationId);
-                if (uniqueTopology == null) {
-                    throw new RuntimeException("Unique topology not found for substation " + substationId);
-                }
-                ShortIdDictionary dict = null;
-                if (dictFile != null) {
-                    dict = new ShortIdDictionary(dictFile);
-                }
-                uniqueTopology.print(System.out, dict);
+            ShortIdDictionary dict = null;
+            if (dictFile != null) {
+                dict = new ShortIdDictionary(dictFile);
             }
+            uniqueTopology.print(System.out, dict);
         }
     }
 }

@@ -38,39 +38,28 @@ public class ImpactAnalysisCommand implements Command {
     @SuppressWarnings("static-access")
     public Options getOptions() {
         Options options = new Options();
-        options.addOption(Option.builder().longOpt("case-format")
-                                .desc("the case format")
-                                .hasArg()
-                                .argName("FORMAT")
-                                .required()
-                                .build());
-        options.addOption(Option.builder().longOpt("case-dir")
-                                .desc("the directory where the case is")
-                                .hasArg()
-                                .argName("DIR")
-                                .required()
-                                .build());
-        options.addOption(Option.builder().longOpt("case-basename")
-                                .desc("the case base name (all cases of the directory if not set)")
-                                .hasArg()
-                                .argName("NAME")
-                                .build());
+        options.addOption(Option.builder().longOpt("case-file")
+                .desc("the case path")
+                .hasArg()
+                .argName("FILE")
+                .required()
+                .build());
         options.addOption(Option.builder().longOpt("contingencies")
-                                .desc("contingencies to test separated by , (all the db in not set)")
-                                .hasArg()
-                                .argName("LIST")
-                                .build());
+                .desc("contingencies to test separated by , (all the db in not set)")
+                .hasArg()
+                .argName("LIST")
+                .build());
         options.addOption(Option.builder().longOpt("output-csv-file")
-                                .desc("output CSV file path (pretty print on standard output if not specified)")
-                                .hasArg()
-                                .argName("FILE")
-                                .build());
+                .desc("output CSV file path (pretty print on standard output if not specified)")
+                .hasArg()
+                .argName("FILE")
+                .build());
         return options;
     }
 
     @Override
     public String getUsageFooter() {
-        return "Where FORMAT is one of " + Importers.getFormats();
+        return null;
     }
 
 }

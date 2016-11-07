@@ -12,12 +12,12 @@ import eu.itesla_project.commons.tools.Command;
 import eu.itesla_project.commons.tools.Tool;
 import eu.itesla_project.computation.ComputationManager;
 import eu.itesla_project.computation.local.LocalComputationManager;
-import eu.itesla_project.iidm.datasource.GenericReadOnlyDataSource;
 import eu.itesla_project.iidm.import_.Importer;
 import eu.itesla_project.iidm.import_.Importers;
 import eu.itesla_project.iidm.network.Network;
 import eu.itesla_project.modules.contingencies.ContingenciesAndActionsDatabaseClient;
 import eu.itesla_project.modules.online.OnlineConfig;
+import eu.itesla_project.online.Utils;
 import eu.itesla_project.security.LimitViolation;
 import eu.itesla_project.security.Security;
 import eu.itesla_project.simulation.securityindexes.SecurityIndex;
@@ -29,6 +29,7 @@ import org.apache.commons.cli.Options;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -62,30 +63,25 @@ public class RunTDSimulation implements Tool {
 		@Override
 		public Options getOptions() {
 			Options options = new Options();
-	        options.addOption(Option.builder().longOpt("case-dir")
-	                                .desc("the directory where the case is")
-	                                .hasArg()
-	                                .argName("DIR")
-	                                .required()
-	                                .build());
-	        options.addOption(Option.builder().longOpt("case-basename")
-	                                .desc("the case base name (all cases of the directory if not set)")
-	                                .hasArg()
-	                                .argName("NAME")
-	                                .build());
+			options.addOption(Option.builder().longOpt("case-file")
+					.desc("the case path")
+					.hasArg()
+					.argName("FILE")
+					.required()
+					.build());
 	        options.addOption(Option.builder().longOpt("contingencies")
-	                                .desc("contingencies to test separated by , (all the db in not set)")
-	                                .hasArg()
-	                                .argName("LIST")
-	                                .build());
+					.desc("contingencies to test separated by , (all the db in not set)")
+					.hasArg()
+					.argName("LIST")
+					.build());
 	        options.addOption(Option.builder().longOpt("empty-contingency")
-					                .desc("include the empty contingency among the contingencies")
-					                .build());
+					.desc("include the empty contingency among the contingencies")
+					.build());
 	        options.addOption(Option.builder().longOpt("output-folder")
-	                                .desc("the folder where to store the data")
-	                                .hasArg()
-	                                .argName("FOLDER")
-	                                .build());
+					.desc("the folder where to store the data")
+					.hasArg()
+					.argName("FOLDER")
+					.build());
 	        return options;
 		}
 
@@ -100,58 +96,7 @@ public class RunTDSimulation implements Tool {
 	public Command getCommand() {
 		return COMMAND;
 	}
-	
-	private Map<String, Boolean> runTDSimulation(Network network, Set<String> contingencyIds, boolean emptyContingency,
-												 ComputationManager computationManager, SimulatorFactory simulatorFactory,
-												 ContingenciesAndActionsDatabaseClient contingencyDb,
-												 Writer metricsContent) throws Exception {
-		Map<String, Boolean> tdSimulationResults = new HashMap<String, Boolean>();
-		Map<String, Object> initContext = new HashMap<>();
-		SimulationParameters simulationParameters = SimulationParameters.load();
-		// run stabilization 
-		Stabilization stabilization = simulatorFactory.createStabilization(network, computationManager, 0);
-		stabilization.init(simulationParameters, initContext);
-		ImpactAnalysis impactAnalysis = null;
-		System.out.println("running stabilization on network " + network.getId());
-		StabilizationResult stabilizationResults = stabilization.run();
-		metricsContent.write("****** BASECASE " + network.getId()+"\n");
-		metricsContent.write("*** Stabilization Metrics ***\n");
-		Map<String, String> stabilizationMetrics = stabilizationResults.getMetrics();
-		if ( stabilizationMetrics!=null && !stabilizationMetrics.isEmpty()) {
-			for(String parameter : stabilizationMetrics.keySet())
-				metricsContent.write(parameter + " = " + stabilizationMetrics.get(parameter)+"\n");
-		}
-		metricsContent.flush();
-		if (stabilizationResults.getStatus() == StabilizationStatus.COMPLETED) {
-			if ( emptyContingency ) // store data for t-d simulation on empty contingency, i.e. stabilization
-				tdSimulationResults.put(EMPTY_CONTINGENCY_ID, true);
-			// check if there are contingencies to run impact analysis
-			if ( contingencyIds==null && contingencyDb.getContingencies(network).size()==0 )
-        		contingencyIds = new HashSet<String>();
-			if ( contingencyIds==null || !contingencyIds.isEmpty() ) {
-				// run impact analysis
-				impactAnalysis = simulatorFactory.createImpactAnalysis(network, computationManager, 0, contingencyDb);
-				impactAnalysis.init(simulationParameters, initContext);
-				System.out.println("running impact analysis on network " + network.getId());
-				ImpactAnalysisResult impactAnalisResults = impactAnalysis.run(stabilizationResults.getState(), contingencyIds);
-				for(SecurityIndex index : impactAnalisResults.getSecurityIndexes() ) {
-					tdSimulationResults.put(index.getId().toString(), index.isOk());
-				}
-				metricsContent.write("*** Impact Analysis Metrics ***\n");
-				Map<String, String> impactAnalysisMetrics = impactAnalisResults.getMetrics();
-				if ( impactAnalysisMetrics!=null && !impactAnalysisMetrics.isEmpty()) {
-					for(String parameter : impactAnalysisMetrics.keySet())
-						metricsContent.write(parameter + " = " + impactAnalysisMetrics.get(parameter)+"\n");
-				}
-				metricsContent.flush();
-			}
-		} else {
-			if ( emptyContingency ) // store data for t-d simulation on empty contingency, i.e. stabilization
-				tdSimulationResults.put(EMPTY_CONTINGENCY_ID, false);
-		}
-		return tdSimulationResults;
-	}
-	
+
 	private Path getFile(Path folder, String filename) {
 		if ( folder != null )
 			return Paths.get(folder.toString(), filename);
@@ -236,8 +181,7 @@ public class RunTDSimulation implements Tool {
 
     @Override
     public void run(CommandLine line) throws Exception {
-        Path caseDir = Paths.get(line.getOptionValue("case-dir"));
-        String caseBaseName = line.hasOption("case-basename") ? line.getOptionValue("case-basename") : null;
+		Path caseFile = Paths.get(line.getOptionValue("case-file"));
         Set<String> contingencyIds = line.hasOption("contingencies") ?  Sets.newHashSet(line.getOptionValue("contingencies").split(",")) : null;
         boolean emptyContingency = line.hasOption("empty-contingency") ? true : false;
         Path outputFolder = line.hasOption("output-folder") ? Paths.get(line.getOptionValue("output-folder")) : null;
@@ -254,11 +198,16 @@ public class RunTDSimulation implements Tool {
 
             Importer importer = Importers.getImporter("CIM1", computationManager);
 
-            if (caseBaseName != null) {
-            	Network network = importer.import_(new GenericReadOnlyDataSource(caseDir, caseBaseName), new Properties());
+            if (Files.isRegularFile(caseFile)) {
+				// load the network
+				Network network = Importers.loadNetwork(caseFile);
+				if (network == null) {
+					throw new RuntimeException("Case '" + caseFile + "' not found");
+				}
+
             	List<LimitViolation> networkViolations = Security.checkLimits(network);
             	networksViolations.put(network.getId(), networkViolations);
-            	Map<String, Boolean> tdSimulationResults = runTDSimulation(network, 
+            	Map<String, Boolean> tdSimulationResults = Utils.runTDSimulation(network,
             															   contingencyIds, 
             															   emptyContingency, 
             															   computationManager, 
@@ -266,12 +215,12 @@ public class RunTDSimulation implements Tool {
             															   contingencyDb,
             															   metricsContent);
             	tdSimulationsResults.put(network.getId(), tdSimulationResults);
-            } else {
-                Importers.importAll(caseDir, importer, false, network -> {
+            } else if (Files.isDirectory(caseFile)){
+                Importers.loadNetworks(caseFile, false, network -> {
                     try {
                     	List<LimitViolation> networkViolations = Security.checkLimits(network);
                     	networksViolations.put(network.getId(), networkViolations);
-                    	Map<String, Boolean> tdSimulationResults = runTDSimulation(network, 
+                    	Map<String, Boolean> tdSimulationResults = Utils.runTDSimulation(network,
                     															   contingencyIds, 
                     															   emptyContingency, 
                     															   computationManager, 

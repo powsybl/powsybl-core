@@ -9,6 +9,8 @@ package eu.itesla_project.online;
 import eu.itesla_project.modules.online.OnlineWorkflowParameters;
 import eu.itesla_project.offline.forecast_errors.ForecastErrorsAnalysisParameters;
 
+import java.nio.file.Path;
+
 /**
  *
  * @author Quinary <itesla@quinary.com>
@@ -56,5 +58,5 @@ public interface LocalOnlineApplicationMBean {
 
     void runFeaAnalysis(OnlineWorkflowStartParameters startconfig, ForecastErrorsAnalysisParameters parameters, String timeHorizonS);
 
-    void runTDSimulations(OnlineWorkflowStartParameters startconfig, String caseDirS, String caseBaseName, String contingenciesIds, String emptyContingencyS, String outputFolderS);
+    void runTDSimulations(OnlineWorkflowStartParameters startconfig, String caseFile, String contingenciesIds, String emptyContingencyS, String outputFolderS);
 }

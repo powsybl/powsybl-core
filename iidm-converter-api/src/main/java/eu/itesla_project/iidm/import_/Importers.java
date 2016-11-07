@@ -371,5 +371,32 @@ public class Importers {
     public static Network loadNetwork(String file) {
         return loadNetwork(Paths.get(file));
     }
-    
+
+
+    public static void loadNetworks(Path dir, boolean parallel, ComputationManager computationManager, ImportConfig config, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener) throws IOException, InterruptedException, ExecutionException {
+        if (!Files.isDirectory(dir)) {
+            throw new RuntimeException("Directory " + dir + " does not exist or is not a regular directory");
+        }
+        for (Importer importer : Importers.list(computationManager, config)) {
+            Importers.importAll(dir, importer, parallel, consumer, listener);
+        }
+    }
+
+    public static void loadNetworks(Path dir, boolean parallel, ComputationManager computationManager, ImportConfig config, Consumer<Network> consumer) throws IOException, InterruptedException, ExecutionException {
+        loadNetworks(dir, parallel, LocalComputationManager.getDefault(), CONFIG.get(), consumer, null);
+    }
+
+    public static void loadNetworks(Path dir, boolean parallel, Consumer<Network> consumer) throws IOException, InterruptedException, ExecutionException {
+        loadNetworks(dir, parallel, LocalComputationManager.getDefault(), CONFIG.get(), consumer);
+    }
+
+
+    public static void loadNetworks(Path dir, boolean parallel, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener) throws IOException, InterruptedException, ExecutionException {
+        loadNetworks(dir, parallel, LocalComputationManager.getDefault(), CONFIG.get(), consumer, listener);
+    }
+
+    public static void loadNetworks(Path dir, Consumer<Network> consumer) throws IOException, InterruptedException, ExecutionException {
+        loadNetworks(dir, false, LocalComputationManager.getDefault(), CONFIG.get(), consumer);
+    }
+
 }

@@ -13,8 +13,6 @@ import com.google.common.collect.Sets;
 import eu.itesla_project.commons.Version;
 import eu.itesla_project.computation.ComputationManager;
 import eu.itesla_project.computation.ComputationResourcesStatus;
-import eu.itesla_project.iidm.datasource.GenericReadOnlyDataSource;
-import eu.itesla_project.iidm.import_.Importer;
 import eu.itesla_project.iidm.import_.Importers;
 import eu.itesla_project.iidm.network.Network;
 import eu.itesla_project.loadflow.api.LoadFlowFactory;
@@ -52,6 +50,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.lang.management.ManagementFactory;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.ParseException;
@@ -533,65 +532,10 @@ public class LocalOnlineApplication extends NotificationBroadcasterSupport imple
     @Override
 	public void onWorkflowEnd(OnlineWorkflowContext context, OnlineDb onlineDb, ContingenciesAndActionsDatabaseClient cadbClient, OnlineWorkflowParameters parameters) {
     	System.out.println("LocalOnlineApplicationListener onWorkFlowEnd");
-		
-		
 	}
 
 
     // start td simulations
-
-    private static final String EMPTY_CONTINGENCY_ID = "Empty-Contingency";
-    private Map<String, Boolean> runTDSimulation(Network network, Set<String> contingencyIds, boolean emptyContingency,
-                                                 ComputationManager computationManager, SimulatorFactory simulatorFactory,
-                                                 ContingenciesAndActionsDatabaseClient contingencyDb,
-                                                 Writer metricsContent) throws Exception {
-        Map<String, Boolean> tdSimulationResults = new HashMap<String, Boolean>();
-        Map<String, Object> initContext = new HashMap<>();
-        SimulationParameters simulationParameters = SimulationParameters.load();
-        // run stabilization
-        Stabilization stabilization = simulatorFactory.createStabilization(network, computationManager, 0);
-        stabilization.init(simulationParameters, initContext);
-        ImpactAnalysis impactAnalysis = null;
-        System.out.println("running stabilization on network " + network.getId());
-        StabilizationResult stabilizationResults = stabilization.run();
-        metricsContent.write("****** BASECASE " + network.getId()+"\n");
-        metricsContent.write("*** Stabilization Metrics ***\n");
-        Map<String, String> stabilizationMetrics = stabilizationResults.getMetrics();
-        if ( stabilizationMetrics!=null && !stabilizationMetrics.isEmpty()) {
-            for(String parameter : stabilizationMetrics.keySet())
-                metricsContent.write(parameter + " = " + stabilizationMetrics.get(parameter)+"\n");
-        }
-        metricsContent.flush();
-        if (stabilizationResults.getStatus() == StabilizationStatus.COMPLETED) {
-            if ( emptyContingency ) // store data for t-d simulation on empty contingency, i.e. stabilization
-                tdSimulationResults.put(EMPTY_CONTINGENCY_ID, true);
-            // check if there are contingencies to run impact analysis
-            if ( contingencyIds==null && contingencyDb.getContingencies(network).size()==0 )
-                contingencyIds = new HashSet<String>();
-            if ( contingencyIds==null || !contingencyIds.isEmpty() ) {
-                // run impact analysis
-                impactAnalysis = simulatorFactory.createImpactAnalysis(network, computationManager, 0, contingencyDb);
-                impactAnalysis.init(simulationParameters, initContext);
-                System.out.println("running impact analysis on network " + network.getId());
-                ImpactAnalysisResult impactAnalisResults = impactAnalysis.run(stabilizationResults.getState(), contingencyIds);
-                for(SecurityIndex index : impactAnalisResults.getSecurityIndexes() ) {
-                    tdSimulationResults.put(index.getId().toString(), index.isOk());
-                }
-                metricsContent.write("*** Impact Analysis Metrics ***\n");
-                Map<String, String> impactAnalysisMetrics = impactAnalisResults.getMetrics();
-                if ( impactAnalysisMetrics!=null && !impactAnalysisMetrics.isEmpty()) {
-                    for(String parameter : impactAnalysisMetrics.keySet())
-                        metricsContent.write(parameter + " = " + impactAnalysisMetrics.get(parameter)+"\n");
-                }
-                metricsContent.flush();
-            }
-        } else {
-            if ( emptyContingency ) // store data for t-d simulation on empty contingency, i.e. stabilization
-                tdSimulationResults.put(EMPTY_CONTINGENCY_ID, false);
-        }
-        return tdSimulationResults;
-    }
-
     private Path getFile(Path folder, String filename) {
         if ( folder != null )
             return Paths.get(folder.toString(), filename);
@@ -636,7 +580,7 @@ public class LocalOnlineApplication extends NotificationBroadcasterSupport imple
         cvsWriter.flush();
     }
 
-    private void runTDSimulations(Path caseDir, String caseBaseName, String contingenciesIds, Boolean emptyContingency, Path outputFolder) throws Exception {
+    private void runTDSimulations(Path caseFile, String contingenciesIds, Boolean emptyContingency, Path outputFolder) throws Exception {
         //TODO check nulls
         //in contingenciesIds, we assume a comma separated list of ids ...
         Set<String> contingencyIds = (contingenciesIds != null) ?  Sets.newHashSet(contingenciesIds.split(",")) : null;
@@ -653,12 +597,19 @@ public class LocalOnlineApplication extends NotificationBroadcasterSupport imple
 	            String[] violationsHeaders = new String[]{"Basecase", "Equipment", "Type", "Value", "Limit"};
 	            violationsCvsWriter.writeRecord(violationsHeaders);
 	            violationsCvsWriter.flush();
-	        	Importer importer = Importers.addPostProcessors(Importers.getImporter("CIM1"), computationManager);
-	            if (caseBaseName != null) {
-	                Network network = importer.import_(new GenericReadOnlyDataSource(caseDir, caseBaseName), new Properties());
+
+	            if (Files.isRegularFile(caseFile)) {
+
+                    // load the network
+                    Network network = Importers.loadNetwork(caseFile);
+                    if (network == null) {
+                        throw new RuntimeException("Case '" + caseFile + "' not found");
+                    }
+                    network.getStateManager().allowStateMultiThreadAccess(true);
+
 	                List<LimitViolation> networkViolations = Security.checkLimits(network);
 	                writeCsvViolations(network.getId(), networkViolations, violationsCvsWriter);
-	                Map<String, Boolean> tdSimulationResults = runTDSimulation(network,
+	                Map<String, Boolean> tdSimulationResults = Utils.runTDSimulation(network,
 	                        contingencyIds,
 	                        emptyContingency,
 	                        computationManager,
@@ -667,13 +618,12 @@ public class LocalOnlineApplication extends NotificationBroadcasterSupport imple
 	                        metricsContent);
 	                securityIndexIds.addAll(tdSimulationResults.keySet());
 	                writeCsvTDResults(network.getId(), securityIndexIds, tdSimulationResults, true, resultsCvsWriter);
-	            } else {
-	                Importers.importAll(caseDir, importer, false, network -> {
+	            } else if (Files.isDirectory(caseFile)){
+	                Importers.loadNetworks(caseFile, false, network -> {
 	                    try {
-	                    	
 	                        List<LimitViolation> networkViolations = Security.checkLimits(network);
 	                        writeCsvViolations(network.getId(), networkViolations, violationsCvsWriter);
-	                        Map<String, Boolean> tdSimulationResults = runTDSimulation(network,
+	                        Map<String, Boolean> tdSimulationResults = Utils.runTDSimulation(network,
 	                                contingencyIds,
 	                                emptyContingency,
 	                                computationManager,
@@ -701,7 +651,7 @@ public class LocalOnlineApplication extends NotificationBroadcasterSupport imple
     }
 
     @Override
-    public void runTDSimulations(OnlineWorkflowStartParameters startconfig, String caseDirS, String caseBaseName, String contingenciesIds, String emptyContingencyS, String outputFolderS) {
+    public void runTDSimulations(OnlineWorkflowStartParameters startconfig, String caseFile, String contingenciesIds, String emptyContingencyS, String outputFolderS) {
         LOGGER.info("Starting td simulations: "+startconfig.toString()+"\n");
 
         if(!workflowLock.tryLock())
@@ -710,10 +660,10 @@ public class LocalOnlineApplication extends NotificationBroadcasterSupport imple
         }
 
         try {
-            Path caseDir = Paths.get(caseDirS);
             boolean emptyContingency = Boolean.parseBoolean(emptyContingencyS);
             Path outputFolder = Paths.get(outputFolderS);
-            runTDSimulations(caseDir, caseBaseName, contingenciesIds, emptyContingency, outputFolder);
+            Path inputCaseFile = Paths.get(caseFile);
+            runTDSimulations(inputCaseFile, contingenciesIds, emptyContingency, outputFolder);
             System.out.println("TD simulations terminated");
         } catch (Exception e) {
             e.printStackTrace();

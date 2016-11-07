@@ -6,11 +6,14 @@
  */
 package eu.itesla_project.online;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.Writer;
+import java.util.*;
 
+import eu.itesla_project.computation.ComputationManager;
+import eu.itesla_project.iidm.network.Network;
+import eu.itesla_project.modules.contingencies.ContingenciesAndActionsDatabaseClient;
+import eu.itesla_project.simulation.*;
+import eu.itesla_project.simulation.securityindexes.SecurityIndex;
 import net.sf.json.JSONSerializer;
 import eu.itesla_project.modules.contingencies.ActionParameters;
 import eu.itesla_project.modules.online.OnlineWorkflowResults;
@@ -20,6 +23,8 @@ import eu.itesla_project.modules.online.OnlineWorkflowResults;
  * @author Quinary <itesla@quinary.com>
  */
 public class Utils {
+
+	private static final String EMPTY_CONTINGENCY_ID = "Empty-Contingency";
 
 	public static String actionsToJson(OnlineWorkflowResults wfResults, String contingencyId, Integer stateId) {
 		Map<String, Object> actionInfo = new HashMap<String, Object>();
@@ -96,5 +101,58 @@ public class Utils {
 			actionInfo.put("action_plan", wfResults.getActionPlan(contingencyId, stateId));
 		}
 		return JSONSerializer.toJSON(actionInfo).toString();
+	}
+
+
+
+	public static Map<String, Boolean> runTDSimulation(Network network, Set<String> contingencyIds, boolean emptyContingency,
+												 ComputationManager computationManager, SimulatorFactory simulatorFactory,
+												 ContingenciesAndActionsDatabaseClient contingencyDb,
+												 Writer metricsContent) throws Exception {
+		Map<String, Boolean> tdSimulationResults = new HashMap<String, Boolean>();
+		Map<String, Object> initContext = new HashMap<>();
+		SimulationParameters simulationParameters = SimulationParameters.load();
+		// run stabilization
+		Stabilization stabilization = simulatorFactory.createStabilization(network, computationManager, 0);
+		stabilization.init(simulationParameters, initContext);
+		ImpactAnalysis impactAnalysis = null;
+		System.out.println("running stabilization on network " + network.getId());
+		StabilizationResult stabilizationResults = stabilization.run();
+		metricsContent.write("****** BASECASE " + network.getId()+"\n");
+		metricsContent.write("*** Stabilization Metrics ***\n");
+		Map<String, String> stabilizationMetrics = stabilizationResults.getMetrics();
+		if ( stabilizationMetrics!=null && !stabilizationMetrics.isEmpty()) {
+			for(String parameter : stabilizationMetrics.keySet())
+				metricsContent.write(parameter + " = " + stabilizationMetrics.get(parameter)+"\n");
+		}
+		metricsContent.flush();
+		if (stabilizationResults.getStatus() == StabilizationStatus.COMPLETED) {
+			if ( emptyContingency ) // store data for t-d simulation on empty contingency, i.e. stabilization
+				tdSimulationResults.put(EMPTY_CONTINGENCY_ID, true);
+			// check if there are contingencies to run impact analysis
+			if ( contingencyIds==null && contingencyDb.getContingencies(network).size()==0 )
+				contingencyIds = new HashSet<String>();
+			if ( contingencyIds==null || !contingencyIds.isEmpty() ) {
+				// run impact analysis
+				impactAnalysis = simulatorFactory.createImpactAnalysis(network, computationManager, 0, contingencyDb);
+				impactAnalysis.init(simulationParameters, initContext);
+				System.out.println("running impact analysis on network " + network.getId());
+				ImpactAnalysisResult impactAnalisResults = impactAnalysis.run(stabilizationResults.getState(), contingencyIds);
+				for(SecurityIndex index : impactAnalisResults.getSecurityIndexes() ) {
+					tdSimulationResults.put(index.getId().toString(), index.isOk());
+				}
+				metricsContent.write("*** Impact Analysis Metrics ***\n");
+				Map<String, String> impactAnalysisMetrics = impactAnalisResults.getMetrics();
+				if ( impactAnalysisMetrics!=null && !impactAnalysisMetrics.isEmpty()) {
+					for(String parameter : impactAnalysisMetrics.keySet())
+						metricsContent.write(parameter + " = " + impactAnalysisMetrics.get(parameter)+"\n");
+				}
+				metricsContent.flush();
+			}
+		} else {
+			if ( emptyContingency ) // store data for t-d simulation on empty contingency, i.e. stabilization
+				tdSimulationResults.put(EMPTY_CONTINGENCY_ID, false);
+		}
+		return tdSimulationResults;
 	}
 }
