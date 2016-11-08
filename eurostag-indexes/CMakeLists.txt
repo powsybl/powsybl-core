@@ -28,7 +28,6 @@ set(TSEXTRACT_SOURCES
     src/tsextract.cpp
 )
 add_executable(tsextract ${TSEXTRACT_SOURCES})
-message(STATUS, "ESG-Libs: ${Eurostag_LIBRARIES}")
 target_link_libraries(tsextract ${Eurostag_LIBRARIES} ${IntelFortran_LIBRARIES} ${CMAKE_DL_LIBS})
 
 include_directories(${Boost_INCLUDE_DIRS})

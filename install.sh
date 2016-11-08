@@ -182,7 +182,7 @@ ipst_cpp()
             # TODO: rename variable
             cmake -DCMAKE_INSTALL_PREFIX="$ipst_prefix" -Dthirdparty_prefix="$thirdparty_prefix" -DBUILD_EUROSTAG=$eurostag_build -DEUROSTAG_SDK_HOME="${eurostag_home}" -DBUILD_MATLAB=$matlab_build -DMATLAB_HOME="${matlab_home}" -DBUILD_DYMOLA=$dymola_build -DDYMOLA_HOME="${dymola_home}" -G "Unix Makefiles" -H"$sourceDir" -B"$ipst_builddir" || exit $?
 
-            if [ $ipst_docs = true ]; then
+            if [ $ipst_compile = true ]; then
                 echo "**** Compiling C++ modules"
                 make -C "$ipst_builddir" || exit $?
             fi
