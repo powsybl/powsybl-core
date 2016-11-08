@@ -3,158 +3,76 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-cmake_minimum_required (VERSION 2.6)
+find_package(Matlab REQUIRED)
 
-set(exec_name1 wp41c_v67_m1)
-set(exec_name2 wp41c_v67_m2)
-set(exec_name3 wp41c_v67_m3pre)
-set(exec_name4 wp41c_v67_m3)
-set(exec_name5 wp41c_v67_aggregator)
-
-set(matlabhome $ENV{MATLABHOME})
-set(sdir ${CMAKE_CURRENT_SOURCE_DIR}/sources)
-set(builddir ${CMAKE_CURRENT_BINARY_DIR})
-
-add_custom_command(
-    COMMENT "Compiling ${exec_name1}"
-    OUTPUT  ${exec_name1}
-    DEPENDS ${sdir}/MODULE1_HELPERS.m ${sdir}/MODULE1_HELPER.m ${sdir}/MODULE1.m
-    COMMAND ${matlabhome}/bin/mcc
-    ARGS -o ${exec_name1} 
-    -W main:${exec_name1} 
-    -T link:exe  
-    -d "${builddir}" 
-	-N  
-	-p stats  
-	-w enable:specified_file_mismatch 
-	-w enable:repeated_file  
-	-w enable:switch_ignored  
-	-w enable:missing_lib_sentinel  
-	-w enable:demo_license  
-	-R -nojvm  
-	-R -nodisplay  
-	-R -singleCompThread  
-	-R -nosplash  
-	-v ${sdir}/MODULE1_HELPERS.m  
-	-a ${sdir}/MODULE1_HELPER.m
-	-a ${sdir}/MODULE1.m
+set(MATLAB_INCLUDE_DIRECTORIES
+    stats
 )
 
-add_custom_command(
-    COMMENT "Compiling ${exec_name2}"
-    OUTPUT  ${exec_name2}
-    DEPENDS ${sdir}/MODULE2_HELPERS.m ${sdir}/MODULE2_HELPER.m ${sdir}/MODULE2.m ${sdir}/h.m ${sdir}/NEW_PIT.m ${sdir}/copulachoose.m ${sdir}/map_ecdf.m ${sdir}/copulaName.m ${sdir}/modU.m
-    COMMAND ${matlabhome}/bin/mcc
-    ARGS -o ${exec_name2} 
-    -W main:${exec_name2} 
-    -T link:exe  
-    -d "${builddir}" 
-	-N  
-	-p stats  
-	-w enable:specified_file_mismatch 
-	-w enable:repeated_file  
-	-w enable:switch_ignored  
-	-w enable:missing_lib_sentinel  
-	-w enable:demo_license  
-	-R -nojvm  
-	-R -nodisplay  
-	-R -singleCompThread  
-	-R -nosplash  
-	-v ${sdir}/MODULE2_HELPERS.m 
-    -a ${sdir}/MODULE2_HELPER.m 
-    -a ${sdir}/MODULE2.m 
-    -a ${sdir}/h.m 
-    -a ${sdir}/NEW_PIT.m 
-    -a ${sdir}/copulachoose.m 
-    -a ${sdir}/map_ecdf.m 
-    -a ${sdir}/copulaName.m 
-    -a ${sdir}/modU.m
+set(MATLAB_RUNTIME_OPTIONS
+	-nojvm
+	-nodisplay
+	-singleCompThread
+	-nosplash
 )
 
-add_custom_command(
-    COMMENT "Compiling ${exec_name3}"
-    OUTPUT  ${exec_name3}
-    DEPENDS ${sdir}/MODULE3PRE_HELPERS.m
-    COMMAND ${matlabhome}/bin/mcc
-    ARGS -o ${exec_name3} 
-    -W main:${exec_name3} 
-    -T link:exe  
-    -d "${builddir}" 
-	-N  
-	-p stats  
-	-w enable:specified_file_mismatch 
-	-w enable:repeated_file  
-	-w enable:switch_ignored  
-	-w enable:missing_lib_sentinel  
-	-w enable:demo_license  
-	-R -nojvm  
-	-R -nodisplay  
-	-R -singleCompThread  
-	-R -nosplash  
-	-v ${sdir}/MODULE3PRE_HELPERS.m 
+set(MATLAB_WARNING_OPTIONS
+	enable:specified_file_mismatch
+	enable:repeated_file
+	enable:switch_ignored
+	enable:missing_lib_sentinel
+	enable:demo_license
 )
 
-add_custom_command(
-    COMMENT "Compiling ${exec_name4}"
-    OUTPUT  ${exec_name4}
-    DEPENDS ${sdir}/MODULE3_HELPERS.m ${sdir}/MODULE3_HELPER.m ${sdir}/MODULE3.m ${sdir}/h_inv_ex.m ${sdir}/modU.m ${sdir}/sQuantile.m 
-    COMMAND ${matlabhome}/bin/mcc
-    ARGS -o ${exec_name4} 
-    -W main:${exec_name4} 
-    -T link:exe  
-    -d "${builddir}" 
-	-N  
-	-p stats  
-	-w enable:specified_file_mismatch 
-	-w enable:repeated_file  
-	-w enable:switch_ignored  
-	-w enable:missing_lib_sentinel  
-	-w enable:demo_license  
-	-R -nojvm  
-	-R -nodisplay  
-	-R -singleCompThread  
-	-R -nosplash  
-	-v ${sdir}/MODULE3_HELPERS.m
-    -a ${sdir}/MODULE3_HELPER.m
-    -a ${sdir}/MODULE3.m
-    -a ${sdir}/h_inv_ex.m
-    -a ${sdir}/modU.m
-    -a ${sdir}/sQuantile.m 
+set(WP41C_V67_M1_SOURCES
+    sources/MODULE1_HELPERS.m
+	sources/MODULE1_HELPER.m
+	sources/MODULE1.m
 )
+add_matlab_executable(wp41c_v67_m1 "${WP41C_V67_M1_SOURCES}")
 
-add_custom_command(
-    COMMENT "Compiling ${exec_name5}"
-    OUTPUT  ${exec_name5}
-    DEPENDS ${sdir}/AGGREGATORS.m ${sdir}/AGGREGATOR.m ${sdir}/insert_ind.m
-    COMMAND ${matlabhome}/bin/mcc
-    ARGS -o ${exec_name5} 
-    -W main:${exec_name5} 
-    -T link:exe  
-    -d "${builddir}" 
-	-N  
-	-p stats  
-	-w enable:specified_file_mismatch 
-	-w enable:repeated_file  
-	-w enable:switch_ignored  
-	-w enable:missing_lib_sentinel  
-	-w enable:demo_license  
-	-R -nojvm  
-	-R -nodisplay  
-	-R -singleCompThread  
-	-R -nosplash  
-	-v ${sdir}/AGGREGATORS.m
- 	-a ${sdir}/AGGREGATOR.m
- 	-a ${sdir}/insert_ind.m 
+set(WP41C_V67_M2_SOURCES
+    sources/MODULE2_HELPERS.m
+    sources/MODULE2_HELPER.m
+    sources/MODULE2.m
+    sources/h.m
+    sources/NEW_PIT.m
+    sources/copulachoose.m
+    sources/map_ecdf.m
+    sources/copulaName.m
+    sources/modU.m
 )
+add_matlab_executable(wp41c_v67_m2 "${WP41C_V67_M2_SOURCES}")
 
-    
+set(WP41C_V67_M3PRE_SOURCES
+    sources/MODULE3PRE_HELPERS.m
+)
+add_matlab_executable(wp41c_v67_m3pre "${WP41C_V67_M3PRE_SOURCES}")
+
+set(WP41C_V67_M3_SOURCES
+	sources/MODULE3_HELPERS.m
+    sources/MODULE3_HELPER.m
+    sources/MODULE3.m
+    sources/h_inv_ex.m
+    sources/modU.m
+    sources/sQuantile.m
+)
+add_matlab_executable(wp41c_v67_m3 "${WP41C_V67_M3_SOURCES}")
+
+set(WP41C_V67_AGGREGATOR_SOURCES
+    sources/AGGREGATORS.m
+    sources/AGGREGATOR.m
+    sources/insert_ind.m
+)
+add_matlab_executable(wp41c_v67_aggregator "${WP41C_V67_AGGREGATOR_SOURCES}")
+
 add_custom_target(sampling ALL
      COMMENT "building sampling matlab binaries to ${EXECUTABLE_OUTPUT_PATH}"
-     DEPENDS ${exec_name1} ${exec_name2} ${exec_name3} ${exec_name4} ${exec_name5}
-     COMMAND ${CMAKE_COMMAND} -E copy ${builddir}/${exec_name1} ${EXECUTABLE_OUTPUT_PATH}
-     COMMAND ${CMAKE_COMMAND} -E copy ${builddir}/${exec_name2} ${EXECUTABLE_OUTPUT_PATH}
-     COMMAND ${CMAKE_COMMAND} -E copy ${builddir}/${exec_name3} ${EXECUTABLE_OUTPUT_PATH}
-     COMMAND ${CMAKE_COMMAND} -E copy ${builddir}/${exec_name4} ${EXECUTABLE_OUTPUT_PATH}
-     COMMAND ${CMAKE_COMMAND} -E copy ${builddir}/${exec_name5} ${EXECUTABLE_OUTPUT_PATH}
+     DEPENDS wp41c_v67_m1 wp41c_v67_m2 wp41c_v67_m3pre wp41c_v67_m3 wp41c_v67_aggregator
+     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/wp41c_v67_m1 ${EXECUTABLE_OUTPUT_PATH}
+     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/wp41c_v67_m2 ${EXECUTABLE_OUTPUT_PATH}
+     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/wp41c_v67_m3pre ${EXECUTABLE_OUTPUT_PATH}
+     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/wp41c_v67_m3 ${EXECUTABLE_OUTPUT_PATH}
+     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/wp41c_v67_aggregator ${EXECUTABLE_OUTPUT_PATH}
 )
 
