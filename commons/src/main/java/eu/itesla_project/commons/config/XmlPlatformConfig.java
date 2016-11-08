@@ -35,33 +35,37 @@ public class XmlPlatformConfig extends InMemoryPlatformConfig {
     public XmlPlatformConfig(Path configDir, String configName, FileSystem fs) throws IOException, SAXException, ParserConfigurationException {
         super(fs);
         Path file = configDir.resolve(configName + ".xml");
-        LOGGER.info("Platform configuration defined by XML file {}", file);
-        try (InputStream is = Files.newInputStream(file)) {
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            factory.setNamespaceAware(true);
-            DocumentBuilder builder = factory.newDocumentBuilder();
-            Document doc = builder.parse(is);
-            Element root = doc.getDocumentElement();
-            root.normalize();
-            NodeList moduleNodes = root.getChildNodes();
-            for (int i = 0; i < moduleNodes.getLength(); i++) {
-                Node moduleNode = moduleNodes.item(i);
-                if (moduleNode.getNodeType() == Node.ELEMENT_NODE) {
-                    String moduleName = moduleNode.getLocalName();
-                    Map<Object, Object> properties = new HashMap<>();
-                    NodeList propertyNodes = moduleNode.getChildNodes();
-                    for (int j = 0; j < propertyNodes.getLength(); j++) {
-                        Node propertyNode = propertyNodes.item(j);
-                        if (propertyNode.getNodeType() == Node.ELEMENT_NODE) {
-                            String propertyName = propertyNode.getLocalName();
-                            Node child = propertyNode.getFirstChild();
-                            String propertyValue = child != null ? child.getTextContent() : "";
-                            properties.put(propertyName, propertyValue);
-                        }                        
+        if (Files.exists(file)) {
+            LOGGER.info("Platform configuration defined by XML file {}", file);
+            try (InputStream is = Files.newInputStream(file)) {
+                DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+                factory.setNamespaceAware(true);
+                DocumentBuilder builder = factory.newDocumentBuilder();
+                Document doc = builder.parse(is);
+                Element root = doc.getDocumentElement();
+                root.normalize();
+                NodeList moduleNodes = root.getChildNodes();
+                for (int i = 0; i < moduleNodes.getLength(); i++) {
+                    Node moduleNode = moduleNodes.item(i);
+                    if (moduleNode.getNodeType() == Node.ELEMENT_NODE) {
+                        String moduleName = moduleNode.getLocalName();
+                        Map<Object, Object> properties = new HashMap<>();
+                        NodeList propertyNodes = moduleNode.getChildNodes();
+                        for (int j = 0; j < propertyNodes.getLength(); j++) {
+                            Node propertyNode = propertyNodes.item(j);
+                            if (propertyNode.getNodeType() == Node.ELEMENT_NODE) {
+                                String propertyName = propertyNode.getLocalName();
+                                Node child = propertyNode.getFirstChild();
+                                String propertyValue = child != null ? child.getTextContent() : "";
+                                properties.put(propertyName, propertyValue);
+                            }
+                        }
+                        configs.put(moduleName, new MapModuleConfig(properties, fs));
                     }
-                    configs.put(moduleName, new MapModuleConfig(properties, fs));
                 }
             }
+        } else {
+            LOGGER.info("Platform configuration XML file {} not found", file);
         }
     }
     
