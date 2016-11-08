@@ -53,17 +53,17 @@ public class MpiComputationManager implements ComputationManager {
     }
 
     public MpiComputationManager(Path localDir, MpiNativeServices nativeServices) throws IOException, InterruptedException {
-        this(localDir, nativeServices, new NoMpiStatistics(), new DefaultMpiExecutorContext(), 1, null);
+        this(localDir, nativeServices, new NoMpiStatistics(), new DefaultMpiExecutorContext(), 1, false, null);
     }
 
     public MpiComputationManager(Path localDir, MpiStatistics statistics, MpiExecutorContext executorContext,
-                                 int coresPerRank, Path stdOutArchive) throws IOException, InterruptedException {
-        this(localDir, new JniMpiNativeServices(), statistics, executorContext, coresPerRank, stdOutArchive);
+                                 int coresPerRank, boolean verbose, Path stdOutArchive) throws IOException, InterruptedException {
+        this(localDir, new JniMpiNativeServices(), statistics, executorContext, coresPerRank, verbose, stdOutArchive);
     }
 
     public MpiComputationManager(Path localDir, MpiNativeServices nativeServices, MpiStatistics statistics,
-                                 MpiExecutorContext executorContext, int coresPerRank, Path stdOutArchive) throws IOException, InterruptedException {
-        this(localDir, new MpiJobSchedulerImpl(nativeServices, statistics, coresPerRank, executorContext.getSchedulerExecutor(), stdOutArchive), statistics, executorContext);
+                                 MpiExecutorContext executorContext, int coresPerRank, boolean verbose, Path stdOutArchive) throws IOException, InterruptedException {
+        this(localDir, new MpiJobSchedulerImpl(nativeServices, statistics, coresPerRank, verbose, executorContext.getSchedulerExecutor(), stdOutArchive), statistics, executorContext);
     }
 
     public MpiComputationManager(Path localDir, MpiJobScheduler scheduler, MpiStatistics statistics, MpiExecutorContext executorContext) throws IOException, InterruptedException {
@@ -71,8 +71,8 @@ public class MpiComputationManager implements ComputationManager {
         this.statistics = Objects.requireNonNull(statistics);
         this.executorContext = Objects.requireNonNull(executorContext);
         this.scheduler = scheduler;
-        if (executorContext.getMonitorExecutorService() != null) {
-            busyCoresPrintTask = executorContext.getMonitorExecutorService().scheduleAtFixedRate(new Runnable() {
+        if (executorContext.getMonitorExecutor() != null) {
+            busyCoresPrintTask = executorContext.getMonitorExecutor().scheduleAtFixedRate(new Runnable() {
                 @Override
                 public void run() {
                     LOGGER.info("Busy cores {}/{}, {} tasks/s",

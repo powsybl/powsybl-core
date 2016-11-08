@@ -11,6 +11,7 @@ import eu.itesla_project.computation.mpi.MpiComputationManager;
 import eu.itesla_project.computation.mpi.MpiExecutorContext;
 import eu.itesla_project.computation.mpi.MpiStatistics;
 import eu.itesla_project.computation.mpi.MpiStatisticsFactory;
+import eu.itesla_project.computation.mpi.util.MultiStateNetworkAwareMpiExecutorContext;
 import eu.itesla_project.iidm.network.impl.util.MultiStateNetworkAwareExecutors;
 import eu.itesla_project.modules.online.OnlineConfig;
 import eu.itesla_project.online.LocalOnlineApplication;
@@ -79,44 +80,13 @@ public class Master {
             int coresPerRank = Integer.parseInt(line.getOptionValue("n"));
             Path stdOutArchive = line.hasOption("o") ? Paths.get(line.getOptionValue("o")) : null;
 
+            MpiExecutorContext mpiExecutorContext = new MultiStateNetworkAwareMpiExecutorContext();
             ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
             ExecutorService executorService = MultiStateNetworkAwareExecutors.newCachedThreadPool();
-            ExecutorService computationExecutorService = MultiStateNetworkAwareExecutors.newCachedThreadPool();
             try {
                 MpiStatisticsFactory statisticsFactory = statisticsFactoryClass.asSubclass(MpiStatisticsFactory.class).newInstance();
                 MpiStatistics statistics = statisticsFactory.create(statisticsDbDir, statisticsDbName);
-                MpiExecutorContext executorContext = new MpiExecutorContext() {
-                    @Override
-                    public ScheduledExecutorService getMonitorExecutorService() {
-                        return scheduledExecutorService;
-                    }
-
-                    @Override
-                    public ExecutorService getSchedulerExecutor() {
-                        return executorService;
-                    }
-
-                    @Override
-                    public Executor getBeforeExecutor() {
-                        return computationExecutorService;
-                    }
-
-                    @Override
-                    public Executor getCommandExecutor() {
-                        return computationExecutorService;
-                    }
-
-                    @Override
-                    public Executor getAfterExecutor() {
-                        return computationExecutorService;
-                    }
-
-                    @Override
-                    public Executor getApplicationExecutor() {
-                        return computationExecutorService;
-                    }
-                };
-                try (ComputationManager computationManager = new MpiComputationManager(tmpDir, statistics, executorContext, coresPerRank, stdOutArchive)) {
+                try (ComputationManager computationManager = new MpiComputationManager(tmpDir, statistics, mpiExecutorContext, coresPerRank, false, stdOutArchive)) {
                     OnlineConfig config = OnlineConfig.load();
                     try (LocalOnlineApplication application = new LocalOnlineApplication(config, computationManager, scheduledExecutorService, executorService, true)) {
                         switch (mode) {
@@ -139,11 +109,10 @@ public class Master {
                     }
                 }
             } finally {
+                mpiExecutorContext.shutdown();
                 executorService.shutdown();
-                computationExecutorService.shutdown();
                 scheduledExecutorService.shutdown();
                 executorService.awaitTermination(15, TimeUnit.MINUTES);
-                computationExecutorService.awaitTermination(15, TimeUnit.MINUTES);
                 scheduledExecutorService.awaitTermination(15, TimeUnit.MINUTES);
             }
         } catch (ParseException e) {

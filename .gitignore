@@ -6,6 +6,7 @@
 /commons/target/
 /computation-local/target/
 /computation-mpi/target/
+/computation-mpi-util/target/
 /computation/target/
 /contingency-api/target/
 /distribution/target
@@ -22,6 +23,7 @@
 /graph/target/
 /histodb-client/target/
 /iidm-actions-contingencies-xml-client/target/
+/iidm-converter-api/target/
 /iidm-ddb/iidm-ddb-ear/target/
 /iidm-ddb/iidm-ddb-ejb-remote-client-wildfly/target/
 /iidm-ddb/iidm-ddb-ejb/target/
@@ -31,11 +33,10 @@
 /iidm-ddb/iidm-ddb-psse-import-export/target/
 /iidm-ddb/iidm-ddb-web/target/
 /iidm-ddb/iidm-ddb-example-ejb-client/target/
-/iidm-import-export-api/target/
 /iidm-network-api/target/
 /iidm-network-impl/target/
 /iidm-network-test/target/
-/iidm-xml-import-export/target/
+/iidm-xml-converter
 /loadflow-api/target/
 /mcla-integration/target/
 /mmap-offline-db/target/

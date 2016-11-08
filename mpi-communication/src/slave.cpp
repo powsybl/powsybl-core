@@ -907,6 +907,11 @@ int main(int argc, char *argv[]) {
     try {     
         GOOGLE_PROTOBUF_VERIFY_VERSION;
 
+        log4cpp::Category::getRoot().setPriority(log4cpp::Priority::ERROR);
+        log4cpp::Appender* consoleAppender = itesla::io::createConsoleLogAppender();
+        consoleAppender->setThreshold(log4cpp::Priority::ERROR);
+        log4cpp::Category::getRoot().addAppender(consoleAppender);
+
         boost::program_options::options_description desc("Allowed options");
         desc.add_options()
             ("tmp-dir", boost::program_options::value<std::string>(), "local temporary directory")
@@ -935,19 +940,19 @@ int main(int argc, char *argv[]) {
         }
 
         bool verbose = vm.count("verbose");
-
-        if (!vm.count("log-file")) {
-            throw std::runtime_error("log-file option is not set");
+        if (verbose) {
+            log4cpp::Category::getRoot().setPriority(log4cpp::Priority::DEBUG);
         }
-        std::string logFile = vm["log-file"].as<std::string>();
 
         if (!vm.count("cores")) {
             throw std::runtime_error("cores option is not set");
         }
         int cores = vm["cores"].as<int>();
 
-        log4cpp::Category::getRoot().setPriority(log4cpp::Priority::ERROR);
-        log4cpp::Category::getRoot().addAppender(itesla::io::createFileLogAppender(logFile));
+        if (vm.count("log-file")) {
+            std::string logFile = vm["log-file"].as<std::string>();
+            log4cpp::Category::getRoot().addAppender(itesla::io::createFileLogAppender(logFile));
+        }
 
         std::shared_ptr<itesla::slave::CommunicationManager> manager(new itesla::slave::CommunicationManager(cores, localDir, verbose, archiveDir));
         int rank;
