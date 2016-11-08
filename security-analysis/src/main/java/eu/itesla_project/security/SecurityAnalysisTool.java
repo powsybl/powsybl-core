@@ -106,10 +106,10 @@ public class SecurityAnalysisTool implements Tool {
         network.getStateManager().allowStateMultiThreadAccess(true);
 
         ComponentDefaultConfig defaultConfig = ComponentDefaultConfig.load();
-        SecurityAnalysisFactory securityAnalysisFactory = defaultConfig.findFactoryImplClass(SecurityAnalysisFactory.class).newInstance();
+        SecurityAnalysisFactory securityAnalysisFactory = defaultConfig.newFactoryImpl(SecurityAnalysisFactory.class);
         SecurityAnalysis securityAnalysis = securityAnalysisFactory.create(network, LocalComputationManager.getDefault(), 0);
 
-        ContingenciesProviderFactory contingenciesProviderFactory = defaultConfig.findFactoryImplClass(ContingenciesProviderFactory.class).newInstance();
+        ContingenciesProviderFactory contingenciesProviderFactory = defaultConfig.newFactoryImpl(ContingenciesProviderFactory.class);
         ContingenciesProvider contingenciesProvider = contingenciesProviderFactory.create();
 
         // run security analysis on all N-1 lines
