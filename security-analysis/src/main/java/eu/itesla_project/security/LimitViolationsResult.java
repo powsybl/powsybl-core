@@ -18,9 +18,12 @@ abstract class LimitViolationsResult {
 
     private final List<LimitViolation> limitViolations;
 
-    public LimitViolationsResult(boolean computationOk, List<LimitViolation> limitViolations) {
+    private final List<String> actionsTaken;
+
+    public LimitViolationsResult(boolean computationOk, List<LimitViolation> limitViolations, List<String> actionsTaken) {
         this.computationOk = computationOk;
         this.limitViolations = Objects.requireNonNull(limitViolations);
+        this.actionsTaken = Objects.requireNonNull(actionsTaken);
     }
 
     public boolean isComputationOk() {
@@ -29,5 +32,9 @@ abstract class LimitViolationsResult {
 
     public List<LimitViolation> getLimitViolations() {
         return limitViolations;
+    }
+
+    public List<String> getActionsTaken() {
+        return actionsTaken;
     }
 }

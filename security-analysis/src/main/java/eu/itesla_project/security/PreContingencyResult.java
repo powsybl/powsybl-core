@@ -6,6 +6,7 @@
  */
 package eu.itesla_project.security;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -15,6 +16,10 @@ import java.util.List;
 public class PreContingencyResult extends LimitViolationsResult {
 
     public PreContingencyResult(boolean computationOk, List<LimitViolation> limitViolations) {
-        super(computationOk, limitViolations);
+        this(computationOk, limitViolations, Collections.emptyList());
+    }
+
+    public PreContingencyResult(boolean computationOk, List<LimitViolation> limitViolations, List<String> actionsTaken) {
+        super(computationOk, limitViolations, actionsTaken);
     }
 }
