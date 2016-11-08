@@ -187,23 +187,34 @@ public class Security {
         Objects.requireNonNull(result);
         Objects.requireNonNull(writer);
         Objects.requireNonNull(formatterFactory);
-        List<LimitViolation> filteredLimitViolations = limitViolationFilter != null
-                ? limitViolationFilter.apply(result.getPreContingencyResult().getLimitViolations())
-                : result.getPreContingencyResult().getLimitViolations();
         try (TableFormatter formatter = formatterFactory.create(writer,
                 "Pre-contingency violations",
                 Locale.getDefault(),
+                new Column("Action"),
                 new Column("Equipment"),
                 new Column("Violation type"),
                 new Column("Violation name"),
                 new Column("Value"),
                 new Column("Limit"),
                 new Column("Charge %"))) {
+            for (String action : result.getPreContingencyResult().getActionsTaken()) {
+                formatter.writeCell(action)
+                        .writeEmptyCell()
+                        .writeEmptyCell()
+                        .writeEmptyCell()
+                        .writeEmptyCell()
+                        .writeEmptyCell()
+                        .writeEmptyCell();
+            }
+            List<LimitViolation> filteredLimitViolations = limitViolationFilter != null
+                    ? limitViolationFilter.apply(result.getPreContingencyResult().getLimitViolations())
+                    : result.getPreContingencyResult().getLimitViolations();
             filteredLimitViolations.stream()
                     .sorted((o1, o2) -> o1.getSubject().getId().compareTo(o2.getSubject().getId()))
                     .forEach(violation -> {
                         try {
-                            formatter.writeCell(violation.getSubject().getId())
+                            formatter.writeEmptyCell()
+                                    .writeCell(violation.getSubject().getId())
                                     .writeCell(violation.getLimitType().name())
                                     .writeCell(Objects.toString(violation.getLimitName(), ""))
                                     .writeCell(violation.getValue())
@@ -229,6 +240,7 @@ public class Security {
                     Locale.getDefault(),
                     new Column("Contingency"),
                     new Column("Status"),
+                    new Column("Action"),
                     new Column("Equipment"),
                     new Column("Violation type"),
                     new Column("Violation name"),
@@ -251,13 +263,27 @@ public class Security {
                                             .writeEmptyCell()
                                             .writeEmptyCell()
                                             .writeEmptyCell()
+                                            .writeEmptyCell()
                                             .writeEmptyCell();
+
+                                    for (String action : postContingencyResult.getActionsTaken()) {
+                                        formatter.writeEmptyCell()
+                                                .writeEmptyCell()
+                                                .writeCell(action)
+                                                .writeEmptyCell()
+                                                .writeEmptyCell()
+                                                .writeEmptyCell()
+                                                .writeEmptyCell()
+                                                .writeEmptyCell()
+                                                .writeEmptyCell();
+                                    }
 
                                     filteredLimitViolations.stream()
                                             .sorted((o1, o2) -> o1.getSubject().getId().compareTo(o2.getSubject().getId()))
                                             .forEach(violation -> {
                                                 try {
                                                     formatter.writeEmptyCell()
+                                                            .writeEmptyCell()
                                                             .writeEmptyCell()
                                                             .writeCell(violation.getSubject().getId())
                                                             .writeCell(violation.getLimitType().name())
