@@ -55,7 +55,7 @@ public class EurostagExportTool implements Tool, EurostagConstants {
 
     @Override
     public void run(CommandLine line) throws Exception {
-        ComponentDefaultConfig config = ComponentDefaultConfig.load();
+        ComponentDefaultConfig defaultConfig = ComponentDefaultConfig.load();
         EurostagConfig eurostagConfig = EurostagConfig.load();
         String caseFormat = line.getOptionValue("case-format");
         String caseDirName = line.getOptionValue("case-dir");
@@ -106,7 +106,7 @@ public class EurostagExportTool implements Tool, EurostagConstants {
             try (BufferedWriter writer = Files.newBufferedWriter(outputDir.resolve(PRE_FAULT_SEQ_FILE_NAME), StandardCharsets.UTF_8)) {
                 scenario.writePreFaultSeq(writer, PRE_FAULT_SAC_FILE_NAME);
             }
-            ContingenciesProvider contingenciesProvider = config.findFactoryImplClass(ContingenciesProviderFactory.class).newInstance().create();
+            ContingenciesProvider contingenciesProvider = defaultConfig.newFactoryImpl(ContingenciesProviderFactory.class).create();
             scenario.writeFaultSeqArchive(contingenciesProvider.getContingencies(network), network, dictionary, faultNum -> FAULT_SEQ_FILE_NAME.replace(eu.itesla_project.computation.Command.EXECUTION_NUMBER_PATTERN, Integer.toString(faultNum)))
                     .as(ZipExporter.class).exportTo(outputDir.resolve(ALL_SCENARIOS_ZIP_FILE_NAME).toFile());
 

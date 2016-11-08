@@ -15,16 +15,12 @@ import java.util.Objects;
 public class ComponentDefaultConfig {
 
     public static ComponentDefaultConfig load() {
-        return new ComponentDefaultConfig();
+        return new ComponentDefaultConfig(PlatformConfig.defaultConfig().getModuleConfigIfExists("componentDefaultConfig"));
     }
 
     private final ModuleConfig config;
 
-    public ComponentDefaultConfig() {
-        this(PlatformConfig.defaultConfig().getModuleConfigIfExists("componentDefaultConfig"));
-    }
-
-    public ComponentDefaultConfig(ModuleConfig config) {
+    ComponentDefaultConfig(ModuleConfig config) {
         this.config = config;
     }
 

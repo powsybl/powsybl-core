@@ -18,11 +18,7 @@ public class SecurityAnalysisFactoryImpl implements SecurityAnalysisFactory {
     @Override
     public SecurityAnalysis create(Network network, ComputationManager computationManager, int priority) {
         ComponentDefaultConfig defaultConfig = ComponentDefaultConfig.load();
-        try {
-            LoadFlowFactory loadFlowFactory = defaultConfig.findFactoryImplClass(LoadFlowFactory.class).newInstance();
-            return new SecurityAnalysisImpl(network, computationManager, loadFlowFactory);
-        } catch (InstantiationException|IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
+        LoadFlowFactory loadFlowFactory = defaultConfig.newFactoryImpl(LoadFlowFactory.class);
+        return new SecurityAnalysisImpl(network, computationManager, loadFlowFactory);
     }
 }
