@@ -69,3 +69,6 @@
 # Matlab projects
 /dymola-adapter/bin/
 /dynamic-indexes/*/bin/
+
+# iPST compilation settings
+install.cfg
