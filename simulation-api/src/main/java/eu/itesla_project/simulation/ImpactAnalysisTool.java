@@ -204,7 +204,7 @@ public class ImpactAnalysisTool implements Tool {
 
     @Override
     public void run(CommandLine line) throws Exception {
-        ComponentDefaultConfig config = ComponentDefaultConfig.load();
+        ComponentDefaultConfig defaultConfig = ComponentDefaultConfig.load();
         String caseFormat = line.getOptionValue("case-format");
         Path caseDir = Paths.get(line.getOptionValue("case-dir"));
         String caseBaseName = null;
@@ -220,9 +220,8 @@ public class ImpactAnalysisTool implements Tool {
 
         try (ComputationManager computationManager = new LocalComputationManager()) {
 
-            ContingenciesProvider contingenciesProvider
-                    = config.findFactoryImplClass(ContingenciesProviderFactory.class).newInstance().create();
-            SimulatorFactory simulatorFactory = config.findFactoryImplClass(SimulatorFactory.class).newInstance();
+            ContingenciesProvider contingenciesProvider = defaultConfig.newFactoryImpl(ContingenciesProviderFactory.class).create();
+            SimulatorFactory simulatorFactory = defaultConfig.newFactoryImpl(SimulatorFactory.class);
 
             Importer importer = Importers.getImporter(caseFormat, computationManager);
             if (importer == null) {
