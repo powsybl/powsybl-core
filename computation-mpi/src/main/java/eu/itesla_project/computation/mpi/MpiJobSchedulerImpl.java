@@ -93,7 +93,7 @@ class MpiJobSchedulerImpl implements MpiJobScheduler {
     private long processCompletedTasksTime;
     private long checkTaskCompletionTime;
 
-    MpiJobSchedulerImpl(MpiNativeServices nativeServices, MpiStatistics statistics, final int coresPerRank, ExecutorService executor, Path stdOutArchive) throws InterruptedException, IOException {
+    MpiJobSchedulerImpl(MpiNativeServices nativeServices, MpiStatistics statistics, final int coresPerRank, boolean verbose, ExecutorService executor, Path stdOutArchive) throws InterruptedException, IOException {
         this.nativeServices = Objects.requireNonNull(nativeServices);
         this.statistics = Objects.requireNonNull(statistics);
         if (stdOutArchive != null) {
@@ -113,7 +113,7 @@ class MpiJobSchedulerImpl implements MpiJobScheduler {
             public void run() {
                 LOGGER.trace("Job scheduler started");
                 try {
-                    nativeServices.initMpi(coresPerRank);
+                    nativeServices.initMpi(coresPerRank, verbose);
 
                     mpiVersion = nativeServices.getMpiVersion();
                     resources = new MpiResources(nativeServices.getMpiCommSize(), coresPerRank);

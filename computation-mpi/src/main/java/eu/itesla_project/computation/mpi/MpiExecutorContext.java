@@ -17,13 +17,15 @@ public interface MpiExecutorContext {
 
     ExecutorService getSchedulerExecutor();
 
-    ScheduledExecutorService getMonitorExecutorService();
+    ScheduledExecutorService getMonitorExecutor();
 
-    Executor getBeforeExecutor();
+    ExecutorService getBeforeExecutor();
 
-    Executor getCommandExecutor();
+    ExecutorService getCommandExecutor();
 
-    Executor getAfterExecutor();
+    ExecutorService getAfterExecutor();
 
-    Executor getApplicationExecutor();
+    ExecutorService getApplicationExecutor();
+
+    void shutdown() throws InterruptedException ;
 }

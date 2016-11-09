@@ -6,7 +6,6 @@
  */
 package eu.itesla_project.computation.mpi;
 
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ScheduledExecutorService;
@@ -17,7 +16,7 @@ import java.util.concurrent.ScheduledExecutorService;
 public class DefaultMpiExecutorContext implements MpiExecutorContext {
 
     @Override
-    public ScheduledExecutorService getMonitorExecutorService() {
+    public ScheduledExecutorService getMonitorExecutor() {
         return null;
     }
 
@@ -27,23 +26,26 @@ public class DefaultMpiExecutorContext implements MpiExecutorContext {
     }
 
     @Override
-    public Executor getAfterExecutor() {
+    public ExecutorService getAfterExecutor() {
         return ForkJoinPool.commonPool();
     }
 
     @Override
-    public Executor getApplicationExecutor() {
+    public ExecutorService getApplicationExecutor() {
         return ForkJoinPool.commonPool();
     }
 
     @Override
-    public Executor getBeforeExecutor() {
+    public ExecutorService getBeforeExecutor() {
         return ForkJoinPool.commonPool();
     }
 
     @Override
-    public Executor getCommandExecutor() {
+    public ExecutorService getCommandExecutor() {
         return ForkJoinPool.commonPool();
     }
 
+    @Override
+    public void shutdown() throws InterruptedException {
+    }
 }
