@@ -193,7 +193,7 @@ public class ImpactAnalysisTool implements Tool {
 
     @Override
     public void run(CommandLine line) throws Exception {
-        ComponentDefaultConfig config = ComponentDefaultConfig.load();
+        ComponentDefaultConfig defaultConfig = ComponentDefaultConfig.load();
         Path caseFile = Paths.get(line.getOptionValue("case-file"));
         final Set<String> contingencyIds = line.hasOption("contingencies")
                 ?  Sets.newHashSet(line.getOptionValue("contingencies").split(",")) : null;
