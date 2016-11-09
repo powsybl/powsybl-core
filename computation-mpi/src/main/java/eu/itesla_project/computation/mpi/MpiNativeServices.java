@@ -13,7 +13,7 @@ import java.util.List;
  */
 public interface MpiNativeServices {
 
-    void initMpi(int coresPerRank);
+    void initMpi(int coresPerRank, boolean verbose);
 
     void terminateMpi();
 

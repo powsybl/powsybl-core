@@ -362,9 +362,9 @@ std::shared_ptr<itesla::master::CommunicationManager> MANAGER;
  * Method:    initMpi
  * Signature: ()V
  */
-JNIEXPORT void JNICALL Java_eu_itesla_1project_computation_mpi_JniMpiNativeServices_initMpi(JNIEnv * env, jobject, jint coresPerRank) {
+JNIEXPORT void JNICALL Java_eu_itesla_1project_computation_mpi_JniMpiNativeServices_initMpi(JNIEnv * env, jobject, jint coresPerRank, jboolean verbose) {
     try {
-        LOGGER.setPriority(log4cpp::Priority::DEBUG);
+        LOGGER.setPriority(verbose ? log4cpp::Priority::DEBUG : log4cpp::Priority::ERROR);
         LOGGER.addAppender(itesla::io::createConsoleLogAppender());
 
         MANAGER.reset(new itesla::master::CommunicationManager(coresPerRank));

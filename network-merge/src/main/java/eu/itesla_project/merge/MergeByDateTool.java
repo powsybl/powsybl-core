@@ -99,10 +99,10 @@ public class MergeByDateTool implements Tool {
 
     @Override
     public void run(CommandLine line) throws Exception {
-        ComponentDefaultConfig config = ComponentDefaultConfig.load();
-        CaseRepository caseRepository = config.findFactoryImplClass(CaseRepositoryFactory.class).newInstance().create(LocalComputationManager.getDefault());
-        LoadFlowFactory loadFlowFactory = config.findFactoryImplClass(LoadFlowFactory.class).newInstance();
-        MergeOptimizerFactory mergeOptimizerFactory = config.findFactoryImplClass(MergeOptimizerFactory.class).newInstance();
+        ComponentDefaultConfig defaultConfig = ComponentDefaultConfig.load();
+        CaseRepository caseRepository = defaultConfig.newFactoryImpl(CaseRepositoryFactory.class).create(LocalComputationManager.getDefault());
+        LoadFlowFactory loadFlowFactory = defaultConfig.newFactoryImpl(LoadFlowFactory.class);
+        MergeOptimizerFactory mergeOptimizerFactory = defaultConfig.newFactoryImpl(MergeOptimizerFactory.class);
         Set<Country> countries = Arrays.stream(line.getOptionValue("countries").split(",")).map(Country::valueOf).collect(Collectors.toSet());
         DateTime date = DateTime.parse(line.getOptionValue("date"));
         Path outputDir = Paths.get(line.getOptionValue("output-dir"));

@@ -12,6 +12,7 @@ import eu.itesla_project.computation.mpi.MpiComputationManager;
 import eu.itesla_project.computation.mpi.MpiExecutorContext;
 import eu.itesla_project.computation.mpi.MpiStatistics;
 import eu.itesla_project.computation.mpi.MpiStatisticsFactory;
+import eu.itesla_project.computation.mpi.util.MultiStateNetworkAwareMpiExecutorContext;
 import eu.itesla_project.iidm.network.impl.util.MultiStateNetworkAwareExecutors;
 import eu.itesla_project.modules.offline.OfflineConfig;
 import eu.itesla_project.modules.offline.OfflineWorkflowCreationParameters;
@@ -125,46 +126,13 @@ public class Master {
             Path stdOutArchive = line.hasOption("stdout-archive") ? Paths.get(line.getOptionValue("stdout-archive")) : null;
             String workflowId = line.hasOption("workflow") ? line.getOptionValue("workflow") : null;
 
+            MpiExecutorContext mpiExecutorContext = new MultiStateNetworkAwareMpiExecutorContext();
             ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
-            ExecutorService executorService = Executors.newCachedThreadPool();
-            ExecutorService computationExecutorService = MultiStateNetworkAwareExecutors.newSizeLimitedThreadPool("COMPUTATION_POOL", 100);
-            ExecutorService applicationExecutorService = MultiStateNetworkAwareExecutors.newSizeLimitedThreadPool("APPLICATION_POOL", 100);
             ExecutorService offlineExecutorService = MultiStateNetworkAwareExecutors.newSizeLimitedThreadPool("OFFLINE_POOL", 100);
-            MpiExecutorContext executorContext = new MpiExecutorContext() {
-                @Override
-                public ScheduledExecutorService getMonitorExecutorService() {
-                    return scheduledExecutorService;
-                }
-
-                @Override
-                public ExecutorService getSchedulerExecutor() {
-                    return executorService;
-                }
-
-                @Override
-                public Executor getBeforeExecutor() {
-                    return computationExecutorService;
-                }
-
-                @Override
-                public Executor getCommandExecutor() {
-                    return computationExecutorService;
-                }
-
-                @Override
-                public Executor getAfterExecutor() {
-                    return computationExecutorService;
-                }
-
-                @Override
-                public Executor getApplicationExecutor() {
-                    return applicationExecutorService;
-                }
-            };
             try {
                 MpiStatisticsFactory statisticsFactory = statisticsFactoryClass.asSubclass(MpiStatisticsFactory.class).newInstance();
                 try (MpiStatistics statistics = statisticsFactory.create(statisticsDbDir, statisticsDbName)) {
-                    try (ComputationManager computationManager = new MpiComputationManager(tmpDir, statistics, executorContext, coresPerRank, stdOutArchive)) {
+                    try (ComputationManager computationManager = new MpiComputationManager(tmpDir, statistics, mpiExecutorContext, coresPerRank, false, stdOutArchive)) {
                         OfflineConfig config = OfflineConfig.load();
                         try (LocalOfflineApplication application = new LocalOfflineApplication(config, computationManager, simulationDbName,
                                 rulesDbName, metricsDbName, scheduledExecutorService,
@@ -197,14 +165,9 @@ public class Master {
                     }
                 }
             } finally {
-                executorService.shutdown();
-                computationExecutorService.shutdown();
-                applicationExecutorService.shutdown();
+                mpiExecutorContext.shutdown();
                 offlineExecutorService.shutdown();
                 scheduledExecutorService.shutdown();
-                executorService.awaitTermination(15, TimeUnit.MINUTES);
-                computationExecutorService.awaitTermination(15, TimeUnit.MINUTES);
-                applicationExecutorService.awaitTermination(15, TimeUnit.MINUTES);
                 offlineExecutorService.awaitTermination(15, TimeUnit.MINUTES);
                 scheduledExecutorService.awaitTermination(15, TimeUnit.MINUTES);
             }

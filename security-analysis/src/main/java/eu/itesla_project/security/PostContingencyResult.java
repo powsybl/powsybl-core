@@ -8,6 +8,7 @@ package eu.itesla_project.security;
 
 import eu.itesla_project.contingency.Contingency;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -20,7 +21,11 @@ public class PostContingencyResult extends LimitViolationsResult {
     private final Contingency contingency;
 
     public PostContingencyResult(Contingency contingency, boolean computationOk, List<LimitViolation> limitViolations) {
-        super(computationOk, limitViolations);
+        this(contingency, computationOk, limitViolations, Collections.emptyList());
+    }
+
+    public PostContingencyResult(Contingency contingency, boolean computationOk, List<LimitViolation> limitViolations, List<String> actionsTaken) {
+        super(computationOk, limitViolations, actionsTaken);
         this.contingency = Objects.requireNonNull(contingency);
     }
 

@@ -37,6 +37,11 @@
             <artifactId>computation-mpi</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>eu.itesla_project</groupId>
+            <artifactId>computation-mpi-util</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <!-- network impl -->
         <dependency>

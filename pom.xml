@@ -70,6 +70,7 @@
         <module>ucte-import</module>
         <module>ucte-network</module>
         <module>wca-integration</module>
+        <module>computation-mpi-util</module>
     </modules>
 
     <properties>
@@ -174,6 +175,7 @@
                     <useStandardDocletOptions>true</useStandardDocletOptions>
                     <excludePackageNames>cim1*</excludePackageNames>
                     <docfilessubdirs>true</docfilessubdirs>
+                    <aggregate>true</aggregate>
                 </configuration>
             </plugin>
             <plugin>

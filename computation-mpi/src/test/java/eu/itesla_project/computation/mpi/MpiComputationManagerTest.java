@@ -79,7 +79,7 @@ public class MpiComputationManagerTest {
         }
 
         @Override
-        public void initMpi(int coresPerRank) {
+        public void initMpi(int coresPerRank, boolean verbose) {
         }
 
         @Override

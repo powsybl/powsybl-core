@@ -8,53 +8,42 @@ cmake_minimum_required(VERSION 2.6)
 
 project(mpi)
 
+find_package(MPI REQUIRED)
 set(CMAKE_CXX_COMPILER mpicxx)
 
-if (DEFINED PROTOBUF_HOME)
-    message("PROTOBUF_HOME=${PROTOBUF_HOME}")
-else()
-    message(FATAL_ERROR "PROTOBUF_HOME is NOT defined")
-endif()
-if (DEFINED BOOST_HOME)
-    message("BOOST_HOME=${BOOST_HOME}")
-else()
-    message(FATAL_ERROR "BOOST_HOME is NOT defined")
-endif()
-if (DEFINED LOG4CPP_HOME)
-    message("LOG4CPP_HOME=${LOG4CPP_HOME}")
-else()
-    message(FATAL_ERROR "LOG4CPP_HOME is NOT defined")
-endif()
-if (DEFINED LIBARCHIVE_HOME)
-    message("LIBARCHIVE_HOME=${LIBARCHIVE_HOME}")
-else()
-    message(FATAL_ERROR "LIBARCHIVE_HOME is NOT defined")
-endif()
-if (DEFINED ENV{JAVA_HOME})
-    message("JAVA_HOME=$ENV{JAVA_HOME}")
-else()
-    message(FATAL_ERROR "JAVA_HOME is NOT defined")
-endif()
+find_package(Boost REQUIRED COMPONENTS filesystem system program_options iostreams)
+find_package(JNI REQUIRED)
+find_package(Log4cpp REQUIRED)
+find_package(LibArchive REQUIRED)
+find_package(Protobuf REQUIRED)
+find_package(ZLIB REQUIRED)
 
-ADD_LIBRARY(boost_filesystem STATIC IMPORTED)
-ADD_LIBRARY(boost_system STATIC IMPORTED)
-ADD_LIBRARY(boost_iostreams STATIC IMPORTED)
-ADD_LIBRARY(boost_program_options STATIC IMPORTED)
-ADD_LIBRARY(log4cpp STATIC IMPORTED)
-ADD_LIBRARY(protobuf STATIC IMPORTED)
-ADD_LIBRARY(archive STATIC IMPORTED)
-SET_TARGET_PROPERTIES(boost_filesystem PROPERTIES IMPORTED_LOCATION ${BOOST_HOME}/lib/libboost_filesystem.a)
-SET_TARGET_PROPERTIES(boost_system PROPERTIES IMPORTED_LOCATION ${BOOST_HOME}/lib/libboost_system.a)
-SET_TARGET_PROPERTIES(boost_iostreams PROPERTIES IMPORTED_LOCATION ${BOOST_HOME}/lib/libboost_iostreams.a)
-SET_TARGET_PROPERTIES(boost_program_options PROPERTIES IMPORTED_LOCATION ${BOOST_HOME}/lib/libboost_program_options.a)
-SET_TARGET_PROPERTIES(log4cpp PROPERTIES IMPORTED_LOCATION ${LOG4CPP_HOME}/lib/liblog4cpp.a)
-SET_TARGET_PROPERTIES(protobuf PROPERTIES IMPORTED_LOCATION ${PROTOBUF_HOME}/lib/libprotobuf.a)
-SET_TARGET_PROPERTIES(archive PROPERTIES IMPORTED_LOCATION ${LIBARCHIVE_HOME}/lib/libarchive.a)
+# common library
+set(COMMON_SOURCES
+    src/ioutil.cpp
+    src/mpitags.cpp
+    src/mpiutil.cpp
+)
+add_library(common ${COMMON_SOURCES})
 
-include_directories($ENV{JAVA_HOME}/include $ENV{JAVA_HOME}/include/linux ${BOOST_HOME}/include ${PROTOBUF_HOME}/include ${LOG4CPP_HOME}/include ${LIBARCHIVE_HOME}/include)
-link_directories(${PROTOBUF_HOME}/lib)
-add_library(common src/mpiutil.cpp src/ioutil.cpp src/mpitags.cpp)
-add_library(master SHARED src/master.cpp src/jniutil.cpp)
-add_executable(slave src/slave.cpp src/messages.pb.cc)
-target_link_libraries(master common boost_filesystem boost_system boost_iostreams log4cpp archive)
-target_link_libraries(slave common boost_program_options boost_filesystem boost_system boost_iostreams log4cpp archive protobuf z bz2)
+# master library
+set(MASTER_SOURCES
+    src/jniutil.cpp
+    src/master.cpp
+)
+add_library(master SHARED ${MASTER_SOURCES})
+target_link_libraries(master common ${Boost_FILESYSTEM_LIBRARY} ${Boost_SYSTEM_LIBRARY} ${Boost_IOSTREAMS_LIBRARY} ${Log4cpp_LIBRARIES} ${LibArchive_LIBRARIES})
+
+# slave binary
+set(SLAVE_SOURCES
+    src/messages.pb.cc
+    src/slave.cpp
+)
+add_executable(slave ${SLAVE_SOURCES})
+target_link_libraries(slave common ${Boost_LIBRARIES} ${LibArchive_LIBRARIES} ${Log4cpp_LIBRARIES} ${Protobuf_LIBRARIES} ${ZLIB_LIBRARIES})
+
+include_directories(${Boost_INCLUDE_DIRS})
+include_directories(${JNI_INCLUDE_DIRS})
+include_directories(${LibArchive_INCLUDE_DIRS})
+include_directories(${Log4cpp_INCLUDE_DIRS})
+include_directories(${Protobuf_INCLUDE_DIRS})

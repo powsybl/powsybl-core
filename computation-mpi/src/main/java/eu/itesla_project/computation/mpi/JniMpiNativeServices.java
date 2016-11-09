@@ -17,7 +17,7 @@ public class JniMpiNativeServices implements MpiNativeServices {
         System.loadLibrary("master");
     }
 
-    public native void initMpi(int coresPerRank);
+    public native void initMpi(int coresPerRank, boolean verbose);
 
     public native void terminateMpi();
 
