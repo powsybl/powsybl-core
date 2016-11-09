@@ -7,7 +7,6 @@
 package eu.itesla_project.modules.rules;
 
 import eu.itesla_project.commons.tools.Command;
-import eu.itesla_project.iidm.import_.Importers;
 import eu.itesla_project.modules.offline.OfflineConfig;
 import eu.itesla_project.simulation.securityindexes.SecurityIndexType;
 import org.apache.commons.cli.Options;
@@ -41,71 +40,58 @@ public class CheckSecurityCommand implements Command {
     }
 
     @Override
-    @SuppressWarnings("static-access")
     public Options getOptions() {
         Options options = new Options();
+        options.addOption(Option.builder().longOpt("case-file")
+                .desc("the case path")
+                .hasArg()
+                .argName("FILE")
+                .required()
+                .build());
         options.addOption(Option.builder().longOpt("workflow")
-                                .desc("the workflow id (to find rules)")
-                                .hasArg()
-                                .required()
-                                .argName("ID")
-                                .build());
+                .desc("the workflow id (to find rules)")
+                .hasArg()
+                .required()
+                .argName("ID")
+                .build());
         options.addOption(Option.builder().longOpt("attribute-set")
-                                .desc("the attribute set")
-                                .hasArg()
-                                .required()
-                                .argName("ATTRIBUTE_SET")
-                                .build());
-        options.addOption(Option.builder().longOpt("case-format")
-                                .desc("the case format")
-                                .hasArg()
-                                .argName("FORMAT")
-                                .required()
-                                .build());
-        options.addOption(Option.builder().longOpt("case-dir")
-                                .desc("the directory where the case is")
-                                .hasArg()
-                                .argName("DIR")
-                                .required()
-                                .build());
-        options.addOption(Option.builder().longOpt("case-basename")
-                                .desc("the case base name (all cases of the directory if not set)")
-                                .hasArg()
-                                .argName("NAME")
-                                .build());
+                .desc("the attribute set")
+                .hasArg()
+                .required()
+                .argName("ATTRIBUTE_SET")
+                .build());
         options.addOption(Option.builder().longOpt("purity-threshold")
-                                .desc("the purity threshold (related to decision tree), default is " + DEFAULT_PURITY_THRESHOLD)
-                                .hasArg()
-                                .argName("THRESHOLD")
-                                .build());
+                .desc("the purity threshold (related to decision tree), default is " + DEFAULT_PURITY_THRESHOLD)
+                .hasArg()
+                .argName("THRESHOLD")
+                .build());
         options.addOption(Option.builder().longOpt("rules-db-name")
-                                .desc("the rules db name (default is " + OfflineConfig.DEFAULT_RULES_DB_NAME + ")")
-                                .hasArg()
-                                .argName("NAME")
-                                .build());
+                .desc("the rules db name (default is " + OfflineConfig.DEFAULT_RULES_DB_NAME + ")")
+                .hasArg()
+                .argName("NAME")
+                .build());
         options.addOption(Option.builder().longOpt("output-csv-file")
-                                .desc("output CSV file path (pretty print on standard output if not specified)")
-                                .hasArg()
-                                .argName("FILE")
-                                .build());
+                .desc("output CSV file path (pretty print on standard output if not specified)")
+                .hasArg()
+                .argName("FILE")
+                .build());
         options.addOption(Option.builder().longOpt("security-index-types")
-                                .desc("security index type to check, all if no specified")
-                                .hasArg()
-                                .argName("INDEX_TYPE1,INDEX_TYPE2,...")
-                                .build());
+                .desc("security index type to check, all if no specified")
+                .hasArg()
+                .argName("INDEX_TYPE1,INDEX_TYPE2,...")
+                .build());
         options.addOption(Option.builder().longOpt("contingencies")
-                                .desc("contingencies to check, all if no specified")
-                                .hasArg()
-                                .argName("CONTINGENCY1,CONTINGENCY2,...")
-                                .build());
+                .desc("contingencies to check, all if no specified")
+                .hasArg()
+                .argName("CONTINGENCY1,CONTINGENCY2,...")
+                .build());
         return options;
     }
 
     @Override
     public String getUsageFooter() {
         return "Where ATTRIBUTE_SET is one of " + Arrays.toString(RuleAttributeSet.values())
-                + "\n      INDEX_TYPE is one of " + Arrays.toString(SecurityIndexType.values())
-                + "\n      FORMAT is one of " + Importers.getFormats();
+                + "\n      INDEX_TYPE is one of " + Arrays.toString(SecurityIndexType.values());
     }
 
 }

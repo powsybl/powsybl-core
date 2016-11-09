@@ -8,12 +8,8 @@ package eu.itesla_project.modules.histo.tools;
 
 import com.google.auto.service.AutoService;
 import com.google.common.collect.Range;
-import eu.itesla_project.commons.ITeslaException;
 import eu.itesla_project.commons.tools.Command;
 import eu.itesla_project.commons.tools.Tool;
-import eu.itesla_project.computation.local.LocalComputationManager;
-import eu.itesla_project.iidm.datasource.GenericReadOnlyDataSource;
-import eu.itesla_project.iidm.import_.Importer;
 import eu.itesla_project.iidm.import_.Importers;
 import eu.itesla_project.iidm.network.Generator;
 import eu.itesla_project.iidm.network.Network;
@@ -62,29 +58,17 @@ public class HistoDbPrintVoltageRangeTool implements Tool {
             @Override
             public Options getOptions() {
                 Options options = new Options();
+                options.addOption(Option.builder().longOpt("case-file")
+                        .desc("the case path")
+                        .hasArg()
+                        .argName("FILE")
+                        .required()
+                        .build());
                 options.addOption(Option.builder().longOpt("interval")
                         .desc("time interval (example 2013-01-01T00:00:00+01:00/2013-01-31T23:59:00+01:00)")
                         .hasArg()
                         .required()
                         .argName("DATE1/DATE2")
-                        .build());
-                options.addOption(Option.builder().longOpt("case-format")
-                        .desc("the case format")
-                        .hasArg()
-                        .argName("FORMAT")
-                        .required()
-                        .build());
-                options.addOption(Option.builder().longOpt("case-dir")
-                        .desc("the directory where the case is")
-                        .hasArg()
-                        .argName("DIR")
-                        .required()
-                        .build());
-                options.addOption(Option.builder().longOpt("case-basename")
-                        .desc("the case base name (all cases of the directory if not set)")
-                        .hasArg()
-                        .argName("NAME")
-                        .required()
                         .build());
                 return options;
             }
@@ -111,35 +95,32 @@ public class HistoDbPrintVoltageRangeTool implements Tool {
     @Override
     public void run(CommandLine line) throws Exception {
         Interval interval = Interval.parse(line.getOptionValue("interval"));
-        String caseFormat = line.getOptionValue("case-format");
-        Path caseDir = Paths.get(line.getOptionValue("case-dir"));
-        String caseBaseName = line.getOptionValue("case-basename");
+        Path caseFile = Paths.get(line.getOptionValue("case-file"));
         Map<String, VoltageStats> ranges = new HashMap<>();
-        try (LocalComputationManager computationManager = new LocalComputationManager()) {
-            Importer importer = Importers.getImporter(caseFormat, computationManager);
-            if (importer == null) {
-                throw new ITeslaException("Format " + caseFormat + " not supported");
+
+        Network network = Importers.loadNetwork(caseFile);
+        if (network == null) {
+            throw new RuntimeException("Case '" + caseFile + "' not found");
+        }
+        network.getStateManager().allowStateMultiThreadAccess(true);
+
+        OfflineConfig config = OfflineConfig.load();
+        try (HistoDbClient histoDbClient = config.getHistoDbClientFactoryClass().newInstance().create()) {
+            Set<HistoDbAttributeId> attrIds = new LinkedHashSet<>();
+            for (VoltageLevel vl : network.getVoltageLevels()) {
+                attrIds.add(new HistoDbNetworkAttributeId(vl.getId(), HistoDbAttr.V));
             }
-            System.out.println("loading case " + caseBaseName + "...");
-            Network network = importer.import_(new GenericReadOnlyDataSource(caseDir, caseBaseName), null);
-            OfflineConfig config = OfflineConfig.load();
-            try (HistoDbClient histoDbClient = config.getHistoDbClientFactoryClass().newInstance().create()) {
-                Set<HistoDbAttributeId> attrIds = new LinkedHashSet<>();
-                for (VoltageLevel vl : network.getVoltageLevels()) {
-                    attrIds.add(new HistoDbNetworkAttributeId(vl.getId(), HistoDbAttr.V));
+            HistoDbStats stats = histoDbClient.queryStats(attrIds, interval, HistoDbHorizon.SN, false);
+            for (VoltageLevel vl : network.getVoltageLevels()) {
+                HistoDbNetworkAttributeId attrId = new HistoDbNetworkAttributeId(vl.getId(), HistoDbAttr.V);
+                float min = stats.getValue(HistoDbStatsType.MIN, attrId, Float.NaN) / vl.getNominalV();
+                float max = stats.getValue(HistoDbStatsType.MAX, attrId, Float.NaN) / vl.getNominalV();
+                int count = (int) stats.getValue(HistoDbStatsType.COUNT, attrId, 0);
+                VoltageStats vstats = new VoltageStats(Range.closed(min, max), count, vl.getNominalV());
+                for (Generator g : vl.getGenerators()) {
+                    vstats.pmax += g.getMaxP();
                 }
-                HistoDbStats stats = histoDbClient.queryStats(attrIds, interval, HistoDbHorizon.SN, false);
-                for (VoltageLevel vl : network.getVoltageLevels()) {
-                    HistoDbNetworkAttributeId attrId = new HistoDbNetworkAttributeId(vl.getId(), HistoDbAttr.V);
-                    float min = stats.getValue(HistoDbStatsType.MIN, attrId, Float.NaN) / vl.getNominalV();
-                    float max = stats.getValue(HistoDbStatsType.MAX, attrId, Float.NaN) / vl.getNominalV();
-                    int count = (int) stats.getValue(HistoDbStatsType.COUNT, attrId, 0);
-                    VoltageStats vstats = new VoltageStats(Range.closed(min, max), count, vl.getNominalV());
-                    for (Generator g : vl.getGenerators()) {
-                        vstats.pmax += g.getMaxP();
-                    }
-                    ranges.put(vl.getId(), vstats);
-                }
+                ranges.put(vl.getId(), vstats);
             }
         }
         Table table = new Table(7, BorderStyle.CLASSIC_WIDE);

@@ -121,7 +121,7 @@ public class Importers {
 
         private final List<String> names;
 
-        public ImporterWrapper(Importer importer, ComputationManager computationManager, List<String> names) {
+        ImporterWrapper(Importer importer, ComputationManager computationManager, List<String> names) {
             this.importer = importer;
             this.computationManager = computationManager;
             this.names = names;
@@ -250,13 +250,10 @@ public class Importers {
         importAll(dir, importer, dataSources);
         if (parallel) {
             ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-            List<Future<?>> futures = new ArrayList<>();
             try {
-                for (ReadOnlyDataSource dataSource : dataSources) {
-                    futures.add(executor.submit(() -> {
-                        doImport(dataSource, importer, consumer, listener);
-                    }));
-                }
+                List<Future<?>> futures = dataSources.stream()
+                        .map(ds -> executor.submit(() -> doImport(ds, importer, consumer, listener)))
+                        .collect(Collectors.toList());
                 for (Future<?> future : futures) {
                     future.get();
                 }
@@ -371,5 +368,32 @@ public class Importers {
     public static Network loadNetwork(String file) {
         return loadNetwork(Paths.get(file));
     }
-    
+
+
+    public static void loadNetworks(Path dir, boolean parallel, ComputationManager computationManager, ImportConfig config, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener) throws IOException, InterruptedException, ExecutionException {
+        if (!Files.isDirectory(dir)) {
+            throw new RuntimeException("Directory " + dir + " does not exist or is not a regular directory");
+        }
+        for (Importer importer : Importers.list(computationManager, config)) {
+            Importers.importAll(dir, importer, parallel, consumer, listener);
+        }
+    }
+
+    public static void loadNetworks(Path dir, boolean parallel, ComputationManager computationManager, ImportConfig config, Consumer<Network> consumer) throws IOException, InterruptedException, ExecutionException {
+        loadNetworks(dir, parallel, LocalComputationManager.getDefault(), CONFIG.get(), consumer, null);
+    }
+
+    public static void loadNetworks(Path dir, boolean parallel, Consumer<Network> consumer) throws IOException, InterruptedException, ExecutionException {
+        loadNetworks(dir, parallel, LocalComputationManager.getDefault(), CONFIG.get(), consumer);
+    }
+
+
+    public static void loadNetworks(Path dir, boolean parallel, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener) throws IOException, InterruptedException, ExecutionException {
+        loadNetworks(dir, parallel, LocalComputationManager.getDefault(), CONFIG.get(), consumer, listener);
+    }
+
+    public static void loadNetworks(Path dir, Consumer<Network> consumer) throws IOException, InterruptedException, ExecutionException {
+        loadNetworks(dir, false, LocalComputationManager.getDefault(), CONFIG.get(), consumer);
+    }
+
 }

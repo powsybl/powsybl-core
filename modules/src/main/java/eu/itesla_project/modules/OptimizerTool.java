@@ -7,13 +7,10 @@
 package eu.itesla_project.modules;
 
 import com.google.auto.service.AutoService;
-import eu.itesla_project.commons.ITeslaException;
 import eu.itesla_project.commons.tools.Command;
 import eu.itesla_project.commons.tools.Tool;
 import eu.itesla_project.computation.ComputationManager;
 import eu.itesla_project.computation.local.LocalComputationManager;
-import eu.itesla_project.iidm.datasource.GenericReadOnlyDataSource;
-import eu.itesla_project.iidm.import_.Importer;
 import eu.itesla_project.iidm.import_.Importers;
 import eu.itesla_project.iidm.network.Network;
 import eu.itesla_project.loadflow.api.LoadFlow;
@@ -29,8 +26,8 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.joda.time.Interval;
 
+import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Properties;
 
 /**
  *
@@ -57,25 +54,12 @@ public class OptimizerTool implements Tool {
         }
 
         @Override
-        @SuppressWarnings("static-access")
         public Options getOptions() {
             Options options = new Options();
-            options.addOption(Option.builder().longOpt("case-format")
-                    .desc("the case format")
+            options.addOption(Option.builder().longOpt("case-file")
+                    .desc("the case path")
                     .hasArg()
-                    .argName("FORMAT")
-                    .required()
-                    .build());
-            options.addOption(Option.builder().longOpt("case-dir")
-                    .desc("the directory where the case is")
-                    .hasArg()
-                    .argName("DIR")
-                    .required()
-                    .build());
-            options.addOption(Option.builder().longOpt("case-basename")
-                    .desc("the case base name")
-                    .hasArg()
-                    .argName("NAME")
+                    .argName("FILE")
                     .required()
                     .build());
             options.addOption(Option.builder().longOpt("history-interval")
@@ -110,7 +94,7 @@ public class OptimizerTool implements Tool {
 
         @Override
         public String getUsageFooter() {
-            return "Where FORMAT is one of " + Importers.getFormats();
+            return null;
         }
 
     };
@@ -122,9 +106,7 @@ public class OptimizerTool implements Tool {
 
     @Override
     public void run(CommandLine line) throws Exception {
-        String caseFormat = line.getOptionValue("case-format");
-        String caseDirName = line.getOptionValue("case-dir");
-        String caseBaseName = line.getOptionValue("case-basename");
+        Path caseFile = Paths.get(line.getOptionValue("case-file"));
         Interval histoInterval = Interval.parse(line.getOptionValue("history-interval"));
         boolean checkConstraints = line.hasOption("check-constraints");
         double correlationThreshold = Double.parseDouble(line.getOptionValue("correlation-threshold"));
@@ -133,16 +115,13 @@ public class OptimizerTool implements Tool {
         boolean boundariesSampled = line.hasOption("boundaries-sampled");
 
         try (ComputationManager computationManager = new LocalComputationManager()) {
-
-            Importer importer = Importers.getImporter(caseFormat, computationManager);
-            if (importer == null) {
-                throw new ITeslaException("Format " + caseFormat + " not supported");
-            }
-
             System.out.println("loading case...");
-
             // load the network
-            Network network = importer.import_(new GenericReadOnlyDataSource(Paths.get(caseDirName), caseBaseName), new Properties());
+            Network network = Importers.loadNetwork(caseFile);
+            if (network == null) {
+                throw new RuntimeException("Case '" + caseFile + "' not found");
+            }
+            network.getStateManager().allowStateMultiThreadAccess(true);
 
             System.out.println("sample characteristics: " + SampleCharacteritics.fromNetwork(network, generationSampled, boundariesSampled));
 
