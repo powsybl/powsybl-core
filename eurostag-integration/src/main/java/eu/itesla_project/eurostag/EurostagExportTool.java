@@ -10,22 +10,18 @@ import com.google.auto.service.AutoService;
 import eu.itesla_project.commons.config.ComponentDefaultConfig;
 import eu.itesla_project.commons.tools.Command;
 import eu.itesla_project.commons.tools.Tool;
-import eu.itesla_project.computation.ComputationManager;
-import eu.itesla_project.computation.local.LocalComputationManager;
 import eu.itesla_project.contingency.ContingenciesProvider;
 import eu.itesla_project.contingency.ContingenciesProviderFactory;
 import eu.itesla_project.eurostag.network.EsgGeneralParameters;
 import eu.itesla_project.eurostag.network.EsgNetwork;
 import eu.itesla_project.eurostag.network.io.EsgWriter;
 import eu.itesla_project.eurostag.tools.EurostagNetworkModifier;
-import eu.itesla_project.iidm.datasource.GenericReadOnlyDataSource;
 import eu.itesla_project.iidm.ddb.eurostag_imp_exp.DynamicDatabaseClient;
 import eu.itesla_project.iidm.ddb.eurostag_imp_exp.IIDMDynamicDatabaseFactory;
 import eu.itesla_project.iidm.eurostag.export.BranchParallelIndexes;
 import eu.itesla_project.iidm.eurostag.export.EurostagDictionary;
 import eu.itesla_project.iidm.eurostag.export.EurostagEchExport;
 import eu.itesla_project.iidm.eurostag.export.EurostagEchExportConfig;
-import eu.itesla_project.iidm.import_.Importer;
 import eu.itesla_project.iidm.import_.Importers;
 import eu.itesla_project.iidm.network.Network;
 import eu.itesla_project.simulation.SimulationParameters;
@@ -39,7 +35,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Properties;
 
 /**
  *
@@ -57,49 +52,43 @@ public class EurostagExportTool implements Tool, EurostagConstants {
     public void run(CommandLine line) throws Exception {
         ComponentDefaultConfig defaultConfig = ComponentDefaultConfig.load();
         EurostagConfig eurostagConfig = EurostagConfig.load();
-        String caseFormat = line.getOptionValue("case-format");
-        String caseDirName = line.getOptionValue("case-dir");
-        String caseBaseName = line.getOptionValue("case-basename");
+        Path caseFile = Paths.get(line.getOptionValue("case-file"));
         Path outputDir = Paths.get(line.getOptionValue("output-dir"));
         if (!Files.isDirectory(outputDir)) {
             throw new RuntimeException(outputDir + " is not a directory");
         }
         DynamicDatabaseClient ddbClient = new IIDMDynamicDatabaseFactory().create(eurostagConfig.isDdbCaching());
 
-        try (ComputationManager computationManager = new LocalComputationManager()) {
+        System.out.println("loading case...");
+        // load network
+        Network network = Importers.loadNetwork(caseFile);
+        if (network == null) {
+            throw new RuntimeException("Case '" + caseFile + "' not found");
+        }
+        network.getStateManager().allowStateMultiThreadAccess(true);
 
-            System.out.println("loading case...");
+        System.out.println("exporting ech...");
+        // export .ech and dictionary
+        EurostagEchExportConfig exportConfig = new EurostagEchExportConfig();
+        BranchParallelIndexes parallelIndexes = BranchParallelIndexes.build(network, exportConfig);
+        EurostagDictionary dictionary = EurostagDictionary.create(network, parallelIndexes, exportConfig);
+        new EurostagEchExport(network, exportConfig, parallelIndexes, dictionary).write(outputDir.resolve("sim.ech"));
 
-            // load the network
-            Importer importer = Importers.getImporter(caseFormat, computationManager);
-            if (importer == null) {
-                throw new RuntimeException("Format " + caseFormat + " not supported");
-            }
-            Network network = importer.import_(new GenericReadOnlyDataSource(Paths.get(caseDirName), caseBaseName), new Properties());
+        try (Writer writer = Files.newBufferedWriter(outputDir.resolve("sim.ech"), StandardCharsets.UTF_8)) {
+            EsgGeneralParameters parameters = new EsgGeneralParameters();
+            parameters.setTransformerVoltageControl(false);
+            parameters.setSvcVoltageControl(false);
+            EsgNetwork networkEch = new EurostagEchExport(network, exportConfig, parallelIndexes, dictionary).createNetwork(parameters);
+            new EurostagNetworkModifier().hvLoadModelling(networkEch);
+            new EsgWriter(networkEch, parameters).write(writer, network.getId() + "/" + network.getStateManager().getWorkingStateId());
+        }
+        dictionary.dump(outputDir.resolve("dict.csv"));
+        System.out.println("exporting dta...");
 
-            System.out.println("exporting ech...");
+        // export .dta
+        ddbClient.dumpDtaFile(outputDir, "sim.dta", network, parallelIndexes.toMap(), EurostagUtil.VERSION, dictionary.toMap());
 
-            // export .ech and dictionary
-            EurostagEchExportConfig exportConfig = new EurostagEchExportConfig();
-            BranchParallelIndexes parallelIndexes = BranchParallelIndexes.build(network, exportConfig);
-            EurostagDictionary dictionary = EurostagDictionary.create(network, parallelIndexes, exportConfig);
-            new EurostagEchExport(network, exportConfig, parallelIndexes, dictionary).write(outputDir.resolve("sim.ech"));
-
-            try (Writer writer = Files.newBufferedWriter(outputDir.resolve("sim.ech"), StandardCharsets.UTF_8)) {
-                EsgGeneralParameters parameters = new EsgGeneralParameters();
-                parameters.setTransformerVoltageControl(false);
-                parameters.setSvcVoltageControl(false);
-                EsgNetwork networkEch = new EurostagEchExport(network, exportConfig, parallelIndexes, dictionary).createNetwork(parameters);
-                new EurostagNetworkModifier().hvLoadModelling(networkEch);
-                new EsgWriter(networkEch, parameters).write(writer, network.getId() + "/" + network.getStateManager().getWorkingStateId());
-            }
-            dictionary.dump(outputDir.resolve("dict.csv"));
-            System.out.println("exporting dta...");
-
-            // export .dta
-            ddbClient.dumpDtaFile(outputDir, "sim.dta", network, parallelIndexes.toMap(), EurostagUtil.VERSION, dictionary.toMap());
-
-            System.out.println("exporting seq...");
+        System.out.println("exporting seq...");
 
             // export .seq
             EurostagScenario scenario = new EurostagScenario(SimulationParameters.load(), eurostagConfig);
@@ -110,10 +99,9 @@ public class EurostagExportTool implements Tool, EurostagConstants {
             scenario.writeFaultSeqArchive(contingenciesProvider.getContingencies(network), network, dictionary, faultNum -> FAULT_SEQ_FILE_NAME.replace(eu.itesla_project.computation.Command.EXECUTION_NUMBER_PATTERN, Integer.toString(faultNum)))
                     .as(ZipExporter.class).exportTo(outputDir.resolve(ALL_SCENARIOS_ZIP_FILE_NAME).toFile());
 
-            // export limits
-            try (OutputStream os = Files.newOutputStream(outputDir.resolve(LIMITS_ZIP_FILE_NAME))) {
-                EurostagImpactAnalysis.writeLimits(network, dictionary, os);
-            }
+        // export limits
+        try (OutputStream os = Files.newOutputStream(outputDir.resolve(LIMITS_ZIP_FILE_NAME))) {
+            EurostagImpactAnalysis.writeLimits(network, dictionary, os);
         }
     }
 

@@ -162,17 +162,6 @@ public class ImpactAnalysisTool implements Tool {
         }
     }
 
-    private static Multimap<String, SecurityIndex> runImpactAnalysis(Path caseDirName, String caseBaseName, Set<String> contingencyIds, Importer importer,
-                                                                     ComputationManager computationManager, SimulatorFactory simulatorFactory,
-                                                                     ContingenciesProvider contingenciesProvider) throws Exception {
-        System.out.println("loading case " + caseBaseName + "...");
-
-        // load the network
-        Network network = importer.import_(new GenericReadOnlyDataSource(caseDirName, caseBaseName), new Properties());
-
-        return runImpactAnalysis(network, contingencyIds, computationManager, simulatorFactory, contingenciesProvider);
-    }
-
     private static Multimap<String, SecurityIndex> runImpactAnalysis(Network network, Set<String> contingencyIds,
                                                                      ComputationManager computationManager, SimulatorFactory simulatorFactory,
                                                                      ContingenciesProvider contingenciesProvider) throws Exception {
@@ -205,12 +194,7 @@ public class ImpactAnalysisTool implements Tool {
     @Override
     public void run(CommandLine line) throws Exception {
         ComponentDefaultConfig defaultConfig = ComponentDefaultConfig.load();
-        String caseFormat = line.getOptionValue("case-format");
-        Path caseDir = Paths.get(line.getOptionValue("case-dir"));
-        String caseBaseName = null;
-        if (line.hasOption("case-basename")) {
-            caseBaseName = line.getOptionValue("case-basename");
-        }
+        Path caseFile = Paths.get(line.getOptionValue("case-file"));
         final Set<String> contingencyIds = line.hasOption("contingencies")
                 ?  Sets.newHashSet(line.getOptionValue("contingencies").split(",")) : null;
         Path outputCsvFile = null;
@@ -223,16 +207,19 @@ public class ImpactAnalysisTool implements Tool {
             ContingenciesProvider contingenciesProvider = defaultConfig.newFactoryImpl(ContingenciesProviderFactory.class).create();
             SimulatorFactory simulatorFactory = defaultConfig.newFactoryImpl(SimulatorFactory.class);
 
-            Importer importer = Importers.getImporter(caseFormat, computationManager);
-            if (importer == null) {
-                throw new ITeslaException("Format " + caseFormat + " not supported");
-            }
+            if (Files.isRegularFile(caseFile)) {
 
-            if (caseBaseName != null) {
+                System.out.println("loading case " + caseFile + "...");
+                // load the network
+                Network network = Importers.loadNetwork(caseFile);
+                if (network == null) {
+                    throw new RuntimeException("Case '" + caseFile + "' not found");
+                }
+                network.getStateManager().allowStateMultiThreadAccess(true);
 
                 Multimap<String, SecurityIndex> securityIndexesPerContingency
-                        = runImpactAnalysis(caseDir, caseBaseName, contingencyIds, importer, computationManager,
-                                            simulatorFactory, contingenciesProvider);
+                        = runImpactAnalysis(network, contingencyIds, computationManager,
+                        simulatorFactory, contingenciesProvider);
 
                 if (securityIndexesPerContingency != null) {
                     if (outputCsvFile == null) {
@@ -241,12 +228,12 @@ public class ImpactAnalysisTool implements Tool {
                         writeCsv(securityIndexesPerContingency, outputCsvFile);
                     }
                 }
-            } else {
+            } else if (Files.isDirectory(caseFile)) {
                 if (outputCsvFile == null) {
-                    throw new RuntimeException("In case of multiple impact analyses, only ouput to csv file is supported");
+                    throw new RuntimeException("In case of multiple impact analyses, only output to csv file is supported");
                 }
                 Map<String, Map<SecurityIndexId, SecurityIndex>> securityIndexesPerCase = new LinkedHashMap<>();
-                Importers.importAll(caseDir, importer, false, network -> {
+                Importers.loadNetworks(caseFile, false, network -> {
                     try {
                         Multimap<String, SecurityIndex> securityIndexesPerContingency
                                 = runImpactAnalysis(network, contingencyIds, computationManager,

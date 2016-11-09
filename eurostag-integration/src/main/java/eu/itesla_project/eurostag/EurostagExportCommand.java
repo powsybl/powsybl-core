@@ -7,7 +7,6 @@
 package eu.itesla_project.eurostag;
 
 import eu.itesla_project.commons.tools.Command;
-import eu.itesla_project.iidm.import_.Importers;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
@@ -38,36 +37,24 @@ public class EurostagExportCommand implements Command {
     @SuppressWarnings("static-access")
     public Options getOptions() {
         Options options = new Options();
-        options.addOption(Option.builder().longOpt("case-format")
-                                .desc("the case format")
-                                .hasArg()
-                                .argName("FORMAT")
-                                .required()
-                                .build());
-        options.addOption(Option.builder().longOpt("case-dir")
-                                .desc("the directory where the case is")
-                                .hasArg()
-                                .argName("DIR")
-                                .required()
-                                .build());
-        options.addOption(Option.builder().longOpt("case-basename")
-                                .desc("the case base name")
-                                .hasArg()
-                                .argName("NAME")
-                                .required()
-                                .build());
+        options.addOption(Option.builder().longOpt("case-file")
+                .desc("the case path")
+                .hasArg()
+                .argName("FILE")
+                .required()
+                .build());
         options.addOption(Option.builder().longOpt("output-dir")
-                                .desc("output directory path")
-                                .hasArg()
-                                .argName("DIR")
-                                .required()
-                                .build());
+                .desc("output directory path")
+                .hasArg()
+                .argName("DIR")
+                .required()
+                .build());
         return options;
     }
 
     @Override
     public String getUsageFooter() {
-        return "Where FORMAT is one of " + Importers.getFormats();
+        return null;
     }
 
 }

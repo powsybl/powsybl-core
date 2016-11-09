@@ -7,13 +7,8 @@
 package eu.itesla_project.modules.rules;
 
 import com.google.auto.service.AutoService;
-import eu.itesla_project.commons.ITeslaException;
 import eu.itesla_project.commons.tools.Command;
 import eu.itesla_project.commons.tools.Tool;
-import eu.itesla_project.computation.ComputationManager;
-import eu.itesla_project.computation.local.LocalComputationManager;
-import eu.itesla_project.iidm.datasource.GenericReadOnlyDataSource;
-import eu.itesla_project.iidm.import_.Importer;
 import eu.itesla_project.iidm.import_.Importers;
 import eu.itesla_project.iidm.network.Network;
 import eu.itesla_project.modules.offline.OfflineConfig;
@@ -130,35 +125,15 @@ public class CheckSecurityTool implements Tool {
         }
     }
 
-    private static Map<String, Map<SecurityIndexType, SecurityRuleCheckStatus>> checkRules(Importer importer, Path caseDir, String caseBaseName,
-                                                                                           RulesDbClient rulesDb, String workflowId, RuleAttributeSet attributeSet,
-                                                                                           Set<SecurityIndexType> securityIndexTypes, Set<String> contingencies,
-                                                                                           double purityThreshold) {
-        Objects.requireNonNull(caseBaseName);
-
-        System.out.println("loading case " + caseBaseName + "...");
-
-        // load the network
-        Network network = importer.import_(new GenericReadOnlyDataSource(caseDir, caseBaseName), new Properties());
-
-        System.out.println("checking rules...");
-
-        return SecurityRuleUtil.checkRules(network, rulesDb, workflowId, attributeSet, securityIndexTypes, contingencies, purityThreshold);
-    }
-
     @Override
     public void run(CommandLine line) throws Exception {
         OfflineConfig config = OfflineConfig.load();
+        Path caseFile = Paths.get(line.getOptionValue("case-file"));
+        Objects.requireNonNull(caseFile);
         String rulesDbName = line.hasOption("rules-db-name") ? line.getOptionValue("rules-db-name") : OfflineConfig.DEFAULT_RULES_DB_NAME;
         RulesDbClientFactory rulesDbClientFactory = config.getRulesDbClientFactoryClass().newInstance();
         String workflowId = line.getOptionValue("workflow");
         RuleAttributeSet attributeSet = RuleAttributeSet.valueOf(line.getOptionValue("attribute-set"));
-        String caseFormat = line.getOptionValue("case-format");
-        Path caseDir = Paths.get(line.getOptionValue("case-dir"));
-        String caseBaseName = null;
-        if (line.hasOption("case-basename")) {
-            caseBaseName = line.getOptionValue("case-basename");
-        }
         double purityThreshold = line.hasOption("purity-threshold") ? Double.parseDouble(line.getOptionValue("purity-threshold")) : CheckSecurityCommand.DEFAULT_PURITY_THRESHOLD;
         Path outputCsvFile = null;
         if (line.hasOption("output-csv-file")) {
@@ -171,53 +146,52 @@ public class CheckSecurityTool implements Tool {
 
         try (RulesDbClient rulesDb = rulesDbClientFactory.create(rulesDbName)) {
 
-            try (ComputationManager computationManager = new LocalComputationManager()) {
-
-                Importer importer = Importers.getImporter(caseFormat, computationManager);
-                if (importer == null) {
-                    throw new ITeslaException("Format " + caseFormat + " not supported");
+            if (Files.isRegularFile(caseFile)) {
+                System.out.println("loading case " + caseFile + "...");
+                // load the network
+                Network network = Importers.loadNetwork(caseFile);
+                if (network == null) {
+                    throw new RuntimeException("Case '" + caseFile + "' not found");
                 }
+                network.getStateManager().allowStateMultiThreadAccess(true);
 
-                if (caseBaseName != null) {
+                System.out.println("checking rules...");
 
-                    System.out.println("checking rules...");
+                Map<String, Map<SecurityIndexType, SecurityRuleCheckStatus>> checkStatusPerContingency
+                        = SecurityRuleUtil.checkRules(network, rulesDb, workflowId, attributeSet, securityIndexTypes, contingencies, purityThreshold);
 
-                    Map<String, Map<SecurityIndexType, SecurityRuleCheckStatus>> checkStatusPerContingency
-                            = checkRules(importer, caseDir, caseBaseName, rulesDb, workflowId, attributeSet, securityIndexTypes, contingencies, purityThreshold);
-
-                    if (outputCsvFile == null) {
-                        prettyPrint(checkStatusPerContingency, securityIndexTypes);
-                    } else {
-                        writeCsv(checkStatusPerContingency, securityIndexTypes, outputCsvFile);
-                    }
+                if (outputCsvFile == null) {
+                    prettyPrint(checkStatusPerContingency, securityIndexTypes);
                 } else {
-                    if (outputCsvFile == null) {
-                        throw new RuntimeException("In case of multiple impact security checks, only ouput to csv file is supported");
-                    }
-                    Map<String, Map<SecurityIndexId, SecurityRuleCheckStatus>> checkStatusPerBaseCase = Collections.synchronizedMap(new LinkedHashMap<>());
-                    Importers.importAll(caseDir, importer, true, network -> {
-                        try {
-                            Map<String, Map<SecurityIndexType, SecurityRuleCheckStatus>> checkStatusPerContingency
-                                    = SecurityRuleUtil.checkRules(network, rulesDb, workflowId, attributeSet, securityIndexTypes, contingencies, purityThreshold);
-
-                            Map<SecurityIndexId, SecurityRuleCheckStatus> checkStatusMap = new HashMap<>();
-                            for (Map.Entry<String, Map<SecurityIndexType, SecurityRuleCheckStatus>> entry : checkStatusPerContingency.entrySet()) {
-                                String contingencyId = entry.getKey();
-                                for (Map.Entry<SecurityIndexType, SecurityRuleCheckStatus> entry1 : entry.getValue().entrySet()) {
-                                    SecurityIndexType type = entry1.getKey();
-                                    SecurityRuleCheckStatus status = entry1.getValue();
-                                    checkStatusMap.put(new SecurityIndexId(contingencyId, type), status);
-                                }
-                            }
-
-                            checkStatusPerBaseCase.put(network.getId(), checkStatusMap);
-                        } catch (Exception e) {
-                            LOGGER.error(e.toString(), e);
-                        }
-                    }, dataSource -> System.out.println("loading case " + dataSource.getBaseName() + "..."));
-
-                    writeCsv2(checkStatusPerBaseCase, outputCsvFile);
+                    writeCsv(checkStatusPerContingency, securityIndexTypes, outputCsvFile);
                 }
+            } else if (Files.isDirectory(caseFile)){
+                if (outputCsvFile == null) {
+                    throw new RuntimeException("In case of multiple impact security checks, only output to csv file is supported");
+                }
+                Map<String, Map<SecurityIndexId, SecurityRuleCheckStatus>> checkStatusPerBaseCase = Collections.synchronizedMap(new LinkedHashMap<>());
+                Importers.loadNetworks(caseFile, true, network -> {
+                    try {
+                        Map<String, Map<SecurityIndexType, SecurityRuleCheckStatus>> checkStatusPerContingency
+                                = SecurityRuleUtil.checkRules(network, rulesDb, workflowId, attributeSet, securityIndexTypes, contingencies, purityThreshold);
+
+                        Map<SecurityIndexId, SecurityRuleCheckStatus> checkStatusMap = new HashMap<>();
+                        for (Map.Entry<String, Map<SecurityIndexType, SecurityRuleCheckStatus>> entry : checkStatusPerContingency.entrySet()) {
+                            String contingencyId = entry.getKey();
+                            for (Map.Entry<SecurityIndexType, SecurityRuleCheckStatus> entry1 : entry.getValue().entrySet()) {
+                                SecurityIndexType type = entry1.getKey();
+                                SecurityRuleCheckStatus status = entry1.getValue();
+                                checkStatusMap.put(new SecurityIndexId(contingencyId, type), status);
+                            }
+                        }
+
+                        checkStatusPerBaseCase.put(network.getId(), checkStatusMap);
+                    } catch (Exception e) {
+                        LOGGER.error(e.toString(), e);
+                    }
+                }, dataSource -> System.out.println("loading case " + dataSource.getBaseName() + "..."));
+
+                writeCsv2(checkStatusPerBaseCase, outputCsvFile);
             }
         }
     }

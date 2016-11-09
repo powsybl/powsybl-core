@@ -8,13 +8,10 @@
 package eu.itesla_project.modules.wca;
 
 import com.google.auto.service.AutoService;
-import eu.itesla_project.commons.ITeslaException;
 import eu.itesla_project.commons.tools.Command;
 import eu.itesla_project.commons.tools.Tool;
 import eu.itesla_project.computation.ComputationManager;
 import eu.itesla_project.computation.local.LocalComputationManager;
-import eu.itesla_project.iidm.datasource.GenericReadOnlyDataSource;
-import eu.itesla_project.iidm.import_.Importer;
 import eu.itesla_project.iidm.import_.Importers;
 import eu.itesla_project.iidm.network.Network;
 import eu.itesla_project.iidm.network.StateManager;
@@ -82,22 +79,11 @@ public class WCATool implements Tool {
         @Override
         public Options getOptions() {
             Options options = new Options();
-            options.addOption(Option.builder().longOpt("case-format")
-                    .desc("the case format")
+            options.addOption(Option.builder().longOpt("case-file")
+                    .desc("the case path")
                     .hasArg()
-                    .argName("FORMAT")
+                    .argName("FILE")
                     .required()
-                    .build());
-            options.addOption(Option.builder().longOpt("case-dir")
-                    .desc("the directory where the case is")
-                    .hasArg()
-                    .argName("DIR")
-                    .required()
-                    .build());
-            options.addOption(Option.builder().longOpt("case-basename")
-                    .desc("the case base name, all cases of the directory if not specified")
-                    .hasArg()
-                    .argName("NAME")
                     .build());
             options.addOption(Option.builder().longOpt("offline-workflow-id")
                     .desc("the offline workflow id (to get security rules)")
@@ -140,8 +126,7 @@ public class WCATool implements Tool {
 
         @Override
         public String getUsageFooter() {
-            return "Where FORMAT is one of " + Importers.getFormats()
-                    + "\n      INDEX_TYPE is one of " + Arrays.toString(SecurityIndexType.values());
+            return "Where INDEX_TYPE is one of " + Arrays.toString(SecurityIndexType.values());
         }
 
     };
@@ -163,8 +148,7 @@ public class WCATool implements Tool {
         public HistoDbStats queryStats(Set<HistoDbAttributeId> attrIds, Interval interval, HistoDbHorizon horizon, boolean async) throws IOException, InterruptedException {
             lock.lock();
             try {
-                HistoDbStats stats = super.queryStats(attrIds, interval, horizon, async);
-                return stats;
+                return super.queryStats(attrIds, interval, horizon, async);
             } finally {
                 lock.unlock();
             }
@@ -223,13 +207,7 @@ public class WCATool implements Tool {
 
     @Override
     public void run(CommandLine line) throws Exception {
-        String caseFormat = line.getOptionValue("case-format");
-        String caseDirName = line.getOptionValue("case-dir");
-        Path caseDir = Paths.get(caseDirName);
-        String caseBaseName = null;
-        if (line.hasOption("case-basename")) {
-            caseBaseName = line.getOptionValue("case-basename");
-        }
+        Path caseFile = Paths.get(line.getOptionValue("case-file"));
         String offlineWorkflowId = line.getOptionValue("offline-workflow-id"); // can be null meaning use no offline security rules
         Interval histoInterval = Interval.parse(line.getOptionValue("history-interval"));
         String rulesDbName = line.hasOption("rules-db-name") ? line.getOptionValue("rules-db-name") : OfflineConfig.DEFAULT_RULES_DB_NAME;
@@ -253,12 +231,6 @@ public class WCATool implements Tool {
         }
 
         try (ComputationManager computationManager = new LocalComputationManager()) {
-
-            Importer importer = Importers.getImporter(caseFormat, computationManager);
-            if (importer == null) {
-                throw new ITeslaException("Format " + caseFormat + " not supported");
-            }
-
             WCAParameters parameters = new WCAParameters(histoInterval, offlineWorkflowId, securityIndexTypes, purityThreshold, stopWcaOnViolations);
             OnlineConfig config = OnlineConfig.load();
             ContingenciesAndActionsDatabaseClient contingenciesDb = config.getContingencyDbClientFactoryClass().newInstance().create();
@@ -269,15 +241,16 @@ public class WCATool implements Tool {
 
                 UncertaintiesAnalyserFactory uncertaintiesAnalyserFactory = config.getUncertaintiesAnalyserFactoryClass().newInstance();
 
-                if (caseBaseName != null) {
+                if (Files.isRegularFile(caseFile)) {
                     if (outputCsvFile != null) {
                         throw new RuntimeException("In case of single wca, only standard output pretty print is supported");
                     }
-
                     System.out.println("loading case...");
-
                     // load the network
-                    Network network = importer.import_(new GenericReadOnlyDataSource(caseDir, caseBaseName), new Properties());
+                    Network network = Importers.loadNetwork(caseFile);
+                    if (network == null) {
+                        throw new RuntimeException("Case '" + caseFile + "' not found");
+                    }
                     network.getStateManager().allowStateMultiThreadAccess(true);
 
                     WCA wca = wcaFactory.create(network, computationManager, histoDbClient, rulesDbClient, uncertaintiesAnalyserFactory, contingenciesDb, loadFlowFactory);
@@ -320,7 +293,7 @@ public class WCATool implements Tool {
                     }
 
                     System.out.println(table.render());
-                } else {
+                } else if (Files.isDirectory(caseFile)){
                     if (outputCsvFile == null) {
                         throw new RuntimeException("In case of multiple wca, you have to specify and ouput to csv file");
                     }
@@ -328,7 +301,7 @@ public class WCATool implements Tool {
                     Map<String, Map<String, WCACluster>> clusterPerContingencyPerBaseCase = Collections.synchronizedMap(new TreeMap<>());
                     Set<String> contingencyIds = Collections.synchronizedSet(new TreeSet<>());
 
-                    Importers.importAll(caseDir, importer, true, network -> {
+                    Importers.loadNetworks(caseFile, true, network -> {
                         try {
                             network.getStateManager().allowStateMultiThreadAccess(true);
                             String baseStateId = network.getId();
