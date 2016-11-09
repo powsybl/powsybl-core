@@ -59,49 +59,48 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- *
  * @author Quinary <itesla@quinary.com>
  */
-public class LocalOnlineApplication extends NotificationBroadcasterSupport implements OnlineApplication, OnlineApplicationListener,  LocalOnlineApplicationMBean {
+public class LocalOnlineApplication extends NotificationBroadcasterSupport implements OnlineApplication, OnlineApplicationListener, LocalOnlineApplicationMBean {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LocalOnlineApplication.class);
 
     private static final int BUSY_CORES_HISTORY_SIZE = 20;
 
-    private  OnlineConfig config;
+    private OnlineConfig config;
 
     private final ComputationManager computationManager;
 
     private final boolean enableJmx;
-    
-    private OnlineWorkflow workflow ;
 
-    private  HistoDbClient histoDbClient;
+    private OnlineWorkflow workflow;
 
-    private  ContingenciesAndActionsDatabaseClient cadbClient;
+    private HistoDbClient histoDbClient;
 
-    private  RulesDbClient rulesDb;
+    private ContingenciesAndActionsDatabaseClient cadbClient;
 
-    private  WCAFactory wcaFactory;
+    private RulesDbClient rulesDb;
 
-    private  LoadFlowFactory loadFlowFactory;
+    private WCAFactory wcaFactory;
 
-    private  ForecastErrorsDataStorage feDataStorage;
-    
-    private  OnlineDb onlineDb;
+    private LoadFlowFactory loadFlowFactory;
 
-    private  UncertaintiesAnalyserFactory uncertaintiesAnalyserFactory;
-    
-    private  CorrectiveControlOptimizerFactory correctiveControlOptimizerFactory;
-    
-    private  CaseRepository caseRepository;
+    private ForecastErrorsDataStorage feDataStorage;
 
-    private  SimulatorFactory simulatorFactory;
+    private OnlineDb onlineDb;
 
-    private  MontecarloSamplerFactory montecarloSamplerFactory;
-    
+    private UncertaintiesAnalyserFactory uncertaintiesAnalyserFactory;
+
+    private CorrectiveControlOptimizerFactory correctiveControlOptimizerFactory;
+
+    private CaseRepository caseRepository;
+
+    private SimulatorFactory simulatorFactory;
+
+    private MontecarloSamplerFactory montecarloSamplerFactory;
+
     private MergeOptimizerFactory mergeOptimizerFactory;
-    
+
     private RulesFacadeFactory rulesFacadeFactory;
 
     private final ScheduledFuture<?> future;
@@ -125,11 +124,11 @@ public class LocalOnlineApplication extends NotificationBroadcasterSupport imple
         this.computationManager = computationManager;
 
         LOGGER.info("Version: {}", Version.VERSION);
-       
-        init();        	
-       
+
+        init();
+
         this.enableJmx = enableJmx;
-      
+
 
         busyCores = new TIntArrayList();
         ComputationResourcesStatus status = computationManager.getResourcesStatus();
@@ -152,27 +151,26 @@ public class LocalOnlineApplication extends NotificationBroadcasterSupport imple
             }
         }, 0, 20, TimeUnit.SECONDS);
     }
-    
-    
-    
-    private  void init() throws InstantiationException, IllegalAccessException{
-    
-         histoDbClient = config.getHistoDbClientFactoryClass().newInstance().create();
-         cadbClient = config.getContingencyDbClientFactoryClass().newInstance().create();
-         rulesDb = config.getRulesDbClientFactoryClass().newInstance().create("rulesdb");
-         wcaFactory = config.getWcaFactoryClass().newInstance();
-         loadFlowFactory = config.getLoadFlowFactoryClass().newInstance();
-         onlineDb = config.getOnlineDbFactoryClass().newInstance().create();
-         uncertaintiesAnalyserFactory = config.getUncertaintiesAnalyserFactoryClass().newInstance();
-         correctiveControlOptimizerFactory = config.getCorrectiveControlOptimizerFactoryClass().newInstance();
-         simulatorFactory = config.getSimulatorFactoryClass().newInstance();
-         montecarloSamplerFactory = config.getMontecarloSamplerFactory().newInstance();
-         caseRepository = config.getCaseRepositoryFactoryClass().newInstance().create(computationManager);
-         mergeOptimizerFactory = config.getMergeOptimizerFactory().newInstance();
-         rulesFacadeFactory = config.getRulesFacadeFactory().newInstance();
 
-    	this.feDataStorage = new ForecastErrorsDataStorageImpl(); //TODO ...
-    	
+
+    private void init() throws InstantiationException, IllegalAccessException {
+
+        histoDbClient = config.getHistoDbClientFactoryClass().newInstance().create();
+        cadbClient = config.getContingencyDbClientFactoryClass().newInstance().create();
+        rulesDb = config.getRulesDbClientFactoryClass().newInstance().create("rulesdb");
+        wcaFactory = config.getWcaFactoryClass().newInstance();
+        loadFlowFactory = config.getLoadFlowFactoryClass().newInstance();
+        onlineDb = config.getOnlineDbFactoryClass().newInstance().create();
+        uncertaintiesAnalyserFactory = config.getUncertaintiesAnalyserFactoryClass().newInstance();
+        correctiveControlOptimizerFactory = config.getCorrectiveControlOptimizerFactoryClass().newInstance();
+        simulatorFactory = config.getSimulatorFactoryClass().newInstance();
+        montecarloSamplerFactory = config.getMontecarloSamplerFactory().newInstance();
+        caseRepository = config.getCaseRepositoryFactoryClass().newInstance().create(computationManager);
+        mergeOptimizerFactory = config.getMergeOptimizerFactory().newInstance();
+        rulesFacadeFactory = config.getRulesFacadeFactory().newInstance();
+
+        this.feDataStorage = new ForecastErrorsDataStorageImpl(); //TODO ...
+
     }
 
     @Override
@@ -182,7 +180,7 @@ public class LocalOnlineApplication extends NotificationBroadcasterSupport imple
 
     @Override
     public void notifyListeners() {
-    	notifyBusyCoresUpdate(true);
+        notifyBusyCoresUpdate(true);
     }
 
     private void notifyBusyCoresUpdate(boolean force) {
@@ -191,25 +189,25 @@ public class LocalOnlineApplication extends NotificationBroadcasterSupport imple
             // busy cores
 
             if (!force) {
-            	long tim=System.currentTimeMillis();
-            	if (tim % 2==0)            		
-            		busyCores.insert(0, computationManager.getResourcesStatus().getBusyCores());
-            	else
-            		busyCores.insert(0, 1);
+                long tim = System.currentTimeMillis();
+                if (tim % 2 == 0)
+                    busyCores.insert(0, computationManager.getResourcesStatus().getBusyCores());
+                else
+                    busyCores.insert(0, 1);
 
-                busyCores.removeAt(busyCores.size()-1); // remove the older one
+                busyCores.removeAt(busyCores.size() - 1); // remove the older one
             }
             if (enableJmx) {
                 sendNotification(new AttributeChangeNotification(this,
-                                                                 notificationIndex.getAndIncrement(),
-                                                                 System.currentTimeMillis(),
-                                                                 "Busy cores has changed",
-                                                                 BUSY_CORES_ATTRIBUTE,
-                                                                 "int[]",
-                                                                 null,
-                                                                 busyCores.toArray()));
+                        notificationIndex.getAndIncrement(),
+                        System.currentTimeMillis(),
+                        "Busy cores has changed",
+                        BUSY_CORES_ATTRIBUTE,
+                        "int[]",
+                        null,
+                        busyCores.toArray()));
             }
-            
+
         } finally {
             listenersLock.unlock();
         }
@@ -222,43 +220,42 @@ public class LocalOnlineApplication extends NotificationBroadcasterSupport imple
 
 
     @Override
-    public void startWorkflow( OnlineWorkflowStartParameters start, OnlineWorkflowParameters params)  {
-    	
-    	try {
-			config=OnlineConfig.load();
-			init();
-		} catch (ClassNotFoundException | IOException | ParseException | InstantiationException | IllegalAccessException e1) {
-			
-			e1.printStackTrace();
-			throw new RuntimeException(e1.getMessage());
-		}
-    	
-    	
-        OnlineWorkflowContext oCtx = new OnlineWorkflowContext();
-        OnlineWorkflowStartParameters startParams= start!=null ? start : OnlineWorkflowStartParameters.loadDefault();
-        OnlineWorkflowParameters onlineParams = params !=null ? params : OnlineWorkflowParameters.loadDefault();
-        
-        
-        LOGGER.info("Starting workflow: "+startParams.toString()+"\n"+onlineParams.toString());
-        
-        if(!workflowLock.tryLock())
-        {
-        	throw new RuntimeException("Already running");
-        }
-       
+    public void startWorkflow(OnlineWorkflowStartParameters start, OnlineWorkflowParameters params) {
+
         try {
-			workflow =startParams.getOnlineWorkflowFactoryClass().newInstance().create(computationManager, cadbClient, histoDbClient, rulesDb, wcaFactory, loadFlowFactory, feDataStorage,
-			        onlineDb, uncertaintiesAnalyserFactory, correctiveControlOptimizerFactory, simulatorFactory, caseRepository,
-			        montecarloSamplerFactory, mergeOptimizerFactory, rulesFacadeFactory, onlineParams, startParams);
-		} catch (InstantiationException  | IllegalAccessException e1  ) {
-			e1.printStackTrace();
-			throw new RuntimeException(e1.getMessage());
-		}
-        
+            config = OnlineConfig.load();
+            init();
+        } catch (ClassNotFoundException | IOException | ParseException | InstantiationException | IllegalAccessException e1) {
+
+            e1.printStackTrace();
+            throw new RuntimeException(e1.getMessage());
+        }
+
+
+        OnlineWorkflowContext oCtx = new OnlineWorkflowContext();
+        OnlineWorkflowStartParameters startParams = start != null ? start : OnlineWorkflowStartParameters.loadDefault();
+        OnlineWorkflowParameters onlineParams = params != null ? params : OnlineWorkflowParameters.loadDefault();
+
+
+        LOGGER.info("Starting workflow: " + startParams.toString() + "\n" + onlineParams.toString());
+
+        if (!workflowLock.tryLock()) {
+            throw new RuntimeException("Already running");
+        }
+
+        try {
+            workflow = startParams.getOnlineWorkflowFactoryClass().newInstance().create(computationManager, cadbClient, histoDbClient, rulesDb, wcaFactory, loadFlowFactory, feDataStorage,
+                    onlineDb, uncertaintiesAnalyserFactory, correctiveControlOptimizerFactory, simulatorFactory, caseRepository,
+                    montecarloSamplerFactory, mergeOptimizerFactory, rulesFacadeFactory, onlineParams, startParams);
+        } catch (InstantiationException | IllegalAccessException e1) {
+            e1.printStackTrace();
+            throw new RuntimeException(e1.getMessage());
+        }
+
         workflow.addOnlineApplicationListener(this);
 
-       for (OnlineApplicationListener l : listeners)
-           workflow.addOnlineApplicationListener(l);
+        for (OnlineApplicationListener l : listeners)
+            workflow.addOnlineApplicationListener(l);
 
 
         try {
@@ -274,20 +271,18 @@ public class LocalOnlineApplication extends NotificationBroadcasterSupport imple
             workflow.start(oCtx);
         } catch (Exception e) {
             throw new RuntimeException(e);
-        }
-        finally
-        {
+        } finally {
             workflowLock.unlock();
-            workflow=null;
+            workflow = null;
         }
     }
 
     @Override
     public void stopWorkflow() {
-    	
-       // workflow.stop();
+
+        // workflow.stop();
     }
-    
+
     @Override
     public void addListener(OnlineApplicationListener l) {
         listeners.add(l);
@@ -297,30 +292,29 @@ public class LocalOnlineApplication extends NotificationBroadcasterSupport imple
     public void removeListener(OnlineApplicationListener l) {
         listeners.remove(l);
     }
-    
+
 
     @Override
     public void close() throws Exception {
         future.cancel(true);
-       // histoDbClient.close();
+        // histoDbClient.close();
 
         if (enableJmx) {
             // unregister application mbean
             ManagementFactory.getPlatformMBeanServer().unregisterMBean(new ObjectName(BEAN_NAME));
         }
-        synchronized(this)
-        {
-        	this.notifyAll();
+        synchronized (this) {
+            this.notifyAll();
         }
     }
 
-	@Override
-	public void onBusyCoresUpdate(int[] busyCores) {
-		
-		
-	}
+    @Override
+    public void onBusyCoresUpdate(int[] busyCores) {
 
-	@Override
+
+    }
+
+    @Override
     public void onWorkflowStateUpdate(WorkSynthesis status) {
         if (enableJmx) {
             sendNotification(new AttributeChangeNotification(this,
@@ -335,7 +329,7 @@ public class LocalOnlineApplication extends NotificationBroadcasterSupport imple
 
     }
 
-	@Override
+    @Override
     public void onWorkflowUpdate(StatusSynthesis status) {
         if (enableJmx) {
             sendNotification(new AttributeChangeNotification(this,
@@ -350,7 +344,7 @@ public class LocalOnlineApplication extends NotificationBroadcasterSupport imple
 
     }
 
-	@Override
+    @Override
     public void onWcaUpdate(RunningSynthesis wcaRunning) {
         LOGGER.info("SEND onWcaUpdate" + wcaRunning);
         if (enableJmx) {
@@ -366,7 +360,7 @@ public class LocalOnlineApplication extends NotificationBroadcasterSupport imple
 
     }
 
-	@Override
+    @Override
     public void onStatesWithActionsUpdate(ContingencyStatesActionsSynthesis statesActions) {
 
         LOGGER.info("onStatesWithActionsUpdate received " + statesActions.getClass().getName());
@@ -383,14 +377,14 @@ public class LocalOnlineApplication extends NotificationBroadcasterSupport imple
 
     }
 
-	@Override
+    @Override
     public void onStatesWithIndexesUpdate(ContingencyStatesIndexesSynthesis indexeActions) {
         LOGGER.info("onStatesWithIndexesUpdate received " + indexeActions.getClass().getName());
         if (enableJmx) {
             sendNotification(new AttributeChangeNotification(this,
                     notificationIndex.getAndIncrement(),
                     System.currentTimeMillis(),
-                   // "StateActions",
+                    // "StateActions",
                     "StatesIndexes",
                     STATES_INDEXES_ATTRIBUTE,
                     indexeActions.getClass().getName(),
@@ -400,8 +394,8 @@ public class LocalOnlineApplication extends NotificationBroadcasterSupport imple
 
     }
 
-	@Override
-	public void onStatesWithSecurityRulesResultsUpdate(IndexSecurityRulesResultsSynthesis indexesResults) {
+    @Override
+    public void onStatesWithSecurityRulesResultsUpdate(IndexSecurityRulesResultsSynthesis indexesResults) {
         LOGGER.info("onStatesWithSecurityRulesResultsUpdate received " + indexesResults.getClass().getName());
         if (enableJmx) {
             sendNotification(new AttributeChangeNotification(this,
@@ -441,55 +435,54 @@ public class LocalOnlineApplication extends NotificationBroadcasterSupport imple
                 unstableContingencies));
 
     }*/
-	
-	@Override
-	public void onWcaContingencies(WcaContingenciesSynthesis wcaContingencies) {
-	        sendNotification(new AttributeChangeNotification(this,
-	                notificationIndex.getAndIncrement(),
-	                System.currentTimeMillis(),
-	                "WcaContingencies",
-	                WCA_CONTINGENCIES_ATTRIBUTE,
-	                wcaContingencies.getClass().getName(),
-	                null,
-	                wcaContingencies));
-	
-	}
-	
-	@Override
-	public void ping() {
-		
-	}
 
-	@Override
-	public void onDisconnection() {
-		// TODO Auto-generated method stub
-		
-	}
+    @Override
+    public void onWcaContingencies(WcaContingenciesSynthesis wcaContingencies) {
+        sendNotification(new AttributeChangeNotification(this,
+                notificationIndex.getAndIncrement(),
+                System.currentTimeMillis(),
+                "WcaContingencies",
+                WCA_CONTINGENCIES_ATTRIBUTE,
+                wcaContingencies.getClass().getName(),
+                null,
+                wcaContingencies));
 
-	@Override
-	public void onConnection() {
-		// TODO Auto-generated method stub
-		
-	}
+    }
 
-	@Override
-	public void shutdown()  {
-		System.out.println("Shutdown !!!");
-		try {
-			close();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-	}
+    @Override
+    public void ping() {
+
+    }
+
+    @Override
+    public void onDisconnection() {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void onConnection() {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void shutdown() {
+        System.out.println("Shutdown !!!");
+        try {
+            close();
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+    }
 
     @Override
     public void runFeaAnalysis(OnlineWorkflowStartParameters startconfig, ForecastErrorsAnalysisParameters parameters, String timeHorizonS) {
-        LOGGER.info("Starting fea analysis: "+parameters.toString()+"\n"+timeHorizonS);
+        LOGGER.info("Starting fea analysis: " + parameters.toString() + "\n" + timeHorizonS);
 
-        if(!workflowLock.tryLock())
-        {
+        if (!workflowLock.tryLock()) {
             throw new RuntimeException("a computation is already running.");
         }
 
@@ -505,27 +498,27 @@ public class LocalOnlineApplication extends NotificationBroadcasterSupport imple
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException(e);
-        }  finally {
+        } finally {
             workflowLock.unlock();
-            workflow=null;
+            workflow = null;
         }
     }
 
     @Override
-	public void onWorkflowEnd(OnlineWorkflowContext context, OnlineDb onlineDb, ContingenciesAndActionsDatabaseClient cadbClient, OnlineWorkflowParameters parameters) {
-    	System.out.println("LocalOnlineApplicationListener onWorkFlowEnd");
-	}
+    public void onWorkflowEnd(OnlineWorkflowContext context, OnlineDb onlineDb, ContingenciesAndActionsDatabaseClient cadbClient, OnlineWorkflowParameters parameters) {
+        System.out.println("LocalOnlineApplicationListener onWorkFlowEnd");
+    }
 
 
     // start td simulations
     private Path getFile(Path folder, String filename) {
-        if ( folder != null )
+        if (folder != null)
             return Paths.get(folder.toString(), filename);
         return Paths.get(filename);
     }
-    
+
     private void writeCsvViolations(String basecase, List<LimitViolation> networkViolations, CsvWriter cvsWriter) throws IOException {
-    	for(LimitViolation violation : networkViolations) {
+        for (LimitViolation violation : networkViolations) {
             String[] values = new String[]{basecase,
                     violation.getSubject().getId(),
                     violation.getLimitType().name(),
@@ -533,28 +526,28 @@ public class LocalOnlineApplication extends NotificationBroadcasterSupport imple
                     Float.toString(violation.getLimit())};
             cvsWriter.writeRecord(values);
         }
-    	cvsWriter.flush();
+        cvsWriter.flush();
     }
-    
-    private void writeCsvTDResults(String basecase, Set<String> securityIndexIds, Map<String, Boolean> tdSimulationResults, 
-    							boolean writeHeaders, CsvWriter cvsWriter) throws IOException {
-    	String[] indexIds = securityIndexIds.toArray(new String[securityIndexIds.size()]);
+
+    private void writeCsvTDResults(String basecase, Set<String> securityIndexIds, Map<String, Boolean> tdSimulationResults,
+                                   boolean writeHeaders, CsvWriter cvsWriter) throws IOException {
+        String[] indexIds = securityIndexIds.toArray(new String[securityIndexIds.size()]);
         Arrays.sort(indexIds);
-        if ( writeHeaders ) {
-            String[] resultsHeaders = new String[indexIds.length+1];
+        if (writeHeaders) {
+            String[] resultsHeaders = new String[indexIds.length + 1];
             resultsHeaders[0] = "Basecase";
             int i = 1;
-            for(String securityIndexId : indexIds)
-            	resultsHeaders[i++] = securityIndexId;
+            for (String securityIndexId : indexIds)
+                resultsHeaders[i++] = securityIndexId;
             cvsWriter.writeRecord(resultsHeaders);
             cvsWriter.flush();
         }
-        String[] values = new String[indexIds.length+1];
+        String[] values = new String[indexIds.length + 1];
         values[0] = basecase;
         int i = 1;
-        for(String securityIndexId : indexIds) {
+        for (String securityIndexId : indexIds) {
             String result = "NA";
-            if ( tdSimulationResults.containsKey(securityIndexId) )
+            if (tdSimulationResults.containsKey(securityIndexId))
                 result = tdSimulationResults.get(securityIndexId) ? "OK" : "KO";
             values[i++] = result;
         }
@@ -565,22 +558,22 @@ public class LocalOnlineApplication extends NotificationBroadcasterSupport imple
     private void runTDSimulations(Path caseFile, String contingenciesIds, Boolean emptyContingency, Path outputFolder) throws Exception {
         //TODO check nulls
         //in contingenciesIds, we assume a comma separated list of ids ...
-        Set<String> contingencyIds = (contingenciesIds != null) ?  Sets.newHashSet(contingenciesIds.split(",")) : null;
+        Set<String> contingencyIds = (contingenciesIds != null) ? Sets.newHashSet(contingenciesIds.split(",")) : null;
         Path metricsFile = getFile(outputFolder, "metrics.log");
         Path violationsFile = getFile(outputFolder, "networks-violations.csv");
         Path resultsFile = getFile(outputFolder, "simulation-results.csv");
         try (FileWriter metricsContent = new FileWriter(metricsFile.toFile());
-        	 FileWriter violationsContent = new FileWriter(violationsFile.toFile());
-        	 FileWriter resultsContent = new FileWriter(resultsFile.toFile())) {
-        	CsvWriter violationsCvsWriter = new CsvWriter(violationsContent, ',');
-        	CsvWriter resultsCvsWriter = new CsvWriter(resultsContent, ',');
-        	Set<String> securityIndexIds = new LinkedHashSet<>();
-        	try {
-	            String[] violationsHeaders = new String[]{"Basecase", "Equipment", "Type", "Value", "Limit"};
-	            violationsCvsWriter.writeRecord(violationsHeaders);
-	            violationsCvsWriter.flush();
+             FileWriter violationsContent = new FileWriter(violationsFile.toFile());
+             FileWriter resultsContent = new FileWriter(resultsFile.toFile())) {
+            CsvWriter violationsCvsWriter = new CsvWriter(violationsContent, ',');
+            CsvWriter resultsCvsWriter = new CsvWriter(resultsContent, ',');
+            Set<String> securityIndexIds = new LinkedHashSet<>();
+            try {
+                String[] violationsHeaders = new String[]{"Basecase", "Equipment", "Type", "Value", "Limit"};
+                violationsCvsWriter.writeRecord(violationsHeaders);
+                violationsCvsWriter.flush();
 
-	            if (Files.isRegularFile(caseFile)) {
+                if (Files.isRegularFile(caseFile)) {
 
                     // load the network
                     Network network = Importers.loadNetwork(caseFile);
@@ -589,55 +582,54 @@ public class LocalOnlineApplication extends NotificationBroadcasterSupport imple
                     }
                     network.getStateManager().allowStateMultiThreadAccess(true);
 
-	                List<LimitViolation> networkViolations = Security.checkLimits(network);
-	                writeCsvViolations(network.getId(), networkViolations, violationsCvsWriter);
-	                Map<String, Boolean> tdSimulationResults = Utils.runTDSimulation(network,
-	                        contingencyIds,
-	                        emptyContingency,
-	                        computationManager,
-	                        simulatorFactory,
-	                        cadbClient,
-	                        metricsContent);
-	                securityIndexIds.addAll(tdSimulationResults.keySet());
-	                writeCsvTDResults(network.getId(), securityIndexIds, tdSimulationResults, true, resultsCvsWriter);
-	            } else if (Files.isDirectory(caseFile)){
-	                Importers.loadNetworks(caseFile, false, network -> {
-	                    try {
-	                        List<LimitViolation> networkViolations = Security.checkLimits(network);
-	                        writeCsvViolations(network.getId(), networkViolations, violationsCvsWriter);
-	                        Map<String, Boolean> tdSimulationResults = Utils.runTDSimulation(network,
-	                                contingencyIds,
-	                                emptyContingency,
-	                                computationManager,
-	                                simulatorFactory,
-	                                cadbClient,
-	                                metricsContent);
-	                        boolean writeHeaders = false;
-	    	                if ( securityIndexIds.isEmpty() ) {
-	    		                securityIndexIds.addAll(tdSimulationResults.keySet());
-	    		                writeHeaders = true;
-	    	                }
-	                        writeCsvTDResults(network.getId(), securityIndexIds, tdSimulationResults, writeHeaders, resultsCvsWriter);
-	                    } catch (Exception e) {
-	                        e.printStackTrace();
-	                    }
-	                }, dataSource -> System.out.println("loading case " + dataSource.getBaseName()));
-	            }
-        	} catch (IOException ioxcp) {
-        		ioxcp.printStackTrace();	
-        	} finally {
-        		violationsCvsWriter.close();
-        		resultsCvsWriter.close();
-        	}
+                    List<LimitViolation> networkViolations = Security.checkLimits(network);
+                    writeCsvViolations(network.getId(), networkViolations, violationsCvsWriter);
+                    Map<String, Boolean> tdSimulationResults = Utils.runTDSimulation(network,
+                            contingencyIds,
+                            emptyContingency,
+                            computationManager,
+                            simulatorFactory,
+                            cadbClient,
+                            metricsContent);
+                    securityIndexIds.addAll(tdSimulationResults.keySet());
+                    writeCsvTDResults(network.getId(), securityIndexIds, tdSimulationResults, true, resultsCvsWriter);
+                } else if (Files.isDirectory(caseFile)) {
+                    Importers.loadNetworks(caseFile, false, network -> {
+                        try {
+                            List<LimitViolation> networkViolations = Security.checkLimits(network);
+                            writeCsvViolations(network.getId(), networkViolations, violationsCvsWriter);
+                            Map<String, Boolean> tdSimulationResults = Utils.runTDSimulation(network,
+                                    contingencyIds,
+                                    emptyContingency,
+                                    computationManager,
+                                    simulatorFactory,
+                                    cadbClient,
+                                    metricsContent);
+                            boolean writeHeaders = false;
+                            if (securityIndexIds.isEmpty()) {
+                                securityIndexIds.addAll(tdSimulationResults.keySet());
+                                writeHeaders = true;
+                            }
+                            writeCsvTDResults(network.getId(), securityIndexIds, tdSimulationResults, writeHeaders, resultsCvsWriter);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }, dataSource -> System.out.println("loading case " + dataSource.getBaseName()));
+                }
+            } catch (IOException ioxcp) {
+                ioxcp.printStackTrace();
+            } finally {
+                violationsCvsWriter.close();
+                resultsCvsWriter.close();
+            }
         }
     }
 
     @Override
     public void runTDSimulations(OnlineWorkflowStartParameters startconfig, String caseFile, String contingenciesIds, String emptyContingencyS, String outputFolderS) {
-        LOGGER.info("Starting td simulations: "+startconfig.toString()+"\n");
+        LOGGER.info("Starting td simulations: " + startconfig.toString() + "\n");
 
-        if(!workflowLock.tryLock())
-        {
+        if (!workflowLock.tryLock()) {
             throw new RuntimeException("a computation is already running.");
         }
 
@@ -650,9 +642,9 @@ public class LocalOnlineApplication extends NotificationBroadcasterSupport imple
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException(e);
-        }  finally {
+        } finally {
             workflowLock.unlock();
-            workflow=null;
+            workflow = null;
         }
     }
 
