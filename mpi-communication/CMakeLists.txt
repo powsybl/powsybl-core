@@ -32,7 +32,7 @@ set(MASTER_SOURCES
     src/master.cpp
 )
 add_library(master SHARED ${MASTER_SOURCES})
-target_link_libraries(master ${Boost_SYSTEM_LIBRARY})
+target_link_libraries(master common ${Boost_FILESYSTEM_LIBRARY} ${Boost_SYSTEM_LIBRARY} ${Boost_IOSTREAMS_LIBRARY} ${Log4cpp_LIBRARIES} ${LibArchive_LIBRARIES})
 
 # slave binary
 set(SLAVE_SOURCES
