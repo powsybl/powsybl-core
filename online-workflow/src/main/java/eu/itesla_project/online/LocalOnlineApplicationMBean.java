@@ -9,8 +9,6 @@ package eu.itesla_project.online;
 import eu.itesla_project.modules.online.OnlineWorkflowParameters;
 import eu.itesla_project.offline.forecast_errors.ForecastErrorsAnalysisParameters;
 
-import java.nio.file.Path;
-
 /**
  *
  * @author Quinary <itesla@quinary.com>

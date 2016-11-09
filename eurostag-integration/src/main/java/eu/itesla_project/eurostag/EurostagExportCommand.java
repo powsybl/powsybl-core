@@ -7,7 +7,6 @@
 package eu.itesla_project.eurostag;
 
 import eu.itesla_project.commons.tools.Command;
-import eu.itesla_project.iidm.import_.Importers;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
@@ -45,11 +44,11 @@ public class EurostagExportCommand implements Command {
                 .required()
                 .build());
         options.addOption(Option.builder().longOpt("output-dir")
-                                .desc("output directory path")
-                                .hasArg()
-                                .argName("DIR")
-                                .required()
-                                .build());
+                .desc("output directory path")
+                .hasArg()
+                .argName("DIR")
+                .required()
+                .build());
         return options;
     }
 

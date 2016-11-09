@@ -32,7 +32,6 @@ import eu.itesla_project.modules.optimizer.CorrectiveControlOptimizerFactory;
 import eu.itesla_project.modules.rules.RulesDbClient;
 import eu.itesla_project.security.LimitViolation;
 import eu.itesla_project.security.Security;
-import eu.itesla_project.simulation.securityindexes.SecurityIndex;
 import eu.itesla_project.simulation.*;
 import eu.itesla_project.modules.wca.UncertaintiesAnalyserFactory;
 import eu.itesla_project.modules.wca.WCAFactory;
@@ -48,7 +47,6 @@ import javax.management.*;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.Writer;
 import java.lang.management.ManagementFactory;
 import java.nio.file.Files;
 import java.nio.file.Path;

@@ -20,7 +20,6 @@ import eu.itesla_project.modules.online.OnlineConfig;
 import eu.itesla_project.online.Utils;
 import eu.itesla_project.security.LimitViolation;
 import eu.itesla_project.security.Security;
-import eu.itesla_project.simulation.securityindexes.SecurityIndex;
 import eu.itesla_project.simulation.*;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -28,7 +27,6 @@ import org.apache.commons.cli.Options;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;

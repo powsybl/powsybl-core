@@ -7,7 +7,6 @@
 package eu.itesla_project.modules.rules;
 
 import eu.itesla_project.commons.tools.Command;
-import eu.itesla_project.iidm.import_.Importers;
 import eu.itesla_project.modules.offline.OfflineConfig;
 import eu.itesla_project.simulation.securityindexes.SecurityIndexType;
 import org.apache.commons.cli.Options;
