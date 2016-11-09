@@ -27,20 +27,20 @@ public class Utils {
 	private static final String EMPTY_CONTINGENCY_ID = "Empty-Contingency";
 
 	public static String actionsToJson(OnlineWorkflowResults wfResults, String contingencyId, Integer stateId) {
-		Map<String, Object> actionInfo = new HashMap<String, Object>();
+		Map<String, Object> actionInfo = new HashMap<>();
 		actionInfo.put("actions_found", wfResults.getUnsafeStatesWithActions(contingencyId).get(stateId));
 		actionInfo.put("status", wfResults.getStateStatus(contingencyId, stateId));
-		List<Object> actions = new ArrayList<Object>();
+		List<Object> actions = new ArrayList<>();
 		for (String actionId : wfResults.getActionsIds(contingencyId, stateId)) {
 			if ( wfResults.getEquipmentsIds(contingencyId, stateId, actionId) != null 
 					 && !wfResults.getEquipmentsIds(contingencyId, stateId, actionId).isEmpty() ) {
-					Map<String, Object> action = new HashMap<String, Object>();
-					List<Object> equipments = new ArrayList<Object>();
+					Map<String, Object> action = new HashMap<>();
+					List<Object> equipments = new ArrayList<>();
 					for (String equipmentId : wfResults.getEquipmentsIds(contingencyId, stateId, actionId)) {
 						ActionParameters actionParameters = wfResults.getParameters(contingencyId, stateId, actionId, equipmentId);
 						if ( actionParameters != null && !actionParameters.getNames().isEmpty() ) {
-							Map<String, Map<String, Object>> equipment = new HashMap<String, Map<String,Object>>();
-							Map<String, Object> params = new HashMap<String, Object>();
+							Map<String, Map<String, Object>> equipment = new HashMap<>();
+							Map<String, Object> params = new HashMap<>();
 							for(String param : actionParameters.getNames()) {
 								params.put(param, actionParameters.getValue(param));
 							}
@@ -64,26 +64,26 @@ public class Utils {
 	}
 	
 	public static String actionsToJsonExtended(OnlineWorkflowResults wfResults, String contingencyId, Integer stateId) {
-		Map<String, Object> actionInfo = new HashMap<String, Object>();
+		Map<String, Object> actionInfo = new HashMap<>();
 		actionInfo.put("actions_found", wfResults.getUnsafeStatesWithActions(contingencyId).get(stateId));
 		actionInfo.put("status", wfResults.getStateStatus(contingencyId, stateId));
 		String cause = wfResults.getCause(contingencyId, stateId);
 		if ( cause != null )
 			actionInfo.put("cause", cause);
 		if ( wfResults.getActionsIds(contingencyId, stateId) != null && !wfResults.getActionsIds(contingencyId, stateId).isEmpty() ) {
-			List<Object> actions = new ArrayList<Object>();
+			List<Object> actions = new ArrayList<>();
 			for (String actionId : wfResults.getActionsIds(contingencyId, stateId)) {
-				Map<String, Object> action = new HashMap<String, Object>();
+				Map<String, Object> action = new HashMap<>();
 				action.put("action_id", actionId);
 				if ( wfResults.getEquipmentsIds(contingencyId, stateId, actionId) != null 
 					 && !wfResults.getEquipmentsIds(contingencyId, stateId, actionId).isEmpty() ) {
-					List<Object> equipments = new ArrayList<Object>();
+					List<Object> equipments = new ArrayList<>();
 					for (String equipmentId : wfResults.getEquipmentsIds(contingencyId, stateId, actionId)) {
-						Map<String, Object> equipment = new HashMap<String, Object>();
+						Map<String, Object> equipment = new HashMap<>();
 						equipment.put("equipment_id", equipmentId);
 						ActionParameters actionParameters = wfResults.getParameters(contingencyId, stateId, actionId, equipmentId);
 						if ( actionParameters != null && !actionParameters.getNames().isEmpty() ) {
-							Map<String, Object> params = new HashMap<String, Object>();
+							Map<String, Object> params = new HashMap<>();
 							for(String param : actionParameters.getNames()) {
 								params.put(param, actionParameters.getValue(param));
 							}
@@ -109,13 +109,12 @@ public class Utils {
 												 ComputationManager computationManager, SimulatorFactory simulatorFactory,
 												 ContingenciesAndActionsDatabaseClient contingencyDb,
 												 Writer metricsContent) throws Exception {
-		Map<String, Boolean> tdSimulationResults = new HashMap<String, Boolean>();
+		Map<String, Boolean> tdSimulationResults = new HashMap<>();
 		Map<String, Object> initContext = new HashMap<>();
 		SimulationParameters simulationParameters = SimulationParameters.load();
 		// run stabilization
 		Stabilization stabilization = simulatorFactory.createStabilization(network, computationManager, 0);
 		stabilization.init(simulationParameters, initContext);
-		ImpactAnalysis impactAnalysis = null;
 		System.out.println("running stabilization on network " + network.getId());
 		StabilizationResult stabilizationResults = stabilization.run();
 		metricsContent.write("****** BASECASE " + network.getId()+"\n");
@@ -131,10 +130,10 @@ public class Utils {
 				tdSimulationResults.put(EMPTY_CONTINGENCY_ID, true);
 			// check if there are contingencies to run impact analysis
 			if ( contingencyIds==null && contingencyDb.getContingencies(network).size()==0 )
-				contingencyIds = new HashSet<String>();
+				contingencyIds = new HashSet<>();
 			if ( contingencyIds==null || !contingencyIds.isEmpty() ) {
 				// run impact analysis
-				impactAnalysis = simulatorFactory.createImpactAnalysis(network, computationManager, 0, contingencyDb);
+                ImpactAnalysis impactAnalysis = simulatorFactory.createImpactAnalysis(network, computationManager, 0, contingencyDb);
 				impactAnalysis.init(simulationParameters, initContext);
 				System.out.println("running impact analysis on network " + network.getId());
 				ImpactAnalysisResult impactAnalisResults = impactAnalysis.run(stabilizationResults.getState(), contingencyIds);

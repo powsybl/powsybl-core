@@ -15,30 +15,30 @@ import eu.itesla_project.offline.forecast_errors.ForecastErrorsAnalysisParameter
  */
 public interface LocalOnlineApplicationMBean {
 
-    public static final String BEAN_NAME = "eu.itesla_project.online:type=LocalOnlineApplicationMBean";
+    String BEAN_NAME = "eu.itesla_project.online:type=LocalOnlineApplicationMBean";
     
-    public static final String BUSY_CORES_ATTRIBUTE = "BusyCores";
+    String BUSY_CORES_ATTRIBUTE = "BusyCores";
     
-    public static final String WORK_STATES_ATTRIBUTE = "WorkflowStates";
+    String WORK_STATES_ATTRIBUTE = "WorkflowStates";
     
-    public static final String RUNNING_ATTRIBUTE = "Running";
+    String RUNNING_ATTRIBUTE = "Running";
     
-    public static final String WCA_RUNNING_ATTRIBUTE = "WcaRunning";
+    String WCA_RUNNING_ATTRIBUTE = "WcaRunning";
     
-    public static final String STATES_ACTIONS_ATTRIBUTE = "StateActions";
+    String STATES_ACTIONS_ATTRIBUTE = "StateActions";
     
-   // public static final String STABLE_CONTINGENCIES_ATTRIBUTE = "StableContingencies";
+   // String STABLE_CONTINGENCIES_ATTRIBUTE = "StableContingencies";
     
-	public static final String STATES_INDEXES_ATTRIBUTE = "StatesIndexes";
+	String STATES_INDEXES_ATTRIBUTE = "StatesIndexes";
 	
-	public static final String INDEXES_SECURITY_RULES_ATTRIBUTE ="IndexSecurityRulesResults";
+	String INDEXES_SECURITY_RULES_ATTRIBUTE ="IndexSecurityRulesResults";
 	
-	//public static final String UNSTABLE_CONTINGENCIES_ATTRIBUTE = "UnstableContingencies";
+	// String UNSTABLE_CONTINGENCIES_ATTRIBUTE = "UnstableContingencies";
 	
-	public static final String WCA_CONTINGENCIES_ATTRIBUTE = "WcaContingencies";
+	String WCA_CONTINGENCIES_ATTRIBUTE = "WcaContingencies";
 	
-	//Apogée
-	public static final String GENERATE_CARD_ATTRIBUTE = "Card";
+	//Apogee
+	// String GENERATE_CARD_ATTRIBUTE = "Card";
     
 	void ping();
 

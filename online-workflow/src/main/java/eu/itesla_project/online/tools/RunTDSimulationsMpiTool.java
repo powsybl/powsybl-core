@@ -32,8 +32,6 @@ import java.util.Map;
 @AutoService(Tool.class)
 public class RunTDSimulationsMpiTool implements Tool {
 
-    private static final String EMPTY_CONTINGENCY_ID = "Empty-Contingency";
-
     private static Command COMMAND = new Command() {
 
         @Override
@@ -117,7 +115,7 @@ public class RunTDSimulationsMpiTool implements Tool {
         LocalOnlineApplicationMBean application = MBeanServerInvocationHandler.newProxyInstance(mbsc, name, LocalOnlineApplicationMBean.class, false);
 
 
-        boolean emptyContingency = line.hasOption("empty-contingency") ? true : false;
+        boolean emptyContingency = line.hasOption("empty-contingency");
         Path caseFile = Paths.get(line.getOptionValue("case-file"));
         application.runTDSimulations(startconfig, caseFile.toString(), line.getOptionValue("contingencies"), Boolean.toString(emptyContingency), line.getOptionValue("output-folder"));
     }

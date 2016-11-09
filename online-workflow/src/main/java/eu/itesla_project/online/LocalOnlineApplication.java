@@ -72,10 +72,6 @@ public class LocalOnlineApplication extends NotificationBroadcasterSupport imple
 
     private final ComputationManager computationManager;
 
-    private final ScheduledExecutorService ses;
-
-    private final ExecutorService es;
-
     private final boolean enableJmx;
     
     private OnlineWorkflow workflow ;
@@ -110,8 +106,6 @@ public class LocalOnlineApplication extends NotificationBroadcasterSupport imple
 
     private final ScheduledFuture<?> future;
 
-    private final Map<String, OnlineWorkflowImpl> workflows = new ConcurrentHashMap<>();
-
     private final TIntArrayList busyCores;
 
     private final Lock listenersLock = new ReentrantLock();
@@ -129,8 +123,6 @@ public class LocalOnlineApplication extends NotificationBroadcasterSupport imple
             MBeanRegistrationException, MalformedObjectNameException, NotCompliantMBeanException, IOException {
         this.config = config;
         this.computationManager = computationManager;
-        this.ses = ses;
-        this.es = es;
 
         LOGGER.info("Version: {}", Version.VERSION);
        
@@ -152,15 +144,11 @@ public class LocalOnlineApplication extends NotificationBroadcasterSupport imple
 
         }
 
-        future = ses.scheduleAtFixedRate(new Runnable() {
-
-            @Override
-            public void run() {
-                try {
-                    notifyBusyCoresUpdate(false);
-                } catch (Throwable t) {
-                    LOGGER.error(t.toString(), t);
-                }
+        future = ses.scheduleAtFixedRate(() -> {
+            try {
+                notifyBusyCoresUpdate(false);
+            } catch (Throwable t) {
+                LOGGER.error(t.toString(), t);
             }
         }, 0, 20, TimeUnit.SECONDS);
     }
@@ -278,14 +266,10 @@ public class LocalOnlineApplication extends NotificationBroadcasterSupport imple
                 OnlineApplicationListener listener = startParams.getOnlineApplicationListenerFactoryClass().newInstance().create();
                 workflow.addOnlineApplicationListener(listener);
             }
-        } catch (InstantiationException e ) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        } catch (IllegalAccessException e) {
+        } catch (InstantiationException | IllegalAccessException e) {
             e.printStackTrace();
             throw new RuntimeException(e);
         }
-
         try {
             workflow.start(oCtx);
         } catch (Exception e) {

@@ -34,7 +34,6 @@ public class ImpactAnalysisCommand implements Command {
     }
 
     @Override
-    @SuppressWarnings("static-access")
     public Options getOptions() {
         Options options = new Options();
         options.addOption(Option.builder().longOpt("case-file")

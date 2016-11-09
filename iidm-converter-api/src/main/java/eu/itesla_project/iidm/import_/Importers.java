@@ -121,7 +121,7 @@ public class Importers {
 
         private final List<String> names;
 
-        public ImporterWrapper(Importer importer, ComputationManager computationManager, List<String> names) {
+        ImporterWrapper(Importer importer, ComputationManager computationManager, List<String> names) {
             this.importer = importer;
             this.computationManager = computationManager;
             this.names = names;
@@ -250,13 +250,10 @@ public class Importers {
         importAll(dir, importer, dataSources);
         if (parallel) {
             ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-            List<Future<?>> futures = new ArrayList<>();
             try {
-                for (ReadOnlyDataSource dataSource : dataSources) {
-                    futures.add(executor.submit(() -> {
-                        doImport(dataSource, importer, consumer, listener);
-                    }));
-                }
+                List<Future<?>> futures = dataSources.stream()
+                        .map(ds -> executor.submit(() -> doImport(ds, importer, consumer, listener)))
+                        .collect(Collectors.toList());
                 for (Future<?> future : futures) {
                     future.get();
                 }

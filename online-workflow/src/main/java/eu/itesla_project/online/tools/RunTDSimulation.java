@@ -12,7 +12,6 @@ import eu.itesla_project.commons.tools.Command;
 import eu.itesla_project.commons.tools.Tool;
 import eu.itesla_project.computation.ComputationManager;
 import eu.itesla_project.computation.local.LocalComputationManager;
-import eu.itesla_project.iidm.import_.Importer;
 import eu.itesla_project.iidm.import_.Importers;
 import eu.itesla_project.iidm.network.Network;
 import eu.itesla_project.modules.contingencies.ContingenciesAndActionsDatabaseClient;
@@ -38,8 +37,6 @@ import java.util.*;
  */
 //@AutoService(Tool.class)
 public class RunTDSimulation implements Tool {
-
-	private static final String EMPTY_CONTINGENCY_ID = "Empty-Contingency";
 
 	private static Command COMMAND = new Command() {
 		
@@ -121,14 +118,10 @@ public class RunTDSimulation implements Tool {
 					}
 				}
 				cvsWriter.flush();
-			} catch (IOException e) {
-				throw e;
 			} finally {
 				if ( cvsWriter!=null )
 					cvsWriter.close();
 			}
-		} catch (IOException e1) {
-			throw e1;
 		}
 	}
 	
@@ -136,11 +129,7 @@ public class RunTDSimulation implements Tool {
 		Path csvFile = getFile(folder, "simulation-results.csv");
 		System.out.println("writing simulation results to file " + csvFile.toString());
 		Set<String> securityIndexIds = new LinkedHashSet<>();
-        for (Map<String, Boolean> securityIndexesPerBasecase : tdSimulationsResults.values()) {
-            if (securityIndexesPerBasecase != null) {
-                securityIndexIds.addAll(securityIndexesPerBasecase.keySet());
-            }
-        }
+        tdSimulationsResults.values().stream().filter(m -> m != null).forEach(m -> securityIndexIds.addAll(m.keySet()));
         String[] indexIds = securityIndexIds.toArray(new String[securityIndexIds.size()]);
         Arrays.sort(indexIds);
 		try (FileWriter content = new FileWriter(csvFile.toFile())) {
@@ -166,14 +155,10 @@ public class RunTDSimulation implements Tool {
 					cvsWriter.writeRecord(values);
 				}
 				cvsWriter.flush();
-			} catch (IOException e) {
-				throw e;
 			} finally {
 				if ( cvsWriter!=null )
 					cvsWriter.close();
 			}
-		} catch (IOException e1) {
-			throw e1;
 		}
 	}
 
@@ -181,11 +166,11 @@ public class RunTDSimulation implements Tool {
     public void run(CommandLine line) throws Exception {
 		Path caseFile = Paths.get(line.getOptionValue("case-file"));
         Set<String> contingencyIds = line.hasOption("contingencies") ?  Sets.newHashSet(line.getOptionValue("contingencies").split(",")) : null;
-        boolean emptyContingency = line.hasOption("empty-contingency") ? true : false;
+        boolean emptyContingency = line.hasOption("empty-contingency");
         Path outputFolder = line.hasOption("output-folder") ? Paths.get(line.getOptionValue("output-folder")) : null;
         
-        Map<String, List<LimitViolation>> networksViolations = new HashMap<String, List<LimitViolation>>();
-        Map<String, Map<String, Boolean>> tdSimulationsResults = new HashMap<String, Map<String,Boolean>>();
+        Map<String, List<LimitViolation>> networksViolations = new HashMap<>();
+        Map<String, Map<String, Boolean>> tdSimulationsResults = new HashMap<>();
         Path metricsFile = getFile(outputFolder, "metrics.log");
         try (ComputationManager computationManager = new LocalComputationManager();
              FileWriter metricsContent = new FileWriter(metricsFile.toFile())) {
@@ -193,8 +178,6 @@ public class RunTDSimulation implements Tool {
         	OnlineConfig config = OnlineConfig.load();
             ContingenciesAndActionsDatabaseClient contingencyDb = config.getContingencyDbClientFactoryClass().newInstance().create();
             SimulatorFactory simulatorFactory = config.getSimulatorFactoryClass().newInstance();
-
-            Importer importer = Importers.getImporter("CIM1", computationManager);
 
             if (Files.isRegularFile(caseFile)) {
 				// load the network

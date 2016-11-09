@@ -148,8 +148,7 @@ public class WCATool implements Tool {
         public HistoDbStats queryStats(Set<HistoDbAttributeId> attrIds, Interval interval, HistoDbHorizon horizon, boolean async) throws IOException, InterruptedException {
             lock.lock();
             try {
-                HistoDbStats stats = super.queryStats(attrIds, interval, horizon, async);
-                return stats;
+                return super.queryStats(attrIds, interval, horizon, async);
             } finally {
                 lock.unlock();
             }
