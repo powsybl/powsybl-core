@@ -15,7 +15,7 @@ import java.util.Locale;
 public class AsciiTableFormatterFactory implements TableFormatterFactory {
 
     @Override
-    public TableFormatter create(Writer writer, String title, Locale locale, Column... columns) {
-        return new AsciiTableFormatter(writer, title, locale, columns);
+    public TableFormatter create(Writer writer, String title, TableFormatterConfig config, Column... columns) {
+        return new AsciiTableFormatter(writer, title, config, columns);
     }
 }

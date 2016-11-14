@@ -25,18 +25,18 @@ public class AsciiTableFormatter extends AbstractTableFormatter {
 
     private final Table table ;
 
-    public AsciiTableFormatter(String title, Locale locale, Column... columns) {
-        this(new OutputStreamWriter(System.out), title, locale, columns);
-    }
-
-    public AsciiTableFormatter(Writer writer, String title, Locale locale, Column... columns) {
-        super(locale, "inv");
+    public AsciiTableFormatter(Writer writer, String title, TableFormatterConfig config, Column... columns) {
+        super(config.getLocale(), config.getInvalidString());
         this.writer = writer;
         this.title = title;
         this.table = new Table(columns.length, BorderStyle.CLASSIC_WIDE);
         for (Column column : columns) {
             table.addCell(column.getName());
         }
+    }
+
+    public AsciiTableFormatter(String title, Column... columns) {
+        this(new OutputStreamWriter(System.out), title, TableFormatterConfig.load(), columns);
     }
 
     @Override

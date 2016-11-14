@@ -36,7 +36,8 @@ public class TableFormatterTest {
     @Test
     public void testCsv() throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        try (TableFormatter formatter = new CsvTableFormatter(new OutputStreamWriter(bos), "csv test", Locale.US, COLUMNS)) {
+        TableFormatterConfig config = new TableFormatterConfig(Locale.US, ';', "inv", true, true);
+        try (TableFormatter formatter = new CsvTableFormatter(new OutputStreamWriter(bos), "csv test", config, COLUMNS)) {
             write(formatter);
         }
         assertEquals(new String(bos.toByteArray(), StandardCharsets.UTF_8),
@@ -49,7 +50,8 @@ public class TableFormatterTest {
     @Test
     public void testAcsii() throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        try (TableFormatter formatter = new AsciiTableFormatter(new OutputStreamWriter(bos), "ascii test", Locale.US, COLUMNS)) {
+        TableFormatterConfig config = new TableFormatterConfig(Locale.US, "inv");
+        try (TableFormatter formatter = new AsciiTableFormatter(new OutputStreamWriter(bos), "ascii test", config, COLUMNS)) {
             write(formatter);
         }
         assertEquals(new String(bos.toByteArray(), StandardCharsets.UTF_8),
