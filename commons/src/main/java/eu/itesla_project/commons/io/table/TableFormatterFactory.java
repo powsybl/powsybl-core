@@ -14,6 +14,6 @@ import java.util.Locale;
  */
 public interface TableFormatterFactory {
 
-    TableFormatter create(Writer writer, String title, Locale locale, Column... columns);
+    TableFormatter create(Writer writer, String title, TableFormatterConfig config, Column... columns);
 
 }
