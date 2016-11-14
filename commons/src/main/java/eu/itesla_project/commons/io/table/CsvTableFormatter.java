@@ -35,6 +35,10 @@ public class CsvTableFormatter extends AbstractTableFormatter {
         this(writer, title, config.getCsvSeparator(), config.getInvalidString(), config.getPrintHeader(), config.getPrintTitle(), config.getLocale(), columns);
     }
 
+    public CsvTableFormatter(Writer writer, String title, char separator, String invalidString, boolean writeHeader, Locale locale, Column... columns) {
+        this(writer, title, separator, invalidString, writeHeader, true, locale, columns);
+    }
+
     public CsvTableFormatter(Writer writer, String title, char separator, String invalidString, boolean writeHeader, boolean writeTitle, Locale locale, Column... columns) {
         super(locale, invalidString);
         this.writer = Objects.requireNonNull(writer);
