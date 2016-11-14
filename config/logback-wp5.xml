@@ -36,6 +36,9 @@
     <logger name="eu.itesla_project.helmflow" level="ERROR" />
     <logger name="com.gridquant.helm" level="ERROR" />
     <logger name="org.apache" level="ERROR" />
+    <logger name="org.nocrala.tools.texttablefmt" level="ERROR" />
+    <logger name="eu.itesla_project.iidm.network.impl.CurrentLimitsAdderImpl" level="ERROR" />
+    <logger name="com.rte_france.itesla.iidm.export.adn.ADNConverter" level="ERROR" />
     <root level="DEBUG">
         <!--appender-ref ref="FILE" /-->
         <appender-ref ref="STDOUT" />
