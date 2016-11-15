@@ -236,14 +236,18 @@ public class XmlFileContingenciesAndActionsDatabaseClient implements Contingenci
 	        }
 			for (Contingency cont : actionContingencies.getContingencies().getContingency()) {
 				String contingency = cont.getName();
+				LOGGER.info("contingency: {}", contingency);
 				List<ContingencyElement> elements = new ArrayList<>();
 				for (Equipment eq : cont.getEquipments().getEquipment()) {					
 					String id = eq.getId();
 					if (network.getLine(id) != null) {
+						LOGGER.info("contingency: {} - element LineContingency, id: {}", contingency, id);
 						elements.add(new LineContingency(id));
 					} else if (network.getGenerator(id) != null) {
+						LOGGER.info("contingency: {} - element GeneratorContingency, id: {}", contingency, id);
 						elements.add(new GeneratorContingency(id));
 					} else if (tieLines.containsKey(id)) {
+						LOGGER.info("contingency: {} - element LineContingency, tieLines id: {}", contingency, tieLines.get(id));
                         elements.add(new LineContingency(tieLines.get(id)));
 					} else {
 						LOGGER.warn("Contingency element '{}' of contingency {} not found in network {}, skipping it", id, contingency, network.getId());
