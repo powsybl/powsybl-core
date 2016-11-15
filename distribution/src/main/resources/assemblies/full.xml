@@ -80,11 +80,6 @@
         <fileSet>
             <directory>${project.basedir}/../target/site/apidocs</directory>
             <outputDirectory>doc/java</outputDirectory>
-            <includes>
-                <include>
-                    *
-                </include>
-            </includes>
             <fileMode>0644</fileMode>
         </fileSet>
 
@@ -92,9 +87,6 @@
         <fileSet>
             <directory>${project.basedir}/../build/html</directory>
             <outputDirectory>doc/cpp</outputDirectory>
-            <includes>
-                <include>*</include>
-            </includes>
             <fileMode>0644</fileMode>
         </fileSet>
 
