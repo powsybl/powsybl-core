@@ -7,6 +7,7 @@
     file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 -->
+<!--Configuration of the online process log-->
 <configuration>
     <!--appender name="FILE" class="ch.qos.logback.core.FileAppender">
         <file>${java.io.tmpdir}/itesla_wp5.log</file>
@@ -36,6 +37,9 @@
     <logger name="eu.itesla_project.helmflow" level="ERROR" />
     <logger name="com.gridquant.helm" level="ERROR" />
     <logger name="org.apache" level="ERROR" />
+    <logger name="org.nocrala.tools.texttablefmt" level="ERROR" />
+    <logger name="eu.itesla_project.iidm.network.impl.CurrentLimitsAdderImpl" level="ERROR" />
+    <logger name="com.rte_france.itesla.iidm.export.adn.ADNConverter" level="ERROR" />
     <root level="DEBUG">
         <!--appender-ref ref="FILE" /-->
         <appender-ref ref="STDOUT" />

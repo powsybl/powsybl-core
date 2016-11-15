@@ -7,6 +7,7 @@
     file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 -->
+<!--Configuration of the offline process log-->
 <configuration>
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
@@ -25,6 +26,9 @@
     <logger name="eu.itesla_project.ucte.network" level="ERROR" />
     <logger name="com.rte_france.itesla.hades2.Hades2Executor" level="DEBUG" />
     <logger name="eu.itesla_project.iidm.ddb.eurostag_imp_exp" level="ERROR" />
+    <logger name="org.nocrala.tools.texttablefmt" level="ERROR" />
+    <logger name="eu.itesla_project.iidm.network.impl.CurrentLimitsAdderImpl" level="ERROR" />
+    <logger name="com.rte_france.itesla.iidm.export.adn.ADNConverter" level="ERROR" />   
     <root level="INFO">
         <appender-ref ref="STDOUT" />
     </root>
