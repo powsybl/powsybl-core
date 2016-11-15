@@ -8,6 +8,7 @@ package eu.itesla_project.security;
 
 import eu.itesla_project.commons.io.table.Column;
 import eu.itesla_project.commons.io.table.TableFormatter;
+import eu.itesla_project.commons.io.table.TableFormatterConfig;
 import eu.itesla_project.commons.io.table.TableFormatterFactory;
 import eu.itesla_project.iidm.network.*;
 import org.nocrala.tools.texttablefmt.BorderStyle;
@@ -189,7 +190,7 @@ public class Security {
         Objects.requireNonNull(formatterFactory);
         try (TableFormatter formatter = formatterFactory.create(writer,
                 "Pre-contingency violations",
-                Locale.getDefault(),
+                TableFormatterConfig.load(),
                 new Column("Action"),
                 new Column("Equipment"),
                 new Column("Violation type"),
@@ -237,7 +238,7 @@ public class Security {
         if (result.getPostContingencyResults().size() > 0) {
             try (TableFormatter formatter = formatterFactory.create(writer,
                     "Post-contingency limit violations",
-                    Locale.getDefault(),
+                    TableFormatterConfig.load(),
                     new Column("Contingency"),
                     new Column("Status"),
                     new Column("Action"),

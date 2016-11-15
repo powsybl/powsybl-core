@@ -29,21 +29,24 @@ public class CsvTableFormatter extends AbstractTableFormatter {
 
     protected int column = 0;
 
-    public CsvTableFormatter(Writer writer, String title, Column... columns) {
-        this(writer, title, Locale.getDefault(), columns);
-    }
+    protected final boolean writeTitle;
 
-    public CsvTableFormatter(Writer writer, String title, Locale locale, Column... columns) {
-        this(writer, title, ';', "inv", true, locale, columns);
+    public CsvTableFormatter(Writer writer, String title, TableFormatterConfig config, Column... columns) {
+        this(writer, title, config.getCsvSeparator(), config.getInvalidString(), config.getPrintHeader(), config.getPrintTitle(), config.getLocale(), columns);
     }
 
     public CsvTableFormatter(Writer writer, String title, char separator, String invalidString, boolean writeHeader, Locale locale, Column... columns) {
+        this(writer, title, separator, invalidString, writeHeader, true, locale, columns);
+    }
+
+    public CsvTableFormatter(Writer writer, String title, char separator, String invalidString, boolean writeHeader, boolean writeTitle, Locale locale, Column... columns) {
         super(locale, invalidString);
         this.writer = Objects.requireNonNull(writer);
         this.title = Objects.requireNonNull(title);
         this.separator = separator;
         this.columns = Objects.requireNonNull(columns);
         headerDone = !writeHeader;
+        this.writeTitle = writeTitle;
     }
 
     private void writeHeaderIfNotDone() throws IOException {
@@ -55,7 +58,9 @@ public class CsvTableFormatter extends AbstractTableFormatter {
     }
 
     protected void writeHeader() throws IOException {
-        writer.append(title).append(System.lineSeparator());
+        if (writeTitle) {
+            writer.append(title).append(System.lineSeparator());
+        }
         for (int i = 0; i < columns.length; i++) {
             writer.append(columns[i].getName());
             if (i < columns.length-1) {
