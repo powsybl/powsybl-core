@@ -61,6 +61,8 @@ public class SecurityAnalysisImpl implements SecurityAnalysis {
 
         return loadFlow.runAsync(workingStateId, parameters) // run base load flow
                 .thenComposeAsync(loadFlowResult -> {
+                    network.getStateManager().setWorkingState(workingStateId);
+
                     preContingencyComputationOk[0] = loadFlowResult.isOk();
                     preContingencyLimitViolations.addAll(checkLimits(network));
 
