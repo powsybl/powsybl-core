@@ -8,19 +8,13 @@
 package eu.itesla_project.online;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import eu.itesla_project.cases.CaseType;
+import eu.itesla_project.iidm.import_.Importers;
 import org.joda.time.format.DateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -142,8 +136,19 @@ public class OnlineWorkflowImpl implements OnlineWorkflow {
         this.rulesFacadeFactory = rulesFacadeFactory;
         this.parameters = parameters;
         this.startParameters = startParameters;
-        this.id = DateTimeFormat.forPattern("yyyyMMdd_HHmm_").print(parameters.getBaseCaseDate())+new SimpleDateFormat("yyyyMMddHHmmssSSS").format(new Date());
-        logger.info(parameters.toString());
+        if (parameters.getCaseFile() != null) {
+            //TODO avoid loading network twice, here and in the start method
+            // load network, to get its ID and override existing parameters (base-case, countries, case-type)
+            Network network = Importers.loadNetwork(parameters.getCaseFile());
+            if (network == null) {
+                throw new RuntimeException("Case '" + parameters.getCaseFile() + "' not found");
+            }
+            this.parameters.setBaseCaseDate(network.getCaseDate());
+            this.parameters.setCountries(network.getCountries());
+            this.parameters.setCaseType((network.getForecastDistance() == 0) ? CaseType.SN : CaseType.FO);
+        }
+        this.id = DateTimeFormat.forPattern("yyyyMMdd_HHmm_").print(this.parameters.getBaseCaseDate()) + new SimpleDateFormat("yyyyMMddHHmmssSSS").format(new Date());
+        logger.info(this.parameters.toString());
     }
 
 
@@ -164,8 +169,16 @@ public class OnlineWorkflowImpl implements OnlineWorkflow {
         for (OnlineApplicationListener l :listeners)
             l.onWorkflowUpdate(new StatusSynthesis(id,StatusSynthesis.STATUS_RUNNING));
 
-        Network network = MergeUtil.merge(caseRepository, parameters.getBaseCaseDate(), parameters.getCaseType(), parameters.getCountries(),
-                loadFlowFactory, 0, mergeOptimizerFactory, computationManager, parameters.isMergeOptimized());
+        Network network = null;
+        if (parameters.getCaseFile() != null ) {
+            network = Importers.loadNetwork(parameters.getCaseFile());
+            if (network == null) {
+                throw new RuntimeException("Case '" + parameters.getCaseFile() + "' not found");
+            }
+        } else {
+            network = MergeUtil.merge(caseRepository, parameters.getBaseCaseDate(), parameters.getCaseType(), parameters.getCountries(),
+                    loadFlowFactory, 0, mergeOptimizerFactory, computationManager, parameters.isMergeOptimized());
+        }
 
         logger.info("- Network id: " + network.getId());
         logger.info("- Network name: "+ network.getName());

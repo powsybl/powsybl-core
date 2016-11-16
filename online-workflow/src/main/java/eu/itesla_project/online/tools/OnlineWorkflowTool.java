@@ -95,6 +95,9 @@ public class OnlineWorkflowTool implements Tool {
             }
         }
 
+        if(line.hasOption(OnlineWorkflowCommand.CASE_FILE))
+            params.setCaseFile(line.getOptionValue(OnlineWorkflowCommand.CASE_FILE));
+
         String histo=line.getOptionValue(OnlineWorkflowCommand.HISTODB_INTERVAL);
         if(histo!=null)
             params.setHistoInterval(Interval.parse(histo));
@@ -168,10 +171,16 @@ public class OnlineWorkflowTool implements Tool {
 
         if( line.hasOption(OnlineWorkflowCommand.START_CMD))
         {
-            for (DateTime basecase:baseCasesSet) {
-                params.setBaseCaseDate(basecase);
-                System.out.println("starting Online Workflow, basecase " + basecase.toString());
+            if (params.getCaseFile() != null) {
+                System.out.println("starting Online Workflow, caseFile " + params.getCaseFile());
                 application.startWorkflow(startconfig, params);
+
+            } else {
+                for (DateTime basecase : baseCasesSet) {
+                    params.setBaseCaseDate(basecase);
+                    System.out.println("starting Online Workflow, basecase " + basecase.toString());
+                    application.startWorkflow(startconfig, params);
+                }
             }
         }
         else if(line.hasOption(OnlineWorkflowCommand.SHUTDOWN_CMD))

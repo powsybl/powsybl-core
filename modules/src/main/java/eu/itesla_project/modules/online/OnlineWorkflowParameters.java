@@ -48,6 +48,7 @@ public class OnlineWorkflowParameters implements Serializable {
     private float limitReduction;
     private boolean handleViolationsInN;
     private float constraintMargin;
+    private String caseFile;
 
     public static OnlineWorkflowParameters loadDefault() {
         ModuleConfig config = PlatformConfig.defaultConfig().getModuleConfig("online-default-parameters");
@@ -68,6 +69,7 @@ public class OnlineWorkflowParameters implements Serializable {
         float limitReduction = config.getFloatProperty("limitReduction", DEFAULT_LIMIT_REDUCTION);
         boolean handleViolationsInN = config.getBooleanProperty("handleViolationsInN", DEFAULT_HANDLE_VIOLATIONS_IN_N);
         float constraintMargin = config.getFloatProperty("constraintMargin", DEFAULT_CONSTRAINT_MARGIN);
+        String caseFile = config.getStringProperty("caseFile", null);
 
         return new OnlineWorkflowParameters(baseCaseDate, 
                 states, 
@@ -85,14 +87,15 @@ public class OnlineWorkflowParameters implements Serializable {
                 mergeOptimized,
                 limitReduction,
                 handleViolationsInN,
-                constraintMargin
+                constraintMargin,
+                caseFile
                 );
     }
 
     public OnlineWorkflowParameters(DateTime baseCaseDate, int states, Interval histoInterval, String offlineWorkflowId, TimeHorizon timeHorizon, 
             String feAnalysisId, double rulesPurityThreshold, boolean storeStates, boolean analyseBasecase, boolean validation, 
             Set<SecurityIndexType> securityIndexes, CaseType caseType, Set<Country> countries, boolean mergeOptimized, 
-            float limitReduction, boolean handleViolationsInN, float constraintMargin) {
+            float limitReduction, boolean handleViolationsInN, float constraintMargin, String caseFile) {
         Objects.requireNonNull(baseCaseDate);
         Objects.requireNonNull(histoInterval);
         Objects.requireNonNull(countries);
@@ -114,6 +117,7 @@ public class OnlineWorkflowParameters implements Serializable {
         this.limitReduction = limitReduction;
         this.handleViolationsInN = handleViolationsInN;
         this.constraintMargin = constraintMargin;
+        this.caseFile = caseFile;
     }
 
     public DateTime getBaseCaseDate() {
@@ -184,6 +188,8 @@ public class OnlineWorkflowParameters implements Serializable {
         return constraintMargin;
     }
 
+    public String getCaseFile() { return caseFile; }
+
     @Override
     public String toString() {
         return "{baseCaseDate=" + baseCaseDate
@@ -203,6 +209,7 @@ public class OnlineWorkflowParameters implements Serializable {
                 + ", limitReduction=" + limitReduction
                 + ", handleViolationsInN=" + handleViolationsInN
                 + ", constraintMargin=" + constraintMargin
+                + ", caseFile=" + caseFile
                 + "}";
     }
 
@@ -273,5 +280,7 @@ public class OnlineWorkflowParameters implements Serializable {
     public void setConstraintMargin(float constraintMargin) {
         this.constraintMargin = constraintMargin;
     }
+
+    public void setCaseFile(String caseFile) { this.caseFile = caseFile; }
 
 }

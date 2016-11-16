@@ -122,6 +122,7 @@ public class OnlineDbMVStore implements OnlineDb {
     private static final String STORED_PARAMETERS_LIMIT_REDUCTION_KEY = "limit_reduction";
     private static final String STORED_PARAMETERS_HANDLE_VIOLATIONS_KEY = "handle_violations";
     private static final String STORED_PARAMETERS_CONSTRAINT_MARGIN_KEY = "constraint_margin";
+    private static final String STORED_PARAMETERS_CASE_FILE_KEY = "case_file";
     private static final String STORED_STATES_PROCESSING_STATUS_MAP_NAME = "statesProcessingStatus";
     private static final String STORED_STATES_LIST_KEY = "states";
     private static final String STORED_STATES_STATE_DETAILS_KEY = "stateStatusDetails";
@@ -842,6 +843,8 @@ public class OnlineDbMVStore implements OnlineDb {
         storedParametersMap.put(STORED_PARAMETERS_HANDLE_VIOLATIONS_KEY, Boolean.toString(parameters.isHandleViolationsInN()));
         // store merge constraint margin
         storedParametersMap.put(STORED_PARAMETERS_CONSTRAINT_MARGIN_KEY, Float.toString(parameters.getConstraintMargin()));
+        // store case file name (null if it was not specified)
+        storedParametersMap.put(STORED_PARAMETERS_CASE_FILE_KEY, parameters.getCaseFile());
 
         wfMVStore.commit();
     }
@@ -890,6 +893,9 @@ public class OnlineDbMVStore implements OnlineDb {
                 float constraintMargin = OnlineWorkflowParameters.DEFAULT_CONSTRAINT_MARGIN;
                 if ( storedParametersMap.containsKey(STORED_PARAMETERS_CONSTRAINT_MARGIN_KEY))
                     constraintMargin = Float.parseFloat(storedParametersMap.get(STORED_PARAMETERS_CONSTRAINT_MARGIN_KEY));
+                String caseFile=null;
+                if ( storedParametersMap.containsKey(STORED_PARAMETERS_CASE_FILE_KEY))
+                    caseFile = storedParametersMap.get(STORED_PARAMETERS_CASE_FILE_KEY);
 
                 return new OnlineWorkflowParameters(baseCaseDate, 
                         states,
@@ -907,7 +913,8 @@ public class OnlineDbMVStore implements OnlineDb {
                         mergeOptimized,
                         limitReduction,
                         handleViolations,
-                        constraintMargin
+                        constraintMargin,
+                        caseFile
                         );
             } else {
                 LOGGER.warn("No configuration parameters of wf {} stored in online db", workflowId);

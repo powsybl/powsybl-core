@@ -43,6 +43,7 @@ public class OnlineWorkflowCommand implements Command {
     public static final String LIMIT_REDUCTION = "limits-reduction";
     public static final String HANDLE_VIOLATION_IN_N = "handle-violations";
     public static final String CONSTRAINT_MARGIN = "constraint-margin";
+    public static final String CASE_FILE="case-file";
 
     @Override
     public String getName() {
@@ -194,6 +195,12 @@ public class OnlineWorkflowCommand implements Command {
                 .desc("constraint margin")
                 .hasArg()
                 .argName(CONSTRAINT_MARGIN)
+                .build());
+
+        opts.addOption(Option.builder().longOpt(CASE_FILE)
+                .desc("case file - Note:  override (base-case, case-type, countries) parameters")
+                .hasArg()
+                .argName(CASE_FILE)
                 .build());
 
         return opts;

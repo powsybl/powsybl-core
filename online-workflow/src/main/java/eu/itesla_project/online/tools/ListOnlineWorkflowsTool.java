@@ -203,6 +203,12 @@ public class ListOnlineWorkflowsTool implements Tool {
                     table.addCell(" ");
                     table.addCell("Constrain Margin = "+Float.toString(parameters.getConstraintMargin()));
                     wfJsonData.put(OnlineWorkflowCommand.CONSTRAINT_MARGIN, Float.toString(parameters.getConstraintMargin()));
+                    if (parameters.getCaseFile() != null) {
+                        table.addCell(" ");
+                        table.addCell(" ");
+                        table.addCell("Case file = " + parameters.getCaseFile());
+                        wfJsonData.put(OnlineWorkflowCommand.CASE_FILE, parameters.getCaseFile());
+                    }
                 } else {
                     table.addCell("-");
                 }
