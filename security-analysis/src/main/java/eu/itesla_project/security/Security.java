@@ -17,6 +17,7 @@ import org.nocrala.tools.texttablefmt.Table;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -230,12 +231,51 @@ public class Security {
         }
     }
 
+    /**
+     * Used to identify a limit violation to avoid duplicated violation between pre and post contingency analysis
+     */
+    private static class LimitViolationKey {
+
+        private final String id;
+        private final LimitViolationType limitType;
+        private final float limit;
+
+        public LimitViolationKey(String id, LimitViolationType limitType, float limit) {
+            this.id = Objects.requireNonNull(id);
+            this.limitType = Objects.requireNonNull(limitType);
+            this.limit = limit;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(id, limitType, limit);
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof LimitViolationKey) {
+                LimitViolationKey other = (LimitViolationKey) obj;
+                return id.equals(other.id) && limitType == other.limitType && limit == other.limit;
+            }
+            return false;
+        }
+    }
+
+    private static LimitViolationKey toKey(LimitViolation violation) {
+        return new LimitViolationKey(violation.getSubject().getId(), violation.getLimitType(), violation.getLimit());
+    }
+
     public static void printPostContingencyViolations(SecurityAnalysisResult result, Writer writer, TableFormatterFactory formatterFactory,
                                                       LimitViolationFilter limitViolationFilter) {
         Objects.requireNonNull(result);
         Objects.requireNonNull(writer);
         Objects.requireNonNull(formatterFactory);
         if (result.getPostContingencyResults().size() > 0) {
+            Set<LimitViolationKey> preContingencyViolations = result.getPreContingencyResult().getLimitViolations()
+                    .stream()
+                    .map(Security::toKey)
+                    .collect(Collectors.toSet());
+
             try (TableFormatter formatter = formatterFactory.create(writer,
                     "Post-contingency limit violations",
                     TableFormatterConfig.load(),
@@ -253,10 +293,17 @@ public class Security {
                         .sorted((o1, o2) -> o1.getContingency().getId().compareTo(o2.getContingency().getId()))
                         .forEach(postContingencyResult -> {
                             try {
+                                // configured filtering
                                 List<LimitViolation> filteredLimitViolations = limitViolationFilter != null
                                         ? limitViolationFilter.apply(postContingencyResult.getLimitViolations())
                                         : postContingencyResult.getLimitViolations();
-                                if (filteredLimitViolations.size() > 0 || !postContingencyResult.isComputationOk()) {
+
+                                // pre-contingency violations filtering
+                                List<LimitViolation> filteredLimitViolations2 = filteredLimitViolations.stream()
+                                        .filter(violation -> preContingencyViolations.isEmpty() || !preContingencyViolations.contains(toKey(violation)))
+                                        .collect(Collectors.toList());
+
+                                if (filteredLimitViolations2.size() > 0 || !postContingencyResult.isComputationOk()) {
                                     formatter.writeCell(postContingencyResult.getContingency().getId())
                                             .writeCell(postContingencyResult.isComputationOk() ? "converge" : "diverge")
                                             .writeEmptyCell()
@@ -279,7 +326,7 @@ public class Security {
                                                 .writeEmptyCell();
                                     }
 
-                                    filteredLimitViolations.stream()
+                                    filteredLimitViolations2.stream()
                                             .sorted((o1, o2) -> o1.getSubject().getId().compareTo(o2.getSubject().getId()))
                                             .forEach(violation -> {
                                                 try {
