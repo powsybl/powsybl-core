@@ -7,20 +7,19 @@
  */
 package eu.itesla_project.modules.online;
 
-import java.io.Serializable;
-import java.util.*;
-
+import eu.itesla_project.cases.CaseType;
 import eu.itesla_project.commons.config.ModuleConfig;
 import eu.itesla_project.commons.config.PlatformConfig;
 import eu.itesla_project.iidm.network.Country;
-import eu.itesla_project.cases.CaseType;
 import eu.itesla_project.simulation.securityindexes.SecurityIndexType;
-
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
+import java.io.Serializable;
+import java.util.Objects;
+import java.util.Set;
+
 /**
- *
  * @author Quinary <itesla@quinary.com>
  */
 public class OnlineWorkflowParameters implements Serializable {
@@ -71,15 +70,15 @@ public class OnlineWorkflowParameters implements Serializable {
         float constraintMargin = config.getFloatProperty("constraintMargin", DEFAULT_CONSTRAINT_MARGIN);
         String caseFile = config.getStringProperty("caseFile", null);
 
-        return new OnlineWorkflowParameters(baseCaseDate, 
-                states, 
-                histoInterval, 
-                offlineWorkflowId, 
-                timeHorizon, 
-                feAnalysisId, 
-                rulesPurityThreshold, 
-                storeStates, 
-                analyseBasecase, 
+        return new OnlineWorkflowParameters(baseCaseDate,
+                states,
+                histoInterval,
+                offlineWorkflowId,
+                timeHorizon,
+                feAnalysisId,
+                rulesPurityThreshold,
+                storeStates,
+                analyseBasecase,
                 validation,
                 securityIndexes,
                 caseType,
@@ -89,19 +88,19 @@ public class OnlineWorkflowParameters implements Serializable {
                 handleViolationsInN,
                 constraintMargin,
                 caseFile
-                );
+        );
     }
 
-    public OnlineWorkflowParameters(DateTime baseCaseDate, int states, Interval histoInterval, String offlineWorkflowId, TimeHorizon timeHorizon, 
-            String feAnalysisId, double rulesPurityThreshold, boolean storeStates, boolean analyseBasecase, boolean validation, 
-            Set<SecurityIndexType> securityIndexes, CaseType caseType, Set<Country> countries, boolean mergeOptimized, 
-            float limitReduction, boolean handleViolationsInN, float constraintMargin, String caseFile) {
+    public OnlineWorkflowParameters(DateTime baseCaseDate, int states, Interval histoInterval, String offlineWorkflowId, TimeHorizon timeHorizon,
+                                    String feAnalysisId, double rulesPurityThreshold, boolean storeStates, boolean analyseBasecase, boolean validation,
+                                    Set<SecurityIndexType> securityIndexes, CaseType caseType, Set<Country> countries, boolean mergeOptimized,
+                                    float limitReduction, boolean handleViolationsInN, float constraintMargin, String caseFile) {
         Objects.requireNonNull(baseCaseDate);
         Objects.requireNonNull(histoInterval);
         Objects.requireNonNull(countries);
         Objects.requireNonNull(caseType);
         this.baseCaseDate = baseCaseDate;
-        this.states=states;
+        this.states = states;
         this.histoInterval = histoInterval;
         this.offlineWorkflowId = offlineWorkflowId;
         this.timeHorizon = timeHorizon;
@@ -128,20 +127,20 @@ public class OnlineWorkflowParameters implements Serializable {
         return histoInterval;
     }
 
-    public int getStates() { 
-        return states; 
+    public int getStates() {
+        return states;
     }
 
-    public String getOfflineWorkflowId() { 
-        return offlineWorkflowId; 
+    public String getOfflineWorkflowId() {
+        return offlineWorkflowId;
     }
 
-    public TimeHorizon getTimeHorizon() { 
-        return timeHorizon; 
+    public TimeHorizon getTimeHorizon() {
+        return timeHorizon;
     }
 
-    public String getFeAnalysisId() { 
-        return feAnalysisId; 
+    public String getFeAnalysisId() {
+        return feAnalysisId;
     }
 
     public double getRulesPurityThreshold() {
@@ -188,7 +187,9 @@ public class OnlineWorkflowParameters implements Serializable {
         return constraintMargin;
     }
 
-    public String getCaseFile() { return caseFile; }
+    public String getCaseFile() {
+        return caseFile;
+    }
 
     @Override
     public String toString() {
@@ -202,7 +203,7 @@ public class OnlineWorkflowParameters implements Serializable {
                 + ", storeStates=" + storeStates
                 + ", analyseBasecase=" + analyseBasecase
                 + ", validation=" + validation
-                + ", securityIndexes=" + securityIndexes                
+                + ", securityIndexes=" + securityIndexes
                 + ", caseType=" + caseType
                 + ", countries=" + countries
                 + ", mergeOptimized=" + mergeOptimized
@@ -281,6 +282,8 @@ public class OnlineWorkflowParameters implements Serializable {
         this.constraintMargin = constraintMargin;
     }
 
-    public void setCaseFile(String caseFile) { this.caseFile = caseFile; }
+    public void setCaseFile(String caseFile) {
+        this.caseFile = caseFile;
+    }
 
 }
