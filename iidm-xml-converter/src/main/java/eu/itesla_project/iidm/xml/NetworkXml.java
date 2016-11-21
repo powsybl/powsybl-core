@@ -202,6 +202,12 @@ public class NetworkXml implements XmlConstants {
                     LineXml.INSTANCE.write(l, n, context);
                 }
             }
+            for (HvdcLine l : n.getHvdcLines()) {
+                if (!filter.test(l.getConverterStation1()) && filter.test(l.getConverterStation2())) {
+                   continue;
+                }
+                HvdcLineXml.INSTANCE.write(l, n, context);
+            }
 
             if (!options.isSkipExtensions()) {
                 // write extensions
@@ -273,6 +279,10 @@ public class NetworkXml implements XmlConstants {
 
                     case TieLineXml.ROOT_ELEMENT_NAME:
                         TieLineXml.INSTANCE.read(network, context);
+                        break;
+                        
+                    case HvdcLineXml.ROOT_ELEMENT_NAME:
+                        HvdcLineXml.INSTANCE.read(network, context);
                         break;
 
                     case EXTENSION_ELEMENT_NAME:
@@ -361,7 +371,9 @@ public class NetworkXml implements XmlConstants {
                     case GeneratorXml.ROOT_ELEMENT_NAME:
                     case LoadXml.ROOT_ELEMENT_NAME:
                     case ShuntXml.ROOT_ELEMENT_NAME:
-                    case DanglingLineXml.ROOT_ELEMENT_NAME: {
+                    case DanglingLineXml.ROOT_ELEMENT_NAME:
+                    case LccConverterStationXml.ROOT_ELEMENT_NAME:
+                    case VscConverterStationXml.ROOT_ELEMENT_NAME: {
                         String id = reader.getAttributeValue(null, "id");
                         float p = XmlUtil.readOptionalFloatAttribute(reader, "p");
                         float q = XmlUtil.readOptionalFloatAttribute(reader, "q");
@@ -381,6 +393,10 @@ public class NetworkXml implements XmlConstants {
                         branch.getTerminal1().setP(p1).setQ(q1);
                         branch.getTerminal2().setP(p2).setQ(q2);
                         break;
+                    }
+
+                    case HvdcLineXml.ROOT_ELEMENT_NAME: {
+                        // Nothing to do
                     }
 
                     case ThreeWindingsTransformerXml.ROOT_ELEMENT_NAME:

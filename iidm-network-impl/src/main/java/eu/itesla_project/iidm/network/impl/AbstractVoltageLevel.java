@@ -195,6 +195,36 @@ abstract class AbstractVoltageLevel extends IdentifiableImpl<VoltageLevel> imple
     }
 
     @Override
+    public int getVscConverterStationCount() {
+        return getConnectableCount(VscConverterStation.class);
+    }
+
+    @Override
+    public Iterable<VscConverterStation> getVscConverterStations() {
+        return getConnectables(VscConverterStation.class);
+    }
+
+    @Override
+    public VscConverterStationAdder newVscConverterStation() {
+        return new VscConverterStationAdderImpl(this);
+    }
+
+    @Override
+    public int getLccConverterStationCount() {
+        return getConnectableCount(LccConverterStation.class);
+    }
+
+    @Override
+    public Iterable<LccConverterStation> getLccConverterStations() {
+        return getConnectables(LccConverterStation.class);
+    }
+
+    @Override
+    public LccConverterStationAdder newLccConverterStation() {
+        return new LccConverterStationAdderImpl(this);
+    }
+
+    @Override
     protected String getTypeDescription() {
         return "Voltage level";
     }
