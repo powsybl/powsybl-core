@@ -324,9 +324,15 @@ public class ValidationUtil {
         }
     }
 
-    public static void checkPowerFactor(Validable validable, float powerFactor) {
+    static void checkPowerFactor(Validable validable, float powerFactor) {
         if (Float.isNaN(powerFactor)) {
             throw new ValidationException(validable, "power factor is invalid");
+        }
+    }
+
+    static void checkConnected(Validable validable, Boolean connected) {
+        if (connected == null) {
+            throw new ValidationException(validable, "connection status is invalid");
         }
     }
 }

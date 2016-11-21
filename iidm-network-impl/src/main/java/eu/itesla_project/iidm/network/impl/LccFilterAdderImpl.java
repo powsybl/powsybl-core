@@ -14,7 +14,7 @@ import java.util.Objects;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-class LccFilterAdderImpl implements LccFilterAdder {
+class LccFilterAdderImpl implements LccFilterAdder, Validable {
 
     private final LccConverterStationImpl converterStation;
 
@@ -24,6 +24,11 @@ class LccFilterAdderImpl implements LccFilterAdder {
 
     LccFilterAdderImpl(LccConverterStationImpl converterStation) {
         this.converterStation = Objects.requireNonNull(converterStation);
+    }
+
+    @Override
+    public String getMessageHeader() {
+        return converterStation.getMessageHeader() + "filter.";
     }
 
     @Override
@@ -40,6 +45,8 @@ class LccFilterAdderImpl implements LccFilterAdder {
 
     @Override
     public LccFilterImpl add() {
+        ValidationUtil.checkConnected(this, connected);
+        ValidationUtil.checkB(this, b);
         LccFilterImpl filter = new LccFilterImpl(converterStation, b, connected);
         converterStation.addFilter(filter);
         return filter;

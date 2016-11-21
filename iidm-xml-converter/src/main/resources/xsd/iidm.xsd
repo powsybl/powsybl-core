@@ -88,8 +88,8 @@
                         <xs:element name="shunt" type="iidm:ShuntCompensator"/>
                         <xs:element name="danglingLine" type="iidm:DanglingLine"/>
                         <xs:element name="staticVarCompensator" type="iidm:StaticVarCompensator"/>
-                        <xs:element name="vscConverterStation" minOccurs="0" maxOccurs="unbounded" type="iidm:VscConverterStation"/>
-                        <xs:element name="lccConverterStation" minOccurs="0" maxOccurs="unbounded" type="iidm:LccConverterStation"/>
+                        <xs:element name="vscConverterStation" type="iidm:VscConverterStation"/>
+                        <xs:element name="lccConverterStation" type="iidm:LccConverterStation"/>
                     </xs:choice>
                 </xs:sequence>
                 <xs:attribute name="nominalV" use="required" type="xs:float"/>

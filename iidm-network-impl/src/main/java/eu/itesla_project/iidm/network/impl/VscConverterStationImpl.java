@@ -77,7 +77,7 @@ class VscConverterStationImpl extends HvdcConverterStationImpl<VscConverterStati
         int stateIndex = getNetwork().getStateIndex();
         ValidationUtil.checkVoltageControl(this, voltageRegulatorOn.get(stateIndex), targetV, reactivePowerSetPoint.get(stateIndex));
         float oldValue = this.voltageSetPoint.set(stateIndex, targetV);
-        notifyUpdate("targetV", oldValue, targetV);
+        notifyUpdate("voltageSetPoint", oldValue, targetV);
         return this;
     }
 
@@ -91,7 +91,7 @@ class VscConverterStationImpl extends HvdcConverterStationImpl<VscConverterStati
         int stateIndex = getNetwork().getStateIndex();
         ValidationUtil.checkVoltageControl(this, voltageRegulatorOn.get(stateIndex), voltageSetPoint.get(stateIndex), targetQ);
         float oldValue = this.reactivePowerSetPoint.set(stateIndex, targetQ);
-        notifyUpdate("targetQ", oldValue, targetQ);
+        notifyUpdate("reactivePowerSetPoint", oldValue, targetQ);
         return this;
     }
 

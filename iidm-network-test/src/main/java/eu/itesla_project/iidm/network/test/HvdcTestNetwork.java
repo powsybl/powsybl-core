@@ -97,14 +97,14 @@ public class HvdcTestNetwork {
                 .setQ(50.0f);
         cs1.newReactiveCapabilityCurve()
                 .beginPoint()
-                .setP(5)
-                .setMinQ(0)
-                .setMaxQ(10)
+                    .setP(5)
+                    .setMinQ(0)
+                    .setMaxQ(10)
                 .endPoint()
                 .beginPoint()
-                .setP(10)
-                .setMinQ(0)
-                .setMaxQ(10)
+                    .setP(10)
+                    .setMinQ(0)
+                    .setMaxQ(10)
                 .endPoint()
                 .add();
         VoltageLevel vl2 = network.getVoltageLevel("VL2");

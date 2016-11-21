@@ -81,6 +81,6 @@ public class ReactiveLimitsXmlTest extends ConverterBaseTest {
         roundTripXmlTest(createNetwork(),
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
-                "/reactiveLimitsTripRef.xml");
+                "/reactiveLimitsRoundTripRef.xml");
     }
 }

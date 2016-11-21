@@ -12,9 +12,7 @@ import eu.itesla_project.iidm.network.Network;
 import eu.itesla_project.iidm.network.test.HvdcTestNetwork;
 import org.junit.Test;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -68,6 +66,24 @@ public class LccTest {
         assertTrue(cs1.getFilterCount() == 1);
         assertTrue(cs1.getFilterAt(0).getB() == 0.00002f);
         assertFalse(cs1.getFilterAt(0).isConnected());
+    }
 
+    @Test
+    public void testAddInvalidFilter() {
+        try {
+            Network network = HvdcTestNetwork.createLcc();
+            LccConverterStation cs1 = (LccConverterStation) network.getHvdcConverterStation("C1");
+            cs1.newFilter().setB(1.0f).add();
+            fail();
+        } catch (ValidationException exc) {
+        }
+
+        try {
+            Network network = HvdcTestNetwork.createLcc();
+            LccConverterStation cs1 = (LccConverterStation) network.getHvdcConverterStation("C1");
+            cs1.newFilter().setConnected(true).add();
+            fail();
+        } catch (ValidationException exc) {
+        }
     }
 }
