@@ -47,4 +47,8 @@ public class AbstractTopologyVisitor implements TopologyVisitor {
     @Override
     public void visitStaticVarCompensator(StaticVarCompensator staticVarCompensator) {
     }
+
+    @Override
+    public void visitHvdcConverterStation(HvdcConverterStation<?> converterStation) {
+    }
 }

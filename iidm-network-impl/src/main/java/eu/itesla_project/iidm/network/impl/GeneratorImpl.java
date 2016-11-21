@@ -16,7 +16,7 @@ import java.util.BitSet;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class GeneratorImpl extends ConnectableImpl<Generator> implements Generator {
+class GeneratorImpl extends ConnectableImpl<Generator> implements Generator, ReactiveLimitsOwner {
 
     private EnergySource energySource;
 
@@ -212,7 +212,8 @@ class GeneratorImpl extends ConnectableImpl<Generator> implements Generator {
         return new MinMaxReactiveLimitsAdderImpl(this);
     }
 
-    void setReactiveLimits(ReactiveLimits reactiveLimits) {
+    @Override
+    public void setReactiveLimits(ReactiveLimits reactiveLimits) {
         this.reactiveLimits = reactiveLimits;
     }
 

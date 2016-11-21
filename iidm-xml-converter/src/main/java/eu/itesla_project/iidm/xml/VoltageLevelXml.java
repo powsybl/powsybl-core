@@ -127,6 +127,22 @@ class VoltageLevelXml extends IdentifiableXml<VoltageLevel, VoltageLevelAdder, S
                 StaticVarCompensatorXml.INSTANCE.write(svc, null, context);
             }
         }
+        if (vl.getVscConverterStationCount() > 0) {
+            for (VscConverterStation cs : vl.getVscConverterStations()) {
+                if (!context.getFilter().test(cs)) {
+                    continue;
+                }
+                VscConverterStationXml.INSTANCE.write(cs, vl, context);
+            }
+        }
+        if (vl.getLccConverterStationCount() > 0) {
+            for (LccConverterStation cs : vl.getLccConverterStations()) {
+                if (!context.getFilter().test(cs)) {
+                    continue;
+                }
+                LccConverterStationXml.INSTANCE.write(cs, vl, context);
+            }
+        }
     }
 
     @Override
@@ -206,6 +222,14 @@ class VoltageLevelXml extends IdentifiableXml<VoltageLevel, VoltageLevelAdder, S
 
                 case StaticVarCompensatorXml.ROOT_ELEMENT_NAME:
                     StaticVarCompensatorXml.INSTANCE.read(vl, context);
+                    break;
+
+                case VscConverterStationXml.ROOT_ELEMENT_NAME:
+                    VscConverterStationXml.INSTANCE.read(vl, context);
+                    break;
+
+                case LccConverterStationXml.ROOT_ELEMENT_NAME:
+                    LccConverterStationXml.INSTANCE.read(vl, context);
                     break;
 
                 default:

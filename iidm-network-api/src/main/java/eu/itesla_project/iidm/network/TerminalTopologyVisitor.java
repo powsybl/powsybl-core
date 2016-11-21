@@ -82,4 +82,8 @@ public abstract class TerminalTopologyVisitor extends AbstractTopologyVisitor {
     public void visitStaticVarCompensator(StaticVarCompensator staticVarCompensator) {
         visitInjection(staticVarCompensator);
     }
+
+    @Override
+    public void visitHvdcConverterStation(HvdcConverterStation<?> converterStation) {
+    }
 }

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="ISO-8859-1" standalone="no"?>
+<iidm:network xmlns:iidm="http://www.itesla_project.eu/schema/iidm/1_0" id="ReactiveLimits" sourceFormat="???" caseDate="2016-01-01T10:00:00.000+02:00" forecastDistance="0">
+    <iidm:substation id="S" country="FR" tso="RTE">
+        <iidm:voltageLevel id="VL" nominalV="380.0"  topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="B"/>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="G1" energySource="OTHER" maxP="10.0" minP="0.0" targetV="380.0" voltageRegulatorOn="true" targetP="10.0" bus="B" connectableBus="B">
+                <iidm:reactiveCapabilityCurve>
+                    <iidm:point p="5.0" minQ="1.0" maxQ="10.0"/>
+                    <iidm:point p="10.0" minQ="-10.0" maxQ="1.0"/>
+                </iidm:reactiveCapabilityCurve>
+            </iidm:generator>
+            <iidm:generator id="G2" energySource="OTHER" maxP="10.0" minP="0.0" targetV="380.0" voltageRegulatorOn="true" targetP="10.0" bus="B" connectableBus="B">
+                <iidm:minMaxReactiveLimits minQ="1.0" maxQ="10.0" />
+            </iidm:generator>
+        </iidm:voltageLevel>
+    </iidm:substation>
+</iidm:network>

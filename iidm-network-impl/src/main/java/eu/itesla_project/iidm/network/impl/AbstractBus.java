@@ -61,12 +61,13 @@ abstract class AbstractBus extends IdentifiableImpl<Bus> {
                     break;
                 case GENERATOR:
                 case LOAD:
+                case HVDC_CONVERTER_STATION:
                     if (!Float.isNaN(terminal.getP())) {
                         p += terminal.getP();
                     }
                     break;
                 default:
-                    throw new InternalError();
+                    throw new AssertionError();
             }
         }
         return p;
@@ -91,12 +92,13 @@ abstract class AbstractBus extends IdentifiableImpl<Bus> {
                 case LOAD:
                 case SHUNT_COMPENSATOR:
                 case STATIC_VAR_COMPENSATOR:
+                case HVDC_CONVERTER_STATION:
                     if (!Float.isNaN(terminal.getQ())) {
                         q += terminal.getQ();
                     }
                     break;
                 default:
-                    throw new InternalError();
+                    throw new AssertionError();
             }
         }
         return q;
@@ -210,6 +212,10 @@ abstract class AbstractBus extends IdentifiableImpl<Bus> {
 
                 case STATIC_VAR_COMPENSATOR:
                     visitor.visitStaticVarCompensator((StaticVarCompensator) connectable);
+                    break;
+
+                case HVDC_CONVERTER_STATION:
+                    visitor.visitHvdcConverterStation((HvdcConverterStation<?>) connectable);
                     break;
 
                 default:

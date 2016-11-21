@@ -52,31 +52,7 @@ class GeneratorXml extends ConnectableXml<Generator, GeneratorAdder, VoltageLeve
                                   g.getTerminal().getBusBreakerView().getConnectableBus())) {
             writeTerminalRef(g.getRegulatingTerminal(), context, "regulatingTerminal");
         }
-        switch (g.getReactiveLimits().getKind()) {
-            case CURVE: {
-                ReactiveCapabilityCurve curve = g.getReactiveLimits(ReactiveCapabilityCurve.class);
-                context.getWriter().writeStartElement(IIDM_URI, "reactiveCapabilityCurve");
-                for (ReactiveCapabilityCurve.Point point : curve.getPoints()) {
-                    context.getWriter().writeEmptyElement(IIDM_URI, "point");
-                    XmlUtil.writeFloat("p", point.getP(), context.getWriter());
-                    XmlUtil.writeFloat("minQ", point.getMinQ(), context.getWriter());
-                    XmlUtil.writeFloat("maxQ", point.getMaxQ(), context.getWriter());
-                }
-                context.getWriter().writeEndElement();
-            }
-            break;
-
-            case MIN_MAX: {
-                MinMaxReactiveLimits limits = g.getReactiveLimits(MinMaxReactiveLimits.class);
-                context.getWriter().writeEmptyElement(IIDM_URI, "minMaxReactiveLimits");
-                XmlUtil.writeFloat("minQ", limits.getMinQ(), context.getWriter());
-                XmlUtil.writeFloat("maxQ", limits.getMaxQ(), context.getWriter());
-            }
-            break;
-
-            default:
-                throw new AssertionError();
-        }
+        ReactiveLimitsXml.INSTANCE.write(g, context);
     }
 
     @Override
@@ -119,29 +95,8 @@ class GeneratorXml extends ConnectableXml<Generator, GeneratorAdder, VoltageLeve
                     break;
 
                 case "reactiveCapabilityCurve":
-                    ReactiveCapabilityCurveAdder curveAdder = g.newReactiveCapabilityCurve();
-                    XmlUtil.readUntilEndElement("reactiveCapabilityCurve", context.getReader(), () -> {
-                        if (context.getReader().getLocalName().equals("point")) {
-                            float p = XmlUtil.readFloatAttribute(context.getReader(), "p");
-                            float minQ = XmlUtil.readFloatAttribute(context.getReader(), "minQ");
-                            float maxQ = XmlUtil.readFloatAttribute(context.getReader(), "maxQ");
-                            curveAdder.beginPoint()
-                                    .setP(p)
-                                    .setMinQ(minQ)
-                                    .setMaxQ(maxQ)
-                                    .endPoint();
-                        }
-                    });
-                    curveAdder.add();
-                    break;
-
                 case "minMaxReactiveLimits":
-                    float min = XmlUtil.readFloatAttribute(context.getReader(), "minQ");
-                    float max = XmlUtil.readFloatAttribute(context.getReader(), "maxQ");
-                    g.newMinMaxReactiveLimits()
-                            .setMinQ(min)
-                            .setMaxQ(max)
-                            .add();
+                    ReactiveLimitsXml.INSTANCE.read(g, context);
                     break;
 
                 default:
