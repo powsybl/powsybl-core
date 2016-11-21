@@ -707,6 +707,42 @@ public interface VoltageLevel extends Container<VoltageLevel> {
     int getStaticVarCompensatorCount();
 
     /**
+     * Get a builder to create a new VSC converter station connected to this voltage level.
+     * @return a builder to create a new VSC converter
+     */
+    VscConverterStationAdder newVscConverterStation();
+
+    /**
+     * Get all VSC converter stations connected to this voltage level.
+     * @return all VSC converter stations connected to this voltage level
+     */
+    Iterable<VscConverterStation> getVscConverterStations();
+
+    /**
+     * Get VSC converter stations count connected to this voltage level.
+     * @return VSC converter stations count connected to this voltage level
+     */
+    int getVscConverterStationCount();
+
+    /**
+     * Get a builder to create a new LCC converter station connected to this voltage level.
+     * @return a builder to create a new LCC converter
+     */
+    LccConverterStationAdder newLccConverterStation();
+
+    /**
+     * Get all LCC converter stations connected to this voltage level.
+     * @return all LCC converter stations connected to this voltage level
+     */
+    Iterable<LccConverterStation> getLccConverterStations();
+
+    /**
+     * Get LCC converter stations count connected to this voltage level.
+     * @return LCC converter stations count connected to this voltage level
+     */
+    int getLccConverterStationCount();
+
+    /**
      * Visit equipments of the voltage level.
      * @param visitor
      */

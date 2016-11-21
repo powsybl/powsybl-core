@@ -175,12 +175,7 @@ class NetworkImpl extends IdentifiableImpl<Network> implements Network, MultiSta
 
     @Override
     public Set<Country> getCountries() {
-        return FluentIterable.from(getSubstations()).transform(new Function<Substation, Country>() {
-            @Override
-            public Country apply(Substation s) {
-                return s.getCountry();
-            }
-        }).toSet();
+        return FluentIterable.from(getSubstations()).transform(s -> s.getCountry()).toSet();
     }
 
     @Override
@@ -195,7 +190,7 @@ class NetworkImpl extends IdentifiableImpl<Network> implements Network, MultiSta
 
     @Override
     public Iterable<Substation> getSubstations() {
-        return Collections.<Substation>unmodifiableCollection(objectStore.getAll(SubstationImpl.class));
+        return Collections.unmodifiableCollection(objectStore.getAll(SubstationImpl.class));
     }
 
     @Override
@@ -237,7 +232,7 @@ class NetworkImpl extends IdentifiableImpl<Network> implements Network, MultiSta
 
     @Override
     public Iterable<Line> getLines() {
-        return Iterables.<Line>concat(objectStore.getAll(LineImpl.class), objectStore.getAll(TieLineImpl.class));
+        return Iterables.concat(objectStore.getAll(LineImpl.class), objectStore.getAll(TieLineImpl.class));
     }
 
     @Override
@@ -261,7 +256,7 @@ class NetworkImpl extends IdentifiableImpl<Network> implements Network, MultiSta
 
     @Override
     public Iterable<TwoWindingsTransformer> getTwoWindingsTransformers() {
-        return Collections.<TwoWindingsTransformer>unmodifiableCollection(objectStore.getAll(TwoWindingsTransformerImpl.class));
+        return Collections.unmodifiableCollection(objectStore.getAll(TwoWindingsTransformerImpl.class));
     }
 
     @Override
@@ -276,7 +271,7 @@ class NetworkImpl extends IdentifiableImpl<Network> implements Network, MultiSta
 
     @Override
     public Iterable<ThreeWindingsTransformer> getThreeWindingsTransformers() {
-        return Collections.<ThreeWindingsTransformer>unmodifiableCollection(objectStore.getAll(ThreeWindingsTransformerImpl.class));
+        return Collections.unmodifiableCollection(objectStore.getAll(ThreeWindingsTransformerImpl.class));
     }
 
     @Override
@@ -291,7 +286,7 @@ class NetworkImpl extends IdentifiableImpl<Network> implements Network, MultiSta
 
     @Override
     public Iterable<Generator> getGenerators() {
-        return Collections.<Generator>unmodifiableCollection(objectStore.getAll(GeneratorImpl.class));
+        return Collections.unmodifiableCollection(objectStore.getAll(GeneratorImpl.class));
     }
 
     @Override
@@ -306,7 +301,7 @@ class NetworkImpl extends IdentifiableImpl<Network> implements Network, MultiSta
 
     @Override
     public Iterable<Load> getLoads() {
-        return Collections.<Load>unmodifiableCollection(objectStore.getAll(LoadImpl.class));
+        return Collections.unmodifiableCollection(objectStore.getAll(LoadImpl.class));
     }
 
     @Override
@@ -321,7 +316,7 @@ class NetworkImpl extends IdentifiableImpl<Network> implements Network, MultiSta
 
     @Override
     public Iterable<ShuntCompensator> getShunts() {
-        return Collections.<ShuntCompensator>unmodifiableCollection(objectStore.getAll(ShuntCompensatorImpl.class));
+        return Collections.unmodifiableCollection(objectStore.getAll(ShuntCompensatorImpl.class));
     }
 
     @Override
@@ -336,7 +331,7 @@ class NetworkImpl extends IdentifiableImpl<Network> implements Network, MultiSta
 
     @Override
     public Iterable<DanglingLine> getDanglingLines() {
-        return Collections.<DanglingLine>unmodifiableCollection(objectStore.getAll(DanglingLineImpl.class));
+        return Collections.unmodifiableCollection(objectStore.getAll(DanglingLineImpl.class));
     }
 
     @Override
@@ -367,6 +362,45 @@ class NetworkImpl extends IdentifiableImpl<Network> implements Network, MultiSta
     @Override
     public Switch getSwitch(String id) {
         return objectStore.get(id, SwitchImpl.class);
+    }
+
+    @Override
+    public HvdcConverterStationImpl<?> getHvdcConverterStation(String id) {
+        HvdcConverterStationImpl<?> converterStation = objectStore.get(id, LccConverterStationImpl.class);
+        if (converterStation == null) {
+            converterStation = objectStore.get(id, VscConverterStationImpl.class);
+        }
+        return converterStation;
+    }
+
+    @Override
+    public int getHvdcConverterStationCount() {
+        return objectStore.getAll(LccConverterStationImpl.class).size() + objectStore.getAll(VscConverterStationImpl.class).size();
+    }
+
+    @Override
+    public Iterable<HvdcConverterStation<?>> getHvdcConverterStations() {
+        return Iterables.concat(objectStore.getAll(LccConverterStationImpl.class), objectStore.getAll(VscConverterStationImpl.class));
+    }
+
+    @Override
+    public HvdcLine getHvdcLine(String id) {
+        return objectStore.get(id, HvdcLineImpl.class);
+    }
+
+    @Override
+    public int getHvdcLineCount() {
+        return objectStore.getAll(HvdcLineImpl.class).size();
+    }
+
+    @Override
+    public Iterable<HvdcLine> getHvdcLines() {
+        return Collections.unmodifiableCollection(objectStore.getAll(HvdcLineImpl.class));
+    }
+
+    @Override
+    public HvdcLineAdder newHvdcLine() {
+        return new HvdcLineAdderImpl(ref);
     }
 
     @Override

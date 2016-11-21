@@ -24,6 +24,7 @@
                  <xs:choice minOccurs="0" maxOccurs="unbounded">
                      <xs:element name="line" type="iidm:Line"/>
                      <xs:element name="tieLine" type="iidm:TieLine"/>
+                     <xs:element name="hvdcLine" type="iidm:HvdcLine"/>
                  </xs:choice>
                  <xs:element name="extension" minOccurs="0" maxOccurs="unbounded">
                      <xs:complexType>
@@ -50,11 +51,6 @@
     <xs:complexType name="Property">
         <xs:attribute name="name" use="required" type="iidm:nonEmptyString"/>
         <xs:attribute name="value" use="required" type="xs:string"/>
-    </xs:complexType>
-    <xs:complexType name="Country">
-        <xs:complexContent>
-            <xs:extension base="iidm:Identifiable"/>
-        </xs:complexContent>
     </xs:complexType>
     <xs:complexType name="Substation">
         <xs:complexContent>
@@ -92,6 +88,8 @@
                         <xs:element name="shunt" type="iidm:ShuntCompensator"/>
                         <xs:element name="danglingLine" type="iidm:DanglingLine"/>
                         <xs:element name="staticVarCompensator" type="iidm:StaticVarCompensator"/>
+                        <xs:element name="vscConverterStation" type="iidm:VscConverterStation"/>
+                        <xs:element name="lccConverterStation" type="iidm:LccConverterStation"/>
                     </xs:choice>
                 </xs:sequence>
                 <xs:attribute name="nominalV" use="required" type="xs:float"/>
@@ -324,7 +322,6 @@
                 <xs:attribute name="b" use="required" type="xs:float"/>
                 <xs:attribute name="ratedU1" use="required" type="xs:float"/>
                 <xs:attribute name="ratedU2" use="required" type="xs:float"/>
-
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -469,6 +466,57 @@
                 <xs:attribute name="b2_2" use="required" type="xs:float"/>
                 <xs:attribute name="xnodeP_2" use="required" type="xs:float"/>
                 <xs:attribute name="xnodeQ_2" use="required" type="xs:float"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:simpleType name="ConvertersMode">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="SIDE_1_RECTIFIER_SIDE_2_INVERTER"/>
+            <xs:enumeration value="SIDE_1_INVERTER_SIDE_2_RECTIFIER"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:complexType name="HvdcConverterStation">
+        <xs:complexContent>
+            <xs:extension base="iidm:Injection" />
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="VscConverterStation">
+        <xs:complexContent>
+            <xs:extension base="iidm:HvdcConverterStation">
+                <xs:choice>
+                    <xs:element name="reactiveCapabilityCurve" type="iidm:ReactiveCapabilityCurve"/>
+                    <xs:element name="minMaxReactiveLimits" type="iidm:MinMaxReactiveLimits"/>
+                </xs:choice>
+                <xs:attribute name="voltageRegulatorOn" use="required" type="xs:boolean"/>
+                <xs:attribute name="voltageSetPoint" use="optional" type="xs:float"/>
+                <xs:attribute name="reactivePowerSetPoint" use="optional" type="xs:float"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="LccFilter">
+        <xs:attribute name="b" use="required" type="xs:float"/>
+        <xs:attribute name="connected" use="required" type="xs:boolean"/>
+    </xs:complexType>
+    <xs:complexType name="LccConverterStation">
+        <xs:complexContent>
+            <xs:extension base="iidm:HvdcConverterStation">
+                <xs:sequence>
+                    <xs:element name="filter" type="iidm:LccFilter" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:sequence>
+                <xs:attribute name="powerFactor" use="required" type="xs:float"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="HvdcLine">
+        <xs:complexContent>
+            <xs:extension base="iidm:Identifiable">
+                <xs:attribute name="r" use="required" type="xs:float"/>
+                <xs:attribute name="nominalV" use="required" type="xs:float"/>
+                <xs:attribute name="activePowerSetPoint" use="required" type="xs:float"/>
+                <xs:attribute name="maxP" use="required" type="xs:float"/>
+                <xs:attribute name="convertersMode" use="required" type="iidm:ConvertersMode"/>
+                <xs:attribute name="converterStation1" use="required" type="iidm:nonEmptyString"/>
+                <xs:attribute name="converterStation2" use="required" type="iidm:nonEmptyString"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>

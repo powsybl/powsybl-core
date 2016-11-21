@@ -53,4 +53,9 @@ public abstract class EquipmentTopologyVisitor extends AbstractTopologyVisitor {
     public void visitStaticVarCompensator(StaticVarCompensator staticVarCompensator) {
         visitEquipment(staticVarCompensator);
     }
+
+    @Override
+    public void visitHvdcConverterStation(HvdcConverterStation<?> converterStation) {
+        visitEquipment(converterStation);
+    }
 }

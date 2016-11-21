@@ -14,14 +14,15 @@ import java.util.TreeMap;
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-class ReactiveCapabilityCurveAdderImpl implements ReactiveCapabilityCurveAdder {
+class ReactiveCapabilityCurveAdderImpl<OWNER extends ReactiveLimitsOwner & Validable> implements ReactiveCapabilityCurveAdder {
 
-    private final GeneratorImpl generator;
+    private final OWNER owner;
 
     private final TreeMap<Float, ReactiveCapabilityCurve.Point> points = new TreeMap<>();
 
-    class PointAdderImpl implements PointAdder {
+    private class PointAdderImpl implements PointAdder {
 
         private float p = Float.NaN;
 
@@ -50,16 +51,16 @@ class ReactiveCapabilityCurveAdderImpl implements ReactiveCapabilityCurveAdder {
         @Override
         public ReactiveCapabilityCurveAdder endPoint() {
             if (Float.isNaN(p)) {
-                throw new ValidationException(generator, "P is not set");
+                throw new ValidationException(owner, "P is not set");
             }
             if (Float.isNaN(minQ)) {
-                throw new ValidationException(generator, "min Q is not set");
+                throw new ValidationException(owner, "min Q is not set");
             }
             if (Float.isNaN(maxQ)) {
-                throw new ValidationException(generator, "max Q is not set");
+                throw new ValidationException(owner, "max Q is not set");
             }
             if (points.containsKey(p)) {
-                throw new ValidationException(generator,
+                throw new ValidationException(owner,
                         "a point already exists for active power " + p);
             }
             points.put(p, new PointImpl(p, minQ, maxQ));
@@ -68,8 +69,8 @@ class ReactiveCapabilityCurveAdderImpl implements ReactiveCapabilityCurveAdder {
 
     }
 
-    ReactiveCapabilityCurveAdderImpl(GeneratorImpl generator) {
-        this.generator = generator;
+    ReactiveCapabilityCurveAdderImpl(OWNER owner) {
+        this.owner = owner;
     }
 
     @Override
@@ -80,10 +81,10 @@ class ReactiveCapabilityCurveAdderImpl implements ReactiveCapabilityCurveAdder {
     @Override
     public ReactiveCapabilityCurve add() {
         if (points.size() < 2) {
-            throw new ValidationException(generator, "a reactive capability curve should have at least two points");
+            throw new ValidationException(owner, "a reactive capability curve should have at least two points");
         }
-        ReactiveCapabilityCurveImpl curve = new ReactiveCapabilityCurveImpl(generator, points);
-        generator.setReactiveLimits(curve);
+        ReactiveCapabilityCurveImpl curve = new ReactiveCapabilityCurveImpl(points);
+        owner.setReactiveLimits(curve);
         return curve;
     }
 

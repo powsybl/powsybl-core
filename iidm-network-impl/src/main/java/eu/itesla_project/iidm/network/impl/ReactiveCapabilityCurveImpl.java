@@ -12,16 +12,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.TreeMap;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(ReactiveCapabilityCurveImpl.class);
 
     static class PointImpl implements Point {
 
@@ -54,13 +50,10 @@ class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
 
     }
 
-    private final GeneratorImpl generator;
-
     private final TreeMap<Float, Point> points;
 
-    ReactiveCapabilityCurveImpl(GeneratorImpl generator, TreeMap<Float, Point> points) {
+    ReactiveCapabilityCurveImpl(TreeMap<Float, Point> points) {
         assert points.size() >= 2;
-        this.generator = generator;
         this.points = points;
     }
 
@@ -93,11 +86,6 @@ class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
     public float getMinQ(float p) {
         assert points.size() >= 2;
 
-//        if (p < generator.getMinP() || p > generator.getMaxP()) {
-//            LOGGER.warn("Generator {}: active power {} out of range [{}, {}]",
-//                    generator.getId(), p, generator.getMinP(), generator.getMaxP());
-//        }
-
         Point pt = points.get(p);
         if  (pt != null) {
             return pt.getMinQ();
@@ -113,7 +101,7 @@ class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
                 Point p2 = e2.getValue();
                 return p1.getMinQ() + (p2.getMinQ() - p1.getMinQ()) / (p2.getP() - p1.getP()) * (p - p1.getP());
             } else {
-                throw new InternalError();
+                throw new AssertionError();
             }
         }
     }
@@ -121,11 +109,6 @@ class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
     @Override
     public float getMaxQ(float p) {
         assert points.size() >= 2;
-
-//        if (p < generator.getMinP() || p > generator.getMaxP()) {
-//            LOGGER.warn("Generator {}: active power {} out of range [{}, {}]",
-//                    generator.getId(), p, generator.getMinP(), generator.getMaxP());
-//        }
 
         Point pt = points.get(p);
         if  (pt != null) {
@@ -142,7 +125,7 @@ class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
                 Point p2 = e2.getValue();
                 return p1.getMaxQ() + (p2.getMaxQ() - p1.getMaxQ()) / (p2.getP() - p1.getP()) * (p - p1.getP());
             } else {
-                throw new InternalError();
+                throw new AssertionError();
             }
         }
     }
