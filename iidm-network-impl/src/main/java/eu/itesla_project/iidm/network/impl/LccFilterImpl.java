@@ -34,7 +34,7 @@ class LccFilterImpl implements LccFilter, Stateful, Validable {
 
     @Override
     public String getMessageHeader() {
-        return converterStation.getMessageHeader() + "filter.";
+        return converterStation.getMessageHeader() + "filter ";
     }
 
     private NetworkImpl getNetwork() {

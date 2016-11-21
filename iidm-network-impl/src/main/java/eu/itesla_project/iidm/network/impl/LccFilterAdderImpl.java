@@ -28,7 +28,7 @@ class LccFilterAdderImpl implements LccFilterAdder, Validable {
 
     @Override
     public String getMessageHeader() {
-        return converterStation.getMessageHeader() + "filter.";
+        return converterStation.getMessageHeader() + "filter ";
     }
 
     @Override
