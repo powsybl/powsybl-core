@@ -51,11 +51,6 @@
         <xs:attribute name="name" use="required" type="iidm:nonEmptyString"/>
         <xs:attribute name="value" use="required" type="xs:string"/>
     </xs:complexType>
-    <xs:complexType name="Country">
-        <xs:complexContent>
-            <xs:extension base="iidm:Identifiable"/>
-        </xs:complexContent>
-    </xs:complexType>
     <xs:complexType name="Substation">
         <xs:complexContent>
             <xs:extension base="iidm:Identifiable">
