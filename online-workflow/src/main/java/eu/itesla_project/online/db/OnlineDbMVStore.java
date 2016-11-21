@@ -867,11 +867,7 @@ public class OnlineDbMVStore implements OnlineDb {
                 float constraintMargin = OnlineWorkflowParameters.DEFAULT_CONSTRAINT_MARGIN;
                 if (storedParametersMap.containsKey(STORED_PARAMETERS_CONSTRAINT_MARGIN_KEY))
                     constraintMargin = Float.parseFloat(storedParametersMap.get(STORED_PARAMETERS_CONSTRAINT_MARGIN_KEY));
-                String caseFile = null;
-                if (storedParametersMap.containsKey(STORED_PARAMETERS_CASE_FILE_KEY))
-                    caseFile = storedParametersMap.get(STORED_PARAMETERS_CASE_FILE_KEY);
-
-                return new OnlineWorkflowParameters(baseCaseDate,
+                OnlineWorkflowParameters onlineWfPars = new OnlineWorkflowParameters(baseCaseDate,
                         states,
                         histoInterval,
                         offlineWorkflowId,
@@ -887,9 +883,11 @@ public class OnlineDbMVStore implements OnlineDb {
                         mergeOptimized,
                         limitReduction,
                         handleViolations,
-                        constraintMargin,
-                        caseFile
-                );
+                        constraintMargin);
+                if (storedParametersMap.containsKey(STORED_PARAMETERS_CASE_FILE_KEY)) {
+                    onlineWfPars.setCaseFile(storedParametersMap.get(STORED_PARAMETERS_CASE_FILE_KEY));
+                }
+                return onlineWfPars;
             } else {
                 LOGGER.warn("No configuration parameters of wf {} stored in online db", workflowId);
                 return null;

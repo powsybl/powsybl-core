@@ -21,6 +21,7 @@ import eu.itesla_project.online.LocalOnlineApplicationMBean;
 import eu.itesla_project.online.OnlineWorkflowStartParameters;
 import eu.itesla_project.simulation.securityindexes.SecurityIndexType;
 import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.HelpFormatter;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
@@ -44,6 +45,14 @@ public class OnlineWorkflowTool implements Tool {
         return OnlineWorkflowCommand.INSTANCE;
     }
 
+    private void showHelp(String message) {
+        System.err.println(message);
+        System.err.println();
+        HelpFormatter formatter = new HelpFormatter();
+        // it would be nice to have access to the private method  eu.itesla_project.commons.tools.Main.printCommandUsage
+        formatter.printHelp(80, getCommand().getName(), "", getCommand().getOptions(), "\n" + Objects.toString(getCommand().getUsageFooter(), ""), true);
+    }
+
     @Override
     public void run(CommandLine line) throws Exception {
 
@@ -59,43 +68,57 @@ public class OnlineWorkflowTool implements Tool {
         if (threads != null)
             startconfig.setThreads(Integer.valueOf(threads));
 
-        OnlineWorkflowParameters params = OnlineWorkflowParameters.loadDefault();
-
-        if (line.hasOption(OnlineWorkflowCommand.CASE_TYPE))
-            params.setCaseType(CaseType.valueOf(line.getOptionValue(OnlineWorkflowCommand.CASE_TYPE)));
-
-        Set<Country> countries = null;
-        if (line.hasOption(OnlineWorkflowCommand.COUNTRIES)) {
-            countries = Arrays.stream(line.getOptionValue(OnlineWorkflowCommand.COUNTRIES).split(","))
-                    .map(Country::valueOf)
-                    .collect(Collectors.toSet());
-            params.setCountries(countries);
-        }
-
         Set<DateTime> baseCasesSet = null;
-        if (line.hasOption(OnlineWorkflowCommand.BASECASES_INTERVAL)) {
-            Interval basecasesInterval = Interval.parse(line.getOptionValue(OnlineWorkflowCommand.BASECASES_INTERVAL));
-            OnlineConfig oConfig = OnlineConfig.load();
-            CaseRepository caseRepo = oConfig.getCaseRepositoryFactoryClass().newInstance().create(new LocalComputationManager());
-            baseCasesSet = caseRepo.dataAvailable(params.getCaseType(), params.getCountries(), basecasesInterval);
-            System.out.println("Base cases available for interval " + basecasesInterval.toString());
-            baseCasesSet.forEach(x -> {
-                System.out.println(" " + x);
-            });
-        }
 
-        if (baseCasesSet == null) {
-            baseCasesSet = new HashSet<DateTime>();
-            String base = line.getOptionValue(OnlineWorkflowCommand.BASE_CASE);
-            if (base != null) {
-                baseCasesSet.add(DateTime.parse(base));
-            } else {
-                baseCasesSet.add(params.getBaseCaseDate());
+        OnlineWorkflowParameters params = OnlineWorkflowParameters.loadDefault();
+        boolean atLeastOneBaseCaseLineParam = line.hasOption(OnlineWorkflowCommand.CASE_TYPE) || line.hasOption(OnlineWorkflowCommand.COUNTRIES)
+                || line.hasOption(OnlineWorkflowCommand.BASE_CASE) || line.hasOption(OnlineWorkflowCommand.BASECASES_INTERVAL);
+        boolean allNeededBaseCaseLineParams = line.hasOption(OnlineWorkflowCommand.CASE_TYPE) && line.hasOption(OnlineWorkflowCommand.COUNTRIES)
+                && (line.hasOption(OnlineWorkflowCommand.BASE_CASE) || line.hasOption(OnlineWorkflowCommand.BASECASES_INTERVAL));
+
+        if (line.hasOption(OnlineWorkflowCommand.CASE_FILE)) {
+            if (atLeastOneBaseCaseLineParam) {
+                showHelp("parameter " + OnlineWorkflowCommand.CASE_FILE + " cannot be used together with parameters: " + OnlineWorkflowCommand.CASE_TYPE + ", " + OnlineWorkflowCommand.COUNTRIES + ", " + OnlineWorkflowCommand.BASE_CASE + ", " + OnlineWorkflowCommand.BASECASES_INTERVAL);
+                return;
+            }
+            params.setCaseFile(line.getOptionValue(OnlineWorkflowCommand.CASE_FILE));
+        } else {
+            if (params.getCaseFile() != null) {
+                if (atLeastOneBaseCaseLineParam) {
+                    if (!allNeededBaseCaseLineParams) {
+                        showHelp("to override default parameter " + OnlineWorkflowCommand.CASE_FILE + ", all these parameters must be specified: " + OnlineWorkflowCommand.CASE_TYPE + ", " + OnlineWorkflowCommand.COUNTRIES + ", " + OnlineWorkflowCommand.BASE_CASE + " or " + OnlineWorkflowCommand.BASECASES_INTERVAL);
+                        return;
+                    }
+                    params.setCaseFile(null);
+                }
+            }
+            if (line.hasOption(OnlineWorkflowCommand.CASE_TYPE))
+                params.setCaseType(CaseType.valueOf(line.getOptionValue(OnlineWorkflowCommand.CASE_TYPE)));
+            if (line.hasOption(OnlineWorkflowCommand.COUNTRIES)) {
+                params.setCountries(Arrays.stream(line.getOptionValue(OnlineWorkflowCommand.COUNTRIES).split(","))
+                        .map(Country::valueOf)
+                        .collect(Collectors.toSet()));
+            }
+            if (line.hasOption(OnlineWorkflowCommand.BASECASES_INTERVAL)) {
+                Interval basecasesInterval = Interval.parse(line.getOptionValue(OnlineWorkflowCommand.BASECASES_INTERVAL));
+                OnlineConfig oConfig = OnlineConfig.load();
+                CaseRepository caseRepo = oConfig.getCaseRepositoryFactoryClass().newInstance().create(new LocalComputationManager());
+                baseCasesSet = caseRepo.dataAvailable(params.getCaseType(), params.getCountries(), basecasesInterval);
+                System.out.println("Base cases available for interval " + basecasesInterval.toString());
+                baseCasesSet.forEach(x -> {
+                    System.out.println(" " + x);
+                });
+            }
+            if (baseCasesSet == null) {
+                baseCasesSet = new HashSet<>();
+                String base = line.getOptionValue(OnlineWorkflowCommand.BASE_CASE);
+                if (base != null) {
+                    baseCasesSet.add(DateTime.parse(base));
+                } else {
+                    baseCasesSet.add(params.getBaseCaseDate());
+                }
             }
         }
-
-        if (line.hasOption(OnlineWorkflowCommand.CASE_FILE))
-            params.setCaseFile(line.getOptionValue(OnlineWorkflowCommand.CASE_FILE));
 
         String histo = line.getOptionValue(OnlineWorkflowCommand.HISTODB_INTERVAL);
         if (histo != null)
@@ -182,6 +205,8 @@ public class OnlineWorkflowTool implements Tool {
             }
         } else if (line.hasOption(OnlineWorkflowCommand.SHUTDOWN_CMD)) {
             application.shutdown();
+        } else {
+            showHelp("");
         }
 
     }

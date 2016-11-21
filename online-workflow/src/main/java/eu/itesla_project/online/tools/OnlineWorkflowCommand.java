@@ -197,7 +197,7 @@ public class OnlineWorkflowCommand implements Command {
                 .build());
 
         opts.addOption(Option.builder().longOpt(CASE_FILE)
-                .desc("case file - Note:  override (base-case, case-type, countries) parameters")
+                .desc("case file: Note: parameter " + CASE_FILE + "cannot be used together with parameters " + BASE_CASE + ", " + CASE_TYPE + ", " + COUNTRIES + ", " + BASECASES_INTERVAL)
                 .hasArg()
                 .argName(CASE_FILE)
                 .build());
@@ -207,7 +207,6 @@ public class OnlineWorkflowCommand implements Command {
 
     @Override
     public String getUsageFooter() {
-
         return null;
     }
 
