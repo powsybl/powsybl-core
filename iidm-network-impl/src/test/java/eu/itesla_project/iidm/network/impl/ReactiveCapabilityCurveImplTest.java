@@ -6,10 +6,8 @@
  */
 package eu.itesla_project.iidm.network.impl;
 
-import eu.itesla_project.iidm.network.EnergySource;
 import eu.itesla_project.iidm.network.ReactiveCapabilityCurve.Point;
 import eu.itesla_project.iidm.network.impl.ReactiveCapabilityCurveImpl.PointImpl;
-import eu.itesla_project.iidm.network.impl.util.RefObj;
 import java.util.TreeMap;
 import org.junit.Assert;
 import org.junit.Test;
@@ -20,30 +18,12 @@ import org.junit.Test;
  */
 public class ReactiveCapabilityCurveImplTest {
 
-    public ReactiveCapabilityCurveImplTest() {
-    }
-
     private ReactiveCapabilityCurveImpl createCurve(Point... points) {
-        ObjectStore os = new ObjectStore();
-        final StateManagerImpl sm = new StateManagerImpl(os);
-        MultiStateObject mso = new MultiStateObject() {
-            
-            @Override
-            public StateManagerImpl getStateManager() {
-                return sm;
-            }
-
-            @Override
-            public int getStateIndex() {
-                return sm.getStateContext().getStateIndex();
-            }
-        };
-        GeneratorImpl g = new GeneratorImpl(new RefObj<>(mso), "test", null, EnergySource.OTHER, 100, 200, true, null, Float.NaN, Float.NaN, Float.NaN, Float.NaN);
         TreeMap<Float, Point> map = new TreeMap<>();
         for (Point pt : points) {
             map.put(pt.getP(), pt);
         }
-        return new ReactiveCapabilityCurveImpl(g, map);
+        return new ReactiveCapabilityCurveImpl(map);
     }
 
     @Test

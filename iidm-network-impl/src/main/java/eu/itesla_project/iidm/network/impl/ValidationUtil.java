@@ -17,10 +17,15 @@ public class ValidationUtil {
     private ValidationUtil() {
     }
 
+    @Deprecated
     static void checkTargetP(Validable validable, float targetP) {
-        if (Float.isNaN(targetP)) {
-            throw new ValidationException(validable, "invalid value (" + targetP
-                    + ") for target P");
+        checkActivePowerSetPoint(validable, targetP);
+    }
+
+    static void checkActivePowerSetPoint(Validable validable, float activePowerSetPoint) {
+        if (Float.isNaN(activePowerSetPoint)) {
+            throw new ValidationException(validable, "invalid value (" + activePowerSetPoint
+                    + ") for active power set point");
         }
     }
 
@@ -31,19 +36,19 @@ public class ValidationUtil {
         }
     }
 
-    static void checkVoltageControl(Validable validable, Boolean voltageRegulatorOn, float targetV, float targetQ) {
+    static void checkVoltageControl(Validable validable, Boolean voltageRegulatorOn, float voltageSetPoint, float reactivePowerSetPoint) {
         if (voltageRegulatorOn == null) {
             throw new ValidationException(validable, "voltage regulator status is not set");
         }
         if (voltageRegulatorOn) {
-            if (Float.isNaN(targetV) || targetV <= 0) {
+            if (Float.isNaN(voltageSetPoint) || voltageSetPoint <= 0) {
                 throw new ValidationException(validable,
-                        "invalid value (" + targetV + ") for target V (voltage regulator is on)");
+                        "invalid value (" + voltageSetPoint + ") for voltage set point (voltage regulator is on)");
             }
         } else {
-            if (Float.isNaN(targetQ)) {
-                throw new ValidationException(validable, "invalid value (" + targetQ
-                        + ") for target Q (voltage regulator is off)");
+            if (Float.isNaN(reactivePowerSetPoint)) {
+                throw new ValidationException(validable, "invalid value (" + reactivePowerSetPoint
+                        + ") for reactive power set point (voltage regulator is off)");
             }
         }
     }
@@ -286,7 +291,7 @@ public class ValidationUtil {
                     throw new ValidationException(validable,
                             "a regulation terminal has to be set for a regulating ratio tap changer");
                 }
-                if (regulationTerminal != null && regulationTerminal.getVoltageLevel().getSubstation().getNetwork() != network) {
+                if (regulationTerminal.getVoltageLevel().getSubstation().getNetwork() != network) {
                     throw new ValidationException(validable, "regulation terminal is not part of the network");
                 }
             }
@@ -310,6 +315,24 @@ public class ValidationUtil {
         }
         if (regulationMode == PhaseTapChanger.RegulationMode.FIXED_TAP && regulating) {
             throw new ValidationException(validable, "phase regulation cannot be on if mode is FIXED");
+        }
+    }
+
+    static void checkConvertersMode(Validable validable, HvdcLine.ConvertersMode converterMode) {
+        if (converterMode == null) {
+            throw new ValidationException(validable, "converter mode is invalid");
+        }
+    }
+
+    static void checkPowerFactor(Validable validable, float powerFactor) {
+        if (Float.isNaN(powerFactor)) {
+            throw new ValidationException(validable, "power factor is invalid");
+        }
+    }
+
+    static void checkConnected(Validable validable, Boolean connected) {
+        if (connected == null) {
+            throw new ValidationException(validable, "connection status is invalid");
         }
     }
 }

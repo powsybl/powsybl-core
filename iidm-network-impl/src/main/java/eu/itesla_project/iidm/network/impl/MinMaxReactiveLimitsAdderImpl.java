@@ -10,19 +10,19 @@ import eu.itesla_project.iidm.network.MinMaxReactiveLimits;
 import eu.itesla_project.iidm.network.MinMaxReactiveLimitsAdder;
 
 /**
- *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-class MinMaxReactiveLimitsAdderImpl implements MinMaxReactiveLimitsAdder {
+class MinMaxReactiveLimitsAdderImpl<OWNER extends ReactiveLimitsOwner & Validable> implements MinMaxReactiveLimitsAdder {
 
-    private final GeneratorImpl generator;
+    private final OWNER owner;
 
     private float minQ = Float.NaN;
 
     private float maxQ = Float.NaN;
 
-    MinMaxReactiveLimitsAdderImpl(GeneratorImpl generator) {
-        this.generator = generator;
+    MinMaxReactiveLimitsAdderImpl(OWNER owner) {
+        this.owner = owner;
     }
 
     @Override
@@ -40,16 +40,16 @@ class MinMaxReactiveLimitsAdderImpl implements MinMaxReactiveLimitsAdder {
     @Override
     public MinMaxReactiveLimits add() {
         if (Float.isNaN(minQ)) {
-            throw new ValidationException(generator, "minimum reactive power is not set");
+            throw new ValidationException(owner, "minimum reactive power is not set");
         }
         if (Float.isNaN(maxQ)) {
-            throw new ValidationException(generator, "maximum reactive power is not set");
+            throw new ValidationException(owner, "maximum reactive power is not set");
         }
         if (maxQ < minQ) {
-            throw new ValidationException(generator, "maximum reactive power is expected to be greater than or equal to minimum reactive power");
+            throw new ValidationException(owner, "maximum reactive power is expected to be greater than or equal to minimum reactive power");
         }
         MinMaxReactiveLimitsImpl limits = new MinMaxReactiveLimitsImpl(minQ, maxQ);
-        generator.setReactiveLimits(limits);
+        owner.setReactiveLimits(limits);
         return limits;
     }
 
