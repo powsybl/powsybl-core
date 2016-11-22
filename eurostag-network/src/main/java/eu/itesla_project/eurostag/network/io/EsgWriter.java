@@ -228,7 +228,7 @@ public class EsgWriter {
         }
     }
 
-    private static char toChar(EsgLoad.ConnectionStatus status) {
+    private static char toChar(EsgConnectionStatus status) {
         switch (status) {
             case CONNECTED: return 'Y';
             case NOT_CONNECTED: return 'N';
@@ -252,15 +252,7 @@ public class EsgWriter {
         recordWriter.newLine();
     }
 
-    private static char toChar(EsgGenerator.ConnectionStatus status) {
-        switch (status) {
-            case CONNECTED: return 'Y';
-            case NOT_CONNECTED: return 'N';
-            default: throw new InternalError();
-        }
-    }
-
-    private static char toChar(EsgGenerator.RegulatingMode mode) {
+    private static char toChar(EsgRegulatingMode mode) {
         switch (mode) {
             case REGULATING: return 'V';
             case NOT_REGULATING: return 'N';
@@ -310,6 +302,24 @@ public class EsgWriter {
         recordWriter.addValue(0.f, 85, 92);       //...Free numeric attribute 1
         recordWriter.addValue(0.f, 94, 101);      //...Free numeric attribute 2
         recordWriter.addValue(" ", 103, 110);      //...Free alphanumeric attribute
+        recordWriter.newLine();
+    }
+
+    private static void writeStaticVarCompensator(EsgStaticVarCompensator svc, RecordWriter recordWriter) throws IOException {
+        recordWriter.addValue("SV", 1, 2);
+        recordWriter.addValue(svc.getZnamsvc().toString(), 4, 11);
+        recordWriter.addValue(toChar(svc.getXsvcst()), 13, 13);
+        recordWriter.addValue(svc.getZnodsvc().toString(), 15, 22);
+        recordWriter.addValue(svc.getBmin(), 24, 31);
+        recordWriter.addValue(svc.getBinit(), 33, 40);
+        recordWriter.addValue(svc.getBmax(), 42, 49);
+        recordWriter.addValue(toChar(svc.getXregsvc()), 78, 78);
+        recordWriter.addValue(svc.getVregsvc(), 80, 87);
+        recordWriter.addValue(svc.getQsvcsh(), 98, 105);
+
+        recordWriter.addValue(0.f, 107, 114); //...Free numeric attribute 1
+        recordWriter.addValue(0.f, 116, 123); //...Free numeric attribute 2
+        recordWriter.addValue(" ", 125, 132); //...Free alphanumeric attribute
         recordWriter.newLine();
     }
 
@@ -386,6 +396,13 @@ public class EsgWriter {
         if (network.getCapacitorOrReactorBanks().size() > 0) {
             for (EsgCapacitorOrReactorBank bank : network.getCapacitorOrReactorBanks()) {
                 writeCapacitorOrReactorBank(bank, recordWriter);
+            }
+            recordWriter.newLine();
+        }
+
+        if (network.getStaticVarCompensators().size() > 0) {
+            for (EsgStaticVarCompensator svc : network.getStaticVarCompensators()) {
+                writeStaticVarCompensator(svc, recordWriter);
             }
             recordWriter.newLine();
         }

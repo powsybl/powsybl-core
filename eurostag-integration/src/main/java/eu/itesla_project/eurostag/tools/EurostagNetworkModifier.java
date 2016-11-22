@@ -7,22 +7,13 @@
 package eu.itesla_project.eurostag.tools;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
 
+import eu.itesla_project.eurostag.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import eu.itesla_project.eurostag.EurostagStabilization;
-import eu.itesla_project.eurostag.network.Esg8charName;
-import eu.itesla_project.eurostag.network.EsgBranchConnectionStatus;
-import eu.itesla_project.eurostag.network.EsgBranchName;
-import eu.itesla_project.eurostag.network.EsgDetailedTwoWindingTransformer;
-import eu.itesla_project.eurostag.network.EsgLoad;
-import eu.itesla_project.eurostag.network.EsgNetwork;
-import eu.itesla_project.eurostag.network.EsgNode;
 import eu.itesla_project.eurostag.network.EsgDetailedTwoWindingTransformer.RegulatingMode;
-import eu.itesla_project.eurostag.network.EsgLoad.ConnectionStatus;
 import eu.itesla_project.iidm.ddb.eurostag_imp_exp.DdExportConfig;
 
 /**
@@ -41,10 +32,8 @@ public class EurostagNetworkModifier {
     // Adds tap-changer transformers before hv loads
     public void hvLoadModelling(EsgNetwork networkEch) {
         if (configExport.getLVLoadModeling()) {
-            Collection<EsgLoad> loads = networkEch.getLoads();
-            ArrayList<String> concernedLoads = new ArrayList<String>();
-            for (Iterator<EsgLoad> it = loads.iterator(); it.hasNext(); ) {
-                EsgLoad load = it.next();
+            ArrayList<String> concernedLoads = new ArrayList<>();
+            for (EsgLoad load : networkEch.getLoads()) {
                 Esg8charName nodeName = load.getZnodlo();
                 Esg8charName loadName = load.getZnamlo();
                 if (nodeName == null || "".equals(nodeName.toString())) {
@@ -64,7 +53,7 @@ public class EurostagNetworkModifier {
                 float Qi = esgLoad.getQldstp();
 
                 // Tfo parameters
-                float rate = Math.max(1.0F, new Float(1.5 * Math.sqrt(new Float(Pi * Pi + Qi * Qi).doubleValue())).floatValue());
+                float rate = (float) Math.max(1.0F, 1.5 * Math.sqrt(new Float(Pi * Pi + Qi * Qi).doubleValue()));
                 float vBase = 20.0F;
                 float ucc = 1.0F;
                 float vB = 1.14F;
@@ -80,7 +69,7 @@ public class EurostagNetworkModifier {
                 // Choose the right initial tap because the load flow doesn't do it
                 EsgNode esgNode = networkEch.getNode(nodeName.toString());
                 float vCurHV = esgNode.getVinit();
-                int ktap8 = (int) Math.round(firstPlot + (lastPlot - firstPlot) / (vB - vT) * (vCurHV - vT));
+                int ktap8 = Math.round(firstPlot + (lastPlot - firstPlot) / (vB - vT) * (vCurHV - vT));
                 ktap8 = Math.max(firstPlot, ktap8);
                 ktap8 = Math.min(lastPlot, ktap8);
                 int ktpnom = 8;
@@ -104,7 +93,7 @@ public class EurostagNetworkModifier {
                 networkEch.addDetailedTwoWindingTransformer(newTranfo);
 
                 networkEch.removeLoad(load);
-                networkEch.addLoad(new EsgLoad(ConnectionStatus.CONNECTED, loadName, lvNodeName, esgLoad.getPldsti(),
+                networkEch.addLoad(new EsgLoad(EsgConnectionStatus.CONNECTED, loadName, lvNodeName, esgLoad.getPldsti(),
                         esgLoad.getPldstz(), Pf, esgLoad.getQldsti(), esgLoad.getQldstz(), Qf));
             }
         }
