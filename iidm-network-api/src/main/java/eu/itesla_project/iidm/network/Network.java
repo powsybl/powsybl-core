@@ -321,6 +321,50 @@ public interface Network extends Container<Network> {
     Switch getSwitch(String id);
 
     /**
+     * Get all HVDC converter stations.
+     * @return all HVDC converter stations
+     */
+    Iterable<HvdcConverterStation<?>> getHvdcConverterStations();
+
+    /**
+     * Get HVDC converter stations count.
+     * @return HVDC converter station count
+     */
+    int getHvdcConverterStationCount();
+
+    /**
+     * Get an HVDC converter station.
+     * @param id the id of the HVDC converter station
+     * @return the HVDC converter station or null if not found
+     */
+    HvdcConverterStation<?> getHvdcConverterStation(String id);
+
+    /**
+     * Get all HVDC lines.
+     * @return all HVDC lines
+     */
+    Iterable<HvdcLine> getHvdcLines();
+
+    /**
+     * Get HVDC lines count.
+     * @return HVDC lines count
+     */
+    int getHvdcLineCount();
+
+    /**
+     * Get an HVDC line.
+     * @param id the id of the HVDC line
+     * @return the HVDC line or null if not found
+     */
+    HvdcLine getHvdcLine(String id);
+
+    /**
+     * Get a builder to create a new HVDC line.
+     * @return a builder to create a new HVDC line
+     */
+    HvdcLineAdder newHvdcLine();
+
+    /**
      * Get a equipment.
      *
      * @param id the id of the equipment

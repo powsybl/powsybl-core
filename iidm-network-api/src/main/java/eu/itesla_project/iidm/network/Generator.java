@@ -16,7 +16,7 @@ package eu.itesla_project.iidm.network;
  * @see MinMaxReactiveLimits
  * @see ReactiveCapabilityCurve
  */
-public interface Generator extends SingleTerminalConnectable<Generator> {
+public interface Generator extends SingleTerminalConnectable<Generator>, ReactiveLimitsHolder {
 
     /**
      * Get the energy source.
@@ -124,24 +124,4 @@ public interface Generator extends SingleTerminalConnectable<Generator> {
     float getRatedS();
 
     Generator setRatedS(float ratedS);
-
-    /**
-     * Get reactive limits of the generator.
-     */
-    ReactiveLimits getReactiveLimits();
-
-    <RL extends ReactiveLimits> RL getReactiveLimits(Class<RL> type);
-
-    /**
-     * Get a builder to create and associate a new reactive capability curve
-     * to this generator.
-     */
-    ReactiveCapabilityCurveAdder newReactiveCapabilityCurve();
-
-    /**
-     * Get a builder to create and associate minimum and maximum reactive limits
-     * to this generator.
-     */
-    MinMaxReactiveLimitsAdder newMinMaxReactiveLimits();
-
 }

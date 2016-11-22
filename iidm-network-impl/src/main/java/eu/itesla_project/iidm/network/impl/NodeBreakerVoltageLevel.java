@@ -472,6 +472,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                         case SHUNT_COMPENSATOR:
                         case DANGLING_LINE:
                         case STATIC_VAR_COMPENSATOR:
+                        case HVDC_CONVERTER_STATION:
                             feederCount++;
                             break;
 
@@ -480,7 +481,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                             break;
 
                         default:
-                            throw new InternalError();
+                            throw new AssertionError();
                     }
                 }
             }
