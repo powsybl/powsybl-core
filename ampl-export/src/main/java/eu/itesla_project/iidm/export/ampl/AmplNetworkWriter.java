@@ -1198,6 +1198,23 @@ public class AmplNetworkWriter implements AmplConstants {
         }
     }
 
+    private void writeStaticVarCompensators(AmplExportContext context) throws IOException {
+        try (TableFormatter formatter = new AmplDatTableFormatter(
+                new OutputStreamWriter(dataSource.newOutputStream("_network_static_var_compensatiors", "txt", append), StandardCharsets.UTF_8),
+                getTableTitle("Static VAR compensators"),
+                INVALID_FLOAT_VALUE,
+                !append,
+                LOCALE)) {
+            List<String> skipped = new ArrayList<>();
+            for (StaticVarCompensator svc : network.getStaticVarCompensators()) {
+                throw new UnsupportedOperationException(); // FIXME
+            }
+            if (skipped.size() > 0) {
+                LOGGER.trace("Skip static VAR compensators {} because not connected and not connectable", skipped);
+            }
+        }
+    }
+
     private void writeGenerators(AmplExportContext context) throws IOException {
         try (TableFormatter formatter = new AmplDatTableFormatter(
                 new OutputStreamWriter(dataSource.newOutputStream("_network_generators", "txt", append), StandardCharsets.UTF_8),
@@ -1361,6 +1378,7 @@ public class AmplNetworkWriter implements AmplConstants {
         writeGenerators(context);
         writeLoads(context);
         writeShunts(context);
+        writeStaticVarCompensators(context);
         writeSubstations(context);
     }
 

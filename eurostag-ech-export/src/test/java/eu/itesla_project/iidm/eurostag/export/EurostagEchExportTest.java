@@ -10,6 +10,7 @@ import com.google.common.io.CharStreams;
 import eu.itesla_project.eurostag.network.EsgGeneralParameters;
 import eu.itesla_project.iidm.network.Network;
 import eu.itesla_project.iidm.network.test.EurostagTutorialExample1Factory;
+import eu.itesla_project.iidm.network.test.SvcTestCaseFactory;
 import org.joda.time.LocalDate;
 import org.junit.Test;
 
@@ -25,14 +26,24 @@ import static org.junit.Assert.assertEquals;
  */
 public class EurostagEchExportTest {
 
+    private void test(Network network, String reference, LocalDate editDate) throws IOException {
+        StringWriter writer = new StringWriter();
+        EsgGeneralParameters parameters = new EsgGeneralParameters();
+        parameters.setEditDate(editDate);
+        new EurostagEchExport(network).write(writer, parameters);
+        writer.close();
+        assertEquals(CharStreams.toString(new InputStreamReader(getClass().getResourceAsStream(reference), StandardCharsets.UTF_8)), writer.toString());
+    }
+
     @Test
     public void test() throws IOException {
         Network network = EurostagTutorialExample1Factory.create();
-        StringWriter writer = new StringWriter();
-        EsgGeneralParameters parameters = new EsgGeneralParameters();
-        parameters.setEditDate(LocalDate.parse("2016-03-01"));
-        new EurostagEchExport(network).write(writer, parameters);
-        writer.close();
-        assertEquals(CharStreams.toString(new InputStreamReader(getClass().getResourceAsStream("/eurostag-tutorial-example1.ech"), StandardCharsets.UTF_8)), writer.toString());
+        test(network, "/eurostag-tutorial-example1.ech", LocalDate.parse("2016-03-01"));
+    }
+
+    @Test
+    public void testSVC() throws IOException {
+        Network network = SvcTestCaseFactory.create();
+        test(network, "/eurostag-svc-test.ech", LocalDate.parse("2016-01-01"));
     }
 }

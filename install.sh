@@ -11,7 +11,7 @@ sourceDir=$(dirname $(readlink -f $0))
 ## install default settings
 ###############################################################################
 ipst_prefix=$HOME/itesla
-ipst_package_version=` mvn -f "$sourceDir/pom.xml" org.apache.maven.plugins:maven-help-plugin:evaluate -Dexpression=project.version | grep -v "\["`
+ipst_package_version=` mvn -f "$sourceDir/pom.xml" org.apache.maven.plugins:maven-help-plugin:evaluate -Dexpression=project.version | grep -v "Download" | grep -v "\["`
 ipst_package_name=ipst-$ipst_package_version
 ipst_package_type=zip
 
