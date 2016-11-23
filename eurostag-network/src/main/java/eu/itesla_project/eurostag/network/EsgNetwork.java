@@ -34,6 +34,7 @@ public class EsgNetwork {
     private final Map<String, EsgGenerator> generators = new LinkedHashMap<>();
     private final Map<String, EsgLoad> loads = new LinkedHashMap<>();
     private final Map<String, EsgCapacitorOrReactorBank> capacitorsOrReactorBanks = new LinkedHashMap<>();
+    private final Map<String, EsgStaticVarCompensator> staticVarCompensators = new LinkedHashMap<>();
 
     private void checkBranchName(EsgBranchName name) {
         if (getNode(name.getNode1Name().toString()) == null) {
@@ -101,13 +102,19 @@ public class EsgNetwork {
                         + bank.getZnodba() + "'");
             }
         }
+        for (EsgStaticVarCompensator svc : getStaticVarCompensators()) {
+            if (getNode(svc.getZnodsvc().toString()) == null) {
+                throw new RuntimeException("Static VAR compensator '" + svc.getZnamsvc() +"' reference an unknown connection node '"
+                        + svc.getZnodsvc() + "'");
+            }
+        }
 
         // Fix generator small reactive range issue
         List<String> minReactiveRangePb = new ArrayList<>();
         for (EsgGenerator g : getGenerators()) {
-            if (g.getXregge() == EsgGenerator.RegulatingMode.REGULATING && Math.abs(g.getQgmax() - g.getQgmin()) < MIN_REACTIVE_RANGE) {
+            if (g.getXregge() == EsgRegulatingMode.REGULATING && Math.abs(g.getQgmax() - g.getQgmin()) < MIN_REACTIVE_RANGE) {
                 minReactiveRangePb.add(g.getZnamge().toString());
-                g.setXregge(EsgGenerator.RegulatingMode.NOT_REGULATING);
+                g.setXregge(EsgRegulatingMode.NOT_REGULATING);
             }
         }
         if (minReactiveRangePb.size() > 0) {
@@ -119,7 +126,7 @@ public class EsgNetwork {
         // ERR-0194.0350:LE GEN CURBH6G0 ESSAIE D'IMPOSER UNE TENSION AU NOEUD BARNAP71 AUQUEL UN AUTRE EQUIPEMENT A DEJA IMPOSE UNE AUTRE TENSION
         Multimap<String, EsgGenerator> generatorsConnectedToSameNode = HashMultimap.create();
         for (EsgGenerator g : getGenerators()) {
-            if (g.getXregge() == EsgGenerator.RegulatingMode.REGULATING) {
+            if (g.getXregge() == EsgRegulatingMode.REGULATING) {
                 generatorsConnectedToSameNode.put(g.getZnodge().toString(), g);
             }
         }
@@ -131,7 +138,7 @@ public class EsgNetwork {
                     .collect(Collectors.toSet());
             if (targetVoltageSet.size() > 1) {
                 Collection<EsgGenerator> connectedGenerators = generators.stream()
-                        .filter(g -> g.getXgenest() == EsgGenerator.ConnectionStatus.CONNECTED)
+                        .filter(g -> g.getXgenest() == EsgConnectionStatus.CONNECTED)
                         .collect(Collectors.toList());
                 targetVoltageSet = connectedGenerators.stream()
                         .map(EsgGenerator::getVregge)
@@ -139,7 +146,7 @@ public class EsgNetwork {
                 if (targetVoltageSet.size() > 0) {
                     if (targetVoltageSet.size() == 1) {
                         Collection<EsgGenerator> diconnectedGenerators = generators.stream()
-                                .filter(g -> g.getXgenest() == EsgGenerator.ConnectionStatus.NOT_CONNECTED)
+                                .filter(g -> g.getXgenest() == EsgConnectionStatus.NOT_CONNECTED)
                                 .collect(Collectors.toList());
                         LOGGER.warn("Fix target voltage of disconnected generators {} to be consistent with target voltage ({} Kv) of other generators connected to the same node ({})",
                                 diconnectedGenerators.stream().map(EsgGenerator::getZnamge).collect(Collectors.toList()),
@@ -379,5 +386,16 @@ public class EsgNetwork {
             throw new IllegalArgumentException("Capacitor or reactor bank '" + bank + "' doesn't exists");
         }
         capacitorsOrReactorBanks.remove(bank);
+    }
+
+    public Collection<EsgStaticVarCompensator> getStaticVarCompensators() {
+        return staticVarCompensators.values();
+    }
+
+    public void addStaticVarCompensator(EsgStaticVarCompensator svc) {
+        if (staticVarCompensators.containsKey(svc.getZnamsvc().toString())) {
+            throw new IllegalArgumentException("Static VAR compensator '" + svc + "' already exists");
+        }
+        staticVarCompensators.put(svc.getZnamsvc().toString(), svc);
     }
 }

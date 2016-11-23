@@ -19,11 +19,12 @@ public interface EurostagNamingStrategy {
         NODE(8),
         GENERATOR(8),
         LOAD(8),
-        BANK(8);
+        BANK(8),
+        SVC(8);
 
         int length;
 
-        private NameType(int length) {
+        NameType(int length) {
             this.length = length;
         }
 
