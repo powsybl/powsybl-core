@@ -13,18 +13,8 @@ import java.util.Objects;
  */
 public class EsgGenerator {
 
-    public enum ConnectionStatus {
-        CONNECTED,
-        NOT_CONNECTED
-    }
-
-    public enum RegulatingMode {
-        NOT_REGULATING,
-        REGULATING
-    }
-
     private final Esg8charName znamge; // generator name
-    private final ConnectionStatus xgenest; // status
+    private final EsgConnectionStatus xgenest; // status
                                             // ‘Y‘ 	: connected
                                             // ‘N’ 	: not connected
     private final Esg8charName znodge; // connection node name
@@ -34,12 +24,12 @@ public class EsgGenerator {
     private final float qgmin; // minimum reactive power [Mvar]
     private final float qgen; // reactive power [Mvar]
     private final float qgmax; // maximum reactive power [Mvar]
-    private RegulatingMode xregge; // regulating mode
+    private EsgRegulatingMode xregge; // regulating mode
     private float vregge; // voltage target
     private final Esg8charName zregnoge; // regulated node (= ZNODGE if blank)
     private final float qgensh; // Reactive sharing coefficient [%]
 
-    public EsgGenerator(Esg8charName znamge, Esg8charName znodge, float pgmin, float pgen, float pgmax, float qgmin, float qgen, float qgmax, RegulatingMode xregge, float vregge, Esg8charName zregnoge, float qgensh, ConnectionStatus xgenest) {
+    public EsgGenerator(Esg8charName znamge, Esg8charName znodge, float pgmin, float pgen, float pgmax, float qgmin, float qgen, float qgmax, EsgRegulatingMode xregge, float vregge, Esg8charName zregnoge, float qgensh, EsgConnectionStatus xgenest) {
         this.znamge = Objects.requireNonNull(znamge);
         this.znodge = Objects.requireNonNull(znodge);
         this.pgmin = pgmin;
@@ -91,15 +81,15 @@ public class EsgGenerator {
         this.vregge = vregge;
     }
 
-    public ConnectionStatus getXgenest() {
+    public EsgConnectionStatus getXgenest() {
         return xgenest;
     }
 
-    public RegulatingMode getXregge() {
+    public EsgRegulatingMode getXregge() {
         return xregge;
     }
 
-    public void setXregge(RegulatingMode xregge) {
+    public void setXregge(EsgRegulatingMode xregge) {
         this.xregge = xregge;
     }
 
