@@ -38,7 +38,7 @@
             <artifactId>dymola_interface</artifactId>
             <version>2016</version>
             <scope>system</scope>
-            <systemPath>${env.DYMOLAHOME}/Modelica/Library/java_interface/dymola_interface.jar</systemPath>
+            <systemPath>${env.DYMOLA_HOME}/Modelica/Library/java_interface/dymola_interface.jar</systemPath>
         </dependency>
         <!-- explicit dependency, jar from Dymola installation  -->
         <dependency>
@@ -46,7 +46,7 @@
             <artifactId>json-simple</artifactId>
             <version>1.1.1</version>
             <scope>system</scope>
-            <systemPath>${env.DYMOLAHOME}/Modelica/Library/java_interface/json-simple-1.1.1.jar</systemPath>
+            <systemPath>${env.DYMOLA_HOME}/Modelica/Library/java_interface/json-simple-1.1.1.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
