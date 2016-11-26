@@ -7,10 +7,10 @@
 package eu.itesla_project.eurostag;
 
 import com.google.common.base.Strings;
-import eu.itesla_project.iidm.eurostag.export.EurostagDictionary;
-import eu.itesla_project.iidm.network.*;
 import eu.itesla_project.contingency.Contingency;
 import eu.itesla_project.contingency.ContingencyElement;
+import eu.itesla_project.iidm.eurostag.export.EurostagDictionary;
+import eu.itesla_project.iidm.network.*;
 import eu.itesla_project.simulation.SimulationParameters;
 import org.jboss.shrinkwrap.api.Domain;
 import org.jboss.shrinkwrap.api.GenericArchive;
@@ -136,8 +136,7 @@ public class EurostagScenario {
         writer.newLine();
         for (ContingencyElement element : contingency.getElements()) {
             switch (element.getType()) {
-                case LINE:
-                {
+                case LINE: {
                     Line l = network.getLine(element.getId());
                     if (l == null) {
                         throw new RuntimeException("Line '" + element.getId() + "' not found");
@@ -194,8 +193,7 @@ public class EurostagScenario {
                 }
                 break;
 
-                case GENERATOR:
-                {
+                case GENERATOR: {
                     Generator g = network.getGenerator(element.getId());
                     if (g == null) {
                         throw new RuntimeException("Generator '" + element.getId() + "' not found");
@@ -252,6 +250,9 @@ public class EurostagScenario {
     }
 
     public GenericArchive writeFaultSeqArchive(Domain domain, List<Contingency> contingencies, Network network, EurostagDictionary dictionary, Function<Integer, String> seqFileNameFct) throws IOException {
+        if ((contingencies == null) || (contingencies.isEmpty())) {
+            throw new RuntimeException("contingencies list is empty, cannot write .seq scenario files");
+        }
         GenericArchive archive = domain.getArchiveFactory().create(GenericArchive.class);
         try (FileSystem fileSystem = ShrinkWrapFileSystems.newFileSystem(archive)) {
             Path rootDir = fileSystem.getPath("/");
