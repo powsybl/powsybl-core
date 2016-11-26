@@ -69,18 +69,18 @@ public class EurostagEchExport {
 
     private void createAreas(EsgNetwork esgNetwork) {
         esgNetwork.addArea(new EsgArea(new Esg2charName(EchUtil.FAKE_AREA), EsgArea.Type.AC));
-        for (Country c : network.getCountries() ) {
+        for (Country c : network.getCountries()) {
             esgNetwork.addArea(new EsgArea(new Esg2charName(c.toString()), EsgArea.Type.AC));
         }
     }
 
     private EsgNode createNode(String busId, String countryIsoCode, float nominalV, float v, float angle, boolean slackBus) {
         return new EsgNode(new Esg2charName(countryIsoCode),
-                           new Esg8charName(dictionary.getEsgId(busId)),
-                           nominalV,
-                           Float.isNaN(v) ? 1f : v / nominalV,
-                           Float.isNaN(angle) ? 0f : angle,
-                           slackBus);
+                new Esg8charName(dictionary.getEsgId(busId)),
+                nominalV,
+                Float.isNaN(v) ? 1f : v / nominalV,
+                Float.isNaN(angle) ? 0f : angle,
+                slackBus);
     }
 
     private EsgNode createNode(String busId, VoltageLevel vl, float v, float angle, boolean slackBus) {
@@ -115,7 +115,7 @@ public class EurostagEchExport {
             return EsgBranchConnectionStatus.CLOSED_AT_BOTH_SIDE;
         } else {
             return bus1.isConnected() ? EsgBranchConnectionStatus.OPEN_AT_RECEIVING_SIDE
-                                      : EsgBranchConnectionStatus.OPEN_AT_SENDING_SIDE;
+                    : EsgBranchConnectionStatus.OPEN_AT_SENDING_SIDE;
         }
     }
 
@@ -125,9 +125,9 @@ public class EurostagEchExport {
                 Bus bus1 = EchUtil.getBus1(vl, sw.getId(), config);
                 Bus bus2 = EchUtil.getBus2(vl, sw.getId(), config);
                 esgNetwork.addCouplingDevice(new EsgCouplingDevice(new EsgBranchName(new Esg8charName(dictionary.getEsgId(bus1.getId())),
-                                                                                     new Esg8charName(dictionary.getEsgId(bus2.getId())),
-                                                                                     parallelIndexes.getParallelIndex(sw.getId()))
-                                                                   , sw.isOpen() ? EsgCouplingDevice.ConnectionStatus.OPEN : EsgCouplingDevice.ConnectionStatus.CLOSED));
+                        new Esg8charName(dictionary.getEsgId(bus2.getId())),
+                        parallelIndexes.getParallelIndex(sw.getId()))
+                        , sw.isOpen() ? EsgCouplingDevice.ConnectionStatus.OPEN : EsgCouplingDevice.ConnectionStatus.CLOSED));
             }
         }
     }
@@ -142,9 +142,9 @@ public class EurostagEchExport {
         float gs = g / parameters.getSnref() * vnom2;
         float bs = b / parameters.getSnref() * vnom2;
         return new EsgLine(new EsgBranchName(new Esg8charName(dictionary.getEsgId(bus1.getId())),
-                                             new Esg8charName(dictionary.getEsgId(bus2.getId())),
-                                             parallelIndexes.getParallelIndex(id)),
-                           status, rb, rxb, gs, bs, rate);
+                new Esg8charName(dictionary.getEsgId(bus2.getId())),
+                parallelIndexes.getParallelIndex(id)),
+                status, rb, rxb, gs, bs, rate);
     }
 
     private EsgDissymmetricalBranch createDissymmetricalBranch(String id, ConnectionBus bus1, ConnectionBus bus2,
@@ -160,9 +160,9 @@ public class EurostagEchExport {
         float gs2 = (g2 / parameters.getSnref()) * vnom2;
         float bs2 = (b2 / parameters.getSnref()) * vnom2;
         return new EsgDissymmetricalBranch(new EsgBranchName(new Esg8charName(bus1.getId()),
-                                                             new Esg8charName(bus2.getId()),
-                                                             parallelIndexes.getParallelIndex(id)),
-                                           status, rb / 2, rxb / 2, gs1, bs1, rate, rb / 2, rxb / 2, gs2, bs2);
+                new Esg8charName(bus2.getId()),
+                parallelIndexes.getParallelIndex(id)),
+                status, rb / 2, rxb / 2, gs1, bs1, rate, rb / 2, rxb / 2, gs2, bs2);
     }
 
     private void createLines(EsgNetwork esgNetwork, EsgGeneralParameters parameters) {
@@ -170,15 +170,14 @@ public class EurostagEchExport {
             ConnectionBus bus1 = ConnectionBus.fromTerminal(l.getTerminal1(), config, EchUtil.FAKE_NODE_NAME1);
             ConnectionBus bus2 = ConnectionBus.fromTerminal(l.getTerminal2(), config, EchUtil.FAKE_NODE_NAME2);
             // if the admittance are the same in the both side of PI line model
-            if (Math.abs(l.getG1() - l.getG2()) < G_EPSILON  && Math.abs(l.getB1() - l.getB2()) < B_EPSILON) {
+            if (Math.abs(l.getG1() - l.getG2()) < G_EPSILON && Math.abs(l.getB1() - l.getB2()) < B_EPSILON) {
                 //...create a simple line
                 esgNetwork.addLine(createLine(l.getId(), bus1, bus2, l.getTerminal1().getVoltageLevel().getNominalV(),
-                                              l.getR(), l.getX(), l.getG1(), l.getB1(), parameters));
-            }
-            else {
+                        l.getR(), l.getX(), l.getG1(), l.getB1(), parameters));
+            } else {
                 // create a dissymmetrical branch
                 esgNetwork.addDissymmetricalBranch(createDissymmetricalBranch(l.getId(), bus1, bus2, l.getTerminal1().getVoltageLevel().getNominalV(),
-                                                                              l.getR(), l.getX(), l.getG1(), l.getB1(), l.getG2(), l.getB2(), parameters));
+                        l.getR(), l.getX(), l.getG1(), l.getB1(), l.getG2(), l.getB2(), parameters));
             }
         }
         for (DanglingLine dl : Identifiables.sort(network.getDanglingLines())) {
@@ -208,7 +207,7 @@ public class EurostagEchExport {
         if (xpu2 < 0) {
             ucc = xpu2 * 100f * rate / parameters.getSnref();
         } else {
-            float zpu2 =  (float) Math.hypot(rpu2, xpu2);
+            float zpu2 = (float) Math.hypot(rpu2, xpu2);
             ucc = zpu2 * 100f * rate / parameters.getSnref();
         }
 
@@ -237,9 +236,9 @@ public class EurostagEchExport {
 
             //...changing base snref -> base rate to compute losses
             float pcu = Rpu2 * rate * 100f / parameters.getSnref();                  //...base rate (100F -> %)
-            float pfer = 10000f * ( Gpu2 / rate) * (parameters.getSnref() / 100f) ;  //...base rate
-            float modgb =  (float) Math.sqrt(Math.pow(Gpu2,2.f) + Math.pow(Bpu2, 2.f) );
-            float cmagn = 10000 * ( modgb / rate) * (parameters.getSnref() / 100f);  //...magnetizing current [% base rate]
+            float pfer = 10000f * (Gpu2 / rate) * (parameters.getSnref() / 100f);  //...base rate
+            float modgb = (float) Math.sqrt(Math.pow(Gpu2, 2.f) + Math.pow(Bpu2, 2.f));
+            float cmagn = 10000 * (modgb / rate) * (parameters.getSnref() / 100f);  //...magnetizing current [% base rate]
             float esat = 1.f;
 
             //***************************
@@ -303,8 +302,8 @@ public class EurostagEchExport {
 
             EsgDetailedTwoWindingTransformer esgTransfo = new EsgDetailedTwoWindingTransformer(
                     new EsgBranchName(new Esg8charName(dictionary.getEsgId(bus1.getId())),
-                                      new Esg8charName(dictionary.getEsgId(bus2.getId())),
-                                      parallelIndexes.getParallelIndex(twt.getId())),
+                            new Esg8charName(dictionary.getEsgId(bus2.getId())),
+                            parallelIndexes.getParallelIndex(twt.getId())),
                     status,
                     cmagn,
                     rate,
@@ -334,10 +333,10 @@ public class EurostagEchExport {
     }
 
     private EsgLoad createLoad(ConnectionBus bus, String loadId, float p0, float q0) {
-        EsgLoad.ConnectionStatus status = bus.isConnected() ? EsgLoad.ConnectionStatus.CONNECTED : EsgLoad.ConnectionStatus.NOT_CONNECTED;
+        EsgConnectionStatus status = bus.isConnected() ? EsgConnectionStatus.CONNECTED : EsgConnectionStatus.NOT_CONNECTED;
         return new EsgLoad(status, new Esg8charName(dictionary.getEsgId(loadId)),
-                           new Esg8charName(dictionary.getEsgId(bus.getId())),
-                           0f, 0f, p0, 0f, 0f, q0);
+                new Esg8charName(dictionary.getEsgId(bus.getId())),
+                0f, 0f, p0, 0f, 0f, q0);
     }
 
     private void createLoads(EsgNetwork esgNetwork) {
@@ -347,32 +346,32 @@ public class EurostagEchExport {
         }
         for (DanglingLine dl : Identifiables.sort(network.getDanglingLines())) {
             ConnectionBus bus = new ConnectionBus(true, EchUtil.getBusId(dl));
-             esgNetwork.addLoad(createLoad(bus, EchUtil.getLoadId(dl), dl.getP0(), dl.getQ0()));
+            esgNetwork.addLoad(createLoad(bus, EchUtil.getLoadId(dl), dl.getP0(), dl.getQ0()));
         }
     }
 
     private void createGenerators(EsgNetwork esgNetwork) {
         for (Generator g : Identifiables.sort(network.getGenerators())) {
             ConnectionBus bus = ConnectionBus.fromTerminal(g.getTerminal(), config, EchUtil.FAKE_NODE_NAME1);
-            EsgGenerator.ConnectionStatus status = bus.isConnected() ? EsgGenerator.ConnectionStatus.CONNECTED : EsgGenerator.ConnectionStatus.NOT_CONNECTED;
-            float pgen   = g.getTargetP();
-            float qgen   = g.getTargetQ();
-            float pgmin  = g.getMinP();
-            float pgmax  = g.getMaxP();
+            EsgConnectionStatus status = bus.isConnected() ? EsgConnectionStatus.CONNECTED : EsgConnectionStatus.NOT_CONNECTED;
+            float pgen = g.getTargetP();
+            float qgen = g.getTargetQ();
+            float pgmin = g.getMinP();
+            float pgmax = g.getMaxP();
             float qgmin = config.isNoGeneratorMinMaxQ() ? -9999 : g.getReactiveLimits().getMinQ(pgen);
             float qgmax = config.isNoGeneratorMinMaxQ() ? 9999 : g.getReactiveLimits().getMaxQ(pgen);
-            EsgGenerator.RegulatingMode mode = g.isVoltageRegulatorOn() && g.getTargetV() >= 0.1
-                    ? EsgGenerator.RegulatingMode.REGULATING : EsgGenerator.RegulatingMode.NOT_REGULATING;
+            EsgRegulatingMode mode = g.isVoltageRegulatorOn() && g.getTargetV() >= 0.1
+                    ? EsgRegulatingMode.REGULATING : EsgRegulatingMode.NOT_REGULATING;
             float vregge = g.isVoltageRegulatorOn() ? g.getTargetV() : Float.NaN;
             float qgensh = 1.f;
 
             Bus regulatingBus = g.getRegulatingTerminal().getBusBreakerView().getConnectableBus();
 
             esgNetwork.addGenerator(new EsgGenerator(new Esg8charName(dictionary.getEsgId(g.getId())),
-                                                     new Esg8charName(dictionary.getEsgId(bus.getId())),
-                                                     pgmin, pgen, pgmax, qgmin, qgen, qgmax, mode, vregge,
-                                                     new Esg8charName(dictionary.getEsgId(regulatingBus.getId())),
-                                                     qgensh, status));
+                    new Esg8charName(dictionary.getEsgId(bus.getId())),
+                    pgmin, pgen, pgmax, qgmin, qgen, qgmax, mode, vregge,
+                    new Esg8charName(dictionary.getEsgId(regulatingBus.getId())),
+                    qgensh, status));
         }
     }
 
@@ -387,8 +386,26 @@ public class EurostagEchExport {
             int imaxba = sc.getMaximumSectionCount();
             EsgCapacitorOrReactorBank.RegulatingMode xregba = EsgCapacitorOrReactorBank.RegulatingMode.NOT_REGULATING;
             esgNetwork.addCapacitorsOrReactorBanks(new EsgCapacitorOrReactorBank(new Esg8charName(dictionary.getEsgId(sc.getId())),
-                                                                                 new Esg8charName(dictionary.getEsgId(bus.getId())),
-                                                                                 ieleba, plosba, rcapba, imaxba, xregba));
+                    new Esg8charName(dictionary.getEsgId(bus.getId())),
+                    ieleba, plosba, rcapba, imaxba, xregba));
+        }
+    }
+
+    private void createStaticVarCompensators(EsgNetwork esgNetwork) {
+        for (StaticVarCompensator svc : Identifiables.sort(network.getStaticVarCompensators())) {
+            ConnectionBus bus = ConnectionBus.fromTerminal(svc.getTerminal(), config, EchUtil.FAKE_NODE_NAME1);
+            Esg8charName znamsvc = new Esg8charName(dictionary.getEsgId(svc.getId()));
+            EsgConnectionStatus xsvcst = bus.isConnected() ? EsgConnectionStatus.CONNECTED : EsgConnectionStatus.NOT_CONNECTED;
+            Esg8charName znodsvc = new Esg8charName(dictionary.getEsgId(bus.getId()));
+            float factor = (float) Math.pow(svc.getTerminal().getVoltageLevel().getNominalV() / 100.0, 2);
+            float bmin = svc.getBmin() * factor;
+            float binit = svc.getReactivePowerSetPoint();
+            float bmax = svc.getBmax() * factor;
+            EsgRegulatingMode xregsvc = (svc.getRegulationMode() == StaticVarCompensator.RegulationMode.VOLTAGE) ? EsgRegulatingMode.REGULATING : EsgRegulatingMode.NOT_REGULATING;
+            float vregsvc = svc.getVoltageSetPoint();
+            float qsvsch = 1.0f;
+            esgNetwork.addStaticVarCompensator(
+                    new EsgStaticVarCompensator(znamsvc, xsvcst, znodsvc, bmin, binit, bmax, xregsvc, vregsvc, qsvsch));
         }
     }
 
@@ -419,6 +436,9 @@ public class EurostagEchExport {
 
         // shunts
         createBanks(esgNetwork);
+
+        // static VAR compensators
+        createStaticVarCompensators(esgNetwork);
 
         return esgNetwork;
     }

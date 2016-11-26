@@ -80,7 +80,7 @@ public class RecordWriter {
 
     public void addValue( char aKey, int aColStart, int aColEnd) throws IOException
     {
-        this.addValue(Character.toString(aKey), aColStart, aColStart, Justification.Left);
+        this.addValue(Character.toString(aKey), aColStart, aColEnd, Justification.Left);
     }
 
     public void addValue( String aKey, int aColStart) throws IOException

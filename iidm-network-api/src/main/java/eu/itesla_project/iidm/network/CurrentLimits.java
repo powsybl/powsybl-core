@@ -9,8 +9,25 @@ package eu.itesla_project.iidm.network;
 import java.util.Collection;
 
 /**
- * Current limits.
+ * Current limits are defined by:
+ * <ul>
+ *     <li>A permanent limit (A)</li>
+ *     <li>
+ * Any number of temporary limits.
+ * A permanent limit (A) has an acceptable duration (s).
+ * The branch can safely stay between the previous limit (could be another temporary limit or the permanent limit) and
+ * this limit during the acceptable duration.
+ * A NaN temporay limit value means infinite.
+ *     </li>
+ * </ul>
  *
+ *<p>
+ * The following diagram shows current areas and corresponding acceptable duration for a permanent limit and 3 temporary
+ * limits with x, y and z acceptable durations.
+ * <div>
+ *    <object data="doc-files/currentLimits.svg" type="image/svg+xml"></object>
+ * </div>
+ *</p>
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public interface CurrentLimits {

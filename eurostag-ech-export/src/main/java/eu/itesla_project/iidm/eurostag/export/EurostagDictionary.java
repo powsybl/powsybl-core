@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -40,31 +41,22 @@ public class EurostagDictionary {
         dictionary.addIfNotExist(EchUtil.FAKE_NODE_NAME1, EchUtil.FAKE_NODE_NAME1);
         dictionary.addIfNotExist(EchUtil.FAKE_NODE_NAME2, EchUtil.FAKE_NODE_NAME2);
 
-        Set<String> busIds = new LinkedHashSet<>();
-        Set<String> generatorIds = new LinkedHashSet<>();
+        Set<String> busIds = Identifiables.sort(EchUtil.getBuses(network, config)).stream().map(Bus::getId).collect(Collectors.toSet());
         Set<String> loadIds = new LinkedHashSet<>();
-        Set<String> shuntIds = new LinkedHashSet<>();
-        for (Bus b : Identifiables.sort(EchUtil.getBuses(network, config))) {
-            busIds.add(b.getId());
-        }
-        for (DanglingLine dl : Identifiables.sort(network.getDanglingLines())) {
+        Identifiables.sort(network.getDanglingLines()).forEach(dl -> {
             busIds.add(EchUtil.getBusId(dl));
             loadIds.add(EchUtil.getLoadId(dl));
-        }
-        for (Load l : Identifiables.sort(network.getLoads())) {
-            loadIds.add(l.getId());
-        }
-        for (Generator g : Identifiables.sort(network.getGenerators())) {
-            generatorIds.add(g.getId());
-        }
-        for (ShuntCompensator sc : Identifiables.sort(network.getShunts())) {
-            shuntIds.add(sc.getId());
-        }
+        });
+        Identifiables.sort(network.getLoads()).forEach(l -> loadIds.add(l.getId()));
+        Set<String> generatorIds = Identifiables.sort(network.getGenerators()).stream().map(Generator::getId).collect(Collectors.toSet());
+        Set<String> shuntIds = Identifiables.sort(network.getShunts()).stream().map(ShuntCompensator::getId).collect(Collectors.toSet());
+        Set<String> svcIds = Identifiables.sort(network.getStaticVarCompensators()).stream().map(StaticVarCompensator::getId).collect(Collectors.toSet());
 
         NAMING_STRATEGY.fillDictionary(dictionary, EurostagNamingStrategy.NameType.NODE, busIds);
         NAMING_STRATEGY.fillDictionary(dictionary, EurostagNamingStrategy.NameType.GENERATOR, generatorIds);
         NAMING_STRATEGY.fillDictionary(dictionary, EurostagNamingStrategy.NameType.LOAD, loadIds);
         NAMING_STRATEGY.fillDictionary(dictionary, EurostagNamingStrategy.NameType.BANK, shuntIds);
+        NAMING_STRATEGY.fillDictionary(dictionary, EurostagNamingStrategy.NameType.SVC, svcIds);
 
         for (DanglingLine dl : Identifiables.sort(network.getDanglingLines())) {
             ConnectionBus bus1 = ConnectionBus.fromTerminal(dl.getTerminal(), config, EchUtil.FAKE_NODE_NAME1);

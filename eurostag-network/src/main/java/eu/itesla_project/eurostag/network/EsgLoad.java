@@ -13,13 +13,8 @@ import java.util.Objects;
  */
 public class EsgLoad {
 
-    public enum ConnectionStatus {
-        CONNECTED,
-        NOT_CONNECTED
-    }
-
     private final Esg8charName znamlo; // load name
-    private final ConnectionStatus iloadst; // Status
+    private final EsgConnectionStatus iloadst; // Status
                                                         //    ‘ ‘	: connected
                                                         //    ‘-’	: not connected
     private final Esg8charName znodlo; // connection node name
@@ -30,7 +25,7 @@ public class EsgLoad {
     private final float qldstz; // reactive load [Mvar]
     private final float qldstp; // reactive load [Mvar]
 
-    public EsgLoad(ConnectionStatus iloadst, Esg8charName znamlo, Esg8charName znodlo, float pldsti, float pldstz, float pldstp, float qldsti, float qldstz, float qldstp) {
+    public EsgLoad(EsgConnectionStatus iloadst, Esg8charName znamlo, Esg8charName znodlo, float pldsti, float pldstz, float pldstp, float qldsti, float qldstz, float qldstp) {
         this.iloadst = Objects.requireNonNull(iloadst);
         this.znamlo = Objects.requireNonNull(znamlo);
         this.znodlo = Objects.requireNonNull(znodlo);
@@ -42,7 +37,7 @@ public class EsgLoad {
         this.qldstp = qldstp;
     }
 
-    public ConnectionStatus getIloadst() {
+    public EsgConnectionStatus getIloadst() {
         return iloadst;
     }
 
