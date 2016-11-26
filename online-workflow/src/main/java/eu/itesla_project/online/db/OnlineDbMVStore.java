@@ -7,29 +7,25 @@
  */
 package eu.itesla_project.online.db;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.io.StringWriter;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Properties;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-
+import com.csvreader.CsvWriter;
+import eu.itesla_project.cases.CaseType;
+import eu.itesla_project.iidm.datasource.DataSource;
+import eu.itesla_project.iidm.datasource.FileDataSource;
+import eu.itesla_project.iidm.export.Exporters;
+import eu.itesla_project.iidm.import_.Importer;
+import eu.itesla_project.iidm.import_.Importers;
+import eu.itesla_project.iidm.network.Country;
+import eu.itesla_project.iidm.network.Network;
+import eu.itesla_project.modules.contingencies.ActionParameters;
+import eu.itesla_project.modules.histo.HistoDbAttributeId;
+import eu.itesla_project.modules.histo.IIDM2DB;
+import eu.itesla_project.modules.online.*;
+import eu.itesla_project.modules.optimizer.CCOFinalStatus;
+import eu.itesla_project.online.db.debug.NetworkData;
+import eu.itesla_project.online.db.debug.NetworkDataExporter;
+import eu.itesla_project.online.db.debug.NetworkDataExtractor;
+import eu.itesla_project.security.LimitViolation;
+import eu.itesla_project.simulation.securityindexes.SecurityIndexType;
 import org.apache.commons.io.FileUtils;
 import org.h2.mvstore.MVMap;
 import org.h2.mvstore.MVMapConcurrent;
@@ -43,38 +39,15 @@ import org.slf4j.LoggerFactory;
 import org.supercsv.io.CsvListWriter;
 import org.supercsv.prefs.CsvPreference;
 
-import com.csvreader.CsvWriter;
-
-import eu.itesla_project.cases.CaseType;
-import eu.itesla_project.iidm.datasource.DataSource;
-import eu.itesla_project.iidm.datasource.FileDataSource;
-import eu.itesla_project.iidm.export.Exporters;
-import eu.itesla_project.iidm.import_.Importer;
-import eu.itesla_project.iidm.import_.Importers;
-import eu.itesla_project.iidm.network.Country;
-import eu.itesla_project.iidm.network.Network;
-import eu.itesla_project.modules.contingencies.ActionParameters;
-import eu.itesla_project.modules.histo.HistoDbAttributeId;
-import eu.itesla_project.modules.histo.IIDM2DB;
-import eu.itesla_project.modules.online.OnlineDb;
-import eu.itesla_project.modules.online.OnlineStep;
-import eu.itesla_project.modules.online.OnlineWorkflowDetails;
-import eu.itesla_project.modules.online.OnlineWorkflowParameters;
-import eu.itesla_project.modules.online.OnlineWorkflowResults;
-import eu.itesla_project.modules.online.OnlineWorkflowRulesResults;
-import eu.itesla_project.modules.online.OnlineWorkflowWcaResults;
-import eu.itesla_project.modules.online.StateProcessingStatus;
-import eu.itesla_project.modules.online.StateStatus;
-import eu.itesla_project.modules.online.TimeHorizon;
-import eu.itesla_project.modules.optimizer.CCOFinalStatus;
-import eu.itesla_project.security.LimitViolation;
-import eu.itesla_project.simulation.securityindexes.SecurityIndexType;
-import eu.itesla_project.online.db.debug.NetworkData;
-import eu.itesla_project.online.db.debug.NetworkDataExporter;
-import eu.itesla_project.online.db.debug.NetworkDataExtractor;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
- *
  * @author Quinary <itesla@quinary.com>
  */
 public class OnlineDbMVStore implements OnlineDb {
@@ -122,6 +95,7 @@ public class OnlineDbMVStore implements OnlineDb {
     private static final String STORED_PARAMETERS_LIMIT_REDUCTION_KEY = "limit_reduction";
     private static final String STORED_PARAMETERS_HANDLE_VIOLATIONS_KEY = "handle_violations";
     private static final String STORED_PARAMETERS_CONSTRAINT_MARGIN_KEY = "constraint_margin";
+    private static final String STORED_PARAMETERS_CASE_FILE_KEY = "case_file";
     private static final String STORED_STATES_PROCESSING_STATUS_MAP_NAME = "statesProcessingStatus";
     private static final String STORED_STATES_LIST_KEY = "states";
     private static final String STORED_STATES_STATE_DETAILS_KEY = "stateStatusDetails";
@@ -139,7 +113,8 @@ public class OnlineDbMVStore implements OnlineDb {
     private static final String STORED_PC_VIOLATIONS_CONTINGENCIES_MAP_SUFFIX = "_pcviolationscontigencies";
     private static final String STORED_PC_VIOLATIONS_MAP_PREFIX = "pcviolations_";
     private static final String STORED_PC_LOADFLOW_CONTINGENCIES_MAP_NAME = "storedPCLoadflowContingencies";
-    private static final String STORED_PC_LOADFLOW_STATES_MAP_SUFFIX = "_pcloadflowstates";;
+    private static final String STORED_PC_LOADFLOW_STATES_MAP_SUFFIX = "_pcloadflowstates";
+    ;
     private static final String STORED_PC_LOADFLOW_STATES_MAP_NAME = "storedPCLoadflowStates";
     private static final String STORED_PC_LOADFLOW_CONTINGENCIES_MAP_SUFFIX = "_pcloadflowcontigencies";
     private static final String STORED_WCA_RULES_RESULTS_MAP_NAME = "wfWcaRulesResults";
@@ -148,7 +123,7 @@ public class OnlineDbMVStore implements OnlineDb {
     private static final String STORED_WCA_RULES_RESULTS_STATE_RULES_AVAILABLE_MAP_SUFFIX = "_wcarulesavailable";
     private static final String STORED_WCA_RULES_RESULTS_STATE_INVALID_RULES_MAP_SUFFIX = "_wcarulesinvalid";
     private static final String SERIALIZED_STATES_FILENAME = "network-states.csv";
-    private final String[] XIIDMEXTENSIONS = { ".xiidm", ".iidm", ".xml" };
+    private final String[] XIIDMEXTENSIONS = {".xiidm", ".iidm", ".xml"};
 
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OnlineDbMVStore.class);
@@ -157,7 +132,7 @@ public class OnlineDbMVStore implements OnlineDb {
     private OnlineDbMVStoreConfig config = null;
 
     HashMap<String, MVStore> storedWFMetrics = new HashMap<String, MVStore>();
-    ConcurrentHashMap<String, ConcurrentHashMap<Integer, Map<HistoDbAttributeId, Object>>> workflowsStates = new ConcurrentHashMap<String, ConcurrentHashMap<Integer,Map<HistoDbAttributeId,Object>>>();
+    ConcurrentHashMap<String, ConcurrentHashMap<Integer, Map<HistoDbAttributeId, Object>>> workflowsStates = new ConcurrentHashMap<String, ConcurrentHashMap<Integer, Map<HistoDbAttributeId, Object>>>();
 
     MVMapConcurrent.Builder<String, String> mapBuilder;
 
@@ -166,7 +141,7 @@ public class OnlineDbMVStore implements OnlineDb {
         this.config = config;
         LOGGER.info(config.toString());
         Path storageFolder = config.getOnlineDbDir();
-        if ( !Files.exists(storageFolder) ) {
+        if (!Files.exists(storageFolder)) {
             try {
                 Files.createDirectories(storageFolder);
             } catch (IOException e) {
@@ -196,7 +171,7 @@ public class OnlineDbMVStore implements OnlineDb {
 
     private synchronized MVStore getStore(String workflowId) {
         MVStore wfMVStore;
-        if ( storedWFMetrics.containsKey(workflowId))
+        if (storedWFMetrics.containsKey(workflowId))
             wfMVStore = storedWFMetrics.get(workflowId);
         else {
             LOGGER.debug("Opening file for workflow {}", workflowId);
@@ -217,7 +192,7 @@ public class OnlineDbMVStore implements OnlineDb {
 
     @Override
     public void storeMetrics(String workflowId, Integer stateId, OnlineStep step, Map<String, String> metrics) {
-        String stateIdStr=String.valueOf(stateId);
+        String stateIdStr = String.valueOf(stateId);
         LOGGER.info("Storing metrics for wf {}, step {} and state {}", workflowId, step.name(), stateIdStr);
         storeMetrics(workflowId, step.name() + "_" + stateIdStr, metrics);
         LOGGER.info("Storing metadata for wf {}, step {} and state {}", workflowId, step.name(), stateIdStr);
@@ -228,12 +203,12 @@ public class OnlineDbMVStore implements OnlineDb {
         try {
             MVStore wfMVStore = getStore(workflowId);
             Map<String, String> metricsMap = wfMVStore.openMap(mapName, mapBuilder);
-            for ( String parameter : metrics.keySet() ) {
+            for (String parameter : metrics.keySet()) {
                 metricsMap.put(parameter, metrics.get(parameter));
             }
             wfMVStore.commit();
-        } catch(Throwable e) {
-            String errorMessage = "Error storing metrics for wf " +  workflowId + " in map " + mapName + ": " + e.getMessage();
+        } catch (Throwable e) {
+            String errorMessage = "Error storing metrics for wf " + workflowId + " in map " + mapName + ": " + e.getMessage();
             LOGGER.error(errorMessage);
             throw new RuntimeException(errorMessage);
         }
@@ -250,12 +225,12 @@ public class OnlineDbMVStore implements OnlineDb {
             stepStatesMap.putIfAbsent(stateId, "");
             // save info about stored params per step
             MVMap<String, String> stepParamsMap = wfMVStore.openMap(step.name() + STORED_METRICS_PARAMS_MAP_SUFFIX, mapBuilder);
-            for ( String parameter : metrics.keySet() ) {
+            for (String parameter : metrics.keySet()) {
                 stepParamsMap.putIfAbsent(parameter, "");
             }
             wfMVStore.commit();
-        } catch(Throwable e) {
-            String errorMessage = "Error storing metadata for wf " +  workflowId + ", step "+ step.name() + ", state " + stateId + ": " + e.getMessage();
+        } catch (Throwable e) {
+            String errorMessage = "Error storing metadata for wf " + workflowId + ", step " + step.name() + ", state " + stateId + ": " + e.getMessage();
             LOGGER.error(errorMessage);
             throw new RuntimeException(errorMessage);
         }
@@ -269,18 +244,18 @@ public class OnlineDbMVStore implements OnlineDb {
 
     @Override
     public Map<String, String> getMetrics(String workflowId, Integer stateId, OnlineStep step) {
-        String stateIdStr=String.valueOf(stateId);
+        String stateIdStr = String.valueOf(stateId);
         LOGGER.info("Getting metrics from wf {}, step {} and state {}", workflowId, step.name(), stateIdStr);
         return getMetrics(workflowId, step.name() + "_" + stateIdStr);
     }
 
     private Map<String, String> getMetrics(String workflowId, String mapName) {
-        if ( isWorkflowStored(workflowId) ) {
+        if (isWorkflowStored(workflowId)) {
             HashMap<String, String> metrics = new HashMap<String, String>();
             MVStore wfMVStore = getStore(workflowId);
-            if ( wfMVStore.getMapNames().contains(mapName) ) {
+            if (wfMVStore.getMapNames().contains(mapName)) {
                 Map<String, String> storedMap = wfMVStore.openMap(mapName, mapBuilder);
-                for ( String parameter : storedMap.keySet() ) {
+                for (String parameter : storedMap.keySet()) {
                     metrics.put(parameter, storedMap.get(parameter));
                 }
             }
@@ -294,37 +269,37 @@ public class OnlineDbMVStore implements OnlineDb {
     @Override
     public String getCsvMetrics(String workflowId, OnlineStep step) {
         LOGGER.info("Preparing CSV data for wf {} and step {}", workflowId, step.name());
-        if ( isWorkflowStored(workflowId) ) {
+        if (isWorkflowStored(workflowId)) {
             StringWriter content = new StringWriter();
             CsvWriter cvsWriter = new CsvWriter(content, ',');
             try {
                 MVStore wfMVStore = getStore(workflowId);
                 // check if there are stored metrics
                 Map<String, String> storedStepsMap = wfMVStore.openMap(STORED_METRICS_STEPS_MAP_NAME, mapBuilder);
-                if ( storedStepsMap.containsKey(step.name()) ) {
+                if (storedStepsMap.containsKey(step.name())) {
                     MVMap<String, String> stepParamsMap = wfMVStore.openMap(step.name() + STORED_METRICS_PARAMS_MAP_SUFFIX, mapBuilder);
                     MVMap<String, String> stepStatesMap = wfMVStore.openMap(step.name() + STORED_METRICS_STATES_MAP_SUFFIX, mapBuilder);
                     // write headers
                     //LOGGER.debug("Preparing CSV headers for wf {} and step {}", workflowId, step.name());
-                    String[] headers =  new String[stepParamsMap.keySet().size()+1];
+                    String[] headers = new String[stepParamsMap.keySet().size() + 1];
                     headers[0] = "state";
-                    HashMap<String,Integer> paramsIndexes = new HashMap<>();
+                    HashMap<String, Integer> paramsIndexes = new HashMap<>();
                     int i = 1;
-                    for ( String parameter : stepParamsMap.keySet() ) {
+                    for (String parameter : stepParamsMap.keySet()) {
                         headers[i] = parameter;
                         paramsIndexes.put(parameter, i);
                         i++;
                     }
                     cvsWriter.writeRecord(headers);
                     // write step general metrics, if stored
-                    if ( stepStatesMap.containsKey("_") ) {
+                    if (stepStatesMap.containsKey("_")) {
                         //LOGGER.debug("Preparing CSV data for wf {} and step {} - general step metrics", workflowId, step.name());
                         String[] values = getStoredMapValues(wfMVStore, "_", step, stepParamsMap.keySet().size(), paramsIndexes);
                         cvsWriter.writeRecord(values);
                     }
                     // write step metrics for each state, if stored
-                    for ( String stateId : stepStatesMap.keySet() ) {
-                        if (!"_".equals(stateId) ) {
+                    for (String stateId : stepStatesMap.keySet()) {
+                        if (!"_".equals(stateId)) {
                             //LOGGER.debug("Preparing CSV data for wf {} and step {} - state {} metrics", workflowId, step.name(), stateId);
                             String[] values = getStoredMapValues(wfMVStore, stateId, step, stepParamsMap.keySet().size(), paramsIndexes);
                             cvsWriter.writeRecord(values);
@@ -344,11 +319,11 @@ public class OnlineDbMVStore implements OnlineDb {
         }
     }
 
-    private String[] getStoredMapValues(MVStore wfMVStore, String stateId, OnlineStep step, int paramsN, HashMap<String,Integer> paramsIndexes) {
-        String[] values =  new String[paramsN+1];
+    private String[] getStoredMapValues(MVStore wfMVStore, String stateId, OnlineStep step, int paramsN, HashMap<String, Integer> paramsIndexes) {
+        String[] values = new String[paramsN + 1];
         values[0] = stateId;
         Map<String, String> storedMap = wfMVStore.openMap(step.name() + "_" + stateId, mapBuilder);
-        for ( String parameter : storedMap.keySet() ) {
+        for (String parameter : storedMap.keySet()) {
             int index = paramsIndexes.get(parameter);
             values[index] = storedMap.get(parameter);
         }
@@ -357,7 +332,7 @@ public class OnlineDbMVStore implements OnlineDb {
 
     private DateTime getWorkflowDate(String workflowId) {
         DateTime workflowDate = null;
-        if ( workflowId.contains("_") ) {
+        if (workflowId.contains("_")) {
             String workflowStringDate = workflowId.substring(workflowId.lastIndexOf("_") + 1);
             workflowDate = DateTimeFormat.forPattern("yyyyMMddHHmmssSSS").parseDateTime(workflowStringDate);
         }
@@ -374,7 +349,7 @@ public class OnlineDbMVStore implements OnlineDb {
             }
         });
         for (File file : files) {
-            if ( file.isFile() ) {
+            if (file.isFile()) {
                 String workflowId = file.getName().substring(STORED_WORKFLOW_PREFIX.length());
                 OnlineWorkflowDetails workflowDetails = new OnlineWorkflowDetails(workflowId);
                 workflowDetails.setWorkflowDate(getWorkflowDate(workflowId));
@@ -398,11 +373,11 @@ public class OnlineDbMVStore implements OnlineDb {
         List<OnlineWorkflowDetails> workflowIds = new ArrayList<OnlineWorkflowDetails>();
         File[] files = config.getOnlineDbDir().toFile().listFiles(new FilenameFilter() {
             public boolean accept(File dir, String name) {
-                return name.toLowerCase().startsWith(STORED_WORKFLOW_PREFIX+wfNamePrefix);
+                return name.toLowerCase().startsWith(STORED_WORKFLOW_PREFIX + wfNamePrefix);
             }
         });
         for (File file : files) {
-            if ( file.isFile() ) {
+            if (file.isFile()) {
                 String workflowId = file.getName().substring(STORED_WORKFLOW_PREFIX.length());
                 OnlineWorkflowDetails workflowDetails = new OnlineWorkflowDetails(workflowId);
                 workflowDetails.setWorkflowDate(getWorkflowDate(workflowId));
@@ -431,12 +406,12 @@ public class OnlineDbMVStore implements OnlineDb {
             }
         });
         for (File file : files) {
-            if ( file.isFile() ) {
+            if (file.isFile()) {
                 String workflowId = file.getName().substring(STORED_WORKFLOW_PREFIX.length());
-                if ( workflowId.length() > dateFormatPattern.length() && workflowId.substring(dateFormatPattern.length(),dateFormatPattern.length()+1).equals("_")) {
-                    String basecaseName = workflowId.substring(0, dateFormatPattern.length()-1);
+                if (workflowId.length() > dateFormatPattern.length() && workflowId.substring(dateFormatPattern.length(), dateFormatPattern.length() + 1).equals("_")) {
+                    String basecaseName = workflowId.substring(0, dateFormatPattern.length() - 1);
                     DateTime basecaseDate = DateTime.parse(basecaseName, formatter);
-                    if ( basecaseInterval.contains(basecaseDate.getMillis())) {
+                    if (basecaseInterval.contains(basecaseDate.getMillis())) {
                         OnlineWorkflowDetails workflowDetails = new OnlineWorkflowDetails(workflowId);
                         workflowDetails.setWorkflowDate(getWorkflowDate(workflowId));
                         workflowIds.add(workflowDetails);
@@ -461,10 +436,10 @@ public class OnlineDbMVStore implements OnlineDb {
         OnlineWorkflowDetails workflowDetails = null;
         File[] files = config.getOnlineDbDir().toFile().listFiles(new FilenameFilter() {
             public boolean accept(File dir, String name) {
-                return name.toLowerCase().equals(STORED_WORKFLOW_PREFIX+workflowId);
+                return name.toLowerCase().equals(STORED_WORKFLOW_PREFIX + workflowId);
             }
         });
-        if ( files != null && files.length == 1 ) {
+        if (files != null && files.length == 1) {
             workflowDetails = new OnlineWorkflowDetails(workflowId);
             workflowDetails.setWorkflowDate(new DateTime(files[0].lastModified()));
         }
@@ -478,7 +453,7 @@ public class OnlineDbMVStore implements OnlineDb {
         LOGGER.info("Storing results for workflow {}", workflowId);
         MVStore wfMVStore = getStore(workflowId);
         // check if the results for this wf have already been stored
-        if ( wfMVStore.hasMap(STORED_RESULTS_MAP_NAME) )
+        if (wfMVStore.hasMap(STORED_RESULTS_MAP_NAME))
             removeWfResults(workflowId, wfMVStore);
         MVMap<String, String> storedResultsMap = wfMVStore.openMap(STORED_RESULTS_MAP_NAME, mapBuilder);
         // store time horizon
@@ -494,21 +469,21 @@ public class OnlineDbMVStore implements OnlineDb {
             MVMap<String, String> storedActionsEquipmentsMap = wfMVStore.openMap(contingencyId + STORED_RESULTS_ACTIONS_EQUIPMENTS_MAP_SUFFIX, mapBuilder);
             MVMap<String, String> storedActionsParametersMap = wfMVStore.openMap(contingencyId + STORED_RESULTS_ACTIONS_PARAMETERS_MAP_SUFFIX, mapBuilder);
             for (Integer stateId : results.getUnsafeStatesWithActions(contingencyId).keySet()) {
-                storedActionsInfosMap.put(stateId.toString() + STORED_RESULTS_ACTIONINFO_ACTIONSFOUND_KEY_SUFFIX, 
+                storedActionsInfosMap.put(stateId.toString() + STORED_RESULTS_ACTIONINFO_ACTIONSFOUND_KEY_SUFFIX,
                         Boolean.toString(results.getUnsafeStatesWithActions(contingencyId).get(stateId)));
                 storedActionsInfosMap.put(stateId.toString() + STORED_RESULTS_ACTIONINFO_STATUS_KEY_SUFFIX, results.getStateStatus(contingencyId, stateId).name());
-                if ( results.getCause(contingencyId, stateId) != null )
+                if (results.getCause(contingencyId, stateId) != null)
                     storedActionsInfosMap.put(stateId.toString() + STORED_RESULTS_ACTIONINFO_CAUSE_KEY_SUFFIX, results.getCause(contingencyId, stateId));
-                if ( results.getActionPlan(contingencyId, stateId) != null )
+                if (results.getActionPlan(contingencyId, stateId) != null)
                     storedActionsInfosMap.put(stateId.toString() + STORED_RESULTS_ACTIONINFO_ACTIONPLAN_KEY_SUFFIX, results.getActionPlan(contingencyId, stateId));
                 List<String> actionsIds = results.getActionsIds(contingencyId, stateId);
-                if ( actionsIds != null ) {
-                    for(String actionId : actionsIds) {
+                if (actionsIds != null) {
+                    for (String actionId : actionsIds) {
                         List<String> equipmentsIds = results.getEquipmentsIds(contingencyId, stateId, actionId);
                         storedActionsEquipmentsMap.put(stateId + "_" + actionId, OnlineDbMVStoreUtils.actionsIdsToJson(equipmentsIds));
-                        for(String equipmentId : equipmentsIds) {
+                        for (String equipmentId : equipmentsIds) {
                             ActionParameters actionParameters = results.getParameters(contingencyId, stateId, actionId, equipmentId);
-                            if ( actionParameters != null )
+                            if (actionParameters != null)
                                 storedActionsParametersMap.put(stateId + "_" + actionId + "_" + equipmentId, OnlineDbMVStoreUtils.actionParametersToJson(actionParameters));
                         }
                     }
@@ -556,13 +531,13 @@ public class OnlineDbMVStore implements OnlineDb {
     public OnlineWorkflowResults getResults(String workflowId) {
         Objects.requireNonNull(workflowId, "workflow id is null");
         LOGGER.info("Getting results of wf {}", workflowId);
-        if ( isWorkflowStored(workflowId) ) {
+        if (isWorkflowStored(workflowId)) {
             MVStore wfMVStore = getStore(workflowId);
-            if ( wfMVStore.hasMap(STORED_RESULTS_MAP_NAME) ) {
+            if (wfMVStore.hasMap(STORED_RESULTS_MAP_NAME)) {
                 MVMap<String, String> storedResultsMap = wfMVStore.openMap(STORED_RESULTS_MAP_NAME, mapBuilder);
                 // create workflow results
                 OnlineWorkflowResultsImpl wfResults = new OnlineWorkflowResultsImpl(
-                        workflowId, 
+                        workflowId,
                         TimeHorizon.valueOf(storedResultsMap.get(STORED_RESULTS_TIMEHORIZON_KEY)));
                 // add contingencies with actiions
                 Collection<String> contingenciesWithAction = OnlineDbMVStoreUtils.jsonToContingenciesIds(
@@ -574,22 +549,22 @@ public class OnlineDbMVStore implements OnlineDb {
                     MVMap<String, String> storedActionsEquipmentsMap = wfMVStore.openMap(contingencyId + STORED_RESULTS_ACTIONS_EQUIPMENTS_MAP_SUFFIX, mapBuilder);
                     for (String stateId : storedActionsMap.keySet()) {
                         boolean actionsFound = true;
-                        if ( storedActionsInfosMap.containsKey(stateId + STORED_RESULTS_ACTIONINFO_ACTIONSFOUND_KEY_SUFFIX) )
+                        if (storedActionsInfosMap.containsKey(stateId + STORED_RESULTS_ACTIONINFO_ACTIONSFOUND_KEY_SUFFIX))
                             actionsFound = Boolean.parseBoolean(storedActionsInfosMap.get(stateId + STORED_RESULTS_ACTIONINFO_ACTIONSFOUND_KEY_SUFFIX));
                         CCOFinalStatus status = CCOFinalStatus.MANUAL_CORRECTIVE_ACTION_FOUND;
-                        if ( storedActionsInfosMap.containsKey(stateId + STORED_RESULTS_ACTIONINFO_STATUS_KEY_SUFFIX) )
+                        if (storedActionsInfosMap.containsKey(stateId + STORED_RESULTS_ACTIONINFO_STATUS_KEY_SUFFIX))
                             status = CCOFinalStatus.valueOf(storedActionsInfosMap.get(stateId + STORED_RESULTS_ACTIONINFO_STATUS_KEY_SUFFIX));
                         String cause = storedActionsInfosMap.get(stateId + STORED_RESULTS_ACTIONINFO_CAUSE_KEY_SUFFIX);
                         String actionPlan = storedActionsInfosMap.get(stateId + STORED_RESULTS_ACTIONINFO_ACTIONPLAN_KEY_SUFFIX);
                         Map<String, Map<String, ActionParameters>> actions = null;
-                        if ( storedActionsMap.containsKey(stateId) ) {
+                        if (storedActionsMap.containsKey(stateId)) {
                             List<String> actionsIds = OnlineDbMVStoreUtils.jsonToActionsIds(storedActionsMap.get(stateId));
-                            actions = new HashMap<String, Map<String,ActionParameters>>();
-                            for(String actionId : actionsIds) {
+                            actions = new HashMap<String, Map<String, ActionParameters>>();
+                            for (String actionId : actionsIds) {
                                 Map<String, ActionParameters> equipments = new HashMap<String, ActionParameters>();
                                 List<String> equipmentsIds = OnlineDbMVStoreUtils.jsonToActionsIds(storedActionsEquipmentsMap.get(stateId + "_" + actionId));
-                                if ( equipmentsIds != null ) {
-                                    for(String equipmentId : equipmentsIds) {
+                                if (equipmentsIds != null) {
+                                    for (String equipmentId : equipmentsIds) {
                                         ActionParameters actionParameters = OnlineDbMVStoreUtils.jsonToActionParameters(storedActionsParametersMap.get(stateId + "_" + actionId + "_" + equipmentId));
                                         equipments.put(equipmentId, actionParameters);
                                     }
@@ -628,13 +603,13 @@ public class OnlineDbMVStore implements OnlineDb {
         LOGGER.info("Storing results of rules for workflow {}", workflowId);
         MVStore wfMVStore = getStore(workflowId);
         // check if the results for this wf have already been stored
-        if ( wfMVStore.hasMap(STORED_RULES_RESULTS_MAP_NAME) )
+        if (wfMVStore.hasMap(STORED_RULES_RESULTS_MAP_NAME))
             removeWfRulesResults(workflowId, wfMVStore);
         MVMap<String, String> storedRulesResultsMap = wfMVStore.openMap(STORED_RULES_RESULTS_MAP_NAME, mapBuilder);
         // store time horizon
         storedRulesResultsMap.put(STORED_RESULTS_TIMEHORIZON_KEY, results.getTimeHorizon().getName());
         // store contingencies with security rules results
-        storedRulesResultsMap.put(STORED_RULES_RESULTS_CONTINGENCIES_WITH_RULES_KEY, 
+        storedRulesResultsMap.put(STORED_RULES_RESULTS_CONTINGENCIES_WITH_RULES_KEY,
                 OnlineDbMVStoreUtils.contingenciesIdsToJson(results.getContingenciesWithSecurityRulesResults()));
         // store rules results for contingencies
         for (String contingencyId : results.getContingenciesWithSecurityRulesResults()) {
@@ -686,13 +661,13 @@ public class OnlineDbMVStore implements OnlineDb {
     public OnlineWorkflowRulesResults getRulesResults(String workflowId) {
         Objects.requireNonNull(workflowId, "workflow id is null");
         LOGGER.info("Getting rules results of wf {}", workflowId);
-        if ( isWorkflowStored(workflowId) ) {
+        if (isWorkflowStored(workflowId)) {
             MVStore wfMVStore = getStore(workflowId);
-            if ( wfMVStore.hasMap(STORED_RULES_RESULTS_MAP_NAME) ) {
+            if (wfMVStore.hasMap(STORED_RULES_RESULTS_MAP_NAME)) {
                 MVMap<String, String> storedRulesResultsMap = wfMVStore.openMap(STORED_RULES_RESULTS_MAP_NAME, mapBuilder);
                 // create workflow rules results
                 OnlineWorkflowRulesResultsImpl wfRulesResults = new OnlineWorkflowRulesResultsImpl(
-                        workflowId, 
+                        workflowId,
                         TimeHorizon.valueOf(storedRulesResultsMap.get(STORED_RESULTS_TIMEHORIZON_KEY)));
                 // add contingencies with rules results
                 Collection<String> contingenciesWithRules = OnlineDbMVStoreUtils.jsonToContingenciesIds(
@@ -706,10 +681,10 @@ public class OnlineDbMVStore implements OnlineDb {
                         Map<String, Boolean> stateResults = OnlineDbMVStoreUtils.jsonToIndexesData(storedStateResultsMap.get(stateId));
                         StateStatus stateStatus = StateStatus.valueOf(storedStateStatusMap.get(stateId));
                         boolean rulesAvailable = true;
-                        if ( storedStateAvailableRulesMap.containsKey(stateId) )
+                        if (storedStateAvailableRulesMap.containsKey(stateId))
                             rulesAvailable = Boolean.parseBoolean(storedStateAvailableRulesMap.get(stateId));
                         List<SecurityIndexType> invalidRules = new ArrayList<SecurityIndexType>();
-                        if ( storedStateInvalidRulesMap.containsKey(stateId) )
+                        if (storedStateInvalidRulesMap.containsKey(stateId))
                             invalidRules.addAll(OnlineDbMVStoreUtils.jsonToIndexesTypes(storedStateInvalidRulesMap.get(stateId)));
                         wfRulesResults.addContingencyWithSecurityRulesResults(contingencyId, Integer.parseInt(stateId), stateStatus, stateResults,
                                 rulesAvailable, invalidRules);
@@ -733,7 +708,7 @@ public class OnlineDbMVStore implements OnlineDb {
         LOGGER.info("Storing results of WCA for workflow {}", workflowId);
         MVStore wfMVStore = getStore(workflowId);
         // check if the results for this wf have already been stored
-        if ( wfMVStore.hasMap(STORED_WCA_RESULTS_MAP_NAME) )
+        if (wfMVStore.hasMap(STORED_WCA_RESULTS_MAP_NAME))
             removeWfWcaResults(workflowId, wfMVStore);
         MVMap<String, String> storedWcaResultsMap = wfMVStore.openMap(STORED_WCA_RESULTS_MAP_NAME, mapBuilder);
         // store time horizon
@@ -768,18 +743,18 @@ public class OnlineDbMVStore implements OnlineDb {
     public OnlineWorkflowWcaResults getWcaResults(String workflowId) {
         Objects.requireNonNull(workflowId, "workflow id is null");
         LOGGER.info("Getting WCA results of wf {}", workflowId);
-        if ( isWorkflowStored(workflowId) ) {
+        if (isWorkflowStored(workflowId)) {
             MVStore wfMVStore = getStore(workflowId);
-            if ( wfMVStore.hasMap(STORED_WCA_RESULTS_MAP_NAME) ) {
+            if (wfMVStore.hasMap(STORED_WCA_RESULTS_MAP_NAME)) {
                 MVMap<String, String> storedRulesResultsMap = wfMVStore.openMap(STORED_WCA_RESULTS_MAP_NAME, mapBuilder);
                 // create workflow rules results
                 OnlineWorkflowWcaResultsImpl wfWcaResults = new OnlineWorkflowWcaResultsImpl(
-                        workflowId, 
+                        workflowId,
                         TimeHorizon.valueOf(storedRulesResultsMap.get(STORED_RESULTS_TIMEHORIZON_KEY)));
                 // add classification of contingencies in clusters
                 MVMap<String, String> storedClustersMap = wfMVStore.openMap(STORED_WCA_RESULTS_CLUSTERS_MAP_NAME, mapBuilder);
                 MVMap<String, String> storedCausesMap = wfMVStore.openMap(STORED_WCA_RESULTS_CAUSES_MAP_NAME, mapBuilder);
-                for(String contingencyId : storedClustersMap.keySet()) {
+                for (String contingencyId : storedClustersMap.keySet()) {
                     String cause = storedCausesMap.get(contingencyId);
                     wfWcaResults.addContingencyWithCluster(contingencyId,
                             Integer.valueOf(storedClustersMap.get(contingencyId)),
@@ -804,7 +779,7 @@ public class OnlineDbMVStore implements OnlineDb {
         LOGGER.info("Storing configuration parameters for workflow {}", workflowId);
         MVStore wfMVStore = getStore(workflowId);
         // check if the parameters for this wf have already been stored
-        if ( wfMVStore.hasMap(STORED_PARAMETERS_MAP_NAME) )
+        if (wfMVStore.hasMap(STORED_PARAMETERS_MAP_NAME))
             removeWfParameters(workflowId, wfMVStore);
         MVMap<String, String> storedParametersMap = wfMVStore.openMap(STORED_PARAMETERS_MAP_NAME, mapBuilder);
         // store basecase
@@ -828,7 +803,7 @@ public class OnlineDbMVStore implements OnlineDb {
         // store flag validation
         storedParametersMap.put(STORED_PARAMETERS_VALIDATION_KEY, Boolean.toString(parameters.validation()));
         // store security indexes
-        if ( parameters.getSecurityIndexes() != null )
+        if (parameters.getSecurityIndexes() != null)
             storedParametersMap.put(STORED_PARAMETERS_SECURITY_INDEXES_KEY, OnlineDbMVStoreUtils.indexesTypesToJson(parameters.getSecurityIndexes()));
         // store case type
         storedParametersMap.put(STORED_PARAMETERS_CASE_TYPE_KEY, parameters.getCaseType().name());
@@ -842,6 +817,8 @@ public class OnlineDbMVStore implements OnlineDb {
         storedParametersMap.put(STORED_PARAMETERS_HANDLE_VIOLATIONS_KEY, Boolean.toString(parameters.isHandleViolationsInN()));
         // store merge constraint margin
         storedParametersMap.put(STORED_PARAMETERS_CONSTRAINT_MARGIN_KEY, Float.toString(parameters.getConstraintMargin()));
+        // store case file name (null if it was not specified)
+        storedParametersMap.put(STORED_PARAMETERS_CASE_FILE_KEY, parameters.getCaseFile());
 
         wfMVStore.commit();
     }
@@ -859,9 +836,9 @@ public class OnlineDbMVStore implements OnlineDb {
     public OnlineWorkflowParameters getWorkflowParameters(String workflowId) {
         Objects.requireNonNull(workflowId, "workflow id is null");
         LOGGER.info("Getting configuration parameters of wf {}", workflowId);
-        if ( isWorkflowStored(workflowId) ) {
+        if (isWorkflowStored(workflowId)) {
             MVStore wfMVStore = getStore(workflowId);
-            if ( wfMVStore.hasMap(STORED_PARAMETERS_MAP_NAME) ) {
+            if (wfMVStore.hasMap(STORED_PARAMETERS_MAP_NAME)) {
                 MVMap<String, String> storedParametersMap = wfMVStore.openMap(STORED_PARAMETERS_MAP_NAME, mapBuilder);
                 DateTime baseCaseDate = DateTime.parse(storedParametersMap.get(STORED_PARAMETERS_BASECASE_KEY));
                 int states = Integer.parseInt(storedParametersMap.get(STORED_PARAMETERS_STATE_NUMBER_KEY));
@@ -874,24 +851,23 @@ public class OnlineDbMVStore implements OnlineDb {
                 boolean analyseBasecase = Boolean.parseBoolean(storedParametersMap.get(STORED_PARAMETERS_ANALYSE_BASECASE_KEY));
                 boolean validation = Boolean.parseBoolean(storedParametersMap.get(STORED_PARAMETERS_VALIDATION_KEY));
                 Set<SecurityIndexType> securityIndexes = null;
-                if ( storedParametersMap.containsKey(STORED_PARAMETERS_SECURITY_INDEXES_KEY) )
+                if (storedParametersMap.containsKey(STORED_PARAMETERS_SECURITY_INDEXES_KEY))
                     securityIndexes = OnlineDbMVStoreUtils.jsonToIndexesTypes(storedParametersMap.get(STORED_PARAMETERS_SECURITY_INDEXES_KEY));
                 CaseType caseType = CaseType.valueOf(storedParametersMap.get(STORED_PARAMETERS_CASE_TYPE_KEY));
                 Set<Country> countries = OnlineDbMVStoreUtils.jsonToCountries(storedParametersMap.get(STORED_PARAMETERS_COUNTRIES_KEY));
                 boolean mergeOptimized = OnlineWorkflowParameters.DEFAULT_MERGE_OPTIMIZED;
-                if ( storedParametersMap.containsKey(STORED_PARAMETERS_MERGE_OPTIMIZED_KEY))
+                if (storedParametersMap.containsKey(STORED_PARAMETERS_MERGE_OPTIMIZED_KEY))
                     mergeOptimized = Boolean.parseBoolean(storedParametersMap.get(STORED_PARAMETERS_MERGE_OPTIMIZED_KEY));
                 float limitReduction = OnlineWorkflowParameters.DEFAULT_LIMIT_REDUCTION;
-                if ( storedParametersMap.containsKey(STORED_PARAMETERS_LIMIT_REDUCTION_KEY))
+                if (storedParametersMap.containsKey(STORED_PARAMETERS_LIMIT_REDUCTION_KEY))
                     limitReduction = Float.parseFloat(storedParametersMap.get(STORED_PARAMETERS_LIMIT_REDUCTION_KEY));
                 boolean handleViolations = OnlineWorkflowParameters.DEFAULT_HANDLE_VIOLATIONS_IN_N;
-                if ( storedParametersMap.containsKey(STORED_PARAMETERS_HANDLE_VIOLATIONS_KEY))
+                if (storedParametersMap.containsKey(STORED_PARAMETERS_HANDLE_VIOLATIONS_KEY))
                     handleViolations = Boolean.parseBoolean(storedParametersMap.get(STORED_PARAMETERS_HANDLE_VIOLATIONS_KEY));
                 float constraintMargin = OnlineWorkflowParameters.DEFAULT_CONSTRAINT_MARGIN;
-                if ( storedParametersMap.containsKey(STORED_PARAMETERS_CONSTRAINT_MARGIN_KEY))
+                if (storedParametersMap.containsKey(STORED_PARAMETERS_CONSTRAINT_MARGIN_KEY))
                     constraintMargin = Float.parseFloat(storedParametersMap.get(STORED_PARAMETERS_CONSTRAINT_MARGIN_KEY));
-
-                return new OnlineWorkflowParameters(baseCaseDate, 
+                OnlineWorkflowParameters onlineWfPars = new OnlineWorkflowParameters(baseCaseDate,
                         states,
                         histoInterval,
                         offlineWorkflowId,
@@ -907,8 +883,11 @@ public class OnlineDbMVStore implements OnlineDb {
                         mergeOptimized,
                         limitReduction,
                         handleViolations,
-                        constraintMargin
-                        );
+                        constraintMargin);
+                if (storedParametersMap.containsKey(STORED_PARAMETERS_CASE_FILE_KEY)) {
+                    onlineWfPars.setCaseFile(storedParametersMap.get(STORED_PARAMETERS_CASE_FILE_KEY));
+                }
+                return onlineWfPars;
             } else {
                 LOGGER.warn("No configuration parameters of wf {} stored in online db", workflowId);
                 return null;
@@ -926,7 +905,7 @@ public class OnlineDbMVStore implements OnlineDb {
         LOGGER.info("Storing states processing status for workflow {}", workflowId);
         MVStore wfMVStore = getStore(workflowId);
         // check if the states processing status for this wf have already been stored
-        if ( wfMVStore.hasMap(STORED_STATES_PROCESSING_STATUS_MAP_NAME) )
+        if (wfMVStore.hasMap(STORED_STATES_PROCESSING_STATUS_MAP_NAME))
             removeStatesProcessingStatus(workflowId, wfMVStore);
         MVMap<String, String> statesProcessingStatusMap = wfMVStore.openMap(STORED_STATES_PROCESSING_STATUS_MAP_NAME, mapBuilder);
         // store states with processing status
@@ -963,9 +942,9 @@ public class OnlineDbMVStore implements OnlineDb {
     public Map<Integer, ? extends StateProcessingStatus> getStatesProcessingStatus(String workflowId) {
         Objects.requireNonNull(workflowId, "workflow id is null");
         LOGGER.info("Getting states processing status of wf {}", workflowId);
-        if ( isWorkflowStored(workflowId) ) {
+        if (isWorkflowStored(workflowId)) {
             MVStore wfMVStore = getStore(workflowId);
-            if ( wfMVStore.hasMap(STORED_STATES_PROCESSING_STATUS_MAP_NAME) ) {
+            if (wfMVStore.hasMap(STORED_STATES_PROCESSING_STATUS_MAP_NAME)) {
                 MVMap<String, String> statesProcessingStatusMap = wfMVStore.openMap(STORED_STATES_PROCESSING_STATUS_MAP_NAME, mapBuilder);
                 // create states processing status
                 Map<Integer, StateProcessingStatus> statesProcessingStatus = new HashMap<Integer, StateProcessingStatus>();
@@ -973,9 +952,9 @@ public class OnlineDbMVStore implements OnlineDb {
                 Collection<Integer> stateWithProcessingStatus = OnlineDbMVStoreUtils.jsonToStatesIds(statesProcessingStatusMap.get(STORED_STATES_LIST_KEY));
                 for (Integer stateId : stateWithProcessingStatus) {
                     MVMap<String, String> stateProcessingStatusMap = wfMVStore.openMap(stateId + STORED_STATE_PROCESSING_STATUS_MAP_SUFFIX, mapBuilder);
-                    Map<String,String> processingStatus = new HashMap<String, String>();
+                    Map<String, String> processingStatus = new HashMap<String, String>();
                     for (String step : stateProcessingStatusMap.keySet()) {
-                        if ( !step.equals(STORED_STATES_STATE_DETAILS_KEY) )
+                        if (!step.equals(STORED_STATES_STATE_DETAILS_KEY))
                             processingStatus.put(step, stateProcessingStatusMap.get(step));
                     }
                     statesProcessingStatus.put(stateId, new StateProcessingStatusImpl(processingStatus, stateProcessingStatusMap.get(STORED_STATES_STATE_DETAILS_KEY)));
@@ -993,13 +972,13 @@ public class OnlineDbMVStore implements OnlineDb {
 
     @Override
     public void storeState(String workflowId, Integer stateId, Network network) {
-        String stateIdStr=String.valueOf(stateId);
+        String stateIdStr = String.valueOf(stateId);
         LOGGER.info("Storing state {} of workflow {}", stateIdStr, workflowId);
-        if ( network.getStateManager().getStateIds().contains(stateIdStr) ) {
+        if (network.getStateManager().getStateIds().contains(stateIdStr)) {
             network.getStateManager().setWorkingState(stateIdStr);
             Path workflowStatesFolder = getWorkflowStatesFolder(workflowId);
             Path stateFolder = Paths.get(workflowStatesFolder.toString(), STORED_STATE_PREFIX + stateId);
-            if ( Files.exists(stateFolder) ) {
+            if (Files.exists(stateFolder)) {
                 //remove current state file, if it already exists
                 for (int i = 0; i < XIIDMEXTENSIONS.length; i++) {
                     Path stateFile = Paths.get(stateFolder.toString(), network.getId() + XIIDMEXTENSIONS[i]);
@@ -1016,8 +995,8 @@ public class OnlineDbMVStore implements OnlineDb {
                 try {
                     Files.createDirectories(stateFolder);
                 } catch (IOException e) {
-                    String errorMessage = "online db: folder " + workflowStatesFolder + " for workflow " + workflowId 
-                            +  " and state " + stateIdStr + " cannot be created: " + e.getMessage();
+                    String errorMessage = "online db: folder " + workflowStatesFolder + " for workflow " + workflowId
+                            + " and state " + stateIdStr + " cannot be created: " + e.getMessage();
                     LOGGER.error(errorMessage);
                     throw new RuntimeException(errorMessage);
                 }
@@ -1031,8 +1010,8 @@ public class OnlineDbMVStore implements OnlineDb {
             Exporters.export("XIIDM", network, parameters, dataSource);
             // store network state values, for later serialization
             Map<HistoDbAttributeId, Object> networkValues = IIDM2DB.extractCimValues(network, new IIDM2DB.Config(network.getId(), true, true)).getSingleValueMap();
-            ConcurrentHashMap<Integer, Map<HistoDbAttributeId, Object>> workflowStates = new ConcurrentHashMap<Integer, Map<HistoDbAttributeId,Object>>();
-            if ( workflowsStates.containsKey(workflowId) )
+            ConcurrentHashMap<Integer, Map<HistoDbAttributeId, Object>> workflowStates = new ConcurrentHashMap<Integer, Map<HistoDbAttributeId, Object>>();
+            if (workflowsStates.containsKey(workflowId))
                 workflowStates = workflowsStates.get(workflowId);
             workflowStates.put(stateId, networkValues);
             workflowsStates.put(workflowId, workflowStates);
@@ -1045,18 +1024,18 @@ public class OnlineDbMVStore implements OnlineDb {
 
     private void serializeStoredWorkflowsStates() {
         LOGGER.info("Serializing stored workflows states");
-        for(String workflowId : workflowsStates.keySet()) {
-            if ( workflowStatesFolderExists(workflowId)) {
+        for (String workflowId : workflowsStates.keySet()) {
+            if (workflowStatesFolderExists(workflowId)) {
                 LOGGER.info("Serializing network data of workflow {}", workflowId);
                 ConcurrentHashMap<Integer, Map<HistoDbAttributeId, Object>> workflowStates = workflowsStates.get(workflowId);
                 Path workflowStatesFolder = getWorkflowStatesFolder(workflowId);
                 Path csvFile = Paths.get(workflowStatesFolder.toString(), SERIALIZED_STATES_FILENAME);
-                try(FileWriter fileWriter = new FileWriter(csvFile.toFile());
-                        CsvListWriter csvWriter = new CsvListWriter(fileWriter, new CsvPreference.Builder('"', ';', "\r\n").build())) {
+                try (FileWriter fileWriter = new FileWriter(csvFile.toFile());
+                     CsvListWriter csvWriter = new CsvListWriter(fileWriter, new CsvPreference.Builder('"', ';', "\r\n").build())) {
                     boolean printHeaders = true;
-                    for(Integer stateId : workflowStates.keySet()) {
-                        Map<HistoDbAttributeId, Object> networkValues = workflowStates.get(stateId); 
-                        if ( printHeaders ) {
+                    for (Integer stateId : workflowStates.keySet()) {
+                        Map<HistoDbAttributeId, Object> networkValues = workflowStates.get(stateId);
+                        if (printHeaders) {
                             List<String> headers = new ArrayList<>(networkValues.size());
                             for (HistoDbAttributeId attrId : networkValues.keySet()) {
                                 headers.add(attrId.toString());
@@ -1064,8 +1043,8 @@ public class OnlineDbMVStore implements OnlineDb {
                             ArrayList<String> headersList = new ArrayList<>();
                             headersList.add("workflow");
                             headersList.add("state");
-                            headersList.addAll(Arrays.asList(headers.toArray(new String[] {})));
-                            csvWriter.writeHeader(headersList.toArray(new String[] {}));
+                            headersList.addAll(Arrays.asList(headers.toArray(new String[]{})));
+                            csvWriter.writeHeader(headersList.toArray(new String[]{}));
                             printHeaders = false;
                         }
                         ArrayList<Object> valuesList = new ArrayList<>();
@@ -1085,7 +1064,7 @@ public class OnlineDbMVStore implements OnlineDb {
     public List<Integer> listStoredStates(String workflowId) {
         LOGGER.info("Getting list of stored states for workflow {}", workflowId);
         List<Integer> storedStates = new ArrayList<Integer>();
-        if ( workflowStatesFolderExists(workflowId)) {
+        if (workflowStatesFolderExists(workflowId)) {
             Path workflowStatesFolder = getWorkflowStatesFolder(workflowId);
             File[] files = workflowStatesFolder.toFile().listFiles(new FilenameFilter() {
                 public boolean accept(File dir, String name) {
@@ -1093,7 +1072,7 @@ public class OnlineDbMVStore implements OnlineDb {
                 }
             });
             for (File file : files) {
-                if ( file.isDirectory() ) {
+                if (file.isDirectory()) {
                     String stateId = file.getName().substring(STORED_STATE_PREFIX.length());
                     storedStates.add(Integer.parseInt(stateId));
                 }
@@ -1112,12 +1091,12 @@ public class OnlineDbMVStore implements OnlineDb {
 
     @Override
     public Network getState(String workflowId, Integer stateId) {
-        String stateIdStr=String.valueOf(stateId);
+        String stateIdStr = String.valueOf(stateId);
         LOGGER.info("Getting state {} of workflow {}", stateIdStr, workflowId);
         Path workflowStatesFolder = getWorkflowStatesFolder(workflowId);
         Path stateFolder = Paths.get(workflowStatesFolder.toString(), STORED_STATE_PREFIX + stateIdStr);
-        if ( Files.exists(stateFolder) && Files.isDirectory(stateFolder) ) {
-            if ( stateFolder.toFile().list().length == 1 ) {
+        if (Files.exists(stateFolder) && Files.isDirectory(stateFolder)) {
+            if (stateFolder.toFile().list().length == 1) {
                 File stateFile = stateFolder.toFile().listFiles()[0];
                 String basename = stateFile.getName();
                 int extIndex = basename.lastIndexOf(".");
@@ -1150,14 +1129,14 @@ public class OnlineDbMVStore implements OnlineDb {
         boolean workflowDeleted = false;
         boolean workflowStatesDeleted = true;
         // if stored states for this workflow exist
-        if ( workflowStatesFolderExists(workflowId) )
+        if (workflowStatesFolderExists(workflowId))
             // delete them
             workflowStatesDeleted = deleteStates(workflowId);
         // if stored states have been deleted
-        if ( workflowStatesDeleted ) {
+        if (workflowStatesDeleted) {
             // store workflow results
             Path workflowFile = Paths.get(config.getOnlineDbDir().toFile().toString(), STORED_WORKFLOW_PREFIX + workflowId);
-            if ( workflowFile.toFile().exists() && workflowFile.toFile().isFile()  )
+            if (workflowFile.toFile().exists() && workflowFile.toFile().isFile())
                 try {
                     workflowDeleted = Files.deleteIfExists(workflowFile);
                 } catch (IOException e) {
@@ -1175,7 +1154,7 @@ public class OnlineDbMVStore implements OnlineDb {
         LOGGER.info("Deleting stored states of workflow {}", workflowId);
         boolean workflowStatesDeleted = false;
         Path workflowStatesFolder = Paths.get(config.getOnlineDbDir().toFile().toString(), STORED_WORKFLOW_STATES_FOLDER_PREFIX + workflowId);
-        if ( workflowStatesFolder.toFile().exists() && workflowStatesFolder.toFile().isDirectory() )
+        if (workflowStatesFolder.toFile().exists() && workflowStatesFolder.toFile().isDirectory())
             try {
                 FileUtils.deleteDirectory(workflowStatesFolder.toFile());
                 workflowStatesDeleted = true;
@@ -1190,20 +1169,20 @@ public class OnlineDbMVStore implements OnlineDb {
 
     @Override
     public void exportStates(String workflowId, Path file) {
-        if ( workflowStatesFolderExists(workflowId)) {
+        if (workflowStatesFolderExists(workflowId)) {
             LOGGER.info("Exporting states for workflow {}", workflowId);
             Path workflowStatesFolder = getWorkflowStatesFolder(workflowId);
             Path csvFile = Paths.get(workflowStatesFolder.toString(), SERIALIZED_STATES_FILENAME);
-            if ( !csvFile.toFile().exists() ) {
+            if (!csvFile.toFile().exists()) {
                 LOGGER.info("Serializing network data of workflow {}", workflowId);
-                try(FileWriter fileWriter = new FileWriter(csvFile.toFile());
-                        CsvListWriter csvWriter = new CsvListWriter(fileWriter, new CsvPreference.Builder('"', ';', "\r\n").build())) {
+                try (FileWriter fileWriter = new FileWriter(csvFile.toFile());
+                     CsvListWriter csvWriter = new CsvListWriter(fileWriter, new CsvPreference.Builder('"', ';', "\r\n").build())) {
                     boolean printHeaders = true;
-                    for(Integer stateId : listStoredStates(workflowId)) {
+                    for (Integer stateId : listStoredStates(workflowId)) {
                         Network network = getState(workflowId, stateId);
-                        if ( network != null ) {
+                        if (network != null) {
                             Map<HistoDbAttributeId, Object> networkValues = IIDM2DB.extractCimValues(network, new IIDM2DB.Config(network.getId(), true, true)).getSingleValueMap();
-                            if ( printHeaders ) {
+                            if (printHeaders) {
                                 List<String> headers = new ArrayList<>(networkValues.size());
                                 for (HistoDbAttributeId attrId : networkValues.keySet()) {
                                     headers.add(attrId.toString());
@@ -1211,8 +1190,8 @@ public class OnlineDbMVStore implements OnlineDb {
                                 ArrayList<String> headersList = new ArrayList<>();
                                 headersList.add("workflow");
                                 headersList.add("state");
-                                headersList.addAll(Arrays.asList(headers.toArray(new String[] {})));
-                                csvWriter.writeHeader(headersList.toArray(new String[] {}));
+                                headersList.addAll(Arrays.asList(headers.toArray(new String[]{})));
+                                csvWriter.writeHeader(headersList.toArray(new String[]{}));
                                 printHeaders = false;
                             }
                             ArrayList<Object> valuesList = new ArrayList<>();
@@ -1231,13 +1210,13 @@ public class OnlineDbMVStore implements OnlineDb {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-        } else 
+        } else
             LOGGER.error("No stored states for workflow {}", workflowId);
     }
 
     @Override
     public void storeViolations(String workflowId, Integer stateId, OnlineStep step, List<LimitViolation> violations) {
-        String stateIdStr=String.valueOf(stateId);
+        String stateIdStr = String.valueOf(stateId);
         LOGGER.info("Storing violations for wf {}, step {} and state {}", workflowId, step.name(), stateIdStr);
         storeViolations(workflowId, STORED_VIOLATIONS_MAP_PREFIX + step.name() + "_" + stateIdStr, violations);
         LOGGER.info("Storing violations metadata for wf {}, step {} and state {}", workflowId, step.name(), stateIdStr);
@@ -1249,14 +1228,14 @@ public class OnlineDbMVStore implements OnlineDb {
             MVStore wfMVStore = getStore(workflowId);
             Map<String, String> metricsMap = wfMVStore.openMap(mapName, mapBuilder);
             int violationIndex = 0;
-            for ( LimitViolation limitViolation : violations ) {
+            for (LimitViolation limitViolation : violations) {
                 String violationId = limitViolation.getSubject().getId() + "_" + violationIndex;
                 metricsMap.put(violationId, OnlineDbMVStoreUtils.limitViolationToJson(limitViolation));
                 violationIndex++;
             }
             wfMVStore.commit();
-        } catch(Throwable e) {
-            String errorMessage = "Error storing violations for wf " +  workflowId + " in map " + mapName + ": " + e.getMessage();
+        } catch (Throwable e) {
+            String errorMessage = "Error storing violations for wf " + workflowId + " in map " + mapName + ": " + e.getMessage();
             LOGGER.error(errorMessage);
             throw new RuntimeException(errorMessage);
         }
@@ -1278,11 +1257,11 @@ public class OnlineDbMVStore implements OnlineDb {
             storedStatesMap.putIfAbsent(stateId, "1");
             // save info about stored steps per state
             MVMap<String, String> stepStepMap = wfMVStore.openMap(stateId + STORED_VIOLATIONS_STEPS_MAP_SUFFIX, mapBuilder);
-            stepStepMap.putIfAbsent(step.name(), "");				
+            stepStepMap.putIfAbsent(step.name(), "");
 
             wfMVStore.commit();
-        } catch(Throwable e) {
-            String errorMessage = "Error storing violations metadata for wf " +  workflowId + ", step "+ step.name() + ", state " + stateId + ": " + e.getMessage();
+        } catch (Throwable e) {
+            String errorMessage = "Error storing violations metadata for wf " + workflowId + ", step " + step.name() + ", state " + stateId + ": " + e.getMessage();
             LOGGER.error(errorMessage);
             throw new RuntimeException(errorMessage);
         }
@@ -1290,31 +1269,31 @@ public class OnlineDbMVStore implements OnlineDb {
 
     @Override
     public List<LimitViolation> getViolations(String workflowId, Integer stateId, OnlineStep step) {
-        String stateIdStr=String.valueOf(stateId);
+        String stateIdStr = String.valueOf(stateId);
         LOGGER.info("Getting violations for wf {}, step {} and state {}", workflowId, step.name(), stateIdStr);
         return getStoredViolations(workflowId, STORED_VIOLATIONS_MAP_PREFIX + step.name() + "_" + stateIdStr, null);
     }
 
     private List<LimitViolation> getStoredViolations(String workflowId, String mapName, Network network) {
-        if ( isWorkflowStored(workflowId) ) {
+        if (isWorkflowStored(workflowId)) {
             MVStore wfMVStore = getStore(workflowId);
-            if ( wfMVStore.getMapNames().contains(mapName) ) {
-                if ( network==null )
+            if (wfMVStore.getMapNames().contains(mapName)) {
+                if (network == null)
                     // load network: used to get equipment from equipment id, when creating limit violations
                     network = getState(workflowId, 0);
-                if ( network!=null ) {
+                if (network != null) {
                     List<LimitViolation> violations = new ArrayList<LimitViolation>();
                     Map<String, String> storedMap = wfMVStore.openMap(mapName, mapBuilder);
-                    for ( String violationId : storedMap.keySet() ) {
+                    for (String violationId : storedMap.keySet()) {
                         LimitViolation violation = OnlineDbMVStoreUtils.jsonToLimitViolation(storedMap.get(violationId), network);
-                        if ( violation != null )
+                        if (violation != null)
                             violations.add(violation);
                     }
                     return violations;
                 } else {
                     LOGGER.warn("No network data (states) stored for wf {}, cannot get violations", workflowId);
                     return null;
-                }	
+                }
             } else {
                 LOGGER.warn("No map {} in wf {}", mapName, workflowId);
                 return null;
@@ -1329,20 +1308,20 @@ public class OnlineDbMVStore implements OnlineDb {
     public Map<OnlineStep, List<LimitViolation>> getViolations(String workflowId, Integer stateId) {
         String stateIdStr = Integer.toString(stateId);
         LOGGER.info("Getting violations for wf {} and state {}", workflowId, stateIdStr);
-        if ( isWorkflowStored(workflowId) ) {
+        if (isWorkflowStored(workflowId)) {
             MVStore wfMVStore = getStore(workflowId);
             // check if there are stored violations
             Map<String, String> storedStatesMap = wfMVStore.openMap(STORED_VIOLATIONS_STATES_MAP_NAME, mapBuilder);
-            if ( storedStatesMap.containsKey(stateIdStr) ) {
+            if (storedStatesMap.containsKey(stateIdStr)) {
                 // load network: used to get equipment from equipment id, when creating limit violations
                 Network network = getState(workflowId, 0);
-                if ( network!=null ) {
+                if (network != null) {
                     Map<OnlineStep, List<LimitViolation>> stateViolations = new HashMap<OnlineStep, List<LimitViolation>>();
                     MVMap<String, String> storedStepsMap = wfMVStore.openMap(stateIdStr + STORED_VIOLATIONS_STEPS_MAP_SUFFIX, mapBuilder);
-                    for ( String stepName : storedStepsMap.keySet() ) {
+                    for (String stepName : storedStepsMap.keySet()) {
                         OnlineStep step = OnlineStep.valueOf(stepName);
                         List<LimitViolation> violations = getStoredViolations(workflowId, STORED_VIOLATIONS_MAP_PREFIX + step.name() + "_" + stateId, network);
-                        if ( violations!=null )
+                        if (violations != null)
                             stateViolations.put(step, violations);
                     }
                     return stateViolations;
@@ -1364,19 +1343,19 @@ public class OnlineDbMVStore implements OnlineDb {
     @Override
     public Map<Integer, List<LimitViolation>> getViolations(String workflowId, OnlineStep step) {
         LOGGER.info("Getting violations for wf {} and step {}", workflowId, step.name());
-        if ( isWorkflowStored(workflowId) ) {
+        if (isWorkflowStored(workflowId)) {
             MVStore wfMVStore = getStore(workflowId);
             // check if there are stored violations
             Map<String, String> storedStepsMap = wfMVStore.openMap(STORED_VIOLATIONS_STEPS_MAP_NAME, mapBuilder);
-            if ( storedStepsMap.containsKey(step.name()) ) {
+            if (storedStepsMap.containsKey(step.name())) {
                 // load network: used to get equipment from equipment id, when creating limit violations
                 Network network = getState(workflowId, 0);
-                if ( network!=null ) {
+                if (network != null) {
                     Map<Integer, List<LimitViolation>> stepViolations = new HashMap<Integer, List<LimitViolation>>();
                     MVMap<String, String> storedStatesMap = wfMVStore.openMap(step.name() + STORED_VIOLATIONS_STATES_MAP_SUFFIX, mapBuilder);
-                    for ( String stateId : storedStatesMap.keySet() ) {
+                    for (String stateId : storedStatesMap.keySet()) {
                         List<LimitViolation> violations = getStoredViolations(workflowId, STORED_VIOLATIONS_MAP_PREFIX + step.name() + "_" + stateId, network);
-                        if ( violations!=null )
+                        if (violations != null)
                             stepViolations.put(Integer.valueOf(stateId), violations);
                     }
                     return stepViolations;
@@ -1397,24 +1376,24 @@ public class OnlineDbMVStore implements OnlineDb {
     @Override
     public Map<Integer, Map<OnlineStep, List<LimitViolation>>> getViolations(String workflowId) {
         LOGGER.info("Getting violations for wf {}", workflowId);
-        if ( isWorkflowStored(workflowId) ) {
+        if (isWorkflowStored(workflowId)) {
             MVStore wfMVStore = getStore(workflowId);
             // check if there are stored violations
             Map<String, String> storedStatesMap = wfMVStore.openMap(STORED_VIOLATIONS_STATES_MAP_NAME, mapBuilder);
-            if ( !storedStatesMap.isEmpty() ) {
+            if (!storedStatesMap.isEmpty()) {
                 // load network: used to get equipment from equipment id, when creating limit violations
                 Network network = getState(workflowId, 0);
-                if ( network!=null ) {
-                    Map<Integer, Map<OnlineStep, List<LimitViolation>>> wfViolations = new HashMap<Integer, Map<OnlineStep,List<LimitViolation>>>();
-                    for(String stateIdStr : storedStatesMap.keySet()) {
+                if (network != null) {
+                    Map<Integer, Map<OnlineStep, List<LimitViolation>>> wfViolations = new HashMap<Integer, Map<OnlineStep, List<LimitViolation>>>();
+                    for (String stateIdStr : storedStatesMap.keySet()) {
                         Integer stateId = Integer.parseInt(stateIdStr);
                         Map<OnlineStep, List<LimitViolation>> stateViolations = new HashMap<OnlineStep, List<LimitViolation>>();
                         MVMap<String, String> storedStepsMap = wfMVStore.openMap(stateIdStr + STORED_VIOLATIONS_STEPS_MAP_SUFFIX, mapBuilder);
-                        if ( !storedStepsMap.isEmpty() ) {
-                            for ( String stepName : storedStepsMap.keySet() ) {
+                        if (!storedStepsMap.isEmpty()) {
+                            for (String stepName : storedStepsMap.keySet()) {
                                 OnlineStep step = OnlineStep.valueOf(stepName);
                                 List<LimitViolation> violations = getStoredViolations(workflowId, STORED_VIOLATIONS_MAP_PREFIX + step.name() + "_" + stateId, network);
-                                if ( violations!=null )
+                                if (violations != null)
                                     stateViolations.put(step, violations);
                             }
                             wfViolations.put(stateId, stateViolations);
@@ -1436,9 +1415,9 @@ public class OnlineDbMVStore implements OnlineDb {
     }
 
     @Override
-    public void storePostContingencyViolations(String workflowId, Integer stateId, String contingencyId, 
-            boolean loadflowConverge, List<LimitViolation> violations) {
-        String stateIdStr=String.valueOf(stateId);
+    public void storePostContingencyViolations(String workflowId, Integer stateId, String contingencyId,
+                                               boolean loadflowConverge, List<LimitViolation> violations) {
+        String stateIdStr = String.valueOf(stateId);
         LOGGER.info("Storing post contingency violations for wf {}, contingency {} and state {}", workflowId, contingencyId, stateIdStr);
         storeViolations(workflowId, STORED_PC_VIOLATIONS_MAP_PREFIX + contingencyId + "_" + stateIdStr, violations);
         LOGGER.info("Storing post contingency violations metadata for wf {}, contingency {} and state {}", workflowId, contingencyId, stateIdStr);
@@ -1463,18 +1442,18 @@ public class OnlineDbMVStore implements OnlineDb {
             storedStatesMap.putIfAbsent(stateId, "1");
             // save info about stored contingencies per state
             MVMap<String, String> stateContingencyMap = wfMVStore.openMap(stateId + STORED_PC_VIOLATIONS_CONTINGENCIES_MAP_SUFFIX, mapBuilder);
-            LOGGER.info("storePCViolationsMetadata: Adding contingency {} to map {} for workflow {}, state {}", 
+            LOGGER.info("storePCViolationsMetadata: Adding contingency {} to map {} for workflow {}, state {}",
                     contingencyId,
-                    stateId + STORED_PC_VIOLATIONS_CONTINGENCIES_MAP_SUFFIX, 
-                    workflowId, 
+                    stateId + STORED_PC_VIOLATIONS_CONTINGENCIES_MAP_SUFFIX,
+                    workflowId,
                     stateId
-                    );
+            );
             //stateContingencyMap.putIfAbsent(contingencyId, "");				
             stateContingencyMap.put(contingencyId, "");
 
             wfMVStore.commit();
-        } catch(Throwable e) {
-            String errorMessage = "Error storing pc violations metadata for wf " +  workflowId + ", contingency "+ contingencyId + ", state " + stateId + ": " + e.getMessage();
+        } catch (Throwable e) {
+            String errorMessage = "Error storing pc violations metadata for wf " + workflowId + ", contingency " + contingencyId + ", state " + stateId + ": " + e.getMessage();
             LOGGER.error(errorMessage);
             throw new RuntimeException(errorMessage);
         }
@@ -1496,18 +1475,18 @@ public class OnlineDbMVStore implements OnlineDb {
             storedStatesMap.putIfAbsent(stateId, "1");
             // save info about stored contingencies per state
             MVMap<String, String> stateContingencyMap = wfMVStore.openMap(stateId + STORED_PC_LOADFLOW_CONTINGENCIES_MAP_SUFFIX, mapBuilder);
-            LOGGER.info("storePSLoadflowConvergence: Adding contingency {} to map {} for workflow {}, state {}", 
+            LOGGER.info("storePSLoadflowConvergence: Adding contingency {} to map {} for workflow {}, state {}",
                     contingencyId,
-                    stateId + STORED_PC_LOADFLOW_CONTINGENCIES_MAP_SUFFIX, 
-                    workflowId, 
+                    stateId + STORED_PC_LOADFLOW_CONTINGENCIES_MAP_SUFFIX,
+                    workflowId,
                     stateId
-                    );
+            );
             //stateContingencyMap.putIfAbsent(contingencyId, Boolean.toString(loadflowConverge));				
             stateContingencyMap.put(contingencyId, Boolean.toString(loadflowConverge));
 
             wfMVStore.commit();
-        } catch(Throwable e) {
-            String errorMessage = "Error storing pc loadflow convergence for wf " +  workflowId + ", contingency "+ contingencyId + ", state " + stateId + ": " + e.getMessage();
+        } catch (Throwable e) {
+            String errorMessage = "Error storing pc loadflow convergence for wf " + workflowId + ", contingency " + contingencyId + ", state " + stateId + ": " + e.getMessage();
             LOGGER.error(errorMessage);
             throw new RuntimeException(errorMessage);
         }
@@ -1515,7 +1494,7 @@ public class OnlineDbMVStore implements OnlineDb {
 
     @Override
     public List<LimitViolation> getPostContingencyViolations(String workflowId, Integer stateId, String contingencyId) {
-        String stateIdStr=String.valueOf(stateId);
+        String stateIdStr = String.valueOf(stateId);
         LOGGER.info("Getting post contingency violations for wf {}, contingency {} and state {}", workflowId, contingencyId, stateIdStr);
         return getStoredViolations(workflowId, STORED_PC_VIOLATIONS_MAP_PREFIX + contingencyId + "_" + stateIdStr, null);
     }
@@ -1524,19 +1503,19 @@ public class OnlineDbMVStore implements OnlineDb {
     public Map<String, List<LimitViolation>> getPostContingencyViolations(String workflowId, Integer stateId) {
         String stateIdStr = Integer.toString(stateId);
         LOGGER.info("Getting post contingency violations for wf {} and state {}", workflowId, stateIdStr);
-        if ( isWorkflowStored(workflowId) ) {
+        if (isWorkflowStored(workflowId)) {
             MVStore wfMVStore = getStore(workflowId);
             // check if there are stored violations
             Map<String, String> storedStatesMap = wfMVStore.openMap(STORED_PC_VIOLATIONS_STATES_MAP_NAME, mapBuilder);
-            if ( storedStatesMap.containsKey(stateIdStr) ) {
+            if (storedStatesMap.containsKey(stateIdStr)) {
                 // load network: used to get equipment from equipment id, when creating limit violations
                 Network network = getState(workflowId, 0);
-                if ( network!=null ) {
+                if (network != null) {
                     Map<String, List<LimitViolation>> stateViolations = new HashMap<String, List<LimitViolation>>();
                     MVMap<String, String> storedContingenciesMap = wfMVStore.openMap(stateIdStr + STORED_PC_VIOLATIONS_CONTINGENCIES_MAP_SUFFIX, mapBuilder);
-                    for ( String contingencyId : storedContingenciesMap.keySet() ) {
+                    for (String contingencyId : storedContingenciesMap.keySet()) {
                         List<LimitViolation> violations = getStoredViolations(workflowId, STORED_PC_VIOLATIONS_MAP_PREFIX + contingencyId + "_" + stateId, network);
-                        if ( violations!=null )
+                        if (violations != null)
                             stateViolations.put(contingencyId, violations);
                     }
                     return stateViolations;
@@ -1557,19 +1536,19 @@ public class OnlineDbMVStore implements OnlineDb {
     @Override
     public Map<Integer, List<LimitViolation>> getPostContingencyViolations(String workflowId, String contingencyId) {
         LOGGER.info("Getting post contingency violations for wf {} and contingency {}", workflowId, contingencyId);
-        if ( isWorkflowStored(workflowId) ) {
+        if (isWorkflowStored(workflowId)) {
             MVStore wfMVStore = getStore(workflowId);
             // check if there are stored violations
             Map<String, String> storedContingenciesMap = wfMVStore.openMap(STORED_PC_VIOLATIONS_CONTINGENCIES_MAP_NAME, mapBuilder);
-            if ( storedContingenciesMap.containsKey(contingencyId) ) {
+            if (storedContingenciesMap.containsKey(contingencyId)) {
                 // load network: used to get equipment from equipment id, when creating limit violations
                 Network network = getState(workflowId, 0);
-                if ( network!=null ) {
+                if (network != null) {
                     Map<Integer, List<LimitViolation>> contingencyViolations = new HashMap<Integer, List<LimitViolation>>();
                     MVMap<String, String> storedStatesMap = wfMVStore.openMap(contingencyId + STORED_PC_VIOLATIONS_STATES_MAP_SUFFIX, mapBuilder);
-                    for ( String stateId : storedStatesMap.keySet() ) {
+                    for (String stateId : storedStatesMap.keySet()) {
                         List<LimitViolation> violations = getStoredViolations(workflowId, STORED_PC_VIOLATIONS_MAP_PREFIX + contingencyId + "_" + stateId, network);
-                        if ( violations!=null )
+                        if (violations != null)
                             contingencyViolations.put(Integer.valueOf(stateId), violations);
                     }
                     return contingencyViolations;
@@ -1590,23 +1569,23 @@ public class OnlineDbMVStore implements OnlineDb {
     @Override
     public Map<Integer, Map<String, List<LimitViolation>>> getPostContingencyViolations(String workflowId) {
         LOGGER.info("Getting post contingency violations for wf {}", workflowId);
-        if ( isWorkflowStored(workflowId) ) {
+        if (isWorkflowStored(workflowId)) {
             MVStore wfMVStore = getStore(workflowId);
             // check if there are stored violations
             Map<String, String> storedStatesMap = wfMVStore.openMap(STORED_PC_VIOLATIONS_STATES_MAP_NAME, mapBuilder);
-            if ( !storedStatesMap.isEmpty() ) {
+            if (!storedStatesMap.isEmpty()) {
                 // load network: used to get equipment from equipment id, when creating limit violations
                 Network network = getState(workflowId, 0);
-                if ( network!=null ) {
-                    Map<Integer, Map<String, List<LimitViolation>>> wfViolations = new HashMap<Integer, Map<String,List<LimitViolation>>>();
-                    for(String stateIdStr : storedStatesMap.keySet()) {
+                if (network != null) {
+                    Map<Integer, Map<String, List<LimitViolation>>> wfViolations = new HashMap<Integer, Map<String, List<LimitViolation>>>();
+                    for (String stateIdStr : storedStatesMap.keySet()) {
                         Integer stateId = Integer.parseInt(stateIdStr);
                         Map<String, List<LimitViolation>> stateViolations = new HashMap<String, List<LimitViolation>>();
                         MVMap<String, String> storedContingenciesMap = wfMVStore.openMap(stateIdStr + STORED_PC_VIOLATIONS_CONTINGENCIES_MAP_SUFFIX, mapBuilder);
-                        if ( !storedContingenciesMap.isEmpty() ) {
-                            for ( String contingencyId : storedContingenciesMap.keySet() ) {
+                        if (!storedContingenciesMap.isEmpty()) {
+                            for (String contingencyId : storedContingenciesMap.keySet()) {
                                 List<LimitViolation> violations = getStoredViolations(workflowId, STORED_PC_VIOLATIONS_MAP_PREFIX + contingencyId + "_" + stateId, network);
-                                if ( violations!=null )
+                                if (violations != null)
                                     stateViolations.put(contingencyId, violations);
                             }
                             wfViolations.put(stateId, stateViolations);
@@ -1630,14 +1609,14 @@ public class OnlineDbMVStore implements OnlineDb {
     @Override
     public Map<String, Boolean> getPostContingencyLoadflowConvergence(String workflowId, Integer stateId) {
         String stateIdStr = Integer.toString(stateId);
-        if ( isWorkflowStored(workflowId) ) {
+        if (isWorkflowStored(workflowId)) {
             Map<String, Boolean> loadflowConvergence = new HashMap<String, Boolean>();
             MVStore wfMVStore = getStore(workflowId);
-            if ( wfMVStore.getMapNames().contains(STORED_PC_LOADFLOW_STATES_MAP_NAME) ) {
+            if (wfMVStore.getMapNames().contains(STORED_PC_LOADFLOW_STATES_MAP_NAME)) {
                 Map<String, String> storedStatesMap = wfMVStore.openMap(STORED_PC_LOADFLOW_STATES_MAP_NAME, mapBuilder);
-                if ( storedStatesMap.containsKey(stateIdStr)) {
+                if (storedStatesMap.containsKey(stateIdStr)) {
                     MVMap<String, String> stateContingencyMap = wfMVStore.openMap(stateIdStr + STORED_PC_LOADFLOW_CONTINGENCIES_MAP_SUFFIX, mapBuilder);
-                    for ( String contingencyId : stateContingencyMap.keySet() ) {
+                    for (String contingencyId : stateContingencyMap.keySet()) {
                         loadflowConvergence.put(contingencyId, Boolean.valueOf(stateContingencyMap.get(contingencyId)));
                     }
                     return loadflowConvergence;
@@ -1657,14 +1636,14 @@ public class OnlineDbMVStore implements OnlineDb {
 
     @Override
     public Map<Integer, Boolean> getPostContingencyLoadflowConvergence(String workflowId, String contingencyId) {
-        if ( isWorkflowStored(workflowId) ) {
+        if (isWorkflowStored(workflowId)) {
             Map<Integer, Boolean> loadflowConvergence = new HashMap<Integer, Boolean>();
             MVStore wfMVStore = getStore(workflowId);
-            if ( wfMVStore.getMapNames().contains(STORED_PC_LOADFLOW_CONTINGENCIES_MAP_NAME) ) {
+            if (wfMVStore.getMapNames().contains(STORED_PC_LOADFLOW_CONTINGENCIES_MAP_NAME)) {
                 Map<String, String> storedStatesMap = wfMVStore.openMap(STORED_PC_LOADFLOW_CONTINGENCIES_MAP_NAME, mapBuilder);
-                if ( storedStatesMap.containsKey(contingencyId)) {
+                if (storedStatesMap.containsKey(contingencyId)) {
                     MVMap<String, String> contingencyStateMap = wfMVStore.openMap(contingencyId + STORED_PC_LOADFLOW_STATES_MAP_SUFFIX, mapBuilder);
-                    for ( String stateId : contingencyStateMap.keySet() ) {
+                    for (String stateId : contingencyStateMap.keySet()) {
                         loadflowConvergence.put(Integer.valueOf(stateId), Boolean.valueOf(contingencyStateMap.get(stateId)));
                     }
                     return loadflowConvergence;
@@ -1684,15 +1663,15 @@ public class OnlineDbMVStore implements OnlineDb {
 
     @Override
     public Map<Integer, Map<String, Boolean>> getPostContingencyLoadflowConvergence(String workflowId) {
-        if ( isWorkflowStored(workflowId) ) {
+        if (isWorkflowStored(workflowId)) {
             Map<Integer, Map<String, Boolean>> loadflowConvergence = new HashMap<Integer, Map<String, Boolean>>();
             MVStore wfMVStore = getStore(workflowId);
-            if ( wfMVStore.getMapNames().contains(STORED_PC_LOADFLOW_STATES_MAP_NAME) ) {
+            if (wfMVStore.getMapNames().contains(STORED_PC_LOADFLOW_STATES_MAP_NAME)) {
                 Map<String, String> storedStatesMap = wfMVStore.openMap(STORED_PC_LOADFLOW_STATES_MAP_NAME, mapBuilder);
-                for ( String stateId : storedStatesMap.keySet() ) {
+                for (String stateId : storedStatesMap.keySet()) {
                     MVMap<String, String> stateContingencyMap = wfMVStore.openMap(stateId + STORED_PC_LOADFLOW_CONTINGENCIES_MAP_SUFFIX, mapBuilder);
                     HashMap<String, Boolean> stateLoadflowConvergence = new HashMap<String, Boolean>();
-                    for ( String contingencyId : stateContingencyMap.keySet() ) {
+                    for (String contingencyId : stateContingencyMap.keySet()) {
                         stateLoadflowConvergence.put(contingencyId, Boolean.valueOf(stateContingencyMap.get(contingencyId)));
                     }
                     loadflowConvergence.put(Integer.valueOf(stateId), stateLoadflowConvergence);
@@ -1716,13 +1695,13 @@ public class OnlineDbMVStore implements OnlineDb {
         LOGGER.info("Storing results of wca rules for workflow {}", workflowId);
         MVStore wfMVStore = getStore(workflowId);
         // check if the results for this wf have already been stored
-        if ( wfMVStore.hasMap(STORED_WCA_RULES_RESULTS_MAP_NAME) )
+        if (wfMVStore.hasMap(STORED_WCA_RULES_RESULTS_MAP_NAME))
             removeWfWcaRulesResults(workflowId, wfMVStore);
         MVMap<String, String> storedRulesResultsMap = wfMVStore.openMap(STORED_WCA_RULES_RESULTS_MAP_NAME, mapBuilder);
         // store time horizon
         storedRulesResultsMap.put(STORED_RESULTS_TIMEHORIZON_KEY, results.getTimeHorizon().getName());
         // store contingencies with security rules results
-        storedRulesResultsMap.put(STORED_RULES_RESULTS_CONTINGENCIES_WITH_RULES_KEY, 
+        storedRulesResultsMap.put(STORED_RULES_RESULTS_CONTINGENCIES_WITH_RULES_KEY,
                 OnlineDbMVStoreUtils.contingenciesIdsToJson(results.getContingenciesWithSecurityRulesResults()));
         // store wca rules results for contingencies
         for (String contingencyId : results.getContingenciesWithSecurityRulesResults()) {
@@ -1774,13 +1753,13 @@ public class OnlineDbMVStore implements OnlineDb {
     public OnlineWorkflowRulesResults getWcaRulesResults(String workflowId) {
         Objects.requireNonNull(workflowId, "workflow id is null");
         LOGGER.info("Getting wca rules results of wf {}", workflowId);
-        if ( isWorkflowStored(workflowId) ) {
+        if (isWorkflowStored(workflowId)) {
             MVStore wfMVStore = getStore(workflowId);
-            if ( wfMVStore.hasMap(STORED_WCA_RULES_RESULTS_MAP_NAME) ) {
+            if (wfMVStore.hasMap(STORED_WCA_RULES_RESULTS_MAP_NAME)) {
                 MVMap<String, String> storedRulesResultsMap = wfMVStore.openMap(STORED_WCA_RULES_RESULTS_MAP_NAME, mapBuilder);
                 // create workflow rules results
                 OnlineWorkflowRulesResultsImpl wfRulesResults = new OnlineWorkflowRulesResultsImpl(
-                        workflowId, 
+                        workflowId,
                         TimeHorizon.valueOf(storedRulesResultsMap.get(STORED_RESULTS_TIMEHORIZON_KEY)));
                 // add contingencies with rules results
                 Collection<String> contingenciesWithRules = OnlineDbMVStoreUtils.jsonToContingenciesIds(
@@ -1794,10 +1773,10 @@ public class OnlineDbMVStore implements OnlineDb {
                         Map<String, Boolean> stateResults = OnlineDbMVStoreUtils.jsonToIndexesData(storedStateResultsMap.get(stateId));
                         StateStatus stateStatus = StateStatus.valueOf(storedStateStatusMap.get(stateId));
                         boolean rulesAvailable = true;
-                        if ( storedStateAvailableRulesMap.containsKey(stateId) )
+                        if (storedStateAvailableRulesMap.containsKey(stateId))
                             rulesAvailable = Boolean.parseBoolean(storedStateAvailableRulesMap.get(stateId));
                         List<SecurityIndexType> invalidRules = new ArrayList<SecurityIndexType>();
-                        if ( storedStateInvalidRulesMap.containsKey(stateId) )
+                        if (storedStateInvalidRulesMap.containsKey(stateId))
                             invalidRules.addAll(OnlineDbMVStoreUtils.jsonToIndexesTypes(storedStateInvalidRulesMap.get(stateId)));
                         wfRulesResults.addContingencyWithSecurityRulesResults(contingencyId, Integer.parseInt(stateId), stateStatus, stateResults,
                                 rulesAvailable, invalidRules);
@@ -1832,11 +1811,11 @@ public class OnlineDbMVStore implements OnlineDb {
 
     private Path getWorkflowStatesFolder(String workflowId) {
         Path workflowStatesFolder = Paths.get(config.getOnlineDbDir().toString(), STORED_WORKFLOW_STATES_FOLDER_PREFIX + workflowId);
-        if ( !workflowStatesFolderExists(workflowId) )
+        if (!workflowStatesFolderExists(workflowId))
             try {
                 Files.createDirectories(workflowStatesFolder);
             } catch (IOException e) {
-                String errorMessage = "online db: folder " + workflowStatesFolder + " for workflow " + workflowId +  " cannot be created: " + e.getMessage();
+                String errorMessage = "online db: folder " + workflowStatesFolder + " for workflow " + workflowId + " cannot be created: " + e.getMessage();
                 LOGGER.error(errorMessage);
                 throw new RuntimeException(errorMessage);
             }
@@ -1852,7 +1831,7 @@ public class OnlineDbMVStore implements OnlineDb {
     public List<String> getStoredMaps(String workflowId) {
         Objects.requireNonNull(workflowId, "workflow id is null");
         LOGGER.info("Getting stored maps of wf {}", workflowId);
-        if ( isWorkflowStored(workflowId) ) {
+        if (isWorkflowStored(workflowId)) {
             MVStore wfMVStore = getStore(workflowId);
             return new ArrayList<String>(wfMVStore.getMapNames());
         } else {
@@ -1866,7 +1845,7 @@ public class OnlineDbMVStore implements OnlineDb {
         LOGGER.info("Exporting list of stored maps of wf {}", workflowId);
         StringBuffer storedMapList = new StringBuffer();
         List<String> storedMaps = getStoredMaps(workflowId);
-        if ( storedMaps != null ) {
+        if (storedMaps != null) {
             for (String map : storedMaps) {
                 storedMapList.append(map + "\n");
             }
@@ -1878,9 +1857,9 @@ public class OnlineDbMVStore implements OnlineDb {
         Objects.requireNonNull(workflowId, "workflow id is null");
         Objects.requireNonNull(mapName, "map name id is null");
         LOGGER.info("Exporting content of stored map {}  of wf {}", mapName, workflowId);
-        if ( isWorkflowStored(workflowId) ) {
+        if (isWorkflowStored(workflowId)) {
             MVStore wfMVStore = getStore(workflowId);
-            if ( wfMVStore.hasMap(mapName) ) {
+            if (wfMVStore.hasMap(mapName)) {
                 StringBuffer storedMapContent = new StringBuffer();
                 storedMapContent.append("Map " + mapName + "\n");
                 MVMap<String, String> storedMap = wfMVStore.openMap(mapName, mapBuilder);
@@ -1903,7 +1882,7 @@ public class OnlineDbMVStore implements OnlineDb {
         LOGGER.info("Exporting content of stored maps of wf {}", workflowId);
         StringBuffer storedMapList = new StringBuffer();
         List<String> storedMaps = getStoredMaps(workflowId);
-        if ( storedMaps != null ) {
+        if (storedMaps != null) {
             for (String map : storedMaps) {
                 storedMapList.append(exportStoredMapContent(workflowId, map) + "\n");
             }
