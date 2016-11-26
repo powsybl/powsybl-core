@@ -93,25 +93,28 @@ public class AmplExportOnlineWorkflowStatesTool implements Tool {
         String workflowId = line.getOptionValue("workflow");
         List<Integer> states = line.hasOption("state") ? Arrays.asList(Integer.valueOf(line.getOptionValue("state"))) : onlinedb.listStoredStates(workflowId);
         Path folder =  Paths.get(line.getOptionValue("folder"));
-        System.out.println("Exporting in AMPL format network data of workflow " + workflowId +", " + states.size() + " state(s), to folder " + folder);
-        states.stream().forEach(state -> exportState(onlinedb, workflowId, state, folder));
+        System.out.println("Exporting in AMPL format network data of workflow " + workflowId + ", " + states.size() + " state(s), to folder " + folder);
+        states.forEach(state -> exportState(onlinedb, workflowId, state, folder));
         onlinedb.close();
     }
 
     private void exportState(OnlineDb onlinedb, String workflowId, Integer stateId, Path folder) {
         System.out.println("Exporting network data of workflow " + workflowId +", state " + stateId);
         Network network = onlinedb.getState(workflowId, stateId);
-        if ( network == null ) {
+        if (network == null) {
             System.out.println("Cannot export network data: no stored state " + stateId + " for workflow " + workflowId);
             return;
         }
         Path stateFolder = Paths.get(folder.toString(), "wf_" + workflowId + "_state_" + stateId);
-        System.out.println("Exporting network data of workflow " + workflowId +", state " + stateId + " to folder "+ stateFolder);
-        if ( stateFolder.toFile().exists() ) {
-            System.out.println("Cannot export network data of workflow " + workflowId +", state " + stateId + ": folder "+ stateFolder + " already exists");
+        System.out.println("Exporting network data of workflow " + workflowId + ", state " + stateId + " to folder " + stateFolder);
+        if (stateFolder.toFile().exists()) {
+            System.out.println("Cannot export network data of workflow " + workflowId + ", state " + stateId + ": folder " + stateFolder + " already exists");
             return;
-        } else
-            stateFolder.toFile().mkdir();
+        }
+        if (! stateFolder.toFile().mkdirs()) {
+            System.out.println("Cannot export network data of workflow " + workflowId + ", state " + stateId + ": unable to create " + stateFolder + " folder");
+            return;
+        }
         DataSource dataSource = new FileDataSource(stateFolder, "wf_" + workflowId + "_state_" + stateId);
         Exporters.export("AMPL", network, new Properties(), dataSource);
     }
