@@ -13,29 +13,28 @@ import org.apache.commons.cli.OptionGroup;
 import org.apache.commons.cli.Options;
 
 /**
- *
  * @author Quinary <itesla@quinary.com>
  */
 public class OnlineWorkflowCommand implements Command {
 
-    public static final OnlineWorkflowCommand INSTANCE =new OnlineWorkflowCommand();
+    public static final OnlineWorkflowCommand INSTANCE = new OnlineWorkflowCommand();
 
-    public static final String HOST="host";
-    public static final String PORT="port";
-    public static final String START_CMD="start-workflow";
-    public static final String SHUTDOWN_CMD="shutdown";
-    public static final String BASE_CASE="base-case";
+    public static final String HOST = "host";
+    public static final String PORT = "port";
+    public static final String START_CMD = "start-workflow";
+    public static final String SHUTDOWN_CMD = "shutdown";
+    public static final String BASE_CASE = "base-case";
     public static final String TIME_HORIZON = "time-horizon";
     public static final String STATES = "states";
     public static final String WORKFLOW_ID = "workflow";
     public static final String HISTODB_INTERVAL = "histodb-interval";
     public static final String THREADS = "threads";
-    public static final String FEANALYSIS_ID ="fe-analysis-id";
-    public static final String RULES_PURITY ="rules-purity";
-    public static final String STORE_STATES ="store-states";
-    public static final String ANALYSE_BASECASE ="analyse-basecase";
-    public static final String VALIDATION ="validation";
-    public static final String SECURITY_INDEXES ="security-indexes";
+    public static final String FEANALYSIS_ID = "fe-analysis-id";
+    public static final String RULES_PURITY = "rules-purity";
+    public static final String STORE_STATES = "store-states";
+    public static final String ANALYSE_BASECASE = "analyse-basecase";
+    public static final String VALIDATION = "validation";
+    public static final String SECURITY_INDEXES = "security-indexes";
     public static final String BASECASES_INTERVAL = "basecases-interval";
     public static final String CASE_TYPE = "case-type";
     public static final String COUNTRIES = "countries";
@@ -43,6 +42,7 @@ public class OnlineWorkflowCommand implements Command {
     public static final String LIMIT_REDUCTION = "limits-reduction";
     public static final String HANDLE_VIOLATION_IN_N = "handle-violations";
     public static final String CONSTRAINT_MARGIN = "constraint-margin";
+    public static final String CASE_FILE = "case-file";
 
     @Override
     public String getName() {
@@ -55,7 +55,7 @@ public class OnlineWorkflowCommand implements Command {
     }
 
     @Override
-    public String getDescription() {		
+    public String getDescription() {
         return "Online workflow application control";
     }
 
@@ -196,12 +196,17 @@ public class OnlineWorkflowCommand implements Command {
                 .argName(CONSTRAINT_MARGIN)
                 .build());
 
+        opts.addOption(Option.builder().longOpt(CASE_FILE)
+                .desc("case file: Note: parameter " + CASE_FILE + "cannot be used together with parameters " + BASE_CASE + ", " + CASE_TYPE + ", " + COUNTRIES + ", " + BASECASES_INTERVAL)
+                .hasArg()
+                .argName(CASE_FILE)
+                .build());
+
         return opts;
     }
 
     @Override
     public String getUsageFooter() {
-
         return null;
     }
 

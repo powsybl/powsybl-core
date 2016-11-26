@@ -7,31 +7,15 @@
  */
 package eu.itesla_project.online;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import org.joda.time.format.DateTimeFormat;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import eu.itesla_project.cases.CaseRepository;
+import eu.itesla_project.cases.CaseType;
 import eu.itesla_project.computation.ComputationManager;
+import eu.itesla_project.iidm.import_.Importers;
 import eu.itesla_project.iidm.network.Network;
 import eu.itesla_project.loadflow.api.LoadFlow;
 import eu.itesla_project.loadflow.api.LoadFlowFactory;
 import eu.itesla_project.merge.MergeOptimizerFactory;
 import eu.itesla_project.merge.MergeUtil;
-import eu.itesla_project.cases.CaseRepository;
 import eu.itesla_project.modules.constraints.ConstraintsModifier;
 import eu.itesla_project.modules.contingencies.ContingenciesAndActionsDatabaseClient;
 import eu.itesla_project.modules.histo.HistoDbClient;
@@ -39,32 +23,29 @@ import eu.itesla_project.modules.mcla.ForecastErrorsDataStorage;
 import eu.itesla_project.modules.mcla.MontecarloSampler;
 import eu.itesla_project.modules.mcla.MontecarloSamplerFactory;
 import eu.itesla_project.modules.mcla.MontecarloSamplerParameters;
-import eu.itesla_project.modules.online.OnlineDb;
-import eu.itesla_project.modules.online.OnlineRulesFacade;
-import eu.itesla_project.modules.online.OnlineWorkflowParameters;
-import eu.itesla_project.modules.online.RulesFacadeFactory;
-import eu.itesla_project.modules.online.RulesFacadeParameters;
-import eu.itesla_project.modules.online.TimeHorizon;
+import eu.itesla_project.modules.online.*;
 import eu.itesla_project.modules.optimizer.CorrectiveControlOptimizer;
 import eu.itesla_project.modules.optimizer.CorrectiveControlOptimizerFactory;
 import eu.itesla_project.modules.optimizer.CorrectiveControlOptimizerParameters;
 import eu.itesla_project.modules.rules.RulesDbClient;
-import eu.itesla_project.simulation.securityindexes.SecurityIndex;
+import eu.itesla_project.modules.wca.*;
+import eu.itesla_project.online.ContingencyStatesIndexesSynthesis.SecurityIndexInfo;
 import eu.itesla_project.simulation.ImpactAnalysis;
 import eu.itesla_project.simulation.SimulationParameters;
 import eu.itesla_project.simulation.SimulatorFactory;
 import eu.itesla_project.simulation.Stabilization;
-import eu.itesla_project.modules.wca.UncertaintiesAnalyserFactory;
-import eu.itesla_project.modules.wca.WCA;
-import eu.itesla_project.modules.wca.WCACluster;
-import eu.itesla_project.modules.wca.WCAClusterNum;
-import eu.itesla_project.modules.wca.WCAFactory;
-import eu.itesla_project.modules.wca.WCAParameters;
-import eu.itesla_project.modules.wca.WCAResult;
-import eu.itesla_project.online.ContingencyStatesIndexesSynthesis.SecurityIndexInfo;
+import eu.itesla_project.simulation.securityindexes.SecurityIndex;
+import org.joda.time.format.DateTimeFormat;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
- *
  * @author Quinary <itesla@quinary.com>
  */
 public class OnlineWorkflowImpl implements OnlineWorkflow {
@@ -77,7 +58,7 @@ public class OnlineWorkflowImpl implements OnlineWorkflow {
     private final RulesDbClient rulesDbClient;
     private final ForecastErrorsDataStorage feDataStorage;
     private final OnlineWorkflowParameters parameters;
-    private List<OnlineApplicationListener> listeners=new ArrayList<OnlineApplicationListener>();
+    private List<OnlineApplicationListener> listeners = new ArrayList<OnlineApplicationListener>();
     private final CaseRepository caseRepository;
     private final WCAFactory wcaFactory;
     private final LoadFlowFactory loadFlowFactory;
@@ -110,7 +91,7 @@ public class OnlineWorkflowImpl implements OnlineWorkflow {
             RulesFacadeFactory rulesFacadeFactory,
             OnlineWorkflowParameters parameters,
             OnlineWorkflowStartParameters startParameters
-            ) {
+    ) {
         Objects.requireNonNull(computationManager, "computation manager is null");
         Objects.requireNonNull(cadbClient, "contingencies and actions DB client is null");
         Objects.requireNonNull(histoDbClient, "histo DB client is null");
@@ -142,8 +123,19 @@ public class OnlineWorkflowImpl implements OnlineWorkflow {
         this.rulesFacadeFactory = rulesFacadeFactory;
         this.parameters = parameters;
         this.startParameters = startParameters;
-        this.id = DateTimeFormat.forPattern("yyyyMMdd_HHmm_").print(parameters.getBaseCaseDate())+new SimpleDateFormat("yyyyMMddHHmmssSSS").format(new Date());
-        logger.info(parameters.toString());
+        if (parameters.getCaseFile() != null) {
+            //TODO avoid loading network twice, here and in the start method
+            // load network, to get its ID and override existing parameters (base-case, countries, case-type)
+            Network network = Importers.loadNetwork(parameters.getCaseFile());
+            if (network == null) {
+                throw new RuntimeException("Case '" + parameters.getCaseFile() + "' not found");
+            }
+            this.parameters.setBaseCaseDate(network.getCaseDate());
+            this.parameters.setCountries(network.getCountries());
+            this.parameters.setCaseType((network.getForecastDistance() == 0) ? CaseType.SN : CaseType.FO);
+        }
+        this.id = DateTimeFormat.forPattern("yyyyMMdd_HHmm_").print(this.parameters.getBaseCaseDate()) + new SimpleDateFormat("yyyyMMddHHmmssSSS").format(new Date());
+        logger.info(this.parameters.toString());
     }
 
 
@@ -160,15 +152,23 @@ public class OnlineWorkflowImpl implements OnlineWorkflow {
      */
     @Override
     public void start(OnlineWorkflowContext oCtx) throws Exception {
-        logger.info("{} Online workflow processing, started.",id);
-        for (OnlineApplicationListener l :listeners)
-            l.onWorkflowUpdate(new StatusSynthesis(id,StatusSynthesis.STATUS_RUNNING));
+        logger.info("{} Online workflow processing, started.", id);
+        for (OnlineApplicationListener l : listeners)
+            l.onWorkflowUpdate(new StatusSynthesis(id, StatusSynthesis.STATUS_RUNNING));
 
-        Network network = MergeUtil.merge(caseRepository, parameters.getBaseCaseDate(), parameters.getCaseType(), parameters.getCountries(),
-                loadFlowFactory, 0, mergeOptimizerFactory, computationManager, parameters.isMergeOptimized());
+        Network network = null;
+        if (parameters.getCaseFile() != null) {
+            network = Importers.loadNetwork(parameters.getCaseFile());
+            if (network == null) {
+                throw new RuntimeException("Case '" + parameters.getCaseFile() + "' not found");
+            }
+        } else {
+            network = MergeUtil.merge(caseRepository, parameters.getBaseCaseDate(), parameters.getCaseType(), parameters.getCountries(),
+                    loadFlowFactory, 0, mergeOptimizerFactory, computationManager, parameters.isMergeOptimized());
+        }
 
         logger.info("- Network id: " + network.getId());
-        logger.info("- Network name: "+ network.getName());
+        logger.info("- Network name: " + network.getName());
 
         // needed in order to correctly handle multithreading access to network
         network.getStateManager().allowStateMultiThreadAccess(true);
@@ -183,31 +183,31 @@ public class OnlineWorkflowImpl implements OnlineWorkflow {
         oCtx.setResults(new ForecastAnalysisResults(this.getId(), oCtx.getTimeHorizon()));
         oCtx.setSecurityRulesResults(new SecurityRulesApplicationResults(this.getId(), oCtx.getTimeHorizon()));
         oCtx.setWcaResults(new WCAResults(this.getId(), oCtx.getTimeHorizon()));
-        if ( parameters.validation() )
+        if (parameters.validation())
             oCtx.setWcaSecurityRulesResults(new SecurityRulesApplicationResults(this.getId(), oCtx.getTimeHorizon()));
 
         logger.info(" - WCA processing......");
-        for (OnlineApplicationListener l :listeners)
-            l.onWcaUpdate(new RunningSynthesis(id,true));
+        for (OnlineApplicationListener l : listeners)
+            l.onWcaUpdate(new RunningSynthesis(id, true));
 
         // maybe we should put also the stopWcaOnViolations wca parameter as online workflow parameter
         WCAParameters wcaParameters = new WCAParameters(parameters.getHistoInterval(), parameters.getOfflineWorkflowId(), parameters.getSecurityIndexes(), parameters.getRulesPurityThreshold(), true);
         WCA wca = wcaFactory.create(oCtx.getNetwork(), computationManager, histoDbClient, rulesDbClient, uncertaintiesAnalyserFactory, cadbClient, loadFlowFactory);
         WCAResult result = wca.run(wcaParameters);
 
-        for (OnlineApplicationListener l :listeners)
-            l.onWcaUpdate(new RunningSynthesis(id,false));
+        for (OnlineApplicationListener l : listeners)
+            l.onWcaUpdate(new RunningSynthesis(id, false));
 
         // ArrayList<String> stables = new ArrayList<String>();
 
         for (WCACluster cluster : result.getClusters()) {
             logger.info("WCA: contingency {} in cluster {}", cluster.getContingency().getId(), cluster.getNum().toString());
             oCtx.getWcaResults().addContingencyWithCluster(cluster.getContingency().getId(), cluster);
-            if ( parameters.validation() ) { // if validation
+            if (parameters.validation()) { // if validation
                 // do not filter out the contingencies
                 oCtx.getContingenciesToAnalyze().add(cluster.getContingency());
             } else {
-                if ( cluster.getNum() != WCAClusterNum.ONE ) { // cluster 1 -> contingency classified as "stable" -> no need for further analysis
+                if (cluster.getNum() != WCAClusterNum.ONE) { // cluster 1 -> contingency classified as "stable" -> no need for further analysis
                     // contingencies in clusters 2, 3 and 4 need further analysis
                     oCtx.getContingenciesToAnalyze().add(cluster.getContingency());
 
@@ -216,7 +216,7 @@ public class OnlineWorkflowImpl implements OnlineWorkflow {
         }
 
         // notify all contingency stable and unstable
-        for (OnlineApplicationListener l :listeners)
+        for (OnlineApplicationListener l : listeners)
             l.onWcaContingencies(new WcaContingenciesSynthesis(id, oCtx.getWcaResults().getContingenciesWithClusters()));
 
 
@@ -225,7 +225,7 @@ public class OnlineWorkflowImpl implements OnlineWorkflow {
         // create modules used in the states analysis
         MontecarloSampler sampler = montecarloSamplerFactory.create(oCtx.getNetwork(), computationManager, feDataStorage);
         OnlineRulesFacade rulesFacade = rulesFacadeFactory.create(rulesDbClient);
-        CorrectiveControlOptimizer optimizer = optimizerFactory.create(cadbClient,computationManager);
+        CorrectiveControlOptimizer optimizer = optimizerFactory.create(cadbClient, computationManager);
         Stabilization stabilization = simulatorFactory.createStabilization(oCtx.getNetwork(), computationManager, Integer.MAX_VALUE);
         ImpactAnalysis impactAnalysis = simulatorFactory.createImpactAnalysis(oCtx.getNetwork(), computationManager, Integer.MAX_VALUE, cadbClient);
         LoadFlow loadflow = loadFlowFactory.create(oCtx.getNetwork(), computationManager, 0);
@@ -233,9 +233,9 @@ public class OnlineWorkflowImpl implements OnlineWorkflow {
         StateAnalizerListener stateListener = new StateAnalizerListener();
 
         // initialize modules
-        rulesFacade.init(new RulesFacadeParameters(oCtx.getOfflineWorkflowId(), 
-                oCtx.getContingenciesToAnalyze(), 
-                parameters.getRulesPurityThreshold(), 
+        rulesFacade.init(new RulesFacadeParameters(oCtx.getOfflineWorkflowId(),
+                oCtx.getContingenciesToAnalyze(),
+                parameters.getRulesPurityThreshold(),
                 parameters.getSecurityIndexes(),
                 parameters.validation(),
                 parameters.isHandleViolationsInN()));
@@ -244,19 +244,19 @@ public class OnlineWorkflowImpl implements OnlineWorkflow {
         stabilization.init(simulationParameters, simulationInitContext);
         impactAnalysis.init(simulationParameters, simulationInitContext);
         optimizer.init(new CorrectiveControlOptimizerParameters());
-        if ( parameters.isHandleViolationsInN() && parameters.analyseBasecase() ) { // I need to analyze basecase before initializing the sampler
-            new StateAnalyzer(oCtx, sampler, loadflow, rulesFacade, optimizer, stabilization, impactAnalysis, onlineDb, stateListener, 
+        if (parameters.isHandleViolationsInN() && parameters.analyseBasecase()) { // I need to analyze basecase before initializing the sampler
+            new StateAnalyzer(oCtx, sampler, loadflow, rulesFacade, optimizer, stabilization, impactAnalysis, onlineDb, stateListener,
                     constraintsModifier, parameters).call();
         }
         sampler.init(new MontecarloSamplerParameters(oCtx.getTimeHorizon(), parameters.getFeAnalysisId(), parameters.getStates()));
 
         // run states analysis
         int statesNumber = parameters.getStates();
-        if ( parameters.isHandleViolationsInN() && parameters.analyseBasecase() ) // I already analyzed basecase
+        if (parameters.isHandleViolationsInN() && parameters.analyseBasecase()) // I already analyzed basecase
             statesNumber--;
         List<Callable<Void>> tasks = new ArrayList<>(statesNumber);
-        for ( int i=0; i<statesNumber; i++ ) {
-            tasks.add(new StateAnalyzer(oCtx, sampler, loadflow, rulesFacade, optimizer, stabilization, impactAnalysis, onlineDb, stateListener, 
+        for (int i = 0; i < statesNumber; i++) {
+            tasks.add(new StateAnalyzer(oCtx, sampler, loadflow, rulesFacade, optimizer, stabilization, impactAnalysis, onlineDb, stateListener,
                     constraintsModifier, parameters));
         }
         ExecutorService taskExecutor = Executors.newFixedThreadPool(startParameters.getThreads());
@@ -270,8 +270,8 @@ public class OnlineWorkflowImpl implements OnlineWorkflow {
         logger.info("Security Rules Application Results:\n" + oCtx.getSecurityRulesResults().toString());
         logger.info("Results:\n" + oCtx.getResults().toString());
 
-        for (OnlineApplicationListener l :listeners)
-            l.onWorkflowUpdate(new StatusSynthesis(id,StatusSynthesis.STATUS_TERMINATED));
+        for (OnlineApplicationListener l : listeners)
+            l.onWorkflowUpdate(new StatusSynthesis(id, StatusSynthesis.STATUS_TERMINATED));
 
         // store workflow parameters
         onlineDb.storeWorkflowParameters(id, parameters);
@@ -283,13 +283,13 @@ public class OnlineWorkflowImpl implements OnlineWorkflow {
         onlineDb.storeRulesResults(id, oCtx.getSecurityRulesResults());
         // store workflow wca results
         onlineDb.storeWcaResults(id, oCtx.getWcaResults());
-        if ( parameters.validation() )
+        if (parameters.validation())
             // store workflow wca rules results
             onlineDb.storeWcaRulesResults(id, oCtx.getWcaSecurityRulesResults());
         onlineDb.close();
 
         //send itesla notification to apogee only if config.xml contains configuration parameters
-        for (OnlineApplicationListener l :listeners)
+        for (OnlineApplicationListener l : listeners)
             l.onWorkflowEnd(oCtx, onlineDb, cadbClient, parameters);
 
     }
@@ -298,24 +298,25 @@ public class OnlineWorkflowImpl implements OnlineWorkflow {
      * @see eu.itesla_project.online.OnlineWorkflowInterface#addOnlineApplicationListener(eu.itesla_project.online.OnlineApplicationListener)
      */
     @Override
-    public void addOnlineApplicationListener(OnlineApplicationListener listener){
+    public void addOnlineApplicationListener(OnlineApplicationListener listener) {
         listeners.add(listener);
     }
+
     /* (non-Javadoc)
      * @see eu.itesla_project.online.OnlineWorkflowInterface#removeOnlineApplicationListener(eu.itesla_project.online.OnlineApplicationListener)
      */
     @Override
-    public void removeOnlineApplicationListener(OnlineApplicationListener listener){
+    public void removeOnlineApplicationListener(OnlineApplicationListener listener) {
         listeners.remove(listener);
 
     }
 
 
     class StateAnalizerListener {
-        HashMap<Integer, WorkStatus> statusMap = new HashMap<Integer, WorkStatus>();     
-        WorkSynthesis work=new WorkSynthesis(id,statusMap);
-        ContingencyStatesActionsSynthesis acts=new ContingencyStatesActionsSynthesis(id);
-        ContingencyStatesIndexesSynthesis stindex=new ContingencyStatesIndexesSynthesis(id);
+        HashMap<Integer, WorkStatus> statusMap = new HashMap<Integer, WorkStatus>();
+        WorkSynthesis work = new WorkSynthesis(id, statusMap);
+        ContingencyStatesActionsSynthesis acts = new ContingencyStatesActionsSynthesis(id);
+        ContingencyStatesIndexesSynthesis stindex = new ContingencyStatesIndexesSynthesis(id);
         IndexSecurityRulesResultsSynthesis stateWithSecRulesResults = new IndexSecurityRulesResultsSynthesis(id);
 
         public void onUpdate(Integer stateId, EnumMap<OnlineTaskType, OnlineTaskStatus> status, TimeHorizon t) {
@@ -325,17 +326,16 @@ public class OnlineWorkflowImpl implements OnlineWorkflow {
                 WorkStatus ws = statusMap.get(stateId);
                 ws.setStatus(status);
                 ws.setTimeHorizon(t.toString());
-                statusMap.put(stateId,ws);				
-            } else			
-                statusMap.put(stateId,new WorkStatus(stateId, status,t.toString() ));
+                statusMap.put(stateId, ws);
+            } else
+                statusMap.put(stateId, new WorkStatus(stateId, status, t.toString()));
 
             for (OnlineApplicationListener l : listeners)
                 l.onWorkflowStateUpdate(work);
 
         }
 
-        public void onSecurityRulesApplicationResults(String contingencyId, Integer stateId, OnlineWorkflowContext oCtx ) 
-        {
+        public void onSecurityRulesApplicationResults(String contingencyId, Integer stateId, OnlineWorkflowContext oCtx) {
 
             SecurityRulesApplicationResults rulesApplicationResults = oCtx.getSecurityRulesResults();
             stateWithSecRulesResults.addStateSecurityRuleIndexes(contingencyId, stateId, rulesApplicationResults);
@@ -344,24 +344,23 @@ public class OnlineWorkflowImpl implements OnlineWorkflow {
         }
 
 
-
         public void onUpdate(Integer stateId, EnumMap<OnlineTaskType, OnlineTaskStatus> status, TimeHorizon t, String detail) {
             //  statusMap.put(stateId, new WorkStatus(stateId, status, t.toString(),detail));
-            if (statusMap.containsKey(stateId))	{
+            if (statusMap.containsKey(stateId)) {
                 WorkStatus ws = statusMap.get(stateId);
                 StringBuffer sb = new StringBuffer();
 
-                if (ws.getDetail() != null && !ws.getDetail().equals(""))	
+                if (ws.getDetail() != null && !ws.getDetail().equals(""))
                     sb.append(ws.getDetail()).append("<br>").append(detail);
-                else 
+                else
                     sb.append(detail);
 
                 ws.setDetail(sb.toString());
                 ws.setStatus(status);
                 ws.setTimeHorizon(t.toString());
-                statusMap.put(stateId,ws);				
+                statusMap.put(stateId, ws);
             } else
-                statusMap.put(stateId,new WorkStatus(stateId, status,t.toString(),detail ));
+                statusMap.put(stateId, new WorkStatus(stateId, status, t.toString(), detail));
 
             for (OnlineApplicationListener l : listeners)
                 l.onWorkflowStateUpdate(work);
@@ -369,57 +368,52 @@ public class OnlineWorkflowImpl implements OnlineWorkflow {
         }
 
 
-        public void onImpactAnalysisResults(Integer stateId, OnlineWorkflowContext oCtx ) {
+        public void onImpactAnalysisResults(Integer stateId, OnlineWorkflowContext oCtx) {
 
             ForecastAnalysisResults res = oCtx.getResults();
-            Collection<String> unsafes=  res.getUnsafeContingencies();
-            for(String c :unsafes)
-            {
+            Collection<String> unsafes = res.getUnsafeContingencies();
+            for (String c : unsafes) {
 
-                List<Integer> sts =res.getUnstableStates(c);
-                for(Integer s:sts)
-                {
-                    List<SecurityIndex> sec=res.getIndexes(c, s);
-                    ArrayList<SecurityIndexInfo> indexes=new ArrayList<SecurityIndexInfo>();
-                    for(SecurityIndex idx: sec)
-                    {
+                List<Integer> sts = res.getUnstableStates(c);
+                for (Integer s : sts) {
+                    List<SecurityIndex> sec = res.getIndexes(c, s);
+                    ArrayList<SecurityIndexInfo> indexes = new ArrayList<SecurityIndexInfo>();
+                    for (SecurityIndex idx : sec) {
                         indexes.add(stindex.new SecurityIndexInfo(idx));
                     }
-                    stindex.addStateIndexes(c,s, indexes);
+                    stindex.addStateIndexes(c, s, indexes);
                 }
 
             }
 
-            for (OnlineApplicationListener l :listeners)
+            for (OnlineApplicationListener l : listeners)
                 l.onStatesWithIndexesUpdate(stindex);
 
 
         }
 
-        public void onOptimizerResults(Integer stateId,  OnlineWorkflowContext oCtx ) {
+        public void onOptimizerResults(Integer stateId, OnlineWorkflowContext oCtx) {
 
             ForecastAnalysisResults res = oCtx.getResults();
-            Collection<String> conts =res.getContingenciesWithActions();
+            Collection<String> conts = res.getContingenciesWithActions();
 
 
-            for(String c :conts)
-            {
-                Map<Integer,Boolean> unsafeStatesWithActions = res.getUnsafeStatesWithActions(c);
-                if ( unsafeStatesWithActions != null ) {
-                    Set<Integer> sts =unsafeStatesWithActions.keySet();
-                    for(Integer s:sts)
-                    {
+            for (String c : conts) {
+                Map<Integer, Boolean> unsafeStatesWithActions = res.getUnsafeStatesWithActions(c);
+                if (unsafeStatesWithActions != null) {
+                    Set<Integer> sts = unsafeStatesWithActions.keySet();
+                    for (Integer s : sts) {
                         List<String> actiondIds = res.getActionsIds(c, s);
-                        if ( actiondIds != null ) {
-                            ArrayList<ActionInfo> infos=new ArrayList<ActionInfo>();
-                            for(String a : actiondIds)
+                        if (actiondIds != null) {
+                            ArrayList<ActionInfo> infos = new ArrayList<ActionInfo>();
+                            for (String a : actiondIds)
                                 infos.add(new ActionInfo(a));
-                            acts.addStateActions(c,s, infos);
+                            acts.addStateActions(c, s, infos);
                         }
                     }
                 }
             }
-            for (OnlineApplicationListener l :listeners)
+            for (OnlineApplicationListener l : listeners)
                 l.onStatesWithActionsUpdate(acts);
 
 
