@@ -78,4 +78,10 @@ public class CurrentLimitsImpl implements CurrentLimits {
     public TemporaryLimit getTemporaryLimit(int acceptableDuration) {
         return temporaryLimits.get(acceptableDuration);
     }
+
+    @Override
+    public float getTemporaryLimitValue(int acceptableDuration) {
+        TemporaryLimit tl = getTemporaryLimit(acceptableDuration);
+        return tl != null ? tl.getValue() : Float.NaN;
+    }
 }
