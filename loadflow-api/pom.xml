@@ -13,7 +13,7 @@
 
     <parent>
         <groupId>eu.itesla_project</groupId>
-        <artifactId>ipst</artifactId>
+        <artifactId>ipst-core</artifactId>
         <version>0.1-SNAPSHOT</version>
     </parent>
 
