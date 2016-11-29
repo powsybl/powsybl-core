@@ -12,8 +12,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>itesla-parent</artifactId>
         <groupId>eu.itesla_project</groupId>
+        <artifactId>ipst</artifactId>
         <version>0.1-SNAPSHOT</version>
     </parent>
 

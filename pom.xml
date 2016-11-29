@@ -12,7 +12,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>eu.itesla_project</groupId>
-    <artifactId>itesla-parent</artifactId>
+    <artifactId>ipst</artifactId>
     <version>0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
