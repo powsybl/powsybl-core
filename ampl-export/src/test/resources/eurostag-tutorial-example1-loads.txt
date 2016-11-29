@@ -1,3 +1,0 @@
-#Loads (sim1/InitialState)
-#"num" "bus" "substation" "p (MW)" "q (MVar)" "fault" "curative" "id" "description"
-1 4 4 600.000 200.000 0 0 "LOAD" "LOAD"

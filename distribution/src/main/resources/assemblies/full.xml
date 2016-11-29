@@ -55,20 +55,9 @@
             </includes>
         </fileSet>
 
-        <!-- include further resources -->
-        <!-- copy actions.xsd from iidm-actions-contingencies-xml-client module to etc -->
+        <!-- copy iidm.xsd from iidm-xml-converter to etc -->
         <fileSet>
-            <directory>${project.basedir}/../iidm-actions-contingencies-xml-client/src/main/resources</directory>
-            <outputDirectory>etc</outputDirectory>
-            <includes>
-                <include>xsd/actions.xsd</include>
-            </includes>
-            <fileMode>0644</fileMode>
-        </fileSet>
-
-        <!-- copy iidm.xsd from iidm-xml-import-export to etc -->
-        <fileSet>
-            <directory>${project.basedir}/../iidm-xml-import-export/src/main/resources</directory>
+            <directory>${project.basedir}/../iidm-xml-converter/src/main/resources</directory>
             <outputDirectory>etc</outputDirectory>
             <includes>
                 <include>xsd/iidm.xsd</include>

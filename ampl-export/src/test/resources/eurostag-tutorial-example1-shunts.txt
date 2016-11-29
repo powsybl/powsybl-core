@@ -1,2 +1,0 @@
-#Shunts (sim1/InitialState)
-#"num" "bus" "con. bus" "substation" "minB (pu)" "maxB (pu)" "inter. points" "b (pu)" "fault" "curative" "id" "description"

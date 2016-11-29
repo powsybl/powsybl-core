@@ -1,3 +1,0 @@
-#Generators (sim1/InitialState)
-#"num" "bus" "con. bus" "substation" "minP (MW)" "maxP (MW)" "minQmaxP (MVar)" "minQminP (MVar)" "maxQmaxP (MVar)" "maxQminP (MVar)" "v regul." "targetV (pu)" "targetP (MW)" "targetQ (MVar)" "fault" "curative" "id" "description"
-1 1 1 1 -9999.99 9999.99 -9999.99 -9999.99 9999.99 9999.99 true 1.02083 607.000 301.000 0 0 "GEN" "GEN"

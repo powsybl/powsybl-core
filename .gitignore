@@ -1,8 +1,5 @@
 # Maven projects
-/ampl-export/target/
 /case-repository/target/
-/cim1-import/target/
-/cim1-model/target/
 /commons/target/
 /computation-local/target/
 /computation-mpi/target/
@@ -10,54 +7,16 @@
 /computation/target/
 /contingency-api/target/
 /distribution/target
-/dymola-integration/target/
-/entsoe-case-repository/target
-/entsoe-util/target/
-/EU2Mod_MB/target/
-/eurostag-ech-export/target/
-/eurostag-integration/target/
-/eurostag-network/target/
-/eurostag-step-up-transformer/target/
-/file-system-rules-db/target/
-/fpf-integration/target/
 /graph/target/
-/histodb-client/target/
-/iidm-actions-contingencies-xml-client/target/
 /iidm-converter-api/target/
-/iidm-ddb/iidm-ddb-ear/target/
-/iidm-ddb/iidm-ddb-ejb-remote-client-wildfly/target/
-/iidm-ddb/iidm-ddb-ejb/target/
-/iidm-ddb/iidm-ddb-eurostag-import-export/target/
-/iidm-ddb/iidm-ddb-eurostag-modelica-converter/target/
-/iidm-ddb/iidm-ddb-modelica-import-export/target/
-/iidm-ddb/iidm-ddb-psse-import-export/target/
-/iidm-ddb/iidm-ddb-web/target/
-/iidm-ddb/iidm-ddb-example-ejb-client/target/
 /iidm-network-api/target/
 /iidm-network-impl/target/
 /iidm-network-test/target/
 /iidm-xml-converter/target/
 /loadflow-api/target/
-/mcla-integration/target/
-/mmap-offline-db/target/
-/modelica-events-adder/target/
-/modelica-export/target
-/modules/target/
-/network-merge/target/
-/offline-mpi/target/
-/offline-server/target/
-/offline-workflow/target/
-/online-mpi/target/
-/online-server/target/
-/online-workflow/target/
-/pclfsim-integration/target/
-/sampling-integration/target/
 /security-analysis/target/
 /simulation-api/target/
 /target/
-/ucte-import/target/
-/ucte-network/target/
-/wca-integration/target/
 
 # CMake projects
 /build/
@@ -67,9 +26,6 @@
 /.idea
 *.iml
 
-# Matlab projects
-/dymola-adapter/bin/
-/dynamic-indexes/*/bin/
-
 # iPST compilation settings
 install.cfg
+

@@ -16,61 +16,27 @@
     <version>0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <name>iTESLA platform</name>
+    <name>iPST core</name>
     <url>http://www.itesla-project.eu/</url>
 
     <modules>
-        <module>ampl-export</module>
         <module>case-repository</module>
-        <module>cim1-model</module>
-        <module>cim1-import</module>
         <module>commons</module>
         <module>computation</module>
         <module>computation-local</module>
         <module>computation-mpi</module>
+        <module>computation-mpi-util</module>
         <module>contingency-api</module>
         <module>distribution</module>
-        <module>dymola-integration</module>
-        <module>entsoe-case-repository</module>
-        <module>entsoe-util</module>
-        <module>EU2Mod_MB</module>
-        <module>eurostag-ech-export</module>
-        <module>eurostag-integration</module>
-        <module>eurostag-network</module>
-        <module>eurostag-step-up-transformer</module>
-        <module>file-system-rules-db</module>
-        <module>fpf-integration</module>
         <module>graph</module>
-        <!-- <module>histoDB</module> -->
-        <module>histodb-client</module>
-        <module>iidm-actions-contingencies-xml-client</module>
         <module>iidm-converter-api</module>
-        <module>iidm-ddb</module>
         <module>iidm-network-api</module>
         <module>iidm-network-impl</module>
         <module>iidm-network-test</module>
         <module>iidm-xml-converter</module>
         <module>loadflow-api</module>
-        <module>mcla-integration</module>
-        <module>mmap-offline-db</module>
-        <module>modelica-events-adder</module>
-        <module>modelica-export</module>
-        <module>modules</module>
-        <module>network-merge</module>
-        <module>offline-mpi</module>
-        <module>offline-server</module>
-        <module>offline-workflow</module>
-        <module>online-mpi</module>
-        <module>online-server</module>
-        <module>online-workflow</module>
-        <module>pclfsim-integration</module>
-        <module>sampling-integration</module>
         <module>security-analysis</module>
         <module>simulation-api</module>
-        <module>ucte-import</module>
-        <module>ucte-network</module>
-        <module>wca-integration</module>
-        <module>computation-mpi-util</module>
     </modules>
 
     <properties>
@@ -88,41 +54,22 @@
         <maven.jar.version>2.6</maven.jar.version>
         <maven.assembly.version>2.6</maven.assembly.version>
 
-        <pepite.libs.weightedtrees.version>1.1-ITESLA</pepite.libs.weightedtrees.version>
-        <pepite.libs.version>1.0-ITESLA</pepite.libs.version>
-
-        <junit.version>4.12</junit.version>
-        <slf4j.version>1.7.19</slf4j.version>
-        <logback.version>1.1.6</logback.version>
-        <guava.version>19.0</guava.version>
-        <trove4j.version>3.0.3</trove4j.version>
-        <commonsmath3.version>3.6</commonsmath3.version>
-        <commonsio.version>2.4</commonsio.version>
-        <commonscli.version>1.3.1</commonscli.version>
-        <supercsv.version>2.4.0</supercsv.version>
-        <httpclient.version>4.5.2</httpclient.version>
-        <shrinkwrap.version>1.2.3</shrinkwrap.version>
-        <jodatime.version>2.9.2</jodatime.version>
         <autoservice.version>1.0-rc2</autoservice.version>
-        <sirocco.version>1.0</sirocco.version>
-        <jackson.version>2.7.3</jackson.version>
-        <h2database.version>1.4.191</h2database.version>
-        <gdata.version>1.41.1_1</gdata.version>
-        <commonslang.version>2.6</commonslang.version>
-        <commonscodec.version>1.10</commonscodec.version>
-        <json.version>20160212</json.version>
-        <commonslang3.version>3.4</commonslang3.version>
-        <javacsv.version>2.0</javacsv.version>
-        <jmatio.version>1.0</jmatio.version>
-        <jgrapht.version>0.9.1</jgrapht.version>
+        <commonscli.version>1.3.1</commonscli.version>
+        <commonscompress.version>1.12</commonscompress.version>
+        <commonsmath3.version>3.6</commonsmath3.version>
         <graphvizapi.version>1.1</graphvizapi.version>
+        <guava.version>19.0</guava.version>
+        <jodatime.version>2.9.2</jodatime.version>
+        <junit.version>4.12</junit.version>
+        <logback.version>1.1.6</logback.version>
         <mockito.version>1.10.19</mockito.version>
-        <commonsconfiguration.version>1.10</commonsconfiguration.version>
-        <poi.version>3.14</poi.version>
-        <gson.version>2.6.2</gson.version>
-        <jsonlib.version>2.4</jsonlib.version>
+        <shrinkwrap.version>1.2.3</shrinkwrap.version>
+        <sirocco.version>1.0</sirocco.version>
+        <slf4j.version>1.7.19</slf4j.version>
+        <supercsv.version>2.4.0</supercsv.version>
+        <trove4j.version>3.0.3</trove4j.version>
         <xmlunit.version>2.1.1</xmlunit.version>
-        <commons-compress.version>1.12</commons-compress.version>
     </properties>
 
     <licenses>
@@ -134,9 +81,9 @@
     </licenses>
 
     <scm>
-        <connection>scm:git:https://github.com/itesla/ipst.git</connection>
-        <developerConnection>scm:git:https://github.com/itesla/ipst.git</developerConnection>
-        <url>https://github.com/itesla/ipst</url>
+        <connection>scm:git:https://github.com/itesla/ipst-core.git</connection>
+        <developerConnection>scm:git:https://github.com/itesla/ipst-core.git</developerConnection>
+        <url>https://github.com/itesla/ipst-core</url>
     </scm>
 
     <build>
@@ -268,30 +215,31 @@
 
     <dependencyManagement>
         <dependencies>
+            <!-- Compile dependencies -->
             <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-api</artifactId>
-                <version>${slf4j.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-simple</artifactId>
-                <version>${slf4j.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>log4j-over-slf4j</artifactId>
-                <version>${slf4j.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>ch.qos.logback</groupId>
-                <artifactId>logback-classic</artifactId>
-                <version>${logback.version}</version>
+                <groupId>com.google.auto.service</groupId>
+                <artifactId>auto-service</artifactId>
+                <version>${autoservice.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>${guava.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-cli</groupId>
+                <artifactId>commons-cli</artifactId>
+                <version>${commonscli.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>joda-time</groupId>
+                <artifactId>joda-time</artifactId>
+                <version>${jodatime.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.sf.supercsv</groupId>
+                <artifactId>super-csv</artifactId>
+                <version>${supercsv.version}</version>
             </dependency>
             <dependency>
                 <groupId>net.sf.trove4j</groupId>
@@ -300,48 +248,18 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
+                <artifactId>commons-compress</artifactId>
+                <version>${commonscompress.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
                 <artifactId>commons-math3</artifactId>
                 <version>${commonsmath3.version}</version>
             </dependency>
             <dependency>
-                <groupId>commons-io</groupId>
-                <artifactId>commons-io</artifactId>
-                <version>${commonsio.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-cli</groupId>
-                <artifactId>commons-cli</artifactId>
-                <version>${commonscli.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-lang</groupId>
-                <artifactId>commons-lang</artifactId>
-                <version>${commonslang.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-codec</groupId>
-                <artifactId>commons-codec</artifactId>
-                <version>${commonscodec.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-configuration</groupId>
-                <artifactId>commons-configuration</artifactId>
-                <version>${commonsconfiguration.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-lang3</artifactId>
-                <version>${commonslang3.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>net.sf.supercsv</groupId>
-                <artifactId>super-csv</artifactId>
-                <version>${supercsv.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.httpcomponents</groupId>
-                <artifactId>httpclient</artifactId>
-                <version>${httpclient.version}</version>
+                <groupId>org.kohsuke</groupId>
+                <artifactId>graphviz-api</artifactId>
+                <version>${graphvizapi.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jboss.shrinkwrap</groupId>
@@ -364,14 +282,14 @@
                 <version>${shrinkwrap.version}</version>
             </dependency>
             <dependency>
-                <groupId>joda-time</groupId>
-                <artifactId>joda-time</artifactId>
-                <version>${jodatime.version}</version>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${slf4j.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.google.auto.service</groupId>
-                <artifactId>auto-service</artifactId>
-                <version>${autoservice.version}</version>
+                <groupId>org.slf4j</groupId>
+                <artifactId>log4j-over-slf4j</artifactId>
+                <version>${slf4j.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.ow2.sirocco</groupId>
@@ -384,73 +302,16 @@
                     </exclusion>
                 </exclusions>
             </dependency>
+            
+            <!-- Runtime dependencies -->
             <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-core</artifactId>
-                <version>${jackson.version}</version>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>${logback.version}</version>
+                <scope>runtime</scope>
             </dependency>
-            <dependency>
-                <groupId>com.h2database</groupId>
-                <artifactId>h2</artifactId>
-                <version>${h2database.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.h2database</groupId>
-                <artifactId>h2-mvstore</artifactId>
-                <version>${h2database.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.servicemix.bundles</groupId>
-                <artifactId>org.apache.servicemix.bundles.gdata</artifactId>
-                <version>${gdata.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.json</groupId>
-                <artifactId>json</artifactId>
-                <version>${json.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>net.sourceforge.javacsv</groupId>
-                <artifactId>javacsv</artifactId>
-                <version>${javacsv.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>net.sourceforge.jmatio</groupId>
-                <artifactId>jmatio</artifactId>
-                <version>${jmatio.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jgrapht</groupId>
-                <artifactId>jgrapht-core</artifactId>
-                <version>${jgrapht.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.kohsuke</groupId>
-                <artifactId>graphviz-api</artifactId>
-                <version>${graphvizapi.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.poi</groupId>
-                <artifactId>poi-ooxml</artifactId>
-                <version>${poi.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.google.code.gson</groupId>
-                <artifactId>gson</artifactId>
-                <version>${gson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>net.sf.json-lib</groupId>
-                <artifactId>json-lib</artifactId>
-                <classifier>jdk15</classifier>
-                <version>${jsonlib.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-compress</artifactId>
-                <version>${commons-compress.version}</version>
-            </dependency>
-
+            
+            <!-- Test dependencies -->
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
@@ -461,6 +322,12 @@
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-all</artifactId>
                 <version>${mockito.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-simple</artifactId>
+                <version>${slf4j.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>

@@ -12,15 +12,8 @@ sourceDir=$(dirname $(readlink -f $0))
 ###############################################################################
 ipst_prefix=$HOME/itesla
 ipst_package_version=` mvn -f "$sourceDir/pom.xml" org.apache.maven.plugins:maven-help-plugin:evaluate -Dexpression=project.version | grep -v "Download" | grep -v "\["`
-ipst_package_name=ipst-$ipst_package_version
+ipst_package_name=ipst-core-$ipst_package_version
 ipst_package_type=zip
-
-dymola_build=false
-dymola_home=
-eurostag_build=false
-eurostag_home=
-matlab_build=false
-matlab_home=
 
 thirdparty_build=true
 thirdparty_prefix=$HOME/itesla_thirdparty
@@ -64,14 +57,6 @@ usage() {
     echo "  --prefix                 Set the installation directory (default is $HOME/itesla)"
     echo "  --package-type           Set the package format. The supported formats are zip, tar, tar.gz and tar.bz2 (default is zip)"
     echo ""
-    echo "iPST C++ options:"
-    echo "  --with-dymola            Enable the compilation of Dymola dependant modules (DYMOLA_HOME)"
-    echo "  --without-dymola         Disable the compilation of Dymola dependant modules (default)"
-    echo "  --with-eurostag          Enable the compilation of Eurostag dependant modules (EUROSTAG_SDK_HOME)"
-    echo "  --without-eurostag       Disable the compilation of Eurostag dependant modules (default)"
-    echo "  --with-matlab            Enable the compilation of Matlab dependant modules (MATLAB_HOME)"
-    echo "  --without-matlab         Disable the compilation of Matlab dependant modules (default)"
-    echo ""
     echo "Thirdparty options:"
     echo "  --with-thirdparty        Enable the compilation of thirdparty libraries (default)"
     echo "  --without-thirdparty     Disable the compilation of thirdparty libraries"
@@ -114,16 +99,6 @@ writeSettings() {
     writeComment " -- iPST global options --"
     writeSetting "ipst_prefix" ${ipst_prefix}
     writeSetting "ipst_package_type" ${ipst_package_type}
-
-    writeEmptyLine
-
-    writeComment " -- iPST C++ modules options --"
-    writeSetting "eurostag_build" ${eurostag_build}
-    writeSetting "eurostag_home" "${eurostag_home}"
-    writeSetting "dymola_build" ${dymola_build}
-    writeSetting "dymola_home" "${dymola_home}"
-    writeSetting "matlab_build" ${matlab_build}
-    writeSetting "matlab_home" "${matlab_home}"
 
     writeEmptyLine
 
@@ -180,7 +155,7 @@ ipst_cpp()
 
         if [[ $ipst_compile = true || $ipst_docs = true ]]; then
             # TODO: rename variable
-            cmake -DCMAKE_INSTALL_PREFIX="$ipst_prefix" -Dthirdparty_prefix="$thirdparty_prefix" -DBUILD_EUROSTAG=$eurostag_build -DEUROSTAG_SDK_HOME="${eurostag_home}" -DBUILD_MATLAB=$matlab_build -DMATLAB_HOME="${matlab_home}" -DBUILD_DYMOLA=$dymola_build -DDYMOLA_HOME="${dymola_home}" -G "Unix Makefiles" -H"$sourceDir" -B"$ipst_builddir" || exit $?
+            cmake -DCMAKE_INSTALL_PREFIX="$ipst_prefix" -Dthirdparty_prefix="$thirdparty_prefix" -G "Unix Makefiles" -H"$sourceDir" -B"$ipst_builddir" || exit $?
 
             if [ $ipst_compile = true ]; then
                 echo "**** Compiling C++ modules"
@@ -283,36 +258,15 @@ ipst_install()
 ## Parse command line
 ###############################################################################
 ipst_options="prefix:,package-type:"
-ipst_cpp_options="with-eurostag::,without-eurostag,with-dymola::,without-dymola,with-matlab::,without-matlab"
 thirdparty_options="with-thirdparty,without-thirdparty,thirdparty-prefix:,thirdparty-download,thirdparty-packs:"
 
-opts=`getopt -o '' --long "help,$ipst_options,$ipst_cpp_options,$thirdparty_options" -n 'install.sh' -- "$@"`
+opts=`getopt -o '' --long "help,$ipst_options,$thirdparty_options" -n 'install.sh' -- "$@"`
 eval set -- "$opts"
 while true; do
     case "$1" in
         # iPST options
         --prefix) ipst_prefix=$2 ; shift 2 ;;
         --package-type) ipst_package_type=$2 ; shift 2 ;;
-
-        # iPST C++ options
-        --with-dymola)
-            case "$2" in
-                "") dymola_build=true ; dymola_home=${DYMOLA_HOME} ; shift 2 ;;
-                *) dymola_build=true ; dymola_home=$2 ; shift 2 ;;
-            esac ;;
-        --without-dymola) dymola_build=false ; shift ;;
-        --with-eurostag)
-            case "$2" in
-                "") eurostag_build=true ; eurostag_home=${EUROSTAG_SDK_HOME} ; shift 2 ;;
-                *) eurostag_build=true ; eurostag_home=$2 ; shift 2 ;;
-            esac ;;
-        --without-eurostag) eurostag_build=false ; shift ;;
-        --with-matlab)
-            case "$2" in
-                "") matlab_build=true ; matlab_home=${MATLAB_HOME} ; shift 2 ;;
-                *) matlab_build=true ; matlab_home=$2 ; shift 2 ;;
-            esac ;;
-        --without-matlab) matlab_build=false ; shift ;;
 
         # Third-party options
         --with-thirdparty) thirdparty_build=true ; shift ;;
@@ -367,3 +321,4 @@ ipst_install
 
 # Save settings
 writeSettings > "${settings}"
+

@@ -26,139 +26,107 @@
 
     <dependencies>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>offline-mpi</artifactId>
-            <version>${project.version}</version>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
         </dependency>
-
+    
+    
+        <!-- iPST core -->
         <dependency>
             <groupId>eu.itesla_project</groupId>
-            <artifactId>online-mpi</artifactId>
+            <artifactId>case-repository</artifactId>
             <version>${project.version}</version>
         </dependency>
-
-        <!-- importers -->
+    
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>cim1-import</artifactId>
+            <groupId>eu.itesla_project</groupId>
+            <artifactId>commons</artifactId>
             <version>${project.version}</version>
         </dependency>
+        
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ucte-import</artifactId>
+            <groupId>eu.itesla_project</groupId>
+            <artifactId>computation</artifactId>
             <version>${project.version}</version>
         </dependency>
+    
+        <dependency>
+            <groupId>eu.itesla_project</groupId>
+            <artifactId>computation-local</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    
+        <dependency>
+            <groupId>eu.itesla_project</groupId>
+            <artifactId>computation-mpi</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>eu.itesla_project</groupId>
+            <artifactId>computation-mpi-util</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>eu.itesla_project</groupId>
+            <artifactId>contingency-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>eu.itesla_project</groupId>
+            <artifactId>graph</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>eu.itesla_project</groupId>
+            <artifactId>iidm-converter-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>eu.itesla_project</groupId>
+            <artifactId>iidm-network-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>eu.itesla_project</groupId>
+            <artifactId>iidm-network-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>eu.itesla_project</groupId>
+            <artifactId>iidm-network-test</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    
         <dependency>
             <groupId>eu.itesla_project</groupId>
             <artifactId>iidm-xml-converter</artifactId>
             <version>${project.version}</version>
         </dependency>
 
-        <!-- case-repositories -->
         <dependency>
             <groupId>eu.itesla_project</groupId>
-            <artifactId>entsoe-case-repository</artifactId>
+            <artifactId>loadflow-api</artifactId>
             <version>${project.version}</version>
         </dependency>
 
-        <!-- Dynamic database (mysql) -->
-        <dependency>
-            <groupId>eu.itesla_project.iidm-ddb</groupId>
-            <artifactId>iidm-ddb-eurostag-import-export</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
-
-        <!-- Data mining -->
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>histodb-client</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <!-- Sampler (WP4.1) -->
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>sampling-integration</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <!-- Eurostag simulator (WP4.3) -->
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>eurostag-integration</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>eurostag-step-up-transformer</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <!-- load flow based simulator -->
         <dependency>
             <groupId>eu.itesla_project</groupId>
-            <artifactId>pclfsim-integration</artifactId>
+            <artifactId>security-analysis</artifactId>
             <version>${project.version}</version>
         </dependency>
-
-        <!-- offline DB -->
+         
         <dependency>
             <groupId>eu.itesla_project</groupId>
-            <artifactId>mmap-offline-db</artifactId>
+            <artifactId>simulation-api</artifactId>
             <version>${project.version}</version>
         </dependency>
-
-        <!-- rules DB -->
-        <dependency>
-            <groupId>eu.itesla_project</groupId>
-            <artifactId>file-system-rules-db</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <!-- WCA -->
-        <dependency>
-            <groupId>eu.itesla_project</groupId>
-            <artifactId>wca-integration</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <!-- XML contingencies -->
-        <dependency>
-            <groupId>eu.itesla_project</groupId>
-            <artifactId>iidm-actions-contingencies-xml-client</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>log4j-over-slf4j</artifactId>
-            <version>1.7.19</version>
-        </dependency>
-
-        <!-- Modelica exporter -->
-        <dependency>
-            <groupId>eu.itesla_project.iidm-ddb</groupId>
-            <artifactId>iidm-ddb-eurostag-modelica-converter</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>modelica-export</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>modelica-events-adder</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <!-- fpf integration -->
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>fpf-integration</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
 
     </dependencies>
 
