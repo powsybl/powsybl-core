@@ -8,10 +8,6 @@ cmake_minimum_required(VERSION 2.6)
 
 project(itesla)
 
-set(BUILD_MATLAB false CACHE BOOL "")
-set(BUILD_EUROSTAG false CACHE BOOL "")
-set(BUILD_DYMOLA false CACHE BOOL "")
-
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/build)
@@ -35,35 +31,8 @@ set(PROTOBUF_HOME ${thirdparty_prefix}/protobuf)
 set(LIBARCHIVE_HOME ${thirdparty_prefix}/libarchive)
 set(BOOST_ROOT ${thirdparty_prefix}/boost)
 set(LOG4CPP_HOME ${thirdparty_prefix}/log4cpp)
-set(SZIP_HOME ${thirdparty_prefix}/szip)
-set(ZLIB_HOME ${thirdparty_prefix}/zlib)
-set(HDF5_HOME ${thirdparty_prefix}/hdf5)
-set(MATIO_HOME ${thirdparty_prefix}/matio)
 
 add_subdirectory(mpi-communication)
-
-if(BUILD_EUROSTAG)
-    message(STATUS "Eurostag based components (eurostag-indexes and wp43adapter) will be compiled.")
-    add_subdirectory(eurostag-indexes)
-    add_subdirectory(wp43adapter)
-else()
-    message(STATUS "Eurostag based components (eurostag-indexes and wp43adapter) will not be compiled.")
-endif()
-
-if(BUILD_MATLAB)
-    message(STATUS "Matlab based components (sampling, mcla and dynamic-indexes) will be compiled.")
-    add_subdirectory(sampling)
-    add_subdirectory(mcla)
-    add_subdirectory(dynamic-indexes)
-    if(BUILD_DYMOLA)
-        message(STATUS "Dymola/Matlab based components (dymola-adapter) will be compiled.")
-        add_subdirectory(dymola-adapter)
-    else()
-        message(STATUS "Dymola/Matlab based components (dymola-adapter) will not be compiled.")
-    endif()
-else()
-    message(STATUS "Matlab based components (sampling, mcla and dynamic-indexes) will not be compiled.")
-endif()
 
 find_package(Doxygen)
 if(DOXYGEN_FOUND)
@@ -79,3 +48,4 @@ if(DOXYGEN_FOUND)
             VERBATIM)
 
 endif(DOXYGEN_FOUND)
+
