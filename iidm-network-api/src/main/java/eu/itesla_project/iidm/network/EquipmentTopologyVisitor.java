@@ -12,7 +12,7 @@ package eu.itesla_project.iidm.network;
  */
 public abstract class EquipmentTopologyVisitor extends AbstractTopologyVisitor {
 
-    public abstract void visitEquipment(Connectable eq);
+    public abstract <I extends Connectable<I>> void visitEquipment(Connectable<I> eq);
 
     @Override
     public void visitLine(Line line, TwoTerminalsConnectable.Side side) {
