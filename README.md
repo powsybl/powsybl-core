@@ -1,5 +1,6 @@
 [![Build Status](https://travis-ci.org/itesla/ipst-core.svg?branch=master)](https://travis-ci.org/itesla/ipst-core)
 [![Coverage Status](https://coveralls.io/repos/github/itesla/ipst-core/badge.svg?branch=master)](https://coveralls.io/github/itesla/ipst-core?branch=master)
+[![Dependency Status](https://www.versioneye.com/user/projects/583eb4cd8de3f346e6b7ac52/badge.svg?style=flat-square)](https://www.versioneye.com/user/projects/583eb4cd8de3f346e6b7ac52)
 [![MPL-2.0 License](https://img.shields.io/badge/license-MPL_2.0-blue.svg)](https://www.mozilla.org/en-US/MPL/2.0/)
 
 # iPST core
