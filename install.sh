@@ -127,7 +127,7 @@ buildthirdparty()
         if [ $ipst_compile = true ]; then
             if [ $thirdparty_build = true ]; then
                  echo "**** Building the C++ thirdparty libraries"
-                 thirdparty_builddir="${thirdparty_prefix}/build"
+                 thirdparty_builddir="${thirdparty_prefix}/build/ipst-core"
                  cmake -Dprefix="$thirdparty_prefix" -Ddownload="$thirdparty_download" -Dpacks="$thirdparty_packs" -G "Unix Makefiles" -H"$sourceDir/thirdparty" -B"$thirdparty_builddir" || exit $?
                  make -C "$thirdparty_builddir" || exit $?
 
