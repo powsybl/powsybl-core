@@ -68,14 +68,14 @@
         <!-- Javadoc -->
         <fileSet>
             <directory>${project.basedir}/../target/site/apidocs</directory>
-            <outputDirectory>doc/java</outputDirectory>
+            <outputDirectory>doc/java/ipst-core</outputDirectory>
             <fileMode>0644</fileMode>
         </fileSet>
 
         <!-- Doxygen -->
         <fileSet>
             <directory>${project.basedir}/../build/html</directory>
-            <outputDirectory>doc/cpp</outputDirectory>
+            <outputDirectory>doc/cpp/ipst-core</outputDirectory>
             <fileMode>0644</fileMode>
         </fileSet>
 
