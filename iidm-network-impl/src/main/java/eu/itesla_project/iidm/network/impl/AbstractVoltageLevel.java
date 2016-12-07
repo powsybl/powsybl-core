@@ -10,6 +10,7 @@ import eu.itesla_project.iidm.network.*;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 /**
  *
@@ -130,6 +131,11 @@ abstract class AbstractVoltageLevel extends IdentifiableImpl<VoltageLevel> imple
     }
 
     @Override
+    public Stream<Generator> getGeneratorsStream() {
+        return getConnectablesStream(Generator.class);
+    }
+
+    @Override
     public int getGeneratorCount() {
         return getConnectableCount(Generator.class);
     }
@@ -142,6 +148,11 @@ abstract class AbstractVoltageLevel extends IdentifiableImpl<VoltageLevel> imple
     @Override
     public Iterable<Load> getLoads() {
         return getConnectables(Load.class);
+    }
+
+    @Override
+    public Stream<Load> getLoadsStream() {
+        return getConnectablesStream(Load.class);
     }
 
     @Override
@@ -165,6 +176,11 @@ abstract class AbstractVoltageLevel extends IdentifiableImpl<VoltageLevel> imple
     }
 
     @Override
+    public Stream<ShuntCompensator> getShuntsStream() {
+        return getConnectablesStream(ShuntCompensator.class);
+    }
+
+    @Override
     public DanglingLineAdder newDanglingLine() {
         return new DanglingLineAdderImpl(this);
     }
@@ -172,6 +188,11 @@ abstract class AbstractVoltageLevel extends IdentifiableImpl<VoltageLevel> imple
     @Override
     public Iterable<DanglingLine> getDanglingLines() {
         return getConnectables(DanglingLine.class);
+    }
+
+    @Override
+    public Stream<DanglingLine> getDanglingLinesStream() {
+        return getConnectablesStream(DanglingLine.class);
     }
 
     @Override
@@ -190,6 +211,11 @@ abstract class AbstractVoltageLevel extends IdentifiableImpl<VoltageLevel> imple
     }
 
     @Override
+    public Stream<StaticVarCompensator> getStaticVarCompensatorsStream() {
+        return getConnectablesStream(StaticVarCompensator.class);
+    }
+
+    @Override
     public int getStaticVarCompensatorCount() {
         return getConnectableCount(StaticVarCompensator.class);
     }
@@ -202,6 +228,11 @@ abstract class AbstractVoltageLevel extends IdentifiableImpl<VoltageLevel> imple
     @Override
     public Iterable<VscConverterStation> getVscConverterStations() {
         return getConnectables(VscConverterStation.class);
+    }
+
+    @Override
+    public Stream<VscConverterStation> getVscConverterStationsStream() {
+        return getConnectablesStream(VscConverterStation.class);
     }
 
     @Override
@@ -220,6 +251,11 @@ abstract class AbstractVoltageLevel extends IdentifiableImpl<VoltageLevel> imple
     }
 
     @Override
+    public Stream<LccConverterStation> getLccConverterStationsStream() {
+        return getConnectablesStream(LccConverterStation.class);
+    }
+
+    @Override
     public LccConverterStationAdder newLccConverterStation() {
         return new LccConverterStationAdderImpl(this);
     }
@@ -230,6 +266,8 @@ abstract class AbstractVoltageLevel extends IdentifiableImpl<VoltageLevel> imple
     }
 
     protected abstract Iterable<Terminal> getTerminals();
+
+    protected abstract Stream<Terminal> getTerminalsStream();
 
     @Override
     public void visitEquipments(TopologyVisitor visitor) {

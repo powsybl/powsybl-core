@@ -6,6 +6,8 @@
  */
 package eu.itesla_project.iidm.network;
 
+import java.util.stream.Stream;
+
 /**
  * A set of connected bus in the network.
  *
@@ -13,7 +15,7 @@ package eu.itesla_project.iidm.network;
  */
 public interface ConnectedComponent {
 
-    public static final int MAIN_CC_NUM = 0;
+    int MAIN_CC_NUM = 0;
 
     /**
      * Get the number of the connected component.
@@ -31,5 +33,10 @@ public interface ConnectedComponent {
      * Get buses in the connected component.
      */
     Iterable<Bus> getBuses();
+
+    /**
+     * Get buses in the connected component.
+     */
+    Stream<Bus> getBusesStream();
 
 }

@@ -8,6 +8,8 @@ package eu.itesla_project.iidm.network;
 
 import java.util.Collection;
 import java.util.Set;
+import java.util.stream.Stream;
+
 import org.joda.time.DateTime;
 
 /**
@@ -36,7 +38,7 @@ public interface Network extends Container<Network> {
      * Depends on the working state.
      * @see StateManager
      */
-    public static interface BusBreakerView {
+    interface BusBreakerView {
 
         /**
          * Get all buses.
@@ -47,16 +49,34 @@ public interface Network extends Container<Network> {
         Iterable<Bus> getBuses();
 
         /**
+         * Get all buses.
+         * <p>
+         * Depends on the working state.
+         * @see StateManager
+         */
+        Stream<Bus> getBusesStream();
+
+        /**
          * Get all switches.
          */
+        @Deprecated
         Iterable<Switch> getSwitchs();
 
+        /**
+         * Get all switches
+         */
+        Iterable<Switch> getSwitches();
+
+        /**
+         * Get all switches.
+         */
+        Stream<Switch> getSwitchesStream();
     }
 
     /**
      * A global bus view of the network.
      */
-    public static interface BusView {
+    interface BusView {
 
         /**
          * Get all buses.
@@ -65,6 +85,14 @@ public interface Network extends Container<Network> {
          * @see StateManager
          */
         Iterable<Bus> getBuses();
+
+        /**
+         * Get all buses.
+         * <p>
+         * Depends on the working state.
+         * @see StateManager
+         */
+        Stream<Bus> getBusesStream();
 
         /**
          * Get all connected compoments.
@@ -127,6 +155,11 @@ public interface Network extends Container<Network> {
     Iterable<Substation> getSubstations();
 
     /**
+     * Get all substations.
+     */
+    Stream<Substation> getSubstationsStream();
+
+    /**
      * Get the substation count.
      */
     int getSubstationCount();
@@ -156,6 +189,11 @@ public interface Network extends Container<Network> {
     Iterable<VoltageLevel> getVoltageLevels();
 
     /**
+     * Get all substation voltage levels.
+     */
+    Stream<VoltageLevel> getVoltageLevelsStream();
+
+    /**
      * Get the voltage level count.
      */
     int getVoltageLevelCount();
@@ -176,6 +214,11 @@ public interface Network extends Container<Network> {
      * Get all AC lines.
      */
     Iterable<Line> getLines();
+
+    /**
+     * Get all AC lines.
+     */
+    Stream<Line> getLinesStream();
 
     /**
      * Get the AC line count.
@@ -200,6 +243,11 @@ public interface Network extends Container<Network> {
     Iterable<TwoWindingsTransformer> getTwoWindingsTransformers();
 
     /**
+     * Get all two windings transformers.
+     */
+    Stream<TwoWindingsTransformer> getTwoWindingsTransformersStream();
+
+    /**
      * Get the two windings transformer count.
      */
     int getTwoWindingsTransformerCount();
@@ -215,6 +263,11 @@ public interface Network extends Container<Network> {
      * Get all 3 windings transformers.
      */
     Iterable<ThreeWindingsTransformer> getThreeWindingsTransformers();
+
+    /**
+     * Get all 3 windings transformers.
+     */
+    Stream<ThreeWindingsTransformer> getThreeWindingsTransformersStream();
 
     /**
      * Get the 3 windings transformer count.
@@ -234,6 +287,11 @@ public interface Network extends Container<Network> {
     Iterable<Generator> getGenerators();
 
     /**
+     * Get all generators.
+     */
+    Stream<Generator> getGeneratorsStream();
+
+    /**
      * Get the generator count.
      */
     int getGeneratorCount();
@@ -249,6 +307,11 @@ public interface Network extends Container<Network> {
      * Get all loads.
      */
     Iterable<Load> getLoads();
+
+    /**
+     * Get all loads.
+     */
+    Stream<Load> getLoadsStream();
 
     /**
      * Get the load count.
@@ -268,6 +331,11 @@ public interface Network extends Container<Network> {
     Iterable<ShuntCompensator> getShunts();
 
     /**
+     * Get all compensator shunts.
+     */
+    Stream<ShuntCompensator> getShuntsStream();
+
+    /**
      * Get the shunt count.
      */
     int getShuntCount();
@@ -285,6 +353,11 @@ public interface Network extends Container<Network> {
     Iterable<DanglingLine> getDanglingLines();
 
     /**
+     * Get all dangling lines.
+     */
+    Stream<DanglingLine> getDanglingLinesStream();
+
+    /**
      * Get the dangling line count.
      */
     int getDanglingLineCount();
@@ -300,6 +373,11 @@ public interface Network extends Container<Network> {
      * Get all static var compensators.
      */
     Iterable<StaticVarCompensator> getStaticVarCompensators();
+
+    /**
+     * Get all static var compensators.
+     */
+    Stream<StaticVarCompensator> getStaticVarCompensatorsStream();
 
     /**
      * Get the static var compensator count.
@@ -327,6 +405,12 @@ public interface Network extends Container<Network> {
     Iterable<HvdcConverterStation<?>> getHvdcConverterStations();
 
     /**
+     * Get all HVDC converter stations.
+     * @return all HVDC converter stations
+     */
+    Stream<HvdcConverterStation<?>> getHvdcConverterStationsStream();
+
+    /**
      * Get HVDC converter stations count.
      * @return HVDC converter station count
      */
@@ -340,10 +424,67 @@ public interface Network extends Container<Network> {
     HvdcConverterStation<?> getHvdcConverterStation(String id);
 
     /**
+     * Get all LCC converter stations.
+     * @return all LCC converter stations
+     */
+    Iterable<LccConverterStation> getLccConverterStations();
+
+    /**
+     * Get all LCC converter stations.
+     * @return all LCC converter stations
+     */
+    Stream<LccConverterStation> getLccConverterStationsStream();
+
+    /**
+     * Get LCC converter stations count.
+     * @return LCC converter station count
+     */
+    int getLccConverterStationCount();
+
+    /**
+     * Get an LCC converter station.
+     * @param id the id of the LCC converter station
+     * @return the LCC converter station or null if not found
+     */
+    LccConverterStation getLccConverterStation(String id);
+
+    /**
+     * Get all VSC converter stations.
+     * @return all VSC converter stations
+     */
+    Iterable<VscConverterStation> getVscConverterStations();
+
+    /**
+     * Get all VSC converter stations.
+     * @return all VSC converter stations
+     */
+    Stream<VscConverterStation> getVscConverterStationsStream();
+
+    /**
+     * Get VSC converter stations count.
+     * @return VSC converter station count
+     */
+    int getVscConverterStationCount();
+
+    /**
+     * Get an VSC converter station.
+     * @param id the id of the VSC converter station
+     * @return the VSC converter station or null if not found
+     */
+    VscConverterStation getVscConverterStation(String id);
+
+    /**
      * Get all HVDC lines.
      * @return all HVDC lines
      */
     Iterable<HvdcLine> getHvdcLines();
+
+    /**
+     * Get all HVDC lines.
+     * @return all HVDC lines
+     */
+    Stream<HvdcLine> getHvdcLinesStream();
+
 
     /**
      * Get HVDC lines count.

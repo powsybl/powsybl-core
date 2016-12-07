@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -59,6 +60,11 @@ class LccConverterStationImpl extends HvdcConverterStationImpl<LccConverterStati
     @Override
     public Iterable<LccFilter> getFilters() {
         return Collections.unmodifiableCollection(filters);
+    }
+
+    @Override
+    public Stream<LccFilter> getFiltersStream() {
+        return filters.stream().map(f -> f);
     }
 
     private void checkFilterIndex(int index) {

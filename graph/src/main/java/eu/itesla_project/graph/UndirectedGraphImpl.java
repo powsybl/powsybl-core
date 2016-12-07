@@ -18,6 +18,7 @@ import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Stream;
 
 /**
  *
@@ -138,7 +139,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
         }
         V obj = vertices.get(v).getObject();
         if (v == vertices.size()-1) {
-            vertices.remove((int) v);
+            vertices.remove(v);
         } else {
             vertices.set(v, null);
             removedVertices.add(v);
@@ -186,7 +187,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
         checkEdge(e);
         E obj = edges.get(e).getObject();
         if (e == edges.size()-1) {
-            edges.remove((int) e);
+            edges.remove(e);
         } else {
             edges.set(e, null);
             removedEdges.add(e);
@@ -233,6 +234,11 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     }
 
     @Override
+    public Stream<V> getVerticesObjStream() {
+        return vertices.stream().filter(Objects::nonNull).map(Vertex::getObject);
+    }
+
+    @Override
     public V getVertexObject(int v) {
         checkVertex(v);
         return vertices.get(v).getObject();
@@ -261,6 +267,11 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
         return FluentIterable.from(edges)
                              .filter(Predicates.notNull())
                              .transform(Edge::getObject);
+    }
+
+    @Override
+    public Stream<E> getEdgesObjectStream() {
+        return edges.stream().filter(Objects::nonNull).map(Edge::getObject);
     }
 
     @Override

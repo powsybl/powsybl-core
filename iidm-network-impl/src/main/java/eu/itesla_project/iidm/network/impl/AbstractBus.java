@@ -11,6 +11,8 @@ import eu.itesla_project.iidm.network.*;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  *
@@ -39,6 +41,8 @@ abstract class AbstractBus extends IdentifiableImpl<Bus> {
     public abstract int getConnectedTerminalCount();
 
     public abstract Iterable<TerminalExt> getConnectedTerminals();
+
+    public abstract Stream<TerminalExt> getConnectedTerminalsStream();
 
     public abstract Collection<? extends TerminalExt> getTerminals();
 
@@ -113,32 +117,96 @@ abstract class AbstractBus extends IdentifiableImpl<Bus> {
                              .filter(clazz);
     }
 
+    private <C extends Connectable> Stream<C> getConnectablesStream(Class<C> clazz) {
+        if (getConnectedTerminalCount() == 0) {
+            return Stream.empty();
+        }
+
+        return getConnectedTerminalsStream()
+                .map(TerminalExt::getConnectable)
+                .filter(clazz::isInstance)
+                .map(clazz::cast);
+    }
+
     public Iterable<Line> getLines() {
         return getConnectables(Line.class);
+    }
+
+    public Stream<Line> getLinesStream() {
+        return getConnectablesStream(Line.class);
     }
 
     public Iterable<TwoWindingsTransformer> getTwoWindingTransformers() {
         return getConnectables(TwoWindingsTransformer.class);
     }
 
+    public Stream<TwoWindingsTransformer> getTwoWindingTransformersStream() {
+        return getConnectablesStream(TwoWindingsTransformer.class);
+    }
+
+
     public Iterable<ThreeWindingsTransformer> getThreeWindingTransformers() {
         return getConnectables(ThreeWindingsTransformer.class);
+    }
+
+    public Stream<ThreeWindingsTransformer> getThreeWindingTransformersStream() {
+        return getConnectablesStream(ThreeWindingsTransformer.class);
     }
 
     public Iterable<Load> getLoads() {
         return getConnectables(Load.class);
     }
 
+    public Stream<Load> getLoadsStream() {
+        return getConnectablesStream(Load.class);
+    }
+
     public Iterable<ShuntCompensator> getShunts() {
         return getConnectables(ShuntCompensator.class);
+    }
+
+    public Stream<ShuntCompensator> getShuntsStream() {
+        return getConnectablesStream(ShuntCompensator.class);
     }
 
     public Iterable<Generator> getGenerators() {
         return getConnectables(Generator.class);
     }
 
+    public Stream<Generator> getGeneratorsStream() {
+        return getConnectablesStream(Generator.class);
+    }
+
     public Iterable<DanglingLine> getDanglingLines() {
         return getConnectables(DanglingLine.class);
+    }
+
+    public Stream<DanglingLine> getDanglingLinesStream() {
+        return getConnectablesStream(DanglingLine.class);
+    }
+
+    public Iterable<StaticVarCompensator> getStaticVarCompensators() {
+        return getConnectables(StaticVarCompensator.class);
+    }
+
+    public Stream<StaticVarCompensator> getStaticVarCompensatorsStream() {
+        return getConnectablesStream(StaticVarCompensator.class);
+    }
+
+    public Iterable<LccConverterStation> getLccConverterStations() {
+        return getConnectables(LccConverterStation.class);
+    }
+
+    public Stream<LccConverterStation> getLccConverterStationsStream() {
+        return getConnectablesStream(LccConverterStation.class);
+    }
+
+    public Iterable<VscConverterStation> getVscConverterStations() {
+        return getConnectables(VscConverterStation.class);
+    }
+
+    public Stream<VscConverterStation> getVscConverterStationsStream() {
+        return getConnectablesStream(VscConverterStation.class);
     }
 
     public void visitConnectedEquipments(TopologyVisitor visitor) {

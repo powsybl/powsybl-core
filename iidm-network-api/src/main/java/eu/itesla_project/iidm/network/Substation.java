@@ -7,6 +7,7 @@
 package eu.itesla_project.iidm.network;
 
 import java.util.Set;
+import java.util.stream.Stream;
 
 /**
  * A substation is a collection of equipment located at a the same geographical
@@ -48,6 +49,11 @@ public interface Substation extends Container<Substation> {
     Iterable<VoltageLevel> getVoltageLevels();
 
     /**
+     * Get the voltage levels of the substation.
+     */
+    Stream<VoltageLevel> getVoltageLevelsStream();
+
+    /**
      * Get a builder to create a new two windings transformer in the substation.
      */
     TwoWindingsTransformerAdder newTwoWindingsTransformer();
@@ -58,6 +64,11 @@ public interface Substation extends Container<Substation> {
     Iterable<TwoWindingsTransformer> getTwoWindingsTransformers();
 
     /**
+     * Get the two windings transformers connected to the substation.
+     */
+    Stream<TwoWindingsTransformer> getTwoWindingsTransformersStream();
+
+    /**
      * Get a builder to create a new 3 windings transformer in the substation.
      */
     ThreeWindingsTransformerAdder newThreeWindingsTransformer();
@@ -66,6 +77,11 @@ public interface Substation extends Container<Substation> {
      * Get the 3 windings transformers connected to the substation.
      */
     Iterable<ThreeWindingsTransformer> getThreeWindingsTransformers();
+
+    /**
+     * Get the 3 windings transformers connected to the substation.
+     */
+    Stream<ThreeWindingsTransformer> getThreeWindingsTransformersStream();
 
     /**
      * Get geographical tags associated to the substation.

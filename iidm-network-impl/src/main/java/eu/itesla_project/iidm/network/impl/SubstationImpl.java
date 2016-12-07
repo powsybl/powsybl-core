@@ -6,7 +6,6 @@
  */
 package eu.itesla_project.iidm.network.impl;
 
-import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
 import eu.itesla_project.iidm.network.*;
 import eu.itesla_project.iidm.network.impl.util.Ref;
@@ -14,28 +13,13 @@ import eu.itesla_project.iidm.network.impl.util.Ref;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.stream.Stream;
 
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 class SubstationImpl extends IdentifiableImpl<Substation> implements Substation {
-
-    private static final Function<VoltageLevelExt, Iterable<TwoWindingsTransformer>> toTwoWindingsTransformers
-            = new Function<VoltageLevelExt, Iterable<TwoWindingsTransformer>>() {
-        @Override
-        public Iterable<TwoWindingsTransformer> apply(VoltageLevelExt vl) {
-            return vl.getConnectables(TwoWindingsTransformer.class);
-        }
-    };
-
-    private static final Function<VoltageLevelExt, Iterable<ThreeWindingsTransformer>> toThreeWindingsTransformers
-            = new Function<VoltageLevelExt, Iterable<ThreeWindingsTransformer>>() {
-        @Override
-        public Iterable<ThreeWindingsTransformer> apply(VoltageLevelExt vl) {
-            return vl.getConnectables(ThreeWindingsTransformer.class);
-        }
-    };
 
     private Country country;
 
@@ -102,7 +86,12 @@ class SubstationImpl extends IdentifiableImpl<Substation> implements Substation 
 
     @Override
     public Iterable<VoltageLevel> getVoltageLevels() {
-        return Collections.<VoltageLevel>unmodifiableSet(voltageLevels);
+        return Collections.unmodifiableSet(voltageLevels);
+    }
+
+    @Override
+    public Stream<VoltageLevel> getVoltageLevelsStream() {
+        return voltageLevels.stream().map(vl -> vl);
     }
 
     @Override
@@ -113,8 +102,13 @@ class SubstationImpl extends IdentifiableImpl<Substation> implements Substation 
     @Override
     public Iterable<TwoWindingsTransformer> getTwoWindingsTransformers() {
         return FluentIterable.from(voltageLevels)
-                             .transformAndConcat(toTwoWindingsTransformers)
-                             .toSet();
+                .transformAndConcat(vl -> vl.getConnectables(TwoWindingsTransformer.class))
+                .toSet();
+    }
+
+    @Override
+    public Stream<TwoWindingsTransformer> getTwoWindingsTransformersStream() {
+        return voltageLevels.stream().flatMap(vl -> vl.getConnectablesStream(TwoWindingsTransformer.class));
     }
 
     @Override
@@ -125,8 +119,13 @@ class SubstationImpl extends IdentifiableImpl<Substation> implements Substation 
     @Override
     public Iterable<ThreeWindingsTransformer> getThreeWindingsTransformers() {
         return FluentIterable.from(voltageLevels)
-                             .transformAndConcat(toThreeWindingsTransformers)
-                             .toSet();
+                .transformAndConcat(vl -> vl.getConnectables(ThreeWindingsTransformer.class))
+                .toSet();
+    }
+
+    @Override
+    public Stream<ThreeWindingsTransformer> getThreeWindingsTransformersStream() {
+        return voltageLevels.stream().flatMap(vl -> vl.getConnectablesStream(ThreeWindingsTransformer.class));
     }
 
     @Override

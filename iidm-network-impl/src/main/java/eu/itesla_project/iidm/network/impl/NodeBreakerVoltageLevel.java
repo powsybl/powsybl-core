@@ -13,7 +13,6 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 import eu.itesla_project.commons.ITeslaException;
-import eu.itesla_project.commons.collect.Downcast;
 import eu.itesla_project.graph.TraverseResult;
 import eu.itesla_project.graph.Traverser;
 import eu.itesla_project.graph.UndirectedGraph;
@@ -37,6 +36,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Stream;
 
 /**
  *
@@ -45,8 +45,6 @@ import java.util.concurrent.locks.ReentrantLock;
 class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NodeBreakerVoltageLevel.class);
-
-    private static final Downcast<NodeTerminal, Terminal> TERMINAL_DOWNCAST = new Downcast<>();
 
     private static final BusChecker BUS_CHECKER = new RteBusChecker();
 
@@ -245,12 +243,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         protected BusCache busCache;
 
         protected void updateCache() {
-            updateCache(new Predicate<SwitchImpl>() {
-                @Override
-                public boolean apply(SwitchImpl _switch) {
-                    return _switch.isOpen();
-                }
-            });
+            updateCache(Switch::isOpen);
         }
 
         protected BusChecker getBusChecker() {
@@ -268,7 +261,6 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             Arrays.fill(encountered, false);
             for (int n : graph.getVertices()) {
                 if (!encountered[n]) {
-                    TerminalExt terminal = graph.getVertexObject(n);
                     final TIntArrayList nodes = new TIntArrayList(1);
                     nodes.add(n);
                     graph.traverse(n, new Traverser<SwitchImpl>() {
@@ -372,12 +364,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
         @Override
         protected void updateCache() {
-            updateCache(new Predicate<SwitchImpl>() {
-                @Override
-                public boolean apply(SwitchImpl _switch) {
-                    return _switch.isOpen() || _switch.isRetained();
-                }
-            });
+            updateCache(sw -> sw.isOpen() || sw.isRetained());
         }
 
         protected BusChecker getBusChecker() {
@@ -416,12 +403,11 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         Iterable<SwitchImpl> getSwitches() {
-            return Iterables.filter(graph.getEdgesObject(), new Predicate<SwitchImpl>() {
-                @Override
-                public boolean apply(SwitchImpl _switch) {
-                    return _switch != null && _switch.isRetained();
-                }
-            });
+            return Iterables.filter(graph.getEdgesObject(), sw -> (sw != null && sw.isRetained()));
+        }
+
+        Stream<Switch> getSwitchesStream() {
+            return graph.getEdgesObjectStream().filter(Objects::nonNull).filter(Switch::isRetained).map(sw -> sw);
         }
 
         SwitchImpl getSwitch(String switchId, boolean throwException) {
@@ -439,7 +425,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         }
     }
 
-    private static interface BusChecker {
+    private interface BusChecker {
 
         boolean isValid(UndirectedGraph<? extends TerminalExt, SwitchImpl> graph, TIntArrayList nodes, List<NodeTerminal> terminals);
     }
@@ -495,15 +481,6 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         String getName(VoltageLevel voltageLevel, TIntArrayList nodes);
     }
 
-    private static class RandomBusNamingStrategy implements BusNamingStrategy {
-
-        @Override
-        public String getName(VoltageLevel voltageLevel, TIntArrayList nodes) {
-            return ObjectStore.getUniqueId();
-        }
-
-    }
-
     private static class NumberedBusNamingStrategy implements BusNamingStrategy {
 
         private final Map<VoltageLevel, AtomicInteger> counter = new WeakHashMap<>();
@@ -528,29 +505,10 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
     }
 
-    private static class SimpleBusNamingStrategy implements BusNamingStrategy {
-
-        @Override
-        public String getName(VoltageLevel voltageLevel, TIntArrayList nodes) {
-            StringBuilder builder = new StringBuilder(voltageLevel.getId());
-            for (int i = 0; i < nodes.size(); i++) {
-                int node = nodes.get(i);
-                builder.append("_").append(node);
-            }
-            return builder.toString();
-        }
-
-    }
-
     NodeBreakerVoltageLevel(String id, String name, SubstationImpl substation,
                            float nominalV, float lowVoltageLimit, float highVoltageLimit) {
         super(id, name, substation, nominalV, lowVoltageLimit, highVoltageLimit);
-        states = new StateArray<>(substation.getNetwork().getRef(), new StateFactory<StateImpl>() {
-            @Override
-            public StateImpl newState() {
-                return new StateImpl();
-            }
-        });
+        states = new StateArray<>(substation.getNetwork().getRef(), StateImpl::new);
     }
 
     @Override
@@ -572,7 +530,12 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
     public Iterable<Terminal> getTerminals() {
         return FluentIterable.from(graph.getVerticesObj())
                 .filter(Predicates.notNull())
-                .transform(TERMINAL_DOWNCAST);
+                .transform(t -> t);
+    }
+
+    @Override
+    public Stream<Terminal> getTerminalsStream() {
+        return graph.getVerticesObjStream().filter(Objects::nonNull).map(t -> t);
     }
 
     @Override
@@ -580,6 +543,14 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         return FluentIterable.from(getTerminals())
                 .transform(Terminal::getConnectable)
                 .filter(clazz);
+    }
+
+    @Override
+    public <C extends Connectable> Stream<C> getConnectablesStream(Class<C> clazz) {
+        return getTerminalsStream()
+                .map(Terminal::getConnectable)
+                .filter(clazz::isInstance)
+                .map(clazz::cast);
     }
 
     @Override
@@ -658,7 +629,12 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
         @Override
         public Iterable<Switch> getSwitches() {
-            return Iterables.<Switch>filter(graph.getEdgesObject(), Switch.class); // just to upcast and return an unmodifiable iterable
+            return Iterables.filter(graph.getEdgesObject(), Switch.class); // just to upcast and return an unmodifiable iterable
+        }
+
+        @Override
+        public Stream<Switch> getSwitchesStream() {
+            return graph.getEdgesObjectStream().map(sw -> sw);
         }
 
         @Override
@@ -674,6 +650,11 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         @Override
         public Iterable<BusbarSection> getBusbarSections() {
             return getConnectables(BusbarSection.class);
+        }
+
+        @Override
+        public Stream<BusbarSection> getBusbarSectionsStream() {
+            return getConnectablesStream(BusbarSection.class);
         }
 
         @Override
@@ -697,7 +678,12 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
         @Override
         public Iterable<Bus> getBuses() {
-            return Collections.<Bus>unmodifiableCollection(states.get().calculatedBusTopology.getBuses());
+            return Collections.unmodifiableCollection(states.get().calculatedBusTopology.getBuses());
+        }
+
+        @Override
+        public Stream<Bus> getBusesStream() {
+            return states.get().calculatedBusTopology.getBuses().stream().map(b -> b);
         }
 
         @Override
@@ -716,7 +702,12 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
         @Override
         public Iterable<Bus> getBuses() {
-            return Collections.<Bus>unmodifiableCollection(states.get().calculatedBusBreakerTopology.getBuses());
+            return Collections.unmodifiableCollection(states.get().calculatedBusBreakerTopology.getBuses());
+        }
+
+        @Override
+        public Stream<Bus> getBusesStream() {
+            return states.get().calculatedBusBreakerTopology.getBuses().stream().map(b -> b);
         }
 
         @Override
@@ -741,7 +732,12 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
         @Override
         public Iterable<Switch> getSwitches() {
-            return Iterables.<Switch>filter(states.get().calculatedBusBreakerTopology.getSwitches(), Switch.class); // just to upcast and return an unmodifiable iterable
+            return Iterables.filter(states.get().calculatedBusBreakerTopology.getSwitches(), Switch.class); // just to upcast and return an unmodifiable iterable
+        }
+
+        @Override
+        public Stream<Switch> getSwitchesStream() {
+            return states.get().calculatedBusBreakerTopology.getSwitchesStream();
         }
 
         @Override
@@ -946,7 +942,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                 if (traverser.traverse(aSwitch)) {
                     if (otherTerminal == null) {
                         return TraverseResult.CONTINUE;
-                    } else if ((otherTerminal != null && traverser.traverse(otherTerminal, true))) {
+                    } else if (traverser.traverse(otherTerminal, true)) {
                         addNextTerminals(otherTerminal, nextTerminals);
                         addNextTerminals(otherTerminal, nextTerminals);
                         return TraverseResult.CONTINUE;
@@ -966,12 +962,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
     @Override
     public void extendStateArraySize(int initStateArraySize, int number, int sourceIndex) {
-        states.push(number, new StateFactory<StateImpl>() {
-            @Override
-            public StateImpl newState() {
-                return new StateImpl();
-            }
-        });
+        states.push(number, StateImpl::new);
     }
 
     @Override
@@ -986,12 +977,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
     @Override
     public void allocateStateArrayElement(int[] indexes, final int sourceIndex) {
-        states.allocate(indexes, new StateFactory<StateImpl>() {
-            @Override
-            public StateImpl newState() {
-                return new StateImpl();
-            }
-        });
+        states.allocate(indexes, StateImpl::new);
     }
 
     @Override

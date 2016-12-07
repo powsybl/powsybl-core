@@ -8,6 +8,8 @@ package eu.itesla_project.iidm.network.impl;
 
 import eu.itesla_project.iidm.network.Bus;
 
+import java.util.stream.Stream;
+
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -17,6 +19,8 @@ interface BusExt extends Bus {
     int getConnectedTerminalCount();
 
     Iterable<TerminalExt> getConnectedTerminals();
+
+    Stream<TerminalExt> getConnectedTerminalsStream();
 
     void setConnectedComponentNumber(int connectedComponentNumber);
 

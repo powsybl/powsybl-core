@@ -12,6 +12,7 @@ import eu.itesla_project.iidm.network.*;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  *
@@ -63,13 +64,19 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     @Override
     public Collection<TerminalExt> getConnectedTerminals() {
         checkValidity();
-        return Collections.<TerminalExt>unmodifiableCollection(terminals);
+        return Collections.unmodifiableCollection(terminals);
+    }
+
+    @Override
+    public Stream<TerminalExt> getConnectedTerminalsStream() {
+        checkValidity();
+        return terminals.stream().map(t -> t);
     }
 
     @Override
     public Collection<TerminalExt> getTerminals() {
         checkValidity();
-        return Collections.<TerminalExt>unmodifiableCollection(terminals);
+        return Collections.unmodifiableCollection(terminals);
     }
 
     @Override
@@ -139,9 +146,21 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     }
 
     @Override
+    public Stream<Line> getLinesStream() {
+        checkValidity();
+        return super.getLinesStream();
+    }
+
+    @Override
     public Iterable<TwoWindingsTransformer> getTwoWindingTransformers() {
         checkValidity();
         return super.getTwoWindingTransformers();
+    }
+
+    @Override
+    public Stream<TwoWindingsTransformer> getTwoWindingTransformersStream() {
+        checkValidity();
+        return super.getTwoWindingTransformersStream();
     }
 
     @Override
@@ -151,9 +170,21 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     }
 
     @Override
+    public Stream<ThreeWindingsTransformer> getThreeWindingTransformersStream() {
+        checkValidity();
+        return super.getThreeWindingTransformersStream();
+    }
+
+    @Override
     public Iterable<Load> getLoads() {
         checkValidity();
         return super.getLoads();
+    }
+
+    @Override
+    public Stream<Load> getLoadsStream() {
+        checkValidity();
+        return super.getLoadsStream();
     }
 
     @Override
@@ -163,15 +194,69 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     }
 
     @Override
+    public Stream<ShuntCompensator> getShuntsStream() {
+        checkValidity();
+        return super.getShuntsStream();
+    }
+
+    @Override
     public Iterable<Generator> getGenerators() {
         checkValidity();
         return super.getGenerators();
     }
 
     @Override
+    public Stream<Generator> getGeneratorsStream() {
+        checkValidity();
+        return super.getGeneratorsStream();
+    }
+
+    @Override
     public Iterable<DanglingLine> getDanglingLines() {
         checkValidity();
         return super.getDanglingLines();
+    }
+
+    @Override
+    public Stream<DanglingLine> getDanglingLinesStream() {
+        checkValidity();
+        return super.getDanglingLinesStream();
+    }
+
+    @Override
+    public Iterable<StaticVarCompensator> getStaticVarCompensators() {
+        checkValidity();
+        return super.getStaticVarCompensators();
+    }
+
+    @Override
+    public Stream<StaticVarCompensator> getStaticVarCompensatorsStream() {
+        checkValidity();
+        return super.getStaticVarCompensatorsStream();
+    }
+
+    @Override
+    public Iterable<LccConverterStation> getLccConverterStations() {
+        checkValidity();
+        return super.getLccConverterStations();
+    }
+
+    @Override
+    public Stream<LccConverterStation> getLccConverterStationsStream() {
+        checkValidity();
+        return super.getLccConverterStationsStream();
+    }
+
+    @Override
+    public Iterable<VscConverterStation> getVscConverterStations() {
+        checkValidity();
+        return super.getVscConverterStations();
+    }
+
+    @Override
+    public Stream<VscConverterStation> getVscConverterStationsStream() {
+        checkValidity();
+        return super.getVscConverterStationsStream();
     }
 
     @Override
