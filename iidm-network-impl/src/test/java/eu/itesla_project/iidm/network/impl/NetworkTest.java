@@ -25,7 +25,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class NetworkTest {
@@ -165,8 +164,10 @@ public class NetworkTest {
         assertEquals(Collections.emptyList(), mapper.apply(network.getSubstation("P2").getThreeWindingsTransformersStream()));
 
         assertEquals(Collections.emptyList(), mapper.apply(network.getDanglingLinesStream()));
+        assertEquals(Collections.emptyList(), mapper.apply(network.getVoltageLevel("VLHV1").getDanglingLinesStream()));
         assertEquals(network.getDanglingLineCount(), network.getDanglingLinesStream().count());
         assertEquals(Collections.emptyList(), mapper.apply(network.getShuntsStream()));
+        assertEquals(Collections.emptyList(), mapper.apply(network.getVoltageLevel("VLHV2").getShuntsStream()));
         assertEquals(network.getShuntCount(), network.getShuntsStream().count());
 
         assertEquals(Collections.singletonList("LOAD"), mapper.apply(network.getLoadsStream()));
@@ -208,5 +209,23 @@ public class NetworkTest {
         assertEquals(Collections.singletonList("C1"), mapper.apply(network.getVoltageLevel("VL1").getVscConverterStationsStream()));
         assertEquals(Collections.singletonList("C2"), mapper.apply(network.getVoltageLevel("VL2").getVscConverterStationsStream()));
         assertEquals(Collections.singletonList("L"), mapper.apply(network.getHvdcLinesStream()));
+
+        // Topology
+        network = NetworkTest1Factory.create();
+        assertEquals(Arrays.asList("voltageLevel1BusbarSection1", "voltageLevel1BusbarSection2"),
+                mapper.apply(network.getVoltageLevel("voltageLevel1").getNodeBreakerView().getBusbarSectionsStream()));
+        assertEquals(Collections.singletonList("voltageLevel1Breaker1"),
+                mapper.apply(network.getVoltageLevel("voltageLevel1").getNodeBreakerView()
+                        .getSwitchesStream()
+                        .filter(sw -> sw.getKind() == SwitchKind.BREAKER)));
+        assertEquals(Arrays.asList("load1Disconnector1", "load1Breaker1"),
+                mapper.apply(network.getVoltageLevel("voltageLevel1").getNodeBreakerView()
+                        .getSwitchesStream()
+                        .filter(sw -> sw.getKind() == SwitchKind.DISCONNECTOR)
+                        .limit(2)));
+        assertEquals(Collections.emptyList(),
+                mapper.apply(network.getVoltageLevel("voltageLevel1").getNodeBreakerView()
+                        .getSwitchesStream()
+                        .filter(sw -> sw.getKind() == SwitchKind.LOAD_BREAK_SWITCH)));
     }
 }
