@@ -186,12 +186,17 @@ public class Security {
 
     public static void printPreContingencyViolations(SecurityAnalysisResult result, Writer writer, TableFormatterFactory formatterFactory,
                                                      LimitViolationFilter limitViolationFilter) {
+        printPreContingencyViolations(result, writer, formatterFactory, TableFormatterConfig.load(), limitViolationFilter);
+    }
+
+    public static void printPreContingencyViolations(SecurityAnalysisResult result, Writer writer, TableFormatterFactory formatterFactory,
+                                                     TableFormatterConfig formatterConfig, LimitViolationFilter limitViolationFilter) {
         Objects.requireNonNull(result);
         Objects.requireNonNull(writer);
         Objects.requireNonNull(formatterFactory);
         try (TableFormatter formatter = formatterFactory.create(writer,
                 "Pre-contingency violations",
-                TableFormatterConfig.load(),
+                formatterConfig,
                 new Column("Action"),
                 new Column("Equipment"),
                 new Column("Violation type"),
@@ -272,6 +277,11 @@ public class Security {
 
     public static void printPostContingencyViolations(SecurityAnalysisResult result, Writer writer, TableFormatterFactory formatterFactory,
                                                       LimitViolationFilter limitViolationFilter, boolean filterPreContingencyViolations) {
+        printPostContingencyViolations(result, writer, formatterFactory, TableFormatterConfig.load(), limitViolationFilter, filterPreContingencyViolations);
+    }
+
+    public static void printPostContingencyViolations(SecurityAnalysisResult result, Writer writer, TableFormatterFactory formatterFactory,
+                                                      TableFormatterConfig formatterConfig, LimitViolationFilter limitViolationFilter, boolean filterPreContingencyViolations) {
         Objects.requireNonNull(result);
         Objects.requireNonNull(writer);
         Objects.requireNonNull(formatterFactory);
@@ -285,7 +295,7 @@ public class Security {
 
             try (TableFormatter formatter = formatterFactory.create(writer,
                     "Post-contingency limit violations",
-                    TableFormatterConfig.load(),
+                    formatterConfig,
                     new Column("Contingency"),
                     new Column("Status"),
                     new Column("Action"),
