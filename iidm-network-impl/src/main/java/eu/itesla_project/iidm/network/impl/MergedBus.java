@@ -8,20 +8,12 @@ package eu.itesla_project.iidm.network.impl;
 
 import com.google.common.collect.Iterables;
 import eu.itesla_project.commons.ITeslaException;
-import eu.itesla_project.iidm.network.Bus;
-import eu.itesla_project.iidm.network.ConnectedComponent;
-import eu.itesla_project.iidm.network.DanglingLine;
-import eu.itesla_project.iidm.network.Generator;
-import eu.itesla_project.iidm.network.Line;
-import eu.itesla_project.iidm.network.Load;
-import eu.itesla_project.iidm.network.ShuntCompensator;
-import eu.itesla_project.iidm.network.ThreeWindingsTransformer;
-import eu.itesla_project.iidm.network.TopologyVisitor;
-import eu.itesla_project.iidm.network.TwoWindingsTransformer;
-import eu.itesla_project.iidm.network.VoltageLevel;
+import eu.itesla_project.iidm.network.*;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
 
 /**
  *
@@ -73,6 +65,12 @@ class MergedBus extends IdentifiableImpl<Bus> implements CalculatedBus {
             iterables.add(bus.getConnectedTerminals());
         }
         return Iterables.concat(iterables);
+    }
+
+    @Override
+    public Stream<TerminalExt> getConnectedTerminalStream() {
+        checkValidity();
+        return buses.stream().flatMap(ConfiguredBus::getConnectedTerminalStream);
     }
 
     @Override
@@ -178,6 +176,12 @@ class MergedBus extends IdentifiableImpl<Bus> implements CalculatedBus {
     }
 
     @Override
+    public Stream<Line> getLineStream() {
+        checkValidity();
+        return buses.stream().flatMap(Bus::getLineStream);
+    }
+
+    @Override
     public Iterable<TwoWindingsTransformer> getTwoWindingTransformers() {
         checkValidity();
         List<Iterable<TwoWindingsTransformer>> iterables = new ArrayList<>(buses.size());
@@ -185,6 +189,12 @@ class MergedBus extends IdentifiableImpl<Bus> implements CalculatedBus {
             iterables.add(bus.getTwoWindingTransformers());
         }
         return Iterables.concat(iterables);
+    }
+
+    @Override
+    public Stream<TwoWindingsTransformer> getTwoWindingTransformerStream() {
+        checkValidity();
+        return buses.stream().flatMap(ConfiguredBus::getTwoWindingTransformerStream);
     }
 
     @Override
@@ -198,6 +208,12 @@ class MergedBus extends IdentifiableImpl<Bus> implements CalculatedBus {
     }
 
     @Override
+    public Stream<ThreeWindingsTransformer> getThreeWindingTransformerStream() {
+        checkValidity();
+        return buses.stream().flatMap(ConfiguredBus::getThreeWindingTransformerStream);
+    }
+
+    @Override
     public Iterable<Generator> getGenerators() {
         checkValidity();
         List<Iterable<Generator>> iterables = new ArrayList<>(buses.size());
@@ -205,6 +221,12 @@ class MergedBus extends IdentifiableImpl<Bus> implements CalculatedBus {
             iterables.add(bus.getGenerators());
         }
         return Iterables.concat(iterables);
+    }
+
+    @Override
+    public Stream<Generator> getGeneratorStream() {
+        checkValidity();
+        return buses.stream().flatMap(ConfiguredBus::getGeneratorStream);
     }
 
     @Override
@@ -218,6 +240,12 @@ class MergedBus extends IdentifiableImpl<Bus> implements CalculatedBus {
     }
 
     @Override
+    public Stream<Load> getLoadStream() {
+        checkValidity();
+        return buses.stream().flatMap(ConfiguredBus::getLoadStream);
+    }
+
+    @Override
     public Iterable<ShuntCompensator> getShunts() {
         checkValidity();
         List<Iterable<ShuntCompensator>> iterables = new ArrayList<>(buses.size());
@@ -228,6 +256,12 @@ class MergedBus extends IdentifiableImpl<Bus> implements CalculatedBus {
     }
 
     @Override
+    public Stream<ShuntCompensator> getShuntStream() {
+        checkValidity();
+        return buses.stream().flatMap(ConfiguredBus::getShuntStream);
+    }
+
+    @Override
     public Iterable<DanglingLine> getDanglingLines() {
         checkValidity();
         List<Iterable<DanglingLine>> iterables = new ArrayList<>(buses.size());
@@ -235,6 +269,60 @@ class MergedBus extends IdentifiableImpl<Bus> implements CalculatedBus {
             iterables.add(bus.getDanglingLines());
         }
         return Iterables.concat(iterables);
+    }
+
+    @Override
+    public Stream<DanglingLine> getDanglingLineStream() {
+        checkValidity();
+        return buses.stream().flatMap(ConfiguredBus::getDanglingLineStream);
+    }
+
+    @Override
+    public Iterable<StaticVarCompensator> getStaticVarCompensators() {
+        checkValidity();
+        List<Iterable<StaticVarCompensator>> iterables = new ArrayList<>(buses.size());
+        for (ConfiguredBus bus : buses) {
+            iterables.add(bus.getStaticVarCompensators());
+        }
+        return Iterables.concat(iterables);
+    }
+
+    @Override
+    public Stream<StaticVarCompensator> getStaticVarCompensatorStream() {
+        checkValidity();
+        return buses.stream().flatMap(ConfiguredBus::getStaticVarCompensatorStream);
+    }
+
+    @Override
+    public Iterable<LccConverterStation> getLccConverterStations() {
+        checkValidity();
+        List<Iterable<LccConverterStation>> iterables = new ArrayList<>(buses.size());
+        for (ConfiguredBus bus : buses) {
+            iterables.add(bus.getLccConverterStations());
+        }
+        return Iterables.concat(iterables);
+    }
+
+    @Override
+    public Stream<LccConverterStation> getLccConverterStationStream() {
+        checkValidity();
+        return buses.stream().flatMap(ConfiguredBus::getLccConverterStationStream);
+    }
+
+    @Override
+    public Iterable<VscConverterStation> getVscConverterStations() {
+        checkValidity();
+        List<Iterable<VscConverterStation>> iterables = new ArrayList<>(buses.size());
+        for (ConfiguredBus bus : buses) {
+            iterables.add(bus.getVscConverterStations());
+        }
+        return Iterables.concat(iterables);
+    }
+
+    @Override
+    public Stream<VscConverterStation> getVscConverterStationStream() {
+        checkValidity();
+        return buses.stream().flatMap(ConfiguredBus::getVscConverterStationStream);
     }
 
     @Override

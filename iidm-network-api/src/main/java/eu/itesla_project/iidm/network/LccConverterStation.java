@@ -6,6 +6,8 @@
  */
 package eu.itesla_project.iidm.network;
 
+import java.util.stream.Stream;
+
 /**
  * LCC converter station.
  *
@@ -57,4 +59,10 @@ public interface LccConverterStation extends HvdcConverterStation<LccConverterSt
      * @return all the filters.
      */
     Iterable<LccFilter> getFilters();
+
+    /**
+     * Return all the filters.
+     * @return all the filters.
+     */
+    Stream<LccFilter> getFilterStream();
 }

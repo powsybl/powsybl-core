@@ -11,6 +11,7 @@ import gnu.trove.list.array.TIntArrayList;
 
 import java.io.PrintStream;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  *
@@ -38,6 +39,8 @@ public interface UndirectedGraph<V, E> {
 
     Iterable<V> getVerticesObj();
 
+    Stream<V> getVertexObjectStream();
+
     V getVertexObject(int v);
 
     void setVertexObject(int v, V obj);
@@ -49,6 +52,8 @@ public interface UndirectedGraph<V, E> {
     void removeAllVertices();
 
     Iterable<E> getEdgesObject();
+
+    Stream<E> getEdgeObjectStream();
 
     E getEdgeObject(int e);
 

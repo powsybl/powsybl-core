@@ -6,6 +6,8 @@
  */
 package eu.itesla_project.iidm.network;
 
+import java.util.stream.Stream;
+
 /**
  * A bus is a set of equipemnts connected together through a closed switch.
  *
@@ -68,9 +70,19 @@ public interface Bus extends Identifiable<Bus> {
     Iterable<Line> getLines();
 
     /**
+     * Get the AC lines connected to the bus.
+     */
+    Stream<Line> getLineStream();
+
+    /**
      * Get 2 windings transformer connected to the bus.
      */
     Iterable<TwoWindingsTransformer> getTwoWindingTransformers();
+
+    /**
+     * Get 2 windings transformer connected to the bus.
+     */
+    Stream<TwoWindingsTransformer> getTwoWindingTransformerStream();
 
     /**
      * Get 3 windings transformers connected to the bus.
@@ -78,9 +90,19 @@ public interface Bus extends Identifiable<Bus> {
     Iterable<ThreeWindingsTransformer> getThreeWindingTransformers();
 
     /**
+     * Get 3 windings transformers connected to the bus.
+     */
+    Stream<ThreeWindingsTransformer> getThreeWindingTransformerStream();
+
+    /**
      * Get generators connected to the bus.
      */
     Iterable<Generator> getGenerators();
+
+    /**
+     * Get generators connected to the bus.
+     */
+    Stream<Generator> getGeneratorStream();
 
     /**
      * Get loads connected to the bus.
@@ -88,14 +110,59 @@ public interface Bus extends Identifiable<Bus> {
     Iterable<Load> getLoads();
 
     /**
+     * Get loads connected to the bus.
+     */
+    Stream<Load> getLoadStream();
+
+    /**
      * Get shunt compensators connected to the bus.
      */
     Iterable<ShuntCompensator> getShunts();
 
     /**
+     * Get shunt compensators connected to the bus.
+     */
+    Stream<ShuntCompensator> getShuntStream();
+
+    /**
      * Get dangling lines connected to the bus.
      */
     Iterable<DanglingLine> getDanglingLines();
+
+    /**
+     * Get dangling lines connected to the bus.
+     */
+    Stream<DanglingLine> getDanglingLineStream();
+
+    /**
+     * Get static VAR compensators connected to the bus.
+     */
+    Iterable<StaticVarCompensator> getStaticVarCompensators();
+
+    /**
+     * Get static VAR compensators connected to the bus.
+     */
+    Stream<StaticVarCompensator> getStaticVarCompensatorStream();
+
+    /**
+     * Get LCC converter stations connected to the bus.
+     */
+    Iterable<LccConverterStation> getLccConverterStations();
+
+    /**
+     * Get LCC converter stations connected to the bus.
+     */
+    Stream<LccConverterStation> getLccConverterStationStream();
+
+    /**
+     * Get VSC converter stations connected to the bus.
+     */
+    Iterable<VscConverterStation> getVscConverterStations();
+
+    /**
+     * Get VSC converter stations connected to the bus.
+     */
+    Stream<VscConverterStation> getVscConverterStationStream();
 
     /**
      * Visit equipments connected to the bus.
