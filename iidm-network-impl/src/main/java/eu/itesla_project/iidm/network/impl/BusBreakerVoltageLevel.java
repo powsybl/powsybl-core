@@ -6,11 +6,10 @@
  */
 package eu.itesla_project.iidm.network.impl;
 
-import com.google.common.base.Function;
+import com.google.common.base.Functions;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Iterables;
 import eu.itesla_project.commons.ITeslaException;
-import eu.itesla_project.commons.collect.Downcast;
 import eu.itesla_project.graph.TraverseResult;
 import eu.itesla_project.graph.Traverser;
 import eu.itesla_project.graph.UndirectedGraphImpl;
@@ -20,6 +19,8 @@ import eu.itesla_project.iidm.network.util.ShortIdDictionary;
 
 import java.io.*;
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
 /**
  *
@@ -305,7 +306,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
     BusBreakerVoltageLevel(String id, String name, SubstationImpl substation,
                            float nominalV, float lowVoltageLimit, float highVoltageLimit) {
         super(id, name, substation, nominalV, lowVoltageLimit, highVoltageLimit);
-        states = new StateArray<>(substation.getNetwork().getRef(), () -> new StateImpl());
+        states = new StateArray<>(substation.getNetwork().getRef(), StateImpl::new);
         graph.addListener(() -> {
             // invalidate topology and connected components
             invalidateCache();
@@ -326,11 +327,24 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
     }
 
     @Override
+    public Stream<Terminal> getTerminalStream() {
+        return graph.getVertexObjectStream().flatMap(bus -> bus.getTerminals().stream());
+    }
+
+    @Override
     public <C extends Connectable> FluentIterable<C> getConnectables(Class<C> clazz) {
         Iterable<Terminal> terminals = getTerminals();
         return FluentIterable.from(terminals)
                 .transform(Terminal::getConnectable)
                 .filter(clazz);
+    }
+
+    @Override
+    public <C extends Connectable> Stream<C> getConnectableStream(Class<C> clazz) {
+        return getTerminalStream()
+                .map(Terminal::getConnectable)
+                .filter(clazz::isInstance)
+                .map(clazz::cast);
     }
 
     @Override
@@ -388,6 +402,11 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         @Override
+        public Stream<Switch> getSwitchStream() {
+            throw createNotSupportedBusBreakerTopologyException();
+        }
+
+        @Override
         public Iterable<Switch> getSwitches() {
             throw createNotSupportedBusBreakerTopologyException();
         }
@@ -404,6 +423,11 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
 
         @Override
         public Iterable<BusbarSection> getBusbarSections() {
+            throw createNotSupportedBusBreakerTopologyException();
+        }
+
+        @Override
+        public Stream<BusbarSection> getBusbarSectionStream() {
             throw createNotSupportedBusBreakerTopologyException();
         }
 
@@ -428,7 +452,12 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
 
         @Override
         public Iterable<Bus> getBuses() {
-            return Iterables.unmodifiableIterable(Iterables.transform(graph.getVerticesObj(), new Downcast<>()));
+            return Iterables.unmodifiableIterable(Iterables.transform(graph.getVerticesObj(), Functions.identity()));
+        }
+
+        @Override
+        public Stream<Bus> getBusStream() {
+            return graph.getVertexObjectStream().map(Function.identity());
         }
 
         @Override
@@ -453,12 +482,12 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
 
         @Override
         public Iterable<Switch> getSwitches() {
-            return Iterables.unmodifiableIterable(Iterables.transform(graph.getEdgesObject(), new Function<SwitchImpl, Switch>() {
-                @Override
-                public Switch apply(SwitchImpl sw) {
-                    return sw;
-                }
-            }));
+            return Iterables.unmodifiableIterable(Iterables.transform(graph.getEdgesObject(), Functions.identity()));
+        }
+
+        @Override
+        public Stream<Switch> getSwitchStream() {
+            return graph.getEdgeObjectStream().map(Function.identity());
         }
 
         @Override
@@ -506,7 +535,12 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
 
         @Override
         public Iterable<Bus> getBuses() {
-            return Collections.<Bus>unmodifiableCollection(calculatedBusTopology.getMergedBuses());
+            return Collections.unmodifiableCollection(calculatedBusTopology.getMergedBuses());
+        }
+
+        @Override
+        public Stream<Bus> getBusStream() {
+            return calculatedBusTopology.getMergedBuses().stream().map(Function.identity());
         }
 
         @Override
@@ -666,7 +700,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         assert terminal instanceof BusTerminal;
 
         // already connected?
-        if (((BusTerminal) terminal).isConnected()) {
+        if (terminal.isConnected()) {
             return false;
         }
 

@@ -12,6 +12,7 @@ import eu.itesla_project.iidm.network.util.ShortIdDictionary;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.stream.Stream;
 
 /**
  * A voltage level is a collection of equipments located in the same substation
@@ -317,9 +318,9 @@ public interface VoltageLevel extends Container<VoltageLevel> {
     /**
      * A node/breaker view of the topology.
      */
-    public interface NodeBreakerView {
+    interface NodeBreakerView {
 
-        public interface SwitchAdder extends IdentifiableAdder<SwitchAdder> {
+        interface SwitchAdder extends IdentifiableAdder<SwitchAdder> {
 
             SwitchAdder setNode1(int node1);
 
@@ -337,7 +338,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
 
         }
 
-        public interface InternalConnectionAdder extends IdentifiableAdder<InternalConnectionAdder> {
+        interface InternalConnectionAdder extends IdentifiableAdder<InternalConnectionAdder> {
 
             InternalConnectionAdder setNode1(int node1);
 
@@ -406,6 +407,11 @@ public interface VoltageLevel extends Container<VoltageLevel> {
         Iterable<Switch> getSwitches();
 
         /**
+         * Get switches.
+         */
+        Stream<Switch> getSwitchStream();
+
+        /**
          * Get the switch count.
          */
         int getSwitchCount();
@@ -419,6 +425,11 @@ public interface VoltageLevel extends Container<VoltageLevel> {
          * Get busbar sections.
          */
         Iterable<BusbarSection> getBusbarSections();
+
+        /**
+         * Get busbar sections.
+         */
+        Stream<BusbarSection> getBusbarSectionStream();
 
         /**
          * Get the busbar section count.
@@ -437,9 +448,9 @@ public interface VoltageLevel extends Container<VoltageLevel> {
     /**
      * A bus/breaker view of the topology.
      */
-    public interface BusBreakerView {
+    interface BusBreakerView {
 
-        public interface SwitchAdder extends IdentifiableAdder<SwitchAdder> {
+        interface SwitchAdder extends IdentifiableAdder<SwitchAdder> {
 
             SwitchAdder setBus1(String bus1);
 
@@ -458,6 +469,14 @@ public interface VoltageLevel extends Container<VoltageLevel> {
          * @see StateManager
          */
         Iterable<Bus> getBuses();
+
+        /**
+         * Get buses.
+         * <p>
+         * Depends on the working state if topology kind is NODE_BREAKER.
+         * @see StateManager
+         */
+        Stream<Bus> getBusStream();
 
         /**
          * Get a bus.
@@ -490,6 +509,11 @@ public interface VoltageLevel extends Container<VoltageLevel> {
          * Get switches.
          */
         Iterable<Switch> getSwitches();
+
+        /**
+         * Get switches.
+         */
+        Stream<Switch> getSwitchStream();
 
         /**
          * Remove a switch.
@@ -541,7 +565,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
     /**
      * A bus view of the substation topology.
      */
-    public interface BusView {
+    interface BusView {
 
         /**
          * Get buses.
@@ -550,6 +574,14 @@ public interface VoltageLevel extends Container<VoltageLevel> {
          * @see StateManager
          */
         Iterable<Bus> getBuses();
+
+        /**
+         * Get buses.
+         * <p>
+         * Depends on the working state.
+         * @see StateManager
+         */
+        Stream<Bus> getBusStream();
 
         /**
          * Get a bus.
@@ -642,6 +674,11 @@ public interface VoltageLevel extends Container<VoltageLevel> {
     Iterable<Generator> getGenerators();
 
     /**
+     * Get generators.
+     */
+    Stream<Generator> getGeneratorStream();
+
+    /**
      * Get generator count.
      */
     int getGeneratorCount();
@@ -657,6 +694,11 @@ public interface VoltageLevel extends Container<VoltageLevel> {
     Iterable<Load> getLoads();
 
     /**
+     * Get loads.
+     */
+    Stream<Load> getLoadStream();
+
+    /**
      * Get load count.
      */
     int getLoadCount();
@@ -670,6 +712,12 @@ public interface VoltageLevel extends Container<VoltageLevel> {
      * Get compensator shunts.
      */
     Iterable<ShuntCompensator> getShunts();
+
+
+    /**
+     * Get compensator shunts.
+     */
+    Stream<ShuntCompensator> getShuntStream();
 
     /**
      * Get shunt count.
@@ -687,6 +735,11 @@ public interface VoltageLevel extends Container<VoltageLevel> {
     Iterable<DanglingLine> getDanglingLines();
 
     /**
+     * Get dangling lines.
+     */
+    Stream<DanglingLine> getDanglingLineStream();
+
+    /**
      * Get dangling line count.
      */
     int getDanglingLineCount();
@@ -700,6 +753,11 @@ public interface VoltageLevel extends Container<VoltageLevel> {
      * Get static var compensators.
      */
     Iterable<StaticVarCompensator> getStaticVarCompensators();
+
+    /**
+     * Get static var compensators.
+     */
+    Stream<StaticVarCompensator> getStaticVarCompensatorStream();
 
     /**
      * Get static var compensator count.
@@ -719,6 +777,12 @@ public interface VoltageLevel extends Container<VoltageLevel> {
     Iterable<VscConverterStation> getVscConverterStations();
 
     /**
+     * Get all VSC converter stations connected to this voltage level.
+     * @return all VSC converter stations connected to this voltage level
+     */
+    Stream<VscConverterStation> getVscConverterStationStream();
+
+    /**
      * Get VSC converter stations count connected to this voltage level.
      * @return VSC converter stations count connected to this voltage level
      */
@@ -735,6 +799,12 @@ public interface VoltageLevel extends Container<VoltageLevel> {
      * @return all LCC converter stations connected to this voltage level
      */
     Iterable<LccConverterStation> getLccConverterStations();
+
+    /**
+     * Get all LCC converter stations connected to this voltage level.
+     * @return all LCC converter stations connected to this voltage level
+     */
+    Stream<LccConverterStation> getLccConverterStationStream();
 
     /**
      * Get LCC converter stations count connected to this voltage level.

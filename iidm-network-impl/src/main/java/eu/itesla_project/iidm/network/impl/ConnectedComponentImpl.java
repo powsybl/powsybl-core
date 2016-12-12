@@ -6,11 +6,12 @@
  */
 package eu.itesla_project.iidm.network.impl;
 
-import eu.itesla_project.iidm.network.impl.util.Ref;
-import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import eu.itesla_project.iidm.network.impl.util.Ref;
 import eu.itesla_project.iidm.network.Bus;
 import eu.itesla_project.iidm.network.ConnectedComponent;
+
+import java.util.stream.Stream;
 
 /**
  *
@@ -42,12 +43,11 @@ class ConnectedComponentImpl implements ConnectedComponent {
 
     @Override
     public Iterable<Bus> getBuses() {
-        return Iterables.filter(networkRef.get().getBusView().getBuses(), new Predicate<Bus>() {
-            @Override
-            public boolean apply(Bus bus) {
-                return bus.getConnectedComponent() == ConnectedComponentImpl.this;
-            }
-        });
+        return Iterables.filter(networkRef.get().getBusView().getBuses(), bus -> (bus.getConnectedComponent() == ConnectedComponentImpl.this));
     }
 
+    @Override
+    public Stream<Bus> getBusStream() {
+        return networkRef.get().getBusView().getBusStream().filter(bus -> (bus.getConnectedComponent() == ConnectedComponentImpl.this));
+    }
 }

@@ -10,13 +10,14 @@ import com.google.common.collect.*;
 import eu.itesla_project.iidm.network.*;
 import eu.itesla_project.iidm.network.impl.util.RefObj;
 import eu.itesla_project.iidm.network.impl.util.RefChain;
-import com.google.common.base.Function;
 import eu.itesla_project.graph.GraphUtil;
 import eu.itesla_project.graph.GraphUtil.ConnectedComponentsComputationResult;
 import eu.itesla_project.iidm.network.TwoTerminalsConnectable.Side;
 import gnu.trove.list.array.TIntArrayList;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -29,27 +30,6 @@ import org.slf4j.LoggerFactory;
 class NetworkImpl extends IdentifiableImpl<Network> implements Network, MultiStateObject, Stateful {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NetworkImpl.class);
-
-    private static final Function<VoltageLevel, Iterable<Bus>> toBusBreakerViewBuses = new Function<VoltageLevel, Iterable<Bus>>() {
-        @Override
-        public Iterable<Bus> apply(VoltageLevel vl) {
-            return vl.getBusBreakerView().getBuses();
-        }
-    };
-
-    private static final Function<VoltageLevel, Iterable<Switch>> toBusBreakerViewSwitches = new Function<VoltageLevel, Iterable<Switch>>() {
-        @Override
-        public Iterable<Switch> apply(VoltageLevel vl) {
-            return vl.getBusBreakerView().getSwitches();
-        }
-    };
-
-    private static final Function<VoltageLevel, Iterable<Bus>> toBusViewBuses = new Function<VoltageLevel, Iterable<Bus>>() {
-        @Override
-        public Iterable<Bus> apply(VoltageLevel vl) {
-            return vl.getBusView().getBuses();
-        }
-    };
 
     private final RefChain<NetworkImpl> ref = new RefChain<>(new RefObj<>(this));
 
@@ -70,13 +50,28 @@ class NetworkImpl extends IdentifiableImpl<Network> implements Network, MultiSta
         @Override
         public Iterable<Bus> getBuses() {
             return FluentIterable.from(getVoltageLevels())
-                                 .transformAndConcat(toBusBreakerViewBuses);
+                                 .transformAndConcat(vl -> vl.getBusBreakerView().getBuses());
+        }
+
+        @Override
+        public Stream<Bus> getBusStream() {
+            return getVoltageLevelStream().flatMap(vl -> vl.getBusBreakerView().getBusStream());
         }
 
         @Override
         public Iterable<Switch> getSwitchs() {
+            return getSwitches();
+        }
+
+        @Override
+        public Iterable<Switch> getSwitches() {
             return FluentIterable.from(getVoltageLevels())
-                                 .transformAndConcat(toBusBreakerViewSwitches);
+                                 .transformAndConcat(vl -> vl.getBusBreakerView().getSwitches());
+        }
+
+        @Override
+        public Stream<Switch> getSwitchStream() {
+            return getVoltageLevelStream().flatMap(vl -> vl.getBusBreakerView().getSwitchStream());
         }
 
     }
@@ -88,7 +83,12 @@ class NetworkImpl extends IdentifiableImpl<Network> implements Network, MultiSta
         @Override
         public Iterable<Bus> getBuses() {
             return FluentIterable.from(getVoltageLevels())
-                                 .transformAndConcat(toBusViewBuses);
+                                 .transformAndConcat(vl -> vl.getBusView().getBuses());
+        }
+
+        @Override
+        public Stream<Bus> getBusStream() {
+            return getVoltageLevelStream().flatMap(vl -> vl.getBusView().getBusStream());
         }
 
         @Override
@@ -105,12 +105,7 @@ class NetworkImpl extends IdentifiableImpl<Network> implements Network, MultiSta
         Objects.requireNonNull(sourceFormat, "source format is null");
         this.sourceFormat = sourceFormat;
         stateManager = new StateManagerImpl(objectStore);
-        states = new StateArray<>(ref, new StateFactory<StateImpl>() {
-            @Override
-            public StateImpl newState() {
-                return new StateImpl();
-            }
-        });
+        states = new StateArray<>(ref, StateImpl::new);
         // add the network the object list as it is a stateful object
         // and it needs to be notified when and extension or a reduction of
         // the state array is requested
@@ -175,7 +170,7 @@ class NetworkImpl extends IdentifiableImpl<Network> implements Network, MultiSta
 
     @Override
     public Set<Country> getCountries() {
-        return FluentIterable.from(getSubstations()).transform(s -> s.getCountry()).toSet();
+        return getSubstationStream().map(Substation::getCountry).collect(Collectors.toSet());
     }
 
     @Override
@@ -191,6 +186,11 @@ class NetworkImpl extends IdentifiableImpl<Network> implements Network, MultiSta
     @Override
     public Iterable<Substation> getSubstations() {
         return Collections.unmodifiableCollection(objectStore.getAll(SubstationImpl.class));
+    }
+
+    @Override
+    public Stream<Substation> getSubstationStream() {
+        return objectStore.getAll(SubstationImpl.class).stream().map(Function.identity());
     }
 
     @Override
@@ -215,6 +215,12 @@ class NetworkImpl extends IdentifiableImpl<Network> implements Network, MultiSta
     }
 
     @Override
+    public Stream<VoltageLevel> getVoltageLevelStream() {
+        return Stream.concat(objectStore.getAll(BusBreakerVoltageLevel.class).stream(),
+                objectStore.getAll(NodeBreakerVoltageLevel.class).stream());
+    }
+
+    @Override
     public int getVoltageLevelCount() {
         return objectStore.getAll(BusBreakerVoltageLevel.class).size()
                 + objectStore.getAll(NodeBreakerVoltageLevel.class).size() ;
@@ -233,6 +239,11 @@ class NetworkImpl extends IdentifiableImpl<Network> implements Network, MultiSta
     @Override
     public Iterable<Line> getLines() {
         return Iterables.concat(objectStore.getAll(LineImpl.class), objectStore.getAll(TieLineImpl.class));
+    }
+
+    @Override
+    public Stream<Line> getLineStream() {
+        return Stream.concat(objectStore.getAll(LineImpl.class).stream(), objectStore.getAll(TieLineImpl.class).stream());
     }
 
     @Override
@@ -260,6 +271,11 @@ class NetworkImpl extends IdentifiableImpl<Network> implements Network, MultiSta
     }
 
     @Override
+    public Stream<TwoWindingsTransformer> getTwoWindingsTransformerStream() {
+        return objectStore.getAll(TwoWindingsTransformerImpl.class).stream().map(Function.identity());
+    }
+
+    @Override
     public int getTwoWindingsTransformerCount() {
         return objectStore.getAll(TwoWindingsTransformerImpl.class).size();
     }
@@ -272,6 +288,11 @@ class NetworkImpl extends IdentifiableImpl<Network> implements Network, MultiSta
     @Override
     public Iterable<ThreeWindingsTransformer> getThreeWindingsTransformers() {
         return Collections.unmodifiableCollection(objectStore.getAll(ThreeWindingsTransformerImpl.class));
+    }
+
+    @Override
+    public Stream<ThreeWindingsTransformer> getThreeWindingsTransformerStream() {
+        return objectStore.getAll(ThreeWindingsTransformerImpl.class).stream().map(Function.identity());
     }
 
     @Override
@@ -290,6 +311,11 @@ class NetworkImpl extends IdentifiableImpl<Network> implements Network, MultiSta
     }
 
     @Override
+    public Stream<Generator> getGeneratorStream() {
+        return objectStore.getAll(GeneratorImpl.class).stream().map(Function.identity());
+    }
+
+    @Override
     public int getGeneratorCount() {
         return objectStore.getAll(GeneratorImpl.class).size();
     }
@@ -302,6 +328,11 @@ class NetworkImpl extends IdentifiableImpl<Network> implements Network, MultiSta
     @Override
     public Iterable<Load> getLoads() {
         return Collections.unmodifiableCollection(objectStore.getAll(LoadImpl.class));
+    }
+
+    @Override
+    public Stream<Load> getLoadStream() {
+        return objectStore.getAll(LoadImpl.class).stream().map(Function.identity());
     }
 
     @Override
@@ -320,6 +351,11 @@ class NetworkImpl extends IdentifiableImpl<Network> implements Network, MultiSta
     }
 
     @Override
+    public Stream<ShuntCompensator> getShuntStream() {
+        return objectStore.getAll(ShuntCompensatorImpl.class).stream().map(Function.identity());
+    }
+
+    @Override
     public int getShuntCount() {
         return objectStore.getAll(ShuntCompensatorImpl.class).size();
     }
@@ -335,6 +371,11 @@ class NetworkImpl extends IdentifiableImpl<Network> implements Network, MultiSta
     }
 
     @Override
+    public Stream<DanglingLine> getDanglingLineStream() {
+        return objectStore.getAll(DanglingLineImpl.class).stream().map(Function.identity());
+    }
+
+    @Override
     public int getDanglingLineCount() {
         return objectStore.getAll(DanglingLineImpl.class).size();
     }
@@ -347,6 +388,11 @@ class NetworkImpl extends IdentifiableImpl<Network> implements Network, MultiSta
     @Override
     public Iterable<StaticVarCompensator> getStaticVarCompensators() {
         return Collections.unmodifiableCollection(objectStore.getAll(StaticVarCompensatorImpl.class));
+    }
+
+    @Override
+    public Stream<StaticVarCompensator> getStaticVarCompensatorStream() {
+        return objectStore.getAll(StaticVarCompensatorImpl.class).stream().map(Function.identity());
     }
 
     @Override
@@ -366,21 +412,66 @@ class NetworkImpl extends IdentifiableImpl<Network> implements Network, MultiSta
 
     @Override
     public HvdcConverterStationImpl<?> getHvdcConverterStation(String id) {
-        HvdcConverterStationImpl<?> converterStation = objectStore.get(id, LccConverterStationImpl.class);
+        HvdcConverterStationImpl<?> converterStation = getLccConverterStation(id);
         if (converterStation == null) {
-            converterStation = objectStore.get(id, VscConverterStationImpl.class);
+            converterStation = getVscConverterStation(id);
         }
         return converterStation;
     }
 
     @Override
     public int getHvdcConverterStationCount() {
-        return objectStore.getAll(LccConverterStationImpl.class).size() + objectStore.getAll(VscConverterStationImpl.class).size();
+        return getLccConverterStationCount() + getVscConverterStationCount();
     }
 
     @Override
     public Iterable<HvdcConverterStation<?>> getHvdcConverterStations() {
-        return Iterables.concat(objectStore.getAll(LccConverterStationImpl.class), objectStore.getAll(VscConverterStationImpl.class));
+        return Iterables.concat(getLccConverterStations(), getVscConverterStations());
+    }
+
+    @Override
+    public Stream<HvdcConverterStation<?>> getHvdcConverterStationStream() {
+        return Stream.concat(getLccConverterStationStream(), getVscConverterStationStream());
+    }
+
+    @Override
+    public Iterable<LccConverterStation> getLccConverterStations() {
+        return Collections.unmodifiableCollection(objectStore.getAll(LccConverterStationImpl.class));
+    }
+
+    @Override
+    public Stream<LccConverterStation> getLccConverterStationStream() {
+        return objectStore.getAll(LccConverterStationImpl.class).stream().map(Function.identity());
+    }
+
+    @Override
+    public int getLccConverterStationCount() {
+        return objectStore.getAll(LccConverterStationImpl.class).size();
+    }
+
+    @Override
+    public LccConverterStationImpl getLccConverterStation(String id) {
+        return objectStore.get(id, LccConverterStationImpl.class);
+    }
+
+    @Override
+    public Iterable<VscConverterStation> getVscConverterStations() {
+        return Collections.unmodifiableCollection(objectStore.getAll(VscConverterStationImpl.class));
+    }
+
+    @Override
+    public Stream<VscConverterStation> getVscConverterStationStream() {
+        return objectStore.getAll(VscConverterStationImpl.class).stream().map(Function.identity());
+    }
+
+    @Override
+    public int getVscConverterStationCount() {
+        return objectStore.getAll(VscConverterStationImpl.class).size();
+    }
+
+    @Override
+    public VscConverterStationImpl getVscConverterStation(String id) {
+        return objectStore.get(id, VscConverterStationImpl.class);
     }
 
     @Override
@@ -396,6 +487,11 @@ class NetworkImpl extends IdentifiableImpl<Network> implements Network, MultiSta
     @Override
     public Iterable<HvdcLine> getHvdcLines() {
         return Collections.unmodifiableCollection(objectStore.getAll(HvdcLineImpl.class));
+    }
+
+    @Override
+    public Stream<HvdcLine> getHvdcLineStream() {
+        return objectStore.getAll(HvdcLineImpl.class).stream().map(Function.identity());
     }
 
     @Override
@@ -548,12 +644,7 @@ class NetworkImpl extends IdentifiableImpl<Network> implements Network, MultiSta
 
     @Override
     public void extendStateArraySize(int initStateArraySize, int number, final int sourceIndex) {
-        states.push(number, new StateFactory<StateImpl>() {
-            @Override
-            public StateImpl newState() {
-                return states.copy(sourceIndex);
-            }
-        });
+        states.push(number, () -> states.copy(sourceIndex));
     }
 
     @Override
@@ -568,12 +659,7 @@ class NetworkImpl extends IdentifiableImpl<Network> implements Network, MultiSta
 
     @Override
     public void allocateStateArrayElement(int[] indexes, final int sourceIndex) {
-        states.allocate(indexes, new StateFactory<StateImpl>() {
-            @Override
-            public StateImpl newState() {
-                return states.copy(sourceIndex);
-            }
-        });
+        states.allocate(indexes, () -> states.copy(sourceIndex));
     }
 
     @Override

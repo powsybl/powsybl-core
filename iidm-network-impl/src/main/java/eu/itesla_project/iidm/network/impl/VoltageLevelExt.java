@@ -9,6 +9,8 @@ package eu.itesla_project.iidm.network.impl;
 import eu.itesla_project.iidm.network.Connectable;
 import eu.itesla_project.iidm.network.VoltageLevel;
 
+import java.util.stream.Stream;
+
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -38,6 +40,8 @@ interface VoltageLevelExt extends VoltageLevel, Stateful {
     @Override BusViewExt getBusView();
 
     <C extends Connectable> Iterable<C> getConnectables(Class<C> clazz);
+
+    <C extends Connectable> Stream<C> getConnectableStream(Class<C> clazz);
 
     <C extends Connectable> int getConnectableCount(Class<C> clazz);
 

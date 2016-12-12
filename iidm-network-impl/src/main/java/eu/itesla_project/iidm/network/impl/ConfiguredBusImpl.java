@@ -7,12 +7,15 @@
 package eu.itesla_project.iidm.network.impl;
 
 import eu.itesla_project.iidm.network.ConnectedComponent;
+import eu.itesla_project.iidm.network.Terminal;
 import eu.itesla_project.iidm.network.impl.util.Ref;
 import gnu.trove.list.array.TFloatArrayList;
 import gnu.trove.list.array.TIntArrayList;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  *
@@ -28,7 +31,7 @@ class ConfiguredBusImpl extends AbstractBus implements ConfiguredBus, Stateful {
 
     private final TFloatArrayList angle;
 
-    protected final TIntArrayList connectedComponentNumber;
+    private final TIntArrayList connectedComponentNumber;
 
     ConfiguredBusImpl(String id, VoltageLevelExt voltageLevel) {
         super(id, voltageLevel);
@@ -53,7 +56,12 @@ class ConfiguredBusImpl extends AbstractBus implements ConfiguredBus, Stateful {
 
     @Override
     public List<TerminalExt> getConnectedTerminals() {
-        return getTerminals().stream().filter(BusTerminal::isConnected).collect(Collectors.toList());
+        return getConnectedTerminalStream().collect(Collectors.toList());
+    }
+
+    @Override
+    public Stream<TerminalExt> getConnectedTerminalStream() {
+        return getTerminals().stream().filter(Terminal::isConnected).map(Function.identity());
     }
 
     @Override
