@@ -72,7 +72,7 @@ public interface Bus extends Identifiable<Bus> {
     /**
      * Get the AC lines connected to the bus.
      */
-    Stream<Line> getLinesStream();
+    Stream<Line> getLineStream();
 
     /**
      * Get 2 windings transformer connected to the bus.
@@ -82,7 +82,7 @@ public interface Bus extends Identifiable<Bus> {
     /**
      * Get 2 windings transformer connected to the bus.
      */
-    Stream<TwoWindingsTransformer> getTwoWindingTransformersStream();
+    Stream<TwoWindingsTransformer> getTwoWindingTransformerStream();
 
     /**
      * Get 3 windings transformers connected to the bus.
@@ -92,7 +92,7 @@ public interface Bus extends Identifiable<Bus> {
     /**
      * Get 3 windings transformers connected to the bus.
      */
-    Stream<ThreeWindingsTransformer> getThreeWindingTransformersStream();
+    Stream<ThreeWindingsTransformer> getThreeWindingTransformerStream();
 
     /**
      * Get generators connected to the bus.
@@ -102,7 +102,7 @@ public interface Bus extends Identifiable<Bus> {
     /**
      * Get generators connected to the bus.
      */
-    Stream<Generator> getGeneratorsStream();
+    Stream<Generator> getGeneratorStream();
 
     /**
      * Get loads connected to the bus.
@@ -112,7 +112,7 @@ public interface Bus extends Identifiable<Bus> {
     /**
      * Get loads connected to the bus.
      */
-    Stream<Load> getLoadsStream();
+    Stream<Load> getLoadStream();
 
     /**
      * Get shunt compensators connected to the bus.
@@ -122,7 +122,7 @@ public interface Bus extends Identifiable<Bus> {
     /**
      * Get shunt compensators connected to the bus.
      */
-    Stream<ShuntCompensator> getShuntsStream();
+    Stream<ShuntCompensator> getShuntStream();
 
     /**
      * Get dangling lines connected to the bus.
@@ -132,7 +132,7 @@ public interface Bus extends Identifiable<Bus> {
     /**
      * Get dangling lines connected to the bus.
      */
-    Stream<DanglingLine> getDanglingLinesStream();
+    Stream<DanglingLine> getDanglingLineStream();
 
     /**
      * Get static VAR compensators connected to the bus.
@@ -142,7 +142,7 @@ public interface Bus extends Identifiable<Bus> {
     /**
      * Get static VAR compensators connected to the bus.
      */
-    Stream<StaticVarCompensator> getStaticVarCompensatorsStream();
+    Stream<StaticVarCompensator> getStaticVarCompensatorStream();
 
     /**
      * Get LCC converter stations connected to the bus.
@@ -152,7 +152,7 @@ public interface Bus extends Identifiable<Bus> {
     /**
      * Get LCC converter stations connected to the bus.
      */
-    Stream<LccConverterStation> getLccConverterStationsStream();
+    Stream<LccConverterStation> getLccConverterStationStream();
 
     /**
      * Get VSC converter stations connected to the bus.
@@ -162,7 +162,7 @@ public interface Bus extends Identifiable<Bus> {
     /**
      * Get VSC converter stations connected to the bus.
      */
-    Stream<VscConverterStation> getVscConverterStationsStream();
+    Stream<VscConverterStation> getVscConverterStationStream();
 
     /**
      * Visit equipments connected to the bus.

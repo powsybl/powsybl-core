@@ -54,7 +54,7 @@ public interface Network extends Container<Network> {
          * Depends on the working state.
          * @see StateManager
          */
-        Stream<Bus> getBusesStream();
+        Stream<Bus> getBusStream();
 
         /**
          * Get all switches.
@@ -70,7 +70,7 @@ public interface Network extends Container<Network> {
         /**
          * Get all switches.
          */
-        Stream<Switch> getSwitchesStream();
+        Stream<Switch> getSwitchStream();
     }
 
     /**
@@ -92,7 +92,7 @@ public interface Network extends Container<Network> {
          * Depends on the working state.
          * @see StateManager
          */
-        Stream<Bus> getBusesStream();
+        Stream<Bus> getBusStream();
 
         /**
          * Get all connected compoments.
@@ -157,7 +157,7 @@ public interface Network extends Container<Network> {
     /**
      * Get all substations.
      */
-    Stream<Substation> getSubstationsStream();
+    Stream<Substation> getSubstationStream();
 
     /**
      * Get the substation count.
@@ -191,7 +191,7 @@ public interface Network extends Container<Network> {
     /**
      * Get all substation voltage levels.
      */
-    Stream<VoltageLevel> getVoltageLevelsStream();
+    Stream<VoltageLevel> getVoltageLevelStream();
 
     /**
      * Get the voltage level count.
@@ -218,7 +218,7 @@ public interface Network extends Container<Network> {
     /**
      * Get all AC lines.
      */
-    Stream<Line> getLinesStream();
+    Stream<Line> getLineStream();
 
     /**
      * Get the AC line count.
@@ -245,7 +245,7 @@ public interface Network extends Container<Network> {
     /**
      * Get all two windings transformers.
      */
-    Stream<TwoWindingsTransformer> getTwoWindingsTransformersStream();
+    Stream<TwoWindingsTransformer> getTwoWindingsTransformerStream();
 
     /**
      * Get the two windings transformer count.
@@ -267,7 +267,7 @@ public interface Network extends Container<Network> {
     /**
      * Get all 3 windings transformers.
      */
-    Stream<ThreeWindingsTransformer> getThreeWindingsTransformersStream();
+    Stream<ThreeWindingsTransformer> getThreeWindingsTransformerStream();
 
     /**
      * Get the 3 windings transformer count.
@@ -289,7 +289,7 @@ public interface Network extends Container<Network> {
     /**
      * Get all generators.
      */
-    Stream<Generator> getGeneratorsStream();
+    Stream<Generator> getGeneratorStream();
 
     /**
      * Get the generator count.
@@ -311,7 +311,7 @@ public interface Network extends Container<Network> {
     /**
      * Get all loads.
      */
-    Stream<Load> getLoadsStream();
+    Stream<Load> getLoadStream();
 
     /**
      * Get the load count.
@@ -333,7 +333,7 @@ public interface Network extends Container<Network> {
     /**
      * Get all compensator shunts.
      */
-    Stream<ShuntCompensator> getShuntsStream();
+    Stream<ShuntCompensator> getShuntStream();
 
     /**
      * Get the shunt count.
@@ -355,7 +355,7 @@ public interface Network extends Container<Network> {
     /**
      * Get all dangling lines.
      */
-    Stream<DanglingLine> getDanglingLinesStream();
+    Stream<DanglingLine> getDanglingLineStream();
 
     /**
      * Get the dangling line count.
@@ -377,7 +377,7 @@ public interface Network extends Container<Network> {
     /**
      * Get all static var compensators.
      */
-    Stream<StaticVarCompensator> getStaticVarCompensatorsStream();
+    Stream<StaticVarCompensator> getStaticVarCompensatorStream();
 
     /**
      * Get the static var compensator count.
@@ -408,7 +408,7 @@ public interface Network extends Container<Network> {
      * Get all HVDC converter stations.
      * @return all HVDC converter stations
      */
-    Stream<HvdcConverterStation<?>> getHvdcConverterStationsStream();
+    Stream<HvdcConverterStation<?>> getHvdcConverterStationStream();
 
     /**
      * Get HVDC converter stations count.
@@ -433,7 +433,7 @@ public interface Network extends Container<Network> {
      * Get all LCC converter stations.
      * @return all LCC converter stations
      */
-    Stream<LccConverterStation> getLccConverterStationsStream();
+    Stream<LccConverterStation> getLccConverterStationStream();
 
     /**
      * Get LCC converter stations count.
@@ -458,7 +458,7 @@ public interface Network extends Container<Network> {
      * Get all VSC converter stations.
      * @return all VSC converter stations
      */
-    Stream<VscConverterStation> getVscConverterStationsStream();
+    Stream<VscConverterStation> getVscConverterStationStream();
 
     /**
      * Get VSC converter stations count.
@@ -483,7 +483,7 @@ public interface Network extends Container<Network> {
      * Get all HVDC lines.
      * @return all HVDC lines
      */
-    Stream<HvdcLine> getHvdcLinesStream();
+    Stream<HvdcLine> getHvdcLineStream();
 
 
     /**

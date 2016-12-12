@@ -55,11 +55,11 @@ class ConfiguredBusImpl extends AbstractBus implements ConfiguredBus, Stateful {
 
     @Override
     public List<TerminalExt> getConnectedTerminals() {
-        return getConnectedTerminalsStream().collect(Collectors.toList());
+        return getConnectedTerminalStream().collect(Collectors.toList());
     }
 
     @Override
-    public Stream<TerminalExt> getConnectedTerminalsStream() {
+    public Stream<TerminalExt> getConnectedTerminalStream() {
         return getTerminals().stream().filter(Terminal::isConnected).map(t -> t);
     }
 

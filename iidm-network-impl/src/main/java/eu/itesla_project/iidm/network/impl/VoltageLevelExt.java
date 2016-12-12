@@ -41,7 +41,7 @@ interface VoltageLevelExt extends VoltageLevel, Stateful {
 
     <C extends Connectable> Iterable<C> getConnectables(Class<C> clazz);
 
-    <C extends Connectable> Stream<C> getConnectablesStream(Class<C> clazz);
+    <C extends Connectable> Stream<C> getConnectableStream(Class<C> clazz);
 
     <C extends Connectable> int getConnectableCount(Class<C> clazz);
 

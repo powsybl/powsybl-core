@@ -409,7 +409,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
         /**
          * Get switches.
          */
-        Stream<Switch> getSwitchesStream();
+        Stream<Switch> getSwitchStream();
 
         /**
          * Get the switch count.
@@ -429,7 +429,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
         /**
          * Get busbar sections.
          */
-        Stream<BusbarSection> getBusbarSectionsStream();
+        Stream<BusbarSection> getBusbarSectionStream();
 
         /**
          * Get the busbar section count.
@@ -476,7 +476,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
          * Depends on the working state if topology kind is NODE_BREAKER.
          * @see StateManager
          */
-        Stream<Bus> getBusesStream();
+        Stream<Bus> getBusStream();
 
         /**
          * Get a bus.
@@ -513,7 +513,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
         /**
          * Get switches.
          */
-        Stream<Switch> getSwitchesStream();
+        Stream<Switch> getSwitchStream();
 
         /**
          * Remove a switch.
@@ -581,7 +581,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
          * Depends on the working state.
          * @see StateManager
          */
-        Stream<Bus> getBusesStream();
+        Stream<Bus> getBusStream();
 
         /**
          * Get a bus.
@@ -676,7 +676,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
     /**
      * Get generators.
      */
-    Stream<Generator> getGeneratorsStream();
+    Stream<Generator> getGeneratorStream();
 
     /**
      * Get generator count.
@@ -696,7 +696,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
     /**
      * Get loads.
      */
-    Stream<Load> getLoadsStream();
+    Stream<Load> getLoadStream();
 
     /**
      * Get load count.
@@ -717,7 +717,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
     /**
      * Get compensator shunts.
      */
-    Stream<ShuntCompensator> getShuntsStream();
+    Stream<ShuntCompensator> getShuntStream();
 
     /**
      * Get shunt count.
@@ -737,7 +737,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
     /**
      * Get dangling lines.
      */
-    Stream<DanglingLine> getDanglingLinesStream();
+    Stream<DanglingLine> getDanglingLineStream();
 
     /**
      * Get dangling line count.
@@ -757,7 +757,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
     /**
      * Get static var compensators.
      */
-    Stream<StaticVarCompensator> getStaticVarCompensatorsStream();
+    Stream<StaticVarCompensator> getStaticVarCompensatorStream();
 
     /**
      * Get static var compensator count.
@@ -780,7 +780,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
      * Get all VSC converter stations connected to this voltage level.
      * @return all VSC converter stations connected to this voltage level
      */
-    Stream<VscConverterStation> getVscConverterStationsStream();
+    Stream<VscConverterStation> getVscConverterStationStream();
 
     /**
      * Get VSC converter stations count connected to this voltage level.
@@ -804,7 +804,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
      * Get all LCC converter stations connected to this voltage level.
      * @return all LCC converter stations connected to this voltage level
      */
-    Stream<LccConverterStation> getLccConverterStationsStream();
+    Stream<LccConverterStation> getLccConverterStationStream();
 
     /**
      * Get LCC converter stations count connected to this voltage level.

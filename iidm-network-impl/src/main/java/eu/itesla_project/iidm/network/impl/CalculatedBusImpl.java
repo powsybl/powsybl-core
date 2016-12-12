@@ -68,7 +68,7 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     }
 
     @Override
-    public Stream<TerminalExt> getConnectedTerminalsStream() {
+    public Stream<TerminalExt> getConnectedTerminalStream() {
         checkValidity();
         return terminals.stream().map(t -> t);
     }
@@ -146,9 +146,9 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     }
 
     @Override
-    public Stream<Line> getLinesStream() {
+    public Stream<Line> getLineStream() {
         checkValidity();
-        return super.getLinesStream();
+        return super.getLineStream();
     }
 
     @Override
@@ -158,9 +158,9 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     }
 
     @Override
-    public Stream<TwoWindingsTransformer> getTwoWindingTransformersStream() {
+    public Stream<TwoWindingsTransformer> getTwoWindingTransformerStream() {
         checkValidity();
-        return super.getTwoWindingTransformersStream();
+        return super.getTwoWindingTransformerStream();
     }
 
     @Override
@@ -170,9 +170,9 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     }
 
     @Override
-    public Stream<ThreeWindingsTransformer> getThreeWindingTransformersStream() {
+    public Stream<ThreeWindingsTransformer> getThreeWindingTransformerStream() {
         checkValidity();
-        return super.getThreeWindingTransformersStream();
+        return super.getThreeWindingTransformerStream();
     }
 
     @Override
@@ -182,9 +182,9 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     }
 
     @Override
-    public Stream<Load> getLoadsStream() {
+    public Stream<Load> getLoadStream() {
         checkValidity();
-        return super.getLoadsStream();
+        return super.getLoadStream();
     }
 
     @Override
@@ -194,9 +194,9 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     }
 
     @Override
-    public Stream<ShuntCompensator> getShuntsStream() {
+    public Stream<ShuntCompensator> getShuntStream() {
         checkValidity();
-        return super.getShuntsStream();
+        return super.getShuntStream();
     }
 
     @Override
@@ -206,9 +206,9 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     }
 
     @Override
-    public Stream<Generator> getGeneratorsStream() {
+    public Stream<Generator> getGeneratorStream() {
         checkValidity();
-        return super.getGeneratorsStream();
+        return super.getGeneratorStream();
     }
 
     @Override
@@ -218,9 +218,9 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     }
 
     @Override
-    public Stream<DanglingLine> getDanglingLinesStream() {
+    public Stream<DanglingLine> getDanglingLineStream() {
         checkValidity();
-        return super.getDanglingLinesStream();
+        return super.getDanglingLineStream();
     }
 
     @Override
@@ -230,9 +230,9 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     }
 
     @Override
-    public Stream<StaticVarCompensator> getStaticVarCompensatorsStream() {
+    public Stream<StaticVarCompensator> getStaticVarCompensatorStream() {
         checkValidity();
-        return super.getStaticVarCompensatorsStream();
+        return super.getStaticVarCompensatorStream();
     }
 
     @Override
@@ -242,9 +242,9 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     }
 
     @Override
-    public Stream<LccConverterStation> getLccConverterStationsStream() {
+    public Stream<LccConverterStation> getLccConverterStationStream() {
         checkValidity();
-        return super.getLccConverterStationsStream();
+        return super.getLccConverterStationStream();
     }
 
     @Override
@@ -254,9 +254,9 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     }
 
     @Override
-    public Stream<VscConverterStation> getVscConverterStationsStream() {
+    public Stream<VscConverterStation> getVscConverterStationStream() {
         checkValidity();
-        return super.getVscConverterStationsStream();
+        return super.getVscConverterStationStream();
     }
 
     @Override

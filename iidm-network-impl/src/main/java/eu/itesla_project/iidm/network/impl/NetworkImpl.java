@@ -53,8 +53,8 @@ class NetworkImpl extends IdentifiableImpl<Network> implements Network, MultiSta
         }
 
         @Override
-        public Stream<Bus> getBusesStream() {
-            return getVoltageLevelsStream().flatMap(vl -> vl.getBusBreakerView().getBusesStream());
+        public Stream<Bus> getBusStream() {
+            return getVoltageLevelStream().flatMap(vl -> vl.getBusBreakerView().getBusStream());
         }
 
         @Override
@@ -69,8 +69,8 @@ class NetworkImpl extends IdentifiableImpl<Network> implements Network, MultiSta
         }
 
         @Override
-        public Stream<Switch> getSwitchesStream() {
-            return getVoltageLevelsStream().flatMap(vl -> vl.getBusBreakerView().getSwitchesStream());
+        public Stream<Switch> getSwitchStream() {
+            return getVoltageLevelStream().flatMap(vl -> vl.getBusBreakerView().getSwitchStream());
         }
 
     }
@@ -86,8 +86,8 @@ class NetworkImpl extends IdentifiableImpl<Network> implements Network, MultiSta
         }
 
         @Override
-        public Stream<Bus> getBusesStream() {
-            return getVoltageLevelsStream().flatMap(vl -> vl.getBusView().getBusesStream());
+        public Stream<Bus> getBusStream() {
+            return getVoltageLevelStream().flatMap(vl -> vl.getBusView().getBusStream());
         }
 
         @Override
@@ -169,7 +169,7 @@ class NetworkImpl extends IdentifiableImpl<Network> implements Network, MultiSta
 
     @Override
     public Set<Country> getCountries() {
-        return getSubstationsStream().map(Substation::getCountry).collect(Collectors.toSet());
+        return getSubstationStream().map(Substation::getCountry).collect(Collectors.toSet());
     }
 
     @Override
@@ -188,7 +188,7 @@ class NetworkImpl extends IdentifiableImpl<Network> implements Network, MultiSta
     }
 
     @Override
-    public Stream<Substation> getSubstationsStream() {
+    public Stream<Substation> getSubstationStream() {
         return objectStore.getAll(SubstationImpl.class).stream().map(s -> s);
     }
 
@@ -214,7 +214,7 @@ class NetworkImpl extends IdentifiableImpl<Network> implements Network, MultiSta
     }
 
     @Override
-    public Stream<VoltageLevel> getVoltageLevelsStream() {
+    public Stream<VoltageLevel> getVoltageLevelStream() {
         return Stream.concat(objectStore.getAll(BusBreakerVoltageLevel.class).stream(),
                 objectStore.getAll(NodeBreakerVoltageLevel.class).stream());
     }
@@ -241,7 +241,7 @@ class NetworkImpl extends IdentifiableImpl<Network> implements Network, MultiSta
     }
 
     @Override
-    public Stream<Line> getLinesStream() {
+    public Stream<Line> getLineStream() {
         return Stream.concat(objectStore.getAll(LineImpl.class).stream(), objectStore.getAll(TieLineImpl.class).stream());
     }
 
@@ -270,7 +270,7 @@ class NetworkImpl extends IdentifiableImpl<Network> implements Network, MultiSta
     }
 
     @Override
-    public Stream<TwoWindingsTransformer> getTwoWindingsTransformersStream() {
+    public Stream<TwoWindingsTransformer> getTwoWindingsTransformerStream() {
         return objectStore.getAll(TwoWindingsTransformerImpl.class).stream().map(t -> t);
     }
 
@@ -290,7 +290,7 @@ class NetworkImpl extends IdentifiableImpl<Network> implements Network, MultiSta
     }
 
     @Override
-    public Stream<ThreeWindingsTransformer> getThreeWindingsTransformersStream() {
+    public Stream<ThreeWindingsTransformer> getThreeWindingsTransformerStream() {
         return objectStore.getAll(ThreeWindingsTransformerImpl.class).stream().map(t -> t);
     }
 
@@ -310,7 +310,7 @@ class NetworkImpl extends IdentifiableImpl<Network> implements Network, MultiSta
     }
 
     @Override
-    public Stream<Generator> getGeneratorsStream() {
+    public Stream<Generator> getGeneratorStream() {
         return objectStore.getAll(GeneratorImpl.class).stream().map(t -> t);
     }
 
@@ -330,7 +330,7 @@ class NetworkImpl extends IdentifiableImpl<Network> implements Network, MultiSta
     }
 
     @Override
-    public Stream<Load> getLoadsStream() {
+    public Stream<Load> getLoadStream() {
         return objectStore.getAll(LoadImpl.class).stream().map(l -> l);
     }
 
@@ -350,7 +350,7 @@ class NetworkImpl extends IdentifiableImpl<Network> implements Network, MultiSta
     }
 
     @Override
-    public Stream<ShuntCompensator> getShuntsStream() {
+    public Stream<ShuntCompensator> getShuntStream() {
         return objectStore.getAll(ShuntCompensatorImpl.class).stream().map(s -> s);
     }
 
@@ -370,7 +370,7 @@ class NetworkImpl extends IdentifiableImpl<Network> implements Network, MultiSta
     }
 
     @Override
-    public Stream<DanglingLine> getDanglingLinesStream() {
+    public Stream<DanglingLine> getDanglingLineStream() {
         return objectStore.getAll(DanglingLineImpl.class).stream().map(dl -> dl);
     }
 
@@ -390,7 +390,7 @@ class NetworkImpl extends IdentifiableImpl<Network> implements Network, MultiSta
     }
 
     @Override
-    public Stream<StaticVarCompensator> getStaticVarCompensatorsStream() {
+    public Stream<StaticVarCompensator> getStaticVarCompensatorStream() {
         return objectStore.getAll(StaticVarCompensatorImpl.class).stream().map(svc -> svc);
     }
 
@@ -429,8 +429,8 @@ class NetworkImpl extends IdentifiableImpl<Network> implements Network, MultiSta
     }
 
     @Override
-    public Stream<HvdcConverterStation<?>> getHvdcConverterStationsStream() {
-        return Stream.concat(getLccConverterStationsStream(), getVscConverterStationsStream());
+    public Stream<HvdcConverterStation<?>> getHvdcConverterStationStream() {
+        return Stream.concat(getLccConverterStationStream(), getVscConverterStationStream());
     }
 
     @Override
@@ -439,7 +439,7 @@ class NetworkImpl extends IdentifiableImpl<Network> implements Network, MultiSta
     }
 
     @Override
-    public Stream<LccConverterStation> getLccConverterStationsStream() {
+    public Stream<LccConverterStation> getLccConverterStationStream() {
         return objectStore.getAll(LccConverterStationImpl.class).stream().map(cs -> cs);
     }
 
@@ -459,7 +459,7 @@ class NetworkImpl extends IdentifiableImpl<Network> implements Network, MultiSta
     }
 
     @Override
-    public Stream<VscConverterStation> getVscConverterStationsStream() {
+    public Stream<VscConverterStation> getVscConverterStationStream() {
         return objectStore.getAll(VscConverterStationImpl.class).stream().map(cs -> cs);
     }
 
@@ -489,7 +489,7 @@ class NetworkImpl extends IdentifiableImpl<Network> implements Network, MultiSta
     }
 
     @Override
-    public Stream<HvdcLine> getHvdcLinesStream() {
+    public Stream<HvdcLine> getHvdcLineStream() {
         return objectStore.getAll(HvdcLineImpl.class).stream().map(hvdcLine -> hvdcLine);
     }
 

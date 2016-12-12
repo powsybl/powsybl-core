@@ -64,5 +64,5 @@ public interface LccConverterStation extends HvdcConverterStation<LccConverterSt
      * Return all the filters.
      * @return all the filters.
      */
-    Stream<LccFilter> getFiltersStream();
+    Stream<LccFilter> getFilterStream();
 }

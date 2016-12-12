@@ -39,7 +39,7 @@ public interface UndirectedGraph<V, E> {
 
     Iterable<V> getVerticesObj();
 
-    Stream<V> getVerticesObjStream();
+    Stream<V> getVertexObjectStream();
 
     V getVertexObject(int v);
 
@@ -53,7 +53,7 @@ public interface UndirectedGraph<V, E> {
 
     Iterable<E> getEdgesObject();
 
-    Stream<E> getEdgesObjectStream();
+    Stream<E> getEdgeObjectStream();
 
     E getEdgeObject(int e);
 

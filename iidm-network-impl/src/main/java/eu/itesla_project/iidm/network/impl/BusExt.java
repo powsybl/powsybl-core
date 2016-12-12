@@ -20,7 +20,7 @@ interface BusExt extends Bus {
 
     Iterable<TerminalExt> getConnectedTerminals();
 
-    Stream<TerminalExt> getConnectedTerminalsStream();
+    Stream<TerminalExt> getConnectedTerminalStream();
 
     void setConnectedComponentNumber(int connectedComponentNumber);
 

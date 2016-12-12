@@ -68,9 +68,9 @@ class MergedBus extends IdentifiableImpl<Bus> implements CalculatedBus {
     }
 
     @Override
-    public Stream<TerminalExt> getConnectedTerminalsStream() {
+    public Stream<TerminalExt> getConnectedTerminalStream() {
         checkValidity();
-        return buses.stream().flatMap(ConfiguredBus::getConnectedTerminalsStream);
+        return buses.stream().flatMap(ConfiguredBus::getConnectedTerminalStream);
     }
 
     @Override
@@ -176,9 +176,9 @@ class MergedBus extends IdentifiableImpl<Bus> implements CalculatedBus {
     }
 
     @Override
-    public Stream<Line> getLinesStream() {
+    public Stream<Line> getLineStream() {
         checkValidity();
-        return buses.stream().flatMap(Bus::getLinesStream);
+        return buses.stream().flatMap(Bus::getLineStream);
     }
 
     @Override
@@ -192,9 +192,9 @@ class MergedBus extends IdentifiableImpl<Bus> implements CalculatedBus {
     }
 
     @Override
-    public Stream<TwoWindingsTransformer> getTwoWindingTransformersStream() {
+    public Stream<TwoWindingsTransformer> getTwoWindingTransformerStream() {
         checkValidity();
-        return buses.stream().flatMap(ConfiguredBus::getTwoWindingTransformersStream);
+        return buses.stream().flatMap(ConfiguredBus::getTwoWindingTransformerStream);
     }
 
     @Override
@@ -208,9 +208,9 @@ class MergedBus extends IdentifiableImpl<Bus> implements CalculatedBus {
     }
 
     @Override
-    public Stream<ThreeWindingsTransformer> getThreeWindingTransformersStream() {
+    public Stream<ThreeWindingsTransformer> getThreeWindingTransformerStream() {
         checkValidity();
-        return buses.stream().flatMap(ConfiguredBus::getThreeWindingTransformersStream);
+        return buses.stream().flatMap(ConfiguredBus::getThreeWindingTransformerStream);
     }
 
     @Override
@@ -224,9 +224,9 @@ class MergedBus extends IdentifiableImpl<Bus> implements CalculatedBus {
     }
 
     @Override
-    public Stream<Generator> getGeneratorsStream() {
+    public Stream<Generator> getGeneratorStream() {
         checkValidity();
-        return buses.stream().flatMap(ConfiguredBus::getGeneratorsStream);
+        return buses.stream().flatMap(ConfiguredBus::getGeneratorStream);
     }
 
     @Override
@@ -240,9 +240,9 @@ class MergedBus extends IdentifiableImpl<Bus> implements CalculatedBus {
     }
 
     @Override
-    public Stream<Load> getLoadsStream() {
+    public Stream<Load> getLoadStream() {
         checkValidity();
-        return buses.stream().flatMap(ConfiguredBus::getLoadsStream);
+        return buses.stream().flatMap(ConfiguredBus::getLoadStream);
     }
 
     @Override
@@ -256,9 +256,9 @@ class MergedBus extends IdentifiableImpl<Bus> implements CalculatedBus {
     }
 
     @Override
-    public Stream<ShuntCompensator> getShuntsStream() {
+    public Stream<ShuntCompensator> getShuntStream() {
         checkValidity();
-        return buses.stream().flatMap(ConfiguredBus::getShuntsStream);
+        return buses.stream().flatMap(ConfiguredBus::getShuntStream);
     }
 
     @Override
@@ -272,9 +272,9 @@ class MergedBus extends IdentifiableImpl<Bus> implements CalculatedBus {
     }
 
     @Override
-    public Stream<DanglingLine> getDanglingLinesStream() {
+    public Stream<DanglingLine> getDanglingLineStream() {
         checkValidity();
-        return buses.stream().flatMap(ConfiguredBus::getDanglingLinesStream);
+        return buses.stream().flatMap(ConfiguredBus::getDanglingLineStream);
     }
 
     @Override
@@ -288,9 +288,9 @@ class MergedBus extends IdentifiableImpl<Bus> implements CalculatedBus {
     }
 
     @Override
-    public Stream<StaticVarCompensator> getStaticVarCompensatorsStream() {
+    public Stream<StaticVarCompensator> getStaticVarCompensatorStream() {
         checkValidity();
-        return buses.stream().flatMap(ConfiguredBus::getStaticVarCompensatorsStream);
+        return buses.stream().flatMap(ConfiguredBus::getStaticVarCompensatorStream);
     }
 
     @Override
@@ -304,9 +304,9 @@ class MergedBus extends IdentifiableImpl<Bus> implements CalculatedBus {
     }
 
     @Override
-    public Stream<LccConverterStation> getLccConverterStationsStream() {
+    public Stream<LccConverterStation> getLccConverterStationStream() {
         checkValidity();
-        return buses.stream().flatMap(ConfiguredBus::getLccConverterStationsStream);
+        return buses.stream().flatMap(ConfiguredBus::getLccConverterStationStream);
     }
 
     @Override
@@ -320,9 +320,9 @@ class MergedBus extends IdentifiableImpl<Bus> implements CalculatedBus {
     }
 
     @Override
-    public Stream<VscConverterStation> getVscConverterStationsStream() {
+    public Stream<VscConverterStation> getVscConverterStationStream() {
         checkValidity();
-        return buses.stream().flatMap(ConfiguredBus::getVscConverterStationsStream);
+        return buses.stream().flatMap(ConfiguredBus::getVscConverterStationStream);
     }
 
     @Override

@@ -326,8 +326,8 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
     }
 
     @Override
-    public Stream<Terminal> getTerminalsStream() {
-        return graph.getVerticesObjStream().flatMap(bus -> bus.getTerminals().stream());
+    public Stream<Terminal> getTerminalStream() {
+        return graph.getVertexObjectStream().flatMap(bus -> bus.getTerminals().stream());
     }
 
     @Override
@@ -339,8 +339,8 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
     }
 
     @Override
-    public <C extends Connectable> Stream<C> getConnectablesStream(Class<C> clazz) {
-        return getTerminalsStream()
+    public <C extends Connectable> Stream<C> getConnectableStream(Class<C> clazz) {
+        return getTerminalStream()
                 .map(Terminal::getConnectable)
                 .filter(clazz::isInstance)
                 .map(clazz::cast);
@@ -401,7 +401,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         @Override
-        public Stream<Switch> getSwitchesStream() {
+        public Stream<Switch> getSwitchStream() {
             throw createNotSupportedBusBreakerTopologyException();
         }
 
@@ -426,7 +426,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         @Override
-        public Stream<BusbarSection> getBusbarSectionsStream() {
+        public Stream<BusbarSection> getBusbarSectionStream() {
             throw createNotSupportedBusBreakerTopologyException();
         }
 
@@ -455,8 +455,8 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         @Override
-        public Stream<Bus> getBusesStream() {
-            return graph.getVerticesObjStream().map(b -> b);
+        public Stream<Bus> getBusStream() {
+            return graph.getVertexObjectStream().map(b -> b);
         }
 
         @Override
@@ -485,8 +485,8 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         @Override
-        public Stream<Switch> getSwitchesStream() {
-            return graph.getEdgesObjectStream().map(sw -> sw);
+        public Stream<Switch> getSwitchStream() {
+            return graph.getEdgeObjectStream().map(sw -> sw);
         }
 
         @Override
@@ -538,7 +538,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         @Override
-        public Stream<Bus> getBusesStream() {
+        public Stream<Bus> getBusStream() {
             return calculatedBusTopology.getMergedBuses().stream().map(b -> b);
         }
 

@@ -137,112 +137,112 @@ public class NetworkTest {
         Function<Stream<? extends Identifiable<?>>, Set<String>> mapperSet = stream -> stream.map(Identifiable::getId).collect(Collectors.toSet());
 
         Network network = EurostagTutorialExample1Factory.create();
-        assertEquals(Arrays.asList("P1", "P2"), mapper.apply(network.getSubstationsStream()));
-        assertEquals(network.getSubstationCount(), network.getSubstationsStream().count());
-        assertEquals(Arrays.asList("NHV1_NHV2_1", "NHV1_NHV2_2"), mapper.apply(network.getLinesStream()));
-        assertEquals(network.getLineCount(), network.getLinesStream().count());
+        assertEquals(Arrays.asList("P1", "P2"), mapper.apply(network.getSubstationStream()));
+        assertEquals(network.getSubstationCount(), network.getSubstationStream().count());
+        assertEquals(Arrays.asList("NHV1_NHV2_1", "NHV1_NHV2_2"), mapper.apply(network.getLineStream()));
+        assertEquals(network.getLineCount(), network.getLineStream().count());
 
-        assertEquals(Arrays.asList("VLGEN", "VLHV1", "VLHV2", "VLLOAD"), mapper.apply(network.getVoltageLevelsStream()));
-        assertEquals(network.getVoltageLevelCount(), network.getVoltageLevelsStream().count());
-        assertEquals(Arrays.asList("VLGEN", "VLHV1"), mapper.apply(network.getSubstation("P1").getVoltageLevelsStream()));
-        assertEquals(Arrays.asList("VLHV2", "VLLOAD"), mapper.apply(network.getSubstation("P2").getVoltageLevelsStream()));
+        assertEquals(Arrays.asList("VLGEN", "VLHV1", "VLHV2", "VLLOAD"), mapper.apply(network.getVoltageLevelStream()));
+        assertEquals(network.getVoltageLevelCount(), network.getVoltageLevelStream().count());
+        assertEquals(Arrays.asList("VLGEN", "VLHV1"), mapper.apply(network.getSubstation("P1").getVoltageLevelStream()));
+        assertEquals(Arrays.asList("VLHV2", "VLLOAD"), mapper.apply(network.getSubstation("P2").getVoltageLevelStream()));
 
-        assertEquals(Arrays.asList("NGEN", "NHV1", "NHV2", "NLOAD"), mapper.apply(network.getBusBreakerView().getBusesStream()));
-        assertEquals(Collections.singletonList("NGEN"), mapper.apply(network.getVoltageLevel("VLGEN").getBusBreakerView().getBusesStream()));
-        assertEquals(Collections.singletonList("NHV1"), mapper.apply(network.getVoltageLevel("VLHV1").getBusBreakerView().getBusesStream()));
-        assertEquals(Collections.singletonList("NHV2"), mapper.apply(network.getVoltageLevel("VLHV2").getBusBreakerView().getBusesStream()));
-        assertEquals(Collections.singletonList("NLOAD"), mapper.apply(network.getVoltageLevel("VLLOAD").getBusBreakerView().getBusesStream()));
+        assertEquals(Arrays.asList("NGEN", "NHV1", "NHV2", "NLOAD"), mapper.apply(network.getBusBreakerView().getBusStream()));
+        assertEquals(Collections.singletonList("NGEN"), mapper.apply(network.getVoltageLevel("VLGEN").getBusBreakerView().getBusStream()));
+        assertEquals(Collections.singletonList("NHV1"), mapper.apply(network.getVoltageLevel("VLHV1").getBusBreakerView().getBusStream()));
+        assertEquals(Collections.singletonList("NHV2"), mapper.apply(network.getVoltageLevel("VLHV2").getBusBreakerView().getBusStream()));
+        assertEquals(Collections.singletonList("NLOAD"), mapper.apply(network.getVoltageLevel("VLLOAD").getBusBreakerView().getBusStream()));
 
-        assertEquals(Arrays.asList("NGEN_NHV1", "NHV2_NLOAD"), mapper.apply(network.getTwoWindingsTransformersStream()));
-        assertEquals(network.getTwoWindingsTransformerCount(), network.getTwoWindingsTransformersStream().count());
-        assertEquals(Collections.singleton("NGEN_NHV1"), mapperSet.apply(network.getSubstation("P1").getTwoWindingsTransformersStream()));
-        assertEquals(Collections.singleton("NHV2_NLOAD"), mapperSet.apply(network.getSubstation("P2").getTwoWindingsTransformersStream()));
+        assertEquals(Arrays.asList("NGEN_NHV1", "NHV2_NLOAD"), mapper.apply(network.getTwoWindingsTransformerStream()));
+        assertEquals(network.getTwoWindingsTransformerCount(), network.getTwoWindingsTransformerStream().count());
+        assertEquals(Collections.singleton("NGEN_NHV1"), mapperSet.apply(network.getSubstation("P1").getTwoWindingsTransformerStream()));
+        assertEquals(Collections.singleton("NHV2_NLOAD"), mapperSet.apply(network.getSubstation("P2").getTwoWindingsTransformerStream()));
 
-        assertEquals(Collections.emptyList(), mapper.apply(network.getThreeWindingsTransformersStream()));
-        assertEquals(network.getThreeWindingsTransformerCount(), network.getThreeWindingsTransformersStream().count());
-        assertEquals(Collections.emptyList(), mapper.apply(network.getSubstation("P1").getThreeWindingsTransformersStream()));
-        assertEquals(Collections.emptyList(), mapper.apply(network.getSubstation("P2").getThreeWindingsTransformersStream()));
+        assertEquals(Collections.emptyList(), mapper.apply(network.getThreeWindingsTransformerStream()));
+        assertEquals(network.getThreeWindingsTransformerCount(), network.getThreeWindingsTransformerStream().count());
+        assertEquals(Collections.emptyList(), mapper.apply(network.getSubstation("P1").getThreeWindingsTransformerStream()));
+        assertEquals(Collections.emptyList(), mapper.apply(network.getSubstation("P2").getThreeWindingsTransformerStream()));
 
-        assertEquals(Collections.emptyList(), mapper.apply(network.getDanglingLinesStream()));
-        assertEquals(Collections.emptyList(), mapper.apply(network.getVoltageLevel("VLHV1").getDanglingLinesStream()));
-        assertEquals(network.getDanglingLineCount(), network.getDanglingLinesStream().count());
-        assertEquals(Collections.emptyList(), mapper.apply(network.getShuntsStream()));
-        assertEquals(Collections.emptyList(), mapper.apply(network.getVoltageLevel("VLHV2").getShuntsStream()));
-        assertEquals(network.getShuntCount(), network.getShuntsStream().count());
+        assertEquals(Collections.emptyList(), mapper.apply(network.getDanglingLineStream()));
+        assertEquals(Collections.emptyList(), mapper.apply(network.getVoltageLevel("VLHV1").getDanglingLineStream()));
+        assertEquals(network.getDanglingLineCount(), network.getDanglingLineStream().count());
+        assertEquals(Collections.emptyList(), mapper.apply(network.getShuntStream()));
+        assertEquals(Collections.emptyList(), mapper.apply(network.getVoltageLevel("VLHV2").getShuntStream()));
+        assertEquals(network.getShuntCount(), network.getShuntStream().count());
 
-        assertEquals(Collections.singletonList("LOAD"), mapper.apply(network.getLoadsStream()));
-        assertEquals(network.getLoadCount(), network.getLoadsStream().count());
-        assertEquals(Collections.singletonList("LOAD"), mapper.apply(network.getVoltageLevel("VLLOAD").getLoadsStream()));
+        assertEquals(Collections.singletonList("LOAD"), mapper.apply(network.getLoadStream()));
+        assertEquals(network.getLoadCount(), network.getLoadStream().count());
+        assertEquals(Collections.singletonList("LOAD"), mapper.apply(network.getVoltageLevel("VLLOAD").getLoadStream()));
 
-        assertEquals(Collections.singletonList("GEN"), mapper.apply(network.getGeneratorsStream()));
-        assertEquals(network.getGeneratorCount(), network.getGeneratorsStream().count());
-        assertEquals(Collections.singletonList("GEN"), mapper.apply(network.getVoltageLevel("VLGEN").getGeneratorsStream()));
+        assertEquals(Collections.singletonList("GEN"), mapper.apply(network.getGeneratorStream()));
+        assertEquals(network.getGeneratorCount(), network.getGeneratorStream().count());
+        assertEquals(Collections.singletonList("GEN"), mapper.apply(network.getVoltageLevel("VLGEN").getGeneratorStream()));
 
         Bus bus = network.getVoltageLevel("VLGEN").getBusView().getBus("VLGEN_0");
-        assertEquals(Collections.singletonList("NGEN_NHV1"), mapper.apply(bus.getTwoWindingTransformersStream()));
-        assertEquals(Collections.singletonList("GEN"), mapper.apply(bus.getGeneratorsStream()));
+        assertEquals(Collections.singletonList("NGEN_NHV1"), mapper.apply(bus.getTwoWindingTransformerStream()));
+        assertEquals(Collections.singletonList("GEN"), mapper.apply(bus.getGeneratorStream()));
         bus = network.getVoltageLevel("VLHV1").getBusView().getBus("VLHV1_0");
-        assertEquals(Arrays.asList("NHV1_NHV2_1", "NHV1_NHV2_2"), mapper.apply(bus.getLinesStream()));
-        assertEquals(Collections.singletonList("NGEN_NHV1"), mapper.apply(bus.getTwoWindingTransformersStream()));
+        assertEquals(Arrays.asList("NHV1_NHV2_1", "NHV1_NHV2_2"), mapper.apply(bus.getLineStream()));
+        assertEquals(Collections.singletonList("NGEN_NHV1"), mapper.apply(bus.getTwoWindingTransformerStream()));
         bus = network.getVoltageLevel("VLHV2").getBusView().getBus("VLHV2_0");
-        assertEquals(Collections.singletonList("NHV2_NLOAD"), mapper.apply(bus.getTwoWindingTransformersStream()));
+        assertEquals(Collections.singletonList("NHV2_NLOAD"), mapper.apply(bus.getTwoWindingTransformerStream()));
         bus = network.getVoltageLevel("VLLOAD").getBusView().getBus("VLLOAD_0");
-        assertEquals(Collections.singletonList("LOAD"), mapper.apply(bus.getLoadsStream()));
+        assertEquals(Collections.singletonList("LOAD"), mapper.apply(bus.getLoadStream()));
 
         // SVC
         network = SvcTestCaseFactory.create();
-        assertEquals(Collections.singletonList("SVC2"), mapper.apply(network.getStaticVarCompensatorsStream()));
-        assertEquals(network.getStaticVarCompensatorCount(), network.getStaticVarCompensatorsStream().count());
-        assertEquals(Collections.singletonList("SVC2"), mapper.apply(network.getVoltageLevel("VL2").getStaticVarCompensatorsStream()));
+        assertEquals(Collections.singletonList("SVC2"), mapper.apply(network.getStaticVarCompensatorStream()));
+        assertEquals(network.getStaticVarCompensatorCount(), network.getStaticVarCompensatorStream().count());
+        assertEquals(Collections.singletonList("SVC2"), mapper.apply(network.getVoltageLevel("VL2").getStaticVarCompensatorStream()));
         bus = network.getVoltageLevel("VL2").getBusView().getBus("VL2_0");
-        assertEquals(Collections.singletonList("SVC2"), mapper.apply(bus.getStaticVarCompensatorsStream()));
+        assertEquals(Collections.singletonList("SVC2"), mapper.apply(bus.getStaticVarCompensatorStream()));
 
         // HVDC
         network = HvdcTestNetwork.createLcc();
-        assertEquals(Collections.singletonList("L"), mapper.apply(network.getHvdcLinesStream()));
-        assertEquals(network.getHvdcLineCount(), network.getHvdcLinesStream().count());
-        assertEquals(Arrays.asList("C1", "C2"), mapper.apply(network.getLccConverterStationsStream()));
-        assertEquals(network.getLccConverterStationCount(), network.getLccConverterStationsStream().count());
-        assertEquals(Arrays.asList("C1", "C2"), mapper.apply(network.getHvdcConverterStationsStream()));
-        assertEquals(network.getHvdcConverterStationCount(), network.getHvdcConverterStationsStream().count());
-        assertEquals(Collections.singletonList("C1"), mapper.apply(network.getVoltageLevel("VL1").getLccConverterStationsStream()));
-        assertEquals(Collections.singletonList("C2"), mapper.apply(network.getVoltageLevel("VL2").getLccConverterStationsStream()));
-        assertEquals(Collections.singletonList("L"), mapper.apply(network.getHvdcLinesStream()));
-        assertEquals(2, network.getLccConverterStation("C1").getFiltersStream().count());
+        assertEquals(Collections.singletonList("L"), mapper.apply(network.getHvdcLineStream()));
+        assertEquals(network.getHvdcLineCount(), network.getHvdcLineStream().count());
+        assertEquals(Arrays.asList("C1", "C2"), mapper.apply(network.getLccConverterStationStream()));
+        assertEquals(network.getLccConverterStationCount(), network.getLccConverterStationStream().count());
+        assertEquals(Arrays.asList("C1", "C2"), mapper.apply(network.getHvdcConverterStationStream()));
+        assertEquals(network.getHvdcConverterStationCount(), network.getHvdcConverterStationStream().count());
+        assertEquals(Collections.singletonList("C1"), mapper.apply(network.getVoltageLevel("VL1").getLccConverterStationStream()));
+        assertEquals(Collections.singletonList("C2"), mapper.apply(network.getVoltageLevel("VL2").getLccConverterStationStream()));
+        assertEquals(Collections.singletonList("L"), mapper.apply(network.getHvdcLineStream()));
+        assertEquals(2, network.getLccConverterStation("C1").getFilterStream().count());
         bus = network.getVoltageLevel("VL2").getBusView().getBus("VL2_0");
-        assertEquals(Collections.singletonList("C2"), mapper.apply(bus.getLccConverterStationsStream()));
+        assertEquals(Collections.singletonList("C2"), mapper.apply(bus.getLccConverterStationStream()));
 
-        assertEquals(Collections.singletonList("DISC_BBS1_BK1"), mapper.apply(network.getBusBreakerView().getSwitchesStream()));
+        assertEquals(Collections.singletonList("DISC_BBS1_BK1"), mapper.apply(network.getBusBreakerView().getSwitchStream()));
 
         network = HvdcTestNetwork.createVsc();
-        assertEquals(Collections.singletonList("L"), mapper.apply(network.getHvdcLinesStream()));
-        assertEquals(network.getHvdcLineCount(), network.getHvdcLinesStream().count());
-        assertEquals(Arrays.asList("C1", "C2"), mapper.apply(network.getVscConverterStationsStream()));
-        assertEquals(network.getLccConverterStationCount(), network.getLccConverterStationsStream().count());
-        assertEquals(Arrays.asList("C1", "C2"), mapper.apply(network.getHvdcConverterStationsStream()));
-        assertEquals(network.getHvdcConverterStationCount(), network.getHvdcConverterStationsStream().count());
-        assertEquals(Collections.singletonList("C1"), mapper.apply(network.getVoltageLevel("VL1").getVscConverterStationsStream()));
-        assertEquals(Collections.singletonList("C2"), mapper.apply(network.getVoltageLevel("VL2").getVscConverterStationsStream()));
-        assertEquals(Collections.singletonList("L"), mapper.apply(network.getHvdcLinesStream()));
+        assertEquals(Collections.singletonList("L"), mapper.apply(network.getHvdcLineStream()));
+        assertEquals(network.getHvdcLineCount(), network.getHvdcLineStream().count());
+        assertEquals(Arrays.asList("C1", "C2"), mapper.apply(network.getVscConverterStationStream()));
+        assertEquals(network.getLccConverterStationCount(), network.getLccConverterStationStream().count());
+        assertEquals(Arrays.asList("C1", "C2"), mapper.apply(network.getHvdcConverterStationStream()));
+        assertEquals(network.getHvdcConverterStationCount(), network.getHvdcConverterStationStream().count());
+        assertEquals(Collections.singletonList("C1"), mapper.apply(network.getVoltageLevel("VL1").getVscConverterStationStream()));
+        assertEquals(Collections.singletonList("C2"), mapper.apply(network.getVoltageLevel("VL2").getVscConverterStationStream()));
+        assertEquals(Collections.singletonList("L"), mapper.apply(network.getHvdcLineStream()));
         bus = network.getVoltageLevel("VL2").getBusView().getBus("VL2_0");
-        assertEquals(Collections.singletonList("C2"), mapper.apply(bus.getVscConverterStationsStream()));
+        assertEquals(Collections.singletonList("C2"), mapper.apply(bus.getVscConverterStationStream()));
 
         // Topology
         network = NetworkTest1Factory.create();
         assertEquals(Arrays.asList("voltageLevel1BusbarSection1", "voltageLevel1BusbarSection2"),
-                mapper.apply(network.getVoltageLevel("voltageLevel1").getNodeBreakerView().getBusbarSectionsStream()));
+                mapper.apply(network.getVoltageLevel("voltageLevel1").getNodeBreakerView().getBusbarSectionStream()));
         assertEquals(Collections.singletonList("voltageLevel1Breaker1"),
                 mapper.apply(network.getVoltageLevel("voltageLevel1").getNodeBreakerView()
-                        .getSwitchesStream()
+                        .getSwitchStream()
                         .filter(sw -> sw.getKind() == SwitchKind.BREAKER)));
         assertEquals(Arrays.asList("load1Disconnector1", "load1Breaker1"),
                 mapper.apply(network.getVoltageLevel("voltageLevel1").getNodeBreakerView()
-                        .getSwitchesStream()
+                        .getSwitchStream()
                         .filter(sw -> sw.getKind() == SwitchKind.DISCONNECTOR)
                         .limit(2)));
         assertEquals(Collections.emptyList(),
                 mapper.apply(network.getVoltageLevel("voltageLevel1").getNodeBreakerView()
-                        .getSwitchesStream()
+                        .getSwitchStream()
                         .filter(sw -> sw.getKind() == SwitchKind.LOAD_BREAK_SWITCH)));
     }
 }

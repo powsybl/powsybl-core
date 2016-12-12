@@ -234,7 +234,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     }
 
     @Override
-    public Stream<V> getVerticesObjStream() {
+    public Stream<V> getVertexObjectStream() {
         return vertices.stream().filter(Objects::nonNull).map(Vertex::getObject);
     }
 
@@ -270,7 +270,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     }
 
     @Override
-    public Stream<E> getEdgesObjectStream() {
+    public Stream<E> getEdgeObjectStream() {
         return edges.stream().filter(Objects::nonNull).map(Edge::getObject);
     }
 

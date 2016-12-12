@@ -51,7 +51,7 @@ public interface Substation extends Container<Substation> {
     /**
      * Get the voltage levels of the substation.
      */
-    Stream<VoltageLevel> getVoltageLevelsStream();
+    Stream<VoltageLevel> getVoltageLevelStream();
 
     /**
      * Get a builder to create a new two windings transformer in the substation.
@@ -66,7 +66,7 @@ public interface Substation extends Container<Substation> {
     /**
      * Get the two windings transformers connected to the substation.
      */
-    Stream<TwoWindingsTransformer> getTwoWindingsTransformersStream();
+    Stream<TwoWindingsTransformer> getTwoWindingsTransformerStream();
 
     /**
      * Get a builder to create a new 3 windings transformer in the substation.
@@ -81,7 +81,7 @@ public interface Substation extends Container<Substation> {
     /**
      * Get the 3 windings transformers connected to the substation.
      */
-    Stream<ThreeWindingsTransformer> getThreeWindingsTransformersStream();
+    Stream<ThreeWindingsTransformer> getThreeWindingsTransformerStream();
 
     /**
      * Get geographical tags associated to the substation.

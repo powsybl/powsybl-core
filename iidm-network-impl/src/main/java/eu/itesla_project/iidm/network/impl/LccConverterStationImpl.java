@@ -63,7 +63,7 @@ class LccConverterStationImpl extends HvdcConverterStationImpl<LccConverterStati
     }
 
     @Override
-    public Stream<LccFilter> getFiltersStream() {
+    public Stream<LccFilter> getFilterStream() {
         return filters.stream().map(f -> f);
     }
 

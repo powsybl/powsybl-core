@@ -131,8 +131,8 @@ abstract class AbstractVoltageLevel extends IdentifiableImpl<VoltageLevel> imple
     }
 
     @Override
-    public Stream<Generator> getGeneratorsStream() {
-        return getConnectablesStream(Generator.class);
+    public Stream<Generator> getGeneratorStream() {
+        return getConnectableStream(Generator.class);
     }
 
     @Override
@@ -151,8 +151,8 @@ abstract class AbstractVoltageLevel extends IdentifiableImpl<VoltageLevel> imple
     }
 
     @Override
-    public Stream<Load> getLoadsStream() {
-        return getConnectablesStream(Load.class);
+    public Stream<Load> getLoadStream() {
+        return getConnectableStream(Load.class);
     }
 
     @Override
@@ -176,8 +176,8 @@ abstract class AbstractVoltageLevel extends IdentifiableImpl<VoltageLevel> imple
     }
 
     @Override
-    public Stream<ShuntCompensator> getShuntsStream() {
-        return getConnectablesStream(ShuntCompensator.class);
+    public Stream<ShuntCompensator> getShuntStream() {
+        return getConnectableStream(ShuntCompensator.class);
     }
 
     @Override
@@ -191,8 +191,8 @@ abstract class AbstractVoltageLevel extends IdentifiableImpl<VoltageLevel> imple
     }
 
     @Override
-    public Stream<DanglingLine> getDanglingLinesStream() {
-        return getConnectablesStream(DanglingLine.class);
+    public Stream<DanglingLine> getDanglingLineStream() {
+        return getConnectableStream(DanglingLine.class);
     }
 
     @Override
@@ -211,8 +211,8 @@ abstract class AbstractVoltageLevel extends IdentifiableImpl<VoltageLevel> imple
     }
 
     @Override
-    public Stream<StaticVarCompensator> getStaticVarCompensatorsStream() {
-        return getConnectablesStream(StaticVarCompensator.class);
+    public Stream<StaticVarCompensator> getStaticVarCompensatorStream() {
+        return getConnectableStream(StaticVarCompensator.class);
     }
 
     @Override
@@ -231,8 +231,8 @@ abstract class AbstractVoltageLevel extends IdentifiableImpl<VoltageLevel> imple
     }
 
     @Override
-    public Stream<VscConverterStation> getVscConverterStationsStream() {
-        return getConnectablesStream(VscConverterStation.class);
+    public Stream<VscConverterStation> getVscConverterStationStream() {
+        return getConnectableStream(VscConverterStation.class);
     }
 
     @Override
@@ -251,8 +251,8 @@ abstract class AbstractVoltageLevel extends IdentifiableImpl<VoltageLevel> imple
     }
 
     @Override
-    public Stream<LccConverterStation> getLccConverterStationsStream() {
-        return getConnectablesStream(LccConverterStation.class);
+    public Stream<LccConverterStation> getLccConverterStationStream() {
+        return getConnectableStream(LccConverterStation.class);
     }
 
     @Override
@@ -267,7 +267,7 @@ abstract class AbstractVoltageLevel extends IdentifiableImpl<VoltageLevel> imple
 
     protected abstract Iterable<Terminal> getTerminals();
 
-    protected abstract Stream<Terminal> getTerminalsStream();
+    protected abstract Stream<Terminal> getTerminalStream();
 
     @Override
     public void visitEquipments(TopologyVisitor visitor) {

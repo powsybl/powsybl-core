@@ -37,6 +37,6 @@ public interface ConnectedComponent {
     /**
      * Get buses in the connected component.
      */
-    Stream<Bus> getBusesStream();
+    Stream<Bus> getBusStream();
 
 }

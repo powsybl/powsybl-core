@@ -47,7 +47,7 @@ class ConnectedComponentImpl implements ConnectedComponent {
     }
 
     @Override
-    public Stream<Bus> getBusesStream() {
-        return networkRef.get().getBusView().getBusesStream().filter(bus -> (bus.getConnectedComponent() == ConnectedComponentImpl.this));
+    public Stream<Bus> getBusStream() {
+        return networkRef.get().getBusView().getBusStream().filter(bus -> (bus.getConnectedComponent() == ConnectedComponentImpl.this));
     }
 }

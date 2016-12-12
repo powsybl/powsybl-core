@@ -90,7 +90,7 @@ class SubstationImpl extends IdentifiableImpl<Substation> implements Substation 
     }
 
     @Override
-    public Stream<VoltageLevel> getVoltageLevelsStream() {
+    public Stream<VoltageLevel> getVoltageLevelStream() {
         return voltageLevels.stream().map(vl -> vl);
     }
 
@@ -107,8 +107,8 @@ class SubstationImpl extends IdentifiableImpl<Substation> implements Substation 
     }
 
     @Override
-    public Stream<TwoWindingsTransformer> getTwoWindingsTransformersStream() {
-        return voltageLevels.stream().flatMap(vl -> vl.getConnectablesStream(TwoWindingsTransformer.class));
+    public Stream<TwoWindingsTransformer> getTwoWindingsTransformerStream() {
+        return voltageLevels.stream().flatMap(vl -> vl.getConnectableStream(TwoWindingsTransformer.class));
     }
 
     @Override
@@ -124,8 +124,8 @@ class SubstationImpl extends IdentifiableImpl<Substation> implements Substation 
     }
 
     @Override
-    public Stream<ThreeWindingsTransformer> getThreeWindingsTransformersStream() {
-        return voltageLevels.stream().flatMap(vl -> vl.getConnectablesStream(ThreeWindingsTransformer.class));
+    public Stream<ThreeWindingsTransformer> getThreeWindingsTransformerStream() {
+        return voltageLevels.stream().flatMap(vl -> vl.getConnectableStream(ThreeWindingsTransformer.class));
     }
 
     @Override
