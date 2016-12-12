@@ -540,7 +540,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
 
         @Override
         public Stream<Bus> getBusStream() {
-            return calculatedBusTopology.getMergedBuses().stream().map(b -> b);
+            return calculatedBusTopology.getMergedBuses().stream().map(Function.identity());
         }
 
         @Override
