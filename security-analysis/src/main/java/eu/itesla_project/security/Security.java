@@ -186,12 +186,17 @@ public class Security {
 
     public static void printPreContingencyViolations(SecurityAnalysisResult result, Writer writer, TableFormatterFactory formatterFactory,
                                                      LimitViolationFilter limitViolationFilter) {
+        printPreContingencyViolations(result, writer, formatterFactory, TableFormatterConfig.load(), limitViolationFilter);
+    }
+
+    public static void printPreContingencyViolations(SecurityAnalysisResult result, Writer writer, TableFormatterFactory formatterFactory,
+                                                     TableFormatterConfig formatterConfig, LimitViolationFilter limitViolationFilter) {
         Objects.requireNonNull(result);
         Objects.requireNonNull(writer);
         Objects.requireNonNull(formatterFactory);
         try (TableFormatter formatter = formatterFactory.create(writer,
                 "Pre-contingency violations",
-                TableFormatterConfig.load(),
+                formatterConfig,
                 new Column("Action"),
                 new Column("Equipment"),
                 new Column("Violation type"),
@@ -267,18 +272,30 @@ public class Security {
 
     public static void printPostContingencyViolations(SecurityAnalysisResult result, Writer writer, TableFormatterFactory formatterFactory,
                                                       LimitViolationFilter limitViolationFilter) {
+        printPostContingencyViolations(result, writer, formatterFactory, limitViolationFilter, true);
+    }
+
+    public static void printPostContingencyViolations(SecurityAnalysisResult result, Writer writer, TableFormatterFactory formatterFactory,
+                                                      LimitViolationFilter limitViolationFilter, boolean filterPreContingencyViolations) {
+        printPostContingencyViolations(result, writer, formatterFactory, TableFormatterConfig.load(), limitViolationFilter, filterPreContingencyViolations);
+    }
+
+    public static void printPostContingencyViolations(SecurityAnalysisResult result, Writer writer, TableFormatterFactory formatterFactory,
+                                                      TableFormatterConfig formatterConfig, LimitViolationFilter limitViolationFilter, boolean filterPreContingencyViolations) {
         Objects.requireNonNull(result);
         Objects.requireNonNull(writer);
         Objects.requireNonNull(formatterFactory);
         if (result.getPostContingencyResults().size() > 0) {
-            Set<LimitViolationKey> preContingencyViolations = result.getPreContingencyResult().getLimitViolations()
-                    .stream()
-                    .map(Security::toKey)
-                    .collect(Collectors.toSet());
+            Set<LimitViolationKey> preContingencyViolations = filterPreContingencyViolations
+                    ? result.getPreContingencyResult().getLimitViolations()
+                            .stream()
+                            .map(Security::toKey)
+                            .collect(Collectors.toSet())
+                    : Collections.emptySet();
 
             try (TableFormatter formatter = formatterFactory.create(writer,
                     "Post-contingency limit violations",
-                    TableFormatterConfig.load(),
+                    formatterConfig,
                     new Column("Contingency"),
                     new Column("Status"),
                     new Column("Action"),
@@ -290,7 +307,7 @@ public class Security {
                     new Column("Charge %"))) {
                 result.getPostContingencyResults()
                         .stream()
-                        .sorted((o1, o2) -> o1.getContingency().getId().compareTo(o2.getContingency().getId()))
+                        .sorted(Comparator.comparing(o2 -> o2.getContingency().getId()))
                         .forEach(postContingencyResult -> {
                             try {
                                 // configured filtering
@@ -327,7 +344,7 @@ public class Security {
                                     }
 
                                     filteredLimitViolations2.stream()
-                                            .sorted((o1, o2) -> o1.getSubject().getId().compareTo(o2.getSubject().getId()))
+                                            .sorted(Comparator.comparing(o -> o.getSubject().getId()))
                                             .forEach(violation -> {
                                                 try {
                                                     formatter.writeEmptyCell()
