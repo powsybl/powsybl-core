@@ -6,7 +6,7 @@
  */
 package eu.itesla_project.iidm.network.impl;
 
-import com.google.common.base.Function;
+import com.google.common.base.Functions;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Iterables;
 import eu.itesla_project.commons.ITeslaException;
@@ -19,6 +19,7 @@ import eu.itesla_project.iidm.network.util.ShortIdDictionary;
 
 import java.io.*;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 /**
@@ -451,12 +452,12 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
 
         @Override
         public Iterable<Bus> getBuses() {
-            return Iterables.unmodifiableIterable(Iterables.transform(graph.getVerticesObj(), b -> b));
+            return Iterables.unmodifiableIterable(Iterables.transform(graph.getVerticesObj(), Functions.identity()));
         }
 
         @Override
         public Stream<Bus> getBusStream() {
-            return graph.getVertexObjectStream().map(b -> b);
+            return graph.getVertexObjectStream().map(Function.identity());
         }
 
         @Override
@@ -481,12 +482,12 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
 
         @Override
         public Iterable<Switch> getSwitches() {
-            return Iterables.unmodifiableIterable(Iterables.transform(graph.getEdgesObject(), sw -> sw));
+            return Iterables.unmodifiableIterable(Iterables.transform(graph.getEdgesObject(), Functions.identity()));
         }
 
         @Override
         public Stream<Switch> getSwitchStream() {
-            return graph.getEdgeObjectStream().map(sw -> sw);
+            return graph.getEdgeObjectStream().map(Function.identity());
         }
 
         @Override

@@ -6,6 +6,7 @@
  */
 package eu.itesla_project.iidm.network.impl;
 
+import com.google.common.base.Functions;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.ArrayListMultimap;
@@ -36,6 +37,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 /**
@@ -407,7 +409,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         Stream<Switch> getSwitchStream() {
-            return graph.getEdgeObjectStream().filter(Objects::nonNull).filter(Switch::isRetained).map(sw -> sw);
+            return graph.getEdgeObjectStream().filter(Objects::nonNull).filter(Switch::isRetained).map(Function.identity());
         }
 
         SwitchImpl getSwitch(String switchId, boolean throwException) {
@@ -530,12 +532,12 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
     public Iterable<Terminal> getTerminals() {
         return FluentIterable.from(graph.getVerticesObj())
                 .filter(Predicates.notNull())
-                .transform(t -> t);
+                .transform(Functions.identity());
     }
 
     @Override
     public Stream<Terminal> getTerminalStream() {
-        return graph.getVertexObjectStream().filter(Objects::nonNull).map(t -> t);
+        return graph.getVertexObjectStream().filter(Objects::nonNull).map(Function.identity());
     }
 
     @Override
@@ -634,7 +636,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
         @Override
         public Stream<Switch> getSwitchStream() {
-            return graph.getEdgeObjectStream().map(sw -> sw);
+            return graph.getEdgeObjectStream().map(Function.identity());
         }
 
         @Override
@@ -683,7 +685,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
         @Override
         public Stream<Bus> getBusStream() {
-            return states.get().calculatedBusTopology.getBuses().stream().map(b -> b);
+            return states.get().calculatedBusTopology.getBuses().stream().map(Function.identity());
         }
 
         @Override
@@ -707,7 +709,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
         @Override
         public Stream<Bus> getBusStream() {
-            return states.get().calculatedBusBreakerTopology.getBuses().stream().map(b -> b);
+            return states.get().calculatedBusBreakerTopology.getBuses().stream().map(Function.identity());
         }
 
         @Override

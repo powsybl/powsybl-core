@@ -13,6 +13,7 @@ import gnu.trove.list.array.TFloatArrayList;
 import gnu.trove.list.array.TIntArrayList;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -60,7 +61,7 @@ class ConfiguredBusImpl extends AbstractBus implements ConfiguredBus, Stateful {
 
     @Override
     public Stream<TerminalExt> getConnectedTerminalStream() {
-        return getTerminals().stream().filter(Terminal::isConnected).map(t -> t);
+        return getTerminals().stream().filter(Terminal::isConnected).map(Function.identity());
     }
 
     @Override

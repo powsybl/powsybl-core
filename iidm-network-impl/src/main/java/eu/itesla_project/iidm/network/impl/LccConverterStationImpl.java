@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 /**
@@ -64,7 +65,7 @@ class LccConverterStationImpl extends HvdcConverterStationImpl<LccConverterStati
 
     @Override
     public Stream<LccFilter> getFilterStream() {
-        return filters.stream().map(f -> f);
+        return filters.stream().map(Function.identity());
     }
 
     private void checkFilterIndex(int index) {

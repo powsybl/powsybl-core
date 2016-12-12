@@ -12,6 +12,7 @@ import eu.itesla_project.iidm.network.*;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 /**
@@ -70,7 +71,7 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     @Override
     public Stream<TerminalExt> getConnectedTerminalStream() {
         checkValidity();
-        return terminals.stream().map(t -> t);
+        return terminals.stream().map(Function.identity());
     }
 
     @Override

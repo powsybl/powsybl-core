@@ -13,6 +13,7 @@ import eu.itesla_project.iidm.network.impl.util.Ref;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 /**
@@ -91,7 +92,7 @@ class SubstationImpl extends IdentifiableImpl<Substation> implements Substation 
 
     @Override
     public Stream<VoltageLevel> getVoltageLevelStream() {
-        return voltageLevels.stream().map(vl -> vl);
+        return voltageLevels.stream().map(Function.identity());
     }
 
     @Override
