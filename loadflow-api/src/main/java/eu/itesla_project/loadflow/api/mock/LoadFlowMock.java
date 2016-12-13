@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * @author Quinary <itesla@quinary.com>
@@ -58,5 +59,14 @@ class LoadFlowMock implements LoadFlow {
                 return "";
             }
         };
+    }
+
+    @Override
+    public CompletableFuture<LoadFlowResult> runAsync(String workingStateId, LoadFlowParameters parameters) {
+        try {
+            return CompletableFuture.completedFuture(run(parameters));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 };

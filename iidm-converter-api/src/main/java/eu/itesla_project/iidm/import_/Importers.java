@@ -66,7 +66,11 @@ public class Importers {
     }
 
     public static Collection<Importer> list(ComputationManager computationManager, ImportConfig config) {
-        return LOADER.loadImporters().stream()
+        return list(computationManager, config, LOADER);
+    }
+
+    public static Collection<Importer> list(ComputationManager computationManager, ImportConfig config, ImportersLoader loader) {
+        return loader.loadImporters().stream()
                 .map(importer -> wrapImporter(importer, computationManager, config))
                 .collect(Collectors.toList());
     }
@@ -352,8 +356,12 @@ public class Importers {
     }
 
     public static Network loadNetwork(Path file, ComputationManager computationManager, ImportConfig config, Properties parameters) {
+        return loadNetwork(file, computationManager, config, parameters, LOADER);
+    }
+
+    public static Network loadNetwork(Path file, ComputationManager computationManager, ImportConfig config, Properties parameters, ImportersLoader loader) {
         ReadOnlyDataSource dataSource = createReadOnly(file);
-        for (Importer importer : Importers.list(computationManager, config)) {
+        for (Importer importer : Importers.list(computationManager, config, loader)) {
             if (importer.exists(dataSource)) {
                 return importer.import_(dataSource, parameters);
             }
