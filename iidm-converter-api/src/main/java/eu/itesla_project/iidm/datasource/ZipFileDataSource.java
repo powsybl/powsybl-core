@@ -16,10 +16,9 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.Enumeration;
 import java.util.Objects;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 /**
@@ -59,6 +58,10 @@ public class ZipFileDataSource implements DataSource {
         return baseName;
     }
 
+    private Path getZipFilePath() {
+        return directory.resolve(zipFileName);
+    }
+
     @Override
     public boolean exists(String suffix, String ext) throws IOException {
         return exists(DataSourceUtil.getFileName(baseName, suffix, ext));
@@ -66,17 +69,23 @@ public class ZipFileDataSource implements DataSource {
 
     @Override
     public boolean exists(String fileName) throws IOException {
+        Objects.requireNonNull(fileName);
         Path zipFilePath = getZipFilePath();
-        if (Files.isRegularFile(zipFilePath)) {
-            try (ZipFile zipFile = new ZipFile(zipFilePath.toFile())) {
-                return zipFile.getEntry(fileName) != null;
+        if (Files.exists(zipFilePath)) {
+            try (ZipInputStream zis = new ZipInputStream(Files.newInputStream(zipFilePath))) {
+                ZipEntry entry;
+                while ((entry = zis.getNextEntry()) != null) {
+                    try {
+                        if (entry.getName().equals(fileName)) {
+                            return true;
+                        }
+                    } finally {
+                        zis.closeEntry();
+                    }
+                }
             }
         }
         return false;
-    }
-
-    private Path getZipFilePath() {
-        return directory.resolve(zipFileName);
     }
 
     @Override
@@ -86,51 +95,68 @@ public class ZipFileDataSource implements DataSource {
 
     @Override
     public InputStream newInputStream(String fileName) throws IOException {
-        ZipFile zipFile = new ZipFile(getZipFilePath().toFile());
-        ZipEntry entry = zipFile.getEntry(fileName);
-        if (entry == null) {
-            zipFile.close();
-            throw new IllegalArgumentException("Entry " + fileName + " not found");
-        }
-        return new ForwardingInputStream<InputStream>(zipFile.getInputStream(entry)) {
-            @Override
-            public void close() throws IOException {
-                super.close();
-                zipFile.close();
+        Objects.requireNonNull(fileName);
+        Path zipFilePath = getZipFilePath();
+        ZipInputStream zis = new ZipInputStream(Files.newInputStream(zipFilePath));
+        ZipEntry entry;
+        while ((entry = zis.getNextEntry()) != null) {
+            if (entry.getName().equals(fileName)) {
+                InputStream fis = new ForwardingInputStream<ZipInputStream>(zis) {
+                    @Override
+                    public void close() throws IOException {
+                        zis.closeEntry();
+                        zis.close();
+                    }
+                };
+                return observer != null ? new ObservableInputStream(fis, zipFilePath + ":" + fileName, observer) : fis;
             }
-        };
+            zis.closeEntry();
+        }
+        zis.close();
+        return null;
     }
 
     @Override
-    public OutputStream newOutputStream(String suffix, String ext, boolean append) throws IOException {
+    public OutputStream newOutputStream(String fileName, boolean append) throws IOException {
+        Objects.requireNonNull(fileName);
         if (append) {
             throw new UnsupportedOperationException("append not supported in zip file data source");
         }
-        Path tmpZipFilePath = Files.createTempFile(directory, null, null);
-        ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(tmpZipFilePath));
         Path zipFilePath = getZipFilePath();
-        String entryName = DataSourceUtil.getFileName(baseName, suffix, ext);
-        zos.putNextEntry(new ZipEntry(entryName));
-        return new ForwardingOutputStream<ZipOutputStream>(zos) {
+        Path tmpZipFilePath = zipFilePath.getParent().resolve(zipFilePath.getFileName() + ".tmp");
+        ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(tmpZipFilePath));
+        zos.putNextEntry(new ZipEntry(fileName));
+        OutputStream fos = new ForwardingOutputStream<ZipOutputStream>(zos) {
             @Override
             public void close() throws IOException {
                 os.closeEntry();
+                // copy existing entries
                 if (Files.exists(zipFilePath)) {
-                    try (ZipFile zipFile = new ZipFile(getZipFilePath().toFile())) {
-                        for (Enumeration<? extends ZipEntry> e = zipFile.entries(); e.hasMoreElements(); ) {
-                            ZipEntry entry = e.nextElement();
-                            if (!entry.getName().equals(entryName)) {
-                                zos.putNextEntry(entry);
-                                ByteStreams.copy(zipFile.getInputStream(entry), zos);
-                                zos.closeEntry();
+                    try (ZipInputStream zis = new ZipInputStream(Files.newInputStream(zipFilePath))) {
+                        ZipEntry entry;
+                        while ((entry = zis.getNextEntry()) != null) {
+                            try {
+                                if (!entry.getName().equals(fileName)) {
+                                    zos.putNextEntry(entry);
+                                    ByteStreams.copy(zis, zos);
+                                    zos.closeEntry();
+                                }
+                            } finally {
+                                zis.closeEntry();
                             }
                         }
                     }
                 }
-                super.close();
+                zos.close();
                 Files.copy(tmpZipFilePath, zipFilePath, StandardCopyOption.REPLACE_EXISTING);
                 Files.delete(tmpZipFilePath);
             }
         };
+        return observer != null ? new ObservableOutputStream(fos, zipFilePath + ":" + fileName, observer) : fos;
+    }
+
+    @Override
+    public OutputStream newOutputStream(String suffix, String ext, boolean append) throws IOException {
+        return newOutputStream(DataSourceUtil.getFileName(baseName, suffix, ext), append);
     }
 }

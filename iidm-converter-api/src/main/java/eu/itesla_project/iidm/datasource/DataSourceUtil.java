@@ -6,16 +6,23 @@
  */
 package eu.itesla_project.iidm.datasource;
 
+import java.nio.file.OpenOption;
+import java.nio.file.StandardOpenOption;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian@rte-france.com>
  */
-public class DataSourceUtil {
+public interface DataSourceUtil {
 
-    private DataSourceUtil() {
-    }
+    OpenOption[] DEFAULT_OPEN_OPTIONS = { StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING };
+    OpenOption[] APPEND_OPEN_OPTIONS = { StandardOpenOption.APPEND };
 
     static String getFileName(String baseName, String suffix, String ext) {
         return baseName + (suffix != null ? suffix : "") + (ext != null ? "." + ext : "");
+    }
+
+    static OpenOption[] getOpenOptions(boolean append) {
+        return append ? APPEND_OPEN_OPTIONS : DEFAULT_OPEN_OPTIONS;
     }
 
 }
