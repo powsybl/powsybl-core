@@ -6,12 +6,12 @@
  */
 package eu.itesla_project.commons.io.mmap;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.util.Objects;
 
 /**
  *
@@ -19,23 +19,23 @@ import java.nio.file.Path;
  */
 public class MemoryMappedFileImpl implements MemoryMappedFile {
 
-    private final Path file;
+    private final File file;
     
     private RandomAccessFile raf;
 
-    public MemoryMappedFileImpl(Path file) throws IOException {
-        this.file = file;
+    public MemoryMappedFileImpl(File file) throws IOException {
+        this.file = Objects.requireNonNull(file);
     }
 
     @Override
     public boolean exists() {
-        return Files.exists(file);
+        return file.exists();
     }
 
     @Override
     public ByteBuffer getBuffer(int size) throws IOException {
         if (raf == null) {
-            raf = new RandomAccessFile(file.toFile(), "rw");
+            raf = new RandomAccessFile(file, "rw");
         }
         return raf.getChannel().map(FileChannel.MapMode.READ_WRITE, 0, size);
     }

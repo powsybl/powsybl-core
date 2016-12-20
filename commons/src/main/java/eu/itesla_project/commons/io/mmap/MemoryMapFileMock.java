@@ -12,7 +12,7 @@ import java.nio.ByteBuffer;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class MemoryMapFileTestImpl implements MemoryMappedFile {
+public class MemoryMapFileMock implements MemoryMappedFile {
 
     @Override
     public boolean exists() {
