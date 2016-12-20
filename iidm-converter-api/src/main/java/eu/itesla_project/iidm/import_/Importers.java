@@ -51,8 +51,12 @@ public class Importers {
     /**
      * Get all supported import formats.
      */
+    public static Collection<String> getFormats(ImportersLoader loader) {
+        return loader.loadImporters().stream().map(Importer::getFormat).collect(Collectors.toList());
+    }
+
     public static Collection<String> getFormats() {
-        return LOADER.loadImporters().stream().map(Importer::getFormat).collect(Collectors.toList());
+        return getFormats(LOADER);
     }
 
     private static Importer wrapImporter(Importer importer, ComputationManager computationManager, ImportConfig config) {
@@ -65,10 +69,14 @@ public class Importers {
         return importer;
     }
 
-    public static Collection<Importer> list(ComputationManager computationManager, ImportConfig config) {
-        return LOADER.loadImporters().stream()
+    public static Collection<Importer> list(ImportersLoader loader, ComputationManager computationManager, ImportConfig config) {
+        return loader.loadImporters().stream()
                 .map(importer -> wrapImporter(importer, computationManager, config))
                 .collect(Collectors.toList());
+    }
+
+    public static Collection<Importer> list(ComputationManager computationManager, ImportConfig config) {
+        return list(LOADER, computationManager, config);
     }
 
     public static Collection<Importer> list() {
@@ -82,14 +90,18 @@ public class Importers {
      * @return the importer if one exists for the given format or
      * <code>null</code> otherwise.
      */
-    public static Importer getImporter(String format, ComputationManager computationManager, ImportConfig config) {
+    public static Importer getImporter(ImportersLoader loader, String format, ComputationManager computationManager, ImportConfig config) {
         Objects.requireNonNull(format);
-        for (Importer importer : LOADER.loadImporters()) {
+        for (Importer importer : loader.loadImporters()) {
             if (format.equals(importer.getFormat())) {
                 return wrapImporter(importer, computationManager, config);
             }
         }
         return null;
+    }
+
+    public static Importer getImporter(String format, ComputationManager computationManager, ImportConfig config) {
+        return getImporter(LOADER, format, computationManager, config);
     }
 
     public static Importer getImporter(String format, ComputationManager computationManager) {
@@ -100,17 +112,25 @@ public class Importers {
         return getImporter(format, LocalComputationManager.getDefault());
     }
 
-    public static Collection<String> getPostProcessorNames() {
-        return LOADER.loadPostProcessors().stream().map(ImportPostProcessor::getName).collect(Collectors.toList());
+    public static Collection<String> getPostProcessorNames(ImportersLoader loader) {
+        return loader.loadPostProcessors().stream().map(ImportPostProcessor::getName).collect(Collectors.toList());
     }
 
-    private static ImportPostProcessor getPostProcessor(String name) {
-        for (ImportPostProcessor ipp : LOADER.loadPostProcessors()) {
+    public static Collection<String> getPostProcessorNames() {
+        return getPostProcessorNames(LOADER);
+    }
+
+    private static ImportPostProcessor getPostProcessor(ImportersLoader loader, String name) {
+        for (ImportPostProcessor ipp : loader.loadPostProcessors()) {
             if (ipp.getName().equals(name)) {
                 return ipp;
             }
         }
         throw new RuntimeException("Post processor " + name + " not found");
+    }
+
+    private static ImportPostProcessor getPostProcessor(String name) {
+        return getPostProcessor(LOADER, name);
     }
 
     private static class ImporterWrapper implements Importer {
