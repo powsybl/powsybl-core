@@ -72,6 +72,7 @@ public class ImportGroovyExtensionTest extends GroovyScriptAbstractTest {
 
     @Override
     protected List<GroovyExtension> getExtensions() {
-        return Collections.singletonList(new ImportGroovyExtension(fileSystem, new ImportersLoaderTest(fooImporter)));
+        ImportersLoader loader = new ImportersLoaderList(Collections.singletonList(fooImporter), Collections.emptyList());
+        return Collections.singletonList(new ImportGroovyExtension(fileSystem, loader));
     }
 }
