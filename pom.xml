@@ -72,6 +72,7 @@
         <supercsv.version>2.4.0</supercsv.version>
         <trove4j.version>3.0.3</trove4j.version>
         <xmlunit.version>2.3.0</xmlunit.version>
+        <jimfs.version>1.1</jimfs.version>
     </properties>
 
     <licenses>
@@ -304,7 +305,13 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-            
+            <dependency>
+                <groupId>com.google.jimfs</groupId>
+                <artifactId>jimfs</artifactId>
+                <version>${jimfs.version}</version>
+            </dependency>
+
+
             <!-- Runtime dependencies -->
             <dependency>
                 <groupId>ch.qos.logback</groupId>
