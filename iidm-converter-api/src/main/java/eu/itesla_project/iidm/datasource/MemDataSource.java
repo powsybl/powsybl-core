@@ -51,12 +51,22 @@ public class MemDataSource implements DataSource {
 
     private final Map<Key, byte[]> data = new HashMap<>();
 
+    private final Map<String, byte[]> data2 = new HashMap<>();
+
     public byte[] getData(String suffix, String ext) {
         return data.get(new Key(suffix, ext));
     }
 
+    public byte[] getData(String fileName) {
+        return data2.get(fileName);
+    }
+
     public void putData(String suffix, String ext, byte[] data) {
         this.data.put(new Key(suffix, ext), data);
+    }
+
+    public void putData(String fileName, byte[] data) {
+        this.data2.put(fileName, data);
     }
 
     @Override
@@ -83,13 +93,32 @@ public class MemDataSource implements DataSource {
     }
 
     @Override
+    public OutputStream newOutputStream(String fileName, boolean append) throws IOException {
+        Objects.requireNonNull(fileName);
+        final ByteArrayOutputStream os = new ByteArrayOutputStream();
+        if (append) {
+            byte[] ba = data2.get(fileName);
+            if (ba != null) {
+                os.write(ba, 0, ba.length);
+            }
+        }
+        return new ObservableOutputStream(os, fileName, new AbstractDataSourceObserver() {
+            @Override
+            public void closed(String streamName) {
+                data2.put(fileName, os.toByteArray());
+            }
+        });
+    }
+
+    @Override
     public boolean exists(String suffix, String ext) {
         return data.containsKey(new Key(suffix, ext));
     }
 
     @Override
     public boolean exists(String fileName) throws IOException {
-        throw new UnsupportedOperationException();
+        Objects.requireNonNull(fileName);
+        return data2.containsKey(fileName);
     }
 
     @Override
@@ -103,6 +132,11 @@ public class MemDataSource implements DataSource {
 
     @Override
     public InputStream newInputStream(String fileName) throws IOException {
-        throw new UnsupportedOperationException();
+        Objects.requireNonNull(fileName);
+        byte[] ba = data2.get(fileName);
+        if (ba == null) {
+            throw new IOException(fileName + " does not exist");
+        }
+        return new ByteArrayInputStream(ba);
     }
 }

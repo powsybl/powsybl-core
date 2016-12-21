@@ -20,9 +20,6 @@ import java.util.Objects;
  */
 public class FileDataSource implements DataSource {
 
-    private static final OpenOption[] DEFAULT_OPEN_OPTIONS = { StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING };
-    private static final OpenOption[] APPEND_OPEN_OPTIONS = { StandardOpenOption.APPEND };
-
     private final Path directory;
 
     private final String baseName;
@@ -44,35 +41,55 @@ public class FileDataSource implements DataSource {
         return baseName;
     }
 
-    private Path getPath(String suffix, String ext) {
-        return directory.resolve(DataSourceUtil.getFileName(baseName, suffix, ext));
+    protected String getCompressionExt() {
+        return "";
+    }
+
+    protected InputStream getCompressedInputStream(InputStream is) throws IOException {
+        return is;
+    }
+
+    protected OutputStream getCompressedOutputStream(OutputStream os) throws IOException {
+        return os;
+    }
+
+    private Path getPath(String fileName) {
+        Objects.requireNonNull(fileName);
+        return directory.resolve(fileName + getCompressionExt());
     }
 
     @Override
     public OutputStream newOutputStream(String suffix, String ext, boolean append) throws IOException {
-        Path path = getPath(suffix, ext);
-        OutputStream os = Files.newOutputStream(path, append ? APPEND_OPEN_OPTIONS : DEFAULT_OPEN_OPTIONS);
+        return newOutputStream(DataSourceUtil.getFileName(baseName, suffix, ext), append);
+    }
+
+    @Override
+    public OutputStream newOutputStream(String fileName, boolean append) throws IOException {
+        Path path = getPath(fileName);
+        OutputStream os = getCompressedOutputStream(Files.newOutputStream(path, DataSourceUtil.getOpenOptions(append)));
         return observer != null ? new ObservableOutputStream(os, path.toString(), observer) : os;
     }
 
     @Override
-    public boolean exists(String suffix, String ext) {
-        Path path = getPath(suffix, ext);
-        return Files.exists(path) && Files.isRegularFile(path);
+    public boolean exists(String suffix, String ext) throws IOException {
+        return exists(DataSourceUtil.getFileName(baseName, suffix, ext));
     }
 
     @Override
     public boolean exists(String fileName) throws IOException {
-        return Files.exists(directory.resolve(fileName));
+        Path path = getPath(fileName);
+        return Files.isRegularFile(path);
     }
 
     @Override
     public InputStream newInputStream(String suffix, String ext) throws IOException {
-        return Files.newInputStream(getPath(suffix, ext));
+        return newInputStream(DataSourceUtil.getFileName(baseName, suffix, ext));
     }
 
     @Override
     public InputStream newInputStream(String fileName) throws IOException {
-        return Files.newInputStream(directory.resolve(fileName));
+        Path path = getPath(fileName);
+        InputStream is = getCompressedInputStream(Files.newInputStream(path));
+        return observer != null ? new ObservableInputStream(is, path.toString(), observer) : is;
     }
 }

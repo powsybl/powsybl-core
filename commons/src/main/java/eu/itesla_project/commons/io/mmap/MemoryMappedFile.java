@@ -4,18 +4,22 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.iidm.datasource;
+package eu.itesla_project.commons.io.mmap;
 
 import java.io.IOException;
-import java.io.OutputStream;
+import java.nio.ByteBuffer;
 
 /**
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface DataSource extends ReadOnlyDataSource {
+public interface MemoryMappedFile extends AutoCloseable {
 
-    OutputStream newOutputStream(String fileName, boolean append) throws IOException;
+    boolean exists();
+    
+    ByteBuffer getBuffer(int size) throws IOException ;
 
-    OutputStream newOutputStream(String suffix, String ext, boolean append) throws IOException;
-
+    @Override
+    void close() throws IOException;
+    
 }

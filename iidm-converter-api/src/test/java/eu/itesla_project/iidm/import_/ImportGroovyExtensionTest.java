@@ -6,13 +6,12 @@
  */
 package eu.itesla_project.iidm.import_;
 
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
 import eu.itesla_project.computation.script.GroovyExtension;
 import eu.itesla_project.computation.script.GroovyScriptAbstractTest;
 import eu.itesla_project.iidm.datasource.ReadOnlyDataSource;
 import eu.itesla_project.iidm.network.Network;
-import org.jboss.shrinkwrap.api.ShrinkWrap;
-import org.jboss.shrinkwrap.api.nio.file.ShrinkWrapFileSystems;
-import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.After;
 import org.junit.Before;
 import org.mockito.Mockito;
@@ -37,8 +36,7 @@ public class ImportGroovyExtensionTest extends GroovyScriptAbstractTest {
 
     @Before
     public void setUp() throws Exception {
-        JavaArchive archive = ShrinkWrap.create(JavaArchive.class);
-        fileSystem = ShrinkWrapFileSystems.newFileSystem(archive);
+        fileSystem = Jimfs.newFileSystem(Configuration.unix());
 
         // create /n.foo
         Files.newBufferedWriter(fileSystem.getPath("/n.foo")).close();
