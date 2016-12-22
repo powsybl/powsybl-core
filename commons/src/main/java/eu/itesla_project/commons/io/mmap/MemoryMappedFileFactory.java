@@ -6,8 +6,8 @@
  */
 package eu.itesla_project.commons.io.mmap;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 
 /**
  *
@@ -15,6 +15,6 @@ import java.io.IOException;
  */
 public interface MemoryMappedFileFactory {
     
-    MemoryMappedFile create(File file) throws IOException;
+    MemoryMappedFile create(Path path) throws IOException;
 
 }
