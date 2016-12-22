@@ -76,6 +76,7 @@
         <jimfs.version>1.1</jimfs.version>
         <groovyeclipsecompiler.version>2.9.2-01</groovyeclipsecompiler.version>
         <groovyeclipsebatch.version>2.4.3-01</groovyeclipsebatch.version>
+        <truevfs.version>0.11.1</truevfs.version>
     </properties>
 
     <licenses>
@@ -334,11 +335,15 @@
                 <artifactId>groovy-all</artifactId>
                 <version>${groovy.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>com.google.jimfs</groupId>
                 <artifactId>jimfs</artifactId>
                 <version>${jimfs.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.java.truevfs</groupId>
+                <artifactId>truevfs-driver-zip</artifactId>
+                <version>${truevfs.version}</version>
             </dependency>
 
 

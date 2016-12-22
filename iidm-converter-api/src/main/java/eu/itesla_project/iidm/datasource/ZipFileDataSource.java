@@ -9,6 +9,9 @@ package eu.itesla_project.iidm.datasource;
 import com.google.common.io.ByteStreams;
 import eu.itesla_project.commons.io.ForwardingInputStream;
 import eu.itesla_project.commons.io.ForwardingOutputStream;
+import net.java.truevfs.comp.zip.ZipEntry;
+import net.java.truevfs.comp.zip.ZipFile;
+import net.java.truevfs.comp.zip.ZipOutputStream;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,10 +19,8 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.Enumeration;
 import java.util.Objects;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
-import java.util.zip.ZipOutputStream;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -72,17 +73,8 @@ public class ZipFileDataSource implements DataSource {
         Objects.requireNonNull(fileName);
         Path zipFilePath = getZipFilePath();
         if (Files.exists(zipFilePath)) {
-            try (ZipInputStream zis = new ZipInputStream(Files.newInputStream(zipFilePath))) {
-                ZipEntry entry;
-                while ((entry = zis.getNextEntry()) != null) {
-                    try {
-                        if (entry.getName().equals(fileName)) {
-                            return true;
-                        }
-                    } finally {
-                        zis.closeEntry();
-                    }
-                }
+            try (ZipFile zipFile = new ZipFile(zipFilePath)) {
+                return zipFile.entry(fileName) != null;
             }
         }
         return false;
@@ -97,22 +89,21 @@ public class ZipFileDataSource implements DataSource {
     public InputStream newInputStream(String fileName) throws IOException {
         Objects.requireNonNull(fileName);
         Path zipFilePath = getZipFilePath();
-        ZipInputStream zis = new ZipInputStream(Files.newInputStream(zipFilePath));
-        ZipEntry entry;
-        while ((entry = zis.getNextEntry()) != null) {
-            if (entry.getName().equals(fileName)) {
-                InputStream fis = new ForwardingInputStream<ZipInputStream>(zis) {
+        if (Files.exists(zipFilePath)) {
+            ZipFile zipFile = new ZipFile(zipFilePath);
+            InputStream is = zipFile.getInputStream(fileName);
+            if (is != null) {
+                InputStream fis = new ForwardingInputStream<InputStream>(is) {
                     @Override
                     public void close() throws IOException {
-                        zis.closeEntry();
-                        zis.close();
+                        zipFile.close();
                     }
                 };
                 return observer != null ? new ObservableInputStream(fis, zipFilePath + ":" + fileName, observer) : fis;
+            } else {
+                zipFile.close();
             }
-            zis.closeEntry();
         }
-        zis.close();
         return null;
     }
 
@@ -132,17 +123,16 @@ public class ZipFileDataSource implements DataSource {
                 os.closeEntry();
                 // copy existing entries
                 if (Files.exists(zipFilePath)) {
-                    try (ZipInputStream zis = new ZipInputStream(Files.newInputStream(zipFilePath))) {
-                        ZipEntry entry;
-                        while ((entry = zis.getNextEntry()) != null) {
-                            try {
-                                if (!entry.getName().equals(fileName)) {
-                                    zos.putNextEntry(entry);
+                    try (ZipFile zipFile = new ZipFile(zipFilePath)) {
+                        Enumeration<? extends ZipEntry> e = zipFile.entries();
+                        while (e.hasMoreElements()) {
+                            ZipEntry zipEntry = e.nextElement();
+                            if (!zipEntry.getName().equals(fileName)) {
+                                zos.putNextEntry(zipEntry);
+                                try (InputStream zis = zipFile.getInputStream(zipEntry.getName())) {
                                     ByteStreams.copy(zis, zos);
-                                    zos.closeEntry();
                                 }
-                            } finally {
-                                zis.closeEntry();
+                                zos.closeEntry();
                             }
                         }
                     }
