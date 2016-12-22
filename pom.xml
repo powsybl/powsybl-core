@@ -72,7 +72,10 @@
         <supercsv.version>2.4.0</supercsv.version>
         <trove4j.version>3.0.3</trove4j.version>
         <xmlunit.version>2.3.0</xmlunit.version>
+        <groovy.version>2.4.7</groovy.version>
         <jimfs.version>1.1</jimfs.version>
+        <groovyeclipsecompiler.version>2.9.2-01</groovyeclipsecompiler.version>
+        <groovyeclipsebatch.version>2.4.3-01</groovyeclipsebatch.version>
     </properties>
 
     <licenses>
@@ -99,6 +102,19 @@
                     <source>${java.version}</source>
                     <target>${java.version}</target>
                 </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.codehaus.groovy</groupId>
+                        <artifactId>groovy-eclipse-compiler</artifactId>
+                        <version>${groovyeclipsecompiler.version}</version>
+                    </dependency>
+                    <!-- for 2.8.0-01 and later you must have an explicit dependency on groovy-eclipse-batch -->
+                    <dependency>
+                        <groupId>org.codehaus.groovy</groupId>
+                        <artifactId>groovy-eclipse-batch</artifactId>
+                        <version>${groovyeclipsebatch.version}</version>
+                    </dependency>
+                </dependencies>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -211,6 +227,14 @@
                     <groupId>org.eluder.coveralls</groupId>
                     <artifactId>coveralls-maven-plugin</artifactId>
                     <version>${maven.coveralls.version}</version>
+                    <configuration>
+                        <!-- groovy source roots need to be manually added -->
+                        <sourceDirectories>
+                            <sourceDirectory>${project.basedir}/computation/src/main/groovy</sourceDirectory>
+                            <sourceDirectory>${project.basedir}/iidm-converter-api/src/main/groovy</sourceDirectory>
+                            <sourceDirectory>${project.basedir}/loadflow-api/src/main/groovy</sourceDirectory>
+                        </sourceDirectories>
+                    </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -305,6 +329,12 @@
                     </exclusion>
                 </exclusions>
             </dependency>
+            <dependency>
+                <groupId>org.codehaus.groovy</groupId>
+                <artifactId>groovy-all</artifactId>
+                <version>${groovy.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>com.google.jimfs</groupId>
                 <artifactId>jimfs</artifactId>
