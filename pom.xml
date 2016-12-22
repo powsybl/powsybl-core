@@ -74,6 +74,8 @@
         <xmlunit.version>2.3.0</xmlunit.version>
         <groovy.version>2.4.7</groovy.version>
         <jimfs.version>1.1</jimfs.version>
+        <groovyeclipsecompiler.version>2.9.2-01</groovyeclipsecompiler.version>
+        <groovyeclipsebatch.version>2.4.3-01</groovyeclipsebatch.version>
     </properties>
 
     <licenses>
@@ -104,13 +106,13 @@
                     <dependency>
                         <groupId>org.codehaus.groovy</groupId>
                         <artifactId>groovy-eclipse-compiler</artifactId>
-                        <version>2.9.2-01</version>
+                        <version>${groovyeclipsecompiler.version}</version>
                     </dependency>
                     <!-- for 2.8.0-01 and later you must have an explicit dependency on groovy-eclipse-batch -->
                     <dependency>
                         <groupId>org.codehaus.groovy</groupId>
                         <artifactId>groovy-eclipse-batch</artifactId>
-                        <version>2.4.3-01</version>
+                        <version>${groovyeclipsebatch.version}</version>
                     </dependency>
                 </dependencies>
             </plugin>
