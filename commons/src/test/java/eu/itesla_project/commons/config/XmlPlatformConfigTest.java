@@ -17,9 +17,8 @@ import java.util.*;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
 
-import org.jboss.shrinkwrap.api.ShrinkWrap;
-import org.jboss.shrinkwrap.api.nio.file.ShrinkWrapFileSystems;
-import org.jboss.shrinkwrap.api.spec.JavaArchive;
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
 import org.junit.Assert;
 import org.junit.Test;
 import org.xml.sax.SAXException;
@@ -35,9 +34,8 @@ public class XmlPlatformConfigTest {
 
     @Test
     public void moduleConfigTest() throws IOException, XMLStreamException, SAXException, ParserConfigurationException {
-        JavaArchive archive = ShrinkWrap.create(JavaArchive.class);
-        try (FileSystem fileSystem = ShrinkWrapFileSystems.newFileSystem(archive)) {
-            Path cfgDir = fileSystem.getPath("config");
+        try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
+            Path cfgDir = Files.createDirectory(fileSystem.getPath("config"));
             Properties prop1 = new Properties();
             prop1.setProperty("s", "hello");
             prop1.setProperty("i", Integer.toString(3));
@@ -125,9 +123,8 @@ public class XmlPlatformConfigTest {
 
     @Test
     public void properties2XmlConvertionTest() throws IOException, XMLStreamException, SAXException, ParserConfigurationException {
-        JavaArchive archive = ShrinkWrap.create(JavaArchive.class);
-        try (FileSystem fileSystem = ShrinkWrapFileSystems.newFileSystem(archive)) {
-            Path cfgDir = fileSystem.getPath("config");
+        try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
+            Path cfgDir = Files.createDirectory(fileSystem.getPath("config"));
             Properties prop1 = new Properties();
             prop1.setProperty("a", "hello");
             prop1.setProperty("b", "bye");
