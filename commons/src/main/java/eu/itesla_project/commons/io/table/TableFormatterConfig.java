@@ -31,13 +31,17 @@ public class TableFormatterConfig {
     private final boolean printTitle;
 
     public static TableFormatterConfig load() {
+        return load(PlatformConfig.defaultConfig());
+    }
+
+    static TableFormatterConfig load(PlatformConfig platformConfig) {
         String language = DEFAULT_LANGUAGE;
         String separator = Character.toString(DEFAULT_CSV_SEPARATOR);
         String invalidString = DEFAULT_INVALID_STRING;
         boolean printHeader = DEFAULT_PRINT_HEADER;
         boolean printTitle = DEFAULT_PRINT_TITLE;
-        if (PlatformConfig.defaultConfig().moduleExists(CONFIG_MODULE_NAME)) {
-            ModuleConfig config = PlatformConfig.defaultConfig().getModuleConfig(CONFIG_MODULE_NAME);
+        if (platformConfig.moduleExists(CONFIG_MODULE_NAME)) {
+            ModuleConfig config = platformConfig.getModuleConfig(CONFIG_MODULE_NAME);
             language = config.getStringProperty("language", DEFAULT_LANGUAGE);
             separator = config.getStringProperty("separator", Character.toString(DEFAULT_CSV_SEPARATOR));
             invalidString = config.getStringProperty("invalid-string", DEFAULT_INVALID_STRING);
@@ -45,7 +49,7 @@ public class TableFormatterConfig {
             printTitle = config.getBooleanProperty("print-title", DEFAULT_PRINT_TITLE);
         }
         Locale locale = Locale.forLanguageTag(language);
-        return new TableFormatterConfig(locale,separator.charAt(0),invalidString,printHeader,printTitle);
+        return new TableFormatterConfig(locale, separator.charAt(0), invalidString, printHeader, printTitle);
     }
 
     public TableFormatterConfig(Locale locale, char csvSeparator, String invalidString, Boolean printHeader, Boolean printTitle) {

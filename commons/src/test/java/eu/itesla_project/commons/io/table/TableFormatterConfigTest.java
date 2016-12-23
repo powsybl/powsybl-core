@@ -10,9 +10,6 @@ import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import eu.itesla_project.commons.config.InMemoryPlatformConfig;
 import eu.itesla_project.commons.config.MapModuleConfig;
-import eu.itesla_project.commons.config.PlatformConfig;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -25,18 +22,6 @@ import static org.junit.Assert.assertEquals;
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
 public class TableFormatterConfigTest {
-
-    private PlatformConfig defaultPlatformConfig;
-
-    @Before
-    public void setUp() {
-        defaultPlatformConfig = PlatformConfig.defaultConfig();
-    }
-
-    @After
-    public void tearDown() {
-        PlatformConfig.setDefaultConfig(defaultPlatformConfig);
-    }
 
     private void testConfig(TableFormatterConfig config, Locale locale, char separator, String invalidString, boolean printHeader, boolean printTitle) {
         assertEquals(locale, config.getLocale());
@@ -59,9 +44,8 @@ public class TableFormatterConfigTest {
             moduleConfig.setStringProperty("invalid-string", "NaN");
             moduleConfig.setStringProperty("print-header", "false");
             moduleConfig.setStringProperty("print-title", "false");
-            PlatformConfig.setDefaultConfig(platformConfig);
 
-            config = TableFormatterConfig.load();
+            config = TableFormatterConfig.load(platformConfig);
             testConfig(config, Locale.US, '\t', "NaN", false, false);
         }
     }
