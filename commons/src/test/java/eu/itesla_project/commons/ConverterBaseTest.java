@@ -7,9 +7,8 @@
 package eu.itesla_project.commons;
 
 import com.google.common.io.ByteStreams;
-import org.jboss.shrinkwrap.api.ShrinkWrap;
-import org.jboss.shrinkwrap.api.nio.file.ShrinkWrapFileSystems;
-import org.jboss.shrinkwrap.api.spec.JavaArchive;
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
 import org.junit.After;
 import org.junit.Before;
 import org.xmlunit.builder.DiffBuilder;
@@ -38,9 +37,8 @@ public abstract class ConverterBaseTest {
 
     @Before
     public void setUp() throws IOException {
-        JavaArchive archive = ShrinkWrap.create(JavaArchive.class);
-        fileSystem = ShrinkWrapFileSystems.newFileSystem(archive);
-        tmpDir = fileSystem.getPath("tmp");
+        fileSystem = Jimfs.newFileSystem(Configuration.unix());
+        tmpDir = Files.createDirectory(fileSystem.getPath("tmp"));
     }
 
     @After

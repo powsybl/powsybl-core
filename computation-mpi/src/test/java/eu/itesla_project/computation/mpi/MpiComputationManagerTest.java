@@ -6,13 +6,13 @@
  */
 package eu.itesla_project.computation.mpi;
 
+
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 import eu.itesla_project.computation.*;
 import eu.itesla_project.computation.mpi.messages.Messages;
-import org.jboss.shrinkwrap.api.ShrinkWrap;
-import org.jboss.shrinkwrap.api.nio.file.ShrinkWrapFileSystems;
-import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.After;
 import static org.junit.Assert.*;
 import org.junit.Before;
@@ -25,6 +25,7 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -110,10 +111,8 @@ public class MpiComputationManagerTest {
 
     @Before
     public void setUp() throws Exception {
-        JavaArchive archive = ShrinkWrap.create(JavaArchive.class);
-        fileSystem = ShrinkWrapFileSystems.newFileSystem(archive);
-        Path tmpDir = fileSystem.getPath("/tmp");
-        Files.createDirectory(tmpDir);
+        fileSystem = Jimfs.newFileSystem(Configuration.unix());
+        Path tmpDir = Files.createDirectory(fileSystem.getPath("/tmp"));
         cm = new MpiComputationManager(tmpDir, new MpiNativeServicesMock());
     }
 
@@ -166,7 +165,7 @@ public class MpiComputationManagerTest {
         @Override
         public List<CommandExecution> before(Path workingDir) throws IOException {
             writeInput1(workingDir);
-            return Arrays.asList(createParams1());
+            return Collections.singletonList(createParams1());
         }
 
         @Override
