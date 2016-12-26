@@ -23,8 +23,15 @@ public interface Tool {
      * Run the tool.
      *
      * @param line the command line arguments
+     * @param context tool execution context
      * @throws Exception if the command fails
      */
-    void run(CommandLine line) throws Exception;
+    default void run(CommandLine line, ToolRunningContext context) throws Exception {
+    }
+
+    @Deprecated
+    default void run(CommandLine line) throws Exception {
+        run(line, new ToolRunningContext());
+    }
 
 }

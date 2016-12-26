@@ -6,15 +6,16 @@
  */
 package eu.itesla_project.computation.mpi;
 
-import eu.itesla_project.commons.tools.Tool;
-import eu.itesla_project.commons.tools.Command;
 import com.google.auto.service.AutoService;
+import eu.itesla_project.commons.tools.Command;
+import eu.itesla_project.commons.tools.Tool;
+import eu.itesla_project.commons.tools.ToolRunningContext;
+import org.apache.commons.cli.CommandLine;
+
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import org.apache.commons.cli.CommandLine;
 
 /**
  *
@@ -29,10 +30,10 @@ public class ExportTasksStatisticsTool implements Tool {
     }
 
     @Override
-    public void run(CommandLine line) throws Exception {
-        Path statisticsDbDir = Paths.get(line.getOptionValue("statistics-db-dir"));
+    public void run(CommandLine line, ToolRunningContext context) throws Exception {
+        Path statisticsDbDir = context.getFileSystem().getPath(line.getOptionValue("statistics-db-dir"));
         String statisticsDbName = line.getOptionValue("statistics-db-name");
-        Path outputFile = Paths.get(line.getOptionValue("output-file"));
+        Path outputFile = context.getFileSystem().getPath(line.getOptionValue("output-file"));
         try (MpiStatistics statistics = new CsvMpiStatistics(statisticsDbDir, statisticsDbName)) {
             try (Writer writer = Files.newBufferedWriter(outputFile, StandardCharsets.UTF_8)) {
                 statistics.exportTasksToCsv(writer);

@@ -7,20 +7,17 @@
 package eu.itesla_project.simulation;
 
 import com.google.auto.service.AutoService;
-import com.google.common.base.Function;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.Sets;
-import eu.itesla_project.commons.ITeslaException;
 import eu.itesla_project.commons.config.ComponentDefaultConfig;
 import eu.itesla_project.commons.tools.Command;
 import eu.itesla_project.commons.tools.Tool;
+import eu.itesla_project.commons.tools.ToolRunningContext;
 import eu.itesla_project.computation.ComputationManager;
 import eu.itesla_project.computation.local.LocalComputationManager;
 import eu.itesla_project.contingency.ContingenciesProvider;
 import eu.itesla_project.contingency.ContingenciesProviderFactory;
-import eu.itesla_project.iidm.datasource.GenericReadOnlyDataSource;
-import eu.itesla_project.iidm.import_.Importer;
 import eu.itesla_project.iidm.import_.Importers;
 import eu.itesla_project.iidm.network.Network;
 import eu.itesla_project.simulation.securityindexes.SecurityIndex;
@@ -34,10 +31,10 @@ import org.slf4j.LoggerFactory;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -82,7 +79,7 @@ public class ImpactAnalysisTool implements Tool {
         return l;
     }
 
-    private static void prettyPrint(Multimap<String, SecurityIndex> securityIndexesPerContingency) {
+    private static void prettyPrint(Multimap<String, SecurityIndex> securityIndexesPerContingency, PrintStream out) {
         Table table = new Table(1 + SecurityIndexType.values().length, BorderStyle.CLASSIC_WIDE);
         table.addCell("Contingency");
         for (SecurityIndexType securityIndexType : SecurityIndexType.values()) {
@@ -97,7 +94,7 @@ public class ImpactAnalysisTool implements Tool {
             }
         }
 
-        System.out.println(table.render());
+        out.println(table.render());
     }
 
     private static void writeCsv(Multimap<String, SecurityIndex> securityIndexesPerContingency, Path outputCsvFile) throws IOException {
@@ -164,42 +161,38 @@ public class ImpactAnalysisTool implements Tool {
 
     private static Multimap<String, SecurityIndex> runImpactAnalysis(Network network, Set<String> contingencyIds,
                                                                      ComputationManager computationManager, SimulatorFactory simulatorFactory,
-                                                                     ContingenciesProvider contingenciesProvider) throws Exception {
+                                                                     ContingenciesProvider contingenciesProvider,
+                                                                     PrintStream out) throws Exception {
         Stabilization stabilization = simulatorFactory.createStabilization(network, computationManager, 0);
         ImpactAnalysis impactAnalysis = simulatorFactory.createImpactAnalysis(network, computationManager, 0, contingenciesProvider);
         Map<String, Object> initContext = new HashMap<>();
         SimulationParameters simulationParameters = SimulationParameters.load();
         stabilization.init(simulationParameters, initContext);
         impactAnalysis.init(simulationParameters, initContext);
-        System.out.println("running stabilization simulation...");
+        out.println("running stabilization simulation...");
         StabilizationResult sr = stabilization.run();
-        System.out.println("stabilization status: " + sr.getStatus());
-        System.out.println("stabilization metrics: " + sr.getMetrics());
+        out.println("stabilization status: " + sr.getStatus());
+        out.println("stabilization metrics: " + sr.getMetrics());
         if (sr.getStatus() == StabilizationStatus.COMPLETED) {
-            System.out.println("running impact analysis...");
+            out.println("running impact analysis...");
             ImpactAnalysisResult iar = impactAnalysis.run(sr.getState(), contingencyIds);
-            System.out.println("impact analysis metrics: " + iar.getMetrics());
+            out.println("impact analysis metrics: " + iar.getMetrics());
 
-            return Multimaps.index(iar.getSecurityIndexes(), new Function<SecurityIndex, String>() {
-                @Override
-                public String apply(SecurityIndex securityIndex) {
-                    return securityIndex.getId().getContingencyId();
-                }
-            });
+            return Multimaps.index(iar.getSecurityIndexes(), securityIndex -> securityIndex.getId().getContingencyId());
 
         }
         return null;
     }
 
     @Override
-    public void run(CommandLine line) throws Exception {
+    public void run(CommandLine line, ToolRunningContext context) throws Exception {
         ComponentDefaultConfig defaultConfig = ComponentDefaultConfig.load();
-        Path caseFile = Paths.get(line.getOptionValue("case-file"));
+        Path caseFile = context.getFileSystem().getPath(line.getOptionValue("case-file"));
         final Set<String> contingencyIds = line.hasOption("contingencies")
                 ?  Sets.newHashSet(line.getOptionValue("contingencies").split(",")) : null;
         Path outputCsvFile = null;
         if (line.hasOption("output-csv-file")) {
-            outputCsvFile = Paths.get(line.getOptionValue("output-csv-file"));
+            outputCsvFile = context.getFileSystem().getPath(line.getOptionValue("output-csv-file"));
         }
 
         try (ComputationManager computationManager = new LocalComputationManager()) {
@@ -209,7 +202,7 @@ public class ImpactAnalysisTool implements Tool {
 
             if (Files.isRegularFile(caseFile)) {
 
-                System.out.println("loading case " + caseFile + "...");
+                context.getOut().println("loading case " + caseFile + "...");
                 // load the network
                 Network network = Importers.loadNetwork(caseFile);
                 if (network == null) {
@@ -219,11 +212,11 @@ public class ImpactAnalysisTool implements Tool {
 
                 Multimap<String, SecurityIndex> securityIndexesPerContingency
                         = runImpactAnalysis(network, contingencyIds, computationManager,
-                        simulatorFactory, contingenciesProvider);
+                        simulatorFactory, contingenciesProvider, context.getOut());
 
                 if (securityIndexesPerContingency != null) {
                     if (outputCsvFile == null) {
-                        prettyPrint(securityIndexesPerContingency);
+                        prettyPrint(securityIndexesPerContingency, context.getOut());
                     } else {
                         writeCsv(securityIndexesPerContingency, outputCsvFile);
                     }
@@ -237,7 +230,7 @@ public class ImpactAnalysisTool implements Tool {
                     try {
                         Multimap<String, SecurityIndex> securityIndexesPerContingency
                                 = runImpactAnalysis(network, contingencyIds, computationManager,
-                                simulatorFactory, contingenciesProvider);
+                                simulatorFactory, contingenciesProvider, context.getOut());
                         if (securityIndexesPerContingency == null) {
                             securityIndexesPerCase.put(network.getId(), null);
                         } else {
@@ -247,7 +240,7 @@ public class ImpactAnalysisTool implements Tool {
                     } catch (Exception e) {
                         LOGGER.error(e.toString(), e);
                     }
-                }, dataSource -> System.out.println("loading case " + dataSource.getBaseName() + "..."));
+                }, dataSource -> context.getOut().println("loading case " + dataSource.getBaseName() + "..."));
 
                 writeCsv(securityIndexesPerCase, outputCsvFile);
             }

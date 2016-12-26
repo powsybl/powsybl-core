@@ -6,19 +6,20 @@
  */
 package eu.itesla_project.iidm.tools;
 
-import eu.itesla_project.commons.tools.Tool;
-import eu.itesla_project.commons.tools.Command;
 import com.google.auto.service.AutoService;
 import eu.itesla_project.commons.ITeslaException;
+import eu.itesla_project.commons.tools.Command;
+import eu.itesla_project.commons.tools.Tool;
+import eu.itesla_project.commons.tools.ToolRunningContext;
 import eu.itesla_project.iidm.datasource.*;
 import eu.itesla_project.iidm.export.Exporter;
 import eu.itesla_project.iidm.export.Exporters;
 import eu.itesla_project.iidm.import_.Importer;
 import eu.itesla_project.iidm.import_.Importers;
 import eu.itesla_project.iidm.network.Network;
-import java.nio.file.Paths;
-import java.util.Properties;
 import org.apache.commons.cli.CommandLine;
+
+import java.util.Properties;
 
 /**
  *
@@ -33,7 +34,7 @@ public class ConversionTool implements Tool {
     }
 
     @Override
-    public void run(CommandLine line) throws Exception {
+    public void run(CommandLine line, ToolRunningContext context) throws Exception {
         String sourceFormat = line.getOptionValue("source");
         String targetFormat = line.getOptionValue("target");
         String inputDirName = line.getOptionValue("input-dir");
@@ -52,12 +53,12 @@ public class ConversionTool implements Tool {
 
         Properties inputParams = new Properties();
         // TODO get parameters through the command line
-        ReadOnlyDataSource ds1 = new GenericReadOnlyDataSource(Paths.get(inputDirName), inputBaseName);
+        ReadOnlyDataSource ds1 = new GenericReadOnlyDataSource(context.getFileSystem().getPath(inputDirName), inputBaseName);
         Network network = importer.import_(ds1, inputParams);
 
         Properties outputParams = new Properties();
         // TODO get parameters through the command line
-        DataSource ds2 = new FileDataSource(Paths.get(outputDirName), outputBaseName, new AbstractDataSourceObserver() {
+        DataSource ds2 = new FileDataSource(context.getFileSystem().getPath(outputDirName), outputBaseName, new AbstractDataSourceObserver() {
             @Override
             public void opened(String streamName) {
                 System.out.println("Generating file " + streamName + "...");

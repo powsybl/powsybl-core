@@ -9,13 +9,18 @@ package eu.itesla_project.computation.local.script;
 import com.google.auto.service.AutoService;
 import eu.itesla_project.commons.tools.Command;
 import eu.itesla_project.commons.tools.Tool;
+import eu.itesla_project.commons.tools.ToolRunningContext;
+import eu.itesla_project.computation.ComputationManager;
 import eu.itesla_project.computation.local.LocalComputationManager;
 import eu.itesla_project.computation.script.GroovyScript;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
-import java.io.File;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.nio.file.Path;
+import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -58,14 +63,26 @@ public class LocalGroovyScriptTool implements Tool {
         }
     };
 
+    private final ComputationManager computationManager;
+
+    public LocalGroovyScriptTool() {
+        this(LocalComputationManager.getDefault());
+    }
+
+    public LocalGroovyScriptTool(ComputationManager computationManager) {
+        this.computationManager = Objects.requireNonNull(computationManager);
+    }
+
     @Override
     public Command getCommand() {
         return COMMAND;
     }
 
     @Override
-    public void run(CommandLine line) throws Exception {
-        File file = new File(line.getOptionValue("script"));
-        GroovyScript.run(file, LocalComputationManager.getDefault());
+    public void run(CommandLine line, ToolRunningContext context) throws Exception {
+        Path file = context.getFileSystem().getPath(line.getOptionValue("script"));
+        Writer writer = new OutputStreamWriter(context.getOut());
+        GroovyScript.run(file, computationManager, writer);
+        writer.flush();
     }
 }
