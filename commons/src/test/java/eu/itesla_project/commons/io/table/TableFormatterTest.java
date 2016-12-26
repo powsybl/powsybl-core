@@ -23,44 +23,52 @@ public class TableFormatterTest {
 
     private static final Column[] COLUMNS = {
             new Column("int"),
+            new Column("double"),
             new Column("float"),
             new Column("bool"),
-            new Column("string")
+            new Column("empty"),
+            new Column("char"),
+            new Column("string"),
+            new Column("empty2")
     };
 
     private static void write(TableFormatter formatter) throws IOException {
-        formatter.writeCell(2).writeCell(1.3).writeCell(true).writeCell("aaa")
-                .writeCell(3).writeCell(4.2).writeCell(false).writeCell("bbb");
+        formatter.writeCell(2).writeCell(Double.NaN).writeCell(2.4f).writeCell(true).writeEmptyCell()
+                .writeCell('a').writeCell("aaa").writeEmptyCell()
+                .writeCell(3).writeCell(4.2).writeCell(Float.NaN).writeCell(false).writeEmptyCell()
+                .writeCell('b').writeCell("bbb").writeEmptyCell();
     }
 
     @Test
     public void testCsv() throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         TableFormatterConfig config = new TableFormatterConfig(Locale.US, ';', "inv", true, true);
-        try (TableFormatter formatter = new CsvTableFormatter(new OutputStreamWriter(bos), "csv test", config, COLUMNS)) {
+        CsvTableFormatterFactory factory = new CsvTableFormatterFactory();
+        try (TableFormatter formatter = factory.create(new OutputStreamWriter(bos), "csv test", config, COLUMNS)) {
             write(formatter);
         }
         assertEquals(new String(bos.toByteArray(), StandardCharsets.UTF_8),
                 "csv test\n" +
-                "int;float;bool;string\n" +
-                "2;1.30000;true;aaa\n" +
-                "3;4.20000;false;bbb\n");
+                "int;double;float;bool;empty;char;string;empty2\n" +
+                "2;inv;2.40000;true;;a;aaa;\n" +
+                "3;4.20000;inv;false;;b;bbb;\n");
     }
 
     @Test
     public void testAcsii() throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         TableFormatterConfig config = new TableFormatterConfig(Locale.US, "inv");
-        try (TableFormatter formatter = new AsciiTableFormatter(new OutputStreamWriter(bos), "ascii test", config, COLUMNS)) {
+        AsciiTableFormatterFactory factory = new AsciiTableFormatterFactory();
+        try (TableFormatter formatter = factory.create(new OutputStreamWriter(bos), "ascii test", config, COLUMNS)) {
             write(formatter);
         }
         assertEquals(new String(bos.toByteArray(), StandardCharsets.UTF_8),
                 "ascii test:\n" +
-                "+-----+---------+-------+--------+\n" +
-                "| int | float   | bool  | string |\n" +
-                "+-----+---------+-------+--------+\n" +
-                "| 2   | 1.30000 | true  | aaa    |\n" +
-                "| 3   | 4.20000 | false | bbb    |\n" +
-                "+-----+---------+-------+--------+\n");
+                "+-----+---------+---------+-------+-------+------+--------+--------+\n" +
+                "| int | double  | float   | bool  | empty | char | string | empty2 |\n" +
+                "+-----+---------+---------+-------+-------+------+--------+--------+\n" +
+                "| 2   | inv     | 2.40000 | true  |       | a    | aaa    |        |\n" +
+                "| 3   | 4.20000 | inv     | false |       | b    | bbb    |        |\n" +
+                "+-----+---------+---------+-------+-------+------+--------+--------+\n");
     }
 }
