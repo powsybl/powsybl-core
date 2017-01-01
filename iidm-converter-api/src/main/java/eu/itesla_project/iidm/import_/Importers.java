@@ -188,6 +188,11 @@ public class Importers {
             }
             return network;
         }
+
+        @Override
+        public void copy(ReadOnlyDataSource fromDataSource, DataSource toDataSource) {
+            importer.copy(fromDataSource, toDataSource);
+        }
     }
 
     public static Importer addPostProcessors(Importer importer, ComputationManager computationManager, String... names) {
