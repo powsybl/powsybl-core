@@ -332,6 +332,10 @@ public class Importers {
     }
 
     public static Object readParameter(String format, Properties parameters, Parameter configuredParameter) {
+        return readParameter(format, parameters, configuredParameter, ParameterDefaultValueConfig.INSTANCE);
+    }
+
+    public static Object readParameter(String format, Properties parameters, Parameter configuredParameter, ParameterDefaultValueConfig defaultValueConfig) {
         Object value = null;
         // priority on import parameter
         if (parameters != null) {
@@ -352,7 +356,7 @@ public class Importers {
         }
         // if none, use configured paramaters
         if (value == null) {
-            value = ParameterDefaultValueConfig.INSTANCE.getValue(format, configuredParameter);
+            value = defaultValueConfig.getValue(format, configuredParameter);
         }
         return value;
     }

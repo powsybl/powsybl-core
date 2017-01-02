@@ -12,12 +12,14 @@ import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.io.ByteStreams;
 import eu.itesla_project.commons.ITeslaException;
+import eu.itesla_project.commons.config.PlatformConfig;
 import eu.itesla_project.iidm.datasource.DataSource;
 import eu.itesla_project.iidm.datasource.ReadOnlyDataSource;
 import eu.itesla_project.iidm.import_.Importer;
 import eu.itesla_project.iidm.import_.Importers;
 import eu.itesla_project.iidm.network.Network;
 import eu.itesla_project.iidm.parameters.Parameter;
+import eu.itesla_project.iidm.parameters.ParameterDefaultValueConfig;
 import eu.itesla_project.iidm.parameters.ParameterType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +31,7 @@ import javax.xml.stream.events.XMLEvent;
 import java.io.*;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Properties;
 
 /**
@@ -45,6 +48,16 @@ public class XMLImporter implements Importer, XmlConstants {
 
     private static final Parameter THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND
             = new Parameter("throwExceptionIfExtensionNotFound", ParameterType.BOOLEAN, "Throw exception if extension not found", Boolean.FALSE);
+
+    private final ParameterDefaultValueConfig defaultValueConfig;
+
+    public XMLImporter() {
+        this(PlatformConfig.defaultConfig());
+    }
+
+    public XMLImporter(PlatformConfig platformConfig) {
+        defaultValueConfig = new ParameterDefaultValueConfig(platformConfig);
+    }
 
     @Override
     public String getFormat() {
@@ -142,6 +155,7 @@ public class XMLImporter implements Importer, XmlConstants {
 
     @Override
     public Network import_(ReadOnlyDataSource dataSource, Properties parameters) {
+        Objects.requireNonNull(dataSource);
         Network network;
         long startTime = System.currentTimeMillis();
         try {
@@ -150,7 +164,7 @@ public class XMLImporter implements Importer, XmlConstants {
                 throw new RuntimeException("File " + dataSource.getBaseName()
                         + "." + Joiner.on("|").join(EXTENSIONS) + " not found");
             }
-            boolean throwExceptionIfExtensionNotFound = (Boolean) Importers.readParameter(getFormat(), parameters, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND);
+            boolean throwExceptionIfExtensionNotFound = (Boolean) Importers.readParameter(getFormat(), parameters, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND, defaultValueConfig);
             Anonymizer anonymizer = null;
             if (dataSource.exists("_mapping", "csv")) {
                 anonymizer = new SimpleAnonymizer();
