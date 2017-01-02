@@ -16,9 +16,9 @@ import java.util.Objects;
  */
 public class ToolRunningContext {
 
-    private final PrintStream out;
+    private final PrintStream outputStream;
 
-    private final PrintStream err;
+    private final PrintStream errorStream;
 
     private final FileSystem fileSystem;
 
@@ -26,18 +26,18 @@ public class ToolRunningContext {
         this(System.out, System.err, FileSystems.getDefault());
     }
 
-    public ToolRunningContext(PrintStream out, PrintStream err, FileSystem fileSystem) {
-        this.out = Objects.requireNonNull(out);
-        this.err = Objects.requireNonNull(err);
+    public ToolRunningContext(PrintStream outputStream, PrintStream errorStream, FileSystem fileSystem) {
+        this.outputStream = Objects.requireNonNull(outputStream);
+        this.errorStream = Objects.requireNonNull(errorStream);
         this.fileSystem = Objects.requireNonNull(fileSystem);
     }
 
-    public PrintStream getOut() {
-        return out;
+    public PrintStream getOutputStream() {
+        return outputStream;
     }
 
-    public PrintStream getErr() {
-        return err;
+    public PrintStream getErrorStream() {
+        return errorStream;
     }
 
     public FileSystem getFileSystem() {

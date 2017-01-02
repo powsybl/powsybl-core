@@ -8,13 +8,12 @@ package eu.itesla_project.commons.tools;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimaps;
-import java.io.IOException;
+import org.apache.commons.cli.*;
+
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import org.apache.commons.cli.*;
 
 /**
  *
@@ -104,34 +103,34 @@ public class CommandLineTools {
         return null;
     }
 
-    public int run(String[] args, ToolRunningContext context) throws IOException {
+    public int run(String[] args, ToolRunningContext context) {
         Objects.requireNonNull(args);
         Objects.requireNonNull(context);
 
         if (args.length < 1) {
-            return printUsage(context.getErr());
+            return printUsage(context.getErrorStream());
         }
 
         Tool tool = findTool(args[0]);
         if (tool == null) {
-            return printUsage(context.getErr());
+            return printUsage(context.getErrorStream());
         }
 
         try {
             CommandLineParser parser = new DefaultParser();
             if (Arrays.asList(args).contains("--help")) {
-                printCommandUsage(tool.getCommand(), context.getErr());
+                printCommandUsage(tool.getCommand(), context.getErrorStream());
             } else {
                 CommandLine line = parser.parse(getOptionsWithHelp(tool.getCommand().getOptions()), Arrays.copyOfRange(args, 1, args.length));
                 tool.run(line, context);
             }
             return COMMAND_OK_STATUS;
         } catch (ParseException e) {
-            context.getErr().println("error: " + e.getMessage());
-            printCommandUsage(tool.getCommand(), context.getErr());
+            context.getErrorStream().println("error: " + e.getMessage());
+            printCommandUsage(tool.getCommand(), context.getErrorStream());
             return INVALID_COMMAND_STATUS;
         } catch (Exception e) {
-            e.printStackTrace(context.getErr());
+            e.printStackTrace(context.getErrorStream());
             return EXECUTION_ERROR_STATUS;
         }
     }

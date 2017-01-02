@@ -202,7 +202,7 @@ public class ImpactAnalysisTool implements Tool {
 
             if (Files.isRegularFile(caseFile)) {
 
-                context.getOut().println("loading case " + caseFile + "...");
+                context.getOutputStream().println("loading case " + caseFile + "...");
                 // load the network
                 Network network = Importers.loadNetwork(caseFile);
                 if (network == null) {
@@ -212,11 +212,11 @@ public class ImpactAnalysisTool implements Tool {
 
                 Multimap<String, SecurityIndex> securityIndexesPerContingency
                         = runImpactAnalysis(network, contingencyIds, computationManager,
-                        simulatorFactory, contingenciesProvider, context.getOut());
+                        simulatorFactory, contingenciesProvider, context.getOutputStream());
 
                 if (securityIndexesPerContingency != null) {
                     if (outputCsvFile == null) {
-                        prettyPrint(securityIndexesPerContingency, context.getOut());
+                        prettyPrint(securityIndexesPerContingency, context.getOutputStream());
                     } else {
                         writeCsv(securityIndexesPerContingency, outputCsvFile);
                     }
@@ -230,7 +230,7 @@ public class ImpactAnalysisTool implements Tool {
                     try {
                         Multimap<String, SecurityIndex> securityIndexesPerContingency
                                 = runImpactAnalysis(network, contingencyIds, computationManager,
-                                simulatorFactory, contingenciesProvider, context.getOut());
+                                simulatorFactory, contingenciesProvider, context.getOutputStream());
                         if (securityIndexesPerContingency == null) {
                             securityIndexesPerCase.put(network.getId(), null);
                         } else {
@@ -240,7 +240,7 @@ public class ImpactAnalysisTool implements Tool {
                     } catch (Exception e) {
                         LOGGER.error(e.toString(), e);
                     }
-                }, dataSource -> context.getOut().println("loading case " + dataSource.getBaseName() + "..."));
+                }, dataSource -> context.getOutputStream().println("loading case " + dataSource.getBaseName() + "..."));
 
                 writeCsv(securityIndexesPerCase, outputCsvFile);
             }

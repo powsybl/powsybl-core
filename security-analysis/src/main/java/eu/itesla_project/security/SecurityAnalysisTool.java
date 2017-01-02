@@ -100,7 +100,7 @@ public class SecurityAnalysisTool implements Tool {
             csvFile = context.getFileSystem().getPath(line.getOptionValue("output-csv"));
         }
 
-        context.getOut().println("Loading network '" + caseFile + "'");
+        context.getOutputStream().println("Loading network '" + caseFile + "'");
 
         // load network
         Network network = Importers.loadNetwork(caseFile);
@@ -121,16 +121,16 @@ public class SecurityAnalysisTool implements Tool {
                         .join();
 
         if (!result.getPreContingencyResult().isComputationOk()) {
-            context.getOut().println("Pre-contingency state divergence");
+            context.getErrorStream().println("Pre-contingency state divergence");
         }
         LimitViolationFilter limitViolationFilter = new LimitViolationFilter(limitViolationTypes);
         if (csvFile != null) {
-            context.getOut().println("Writing results to '" + csvFile + "'");
+            context.getOutputStream().println("Writing results to '" + csvFile + "'");
             CsvTableFormatterFactory csvTableFormatterFactory = new CsvTableFormatterFactory();
             Security.printPreContingencyViolations(result, Files.newBufferedWriter(csvFile, StandardCharsets.UTF_8), csvTableFormatterFactory, limitViolationFilter);
             Security.printPostContingencyViolations(result, Files.newBufferedWriter(csvFile, StandardCharsets.UTF_8, StandardOpenOption.APPEND), csvTableFormatterFactory, limitViolationFilter);
         } else {
-            Writer writer = new OutputStreamWriter(new ForwardingOutputStream<PrintStream>(context.getOut()) {
+            Writer writer = new OutputStreamWriter(new ForwardingOutputStream<PrintStream>(context.getOutputStream()) {
                 @Override
                 public void close() throws IOException {
                 }

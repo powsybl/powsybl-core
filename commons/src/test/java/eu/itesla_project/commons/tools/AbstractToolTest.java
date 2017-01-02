@@ -54,8 +54,12 @@ public abstract class AbstractToolTest {
             status = tools.run(args, new ToolRunningContext(out, err, fileSystem));
         }
         assertEquals(expectedStatus, status);
-        assertMatches(expectedOut, bout.toString(StandardCharsets.UTF_8.name()));
-        assertMatches(expectedErr, berr.toString(StandardCharsets.UTF_8.name()));
+        if (expectedOut != null) {
+            assertMatches(expectedOut, bout.toString(StandardCharsets.UTF_8.name()));
+        }
+        if (expectedErr != null) {
+            assertMatches(expectedErr, berr.toString(StandardCharsets.UTF_8.name()));
+        }
     }
 
 }

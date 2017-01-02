@@ -56,6 +56,6 @@ public class VersionTool implements Tool {
 
     @Override
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
-        context.getOut().println(Version.VERSION);
+        context.getOutputStream().println(Version.VERSION);
     }
 }

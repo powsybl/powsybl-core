@@ -81,7 +81,7 @@ public class LocalGroovyScriptTool implements Tool {
     @Override
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
         Path file = context.getFileSystem().getPath(line.getOptionValue("script"));
-        Writer writer = new OutputStreamWriter(context.getOut());
+        Writer writer = new OutputStreamWriter(context.getOutputStream());
         GroovyScript.run(file, computationManager, writer);
         writer.flush();
     }

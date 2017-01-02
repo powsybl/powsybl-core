@@ -61,7 +61,7 @@ public class CommandLineToolsTest extends AbstractToolTest {
 
         @Override
         public void run(CommandLine line, ToolRunningContext context) throws Exception {
-            context.getOut().print("result1");
+            context.getOutputStream().print("result1");
         }
     }
 
