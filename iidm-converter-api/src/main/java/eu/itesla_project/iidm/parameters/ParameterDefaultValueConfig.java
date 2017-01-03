@@ -23,28 +23,48 @@ public class ParameterDefaultValueConfig {
 
     public static final ParameterDefaultValueConfig INSTANCE = new ParameterDefaultValueConfig();
 
-    private final ModuleConfig config ;
+    private PlatformConfig platformConfig;
+
+    private boolean init = false;
+
+    private ModuleConfig configCache;
 
     public ParameterDefaultValueConfig() {
-        config = PlatformConfig.defaultConfig().moduleExists(MODULE_NAME) ? PlatformConfig.defaultConfig().getModuleConfig(MODULE_NAME) : null;
+        this(null);
+    }
+
+    public ParameterDefaultValueConfig(PlatformConfig platformConfig) {
+        this.platformConfig = platformConfig;
+    }
+
+    private synchronized ModuleConfig getModuleConfig() {
+        if (!init) {
+            if (platformConfig == null) {
+                platformConfig = PlatformConfig.defaultConfig();
+            }
+            configCache = platformConfig.moduleExists(MODULE_NAME) ? platformConfig.getModuleConfig(MODULE_NAME) : null;
+            init = true;
+        }
+        return configCache;
     }
 
     public Object getValue(String format, Parameter parameter) {
         Objects.requireNonNull(format);
         Objects.requireNonNull(parameter);
         String name = format + "_" + parameter.getName();
+        ModuleConfig moduleConfig = getModuleConfig();
         switch (parameter.getType()) {
             case BOOLEAN: {
                 boolean defaultValue = (Boolean) parameter.getDefaultValue();
-                return config != null ? config.getBooleanProperty(name, defaultValue) : defaultValue;
+                return moduleConfig != null ? moduleConfig.getBooleanProperty(name, defaultValue) : defaultValue;
             }
             case STRING: {
                 String defaultValue = (String) parameter.getDefaultValue();
-                return config != null ? config.getStringProperty(name, defaultValue) : defaultValue;
+                return moduleConfig != null ? moduleConfig.getStringProperty(name, defaultValue) : defaultValue;
             }
             case STRING_LIST: {
                 List<String> defaultValue = (List<String>) parameter.getDefaultValue();
-                return config != null ? config.getStringListProperty(name, defaultValue) : defaultValue;
+                return moduleConfig != null ? moduleConfig.getStringListProperty(name, defaultValue) : defaultValue;
             }
             default:
                 throw new AssertionError();

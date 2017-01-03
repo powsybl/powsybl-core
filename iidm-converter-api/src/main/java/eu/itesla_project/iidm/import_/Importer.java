@@ -6,6 +6,7 @@
  */
 package eu.itesla_project.iidm.import_;
 
+import eu.itesla_project.iidm.datasource.DataSource;
 import eu.itesla_project.iidm.datasource.ReadOnlyDataSource;
 import eu.itesla_project.iidm.network.Network;
 import eu.itesla_project.iidm.parameters.Parameter;
@@ -72,4 +73,12 @@ public interface Importer {
      */
     Network import_(ReadOnlyDataSource dataSource, Properties parameters);
 
+    /**
+     * Copy data from one data source to another.
+     * @param fromDataSource from data source
+     * @param toDataSource destination data source
+     */
+    default void copy(ReadOnlyDataSource fromDataSource, DataSource toDataSource) {
+        throw new UnsupportedOperationException("Copy not implemented");
+    }
 }

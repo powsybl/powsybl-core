@@ -10,12 +10,16 @@ import com.google.auto.service.AutoService;
 import com.google.common.base.Joiner;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
+import com.google.common.io.ByteStreams;
 import eu.itesla_project.commons.ITeslaException;
+import eu.itesla_project.commons.config.PlatformConfig;
+import eu.itesla_project.iidm.datasource.DataSource;
 import eu.itesla_project.iidm.datasource.ReadOnlyDataSource;
 import eu.itesla_project.iidm.import_.Importer;
 import eu.itesla_project.iidm.import_.Importers;
 import eu.itesla_project.iidm.network.Network;
 import eu.itesla_project.iidm.parameters.Parameter;
+import eu.itesla_project.iidm.parameters.ParameterDefaultValueConfig;
 import eu.itesla_project.iidm.parameters.ParameterType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,12 +28,10 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.events.XMLEvent;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Properties;
 
 /**
@@ -46,6 +48,16 @@ public class XMLImporter implements Importer, XmlConstants {
 
     private static final Parameter THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND
             = new Parameter("throwExceptionIfExtensionNotFound", ParameterType.BOOLEAN, "Throw exception if extension not found", Boolean.FALSE);
+
+    private final ParameterDefaultValueConfig defaultValueConfig;
+
+    public XMLImporter() {
+        this(PlatformConfig.defaultConfig());
+    }
+
+    public XMLImporter(PlatformConfig platformConfig) {
+        defaultValueConfig = new ParameterDefaultValueConfig(platformConfig);
+    }
 
     @Override
     public String getFormat() {
@@ -80,6 +92,14 @@ public class XMLImporter implements Importer, XmlConstants {
     public boolean exists(ReadOnlyDataSource dataSource) {
         try {
             String ext = findExtension(dataSource);
+            return exists(dataSource, ext);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private boolean exists(ReadOnlyDataSource dataSource, String ext) throws IOException {
+        try {
             if (ext != null) {
                 try (InputStream is = dataSource.newInputStream(null, ext)) {
                     // check the first root element is network and namespace is IIDM
@@ -106,6 +126,28 @@ public class XMLImporter implements Importer, XmlConstants {
         } catch (XMLStreamException e) {
             // not a valid xml file
             return false;
+        }
+    }
+
+    @Override
+    public void copy(ReadOnlyDataSource fromDataSource, DataSource toDataSource) {
+        try {
+            String ext = findExtension(fromDataSource);
+            if (!exists(fromDataSource, ext)) {
+                throw new RuntimeException("From data source is not importable");
+            }
+            // copy iidm file
+            try (InputStream is = fromDataSource.newInputStream(null, ext);
+                 OutputStream os = toDataSource.newOutputStream(null ,ext, false)) {
+                ByteStreams.copy(is, os);
+            }
+            // and also anonymization file if exists
+            if (fromDataSource.exists("_mapping", "csv")) {
+                try (InputStream is = fromDataSource.newInputStream("_mapping", "csv");
+                     OutputStream os = toDataSource.newOutputStream("_mapping", "csv", false)) {
+                    ByteStreams.copy(is, os);
+                }
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -113,6 +155,7 @@ public class XMLImporter implements Importer, XmlConstants {
 
     @Override
     public Network import_(ReadOnlyDataSource dataSource, Properties parameters) {
+        Objects.requireNonNull(dataSource);
         Network network;
         long startTime = System.currentTimeMillis();
         try {
@@ -121,7 +164,7 @@ public class XMLImporter implements Importer, XmlConstants {
                 throw new RuntimeException("File " + dataSource.getBaseName()
                         + "." + Joiner.on("|").join(EXTENSIONS) + " not found");
             }
-            boolean throwExceptionIfExtensionNotFound = (Boolean) Importers.readParameter(getFormat(), parameters, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND);
+            boolean throwExceptionIfExtensionNotFound = (Boolean) Importers.readParameter(getFormat(), parameters, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND, defaultValueConfig);
             Anonymizer anonymizer = null;
             if (dataSource.exists("_mapping", "csv")) {
                 anonymizer = new SimpleAnonymizer();
