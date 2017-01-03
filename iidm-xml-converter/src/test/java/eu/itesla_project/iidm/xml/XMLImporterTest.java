@@ -116,11 +116,17 @@ public class XMLImporterTest {
     public void copy() throws Exception {
         importer.copy(new FileDataSource(fileSystem.getPath("/"), "test0"), new FileDataSource(fileSystem.getPath("/"), "test0_copy"));
         assertTrue(Files.exists(fileSystem.getPath("/test0_copy.xiidm")));
+        assertEquals(Files.readAllLines(fileSystem.getPath("/test0.xiidm"), StandardCharsets.UTF_8),
+                     Files.readAllLines(fileSystem.getPath("/test0_copy.xiidm"), StandardCharsets.UTF_8));
 
         // test copy with id mapping file
         importer.copy(new FileDataSource(fileSystem.getPath("/"), "test6"), new FileDataSource(fileSystem.getPath("/"), "test6_copy"));
         assertTrue(Files.exists(fileSystem.getPath("/test6_copy.xiidm")));
         assertTrue(Files.exists(fileSystem.getPath("/test6_copy_mapping.csv")));
+        assertEquals(Files.readAllLines(fileSystem.getPath("/test6.xiidm"), StandardCharsets.UTF_8),
+                     Files.readAllLines(fileSystem.getPath("/test6_copy.xiidm"), StandardCharsets.UTF_8));
+        assertEquals(Files.readAllLines(fileSystem.getPath("/test6_mapping.csv"), StandardCharsets.UTF_8),
+                     Files.readAllLines(fileSystem.getPath("/test6_copy_mapping.csv"), StandardCharsets.UTF_8));
     }
 
     @Test
