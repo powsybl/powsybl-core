@@ -10,20 +10,25 @@ import eu.itesla_project.computation.ComputationManager
 import org.codehaus.groovy.control.CompilerConfiguration
 
 import java.nio.charset.StandardCharsets
+import java.nio.file.Path
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 class GroovyScript {
 
-    static void run(File file, ComputationManager computationManager) {
+    static void run(Path file, ComputationManager computationManager) {
+        run(file, computationManager, null)
+    }
+
+    static void run(Path file, ComputationManager computationManager, Writer out) {
         file.withReader(StandardCharsets.UTF_8.name(), { reader ->
-            run(reader, computationManager)
+            run(reader, computationManager, out)
         })
     }
 
-    static void run(Reader reader, ComputationManager computationManager) {
-        run(reader, computationManager, new ServiceLoaderGroovyExtensionLoader(), null)
+    static void run(Reader reader, ComputationManager computationManager, Writer out) {
+        run(reader, computationManager, new ServiceLoaderGroovyExtensionLoader(), out)
     }
 
     static void run(Reader codeReader, ComputationManager computationManager, GroovyExtensionLoader extensionLoader, Writer out) {

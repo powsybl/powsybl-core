@@ -10,6 +10,7 @@ import com.google.auto.service.AutoService;
 import eu.itesla_project.commons.config.ComponentDefaultConfig;
 import eu.itesla_project.commons.tools.Command;
 import eu.itesla_project.commons.tools.Tool;
+import eu.itesla_project.commons.tools.ToolRunningContext;
 import eu.itesla_project.computation.ComputationManager;
 import eu.itesla_project.computation.mpi.*;
 import eu.itesla_project.computation.script.GroovyScript;
@@ -117,14 +118,14 @@ public class MpiMasterGroovyScriptTool implements Tool {
     }
 
     @Override
-    public void run(CommandLine line) throws Exception {
-        File file = new File(line.getOptionValue("script"));
-        Path tmpDir = Paths.get(line.hasOption("tmp-dir") ? line.getOptionValue("tmp-dir") : System.getProperty("java.io.tmpdir"));
-        Path statisticsDbDir = line.hasOption("statistics-db-dir") ? Paths.get(line.getOptionValue("statistics-db-dir")) : null;
+    public void run(CommandLine line, ToolRunningContext context) throws Exception {
+        Path file = context.getFileSystem().getPath(line.getOptionValue("script"));
+        Path tmpDir = context.getFileSystem().getPath(line.hasOption("tmp-dir") ? line.getOptionValue("tmp-dir") : System.getProperty("java.io.tmpdir"));
+        Path statisticsDbDir = line.hasOption("statistics-db-dir") ? context.getFileSystem().getPath(line.getOptionValue("statistics-db-dir")) : null;
         String statisticsDbName = line.hasOption("statistics-db-name") ? line.getOptionValue("statistics-db-name") : null;
         int coresPerRank = Integer.parseInt(line.getOptionValue("cores"));
         boolean verbose = line.hasOption("verbose");
-        Path stdOutArchive = line.hasOption("stdout-archive") ? Paths.get(line.getOptionValue("stdout-archive")) : null;
+        Path stdOutArchive = line.hasOption("stdout-archive") ? context.getFileSystem().getPath(line.getOptionValue("stdout-archive")) : null;
 
         ComponentDefaultConfig config = ComponentDefaultConfig.load();
 
