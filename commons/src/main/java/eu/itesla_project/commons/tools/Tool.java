@@ -27,11 +27,11 @@ public interface Tool {
      * @throws Exception if the command fails
      */
     default void run(CommandLine line, ToolRunningContext context) throws Exception {
+        run(line);
     }
 
     @Deprecated
     default void run(CommandLine line) throws Exception {
-        run(line, new ToolRunningContext());
     }
 
 }
