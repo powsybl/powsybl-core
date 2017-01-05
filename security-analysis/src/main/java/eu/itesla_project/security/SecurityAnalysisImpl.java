@@ -64,11 +64,12 @@ public class SecurityAnalysisImpl implements SecurityAnalysis {
                     network.getStateManager().setWorkingState(workingStateId);
 
                     preContingencyComputationOk[0] = loadFlowResult.isOk();
-                    preContingencyLimitViolations.addAll(checkLimits(network));
 
                     CompletableFuture<Void>[] futures;
 
                     if (loadFlowResult.isOk()) {
+                        preContingencyLimitViolations.addAll(checkLimits(network));
+
                         List<Contingency> contingencies = contingenciesProvider.getContingencies(network);
 
                         futures = new CompletableFuture[contingencies.size()];
