@@ -130,11 +130,12 @@ public class SecurityAnalysisTool implements Tool {
             Security.printPreContingencyViolations(result, Files.newBufferedWriter(csvFile, StandardCharsets.UTF_8), csvTableFormatterFactory, limitViolationFilter);
             Security.printPostContingencyViolations(result, Files.newBufferedWriter(csvFile, StandardCharsets.UTF_8, StandardOpenOption.APPEND), csvTableFormatterFactory, limitViolationFilter);
         } else {
-            Writer writer = new OutputStreamWriter(new ForwardingOutputStream<PrintStream>(context.getOutputStream()) {
+            Writer writer = new OutputStreamWriter(context.getOutputStream()) {
                 @Override
                 public void close() throws IOException {
+                    flush();
                 }
-            });
+            };
             AsciiTableFormatterFactory asciiTableFormatterFactory = new AsciiTableFormatterFactory();
             Security.printPreContingencyViolations(result, writer, asciiTableFormatterFactory, limitViolationFilter);
             Security.printPostContingencyViolations(result, writer, asciiTableFormatterFactory, limitViolationFilter);
