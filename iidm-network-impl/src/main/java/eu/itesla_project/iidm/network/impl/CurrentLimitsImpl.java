@@ -73,9 +73,9 @@ public class CurrentLimitsImpl implements CurrentLimits {
     }
 
     @Override
-    public CurrentLimitsImpl setPermanenLimit(float permanenLimit) {
+    public CurrentLimitsImpl setPermanentLimit(float permanentLimit) {
         ValidationUtil.checkPermanentLimit(owner, permanentLimit);
-        this.permanentLimit = permanenLimit;
+        this.permanentLimit = permanentLimit;
         return this;
     }
 
