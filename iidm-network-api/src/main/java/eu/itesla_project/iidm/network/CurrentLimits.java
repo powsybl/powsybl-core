@@ -70,6 +70,13 @@ public interface CurrentLimits {
     float getPermanentLimit();
 
     /**
+     * Set the permanent limit in A.
+     * @param permanentLimit the permanent limit in A
+     * @return itself for method chaining
+     */
+    CurrentLimits setPermanentLimit(float permanentLimit);
+
+    /**
      * Get a list of temporary limits ordered by descending duration.
      * @return a list of temporary limits ordered by descending duration
      */
