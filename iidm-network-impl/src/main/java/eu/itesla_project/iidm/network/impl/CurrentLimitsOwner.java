@@ -10,7 +10,7 @@ package eu.itesla_project.iidm.network.impl;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface CurrentLimitsOwner<SIDE> {
+public interface CurrentLimitsOwner<SIDE> extends Validable {
 
     void setCurrentLimits(SIDE side, CurrentLimitsImpl limits);
 
