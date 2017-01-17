@@ -373,7 +373,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             return new BusChecker() {
                 @Override
                 public boolean isValid(UndirectedGraph<? extends TerminalExt, SwitchImpl> graph, TIntArrayList nodes, List<NodeTerminal> terminals) {
-                    return nodes.size() > 1 || !terminals.isEmpty();
+                    return !terminals.isEmpty();
                 }
             };
         }
