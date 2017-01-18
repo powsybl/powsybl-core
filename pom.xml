@@ -148,6 +148,12 @@
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>${maven.jacoco.version}</version>
+                <configuration>
+                    <excludes>
+                        <!-- exclude generated classes -->
+                        <exclude>eu/itesla_project/computation/mpi/messages/*</exclude>
+                    </excludes>
+                </configuration>
                 <executions>
                     <execution>
                         <id>prepare-agent</id>
