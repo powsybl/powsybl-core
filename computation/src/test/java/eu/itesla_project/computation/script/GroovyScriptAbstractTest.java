@@ -36,7 +36,7 @@ public abstract class GroovyScriptAbstractTest {
         ComputationManager computationManager = Mockito.mock(ComputationManager.class);
         StringWriter out = new StringWriter();
         try (Reader codeReader = getCodeReader()) {
-            GroovyScript.run(codeReader, computationManager, new GroovyExtensionLoaderTest(getExtensions()), out);
+            GroovyScripts.run(codeReader, computationManager, new GroovyExtensionLoaderTest(getExtensions()), out);
         } finally {
             out.close();
         }
