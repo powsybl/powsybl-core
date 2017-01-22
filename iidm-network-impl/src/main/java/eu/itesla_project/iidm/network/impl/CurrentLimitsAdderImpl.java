@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class CurrentLimitsAdderImpl<SIDE, OWNER extends CurrentLimitsOwner<SIDE> & Validable> implements CurrentLimitsAdder {
+public class CurrentLimitsAdderImpl<SIDE, OWNER extends CurrentLimitsOwner<SIDE>> implements CurrentLimitsAdder {
 
     private static final Comparator<Integer> ACCEPTABLE_DURATION_COMPARATOR = (acceptableDuraction1, acceptableDuraction2) -> acceptableDuraction2 - acceptableDuraction1;
 
@@ -135,11 +135,9 @@ public class CurrentLimitsAdderImpl<SIDE, OWNER extends CurrentLimitsOwner<SIDE>
 
     @Override
     public CurrentLimits add() {
-        if (permanentLimit <= 0) {
-            throw new ValidationException(owner, "permanent limit must be > 0");
-        }
+        ValidationUtil.checkPermanentLimit(owner, permanentLimit);
         checkTemporaryLimits();
-        CurrentLimitsImpl limits = new CurrentLimitsImpl(permanentLimit, temporaryLimits);
+        CurrentLimitsImpl limits = new CurrentLimitsImpl(permanentLimit, temporaryLimits, owner);
         owner.setCurrentLimits(side, limits);
         return limits;
     }

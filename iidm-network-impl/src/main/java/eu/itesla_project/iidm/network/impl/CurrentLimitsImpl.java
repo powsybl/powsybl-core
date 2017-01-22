@@ -17,9 +17,11 @@ import java.util.TreeMap;
  */
 public class CurrentLimitsImpl implements CurrentLimits {
 
-    private final float permanentLimit;
+    private float permanentLimit;
 
     private final TreeMap<Integer, TemporaryLimit> temporaryLimits;
+
+    private final CurrentLimitsOwner<?> owner;
 
     static class TemporaryLimitImpl implements TemporaryLimit {
 
@@ -59,14 +61,22 @@ public class CurrentLimitsImpl implements CurrentLimits {
         }
     }
 
-    CurrentLimitsImpl(float permanentLimit, TreeMap<Integer, TemporaryLimit> temporaryLimits) {
+    CurrentLimitsImpl(float permanentLimit, TreeMap<Integer, TemporaryLimit> temporaryLimits, CurrentLimitsOwner<?> owner) {
         this.permanentLimit = permanentLimit;
-        this.temporaryLimits = temporaryLimits;
+        this.temporaryLimits = Objects.requireNonNull(temporaryLimits);
+        this.owner = Objects.requireNonNull(owner);
     }
 
     @Override
     public float getPermanentLimit() {
         return permanentLimit;
+    }
+
+    @Override
+    public CurrentLimitsImpl setPermanentLimit(float permanentLimit) {
+        ValidationUtil.checkPermanentLimit(owner, permanentLimit);
+        this.permanentLimit = permanentLimit;
+        return this;
     }
 
     @Override

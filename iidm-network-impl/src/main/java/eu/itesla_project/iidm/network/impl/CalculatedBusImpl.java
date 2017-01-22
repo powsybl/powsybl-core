@@ -27,9 +27,9 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
 
     CalculatedBusImpl(String id, VoltageLevelExt voltageLevel, List<NodeTerminal> terminals) {
         super(id, voltageLevel);
-//        if (terminals.isEmpty()) {
-//            throw new IllegalArgumentException("Calculated bus without any terminals");
-//        }
+        if (terminals.isEmpty()) {
+            throw new IllegalArgumentException("Calculated bus without any terminals");
+        }
         this.terminals = terminals;
     }
 

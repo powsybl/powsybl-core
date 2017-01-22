@@ -335,4 +335,10 @@ public class ValidationUtil {
             throw new ValidationException(validable, "connection status is invalid");
         }
     }
+
+    static void checkPermanentLimit(Validable validable, float permanentLimit) {
+        if (permanentLimit <= 0) {
+            throw new ValidationException(validable, "permanent limit must be > 0");
+        }
+    }
 }
