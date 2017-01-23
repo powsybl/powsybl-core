@@ -13,14 +13,12 @@ import eu.itesla_project.commons.tools.Tool;
 import eu.itesla_project.commons.tools.ToolRunningContext;
 import eu.itesla_project.computation.ComputationManager;
 import eu.itesla_project.computation.mpi.*;
-import eu.itesla_project.computation.script.GroovyScript;
+import eu.itesla_project.computation.script.GroovyScripts;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
-import java.io.File;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -134,7 +132,7 @@ public class MpiMasterGroovyScriptTool implements Tool {
         try {
             try (MpiStatistics statistics = statisticsFactory.create(statisticsDbDir, statisticsDbName)) {
                 try (ComputationManager computationManager = new MpiComputationManager(tmpDir, statistics, mpiExecutorContext, coresPerRank, verbose, stdOutArchive)) {
-                    GroovyScript.run(file, computationManager);
+                    GroovyScripts.run(file, computationManager);
                 }
             }
         } finally {
