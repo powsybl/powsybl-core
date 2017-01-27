@@ -9,7 +9,6 @@ package eu.itesla_project.contingency.tasks;
 import eu.itesla_project.iidm.network.Network;
 
 /**
- *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public interface ModificationTask {
