@@ -15,7 +15,7 @@ import java.nio.file.Path
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class GroovyScript {
+class GroovyScripts {
 
     static void run(Path file, ComputationManager computationManager) {
         run(file, computationManager, null)
@@ -27,17 +27,24 @@ class GroovyScript {
         })
     }
 
-    static void run(Reader reader, ComputationManager computationManager, Writer out) {
-        run(reader, computationManager, new ServiceLoaderGroovyExtensionLoader(), out)
+    static void run(Reader codeReader, ComputationManager computationManager, Writer out) {
+        run(codeReader, computationManager, new Binding(), out)
+    }
+
+    static void run(Reader codeReader, ComputationManager computationManager, Binding binding, Writer out) {
+        run(codeReader, computationManager, binding, new ServiceLoaderGroovyExtensionLoader(), out)
     }
 
     static void run(Reader codeReader, ComputationManager computationManager, GroovyExtensionLoader extensionLoader, Writer out) {
+        run(codeReader, computationManager, new Binding(), extensionLoader, out)
+    }
+
+    static void run(Reader codeReader, ComputationManager computationManager, Binding binding, GroovyExtensionLoader extensionLoader, Writer out) {
         assert codeReader
         assert computationManager
         assert extensionLoader
 
         CompilerConfiguration conf = new CompilerConfiguration()
-        Binding binding = new Binding()
 
         if (out != null) {
             binding.setProperty("out", out)
