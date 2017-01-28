@@ -9,9 +9,9 @@ package eu.itesla_project.contingency.tasks;
 import eu.itesla_project.iidm.network.Network;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 /**
- *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class CompoundModificationTask implements ModificationTask {
@@ -19,7 +19,7 @@ public class CompoundModificationTask implements ModificationTask {
     private final List<ModificationTask> subTasks;
 
     public CompoundModificationTask(List<ModificationTask> subTasks) {
-        this.subTasks = subTasks;
+        this.subTasks = Objects.requireNonNull(subTasks);
     }
 
     public CompoundModificationTask(ModificationTask... subTasks) {

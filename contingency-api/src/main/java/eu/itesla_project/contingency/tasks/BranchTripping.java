@@ -10,21 +10,22 @@ import eu.itesla_project.commons.ITeslaException;
 import eu.itesla_project.iidm.network.Network;
 import eu.itesla_project.iidm.network.TwoTerminalsConnectable;
 
+import java.util.Objects;
+
 /**
- *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class BranchTripping implements ModificationTask {
 
     private final String branchId;
-    private String substationId = null;
+    private final String substationId;
 
     public BranchTripping(String branchId) {
-        this.branchId = branchId;
+        this(branchId, null);
     }
-    
+
     public BranchTripping(String branchId, String substationId) {
-        this.branchId = branchId;
+        this.branchId = Objects.requireNonNull(branchId);
         this.substationId = substationId;
     }
 
@@ -37,16 +38,17 @@ public class BranchTripping implements ModificationTask {
                 throw new ITeslaException("Branch '" + branchId + "' not found");
             }
         }
-        if ( substationId != null ) {
-        	if ( substationId.equalsIgnoreCase(branch.getTerminal1().getVoltageLevel().getSubstation().getId()) )
-        		branch.getTerminal1().disconnect();
-        	else if ( substationId.equalsIgnoreCase(branch.getTerminal2().getVoltageLevel().getSubstation().getId()) )
-        		branch.getTerminal2().disconnect();
-        	else
-        		throw new ITeslaException("Substation '" + substationId + "' not connected to branch '" + branchId + "'");
+        if (substationId != null) {
+            if (substationId.equalsIgnoreCase(branch.getTerminal1().getVoltageLevel().getSubstation().getId())) {
+                branch.getTerminal1().disconnect();
+            } else if (substationId.equalsIgnoreCase(branch.getTerminal2().getVoltageLevel().getSubstation().getId())) {
+                branch.getTerminal2().disconnect();
+            } else {
+                throw new ITeslaException("Substation '" + substationId + "' not connected to branch '" + branchId + "'");
+            }
         } else {
-	        branch.getTerminal1().disconnect();
-	        branch.getTerminal2().disconnect();
+            branch.getTerminal1().disconnect();
+            branch.getTerminal2().disconnect();
         }
     }
 

@@ -11,7 +11,6 @@ import eu.itesla_project.iidm.network.Generator;
 import eu.itesla_project.iidm.network.Network;
 
 /**
- *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class GeneratorTripping implements ModificationTask {
