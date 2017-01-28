@@ -74,9 +74,7 @@ public class BranchTrippingTest {
         Network network = EurostagTutorialExample1Factory.create();
 
         BranchTripping tripping = new BranchTripping("transformer");
-        CompoundModificationTask task = new CompoundModificationTask(tripping);
-
-        task.modify(network);
+        tripping.modify(network);
     }
 
     @Test(expected = ITeslaException.class)
@@ -84,8 +82,6 @@ public class BranchTrippingTest {
         Network network = EurostagTutorialExample1Factory.create();
 
         BranchTripping tripping = new BranchTripping("NHV2_NLOAD", "UNKNOWN");
-        CompoundModificationTask task = new CompoundModificationTask(tripping);
-
-        task.modify(network);
+        tripping.modify(network);
     }
 }

@@ -36,12 +36,10 @@ public class GeneratorTrippingTest {
     }
 
     @Test(expected = ITeslaException.class)
-    public void nunknownGeneratorTrippingTest() {
+    public void unknownGeneratorTrippingTest() {
         Network network = EurostagTutorialExample1Factory.create();
 
         GeneratorTripping tripping = new GeneratorTripping("generator");
-        CompoundModificationTask task = new CompoundModificationTask(tripping);
-
-        task.modify(network);
+        tripping.modify(network);
     }
 }
