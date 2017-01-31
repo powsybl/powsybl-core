@@ -10,6 +10,7 @@ package eu.itesla_project.contingency;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public enum ContingencyElementType {
-    LINE,
-    GENERATOR
+    @Deprecated LINE,
+    GENERATOR,
+    BRANCH
 }

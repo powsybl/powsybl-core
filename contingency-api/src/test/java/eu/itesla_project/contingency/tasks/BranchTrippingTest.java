@@ -7,8 +7,8 @@
 package eu.itesla_project.contingency.tasks;
 
 import eu.itesla_project.commons.ITeslaException;
+import eu.itesla_project.contingency.BranchContingency;
 import eu.itesla_project.contingency.ContingencyImpl;
-import eu.itesla_project.contingency.LineContingency;
 import eu.itesla_project.iidm.network.Line;
 import eu.itesla_project.iidm.network.Network;
 import eu.itesla_project.iidm.network.TwoWindingsTransformer;
@@ -31,7 +31,7 @@ public class BranchTrippingTest {
         assertTrue(line.getTerminal1().isConnected());
         assertTrue(line.getTerminal2().isConnected());
 
-        LineContingency tripping = new LineContingency("NHV1_NHV2_1");
+        BranchContingency tripping = new BranchContingency("NHV1_NHV2_1");
         ContingencyImpl contingency = new ContingencyImpl("contingency", tripping);
 
         ModificationTask task = contingency.toTask();
@@ -45,7 +45,7 @@ public class BranchTrippingTest {
         assertTrue(line.getTerminal1().isConnected());
         assertTrue(line.getTerminal2().isConnected());
 
-        tripping = new LineContingency("NHV1_NHV2_1", "P2");
+        tripping = new BranchContingency("NHV1_NHV2_1", "P2");
         contingency = new ContingencyImpl("contingency", tripping);
         contingency.toTask().modify(network);
 
@@ -61,7 +61,7 @@ public class BranchTrippingTest {
         assertTrue(transformer.getTerminal1().isConnected());
         assertTrue(transformer.getTerminal2().isConnected());
 
-        LineContingency tripping = new LineContingency("NHV2_NLOAD", "P2");
+        BranchContingency tripping = new BranchContingency("NHV2_NLOAD", "P2");
         ContingencyImpl contingency = new ContingencyImpl("contingency", tripping);
         contingency.toTask().modify(network);
 
