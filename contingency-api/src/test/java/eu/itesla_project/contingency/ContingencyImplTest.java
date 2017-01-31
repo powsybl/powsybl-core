@@ -23,7 +23,7 @@ public class ContingencyImplTest {
 
     @Test
     public void test() {
-        ContingencyElement element1 = new LineContingency("line");
+        ContingencyElement element1 = new BranchContingency("line");
         ContingencyElement element2 = new GeneratorContingency("generator");
         ContingencyImpl contingency = new ContingencyImpl("contingency", Arrays.asList(element1, element2));
 

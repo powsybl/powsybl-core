@@ -6,45 +6,22 @@
  */
 package eu.itesla_project.contingency;
 
-import eu.itesla_project.contingency.tasks.BranchTripping;
-import eu.itesla_project.contingency.tasks.ModificationTask;
-
-import java.util.Objects;
-
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class LineContingency implements ContingencyElement {
-
-    private final String id;
-    private final String substationId;
+@Deprecated
+public class LineContingency extends BranchContingency {
 
     public LineContingency(String id) {
-        this(id, null);
+        super(id);
     }
 
     public LineContingency(String id, String substationId) {
-        this.id = Objects.requireNonNull(id);
-        this.substationId = substationId;
-    }
-
-    @Override
-    public String getId() {
-        return id;
-    }
-
-    public String getSubstationId() {
-        return substationId;
+        super(id, substationId);
     }
 
     @Override
     public ContingencyElementType getType() {
         return ContingencyElementType.LINE;
     }
-
-     @Override
-    public ModificationTask toTask() {
-        return new BranchTripping(id, substationId);
-    }
-
 }
