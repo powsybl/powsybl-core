@@ -34,7 +34,7 @@ public class MathUtil {
                 for (int i = 1; i < row.size(); i++) {
                     String columnHeader = columnHeaders.get(i);
                     String value = row.get(i);
-                    table.put(rowHeader, columnHeader, value == null ? Float.NaN : Float.valueOf(value));
+                    table.put(rowHeader, columnHeader, value == null ? Float.NaN : Float.parseFloat(value));
                 }
             }
         }

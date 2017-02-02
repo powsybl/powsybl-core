@@ -24,7 +24,7 @@ import org.junit.Test;
  */
 public class StateManagerImplTest {
 
-    private class IdentifiableMock implements Identifiable, Stateful {
+    private static class IdentifiableMock implements Identifiable, Stateful {
 
         private final String id;
 

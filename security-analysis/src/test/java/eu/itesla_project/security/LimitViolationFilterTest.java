@@ -28,14 +28,12 @@ import static org.junit.Assert.*;
 public class LimitViolationFilterTest {
 
     private FileSystem fileSystem;
-    private Path configDir;
     private MapModuleConfig moduleConfig;
     private InMemoryPlatformConfig platformConfig;
 
     @Before
     public void setUp() throws Exception {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
-        configDir = Files.createDirectory(fileSystem.getPath("/config"));
         platformConfig = new InMemoryPlatformConfig(fileSystem);
         moduleConfig = platformConfig.createModuleConfig("limit-violation-default-filter");
         moduleConfig.setStringListProperty("violationTypes", Arrays.asList("CURRENT", "LOW_VOLTAGE"));

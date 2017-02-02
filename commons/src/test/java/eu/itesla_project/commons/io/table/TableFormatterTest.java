@@ -44,7 +44,7 @@ public class TableFormatterTest {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         TableFormatterConfig config = new TableFormatterConfig(Locale.US, ';', "inv", true, true);
         CsvTableFormatterFactory factory = new CsvTableFormatterFactory();
-        try (TableFormatter formatter = factory.create(new OutputStreamWriter(bos), "csv test", config, COLUMNS)) {
+        try (TableFormatter formatter = factory.create(new OutputStreamWriter(bos, StandardCharsets.UTF_8), "csv test", config, COLUMNS)) {
             write(formatter);
         }
         assertEquals(new String(bos.toByteArray(), StandardCharsets.UTF_8),
@@ -59,7 +59,7 @@ public class TableFormatterTest {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         TableFormatterConfig config = new TableFormatterConfig(Locale.US, "inv");
         AsciiTableFormatterFactory factory = new AsciiTableFormatterFactory();
-        try (TableFormatter formatter = factory.create(new OutputStreamWriter(bos), "ascii test", config, COLUMNS)) {
+        try (TableFormatter formatter = factory.create(new OutputStreamWriter(bos, StandardCharsets.UTF_8), "ascii test", config, COLUMNS)) {
             write(formatter);
         }
         assertEquals(new String(bos.toByteArray(), StandardCharsets.UTF_8),

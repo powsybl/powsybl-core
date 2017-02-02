@@ -6,6 +6,8 @@
  */
 package eu.itesla_project.iidm.xml;
 
+import com.google.common.collect.ImmutableList;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,7 +20,7 @@ public interface XmlConstants {
 
     String INDENT = "    ";
 
-    List<Integer> VERSION_ARRAY = Arrays.asList(1, 0);
+    List<Integer> VERSION_ARRAY = ImmutableList.of(1, 0);
 
     String VERSION = VERSION_ARRAY.stream().map(Object::toString).collect(Collectors.joining("."));
 

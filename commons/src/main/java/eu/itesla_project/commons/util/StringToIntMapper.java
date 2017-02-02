@@ -121,7 +121,7 @@ public class StringToIntMapper<SUBSET extends Enum<SUBSET> & IntCounter> {
             }
             SUBSET subset = Enum.valueOf(clazz, tokens[0]);
             String id = tokens[1];
-            int num = Integer.valueOf(tokens[2]);
+            int num = Integer.parseInt(tokens[2]);
             id2num.get(subset).put(id, num);
             counter.put(subset, Math.max(counter.get(subset), num) + 1);
         }

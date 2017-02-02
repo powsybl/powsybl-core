@@ -19,7 +19,7 @@ import java.util.Objects;
  */
 public class ImportConfig {
 
-    public static final List<String> DEFAULT_POST_PROCESSORS = Arrays.asList(JavaScriptPostProcessor.NAME);
+    public static final List<String> DEFAULT_POST_PROCESSORS = Collections.singletonList(JavaScriptPostProcessor.NAME);
 
     private final List<String> postProcessors;
 

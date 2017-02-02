@@ -342,7 +342,7 @@ public class Importers {
             MapModuleConfig moduleConfig = new MapModuleConfig(parameters);
             switch (configuredParameter.getType()) {
                 case BOOLEAN:
-                    value = moduleConfig.getOptinalBooleanProperty(configuredParameter.getName());
+                    value = moduleConfig.getOptionalBooleanProperty(configuredParameter.getName()).get();
                     break;
                 case STRING:
                     value = moduleConfig.getStringProperty(configuredParameter.getName(), null);

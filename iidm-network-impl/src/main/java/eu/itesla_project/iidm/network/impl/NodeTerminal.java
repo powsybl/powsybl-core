@@ -48,8 +48,6 @@ class NodeTerminal extends AbstractTerminal {
 
         @Override
         public BusExt getConnectableBus() {
-            ArrayList<Integer> nodes = new ArrayList<>();
-            nodes.add(node);
             return ((NodeBreakerVoltageLevel) voltageLevel).getCalculatedBusBreakerTopology().getConnectableBus(node);
         }
 

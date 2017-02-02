@@ -57,7 +57,7 @@ public class XmlUtil {
     }
 
     public static int readIntAttribute(XMLStreamReader reader, String attributeName) {
-        return Integer.valueOf(reader.getAttributeValue(null, attributeName));
+        return Integer.parseInt(reader.getAttributeValue(null, attributeName));
     }
 
     public static boolean readBoolAttribute(XMLStreamReader reader, String attributeName) {
@@ -76,7 +76,7 @@ public class XmlUtil {
 
     public static int readOptionalIntegerAttribute(XMLStreamReader reader, String attributeName, int defaultValue) {
         String attributeValue = reader.getAttributeValue(null, attributeName);
-        return attributeValue != null ? Integer.valueOf(attributeValue) : defaultValue;
+        return attributeValue != null ? Integer.parseInt(attributeValue) : defaultValue;
     }
 
     public static float readFloatAttribute(XMLStreamReader reader, String attributeName) {

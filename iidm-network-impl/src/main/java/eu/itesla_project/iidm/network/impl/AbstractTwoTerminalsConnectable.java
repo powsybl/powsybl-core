@@ -50,12 +50,12 @@ abstract class AbstractTwoTerminalsConnectable<I extends Connectable<I>> extends
         Objects.requireNonNull(voltageLevelId);
         boolean side1 = getTerminal1().getVoltageLevel().getId().equals(voltageLevelId);
         boolean side2 = getTerminal2().getVoltageLevel().getId().equals(voltageLevelId);
-        if (side1) {
+        if (side1 && side2) {
+            throw new RuntimeException("Both terminals are connected to voltage level " + voltageLevelId);
+        } else if (side1) {
             return getTerminal1();
         } else if (side2) {
             return getTerminal2();
-        } else if (side1 && side2) {
-            throw new RuntimeException("Both terminals are connected to voltage level " + voltageLevelId);
         } else {
             throw new RuntimeException("No terminal connected to voltage level " + voltageLevelId);
         }

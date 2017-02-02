@@ -8,6 +8,7 @@ package eu.itesla_project.commons.config;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import org.joda.time.DateTime;
@@ -37,7 +38,10 @@ public interface ModuleConfig {
 
     int getIntProperty(String name);
 
+    @Deprecated
     Integer getOptionalIntProperty(String name);
+
+    Optional<Integer> getOptionalIntegerProperty(String name);
 
     int getIntProperty(String name, int defaultValue);
 
@@ -53,7 +57,10 @@ public interface ModuleConfig {
 
     boolean getBooleanProperty(String name, boolean defaultValue);
 
+    @Deprecated
     Boolean getOptinalBooleanProperty(String name);
+
+    Optional<Boolean> getOptionalBooleanProperty(String name);
 
     Path getPathProperty(String name);
 

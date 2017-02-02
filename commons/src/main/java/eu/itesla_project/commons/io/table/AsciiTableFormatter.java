@@ -12,7 +12,7 @@ import org.nocrala.tools.texttablefmt.Table;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.util.Locale;
+import java.nio.charset.StandardCharsets;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -36,7 +36,7 @@ public class AsciiTableFormatter extends AbstractTableFormatter {
     }
 
     public AsciiTableFormatter(String title, Column... columns) {
-        this(new OutputStreamWriter(System.out), title, TableFormatterConfig.load(), columns);
+        this(new OutputStreamWriter(System.out, StandardCharsets.UTF_8), title, TableFormatterConfig.load(), columns);
     }
 
     @Override

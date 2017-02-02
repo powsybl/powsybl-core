@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 
 /**
@@ -97,7 +98,7 @@ public class XMLExporter implements Exporter, XmlConstants {
                  BufferedOutputStream bos = new BufferedOutputStream(os)) {
                 Anonymizer anonymizer = NetworkXml.write(network, options, bos);
                 if (anonymizer != null) {
-                    try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(dataSource.newOutputStream("_mapping", "csv", false)))) {
+                    try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(dataSource.newOutputStream("_mapping", "csv", false), StandardCharsets.UTF_8))) {
                         anonymizer.write(writer);
                     }
                 }
