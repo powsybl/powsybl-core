@@ -16,7 +16,7 @@ installDir=${installBinDir%/*}
 
 . $installDir/etc/itesla.conf
     
-args=($@)
+args=("$@")
 for ((i=0; i<${#args[@]}; i++)); do
     current=${args[i]}
     next=${args[$((i+1))]}
@@ -40,4 +40,4 @@ $JAVA_HOME/bin/java \
 -Xmx8G \
 -cp "$installDir/share/java/*" \
 $options \
-eu.itesla_project.commons.tools.Main ${args[@]}
+eu.itesla_project.commons.tools.Main "${args[@]}"
