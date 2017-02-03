@@ -9,6 +9,7 @@ package eu.itesla_project.iidm.import_
 import com.google.auto.service.AutoService
 import eu.itesla_project.computation.ComputationManager
 import eu.itesla_project.computation.script.GroovyExtension
+import eu.itesla_project.iidm.network.Identifiable
 
 import java.nio.file.FileSystem
 import java.nio.file.FileSystems
@@ -18,6 +19,16 @@ import java.nio.file.FileSystems
  */
 @AutoService(GroovyExtension.class)
 class ImportGroovyExtension implements GroovyExtension {
+
+    static {
+        Identifiable.metaClass.propertyMissing = { String name ->
+            delegate.properties[name] ?: null
+        }
+
+        Identifiable.metaClass.propertyMissing = { String name, Object value ->
+            delegate.properties[name] = value
+        }
+    }
 
     private final FileSystem fileSystem;
 

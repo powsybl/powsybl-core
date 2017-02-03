@@ -240,6 +240,7 @@
                         <sourceDirectories>
                             <sourceDirectory>${project.basedir}/computation/src/main/groovy</sourceDirectory>
                             <sourceDirectory>${project.basedir}/iidm-converter-api/src/main/groovy</sourceDirectory>
+                            <sourceDirectory>${project.basedir}/iidm-converter-api/src/test/groovy</sourceDirectory>
                             <sourceDirectory>${project.basedir}/loadflow-api/src/main/groovy</sourceDirectory>
                         </sourceDirectories>
                     </configuration>
