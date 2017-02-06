@@ -9,7 +9,7 @@ package eu.itesla_project.iidm.network.impl;
 import eu.itesla_project.iidm.network.*;
 import org.junit.Test;
 
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertEquals;
 
 /**
  * ArrayIndexOutOfBoundsException fix test
@@ -37,6 +37,6 @@ public class EmptyCalculatedBusBugTest {
                 .setOpen(false)
                 .setRetained(false)
                 .add();
-        assertFalse(vl.getBusBreakerView().getBuses().iterator().hasNext());
+        assertEquals(2, vl.getBusBreakerView().getBusStream().count());
     }
 }
