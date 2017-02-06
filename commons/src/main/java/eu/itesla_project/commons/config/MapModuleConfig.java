@@ -43,6 +43,19 @@ public class MapModuleConfig implements ModuleConfig {
         this.fs = fs;
     }
 
+    @Override
+    public boolean hasProperty(String name) {
+        return properties.containsKey(name);
+    }
+
+    @Override
+    public Set<String> getPropertyNames() {
+        return properties.entrySet().stream()
+                .map(Map.Entry::getKey)
+                .map(Object::toString)
+                .collect(Collectors.toSet());
+    }
+
     /*
      * Environment variables substitution
      */

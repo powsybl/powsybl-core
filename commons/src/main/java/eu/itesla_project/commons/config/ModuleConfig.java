@@ -20,6 +20,10 @@ import org.joda.time.Interval;
  */
 public interface ModuleConfig {
 
+    boolean hasProperty(String name);
+
+    Set<String> getPropertyNames();
+
     String getStringProperty(String name);
 
     String getStringProperty(String name, String defaultValue);

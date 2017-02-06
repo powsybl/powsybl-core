@@ -6,6 +6,14 @@
  */
 package eu.itesla_project.commons.config;
 
+import com.google.common.collect.Sets;
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
+import org.junit.Test;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.stream.XMLStreamException;
 import java.io.IOException;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
@@ -14,14 +22,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.*;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.stream.XMLStreamException;
 
-import com.google.common.jimfs.Configuration;
-import com.google.common.jimfs.Jimfs;
-import org.junit.Assert;
-import org.junit.Test;
-import org.xml.sax.SAXException;
+import static org.junit.Assert.*;
 
 /**
  *
@@ -56,71 +58,73 @@ public class XmlPlatformConfigTest {
             }
             PropertiesPlatformConfig propsConfig = new PropertiesPlatformConfig(cfgDir, fileSystem);
             ModuleConfig modConfig = propsConfig.getModuleConfig("mod");
-            Assert.assertTrue(modConfig.getStringProperty("s").equals("hello"));
-            Assert.assertTrue(modConfig.getStringProperty("s2", "oups").equals("oups"));
+            assertEquals("hello", modConfig.getStringProperty("s"));
+            assertEquals("oups", modConfig.getStringProperty("s2", "oups"));
             try {
                 modConfig.getStringProperty("s2");
-                Assert.fail();
+                fail();
             } catch (Exception e) {
             }
-            Assert.assertTrue(modConfig.getIntProperty("i") == 3);
+            assertEquals(3, modConfig.getIntProperty("i"));
             try {
                 modConfig.getIntProperty("i2");
-                Assert.fail();
+                fail();
             } catch (Exception e) {
             }
-            Assert.assertNull(modConfig.getOptionalIntProperty("i2"));
-            Assert.assertFalse(modConfig.getOptionalIntegerProperty("i2").isPresent());
-            Assert.assertTrue(modConfig.getIntProperty("i2", 4) == 4);
-            Assert.assertFalse(modConfig.getBooleanProperty("b"));
+            assertNull(modConfig.getOptionalIntProperty("i2"));
+            assertFalse(modConfig.getOptionalIntegerProperty("i2").isPresent());
+            assertEquals(4, modConfig.getIntProperty("i2", 4));
+            assertFalse(modConfig.getBooleanProperty("b"));
             try {
                 modConfig.getBooleanProperty("b2");
-                Assert.fail();
+                fail();
             } catch (Exception e) {
             }
-            Assert.assertNull(modConfig.getOptinalBooleanProperty("b2"));
-            Assert.assertFalse(modConfig.getOptionalBooleanProperty("b2").isPresent());
-            Assert.assertTrue(modConfig.getBooleanProperty("b2", true));
-            Assert.assertTrue(modConfig.getDoubleProperty("d") == 2.3);
+            assertNull(modConfig.getOptinalBooleanProperty("b2"));
+            assertFalse(modConfig.getOptionalBooleanProperty("b2").isPresent());
+            assertTrue(modConfig.getBooleanProperty("b2", true));
+            assertEquals(2.3d, modConfig.getDoubleProperty("d"), 0d);
             try {
                 modConfig.getDoubleProperty("d2");
-                Assert.fail();
+                fail();
             } catch (Exception e) {
             }            
-            Assert.assertTrue(modConfig.getDoubleProperty("d2", 4.5) == 4.5);
-            Assert.assertTrue(modConfig.getClassProperty("c", List.class) == ArrayList.class);
-            Assert.assertTrue(modConfig.getStringListProperty("sl1").equals(Arrays.asList("a", "b", "c")));
-            Assert.assertTrue(modConfig.getStringListProperty("sl2").equals(Arrays.asList("a", "b", "c")));
+            assertEquals(4.5d, modConfig.getDoubleProperty("d2", 4.5d), 0d);
+            assertEquals(ArrayList.class, modConfig.getClassProperty("c", List.class));
+            assertEquals(Arrays.asList("a", "b", "c"), modConfig.getStringListProperty("sl1"));
+            assertEquals(Arrays.asList("a", "b", "c"), modConfig.getStringListProperty("sl2"));
             try {
                 modConfig.getStringListProperty("sl3");
-                Assert.fail();
+                fail();
             } catch (Exception e) {
             }
-            Assert.assertTrue(modConfig.getEnumProperty("e", StandardOpenOption.class) == StandardOpenOption.APPEND);
+            assertEquals(StandardOpenOption.APPEND, modConfig.getEnumProperty("e", StandardOpenOption.class));
             try {
                 modConfig.getEnumProperty("e2", StandardOpenOption.class);
-                Assert.fail();
+                fail();
             } catch (Exception e) {
             }
-            Assert.assertTrue(modConfig.getEnumSetProperty("el", StandardOpenOption.class).equals(EnumSet.of(StandardOpenOption.APPEND, StandardOpenOption.CREATE)));
+            assertEquals(EnumSet.of(StandardOpenOption.APPEND, StandardOpenOption.CREATE), modConfig.getEnumSetProperty("el", StandardOpenOption.class));
             try {
                 modConfig.getEnumSetProperty("el2", StandardOpenOption.class);
-                Assert.fail();
+                fail();
             } catch (Exception e) {
             }
-            Assert.assertTrue(modConfig.getPathProperty("p").equals(p));
+            assertEquals(p, modConfig.getPathProperty("p"));
             try {
                 modConfig.getPathProperty("p2");
-                Assert.fail();
+                fail();
             } catch (Exception e) {
             }
-            Assert.assertTrue(modConfig.getPathListProperty("pl").equals(Arrays.asList(p, p2)));             
-            Assert.assertTrue(modConfig.getPathListProperty("pl2").equals(Arrays.asList(p, p2)));             
+            assertEquals(Arrays.asList(p, p2), modConfig.getPathListProperty("pl"));
+            assertEquals(Arrays.asList(p, p2), modConfig.getPathListProperty("pl2"));
             try {
                 modConfig.getPathListProperty("pl3");
-                Assert.fail();
+                fail();
             } catch (Exception e) {
             }
+            assertEquals(Sets.newHashSet("p", "b", "c", "s", "d", "e", "el", "pl2", "sl2", "sl1", "i", "pl"), modConfig.getPropertyNames());
+            assertTrue(modConfig.hasProperty("p"));
         }
     }
 
@@ -140,16 +144,16 @@ public class XmlPlatformConfigTest {
                 prop2.store(w, null);
             }
             PropertiesPlatformConfig propsConfig = new PropertiesPlatformConfig(cfgDir, fileSystem);
-            Assert.assertTrue(propsConfig.getModuleConfig("mod1").getStringProperty("a").equals("hello"));
-            Assert.assertTrue(propsConfig.getModuleConfig("mod1").getStringProperty("b").equals("bye"));
-            Assert.assertTrue(propsConfig.getModuleConfig("mod2").getStringProperty("c").equals("thanks"));
+            assertEquals("hello", propsConfig.getModuleConfig("mod1").getStringProperty("a"));
+            assertEquals("bye", propsConfig.getModuleConfig("mod1").getStringProperty("b"));
+            assertEquals("thanks", propsConfig.getModuleConfig("mod2").getStringProperty("c"));
             String xmlConfigName = "config";
             PropertiesPlatformConfig.writeXml(cfgDir, cfgDir.resolve(xmlConfigName + ".xml"));
             
             XmlPlatformConfig xmlConfig = new XmlPlatformConfig(cfgDir, xmlConfigName, fileSystem);
-            Assert.assertTrue(xmlConfig.getModuleConfig("mod1").getStringProperty("a").equals("hello"));
-            Assert.assertTrue(xmlConfig.getModuleConfig("mod1").getStringProperty("b").equals("bye"));
-            Assert.assertTrue(xmlConfig.getModuleConfig("mod2").getStringProperty("c").equals("thanks"));            
+            assertEquals("hello", xmlConfig.getModuleConfig("mod1").getStringProperty("a"));
+            assertEquals("bye", xmlConfig.getModuleConfig("mod1").getStringProperty("b"));
+            assertEquals("thanks", xmlConfig.getModuleConfig("mod2").getStringProperty("c"));
         }
     }
     
