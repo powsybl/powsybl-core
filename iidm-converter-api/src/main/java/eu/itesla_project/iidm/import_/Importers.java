@@ -317,7 +317,7 @@ public class Importers {
                         try {
                             importAll(child, importer, dataSources);
                         } catch (IOException e) {
-                            e.printStackTrace();
+                            throw new RuntimeException(e);
                         }
                     } else {
                         addDataSource(parent, child, importer, dataSources);
@@ -336,13 +336,16 @@ public class Importers {
     }
 
     public static Object readParameter(String format, Properties parameters, Parameter configuredParameter, ParameterDefaultValueConfig defaultValueConfig) {
+        Objects.requireNonNull(format);
+        Objects.requireNonNull(configuredParameter);
+        Objects.requireNonNull(defaultValueConfig);
         Object value = null;
         // priority on import parameter
         if (parameters != null) {
             MapModuleConfig moduleConfig = new MapModuleConfig(parameters);
             switch (configuredParameter.getType()) {
                 case BOOLEAN:
-                    value = moduleConfig.getOptionalBooleanProperty(configuredParameter.getName()).get();
+                    value = moduleConfig.getOptionalBooleanProperty(configuredParameter.getName()).orElse(null);
                     break;
                 case STRING:
                     value = moduleConfig.getStringProperty(configuredParameter.getName(), null);
@@ -354,7 +357,7 @@ public class Importers {
                     throw new AssertionError();
             }
         }
-        // if none, use configured paramaters
+        // if none, use configured parameters
         if (value == null) {
             value = defaultValueConfig.getValue(format, configuredParameter);
         }
