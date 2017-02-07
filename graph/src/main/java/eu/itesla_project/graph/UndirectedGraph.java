@@ -33,6 +33,8 @@ public interface UndirectedGraph<V, E> {
 
     int getEdgeCount();
 
+    int[] getEdges();
+
     int[] getVertices();
 
     int getMaxVertex();

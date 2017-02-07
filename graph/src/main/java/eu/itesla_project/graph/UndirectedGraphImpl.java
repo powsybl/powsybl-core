@@ -222,6 +222,17 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     }
 
     @Override
+    public int[] getEdges() {
+        TIntArrayList t = new TIntArrayList(getEdgeCount());
+        for (int e = 0; e < edges.size(); e++) {
+            if (edges.get(e) != null) {
+                t.add(e);
+            }
+        }
+        return t.toArray();
+    }
+
+    @Override
     public int getMaxVertex() {
         return vertices.size();
     }

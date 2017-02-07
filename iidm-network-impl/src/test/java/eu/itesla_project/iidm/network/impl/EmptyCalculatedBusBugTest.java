@@ -9,7 +9,7 @@ package eu.itesla_project.iidm.network.impl;
 import eu.itesla_project.iidm.network.*;
 import org.junit.Test;
 
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertEquals;
 
 /**
  * ArrayIndexOutOfBoundsException fix test
@@ -17,8 +17,7 @@ import static org.junit.Assert.assertFalse;
  */
 public class EmptyCalculatedBusBugTest {
 
-    @Test
-    public void test() {
+    private Network createNetwork(boolean retained) {
         Network network = NetworkFactory.create("test", "test");
         Substation s = network.newSubstation()
                 .setId("S")
@@ -35,8 +34,18 @@ public class EmptyCalculatedBusBugTest {
                 .setNode1(0)
                 .setNode2(1)
                 .setOpen(false)
-                .setRetained(false)
+                .setRetained(retained)
                 .add();
-        assertFalse(vl.getBusBreakerView().getBuses().iterator().hasNext());
+
+        return network;
+    }
+
+    @Test
+    public void test() {
+        Network network = createNetwork(false);
+        assertEquals(1, network.getVoltageLevel("VL").getBusBreakerView().getBusStream().count());
+
+        network = createNetwork(true);
+        assertEquals(2, network.getVoltageLevel("VL").getBusBreakerView().getBusStream().count());
     }
 }

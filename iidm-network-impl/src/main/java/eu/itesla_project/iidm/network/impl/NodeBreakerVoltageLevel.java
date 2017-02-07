@@ -48,7 +48,9 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NodeBreakerVoltageLevel.class);
 
-    private static final BusChecker BUS_CHECKER = new RteBusChecker();
+    private static final BusChecker CALCULATED_BUS_CHECKER = new CalculatedBusChecker();
+
+    private static final BusChecker CALCULATED_BUS_BREAKER_CHECKER = new CalculatedBusBreakerChecker();
 
     private static final BusNamingStrategy NAMING_STRATEGY = new NumberedBusNamingStrategy();
 
@@ -249,7 +251,44 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         protected BusChecker getBusChecker() {
-            return BUS_CHECKER;
+            return CALCULATED_BUS_CHECKER;
+        }
+
+        private void traverse(int n, boolean[] encountered, Predicate<SwitchImpl> terminate, Map<String, CalculatedBus> id2bus, CalculatedBus[] node2bus) {
+            if (!encountered[n]) {
+                final TIntArrayList nodes = new TIntArrayList(1);
+                nodes.add(n);
+                graph.traverse(n, new Traverser<SwitchImpl>() {
+                    @Override
+                    public TraverseResult traverse(int n1, int e, int n2) {
+                        SwitchImpl _switch = graph.getEdgeObject(e);
+                        if (_switch != null && terminate.apply(_switch)) {
+                            return TraverseResult.TERMINATE;
+                        } else {
+                            nodes.add(n2);
+                            return TraverseResult.CONTINUE;
+                        }
+                    }
+                }, encountered);
+
+                // check that the component is a bus
+                String busId = NAMING_STRATEGY.getName(NodeBreakerVoltageLevel.this, nodes);
+                CopyOnWriteArrayList<NodeTerminal> terminals = new CopyOnWriteArrayList<>();
+                for (int i = 0; i < nodes.size(); i++) {
+                    int n2 = nodes.getQuick(i);
+                    NodeTerminal terminal2 = graph.getVertexObject(n2);
+                    if (terminal2 != null) {
+                        terminals.add(terminal2);
+                    }
+                }
+                if (getBusChecker().isValid(graph, nodes, terminals)) {
+                    CalculatedBusImpl bus = new CalculatedBusImpl(busId, NodeBreakerVoltageLevel.this, terminals);
+                    id2bus.put(busId, bus);
+                    for (int i = 0; i < nodes.size(); i++) {
+                        node2bus[nodes.getQuick(i)] = bus;
+                    }
+                }
+            }
         }
 
         protected void updateCache(final Predicate<SwitchImpl> terminate) {
@@ -261,42 +300,9 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             CalculatedBus[] node2bus = new CalculatedBus[graph.getMaxVertex()];
             boolean[] encountered = new boolean[graph.getMaxVertex()];
             Arrays.fill(encountered, false);
-            for (int n : graph.getVertices()) {
-                if (!encountered[n]) {
-                    final TIntArrayList nodes = new TIntArrayList(1);
-                    nodes.add(n);
-                    graph.traverse(n, new Traverser<SwitchImpl>() {
-                        @Override
-                        public TraverseResult traverse(int n1, int e, int n2) {
-                            SwitchImpl _switch = graph.getEdgeObject(e);
-                            if (_switch != null && terminate.apply(_switch)) {
-                                return TraverseResult.TERMINATE;
-                            } else {
-                                nodes.add(n2);
-                                return TraverseResult.CONTINUE;
-                            }
-                        }
-                    }, encountered);
-
-                    // check that the component is a bus
-                    String busId = NAMING_STRATEGY.getName(NodeBreakerVoltageLevel.this, nodes);
-                    CopyOnWriteArrayList<NodeTerminal> terminals = new CopyOnWriteArrayList<>();
-                    for (int i = 0; i < nodes.size(); i++) {
-                        int n2 = nodes.getQuick(i);
-                        NodeTerminal terminal2 = graph.getVertexObject(n2);
-                        if (terminal2 != null) {
-                            terminals.add(terminal2);
-                        }
-                    }
-                    if (getBusChecker().isValid(graph, nodes, terminals)) {
-                        CalculatedBusImpl bus = new CalculatedBusImpl(busId, NodeBreakerVoltageLevel.this, terminals);
-                        id2bus.put(busId, bus);
-                        for (int i = 0; i < nodes.size(); i++) {
-                            node2bus[nodes.getQuick(i)] = bus;
-                        }
-                    }
-
-                }
+            for (int e : graph.getEdges()) {
+                traverse(graph.getEdgeVertex1(e), encountered, terminate, id2bus, node2bus);
+                traverse(graph.getEdgeVertex2(e), encountered, terminate, id2bus, node2bus);
             }
             busCache = new BusCache(node2bus, id2bus);
             LOGGER.trace("Found buses {}", id2bus.values());
@@ -370,12 +376,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         protected BusChecker getBusChecker() {
-            return new BusChecker() {
-                @Override
-                public boolean isValid(UndirectedGraph<? extends TerminalExt, SwitchImpl> graph, TIntArrayList nodes, List<NodeTerminal> terminals) {
-                    return !terminals.isEmpty();
-                }
-            };
+            return CALCULATED_BUS_BREAKER_CHECKER;
         }
 
         Bus getBus1(String switchId, boolean throwException) {
@@ -432,10 +433,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         boolean isValid(UndirectedGraph<? extends TerminalExt, SwitchImpl> graph, TIntArrayList nodes, List<NodeTerminal> terminals);
     }
 
-    /**
-     * RTE bus definition
-     */
-    private static class RteBusChecker implements BusChecker {
+    private static class CalculatedBusChecker implements BusChecker {
 
         @Override
         public boolean isValid(UndirectedGraph<? extends TerminalExt, SwitchImpl> graph, TIntArrayList nodes, List<NodeTerminal> terminals) {
@@ -475,6 +473,14 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             }
             return (busbarSectionCount >= 1 && feederCount >= 1)
                     || (branchCount >= 1 && feederCount >= 2);
+        }
+    }
+
+    private static class CalculatedBusBreakerChecker implements BusChecker
+    {
+        @Override
+        public boolean isValid(UndirectedGraph<? extends TerminalExt, SwitchImpl> graph, TIntArrayList nodes, List<NodeTerminal> terminals) {
+            return !nodes.isEmpty();
         }
     }
 
@@ -754,17 +760,17 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
         @Override
         public Bus getBus1(String switchId) {
-            return states.get().calculatedBusBreakerTopology.getBus1(switchId, false);
+            return states.get().calculatedBusBreakerTopology.getBus1(switchId, true);
         }
 
         @Override
         public Bus getBus2(String switchId) {
-            return states.get().calculatedBusBreakerTopology.getBus2(switchId, false);
+            return states.get().calculatedBusBreakerTopology.getBus2(switchId, true);
         }
 
         @Override
         public Switch getSwitch(String switchId) {
-            return states.get().calculatedBusBreakerTopology.getSwitch(switchId, false);
+            return states.get().calculatedBusBreakerTopology.getSwitch(switchId, true);
         }
 
         @Override

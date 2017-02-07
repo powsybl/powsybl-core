@@ -12,6 +12,7 @@ import eu.itesla_project.iidm.network.*;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -27,10 +28,7 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
 
     CalculatedBusImpl(String id, VoltageLevelExt voltageLevel, List<NodeTerminal> terminals) {
         super(id, voltageLevel);
-        if (terminals.isEmpty()) {
-            throw new IllegalArgumentException("Calculated bus without any terminals");
-        }
-        this.terminals = terminals;
+        this.terminals = Objects.requireNonNull(terminals);
     }
 
     private void checkValidity() {
@@ -137,7 +135,7 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
         checkValidity();
         NetworkImpl.ConnectedComponentsManager ccm = voltageLevel.getNetwork().getConnectedComponentsManager();
         ccm.update();
-        return ccm.getComponent(terminals.get(0).getConnectedComponentNumber());
+        return terminals.isEmpty() ? null : ccm.getComponent(terminals.get(0).getConnectedComponentNumber());
     }
 
     @Override
@@ -153,7 +151,7 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
         checkValidity();
         NetworkImpl.SynchronousComponentsManager scm = voltageLevel.getNetwork().getSynchronousComponentsManager();
         scm.update();
-        return scm.getComponent(terminals.get(0).getSynchronousComponentNumber());
+        return terminals.isEmpty() ? null : scm.getComponent(terminals.get(0).getSynchronousComponentNumber());
     }
 
     @Override
