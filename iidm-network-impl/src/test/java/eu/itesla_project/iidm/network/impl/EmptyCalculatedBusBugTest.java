@@ -17,7 +17,7 @@ import static org.junit.Assert.assertEquals;
  */
 public class EmptyCalculatedBusBugTest {
 
-    private Network createNetwork(boolean retainded) {
+    private Network createNetwork(boolean retained) {
         Network network = NetworkFactory.create("test", "test");
         Substation s = network.newSubstation()
                 .setId("S")
@@ -34,7 +34,7 @@ public class EmptyCalculatedBusBugTest {
                 .setNode1(0)
                 .setNode2(1)
                 .setOpen(false)
-                .setRetained(retainded)
+                .setRetained(retained)
                 .add();
 
         return network;
