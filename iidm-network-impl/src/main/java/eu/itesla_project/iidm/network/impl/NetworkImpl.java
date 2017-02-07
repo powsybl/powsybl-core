@@ -7,21 +7,22 @@
 package eu.itesla_project.iidm.network.impl;
 
 import com.google.common.collect.*;
-import eu.itesla_project.iidm.network.*;
-import eu.itesla_project.iidm.network.impl.util.RefObj;
-import eu.itesla_project.iidm.network.impl.util.RefChain;
 import eu.itesla_project.graph.GraphUtil;
 import eu.itesla_project.graph.GraphUtil.ConnectedComponentsComputationResult;
+import eu.itesla_project.iidm.network.*;
 import eu.itesla_project.iidm.network.TwoTerminalsConnectable.Side;
+import eu.itesla_project.iidm.network.impl.util.Ref;
+import eu.itesla_project.iidm.network.impl.util.RefChain;
+import eu.itesla_project.iidm.network.impl.util.RefObj;
 import gnu.trove.list.array.TIntArrayList;
+import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -519,30 +520,72 @@ class NetworkImpl extends IdentifiableImpl<Network> implements Network, MultiSta
         return busView;
     }
 
-    class ConnectedComponentsManager {
+    private static abstract class ComponentsManager<C extends Component> {
 
-        private List<ConnectedComponent> connectedComponents;
+        protected final NetworkImpl network;
 
-        void invalidate() {
-            connectedComponents = null;
+        private ComponentsManager(NetworkImpl network) {
+            this.network = Objects.requireNonNull(network);
         }
 
+        private List<C> components;
+
+        void invalidate() {
+            components = null;
+        }
+
+        protected void addToAdjacencyList(Bus bus1, Bus bus2, Map<String, Integer> id2num, TIntArrayList[] adjacencyList) {
+            if (bus1 != null && bus2 != null) {
+                int busNum1 = id2num.get(bus1.getId());
+                int busNum2 = id2num.get(bus2.getId());
+                adjacencyList[busNum1].add(busNum2);
+                adjacencyList[busNum2].add(busNum1);
+            }
+        }
+
+        protected void fillAdjacencyList(Map<String, Integer> id2num, TIntArrayList[] adjacencyList) {
+            for (LineImpl line : Sets.union(network.objectStore.getAll(LineImpl.class), network.objectStore.getAll(TieLineImpl.class))) {
+                BusExt bus1 = line.getTerminal1().getBusView().getBus();
+                BusExt bus2 = line.getTerminal2().getBusView().getBus();
+                addToAdjacencyList(bus1, bus2, id2num, adjacencyList);
+            }
+            for (TwoWindingsTransformerImpl transfo : network.objectStore.getAll(TwoWindingsTransformerImpl.class)) {
+                BusExt bus1 = transfo.getTerminal1().getBusView().getBus();
+                BusExt bus2 = transfo.getTerminal2().getBusView().getBus();
+                addToAdjacencyList(bus1, bus2, id2num, adjacencyList);
+            }
+            for (ThreeWindingsTransformerImpl transfo : network.objectStore.getAll(ThreeWindingsTransformerImpl.class)) {
+                BusExt bus1 = transfo.getLeg1().getTerminal().getBusView().getBus();
+                BusExt bus2 = transfo.getLeg2().getTerminal().getBusView().getBus();
+                BusExt bus3 = transfo.getLeg3().getTerminal().getBusView().getBus();
+                addToAdjacencyList(bus1, bus2, id2num, adjacencyList);
+                addToAdjacencyList(bus1, bus3, id2num, adjacencyList);
+                addToAdjacencyList(bus2, bus3, id2num, adjacencyList);
+            }
+        }
+
+        protected abstract C createComponent(int num, int size);
+
+        protected abstract String getComponentLabel();
+
+        protected abstract void setComponentNumber(BusExt bus, int num);
+
         void update() {
-            if (connectedComponents != null) {
+            if (components != null) {
                 return;
             }
 
             long startTime = System.currentTimeMillis();
 
             // reset
-            for (Bus b : getBusBreakerView().getBuses()) {
-                ((BusExt) b).setConnectedComponentNumber(-1);
+            for (Bus b : network.getBusBreakerView().getBuses()) {
+                setComponentNumber((BusExt) b, -1);
             }
 
             int num = 0;
             Map<String, Integer> id2num = new HashMap<>();
             List<BusExt> num2bus = new ArrayList<>();
-            for (Bus bus : getBusView().getBuses()) {
+            for (Bus bus : network.getBusView().getBuses()) {
                 num2bus.add((BusExt) bus);
                 id2num.put(bus.getId(), num);
                 num++;
@@ -551,83 +594,97 @@ class NetworkImpl extends IdentifiableImpl<Network> implements Network, MultiSta
             for (int i = 0; i < adjacencyList.length; i++) {
                 adjacencyList[i] = new TIntArrayList(3);
             }
-            for (LineImpl line : Sets.union(objectStore.getAll(LineImpl.class), objectStore.getAll(TieLineImpl.class))) {
-                BusExt bus1 = line.getTerminal1().getBusView().getBus();
-                BusExt bus2 = line.getTerminal2().getBusView().getBus();
-                if (bus1 != null && bus2 != null) {
-                    int busNum1 = id2num.get(bus1.getId());
-                    int busNum2 = id2num.get(bus2.getId());
-                    adjacencyList[busNum1].add(busNum2);
-                    adjacencyList[busNum2].add(busNum1);
-                }
-            }
-            for (TwoWindingsTransformerImpl transfo : objectStore.getAll(TwoWindingsTransformerImpl.class)) {
-                BusExt bus1 = transfo.getTerminal1().getBusView().getBus();
-                BusExt bus2 = transfo.getTerminal2().getBusView().getBus();
-                if (bus1 != null && bus2 != null) {
-                    int busNum1 = id2num.get(bus1.getId());
-                    int busNum2 = id2num.get(bus2.getId());
-                    adjacencyList[busNum1].add(busNum2);
-                    adjacencyList[busNum2].add(busNum1);
-                }
-            }
-            for (ThreeWindingsTransformerImpl transfo : objectStore.getAll(ThreeWindingsTransformerImpl.class)) {
-                BusExt bus1 = transfo.getLeg1().getTerminal().getBusView().getBus();
-                BusExt bus2 = transfo.getLeg2().getTerminal().getBusView().getBus();
-                BusExt bus3 = transfo.getLeg3().getTerminal().getBusView().getBus();
-                if (bus1 != null && bus2 != null) {
-                    int busNum1 = id2num.get(bus1.getId());
-                    int busNum2 = id2num.get(bus2.getId());
-                    adjacencyList[busNum1].add(busNum2);
-                    adjacencyList[busNum2].add(busNum1);
-                }
-                if (bus1 != null && bus3 != null) {
-                    int busNum1 = id2num.get(bus1.getId());
-                    int busNum3 = id2num.get(bus3.getId());
-                    adjacencyList[busNum1].add(busNum3);
-                    adjacencyList[busNum3].add(busNum1);
-                }
-                if (bus2 != null && bus3 != null) {
-                    int busNum2 = id2num.get(bus2.getId());
-                    int busNum3 = id2num.get(bus3.getId());
-                    adjacencyList[busNum2].add(busNum3);
-                    adjacencyList[busNum3].add(busNum2);
-                }
-            }
+            fillAdjacencyList(id2num, adjacencyList);
 
             ConnectedComponentsComputationResult result = GraphUtil.computeConnectedComponents(adjacencyList);
 
-            connectedComponents = new ArrayList<>(result.getComponentSize().length);
+            components = new ArrayList<>(result.getComponentSize().length);
             for (int i = 0; i < result.getComponentSize().length; i++) {
-                connectedComponents.add(new ConnectedComponentImpl(i, result.getComponentSize()[i], ref));
+                components.add(createComponent(i, result.getComponentSize()[i]));
             }
 
             for (int i = 0; i < result.getComponentNumber().length; i++) {
                 BusExt bus = num2bus.get(i);
-                bus.setConnectedComponentNumber(result.getComponentNumber()[i]);
+                setComponentNumber(bus, result.getComponentNumber()[i]);
             }
 
-            LOGGER.debug("Connected components computed in {} ms", (System.currentTimeMillis()-startTime));
+            LOGGER.debug(getComponentLabel() + " components computed in {} ms", (System.currentTimeMillis()-startTime));
         }
 
-        List<ConnectedComponent> getConnectedComponents() {
+        List<C> getConnectedComponents() {
             update();
-            return connectedComponents;
+            return components;
         }
 
-        ConnectedComponent getConnectedComponent(int num) {
+        C getComponent(int num) {
             // update() must not be put here, but explicitly called each time before because update may
-            // trigger a new cc computation and so on a change in the value of the num cc already passed
+            // trigger a new component computation and so on a change in the value of the num component already passed
             // (and outdated consequently) in parameter of this method
-            return num != -1 ? connectedComponents.get(num) : null;
+            return num != -1 ? components.get(num) : null;
         }
 
+    }
+
+    static class ConnectedComponentsManager extends ComponentsManager<ConnectedComponentImpl> {
+
+        private ConnectedComponentsManager(NetworkImpl network) {
+            super(network);
+        }
+
+        protected void fillAdjacencyList(Map<String, Integer> id2num, TIntArrayList[] adjacencyList) {
+            super.fillAdjacencyList(id2num, adjacencyList);
+            for (HvdcLineImpl line : network.objectStore.getAll(HvdcLineImpl.class)) {
+                BusExt bus1 = line.getConverterStation1().getTerminal().getBusView().getBus();
+                BusExt bus2 = line.getConverterStation2().getTerminal().getBusView().getBus();
+                addToAdjacencyList(bus1, bus2, id2num, adjacencyList);
+            }
+        }
+
+        @Override
+        protected String getComponentLabel() {
+            return "Connected";
+        }
+
+        @Override
+        protected void setComponentNumber(BusExt bus, int num) {
+            Objects.requireNonNull(bus);
+            bus.setConnectedComponentNumber(num);
+        }
+
+        protected ConnectedComponentImpl createComponent(int num, int size) {
+            return new ConnectedComponentImpl(num, size, network.ref);
+        }
+    }
+
+    static class SynchronousComponentsManager extends ComponentsManager<ComponentImpl> {
+
+        private SynchronousComponentsManager(NetworkImpl network) {
+            super(network);
+        }
+
+        protected ComponentImpl createComponent(int num, int size) {
+            return new ComponentImpl(num, size, network.ref);
+        }
+
+        @Override
+        protected String getComponentLabel() {
+            return "Synchronous";
+        }
+
+        @Override
+        protected void setComponentNumber(BusExt bus, int num) {
+            Objects.requireNonNull(bus);
+            bus.setSynchronousComponentNumber(num);
+        }
     }
 
     private class StateImpl implements State {
 
         private final ConnectedComponentsManager connectedComponentsManager
-                = new ConnectedComponentsManager();
+                = new ConnectedComponentsManager(NetworkImpl.this);
+
+        private final SynchronousComponentsManager synchronousComponentsManager
+                = new SynchronousComponentsManager(NetworkImpl.this);
 
         @Override
         public StateImpl copy() {
@@ -640,6 +697,10 @@ class NetworkImpl extends IdentifiableImpl<Network> implements Network, MultiSta
 
     ConnectedComponentsManager getConnectedComponentsManager() {
         return states.get().connectedComponentsManager;
+    }
+
+    SynchronousComponentsManager getSynchronousComponentsManager() {
+        return states.get().synchronousComponentsManager;
     }
 
     @Override

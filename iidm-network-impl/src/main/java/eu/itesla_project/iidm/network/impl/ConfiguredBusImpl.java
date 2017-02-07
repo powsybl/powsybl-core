@@ -6,6 +6,7 @@
  */
 package eu.itesla_project.iidm.network.impl;
 
+import eu.itesla_project.iidm.network.Component;
 import eu.itesla_project.iidm.network.ConnectedComponent;
 import eu.itesla_project.iidm.network.Terminal;
 import eu.itesla_project.iidm.network.impl.util.Ref;
@@ -33,6 +34,8 @@ class ConfiguredBusImpl extends AbstractBus implements ConfiguredBus, Stateful {
 
     private final TIntArrayList connectedComponentNumber;
 
+    private final TIntArrayList synchronousComponentNumber;
+
     ConfiguredBusImpl(String id, VoltageLevelExt voltageLevel) {
         super(id, voltageLevel);
         network = voltageLevel.getNetwork().getRef();
@@ -41,11 +44,13 @@ class ConfiguredBusImpl extends AbstractBus implements ConfiguredBus, Stateful {
         v = new TFloatArrayList(stateArraySize);
         angle = new TFloatArrayList(stateArraySize);
         connectedComponentNumber = new TIntArrayList(stateArraySize);
+        synchronousComponentNumber = new TIntArrayList(stateArraySize);
         for (int i = 0; i < stateArraySize; i++) {
             terminals.add(new ArrayList<>());
             v.add(Float.NaN);
             angle.add(Float.NaN);
             connectedComponentNumber.add(-1);
+            synchronousComponentNumber.add(-1);
         }
     }
 
@@ -126,7 +131,19 @@ class ConfiguredBusImpl extends AbstractBus implements ConfiguredBus, Stateful {
     public ConnectedComponent getConnectedComponent() {
         NetworkImpl.ConnectedComponentsManager ccm = voltageLevel.getNetwork().getConnectedComponentsManager();
         ccm.update();
-        return ccm.getConnectedComponent(connectedComponentNumber.get(network.get().getStateIndex()));
+        return ccm.getComponent(connectedComponentNumber.get(network.get().getStateIndex()));
+    }
+
+    @Override
+    public void setSynchronousComponentNumber(int componentNumber) {
+        this.synchronousComponentNumber.set(network.get().getStateIndex(), componentNumber);
+    }
+
+    @Override
+    public Component getSynchronousComponent() {
+        NetworkImpl.SynchronousComponentsManager scm = voltageLevel.getNetwork().getSynchronousComponentsManager();
+        scm.update();
+        return scm.getComponent(synchronousComponentNumber.get(network.get().getStateIndex()));
     }
 
     @Override
@@ -135,11 +152,13 @@ class ConfiguredBusImpl extends AbstractBus implements ConfiguredBus, Stateful {
         v.ensureCapacity(v.size() + number);
         angle.ensureCapacity(angle.size() + number);
         connectedComponentNumber.ensureCapacity(connectedComponentNumber.size() + number);
+        synchronousComponentNumber.ensureCapacity(synchronousComponentNumber.size() + number);
         for (int i = 0; i < number; i++) {
             terminals.add(new ArrayList<>(terminals.get(sourceIndex)));
             v.add(v.get(sourceIndex));
             angle.add(angle.get(sourceIndex));
             connectedComponentNumber.add(connectedComponentNumber.get(sourceIndex));
+            synchronousComponentNumber.add(synchronousComponentNumber.get(sourceIndex));
         }
     }
 
@@ -151,6 +170,7 @@ class ConfiguredBusImpl extends AbstractBus implements ConfiguredBus, Stateful {
         v.remove(v.size() - number, number);
         angle.remove(angle.size() - number, number);
         connectedComponentNumber.remove(connectedComponentNumber.size() - number, number);
+        synchronousComponentNumber.remove(synchronousComponentNumber.size() - number, number);
     }
 
     @Override
@@ -165,6 +185,7 @@ class ConfiguredBusImpl extends AbstractBus implements ConfiguredBus, Stateful {
             v.set(index, v.get(sourceIndex));
             angle.set(index, angle.get(sourceIndex));
             connectedComponentNumber.set(index, connectedComponentNumber.get(sourceIndex));
+            synchronousComponentNumber.set(index, synchronousComponentNumber.get(sourceIndex));
         }
     }
 

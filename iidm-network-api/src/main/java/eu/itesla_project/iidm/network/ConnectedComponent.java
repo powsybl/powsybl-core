@@ -6,37 +6,15 @@
  */
 package eu.itesla_project.iidm.network;
 
-import java.util.stream.Stream;
-
 /**
- * A set of connected bus in the network.
+ * To replace by @link{Component}
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface ConnectedComponent {
+@Deprecated
+public interface ConnectedComponent extends Component {
 
+    @Deprecated
     int MAIN_CC_NUM = 0;
-
-    /**
-     * Get the number of the connected component.
-     * <p>
-     * The biggest one has the number zero and the smallest has the highest number.
-     */
-    int getNum();
-
-    /**
-     * Get the number of bus in the connected component.
-     */
-    int getSize();
-
-    /**
-     * Get buses in the connected component.
-     */
-    Iterable<Bus> getBuses();
-
-    /**
-     * Get buses in the connected component.
-     */
-    Stream<Bus> getBusStream();
 
 }

@@ -33,6 +33,13 @@ abstract class AbstractBus extends IdentifiableImpl<Bus> {
         return cc != null && cc.getNum() == ConnectedComponent.MAIN_CC_NUM;
     }
 
+    protected abstract Component getSynchronousComponent();
+
+    public boolean isInMainSynchronousComponent() {
+        Component sc = getSynchronousComponent();
+        return sc != null && sc.getNum() == Component.MAIN_NUM;
+    }
+
     public VoltageLevel getVoltageLevel() {
         return voltageLevel;
     }

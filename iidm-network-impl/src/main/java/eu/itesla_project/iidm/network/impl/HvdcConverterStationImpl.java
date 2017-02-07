@@ -21,7 +21,7 @@ abstract class HvdcConverterStationImpl<T extends HvdcConverterStation<T>> exten
     }
 
     @Override
-    public Terminal getTerminal() {
+    public TerminalExt getTerminal() {
         return terminals.get(0);
     }
 
