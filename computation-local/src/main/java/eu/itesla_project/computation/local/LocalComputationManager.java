@@ -6,15 +6,14 @@
  */
 package eu.itesla_project.computation.local;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.io.ByteStreams;
 import eu.itesla_project.commons.io.WorkingDirectory;
 import eu.itesla_project.computation.*;
+import net.java.truevfs.comp.zip.ZipEntry;
+import net.java.truevfs.comp.zip.ZipFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -29,8 +28,6 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
@@ -49,6 +46,8 @@ public class LocalComputationManager implements ComputationManager {
     private final LocalComputationResourcesStatus status;
 
     private final Semaphore permits;
+
+    private final LocalExecutor localExecutor;
 
     private static final Lock LOCK = new ReentrantLock();
 
@@ -89,7 +88,12 @@ public class LocalComputationManager implements ComputationManager {
     }
 
     public LocalComputationManager(LocalComputationConfig config) throws IOException {
-        this.config = Objects.requireNonNull(config, "config is null");
+        this(config, new UnixLocalExecutor());
+    }
+
+    public LocalComputationManager(LocalComputationConfig config, LocalExecutor localExecutor) throws IOException {
+        this.config = Objects.requireNonNull(config);
+        this.localExecutor = Objects.requireNonNull(localExecutor);
         status = new LocalComputationResourcesStatus(config.getAvailableCore());
         permits = new Semaphore(config.getAvailableCore());
         //make sure the localdir exists
@@ -162,46 +166,6 @@ public class LocalComputationManager implements ComputationManager {
         };
     }
 
-    private int execute(String program, List<String> args, File out, Path workingDir, Map<String, String> env) throws IOException, InterruptedException {
-        StringBuilder internalCmd = new StringBuilder();
-        for (Map.Entry<String, String> entry : env.entrySet()) {
-            String name = entry.getKey();
-            String value = entry.getValue();
-            internalCmd.append("export ").append(name).append("=").append(value);
-            if (name.endsWith("PATH")) {
-                internalCmd.append(":").append("$").append(name);
-            }
-            internalCmd.append("; ");
-        }
-        internalCmd.append(program);
-        for (String arg : args) {
-            internalCmd.append(" ").append(arg);
-        }
-
-        List<String> cmdLs = ImmutableList.<String>builder()
-                .add("bash")
-                .add("-c")
-                .add(internalCmd.toString())
-                .build();
-        ProcessBuilder.Redirect redirect = ProcessBuilder.Redirect.appendTo(out);
-        Process process = new ProcessBuilder(cmdLs)
-                .directory(workingDir.toFile())
-                .redirectOutput(redirect)
-                .redirectError(redirect)
-                .start();
-        int exitValue = process.waitFor();
-
-        // to avoid 'two many open files' exception
-        process.getInputStream().close();
-        process.getOutputStream().close();
-        process.getErrorStream().close();
-
-        if (exitValue != 0) {
-            LOGGER.debug("Command '{}' has failed (exitValue={})", cmdLs, exitValue);
-        }
-        return exitValue;
-    }
-
     private interface ExecutionMonitor {
 
         void onProgress(CommandExecution execution, int executionIndex);
@@ -211,12 +175,6 @@ public class LocalComputationManager implements ComputationManager {
     private ExecutionReport execute(Path workingDir, List<CommandExecution> commandExecutionList, Map<String, String> variables, ExecutionMonitor monitor)
             throws IOException, InterruptedException {
         List<ExecutionError> errors = new ArrayList<>();
-
-        // set TMPDIR to working dir to avoid issue with /tmp
-        ImmutableMap variables2 = ImmutableMap.builder()
-                .putAll(variables)
-                .put("TMPDIR", workingDir.toAbsolutePath().toString())
-                .build();
 
         for (CommandExecution commandExecution : commandExecutionList) {
             Command command = commandExecution.getCommand();
@@ -250,9 +208,9 @@ public class LocalComputationManager implements ComputationManager {
                                 break;
                             case ARCHIVE_UNZIP:
                                 // extract the archive
-                                try (ZipFile zipFile = new ZipFile(path.toFile())) {
+                                try (ZipFile zipFile = new ZipFile(path)) {
                                     for (ZipEntry ze : Collections.list(zipFile.entries())) {
-                                        Files.copy(zipFile.getInputStream(ze), workingDir.resolve(ze.getName()), REPLACE_EXISTING);
+                                        Files.copy(zipFile.getInputStream(ze.getName()), workingDir.resolve(ze.getName()), REPLACE_EXISTING);
                                     }
                                 }
                                 break;
@@ -264,23 +222,26 @@ public class LocalComputationManager implements ComputationManager {
                 }
 
                 int exitValue = 0;
-                File out = workingDir.resolve(command.getId() + "_" + executionIndex + ".out").toFile();
+                Path outFile = workingDir.resolve(command.getId() + "_" + executionIndex + ".out");
+                Path errFile = workingDir.resolve(command.getId() + "_" + executionIndex + ".err");
                 switch (command.getType()) {
                     case SIMPLE:
                         SimpleCommand simpleCmd = (SimpleCommand) command;
-                        exitValue = execute(simpleCmd.getProgram(),
+                        exitValue = localExecutor.execute(simpleCmd.getProgram(),
                                 simpleCmd.getArgs(Integer.toString(executionIndex)),
-                                out,
+                                outFile,
+                                errFile,
                                 workingDir,
-                                variables2);
+                                variables);
                         break;
                     case GROUP:
                         for (GroupCommand.SubCommand subCmd : ((GroupCommand) command).getSubCommands()) {
-                            exitValue = execute(subCmd.getProgram(),
+                            exitValue = localExecutor.execute(subCmd.getProgram(),
                                     subCmd.getArgs(Integer.toString(executionIndex)),
-                                    out,
+                                    outFile,
+                                    errFile,
                                     workingDir,
-                                    variables2);
+                                    variables);
                             if (exitValue != 0) {
                                 break;
                             }
