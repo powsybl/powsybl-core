@@ -31,6 +31,8 @@ class NodeTerminal extends AbstractTerminal {
 
     protected final TIntArrayList connectedComponentNumber;
 
+    protected final TIntArrayList synchronousComponentNumber;
+
     private final NodeBreakerView nodeBreakerView = new NodeBreakerView() {
 
         @Override
@@ -79,10 +81,12 @@ class NodeTerminal extends AbstractTerminal {
         v = new TFloatArrayList(stateArraySize);
         angle = new TFloatArrayList(stateArraySize);
         connectedComponentNumber = new TIntArrayList(stateArraySize);
+        synchronousComponentNumber = new TIntArrayList(stateArraySize);
         for (int i = 0; i < stateArraySize; i++) {
             v.add(Float.NaN);
             angle.add(Float.NaN);
             connectedComponentNumber.add(0);
+            synchronousComponentNumber.add(0);
         }
     }
 
@@ -116,6 +120,14 @@ class NodeTerminal extends AbstractTerminal {
 
     void setConnectedComponentNumber(int connectedComponentNumber) {
         this.connectedComponentNumber.set(network.get().getStateIndex(), connectedComponentNumber);
+    }
+
+    int getSynchronousComponentNumber() {
+        return synchronousComponentNumber.get(network.get().getStateIndex());
+    }
+
+    void setSynchronousComponentNumber(int componentNumber) {
+        this.synchronousComponentNumber.set(network.get().getStateIndex(), componentNumber);
     }
 
     @Override
@@ -154,10 +166,12 @@ class NodeTerminal extends AbstractTerminal {
         v.ensureCapacity(v.size() + number);
         angle.ensureCapacity(angle.size() + number);
         connectedComponentNumber.ensureCapacity(connectedComponentNumber.size() + number);
+        synchronousComponentNumber.ensureCapacity(synchronousComponentNumber.size() + number);
         for (int i = 0; i < number; i++) {
             v.add(v.get(sourceIndex));
             angle.add(angle.get(sourceIndex));
             connectedComponentNumber.add(connectedComponentNumber.get(sourceIndex));
+            synchronousComponentNumber.add(synchronousComponentNumber.get(sourceIndex));
         }
     }
 
@@ -167,6 +181,7 @@ class NodeTerminal extends AbstractTerminal {
         v.remove(v.size() - number, number);
         angle.remove(angle.size() - number, number);
         connectedComponentNumber.remove(connectedComponentNumber.size() - number, number);
+        synchronousComponentNumber.remove(synchronousComponentNumber.size() - number, number);
     }
 
     @Override
@@ -182,6 +197,7 @@ class NodeTerminal extends AbstractTerminal {
             v.set(index, v.get(sourceIndex));
             angle.set(index, angle.get(sourceIndex));
             connectedComponentNumber.set(index, connectedComponentNumber.get(sourceIndex));
+            synchronousComponentNumber.set(index, synchronousComponentNumber.get(sourceIndex));
         }
     }
 

@@ -183,6 +183,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
                     case LINE:
                     case TWO_WINDINGS_TRANSFORMER:
                     case THREE_WINDINGS_TRANSFORMER:
+                    case HVDC_CONVERTER_STATION:
                         branchCount++;
                         feederCount++;
                         break;
@@ -192,7 +193,6 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
                     case GENERATOR:
                     case SHUNT_COMPENSATOR:
                     case STATIC_VAR_COMPENSATOR:
-                    case HVDC_CONVERTER_STATION:
                         feederCount++;
                         break;
 
@@ -317,6 +317,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
     public void invalidateCache() {
         calculatedBusTopology.invalidateCache();
         getNetwork().getConnectedComponentsManager().invalidate();
+        getNetwork().getSynchronousComponentsManager().invalidate();
     }
 
     @Override

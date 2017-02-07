@@ -65,6 +65,17 @@ public interface Bus extends Identifiable<Bus> {
     boolean isInMainConnectedComponent();
 
     /**
+     * Get the synchronous component that the bus is part of.
+     */
+    Component getSynchronousComponent();
+
+    /**
+     * Check if the bus belongs to the main synchronous component
+     * @return true if the bus belongs to the main synchronous component, false otherwise
+     */
+    boolean isInMainSynchronousComponent();
+
+    /**
      * Get the AC lines connected to the bus.
      */
     Iterable<Line> getLines();

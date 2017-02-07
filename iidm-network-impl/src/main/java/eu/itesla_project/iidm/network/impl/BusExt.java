@@ -24,4 +24,6 @@ interface BusExt extends Bus {
 
     void setConnectedComponentNumber(int connectedComponentNumber);
 
+    void setSynchronousComponentNumber(int componentNumber);
+
 }

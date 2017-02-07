@@ -147,12 +147,12 @@ class HvdcLineImpl extends IdentifiableImpl<HvdcLine> implements HvdcLine, State
     }
 
     @Override
-    public HvdcConverterStation<?> getConverterStation1() {
+    public HvdcConverterStationImpl<?> getConverterStation1() {
         return converterStation1;
     }
 
     @Override
-    public HvdcConverterStation<?> getConverterStation2() {
+    public HvdcConverterStationImpl<?> getConverterStation2() {
         return converterStation2;
     }
 

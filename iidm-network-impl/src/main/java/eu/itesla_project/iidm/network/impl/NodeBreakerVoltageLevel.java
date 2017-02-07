@@ -449,6 +449,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                         case LINE:
                         case TWO_WINDINGS_TRANSFORMER:
                         case THREE_WINDINGS_TRANSFORMER:
+                        case HVDC_CONVERTER_STATION:
                             branchCount++;
                             feederCount++;
                             break;
@@ -458,7 +459,6 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                         case SHUNT_COMPENSATOR:
                         case DANGLING_LINE:
                         case STATIC_VAR_COMPENSATOR:
-                        case HVDC_CONVERTER_STATION:
                             feederCount++;
                             break;
 

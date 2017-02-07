@@ -48,6 +48,14 @@ class MergedBus extends IdentifiableImpl<Bus> implements CalculatedBus {
     }
 
     @Override
+    public boolean isInMainSynchronousComponent() {
+        for (ConfiguredBus bus : buses) {
+            return bus.isInMainSynchronousComponent();
+        }
+        return false;
+    }
+
+    @Override
     public int getConnectedTerminalCount() {
         checkValidity();
         int count = 0;
@@ -160,6 +168,26 @@ class MergedBus extends IdentifiableImpl<Bus> implements CalculatedBus {
             ConnectedComponent cc = b.getConnectedComponent();
             if (cc != null) {
                 return cc;
+            }
+        }
+        throw new RuntimeException("Should not happened");
+    }
+
+    @Override
+    public void setSynchronousComponentNumber(int componentNumber) {
+        checkValidity();
+        for (ConfiguredBus bus : buses) {
+            bus.setSynchronousComponentNumber(componentNumber);
+        }
+    }
+
+    @Override
+    public Component getSynchronousComponent() {
+        checkValidity();
+        for (Bus b : buses) {
+            Component sc = b.getSynchronousComponent();
+            if (sc != null) {
+                return sc;
             }
         }
         throw new RuntimeException("Should not happened");
