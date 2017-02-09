@@ -228,7 +228,7 @@ public class NetworkXml implements XmlConstants {
     }
 
     public static Anonymizer write(Network n, XMLExportOptions options, Path xmlFile) {
-        try (OutputStream os = Files.newOutputStream(xmlFile)) {
+        try (OutputStream os = new BufferedOutputStream(Files.newOutputStream(xmlFile))) {
             return write(n, options, os);
         } catch (IOException e) {
             throw new RuntimeException(e);
