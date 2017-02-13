@@ -18,9 +18,9 @@ class VscConverterStationAdderImpl extends SingleTerminalConnectableAdderImpl<Vs
 
     private Boolean voltageRegulatorOn;
 
-    private float reactivePowerSetPoint = Float.NaN;
+    private float reactivePowerSetpoint = Float.NaN;
 
-    private float voltageSetPoint = Float.NaN;
+    private float voltageSetpoint = Float.NaN;
 
     VscConverterStationAdderImpl(VoltageLevelExt voltageLevel) {
         this.voltageLevel = voltageLevel;
@@ -43,14 +43,14 @@ class VscConverterStationAdderImpl extends SingleTerminalConnectableAdderImpl<Vs
     }
 
     @Override
-    public VscConverterStationAdderImpl setVoltageSetPoint(float voltageSetPoint) {
-        this.voltageSetPoint = voltageSetPoint;
+    public VscConverterStationAdderImpl setVoltageSetpoint(float voltageSetpoint) {
+        this.voltageSetpoint = voltageSetpoint;
         return this;
     }
 
     @Override
-    public VscConverterStationAdderImpl setReactivePowerSetPoint(float reactivePowerSetPoint) {
-        this.reactivePowerSetPoint = reactivePowerSetPoint;
+    public VscConverterStationAdderImpl setReactivePowerSetpoint(float reactivePowerSetpoint) {
+        this.reactivePowerSetpoint = reactivePowerSetpoint;
         return this;
     }
 
@@ -59,9 +59,9 @@ class VscConverterStationAdderImpl extends SingleTerminalConnectableAdderImpl<Vs
         String id = checkAndGetUniqueId();
         String name = getName();
         TerminalExt terminal = checkAndGetTerminal(id);
-        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, voltageSetPoint, reactivePowerSetPoint);
+        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, voltageSetpoint, reactivePowerSetpoint);
         VscConverterStationImpl converterStation
-                = new VscConverterStationImpl(id, name, getNetwork().getRef(), voltageRegulatorOn, reactivePowerSetPoint, voltageSetPoint);
+                = new VscConverterStationImpl(id, name, getNetwork().getRef(), voltageRegulatorOn, reactivePowerSetpoint, voltageSetpoint);
         converterStation.addTerminal(terminal);
         voltageLevel.attach(terminal, false);
         getNetwork().getObjectStore().checkAndAdd(converterStation);

@@ -35,8 +35,8 @@ class VscConverterStationXml extends ConnectableXml<VscConverterStation, VscConv
     @Override
     protected void writeRootElementAttributes(VscConverterStation cs, VoltageLevel vl, XmlWriterContext context) throws XMLStreamException {
         context.getWriter().writeAttribute("voltageRegulatorOn", Boolean.toString(cs.isVoltageRegulatorOn()));
-        XmlUtil.writeFloat("voltageSetPoint", cs.getVoltageSetPoint(), context.getWriter());
-        XmlUtil.writeFloat("reactivePowerSetPoint", cs.getReactivePowerSetPoint(), context.getWriter());
+        XmlUtil.writeFloat("voltageSetpoint", cs.getVoltageSetpoint(), context.getWriter());
+        XmlUtil.writeFloat("reactivePowerSetpoint", cs.getReactivePowerSetpoint(), context.getWriter());
         writeNodeOrBus(null, cs.getTerminal(), context);
         writePQ(null, cs.getTerminal(), context.getWriter());
     }
@@ -54,13 +54,13 @@ class VscConverterStationXml extends ConnectableXml<VscConverterStation, VscConv
     @Override
     protected VscConverterStation readRootElementAttributes(VscConverterStationAdder adder, XmlReaderContext context) {
         boolean voltageRegulatorOn = XmlUtil.readBoolAttribute(context.getReader(), "voltageRegulatorOn");
-        float voltageSetPoint = XmlUtil.readOptionalFloatAttribute(context.getReader(), "voltageSetPoint");
-        float reactivePowerSetPoint = XmlUtil.readOptionalFloatAttribute(context.getReader(), "reactivePowerSetPoint");
+        float voltageSetpoint = XmlUtil.readOptionalFloatAttribute(context.getReader(), "voltageSetpoint");
+        float reactivePowerSetpoint = XmlUtil.readOptionalFloatAttribute(context.getReader(), "reactivePowerSetpoint");
         readNodeOrBus(adder, context);
         VscConverterStation cs = adder
                 .setVoltageRegulatorOn(voltageRegulatorOn)
-                .setVoltageSetPoint(voltageSetPoint)
-                .setReactivePowerSetPoint(reactivePowerSetPoint)
+                .setVoltageSetpoint(voltageSetpoint)
+                .setReactivePowerSetpoint(reactivePowerSetpoint)
                 .add();
         readPQ(null, cs.getTerminal(), context.getReader());
         return cs;

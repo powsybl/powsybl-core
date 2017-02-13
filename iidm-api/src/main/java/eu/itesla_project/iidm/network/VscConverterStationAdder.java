@@ -16,9 +16,9 @@ public interface VscConverterStationAdder extends SingleTerminalConnectableAdder
 
     VscConverterStationAdder setVoltageRegulatorOn(boolean voltageRegulatorOn);
 
-    VscConverterStationAdder setVoltageSetPoint(float voltageSetPoint);
+    VscConverterStationAdder setVoltageSetpoint(float voltageSetpoint);
 
-    VscConverterStationAdder setReactivePowerSetPoint(float reactivePowerSetPoint);
+    VscConverterStationAdder setReactivePowerSetpoint(float reactivePowerSetpoint);
 
     VscConverterStation add();
 }

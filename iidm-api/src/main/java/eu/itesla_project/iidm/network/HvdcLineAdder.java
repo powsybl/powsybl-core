@@ -20,7 +20,7 @@ public interface HvdcLineAdder extends IdentifiableAdder<HvdcLineAdder> {
 
     HvdcLineAdder setNominalV(float nominalV);
 
-    HvdcLineAdder setActivePowerSetPoint(float activePowerSetPoint);
+    HvdcLineAdder setActivePowerSetpoint(float activePowerSetpoint);
 
     HvdcLineAdder setMaxP(float maxP);
 

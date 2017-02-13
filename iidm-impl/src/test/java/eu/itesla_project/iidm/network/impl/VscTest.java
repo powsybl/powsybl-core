@@ -30,11 +30,11 @@ public class VscTest {
         assertTrue(network.getVoltageLevel("VL1").getVscConverterStationCount() == 1);
         assertTrue(network.getVoltageLevel("VL2").getVscConverterStationCount() == 1);
         assertTrue(cs1.isVoltageRegulatorOn());
-        assertTrue(cs1.getVoltageSetPoint() == 405f);
-        assertTrue(Float.isNaN(cs1.getReactivePowerSetPoint()));
+        assertTrue(cs1.getVoltageSetpoint() == 405f);
+        assertTrue(Float.isNaN(cs1.getReactivePowerSetpoint()));
         assertFalse(cs2.isVoltageRegulatorOn());
-        assertTrue(cs2.getReactivePowerSetPoint() == 123f);
-        assertTrue(Float.isNaN(cs2.getVoltageSetPoint()));
+        assertTrue(cs2.getReactivePowerSetpoint() == 123f);
+        assertTrue(Float.isNaN(cs2.getVoltageSetpoint()));
         assertTrue(network.getHvdcLineCount() == 1);
         HvdcLine l = network.getHvdcLine("L");
         assertNotNull(l);

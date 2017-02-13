@@ -72,14 +72,14 @@ public interface HvdcLine extends Identifiable<HvdcLine> {
      * Get the active power setpoint target (in MW).
      * @return the active power setpoint target
      */
-    float getActivePowerSetPoint();
+    float getActivePowerSetpoint();
 
     /**
      * Set the active power setpoint target (in MW).
-     * @param activePowerSetPoint the active power setpoint target
+     * @param activePowerSetpoint the active power setpoint target
      * @return the HVDC line itself to allow method chaining
      */
-    HvdcLine setActivePowerSetPoint(float activePowerSetPoint);
+    HvdcLine setActivePowerSetpoint(float activePowerSetpoint);
 
     /**
      * Get the maximum active power (in MW).

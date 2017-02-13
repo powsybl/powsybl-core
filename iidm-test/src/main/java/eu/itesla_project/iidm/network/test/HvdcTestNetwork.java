@@ -77,7 +77,7 @@ public class HvdcTestNetwork {
                 .setNominalV(400)
                 .setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER)
                 .setMaxP(300)
-                .setActivePowerSetPoint(280)
+                .setActivePowerSetpoint(280)
                 .add();
     }
 
@@ -89,7 +89,7 @@ public class HvdcTestNetwork {
                 .setName("Converter1")
                 .setConnectableBus("B1")
                 .setBus("B1")
-                .setVoltageSetPoint(405)
+                .setVoltageSetpoint(405)
                 .setVoltageRegulatorOn(true)
                 .add();
         cs1.getTerminal()
@@ -112,7 +112,7 @@ public class HvdcTestNetwork {
                 .setId("C2")
                 .setName("Converter2")
                 .setNode(2)
-                .setReactivePowerSetPoint(123)
+                .setReactivePowerSetpoint(123)
                 .setVoltageRegulatorOn(false)
                 .add();
         cs2.newMinMaxReactiveLimits()

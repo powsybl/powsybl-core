@@ -488,8 +488,8 @@
                     <xs:element name="minMaxReactiveLimits" type="iidm:MinMaxReactiveLimits"/>
                 </xs:choice>
                 <xs:attribute name="voltageRegulatorOn" use="required" type="xs:boolean"/>
-                <xs:attribute name="voltageSetPoint" use="optional" type="xs:float"/>
-                <xs:attribute name="reactivePowerSetPoint" use="optional" type="xs:float"/>
+                <xs:attribute name="voltageSetpoint" use="optional" type="xs:float"/>
+                <xs:attribute name="reactivePowerSetpoint" use="optional" type="xs:float"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -512,7 +512,7 @@
             <xs:extension base="iidm:Identifiable">
                 <xs:attribute name="r" use="required" type="xs:float"/>
                 <xs:attribute name="nominalV" use="required" type="xs:float"/>
-                <xs:attribute name="activePowerSetPoint" use="required" type="xs:float"/>
+                <xs:attribute name="activePowerSetpoint" use="required" type="xs:float"/>
                 <xs:attribute name="maxP" use="required" type="xs:float"/>
                 <xs:attribute name="convertersMode" use="required" type="iidm:ConvertersMode"/>
                 <xs:attribute name="converterStation1" use="required" type="iidm:nonEmptyString"/>

@@ -31,25 +31,25 @@ public interface VscConverterStation extends HvdcConverterStation<VscConverterSt
      * Get the voltage setpoint target (Kv).
      * @return the voltage setpoint target
      */
-    float getVoltageSetPoint();
+    float getVoltageSetpoint();
 
     /**
      * Set the voltage setpoint target (Kv).
-     * @param voltageSetPoint the voltage setpoint target
+     * @param voltageSetpoint the voltage setpoint target
      * @return the converter itself to allow method chaining
      */
-    HvdcConverterStation setVoltageSetPoint(float voltageSetPoint);
+    HvdcConverterStation setVoltageSetpoint(float voltageSetpoint);
 
     /**
      * Get the reactive power setpoint target (MVar).
      * @return the reactive power setpoint target
      */
-    float getReactivePowerSetPoint();
+    float getReactivePowerSetpoint();
 
     /**
      * Set the reactive power setpoint target (MVar).
-     * @param reactivePowerSetPoint the reactive power setpoint target
+     * @param reactivePowerSetpoint the reactive power setpoint target
      * @return the converter itself to allow method chaining
      */
-    HvdcConverterStation setReactivePowerSetPoint(float reactivePowerSetPoint);
+    HvdcConverterStation setReactivePowerSetpoint(float reactivePowerSetpoint);
 }
