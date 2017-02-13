@@ -24,12 +24,12 @@
     <dependencies>
         <dependency>
             <groupId>eu.itesla_project</groupId>
-            <artifactId>iidm-network-api</artifactId>
+            <artifactId>contingency-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>eu.itesla_project</groupId>
-            <artifactId>loadflow-api</artifactId>
+            <artifactId>iidm-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -39,7 +39,7 @@
         </dependency>
         <dependency>
             <groupId>eu.itesla_project</groupId>
-            <artifactId>contingency-api</artifactId>
+            <artifactId>loadflow-api</artifactId>
             <version>${project.version}</version>
         </dependency>
 

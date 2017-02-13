@@ -79,10 +79,10 @@
             <artifactId>contingency-api</artifactId>
             <version>${project.version}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>eu.itesla_project</groupId>
-            <artifactId>graph</artifactId>
+            <artifactId>iidm-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         
@@ -94,19 +94,13 @@
         
         <dependency>
             <groupId>eu.itesla_project</groupId>
-            <artifactId>iidm-network-api</artifactId>
+            <artifactId>iidm-impl</artifactId>
             <version>${project.version}</version>
         </dependency>
         
         <dependency>
             <groupId>eu.itesla_project</groupId>
-            <artifactId>iidm-network-impl</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        
-        <dependency>
-            <groupId>eu.itesla_project</groupId>
-            <artifactId>iidm-network-test</artifactId>
+            <artifactId>iidm-test</artifactId>
             <version>${project.version}</version>
         </dependency>
     
@@ -119,6 +113,12 @@
         <dependency>
             <groupId>eu.itesla_project</groupId>
             <artifactId>loadflow-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>eu.itesla_project</groupId>
+            <artifactId>math</artifactId>
             <version>${project.version}</version>
         </dependency>
 

@@ -7,11 +7,11 @@
 /computation/target/
 /contingency-api/target/
 /distribution/target
-/graph/target/
+/math/target/
 /iidm-converter-api/target/
-/iidm-network-api/target/
-/iidm-network-impl/target/
-/iidm-network-test/target/
+/iidm-api/target/
+/iidm-impl/target/
+/iidm-test/target/
 /iidm-xml-converter/target/
 /loadflow-api/target/
 /security-analysis/target/
