@@ -53,9 +53,9 @@ public class SecurityTest {
         } finally {
             writer.close();
         }
-        assertEquals(writer.toString(), "Pre-contingency violations\n" +
-                                               "Action,Equipment,Violation type,Violation name,Value,Limit,Charge %\n" +
-                                               ",line1,CURRENT,20',1100.00,1000.0,110\n");
+        assertEquals(writer.toString(), "Pre-contingency violations" + System.lineSeparator() +
+                                               "Action,Equipment,Violation type,Violation name,Value,Limit,Charge %" + System.lineSeparator() +
+                                               ",line1,CURRENT,20',1100.00,1000.0,110" + System.lineSeparator());
     }
 
     @Test
@@ -66,11 +66,11 @@ public class SecurityTest {
         } finally {
             writer.close();
         }
-        assertEquals(writer.toString(), "Post-contingency limit violations\n" +
-                                               "Contingency,Status,Action,Equipment,Violation type,Violation name,Value,Limit,Charge %\n" +
-                                               "contingency1,converge,,,,,,,\n" +
-                                               ",,,line1,CURRENT,20',1100.00,1000.0,110\n" +
-                                               ",,,line2,CURRENT,10',950.000,900.0,106\n");
+        assertEquals(writer.toString(), "Post-contingency limit violations" + System.lineSeparator() +
+                                               "Contingency,Status,Action,Equipment,Violation type,Violation name,Value,Limit,Charge %" + System.lineSeparator() +
+                                               "contingency1,converge,,,,,,," + System.lineSeparator() +
+                                               ",,,line1,CURRENT,20',1100.00,1000.0,110" + System.lineSeparator() +
+                                               ",,,line2,CURRENT,10',950.000,900.0,106" + System.lineSeparator());
     }
 
     @Test
@@ -81,9 +81,9 @@ public class SecurityTest {
         } finally {
             writer.close();
         }
-        assertEquals(writer.toString(), "Post-contingency limit violations\n" +
-                                               "Contingency,Status,Action,Equipment,Violation type,Violation name,Value,Limit,Charge %\n" +
-                                               "contingency1,converge,,,,,,,\n" +
-                                               ",,,line2,CURRENT,10',950.000,900.0,106\n");
+        assertEquals(writer.toString(), "Post-contingency limit violations" + System.lineSeparator() +
+                                               "Contingency,Status,Action,Equipment,Violation type,Violation name,Value,Limit,Charge %" + System.lineSeparator() +
+                                               "contingency1,converge,,,,,,," + System.lineSeparator() +
+                                               ",,,line2,CURRENT,10',950.000,900.0,106" + System.lineSeparator());
     }
 }

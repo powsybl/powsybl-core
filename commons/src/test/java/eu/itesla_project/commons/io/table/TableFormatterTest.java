@@ -48,10 +48,10 @@ public class TableFormatterTest {
             write(formatter);
         }
         assertEquals(new String(bos.toByteArray(), StandardCharsets.UTF_8),
-                "csv test\n" +
-                "int;double;float;bool;empty;char;string;empty2\n" +
-                "2;inv;2.40000;true;;a;aaa;\n" +
-                "3;4.20000;inv;false;;b;bbb;\n");
+                "csv test" + System.lineSeparator() +
+                "int;double;float;bool;empty;char;string;empty2" + System.lineSeparator() +
+                "2;inv;2.40000;true;;a;aaa;" + System.lineSeparator() +
+                "3;4.20000;inv;false;;b;bbb;" + System.lineSeparator());
     }
 
     @Test
@@ -63,12 +63,12 @@ public class TableFormatterTest {
             write(formatter);
         }
         assertEquals(new String(bos.toByteArray(), StandardCharsets.UTF_8),
-                "ascii test:\n" +
+                "ascii test:" + System.lineSeparator() +
                 "+-----+---------+---------+-------+-------+------+--------+--------+\n" +
                 "| int | double  | float   | bool  | empty | char | string | empty2 |\n" +
                 "+-----+---------+---------+-------+-------+------+--------+--------+\n" +
                 "| 2   | inv     | 2.40000 | true  |       | a    | aaa    |        |\n" +
                 "| 3   | 4.20000 | inv     | false |       | b    | bbb    |        |\n" +
-                "+-----+---------+---------+-------+-------+------+--------+--------+\n");
+                "+-----+---------+---------+-------+-------+------+--------+--------+" + System.lineSeparator());
     }
 }
