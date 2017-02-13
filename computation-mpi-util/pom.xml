@@ -28,7 +28,7 @@
         </dependency>
         <dependency>
             <groupId>eu.itesla_project</groupId>
-            <artifactId>iidm-network-impl</artifactId>
+            <artifactId>iidm-impl</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

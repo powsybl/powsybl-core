@@ -37,12 +37,12 @@
         </dependency>
         <dependency>
             <groupId>eu.itesla_project</groupId>
-            <artifactId>iidm-converter-api</artifactId>
+            <artifactId>iidm-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>eu.itesla_project</groupId>
-            <artifactId>iidm-network-api</artifactId>
+            <artifactId>iidm-converter-api</artifactId>
             <version>${project.version}</version>
         </dependency>
 
@@ -69,13 +69,13 @@
         </dependency>
         <dependency>
             <groupId>eu.itesla_project</groupId>
-            <artifactId>iidm-network-test</artifactId>
+            <artifactId>iidm-impl</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>eu.itesla_project</groupId>
-            <artifactId>iidm-network-impl</artifactId>
+            <artifactId>iidm-test</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>

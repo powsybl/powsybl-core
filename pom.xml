@@ -28,13 +28,13 @@
         <module>computation-mpi-util</module>
         <module>contingency-api</module>
         <module>distribution</module>
-        <module>graph</module>
         <module>iidm-converter-api</module>
-        <module>iidm-network-api</module>
-        <module>iidm-network-impl</module>
-        <module>iidm-network-test</module>
+        <module>iidm-api</module>
+        <module>iidm-impl</module>
+        <module>iidm-test</module>
         <module>iidm-xml-converter</module>
         <module>loadflow-api</module>
+        <module>math</module>
         <module>security-analysis</module>
         <module>simulation-api</module>
     </modules>
