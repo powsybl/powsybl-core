@@ -8,7 +8,6 @@ package eu.itesla_project.iidm.xml;
 
 import eu.itesla_project.iidm.network.LccConverterStation;
 import eu.itesla_project.iidm.network.LccConverterStationAdder;
-import eu.itesla_project.iidm.network.LccFilter;
 import eu.itesla_project.iidm.network.VoltageLevel;
 
 import javax.xml.stream.XMLStreamException;
@@ -30,7 +29,7 @@ public class LccConverterStationXml extends ConnectableXml<LccConverterStation, 
 
     @Override
     protected boolean hasSubElements(LccConverterStation cs) {
-        return cs.getFilterCount() > 0;
+        return false;
     }
 
     @Override
@@ -43,11 +42,6 @@ public class LccConverterStationXml extends ConnectableXml<LccConverterStation, 
 
     @Override
     protected void writeSubElements(LccConverterStation cs, VoltageLevel vl, XmlWriterContext context) throws XMLStreamException {
-        for (LccFilter filter : cs.getFilters()) {
-            context.getWriter().writeEmptyElement(IIDM_URI, "filter");
-            XmlUtil.writeFloat("b", filter.getB(), context.getWriter());
-            context.getWriter().writeAttribute("connected", Boolean.toString(filter.isConnected()));
-        }
     }
 
     @Override
@@ -70,20 +64,6 @@ public class LccConverterStationXml extends ConnectableXml<LccConverterStation, 
 
     @Override
     protected void readSubElements(LccConverterStation cs, XmlReaderContext context) throws XMLStreamException {
-        readUntilEndRootElement(context.getReader(), () -> {
-            switch (context.getReader().getLocalName()) {
-                case "filter":
-                    float b = XmlUtil.readOptionalFloatAttribute(context.getReader(), "b");
-                    boolean connected = XmlUtil.readBoolAttribute(context.getReader(), "connected");
-                    cs.newFilter()
-                            .setB(b)
-                            .setConnected(connected)
-                            .add();
-                    break;
-
-                default:
-                    super.readSubElements(cs, context);
-            }
-        });
+        readUntilEndRootElement(context.getReader(), () -> LccConverterStationXml.super.readSubElements(cs, context));
     }
 }

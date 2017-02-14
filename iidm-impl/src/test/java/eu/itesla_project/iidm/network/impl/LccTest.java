@@ -37,16 +37,13 @@ public class LccTest {
         assertEquals(0.6f, cs2.getPowerFactor(), 0.0f);
         cs1.setPowerFactor(0.6f);
         assertEquals(0.6f, cs1.getPowerFactor(), 0.0f);
-        assertEquals(2, cs1.getFilterCount());
-        assertEquals(0.00001f, cs1.getFilterAt(0).getB(), 0.0f);
-        assertTrue(cs1.getFilterAt(0).isConnected());
-        assertEquals(0.00002f, cs1.getFilterAt(1).getB(), 0.0f);
-        assertFalse(cs1.getFilterAt(1).isConnected());
-        assertEquals(2, cs2.getFilterCount());
-        assertEquals(0.00003f, cs2.getFilterAt(0).getB(), 0.0f);
-        assertTrue(cs2.getFilterAt(0).isConnected());
-        assertEquals(0.00004f, cs2.getFilterAt(1).getB(), 0.0f);
-        assertTrue(cs2.getFilterAt(1).isConnected());
+        assertEquals(2, network.getVoltageLevel("VL1").getShuntCount());
+        assertEquals(2, network.getVoltageLevel("VL2").getShuntCount());
+        assertEquals(1e-5f, network.getShunt("C1_Filter1").getCurrentB(), 0.0f);
+        assertTrue(network.getShunt("C1_Filter1").getTerminal().isConnected());
+        assertEquals(0.0f, network.getShunt("C1_Filter2").getCurrentB(), 0.0f);
+        assertEquals(2e-5f, network.getShunt("C1_Filter2").getMaximumB(), 0.0f);
+        assertFalse(network.getShunt("C1_Filter2").getTerminal().isConnected());
         assertEquals(1, network.getHvdcLineCount());
         HvdcLine l = network.getHvdcLine("L");
         assertNotNull(l);
@@ -62,34 +59,5 @@ public class LccTest {
         Network network = HvdcTestNetwork.createLcc();
         network.getHvdcLine("L").remove();
         assertEquals(0, network.getHvdcLineCount());
-    }
-
-    @Test
-    public void testFilterRemove() {
-        Network network = HvdcTestNetwork.createLcc();
-        LccConverterStation cs1 = (LccConverterStation) network.getHvdcConverterStation("C1");
-        cs1.removeFilterAt(0);
-        assertEquals(1, cs1.getFilterCount());
-        assertEquals(0.00002f, cs1.getFilterAt(0).getB(), 0.0f);
-        assertFalse(cs1.getFilterAt(0).isConnected());
-    }
-
-    @Test
-    public void testAddInvalidFilter() {
-        try {
-            Network network = HvdcTestNetwork.createLcc();
-            LccConverterStation cs1 = (LccConverterStation) network.getHvdcConverterStation("C1");
-            cs1.newFilter().setB(1.0f).add();
-            fail();
-        } catch (ValidationException exc) {
-        }
-
-        try {
-            Network network = HvdcTestNetwork.createLcc();
-            LccConverterStation cs1 = (LccConverterStation) network.getHvdcConverterStation("C1");
-            cs1.newFilter().setConnected(true).add();
-            fail();
-        } catch (ValidationException exc) {
-        }
     }
 }

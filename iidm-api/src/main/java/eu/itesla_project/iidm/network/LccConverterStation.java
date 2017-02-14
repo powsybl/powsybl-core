@@ -6,8 +6,6 @@
  */
 package eu.itesla_project.iidm.network;
 
-import java.util.stream.Stream;
-
 /**
  * LCC converter station.
  *
@@ -28,41 +26,4 @@ public interface LccConverterStation extends HvdcConverterStation<LccConverterSt
      * @return the converter itself to allow method chaining
      */
     LccConverterStation setPowerFactor(float powerFactor);
-
-    /**
-     * Get a builder to create a new filter.
-     * @return a builder to create a new filter
-     */
-    LccFilterAdder newFilter();
-
-    /**
-     * Get filter count.
-     * @return filter count
-     */
-    int getFilterCount();
-
-    /**
-     * Remove a filter based on its index.
-     * @param index index of the filter to remove
-     */
-    void removeFilterAt(int index);
-
-    /**
-     * Get a filter based on its index.
-     * @param index index of the filter to get
-     * @return the filter corresponding to the index
-     */
-    LccFilter getFilterAt(int index);
-
-    /**
-     * Return all the filters.
-     * @return all the filters.
-     */
-    Iterable<LccFilter> getFilters();
-
-    /**
-     * Return all the filters.
-     * @return all the filters.
-     */
-    Stream<LccFilter> getFilterStream();
 }
