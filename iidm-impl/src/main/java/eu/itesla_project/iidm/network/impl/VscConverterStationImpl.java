@@ -29,9 +29,9 @@ class VscConverterStationImpl extends HvdcConverterStationImpl<VscConverterStati
 
     private final TFloatArrayList voltageSetpoint;
 
-    VscConverterStationImpl(String id, String name, Ref<? extends MultiStateObject> ref, boolean voltageRegulatorOn,
-                            float reactivePowerSetpoint, float voltageSetpoint) {
-        super(id, name);
+    VscConverterStationImpl(String id, String name, float lossFactor, Ref<? extends MultiStateObject> ref,
+                            boolean voltageRegulatorOn, float reactivePowerSetpoint, float voltageSetpoint) {
+        super(id, name, lossFactor);
         int stateArraySize = ref.get().getStateManager().getStateArraySize();
         this.voltageRegulatorOn = new BitSet(stateArraySize);
         this.reactivePowerSetpoint = new TFloatArrayList(stateArraySize);

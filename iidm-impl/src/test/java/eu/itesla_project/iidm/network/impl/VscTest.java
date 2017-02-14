@@ -7,6 +7,7 @@
 package eu.itesla_project.iidm.network.impl;
 
 import eu.itesla_project.iidm.network.HvdcLine;
+import eu.itesla_project.iidm.network.LccConverterStation;
 import eu.itesla_project.iidm.network.Network;
 import eu.itesla_project.iidm.network.VscConverterStation;
 import eu.itesla_project.iidm.network.test.HvdcTestNetwork;
@@ -27,22 +28,34 @@ public class VscTest {
         assertNotNull(cs1);
         VscConverterStation cs2 = (VscConverterStation) network.getHvdcConverterStation("C2");
         assertNotNull(cs2);
-        assertTrue(network.getVoltageLevel("VL1").getVscConverterStationCount() == 1);
-        assertTrue(network.getVoltageLevel("VL2").getVscConverterStationCount() == 1);
+        assertEquals(1, network.getVoltageLevel("VL1").getVscConverterStationCount());
+        assertEquals(1, network.getVoltageLevel("VL2").getVscConverterStationCount());
+        assertEquals(0.011f, cs1.getLossFactor(), 0.0f);
+        assertEquals(0.011f, cs2.getLossFactor(), 0.0f);
+        cs1.setLossFactor(0.022f);
+        assertEquals(0.022f, cs1.getLossFactor(), 0.0f);
         assertTrue(cs1.isVoltageRegulatorOn());
-        assertTrue(cs1.getVoltageSetpoint() == 405f);
+        assertEquals(405f, cs1.getVoltageSetpoint(), 0.0f);
+        cs1.setVoltageSetpoint(406f);
+        assertEquals(406f, cs1.getVoltageSetpoint(), 0.0f);
         assertTrue(Float.isNaN(cs1.getReactivePowerSetpoint()));
+        assertEquals(0.011f, cs2.getLossFactor(), 0.0f);
         assertFalse(cs2.isVoltageRegulatorOn());
-        assertTrue(cs2.getReactivePowerSetpoint() == 123f);
+        assertEquals(123f, cs2.getReactivePowerSetpoint(), 0.0f);
+        cs2.setReactivePowerSetpoint(124f);
+        assertEquals(124f, cs2.getReactivePowerSetpoint(), 0.0f);
         assertTrue(Float.isNaN(cs2.getVoltageSetpoint()));
-        assertTrue(network.getHvdcLineCount() == 1);
+        cs2.setVoltageSetpoint(405f);
+        cs2.setVoltageRegulatorOn(true);
+        assertTrue(cs2.isVoltageRegulatorOn());
+        assertEquals(1, network.getHvdcLineCount());
         HvdcLine l = network.getHvdcLine("L");
         assertNotNull(l);
-        assertTrue(l.getR() == 1f);
-        assertTrue(l.getConvertersMode() == HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER);
-        assertTrue(l.getMaxP() == 300f);
-        assertTrue(l.getConverterStation1() == cs1);
-        assertTrue(l.getConverterStation2() == cs2);
+        assertEquals(1f, l.getR(), 0.0f);
+        assertEquals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER, l.getConvertersMode());
+        assertEquals(300f, l.getMaxP(), 0.0f);
+        assertEquals(cs1, l.getConverterStation1());
+        assertEquals(cs2, l.getConverterStation2());
         assertTrue(l.getConverterStation1().getTerminal().getBusView().getBus().isInMainConnectedComponent());
         assertTrue(l.getConverterStation2().getTerminal().getBusView().getBus().isInMainConnectedComponent());
         assertNotEquals(l.getConverterStation1().getTerminal().getBusView().getBus().getSynchronousComponent().getNum(),
@@ -53,6 +66,6 @@ public class VscTest {
     public void testRemove() {
         Network network = HvdcTestNetwork.createVsc();
         network.getHvdcLine("L").remove();
-        assertTrue(network.getHvdcLineCount() == 0);
+        assertEquals(0, network.getHvdcLineCount());
     }
 }

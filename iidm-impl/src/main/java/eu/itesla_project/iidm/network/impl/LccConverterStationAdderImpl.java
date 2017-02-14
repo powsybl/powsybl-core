@@ -13,19 +13,12 @@ import eu.itesla_project.iidm.network.LccConverterStationAdder;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-class LccConverterStationAdderImpl extends SingleTerminalConnectableAdderImpl<LccConverterStationAdderImpl> implements LccConverterStationAdder {
-
-    private final VoltageLevelExt voltageLevel;
+class LccConverterStationAdderImpl extends HvdcConverterStationAdderImpl<LccConverterStationAdderImpl> implements LccConverterStationAdder {
 
     private float powerFactor = Float.NaN;
 
     LccConverterStationAdderImpl(VoltageLevelExt voltageLevel) {
-        this.voltageLevel = voltageLevel;
-    }
-
-    @Override
-    protected NetworkImpl getNetwork() {
-        return voltageLevel.getNetwork();
+        super(voltageLevel);
     }
 
     @Override
@@ -44,14 +37,21 @@ class LccConverterStationAdderImpl extends SingleTerminalConnectableAdderImpl<Lc
         String id = checkAndGetUniqueId();
         String name = getName();
         TerminalExt terminal = checkAndGetTerminal(id);
-        ValidationUtil.checkPowerFactor(this, powerFactor);
+        validate();
         LccConverterStationImpl converterStation
-                = new LccConverterStationImpl(id, name, powerFactor);
+                = new LccConverterStationImpl(id, name, getLossFactor(), powerFactor);
         converterStation.addTerminal(terminal);
-        voltageLevel.attach(terminal, false);
+        getVoltageLevel().attach(terminal, false);
         getNetwork().getObjectStore().checkAndAdd(converterStation);
         getNetwork().getListeners().notifyCreation(converterStation);
         return converterStation;
+    }
+
+    @Override
+    protected void validate() {
+        super.validate();
+
+        ValidationUtil.checkPowerFactor(this, powerFactor);
     }
 
 }

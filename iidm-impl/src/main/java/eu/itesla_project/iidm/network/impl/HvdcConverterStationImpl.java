@@ -16,8 +16,11 @@ import eu.itesla_project.iidm.network.Terminal;
  */
 abstract class HvdcConverterStationImpl<T extends HvdcConverterStation<T>> extends ConnectableImpl<T> implements HvdcConverterStation<T> {
 
-    HvdcConverterStationImpl(String id, String name) {
+    private float lossFactor = Float.NaN;
+
+    HvdcConverterStationImpl(String id, String name, float lossFactor) {
         super(id, name);
+        this.lossFactor = lossFactor;
     }
 
     @Override
@@ -28,6 +31,20 @@ abstract class HvdcConverterStationImpl<T extends HvdcConverterStation<T>> exten
     @Override
     public ConnectableType getType() {
         return ConnectableType.HVDC_CONVERTER_STATION;
+    }
+
+    @Override
+    public float getLossFactor() {
+        return lossFactor;
+    }
+
+    @Override
+    public T setLossFactor(float lossFactor) {
+        ValidationUtil.checkLossFactor(this, lossFactor);
+        float oldValue = this.lossFactor;
+        this.lossFactor = lossFactor;
+        notifyUpdate("lossFactor", oldValue, lossFactor);
+        return (T) this;
     }
 
 }

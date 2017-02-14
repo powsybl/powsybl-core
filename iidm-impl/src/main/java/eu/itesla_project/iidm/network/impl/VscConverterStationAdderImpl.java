@@ -12,9 +12,7 @@ import eu.itesla_project.iidm.network.VscConverterStationAdder;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-class VscConverterStationAdderImpl extends SingleTerminalConnectableAdderImpl<VscConverterStationAdderImpl> implements VscConverterStationAdder {
-
-    private final VoltageLevelExt voltageLevel;
+class VscConverterStationAdderImpl extends HvdcConverterStationAdderImpl<VscConverterStationAdderImpl> implements VscConverterStationAdder {
 
     private Boolean voltageRegulatorOn;
 
@@ -23,12 +21,7 @@ class VscConverterStationAdderImpl extends SingleTerminalConnectableAdderImpl<Vs
     private float voltageSetpoint = Float.NaN;
 
     VscConverterStationAdderImpl(VoltageLevelExt voltageLevel) {
-        this.voltageLevel = voltageLevel;
-    }
-
-    @Override
-    protected NetworkImpl getNetwork() {
-        return voltageLevel.getNetwork();
+        super(voltageLevel);
     }
 
     @Override
@@ -59,14 +52,21 @@ class VscConverterStationAdderImpl extends SingleTerminalConnectableAdderImpl<Vs
         String id = checkAndGetUniqueId();
         String name = getName();
         TerminalExt terminal = checkAndGetTerminal(id);
-        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, voltageSetpoint, reactivePowerSetpoint);
+        validate();
         VscConverterStationImpl converterStation
-                = new VscConverterStationImpl(id, name, getNetwork().getRef(), voltageRegulatorOn, reactivePowerSetpoint, voltageSetpoint);
+                = new VscConverterStationImpl(id, name, getLossFactor(), getNetwork().getRef(), voltageRegulatorOn, reactivePowerSetpoint, voltageSetpoint);
         converterStation.addTerminal(terminal);
-        voltageLevel.attach(terminal, false);
+        getVoltageLevel().attach(terminal, false);
         getNetwork().getObjectStore().checkAndAdd(converterStation);
         getNetwork().getListeners().notifyCreation(converterStation);
         return converterStation;
+    }
+
+    @Override
+    protected void validate() {
+        super.validate();
+
+        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, voltageSetpoint, reactivePowerSetpoint);
     }
 
 }

@@ -5,7 +5,7 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="B1"/>
             </iidm:busBreakerTopology>
-            <iidm:lccConverterStation id="C1" name="Converter1" powerFactor="0.5" bus="B1" connectableBus="B1" p="100.0" q="50.0">
+            <iidm:lccConverterStation id="C1" name="Converter1" lossFactor="0.011" powerFactor="0.5" bus="B1" connectableBus="B1" p="100.0" q="50.0">
                 <iidm:filter b="1.0E-5" connected="true"/>
                 <iidm:filter b="2.0E-5" connected="false"/>
             </iidm:lccConverterStation>
@@ -18,7 +18,7 @@
                 <iidm:switch id="DISC_BBS1_BK1" name="Disconnector" kind="DISCONNECTOR" retained="true" open="false" node1="0" node2="1"/>
                 <iidm:switch id="BK1" name="Breaker" kind="BREAKER" retained="false" open="false" node1="1" node2="2"/>
             </iidm:nodeBreakerTopology>
-            <iidm:lccConverterStation id="C2" name="Converter2" powerFactor="0.6" node="2" p="75.0" q="25.0">
+            <iidm:lccConverterStation id="C2" name="Converter2" lossFactor="0.011" powerFactor="0.6" node="2" p="75.0" q="25.0">
                 <iidm:filter b="3.0E-5" connected="true"/>
                 <iidm:filter b="4.0E-5" connected="true"/>
             </iidm:lccConverterStation>

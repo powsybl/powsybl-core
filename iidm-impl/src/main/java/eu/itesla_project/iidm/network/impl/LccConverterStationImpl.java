@@ -29,8 +29,8 @@ class LccConverterStationImpl extends HvdcConverterStationImpl<LccConverterStati
 
     private final List<LccFilterImpl> filters = new ArrayList<>();
 
-    LccConverterStationImpl(String id, String name, float powerFactor) {
-        super(id, name);
+    LccConverterStationImpl(String id, String name, float lossFactor, float powerFactor) {
+        super(id, name, lossFactor);
         this.powerFactor = powerFactor;
     }
 

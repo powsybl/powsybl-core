@@ -341,4 +341,12 @@ public class ValidationUtil {
             throw new ValidationException(validable, "permanent limit must be > 0");
         }
     }
+
+    static void checkLossFactor(Validable validable, float lossFactor) {
+        if (Float.isNaN(lossFactor)) {
+            throw new ValidationException(validable, "loss factor is invalid");
+        } else if (lossFactor < 0) {
+            throw new ValidationException(validable, "loss factor must be >= 0");
+        }
+    }
 }

@@ -477,7 +477,9 @@
     </xs:simpleType>
     <xs:complexType name="HvdcConverterStation">
         <xs:complexContent>
-            <xs:extension base="iidm:Injection" />
+            <xs:extension base="iidm:Injection">
+                <xs:attribute name="lossFactor" use="required" type="xs:float"/>
+            </xs:extension>
         </xs:complexContent>
     </xs:complexType>
     <xs:complexType name="VscConverterStation">
