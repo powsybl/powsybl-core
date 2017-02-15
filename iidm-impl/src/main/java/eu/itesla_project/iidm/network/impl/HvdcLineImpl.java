@@ -6,7 +6,6 @@
  */
 package eu.itesla_project.iidm.network.impl;
 
-import eu.itesla_project.iidm.network.HvdcConverterStation;
 import eu.itesla_project.iidm.network.HvdcLine;
 import eu.itesla_project.iidm.network.impl.util.Ref;
 import gnu.trove.list.array.TFloatArrayList;
@@ -32,7 +31,7 @@ class HvdcLineImpl extends IdentifiableImpl<HvdcLine> implements HvdcLine, State
 
     private final BitSet convertersMode;
 
-    private final TFloatArrayList activePowerSetPoint;
+    private final TFloatArrayList activePowerSetpoint;
 
     //
 
@@ -42,7 +41,7 @@ class HvdcLineImpl extends IdentifiableImpl<HvdcLine> implements HvdcLine, State
 
     private final Ref<NetworkImpl> networkRef;
 
-    HvdcLineImpl(String id, String name, float r, float nominalV, float maxP, ConvertersMode convertersMode, float activePowerSetPoint,
+    HvdcLineImpl(String id, String name, float r, float nominalV, float maxP, ConvertersMode convertersMode, float activePowerSetpoint,
                  HvdcConverterStationImpl<?> converterStation1, HvdcConverterStationImpl<?> converterStation2,
                  Ref<NetworkImpl> networkRef) {
         super(id, name);
@@ -52,8 +51,8 @@ class HvdcLineImpl extends IdentifiableImpl<HvdcLine> implements HvdcLine, State
         int stateArraySize = networkRef.get().getStateManager().getStateArraySize();
         this.convertersMode = new BitSet(stateArraySize);
         this.convertersMode.set(0, stateArraySize, convertersMode == ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER);
-        this.activePowerSetPoint = new TFloatArrayList(stateArraySize);
-        this.activePowerSetPoint.fill(0, stateArraySize, activePowerSetPoint);
+        this.activePowerSetpoint = new TFloatArrayList(stateArraySize);
+        this.activePowerSetpoint.fill(0, stateArraySize, activePowerSetpoint);
         this.converterStation1 = converterStation1;
         this.converterStation2 = converterStation2;
         this.networkRef = networkRef;
@@ -134,15 +133,15 @@ class HvdcLineImpl extends IdentifiableImpl<HvdcLine> implements HvdcLine, State
     }
 
     @Override
-    public float getActivePowerSetPoint() {
-        return activePowerSetPoint.get(getNetwork().getStateIndex());
+    public float getActivePowerSetpoint() {
+        return activePowerSetpoint.get(getNetwork().getStateIndex());
     }
 
     @Override
-    public HvdcLineImpl setActivePowerSetPoint(float activePowerSetPoint) {
-        ValidationUtil.checkActivePowerSetPoint(this, activePowerSetPoint);
-        float oldValue = this.activePowerSetPoint.set(getNetwork().getStateIndex(), activePowerSetPoint);
-        notifyUpdate("targetP", oldValue, activePowerSetPoint);
+    public HvdcLineImpl setActivePowerSetpoint(float activePowerSetpoint) {
+        ValidationUtil.checkActivePowerSetpoint(this, activePowerSetpoint);
+        float oldValue = this.activePowerSetpoint.set(getNetwork().getStateIndex(), activePowerSetpoint);
+        notifyUpdate("activePowerSetpoint", oldValue, activePowerSetpoint);
         return this;
     }
 
@@ -160,13 +159,13 @@ class HvdcLineImpl extends IdentifiableImpl<HvdcLine> implements HvdcLine, State
     public void extendStateArraySize(int initStateArraySize, int number, int sourceIndex) {
         convertersMode.set(initStateArraySize, initStateArraySize + number, convertersMode.get(sourceIndex));
 
-        activePowerSetPoint.ensureCapacity(activePowerSetPoint.size() + number);
-        activePowerSetPoint.fill(initStateArraySize, initStateArraySize + number, activePowerSetPoint.get(sourceIndex));
+        activePowerSetpoint.ensureCapacity(activePowerSetpoint.size() + number);
+        activePowerSetpoint.fill(initStateArraySize, initStateArraySize + number, activePowerSetpoint.get(sourceIndex));
     }
 
     @Override
     public void reduceStateArraySize(int number) {
-        activePowerSetPoint.remove(activePowerSetPoint.size() - number, number);
+        activePowerSetpoint.remove(activePowerSetpoint.size() - number, number);
     }
 
     @Override
@@ -177,7 +176,7 @@ class HvdcLineImpl extends IdentifiableImpl<HvdcLine> implements HvdcLine, State
     public void allocateStateArrayElement(int[] indexes, int sourceIndex) {
         for (int index : indexes) {
             convertersMode.set(index, convertersMode.get(sourceIndex));
-            activePowerSetPoint.set(index, activePowerSetPoint.get(sourceIndex));
+            activePowerSetpoint.set(index, activePowerSetpoint.get(sourceIndex));
         }
     }
 

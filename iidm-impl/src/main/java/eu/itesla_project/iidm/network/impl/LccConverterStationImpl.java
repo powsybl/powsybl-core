@@ -7,15 +7,6 @@
 package eu.itesla_project.iidm.network.impl;
 
 import eu.itesla_project.iidm.network.LccConverterStation;
-import eu.itesla_project.iidm.network.LccFilter;
-import eu.itesla_project.iidm.network.LccFilterAdder;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.function.Function;
-import java.util.stream.Stream;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -27,10 +18,8 @@ class LccConverterStationImpl extends HvdcConverterStationImpl<LccConverterStati
 
     private float powerFactor;
 
-    private final List<LccFilterImpl> filters = new ArrayList<>();
-
-    LccConverterStationImpl(String id, String name, float powerFactor) {
-        super(id, name);
+    LccConverterStationImpl(String id, String name, float lossFactor, float powerFactor) {
+        super(id, name, lossFactor);
         this.powerFactor = powerFactor;
     }
 
@@ -56,53 +45,5 @@ class LccConverterStationImpl extends HvdcConverterStationImpl<LccConverterStati
         this.powerFactor = powerFactor;
         notifyUpdate("powerFactor", oldValue, powerFactor);
         return this;
-    }
-
-    @Override
-    public Iterable<LccFilter> getFilters() {
-        return Collections.unmodifiableCollection(filters);
-    }
-
-    @Override
-    public Stream<LccFilter> getFilterStream() {
-        return filters.stream().map(Function.identity());
-    }
-
-    private void checkFilterIndex(int index) {
-        if (index < 0 || index >= filters.size()) {
-            throw new RuntimeException("Bad filter index " + index);
-        }
-    }
-
-    @Override
-    public LccFilter getFilterAt(int index) {
-        checkFilterIndex(index);
-        return filters.get(index);
-    }
-
-    @Override
-    public LccFilterAdder newFilter() {
-        return new LccFilterAdderImpl(this);
-    }
-
-    @Override
-    public int getFilterCount() {
-        return filters.size();
-    }
-
-    @Override
-    public void removeFilterAt(int index) {
-        checkFilterIndex(index);
-        filters.remove(index);
-    }
-
-    void addFilter(LccFilterImpl filter) {
-        Objects.requireNonNull(filter);
-        filters.add(filter);
-    }
-
-    void notifyFilterUpdate(LccFilterImpl filter, String attribute, Object oldValue, Object newValue) {
-        int filterIndex = filters.indexOf(filter);
-        notifyUpdate("filter[" + filterIndex + "]." + attribute, oldValue, newValue);
     }
 }

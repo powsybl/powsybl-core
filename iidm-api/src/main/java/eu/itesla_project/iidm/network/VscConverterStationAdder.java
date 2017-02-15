@@ -12,13 +12,13 @@ package eu.itesla_project.iidm.network;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public interface VscConverterStationAdder extends SingleTerminalConnectableAdder<VscConverterStationAdder> {
+public interface VscConverterStationAdder extends HvdcConverterStationAdder<VscConverterStationAdder> {
 
     VscConverterStationAdder setVoltageRegulatorOn(boolean voltageRegulatorOn);
 
-    VscConverterStationAdder setVoltageSetPoint(float voltageSetPoint);
+    VscConverterStationAdder setVoltageSetpoint(float voltageSetpoint);
 
-    VscConverterStationAdder setReactivePowerSetPoint(float reactivePowerSetPoint);
+    VscConverterStationAdder setReactivePowerSetpoint(float reactivePowerSetpoint);
 
     VscConverterStation add();
 }

@@ -477,7 +477,9 @@
     </xs:simpleType>
     <xs:complexType name="HvdcConverterStation">
         <xs:complexContent>
-            <xs:extension base="iidm:Injection" />
+            <xs:extension base="iidm:Injection">
+                <xs:attribute name="lossFactor" use="required" type="xs:float"/>
+            </xs:extension>
         </xs:complexContent>
     </xs:complexType>
     <xs:complexType name="VscConverterStation">
@@ -488,21 +490,14 @@
                     <xs:element name="minMaxReactiveLimits" type="iidm:MinMaxReactiveLimits"/>
                 </xs:choice>
                 <xs:attribute name="voltageRegulatorOn" use="required" type="xs:boolean"/>
-                <xs:attribute name="voltageSetPoint" use="optional" type="xs:float"/>
-                <xs:attribute name="reactivePowerSetPoint" use="optional" type="xs:float"/>
+                <xs:attribute name="voltageSetpoint" use="optional" type="xs:float"/>
+                <xs:attribute name="reactivePowerSetpoint" use="optional" type="xs:float"/>
             </xs:extension>
         </xs:complexContent>
-    </xs:complexType>
-    <xs:complexType name="LccFilter">
-        <xs:attribute name="b" use="required" type="xs:float"/>
-        <xs:attribute name="connected" use="required" type="xs:boolean"/>
     </xs:complexType>
     <xs:complexType name="LccConverterStation">
         <xs:complexContent>
             <xs:extension base="iidm:HvdcConverterStation">
-                <xs:sequence>
-                    <xs:element name="filter" type="iidm:LccFilter" minOccurs="0" maxOccurs="unbounded"/>
-                </xs:sequence>
                 <xs:attribute name="powerFactor" use="required" type="xs:float"/>
             </xs:extension>
         </xs:complexContent>
@@ -512,7 +507,7 @@
             <xs:extension base="iidm:Identifiable">
                 <xs:attribute name="r" use="required" type="xs:float"/>
                 <xs:attribute name="nominalV" use="required" type="xs:float"/>
-                <xs:attribute name="activePowerSetPoint" use="required" type="xs:float"/>
+                <xs:attribute name="activePowerSetpoint" use="required" type="xs:float"/>
                 <xs:attribute name="maxP" use="required" type="xs:float"/>
                 <xs:attribute name="convertersMode" use="required" type="iidm:ConvertersMode"/>
                 <xs:attribute name="converterStation1" use="required" type="iidm:nonEmptyString"/>

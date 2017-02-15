@@ -12,7 +12,7 @@ package eu.itesla_project.iidm.network;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian@rte-france.com>
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public interface LccConverterStationAdder extends SingleTerminalConnectableAdder<LccConverterStationAdder> {
+public interface LccConverterStationAdder extends HvdcConverterStationAdder<LccConverterStationAdder> {
 
     LccConverterStationAdder setPowerFactor(float powerFactor);
 

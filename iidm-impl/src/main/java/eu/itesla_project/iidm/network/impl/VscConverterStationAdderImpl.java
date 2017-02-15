@@ -12,23 +12,16 @@ import eu.itesla_project.iidm.network.VscConverterStationAdder;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-class VscConverterStationAdderImpl extends SingleTerminalConnectableAdderImpl<VscConverterStationAdderImpl> implements VscConverterStationAdder {
-
-    private final VoltageLevelExt voltageLevel;
+class VscConverterStationAdderImpl extends HvdcConverterStationAdderImpl<VscConverterStationAdderImpl> implements VscConverterStationAdder {
 
     private Boolean voltageRegulatorOn;
 
-    private float reactivePowerSetPoint = Float.NaN;
+    private float reactivePowerSetpoint = Float.NaN;
 
-    private float voltageSetPoint = Float.NaN;
+    private float voltageSetpoint = Float.NaN;
 
     VscConverterStationAdderImpl(VoltageLevelExt voltageLevel) {
-        this.voltageLevel = voltageLevel;
-    }
-
-    @Override
-    protected NetworkImpl getNetwork() {
-        return voltageLevel.getNetwork();
+        super(voltageLevel);
     }
 
     @Override
@@ -43,14 +36,14 @@ class VscConverterStationAdderImpl extends SingleTerminalConnectableAdderImpl<Vs
     }
 
     @Override
-    public VscConverterStationAdderImpl setVoltageSetPoint(float voltageSetPoint) {
-        this.voltageSetPoint = voltageSetPoint;
+    public VscConverterStationAdderImpl setVoltageSetpoint(float voltageSetpoint) {
+        this.voltageSetpoint = voltageSetpoint;
         return this;
     }
 
     @Override
-    public VscConverterStationAdderImpl setReactivePowerSetPoint(float reactivePowerSetPoint) {
-        this.reactivePowerSetPoint = reactivePowerSetPoint;
+    public VscConverterStationAdderImpl setReactivePowerSetpoint(float reactivePowerSetpoint) {
+        this.reactivePowerSetpoint = reactivePowerSetpoint;
         return this;
     }
 
@@ -59,14 +52,21 @@ class VscConverterStationAdderImpl extends SingleTerminalConnectableAdderImpl<Vs
         String id = checkAndGetUniqueId();
         String name = getName();
         TerminalExt terminal = checkAndGetTerminal(id);
-        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, voltageSetPoint, reactivePowerSetPoint);
+        validate();
         VscConverterStationImpl converterStation
-                = new VscConverterStationImpl(id, name, getNetwork().getRef(), voltageRegulatorOn, reactivePowerSetPoint, voltageSetPoint);
+                = new VscConverterStationImpl(id, name, getLossFactor(), getNetwork().getRef(), voltageRegulatorOn, reactivePowerSetpoint, voltageSetpoint);
         converterStation.addTerminal(terminal);
-        voltageLevel.attach(terminal, false);
+        getVoltageLevel().attach(terminal, false);
         getNetwork().getObjectStore().checkAndAdd(converterStation);
         getNetwork().getListeners().notifyCreation(converterStation);
         return converterStation;
+    }
+
+    @Override
+    protected void validate() {
+        super.validate();
+
+        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, voltageSetpoint, reactivePowerSetpoint);
     }
 
 }

@@ -37,7 +37,7 @@ class HvdcLineXml extends IdentifiableXml<HvdcLine, HvdcLineAdder, Network> {
         XmlUtil.writeFloat("r", l.getR(), context.getWriter());
         XmlUtil.writeFloat("nominalV", l.getNominalV(), context.getWriter());
         context.getWriter().writeAttribute("convertersMode", l.getConvertersMode().name());
-        XmlUtil.writeFloat("activePowerSetPoint", l.getActivePowerSetPoint(), context.getWriter());
+        XmlUtil.writeFloat("activePowerSetpoint", l.getActivePowerSetpoint(), context.getWriter());
         XmlUtil.writeFloat("maxP", l.getMaxP(), context.getWriter());
         context.getWriter().writeAttribute("converterStation1", l.getConverterStation1().getId());
         context.getWriter().writeAttribute("converterStation2", l.getConverterStation2().getId());
@@ -57,14 +57,14 @@ class HvdcLineXml extends IdentifiableXml<HvdcLine, HvdcLineAdder, Network> {
         float r = XmlUtil.readFloatAttribute(context.getReader(), "r");
         float nominalV = XmlUtil.readFloatAttribute(context.getReader(), "nominalV");
         HvdcLine.ConvertersMode convertersMode = HvdcLine.ConvertersMode.valueOf(context.getReader().getAttributeValue(null, "convertersMode"));
-        float activePowerSetPoint = XmlUtil.readFloatAttribute(context.getReader(), "activePowerSetPoint");
+        float activePowerSetpoint = XmlUtil.readFloatAttribute(context.getReader(), "activePowerSetpoint");
         float maxP = XmlUtil.readFloatAttribute(context.getReader(), "maxP");
         String converterStation1 = context.getReader().getAttributeValue(null, "converterStation1");
         String converterStation2 = context.getReader().getAttributeValue(null, "converterStation2");
         return adder.setR(r)
                 .setNominalV(nominalV)
                 .setConvertersMode(convertersMode)
-                .setActivePowerSetPoint(activePowerSetPoint)
+                .setActivePowerSetpoint(activePowerSetpoint)
                 .setMaxP(maxP)
                 .setConverterStationId1(converterStation1)
                 .setConverterStationId2(converterStation2)

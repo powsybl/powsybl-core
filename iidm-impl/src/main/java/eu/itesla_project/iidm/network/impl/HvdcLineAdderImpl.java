@@ -26,7 +26,7 @@ public class HvdcLineAdderImpl extends IdentifiableAdderImpl<HvdcLineAdderImpl> 
 
     private float nominalV = Float.NaN;
 
-    private float activePowerSetPoint = Float.NaN;
+    private float activePowerSetpoint = Float.NaN;
 
     private float maxP = Float.NaN;
 
@@ -67,8 +67,8 @@ public class HvdcLineAdderImpl extends IdentifiableAdderImpl<HvdcLineAdderImpl> 
     }
 
     @Override
-    public HvdcLineAdder setActivePowerSetPoint(float targetP) {
-        this.activePowerSetPoint = targetP;
+    public HvdcLineAdder setActivePowerSetpoint(float activePowerSetpoint) {
+        this.activePowerSetpoint = activePowerSetpoint;
         return this;
     }
 
@@ -97,7 +97,7 @@ public class HvdcLineAdderImpl extends IdentifiableAdderImpl<HvdcLineAdderImpl> 
         ValidationUtil.checkR(this, r);
         ValidationUtil.checkConvertersMode(this, convertersMode);
         ValidationUtil.checkNominalV(this, nominalV);
-        ValidationUtil.checkActivePowerSetPoint(this, activePowerSetPoint);
+        ValidationUtil.checkActivePowerSetpoint(this, activePowerSetpoint);
         ValidationUtil.checkMaxP(this, maxP);
         HvdcConverterStationImpl<?> converterStation1 = getNetwork().getHvdcConverterStation(converterStationId1);
         if (converterStation1 == null) {
@@ -107,7 +107,7 @@ public class HvdcLineAdderImpl extends IdentifiableAdderImpl<HvdcLineAdderImpl> 
         if (converterStation2 == null) {
             throw new RuntimeException("Side 2 converter station " + converterStationId2 + " not found");
         }
-        HvdcLineImpl hvdcLine = new HvdcLineImpl(id, name, r, nominalV, maxP, convertersMode, activePowerSetPoint,
+        HvdcLineImpl hvdcLine = new HvdcLineImpl(id, name, r, nominalV, maxP, convertersMode, activePowerSetpoint,
                                                  converterStation1, converterStation2, networkRef);
         getNetwork().getObjectStore().checkAndAdd(hvdcLine);
         getNetwork().getListeners().notifyCreation(hvdcLine);

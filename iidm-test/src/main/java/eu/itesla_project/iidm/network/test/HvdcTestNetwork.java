@@ -54,7 +54,7 @@ public class HvdcTestNetwork {
                 .setNode1(0)
                 .setNode2(1)
                 .setOpen(false)
-                .setRetained(true)
+                .setRetained(false)
                 .add();
         vl2.getNodeBreakerView().newBreaker()
                 .setId("BK1")
@@ -62,7 +62,7 @@ public class HvdcTestNetwork {
                 .setNode1(1)
                 .setNode2(2)
                 .setOpen(false)
-                .setRetained(false)
+                .setRetained(true)
                 .add();
         return network;
     }
@@ -77,7 +77,7 @@ public class HvdcTestNetwork {
                 .setNominalV(400)
                 .setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER)
                 .setMaxP(300)
-                .setActivePowerSetPoint(280)
+                .setActivePowerSetpoint(280)
                 .add();
     }
 
@@ -89,7 +89,8 @@ public class HvdcTestNetwork {
                 .setName("Converter1")
                 .setConnectableBus("B1")
                 .setBus("B1")
-                .setVoltageSetPoint(405)
+                .setLossFactor(0.011f)
+                .setVoltageSetpoint(405)
                 .setVoltageRegulatorOn(true)
                 .add();
         cs1.getTerminal()
@@ -112,7 +113,8 @@ public class HvdcTestNetwork {
                 .setId("C2")
                 .setName("Converter2")
                 .setNode(2)
-                .setReactivePowerSetPoint(123)
+                .setLossFactor(0.011f)
+                .setReactivePowerSetpoint(123)
                 .setVoltageRegulatorOn(false)
                 .add();
         cs2.newMinMaxReactiveLimits()
@@ -126,42 +128,102 @@ public class HvdcTestNetwork {
     public static Network createLcc() {
         Network network = createBase();
         VoltageLevel vl1 = network.getVoltageLevel("VL1");
+        ShuntCompensator shunt1 = vl1.newShunt()
+                .setId("C1_Filter1")
+                .setName("Filter 1")
+                .setConnectableBus("B1")
+                .setBus("B1")
+                .setbPerSection(1e-5f)
+                .setCurrentSectionCount(1)
+                .setMaximumSectionCount(1)
+                .add();
+        shunt1.getTerminal()
+                .setQ(25.0f);
+        ShuntCompensator shunt2 = vl1.newShunt()
+                .setId("C1_Filter2")
+                .setName("Filter 2")
+                .setConnectableBus("B1")
+                .setbPerSection(2e-5f)
+                .setCurrentSectionCount(0)
+                .setMaximumSectionCount(1)
+                .add();
+        shunt2.getTerminal()
+                .setQ(25.0f);
         LccConverterStation cs1 = vl1.newLccConverterStation()
                 .setId("C1")
                 .setName("Converter1")
                 .setConnectableBus("B1")
                 .setBus("B1")
+                .setLossFactor(0.011f)
                 .setPowerFactor(0.5f)
                 .add();
         cs1.getTerminal()
                 .setP(100.0f)
                 .setQ(50.0f);
-        cs1.newFilter()
-                .setB(0.00001f)
-                .setConnected(true)
-                .add();
-        cs1.newFilter()
-                .setB(0.00002f)
-                .setConnected(false)
-                .add();
         VoltageLevel vl2 = network.getVoltageLevel("VL2");
+        vl2.getNodeBreakerView().setNodeCount(7);
+        vl2.getNodeBreakerView().newDisconnector()
+                .setId("DISC_BBS1_BK2")
+                .setName("Disconnector")
+                .setNode1(0)
+                .setNode2(3)
+                .setOpen(false)
+                .setRetained(false)
+                .add();
+        vl2.getNodeBreakerView().newBreaker()
+                .setId("BK2")
+                .setName("Breaker")
+                .setNode1(3)
+                .setNode2(4)
+                .setOpen(false)
+                .setRetained(true)
+                .add();
+        vl2.getNodeBreakerView().newDisconnector()
+                .setId("DISC_BBS1_BK3")
+                .setName("Disconnector")
+                .setNode1(0)
+                .setNode2(5)
+                .setOpen(false)
+                .setRetained(false)
+                .add();
+        vl2.getNodeBreakerView().newBreaker()
+                .setId("BK3")
+                .setName("Breaker")
+                .setNode1(5)
+                .setNode2(6)
+                .setOpen(false)
+                .setRetained(true)
+                .add();
+        ShuntCompensator shunt3 = vl2.newShunt()
+                .setId("C2_Filter1")
+                .setName("Filter 3")
+                .setNode(4)
+                .setbPerSection(3e-5f)
+                .setCurrentSectionCount(1)
+                .setMaximumSectionCount(1)
+                .add();
+        shunt3.getTerminal()
+                .setQ(12.5f);
+        ShuntCompensator shunt4 = vl2.newShunt()
+                .setId("C2_Filter2")
+                .setName("Filter 4")
+                .setNode(6)
+                .setbPerSection(4e-5f)
+                .setCurrentSectionCount(1)
+                .setMaximumSectionCount(1)
+                .add();
+        shunt4.getTerminal()
+                .setQ(12.5f);
         LccConverterStation cs2 = vl2.newLccConverterStation()
                 .setId("C2")
                 .setName("Converter2")
                 .setNode(2)
+                .setLossFactor(0.011f)
                 .setPowerFactor(0.6f)
                 .add();
         cs2.getTerminal()
                 .setP(75.0f)
                 .setQ(25.0f);
-        cs2.newFilter()
-                .setB(0.00003f)
-                .setConnected(true)
-                .add();
-        cs2.newFilter()
-                .setB(0.00004f)
-                .setConnected(true)
-                .add();
         createLine(network);
         return network;
     }

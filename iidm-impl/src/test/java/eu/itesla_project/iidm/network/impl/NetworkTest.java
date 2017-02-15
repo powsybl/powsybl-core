@@ -208,11 +208,10 @@ public class NetworkTest {
         assertEquals(Collections.singletonList("C1"), mapper.apply(network.getVoltageLevel("VL1").getLccConverterStationStream()));
         assertEquals(Collections.singletonList("C2"), mapper.apply(network.getVoltageLevel("VL2").getLccConverterStationStream()));
         assertEquals(Collections.singletonList("L"), mapper.apply(network.getHvdcLineStream()));
-        assertEquals(2, network.getLccConverterStation("C1").getFilterStream().count());
         bus = network.getVoltageLevel("VL2").getBusView().getBus("VL2_0");
         assertEquals(Collections.singletonList("C2"), mapper.apply(bus.getLccConverterStationStream()));
 
-        assertEquals(Collections.singletonList("DISC_BBS1_BK1"), mapper.apply(network.getBusBreakerView().getSwitchStream()));
+        assertEquals(Arrays.asList("BK1", "BK2", "BK3"), mapper.apply(network.getBusBreakerView().getSwitchStream()));
 
         network = HvdcTestNetwork.createVsc();
         assertEquals(Collections.singletonList("L"), mapper.apply(network.getHvdcLineStream()));
