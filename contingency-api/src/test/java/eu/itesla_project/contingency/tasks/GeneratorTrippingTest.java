@@ -30,7 +30,7 @@ public class GeneratorTrippingTest {
         ContingencyImpl contingency = new ContingencyImpl("contingency", tripping);
 
         ModificationTask task = contingency.toTask();
-        task.modify(network);
+        task.modify(network, null);
 
         assertFalse(network.getGenerator("GEN").getTerminal().isConnected());
     }
@@ -40,6 +40,6 @@ public class GeneratorTrippingTest {
         Network network = EurostagTutorialExample1Factory.create();
 
         GeneratorTripping tripping = new GeneratorTripping("generator");
-        tripping.modify(network);
+        tripping.modify(network, null);
     }
 }

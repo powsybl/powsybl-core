@@ -6,6 +6,7 @@
  */
 package eu.itesla_project.contingency.tasks;
 
+import eu.itesla_project.computation.ComputationManager;
 import eu.itesla_project.iidm.network.Network;
 
 /**
@@ -13,6 +14,12 @@ import eu.itesla_project.iidm.network.Network;
  */
 public interface ModificationTask {
 
-    void modify(Network network);
+    @Deprecated
+    default void modify(Network network) {
+        modify(network, null);
+    }
 
+    default void modify(Network network, ComputationManager computationManager) {
+        modify(network);
+    }
 }

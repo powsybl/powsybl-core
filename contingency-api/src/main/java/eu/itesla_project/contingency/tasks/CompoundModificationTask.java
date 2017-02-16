@@ -6,6 +6,7 @@
  */
 package eu.itesla_project.contingency.tasks;
 
+import eu.itesla_project.computation.ComputationManager;
 import eu.itesla_project.iidm.network.Network;
 import java.util.Arrays;
 import java.util.List;
@@ -27,9 +28,9 @@ public class CompoundModificationTask implements ModificationTask {
     }
 
     @Override
-    public void modify(Network network) {
+    public void modify(Network network, ComputationManager computationManager) {
         for (ModificationTask subTask : subTasks) {
-            subTask.modify(network);
+            subTask.modify(network, computationManager);
         }
     }
 

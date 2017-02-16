@@ -89,7 +89,7 @@ public class SecurityAnalysisImpl implements SecurityAnalysis {
                                             network.getStateManager().setWorkingState(postContStateId);
 
                                             // apply the contingency on the network
-                                            contingency.toTask().modify(network);
+                                            contingency.toTask().modify(network, computationManager);
 
                                             return null;
                                         }

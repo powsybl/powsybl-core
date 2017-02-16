@@ -25,6 +25,11 @@
         <!-- Compilation dependencies -->
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>computation</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>iidm-api</artifactId>
             <version>${project.version}</version>
         </dependency>

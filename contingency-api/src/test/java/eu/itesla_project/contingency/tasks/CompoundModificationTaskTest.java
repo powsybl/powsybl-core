@@ -26,7 +26,7 @@ public class CompoundModificationTaskTest {
         BranchTripping tripping1 = new BranchTripping("NHV1_NHV2_1", "P1");
         BranchTripping tripping2 = new BranchTripping("NHV1_NHV2_1", "P2");
         CompoundModificationTask task = new CompoundModificationTask(tripping1, tripping2);
-        task.modify(network);
+        task.modify(network, null);
 
         assertFalse(network.getLine("NHV1_NHV2_1").getTerminal1().isConnected());
         assertFalse(network.getLine("NHV1_NHV2_1").getTerminal2().isConnected());

@@ -7,6 +7,7 @@
 package eu.itesla_project.contingency.tasks;
 
 import eu.itesla_project.commons.ITeslaException;
+import eu.itesla_project.computation.ComputationManager;
 import eu.itesla_project.iidm.network.Network;
 import eu.itesla_project.iidm.network.TwoTerminalsConnectable;
 
@@ -30,7 +31,7 @@ public class BranchTripping implements ModificationTask {
     }
 
     @Override
-    public void modify(Network network) {
+    public void modify(Network network, ComputationManager computationManager) {
         TwoTerminalsConnectable branch = network.getLine(branchId);
         if (branch == null) {
             branch = network.getTwoWindingsTransformer(branchId);

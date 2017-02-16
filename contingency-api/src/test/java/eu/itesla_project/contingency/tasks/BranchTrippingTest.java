@@ -35,7 +35,7 @@ public class BranchTrippingTest {
         ContingencyImpl contingency = new ContingencyImpl("contingency", tripping);
 
         ModificationTask task = contingency.toTask();
-        task.modify(network);
+        task.modify(network, null);
 
         assertFalse(line.getTerminal1().isConnected());
         assertFalse(line.getTerminal2().isConnected());
@@ -47,7 +47,7 @@ public class BranchTrippingTest {
 
         tripping = new BranchContingency("NHV1_NHV2_1", "P2");
         contingency = new ContingencyImpl("contingency", tripping);
-        contingency.toTask().modify(network);
+        contingency.toTask().modify(network, null);
 
         assertTrue(line.getTerminal1().isConnected());
         assertFalse(line.getTerminal2().isConnected());
@@ -63,7 +63,7 @@ public class BranchTrippingTest {
 
         BranchContingency tripping = new BranchContingency("NHV2_NLOAD", "P2");
         ContingencyImpl contingency = new ContingencyImpl("contingency", tripping);
-        contingency.toTask().modify(network);
+        contingency.toTask().modify(network, null);
 
         assertFalse(transformer.getTerminal1().isConnected());
         assertTrue(transformer.getTerminal2().isConnected());
@@ -74,7 +74,7 @@ public class BranchTrippingTest {
         Network network = EurostagTutorialExample1Factory.create();
 
         BranchTripping tripping = new BranchTripping("transformer");
-        tripping.modify(network);
+        tripping.modify(network, null);
     }
 
     @Test(expected = ITeslaException.class)
@@ -82,6 +82,6 @@ public class BranchTrippingTest {
         Network network = EurostagTutorialExample1Factory.create();
 
         BranchTripping tripping = new BranchTripping("NHV2_NLOAD", "UNKNOWN");
-        tripping.modify(network);
+        tripping.modify(network, null);
     }
 }
