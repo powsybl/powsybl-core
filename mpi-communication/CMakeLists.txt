@@ -32,7 +32,7 @@ set(MASTER_SOURCES
     src/master.cpp
 )
 add_library(master SHARED ${MASTER_SOURCES})
-target_link_libraries(master common ${Boost_FILESYSTEM_LIBRARY} ${Boost_SYSTEM_LIBRARY} ${Boost_IOSTREAMS_LIBRARY} ${Log4cpp_LIBRARIES} ${LibArchive_LIBRARIES})
+target_link_libraries(master jniutil common ${Boost_FILESYSTEM_LIBRARY} ${Boost_SYSTEM_LIBRARY} ${Boost_IOSTREAMS_LIBRARY} ${Log4cpp_LIBRARIES} ${LibArchive_LIBRARIES})
 
 # slave binary
 set(SLAVE_SOURCES
@@ -42,6 +42,7 @@ set(SLAVE_SOURCES
 add_executable(slave ${SLAVE_SOURCES})
 target_link_libraries(slave common ${Boost_LIBRARIES} ${LibArchive_LIBRARIES} ${Log4cpp_LIBRARIES} ${Protobuf_LIBRARIES} ${ZLIB_LIBRARIES})
 
+include_directories(../jni-util/src)
 include_directories(${Boost_INCLUDE_DIRS})
 include_directories(${JNI_INCLUDE_DIRS})
 include_directories(${LibArchive_INCLUDE_DIRS})
