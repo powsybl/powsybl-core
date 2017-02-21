@@ -219,7 +219,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
             int busNum = 0;
             for (int v : graph.getVertices()) {
                 if (!encountered[v]) {
-                    final Set<ConfiguredBus> busSet = new HashSet<>(1);
+                    final Set<ConfiguredBus> busSet = new LinkedHashSet<>(1);
                     busSet.add(graph.getVertexObject(v));
                     graph.traverse(v, new Traverser<SwitchImpl>() {
                         @Override
