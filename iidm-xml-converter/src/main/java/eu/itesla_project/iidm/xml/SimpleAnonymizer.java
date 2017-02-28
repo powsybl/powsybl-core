@@ -6,58 +6,25 @@
  */
 package eu.itesla_project.iidm.xml;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
+import eu.itesla_project.commons.util.StringAnonymizer;
 import eu.itesla_project.iidm.network.Country;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.IOException;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class SimpleAnonymizer implements Anonymizer {
-
-    private static final String SEPARATOR = ";";
-
-    private final BiMap<String, String> mapping = HashBiMap.create();
-
-    public static String getAlpha(int num) {
-        StringBuilder result = new StringBuilder();
-        while (num > 0) {
-            num--;
-            int remainder = num % 26;
-            char digit = (char) (remainder + 97);
-            result.insert(0, digit);
-            num = (num - remainder) / 26;
-        }
-        return result.toString();
-    }
+public class SimpleAnonymizer extends StringAnonymizer implements Anonymizer {
 
     @Override
     public String anonymizeString(String str) {
-        if (str == null) {
-            return null;
-        }
-        String str2 = mapping.get(str);
-        if (str2 == null) {
-            str2 = getAlpha(mapping.size() + 1).toUpperCase();
-            mapping.put(str, str2);
-        }
-        return str2;
+        return anonymize(str);
     }
 
     @Override
     public String deanonymizeString(String str) {
-        if (str == null) {
-            return null;
-        }
-        String str2 = mapping.inverse().get(str);
-        if (str2 == null) {
-            throw new RuntimeException("Mapping not for anonymized string '" + str + "'");
-        }
-        return str2;
+        return deanonymize(str);
     }
 
     @Override
@@ -72,28 +39,11 @@ public class SimpleAnonymizer implements Anonymizer {
 
     @Override
     public void read(BufferedReader reader) {
-        try {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String[] tokens = line.split(SEPARATOR);
-                mapping.put(tokens[0], tokens[1]);
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        readCsv(reader);
     }
 
     @Override
     public void write(BufferedWriter writer) {
-        mapping.forEach((s, s2) -> {
-            try {
-                writer.write(s);
-                writer.write(SEPARATOR);
-                writer.write(s2);
-                writer.newLine();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
+        writeCsv(writer);
     }
 }
