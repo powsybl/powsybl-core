@@ -16,22 +16,22 @@
 # =============================================================================
 
 if (NOT PROTOBUF_HOME AND NOT $ENV{PROTOBUF_HOME} STREQUAL "")
-	set(PROTOBUF_HOME $ENV{PROTOBUF_HOME})
+    set(PROTOBUF_HOME $ENV{PROTOBUF_HOME})
 endif()
 
 if (NOT PROTOBUF_HOME AND NOT $ENV{PROTOBUF_ROOT} STREQUAL "")
-	set(PROTOBUF_HOME $ENV{PROTOBUF_ROOT})
+    set(PROTOBUF_HOME $ENV{PROTOBUF_ROOT})
 endif()
 
 if (NOT PROTOBUF_HOME)
     message(FATAL_ERROR "Protobuf libraries not found. The variable PROTOBUF_HOME is NOT set or is NOT a valid directory")
 endif()
 
-find_path(Protobuf_INCLUDE_DIR NAME google/protobuf/service.h HINTS ${PROTOBUF_HOME}/include)
+find_path(Protobuf_INCLUDE_DIR NAME google/protobuf/service.h HINTS ${PROTOBUF_HOME}/include NO_DEFAULT_PATH)
 if (USE_STATIC_LIBS)
-    find_library(Protobuf_LIBRARY libprotobuf.a HINTS ${PROTOBUF_HOME}/lib)
+    find_library(Protobuf_LIBRARY libprotobuf.a HINTS ${PROTOBUF_HOME}/lib NO_DEFAULT_PATH)
 else()
-    find_library(Protobuf_LIBRARY protobuf HINTS ${PROTOBUF_HOME}/lib)
+    find_library(Protobuf_LIBRARY protobuf HINTS ${PROTOBUF_HOME}/lib NO_DEFAULT_PATH)
 endif()
 
 mark_as_advanced(Protobuf_INCLUDE_DIR Protobuf_LIBRARY)
