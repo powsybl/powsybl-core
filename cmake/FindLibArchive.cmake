@@ -16,22 +16,22 @@
 # =============================================================================
 
 if (NOT LIBARCHIVE_HOME AND NOT $ENV{LIBARCHIVE_HOME} STREQUAL "")
-	set(LIBARCHIVE_HOME $ENV{LIBARCHIVE_HOME})
+    set(LIBARCHIVE_HOME $ENV{LIBARCHIVE_HOME})
 endif()
 
 if (NOT LIBARCHIVE_HOME AND NOT $ENV{LIBARCHIVE_ROOT} STREQUAL "")
-	set(LIBARCHIVE_HOME $ENV{LIBARCHIVE_ROOT})
+    set(LIBARCHIVE_HOME $ENV{LIBARCHIVE_ROOT})
 endif()
 
 if (NOT LIBARCHIVE_HOME)
     message(FATAL_ERROR "LibArchive libraries not found. The variable LIBARCHIVE_HOME is NOT set or is NOT a valid directory")
 endif()
 
-find_path(LibArchive_INCLUDE_DIR NAME archive.h archive_entry.h HINTS ${LIBARCHIVE_HOME}/include)
+find_path(LibArchive_INCLUDE_DIR NAME archive.h archive_entry.h HINTS ${LIBARCHIVE_HOME}/include NO_DEFAULT_PATH)
 if (USE_STATIC_LIBS)
-    find_library(LibArchive_LIBRARY libarchive.a HINTS ${LIBARCHIVE_HOME}/lib)
+    find_library(LibArchive_LIBRARY libarchive.a HINTS ${LIBARCHIVE_HOME}/lib NO_DEFAULT_PATH)
 else()
-    find_library(LibArchive_LIBRARY archive HINTS ${LIBARCHIVE_HOME}/lib)
+    find_library(LibArchive_LIBRARY archive HINTS ${LIBARCHIVE_HOME}/lib NO_DEFAULT_PATH)
 endif()
 
 mark_as_advanced(LibArchive_INCLUDE_DIR LibArchive_LIBRARY)
