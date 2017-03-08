@@ -12,6 +12,10 @@ find_package(JNI REQUIRED)
 set(SOURCES
     src/jniwrapper.cpp
 )
-add_library(jniutil ${SOURCES})
+add_library(jniutil STATIC ${SOURCES})
 
-include_directories(${JNI_INCLUDE_DIRS})
+target_include_directories(jniutil
+    PUBLIC
+    ${JNI_INCLUDE_DIRS}
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
+)

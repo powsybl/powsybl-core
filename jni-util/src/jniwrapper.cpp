@@ -27,7 +27,7 @@ void JavaUtilList::init(JNIEnv* env) {
 
 void throwJavaLangRuntimeException(JNIEnv* env, const char* msg) {
     jclass clazz = env->FindClass("java/lang/RuntimeException");
-    env->ThrowNew(clazz, msg);	
+    env->ThrowNew(clazz, msg);
 }
 
 }

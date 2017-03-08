@@ -13,8 +13,8 @@
 #include <map>
 #include <memory>
 #include <mutex>
-#include <klu.h>
-#include <cs.h>
+#include <suitesparse/klu.h>
+#include <suitesparse/cs.h>
 #include "jniwrapper.hpp"
 
 namespace itesla {
@@ -66,7 +66,7 @@ private:
 
 std::string LUContext::error() const {
     switch (common.status) {
-	case KLU_OK: return "KLU_OK";
+        case KLU_OK: return "KLU_OK";
         case KLU_SINGULAR: return "KLU_SINGULAR";
         case KLU_OUT_OF_MEMORY: return "KLU_OUT_OF_MEMORY";
         case KLU_INVALID: return "KLU_INVALID";

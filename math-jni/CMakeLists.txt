@@ -14,8 +14,15 @@ set(SOURCES
     src/lu.cpp
 )
 add_library(mathjni SHARED ${SOURCES})
-target_link_libraries(mathjni jniutil ${SuiteSparse_LIBRARIES})
 
-include_directories(../jni-util/src)
-include_directories(${JNI_INCLUDE_DIRS})
-include_directories(${SuiteSparse_INCLUDE_DIRS})
+target_include_directories(mathjni
+    PUBLIC
+    jniutil
+    ${JNI_INCLUDE_DIRS}
+    ${SuiteSparse_INCLUDE_DIRS}
+)
+
+target_link_libraries(mathjni
+    jniutil
+    ${SuiteSparse_LIBRARIES}
+)

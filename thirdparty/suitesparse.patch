@@ -1,0 +1,380 @@
+diff -r -C 5 AMD/Lib/Makefile SuiteSparse.patch/AMD/Lib/Makefile
+*** AMD/Lib/Makefile	2016-05-04 20:01:13.000000000 +0200
+--- AMD/Lib/Makefile	2017-03-08 11:19:23.897225565 +0100
+***************
+*** 80,89 ****
+--- 80,90 ----
+  # install (shared C version only)
+  #-------------------------------------------------------------------------------
+  
+  # install AMD
+  install: $(AR_TARGET) $(INSTALL_LIB)/$(SO_TARGET)
++ 	$(CP) $(AR_TARGET) $(INSTALL_LIB)
+  
+  $(INSTALL_LIB)/$(SO_TARGET): $(OBJ)
+  	@mkdir -p $(INSTALL_LIB)
+  	@mkdir -p $(INSTALL_INCLUDE)
+  	@mkdir -p $(INSTALL_DOC)
+***************
+*** 101,110 ****
+--- 102,112 ----
+  # uninstall AMD
+  uninstall:
+  	$(RM) $(INSTALL_LIB)/$(SO_TARGET)
+  	$(RM) $(INSTALL_LIB)/$(SO_PLAIN)
+  	$(RM) $(INSTALL_LIB)/$(SO_MAIN)
++ 	$(RM) $(INSTALL_LIB)/$(AR_TARGET)
+  	$(RM) $(INSTALL_INCLUDE)/amd.h
+  	$(RM) $(INSTALL_DOC)/AMD_UserGuide.pdf
+  	$(RM) $(INSTALL_DOC)/AMD_README.txt
+  
+  #-------------------------------------------------------------------------------
+diff -r -C 5 BTF/Lib/Makefile SuiteSparse.patch/BTF/Lib/Makefile
+*** BTF/Lib/Makefile	2016-05-04 20:01:44.000000000 +0200
+--- BTF/Lib/Makefile	2017-03-08 11:21:14.136142627 +0100
+***************
+*** 65,74 ****
+--- 65,75 ----
+  
+  #-------------------------------------------------------------------------------
+  
+  # install BTF
+  install: $(AR_TARGET) $(INSTALL_LIB)/$(SO_TARGET)
++ 	$(CP) $(AR_TARGET) $(INSTALL_LIB)
+  
+  $(INSTALL_LIB)/$(SO_TARGET): $(OBJ)
+  	@mkdir -p $(INSTALL_LIB)
+  	@mkdir -p $(INSTALL_INCLUDE)
+  	@mkdir -p $(INSTALL_DOC)
+***************
+*** 83,92 ****
+--- 84,94 ----
+  
+  uninstall:
+  	$(RM) $(INSTALL_LIB)/$(SO_TARGET)
+  	$(RM) $(INSTALL_LIB)/$(SO_PLAIN)
+  	$(RM) $(INSTALL_LIB)/$(SO_MAIN)
++ 	$(RM) $(INSTALL_LIB)/$(AR_TARGET)
+  	$(RM) $(INSTALL_INCLUDE)/btf.h
+  	$(RM) $(INSTALL_DOC)/BTF_README.txt
+  
+  #-------------------------------------------------------------------------------
+  
+diff -r -C 5 COLAMD/Lib/Makefile SuiteSparse.patch/COLAMD/Lib/Makefile
+*** COLAMD/Lib/Makefile	2016-05-04 21:43:15.000000000 +0200
+--- COLAMD/Lib/Makefile	2017-03-08 11:22:02.677665153 +0100
+***************
+*** 48,57 ****
+--- 48,58 ----
+  distclean: clean
+  	- $(RM) -r $(PURGE)
+  
+  # install COLAMD
+  install: $(AR_TARGET) $(INSTALL_LIB)/$(SO_TARGET)
++ 	$(CP) $(AR_TARGET) $(INSTALL_LIB)
+  
+  $(INSTALL_LIB)/$(SO_TARGET): $(OBJ)
+  	@mkdir -p $(INSTALL_LIB)
+  	@mkdir -p $(INSTALL_INCLUDE)
+  	@mkdir -p $(INSTALL_DOC)
+***************
+*** 66,73 ****
+--- 67,75 ----
+  
+  uninstall:
+  	$(RM) $(INSTALL_LIB)/$(SO_TARGET)
+  	$(RM) $(INSTALL_LIB)/$(SO_PLAIN)
+  	$(RM) $(INSTALL_LIB)/$(SO_MAIN)
++ 	$(RM) $(INSTALL_LIB)/$(AR_TARGET)
+  	$(RM) $(INSTALL_INCLUDE)/colamd.h
+  	$(RM) $(INSTALL_DOC)/COLAMD_README.txt
+  
+diff -r -C 5 CXSparse/Lib/Makefile SuiteSparse.patch/CXSparse/Lib/Makefile
+*** CXSparse/Lib/Makefile	2016-05-04 21:44:32.000000000 +0200
+--- CXSparse/Lib/Makefile	2017-03-08 11:23:57.039538625 +0100
+***************
+*** 112,121 ****
+--- 112,122 ----
+  distclean: clean
+  	- $(RM) -r $(PURGE)
+  
+  # install CXSparse
+  install: $(AR_TARGET) $(INSTALL_LIB)/$(SO_TARGET)
++ 	$(CP) $(AR_TARGET) $(INSTALL_LIB)
+  
+  $(INSTALL_LIB)/$(SO_TARGET): $(CS)
+  	@mkdir -p $(INSTALL_LIB)
+  	@mkdir -p $(INSTALL_INCLUDE)
+  	@mkdir -p $(INSTALL_DOC)
+***************
+*** 131,138 ****
+--- 132,140 ----
+  # uninstall CXSparse
+  uninstall:
+  	$(RM) $(INSTALL_LIB)/$(SO_TARGET)
+  	$(RM) $(INSTALL_LIB)/$(SO_PLAIN)
+  	$(RM) $(INSTALL_LIB)/$(SO_MAIN)
++ 	$(RM) $(INSTALL_LIB)/$(AR_TARGET)
+  	$(RM) $(INSTALL_INCLUDE)/cs.h
+  	$(RM) $(INSTALL_DOC)/CXSPARSE_README.txt
+  
+diff -r -C 5 KLU/Lib/Makefile SuiteSparse.patch/KLU/Lib/Makefile
+*** KLU/Lib/Makefile	2016-05-04 22:44:49.000000000 +0200
+--- KLU/Lib/Makefile	2017-03-08 11:49:03.581914054 +0100
+***************
+*** 262,271 ****
+--- 262,272 ----
+  
+  #-------------------------------------------------------------------------------
+  
+  # install KLU
+  install: $(AR_TARGET) $(INSTALL_LIB)/$(SO_TARGET)
++ 	$(CP) $(AR_TARGET) $(INSTALL_LIB)
+  
+  $(INSTALL_LIB)/$(SO_TARGET): $(OBJ)
+  	@mkdir -p $(INSTALL_LIB)
+  	@mkdir -p $(INSTALL_INCLUDE)
+  	@mkdir -p $(INSTALL_DOC)
+***************
+*** 283,291 ****
+--- 284,293 ----
+  # uninstall KLU
+  uninstall:
+  	$(RM) $(INSTALL_LIB)/$(SO_TARGET)
+  	$(RM) $(INSTALL_LIB)/$(SO_PLAIN)
+  	$(RM) $(INSTALL_LIB)/$(SO_MAIN)
++ 	$(RM) $(INSTALL_LIB)/$(AR_TARGET)
+  	$(RM) $(INSTALL_INCLUDE)/klu.h
+  	$(RM) $(INSTALL_DOC)/KLU_UserGuide.pdf
+  	$(RM) $(INSTALL_DOC)/KLU_README.txt
+  
+diff -r -C 5 Makefile SuiteSparse.patch/Makefile
+*** Makefile	2016-12-08 20:33:34.000000000 +0100
+--- Makefile	2017-03-08 11:48:09.132428328 +0100
+***************
+*** 32,76 ****
+  #	( cd PIRO_BAND && $(MAKE) )
+  #	( cd SKYLINE_SVD && $(MAKE) )
+  
+  # install all packages in /usr/local/lib and /usr/local/include
+  # (note that CSparse is not installed; CXSparse is installed instead)
+! install: metis
+  	( cd SuiteSparse_config && $(MAKE) install )
+  	( cd AMD && $(MAKE) install )
+  	( cd BTF && $(MAKE) install )
+! 	( cd CAMD && $(MAKE) install )
+! 	( cd CCOLAMD && $(MAKE) install )
+  	( cd COLAMD && $(MAKE) install )
+! 	( cd CHOLMOD && $(MAKE) install )
+  	( cd CXSparse && $(MAKE) install )
+! 	( cd LDL && $(MAKE) install )
+  	( cd KLU && $(MAKE) install )
+! 	( cd UMFPACK && $(MAKE) install )
+! 	( cd RBio && $(MAKE) install )
+! ifneq (,$(GPU_CONFIG))
+! 	( cd SuiteSparse_GPURuntime && $(MAKE) install )
+! 	( cd GPUQREngine && $(MAKE) install )
+! endif
+! 	( cd SPQR && $(MAKE) install )
+  #	( cd PIRO_BAND && $(MAKE) install )
+  #	( cd SKYLINE_SVD && $(MAKE) install )
+  	$(CP) README.txt $(INSTALL_DOC)/SuiteSparse_README.txt
+  	chmod 644 $(INSTALL_DOC)/SuiteSparse_README.txt
+! ifeq (,$(MY_METIS_LIB))
+!         # install METIS from SuiteSparse/metis-5.1.0
+! 	- $(CP) lib/libmetis.* $(INSTALL_LIB)
+! 	- $(CP) metis-5.1.0/manual/manual.pdf $(INSTALL_DOC)/METIS_manual.pdf
+! 	- $(CP) metis-5.1.0/README.txt $(INSTALL_DOC)/METIS_README.txt
+!         # the following is needed only on the Mac, so *.dylib is hardcoded:
+! 	$(SO_INSTALL_NAME) $(INSTALL_LIB)/libmetis.dylib $(INSTALL_LIB)/libmetis.dylib
+! 	- $(CP) include/metis.h $(INSTALL_INCLUDE)
+! 	chmod 755 $(INSTALL_LIB)/libmetis.*
+! 	chmod 644 $(INSTALL_INCLUDE)/metis.h
+! 	chmod 644 $(INSTALL_DOC)/METIS_manual.pdf
+! 	chmod 644 $(INSTALL_DOC)/METIS_README.txt
+! endif
+  
+  # uninstall all packages
+  uninstall:
+  	$(RM) $(INSTALL_DOC)/SuiteSparse_README.txt
+  	( cd SuiteSparse_config && $(MAKE) uninstall )
+--- 32,77 ----
+  #	( cd PIRO_BAND && $(MAKE) )
+  #	( cd SKYLINE_SVD && $(MAKE) )
+  
+  # install all packages in /usr/local/lib and /usr/local/include
+  # (note that CSparse is not installed; CXSparse is installed instead)
+! #install: metis
+! install:
+  	( cd SuiteSparse_config && $(MAKE) install )
+  	( cd AMD && $(MAKE) install )
+  	( cd BTF && $(MAKE) install )
+! #	( cd CAMD && $(MAKE) install )
+! #	( cd CCOLAMD && $(MAKE) install )
+  	( cd COLAMD && $(MAKE) install )
+! #	( cd CHOLMOD && $(MAKE) install )
+  	( cd CXSparse && $(MAKE) install )
+! #	( cd LDL && $(MAKE) install )
+  	( cd KLU && $(MAKE) install )
+! #	( cd UMFPACK && $(MAKE) install )
+! #	( cd RBio && $(MAKE) install )
+! #ifneq (,$(GPU_CONFIG))
+! #	( cd SuiteSparse_GPURuntime && $(MAKE) install )
+! #	( cd GPUQREngine && $(MAKE) install )
+! #endif
+! #	( cd SPQR && $(MAKE) install )
+  #	( cd PIRO_BAND && $(MAKE) install )
+  #	( cd SKYLINE_SVD && $(MAKE) install )
+  	$(CP) README.txt $(INSTALL_DOC)/SuiteSparse_README.txt
+  	chmod 644 $(INSTALL_DOC)/SuiteSparse_README.txt
+! #ifeq (,$(MY_METIS_LIB))
+! #        # install METIS from SuiteSparse/metis-5.1.0
+! #	- $(CP) lib/libmetis.* $(INSTALL_LIB)
+! #	- $(CP) metis-5.1.0/manual/manual.pdf $(INSTALL_DOC)/METIS_manual.pdf
+! #	- $(CP) metis-5.1.0/README.txt $(INSTALL_DOC)/METIS_README.txt
+! #        # the following is needed only on the Mac, so *.dylib is hardcoded:
+! #	$(SO_INSTALL_NAME) $(INSTALL_LIB)/libmetis.dylib $(INSTALL_LIB)/libmetis.dylib
+! #	- $(CP) include/metis.h $(INSTALL_INCLUDE)
+! #	chmod 755 $(INSTALL_LIB)/libmetis.*
+! #	chmod 644 $(INSTALL_INCLUDE)/metis.h
+! #	chmod 644 $(INSTALL_DOC)/METIS_manual.pdf
+! #	chmod 644 $(INSTALL_DOC)/METIS_README.txt
+! #endif
+  
+  # uninstall all packages
+  uninstall:
+  	$(RM) $(INSTALL_DOC)/SuiteSparse_README.txt
+  	( cd SuiteSparse_config && $(MAKE) uninstall )
+***************
+*** 100,128 ****
+  	$(RM) $(INSTALL_DOC)/METIS_README.txt
+  endif
+  	$(RM) -r $(INSTALL_DOC)
+  
+  # compile the dynamic libraries
+! library: metis
+  	( cd SuiteSparse_config && $(MAKE) )
+  	( cd AMD && $(MAKE) library )
+  	( cd BTF && $(MAKE) library )
+! 	( cd CAMD && $(MAKE) library )
+! 	( cd CCOLAMD && $(MAKE) library )
+  	( cd COLAMD && $(MAKE) library )
+! 	( cd CHOLMOD && $(MAKE) library )
+  	( cd KLU && $(MAKE) library )
+! 	( cd LDL && $(MAKE) library )
+! 	( cd UMFPACK && $(MAKE) library )
+! 	( cd CSparse && $(MAKE) library )
+  	( cd CXSparse && $(MAKE) library )
+! 	( cd RBio && $(MAKE) library )
+! ifneq (,$(GPU_CONFIG))
+! 	( cd SuiteSparse_GPURuntime && $(MAKE) library )
+! 	( cd GPUQREngine && $(MAKE) library )
+! endif
+! 	( cd SPQR && $(MAKE) library )
+  #	( cd PIRO_BAND && $(MAKE) library )
+  #	( cd SKYLINE_SVD && $(MAKE) library )
+  
+  # compile the static libraries (except for metis, which is only dynamic)
+  static: metis
+--- 101,130 ----
+  	$(RM) $(INSTALL_DOC)/METIS_README.txt
+  endif
+  	$(RM) -r $(INSTALL_DOC)
+  
+  # compile the dynamic libraries
+! #library: metis
+! library:
+  	( cd SuiteSparse_config && $(MAKE) )
+  	( cd AMD && $(MAKE) library )
+  	( cd BTF && $(MAKE) library )
+! #	( cd CAMD && $(MAKE) library )
+! #	( cd CCOLAMD && $(MAKE) library )
+  	( cd COLAMD && $(MAKE) library )
+! #	( cd CHOLMOD && $(MAKE) library )
+  	( cd KLU && $(MAKE) library )
+! #	( cd LDL && $(MAKE) library )
+! #	( cd UMFPACK && $(MAKE) library )
+! #	( cd CSparse && $(MAKE) library )
+  	( cd CXSparse && $(MAKE) library )
+! #	( cd RBio && $(MAKE) library )
+! #ifneq (,$(GPU_CONFIG))
+! #	( cd SuiteSparse_GPURuntime && $(MAKE) library )
+! #	( cd GPUQREngine && $(MAKE) library )
+! #endif
+! #	( cd SPQR && $(MAKE) library )
+  #	( cd PIRO_BAND && $(MAKE) library )
+  #	( cd SKYLINE_SVD && $(MAKE) library )
+  
+  # compile the static libraries (except for metis, which is only dynamic)
+  static: metis
+diff -r -C 5 SuiteSparse_config/Makefile SuiteSparse.patch/SuiteSparse_config/Makefile
+*** SuiteSparse_config/Makefile	2016-06-09 20:18:30.000000000 +0200
+--- SuiteSparse_config/Makefile	2017-03-08 11:23:47.135636432 +0100
+***************
+*** 43,53 ****
+  	( cd xerbla ; $(MAKE) clean )
+  	- $(RM) -r $(CLEAN)
+  
+  # install SuiteSparse_config
+  install: $(AR_TARGET) $(INSTALL_LIB)/$(SO_TARGET)
+! 
+  $(INSTALL_LIB)/$(SO_TARGET): $(OBJ)
+  	@mkdir -p $(INSTALL_LIB)
+  	@mkdir -p $(INSTALL_INCLUDE)
+  	@mkdir -p $(INSTALL_DOC)
+  	$(CC) $(SO_OPTS) $^ -o $@ $(LDLIBS)
+--- 43,54 ----
+  	( cd xerbla ; $(MAKE) clean )
+  	- $(RM) -r $(CLEAN)
+  
+  # install SuiteSparse_config
+  install: $(AR_TARGET) $(INSTALL_LIB)/$(SO_TARGET)
+! 	$(CP) $(AR_TARGET) $(INSTALL_LIB)
+! 	
+  $(INSTALL_LIB)/$(SO_TARGET): $(OBJ)
+  	@mkdir -p $(INSTALL_LIB)
+  	@mkdir -p $(INSTALL_INCLUDE)
+  	@mkdir -p $(INSTALL_DOC)
+  	$(CC) $(SO_OPTS) $^ -o $@ $(LDLIBS)
+***************
+*** 63,72 ****
+--- 64,74 ----
+  # uninstall SuiteSparse_config
+  uninstall:
+  	$(RM) $(INSTALL_LIB)/$(SO_TARGET)
+  	$(RM) $(INSTALL_LIB)/$(SO_PLAIN)
+  	$(RM) $(INSTALL_LIB)/$(SO_MAIN)
++ 	$(RM) $(INSTALL_LIB)/$(AR_TARGET)
+  	$(RM) $(INSTALL_INCLUDE)/SuiteSparse_config.h
+  	$(RM) $(INSTALL_DOC)/SUITESPARSECONFIG_README.txt
+  	( cd xerbla ; $(MAKE) uninstall )
+  
+  
+diff -r -C 5 SuiteSparse_config/SuiteSparse_config.mk SuiteSparse.patch/SuiteSparse_config/SuiteSparse_config.mk
+*** SuiteSparse_config/SuiteSparse_config.mk	2016-12-14 17:54:00.000000000 +0100
+--- SuiteSparse_config/SuiteSparse_config.mk	2017-03-08 11:49:35.943600238 +0100
+***************
+*** 52,62 ****
+      #                 INSTALL_DOC=/solo/mydox
+      # which puts the libraries in /yada/mylibs, include files in /yoda/myinc,
+      # and documentation in /solo/mydox.
+      INSTALL ?= $(SUITESPARSE)
+      INSTALL_LIB ?= $(INSTALL)/lib
+!     INSTALL_INCLUDE ?= $(INSTALL)/include
+      INSTALL_DOC ?= $(INSTALL)/share/doc/suitesparse-$(SUITESPARSE_VERSION)
+  
+      #---------------------------------------------------------------------------
+      # optimization level
+      #---------------------------------------------------------------------------
+--- 52,62 ----
+      #                 INSTALL_DOC=/solo/mydox
+      # which puts the libraries in /yada/mylibs, include files in /yoda/myinc,
+      # and documentation in /solo/mydox.
+      INSTALL ?= $(SUITESPARSE)
+      INSTALL_LIB ?= $(INSTALL)/lib
+!     INSTALL_INCLUDE ?= $(INSTALL)/include/suitesparse
+      INSTALL_DOC ?= $(INSTALL)/share/doc/suitesparse-$(SUITESPARSE_VERSION)
+  
+      #---------------------------------------------------------------------------
+      # optimization level
+      #---------------------------------------------------------------------------

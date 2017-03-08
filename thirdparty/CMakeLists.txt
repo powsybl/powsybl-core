@@ -40,13 +40,13 @@ if (download)
      set(libarchive_url http://www.libarchive.org/downloads/libarchive-3.1.2.tar.gz)
      set(boost_url http://sourceforge.net/projects/boost/files/boost/1.57.0/boost_1_57_0.tar.gz/download)
      set(log4cpp_url http://sourceforge.net/projects/log4cpp/files/log4cpp-1.1.x%20%28new%29/log4cpp-1.1/log4cpp-1.1.1.tar.gz)
-     set(suitesparse_url http://faculty.cse.tamu.edu/davis/SuiteSparse/SuiteSparse-4.5.3.tar.gz)
+     set(suitesparse_url http://faculty.cse.tamu.edu/davis/SuiteSparse/SuiteSparse-4.5.4.tar.gz)
 else()
     set(protobuf_url ${packs}/protobuf-2.5.0.tar.bz2)
     set(libarchive_url ${packs}/libarchive-3.1.2.tar.gz)
     set(boost_url ${packs}/boost_1_57_0.tar.gz)
     set(log4cpp_url ${packs}/log4cpp-1.1.1.tar.gz)
-    set(suitesparse_url ${packs}/SuiteSparse-4.5.3.tar.gz)
+    set(suitesparse_url ${packs}/SuiteSparse-4.5.4.tar.gz)
 endif()
 
 
@@ -99,8 +99,9 @@ set(log4cpp_install_dir ${install_dir})
 ExternalProject_Add(suitesparse_project
     INSTALL_DIR ${prefix}/suitesparse
     URL ${suitesparse_url}
-    CONFIGURE_COMMAND make
-    BUILD_COMMAND make
+    CONFIGURE_COMMAND ""
+    PATCH_COMMAND patch -p0 < ${CMAKE_CURRENT_SOURCE_DIR}/suitesparse.patch
+    BUILD_COMMAND make library
     BUILD_IN_SOURCE 1
     INSTALL_COMMAND make install INSTALL=<INSTALL_DIR>
 )
