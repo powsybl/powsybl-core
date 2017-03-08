@@ -24,7 +24,19 @@ set(COMMON_SOURCES
     src/mpitags.cpp
     src/mpiutil.cpp
 )
-add_library(common ${COMMON_SOURCES})
+add_library(common STATIC ${COMMON_SOURCES})
+
+target_include_directories(common
+    PUBLIC
+    ${Boost_INCLUDE_DIRS}
+    ${LibArchive_INCLUDE_DIRS}
+    ${Log4cpp_INCLUDE_DIRS}
+)
+
+target_link_libraries(common
+    ${LibArchive_LIBRARIES}
+    ${ZLIB_LIBRARIES}
+)
 
 # master library
 set(MASTER_SOURCES
@@ -32,7 +44,22 @@ set(MASTER_SOURCES
     src/master.cpp
 )
 add_library(master SHARED ${MASTER_SOURCES})
-target_link_libraries(master jniutil common ${Boost_FILESYSTEM_LIBRARY} ${Boost_SYSTEM_LIBRARY} ${Boost_IOSTREAMS_LIBRARY} ${Log4cpp_LIBRARIES} ${LibArchive_LIBRARIES})
+
+target_include_directories(master
+    PUBLIC
+    common
+    ${Boost_INCLUDE_DIRS}
+    ${JNI_INCLUDE_DIRS}
+    ${Log4cpp_INCLUDE_DIRS}
+)
+
+target_link_libraries(master
+    common
+    ${Boost_FILESYSTEM_LIBRARY}
+    ${Boost_SYSTEM_LIBRARY}
+    ${Boost_IOSTREAMS_LIBRARY}
+    ${Log4cpp_LIBRARIES}
+)
 
 # slave binary
 set(SLAVE_SOURCES
@@ -40,11 +67,18 @@ set(SLAVE_SOURCES
     src/slave.cpp
 )
 add_executable(slave ${SLAVE_SOURCES})
-target_link_libraries(slave common ${Boost_LIBRARIES} ${LibArchive_LIBRARIES} ${Log4cpp_LIBRARIES} ${Protobuf_LIBRARIES} ${ZLIB_LIBRARIES})
 
-include_directories(../jni-util/src)
-include_directories(${Boost_INCLUDE_DIRS})
-include_directories(${JNI_INCLUDE_DIRS})
-include_directories(${LibArchive_INCLUDE_DIRS})
-include_directories(${Log4cpp_INCLUDE_DIRS})
-include_directories(${Protobuf_INCLUDE_DIRS})
+target_include_directories(slave
+    PUBLIC
+    ${Boost_INCLUDE_DIRS}
+    ${JNI_INCLUDE_DIRS}
+    ${Log4cpp_INCLUDE_DIRS}
+    ${Protobuf_INCLUDE_DIRS}
+)
+
+target_link_libraries(slave
+    common
+    ${Boost_LIBRARIES}
+    ${Log4cpp_LIBRARIES}
+    ${Protobuf_LIBRARIES}
+)

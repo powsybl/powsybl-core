@@ -15,6 +15,7 @@ In order to build iPST you need:
   * CMake *(2.6 or greater)*
   * Recent C++ compiler (GNU g++ or Clang)
   * OpenMPI *(1.8.3 or greater)*
+  * Some development packages (zlib, bzip2)
 
 ### OpenMPI (required)
 In order to support the MPI modules, you need to compile and install the [OpenMPI](https://www.open-mpi.org/) library.
@@ -25,6 +26,18 @@ $> cd openmpi-1.8.3
 $> ./configure --prefix=<INSTALL_DIR> --enable-mpi-thread-multiple
 $> make install
 $> export PATH=$PATH:<INSTALL_DIR>/bin
+```
+
+### zlib (required)
+In order to build Boost external package, you have to install [zlib](http://www.zlib.net/) library.
+```
+$> yum install zlib-devel
+```
+
+### bzip2 (required)
+In order to build Boost external package, you have to install [bzip](http://www.bzip.org/) library.
+```
+$> yum install bzip2-devel
 ```
 
 ## Install

@@ -13,22 +13,22 @@
 # =============================================================================
 
 if (NOT LOG4CPP_HOME AND NOT $ENV{LOG4CPP_HOME} STREQUAL "")
-	set(LOG4CPP_HOME $ENV{LOG4CPP_HOME})
+    set(LOG4CPP_HOME $ENV{LOG4CPP_HOME})
 endif()
 
 if (NOT LOG4CPP_HOME AND NOT $ENV{LOG4CPP_ROOT} STREQUAL "")
-	set(LOG4CPP_HOME $ENV{LOG4CPP_ROOT})
+    set(LOG4CPP_HOME $ENV{LOG4CPP_ROOT})
 endif()
 
 if (NOT LOG4CPP_HOME)
     message(FATAL_ERROR "Log4Cpp libraries not found. The variable LOG4CPP_HOME is NOT set or is NOT a valid directory")
 endif()
 
-find_path(Log4cpp_INCLUDE_DIR NAME log4cpp/Category.hh log4cpp/Appender.hh HINTS ${LOG4CPP_HOME}/include)
+find_path(Log4cpp_INCLUDE_DIR NAME log4cpp/Category.hh log4cpp/Appender.hh HINTS ${LOG4CPP_HOME}/include NO_DEFAULT_PATH)
 if (USE_STATIC_LIBS)
-    find_library(Log4cpp_LIBRARY liblog4cpp.a HINTS ${LOG4CPP_HOME}/lib)
+    find_library(Log4cpp_LIBRARY liblog4cpp.a HINTS ${LOG4CPP_HOME}/lib NO_DEFAULT_PATH)
 else()
-    find_library(Log4cpp_LIBRARY log4cpp HINTS ${LOG4CPP_HOME}/lib)
+    find_library(Log4cpp_LIBRARY log4cpp HINTS ${LOG4CPP_HOME}/lib NO_DEFAULT_PATH)
 endif()
 
 mark_as_advanced(Log4cpp_INCLUDE_DIR Log4cpp_LIBRARY)

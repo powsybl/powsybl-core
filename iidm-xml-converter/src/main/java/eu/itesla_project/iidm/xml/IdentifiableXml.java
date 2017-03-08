@@ -68,7 +68,7 @@ abstract class IdentifiableXml<T extends Identifiable, A extends IdentifiableAdd
             String value = context.getReader().getAttributeValue(null, "value");
             identifiable.getProperties().put(name, value);
         } else {
-            throw new AssertionError();
+            throw new RuntimeException("Unknown element name <" + context.getReader().getLocalName() + "> in <" + identifiable.getId() + ">");
         }
     }
 
