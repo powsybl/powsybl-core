@@ -31,8 +31,11 @@ set(PROTOBUF_HOME ${thirdparty_prefix}/protobuf)
 set(LIBARCHIVE_HOME ${thirdparty_prefix}/libarchive)
 set(BOOST_ROOT ${thirdparty_prefix}/boost)
 set(LOG4CPP_HOME ${thirdparty_prefix}/log4cpp)
+set(SUITESPARSE_HOME ${thirdparty_prefix}/suitesparse)
 
+add_subdirectory(jni-util)
 add_subdirectory(mpi-communication)
+add_subdirectory(math-jni)
 
 find_package(Doxygen)
 if(DOXYGEN_FOUND)

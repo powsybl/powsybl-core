@@ -160,6 +160,7 @@ ipst_cpp()
             if [ $ipst_compile = true ]; then
                 echo "**** Compiling C++ modules"
                 make -C "$ipst_builddir" || exit $?
+                export LD_LIBRARY_PATH=$ipst_builddir/lib:$LD_LIBRARY_PATH
             fi
 
             if [ $ipst_docs = true ]; then

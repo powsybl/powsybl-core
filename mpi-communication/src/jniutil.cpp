@@ -14,17 +14,6 @@ namespace itesla {
 
 namespace jni {
 
-jmethodID JavaUtilList::_sizeMethodId = 0;
-jmethodID JavaUtilList::_getMethodId = 0;
-jmethodID JavaUtilList::_addMethodId = 0;
-
-void JavaUtilList::init(JNIEnv* env) {
-    jclass _class = (jclass) env->FindClass("java/util/List");
-    _sizeMethodId = env->GetMethodID(_class, "size", "()I"); 
-    _getMethodId = env->GetMethodID(_class, "get", "(I)Ljava/lang/Object;");
-    _addMethodId = env->GetMethodID(_class, "add", "(Ljava/lang/Object;)Z");
-}
-
 jmethodID EuIteslaProjectComputationMpiMpiTask::_getIdMethodId = 0;   
 jmethodID EuIteslaProjectComputationMpiMpiTask::_getRankMethodId = 0;   
 jmethodID EuIteslaProjectComputationMpiMpiTask::_getThreadMethodId = 0;
@@ -60,11 +49,6 @@ void EuIteslaProjectComputationMpiMpiTask::resultMessage(const std::string& buff
 	jbyteArray jresult = _env->NewByteArray(buffer.size());       
     _env->SetByteArrayRegion(jresult, 0, buffer.size(), (jbyte*) &buffer[0]);
 	_env->CallVoidMethod(_obj, _setResultMessageMethodId, jresult);
-}
-
-void throwJavaLangRuntimeException(JNIEnv* env, const char* msg) {
-	jclass clazz = env->FindClass("java/lang/RuntimeException");
-    env->ThrowNew(clazz, msg);	
 }
 
 }

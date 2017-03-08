@@ -33,11 +33,6 @@ target_include_directories(common
     ${Log4cpp_INCLUDE_DIRS}
 )
 
-target_link_libraries(common
-    ${LibArchive_LIBRARIES}
-    ${ZLIB_LIBRARIES}
-)
-
 # master library
 set(MASTER_SOURCES
     src/jniutil.cpp
@@ -55,6 +50,7 @@ target_include_directories(master
 
 target_link_libraries(master
     common
+    jniutil
     ${Boost_FILESYSTEM_LIBRARY}
     ${Boost_SYSTEM_LIBRARY}
     ${Boost_IOSTREAMS_LIBRARY}
@@ -79,6 +75,8 @@ target_include_directories(slave
 target_link_libraries(slave
     common
     ${Boost_LIBRARIES}
+    ${LibArchive_LIBRARIES}
     ${Log4cpp_LIBRARIES}
     ${Protobuf_LIBRARIES}
+    ${ZLIB_LIBRARIES}
 )
