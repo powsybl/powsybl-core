@@ -61,4 +61,14 @@ public class StringAnonymizerTest {
         assertEquals("foo", anonymizer2.deanonymize(anonymizedFoo));
         assertEquals("bar", anonymizer2.deanonymize(anonymizedBar));
     }
+
+    @Test
+    public void invalidFileTest() throws IOException {
+        String csv = String.join(System.lineSeparator(),
+                "",
+                "A;B",
+                "C");
+        StringAnonymizer anonymizer = fromCsv(csv);
+        assertEquals(1, anonymizer.getStringCount());
+    }
 }

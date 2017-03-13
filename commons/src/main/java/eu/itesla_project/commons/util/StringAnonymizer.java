@@ -8,6 +8,8 @@ package eu.itesla_project.commons.util;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -17,6 +19,8 @@ import java.io.IOException;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class StringAnonymizer {
+
+    private static Logger LOGGER = LoggerFactory.getLogger(StringAnonymizer.class);
 
     private static final char DEFAULT_SEPARATOR = ';';
 
@@ -32,6 +36,10 @@ public class StringAnonymizer {
             num = (num - remainder) / 26;
         }
         return result.toString();
+    }
+
+    public int getStringCount() {
+        return mapping.size();
     }
 
     public String anonymize(String str) {
@@ -66,7 +74,15 @@ public class StringAnonymizer {
             String strSep = Character.toString(separator);
             String line;
             while ((line = reader.readLine()) != null) {
-                String[] tokens = line.split(strSep);
+                String trimmedLine = line.trim();
+                if (trimmedLine.isEmpty()) {
+                    continue;
+                }
+                String[] tokens = trimmedLine.split(strSep);
+                if (tokens.length != 2) {
+                    LOGGER.warn("Invalid line '{}'", trimmedLine);
+                    continue;
+                }
                 mapping.put(tokens[0], tokens[1]);
             }
         } catch (IOException e) {
