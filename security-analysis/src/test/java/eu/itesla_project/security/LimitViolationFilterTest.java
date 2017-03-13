@@ -18,7 +18,6 @@ import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
@@ -26,7 +25,6 @@ import com.google.common.jimfs.Jimfs;
 import eu.itesla_project.commons.config.InMemoryPlatformConfig;
 import eu.itesla_project.commons.config.MapModuleConfig;
 import eu.itesla_project.iidm.network.Country;
-import eu.itesla_project.iidm.network.Identifiable;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -87,15 +85,9 @@ public class LimitViolationFilterTest {
 
     @Test
     public void apply() throws Exception {
-        Identifiable line1 = Mockito.mock(Identifiable.class);
-        Mockito.when(line1.getId()).thenReturn("line1");
-        LimitViolation line1Violation = new LimitViolation(line1, LimitViolationType.CURRENT, 1000f, "", 1, 1100f, Country.FR, 380f);
-        Identifiable line2 = Mockito.mock(Identifiable.class);
-        Mockito.when(line2.getId()).thenReturn("line2");
-        LimitViolation line2Violation = new LimitViolation(line2, LimitViolationType.CURRENT, 900f, "", 1, 950f, Country.BE, 220f);
-        Identifiable voltageLeve1 = Mockito.mock(Identifiable.class);
-        Mockito.when(voltageLeve1.getId()).thenReturn("voltageLeve11");
-        LimitViolation voltageLeve11Violation = new LimitViolation(voltageLeve1, LimitViolationType.HIGH_VOLTAGE, 200f, "", 1, 250f, Country.FR, 220f);
+        LimitViolation line1Violation = new LimitViolation("line1", LimitViolationType.CURRENT, 1000f, "", 1, 1100f, Country.FR, 380f);
+        LimitViolation line2Violation = new LimitViolation("line2", LimitViolationType.CURRENT, 900f, "", 1, 950f, Country.BE, 220f);
+        LimitViolation voltageLeve11Violation = new LimitViolation("voltageLeve11", LimitViolationType.HIGH_VOLTAGE, 200f, "", 1, 250f, Country.FR, 220f);
         
         LimitViolationFilter filter = new LimitViolationFilter();
         List<LimitViolation> filteredViolations = filter.apply(Arrays.asList(line1Violation, line2Violation, voltageLeve11Violation));
@@ -125,7 +117,7 @@ public class LimitViolationFilterTest {
     private void checkFilteredViolations(List<LimitViolation> filteredViolations, String equipmentId, LimitViolationType violationType, 
                                          float baseVoltage, Country country) {
         assertEquals(1, filteredViolations.size());
-        assertEquals(equipmentId, filteredViolations.get(0).getSubject().getId());
+        assertEquals(equipmentId, filteredViolations.get(0).getSubjectId());
         assertEquals(violationType, filteredViolations.get(0).getLimitType());
         assertEquals(baseVoltage, filteredViolations.get(0).getBaseVoltage(), 0f);
         assertEquals(country, filteredViolations.get(0).getCountry());

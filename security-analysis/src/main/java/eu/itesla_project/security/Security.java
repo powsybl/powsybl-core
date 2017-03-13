@@ -1,5 +1,6 @@
 /**
  * Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+ * Copyright (c) 2017, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -157,7 +158,7 @@ public class Security {
         Objects.requireNonNull(filter);
         List<LimitViolation> filteredViolations = filter.apply(violations);
         if (filteredViolations.size() > 0) {
-            Collections.sort(filteredViolations, (o1, o2) -> o1.getSubject().getId().compareTo(o2.getSubject().getId()));
+            Collections.sort(filteredViolations, (o1, o2) -> o1.getSubjectId().compareTo(o2.getSubjectId()));
             Table table = new Table(9, BorderStyle.CLASSIC_WIDE);
             table.addCell("Country");
             table.addCell("Base voltage");
@@ -171,7 +172,7 @@ public class Security {
             for (LimitViolation violation : filteredViolations) {
                 table.addCell(violation.getCountry() != null ? violation.getCountry().name() : "");
                 table.addCell(Float.isNaN(violation.getBaseVoltage()) ? "" : Float.toString(violation.getBaseVoltage()));
-                table.addCell(violation.getSubject().getId());
+                table.addCell(violation.getSubjectId());
                 table.addCell(violation.getLimitType().name());
                 table.addCell(Objects.toString(violation.getLimitName(), ""));
                 table.addCell(Float.toString(violation.getValue()));
@@ -217,11 +218,11 @@ public class Security {
                     ? limitViolationFilter.apply(result.getPreContingencyResult().getLimitViolations())
                     : result.getPreContingencyResult().getLimitViolations();
             filteredLimitViolations.stream()
-                    .sorted((o1, o2) -> o1.getSubject().getId().compareTo(o2.getSubject().getId()))
+                    .sorted((o1, o2) -> o1.getSubjectId().compareTo(o2.getSubjectId()))
                     .forEach(violation -> {
                         try {
                             formatter.writeEmptyCell()
-                                    .writeCell(violation.getSubject().getId())
+                                    .writeCell(violation.getSubjectId())
                                     .writeCell(violation.getLimitType().name())
                                     .writeCell(Objects.toString(violation.getLimitName(), ""))
                                     .writeCell(violation.getValue())
@@ -267,7 +268,7 @@ public class Security {
     }
 
     private static LimitViolationKey toKey(LimitViolation violation) {
-        return new LimitViolationKey(violation.getSubject().getId(), violation.getLimitType(), violation.getLimit());
+        return new LimitViolationKey(violation.getSubjectId(), violation.getLimitType(), violation.getLimit());
     }
 
     public static void printPostContingencyViolations(SecurityAnalysisResult result, Writer writer, TableFormatterFactory formatterFactory,
@@ -344,13 +345,13 @@ public class Security {
                                     }
 
                                     filteredLimitViolations2.stream()
-                                            .sorted(Comparator.comparing(o -> o.getSubject().getId()))
+                                            .sorted(Comparator.comparing(o -> o.getSubjectId()))
                                             .forEach(violation -> {
                                                 try {
                                                     formatter.writeEmptyCell()
                                                             .writeEmptyCell()
                                                             .writeEmptyCell()
-                                                            .writeCell(violation.getSubject().getId())
+                                                            .writeCell(violation.getSubjectId())
                                                             .writeCell(violation.getLimitType().name())
                                                             .writeCell(Objects.toString(violation.getLimitName(), ""))
                                                             .writeCell(violation.getValue())
