@@ -6,6 +6,8 @@
  */
 package eu.itesla_project.computation;
 
+import com.google.common.collect.ImmutableMap;
+
 import java.util.Map;
 import java.util.Objects;
 
@@ -15,6 +17,19 @@ import java.util.Objects;
  */
 public class CommandExecution {
 
+    public static Map<String, String> getExecutionVariables(Map<String, String> variables, CommandExecution commandExecution) {
+        Objects.requireNonNull(variables);
+        Objects.requireNonNull(commandExecution);
+        if (commandExecution.getOverloadedVariables() != null) {
+            return ImmutableMap.<String, String>builder()
+                    .putAll(variables)
+                    .putAll(commandExecution.getOverloadedVariables())
+                    .build();
+
+        }
+        return variables;
+    }
+
     private final Command command;
 
     private final int executionCount;
@@ -22,6 +37,8 @@ public class CommandExecution {
     private final int priority;
 
     private final Map<String, String> tags;
+
+    private final Map<String, String> overloadedVariables; // variables overloaded for this execution
 
     public CommandExecution(Command command, int executionCount) {
         this(command, executionCount, Integer.MAX_VALUE);
@@ -32,6 +49,10 @@ public class CommandExecution {
     }
 
     public CommandExecution(Command command, int executionCount, int priority, Map<String, String> tags) {
+        this(command, executionCount, priority, tags, null);
+    }
+
+    public CommandExecution(Command command, int executionCount, int priority, Map<String, String> tags, Map<String, String> overloadedVariables) {
         this.command = Objects.requireNonNull(command, "command is null");
         if (executionCount < 1) {
             throw new IllegalArgumentException("execution count must be > 0");
@@ -39,6 +60,7 @@ public class CommandExecution {
         this.executionCount = executionCount;
         this.priority = priority;
         this.tags = tags;
+        this.overloadedVariables = overloadedVariables;
     }
 
     public Command getCommand() {
@@ -57,4 +79,7 @@ public class CommandExecution {
         return tags;
     }
 
+    public Map<String, String> getOverloadedVariables() {
+        return overloadedVariables;
+    }
 }

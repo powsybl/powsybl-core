@@ -6,16 +6,13 @@
  */
 package eu.itesla_project.computation.mpi;
 
-import eu.itesla_project.computation.ExecutionListener;
 import eu.itesla_project.computation.CommandExecution;
 import eu.itesla_project.computation.ExecutionError;
+import eu.itesla_project.computation.ExecutionListener;
 import eu.itesla_project.computation.ExecutionReport;
+
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -34,7 +31,7 @@ public class MpiJob {
 
     private final Path workingDir;
 
-    private final Map<String, String> env;
+    private final Map<String, String> variables;
 
     private int taskIndex = 0;
 
@@ -44,11 +41,11 @@ public class MpiJob {
 
     private final Set<Integer> usedRanks = new HashSet<>();
 
-    MpiJob(int id, CommandExecution execution, Path workingDir, Map<String, String> env, ExecutionListener listener, CompletableFuture<ExecutionReport> future) {
+    MpiJob(int id, CommandExecution execution, Path workingDir, Map<String, String> variables, ExecutionListener listener, CompletableFuture<ExecutionReport> future) {
         this.id = id;
         this.execution = execution;
         this.workingDir = workingDir;
-        this.env = env;
+        this.variables = variables;
         this.listener = new ProfiledExecutionListener(listener);
         this.future = future;
     }
@@ -65,8 +62,12 @@ public class MpiJob {
         return workingDir;
     }
 
-    Map<String, String> getEnv() {
-        return env;
+    Map<String, String> getVariables() {
+        return variables;
+    }
+
+    Map<String, String> getExecutionVariables() {
+        return CommandExecution.getExecutionVariables(variables, execution);
     }
 
     ExecutionListener getListener() {

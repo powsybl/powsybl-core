@@ -27,7 +27,7 @@ public interface MpiJobScheduler {
 
     void sendCommonFile(CommonFile commonFile);
 
-    CompletableFuture<ExecutionReport> execute(CommandExecution execution, Path workingDir, Map<String, String> env, ExecutionListener listener);
+    CompletableFuture<ExecutionReport> execute(CommandExecution execution, Path workingDir, Map<String, String> variables, ExecutionListener listener);
 
     void shutdown() throws Exception;
 
