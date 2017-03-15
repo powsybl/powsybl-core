@@ -38,4 +38,12 @@ public class LocalGroovyScriptToolTest extends AbstractToolTest {
         assertCommand(new String[] {"local-groovy-script", "--script", helloFile}, CommandLineTools.COMMAND_OK_STATUS, "hello", "");
     }
 
+    @Test
+    public void runWithParameters() throws Exception {
+        String helloFile = "/hello.groovy";
+        try (BufferedWriter writer = Files.newBufferedWriter(fileSystem.getPath(helloFile))) {
+            writer.write("print 'hello ' + args[0]");
+        }
+        assertCommand(new String[] {"local-groovy-script", "--script", helloFile, "John Doe"}, CommandLineTools.COMMAND_OK_STATUS, "hello John Doe", "");
+    }
 }
