@@ -27,7 +27,7 @@ public abstract class GroovyScriptAbstractTest {
 
     protected abstract String getExpectedOutput();
 
-    protected List<GroovyExtension> getExtensions() {
+    protected List<GroovyScriptExtension> getExtensions() {
         return Collections.emptyList();
     }
 
@@ -36,7 +36,7 @@ public abstract class GroovyScriptAbstractTest {
         ComputationManager computationManager = Mockito.mock(ComputationManager.class);
         StringWriter out = new StringWriter();
         try (Reader codeReader = getCodeReader()) {
-            GroovyScripts.run(codeReader, computationManager, new GroovyExtensionLoaderTest(getExtensions()), out);
+            GroovyScripts.run(codeReader, computationManager, getExtensions(), out);
         } finally {
             out.close();
         }

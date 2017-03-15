@@ -8,7 +8,7 @@ package eu.itesla_project.iidm.import_;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import eu.itesla_project.computation.script.GroovyExtension;
+import eu.itesla_project.computation.script.GroovyScriptExtension;
 import eu.itesla_project.computation.script.GroovyScriptAbstractTest;
 import eu.itesla_project.iidm.datasource.ReadOnlyDataSource;
 import eu.itesla_project.iidm.network.Network;
@@ -26,7 +26,7 @@ import java.util.List;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class ImportGroovyExtensionTest extends GroovyScriptAbstractTest {
+public class ImportGroovyScriptExtensionTest extends GroovyScriptAbstractTest {
 
     private FileSystem fileSystem;
 
@@ -71,8 +71,8 @@ public class ImportGroovyExtensionTest extends GroovyScriptAbstractTest {
     }
 
     @Override
-    protected List<GroovyExtension> getExtensions() {
+    protected List<GroovyScriptExtension> getExtensions() {
         ImportersLoader loader = new ImportersLoaderList(Collections.singletonList(fooImporter), Collections.emptyList());
-        return Collections.singletonList(new ImportGroovyExtension(fileSystem, loader));
+        return Collections.singletonList(new ImportGroovyScriptExtension(fileSystem, loader));
     }
 }
