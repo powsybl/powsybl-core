@@ -224,6 +224,7 @@ public class LocalComputationManager implements ComputationManager {
                 int exitValue = 0;
                 Path outFile = workingDir.resolve(command.getId() + "_" + executionIndex + ".out");
                 Path errFile = workingDir.resolve(command.getId() + "_" + executionIndex + ".err");
+                Map<String, String> executionVariables = CommandExecution.getExecutionVariables(variables, commandExecution);
                 switch (command.getType()) {
                     case SIMPLE:
                         SimpleCommand simpleCmd = (SimpleCommand) command;
@@ -232,7 +233,7 @@ public class LocalComputationManager implements ComputationManager {
                                 outFile,
                                 errFile,
                                 workingDir,
-                                variables);
+                                executionVariables);
                         break;
                     case GROUP:
                         for (GroupCommand.SubCommand subCmd : ((GroupCommand) command).getSubCommands()) {
@@ -241,7 +242,7 @@ public class LocalComputationManager implements ComputationManager {
                                     outFile,
                                     errFile,
                                     workingDir,
-                                    variables);
+                                    executionVariables);
                             if (exitValue != 0) {
                                 break;
                             }

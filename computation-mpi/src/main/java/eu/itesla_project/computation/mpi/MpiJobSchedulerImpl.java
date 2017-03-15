@@ -267,9 +267,9 @@ class MpiJobSchedulerImpl implements MpiJobScheduler {
         return postProcessor != null ? Messages.Task.OutputFile.PostProcessor.valueOf(postProcessor.name()) : Messages.Task.OutputFile.PostProcessor.NONE;
     }
 
-    private static Messages.Task.Environment createEnvMessage(Map<String, String> env) {
+    private static Messages.Task.Environment createEnvMessage(Map<String, String> variables) {
         Messages.Task.Environment.Builder builder = Messages.Task.Environment.newBuilder();
-        for (Map.Entry<String, String> var : env.entrySet()) {
+        for (Map.Entry<String, String> var : variables.entrySet()) {
             builder.addVariable(Messages.Task.Variable.newBuilder()
                                                       .setName(var.getKey())
                                                       .setValue(var.getValue())
@@ -396,7 +396,7 @@ class MpiJobSchedulerImpl implements MpiJobScheduler {
             }
         }
 
-        builder.setEnv(createEnvMessage(job.getEnv()));
+        builder.setEnv(createEnvMessage(job.getExecutionVariables()));
 
         switch (command.getType()) {
             case SIMPLE:
@@ -607,11 +607,11 @@ class MpiJobSchedulerImpl implements MpiJobScheduler {
     }
 
     @Override
-    public CompletableFuture<ExecutionReport> execute(CommandExecution execution, Path workingDir, Map<String, String> env, ExecutionListener listener) {
+    public CompletableFuture<ExecutionReport> execute(CommandExecution execution, Path workingDir, Map<String, String> variables, ExecutionListener listener) {
         CompletableFuture<ExecutionReport> future = new CompletableFuture<>();
         newJobsLock.lock();
         try {
-            MpiJob job = new MpiJob(jobId++, execution, workingDir, env, listener, future);
+            MpiJob job = new MpiJob(jobId++, execution, workingDir, variables, listener, future);
             newJobs.add(job);
             if (LOGGER.isTraceEnabled()) {
                 LOGGER.trace("Job {} scheduled ({} tasks)", job.getId(), job.getExecution().getExecutionCount());
