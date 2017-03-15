@@ -13,6 +13,7 @@ import eu.itesla_project.commons.tools.ToolRunningContext;
 import eu.itesla_project.computation.ComputationManager;
 import eu.itesla_project.computation.local.LocalComputationManager;
 import eu.itesla_project.computation.script.GroovyScripts;
+import groovy.lang.Binding;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
@@ -82,7 +83,11 @@ public class LocalGroovyScriptTool implements Tool {
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
         Path file = context.getFileSystem().getPath(line.getOptionValue("script"));
         Writer writer = new OutputStreamWriter(context.getOutputStream());
-        GroovyScripts.run(file, computationManager, writer);
+
+        Binding binding = new Binding();
+        binding.setProperty("args", line.getArgs());
+
+        GroovyScripts.run(file, computationManager, binding, writer);
         writer.flush();
     }
 }

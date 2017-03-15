@@ -22,13 +22,17 @@ class GroovyScripts {
     }
 
     static void run(Path file, ComputationManager computationManager, Writer out) {
-        file.withReader(StandardCharsets.UTF_8.name(), { reader ->
-            run(reader, computationManager, out)
-        })
+        run(file, computationManager, new Binding(), out)
     }
 
     static void run(Reader codeReader, ComputationManager computationManager, Writer out) {
         run(codeReader, computationManager, new Binding(), out)
+    }
+
+    static void run(Path file, ComputationManager computationManager, Binding binding, Writer out) {
+        file.withReader(StandardCharsets.UTF_8.name(), { reader ->
+            run(reader, computationManager, binding, out)
+        })
     }
 
     static void run(Reader codeReader, ComputationManager computationManager, Binding binding, Writer out) {

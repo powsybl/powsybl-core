@@ -14,6 +14,7 @@ import eu.itesla_project.commons.tools.ToolRunningContext;
 import eu.itesla_project.computation.ComputationManager;
 import eu.itesla_project.computation.mpi.*;
 import eu.itesla_project.computation.script.GroovyScripts;
+import groovy.lang.Binding;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
@@ -125,6 +126,9 @@ public class MpiMasterGroovyScriptTool implements Tool {
         boolean verbose = line.hasOption("verbose");
         Path stdOutArchive = line.hasOption("stdout-archive") ? context.getFileSystem().getPath(line.getOptionValue("stdout-archive")) : null;
 
+        Binding binding = new Binding();
+        binding.setProperty("args", line.getArgs());
+
         ComponentDefaultConfig config = ComponentDefaultConfig.load();
 
         MpiExecutorContext mpiExecutorContext = config.newFactoryImpl(MpiExecutorContextFactory.class, DefaultMpiExecutorContextFactory.class).create();
@@ -132,7 +136,7 @@ public class MpiMasterGroovyScriptTool implements Tool {
         try {
             try (MpiStatistics statistics = statisticsFactory.create(statisticsDbDir, statisticsDbName)) {
                 try (ComputationManager computationManager = new MpiComputationManager(tmpDir, statistics, mpiExecutorContext, coresPerRank, verbose, stdOutArchive)) {
-                    GroovyScripts.run(file, computationManager);
+                    GroovyScripts.run(file, computationManager, binding, null);
                 }
             }
         } finally {
