@@ -23,7 +23,7 @@ class IdentifiablePropertyTest {
     @Before
     void setUp() throws Exception {
         // to force static init loading
-        ImportGroovyExtension.toString()
+        ImportGroovyScriptExtension.toString()
     }
 
     @Test

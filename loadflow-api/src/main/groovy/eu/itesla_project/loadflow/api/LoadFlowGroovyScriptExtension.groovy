@@ -9,28 +9,27 @@ package eu.itesla_project.loadflow.api
 import com.google.auto.service.AutoService
 import eu.itesla_project.commons.config.ComponentDefaultConfig
 import eu.itesla_project.computation.ComputationManager
-import eu.itesla_project.computation.script.GroovyExtension
+import eu.itesla_project.computation.script.GroovyScriptExtension
 import eu.itesla_project.iidm.network.Network
-import eu.itesla_project.loadflow.api.mock.LoadFlowFactoryMock
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-@AutoService(GroovyExtension.class)
-class LoadFlowGroovyExtension implements GroovyExtension {
+@AutoService(GroovyScriptExtension.class)
+class LoadFlowGroovyScriptExtension implements GroovyScriptExtension {
 
     private final LoadFlowFactory loadFlowFactory;
 
     private final LoadFlowParameters parameters;
 
-    LoadFlowGroovyExtension(LoadFlowFactory loadFlowFactory, LoadFlowParameters parameters) {
+    LoadFlowGroovyScriptExtension(LoadFlowFactory loadFlowFactory, LoadFlowParameters parameters) {
         assert loadFlowFactory
         assert parameters
         this.loadFlowFactory = loadFlowFactory
         this.parameters = parameters
     }
 
-    LoadFlowGroovyExtension() {
+    LoadFlowGroovyScriptExtension() {
         this(ComponentDefaultConfig.load().newFactoryImpl(LoadFlowFactory.class),
              LoadFlowParameters.load());
     }

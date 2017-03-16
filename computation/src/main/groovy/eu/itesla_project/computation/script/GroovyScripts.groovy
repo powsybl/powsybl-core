@@ -36,17 +36,17 @@ class GroovyScripts {
     }
 
     static void run(Reader codeReader, ComputationManager computationManager, Binding binding, Writer out) {
-        run(codeReader, computationManager, binding, new ServiceLoaderGroovyExtensionLoader(), out)
+        run(codeReader, computationManager, binding, ServiceLoader.load(GroovyScriptExtension.class), out)
     }
 
-    static void run(Reader codeReader, ComputationManager computationManager, GroovyExtensionLoader extensionLoader, Writer out) {
-        run(codeReader, computationManager, new Binding(), extensionLoader, out)
+    static void run(Reader codeReader, ComputationManager computationManager, Iterable<GroovyScriptExtension> extensions, Writer out) {
+        run(codeReader, computationManager, new Binding(), extensions, out)
     }
 
-    static void run(Reader codeReader, ComputationManager computationManager, Binding binding, GroovyExtensionLoader extensionLoader, Writer out) {
+    static void run(Reader codeReader, ComputationManager computationManager, Binding binding, Iterable<GroovyScriptExtension> extensions, Writer out) {
         assert codeReader
         assert computationManager
-        assert extensionLoader
+        assert extensions != null
 
         CompilerConfiguration conf = new CompilerConfiguration()
 
@@ -55,7 +55,7 @@ class GroovyScripts {
         }
 
         // load extensions
-        extensionLoader.load(binding, computationManager)
+        extensions.forEach { it.load(binding, computationManager) }
 
         GroovyShell shell = new GroovyShell(binding, conf)
         shell.evaluate(codeReader)

@@ -7,7 +7,7 @@
 package eu.itesla_project.loadflow.api;
 
 import eu.itesla_project.computation.ComputationManager;
-import eu.itesla_project.computation.script.GroovyExtension;
+import eu.itesla_project.computation.script.GroovyScriptExtension;
 import eu.itesla_project.computation.script.GroovyScriptAbstractTest;
 import eu.itesla_project.iidm.network.Network;
 import org.junit.Before;
@@ -21,7 +21,7 @@ import java.util.List;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class LoadFlowGroovyExtensionTest extends GroovyScriptAbstractTest {
+public class LoadFlowGroovyScriptExtensionTest extends GroovyScriptAbstractTest {
 
     private LoadFlowFactory loadFlowFactory;
 
@@ -58,8 +58,8 @@ public class LoadFlowGroovyExtensionTest extends GroovyScriptAbstractTest {
     }
 
     @Override
-    protected List<GroovyExtension> getExtensions() {
-        return Arrays.asList(new LoadFlowGroovyExtension(loadFlowFactory, new LoadFlowParameters()),
+    protected List<GroovyScriptExtension> getExtensions() {
+        return Arrays.asList(new LoadFlowGroovyScriptExtension(loadFlowFactory, new LoadFlowParameters()),
                              (binding, computationManager) -> binding.setVariable("n", fooNetwork));
     }
 }

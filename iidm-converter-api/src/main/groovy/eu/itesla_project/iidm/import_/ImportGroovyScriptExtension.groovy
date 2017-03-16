@@ -8,7 +8,7 @@ package eu.itesla_project.iidm.import_
 
 import com.google.auto.service.AutoService
 import eu.itesla_project.computation.ComputationManager
-import eu.itesla_project.computation.script.GroovyExtension
+import eu.itesla_project.computation.script.GroovyScriptExtension
 import eu.itesla_project.iidm.network.Identifiable
 
 import java.nio.file.FileSystem
@@ -17,8 +17,8 @@ import java.nio.file.FileSystems
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-@AutoService(GroovyExtension.class)
-class ImportGroovyExtension implements GroovyExtension {
+@AutoService(GroovyScriptExtension.class)
+class ImportGroovyScriptExtension implements GroovyScriptExtension {
 
     static {
         Identifiable.metaClass.propertyMissing = { String name ->
@@ -34,14 +34,14 @@ class ImportGroovyExtension implements GroovyExtension {
 
     private final ImportersLoader importersLoader
 
-    ImportGroovyExtension(FileSystem fileSystem, ImportersLoader importersLoader) {
+    ImportGroovyScriptExtension(FileSystem fileSystem, ImportersLoader importersLoader) {
         assert fileSystem;
         assert importersLoader;
         this.fileSystem = fileSystem
         this.importersLoader = importersLoader;
     }
 
-    ImportGroovyExtension() {
+    ImportGroovyScriptExtension() {
         this(FileSystems.getDefault(), new ImportersServiceLoader())
     }
 
