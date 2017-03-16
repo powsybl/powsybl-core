@@ -42,7 +42,7 @@ private:
 class StringUTF : public JniWrapper<jstring> {
 public:
     StringUTF(JNIEnv* env, jstring jstr)
-        : JniWrapper(env, jstr),
+        : JniWrapper<jstring>(env, jstr),
           _ptr(_env->GetStringUTFChars(jstr, NULL)) {
     }
 
@@ -69,12 +69,12 @@ private:
 class IntArray : public JniWrapper<jintArray> {
 public:
     IntArray(JNIEnv* env, jintArray obj)
-        : JniWrapper(env, obj),
+        : JniWrapper<jintArray>(env, obj),
           _ptr(_env->GetIntArrayElements(obj, 0)) {
     }
 
     IntArray(JNIEnv* env, int* ptr, int length)
-        : JniWrapper(env, env->NewIntArray(length)),
+        : JniWrapper<jintArray>(env, env->NewIntArray(length)),
           _ptr(ptr) {
         _env->SetIntArrayRegion(_obj, 0, length, ptr);
     }
@@ -98,12 +98,12 @@ private:
 class DoubleArray : public JniWrapper<jdoubleArray> {
 public:
     DoubleArray(JNIEnv* env, jdoubleArray obj)
-        : JniWrapper(env, obj),
+        : JniWrapper<jdoubleArray>(env, obj),
           _ptr(_env->GetDoubleArrayElements(obj, 0)) {
     }
 
     DoubleArray(JNIEnv* env, double* ptr, int length)
-        : JniWrapper(env, env->NewDoubleArray(length)),
+        : JniWrapper<jdoubleArray>(env, env->NewDoubleArray(length)),
           _ptr(ptr) {
         _env->SetDoubleArrayRegion(_obj, 0, length, ptr);
     }
@@ -127,7 +127,7 @@ private:
 class ObjectArray : public JniWrapper<jobjectArray> {
 public:
     ObjectArray(JNIEnv* env, jobjectArray obj)
-        : JniWrapper(env, obj) {
+        : JniWrapper<jobjectArray>(env, obj) {
     }
 
     size_t length() const {
@@ -142,7 +142,7 @@ public:
 class ByteArray : public JniWrapper<jbyteArray> {
 public:
     ByteArray(JNIEnv* env, jbyteArray obj)
-        : JniWrapper(env, obj),
+        : JniWrapper<jbyteArray>(env, obj),
           _ptr(_env->GetByteArrayElements(obj, 0)) {
     }
 
@@ -165,7 +165,7 @@ private:
 class JavaUtilList : public JniWrapper<jobject> {
 public:
     JavaUtilList(JNIEnv* env, jobject obj)
-       : JniWrapper(env, obj) {
+       : JniWrapper<jobject>(env, obj) {
     }
 
     static void init(JNIEnv* env);

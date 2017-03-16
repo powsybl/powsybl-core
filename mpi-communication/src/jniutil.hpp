@@ -23,7 +23,7 @@ namespace jni {
 class EuIteslaProjectComputationMpiMpiTask : public JniWrapper<jobject> {
 public:
     EuIteslaProjectComputationMpiMpiTask(JNIEnv* env, jobject obj)
-        : JniWrapper(env, obj) {
+        : JniWrapper<jobject>(env, obj) {
     }
 
     static void init(JNIEnv* env);
