@@ -42,7 +42,7 @@ void EuIteslaProjectMathMatrixSparseMatrix::init(JNIEnv* env) {
 }
 
 EuIteslaProjectMathMatrixSparseMatrix::EuIteslaProjectMathMatrixSparseMatrix(JNIEnv* env, int m, int n, const IntArray& ap, const IntArray& ai, const DoubleArray& ax)
-    : JniWrapper(env, env->NewObject(_cls, _constructor, m, n, ap.obj(), ai.obj(), ax.obj())) {
+    : JniWrapper<jobject>(env, env->NewObject(_cls, _constructor, m, n, ap.obj(), ai.obj(), ax.obj())) {
 }
 
 }
