@@ -95,6 +95,11 @@ public class StateManagerImplTest {
         }
 
         @Override
+        public Extension getExtensionByName(String name) {
+            throw new AssertionError();
+        }
+
+        @Override
         public Collection<Extension> getExtensions() {
             throw new AssertionError();
         }

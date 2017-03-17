@@ -56,9 +56,16 @@ public interface Identifiable<I extends Identifiable<I>> {
      * Get an extension based on its class type.
      * @param type the extension class type
      * @param <E> the extension type
-     * @return the extension mapped to the class type or throws an exception if not found
+     * @return the extension mapped to the class type or null if not found
      */
     <E extends Extension<I>> E getExtension(Class<E> type);
+
+    /**
+     * Get an extension based on its name.
+     * @param name the extension name
+     * @return the extension mapped to the name or null if not found
+     */
+    <E extends Extension<I>> E getExtensionByName(String name);
 
     /**
      * Remove an extension based on its class type.

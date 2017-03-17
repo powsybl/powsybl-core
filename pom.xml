@@ -30,6 +30,7 @@
         <module>distribution</module>
         <module>iidm-converter-api</module>
         <module>iidm-api</module>
+        <module>iidm-groovy-extension</module>
         <module>iidm-impl</module>
         <module>iidm-test</module>
         <module>iidm-xml-converter</module>
@@ -44,6 +45,7 @@
 
         <java.version>1.8</java.version>
 
+        <maven.build-helper.version>3.0.0</maven.build-helper.version>
         <maven.compiler.version>3.6.0</maven.compiler.version>
         <maven.findbugs.version>3.0.4</maven.findbugs.version>
         <maven.javadoc.version>2.10.4</maven.javadoc.version>
@@ -121,6 +123,37 @@
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>${maven.build-helper.version}</version>
+                <executions>
+                    <execution>
+                        <id>add-source</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>src/main/groovy</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>add-test-source</id>
+                        <phase>generate-test-sources</phase>
+                        <goals>
+                            <goal>add-test-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>src/test/groovy</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
                 <artifactId>findbugs-maven-plugin</artifactId>
                 <version>${maven.findbugs.version}</version>
                 <configuration>
@@ -189,6 +222,11 @@
                     <skipExistingHeaders>true</skipExistingHeaders>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven.surefire.version}</version>
+            </plugin>
         </plugins>
         <pluginManagement>
             <plugins>
@@ -241,7 +279,7 @@
                         <sourceDirectories>
                             <sourceDirectory>${project.basedir}/computation/src/main/groovy</sourceDirectory>
                             <sourceDirectory>${project.basedir}/iidm-converter-api/src/main/groovy</sourceDirectory>
-                            <sourceDirectory>${project.basedir}/iidm-converter-api/src/test/groovy</sourceDirectory>
+                            <sourceDirectory>${project.basedir}/iidm-groovy-extension/src/main/groovy</sourceDirectory>
                             <sourceDirectory>${project.basedir}/loadflow-api/src/main/groovy</sourceDirectory>
                         </sourceDirectories>
                     </configuration>

@@ -24,6 +24,8 @@ abstract class IdentifiableImpl<I extends Identifiable<I>> implements Identifiab
 
     protected final Map<Class<?>, Extension<I>> extensions = new HashMap<>();
 
+    protected final Map<String, Extension<I>> extensionsByName = new HashMap<>();
+
     IdentifiableImpl(String id, String name) {
         this.id = id;
         this.name = name;
@@ -64,12 +66,19 @@ abstract class IdentifiableImpl<I extends Identifiable<I>> implements Identifiab
         Objects.requireNonNull(type);
         Objects.requireNonNull(extension);
         extensions.put(type, extension);
+        extensionsByName.put(extension.getName(), extension);
     }
 
     @Override
     public <E extends Extension<I>> E getExtension(Class<E> type) {
         Objects.requireNonNull(type);
         return (E) extensions.get(type);
+    }
+
+    @Override
+    public <E extends Extension<I>> E getExtensionByName(String name) {
+        Objects.requireNonNull(name);
+        return (E) extensionsByName.get(name);
     }
 
     @Override

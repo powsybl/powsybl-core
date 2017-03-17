@@ -39,97 +39,103 @@
     
         <!-- iPST core -->
         <dependency>
-            <groupId>eu.itesla_project</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>case-repository</artifactId>
             <version>${project.version}</version>
         </dependency>
     
         <dependency>
-            <groupId>eu.itesla_project</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>commons</artifactId>
             <version>${project.version}</version>
         </dependency>
         
         <dependency>
-            <groupId>eu.itesla_project</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>computation</artifactId>
             <version>${project.version}</version>
         </dependency>
     
         <dependency>
-            <groupId>eu.itesla_project</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>computation-local</artifactId>
             <version>${project.version}</version>
         </dependency>
     
         <dependency>
-            <groupId>eu.itesla_project</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>computation-mpi</artifactId>
             <version>${project.version}</version>
         </dependency>
         
         <dependency>
-            <groupId>eu.itesla_project</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>computation-mpi-util</artifactId>
             <version>${project.version}</version>
         </dependency>
         
         <dependency>
-            <groupId>eu.itesla_project</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>contingency-api</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>eu.itesla_project</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>iidm-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         
         <dependency>
-            <groupId>eu.itesla_project</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>iidm-converter-api</artifactId>
             <version>${project.version}</version>
         </dependency>
-        
+
         <dependency>
-            <groupId>eu.itesla_project</groupId>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>iidm-groovy-extension</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>iidm-impl</artifactId>
             <version>${project.version}</version>
         </dependency>
         
         <dependency>
-            <groupId>eu.itesla_project</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>iidm-test</artifactId>
             <version>${project.version}</version>
         </dependency>
     
         <dependency>
-            <groupId>eu.itesla_project</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>iidm-xml-converter</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>eu.itesla_project</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>loadflow-api</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>eu.itesla_project</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>math</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>eu.itesla_project</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>security-analysis</artifactId>
             <version>${project.version}</version>
         </dependency>
          
         <dependency>
-            <groupId>eu.itesla_project</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>simulation-api</artifactId>
             <version>${project.version}</version>
         </dependency>

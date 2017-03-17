@@ -1,0 +1,3 @@
+moduleName = iidm-module
+moduleVersion = 1.0
+extensionClasses = eu.itesla_project.iidm.network.IdentifiableExtension

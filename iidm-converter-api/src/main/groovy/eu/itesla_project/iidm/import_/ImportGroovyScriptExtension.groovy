@@ -20,16 +20,6 @@ import java.nio.file.FileSystems
 @AutoService(GroovyScriptExtension.class)
 class ImportGroovyScriptExtension implements GroovyScriptExtension {
 
-    static {
-        Identifiable.metaClass.propertyMissing = { String name ->
-            delegate.properties[name] ?: null
-        }
-
-        Identifiable.metaClass.propertyMissing = { String name, Object value ->
-            delegate.properties[name] = value
-        }
-    }
-
     private final FileSystem fileSystem;
 
     private final ImportersLoader importersLoader
