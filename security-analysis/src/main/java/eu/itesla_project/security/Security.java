@@ -49,7 +49,7 @@ public class Security {
             switch (currentLimitType) {
                 case PATL:
                     if (branch.checkPermanentLimit1(limitReduction)) {
-                        violations.add(new LimitViolation(branch,
+                        violations.add(new LimitViolation(branch.getId(),
                                                           LimitViolationType.CURRENT,
                                                           branch.getCurrentLimits1().getPermanentLimit(),
                                                           null,
@@ -59,7 +59,7 @@ public class Security {
                                                           getBaseVoltage(branch)));
                     }
                     if (branch.checkPermanentLimit2(limitReduction)) {
-                        violations.add(new LimitViolation(branch,
+                        violations.add(new LimitViolation(branch.getId(),
                                                           LimitViolationType.CURRENT,
                                                           branch.getCurrentLimits2().getPermanentLimit(),
                                                           null,
@@ -73,7 +73,7 @@ public class Security {
                 case TATL:
                     TwoTerminalsConnectable.Overload o1 = branch.checkTemporaryLimits1(limitReduction);
                     if (o1 != null) {
-                        violations.add(new LimitViolation(branch,
+                        violations.add(new LimitViolation(branch.getId(),
                                                           LimitViolationType.CURRENT,
                                                           o1.getPreviousLimit(),
                                                           o1.getTemporaryLimit().getName(),
@@ -84,7 +84,7 @@ public class Security {
                     }
                     TwoTerminalsConnectable.Overload o2 = branch.checkTemporaryLimits2(limitReduction);
                     if (o2 != null) {
-                        violations.add(new LimitViolation(branch,
+                        violations.add(new LimitViolation(branch.getId(),
                                                           LimitViolationType.CURRENT,
                                                           o2.getPreviousLimit(),
                                                           o2.getTemporaryLimit().getName(),
@@ -121,7 +121,7 @@ public class Security {
                 for (Bus b : vl.getBusView().getBuses()) {
                     if (!Float.isNaN(b.getV())) {
                         if (b.getV() < vl.getLowVoltageLimit()) {
-                            violations.add(new LimitViolation(vl, LimitViolationType.LOW_VOLTAGE, vl.getLowVoltageLimit(), null,
+                            violations.add(new LimitViolation(vl.getId(), LimitViolationType.LOW_VOLTAGE, vl.getLowVoltageLimit(), null,
                                     1, b.getV(), vl.getSubstation().getCountry(), vl.getNominalV()));
                         }
                     }
@@ -131,7 +131,7 @@ public class Security {
                 for (Bus b : vl.getBusView().getBuses()) {
                     if (!Float.isNaN(b.getV())) {
                         if (b.getV() > vl.getHighVoltageLimit()) {
-                            violations.add(new LimitViolation(vl, LimitViolationType.HIGH_VOLTAGE, vl.getHighVoltageLimit(), null,
+                            violations.add(new LimitViolation(vl.getId(), LimitViolationType.HIGH_VOLTAGE, vl.getHighVoltageLimit(), null,
                                     1, b.getV(), vl.getSubstation().getCountry(), vl.getNominalV()));
                         }
                     }
