@@ -47,4 +47,10 @@ public interface Switch extends Identifiable<Switch> {
      */
     boolean isRetained();
 
+    /**
+     * Change the retain status of the switch. A retained switch is a switch that
+     * will be part of the bus/breaker topology.
+     * @param retained the retain status of the switch
+     */
+    void setRetained(boolean retained);
 }

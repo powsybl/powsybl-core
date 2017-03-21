@@ -8,6 +8,8 @@ package eu.itesla_project.iidm.network.impl;
 
 import eu.itesla_project.iidm.network.Switch;
 import eu.itesla_project.iidm.network.SwitchKind;
+import eu.itesla_project.iidm.network.TopologyKind;
+
 import java.util.BitSet;
 
 /**
@@ -65,6 +67,20 @@ class SwitchImpl extends IdentifiableImpl<Switch> implements Switch, Stateful {
     @Override
     public boolean isRetained() {
         return retained;
+    }
+
+    @Override
+    public void setRetained(boolean retained) {
+        if (voltageLevel.getTopologyKind() != TopologyKind.NODE_BREAKER) {
+            throw new ValidationException(this, "retain status is not modifiable in a non node/breaker voltage level");
+        }
+        boolean oldValue = this.retained;
+        if (oldValue != retained) {
+            this.retained = retained;
+            voltageLevel.invalidateCache();
+            NetworkImpl network = voltageLevel.getNetwork();
+            network.getListeners().notifyUpdate(this, "retained", oldValue, retained);
+        }
     }
 
     @Override
