@@ -66,9 +66,31 @@ public class StringAnonymizerTest {
     public void invalidFileTest() throws IOException {
         String csv = String.join(System.lineSeparator(),
                 "",
-                "A;B",
-                "C");
+                "A;B");
         StringAnonymizer anonymizer = fromCsv(csv);
         assertEquals(1, anonymizer.getStringCount());
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void invalidFileTest2() throws IOException {
+        String csv = String.join(System.lineSeparator(),
+                "C");
+        fromCsv(csv);
+    }
+
+    @Test
+    public void embeddedNewLineTest() throws IOException {
+        StringAnonymizer anonymizer = new StringAnonymizer();
+        String anonymizedFoo = anonymizer.anonymize("foo\n");
+        StringAnonymizer anonymizer2 = fromCsv(toCsv(anonymizer));
+        assertEquals("foo\n", anonymizer2.deanonymize(anonymizedFoo));
+    }
+
+    @Test
+    public void embeddedSeparatorTest() throws IOException {
+        StringAnonymizer anonymizer = new StringAnonymizer();
+        String anonymizedFoo = anonymizer.anonymize("foo;bar");
+        StringAnonymizer anonymizer2 = fromCsv(toCsv(anonymizer));
+        assertEquals("foo;bar", anonymizer2.deanonymize(anonymizedFoo));
     }
 }
