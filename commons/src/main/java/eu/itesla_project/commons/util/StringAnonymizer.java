@@ -8,19 +8,20 @@ package eu.itesla_project.commons.util;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.supercsv.io.CsvListReader;
+import org.supercsv.io.CsvListWriter;
+import org.supercsv.prefs.CsvPreference;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class StringAnonymizer {
-
-    private static Logger LOGGER = LoggerFactory.getLogger(StringAnonymizer.class);
 
     private static final char DEFAULT_SEPARATOR = ';';
 
@@ -69,21 +70,19 @@ public class StringAnonymizer {
         readCsv(reader, DEFAULT_SEPARATOR);
     }
 
+    private static CsvPreference createPreference(char separator) {
+        return new CsvPreference.Builder('"', separator, System.lineSeparator()).build();
+    }
+
     public void readCsv(BufferedReader reader, char separator) {
+        CsvListReader csvReader = new CsvListReader(reader, createPreference(separator));
+        List<String> nextLine;
         try {
-            String strSep = Character.toString(separator);
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String trimmedLine = line.trim();
-                if (trimmedLine.isEmpty()) {
-                    continue;
+            while ((nextLine = csvReader.read()) != null) {
+                if (nextLine.size() != 2) {
+                    throw new RuntimeException("Invalid line '" + nextLine + "'");
                 }
-                String[] tokens = trimmedLine.split(strSep);
-                if (tokens.length != 2) {
-                    LOGGER.warn("Invalid line '{}'", trimmedLine);
-                    continue;
-                }
-                mapping.put(tokens[0], tokens[1]);
+                mapping.put(nextLine.get(0), nextLine.get(1));
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -95,15 +94,20 @@ public class StringAnonymizer {
     }
 
     public void writeCsv(BufferedWriter writer, char separator) {
-        mapping.forEach((s, s2) -> {
+        CsvListWriter csvWriter = new CsvListWriter(writer, createPreference(separator));
+        String[] nextLine = new String[2];
+        try {
             try {
-                writer.write(s);
-                writer.write(separator);
-                writer.write(s2);
-                writer.newLine();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+                for (Map.Entry<String, String> e : mapping.entrySet()) {
+                    nextLine[0] = e.getKey();
+                    nextLine[1] = e.getValue();
+                    csvWriter.write(nextLine);
+                }
+            } finally {
+                csvWriter.flush();
             }
-        });
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
