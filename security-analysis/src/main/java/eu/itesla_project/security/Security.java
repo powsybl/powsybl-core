@@ -24,6 +24,8 @@ import java.util.stream.Collectors;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class Security {
+    
+    private final static String PERMANENT_LIMIT_NAME = "Permanent limit";
 
     public Security() {
     }
@@ -52,7 +54,7 @@ public class Security {
                         violations.add(new LimitViolation(branch.getId(),
                                                           LimitViolationType.CURRENT,
                                                           branch.getCurrentLimits1().getPermanentLimit(),
-                                                          null,
+                                                          PERMANENT_LIMIT_NAME,
                                                           limitReduction,
                                                           branch.getTerminal1().getI(),
                                                           getCountry(branch, branch.getTerminal1()),
@@ -62,7 +64,7 @@ public class Security {
                         violations.add(new LimitViolation(branch.getId(),
                                                           LimitViolationType.CURRENT,
                                                           branch.getCurrentLimits2().getPermanentLimit(),
-                                                          null,
+                                                          PERMANENT_LIMIT_NAME,
                                                           limitReduction,
                                                           branch.getTerminal2().getI(),
                                                           getCountry(branch, branch.getTerminal2()),
