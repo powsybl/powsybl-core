@@ -10,6 +10,7 @@
 /math/target/
 /iidm-converter-api/target/
 /iidm-api/target/
+/iidm-groovy-extension/target/
 /iidm-impl/target/
 /iidm-test/target/
 /iidm-xml-converter/target/
