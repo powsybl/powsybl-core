@@ -171,7 +171,7 @@ public class ValidationUtil {
         if (highVoltageLimit < 0) {
             throw new ValidationException(validable, "high voltage limit is < 0");
         }
-        if (lowVoltageLimit >= highVoltageLimit) {
+        if (lowVoltageLimit > highVoltageLimit) {
             throw new ValidationException(validable, "Inconsistent voltage limit range ["
                     + lowVoltageLimit + ", " + highVoltageLimit + "]");
         }
