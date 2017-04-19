@@ -323,9 +323,9 @@ public class Security {
                                         .filter(violation -> preContingencyViolations.isEmpty() || !preContingencyViolations.contains(toKey(violation)))
                                         .collect(Collectors.toList());
 
-                                if (filteredLimitViolations2.size() > 0 || !postContingencyResult.isComputationOk()) {
+                                if (filteredLimitViolations2.size() > 0 || !postContingencyResult.getLimitViolationsResult().isComputationOk()) {
                                     formatter.writeCell(postContingencyResult.getContingency().getId())
-                                            .writeCell(postContingencyResult.isComputationOk() ? "converge" : "diverge")
+                                            .writeCell(postContingencyResult.getLimitViolationsResult().isComputationOk() ? "converge" : "diverge")
                                             .writeEmptyCell()
                                             .writeEmptyCell()
                                             .writeEmptyCell()
@@ -334,7 +334,7 @@ public class Security {
                                             .writeEmptyCell()
                                             .writeEmptyCell();
 
-                                    for (String action : postContingencyResult.getActionsTaken()) {
+                                    for (String action : postContingencyResult.getLimitViolationsResult().getActionsTaken()) {
                                         formatter.writeEmptyCell()
                                                 .writeEmptyCell()
                                                 .writeCell(action)

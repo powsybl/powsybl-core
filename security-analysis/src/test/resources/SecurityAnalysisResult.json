@@ -1,0 +1,57 @@
+{
+  "version" : "1.0",
+  "preContingencyResult" : {
+    "computationOk" : true,
+    "limitViolations" : [ {
+      "subjectId" : "NHV1_NHV2_1",
+      "limitType" : "CURRENT",
+      "limit" : 100.0,
+      "limitName" : "limit",
+      "limitReduction" : 0.95,
+      "value" : 110.0,
+      "country" : "FR",
+      "baseVoltage" : 380.0
+    } ],
+    "actionsTaken" : [ ]
+  },
+  "postContingencyResults" : [ {
+    "contingency" : {
+      "id" : "contingency",
+      "elements" : [ {
+        "id" : "NHV1_NHV2_2",
+        "substationId" : "P1",
+        "type" : "BRANCH"
+      }, {
+        "id" : "NHV1_NHV2_1",
+        "substationId" : null,
+        "type" : "BRANCH"
+      }, {
+        "id" : "GEN",
+        "type" : "GENERATOR"
+      } ]
+    },
+    "limitViolationsResult" : {
+      "computationOk" : true,
+      "limitViolations" : [ {
+        "subjectId" : "NHV1_NHV2_1",
+        "limitType" : "CURRENT",
+        "limit" : 100.0,
+        "limitName" : "limit",
+        "limitReduction" : 0.95,
+        "value" : 110.0,
+        "country" : "FR",
+        "baseVoltage" : 380.0
+      }, {
+        "subjectId" : "NHV1_NHV2_2",
+        "limitType" : "CURRENT",
+        "limit" : 100.0,
+        "limitName" : null,
+        "limitReduction" : 1.0,
+        "value" : 110.0,
+        "country" : null,
+        "baseVoltage" : "NaN"
+      } ],
+      "actionsTaken" : [ "action1", "action2" ]
+    }
+  } ]
+}

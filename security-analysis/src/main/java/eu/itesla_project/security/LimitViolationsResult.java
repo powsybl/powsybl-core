@@ -6,19 +6,24 @@
  */
 package eu.itesla_project.security;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-abstract class LimitViolationsResult {
+public class LimitViolationsResult {
 
     private final boolean computationOk;
 
     private final List<LimitViolation> limitViolations;
 
     private final List<String> actionsTaken;
+
+    public LimitViolationsResult(boolean computationOk, List<LimitViolation> limitViolations) {
+        this(computationOk, limitViolations, Collections.emptyList());
+    }
 
     public LimitViolationsResult(boolean computationOk, List<LimitViolation> limitViolations, List<String> actionsTaken) {
         this.computationOk = computationOk;

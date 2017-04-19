@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, RTE (http://www.rte-france.com)
+ * Copyright (c) 2016-2017, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -14,16 +14,17 @@ import java.util.Objects;
  */
 public class SecurityAnalysisResult {
 
-    private final PreContingencyResult preContingencyResult;
+    private final LimitViolationsResult preContingencyResult;
 
     private final List<PostContingencyResult> postContingencyResults;
 
-    public SecurityAnalysisResult(PreContingencyResult preContingencyResult, List<PostContingencyResult> postContingencyResults) {
+    public SecurityAnalysisResult(LimitViolationsResult preContingencyResult,
+                                  List<PostContingencyResult> postContingencyResults) {
         this.preContingencyResult = Objects.requireNonNull(preContingencyResult);
         this.postContingencyResults = Objects.requireNonNull(postContingencyResults);
     }
 
-    public PreContingencyResult getPreContingencyResult() {
+    public LimitViolationsResult getPreContingencyResult() {
         return preContingencyResult;
     }
 

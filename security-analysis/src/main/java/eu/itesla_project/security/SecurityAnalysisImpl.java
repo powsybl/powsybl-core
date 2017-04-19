@@ -116,7 +116,7 @@ public class SecurityAnalysisImpl implements SecurityAnalysis {
                     }
 
                     return CompletableFuture.allOf(futures)
-                            .thenApplyAsync(aVoid -> new SecurityAnalysisResult(new PreContingencyResult(preContingencyComputationOk[0], preContingencyLimitViolations), postContingencyResults));
+                            .thenApplyAsync(aVoid -> new SecurityAnalysisResult(new LimitViolationsResult(preContingencyComputationOk[0], preContingencyLimitViolations), postContingencyResults));
                 }, computationManager.getExecutor());
     }
 

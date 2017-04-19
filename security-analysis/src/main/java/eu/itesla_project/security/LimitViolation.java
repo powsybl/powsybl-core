@@ -31,8 +31,9 @@ public class LimitViolation {
     private final Country country;
 
     private final float baseVoltage;
-    
-    public LimitViolation(String subjectId, LimitViolationType limitType, float limit, String limitName, float limitReduction, float value, Country country, float baseVoltage) {
+
+    public LimitViolation(String subjectId, LimitViolationType limitType, float limit, String limitName,
+                          float limitReduction, float value, Country country, float baseVoltage) {
         this.subjectId = Objects.requireNonNull(subjectId);
         this.limitType = Objects.requireNonNull(limitType);
         this.limit = limit;
