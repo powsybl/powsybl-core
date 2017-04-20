@@ -15,7 +15,11 @@ import java.util.Objects;
 public class ComponentDefaultConfig {
 
     public static ComponentDefaultConfig load() {
-        return new ComponentDefaultConfig(PlatformConfig.defaultConfig().getModuleConfigIfExists("componentDefaultConfig"));
+        return load(PlatformConfig.defaultConfig());
+    }
+
+    public static ComponentDefaultConfig load(PlatformConfig platformConfig) {
+        return new ComponentDefaultConfig(platformConfig.getModuleConfigIfExists("componentDefaultConfig"));
     }
 
     private final ModuleConfig config;
