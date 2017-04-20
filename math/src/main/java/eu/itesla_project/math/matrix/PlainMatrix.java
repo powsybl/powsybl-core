@@ -16,60 +16,100 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class PlainMatrix implements Matrix {
+public class PlainMatrix extends AbstractMatrix {
 
-    private final Jama.Matrix matrix;
+    private final int m;
+
+    private final int n;
+
+    private final double[] values;
 
     public PlainMatrix(int m, int n) {
-        this(new double[m][n]);
+        this(m, n, new double[m * n]);
     }
 
-    public PlainMatrix(double[][] values) {
-        this(new Jama.Matrix(values));
+    public PlainMatrix(int m, int n, double[] values) {
+        if (m < 0) {
+            throw new IllegalArgumentException("row count has to be positive");
+        }
+        if (n < 0) {
+            throw new IllegalArgumentException("column count has to be positive");
+        }
+        if (values.length != m * n) {
+            throw new IllegalArgumentException("values size (" + values.length +
+                    ") is incorrect (should be " + m * n + ")");
+        }
+        this.m = m;
+        this.n = n;
+        this.values = Objects.requireNonNull(values);
     }
 
-    private PlainMatrix(Jama.Matrix matrix) {
-        this.matrix = Objects.requireNonNull(matrix);
+    public PlainMatrix(Jama.Matrix matrix) {
+        this(matrix.getRowDimension(), matrix.getColumnDimension(), matrix.getColumnPackedCopy());
+    }
+
+    private void checkBounds(int i, int j) {
+        if (j < 0 || j >= n) {
+            throw new IllegalArgumentException("Bad column index: " + j);
+        }
+        if (i < 0 || i >= m) {
+            throw new IllegalArgumentException("Bad row index: " + i);
+        }
     }
 
     public double getValue(int i, int j) {
-        return matrix.get(i, j);
+        checkBounds(i, j);
+        return values[j * m + i];
     }
 
     @Override
     public void setValue(int i, int j, double value) {
-        matrix.set(i, j, value);
+        checkBounds(i, j);
+        values[j * m + i] = value;
     }
 
     @Override
     public int getM() {
-        return matrix.getRowDimension();
+        return m;
     }
 
     @Override
     public int getN() {
-        return matrix.getColumnDimension();
+        return n;
+    }
+
+    public double[] getValues() {
+        return values;
+    }
+
+    Jama.Matrix toJamaMatrix() {
+        return new Jama.Matrix(values, m);
     }
 
     @Override
     public LUDecomposition decomposeLU() {
-        return new PlainLUDecomposition(matrix.lu());
+        return new PlainLUDecomposition(toJamaMatrix().lu());
     }
 
     @Override
     public Matrix times(Matrix other) {
-        return new PlainMatrix(matrix.times(other.toPlain().matrix));
+        return new PlainMatrix(toJamaMatrix().times(other.toPlain().toJamaMatrix()));
     }
 
     @Override
     public void iterateNonZeroValue(ElementHandler handler) {
         Objects.requireNonNull(handler);
+        for (int j = 0; j < getN(); j++) {
+            iterateNonZeroValueOfColumn(j, handler);
+        }
+    }
+
+    @Override
+    public void iterateNonZeroValueOfColumn(int j, ElementHandler handler) {
         for (int i = 0; i < getM(); i++) {
-            for (int j = 0; j < getN(); j++) {
-                double value = matrix.get(i, j);
-                if (value != 0) {
-                    handler.onValue(i, j, value);
-                }
+            double value = getValue(i, j);
+            if (value != 0) {
+                handler.onValue(i, j, value);
             }
         }
     }
@@ -77,6 +117,25 @@ public class PlainMatrix implements Matrix {
     @Override
     public PlainMatrix toPlain() {
         return this;
+    }
+
+    @Override
+    public SparseMatrix toSparse() {
+        return (SparseMatrix) to(new SparseMatrixFactory());
+    }
+
+    @Override
+    public Matrix to(MatrixFactory factory) {
+        Objects.requireNonNull(factory);
+        if (factory instanceof PlainMatrixFactory) {
+            return this;
+        }
+        return copy(factory);
+    }
+
+    @Override
+    protected int getEstimatedNonZeroValueCount() {
+        return getM() * getN();
     }
 
     @Override
@@ -105,7 +164,7 @@ public class PlainMatrix implements Matrix {
         int[] width = new int[getN()];
         for (int i = 0; i < getM(); i++) {
             for (int j = 0; j < getN(); j++) {
-                width[j] = Math.max(width[j], Double.toString(matrix.get(i, j)).length());
+                width[j] = Math.max(width[j], Double.toString(getValue(i, j)).length());
                 if (columnNames != null) {
                     width[j] = Math.max(width[j], columnNames.get(j).length());
                 }
@@ -126,7 +185,7 @@ public class PlainMatrix implements Matrix {
                 out.print(Strings.padStart(rowNames.get(i), rowNamesWidth + 1, ' '));
             }
             for (int j = 0; j < getN(); j++) {
-                out.print(Strings.padStart(Double.toString(matrix.get(i, j)), width[j] + 1, ' '));
+                out.print(Strings.padStart(Double.toString(getValue(i, j)), width[j] + 1, ' '));
             }
             out.println();
         }
@@ -134,13 +193,14 @@ public class PlainMatrix implements Matrix {
 
     @Override
     public int hashCode() {
-        return Arrays.deepHashCode(matrix.getArray());
+        return m + n + Arrays.hashCode(values);
     }
 
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof PlainMatrix) {
-            return Arrays.deepEquals(matrix.getArray(), ((PlainMatrix) obj).matrix.getArray());
+            PlainMatrix other = (PlainMatrix) obj;
+            return m == other.m && n == other.n && Arrays.equals(values, other.values);
         }
         return false;
     }

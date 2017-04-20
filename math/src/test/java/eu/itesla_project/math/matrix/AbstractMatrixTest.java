@@ -6,12 +6,15 @@
  */
 package eu.itesla_project.math.matrix;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.testing.EqualsTester;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -24,6 +27,8 @@ public abstract class AbstractMatrixTest {
     protected static final double EPSILON = Math.pow(10, -15);
 
     protected abstract MatrixFactory getMatrixFactory();
+
+    protected abstract MatrixFactory getOtherMatrixFactory();
 
     protected Matrix createA(MatrixFactory matrixFactory) {
         Matrix a = matrixFactory.create(3, 2, 3);
@@ -66,6 +71,16 @@ public abstract class AbstractMatrixTest {
         });
     }
 
+    @Test
+    public void testIterateNonZeroValueOfColumn() {
+        Matrix a = createA(getMatrixFactory());
+        List<Double> nonZeroValues = new ArrayList<>();
+        a.iterateNonZeroValueOfColumn(0, (i, j, value) -> {
+            nonZeroValues.add(value);
+        });
+        assertEquals(ImmutableList.of(1d, 2d), nonZeroValues);
+    }
+
     protected String print(Matrix matrix, List<String> rowNames, List<String> columnNames) throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try {
@@ -101,6 +116,52 @@ public abstract class AbstractMatrixTest {
             double[] x = {8, 45, -3, 3, 19};
             decomposition.solve(x);
             assertArrayEquals(new double[]{1, 2, 3, 4, 5}, x, EPSILON);
+
+            PlainMatrix x2 = new PlainMatrix(5, 2);
+            x2.setValue(0, 0, 8);
+            x2.setValue(1, 0, 45);
+            x2.setValue(2, 0, -3);
+            x2.setValue(3, 0, 3);
+            x2.setValue(4, 0, 19);
+            x2.setValue(0, 1, 8);
+            x2.setValue(1, 1, 45);
+            x2.setValue(2, 1, -3);
+            x2.setValue(3, 1, 3);
+            x2.setValue(4, 1, 19);
+
+            decomposition.solve(x2);
+            assertEquals(x2.getValue(0, 0), 1, EPSILON);
+            assertEquals(x2.getValue(1, 0), 2, EPSILON);
+            assertEquals(x2.getValue(2, 0), 3, EPSILON);
+            assertEquals(x2.getValue(3, 0), 4, EPSILON);
+            assertEquals(x2.getValue(4, 0), 5, EPSILON);
+            assertEquals(x2.getValue(0, 1), 1, EPSILON);
+            assertEquals(x2.getValue(1, 1), 2, EPSILON);
+            assertEquals(x2.getValue(2, 1), 3, EPSILON);
+            assertEquals(x2.getValue(3, 1), 4, EPSILON);
+            assertEquals(x2.getValue(4, 1), 5, EPSILON);
         }
+    }
+
+    @Test
+    public void testPlainEquals() {
+        Matrix a1 = createA(getMatrixFactory());
+        Matrix a2 = createA(getMatrixFactory());
+        Matrix b1 = getMatrixFactory().create(5, 5, 0);
+        Matrix b2 = getMatrixFactory().create(5, 5, 0);
+        new EqualsTester()
+                .addEqualityGroup(a1, a2)
+                .addEqualityGroup(b1, b2)
+                .testEquals();
+    }
+
+    @Test
+    public void toTest() {
+        Matrix a = createA(getMatrixFactory());
+        Matrix a2 = a.to(getOtherMatrixFactory());
+        Matrix a3 = a2.to(getMatrixFactory());
+        assertEquals(a, a3);
+        assertTrue(a.to(getMatrixFactory()) == a);
+        assertTrue(a2.to(getOtherMatrixFactory()) == a2);
     }
 }

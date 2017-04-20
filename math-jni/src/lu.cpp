@@ -204,6 +204,28 @@ JNIEXPORT void JNICALL Java_eu_itesla_1project_math_matrix_SparseLUDecomposition
 }
 
 /*
+ * Class:     eu_itesla_project_math_matrix_SparseLUDecomposition
+ * Method:    solve2
+ * Signature: (Ljava/lang/String;II[D)V
+ */
+JNIEXPORT void JNICALL Java_eu_itesla_1project_math_matrix_SparseLUDecomposition_solve2(JNIEnv * env, jobject, jstring j_id, jint m, jint n, jdoubleArray j_b) {
+    try {
+        std::string id = itesla::jni::StringUTF(env, j_id).toStr();
+        itesla::jni::DoubleArray b(env, j_b);
+
+        std::shared_ptr<LUContext> context = MANAGER->findContext(id);
+
+        if (klu_solve(context->symbolic, context->numeric, m, n, b.get(), &context->common) == 0) {
+            throw std::runtime_error("klu_solve error " + context->error());
+        }
+    } catch (const std::exception& e) {
+        itesla::jni::throwJavaLangRuntimeException(env, e.what());
+    } catch (...) {
+        itesla::jni::throwJavaLangRuntimeException(env, "Unknown exception");
+    }
+}
+
+/*
  * Class:     eu_itesla_project_math_matrix_SparseMatrix
  * Method:    nativeInit
  * Signature: ()V

@@ -42,7 +42,15 @@ public interface Matrix {
 
     void iterateNonZeroValue(ElementHandler handler);
 
+    void iterateNonZeroValueOfColumn(int j, ElementHandler handler);
+
     PlainMatrix toPlain();
+
+    SparseMatrix toSparse();
+
+    Matrix to(MatrixFactory factory);
+
+    Matrix copy(MatrixFactory factory);
 
     void print();
 

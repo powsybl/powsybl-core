@@ -29,9 +29,16 @@ public class SparseLUDecomposition implements LUDecomposition {
 
     private native void solve(String id, double[] b);
 
+    private native void solve2(String id, int m, int n, double[] b);
+
     @Override
     public void solve(double[] b) {
         solve(id, b);
+    }
+
+    @Override
+    public void solve(PlainMatrix b) {
+        solve2(id, b.getM(), b.getN(), b.getValues());
     }
 
     @Override

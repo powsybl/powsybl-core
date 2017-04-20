@@ -21,9 +21,16 @@ public class PlainMatrixTest extends AbstractMatrixTest {
 
     private final MatrixFactory matrixFactory = new PlainMatrixFactory();
 
+    private final MatrixFactory otherMatrixFactory = new SparseMatrixFactory();
+
     @Override
     protected MatrixFactory getMatrixFactory() {
         return matrixFactory;
+    }
+
+    @Override
+    public MatrixFactory getOtherMatrixFactory() {
+        return otherMatrixFactory;
     }
 
     @Test
@@ -50,18 +57,6 @@ public class PlainMatrixTest extends AbstractMatrixTest {
     }
 
     @Test
-    public void testPlainEquals() {
-        Matrix a1 = createA(matrixFactory);
-        Matrix a2 = createA(matrixFactory);
-        Matrix b1 = matrixFactory.create(5, 5, 0);
-        Matrix b2 = matrixFactory.create(5, 5, 0);
-        new EqualsTester()
-                .addEqualityGroup(a1, a2)
-                .addEqualityGroup(b1, b2)
-                .testEquals();
-    }
-
-    @Test
     public void testCreateFromColumn() {
         PlainMatrix a = Matrix.createFromColumn(new double[] {1d, 2d, 3d}, matrixFactory).toPlain();
         assertEquals(3, a.getM());
@@ -69,5 +64,13 @@ public class PlainMatrixTest extends AbstractMatrixTest {
         assertEquals(1d, a.getValue(0, 0), 0d);
         assertEquals(2d, a.getValue(1, 0), 0d);
         assertEquals(3d, a.getValue(2, 0), 0d);
+    }
+
+    @Test
+    public void testToSparse() {
+        PlainMatrix a = (PlainMatrix) createA(matrixFactory);
+        SparseMatrix a2 = a.toSparse();
+        PlainMatrix a3 = a2.toPlain();
+        assertEquals(a, a3);
     }
 }

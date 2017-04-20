@@ -17,6 +17,8 @@ public interface LUDecomposition extends AutoCloseable {
      */
     void solve(double[] b);
 
+    void solve(PlainMatrix b);
+
     @Override
     void close();
 }

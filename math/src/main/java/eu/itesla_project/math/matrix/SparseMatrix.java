@@ -19,7 +19,7 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class SparseMatrix implements Matrix {
+public class SparseMatrix extends AbstractMatrix {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SparseMatrix.class);
 
@@ -131,23 +131,45 @@ public class SparseMatrix implements Matrix {
     @Override
     public void iterateNonZeroValue(ElementHandler handler) {
         for (int j = 0; j < n; j++) {
-            int first = columnStart[j];
-            if (first != -1) {
-                int last = j < columnStart.length - 1 ? columnStart[j + 1] : values.size();
-                for (int v = first; v < last; v++) {
-                    int i = rowIndices.getQuick(v);
-                    double value = values.getQuick(v);
-                    handler.onValue(i, j, value);
-                }
+            iterateNonZeroValueOfColumn(j, handler);
+        }
+    }
+
+    @Override
+    public void iterateNonZeroValueOfColumn(int j, ElementHandler handler) {
+        int first = columnStart[j];
+        if (first != -1) {
+            int last = j < columnStart.length - 1 ? columnStart[j + 1] : values.size();
+            for (int v = first; v < last; v++) {
+                int i = rowIndices.getQuick(v);
+                double value = values.getQuick(v);
+                handler.onValue(i, j, value);
             }
         }
     }
 
     @Override
     public PlainMatrix toPlain() {
-        PlainMatrix plainMatrix = new PlainMatrix(getM(), getN());
-        iterateNonZeroValue((i, j, value) -> plainMatrix.setValue(i, j, value));
-        return plainMatrix;
+        return (PlainMatrix) to(new PlainMatrixFactory());
+    }
+
+    @Override
+    public SparseMatrix toSparse() {
+        return this;
+    }
+
+    @Override
+    public Matrix to(MatrixFactory factory) {
+        Objects.requireNonNull(factory);
+        if (factory instanceof SparseMatrixFactory) {
+            return this;
+        }
+        return copy(factory);
+    }
+
+    @Override
+    protected int getEstimatedNonZeroValueCount() {
+        return values.size();
     }
 
     @Override
@@ -172,5 +194,23 @@ public class SparseMatrix implements Matrix {
         out.println("columnStart=" + Arrays.toString(columnStart));
         out.println("rowIndices=" + rowIndices);
         out.println("values=" + values);
+    }
+
+    @Override
+    public int hashCode() {
+        return m + n + Arrays.hashCode(columnStart) + rowIndices.hashCode() + values.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof SparseMatrix) {
+            SparseMatrix other = (SparseMatrix) obj;
+            return m == other.m &&
+                    n == other.n &&
+                    Arrays.equals(columnStart, other.columnStart) &&
+                    rowIndices.equals(other.rowIndices) &&
+                    values.equals(other.values);
+        }
+        return false;
     }
 }
