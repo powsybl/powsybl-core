@@ -15,6 +15,7 @@
 /iidm-test/target/
 /iidm-xml-converter/target/
 /loadflow-api/target/
+/loadflow-validation/target/
 /security-analysis/target/
 /simulation-api/target/
 /target/
