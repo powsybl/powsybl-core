@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+    Copyright (c) 2016, RTE (http://www.rte-france.com)
     This Source Code Form is subject to the terms of the Mozilla Public
     License, v. 2.0. If a copy of the MPL was not distributed with this
     file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -13,25 +13,13 @@
 
     <parent>
         <groupId>eu.itesla_project</groupId>
-        <artifactId>ipst-core</artifactId>
+        <artifactId>iidm</artifactId>
         <version>0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>iidm-converter-api</artifactId>
+    <artifactId>iidm-xml-converter</artifactId>
 
-    <name>IIDM converter API</name>
-    <description>This is the API for IIDM importers and exporters</description>
-
-    <build>
-        <plugins>
-            <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <compilerId>groovy-eclipse-compiler</compilerId>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
+    <name>IIDM XML converter</name>
 
     <dependencies>
         <dependency>
@@ -39,40 +27,34 @@
             <artifactId>slf4j-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.google.auto.service</groupId>
-            <artifactId>auto-service</artifactId>
+            <groupId>net.java.dev.stax-utils</groupId>
+            <artifactId>stax-utils</artifactId>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>computation</artifactId>
+            <groupId>eu.itesla_project</groupId>
+            <artifactId>commons</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>computation-local</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>eu.itesla_project</groupId>
             <artifactId>iidm-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-compress</artifactId>
+            <groupId>eu.itesla_project</groupId>
+            <artifactId>iidm-converter-api</artifactId>
+            <version>${project.version}</version>
         </dependency>
+
+        <!-- Test dependencies -->
         <dependency>
-            <groupId>net.java.truevfs</groupId>
-            <artifactId>truevfs-driver-zip</artifactId>
+            <groupId>com.google.jimfs</groupId>
+            <artifactId>jimfs</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.google.jimfs</groupId>
-            <artifactId>jimfs</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -81,21 +63,27 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>eu.itesla_project</groupId>
-            <artifactId>computation</artifactId>
-            <version>${project.version}</version>
-            <type>test-jar</type>
+            <groupId>org.xmlunit</groupId>
+            <artifactId>xmlunit-core</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>eu.itesla_project</groupId>
             <artifactId>iidm-impl</artifactId>
             <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>eu.itesla_project</groupId>
+            <artifactId>iidm-test</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>eu.itesla_project</groupId>
+            <artifactId>commons</artifactId>
+            <version>${project.version}</version>
+            <type>test-jar</type>
             <scope>test</scope>
         </dependency>
     </dependencies>
