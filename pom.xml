@@ -28,12 +28,7 @@
         <module>computation-mpi-util</module>
         <module>contingency-api</module>
         <module>distribution</module>
-        <module>iidm-converter-api</module>
-        <module>iidm-api</module>
-        <module>iidm-groovy-extension</module>
-        <module>iidm-impl</module>
-        <module>iidm-test</module>
-        <module>iidm-xml-converter</module>
+        <module>iidm</module>
         <module>loadflow-api</module>
         <module>loadflow-validation</module>
         <module>math</module>
