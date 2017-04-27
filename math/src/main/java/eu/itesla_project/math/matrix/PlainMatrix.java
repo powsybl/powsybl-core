@@ -9,7 +9,8 @@ package eu.itesla_project.math.matrix;
 import com.google.common.base.Strings;
 
 import java.io.PrintStream;
-import java.util.Arrays;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.List;
 import java.util.Objects;
 
@@ -22,26 +23,36 @@ public class PlainMatrix extends AbstractMatrix {
 
     private final int n;
 
-    private final double[] values;
+    private final ByteBuffer buffer;
 
-    public PlainMatrix(int m, int n) {
-        this(m, n, new double[m * n]);
+    private static ByteBuffer createBuffer(int m, int n) {
+        return ByteBuffer.allocateDirect(m * n * Double.BYTES)
+                .order(ByteOrder.LITTLE_ENDIAN);
     }
 
     public PlainMatrix(int m, int n, double[] values) {
+        this(m, n);
+        setValues(values);
+    }
+
+    public PlainMatrix(int m, int n) {
+        this(m, n, createBuffer(m, n));
+    }
+
+    public PlainMatrix(int m, int n, ByteBuffer buffer) {
         if (m < 0) {
             throw new IllegalArgumentException("row count has to be positive");
         }
         if (n < 0) {
             throw new IllegalArgumentException("column count has to be positive");
         }
-        if (values.length != m * n) {
-            throw new IllegalArgumentException("values size (" + values.length +
+        if (buffer.capacity() != m * n * Double.BYTES) {
+            throw new IllegalArgumentException("values size (" + buffer.capacity() +
                     ") is incorrect (should be " + m * n + ")");
         }
         this.m = m;
         this.n = n;
-        this.values = Objects.requireNonNull(values);
+        this.buffer = Objects.requireNonNull(buffer);
     }
 
     public PlainMatrix(Jama.Matrix matrix) {
@@ -59,13 +70,13 @@ public class PlainMatrix extends AbstractMatrix {
 
     public double getValue(int i, int j) {
         checkBounds(i, j);
-        return values[j * m + i];
+        return buffer.getDouble(j * Double.BYTES * m + i * Double.BYTES);
     }
 
     @Override
     public void setValue(int i, int j, double value) {
         checkBounds(i, j);
-        values[j * m + i] = value;
+        buffer.putDouble(j * Double.BYTES * m + i * Double.BYTES, value);
     }
 
     @Override
@@ -78,12 +89,28 @@ public class PlainMatrix extends AbstractMatrix {
         return n;
     }
 
-    public double[] getValues() {
+    ByteBuffer getBuffer() {
+        return buffer;
+    }
+
+    void setValues(double[] values) {
+        if (values.length != m * n) {
+            throw new IllegalArgumentException("Incorrect values array size "
+                    + values.length + ", expected " + m * n);
+        }
+        for (int i = 0; i < values.length; i++) {
+            buffer.putDouble(i * Double.BYTES, values[i]);
+        }
+    }
+
+    double[] getValuesCopy() {
+        double[] values = new double[m * n];
+        buffer.asDoubleBuffer().get(values);
         return values;
     }
 
     Jama.Matrix toJamaMatrix() {
-        return new Jama.Matrix(values, m);
+        return new Jama.Matrix(getValuesCopy(), m);
     }
 
     @Override
@@ -193,14 +220,14 @@ public class PlainMatrix extends AbstractMatrix {
 
     @Override
     public int hashCode() {
-        return m + n + Arrays.hashCode(values);
+        return m + n + buffer.hashCode();
     }
 
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof PlainMatrix) {
             PlainMatrix other = (PlainMatrix) obj;
-            return m == other.m && n == other.n && Arrays.equals(values, other.values);
+            return m == other.m && n == other.n && buffer.equals(other.buffer);
         }
         return false;
     }
