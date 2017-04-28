@@ -28,7 +28,7 @@ public class PlainLUDecomposition implements LUDecomposition {
     @Override
     public void solve(PlainMatrix b) {
         Jama.Matrix x = decomposition.solve(b.toJamaMatrix());
-        System.arraycopy(x.getColumnPackedCopy(), 0, b.getValues(), 0, b.getValues().length);
+        b.setValues(x.getColumnPackedCopy());
     }
 
     @Override
