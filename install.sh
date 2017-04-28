@@ -188,7 +188,7 @@ ipst_java()
         if [ $ipst_docs = true ]; then
             echo "**** Generating Javadoc documentation"
             mvn -f "$sourceDir/pom.xml" javadoc:javadoc || exit $?
-            mvn -f "$sourceDir/distribution/pom.xml" install || exit $?
+            mvn -f "$sourceDir/distribution-core/pom.xml" install || exit $?
         fi
     fi
 }
@@ -203,25 +203,25 @@ ipst_package()
         case "$ipst_package_type" in
             zip)
                 [ -f "${ipst_package_name}.zip" ] && rm -f "${ipst_package_name}.zip"
-                $(cd "$sourceDir/distribution/target/distribution-${ipst_package_version}-full" && zip -rq "$sourceDir/${ipst_package_name}.zip" "itesla")
+                $(cd "$sourceDir/distribution-core/target/distribution-core-${ipst_package_version}-full" && zip -rq "$sourceDir/${ipst_package_name}.zip" "itesla")
                 zip -qT "${ipst_package_name}.zip" > /dev/null 2>&1 || exit $?
                 ;;
 
             tar)
                 [ -f "${ipst_package_name}.tar" ] && rm -f "${ipst_package_name}.tar"
-                tar -cf "${ipst_package_name}.tar" -C "$sourceDir/distribution/target/distribution-${ipst_package_version}-full" . || exit $?
+                tar -cf "${ipst_package_name}.tar" -C "$sourceDir/distribution-core/target/distribution-core-${ipst_package_version}-full" . || exit $?
                 ;;
 
             tar.gz | tgz)
                 [ -f "${ipst_package_name}.tar.gz" ] && rm -f "${ipst_package_name}.tar.gz"
                 [ -f "${ipst_package_name}.tgz" ] && rm -f "${ipst_package_name}.tgz"
-                tar -czf "${ipst_package_name}.tar.gz" -C "$sourceDir/distribution/target/distribution-${ipst_package_version}-full" . || exit $?
+                tar -czf "${ipst_package_name}.tar.gz" -C "$sourceDir/distribution-core/target/distribution-core-${ipst_package_version}-full" . || exit $?
                 ;;
 
             tar.bz2 | tbz)
                 [ -f "${ipst_package_name}.tar.bz2" ] && rm -f "${ipst_package_name}.tar.bz2"
                 [ -f "${ipst_package_name}.tbz" ] && rm -f "${ipst_package_name}.tbz"
-                tar -cjf "${ipst_package_name}.tar.bz2" -C "$sourceDir/distribution/target/distribution-${ipst_package_version}-full" . || exit $?
+                tar -cjf "${ipst_package_name}.tar.bz2" -C "$sourceDir/distribution-core/target/distribution-core-${ipst_package_version}-full" . || exit $?
                 ;;
 
             *)
@@ -241,7 +241,7 @@ ipst_install()
 
         echo "**** Copying files"
         mkdir -p "$ipst_prefix" || exit $?
-        cp -Rp "$sourceDir/distribution/target/distribution-${ipst_package_version}-full/itesla"/* "$ipst_prefix" || exit $?
+        cp -Rp "$sourceDir/distribution-core/target/distribution-core-${ipst_package_version}-full/itesla"/* "$ipst_prefix" || exit $?
 
         if [ ! -f "$ipst_prefix/etc/itesla.conf" ]; then
             echo "**** Copying configuration files"

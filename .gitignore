@@ -6,9 +6,9 @@
 /computation-mpi-util/target/
 /computation/target/
 /contingency-api/target/
-/distribution/target
+/distribution-core/target
+/iidm/iidm-api/target
 /iidm/iidm-converter-api/target/
-/iidm/iidm-api/target/
 /iidm/iidm-groovy-extension/target/
 /iidm/iidm-impl/target/
 /iidm/iidm-test/target/

@@ -27,7 +27,7 @@
         <module>computation-mpi</module>
         <module>computation-mpi-util</module>
         <module>contingency-api</module>
-        <module>distribution</module>
+        <module>distribution-core</module>
         <module>iidm</module>
         <module>loadflow-api</module>
         <module>loadflow-validation</module>

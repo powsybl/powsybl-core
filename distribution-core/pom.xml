@@ -18,7 +18,7 @@
         <version>0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>distribution</artifactId>
+    <artifactId>distribution-core</artifactId>
 
     <packaging>pom</packaging>
 
