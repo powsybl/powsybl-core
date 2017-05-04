@@ -291,14 +291,23 @@ public class NetworkXml implements XmlConstants {
                         if (identifiable == null) {
                             throw new RuntimeException("Identifiable " + id2 + " not found");
                         }
-                        XmlUtil.readUntilEndElement(EXTENSION_ELEMENT_NAME, reader, () -> {
-                            String extensionName = reader.getLocalName();
-                            ExtensionXml extensionXml = findExtensionXml(extensionName);
-                            if (extensionXml != null) {
-                                Identifiable.Extension<? extends Identifiable<?>> extension = extensionXml.read(identifiable, context);
-                                identifiable.addExtension(extensionXml.getExtensionClass(), extension);
-                            } else {
-                                extensionNamesNotFound.add(extensionName);
+                        XmlUtil.readUntilEndElement(EXTENSION_ELEMENT_NAME, reader, new XmlUtil.XmlEventHandler() {
+
+                            private boolean topLevel = true;
+
+                            @Override
+                            public void onStartElement() throws XMLStreamException {
+                                if (topLevel) {
+                                    String extensionName = reader.getLocalName();
+                                    ExtensionXml extensionXml = findExtensionXml(extensionName);
+                                    if (extensionXml != null) {
+                                        Identifiable.Extension<? extends Identifiable<?>> extension = extensionXml.read(identifiable, context);
+                                        identifiable.addExtension(extensionXml.getExtensionClass(), extension);
+                                    } else {
+                                        extensionNamesNotFound.add(extensionName);
+                                    }
+                                    topLevel = false;
+                                }
                             }
                         });
                         break;
