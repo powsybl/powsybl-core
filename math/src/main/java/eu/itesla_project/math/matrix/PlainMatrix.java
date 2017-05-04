@@ -79,6 +79,12 @@ public class PlainMatrix extends AbstractMatrix {
         buffer.putDouble(j * Double.BYTES * m + i * Double.BYTES, value);
     }
 
+    public void addValue(int i, int j, double value) {
+        checkBounds(i, j);
+        int index = j * Double.BYTES * m + i * Double.BYTES;
+        buffer.putDouble(index, buffer.getDouble(index) + value);
+    }
+
     @Override
     public int getM() {
         return m;

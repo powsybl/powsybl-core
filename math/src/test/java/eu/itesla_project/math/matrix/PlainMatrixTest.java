@@ -73,4 +73,12 @@ public class PlainMatrixTest extends AbstractMatrixTest {
         PlainMatrix a3 = a2.toPlain();
         assertEquals(a, a3);
     }
+
+    @Test
+    public void testAddValue() {
+        PlainMatrix a = (PlainMatrix) createA(matrixFactory);
+        assertEquals(1d, a.getValue(0, 0), 0d);
+        a.addValue(0, 0, 1d);
+        assertEquals(1d, a.getValue(0, 0), 1d);
+    }
 }
