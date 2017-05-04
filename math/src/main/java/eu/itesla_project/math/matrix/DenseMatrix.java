@@ -17,7 +17,7 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class PlainMatrix extends AbstractMatrix {
+public class DenseMatrix extends AbstractMatrix {
 
     private final int m;
 
@@ -30,16 +30,16 @@ public class PlainMatrix extends AbstractMatrix {
                 .order(ByteOrder.LITTLE_ENDIAN);
     }
 
-    public PlainMatrix(int m, int n, double[] values) {
+    public DenseMatrix(int m, int n, double[] values) {
         this(m, n);
         setValues(values);
     }
 
-    public PlainMatrix(int m, int n) {
+    public DenseMatrix(int m, int n) {
         this(m, n, createBuffer(m, n));
     }
 
-    public PlainMatrix(int m, int n, ByteBuffer buffer) {
+    public DenseMatrix(int m, int n, ByteBuffer buffer) {
         if (m < 0) {
             throw new IllegalArgumentException("row count has to be positive");
         }
@@ -55,7 +55,7 @@ public class PlainMatrix extends AbstractMatrix {
         this.buffer = Objects.requireNonNull(buffer);
     }
 
-    public PlainMatrix(Jama.Matrix matrix) {
+    public DenseMatrix(Jama.Matrix matrix) {
         this(matrix.getRowDimension(), matrix.getColumnDimension(), matrix.getColumnPackedCopy());
     }
 
@@ -121,12 +121,12 @@ public class PlainMatrix extends AbstractMatrix {
 
     @Override
     public LUDecomposition decomposeLU() {
-        return new PlainLUDecomposition(toJamaMatrix().lu());
+        return new DenseLUDecomposition(toJamaMatrix().lu());
     }
 
     @Override
     public Matrix times(Matrix other) {
-        return new PlainMatrix(toJamaMatrix().times(other.toPlain().toJamaMatrix()));
+        return new DenseMatrix(toJamaMatrix().times(other.toDense().toJamaMatrix()));
     }
 
     @Override
@@ -148,7 +148,7 @@ public class PlainMatrix extends AbstractMatrix {
     }
 
     @Override
-    public PlainMatrix toPlain() {
+    public DenseMatrix toDense() {
         return this;
     }
 
@@ -160,7 +160,7 @@ public class PlainMatrix extends AbstractMatrix {
     @Override
     public Matrix to(MatrixFactory factory) {
         Objects.requireNonNull(factory);
-        if (factory instanceof PlainMatrixFactory) {
+        if (factory instanceof DenseMatrixFactory) {
             return this;
         }
         return copy(factory);
@@ -231,8 +231,8 @@ public class PlainMatrix extends AbstractMatrix {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof PlainMatrix) {
-            PlainMatrix other = (PlainMatrix) obj;
+        if (obj instanceof DenseMatrix) {
+            DenseMatrix other = (DenseMatrix) obj;
             return m == other.m && n == other.n && buffer.equals(other.buffer);
         }
         return false;

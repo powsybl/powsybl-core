@@ -11,11 +11,11 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class PlainLUDecomposition implements LUDecomposition {
+public class DenseLUDecomposition implements LUDecomposition {
 
     private final Jama.LUDecomposition decomposition;
 
-    public PlainLUDecomposition(Jama.LUDecomposition decomposition) {
+    public DenseLUDecomposition(Jama.LUDecomposition decomposition) {
         this.decomposition = Objects.requireNonNull(decomposition);
     }
 
@@ -26,7 +26,7 @@ public class PlainLUDecomposition implements LUDecomposition {
     }
 
     @Override
-    public void solve(PlainMatrix b) {
+    public void solve(DenseMatrix b) {
         Jama.Matrix x = decomposition.solve(b.toJamaMatrix());
         b.setValues(x.getColumnPackedCopy());
     }
