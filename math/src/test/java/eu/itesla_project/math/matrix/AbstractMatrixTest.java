@@ -46,7 +46,7 @@ public abstract class AbstractMatrixTest {
         b.setValue(1, 0, 5);
 
         Matrix cs = a.times(b);
-        PlainMatrix c = cs.toPlain();
+        DenseMatrix c = cs.toDense();
 
         assertEquals(c.getM(), 3);
         assertEquals(c.getN(), 1);
@@ -117,7 +117,7 @@ public abstract class AbstractMatrixTest {
             decomposition.solve(x);
             assertArrayEquals(new double[]{1, 2, 3, 4, 5}, x, EPSILON);
 
-            PlainMatrix x2 = new PlainMatrix(5, 2);
+            DenseMatrix x2 = new DenseMatrix(5, 2);
             x2.setValue(0, 0, 8);
             x2.setValue(1, 0, 45);
             x2.setValue(2, 0, -3);
@@ -144,7 +144,7 @@ public abstract class AbstractMatrixTest {
     }
 
     @Test
-    public void testPlainEquals() {
+    public void testDenseEquals() {
         Matrix a1 = createA(getMatrixFactory());
         Matrix a2 = createA(getMatrixFactory());
         Matrix b1 = getMatrixFactory().create(5, 5, 0);

@@ -38,7 +38,7 @@ public class SparseLUDecomposition implements LUDecomposition {
     }
 
     @Override
-    public void solve(PlainMatrix b) {
+    public void solve(DenseMatrix b) {
         solve2(id, b.getM(), b.getN(), b.getBuffer());
     }
 

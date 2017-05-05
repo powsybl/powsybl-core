@@ -9,10 +9,10 @@ package eu.itesla_project.math.matrix;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class PlainMatrixFactory implements MatrixFactory {
+public class DenseMatrixFactory implements MatrixFactory {
 
     @Override
-    public PlainMatrix create(int m, int n, int estimatedNonZeroValueCount) {
-        return new PlainMatrix(m, n);
+    public DenseMatrix create(int m, int n, int estimatedNonZeroValueCount) {
+        return new DenseMatrix(m, n);
     }
 }

@@ -7,7 +7,6 @@
 package eu.itesla_project.math.matrix;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.testing.EqualsTester;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -17,9 +16,9 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class PlainMatrixTest extends AbstractMatrixTest {
+public class DenseMatrixTest extends AbstractMatrixTest {
 
-    private final MatrixFactory matrixFactory = new PlainMatrixFactory();
+    private final MatrixFactory matrixFactory = new DenseMatrixFactory();
 
     private final MatrixFactory otherMatrixFactory = new SparseMatrixFactory();
 
@@ -34,7 +33,7 @@ public class PlainMatrixTest extends AbstractMatrixTest {
     }
 
     @Test
-    public void testPlainPrint() throws IOException {
+    public void testDensePrint() throws IOException {
         Matrix a = createA(matrixFactory);
         String expected = String.join(System.lineSeparator(),
                 " 1.0 0.0",
@@ -45,7 +44,7 @@ public class PlainMatrixTest extends AbstractMatrixTest {
     }
 
     @Test
-    public void testPlainPrintWithNames() throws IOException {
+    public void testDensePrintWithNames() throws IOException {
         Matrix a = createA(matrixFactory);
         String expected = String.join(System.lineSeparator(),
                 "     c1  c2",
@@ -58,7 +57,7 @@ public class PlainMatrixTest extends AbstractMatrixTest {
 
     @Test
     public void testCreateFromColumn() {
-        PlainMatrix a = Matrix.createFromColumn(new double[] {1d, 2d, 3d}, matrixFactory).toPlain();
+        DenseMatrix a = Matrix.createFromColumn(new double[] {1d, 2d, 3d}, matrixFactory).toDense();
         assertEquals(3, a.getM());
         assertEquals(1, a.getN());
         assertEquals(1d, a.getValue(0, 0), 0d);
@@ -68,15 +67,15 @@ public class PlainMatrixTest extends AbstractMatrixTest {
 
     @Test
     public void testToSparse() {
-        PlainMatrix a = (PlainMatrix) createA(matrixFactory);
+        DenseMatrix a = (DenseMatrix) createA(matrixFactory);
         SparseMatrix a2 = a.toSparse();
-        PlainMatrix a3 = a2.toPlain();
+        DenseMatrix a3 = a2.toDense();
         assertEquals(a, a3);
     }
 
     @Test
     public void testAddValue() {
-        PlainMatrix a = (PlainMatrix) createA(matrixFactory);
+        DenseMatrix a = (DenseMatrix) createA(matrixFactory);
         assertEquals(1d, a.getValue(0, 0), 0d);
         a.addValue(0, 0, 1d);
         assertEquals(1d, a.getValue(0, 0), 1d);
