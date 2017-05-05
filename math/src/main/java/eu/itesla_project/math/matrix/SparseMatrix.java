@@ -121,7 +121,7 @@ public class SparseMatrix extends AbstractMatrix {
     public Matrix times(Matrix other) {
         checkNativeInit();
         if (!(other instanceof SparseMatrix)) {
-            throw new RuntimeException("Sparse and plain matrix multiplication is not supported");
+            throw new RuntimeException("Sparse and dense matrix multiplication is not supported");
         }
         SparseMatrix o = (SparseMatrix) other;
         return times(m, n, columnStart, rowIndices.getData(), values.getData(),
@@ -149,8 +149,8 @@ public class SparseMatrix extends AbstractMatrix {
     }
 
     @Override
-    public PlainMatrix toPlain() {
-        return (PlainMatrix) to(new PlainMatrixFactory());
+    public DenseMatrix toDense() {
+        return (DenseMatrix) to(new DenseMatrixFactory());
     }
 
     @Override

@@ -20,7 +20,7 @@ public class SparseMatrixTest extends AbstractMatrixTest {
 
     private final MatrixFactory matrixFactory = new SparseMatrixFactory();
 
-    private final MatrixFactory otherMatrixFactory = new PlainMatrixFactory();
+    private final MatrixFactory otherMatrixFactory = new DenseMatrixFactory();
 
     @Override
     protected MatrixFactory getMatrixFactory() {

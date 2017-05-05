@@ -44,7 +44,7 @@ public interface Matrix {
 
     void iterateNonZeroValueOfColumn(int j, ElementHandler handler);
 
-    PlainMatrix toPlain();
+    DenseMatrix toDense();
 
     SparseMatrix toSparse();
 
