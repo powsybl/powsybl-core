@@ -11,6 +11,7 @@ import eu.itesla_project.commons.io.WorkingDirectory;
 import eu.itesla_project.computation.*;
 import net.java.truevfs.comp.zip.ZipEntry;
 import net.java.truevfs.comp.zip.ZipFile;
+import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,6 +80,12 @@ public class LocalComputationManager implements ComputationManager {
         }
     }
 
+    private static LocalExecutor getLocalExecutor() {
+        if (SystemUtils.IS_OS_WINDOWS) return new WindowsLocalExecutor();
+        if (SystemUtils.IS_OS_UNIX) return new UnixLocalExecutor();
+        throw new UnsupportedOperationException("OS not supported for local execution");
+    }
+
     public LocalComputationManager() throws IOException {
         this(LocalComputationConfig.load());
     }
@@ -88,7 +95,7 @@ public class LocalComputationManager implements ComputationManager {
     }
 
     public LocalComputationManager(LocalComputationConfig config) throws IOException {
-        this(config, new UnixLocalExecutor());
+        this(config, getLocalExecutor());
     }
 
     public LocalComputationManager(LocalComputationConfig config, LocalExecutor localExecutor) throws IOException {
