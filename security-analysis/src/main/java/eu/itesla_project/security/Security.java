@@ -107,6 +107,14 @@ public class Security {
         return checkLimits(network, CurrentLimitType.PATL, 1f);
     }
 
+    public static List<LimitViolation> checkLimits(Network network, float limitReduction) {
+        List<LimitViolation> violations = new ArrayList<>();
+        for (CurrentLimitType type : CurrentLimitType.values()) {
+            violations.addAll(checkLimits(network, type, limitReduction));
+        }
+        return violations;
+    }
+
     public static List<LimitViolation> checkLimits(Network network, CurrentLimitType currentLimitType, float limitReduction) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(currentLimitType);
