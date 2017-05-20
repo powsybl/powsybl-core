@@ -303,10 +303,11 @@ public class NetworkXml implements XmlConstants {
                                     if (extensionXml != null) {
                                         Identifiable.Extension<? extends Identifiable<?>> extension = extensionXml.read(identifiable, context);
                                         identifiable.addExtension(extensionXml.getExtensionClass(), extension);
+                                        topLevel = true;
                                     } else {
                                         extensionNamesNotFound.add(extensionName);
+                                        topLevel = false;
                                     }
-                                    topLevel = false;
                                 }
                             }
                         });
