@@ -8,7 +8,6 @@ package eu.itesla_project.security;
 
 import com.google.auto.service.AutoService;
 import eu.itesla_project.commons.config.ComponentDefaultConfig;
-import eu.itesla_project.commons.io.ForwardingOutputStream;
 import eu.itesla_project.commons.io.table.AsciiTableFormatterFactory;
 import eu.itesla_project.commons.io.table.CsvTableFormatterFactory;
 import eu.itesla_project.commons.tools.Command;
@@ -19,13 +18,14 @@ import eu.itesla_project.contingency.ContingenciesProvider;
 import eu.itesla_project.contingency.ContingenciesProviderFactory;
 import eu.itesla_project.iidm.import_.Importers;
 import eu.itesla_project.iidm.network.Network;
+import eu.itesla_project.security.json.SecurityAnalysisResultSerializer;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.io.PrintStream;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -41,6 +41,11 @@ import java.util.stream.Collectors;
  */
 @AutoService(Tool.class)
 public class SecurityAnalysisTool implements Tool {
+
+    private enum Format {
+        CSV,
+        JSON
+    }
 
     @Override
     public Command getCommand() {
@@ -74,10 +79,15 @@ public class SecurityAnalysisTool implements Tool {
                         .hasArg()
                         .argName("LIMIT-TYPES")
                         .build());
-                options.addOption(Option.builder().longOpt("output-csv")
-                        .desc("the CSV output path")
+                options.addOption(Option.builder().longOpt("output-file")
+                        .desc("the output path")
                         .hasArg()
                         .argName("FILE")
+                        .build());
+                options.addOption(Option.builder().longOpt("output-format")
+                        .desc("the output format " + Arrays.toString(Format.values()))
+                        .hasArg()
+                        .argName("FORMAT")
                         .build());
                 return options;
             }
@@ -95,9 +105,14 @@ public class SecurityAnalysisTool implements Tool {
         Set<LimitViolationType> limitViolationTypes = line.hasOption("limit-types")
                 ? Arrays.stream(line.getOptionValue("limit-types").split(",")).map(LimitViolationType::valueOf).collect(Collectors.toSet())
                 : EnumSet.allOf(LimitViolationType.class);
-        Path csvFile = null;
-        if (line.hasOption("output-csv")) {
-            csvFile = context.getFileSystem().getPath(line.getOptionValue("output-csv"));
+        Path outputFile = null;
+        Format format = null;
+        if (line.hasOption("output-file")) {
+            outputFile = context.getFileSystem().getPath(line.getOptionValue("output-file"));
+            if (! line.hasOption("output-format")) {
+                throw new ParseException("Missing required option: output-format");
+            }
+            format = Format.valueOf(line.getOptionValue("output-format"));
         }
 
         context.getOutputStream().println("Loading network '" + caseFile + "'");
@@ -124,21 +139,37 @@ public class SecurityAnalysisTool implements Tool {
             context.getErrorStream().println("Pre-contingency state divergence");
         }
         LimitViolationFilter limitViolationFilter = new LimitViolationFilter(limitViolationTypes);
-        if (csvFile != null) {
-            context.getOutputStream().println("Writing results to '" + csvFile + "'");
-            CsvTableFormatterFactory csvTableFormatterFactory = new CsvTableFormatterFactory();
-            Security.printPreContingencyViolations(result, Files.newBufferedWriter(csvFile, StandardCharsets.UTF_8), csvTableFormatterFactory, limitViolationFilter);
-            Security.printPostContingencyViolations(result, Files.newBufferedWriter(csvFile, StandardCharsets.UTF_8, StandardOpenOption.APPEND), csvTableFormatterFactory, limitViolationFilter);
+        if (outputFile != null) {
+            exportResult(result, limitViolationFilter, context, outputFile, format);
         } else {
-            Writer writer = new OutputStreamWriter(context.getOutputStream()) {
-                @Override
-                public void close() throws IOException {
-                    flush();
-                }
-            };
-            AsciiTableFormatterFactory asciiTableFormatterFactory = new AsciiTableFormatterFactory();
-            Security.printPreContingencyViolations(result, writer, asciiTableFormatterFactory, limitViolationFilter);
-            Security.printPostContingencyViolations(result, writer, asciiTableFormatterFactory, limitViolationFilter);
+            printResult(result, limitViolationFilter, context);
+        }
+    }
+
+    private void printResult(SecurityAnalysisResult result, LimitViolationFilter limitViolationFilter, ToolRunningContext context) {
+        Writer writer = new OutputStreamWriter(context.getOutputStream()) {
+            @Override
+            public void close() throws IOException {
+                flush();
+            }
+        };
+        AsciiTableFormatterFactory asciiTableFormatterFactory = new AsciiTableFormatterFactory();
+        Security.printPreContingencyViolations(result, writer, asciiTableFormatterFactory, limitViolationFilter);
+        Security.printPostContingencyViolations(result, writer, asciiTableFormatterFactory, limitViolationFilter);
+    }
+
+    private void exportResult(SecurityAnalysisResult result, LimitViolationFilter limitViolationFilter, ToolRunningContext context, Path outputFile, Format format) throws IOException {
+        context.getOutputStream().println("Writing results to '" + outputFile + "'");
+        switch (format) {
+            case CSV:
+                CsvTableFormatterFactory csvTableFormatterFactory = new CsvTableFormatterFactory();
+                Security.printPreContingencyViolations(result, Files.newBufferedWriter(outputFile, StandardCharsets.UTF_8), csvTableFormatterFactory, limitViolationFilter);
+                Security.printPostContingencyViolations(result, Files.newBufferedWriter(outputFile, StandardCharsets.UTF_8, StandardOpenOption.APPEND), csvTableFormatterFactory, limitViolationFilter);
+                break;
+
+            case JSON:
+                SecurityAnalysisResultSerializer.write(result, limitViolationFilter, outputFile);
+                break;
         }
     }
 }

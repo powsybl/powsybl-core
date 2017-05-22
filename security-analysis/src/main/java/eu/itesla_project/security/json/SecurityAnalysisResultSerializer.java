@@ -12,6 +12,8 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import eu.itesla_project.security.LimitViolationFilter;
+import eu.itesla_project.security.LimitViolationsResult;
 import eu.itesla_project.security.PostContingencyResult;
 import eu.itesla_project.security.SecurityAnalysisResult;
 
@@ -42,7 +44,12 @@ public class SecurityAnalysisResultSerializer extends StdSerializer<SecurityAnal
     }
 
     public static void write(SecurityAnalysisResult result, Path jsonFile) {
+        write(result, new LimitViolationFilter(), jsonFile);
+    }
+
+    public static void write(SecurityAnalysisResult result, LimitViolationFilter filter, Path jsonFile) {
         Objects.requireNonNull(result);
+        Objects.requireNonNull(filter);
         Objects.requireNonNull(jsonFile);
 
         try (OutputStream os = Files.newOutputStream(jsonFile)) {
@@ -50,6 +57,7 @@ public class SecurityAnalysisResultSerializer extends StdSerializer<SecurityAnal
             SimpleModule module = new SimpleModule();
             module.addSerializer(SecurityAnalysisResult.class, new SecurityAnalysisResultSerializer());
             module.addSerializer(PostContingencyResult.class, new PostContingencyResultSerializer());
+            module.addSerializer(LimitViolationsResult.class, new LimitViolationsResultSerializer(filter));
             objectMapper.registerModule(module);
 
             ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
