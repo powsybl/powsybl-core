@@ -7,6 +7,8 @@
 package eu.itesla_project.loadflow.api
 
 import com.google.auto.service.AutoService
+import com.google.common.base.Supplier
+import com.google.common.base.Suppliers
 import eu.itesla_project.commons.config.ComponentDefaultConfig
 import eu.itesla_project.computation.ComputationManager
 import eu.itesla_project.computation.script.GroovyScriptExtension
@@ -18,25 +20,33 @@ import eu.itesla_project.iidm.network.Network
 @AutoService(GroovyScriptExtension.class)
 class LoadFlowGroovyScriptExtension implements GroovyScriptExtension {
 
-    private final LoadFlowFactory loadFlowFactory;
+    private final Supplier<LoadFlowFactory> loadFlowFactorySupplier;
 
     private final LoadFlowParameters parameters;
+
+    private LoadFlowGroovyScriptExtension(Supplier<LoadFlowFactory> loadFlowFactorySupplier, LoadFlowParameters parameters) {
+        assert loadFlowFactorySupplier
+        assert parameters
+        this.loadFlowFactorySupplier = loadFlowFactorySupplier
+        this.parameters = parameters
+    }
 
     LoadFlowGroovyScriptExtension(LoadFlowFactory loadFlowFactory, LoadFlowParameters parameters) {
         assert loadFlowFactory
         assert parameters
-        this.loadFlowFactory = loadFlowFactory
+        this.loadFlowFactorySupplier = { loadFlowFactory }
         this.parameters = parameters
     }
 
     LoadFlowGroovyScriptExtension() {
-        this(ComponentDefaultConfig.load().newFactoryImpl(LoadFlowFactory.class),
+        this(Suppliers.memoize({ ComponentDefaultConfig.load().newFactoryImpl(LoadFlowFactory.class) }),
              LoadFlowParameters.load());
     }
 
     @Override
     void load(Binding binding, ComputationManager computationManager) {
         binding.runLoadFlow = { Network network, LoadFlowParameters parameters  = this.parameters ->
+            LoadFlowFactory loadFlowFactory = loadFlowFactorySupplier.get()
             LoadFlow loadFlow = loadFlowFactory.create(network, computationManager, 0);
             loadFlow.run()
         }
