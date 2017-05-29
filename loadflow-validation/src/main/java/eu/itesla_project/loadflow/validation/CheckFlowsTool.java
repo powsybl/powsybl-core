@@ -71,6 +71,11 @@ public class CheckFlowsTool implements Tool {
             options.addOption(Option.builder().longOpt("verbose")
                     .desc("verbose output")
                     .build());
+            options.addOption(Option.builder().longOpt("output-format")
+                    .desc("output format")
+                    .hasArg()
+                    .argName("FLOWS_WRITER")
+                    .build());
             return options;
         }
 
@@ -94,6 +99,9 @@ public class CheckFlowsTool implements Tool {
         if (line.hasOption("verbose")) {
             config.setVerbose(true);
         }
+        if (line.hasOption("output-format")) {
+            config.setFlowOutputWriter(FlowOutputWriter.valueOf(line.getOptionValue("output-format")));
+        }
         System.out.println("Loading case " + caseFile);
         Network network = Importers.loadNetwork(caseFile);
         if (network == null) {
@@ -113,7 +121,7 @@ public class CheckFlowsTool implements Tool {
                         .join();
             }
         }
-        System.out.println("Check flows on network " + network.getId() + " result: " + (Validation.checkFlows(network, config, outputFile) ? "sucess" : "fail"));
+        System.out.println("Check flows on network " + network.getId() + " result: " + (Validation.checkFlows(network, config, outputFile) ? "success" : "fail"));
     }
     
 }

@@ -29,7 +29,7 @@ import eu.itesla_project.loadflow.api.mock.LoadFlowFactoryMock;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class NetworksTest {
+public class ValidationTest {
 
     private final double r = 0.04;
     private final double x = 0.423;
@@ -47,47 +47,47 @@ public class NetworksTest {
     private final double ratedU2 = 20.0;
     private final double theta1 = 0.1257718437996544;
     private final double theta2 = 0.12547118123496284;
-    
+
     private Terminal terminal1;
     private Terminal terminal2;
     private Line line1;
     private RatioTapChanger ratioTapChanger;
     private TwoWindingsTransformer transformer1;
-    
+
     private CheckFlowsConfig looseConfig;
     private CheckFlowsConfig strictConfig;
-    
+
     @Before
     public void setUp() {
         float p1 = 39.5056f;
         float q1 = -3.72344f;
         float p2 = -39.5122f;
         float q2 = 3.7746f;
-        
+
         Bus bus1 = Mockito.mock(Bus.class);
         Mockito.when(bus1.getV()).thenReturn((float) u1);
         Mockito.when(bus1.getAngle()).thenReturn((float) Math.toDegrees(theta1));
-        
+
         Bus bus2 = Mockito.mock(Bus.class);
         Mockito.when(bus2.getV()).thenReturn((float) u1);
         Mockito.when(bus2.getAngle()).thenReturn((float) Math.toDegrees(theta2));
-        
+
         BusView busView1 = Mockito.mock(BusView.class);
         Mockito.when(busView1.getBus()).thenReturn(bus1);
-        
+
         BusView busView2 = Mockito.mock(BusView.class);
         Mockito.when(busView2.getBus()).thenReturn(bus2);
-        
+
         terminal1 = Mockito.mock(Terminal.class);
         Mockito.when(terminal1.getP()).thenReturn(p1);
         Mockito.when(terminal1.getQ()).thenReturn(q1);
         Mockito.when(terminal1.getBusView()).thenReturn(busView1);
-        
+
         terminal2 = Mockito.mock(Terminal.class);
         Mockito.when(terminal2.getP()).thenReturn(p2);
         Mockito.when(terminal2.getQ()).thenReturn(q2);
         Mockito.when(terminal2.getBusView()).thenReturn(busView2);
-        
+
         line1 = Mockito.mock(Line.class);
         Mockito.when(line1.getId()).thenReturn("line1");
         Mockito.when(line1.getTerminal1()).thenReturn(terminal1);
@@ -98,17 +98,17 @@ public class NetworksTest {
         Mockito.when(line1.getG2()).thenReturn((float) g2);
         Mockito.when(line1.getB1()).thenReturn((float) b1);
         Mockito.when(line1.getB2()).thenReturn((float) b2);
-        
+
         RatioTapChangerStep step = Mockito.mock(RatioTapChangerStep.class);
         Mockito.when(step.getR()).thenReturn((float) r);
         Mockito.when(step.getX()).thenReturn((float) x);
         Mockito.when(step.getG()).thenReturn((float) g1);
         Mockito.when(step.getB()).thenReturn((float) b1);
         Mockito.when(step.getRho()).thenReturn((float) rho2);
-        
+
         ratioTapChanger = Mockito.mock(RatioTapChanger.class);
         Mockito.when(ratioTapChanger.getCurrentStep()).thenReturn(step);
-        
+
         transformer1 = Mockito.mock(TwoWindingsTransformer.class);
         Mockito.when(transformer1.getId()).thenReturn("transformer1");
         Mockito.when(transformer1.getTerminal1()).thenReturn(terminal1);
@@ -122,18 +122,20 @@ public class NetworksTest {
         Mockito.when(transformer1.getRatedU2()).thenReturn((float) ratedU2);
 
         looseConfig = new CheckFlowsConfig(0.1f, true, LoadFlowFactoryMock.class, CheckFlowsConfig.TABLE_FORMATTER_FACTORY_DEFAULT,
-                                           CheckFlowsConfig.EPSILON_X_DEFAULT, CheckFlowsConfig.APPLY_REACTANCE_CORRECTION_DEFAULT);
+                                           CheckFlowsConfig.EPSILON_X_DEFAULT, CheckFlowsConfig.APPLY_REACTANCE_CORRECTION_DEFAULT,
+                                           FlowOutputWriter.CSV_MULTILINE);
         strictConfig = new CheckFlowsConfig(0.01f, false, LoadFlowFactoryMock.class, CheckFlowsConfig.TABLE_FORMATTER_FACTORY_DEFAULT,
-                                            CheckFlowsConfig.EPSILON_X_DEFAULT, CheckFlowsConfig.APPLY_REACTANCE_CORRECTION_DEFAULT);
+                                            CheckFlowsConfig.EPSILON_X_DEFAULT, CheckFlowsConfig.APPLY_REACTANCE_CORRECTION_DEFAULT,
+                                            FlowOutputWriter.CSV_MULTILINE);
     }
-    
+
     @Test
     public void checkFlows() {
         float p1 = 40.0744f;
         float q1 = 2.3124743f;
         float p2 = -40.073254f;
         float q2 = -2.3003194f;
-        
+
         assertTrue(Validation.checkFlows("test", r, x, rho1, rho2, u1, u2, theta1, theta2, alpha1, alpha2, g1, g2, b1, b2, p1, q1, p2, q2, looseConfig, NullWriter.NULL_WRITER));
         assertFalse(Validation.checkFlows("test", r, x, rho1, rho2, u1, u2, theta1, theta2, alpha1, alpha2, g1, g2, b1, b2, p1, q1, p2, q2, strictConfig, NullWriter.NULL_WRITER));
 
@@ -145,19 +147,19 @@ public class NetworksTest {
         assertTrue(Validation.checkFlows("test", r, x, rho1, rho2, u1, u2, theta1, theta2, alpha1, alpha2, g1, g2, b1, b2, p1, q1, p2, q2, looseConfig, NullWriter.NULL_WRITER));
         assertFalse(Validation.checkFlows("test", r, x, rho1, rho2, u1, u2, theta1, theta2, alpha1, alpha2, g1, g2, b1, b2, p1, q1, p2, q2, strictConfig, NullWriter.NULL_WRITER));
     }
-    
+
     @Test
     public void checkLineFlows() {
         assertTrue(Validation.checkFlows(line1, looseConfig, NullWriter.NULL_WRITER));
         assertFalse(Validation.checkFlows(line1, strictConfig, NullWriter.NULL_WRITER));
     }
-    
+
     @Test
     public void checkTransformerFlows() {
         assertTrue(Validation.checkFlows(transformer1, looseConfig, NullWriter.NULL_WRITER));
         assertFalse(Validation.checkFlows(transformer1, strictConfig, NullWriter.NULL_WRITER));
     }
-    
+
     @Test
     public void checkNetworkFlows() {
         Line line2 = Mockito.mock(Line.class);
@@ -170,7 +172,7 @@ public class NetworksTest {
         Mockito.when(line2.getG2()).thenReturn((float) g2);
         Mockito.when(line2.getB1()).thenReturn((float) b1);
         Mockito.when(line2.getB2()).thenReturn((float) b2);
-        
+
         TwoWindingsTransformer transformer2 = Mockito.mock(TwoWindingsTransformer.class);
         Mockito.when(transformer2.getId()).thenReturn("transformer2");
         Mockito.when(transformer2.getTerminal1()).thenReturn(terminal1);

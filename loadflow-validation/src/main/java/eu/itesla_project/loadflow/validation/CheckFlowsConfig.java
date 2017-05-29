@@ -26,6 +26,7 @@ public class CheckFlowsConfig {
     public static final Class<? extends TableFormatterFactory> TABLE_FORMATTER_FACTORY_DEFAULT = CsvTableFormatterFactory.class;
     public static final float EPSILON_X_DEFAULT = 0.01f;
     public static final boolean APPLY_REACTANCE_CORRECTION_DEFAULT = false;
+    public static final FlowOutputWriter FLOWS_OUPUT_WRITER_DEFAULT = FlowOutputWriter.CSV_MULTILINE;
 
     private float threshold;
     private boolean verbose;
@@ -33,7 +34,7 @@ public class CheckFlowsConfig {
     private Class<? extends TableFormatterFactory> tableFormatterFactory;
     private float epsilonX;
     private boolean applyReactanceCorrection;
-
+    private FlowOutputWriter flowOutputWriter;
     public static CheckFlowsConfig load() {
         return load(PlatformConfig.defaultConfig());
     }
@@ -46,6 +47,7 @@ public class CheckFlowsConfig {
         Class<? extends TableFormatterFactory> tableFormatterFactory = TABLE_FORMATTER_FACTORY_DEFAULT;
         float epsilonX = EPSILON_X_DEFAULT;
         boolean applyReactanceCorrection = APPLY_REACTANCE_CORRECTION_DEFAULT;
+        FlowOutputWriter flowOutputWriter = FLOWS_OUPUT_WRITER_DEFAULT;
         if (platformConfig.moduleExists("check-flows")) {
             ModuleConfig config = platformConfig.getModuleConfig("check-flows");
             threshold = config.getFloatProperty("threshold", THRESHOLD_DEFAULT);
@@ -56,12 +58,14 @@ public class CheckFlowsConfig {
             tableFormatterFactory = config.getClassProperty("table-formatter-factory", TableFormatterFactory.class, TABLE_FORMATTER_FACTORY_DEFAULT);
             epsilonX = config.getFloatProperty("epsilon-x", EPSILON_X_DEFAULT);
             applyReactanceCorrection = config.getBooleanProperty("apply-reactance-correction", APPLY_REACTANCE_CORRECTION_DEFAULT);
+            flowOutputWriter = config.getEnumProperty("output-writer", FlowOutputWriter.class, FLOWS_OUPUT_WRITER_DEFAULT);
         }
-        return new CheckFlowsConfig(threshold, verbose, loadFlowFactory, tableFormatterFactory, epsilonX, applyReactanceCorrection);
+        return new CheckFlowsConfig(threshold, verbose, loadFlowFactory, tableFormatterFactory, epsilonX, applyReactanceCorrection, flowOutputWriter);
     }
 
     public CheckFlowsConfig(float threshold, boolean verbose, Class<? extends LoadFlowFactory> loadFlowFactory, 
-                            Class<? extends TableFormatterFactory> tableFormatterFactory, float epsilonX, boolean applyReactanceCorrection) {
+                            Class<? extends TableFormatterFactory> tableFormatterFactory, float epsilonX, 
+                            boolean applyReactanceCorrection, FlowOutputWriter flowOutputWriter) {
         if (threshold < 0) {
            throw new IllegalArgumentException("Negative values for threshold not permitted");
         }
@@ -74,6 +78,7 @@ public class CheckFlowsConfig {
         this.tableFormatterFactory = Objects.requireNonNull(tableFormatterFactory);
         this.epsilonX = epsilonX;
         this.applyReactanceCorrection = applyReactanceCorrection;
+        this.flowOutputWriter = Objects.requireNonNull(flowOutputWriter);
     }
 
     public float getThreshold() {
@@ -94,6 +99,10 @@ public class CheckFlowsConfig {
 
     public float getEpsilonX() {
         return epsilonX;
+    }
+
+    public FlowOutputWriter getFlowOutputWriter() {
+        return flowOutputWriter;
     }
 
     public boolean applyReactanceCorrection() {
@@ -124,6 +133,10 @@ public class CheckFlowsConfig {
         this.applyReactanceCorrection = applyReactanceCorrection;
     }
 
+    public void setFlowOutputWriter(FlowOutputWriter flowOutputWriter) {
+        this.flowOutputWriter = Objects.requireNonNull(flowOutputWriter);
+    }
+
     @Override
     public String toString() {
         return getClass().getSimpleName() + " [" + 
@@ -133,6 +146,7 @@ public class CheckFlowsConfig {
                 ", tableFormatterFactory=" + tableFormatterFactory +
                 ", epsilonX=" + epsilonX +
                 ", applyReactanceCorrection=" + applyReactanceCorrection +
+                ", flowOutputWriter=" + flowOutputWriter +
                 "]";
     }
 }

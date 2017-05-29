@@ -52,7 +52,7 @@ public class CheckFlowsConfigTest {
     public void testNoConfig() {
         CheckFlowsConfig config = CheckFlowsConfig.load(platformConfig);
         checkValues(config, CheckFlowsConfig.THRESHOLD_DEFAULT, CheckFlowsConfig.VERBOSE_DEFAULT, loadFlowFactory, CheckFlowsConfig.TABLE_FORMATTER_FACTORY_DEFAULT,
-                    CheckFlowsConfig.EPSILON_X_DEFAULT, CheckFlowsConfig.APPLY_REACTANCE_CORRECTION_DEFAULT);
+                    CheckFlowsConfig.EPSILON_X_DEFAULT, CheckFlowsConfig.APPLY_REACTANCE_CORRECTION_DEFAULT, CheckFlowsConfig.FLOWS_OUPUT_WRITER_DEFAULT);
     }
 
     @Test
@@ -67,7 +67,8 @@ public class CheckFlowsConfigTest {
         moduleConfig.setStringProperty("epsilon-x", Float.toString(epsilonX));
         moduleConfig.setStringProperty("apply-reactance-correction", Boolean.toString(applyReactanceCorrection));
         CheckFlowsConfig config = CheckFlowsConfig.load(platformConfig);
-        checkValues(config, threshold, verbose, loadFlowFactory, CheckFlowsConfig.TABLE_FORMATTER_FACTORY_DEFAULT, epsilonX, applyReactanceCorrection);
+        checkValues(config, threshold, verbose, loadFlowFactory, CheckFlowsConfig.TABLE_FORMATTER_FACTORY_DEFAULT, epsilonX, applyReactanceCorrection,
+                    CheckFlowsConfig.FLOWS_OUPUT_WRITER_DEFAULT);
     }
 
     @Test
@@ -77,6 +78,7 @@ public class CheckFlowsConfigTest {
         Class<? extends TableFormatterFactory> tableFormatterFactory = AsciiTableFormatterFactory.class;
         float epsilonX = 0.1f;
         boolean applyReactanceCorrection = true;
+        FlowOutputWriter flowOutputWriter = FlowOutputWriter.CSV;
         MapModuleConfig moduleConfig = platformConfig.createModuleConfig("check-flows");
         moduleConfig.setStringProperty("threshold", Float.toString(threshold));
         moduleConfig.setStringProperty("verbose", Boolean.toString(verbose));
@@ -84,10 +86,11 @@ public class CheckFlowsConfigTest {
         moduleConfig.setStringProperty("table-formatter-factory", tableFormatterFactory.getCanonicalName());
         moduleConfig.setStringProperty("epsilon-x", Float.toString(epsilonX));
         moduleConfig.setStringProperty("apply-reactance-correction", Boolean.toString(applyReactanceCorrection));
+        moduleConfig.setStringProperty("output-writer", flowOutputWriter.name());
         CheckFlowsConfig config = CheckFlowsConfig.load(platformConfig);
-        checkValues(config, threshold, verbose, loadFlowFactory, tableFormatterFactory, epsilonX, applyReactanceCorrection);
+        checkValues(config, threshold, verbose, loadFlowFactory, tableFormatterFactory, epsilonX, applyReactanceCorrection, flowOutputWriter);
     }
-    
+
     @Test
     public void checkSetters() throws Exception {
         float threshold = 0.1f;
@@ -95,6 +98,7 @@ public class CheckFlowsConfigTest {
         Class<? extends TableFormatterFactory> tableFormatterFactory = AsciiTableFormatterFactory.class;
         float epsilonX = 0.1f;
         boolean applyReactanceCorrection = true;
+        FlowOutputWriter flowOutputWriter = FlowOutputWriter.CSV;
         CheckFlowsConfig config = CheckFlowsConfig.load(platformConfig);
         config.setThreshold(threshold);
         config.setVerbose(verbose);
@@ -102,42 +106,51 @@ public class CheckFlowsConfigTest {
         config.setTableFormatterFactory(tableFormatterFactory);
         config.setEpsilonX(epsilonX);
         config.setApplyReactanceCorrection(applyReactanceCorrection);
-        checkValues(config, threshold, verbose, loadFlowFactory, tableFormatterFactory, epsilonX, applyReactanceCorrection);
+        config.setFlowOutputWriter(flowOutputWriter);
+        checkValues(config, threshold, verbose, loadFlowFactory, tableFormatterFactory, epsilonX, applyReactanceCorrection, flowOutputWriter);
     }
 
     private void checkValues(CheckFlowsConfig config, float threshold, boolean verbose, Class<? extends LoadFlowFactory> loadFlowFactory,
-                             Class<? extends TableFormatterFactory> tableFormatterFactory, float epsilonX, boolean applyReactanceCorrection) {
+                             Class<? extends TableFormatterFactory> tableFormatterFactory, float epsilonX, boolean applyReactanceCorrection,
+                             FlowOutputWriter flowOutputWriter) {
         assertEquals(threshold, config.getThreshold(), 0f);
         assertEquals(verbose, config.isVerbose());
         assertEquals(loadFlowFactory, config.getLoadFlowFactory());
         assertEquals(tableFormatterFactory, config.getTableFormatterFactory());
         assertEquals(epsilonX, config.getEpsilonX(), 0f);
         assertEquals(applyReactanceCorrection, config.applyReactanceCorrection());
+        assertEquals(flowOutputWriter, config.getFlowOutputWriter());
     }
-    
+
     @Test
     public void testWrongConfig() {
         try {
             new CheckFlowsConfig(-1, false, loadFlowFactory, CheckFlowsConfig.TABLE_FORMATTER_FACTORY_DEFAULT, 1, 
-                                 CheckFlowsConfig.APPLY_REACTANCE_CORRECTION_DEFAULT);
+                                 CheckFlowsConfig.APPLY_REACTANCE_CORRECTION_DEFAULT, FlowOutputWriter.CSV_MULTILINE);
             fail();
         } catch(Exception ignored) {
         }
         try {
             new CheckFlowsConfig(1, false, null, CheckFlowsConfig.TABLE_FORMATTER_FACTORY_DEFAULT, 1, 
-                                 CheckFlowsConfig.APPLY_REACTANCE_CORRECTION_DEFAULT);
+                                 CheckFlowsConfig.APPLY_REACTANCE_CORRECTION_DEFAULT, FlowOutputWriter.CSV_MULTILINE);
             fail();
         } catch(Exception ignored) {
         }
         try {
             new CheckFlowsConfig(1, false, loadFlowFactory, null, CheckFlowsConfig.EPSILON_X_DEFAULT, 
-                                CheckFlowsConfig.APPLY_REACTANCE_CORRECTION_DEFAULT);
+                                CheckFlowsConfig.APPLY_REACTANCE_CORRECTION_DEFAULT, FlowOutputWriter.CSV_MULTILINE);
             fail();
         } catch(Exception ignored) {
         }
         try {
             new CheckFlowsConfig(1, false, loadFlowFactory, CheckFlowsConfig.TABLE_FORMATTER_FACTORY_DEFAULT, -1, 
-                                 CheckFlowsConfig.APPLY_REACTANCE_CORRECTION_DEFAULT);
+                                 CheckFlowsConfig.APPLY_REACTANCE_CORRECTION_DEFAULT, FlowOutputWriter.CSV_MULTILINE);
+            fail();
+        } catch(Exception ignored) {
+        }
+        try {
+            new CheckFlowsConfig(1, false, loadFlowFactory, CheckFlowsConfig.TABLE_FORMATTER_FACTORY_DEFAULT, 1, 
+                                 CheckFlowsConfig.APPLY_REACTANCE_CORRECTION_DEFAULT, null);
             fail();
         } catch(Exception ignored) {
         }

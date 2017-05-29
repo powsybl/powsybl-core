@@ -15,14 +15,10 @@ import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.Objects;
 
-import eu.itesla_project.commons.config.ConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.itesla_project.commons.io.table.Column;
-import eu.itesla_project.commons.io.table.TableFormatter;
-import eu.itesla_project.commons.io.table.TableFormatterConfig;
-import eu.itesla_project.commons.io.table.TableFormatterFactory;
+import eu.itesla_project.commons.config.ConfigurationException;
 import eu.itesla_project.iidm.network.Bus;
 import eu.itesla_project.iidm.network.Line;
 import eu.itesla_project.iidm.network.Network;
@@ -39,17 +35,10 @@ public class Validation {
     private Validation() {
     }
 
-    private static TableFormatterConfig TABLE_FORMATTER_CONFIG = TableFormatterConfig.load();
-    private static Column[] COLUMNS = {
-        new Column("id"),
-        new Column("characteristic"),
-        new Column("value")
-    };
-
-    private static TableFormatter createTableFormater(String id, CheckFlowsConfig config, Writer writer) {
+    private static FlowsWriter createFlowsWriter(String id, CheckFlowsConfig config, Writer writer) {
         try {
-            TableFormatterFactory factory = config.getTableFormatterFactory().newInstance();
-            return factory.create(writer, id + " flow check", TABLE_FORMATTER_CONFIG, COLUMNS);
+            FlowsWriterFactory factory = config.getFlowOutputWriter().getFlowsWriterFactory().newInstance();
+            return factory.create(id, config.getTableFormatterFactory(), writer, config.isVerbose());
         } catch (InstantiationException | IllegalAccessException e) {
             throw new ConfigurationException(e);
         }
@@ -62,8 +51,8 @@ public class Validation {
         Objects.requireNonNull(config);
         Objects.requireNonNull(writer);
 
-        try (TableFormatter formatter = createTableFormater(id, config, writer)) {
-            return checkFlows(id, r, x, rho1, rho2, u1, u2, theta1, theta2, alpha1, alpha2, g1, g2, b1, b2, p1, q1, p2, q2, config, formatter);
+        try (FlowsWriter flowsWriter = createFlowsWriter(id, config, writer)) {
+            return checkFlows(id, r, x, rho1, rho2, u1, u2, theta1, theta2, alpha1, alpha2, g1, g2, b1, b2, p1, q1, p2, q2, config, flowsWriter);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -71,7 +60,7 @@ public class Validation {
 
     public static boolean checkFlows(String id, double r, double x, double rho1, double rho2, double u1, double u2, double theta1, double theta2, double alpha1,
                                       double alpha2, double g1, double g2, double b1, double b2, float p1, float q1, float p2, float q2, CheckFlowsConfig config, 
-                                      TableFormatter formatter) {
+                                      FlowsWriter flowsWriter) {
         boolean ok = true;
         try {
             if (Math.abs(x) < config.getEpsilonX() && config.applyReactanceCorrection()) {
@@ -86,34 +75,8 @@ public class Validation {
             double p2_calc = rho2 * rho1 * u2 * u1 * y * Math.sin(theta2 - theta1 - ksi + alpha2 - alpha1) + rho2 * rho2 * u2 * u2 * (y * Math.sin(ksi) + g2);
             double q2_calc = -rho2 * rho1 * u2 * u1 * y * Math.cos(theta2 - theta1 - ksi + alpha2 - alpha1) + rho2 * rho2 * u2 * u2 * (y * Math.cos(ksi) - b2);
 
-            formatter.writeCell(id).writeCell("network_p1").writeCell(p1)
-                    .writeCell(id).writeCell("expected_p1").writeCell(p1_calc)
-                    .writeCell(id).writeCell("network_q1").writeCell(q1)
-                    .writeCell(id).writeCell("expected_q1").writeCell(q1_calc)
-                    .writeCell(id).writeCell("network_p2").writeCell(p2)
-                    .writeCell(id).writeCell("expected_p2").writeCell(p2_calc)
-                    .writeCell(id).writeCell("network_q2").writeCell(q2)
-                    .writeCell(id).writeCell("expected_q2").writeCell(q2_calc);
+            flowsWriter.write(id, p1, p1_calc, q1, q1_calc, p2, p2_calc, q2, q2_calc, r, x, g1, g2, b1, b2, rho1, rho2, alpha1, alpha2, u1, u2, theta1, theta2, z, y, ksi);
 
-            if (config.isVerbose()) {
-                formatter.writeCell(id).writeCell("r").writeCell(r)
-                        .writeCell(id).writeCell("x").writeCell(x)
-                        .writeCell(id).writeCell("g1").writeCell(g1)
-                        .writeCell(id).writeCell("g2").writeCell(g2)
-                        .writeCell(id).writeCell("b1").writeCell(b1)
-                        .writeCell(id).writeCell("b2").writeCell(b2)
-                        .writeCell(id).writeCell("rho1").writeCell(rho1)
-                        .writeCell(id).writeCell("rho2").writeCell(rho2)
-                        .writeCell(id).writeCell("alpha1").writeCell(alpha1)
-                        .writeCell(id).writeCell("alpha2").writeCell(alpha2)
-                        .writeCell(id).writeCell("u1").writeCell(u1)
-                        .writeCell(id).writeCell("u2").writeCell(u2)
-                        .writeCell(id).writeCell("theta1").writeCell(theta1)
-                        .writeCell(id).writeCell("theta2").writeCell(theta2)
-                        .writeCell(id).writeCell("z").writeCell(z)
-                        .writeCell(id).writeCell("y").writeCell(y)
-                        .writeCell(id).writeCell("ksi").writeCell(ksi);
-            }
             if (Math.abs(p1 - p1_calc) > config.getThreshold()) {
                 LOGGER.warn(id + " P1 " + p1 + " " + p1_calc);
                 ok = false;
@@ -135,23 +98,23 @@ public class Validation {
         }
         return ok;
     }
-    
+
     public static boolean checkFlows(Line l, CheckFlowsConfig config, Writer writer) {
         Objects.requireNonNull(l);
         Objects.requireNonNull(config);
         Objects.requireNonNull(writer);
 
-        try (TableFormatter formatter = createTableFormater(l.getId(), config, writer)) {
-            return checkFlows(l, config, formatter);
+        try (FlowsWriter flowsWriter = createFlowsWriter(l.getId(), config, writer)) {
+            return checkFlows(l, config, flowsWriter);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    public static boolean checkFlows(Line l, CheckFlowsConfig config, TableFormatter formatter) {
+    public static boolean checkFlows(Line l, CheckFlowsConfig config, FlowsWriter flowsWriter) {
         Objects.requireNonNull(l);
         Objects.requireNonNull(config);
-        Objects.requireNonNull(formatter);
+        Objects.requireNonNull(flowsWriter);
 
         float p1 = l.getTerminal1().getP();
         float q1 = l.getTerminal1().getQ();
@@ -174,7 +137,7 @@ public class Validation {
             double g2 = l.getG2();
             double b1 = l.getB1();
             double b2 = l.getB2();
-            return checkFlows(l.getId(), r, x, rho1, rho2, u1, u2, theta1, theta2, alpha1, alpha2, g1, g2, b1, b2, p1, q1, p2, q2, config, formatter);
+            return checkFlows(l.getId(), r, x, rho1, rho2, u1, u2, theta1, theta2, alpha1, alpha2, g1, g2, b1, b2, p1, q1, p2, q2, config, flowsWriter);
         }
         return true;
     }
@@ -184,17 +147,17 @@ public class Validation {
         Objects.requireNonNull(config);
         Objects.requireNonNull(writer);
 
-        try (TableFormatter formatter = createTableFormater(twt.getId(), config, writer)) {
-            return checkFlows(twt, config, formatter);
+        try (FlowsWriter flowsWriter = createFlowsWriter(twt.getId(), config, writer)) {
+            return checkFlows(twt, config, flowsWriter);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    public static boolean checkFlows(TwoWindingsTransformer twt, CheckFlowsConfig config, TableFormatter formatter) {
+    public static boolean checkFlows(TwoWindingsTransformer twt, CheckFlowsConfig config, FlowsWriter flowsWriter) {
         Objects.requireNonNull(twt);
         Objects.requireNonNull(config);
-        Objects.requireNonNull(formatter);
+        Objects.requireNonNull(flowsWriter);
 
         if (twt.getRatioTapChanger() != null && twt.getPhaseTapChanger() != null) {
             throw new AssertionError();
@@ -239,23 +202,23 @@ public class Validation {
             double theta2 = Math.toRadians(bus2.getAngle());
             double alpha1 = twt.getPhaseTapChanger() != null ? Math.toRadians(twt.getPhaseTapChanger().getCurrentStep().getAlpha()) : 0f;
             double alpha2 = 0f;
-            return checkFlows(twt.getId(), r, x, rho1, rho2, u1, u2, theta1, theta2, alpha1, alpha2, g1, g2, b1, b2, p1, q1, p2, q2, config, formatter);
+            return checkFlows(twt.getId(), r, x, rho1, rho2, u1, u2, theta1, theta2, alpha1, alpha2, g1, g2, b1, b2, p1, q1, p2, q2, config, flowsWriter);
         }
         return true;
     }
-    
+
     public static boolean checkFlows(Network network, CheckFlowsConfig config, Writer writer) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(config);
         Objects.requireNonNull(writer);
 
-        try (TableFormatter formatter = createTableFormater(network.getId(), config, writer)) {
-            return checkFlows(network, config, formatter);
+        try (FlowsWriter flowsWriter = createFlowsWriter(network.getId(), config, writer)) {
+            return checkFlows(network, config, flowsWriter);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
-    
+
     public static boolean checkFlows(Network network, CheckFlowsConfig config, Path file) throws IOException, InstantiationException, IllegalAccessException {
         Objects.requireNonNull(file);
         try (Writer writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
@@ -263,19 +226,20 @@ public class Validation {
         }
     }
 
-    public static boolean checkFlows(Network network, CheckFlowsConfig config, TableFormatter formatter) {
+    public static boolean checkFlows(Network network, CheckFlowsConfig config, FlowsWriter flowsWriter) {
         LOGGER.info("Checking flows of network {}", network.getId());
 
         boolean linesOk = network.getLineStream()
                 .sorted(Comparator.comparing(Line::getId))
-                .map(l -> checkFlows(l, config, formatter))
+                .map(l -> checkFlows(l, config, flowsWriter))
                 .reduce(Boolean::logicalAnd).orElse(true);
 
         boolean transformersOk = network.getTwoWindingsTransformerStream()
                 .sorted(Comparator.comparing(TwoWindingsTransformer::getId))
-                .map(t -> checkFlows(t, config, formatter))
+                .map(t -> checkFlows(t, config, flowsWriter))
                 .reduce(Boolean::logicalAnd).orElse(true);
 
         return linesOk && transformersOk;
     }
+
 }
