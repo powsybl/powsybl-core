@@ -9,6 +9,7 @@ package eu.itesla_project.commons.util;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -99,7 +100,7 @@ public class StringToIntMapper<SUBSET extends Enum<SUBSET> & IntCounter> {
             for (Map.Entry<String, Integer> entry1 : entry.getValue().entrySet()) {
                 String id = entry1.getKey();
                 Integer num = entry1.getValue();
-                writer.write(subset + ";" + id + ";" + num + "\n");
+                writer.write(subset + ";" + id + ";" + num + System.lineSeparator());
             }
         }
     }
