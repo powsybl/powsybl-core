@@ -1,5 +1,6 @@
 /**
  * Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+ * Copyright (c) 2017, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -131,6 +132,14 @@ public class StringToIntMapper<SUBSET extends Enum<SUBSET> & IntCounter> {
         try (BufferedReader reader = Files.newBufferedReader(file, Charset.forName("UTF-8"))) {
             load(reader);
         }
+    }
+
+    public synchronized void reset(SUBSET subset) {
+        if (subset == null) {
+            throw new IllegalArgumentException("subset is null");
+        }
+        id2num.put(subset, HashBiMap.<String, Integer>create());
+        counter.put(subset, subset.getInitialValue());
     }
 
 }
