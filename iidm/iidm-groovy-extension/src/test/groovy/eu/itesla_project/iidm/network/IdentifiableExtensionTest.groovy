@@ -45,11 +45,7 @@ class IdentifiableExtensionTest {
     @Test
     void testProperty() {
         assertFalse(s.hasProperty())
-        try {
-            s.greeting
-            fail()
-        } catch (Exception ignored) {
-        }
+        assertNull(s.greeting)
         s.greeting = "hello"
         assertEquals("hello", s.getProperties().getProperty("greeting"))
         assertEquals("hello", s.greeting)
@@ -57,11 +53,7 @@ class IdentifiableExtensionTest {
 
     @Test
     void testExtension() {
-        try {
-            s.foo
-            fail()
-        } catch (Exception ignored) {
-        }
+        assertNull(s.foo)
         s.addExtension(Substation.class, new Foo())
         assertNotNull(s.foo)
         s.foo.value = 3f

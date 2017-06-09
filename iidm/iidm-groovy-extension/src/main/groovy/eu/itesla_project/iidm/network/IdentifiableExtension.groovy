@@ -14,15 +14,7 @@ class IdentifiableExtension {
     static Object propertyMissing(Identifiable self, String name) {
         // first check if an extension exist then a property
         Identifiable.Extension extension = self.getExtensionByName(name)
-        if (extension != null) {
-            extension
-        } else {
-            Object value = self.properties[name]
-            if (value == null) {
-                throw new RuntimeException("Property '" + name + "' of '" + self.id + "' not found")
-            }
-            value
-        }
+        extension != null ? extension : self.properties[name]
     }
 
     static void propertyMissing(Identifiable self, String name, Object value) {
