@@ -7,15 +7,15 @@
 package eu.itesla_project.iidm.export;
 
 import eu.itesla_project.commons.ITeslaException;
-import eu.itesla_project.iidm.datasource.DataSource;
-import eu.itesla_project.iidm.datasource.FileDataSource;
+import eu.itesla_project.iidm.datasource.*;
 import eu.itesla_project.iidm.network.Network;
+
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Properties;
-import java.util.ServiceLoader;
+import java.util.*;
 
 /**
  * A utility class to work with IIDM exporters.
@@ -56,6 +56,33 @@ public class Exporters {
         }
         return null;
     }
+
+    public static DataSource createDataSource(Path directory, String fileNameOrBaseName) {
+        return DataSourceUtil.createDataSource(directory, fileNameOrBaseName);
+    }
+
+    public static DataSource createDataSource(Path file) {
+        Objects.requireNonNull(file);
+        if (Files.exists(file) && !Files.isRegularFile(file)) {
+            throw new UncheckedIOException(new IOException("File " + file + " already exists and is not a regular file"));
+        }
+        Path absFile = file.toAbsolutePath();
+        return createDataSource(absFile.getParent(), absFile.getFileName().toString());
+    }
+
+    /**
+     * A convenient method to export a model to a given format.
+     *
+     * @param format the export format
+     * @param network the model
+     * @param parameters some properties to configure the export
+     * @param file the network file
+     */
+    public static void export(String format, Network network, Properties parameters, Path file) {
+        DataSource dataSource = createDataSource(file);
+        export(format, network, parameters, dataSource);
+    }
+
 
     /**
      * A convenient method to export a model to a given format.

@@ -7,7 +7,9 @@
 package eu.itesla_project.iidm.datasource;
 
 import java.nio.file.OpenOption;
+import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian@rte-france.com>
@@ -25,4 +27,27 @@ public interface DataSourceUtil {
         return append ? APPEND_OPEN_OPTIONS : DEFAULT_OPEN_OPTIONS;
     }
 
+    static String getBaseName(Path file) {
+        return getBaseName(file.getFileName().toString());
+    }
+
+    static String getBaseName(String fileName) {
+        int pos = fileName.indexOf('.'); // find first dot in case of double extension (.xml.gz)
+        return pos == -1 ? fileName : fileName.substring(0, pos);
+    }
+
+    static DataSource createDataSource(Path directory, String fileNameOrBaseName) {
+        Objects.requireNonNull(directory);
+        Objects.requireNonNull(fileNameOrBaseName);
+
+        if (fileNameOrBaseName.endsWith(".zip")) {
+            return new ZipFileDataSource(directory, getBaseName(fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 4)));
+        } else if (fileNameOrBaseName.endsWith(".gz")) {
+            return new GzFileDataSource(directory, getBaseName(fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 3)));
+        } else if (fileNameOrBaseName.endsWith(".bz2")) {
+            return new Bzip2FileDataSource(directory, getBaseName(fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 4)));
+        } else {
+            return new FileDataSource(directory, getBaseName(fileNameOrBaseName));
+        }
+    }
 }

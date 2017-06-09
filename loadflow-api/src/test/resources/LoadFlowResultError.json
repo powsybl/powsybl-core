@@ -1,0 +1,8 @@
+{
+  "version" : "1.0",
+  "isOK" : false  ,
+  "alienAttribute" : true,
+  "metrics" : {
+    "metric1" : "0"
+  }
+}

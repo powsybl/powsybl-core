@@ -18,10 +18,10 @@ import java.util.Objects;
  */
 public class LoadFlowParameters implements Cloneable {
 
-    private static final VoltageInitMode DEFAULT_VOLTAGE_INIT_MODE = VoltageInitMode.UNIFORM_VALUES;
-    private static final boolean DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON = false;
-    private static final boolean DEFAULT_NO_GENERATOR_REACTIVE_LIMITS = false;
-    private static final boolean DEFAULT_PHASE_SHIFTER_REGULATION_ON = false;
+    public static final VoltageInitMode DEFAULT_VOLTAGE_INIT_MODE = VoltageInitMode.UNIFORM_VALUES;
+    public static final boolean DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON = false;
+    public static final boolean DEFAULT_NO_GENERATOR_REACTIVE_LIMITS = false;
+    public static final boolean DEFAULT_PHASE_SHIFTER_REGULATION_ON = false;
 
     public enum VoltageInitMode {
         UNIFORM_VALUES, // v=1pu, theta=0
@@ -36,7 +36,11 @@ public class LoadFlowParameters implements Cloneable {
     }
 
     protected static void load(LoadFlowParameters parameters) {
-        ModuleConfig config = PlatformConfig.defaultConfig().getModuleConfigIfExists("load-flow-default-parameters");
+        load(parameters, PlatformConfig.defaultConfig());
+    }
+
+    protected static void load(LoadFlowParameters parameters, PlatformConfig platformConfig) {
+        ModuleConfig config = platformConfig.getModuleConfigIfExists("load-flow-default-parameters");
         if (config != null) {
             parameters.setVoltageInitMode(config.getEnumProperty("voltageInitMode", VoltageInitMode.class, DEFAULT_VOLTAGE_INIT_MODE));
             parameters.setTransformerVoltageControlOn(config.getBooleanProperty("transformerVoltageControlOn", DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON));

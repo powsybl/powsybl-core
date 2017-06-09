@@ -292,17 +292,8 @@ public class Importers {
         }
     }
 
-    public static String getBaseName(Path file) {
-        return getBaseName(file.getFileName().toString());
-    }
-
-    public static String getBaseName(String fileName) {
-        int pos = fileName.indexOf('.'); // find first dot in case of double extension (.xml.gz)
-        return pos == -1 ? fileName : fileName.substring(0, pos);
-    }
-
     private static void addDataSource(Path dir, Path file, Importer importer, List<ReadOnlyDataSource> dataSources) {
-        String caseBaseName = getBaseName(file);
+        String caseBaseName = DataSourceUtil.getBaseName(file);
         ReadOnlyDataSource ds = new GenericReadOnlyDataSource(dir, caseBaseName);
         if (importer.exists(ds)) {
             dataSources.add(ds);
@@ -365,15 +356,7 @@ public class Importers {
     }
 
     public static ReadOnlyDataSource createReadOnly(Path directory, String fileNameOrBaseName) {
-        if (fileNameOrBaseName.endsWith(".zip")) {
-            return new ZipFileDataSource(directory, getBaseName(fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 4)));
-        } else if (fileNameOrBaseName.endsWith(".gz")) {
-            return new GzFileDataSource(directory, getBaseName(fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 3)));
-        } else if (fileNameOrBaseName.endsWith(".bz2")) {
-            return new Bzip2FileDataSource(directory, getBaseName(fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 4)));
-        } else {
-            return new FileDataSource(directory, getBaseName(fileNameOrBaseName));
-        }
+        return DataSourceUtil.createDataSource(directory, fileNameOrBaseName);
     }
 
     public static ReadOnlyDataSource createReadOnly(Path file) {
