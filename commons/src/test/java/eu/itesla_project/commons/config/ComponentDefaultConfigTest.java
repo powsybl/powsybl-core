@@ -49,7 +49,7 @@ public class ComponentDefaultConfigTest {
 
     @Test
     public void findFactoryImplClassTest() throws IOException {
-        moduleConfig.setStringProperty(A.class.getSimpleName(), B.class.getName());
+        moduleConfig.setClassProperty(A.class.getSimpleName(), B.class);
         assertEquals(B.class, config.findFactoryImplClass(A.class));
     }
 
@@ -60,7 +60,7 @@ public class ComponentDefaultConfigTest {
 
     @Test
     public void newFactoryImplTest() throws IOException {
-        moduleConfig.setStringProperty(A.class.getSimpleName(), B.class.getName());
+        moduleConfig.setClassProperty(A.class.getSimpleName(), B.class);
         assertTrue(config.newFactoryImpl(A.class) instanceof B);
     }
 

@@ -29,6 +29,13 @@ public class LocalGroovyScriptToolTest extends AbstractToolTest {
         return Collections.singleton(new LocalGroovyScriptTool(computationManager));
     }
 
+    @Override
+    public void assertCommand() {
+        Tool tool = new LocalGroovyScriptTool();
+        assertCommand(tool.getCommand(), "local-groovy-script", 1, 1);
+        assertOption(tool.getCommand().getOptions(), "script", true, true);
+    }
+
     @Test
     public void run() throws Exception {
         String helloFile = "/hello.groovy";

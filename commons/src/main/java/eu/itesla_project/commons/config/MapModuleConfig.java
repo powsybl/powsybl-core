@@ -6,6 +6,10 @@
  */
 package eu.itesla_project.commons.config;
 
+import com.google.common.base.Joiner;
+import org.joda.time.DateTime;
+import org.joda.time.Interval;
+
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
@@ -13,10 +17,6 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
-import com.google.common.base.Joiner;
-import org.joda.time.DateTime;
-import org.joda.time.Interval;
 
 /**
  *
@@ -90,7 +90,7 @@ public class MapModuleConfig implements ModuleConfig {
     }
 
     public void setStringProperty(String name, String value) {
-        properties.put(name, Objects.requireNonNull(value));
+        properties.put(Objects.requireNonNull(name), Objects.requireNonNull(value));
     }
 
     @Override
@@ -246,6 +246,11 @@ public class MapModuleConfig implements ModuleConfig {
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public <T> void setClassProperty(String name, Class<T> subClass) {
+        Objects.requireNonNull(subClass);
+        setStringProperty(name, subClass.getName());
     }
 
     @Override

@@ -21,6 +21,12 @@ public class VersionToolTest extends AbstractToolTest {
         return Collections.singleton(new VersionTool());
     }
 
+    @Override
+    public void assertCommand() {
+        VersionTool tool = new VersionTool();
+        assertCommand(tool.getCommand(), "version", 0, 0);
+    }
+
     @Test
     public void run() throws Exception {
         assertCommand(new String[] {}, CommandLineTools.COMMAND_NOT_FOUND_STATUS, "",

@@ -114,6 +114,20 @@ public class CommandLineToolsTest extends AbstractToolTest {
         return Arrays.asList(new Tool1(), new Tool2());
     }
 
+    @Override
+    public void assertCommand() {
+        Tool tool = new Tool1();
+        Command command = tool.getCommand();
+
+        assertCommand(command, "tool1", 1, 1);
+        assertOption(command.getOptions(), "option1", true, true);
+
+        tool = new Tool2();
+        command = tool.getCommand();
+        assertCommand(command, "tool2", 1, 0);
+        assertOption(command.getOptions(), "option2", false, false);
+    }
+
     @Test
     public void test() throws IOException {
         // usage when no command is specified

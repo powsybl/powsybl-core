@@ -1,4 +1,8 @@
 # Maven projects
+/action/action-dsl/target/
+/action/action-dsl-spi/target/
+/action/action-simulator/target/
+/action/action-util/target/
 /case-repository/target/
 /commons/target/
 /computation-local/target/

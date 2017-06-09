@@ -1,0 +1,292 @@
+/**
+ * Copyright (c) 2017, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+package eu.itesla_project.action.dsl.ast;
+
+import eu.itesla_project.action.dsl.GroovyUtil;
+import eu.itesla_project.iidm.network.Identifiable;
+import eu.itesla_project.iidm.network.TwoTerminalsConnectable;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
+/**
+ * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ */
+public class ExpressionEvaluator extends AbstractExpressionVisitor<Object, Void> {
+
+    private final EvaluationContext context;
+
+    public ExpressionEvaluator(EvaluationContext context) {
+        this.context = Objects.requireNonNull(context);
+    }
+
+    public static Object evaluate(ExpressionNode node, EvaluationContext context) {
+        return node.accept(new ExpressionEvaluator(context), null);
+    }
+
+    @Override
+    public Object visitLiteral(LiteralNode node, Void arg) {
+        return node.getValue();
+    }
+
+    @Override
+    public Object visitNetworkComponent(NetworkComponentNode node, Void arg) {
+        Identifiable identifiable = context.getNetwork().getIdentifiable(node.getComponentId());
+        if (identifiable == null) {
+            throw new RuntimeException("Network component '" + node.getComponentId() + "' not found");
+        }
+        return identifiable;
+    }
+
+    @Override
+    public Object visitNetworkProperty(NetworkPropertyNode node, Void arg) {
+        Object parentValue = node.getParent().accept(this, arg);
+        if (parentValue == null) {
+            throw new RuntimeException("Cannot call a property '" + node.getPropertyName() + "' on a null object");
+        }
+        return GroovyUtil.callProperty(parentValue, node.getPropertyName());
+    }
+
+    @Override
+    public Object visitNetworkMethod(NetworkMethodNode node, Void arg) {
+        Object parentValue = node.getParent().accept(this, arg);
+        if (parentValue == null) {
+            throw new RuntimeException("Cannot call a method '" + node.getMethodName() + "' on a null object");
+        }
+        return GroovyUtil.callMethod(parentValue, node.getMethodName(), node.getArgs());
+    }
+
+    @Override
+    public Object visitComparisonOperator(ComparisonOperatorNode node, Void arg) {
+        Object result1 = node.getLeft().accept(this, arg);
+        Object result2 = node.getRight().accept(this, arg);
+        if (!(result1 instanceof Number)) {
+            throw new RuntimeException("Left operand of comparison should return a number");
+        }
+        if (!(result2 instanceof Number)) {
+            throw new RuntimeException("Right operand of comparison should return a number");
+        }
+        double value1 = ((Number) result1).doubleValue();
+        double value2 = ((Number) result2).doubleValue();
+        switch (node.getOperator()) {
+            case EQUALS:
+                return value1 == value2;
+            case NOT_EQUALS:
+                return value1 != value2;
+            case GREATER_THAN:
+                return value1 > value2;
+            case LESS_THAN:
+                return value1 < value2;
+            case GREATER_THAN_OR_EQUALS_TO:
+                return value1 >= value2;
+            case LESS_THAN_OR_EQUALS_TO:
+                return value1 <= value2;
+            default:
+                throw new AssertionError();
+        }
+    }
+
+    @Override
+    public Object visitNotOperator(LogicalNotOperator node, Void arg) {
+        Object result = node.getChild().accept(this, arg);
+        if (!(result instanceof Boolean)) {
+            throw new RuntimeException("Operand of not operator should return a boolean");
+        }
+        return !(Boolean) result;
+    }
+
+    @Override
+    public Object visitLogicalOperator(LogicalBinaryOperatorNode node, Void arg) {
+        Object result1 = node.getLeft().accept(this, arg);
+        Object result2 = node.getRight().accept(this, arg);
+        if (!(result1 instanceof Boolean)) {
+            throw new RuntimeException("Left operand of comparison should return a boolean");
+        }
+        if (!(result2 instanceof Boolean)) {
+            throw new RuntimeException("Right operand of comparison should return a boolean");
+        }
+        boolean value1 = (Boolean) result1;
+        boolean value2 = (Boolean) result2;
+        switch (node.getOperator()) {
+            case AND:
+                return value1 && value2;
+            case OR:
+                return value1 || value2;
+            default:
+                throw new AssertionError();
+        }
+    }
+
+    @Override
+    public Object visitArithmeticOperator(ArithmeticBinaryOperatorNode node, Void arg) {
+        Object result1 = node.getLeft().accept(this, arg);
+        Object result2 = node.getRight().accept(this, arg);
+        if (!(result1 instanceof Number)) {
+            throw new RuntimeException("Left operand of arithmetic operation should return a number (" + result1.getClass() + ")");
+        }
+        if (!(result2 instanceof Number)) {
+            throw new RuntimeException("Right operand of arithmetic operation should return a number (" + result2.getClass() + ")");
+        }
+        double value1 = ((Number) result1).doubleValue();
+        double value2 = ((Number) result2).doubleValue();
+        switch (node.getOperator()) {
+            case PLUS:
+                return value1 + value2;
+            case MINUS:
+                return value1 - value2;
+            case MULTIPLY:
+                return value1 * value2;
+            case DIVIDE:
+                return value1 / value2;
+            default:
+                throw new AssertionError();
+        }
+    }
+
+    @Override
+    public Object visitActionTaken(ActionTakenNode node, Void arg) {
+        return context.isActionTaken(node.getActionId());
+    }
+
+    @Override
+    public Object visitContingencyOccurred(ContingencyOccurredNode node, Void arg) {
+        return context.getContingency() != null &&
+                (node.getContingencyId() == null || context.getContingency().getId().equals(node.getContingencyId()));
+    }
+
+    /**
+     * Utility class to compare loading on one side of a branch to loading of one side of another branch
+     */
+    private static class BranchAndSide implements Comparable<BranchAndSide> {
+        private final TwoTerminalsConnectable branch;
+        private final TwoTerminalsConnectable.Side side;
+
+        private BranchAndSide(TwoTerminalsConnectable branch, TwoTerminalsConnectable.Side side) {
+            this.branch = Objects.requireNonNull(branch);
+            this.side = Objects.requireNonNull(side);
+        }
+
+        public TwoTerminalsConnectable getBranch() {
+            return branch;
+        }
+
+        public TwoTerminalsConnectable.Side getSide() {
+            return side;
+        }
+
+        private static int compare(float value1, float value2) {
+            if (Float.isNaN(value1) && Float.isNaN(value2)) {
+                return 0;
+            } else if (Float.isNaN(value1) && !Float.isNaN(value2)) {
+                return -1;
+            } else if (!Float.isNaN(value1) && Float.isNaN(value2)) {
+                return 1;
+            } else {
+                return Float.compare(value1, value2);
+            }
+        }
+
+        private static int compare(BranchAndSide branchAndSide1, BranchAndSide branchAndSide2) {
+            TwoTerminalsConnectable.Overload overload1 = branchAndSide1.getBranch().checkTemporaryLimits(branchAndSide1.getSide());
+            TwoTerminalsConnectable.Overload overload2 = branchAndSide2.getBranch().checkTemporaryLimits(branchAndSide2.getSide());
+            float i1 = branchAndSide1.getBranch().getTerminal(branchAndSide1.getSide()).getI();
+            float i2 = branchAndSide2.getBranch().getTerminal(branchAndSide2.getSide()).getI();
+            float permanentLimit1 = getPermanentLimit(branchAndSide1.getBranch(), branchAndSide1.getSide());
+            float permanentLimit2 = getPermanentLimit(branchAndSide2.getBranch(), branchAndSide2.getSide());
+            int c;
+            if (overload1 == null && overload2 == null) {
+                // no overload, compare load based on permanent limit
+                c = compare(i1 / permanentLimit1, i2 / permanentLimit2);
+            } else if (overload1 == null && overload2 != null) {
+                c = -1;
+            } else if (overload1 != null && overload2 == null) {
+                c = 1;
+            } else { // overload1 != null && overload2 != null
+                // first compare acceptable duration
+                c = - Integer.compare(overload1.getTemporaryLimit().getAcceptableDuration(),
+                                      overload2.getTemporaryLimit().getAcceptableDuration());
+                if (c == 0) {
+                    // and then overload based on temporary limit
+                    c = compare(i1 / overload1.getTemporaryLimit().getValue(),
+                            i2 / overload2.getTemporaryLimit().getValue());
+                }
+            }
+            return c;
+        }
+
+        @Override
+        public int compareTo(BranchAndSide o) {
+            return compare(this, o);
+        }
+
+        @Override
+        public String toString() {
+            return branch.getId() + "/" + side;
+        }
+    }
+
+    /**
+     * TODO: to move to IIDM
+     */
+    private static float getPermanentLimit(TwoTerminalsConnectable branch, TwoTerminalsConnectable.Side side) {
+        Objects.requireNonNull(branch);
+        Objects.requireNonNull(side);
+        float permanentLimit1 = branch.getCurrentLimits1() != null ? branch.getCurrentLimits1().getPermanentLimit() : Float.NaN;
+        float permanentLimit2 = branch.getCurrentLimits2() != null ? branch.getCurrentLimits2().getPermanentLimit() : Float.NaN;
+        return side == TwoTerminalsConnectable.Side.ONE ? permanentLimit1 : permanentLimit2;
+    }
+
+    private TwoTerminalsConnectable getBranch(String id) {
+        Identifiable branch = context.getNetwork().getIdentifiable(id);
+        if (!(branch instanceof TwoTerminalsConnectable)) {
+            throw new RuntimeException("'" + id + "' is not a branch");
+        }
+        return (TwoTerminalsConnectable) branch;
+    }
+
+    private List<String> sortBranches(List<String> branchIds) {
+        List<String> sortedBranchIds = branchIds.stream()
+                .map(id -> getBranch(id))
+                .map(branch -> {
+                    BranchAndSide branchAndSide1 = new BranchAndSide(branch, TwoTerminalsConnectable.Side.ONE);
+                    BranchAndSide branchAndSide2 = new BranchAndSide(branch, TwoTerminalsConnectable.Side.TWO);
+                    int c = branchAndSide1.compareTo(branchAndSide2);
+                    return c >= 0 ? branchAndSide1 : branchAndSide2;
+                })
+                .sorted()
+                .map(branchAndSide -> branchAndSide.getBranch().getId())
+                .collect(Collectors.toList());
+        return sortedBranchIds;
+    }
+
+    @Override
+    public Object visitLoadingRank(LoadingRankNode node, Void arg) {
+        List<String> branchIds = new ArrayList<>();
+        node.getBranchIds().forEach(e -> branchIds.add((String) e.accept(this, arg)));
+
+        String branchIdToRank = (String) node.getBranchIdToRankNode().accept(this, arg);
+        if (!branchIds.contains(branchIdToRank)) {
+            throw new RuntimeException("Branch to rank has to be in the list");
+        }
+
+        List<String> sortedBranchIds = sortBranches(branchIds);
+        int i = sortedBranchIds.indexOf(branchIdToRank);
+        if (i == -1) {
+            throw new AssertionError();
+        }
+        int rank = sortedBranchIds.size() - i; // just a convention
+        return rank;
+    }
+
+    @Override
+    public Object visitMostLoaded(MostLoadedNode node, Void arg) {
+        List<String> sortedBranchIds = sortBranches(node.getBranchIds());
+        return sortedBranchIds.get(sortedBranchIds.size() - 1);
+    }
+}

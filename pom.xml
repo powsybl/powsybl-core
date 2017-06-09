@@ -20,6 +20,7 @@
     <url>http://www.itesla-project.eu/</url>
 
     <modules>
+        <module>action</module>
         <module>case-repository</module>
         <module>commons</module>
         <module>computation</module>
@@ -321,6 +322,11 @@
                 <version>${commonscli.version}</version>
             </dependency>
             <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>${commonsio.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
                 <version>${commonslang3.version}</version>
@@ -416,12 +422,6 @@
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava-testlib</artifactId>
                 <version>${guava.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>commons-io</groupId>
-                <artifactId>commons-io</artifactId>
-                <version>${commonsio.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>

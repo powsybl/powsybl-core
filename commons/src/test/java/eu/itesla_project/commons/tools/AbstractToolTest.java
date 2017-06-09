@@ -8,14 +8,22 @@ package eu.itesla_project.commons.tools;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import org.junit.*;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.ComparisonFailure;
+import org.junit.Test;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.*;
+import java.nio.file.FileSystem;
 import java.util.regex.Pattern;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -39,7 +47,7 @@ public abstract class AbstractToolTest {
 
     protected abstract Iterable<Tool> getTools();
 
-    protected void assertMatches(String expected, String actual) {
+    private void assertMatches(String expected, String actual) {
         if (!actual.equals(expected) && !Pattern.compile(expected).matcher(actual).find()) {
             throw new ComparisonFailure("", expected, actual);
         }
@@ -62,4 +70,19 @@ public abstract class AbstractToolTest {
         }
     }
 
+    @Test
+    public abstract void assertCommand();
+
+    protected void assertCommand(Command command, String commandName, int optionCount, int requiredOptionCount) {
+        assertEquals(commandName, command.getName());
+        assertEquals(optionCount, command.getOptions().getOptions().size());
+        assertEquals(requiredOptionCount, command.getOptions().getRequiredOptions().size());
+    }
+
+    protected void assertOption(Options options, String optionName, boolean isRequired, boolean hasArgument) {
+        Option option = options.getOption(optionName);
+        assertNotNull(option);
+        assertEquals(isRequired, option.isRequired());
+        assertEquals(hasArgument, option.hasArg());
+    }
 }

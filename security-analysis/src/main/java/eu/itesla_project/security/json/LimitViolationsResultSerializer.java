@@ -15,7 +15,7 @@ import eu.itesla_project.security.LimitViolationsResult;
 import java.io.IOException;
 
 /**
- * @author Mathieu Bague <mathieu.bague@rte-france.com>
+ * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
 public class LimitViolationsResultSerializer extends StdSerializer<LimitViolationsResult> {
 

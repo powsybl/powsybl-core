@@ -1,0 +1,57 @@
+/**
+ * Copyright (c) 2017, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+package eu.itesla_project.action.dsl;
+
+import eu.itesla_project.contingency.Contingency;
+import eu.itesla_project.contingency.ContingencyElement;
+import eu.itesla_project.iidm.network.Network;
+import eu.itesla_project.iidm.network.test.EurostagTutorialExample1Factory;
+import groovy.lang.GroovyCodeSource;
+import org.junit.Before;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+/**
+ * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ */
+public class ActionDslLoaderTest {
+
+    private Network network;
+
+    @Before
+    public void setUp() {
+        network = EurostagTutorialExample1Factory.create();
+    }
+
+    @Test
+    public void test() {
+        ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/actions.groovy"))).load(network);
+
+        assertEquals(2, actionDb.getContingencies().size());
+        Contingency contingency = actionDb.getContingency("contingency1");
+        ContingencyElement element = contingency.getElements().iterator().next();
+        assertEquals("NHV1_NHV2_1", element.getId());
+
+        contingency = actionDb.getContingency("contingency2");
+        element = contingency.getElements().iterator().next();
+        assertEquals("GEN", element.getId());
+
+        assertEquals(1, actionDb.getRules().size());
+        Rule rule = actionDb.getRules().iterator().next();
+        assertEquals("rule", rule.getId());
+        assertEquals("rule description", rule.getDescription());
+        assertTrue(rule.getActions().contains("action"));
+        assertEquals(2, rule.getLife());
+
+        Action action = actionDb.getAction("action");
+        assertEquals("action", action.getId());
+        assertEquals("action description", action.getDescription());
+        assertEquals(0, action.getTasks().size());
+    }
+}

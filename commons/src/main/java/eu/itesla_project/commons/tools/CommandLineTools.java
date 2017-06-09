@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
- * @author Mathieu Bague <mathieu.bague@rte-france.com>
+ * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
 public class CommandLineTools {
 
