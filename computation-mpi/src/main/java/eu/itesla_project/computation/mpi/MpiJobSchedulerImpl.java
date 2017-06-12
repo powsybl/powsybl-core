@@ -281,7 +281,7 @@ class MpiJobSchedulerImpl implements MpiJobScheduler {
     private static Messages.Task.Command createCommand(SimpleCommand command, int taskIndex) {
         Messages.Task.Command.Builder builder = Messages.Task.Command.newBuilder()
                 .setProgram(command.getProgram())
-                .addAllArgument(command.getArgs(Integer.toString(taskIndex)));
+                .addAllArgument(command.getArgs(taskIndex));
         if (command.getTimeout() != -1) {
             builder.setTimeout(command.getTimeout());
         }
@@ -291,7 +291,7 @@ class MpiJobSchedulerImpl implements MpiJobScheduler {
     private static Messages.Task.Command createCommand(GroupCommand.SubCommand subCmd, int taskIndex) {
         Messages.Task.Command.Builder builder = Messages.Task.Command.newBuilder()
                 .setProgram(subCmd.getProgram())
-                .addAllArgument(subCmd.getArgs(Integer.toString(taskIndex)));
+                .addAllArgument(subCmd.getArgs(taskIndex));
         if (subCmd.getTimeout() != -1) {
             builder.setTimeout(subCmd.getTimeout());
         }
@@ -313,37 +313,37 @@ class MpiJobSchedulerImpl implements MpiJobScheduler {
         // select which files have to be send with the message
         //
         for (InputFile file : command.getInputFiles()) {
+            String fileName = file.getName(taskIndex);
             if (file.dependsOnExecutionNumber()) {
                 //
                 // case 1: the file name depends on the execution instance, it has
                 // to be sent with the message
                 //
-                InputFile instFile = file.instanciate(Integer.toString(taskIndex));
-                Path path = job.getWorkingDir().resolve(instFile.getName());
+                Path path = job.getWorkingDir().resolve(fileName);
                 if (Files.exists(path)) {
                     try (InputStream is = Files.newInputStream(path)) {
                         builder.addInputFile(Messages.Task.InputFile.newBuilder()
-                                                               .setName(instFile.getName())
+                                                               .setName(fileName)
                                                                .setScope(Messages.Task.InputFile.Scope.TASK)
-                                                               .setPreProcessor(createPreProcessor(instFile.getPreProcessor()))
+                                                               .setPreProcessor(createPreProcessor(file.getPreProcessor()))
                                                                .setData(ByteString.readFrom(is))
                                                                .build());
                     }
                 } else {
-                    if (commonFiles.contains(instFile.getName())) {
+                    if (commonFiles.contains(fileName)) {
                         builder.addInputFile(Messages.Task.InputFile.newBuilder()
-                                                               .setName(instFile.getName())
+                                                               .setName(fileName)
                                                                .setScope(Messages.Task.InputFile.Scope.RUN)
-                                                               .setPreProcessor(createPreProcessor(instFile.getPreProcessor()))
+                                                               .setPreProcessor(createPreProcessor(file.getPreProcessor()))
                                                                .build());
                     } else {
-                        throw new RuntimeException("Input file " + instFile.getName()
+                        throw new RuntimeException("Input file " + fileName
                                 + " not found in the working directory nor in the common file list");
                     }
                 }
             } else {
 
-                Path path = job.getWorkingDir().resolve(file.getName());
+                Path path = job.getWorkingDir().resolve(fileName);
                 if (Files.exists(path)) {
                     //
                     // case 2: the file name does not depend on the execution instance
@@ -357,7 +357,7 @@ class MpiJobSchedulerImpl implements MpiJobScheduler {
                         //
                         try (InputStream is = Files.newInputStream(path)) {
                             builder.addInputFile(Messages.Task.InputFile.newBuilder()
-                                                                   .setName(file.getName())
+                                                                   .setName(fileName)
                                                                    .setScope(Messages.Task.InputFile.Scope.JOB)
                                                                    .setPreProcessor(createPreProcessor(file.getPreProcessor()))
                                                                    .setData(ByteString.readFrom(is))
@@ -371,7 +371,7 @@ class MpiJobSchedulerImpl implements MpiJobScheduler {
                         // the pack it with the message
                         //
                         builder.addInputFile(Messages.Task.InputFile.newBuilder()
-                                                                   .setName(file.getName())
+                                                                   .setName(fileName)
                                                                    .setScope(Messages.Task.InputFile.Scope.JOB)
                                                                    .setPreProcessor(createPreProcessor(file.getPreProcessor()))
                                                                    .build());
@@ -382,14 +382,14 @@ class MpiJobSchedulerImpl implements MpiJobScheduler {
                     // and belongs to the common file list, it has already been
                     // sent to all slave so no need to pack it in the message
                     //
-                    if (commonFiles.contains(file.getName())) {
+                    if (commonFiles.contains(fileName)) {
                         builder.addInputFile(Messages.Task.InputFile.newBuilder()
-                                                               .setName(file.getName())
+                                                               .setName(fileName)
                                                                .setScope(Messages.Task.InputFile.Scope.RUN)
                                                                .setPreProcessor(createPreProcessor(file.getPreProcessor()))
                                                                .build());
                     } else {
-                        throw new RuntimeException("Input file " + file.getName()
+                        throw new RuntimeException("Input file " + fileName
                                 + " not found in the common file list");
                     }
                 }
@@ -413,9 +413,9 @@ class MpiJobSchedulerImpl implements MpiJobScheduler {
                 throw new InternalError();
         }
 
-        for (OutputFile outputFile : command.getOutputFiles(Integer.toString(taskIndex))) {
+        for (OutputFile outputFile : command.getOutputFiles()) {
             builder.addOutputFile(Messages.Task.OutputFile.newBuilder()
-                                                          .setName(outputFile.getName())
+                                                          .setName(outputFile.getName(taskIndex))
                                                           .setPostProcessor(createPostProcessor(outputFile.getPostProcessor()))
                                                           .build());
         }
@@ -449,7 +449,7 @@ class MpiJobSchedulerImpl implements MpiJobScheduler {
                     }
 
                     LOGGER.debug("Sending commands {} to slaves {} using working directory {}",
-                            command.toString("*"), allocatedCores, job.getWorkingDir());
+                            command.toString(-1), allocatedCores, job.getWorkingDir());
 
                     DateTime startTime = DateTime.now();
 

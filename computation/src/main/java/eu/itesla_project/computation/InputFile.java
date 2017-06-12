@@ -8,6 +8,7 @@ package eu.itesla_project.computation;
 
 import java.io.File;
 import java.util.Objects;
+import java.util.function.Function;
 
 /**
  * Command input file.
@@ -16,7 +17,7 @@ import java.util.Objects;
  */
 public class InputFile {
 
-    private final String name;
+    private final FileName name;
 
     private final FilePreProcessor preProcessor;
 
@@ -25,6 +26,16 @@ public class InputFile {
     }
 
     public InputFile(String name, FilePreProcessor preProcessor) {
+        this.name = new StringFileName(checkName(name, preProcessor));
+        this.preProcessor = preProcessor;
+    }
+
+    public InputFile(Function<Integer, String> nameFunc, FilePreProcessor preProcessor) {
+        this.name = new FunctionFileName(nameFunc, name -> checkName(name, preProcessor));
+        this.preProcessor = preProcessor;
+    }
+
+    public static String checkName(String name, FilePreProcessor preProcessor) {
         Objects.requireNonNull(name, "name is null");
         if (name.contains(File.separator)) {
             throw new IllegalArgumentException("input file name must not contain directory path");
@@ -33,24 +44,23 @@ public class InputFile {
             switch (preProcessor) {
                 case FILE_GUNZIP:
                     if (!name.endsWith(".gz")) {
-                        throw new IllegalArgumentException(name + " is exptected to end with .gz");
+                        throw new IllegalArgumentException(name + " is expected to end with .gz");
                     }
                     break;
                 case ARCHIVE_UNZIP:
                     if (!name.endsWith(".zip")) {
-                        throw new IllegalArgumentException(name + " is exptected to end with .zip");
+                        throw new IllegalArgumentException(name + " is expected to end with .zip");
                     }
                     break;
                 default:
                     throw new InternalError();
             }
         }
-        this.name = name;
-        this.preProcessor = preProcessor;
+        return name;
     }
 
-    public String getName() {
-        return name;
+    public String getName(int executionNumber) {
+        return name.getName(executionNumber);
     }
 
     public FilePreProcessor getPreProcessor() {
@@ -58,11 +68,6 @@ public class InputFile {
     }
 
     public boolean dependsOnExecutionNumber() {
-        return name.contains(Command.EXECUTION_NUMBER_PATTERN);
+        return name.dependsOnExecutionNumber();
     }
-
-    public InputFile instanciate(String executionNumber) {
-        return new InputFile(name.replace(Command.EXECUTION_NUMBER_PATTERN, executionNumber), preProcessor);
-    }
-
 }

@@ -6,10 +6,11 @@
  */
 package eu.itesla_project.computation;
 
-import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
+
 import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -23,11 +24,11 @@ class GroupCommandImpl extends AbstractCommand implements GroupCommand {
 
         private final String program;
 
-        private final List<String> args;
+        private final Function<Integer, List<String>> args;
 
         private final int timeout;
         
-        SubCommandImpl(String program, List<String> args, int timeout) {
+        SubCommandImpl(String program, Function<Integer, List<String>> args, int timeout) {
             this.program = program;
             this.args = args;
             this.timeout = timeout;
@@ -39,13 +40,8 @@ class GroupCommandImpl extends AbstractCommand implements GroupCommand {
         }
 
         @Override
-        public List<String> getArgs(final String executionNumber) {
-            return Lists.transform(args, new Function<String, String>() {
-                @Override
-                public String apply(String args) {
-                    return args.replace(EXECUTION_NUMBER_PATTERN, executionNumber);
-                }
-            });
+        public List<String> getArgs(int executionNumber) {
+            return args.apply(executionNumber);
         }
 
         @Override
@@ -54,7 +50,7 @@ class GroupCommandImpl extends AbstractCommand implements GroupCommand {
         }
 
         @Override
-        public String toString(String executionNumber) {
+        public String toString(int executionNumber) {
             return ImmutableList.<String>builder()
                 .add(program)
                 .addAll(getArgs(executionNumber))
@@ -80,13 +76,11 @@ class GroupCommandImpl extends AbstractCommand implements GroupCommand {
     }
 
     @Override
-    public String toString(final String executionNumber) {
-        return Lists.transform(subCommands, new Function<SubCommand, String>() {
-            @Override
-            public String apply(SubCommand subCommand) {
-                return subCommand.toString(executionNumber);
-            }
-        }).toString();
+    public String toString(final int executionNumber) {
+        return subCommands.stream()
+                .map(subCommand -> subCommand.toString(executionNumber))
+                .collect(Collectors.toList())
+                .toString();
     }
 
 }

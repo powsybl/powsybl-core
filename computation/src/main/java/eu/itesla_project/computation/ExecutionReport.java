@@ -33,7 +33,7 @@ public class ExecutionReport {
             LOGGER.error("{} commands have failed: {}", errors.size(), errors);
             if (LOGGER.isTraceEnabled()) {
                 for (ExecutionError error : errors) {
-                    LOGGER.trace("Command {} exits with code {}", error.getCommand().toString(Integer.toString(error.getIndex())), error.getExitCode());
+                    LOGGER.trace("Command {} exits with code {}", error.getCommand().toString(error.getIndex()), error.getExitCode());
                 }
             }
         }

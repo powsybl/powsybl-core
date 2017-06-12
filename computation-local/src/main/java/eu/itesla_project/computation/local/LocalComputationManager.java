@@ -188,17 +188,19 @@ public class LocalComputationManager implements ComputationManager {
 
             for (int executionIndex = 0; executionIndex < commandExecution.getExecutionCount(); executionIndex++) {
                 LOGGER.debug("Executing command {} in working directory {}",
-                        command.toString(Integer.toString(executionIndex)), workingDir);
+                        command.toString(executionIndex), workingDir);
 
                 // pre-processing
-                for (InputFile file : command.getInputFiles(Integer.toString(executionIndex))) {
+                for (InputFile file : command.getInputFiles()) {
+                    String fileName = file.getName(executionIndex);
+
                     // first check if the file exists in the working directory
-                    Path path = workingDir.resolve(file.getName());
+                    Path path = workingDir.resolve(fileName);
                     if (!Files.exists(path)) {
                         // if not check if the file exists in the common directory
-                        path = commonDir.toPath().resolve(file.getName());
+                        path = commonDir.toPath().resolve(fileName);
                         if (!Files.exists(path)) {
-                            throw new RuntimeException("Input file '" + file.getName() + "' not found in the working and common directory");
+                            throw new RuntimeException("Input file '" + fileName + "' not found in the working and common directory");
                         }
                         if (file.getPreProcessor() == null) {
                             Files.copy(path, workingDir.resolve(path.getFileName()));
@@ -209,7 +211,7 @@ public class LocalComputationManager implements ComputationManager {
                             case FILE_GUNZIP:
                                 // gunzip the file
                                 try (InputStream is = new GZIPInputStream(Files.newInputStream(path));
-                                     OutputStream os = Files.newOutputStream(workingDir.resolve(file.getName().substring(0, file.getName().length() - 3)))) {
+                                     OutputStream os = Files.newOutputStream(workingDir.resolve(fileName.substring(0, fileName.length() - 3)))) {
                                     ByteStreams.copy(is, os);
                                 }
                                 break;
@@ -236,7 +238,7 @@ public class LocalComputationManager implements ComputationManager {
                     case SIMPLE:
                         SimpleCommand simpleCmd = (SimpleCommand) command;
                         exitValue = localExecutor.execute(simpleCmd.getProgram(),
-                                simpleCmd.getArgs(Integer.toString(executionIndex)),
+                                simpleCmd.getArgs(executionIndex),
                                 outFile,
                                 errFile,
                                 workingDir,
@@ -245,7 +247,7 @@ public class LocalComputationManager implements ComputationManager {
                     case GROUP:
                         for (GroupCommand.SubCommand subCmd : ((GroupCommand) command).getSubCommands()) {
                             exitValue = localExecutor.execute(subCmd.getProgram(),
-                                    subCmd.getArgs(Integer.toString(executionIndex)),
+                                    subCmd.getArgs(executionIndex),
                                     outFile,
                                     errFile,
                                     workingDir,
@@ -263,14 +265,15 @@ public class LocalComputationManager implements ComputationManager {
                     errors.add(new ExecutionError(command, executionIndex, exitValue));
                 } else {
                     // post processing
-                    for (OutputFile file : command.getOutputFiles(Integer.toString(executionIndex))) {
-                        Path path = workingDir.resolve(file.getName());
+                    for (OutputFile file : command.getOutputFiles()) {
+                        String fileName = file.getName(executionIndex);
+                        Path path = workingDir.resolve(fileName);
                         if (file.getPostProcessor() != null && Files.isRegularFile(path)) {
                             switch (file.getPostProcessor()) {
                                 case FILE_GZIP:
                                     // gzip the file
                                     try (InputStream is = Files.newInputStream(path);
-                                         OutputStream os = new GZIPOutputStream(Files.newOutputStream(workingDir.resolve(file.getName() + ".gz")))) {
+                                         OutputStream os = new GZIPOutputStream(Files.newOutputStream(workingDir.resolve(fileName + ".gz")))) {
                                         ByteStreams.copy(is, os);
                                     }
                                     break;

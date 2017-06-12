@@ -6,10 +6,10 @@
  */
 package eu.itesla_project.computation;
 
-import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
+
 import java.util.List;
+import java.util.function.Function;
 
 /**
  *
@@ -19,11 +19,11 @@ class SimpleCommandImpl extends AbstractCommand implements SimpleCommand {
 
     private final String program;
 
-    private final List<String> args;
+    private final Function<Integer, List<String>> args;
 
     private final int timeout;
     
-    SimpleCommandImpl(String id, String program, List<String> args, int timeout,
+    SimpleCommandImpl(String id, String program, Function<Integer, List<String>> args, int timeout,
                       List<InputFile> inputFiles, List<OutputFile> outputFiles) {
         super(id, inputFiles, outputFiles);
         this.program = program;
@@ -42,13 +42,8 @@ class SimpleCommandImpl extends AbstractCommand implements SimpleCommand {
     }
 
     @Override
-    public List<String> getArgs(final String executionNumber) {
-        return Lists.transform(args, new Function<String, String>() {
-            @Override
-            public String apply(String args) {
-                return args.replace(EXECUTION_NUMBER_PATTERN, executionNumber);
-            }
-        });
+    public List<String> getArgs(int executionNumber) {
+        return args.apply(executionNumber);
     }
 
     @Override
@@ -57,7 +52,7 @@ class SimpleCommandImpl extends AbstractCommand implements SimpleCommand {
     }
 
     @Override
-    public String toString(String executionNumber) {
+    public String toString(int executionNumber) {
         return ImmutableList.<String>builder()
                 .add(program)
                 .addAll(getArgs(executionNumber))

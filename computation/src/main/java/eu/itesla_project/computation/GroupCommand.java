@@ -15,16 +15,16 @@ import java.util.List;
  */
 public interface GroupCommand extends Command {
 
-    public interface SubCommand {
+    interface SubCommand {
 
         String getProgram();
 
-        List<String> getArgs(String executionNumber);
+        List<String> getArgs(int executionNumber);
 
         int getTimeout();
         
         // only used for display
-        String toString(String executionNumber);
+        String toString(int executionNumber);
 
     }
     

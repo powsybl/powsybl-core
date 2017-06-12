@@ -8,6 +8,7 @@ package eu.itesla_project.computation;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  *
@@ -15,17 +16,17 @@ import java.util.Map;
  */
 public class ExecutionEnvironment {
 
-    public static final ExecutionEnvironment DEFAULT = new ExecutionEnvironment(Collections.<String, String>emptyMap(), "itesla", false);
+    public static final ExecutionEnvironment DEFAULT = new ExecutionEnvironment(Collections.emptyMap(), "itesla", false);
 
-    private final Map<String, String> variables;
+    private Map<String, String> variables;
 
-    private final String workingDirPrefix;
+    private String workingDirPrefix;
 
-    private final boolean debug;
+    private boolean debug;
 
     public ExecutionEnvironment(Map<String, String> variables, String workingDirPrefix, boolean debug) {
-        this.variables = variables;
-        this.workingDirPrefix = workingDirPrefix;
+        this.variables = Objects.requireNonNull(variables);
+        this.workingDirPrefix = Objects.requireNonNull(workingDirPrefix);
         this.debug = debug;
     }
 
@@ -33,12 +34,26 @@ public class ExecutionEnvironment {
         return variables;
     }
 
+    public ExecutionEnvironment setVariables(Map<String, String> variables) {
+        this.variables = variables;
+        return this;
+    }
+
     public String getWorkingDirPrefix() {
         return workingDirPrefix;
+    }
+
+    public ExecutionEnvironment setWorkingDirPrefix(String workingDirPrefix) {
+        this.workingDirPrefix = workingDirPrefix;
+        return this;
     }
 
     public boolean isDebug() {
         return debug;
     }
 
+    public ExecutionEnvironment setDebug(boolean debug) {
+        this.debug = debug;
+        return this;
+    }
 }

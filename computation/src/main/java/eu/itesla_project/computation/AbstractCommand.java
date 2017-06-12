@@ -6,8 +6,6 @@
  */
 package eu.itesla_project.computation;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
 import java.util.List;
 
 /**
@@ -39,28 +37,7 @@ abstract class AbstractCommand implements Command {
     }
 
     @Override
-    public List<InputFile> getInputFiles(final String executionNumber) {
-        return Lists.transform(inputFiles, new Function<InputFile, InputFile>() {
-            @Override
-            public InputFile apply(InputFile file) {
-                return file.instanciate(executionNumber);
-            }
-        });
-    }
-
-    @Override
     public List<OutputFile> getOutputFiles() {
         return outputFiles;
     }
-
-    @Override
-    public List<OutputFile> getOutputFiles(final String executionNumber) {
-        return Lists.transform(outputFiles, new Function<OutputFile, OutputFile>() {
-            @Override
-            public OutputFile apply(OutputFile file) {
-                return file.instanciate(executionNumber);
-            }
-        });
-    }
-
 }

@@ -9,6 +9,9 @@ package eu.itesla_project.computation;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -18,7 +21,7 @@ public class SimpleCommandBuilder extends AbstractCommandBuilder<SimpleCommandBu
 
     private String program;
 
-    private List<String> args = Collections.emptyList();
+    private Function<Integer, List<String>> args = executionNumber -> Collections.emptyList();
 
     private int timeout = -1;
 
@@ -30,13 +33,22 @@ public class SimpleCommandBuilder extends AbstractCommandBuilder<SimpleCommandBu
         return this;
     }
 
+    public SimpleCommandBuilder args(Function<Integer, List<String>> args) {
+        this.args = Objects.requireNonNull(args);
+        return this;
+    }
+
     public SimpleCommandBuilder args(List<String> args) {
-        this.args = args;
+        Objects.requireNonNull(args);
+        this.args = executionNumber -> args.stream()
+                                           .map(arg -> arg.replace(Command.EXECUTION_NUMBER_PATTERN, executionNumber.toString()))
+                                           .collect(Collectors.toList());
         return this;
     }
 
     public SimpleCommandBuilder args(String... args) {
-        this.args = Arrays.asList(args);
+        Objects.requireNonNull(args);
+        args(Arrays.asList(args));
         return this;
     }
 

@@ -14,7 +14,7 @@ import java.util.List;
  */
 public interface Command {
 
-    public static final String EXECUTION_NUMBER_PATTERN = "${EXEC_NUM}";
+    String EXECUTION_NUMBER_PATTERN = "${EXEC_NUM}";
 
     String getId();
 
@@ -22,13 +22,9 @@ public interface Command {
 
     List<InputFile> getInputFiles();
 
-    List<InputFile> getInputFiles(String executionNumber);
-
     List<OutputFile> getOutputFiles();
 
-    List<OutputFile> getOutputFiles(String executionNumber);
-
     // only used for display
-    String toString(String executionNumber);
+    String toString(int executionNumber);
 
 }

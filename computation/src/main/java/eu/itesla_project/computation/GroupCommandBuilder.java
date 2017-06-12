@@ -8,10 +8,10 @@ package eu.itesla_project.computation;
 
 import eu.itesla_project.computation.GroupCommand.SubCommand;
 import eu.itesla_project.computation.GroupCommandImpl.SubCommandImpl;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -25,7 +25,7 @@ public class GroupCommandBuilder extends AbstractCommandBuilder<GroupCommandBuil
 
         private String program;
 
-        private List<String> args = Collections.emptyList();
+        private Function<Integer, List<String>> args = executionNumber -> Collections.emptyList();
 
         private int timeout = -1;
 
@@ -34,8 +34,22 @@ public class GroupCommandBuilder extends AbstractCommandBuilder<GroupCommandBuil
             return this;
         }
 
+        public SubCommandBuilder args(Function<Integer, List<String>> args) {
+            this.args = Objects.requireNonNull(args);
+            return this;
+        }
+
+        public SubCommandBuilder args(List<String> args) {
+            Objects.requireNonNull(args);
+            this.args = executionNumber -> args.stream()
+                                               .map(arg -> arg.replace(Command.EXECUTION_NUMBER_PATTERN, executionNumber.toString()))
+                                               .collect(Collectors.toList());
+            return this;
+        }
+
         public SubCommandBuilder args(String... args) {
-            this.args = Arrays.asList(args);
+            Objects.requireNonNull(args);
+            args(Arrays.asList(args));
             return this;
         }
 

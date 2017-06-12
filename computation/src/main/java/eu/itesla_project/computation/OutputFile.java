@@ -8,6 +8,7 @@ package eu.itesla_project.computation;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * Command output file.
@@ -16,7 +17,7 @@ import java.util.List;
  */
 public class OutputFile {
 
-    private final String name;
+    private final FileName name;
 
     private final FilePostProcessor postProcessor;
 
@@ -33,12 +34,17 @@ public class OutputFile {
     }
 
     public OutputFile(String name, FilePostProcessor postProcessor) {
-        this.name = name;
+        this.name = new StringFileName(name);
         this.postProcessor = postProcessor;
     }
 
-    public String getName() {
-        return name;
+    public OutputFile(Function<Integer, String> nameFunc, FilePostProcessor postProcessor) {
+        this.name = new FunctionFileName(nameFunc, null);
+        this.postProcessor = postProcessor;
+    }
+
+    public String getName(int executionNumber) {
+        return name.getName(executionNumber);
     }
 
     public FilePostProcessor getPostProcessor() {
@@ -46,11 +52,6 @@ public class OutputFile {
     }
 
     public boolean dependsOnExecutionNumber() {
-        return name.contains(Command.EXECUTION_NUMBER_PATTERN);
+        return name.dependsOnExecutionNumber();
     }
-
-    public OutputFile instanciate(String executionNumber) {
-        return new OutputFile(name.replace(Command.EXECUTION_NUMBER_PATTERN, executionNumber), postProcessor);
-    }
-
 }
