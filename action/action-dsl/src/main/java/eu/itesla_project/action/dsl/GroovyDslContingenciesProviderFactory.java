@@ -11,6 +11,7 @@ import eu.itesla_project.commons.config.PlatformConfig;
 import eu.itesla_project.contingency.ContingenciesProviderFactory;
 
 import java.nio.file.Path;
+import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -21,6 +22,12 @@ public class GroovyDslContingenciesProviderFactory implements ContingenciesProvi
     public GroovyDslContingenciesProvider create() {
         ModuleConfig config = PlatformConfig.defaultConfig().getModuleConfig("groovy-dsl-contingencies");
         Path dslFile = config.getPathProperty("dsl-file");
+        return new GroovyDslContingenciesProvider(dslFile);
+    }
+
+    @Override
+    public GroovyDslContingenciesProvider create(Path dslFile) {
+        Objects.requireNonNull(dslFile);
         return new GroovyDslContingenciesProvider(dslFile);
     }
 

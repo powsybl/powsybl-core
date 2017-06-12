@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, RTE (http://www.rte-france.com)
+ * Copyright (c) 2016-2017, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -89,6 +89,11 @@ public class SecurityAnalysisTool implements Tool {
                         .hasArg()
                         .argName("FORMAT")
                         .build());
+                options.addOption(Option.builder().longOpt("contingencies-file")
+                        .desc("the contingencies path")
+                        .hasArg()
+                        .argName("FILE")
+                        .build());
                 return options;
             }
 
@@ -129,7 +134,9 @@ public class SecurityAnalysisTool implements Tool {
         SecurityAnalysis securityAnalysis = securityAnalysisFactory.create(network, LocalComputationManager.getDefault(), 0);
 
         ContingenciesProviderFactory contingenciesProviderFactory = defaultConfig.newFactoryImpl(ContingenciesProviderFactory.class);
-        ContingenciesProvider contingenciesProvider = contingenciesProviderFactory.create();
+        ContingenciesProvider contingenciesProvider = line.hasOption("contingencies-file") 
+                ? contingenciesProviderFactory.create(context.getFileSystem().getPath(line.getOptionValue("contingencies-file")))
+                        : contingenciesProviderFactory.create();
 
         // run security analysis on all N-1 lines
         SecurityAnalysisResult result = securityAnalysis.runAsync(contingenciesProvider)
