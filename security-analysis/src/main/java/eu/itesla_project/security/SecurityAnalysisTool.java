@@ -13,7 +13,6 @@ import eu.itesla_project.commons.io.table.CsvTableFormatterFactory;
 import eu.itesla_project.commons.tools.Command;
 import eu.itesla_project.commons.tools.Tool;
 import eu.itesla_project.commons.tools.ToolRunningContext;
-import eu.itesla_project.computation.local.LocalComputationManager;
 import eu.itesla_project.contingency.ContingenciesProvider;
 import eu.itesla_project.contingency.ContingenciesProviderFactory;
 import eu.itesla_project.iidm.import_.Importers;
@@ -131,7 +130,7 @@ public class SecurityAnalysisTool implements Tool {
 
         ComponentDefaultConfig defaultConfig = ComponentDefaultConfig.load();
         SecurityAnalysisFactory securityAnalysisFactory = defaultConfig.newFactoryImpl(SecurityAnalysisFactory.class);
-        SecurityAnalysis securityAnalysis = securityAnalysisFactory.create(network, LocalComputationManager.getDefault(), 0);
+        SecurityAnalysis securityAnalysis = securityAnalysisFactory.create(network, context.getComputationManager(), 0);
 
         ContingenciesProviderFactory contingenciesProviderFactory = defaultConfig.newFactoryImpl(ContingenciesProviderFactory.class);
         ContingenciesProvider contingenciesProvider = line.hasOption("contingencies-file") 

@@ -8,6 +8,7 @@ package eu.itesla_project.commons.tools;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimaps;
+import eu.itesla_project.computation.ComputationManager;
 import org.apache.commons.cli.*;
 
 import java.io.PrintStream;
@@ -79,17 +80,17 @@ public class CommandLineTools {
         return optionsWithHelp;
     }
 
-    private void printCommandUsage(Command command, PrintStream err) {
+    private void printCommandUsage(String name, Options options, String usageFooter, PrintStream err) {
         HelpFormatter formatter = new HelpFormatter();
         PrintWriter writer = new PrintWriter(err);
         formatter.printHelp(writer,
                             80,
-                            TOOL_NAME + " " + command.getName(),
+                            TOOL_NAME + " " + name,
                             "", // header
-                            getOptionsWithHelp(command.getOptions()),
+                            getOptionsWithHelp(options),
                             formatter.getLeftPadding(),
                             formatter.getDescPadding(),
-                            System.lineSeparator() + Objects.toString(command.getUsageFooter(), ""),
+                            System.lineSeparator() + Objects.toString(usageFooter, ""),
                             true);
         writer.flush();
     }
@@ -103,34 +104,43 @@ public class CommandLineTools {
         return null;
     }
 
-    public int run(String[] args, ToolRunningContext context) {
+    public int run(String[] args, ToolInitializationContext initContext) {
         Objects.requireNonNull(args);
-        Objects.requireNonNull(context);
+        Objects.requireNonNull(initContext);
 
         if (args.length < 1) {
-            return printUsage(context.getErrorStream());
+            return printUsage(initContext.getErrorStream());
         }
 
         Tool tool = findTool(args[0]);
         if (tool == null) {
-            return printUsage(context.getErrorStream());
+            return printUsage(initContext.getErrorStream());
         }
+
+        Options optionsExt = new Options();
+        initContext.getAdditionalOptions().getOptions().forEach(optionsExt::addOption);
+        tool.getCommand().getOptions().getOptions().forEach(optionsExt::addOption);
 
         try {
             CommandLineParser parser = new DefaultParser();
             if (Arrays.asList(args).contains("--help")) {
-                printCommandUsage(tool.getCommand(), context.getErrorStream());
+                printCommandUsage(tool.getCommand().getName(), optionsExt, tool.getCommand().getUsageFooter(), initContext.getErrorStream());
             } else {
-                CommandLine line = parser.parse(getOptionsWithHelp(tool.getCommand().getOptions()), Arrays.copyOfRange(args, 1, args.length));
-                tool.run(line, context);
+                CommandLine line = parser.parse(optionsExt, Arrays.copyOfRange(args, 1, args.length));
+                try (ComputationManager computationManager = initContext.createComputationManager(line)) {
+                    tool.run(line, new ToolRunningContext(initContext.getOutputStream(),
+                                                          initContext.getErrorStream(),
+                                                          initContext.getFileSystem(),
+                                                          computationManager));
+                }
             }
             return COMMAND_OK_STATUS;
         } catch (ParseException e) {
-            context.getErrorStream().println("error: " + e.getMessage());
-            printCommandUsage(tool.getCommand(), context.getErrorStream());
+            initContext.getErrorStream().println("error: " + e.getMessage());
+            printCommandUsage(tool.getCommand().getName(), optionsExt, tool.getCommand().getUsageFooter(), initContext.getErrorStream());
             return INVALID_COMMAND_STATUS;
         } catch (Exception e) {
-            e.printStackTrace(context.getErrorStream());
+            e.printStackTrace(initContext.getErrorStream());
             return EXECUTION_ERROR_STATUS;
         }
     }

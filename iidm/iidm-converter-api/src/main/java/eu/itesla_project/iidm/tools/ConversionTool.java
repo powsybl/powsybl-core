@@ -42,7 +42,7 @@ public class ConversionTool implements Tool {
         String outputDirName = line.getOptionValue("output-dir");
         String outputBaseName = line.getOptionValue("output-basename");
 
-        Importer importer = Importers.getImporter(sourceFormat);
+        Importer importer = Importers.getImporter(sourceFormat, context.getComputationManager());
         if (importer == null) {
             throw new ITeslaException("Source format " + sourceFormat + " not supported");
         }
@@ -61,7 +61,7 @@ public class ConversionTool implements Tool {
         DataSource ds2 = new FileDataSource(context.getFileSystem().getPath(outputDirName), outputBaseName, new AbstractDataSourceObserver() {
             @Override
             public void opened(String streamName) {
-                System.out.println("Generating file " + streamName + "...");
+                context.getOutputStream().println("Generating file " + streamName + "...");
             }
         });
         exporter.export(network, outputParams, ds2);

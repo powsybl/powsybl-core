@@ -22,6 +22,7 @@
 /math/target/
 /security-analysis/target/
 /simulation-api/target/
+/tools/target/
 /target/
 
 # CMake projects

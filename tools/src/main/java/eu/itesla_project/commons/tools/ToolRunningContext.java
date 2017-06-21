@@ -6,9 +6,10 @@
  */
 package eu.itesla_project.commons.tools;
 
+import eu.itesla_project.computation.ComputationManager;
+
 import java.io.PrintStream;
 import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
 import java.util.Objects;
 
 /**
@@ -22,14 +23,13 @@ public class ToolRunningContext {
 
     private final FileSystem fileSystem;
 
-    public ToolRunningContext() {
-        this(System.out, System.err, FileSystems.getDefault());
-    }
+    private final ComputationManager computationManager;
 
-    public ToolRunningContext(PrintStream outputStream, PrintStream errorStream, FileSystem fileSystem) {
+    public ToolRunningContext(PrintStream outputStream, PrintStream errorStream, FileSystem fileSystem, ComputationManager computationManager) {
         this.outputStream = Objects.requireNonNull(outputStream);
         this.errorStream = Objects.requireNonNull(errorStream);
         this.fileSystem = Objects.requireNonNull(fileSystem);
+        this.computationManager = Objects.requireNonNull(computationManager);
     }
 
     public PrintStream getOutputStream() {
@@ -42,5 +42,9 @@ public class ToolRunningContext {
 
     public FileSystem getFileSystem() {
         return fileSystem;
+    }
+
+    public ComputationManager getComputationManager() {
+        return computationManager;
     }
 }

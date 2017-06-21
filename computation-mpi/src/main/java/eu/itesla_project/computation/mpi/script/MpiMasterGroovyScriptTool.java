@@ -7,12 +7,11 @@
 package eu.itesla_project.computation.mpi.script;
 
 import com.google.auto.service.AutoService;
-import eu.itesla_project.commons.config.ComponentDefaultConfig;
 import eu.itesla_project.commons.tools.Command;
 import eu.itesla_project.commons.tools.Tool;
 import eu.itesla_project.commons.tools.ToolRunningContext;
 import eu.itesla_project.computation.ComputationManager;
-import eu.itesla_project.computation.mpi.*;
+import eu.itesla_project.computation.mpi.tools.MpiToolUtil;
 import eu.itesla_project.computation.script.GroovyScripts;
 import groovy.lang.Binding;
 import org.apache.commons.cli.CommandLine;
@@ -45,48 +44,13 @@ public class MpiMasterGroovyScriptTool implements Tool {
 
         @Override
         public Options getOptions() {
-            Options options = new Options();
+            Options options = MpiToolUtil.createMpiOptions();
             options.addOption(Option.builder()
                     .longOpt("script")
                     .desc("the groovy script")
                     .hasArg()
                     .required()
                     .argName("FILE")
-                    .build());
-            options.addOption(Option.builder()
-                    .longOpt("tmp-dir")
-                    .desc("local temporary directory")
-                    .hasArg()
-                    .argName("dir")
-                    .build());
-            options.addOption(Option.builder()
-                    .longOpt("statistics-db-dir")
-                    .desc("statistics db directory")
-                    .hasArg()
-                    .argName("dir")
-                    .build());
-            options.addOption(Option.builder()
-                    .longOpt("statistics-db-name")
-                    .desc("statistics db name")
-                    .hasArg()
-                    .argName("name")
-                    .build());
-            options.addOption(Option.builder()
-                    .longOpt("cores")
-                    .desc("number of cores per rank")
-                    .hasArg()
-                    .required()
-                    .argName("n")
-                    .build());
-            options.addOption(Option.builder()
-                    .longOpt("verbose")
-                    .desc("verbose mode")
-                    .build());
-            options.addOption(Option.builder()
-                    .longOpt("stdout-archive")
-                    .desc("tasks standard output archive")
-                    .hasArg()
-                    .argName("file")
                     .build());
             return options;
         }
@@ -106,41 +70,15 @@ public class MpiMasterGroovyScriptTool implements Tool {
         return COMMAND;
     }
 
-    private static MpiStatisticsFactory createMpiStatisticsFactory(ComponentDefaultConfig config, Path statisticsDbDir, String statisticsDbName) {
-        MpiStatisticsFactory statisticsFactory;
-        if (statisticsDbDir != null && statisticsDbName != null) {
-            statisticsFactory = config.newFactoryImpl(MpiStatisticsFactory.class, NoMpiStatisticsFactory.class);
-        } else {
-            statisticsFactory = new NoMpiStatisticsFactory();
-        }
-        return statisticsFactory;
-    }
-
     @Override
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
-        Path file = context.getFileSystem().getPath(line.getOptionValue("script"));
-        Path tmpDir = context.getFileSystem().getPath(line.hasOption("tmp-dir") ? line.getOptionValue("tmp-dir") : System.getProperty("java.io.tmpdir"));
-        Path statisticsDbDir = line.hasOption("statistics-db-dir") ? context.getFileSystem().getPath(line.getOptionValue("statistics-db-dir")) : null;
-        String statisticsDbName = line.hasOption("statistics-db-name") ? line.getOptionValue("statistics-db-name") : null;
-        int coresPerRank = Integer.parseInt(line.getOptionValue("cores"));
-        boolean verbose = line.hasOption("verbose");
-        Path stdOutArchive = line.hasOption("stdout-archive") ? context.getFileSystem().getPath(line.getOptionValue("stdout-archive")) : null;
+        try (ComputationManager computationManager = MpiToolUtil.createMpiComputationManager(line, context.getFileSystem())) {
+            Path file = context.getFileSystem().getPath(line.getOptionValue("script"));
 
-        Binding binding = new Binding();
-        binding.setProperty("args", line.getArgs());
+            Binding binding = new Binding();
+            binding.setProperty("args", line.getArgs());
 
-        ComponentDefaultConfig config = ComponentDefaultConfig.load();
-
-        MpiExecutorContext mpiExecutorContext = config.newFactoryImpl(MpiExecutorContextFactory.class, DefaultMpiExecutorContextFactory.class).create();
-        MpiStatisticsFactory statisticsFactory = createMpiStatisticsFactory(config, statisticsDbDir, statisticsDbName);
-        try {
-            try (MpiStatistics statistics = statisticsFactory.create(statisticsDbDir, statisticsDbName)) {
-                try (ComputationManager computationManager = new MpiComputationManager(tmpDir, statistics, mpiExecutorContext, coresPerRank, verbose, stdOutArchive)) {
-                    GroovyScripts.run(file, computationManager, binding, null);
-                }
-            }
-        } finally {
-            mpiExecutorContext.shutdown();
+            GroovyScripts.run(file, computationManager, binding, null);
         }
     }
 }

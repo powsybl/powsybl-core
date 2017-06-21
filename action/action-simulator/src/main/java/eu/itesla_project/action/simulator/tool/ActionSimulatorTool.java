@@ -19,7 +19,6 @@ import eu.itesla_project.commons.io.table.CsvTableFormatterFactory;
 import eu.itesla_project.commons.tools.Command;
 import eu.itesla_project.commons.tools.Tool;
 import eu.itesla_project.commons.tools.ToolRunningContext;
-import eu.itesla_project.computation.local.LocalComputationManager;
 import eu.itesla_project.contingency.Contingency;
 import eu.itesla_project.iidm.import_.Importers;
 import eu.itesla_project.iidm.network.Network;
@@ -144,7 +143,7 @@ public class ActionSimulatorTool implements Tool {
             }
         };
 
-        return new LoadFlowActionSimulator(network, LocalComputationManager.getDefault(), config, logPrinter, securityAnalysisPrinter);
+        return new LoadFlowActionSimulator(network, context.getComputationManager(), config, logPrinter, securityAnalysisPrinter);
     }
 
     @Override

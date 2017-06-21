@@ -35,6 +35,7 @@
         <module>math</module>
         <module>security-analysis</module>
         <module>simulation-api</module>
+        <module>tools</module>
     </modules>
 
     <properties>

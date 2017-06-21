@@ -81,6 +81,11 @@
             <artifactId>security-analysis</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>tools</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <!-- Test dependencies -->
         <dependency>
@@ -110,7 +115,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>commons</artifactId>
+            <artifactId>tools</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
             <type>test-jar</type>

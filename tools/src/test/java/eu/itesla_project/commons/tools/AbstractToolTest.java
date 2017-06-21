@@ -8,12 +8,15 @@ package eu.itesla_project.commons.tools;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
+import eu.itesla_project.computation.ComputationManager;
+import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ComparisonFailure;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -59,7 +62,33 @@ public abstract class AbstractToolTest {
         int status;
         try (PrintStream out = new PrintStream(bout);
              PrintStream err = new PrintStream(berr)) {
-            status = tools.run(args, new ToolRunningContext(out, err, fileSystem));
+            ComputationManager computationManager = Mockito.mock(ComputationManager.class);
+            status = tools.run(args, new ToolInitializationContext() {
+                @Override
+                public PrintStream getOutputStream() {
+                    return out;
+                }
+
+                @Override
+                public PrintStream getErrorStream() {
+                    return err;
+                }
+
+                @Override
+                public Options getAdditionalOptions() {
+                    return new Options();
+                }
+
+                @Override
+                public FileSystem getFileSystem() {
+                    return fileSystem;
+                }
+
+                @Override
+                public ComputationManager createComputationManager(CommandLine commandLine) {
+                    return computationManager;
+                }
+            });
         }
         assertEquals(expectedStatus, status);
         if (expectedOut != null) {

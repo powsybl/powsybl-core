@@ -40,4 +40,4 @@ $JAVA_HOME/bin/java \
 -Xmx8G \
 -cp "$installDir/share/java/*" \
 $options \
-eu.itesla_project.commons.tools.Main "${args[@]}"
+eu.itesla_project.computation.local.tools.Main "${args[@]}"
