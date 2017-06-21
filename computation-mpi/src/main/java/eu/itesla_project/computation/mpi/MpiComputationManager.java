@@ -271,9 +271,20 @@ public class MpiComputationManager implements ComputationManager {
                             ExecutionListener l = new AbstractExecutionListener() {
 
                                 @Override
+                                public void onExecutionStart(int fromExecutionIndex, int toExecutionIndex) {
+                                    try {
+                                        for (int executionIndex = fromExecutionIndex; executionIndex <= toExecutionIndex; executionIndex++) {
+                                            handler.onExecutionStart(execution, executionIndex);
+                                        }
+                                    } catch (Exception e) {
+                                        LOGGER.error(e.toString(), e);
+                                    }
+                                }
+
+                                @Override
                                 public void onExecutionCompletion(int executionIndex) {
                                     try {
-                                        handler.onProgress(execution, executionIndex);
+                                        handler.onExecutionCompletion(execution, executionIndex);
                                     } catch (Exception e) {
                                         LOGGER.error(e.toString(), e);
                                     }
