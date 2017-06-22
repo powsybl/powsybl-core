@@ -193,7 +193,7 @@ public class MpiComputationManagerTest {
     @Test
     public void testExecute() throws Exception {
         final Path[] workingDirSav = new Path[1];
-        String result = cm.execute(ExecutionEnvironment.DEFAULT, new ExecutionHandlerTest1() {
+        String result = cm.execute(ExecutionEnvironment.createDefault(), new ExecutionHandlerTest1() {
             @Override
             public List<CommandExecution> before(Path workingDir) throws IOException {
                 workingDirSav[0] = workingDir;
@@ -208,7 +208,7 @@ public class MpiComputationManagerTest {
     public void testExecute2() throws Exception {
         final Path[] workingDirSav = new Path[1];
         try {
-            cm.execute(ExecutionEnvironment.DEFAULT, new ExecutionHandlerTest1() {
+            cm.execute(ExecutionEnvironment.createDefault(), new ExecutionHandlerTest1() {
                 @Override
                 public List<CommandExecution> before(Path workingDir) throws IOException {
                     workingDirSav[0] = workingDir;
@@ -225,7 +225,7 @@ public class MpiComputationManagerTest {
     public void testExecute3() throws Exception {
         final Path[] workingDirSav = new Path[1];
         try {
-            cm.execute(ExecutionEnvironment.DEFAULT, new ExecutionHandlerTest1() {
+            cm.execute(ExecutionEnvironment.createDefault(), new ExecutionHandlerTest1() {
                 @Override
                 public List<CommandExecution> before(Path workingDir) throws IOException {
                     workingDirSav[0] = workingDir;
@@ -246,7 +246,7 @@ public class MpiComputationManagerTest {
     @Test
     public void testExecute4() throws Exception {
         final Path[] workingDirSav = new Path[1];
-        String result = cm.execute(ExecutionEnvironment.DEFAULT, new ExecutionHandlerTest2() {
+        String result = cm.execute(ExecutionEnvironment.createDefault(), new ExecutionHandlerTest2() {
             @Override
             public List<CommandExecution> before(Path workingDir) throws IOException {
                 workingDirSav[0] = workingDir;

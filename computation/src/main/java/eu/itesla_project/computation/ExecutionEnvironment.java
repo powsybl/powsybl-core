@@ -16,7 +16,9 @@ import java.util.Objects;
  */
 public class ExecutionEnvironment {
 
-    public static final ExecutionEnvironment DEFAULT = new ExecutionEnvironment(Collections.emptyMap(), "itesla", false);
+    public static ExecutionEnvironment createDefault() {
+        return new ExecutionEnvironment(Collections.emptyMap(), "itesla", false);
+    }
 
     private Map<String, String> variables;
 
