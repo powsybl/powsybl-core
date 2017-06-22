@@ -21,6 +21,15 @@ public abstract class DefaultExecutionHandler<R> implements ExecutionHandler<R> 
     public abstract List<CommandExecution> before(Path workingDir) throws IOException;
 
     @Override
+    public void onExecutionStart(CommandExecution execution, int executionIndex) {
+    }
+
+    @Override
+    public void onExecutionCompletion(CommandExecution execution, int executionIndex) {
+    }
+
+    @Override
+    @Deprecated
     public void onProgress(CommandExecution execution, int executionIndex) {
     }
 

@@ -18,6 +18,13 @@ public interface ExecutionHandler<R> {
 
     List<CommandExecution> before(Path workingDir) throws IOException;
 
+    void onExecutionStart(CommandExecution execution, int executionIndex);
+
+    default void onExecutionCompletion(CommandExecution execution, int executionIndex) {
+        onProgress(execution, executionIndex);
+    }
+
+    @Deprecated
     void onProgress(CommandExecution execution, int executionIndex);
 
     R after(Path workingDir, ExecutionReport report) throws IOException;
