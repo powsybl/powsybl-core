@@ -36,7 +36,7 @@ if [ $rank = 0 ]; then
     [ -f "$itesla_config_dir/logback-itools.xml" ] && options+="$itesla_config_dir" || options+="$installDir/etc"
     options+="/logback-itools.xml"
     $JAVA_HOME/bin/java \
--Xmx8G \
+-Xmx$java_xmx \
 -verbose:gc -XX:+PrintGCTimeStamps -Xloggc:$tmpdir/gc.log \
 $options \
 eu.itesla_project.computation.mpi.tools.MpiMaster \

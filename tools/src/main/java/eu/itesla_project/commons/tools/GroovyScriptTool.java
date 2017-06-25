@@ -4,14 +4,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.computation.local.script;
+package eu.itesla_project.commons.tools;
 
 import com.google.auto.service.AutoService;
-import eu.itesla_project.commons.tools.Command;
-import eu.itesla_project.commons.tools.Tool;
-import eu.itesla_project.commons.tools.ToolRunningContext;
-import eu.itesla_project.computation.ComputationManager;
-import eu.itesla_project.computation.local.LocalComputationManager;
 import eu.itesla_project.computation.script.GroovyScripts;
 import groovy.lang.Binding;
 import org.apache.commons.cli.CommandLine;
@@ -21,28 +16,27 @@ import org.apache.commons.cli.Options;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.file.Path;
-import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @AutoService(Tool.class)
-public class LocalGroovyScriptTool implements Tool {
+public class GroovyScriptTool implements Tool {
 
     private static final Command COMMAND = new Command() {
         @Override
         public String getName() {
-            return "local-groovy-script";
+            return "groovy-script";
         }
 
         @Override
         public String getTheme() {
-            return "Computation";
+            return "Script";
         }
 
         @Override
         public String getDescription() {
-            return "run groovy script in local computation mode";
+            return "run groovy script";
         }
 
         @Override
@@ -64,16 +58,6 @@ public class LocalGroovyScriptTool implements Tool {
         }
     };
 
-    private final ComputationManager computationManager;
-
-    public LocalGroovyScriptTool() {
-        this(LocalComputationManager.getDefault());
-    }
-
-    public LocalGroovyScriptTool(ComputationManager computationManager) {
-        this.computationManager = Objects.requireNonNull(computationManager);
-    }
-
     @Override
     public Command getCommand() {
         return COMMAND;
@@ -87,7 +71,7 @@ public class LocalGroovyScriptTool implements Tool {
         Binding binding = new Binding();
         binding.setProperty("args", line.getArgs());
 
-        GroovyScripts.run(file, computationManager, binding, writer);
+        GroovyScripts.run(file, context.getComputationManager(), binding, writer);
         writer.flush();
     }
 }
