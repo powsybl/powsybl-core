@@ -334,6 +334,8 @@ public interface VoltageLevel extends Container<VoltageLevel> {
 
             SwitchAdder setRetained(boolean retained);
 
+            SwitchAdder setFicticious(boolean ficticious);
+
             Switch add();
 
         }
@@ -457,6 +459,8 @@ public interface VoltageLevel extends Container<VoltageLevel> {
             SwitchAdder setBus2(String bus2);
 
             SwitchAdder setOpen(boolean open);
+
+            SwitchAdder setFicticious(boolean ficticious);
 
             Switch add();
 

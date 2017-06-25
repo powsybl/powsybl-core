@@ -35,6 +35,9 @@ abstract class SwitchXml<A extends IdentifiableAdder<A>> extends IdentifiableXml
         context.getWriter().writeAttribute("kind", s.getKind().name());
         context.getWriter().writeAttribute("retained", Boolean.toString(s.isRetained()));
         context.getWriter().writeAttribute("open", Boolean.toString(s.isOpen()));
+        if (s.isFicticious()) {
+            context.getWriter().writeAttribute("ficticious", Boolean.toString(s.isFicticious()));
+        }
     }
 
     @Override

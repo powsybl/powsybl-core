@@ -87,6 +87,8 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
         private boolean retained = false;
 
+        private boolean ficticious = false;
+
         private SwitchAdderImpl() {
             this(null);
         }
@@ -144,6 +146,12 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         @Override
+        public NodeBreakerView.SwitchAdder setFicticious(boolean ficticious) {
+            this.ficticious = ficticious;
+            return this;
+        }
+
+        @Override
         public Switch add() {
             String id = checkAndGetUniqueId();
             if (node1 == null) {
@@ -155,7 +163,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             if (kind == null) {
                 throw new ValidationException(this, "kind is not set");
             }
-            SwitchImpl _switch = new SwitchImpl(NodeBreakerVoltageLevel.this, id, getName(), kind, open, retained);
+            SwitchImpl _switch = new SwitchImpl(NodeBreakerVoltageLevel.this, id, getName(), kind, open, retained, ficticious);
             getNetwork().getObjectStore().checkAndAdd(_switch);
             int e = graph.addEdge(node1, node2, _switch);
             switches.put(id, e);

@@ -53,4 +53,14 @@ public interface Switch extends Identifiable<Switch> {
      * @param retained the retain status of the switch
      */
     void setRetained(boolean retained);
+
+    /**
+     * Get the ficticious status of the switch
+     */
+    boolean isFicticious();
+
+    /**
+     * Set the ficticious status of the switch
+     */
+    void setFicticious(boolean ficticious);
 }

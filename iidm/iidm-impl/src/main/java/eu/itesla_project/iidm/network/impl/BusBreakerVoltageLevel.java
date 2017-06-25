@@ -36,6 +36,8 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
 
         private boolean open = false;
 
+        private boolean ficticious = false;
+
         private SwitchAdderImpl() {
         }
 
@@ -68,6 +70,12 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         @Override
+        public BusBreakerView.SwitchAdder setFicticious(boolean ficticious) {
+            this.ficticious = ficticious;
+            return this;
+        }
+
+        @Override
         public Switch add() {
             String id = checkAndGetUniqueId();
             if (busId1 == null) {
@@ -77,7 +85,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
                 throw new ValidationException(this, "second connection bus is not set");
             }
 
-            SwitchImpl _switch = new SwitchImpl(BusBreakerVoltageLevel.this, id, getName(), SwitchKind.BREAKER, open, true);
+            SwitchImpl _switch = new SwitchImpl(BusBreakerVoltageLevel.this, id, getName(), SwitchKind.BREAKER, open, true, ficticious);
             addSwitch(_switch, busId1, busId2);
             getNetwork().getListeners().notifyCreation(_switch);
             return _switch;
