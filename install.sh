@@ -250,6 +250,7 @@ ipst_install()
             echo "#itesla_cache_dir=" >> "$ipst_prefix/etc/itesla.conf"
             echo "#itesla_config_dir=" >> "$ipst_prefix/etc/itesla.conf"
             echo "itesla_config_name=config" >> "$ipst_prefix/etc/itesla.conf"
+            echo "#java_xmx=8G" >> "$ipst_prefix/etc/itesla.conf"
             echo "mpi_tasks=3" >> "$ipst_prefix/etc/itesla.conf"
             echo "mpi_hosts=localhost" >> "$ipst_prefix/etc/itesla.conf"
         fi
