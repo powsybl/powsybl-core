@@ -16,6 +16,8 @@ installDir=${installBinDir%/*}
 
 . $installDir/etc/itesla.conf
     
+parallel=false
+
 args=("$@")
 for ((i=0; i<${#args[@]}; i++)); do
     current=${args[i]}
@@ -25,6 +27,10 @@ for ((i=0; i<${#args[@]}; i++)); do
            itesla_config_name=$next
            unset args[i]
            unset args[$((i+1))]
+           ;;
+        --parallel)
+           parallel=true
+           unset args[i]
            ;;
     esac
 done
@@ -36,8 +42,16 @@ options+=" -Dlogback.configurationFile="
 [ -f "$itesla_config_dir/logback-itools.xml" ] && options+="$itesla_config_dir" || options+="$installDir/etc"
 options+="/logback-itools.xml"
 
-$JAVA_HOME/bin/java \
--Xmx8G \
+if $parallel ; then
+    # check mpirun is in the path
+    [[ $(type -P mpirun) ]] ||  { echo "mpirun is not in the path" 1>&2; exit 1; }
+    echo "running itools in parallel mode using $mpi_tasks tasks on hosts $mpi_hosts"
+    mpirun -np $mpi_tasks -map-by node -host $mpi_hosts $mpirun_options tools-mpi-task.sh "${args[@]}"
+else
+    $JAVA_HOME/bin/java \
+-Xmx$java_xmx \
 -cp "$installDir/share/java/*" \
 $options \
 eu.itesla_project.computation.local.tools.Main "${args[@]}"
+fi
+

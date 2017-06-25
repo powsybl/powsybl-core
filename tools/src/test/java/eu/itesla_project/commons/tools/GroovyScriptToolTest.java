@@ -4,14 +4,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.computation.local.script;
+package eu.itesla_project.commons.tools;
 
-import eu.itesla_project.commons.tools.AbstractToolTest;
-import eu.itesla_project.commons.tools.CommandLineTools;
-import eu.itesla_project.commons.tools.Tool;
-import eu.itesla_project.computation.ComputationManager;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import java.io.BufferedWriter;
 import java.nio.file.Files;
@@ -20,19 +15,17 @@ import java.util.Collections;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class LocalGroovyScriptToolTest extends AbstractToolTest {
-
-    private final ComputationManager computationManager = Mockito.mock(ComputationManager.class);
+public class GroovyScriptToolTest extends AbstractToolTest {
 
     @Override
     protected Iterable<Tool> getTools() {
-        return Collections.singleton(new LocalGroovyScriptTool(computationManager));
+        return Collections.singleton(new GroovyScriptTool());
     }
 
     @Override
     public void assertCommand() {
-        Tool tool = new LocalGroovyScriptTool();
-        assertCommand(tool.getCommand(), "local-groovy-script", 1, 1);
+        Tool tool = new GroovyScriptTool();
+        assertCommand(tool.getCommand(), "groovy-script", 1, 1);
         assertOption(tool.getCommand().getOptions(), "script", true, true);
     }
 
@@ -42,7 +35,7 @@ public class LocalGroovyScriptToolTest extends AbstractToolTest {
         try (BufferedWriter writer = Files.newBufferedWriter(fileSystem.getPath(helloFile))) {
             writer.write("print 'hello'");
         }
-        assertCommand(new String[] {"local-groovy-script", "--script", helloFile}, CommandLineTools.COMMAND_OK_STATUS, "hello", "");
+        assertCommand(new String[] {"groovy-script", "--script", helloFile}, CommandLineTools.COMMAND_OK_STATUS, "hello", "");
     }
 
     @Test
@@ -51,6 +44,6 @@ public class LocalGroovyScriptToolTest extends AbstractToolTest {
         try (BufferedWriter writer = Files.newBufferedWriter(fileSystem.getPath(helloFile))) {
             writer.write("print 'hello ' + args[0]");
         }
-        assertCommand(new String[] {"local-groovy-script", "--script", helloFile, "John Doe"}, CommandLineTools.COMMAND_OK_STATUS, "hello John Doe", "");
+        assertCommand(new String[] {"groovy-script", "--script", helloFile, "John Doe"}, CommandLineTools.COMMAND_OK_STATUS, "hello John Doe", "");
     }
 }
