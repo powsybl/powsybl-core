@@ -50,6 +50,10 @@ public class ZipFileDataSource implements DataSource {
         this(directory, baseName + ".zip", baseName, null);
     }
 
+    public ZipFileDataSource(Path directory, String baseName, DataSourceObserver observer) {
+        this(directory, baseName + ".zip", baseName, observer);
+    }
+
     public ZipFileDataSource(Path zipFile) {
         this(zipFile.getParent(), com.google.common.io.Files.getNameWithoutExtension(zipFile.getFileName().toString()));
     }

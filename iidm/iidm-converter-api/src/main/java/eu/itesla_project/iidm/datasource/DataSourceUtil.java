@@ -36,18 +36,18 @@ public interface DataSourceUtil {
         return pos == -1 ? fileName : fileName.substring(0, pos);
     }
 
-    static DataSource createDataSource(Path directory, String fileNameOrBaseName) {
+    static DataSource createDataSource(Path directory, String fileNameOrBaseName, DataSourceObserver observer) {
         Objects.requireNonNull(directory);
         Objects.requireNonNull(fileNameOrBaseName);
 
         if (fileNameOrBaseName.endsWith(".zip")) {
-            return new ZipFileDataSource(directory, getBaseName(fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 4)));
+            return new ZipFileDataSource(directory, getBaseName(fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 4)), observer);
         } else if (fileNameOrBaseName.endsWith(".gz")) {
-            return new GzFileDataSource(directory, getBaseName(fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 3)));
+            return new GzFileDataSource(directory, getBaseName(fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 3)), observer);
         } else if (fileNameOrBaseName.endsWith(".bz2")) {
-            return new Bzip2FileDataSource(directory, getBaseName(fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 4)));
+            return new Bzip2FileDataSource(directory, getBaseName(fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 4)), observer);
         } else {
-            return new FileDataSource(directory, getBaseName(fileNameOrBaseName));
+            return new FileDataSource(directory, getBaseName(fileNameOrBaseName), observer);
         }
     }
 }

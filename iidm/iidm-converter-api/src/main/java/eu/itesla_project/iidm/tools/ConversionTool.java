@@ -11,19 +11,25 @@ import eu.itesla_project.commons.ITeslaException;
 import eu.itesla_project.commons.tools.Command;
 import eu.itesla_project.commons.tools.Tool;
 import eu.itesla_project.commons.tools.ToolRunningContext;
-import eu.itesla_project.iidm.datasource.*;
+import eu.itesla_project.iidm.datasource.AbstractDataSourceObserver;
+import eu.itesla_project.iidm.datasource.DataSource;
 import eu.itesla_project.iidm.export.Exporter;
 import eu.itesla_project.iidm.export.Exporters;
-import eu.itesla_project.iidm.import_.Importer;
+import eu.itesla_project.iidm.import_.ImportConfig;
 import eu.itesla_project.iidm.import_.Importers;
 import eu.itesla_project.iidm.network.Network;
 import org.apache.commons.cli.CommandLine;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Properties;
 
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
 @AutoService(Tool.class)
 public class ConversionTool implements Tool {
@@ -35,30 +41,20 @@ public class ConversionTool implements Tool {
 
     @Override
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
-        String sourceFormat = line.getOptionValue("source");
-        String targetFormat = line.getOptionValue("target");
-        String inputDirName = line.getOptionValue("input-dir");
-        String inputBaseName = line.getOptionValue("input-basename");
-        String outputDirName = line.getOptionValue("output-dir");
-        String outputBaseName = line.getOptionValue("output-basename");
+        String inputFile = line.getOptionValue("input-file");
+        String outputFormat = line.getOptionValue("output-format");
+        String outputFile = line.getOptionValue("output-file");
 
-        Importer importer = Importers.getImporter(sourceFormat, context.getComputationManager());
-        if (importer == null) {
-            throw new ITeslaException("Source format " + sourceFormat + " not supported");
-        }
-        Exporter exporter = Exporters.getExporter(targetFormat);
+        Exporter exporter = Exporters.getExporter(outputFormat);
         if (exporter == null) {
-            throw new ITeslaException("Target format " + targetFormat + " not supported");
+            throw new ITeslaException("Target format " + outputFormat + " not supported");
         }
 
-        Properties inputParams = new Properties();
-        // TODO get parameters through the command line
-        ReadOnlyDataSource ds1 = new GenericReadOnlyDataSource(context.getFileSystem().getPath(inputDirName), inputBaseName);
-        Network network = importer.import_(ds1, inputParams);
+        Properties inputParams = readProperties(line.getOptionValue("import-parameters"));
+        Network network = Importers.loadNetwork(Paths.get(inputFile), context.getComputationManager(), ImportConfig.load(), inputParams);
 
-        Properties outputParams = new Properties();
-        // TODO get parameters through the command line
-        DataSource ds2 = new FileDataSource(context.getFileSystem().getPath(outputDirName), outputBaseName, new AbstractDataSourceObserver() {
+        Properties outputParams = readProperties(line.getOptionValue("export-parameters"));
+        DataSource ds2 = Exporters.createDataSource(Paths.get(outputFile), new AbstractDataSourceObserver() {
             @Override
             public void opened(String streamName) {
                 context.getOutputStream().println("Generating file " + streamName + "...");
@@ -67,4 +63,17 @@ public class ConversionTool implements Tool {
         exporter.export(network, outputParams, ds2);
     }
 
+    Properties readProperties(String propertyFilename) throws IOException {
+        Properties properties = new Properties();
+        if (propertyFilename != null) {
+            try (InputStream inputStream = Files.newInputStream(Paths.get(propertyFilename))) {
+                if (propertyFilename.endsWith(".xml"))
+                    properties.loadFromXML(inputStream);
+                else
+                    properties.load(inputStream);
+            }
+        }
+
+        return properties;
+    }
 }

@@ -57,17 +57,21 @@ public class Exporters {
         return null;
     }
 
-    public static DataSource createDataSource(Path directory, String fileNameOrBaseName) {
-        return DataSourceUtil.createDataSource(directory, fileNameOrBaseName);
+    public static DataSource createDataSource(Path directory, String fileNameOrBaseName, DataSourceObserver observer) {
+        return DataSourceUtil.createDataSource(directory, fileNameOrBaseName, observer);
     }
 
-    public static DataSource createDataSource(Path file) {
+    public static DataSource createDataSource(Path file, DataSourceObserver observer) {
         Objects.requireNonNull(file);
         if (Files.exists(file) && !Files.isRegularFile(file)) {
             throw new UncheckedIOException(new IOException("File " + file + " already exists and is not a regular file"));
         }
         Path absFile = file.toAbsolutePath();
-        return createDataSource(absFile.getParent(), absFile.getFileName().toString());
+        return createDataSource(absFile.getParent(), absFile.getFileName().toString(), observer);
+    }
+
+    public static DataSource createDataSource(Path file) {
+        return createDataSource(file, null);
     }
 
     /**
