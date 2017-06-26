@@ -41,6 +41,7 @@ done
 options+=" -Dlogback.configurationFile="
 [ -f "$itesla_config_dir/logback-itools.xml" ] && options+="$itesla_config_dir" || options+="$installDir/etc"
 options+="/logback-itools.xml"
+[ -z "$java_xmx" ] && java_xmx=8G
 
 if $parallel ; then
     # check mpirun is in the path
