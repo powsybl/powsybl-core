@@ -356,7 +356,7 @@ public class Importers {
     }
 
     public static ReadOnlyDataSource createReadOnly(Path directory, String fileNameOrBaseName) {
-        return DataSourceUtil.createDataSource(directory, fileNameOrBaseName);
+        return DataSourceUtil.createDataSource(directory, fileNameOrBaseName, null);
     }
 
     public static ReadOnlyDataSource createReadOnly(Path file) {

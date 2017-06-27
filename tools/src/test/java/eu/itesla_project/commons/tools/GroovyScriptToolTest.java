@@ -8,8 +8,6 @@ package eu.itesla_project.commons.tools;
 
 import org.junit.Test;
 
-import java.io.BufferedWriter;
-import java.nio.file.Files;
 import java.util.Collections;
 
 /**
@@ -32,18 +30,16 @@ public class GroovyScriptToolTest extends AbstractToolTest {
     @Test
     public void run() throws Exception {
         String helloFile = "/hello.groovy";
-        try (BufferedWriter writer = Files.newBufferedWriter(fileSystem.getPath(helloFile))) {
-            writer.write("print 'hello'");
-        }
+        createFile(helloFile, "print 'hello'");
+
         assertCommand(new String[] {"groovy-script", "--script", helloFile}, CommandLineTools.COMMAND_OK_STATUS, "hello", "");
     }
 
     @Test
     public void runWithParameters() throws Exception {
         String helloFile = "/hello.groovy";
-        try (BufferedWriter writer = Files.newBufferedWriter(fileSystem.getPath(helloFile))) {
-            writer.write("print 'hello ' + args[0]");
-        }
+        createFile(helloFile, "print 'hello ' + args[0]");
+
         assertCommand(new String[] {"groovy-script", "--script", helloFile, "John Doe"}, CommandLineTools.COMMAND_OK_STATUS, "hello John Doe", "");
     }
 }

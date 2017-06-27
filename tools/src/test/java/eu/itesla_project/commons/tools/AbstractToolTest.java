@@ -18,11 +18,14 @@ import org.junit.ComparisonFailure;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
+import java.nio.file.Files;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 import static org.junit.Assert.assertEquals;
@@ -41,6 +44,15 @@ public abstract class AbstractToolTest {
     public void setUp() throws Exception {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         tools = new CommandLineTools(getTools());
+    }
+
+    protected void createFile(String filename, String content) throws IOException {
+        Objects.requireNonNull(filename);
+        Objects.requireNonNull(content);
+
+        try (BufferedWriter writer = Files.newBufferedWriter(fileSystem.getPath(filename))) {
+            writer.write(content);
+        }
     }
 
     @After

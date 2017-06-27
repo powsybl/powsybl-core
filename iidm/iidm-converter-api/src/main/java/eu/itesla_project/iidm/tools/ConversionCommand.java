@@ -8,7 +8,6 @@ package eu.itesla_project.iidm.tools;
 
 import eu.itesla_project.commons.tools.Command;
 import eu.itesla_project.iidm.export.Exporters;
-import eu.itesla_project.iidm.import_.Importers;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
@@ -39,49 +38,53 @@ public class ConversionCommand implements Command {
     @SuppressWarnings("static-access")
     public Options getOptions() {
         Options options = new Options();
-        options.addOption(Option.builder().longOpt("source")
-                                .desc("the source format")
+        options.addOption(Option.builder().longOpt("input-file")
+                                .desc("the input file")
                                 .hasArg()
-                                .argName("SOURCE_FORMAT")
+                                .argName("INPUT_FILE")
                                 .required()
                                 .build());
-        options.addOption(Option.builder().longOpt("target")
-                                .desc("the target format")
+        options.addOption(Option.builder().longOpt("output-format")
+                                .desc("the output file format")
                                 .hasArg()
-                                .argName("TARGET_FORMAT")
+                                .argName("OUTPUT_FORMAT")
                                 .required()
                                 .build());
-        options.addOption(Option.builder().longOpt("input-dir")
-                                .desc("the input directory for input files")
+        options.addOption(Option.builder().longOpt("output-file")
+                                .desc("the output file")
                                 .hasArg()
-                                .argName("DIR")
+                                .argName("OUTPUT_FILE")
                                 .required()
                                 .build());
-        options.addOption(Option.builder().longOpt("input-basename")
-                                .desc("the base name for input files")
+        options.addOption(Option.builder().longOpt("import-parameters")
+                                .desc("the importer configuation file")
                                 .hasArg()
-                                .argName("NAME")
-                                .required()
+                                .argName("IMPORT_PARAMETERS")
                                 .build());
-        options.addOption(Option.builder().longOpt("output-dir")
-                                .desc("the output directory for generated files")
+        options.addOption(Option.builder("I")
+                                .desc("use value for given importer parameter")
+                                .argName("property=value")
+                                .numberOfArgs(2)
+                                .valueSeparator('=')
+                                .build());
+        options.addOption(Option.builder().longOpt("export-parameters")
+                                .desc("the exporter configuration file")
                                 .hasArg()
-                                .argName("DIR")
-                                .required()
+                                .argName("EXPORT_PARAMETERS")
                                 .build());
-        options.addOption(Option.builder().longOpt("output-basename")
-                                .desc("the base name for generated files")
-                                .hasArg()
-                                .argName("NAME")
-                                .required()
+        options.addOption(Option.builder("E")
+                                .desc("use value for given exporter parameter")
+                                .argName("property=value")
+                                .numberOfArgs(2)
+                                .valueSeparator('=')
                                 .build());
+
         return options;
     }
 
     @Override
     public String getUsageFooter() {
-        return "Where SOURCE_FORMAT is one of " + Importers.getFormats()
-                + " and TARGET_FORMAT is one of " + Exporters.getFormats();
+        return "Where OUTPUT_FORMAT is one of " + Exporters.getFormats();
     }
 
 }
