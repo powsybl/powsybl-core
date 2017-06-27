@@ -63,8 +63,6 @@ public abstract class AbstractToolTest {
     protected abstract Iterable<Tool> getTools();
 
     private void assertMatches(String expected, String actual) {
-        System.out.println("expected:\n" + expected);
-        System.out.println("actual:\n" + actual);
         if (!actual.equals(expected) && !Pattern.compile(expected).matcher(actual).find()) {
             throw new ComparisonFailure("", expected, actual);
         }
@@ -104,7 +102,7 @@ public abstract class AbstractToolTest {
                 }
             });
         }
-        // assertEquals(expectedStatus, status);
+        assertEquals(expectedStatus, status);
         if (expectedOut != null) {
             assertMatches(expectedOut, bout.toString(StandardCharsets.UTF_8.name()));
         }
