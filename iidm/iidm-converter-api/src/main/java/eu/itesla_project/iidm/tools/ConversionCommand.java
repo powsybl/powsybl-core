@@ -61,11 +61,24 @@ public class ConversionCommand implements Command {
                                 .hasArg()
                                 .argName("IMPORT_PARAMETERS")
                                 .build());
+        options.addOption(Option.builder("I")
+                                .desc("use value for given importer parameter")
+                                .argName("property=value")
+                                .numberOfArgs(2)
+                                .valueSeparator('=')
+                                .build());
         options.addOption(Option.builder().longOpt("export-parameters")
                                 .desc("the exporter configuration file")
                                 .hasArg()
                                 .argName("EXPORT_PARAMETERS")
                                 .build());
+        options.addOption(Option.builder("E")
+                                .desc("use value for given exporter parameter")
+                                .argName("property=value")
+                                .numberOfArgs(2)
+                                .valueSeparator('=')
+                                .build());
+
         return options;
     }
 

@@ -23,7 +23,7 @@ import org.apache.commons.cli.CommandLine;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.util.Objects;
 import java.util.Properties;
 
 /**
@@ -33,6 +33,27 @@ import java.util.Properties;
  */
 @AutoService(Tool.class)
 public class ConversionTool implements Tool {
+
+    private enum OptionType {
+        IMPORT("import-parameters", 'I'),
+        EXPORT("export-parameters", 'E');
+
+        OptionType(String longOpt, char shortOpt) {
+            this.longOpt = Objects.requireNonNull(longOpt);
+            this.shortOpt = shortOpt;
+        }
+
+        char getShortOpt() {
+            return shortOpt;
+        }
+
+        String getLongOpt() {
+            return longOpt;
+        }
+
+        private final String longOpt;
+        private final char shortOpt;
+    }
 
     @Override
     public Command getCommand() {
@@ -50,11 +71,11 @@ public class ConversionTool implements Tool {
             throw new ITeslaException("Target format " + outputFormat + " not supported");
         }
 
-        Properties inputParams = readProperties(line.getOptionValue("import-parameters"));
-        Network network = Importers.loadNetwork(Paths.get(inputFile), context.getComputationManager(), ImportConfig.load(), inputParams);
+        Properties inputParams = readProperties(line, OptionType.IMPORT, context);
+        Network network = Importers.loadNetwork(context.getFileSystem().getPath(inputFile), context.getComputationManager(), ImportConfig.load(), inputParams);
 
-        Properties outputParams = readProperties(line.getOptionValue("export-parameters"));
-        DataSource ds2 = Exporters.createDataSource(Paths.get(outputFile), new AbstractDataSourceObserver() {
+        Properties outputParams = readProperties(line, OptionType.EXPORT, context);
+        DataSource ds2 = Exporters.createDataSource(context.getFileSystem().getPath(outputFile), new AbstractDataSourceObserver() {
             @Override
             public void opened(String streamName) {
                 context.getOutputStream().println("Generating file " + streamName + "...");
@@ -63,16 +84,23 @@ public class ConversionTool implements Tool {
         exporter.export(network, outputParams, ds2);
     }
 
-    Properties readProperties(String propertyFilename) throws IOException {
+    Properties readProperties(CommandLine line, OptionType optionType, ToolRunningContext context) throws IOException {
         Properties properties = new Properties();
-        if (propertyFilename != null) {
-            try (InputStream inputStream = Files.newInputStream(Paths.get(propertyFilename))) {
-                if (propertyFilename.endsWith(".xml"))
+
+        // Read the parameters file
+        String filename = line.getOptionValue(optionType.getLongOpt(), null);
+        if (filename != null) {
+            try (InputStream inputStream = Files.newInputStream(context.getFileSystem().getPath(filename))) {
+                if (filename.endsWith(".xml")) {
                     properties.loadFromXML(inputStream);
-                else
+                } else {
                     properties.load(inputStream);
+                }
             }
         }
+
+        // Append parameters from the command line
+        properties.putAll(line.getOptionProperties(Character.toString(optionType.getShortOpt())));
 
         return properties;
     }
