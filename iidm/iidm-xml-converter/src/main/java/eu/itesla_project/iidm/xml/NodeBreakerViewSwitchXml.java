@@ -37,11 +37,13 @@ public class NodeBreakerViewSwitchXml extends SwitchXml<VoltageLevel.NodeBreaker
         boolean open = XmlUtil.readBoolAttribute(context.getReader(), "open");
         SwitchKind kind = SwitchKind.valueOf(context.getReader().getAttributeValue(null, "kind"));
         boolean retained = XmlUtil.readBoolAttribute(context.getReader(), "retained");
+        boolean fictitious = XmlUtil.readOptionalBoolAttribute(context.getReader(), "fictitious", false);
         int node1 = XmlUtil.readIntAttribute(context.getReader(), "node1");
         int node2 = XmlUtil.readIntAttribute(context.getReader(), "node2");
         return adder.setKind(kind)
                 .setRetained(retained)
                 .setOpen(open)
+                .setFictitious(fictitious)
                 .setNode1(node1)
                 .setNode2(node2)
                 .add();
