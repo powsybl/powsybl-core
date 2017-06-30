@@ -142,6 +142,7 @@
                 <xs:attribute name="kind" use="required" type="iidm:SwitchKind"/>
                 <xs:attribute name="retained" use="required" type="xs:boolean"/>
                 <xs:attribute name="open" use="required" type="xs:boolean"/>
+                <xs:attribute name="fictitious" use="optional" type="xs:boolean"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>

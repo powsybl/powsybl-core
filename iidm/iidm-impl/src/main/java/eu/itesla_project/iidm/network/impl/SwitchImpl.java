@@ -24,14 +24,17 @@ class SwitchImpl extends IdentifiableImpl<Switch> implements Switch, Stateful {
 
     private boolean retained;
 
+    private boolean fictitious;
+
     private final BitSet open;
 
     SwitchImpl(VoltageLevelExt voltageLevel,
-               String id, String name, SwitchKind kind, final boolean open, boolean retained) {
+               String id, String name, SwitchKind kind, final boolean open, boolean retained, boolean fictitious) {
         super(id, name);
         this.voltageLevel = voltageLevel;
         this.kind = kind;
         this.retained = retained;
+        this.fictitious = fictitious;
         int stateArraySize = voltageLevel.getNetwork().getStateManager().getStateArraySize();
         this.open = new BitSet(stateArraySize);
         this.open.set(0, stateArraySize, open);
@@ -80,6 +83,22 @@ class SwitchImpl extends IdentifiableImpl<Switch> implements Switch, Stateful {
             voltageLevel.invalidateCache();
             NetworkImpl network = voltageLevel.getNetwork();
             network.getListeners().notifyUpdate(this, "retained", oldValue, retained);
+        }
+    }
+
+    @Override
+    public boolean isFictitious() {
+        return fictitious;
+    }
+
+    @Override
+    public void setFictitious(boolean fictitious) {
+        boolean oldValue = this.fictitious;
+        if (oldValue != fictitious) {
+            this.fictitious = fictitious;
+            voltageLevel.invalidateCache();
+            NetworkImpl network = voltageLevel.getNetwork();
+            network.getListeners().notifyUpdate(this, "fictitious", oldValue, fictitious);
         }
     }
 
