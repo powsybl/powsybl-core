@@ -35,6 +35,7 @@ if [ $rank = 0 ]; then
     options+=" -Dlogback.configurationFile="
     [ -f "$itesla_config_dir/logback-itools.xml" ] && options+="$itesla_config_dir" || options+="$installDir/etc"
     options+="/logback-itools.xml"
+    [ -z "$java_xmx" ] && java_xmx=8G
     $JAVA_HOME/bin/java \
 -Xmx$java_xmx \
 -verbose:gc -XX:+PrintGCTimeStamps -Xloggc:$tmpdir/gc.log \
