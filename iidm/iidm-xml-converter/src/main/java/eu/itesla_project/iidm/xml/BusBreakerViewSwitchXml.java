@@ -37,11 +37,11 @@ public class BusBreakerViewSwitchXml extends SwitchXml<VoltageLevel.BusBreakerVi
     @Override
     protected Switch readRootElementAttributes(VoltageLevel.BusBreakerView.SwitchAdder adder, XmlReaderContext context) {
         boolean open = XmlUtil.readBoolAttribute(context.getReader(), "open");
-        boolean ficticious = XmlUtil.readOptionalBoolAttribute(context.getReader(), "ficticious", false);
+        boolean fictitious = XmlUtil.readOptionalBoolAttribute(context.getReader(), "fictitious", false);
         String bus1 = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "bus1"));
         String bus2 = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "bus2"));
         return adder.setOpen(open)
-                .setFicticious(ficticious)
+                .setFictitious(fictitious)
                 .setBus1(bus1)
                 .setBus2(bus2)
                 .add();

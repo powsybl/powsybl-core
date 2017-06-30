@@ -7,7 +7,7 @@
 package eu.itesla_project.iidm.xml;
 
 import eu.itesla_project.commons.ConverterBaseTest;
-import eu.itesla_project.iidm.network.test.FicticiousSwitchFactory;
+import eu.itesla_project.iidm.network.test.FictitiousSwitchFactory;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -16,16 +16,16 @@ import java.nio.file.Paths;
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class FicticiousSwitchTest extends ConverterBaseTest {
+public class FictitiousSwitchTest extends ConverterBaseTest {
 
     @Test
     public void roundTripTest() throws IOException {
-        NetworkXml.write(FicticiousSwitchFactory.create(), Paths.get("/tmp/ficticious.xiidm"));
+        NetworkXml.write(FictitiousSwitchFactory.create(), Paths.get("/tmp/fictif.xiidm"));
 
-        roundTripXmlTest(FicticiousSwitchFactory.create(),
+        roundTripXmlTest(FictitiousSwitchFactory.create(),
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
-                "/ficticiousSwitchRef.xml");
+                "/fictitiousSwitchRef.xml");
     }
 
 }

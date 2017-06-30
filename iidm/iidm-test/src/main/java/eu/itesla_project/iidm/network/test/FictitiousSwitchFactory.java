@@ -12,10 +12,10 @@ import org.joda.time.DateTime;
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class FicticiousSwitchFactory {
+public class FictitiousSwitchFactory {
 
     public static Network create() {
-        Network network = NetworkFactory.create("ficticious", "test");
+        Network network = NetworkFactory.create("fictitious", "test");
         network.setCaseDate(DateTime.parse("2017-06-25T17:43:00.000+01:00"));
         network.setForecastDistance(0);
 
@@ -314,14 +314,14 @@ public class FicticiousSwitchFactory {
         return network;
     }
 
-    private static void createSwitch(VoltageLevel vl, String id, String name, SwitchKind kind, boolean retained, boolean open, boolean ficticious, int node1, int node2) {
+    private static void createSwitch(VoltageLevel vl, String id, String name, SwitchKind kind, boolean retained, boolean open, boolean fictitious, int node1, int node2) {
         vl.getNodeBreakerView().newSwitch()
                 .setId(id)
                 .setName(name)
                 .setKind(kind)
                 .setRetained(retained)
                 .setOpen(open)
-                .setFicticious(ficticious)
+                .setFictitious(fictitious)
                 .setNode1(node1)
                 .setNode2(node2)
                 .add();

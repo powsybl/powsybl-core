@@ -7,7 +7,7 @@
 package eu.itesla_project.iidm.network.impl;
 
 import eu.itesla_project.iidm.network.Network;
-import eu.itesla_project.iidm.network.test.FicticiousSwitchFactory;
+import eu.itesla_project.iidm.network.test.FictitiousSwitchFactory;
 import org.junit.Test;
 
 import static org.junit.Assert.assertFalse;
@@ -16,19 +16,19 @@ import static org.junit.Assert.assertTrue;
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class FicticiousSwitchTest {
+public class FictitiousSwitchTest {
 
     @Test
     public void test() {
-        Network network = FicticiousSwitchFactory.create();
+        Network network = FictitiousSwitchFactory.create();
 
-        assertTrue(network.getSwitch("F").isFicticious());
-        assertFalse(network.getSwitch("R").isFicticious());
+        assertTrue(network.getSwitch("F").isFictitious());
+        assertFalse(network.getSwitch("R").isFictitious());
 
-        network.getSwitch("F").setFicticious(false);
-        network.getSwitch("R").setFicticious(true);
+        network.getSwitch("F").setFictitious(false);
+        network.getSwitch("R").setFictitious(true);
 
-        assertFalse(network.getSwitch("F").isFicticious());
-        assertTrue(network.getSwitch("R").isFicticious());
+        assertFalse(network.getSwitch("F").isFictitious());
+        assertTrue(network.getSwitch("R").isFictitious());
     }
 }

@@ -334,7 +334,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
 
             SwitchAdder setRetained(boolean retained);
 
-            SwitchAdder setFicticious(boolean ficticious);
+            SwitchAdder setFictitious(boolean fictitious);
 
             Switch add();
 
@@ -460,7 +460,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
 
             SwitchAdder setOpen(boolean open);
 
-            SwitchAdder setFicticious(boolean ficticious);
+            SwitchAdder setFictitious(boolean fictitious);
 
             Switch add();
 

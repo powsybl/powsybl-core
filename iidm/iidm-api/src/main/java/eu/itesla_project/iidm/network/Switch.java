@@ -55,12 +55,12 @@ public interface Switch extends Identifiable<Switch> {
     void setRetained(boolean retained);
 
     /**
-     * Get the ficticious status of the switch
+     * Get the fictitious status of the switch
      */
-    boolean isFicticious();
+    boolean isFictitious();
 
     /**
-     * Set the ficticious status of the switch
+     * Set the fictitious status of the switch
      */
-    void setFicticious(boolean ficticious);
+    void setFictitious(boolean fictitious);
 }
