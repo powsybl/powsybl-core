@@ -47,7 +47,7 @@ if $parallel ; then
     # check mpirun is in the path
     [[ $(type -P mpirun) ]] ||  { echo "mpirun is not in the path" 1>&2; exit 1; }
     echo "running itools in parallel mode using $mpi_tasks tasks on hosts $mpi_hosts"
-    mpirun -np $mpi_tasks -map-by node -host $mpi_hosts $mpirun_options tools-mpi-task.sh "${args[@]}"
+    mpirun -np $mpi_tasks -map-by node -host $mpi_hosts $mpirun_options -oversubscribe tools-mpi-task.sh "${args[@]}"
 else
     $JAVA_HOME/bin/java \
 -Xmx$java_xmx \
