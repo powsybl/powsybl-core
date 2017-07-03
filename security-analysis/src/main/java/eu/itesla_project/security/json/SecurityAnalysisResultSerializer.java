@@ -6,7 +6,9 @@
  */
 package eu.itesla_project.security.json;
 
+import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializerProvider;
@@ -48,23 +50,29 @@ public class SecurityAnalysisResultSerializer extends StdSerializer<SecurityAnal
     }
 
     public static void write(SecurityAnalysisResult result, LimitViolationFilter filter, Path jsonFile) {
-        Objects.requireNonNull(result);
-        Objects.requireNonNull(filter);
         Objects.requireNonNull(jsonFile);
 
         try (OutputStream os = Files.newOutputStream(jsonFile)) {
-            ObjectMapper objectMapper = new ObjectMapper();
-            SimpleModule module = new SimpleModule();
-            module.addSerializer(SecurityAnalysisResult.class, new SecurityAnalysisResultSerializer());
-            module.addSerializer(PostContingencyResult.class, new PostContingencyResultSerializer());
-            module.addSerializer(LimitViolationsResult.class, new LimitViolationsResultSerializer(filter));
-            objectMapper.registerModule(module);
-
-            ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
-
-            writer.writeValue(os, result);
+            write(result, filter, os);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static void write(SecurityAnalysisResult result, LimitViolationFilter filter,
+            OutputStream out) throws JsonGenerationException, JsonMappingException, IOException {
+        Objects.requireNonNull(result);
+        Objects.requireNonNull(filter);
+        Objects.requireNonNull(out);
+        ObjectMapper objectMapper = new ObjectMapper();
+        SimpleModule module = new SimpleModule();
+        module.addSerializer(SecurityAnalysisResult.class, new SecurityAnalysisResultSerializer());
+        module.addSerializer(PostContingencyResult.class, new PostContingencyResultSerializer());
+        module.addSerializer(LimitViolationsResult.class, new LimitViolationsResultSerializer(filter));
+        objectMapper.registerModule(module);
+
+        ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
+        writer.writeValue(out, result);
+        
     }
 }

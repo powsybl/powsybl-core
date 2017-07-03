@@ -120,26 +120,8 @@ public class SecurityAnalysisTool implements Tool {
         }
 
         context.getOutputStream().println("Loading network '" + caseFile + "'");
-
-        // load network
-        Network network = Importers.loadNetwork(caseFile);
-        if (network == null) {
-            throw new RuntimeException("Case '" + caseFile + "' not found");
-        }
-        network.getStateManager().allowStateMultiThreadAccess(true);
-
-        ComponentDefaultConfig defaultConfig = ComponentDefaultConfig.load();
-        SecurityAnalysisFactory securityAnalysisFactory = defaultConfig.newFactoryImpl(SecurityAnalysisFactory.class);
-        SecurityAnalysis securityAnalysis = securityAnalysisFactory.create(network, context.getComputationManager(), 0);
-
-        ContingenciesProviderFactory contingenciesProviderFactory = defaultConfig.newFactoryImpl(ContingenciesProviderFactory.class);
-        ContingenciesProvider contingenciesProvider = line.hasOption("contingencies-file") 
-                ? contingenciesProviderFactory.create(context.getFileSystem().getPath(line.getOptionValue("contingencies-file")))
-                        : contingenciesProviderFactory.create();
-
-        // run security analysis on all N-1 lines
-        SecurityAnalysisResult result = securityAnalysis.runAsync(contingenciesProvider)
-                        .join();
+        
+        SecurityAnalysisResult result = new SecurityAnalyzer(context.getComputationManager(),0).analyze(caseFile, line.hasOption("contingencies-file") ? context.getFileSystem().getPath(line.getOptionValue("contingencies-file")) : null);
 
         if (!result.getPreContingencyResult().isComputationOk()) {
             context.getErrorStream().println("Pre-contingency state divergence");
