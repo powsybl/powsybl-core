@@ -250,7 +250,7 @@
                     <xs:attribute name="name" use="required" type="iidm:nonEmptyString"/>
                     <xs:attribute name="acceptableDuration" use="optional" type="xs:int"/>
                     <xs:attribute name="value" use="optional" type="xs:float"/>
-                    <xs:attribute name="fictitious" use="optional" type="xs:boolean"/>
+                    <xs:attribute name="fictitious" use="optional" type="xs:boolean" default="false"/>
                 </xs:complexType>
             </xs:element>
         </xs:sequence>
