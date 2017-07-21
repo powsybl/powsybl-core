@@ -7,21 +7,23 @@
 package eu.itesla_project.commons.config;
 
 import java.nio.file.FileSystem;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class InMemoryPlatformConfig extends PlatformConfig {
 
-    protected FileSystem fs;
-
     protected final Map<String, MapModuleConfig> configs = new HashMap<>();
 
     public InMemoryPlatformConfig(FileSystem fs) {
-        this.fs = Objects.requireNonNull(fs);
+        super(fs);
+    }
+
+    public InMemoryPlatformConfig(FileSystem fs, Path configDir, Path cacheDir) {
+        super(fs, configDir, cacheDir);
     }
 
     @Override
@@ -48,7 +50,7 @@ public class InMemoryPlatformConfig extends PlatformConfig {
         if (config != null) {
             throw new RuntimeException("Module " + name + " already exists");
         }
-        config = new MapModuleConfig(fs);
+        config = new MapModuleConfig(fileSystem);
         configs.put(name, config);
         return config;
     }

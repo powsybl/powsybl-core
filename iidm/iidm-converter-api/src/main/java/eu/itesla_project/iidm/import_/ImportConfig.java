@@ -24,9 +24,14 @@ public class ImportConfig {
     private final List<String> postProcessors;
 
     public static ImportConfig load() {
+        return load(PlatformConfig.defaultConfig());
+    }
+
+    public static ImportConfig load(PlatformConfig platformConfig) {
+        Objects.requireNonNull(platformConfig);
         List<String> postProcessors;
-        if (PlatformConfig.defaultConfig().moduleExists("import")) {
-            ModuleConfig config = PlatformConfig.defaultConfig().getModuleConfig("import");
+        if (platformConfig.moduleExists("import")) {
+            ModuleConfig config = platformConfig.getModuleConfig("import");
             postProcessors = config.getStringListProperty("postProcessors", DEFAULT_POST_PROCESSORS);
         } else {
             postProcessors = DEFAULT_POST_PROCESSORS;

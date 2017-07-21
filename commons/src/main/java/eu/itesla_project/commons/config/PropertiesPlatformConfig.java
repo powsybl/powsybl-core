@@ -6,6 +6,12 @@
  */
 package eu.itesla_project.commons.config;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
@@ -17,13 +23,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Properties;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.xml.stream.XMLOutputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamWriter;
-
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -32,13 +31,13 @@ public class PropertiesPlatformConfig extends PlatformConfig {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PropertiesPlatformConfig.class);
 
-    private final Path configDir;
-
-    private final FileSystem fs;
-    
+    @Deprecated
     public PropertiesPlatformConfig(Path configDir, FileSystem fs) {
-        this.configDir = configDir;
-        this.fs = fs;
+        this(fs, configDir, getDefaultCacheDir(fs));
+    }
+
+    public PropertiesPlatformConfig(FileSystem fs, Path configDir, Path cacheDir) {
+        super(fs, configDir, cacheDir);
         LOGGER.info("Platform configuration defined by .properties files of directory {}", configDir);
     }
 
@@ -76,7 +75,7 @@ public class PropertiesPlatformConfig extends PlatformConfig {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        return new MapModuleConfig(properties, fs);
+        return new MapModuleConfig(properties, fileSystem);
     }
 
     public static void writeXml(Path configDir, Path xmlFile) throws IOException, XMLStreamException {
@@ -111,9 +110,4 @@ public class PropertiesPlatformConfig extends PlatformConfig {
             }
         }
     }
-
-    public static void main(String[] args) throws IOException, XMLStreamException {
-        writeXml(CONFIG_DIR, CONFIG_DIR.resolve("config.xml"));
-    }
-
 }

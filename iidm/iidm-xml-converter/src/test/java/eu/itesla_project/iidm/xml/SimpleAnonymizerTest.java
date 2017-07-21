@@ -7,6 +7,8 @@
 package eu.itesla_project.iidm.xml;
 
 import eu.itesla_project.commons.ConverterBaseTest;
+import eu.itesla_project.commons.config.InMemoryPlatformConfig;
+import eu.itesla_project.commons.config.PlatformConfig;
 import eu.itesla_project.iidm.datasource.MemDataSource;
 import eu.itesla_project.iidm.network.Network;
 import org.junit.Test;
@@ -36,8 +38,10 @@ public class SimpleAnonymizerTest extends ConverterBaseTest {
             compareTxt(getClass().getResourceAsStream(anonymizedCsvRef), is);
         }
 
+        PlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
+
         // re-import the IIDM XML using the CSV mapping file
-        Network network2 = new XMLImporter().import_(dataSource, null);
+        Network network2 = new XMLImporter(platformConfig).import_(dataSource, null);
         MemDataSource dataSource2 = new MemDataSource();
         new XMLExporter().export(network2, null, dataSource2);
 

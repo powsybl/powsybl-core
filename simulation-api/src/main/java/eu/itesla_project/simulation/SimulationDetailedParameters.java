@@ -178,7 +178,7 @@ public class SimulationDetailedParameters {
 
     public static SimulationDetailedParameters load(String fileName) {
         SimulationDetailedParameters parameters = null;
-        Path file = PlatformConfig.CONFIG_DIR.resolve(fileName);
+        Path file = PlatformConfig.defaultConfig().getConfigDir().resolve(fileName);
         if (Files.exists(file)) {
             parameters = new SimulationDetailedParameters(fileName);
             try (BufferedReader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {

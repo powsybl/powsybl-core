@@ -6,13 +6,13 @@
  */
 package eu.itesla_project.loadflow.validation;
 
-import java.io.IOException;
-import java.io.Writer;
-import java.util.Objects;
-
 import eu.itesla_project.commons.io.table.Column;
 import eu.itesla_project.commons.io.table.TableFormatterConfig;
 import eu.itesla_project.commons.io.table.TableFormatterFactory;
+
+import java.io.IOException;
+import java.io.Writer;
+import java.util.Objects;
 
 /**
  *
@@ -20,7 +20,6 @@ import eu.itesla_project.commons.io.table.TableFormatterFactory;
  */
 public class FlowsFormatterCsvMultilineWriter extends FlowsFormatterWriter {
 
-    private static TableFormatterConfig TABLE_FORMATTER_CONFIG = TableFormatterConfig.load();
     private final boolean verbose;
 
     public FlowsFormatterCsvMultilineWriter(String id, Class<? extends TableFormatterFactory> formatterFactoryClass, 
@@ -34,7 +33,7 @@ public class FlowsFormatterCsvMultilineWriter extends FlowsFormatterWriter {
 
     public FlowsFormatterCsvMultilineWriter(String id, Class<? extends TableFormatterFactory> formatterFactoryClass, 
                                              Writer writer, boolean verbose) {
-        this(id, formatterFactoryClass, TABLE_FORMATTER_CONFIG, writer, verbose);
+        this(id, formatterFactoryClass, TableFormatterConfig.load(), writer, verbose);
     }
 
     protected Column[] getColumns() {

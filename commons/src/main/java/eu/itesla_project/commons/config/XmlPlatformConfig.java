@@ -6,16 +6,6 @@
  */
 package eu.itesla_project.commons.config;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.FileSystem;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Map;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -23,6 +13,17 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.FileSystem;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
@@ -32,8 +33,16 @@ public class XmlPlatformConfig extends InMemoryPlatformConfig {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(XmlPlatformConfig.class);
 
-    public XmlPlatformConfig(Path configDir, String configName, FileSystem fs) throws IOException, SAXException, ParserConfigurationException {
-        super(fs);
+    @Deprecated
+    public XmlPlatformConfig(Path configDir, String configName, FileSystem fs)
+            throws IOException, SAXException, ParserConfigurationException {
+        this(fs, configDir, getDefaultCacheDir(fs), configName);
+    }
+
+    public XmlPlatformConfig(FileSystem fs, Path configDir, Path cacheDir, String configName)
+            throws IOException, SAXException, ParserConfigurationException {
+        super(fs, configDir, cacheDir);
+
         Path file = configDir.resolve(configName + ".xml");
         if (Files.exists(file)) {
             LOGGER.info("Platform configuration defined by XML file {}", file);

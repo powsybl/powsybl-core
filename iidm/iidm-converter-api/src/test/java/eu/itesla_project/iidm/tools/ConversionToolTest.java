@@ -6,9 +6,13 @@
  */
 package eu.itesla_project.iidm.tools;
 
+import eu.itesla_project.commons.config.InMemoryPlatformConfig;
+import eu.itesla_project.commons.config.MapModuleConfig;
+import eu.itesla_project.commons.config.PlatformConfig;
 import eu.itesla_project.commons.tools.AbstractToolTest;
 import eu.itesla_project.commons.tools.CommandLineTools;
 import eu.itesla_project.commons.tools.Tool;
+import eu.itesla_project.iidm.import_.ImportConfig;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -21,6 +25,18 @@ import java.util.Collections;
  */
 public class ConversionToolTest extends AbstractToolTest {
 
+    private PlatformConfig platformConfig;
+
+    private ConversionTool createConversionTool() {
+        return new ConversionTool() {
+
+            @Override
+            protected ImportConfig createImportConfig() {
+                return ImportConfig.load(platformConfig);
+            }
+        };
+    }
+
     @Before
     @Override
     public void setUp() throws Exception {
@@ -29,16 +45,22 @@ public class ConversionToolTest extends AbstractToolTest {
         Files.copy(getClass().getResourceAsStream("/import-parameters.xml"), fileSystem.getPath("/import-parameters.xml"));
         Files.copy(getClass().getResourceAsStream("/export-parameters.properties"), fileSystem.getPath("/export-parameters.properties"));
         createFile("/input.txt", "");
+
+        InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
+        MapModuleConfig moduleConfig = platformConfig.createModuleConfig("import");
+        moduleConfig.setStringListProperty("postProcessors", Collections.emptyList());
+
+        this.platformConfig = platformConfig;
     }
 
     @Override
     protected Iterable<Tool> getTools() {
-        return Collections.singletonList(new ConversionTool());
+        return Collections.singletonList(createConversionTool());
     }
 
     @Override
     public void assertCommand() {
-        Tool tool = new ConversionTool();
+        Tool tool = createConversionTool();
         assertCommand(tool.getCommand(), "convert-network", 7, 3);
         assertOption(tool.getCommand().getOptions(), "input-file", true, true);
         assertOption(tool.getCommand().getOptions(), "output-file", true, true);

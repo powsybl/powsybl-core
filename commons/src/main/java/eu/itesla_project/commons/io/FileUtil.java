@@ -7,11 +7,13 @@
 package eu.itesla_project.commons.io;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -37,4 +39,16 @@ public class FileUtil {
         });
     }
 
+    public static Path createDirectory(Path directory) {
+        Objects.requireNonNull(directory);
+        try {
+            if (! (Files.isDirectory(directory))) {
+                Files.createDirectories(directory);
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+
+        return directory;
+    }
 }

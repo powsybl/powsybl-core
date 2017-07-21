@@ -6,15 +6,16 @@
  */
 package eu.itesla_project.commons.config;
 
-import java.io.IOException;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import javax.xml.parsers.ParserConfigurationException;
-
 import eu.itesla_project.commons.io.CacheManager;
+import eu.itesla_project.commons.io.FileUtil;
 import org.xml.sax.SAXException;
+
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
+import java.util.Objects;
 
 /**
  *
@@ -22,43 +23,31 @@ import org.xml.sax.SAXException;
  */
 public abstract class PlatformConfig {
 
+    @Deprecated
     public static final Path CONFIG_DIR;
 
+    @Deprecated
     public static final Path CACHE_DIR;
 
+    @Deprecated
     private static final String CONFIG_NAME;
 
     private static PlatformConfig defaultConfig;
 
     private static CacheManager defaultCacheManager;
 
+    protected final FileSystem fileSystem;
+
+    protected final Path configDir;
+
+    protected final Path cacheDir;
+
     static {
-        String iteslaConfigDir = System.getProperty("itesla.config.dir");
-        if (iteslaConfigDir != null) {
-            CONFIG_DIR = Paths.get(iteslaConfigDir);
-        } else {
-            CONFIG_DIR = Paths.get(System.getProperty("user.home"), ".itesla");
-        }
-        try {
-            if (! (Files.isDirectory(CONFIG_DIR)))
-                Files.createDirectories(CONFIG_DIR);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        CONFIG_DIR = FileUtil.createDirectory(getDefaultConfigDir(FileSystems.getDefault()));
 
         CONFIG_NAME = System.getProperty("itesla.config.name");
 
-        String iteslaCacheDir = System.getProperty("itesla.cache.dir");
-        if (iteslaCacheDir != null) {
-            CACHE_DIR = Paths.get(iteslaCacheDir);
-        } else {
-            CACHE_DIR = Paths.get(System.getProperty("user.home"), ".cache", "itesla");
-        }
-        try {
-            Files.createDirectories(CACHE_DIR);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        CACHE_DIR = FileUtil.createDirectory(getDefaultCacheDir(FileSystems.getDefault()));
     }
 
     public static synchronized void setDefaultConfig(PlatformConfig defaultConfig) {
@@ -67,14 +56,19 @@ public abstract class PlatformConfig {
 
     public static synchronized PlatformConfig defaultConfig() {
         if (defaultConfig == null) {
-            if (CONFIG_NAME != null) {
+            FileSystem fileSystem = FileSystems.getDefault();
+            Path configDir = getDefaultConfigDir(fileSystem);
+            Path cacheDir = getDefaultCacheDir(fileSystem);
+
+            String configName = System.getProperty("itesla.config.name");
+            if (configName != null) {
                 try {
-                    defaultConfig = new XmlPlatformConfig(CONFIG_DIR, CONFIG_NAME, FileSystems.getDefault());
+                    defaultConfig = new XmlPlatformConfig(fileSystem, configDir, cacheDir, configName);
                 } catch (IOException | ParserConfigurationException | SAXException e) {
                     throw new RuntimeException(e);
                 }
             } else {
-                defaultConfig = new PropertiesPlatformConfig(CONFIG_DIR, FileSystems.getDefault());
+                defaultConfig = new PropertiesPlatformConfig(fileSystem, configDir, cacheDir);
             }
         }
         return defaultConfig;
@@ -91,9 +85,57 @@ public abstract class PlatformConfig {
         return defaultCacheManager;
     }
 
+    protected PlatformConfig(FileSystem fileSystem) {
+        this(fileSystem, getDefaultConfigDir(fileSystem), getDefaultCacheDir(fileSystem));
+    }
+
+    protected PlatformConfig(FileSystem fileSystem, Path configDir, Path cacheDir) {
+        this.fileSystem = Objects.requireNonNull(fileSystem);
+        this.configDir = FileUtil.createDirectory(configDir);
+        this.cacheDir = FileUtil.createDirectory(cacheDir);
+    }
+
+    public FileSystem getFileSystem() {
+        return fileSystem;
+    }
+
+    public Path getConfigDir() {
+        return configDir;
+    }
+
+    public Path getCacheDir() {
+        return cacheDir;
+    }
+
     public abstract boolean moduleExists(String name);
 
     public abstract ModuleConfig getModuleConfig(String name);
 
     public abstract ModuleConfig getModuleConfigIfExists(String name);
+
+    static Path getDefaultConfigDir(FileSystem fileSystem) {
+        return getDirectory(fileSystem, "itesla.config.dir", ".itesla");
+    }
+
+    static Path getDefaultCacheDir(FileSystem fileSystem) {
+        return getDirectory(fileSystem, "itesla.cache.dir", ".cache", "itesla");
+    }
+
+    private static Path getDirectory(FileSystem fileSystem, String propertyName, String... folders) {
+        Objects.requireNonNull(fileSystem);
+        Objects.requireNonNull(propertyName);
+        Objects.requireNonNull(folders);
+
+        Path directory;
+
+        String directoryName = System.getProperty(propertyName);
+        if (directoryName != null) {
+            directory = fileSystem.getPath(directoryName);
+        } else {
+            directory = fileSystem.getPath(System.getProperty("user.home"), folders);
+        }
+
+        return directory;
+
+    }
 }

@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -28,11 +29,15 @@ public class JavaScriptPostProcessor implements ImportPostProcessor {
 
     public static final String NAME = "javaScript";
 
+    public static final String SCRIPT_NAME = "import-post-processor.js";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(JavaScriptPostProcessor.class);
 
     private static final boolean DEFAULT_PRINT_TO_STD_OUT = true;
 
     private boolean printToStdOut = DEFAULT_PRINT_TO_STD_OUT;
+
+    private final Path script;
 
     @Override
     public String getName() {
@@ -40,18 +45,25 @@ public class JavaScriptPostProcessor implements ImportPostProcessor {
     }
 
     public JavaScriptPostProcessor() {
-        ModuleConfig config = PlatformConfig.defaultConfig().getModuleConfigIfExists("javaScriptPostProcessor");
+        this(PlatformConfig.defaultConfig());
+    }
+
+    public JavaScriptPostProcessor(PlatformConfig platformConfig) {
+        Objects.requireNonNull(platformConfig);
+
+        ModuleConfig config = platformConfig.getModuleConfigIfExists("javaScriptPostProcessor");
         if (config != null) {
             printToStdOut = config.getBooleanProperty("printToStdOut", DEFAULT_PRINT_TO_STD_OUT);
         }
+
+        script = platformConfig.getConfigDir().resolve(SCRIPT_NAME);
     }
 
     @Override
     public void process(Network network, ComputationManager computationManager) throws Exception {
-        Path js = PlatformConfig.CONFIG_DIR.resolve("import-post-processor.js");
-        if (Files.exists(js)) {
-            LOGGER.debug("Execute JS post processor {}", js);
-            try (Reader reader = Files.newBufferedReader(js)) {
+        if (Files.exists(script)) {
+            LOGGER.debug("Execute JS post processor {}", script);
+            try (Reader reader = Files.newBufferedReader(script)) {
                 Networks.runScript(network, reader, printToStdOut ? null : CharStreams.nullWriter());
             }
         }

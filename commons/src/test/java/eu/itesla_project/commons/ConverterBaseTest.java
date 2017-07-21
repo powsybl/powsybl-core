@@ -32,7 +32,7 @@ import static org.junit.Assert.*;
  */
 public abstract class ConverterBaseTest {
 
-    private FileSystem fileSystem;
+    protected FileSystem fileSystem;
     protected Path tmpDir;
 
     @Before

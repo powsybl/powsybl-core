@@ -55,6 +55,10 @@ public class ConversionTool implements Tool {
         private final char shortOpt;
     }
 
+    protected ImportConfig createImportConfig() {
+        return ImportConfig.load();
+    }
+
     @Override
     public Command getCommand() {
         return ConversionCommand.INSTANCE;
@@ -72,7 +76,7 @@ public class ConversionTool implements Tool {
         }
 
         Properties inputParams = readProperties(line, OptionType.IMPORT, context);
-        Network network = Importers.loadNetwork(context.getFileSystem().getPath(inputFile), context.getComputationManager(), ImportConfig.load(), inputParams);
+        Network network = Importers.loadNetwork(context.getFileSystem().getPath(inputFile), context.getComputationManager(), createImportConfig(), inputParams);
 
         Properties outputParams = readProperties(line, OptionType.EXPORT, context);
         DataSource ds2 = Exporters.createDataSource(context.getFileSystem().getPath(outputFile), new AbstractDataSourceObserver() {
