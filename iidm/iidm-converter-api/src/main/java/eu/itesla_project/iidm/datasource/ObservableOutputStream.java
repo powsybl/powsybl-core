@@ -16,13 +16,13 @@ import java.io.OutputStream;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class ObservableOutputStream extends ForwardingOutputStream<OutputStream> {
+public class ObservableOutputStream extends ForwardingOutputStream<OutputStream> {
 
     private final String streamName;
 
     private final DataSourceObserver observer;
 
-    ObservableOutputStream(OutputStream os, String streamName, DataSourceObserver observer) {
+    public ObservableOutputStream(OutputStream os, String streamName, DataSourceObserver observer) {
         super(os);
         this.streamName = streamName;
         this.observer = observer;

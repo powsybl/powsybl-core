@@ -355,16 +355,26 @@ public class Importers {
         return value;
     }
 
-    public static ReadOnlyDataSource createReadOnly(Path directory, String fileNameOrBaseName) {
+    public static DataSource createDataSource(Path directory, String fileNameOrBaseName) {
         return DataSourceUtil.createDataSource(directory, fileNameOrBaseName, null);
     }
 
-    public static ReadOnlyDataSource createReadOnly(Path file) {
+    public static DataSource createDataSource(Path file) {
         if (!Files.isRegularFile(file)) {
             throw new RuntimeException("File " + file + " does not exist or is not a regular file");
         }
         Path absFile = file.toAbsolutePath();
-        return createReadOnly(absFile.getParent(), absFile.getFileName().toString());
+        return createDataSource(absFile.getParent(), absFile.getFileName().toString());
+    }
+
+    @Deprecated
+    public static DataSource createReadOnly(Path directory, String fileNameOrBaseName) {
+        return createDataSource(directory, fileNameOrBaseName);
+    }
+
+    @Deprecated
+    public static DataSource createReadOnly(Path file) {
+        return createDataSource(file);
     }
 
     public static Network loadNetwork(Path file, ComputationManager computationManager, ImportConfig config, Properties parameters) {

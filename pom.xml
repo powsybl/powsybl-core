@@ -21,6 +21,7 @@
 
     <modules>
         <module>action</module>
+        <module>afs</module>
         <module>case-repository</module>
         <module>commons</module>
         <module>computation</module>
@@ -73,6 +74,7 @@
         <jodatime.version>2.9.7</jodatime.version>
         <junit.version>4.12</junit.version>
         <logback.version>1.1.8</logback.version>
+        <mapdb.version>3.0.3</mapdb.version>
         <mockito.version>1.10.19</mockito.version>
         <protobuf.version>2.5.0</protobuf.version>
         <sirocco.version>1.0</sirocco.version>
@@ -357,6 +359,11 @@
                 <groupId>joda-time</groupId>
                 <artifactId>joda-time</artifactId>
                 <version>${jodatime.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mapdb</groupId>
+                <artifactId>mapdb</artifactId>
+                <version>${mapdb.version}</version>
             </dependency>
             <dependency>
                 <groupId>net.java.dev.stax-utils</groupId>
