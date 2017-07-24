@@ -12,5 +12,6 @@ package eu.itesla_project.contingency;
 public enum ContingencyElementType {
     @Deprecated LINE,
     GENERATOR,
-    BRANCH
+    BRANCH,
+    BUSBAR_SECTION
 }

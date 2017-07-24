@@ -927,26 +927,26 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
     boolean isConnected(TerminalExt terminal) {
         assert terminal instanceof NodeTerminal;
-        int node = ((NodeTerminal) terminal).getNode();
-        List<TIntArrayList> paths = graph.findAllPaths(node, NodeBreakerVoltageLevel::isBusbarSection, Switch::isOpen);
-        return paths.size() > 0;
+
+        return (terminal.getBusView().getBus() != null);
     }
 
     void traverse(NodeTerminal terminal, VoltageLevel.TopologyTraverser traverser) {
         traverse(terminal, traverser, new HashSet<>());
     }
 
-    void traverse(NodeTerminal terminal, VoltageLevel.TopologyTraverser traverser, Set<String> traversedVoltageLevelsIds) {
+    void traverse(NodeTerminal terminal, VoltageLevel.TopologyTraverser traverser, Set<Terminal> traversedTerminals) {
         Objects.requireNonNull(terminal);
         Objects.requireNonNull(traverser);
-        Objects.requireNonNull(traversedVoltageLevelsIds);
+        Objects.requireNonNull(traversedTerminals);
 
-        if (traversedVoltageLevelsIds.contains(terminal.getVoltageLevel().getId())) {
+        if (traversedTerminals.contains(terminal)) {
             return;
         }
-        traversedVoltageLevelsIds.add(terminal.getVoltageLevel().getId());
 
         if (traverser.traverse(terminal, true)) {
+            traversedTerminals.add(terminal);
+
             int node = terminal.getNode();
             List<TerminalExt> nextTerminals = new ArrayList<>();
 
@@ -959,7 +959,8 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                     if (otherTerminal == null) {
                         return TraverseResult.CONTINUE;
                     } else if (traverser.traverse(otherTerminal, true)) {
-                        addNextTerminals(otherTerminal, nextTerminals);
+                        traversedTerminals.add(otherTerminal);
+
                         addNextTerminals(otherTerminal, nextTerminals);
                         return TraverseResult.CONTINUE;
                     } else {
@@ -971,7 +972,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             });
 
             for (TerminalExt nextTerminal : nextTerminals) {
-                nextTerminal.traverse(traverser, traversedVoltageLevelsIds);
+                nextTerminal.traverse(traverser, traversedTerminals);
             }
         }
     }

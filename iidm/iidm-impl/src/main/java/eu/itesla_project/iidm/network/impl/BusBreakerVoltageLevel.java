@@ -742,20 +742,21 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         traverse(terminal, traverser, new HashSet<>());
     }
 
-    void traverse(BusTerminal terminal, VoltageLevel.TopologyTraverser traverser, Set<String> traversedVoltageLevelsIds) {
+    void traverse(BusTerminal terminal, VoltageLevel.TopologyTraverser traverser, Set<Terminal> traversedTerminals) {
         Objects.requireNonNull(terminal);
         Objects.requireNonNull(traverser);
-        Objects.requireNonNull(traversedVoltageLevelsIds);
+        Objects.requireNonNull(traversedTerminals);
 
-        if (traversedVoltageLevelsIds.contains(terminal.getVoltageLevel().getId())) {
+        if (traversedTerminals.contains(terminal)) {
             return;
         }
-        traversedVoltageLevelsIds.add(terminal.getVoltageLevel().getId());
 
         List<TerminalExt> nextTerminals = new ArrayList<>();
 
         // check if we are allowed to traverse the terminal itself
         if (traverser.traverse(terminal, terminal.isConnected())) {
+            traversedTerminals.add(terminal);
+
             addNextTerminals(terminal, nextTerminals);
 
             // then check we can traverse terminal connected to same bus
@@ -776,6 +777,8 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
                 if (traverser.traverse(aSwitch)) {
                     for (BusTerminal otherTerminal : otherBus.getTerminals()) {
                         if (traverser.traverse(otherTerminal, otherTerminal.isConnected())) {
+                            traversedTerminals.add(otherTerminal);
+
                             addNextTerminals(otherTerminal, nextTerminals);
                             return TraverseResult.CONTINUE;
                         } else {
@@ -789,7 +792,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
             });
 
             for (TerminalExt nextTerminal : nextTerminals) {
-                nextTerminal.traverse(traverser, traversedVoltageLevelsIds);
+                nextTerminal.traverse(traverser, traversedTerminals);
             }
         }
     }

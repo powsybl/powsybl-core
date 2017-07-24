@@ -9,9 +9,11 @@ package eu.itesla_project.action.dsl
 import eu.itesla_project.action.dsl.ast.ExpressionNode
 import eu.itesla_project.action.dsl.spi.DslTaskExtension
 import eu.itesla_project.contingency.BranchContingency
+import eu.itesla_project.contingency.BusbarSectionContingency
 import eu.itesla_project.contingency.ContingencyImpl
 import eu.itesla_project.contingency.GeneratorContingency
 import eu.itesla_project.contingency.tasks.ModificationTask
+import eu.itesla_project.iidm.network.BusbarSection
 import eu.itesla_project.iidm.network.Generator
 import eu.itesla_project.iidm.network.Identifiable
 import eu.itesla_project.iidm.network.Line
@@ -129,6 +131,8 @@ class ActionDslLoader extends DslLoader {
                         elements.add(new BranchContingency(equipment))
                     } else if (identifiable instanceof Generator) {
                         elements.add(new GeneratorContingency(equipment))
+                    } else if (identifiable instanceof BusbarSection) {
+                        elements.add(new BusbarSectionContingency(equipment))
                     } else {
                         throw new ActionDslException("Equipment type " + identifiable.getClass().name + " not supported in contingencies")
                     }

@@ -21,13 +21,13 @@ public class BranchContingencyTest {
     public void test() {
         BranchContingency contingency = new BranchContingency("id");
         assertEquals("id", contingency.getId());
-        assertNull(contingency.getSubstationId());
+        assertNull(contingency.getVoltageLevelId());
         assertEquals(ContingencyElementType.BRANCH, contingency.getType());
 
         assertNotNull(contingency.toTask());
         assertTrue(contingency.toTask() instanceof BranchTripping);
 
-        contingency = new BranchContingency("id", "substationId");
-        assertEquals("substationId", contingency.getSubstationId());
+        contingency = new BranchContingency("id", "voltageLevelId");
+        assertEquals("voltageLevelId", contingency.getVoltageLevelId());
     }
 }

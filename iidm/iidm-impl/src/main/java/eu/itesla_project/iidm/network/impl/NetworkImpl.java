@@ -411,6 +411,16 @@ class NetworkImpl extends IdentifiableImpl<Network> implements Network, MultiSta
     }
 
     @Override
+    public Stream<Switch> getSwitchStream() {
+        return objectStore.getAll(SwitchImpl.class).stream().map(Function.identity());
+    }
+
+    @Override
+    public BusbarSection getBusbarSection(String id) {
+        return objectStore.get(id, BusbarSectionImpl.class);
+    }
+
+    @Override
     public HvdcConverterStationImpl<?> getHvdcConverterStation(String id) {
         HvdcConverterStationImpl<?> converterStation = getLccConverterStation(id);
         if (converterStation == null) {

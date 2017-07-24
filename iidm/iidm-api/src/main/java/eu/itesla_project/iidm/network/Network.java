@@ -6,11 +6,11 @@
  */
 package eu.itesla_project.iidm.network;
 
+import org.joda.time.DateTime;
+
 import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Stream;
-
-import org.joda.time.DateTime;
 
 /**
  * A power network model.
@@ -397,6 +397,19 @@ public interface Network extends Container<Network> {
      * @return the switch
      */
     Switch getSwitch(String id);
+
+    /**
+     * Get all switches
+     * return all switches
+     */
+    Stream<Switch> getSwitchStream();
+
+    /**
+     * Get a busbar section from its id.
+     * @param id id of the busbar section
+     * @return the busbar section
+     */
+    BusbarSection getBusbarSection(String id);
 
     /**
      * Get all HVDC converter stations.

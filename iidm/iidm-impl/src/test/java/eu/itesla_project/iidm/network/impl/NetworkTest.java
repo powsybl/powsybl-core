@@ -6,23 +6,25 @@
  */
 package eu.itesla_project.iidm.network.impl;
 
-import eu.itesla_project.iidm.network.*;
 import com.google.common.collect.Iterables;
+import eu.itesla_project.iidm.network.*;
 import eu.itesla_project.iidm.network.VoltageLevel.NodeBreakerView;
 import eu.itesla_project.iidm.network.test.EurostagTutorialExample1Factory;
 import eu.itesla_project.iidm.network.test.HvdcTestNetwork;
 import eu.itesla_project.iidm.network.test.NetworkTest1Factory;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import eu.itesla_project.iidm.network.test.SvcTestCaseFactory;
 import org.junit.Test;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -72,6 +74,8 @@ public class NetworkTest {
         assertTrue(voltageLevel1BusbarSection2.getId().equals("voltageLevel1BusbarSection2"));
         assertTrue(Iterables.size(topology1.getSwitches()) == 5);
         assertTrue(topology1.getSwitchCount() == 5);
+
+        assertEquals(5, network.getSwitchStream().count());
 
         Switch voltageLevel1Breaker1 = topology1.getSwitch("voltageLevel1Breaker1");
         assertTrue(voltageLevel1Breaker1 != null);

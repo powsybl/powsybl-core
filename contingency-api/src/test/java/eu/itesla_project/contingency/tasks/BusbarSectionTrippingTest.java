@@ -6,60 +6,41 @@
  */
 package eu.itesla_project.contingency.tasks;
 
+import com.google.common.collect.Sets;
 import eu.itesla_project.commons.ITeslaException;
-import eu.itesla_project.contingency.ContingencyImpl;
-import eu.itesla_project.contingency.GeneratorContingency;
 import eu.itesla_project.iidm.network.Network;
 import eu.itesla_project.iidm.network.Switch;
 import eu.itesla_project.iidm.network.Terminal;
-import eu.itesla_project.iidm.network.test.EurostagTutorialExample1Factory;
 import eu.itesla_project.iidm.network.test.FictitiousSwitchFactory;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class GeneratorTrippingTest extends TrippingTest {
+public class BusbarSectionTrippingTest extends TrippingTest {
 
     @Test
-    public void generatorTrippingTest() {
-        Network network = EurostagTutorialExample1Factory.create();
-        assertTrue(network.getGenerator("GEN").getTerminal().isConnected());
-
-        GeneratorContingency tripping = new GeneratorContingency("GEN");
-        ContingencyImpl contingency = new ContingencyImpl("contingency", tripping);
-
-        ModificationTask task = contingency.toTask();
-        task.modify(network, null);
-
-        assertFalse(network.getGenerator("GEN").getTerminal().isConnected());
+    public void busbarSectionTrippingTest() throws IOException {
+        busbarSectionTrippingTest("D", Sets.newHashSet("BD", "BL"));
+        busbarSectionTrippingTest("O", Sets.newHashSet("BJ", "BT"));
+        busbarSectionTrippingTest("P", Sets.newHashSet("BJ", "BL", "BV", "BX", "BZ"));
     }
 
-    @Test(expected = ITeslaException.class)
-    public void unknownGeneratorTrippingTest() {
-        Network network = EurostagTutorialExample1Factory.create();
-
-        GeneratorTripping tripping = new GeneratorTripping("generator");
-        tripping.modify(network, null);
-    }
-
-    @Test
-    public void fictitiousSwitchTest() {
-        Set<String> switchIds = Collections.singleton("BJ");
-
+    public void busbarSectionTrippingTest(String bbsId, Set<String> switchIds) {
         Network network = FictitiousSwitchFactory.create();
-        network.getSwitch("BT").setFictitious(true);
         List<Boolean> expectedSwitchStates = getSwitchStates(network, switchIds);
 
-        GeneratorTripping tripping = new GeneratorTripping("CD");
+        BusbarSectionTripping tripping = new BusbarSectionTripping(bbsId);
 
         Set<Switch> switchesToOpen = new HashSet<>();
         Set<Terminal> terminalsToDisconnect = new HashSet<>();
@@ -68,9 +49,19 @@ public class GeneratorTrippingTest extends TrippingTest {
         assertEquals(Collections.emptySet(), terminalsToDisconnect);
 
         tripping.modify(network, null);
-        assertTrue(network.getSwitch("BJ").isOpen());
+        for (String id : switchIds) {
+            assertTrue(network.getSwitch(id).isOpen());
+        }
 
         List<Boolean> switchStates = getSwitchStates(network, switchIds);
         assertEquals(expectedSwitchStates, switchStates);
+    }
+
+    @Test(expected = ITeslaException.class)
+    public void unknownBusbarSectionTrippingTest() {
+        Network network = FictitiousSwitchFactory.create();
+
+        BusbarSectionTripping tripping = new BusbarSectionTripping("bbs");
+        tripping.modify(network, null);
     }
 }

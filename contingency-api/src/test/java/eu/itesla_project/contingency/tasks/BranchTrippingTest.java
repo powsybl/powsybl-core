@@ -6,22 +6,27 @@
  */
 package eu.itesla_project.contingency.tasks;
 
+import com.google.common.collect.Sets;
 import eu.itesla_project.commons.ITeslaException;
 import eu.itesla_project.contingency.BranchContingency;
 import eu.itesla_project.contingency.ContingencyImpl;
-import eu.itesla_project.iidm.network.Line;
-import eu.itesla_project.iidm.network.Network;
-import eu.itesla_project.iidm.network.TwoWindingsTransformer;
+import eu.itesla_project.iidm.network.*;
 import eu.itesla_project.iidm.network.test.EurostagTutorialExample1Factory;
+import eu.itesla_project.iidm.network.test.FictitiousSwitchFactory;
 import org.junit.Test;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public class BranchTrippingTest {
+public class BranchTrippingTest extends TrippingTest {
 
     @Test
     public void lineTrippingTest() {
@@ -45,7 +50,7 @@ public class BranchTrippingTest {
         assertTrue(line.getTerminal1().isConnected());
         assertTrue(line.getTerminal2().isConnected());
 
-        tripping = new BranchContingency("NHV1_NHV2_1", "P2");
+        tripping = new BranchContingency("NHV1_NHV2_1", "VLHV2");
         contingency = new ContingencyImpl("contingency", tripping);
         contingency.toTask().modify(network, null);
 
@@ -61,7 +66,7 @@ public class BranchTrippingTest {
         assertTrue(transformer.getTerminal1().isConnected());
         assertTrue(transformer.getTerminal2().isConnected());
 
-        BranchContingency tripping = new BranchContingency("NHV2_NLOAD", "P2");
+        BranchContingency tripping = new BranchContingency("NHV2_NLOAD", "VLHV2");
         ContingencyImpl contingency = new ContingencyImpl("contingency", tripping);
         contingency.toTask().modify(network, null);
 
@@ -83,5 +88,28 @@ public class BranchTrippingTest {
 
         BranchTripping tripping = new BranchTripping("NHV2_NLOAD", "UNKNOWN");
         tripping.modify(network, null);
+    }
+
+    @Test
+    public void fictitiousSwitchTest() {
+        Set<String> switchIds = Sets.newHashSet("BD", "BL");
+
+        Network network = FictitiousSwitchFactory.create();
+        List<Boolean> expectedSwitchStates = getSwitchStates(network, switchIds);
+
+        BranchTripping tripping = new BranchTripping("CJ", "C");
+
+        Set<Switch> switchesToOpen = new HashSet<>();
+        Set<Terminal> terminalsToDisconnect = new HashSet<>();
+        tripping.traverse(network, null, switchesToOpen, terminalsToDisconnect);
+        assertEquals(switchIds, switchesToOpen.stream().map(Switch::getId).collect(Collectors.toSet()));
+        assertEquals(Collections.emptySet(), terminalsToDisconnect);
+
+        tripping.modify(network, null);
+        assertTrue(network.getSwitch("BD").isOpen());
+        assertTrue(network.getSwitch("BL").isOpen());
+
+        List<Boolean> switchStates = getSwitchStates(network, switchIds);
+        assertEquals(expectedSwitchStates, switchStates);
     }
 }

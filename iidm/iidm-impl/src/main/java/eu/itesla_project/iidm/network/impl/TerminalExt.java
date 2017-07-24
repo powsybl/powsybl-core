@@ -43,6 +43,6 @@ interface TerminalExt extends Terminal, Stateful {
 
     void setNum(int num);
 
-    void traverse(VoltageLevel.TopologyTraverser traverser, Set<String> traversedVoltageLevelsIds);
+    void traverse(VoltageLevel.TopologyTraverser traverser, Set<Terminal> traversedTerminals);
 
 }

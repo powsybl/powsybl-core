@@ -6,23 +6,23 @@
  */
 package eu.itesla_project.contingency;
 
+import eu.itesla_project.contingency.tasks.BusbarSectionTripping;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class LineContingencyTest {
+public class BusbarSectionContingencyTest {
 
     @Test
     public void test() {
-        LineContingency contingency = new LineContingency("id");
+        BusbarSectionContingency contingency = new BusbarSectionContingency("id");
         assertEquals("id", contingency.getId());
-        assertNull(contingency.getVoltageLevelId());
-        assertEquals(ContingencyElementType.LINE, contingency.getType());
+        assertEquals(ContingencyElementType.BUSBAR_SECTION, contingency.getType());
 
-        contingency = new LineContingency("id", "voltageLevelId");
-        assertEquals("voltageLevelId", contingency.getVoltageLevelId());
+        assertNotNull(contingency.toTask());
+        assertTrue(contingency.toTask() instanceof BusbarSectionTripping);
     }
 }

@@ -6,6 +6,7 @@
  */
 package eu.itesla_project.iidm.network.impl;
 
+import eu.itesla_project.iidm.network.Terminal;
 import eu.itesla_project.iidm.network.VoltageLevel;
 import eu.itesla_project.iidm.network.impl.util.Ref;
 
@@ -102,8 +103,8 @@ class BusTerminal extends AbstractTerminal {
     }
 
     @Override
-    public void traverse(VoltageLevel.TopologyTraverser traverser, Set<String> traversedVoltageLevelsIds) {
-        ((BusBreakerVoltageLevel) voltageLevel).traverse(this, traverser, traversedVoltageLevelsIds);
+    public void traverse(VoltageLevel.TopologyTraverser traverser, Set<Terminal> traversedTerminals) {
+        ((BusBreakerVoltageLevel) voltageLevel).traverse(this, traverser, traversedTerminals);
     }
 
     @Override

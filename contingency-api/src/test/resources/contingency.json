@@ -2,14 +2,17 @@
   "id" : "contingency",
   "elements" : [ {
     "id" : "NHV1_NHV2_2",
-    "substationId" : "P1",
+    "voltageLevelId" : "VLHV1",
     "type" : "BRANCH"
   }, {
     "id" : "NHV1_NHV2_1",
-    "substationId" : null,
+    "voltageLevelId" : null,
     "type" : "BRANCH"
   }, {
     "id" : "GEN",
     "type" : "GENERATOR"
+  }, {
+    "id" : "BBS1",
+    "type" : "BUSBAR_SECTION"
   } ]
 }

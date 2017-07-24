@@ -27,9 +27,10 @@ public class SecurityAnalysisResultJsonTest extends ConverterBaseTest {
         LimitViolation violation2 = new LimitViolation("NHV1_NHV2_2", LimitViolationType.CURRENT, 100f, null, 110f);
 
         List<ContingencyElement> elements = Arrays.asList(
-                new BranchContingency("NHV1_NHV2_2", "P1"),
+                new BranchContingency("NHV1_NHV2_2", "VLNHV1"),
                 new BranchContingency("NHV1_NHV2_1"),
-                new GeneratorContingency("GEN")
+                new GeneratorContingency("GEN"),
+                new BusbarSectionContingency("BBS1")
         );
         Contingency contingency = new ContingencyImpl("contingency", elements);
 

@@ -6,12 +6,12 @@
  */
 package eu.itesla_project.iidm.network.impl;
 
+import eu.itesla_project.iidm.network.Terminal;
 import eu.itesla_project.iidm.network.VoltageLevel;
 import eu.itesla_project.iidm.network.impl.util.Ref;
 import gnu.trove.list.array.TFloatArrayList;
 import gnu.trove.list.array.TIntArrayList;
 
-import java.util.ArrayList;
 import java.util.Set;
 
 /**
@@ -151,8 +151,8 @@ class NodeTerminal extends AbstractTerminal {
     }
 
     @Override
-    public void traverse(VoltageLevel.TopologyTraverser traverser, Set<String> traversedVoltageLevelsIds) {
-        ((NodeBreakerVoltageLevel) voltageLevel).traverse(this, traverser, traversedVoltageLevelsIds);
+    public void traverse(VoltageLevel.TopologyTraverser traverser, Set<Terminal> traversedTerminals) {
+        ((NodeBreakerVoltageLevel) voltageLevel).traverse(this, traverser, traversedTerminals);
     }
 
     @Override

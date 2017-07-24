@@ -7,7 +7,7 @@
 package eu.itesla_project.contingency;
 
 import eu.itesla_project.contingency.tasks.BranchTripping;
-import eu.itesla_project.contingency.tasks.ModificationTask;
+import eu.itesla_project.contingency.tasks.TrippingTask;
 
 import java.util.Objects;
 
@@ -18,15 +18,15 @@ import java.util.Objects;
 public class BranchContingency implements ContingencyElement {
 
     private final String id;
-    private final String substationId;
+    private final String voltageLevelId;
 
     public BranchContingency(String id) {
         this(id, null);
     }
 
-    public BranchContingency(String id, String substationId) {
+    public BranchContingency(String id, String voltageLevelId) {
         this.id = Objects.requireNonNull(id);
-        this.substationId = substationId;
+        this.voltageLevelId = voltageLevelId;
     }
 
     @Override
@@ -34,8 +34,8 @@ public class BranchContingency implements ContingencyElement {
         return id;
     }
 
-    public String getSubstationId() {
-        return substationId;
+    public String getVoltageLevelId() {
+        return voltageLevelId;
     }
 
     @Override
@@ -44,8 +44,8 @@ public class BranchContingency implements ContingencyElement {
     }
 
     @Override
-    public ModificationTask toTask() {
-        return new BranchTripping(id, substationId);
+    public TrippingTask toTask() {
+        return new BranchTripping(id, voltageLevelId);
     }
 
 }

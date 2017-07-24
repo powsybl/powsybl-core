@@ -16,8 +16,8 @@ public class LineContingency extends BranchContingency {
         super(id);
     }
 
-    public LineContingency(String id, String substationId) {
-        super(id, substationId);
+    public LineContingency(String id, String voltageLevelId) {
+        super(id, voltageLevelId);
     }
 
     @Override

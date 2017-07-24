@@ -1,5 +1,12 @@
 package eu.itesla_project.contingency.json;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import eu.itesla_project.commons.ConverterBaseTest;
+import eu.itesla_project.contingency.*;
+import org.junit.Test;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -9,21 +16,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import eu.itesla_project.contingency.*;
-import org.junit.Test;
-
-import eu.itesla_project.commons.ConverterBaseTest;
-
 public class ContingencyJsonTest extends ConverterBaseTest {
     
     private static Contingency create() {
         List<ContingencyElement> elements = new ArrayList<>();
-        elements.add(new BranchContingency("NHV1_NHV2_2", "P1"));
+        elements.add(new BranchContingency("NHV1_NHV2_2", "VLHV1"));
         elements.add(new BranchContingency("NHV1_NHV2_1"));
         elements.add(new GeneratorContingency("GEN"));
+        elements.add(new BusbarSectionContingency("BBS1"));
 
         return new ContingencyImpl("contingency", elements);
     }

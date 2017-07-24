@@ -65,7 +65,7 @@ public class FictitiousSwitchFactory {
         createSwitch(vlN, "Z", "AA", SwitchKind.DISCONNECTOR, false, true, false, 0, 13);
         createSwitch(vlN, "AB", "AC", SwitchKind.DISCONNECTOR, false, false, false, 0, 15);
         createSwitch(vlN, "AD", "AE", SwitchKind.DISCONNECTOR, false, true, false, 0, 8);
-        createSwitch(vlN, "AF", "AG", SwitchKind.DISCONNECTOR, false, true, false, 0, 2);
+        createSwitch(vlN, "AF", "AG", SwitchKind.DISCONNECTOR, false, true, true, 0, 2);
         createSwitch(vlN, "AH", "AI", SwitchKind.DISCONNECTOR, false, false, false, 7, 0);
         createSwitch(vlN, "AJ", "AK", SwitchKind.DISCONNECTOR, false, false, false, 1, 6);
         createSwitch(vlN, "AL", "AM", SwitchKind.DISCONNECTOR, false, false, false, 1, 19);
@@ -75,8 +75,8 @@ public class FictitiousSwitchFactory {
         createSwitch(vlN, "AT", "AU", SwitchKind.DISCONNECTOR, false, true, false, 1, 13);
         createSwitch(vlN, "AV", "AW", SwitchKind.DISCONNECTOR, false, true, false, 1, 15);
         createSwitch(vlN, "AX", "AY", SwitchKind.DISCONNECTOR, false, false, false, 1, 8);
-        createSwitch(vlN, "AZ", "BA", SwitchKind.DISCONNECTOR, false, true, false, 1, 2);
-        createSwitch(vlN, "BB", "BC", SwitchKind.BREAKER, true, true, false, 2, 3);
+        createSwitch(vlN, "AZ", "BA", SwitchKind.DISCONNECTOR, false, true, true, 1, 2);
+        createSwitch(vlN, "BB", "BC", SwitchKind.BREAKER, true, true, true, 2, 3);
         createSwitch(vlN, "BD", "BE", SwitchKind.BREAKER, true, false, false, 3, 4);
         createSwitch(vlN, "BF", "BG", SwitchKind.DISCONNECTOR, false, false, false, 3, 5);
         createSwitch(vlN, "BH", "BI", SwitchKind.DISCONNECTOR, false, true, false, 9, 3);
