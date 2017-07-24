@@ -279,9 +279,36 @@ public class MapDbAppFileSystemStorage implements AppFileSystemStorage {
     public NodeId getParentNode(NodeId nodeId) {
         Objects.requireNonNull(nodeId);
         if (!nodeNameMap.containsKey(nodeId)) {
-            throw new AfsStorageException("Parent node " + nodeId + " not found");
+            throw new AfsStorageException("Node " + nodeId + " not found");
         }
         return parentNodeMap.get(nodeId);
+    }
+
+    @Override
+    public void setParentNode(NodeId nodeId, NodeId newParentNodeId) {
+        Objects.requireNonNull(nodeId);
+        Objects.requireNonNull(newParentNodeId);
+        if (!nodeNameMap.containsKey(nodeId)) {
+            throw new AfsStorageException("Node " + nodeId + " not found");
+        }
+        if (!nodeNameMap.containsKey(newParentNodeId)) {
+            throw new AfsStorageException("New parent node " + newParentNodeId+ " not found");
+        }
+        NodeId oldParentNodeId = parentNodeMap.get(nodeId);
+        if (oldParentNodeId == null) {
+            throw new AfsStorageException("Cannot change parent of root folder");
+        }
+
+        parentNodeMap.put(nodeId, newParentNodeId);
+
+        // remove from old parent
+        String name = nodeNameMap.get(nodeId);
+        childNodeMap.remove(new NamedLink(oldParentNodeId, name));
+        childNodesMap.put(oldParentNodeId, remove(childNodesMap.get(oldParentNodeId), nodeId));
+
+        // add to new parent
+        childNodesMap.put(newParentNodeId, add(childNodesMap.get(newParentNodeId), nodeId));
+        childNodeMap.put(new NamedLink(newParentNodeId, name), nodeId);
     }
 
     @Override

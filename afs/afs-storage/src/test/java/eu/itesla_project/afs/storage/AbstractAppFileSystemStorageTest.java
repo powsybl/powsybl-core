@@ -130,4 +130,16 @@ public abstract class AbstractAppFileSystemStorageTest {
         assertEquals(PseudoClass.PROJECT_FOLDER_PSEUDO_CLASS, storage.getNodePseudoClass(projectRootId));
         assertTrue(storage.getChildNodes(projectRootId).isEmpty());
     }
+
+    @Test
+    public void setParentTest() throws IOException {
+        NodeId rootFolderId = storage.getRootNode();
+        NodeId folder1Id = storage.createNode(rootFolderId, "test1", PseudoClass.FOLDER_PSEUDO_CLASS);
+        NodeId folder2Id = storage.createNode(rootFolderId, "test2", PseudoClass.FOLDER_PSEUDO_CLASS);
+        NodeId fileId = storage.createNode(folder1Id, "file", "file-type");
+        assertEquals(folder1Id, storage.getParentNode(fileId));
+        storage.setParentNode(fileId, folder2Id);
+        assertEquals(folder2Id, storage.getParentNode(fileId));
+    }
+
 }

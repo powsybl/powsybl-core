@@ -35,6 +35,8 @@ public interface AppFileSystemStorage extends AutoCloseable {
 
     NodeId getParentNode(NodeId nodeId);
 
+    void setParentNode(NodeId nodeId, NodeId newParentNodeId);
+
     void deleteNode(NodeId nodeId);
 
     String getStringAttribute(NodeId nodeId, String name);
