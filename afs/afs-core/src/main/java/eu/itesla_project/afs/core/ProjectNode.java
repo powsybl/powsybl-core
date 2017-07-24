@@ -48,6 +48,11 @@ public abstract class ProjectNode extends NodeBase<ProjectFolder> {
         return new Project(projectId, storage, fileSystem);
     }
 
+    public void moveTo(ProjectFolder folder) {
+        Objects.requireNonNull(folder);
+        storage.setParentNode(id, folder.id);
+    }
+
     public void delete() {
         storage.deleteNode(id);
     }

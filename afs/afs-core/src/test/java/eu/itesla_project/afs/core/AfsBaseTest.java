@@ -29,6 +29,69 @@ import static org.junit.Assert.*;
  */
 public class AfsBaseTest {
 
+    private static class FooFile extends ProjectFile {
+
+        private FooFile(NodeId id, AppFileSystemStorage storage, NodeId projectId, AppFileSystem fileSystem) {
+            super(id, storage, projectId, fileSystem);
+        }
+
+        @Override
+        public FileIcon getIcon() {
+            return new FileIcon("?", new byte[]{});
+        }
+    }
+
+    private static class FooFileBuilder implements ProjectFileBuilder<FooFile> {
+
+        private final NodeId folderId;
+
+        private final AppFileSystemStorage storage;
+
+        private final NodeId projectId;
+
+        private final AppFileSystem fileSystem;
+
+        private FooFileBuilder(NodeId folderId, AppFileSystemStorage storage, NodeId projectId, AppFileSystem fileSystem) {
+            this.folderId = folderId;
+            this.storage = storage;
+            this.projectId = projectId;
+            this.fileSystem = fileSystem;
+        }
+
+        @Override
+        public FooFile build() {
+            NodeId id = storage.createNode(folderId, "foo", "foo");
+            return new FooFile(id, storage, projectId, fileSystem);
+        }
+    }
+
+    private static class FooFileExtension implements ProjectFileExtension {
+        @Override
+        public Class<? extends ProjectFile> getProjectFileClass() {
+            return FooFile.class;
+        }
+
+        @Override
+        public String getProjectFilePseudoClass() {
+            return "foo";
+        }
+
+        @Override
+        public Class<? extends ProjectFileBuilder<? extends ProjectFile>> getProjectFileBuilderClass() {
+            return FooFileBuilder.class;
+        }
+
+        @Override
+        public FooFile createProjectFile(NodeId id, AppFileSystemStorage storage, NodeId projectId, AppFileSystem fileSystem) {
+            return new FooFile(id, storage, projectId, fileSystem);
+        }
+
+        @Override
+        public FooFileBuilder createProjectFileBuilder(NodeId folderId, AppFileSystemStorage storage, NodeId projectId, AppFileSystem fileSystem) {
+            return new FooFileBuilder(folderId, storage, projectId, fileSystem);
+        }
+    }
+
     private AppFileSystemStorage storage;
 
     private AppFileSystem afs;
@@ -48,7 +111,7 @@ public class AfsBaseTest {
         ComputationManager computationManager = Mockito.mock(ComputationManager.class);
         afs = new AppFileSystem("mem", storage);
         ad = new AppData(computationManager, importersLoader, Collections.singletonList(computationManager1 -> Collections.singletonList(afs)),
-                Collections.emptyList(), Collections.emptyList());
+                Collections.emptyList(), Collections.singletonList(new FooFileExtension()));
     }
 
     @After
@@ -57,11 +120,11 @@ public class AfsBaseTest {
     }
 
     @Test
-    public void test() throws IOException {
+    public void baseTest() throws IOException {
         assertSame(afs, ad.getFileSystem("mem"));
         assertNull(ad.getFileSystem("???"));
         assertEquals("mem", afs.getName());
-        assertTrue(ad.getProjectFileClasses().isEmpty()); // no plugin
+        assertEquals(1, ad.getProjectFileClasses().size());
         Folder root = afs.getRootFolder();
         assertNotNull(root);
         Folder dir1 = (Folder) root.getChild("dir1");
@@ -117,6 +180,22 @@ public class AfsBaseTest {
         assertEquals(ImmutableList.of("dir5", "dir6"), dir6.getPath().toList().subList(1, 3));
         assertEquals("dir5/dir6", dir6.getPath().toString());
         assertEquals("dir6", project1.getRootFolder().getChild("dir5/dir6").getName());
+    }
+
+    @Test
+    public void moveToTest() throws IOException {
+        Project project = afs.getRootFolder().createProject("test", "");
+        ProjectFolder test1 = project.getRootFolder().createFolder("test1");
+        ProjectFolder test2 = project.getRootFolder().createFolder("test2");
+        FooFile file = test1.fileBuilder(FooFileBuilder.class)
+                .build();
+        assertEquals(test1.getId(), file.getFolder().getId());
+        assertEquals(1, test1.getChildren().size());
+        assertTrue(test2.getChildren().isEmpty());
+        file.moveTo(test2);
+        assertEquals(test2.getId(), file.getFolder().getId());
+        assertTrue(test1.getChildren().isEmpty());
+        assertEquals(1, test2.getChildren().size());
     }
 
 }

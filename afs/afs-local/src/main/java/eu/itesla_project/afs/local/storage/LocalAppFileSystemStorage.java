@@ -131,6 +131,11 @@ public class LocalAppFileSystemStorage implements AppFileSystemStorage {
     }
 
     @Override
+    public void setParentNode(NodeId nodeId, NodeId newParentNodeId) {
+        throw new AssertionError();
+    }
+
+    @Override
     public boolean isWritable(NodeId nodeId) {
         return false;
     }
