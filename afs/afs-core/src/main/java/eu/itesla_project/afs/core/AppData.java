@@ -6,6 +6,7 @@
  */
 package eu.itesla_project.afs.core;
 
+import eu.itesla_project.afs.storage.AppFileSystemStorage;
 import eu.itesla_project.commons.util.ServiceLoaderCache;
 import eu.itesla_project.computation.ComputationManager;
 import eu.itesla_project.computation.local.LocalComputationManager;
@@ -13,6 +14,7 @@ import eu.itesla_project.iidm.import_.ImportersLoader;
 import eu.itesla_project.iidm.import_.ImportersServiceLoader;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -101,7 +103,7 @@ public class AppData implements AutoCloseable {
         return projectFileClasses;
     }
 
-    public FileExtension getFileExtension(Class<? extends File> fileClass) {
+    FileExtension getFileExtension(Class<? extends File> fileClass) {
         Objects.requireNonNull(fileClass);
         FileExtension extension = fileExtensions.get(fileClass);
         if (extension == null) {
@@ -110,7 +112,7 @@ public class AppData implements AutoCloseable {
         return extension;
     }
 
-    public FileExtension getFileExtensionByPseudoClass(String filePseudoClass) {
+    FileExtension getFileExtensionByPseudoClass(String filePseudoClass) {
         Objects.requireNonNull(filePseudoClass);
         FileExtension extension = fileExtensionsByPseudoClass.get(filePseudoClass);
         if (extension == null) {
@@ -119,7 +121,7 @@ public class AppData implements AutoCloseable {
         return extension;
     }
 
-    public ProjectFileExtension getProjectFileExtension(Class<?> projectFileOrProjectFileBuilderClass) {
+    ProjectFileExtension getProjectFileExtension(Class<?> projectFileOrProjectFileBuilderClass) {
         Objects.requireNonNull(projectFileOrProjectFileBuilderClass);
         ProjectFileExtension extension = projectFileExtensions.get(projectFileOrProjectFileBuilderClass);
         if (extension == null) {
@@ -129,7 +131,7 @@ public class AppData implements AutoCloseable {
         return extension;
     }
 
-    public ProjectFileExtension getProjectFileExtensionByPseudoClass(String projectFilePseudoClass) {
+    ProjectFileExtension getProjectFileExtensionByPseudoClass(String projectFilePseudoClass) {
         Objects.requireNonNull(projectFilePseudoClass);
         ProjectFileExtension extension = projectFileExtensionsByPseudoClass.get(projectFilePseudoClass);
         if (extension == null) {
@@ -145,6 +147,19 @@ public class AppData implements AutoCloseable {
 
     public ComputationManager getComputationManager() {
         return computationManager;
+    }
+
+    public List<String> getRemotelyAccessibleFileSystemNames() {
+        return fileSystems.entrySet().stream()
+                .map(Map.Entry::getValue)
+                .filter(AppFileSystem::isRemotelyAccessible)
+                .map(AppFileSystem::getName)
+                .collect(Collectors.toList());
+    }
+
+    public AppFileSystemStorage getRemotelyAccessibleStorage(String fileSystemName) {
+        AppFileSystem afs = fileSystems.get(fileSystemName);
+        return afs != null ? afs.getStorage() : null;
     }
 
     @Override

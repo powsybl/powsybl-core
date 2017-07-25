@@ -7,9 +7,9 @@
 package eu.itesla_project.afs.core;
 
 import com.google.common.collect.ImmutableList;
+import eu.itesla_project.afs.mapdb.storage.MapDbAppFileSystemStorage;
 import eu.itesla_project.afs.storage.AppFileSystemStorage;
 import eu.itesla_project.afs.storage.NodeId;
-import eu.itesla_project.afs.mapdb.storage.MapDbAppFileSystemStorage;
 import eu.itesla_project.computation.ComputationManager;
 import eu.itesla_project.iidm.import_.ImportersLoader;
 import eu.itesla_project.iidm.import_.ImportersLoaderList;
@@ -109,7 +109,7 @@ public class AfsBaseTest {
 
         ImportersLoader importersLoader = new ImportersLoaderList(Collections.emptyList(), Collections.emptyList());
         ComputationManager computationManager = Mockito.mock(ComputationManager.class);
-        afs = new AppFileSystem("mem", storage);
+        afs = new AppFileSystem("mem", true, storage);
         ad = new AppData(computationManager, importersLoader, Collections.singletonList(computationManager1 -> Collections.singletonList(afs)),
                 Collections.emptyList(), Collections.singletonList(new FooFileExtension()));
     }
@@ -123,6 +123,8 @@ public class AfsBaseTest {
     public void baseTest() throws IOException {
         assertSame(afs, ad.getFileSystem("mem"));
         assertNull(ad.getFileSystem("???"));
+        assertEquals(Collections.singletonList("mem"), ad.getRemotelyAccessibleFileSystemNames());
+        assertNotNull(ad.getRemotelyAccessibleStorage("mem"));
         assertEquals("mem", afs.getName());
         assertEquals(1, ad.getProjectFileClasses().size());
         Folder root = afs.getRootFolder();

@@ -18,8 +18,7 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -41,6 +40,7 @@ public class LocalAppFileSystemConfigTest {
         moduleConfig.setPathProperty("root-dir", fileSystem.getPath("/work"));
         moduleConfig.setStringProperty("max-additional-drive-count", "2");
         moduleConfig.setStringProperty("drive-name-1", "local1");
+        moduleConfig.setStringProperty("remotely-accessible-1", "true");
         moduleConfig.setPathProperty("root-dir-1", fileSystem.getPath("/work"));
     }
 
@@ -56,8 +56,10 @@ public class LocalAppFileSystemConfigTest {
         LocalAppFileSystemConfig config = configs.get(0);
         LocalAppFileSystemConfig config1 = configs.get(1);
         assertEquals("local", config.getDriveName());
+        assertFalse(config.isRemotelyAccessible());
         assertEquals(fileSystem.getPath("/work"), config.getRootDir());
         assertEquals("local1", config1.getDriveName());
+        assertTrue(config1.isRemotelyAccessible());
         assertEquals(fileSystem.getPath("/work"), config1.getRootDir());
         config.setDriveName("local2");
         config.setRootDir(fileSystem.getPath("/tmp"));

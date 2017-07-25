@@ -9,19 +9,12 @@ package eu.itesla_project.afs.mapdb;
 import eu.itesla_project.afs.core.AppFileSystem;
 import eu.itesla_project.afs.mapdb.storage.MapDbAppFileSystemStorage;
 
-import java.nio.file.Path;
-import java.util.Objects;
-import java.util.function.BiFunction;
-
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class MapDbAppFileSystem extends AppFileSystem {
 
-    public MapDbAppFileSystem(MapDbAppFileSystemConfig config,
-                              BiFunction<String, Path, MapDbAppFileSystemStorage> storageProvider) {
-        super(Objects.requireNonNull(config).getDriveName(),
-              Objects.requireNonNull(storageProvider).apply(config.getDriveName(),
-                                                            config.getDbFile()));
+    public MapDbAppFileSystem(String driveName, boolean remotelyAccessible, MapDbAppFileSystemStorage storage) {
+        super(driveName, remotelyAccessible, storage);
     }
 }

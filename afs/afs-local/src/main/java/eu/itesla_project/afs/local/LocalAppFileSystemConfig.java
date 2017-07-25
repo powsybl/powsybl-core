@@ -7,6 +7,7 @@
 package eu.itesla_project.afs.local;
 
 import eu.itesla_project.afs.core.AfsException;
+import eu.itesla_project.afs.storage.AbstractAppFileSystemConfig;
 import eu.itesla_project.commons.config.ModuleConfig;
 import eu.itesla_project.commons.config.PlatformConfig;
 
@@ -19,9 +20,7 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class LocalAppFileSystemConfig {
-
-    private String driveName;
+public class LocalAppFileSystemConfig extends AbstractAppFileSystemConfig<LocalAppFileSystemConfig> {
 
     private Path rootDir;
 
@@ -33,17 +32,21 @@ public class LocalAppFileSystemConfig {
         List<LocalAppFileSystemConfig> configs = new ArrayList<>();
         ModuleConfig moduleConfig = platformConfig.getModuleConfigIfExists("local-app-file-system");
         if (moduleConfig != null) {
-            if (moduleConfig.hasProperty("drive-name") && moduleConfig.hasProperty("root-dir")) {
+            if (moduleConfig.hasProperty("drive-name")
+                    && moduleConfig.hasProperty("root-dir")) {
                 String driveName = moduleConfig.getStringProperty("drive-name");
+                boolean remotelyAccessible = moduleConfig.getBooleanProperty("remotely-accessible", DEFAULT_REMOTELY_ACCESSIBLE);
                 Path rootDir = moduleConfig.getPathProperty("root-dir");
-                configs.add(new LocalAppFileSystemConfig(driveName, rootDir));
+                configs.add(new LocalAppFileSystemConfig(driveName, remotelyAccessible, rootDir));
             }
             int maxAdditionalDriveCount = moduleConfig.getIntProperty("max-additional-drive-count", 0);
             for (int i = 0; i < maxAdditionalDriveCount; i++) {
-                if (moduleConfig.hasProperty("drive-name-" + i) && moduleConfig.hasProperty("root-dir-" + i)) {
+                if (moduleConfig.hasProperty("drive-name-" + i)
+                        && moduleConfig.hasProperty("root-dir-" + i)) {
                     String driveName = moduleConfig.getStringProperty("drive-name-" + i);
+                    boolean remotelyAccessible = moduleConfig.getBooleanProperty("remotely-accessible-" + i, DEFAULT_REMOTELY_ACCESSIBLE);
                     Path rootDir = moduleConfig.getPathProperty("root-dir-" + i);
-                    configs.add(new LocalAppFileSystemConfig(driveName, rootDir));
+                    configs.add(new LocalAppFileSystemConfig(driveName, remotelyAccessible, rootDir));
                 }
             }
         }
@@ -58,18 +61,9 @@ public class LocalAppFileSystemConfig {
         return rootDir;
     }
 
-    public LocalAppFileSystemConfig(String driveName, Path rootDir) {
-        this.driveName = Objects.requireNonNull(driveName);
+    public LocalAppFileSystemConfig(String driveName, boolean remotelyAccessible, Path rootDir) {
+        super(driveName, remotelyAccessible);
         this.rootDir = checkRootDir(rootDir).toAbsolutePath();
-    }
-
-    public String getDriveName() {
-        return driveName;
-    }
-
-    public LocalAppFileSystemConfig setDriveName(String driveName) {
-        this.driveName = Objects.requireNonNull(driveName);
-        return this;
     }
 
     public Path getRootDir() {

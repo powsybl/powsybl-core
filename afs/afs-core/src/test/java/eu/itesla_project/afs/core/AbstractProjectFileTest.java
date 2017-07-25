@@ -54,7 +54,7 @@ public abstract class AbstractProjectFileTest {
         ImportersLoader importersLoader = new ImportersLoaderList(getImporters(), Collections.emptyList());
         ComputationManager computationManager = Mockito.mock(ComputationManager.class);
         storage = createStorage();
-        afs = new AppFileSystem("mem", storage);
+        afs = new AppFileSystem("mem", false, storage);
         ad = new AppData(computationManager,
                          importersLoader,
                          Collections.singletonList(computationManager1 -> Collections.singletonList(afs)),

@@ -44,7 +44,7 @@ public class LocalAppFileSystemProviderTest {
     @Test
     public void test() {
         ComputationManager computationManager = Mockito.mock(ComputationManager.class);
-        LocalAppFileSystemConfig config = new LocalAppFileSystemConfig("drive", fileSystem.getPath("/work"));
+        LocalAppFileSystemConfig config = new LocalAppFileSystemConfig("drive", true, fileSystem.getPath("/work"));
         List<AppFileSystem> fileSystems = new LocalAppFileSystemProvider(Collections.singletonList(config),
                                                                          new ImportConfig(),
                                                                          new ImportersLoaderList(Collections.emptyList(), Collections.emptyList()))
@@ -52,5 +52,6 @@ public class LocalAppFileSystemProviderTest {
         assertEquals(1, fileSystems.size());
         assertTrue(fileSystems.get(0) instanceof LocalAppFileSystem);
         assertEquals("drive", fileSystems.get(0).getName());
+        assertTrue(fileSystems.get(0).isRemotelyAccessible());
     }
 }

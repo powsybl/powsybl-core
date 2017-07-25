@@ -7,6 +7,7 @@
 package eu.itesla_project.afs.mapdb;
 
 import eu.itesla_project.afs.core.AfsException;
+import eu.itesla_project.afs.storage.AbstractAppFileSystemConfig;
 import eu.itesla_project.commons.config.ModuleConfig;
 import eu.itesla_project.commons.config.PlatformConfig;
 
@@ -19,9 +20,7 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class MapDbAppFileSystemConfig {
-
-    private String driveName;
+public class MapDbAppFileSystemConfig extends AbstractAppFileSystemConfig<MapDbAppFileSystemConfig> {
 
     private Path dbFile;
 
@@ -33,17 +32,21 @@ public class MapDbAppFileSystemConfig {
         List<MapDbAppFileSystemConfig> configs = new ArrayList<>();
         ModuleConfig moduleConfig = platformConfig.getModuleConfigIfExists("mapdb-app-file-system");
         if (moduleConfig != null) {
-            if (moduleConfig.hasProperty("drive-name") && moduleConfig.hasProperty("db-file")) {
+            if (moduleConfig.hasProperty("drive-name")
+                    && moduleConfig.hasProperty("db-file")) {
                 String driveName = moduleConfig.getStringProperty("drive-name");
+                boolean remotelyAccessible = moduleConfig.getBooleanProperty("remotely-accessible", DEFAULT_REMOTELY_ACCESSIBLE);
                 Path rootDir = moduleConfig.getPathProperty("db-file");
-                configs.add(new MapDbAppFileSystemConfig(driveName, rootDir));
+                configs.add(new MapDbAppFileSystemConfig(driveName, remotelyAccessible, rootDir));
             }
             int maxAdditionalDriveCount = moduleConfig.getIntProperty("max-additional-drive-count", 0);
             for (int i = 0; i < maxAdditionalDriveCount; i++) {
-                if (moduleConfig.hasProperty("drive-name-" + i) && moduleConfig.hasProperty("db-file-" + i)) {
+                if (moduleConfig.hasProperty("drive-name-" + i)
+                        && moduleConfig.hasProperty("db-file-" + i)) {
                     String driveName = moduleConfig.getStringProperty("drive-name-" + i);
+                    boolean remotelyAccessible = moduleConfig.getBooleanProperty("remotely-accessible-" + i, DEFAULT_REMOTELY_ACCESSIBLE);
                     Path rootDir = moduleConfig.getPathProperty("db-file-" + i);
-                    configs.add(new MapDbAppFileSystemConfig(driveName, rootDir));
+                    configs.add(new MapDbAppFileSystemConfig(driveName, remotelyAccessible, rootDir));
                 }
             }
         }
@@ -58,18 +61,9 @@ public class MapDbAppFileSystemConfig {
         return dbFile;
     }
 
-    public MapDbAppFileSystemConfig(String driveName, Path dbFile) {
-        this.driveName = Objects.requireNonNull(driveName);
+    public MapDbAppFileSystemConfig(String driveName, boolean remotelyAccessible, Path dbFile) {
+        super(driveName, remotelyAccessible);
         this.dbFile = checkDbFile(dbFile);
-    }
-
-    public String getDriveName() {
-        return driveName;
-    }
-
-    public MapDbAppFileSystemConfig setDriveName(String driveName) {
-        this.driveName = Objects.requireNonNull(driveName);
-        return this;
     }
 
     public Path getDbFile() {

@@ -18,8 +18,7 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -39,6 +38,7 @@ public class MapDbAppFileSystemConfigTest {
         platformConfig = new InMemoryPlatformConfig(fileSystem);
         MapModuleConfig moduleConfig = platformConfig.createModuleConfig("mapdb-app-file-system");
         moduleConfig.setStringProperty("drive-name", "db");
+        moduleConfig.setStringProperty("remotely-accessible", "true");
         moduleConfig.setPathProperty("db-file", fileSystem.getPath("/db"));
         moduleConfig.setStringProperty("max-additional-drive-count", "1");
         moduleConfig.setStringProperty("drive-name-0", "db0");
@@ -57,8 +57,10 @@ public class MapDbAppFileSystemConfigTest {
         MapDbAppFileSystemConfig config = configs.get(0);
         MapDbAppFileSystemConfig config1 = configs.get(1);
         assertEquals("db", config.getDriveName());
+        assertTrue(config.isRemotelyAccessible());
         assertEquals(fileSystem.getPath("/db"), config.getDbFile());
         assertEquals("db0", config1.getDriveName());
+        assertFalse(config1.isRemotelyAccessible());
         assertEquals(fileSystem.getPath("/db0"), config1.getDbFile());
         config.setDriveName("db2");
         config.setDbFile(fileSystem.getPath("/db2"));

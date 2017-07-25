@@ -42,7 +42,10 @@ public class MapDbAppFileSystemProvider implements AppFileSystemProvider {
     @Override
     public List<AppFileSystem> getFileSystems(ComputationManager computationManager) {
         return configs.stream()
-                .map(config -> new MapDbAppFileSystem(config, storageProvider))
+                .map(config ->  {
+                    MapDbAppFileSystemStorage storage = storageProvider.apply(config.getDriveName(), config.getDbFile());
+                    return new MapDbAppFileSystem(config.getDriveName(), config.isRemotelyAccessible(), storage);
+                })
                 .collect(Collectors.toList());
     }
 }

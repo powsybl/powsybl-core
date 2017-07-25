@@ -21,6 +21,7 @@ public class LocalAppFileSystem extends AppFileSystem {
     public LocalAppFileSystem(LocalAppFileSystemConfig config, ComputationManager computationManager, ImportConfig importConfig,
                               ImportersLoader importersLoader) {
         super(config.getDriveName(),
-              new LocalAppFileSystemStorage(config.getRootDir(), config.getDriveName(), computationManager, importConfig, importersLoader));
+                config.isRemotelyAccessible(),
+                new LocalAppFileSystemStorage(config.getRootDir(), config.getDriveName(), computationManager, importConfig, importersLoader));
     }
 }

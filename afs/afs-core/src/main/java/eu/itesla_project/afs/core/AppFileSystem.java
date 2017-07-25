@@ -21,17 +21,28 @@ public class AppFileSystem implements AutoCloseable {
 
     private final String name;
 
+    private final boolean remotelyAccessible;
+
     private final AppFileSystemStorage storage;
 
     private AppData data;
 
-    public AppFileSystem(String name, AppFileSystemStorage storage) {
+    public AppFileSystem(String name, boolean remotelyAccessible, AppFileSystemStorage storage) {
         this.name = Objects.requireNonNull(name);
+        this.remotelyAccessible = remotelyAccessible;
         this.storage = Objects.requireNonNull(storage);
     }
 
     public String getName() {
         return name;
+    }
+
+    public boolean isRemotelyAccessible() {
+        return remotelyAccessible;
+    }
+
+    AppFileSystemStorage getStorage() {
+        return storage;
     }
 
     public Folder getRootFolder() {
