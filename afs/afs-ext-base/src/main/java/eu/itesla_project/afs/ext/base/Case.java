@@ -9,7 +9,7 @@ package eu.itesla_project.afs.ext.base;
 import eu.itesla_project.afs.core.*;
 import eu.itesla_project.afs.storage.AppFileSystemStorage;
 import eu.itesla_project.afs.storage.NodeId;
-import eu.itesla_project.iidm.datasource.ReadOnlyDataSource;
+import eu.itesla_project.commons.datasource.ReadOnlyDataSource;
 import eu.itesla_project.iidm.import_.Importer;
 
 /**

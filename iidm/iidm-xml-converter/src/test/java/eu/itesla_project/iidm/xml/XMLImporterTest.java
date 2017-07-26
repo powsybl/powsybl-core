@@ -10,7 +10,7 @@ import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import eu.itesla_project.commons.config.InMemoryPlatformConfig;
 import eu.itesla_project.commons.config.PlatformConfig;
-import eu.itesla_project.iidm.datasource.FileDataSource;
+import eu.itesla_project.commons.datasource.FileDataSource;
 import eu.itesla_project.iidm.network.Network;
 import org.junit.After;
 import org.junit.Before;

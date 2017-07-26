@@ -7,8 +7,8 @@
 package eu.itesla_project.iidm.tools;
 
 import com.google.auto.service.AutoService;
-import eu.itesla_project.iidm.datasource.DataSource;
-import eu.itesla_project.iidm.datasource.ReadOnlyDataSource;
+import eu.itesla_project.commons.datasource.DataSource;
+import eu.itesla_project.commons.datasource.ReadOnlyDataSource;
 import eu.itesla_project.iidm.import_.Importer;
 import eu.itesla_project.iidm.network.Network;
 import eu.itesla_project.iidm.parameters.Parameter;

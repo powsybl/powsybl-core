@@ -7,9 +7,9 @@
 package eu.itesla_project.afs.mapdb.storage;
 
 import eu.itesla_project.afs.storage.NodeId;
-import eu.itesla_project.iidm.datasource.AbstractDataSourceObserver;
-import eu.itesla_project.iidm.datasource.DataSource;
-import eu.itesla_project.iidm.datasource.ObservableOutputStream;
+import eu.itesla_project.commons.datasource.AbstractDataSourceObserver;
+import eu.itesla_project.commons.datasource.DataSource;
+import eu.itesla_project.commons.datasource.ObservableOutputStream;
 
 import java.io.*;
 import java.util.Objects;

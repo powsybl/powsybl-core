@@ -14,7 +14,7 @@ import eu.itesla_project.afs.core.TestImporter;
 import eu.itesla_project.afs.storage.NodeId;
 import eu.itesla_project.afs.storage.PseudoClass;
 import eu.itesla_project.computation.ComputationManager;
-import eu.itesla_project.iidm.datasource.DataSource;
+import eu.itesla_project.commons.datasource.DataSource;
 import eu.itesla_project.iidm.import_.ImportConfig;
 import eu.itesla_project.iidm.import_.ImportersLoaderList;
 import eu.itesla_project.iidm.network.Network;

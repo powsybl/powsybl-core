@@ -6,7 +6,7 @@
  */
 package eu.itesla_project.afs.storage;
 
-import eu.itesla_project.iidm.datasource.DataSource;
+import eu.itesla_project.commons.datasource.DataSource;
 
 import java.io.InputStream;
 import java.io.OutputStream;

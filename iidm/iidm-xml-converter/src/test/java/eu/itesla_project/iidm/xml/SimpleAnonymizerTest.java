@@ -9,7 +9,7 @@ package eu.itesla_project.iidm.xml;
 import eu.itesla_project.commons.ConverterBaseTest;
 import eu.itesla_project.commons.config.InMemoryPlatformConfig;
 import eu.itesla_project.commons.config.PlatformConfig;
-import eu.itesla_project.iidm.datasource.MemDataSource;
+import eu.itesla_project.commons.datasource.MemDataSource;
 import eu.itesla_project.iidm.network.Network;
 import org.junit.Test;
 

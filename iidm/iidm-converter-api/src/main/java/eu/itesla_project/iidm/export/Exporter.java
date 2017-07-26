@@ -6,7 +6,7 @@
  */
 package eu.itesla_project.iidm.export;
 
-import eu.itesla_project.iidm.datasource.DataSource;
+import eu.itesla_project.commons.datasource.DataSource;
 import eu.itesla_project.iidm.network.Network;
 import java.util.Properties;
 

@@ -7,7 +7,10 @@
 package eu.itesla_project.iidm.export;
 
 import eu.itesla_project.commons.ITeslaException;
-import eu.itesla_project.iidm.datasource.*;
+import eu.itesla_project.commons.datasource.DataSource;
+import eu.itesla_project.commons.datasource.DataSourceObserver;
+import eu.itesla_project.commons.datasource.DataSourceUtil;
+import eu.itesla_project.commons.datasource.FileDataSource;
 import eu.itesla_project.iidm.network.Network;
 
 import java.io.IOException;
