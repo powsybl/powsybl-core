@@ -8,7 +8,7 @@ package eu.itesla_project.afs.storage;
 
 import com.google.common.io.ByteStreams;
 import com.google.common.io.CharStreams;
-import eu.itesla_project.iidm.datasource.DataSource;
+import eu.itesla_project.commons.datasource.DataSource;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

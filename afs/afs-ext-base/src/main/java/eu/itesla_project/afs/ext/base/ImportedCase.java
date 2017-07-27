@@ -11,7 +11,7 @@ import eu.itesla_project.afs.core.AppFileSystem;
 import eu.itesla_project.afs.core.FileIcon;
 import eu.itesla_project.afs.storage.AppFileSystemStorage;
 import eu.itesla_project.afs.storage.NodeId;
-import eu.itesla_project.iidm.datasource.ReadOnlyDataSource;
+import eu.itesla_project.commons.datasource.ReadOnlyDataSource;
 import eu.itesla_project.iidm.import_.Importer;
 import eu.itesla_project.iidm.network.Network;
 

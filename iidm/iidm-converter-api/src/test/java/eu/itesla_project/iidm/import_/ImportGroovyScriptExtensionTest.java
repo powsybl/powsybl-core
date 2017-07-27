@@ -10,7 +10,7 @@ import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import eu.itesla_project.computation.script.GroovyScriptExtension;
 import eu.itesla_project.computation.script.GroovyScriptAbstractTest;
-import eu.itesla_project.iidm.datasource.ReadOnlyDataSource;
+import eu.itesla_project.commons.datasource.ReadOnlyDataSource;
 import eu.itesla_project.iidm.network.Network;
 import org.junit.After;
 import org.junit.Before;

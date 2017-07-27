@@ -7,7 +7,7 @@
 package eu.itesla_project.iidm.tools;
 
 import com.google.auto.service.AutoService;
-import eu.itesla_project.iidm.datasource.DataSource;
+import eu.itesla_project.commons.datasource.DataSource;
 import eu.itesla_project.iidm.export.Exporter;
 import eu.itesla_project.iidm.network.Network;
 
