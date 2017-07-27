@@ -14,8 +14,11 @@ import eu.itesla_project.commons.io.table.TableFormatterFactory;
  *
  * @author Massimo Ferraro <massimo.ferraro@techrain.it>
  */
-public interface FlowsWriterFactory {
+public class ValidationFormatterCsvWriterFactory implements ValidationWriterFactory {
 
-    FlowsWriter create(String id, Class<? extends TableFormatterFactory> formatterFactoryClass, Writer writer, boolean verbose);
+    @Override
+    public ValidationWriter create(String id, Class<? extends TableFormatterFactory> formatterFactoryClass, Writer writer, boolean verbose, ValidationType validationType) {
+        return new ValidationFormatterCsvWriter(id, formatterFactoryClass, writer, verbose, validationType);
+    }
 
 }

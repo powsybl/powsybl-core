@@ -14,19 +14,20 @@ import eu.itesla_project.commons.config.PlatformConfig;
 import eu.itesla_project.commons.io.table.CsvTableFormatterFactory;
 import eu.itesla_project.commons.io.table.TableFormatterFactory;
 import eu.itesla_project.loadflow.api.LoadFlowFactory;
+import eu.itesla_project.loadflow.api.LoadFlowParameters;
 
 /**
  *
  * @author Massimo Ferraro <massimo.ferraro@techrain.it>
  */
-public class CheckFlowsConfig {
+public class ValidationConfig {
 
     public static final float THRESHOLD_DEFAULT = 0.0f;
     public static final boolean VERBOSE_DEFAULT = false;
     public static final Class<? extends TableFormatterFactory> TABLE_FORMATTER_FACTORY_DEFAULT = CsvTableFormatterFactory.class;
-    public static final float EPSILON_X_DEFAULT = 0.01f;
+    public static final float EPSILON_X_DEFAULT = 0.1f;
     public static final boolean APPLY_REACTANCE_CORRECTION_DEFAULT = false;
-    public static final FlowOutputWriter FLOWS_OUPUT_WRITER_DEFAULT = FlowOutputWriter.CSV_MULTILINE;
+    public static final ValidationOutputWriter VALIDATION_OUTPUT_WRITER_DEFAULT = ValidationOutputWriter.CSV_MULTILINE;
 
     private float threshold;
     private boolean verbose;
@@ -34,12 +35,13 @@ public class CheckFlowsConfig {
     private Class<? extends TableFormatterFactory> tableFormatterFactory;
     private float epsilonX;
     private boolean applyReactanceCorrection;
-    private FlowOutputWriter flowOutputWriter;
-    public static CheckFlowsConfig load() {
+    private ValidationOutputWriter validationOutputWriter;
+    private LoadFlowParameters loadFlowParameters;
+    public static ValidationConfig load() {
         return load(PlatformConfig.defaultConfig());
     }
 
-    public static CheckFlowsConfig load(PlatformConfig platformConfig) {
+    public static ValidationConfig load(PlatformConfig platformConfig) {
         float threshold = THRESHOLD_DEFAULT;
         boolean verbose = VERBOSE_DEFAULT;
         ComponentDefaultConfig componentDefaultConfig = ComponentDefaultConfig.load(platformConfig);
@@ -47,9 +49,10 @@ public class CheckFlowsConfig {
         Class<? extends TableFormatterFactory> tableFormatterFactory = TABLE_FORMATTER_FACTORY_DEFAULT;
         float epsilonX = EPSILON_X_DEFAULT;
         boolean applyReactanceCorrection = APPLY_REACTANCE_CORRECTION_DEFAULT;
-        FlowOutputWriter flowOutputWriter = FLOWS_OUPUT_WRITER_DEFAULT;
-        if (platformConfig.moduleExists("check-flows")) {
-            ModuleConfig config = platformConfig.getModuleConfig("check-flows");
+        ValidationOutputWriter validationOutputWriter = VALIDATION_OUTPUT_WRITER_DEFAULT;
+        LoadFlowParameters loadFlowParameter = LoadFlowParameters.load();
+        if (platformConfig.moduleExists("loadflow-validation")) {
+            ModuleConfig config = platformConfig.getModuleConfig("loadflow-validation");
             threshold = config.getFloatProperty("threshold", THRESHOLD_DEFAULT);
             verbose = config.getBooleanProperty("verbose", VERBOSE_DEFAULT);
             if ( config.hasProperty("load-flow-factory") ) { 
@@ -58,14 +61,14 @@ public class CheckFlowsConfig {
             tableFormatterFactory = config.getClassProperty("table-formatter-factory", TableFormatterFactory.class, TABLE_FORMATTER_FACTORY_DEFAULT);
             epsilonX = config.getFloatProperty("epsilon-x", EPSILON_X_DEFAULT);
             applyReactanceCorrection = config.getBooleanProperty("apply-reactance-correction", APPLY_REACTANCE_CORRECTION_DEFAULT);
-            flowOutputWriter = config.getEnumProperty("output-writer", FlowOutputWriter.class, FLOWS_OUPUT_WRITER_DEFAULT);
+            validationOutputWriter = config.getEnumProperty("output-writer", ValidationOutputWriter.class, VALIDATION_OUTPUT_WRITER_DEFAULT);
         }
-        return new CheckFlowsConfig(threshold, verbose, loadFlowFactory, tableFormatterFactory, epsilonX, applyReactanceCorrection, flowOutputWriter);
+        return new ValidationConfig(threshold, verbose, loadFlowFactory, tableFormatterFactory, epsilonX, applyReactanceCorrection, validationOutputWriter, loadFlowParameter);
     }
 
-    public CheckFlowsConfig(float threshold, boolean verbose, Class<? extends LoadFlowFactory> loadFlowFactory, 
+    public ValidationConfig(float threshold, boolean verbose, Class<? extends LoadFlowFactory> loadFlowFactory, 
                             Class<? extends TableFormatterFactory> tableFormatterFactory, float epsilonX, 
-                            boolean applyReactanceCorrection, FlowOutputWriter flowOutputWriter) {
+                            boolean applyReactanceCorrection, ValidationOutputWriter validationOutputWriter, LoadFlowParameters loadFlowParameters) {
         if (threshold < 0) {
            throw new IllegalArgumentException("Negative values for threshold not permitted");
         }
@@ -78,7 +81,8 @@ public class CheckFlowsConfig {
         this.tableFormatterFactory = Objects.requireNonNull(tableFormatterFactory);
         this.epsilonX = epsilonX;
         this.applyReactanceCorrection = applyReactanceCorrection;
-        this.flowOutputWriter = Objects.requireNonNull(flowOutputWriter);
+        this.validationOutputWriter = Objects.requireNonNull(validationOutputWriter);
+        this.loadFlowParameters = Objects.requireNonNull(loadFlowParameters);
     }
 
     public float getThreshold() {
@@ -101,12 +105,16 @@ public class CheckFlowsConfig {
         return epsilonX;
     }
 
-    public FlowOutputWriter getFlowOutputWriter() {
-        return flowOutputWriter;
+    public ValidationOutputWriter getValidationOutputWriter() {
+        return validationOutputWriter;
     }
 
     public boolean applyReactanceCorrection() {
         return applyReactanceCorrection;
+    }
+
+    public LoadFlowParameters getLoadFlowParameters() {
+        return loadFlowParameters;
     }
 
     public void setThreshold(float threshold) {
@@ -133,8 +141,12 @@ public class CheckFlowsConfig {
         this.applyReactanceCorrection = applyReactanceCorrection;
     }
 
-    public void setFlowOutputWriter(FlowOutputWriter flowOutputWriter) {
-        this.flowOutputWriter = Objects.requireNonNull(flowOutputWriter);
+    public void setValidationOutputWriter(ValidationOutputWriter validationOutputWriter) {
+        this.validationOutputWriter = Objects.requireNonNull(validationOutputWriter);
+    }
+
+    public void setLoadFlowParameters(LoadFlowParameters loadFlowParameters) {
+        this.loadFlowParameters = Objects.requireNonNull(loadFlowParameters);
     }
 
     @Override
@@ -146,7 +158,8 @@ public class CheckFlowsConfig {
                 ", tableFormatterFactory=" + tableFormatterFactory +
                 ", epsilonX=" + epsilonX +
                 ", applyReactanceCorrection=" + applyReactanceCorrection +
-                ", flowOutputWriter=" + flowOutputWriter +
+                ", validationOutputWriter=" + validationOutputWriter +
+                ", loadFlowParameters=" + loadFlowParameters +
                 "]";
     }
 }

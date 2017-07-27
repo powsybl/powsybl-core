@@ -7,6 +7,7 @@
 package eu.itesla_project.loadflow.validation;
 
 import com.google.auto.service.AutoService;
+import com.google.common.collect.Sets;
 import eu.itesla_project.commons.tools.Command;
 import eu.itesla_project.commons.tools.Tool;
 import eu.itesla_project.commons.tools.ToolRunningContext;
@@ -19,21 +20,25 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  *
  * @author Massimo Ferraro <massimo.ferraro@techrain.it>
  */
 @AutoService(Tool.class)
-public class CheckFlowsTool implements Tool {
+public class ValidationTool implements Tool {
     
     private static Command COMMAND = new Command() {
 
         @Override
         public String getName() {
-            return "check-flows";
+            return "loadflow-validation";
         }
 
         @Override
@@ -43,7 +48,7 @@ public class CheckFlowsTool implements Tool {
 
         @Override
         public String getDescription() {
-            return "Check flows of a network";
+            return "Validate load-flow results of a network";
         }
 
         @Override
@@ -55,10 +60,10 @@ public class CheckFlowsTool implements Tool {
                     .argName("FILE")
                     .required()
                     .build());
-            options.addOption(Option.builder().longOpt("output-file")
-                    .desc("output file path")
+            options.addOption(Option.builder().longOpt("output-folder")
+                    .desc("output folder path")
                     .hasArg()
-                    .argName("FILE")
+                    .argName("FOLDER")
                     .required()
                     .build());
             options.addOption(Option.builder().longOpt("load-flow")
@@ -68,9 +73,14 @@ public class CheckFlowsTool implements Tool {
                     .desc("verbose output")
                     .build());
             options.addOption(Option.builder().longOpt("output-format")
-                    .desc("output format")
+                    .desc("output format (CSV/CSV_MULTILINE)")
                     .hasArg()
-                    .argName("FLOWS_WRITER")
+                    .argName("VALIDATION_WRITER")
+                    .build());
+            options.addOption(Option.builder().longOpt("types")
+                    .desc("validation types (FLOWS/GENERATORS/...) to run, all of them if the option if not specified")
+                    .hasArg()
+                    .argName("VALIDATION_TYPE,VALIDATION_TYPE,...")
                     .build());
             return options;
         }
@@ -90,13 +100,16 @@ public class CheckFlowsTool implements Tool {
     @Override
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
         Path caseFile = Paths.get(line.getOptionValue("case-file"));
-        Path outputFile = Paths.get(line.getOptionValue("output-file"));
-        CheckFlowsConfig config = CheckFlowsConfig.load();
+        Path outputFolder = Paths.get(line.getOptionValue("output-folder"));
+        if (!Files.exists(outputFolder)) {
+            Files.createDirectories(outputFolder);
+        }
+        ValidationConfig config = ValidationConfig.load();
         if (line.hasOption("verbose")) {
             config.setVerbose(true);
         }
         if (line.hasOption("output-format")) {
-            config.setFlowOutputWriter(FlowOutputWriter.valueOf(line.getOptionValue("output-format")));
+            config.setValidationOutputWriter(ValidationOutputWriter.valueOf(line.getOptionValue("output-format")));
         }
         context.getOutputStream().println("Loading case " + caseFile);
         Network network = Importers.loadNetwork(caseFile);
@@ -115,7 +128,23 @@ public class CheckFlowsTool implements Tool {
                     })
                     .join();
         }
-        context.getOutputStream().println("Check flows on network " + network.getId() + " result: " + (Validation.checkFlows(network, config, outputFile) ? "success" : "fail"));
+        Set<ValidationType> validationTypes = Sets.newHashSet(ValidationType.values());
+        if (line.hasOption("types")) {
+            validationTypes = Arrays.stream(line.getOptionValue("types").split(","))
+                                    .map(ValidationType::valueOf)
+                                    .collect(Collectors.toSet());
+        }
+        validationTypes.forEach(validationType -> {
+            try {
+                context.getOutputStream().println("Validate load-flow results of network " + network.getId() 
+                                                  + " - validation type: " + validationType 
+                                                  + " - result: " + (validationType.check(network, config, outputFolder) ? "success" : "fail"));
+            } catch (Exception e) {
+                context.getErrorStream().println("Error validating load-flow results of network " + network.getId() 
+                                                 + " - validation type: " + validationType 
+                                                 + " - error: " + e.getMessage());
+            }
+        });
     }
     
 }

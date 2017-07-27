@@ -8,6 +8,7 @@ package eu.itesla_project.loadflow.validation;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Locale;
@@ -21,7 +22,7 @@ import eu.itesla_project.commons.io.table.TableFormatterConfig;
  *
  * @author Massimo Ferraro <massimo.ferraro@techrain.it>
  */
-public class FlowsFormatterCsvWriterTest {
+public class ValidationFormatterCsvWriterTest {
 
     private final String branchId = "branchId";
     private final float p1 = 39.5056f;
@@ -50,10 +51,22 @@ public class FlowsFormatterCsvWriterTest {
     private final double y = 1 / z;
     private final double ksi = Math.atan2(r, x);
 
+    private final String generatorId = "generatorId";
+    private final float p = -39.5056f;
+    private final float q = 3.72344f;
+    private final float v = 380f;
+    private final float targetP = 39.5056f;
+    private final float targetQ = -3.72344f;
+    private final float targetV = 380f;
+    private final boolean connected = true;
+    private final boolean voltageRegulatorOn = true;
+    private final float minQ = -10f;
+    private final float maxQ = 0f;
+
     @Test
-    public void test() throws Exception {
+    public void testFlows() throws Exception {
         String flowsContent = String.join(System.lineSeparator(),
-                                          "test flow check",
+                                          "test " + ValidationType.FLOWS + " check",
                                           String.join(";","id","network_p1","expected_p1","network_q1","expected_q1","network_p2","expected_p2",
                                                       "network_q2","expected_q2"),
                                           String.join(";", branchId, 
@@ -61,19 +74,13 @@ public class FlowsFormatterCsvWriterTest {
                                                       String.format(Locale.getDefault(), "%g", q1), String.format(Locale.getDefault(), "%g", q1_calc), 
                                                       String.format(Locale.getDefault(), "%g", p2), String.format(Locale.getDefault(), "%g", p2_calc), 
                                                       String.format(Locale.getDefault(), "%g", q2), String.format(Locale.getDefault(), "%g", q2_calc)));
-        Writer writer = new StringWriter();
-        TableFormatterConfig config = new TableFormatterConfig(Locale.getDefault(), ';', "inv", true, true);
-        try (FlowsWriter flowsWriter = new FlowsFormatterCsvWriter("test", CsvTableFormatterFactory.class, config, writer, false)) {
-            flowsWriter.write(branchId, p1, p1_calc, q1, q1_calc, p2, p2_calc, q2, q2_calc, r, x, g1, g2, b1, b2, rho1, rho2, 
-                              alpha1, alpha2, u1, u2, theta1, theta2, z, y, ksi);
-            assertEquals(flowsContent, writer.toString().trim());
-        }
+        testFlows(flowsContent, false);
     }
 
     @Test
-    public void testVerbose() throws Exception {
+    public void testFlowsVerbose() throws Exception {
         String flowsContent = String.join(System.lineSeparator(),
-                                          "test flow check",
+                                          "test " + ValidationType.FLOWS + " check",
                                           String.join(";","id","network_p1","expected_p1","network_q1","expected_q1","network_p2","expected_p2",
                                                       "network_q2","expected_q2", "r","x","g1","g2","b1","b2","rho1","rho2","alpha1","alpha2",
                                                       "u1","u2","theta1","theta2","z","y","ksi"),
@@ -91,12 +98,51 @@ public class FlowsFormatterCsvWriterTest {
                                                       String.format(Locale.getDefault(), "%g", theta1), String.format(Locale.getDefault(), "%g", theta2), 
                                                       String.format(Locale.getDefault(), "%g", z), String.format(Locale.getDefault(), "%g", y), 
                                                       String.format(Locale.getDefault(), "%g", ksi)));
+        testFlows(flowsContent, true);
+    }
+    
+    private void testFlows(String flowsContent, boolean verbose) throws IOException {
         Writer writer = new StringWriter();
         TableFormatterConfig config = new TableFormatterConfig(Locale.getDefault(), ';', "inv", true, true);
-        try (FlowsWriter flowsWriter = new FlowsFormatterCsvWriter("test", CsvTableFormatterFactory.class, config, writer, true)) {
+        try (ValidationWriter flowsWriter = new ValidationFormatterCsvWriter("test", CsvTableFormatterFactory.class, config, writer, verbose, ValidationType.FLOWS)) {
             flowsWriter.write(branchId, p1, p1_calc, q1, q1_calc, p2, p2_calc, q2, q2_calc, r, x, g1, g2, b1, b2, rho1, rho2, 
                               alpha1, alpha2, u1, u2, theta1, theta2, z, y, ksi);
             assertEquals(flowsContent, writer.toString().trim());
+        }
+    }
+
+    @Test
+    public void testGenerators() throws Exception {
+        String generatorsContent = String.join(System.lineSeparator(),
+                                               "test " + ValidationType.GENERATORS + " check",
+                                               String.join(";","id","p","q","v","targetP","targetQ","targetV"),
+                                               String.join(";", generatorId, 
+                                                           String.format(Locale.getDefault(), "%g", p), String.format(Locale.getDefault(), "%g", q), 
+                                                           String.format(Locale.getDefault(), "%g", v), String.format(Locale.getDefault(), "%g", targetP), 
+                                                           String.format(Locale.getDefault(), "%g", targetQ), String.format(Locale.getDefault(), "%g", targetV)));
+        testGenerators(generatorsContent, false);
+    }
+
+    @Test
+    public void testGeneratorsVerbose() throws Exception {
+        String generatorsContent = String.join(System.lineSeparator(),
+                                               "test " + ValidationType.GENERATORS + " check",
+                                               String.join(";","id","p","q","v","targetP","targetQ","targetV","connected","voltageRegulatorOn","minQ","maxQ"),
+                                               String.join(";", generatorId, 
+                                                           String.format(Locale.getDefault(), "%g", p), String.format(Locale.getDefault(), "%g", q), 
+                                                           String.format(Locale.getDefault(), "%g", v), String.format(Locale.getDefault(), "%g", targetP), 
+                                                           String.format(Locale.getDefault(), "%g", targetQ), String.format(Locale.getDefault(), "%g", targetV),
+                                                           Boolean.toString(connected), Boolean.toString(voltageRegulatorOn), 
+                                                           String.format(Locale.getDefault(), "%g", minQ), String.format(Locale.getDefault(), "%g", maxQ)));
+        testGenerators(generatorsContent, true);
+    }
+
+    private void testGenerators(String generatorsContent, boolean verbose) throws IOException {
+        Writer writer = new StringWriter();
+        TableFormatterConfig config = new TableFormatterConfig(Locale.getDefault(), ';', "inv", true, true);
+        try (ValidationWriter generatorsWriter = new ValidationFormatterCsvWriter("test", CsvTableFormatterFactory.class, config, writer, verbose, ValidationType.GENERATORS)) {
+            generatorsWriter.write(generatorId, p, q, v, targetP, targetQ, targetV, connected, voltageRegulatorOn, minQ, maxQ);
+            assertEquals(generatorsContent, writer.toString().trim());
         }
     }
 

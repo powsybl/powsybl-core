@@ -22,6 +22,7 @@ public class LoadFlowParameters implements Cloneable {
     public static final boolean DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON = false;
     public static final boolean DEFAULT_NO_GENERATOR_REACTIVE_LIMITS = false;
     public static final boolean DEFAULT_PHASE_SHIFTER_REGULATION_ON = false;
+    public static final boolean DEFAULT_SPECIFIC_COMPATIBILITY = false;
 
     public enum VoltageInitMode {
         UNIFORM_VALUES, // v=1pu, theta=0
@@ -46,6 +47,7 @@ public class LoadFlowParameters implements Cloneable {
             parameters.setTransformerVoltageControlOn(config.getBooleanProperty("transformerVoltageControlOn", DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON));
             parameters.setNoGeneratorReactiveLimits(config.getBooleanProperty("noGeneratorReactiveLimits", DEFAULT_NO_GENERATOR_REACTIVE_LIMITS));
             parameters.setPhaseShifterRegulationOn(config.getBooleanProperty("phaseShifterRegulationOn", DEFAULT_PHASE_SHIFTER_REGULATION_ON));
+            parameters.setSpecificCompatibility(config.getBooleanProperty("specificCompatibility", DEFAULT_SPECIFIC_COMPATIBILITY));
         }
     }
 
@@ -57,24 +59,27 @@ public class LoadFlowParameters implements Cloneable {
 
     private boolean phaseShifterRegulationOn;
 
+    private boolean specificCompatibility;
+
     public LoadFlowParameters(VoltageInitMode voltageInitMode, boolean transformerVoltageControlOn,
-                              boolean noGeneratorReactiveLimits, boolean phaseShifterRegulationOn) {
+                              boolean noGeneratorReactiveLimits, boolean phaseShifterRegulationOn, boolean specificCompatibility) {
         this.voltageInitMode = voltageInitMode;
         this.transformerVoltageControlOn = transformerVoltageControlOn;
         this.noGeneratorReactiveLimits = noGeneratorReactiveLimits;
         this.phaseShifterRegulationOn = phaseShifterRegulationOn;
+        this.specificCompatibility = specificCompatibility;
     }
 
     public LoadFlowParameters(VoltageInitMode voltageInitMode, boolean transformerVoltageControlOn) {
-        this(voltageInitMode, transformerVoltageControlOn, DEFAULT_NO_GENERATOR_REACTIVE_LIMITS, DEFAULT_PHASE_SHIFTER_REGULATION_ON);
+        this(voltageInitMode, transformerVoltageControlOn, DEFAULT_NO_GENERATOR_REACTIVE_LIMITS, DEFAULT_PHASE_SHIFTER_REGULATION_ON, DEFAULT_SPECIFIC_COMPATIBILITY);
     }
 
     public LoadFlowParameters(VoltageInitMode voltageInitMode) {
-        this(voltageInitMode, DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON, DEFAULT_NO_GENERATOR_REACTIVE_LIMITS, DEFAULT_PHASE_SHIFTER_REGULATION_ON);
+        this(voltageInitMode, DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON, DEFAULT_NO_GENERATOR_REACTIVE_LIMITS, DEFAULT_PHASE_SHIFTER_REGULATION_ON, DEFAULT_SPECIFIC_COMPATIBILITY);
     }
 
     public LoadFlowParameters() {
-        this(DEFAULT_VOLTAGE_INIT_MODE, DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON, DEFAULT_NO_GENERATOR_REACTIVE_LIMITS, DEFAULT_PHASE_SHIFTER_REGULATION_ON);
+        this(DEFAULT_VOLTAGE_INIT_MODE, DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON, DEFAULT_NO_GENERATOR_REACTIVE_LIMITS, DEFAULT_PHASE_SHIFTER_REGULATION_ON, DEFAULT_SPECIFIC_COMPATIBILITY);
     }
 
     protected LoadFlowParameters(LoadFlowParameters other) {
@@ -83,6 +88,7 @@ public class LoadFlowParameters implements Cloneable {
         transformerVoltageControlOn = other.transformerVoltageControlOn;
         noGeneratorReactiveLimits = other.noGeneratorReactiveLimits;
         phaseShifterRegulationOn = other.phaseShifterRegulationOn;
+        specificCompatibility = other.specificCompatibility;
     }
 
     public VoltageInitMode getVoltageInitMode() {
@@ -121,11 +127,21 @@ public class LoadFlowParameters implements Cloneable {
         return this;
     }
 
+    public boolean isSpecificCompatibility() {
+        return specificCompatibility;
+    }
+
+    public LoadFlowParameters setSpecificCompatibility(boolean specificCompatibility) {
+        this.specificCompatibility = specificCompatibility;
+        return this;
+    }
+
     protected Map<String, Object> toMap() {
         return ImmutableMap.of("voltageInitMode", voltageInitMode,
-                               "transformerVoltageControlOn", transformerVoltageControlOn,
-                               "noGeneratorReactiveLimits", noGeneratorReactiveLimits,
-                               "phaseShifterRegulationOn", phaseShifterRegulationOn);
+                "transformerVoltageControlOn", transformerVoltageControlOn,
+                "noGeneratorReactiveLimits", noGeneratorReactiveLimits,
+                "phaseShifterRegulationOn", phaseShifterRegulationOn,
+                "specificCompatibility", specificCompatibility);
     }
 
     @Override

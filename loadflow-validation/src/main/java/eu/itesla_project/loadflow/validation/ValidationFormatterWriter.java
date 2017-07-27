@@ -18,15 +18,15 @@ import eu.itesla_project.commons.io.table.TableFormatterFactory;
  *
  * @author Massimo Ferraro <massimo.ferraro@techrain.it>
  */
-public abstract class FlowsFormatterWriter implements FlowsWriter {
+public abstract class ValidationFormatterWriter implements ValidationWriter {
 
     protected TableFormatter formatter;
 
     protected TableFormatter createTableFormatter(String id, Class<? extends TableFormatterFactory> formatterFactoryClass, 
-                                                  TableFormatterConfig formatterConfig, Writer writer) {
+                                                  TableFormatterConfig formatterConfig, Writer writer, ValidationType validationType) {
         try {
             TableFormatterFactory factory = formatterFactoryClass.newInstance();
-            return factory.create(writer, id + " flow check", formatterConfig, getColumns());
+            return factory.create(writer, id + " " + validationType + " check", formatterConfig, getColumns());
         } catch (InstantiationException | IllegalAccessException e) {
             throw new IllegalArgumentException(e);
         }
@@ -38,6 +38,10 @@ public abstract class FlowsFormatterWriter implements FlowsWriter {
     public abstract void write(String branchId, double p1, double p1_calc, double q1, double q1_calc, double p2, double p2_calc, double q2, double q2_calc, 
                                double r, double x, double g1, double g2, double b1, double b2, double rho1, double rho2, double alpha1, double alpha2, 
                                double u1, double u2, double theta1, double theta2, double z, double y, double ksi) throws IOException;
+
+    @Override
+    public abstract void write(String generatorId, float p, float q, float v, float targetP, float targetQ, float targetV, 
+                               boolean connected, boolean voltageRegulatorOn, float minQ, float maxQ) throws IOException;
 
     @Override
     public void close() throws IOException {

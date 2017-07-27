@@ -6,30 +6,29 @@
  */
 package eu.itesla_project.loadflow.validation;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
-import java.nio.file.FileSystem;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-
 import eu.itesla_project.commons.config.InMemoryPlatformConfig;
 import eu.itesla_project.commons.config.MapModuleConfig;
 import eu.itesla_project.commons.io.table.AsciiTableFormatterFactory;
 import eu.itesla_project.commons.io.table.TableFormatterFactory;
 import eu.itesla_project.loadflow.api.LoadFlowFactory;
+import eu.itesla_project.loadflow.api.LoadFlowParameters;
 import eu.itesla_project.loadflow.api.mock.LoadFlowFactoryMock;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.nio.file.FileSystem;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  *
  * @author Massimo Ferraro <massimo.ferraro@techrain.it>
  */
-public class CheckFlowsConfigTest {
+public class ValidationConfigTest {
 
     InMemoryPlatformConfig platformConfig;
     FileSystem fileSystem;
@@ -50,9 +49,9 @@ public class CheckFlowsConfigTest {
 
     @Test
     public void testNoConfig() {
-        CheckFlowsConfig config = CheckFlowsConfig.load(platformConfig);
-        checkValues(config, CheckFlowsConfig.THRESHOLD_DEFAULT, CheckFlowsConfig.VERBOSE_DEFAULT, loadFlowFactory, CheckFlowsConfig.TABLE_FORMATTER_FACTORY_DEFAULT,
-                    CheckFlowsConfig.EPSILON_X_DEFAULT, CheckFlowsConfig.APPLY_REACTANCE_CORRECTION_DEFAULT, CheckFlowsConfig.FLOWS_OUPUT_WRITER_DEFAULT);
+        ValidationConfig config = ValidationConfig.load(platformConfig);
+        checkValues(config, ValidationConfig.THRESHOLD_DEFAULT, ValidationConfig.VERBOSE_DEFAULT, loadFlowFactory, ValidationConfig.TABLE_FORMATTER_FACTORY_DEFAULT,
+                    ValidationConfig.EPSILON_X_DEFAULT, ValidationConfig.APPLY_REACTANCE_CORRECTION_DEFAULT, ValidationConfig.VALIDATION_OUTPUT_WRITER_DEFAULT);
     }
 
     @Test
@@ -61,14 +60,14 @@ public class CheckFlowsConfigTest {
         boolean verbose = true;
         float epsilonX = 0.1f;
         boolean applyReactanceCorrection = true;
-        MapModuleConfig moduleConfig = platformConfig.createModuleConfig("check-flows");
+        MapModuleConfig moduleConfig = platformConfig.createModuleConfig("loadflow-validation");
         moduleConfig.setStringProperty("threshold", Float.toString(threshold));
         moduleConfig.setStringProperty("verbose", Boolean.toString(verbose));
         moduleConfig.setStringProperty("epsilon-x", Float.toString(epsilonX));
         moduleConfig.setStringProperty("apply-reactance-correction", Boolean.toString(applyReactanceCorrection));
-        CheckFlowsConfig config = CheckFlowsConfig.load(platformConfig);
-        checkValues(config, threshold, verbose, loadFlowFactory, CheckFlowsConfig.TABLE_FORMATTER_FACTORY_DEFAULT, epsilonX, applyReactanceCorrection,
-                    CheckFlowsConfig.FLOWS_OUPUT_WRITER_DEFAULT);
+        ValidationConfig config = ValidationConfig.load(platformConfig);
+        checkValues(config, threshold, verbose, loadFlowFactory, ValidationConfig.TABLE_FORMATTER_FACTORY_DEFAULT, epsilonX, applyReactanceCorrection,
+                    ValidationConfig.VALIDATION_OUTPUT_WRITER_DEFAULT);
     }
 
     @Test
@@ -78,17 +77,17 @@ public class CheckFlowsConfigTest {
         Class<? extends TableFormatterFactory> tableFormatterFactory = AsciiTableFormatterFactory.class;
         float epsilonX = 0.1f;
         boolean applyReactanceCorrection = true;
-        FlowOutputWriter flowOutputWriter = FlowOutputWriter.CSV;
-        MapModuleConfig moduleConfig = platformConfig.createModuleConfig("check-flows");
+        ValidationOutputWriter validationOutputWriter = ValidationOutputWriter.CSV;
+        MapModuleConfig moduleConfig = platformConfig.createModuleConfig("loadflow-validation");
         moduleConfig.setStringProperty("threshold", Float.toString(threshold));
         moduleConfig.setStringProperty("verbose", Boolean.toString(verbose));
         moduleConfig.setStringProperty("load-flow-factory", loadFlowFactory.getCanonicalName());
         moduleConfig.setStringProperty("table-formatter-factory", tableFormatterFactory.getCanonicalName());
         moduleConfig.setStringProperty("epsilon-x", Float.toString(epsilonX));
         moduleConfig.setStringProperty("apply-reactance-correction", Boolean.toString(applyReactanceCorrection));
-        moduleConfig.setStringProperty("output-writer", flowOutputWriter.name());
-        CheckFlowsConfig config = CheckFlowsConfig.load(platformConfig);
-        checkValues(config, threshold, verbose, loadFlowFactory, tableFormatterFactory, epsilonX, applyReactanceCorrection, flowOutputWriter);
+        moduleConfig.setStringProperty("output-writer", validationOutputWriter.name());
+        ValidationConfig config = ValidationConfig.load(platformConfig);
+        checkValues(config, threshold, verbose, loadFlowFactory, tableFormatterFactory, epsilonX, applyReactanceCorrection, validationOutputWriter);
     }
 
     @Test
@@ -98,59 +97,59 @@ public class CheckFlowsConfigTest {
         Class<? extends TableFormatterFactory> tableFormatterFactory = AsciiTableFormatterFactory.class;
         float epsilonX = 0.1f;
         boolean applyReactanceCorrection = true;
-        FlowOutputWriter flowOutputWriter = FlowOutputWriter.CSV;
-        CheckFlowsConfig config = CheckFlowsConfig.load(platformConfig);
+        ValidationOutputWriter validationOutputWriter = ValidationOutputWriter.CSV;
+        ValidationConfig config = ValidationConfig.load(platformConfig);
         config.setThreshold(threshold);
         config.setVerbose(verbose);
         config.setLoadFlowFactory(loadFlowFactory);
         config.setTableFormatterFactory(tableFormatterFactory);
         config.setEpsilonX(epsilonX);
         config.setApplyReactanceCorrection(applyReactanceCorrection);
-        config.setFlowOutputWriter(flowOutputWriter);
-        checkValues(config, threshold, verbose, loadFlowFactory, tableFormatterFactory, epsilonX, applyReactanceCorrection, flowOutputWriter);
+        config.setValidationOutputWriter(validationOutputWriter);
+        checkValues(config, threshold, verbose, loadFlowFactory, tableFormatterFactory, epsilonX, applyReactanceCorrection, validationOutputWriter);
     }
 
-    private void checkValues(CheckFlowsConfig config, float threshold, boolean verbose, Class<? extends LoadFlowFactory> loadFlowFactory,
+    private void checkValues(ValidationConfig config, float threshold, boolean verbose, Class<? extends LoadFlowFactory> loadFlowFactory,
                              Class<? extends TableFormatterFactory> tableFormatterFactory, float epsilonX, boolean applyReactanceCorrection,
-                             FlowOutputWriter flowOutputWriter) {
+                             ValidationOutputWriter validationOutputWriter) {
         assertEquals(threshold, config.getThreshold(), 0f);
         assertEquals(verbose, config.isVerbose());
         assertEquals(loadFlowFactory, config.getLoadFlowFactory());
         assertEquals(tableFormatterFactory, config.getTableFormatterFactory());
         assertEquals(epsilonX, config.getEpsilonX(), 0f);
         assertEquals(applyReactanceCorrection, config.applyReactanceCorrection());
-        assertEquals(flowOutputWriter, config.getFlowOutputWriter());
+        assertEquals(validationOutputWriter, config.getValidationOutputWriter());
     }
 
     @Test
     public void testWrongConfig() {
         try {
-            new CheckFlowsConfig(-1, false, loadFlowFactory, CheckFlowsConfig.TABLE_FORMATTER_FACTORY_DEFAULT, 1, 
-                                 CheckFlowsConfig.APPLY_REACTANCE_CORRECTION_DEFAULT, FlowOutputWriter.CSV_MULTILINE);
+            new ValidationConfig(-1, false, loadFlowFactory, ValidationConfig.TABLE_FORMATTER_FACTORY_DEFAULT, 1, 
+                                 ValidationConfig.APPLY_REACTANCE_CORRECTION_DEFAULT, ValidationOutputWriter.CSV_MULTILINE, new LoadFlowParameters());
             fail();
         } catch(Exception ignored) {
         }
         try {
-            new CheckFlowsConfig(1, false, null, CheckFlowsConfig.TABLE_FORMATTER_FACTORY_DEFAULT, 1, 
-                                 CheckFlowsConfig.APPLY_REACTANCE_CORRECTION_DEFAULT, FlowOutputWriter.CSV_MULTILINE);
+            new ValidationConfig(1, false, null, ValidationConfig.TABLE_FORMATTER_FACTORY_DEFAULT, 1, 
+                                 ValidationConfig.APPLY_REACTANCE_CORRECTION_DEFAULT, ValidationOutputWriter.CSV_MULTILINE, new LoadFlowParameters());
             fail();
         } catch(Exception ignored) {
         }
         try {
-            new CheckFlowsConfig(1, false, loadFlowFactory, null, CheckFlowsConfig.EPSILON_X_DEFAULT, 
-                                CheckFlowsConfig.APPLY_REACTANCE_CORRECTION_DEFAULT, FlowOutputWriter.CSV_MULTILINE);
+            new ValidationConfig(1, false, loadFlowFactory, null, ValidationConfig.EPSILON_X_DEFAULT, 
+                                ValidationConfig.APPLY_REACTANCE_CORRECTION_DEFAULT, ValidationOutputWriter.CSV_MULTILINE, new LoadFlowParameters());
             fail();
         } catch(Exception ignored) {
         }
         try {
-            new CheckFlowsConfig(1, false, loadFlowFactory, CheckFlowsConfig.TABLE_FORMATTER_FACTORY_DEFAULT, -1, 
-                                 CheckFlowsConfig.APPLY_REACTANCE_CORRECTION_DEFAULT, FlowOutputWriter.CSV_MULTILINE);
+            new ValidationConfig(1, false, loadFlowFactory, ValidationConfig.TABLE_FORMATTER_FACTORY_DEFAULT, -1, 
+                                 ValidationConfig.APPLY_REACTANCE_CORRECTION_DEFAULT, ValidationOutputWriter.CSV_MULTILINE, new LoadFlowParameters());
             fail();
         } catch(Exception ignored) {
         }
         try {
-            new CheckFlowsConfig(1, false, loadFlowFactory, CheckFlowsConfig.TABLE_FORMATTER_FACTORY_DEFAULT, 1, 
-                                 CheckFlowsConfig.APPLY_REACTANCE_CORRECTION_DEFAULT, null);
+            new ValidationConfig(1, false, loadFlowFactory, ValidationConfig.TABLE_FORMATTER_FACTORY_DEFAULT, 1, 
+                                 ValidationConfig.APPLY_REACTANCE_CORRECTION_DEFAULT, null, new LoadFlowParameters());
             fail();
         } catch(Exception ignored) {
         }

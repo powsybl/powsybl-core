@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import eu.itesla_project.commons.config.ConfigurationException;
 import eu.itesla_project.iidm.network.Bus;
+import eu.itesla_project.iidm.network.Generator;
 import eu.itesla_project.iidm.network.Line;
 import eu.itesla_project.iidm.network.Network;
 import eu.itesla_project.iidm.network.TwoWindingsTransformer;
@@ -35,10 +36,10 @@ public class Validation {
     private Validation() {
     }
 
-    private static FlowsWriter createFlowsWriter(String id, CheckFlowsConfig config, Writer writer) {
+    private static ValidationWriter createValidationWriter(String id, ValidationConfig config, Writer writer, ValidationType validationType) {
         try {
-            FlowsWriterFactory factory = config.getFlowOutputWriter().getFlowsWriterFactory().newInstance();
-            return factory.create(id, config.getTableFormatterFactory(), writer, config.isVerbose());
+            ValidationWriterFactory factory = config.getValidationOutputWriter().getValidationWriterFactory().newInstance();
+            return factory.create(id, config.getTableFormatterFactory(), writer, config.isVerbose(), validationType);
         } catch (InstantiationException | IllegalAccessException e) {
             throw new ConfigurationException(e);
         }
@@ -46,12 +47,12 @@ public class Validation {
 
     public static boolean checkFlows(String id, double r, double x, double rho1, double rho2, double u1, double u2, double theta1, double theta2, double alpha1,
                                      double alpha2, double g1, double g2, double b1, double b2, float p1, float q1, float p2, float q2,
-                                     CheckFlowsConfig config, Writer writer) {
+                                     ValidationConfig config, Writer writer) {
         Objects.requireNonNull(id);
         Objects.requireNonNull(config);
         Objects.requireNonNull(writer);
 
-        try (FlowsWriter flowsWriter = createFlowsWriter(id, config, writer)) {
+        try (ValidationWriter flowsWriter = createValidationWriter(id, config, writer, ValidationType.FLOWS)) {
             return checkFlows(id, r, x, rho1, rho2, u1, u2, theta1, theta2, alpha1, alpha2, g1, g2, b1, b2, p1, q1, p2, q2, config, flowsWriter);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -59,8 +60,8 @@ public class Validation {
     }
 
     public static boolean checkFlows(String id, double r, double x, double rho1, double rho2, double u1, double u2, double theta1, double theta2, double alpha1,
-                                      double alpha2, double g1, double g2, double b1, double b2, float p1, float q1, float p2, float q2, CheckFlowsConfig config, 
-                                      FlowsWriter flowsWriter) {
+                                      double alpha2, double g1, double g2, double b1, double b2, float p1, float q1, float p2, float q2, ValidationConfig config, 
+                                      ValidationWriter flowsWriter) {
         boolean ok = true;
         try {
             if (Math.abs(x) < config.getEpsilonX() && config.applyReactanceCorrection()) {
@@ -99,19 +100,19 @@ public class Validation {
         return ok;
     }
 
-    public static boolean checkFlows(Line l, CheckFlowsConfig config, Writer writer) {
+    public static boolean checkFlows(Line l, ValidationConfig config, Writer writer) {
         Objects.requireNonNull(l);
         Objects.requireNonNull(config);
         Objects.requireNonNull(writer);
 
-        try (FlowsWriter flowsWriter = createFlowsWriter(l.getId(), config, writer)) {
+        try (ValidationWriter flowsWriter = createValidationWriter(l.getId(), config, writer, ValidationType.FLOWS)) {
             return checkFlows(l, config, flowsWriter);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    public static boolean checkFlows(Line l, CheckFlowsConfig config, FlowsWriter flowsWriter) {
+    public static boolean checkFlows(Line l, ValidationConfig config, ValidationWriter flowsWriter) {
         Objects.requireNonNull(l);
         Objects.requireNonNull(config);
         Objects.requireNonNull(flowsWriter);
@@ -142,19 +143,19 @@ public class Validation {
         return true;
     }
 
-    public static boolean checkFlows(TwoWindingsTransformer twt, CheckFlowsConfig config, Writer writer) {
+    public static boolean checkFlows(TwoWindingsTransformer twt, ValidationConfig config, Writer writer) {
         Objects.requireNonNull(twt);
         Objects.requireNonNull(config);
         Objects.requireNonNull(writer);
 
-        try (FlowsWriter flowsWriter = createFlowsWriter(twt.getId(), config, writer)) {
+        try (ValidationWriter flowsWriter = createValidationWriter(twt.getId(), config, writer, ValidationType.FLOWS)) {
             return checkFlows(twt, config, flowsWriter);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    public static boolean checkFlows(TwoWindingsTransformer twt, CheckFlowsConfig config, FlowsWriter flowsWriter) {
+    public static boolean checkFlows(TwoWindingsTransformer twt, ValidationConfig config, ValidationWriter flowsWriter) {
         Objects.requireNonNull(twt);
         Objects.requireNonNull(config);
         Objects.requireNonNull(flowsWriter);
@@ -173,8 +174,14 @@ public class Validation {
             float x = twt.getX();
             double g1 = twt.getG();
             double g2 = 0f;
-            double b1 = twt.getB() / 2;
-            double b2 = twt.getB() / 2;
+            double b1 = twt.getB();
+            double b2 = 0f;
+            if (config.getLoadFlowParameters().isSpecificCompatibility()) {
+                g1 = twt.getG() / 2;
+                g2 = twt.getG() / 2;
+                b1 = twt.getB() / 2;
+                b2 = twt.getB() / 2;
+            }
             if (twt.getRatioTapChanger() != null) {
                 r *= (1 + twt.getRatioTapChanger().getCurrentStep().getR() / 100);
                 x *= (1 + twt.getRatioTapChanger().getCurrentStep().getX() / 100);
@@ -207,26 +214,26 @@ public class Validation {
         return true;
     }
 
-    public static boolean checkFlows(Network network, CheckFlowsConfig config, Writer writer) {
+    public static boolean checkFlows(Network network, ValidationConfig config, Writer writer) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(config);
         Objects.requireNonNull(writer);
 
-        try (FlowsWriter flowsWriter = createFlowsWriter(network.getId(), config, writer)) {
+        try (ValidationWriter flowsWriter = createValidationWriter(network.getId(), config, writer, ValidationType.FLOWS)) {
             return checkFlows(network, config, flowsWriter);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    public static boolean checkFlows(Network network, CheckFlowsConfig config, Path file) throws IOException, InstantiationException, IllegalAccessException {
+    public static boolean checkFlows(Network network, ValidationConfig config, Path file) throws IOException {
         Objects.requireNonNull(file);
         try (Writer writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
             return checkFlows(network, config, writer);
         }
     }
 
-    public static boolean checkFlows(Network network, CheckFlowsConfig config, FlowsWriter flowsWriter) {
+    public static boolean checkFlows(Network network, ValidationConfig config, ValidationWriter flowsWriter) {
         LOGGER.info("Checking flows of network {}", network.getId());
 
         boolean linesOk = network.getLineStream()
@@ -240,6 +247,125 @@ public class Validation {
                 .reduce(Boolean::logicalAnd).orElse(true);
 
         return linesOk && transformersOk;
+    }
+    
+    public static boolean checkGenerators(Network network, ValidationConfig config, Path file) throws IOException {
+        Objects.requireNonNull(file);
+        try (Writer writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
+            return checkGenerators(network, config, writer);
+        }
+    }
+
+    public static boolean checkGenerators(Network network, ValidationConfig config, Writer writer) {
+        Objects.requireNonNull(network);
+        Objects.requireNonNull(config);
+        Objects.requireNonNull(writer);
+        try (ValidationWriter generatorsWriter = createValidationWriter(network.getId(), config, writer, ValidationType.GENERATORS)) {
+            return checkGenerators(network, config, generatorsWriter);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public static boolean checkGenerators(Network network, ValidationConfig config, ValidationWriter generatorsWriter) {
+        LOGGER.info("Checking generators of network {}", network.getId());
+        boolean generatorsOk = network.getGeneratorStream()
+                .sorted(Comparator.comparing(Generator::getId))
+                .map(gen -> checkGenerators(gen, config, generatorsWriter))
+                .reduce(Boolean::logicalAnd).orElse(true);
+        return generatorsOk;
+    }
+    
+    public static boolean checkGenerators(Generator gen, ValidationConfig config, Writer writer) {
+        Objects.requireNonNull(gen);
+        Objects.requireNonNull(config);
+        Objects.requireNonNull(writer);
+
+        try (ValidationWriter generatorsWriter = createValidationWriter(gen.getId(), config, writer, ValidationType.GENERATORS)) {
+            return checkGenerators(gen, config, generatorsWriter);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public static boolean checkGenerators(Generator gen, ValidationConfig config, ValidationWriter generatorsWriter) {
+        Objects.requireNonNull(gen);
+        Objects.requireNonNull(config);
+        Objects.requireNonNull(generatorsWriter);
+        float p = gen.getTerminal().getP();
+        float q = gen.getTerminal().getQ();
+        Bus bus = gen.getTerminal().getBusView().getBus();
+        float targetP = gen.getTargetP();
+        float targetQ = gen.getTargetQ();
+        float targetV = gen.getTargetV();
+        boolean voltageRegulatorOn = gen.isVoltageRegulatorOn();
+        float minQ = gen.getReactiveLimits().getMinQ(p);
+        float maxQ = gen.getReactiveLimits().getMaxQ(p);
+        if (bus != null && !Float.isNaN(bus.getV())) {
+            float v = bus.getV();
+            return checkGenerators(gen.getId(), p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, config, generatorsWriter);
+        }
+        try {
+            generatorsWriter.write(gen.getId(), p, q, Float.NaN, targetP, targetQ, targetV, gen.getTerminal().isConnected(), voltageRegulatorOn, minQ, maxQ);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+        return true;
+    }
+    
+    public static boolean checkGenerators(String id, float p, float q, float v, float targetP, float targetQ, float targetV,
+                                          boolean voltageRegulatorOn, float minQ, float maxQ, ValidationConfig config, Writer writer) {
+        Objects.requireNonNull(id);
+        Objects.requireNonNull(config);
+        Objects.requireNonNull(writer);
+
+        try (ValidationWriter generatorsWriter = createValidationWriter(id, config, writer, ValidationType.GENERATORS)) {
+            return checkGenerators(id, p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, config, generatorsWriter);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public static boolean checkGenerators(String id, float p, float q, float v, float targetP, float targetQ, float targetV,
+                                          boolean voltageRegulatorOn, float minQ, float maxQ, ValidationConfig config, ValidationWriter generatorsWriter) {
+        boolean ok = true;
+        try {
+            generatorsWriter.write(id, p, q, v, targetP, targetQ, targetV, true, voltageRegulatorOn, minQ, maxQ);
+            // a validation error should be detected if there is both a voltage and a target but no p or q
+            if (Float.isNaN(p) || Float.isNaN(q)) {
+                if ((!Float.isNaN(targetP) && targetP != 0) 
+                    || (!Float.isNaN(targetQ) && targetQ != 0)) {
+                    LOGGER.warn(id + ": P=" + p + " targetP=" + targetP + " - Q=" + q + " targetP=" + targetQ);
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+            // active power should be equal to set point
+            if (Math.abs(p + targetP) > config.getThreshold()) {
+                LOGGER.warn(id + ": P=" + p + " targetP=" + targetP);
+                ok = false;
+            }
+            // if voltageRegulatorOn="false" then reactive power should be equal to set point
+            if (!voltageRegulatorOn && Math.abs(q + targetQ) > config.getThreshold() ) {
+                LOGGER.warn(id + ": voltage regulator off - Q=" + q + " targetQ=" + targetQ);
+                ok = false;
+            }
+            // if voltageRegulatorOn="true" then 
+            // either q is equal to g.getReactiveLimits().getMinQ(p) and V is lower than g.getTargetV()
+            // or q is equal to g.getReactiveLimits().getMaxQ(p) and V is higher than g.getTargetV()
+            // or V at the connected bus is equal to g.getTargetV()
+            if (voltageRegulatorOn 
+                && (Math.abs(q + minQ) > config.getThreshold() || (v - targetV) >= config.getThreshold()) 
+                && (Math.abs(q + maxQ) > config.getThreshold() || (targetV - v) >= config.getThreshold()) 
+                && Math.abs(v - targetV) > config.getThreshold()) {
+                LOGGER.warn(id + ": voltage regulator on - Q=" + q + " minQ=" + minQ + " maxQ=" + maxQ + " - V=" + v + " targetV=" + targetV);
+                ok = false;
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+        return ok;
     }
 
 }

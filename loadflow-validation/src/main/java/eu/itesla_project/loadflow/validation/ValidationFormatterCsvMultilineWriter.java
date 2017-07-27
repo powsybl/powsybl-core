@@ -6,34 +6,36 @@
  */
 package eu.itesla_project.loadflow.validation;
 
-import eu.itesla_project.commons.io.table.Column;
-import eu.itesla_project.commons.io.table.TableFormatterConfig;
-import eu.itesla_project.commons.io.table.TableFormatterFactory;
-
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Objects;
+
+import eu.itesla_project.commons.io.table.Column;
+import eu.itesla_project.commons.io.table.TableFormatterConfig;
+import eu.itesla_project.commons.io.table.TableFormatterFactory;
 
 /**
  *
  * @author Massimo Ferraro <massimo.ferraro@techrain.it>
  */
-public class FlowsFormatterCsvMultilineWriter extends FlowsFormatterWriter {
+public class ValidationFormatterCsvMultilineWriter extends ValidationFormatterWriter {
 
     private final boolean verbose;
 
-    public FlowsFormatterCsvMultilineWriter(String id, Class<? extends TableFormatterFactory> formatterFactoryClass, 
-                                             TableFormatterConfig formatterConfig, Writer writer, boolean verbose) {
+    public ValidationFormatterCsvMultilineWriter(String id, Class<? extends TableFormatterFactory> formatterFactoryClass, 
+                                            TableFormatterConfig formatterConfig, Writer writer, boolean verbose,
+                                            ValidationType validationType) {
         Objects.requireNonNull(id);
         Objects.requireNonNull(formatterFactoryClass);
         Objects.requireNonNull(writer);
         this.verbose = verbose;
-        formatter = createTableFormatter(id, formatterFactoryClass, formatterConfig, writer);
+        Objects.requireNonNull(validationType);
+        formatter = createTableFormatter(id, formatterFactoryClass, formatterConfig, writer, validationType);
     }
 
-    public FlowsFormatterCsvMultilineWriter(String id, Class<? extends TableFormatterFactory> formatterFactoryClass, 
-                                             Writer writer, boolean verbose) {
-        this(id, formatterFactoryClass, TableFormatterConfig.load(), writer, verbose);
+    public ValidationFormatterCsvMultilineWriter(String id, Class<? extends TableFormatterFactory> formatterFactoryClass, 
+                                            Writer writer, boolean verbose, ValidationType validationType) {
+        this(id, formatterFactoryClass, TableFormatterConfig.load(), writer, verbose, validationType);
     }
 
     protected Column[] getColumns() {
@@ -75,6 +77,24 @@ public class FlowsFormatterCsvMultilineWriter extends FlowsFormatterWriter {
                      .writeCell(branchId).writeCell("z").writeCell(z)
                      .writeCell(branchId).writeCell("y").writeCell(y)
                      .writeCell(branchId).writeCell("ksi").writeCell(ksi);
+        }
+    }
+
+    @Override
+    public void write(String generatorId, float p, float q, float v, float targetP, float targetQ, float targetV,
+                      boolean connected, boolean voltageRegulatorOn, float minQ, float maxQ) throws IOException {
+        Objects.requireNonNull(generatorId);
+        formatter.writeCell(generatorId).writeCell("p").writeCell(p)
+                 .writeCell(generatorId).writeCell("q").writeCell(q)
+                 .writeCell(generatorId).writeCell("v").writeCell(v)
+                 .writeCell(generatorId).writeCell("targetP").writeCell(targetP)
+                 .writeCell(generatorId).writeCell("targetQ").writeCell(targetQ)
+                 .writeCell(generatorId).writeCell("targetV").writeCell(targetV);
+        if ( verbose ) {
+            formatter.writeCell(generatorId).writeCell("connected").writeCell(connected)
+                     .writeCell(generatorId).writeCell("voltageRegulatorOn").writeCell(voltageRegulatorOn)
+                     .writeCell(generatorId).writeCell("minQ").writeCell(minQ)
+                     .writeCell(generatorId).writeCell("maxQ").writeCell(maxQ);
         }
     }
 
