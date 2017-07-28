@@ -7,7 +7,7 @@
 package eu.itesla_project.afs.local.storage;
 
 import eu.itesla_project.afs.ext.base.Case;
-import eu.itesla_project.afs.core.Folder;
+import eu.itesla_project.afs.Folder;
 import eu.itesla_project.afs.storage.AppFileSystemStorage;
 import eu.itesla_project.afs.storage.NodeId;
 import eu.itesla_project.computation.ComputationManager;

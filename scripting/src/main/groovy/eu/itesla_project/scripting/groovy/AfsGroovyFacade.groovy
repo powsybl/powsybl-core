@@ -6,8 +6,8 @@
  */
 package eu.itesla_project.scripting.groovy
 
-import eu.itesla_project.afs.core.AppData
-import eu.itesla_project.afs.core.Node
+import eu.itesla_project.afs.AppData
+import eu.itesla_project.afs.Node
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>

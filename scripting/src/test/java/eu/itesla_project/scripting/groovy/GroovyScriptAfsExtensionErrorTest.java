@@ -6,7 +6,7 @@
  */
 package eu.itesla_project.scripting.groovy;
 
-import eu.itesla_project.afs.core.AfsException;
+import eu.itesla_project.afs.AfsException;
 import eu.itesla_project.afs.mapdb.storage.MapDbAppFileSystemStorage;
 import eu.itesla_project.afs.storage.AppFileSystemStorage;
 import org.junit.Ignore;

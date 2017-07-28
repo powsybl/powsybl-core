@@ -29,7 +29,7 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>afs-storage</artifactId>
+            <artifactId>afs-storage-api</artifactId>
             <version>${project.version}</version>
         </dependency>
 
@@ -62,7 +62,7 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>afs-storage</artifactId>
+            <artifactId>afs-storage-api</artifactId>
             <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>

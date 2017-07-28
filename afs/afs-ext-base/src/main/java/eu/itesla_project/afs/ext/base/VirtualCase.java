@@ -6,8 +6,8 @@
  */
 package eu.itesla_project.afs.ext.base;
 
-import eu.itesla_project.afs.core.AppFileSystem;
-import eu.itesla_project.afs.core.FileIcon;
+import eu.itesla_project.afs.AppFileSystem;
+import eu.itesla_project.afs.FileIcon;
 import eu.itesla_project.afs.storage.AppFileSystemStorage;
 import eu.itesla_project.afs.storage.NodeId;
 import eu.itesla_project.iidm.network.Network;

@@ -8,7 +8,7 @@ package eu.itesla_project.afs.local;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import eu.itesla_project.afs.core.AppFileSystem;
+import eu.itesla_project.afs.AppFileSystem;
 import eu.itesla_project.computation.ComputationManager;
 import eu.itesla_project.iidm.import_.ImportConfig;
 import eu.itesla_project.iidm.import_.ImportersLoaderList;

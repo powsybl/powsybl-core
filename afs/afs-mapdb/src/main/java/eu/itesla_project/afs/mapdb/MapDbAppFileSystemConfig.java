@@ -6,7 +6,7 @@
  */
 package eu.itesla_project.afs.mapdb;
 
-import eu.itesla_project.afs.core.AfsException;
+import eu.itesla_project.afs.AfsException;
 import eu.itesla_project.afs.storage.AbstractAppFileSystemConfig;
 import eu.itesla_project.commons.config.ModuleConfig;
 import eu.itesla_project.commons.config.PlatformConfig;

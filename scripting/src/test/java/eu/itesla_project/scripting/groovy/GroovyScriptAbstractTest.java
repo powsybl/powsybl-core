@@ -6,10 +6,10 @@
  */
 package eu.itesla_project.scripting.groovy;
 
-import eu.itesla_project.afs.core.AppData;
-import eu.itesla_project.afs.core.AppFileSystem;
-import eu.itesla_project.afs.core.FileExtension;
-import eu.itesla_project.afs.core.ProjectFileExtension;
+import eu.itesla_project.afs.AppData;
+import eu.itesla_project.afs.AppFileSystem;
+import eu.itesla_project.afs.FileExtension;
+import eu.itesla_project.afs.ProjectFileExtension;
 import eu.itesla_project.afs.storage.AppFileSystemStorage;
 import eu.itesla_project.commons.config.ComponentDefaultConfig;
 import eu.itesla_project.computation.ComputationManager;
