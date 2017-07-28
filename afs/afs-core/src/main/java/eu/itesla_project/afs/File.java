@@ -4,21 +4,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.afs.core;
+package eu.itesla_project.afs;
 
 import eu.itesla_project.afs.storage.AppFileSystemStorage;
 import eu.itesla_project.afs.storage.NodeId;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public abstract class ProjectFile extends ProjectNode {
+public abstract class File extends Node {
 
-    protected ProjectFile(NodeId id, AppFileSystemStorage storage, NodeId projectId, AppFileSystem fileSystem) {
-        super(id, storage, projectId, fileSystem);
+    public File(NodeId id, AppFileSystemStorage storage, AppFileSystem fileSystem) {
+        super(id, storage, fileSystem);
     }
 
     @Override
@@ -28,13 +25,7 @@ public abstract class ProjectFile extends ProjectNode {
 
     public abstract FileIcon getIcon();
 
-    public List<ProjectNode> getDependencies() {
-        return storage.getDependencies(id)
-                .stream()
-                .map(this::findProjectNode)
-                .collect(Collectors.toList());
-    }
-
-    public void onDependencyChanged() {
+    public String getDescription() {
+        return storage.getStringAttribute(id, "description");
     }
 }

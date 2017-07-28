@@ -6,10 +6,10 @@
  */
 package eu.itesla_project.scripting.groovy
 
-import eu.itesla_project.afs.core.AfsException
-import eu.itesla_project.afs.core.AppData
-import eu.itesla_project.afs.core.ProjectFileExtension
-import eu.itesla_project.afs.core.ProjectFolder
+import eu.itesla_project.afs.AfsException
+import eu.itesla_project.afs.AppData
+import eu.itesla_project.afs.ProjectFileExtension
+import eu.itesla_project.afs.ProjectFolder
 import org.codehaus.groovy.control.CompilerConfiguration
 
 import java.nio.charset.StandardCharsets

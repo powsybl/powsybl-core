@@ -8,7 +8,7 @@ package eu.itesla_project.afs.ext.base;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.CharStreams;
-import eu.itesla_project.afs.core.*;
+import eu.itesla_project.afs.*;
 import eu.itesla_project.afs.mapdb.storage.MapDbAppFileSystemStorage;
 import eu.itesla_project.afs.storage.AppFileSystemStorage;
 import eu.itesla_project.afs.storage.NodeId;

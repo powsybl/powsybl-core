@@ -8,7 +8,7 @@
 /afs/afs-local/target/
 /afs/afs-mapdb/target/
 /afs/afs-mapdb-storage/target/
-/afs/afs-storage/target/
+/afs/afs-storage-api/target/
 /case-repository/target/
 /commons/target/
 /computation-local/target/

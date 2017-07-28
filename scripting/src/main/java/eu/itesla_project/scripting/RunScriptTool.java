@@ -7,10 +7,10 @@
 package eu.itesla_project.scripting;
 
 import com.google.auto.service.AutoService;
-import eu.itesla_project.afs.core.AppData;
-import eu.itesla_project.afs.core.AppFileSystemProvider;
-import eu.itesla_project.afs.core.FileExtension;
-import eu.itesla_project.afs.core.ProjectFileExtension;
+import eu.itesla_project.afs.AppData;
+import eu.itesla_project.afs.AppFileSystemProvider;
+import eu.itesla_project.afs.FileExtension;
+import eu.itesla_project.afs.ProjectFileExtension;
 import eu.itesla_project.commons.config.ComponentDefaultConfig;
 import eu.itesla_project.commons.tools.Command;
 import eu.itesla_project.commons.tools.Tool;

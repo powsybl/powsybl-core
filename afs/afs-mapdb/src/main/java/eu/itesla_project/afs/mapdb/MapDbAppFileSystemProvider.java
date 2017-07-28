@@ -7,8 +7,8 @@
 package eu.itesla_project.afs.mapdb;
 
 import com.google.auto.service.AutoService;
-import eu.itesla_project.afs.core.AppFileSystem;
-import eu.itesla_project.afs.core.AppFileSystemProvider;
+import eu.itesla_project.afs.AppFileSystem;
+import eu.itesla_project.afs.AppFileSystemProvider;
 import eu.itesla_project.afs.mapdb.storage.MapDbAppFileSystemStorage;
 import eu.itesla_project.computation.ComputationManager;
 
