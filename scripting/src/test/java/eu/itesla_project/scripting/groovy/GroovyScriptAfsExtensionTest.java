@@ -6,8 +6,8 @@
  */
 package eu.itesla_project.scripting.groovy;
 
-import eu.itesla_project.afs.core.FooFileExtension;
-import eu.itesla_project.afs.core.ProjectFileExtension;
+import eu.itesla_project.afs.FooFileExtension;
+import eu.itesla_project.afs.ProjectFileExtension;
 import eu.itesla_project.afs.mapdb.storage.MapDbAppFileSystemStorage;
 import eu.itesla_project.afs.storage.AppFileSystemStorage;
 

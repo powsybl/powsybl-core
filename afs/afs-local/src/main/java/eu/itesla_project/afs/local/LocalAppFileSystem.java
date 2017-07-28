@@ -6,7 +6,7 @@
  */
 package eu.itesla_project.afs.local;
 
-import eu.itesla_project.afs.core.AppFileSystem;
+import eu.itesla_project.afs.AppFileSystem;
 import eu.itesla_project.afs.local.storage.LocalAppFileSystemStorage;
 import eu.itesla_project.computation.ComputationManager;
 import eu.itesla_project.iidm.import_.ImportConfig;

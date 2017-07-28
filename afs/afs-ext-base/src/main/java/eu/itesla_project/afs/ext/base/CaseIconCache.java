@@ -6,7 +6,7 @@
  */
 package eu.itesla_project.afs.ext.base;
 
-import eu.itesla_project.afs.core.FileIcon;
+import eu.itesla_project.afs.FileIcon;
 import eu.itesla_project.computation.ComputationManager;
 import eu.itesla_project.iidm.import_.ImportConfig;
 import eu.itesla_project.iidm.import_.Importer;

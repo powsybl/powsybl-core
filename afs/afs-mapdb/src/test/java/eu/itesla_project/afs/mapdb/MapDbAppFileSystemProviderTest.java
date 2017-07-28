@@ -8,7 +8,7 @@ package eu.itesla_project.afs.mapdb;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import eu.itesla_project.afs.core.AppFileSystem;
+import eu.itesla_project.afs.AppFileSystem;
 import eu.itesla_project.afs.mapdb.storage.MapDbAppFileSystemStorage;
 import eu.itesla_project.computation.ComputationManager;
 import org.junit.After;

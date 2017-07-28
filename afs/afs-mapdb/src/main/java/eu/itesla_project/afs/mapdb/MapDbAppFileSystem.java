@@ -6,7 +6,7 @@
  */
 package eu.itesla_project.afs.mapdb;
 
-import eu.itesla_project.afs.core.AppFileSystem;
+import eu.itesla_project.afs.AppFileSystem;
 import eu.itesla_project.afs.mapdb.storage.MapDbAppFileSystemStorage;
 
 /**

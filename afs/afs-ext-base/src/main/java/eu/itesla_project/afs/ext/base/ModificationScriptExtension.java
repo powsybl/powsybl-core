@@ -7,8 +7,8 @@
 package eu.itesla_project.afs.ext.base;
 
 import com.google.auto.service.AutoService;
-import eu.itesla_project.afs.core.AppFileSystem;
-import eu.itesla_project.afs.core.ProjectFileExtension;
+import eu.itesla_project.afs.AppFileSystem;
+import eu.itesla_project.afs.ProjectFileExtension;
 import eu.itesla_project.afs.storage.AppFileSystemStorage;
 import eu.itesla_project.afs.storage.NodeId;
 

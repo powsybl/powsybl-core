@@ -7,8 +7,8 @@
 package eu.itesla_project.afs.local;
 
 import com.google.auto.service.AutoService;
-import eu.itesla_project.afs.core.AppFileSystem;
-import eu.itesla_project.afs.core.AppFileSystemProvider;
+import eu.itesla_project.afs.AppFileSystem;
+import eu.itesla_project.afs.AppFileSystemProvider;
 import eu.itesla_project.computation.ComputationManager;
 import eu.itesla_project.iidm.import_.ImportConfig;
 import eu.itesla_project.iidm.import_.ImportersLoader;

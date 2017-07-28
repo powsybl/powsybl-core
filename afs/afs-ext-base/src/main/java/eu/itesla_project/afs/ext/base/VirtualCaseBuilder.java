@@ -6,10 +6,10 @@
  */
 package eu.itesla_project.afs.ext.base;
 
-import eu.itesla_project.afs.core.AfsException;
-import eu.itesla_project.afs.core.AppFileSystem;
-import eu.itesla_project.afs.core.Project;
-import eu.itesla_project.afs.core.ProjectFileBuilder;
+import eu.itesla_project.afs.AfsException;
+import eu.itesla_project.afs.AppFileSystem;
+import eu.itesla_project.afs.Project;
+import eu.itesla_project.afs.ProjectFileBuilder;
 import eu.itesla_project.afs.storage.AppFileSystemStorage;
 import eu.itesla_project.afs.storage.NodeId;
 
