@@ -11,6 +11,7 @@ import eu.itesla_project.afs.storage.AppFileSystemStorage;
 import eu.itesla_project.afs.storage.NodeId;
 import eu.itesla_project.commons.datasource.ReadOnlyDataSource;
 import eu.itesla_project.iidm.import_.Importer;
+import eu.itesla_project.iidm.import_.ImportersLoader;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -32,7 +33,7 @@ public class Case extends File {
 
     @Override
     public FileIcon getIcon() {
-        return CaseIconCache.INSTANCE.get(fileSystem.getData().getImportersLoader(), fileSystem.getData().getComputationManager(), getFormat());
+        return CaseIconCache.INSTANCE.get(fileSystem.getData().getComponentDefaultConfig().newFactoryImpl(ImportersLoader.class), fileSystem.getData().getComputationManager(), getFormat());
     }
 
     public ReadOnlyDataSource getDataSource() {
@@ -41,7 +42,7 @@ public class Case extends File {
 
     public Importer getImporter() {
         String format = getFormat();
-        return fileSystem.getData().getImportersLoader().loadImporters()
+        return fileSystem.getData().getComponentDefaultConfig().newFactoryImpl(ImportersLoader.class).loadImporters()
                 .stream()
                 .filter(importer -> importer.getFormat().equals(format))
                 .findFirst()

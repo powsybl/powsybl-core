@@ -10,13 +10,13 @@ import eu.itesla_project.afs.core.AppFileSystem;
 import eu.itesla_project.afs.core.FileIcon;
 import eu.itesla_project.afs.storage.AppFileSystemStorage;
 import eu.itesla_project.afs.storage.NodeId;
-import eu.itesla_project.computation.script.GroovyScripts;
 import eu.itesla_project.iidm.network.Network;
 import eu.itesla_project.iidm.xml.NetworkXml;
 import groovy.lang.Binding;
+import groovy.lang.GroovyShell;
+import org.codehaus.groovy.control.CompilerConfiguration;
 
 import java.io.*;
-import java.util.Collections;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -88,9 +88,11 @@ public class VirtualCase extends ProjectCase {
         // put network in the binding so that it is accessible from the script
         Binding binding = new Binding();
         binding.setProperty("network", network);
+        binding.setProperty("out", out);
 
-        // run groovy script (without groovy script extensions because here we just allow modifying the network object)
-        GroovyScripts.run(reader, getProject().getFileSystem().getData().getComputationManager(), binding, Collections.emptyList(), out);
+        CompilerConfiguration conf = new CompilerConfiguration();
+        GroovyShell shell = new GroovyShell(binding, conf);
+        shell.evaluate(reader);
     }
 
     @Override

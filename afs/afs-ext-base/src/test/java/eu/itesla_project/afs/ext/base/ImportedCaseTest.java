@@ -9,15 +9,18 @@ package eu.itesla_project.afs.ext.base;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import eu.itesla_project.afs.core.*;
-import eu.itesla_project.afs.storage.NodeId;
-import eu.itesla_project.afs.storage.AppFileSystemStorage;
 import eu.itesla_project.afs.mapdb.storage.MapDbAppFileSystemStorage;
-import eu.itesla_project.iidm.import_.Importer;
+import eu.itesla_project.afs.storage.AppFileSystemStorage;
+import eu.itesla_project.afs.storage.NodeId;
+import eu.itesla_project.iidm.import_.ImportersLoader;
+import eu.itesla_project.iidm.import_.ImportersLoaderList;
 import eu.itesla_project.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -29,11 +32,6 @@ public class ImportedCaseTest extends AbstractProjectFileTest {
     @Override
     protected AppFileSystemStorage createStorage() {
         return MapDbAppFileSystemStorage.createHeap("mem");
-    }
-
-    @Override
-    protected List<Importer> getImporters() {
-        return ImmutableList.of(new TestImporter(network));
     }
 
     @Override
@@ -49,6 +47,8 @@ public class ImportedCaseTest extends AbstractProjectFileTest {
     @Before
     public void setup() throws IOException {
         super.setup();
+        Mockito.when(componentDefaultConfig.newFactoryImpl(ImportersLoader.class))
+                .thenReturn(new ImportersLoaderList(Collections.singletonList(new TestImporter(network)), Collections.emptyList()));
         NodeId rootFolderId = storage.getRootNode();
         NodeId caseId = storage.createNode(rootFolderId, "network", Case.PSEUDO_CLASS);
         storage.setStringAttribute(caseId, "description", "Test format");

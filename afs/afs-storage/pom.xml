@@ -40,7 +40,7 @@
         <!-- Compilation dependencies -->
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>iidm-converter-api</artifactId>
+            <artifactId>commons</artifactId>
             <version>${project.version}</version>
         </dependency>
 

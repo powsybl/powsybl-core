@@ -13,6 +13,7 @@ import eu.itesla_project.afs.storage.AppFileSystemStorage;
 import eu.itesla_project.afs.storage.NodeId;
 import eu.itesla_project.commons.datasource.ReadOnlyDataSource;
 import eu.itesla_project.iidm.import_.Importer;
+import eu.itesla_project.iidm.import_.ImportersLoader;
 import eu.itesla_project.iidm.network.Network;
 
 import java.io.IOException;
@@ -38,7 +39,7 @@ public class ImportedCase extends ProjectCase {
     @Override
     public FileIcon getIcon() {
         return CaseIconCache.INSTANCE.get(
-                getProject().getFileSystem().getData().getImportersLoader(),
+                getProject().getFileSystem().getData().getComponentDefaultConfig().newFactoryImpl(ImportersLoader.class),
                 getProject().getFileSystem().getData().getComputationManager(),
                 getImporter().getFormat());
     }
@@ -59,7 +60,7 @@ public class ImportedCase extends ProjectCase {
 
     public Importer getImporter() {
         String format = storage.getStringAttribute(id, FORMAT);
-        return getProject().getFileSystem().getData().getImportersLoader().loadImporters()
+        return getProject().getFileSystem().getData().getComponentDefaultConfig().newFactoryImpl(ImportersLoader.class).loadImporters()
                 .stream()
                 .filter(importer -> importer.getFormat().equals(format))
                 .findFirst()

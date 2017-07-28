@@ -63,7 +63,7 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>afs-core</artifactId>
+            <artifactId>afs-ext-base</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
             <type>test-jar</type>

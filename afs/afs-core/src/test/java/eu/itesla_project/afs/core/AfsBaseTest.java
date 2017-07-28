@@ -10,9 +10,8 @@ import com.google.common.collect.ImmutableList;
 import eu.itesla_project.afs.mapdb.storage.MapDbAppFileSystemStorage;
 import eu.itesla_project.afs.storage.AppFileSystemStorage;
 import eu.itesla_project.afs.storage.NodeId;
+import eu.itesla_project.commons.config.ComponentDefaultConfig;
 import eu.itesla_project.computation.ComputationManager;
-import eu.itesla_project.iidm.import_.ImportersLoader;
-import eu.itesla_project.iidm.import_.ImportersLoaderList;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,69 +28,6 @@ import static org.junit.Assert.*;
  */
 public class AfsBaseTest {
 
-    private static class FooFile extends ProjectFile {
-
-        private FooFile(NodeId id, AppFileSystemStorage storage, NodeId projectId, AppFileSystem fileSystem) {
-            super(id, storage, projectId, fileSystem);
-        }
-
-        @Override
-        public FileIcon getIcon() {
-            return new FileIcon("?", new byte[]{});
-        }
-    }
-
-    private static class FooFileBuilder implements ProjectFileBuilder<FooFile> {
-
-        private final NodeId folderId;
-
-        private final AppFileSystemStorage storage;
-
-        private final NodeId projectId;
-
-        private final AppFileSystem fileSystem;
-
-        private FooFileBuilder(NodeId folderId, AppFileSystemStorage storage, NodeId projectId, AppFileSystem fileSystem) {
-            this.folderId = folderId;
-            this.storage = storage;
-            this.projectId = projectId;
-            this.fileSystem = fileSystem;
-        }
-
-        @Override
-        public FooFile build() {
-            NodeId id = storage.createNode(folderId, "foo", "foo");
-            return new FooFile(id, storage, projectId, fileSystem);
-        }
-    }
-
-    private static class FooFileExtension implements ProjectFileExtension {
-        @Override
-        public Class<? extends ProjectFile> getProjectFileClass() {
-            return FooFile.class;
-        }
-
-        @Override
-        public String getProjectFilePseudoClass() {
-            return "foo";
-        }
-
-        @Override
-        public Class<? extends ProjectFileBuilder<? extends ProjectFile>> getProjectFileBuilderClass() {
-            return FooFileBuilder.class;
-        }
-
-        @Override
-        public FooFile createProjectFile(NodeId id, AppFileSystemStorage storage, NodeId projectId, AppFileSystem fileSystem) {
-            return new FooFile(id, storage, projectId, fileSystem);
-        }
-
-        @Override
-        public FooFileBuilder createProjectFileBuilder(NodeId folderId, AppFileSystemStorage storage, NodeId projectId, AppFileSystem fileSystem) {
-            return new FooFileBuilder(folderId, storage, projectId, fileSystem);
-        }
-    }
-
     private AppFileSystemStorage storage;
 
     private AppFileSystem afs;
@@ -107,10 +43,10 @@ public class AfsBaseTest {
         storage.createNode(dir1FolderId, "dir2", Folder.PSEUDO_CLASS);
         storage.createNode(dir1FolderId, "dir3", Folder.PSEUDO_CLASS);
 
-        ImportersLoader importersLoader = new ImportersLoaderList(Collections.emptyList(), Collections.emptyList());
+        ComponentDefaultConfig componentDefaultConfig = Mockito.mock(ComponentDefaultConfig.class);
         ComputationManager computationManager = Mockito.mock(ComputationManager.class);
         afs = new AppFileSystem("mem", true, storage);
-        ad = new AppData(computationManager, importersLoader, Collections.singletonList(computationManager1 -> Collections.singletonList(afs)),
+        ad = new AppData(computationManager, componentDefaultConfig, Collections.singletonList(computationManager1 -> Collections.singletonList(afs)),
                 Collections.emptyList(), Collections.singletonList(new FooFileExtension()));
     }
 

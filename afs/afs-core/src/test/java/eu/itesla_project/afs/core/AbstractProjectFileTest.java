@@ -7,10 +7,8 @@
 package eu.itesla_project.afs.core;
 
 import eu.itesla_project.afs.storage.AppFileSystemStorage;
+import eu.itesla_project.commons.config.ComponentDefaultConfig;
 import eu.itesla_project.computation.ComputationManager;
-import eu.itesla_project.iidm.import_.Importer;
-import eu.itesla_project.iidm.import_.ImportersLoader;
-import eu.itesla_project.iidm.import_.ImportersLoaderList;
 import eu.itesla_project.iidm.network.Network;
 import eu.itesla_project.iidm.network.NetworkFactory;
 import org.junit.After;
@@ -34,11 +32,9 @@ public abstract class AbstractProjectFileTest {
 
     protected Network network;
 
-    protected abstract AppFileSystemStorage createStorage();
+    protected ComponentDefaultConfig componentDefaultConfig;
 
-    protected List<Importer> getImporters() {
-        return Collections.emptyList();
-    }
+    protected abstract AppFileSystemStorage createStorage();
 
     protected List<FileExtension> getFileExtensions() {
         return Collections.emptyList();
@@ -50,13 +46,13 @@ public abstract class AbstractProjectFileTest {
 
     @Before
     public void setup() throws IOException {
+        componentDefaultConfig = Mockito.mock(ComponentDefaultConfig.class);
         network = NetworkFactory.create("test", "test");
-        ImportersLoader importersLoader = new ImportersLoaderList(getImporters(), Collections.emptyList());
         ComputationManager computationManager = Mockito.mock(ComputationManager.class);
         storage = createStorage();
         afs = new AppFileSystem("mem", false, storage);
         ad = new AppData(computationManager,
-                         importersLoader,
+                         componentDefaultConfig,
                          Collections.singletonList(computationManager1 -> Collections.singletonList(afs)),
                          getFileExtensions(),
                          getProjectFileExtensions());

@@ -6,14 +6,13 @@
  */
 package eu.itesla_project.afs.core;
 
-import eu.itesla_project.afs.storage.AppFileSystemStorage;
 import eu.itesla_project.afs.mapdb.storage.MapDbAppFileSystemStorage;
+import eu.itesla_project.afs.storage.AppFileSystemStorage;
+import eu.itesla_project.commons.config.ComponentDefaultConfig;
 import eu.itesla_project.commons.tools.AbstractToolTest;
 import eu.itesla_project.commons.tools.Command;
 import eu.itesla_project.commons.tools.Tool;
 import eu.itesla_project.computation.ComputationManager;
-import eu.itesla_project.iidm.import_.ImportersLoader;
-import eu.itesla_project.iidm.import_.ImportersLoaderList;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -31,14 +30,14 @@ public class AppFileSystemToolTest extends AbstractToolTest {
     private AppFileSystemTool tool;
 
     public AppFileSystemToolTest() {
-        ImportersLoader importersLoader = new ImportersLoaderList(Collections.emptyList(), Collections.emptyList());
+        ComponentDefaultConfig componentDefaultConfig = Mockito.mock(ComponentDefaultConfig.class);
         ComputationManager computationManager = Mockito.mock(ComputationManager.class);
         tool = new AppFileSystemTool() {
             @Override
             protected AppData createAppData() {
                 AppFileSystemStorage storage = MapDbAppFileSystemStorage.createHeap("mem");
                 AppFileSystem afs = new AppFileSystem("mem", false, storage);
-                AppData appData = new AppData(computationManager, importersLoader, Collections.singletonList(computationManager1 -> Collections.singletonList(afs)),
+                AppData appData = new AppData(computationManager, componentDefaultConfig, Collections.singletonList(computationManager1 -> Collections.singletonList(afs)),
                         Collections.emptyList(), Collections.emptyList());
                 afs.getRootFolder().createProject("test_project1", "");
                 afs.getRootFolder().createProject("test_project2", "");

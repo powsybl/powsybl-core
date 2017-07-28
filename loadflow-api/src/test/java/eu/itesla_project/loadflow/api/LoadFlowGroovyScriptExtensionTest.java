@@ -7,8 +7,8 @@
 package eu.itesla_project.loadflow.api;
 
 import eu.itesla_project.computation.ComputationManager;
-import eu.itesla_project.computation.script.GroovyScriptExtension;
-import eu.itesla_project.computation.script.GroovyScriptAbstractTest;
+import eu.itesla_project.scripting.groovy.GroovyScriptAbstractTest;
+import eu.itesla_project.scripting.groovy.GroovyScriptExtension;
 import eu.itesla_project.iidm.network.Network;
 import org.junit.Before;
 import org.mockito.Mockito;
@@ -29,6 +29,8 @@ public class LoadFlowGroovyScriptExtensionTest extends GroovyScriptAbstractTest 
 
     @Before
     public void setUp() throws Exception {
+        super.setUp();
+
         // create loadflow factory mock
         LoadFlowResult result = Mockito.mock(LoadFlowResult.class);
         Mockito.when(result.isOk())
@@ -48,7 +50,7 @@ public class LoadFlowGroovyScriptExtensionTest extends GroovyScriptAbstractTest 
 
     @Override
     protected Reader getCodeReader() {
-        return new StringReader("r = runLoadFlow(n)\n" +
+        return new StringReader("r = loadFlow(n)\n" +
                                 "print r.ok");
     }
 

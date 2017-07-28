@@ -7,11 +7,10 @@
 package eu.itesla_project.afs.core;
 
 import eu.itesla_project.afs.storage.AppFileSystemStorage;
+import eu.itesla_project.commons.config.ComponentDefaultConfig;
 import eu.itesla_project.commons.util.ServiceLoaderCache;
 import eu.itesla_project.computation.ComputationManager;
 import eu.itesla_project.computation.local.LocalComputationManager;
-import eu.itesla_project.iidm.import_.ImportersLoader;
-import eu.itesla_project.iidm.import_.ImportersServiceLoader;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -23,7 +22,7 @@ public class AppData implements AutoCloseable {
 
     private final ComputationManager computationManager;
 
-    private final ImportersLoader importersLoader;
+    private final ComponentDefaultConfig componentDefaultConfig;
 
     private final Map<String, AppFileSystem> fileSystems = new HashMap<>();
 
@@ -38,20 +37,17 @@ public class AppData implements AutoCloseable {
     private final Set<Class<? extends ProjectFile>> projectFileClasses = new HashSet<>();
 
     public AppData() {
-        this(LocalComputationManager.getDefault());
-    }
-
-    public AppData(ComputationManager computationManager) {
-        this(computationManager, new ImportersServiceLoader(),
-                new ServiceLoaderCache(AppFileSystemProvider.class).getServices(),
-                new ServiceLoaderCache(FileExtension.class).getServices(),
+        this(LocalComputationManager.getDefault(),
+                ComponentDefaultConfig.load(),
+                new ServiceLoaderCache<>(AppFileSystemProvider.class).getServices(),
+                new ServiceLoaderCache<>(FileExtension.class).getServices(),
                 new ServiceLoaderCache<>(ProjectFileExtension.class).getServices());
     }
 
-    public AppData(ComputationManager computationManager, ImportersLoader importersLoader, List<AppFileSystemProvider> fileSystemProviders,
+    public AppData(ComputationManager computationManager, ComponentDefaultConfig componentDefaultConfig, List<AppFileSystemProvider> fileSystemProviders,
                    List<FileExtension> fileExtensions, List<ProjectFileExtension> projectFileExtensions) {
         this.computationManager = Objects.requireNonNull(computationManager);
-        this.importersLoader = Objects.requireNonNull(importersLoader);
+        this.componentDefaultConfig = Objects.requireNonNull(componentDefaultConfig);
         Objects.requireNonNull(fileSystemProviders);
         Objects.requireNonNull(fileExtensions);
         Objects.requireNonNull(projectFileExtensions);
@@ -107,7 +103,7 @@ public class AppData implements AutoCloseable {
         Objects.requireNonNull(fileClass);
         FileExtension extension = fileExtensions.get(fileClass);
         if (extension == null) {
-            throw new AfsException("No extension found for file " + fileClass.getName());
+            throw new AfsException("No extension found for file class '" + fileClass.getName() + "'");
         }
         return extension;
     }
@@ -116,7 +112,7 @@ public class AppData implements AutoCloseable {
         Objects.requireNonNull(filePseudoClass);
         FileExtension extension = fileExtensionsByPseudoClass.get(filePseudoClass);
         if (extension == null) {
-            throw new AfsException("No extension found for file " + filePseudoClass);
+            throw new AfsException("No extension found for file pseudo class '" + filePseudoClass + "'");
         }
         return extension;
     }
@@ -125,8 +121,8 @@ public class AppData implements AutoCloseable {
         Objects.requireNonNull(projectFileOrProjectFileBuilderClass);
         ProjectFileExtension extension = projectFileExtensions.get(projectFileOrProjectFileBuilderClass);
         if (extension == null) {
-            throw new AfsException("No extension found for project file or project file builder "
-                    + projectFileOrProjectFileBuilderClass.getName());
+            throw new AfsException("No extension found for project file or project file builder class '"
+                    + projectFileOrProjectFileBuilderClass.getName() + "'");
         }
         return extension;
     }
@@ -135,14 +131,14 @@ public class AppData implements AutoCloseable {
         Objects.requireNonNull(projectFilePseudoClass);
         ProjectFileExtension extension = projectFileExtensionsByPseudoClass.get(projectFilePseudoClass);
         if (extension == null) {
-            throw new AfsException("No extension found for project file or project file builder "
-                    + projectFilePseudoClass);
+            throw new AfsException("No extension found for project file or project file builder pseudo class '"
+                    + projectFilePseudoClass + "'");
         }
         return extension;
     }
 
-    public ImportersLoader getImportersLoader() {
-        return importersLoader;
+    public ComponentDefaultConfig getComponentDefaultConfig() {
+        return componentDefaultConfig;
     }
 
     public ComputationManager getComputationManager() {

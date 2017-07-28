@@ -44,6 +44,11 @@
             <artifactId>afs-storage</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>computation-local</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <!-- Test dependencies -->
         <dependency>
@@ -70,6 +75,12 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>afs-mapdb-storage</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>iidm-api</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>

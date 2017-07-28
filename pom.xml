@@ -34,6 +34,7 @@
         <module>loadflow-api</module>
         <module>loadflow-validation</module>
         <module>math</module>
+        <module>scripting</module>
         <module>security-analysis</module>
         <module>simulation-api</module>
         <module>tools</module>
@@ -261,10 +262,9 @@
                     <configuration>
                         <!-- groovy source roots need to be manually added -->
                         <sourceDirectories>
-                            <sourceDirectory>${project.basedir}/computation/src/main/groovy</sourceDirectory>
-                            <sourceDirectory>${project.basedir}/iidm-converter-api/src/main/groovy</sourceDirectory>
-                            <sourceDirectory>${project.basedir}/iidm-groovy-extension/src/main/groovy</sourceDirectory>
+                            <sourceDirectory>${project.basedir}/iidm/iidm-groovy-extension/src/main/groovy</sourceDirectory>
                             <sourceDirectory>${project.basedir}/loadflow-api/src/main/groovy</sourceDirectory>
+                            <sourceDirectory>${project.basedir}/scripting/src/main/groovy</sourceDirectory>
                         </sourceDirectories>
                         <jacocoReports>
                             <jacocoReport>${project.basedir}/distribution-core/target/site/jacoco-aggregate/jacoco.xml</jacocoReport>
