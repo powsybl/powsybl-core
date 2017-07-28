@@ -40,7 +40,7 @@ if [ $rank = 0 ]; then
 -Xmx$java_xmx \
 -verbose:gc -XX:+PrintGCTimeStamps -Xloggc:$tmpdir/gc.log \
 $options \
-eu.itesla_project.computation.mpi.tools.MpiMaster \
+eu.itesla_project.computation.mpi.MpiMaster \
 "$@" \
 --tmp-dir=$tmpdir \
 --statistics-db-dir=$HOME \

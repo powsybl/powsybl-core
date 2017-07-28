@@ -53,6 +53,6 @@ else
 -Xmx$java_xmx \
 -cp "$installDir/share/java/*" \
 $options \
-eu.itesla_project.computation.local.tools.Main "${args[@]}"
+eu.itesla_project.computation.local.Main "${args[@]}"
 fi
 
