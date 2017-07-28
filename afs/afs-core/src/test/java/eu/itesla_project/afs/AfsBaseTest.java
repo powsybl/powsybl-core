@@ -9,7 +9,6 @@ package eu.itesla_project.afs;
 import com.google.common.collect.ImmutableList;
 import eu.itesla_project.afs.mapdb.storage.MapDbAppFileSystemStorage;
 import eu.itesla_project.afs.storage.AppFileSystemStorage;
-import eu.itesla_project.afs.storage.NodeId;
 import eu.itesla_project.commons.config.ComponentDefaultConfig;
 import eu.itesla_project.computation.ComputationManager;
 import org.junit.After;
@@ -38,11 +37,6 @@ public class AfsBaseTest {
     public void setup() throws IOException {
         storage = MapDbAppFileSystemStorage.createHeap("mem");
 
-        NodeId rootFolderId = storage.getRootNode();
-        NodeId dir1FolderId = storage.createNode(rootFolderId, "dir1", Folder.PSEUDO_CLASS);
-        storage.createNode(dir1FolderId, "dir2", Folder.PSEUDO_CLASS);
-        storage.createNode(dir1FolderId, "dir3", Folder.PSEUDO_CLASS);
-
         ComponentDefaultConfig componentDefaultConfig = Mockito.mock(ComponentDefaultConfig.class);
         ComputationManager computationManager = Mockito.mock(ComputationManager.class);
         afs = new AppFileSystem("mem", true, storage);
@@ -65,7 +59,11 @@ public class AfsBaseTest {
         assertEquals(1, ad.getProjectFileClasses().size());
         Folder root = afs.getRootFolder();
         assertNotNull(root);
-        Folder dir1 = (Folder) root.getChild("dir1");
+        Folder dir1 = root.createFolder("dir1");
+        assertNotNull(dir1);
+        dir1.createFolder("dir2");
+        dir1.createFolder("dir3");
+        dir1 = (Folder) root.getChild("dir1");
         assertNotNull(dir1);
         assertTrue(dir1.isFolder());
         assertTrue(dir1.isWritable());
