@@ -11,9 +11,11 @@ import java.util.List;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface FolderBase<NODE> {
+public interface FolderBase<NODE extends NodeBase<FOLDER>, FOLDER extends FolderBase<NODE, FOLDER>> {
 
     List<NODE> getChildren();
 
     NODE getChild(String name, String... more);
+
+    FOLDER createFolder(String name);
 }

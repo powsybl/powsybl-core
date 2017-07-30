@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class ProjectFolder extends ProjectNode implements FolderBase<ProjectNode> {
+public class ProjectFolder extends ProjectNode implements FolderBase<ProjectNode, ProjectFolder> {
 
     public static final String PSEUDO_CLASS = PseudoClass.PROJECT_FOLDER_PSEUDO_CLASS;
 
@@ -44,6 +44,7 @@ public class ProjectFolder extends ProjectNode implements FolderBase<ProjectNode
         return childId != null ? findProjectNode(childId) : null;
     }
 
+    @Override
     public ProjectFolder createFolder(String name) {
         NodeId folderId = storage.createNode(id, name, ProjectFolder.PSEUDO_CLASS);
         return new ProjectFolder(folderId, storage, projectId, fileSystem);
