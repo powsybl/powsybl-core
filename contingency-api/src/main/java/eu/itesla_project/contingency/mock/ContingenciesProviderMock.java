@@ -16,7 +16,7 @@ import java.util.List;
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-class ContingenciesProviderMock implements ContingenciesProvider {
+public class ContingenciesProviderMock implements ContingenciesProvider {
 
     @Override
     public List<Contingency> getContingencies(Network network) {
