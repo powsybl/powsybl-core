@@ -10,7 +10,7 @@ import eu.itesla_project.commons.config.ComponentDefaultConfig;
 import eu.itesla_project.computation.ComputationManager;
 import eu.itesla_project.contingency.ContingenciesProvider;
 import eu.itesla_project.contingency.ContingenciesProviderFactory;
-import eu.itesla_project.contingency.mock.ContingenciesProviderMock;
+import eu.itesla_project.contingency.EmptyContingencyListProvider;
 import eu.itesla_project.iidm.import_.Importers;
 import eu.itesla_project.iidm.network.Network;
 
@@ -54,7 +54,7 @@ public class SecurityAnalyzer {
         SecurityAnalysis securityAnalysis = securityAnalysisFactory.create(network, computationManager, priority);
 
         ContingenciesProvider contingenciesProvider = contingenciesFile != null
-                ? contingenciesProviderFactory.create(contingenciesFile) : new ContingenciesProviderMock();
+                ? contingenciesProviderFactory.create(contingenciesFile) : new EmptyContingencyListProvider();
 
         return securityAnalysis.runAsync(contingenciesProvider).join();
     }
