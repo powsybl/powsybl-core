@@ -4,18 +4,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.contingency.mock;
-
-import eu.itesla_project.contingency.ContingenciesProvider;
-import eu.itesla_project.contingency.ContingenciesProviderFactory;
+package eu.itesla_project.contingency;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public class ContingenciesProviderFactoryMock implements ContingenciesProviderFactory {
+public class EmptyContingencyListProviderFactory implements ContingenciesProviderFactory {
 
     @Override
     public ContingenciesProvider create() {
-        return new ContingenciesProviderMock();
+        return new EmptyContingencyListProvider();
     }
 }
