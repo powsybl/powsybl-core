@@ -216,6 +216,12 @@ public interface Network extends Container<Network> {
     Iterable<Line> getLines();
 
     /**
+     * Get a TwoTerminalsConnectable
+     * @param branchId the id of the TwoTerminalsConnectable
+     */
+    TwoTerminalsConnectable getBranch(String branchId);
+
+    /**
      * Get all AC lines.
      */
     Stream<Line> getLineStream();

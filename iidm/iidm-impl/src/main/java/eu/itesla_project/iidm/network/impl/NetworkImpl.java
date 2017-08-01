@@ -242,6 +242,16 @@ class NetworkImpl extends IdentifiableImpl<Network> implements Network, MultiSta
     }
 
     @Override
+    public TwoTerminalsConnectable getBranch(String branchId) {
+        Objects.requireNonNull(branchId);
+        TwoTerminalsConnectable branch = getLine(branchId);
+        if (branch == null) {
+            branch = getTwoWindingsTransformer(branchId);
+        }
+        return branch;
+    }
+
+    @Override
     public Stream<Line> getLineStream() {
         return Stream.concat(objectStore.getAll(LineImpl.class).stream(), objectStore.getAll(TieLineImpl.class).stream());
     }
