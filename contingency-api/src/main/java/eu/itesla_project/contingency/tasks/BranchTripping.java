@@ -38,12 +38,9 @@ public class BranchTripping extends TrippingTask {
     public void traverse(Network network, ComputationManager computationManager, Set<Switch> switchesToOpen, Set<Terminal> terminalsToDisconnect) {
         Objects.requireNonNull(network);
 
-        TwoTerminalsConnectable branch = network.getLine(branchId);
+        TwoTerminalsConnectable branch = network.getBranch(branchId);
         if (branch == null) {
-            branch = network.getTwoWindingsTransformer(branchId);
-            if (branch == null) {
-                throw new ITeslaException("Branch '" + branchId + "' not found");
-            }
+            throw new ITeslaException("Branch '" + branchId + "' not found");
         }
         if (voltageLevelId != null) {
             if (voltageLevelId.equals(branch.getTerminal1().getVoltageLevel().getId())) {
