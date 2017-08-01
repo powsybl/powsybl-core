@@ -11,7 +11,6 @@ import eu.itesla_project.iidm.network.test.FictitiousSwitchFactory;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.nio.file.Paths;
 
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
@@ -20,8 +19,6 @@ public class FictitiousSwitchTest extends ConverterBaseTest {
 
     @Test
     public void roundTripTest() throws IOException {
-        NetworkXml.write(FictitiousSwitchFactory.create(), Paths.get("/tmp/fictif.xiidm"));
-
         roundTripXmlTest(FictitiousSwitchFactory.create(),
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
