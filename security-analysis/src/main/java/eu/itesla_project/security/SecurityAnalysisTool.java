@@ -6,23 +6,6 @@
  */
 package eu.itesla_project.security;
 
-import com.google.auto.service.AutoService;
-import eu.itesla_project.commons.config.ComponentDefaultConfig;
-import eu.itesla_project.commons.io.table.AsciiTableFormatterFactory;
-import eu.itesla_project.commons.io.table.CsvTableFormatterFactory;
-import eu.itesla_project.commons.tools.Command;
-import eu.itesla_project.commons.tools.Tool;
-import eu.itesla_project.commons.tools.ToolRunningContext;
-import eu.itesla_project.contingency.ContingenciesProvider;
-import eu.itesla_project.contingency.ContingenciesProviderFactory;
-import eu.itesla_project.iidm.import_.Importers;
-import eu.itesla_project.iidm.network.Network;
-import eu.itesla_project.security.json.SecurityAnalysisResultSerializer;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
-
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
@@ -35,16 +18,26 @@ import java.util.EnumSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+
+import com.google.auto.service.AutoService;
+
+import eu.itesla_project.commons.io.table.AsciiTableFormatterFactory;
+import eu.itesla_project.commons.io.table.CsvTableFormatterFactory;
+import eu.itesla_project.commons.tools.Command;
+import eu.itesla_project.commons.tools.Tool;
+import eu.itesla_project.commons.tools.ToolRunningContext;
+import eu.itesla_project.security.json.SecurityAnalysisResultSerializer;
+import eu.itesla_project.security.SecurityAnalyzer.Format;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @AutoService(Tool.class)
 public class SecurityAnalysisTool implements Tool {
-
-    private enum Format {
-        CSV,
-        JSON
-    }
 
     @Override
     public Command getCommand() {

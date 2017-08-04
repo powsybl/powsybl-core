@@ -14,6 +14,7 @@ import eu.itesla_project.contingency.EmptyContingencyListProvider;
 import eu.itesla_project.iidm.import_.Importers;
 import eu.itesla_project.iidm.network.Network;
 
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.Objects;
 
@@ -21,6 +22,11 @@ import java.util.Objects;
  * @author Giovanni Ferrari <giovanni.ferrari@techrain.it>
  */
 public class SecurityAnalyzer {
+    
+    public enum Format {
+        CSV,
+        JSON
+    }
 
     private final ComputationManager computationManager;
     private final int priority;
@@ -49,12 +55,35 @@ public class SecurityAnalyzer {
         if (network == null) {
             throw new RuntimeException("Case '" + caseFile + "' not found");
         }
-        network.getStateManager().allowStateMultiThreadAccess(true);
-
-        SecurityAnalysis securityAnalysis = securityAnalysisFactory.create(network, computationManager, priority);
 
         ContingenciesProvider contingenciesProvider = contingenciesFile != null
                 ? contingenciesProviderFactory.create(contingenciesFile) : new EmptyContingencyListProvider();
+
+        return analyze(network, contingenciesProvider);
+    }
+    
+    public SecurityAnalysisResult analyze(String filename, InputStream networkData, InputStream contingencies) {
+        Objects.requireNonNull(networkData);
+        Objects.requireNonNull(filename);
+
+        Network network = Importers.loadNetwork(filename, networkData);
+        if (network == null) {
+            throw new RuntimeException("Error loading network");
+        }
+
+        ContingenciesProvider contingenciesProvider = contingencies != null
+                ? contingenciesProviderFactory.create(contingencies) : new EmptyContingencyListProvider();
+
+        return analyze(network, contingenciesProvider);
+    }
+
+    private SecurityAnalysisResult analyze(Network network, ContingenciesProvider contingenciesProvider) {
+        Objects.requireNonNull(network);
+        Objects.requireNonNull(contingenciesProvider);
+
+        network.getStateManager().allowStateMultiThreadAccess(true);
+
+        SecurityAnalysis securityAnalysis = securityAnalysisFactory.create(network, computationManager, priority);
 
         return securityAnalysis.runAsync(contingenciesProvider).join();
     }

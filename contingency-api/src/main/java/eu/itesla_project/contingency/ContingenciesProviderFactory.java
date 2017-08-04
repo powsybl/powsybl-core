@@ -6,6 +6,7 @@
  */
 package eu.itesla_project.contingency;
 
+import java.io.InputStream;
 import java.nio.file.Path;
 
 /**
@@ -16,6 +17,10 @@ public interface ContingenciesProviderFactory {
     <T extends ContingenciesProvider> T create();
 
     default <T extends ContingenciesProvider> T create(Path contingenciesFile) {
+        return create();
+    }
+    
+    default <T extends ContingenciesProvider> T create(InputStream data) {
         return create();
     }
 

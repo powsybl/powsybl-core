@@ -6,6 +6,7 @@
  */
 package eu.itesla_project.commons.datasource;
 
+import java.io.InputStream;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -20,6 +21,7 @@ public interface DataSourceUtil {
     OpenOption[] APPEND_OPEN_OPTIONS = { StandardOpenOption.APPEND };
 
     static String getFileName(String baseName, String suffix, String ext) {
+    	Objects.requireNonNull(baseName);
         return baseName + (suffix != null ? suffix : "") + (ext != null ? "." + ext : "");
     }
 
@@ -32,6 +34,7 @@ public interface DataSourceUtil {
     }
 
     static String getBaseName(String fileName) {
+    	Objects.requireNonNull(fileName);
         int pos = fileName.indexOf('.'); // find first dot in case of double extension (.xml.gz)
         return pos == -1 ? fileName : fileName.substring(0, pos);
     }
@@ -49,5 +52,24 @@ public interface DataSourceUtil {
         } else {
             return new FileDataSource(directory, getBaseName(fileNameOrBaseName), observer);
         }
+    }
+
+    static ReadOnlyMemDataSource createReadOnlyMemDataSource(String fileName, InputStream content) {
+        Objects.requireNonNull(fileName);
+        Objects.requireNonNull(content);
+
+        ReadOnlyMemDataSource dataSource;
+        if (fileName.endsWith(".zip")) {
+            dataSource = new ZipMemDataSource(fileName, content);
+        } else if (fileName.endsWith(".gz")) {
+            dataSource =  new GzMemDataSource(fileName, content);
+        } else if (fileName.endsWith(".bz2")) {
+            dataSource =  new Bzip2MemDataSource(fileName, content);
+        } else {
+            dataSource = new ReadOnlyMemDataSource(getBaseName(fileName));
+            dataSource.putData(fileName, content);
+        }
+
+        return dataSource;
     }
 }
