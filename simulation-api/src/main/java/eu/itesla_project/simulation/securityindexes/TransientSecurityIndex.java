@@ -22,8 +22,9 @@ public class TransientSecurityIndex extends AbstractSecurityIndex {
 
     static final String XML_NAME = "transient";
 
-	private static final double TRANSIENT_THRESHOLD = 1.0;
-	private final double j;
+    private static final double TRANSIENT_THRESHOLD = 1.0;
+
+    private final double j;
 
     public static TransientSecurityIndex fromXml(String contingencyId, XMLStreamReader xmlsr) throws XMLStreamException {
         String text = null;

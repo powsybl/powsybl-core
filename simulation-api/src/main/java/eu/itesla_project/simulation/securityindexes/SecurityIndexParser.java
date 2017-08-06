@@ -38,33 +38,33 @@ public class SecurityIndexParser {
                     case XMLEvent.START_ELEMENT:
                         switch (xmlsr.getLocalName()) {
                             case "index":
-                        		switch(xmlsr.getAttributeValue(null, "name")) {
+                                switch(xmlsr.getAttributeValue(null, "name")) {
                                     case OverloadSecurityIndex.XML_NAME:
-                                    	indexes.add(OverloadSecurityIndex.fromXml(contingencyId, xmlsr));
+                                        indexes.add(OverloadSecurityIndex.fromXml(contingencyId, xmlsr));
                                         break;
                                     case UnderOverVoltageSecurityIndex.XML_NAME:
                                         indexes.add(UnderOverVoltageSecurityIndex.fromXml(contingencyId, xmlsr));
                                         break;
                                     case SmallSignalSecurityIndex.XML_NAME:
-                                    	indexes.add(SmallSignalSecurityIndex.fromXml(contingencyId, xmlsr));
+                                        indexes.add(SmallSignalSecurityIndex.fromXml(contingencyId, xmlsr));
                                         break;
                                     case TransientSecurityIndex.XML_NAME:
-                                    	indexes.add(TransientSecurityIndex.fromXml(contingencyId, xmlsr));
+                                        indexes.add(TransientSecurityIndex.fromXml(contingencyId, xmlsr));
                                         break;
                                     case TsoOverloadSecurityIndex.XML_NAME:
-                                    	indexes.add(TsoOverloadSecurityIndex.fromXml(contingencyId, xmlsr));
+                                        indexes.add(TsoOverloadSecurityIndex.fromXml(contingencyId, xmlsr));
                                         break;
                                     case TsoOvervoltageSecurityIndex.XML_NAME:
-                                    	indexes.add(TsoOvervoltageSecurityIndex.fromXml(contingencyId, xmlsr));
+                                        indexes.add(TsoOvervoltageSecurityIndex.fromXml(contingencyId, xmlsr));
                                         break;
                                     case TsoUndervoltageSecurityIndex.XML_NAME:
-                                    	indexes.add(TsoUndervoltageSecurityIndex.fromXml(contingencyId, xmlsr));
+                                        indexes.add(TsoUndervoltageSecurityIndex.fromXml(contingencyId, xmlsr));
                                         break;
                                     case TsoFrequencySecurityIndex.XML_NAME:
-                                    	indexes.add(TsoFrequencySecurityIndex.fromXml(contingencyId, xmlsr));
+                                        indexes.add(TsoFrequencySecurityIndex.fromXml(contingencyId, xmlsr));
                                         break;
                                     case TsoSynchroLossSecurityIndex.XML_NAME:
-                                    	indexes.add(TsoSynchroLossSecurityIndex.fromXml(contingencyId, xmlsr));
+                                        indexes.add(TsoSynchroLossSecurityIndex.fromXml(contingencyId, xmlsr));
                                         break;
                                     case TsoGeneratorVoltageAutomaton.XML_NAME:
                                         indexes.add(TsoGeneratorVoltageAutomaton.fromXml(contingencyId, xmlsr));
@@ -78,7 +78,7 @@ public class SecurityIndexParser {
                                     case MultiCriteriaVoltageStabilityIndex.XML_NAME:
                                         indexes.add(MultiCriteriaVoltageStabilityIndex.fromXml(contingencyId, xmlsr));
                                         break;
-                        		}
+                                }
                                 break;
                         }
                         break;

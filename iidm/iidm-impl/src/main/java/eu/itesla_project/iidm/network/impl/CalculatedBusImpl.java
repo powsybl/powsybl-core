@@ -90,7 +90,9 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     @Override
     public float getV() {
         checkValidity();
-        if (terminals.isEmpty()) return Float.NaN;
+        if (terminals.isEmpty()) {
+            return Float.NaN;
+        }
         return terminals.get(0).getV();
     }
 
@@ -106,7 +108,9 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     @Override
     public float getAngle() {
         checkValidity();
-        if (terminals.isEmpty()) return Float.NaN;
+        if (terminals.isEmpty()) {
+            return Float.NaN;
+        }
         return terminals.get(0).getAngle();
     }
 

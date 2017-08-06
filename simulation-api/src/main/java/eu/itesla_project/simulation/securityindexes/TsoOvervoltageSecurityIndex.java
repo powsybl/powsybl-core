@@ -24,7 +24,7 @@ public class TsoOvervoltageSecurityIndex extends AbstractSecurityIndex {
 
     private final boolean computationSucceed;
 
-	private final int overvoltageCount;
+    private final int overvoltageCount;
 
     public static TsoOvervoltageSecurityIndex fromXml(String contingencyId, XMLStreamReader xmlsr) throws XMLStreamException {
         String text = null;

@@ -24,7 +24,7 @@ public class TsoSynchroLossSecurityIndex extends AbstractSecurityIndex {
 
     static final String XML_NAME = "tso-synchro-loss";
 
-	private final int synchroLossCount;
+    private final int synchroLossCount;
 
     private final Map<String, Float> desynchronizedGenerators;
 

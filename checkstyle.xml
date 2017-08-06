@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!DOCTYPE module PUBLIC
+        "-//Puppy Crawl//DTD Check Configuration 1.2//EN"
+        "http://www.puppycrawl.com/dtds/configuration_1_2.dtd">
+<module name="Checker">
+
+    <module name="FileTabCharacter"/>
+
+    <module name="TreeWalker">
+        <module name="AbbreviationAsWordInName"/>
+        <module name="EqualsHashCode"/>
+        <module name="IllegalImport"/>
+        <module name="LeftCurly"/>
+        <module name="NeedBraces"/>
+        <module name="RedundantImport"/>
+        <module name="RightCurly"/>
+        <module name="UnusedImports"/>
+    </module>
+</module>

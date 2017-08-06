@@ -28,61 +28,61 @@ import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 
 /**
- *
  * @author Quinary <itesla@quinary.com>
  */
-public class SmallSignalSecurityIndex extends AbstractSecurityIndex{
+public class SmallSignalSecurityIndex extends AbstractSecurityIndex {
 
-	static final String XML_NAME = "smallsignal";
+    static final String XML_NAME = "smallsignal";
 
-    private  double gmi=Double.NaN;
-    private  double ami[]=null;
-    private  double smi[][]=null;
+    private double gmi = Double.NaN;
+    private double ami[] = null;
+    private double smi[][] = null;
 
     private static final JAXBContext jc;
+
     static {
-        JAXBContext tmpJc=null;
+        JAXBContext tmpJc = null;
         try {
-            tmpJc=JAXBContext.newInstance( Index.class );
+            tmpJc = JAXBContext.newInstance(Index.class);
         } catch (JAXBException e) {
             e.printStackTrace();
         }
-        jc=tmpJc;
+        jc = tmpJc;
     }
 
     public static SmallSignalSecurityIndex fromXml(String contingencyId, XMLStreamReader xmlsr) throws XMLStreamException {
-		try {
-			Unmarshaller u = jc.createUnmarshaller();
-			Index index=(Index) u.unmarshal(xmlsr);
+        try {
+            Unmarshaller u = jc.createUnmarshaller();
+            Index index = (Index) u.unmarshal(xmlsr);
 
-			double gmi=Double.NaN;
-			double ami[]= null;
-			double smi[][]=null;
-			for (Matrix m: index.getMatrices()) {
-				switch(m.getName()) {
-				case "gmi":
-					double gmiIndexData[][]=m.getMatrix();
-					if ((gmiIndexData != null) && (gmiIndexData[0].length>0)) {
-						gmi=gmiIndexData[0][0];
-					}
-					break;
-				case "ami":
-					double amiIndexData[][]=m.getMatrix();
-					if (amiIndexData != null) {
-						ami=amiIndexData[0];
-					}
-					break;
-				case "smi":
-					double smiIndexData[][]=m.getMatrix();
-					smi=smiIndexData;
-					break;
-				}
-			}
-			return new SmallSignalSecurityIndex(contingencyId, gmi, ami, smi);
-		} catch (JAXBException e) {
-			e.printStackTrace();
-			throw new InternalError("Should not have happened");
-		}
+            double gmi = Double.NaN;
+            double ami[] = null;
+            double smi[][] = null;
+            for (Matrix m : index.getMatrices()) {
+                switch (m.getName()) {
+                    case "gmi":
+                        double gmiIndexData[][] = m.getMatrix();
+                        if ((gmiIndexData != null) && (gmiIndexData[0].length > 0)) {
+                            gmi = gmiIndexData[0][0];
+                        }
+                        break;
+                    case "ami":
+                        double amiIndexData[][] = m.getMatrix();
+                        if (amiIndexData != null) {
+                            ami = amiIndexData[0];
+                        }
+                        break;
+                    case "smi":
+                        double smiIndexData[][] = m.getMatrix();
+                        smi = smiIndexData;
+                        break;
+                }
+            }
+            return new SmallSignalSecurityIndex(contingencyId, gmi, ami, smi);
+        } catch (JAXBException e) {
+            e.printStackTrace();
+            throw new InternalError("Should not have happened");
+        }
     }
 
 
@@ -98,49 +98,49 @@ public class SmallSignalSecurityIndex extends AbstractSecurityIndex{
     }
 
     public double getGmi() {
-		return gmi;
-	}
+        return gmi;
+    }
 
     public double[] getAmi() {
-		return ami;
-	}
+        return ami;
+    }
 
     public double[][] getSmi() {
-		return smi;
-	}
+        return smi;
+    }
 
     @Override
     public boolean isOk() {
         return ((Double.isNaN(gmi)) || (gmi >= 0.0000));
     }
 
-	@Override
-	public Map<String, String> toMap() {
-		return ImmutableMap.of("gmi", Double.toString(gmi), "ami", Arrays.toString(ami), "smi", Arrays.deepToString(smi));
-	}
+    @Override
+    public Map<String, String> toMap() {
+        return ImmutableMap.of("gmi", Double.toString(gmi), "ami", Arrays.toString(ami), "smi", Arrays.deepToString(smi));
+    }
 
     public static void toXml(SmallSignalSecurityIndex index, XMLStreamWriter writer) throws XMLStreamException, JAXBException {
-    	JAXBContext jc;
-		jc = JAXBContext.newInstance( Index.class );
-		SmallSignalSecurityIndex.Index lindex=new Index(index.getId().getSecurityIndexType().getLabel().toLowerCase());
-		double aGmi[][]=new double[1][1];
-		aGmi[0][0]=index.getGmi();
-		SmallSignalSecurityIndex.Matrix lmatGmi=new Matrix("gmi", aGmi);
-		double aAmi[][];
-		if (! Double.isNaN(index.getGmi())) {
-			aAmi=new double[1][index.getAmi().length];
-			aAmi[0]=index.getAmi();
-		} else {
-			aAmi=new double[0][0];
-		}
-		SmallSignalSecurityIndex.Matrix lmatAmi=new Matrix("ami", aAmi);
-		SmallSignalSecurityIndex.Matrix lmatSmi=new Matrix("smi", index.getSmi());
+        JAXBContext jc;
+        jc = JAXBContext.newInstance(Index.class);
+        SmallSignalSecurityIndex.Index lindex = new Index(index.getId().getSecurityIndexType().getLabel().toLowerCase());
+        double aGmi[][] = new double[1][1];
+        aGmi[0][0] = index.getGmi();
+        SmallSignalSecurityIndex.Matrix lmatGmi = new Matrix("gmi", aGmi);
+        double aAmi[][];
+        if (!Double.isNaN(index.getGmi())) {
+            aAmi = new double[1][index.getAmi().length];
+            aAmi[0] = index.getAmi();
+        } else {
+            aAmi = new double[0][0];
+        }
+        SmallSignalSecurityIndex.Matrix lmatAmi = new Matrix("ami", aAmi);
+        SmallSignalSecurityIndex.Matrix lmatSmi = new Matrix("smi", index.getSmi());
 
-		lindex.setMatrices(Arrays.asList(lmatGmi,lmatAmi,lmatSmi));
+        lindex.setMatrices(Arrays.asList(lmatGmi, lmatAmi, lmatSmi));
 
-		Marshaller m = jc.createMarshaller();
-		m.marshal(lindex, writer);
-	}
+        Marshaller m = jc.createMarshaller();
+        m.marshal(lindex, writer);
+    }
 
     @Override
     public void toXml(XMLStreamWriter xmlWriter) throws XMLStreamException {
@@ -155,125 +155,125 @@ public class SmallSignalSecurityIndex extends AbstractSecurityIndex{
      * xml serialization handling, e.g.
      *
 
-	<index name="smallsignal">
-	<matrix name="gmi"><m><r>0.0225</r></m></matrix>
-	<matrix name="ami"><m><r>0.1227 0.0726 0.0225 </r></m></matrix>
-	<matrix name="smi">
-	 <m>
-	  <r>0.1227 0.0726 0.0225 </r>
-	  <r>0.1866 0.1366 0.0864 </r>
-	 </m>
-	</matrix>
-	</index>
+    <index name="smallsignal">
+    <matrix name="gmi"><m><r>0.0225</r></m></matrix>
+    <matrix name="ami"><m><r>0.1227 0.0726 0.0225 </r></m></matrix>
+    <matrix name="smi">
+     <m>
+      <r>0.1227 0.0726 0.0225 </r>
+      <r>0.1866 0.1366 0.0864 </r>
+     </m>
+    </matrix>
+    </index>
      */
 
-    @XmlRootElement(name="index")
+    @XmlRootElement(name = "index")
     public static class Index {
-    	private String name;
+        private String name;
 
-    	private List<Matrix> matrices=new ArrayList<>();
+        private List<Matrix> matrices = new ArrayList<>();
 
-    	public Index(String name) {
-    		this.name = name;
-    	}
+        public Index(String name) {
+            this.name = name;
+        }
 
-    	public Index(String name, List<Matrix> matrices) {
-    		this.name = name;
-    		this.matrices = matrices;
-    	}
+        public Index(String name, List<Matrix> matrices) {
+            this.name = name;
+            this.matrices = matrices;
+        }
 
 
-    	@XmlAttribute
-    	public String getName() {
-    		return name;
-    	}
+        @XmlAttribute
+        public String getName() {
+            return name;
+        }
 
-    	public void setName(String name) {
-    		this.name = name;
-    	}
+        public void setName(String name) {
+            this.name = name;
+        }
 
-    	@XmlElement(name="matrix")
-    	public List<Matrix> getMatrices() {
-    		return matrices;
-    	}
+        @XmlElement(name = "matrix")
+        public List<Matrix> getMatrices() {
+            return matrices;
+        }
 
-    	public void setMatrices(List<Matrix> matrices) {
-    		this.matrices = matrices;
-    	}
+        public void setMatrices(List<Matrix> matrices) {
+            this.matrices = matrices;
+        }
 
-    	public Index() {
-    	}
+        public Index() {
+        }
 
-    	@Override
-    	public String toString() {
-    		String retString="[";
-    		retString+=getName()+":";
-    		for (Matrix m : getMatrices()) {
+        @Override
+        public String toString() {
+            String retString = "[";
+            retString += getName() + ":";
+            for (Matrix m : getMatrices()) {
 
-    			retString+=m.toString();
-    		}
-    		retString+="]";
-    		return retString;
-    	}
+                retString += m.toString();
+            }
+            retString += "]";
+            return retString;
+        }
     }
 
 
     public static class Matrix {
-    	private String name;
-    	private double[][] matrix;
+        private String name;
+        private double[][] matrix;
 
-    	public Matrix(String name,double[][] matrix) {
-    		this.name = name;
-    		this.matrix=matrix;
-    	}
+        public Matrix(String name, double[][] matrix) {
+            this.name = name;
+            this.matrix = matrix;
+        }
 
-    	@XmlAttribute
-    	public String getName() {
-    		return name;
-    	}
+        @XmlAttribute
+        public String getName() {
+            return name;
+        }
 
-    	public void setName(String name) {
-    		this.name = name;
-    	}
+        public void setName(String name) {
+            this.name = name;
+        }
 
-    	@Override
-    	public String toString() {
-    		String retString="[";
-    		retString+=getName()+": [";
-    		if (matrix!=null) {
-    		for (int i = 0; i < matrix.length; i++) {
-    			retString+="[";
-    			for (int j = 0; j < matrix[0].length; j++) {
-    				retString+=matrix[i][j]+" " ;
-    			}
-    			retString+="]";
-    		}
-    		}
-    		retString+="]]";
-    		return retString;
-    	}
+        @Override
+        public String toString() {
+            String retString = "[";
+            retString += getName() + ": [";
+            if (matrix != null) {
+                for (int i = 0; i < matrix.length; i++) {
+                    retString += "[";
+                    for (int j = 0; j < matrix[0].length; j++) {
+                        retString += matrix[i][j] + " ";
+                    }
+                    retString += "]";
+                }
+            }
+            retString += "]]";
+            return retString;
+        }
 
 
-    	@XmlElement(name="m")
-    	@XmlJavaTypeAdapter(MatrixAdapter.class)
-    	public double[][] getMatrix() {
-    		return matrix;
-    	}
+        @XmlElement(name = "m")
+        @XmlJavaTypeAdapter(MatrixAdapter.class)
+        public double[][] getMatrix() {
+            return matrix;
+        }
 
-    	public void setMatrix(double[][] matrix) {
-    		this.matrix = matrix;
-    	}
+        public void setMatrix(double[][] matrix) {
+            this.matrix = matrix;
+        }
 
-    	public Matrix() {
-    	}
+        public Matrix() {
+        }
 
     }
 
     //http://stackoverflow.com/questions/17119708/csv-as-text-node-of-an-xml-element
-    public static class MatrixAdapter extends XmlAdapter<MatrixAdapter.AdaptedMatrix, double[][]>{
+    public static class MatrixAdapter extends XmlAdapter<MatrixAdapter.AdaptedMatrix, double[][]> {
 
         public static class AdaptedMatrix {
-            @XmlElement(name="r")
+            @XmlElement(name = "r")
             public List<AdaptedRow> rows;
         }
 
@@ -286,15 +286,16 @@ public class SmallSignalSecurityIndex extends AbstractSecurityIndex{
         @Override
         public AdaptedMatrix marshal(double[][] matrix) throws Exception {
             AdaptedMatrix adaptedMatrix = new AdaptedMatrix();
-            if (matrix!=null) {
-            	adaptedMatrix.rows = new ArrayList<AdaptedRow>(matrix.length);
-            for(double[] row : matrix) {
-            	if ((matrix[0].length == 1) && (Double.isNaN(matrix[0][0])))
-            		break;
-                AdaptedRow adaptedRow = new AdaptedRow();
-                adaptedRow.row = row;
-                adaptedMatrix.rows.add(adaptedRow);
-            }
+            if (matrix != null) {
+                adaptedMatrix.rows = new ArrayList<AdaptedRow>(matrix.length);
+                for (double[] row : matrix) {
+                    if (matrix[0].length == 1 && Double.isNaN(matrix[0][0])) {
+                        break;
+                    }
+                    AdaptedRow adaptedRow = new AdaptedRow();
+                    adaptedRow.row = row;
+                    adaptedMatrix.rows.add(adaptedRow);
+                }
             }
             return adaptedMatrix;
         }
@@ -303,7 +304,7 @@ public class SmallSignalSecurityIndex extends AbstractSecurityIndex{
         public double[][] unmarshal(AdaptedMatrix adaptedMatrix) throws Exception {
             List<AdaptedRow> adaptedRows = adaptedMatrix.rows;
             double[][] matrix = new double[adaptedRows.size()][];
-            for(int x=0; x<adaptedRows.size(); x++) {
+            for (int x = 0; x < adaptedRows.size(); x++) {
                 matrix[x] = adaptedRows.get(x).row;
             }
             return matrix;
@@ -315,16 +316,16 @@ public class SmallSignalSecurityIndex extends AbstractSecurityIndex{
     /*
     @Override
     public boolean equals(Object obj) {
-    	if ((obj == null) || (!(obj instanceof SmallSignalSecurityIndex)))
-    		return false;
-    	SmallSignalSecurityIndex objs=(SmallSignalSecurityIndex) obj;
-    	if (Double.compare(gmi,objs.gmi)!=0)
-    		return false;
-    	if (!Arrays.equals(ami, objs.ami))
-    		return false;
-    	if (!Arrays.deepEquals(smi, objs.smi))
-    		return false;
-    	return true;
+        if ((obj == null) || (!(obj instanceof SmallSignalSecurityIndex)))
+            return false;
+        SmallSignalSecurityIndex objs=(SmallSignalSecurityIndex) obj;
+        if (Double.compare(gmi,objs.gmi)!=0)
+            return false;
+        if (!Arrays.equals(ami, objs.ami))
+            return false;
+        if (!Arrays.deepEquals(smi, objs.smi))
+            return false;
+        return true;
     }
     */
 

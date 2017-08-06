@@ -27,8 +27,7 @@ public class ZipMemDataSource extends ReadOnlyMemDataSource {
         Objects.requireNonNull(content);
         try (ZipInputStream zipStream = new ZipInputStream(content)) {
             ZipEntry entry = zipStream.getNextEntry();
-            while (entry != null)
-            {
+            while (entry != null) {
                 String entryName = entry.getName();
                 try (ByteArrayOutputStream bao = new ByteArrayOutputStream()) {
                     ByteStreams.copy(zipStream, bao);
@@ -45,10 +44,4 @@ public class ZipMemDataSource extends ReadOnlyMemDataSource {
     public InputStream newInputStream(String suffix, String ext) throws IOException {
         return super.newInputStream(DataSourceUtil.getFileName(getBaseName(), suffix, ext));
     }
-
-    @Override
-    public InputStream newInputStream(String fileName) throws IOException {
-    	return super.newInputStream(fileName);
-    }
-
 }

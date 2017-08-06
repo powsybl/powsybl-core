@@ -24,7 +24,7 @@ public class TsoFrequencySecurityIndex extends AbstractSecurityIndex {
 
     private static final int MAX_FREQ_OUT_COUNT = 10;
 
-	private final int freqOutCount;
+    private final int freqOutCount;
 
     public static TsoFrequencySecurityIndex fromXml(String contingencyId, XMLStreamReader xmlsr) throws XMLStreamException {
         String text = null;

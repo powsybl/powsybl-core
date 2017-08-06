@@ -21,7 +21,7 @@ public interface DataSourceUtil {
     OpenOption[] APPEND_OPEN_OPTIONS = { StandardOpenOption.APPEND };
 
     static String getFileName(String baseName, String suffix, String ext) {
-    	Objects.requireNonNull(baseName);
+        Objects.requireNonNull(baseName);
         return baseName + (suffix != null ? suffix : "") + (ext != null ? "." + ext : "");
     }
 
@@ -34,7 +34,7 @@ public interface DataSourceUtil {
     }
 
     static String getBaseName(String fileName) {
-    	Objects.requireNonNull(fileName);
+        Objects.requireNonNull(fileName);
         int pos = fileName.indexOf('.'); // find first dot in case of double extension (.xml.gz)
         return pos == -1 ? fileName : fileName.substring(0, pos);
     }
