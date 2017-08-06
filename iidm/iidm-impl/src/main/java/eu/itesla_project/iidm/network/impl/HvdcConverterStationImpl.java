@@ -8,7 +8,6 @@ package eu.itesla_project.iidm.network.impl;
 
 import eu.itesla_project.iidm.network.ConnectableType;
 import eu.itesla_project.iidm.network.HvdcConverterStation;
-import eu.itesla_project.iidm.network.Terminal;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>

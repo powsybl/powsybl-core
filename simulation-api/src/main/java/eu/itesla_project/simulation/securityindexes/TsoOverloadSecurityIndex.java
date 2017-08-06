@@ -25,7 +25,7 @@ public class TsoOverloadSecurityIndex extends AbstractSecurityIndex {
 
     static final String XML_NAME = "tso-overload";
 
-	private final int overloadCount;
+    private final int overloadCount;
 
     private final List<String> overloadedBranches;
 

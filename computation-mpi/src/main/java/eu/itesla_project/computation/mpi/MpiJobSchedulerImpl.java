@@ -10,7 +10,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.io.ByteStreams;
 import com.google.protobuf.ByteString;
 import eu.itesla_project.computation.*;
-import eu.itesla_project.computation.mpi.messages.Messages;
+import eu.itesla_project.computation.mpi.generated.Messages;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.slf4j.Logger;

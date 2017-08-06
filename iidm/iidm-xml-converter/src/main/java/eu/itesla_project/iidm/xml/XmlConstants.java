@@ -8,7 +8,6 @@ package eu.itesla_project.iidm.xml;
 
 import com.google.common.collect.ImmutableList;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 

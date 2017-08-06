@@ -12,7 +12,7 @@ import com.google.common.jimfs.Jimfs;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 import eu.itesla_project.computation.*;
-import eu.itesla_project.computation.mpi.messages.Messages;
+import eu.itesla_project.computation.mpi.generated.Messages;
 import org.junit.After;
 import static org.junit.Assert.*;
 import org.junit.Before;

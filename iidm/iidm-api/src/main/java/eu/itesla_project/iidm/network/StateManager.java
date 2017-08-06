@@ -6,7 +6,6 @@
  */
 package eu.itesla_project.iidm.network;
 
-import eu.itesla_project.commons.ITeslaException;
 import java.util.Collection;
 import java.util.List;
 
@@ -41,7 +40,7 @@ public interface StateManager {
      * Set the working state.
      *
      * @param stateId the id of the working state
-     * @throws ITeslaException if the state is not found
+     * @throws eu.itesla_project.commons.ITeslaException if the state is not found
      */
     void setWorkingState(String stateId);
     
@@ -50,7 +49,8 @@ public interface StateManager {
      *
      * @param sourceStateId the source state id
      * @param targetStateIds the target state id list (the ones that will be created)
-     * @throws ITeslaException if the source state is not found or if a state with
+     * @throws eu.itesla_project.commons.ITeslaException
+     *                         if the source state is not found or if a state with
      *                         an id of targetStateIds already exists
      */
     void cloneState(String sourceStateId, List<String> targetStateIds);
@@ -60,7 +60,8 @@ public interface StateManager {
      *
      * @param sourceStateId the source state id
      * @param targetStateId the target state id (the one that will be created)
-     * @throws ITeslaException if the source state is not found or if a state with
+     * @throws eu.itesla_project.commons.ITeslaException
+     *                         if the source state is not found or if a state with
      *                         the id targetStateId already exists
      */
     void cloneState(String sourceStateId, String targetStateId);

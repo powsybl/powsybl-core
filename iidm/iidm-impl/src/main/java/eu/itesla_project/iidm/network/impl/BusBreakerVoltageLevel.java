@@ -393,7 +393,9 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         @Override
-        public InternalConnectionAdder newInternalConnection() { throw createNotSupportedBusBreakerTopologyException();}
+        public InternalConnectionAdder newInternalConnection() {
+            throw createNotSupportedBusBreakerTopologyException();
+        }
 
         @Override
         public SwitchAdder newBreaker() {

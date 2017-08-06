@@ -6,7 +6,6 @@
  */
 package eu.itesla_project.iidm.network;
 
-import eu.itesla_project.commons.ITeslaException;
 import eu.itesla_project.iidm.network.util.ShortIdDictionary;
 
 import java.io.IOException;
@@ -391,7 +390,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
          * Get the second node to which a switch is connected.
          *
          * @param switchId the id of the switch
-         * @throws ITeslaException if switch is not found
+         * @throws eu.itesla_project.commons.ITeslaException if switch is not found
          */
         int getNode2(String switchId);
 
@@ -494,7 +493,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
 
         /**
          * Get a builder to create a new bus.
-         * @throws ITeslaException if the topology kind is NODE_BREAKER
+         * @throws eu.itesla_project.commons.ITeslaException if the topology kind is NODE_BREAKER
          */
         BusAdder newBus();
 
@@ -535,7 +534,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
          * <p>
          * Depends on the working state if topology kind is NODE_BREAKER.
          * @param switchId the id of the switch
-         * @throws ITeslaException if switch is not found
+         * @throws eu.itesla_project.commons.ITeslaException if switch is not found
          * @see StateManager
          */
         Bus getBus1(String switchId);
@@ -545,7 +544,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
          * <p>
          * Depends on the working state if topology kind is NODE_BREAKER.
          * @param switchId the id of the switch
-         * @throws ITeslaException if switch is not found
+         * @throws eu.itesla_project.commons.ITeslaException if switch is not found
          * @see StateManager
          */
         Bus getBus2(String switchId);
@@ -560,7 +559,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
 
         /**
          * Get a builer to create a new switch.
-         * @throws ITeslaException if the topology kind is NODE_BREAKER
+         * @throws eu.itesla_project.commons.ITeslaException if the topology kind is NODE_BREAKER
          */
         SwitchAdder newSwitch();
 

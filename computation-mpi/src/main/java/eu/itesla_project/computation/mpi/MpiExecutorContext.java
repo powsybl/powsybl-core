@@ -6,7 +6,6 @@
  */
 package eu.itesla_project.computation.mpi;
 
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 

@@ -21,7 +21,7 @@ import java.util.concurrent.CompletableFuture;
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
 class LoadFlowMock implements LoadFlow {
-    private Logger LOGGER = LoggerFactory.getLogger(LoadFlowMock.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LoadFlowMock.class);
 
     @Override
     public String getName() {

@@ -81,9 +81,13 @@ public class LocalComputationManager implements ComputationManager {
     }
 
     private static LocalExecutor getLocalExecutor() {
-        if (SystemUtils.IS_OS_WINDOWS) return new WindowsLocalExecutor();
-        if (SystemUtils.IS_OS_UNIX) return new UnixLocalExecutor();
-        throw new UnsupportedOperationException("OS not supported for local execution");
+        if (SystemUtils.IS_OS_WINDOWS) {
+            return new WindowsLocalExecutor();
+        } else if (SystemUtils.IS_OS_UNIX) {
+            return new UnixLocalExecutor();
+        } else {
+            throw new UnsupportedOperationException("OS not supported for local execution");
+        }
     }
 
     public LocalComputationManager() throws IOException {

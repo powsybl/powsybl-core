@@ -7,7 +7,6 @@
 package eu.itesla_project.iidm.network.impl;
 
 import eu.itesla_project.iidm.network.Connectable;
-import eu.itesla_project.iidm.network.Identifiable;
 
 import java.util.ArrayList;
 import java.util.List;

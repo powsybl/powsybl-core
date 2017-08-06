@@ -7,7 +7,6 @@
 package eu.itesla_project.commons.io.table;
 
 import java.io.Writer;
-import java.util.Locale;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>

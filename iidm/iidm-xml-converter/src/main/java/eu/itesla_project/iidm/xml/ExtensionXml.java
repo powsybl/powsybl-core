@@ -9,7 +9,6 @@ package eu.itesla_project.iidm.xml;
 import eu.itesla_project.iidm.network.Identifiable;
 
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
 import java.io.InputStream;
 
 /**

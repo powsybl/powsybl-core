@@ -24,7 +24,7 @@ public class TsoUndervoltageSecurityIndex extends AbstractSecurityIndex {
 
     private final boolean computationSucceed;
 
-	private final int undervoltageCount;
+    private final int undervoltageCount;
 
     public static TsoUndervoltageSecurityIndex fromXml(String contingencyId, XMLStreamReader xmlsr) throws XMLStreamException {
         String text = null;

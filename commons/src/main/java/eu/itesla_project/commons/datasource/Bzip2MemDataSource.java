@@ -18,9 +18,9 @@ import java.io.InputStream;
 public class Bzip2MemDataSource extends ReadOnlyMemDataSource {
 
     Bzip2MemDataSource(String fileName, InputStream content) {
-    	super(DataSourceUtil.getBaseName(fileName));
+        super(DataSourceUtil.getBaseName(fileName));
 
-    	String zipped = fileName.substring(0, fileName.lastIndexOf("."));
+        String zipped = fileName.substring(0, fileName.lastIndexOf("."));
         putData(zipped, content);
     }
 
@@ -30,7 +30,7 @@ public class Bzip2MemDataSource extends ReadOnlyMemDataSource {
 
     @Override
     public InputStream newInputStream(String suffix, String ext) throws IOException {
-    	return newInputStream(DataSourceUtil.getFileName(getBaseName(), suffix, ext));
+        return newInputStream(DataSourceUtil.getFileName(getBaseName(), suffix, ext));
     }
 
     @Override

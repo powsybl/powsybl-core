@@ -9,7 +9,6 @@ package eu.itesla_project.computation.local;
 import eu.itesla_project.commons.tools.CommandLineTools;
 import eu.itesla_project.commons.tools.ToolInitializationContext;
 import eu.itesla_project.computation.ComputationManager;
-import eu.itesla_project.computation.local.LocalComputationManager;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 

@@ -110,8 +110,7 @@ public class SecurityAnalysisImpl implements SecurityAnalysis {
                                         }
                                     }, computationManager.getExecutor());
                         }
-                    }
-                    else {
+                    } else {
                         futures = new CompletableFuture[0];
                     }
 

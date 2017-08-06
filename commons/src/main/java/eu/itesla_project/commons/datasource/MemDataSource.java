@@ -18,7 +18,7 @@ public class MemDataSource extends ReadOnlyMemDataSource implements DataSource {
 
     @Override
     public OutputStream newOutputStream(final String suffix, final String ext, boolean append) throws IOException {
-    	return newOutputStream(DataSourceUtil.getFileName("", suffix, ext), append);
+        return newOutputStream(DataSourceUtil.getFileName("", suffix, ext), append);
     }
 
     @Override

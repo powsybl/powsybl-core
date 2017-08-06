@@ -29,7 +29,7 @@ public class GzMemDataSource extends ReadOnlyMemDataSource {
 
     @Override
     public InputStream newInputStream(String suffix, String ext) throws IOException {
-    	return newInputStream(DataSourceUtil.getFileName(getBaseName(), suffix, ext));
+        return newInputStream(DataSourceUtil.getFileName(getBaseName(), suffix, ext));
     }
 
     @Override

@@ -484,8 +484,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         }
     }
 
-    private static class CalculatedBusBreakerChecker implements BusChecker
-    {
+    private static class CalculatedBusBreakerChecker implements BusChecker {
         @Override
         public boolean isValid(UndirectedGraph<? extends TerminalExt, SwitchImpl> graph, TIntArrayList nodes, List<NodeTerminal> terminals) {
             return !nodes.isEmpty();
@@ -622,7 +621,9 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         @Override
-        public InternalConnectionAdder newInternalConnection() {return new InternalConnectionAdderImpl(); }
+        public InternalConnectionAdder newInternalConnection() {
+            return new InternalConnectionAdderImpl();
+        }
 
         @Override
         public SwitchAdder newBreaker() {
