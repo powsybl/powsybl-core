@@ -63,7 +63,7 @@ class TieLineImpl extends LineImpl implements TieLine {
         @Override
         public HalfLineImpl setXnodeQ(float xnodeQ) {
             this.xnodeQ = xnodeQ;
-            return null;
+            return this;
         }
 
         @Override
