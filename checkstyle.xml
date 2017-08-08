@@ -6,6 +6,8 @@
 
     <module name="FileTabCharacter"/>
 
+    <module name="NewlineAtEndOfFile"/>
+
     <module name="TreeWalker">
         <module name="AbbreviationAsWordInName"/>
         <module name="EqualsHashCode"/>
