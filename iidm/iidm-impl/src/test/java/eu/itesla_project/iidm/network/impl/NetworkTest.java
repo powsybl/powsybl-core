@@ -13,6 +13,7 @@ import eu.itesla_project.iidm.network.test.EurostagTutorialExample1Factory;
 import eu.itesla_project.iidm.network.test.HvdcTestNetwork;
 import eu.itesla_project.iidm.network.test.NetworkTest1Factory;
 import eu.itesla_project.iidm.network.test.SvcTestCaseFactory;
+import org.joda.time.DateTime;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -247,5 +248,18 @@ public class NetworkTest {
                 mapper.apply(network.getVoltageLevel("voltageLevel1").getNodeBreakerView()
                         .getSwitchStream()
                         .filter(sw -> sw.getKind() == SwitchKind.LOAD_BREAK_SWITCH)));
+    }
+
+    @Test
+    public void testSetterGetter() {
+        String sourceFormat = "test_sourceFormat";
+        Network network = NetworkFactory.create("test", sourceFormat);
+        DateTime caseDate = new DateTime();
+        network.setCaseDate(caseDate);
+        assertEquals(caseDate, network.getCaseDate());
+        network.setForecastDistance(3);
+        assertEquals(3, network.getForecastDistance());
+        assertEquals(sourceFormat, network.getSourceFormat());
+        assertEquals(ContainerType.NETWORK, network.getContainerType());
     }
 }
