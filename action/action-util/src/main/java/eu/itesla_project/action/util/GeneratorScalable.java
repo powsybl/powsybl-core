@@ -17,14 +17,13 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class GeneratorScalable extends Scalable {
+class GeneratorScalable extends AbstractScalable {
 
     private final String id;
 
     GeneratorScalable(String id) {
         this.id = Objects.requireNonNull(id);
     }
-
 
     @Override
     public float initialValue(Network n) {

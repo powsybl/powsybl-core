@@ -15,7 +15,7 @@ import java.util.Objects;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class GeneratorXml extends ConnectableXml<Generator, GeneratorAdder, VoltageLevel> {
+class GeneratorXml extends AbstractConnectableXml<Generator, GeneratorAdder, VoltageLevel> {
 
     static final GeneratorXml INSTANCE = new GeneratorXml();
 

@@ -18,7 +18,7 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class ExpressionPrinter extends AbstractExpressionVisitor<Void, Void> {
+public class ExpressionPrinter extends DefaultExpressionVisitor<Void, Void> {
 
     private final PrintStream out;
 
@@ -101,7 +101,7 @@ public class ExpressionPrinter extends AbstractExpressionVisitor<Void, Void> {
     }
 
     @Override
-    public Void visitLiteral(LiteralNode node, Void arg) {
+    public Void visitLiteral(AbstractLiteralNode node, Void arg) {
         out.print(node.getValue().toString());
         return null;
     }

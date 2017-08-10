@@ -14,7 +14,7 @@ import javax.xml.stream.XMLStreamException;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class VoltageLevelXml extends IdentifiableXml<VoltageLevel, VoltageLevelAdder, Substation> {
+class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevelAdder, Substation> {
 
     static final VoltageLevelXml INSTANCE = new VoltageLevelXml();
 

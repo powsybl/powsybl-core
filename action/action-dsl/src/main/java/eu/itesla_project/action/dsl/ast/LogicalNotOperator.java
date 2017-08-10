@@ -9,7 +9,7 @@ package eu.itesla_project.action.dsl.ast;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class LogicalNotOperator extends UnaryOperatorNode {
+public class LogicalNotOperator extends AbstractUnaryOperatorNode {
 
     public LogicalNotOperator(ExpressionNode child) {
         super(child);

@@ -22,12 +22,7 @@ public class ProjectFolder extends ProjectNode implements FolderBase<ProjectNode
     public static final String PSEUDO_CLASS = PseudoClass.PROJECT_FOLDER_PSEUDO_CLASS;
 
     public ProjectFolder(NodeId id, AppFileSystemStorage storage, NodeId projectId, AppFileSystem fileSystem) {
-        super(id, storage, projectId, fileSystem);
-    }
-
-    @Override
-    public boolean isFolder() {
-        return true;
+        super(id, storage, projectId, fileSystem, true);
     }
 
     @Override

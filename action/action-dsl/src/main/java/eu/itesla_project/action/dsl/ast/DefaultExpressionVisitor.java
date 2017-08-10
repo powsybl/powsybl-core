@@ -9,7 +9,7 @@ package eu.itesla_project.action.dsl.ast;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class AbstractExpressionVisitor<R, A> implements ExpressionVisitor<R, A> {
+public class DefaultExpressionVisitor<R, A> implements ExpressionVisitor<R, A> {
     @Override
     public R visitComparisonOperator(ComparisonOperatorNode node, A arg) {
         node.getLeft().accept(this, arg);
@@ -38,7 +38,7 @@ public class AbstractExpressionVisitor<R, A> implements ExpressionVisitor<R, A> 
     }
 
     @Override
-    public R visitLiteral(LiteralNode node, A arg) {
+    public R visitLiteral(AbstractLiteralNode node, A arg) {
         return null;
     }
 

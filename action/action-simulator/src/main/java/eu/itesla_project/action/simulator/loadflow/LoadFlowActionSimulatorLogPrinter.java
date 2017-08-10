@@ -22,7 +22,7 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class LoadFlowActionSimulatorLogPrinter extends AbstractLoadFlowActionSimulatorObserver {
+public class LoadFlowActionSimulatorLogPrinter extends DefaultLoadFlowActionSimulatorObserver {
 
     private final PrintStream out;
 

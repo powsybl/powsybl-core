@@ -15,7 +15,7 @@ import javax.xml.stream.XMLStreamWriter;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-abstract class TransformerXml<T extends Connectable, A extends IdentifiableAdder<A>> extends ConnectableXml<T, A, Substation> {
+abstract class AbstractTransformerXml<T extends Connectable, A extends IdentifiableAdder<A>> extends AbstractConnectableXml<T, A, Substation> {
 
     protected static void writeTapChangerStep(TapChangerStep<?> tcs, XMLStreamWriter writer) throws XMLStreamException {
         XmlUtil.writeFloat("r", tcs.getR(), writer);

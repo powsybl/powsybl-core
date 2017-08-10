@@ -11,7 +11,7 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class ArithmeticBinaryOperatorNode extends BinaryOperatorNode {
+public class ArithmeticBinaryOperatorNode extends AbstractBinaryOperatorNode {
 
     private final ArithmeticBinaryOperator operator;
 

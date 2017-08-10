@@ -21,12 +21,7 @@ public class Folder extends Node implements FolderBase<Node, Folder> {
     public static final String PSEUDO_CLASS = PseudoClass.FOLDER_PSEUDO_CLASS;
 
     public Folder(NodeId id, AppFileSystemStorage storage, AppFileSystem fileSystem) {
-        super(id, storage, fileSystem);
-    }
-
-    @Override
-    public boolean isFolder() {
-        return true;
+        super(id, storage, fileSystem, true);
     }
 
     public boolean isWritable() {

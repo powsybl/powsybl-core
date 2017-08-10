@@ -11,7 +11,7 @@ package eu.itesla_project.action.dsl.ast;
  */
 public interface ExpressionVisitor<R, A> {
 
-    R visitLiteral(LiteralNode node, A arg);
+    R visitLiteral(AbstractLiteralNode node, A arg);
 
     R visitNetworkComponent(NetworkComponentNode node, A arg);
 

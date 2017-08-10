@@ -11,7 +11,7 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class LogicalBinaryOperatorNode extends BinaryOperatorNode {
+public class LogicalBinaryOperatorNode extends AbstractBinaryOperatorNode {
 
     private final LogicalBinaryOperator operator;
 

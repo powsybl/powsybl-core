@@ -21,7 +21,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public class SecurityAnalysisResultBuilderTest {
+public class AbstractSecurityAnalysisResultBuilderTest {
 
     private Contingency createContingency() {
         return new ContingencyImpl("contingency", Collections.emptyList());
@@ -45,7 +45,7 @@ public class SecurityAnalysisResultBuilderTest {
     }
 
     private void testSARBuilder(final boolean convergent) {
-        SecurityAnalysisResultBuilder builder = new SecurityAnalysisResultBuilder() {
+        AbstractSecurityAnalysisResultBuilder builder = new AbstractSecurityAnalysisResultBuilder() {
             @Override
             public void onFinalStateResult(SecurityAnalysisResult result) {
 

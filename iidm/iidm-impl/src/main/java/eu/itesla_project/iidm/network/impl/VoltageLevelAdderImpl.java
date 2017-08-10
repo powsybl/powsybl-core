@@ -14,7 +14,7 @@ import eu.itesla_project.iidm.network.VoltageLevelAdder;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class VoltageLevelAdderImpl extends IdentifiableAdderImpl<VoltageLevelAdderImpl> implements VoltageLevelAdder {
+class VoltageLevelAdderImpl extends AbstractIdentifiableAdder<VoltageLevelAdderImpl> implements VoltageLevelAdder {
 
     private final SubstationImpl substation;
 

@@ -19,7 +19,7 @@ import java.util.stream.Stream;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class MergedBus extends IdentifiableImpl<Bus> implements CalculatedBus {
+class MergedBus extends AbstractIdentifiable<Bus> implements CalculatedBus {
 
     private final Set<ConfiguredBus> buses;
 

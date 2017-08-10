@@ -9,7 +9,7 @@ package eu.itesla_project.action.dsl.ast;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class BooleanLiteralNode extends LiteralNode {
+public class BooleanLiteralNode extends AbstractLiteralNode {
 
     public static final BooleanLiteralNode TRUE = new BooleanLiteralNode(Boolean.TRUE);
     public static final BooleanLiteralNode FALSE = new BooleanLiteralNode(Boolean.FALSE);

@@ -4,24 +4,22 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.computation;
+package eu.itesla_project.commons.datasource;
 
 /**
+ * This class provides a default empty implementation for the
+ * <code>DataSourceObserver</code> interface.
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class AbstractExecutionListener implements ExecutionListener {
+public class DefaultDataSourceObserver implements DataSourceObserver {
 
     @Override
-    public void onExecutionStart(int fromExecutionIndex, int toExecutionIndex) {
+    public void opened(String streamName) {
     }
 
     @Override
-    public void onExecutionCompletion(int executionIndex) {
-    }
-
-    @Override
-    public void onEnd(ExecutionReport report) {
+    public void closed(String streamName) {
     }
 
 }

@@ -7,48 +7,9 @@
 package eu.itesla_project.iidm.network;
 
 /**
- *
+ * Use {@link DefaultTopologyVisitor} instead
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class AbstractTopologyVisitor implements TopologyVisitor {
-
-    @Override
-    public void visitBusbarSection(BusbarSection section) {
-    }
-
-    @Override
-    public void visitLine(Line line, Line.Side side) {
-    }
-
-    @Override
-    public void visitTwoWindingsTransformer(TwoWindingsTransformer transformer, TwoWindingsTransformer.Side side) {
-    }
-
-    @Override
-    public void visitThreeWindingsTransformer(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side) {
-    }
-
-    @Override
-    public void visitGenerator(Generator generator) {
-    }
-
-    @Override
-    public void visitLoad(Load load) {
-    }
-
-    @Override
-    public void visitShuntCompensator(ShuntCompensator sc) {
-    }
-
-    @Override
-    public void visitDanglingLine(DanglingLine danglingLine) {
-    }
-
-    @Override
-    public void visitStaticVarCompensator(StaticVarCompensator staticVarCompensator) {
-    }
-
-    @Override
-    public void visitHvdcConverterStation(HvdcConverterStation<?> converterStation) {
-    }
+@Deprecated
+public abstract class AbstractTopologyVisitor extends DefaultTopologyVisitor {
 }

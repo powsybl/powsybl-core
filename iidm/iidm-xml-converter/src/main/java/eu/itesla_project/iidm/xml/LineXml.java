@@ -16,7 +16,7 @@ import javax.xml.stream.XMLStreamException;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class LineXml extends ConnectableXml<Line, LineAdder, Network> {
+class LineXml extends AbstractConnectableXml<Line, LineAdder, Network> {
 
     static final LineXml INSTANCE = new LineXml();
 

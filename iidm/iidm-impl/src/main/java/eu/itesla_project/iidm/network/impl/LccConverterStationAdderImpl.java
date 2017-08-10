@@ -13,7 +13,7 @@ import eu.itesla_project.iidm.network.LccConverterStationAdder;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-class LccConverterStationAdderImpl extends HvdcConverterStationAdderImpl<LccConverterStationAdderImpl> implements LccConverterStationAdder {
+class LccConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<LccConverterStationAdderImpl> implements LccConverterStationAdder {
 
     private float powerFactor = Float.NaN;
 

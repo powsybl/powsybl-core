@@ -15,9 +15,9 @@ import eu.itesla_project.iidm.network.impl.ThreeWindingsTransformerImpl.Leg3Impl
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class ThreeWindingsTransformerAdderImpl extends IdentifiableAdderImpl<ThreeWindingsTransformerAdderImpl> implements ThreeWindingsTransformerAdder {
+class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeWindingsTransformerAdderImpl> implements ThreeWindingsTransformerAdder {
 
-    abstract class LegBaseAdderImpl<L extends LegBaseAdderImpl<L>> implements Validable {
+    abstract class AbstractLegBaseAdder<L extends AbstractLegBaseAdder<L>> implements Validable {
 
         protected String voltageLevelId;
 
@@ -106,7 +106,7 @@ class ThreeWindingsTransformerAdderImpl extends IdentifiableAdderImpl<ThreeWindi
         }
     }
 
-    class Leg1AdderImpl extends LegBaseAdderImpl<Leg1AdderImpl> implements Leg1Adder {
+    class Leg1AdderImpl extends AbstractLegBaseAdder<Leg1AdderImpl> implements Leg1Adder {
 
         protected float g = Float.NaN;
 
@@ -151,7 +151,7 @@ class ThreeWindingsTransformerAdderImpl extends IdentifiableAdderImpl<ThreeWindi
 
     }
 
-    class Leg2AdderImpl extends LegBaseAdderImpl<Leg2AdderImpl> implements Leg2or3Adder {
+    class Leg2AdderImpl extends AbstractLegBaseAdder<Leg2AdderImpl> implements Leg2or3Adder {
 
         @Override
         public ThreeWindingsTransformerAdderImpl add() {
@@ -169,7 +169,7 @@ class ThreeWindingsTransformerAdderImpl extends IdentifiableAdderImpl<ThreeWindi
 
     }
 
-    class Leg3AdderImpl extends LegBaseAdderImpl<Leg3AdderImpl> implements Leg2or3Adder {
+    class Leg3AdderImpl extends AbstractLegBaseAdder<Leg3AdderImpl> implements Leg2or3Adder {
 
         @Override
         public ThreeWindingsTransformerAdderImpl add() {

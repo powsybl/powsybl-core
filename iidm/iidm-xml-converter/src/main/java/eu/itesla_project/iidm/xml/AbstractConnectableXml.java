@@ -17,7 +17,7 @@ import java.util.function.Supplier;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public abstract class ConnectableXml<T extends Connectable, A extends IdentifiableAdder<A>, P extends Container> extends IdentifiableXml<T, A, P> {
+public abstract class AbstractConnectableXml<T extends Connectable, A extends IdentifiableAdder<A>, P extends Container> extends AbstractIdentifiableXml<T, A, P> {
 
     private static String indexToString(Integer index) {
         return index != null ? index.toString() : "";

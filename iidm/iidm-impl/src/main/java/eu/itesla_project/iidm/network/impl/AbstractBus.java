@@ -17,7 +17,7 @@ import java.util.stream.Stream;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-abstract class AbstractBus extends IdentifiableImpl<Bus> {
+abstract class AbstractBus extends AbstractIdentifiable<Bus> {
 
     protected VoltageLevelExt voltageLevel;
 
@@ -58,7 +58,7 @@ abstract class AbstractBus extends IdentifiableImpl<Bus> {
         }
         float p = 0;
         for (TerminalExt terminal : getConnectedTerminals()) {
-            ConnectableImpl connectable = terminal.getConnectable();
+            AbstractConnectable connectable = terminal.getConnectable();
             switch (connectable.getType()) {
                 case BUSBAR_SECTION:
                 case SHUNT_COMPENSATOR:
@@ -89,7 +89,7 @@ abstract class AbstractBus extends IdentifiableImpl<Bus> {
         }
         float q = 0;
         for (TerminalExt terminal : getConnectedTerminals()) {
-            ConnectableImpl connectable = terminal.getConnectable();
+            AbstractConnectable connectable = terminal.getConnectable();
             switch (connectable.getType()) {
                 case BUSBAR_SECTION:
                 case LINE:
@@ -228,7 +228,7 @@ abstract class AbstractBus extends IdentifiableImpl<Bus> {
             throw new NullPointerException("visitor is null");
         }
         for (T terminal : terminals) {
-            ConnectableImpl connectable = ((TerminalExt) terminal).getConnectable();
+            AbstractConnectable connectable = ((TerminalExt) terminal).getConnectable();
             switch (connectable.getType()) {
                 case BUSBAR_SECTION:
                     visitor.visitBusbarSection((BusbarSectionImpl) connectable);

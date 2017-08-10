@@ -203,7 +203,7 @@ public class MpiComputationManager implements ComputationManager {
             public ExecutionReport start(CommandExecution execution) throws Exception {
                 final CountDownLatch latch = new CountDownLatch(1);
                 final ExecutionReport[] reports = new ExecutionReport[1];
-                start(execution, new AbstractExecutionListener() {
+                start(execution, new DefaultExecutionListener() {
 
                     @Override
                     public void onEnd(ExecutionReport report) {
@@ -268,7 +268,7 @@ public class MpiComputationManager implements ComputationManager {
                         CompletableFuture<ExecutionReport> last = null;
                         for (CommandExecution execution : ctxt.parametersList) {
 
-                            ExecutionListener l = new AbstractExecutionListener() {
+                            ExecutionListener l = new DefaultExecutionListener() {
 
                                 @Override
                                 public void onExecutionStart(int fromExecutionIndex, int toExecutionIndex) {

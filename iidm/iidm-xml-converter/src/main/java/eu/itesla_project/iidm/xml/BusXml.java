@@ -16,7 +16,7 @@ import javax.xml.stream.XMLStreamException;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class BusXml extends IdentifiableXml<Bus, BusAdder, VoltageLevel> {
+class BusXml extends AbstractIdentifiableXml<Bus, BusAdder, VoltageLevel> {
 
     static final BusXml INSTANCE = new BusXml();
 

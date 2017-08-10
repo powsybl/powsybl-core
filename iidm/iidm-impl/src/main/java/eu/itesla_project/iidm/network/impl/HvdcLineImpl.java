@@ -17,7 +17,7 @@ import java.util.Objects;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-class HvdcLineImpl extends IdentifiableImpl<HvdcLine> implements HvdcLine, Stateful {
+class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine, Stateful {
 
     static final String TYPE_DESCRIPTION = "hvdcLine";
 
@@ -35,14 +35,14 @@ class HvdcLineImpl extends IdentifiableImpl<HvdcLine> implements HvdcLine, State
 
     //
 
-    private final HvdcConverterStationImpl<?> converterStation1;
+    private final AbstractHvdcConverterStation<?> converterStation1;
 
-    private final HvdcConverterStationImpl<?> converterStation2;
+    private final AbstractHvdcConverterStation<?> converterStation2;
 
     private final Ref<NetworkImpl> networkRef;
 
     HvdcLineImpl(String id, String name, float r, float nominalV, float maxP, ConvertersMode convertersMode, float activePowerSetpoint,
-                 HvdcConverterStationImpl<?> converterStation1, HvdcConverterStationImpl<?> converterStation2,
+                 AbstractHvdcConverterStation<?> converterStation1, AbstractHvdcConverterStation<?> converterStation2,
                  Ref<NetworkImpl> networkRef) {
         super(id, name);
         this.r = r;
@@ -146,12 +146,12 @@ class HvdcLineImpl extends IdentifiableImpl<HvdcLine> implements HvdcLine, State
     }
 
     @Override
-    public HvdcConverterStationImpl<?> getConverterStation1() {
+    public AbstractHvdcConverterStation<?> getConverterStation1() {
         return converterStation1;
     }
 
     @Override
-    public HvdcConverterStationImpl<?> getConverterStation2() {
+    public AbstractHvdcConverterStation<?> getConverterStation2() {
         return converterStation2;
     }
 

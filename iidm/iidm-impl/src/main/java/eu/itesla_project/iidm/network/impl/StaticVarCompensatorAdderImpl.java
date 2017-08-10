@@ -14,7 +14,7 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class StaticVarCompensatorAdderImpl extends SingleTerminalConnectableAdderImpl<StaticVarCompensatorAdderImpl> implements StaticVarCompensatorAdder {
+class StaticVarCompensatorAdderImpl extends AbstractSingleTerminalConnectableAdder<StaticVarCompensatorAdderImpl> implements StaticVarCompensatorAdder {
 
     private final VoltageLevelExt vl;
 

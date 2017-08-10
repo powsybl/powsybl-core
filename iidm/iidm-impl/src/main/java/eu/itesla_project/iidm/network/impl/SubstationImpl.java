@@ -20,7 +20,7 @@ import java.util.stream.Stream;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class SubstationImpl extends IdentifiableImpl<Substation> implements Substation {
+class SubstationImpl extends AbstractIdentifiable<Substation> implements Substation {
 
     private Country country;
 

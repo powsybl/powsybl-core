@@ -75,7 +75,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
     private final StateArray<StateImpl> states;
 
-    private class SwitchAdderImpl extends IdentifiableAdderImpl<SwitchAdderImpl> implements NodeBreakerView.SwitchAdder {
+    private class SwitchAdderImpl extends AbstractIdentifiableAdder<SwitchAdderImpl> implements NodeBreakerView.SwitchAdder {
 
         private Integer node1;
 
@@ -174,7 +174,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
     }
 
-    private class InternalConnectionAdderImpl extends IdentifiableAdderImpl<InternalConnectionAdderImpl> implements NodeBreakerView.InternalConnectionAdder {
+    private class InternalConnectionAdderImpl extends AbstractIdentifiableAdder<InternalConnectionAdderImpl> implements NodeBreakerView.InternalConnectionAdder {
 
         private Integer node1;
 
@@ -452,7 +452,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                 int node = nodes.get(i);
                 TerminalExt terminal = graph.getVertexObject(node);
                 if (terminal != null) {
-                    ConnectableImpl connectable = terminal.getConnectable();
+                    AbstractConnectable connectable = terminal.getConnectable();
                     switch (connectable.getType()) {
                         case LINE:
                         case TWO_WINDINGS_TRANSFORMER:
@@ -1090,7 +1090,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             } else {
                 TerminalExt terminal = graph.getVertexObject(n);
                 if (terminal != null) {
-                    ConnectableImpl connectable = terminal.getConnectable();
+                    AbstractConnectable connectable = terminal.getConnectable();
                     String label = n + "\\n" + connectable.getType().toString() + "\\n" + connectable.getId();
                     node.attr("label", label);
                     g.node(node);
@@ -1106,7 +1106,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                 Node node = intToNode.get(nodeInt);
                 TerminalExt terminal = graph.getVertexObject(nodeInt);
                 if (terminal != null) {
-                    ConnectableImpl connectable = terminal.getConnectable();
+                    AbstractConnectable connectable = terminal.getConnectable();
                     String label = nodeInt + "\\n" + connectable.getType().toString() + "\\n" + connectable.getId();
                     node.attr("label", label);
                 }
@@ -1121,7 +1121,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 //        for (int n = 0; n < graph.getVertexCount(); n++) {
 //            TerminalExt terminal = graph.getVertexObject(n);
 //            if (terminal != null) {
-//                ConnectableImpl connectable = terminal.getConnectable();
+//                AbstractConnectable connectable = terminal.getConnectable();
 //                String label = n + "\\n" + connectable.getType().toString() + "\\n" + connectable.getId();
 //                writer.append("  ").append(Integer.toString(n))
 //                        .append(" [label=\"").append(label).append("\"]\n");

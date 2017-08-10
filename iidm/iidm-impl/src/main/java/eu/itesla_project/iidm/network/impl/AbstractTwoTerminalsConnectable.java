@@ -15,7 +15,7 @@ import java.util.Objects;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-abstract class AbstractTwoTerminalsConnectable<I extends Connectable<I>> extends ConnectableImpl<I> implements CurrentLimitsOwner<Side> {
+abstract class AbstractTwoTerminalsConnectable<I extends Connectable<I>> extends AbstractConnectable<I> implements CurrentLimitsOwner<Side> {
 
     private CurrentLimits limits1;
 

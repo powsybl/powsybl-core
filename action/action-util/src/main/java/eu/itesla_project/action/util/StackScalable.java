@@ -15,7 +15,7 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class StackScalable extends AbstractScalable {
+class StackScalable extends AbstractCompoundScalable {
 
     StackScalable(Scalable... scalables) {
         this(Arrays.asList(scalables));

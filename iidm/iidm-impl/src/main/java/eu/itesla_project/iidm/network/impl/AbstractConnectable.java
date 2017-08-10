@@ -15,11 +15,11 @@ import java.util.List;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-abstract class ConnectableImpl<I extends Connectable<I>> extends IdentifiableImpl<I> implements Connectable<I>, Stateful {
+abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIdentifiable<I> implements Connectable<I>, Stateful {
 
     protected final List<TerminalExt> terminals = new ArrayList<>();
 
-    ConnectableImpl(String id, String name) {
+    AbstractConnectable(String id, String name) {
         super(id, name);
     }
 

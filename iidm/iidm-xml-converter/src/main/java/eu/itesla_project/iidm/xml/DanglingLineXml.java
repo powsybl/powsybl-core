@@ -16,7 +16,7 @@ import javax.xml.stream.XMLStreamException;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class DanglingLineXml extends ConnectableXml<DanglingLine, DanglingLineAdder, VoltageLevel> {
+class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineAdder, VoltageLevel> {
 
     static final DanglingLineXml INSTANCE = new DanglingLineXml();
 

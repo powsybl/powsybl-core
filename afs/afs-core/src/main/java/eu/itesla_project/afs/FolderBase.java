@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface FolderBase<NODE extends NodeBase<FOLDER>, FOLDER extends FolderBase<NODE, FOLDER>> {
+public interface FolderBase<NODE extends AbstractNodeBase<FOLDER>, FOLDER extends FolderBase<NODE, FOLDER>> {
 
     List<NODE> getChildren();
 

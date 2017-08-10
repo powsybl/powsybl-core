@@ -17,7 +17,7 @@ import java.util.Properties;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-abstract class IdentifiableXml<T extends Identifiable, A extends IdentifiableAdder<A>, P extends Identifiable> implements XmlConstants {
+abstract class AbstractIdentifiableXml<T extends Identifiable, A extends IdentifiableAdder<A>, P extends Identifiable> implements XmlConstants {
 
     protected abstract String getRootElementName();
 

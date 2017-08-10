@@ -14,7 +14,7 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class ProportionalScalable extends AbstractScalable {
+class ProportionalScalable extends AbstractCompoundScalable {
 
     private static void checkPercentages(List<Float> percentages, List<Scalable> scalables) {
         Objects.requireNonNull(percentages);

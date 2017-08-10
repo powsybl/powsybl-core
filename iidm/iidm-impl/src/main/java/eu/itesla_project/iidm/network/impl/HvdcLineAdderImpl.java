@@ -16,7 +16,7 @@ import java.util.Objects;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public class HvdcLineAdderImpl extends IdentifiableAdderImpl<HvdcLineAdderImpl> implements HvdcLineAdder {
+public class HvdcLineAdderImpl extends AbstractIdentifiableAdder<HvdcLineAdderImpl> implements HvdcLineAdder {
 
     private final Ref<NetworkImpl> networkRef;
 
@@ -99,11 +99,11 @@ public class HvdcLineAdderImpl extends IdentifiableAdderImpl<HvdcLineAdderImpl> 
         ValidationUtil.checkNominalV(this, nominalV);
         ValidationUtil.checkActivePowerSetpoint(this, activePowerSetpoint);
         ValidationUtil.checkMaxP(this, maxP);
-        HvdcConverterStationImpl<?> converterStation1 = getNetwork().getHvdcConverterStation(converterStationId1);
+        AbstractHvdcConverterStation<?> converterStation1 = getNetwork().getHvdcConverterStation(converterStationId1);
         if (converterStation1 == null) {
             throw new RuntimeException("Side 1 converter station " + converterStationId1 + " not found");
         }
-        HvdcConverterStationImpl<?> converterStation2 = getNetwork().getHvdcConverterStation(converterStationId2);
+        AbstractHvdcConverterStation<?> converterStation2 = getNetwork().getHvdcConverterStation(converterStationId2);
         if (converterStation2 == null) {
             throw new RuntimeException("Side 2 converter station " + converterStationId2 + " not found");
         }

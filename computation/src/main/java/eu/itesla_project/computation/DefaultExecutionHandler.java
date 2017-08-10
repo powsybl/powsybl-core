@@ -11,35 +11,15 @@ import java.nio.file.Path;
 import java.util.List;
 
 /**
- *
+ * Use {@link AbstractExecutionHandler} instead
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @param <R>
  */
-public abstract class DefaultExecutionHandler<R> implements ExecutionHandler<R> {
+@Deprecated
+public class DefaultExecutionHandler<R> extends AbstractExecutionHandler<R> {
 
     @Override
-    public abstract List<CommandExecution> before(Path workingDir) throws IOException;
-
-    @Override
-    public void onExecutionStart(CommandExecution execution, int executionIndex) {
+    public List<CommandExecution> before(Path workingDir) throws IOException {
+        throw new IllegalStateException("before method has to be implemented");
     }
-
-    @Override
-    public void onExecutionCompletion(CommandExecution execution, int executionIndex) {
-    }
-
-    @Override
-    @Deprecated
-    public void onProgress(CommandExecution execution, int executionIndex) {
-    }
-
-    @Override
-    public R after(Path workingDir, ExecutionReport report) throws IOException {
-        if (report.getErrors().size() > 0) {
-            report.log();
-            throw new RuntimeException("Execution error");
-        }
-        return null;
-    }
-
 }

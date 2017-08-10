@@ -29,12 +29,7 @@ public class ModificationScript extends ProjectFile {
     private static final FileIcon SCRIPT_ICON = new FileIcon("script", ModificationScript.class.getResourceAsStream("/icons/script16x16.png"));
 
     public ModificationScript(NodeId id, AppFileSystemStorage storage, NodeId projectId, AppFileSystem fileSystem) {
-        super(id, storage, projectId, fileSystem);
-    }
-
-    @Override
-    public FileIcon getIcon() {
-        return SCRIPT_ICON;
+        super(id, storage, projectId, fileSystem, SCRIPT_ICON);
     }
 
     public ScriptType getScriptType() {

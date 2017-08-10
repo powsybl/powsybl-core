@@ -16,7 +16,7 @@ import javax.xml.stream.XMLStreamException;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-class VscConverterStationXml extends ConnectableXml<VscConverterStation, VscConverterStationAdder, VoltageLevel> {
+class VscConverterStationXml extends AbstractConnectableXml<VscConverterStation, VscConverterStationAdder, VoltageLevel> {
 
     static final VscConverterStationXml INSTANCE = new VscConverterStationXml();
 

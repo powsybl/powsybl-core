@@ -8,6 +8,7 @@ package eu.itesla_project.afs.ext.base;
 
 import eu.itesla_project.afs.AppFileSystem;
 import eu.itesla_project.afs.FileIcon;
+import eu.itesla_project.afs.ProjectFile;
 import eu.itesla_project.afs.storage.AppFileSystemStorage;
 import eu.itesla_project.afs.storage.NodeId;
 import eu.itesla_project.iidm.network.Network;
@@ -21,7 +22,7 @@ import java.io.*;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class VirtualCase extends ProjectCase {
+public class VirtualCase extends ProjectFile implements ProjectCase {
 
     public static final String PSEUDO_CLASS = "virtualCase";
 
@@ -35,12 +36,7 @@ public class VirtualCase extends ProjectCase {
     static final String SCRIPT_DEPENDENCY_NAME = "script";
 
     public VirtualCase(NodeId id, AppFileSystemStorage storage, NodeId projectId, AppFileSystem fileSystem) {
-        super(id, storage, projectId, fileSystem);
-    }
-
-    @Override
-    public FileIcon getIcon() {
-        return VIRTUAL_CASE_ICON;
+        super(id, storage, projectId, fileSystem, VIRTUAL_CASE_ICON);
     }
 
     public ProjectCase getCase() {

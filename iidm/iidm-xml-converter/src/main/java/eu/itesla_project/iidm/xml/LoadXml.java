@@ -17,7 +17,7 @@ import javax.xml.stream.XMLStreamException;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class LoadXml extends ConnectableXml<Load, LoadAdder, VoltageLevel> {
+class LoadXml extends AbstractConnectableXml<Load, LoadAdder, VoltageLevel> {
 
     static final LoadXml INSTANCE = new LoadXml();
 

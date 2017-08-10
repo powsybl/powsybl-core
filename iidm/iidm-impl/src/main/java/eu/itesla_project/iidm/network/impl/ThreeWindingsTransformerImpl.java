@@ -12,9 +12,9 @@ import eu.itesla_project.iidm.network.*;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class ThreeWindingsTransformerImpl extends ConnectableImpl<ThreeWindingsTransformer> implements ThreeWindingsTransformer {
+class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTransformer> implements ThreeWindingsTransformer {
 
-    static abstract class LegBaseImpl<T extends LegBaseImpl<T>> implements Validable, CurrentLimitsOwner<Void> {
+    static abstract class AbstractLegBase<T extends AbstractLegBase<T>> implements Validable, CurrentLimitsOwner<Void> {
 
         protected ThreeWindingsTransformerImpl transformer;
 
@@ -26,7 +26,7 @@ class ThreeWindingsTransformerImpl extends ConnectableImpl<ThreeWindingsTransfor
 
         private CurrentLimits limits;
 
-        LegBaseImpl(float r, float x, float ratedU) {
+        AbstractLegBase(float r, float x, float ratedU) {
             this.r = r;
             this.x = x;
             this.ratedU = ratedU;
@@ -102,7 +102,7 @@ class ThreeWindingsTransformerImpl extends ConnectableImpl<ThreeWindingsTransfor
 
     }
 
-    static class Leg1Impl extends LegBaseImpl<Leg1Impl> implements Leg1 {
+    static class Leg1Impl extends AbstractLegBase<Leg1Impl> implements Leg1 {
 
         private float g;
 
@@ -159,11 +159,11 @@ class ThreeWindingsTransformerImpl extends ConnectableImpl<ThreeWindingsTransfor
 
     }
 
-    private static abstract class Leg2or3Impl<T extends Leg2or3Impl<T>> extends LegBaseImpl<T> implements RatioTapChangerParent {
+    private static abstract class AbstractLeg2or3<T extends AbstractLeg2or3<T>> extends AbstractLegBase<T> implements RatioTapChangerParent {
 
         private RatioTapChangerImpl ratioTapChanger;
 
-        Leg2or3Impl(float r, float x, float ratedU) {
+        AbstractLeg2or3(float r, float x, float ratedU) {
             super(r, x, ratedU);
         }
 
@@ -187,7 +187,7 @@ class ThreeWindingsTransformerImpl extends ConnectableImpl<ThreeWindingsTransfor
 
     }
 
-    static class Leg2Impl extends Leg2or3Impl<Leg2Impl> implements Leg2or3 {
+    static class Leg2Impl extends AbstractLeg2or3<Leg2Impl> implements Leg2or3 {
 
         Leg2Impl(float r, float x, float ratedU) {
             super(r, x, ratedU);
@@ -215,7 +215,7 @@ class ThreeWindingsTransformerImpl extends ConnectableImpl<ThreeWindingsTransfor
 
     }
 
-    static class Leg3Impl extends Leg2or3Impl<Leg3Impl> implements Leg2or3 {
+    static class Leg3Impl extends AbstractLeg2or3<Leg3Impl> implements Leg2or3 {
 
         Leg3Impl(float r, float x, float ratedU) {
             super(r, x, ratedU);

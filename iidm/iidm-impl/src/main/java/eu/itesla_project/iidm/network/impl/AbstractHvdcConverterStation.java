@@ -13,11 +13,11 @@ import eu.itesla_project.iidm.network.HvdcConverterStation;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-abstract class HvdcConverterStationImpl<T extends HvdcConverterStation<T>> extends ConnectableImpl<T> implements HvdcConverterStation<T> {
+abstract class AbstractHvdcConverterStation<T extends HvdcConverterStation<T>> extends AbstractConnectable<T> implements HvdcConverterStation<T> {
 
     private float lossFactor = Float.NaN;
 
-    HvdcConverterStationImpl(String id, String name, float lossFactor) {
+    AbstractHvdcConverterStation(String id, String name, float lossFactor) {
         super(id, name);
         this.lossFactor = lossFactor;
     }

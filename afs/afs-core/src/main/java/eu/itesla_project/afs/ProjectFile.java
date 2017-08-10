@@ -10,15 +10,20 @@ import eu.itesla_project.afs.storage.AppFileSystemStorage;
 import eu.itesla_project.afs.storage.NodeId;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public abstract class ProjectFile extends ProjectNode {
+public class ProjectFile extends ProjectNode {
 
-    protected ProjectFile(NodeId id, AppFileSystemStorage storage, NodeId projectId, AppFileSystem fileSystem) {
-        super(id, storage, projectId, fileSystem);
+    protected final FileIcon icon;
+
+    protected ProjectFile(NodeId id, AppFileSystemStorage storage, NodeId projectId, AppFileSystem fileSystem,
+                          FileIcon icon) {
+        super(id, storage, projectId, fileSystem, true);
+        this.icon = Objects.requireNonNull(icon);
     }
 
     @Override
@@ -26,7 +31,9 @@ public abstract class ProjectFile extends ProjectNode {
         return false;
     }
 
-    public abstract FileIcon getIcon();
+    public FileIcon getIcon() {
+        return icon;
+    }
 
     public List<ProjectNode> getDependencies() {
         return storage.getDependencies(id)

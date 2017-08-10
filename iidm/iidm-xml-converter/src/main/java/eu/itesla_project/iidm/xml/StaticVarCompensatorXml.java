@@ -15,7 +15,7 @@ import javax.xml.stream.XMLStreamException;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class StaticVarCompensatorXml extends ConnectableXml<StaticVarCompensator, StaticVarCompensatorAdder, VoltageLevel> {
+public class StaticVarCompensatorXml extends AbstractConnectableXml<StaticVarCompensator, StaticVarCompensatorAdder, VoltageLevel> {
 
     static final StaticVarCompensatorXml INSTANCE = new StaticVarCompensatorXml();
 

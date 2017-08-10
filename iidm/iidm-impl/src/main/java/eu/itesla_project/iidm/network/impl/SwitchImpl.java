@@ -16,7 +16,7 @@ import java.util.BitSet;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class SwitchImpl extends IdentifiableImpl<Switch> implements Switch, Stateful {
+class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, Stateful {
 
     private final VoltageLevelExt voltageLevel;
 

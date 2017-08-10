@@ -14,13 +14,21 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public abstract class Node extends NodeBase<Folder> {
+public class Node extends AbstractNodeBase<Folder> {
 
     protected final AppFileSystem fileSystem;
 
-    protected Node(NodeId id, AppFileSystemStorage storage, AppFileSystem fileSystem) {
+    protected final boolean folder;
+
+    protected Node(NodeId id, AppFileSystemStorage storage, AppFileSystem fileSystem, boolean folder) {
         super(id, storage);
         this.fileSystem = Objects.requireNonNull(fileSystem);
+        this.folder = folder;
+    }
+
+    @Override
+    public boolean isFolder() {
+        return folder;
     }
 
     @Override

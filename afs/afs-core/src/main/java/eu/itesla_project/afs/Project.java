@@ -24,12 +24,7 @@ public class Project extends File {
     private static final FileIcon PROJECT_ICON = new FileIcon(PROJECT_LABEL, Project.class.getResourceAsStream("/icons/project16x16.png"));
 
     public Project(NodeId id, AppFileSystemStorage storage, AppFileSystem fileSystem) {
-        super(id, storage, fileSystem);
-    }
-
-    @Override
-    public FileIcon getIcon() {
-        return PROJECT_ICON;
+        super(id, storage, fileSystem, PROJECT_ICON);
     }
 
     public ProjectFolder getRootFolder() {

@@ -11,24 +11,18 @@ import eu.itesla_project.iidm.network.Network;
 import eu.itesla_project.iidm.network.Switch;
 import eu.itesla_project.iidm.network.Terminal;
 
-import java.util.HashSet;
 import java.util.Set;
 
 /**
- * @author Mathieu Bague <mathieu.bague@rte-france.com>
+ * Use {@link AbstractTrippingTask} instead
+ *
+ * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public abstract class TrippingTask implements ModificationTask {
+@Deprecated
+public class TrippingTask extends AbstractTrippingTask {
 
     @Override
-    public void modify(Network network, ComputationManager computationManager) {
-        Set<Switch> switchesToOpen = new HashSet<>();
-        Set<Terminal> terminalsToDisconnect = new HashSet<>();
-
-        traverse(network, computationManager, switchesToOpen, terminalsToDisconnect);
-
-        switchesToOpen.forEach(s -> s.setOpen(true));
-        terminalsToDisconnect.forEach(Terminal::disconnect);
+    public void traverse(Network network, ComputationManager computationManager, Set<Switch> switchesToOpen, Set<Terminal> terminalsToDisconnect) {
+        throw new IllegalStateException("traverse has to be implemented");
     }
-
-    public abstract void traverse(Network network, ComputationManager computationManager, Set<Switch> switchesToOpen, Set<Terminal> terminalsToDisconnect);
 }

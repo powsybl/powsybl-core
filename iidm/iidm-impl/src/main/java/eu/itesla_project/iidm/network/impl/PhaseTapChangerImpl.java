@@ -16,7 +16,7 @@ import java.util.List;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class PhaseTapChangerImpl extends TapChangerImpl<TwoWindingsTransformerImpl, PhaseTapChangerImpl, PhaseTapChangerStepImpl>
+class PhaseTapChangerImpl extends AbstractTapChanger<TwoWindingsTransformerImpl, PhaseTapChangerImpl, PhaseTapChangerStepImpl>
                           implements PhaseTapChanger {
 
     private RegulationMode regulationMode;

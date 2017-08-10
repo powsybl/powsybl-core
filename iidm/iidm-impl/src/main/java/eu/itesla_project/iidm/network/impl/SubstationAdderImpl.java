@@ -15,7 +15,7 @@ import eu.itesla_project.iidm.network.SubstationAdder;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class SubstationAdderImpl extends IdentifiableAdderImpl<SubstationAdderImpl> implements SubstationAdder {
+class SubstationAdderImpl extends AbstractIdentifiableAdder<SubstationAdderImpl> implements SubstationAdder {
 
     private final Ref<NetworkImpl> networkRef;
 

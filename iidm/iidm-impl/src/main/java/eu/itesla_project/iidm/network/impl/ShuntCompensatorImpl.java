@@ -15,7 +15,7 @@ import gnu.trove.list.array.TIntArrayList;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class ShuntCompensatorImpl extends ConnectableImpl<ShuntCompensator> implements ShuntCompensator {
+class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> implements ShuntCompensator {
 
     private final Ref<? extends MultiStateObject> network;
 

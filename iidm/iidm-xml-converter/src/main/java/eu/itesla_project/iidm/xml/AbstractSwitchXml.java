@@ -16,7 +16,7 @@ import javax.xml.stream.XMLStreamException;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-abstract class SwitchXml<A extends IdentifiableAdder<A>> extends IdentifiableXml<Switch, A, VoltageLevel> {
+abstract class AbstractSwitchXml<A extends IdentifiableAdder<A>> extends AbstractIdentifiableXml<Switch, A, VoltageLevel> {
 
     static final String ROOT_ELEMENT_NAME = "switch";
 
@@ -46,6 +46,6 @@ abstract class SwitchXml<A extends IdentifiableAdder<A>> extends IdentifiableXml
 
     @Override
     protected void readSubElements(Switch s, XmlReaderContext context) throws XMLStreamException {
-        readUntilEndRootElement(context.getReader(), () -> SwitchXml.super.readSubElements(s, context));
+        readUntilEndRootElement(context.getReader(), () -> AbstractSwitchXml.super.readSubElements(s, context));
     }
 }

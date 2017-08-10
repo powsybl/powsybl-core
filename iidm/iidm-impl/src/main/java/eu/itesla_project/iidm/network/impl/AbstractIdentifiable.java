@@ -14,7 +14,7 @@ import java.util.*;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-abstract class IdentifiableImpl<I extends Identifiable<I>> implements Identifiable<I>, Validable {
+abstract class AbstractIdentifiable<I extends Identifiable<I>> implements Identifiable<I>, Validable {
 
     protected String id;
 
@@ -26,7 +26,7 @@ abstract class IdentifiableImpl<I extends Identifiable<I>> implements Identifiab
 
     protected final Map<String, Extension<I>> extensionsByName = new HashMap<>();
 
-    IdentifiableImpl(String id, String name) {
+    AbstractIdentifiable(String id, String name) {
         this.id = id;
         this.name = name;
     }

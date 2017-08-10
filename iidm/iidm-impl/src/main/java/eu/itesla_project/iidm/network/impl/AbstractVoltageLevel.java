@@ -16,7 +16,7 @@ import java.util.stream.Stream;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-abstract class AbstractVoltageLevel extends IdentifiableImpl<VoltageLevel> implements VoltageLevelExt {
+abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> implements VoltageLevelExt {
 
     private final SubstationImpl substation;
 

@@ -18,7 +18,7 @@ import eu.itesla_project.commons.io.table.TableFormatterFactory;
  *
  * @author Massimo Ferraro <massimo.ferraro@techrain.it>
  */
-public abstract class ValidationFormatterWriter implements ValidationWriter {
+public abstract class AbstractValidationFormatterWriter implements ValidationWriter {
 
     protected TableFormatter formatter;
 

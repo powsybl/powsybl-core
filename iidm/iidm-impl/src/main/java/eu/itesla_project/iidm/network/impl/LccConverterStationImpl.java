@@ -12,7 +12,7 @@ import eu.itesla_project.iidm.network.LccConverterStation;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-class LccConverterStationImpl extends HvdcConverterStationImpl<LccConverterStation> implements LccConverterStation {
+class LccConverterStationImpl extends AbstractHvdcConverterStation<LccConverterStation> implements LccConverterStation {
 
     static final String TYPE_DESCRIPTION = "lccConverterStation";
 

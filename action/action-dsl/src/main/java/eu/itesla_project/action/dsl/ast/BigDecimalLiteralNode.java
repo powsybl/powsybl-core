@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class BigDecimalLiteralNode extends LiteralNode {
+public class BigDecimalLiteralNode extends AbstractLiteralNode {
 
     private final BigDecimal value;
 

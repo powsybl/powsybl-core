@@ -16,20 +16,28 @@ import java.util.stream.Collectors;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public abstract class ProjectNode extends NodeBase<ProjectFolder> {
+public class ProjectNode extends AbstractNodeBase<ProjectFolder> {
 
     protected final NodeId projectId;
 
     protected final AppFileSystem fileSystem;
 
-    protected ProjectNode(NodeId id, AppFileSystemStorage storage, NodeId projectId, AppFileSystem fileSystem) {
+    protected final boolean folder;
+
+    protected ProjectNode(NodeId id, AppFileSystemStorage storage, NodeId projectId, AppFileSystem fileSystem, boolean folder) {
         super(id, storage);
         this.projectId = Objects.requireNonNull(projectId);
         this.fileSystem = Objects.requireNonNull(fileSystem);
+        this.folder = folder;
     }
 
     public NodeId getId() {
         return id;
+    }
+
+    @Override
+    public boolean isFolder() {
+        return folder;
     }
 
     @Override

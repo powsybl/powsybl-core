@@ -34,14 +34,14 @@ public class NodePath {
         return toStringFct.apply(path);
     }
 
-    private static <FOLDER extends NODE, NODE extends NodeBase<FOLDER>> void addPath(NODE node, List<String> path) {
+    private static <FOLDER extends NODE, NODE extends AbstractNodeBase<FOLDER>> void addPath(NODE node, List<String> path) {
         if (node.getFolder() != null) {
             addPath(node.getFolder(), path);
         }
         path.add(node.getName());
     }
 
-    public static <FOLDER extends NODE, NODE extends NodeBase<FOLDER>> NodePath find(NODE node, Function<List<String>, String> toStringFct) {
+    public static <FOLDER extends NODE, NODE extends AbstractNodeBase<FOLDER>> NodePath find(NODE node, Function<List<String>, String> toStringFct) {
         Objects.requireNonNull(node);
         List<String> path = new ArrayList<>(1);
         addPath(node, path);

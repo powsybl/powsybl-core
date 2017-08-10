@@ -27,7 +27,7 @@ import java.util.stream.Stream;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class NetworkImpl extends IdentifiableImpl<Network> implements Network, MultiStateObject, Stateful {
+class NetworkImpl extends AbstractIdentifiable<Network> implements Network, MultiStateObject, Stateful {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NetworkImpl.class);
 
@@ -431,8 +431,8 @@ class NetworkImpl extends IdentifiableImpl<Network> implements Network, MultiSta
     }
 
     @Override
-    public HvdcConverterStationImpl<?> getHvdcConverterStation(String id) {
-        HvdcConverterStationImpl<?> converterStation = getLccConverterStation(id);
+    public AbstractHvdcConverterStation<?> getHvdcConverterStation(String id) {
+        AbstractHvdcConverterStation<?> converterStation = getLccConverterStation(id);
         if (converterStation == null) {
             converterStation = getVscConverterStation(id);
         }
@@ -539,11 +539,11 @@ class NetworkImpl extends IdentifiableImpl<Network> implements Network, MultiSta
         return busView;
     }
 
-    private static abstract class ComponentsManager<C extends Component> {
+    private static abstract class AbstractComponentsManager<C extends Component> {
 
         protected final NetworkImpl network;
 
-        private ComponentsManager(NetworkImpl network) {
+        private AbstractComponentsManager(NetworkImpl network) {
             this.network = Objects.requireNonNull(network);
         }
 
@@ -644,7 +644,7 @@ class NetworkImpl extends IdentifiableImpl<Network> implements Network, MultiSta
 
     }
 
-    static class ConnectedComponentsManager extends ComponentsManager<ConnectedComponentImpl> {
+    static class ConnectedComponentsManager extends AbstractComponentsManager<ConnectedComponentImpl> {
 
         private ConnectedComponentsManager(NetworkImpl network) {
             super(network);
@@ -675,7 +675,7 @@ class NetworkImpl extends IdentifiableImpl<Network> implements Network, MultiSta
         }
     }
 
-    static class SynchronousComponentsManager extends ComponentsManager<ComponentImpl> {
+    static class SynchronousComponentsManager extends AbstractComponentsManager<ComponentImpl> {
 
         private SynchronousComponentsManager(NetworkImpl network) {
             super(network);

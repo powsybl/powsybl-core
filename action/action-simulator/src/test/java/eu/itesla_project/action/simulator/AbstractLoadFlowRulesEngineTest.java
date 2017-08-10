@@ -8,7 +8,7 @@ package eu.itesla_project.action.simulator;
 
 import eu.itesla_project.action.dsl.ActionDb;
 import eu.itesla_project.action.dsl.ActionDslLoader;
-import eu.itesla_project.action.simulator.loadflow.AbstractLoadFlowActionSimulatorObserver;
+import eu.itesla_project.action.simulator.loadflow.DefaultLoadFlowActionSimulatorObserver;
 import eu.itesla_project.action.simulator.loadflow.LoadFlowActionSimulator;
 import eu.itesla_project.action.simulator.loadflow.LoadFlowActionSimulatorConfig;
 import eu.itesla_project.action.simulator.loadflow.LoadFlowActionSimulatorObserver;
@@ -40,7 +40,7 @@ public abstract class AbstractLoadFlowRulesEngineTest {
     protected abstract Network createNetwork();
 
     protected LoadFlowActionSimulatorObserver createObserver() {
-        return new AbstractLoadFlowActionSimulatorObserver();
+        return new DefaultLoadFlowActionSimulatorObserver();
     }
 
     protected abstract String getDslFile();

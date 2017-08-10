@@ -13,7 +13,7 @@ import eu.itesla_project.iidm.network.LoadType;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class LoadAdderImpl extends SingleTerminalConnectableAdderImpl<LoadAdderImpl> implements LoadAdder {
+class LoadAdderImpl extends AbstractSingleTerminalConnectableAdder<LoadAdderImpl> implements LoadAdder {
 
     private final VoltageLevelExt voltageLevel;
 

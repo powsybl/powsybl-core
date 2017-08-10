@@ -28,7 +28,7 @@ import java.util.stream.Stream;
  */
 class BusBreakerVoltageLevel extends AbstractVoltageLevel {
 
-    private class SwitchAdderImpl extends IdentifiableAdderImpl<SwitchAdderImpl> implements BusBreakerView.SwitchAdder {
+    private class SwitchAdderImpl extends AbstractIdentifiableAdder<SwitchAdderImpl> implements BusBreakerView.SwitchAdder {
 
         private String busId1;
 
@@ -186,7 +186,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
             int feederCount = 0;
             int branchCount = 0;
             for (TerminalExt terminal : FluentIterable.from(busSet).transformAndConcat(ConfiguredBus::getConnectedTerminals)) {
-                ConnectableImpl connectable = terminal.getConnectable();
+                AbstractConnectable connectable = terminal.getConnectable();
                 switch (connectable.getType()) {
                     case LINE:
                     case TWO_WINDINGS_TRANSFORMER:
@@ -865,7 +865,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
             writer.append("  ").append(bus.getId())
                         .append(" [label=\"").append(label).append("\"]\n");
             for (TerminalExt terminal : bus.getTerminals()) {
-                ConnectableImpl connectable = terminal.getConnectable();
+                AbstractConnectable connectable = terminal.getConnectable();
                 label = connectable.getType().toString() + "\\n" + connectable.getId();
                 writer.append("  ").append(connectable.getId())
                         .append(" [label=\"").append(label).append("\"]\n");
@@ -873,7 +873,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         }
         for (ConfiguredBus bus : graph.getVerticesObj()) {
             for (TerminalExt terminal : bus.getTerminals()) {
-                ConnectableImpl connectable = terminal.getConnectable();
+                AbstractConnectable connectable = terminal.getConnectable();
                 writer.append("  ").append(bus.getId())
                     .append(" -- ").append(connectable.getId())
                     .append(" [").append("style=\"").append(terminal.isConnected() ? "solid" : "dotted").append("\"")

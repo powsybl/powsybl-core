@@ -9,21 +9,23 @@ package eu.itesla_project.afs;
 import eu.itesla_project.afs.storage.AppFileSystemStorage;
 import eu.itesla_project.afs.storage.NodeId;
 
+import java.util.Objects;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public abstract class File extends Node {
+public class File extends Node {
 
-    public File(NodeId id, AppFileSystemStorage storage, AppFileSystem fileSystem) {
-        super(id, storage, fileSystem);
+    protected final FileIcon icon;
+
+    public File(NodeId id, AppFileSystemStorage storage, AppFileSystem fileSystem, FileIcon icon) {
+        super(id, storage, fileSystem, false);
+        this.icon = Objects.requireNonNull(icon);
     }
 
-    @Override
-    public boolean isFolder() {
-        return false;
+    public FileIcon getIcon() {
+        return icon;
     }
-
-    public abstract FileIcon getIcon();
 
     public String getDescription() {
         return storage.getStringAttribute(id, "description");

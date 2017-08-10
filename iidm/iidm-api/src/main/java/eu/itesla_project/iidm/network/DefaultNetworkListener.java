@@ -9,7 +9,7 @@ package eu.itesla_project.iidm.network;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class AbstractNetworkListener implements NetworkListener {
+public class DefaultNetworkListener implements NetworkListener {
     @Override
     public void onCreation(Identifiable identifiable) {
     }

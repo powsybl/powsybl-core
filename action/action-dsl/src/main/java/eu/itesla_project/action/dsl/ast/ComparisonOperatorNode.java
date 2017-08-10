@@ -11,7 +11,7 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class ComparisonOperatorNode extends BinaryOperatorNode {
+public class ComparisonOperatorNode extends AbstractBinaryOperatorNode {
 
     private final ComparisonOperator operator;
 

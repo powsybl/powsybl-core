@@ -16,7 +16,7 @@ import javax.xml.stream.XMLStreamException;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class ShuntXml extends ConnectableXml<ShuntCompensator, ShuntCompensatorAdder, VoltageLevel> {
+class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensatorAdder, VoltageLevel> {
 
     static final ShuntXml INSTANCE = new ShuntXml();
 

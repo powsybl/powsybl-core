@@ -17,7 +17,7 @@ import java.util.Map;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class AbstractLoadFlowActionSimulatorObserver implements LoadFlowActionSimulatorObserver {
+public class DefaultLoadFlowActionSimulatorObserver implements LoadFlowActionSimulatorObserver {
     @Override
     public void beforePreContingencyAnalysis(Network network) {
     }

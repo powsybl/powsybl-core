@@ -7,7 +7,7 @@
 package eu.itesla_project.contingency;
 
 import eu.itesla_project.contingency.tasks.BranchTripping;
-import eu.itesla_project.contingency.tasks.TrippingTask;
+import eu.itesla_project.contingency.tasks.AbstractTrippingTask;
 
 import java.util.Objects;
 
@@ -44,7 +44,7 @@ public class BranchContingency implements ContingencyElement {
     }
 
     @Override
-    public TrippingTask toTask() {
+    public AbstractTrippingTask toTask() {
         return new BranchTripping(id, voltageLevelId);
     }
 

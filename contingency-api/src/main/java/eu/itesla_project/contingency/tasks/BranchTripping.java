@@ -20,7 +20,7 @@ import java.util.Set;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public class BranchTripping extends TrippingTask {
+public class BranchTripping extends AbstractTrippingTask {
 
     private final String branchId;
     private final String voltageLevelId;

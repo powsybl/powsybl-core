@@ -11,7 +11,7 @@ import eu.itesla_project.commons.ITeslaException;
 import eu.itesla_project.commons.tools.Command;
 import eu.itesla_project.commons.tools.Tool;
 import eu.itesla_project.commons.tools.ToolRunningContext;
-import eu.itesla_project.commons.datasource.AbstractDataSourceObserver;
+import eu.itesla_project.commons.datasource.DefaultDataSourceObserver;
 import eu.itesla_project.commons.datasource.DataSource;
 import eu.itesla_project.iidm.export.Exporter;
 import eu.itesla_project.iidm.export.Exporters;
@@ -79,7 +79,7 @@ public class ConversionTool implements Tool {
         Network network = Importers.loadNetwork(context.getFileSystem().getPath(inputFile), context.getComputationManager(), createImportConfig(), inputParams);
 
         Properties outputParams = readProperties(line, OptionType.EXPORT, context);
-        DataSource ds2 = Exporters.createDataSource(context.getFileSystem().getPath(outputFile), new AbstractDataSourceObserver() {
+        DataSource ds2 = Exporters.createDataSource(context.getFileSystem().getPath(outputFile), new DefaultDataSourceObserver() {
             @Override
             public void opened(String streamName) {
                 context.getOutputStream().println("Generating file " + streamName + "...");

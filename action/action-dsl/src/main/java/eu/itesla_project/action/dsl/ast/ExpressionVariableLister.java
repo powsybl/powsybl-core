@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class ExpressionVariableLister extends AbstractExpressionVisitor<Void, List<NetworkNode>> {
+public class ExpressionVariableLister extends DefaultExpressionVisitor<Void, List<NetworkNode>> {
 
     public static List<NetworkNode> list(ExpressionNode root) {
         List<NetworkNode> variables = new ArrayList<>();

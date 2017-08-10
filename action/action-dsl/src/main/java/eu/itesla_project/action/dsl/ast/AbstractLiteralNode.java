@@ -6,21 +6,17 @@
  */
 package eu.itesla_project.action.dsl.ast;
 
-import java.util.Objects;
-
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public abstract class UnaryOperatorNode implements ExpressionNode {
+public abstract class AbstractLiteralNode implements ExpressionNode {
 
-    protected final ExpressionNode child;
+    public abstract LiteralType getType();
 
-    protected UnaryOperatorNode(ExpressionNode child) {
-        this.child = Objects.requireNonNull(child);
+    public abstract Object getValue();
+
+    @Override
+    public <R, A> R accept(ExpressionVisitor<R, A> visitor, A arg) {
+        return visitor.visitLiteral(this, arg);
     }
-
-    public ExpressionNode getChild() {
-        return child;
-    }
-
 }

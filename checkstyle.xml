@@ -10,6 +10,7 @@
 
     <module name="TreeWalker">
         <module name="AbbreviationAsWordInName"/>
+        <module name="AbstractClassName"/>
         <module name="EqualsHashCode"/>
         <module name="IllegalImport"/>
         <module name="LeftCurly"/>

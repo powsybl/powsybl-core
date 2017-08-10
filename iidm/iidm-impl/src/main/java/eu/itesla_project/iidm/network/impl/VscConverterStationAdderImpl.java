@@ -12,7 +12,7 @@ import eu.itesla_project.iidm.network.VscConverterStationAdder;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-class VscConverterStationAdderImpl extends HvdcConverterStationAdderImpl<VscConverterStationAdderImpl> implements VscConverterStationAdder {
+class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<VscConverterStationAdderImpl> implements VscConverterStationAdder {
 
     private Boolean voltageRegulatorOn;
 

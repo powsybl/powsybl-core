@@ -9,13 +9,13 @@ package eu.itesla_project.iidm.network.impl;
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public abstract class HvdcConverterStationAdderImpl<T extends HvdcConverterStationAdderImpl<T>> extends SingleTerminalConnectableAdderImpl<T> {
+public abstract class AbstractHvdcConverterStationAdder<T extends AbstractHvdcConverterStationAdder<T>> extends AbstractSingleTerminalConnectableAdder<T> {
 
     private final VoltageLevelExt voltageLevel;
 
     private float lossFactor = Float.NaN;
 
-    HvdcConverterStationAdderImpl(VoltageLevelExt voltageLevel) {
+    AbstractHvdcConverterStationAdder(VoltageLevelExt voltageLevel) {
         this.voltageLevel = voltageLevel;
     }
 

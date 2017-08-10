@@ -9,7 +9,6 @@ package eu.itesla_project.afs.ext.base;
 import eu.itesla_project.afs.AfsException;
 import eu.itesla_project.afs.AppFileSystem;
 import eu.itesla_project.afs.File;
-import eu.itesla_project.afs.FileIcon;
 import eu.itesla_project.afs.storage.AppFileSystemStorage;
 import eu.itesla_project.afs.storage.NodeId;
 import eu.itesla_project.commons.datasource.ReadOnlyDataSource;
@@ -27,16 +26,17 @@ public class Case extends File {
     static final String DATA_SOURCE = "dataSource";
 
     public Case(NodeId id, AppFileSystemStorage storage, AppFileSystem fileSystem) {
-        super(id, storage, fileSystem);
+        super(id, storage, fileSystem, CaseIconCache.INSTANCE.get(fileSystem.getData().getComponentDefaultConfig().newFactoryImpl(ImportersLoader.class),
+                                                                  fileSystem.getData().getComputationManager(),
+                                                                  getFormat(storage, id)));
     }
 
-    private String getFormat() {
+    private static String getFormat(AppFileSystemStorage storage, NodeId id) {
         return storage.getStringAttribute(id, FORMAT);
     }
 
-    @Override
-    public FileIcon getIcon() {
-        return CaseIconCache.INSTANCE.get(fileSystem.getData().getComponentDefaultConfig().newFactoryImpl(ImportersLoader.class), fileSystem.getData().getComputationManager(), getFormat());
+    private String getFormat() {
+        return getFormat(storage, id);
     }
 
     public ReadOnlyDataSource getDataSource() {

@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class ExpressionEvaluator extends AbstractExpressionVisitor<Object, Void> {
+public class ExpressionEvaluator extends DefaultExpressionVisitor<Object, Void> {
 
     private final EvaluationContext context;
 
@@ -31,7 +31,7 @@ public class ExpressionEvaluator extends AbstractExpressionVisitor<Object, Void>
     }
 
     @Override
-    public Object visitLiteral(LiteralNode node, Void arg) {
+    public Object visitLiteral(AbstractLiteralNode node, Void arg) {
         return node.getValue();
     }
 

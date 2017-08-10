@@ -17,7 +17,7 @@ import javax.xml.stream.XMLStreamException;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class ThreeWindingsTransformerXml extends TransformerXml<ThreeWindingsTransformer, ThreeWindingsTransformerAdder> {
+class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTransformer, ThreeWindingsTransformerAdder> {
 
     static final ThreeWindingsTransformerXml INSTANCE = new ThreeWindingsTransformerXml();
 

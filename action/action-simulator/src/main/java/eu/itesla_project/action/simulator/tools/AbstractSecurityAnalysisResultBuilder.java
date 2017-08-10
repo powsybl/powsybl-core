@@ -6,7 +6,7 @@
  */
 package eu.itesla_project.action.simulator.tools;
 
-import eu.itesla_project.action.simulator.loadflow.AbstractLoadFlowActionSimulatorObserver;
+import eu.itesla_project.action.simulator.loadflow.DefaultLoadFlowActionSimulatorObserver;
 import eu.itesla_project.contingency.Contingency;
 import eu.itesla_project.iidm.network.Network;
 import eu.itesla_project.security.*;
@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public abstract class SecurityAnalysisResultBuilder extends AbstractLoadFlowActionSimulatorObserver {
+public abstract class AbstractSecurityAnalysisResultBuilder extends DefaultLoadFlowActionSimulatorObserver {
 
     private LimitViolationsResult preContingencyResult;
 

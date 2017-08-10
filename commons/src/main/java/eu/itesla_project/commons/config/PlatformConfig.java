@@ -21,7 +21,7 @@ import java.util.Objects;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public abstract class PlatformConfig {
+public class PlatformConfig {
 
     @Deprecated
     public static final Path CONFIG_DIR;
@@ -41,6 +41,8 @@ public abstract class PlatformConfig {
     protected final Path configDir;
 
     protected final Path cacheDir;
+
+    protected final ModuleConfigContainer container;
 
     static {
         CONFIG_DIR = FileUtil.createDirectory(getDefaultConfigDir(FileSystems.getDefault()));
@@ -85,14 +87,15 @@ public abstract class PlatformConfig {
         return defaultCacheManager;
     }
 
-    protected PlatformConfig(FileSystem fileSystem) {
-        this(fileSystem, getDefaultConfigDir(fileSystem), getDefaultCacheDir(fileSystem));
+    protected PlatformConfig(FileSystem fileSystem, ModuleConfigContainer container) {
+        this(fileSystem, getDefaultConfigDir(fileSystem), getDefaultCacheDir(fileSystem), container);
     }
 
-    protected PlatformConfig(FileSystem fileSystem, Path configDir, Path cacheDir) {
+    protected PlatformConfig(FileSystem fileSystem, Path configDir, Path cacheDir, ModuleConfigContainer container) {
         this.fileSystem = Objects.requireNonNull(fileSystem);
         this.configDir = FileUtil.createDirectory(configDir);
         this.cacheDir = FileUtil.createDirectory(cacheDir);
+        this.container = Objects.requireNonNull(container);
     }
 
     public FileSystem getFileSystem() {
@@ -107,11 +110,17 @@ public abstract class PlatformConfig {
         return cacheDir;
     }
 
-    public abstract boolean moduleExists(String name);
+    public boolean moduleExists(String name) {
+        return container.moduleExists(name);
+    }
 
-    public abstract ModuleConfig getModuleConfig(String name);
+    public ModuleConfig getModuleConfig(String name) {
+        return container.getModuleConfig(name);
+    }
 
-    public abstract ModuleConfig getModuleConfigIfExists(String name);
+    public ModuleConfig getModuleConfigIfExists(String name) {
+        return container.getModuleConfigIfExists(name);
+    }
 
     static Path getDefaultConfigDir(FileSystem fileSystem) {
         return getDirectory(fileSystem, "itesla.config.dir", ".itesla");

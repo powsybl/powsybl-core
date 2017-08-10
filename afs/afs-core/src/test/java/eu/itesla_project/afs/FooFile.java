@@ -16,11 +16,6 @@ import eu.itesla_project.afs.storage.NodeId;
 class FooFile extends ProjectFile {
 
     FooFile(NodeId id, AppFileSystemStorage storage, NodeId projectId, AppFileSystem fileSystem) {
-        super(id, storage, projectId, fileSystem);
-    }
-
-    @Override
-    public FileIcon getIcon() {
-        return new FileIcon("?", new byte[]{});
+        super(id, storage, projectId, fileSystem, new FileIcon("?", new byte[]{}));
     }
 }

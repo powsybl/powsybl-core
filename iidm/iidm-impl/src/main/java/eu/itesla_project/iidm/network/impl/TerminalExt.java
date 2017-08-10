@@ -29,9 +29,10 @@ interface TerminalExt extends Terminal, Stateful {
 
     }
 
-    @Override ConnectableImpl getConnectable();
+    @Override
+    AbstractConnectable getConnectable();
 
-    void setConnectable(ConnectableImpl connectable);
+    void setConnectable(AbstractConnectable connectable);
 
     @Override VoltageLevelExt getVoltageLevel();
 

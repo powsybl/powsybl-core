@@ -12,7 +12,7 @@ import eu.itesla_project.iidm.network.BusAdder;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class BusAdderImpl extends IdentifiableAdderImpl<BusAdderImpl> implements BusAdder {
+class BusAdderImpl extends AbstractIdentifiableAdder<BusAdderImpl> implements BusAdder {
 
     private final BusBreakerVoltageLevel voltageLevel;
 

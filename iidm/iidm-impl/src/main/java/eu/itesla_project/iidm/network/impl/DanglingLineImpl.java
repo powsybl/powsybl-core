@@ -16,7 +16,7 @@ import gnu.trove.list.array.TFloatArrayList;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class DanglingLineImpl extends ConnectableImpl<DanglingLine> implements DanglingLine, CurrentLimitsOwner<Void> {
+class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements DanglingLine, CurrentLimitsOwner<Void> {
 
     private final Ref<? extends MultiStateObject> network;
 

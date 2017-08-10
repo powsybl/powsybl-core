@@ -15,7 +15,7 @@ import javax.xml.stream.XMLStreamException;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class NodeBreakerViewSwitchXml extends SwitchXml<VoltageLevel.NodeBreakerView.SwitchAdder> {
+public class NodeBreakerViewSwitchXml extends AbstractSwitchXml<VoltageLevel.NodeBreakerView.SwitchAdder> {
 
     static final NodeBreakerViewSwitchXml INSTANCE = new NodeBreakerViewSwitchXml();
 

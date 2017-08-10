@@ -7,7 +7,7 @@
 package eu.itesla_project.contingency;
 
 import eu.itesla_project.contingency.tasks.GeneratorTripping;
-import eu.itesla_project.contingency.tasks.TrippingTask;
+import eu.itesla_project.contingency.tasks.AbstractTrippingTask;
 
 import java.util.Objects;
 
@@ -33,7 +33,7 @@ public class GeneratorContingency implements ContingencyElement {
     }
 
     @Override
-    public TrippingTask toTask() {
+    public AbstractTrippingTask toTask() {
         return new GeneratorTripping(id);
     }
 

@@ -14,13 +14,13 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public abstract class NodeBase<FOLDER> {
+public abstract class AbstractNodeBase<FOLDER> {
 
     protected final NodeId id;
 
     protected final AppFileSystemStorage storage;
 
-    public NodeBase(NodeId id, AppFileSystemStorage storage) {
+    public AbstractNodeBase(NodeId id, AppFileSystemStorage storage) {
         this.id = Objects.requireNonNull(id);
         this.storage = Objects.requireNonNull(storage);
     }

@@ -18,7 +18,7 @@ import eu.itesla_project.commons.io.table.TableFormatterFactory;
  *
  * @author Massimo Ferraro <massimo.ferraro@techrain.it>
  */
-public class ValidationFormatterCsvMultilineWriter extends ValidationFormatterWriter {
+public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFormatterWriter {
 
     private final boolean verbose;
 

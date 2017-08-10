@@ -19,7 +19,7 @@ import java.util.Set;
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class BusbarSectionTripping extends TrippingTask {
+public class BusbarSectionTripping extends AbstractTrippingTask {
 
     private final String busbarSectionId;
 

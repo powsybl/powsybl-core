@@ -19,7 +19,7 @@ abstract class AbstractTerminal implements TerminalExt {
 
     protected final Ref<? extends MultiStateObject> network;
 
-    protected ConnectableImpl connectable;
+    protected AbstractConnectable connectable;
 
     protected VoltageLevelExt voltageLevel;
 
@@ -43,12 +43,12 @@ abstract class AbstractTerminal implements TerminalExt {
     }
 
     @Override
-    public ConnectableImpl getConnectable() {
+    public AbstractConnectable getConnectable() {
         return connectable;
     }
 
     @Override
-    public void setConnectable(ConnectableImpl connectable) {
+    public void setConnectable(AbstractConnectable connectable) {
         this.connectable = connectable;
     }
 

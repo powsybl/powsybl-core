@@ -7,7 +7,7 @@
 package eu.itesla_project.afs.mapdb.storage;
 
 import eu.itesla_project.afs.storage.NodeId;
-import eu.itesla_project.commons.datasource.AbstractDataSourceObserver;
+import eu.itesla_project.commons.datasource.DefaultDataSourceObserver;
 import eu.itesla_project.commons.datasource.DataSource;
 import eu.itesla_project.commons.datasource.ObservableOutputStream;
 
@@ -86,7 +86,7 @@ public class MapDbDataSource implements DataSource {
                 os.write(ba, 0, ba.length);
             }
         }
-        return new ObservableOutputStream(os, key.toString(), new AbstractDataSourceObserver() {
+        return new ObservableOutputStream(os, key.toString(), new DefaultDataSourceObserver() {
             @Override
             public void closed(String streamName) {
                 data.put(key, os.toByteArray());
@@ -104,7 +104,7 @@ public class MapDbDataSource implements DataSource {
                 os.write(ba, 0, ba.length);
             }
         }
-        return new ObservableOutputStream(os, fileName, new AbstractDataSourceObserver() {
+        return new ObservableOutputStream(os, fileName, new DefaultDataSourceObserver() {
             @Override
             public void closed(String streamName) {
                 data2.put(fileName, os.toByteArray());

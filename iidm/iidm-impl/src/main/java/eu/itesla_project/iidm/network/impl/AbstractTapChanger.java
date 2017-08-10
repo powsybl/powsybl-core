@@ -16,7 +16,7 @@ import java.util.List;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-abstract class TapChangerImpl<H extends TapChangerParent, C extends TapChangerImpl<H, C, S>, S extends TapChangerStepImpl<S>> implements Stateful {
+abstract class AbstractTapChanger<H extends TapChangerParent, C extends AbstractTapChanger<H, C, S>, S extends TapChangerStepImpl<S>> implements Stateful {
 
     protected final Ref<? extends MultiStateObject> network;
 
@@ -34,9 +34,9 @@ abstract class TapChangerImpl<H extends TapChangerParent, C extends TapChangerIm
 
     protected final BitSet regulating;
 
-    protected TapChangerImpl(Ref<? extends MultiStateObject> network, H parent,
-                             int lowTapPosition, List<S> steps, TerminalExt regulationTerminal,
-                             int tapPosition, boolean regulating) {
+    protected AbstractTapChanger(Ref<? extends MultiStateObject> network, H parent,
+                                 int lowTapPosition, List<S> steps, TerminalExt regulationTerminal,
+                                 int tapPosition, boolean regulating) {
         this.network = network;
         this.parent = parent;
         this.lowTapPosition = lowTapPosition;

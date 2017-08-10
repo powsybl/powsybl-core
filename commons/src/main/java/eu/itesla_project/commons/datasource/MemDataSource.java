@@ -31,7 +31,7 @@ public class MemDataSource extends ReadOnlyMemDataSource implements DataSource {
                 os.write(ba, 0, ba.length);
             }
         }
-        return new ObservableOutputStream(os, fileName, new AbstractDataSourceObserver() {
+        return new ObservableOutputStream(os, fileName, new DefaultDataSourceObserver() {
             @Override
             public void closed(String streamName) {
                 putData(fileName, os.toByteArray());

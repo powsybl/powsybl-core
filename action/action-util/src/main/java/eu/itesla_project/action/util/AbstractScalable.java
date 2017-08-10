@@ -9,57 +9,26 @@ package eu.itesla_project.action.util;
 import eu.itesla_project.iidm.network.Generator;
 import eu.itesla_project.iidm.network.Network;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-abstract class AbstractScalable extends Scalable {
+abstract class AbstractScalable implements Scalable {
 
-    protected final List<Scalable> scalables;
-
-    protected AbstractScalable(List<Scalable> scalables) {
-        this.scalables = Objects.requireNonNull(scalables);
+    protected AbstractScalable() {
     }
 
     @Override
-    public float initialValue(Network n) {
-        Objects.requireNonNull(n);
-
-        float value = 0;
-        for (Scalable scalable : scalables) {
-            value += scalable.initialValue(n);
-        }
-        return value;
+    public List<Generator> listGenerators(Network n, List<String> notFoundGenerators) {
+        List<Generator> generators = new ArrayList<>();
+        listGenerators(n, generators, notFoundGenerators);
+        return generators;
     }
 
     @Override
-    public void reset(Network n) {
-        Objects.requireNonNull(n);
-
-        scalables.forEach(scalable -> scalable.reset(n));
+    public List<Generator> listGenerators(Network n) {
+        return listGenerators(n, null);
     }
-
-    @Override
-    public float maximumValue(Network n) {
-        Objects.requireNonNull(n);
-
-        float value = 0;
-        for (Scalable scalable : scalables) {
-            value += scalable.maximumValue(n);
-        }
-        return value;
-    }
-
-    @Override
-    public void listGenerators(Network n, List<Generator> generators, List<String> notFoundGenerators) {
-        Objects.requireNonNull(n);
-        Objects.requireNonNull(generators);
-
-        for (Scalable scalable : scalables) {
-            scalable.listGenerators(n, generators, notFoundGenerators);
-        }
-    }
-
 }

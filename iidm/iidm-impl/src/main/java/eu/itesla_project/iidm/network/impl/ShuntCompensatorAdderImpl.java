@@ -12,7 +12,7 @@ import eu.itesla_project.iidm.network.ShuntCompensatorAdder;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class ShuntCompensatorAdderImpl extends SingleTerminalConnectableAdderImpl<ShuntCompensatorAdderImpl> implements ShuntCompensatorAdder {
+class ShuntCompensatorAdderImpl extends AbstractSingleTerminalConnectableAdder<ShuntCompensatorAdderImpl> implements ShuntCompensatorAdder {
 
     private final VoltageLevelExt voltageLevel;
 

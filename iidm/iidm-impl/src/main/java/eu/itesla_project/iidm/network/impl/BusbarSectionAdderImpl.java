@@ -13,7 +13,7 @@ import eu.itesla_project.iidm.network.BusbarSectionAdder;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class BusbarSectionAdderImpl extends IdentifiableAdderImpl<BusbarSectionAdderImpl> implements BusbarSectionAdder {
+class BusbarSectionAdderImpl extends AbstractIdentifiableAdder<BusbarSectionAdderImpl> implements BusbarSectionAdder {
 
     private final VoltageLevelExt voltageLevel;
 

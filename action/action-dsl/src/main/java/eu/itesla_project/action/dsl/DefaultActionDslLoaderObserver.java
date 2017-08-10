@@ -9,7 +9,7 @@ package eu.itesla_project.action.dsl;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class AbstractActionDslLoaderObserver implements ActionDslLoaderObserver {
+public class DefaultActionDslLoaderObserver implements ActionDslLoaderObserver {
     @Override
     public void begin(String dslFile) {
     }

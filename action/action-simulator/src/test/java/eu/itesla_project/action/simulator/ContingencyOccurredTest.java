@@ -6,7 +6,7 @@
  */
 package eu.itesla_project.action.simulator;
 
-import eu.itesla_project.action.simulator.loadflow.AbstractLoadFlowActionSimulatorObserver;
+import eu.itesla_project.action.simulator.loadflow.DefaultLoadFlowActionSimulatorObserver;
 import eu.itesla_project.action.simulator.loadflow.LoadFlowActionSimulatorObserver;
 import eu.itesla_project.contingency.Contingency;
 import eu.itesla_project.iidm.network.Line;
@@ -35,7 +35,7 @@ public class ContingencyOccurredTest extends AbstractLoadFlowRulesEngineTest {
 
     @Override
     protected LoadFlowActionSimulatorObserver createObserver() {
-        return new AbstractLoadFlowActionSimulatorObserver() {
+        return new DefaultLoadFlowActionSimulatorObserver() {
 
             private Network preContNetwork;
             private Network postContNetwork;

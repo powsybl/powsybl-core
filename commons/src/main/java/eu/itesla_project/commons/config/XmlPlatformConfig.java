@@ -39,9 +39,9 @@ public class XmlPlatformConfig extends InMemoryPlatformConfig {
         this(fs, configDir, getDefaultCacheDir(fs), configName);
     }
 
-    public XmlPlatformConfig(FileSystem fs, Path configDir, Path cacheDir, String configName)
+    public XmlPlatformConfig(FileSystem fileSystem, Path configDir, Path cacheDir, String configName)
             throws IOException, SAXException, ParserConfigurationException {
-        super(fs, configDir, cacheDir);
+        super(fileSystem, configDir, cacheDir);
 
         Path file = configDir.resolve(configName + ".xml");
         if (Files.exists(file)) {
@@ -69,7 +69,7 @@ public class XmlPlatformConfig extends InMemoryPlatformConfig {
                                 properties.put(propertyName, propertyValue);
                             }
                         }
-                        configs.put(moduleName, new MapModuleConfig(properties, fs));
+                        ((InMemoryModuleConfigContainer) container).getConfigs().put(moduleName, new MapModuleConfig(properties, fileSystem));
                     }
                 }
             }

@@ -6,7 +6,7 @@
  */
 package eu.itesla_project.contingency;
 
-import eu.itesla_project.contingency.tasks.TrippingTask;
+import eu.itesla_project.contingency.tasks.AbstractTrippingTask;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -17,6 +17,6 @@ public interface ContingencyElement {
 
     ContingencyElementType getType();
 
-    TrippingTask toTask();
+    AbstractTrippingTask toTask();
 
 }

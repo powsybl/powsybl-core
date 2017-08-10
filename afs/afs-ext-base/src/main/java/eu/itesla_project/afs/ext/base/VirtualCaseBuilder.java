@@ -6,10 +6,7 @@
  */
 package eu.itesla_project.afs.ext.base;
 
-import eu.itesla_project.afs.AfsException;
-import eu.itesla_project.afs.AppFileSystem;
-import eu.itesla_project.afs.Project;
-import eu.itesla_project.afs.ProjectFileBuilder;
+import eu.itesla_project.afs.*;
 import eu.itesla_project.afs.storage.AppFileSystemStorage;
 import eu.itesla_project.afs.storage.NodeId;
 
@@ -72,8 +69,8 @@ public class VirtualCaseBuilder implements ProjectFileBuilder<VirtualCase> {
 
         // check links
         Project project = new Project(projectId, storage, fileSystem);
-        ProjectCase aCase = (ProjectCase) project.getRootFolder().getChild(casePath);
-        if (aCase == null) {
+        ProjectFile aCase = (ProjectFile) project.getRootFolder().getChild(casePath);
+        if (!(aCase instanceof ProjectCase)) {
             throw new AfsException("Invalid case path " + casePath);
         }
         ModificationScript script = (ModificationScript) project.getRootFolder().getChild(scriptPath);

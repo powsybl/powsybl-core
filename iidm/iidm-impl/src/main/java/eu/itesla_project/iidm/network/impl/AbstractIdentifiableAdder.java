@@ -13,7 +13,7 @@ import eu.itesla_project.iidm.network.Identifiable;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-abstract class IdentifiableAdderImpl<T extends IdentifiableAdderImpl<T>> implements Validable {
+abstract class AbstractIdentifiableAdder<T extends AbstractIdentifiableAdder<T>> implements Validable {
 
     private String id;
 
@@ -21,7 +21,7 @@ abstract class IdentifiableAdderImpl<T extends IdentifiableAdderImpl<T>> impleme
 
     private String name;
 
-    IdentifiableAdderImpl() {
+    AbstractIdentifiableAdder() {
     }
 
     protected abstract NetworkImpl getNetwork();

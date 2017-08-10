@@ -17,7 +17,7 @@ import java.util.BitSet;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-class VscConverterStationImpl extends HvdcConverterStationImpl<VscConverterStation> implements VscConverterStation, ReactiveLimitsOwner {
+class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterStation> implements VscConverterStation, ReactiveLimitsOwner {
 
     static final String TYPE_DESCRIPTION = "vscConverterStation";
 

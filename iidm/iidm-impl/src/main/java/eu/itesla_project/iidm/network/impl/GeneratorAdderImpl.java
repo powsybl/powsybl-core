@@ -14,7 +14,7 @@ import eu.itesla_project.iidm.network.Terminal;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class GeneratorAdderImpl extends SingleTerminalConnectableAdderImpl<GeneratorAdderImpl> implements GeneratorAdder {
+class GeneratorAdderImpl extends AbstractSingleTerminalConnectableAdder<GeneratorAdderImpl> implements GeneratorAdder {
 
     private final VoltageLevelExt voltageLevel;
 

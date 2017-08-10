@@ -32,50 +32,51 @@ public class PropertiesPlatformConfig extends PlatformConfig {
     private static final Logger LOGGER = LoggerFactory.getLogger(PropertiesPlatformConfig.class);
 
     @Deprecated
-    public PropertiesPlatformConfig(Path configDir, FileSystem fs) {
-        this(fs, configDir, getDefaultCacheDir(fs));
+    public PropertiesPlatformConfig(Path configDir, FileSystem fileSystem) {
+        this(fileSystem, configDir, getDefaultCacheDir(fileSystem));
     }
 
-    public PropertiesPlatformConfig(FileSystem fs, Path configDir, Path cacheDir) {
-        super(fs, configDir, cacheDir);
-        LOGGER.info("Platform configuration defined by .properties files of directory {}", configDir);
-    }
+    public PropertiesPlatformConfig(FileSystem fileSystem, Path configDir, Path cacheDir) {
+        super(fileSystem, configDir, cacheDir, new ModuleConfigContainer() {
 
-    private Path getModulePath(String name) {
-        return configDir.resolve(name + ".properties");
-    }
-
-    @Override
-    public boolean moduleExists(String name) {
-        Path path = getModulePath(name);
-        return Files.exists(path);
-    }
-
-    @Override
-    public ModuleConfig getModuleConfig(String name) {
-        ModuleConfig moduleConfig = getModuleConfigIfExists(name);
-        if (moduleConfig == null) {
-            throw new RuntimeException("Module " + name + " not found");
-        }
-        return moduleConfig;
-    }
-
-    @Override
-    public ModuleConfig getModuleConfigIfExists(String name) {
-        Path path = getModulePath(name);
-        if (!Files.exists(path)) {
-            return null;
-        }
-        LOGGER.info("Reading property file {}", path);
-        Properties properties = new Properties();
-        try {
-            try (InputStream is = Files.newInputStream(path)) {
-                properties.load(is);
+            private Path getModulePath(String name) {
+                return configDir.resolve(name + ".properties");
             }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        return new MapModuleConfig(properties, fileSystem);
+
+            @Override
+            public boolean moduleExists(String name) {
+                Path path = getModulePath(name);
+                return Files.exists(path);
+            }
+
+            @Override
+            public ModuleConfig getModuleConfig(String name) {
+                ModuleConfig moduleConfig = getModuleConfigIfExists(name);
+                if (moduleConfig == null) {
+                    throw new RuntimeException("Module " + name + " not found");
+                }
+                return moduleConfig;
+            }
+
+            @Override
+            public ModuleConfig getModuleConfigIfExists(String name) {
+                Path path = getModulePath(name);
+                if (!Files.exists(path)) {
+                    return null;
+                }
+                LOGGER.info("Reading property file {}", path);
+                Properties properties = new Properties();
+                try {
+                    try (InputStream is = Files.newInputStream(path)) {
+                        properties.load(is);
+                    }
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                return new MapModuleConfig(properties, fileSystem);
+            }
+        });
+        LOGGER.info("Platform configuration defined by .properties files of directory {}", configDir);
     }
 
     public static void writeXml(Path configDir, Path xmlFile) throws IOException, XMLStreamException {

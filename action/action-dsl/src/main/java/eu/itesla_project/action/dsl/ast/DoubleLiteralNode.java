@@ -9,7 +9,7 @@ package eu.itesla_project.action.dsl.ast;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class DoubleLiteralNode extends LiteralNode {
+public class DoubleLiteralNode extends AbstractLiteralNode {
 
     private final double value;
 

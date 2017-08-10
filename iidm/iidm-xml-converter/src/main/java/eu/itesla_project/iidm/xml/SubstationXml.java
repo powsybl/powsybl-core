@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class SubstationXml extends IdentifiableXml<Substation, SubstationAdder, Network> {
+class SubstationXml extends AbstractIdentifiableXml<Substation, SubstationAdder, Network> {
 
     static final SubstationXml INSTANCE = new SubstationXml();
 
