@@ -6,20 +6,21 @@
  */
 package eu.itesla_project.scripting.groovy;
 
-import eu.itesla_project.afs.FooFileExtension;
-import eu.itesla_project.afs.ProjectFileExtension;
+import eu.itesla_project.afs.AfsException;
 import eu.itesla_project.afs.mapdb.storage.MapDbAppFileSystemStorage;
 import eu.itesla_project.afs.storage.AppFileSystemStorage;
+import org.junit.Ignore;
+import org.junit.Test;
 
+import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class GroovyScriptAfsExtensionTest extends GroovyScriptAbstractTest {
+@Ignore
+public class AfsExtensionErrorGroovyScriptTest extends AbstractGroovyScriptTest {
 
     @Override
     protected AppFileSystemStorage createStorage() {
@@ -27,21 +28,21 @@ public class GroovyScriptAfsExtensionTest extends GroovyScriptAbstractTest {
     }
 
     @Override
-    protected List<ProjectFileExtension> getProjectFileExtensions() {
-        return Collections.singletonList(new FooFileExtension());
-    }
-
-    @Override
     protected Reader getCodeReader() {
         return new StringReader(String.join(System.lineSeparator(),
                 "project = afs.getNode('mem:/').createProject('test', '')",
-                "foo = project.getRootFolder().fooBuilder().build()",
-                "print foo.getName()"
+                "bar = project.getRootFolder().barBuilder().build()"
         ));
     }
 
     @Override
     protected String getExpectedOutput() {
-        return "foo";
+        return "";
+    }
+
+    @Override
+    @Test(expected = AfsException.class)
+    public void test() throws IOException {
+        super.test();
     }
 }

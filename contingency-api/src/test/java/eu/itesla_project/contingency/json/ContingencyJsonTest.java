@@ -3,7 +3,7 @@ package eu.itesla_project.contingency.json;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import eu.itesla_project.commons.ConverterBaseTest;
+import eu.itesla_project.commons.AbstractConverterTest;
 import eu.itesla_project.contingency.*;
 import org.junit.Test;
 
@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class ContingencyJsonTest extends ConverterBaseTest {
+public class ContingencyJsonTest extends AbstractConverterTest {
     
     private static Contingency create() {
         List<ContingencyElement> elements = new ArrayList<>();

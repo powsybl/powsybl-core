@@ -11,7 +11,6 @@ import eu.itesla_project.iidm.network.Load;
 import eu.itesla_project.iidm.network.test.LoadZipModel;
 
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
 import java.io.InputStream;
 
 /**

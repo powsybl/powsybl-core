@@ -6,7 +6,7 @@
  */
 package eu.itesla_project.loadflow.api.json;
 
-import eu.itesla_project.commons.ConverterBaseTest;
+import eu.itesla_project.commons.AbstractConverterTest;
 import eu.itesla_project.loadflow.api.LoadFlowResult;
 import eu.itesla_project.loadflow.json.LoadFlowResultDeserializer;
 import eu.itesla_project.loadflow.json.LoadFlowResultSerializer;
@@ -20,7 +20,7 @@ import java.util.Map;
 /**
  * @author Christian Biasuzzi <christian.biasuzzi@techrain.it>
  */
-public class LoadFlowResultJsonTest extends ConverterBaseTest {
+public class LoadFlowResultJsonTest extends AbstractConverterTest {
 
     private static LoadFlowResult create() {
         return new LoadFlowResult() {

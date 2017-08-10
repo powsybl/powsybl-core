@@ -7,7 +7,6 @@
 package eu.itesla_project.iidm.network.impl;
 
 import eu.itesla_project.iidm.network.HvdcLine;
-import eu.itesla_project.iidm.network.LccConverterStation;
 import eu.itesla_project.iidm.network.Network;
 import eu.itesla_project.iidm.network.VscConverterStation;
 import eu.itesla_project.iidm.network.test.HvdcTestNetwork;

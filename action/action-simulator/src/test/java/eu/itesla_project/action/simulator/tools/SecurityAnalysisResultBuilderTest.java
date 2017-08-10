@@ -21,7 +21,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public class AbstractSecurityAnalysisResultBuilderTest {
+public class SecurityAnalysisResultBuilderTest {
 
     private Contingency createContingency() {
         return new ContingencyImpl("contingency", Collections.emptyList());

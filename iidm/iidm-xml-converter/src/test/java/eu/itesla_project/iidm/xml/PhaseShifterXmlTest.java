@@ -6,7 +6,7 @@
  */
 package eu.itesla_project.iidm.xml;
 
-import eu.itesla_project.commons.ConverterBaseTest;
+import eu.itesla_project.commons.AbstractConverterTest;
 import eu.itesla_project.iidm.network.test.PhaseShifterTestCaseFactory;
 import org.junit.Test;
 
@@ -15,7 +15,7 @@ import java.io.IOException;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class PhaseShifterXmlTest extends ConverterBaseTest {
+public class PhaseShifterXmlTest extends AbstractConverterTest {
 
     @Test
     public void roundTripTest() throws IOException {
