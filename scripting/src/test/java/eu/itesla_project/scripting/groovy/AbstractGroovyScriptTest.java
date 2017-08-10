@@ -30,7 +30,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public abstract class GroovyScriptAbstractTest {
+public abstract class AbstractGroovyScriptTest {
 
     protected ComponentDefaultConfig componentDefaultConfig;
 

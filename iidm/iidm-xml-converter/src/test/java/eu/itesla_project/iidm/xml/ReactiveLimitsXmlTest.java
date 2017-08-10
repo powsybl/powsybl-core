@@ -6,7 +6,7 @@
  */
 package eu.itesla_project.iidm.xml;
 
-import eu.itesla_project.commons.ConverterBaseTest;
+import eu.itesla_project.commons.AbstractConverterTest;
 import eu.itesla_project.iidm.network.*;
 import org.joda.time.DateTime;
 import org.junit.Test;
@@ -16,7 +16,7 @@ import java.io.IOException;
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public class ReactiveLimitsXmlTest extends ConverterBaseTest {
+public class ReactiveLimitsXmlTest extends AbstractConverterTest {
 
     private static Network createNetwork() {
         Network network = NetworkFactory.create("ReactiveLimits", "???");

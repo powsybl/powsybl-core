@@ -6,7 +6,7 @@
  */
 package eu.itesla_project.iidm.xml;
 
-import eu.itesla_project.commons.ConverterBaseTest;
+import eu.itesla_project.commons.AbstractConverterTest;
 import eu.itesla_project.iidm.network.Network;
 import eu.itesla_project.iidm.network.test.EurostagTutorialExample1Factory;
 import org.joda.time.DateTime;
@@ -20,7 +20,7 @@ import java.nio.file.Path;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class NetworkXmlTest extends ConverterBaseTest {
+public class NetworkXmlTest extends AbstractConverterTest {
 
     static Network createEurostagTutorialExample1() {
         Network network = EurostagTutorialExample1Factory.create();

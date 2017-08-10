@@ -6,7 +6,7 @@
  */
 package eu.itesla_project.security.json;
 
-import eu.itesla_project.commons.ConverterBaseTest;
+import eu.itesla_project.commons.AbstractConverterTest;
 import eu.itesla_project.contingency.*;
 import eu.itesla_project.iidm.network.Country;
 import eu.itesla_project.security.*;
@@ -20,7 +20,7 @@ import java.util.List;
 /**
  * @author Massimo Ferraro <massimo.ferraro@techrain.it>
  */
-public class SecurityAnalysisResultJsonTest extends ConverterBaseTest {
+public class SecurityAnalysisResultJsonTest extends AbstractConverterTest {
 
     private static SecurityAnalysisResult create() {
         LimitViolation violation1 = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, 100f, "limit", .95f, 110f, Country.FR, 380f);

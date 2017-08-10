@@ -6,28 +6,11 @@
  */
 package eu.itesla_project.security;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.Collections;
-import java.util.Properties;
-import java.util.concurrent.Executor;
-
-import org.apache.commons.compress.utils.IOUtils;
-import org.junit.Test;
-import org.mockito.Mockito;
-
 import eu.itesla_project.computation.ComputationManager;
 import eu.itesla_project.contingency.BranchContingency;
 import eu.itesla_project.contingency.ContingenciesProvider;
 import eu.itesla_project.contingency.Contingency;
 import eu.itesla_project.contingency.tasks.ModificationTask;
-import eu.itesla_project.commons.datasource.MemDataSource;
-import eu.itesla_project.iidm.import_.Importers;
 import eu.itesla_project.iidm.network.Bus;
 import eu.itesla_project.iidm.network.Network;
 import eu.itesla_project.iidm.network.StateManager;
@@ -35,6 +18,14 @@ import eu.itesla_project.iidm.network.test.EurostagTutorialExample1Factory;
 import eu.itesla_project.loadflow.api.LoadFlowFactory;
 import eu.itesla_project.loadflow.api.LoadFlowParameters;
 import eu.itesla_project.loadflow.api.mock.LoadFlowFactoryMock;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.util.Collections;
+import java.util.concurrent.Executor;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  *

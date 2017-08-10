@@ -6,7 +6,7 @@
  */
 package eu.itesla_project.iidm.xml;
 
-import eu.itesla_project.commons.ConverterBaseTest;
+import eu.itesla_project.commons.AbstractConverterTest;
 import eu.itesla_project.iidm.network.test.FictitiousSwitchFactory;
 import org.junit.Test;
 
@@ -15,7 +15,7 @@ import java.io.IOException;
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class FictitiousSwitchTest extends ConverterBaseTest {
+public class FictitiousSwitchTest extends AbstractConverterTest {
 
     @Test
     public void roundTripTest() throws IOException {

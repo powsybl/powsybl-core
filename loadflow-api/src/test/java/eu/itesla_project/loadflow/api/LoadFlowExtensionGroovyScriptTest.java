@@ -7,7 +7,7 @@
 package eu.itesla_project.loadflow.api;
 
 import eu.itesla_project.computation.ComputationManager;
-import eu.itesla_project.scripting.groovy.GroovyScriptAbstractTest;
+import eu.itesla_project.scripting.groovy.AbstractGroovyScriptTest;
 import eu.itesla_project.scripting.groovy.GroovyScriptExtension;
 import eu.itesla_project.iidm.network.Network;
 import org.junit.Before;
@@ -21,7 +21,7 @@ import java.util.List;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class LoadFlowGroovyScriptExtensionTest extends GroovyScriptAbstractTest {
+public class LoadFlowExtensionGroovyScriptTest extends AbstractGroovyScriptTest {
 
     private LoadFlowFactory loadFlowFactory;
 

@@ -6,7 +6,7 @@
  */
 package eu.itesla_project.iidm.xml;
 
-import eu.itesla_project.commons.ConverterBaseTest;
+import eu.itesla_project.commons.AbstractConverterTest;
 import eu.itesla_project.iidm.network.test.HvdcTestNetwork;
 import org.junit.Test;
 
@@ -15,7 +15,7 @@ import java.io.IOException;
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public class HvdcXmlTest extends ConverterBaseTest {
+public class HvdcXmlTest extends AbstractConverterTest {
 
     @Test
     public void roundTripLccTest() throws IOException {
