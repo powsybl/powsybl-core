@@ -187,18 +187,18 @@ public class TopologyTraverserTest {
 
         List<String> traversed = new ArrayList<>();
         network.getVoltageLevel("VL1").getNodeBreakerView().getBusbarSection("BBS1")
-                .getTerminal().traverse(new VoltageLevel.TopologyTraverser() {
-            @Override
-            public boolean traverse(Terminal terminal, boolean connected) {
-                traversed.add(terminal.getConnectable().getId());
-                return connected;
-            }
+            .getTerminal().traverse(new VoltageLevel.TopologyTraverser() {
+                @Override
+                public boolean traverse(Terminal terminal, boolean connected) {
+                    traversed.add(terminal.getConnectable().getId());
+                    return connected;
+                }
 
-            @Override
-            public boolean traverse(Switch aSwitch) {
-                return !aSwitch.isOpen() && aSwitch.getKind() != SwitchKind.BREAKER;
-            }
-        });
+                @Override
+                public boolean traverse(Switch aSwitch) {
+                    return !aSwitch.isOpen() && aSwitch.getKind() != SwitchKind.BREAKER;
+                }
+            });
         Assert.assertEquals(traversed, Arrays.asList("BBS1", "G"));
     }
 

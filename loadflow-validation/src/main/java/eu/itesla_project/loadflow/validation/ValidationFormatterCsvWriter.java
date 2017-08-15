@@ -41,38 +41,38 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
 
     protected Column[] getColumns() {
         switch (validationType) {
-        case FLOWS:
-            if ( verbose ) {
+            case FLOWS:
+                if ( verbose ) {
+                    return new Column[] {
+                        new Column("id"),
+                        new Column("network_p1"),
+                        new Column("expected_p1"),
+                        new Column("network_q1"),
+                        new Column("expected_q1"),
+                        new Column("network_p2"),
+                        new Column("expected_p2"),
+                        new Column("network_q2"),
+                        new Column("expected_q2"),
+                        new Column("r"),
+                        new Column("x"),
+                        new Column("g1"),
+                        new Column("g2"),
+                        new Column("b1"),
+                        new Column("b2"),
+                        new Column("rho1"),
+                        new Column("rho2"),
+                        new Column("alpha1"),
+                        new Column("alpha2"),
+                        new Column("u1"),
+                        new Column("u2"),
+                        new Column("theta1"),
+                        new Column("theta2"),
+                        new Column("z"),
+                        new Column("y"),
+                        new Column("ksi")
+                    };
+                }
                 return new Column[] {
-                    new Column("id"),
-                    new Column("network_p1"),
-                    new Column("expected_p1"),
-                    new Column("network_q1"),
-                    new Column("expected_q1"),
-                    new Column("network_p2"),
-                    new Column("expected_p2"),
-                    new Column("network_q2"),
-                    new Column("expected_q2"),
-                    new Column("r"),
-                    new Column("x"),
-                    new Column("g1"),
-                    new Column("g2"),
-                    new Column("b1"),
-                    new Column("b2"),
-                    new Column("rho1"),
-                    new Column("rho2"),
-                    new Column("alpha1"),
-                    new Column("alpha2"),
-                    new Column("u1"),
-                    new Column("u2"),
-                    new Column("theta1"),
-                    new Column("theta2"),
-                    new Column("z"),
-                    new Column("y"),
-                    new Column("ksi")
-                };
-            }
-            return new Column[] {
                     new Column("id"),
                     new Column("network_p1"),
                     new Column("expected_p1"),
@@ -83,9 +83,9 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                     new Column("network_q2"),
                     new Column("expected_q2")
                 };
-        case GENERATORS:
-            if ( verbose ) {
-                return new Column[] {
+            case GENERATORS:
+                if ( verbose ) {
+                    return new Column[] {
                         new Column("id"),
                         new Column("p"),
                         new Column("q"),
@@ -97,9 +97,9 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                         new Column("voltageRegulatorOn"),
                         new Column("minQ"),
                         new Column("maxQ")
-                };
-            }
-            return new Column[] {
+                    };
+                }
+                return new Column[] {
                     new Column("id"),
                     new Column("p"),
                     new Column("q"),
@@ -107,9 +107,9 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                     new Column("targetP"),
                     new Column("targetQ"),
                     new Column("targetV")
-            };
-        default:
-            throw new InternalError();
+                };
+            default:
+                throw new InternalError();
         }
     }
 

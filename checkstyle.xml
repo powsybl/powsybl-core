@@ -13,6 +13,7 @@
         <module name="AbstractClassName"/>
         <module name="EqualsHashCode"/>
         <module name="IllegalImport"/>
+        <module name="Indentation"/>
         <module name="LeftCurly"/>
         <module name="NeedBraces"/>
         <module name="RedundantImport"/>

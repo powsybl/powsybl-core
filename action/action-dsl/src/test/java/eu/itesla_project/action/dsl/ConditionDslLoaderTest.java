@@ -98,8 +98,8 @@ public class ConditionDslLoaderTest {
         loadAndAssert("true", "true");
         loadAndAssert("false", "true && false");
         for (String op : Arrays.asList("&&", "||")) {
-             loadAndAssert("(line('NHV1_NHV2_1').overloaded " + op + " true)", "line('NHV1_NHV2_1').overloaded " + op + " true");
-             loadAndAssert("(true " + op + " line('NHV1_NHV2_1').overloaded)", "true " + op + " line('NHV1_NHV2_1').overloaded");
+            loadAndAssert("(line('NHV1_NHV2_1').overloaded " + op + " true)", "line('NHV1_NHV2_1').overloaded " + op + " true");
+            loadAndAssert("(true " + op + " line('NHV1_NHV2_1').overloaded)", "true " + op + " line('NHV1_NHV2_1').overloaded");
         }
         loadAndAssert("false", "!true");
         loadAndAssert("!(line('NHV1_NHV2_1').overloaded)", "!line('NHV1_NHV2_1').overloaded");

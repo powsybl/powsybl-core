@@ -73,10 +73,12 @@ public class ConversionToolTest extends AbstractToolTest {
 
     @Test
     public void testConversion() throws IOException {
-        String[] commandLine = new String[] {"convert-network", "--input-file", "/input.txt",
-                "--import-parameters", "/import-parameters.xml", "-Iparam1=value1",
-                "--output-format", "OUT", "--output-file", "/output.txt",
-                "--export-parameters", "/export-parameters.properties", "-Eparam2=value2" };
+        String[] commandLine = new String[] {
+            "convert-network", "--input-file", "/input.txt",
+            "--import-parameters", "/import-parameters.xml", "-Iparam1=value1",
+            "--output-format", "OUT", "--output-file", "/output.txt",
+            "--export-parameters", "/export-parameters.properties", "-Eparam2=value2"
+        };
         assertCommand(commandLine, CommandLineTools.COMMAND_OK_STATUS, "", "");
     }
 }

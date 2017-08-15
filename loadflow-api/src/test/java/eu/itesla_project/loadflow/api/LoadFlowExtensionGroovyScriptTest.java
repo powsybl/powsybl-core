@@ -62,6 +62,6 @@ public class LoadFlowExtensionGroovyScriptTest extends AbstractGroovyScriptTest 
     @Override
     protected List<GroovyScriptExtension> getExtensions() {
         return Arrays.asList(new LoadFlowGroovyScriptExtension(loadFlowFactory, new LoadFlowParameters()),
-                             (binding, computationManager) -> binding.setVariable("n", fooNetwork));
+            (binding, computationManager) -> binding.setVariable("n", fooNetwork));
     }
 }

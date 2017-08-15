@@ -142,79 +142,74 @@ public class CsvMpiStatistics implements MpiStatistics {
                 }
                 String key = tokens[0];
                 switch (key) {
-                    case COMMON_FILE_TRANSFER_KEY:
-                        {
-                            if (tokens.length != 4) {
-                                throw new RuntimeException("Incorrect " + COMMON_FILE_TRANSFER_KEY + " line '" + line + "'");
-                            }
-                            String fileName = tokens[1];
-                            long size = Long.parseLong(tokens[2]);
-                            long duration = Long.parseLong(tokens[3]);
-                            handler.onCommonFileTransfer(new CommonFileTransfer(fileName, size, duration));
+                    case COMMON_FILE_TRANSFER_KEY: {
+                        if (tokens.length != 4) {
+                            throw new RuntimeException("Incorrect " + COMMON_FILE_TRANSFER_KEY + " line '" + line + "'");
                         }
+                        String fileName = tokens[1];
+                        long size = Long.parseLong(tokens[2]);
+                        long duration = Long.parseLong(tokens[3]);
+                        handler.onCommonFileTransfer(new CommonFileTransfer(fileName, size, duration));
                         break;
-                    case JOB_START_KEY:
-                        {
-                            if (tokens.length != 3 && tokens.length != 4) {
-                                throw new RuntimeException("Incorrect " + JOB_START_KEY + " line '" + line + "'");
-                            }
-                            int jobId = Integer.parseInt(tokens[1]);
-                            String commandId = tokens[2];
-                            Map<String, String> tags = null;
-                            if (tokens.length == 4) {
-                                tags = mapSplitter.split(tokens[3]);
-                            }
-                            jobs.put(jobId, new JobExecution(jobId, commandId, tags));
+                    }
+                    case JOB_START_KEY: {
+                        if (tokens.length != 3 && tokens.length != 4) {
+                            throw new RuntimeException("Incorrect " + JOB_START_KEY + " line '" + line + "'");
                         }
-                        break;
-                    case JOB_END_KEY:
-                        {
-                            if (tokens.length != 2) {
-                                throw new RuntimeException("Incorrect " + JOB_END_KEY + " line '" + line + "'");
-                            }
-                            int jobId = Integer.parseInt(tokens[1]);
-                            jobs.remove(jobId);
+                        int jobId = Integer.parseInt(tokens[1]);
+                        String commandId = tokens[2];
+                        Map<String, String> tags = null;
+                        if (tokens.length == 4) {
+                            tags = mapSplitter.split(tokens[3]);
                         }
+                        jobs.put(jobId, new JobExecution(jobId, commandId, tags));
                         break;
-                    case TASK_START_KEY:
-                        {
-                            if (tokens.length != 8) {
-                                throw new RuntimeException("Incorrect " + TASK_START_KEY + " line '" + line + "'");
-                            }
-                            int taskId = Integer.parseInt(tokens[1]);
-                            int jobId = Integer.parseInt(tokens[2]);
-                            int taskIndex = Integer.parseInt(tokens[3]);
-                            DateTime startTime = DateTime.parse(tokens[4]);
-                            int slaveRank = Integer.parseInt(tokens[5]);
-                            int slaveThread = Integer.parseInt(tokens[6]);
-                            long inputMessageSize = Long.parseLong(tokens[7]);
-                            tasks.put(taskId, new TaskExecution(taskId, jobId, taskIndex, startTime, slaveRank, slaveThread, inputMessageSize));
+                    }
+                    case JOB_END_KEY: {
+                        if (tokens.length != 2) {
+                            throw new RuntimeException("Incorrect " + JOB_END_KEY + " line '" + line + "'");
                         }
+                        int jobId = Integer.parseInt(tokens[1]);
+                        jobs.remove(jobId);
                         break;
-                    case TASK_END_KEY:
-                        {
-                            if (tokens.length != 8) {
-                                throw new RuntimeException("Incorrect " + TASK_END_KEY + " line '" + line + "'");
-                            }
-                            int taskId = Integer.parseInt(tokens[1]);
-                            TaskExecution task = tasks.get(taskId);
-                            task.taskDuration = Long.parseLong(tokens[2]);
-                            task.commandsDuration = new ArrayList<>();
-                            for (String s : blankSplitter.split(tokens[3])) {
-                                task.commandsDuration.add(Long.parseLong(s));
-                            }
-                            task.dataTransferDuration = Long.parseLong(tokens[4]);
-                            task.outputMessageSize = Long.parseLong(tokens[5]);
-                            task.workingDataSize = Long.parseLong(tokens[6]);
-                            task.exitCode = Integer.parseInt(tokens[7]);
+                    }
+                    case TASK_START_KEY: {
+                        if (tokens.length != 8) {
+                            throw new RuntimeException("Incorrect " + TASK_START_KEY + " line '" + line + "'");
+                        }
+                        int taskId = Integer.parseInt(tokens[1]);
+                        int jobId = Integer.parseInt(tokens[2]);
+                        int taskIndex = Integer.parseInt(tokens[3]);
+                        DateTime startTime = DateTime.parse(tokens[4]);
+                        int slaveRank = Integer.parseInt(tokens[5]);
+                        int slaveThread = Integer.parseInt(tokens[6]);
+                        long inputMessageSize = Long.parseLong(tokens[7]);
+                        tasks.put(taskId, new TaskExecution(taskId, jobId, taskIndex, startTime, slaveRank, slaveThread, inputMessageSize));
+                        break;
+                    }
+                    case TASK_END_KEY: {
+                        if (tokens.length != 8) {
+                            throw new RuntimeException("Incorrect " + TASK_END_KEY + " line '" + line + "'");
+                        }
+                        int taskId = Integer.parseInt(tokens[1]);
+                        TaskExecution task = tasks.get(taskId);
+                        task.taskDuration = Long.parseLong(tokens[2]);
+                        task.commandsDuration = new ArrayList<>();
+                        for (String s : blankSplitter.split(tokens[3])) {
+                            task.commandsDuration.add(Long.parseLong(s));
+                        }
+                        task.dataTransferDuration = Long.parseLong(tokens[4]);
+                        task.outputMessageSize = Long.parseLong(tokens[5]);
+                        task.workingDataSize = Long.parseLong(tokens[6]);
+                        task.exitCode = Integer.parseInt(tokens[7]);
 
-                            JobExecution job = jobs.get(task.jobId);
+                        JobExecution job = jobs.get(task.jobId);
 
-                            handler.onTaskEnd(task, job);
+                        handler.onTaskEnd(task, job);
 
-                            tasks.remove(taskId);
-                        }
+                        tasks.remove(taskId);
                         break;
+                    }
                     default:
                         throw new RuntimeException("Unknown key " + key);
                 }
@@ -494,7 +489,7 @@ public class CsvMpiStatistics implements MpiStatistics {
         }
     }
 
-     public static void exportBusyCores(Path dbDir, String dbName) throws IOException {
+    public static void exportBusyCores(Path dbDir, String dbName) throws IOException {
         Objects.requireNonNull(dbDir);
         Objects.requireNonNull(dbName);
 
@@ -556,7 +551,7 @@ public class CsvMpiStatistics implements MpiStatistics {
                 writer.newLine();
             }
         }
-     }
+    }
 
     public static void exportWorkingDataSize(Path dbDir, String dbName) throws IOException {
         Objects.requireNonNull(dbDir);

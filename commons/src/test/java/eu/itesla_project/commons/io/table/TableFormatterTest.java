@@ -22,14 +22,14 @@ import static org.junit.Assert.*;
 public class TableFormatterTest {
 
     private static final Column[] COLUMNS = {
-            new Column("int"),
-            new Column("double"),
-            new Column("float"),
-            new Column("bool"),
-            new Column("empty"),
-            new Column("char"),
-            new Column("string"),
-            new Column("empty2")
+        new Column("int"),
+        new Column("double"),
+        new Column("float"),
+        new Column("bool"),
+        new Column("empty"),
+        new Column("char"),
+        new Column("string"),
+        new Column("empty2")
     };
 
     private static void write(TableFormatter formatter) throws IOException {

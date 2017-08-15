@@ -204,7 +204,7 @@ public class NetworkXml implements XmlConstants {
             }
             for (HvdcLine l : n.getHvdcLines()) {
                 if (!filter.test(l.getConverterStation1()) && filter.test(l.getConverterStation2())) {
-                   continue;
+                    continue;
                 }
                 HvdcLineXml.INSTANCE.write(l, n, context);
             }

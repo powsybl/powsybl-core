@@ -45,7 +45,7 @@ abstract class AbstractSecurityIndex implements SecurityIndex {
         toMap().entrySet().forEach(e -> builder.append(", ").append(e.getKey()).append("=").append(e.getValue()));
         builder.append(")");
         return builder.toString();
-   }
+    }
 
     abstract protected void toXml(XMLStreamWriter xmlWriter) throws XMLStreamException;
 

@@ -40,10 +40,10 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
 
     protected Column[] getColumns() {
         return new Column[] {
-                new Column("id"),
-                new Column("characteristic"),
-                new Column("value")
-            };
+            new Column("id"),
+            new Column("characteristic"),
+            new Column("value")
+        };
     }
 
     @Override

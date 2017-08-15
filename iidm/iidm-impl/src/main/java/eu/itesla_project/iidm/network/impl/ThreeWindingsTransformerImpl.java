@@ -121,7 +121,7 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
 
         @Override
         public Leg1Impl setG(float g) {
-             if (Float.isNaN(g)) {
+            if (Float.isNaN(g)) {
                 throw new ValidationException(this, "g is invalid");
             }
             this.g = g;

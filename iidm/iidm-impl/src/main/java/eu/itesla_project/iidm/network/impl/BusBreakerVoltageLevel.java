@@ -828,7 +828,8 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
     public void printTopology(PrintStream out, ShortIdDictionary dict) {
         out.println("-------------------------------------------------------------");
         out.println("Topology of " + BusBreakerVoltageLevel.this.id);
-        graph.print(out, bus -> {
+
+        Function<ConfiguredBus, String> vertexToString = bus -> {
             StringBuilder builder = new StringBuilder();
             builder.append(bus.getId())
                     .append(" [");
@@ -841,12 +842,16 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
             }
             builder.append("]");
             return builder.toString();
-        }, aSwitch -> {
+        };
+
+        Function<SwitchImpl, String> edgeToString = aSwitch -> {
             StringBuilder builder = new StringBuilder();
             builder.append("id=").append(aSwitch.getId())
                     .append(" status=").append(aSwitch.isOpen() ? "open" : "closed");
             return builder.toString();
-        });
+        };
+        
+        graph.print(out, vertexToString, edgeToString);
     }
 
     @Override

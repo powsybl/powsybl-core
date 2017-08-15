@@ -7,21 +7,18 @@
 package eu.itesla_project.iidm.network.impl;
 
 import com.google.common.collect.Iterables;
-import eu.itesla_project.iidm.network.Bus;
-import eu.itesla_project.iidm.network.Network;
-import eu.itesla_project.iidm.network.StateManager;
-import eu.itesla_project.iidm.network.Generator;
-import eu.itesla_project.iidm.network.Load;
-import eu.itesla_project.iidm.network.VoltageLevel;
+import eu.itesla_project.iidm.network.*;
 import eu.itesla_project.iidm.network.test.EurostagTutorialExample1Factory;
+import org.junit.Test;
+
 import java.util.Arrays;
-import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import static org.junit.Assert.*;
-import org.junit.Test;
+
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  *
@@ -63,27 +60,21 @@ public class MultiStateNetworkTest {
         final CountDownLatch latch = new CountDownLatch(2); // to sync threads after having set the working state
         ExecutorService service = Executors.newFixedThreadPool(2);
         service.invokeAll(Arrays.asList(
-                new Callable<Void>() {
-                    @Override
-                    public Void call() throws Exception {
-                        manager.setWorkingState(StateManager.INITIAL_STATE_ID);
-                        latch.countDown();
-                        latch.await();
-                        voltageRegulatorOnInitialState[0] = generator.isVoltageRegulatorOn();
-                        return null;
-                    }
-                },
-                new Callable<Void>() {
-                    @Override
-                    public Void call() throws Exception {
-                        manager.setWorkingState("SecondState");
-                        latch.countDown();
-                        latch.await();
-                        voltageRegulatorOnSecondState[0] = generator.isVoltageRegulatorOn();
-                        return null;
-                    }
-                })
-            );
+            () -> {
+                manager.setWorkingState(StateManager.INITIAL_STATE_ID);
+                latch.countDown();
+                latch.await();
+                voltageRegulatorOnInitialState[0] = generator.isVoltageRegulatorOn();
+                return null;
+            },
+            () -> {
+                manager.setWorkingState("SecondState");
+                latch.countDown();
+                latch.await();
+                voltageRegulatorOnSecondState[0] = generator.isVoltageRegulatorOn();
+                return null;
+            })
+        );
         service.shutdown();
         service.awaitTermination(1, TimeUnit.MINUTES);
         assertTrue(voltageRegulatorOnInitialState[0]);

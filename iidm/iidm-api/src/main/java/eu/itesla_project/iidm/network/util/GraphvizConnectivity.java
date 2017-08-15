@@ -91,7 +91,7 @@ public class GraphvizConnectivity {
             default:
                 throw new AssertionError();
         }
-       return new long[] { Math.round(r * 256), Math.round(g * 256), Math.round(b * 256) };
+        return new long[] { Math.round(r * 256), Math.round(g * 256), Math.round(b * 256) };
     }
 
     private final Network network;
