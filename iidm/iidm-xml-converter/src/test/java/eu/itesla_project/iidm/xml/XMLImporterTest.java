@@ -51,6 +51,20 @@ public class XMLImporterTest {
         }
     }
 
+    private void writeNetworkWithComment(String fileName) throws IOException {
+        try (BufferedWriter writer = Files.newBufferedWriter(fileSystem.getPath(fileName), StandardCharsets.UTF_8)) {
+            writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+            writer.newLine();
+            writer.write("<!--sfsfs-->");
+            writer.write("<iidm:network xmlns:iidm=\"http://www.itesla_project.eu/schema/iidm/1_0\" id=\"test\" caseDate=\"2013-01-15T18:45:00.000+01:00\" forecastDistance=\"0\" sourceFormat=\"test\">");
+            writer.newLine();
+            writer.write("    <iidm:substation id=\"P1\" country=\"FR\"/>");
+            writer.newLine();
+            writer.write("</iidm:network>");
+            writer.newLine();
+        }
+    }
+
     @Before
     public void setUp() throws Exception {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
@@ -62,6 +76,7 @@ public class XMLImporterTest {
         //   /test3.txt
         //   /test5.xiidm that contains unsupported extensions
         //   /test6.xiidm + /test6_mapping.csv
+        //   /test7.xiidm that contains a comment after xml prolog
         writeNetwork("/test0.xiidm", false);
         writeNetwork("/test1.iidm", false);
         writeNetwork("/test2.xml", false);
@@ -72,6 +87,7 @@ public class XMLImporterTest {
             writer.write("X1;P1");
             writer.newLine();
         }
+        writeNetworkWithComment("/test7.xiidm");
 
         PlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
         importer = new XMLImporter(platformConfig);
@@ -156,5 +172,8 @@ public class XMLImporterTest {
         // read file with id mapping
         Network network = importer.import_(new FileDataSource(fileSystem.getPath("/"), "test6"), params);
         assertNotNull(network.getSubstation("X1")); // and not P1 !!!!!
+
+        Network network2 = importer.import_(new FileDataSource(fileSystem.getPath("/"), "test7"), null);
+        assertNotNull(network2.getSubstation("P1"));
     }
 }

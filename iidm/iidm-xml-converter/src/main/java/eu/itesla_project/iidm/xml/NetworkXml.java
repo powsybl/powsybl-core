@@ -252,8 +252,10 @@ public class NetworkXml implements XmlConstants {
     public static Network read(InputStream is, XmlImportConfig config, Anonymizer anonymizer) {
         try {
             XMLStreamReader reader = XML_INPUT_FACTORY_SUPPLIER.get().createXMLStreamReader(is);
-            reader.next();
-
+            int state = reader.next();
+            while (state == XMLStreamReader.COMMENT) {
+                state = reader.next();
+            }
             String id = reader.getAttributeValue(null, "id");
             DateTime date = DateTime.parse(reader.getAttributeValue(null, "caseDate"));
             int forecastDistance = XmlUtil.readOptionalIntegerAttribute(reader, "forecastDistance", 0);
