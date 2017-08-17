@@ -6,11 +6,11 @@
  */
 package eu.itesla_project.math.graph;
 
-import com.google.common.base.Function;
 import gnu.trove.list.array.TIntArrayList;
 
 import java.io.PrintStream;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 /**

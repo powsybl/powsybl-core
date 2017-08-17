@@ -165,49 +165,49 @@ public class FictitiousSwitchFactory {
                 .endPoint()
                 .add();
 
-         Load loadCE = vlN.newLoad()
-                 .setId("CE")
-                 .setLoadType(LoadType.UNDEFINED)
-                 .setP0(-72.18689f)
-                 .setQ0(50.168945f)
-                 .setNode(4)
-                 .add();
-         loadCE.getTerminal()
-                 .setP(-72.18689f)
-                 .setQ(50.168945f);
+        Load loadCE = vlN.newLoad()
+                .setId("CE")
+                .setLoadType(LoadType.UNDEFINED)
+                .setP0(-72.18689f)
+                .setQ0(50.168945f)
+                .setNode(4)
+                .add();
+        loadCE.getTerminal()
+                .setP(-72.18689f)
+                .setQ(50.168945f);
 
-         Load loadCF = vlN.newLoad()
-                 .setId("CF")
-                 .setLoadType(LoadType.UNDEFINED)
-                 .setP0(8.455854f)
-                 .setQ0(-23.695925f)
-                 .setNode(18)
-                 .add();
-         loadCF.getTerminal()
-                 .setP(8.455854f)
-                 .setQ(-23.695925f);
+        Load loadCF = vlN.newLoad()
+                .setId("CF")
+                .setLoadType(LoadType.UNDEFINED)
+                .setP0(8.455854f)
+                .setQ0(-23.695925f)
+                .setNode(18)
+                .add();
+        loadCF.getTerminal()
+                .setP(8.455854f)
+                .setQ(-23.695925f);
 
-         Load loadCG = vlN.newLoad()
-                 .setId("CG")
-                 .setLoadType(LoadType.UNDEFINED)
-                 .setP0(90.39911f)
-                 .setQ0(-51.96869f)
-                 .setNode(20)
-                 .add();
-         loadCG.getTerminal()
-                 .setP(90.39911f)
-                 .setQ(-51.96869f);
+        Load loadCG = vlN.newLoad()
+                .setId("CG")
+                .setLoadType(LoadType.UNDEFINED)
+                .setP0(90.39911f)
+                .setQ0(-51.96869f)
+                .setNode(20)
+                .add();
+        loadCG.getTerminal()
+                .setP(90.39911f)
+                .setQ(-51.96869f);
 
-         Load loadCH = vlN.newLoad()
-                 .setId("CH")
-                 .setLoadType(LoadType.UNDEFINED)
-                 .setP0(-5.102249f)
-                 .setQ0(4.9081216f)
-                 .setNode(22)
-                 .add();
-         loadCH.getTerminal()
-                 .setP(-5.102249f)
-                 .setQ(4.9081216f);
+        Load loadCH = vlN.newLoad()
+                .setId("CH")
+                .setLoadType(LoadType.UNDEFINED)
+                .setP0(-5.102249f)
+                .setQ0(4.9081216f)
+                .setNode(22)
+                .add();
+        loadCH.getTerminal()
+                .setP(-5.102249f)
+                .setQ(4.9081216f);
 
         TwoWindingsTransformer twtCI = s.newTwoWindingsTransformer()
                 .setId("CI")

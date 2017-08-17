@@ -29,8 +29,7 @@ public class MapDbAppFileSystemProvider implements AppFileSystemProvider {
     private final BiFunction<String, Path, MapDbAppFileSystemStorage> storageProvider;
 
     public MapDbAppFileSystemProvider() {
-        this(MapDbAppFileSystemConfig.load(),
-             (name, path) -> MapDbAppFileSystemStorage.createMmapFile(name, path.toFile()));
+        this(MapDbAppFileSystemConfig.load(), (name, path) -> MapDbAppFileSystemStorage.createMmapFile(name, path.toFile()));
     }
 
     public MapDbAppFileSystemProvider(List<MapDbAppFileSystemConfig> configs,

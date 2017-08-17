@@ -34,7 +34,7 @@ public class XmlUtil {
             switch (event) {
                 case XMLStreamConstants.START_ELEMENT:
                     if (eventHandler != null) {
-                       eventHandler.onStartElement();
+                        eventHandler.onStartElement();
                     }
                     break;
 

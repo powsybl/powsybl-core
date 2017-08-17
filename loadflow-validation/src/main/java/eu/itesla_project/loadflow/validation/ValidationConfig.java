@@ -70,11 +70,11 @@ public class ValidationConfig {
                             Class<? extends TableFormatterFactory> tableFormatterFactory, float epsilonX, 
                             boolean applyReactanceCorrection, ValidationOutputWriter validationOutputWriter, LoadFlowParameters loadFlowParameters) {
         if (threshold < 0) {
-           throw new IllegalArgumentException("Negative values for threshold not permitted");
+            throw new IllegalArgumentException("Negative values for threshold not permitted");
         }
         if (epsilonX < 0) {
             throw new IllegalArgumentException("Negative values for epsilonX not permitted");
-         }
+        }
         this.threshold = threshold;
         this.verbose = verbose;
         this.loadFlowFactory = Objects.requireNonNull(loadFlowFactory);

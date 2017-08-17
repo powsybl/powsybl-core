@@ -6,7 +6,6 @@
  */
 package eu.itesla_project.math.graph;
 
-import com.google.common.base.Function;
 import com.google.common.base.Predicates;
 import com.google.common.collect.FluentIterable;
 import eu.itesla_project.commons.ITeslaException;
@@ -18,6 +17,7 @@ import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 /**
