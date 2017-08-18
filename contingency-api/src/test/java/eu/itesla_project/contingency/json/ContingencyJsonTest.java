@@ -10,6 +10,7 @@ import org.junit.Test;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -40,7 +41,7 @@ public class ContingencyJsonTest extends AbstractConverterTest {
 
             return objectMapper.readValue(is, Contingency.class);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     }
 
@@ -54,7 +55,7 @@ public class ContingencyJsonTest extends AbstractConverterTest {
 
             writer.writeValue(os, object);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     }
 

@@ -95,7 +95,7 @@ public class XMLImporter implements Importer, XmlConstants {
             String ext = findExtension(dataSource);
             return exists(dataSource, ext);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     }
 
@@ -150,7 +150,7 @@ public class XMLImporter implements Importer, XmlConstants {
                 }
             }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     }
 

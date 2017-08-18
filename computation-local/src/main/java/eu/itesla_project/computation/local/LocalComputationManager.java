@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -66,12 +67,12 @@ public class LocalComputationManager implements ComputationManager {
                             try {
                                 DEFAULT.close();
                             } catch (IOException e) {
-                                throw new RuntimeException(e);
+                                throw new UncheckedIOException(e);
                             }
                         }
                     });
                 } catch (IOException e) {
-                    throw new RuntimeException(e);
+                    throw new UncheckedIOException(e);
                 }
             }
             return DEFAULT;

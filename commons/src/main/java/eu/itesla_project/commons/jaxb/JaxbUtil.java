@@ -18,10 +18,7 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamSource;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.Reader;
-import java.io.Writer;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -55,7 +52,7 @@ public class JaxbUtil {
         try (Writer writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
             marshallElement(aClass, jaxbElement, writer);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     }
 
@@ -63,7 +60,7 @@ public class JaxbUtil {
         try (BufferedWriter writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
             marshallElement(jaxbContext, jaxbElement, writer);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     }
 
@@ -100,7 +97,7 @@ public class JaxbUtil {
         try (Reader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
             return unmarchallReader(JaxbContextCache.DEFAULT.createContext(aClass), reader, null);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     }
 }

@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
@@ -246,7 +247,7 @@ public class MpiComputationManager implements ComputationManager {
                     try {
                         ctxt.workingDir = new WorkingDirectory(localDir, environment.getWorkingDirPrefix(), environment.isDebug());
                     } catch (IOException e) {
-                        throw new RuntimeException(e);
+                        throw new UncheckedIOException(e);
                     }
                     try {
                         ctxt.parametersList = handler.before(ctxt.workingDir.toPath());
@@ -254,7 +255,7 @@ public class MpiComputationManager implements ComputationManager {
                         try {
                             ctxt.workingDir.close();
                         } catch (IOException e2) {
-                            throw new RuntimeException(e2);
+                            throw new UncheckedIOException(e2);
                         }
                         throw new RuntimeException(t);
                     }
@@ -314,12 +315,12 @@ public class MpiComputationManager implements ComputationManager {
                     try {
                         return handler.after(ctxt.workingDir.toPath(), ctxt.report);
                     } catch (IOException e) {
-                        throw new RuntimeException(e);
+                        throw new UncheckedIOException(e);
                     } finally {
                         try {
                             ctxt.workingDir.close();
                         } catch (IOException e2) {
-                            throw new RuntimeException(e2);
+                            throw new UncheckedIOException(e2);
                         }
                     }
                 }, executorContext.getAfterExecutor());

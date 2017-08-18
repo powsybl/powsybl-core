@@ -21,6 +21,7 @@ import eu.itesla_project.security.SecurityAnalysisResult;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
@@ -55,7 +56,7 @@ public class SecurityAnalysisResultSerializer extends StdSerializer<SecurityAnal
         try (OutputStream os = Files.newOutputStream(jsonFile)) {
             write(result, filter, os);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     }
 

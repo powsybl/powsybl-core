@@ -11,6 +11,7 @@ import org.apache.commons.io.output.WriterOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.StringWriter;
+import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 import java.util.Objects;
@@ -30,7 +31,7 @@ public class ExpressionPrinter extends DefaultExpressionVisitor<Void, Void> {
             try {
                 writer.close();
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new UncheckedIOException(e);
             }
         }
         return writer.toString();

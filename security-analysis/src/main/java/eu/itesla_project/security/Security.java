@@ -16,6 +16,7 @@ import org.nocrala.tools.texttablefmt.BorderStyle;
 import org.nocrala.tools.texttablefmt.Table;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.io.Writer;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -239,11 +240,11 @@ public class Security {
                                     .writeCell(Float.toString(violation.getLimit()) + (violation.getLimitReduction() != 1f ? " * " + violation.getLimitReduction() : ""))
                                     .writeCell(Math.round(Math.abs(violation.getValue()) / violation.getLimit() * 100f));
                         } catch (IOException e) {
-                            throw new RuntimeException(e);
+                            throw new UncheckedIOException(e);
                         }
                     });
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     }
 
@@ -368,16 +369,16 @@ public class Security {
                                                             .writeCell(Float.toString(violation.getLimit()) + (violation.getLimitReduction() != 1f ? " * " + violation.getLimitReduction() : ""))
                                                             .writeCell(Math.round(Math.abs(violation.getValue()) / violation.getLimit() * 100f));
                                                 } catch (IOException e) {
-                                                    throw new RuntimeException(e);
+                                                    throw new UncheckedIOException(e);
                                                 }
                                             });
                                 }
                             } catch (IOException e) {
-                                throw new RuntimeException(e);
+                                throw new UncheckedIOException(e);
                             }
                         });
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new UncheckedIOException(e);
             }
         }
     }

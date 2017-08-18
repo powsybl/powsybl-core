@@ -18,6 +18,7 @@ import org.xmlunit.diff.Diff;
 import javax.xml.transform.Source;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
@@ -62,7 +63,7 @@ public abstract class AbstractConverterTest {
             assertEquals(new String(ByteStreams.toByteArray(expected), StandardCharsets.UTF_8),
                     new String(ByteStreams.toByteArray(actual), StandardCharsets.UTF_8));
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     }
 

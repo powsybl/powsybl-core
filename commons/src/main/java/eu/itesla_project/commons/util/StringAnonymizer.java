@@ -15,6 +15,7 @@ import org.supercsv.prefs.CsvPreference;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.List;
 import java.util.Map;
 
@@ -85,7 +86,7 @@ public class StringAnonymizer {
                 mapping.put(nextLine.get(0), nextLine.get(1));
             }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     }
 
@@ -107,7 +108,7 @@ public class StringAnonymizer {
                 csvWriter.flush();
             }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     }
 }

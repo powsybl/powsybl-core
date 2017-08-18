@@ -8,6 +8,7 @@ package eu.itesla_project.security.json;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -83,7 +84,7 @@ public class SecurityAnalysisResultDeserializer extends StdDeserializer<Security
 
             return objectMapper.readValue(is, SecurityAnalysisResult.class);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     }
 }

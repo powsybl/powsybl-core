@@ -16,6 +16,7 @@ import eu.itesla_project.loadflow.api.LoadFlowResult;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
@@ -52,7 +53,7 @@ public class LoadFlowResultSerializer extends StdSerializer<LoadFlowResult> {
             ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
             writer.writeValue(os, result);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     }
 }

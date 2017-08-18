@@ -15,10 +15,7 @@ import org.joda.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.Writer;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -253,7 +250,7 @@ public class CsvMpiStatistics implements MpiStatistics {
             internalWriter.write(Long.toString(duration));
             internalWriter.newLine();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     }
 
@@ -269,7 +266,7 @@ public class CsvMpiStatistics implements MpiStatistics {
             internalWriter.write(tags != null ? mapJoiner.join(tags) : "");
             internalWriter.newLine();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     }
 
@@ -281,7 +278,7 @@ public class CsvMpiStatistics implements MpiStatistics {
             internalWriter.write(Integer.toString(jobId));
             internalWriter.newLine();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     }
 
@@ -305,7 +302,7 @@ public class CsvMpiStatistics implements MpiStatistics {
             internalWriter.write(Long.toString(inputMessageSize));
             internalWriter.newLine();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     }
 
@@ -329,7 +326,7 @@ public class CsvMpiStatistics implements MpiStatistics {
             internalWriter.write(Integer.toString(exitCode));
             internalWriter.newLine();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     }
 
@@ -408,7 +405,7 @@ public class CsvMpiStatistics implements MpiStatistics {
                 });
             }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     }
 

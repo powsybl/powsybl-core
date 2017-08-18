@@ -7,6 +7,7 @@
 package eu.itesla_project.simulation.securityindexes;
 
 import java.io.Serializable;
+import java.io.UncheckedIOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -62,7 +63,7 @@ public class SecurityIndexId implements Serializable, Comparable<SecurityIndexId
             return SIMULATION_PREFIX + URLEncoder.encode(contingencyId, enc)
                     + SECURITY_INDEX_SEPARATOR + URLEncoder.encode(securityIndexType.getLabel(), enc);
         } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     }
 
@@ -74,7 +75,7 @@ public class SecurityIndexId implements Serializable, Comparable<SecurityIndexId
             String securityIndexLabel = URLDecoder.decode(str.substring(sepIdx + SECURITY_INDEX_SEPARATOR.length()), enc);
             return new SecurityIndexId(contingencyId, SecurityIndexType.fromLabel(securityIndexLabel));
         } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     }
 

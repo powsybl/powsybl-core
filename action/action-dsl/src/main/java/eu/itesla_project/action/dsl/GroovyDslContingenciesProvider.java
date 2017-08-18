@@ -15,6 +15,7 @@ import groovy.lang.GroovyShell;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -39,7 +40,7 @@ public class GroovyDslContingenciesProvider implements ContingenciesProvider {
                     .load(network);
             return ImmutableList.copyOf(actionDb.getContingencies());
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     }
 }

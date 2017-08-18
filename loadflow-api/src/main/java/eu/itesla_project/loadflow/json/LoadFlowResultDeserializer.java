@@ -18,6 +18,7 @@ import eu.itesla_project.loadflow.api.LoadFlowResultImpl;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -80,7 +81,7 @@ public class LoadFlowResultDeserializer extends StdDeserializer<LoadFlowResult> 
         try (InputStream is = Files.newInputStream(jsonFile)) {
             return read(is);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     }
 }

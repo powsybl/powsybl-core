@@ -27,6 +27,7 @@ import org.apache.commons.cli.ParseException;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.io.UncheckedIOException;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -162,7 +163,7 @@ public class RunLoadFlowTool implements Tool {
             formatter.writeCell(result.isOk());
             formatter.writeCell(result.getMetrics().toString());
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     }
 
