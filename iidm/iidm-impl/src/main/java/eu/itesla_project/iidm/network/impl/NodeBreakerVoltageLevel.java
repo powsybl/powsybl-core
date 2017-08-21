@@ -14,6 +14,7 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 import eu.itesla_project.commons.ITeslaException;
+import eu.itesla_project.commons.util.Colors;
 import eu.itesla_project.math.graph.TraverseResult;
 import eu.itesla_project.math.graph.Traverser;
 import eu.itesla_project.math.graph.UndirectedGraph;
@@ -1017,66 +1018,6 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         }
     }
 
-    private static final double GOLDEN_RATIO_CONJUGATE = 0.618033988749895;
-
-    private static String[] generateColorScale(int n) {
-        String[] colors = new String[n];
-        Random random = new Random();
-        for (int i = 0; i < n; i++) {
-            double h = random.nextDouble();
-            h += GOLDEN_RATIO_CONJUGATE;
-            h %= 1;
-            long[] rgb = hsvToRgb(h, 0.5, 0.95);
-            String hex = String.format("#%02x%02x%02x", rgb[0], rgb[1], rgb[2]).toUpperCase();
-            colors[i] = hex;
-        }
-        return colors;
-    }
-
-    private static long[] hsvToRgb(double h, double s, double v) {
-        int h_i = (int) Math.floor(h * 6);
-        double f = h * 6 - h_i;
-        double p = v * (1 - s);
-        double q = v * (1 - f * s);
-        double t = v * (1 - (1 - f) * s);
-        double r, g, b;
-        switch (h_i) {
-            case 0:
-                r = v;
-                g = t;
-                b = p;
-                break;
-            case 1:
-                r = q;
-                g = v;
-                b = p;
-                break;
-            case 2:
-                r = p;
-                g = v;
-                b = t;
-                break;
-            case 3:
-                r = p;
-                g = q;
-                b = v;
-                break;
-            case 4:
-                r = t;
-                g = p;
-                b = v;
-                break;
-            case 5:
-                r = v;
-                g = p;
-                b = q;
-                break;
-            default:
-                throw new AssertionError();
-        }
-        return new long[] { Math.round(r * 256), Math.round(g * 256), Math.round(b * 256) };
-    }
-
     public void exportTopology(OutputStream os) throws IOException {
         Graph g = new Graph().id("\"" + NodeBreakerVoltageLevel.this.id + "\"");
         Map<Integer, Node> intToNode = new HashMap<>();
@@ -1097,7 +1038,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                 }
             }
         }
-        String[] colors = generateColorScale(busToNodes.asMap().keySet().size());
+        String[] colors = Colors.generateColorScale(busToNodes.asMap().keySet().size());
         int i = 0;
         for (String key : busToNodes.asMap().keySet()) {
             Graph newBus = new Graph().id("\"" + key + "\"");

@@ -7,6 +7,7 @@
 package eu.itesla_project.iidm.network.util;
 
 import com.google.common.collect.Iterables;
+import eu.itesla_project.commons.util.Colors;
 import eu.itesla_project.iidm.network.Bus;
 import eu.itesla_project.iidm.network.Network;
 import eu.itesla_project.iidm.network.TwoTerminalsConnectable;
@@ -20,8 +21,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
-import java.util.stream.StreamSupport;
 
 /**
  * Example to generate a svg from the dot file:
@@ -32,67 +31,6 @@ import java.util.stream.StreamSupport;
 public class GraphvizConnectivity {
 
     private static final String NEWLINE = "&#13;&#10;";
-
-    private static final double GOLDEN_RATIO_CONJUGATE = 0.618033988749895;
-
-    private static String[] generateColorScale(Network network) {
-        int maxCC = StreamSupport.stream(network.getBusView().getBuses().spliterator(), false).mapToInt(b -> b.getConnectedComponent().getNum()).max().getAsInt();
-        String[] colors = new String[maxCC+1];
-        Random ramdom = new Random();
-        for (Bus bus : network.getBusView().getBuses()) {
-            double h = ramdom.nextDouble();
-            h += GOLDEN_RATIO_CONJUGATE;
-            h %= 1;
-            long[] rgb = hsvToRgb(h, 0.5, 0.95);
-            String hex = String.format("#%02x%02x%02x", rgb[0], rgb[1], rgb[2]).toUpperCase();
-            colors[bus.getConnectedComponent().getNum()] = hex;
-        }
-        return colors;
-    }
-
-    private static long[] hsvToRgb(double h, double s, double v) {
-        int h_i = (int) Math.floor(h * 6);
-        double f = h * 6 - h_i;
-        double p = v * (1 - s);
-        double q = v * (1 - f * s);
-        double t = v * (1 - (1 - f) * s);
-        double r, g, b;
-        switch (h_i) {
-            case 0:
-                r = v;
-                g = t;
-                b = p;
-                break;
-            case 1:
-                r = q;
-                g = v;
-                b = p;
-                break;
-            case 2:
-                r = p;
-                g = v;
-                b = t;
-                break;
-            case 3:
-                r = p;
-                g = q;
-                b = v;
-                break;
-            case 4:
-                r = t;
-                g = p;
-                b = v;
-                break;
-            case 5:
-                r = v;
-                g = p;
-                b = q;
-                break;
-            default:
-                throw new AssertionError();
-        }
-        return new long[] { Math.round(r * 256), Math.round(g * 256), Math.round(b * 256) };
-    }
 
     private final Network network;
 
@@ -112,11 +50,12 @@ public class GraphvizConnectivity {
 
     public void write(OutputStream os) throws IOException {
         Graph graph = new Graph().id("\"" +  network.getId() + "\"");
-        String[] colors = generateColorScale(network);
+        int maxCC = network.getBusView().getBusStream().mapToInt(b -> b.getConnectedComponent().getNum()).max().getAsInt();
+        String[] colors = Colors.generateColorScale(maxCC + 1);
         Map<String, Node> nodes = new HashMap<>();
         for (Bus b : network.getBusView().getBuses()) {
-            long load = Math.round(StreamSupport.stream(b.getLoads().spliterator(), false).mapToDouble(l -> l.getP0()).sum());
-            long maxGeneration = Math.round(StreamSupport.stream(b.getGenerators().spliterator(), false).mapToDouble(l -> l.getMaxP()).sum());
+            long load = Math.round(b.getLoadStream().mapToDouble(l -> l.getP0()).sum());
+            long maxGeneration = Math.round(b.getGeneratorStream().mapToDouble(l -> l.getMaxP()).sum());
             String busId = getBusId(b);
             Node n = new Node()
                     .id(busId)
