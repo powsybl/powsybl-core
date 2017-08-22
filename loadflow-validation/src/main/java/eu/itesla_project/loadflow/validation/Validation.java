@@ -71,27 +71,27 @@ public class Validation {
             double z = Math.hypot(r, x);
             double y = 1 / z;
             double ksi = Math.atan2(r, x);
-            double p1_calc = rho1 * rho2 * u1 * u2 * y * Math.sin(theta1 - theta2 - ksi + alpha1 - alpha2) + rho1 * rho1 * u1 * u1 * (y * Math.sin(ksi) + g1);
-            double q1_calc = -rho1 * rho2 * u1 * u2 * y * Math.cos(theta1 - theta2 - ksi + alpha1 - alpha2) + rho1 * rho1 * u1 * u1 * (y * Math.cos(ksi) - b1);
-            double p2_calc = rho2 * rho1 * u2 * u1 * y * Math.sin(theta2 - theta1 - ksi + alpha2 - alpha1) + rho2 * rho2 * u2 * u2 * (y * Math.sin(ksi) + g2);
-            double q2_calc = -rho2 * rho1 * u2 * u1 * y * Math.cos(theta2 - theta1 - ksi + alpha2 - alpha1) + rho2 * rho2 * u2 * u2 * (y * Math.cos(ksi) - b2);
+            double p1Calc = rho1 * rho2 * u1 * u2 * y * Math.sin(theta1 - theta2 - ksi + alpha1 - alpha2) + rho1 * rho1 * u1 * u1 * (y * Math.sin(ksi) + g1);
+            double q1Calc = -rho1 * rho2 * u1 * u2 * y * Math.cos(theta1 - theta2 - ksi + alpha1 - alpha2) + rho1 * rho1 * u1 * u1 * (y * Math.cos(ksi) - b1);
+            double p2Calc = rho2 * rho1 * u2 * u1 * y * Math.sin(theta2 - theta1 - ksi + alpha2 - alpha1) + rho2 * rho2 * u2 * u2 * (y * Math.sin(ksi) + g2);
+            double q2Calc = -rho2 * rho1 * u2 * u1 * y * Math.cos(theta2 - theta1 - ksi + alpha2 - alpha1) + rho2 * rho2 * u2 * u2 * (y * Math.cos(ksi) - b2);
 
-            flowsWriter.write(id, p1, p1_calc, q1, q1_calc, p2, p2_calc, q2, q2_calc, r, x, g1, g2, b1, b2, rho1, rho2, alpha1, alpha2, u1, u2, theta1, theta2, z, y, ksi);
+            flowsWriter.write(id, p1, p1Calc, q1, q1Calc, p2, p2Calc, q2, q2Calc, r, x, g1, g2, b1, b2, rho1, rho2, alpha1, alpha2, u1, u2, theta1, theta2, z, y, ksi);
 
-            if (Math.abs(p1 - p1_calc) > config.getThreshold()) {
-                LOGGER.warn(id + " P1 " + p1 + " " + p1_calc);
+            if (Math.abs(p1 - p1Calc) > config.getThreshold()) {
+                LOGGER.warn(id + " P1 " + p1 + " " + p1Calc);
                 ok = false;
             }
-            if (Math.abs(q1 - q1_calc) > config.getThreshold()) {
-                LOGGER.warn(id + " Q1 " + q1 + " " + q1_calc);
+            if (Math.abs(q1 - q1Calc) > config.getThreshold()) {
+                LOGGER.warn(id + " Q1 " + q1 + " " + q1Calc);
                 ok = false;
             }
-            if (Math.abs(p2 - p2_calc) > config.getThreshold()) {
-                LOGGER.warn(id + " P2 " + p2 + " " + p2_calc);
+            if (Math.abs(p2 - p2Calc) > config.getThreshold()) {
+                LOGGER.warn(id + " P2 " + p2 + " " + p2Calc);
                 ok = false;
             }
-            if (Math.abs(q2 - q2_calc) > config.getThreshold()) {
-                LOGGER.warn(id + " Q2 " + q2 + " " + q2_calc);
+            if (Math.abs(q2 - q2Calc) > config.getThreshold()) {
+                LOGGER.warn(id + " Q2 " + q2 + " " + q2Calc);
                 ok = false;
             }
         } catch (IOException e) {

@@ -85,10 +85,10 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
                 throw new ValidationException(this, "second connection bus is not set");
             }
 
-            SwitchImpl _switch = new SwitchImpl(BusBreakerVoltageLevel.this, id, getName(), SwitchKind.BREAKER, open, true, fictitious);
-            addSwitch(_switch, busId1, busId2);
-            getNetwork().getListeners().notifyCreation(_switch);
-            return _switch;
+            SwitchImpl aSwitch = new SwitchImpl(BusBreakerVoltageLevel.this, id, getName(), SwitchKind.BREAKER, open, true, fictitious);
+            addSwitch(aSwitch, busId1, busId2);
+            getNetwork().getListeners().notifyCreation(aSwitch);
+            return aSwitch;
         }
 
     }
@@ -138,11 +138,11 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
     private SwitchImpl getSwitch(String switchId, boolean throwException) {
         Integer e = getEdge(switchId, throwException);
         if (e != null) {
-            SwitchImpl _switch = graph.getEdgeObject(e);
-            if (!_switch.getId().equals(switchId)) {
+            SwitchImpl aSwitch = graph.getEdgeObject(e);
+            if (!aSwitch.getId().equals(switchId)) {
                 throw new InternalError("Must not happened");
             }
-            return _switch;
+            return aSwitch;
         }
         return null;
     }
@@ -232,8 +232,8 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
                     graph.traverse(v, new Traverser<SwitchImpl>() {
                         @Override
                         public TraverseResult traverse(int v1, int e, int v2) {
-                            SwitchImpl _switch = graph.getEdgeObject(e);
-                            if (_switch.isOpen()) {
+                            SwitchImpl aSwitch = graph.getEdgeObject(e);
+                            if (aSwitch.isOpen()) {
                                 return TraverseResult.TERMINATE;
                             } else {
                                 busSet.add(graph.getVertexObject(v2));
@@ -619,12 +619,12 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         buses.clear();
     }
 
-    private void addSwitch(SwitchImpl _switch, String busId1, String busId2) {
+    private void addSwitch(SwitchImpl aSwitch, String busId1, String busId2) {
         int v1 = getVertex(busId1, true);
         int v2 = getVertex(busId2, true);
-        getNetwork().getObjectStore().checkAndAdd(_switch);
-        int e = graph.addEdge(v1, v2, _switch);
-        switches.put(_switch.getId(), e);
+        getNetwork().getObjectStore().checkAndAdd(aSwitch);
+        int e = graph.addEdge(v1, v2, aSwitch);
+        switches.put(aSwitch.getId(), e);
     }
 
     private void removeSwitch(String switchId) {
@@ -633,8 +633,8 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
             throw new RuntimeException("Switch '" + switchId
                     + "' not found in substation voltage level '" + id + "'");
         }
-        SwitchImpl _switch = graph.removeEdge(e);
-        getNetwork().getObjectStore().remove(_switch);
+        SwitchImpl aSwitch = graph.removeEdge(e);
+        getNetwork().getObjectStore().remove(aSwitch);
     }
 
     private void removeAllSwitches() {

@@ -21,7 +21,7 @@ import java.util.Properties;
  *
  * <p><code>Importer</code> lookup is based on the <code>ServiceLoader</code>
  * architecture so do not forget to create a
- * <code>META-INF/services/eu.itesla_project.iidm.import_.Importer</code> file
+ * <code>META-INF/services/eu.itesla_project.iidm.importData.Importer</code> file
  * with the fully qualified name of your <code>Importer</code> implementation.
  *
  * @see java.util.ServiceLoader
@@ -71,7 +71,7 @@ public interface Importer {
      * @param parameters some properties to configure the import
      * @return the model
      */
-    Network import_(ReadOnlyDataSource dataSource, Properties parameters);
+    Network importData(ReadOnlyDataSource dataSource, Properties parameters);
 
     /**
      * Copy data from one data source to another.

@@ -67,7 +67,7 @@ public class TestImporter implements Importer {
     }
 
     @Override
-    public Network import_(ReadOnlyDataSource dataSource, Properties parameters) {
+    public Network importData(ReadOnlyDataSource dataSource, Properties parameters) {
         return network;
     }
 

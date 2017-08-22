@@ -41,7 +41,7 @@ public class SimpleAnonymizerTest extends AbstractConverterTest {
         PlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
 
         // re-import the IIDM XML using the CSV mapping file
-        Network network2 = new XMLImporter(platformConfig).import_(dataSource, null);
+        Network network2 = new XMLImporter(platformConfig).importData(dataSource, null);
         MemDataSource dataSource2 = new MemDataSource();
         new XMLExporter().export(network2, null, dataSource2);
 

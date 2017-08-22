@@ -71,6 +71,6 @@ public class ImportedCase extends ProjectFile implements ProjectCase {
         Importer importer = getImporter();
         ReadOnlyDataSource dataSource = getDataSource();
         Properties parameters = getParameters();
-        return importer.import_(dataSource, parameters);
+        return importer.importData(dataSource, parameters);
     }
 }

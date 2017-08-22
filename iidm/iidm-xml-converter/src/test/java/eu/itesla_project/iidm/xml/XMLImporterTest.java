@@ -146,34 +146,34 @@ public class XMLImporterTest {
     }
 
     @Test
-    public void import_() throws Exception {
+    public void importData() throws Exception {
         // should be ok
-        assertNotNull(importer.import_(new FileDataSource(fileSystem.getPath("/"), "test0"), null));
+        assertNotNull(importer.importData(new FileDataSource(fileSystem.getPath("/"), "test0"), null));
 
         // should fail because file that does not exist
         try {
-            importer.import_(new FileDataSource(fileSystem.getPath("/"), "test4"), null);
+            importer.importData(new FileDataSource(fileSystem.getPath("/"), "test4"), null);
             fail();
         } catch (RuntimeException ignored) {
         }
 
         // extension plugin will be not found but default option just warn
-        assertNotNull(importer.import_(new FileDataSource(fileSystem.getPath("/"), "test5"), null));
+        assertNotNull(importer.importData(new FileDataSource(fileSystem.getPath("/"), "test5"), null));
 
         // extension plugin will be not found but option is set to throw an exception
         Properties params = new Properties();
         params.put("throwExceptionIfExtensionNotFound", "true");
         try {
-            importer.import_(new FileDataSource(fileSystem.getPath("/"), "test5"), params);
+            importer.importData(new FileDataSource(fileSystem.getPath("/"), "test5"), params);
             fail();
         } catch (RuntimeException ignored) {
         }
 
         // read file with id mapping
-        Network network = importer.import_(new FileDataSource(fileSystem.getPath("/"), "test6"), params);
+        Network network = importer.importData(new FileDataSource(fileSystem.getPath("/"), "test6"), params);
         assertNotNull(network.getSubstation("X1")); // and not P1 !!!!!
 
-        Network network2 = importer.import_(new FileDataSource(fileSystem.getPath("/"), "test7"), null);
+        Network network2 = importer.importData(new FileDataSource(fileSystem.getPath("/"), "test7"), null);
         assertNotNull(network2.getSubstation("P1"));
     }
 }

@@ -22,11 +22,10 @@ import static org.junit.Assert.*;
  */
 public class ScalableTest {
 
-    private static final Network network = createNetwork();
-
-    private static final Scalable g1 = Scalable.gen("g1");
-    private static final Scalable g2 = Scalable.gen("g2");
-    private static final Scalable g3 = Scalable.gen("g3");
+    private Network network;
+    private Scalable g1;
+    private Scalable g2;
+    private Scalable g3;
 
     private static Network createNetwork() {
         Network network = NetworkFactory.create("network", "test");
@@ -79,6 +78,10 @@ public class ScalableTest {
 
     @Before
     public void setUp() {
+        network = createNetwork();
+        g1 = Scalable.gen("g1");
+        g2 = Scalable.gen("g2");
+        g3 = Scalable.gen("g3");
         reset();
     }
 

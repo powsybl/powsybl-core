@@ -43,7 +43,7 @@ public class XMLImporter implements Importer, XmlConstants {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(XMLImporter.class);
 
-    private final String[] EXTENSIONS = { "xiidm", "iidm", "xml" };
+    private static final String[] EXTENSIONS = { "xiidm", "iidm", "xml" };
 
     private static final Supplier<XMLInputFactory> XML_INPUT_FACTORY_SUPPLIER = Suppliers.memoize(XMLInputFactory::newInstance);
 
@@ -155,7 +155,7 @@ public class XMLImporter implements Importer, XmlConstants {
     }
 
     @Override
-    public Network import_(ReadOnlyDataSource dataSource, Properties parameters) {
+    public Network importData(ReadOnlyDataSource dataSource, Properties parameters) {
         Objects.requireNonNull(dataSource);
         Network network;
         long startTime = System.currentTimeMillis();

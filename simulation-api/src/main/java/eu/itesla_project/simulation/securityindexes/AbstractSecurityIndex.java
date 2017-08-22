@@ -20,7 +20,7 @@ import javax.xml.stream.XMLStreamWriter;
  */
 abstract class AbstractSecurityIndex implements SecurityIndex {
 
-    protected final static Supplier<XMLOutputFactory> xmlof = Suppliers.memoize(new Supplier<XMLOutputFactory>() {
+    protected final static Supplier<XMLOutputFactory> XML_OUTPUT_FACTORY_SUPPLIER = Suppliers.memoize(new Supplier<XMLOutputFactory>() {
         @Override
         public XMLOutputFactory get() {
             return XMLOutputFactory.newInstance();
@@ -53,7 +53,7 @@ abstract class AbstractSecurityIndex implements SecurityIndex {
     public String toXml() {
         StringWriter writer = new StringWriter();
         try {
-            XMLStreamWriter xmlWriter = xmlof.get().createXMLStreamWriter(writer);
+            XMLStreamWriter xmlWriter = XML_OUTPUT_FACTORY_SUPPLIER.get().createXMLStreamWriter(writer);
             try {
                 toXml(xmlWriter);
             } finally {

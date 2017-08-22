@@ -23,7 +23,7 @@ import java.util.UUID;
  */
 public class LoadFlowBasedPhaseShifterOptimizer implements PhaseShifterOptimizer {
 
-    private final Logger LOGGER = LoggerFactory.getLogger(LoadFlowBasedPhaseShifterOptimizer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LoadFlowBasedPhaseShifterOptimizer.class);
 
     private final ComputationManager computationManager;
 

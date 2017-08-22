@@ -26,13 +26,13 @@ public class ValidationFormatterCsvWriterTest {
 
     private final String branchId = "branchId";
     private final float p1 = 39.5056f;
-    private final float p1_calc = 39.5058f;
+    private final float p1Calc = 39.5058f;
     private final float q1 = -3.72344f;
-    private final float q1_calc = -3.72348f;
+    private final float q1Calc = -3.72348f;
     private final float p2 = -39.5122f;
-    private final float p2_calc = -39.5128f;
+    private final float p2Calc = -39.5128f;
     private final float q2 = 3.7746f;
-    private final float q2_calc = 3.7742f;
+    private final float q2Calc = 3.7742f;
     private final double r = 0.04;
     private final double x = 0.423;
     private final double g1 = 0.0;
@@ -70,10 +70,10 @@ public class ValidationFormatterCsvWriterTest {
                                           String.join(";","id","network_p1","expected_p1","network_q1","expected_q1","network_p2","expected_p2",
                                                       "network_q2","expected_q2"),
                                           String.join(";", branchId, 
-                                                      String.format(Locale.getDefault(), "%g", p1), String.format(Locale.getDefault(), "%g", p1_calc), 
-                                                      String.format(Locale.getDefault(), "%g", q1), String.format(Locale.getDefault(), "%g", q1_calc), 
-                                                      String.format(Locale.getDefault(), "%g", p2), String.format(Locale.getDefault(), "%g", p2_calc), 
-                                                      String.format(Locale.getDefault(), "%g", q2), String.format(Locale.getDefault(), "%g", q2_calc)));
+                                                      String.format(Locale.getDefault(), "%g", p1), String.format(Locale.getDefault(), "%g", p1Calc),
+                                                      String.format(Locale.getDefault(), "%g", q1), String.format(Locale.getDefault(), "%g", q1Calc),
+                                                      String.format(Locale.getDefault(), "%g", p2), String.format(Locale.getDefault(), "%g", p2Calc),
+                                                      String.format(Locale.getDefault(), "%g", q2), String.format(Locale.getDefault(), "%g", q2Calc)));
         testFlows(flowsContent, false);
     }
 
@@ -85,10 +85,10 @@ public class ValidationFormatterCsvWriterTest {
                                                       "network_q2","expected_q2", "r","x","g1","g2","b1","b2","rho1","rho2","alpha1","alpha2",
                                                       "u1","u2","theta1","theta2","z","y","ksi"),
                                           String.join(";", branchId, 
-                                                      String.format(Locale.getDefault(), "%g", p1), String.format(Locale.getDefault(), "%g", p1_calc), 
-                                                      String.format(Locale.getDefault(), "%g", q1), String.format(Locale.getDefault(), "%g", q1_calc), 
-                                                      String.format(Locale.getDefault(), "%g", p2), String.format(Locale.getDefault(), "%g", p2_calc), 
-                                                      String.format(Locale.getDefault(), "%g", q2), String.format(Locale.getDefault(), "%g", q2_calc),
+                                                      String.format(Locale.getDefault(), "%g", p1), String.format(Locale.getDefault(), "%g", p1Calc),
+                                                      String.format(Locale.getDefault(), "%g", q1), String.format(Locale.getDefault(), "%g", q1Calc),
+                                                      String.format(Locale.getDefault(), "%g", p2), String.format(Locale.getDefault(), "%g", p2Calc),
+                                                      String.format(Locale.getDefault(), "%g", q2), String.format(Locale.getDefault(), "%g", q2Calc),
                                                       String.format(Locale.getDefault(), "%g", r), String.format(Locale.getDefault(), "%g", x), 
                                                       String.format(Locale.getDefault(), "%g", g1), String.format(Locale.getDefault(), "%g", g2), 
                                                       String.format(Locale.getDefault(), "%g", b1), String.format(Locale.getDefault(), "%g", b2), 
@@ -105,7 +105,7 @@ public class ValidationFormatterCsvWriterTest {
         Writer writer = new StringWriter();
         TableFormatterConfig config = new TableFormatterConfig(Locale.getDefault(), ';', "inv", true, true);
         try (ValidationWriter flowsWriter = new ValidationFormatterCsvWriter("test", CsvTableFormatterFactory.class, config, writer, verbose, ValidationType.FLOWS)) {
-            flowsWriter.write(branchId, p1, p1_calc, q1, q1_calc, p2, p2_calc, q2, q2_calc, r, x, g1, g2, b1, b2, rho1, rho2, 
+            flowsWriter.write(branchId, p1, p1Calc, q1, q1Calc, p2, p2Calc, q2, q2Calc, r, x, g1, g2, b1, b2, rho1, rho2,
                               alpha1, alpha2, u1, u2, theta1, theta2, z, y, ksi);
             assertEquals(flowsContent, writer.toString().trim());
         }

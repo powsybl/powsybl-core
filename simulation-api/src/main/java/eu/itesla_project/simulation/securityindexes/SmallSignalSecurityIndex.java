@@ -38,21 +38,19 @@ public class SmallSignalSecurityIndex extends AbstractSecurityIndex {
     private double ami[] = null;
     private double smi[][] = null;
 
-    private static final JAXBContext jc;
+    private static final JAXBContext JAXB_CONTEXT;
 
     static {
-        JAXBContext tmpJc = null;
         try {
-            tmpJc = JAXBContext.newInstance(Index.class);
+            JAXB_CONTEXT = JAXBContext.newInstance(Index.class);
         } catch (JAXBException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
-        jc = tmpJc;
     }
 
     public static SmallSignalSecurityIndex fromXml(String contingencyId, XMLStreamReader xmlsr) throws XMLStreamException {
         try {
-            Unmarshaller u = jc.createUnmarshaller();
+            Unmarshaller u = JAXB_CONTEXT.createUnmarshaller();
             Index index = (Index) u.unmarshal(xmlsr);
 
             double gmi = Double.NaN;

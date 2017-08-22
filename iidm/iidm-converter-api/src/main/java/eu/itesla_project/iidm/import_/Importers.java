@@ -178,8 +178,8 @@ public class Importers {
         }
 
         @Override
-        public Network import_(ReadOnlyDataSource dataSource, Properties parameters) {
-            Network network = importer.import_(dataSource, parameters);
+        public Network importData(ReadOnlyDataSource dataSource, Properties parameters) {
+            Network network = importer.importData(dataSource, parameters);
             for (String name : names) {
                 try {
                     getPostProcessor(name).process(network, computationManager);
@@ -230,16 +230,16 @@ public class Importers {
      * @param computationManager computation manager to use for default post processors
      * @return the model
      */
-    public static Network import_(String format, ReadOnlyDataSource dataSource, Properties parameters, ComputationManager computationManager) {
+    public static Network importData(String format, ReadOnlyDataSource dataSource, Properties parameters, ComputationManager computationManager) {
         Importer importer = getImporter(format, computationManager);
         if (importer == null) {
             throw new RuntimeException("Import format " + format + " not supported");
         }
-        return importer.import_(dataSource, parameters);
+        return importer.importData(dataSource, parameters);
     }
 
-    public static Network import_(String format, ReadOnlyDataSource dataSource, Properties parameters) {
-        return import_(format, dataSource, parameters, LocalComputationManager.getDefault());
+    public static Network importData(String format, ReadOnlyDataSource dataSource, Properties parameters) {
+        return importData(format, dataSource, parameters, LocalComputationManager.getDefault());
     }
 
     /**
@@ -251,8 +251,8 @@ public class Importers {
      * @param parameters some properties to configure the import
      * @return the model
      */
-    public static Network import_(String format, String directory, String baseName, Properties parameters) {
-        return import_(format, new FileDataSource(Paths.get(directory), baseName), parameters);
+    public static Network importData(String format, String directory, String baseName, Properties parameters) {
+        return importData(format, new FileDataSource(Paths.get(directory), baseName), parameters);
     }
 
     public static void importAll(Path dir, Importer importer, boolean parallel, Consumer<Network> consumer) throws IOException, InterruptedException, ExecutionException {
@@ -264,7 +264,7 @@ public class Importers {
             if (listener != null) {
                 listener.accept(dataSource);
             }
-            Network network = importer.import_(dataSource, null);
+            Network network = importer.importData(dataSource, null);
             consumer.accept(network);
         } catch (Exception e) {
             LOGGER.error(e.toString(), e);
@@ -386,7 +386,7 @@ public class Importers {
         ReadOnlyDataSource dataSource = createReadOnly(file);
         for (Importer importer : Importers.list(loader, computationManager, config)) {
             if (importer.exists(dataSource)) {
-                return importer.import_(dataSource, parameters);
+                return importer.importData(dataSource, parameters);
             }
         }
         return null;
@@ -434,7 +434,7 @@ public class Importers {
         ReadOnlyMemDataSource dataSource = DataSourceUtil.createReadOnlyMemDataSource(filename, data);
         for (Importer importer : Importers.list(loader, computationManager, config)) {
             if (importer.exists(dataSource)) {
-                return importer.import_(dataSource, parameters);
+                return importer.importData(dataSource, parameters);
             }
         }
         return null;

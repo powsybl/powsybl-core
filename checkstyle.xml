@@ -11,13 +11,19 @@
     <module name="TreeWalker">
         <module name="AbbreviationAsWordInName"/>
         <module name="AbstractClassName"/>
+        <module name="ConstantName"/>
         <module name="EqualsHashCode"/>
         <module name="IllegalImport"/>
         <module name="Indentation"/>
         <module name="LeftCurly"/>
+        <module name="LocalVariableName"/>
+        <module name="MemberName"/>
+        <module name="MethodName"/>
         <module name="NeedBraces"/>
+        <module name="ParameterName"/>
         <module name="RedundantImport"/>
         <module name="RightCurly"/>
+        <module name="TypeName"/>
         <module name="UnusedImports"/>
     </module>
 </module>

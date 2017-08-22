@@ -104,7 +104,7 @@ public class EurostagTutorialExample1Factory {
                 .setB2(386E-6f / 2)
             .add();
         float zb380 = 380 * 380 / 100;
-        TwoWindingsTransformer ngen_nhv1 = p1.newTwoWindingsTransformer()
+        TwoWindingsTransformer ngenNhv1 = p1.newTwoWindingsTransformer()
                 .setId("NGEN_NHV1")
                 .setVoltageLevel1("VLGEN")
                 .setBus1("NGEN")
@@ -120,7 +120,7 @@ public class EurostagTutorialExample1Factory {
                 .setB(0)
             .add();
         float zb150 = 150 * 150 / 100;
-        TwoWindingsTransformer nhv2_nload = p2.newTwoWindingsTransformer()
+        TwoWindingsTransformer nhv2Nload = p2.newTwoWindingsTransformer()
                 .setId("NHV2_NLOAD")
                 .setVoltageLevel1("VLHV2")
                 .setBus1("NHV2")
@@ -136,7 +136,7 @@ public class EurostagTutorialExample1Factory {
                 .setB(0)
             .add();
         float a = (158f / 150f) / (400f / 380f);
-        nhv2_nload.newRatioTapChanger()
+        nhv2Nload.newRatioTapChanger()
                 .beginStep()
                     .setRho(0.85f * a)
                     .setR(0f)
@@ -162,7 +162,7 @@ public class EurostagTutorialExample1Factory {
                 .setLoadTapChangingCapabilities(true)
                 .setRegulating(true)
                 .setTargetV(158)
-                .setRegulationTerminal(nhv2_nload.getTerminal2())
+                .setRegulationTerminal(nhv2Nload.getTerminal2())
             .add();
         Load load = vlload.newLoad()
                 .setId("LOAD")

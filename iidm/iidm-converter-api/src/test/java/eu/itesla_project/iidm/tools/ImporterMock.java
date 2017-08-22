@@ -55,7 +55,7 @@ public class ImporterMock implements Importer {
     }
 
     @Override
-    public Network import_(ReadOnlyDataSource dataSource, Properties parameters) {
+    public Network importData(ReadOnlyDataSource dataSource, Properties parameters) {
         assertEquals(2, parameters.size());
         assertEquals("value1", parameters.getProperty("param1"));
         assertEquals("value", parameters.getProperty("import.parameter"));
