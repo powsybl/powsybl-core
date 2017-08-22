@@ -89,14 +89,14 @@ public class NetworkXml implements XmlConstants {
         SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
         Source[] sources = new Source[additionalSchemas.size() + 1];
         sources[0] = new StreamSource(NetworkXml.class.getResourceAsStream("/xsd/" + IIDM_XSD));
-        for (int i = 0 ; i < additionalSchemas.size(); i++) {
-            sources[i+1] = additionalSchemas.get(i);
+        for (int i = 0; i < additionalSchemas.size(); i++) {
+            sources[i + 1] = additionalSchemas.get(i);
         }
         try {
             Schema schema = factory.newSchema(sources);
             Validator validator = schema.newValidator();
             validator.validate(xml);
-        } catch (SAXException|IOException e) {
+        } catch (SAXException | IOException e) {
             throw new RuntimeException(e);
         }
     }

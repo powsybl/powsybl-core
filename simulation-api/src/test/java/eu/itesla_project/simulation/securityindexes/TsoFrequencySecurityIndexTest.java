@@ -25,7 +25,7 @@ public class TsoFrequencySecurityIndexTest {
     }
 
     @Test
-    public void testXml() throws IOException, XMLStreamException{
+    public void testXml() throws IOException, XMLStreamException {
         String xml = "<?xml version=\"1.0\" ?><index name=\"tso-frequency\"><freq-out-count>1</freq-out-count></index>";
         XMLInputFactory xmlif = XMLInputFactory.newInstance();
         TsoFrequencySecurityIndex index;

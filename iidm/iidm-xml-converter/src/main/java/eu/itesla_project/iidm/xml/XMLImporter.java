@@ -43,7 +43,7 @@ public class XMLImporter implements Importer, XmlConstants {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(XMLImporter.class);
 
-    private static final String[] EXTENSIONS = { "xiidm", "iidm", "xml" };
+    private static final String[] EXTENSIONS = {"xiidm", "iidm", "xml"};
 
     private static final Supplier<XMLInputFactory> XML_INPUT_FACTORY_SUPPLIER = Suppliers.memoize(XMLInputFactory::newInstance);
 
@@ -139,7 +139,7 @@ public class XMLImporter implements Importer, XmlConstants {
             }
             // copy iidm file
             try (InputStream is = fromDataSource.newInputStream(null, ext);
-                 OutputStream os = toDataSource.newOutputStream(null ,ext, false)) {
+                 OutputStream os = toDataSource.newOutputStream(null, ext, false)) {
                 ByteStreams.copy(is, os);
             }
             // and also anonymization file if exists
@@ -176,7 +176,7 @@ public class XMLImporter implements Importer, XmlConstants {
             try (InputStream is = dataSource.newInputStream(null, ext)) {
                 network = NetworkXml.read(is, new XmlImportConfig(throwExceptionIfExtensionNotFound), anonymizer);
             }
-            LOGGER.debug("XIIDM import done in {} ms", (System.currentTimeMillis() - startTime));
+            LOGGER.debug("XIIDM import done in {} ms", System.currentTimeMillis() - startTime);
         } catch (IOException e) {
             throw new ITeslaException(e);
         }

@@ -42,7 +42,7 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
     protected Column[] getColumns() {
         switch (validationType) {
             case FLOWS:
-                if ( verbose ) {
+                if (verbose) {
                     return new Column[] {
                         new Column("id"),
                         new Column("network_p1"),
@@ -84,7 +84,7 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                     new Column("expected_q2")
                 };
             case GENERATORS:
-                if ( verbose ) {
+                if (verbose) {
                     return new Column[] {
                         new Column("id"),
                         new Column("p"),
@@ -127,7 +127,7 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                  .writeCell(p2Calc)
                  .writeCell(q2)
                  .writeCell(q2Calc);
-        if ( verbose ) {
+        if (verbose) {
             formatter.writeCell(r)
                      .writeCell(x)
                      .writeCell(g1)
@@ -159,7 +159,7 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                  .writeCell(targetP)
                  .writeCell(targetQ)
                  .writeCell(targetV);
-        if ( verbose ) {
+        if (verbose) {
             formatter.writeCell(connected)
                      .writeCell(voltageRegulatorOn)
                      .writeCell(minQ)

@@ -48,7 +48,7 @@ public class StringToIntMapperTest {
         try {
             mapper.reset(null);
             fail();
-        } catch(IllegalArgumentException ignored) {
+        } catch (IllegalArgumentException ignored) {
         }
     }
     
@@ -58,12 +58,12 @@ public class StringToIntMapperTest {
         try {
             mapper.getId(TestSubset.TYPE, 1);
             fail();
-        } catch(IllegalArgumentException ignored) {
+        } catch (IllegalArgumentException ignored) {
         }
         try {
             mapper.getInt(TestSubset.TYPE, value);
             fail();
-        } catch(IllegalStateException ignored) {
+        } catch (IllegalStateException ignored) {
         }
 
         int num = mapper.newInt(TestSubset.TYPE, value);
@@ -83,44 +83,44 @@ public class StringToIntMapperTest {
         try (Writer writer = new StringWriter()) {
             mapper.dump(writer);
             assertEquals(content, writer.toString().trim());
-        };
+        }
 
         try {
             mapper.newInt(null, value);
             fail();
-        } catch(IllegalArgumentException ignored) {
+        } catch (IllegalArgumentException ignored) {
         }
         try {
             mapper.newInt(TestSubset.TYPE, null);
             fail();
-        } catch(IllegalArgumentException ignored) {
+        } catch (IllegalArgumentException ignored) {
         }
 
         try {
             mapper.getId(null, 1);
             fail();
-        } catch(IllegalArgumentException ignored) {
+        } catch (IllegalArgumentException ignored) {
         }
         try {
             mapper.getId(TestSubset.TYPE, 0);
             fail();
-        } catch(IllegalArgumentException ignored) {
+        } catch (IllegalArgumentException ignored) {
         }
         try {
             mapper.getId(TestSubset.TYPE, 3);
             fail();
-        } catch(IllegalArgumentException ignored) {
+        } catch (IllegalArgumentException ignored) {
         }
 
         try {
             mapper.getInt(null, value);
             fail();
-        } catch(IllegalArgumentException ignored) {
+        } catch (IllegalArgumentException ignored) {
         }
         try {
             mapper.getInt(TestSubset.TYPE, null);
             fail();
-        } catch(IllegalArgumentException ignored) {
+        } catch (IllegalArgumentException ignored) {
         }
     }
 

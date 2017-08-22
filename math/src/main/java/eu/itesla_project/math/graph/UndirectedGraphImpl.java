@@ -138,7 +138,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
             }
         }
         V obj = vertices.get(v).getObject();
-        if (v == vertices.size()-1) {
+        if (v == vertices.size() - 1) {
             vertices.remove(v);
         } else {
             vertices.set(v, null);
@@ -186,7 +186,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     public E removeEdge(int e) {
         checkEdge(e);
         E obj = edges.get(e).getObject();
-        if (e == edges.size()-1) {
+        if (e == edges.size() - 1) {
             edges.remove(e);
         } else {
             edges.set(e, null);
@@ -417,7 +417,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
             int v2 = edge.getV2();
             TIntArrayList path2;
             BitSet encountered2;
-            if (i < adjacentEdges.size () - 1) {
+            if (i < adjacentEdges.size() - 1) {
                 path2 = new TIntArrayList(path);
                 encountered2 = new BitSet(vertices.size());
                 encountered2.or(encountered);
@@ -461,7 +461,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
         for (int v = 0; v < vertices.size(); v++) {
             Vertex<V> vertex = vertices.get(v);
             if (vertex != null) {
-                String str = (vertexToString == null ? Objects.toString(vertex.getObject()) : vertexToString.apply(vertex.getObject()));
+                String str = vertexToString == null ? Objects.toString(vertex.getObject()) : vertexToString.apply(vertex.getObject());
                 out.append(Integer.toString(v)).append(": ")
                         .append(str)
                         .append("\n");
@@ -471,7 +471,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
         for (int e = 0; e < edges.size(); e++) {
             Edge<E> edge = edges.get(e);
             if (edge != null) {
-                String str = (edgeToString == null ? Objects.toString(edge.getObject()) : edgeToString.apply(edge.getObject()));
+                String str = edgeToString == null ? Objects.toString(edge.getObject()) : edgeToString.apply(edge.getObject());
                 out.append(Integer.toString(e)).append(": ")
                         .append(Integer.toString(edge.getV1())).append("<->")
                         .append(Integer.toString(edge.getV2())).append(" ")

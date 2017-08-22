@@ -44,11 +44,11 @@ class ComponentImpl implements Component {
 
     @Override
     public Iterable<Bus> getBuses() {
-        return Iterables.filter(networkRef.get().getBusView().getBuses(), bus -> (bus.getConnectedComponent() == ComponentImpl.this));
+        return Iterables.filter(networkRef.get().getBusView().getBuses(), bus -> bus.getConnectedComponent() == ComponentImpl.this);
     }
 
     @Override
     public Stream<Bus> getBusStream() {
-        return networkRef.get().getBusView().getBusStream().filter(bus -> (bus.getConnectedComponent() == ComponentImpl.this));
+        return networkRef.get().getBusView().getBusStream().filter(bus -> bus.getConnectedComponent() == ComponentImpl.this);
     }
 }

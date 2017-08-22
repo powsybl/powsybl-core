@@ -38,7 +38,7 @@ public class SecurityIndexParser {
                     case XMLEvent.START_ELEMENT:
                         switch (xmlsr.getLocalName()) {
                             case "index":
-                                switch(xmlsr.getAttributeValue(null, "name")) {
+                                switch (xmlsr.getAttributeValue(null, "name")) {
                                     case OverloadSecurityIndex.XML_NAME:
                                         indexes.add(OverloadSecurityIndex.fromXml(contingencyId, xmlsr));
                                         break;

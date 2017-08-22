@@ -67,7 +67,7 @@ public class ValidationFormatterCsvMultilineWriterTest {
     public void testFlows() throws Exception {
         String flowsContent = String.join(System.lineSeparator(),
                                           "test " + ValidationType.FLOWS + " check",
-                                          String.join(";","id","characteristic","value"),
+                                          String.join(";", "id", "characteristic", "value"),
                                           String.join(";", branchId, "network_p1", String.format(Locale.getDefault(), "%g", p1)), 
                                           String.join(";", branchId, "expected_p1", String.format(Locale.getDefault(), "%g", p1Calc)),
                                           String.join(";", branchId, "network_q1", String.format(Locale.getDefault(), "%g", q1)), 
@@ -83,7 +83,7 @@ public class ValidationFormatterCsvMultilineWriterTest {
     public void testFlowsVerbose() throws Exception {
         String flowsContent = String.join(System.lineSeparator(),
                                           "test " + ValidationType.FLOWS + " check",
-                                          String.join(";","id","characteristic","value"),
+                                          String.join(";", "id", "characteristic", "value"),
                                           String.join(";", branchId, "network_p1", String.format(Locale.getDefault(), "%g", p1)), 
                                           String.join(";", branchId, "expected_p1", String.format(Locale.getDefault(), "%g", p1Calc)),
                                           String.join(";", branchId, "network_q1", String.format(Locale.getDefault(), "%g", q1)), 
@@ -126,7 +126,7 @@ public class ValidationFormatterCsvMultilineWriterTest {
     public void testGenerators() throws Exception {
         String generatorsContent = String.join(System.lineSeparator(),
                                                "test " + ValidationType.GENERATORS + " check",
-                                               String.join(";","id","characteristic","value"),
+                                               String.join(";", "id", "characteristic", "value"),
                                                String.join(";", generatorId, "p", String.format(Locale.getDefault(), "%g", p)), 
                                                String.join(";", generatorId, "q", String.format(Locale.getDefault(), "%g", q)), 
                                                String.join(";", generatorId, "v", String.format(Locale.getDefault(), "%g", v)), 
@@ -140,7 +140,7 @@ public class ValidationFormatterCsvMultilineWriterTest {
     public void testGeneratorsVerbose() throws Exception {
         String generatorsContent = String.join(System.lineSeparator(),
                                                "test " + ValidationType.GENERATORS + " check",
-                                               String.join(";","id","characteristic","value"),
+                                               String.join(";", "id", "characteristic", "value"),
                                                String.join(";", generatorId, "p", String.format(Locale.getDefault(), "%g", p)), 
                                                String.join(";", generatorId, "q", String.format(Locale.getDefault(), "%g", q)), 
                                                String.join(";", generatorId, "v", String.format(Locale.getDefault(), "%g", v)), 

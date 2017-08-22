@@ -59,7 +59,7 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
                  .writeCell(branchId).writeCell("expected_p2").writeCell(p2Calc)
                  .writeCell(branchId).writeCell("network_q2").writeCell(q2)
                  .writeCell(branchId).writeCell("expected_q2").writeCell(q2Calc);
-        if ( verbose ) {
+        if (verbose) {
             formatter.writeCell(branchId).writeCell("r").writeCell(r)
                      .writeCell(branchId).writeCell("x").writeCell(x)
                      .writeCell(branchId).writeCell("g1").writeCell(g1)
@@ -90,7 +90,7 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
                  .writeCell(generatorId).writeCell("targetP").writeCell(targetP)
                  .writeCell(generatorId).writeCell("targetQ").writeCell(targetQ)
                  .writeCell(generatorId).writeCell("targetV").writeCell(targetV);
-        if ( verbose ) {
+        if (verbose) {
             formatter.writeCell(generatorId).writeCell("connected").writeCell(connected)
                      .writeCell(generatorId).writeCell("voltageRegulatorOn").writeCell(voltageRegulatorOn)
                      .writeCell(generatorId).writeCell("minQ").writeCell(minQ)

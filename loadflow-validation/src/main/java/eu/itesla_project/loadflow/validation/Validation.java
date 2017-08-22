@@ -64,13 +64,14 @@ public class Validation {
                                       ValidationWriter flowsWriter) {
         boolean ok = true;
         try {
-            if (Math.abs(x) < config.getEpsilonX() && config.applyReactanceCorrection()) {
-                LOGGER.info("x " + x + " -> " + config.getEpsilonX());
-                x = config.getEpsilonX();
+            double fixedX = x;
+            if (Math.abs(fixedX) < config.getEpsilonX() && config.applyReactanceCorrection()) {
+                LOGGER.info("x " + fixedX + " -> " + config.getEpsilonX());
+                fixedX = config.getEpsilonX();
             }
-            double z = Math.hypot(r, x);
+            double z = Math.hypot(r, fixedX);
             double y = 1 / z;
-            double ksi = Math.atan2(r, x);
+            double ksi = Math.atan2(r, fixedX);
             double p1Calc = rho1 * rho2 * u1 * u2 * y * Math.sin(theta1 - theta2 - ksi + alpha1 - alpha2) + rho1 * rho1 * u1 * u1 * (y * Math.sin(ksi) + g1);
             double q1Calc = -rho1 * rho2 * u1 * u2 * y * Math.cos(theta1 - theta2 - ksi + alpha1 - alpha2) + rho1 * rho1 * u1 * u1 * (y * Math.cos(ksi) - b1);
             double p2Calc = rho2 * rho1 * u2 * u1 * y * Math.sin(theta2 - theta1 - ksi + alpha2 - alpha1) + rho2 * rho2 * u2 * u2 * (y * Math.sin(ksi) + g2);
@@ -183,16 +184,16 @@ public class Validation {
                 b2 = twt.getB() / 2;
             }
             if (twt.getRatioTapChanger() != null) {
-                r *= (1 + twt.getRatioTapChanger().getCurrentStep().getR() / 100);
-                x *= (1 + twt.getRatioTapChanger().getCurrentStep().getX() / 100);
-                g1 *= (1 + twt.getRatioTapChanger().getCurrentStep().getG() / 100);
-                b1 *= (1 + twt.getRatioTapChanger().getCurrentStep().getB() / 100);
+                r *= 1 + twt.getRatioTapChanger().getCurrentStep().getR() / 100;
+                x *= 1 + twt.getRatioTapChanger().getCurrentStep().getX() / 100;
+                g1 *= 1 + twt.getRatioTapChanger().getCurrentStep().getG() / 100;
+                b1 *= 1 + twt.getRatioTapChanger().getCurrentStep().getB() / 100;
             }
             if (twt.getPhaseTapChanger() != null) {
-                r *= (1 + twt.getPhaseTapChanger().getCurrentStep().getR() / 100);
-                x *= (1 + twt.getPhaseTapChanger().getCurrentStep().getX() / 100);
-                g1 *= (1 + twt.getPhaseTapChanger().getCurrentStep().getG() / 100);
-                b1 *= (1 + twt.getPhaseTapChanger().getCurrentStep().getB() / 100);
+                r *= 1 + twt.getPhaseTapChanger().getCurrentStep().getR() / 100;
+                x *= 1 + twt.getPhaseTapChanger().getCurrentStep().getX() / 100;
+                g1 *= 1 + twt.getPhaseTapChanger().getCurrentStep().getG() / 100;
+                b1 *= 1 + twt.getPhaseTapChanger().getCurrentStep().getB() / 100;
             }
 
             double rho1 = twt.getRatedU2() / twt.getRatedU1();
@@ -347,7 +348,7 @@ public class Validation {
                 ok = false;
             }
             // if voltageRegulatorOn="false" then reactive power should be equal to set point
-            if (!voltageRegulatorOn && Math.abs(q + targetQ) > config.getThreshold() ) {
+            if (!voltageRegulatorOn && Math.abs(q + targetQ) > config.getThreshold()) {
                 LOGGER.warn(id + ": voltage regulator off - Q=" + q + " targetQ=" + targetQ);
                 ok = false;
             }

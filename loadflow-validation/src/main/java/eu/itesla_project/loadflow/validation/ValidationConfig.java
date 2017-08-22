@@ -55,7 +55,7 @@ public class ValidationConfig {
             ModuleConfig config = platformConfig.getModuleConfig("loadflow-validation");
             threshold = config.getFloatProperty("threshold", THRESHOLD_DEFAULT);
             verbose = config.getBooleanProperty("verbose", VERBOSE_DEFAULT);
-            if ( config.hasProperty("load-flow-factory") ) { 
+            if (config.hasProperty("load-flow-factory")) {
                 loadFlowFactory = config.getClassProperty("load-flow-factory", LoadFlowFactory.class, componentDefaultConfig.findFactoryImplClass(LoadFlowFactory.class));
             }
             tableFormatterFactory = config.getClassProperty("table-formatter-factory", TableFormatterFactory.class, TABLE_FORMATTER_FACTORY_DEFAULT);

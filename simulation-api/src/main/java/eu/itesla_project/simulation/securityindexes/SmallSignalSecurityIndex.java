@@ -109,7 +109,7 @@ public class SmallSignalSecurityIndex extends AbstractSecurityIndex {
 
     @Override
     public boolean isOk() {
-        return ((Double.isNaN(gmi)) || (gmi >= 0.0000));
+        return Double.isNaN(gmi) || gmi >= 0.0000;
     }
 
     @Override

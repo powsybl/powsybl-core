@@ -106,7 +106,7 @@ public class SecurityAnalysisTool implements Tool {
         Format format = null;
         if (line.hasOption("output-file")) {
             outputFile = context.getFileSystem().getPath(line.getOptionValue("output-file"));
-            if (! line.hasOption("output-format")) {
+            if (!line.hasOption("output-format")) {
                 throw new ParseException("Missing required option: output-format");
             }
             format = Format.valueOf(line.getOptionValue("output-format"));
@@ -114,7 +114,7 @@ public class SecurityAnalysisTool implements Tool {
 
         context.getOutputStream().println("Loading network '" + caseFile + "'");
         
-        SecurityAnalysisResult result = new SecurityAnalyzer(context.getComputationManager(),0).analyze(caseFile, line.hasOption("contingencies-file") ? context.getFileSystem().getPath(line.getOptionValue("contingencies-file")) : null);
+        SecurityAnalysisResult result = new SecurityAnalyzer(context.getComputationManager(), 0).analyze(caseFile, line.hasOption("contingencies-file") ? context.getFileSystem().getPath(line.getOptionValue("contingencies-file")) : null);
 
         if (!result.getPreContingencyResult().isComputationOk()) {
             context.getErrorStream().println("Pre-contingency state divergence");

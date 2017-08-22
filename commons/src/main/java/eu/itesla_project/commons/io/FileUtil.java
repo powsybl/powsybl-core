@@ -42,7 +42,7 @@ public class FileUtil {
     public static Path createDirectory(Path directory) {
         Objects.requireNonNull(directory);
         try {
-            if (! (Files.isDirectory(directory))) {
+            if (!Files.isDirectory(directory)) {
                 Files.createDirectories(directory);
             }
         } catch (IOException e) {

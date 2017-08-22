@@ -283,21 +283,21 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
             if (ttc.getTerminal1() == otherTerminal) {
                 nextTerminals.add((TerminalExt) ttc.getTerminal2());
             } else if (ttc.getTerminal2() == otherTerminal) {
-                nextTerminals.add(((TerminalExt) ttc.getTerminal1()));
+                nextTerminals.add((TerminalExt) ttc.getTerminal1());
             } else {
                 throw new AssertionError();
             }
         } else if (otherConnectable instanceof ThreeWindingsTransformer) {
             ThreeWindingsTransformer ttc = (ThreeWindingsTransformer) otherConnectable;
             if (ttc.getLeg1().getTerminal() == otherTerminal) {
-                nextTerminals.add(((TerminalExt) ttc.getLeg2().getTerminal()));
-                nextTerminals.add(((TerminalExt) ttc.getLeg3().getTerminal()));
+                nextTerminals.add((TerminalExt) ttc.getLeg2().getTerminal());
+                nextTerminals.add((TerminalExt) ttc.getLeg3().getTerminal());
             } else if (ttc.getLeg2().getTerminal() == otherTerminal) {
-                nextTerminals.add(((TerminalExt) ttc.getLeg1().getTerminal()));
-                nextTerminals.add(((TerminalExt) ttc.getLeg3().getTerminal()));
+                nextTerminals.add((TerminalExt) ttc.getLeg1().getTerminal());
+                nextTerminals.add((TerminalExt) ttc.getLeg3().getTerminal());
             } else if (ttc.getLeg3().getTerminal() == otherTerminal) {
-                nextTerminals.add(((TerminalExt) ttc.getLeg1().getTerminal()));
-                nextTerminals.add(((TerminalExt) ttc.getLeg2().getTerminal()));
+                nextTerminals.add((TerminalExt) ttc.getLeg1().getTerminal());
+                nextTerminals.add((TerminalExt) ttc.getLeg2().getTerminal());
             } else {
                 throw new AssertionError();
             }

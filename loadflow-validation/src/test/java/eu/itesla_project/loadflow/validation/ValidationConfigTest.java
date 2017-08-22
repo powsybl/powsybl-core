@@ -127,31 +127,31 @@ public class ValidationConfigTest {
             new ValidationConfig(-1, false, loadFlowFactory, ValidationConfig.TABLE_FORMATTER_FACTORY_DEFAULT, 1, 
                                  ValidationConfig.APPLY_REACTANCE_CORRECTION_DEFAULT, ValidationOutputWriter.CSV_MULTILINE, new LoadFlowParameters());
             fail();
-        } catch(Exception ignored) {
+        } catch (Exception ignored) {
         }
         try {
             new ValidationConfig(1, false, null, ValidationConfig.TABLE_FORMATTER_FACTORY_DEFAULT, 1, 
                                  ValidationConfig.APPLY_REACTANCE_CORRECTION_DEFAULT, ValidationOutputWriter.CSV_MULTILINE, new LoadFlowParameters());
             fail();
-        } catch(Exception ignored) {
+        } catch (Exception ignored) {
         }
         try {
             new ValidationConfig(1, false, loadFlowFactory, null, ValidationConfig.EPSILON_X_DEFAULT, 
                                 ValidationConfig.APPLY_REACTANCE_CORRECTION_DEFAULT, ValidationOutputWriter.CSV_MULTILINE, new LoadFlowParameters());
             fail();
-        } catch(Exception ignored) {
+        } catch (Exception ignored) {
         }
         try {
             new ValidationConfig(1, false, loadFlowFactory, ValidationConfig.TABLE_FORMATTER_FACTORY_DEFAULT, -1, 
                                  ValidationConfig.APPLY_REACTANCE_CORRECTION_DEFAULT, ValidationOutputWriter.CSV_MULTILINE, new LoadFlowParameters());
             fail();
-        } catch(Exception ignored) {
+        } catch (Exception ignored) {
         }
         try {
             new ValidationConfig(1, false, loadFlowFactory, ValidationConfig.TABLE_FORMATTER_FACTORY_DEFAULT, 1, 
                                  ValidationConfig.APPLY_REACTANCE_CORRECTION_DEFAULT, null, new LoadFlowParameters());
             fail();
-        } catch(Exception ignored) {
+        } catch (Exception ignored) {
         }
     }
 

@@ -25,7 +25,7 @@ public class TsoUndervoltageSecurityIndexTest {
     }
 
     @Test
-    public void testXml() throws IOException, XMLStreamException{
+    public void testXml() throws IOException, XMLStreamException {
         String xml = "<?xml version=\"1.0\" ?><index name=\"tso-undervoltage\"><computation-succeed>true</computation-succeed><undervoltage-count>1</undervoltage-count></index>";
         XMLInputFactory xmlif = XMLInputFactory.newInstance();
         TsoUndervoltageSecurityIndex index;

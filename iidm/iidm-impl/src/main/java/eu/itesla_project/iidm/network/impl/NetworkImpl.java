@@ -223,7 +223,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Mult
     @Override
     public int getVoltageLevelCount() {
         return objectStore.getAll(BusBreakerVoltageLevel.class).size()
-                + objectStore.getAll(NodeBreakerVoltageLevel.class).size() ;
+                + objectStore.getAll(NodeBreakerVoltageLevel.class).size();
     }
 
     @Override
@@ -627,7 +627,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Mult
                 setComponentNumber(bus, result.getComponentNumber()[i]);
             }
 
-            LOGGER.debug(getComponentLabel() + " components computed in {} ms", (System.currentTimeMillis()-startTime));
+            LOGGER.debug(getComponentLabel() + " components computed in {} ms", System.currentTimeMillis() - startTime);
         }
 
         List<C> getConnectedComponents() {
@@ -984,7 +984,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Mult
         // change the network id
         setId(getId() + " + " + otherNetwork.getId());
 
-        LOGGER.info("Merging of {} done in {} ms", id, (System.currentTimeMillis() - start));
+        LOGGER.info("Merging of {} done in {} ms", id, System.currentTimeMillis() - start);
     }
 
     @Override

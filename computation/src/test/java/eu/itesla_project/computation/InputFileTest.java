@@ -65,6 +65,6 @@ public class InputFileTest {
 
     @Test(expected = RuntimeException.class)
     public void test8() {
-        new InputFile("test"+ File.separator + "test", null);
+        new InputFile("test" + File.separator + "test", null);
     }
 }

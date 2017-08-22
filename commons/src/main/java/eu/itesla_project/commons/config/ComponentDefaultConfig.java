@@ -53,7 +53,7 @@ public interface ComponentDefaultConfig {
         public <T> T newFactoryImpl(Class<T> factoryBaseClass) {
             try {
                 return findFactoryImplClass(factoryBaseClass).newInstance();
-            } catch (IllegalAccessException|InstantiationException e) {
+            } catch (IllegalAccessException | InstantiationException e) {
                 throw new RuntimeException(e);
             }
         }
@@ -62,7 +62,7 @@ public interface ComponentDefaultConfig {
         public <T, U extends T> T newFactoryImpl(Class<T> factoryBaseClass, Class<U> defaultFactoryImplClass) {
             try {
                 return findFactoryImplClass(factoryBaseClass, defaultFactoryImplClass).newInstance();
-            } catch (IllegalAccessException|InstantiationException e) {
+            } catch (IllegalAccessException | InstantiationException e) {
                 throw new RuntimeException(e);
             }
         }

@@ -50,7 +50,7 @@ public class Networks {
     }
 
     public static boolean isBusValid(int feederCount, int branchCount) {
-        return branchCount >=1;
+        return branchCount >= 1;
     }
 
     public static Map<String, String> getExecutionTags(Network network) {

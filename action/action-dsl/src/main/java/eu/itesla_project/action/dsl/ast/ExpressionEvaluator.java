@@ -209,8 +209,8 @@ public class ExpressionEvaluator extends DefaultExpressionVisitor<Object, Void> 
                 c = 1;
             } else { // overload1 != null && overload2 != null
                 // first compare acceptable duration
-                c = - Integer.compare(overload1.getTemporaryLimit().getAcceptableDuration(),
-                                      overload2.getTemporaryLimit().getAcceptableDuration());
+                c = -Integer.compare(overload1.getTemporaryLimit().getAcceptableDuration(),
+                                     overload2.getTemporaryLimit().getAcceptableDuration());
                 if (c == 0) {
                     // and then overload based on temporary limit
                     c = compare(i1 / overload1.getTemporaryLimit().getValue(),

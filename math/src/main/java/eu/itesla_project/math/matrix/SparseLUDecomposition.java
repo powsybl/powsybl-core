@@ -24,7 +24,7 @@ public class SparseLUDecomposition implements LUDecomposition {
         init(id, matrix.getColumnStart(), matrix.getRowIndices(), matrix.getValues());
     }
 
-    private native void init(String id, int[] ap, int [] ai, double[] ax);
+    private native void init(String id, int[] ap, int[] ai, double[] ax);
 
     private native void release(String id);
 

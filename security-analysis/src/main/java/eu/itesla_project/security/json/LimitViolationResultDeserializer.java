@@ -42,12 +42,14 @@ class LimitViolationResultDeserializer extends StdDeserializer<LimitViolationsRe
 
                 case "limitViolations":
                     parser.nextToken();
-                    limitViolations = parser.readValueAs(new TypeReference<ArrayList<LimitViolation>>() {});
+                    limitViolations = parser.readValueAs(new TypeReference<ArrayList<LimitViolation>>() {
+                    });
                     break;
 
                 case "actionsTaken":
                     parser.nextToken();
-                    actionsTaken = parser.readValueAs(new TypeReference<ArrayList<String>>() {});
+                    actionsTaken = parser.readValueAs(new TypeReference<ArrayList<String>>() {
+                    });
                     break;
 
                 default:

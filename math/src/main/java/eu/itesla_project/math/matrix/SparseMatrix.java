@@ -106,7 +106,7 @@ public class SparseMatrix extends AbstractMatrix {
         }
         values.add(value);
         rowIndices.add(m);
-        columnStart[columnStart.length-1] = values.size();
+        columnStart[columnStart.length - 1] = values.size();
     }
 
     @Override
@@ -115,7 +115,7 @@ public class SparseMatrix extends AbstractMatrix {
         return new SparseLUDecomposition(this);
     }
 
-    private native SparseMatrix times(int m1, int n1, int[] ap1, int [] ai1, double[] ax1, int m2, int n2, int[] ap2, int [] ai2, double[] ax2);
+    private native SparseMatrix times(int m1, int n1, int[] ap1, int[] ai1, double[] ax1, int m2, int n2, int[] ap2, int[] ai2, double[] ax2);
 
     @Override
     public Matrix times(Matrix other) {

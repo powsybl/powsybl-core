@@ -181,7 +181,8 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
         private Integer node2;
 
-        private InternalConnectionAdderImpl() {}
+        private InternalConnectionAdderImpl() {
+        }
 
         @Override
         protected NetworkImpl getNetwork() {
@@ -415,7 +416,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         Iterable<SwitchImpl> getSwitches() {
-            return Iterables.filter(graph.getEdgesObject(), sw -> (sw != null && sw.isRetained()));
+            return Iterables.filter(graph.getEdgesObject(), sw -> sw != null && sw.isRetained());
         }
 
         Stream<Switch> getSwitchStream() {
@@ -835,7 +836,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
         int node = ((NodeTerminal) terminal).getNode();
 
-        assert node >=0 && node < graph.getVertexCount();
+        assert node >= 0 && node < graph.getVertexCount();
         assert graph.getVertexObject(node) == terminal;
 
         // remove adjacents edges
@@ -930,7 +931,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
     boolean isConnected(TerminalExt terminal) {
         assert terminal instanceof NodeTerminal;
 
-        return (terminal.getBusView().getBus() != null);
+        return terminal.getBusView().getBus() != null;
     }
 
     void traverse(NodeTerminal terminal, VoltageLevel.TopologyTraverser traverser) {

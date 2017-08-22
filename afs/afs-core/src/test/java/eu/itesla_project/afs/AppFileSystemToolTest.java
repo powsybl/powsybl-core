@@ -63,7 +63,7 @@ public class AppFileSystemToolTest extends AbstractToolTest {
 
     @Test
     public void testLs() throws IOException {
-        assertCommand(new String[] { "afs", "--ls" }, 0, "mem" + System.lineSeparator(), "");
-        assertCommand(new String[] { "afs", "--ls", "mem:/" }, 0, String.join(System.lineSeparator(), "test_project1", "test_project2"), "");
+        assertCommand(new String[] {"afs", "--ls"}, 0, "mem" + System.lineSeparator(), "");
+        assertCommand(new String[] {"afs", "--ls", "mem:/"}, 0, String.join(System.lineSeparator(), "test_project1", "test_project2"), "");
     }
 }

@@ -50,7 +50,7 @@ class StateArray<S extends State> {
 
     void pop(int number) {
         for (int i = 0; i < number; i++) {
-            states.remove(states.size()-1);
+            states.remove(states.size() - 1);
         }
     }
 

@@ -17,9 +17,9 @@ import java.util.Set;
 class ContingencyTopologyTraverser {
 
     private static boolean isOpenable(Switch aSwitch) {
-        return (!aSwitch.isOpen() &&
+        return !aSwitch.isOpen() &&
                 !aSwitch.isFictitious() &&
-                aSwitch.getKind() == SwitchKind.BREAKER);
+                aSwitch.getKind() == SwitchKind.BREAKER;
     }
 
     static void traverse(Terminal terminal, Set<Switch> switchesToOpen, Set<Terminal> terminalsToDisconnect) {
@@ -48,7 +48,7 @@ class ContingencyTopologyTraverser {
 
                 if (isOpenable(aSwitch)) {
                     switchesToOpen.add(aSwitch);
-                } else if (! aSwitch.isOpen()) {
+                } else if (!aSwitch.isOpen()) {
                     traverse = true;
                 }
 

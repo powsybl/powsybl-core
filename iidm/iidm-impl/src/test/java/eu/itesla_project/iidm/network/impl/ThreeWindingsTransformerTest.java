@@ -109,7 +109,7 @@ public class ThreeWindingsTransformerTest {
         t.setX(3.1f);
         assertEquals(3.1f, t.getX(), 0.0f);
         t.setRatedU(4.1f);
-        assertEquals(4.1f, t.getRatedU(),0.0f);
+        assertEquals(4.1f, t.getRatedU(), 0.0f);
         t.setG(1.3f);
         assertEquals(1.3f, t.getG(), 0.0f);
         t.setB(1.4f);

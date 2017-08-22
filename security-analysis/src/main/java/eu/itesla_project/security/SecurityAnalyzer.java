@@ -33,7 +33,7 @@ public class SecurityAnalyzer {
     private final SecurityAnalysisFactory securityAnalysisFactory;
     private final ContingenciesProviderFactory contingenciesProviderFactory;
 
-    public SecurityAnalyzer(ComputationManager computationManager, int priority){
+    public SecurityAnalyzer(ComputationManager computationManager, int priority) {
         this.computationManager = Objects.requireNonNull(computationManager);
         this.priority = priority;
         ComponentDefaultConfig defaultConfig = ComponentDefaultConfig.load();

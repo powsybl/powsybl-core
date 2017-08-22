@@ -26,8 +26,8 @@ public class ReactiveCapabilityCurveTest {
                 .beginPoint().setP(100.0f).setMaxQ(10.0f).setMinQ(2.0f).endPoint()
                 .add();
         assertEquals(ReactiveLimitsKind.CURVE, reactiveCapabilityCurve.getKind());
-        assertEquals(100.0f, reactiveCapabilityCurve.getMaxP(),0.0f);
-        assertEquals(1.0f, reactiveCapabilityCurve.getMinP(),0.0f);
+        assertEquals(100.0f, reactiveCapabilityCurve.getMaxP(), 0.0f);
+        assertEquals(1.0f, reactiveCapabilityCurve.getMinP(), 0.0f);
         assertEquals(3, reactiveCapabilityCurve.getPoints().size());
     }
 }

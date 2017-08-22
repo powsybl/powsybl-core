@@ -53,7 +53,7 @@ public class ActionTest {
         try {
             new Action(id, tasks);
             fail();
-        } catch (NullPointerException exc) {
+        } catch (NullPointerException ignored) {
         }
     }
 

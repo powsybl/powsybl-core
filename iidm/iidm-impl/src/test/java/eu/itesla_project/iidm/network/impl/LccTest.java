@@ -50,8 +50,8 @@ public class LccTest {
         assertEquals(1.0f, l.getR(), 0.0f);
         assertEquals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER, l.getConvertersMode());
         assertEquals(300f, l.getMaxP(), 0.0f);
-        assertEquals(cs1, l. getConverterStation1());
-        assertEquals(cs2, l. getConverterStation2());
+        assertEquals(cs1, l.getConverterStation1());
+        assertEquals(cs2, l.getConverterStation2());
     }
 
     @Test

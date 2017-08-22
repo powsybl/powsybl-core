@@ -121,17 +121,17 @@ public class StateManagerImplTest {
         try {
             stateManager.setWorkingState("UnknownState");
             assertFalse(true);
-        } catch (ITeslaException e) {
+        } catch (ITeslaException ignored) {
         }
         try {
             stateManager.removeState("UnknownState");
             assertFalse(true);
-        } catch (ITeslaException e) {
+        } catch (ITeslaException ignored) {
         }
         try {
             stateManager.removeState(StateManager.INITIAL_STATE_ID);
             assertFalse(true);
-        } catch (ITeslaException e) {
+        } catch (ITeslaException ignored) {
         }
         // cloning test
         stateManager.cloneState(StateManager.INITIAL_STATE_ID, "ClonedState1");
@@ -152,7 +152,7 @@ public class StateManagerImplTest {
         try {
             assertTrue(stateManager.getWorkingStateId().equals(StateManager.INITIAL_STATE_ID)); // because state is not set
             fail();
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
         assertTrue(stateManager.getStateArraySize() == 3);
         assertTrue(Sets.newHashSet(StateManager.INITIAL_STATE_ID, "ClonedState2").equals(stateManager.getStateIds()));

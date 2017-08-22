@@ -165,7 +165,7 @@ class ConfiguredBusImpl extends AbstractBus implements ConfiguredBus, Stateful {
     @Override
     public void reduceStateArraySize(int number) {
         for (int i = 0; i < number; i++) {
-            terminals.remove(terminals.size()-1);
+            terminals.remove(terminals.size() - 1);
         }
         v.remove(v.size() - number, number);
         angle.remove(angle.size() - number, number);

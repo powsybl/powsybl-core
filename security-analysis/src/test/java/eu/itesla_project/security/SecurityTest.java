@@ -148,10 +148,9 @@ public class SecurityTest {
         List<LimitViolation> violations = Security.checkLimits(network);
 
         assertEquals(3, violations.size());
-        violations.forEach( violation -> 
-        {
+        violations.forEach(violation -> {
             assertTrue(Arrays.asList("VLHV1", "NHV1_NHV2_1", "NHV1_NHV2_2").contains(violation.getSubjectId()));
-            if ( "VLHV1".equals(violation.getSubjectId()) ) {
+            if ("VLHV1".equals(violation.getSubjectId())) {
                 assertEquals(LimitViolationType.LOW_VOLTAGE, violation.getLimitType()); 
             } else {
                 assertEquals(LimitViolationType.CURRENT, violation.getLimitType());
@@ -161,10 +160,9 @@ public class SecurityTest {
         violations = Security.checkLimits(network, CurrentLimitType.TATL, 1);
         
         assertEquals(3, violations.size());
-        violations.forEach( violation -> 
-        {
+        violations.forEach(violation ->  {
             assertTrue(Arrays.asList("VLHV1", "NHV1_NHV2_1", "NHV1_NHV2_2").contains(violation.getSubjectId()));
-            if ( "VLHV1".equals(violation.getSubjectId()) ) {
+            if ("VLHV1".equals(violation.getSubjectId())) {
                 assertEquals(LimitViolationType.LOW_VOLTAGE, violation.getLimitType()); 
             } else {
                 assertEquals(LimitViolationType.CURRENT, violation.getLimitType());

@@ -25,7 +25,7 @@ public class OverloadSecurityIndexTest {
     }
 
     @Test
-    public void testXml() throws IOException, XMLStreamException{
+    public void testXml() throws IOException, XMLStreamException {
         String xml = "<?xml version=\"1.0\" ?><index name=\"overload\"><fx>0.5</fx></index>";
         XMLInputFactory xmlif = XMLInputFactory.newInstance();
         OverloadSecurityIndex index;

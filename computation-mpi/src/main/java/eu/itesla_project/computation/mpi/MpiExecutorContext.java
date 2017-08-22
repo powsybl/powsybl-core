@@ -26,5 +26,5 @@ public interface MpiExecutorContext {
 
     ExecutorService getApplicationExecutor();
 
-    void shutdown() throws InterruptedException ;
+    void shutdown() throws InterruptedException;
 }

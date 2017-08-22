@@ -25,7 +25,7 @@ public class TsoOvervoltageSecurityIndexTest {
     }
 
     @Test
-    public void testXml() throws IOException, XMLStreamException{
+    public void testXml() throws IOException, XMLStreamException {
         String xml = "<?xml version=\"1.0\" ?><index name=\"tso-overvoltage\"><computation-succeed>true</computation-succeed><overvoltage-count>1</overvoltage-count></index>";
         XMLInputFactory xmlif = XMLInputFactory.newInstance();
         TsoOvervoltageSecurityIndex index;

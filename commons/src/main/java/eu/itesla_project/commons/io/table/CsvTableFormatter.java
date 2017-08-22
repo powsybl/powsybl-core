@@ -63,7 +63,7 @@ public class CsvTableFormatter extends AbstractTableFormatter {
         }
         for (int i = 0; i < columns.length; i++) {
             writer.append(columns[i].getName());
-            if (i < columns.length-1) {
+            if (i < columns.length - 1) {
                 writer.append(separator);
             }
         }
@@ -79,7 +79,7 @@ public class CsvTableFormatter extends AbstractTableFormatter {
     protected TableFormatter write(String value) throws IOException {
         writeHeaderIfNotDone();
         writer.append(value);
-        if (column < columns.length-1) {
+        if (column < columns.length - 1) {
             writer.append(separator);
         }
         column++;

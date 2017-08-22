@@ -41,7 +41,7 @@ public class MultiStateNetworkAwareExecutorsTest {
                 // current working state should not be set even if it is the same thread than previously
                 network.getGenerator("GEN").getTargetP();
                 fail();
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
         }).get();
         service.shutdown();

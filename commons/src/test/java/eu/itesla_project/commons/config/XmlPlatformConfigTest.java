@@ -63,13 +63,13 @@ public class XmlPlatformConfigTest {
             try {
                 modConfig.getStringProperty("s2");
                 fail();
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
             assertEquals(3, modConfig.getIntProperty("i"));
             try {
                 modConfig.getIntProperty("i2");
                 fail();
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
             assertNull(modConfig.getOptionalIntProperty("i2"));
             assertFalse(modConfig.getOptionalIntegerProperty("i2").isPresent());
@@ -78,7 +78,7 @@ public class XmlPlatformConfigTest {
             try {
                 modConfig.getBooleanProperty("b2");
                 fail();
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
             assertNull(modConfig.getOptinalBooleanProperty("b2"));
             assertFalse(modConfig.getOptionalBooleanProperty("b2").isPresent());
@@ -87,7 +87,7 @@ public class XmlPlatformConfigTest {
             try {
                 modConfig.getDoubleProperty("d2");
                 fail();
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }            
             assertEquals(4.5d, modConfig.getDoubleProperty("d2", 4.5d), 0d);
             assertEquals(ArrayList.class, modConfig.getClassProperty("c", List.class));
@@ -96,32 +96,32 @@ public class XmlPlatformConfigTest {
             try {
                 modConfig.getStringListProperty("sl3");
                 fail();
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
             assertEquals(StandardOpenOption.APPEND, modConfig.getEnumProperty("e", StandardOpenOption.class));
             try {
                 modConfig.getEnumProperty("e2", StandardOpenOption.class);
                 fail();
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
             assertEquals(EnumSet.of(StandardOpenOption.APPEND, StandardOpenOption.CREATE), modConfig.getEnumSetProperty("el", StandardOpenOption.class));
             try {
                 modConfig.getEnumSetProperty("el2", StandardOpenOption.class);
                 fail();
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
             assertEquals(p, modConfig.getPathProperty("p"));
             try {
                 modConfig.getPathProperty("p2");
                 fail();
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
             assertEquals(Arrays.asList(p, p2), modConfig.getPathListProperty("pl"));
             assertEquals(Arrays.asList(p, p2), modConfig.getPathListProperty("pl2"));
             try {
                 modConfig.getPathListProperty("pl3");
                 fail();
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
             assertEquals(Sets.newHashSet("p", "b", "c", "s", "d", "e", "el", "pl2", "sl2", "sl1", "i", "pl"), modConfig.getPropertyNames());
             assertTrue(modConfig.hasProperty("p"));

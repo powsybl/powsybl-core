@@ -30,12 +30,13 @@ public class StringAnonymizer {
 
     public static String getAlpha(int num) {
         StringBuilder result = new StringBuilder();
-        while (num > 0) {
-            num--;
-            int remainder = num % 26;
+        int n = num;
+        while (n > 0) {
+            n--;
+            int remainder = n % 26;
             char digit = (char) (remainder + 'A');
             result.insert(0, digit);
-            num = (num - remainder) / 26;
+            n = (n - remainder) / 26;
         }
         return result.toString();
     }

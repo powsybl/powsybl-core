@@ -65,7 +65,7 @@ public class CsvMpiStatistics implements MpiStatistics {
         }
 
         private static class TaskExecution {
-            final int taskId ;
+            final int taskId;
             final int jobId;
             final int taskIndex;
 

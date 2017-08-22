@@ -30,5 +30,6 @@ public interface TopologyVisitor {
 
     void visitStaticVarCompensator(StaticVarCompensator staticVarCompensator);
 
-    default void visitHvdcConverterStation(HvdcConverterStation<?> converterStation) {}
+    default void visitHvdcConverterStation(HvdcConverterStation<?> converterStation) {
+    }
 }

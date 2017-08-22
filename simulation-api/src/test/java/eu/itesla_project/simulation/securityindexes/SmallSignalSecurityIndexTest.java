@@ -40,7 +40,7 @@ public class SmallSignalSecurityIndexTest {
         }
         assertTrue(index.getGmi() == 0.5d);
         assertTrue(Arrays.equals(index.getAmi(), new double[] {1, 2}));
-        assertTrue(Arrays.deepEquals(index.getSmi(), new double[][] { new double[] {3, 4}, new double[] {5, 6}}));
+        assertTrue(Arrays.deepEquals(index.getSmi(), new double[][] {new double[] {3, 4}, new double[] {5, 6}}));
         assertEquals(xml, index.toXml());
     }
 

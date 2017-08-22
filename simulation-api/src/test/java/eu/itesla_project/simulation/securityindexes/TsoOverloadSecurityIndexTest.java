@@ -25,7 +25,7 @@ public class TsoOverloadSecurityIndexTest {
     }
 
     @Test
-    public void testXml() throws IOException, XMLStreamException{
+    public void testXml() throws IOException, XMLStreamException {
         String xml = "<?xml version=\"1.0\" ?><index name=\"tso-overload\"><computation-succeed>true</computation-succeed><overload-count>1</overload-count></index>";
         XMLInputFactory xmlif = XMLInputFactory.newInstance();
         TsoOverloadSecurityIndex index;

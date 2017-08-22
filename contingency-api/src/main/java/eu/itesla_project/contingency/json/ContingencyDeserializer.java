@@ -44,7 +44,8 @@ public class ContingencyDeserializer extends StdDeserializer<Contingency> {
 
                 case "elements":
                     parser.nextToken();
-                    elements = parser.readValueAs(new TypeReference<ArrayList<ContingencyElement>>() {});
+                    elements = parser.readValueAs(new TypeReference<ArrayList<ContingencyElement>>() {
+                    });
                     break;
 
                 default:

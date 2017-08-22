@@ -81,7 +81,7 @@ abstract class AbstractTerminal implements TerminalExt {
             throw new ValidationException(connectable, "cannot set active power on a shunt compensator");
         }
         float oldValue = this.p.set(network.get().getStateIndex(), p);
-        getConnectable().notifyUpdate("p" + (num != -1 ? num : "") , oldValue, p);
+        getConnectable().notifyUpdate("p" + (num != -1 ? num : ""), oldValue, p);
         return this;
     }
 

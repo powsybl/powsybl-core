@@ -104,7 +104,7 @@ public class XMLExporter implements Exporter, XmlConstants {
                 }
             }
 
-            LOGGER.debug("XIIDM export done in {} ms", (System.currentTimeMillis() - startTime));
+            LOGGER.debug("XIIDM export done in {} ms", System.currentTimeMillis() - startTime);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

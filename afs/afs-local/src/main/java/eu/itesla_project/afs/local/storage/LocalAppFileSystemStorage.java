@@ -101,7 +101,7 @@ public class LocalAppFileSystemStorage implements AppFileSystemStorage {
                         childNodesIds.add(new PathNodeId(childPath));
                     }
                 }
-            } catch(IOException e) {
+            } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
             return childNodesIds;

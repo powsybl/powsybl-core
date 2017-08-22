@@ -25,7 +25,7 @@ public class TsoSynchroLossSecurityIndexTest {
     }
 
     @Test
-    public void testXml() throws IOException, XMLStreamException{
+    public void testXml() throws IOException, XMLStreamException {
         String xml = "<?xml version=\"1.0\" ?><index name=\"tso-synchro-loss\"><synchro-loss-count>1</synchro-loss-count></index>";
         XMLInputFactory xmlif = XMLInputFactory.newInstance();
         TsoSynchroLossSecurityIndex index;

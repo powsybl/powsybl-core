@@ -23,7 +23,7 @@ public class AsciiTableFormatter extends AbstractTableFormatter {
 
     private final Writer writer;
 
-    private final Table table ;
+    private final Table table;
 
     public AsciiTableFormatter(Writer writer, String title, TableFormatterConfig config, Column... columns) {
         super(config.getLocale(), config.getInvalidString());

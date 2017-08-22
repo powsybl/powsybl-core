@@ -17,8 +17,8 @@ import java.util.Objects;
  */
 public interface DataSourceUtil {
 
-    OpenOption[] DEFAULT_OPEN_OPTIONS = { StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING };
-    OpenOption[] APPEND_OPEN_OPTIONS = { StandardOpenOption.APPEND };
+    OpenOption[] DEFAULT_OPEN_OPTIONS = {StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING};
+    OpenOption[] APPEND_OPEN_OPTIONS = {StandardOpenOption.APPEND};
 
     static String getFileName(String baseName, String suffix, String ext) {
         Objects.requireNonNull(baseName);

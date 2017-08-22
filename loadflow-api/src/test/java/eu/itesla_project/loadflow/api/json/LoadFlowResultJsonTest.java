@@ -58,8 +58,7 @@ public class LoadFlowResultJsonTest extends AbstractConverterTest {
         try {
             LoadFlowResultDeserializer.read(getClass().getResourceAsStream("/LoadFlowResultError.json"));
             Assert.fail();
-        } catch (AssertionError error) {
-
+        } catch (AssertionError ignored) {
         }
     }
 

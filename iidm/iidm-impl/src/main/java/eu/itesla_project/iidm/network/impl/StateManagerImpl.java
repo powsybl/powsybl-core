@@ -174,7 +174,7 @@ class StateManagerImpl implements StateManager {
             int index = getStateIndex(stateId);
             id2index.remove(stateId);
             LOGGER.debug("Removing state '{}'", stateId);
-            if (index == stateArraySize-1) {
+            if (index == stateArraySize - 1) {
                 // remove consecutive unsused index starting from the end
                 int number = 0; // number of elements to remove
                 for (int j = index; j >= 0; j--) {

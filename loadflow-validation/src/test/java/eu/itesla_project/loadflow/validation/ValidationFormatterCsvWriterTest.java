@@ -67,8 +67,8 @@ public class ValidationFormatterCsvWriterTest {
     public void testFlows() throws Exception {
         String flowsContent = String.join(System.lineSeparator(),
                                           "test " + ValidationType.FLOWS + " check",
-                                          String.join(";","id","network_p1","expected_p1","network_q1","expected_q1","network_p2","expected_p2",
-                                                      "network_q2","expected_q2"),
+                                          String.join(";", "id", "network_p1", "expected_p1", "network_q1", "expected_q1", "network_p2", "expected_p2",
+                                                      "network_q2", "expected_q2"),
                                           String.join(";", branchId, 
                                                       String.format(Locale.getDefault(), "%g", p1), String.format(Locale.getDefault(), "%g", p1Calc),
                                                       String.format(Locale.getDefault(), "%g", q1), String.format(Locale.getDefault(), "%g", q1Calc),
@@ -81,9 +81,9 @@ public class ValidationFormatterCsvWriterTest {
     public void testFlowsVerbose() throws Exception {
         String flowsContent = String.join(System.lineSeparator(),
                                           "test " + ValidationType.FLOWS + " check",
-                                          String.join(";","id","network_p1","expected_p1","network_q1","expected_q1","network_p2","expected_p2",
-                                                      "network_q2","expected_q2", "r","x","g1","g2","b1","b2","rho1","rho2","alpha1","alpha2",
-                                                      "u1","u2","theta1","theta2","z","y","ksi"),
+                                          String.join(";", "id", "network_p1", "expected_p1", "network_q1", "expected_q1", "network_p2", "expected_p2",
+                                                      "network_q2", "expected_q2", "r", "x", "g1", "g2", "b1", "b2", "rho1", "rho2", "alpha1", "alpha2",
+                                                      "u1", "u2", "theta1", "theta2", "z", "y", "ksi"),
                                           String.join(";", branchId, 
                                                       String.format(Locale.getDefault(), "%g", p1), String.format(Locale.getDefault(), "%g", p1Calc),
                                                       String.format(Locale.getDefault(), "%g", q1), String.format(Locale.getDefault(), "%g", q1Calc),
@@ -115,7 +115,7 @@ public class ValidationFormatterCsvWriterTest {
     public void testGenerators() throws Exception {
         String generatorsContent = String.join(System.lineSeparator(),
                                                "test " + ValidationType.GENERATORS + " check",
-                                               String.join(";","id","p","q","v","targetP","targetQ","targetV"),
+                                               String.join(";", "id", "p", "q", "v", "targetP", "targetQ", "targetV"),
                                                String.join(";", generatorId, 
                                                            String.format(Locale.getDefault(), "%g", p), String.format(Locale.getDefault(), "%g", q), 
                                                            String.format(Locale.getDefault(), "%g", v), String.format(Locale.getDefault(), "%g", targetP), 
@@ -127,7 +127,7 @@ public class ValidationFormatterCsvWriterTest {
     public void testGeneratorsVerbose() throws Exception {
         String generatorsContent = String.join(System.lineSeparator(),
                                                "test " + ValidationType.GENERATORS + " check",
-                                               String.join(";","id","p","q","v","targetP","targetQ","targetV","connected","voltageRegulatorOn","minQ","maxQ"),
+                                               String.join(";", "id", "p", "q", "v", "targetP", "targetQ", "targetV", "connected", "voltageRegulatorOn", "minQ", "maxQ"),
                                                String.join(";", generatorId, 
                                                            String.format(Locale.getDefault(), "%g", p), String.format(Locale.getDefault(), "%g", q), 
                                                            String.format(Locale.getDefault(), "%g", v), String.format(Locale.getDefault(), "%g", targetP), 

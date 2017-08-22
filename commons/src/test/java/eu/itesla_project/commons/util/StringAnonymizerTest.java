@@ -52,7 +52,7 @@ public class StringAnonymizerTest {
         try {
             anonymizer.deanonymize("baz");
             fail();
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
         String csv = toCsv(anonymizer);
         assertEquals(String.join(System.lineSeparator(), "foo;A", "bar;B") + System.lineSeparator(),

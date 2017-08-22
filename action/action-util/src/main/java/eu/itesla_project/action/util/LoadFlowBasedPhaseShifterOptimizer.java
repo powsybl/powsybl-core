@@ -118,7 +118,7 @@ public class LoadFlowBasedPhaseShifterOptimizer implements PhaseShifterOptimizer
                     throw new AssertionError("Phase shifter should not be overload");
                 }
             }
-        } catch (IllegalAccessException|InstantiationException e) {
+        } catch (IllegalAccessException | InstantiationException e) {
             throw new RuntimeException(e);
         } finally {
             // don't forget to remove the temporary state!

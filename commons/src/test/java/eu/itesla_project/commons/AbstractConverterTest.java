@@ -50,7 +50,7 @@ public abstract class AbstractConverterTest {
     protected static void compareXml(InputStream expected, InputStream actual) {
         Source control = Input.fromStream(expected).build();
         Source test = Input.fromStream(actual).build();
-        Diff myDiff= DiffBuilder.compare(control).withTest(test).ignoreWhitespace().ignoreComments().build();
+        Diff myDiff = DiffBuilder.compare(control).withTest(test).ignoreWhitespace().ignoreComments().build();
         boolean hasDiff = myDiff.hasDifferences();
         if (hasDiff) {
             System.err.println(myDiff.toString());

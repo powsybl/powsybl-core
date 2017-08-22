@@ -32,7 +32,7 @@ public class BufferedLineParser {
         while ((line = reader.readLine()) != null) {
             lineBuffer.add(0, line);
             if (lineBuffer.size() > bufferSize) {
-                lineBuffer.remove(lineBuffer.size()-1);
+                lineBuffer.remove(lineBuffer.size() - 1);
             }
             consumer.accept(lineBuffer);
         }

@@ -38,6 +38,6 @@ public class Bzip2FileDataSource extends FileDataSource {
 
     @Override
     protected OutputStream getCompressedOutputStream(OutputStream os) throws IOException {
-        return new BZip2CompressorOutputStream(new BufferedOutputStream((os)));
+        return new BZip2CompressorOutputStream(new BufferedOutputStream(os));
     }
 }

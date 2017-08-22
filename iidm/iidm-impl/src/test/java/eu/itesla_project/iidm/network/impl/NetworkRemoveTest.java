@@ -92,7 +92,7 @@ public class NetworkRemoveTest {
         try {
             vl.getBusBreakerView().removeBus("NLOAD");
             fail();
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
     }
 
@@ -114,7 +114,7 @@ public class NetworkRemoveTest {
         try {
             vl.getBusBreakerView().removeBus("NLOAD");
             fail();
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
     }
 
@@ -125,7 +125,7 @@ public class NetworkRemoveTest {
         try {
             vl.getBusBreakerView().removeSwitch("XXX");
             fail();
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
     }
 

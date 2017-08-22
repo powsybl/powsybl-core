@@ -51,7 +51,7 @@ public class RuleTest {
         try {
             new Rule(id, condition, life, actions);
             fail();
-        } catch (RuntimeException e) {
+        } catch (RuntimeException ignored) {
         }
 
     }

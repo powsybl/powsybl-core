@@ -35,7 +35,7 @@ public class ShuntCompensatorTest {
         assertEquals(ConnectableType.SHUNT_COMPENSATOR, shuntCompensator.getType());
         assertEquals(shuntCompensatorName, shuntCompensator.getName());
         assertEquals(shuntCompensatorId, shuntCompensator.getId());
-        assertEquals(bPerSection , shuntCompensator.getbPerSection(), 0.0f);
+        assertEquals(bPerSection, shuntCompensator.getbPerSection(), 0.0f);
         assertEquals(currentSectionCount, shuntCompensator.getCurrentSectionCount());
         assertEquals(maxSectionCount, shuntCompensator.getMaximumSectionCount());
 

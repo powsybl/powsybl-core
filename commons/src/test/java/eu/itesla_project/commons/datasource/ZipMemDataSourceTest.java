@@ -61,7 +61,7 @@ public class ZipMemDataSourceTest extends ReadOnlyMemDataSourceTest {
             assertFalse(dataSource.exists("_data", "xiidm")); // baseName = data, data_data.xiidm does not exist
             assertArrayEquals(getExtraUncompressedData(), ByteStreams.toByteArray(dataSource.newInputStream("_data", "xiidm")));
             fail();
-        } catch (IOException e) {
+        } catch (IOException ignored) {
         }
 
         return dataSource;

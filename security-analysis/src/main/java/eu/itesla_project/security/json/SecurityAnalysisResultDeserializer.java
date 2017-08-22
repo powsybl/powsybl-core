@@ -55,7 +55,8 @@ public class SecurityAnalysisResultDeserializer extends StdDeserializer<Security
 
                 case "postContingencyResults":
                     parser.nextToken();
-                    postContingencyResults = parser.readValueAs(new TypeReference<ArrayList<PostContingencyResult>>() {});
+                    postContingencyResults = parser.readValueAs(new TypeReference<ArrayList<PostContingencyResult>>() {
+                    });
                     break;
 
                 default:

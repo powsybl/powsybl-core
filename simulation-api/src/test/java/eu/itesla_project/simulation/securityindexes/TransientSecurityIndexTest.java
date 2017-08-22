@@ -25,7 +25,7 @@ public class TransientSecurityIndexTest {
     }
 
     @Test
-    public void testXml() throws IOException, XMLStreamException{
+    public void testXml() throws IOException, XMLStreamException {
         String xml = "<?xml version=\"1.0\" ?><index name=\"transient\"><j>0.5</j></index>";
         XMLInputFactory xmlif = XMLInputFactory.newInstance();
         TransientSecurityIndex index;

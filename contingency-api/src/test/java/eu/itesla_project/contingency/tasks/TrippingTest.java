@@ -24,7 +24,7 @@ class TrippingTest {
         Objects.requireNonNull(switchIds);
 
         return network.getSwitchStream()
-                .filter(s -> ! switchIds.contains(s.getId()))
+                .filter(s -> !switchIds.contains(s.getId()))
                 .map(Switch::isOpen)
                 .collect(Collectors.toList());
     }

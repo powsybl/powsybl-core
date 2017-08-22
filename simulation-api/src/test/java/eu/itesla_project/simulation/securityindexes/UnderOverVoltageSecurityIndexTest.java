@@ -25,7 +25,7 @@ public class UnderOverVoltageSecurityIndexTest {
     }
 
     @Test
-    public void testXml() throws IOException, XMLStreamException{
+    public void testXml() throws IOException, XMLStreamException {
         String xml = "<?xml version=\"1.0\" ?><index name=\"underovervoltage\"><vx>0.5</vx></index>";
         XMLInputFactory xmlif = XMLInputFactory.newInstance();
         UnderOverVoltageSecurityIndex index;

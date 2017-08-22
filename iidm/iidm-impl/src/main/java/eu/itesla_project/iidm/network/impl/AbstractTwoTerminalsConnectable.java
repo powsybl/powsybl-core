@@ -139,7 +139,7 @@ abstract class AbstractTwoTerminalsConnectable<I extends Connectable<I>> extends
 
     private static boolean checkPermanentLimit(Terminal terminal, CurrentLimits limits, float limitReduction) {
         float i = terminal.getI();
-        if (limits != null && !Float.isNaN(limits.getPermanentLimit()) && !Float.isNaN(i) ) {
+        if (limits != null && !Float.isNaN(limits.getPermanentLimit()) && !Float.isNaN(i)) {
             if (i > limits.getPermanentLimit() * limitReduction) {
                 return true;
             }

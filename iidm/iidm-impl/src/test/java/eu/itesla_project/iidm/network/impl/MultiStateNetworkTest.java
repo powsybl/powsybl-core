@@ -119,7 +119,7 @@ public class MultiStateNetworkTest {
             try {
                 network.getGenerator("GEN").getTargetP();
                 fail();
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
         });
         service.shutdown();

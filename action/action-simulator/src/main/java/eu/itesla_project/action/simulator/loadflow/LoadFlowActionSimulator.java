@@ -242,7 +242,7 @@ public class LoadFlowActionSimulator implements ActionSimulator {
                 }
 
                 if (actionsTaken.size() > 0) {
-                    context.setRound(context.getRound()+1);
+                    context.setRound(context.getRound() + 1);
                     return next(actionDb, context);
                 } else {
                     LOGGER.info("Still some violations and no rule match");

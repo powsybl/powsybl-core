@@ -80,7 +80,7 @@ public class JaxbUtil {
                 Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
                 return (U) unmarshaller.unmarshal(reader);
             }
-        } catch (JAXBException|TransformerException e) {
+        } catch (JAXBException | TransformerException e) {
             throw new RuntimeException(e);
         }
     }

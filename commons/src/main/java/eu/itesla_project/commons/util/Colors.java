@@ -41,7 +41,9 @@ final public class Colors {
         double p = v * (1 - s);
         double q = v * (1 - f * s);
         double t = v * (1 - (1 - f) * s);
-        double r, g, b;
+        double r;
+        double g;
+        double b;
         switch (hi) {
             case 0:
                 r = v;
@@ -76,6 +78,6 @@ final public class Colors {
             default:
                 throw new AssertionError();
         }
-        return new long[] { Math.round(r * 256), Math.round(g * 256), Math.round(b * 256) };
+        return new long[] {Math.round(r * 256), Math.round(g * 256), Math.round(b * 256)};
     }
 }

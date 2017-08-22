@@ -187,7 +187,7 @@ class MpiJobSchedulerImpl implements MpiJobScheduler {
                             try {
                                 nativeServices.checkTasksCompletion(job.getRunningTasks(), completedTasks);
                             } finally {
-                                checkTaskCompletionTime += (System.currentTimeMillis() - t0);
+                                checkTaskCompletionTime += System.currentTimeMillis() - t0;
                             }
                             if (completedTasks.size() > 0) {
                                 DateTime endTime = DateTime.now();
@@ -487,7 +487,7 @@ class MpiJobSchedulerImpl implements MpiJobScheduler {
                     try {
                         nativeServices.startTasks(tasks);
                     } finally {
-                        startTasksJniTime += (System.currentTimeMillis() - t1);
+                        startTasksJniTime += System.currentTimeMillis() - t1;
                     }
 
                     startedTasks.addAndGet(allocatedCores.size());
@@ -506,7 +506,7 @@ class MpiJobSchedulerImpl implements MpiJobScheduler {
             }
             return true;
         } finally {
-            startTasksTime += (System.currentTimeMillis() - t0);
+            startTasksTime += System.currentTimeMillis() - t0;
         }
     }
 
@@ -592,7 +592,7 @@ class MpiJobSchedulerImpl implements MpiJobScheduler {
             job.getRunningTasks().removeAll(completedTasks);
             completedTasks.clear();
         } finally {
-            processCompletedTasksTime += (System.currentTimeMillis() - t0);
+            processCompletedTasksTime += System.currentTimeMillis() - t0;
         }
     }
 

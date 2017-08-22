@@ -17,7 +17,7 @@ public interface MemoryMappedFile extends AutoCloseable {
 
     boolean exists();
     
-    ByteBuffer getBuffer(int size) throws IOException ;
+    ByteBuffer getBuffer(int size) throws IOException;
 
     @Override
     void close() throws IOException;

@@ -137,7 +137,7 @@ public class ScalableTest {
         try {
             Scalable.proportional(percentages, scalables);
             fail();
-        } catch (RuntimeException e) {
+        } catch (RuntimeException ignored) {
         }
     }
 

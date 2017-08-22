@@ -32,7 +32,7 @@ public class ActionDbTest {
         try {
             actionDb.getContingency("id2");
             fail();
-        } catch (RuntimeException e) {
+        } catch (RuntimeException ignored) {
         }
     }
 
@@ -57,7 +57,7 @@ public class ActionDbTest {
         try {
             actionDb.getAction("id2");
             fail();
-        } catch (RuntimeException e) {
+        } catch (RuntimeException ignored) {
         }
     }
 }
