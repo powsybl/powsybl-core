@@ -252,7 +252,7 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
         leg3.setTransformer(transformer);
         terminal1.setNum(1);
         terminal2.setNum(2);
-        terminal2.setNum(3);
+        terminal3.setNum(3);
         transformer.addTerminal(terminal1);
         transformer.addTerminal(terminal2);
         transformer.addTerminal(terminal3);
