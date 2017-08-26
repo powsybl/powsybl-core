@@ -20,7 +20,7 @@ import java.nio.file.Path;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class MpiToolUtil {
+public final class MpiToolUtil {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MpiToolUtil.class);
 

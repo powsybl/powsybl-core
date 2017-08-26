@@ -12,7 +12,7 @@ import org.joda.time.DateTime;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class ValidationUtil {
+public final class ValidationUtil {
 
     private ValidationUtil() {
     }

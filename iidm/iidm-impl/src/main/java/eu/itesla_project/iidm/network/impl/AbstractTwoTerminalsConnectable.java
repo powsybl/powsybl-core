@@ -147,7 +147,7 @@ abstract class AbstractTwoTerminalsConnectable<I extends Connectable<I>> extends
         return false;
     }
 
-    static class OverloadImpl implements TwoTerminalsConnectable.Overload {
+    static final class OverloadImpl implements TwoTerminalsConnectable.Overload {
 
         private final CurrentLimits.TemporaryLimit temporaryLimit;
 

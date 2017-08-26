@@ -22,7 +22,7 @@ import eu.itesla_project.iidm.network.Generator;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class EurostagTutorialExample1Factory {
+public final class EurostagTutorialExample1Factory {
 
     private EurostagTutorialExample1Factory() {
     }

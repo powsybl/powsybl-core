@@ -19,7 +19,7 @@ import org.supercsv.prefs.CsvPreference;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class MathUtil {
+public final class MathUtil {
 
     private MathUtil() {
     }

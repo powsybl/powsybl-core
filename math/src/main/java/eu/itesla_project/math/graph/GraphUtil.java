@@ -14,12 +14,12 @@ import java.util.Comparator;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class GraphUtil {
+public final class GraphUtil {
 
     private GraphUtil() {
     }
 
-    private static class ConnectedComponent {
+    private static final class ConnectedComponent {
 
         private final int size;
 

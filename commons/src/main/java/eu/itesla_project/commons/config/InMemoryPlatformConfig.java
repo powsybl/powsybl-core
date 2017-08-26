@@ -23,7 +23,7 @@ public class InMemoryPlatformConfig extends PlatformConfig {
 
         private final FileSystem fileSystem;
 
-        private InMemoryModuleConfigContainer(FileSystem fileSystem) {
+        protected InMemoryModuleConfigContainer(FileSystem fileSystem) {
             this.fileSystem = Objects.requireNonNull(fileSystem);
         }
 

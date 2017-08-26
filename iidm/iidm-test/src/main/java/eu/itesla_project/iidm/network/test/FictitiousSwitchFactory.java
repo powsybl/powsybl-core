@@ -12,7 +12,10 @@ import org.joda.time.DateTime;
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class FictitiousSwitchFactory {
+public final class FictitiousSwitchFactory {
+
+    private FictitiousSwitchFactory() {
+    }
 
     public static Network create() {
         Network network = NetworkFactory.create("fictitious", "test");

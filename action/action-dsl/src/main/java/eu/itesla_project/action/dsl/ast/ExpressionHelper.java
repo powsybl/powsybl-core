@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class ExpressionHelper {
+public final class ExpressionHelper {
 
     private ExpressionHelper() {
     }

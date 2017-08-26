@@ -28,7 +28,7 @@ import java.util.stream.Stream;
  */
 class BusBreakerVoltageLevel extends AbstractVoltageLevel {
 
-    private class SwitchAdderImpl extends AbstractIdentifiableAdder<SwitchAdderImpl> implements BusBreakerView.SwitchAdder {
+    private final class SwitchAdderImpl extends AbstractIdentifiableAdder<SwitchAdderImpl> implements BusBreakerView.SwitchAdder {
 
         private String busId1;
 
@@ -150,7 +150,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
     /**
      * Bus only topology cache
      */
-    private static class BusCache {
+    private static final class BusCache {
 
         /* merged bus by id */
         private final Map<String, MergedBus> mergedBus;
@@ -292,7 +292,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
     final CalculatedBusTopology calculatedBusTopology
             = new CalculatedBusTopology();
 
-    private static class StateImpl implements State {
+    private static final class StateImpl implements State {
 
         private BusCache cache;
 

@@ -13,7 +13,7 @@ import org.joda.time.DateTime;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public class HvdcTestNetwork {
+public final class HvdcTestNetwork {
 
     private HvdcTestNetwork() {
     }

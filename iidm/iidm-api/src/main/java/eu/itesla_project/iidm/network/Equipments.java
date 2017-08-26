@@ -12,7 +12,7 @@ import java.util.Iterator;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class Equipments {
+public final class Equipments {
 
     private Equipments() {
     }

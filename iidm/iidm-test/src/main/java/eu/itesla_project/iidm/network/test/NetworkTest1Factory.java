@@ -22,7 +22,7 @@ import eu.itesla_project.iidm.network.EnergySource;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class NetworkTest1Factory {
+public final class NetworkTest1Factory {
 
     private NetworkTest1Factory() {
     }
