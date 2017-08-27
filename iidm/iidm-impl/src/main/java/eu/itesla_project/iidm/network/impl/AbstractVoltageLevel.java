@@ -103,12 +103,12 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
         T connectable = substation.getNetwork().getObjectStore().get(id, aClass);
         if (connectable == null) {
             return null;
-        } else if (connectable instanceof SingleTerminalConnectable) {
-            return ((SingleTerminalConnectable) connectable).getTerminal().getVoltageLevel() == this
+        } else if (connectable instanceof Injection) {
+            return ((Injection) connectable).getTerminal().getVoltageLevel() == this
                     ? connectable : null;
-        } else if (connectable instanceof TwoTerminalsConnectable) {
-            return ((TwoTerminalsConnectable) connectable).getTerminal1().getVoltageLevel() == this
-                    || ((TwoTerminalsConnectable) connectable).getTerminal2().getVoltageLevel() == this
+        } else if (connectable instanceof Branch) {
+            return ((Branch) connectable).getTerminal1().getVoltageLevel() == this
+                    || ((Branch) connectable).getTerminal2().getVoltageLevel() == this
                     ? connectable : null;
         } else if (connectable instanceof ThreeWindingsTransformer) {
             return ((ThreeWindingsTransformer) connectable).getLeg1().getTerminal().getVoltageLevel() == this
@@ -278,12 +278,12 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
         Objects.requireNonNull(otherTerminal);
         Objects.requireNonNull(nextTerminals);
         Connectable otherConnectable = otherTerminal.getConnectable();
-        if (otherConnectable instanceof TwoTerminalsConnectable) {
-            TwoTerminalsConnectable ttc = (TwoTerminalsConnectable) otherConnectable;
-            if (ttc.getTerminal1() == otherTerminal) {
-                nextTerminals.add((TerminalExt) ttc.getTerminal2());
-            } else if (ttc.getTerminal2() == otherTerminal) {
-                nextTerminals.add((TerminalExt) ttc.getTerminal1());
+        if (otherConnectable instanceof Branch) {
+            Branch branch = (Branch) otherConnectable;
+            if (branch.getTerminal1() == otherTerminal) {
+                nextTerminals.add((TerminalExt) branch.getTerminal2());
+            } else if (branch.getTerminal2() == otherTerminal) {
+                nextTerminals.add((TerminalExt) branch.getTerminal1());
             } else {
                 throw new AssertionError();
             }

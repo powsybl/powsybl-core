@@ -23,7 +23,7 @@ package eu.itesla_project.iidm.network;
  * @see Line
  * @see Network
  */
-public interface LineAdder extends TwoTerminalsConnectableAdder<LineAdder> {
+public interface LineAdder extends BranchAdder<LineAdder> {
 
     LineAdder setR(float r);
 

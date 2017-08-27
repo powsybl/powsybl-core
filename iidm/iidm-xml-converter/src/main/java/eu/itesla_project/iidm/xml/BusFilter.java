@@ -6,7 +6,6 @@
  */
 package eu.itesla_project.iidm.xml;
 
-import com.google.common.collect.Iterables;
 import eu.itesla_project.iidm.network.*;
 
 import java.util.HashSet;
@@ -41,7 +40,7 @@ public class BusFilter {
                 }
             }
             // and also bus at the other side of open branches
-            for (TwoTerminalsConnectable branch : Iterables.concat(n.getLines(), n.getTwoWindingsTransformers())) {
+            for (Branch branch : n.getBranches()) {
                 Terminal t1 = branch.getTerminal1();
                 Terminal t2 = branch.getTerminal2();
                 if (options.isForceBusBranchTopo()) {

@@ -242,13 +242,23 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Mult
     }
 
     @Override
-    public TwoTerminalsConnectable getBranch(String branchId) {
+    public Branch getBranch(String branchId) {
         Objects.requireNonNull(branchId);
-        TwoTerminalsConnectable branch = getLine(branchId);
+        Branch branch = getLine(branchId);
         if (branch == null) {
             branch = getTwoWindingsTransformer(branchId);
         }
         return branch;
+    }
+
+    @Override
+    public Iterable<Branch> getBranches() {
+        return Iterables.concat(getLines(), getTwoWindingsTransformers());
+    }
+
+    @Override
+    public Stream<Branch> getBranchStream() {
+        return Stream.concat(getLineStream(), getTwoWindingsTransformerStream());
     }
 
     @Override

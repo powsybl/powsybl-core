@@ -18,7 +18,7 @@ package eu.itesla_project.iidm.network;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @see LineAdder
  */
-public interface Line extends TwoTerminalsConnectable<Line>, LineCharasteristics<Line> {
+public interface Line extends Branch<Line>, LineCharasteristics<Line> {
 
     boolean isTieLine();
 

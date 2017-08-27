@@ -8,10 +8,7 @@ package eu.itesla_project.contingency.tasks;
 
 import eu.itesla_project.commons.ITeslaException;
 import eu.itesla_project.computation.ComputationManager;
-import eu.itesla_project.iidm.network.Network;
-import eu.itesla_project.iidm.network.Switch;
-import eu.itesla_project.iidm.network.Terminal;
-import eu.itesla_project.iidm.network.TwoTerminalsConnectable;
+import eu.itesla_project.iidm.network.*;
 
 import java.util.Objects;
 import java.util.Set;
@@ -38,7 +35,7 @@ public class BranchTripping extends AbstractTrippingTask {
     public void traverse(Network network, ComputationManager computationManager, Set<Switch> switchesToOpen, Set<Terminal> terminalsToDisconnect) {
         Objects.requireNonNull(network);
 
-        TwoTerminalsConnectable branch = network.getBranch(branchId);
+        Branch branch = network.getBranch(branchId);
         if (branch == null) {
             throw new ITeslaException("Branch '" + branchId + "' not found");
         }

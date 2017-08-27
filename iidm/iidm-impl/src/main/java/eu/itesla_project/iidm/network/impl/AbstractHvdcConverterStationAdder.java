@@ -9,7 +9,7 @@ package eu.itesla_project.iidm.network.impl;
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public abstract class AbstractHvdcConverterStationAdder<T extends AbstractHvdcConverterStationAdder<T>> extends AbstractSingleTerminalConnectableAdder<T> {
+public abstract class AbstractHvdcConverterStationAdder<T extends AbstractHvdcConverterStationAdder<T>> extends AbstractInjectionAdder<T> {
 
     private final VoltageLevelExt voltageLevel;
 

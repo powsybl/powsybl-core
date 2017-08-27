@@ -24,7 +24,7 @@ package eu.itesla_project.iidm.network;
  * @see ShuntCompensator
  * @see VoltageLevel
  */
-public interface ShuntCompensatorAdder extends SingleTerminalConnectableAdder<ShuntCompensatorAdder> {
+public interface ShuntCompensatorAdder extends InjectionAdder<ShuntCompensatorAdder> {
 
     ShuntCompensatorAdder setbPerSection(float bPerSection);
 

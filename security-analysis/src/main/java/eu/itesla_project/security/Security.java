@@ -36,19 +36,19 @@ public class Security {
         TATL
     }
 
-    private static Country getCountry(TwoTerminalsConnectable branch, Terminal terminal) {
+    private static Country getCountry(Branch branch, Terminal terminal) {
         return terminal == branch.getTerminal1() ? branch.getTerminal1().getVoltageLevel().getSubstation().getCountry()
                                                  : branch.getTerminal2().getVoltageLevel().getSubstation().getCountry();
     }
 
-    private static float getBaseVoltage(TwoTerminalsConnectable branch) {
+    private static float getBaseVoltage(Branch branch) {
         return Math.max(branch.getTerminal1().getVoltageLevel().getNominalV(),
                         branch.getTerminal2().getVoltageLevel().getNominalV());
     }
 
-    private static void checkCurrentLimits(Iterable<? extends TwoTerminalsConnectable> branches, CurrentLimitType currentLimitType,
+    private static void checkCurrentLimits(Iterable<? extends Branch> branches, CurrentLimitType currentLimitType,
                                            float limitReduction, List<LimitViolation> violations) {
-        for (TwoTerminalsConnectable branch : branches) {
+        for (Branch branch : branches) {
             switch (currentLimitType) {
                 case PATL:
                     if (branch.checkPermanentLimit1(limitReduction)) {
@@ -74,7 +74,7 @@ public class Security {
                     break;
 
                 case TATL:
-                    TwoTerminalsConnectable.Overload o1 = branch.checkTemporaryLimits1(limitReduction);
+                    Branch.Overload o1 = branch.checkTemporaryLimits1(limitReduction);
                     if (o1 != null) {
                         violations.add(new LimitViolation(branch.getId(),
                                                           LimitViolationType.CURRENT,
@@ -85,7 +85,7 @@ public class Security {
                                                           getCountry(branch, branch.getTerminal1()),
                                                           getBaseVoltage(branch)));
                     }
-                    TwoTerminalsConnectable.Overload o2 = branch.checkTemporaryLimits2(limitReduction);
+                    Branch.Overload o2 = branch.checkTemporaryLimits2(limitReduction);
                     if (o2 != null) {
                         violations.add(new LimitViolation(branch.getId(),
                                                           LimitViolationType.CURRENT,

@@ -131,9 +131,9 @@ public class NetworkTest {
     public void testVoltageLevelGetConnectable() {
         Network n = EurostagTutorialExample1Factory.create();
         assertTrue(n.getVoltageLevel("VLLOAD").getConnectable("LOAD", Load.class) != null);
-        assertTrue(n.getVoltageLevel("VLLOAD").getConnectable("NHV2_NLOAD", TwoTerminalsConnectable.class) != null);
+        assertTrue(n.getVoltageLevel("VLLOAD").getConnectable("NHV2_NLOAD", Branch.class) != null);
         assertTrue(n.getVoltageLevel("VLGEN").getConnectable("LOAD", Load.class) == null);
-        assertTrue(n.getVoltageLevel("VLGEN").getConnectable("NHV2_NLOAD", TwoTerminalsConnectable.class) == null);
+        assertTrue(n.getVoltageLevel("VLGEN").getConnectable("NHV2_NLOAD", Branch.class) == null);
     }
 
     @Test

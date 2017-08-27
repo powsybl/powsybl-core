@@ -12,7 +12,7 @@ import eu.itesla_project.iidm.network.LineAdder;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class LineAdderImpl extends AbstractTwoTerminalsConnectableAdder<LineAdderImpl> implements LineAdder {
+class LineAdderImpl extends AbstractBranchAdder<LineAdderImpl> implements LineAdder {
 
     private final NetworkImpl network;
 

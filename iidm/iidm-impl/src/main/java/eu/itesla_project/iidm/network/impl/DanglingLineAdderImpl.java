@@ -12,7 +12,7 @@ import eu.itesla_project.iidm.network.DanglingLineAdder;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class DanglingLineAdderImpl extends AbstractSingleTerminalConnectableAdder<DanglingLineAdderImpl> implements DanglingLineAdder {
+class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl> implements DanglingLineAdder {
 
     private final VoltageLevelExt voltageLevel;
 

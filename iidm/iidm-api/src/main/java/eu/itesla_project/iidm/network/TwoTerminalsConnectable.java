@@ -7,10 +7,11 @@
 package eu.itesla_project.iidm.network;
 
 /**
- * An equipment with two terminals.
+ * Use {@link Branch} instead.
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
+@Deprecated
 public interface TwoTerminalsConnectable<I extends TwoTerminalsConnectable<I>> extends Connectable<I> {
 
     enum Side {

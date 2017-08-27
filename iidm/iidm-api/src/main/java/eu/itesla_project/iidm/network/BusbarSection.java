@@ -12,7 +12,7 @@ package eu.itesla_project.iidm.network;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface BusbarSection extends SingleTerminalConnectable<BusbarSection> {
+public interface BusbarSection extends Injection<BusbarSection> {
 
     float getV();
 

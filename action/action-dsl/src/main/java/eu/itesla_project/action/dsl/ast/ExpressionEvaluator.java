@@ -7,8 +7,8 @@
 package eu.itesla_project.action.dsl.ast;
 
 import eu.itesla_project.action.dsl.GroovyUtil;
+import eu.itesla_project.iidm.network.Branch;
 import eu.itesla_project.iidm.network.Identifiable;
-import eu.itesla_project.iidm.network.TwoTerminalsConnectable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -164,19 +164,19 @@ public class ExpressionEvaluator extends DefaultExpressionVisitor<Object, Void> 
      * Utility class to compare loading on one side of a branch to loading of one side of another branch
      */
     private static class BranchAndSide implements Comparable<BranchAndSide> {
-        private final TwoTerminalsConnectable branch;
-        private final TwoTerminalsConnectable.Side side;
+        private final Branch branch;
+        private final Branch.Side side;
 
-        private BranchAndSide(TwoTerminalsConnectable branch, TwoTerminalsConnectable.Side side) {
+        private BranchAndSide(Branch branch, Branch.Side side) {
             this.branch = Objects.requireNonNull(branch);
             this.side = Objects.requireNonNull(side);
         }
 
-        public TwoTerminalsConnectable getBranch() {
+        public Branch getBranch() {
             return branch;
         }
 
-        public TwoTerminalsConnectable.Side getSide() {
+        public Branch.Side getSide() {
             return side;
         }
 
@@ -193,8 +193,8 @@ public class ExpressionEvaluator extends DefaultExpressionVisitor<Object, Void> 
         }
 
         private static int compare(BranchAndSide branchAndSide1, BranchAndSide branchAndSide2) {
-            TwoTerminalsConnectable.Overload overload1 = branchAndSide1.getBranch().checkTemporaryLimits(branchAndSide1.getSide());
-            TwoTerminalsConnectable.Overload overload2 = branchAndSide2.getBranch().checkTemporaryLimits(branchAndSide2.getSide());
+            Branch.Overload overload1 = branchAndSide1.getBranch().checkTemporaryLimits(branchAndSide1.getSide());
+            Branch.Overload overload2 = branchAndSide2.getBranch().checkTemporaryLimits(branchAndSide2.getSide());
             float i1 = branchAndSide1.getBranch().getTerminal(branchAndSide1.getSide()).getI();
             float i2 = branchAndSide2.getBranch().getTerminal(branchAndSide2.getSide()).getI();
             float permanentLimit1 = getPermanentLimit(branchAndSide1.getBranch(), branchAndSide1.getSide());
@@ -234,28 +234,20 @@ public class ExpressionEvaluator extends DefaultExpressionVisitor<Object, Void> 
     /**
      * TODO: to move to IIDM
      */
-    private static float getPermanentLimit(TwoTerminalsConnectable branch, TwoTerminalsConnectable.Side side) {
+    private static float getPermanentLimit(Branch branch, Branch.Side side) {
         Objects.requireNonNull(branch);
         Objects.requireNonNull(side);
         float permanentLimit1 = branch.getCurrentLimits1() != null ? branch.getCurrentLimits1().getPermanentLimit() : Float.NaN;
         float permanentLimit2 = branch.getCurrentLimits2() != null ? branch.getCurrentLimits2().getPermanentLimit() : Float.NaN;
-        return side == TwoTerminalsConnectable.Side.ONE ? permanentLimit1 : permanentLimit2;
-    }
-
-    private TwoTerminalsConnectable getBranch(String id) {
-        Identifiable branch = context.getNetwork().getIdentifiable(id);
-        if (!(branch instanceof TwoTerminalsConnectable)) {
-            throw new RuntimeException("'" + id + "' is not a branch");
-        }
-        return (TwoTerminalsConnectable) branch;
+        return side == Branch.Side.ONE ? permanentLimit1 : permanentLimit2;
     }
 
     private List<String> sortBranches(List<String> branchIds) {
         List<String> sortedBranchIds = branchIds.stream()
-                .map(id -> getBranch(id))
+                .map(id -> context.getNetwork().getBranch(id))
                 .map(branch -> {
-                    BranchAndSide branchAndSide1 = new BranchAndSide(branch, TwoTerminalsConnectable.Side.ONE);
-                    BranchAndSide branchAndSide2 = new BranchAndSide(branch, TwoTerminalsConnectable.Side.TWO);
+                    BranchAndSide branchAndSide1 = new BranchAndSide(branch, Branch.Side.ONE);
+                    BranchAndSide branchAndSide2 = new BranchAndSide(branch, Branch.Side.TWO);
                     int c = branchAndSide1.compareTo(branchAndSide2);
                     return c >= 0 ? branchAndSide1 : branchAndSide2;
                 })

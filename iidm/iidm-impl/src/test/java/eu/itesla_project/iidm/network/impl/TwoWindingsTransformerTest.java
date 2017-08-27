@@ -59,7 +59,7 @@ public class TwoWindingsTransformerTest {
         phaseTapChanger.setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP);
         assertEquals(PhaseTapChanger.RegulationMode.FIXED_TAP, phaseTapChanger.getRegulationMode());
 
-        Terminal terminal = twoWindingsTransformer.getTerminal(TwoTerminalsConnectable.Side.ONE);
+        Terminal terminal = twoWindingsTransformer.getTerminal(Branch.Side.ONE);
         assertEquals(phaseTapChanger, phaseTapChanger.setRegulationTerminal(terminal));
         assertEquals(terminal, phaseTapChanger.getRegulationTerminal());
         phaseTapChanger.remove();
@@ -72,7 +72,7 @@ public class TwoWindingsTransformerTest {
                 .setLowTapPosition(0)
                 .setTapPosition(0)
                 .setRegulating(false)
-                .setRegulationTerminal(twoWindingsTransformer.getTerminal(TwoTerminalsConnectable.Side.ONE))
+                .setRegulationTerminal(twoWindingsTransformer.getTerminal(Branch.Side.ONE))
                 .beginStep().setR(39.78473f).setX(39.784725f).setG(0.0f).setB(0.0f).setRho(1.0f).endStep()
                 .beginStep().setR(39.78474f).setX(39.784726f).setG(0.0f).setB(0.0f).setRho(1.0f).endStep()
                 .beginStep().setR(39.78475f).setX(39.784727f).setG(0.0f).setB(0.0f).setRho(1.0f).endStep()

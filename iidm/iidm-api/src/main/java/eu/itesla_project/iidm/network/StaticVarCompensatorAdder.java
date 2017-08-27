@@ -9,7 +9,7 @@ package eu.itesla_project.iidm.network;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface StaticVarCompensatorAdder extends SingleTerminalConnectableAdder<StaticVarCompensatorAdder> {
+public interface StaticVarCompensatorAdder extends InjectionAdder<StaticVarCompensatorAdder> {
 
     StaticVarCompensatorAdder setBmin(float bMin);
 

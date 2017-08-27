@@ -10,7 +10,7 @@ package eu.itesla_project.iidm.network.impl;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-abstract class AbstractSingleTerminalConnectableAdder<T extends AbstractSingleTerminalConnectableAdder<T>> extends AbstractIdentifiableAdder<T> {
+abstract class AbstractInjectionAdder<T extends AbstractInjectionAdder<T>> extends AbstractIdentifiableAdder<T> {
 
     private Integer node;
 

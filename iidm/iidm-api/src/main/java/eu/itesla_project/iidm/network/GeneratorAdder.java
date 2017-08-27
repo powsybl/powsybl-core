@@ -24,7 +24,7 @@ package eu.itesla_project.iidm.network;
  * @see Generator
  * @see VoltageLevel
  */
-public interface GeneratorAdder extends SingleTerminalConnectableAdder<GeneratorAdder> {
+public interface GeneratorAdder extends InjectionAdder<GeneratorAdder> {
 
     GeneratorAdder setEnergySource(EnergySource energySource);
 

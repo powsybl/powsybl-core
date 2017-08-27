@@ -24,7 +24,7 @@ package eu.itesla_project.iidm.network;
  * @see DanglingLine
  * @see VoltageLevel
  */
-public interface DanglingLineAdder extends SingleTerminalConnectableAdder<DanglingLineAdder> {
+public interface DanglingLineAdder extends InjectionAdder<DanglingLineAdder> {
 
     DanglingLineAdder setP0(float p0);
 

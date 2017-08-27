@@ -16,7 +16,7 @@ package eu.itesla_project.iidm.network;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @see LoadAdder
  */
-public interface Load extends SingleTerminalConnectable<Load> {
+public interface Load extends Injection<Load> {
 
     LoadType getLoadType();
 

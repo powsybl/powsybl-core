@@ -389,7 +389,7 @@ public class NetworkXml implements XmlConstants {
                         String id = reader.getAttributeValue(null, "id");
                         float p = XmlUtil.readOptionalFloatAttribute(reader, "p");
                         float q = XmlUtil.readOptionalFloatAttribute(reader, "q");
-                        SingleTerminalConnectable inj = (SingleTerminalConnectable) network.getIdentifiable(id);
+                        Injection inj = (Injection) network.getIdentifiable(id);
                         inj.getTerminal().setP(p).setQ(q);
                         break;
                     }
@@ -401,7 +401,7 @@ public class NetworkXml implements XmlConstants {
                         float q1 = XmlUtil.readOptionalFloatAttribute(reader, "q1");
                         float p2 = XmlUtil.readOptionalFloatAttribute(reader, "p2");
                         float q2 = XmlUtil.readOptionalFloatAttribute(reader, "q2");
-                        TwoTerminalsConnectable branch = (TwoTerminalsConnectable) network.getIdentifiable(id);
+                        Branch branch = (Branch) network.getIdentifiable(id);
                         branch.getTerminal1().setP(p1).setQ(q1);
                         branch.getTerminal2().setP(p2).setQ(q2);
                         break;
