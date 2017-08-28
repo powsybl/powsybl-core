@@ -15,7 +15,7 @@ import java.nio.file.Path;
 public class NoMpiStatisticsFactory implements MpiStatisticsFactory {
 
     @Override
-    public MpiStatistics create(Path dbDir, String dbName) throws Exception {
+    public MpiStatistics create(Path dbDir, String dbName) {
         return new NoMpiStatistics();
     }
 

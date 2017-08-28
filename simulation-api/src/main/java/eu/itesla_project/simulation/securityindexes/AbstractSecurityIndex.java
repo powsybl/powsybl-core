@@ -8,11 +8,14 @@ package eu.itesla_project.simulation.securityindexes;
 
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
-import java.io.IOException;
-import java.io.StringWriter;
+import eu.itesla_project.commons.exceptions.UncheckedXmlStreamException;
+
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.io.UncheckedIOException;
 
 /**
  *
@@ -60,8 +63,10 @@ abstract class AbstractSecurityIndex implements SecurityIndex {
                 xmlWriter.close();
             }
             writer.close();
-        } catch (IOException | XMLStreamException e) {
-            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        } catch (XMLStreamException e) {
+            throw new UncheckedXmlStreamException(e);
         }
         return writer.toString();
     }

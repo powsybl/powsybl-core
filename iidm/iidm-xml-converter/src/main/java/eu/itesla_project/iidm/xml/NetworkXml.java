@@ -8,6 +8,8 @@ package eu.itesla_project.iidm.xml;
 
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
+import eu.itesla_project.commons.exceptions.UncheckedSaxException;
+import eu.itesla_project.commons.exceptions.UncheckedXmlStreamException;
 import eu.itesla_project.commons.util.ServiceLoaderCache;
 import eu.itesla_project.iidm.network.*;
 import javanet.staxutils.IndentingXMLStreamWriter;
@@ -99,8 +101,10 @@ public final class NetworkXml implements XmlConstants {
             Schema schema = factory.newSchema(sources);
             Validator validator = schema.newValidator();
             validator.validate(xml);
-        } catch (SAXException | IOException e) {
-            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        } catch (SAXException e) {
+            throw new UncheckedSaxException(e);
         }
     }
 
@@ -222,7 +226,7 @@ public final class NetworkXml implements XmlConstants {
 
             return anonymizer;
         } catch (XMLStreamException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedXmlStreamException(e);
         }
     }
 
@@ -335,7 +339,7 @@ public final class NetworkXml implements XmlConstants {
 
             return network;
         } catch (XMLStreamException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedXmlStreamException(e);
         }
     }
 
@@ -419,7 +423,7 @@ public final class NetworkXml implements XmlConstants {
                 }
             });
         } catch (XMLStreamException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedXmlStreamException(e);
         }
     }
 

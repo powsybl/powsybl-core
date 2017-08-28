@@ -14,6 +14,6 @@ import java.nio.file.Path;
  */
 public interface MpiStatisticsFactory {
 
-    MpiStatistics create(Path dbDir, String dbName) throws Exception;
+    MpiStatistics create(Path dbDir, String dbName);
 
 }

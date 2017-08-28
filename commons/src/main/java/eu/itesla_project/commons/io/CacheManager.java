@@ -11,6 +11,7 @@ import com.google.common.hash.HashCode;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hasher;
 import com.google.common.hash.Hashing;
+import eu.itesla_project.commons.exceptions.UncheckedInterruptedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -108,7 +109,7 @@ public class CacheManager {
             try {
                 semaphore.acquire();
             } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                throw new UncheckedInterruptedException(e);
             }
         }
 

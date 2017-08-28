@@ -6,6 +6,8 @@
  */
 package eu.itesla_project.action.util;
 
+import eu.itesla_project.commons.exceptions.UncheckedIllegalAccessException;
+import eu.itesla_project.commons.exceptions.UncheckedInstantiationException;
 import eu.itesla_project.computation.ComputationManager;
 import eu.itesla_project.iidm.network.Network;
 import eu.itesla_project.iidm.network.TwoWindingsTransformer;
@@ -118,8 +120,10 @@ public class LoadFlowBasedPhaseShifterOptimizer implements PhaseShifterOptimizer
                     throw new AssertionError("Phase shifter should not be overload");
                 }
             }
-        } catch (IllegalAccessException | InstantiationException e) {
-            throw new RuntimeException(e);
+        } catch (IllegalAccessException e) {
+            throw new UncheckedIllegalAccessException(e);
+        } catch (InstantiationException e) {
+            throw new UncheckedInstantiationException(e);
         } finally {
             // don't forget to remove the temporary state!
             network.getStateManager().removeState(tmpStateId);

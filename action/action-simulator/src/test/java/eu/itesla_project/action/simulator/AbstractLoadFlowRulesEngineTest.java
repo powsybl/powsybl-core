@@ -64,7 +64,7 @@ public abstract class AbstractLoadFlowRulesEngineTest {
         actionDb = new ActionDslLoader(src).load(network);
         engine = new LoadFlowActionSimulator(network, computationManager, new LoadFlowActionSimulatorConfig(LoadFlowFactory.class, 3, false), observer) {
             @Override
-            protected LoadFlowFactory newLoadLoadLowFactory() throws InstantiationException, IllegalAccessException {
+            protected LoadFlowFactory newLoadLoadLowFactory() {
                 return loadFlowFactory;
             }
         };

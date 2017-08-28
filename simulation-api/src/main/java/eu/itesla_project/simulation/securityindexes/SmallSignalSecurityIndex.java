@@ -7,11 +7,7 @@
 package eu.itesla_project.simulation.securityindexes;
 
 import com.google.common.collect.ImmutableMap;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import eu.itesla_project.commons.exceptions.UncheckedJaxbException;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -26,6 +22,10 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Quinary <itesla@quinary.com>
@@ -44,7 +44,7 @@ public class SmallSignalSecurityIndex extends AbstractSecurityIndex {
         try {
             JAXB_CONTEXT = JAXBContext.newInstance(Index.class);
         } catch (JAXBException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedJaxbException(e);
         }
     }
 
@@ -145,7 +145,7 @@ public class SmallSignalSecurityIndex extends AbstractSecurityIndex {
         try {
             toXml(this, xmlWriter);
         } catch (JAXBException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedJaxbException(e);
         }
     }
 

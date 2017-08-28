@@ -8,6 +8,8 @@ package eu.itesla_project.commons.jaxb;
 
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
+import eu.itesla_project.commons.exceptions.UncheckedJaxbException;
+import eu.itesla_project.commons.exceptions.UncheckedTransformerException;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -40,7 +42,7 @@ public final class JaxbUtil {
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
             marshaller.marshal(jaxbElement, writer);
         } catch (JAXBException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedJaxbException(e);
         }
     }
 
@@ -80,8 +82,10 @@ public final class JaxbUtil {
                 Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
                 return (U) unmarshaller.unmarshal(reader);
             }
-        } catch (JAXBException | TransformerException e) {
-            throw new RuntimeException(e);
+        } catch (JAXBException e) {
+            throw new UncheckedJaxbException(e);
+        } catch (TransformerException e) {
+            throw new UncheckedTransformerException(e);
         }
     }
 

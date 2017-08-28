@@ -8,6 +8,7 @@ package eu.itesla_project.simulation.securityindexes;
 
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
+import eu.itesla_project.commons.exceptions.UncheckedXmlStreamException;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -85,7 +86,7 @@ public final class SecurityIndexParser {
                 }
             }
         } catch (XMLStreamException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedXmlStreamException(e);
         }
         return indexes;
     }

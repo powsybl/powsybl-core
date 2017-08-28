@@ -7,6 +7,7 @@
 package eu.itesla_project.computation.mpi;
 
 import eu.itesla_project.commons.config.ComponentDefaultConfig;
+import eu.itesla_project.commons.exceptions.UncheckedInterruptedException;
 import eu.itesla_project.computation.ComputationManager;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -14,6 +15,8 @@ import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.FileSystem;
 import java.nio.file.Path;
 
@@ -112,8 +115,10 @@ public final class MpiToolUtil {
                     }
                 }
             };
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        } catch (InterruptedException e) {
+            throw new UncheckedInterruptedException(e);
         }
     }
 }

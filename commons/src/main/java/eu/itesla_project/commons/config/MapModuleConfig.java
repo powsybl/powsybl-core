@@ -7,6 +7,7 @@
 package eu.itesla_project.commons.config;
 
 import com.google.common.base.Joiner;
+import eu.itesla_project.commons.exceptions.UncheckedClassNotFoundException;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
@@ -230,7 +231,7 @@ public class MapModuleConfig implements ModuleConfig {
         try {
             return Class.forName(getStringProperty(name)).asSubclass(subClass);
         } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedClassNotFoundException(e);
         }
     }
 
@@ -244,7 +245,7 @@ public class MapModuleConfig implements ModuleConfig {
                 return Class.forName((String) value).asSubclass(subClass);
             }
         } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedClassNotFoundException(e);
         }
     }
 

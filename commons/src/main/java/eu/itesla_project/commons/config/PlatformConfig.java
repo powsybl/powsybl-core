@@ -6,12 +6,15 @@
  */
 package eu.itesla_project.commons.config;
 
+import eu.itesla_project.commons.exceptions.UncheckedParserConfigurationException;
+import eu.itesla_project.commons.exceptions.UncheckedSaxException;
 import eu.itesla_project.commons.io.CacheManager;
 import eu.itesla_project.commons.io.FileUtil;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
@@ -66,8 +69,12 @@ public class PlatformConfig {
             if (configName != null) {
                 try {
                     defaultConfig = new XmlPlatformConfig(fileSystem, configDir, cacheDir, configName);
-                } catch (IOException | ParserConfigurationException | SAXException e) {
-                    throw new RuntimeException(e);
+                } catch (IOException e) {
+                    throw new UncheckedIOException(e);
+                } catch (SAXException e) {
+                    throw new UncheckedSaxException(e);
+                } catch (ParserConfigurationException e) {
+                    throw new UncheckedParserConfigurationException(e);
                 }
             } else {
                 defaultConfig = new PropertiesPlatformConfig(fileSystem, configDir, cacheDir);

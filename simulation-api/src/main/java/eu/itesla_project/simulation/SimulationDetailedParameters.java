@@ -9,6 +9,7 @@ package eu.itesla_project.simulation;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import eu.itesla_project.commons.config.PlatformConfig;
+import eu.itesla_project.commons.exceptions.UncheckedXmlStreamException;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
@@ -173,7 +174,7 @@ public class SimulationDetailedParameters {
                 }
             }
         } catch (XMLStreamException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedXmlStreamException(e);
         }
     }
 

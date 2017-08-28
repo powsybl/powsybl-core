@@ -6,6 +6,8 @@
  */
 package eu.itesla_project.commons.jaxb;
 
+import eu.itesla_project.commons.exceptions.UncheckedJaxbException;
+
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import java.util.HashMap;
@@ -29,7 +31,7 @@ public class JaxbContextCache {
                 jaxbContext = JAXBContext.newInstance(aClass);
                 cache.put(aClass, jaxbContext);
             } catch (JAXBException e) {
-                throw new RuntimeException(e);
+                throw new UncheckedJaxbException(e);
             }
         }
         return jaxbContext;

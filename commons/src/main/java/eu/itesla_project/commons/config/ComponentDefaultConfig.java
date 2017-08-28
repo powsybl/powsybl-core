@@ -6,6 +6,9 @@
  */
 package eu.itesla_project.commons.config;
 
+import eu.itesla_project.commons.exceptions.UncheckedIllegalAccessException;
+import eu.itesla_project.commons.exceptions.UncheckedInstantiationException;
+
 import java.util.Objects;
 
 /**
@@ -53,8 +56,10 @@ public interface ComponentDefaultConfig {
         public <T> T newFactoryImpl(Class<T> factoryBaseClass) {
             try {
                 return findFactoryImplClass(factoryBaseClass).newInstance();
-            } catch (IllegalAccessException | InstantiationException e) {
-                throw new RuntimeException(e);
+            } catch (IllegalAccessException e) {
+                throw new UncheckedIllegalAccessException(e);
+            } catch (InstantiationException e) {
+                throw new UncheckedInstantiationException(e);
             }
         }
 
@@ -62,8 +67,10 @@ public interface ComponentDefaultConfig {
         public <T, U extends T> T newFactoryImpl(Class<T> factoryBaseClass, Class<U> defaultFactoryImplClass) {
             try {
                 return findFactoryImplClass(factoryBaseClass, defaultFactoryImplClass).newInstance();
-            } catch (IllegalAccessException | InstantiationException e) {
-                throw new RuntimeException(e);
+            } catch (IllegalAccessException e) {
+                throw new UncheckedIllegalAccessException(e);
+            } catch (InstantiationException e) {
+                throw new UncheckedInstantiationException(e);
             }
         }
     }

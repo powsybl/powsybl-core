@@ -6,6 +6,8 @@
  */
 package eu.itesla_project.computation.mpi;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Path;
 
 /**
@@ -15,8 +17,12 @@ import java.nio.file.Path;
 public class CsvMpiStatisticsFactory implements MpiStatisticsFactory {
 
     @Override
-    public MpiStatistics create(Path dbDir, String dbName) throws Exception {
-        return new CsvMpiStatistics(dbDir, dbName);
+    public MpiStatistics create(Path dbDir, String dbName) {
+        try {
+            return new CsvMpiStatistics(dbDir, dbName);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
 }
