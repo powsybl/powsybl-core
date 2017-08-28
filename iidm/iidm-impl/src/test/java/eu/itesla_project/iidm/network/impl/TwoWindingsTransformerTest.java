@@ -7,18 +7,57 @@
 package eu.itesla_project.iidm.network.impl;
 
 import eu.itesla_project.iidm.network.*;
-import eu.itesla_project.iidm.network.test.EurostagTutorialExample1Factory;
-import eu.itesla_project.iidm.network.test.FictitiousSwitchFactory;
+import eu.itesla_project.iidm.network.test.NoEquipmentNetworkFactory;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import static org.junit.Assert.*;
 
 public class TwoWindingsTransformerTest {
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
+
+    private Network network;
+    private Substation substation;
+
+    @Before
+    public void setUp() {
+        network = NoEquipmentNetworkFactory.create();
+        substation = network.getSubstation("sub");
+    }
+
     @Test
-    public void test() {
-        Network network = EurostagTutorialExample1Factory.create();
-        TwoWindingsTransformer twoWindingsTransformer = network.getTwoWindingsTransformer("NGEN_NHV1");
-        assertNotNull(twoWindingsTransformer);
+    public void baseTests() {
+        // adder
+        TwoWindingsTransformer twoWindingsTransformer = substation.newTwoWindingsTransformer()
+                                                                    .setId("twt")
+                                                                    .setName("twt_name")
+                                                                    .setR(1.0f)
+                                                                    .setX(2.0f)
+                                                                    .setG(3.0f)
+                                                                    .setB(4.0f)
+                                                                    .setRatedU1(5.0f)
+                                                                    .setRatedU2(6.0f)
+                                                                    .setVoltageLevel1("vl1")
+                                                                    .setVoltageLevel2("vl2")
+                                                                    .setConnectableBus1("busA")
+                                                                    .setConnectableBus2("busB")
+                                                                .add();
+        assertEquals("twt", twoWindingsTransformer.getId());
+        assertEquals("twt_name", twoWindingsTransformer.getName());
+        assertEquals(1.0f, twoWindingsTransformer.getR(), 0.0f);
+        assertEquals(2.0f, twoWindingsTransformer.getX(), 0.0f);
+        assertEquals(3.0f, twoWindingsTransformer.getG(), 0.0f);
+        assertEquals(4.0f, twoWindingsTransformer.getB(), 0.0f);
+        assertEquals(5.0f, twoWindingsTransformer.getRatedU1(), 0.0f);
+        assertEquals(6.0f, twoWindingsTransformer.getRatedU2(), 0.0f);
+        assertEquals(ConnectableType.TWO_WINDINGS_TRANSFORMER, twoWindingsTransformer.getType());
+        assertSame(substation, twoWindingsTransformer.getSubstation());
+
+        // setter getter
         float r = 0.5f;
         twoWindingsTransformer.setR(r);
         assertEquals(r, twoWindingsTransformer.getR(), 0.0f);
@@ -37,73 +76,103 @@ public class TwoWindingsTransformerTest {
         float ratedU2 = 16.0f;
         twoWindingsTransformer.setRatedU2(ratedU2);
         assertEquals(ratedU2, twoWindingsTransformer.getRatedU2(), 0.0f);
-        assertEquals(ConnectableType.TWO_WINDINGS_TRANSFORMER, twoWindingsTransformer.getType());
-        Substation substationP1 = network.getSubstation("P1");
-        assertEquals(substationP1, twoWindingsTransformer.getSubstation());
-
     }
 
     @Test
-    public void testSetterGetterOfTapChanger() {
-        Network network = FictitiousSwitchFactory.create();
-        TwoWindingsTransformer twoWindingsTransformer = network.getTwoWindingsTransformer("CI");
-        PhaseTapChanger phaseTapChanger = twoWindingsTransformer.getPhaseTapChanger();
-        assertNotNull(phaseTapChanger);
-        PhaseTapChangerStep phaseTapChangerStep = phaseTapChanger.getStep(0);
-        phaseTapChangerStep.setAlpha(5.0f);
-        assertEquals(5.0f, phaseTapChangerStep.getAlpha(), 0.0f);
-        float regulationValue = 1.0f;
-
-        phaseTapChanger.setRegulationValue(regulationValue);
-        assertEquals(regulationValue, phaseTapChanger.getRegulationValue(), 0.0f);
-        phaseTapChanger.setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP);
-        assertEquals(PhaseTapChanger.RegulationMode.FIXED_TAP, phaseTapChanger.getRegulationMode());
-
-        Terminal terminal = twoWindingsTransformer.getTerminal(Branch.Side.ONE);
-        assertEquals(phaseTapChanger, phaseTapChanger.setRegulationTerminal(terminal));
-        assertEquals(terminal, phaseTapChanger.getRegulationTerminal());
-        phaseTapChanger.remove();
-        assertNull(twoWindingsTransformer.getPhaseTapChanger());
-
-        float targetV = 220.0f;
-        RatioTapChanger ratioTapChanger = twoWindingsTransformer.newRatioTapChanger()
-                .setTargetV(targetV)
-                .setLoadTapChangingCapabilities(false)
-                .setLowTapPosition(0)
-                .setTapPosition(0)
-                .setRegulating(false)
-                .setRegulationTerminal(twoWindingsTransformer.getTerminal(Branch.Side.ONE))
-                .beginStep().setR(39.78473f).setX(39.784725f).setG(0.0f).setB(0.0f).setRho(1.0f).endStep()
-                .beginStep().setR(39.78474f).setX(39.784726f).setG(0.0f).setB(0.0f).setRho(1.0f).endStep()
-                .beginStep().setR(39.78475f).setX(39.784727f).setG(0.0f).setB(0.0f).setRho(1.0f).endStep()
-                .add();
-        assertEquals(targetV, ratioTapChanger.getTargetV(), 0.0f);
-        assertEquals(0, ratioTapChanger.getLowTapPosition());
-        ratioTapChanger.setTargetV(110.0f);
-        ratioTapChanger.setRegulating(true);
-        ratioTapChanger.setRegulationTerminal(terminal);
-        assertEquals(terminal, ratioTapChanger.getRegulationTerminal());
-        assertEquals(0, ratioTapChanger.getTapPosition());
-        assertFalse(ratioTapChanger.hasLoadTapChangingCapabilities());
-        ratioTapChanger.remove();
-        assertNull(twoWindingsTransformer.getRatioTapChanger());
-
-        assertEquals(3, ratioTapChanger.getStepCount());
-        RatioTapChangerStep step = ratioTapChanger.getStep(0);
-        float stepR = 10.0f;
-        float stepX = 20.0f;
-        float stepG = 30.0f;
-        float stepB = 40.0f;
-        float stepRho = 50.0f;
-        step.setR(stepR);
-        assertEquals(stepR, step.getR(), 0.0f);
-        step.setX(stepX);
-        assertEquals(stepX, step.getX(), 0.0f);
-        step.setG(stepG);
-        assertEquals(stepG, step.getG(), 0.0f);
-        step.setB(stepB);
-        assertEquals(stepB, step.getB(), 0.0f);
-        step.setRho(stepRho);
-        assertEquals(stepRho, step.getRho(), 0.0f);
+    public void testInvalidR() {
+        thrown.expect(ValidationException.class);
+        thrown.expectMessage("r is invalid");
+        createTwoWindingTransformer("invalid", "invalid", Float.NaN, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
     }
+
+    @Test
+    public void testInvalidX() {
+        thrown.expect(ValidationException.class);
+        thrown.expectMessage("x is invalid");
+        createTwoWindingTransformer("invalid", "invalid", 1.0f, Float.NaN, 1.0f, 1.0f, 1.0f, 1.0f);
+    }
+
+    @Test
+    public void testInvalidG() {
+        thrown.expect(ValidationException.class);
+        thrown.expectMessage("g is invalid");
+        createTwoWindingTransformer("invalid", "invalid", 1.0f, 1.0f, Float.NaN, 1.0f, 1.0f, 1.0f);
+    }
+
+    @Test
+    public void testInvalidB() {
+        thrown.expect(ValidationException.class);
+        thrown.expectMessage("b is invalid");
+        createTwoWindingTransformer("invalid", "invalid", 1.0f, 1.0f, 1.0f, Float.NaN, 1.0f, 1.0f);
+    }
+
+    @Test
+    public void testInvalidRatedU1() {
+        thrown.expect(ValidationException.class);
+        thrown.expectMessage("rated U1 is invalid");
+        createTwoWindingTransformer("invalid", "invalid", 1.0f, 1.0f, 1.0f, 1.0f, Float.NaN, 1.0f);
+    }
+
+    @Test
+    public void testInvalidRatedU2() {
+        thrown.expect(ValidationException.class);
+        thrown.expectMessage("rated U2 is invalid");
+        createTwoWindingTransformer("invalid", "invalid", 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, Float.NaN);
+    }
+
+    @Test
+    public void transformerNotInSameSubstation() {
+        Substation anotherSubstation = network.newSubstation()
+                    .setId("subB")
+                    .setName("n")
+                    .setCountry(Country.FR)
+                    .setTso("RTE")
+                .add();
+        VoltageLevel voltageLevelC = anotherSubstation.newVoltageLevel()
+                    .setId("vl3")
+                    .setName("vl3")
+                    .setNominalV(200.0f)
+                    .setHighVoltageLimit(400.0f)
+                    .setLowVoltageLimit(200.0f)
+                    .setTopologyKind(TopologyKind.BUS_BREAKER)
+                .add();
+        voltageLevelC.getBusBreakerView().newBus()
+                    .setId("busC")
+                    .setName("busC")
+                .add();
+        thrown.expect(ValidationException.class);
+        thrown.expectMessage("the 2 windings of the transformer shall belong to the substation");
+        substation.newTwoWindingsTransformer().setId("invalidTwt")
+                        .setName("twt_name")
+                        .setR(1.0f)
+                        .setX(2.0f)
+                        .setG(3.0f)
+                        .setB(4.0f)
+                        .setRatedU1(5.0f)
+                        .setRatedU2(6.0f)
+                        .setVoltageLevel1("vl1")
+                        .setVoltageLevel2("vl3")
+                        .setConnectableBus1("busA")
+                        .setConnectableBus2("busC")
+                    .add();
+    }
+
+    private void createTwoWindingTransformer(String id, String name, float r, float x, float g, float b,
+                                             float ratedU1, float ratedU2) {
+        substation.newTwoWindingsTransformer()
+                    .setId(id)
+                    .setName(name)
+                    .setR(r)
+                    .setX(x)
+                    .setG(g)
+                    .setB(b)
+                    .setRatedU1(ratedU1)
+                    .setRatedU2(ratedU2)
+                    .setVoltageLevel1("vl1")
+                    .setVoltageLevel2("vl2")
+                    .setConnectableBus1("busA")
+                    .setConnectableBus2("busB")
+                .add();
+    }
+
 }

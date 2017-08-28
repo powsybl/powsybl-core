@@ -7,38 +7,48 @@
 package eu.itesla_project.iidm.network.impl;
 
 import eu.itesla_project.iidm.network.*;
-import eu.itesla_project.iidm.network.test.EurostagTutorialExample1Factory;
+import eu.itesla_project.iidm.network.test.NoEquipmentNetworkFactory;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import static org.junit.Assert.*;
 
 public class ShuntCompensatorTest {
 
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
+
+    private Network network;
+    private VoltageLevel voltageLevel;
+
+    @Before
+    public void setUp() {
+        network = NoEquipmentNetworkFactory.create();
+        voltageLevel = network.getVoltageLevel("vl1");
+    }
+
     @Test
-    public void testSetterGetter() {
-        Network network = EurostagTutorialExample1Factory.create();
-        VoltageLevel voltageLevel = network.getVoltageLevel("VLHV1");
-        String shuntCompensatorName = "shuntCompensatorName";
-        String shuntCompensatorId = "id_s";
-        float bPerSection = 3.0f;
-        int currentSectionCount = 5;
-        int maxSectionCount = 10;
+    public void baseTest() {
+        // adder
         ShuntCompensator shuntCompensator = voltageLevel
                                         .newShunt()
-                                            .setName(shuntCompensatorName)
-                                            .setId(shuntCompensatorId)
-                                            .setConnectableBus("NHV1")
-                                            .setbPerSection(bPerSection)
-                                            .setCurrentSectionCount(currentSectionCount)
-                                            .setMaximumSectionCount(maxSectionCount)
+                                            .setId("shunt")
+                                            .setName("shuntName")
+                                            .setConnectableBus("busA")
+                                            .setbPerSection(5.0f)
+                                            .setCurrentSectionCount(6)
+                                            .setMaximumSectionCount(10)
                                         .add();
         assertEquals(ConnectableType.SHUNT_COMPENSATOR, shuntCompensator.getType());
-        assertEquals(shuntCompensatorName, shuntCompensator.getName());
-        assertEquals(shuntCompensatorId, shuntCompensator.getId());
-        assertEquals(bPerSection, shuntCompensator.getbPerSection(), 0.0f);
-        assertEquals(currentSectionCount, shuntCompensator.getCurrentSectionCount());
-        assertEquals(maxSectionCount, shuntCompensator.getMaximumSectionCount());
+        assertEquals("shuntName", shuntCompensator.getName());
+        assertEquals("shunt", shuntCompensator.getId());
+        assertEquals(5.0f, shuntCompensator.getbPerSection(), 0.0f);
+        assertEquals(6, shuntCompensator.getCurrentSectionCount());
+        assertEquals(10, shuntCompensator.getMaximumSectionCount());
 
+        // setter getter
         try {
             shuntCompensator.setbPerSection(0.0f);
             fail();
@@ -68,5 +78,44 @@ public class ShuntCompensatorTest {
         }
         shuntCompensator.setMaximumSectionCount(20);
         assertEquals(20, shuntCompensator.getMaximumSectionCount());
+
+        // remove
+        int count = network.getShuntCount();
+        shuntCompensator.remove();
+        assertNull(network.getShunt("shunt"));
+        assertNotNull(shuntCompensator);
+        assertEquals(count - 1, network.getShuntCount());
+    }
+
+    @Test
+    public void invalidbPerSection() {
+        thrown.expect(ValidationException.class);
+        thrown.expectMessage("susceptance per section is invalid");
+        createShunt("invalid", "invalid", Float.NaN, 5, 10);
+    }
+
+    @Test
+    public void invalidZerobPerSection() {
+        thrown.expect(ValidationException.class);
+        thrown.expectMessage("susceptance per section is equal to zero");
+        createShunt("invalid", "invalid", 0.0f, 5, 10);
+    }
+
+    @Test
+    public void invalidNegativeMaxPerSection() {
+        thrown.expect(ValidationException.class);
+        thrown.expectMessage("should be greater than 0");
+        createShunt("invalid", "invalid", 2.0f, 0, -1);
+    }
+
+    private void createShunt(String id, String name, float bPerSection, int currentSectionCount, int maxSectionCount) {
+        voltageLevel.newShunt()
+                    .setId(id)
+                    .setName(name)
+                    .setConnectableBus("busA")
+                    .setbPerSection(bPerSection)
+                    .setCurrentSectionCount(currentSectionCount)
+                    .setMaximumSectionCount(maxSectionCount)
+                .add();
     }
 }

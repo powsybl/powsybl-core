@@ -6,33 +6,91 @@
  */
 package eu.itesla_project.iidm.network.impl;
 
-import eu.itesla_project.iidm.network.Country;
-import eu.itesla_project.iidm.network.Network;
-import eu.itesla_project.iidm.network.NetworkFactory;
-import eu.itesla_project.iidm.network.Substation;
+import eu.itesla_project.commons.ITeslaException;
+import eu.itesla_project.iidm.network.*;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import static org.junit.Assert.*;
 
 public class SubstationTest {
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
+
+    private Network network;
+
+    @Before
+    public void initNetwork() {
+        network = NetworkFactory.create("test", "test");
+    }
+
     @Test
-    public void testSetterGetter() {
-        Network network = NetworkFactory.create("test", "test");
+    public void baseTests() {
+        // adder
         Substation substation = network.newSubstation()
                                     .setId("sub")
                                     .setName("sub_name")
                                     .setCountry(Country.AD)
                                     .setTso("TSO")
-                                    .setEnsureIdUnicity(false).setGeographicalTags("geoTag1", "geoTag2")
+                                    .setEnsureIdUnicity(false)
+                                    .setGeographicalTags("geoTag1", "geoTag2")
                                 .add();
         assertEquals("sub", substation.getId());
         assertEquals("sub_name", substation.getName());
         assertEquals(Country.AD, substation.getCountry());
         assertEquals("TSO", substation.getTso());
+        assertEquals(ContainerType.SUBSTATION, substation.getContainerType());
 
+        // setter and getter
         substation.setCountry(Country.AF);
         assertEquals(Country.AF, substation.getCountry());
         substation.setTso("new tso");
         assertEquals("new tso", substation.getTso());
     }
+
+    @Test
+    public void invalidCountry() {
+        thrown.expect(ValidationException.class);
+        thrown.expectMessage("country is invalid");
+        network.newSubstation()
+                .setId("no_country")
+                .setName("sub_name")
+            .add();
+    }
+
+    @Test
+    public void addNullTag() {
+        thrown.expect(ValidationException.class);
+        Substation substation = network.newSubstation()
+                                        .setId("sub")
+                                        .setName("sub_name")
+                                        .setCountry(Country.AD)
+                                        .setTso("TSO")
+                                        .setEnsureIdUnicity(false)
+                                        .setGeographicalTags("geoTag1", "geoTag2")
+                                    .add();
+        thrown.expect(ValidationException.class);
+        thrown.expectMessage("geographical tag is null");
+        substation.addGeographicalTag(null);
+    }
+
+    @Test
+    public void duplicateSubstation() {
+        network.newSubstation()
+                .setId("duplicate")
+                .setName("sub_name")
+                .setCountry(Country.AD)
+            .add();
+        thrown.expect(ITeslaException.class);
+        thrown.expectMessage("with the id 'duplicate'");
+        network.newSubstation()
+                .setId("duplicate")
+                .setName("sub_name")
+                .setCountry(Country.AD)
+            .add();
+    }
+
 }

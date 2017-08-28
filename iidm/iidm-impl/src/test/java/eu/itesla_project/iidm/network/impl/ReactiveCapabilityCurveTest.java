@@ -11,23 +11,121 @@ import eu.itesla_project.iidm.network.Network;
 import eu.itesla_project.iidm.network.ReactiveCapabilityCurve;
 import eu.itesla_project.iidm.network.ReactiveLimitsKind;
 import eu.itesla_project.iidm.network.test.FictitiousSwitchFactory;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import static org.junit.Assert.*;
 
 public class ReactiveCapabilityCurveTest {
-    @Test
-    public void testSetterGetter() {
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
+
+    private Generator generator;
+
+    @Before
+    public void setUp() {
         Network network = FictitiousSwitchFactory.create();
-        Generator generator = network.getGenerator("CB");
+        generator = network.getGenerator("CB");
+    }
+
+    @Test
+    public void testAdder() {
         ReactiveCapabilityCurve reactiveCapabilityCurve = generator.newReactiveCapabilityCurve()
-                .beginPoint().setP(1.0f).setMaxQ(5.0f).setMinQ(1.0f).endPoint()
-                .beginPoint().setP(2.0f).setMaxQ(10.0f).setMinQ(2.0f).endPoint()
-                .beginPoint().setP(100.0f).setMaxQ(10.0f).setMinQ(2.0f).endPoint()
+                    .beginPoint()
+                        .setP(1.0f)
+                        .setMaxQ(5.0f)
+                        .setMinQ(1.0f)
+                    .endPoint()
+                    .beginPoint()
+                        .setP(2.0f)
+                        .setMaxQ(10.0f)
+                        .setMinQ(2.0f)
+                    .endPoint()
+                    .beginPoint()
+                        .setP(100.0f)
+                        .setMaxQ(10.0f)
+                        .setMinQ(2.0f)
+                    .endPoint()
                 .add();
         assertEquals(ReactiveLimitsKind.CURVE, reactiveCapabilityCurve.getKind());
         assertEquals(100.0f, reactiveCapabilityCurve.getMaxP(), 0.0f);
         assertEquals(1.0f, reactiveCapabilityCurve.getMinP(), 0.0f);
         assertEquals(3, reactiveCapabilityCurve.getPoints().size());
+        assertEquals(5.0f, reactiveCapabilityCurve.getMaxQ(1.0f), 0.0f);
+        assertEquals(2.0f, reactiveCapabilityCurve.getMinQ(2.0f), 0.0f);
     }
+
+    @Test
+    public void invalidOnePointCurve() {
+        thrown.expect(ValidationException.class);
+        thrown.expectMessage("should have at least two points");
+        generator.newReactiveCapabilityCurve()
+                    .beginPoint()
+                        .setP(1.0f)
+                        .setMaxQ(5.0f)
+                        .setMinQ(1.0f)
+                    .endPoint()
+                .add();
+    }
+
+    @Test
+    public void duplicatePointsInCurve() {
+        thrown.expect(ValidationException.class);
+        thrown.expectMessage("a point already exists for active power");
+        generator.newReactiveCapabilityCurve()
+                    .beginPoint()
+                        .setP(1.0f)
+                        .setMaxQ(5.0f)
+                        .setMinQ(1.0f)
+                    .endPoint()
+                    .beginPoint()
+                        .setP(1.0f)
+                        .setMaxQ(5.0f)
+                        .setMinQ(1.0f)
+                    .endPoint()
+                .add();
+    }
+
+    @Test
+    public void invalidPoint() {
+        thrown.expect(ValidationException.class);
+        thrown.expectMessage("P is not set");
+        generator.newReactiveCapabilityCurve()
+                    .beginPoint()
+                        .setP(Float.NaN)
+                        .setMaxQ(5.0f)
+                        .setMinQ(1.0f)
+                    .endPoint()
+                .add();
+    }
+
+    @Test
+    public void invalidMaxQ() {
+        thrown.expect(ValidationException.class);
+        thrown.expectMessage("max Q is not set");
+        generator.newReactiveCapabilityCurve()
+                    .beginPoint()
+                        .setP(1.0f)
+                        .setMaxQ(Float.NaN)
+                        .setMinQ(1.0f)
+                    .endPoint()
+                .add();
+    }
+
+    @Test
+    public void invalidMinQ() {
+        thrown.expect(ValidationException.class);
+        thrown.expectMessage("min Q is not set");
+        generator.newReactiveCapabilityCurve()
+                    .beginPoint()
+                        .setP(1.0f)
+                        .setMaxQ(5.0f)
+                        .setMinQ(Float.NaN)
+                    .endPoint()
+                .add();
+    }
+
 }

@@ -10,6 +10,7 @@ import eu.itesla_project.iidm.network.HvdcLine;
 import eu.itesla_project.iidm.network.Network;
 import eu.itesla_project.iidm.network.VscConverterStation;
 import eu.itesla_project.iidm.network.test.HvdcTestNetwork;
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -20,12 +21,20 @@ import static org.junit.Assert.*;
  */
 public class VscTest {
 
+    private Network network;
+    private VscConverterStation cs1;
+    private VscConverterStation cs2;
+
+    @Before
+    public void setUp() {
+        network = HvdcTestNetwork.createVsc();
+        cs1 = network.getVscConverterStation("C1");
+        cs2 = network.getVscConverterStation("C2");
+    }
+
     @Test
     public void testBase() {
-        Network network = HvdcTestNetwork.createVsc();
-        VscConverterStation cs1 = (VscConverterStation) network.getHvdcConverterStation("C1");
         assertNotNull(cs1);
-        VscConverterStation cs2 = (VscConverterStation) network.getHvdcConverterStation("C2");
         assertNotNull(cs2);
         assertEquals(1, network.getVoltageLevel("VL1").getVscConverterStationCount());
         assertEquals(1, network.getVoltageLevel("VL2").getVscConverterStationCount());
@@ -59,12 +68,33 @@ public class VscTest {
         assertTrue(l.getConverterStation2().getTerminal().getBusView().getBus().isInMainConnectedComponent());
         assertNotEquals(l.getConverterStation1().getTerminal().getBusView().getBus().getSynchronousComponent().getNum(),
                         l.getConverterStation2().getTerminal().getBusView().getBus().getSynchronousComponent().getNum());
+
+        // remove
+        int count = network.getVscConverterStationCount();
+        cs1.remove();
+        assertNull(network.getVscConverterStation("C1"));
+        assertNotNull(cs1);
+        assertEquals(count - 1, network.getVscConverterStationCount());
     }
 
     @Test
     public void testRemove() {
-        Network network = HvdcTestNetwork.createVsc();
         network.getHvdcLine("L").remove();
         assertEquals(0, network.getHvdcLineCount());
+    }
+
+    @Test
+    public void testReactiveLimits() {
+        cs1.newMinMaxReactiveLimits()
+                .setMinQ(10.0f)
+                .setMaxQ(100.0f)
+            .add();
+        assertEquals(100.0f, cs1.getReactiveLimits().getMaxQ(2.0f), 0.0f);
+        try {
+            cs1.getReactiveLimits(ReactiveCapabilityCurveImpl.class);
+            fail();
+        } catch (Exception ignored) {
+        }
+        cs1.getReactiveLimits(MinMaxReactiveLimitsImpl.class);
     }
 }

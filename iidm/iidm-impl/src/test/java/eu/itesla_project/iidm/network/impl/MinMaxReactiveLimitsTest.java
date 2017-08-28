@@ -11,18 +11,30 @@ import eu.itesla_project.iidm.network.MinMaxReactiveLimits;
 import eu.itesla_project.iidm.network.Network;
 import eu.itesla_project.iidm.network.ReactiveLimitsKind;
 import eu.itesla_project.iidm.network.test.FictitiousSwitchFactory;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import static org.junit.Assert.*;
 
 public class MinMaxReactiveLimitsTest {
 
-    @Test
-    public void testSetterGetter() {
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
+
+    private Generator generator;
+
+    @Before
+    public void setUp() {
         Network network = FictitiousSwitchFactory.create();
-        Generator generator = network.getGenerator("CB");
-        MinMaxReactiveLimits minMaxReactiveLimits = generator
-                                                        .newMinMaxReactiveLimits()
+        generator = network.getGenerator("CB");
+    }
+
+    @Test
+    public void testAdder() {
+        // adder
+        MinMaxReactiveLimits minMaxReactiveLimits = generator.newMinMaxReactiveLimits()
                                                         .setMaxQ(100.0f)
                                                         .setMinQ(10.0f)
                                                     .add();
@@ -31,5 +43,33 @@ public class MinMaxReactiveLimitsTest {
         assertEquals(10.0f, minMaxReactiveLimits.getMinQ(), 0.0f);
         assertEquals(10.0f, minMaxReactiveLimits.getMinQ(1.0f), 0.0f);
         assertEquals(ReactiveLimitsKind.MIN_MAX, minMaxReactiveLimits.getKind());
+    }
+
+    @Test
+    public void invalidMinQ() {
+        thrown.expect(ValidationException.class);
+        thrown.expectMessage("minimum reactive power is not set");
+        addMinMaxReactiveLimits(Float.NaN, 100.0f);
+    }
+
+    @Test
+    public void invalidMaxQ() {
+        thrown.expect(ValidationException.class);
+        thrown.expectMessage("maximum reactive power is not set");
+        addMinMaxReactiveLimits(10.0f, Float.NaN);
+    }
+
+    @Test
+    public void invalidMinQBiggerThenMaxQ() {
+        thrown.expect(ValidationException.class);
+        thrown.expectMessage("maximum reactive power is expected to be greater than or equal to minimum reactive power");
+        addMinMaxReactiveLimits(2.0f, 1.0f);
+    }
+
+    private void addMinMaxReactiveLimits(float minQ, float maxQ) {
+        generator.newMinMaxReactiveLimits()
+                .setMaxQ(maxQ)
+                .setMinQ(minQ)
+            .add();
     }
 }
