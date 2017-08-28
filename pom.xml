@@ -263,7 +263,7 @@
                     <configuration>
                         <!-- groovy source roots need to be manually added -->
                         <sourceDirectories>
-                            <sourceDirectory>${project.basedir}/iidm/iidm-groovy-extension/src/main/groovy</sourceDirectory>
+                            <sourceDirectory>${project.basedir}/iidm/iidm-api/src/main/groovy</sourceDirectory>
                             <sourceDirectory>${project.basedir}/loadflow-api/src/main/groovy</sourceDirectory>
                             <sourceDirectory>${project.basedir}/scripting/src/main/groovy</sourceDirectory>
                         </sourceDirectories>

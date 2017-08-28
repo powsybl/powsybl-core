@@ -149,12 +149,6 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>iidm-groovy-extension</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>iidm-impl</artifactId>
             <version>${project.version}</version>
         </dependency>
