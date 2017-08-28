@@ -1,8 +1,10 @@
 # Maven projects
+/action/target/
 /action/action-dsl/target/
 /action/action-dsl-spi/target/
 /action/action-simulator/target/
 /action/action-util/target/
+/afs/target/
 /afs/afs-core/target/
 /afs/afs-ext-base/target/
 /afs/afs-local/target/
@@ -17,9 +19,9 @@
 /computation/target/
 /contingency-api/target/
 /distribution-core/target
+/iidm/target/
 /iidm/iidm-api/target
 /iidm/iidm-converter-api/target/
-/iidm/iidm-groovy-extension/target/
 /iidm/iidm-impl/target/
 /iidm/iidm-test/target/
 /iidm/iidm-xml-converter/target/
