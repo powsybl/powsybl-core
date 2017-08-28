@@ -15,7 +15,7 @@ import java.util.TreeMap;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class Identifiables {
+public final class Identifiables {
 
     private Identifiables() {
     }

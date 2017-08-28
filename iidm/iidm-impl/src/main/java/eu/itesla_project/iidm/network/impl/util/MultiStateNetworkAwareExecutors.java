@@ -18,11 +18,14 @@ import java.util.concurrent.*;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class MultiStateNetworkAwareExecutors {
+public final class MultiStateNetworkAwareExecutors {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MultiStateNetworkAwareExecutors.class);
 
     private static final String DEFAULT_POOL_NAME = "COMPUTATION_POOL";
+
+    private MultiStateNetworkAwareExecutors() {
+    }
 
     private static ThreadFactory threadFactory(String poolName) {
         return new ThreadFactoryBuilder()

@@ -36,7 +36,7 @@ import java.util.zip.GZIPOutputStream;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class NetworkXml implements XmlConstants {
+public final class NetworkXml implements XmlConstants {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NetworkXml.class);
 
@@ -52,6 +52,9 @@ public class NetworkXml implements XmlConstants {
     private static final Supplier<Map<String, ExtensionXml>> EXTENSIONS_SUPPLIER
             = Suppliers.memoize(() -> new ServiceLoaderCache<>(ExtensionXml.class).getServices().stream()
                     .collect(Collectors.toMap(extensionXml -> extensionXml.getExtensionName(), e -> e)));
+
+    private NetworkXml() {
+    }
 
     private static XMLStreamWriter createXmlStreamWriter(XMLExportOptions options, OutputStream os) throws XMLStreamException {
         XMLStreamWriter writer = XML_OUTPUT_FACTORY_SUPPLIER.get().createXMLStreamWriter(os, StandardCharsets.UTF_8.toString());
@@ -431,7 +434,7 @@ public class NetworkXml implements XmlConstants {
     public static byte[] gzip(Network network) {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try (GZIPOutputStream gzos = new GZIPOutputStream(bos)) {
-            NetworkXml.write(network, gzos);
+            write(network, gzos);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -440,7 +443,7 @@ public class NetworkXml implements XmlConstants {
 
     public static Network gunzip(byte[] networkXmlGz) {
         try (InputStream is = new GZIPInputStream(new ByteArrayInputStream(networkXmlGz))) {
-            return NetworkXml.read(is);
+            return read(is);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

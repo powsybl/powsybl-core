@@ -22,7 +22,7 @@ import java.util.List;
  */
 public class UndirectedGraphImplTest {
 
-    private static class Vertex {
+    private static final class Vertex {
 
         private final String name;
 

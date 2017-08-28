@@ -24,16 +24,16 @@ import java.util.stream.Collectors;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class Security {
+public final class Security {
     
     private final static String PERMANENT_LIMIT_NAME = "Permanent limit";
-
-    public Security() {
-    }
 
     public enum CurrentLimitType {
         PATL,
         TATL
+    }
+
+    private Security() {
     }
 
     private static Country getCountry(TwoTerminalsConnectable branch, Terminal terminal) {

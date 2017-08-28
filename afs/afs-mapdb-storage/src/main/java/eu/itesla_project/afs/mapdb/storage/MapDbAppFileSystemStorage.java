@@ -45,7 +45,7 @@ public class MapDbAppFileSystemStorage implements AppFileSystemStorage {
 
     private final DB db;
 
-    private static class NamedLink implements Serializable {
+    private static final class NamedLink implements Serializable {
 
         private static final long serialVersionUID = 5645222029377034394L;
 
@@ -53,7 +53,7 @@ public class MapDbAppFileSystemStorage implements AppFileSystemStorage {
 
         private final String name;
 
-        public NamedLink(NodeId nodeId, String name) {
+        private NamedLink(NodeId nodeId, String name) {
             this.nodeId = Objects.requireNonNull(nodeId);
             this.name = Objects.requireNonNull(name);
         }
@@ -73,7 +73,7 @@ public class MapDbAppFileSystemStorage implements AppFileSystemStorage {
         }
     }
 
-    private static class UnorderedNodeIdPair implements Serializable {
+    private static final class UnorderedNodeIdPair implements Serializable {
 
         private static final long serialVersionUID = 5740826508016859275L;
 
@@ -81,7 +81,7 @@ public class MapDbAppFileSystemStorage implements AppFileSystemStorage {
 
         private final NodeId nodeId2;
 
-        public UnorderedNodeIdPair(NodeId nodeId1, NodeId nodeId2) {
+        private UnorderedNodeIdPair(NodeId nodeId1, NodeId nodeId2) {
             this.nodeId1 = Objects.requireNonNull(nodeId1);
             this.nodeId2 = Objects.requireNonNull(nodeId2);
         }
@@ -134,7 +134,7 @@ public class MapDbAppFileSystemStorage implements AppFileSystemStorage {
 
     private final ConcurrentMap<NamedLink, byte[]> cacheMap;
 
-    private MapDbAppFileSystemStorage(String fileSystemName, DBMaker.Maker maker, Supplier<DB> db) {
+    protected MapDbAppFileSystemStorage(String fileSystemName, DBMaker.Maker maker, Supplier<DB> db) {
         this.maker = Objects.requireNonNull(maker);
         this.db = db.get();
 

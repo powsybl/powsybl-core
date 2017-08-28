@@ -18,7 +18,7 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class FileUtil {
+public final class FileUtil {
 
     private FileUtil() {
     }

@@ -25,7 +25,7 @@ import java.util.*;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class Exporters {
+public final class Exporters {
 
     private Exporters() {
     }

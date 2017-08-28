@@ -44,7 +44,7 @@ import eu.itesla_project.iidm.network.Terminal;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class Networks {
+public final class Networks {
 
     private Networks() {
     }

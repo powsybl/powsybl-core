@@ -15,7 +15,7 @@ import eu.itesla_project.iidm.network.Substation;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class Substations {
+final class Substations {
 
     private Substations() {
     }

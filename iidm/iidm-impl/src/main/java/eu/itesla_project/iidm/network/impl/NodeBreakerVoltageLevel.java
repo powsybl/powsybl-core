@@ -76,7 +76,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
     private final StateArray<StateImpl> states;
 
-    private class SwitchAdderImpl extends AbstractIdentifiableAdder<SwitchAdderImpl> implements NodeBreakerView.SwitchAdder {
+    private final class SwitchAdderImpl extends AbstractIdentifiableAdder<SwitchAdderImpl> implements NodeBreakerView.SwitchAdder {
 
         private Integer node1;
 
@@ -175,7 +175,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
     }
 
-    private class InternalConnectionAdderImpl extends AbstractIdentifiableAdder<InternalConnectionAdderImpl> implements NodeBreakerView.InternalConnectionAdder {
+    private final class InternalConnectionAdderImpl extends AbstractIdentifiableAdder<InternalConnectionAdderImpl> implements NodeBreakerView.InternalConnectionAdder {
 
         private Integer node1;
 
@@ -225,7 +225,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
     /**
      * Cached data for buses
      */
-    private static class BusCache {
+    private static final class BusCache {
 
         private final CalculatedBus[] node2bus;
 

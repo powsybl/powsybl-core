@@ -32,9 +32,12 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
 
     private static final int NEIGHBORS_CAPACITY = 2;
 
-    private static class Vertex<E> {
+    private static final class Vertex<E> {
 
         private E object;
+
+        private Vertex() {
+        }
 
         public E getObject() {
             return object;
@@ -46,7 +49,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
 
     }
 
-    private static class Edge<E> {
+    private static final class Edge<E> {
 
         private final int v1;
 

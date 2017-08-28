@@ -21,7 +21,7 @@ import java.util.List;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class SecurityIndexParser {
+public final class SecurityIndexParser {
 
     private final static Supplier<XMLInputFactory> XML_INPUT_FACTORY_SUPPLIER = Suppliers.memoize(XMLInputFactory::newInstance);
 

@@ -21,7 +21,10 @@ import java.nio.file.FileSystems;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class MpiMaster {
+public final class MpiMaster {
+
+    private MpiMaster() {
+    }
 
     public static void main(String[] args) throws IOException {
         ToolInitializationContext initContext = new ToolInitializationContext() {

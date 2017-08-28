@@ -20,7 +20,7 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class MapDbDataSource implements DataSource {
 
-    public static class Key implements Serializable {
+    static class Key implements Serializable {
 
         private static final long serialVersionUID = -667026329394633704L;
 
@@ -32,7 +32,7 @@ public class MapDbDataSource implements DataSource {
 
         private final String ext;
 
-        private Key(NodeId nodeId, String attributeName, String suffix, String ext) {
+        Key(NodeId nodeId, String attributeName, String suffix, String ext) {
             this.nodeId = Objects.requireNonNull(nodeId);
             this.attributeName = Objects.requireNonNull(attributeName);
             this.suffix = suffix;
