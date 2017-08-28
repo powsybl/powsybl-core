@@ -163,7 +163,7 @@ public class ExpressionEvaluator extends DefaultExpressionVisitor<Object, Void> 
     /**
      * Utility class to compare loading on one side of a branch to loading of one side of another branch
      */
-    private static class BranchAndSide implements Comparable<BranchAndSide> {
+    private static final class BranchAndSide implements Comparable<BranchAndSide> {
         private final Branch branch;
         private final Branch.Side side;
 
@@ -172,11 +172,11 @@ public class ExpressionEvaluator extends DefaultExpressionVisitor<Object, Void> 
             this.side = Objects.requireNonNull(side);
         }
 
-        public Branch getBranch() {
+        private Branch getBranch() {
             return branch;
         }
 
-        public Branch.Side getSide() {
+        private Branch.Side getSide() {
             return side;
         }
 

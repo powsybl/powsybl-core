@@ -35,8 +35,8 @@ public class SmallSignalSecurityIndex extends AbstractSecurityIndex {
     static final String XML_NAME = "smallsignal";
 
     private double gmi = Double.NaN;
-    private double ami[] = null;
-    private double smi[][] = null;
+    private double[] ami;
+    private double[][] smi;
 
     private static final JAXBContext JAXB_CONTEXT;
 
@@ -54,24 +54,24 @@ public class SmallSignalSecurityIndex extends AbstractSecurityIndex {
             Index index = (Index) u.unmarshal(xmlsr);
 
             double gmi = Double.NaN;
-            double ami[] = null;
-            double smi[][] = null;
+            double[] ami = null;
+            double[][] smi = null;
             for (Matrix m : index.getMatrices()) {
                 switch (m.getName()) {
                     case "gmi":
-                        double gmiIndexData[][] = m.getMatrix();
+                        double[][] gmiIndexData = m.getMatrix();
                         if ((gmiIndexData != null) && (gmiIndexData[0].length > 0)) {
                             gmi = gmiIndexData[0][0];
                         }
                         break;
                     case "ami":
-                        double amiIndexData[][] = m.getMatrix();
+                        double[][] amiIndexData = m.getMatrix();
                         if (amiIndexData != null) {
                             ami = amiIndexData[0];
                         }
                         break;
                     case "smi":
-                        double smiIndexData[][] = m.getMatrix();
+                        double[][] smiIndexData = m.getMatrix();
                         smi = smiIndexData;
                         break;
                 }
@@ -84,7 +84,7 @@ public class SmallSignalSecurityIndex extends AbstractSecurityIndex {
     }
 
 
-    public SmallSignalSecurityIndex(String contingencyId, double gmi, double ami[], double smi[][]) {
+    public SmallSignalSecurityIndex(String contingencyId, double gmi, double[] ami, double[][] smi) {
         super(contingencyId, SecurityIndexType.SMALLSIGNAL);
         this.gmi = gmi;
         this.ami = ami;
@@ -121,10 +121,10 @@ public class SmallSignalSecurityIndex extends AbstractSecurityIndex {
         JAXBContext jc;
         jc = JAXBContext.newInstance(Index.class);
         SmallSignalSecurityIndex.Index lindex = new Index(index.getId().getSecurityIndexType().getLabel().toLowerCase());
-        double aGmi[][] = new double[1][1];
+        double[][] aGmi = new double[1][1];
         aGmi[0][0] = index.getGmi();
         SmallSignalSecurityIndex.Matrix lmatGmi = new Matrix("gmi", aGmi);
-        double aAmi[][];
+        double[][] aAmi;
         if (!Double.isNaN(index.getGmi())) {
             aAmi = new double[1][index.getAmi().length];
             aAmi[0] = index.getAmi();

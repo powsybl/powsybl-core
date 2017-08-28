@@ -22,7 +22,10 @@ import org.joda.time.DateTime;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class SvcTestCaseFactory {
+public final class SvcTestCaseFactory {
+
+    private SvcTestCaseFactory() {
+    }
 
     public static Network create() {
         Network network = NetworkFactory.create("svcTestCase", "code");

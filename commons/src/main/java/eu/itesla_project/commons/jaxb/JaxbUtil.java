@@ -26,7 +26,7 @@ import java.nio.file.Path;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class JaxbUtil {
+public final class JaxbUtil {
 
     private final static Supplier<TransformerFactory> TRANSFORMER_FACTORY_SUPPLIER = Suppliers.memoize(TransformerFactory::newInstance);
 

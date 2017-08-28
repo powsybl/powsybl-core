@@ -13,7 +13,7 @@ import eu.itesla_project.iidm.network.ConnectedComponent;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class ConnectedComponents {
+public final class ConnectedComponents {
 
     private ConnectedComponents() {
     }

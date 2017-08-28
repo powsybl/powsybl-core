@@ -13,12 +13,15 @@
     <module name="TreeWalker">
         <module name="AbbreviationAsWordInName"/>
         <module name="AbstractClassName"/>
+        <module name="ArrayTypeStyle"/>
         <module name="ConstantName"/>
         <module name="EmptyCatchBlock">
             <property name="exceptionVariableName" value="ignored"/>
         </module>
         <module name="EmptyStatement"/>
         <module name="EqualsHashCode"/>
+        <module name="FinalClass"/>
+        <module name="HideUtilityClassConstructor"/>
         <module name="IllegalImport"/>
         <module name="Indentation"/>
         <module name="LeftCurly"/>
@@ -38,11 +41,14 @@
         <module name="ParenPad"/>
         <module name="RedundantImport"/>
         <module name="RightCurly"/>
+        <module name="SimplifyBooleanExpression"/>
+        <module name="SimplifyBooleanReturn"/>
         <module name="StringLiteralEquality"/>
         <module name="TypecastParenPad"/>
         <module name="TypeName"/>
         <module name="UnnecessaryParentheses"/>
         <module name="UnusedImports"/>
+        <module name="UpperEll"/>
         <module name="WhitespaceAfter"/>
         <module name="WhitespaceAround"/>
     </module>

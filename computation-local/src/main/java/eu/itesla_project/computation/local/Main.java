@@ -22,7 +22,10 @@ import java.nio.file.FileSystems;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class Main {
+public final class Main {
+
+    private Main() {
+    }
 
     public static void main(String[] args) throws IOException {
         int status = new CommandLineTools().run(args, new ToolInitializationContext() {

@@ -38,7 +38,7 @@ import java.util.stream.Stream;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class Importers {
+public final class Importers {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Importers.class);
 

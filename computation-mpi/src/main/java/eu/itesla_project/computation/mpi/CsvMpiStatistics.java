@@ -45,7 +45,7 @@ public class CsvMpiStatistics implements MpiStatistics {
     private final Joiner blankJoiner = Joiner.on(' ');
     private final MapJoiner mapJoiner = blankJoiner.withKeyValueSeparator("=");
 
-    private static class StatisticsReader implements AutoCloseable {
+    private static final class StatisticsReader implements AutoCloseable {
 
         private final BufferedReader reader;
 
@@ -53,7 +53,7 @@ public class CsvMpiStatistics implements MpiStatistics {
 
         Map<Integer, JobExecution> jobs = new HashMap<>();
 
-        private static class JobExecution {
+        private static final class JobExecution {
             final int jobId;
             final String commandId;
             final Map<String, String> tags;
@@ -64,7 +64,7 @@ public class CsvMpiStatistics implements MpiStatistics {
             }
         }
 
-        private static class TaskExecution {
+        private static final class TaskExecution {
             final int taskId;
             final int jobId;
             final int taskIndex;
@@ -90,18 +90,18 @@ public class CsvMpiStatistics implements MpiStatistics {
             }
         }
 
-        private static class CommonFileTransfer {
+        private static final class CommonFileTransfer {
             String fileName;
             long size;
             long duration;
-            CommonFileTransfer(String fileName, long size, long duration) {
+            private CommonFileTransfer(String fileName, long size, long duration) {
                 this.fileName = fileName;
                 this.size = size;
                 this.duration = duration;
             }
         }
 
-        private static interface Handler {
+        private interface Handler {
 
             void onTaskEnd(TaskExecution task, JobExecution job);
 

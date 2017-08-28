@@ -21,7 +21,10 @@ import org.joda.time.DateTime;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class PhaseShifterTestCaseFactory {
+public final class PhaseShifterTestCaseFactory {
+
+    private PhaseShifterTestCaseFactory() {
+    }
 
     public static Network create() {
         Network network = NetworkFactory.create("phaseShifterTestCase", "code");

@@ -29,7 +29,7 @@ import eu.itesla_project.iidm.network.TwoWindingsTransformer;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class Validation {
+public final class Validation {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Validation.class);
 

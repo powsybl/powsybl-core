@@ -14,7 +14,10 @@ import java.util.Set;
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-class ContingencyTopologyTraverser {
+final class ContingencyTopologyTraverser {
+
+    private ContingencyTopologyTraverser() {
+    }
 
     private static boolean isOpenable(Switch aSwitch) {
         return !aSwitch.isOpen() &&

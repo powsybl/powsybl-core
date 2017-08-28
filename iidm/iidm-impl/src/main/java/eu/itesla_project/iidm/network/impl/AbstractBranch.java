@@ -147,7 +147,7 @@ abstract class AbstractBranch<I extends Connectable<I>> extends AbstractConnecta
         return false;
     }
 
-    static class OverloadImpl implements Branch.Overload {
+    static final class OverloadImpl implements Branch.Overload {
 
         private final CurrentLimits.TemporaryLimit temporaryLimit;
 
