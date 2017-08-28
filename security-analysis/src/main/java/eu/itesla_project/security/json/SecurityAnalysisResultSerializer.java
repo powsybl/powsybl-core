@@ -74,6 +74,6 @@ public class SecurityAnalysisResultSerializer extends StdSerializer<SecurityAnal
 
         ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
         writer.writeValue(out, result);
-        
+
     }
 }

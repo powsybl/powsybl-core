@@ -51,7 +51,7 @@ public class StringToIntMapperTest {
         } catch (IllegalArgumentException ignored) {
         }
     }
-    
+
     private void testAddMapping(StringToIntMapper<TestSubset> mapper) throws IOException {
         String value = "value1";
         assertFalse(mapper.isMapped(TestSubset.TYPE, value));
@@ -78,7 +78,7 @@ public class StringToIntMapperTest {
         assertEquals(2, num);
         assertEquals(value, mapper.getId(TestSubset.TYPE, 2));
         assertEquals(2, mapper.getInt(TestSubset.TYPE, value));
-        
+
         String content = String.join(System.lineSeparator(), "TYPE;value1;1", "TYPE;value2;2");
         try (Writer writer = new StringWriter()) {
             mapper.dump(writer);

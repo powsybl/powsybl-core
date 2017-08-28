@@ -66,7 +66,7 @@ public class ValidationTest {
 
     private BusView genBusView;
     private Terminal genTerminal;
-    private Generator generator; 
+    private Generator generator;
 
     @Before
     public void setUp() {
@@ -331,7 +331,7 @@ public class ValidationTest {
         Mockito.when(generator1.getReactiveLimits()).thenReturn(genReactiveLimits1);
 
         assertTrue(Validation.checkGenerators(generator1, strictConfig, NullWriter.NULL_WRITER));
-        
+
         Network network = Mockito.mock(Network.class);
         Mockito.when(network.getId()).thenReturn("network");
         Mockito.when(network.getGeneratorStream()).thenAnswer(dummy -> Stream.of(generator, generator1));

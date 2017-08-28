@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
  */
 @AutoService(Tool.class)
 public class ValidationTool implements Tool {
-    
+
     private static Command COMMAND = new Command() {
 
         @Override
@@ -136,15 +136,15 @@ public class ValidationTool implements Tool {
         }
         validationTypes.forEach(validationType -> {
             try {
-                context.getOutputStream().println("Validate load-flow results of network " + network.getId() 
-                                                  + " - validation type: " + validationType 
+                context.getOutputStream().println("Validate load-flow results of network " + network.getId()
+                                                  + " - validation type: " + validationType
                                                   + " - result: " + (validationType.check(network, config, outputFolder) ? "success" : "fail"));
             } catch (Exception e) {
-                context.getErrorStream().println("Error validating load-flow results of network " + network.getId() 
-                                                 + " - validation type: " + validationType 
+                context.getErrorStream().println("Error validating load-flow results of network " + network.getId()
+                                                 + " - validation type: " + validationType
                                                  + " - error: " + e.getMessage());
             }
         });
     }
-    
+
 }

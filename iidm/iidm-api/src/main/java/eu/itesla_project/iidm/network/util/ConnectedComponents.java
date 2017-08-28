@@ -28,5 +28,5 @@ public final class ConnectedComponents {
         }
         return ccNum;
     }
-    
+
 }

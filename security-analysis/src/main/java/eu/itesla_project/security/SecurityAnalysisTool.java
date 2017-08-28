@@ -113,7 +113,7 @@ public class SecurityAnalysisTool implements Tool {
         }
 
         context.getOutputStream().println("Loading network '" + caseFile + "'");
-        
+
         SecurityAnalysisResult result = new SecurityAnalyzer(context.getComputationManager(), 0).analyze(caseFile, line.hasOption("contingencies-file") ? context.getFileSystem().getPath(line.getOptionValue("contingencies-file")) : null);
 
         if (!result.getPreContingencyResult().isComputationOk()) {

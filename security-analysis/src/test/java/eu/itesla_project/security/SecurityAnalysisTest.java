@@ -81,7 +81,7 @@ public class SecurityAnalysisTest {
 
         assertTrue(result.getPreContingencyResult().isComputationOk());
         assertEquals(0, result.getPreContingencyResult().getLimitViolations().size());
-        PostContingencyResult postcontingencyResult = result.getPostContingencyResults().get(0); 
+        PostContingencyResult postcontingencyResult = result.getPostContingencyResults().get(0);
         assertTrue(postcontingencyResult.getLimitViolationsResult().isComputationOk());
         assertEquals(1, postcontingencyResult.getLimitViolationsResult().getLimitViolations().size());
         LimitViolation violation = postcontingencyResult.getLimitViolationsResult().getLimitViolations().get(0);

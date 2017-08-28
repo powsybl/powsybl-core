@@ -19,7 +19,7 @@ public interface ContingenciesProviderFactory {
     default <T extends ContingenciesProvider> T create(Path contingenciesFile) {
         return create();
     }
-    
+
     default <T extends ContingenciesProvider> T create(InputStream data) {
         return create();
     }

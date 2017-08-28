@@ -35,7 +35,7 @@ public class SecurityTest {
     private final TableFormatterConfig formatterConfig = new TableFormatterConfig(Locale.US, ',', "inv", true, true);
 
     private final CsvTableFormatterFactory formatterFactory = new CsvTableFormatterFactory();
-    
+
     private SecurityAnalysisResult result;
     private LimitViolation line1Violation;
     private LimitViolation line2Violation;
@@ -62,7 +62,7 @@ public class SecurityTest {
         } finally {
             writer.close();
         }
-        assertEquals(String.join(System.lineSeparator(), 
+        assertEquals(String.join(System.lineSeparator(),
                                  "Pre-contingency violations",
                                  "Action,Equipment,Violation type,Violation name,Value,Limit,Charge %",
                                  "action1,,,,,,",
@@ -104,7 +104,7 @@ public class SecurityTest {
                                  ",,,line2,CURRENT,10',950.000,900.0,106"),
                      writer.toString().trim());
     }
-    
+
     @Test
     public void printLimitsViolations() {
         assertEquals(String.join("\n",
@@ -116,7 +116,7 @@ public class SecurityTest {
                                  "+---------+--------------+---------------+----------------+----------------+--------+--------+------------------+----------+"),
                      Security.printLimitsViolations(Arrays.asList(line1Violation, line2Violation), new LimitViolationFilter()));
     }
-    
+
     @Test
     public void checkLimits() {
         Network network = EurostagTutorialExample1Factory.create();
@@ -144,26 +144,26 @@ public class SecurityTest {
             .endTemporaryLimit()
             .add();
         network.getLine("NHV1_NHV2_2").newCurrentLimits2().setPermanentLimit(1500f).add();
-        
+
         List<LimitViolation> violations = Security.checkLimits(network);
 
         assertEquals(3, violations.size());
         violations.forEach(violation -> {
             assertTrue(Arrays.asList("VLHV1", "NHV1_NHV2_1", "NHV1_NHV2_2").contains(violation.getSubjectId()));
             if ("VLHV1".equals(violation.getSubjectId())) {
-                assertEquals(LimitViolationType.LOW_VOLTAGE, violation.getLimitType()); 
+                assertEquals(LimitViolationType.LOW_VOLTAGE, violation.getLimitType());
             } else {
                 assertEquals(LimitViolationType.CURRENT, violation.getLimitType());
             }
         });
-        
+
         violations = Security.checkLimits(network, CurrentLimitType.TATL, 1);
-        
+
         assertEquals(3, violations.size());
         violations.forEach(violation ->  {
             assertTrue(Arrays.asList("VLHV1", "NHV1_NHV2_1", "NHV1_NHV2_2").contains(violation.getSubjectId()));
             if ("VLHV1".equals(violation.getSubjectId())) {
-                assertEquals(LimitViolationType.LOW_VOLTAGE, violation.getLimitType()); 
+                assertEquals(LimitViolationType.LOW_VOLTAGE, violation.getLimitType());
             } else {
                 assertEquals(LimitViolationType.CURRENT, violation.getLimitType());
             }

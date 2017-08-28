@@ -18,7 +18,7 @@ public class ITeslaException extends RuntimeException {
     public ITeslaException(String msg) {
         super(msg);
     }
-    
+
     public ITeslaException(Throwable throwable) {
         super(throwable);
     }

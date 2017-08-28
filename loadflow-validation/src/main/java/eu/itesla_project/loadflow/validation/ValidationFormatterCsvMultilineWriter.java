@@ -22,7 +22,7 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
 
     private final boolean verbose;
 
-    public ValidationFormatterCsvMultilineWriter(String id, Class<? extends TableFormatterFactory> formatterFactoryClass, 
+    public ValidationFormatterCsvMultilineWriter(String id, Class<? extends TableFormatterFactory> formatterFactoryClass,
                                             TableFormatterConfig formatterConfig, Writer writer, boolean verbose,
                                             ValidationType validationType) {
         Objects.requireNonNull(id);
@@ -33,7 +33,7 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
         formatter = createTableFormatter(id, formatterFactoryClass, formatterConfig, writer, validationType);
     }
 
-    public ValidationFormatterCsvMultilineWriter(String id, Class<? extends TableFormatterFactory> formatterFactoryClass, 
+    public ValidationFormatterCsvMultilineWriter(String id, Class<? extends TableFormatterFactory> formatterFactoryClass,
                                             Writer writer, boolean verbose, ValidationType validationType) {
         this(id, formatterFactoryClass, TableFormatterConfig.load(), writer, verbose, validationType);
     }

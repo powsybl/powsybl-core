@@ -60,7 +60,7 @@ public final class Validation {
     }
 
     public static boolean checkFlows(String id, double r, double x, double rho1, double rho2, double u1, double u2, double theta1, double theta2, double alpha1,
-                                      double alpha2, double g1, double g2, double b1, double b2, float p1, float q1, float p2, float q2, ValidationConfig config, 
+                                      double alpha2, double g1, double g2, double b1, double b2, float p1, float q1, float p2, float q2, ValidationConfig config,
                                       ValidationWriter flowsWriter) {
         boolean ok = true;
         try {
@@ -249,7 +249,7 @@ public final class Validation {
 
         return linesOk && transformersOk;
     }
-    
+
     public static boolean checkGenerators(Network network, ValidationConfig config, Path file) throws IOException {
         Objects.requireNonNull(file);
         try (Writer writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
@@ -276,7 +276,7 @@ public final class Validation {
                 .reduce(Boolean::logicalAnd).orElse(true);
         return generatorsOk;
     }
-    
+
     public static boolean checkGenerators(Generator gen, ValidationConfig config, Writer writer) {
         Objects.requireNonNull(gen);
         Objects.requireNonNull(config);
@@ -313,7 +313,7 @@ public final class Validation {
         }
         return true;
     }
-    
+
     public static boolean checkGenerators(String id, float p, float q, float v, float targetP, float targetQ, float targetV,
                                           boolean voltageRegulatorOn, float minQ, float maxQ, ValidationConfig config, Writer writer) {
         Objects.requireNonNull(id);
@@ -334,7 +334,7 @@ public final class Validation {
             generatorsWriter.write(id, p, q, v, targetP, targetQ, targetV, true, voltageRegulatorOn, minQ, maxQ);
             // a validation error should be detected if there is both a voltage and a target but no p or q
             if (Float.isNaN(p) || Float.isNaN(q)) {
-                if ((!Float.isNaN(targetP) && targetP != 0) 
+                if ((!Float.isNaN(targetP) && targetP != 0)
                     || (!Float.isNaN(targetQ) && targetQ != 0)) {
                     LOGGER.warn(id + ": P=" + p + " targetP=" + targetP + " - Q=" + q + " targetP=" + targetQ);
                     return false;
@@ -352,13 +352,13 @@ public final class Validation {
                 LOGGER.warn(id + ": voltage regulator off - Q=" + q + " targetQ=" + targetQ);
                 ok = false;
             }
-            // if voltageRegulatorOn="true" then 
+            // if voltageRegulatorOn="true" then
             // either q is equal to g.getReactiveLimits().getMinQ(p) and V is lower than g.getTargetV()
             // or q is equal to g.getReactiveLimits().getMaxQ(p) and V is higher than g.getTargetV()
             // or V at the connected bus is equal to g.getTargetV()
-            if (voltageRegulatorOn 
-                && (Math.abs(q + minQ) > config.getThreshold() || (v - targetV) >= config.getThreshold()) 
-                && (Math.abs(q + maxQ) > config.getThreshold() || (targetV - v) >= config.getThreshold()) 
+            if (voltageRegulatorOn
+                && (Math.abs(q + minQ) > config.getThreshold() || (v - targetV) >= config.getThreshold())
+                && (Math.abs(q + maxQ) > config.getThreshold() || (targetV - v) >= config.getThreshold())
                 && Math.abs(v - targetV) > config.getThreshold()) {
                 LOGGER.warn(id + ": voltage regulator on - Q=" + q + " minQ=" + minQ + " maxQ=" + maxQ + " - V=" + v + " targetV=" + targetV);
                 ok = false;

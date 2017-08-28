@@ -28,5 +28,5 @@ public enum EnergySource {
     public boolean isIntermittent() {
         return intermittent;
     }
-    
+
 }

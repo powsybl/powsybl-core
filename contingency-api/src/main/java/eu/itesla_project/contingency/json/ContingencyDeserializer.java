@@ -26,7 +26,7 @@ import eu.itesla_project.contingency.ContingencyImpl;
  * @author Massimo Ferraro <massimo.ferraro@techrain.it>
  */
 public class ContingencyDeserializer extends StdDeserializer<Contingency> {
-    
+
     public ContingencyDeserializer() {
         super(Contingency.class);
     }

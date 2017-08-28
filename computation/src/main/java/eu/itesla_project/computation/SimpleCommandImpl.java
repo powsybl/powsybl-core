@@ -22,7 +22,7 @@ class SimpleCommandImpl extends AbstractCommand implements SimpleCommand {
     private final Function<Integer, List<String>> args;
 
     private final int timeout;
-    
+
     SimpleCommandImpl(String id, String program, Function<Integer, List<String>> args, int timeout,
                       List<InputFile> inputFiles, List<OutputFile> outputFiles) {
         super(id, inputFiles, outputFiles);

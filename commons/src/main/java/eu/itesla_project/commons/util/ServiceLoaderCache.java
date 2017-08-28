@@ -13,24 +13,24 @@ import java.util.ServiceLoader;
 
 /**
  * A thread safe service loader.
- * 
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class ServiceLoaderCache<S> {
-    
+
     private final Class<S> serviceClass;
 
     private List<S> services;
-    
+
     public ServiceLoaderCache(Class<S> serviceClass) {
         this.serviceClass = Objects.requireNonNull(serviceClass);
     }
-    
+
     public synchronized List<S> getServices() {
         if (services == null) {
             services = Lists.newArrayList(ServiceLoader.load(serviceClass));
         }
         return services;
     }
-    
+
 }

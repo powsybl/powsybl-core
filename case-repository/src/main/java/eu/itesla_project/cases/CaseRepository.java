@@ -29,10 +29,10 @@ public interface CaseRepository {
      * @return a case
      */
     List<Network> load(DateTime date, CaseType type, Country country);
-    
+
     /**
      * Check if the all the data of a case is available
-     * 
+     *
      * @param date date of the case
      * @param type type of the case, snapshot (SN) or forecast (FO)
      * @param country case perimeter, merge if null

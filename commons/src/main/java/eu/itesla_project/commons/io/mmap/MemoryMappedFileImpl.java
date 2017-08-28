@@ -20,7 +20,7 @@ import java.util.Objects;
 public class MemoryMappedFileImpl implements MemoryMappedFile {
 
     private final File file;
-    
+
     private RandomAccessFile raf;
 
     public MemoryMappedFileImpl(File file) throws IOException {
@@ -46,5 +46,5 @@ public class MemoryMappedFileImpl implements MemoryMappedFile {
             raf.close();
         }
     }
-    
+
 }

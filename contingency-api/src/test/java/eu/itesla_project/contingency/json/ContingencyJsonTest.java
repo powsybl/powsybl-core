@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class ContingencyJsonTest extends AbstractConverterTest {
-    
+
     private static Contingency create() {
         List<ContingencyElement> elements = new ArrayList<>();
         elements.add(new BranchContingency("NHV1_NHV2_2", "VLHV1"));

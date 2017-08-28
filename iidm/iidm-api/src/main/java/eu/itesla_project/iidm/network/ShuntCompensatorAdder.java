@@ -19,7 +19,7 @@ package eu.itesla_project.iidm.network;
  *            ...
  *        .add();
  *</pre>
- * 
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @see ShuntCompensator
  * @see VoltageLevel

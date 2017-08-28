@@ -22,7 +22,7 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
 
     protected TableFormatter formatter;
 
-    protected TableFormatter createTableFormatter(String id, Class<? extends TableFormatterFactory> formatterFactoryClass, 
+    protected TableFormatter createTableFormatter(String id, Class<? extends TableFormatterFactory> formatterFactoryClass,
                                                   TableFormatterConfig formatterConfig, Writer writer, ValidationType validationType) {
         try {
             TableFormatterFactory factory = formatterFactoryClass.newInstance();
@@ -40,7 +40,7 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
                                double u1, double u2, double theta1, double theta2, double z, double y, double ksi) throws IOException;
 
     @Override
-    public abstract void write(String generatorId, float p, float q, float v, float targetP, float targetQ, float targetV, 
+    public abstract void write(String generatorId, float p, float q, float v, float targetP, float targetQ, float targetV,
                                boolean connected, boolean voltageRegulatorOn, float minQ, float maxQ) throws IOException;
 
     @Override

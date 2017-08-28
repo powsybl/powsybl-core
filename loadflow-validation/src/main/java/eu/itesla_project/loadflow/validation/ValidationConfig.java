@@ -66,8 +66,8 @@ public class ValidationConfig {
         return new ValidationConfig(threshold, verbose, loadFlowFactory, tableFormatterFactory, epsilonX, applyReactanceCorrection, validationOutputWriter, loadFlowParameter);
     }
 
-    public ValidationConfig(float threshold, boolean verbose, Class<? extends LoadFlowFactory> loadFlowFactory, 
-                            Class<? extends TableFormatterFactory> tableFormatterFactory, float epsilonX, 
+    public ValidationConfig(float threshold, boolean verbose, Class<? extends LoadFlowFactory> loadFlowFactory,
+                            Class<? extends TableFormatterFactory> tableFormatterFactory, float epsilonX,
                             boolean applyReactanceCorrection, ValidationOutputWriter validationOutputWriter, LoadFlowParameters loadFlowParameters) {
         if (threshold < 0) {
             throw new IllegalArgumentException("Negative values for threshold not permitted");
@@ -151,7 +151,7 @@ public class ValidationConfig {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + " [" + 
+        return getClass().getSimpleName() + " [" +
                 "threshold=" + threshold +
                 ", verbose=" + verbose +
                 ", loadFlowFactory=" + loadFlowFactory +

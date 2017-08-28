@@ -22,12 +22,12 @@ public interface GroupCommand extends Command {
         List<String> getArgs(int executionNumber);
 
         int getTimeout();
-        
+
         // only used for display
         String toString(int executionNumber);
 
     }
-    
+
     List<SubCommand> getSubCommands();
 
 }

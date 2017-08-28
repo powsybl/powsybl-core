@@ -77,5 +77,5 @@ public class XmlPlatformConfig extends InMemoryPlatformConfig {
             LOGGER.info("Platform configuration XML file {} not found", file);
         }
     }
-    
+
 }

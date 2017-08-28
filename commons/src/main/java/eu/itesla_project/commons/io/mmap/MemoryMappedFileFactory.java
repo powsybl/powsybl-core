@@ -14,7 +14,7 @@ import java.nio.file.Path;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public interface MemoryMappedFileFactory {
-    
+
     MemoryMappedFile create(Path path) throws IOException;
 
 }

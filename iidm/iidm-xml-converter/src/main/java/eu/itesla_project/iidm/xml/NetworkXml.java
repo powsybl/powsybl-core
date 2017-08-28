@@ -289,7 +289,7 @@ public final class NetworkXml implements XmlConstants {
                     case TieLineXml.ROOT_ELEMENT_NAME:
                         TieLineXml.INSTANCE.read(network, context);
                         break;
-                        
+
                     case HvdcLineXml.ROOT_ELEMENT_NAME:
                         HvdcLineXml.INSTANCE.read(network, context);
                         break;

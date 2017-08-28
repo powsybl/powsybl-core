@@ -49,7 +49,7 @@ public class LimitViolationFilterTest {
     public void tearDown() throws Exception {
         fileSystem.close();
     }
-    
+
     @Test
     public void load() throws Exception {
         LimitViolationFilter filter = LimitViolationFilter.load(platformConfig);
@@ -88,33 +88,33 @@ public class LimitViolationFilterTest {
         LimitViolation line1Violation = new LimitViolation("line1", LimitViolationType.CURRENT, 1000f, "", 1, 1100f, Country.FR, 380f);
         LimitViolation line2Violation = new LimitViolation("line2", LimitViolationType.CURRENT, 900f, "", 1, 950f, Country.BE, 220f);
         LimitViolation voltageLeve11Violation = new LimitViolation("voltageLeve11", LimitViolationType.HIGH_VOLTAGE, 200f, "", 1, 250f, Country.FR, 220f);
-        
+
         LimitViolationFilter filter = new LimitViolationFilter();
         List<LimitViolation> filteredViolations = filter.apply(Arrays.asList(line1Violation, line2Violation, voltageLeve11Violation));
         assertEquals(3, filteredViolations.size());
-        
+
         filter = new LimitViolationFilter();
         filter.setViolationTypes(EnumSet.of(LimitViolationType.HIGH_VOLTAGE));
         filteredViolations = filter.apply(Arrays.asList(line1Violation, line2Violation, voltageLeve11Violation));
         checkFilteredViolations(filteredViolations, "voltageLeve11", LimitViolationType.HIGH_VOLTAGE, 220f, Country.FR);
-        
+
         filter = new LimitViolationFilter();
         filter.setMinBaseVoltage(300f);
         filteredViolations = filter.apply(Arrays.asList(line1Violation, line2Violation, voltageLeve11Violation));
         checkFilteredViolations(filteredViolations, "line1", LimitViolationType.CURRENT, 380f, Country.FR);
-        
+
         filter = new LimitViolationFilter();
         filter.setCountries(EnumSet.of(Country.BE));
         filteredViolations = filter.apply(Arrays.asList(line1Violation, line2Violation, voltageLeve11Violation));
         checkFilteredViolations(filteredViolations, "line2", LimitViolationType.CURRENT, 220f, Country.BE);
-        
+
         filter = new LimitViolationFilter(EnumSet.of(LimitViolationType.CURRENT), 300f, EnumSet.of(Country.FR));
         filteredViolations = filter.apply(Arrays.asList(line1Violation, line2Violation, voltageLeve11Violation));
         checkFilteredViolations(filteredViolations, "line1", LimitViolationType.CURRENT, 380f, Country.FR);
-        
+
     }
-    
-    private void checkFilteredViolations(List<LimitViolation> filteredViolations, String equipmentId, LimitViolationType violationType, 
+
+    private void checkFilteredViolations(List<LimitViolation> filteredViolations, String equipmentId, LimitViolationType violationType,
                                          float baseVoltage, Country country) {
         assertEquals(1, filteredViolations.size());
         assertEquals(equipmentId, filteredViolations.get(0).getSubjectId());

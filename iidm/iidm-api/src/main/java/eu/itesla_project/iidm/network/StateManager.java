@@ -43,7 +43,7 @@ public interface StateManager {
      * @throws eu.itesla_project.commons.ITeslaException if the state is not found
      */
     void setWorkingState(String stateId);
-    
+
     /**
      * Create a new state by cloning an existing one.
      *

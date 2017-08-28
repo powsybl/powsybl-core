@@ -24,7 +24,7 @@ public interface Command {
     /**
      * Get the command theme used to group in the help usage commands with the
      * same theme.
-     * 
+     *
      * @return the command theme
      */
     String getTheme();

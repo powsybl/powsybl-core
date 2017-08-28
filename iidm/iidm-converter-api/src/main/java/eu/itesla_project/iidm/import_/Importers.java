@@ -425,7 +425,7 @@ public final class Importers {
     public static void loadNetworks(Path dir, Consumer<Network> consumer) throws IOException, InterruptedException, ExecutionException {
         loadNetworks(dir, false, LocalComputationManager.getDefault(), CONFIG.get(), consumer);
     }
-    
+
     public static Network loadNetwork(String filename, InputStream data, ComputationManager computationManager, ImportConfig config, Properties parameters) {
         return loadNetwork(filename, data, computationManager, config, parameters, LOADER);
     }

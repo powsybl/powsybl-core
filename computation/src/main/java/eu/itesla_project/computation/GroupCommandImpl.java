@@ -27,7 +27,7 @@ class GroupCommandImpl extends AbstractCommand implements GroupCommand {
         private final Function<Integer, List<String>> args;
 
         private final int timeout;
-        
+
         SubCommandImpl(String program, Function<Integer, List<String>> args, int timeout) {
             this.program = program;
             this.args = args;

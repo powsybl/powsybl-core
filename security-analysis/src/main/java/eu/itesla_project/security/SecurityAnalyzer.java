@@ -22,7 +22,7 @@ import java.util.Objects;
  * @author Giovanni Ferrari <giovanni.ferrari@techrain.it>
  */
 public class SecurityAnalyzer {
-    
+
     public enum Format {
         CSV,
         JSON
@@ -40,7 +40,7 @@ public class SecurityAnalyzer {
         securityAnalysisFactory = defaultConfig.newFactoryImpl(SecurityAnalysisFactory.class);
         contingenciesProviderFactory = defaultConfig.newFactoryImpl(ContingenciesProviderFactory.class);
     }
-    
+
     public SecurityAnalyzer(ComputationManager computationManager, int priority, SecurityAnalysisFactory securityAnalysisFactory, ContingenciesProviderFactory contingenciesProviderFactory) {
         this.computationManager = Objects.requireNonNull(computationManager);
         this.priority = priority;
@@ -61,7 +61,7 @@ public class SecurityAnalyzer {
 
         return analyze(network, contingenciesProvider);
     }
-    
+
     public SecurityAnalysisResult analyze(String filename, InputStream networkData, InputStream contingencies) {
         Objects.requireNonNull(networkData);
         Objects.requireNonNull(filename);

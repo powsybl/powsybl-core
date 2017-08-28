@@ -71,7 +71,7 @@ public interface MpiStatistics extends AutoCloseable {
 
     /**
      * Export tasks statistics to CSV.
-     * 
+     *
      * @param writer
      */
     void exportTasksToCsv(Writer writer);

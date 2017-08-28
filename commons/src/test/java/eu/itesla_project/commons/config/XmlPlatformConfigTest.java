@@ -30,7 +30,7 @@ import static org.junit.Assert.*;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class XmlPlatformConfigTest {
-    
+
     public XmlPlatformConfigTest() {
     }
 
@@ -88,7 +88,7 @@ public class XmlPlatformConfigTest {
                 modConfig.getDoubleProperty("d2");
                 fail();
             } catch (Exception ignored) {
-            }            
+            }
             assertEquals(4.5d, modConfig.getDoubleProperty("d2", 4.5d), 0d);
             assertEquals(ArrayList.class, modConfig.getClassProperty("c", List.class));
             assertEquals(Arrays.asList("a", "b", "c"), modConfig.getStringListProperty("sl1"));
@@ -149,12 +149,12 @@ public class XmlPlatformConfigTest {
             assertEquals("thanks", propsConfig.getModuleConfig("mod2").getStringProperty("c"));
             String xmlConfigName = "config";
             PropertiesPlatformConfig.writeXml(cfgDir, cfgDir.resolve(xmlConfigName + ".xml"));
-            
+
             XmlPlatformConfig xmlConfig = new XmlPlatformConfig(cfgDir, xmlConfigName, fileSystem);
             assertEquals("hello", xmlConfig.getModuleConfig("mod1").getStringProperty("a"));
             assertEquals("bye", xmlConfig.getModuleConfig("mod1").getStringProperty("b"));
             assertEquals("thanks", xmlConfig.getModuleConfig("mod2").getStringProperty("c"));
         }
     }
-    
+
 }

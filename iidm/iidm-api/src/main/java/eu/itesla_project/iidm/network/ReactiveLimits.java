@@ -8,7 +8,7 @@ package eu.itesla_project.iidm.network;
 
 /**
  * Base class for <code>Generator</code> reactive limits.
- * 
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public interface ReactiveLimits {

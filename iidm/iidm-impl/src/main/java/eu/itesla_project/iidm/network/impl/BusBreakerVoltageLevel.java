@@ -850,7 +850,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
                     .append(" status=").append(aSwitch.isOpen() ? "open" : "closed");
             return builder.toString();
         };
-        
+
         graph.print(out, vertexToString, edgeToString);
     }
 

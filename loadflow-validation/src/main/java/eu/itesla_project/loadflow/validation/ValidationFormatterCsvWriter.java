@@ -23,7 +23,7 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
     private final boolean verbose;
     private final ValidationType validationType;
 
-    public ValidationFormatterCsvWriter(String id, Class<? extends TableFormatterFactory> formatterFactoryClass, 
+    public ValidationFormatterCsvWriter(String id, Class<? extends TableFormatterFactory> formatterFactoryClass,
                                    TableFormatterConfig formatterConfig, Writer writer, boolean verbose,
                                    ValidationType validationType) {
         Objects.requireNonNull(id);
@@ -34,7 +34,7 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
         formatter = createTableFormatter(id, formatterFactoryClass, formatterConfig, writer, validationType);
     }
 
-    public ValidationFormatterCsvWriter(String id, Class<? extends TableFormatterFactory> formatterFactoryClass, 
+    public ValidationFormatterCsvWriter(String id, Class<? extends TableFormatterFactory> formatterFactoryClass,
                                    Writer writer, boolean verbose, ValidationType validationType) {
         this(id, formatterFactoryClass, TableFormatterConfig.load(), writer, verbose, validationType);
     }

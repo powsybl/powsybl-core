@@ -37,7 +37,7 @@ public class LimitViolationFilter {
         }
         return minBaseVoltage;
     }
-    
+
     private static Set<Country> checkCountries(Set<Country> countries) {
         if (countries != null && countries.isEmpty()) {
             throw new IllegalArgumentException("Bad countries filter");
@@ -63,7 +63,7 @@ public class LimitViolationFilter {
     private Set<LimitViolationType> violationTypes;
 
     private float minBaseVoltage;
-    
+
     private Set<Country> countries;
 
     public LimitViolationFilter(Set<LimitViolationType> violationTypes) {
@@ -77,7 +77,7 @@ public class LimitViolationFilter {
     public LimitViolationFilter(Set<LimitViolationType> violationTypes, float minBaseVoltage) {
         this(violationTypes, minBaseVoltage, DEFAULT_COUNTRIES);
     }
-    
+
     public LimitViolationFilter(Set<LimitViolationType> violationTypes, float minBaseVoltage, Set<Country> countries) {
         this.violationTypes = checkViolationTypes(violationTypes);
         this.minBaseVoltage = checkMinBaseVoltage(minBaseVoltage);
@@ -101,7 +101,7 @@ public class LimitViolationFilter {
         this.minBaseVoltage = checkMinBaseVoltage(minBaseVoltage);
         return this;
     }
-    
+
     public Set<Country> getCountries() {
         return countries;
     }
