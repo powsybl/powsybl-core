@@ -11,7 +11,7 @@ import eu.itesla_project.iidm.network.TieLineAdder;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class TieLineAdderImpl extends AbstractTwoTerminalsConnectableAdder<TieLineAdderImpl> implements TieLineAdder {
+class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements TieLineAdder {
 
     private final NetworkImpl network;
 

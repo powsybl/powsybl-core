@@ -13,7 +13,7 @@ import eu.itesla_project.iidm.network.TwoWindingsTransformerAdder;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class TwoWindingsTransformerAdderImpl extends AbstractTwoTerminalsConnectableAdder<TwoWindingsTransformerAdderImpl> implements TwoWindingsTransformerAdder {
+class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTransformerAdderImpl> implements TwoWindingsTransformerAdder {
 
     private final SubstationImpl substation;
 

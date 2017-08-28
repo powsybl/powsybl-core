@@ -7,12 +7,9 @@
 package eu.itesla_project.iidm.network;
 
 /**
- * HVDC converter station builder and adder.
+ * An equipment with two terminals.
  *
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface HvdcConverterStationAdder<T extends HvdcConverterStationAdder> extends InjectionAdder<T> {
-
-    T setLossFactor(float lossFactor);
-
+public interface Branch<I extends Branch<I>> extends TwoTerminalsConnectable<I> {
 }

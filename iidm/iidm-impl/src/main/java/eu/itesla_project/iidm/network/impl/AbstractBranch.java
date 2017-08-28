@@ -15,13 +15,13 @@ import java.util.Objects;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-abstract class AbstractTwoTerminalsConnectable<I extends Connectable<I>> extends AbstractConnectable<I> implements CurrentLimitsOwner<Side> {
+abstract class AbstractBranch<I extends Connectable<I>> extends AbstractConnectable<I> implements CurrentLimitsOwner<Side> {
 
     private CurrentLimits limits1;
 
     private CurrentLimits limits2;
 
-    AbstractTwoTerminalsConnectable(String id, String name) {
+    AbstractBranch(String id, String name) {
         super(id, name);
     }
 
@@ -62,7 +62,7 @@ abstract class AbstractTwoTerminalsConnectable<I extends Connectable<I>> extends
     }
 
     @Override
-    public void setCurrentLimits(TwoTerminalsConnectable.Side side, CurrentLimitsImpl limits) {
+    public void setCurrentLimits(Branch.Side side, CurrentLimitsImpl limits) {
         switch (side) {
             case ONE:
                 limits1 = limits;
@@ -80,7 +80,7 @@ abstract class AbstractTwoTerminalsConnectable<I extends Connectable<I>> extends
     }
 
     public CurrentLimitsAdder newCurrentLimits1() {
-        return new CurrentLimitsAdderImpl<>(TwoTerminalsConnectable.Side.ONE, this);
+        return new CurrentLimitsAdderImpl<>(Branch.Side.ONE, this);
     }
 
     public CurrentLimits getCurrentLimits2() {
@@ -88,7 +88,7 @@ abstract class AbstractTwoTerminalsConnectable<I extends Connectable<I>> extends
     }
 
     public CurrentLimitsAdder newCurrentLimits2() {
-        return new CurrentLimitsAdderImpl<>(TwoTerminalsConnectable.Side.TWO, this);
+        return new CurrentLimitsAdderImpl<>(Branch.Side.TWO, this);
     }
 
     public boolean isOverloaded() {
@@ -96,8 +96,8 @@ abstract class AbstractTwoTerminalsConnectable<I extends Connectable<I>> extends
     }
 
     public int getOverloadDuration() {
-        TwoTerminalsConnectable.Overload o1 = checkTemporaryLimits1();
-        TwoTerminalsConnectable.Overload o2 = checkTemporaryLimits2();
+        Branch.Overload o1 = checkTemporaryLimits1();
+        Branch.Overload o2 = checkTemporaryLimits2();
         int duration1 = o1 != null ? o1.getTemporaryLimit().getAcceptableDuration() : Integer.MAX_VALUE;
         int duration2 = o2 != null ? o2.getTemporaryLimit().getAcceptableDuration() : Integer.MAX_VALUE;
         return Math.min(duration1, duration2);
@@ -147,7 +147,7 @@ abstract class AbstractTwoTerminalsConnectable<I extends Connectable<I>> extends
         return false;
     }
 
-    static final class OverloadImpl implements TwoTerminalsConnectable.Overload {
+    static final class OverloadImpl implements Branch.Overload {
 
         private final CurrentLimits.TemporaryLimit temporaryLimit;
 

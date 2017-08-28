@@ -24,7 +24,7 @@ package eu.itesla_project.iidm.network;
  * @see Load
  * @see VoltageLevel
  */
-public interface LoadAdder extends SingleTerminalConnectableAdder<LoadAdder> {
+public interface LoadAdder extends InjectionAdder<LoadAdder> {
 
     LoadAdder setLoadType(LoadType loadType);
 

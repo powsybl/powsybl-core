@@ -10,12 +10,22 @@ package eu.itesla_project.iidm.network;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface SingleTerminalConnectableAdder<T extends SingleTerminalConnectableAdder> extends IdentifiableAdder<T> {
+public interface BranchAdder<T extends BranchAdder> extends IdentifiableAdder<T> {
 
-    T setNode(int node);
+    T setVoltageLevel1(String voltageLevelId1);
 
-    T setBus(String bus);
+    T setNode1(int node1);
 
-    T setConnectableBus(String connectableBus);
+    T setBus1(String bus1);
+
+    T setConnectableBus1(String connectableBus1);
+
+    T setVoltageLevel2(String voltageLevelId2);
+
+    T setNode2(int node2);
+
+    T setBus2(String bus2);
+
+    T setConnectableBus2(String connectableBus2);
 
 }

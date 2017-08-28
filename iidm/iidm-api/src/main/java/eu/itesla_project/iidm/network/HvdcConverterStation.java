@@ -13,7 +13,7 @@ package eu.itesla_project.iidm.network;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public interface HvdcConverterStation<T extends HvdcConverterStation<T>> extends SingleTerminalConnectable<T> {
+public interface HvdcConverterStation<T extends HvdcConverterStation<T>> extends Injection<T> {
 
     /**
      * HDVC type: VSC or LCC

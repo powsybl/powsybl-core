@@ -14,7 +14,7 @@ public abstract class AbstractTerminalTopologyVisitor extends DefaultTopologyVis
 
     public abstract void visitTerminal(Terminal t);
 
-    private void visitBranch(TwoTerminalsConnectable branch, TwoTerminalsConnectable.Side side) {
+    private void visitBranch(Branch branch, Branch.Side side) {
         switch (side) {
             case ONE:
                 visitTerminal(branch.getTerminal1());
@@ -28,12 +28,12 @@ public abstract class AbstractTerminalTopologyVisitor extends DefaultTopologyVis
     }
 
     @Override
-    public void visitLine(Line line, TwoTerminalsConnectable.Side side) {
+    public void visitLine(Line line, Branch.Side side) {
         visitBranch(line, side);
     }
 
     @Override
-    public void visitTwoWindingsTransformer(TwoWindingsTransformer transformer, TwoTerminalsConnectable.Side side) {
+    public void visitTwoWindingsTransformer(TwoWindingsTransformer transformer, Branch.Side side) {
         visitBranch(transformer, side);
     }
 
@@ -54,7 +54,7 @@ public abstract class AbstractTerminalTopologyVisitor extends DefaultTopologyVis
         }
     }
 
-    private void visitInjection(SingleTerminalConnectable injection) {
+    private void visitInjection(Injection injection) {
         visitTerminal(injection.getTerminal());
     }
 
@@ -85,5 +85,6 @@ public abstract class AbstractTerminalTopologyVisitor extends DefaultTopologyVis
 
     @Override
     public void visitHvdcConverterStation(HvdcConverterStation<?> converterStation) {
+        visitInjection(converterStation);
     }
 }

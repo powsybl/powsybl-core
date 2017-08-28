@@ -10,7 +10,7 @@ package eu.itesla_project.iidm.network;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface TwoWindingsTransformerAdder extends TwoTerminalsConnectableAdder<TwoWindingsTransformerAdder> {
+public interface TwoWindingsTransformerAdder extends BranchAdder<TwoWindingsTransformerAdder> {
 
     TwoWindingsTransformerAdder setR(float r);
 

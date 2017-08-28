@@ -6,11 +6,10 @@
  */
 package eu.itesla_project.iidm.network.util;
 
-import com.google.common.collect.Iterables;
 import eu.itesla_project.commons.util.Colors;
+import eu.itesla_project.iidm.network.Branch;
 import eu.itesla_project.iidm.network.Bus;
 import eu.itesla_project.iidm.network.Network;
-import eu.itesla_project.iidm.network.TwoTerminalsConnectable;
 import org.kohsuke.graphviz.Edge;
 import org.kohsuke.graphviz.Graph;
 import org.kohsuke.graphviz.Node;
@@ -67,7 +66,7 @@ public class GraphvizConnectivity {
             nodes.put(busId, n);
             graph.node(n);
         }
-        for (TwoTerminalsConnectable branch : Iterables.concat(network.getLines(), network.getTwoWindingsTransformers())) {
+        for (Branch branch : network.getBranches()) {
             Bus b1 = branch.getTerminal1().getBusView().getBus();
             Bus b2 = branch.getTerminal2().getBusView().getBus();
             if (b1 != null && b2 != null) {

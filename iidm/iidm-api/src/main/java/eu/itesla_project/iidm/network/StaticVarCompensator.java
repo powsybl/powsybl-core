@@ -11,7 +11,7 @@ package eu.itesla_project.iidm.network;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface StaticVarCompensator extends SingleTerminalConnectable<StaticVarCompensator> {
+public interface StaticVarCompensator extends Injection<StaticVarCompensator> {
 
     enum RegulationMode {
         VOLTAGE,

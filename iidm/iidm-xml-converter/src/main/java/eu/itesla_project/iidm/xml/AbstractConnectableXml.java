@@ -60,7 +60,7 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
         }
     }
 
-    protected static void readNodeOrBus(SingleTerminalConnectableAdder adder, XmlReaderContext context) {
+    protected static void readNodeOrBus(InjectionAdder adder, XmlReaderContext context) {
         String bus = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "bus"));
         String connectableBus = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "connectableBus"));
         Integer node = XmlUtil.readOptionalIntegerAttribute(context.getReader(), "node");
@@ -75,7 +75,7 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
         }
     }
 
-    protected static void readNodeOrBus(TwoTerminalsConnectableAdder adder, XmlReaderContext context) {
+    protected static void readNodeOrBus(BranchAdder adder, XmlReaderContext context) {
         String bus1 = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "bus1"));
         String connectableBus1 = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "connectableBus1"));
         Integer node1 = XmlUtil.readOptionalIntegerAttribute(context.getReader(), "node1");
@@ -183,12 +183,12 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
         context.getWriter().writeEmptyElement(IIDM_URI, elementName);
         context.getWriter().writeAttribute("id", context.getAnonymizer().anonymizeString(c.getId()));
         if (c.getTerminals().size() > 1) {
-            if (c instanceof SingleTerminalConnectable) {
+            if (c instanceof Injection) {
                 // nothing to do
-            } else if (c instanceof TwoTerminalsConnectable) {
-                TwoTerminalsConnectable branch = (TwoTerminalsConnectable) c;
+            } else if (c instanceof Branch) {
+                Branch branch = (Branch) c;
                 context.getWriter().writeAttribute("side", branch.getTerminal1() == t
-                        ? TwoTerminalsConnectable.Side.ONE.name() : TwoTerminalsConnectable.Side.TWO.name());
+                        ? Branch.Side.ONE.name() : Branch.Side.TWO.name());
             } else if (c instanceof ThreeWindingsTransformer) {
                 ThreeWindingsTransformer twt = (ThreeWindingsTransformer) c;
                 ThreeWindingsTransformer.Side side;
@@ -210,11 +210,11 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
 
     protected static Terminal readTerminalRef(Network network, String id, String side) {
         Identifiable identifiable = network.getIdentifiable(id);
-        if (identifiable instanceof SingleTerminalConnectable) {
-            return ((SingleTerminalConnectable) identifiable).getTerminal();
-        } else if (identifiable instanceof TwoTerminalsConnectable) {
-            return side.equals(TwoTerminalsConnectable.Side.ONE.name()) ? ((TwoTerminalsConnectable) identifiable).getTerminal1()
-                    : ((TwoTerminalsConnectable) identifiable).getTerminal2();
+        if (identifiable instanceof Injection) {
+            return ((Injection) identifiable).getTerminal();
+        } else if (identifiable instanceof Branch) {
+            return side.equals(Branch.Side.ONE.name()) ? ((Branch) identifiable).getTerminal1()
+                    : ((Branch) identifiable).getTerminal2();
         } else if (identifiable instanceof ThreeWindingsTransformer) {
             throw new AssertionError("TODO"); // FIXME
         } else {

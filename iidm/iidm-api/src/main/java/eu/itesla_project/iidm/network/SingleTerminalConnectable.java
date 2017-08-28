@@ -7,10 +7,11 @@
 package eu.itesla_project.iidm.network;
 
 /**
- * A equipment with one terminal.
+ * Use {@link Injection} instead.
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
+@Deprecated
 public interface SingleTerminalConnectable<I extends SingleTerminalConnectable<I>> extends Connectable<I> {
 
     /**

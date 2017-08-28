@@ -15,12 +15,12 @@ public abstract class AbstractEquipmentTopologyVisitor extends DefaultTopologyVi
     public abstract <I extends Connectable<I>> void visitEquipment(Connectable<I> eq);
 
     @Override
-    public void visitLine(Line line, TwoTerminalsConnectable.Side side) {
+    public void visitLine(Line line, Branch.Side side) {
         visitEquipment(line);
     }
 
     @Override
-    public void visitTwoWindingsTransformer(TwoWindingsTransformer transformer, TwoTerminalsConnectable.Side side) {
+    public void visitTwoWindingsTransformer(TwoWindingsTransformer transformer, Branch.Side side) {
         visitEquipment(transformer);
     }
 

@@ -14,7 +14,7 @@ import eu.itesla_project.iidm.network.TwoWindingsTransformer;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class TwoWindingsTransformerImpl extends AbstractTwoTerminalsConnectable<TwoWindingsTransformer> implements TwoWindingsTransformer, RatioTapChangerParent {
+class TwoWindingsTransformerImpl extends AbstractBranch<TwoWindingsTransformer> implements TwoWindingsTransformer, RatioTapChangerParent {
 
     private final SubstationImpl substation;
 

@@ -14,7 +14,7 @@ package eu.itesla_project.iidm.network;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @see ShuntCompensatorAdder
  */
-public interface ShuntCompensator extends SingleTerminalConnectable<ShuntCompensator> {
+public interface ShuntCompensator extends Injection<ShuntCompensator> {
 
     /**
      * Get the maximum section count.
