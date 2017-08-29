@@ -12,6 +12,7 @@ import eu.itesla_project.iidm.network.ReactiveCapabilityCurve;
 import eu.itesla_project.iidm.network.ReactiveLimitsKind;
 import eu.itesla_project.iidm.network.test.FictitiousSwitchFactory;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -128,6 +129,7 @@ public class ReactiveCapabilityCurveTest {
                 .add();
     }
 
+    @Ignore(value = "To be reactivated in IIDM v1.1")
     @Test
     public void invalidMinQGreaterThanMaxQ() {
         thrown.expect(ValidationException.class);
