@@ -169,7 +169,7 @@ class StateManagerImpl implements StateManager {
         stateLock.lock();
         try {
             if (INITIAL_STATE_ID.equals(stateId)) {
-                throw new ITeslaException("Removing initial state is vorbidden");
+                throw new ITeslaException("Removing initial state is forbidden");
             }
             int index = getStateIndex(stateId);
             id2index.remove(stateId);
