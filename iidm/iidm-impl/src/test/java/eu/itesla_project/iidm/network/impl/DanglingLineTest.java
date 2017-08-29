@@ -13,6 +13,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import java.util.Arrays;
+import java.util.List;
+
 import static org.junit.Assert.*;
 
 public class DanglingLineTest {
@@ -71,6 +74,7 @@ public class DanglingLineTest {
                     .add();
         DanglingLine danglingLine = network.getDanglingLine(id);
         // adder
+        assertEquals(ConnectableType.DANGLING_LINE, danglingLine.getType());
         assertEquals(r, danglingLine.getR(), 0.0f);
         assertEquals(x, danglingLine.getX(), 0.0f);
         assertEquals(g, danglingLine.getG(), 0.0f);
@@ -171,6 +175,45 @@ public class DanglingLineTest {
         assertEquals(count - 1, network.getDanglingLineCount());
         assertNull(network.getDanglingLine("toRemove"));
         assertNotNull(danglingLine);
+    }
+
+    @Test
+    public void testSetterGetterInMultiStates() {
+        StateManager stateManager = network.getStateManager();
+        createDanglingLine("testMultiState", "testMultiState", 1.0f, 1.1f, 2.2f, 1.0f, 1.0f, 1.2f, "code");
+        DanglingLine danglingLine = network.getDanglingLine("testMultiState");
+        List<String> statesToAdd = Arrays.asList("s1", "s2", "s3", "s4");
+        stateManager.cloneState(StateManager.INITIAL_STATE_ID, statesToAdd);
+
+        stateManager.setWorkingState("s4");
+        // check values cloned by extend
+        assertEquals(1.0f, danglingLine.getP0(), 0.0f);
+        assertEquals(1.2f, danglingLine.getQ0(), 0.0f);
+        // change values in s4
+        danglingLine.setP0(3.0f);
+        danglingLine.setQ0(2.0f);
+
+        // remove s2
+        stateManager.removeState("s2");
+
+        stateManager.cloneState("s4", "s2b");
+        stateManager.setWorkingState("s2b");
+        // check values cloned by allocate
+        assertEquals(3.0f, danglingLine.getP0(), 0.0f);
+        assertEquals(2.0f, danglingLine.getQ0(), 0.0f);
+        // recheck initial state value
+        stateManager.setWorkingState(StateManager.INITIAL_STATE_ID);
+        assertEquals(1.0f, danglingLine.getP0(), 0.0f);
+        assertEquals(1.2f, danglingLine.getQ0(), 0.0f);
+
+        // remove working state s4
+        stateManager.setWorkingState("s4");
+        stateManager.removeState("s4");
+        try {
+            danglingLine.getQ0();
+            fail();
+        } catch (Exception ignored) {
+        }
     }
 
     private void createDanglingLine(String id, String name, float r, float x, float g, float b,

@@ -13,6 +13,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import java.util.Arrays;
+import java.util.List;
+
 import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -150,6 +153,104 @@ public class TapChangerTest {
         thrown.expectMessage("phase regulation cannot be on if mode is FIXED");
         createPhaseTapChangerWith2Steps(1, 0, true,
                 PhaseTapChanger.RegulationMode.FIXED_TAP, 1.0f, terminal);
+    }
+
+    @Test
+    public void testTapChangerSetterGetterInMultiStates() {
+        StateManager stateManager = network.getStateManager();
+        createPhaseTapChangerWith2Steps(1, 0, true,
+                PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, 1.0f, terminal);
+        createRatioTapChangerWith3Steps(0, 1, true, true, 10.0f, terminal);
+        createThreeWindingTransformer();
+        ThreeWindingsTransformer threeWindingsTransformer = network.getThreeWindingsTransformer("twt2");
+        ThreeWindingsTransformer.Leg2or3 leg2 = threeWindingsTransformer.getLeg2();
+        ThreeWindingsTransformer.Leg2or3 leg3 = threeWindingsTransformer.getLeg3();
+        PhaseTapChanger phaseTapChanger = twt.getPhaseTapChanger();
+        RatioTapChanger ratioTapChanger = twt.getRatioTapChanger();
+        RatioTapChanger ratioTapChangerInLeg2 = leg2.getRatioTapChanger();
+        RatioTapChanger ratioTapChangerInLeg3 = leg3.getRatioTapChanger();
+
+        List<String> statesToAdd = Arrays.asList("s1", "s2", "s3", "s4");
+        stateManager.cloneState(StateManager.INITIAL_STATE_ID, statesToAdd);
+
+        stateManager.setWorkingState("s4");
+        // check values cloned by extend
+        assertEquals(1, phaseTapChanger.getTapPosition());
+        assertTrue(phaseTapChanger.isRegulating());
+        assertEquals(1.0f, phaseTapChanger.getRegulationValue(), 0.0f);
+        assertEquals(1, ratioTapChanger.getTapPosition());
+        assertTrue(ratioTapChanger.isRegulating());
+        assertEquals(10.0f, ratioTapChanger.getTargetV(), 0.0f);
+        assertEquals(1, ratioTapChangerInLeg2.getTapPosition());
+        assertTrue(ratioTapChangerInLeg2.isRegulating());
+        assertEquals(10.0f, ratioTapChangerInLeg2.getTargetV(), 0.0f);
+        assertEquals(3, ratioTapChangerInLeg3.getTapPosition());
+        assertTrue(ratioTapChangerInLeg3.isRegulating());
+        assertEquals(11.0f, ratioTapChangerInLeg3.getTargetV(), 0.0f);
+
+        // change values in s4
+        phaseTapChanger.setTapPosition(0);
+        phaseTapChanger.setRegulating(false);
+        phaseTapChanger.setRegulationValue(9.9f);
+        ratioTapChanger.setTapPosition(0);
+        ratioTapChanger.setRegulating(false);
+        ratioTapChanger.setTargetV(3.5f);
+        ratioTapChangerInLeg2.setTapPosition(2);
+        ratioTapChangerInLeg2.setRegulating(false);
+        ratioTapChangerInLeg2.setTargetV(31.5f);
+        ratioTapChangerInLeg3.setTapPosition(4);
+        ratioTapChangerInLeg3.setRegulating(false);
+        ratioTapChangerInLeg3.setTargetV(13.5f);
+
+        // remove s2
+        stateManager.removeState("s2");
+
+        stateManager.cloneState("s4", "s2b");
+        stateManager.setWorkingState("s2b");
+        // check values cloned by allocate
+        assertEquals(0, phaseTapChanger.getTapPosition());
+        assertFalse(phaseTapChanger.isRegulating());
+        assertEquals(9.9f, phaseTapChanger.getRegulationValue(), 0.0f);
+        assertEquals(0, ratioTapChanger.getTapPosition());
+        assertFalse(ratioTapChanger.isRegulating());
+        assertEquals(3.5f, ratioTapChanger.getTargetV(), 0.0f);
+        assertEquals(2, ratioTapChangerInLeg2.getTapPosition());
+        assertFalse(ratioTapChangerInLeg2.isRegulating());
+        assertEquals(31.5f, ratioTapChangerInLeg2.getTargetV(), 0.0f);
+        assertEquals(4, ratioTapChangerInLeg3.getTapPosition());
+        assertFalse(ratioTapChangerInLeg3.isRegulating());
+        assertEquals(13.5f, ratioTapChangerInLeg3.getTargetV(), 0.0f);
+
+        // recheck initial state value
+        stateManager.setWorkingState(StateManager.INITIAL_STATE_ID);
+        assertEquals(1, phaseTapChanger.getTapPosition());
+        assertTrue(phaseTapChanger.isRegulating());
+        assertEquals(1.0f, phaseTapChanger.getRegulationValue(), 0.0f);
+        assertEquals(1, ratioTapChanger.getTapPosition());
+        assertTrue(ratioTapChanger.isRegulating());
+        assertEquals(10.0f, ratioTapChanger.getTargetV(), 0.0f);
+        assertEquals(1, ratioTapChangerInLeg2.getTapPosition());
+        assertTrue(ratioTapChangerInLeg2.isRegulating());
+        assertEquals(10.0f, ratioTapChangerInLeg2.getTargetV(), 0.0f);
+        assertEquals(3, ratioTapChangerInLeg3.getTapPosition());
+        assertTrue(ratioTapChangerInLeg3.isRegulating());
+        assertEquals(11.0f, ratioTapChangerInLeg3.getTargetV(), 0.0f);
+
+        // remove working state s4
+        stateManager.setWorkingState("s4");
+        stateManager.removeState("s4");
+        getTapPositionThrowsException(phaseTapChanger);
+        getTapPositionThrowsException(ratioTapChanger);
+        getTapPositionThrowsException(ratioTapChangerInLeg2);
+        getTapPositionThrowsException(ratioTapChangerInLeg3);
+    }
+
+    private void getTapPositionThrowsException(TapChanger tapChanger) {
+        try {
+            tapChanger.getTapPosition();
+            fail();
+        } catch (Exception ignored) {
+        }
     }
 
     private void createPhaseTapChangerWith2Steps(int tapPosition, int lowTap, boolean isRegulating,
@@ -340,6 +441,98 @@ public class TapChangerTest {
                     .setRho(1.0f)
                 .endStep()
             .add();
+    }
+
+    private void createThreeWindingTransformer() {
+        substation.newThreeWindingsTransformer()
+                .setId("twt2")
+                .setName("twtName")
+                .newLeg1()
+                    .setR(1.3f)
+                    .setX(1.4f)
+                    .setG(1.6f)
+                    .setB(1.7f)
+                    .setRatedU(1.1f)
+                    .setVoltageLevel("vl1")
+                    .setConnectableBus("busA")
+                    .setBus("busA")
+                .add()
+                .newLeg2()
+                    .setR(2.03f)
+                    .setX(2.04f)
+                    .setRatedU(2.05f)
+                    .setVoltageLevel("vl2")
+                    .setConnectableBus("busB")
+                    .add()
+                .newLeg3()
+                    .setR(3.3f)
+                    .setX(3.4f)
+                    .setRatedU(3.5f)
+                    .setVoltageLevel("vl2")
+                    .setConnectableBus("busB")
+                .add()
+                .add();
+        ThreeWindingsTransformer threeWindingsTransformer = network.getThreeWindingsTransformer("twt2");
+        ThreeWindingsTransformer.Leg2or3 leg2 = threeWindingsTransformer.getLeg2();
+        ThreeWindingsTransformer.Leg2or3 leg3 = threeWindingsTransformer.getLeg3();
+        leg2.newRatioTapChanger()
+                .setTargetV(10.0f)
+                .setLoadTapChangingCapabilities(false)
+                .setLowTapPosition(0)
+                .setTapPosition(1)
+                .setRegulating(true)
+                .setRegulationTerminal(threeWindingsTransformer.getTerminal(ThreeWindingsTransformer.Side.TWO))
+                .beginStep()
+                    .setR(39.78473f)
+                    .setX(39.784725f)
+                    .setG(0.0f)
+                    .setB(0.0f)
+                    .setRho(1.0f)
+                .endStep()
+                .beginStep()
+                    .setR(39.78474f)
+                    .setX(39.784726f)
+                    .setG(0.0f)
+                    .setB(0.0f)
+                    .setRho(1.0f)
+                .endStep()
+                .beginStep()
+                    .setR(39.78475f)
+                    .setX(39.784727f)
+                    .setG(0.0f)
+                    .setB(0.0f)
+                    .setRho(1.0f)
+                .endStep()
+                .add();
+        leg3.newRatioTapChanger()
+                .setTargetV(11.0f)
+                .setLoadTapChangingCapabilities(false)
+                .setLowTapPosition(2)
+                .setTapPosition(3)
+                .setRegulating(true)
+                .setRegulationTerminal(threeWindingsTransformer.getTerminal(ThreeWindingsTransformer.Side.TWO))
+                .beginStep()
+                    .setR(39.78473f)
+                    .setX(39.784725f)
+                    .setG(0.0f)
+                    .setB(0.0f)
+                    .setRho(1.0f)
+                .endStep()
+                .beginStep()
+                    .setR(39.78474f)
+                    .setX(39.784726f)
+                    .setG(0.0f)
+                    .setB(0.0f)
+                    .setRho(1.0f)
+                .endStep()
+                .beginStep()
+                    .setR(39.78475f)
+                    .setX(39.784727f)
+                    .setG(0.0f)
+                    .setB(0.0f)
+                    .setRho(1.0f)
+                .endStep()
+                .add();
     }
 
 }
