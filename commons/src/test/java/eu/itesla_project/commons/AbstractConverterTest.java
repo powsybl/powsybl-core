@@ -58,10 +58,16 @@ public abstract class AbstractConverterTest {
         assertFalse(hasDiff);
     }
 
+    private static String normalizeLineSeparator(String str) {
+        return str.replace("\r\n", "\n")
+                .replace("\r", "\n");
+    }
+
     protected static void compareTxt(InputStream expected, InputStream actual) {
         try {
-            assertEquals(new String(ByteStreams.toByteArray(expected), StandardCharsets.UTF_8),
-                    new String(ByteStreams.toByteArray(actual), StandardCharsets.UTF_8));
+            String expectedStr = normalizeLineSeparator(new String(ByteStreams.toByteArray(expected), StandardCharsets.UTF_8));
+            String actualStr = normalizeLineSeparator(new String(ByteStreams.toByteArray(actual), StandardCharsets.UTF_8));
+            assertEquals(expectedStr, actualStr);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
