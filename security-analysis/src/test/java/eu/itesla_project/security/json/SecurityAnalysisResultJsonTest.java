@@ -23,8 +23,11 @@ import java.util.List;
 public class SecurityAnalysisResultJsonTest extends AbstractConverterTest {
 
     private static SecurityAnalysisResult create() {
-        LimitViolation violation1 = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, 100f, "limit", .95f, 110f, Country.FR, 380f);
-        LimitViolation violation2 = new LimitViolation("NHV1_NHV2_2", LimitViolationType.CURRENT, 100f, null, 110f);
+        // Create a LimitViolation(CURRENT) to ensure backward compatibility works
+        LimitViolation violation1 = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, 100f, "limit", 0.95f, 110f, null, Float.NaN);
+        LimitViolation violation2 = new LimitViolation("NHV1_NHV2_2", LimitViolationType.CURRENT, 100f, "20'", 110f);
+        LimitViolation violation3 = new LimitViolation("GEN", LimitViolationType.HIGH_VOLTAGE, 100f, null, 0.9f, 110f, null, Float.NaN);
+        LimitViolation violation4 = new LimitViolation("GEN2", LimitViolationType.LOW_VOLTAGE, 100f, null, 0.7f, 115f, Country.FR, 400.0f);
 
         List<ContingencyElement> elements = Arrays.asList(
                 new BranchContingency("NHV1_NHV2_2", "VLNHV1"),
@@ -35,7 +38,7 @@ public class SecurityAnalysisResultJsonTest extends AbstractConverterTest {
         Contingency contingency = new ContingencyImpl("contingency", elements);
 
         LimitViolationsResult preContingencyResult = new LimitViolationsResult(true, Collections.singletonList(violation1));
-        PostContingencyResult postContingencyResult = new PostContingencyResult(contingency, true, Arrays.asList(violation1, violation2), Arrays.asList("action1", "action2"));
+        PostContingencyResult postContingencyResult = new PostContingencyResult(contingency, true, Arrays.asList(violation2, violation3, violation4), Arrays.asList("action1", "action2"));
 
         return new SecurityAnalysisResult(preContingencyResult, Collections.singletonList(postContingencyResult));
     }

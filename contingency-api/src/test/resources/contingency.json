@@ -2,12 +2,18 @@
   "id" : "contingency",
   "elements" : [ {
     "id" : "NHV1_NHV2_2",
-    "voltageLevelId" : "VLHV1",
-    "type" : "BRANCH"
+    "type" : "BRANCH",
+    "voltageLevelId" : "VLHV1"
   }, {
     "id" : "NHV1_NHV2_1",
-    "voltageLevelId" : null,
     "type" : "BRANCH"
+  }, {
+    "id" : "NHV1_NHV2_2",
+    "type" : "LINE",
+    "voltageLevelId" : "VLHV1"
+  }, {
+    "id" : "NHV1_NHV2_2",
+    "type" : "LINE"
   }, {
     "id" : "GEN",
     "type" : "GENERATOR"

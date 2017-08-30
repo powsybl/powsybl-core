@@ -40,6 +40,8 @@ public interface TwoTerminalsConnectable<I extends TwoTerminalsConnectable<I>> e
 
     Terminal getTerminal(String voltageLevelId);
 
+    CurrentLimits getCurrentLimits(Side side);
+
     CurrentLimits getCurrentLimits1();
 
     CurrentLimitsAdder newCurrentLimits1();

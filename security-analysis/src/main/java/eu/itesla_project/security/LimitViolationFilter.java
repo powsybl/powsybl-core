@@ -7,13 +7,13 @@
  */
 package eu.itesla_project.security;
 
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import eu.itesla_project.commons.config.ModuleConfig;
 import eu.itesla_project.commons.config.PlatformConfig;
 import eu.itesla_project.iidm.network.Country;
+
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>

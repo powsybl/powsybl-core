@@ -6,18 +6,15 @@
  */
 package eu.itesla_project.security.json;
 
-import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import eu.itesla_project.security.LimitViolationFilter;
-import eu.itesla_project.security.LimitViolationsResult;
-import eu.itesla_project.security.PostContingencyResult;
-import eu.itesla_project.security.SecurityAnalysisResult;
+import eu.itesla_project.contingency.ContingencyElement;
+import eu.itesla_project.contingency.json.ContingencyElementSerializer;
+import eu.itesla_project.security.*;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -60,8 +57,7 @@ public class SecurityAnalysisResultSerializer extends StdSerializer<SecurityAnal
         }
     }
 
-    public static void write(SecurityAnalysisResult result, LimitViolationFilter filter,
-            OutputStream out) throws JsonGenerationException, JsonMappingException, IOException {
+    public static void write(SecurityAnalysisResult result, LimitViolationFilter filter, OutputStream out) throws IOException {
         Objects.requireNonNull(result);
         Objects.requireNonNull(filter);
         Objects.requireNonNull(out);
@@ -70,6 +66,8 @@ public class SecurityAnalysisResultSerializer extends StdSerializer<SecurityAnal
         module.addSerializer(SecurityAnalysisResult.class, new SecurityAnalysisResultSerializer());
         module.addSerializer(PostContingencyResult.class, new PostContingencyResultSerializer());
         module.addSerializer(LimitViolationsResult.class, new LimitViolationsResultSerializer(filter));
+        module.addSerializer(LimitViolation.class, new LimitViolationSerializer());
+        module.addSerializer(ContingencyElement.class, new ContingencyElementSerializer());
         objectMapper.registerModule(module);
 
         ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();

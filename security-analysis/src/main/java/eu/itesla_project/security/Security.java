@@ -36,97 +36,78 @@ public final class Security {
     private Security() {
     }
 
-    private static Country getCountry(Branch branch, Terminal terminal) {
-        return terminal == branch.getTerminal1() ? branch.getTerminal1().getVoltageLevel().getSubstation().getCountry()
-                                                 : branch.getTerminal2().getVoltageLevel().getSubstation().getCountry();
+    private static Country getCountry(Branch branch, Branch.Side side) {
+        return branch.getTerminal(side).getVoltageLevel().getSubstation().getCountry();
     }
 
-    private static float getBaseVoltage(Branch branch) {
+    private static float getNominalVoltage(Branch branch) {
         return Math.max(branch.getTerminal1().getVoltageLevel().getNominalV(),
                         branch.getTerminal2().getVoltageLevel().getNominalV());
     }
 
-    private static void checkCurrentLimits(Iterable<? extends Branch> branches, CurrentLimitType currentLimitType,
+    private static float getNominalVoltage(Branch branch, Branch.Side side) {
+        return branch.getTerminal(side).getVoltageLevel().getNominalV();
+    }
+
+    public static String getLimitName(int acceptableDuration) {
+        if (acceptableDuration == Integer.MAX_VALUE) {
+            return PERMANENT_LIMIT_NAME;
+        } else {
+            return String.format("Overload %d'", acceptableDuration / 60);
+        }
+    }
+
+    private static void checkPermanentLimit(Branch branch, Branch.Side side, float limitReduction, List<LimitViolation> violations) {
+        if (branch.checkPermanentLimit(side, limitReduction)) {
+            violations.add(new LimitViolation(branch.getId(),
+                LimitViolationType.CURRENT,
+                branch.getCurrentLimits(side).getPermanentLimit(),
+                PERMANENT_LIMIT_NAME,
+                limitReduction,
+                branch.getTerminal(side).getI(),
+                getCountry(branch, side),
+                getNominalVoltage(branch, side)));
+        }
+    }
+
+    private static void checkCurrentLimits(Branch branch, Branch.Side side, float limitReduction, List<LimitViolation> violations) {
+        Branch.Overload o1 = branch.checkTemporaryLimits(side, limitReduction);
+        if (o1 != null) {
+            violations.add(new LimitViolation(branch.getId(),
+                LimitViolationType.CURRENT,
+                o1.getPreviousLimit(),
+                getLimitName(o1.getTemporaryLimit().getAcceptableDuration()),
+                limitReduction,
+                branch.getTerminal(side).getI(),
+                getCountry(branch, side),
+                getNominalVoltage(branch, side)));
+        } else {
+            checkPermanentLimit(branch, side, limitReduction, violations);
+        }
+    }
+
+    private static void checkCurrentLimits(Iterable<? extends Branch> branches,
                                            float limitReduction, List<LimitViolation> violations) {
         for (Branch branch : branches) {
-            switch (currentLimitType) {
-                case PATL:
-                    if (branch.checkPermanentLimit1(limitReduction)) {
-                        violations.add(new LimitViolation(branch.getId(),
-                                                          LimitViolationType.CURRENT,
-                                                          branch.getCurrentLimits1().getPermanentLimit(),
-                                                          PERMANENT_LIMIT_NAME,
-                                                          limitReduction,
-                                                          branch.getTerminal1().getI(),
-                                                          getCountry(branch, branch.getTerminal1()),
-                                                          getBaseVoltage(branch)));
-                    }
-                    if (branch.checkPermanentLimit2(limitReduction)) {
-                        violations.add(new LimitViolation(branch.getId(),
-                                                          LimitViolationType.CURRENT,
-                                                          branch.getCurrentLimits2().getPermanentLimit(),
-                                                          PERMANENT_LIMIT_NAME,
-                                                          limitReduction,
-                                                          branch.getTerminal2().getI(),
-                                                          getCountry(branch, branch.getTerminal2()),
-                                                          getBaseVoltage(branch)));
-                    }
-                    break;
-
-                case TATL:
-                    Branch.Overload o1 = branch.checkTemporaryLimits1(limitReduction);
-                    if (o1 != null) {
-                        violations.add(new LimitViolation(branch.getId(),
-                                                          LimitViolationType.CURRENT,
-                                                          o1.getPreviousLimit(),
-                                                          o1.getTemporaryLimit().getName(),
-                                                          limitReduction,
-                                                          branch.getTerminal1().getI(),
-                                                          getCountry(branch, branch.getTerminal1()),
-                                                          getBaseVoltage(branch)));
-                    }
-                    Branch.Overload o2 = branch.checkTemporaryLimits2(limitReduction);
-                    if (o2 != null) {
-                        violations.add(new LimitViolation(branch.getId(),
-                                                          LimitViolationType.CURRENT,
-                                                          o2.getPreviousLimit(),
-                                                          o2.getTemporaryLimit().getName(),
-                                                          limitReduction,
-                                                          branch.getTerminal2().getI(),
-                                                          getCountry(branch, branch.getTerminal2()),
-                                                          getBaseVoltage(branch)));
-                    }
-                    break;
-
-                default:
-                    throw new AssertionError();
-            }
+            checkCurrentLimits(branch, Branch.Side.ONE, limitReduction, violations);
+            checkCurrentLimits(branch, Branch.Side.TWO, limitReduction, violations);
         }
     }
 
     public static List<LimitViolation> checkLimits(Network network) {
-        return checkLimits(network, CurrentLimitType.PATL, 1f);
+        return checkLimits(network, 1f);
     }
 
     public static List<LimitViolation> checkLimits(Network network, float limitReduction) {
-        List<LimitViolation> violations = new ArrayList<>();
-        for (CurrentLimitType type : CurrentLimitType.values()) {
-            violations.addAll(checkLimits(network, type, limitReduction));
-        }
-        return violations;
-    }
-
-    public static List<LimitViolation> checkLimits(Network network, CurrentLimitType currentLimitType, float limitReduction) {
         Objects.requireNonNull(network);
-        Objects.requireNonNull(currentLimitType);
         //if (limitReduction <= 0 || limitReduction > 1) {
         // allow to increase the limits
         if (limitReduction <= 0) {
             throw new IllegalArgumentException("Bad limit reduction " + limitReduction);
         }
         List<LimitViolation> violations = new ArrayList<>();
-        checkCurrentLimits(network.getLines(), currentLimitType, limitReduction, violations);
-        checkCurrentLimits(network.getTwoWindingsTransformers(), currentLimitType, limitReduction, violations);
+        checkCurrentLimits(network.getLines(), limitReduction, violations);
+        checkCurrentLimits(network.getTwoWindingsTransformers(), limitReduction, violations);
         for (VoltageLevel vl : network.getVoltageLevels()) {
             if (!Float.isNaN(vl.getLowVoltageLimit())) {
                 for (Bus b : vl.getBusView().getBuses()) {
@@ -169,27 +150,27 @@ public final class Security {
         Objects.requireNonNull(filter);
         List<LimitViolation> filteredViolations = filter.apply(violations);
         if (filteredViolations.size() > 0) {
-            Collections.sort(filteredViolations, (o1, o2) -> o1.getSubjectId().compareTo(o2.getSubjectId()));
+            filteredViolations.sort(Comparator.comparing(LimitViolation::getSubjectId));
             Table table = new Table(9, BorderStyle.CLASSIC_WIDE);
             table.addCell("Country");
             table.addCell("Base voltage");
             table.addCell("Equipment (" + filteredViolations.size() + ")");
             table.addCell("Violation type");
             table.addCell("Violation name");
-            table.addCell("value");
-            table.addCell("limit");
+            table.addCell("Value");
+            table.addCell("Limit");
             table.addCell("abs(value-limit)");
-            table.addCell("charge %");
+            table.addCell("Loading rate %");
             for (LimitViolation violation : filteredViolations) {
                 table.addCell(violation.getCountry() != null ? violation.getCountry().name() : "");
                 table.addCell(Float.isNaN(violation.getBaseVoltage()) ? "" : Float.toString(violation.getBaseVoltage()));
                 table.addCell(violation.getSubjectId());
                 table.addCell(violation.getLimitType().name());
-                table.addCell(Objects.toString(violation.getLimitName(), ""));
+                table.addCell(getViolationName(violation));
                 table.addCell(Float.toString(violation.getValue()));
-                table.addCell(Float.toString(violation.getLimit()) + (violation.getLimitReduction() != 1f ? " * " + violation.getLimitReduction() : ""));
+                table.addCell(getViolationLimit(violation));
                 table.addCell(Float.toString(Math.abs(violation.getValue() - violation.getLimit() * violation.getLimitReduction())));
-                table.addCell(Integer.toString(Math.round(Math.abs(violation.getValue()) / violation.getLimit() * 100f)));
+                table.addCell(Integer.toString(getViolationValue(violation)));
             }
             return table.render();
         }
@@ -215,7 +196,7 @@ public final class Security {
                 new Column("Violation name"),
                 new Column("Value"),
                 new Column("Limit"),
-                new Column("Charge %"))) {
+                new Column("Loading rate %"))) {
             for (String action : result.getPreContingencyResult().getActionsTaken()) {
                 formatter.writeCell(action)
                         .writeEmptyCell()
@@ -229,16 +210,16 @@ public final class Security {
                     ? limitViolationFilter.apply(result.getPreContingencyResult().getLimitViolations())
                     : result.getPreContingencyResult().getLimitViolations();
             filteredLimitViolations.stream()
-                    .sorted((o1, o2) -> o1.getSubjectId().compareTo(o2.getSubjectId()))
+                    .sorted(Comparator.comparing(LimitViolation::getSubjectId))
                     .forEach(violation -> {
                         try {
                             formatter.writeEmptyCell()
                                     .writeCell(violation.getSubjectId())
                                     .writeCell(violation.getLimitType().name())
-                                    .writeCell(Objects.toString(violation.getLimitName(), ""))
+                                    .writeCell(getViolationName(violation))
                                     .writeCell(violation.getValue())
-                                    .writeCell(Float.toString(violation.getLimit()) + (violation.getLimitReduction() != 1f ? " * " + violation.getLimitReduction() : ""))
-                                    .writeCell(Math.round(Math.abs(violation.getValue()) / violation.getLimit() * 100f));
+                                    .writeCell(getViolationLimit(violation))
+                                    .writeCell(getViolationValue(violation));
                         } catch (IOException e) {
                             throw new UncheckedIOException(e);
                         }
@@ -246,6 +227,18 @@ public final class Security {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    private static String getViolationName(LimitViolation violation) {
+        return Objects.toString(violation.getLimitName(), "");
+    }
+
+    private static String getViolationLimit(LimitViolation violation) {
+        return Float.toString(violation.getLimit()) + (violation.getLimitReduction() != 1f ? " * " + violation.getLimitReduction() : "");
+    }
+
+    private static int getViolationValue(LimitViolation violation) {
+        return Math.round(Math.abs(violation.getValue()) / violation.getLimit() * 100f);
     }
 
     /**
@@ -316,7 +309,7 @@ public final class Security {
                     new Column("Violation name"),
                     new Column("Value"),
                     new Column("Limit"),
-                    new Column("Charge %"))) {
+                    new Column("Loading rate %"))) {
                 result.getPostContingencyResults()
                         .stream()
                         .sorted(Comparator.comparing(o2 -> o2.getContingency().getId()))
@@ -324,8 +317,8 @@ public final class Security {
                             try {
                                 // configured filtering
                                 List<LimitViolation> filteredLimitViolations = limitViolationFilter != null
-                                        ? limitViolationFilter.apply(postContingencyResult.getLimitViolations())
-                                        : postContingencyResult.getLimitViolations();
+                                        ? limitViolationFilter.apply(postContingencyResult.getLimitViolationsResult().getLimitViolations())
+                                        : postContingencyResult.getLimitViolationsResult().getLimitViolations();
 
                                 // pre-contingency violations filtering
                                 List<LimitViolation> filteredLimitViolations2 = filteredLimitViolations.stream()
@@ -356,7 +349,7 @@ public final class Security {
                                     }
 
                                     filteredLimitViolations2.stream()
-                                            .sorted(Comparator.comparing(o -> o.getSubjectId()))
+                                            .sorted(Comparator.comparing(LimitViolation::getSubjectId))
                                             .forEach(violation -> {
                                                 try {
                                                     formatter.writeEmptyCell()
@@ -364,10 +357,10 @@ public final class Security {
                                                             .writeEmptyCell()
                                                             .writeCell(violation.getSubjectId())
                                                             .writeCell(violation.getLimitType().name())
-                                                            .writeCell(Objects.toString(violation.getLimitName(), ""))
+                                                            .writeCell(getViolationName(violation))
                                                             .writeCell(violation.getValue())
-                                                            .writeCell(Float.toString(violation.getLimit()) + (violation.getLimitReduction() != 1f ? " * " + violation.getLimitReduction() : ""))
-                                                            .writeCell(Math.round(Math.abs(violation.getValue()) / violation.getLimit() * 100f));
+                                                            .writeCell(getViolationLimit(violation))
+                                                            .writeCell(getViolationValue(violation));
                                                 } catch (IOException e) {
                                                     throw new UncheckedIOException(e);
                                                 }

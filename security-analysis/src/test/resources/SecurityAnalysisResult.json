@@ -5,12 +5,10 @@
     "limitViolations" : [ {
       "subjectId" : "NHV1_NHV2_1",
       "limitType" : "CURRENT",
-      "limit" : 100.0,
       "limitName" : "limit",
+      "limit" : 100.0,
       "limitReduction" : 0.95,
-      "value" : 110.0,
-      "country" : "FR",
-      "baseVoltage" : 380.0
+      "value" : 110.0
     } ],
     "actionsTaken" : [ ]
   },
@@ -19,11 +17,10 @@
       "id" : "contingency",
       "elements" : [ {
         "id" : "NHV1_NHV2_2",
-        "voltageLevelId" : "VLNHV1",
-        "type" : "BRANCH"
+        "type" : "BRANCH",
+        "voltageLevelId" : "VLNHV1"
       }, {
         "id" : "NHV1_NHV2_1",
-        "voltageLevelId" : null,
         "type" : "BRANCH"
       }, {
         "id" : "GEN",
@@ -36,23 +33,26 @@
     "limitViolationsResult" : {
       "computationOk" : true,
       "limitViolations" : [ {
-        "subjectId" : "NHV1_NHV2_1",
-        "limitType" : "CURRENT",
-        "limit" : 100.0,
-        "limitName" : "limit",
-        "limitReduction" : 0.95,
-        "value" : 110.0,
-        "country" : "FR",
-        "baseVoltage" : 380.0
-      }, {
         "subjectId" : "NHV1_NHV2_2",
         "limitType" : "CURRENT",
+        "limitName" : "20'",
         "limit" : 100.0,
-        "limitName" : null,
         "limitReduction" : 1.0,
-        "value" : 110.0,
-        "country" : null,
-        "baseVoltage" : "NaN"
+        "value" : 110.0
+      }, {
+        "subjectId" : "GEN",
+        "limitType" : "HIGH_VOLTAGE",
+        "limit" : 100.0,
+        "limitReduction" : 0.9,
+        "value" : 110.0
+      }, {
+        "subjectId" : "GEN2",
+        "limitType" : "LOW_VOLTAGE",
+        "limit" : 100.0,
+        "limitReduction" : 0.7,
+        "value" : 115.0,
+        "country" : "FR",
+        "baseVoltage" : 400.0
       } ],
       "actionsTaken" : [ "action1", "action2" ]
     }

@@ -29,14 +29,14 @@ class LimitViolationDeserializer extends StdDeserializer<LimitViolation> {
     public LimitViolation deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         String subjectId = null;
         LimitViolationType limitType = null;
-        float limit = Float.NaN;
         String limitName = null;
+        float limit = Float.NaN;
         float limitReduction = Float.NaN;
         float value = Float.NaN;
         Country country = null;
         float baseVoltage = Float.NaN;
 
-        while (parser.nextToken()  != JsonToken.END_OBJECT) {
+        while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
                 case "subjectId":
                     subjectId = parser.nextTextValue();
@@ -47,13 +47,13 @@ class LimitViolationDeserializer extends StdDeserializer<LimitViolation> {
                     limitType = parser.readValueAs(LimitViolationType.class);
                     break;
 
+                case "limitName":
+                    limitName = parser.nextTextValue();
+                    break;
+
                 case "limit":
                     parser.nextToken();
                     limit = parser.readValueAs(Float.class);
-                    break;
-
-                case "limitName":
-                    limitName = parser.nextTextValue();
                     break;
 
                 case "limitReduction":
@@ -82,7 +82,5 @@ class LimitViolationDeserializer extends StdDeserializer<LimitViolation> {
         }
 
         return new LimitViolation(subjectId, limitType, limit, limitName, limitReduction, value, country, baseVoltage);
-
-
     }
 }

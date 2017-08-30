@@ -75,6 +75,18 @@ abstract class AbstractBranch<I extends Connectable<I>> extends AbstractConnecta
         }
     }
 
+    public CurrentLimits getCurrentLimits(Side side) {
+        switch (side) {
+            case ONE:
+                return limits1;
+            case TWO:
+                return limits2;
+            default:
+                throw new InternalError();
+        }
+
+    }
+
     public CurrentLimits getCurrentLimits1() {
         return limits1;
     }
