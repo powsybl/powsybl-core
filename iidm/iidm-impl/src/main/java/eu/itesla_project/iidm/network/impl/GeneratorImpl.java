@@ -154,7 +154,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
 
     @Override
     public GeneratorImpl setTargetP(float targetP) {
-        ValidationUtil.checkTargetP(this, targetP);
+        ValidationUtil.checkActivePowerSetpoint(this, targetP);
         float oldValue = this.targetP.set(getNetwork().getStateIndex(), targetP);
         notifyUpdate("targetP", oldValue, targetP);
         return this;
