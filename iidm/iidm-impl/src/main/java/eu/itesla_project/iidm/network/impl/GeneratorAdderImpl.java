@@ -112,7 +112,7 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
         ValidationUtil.checkMinP(this, minP);
         ValidationUtil.checkMaxP(this, maxP);
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
-        ValidationUtil.checkTargetP(this, targetP);
+        ValidationUtil.checkActivePowerSetpoint(this, targetP);
         ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV, targetQ);
         ValidationUtil.checkActiveLimits(this, minP, maxP);
         ValidationUtil.checkRatedS(this, ratedS);
