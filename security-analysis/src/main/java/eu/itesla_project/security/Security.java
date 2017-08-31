@@ -70,9 +70,10 @@ public final class Security {
         }
     }
 
-    private static void checkCurrentLimits(Branch branch, Branch.Side side, float limitReduction, List<LimitViolation> violations) {
+    private static void checkCurrentLimits(Branch branch, Branch.Side side, EnumSet<CurrentLimitType> currentLimitTypes,
+                                           float limitReduction, List<LimitViolation> violations) {
         Branch.Overload o1 = branch.checkTemporaryLimits(side, limitReduction);
-        if (o1 != null) {
+        if (currentLimitTypes.contains(CurrentLimitType.TATL) && (o1 != null)) {
             violations.add(new LimitViolation(branch.getId(),
                 LimitViolationType.CURRENT,
                 o1.getPreviousLimit(),
@@ -81,33 +82,44 @@ public final class Security {
                 branch.getTerminal(side).getI(),
                 getCountry(branch, side),
                 getNominalVoltage(branch, side)));
-        } else {
+        } else if (currentLimitTypes.contains(CurrentLimitType.PATL)) {
             checkPermanentLimit(branch, side, limitReduction, violations);
         }
     }
 
-    private static void checkCurrentLimits(Iterable<? extends Branch> branches,
+    private static void checkCurrentLimits(Iterable<? extends Branch> branches, EnumSet<CurrentLimitType> currentLimitTypes,
                                            float limitReduction, List<LimitViolation> violations) {
         for (Branch branch : branches) {
-            checkCurrentLimits(branch, Branch.Side.ONE, limitReduction, violations);
-            checkCurrentLimits(branch, Branch.Side.TWO, limitReduction, violations);
+            checkCurrentLimits(branch, Branch.Side.ONE, currentLimitTypes, limitReduction, violations);
+            checkCurrentLimits(branch, Branch.Side.TWO, currentLimitTypes, limitReduction, violations);
         }
     }
 
     public static List<LimitViolation> checkLimits(Network network) {
-        return checkLimits(network, 1f);
+        return checkLimits(network, EnumSet.allOf(CurrentLimitType.class), 1f);
     }
 
     public static List<LimitViolation> checkLimits(Network network, float limitReduction) {
+        return checkLimits(network, EnumSet.allOf(CurrentLimitType.class), limitReduction);
+    }
+
+    public static List<LimitViolation> checkLimits(Network network, CurrentLimitType currentLimitType, float limitReduction) {
+        Objects.requireNonNull(currentLimitType);
+
+        return checkLimits(network, EnumSet.of(currentLimitType), limitReduction);
+    }
+
+    public static List<LimitViolation> checkLimits(Network network, EnumSet<CurrentLimitType> currentLimitTypes, float limitReduction) {
         Objects.requireNonNull(network);
+        Objects.requireNonNull(currentLimitTypes);
         //if (limitReduction <= 0 || limitReduction > 1) {
         // allow to increase the limits
         if (limitReduction <= 0) {
             throw new IllegalArgumentException("Bad limit reduction " + limitReduction);
         }
         List<LimitViolation> violations = new ArrayList<>();
-        checkCurrentLimits(network.getLines(), limitReduction, violations);
-        checkCurrentLimits(network.getTwoWindingsTransformers(), limitReduction, violations);
+        checkCurrentLimits(network.getLines(), currentLimitTypes, limitReduction, violations);
+        checkCurrentLimits(network.getTwoWindingsTransformers(), currentLimitTypes, limitReduction, violations);
         for (VoltageLevel vl : network.getVoltageLevels()) {
             if (!Float.isNaN(vl.getLowVoltageLimit())) {
                 for (Bus b : vl.getBusView().getBuses()) {
