@@ -7,7 +7,7 @@
 package eu.itesla_project.iidm.network.util;
 
 import eu.itesla_project.iidm.network.Bus;
-import eu.itesla_project.iidm.network.ConnectedComponent;
+import eu.itesla_project.iidm.network.Component;
 
 /**
  *
@@ -21,7 +21,7 @@ public final class ConnectedComponents {
     public static int getCcNum(Bus b) {
         int ccNum = -1;
         if (b != null) {
-            ConnectedComponent cc = b.getConnectedComponent();
+            Component cc = b.getConnectedComponent();
             if (cc != null) {
                 ccNum = cc.getNum();
             }

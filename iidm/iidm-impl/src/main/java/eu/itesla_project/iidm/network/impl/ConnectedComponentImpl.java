@@ -6,14 +6,14 @@
  */
 package eu.itesla_project.iidm.network.impl;
 
-import eu.itesla_project.iidm.network.ConnectedComponent;
+import eu.itesla_project.iidm.network.Component;
 import eu.itesla_project.iidm.network.impl.util.Ref;
 
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class ConnectedComponentImpl extends ComponentImpl implements ConnectedComponent {
+class ConnectedComponentImpl extends ComponentImpl implements Component {
 
     ConnectedComponentImpl(int num, int size, Ref<NetworkImpl> networkRef) {
         super(num, size, networkRef);

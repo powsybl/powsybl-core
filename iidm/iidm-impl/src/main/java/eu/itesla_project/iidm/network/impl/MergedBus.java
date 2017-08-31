@@ -162,10 +162,10 @@ class MergedBus extends AbstractIdentifiable<Bus> implements CalculatedBus {
     }
 
     @Override
-    public ConnectedComponent getConnectedComponent() {
+    public Component getConnectedComponent() {
         checkValidity();
         for (Bus b : buses) {
-            ConnectedComponent cc = b.getConnectedComponent();
+            Component cc = b.getConnectedComponent();
             if (cc != null) {
                 return cc;
             }

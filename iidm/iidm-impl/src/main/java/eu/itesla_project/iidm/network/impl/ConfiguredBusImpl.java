@@ -7,7 +7,6 @@
 package eu.itesla_project.iidm.network.impl;
 
 import eu.itesla_project.iidm.network.Component;
-import eu.itesla_project.iidm.network.ConnectedComponent;
 import eu.itesla_project.iidm.network.Terminal;
 import eu.itesla_project.iidm.network.impl.util.Ref;
 import gnu.trove.list.array.TFloatArrayList;
@@ -128,7 +127,7 @@ class ConfiguredBusImpl extends AbstractBus implements ConfiguredBus, Stateful {
     }
 
     @Override
-    public ConnectedComponent getConnectedComponent() {
+    public Component getConnectedComponent() {
         NetworkImpl.ConnectedComponentsManager ccm = voltageLevel.getNetwork().getConnectedComponentsManager();
         ccm.update();
         return ccm.getComponent(connectedComponentNumber.get(network.get().getStateIndex()));
