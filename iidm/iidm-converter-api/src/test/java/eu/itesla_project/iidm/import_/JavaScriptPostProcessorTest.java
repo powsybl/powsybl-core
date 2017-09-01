@@ -30,19 +30,9 @@ public class JavaScriptPostProcessorTest {
 
     private FileSystem fileSystem;
 
-    private PlatformConfig platformConfig;
-
     @Before
     public void setUp() throws IOException {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
-
-        InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
-        MapModuleConfig moduleConfig = platformConfig.createModuleConfig("javaScriptPostProcessor");
-        moduleConfig.setStringProperty("printToStdOut", "false");
-        this.platformConfig = platformConfig;
-
-        Path script = platformConfig.getConfigDir().resolve(JavaScriptPostProcessor.SCRIPT_NAME);
-        Files.copy(getClass().getResourceAsStream("/import-post-processor.js"), script);
     }
 
     @After
@@ -51,7 +41,23 @@ public class JavaScriptPostProcessorTest {
     }
 
     @Test
-    public void test() throws Exception {
+    public void test() throws IOException {
+        InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
+        MapModuleConfig moduleConfig = platformConfig.createModuleConfig("javaScriptPostProcessor");
+        moduleConfig.setStringProperty("printToStdOut", "false");
+        Path script = platformConfig.getConfigDir().resolve(JavaScriptPostProcessor.SCRIPT_NAME);
+        Files.copy(getClass().getResourceAsStream("/import-post-processor.js"), script);
+        test(platformConfig);
+
+        // Test with a custom script name
+        script = platformConfig.getConfigDir().resolve("custom-script.js");
+        Files.copy(getClass().getResourceAsStream("/import-post-processor.js"), script);
+        test(platformConfig);
+        moduleConfig.setStringProperty("script", script.toAbsolutePath().toString());
+        test(platformConfig);
+    }
+
+    private void test(PlatformConfig platformConfig) {
         JavaScriptPostProcessor processor = new JavaScriptPostProcessor(platformConfig);
         assertEquals("javaScript", processor.getName());
 
@@ -61,6 +67,4 @@ public class JavaScriptPostProcessorTest {
         } catch (Exception ignored) {
         }
     }
-
-
 }

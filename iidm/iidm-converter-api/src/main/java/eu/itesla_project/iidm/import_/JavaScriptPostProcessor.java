@@ -35,9 +35,9 @@ public class JavaScriptPostProcessor implements ImportPostProcessor {
 
     private static final boolean DEFAULT_PRINT_TO_STD_OUT = true;
 
-    private boolean printToStdOut = DEFAULT_PRINT_TO_STD_OUT;
+    private boolean printToStdOut;
 
-    private final Path script;
+    private Path script;
 
     @Override
     public String getName() {
@@ -51,12 +51,16 @@ public class JavaScriptPostProcessor implements ImportPostProcessor {
     public JavaScriptPostProcessor(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
 
+        Path defaultScript = platformConfig.getConfigDir().resolve(SCRIPT_NAME);
+
         ModuleConfig config = platformConfig.getModuleConfigIfExists("javaScriptPostProcessor");
         if (config != null) {
             printToStdOut = config.getBooleanProperty("printToStdOut", DEFAULT_PRINT_TO_STD_OUT);
+            script = config.getPathProperty("script", defaultScript);
+        } else {
+            printToStdOut = DEFAULT_PRINT_TO_STD_OUT;
+            script = defaultScript;
         }
-
-        script = platformConfig.getConfigDir().resolve(SCRIPT_NAME);
     }
 
     @Override
