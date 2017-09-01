@@ -42,6 +42,7 @@ public abstract class AbstractAppFileSystemStorageTest {
     public void test() throws IOException {
         // folder and create tests
         NodeId rootFolderId = storage.getRootNode();
+        assertNotNull(rootFolderId);
         assertNull(storage.getParentNode(rootFolderId));
         assertEquals(PseudoClass.FOLDER_PSEUDO_CLASS, storage.getNodePseudoClass(rootFolderId));
         assertTrue(storage.getChildNodes(rootFolderId).isEmpty());
@@ -129,6 +130,25 @@ public abstract class AbstractAppFileSystemStorageTest {
         assertEquals("root", storage.getNodeName(projectRootId));
         assertEquals(PseudoClass.PROJECT_FOLDER_PSEUDO_CLASS, storage.getNodePseudoClass(projectRootId));
         assertTrue(storage.getChildNodes(projectRootId).isEmpty());
+
+        // test cache
+        byte[] data = "data".getBytes(StandardCharsets.UTF_8);
+        try (OutputStream os = storage.writeToCache(testData2Id, "cache1")) {
+            os.write(data);
+        }
+
+        try (InputStream is = storage.readFromCache(testData2Id, "cache1")) {
+            assertArrayEquals(data, ByteStreams.toByteArray(is));
+        }
+
+        storage.invalidateCache(testData2Id, "cache1");
+        assertNull(storage.readFromCache(testData2Id, "cache1"));
+
+        try (OutputStream os = storage.writeToCache(testData2Id, "cache2")) {
+            os.write("data2".getBytes(StandardCharsets.UTF_8));
+        }
+        storage.invalidateCache();
+        assertNull(storage.readFromCache(testData2Id, "cache2"));
     }
 
     @Test
