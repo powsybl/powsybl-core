@@ -43,10 +43,12 @@ public class JavaScriptPostProcessorTest {
     @Test
     public void test() throws IOException {
         InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
-        MapModuleConfig moduleConfig = platformConfig.createModuleConfig("javaScriptPostProcessor");
-        moduleConfig.setStringProperty("printToStdOut", "false");
         Path script = platformConfig.getConfigDir().resolve(JavaScriptPostProcessor.SCRIPT_NAME);
         Files.copy(getClass().getResourceAsStream("/import-post-processor.js"), script);
+        test(platformConfig);
+
+        MapModuleConfig moduleConfig = platformConfig.createModuleConfig("javaScriptPostProcessor");
+        moduleConfig.setStringProperty("printToStdOut", "false");
         test(platformConfig);
 
         // Test with a custom script name
