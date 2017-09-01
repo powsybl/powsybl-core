@@ -56,7 +56,7 @@ public interface Bus extends Identifiable<Bus> {
     /**
      * Get the connected component that the bus is part of.
      */
-    ConnectedComponent getConnectedComponent();
+    Component getConnectedComponent();
 
     /**
      * Check if the bus belongs to the main connected component
