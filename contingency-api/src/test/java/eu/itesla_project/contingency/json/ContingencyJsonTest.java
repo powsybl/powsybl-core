@@ -23,6 +23,8 @@ public class ContingencyJsonTest extends AbstractConverterTest {
         List<ContingencyElement> elements = new ArrayList<>();
         elements.add(new BranchContingency("NHV1_NHV2_2", "VLHV1"));
         elements.add(new BranchContingency("NHV1_NHV2_1"));
+        elements.add(new LineContingency("NHV1_NHV2_2", "VLHV1"));
+        elements.add(new LineContingency("NHV1_NHV2_2"));
         elements.add(new GeneratorContingency("GEN"));
         elements.add(new BusbarSectionContingency("BBS1"));
 
@@ -51,8 +53,11 @@ public class ContingencyJsonTest extends AbstractConverterTest {
 
         try (OutputStream os = Files.newOutputStream(jsonFile)) {
             ObjectMapper mapper = new ObjectMapper();
-            ObjectWriter writer = mapper.writerWithDefaultPrettyPrinter();
+            SimpleModule module = new SimpleModule();
+            module.addSerializer(ContingencyElement.class, new ContingencyElementSerializer());
+            mapper.registerModule(module);
 
+            ObjectWriter writer = mapper.writerWithDefaultPrettyPrinter();
             writer.writeValue(os, object);
         } catch (IOException e) {
             throw new UncheckedIOException(e);

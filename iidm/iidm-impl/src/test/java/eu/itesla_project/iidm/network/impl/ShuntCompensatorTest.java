@@ -13,6 +13,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import java.util.Arrays;
+import java.util.List;
+
 import static org.junit.Assert.*;
 
 public class ShuntCompensatorTest {
@@ -106,6 +109,45 @@ public class ShuntCompensatorTest {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("should be greater than 0");
         createShunt("invalid", "invalid", 2.0f, 0, -1);
+    }
+
+    @Test
+    public void testSetterGetterInMultiStates() {
+        StateManager stateManager = network.getStateManager();
+        createShunt("testMultiState", "testMultiState", 2.0f, 5, 10);
+        ShuntCompensator shunt = network.getShunt("testMultiState");
+        List<String> statesToAdd = Arrays.asList("s1", "s2", "s3", "s4");
+        stateManager.cloneState(StateManager.INITIAL_STATE_ID, statesToAdd);
+
+        stateManager.setWorkingState("s4");
+        // check values cloned by extend
+        assertEquals(5, shunt.getCurrentSectionCount());
+        assertEquals(10.0f, shunt.getCurrentB(), 0.0f); // 2*5
+        // change values in s4
+        shunt.setCurrentSectionCount(4);
+
+        // remove s2
+        stateManager.removeState("s2");
+
+        stateManager.cloneState("s4", "s2b");
+        stateManager.setWorkingState("s2b");
+        // check values cloned by allocate
+        assertEquals(4, shunt.getCurrentSectionCount());
+        assertEquals(8.0f, shunt.getCurrentB(), 0.0f); // 2*4
+
+        // recheck initial state value
+        stateManager.setWorkingState(StateManager.INITIAL_STATE_ID);
+        assertEquals(5, shunt.getCurrentSectionCount());
+        assertEquals(10.0f, shunt.getCurrentB(), 0.0f); // 2*5
+
+        // remove working state s4
+        stateManager.setWorkingState("s4");
+        stateManager.removeState("s4");
+        try {
+            shunt.getCurrentSectionCount();
+            fail();
+        } catch (Exception ignored) {
+        }
     }
 
     private void createShunt(String id, String name, float bPerSection, int currentSectionCount, int maxSectionCount) {

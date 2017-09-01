@@ -6,6 +6,23 @@
  */
 package eu.itesla_project.security.json;
 
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import eu.itesla_project.contingency.Contingency;
+import eu.itesla_project.contingency.ContingencyElement;
+import eu.itesla_project.contingency.json.ContingencyDeserializer;
+import eu.itesla_project.contingency.json.ContingencyElementDeserializer;
+import eu.itesla_project.security.LimitViolation;
+import eu.itesla_project.security.LimitViolationsResult;
+import eu.itesla_project.security.PostContingencyResult;
+import eu.itesla_project.security.SecurityAnalysisResult;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
@@ -15,17 +32,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-
-import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-
-import eu.itesla_project.contingency.*;
-import eu.itesla_project.contingency.json.ContingencyDeserializer;
-import eu.itesla_project.contingency.json.ContingencyElementDeserializer;
-import eu.itesla_project.security.*;
 
 /**
  *

@@ -10,11 +10,15 @@ import eu.itesla_project.commons.ITeslaException;
 import eu.itesla_project.iidm.network.HvdcConverterStation;
 import eu.itesla_project.iidm.network.HvdcLine;
 import eu.itesla_project.iidm.network.Network;
+import eu.itesla_project.iidm.network.StateManager;
 import eu.itesla_project.iidm.network.test.HvdcTestNetwork;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+
+import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -157,6 +161,47 @@ public class HvdcLineTest {
         assertNotNull(line);
         assertNull(network.getHvdcLine("toRemove"));
         assertEquals(hvdcLineCount - 1, network.getHvdcLineCount());
+    }
+
+    @Test
+    public void testSetterGetterInMultiStates() {
+        StateManager stateManager = network.getStateManager();
+        createHvdcLine("testMultiState", "testMultiState", 10.0f, HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER,
+                11.0f, 12.0f, 22.0f, "C1", "C2");
+        HvdcLine hvdcLine = network.getHvdcLine("testMultiState");
+        List<String> statesToAdd = Arrays.asList("s1", "s2", "s3", "s4");
+        stateManager.cloneState(StateManager.INITIAL_STATE_ID, statesToAdd);
+
+        stateManager.setWorkingState("s4");
+        // check values cloned by extend
+        assertEquals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, hvdcLine.getConvertersMode());
+        assertEquals(12.0f, hvdcLine.getActivePowerSetpoint(), 0.0f);
+        // change values in s4
+        hvdcLine.setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER);
+        hvdcLine.setActivePowerSetpoint(22.0f);
+
+        // remove s2
+        stateManager.removeState("s2");
+
+        stateManager.cloneState("s4", "s2b");
+        stateManager.setWorkingState("s2b");
+        // check values cloned by allocate
+        assertEquals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER, hvdcLine.getConvertersMode());
+        assertEquals(22.0f, hvdcLine.getActivePowerSetpoint(), 0.0f);
+
+        // recheck initial state value
+        stateManager.setWorkingState(StateManager.INITIAL_STATE_ID);
+        assertEquals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, hvdcLine.getConvertersMode());
+        assertEquals(12.0f, hvdcLine.getActivePowerSetpoint(), 0.0f);
+
+        // remove working state s4
+        stateManager.setWorkingState("s4");
+        stateManager.removeState("s4");
+        try {
+            hvdcLine.getConvertersMode();
+            fail();
+        } catch (Exception ignored) {
+        }
     }
 
     private void createHvdcLine(String id, String name, float r, HvdcLine.ConvertersMode mode, float v,

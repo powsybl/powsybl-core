@@ -117,7 +117,7 @@ public class LoadFlowActionSimulator implements ActionSimulator {
         }
     }
 
-    protected LoadFlowFactory newLoadLoadLowFactory() {
+    protected LoadFlowFactory newLoadFlowFactory() {
         try {
             return config.getLoadFlowFactoryClass().newInstance();
         } catch (InstantiationException e) {
@@ -136,7 +136,7 @@ public class LoadFlowActionSimulator implements ActionSimulator {
             observers.forEach(o -> o.roundBegin(context.getContingency(), context.getRound()));
         }
 
-        LoadFlowFactory loadFlowFactory = newLoadLoadLowFactory();
+        LoadFlowFactory loadFlowFactory = newLoadFlowFactory();
         LoadFlow loadFlow = loadFlowFactory.create(context.getNetwork(), computationManager, 0);
 
         LOGGER.info("Running loadflow ({})", loadFlow.getName());
@@ -147,7 +147,7 @@ public class LoadFlowActionSimulator implements ActionSimulator {
             throw new RuntimeException(e);
         }
         if (result.isOk()) {
-            List<LimitViolation> violations = LIMIT_VIOLATION_FILTER.apply(Security.checkLimits(context.getNetwork(), Security.CurrentLimitType.TATL, 1));
+            List<LimitViolation> violations = LIMIT_VIOLATION_FILTER.apply(Security.checkLimits(context.getNetwork(), 1));
             if (violations.size() > 0) {
                 LOGGER.info("Violations: \n{}", Security.printLimitsViolations(violations, NO_FILTER));
             }

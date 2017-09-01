@@ -100,7 +100,7 @@ public interface Network extends Container<Network> {
          * Depends on the working state.
          * @see StateManager
          */
-        Collection<ConnectedComponent> getConnectedComponents();
+        Collection<Component> getConnectedComponents();
 
     }
 

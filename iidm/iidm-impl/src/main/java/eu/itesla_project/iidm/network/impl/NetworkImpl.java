@@ -92,7 +92,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Mult
         }
 
         @Override
-        public Collection<ConnectedComponent> getConnectedComponents() {
+        public Collection<Component> getConnectedComponents() {
             return Collections.unmodifiableList(states.get().connectedComponentsManager.getConnectedComponents());
         }
 

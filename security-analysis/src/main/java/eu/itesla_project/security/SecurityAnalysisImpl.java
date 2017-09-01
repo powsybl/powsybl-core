@@ -41,7 +41,7 @@ public class SecurityAnalysisImpl implements SecurityAnalysis {
     }
 
     private static List<LimitViolation> checkLimits(Network network) {
-        return Security.checkLimits(network, Security.CurrentLimitType.TATL, 1f);
+        return Security.checkLimits(network, 1f);
     }
 
     @Override

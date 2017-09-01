@@ -14,6 +14,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import java.util.Arrays;
+import java.util.List;
+
 import static org.junit.Assert.*;
 
 public class GeneratorTest {
@@ -193,6 +196,55 @@ public class GeneratorTest {
         assertNotNull(generator);
         assertEquals(count - 1, network.getGeneratorCount());
         assertNull(network.getGenerator("toRemove"));
+    }
+
+    @Test
+    public void testSetterGetterInMultiStates() {
+        StateManager stateManager = network.getStateManager();
+        createGenerator("testMultiState", EnergySource.HYDRO, 20.0f, 11.f, 2.0f,
+                30.0f, 40.0f, true, 2.0f);
+        Generator generator = network.getGenerator("testMultiState");
+        List<String> statesToAdd = Arrays.asList("s1", "s2", "s3", "s4");
+        stateManager.cloneState(StateManager.INITIAL_STATE_ID, statesToAdd);
+
+        stateManager.setWorkingState("s4");
+        // check values cloned by extend
+        assertTrue(generator.isVoltageRegulatorOn());
+        assertEquals(30.0f, generator.getTargetP(), 0.0f);
+        assertEquals(40.0f, generator.getTargetQ(), 0.0f);
+        assertEquals(2.0f, generator.getTargetV(), 0.0f);
+        // change values in s4
+        generator.setVoltageRegulatorOn(false);
+        generator.setTargetP(9.1f);
+        generator.setTargetQ(9.2f);
+        generator.setTargetV(9.3f);
+
+        // remove s2
+        stateManager.removeState("s2");
+
+        stateManager.cloneState("s4", "s2b");
+        stateManager.setWorkingState("s2b");
+        // check values cloned by allocate
+        assertFalse(generator.isVoltageRegulatorOn());
+        assertEquals(9.1f, generator.getTargetP(), 0.0f);
+        assertEquals(9.2f, generator.getTargetQ(), 0.0f);
+        assertEquals(9.3f, generator.getTargetV(), 0.0f);
+
+        // recheck initial state value
+        stateManager.setWorkingState(StateManager.INITIAL_STATE_ID);
+        assertTrue(generator.isVoltageRegulatorOn());
+        assertEquals(30.0f, generator.getTargetP(), 0.0f);
+        assertEquals(40.0f, generator.getTargetQ(), 0.0f);
+        assertEquals(2.0f, generator.getTargetV(), 0.0f);
+
+        // remove working state s4
+        stateManager.setWorkingState("s4");
+        stateManager.removeState("s4");
+        try {
+            generator.getTargetP();
+            fail();
+        } catch (Exception ignored) {
+        }
     }
 
     private void createGenerator(String id, EnergySource source, float maxP, float minP, float ratedS,

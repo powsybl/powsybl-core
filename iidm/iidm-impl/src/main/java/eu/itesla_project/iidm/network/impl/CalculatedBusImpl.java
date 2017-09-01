@@ -135,7 +135,7 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     }
 
     @Override
-    public ConnectedComponent getConnectedComponent() {
+    public Component getConnectedComponent() {
         checkValidity();
         NetworkImpl.ConnectedComponentsManager ccm = voltageLevel.getNetwork().getConnectedComponentsManager();
         ccm.update();

@@ -26,11 +26,11 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> {
         this.voltageLevel = voltageLevel;
     }
 
-    protected abstract ConnectedComponent getConnectedComponent();
+    protected abstract Component getConnectedComponent();
 
     public boolean isInMainConnectedComponent() {
-        ConnectedComponent cc = getConnectedComponent();
-        return cc != null && cc.getNum() == ConnectedComponent.MAIN_CC_NUM;
+        Component cc = getConnectedComponent();
+        return cc != null && cc.getNum() == Component.MAIN_NUM;
     }
 
     protected abstract Component getSynchronousComponent();

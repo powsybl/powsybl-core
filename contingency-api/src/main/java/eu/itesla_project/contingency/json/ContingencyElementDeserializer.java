@@ -52,6 +52,8 @@ public class ContingencyElementDeserializer extends StdDeserializer<ContingencyE
         if (type != null) {
             switch (type) {
                 case LINE:
+                    return new LineContingency(id, voltageLevelId);
+
                 case BRANCH:
                     return new BranchContingency(id, voltageLevelId);
 

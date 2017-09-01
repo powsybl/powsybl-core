@@ -6,8 +6,15 @@
  */
 package eu.itesla_project.security;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import eu.itesla_project.commons.io.table.CsvTableFormatterFactory;
+import eu.itesla_project.commons.io.table.TableFormatterConfig;
+import eu.itesla_project.contingency.Contingency;
+import eu.itesla_project.iidm.network.Bus;
+import eu.itesla_project.iidm.network.Network;
+import eu.itesla_project.iidm.network.test.EurostagTutorialExample1Factory;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.io.StringWriter;
 import java.util.Arrays;
@@ -15,17 +22,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mockito;
-
-import eu.itesla_project.commons.io.table.CsvTableFormatterFactory;
-import eu.itesla_project.commons.io.table.TableFormatterConfig;
-import eu.itesla_project.contingency.Contingency;
-import eu.itesla_project.iidm.network.Bus;
-import eu.itesla_project.iidm.network.Network;
-import eu.itesla_project.iidm.network.test.EurostagTutorialExample1Factory;
-import eu.itesla_project.security.Security.CurrentLimitType;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -64,7 +62,7 @@ public class SecurityTest {
         }
         assertEquals(String.join(System.lineSeparator(),
                                  "Pre-contingency violations",
-                                 "Action,Equipment,Violation type,Violation name,Value,Limit,Charge %",
+                                 "Action,Equipment,Violation type,Violation name,Value,Limit,Loading rate %",
                                  "action1,,,,,,",
                                  ",line1,CURRENT,20',1100.00,1000.0,110"),
                      writer.toString().trim());
@@ -80,7 +78,7 @@ public class SecurityTest {
         }
         assertEquals(String.join(System.lineSeparator(),
                                  "Post-contingency limit violations",
-                                 "Contingency,Status,Action,Equipment,Violation type,Violation name,Value,Limit,Charge %",
+                                 "Contingency,Status,Action,Equipment,Violation type,Violation name,Value,Limit,Loading rate %",
                                  "contingency1,converge,,,,,,,",
                                  ",,action2,,,,,,",
                                  ",,,line1,CURRENT,20',1100.00,1000.0,110",
@@ -98,7 +96,7 @@ public class SecurityTest {
         }
         assertEquals(String.join(System.lineSeparator(),
                                  "Post-contingency limit violations",
-                                 "Contingency,Status,Action,Equipment,Violation type,Violation name,Value,Limit,Charge %",
+                                 "Contingency,Status,Action,Equipment,Violation type,Violation name,Value,Limit,Loading rate %",
                                  "contingency1,converge,,,,,,,",
                                  ",,action2,,,,,,",
                                  ",,,line2,CURRENT,10',950.000,900.0,106"),
@@ -108,12 +106,12 @@ public class SecurityTest {
     @Test
     public void printLimitsViolations() {
         assertEquals(String.join("\n",
-                                 "+---------+--------------+---------------+----------------+----------------+--------+--------+------------------+----------+",
-                                 "| Country | Base voltage | Equipment (2) | Violation type | Violation name | value  | limit  | abs(value-limit) | charge % |",
-                                 "+---------+--------------+---------------+----------------+----------------+--------+--------+------------------+----------+",
-                                 "|         |              | line1         | CURRENT        | 20'            | 1100.0 | 1000.0 | 100.0            | 110      |",
-                                 "|         |              | line2         | CURRENT        | 10'            | 950.0  | 900.0  | 50.0             | 106      |",
-                                 "+---------+--------------+---------------+----------------+----------------+--------+--------+------------------+----------+"),
+                                 "+---------+--------------+---------------+----------------+----------------+--------+--------+------------------+----------------+",
+                                 "| Country | Base voltage | Equipment (2) | Violation type | Violation name | Value  | Limit  | abs(value-limit) | Loading rate % |",
+                                 "+---------+--------------+---------------+----------------+----------------+--------+--------+------------------+----------------+",
+                                 "|         |              | line1         | CURRENT        | 20'            | 1100.0 | 1000.0 | 100.0            | 110            |",
+                                 "|         |              | line2         | CURRENT        | 10'            | 950.0  | 900.0  | 50.0             | 106            |",
+                                 "+---------+--------------+---------------+----------------+----------------+--------+--------+------------------+----------------+"),
                      Security.printLimitsViolations(Arrays.asList(line1Violation, line2Violation), new LimitViolationFilter()));
     }
 
@@ -124,7 +122,7 @@ public class SecurityTest {
         ((Bus) network.getIdentifiable("NHV2")).setV(380f).getVoltageLevel().setLowVoltageLimit(300f).setHighVoltageLimit(500f);
         network.getLine("NHV1_NHV2_1").getTerminal1().setP(560f).setQ(550f);
         network.getLine("NHV1_NHV2_1").getTerminal2().setP(560f).setQ(550f);
-        network.getLine("NHV1_NHV2_1").newCurrentLimits1().setPermanentLimit(1500f).add();
+        network.getLine("NHV1_NHV2_1").newCurrentLimits1().setPermanentLimit(500f).add();
         network.getLine("NHV1_NHV2_1").newCurrentLimits2()
             .setPermanentLimit(1100f)
             .beginTemporaryLimit()
@@ -143,11 +141,11 @@ public class SecurityTest {
                 .setValue(1200)
             .endTemporaryLimit()
             .add();
-        network.getLine("NHV1_NHV2_2").newCurrentLimits2().setPermanentLimit(1500f).add();
+        network.getLine("NHV1_NHV2_2").newCurrentLimits2().setPermanentLimit(500f).add();
 
         List<LimitViolation> violations = Security.checkLimits(network);
 
-        assertEquals(3, violations.size());
+        assertEquals(5, violations.size());
         violations.forEach(violation -> {
             assertTrue(Arrays.asList("VLHV1", "NHV1_NHV2_1", "NHV1_NHV2_2").contains(violation.getSubjectId()));
             if ("VLHV1".equals(violation.getSubjectId())) {
@@ -157,9 +155,9 @@ public class SecurityTest {
             }
         });
 
-        violations = Security.checkLimits(network, CurrentLimitType.TATL, 1);
+        violations = Security.checkLimits(network, 1);
 
-        assertEquals(3, violations.size());
+        assertEquals(5, violations.size());
         violations.forEach(violation ->  {
             assertTrue(Arrays.asList("VLHV1", "NHV1_NHV2_1", "NHV1_NHV2_2").contains(violation.getSubjectId()));
             if ("VLHV1".equals(violation.getSubjectId())) {
