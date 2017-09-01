@@ -383,7 +383,7 @@ public final class Importers {
     }
 
     public static Network loadNetwork(Path file, ComputationManager computationManager, ImportConfig config, Properties parameters, ImportersLoader loader) {
-        ReadOnlyDataSource dataSource = createReadOnly(file);
+        ReadOnlyDataSource dataSource = createDataSource(file);
         for (Importer importer : Importers.list(loader, computationManager, config)) {
             if (importer.exists(dataSource)) {
                 return importer.importData(dataSource, parameters);
