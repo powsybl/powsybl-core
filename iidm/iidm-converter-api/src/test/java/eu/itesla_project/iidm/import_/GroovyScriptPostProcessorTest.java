@@ -26,7 +26,7 @@ import static org.junit.Assert.fail;
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class JavaScriptPostProcessorTest {
+public class GroovyScriptPostProcessorTest {
 
     private FileSystem fileSystem;
 
@@ -43,24 +43,21 @@ public class JavaScriptPostProcessorTest {
     @Test
     public void test() throws IOException {
         InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
-        Path script = platformConfig.getConfigDir().resolve(JavaScriptPostProcessor.SCRIPT_NAME);
-        Files.copy(getClass().getResourceAsStream("/import-post-processor.js"), script);
-        test(platformConfig);
-
-        MapModuleConfig moduleConfig = platformConfig.createModuleConfig("javaScriptPostProcessor");
-        moduleConfig.setStringProperty("printToStdOut", "false");
+        Path script = platformConfig.getConfigDir().resolve(GroovyScriptPostProcessor.DEFAULT_SCRIPT_NAME);
+        Files.copy(getClass().getResourceAsStream("/import-post-processor.groovy"), script);
         test(platformConfig);
 
         // Test with a custom script name
-        script = platformConfig.getConfigDir().resolve("custom-script.js");
-        Files.copy(getClass().getResourceAsStream("/import-post-processor.js"), script);
+        script = platformConfig.getConfigDir().resolve("custom-script.groovy");
+        Files.copy(getClass().getResourceAsStream("/import-post-processor.groovy"), script);
+        MapModuleConfig moduleConfig = platformConfig.createModuleConfig("groovy-post-processor");
         moduleConfig.setStringProperty("script", script.toAbsolutePath().toString());
         test(platformConfig);
     }
 
     private void test(PlatformConfig platformConfig) {
-        JavaScriptPostProcessor processor = new JavaScriptPostProcessor(platformConfig);
-        assertEquals("javaScript", processor.getName());
+        GroovyScriptPostProcessor processor = new GroovyScriptPostProcessor(platformConfig);
+        assertEquals("groovyScript", processor.getName());
 
         try {
             processor.process(null, null);
