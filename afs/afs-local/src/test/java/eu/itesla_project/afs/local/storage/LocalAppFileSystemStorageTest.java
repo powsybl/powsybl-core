@@ -27,6 +27,7 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -54,9 +55,11 @@ public class LocalAppFileSystemStorageTest {
         Files.createFile(path2);
         ComputationManager computationManager = Mockito.mock(ComputationManager.class);
         Network network = Mockito.mock(Network.class);
-        storage = new LocalAppFileSystemStorage(rootDir, "mem", computationManager,
-                new ImportConfig(), new ImportersLoaderList(Collections.singletonList(new TestImporter(network)),
-                                                            Collections.emptyList()));
+        List<LocalFileStorageExtension> extensions
+                = Collections.singletonList(new LocalCaseStorageExtension(new ImportConfig(),
+                                                                          new ImportersLoaderList(Collections.singletonList(new TestImporter(network)),
+                                                                                                  Collections.emptyList())));
+        storage = new LocalAppFileSystemStorage(rootDir, "mem", extensions, computationManager);
     }
 
     @After

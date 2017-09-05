@@ -8,9 +8,10 @@ package eu.itesla_project.afs.local;
 
 import eu.itesla_project.afs.AppFileSystem;
 import eu.itesla_project.afs.local.storage.LocalAppFileSystemStorage;
+import eu.itesla_project.afs.local.storage.LocalFileStorageExtension;
 import eu.itesla_project.computation.ComputationManager;
-import eu.itesla_project.iidm.import_.ImportConfig;
-import eu.itesla_project.iidm.import_.ImportersLoader;
+
+import java.util.List;
 
 /**
  *
@@ -18,10 +19,10 @@ import eu.itesla_project.iidm.import_.ImportersLoader;
  */
 public class LocalAppFileSystem extends AppFileSystem {
 
-    public LocalAppFileSystem(LocalAppFileSystemConfig config, ComputationManager computationManager, ImportConfig importConfig,
-                              ImportersLoader importersLoader) {
+    public LocalAppFileSystem(LocalAppFileSystemConfig config, List<LocalFileStorageExtension> extensions,
+                              ComputationManager computationManager) {
         super(config.getDriveName(),
                 config.isRemotelyAccessible(),
-                new LocalAppFileSystemStorage(config.getRootDir(), config.getDriveName(), computationManager, importConfig, importersLoader));
+                new LocalAppFileSystemStorage(config.getRootDir(), config.getDriveName(), extensions, computationManager));
     }
 }

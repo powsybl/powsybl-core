@@ -9,10 +9,9 @@ package eu.itesla_project.afs.local;
 import com.google.auto.service.AutoService;
 import eu.itesla_project.afs.AppFileSystem;
 import eu.itesla_project.afs.AppFileSystemProvider;
+import eu.itesla_project.afs.local.storage.LocalFileStorageExtension;
+import eu.itesla_project.commons.util.ServiceLoaderCache;
 import eu.itesla_project.computation.ComputationManager;
-import eu.itesla_project.iidm.import_.ImportConfig;
-import eu.itesla_project.iidm.import_.ImportersLoader;
-import eu.itesla_project.iidm.import_.ImportersServiceLoader;
 
 import java.util.List;
 import java.util.Objects;
@@ -26,25 +25,21 @@ public class LocalAppFileSystemProvider implements AppFileSystemProvider {
 
     private final List<LocalAppFileSystemConfig> configs;
 
-    private final ImportConfig importConfig;
-
-    private final ImportersLoader importersLoader;
+    private final List<LocalFileStorageExtension> extensions;
 
     public LocalAppFileSystemProvider() {
-        this(LocalAppFileSystemConfig.load(), ImportConfig.load(), new ImportersServiceLoader());
+        this(LocalAppFileSystemConfig.load(), new ServiceLoaderCache<>(LocalFileStorageExtension.class).getServices());
     }
 
-    public LocalAppFileSystemProvider(List<LocalAppFileSystemConfig> configs, ImportConfig importConfig,
-                                      ImportersLoader importersLoader) {
+    public LocalAppFileSystemProvider(List<LocalAppFileSystemConfig> configs, List<LocalFileStorageExtension> extensions) {
         this.configs = Objects.requireNonNull(configs);
-        this.importConfig = Objects.requireNonNull(importConfig);
-        this.importersLoader = Objects.requireNonNull(importersLoader);
+        this.extensions = Objects.requireNonNull(extensions);
     }
 
     @Override
     public List<AppFileSystem> getFileSystems(ComputationManager computationManager) {
         return configs.stream()
-                .map(config -> new LocalAppFileSystem(config, computationManager, importConfig, importersLoader))
+                .map(config -> new LocalAppFileSystem(config, extensions, computationManager))
                 .collect(Collectors.toList());
     }
 }
