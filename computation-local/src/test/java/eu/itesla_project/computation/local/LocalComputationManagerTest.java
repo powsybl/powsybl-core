@@ -84,7 +84,7 @@ public class LocalComputationManagerTest {
         };
         try (ComputationManager computationManager = new LocalComputationManager(config, localExecutor)) {
             computationManager.execute(new ExecutionEnvironment(ImmutableMap.of("var1", "val1"), PREFIX, false),
-                    new DefaultExecutionHandler<Object>() {
+                    new AbstractExecutionHandler<Object>() {
                         @Override
                         public List<CommandExecution> before(Path workingDir) throws IOException {
                             // create files in the working directory
@@ -162,7 +162,7 @@ public class LocalComputationManagerTest {
             computationManager.newCommonFile("file1").close();
 
             computationManager.execute(new ExecutionEnvironment(ImmutableMap.of(), PREFIX, false),
-                    new DefaultExecutionHandler<Object>() {
+                    new AbstractExecutionHandler<Object>() {
                         @Override
                         public List<CommandExecution> before(Path workingDir) throws IOException {
                             // run the group command

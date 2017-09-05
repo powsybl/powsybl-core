@@ -167,7 +167,7 @@ public class MpiComputationManagerTest {
         return new String(Files.readAllBytes(workingDir.resolve(OUTPUT_FILE_NAME_2)), StandardCharsets.UTF_8);
     }
 
-    private class ExecutionHandlerTest1 extends DefaultExecutionHandler<String> {
+    private class ExecutionHandlerTest1 extends AbstractExecutionHandler<String> {
         @Override
         public List<CommandExecution> before(Path workingDir) throws IOException {
             writeInput1(workingDir);
@@ -181,7 +181,7 @@ public class MpiComputationManagerTest {
         }
     }
 
-    private class ExecutionHandlerTest2 extends DefaultExecutionHandler<String> {
+    private class ExecutionHandlerTest2 extends AbstractExecutionHandler<String> {
         @Override
         public List<CommandExecution> before(Path workingDir) throws IOException {
             writeInput1(workingDir);
