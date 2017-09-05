@@ -6,23 +6,17 @@
  */
 package eu.itesla_project.afs.local.storage;
 
-import eu.itesla_project.afs.ext.base.Case;
 import eu.itesla_project.afs.Folder;
 import eu.itesla_project.afs.storage.AppFileSystemStorage;
 import eu.itesla_project.afs.storage.NodeId;
-import eu.itesla_project.computation.ComputationManager;
 import eu.itesla_project.commons.datasource.DataSource;
-import eu.itesla_project.commons.datasource.ReadOnlyDataSource;
-import eu.itesla_project.iidm.import_.*;
+import eu.itesla_project.computation.ComputationManager;
 
 import java.io.*;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -33,19 +27,34 @@ public class LocalAppFileSystemStorage implements AppFileSystemStorage {
 
     private final String fileSystemName;
 
+    private final List<LocalFileStorageExtension> extensions;
+
     private final ComputationManager computationManager;
 
-    private final ImportConfig importConfig;
+    private final Map<Path, LocalFileStorage> cache = new HashMap<>();
 
-    private final ImportersLoader importersLoader;
-
-    public LocalAppFileSystemStorage(Path rootDir, String fileSystemName, ComputationManager computationManager,
-                                     ImportConfig importConfig, ImportersLoader importersLoader) {
+    public LocalAppFileSystemStorage(Path rootDir, String fileSystemName, List<LocalFileStorageExtension> extensions,
+                                     ComputationManager computationManager) {
         this.rootDir = Objects.requireNonNull(rootDir);
         this.fileSystemName = Objects.requireNonNull(fileSystemName);
+        this.extensions = Objects.requireNonNull(extensions);
         this.computationManager = Objects.requireNonNull(computationManager);
-        this.importConfig = Objects.requireNonNull(importConfig);
-        this.importersLoader = Objects.requireNonNull(importersLoader);
+    }
+
+    private LocalFileStorage scan(Path path, boolean useCache) {
+        LocalFileStorage file = null;
+        if (useCache && cache.containsKey(path)) {
+            file = cache.get(path);
+        } else {
+            for (LocalFileStorageExtension scanner : extensions) {
+                file = scanner.scan(path, computationManager);
+                if (file != null) {
+                    break;
+                }
+            }
+            cache.put(path, file);
+        }
+        return file;
     }
 
     @Override
@@ -58,24 +67,15 @@ public class LocalAppFileSystemStorage implements AppFileSystemStorage {
         return new PathNodeId(rootDir);
     }
 
-    private Importer findImporter(Path path) {
-        ReadOnlyDataSource dataSource = Importers.createDataSource(path);
-        for (Importer importer : Importers.list(importersLoader, computationManager, importConfig)) {
-            if (importer.exists(dataSource)) {
-                return importer;
-            }
-        }
-        return null;
-    }
-
     @Override
     public String getNodePseudoClass(NodeId nodeId) {
         Objects.requireNonNull(nodeId);
         Path path = ((PathNodeId) nodeId).getPath();
-        if (Files.isDirectory(path)) {
+        LocalFileStorage file = scan(path, true);
+        if (file != null) {
+            return file.getPseudoClass();
+        } else if (Files.isDirectory(path)) {
             return Folder.PSEUDO_CLASS;
-        } else if (findImporter(path) != null) {
-            return Case.PSEUDO_CLASS;
         } else {
             throw new AssertionError();
         }
@@ -85,7 +85,14 @@ public class LocalAppFileSystemStorage implements AppFileSystemStorage {
     public String getNodeName(NodeId nodeId) {
         Objects.requireNonNull(nodeId);
         Path path = ((PathNodeId) nodeId).getPath();
-        return path.equals(rootDir) ? fileSystemName : path.getFileName().toString();
+        LocalFileStorage file = scan(path, true);
+        if (file != null) {
+            return file.getName();
+        } else if (Files.isDirectory(path)) {
+            return path.equals(rootDir) ? fileSystemName : path.getFileName().toString();
+        } else {
+            throw new AssertionError();
+        }
     }
 
     @Override
@@ -97,7 +104,7 @@ public class LocalAppFileSystemStorage implements AppFileSystemStorage {
             try (DirectoryStream<Path> stream = Files.newDirectoryStream(path)) {
                 for (Path childPath : stream) {
                     if (Files.isDirectory(childPath) ||
-                            findImporter(childPath) != null) {
+                            scan(childPath, false) != null) {
                         childNodesIds.add(new PathNodeId(childPath));
                     }
                 }
@@ -117,7 +124,7 @@ public class LocalAppFileSystemStorage implements AppFileSystemStorage {
         Path path = ((PathNodeId) nodeId).getPath();
         Path childPath = path.resolve(name);
         if (Files.isDirectory(childPath) ||
-                (Files.exists(childPath) && findImporter(childPath) != null)) {
+                (Files.exists(childPath) && scan(childPath, false) != null)) {
             return new PathNodeId(childPath);
         }
         return null;
@@ -154,16 +161,11 @@ public class LocalAppFileSystemStorage implements AppFileSystemStorage {
     public String getStringAttribute(NodeId nodeId, String name) {
         Objects.requireNonNull(nodeId);
         Path path = ((PathNodeId) nodeId).getPath();
-        switch (name) {
-            case "format":
-                return findImporter(path).getFormat();
-
-            case "description":
-                return findImporter(path).getComment();
-
-            default:
-                throw new AssertionError(name);
+        LocalFileStorage file = scan(path, true);
+        if (file != null) {
+            return file.getStringAttribute(name);
         }
+        throw new AssertionError();
     }
 
     @Override
@@ -185,13 +187,11 @@ public class LocalAppFileSystemStorage implements AppFileSystemStorage {
     public DataSource getDataSourceAttribute(NodeId nodeId, String name) {
         Objects.requireNonNull(nodeId);
         Path path = ((PathNodeId) nodeId).getPath();
-        switch (name) {
-            case "dataSource":
-                return Importers.createDataSource(path);
-
-            default:
-                throw new AssertionError();
+        LocalFileStorage file = scan(path, true);
+        if (file != null) {
+            return file.getDataSourceAttribute(name);
         }
+        throw new AssertionError();
     }
 
     @Override
