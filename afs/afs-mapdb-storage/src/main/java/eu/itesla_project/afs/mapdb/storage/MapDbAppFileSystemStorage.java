@@ -116,7 +116,15 @@ public class MapDbAppFileSystemStorage implements AppFileSystemStorage {
 
     private final ConcurrentMap<NamedLink, String> stringAttributeMap;
 
-    private final ConcurrentMap<NodeId, Set<String>> stringAttributesMap;
+    private final ConcurrentMap<NamedLink, Integer> integerAttributeMap;
+
+    private final ConcurrentMap<NamedLink, Float> floatAttributeMap;
+
+    private final ConcurrentMap<NamedLink, Double> doubleAttributeMap;
+
+    private final ConcurrentMap<NamedLink, Boolean> booleanAttributeMap;
+
+    private final ConcurrentMap<NodeId, Set<String>> attributesMap;
 
     private final ConcurrentMap<NodeId, NodeId> projectRootNodeMap;
 
@@ -166,8 +174,24 @@ public class MapDbAppFileSystemStorage implements AppFileSystemStorage {
                 .hashMap("stringAttribute", Serializer.JAVA, Serializer.STRING)
                 .createOrOpen();
 
-        stringAttributesMap = this.db
-                .hashMap("stringAttributes", Serializer.JAVA, Serializer.JAVA)
+        integerAttributeMap = this.db
+                .hashMap("integerAttribute", Serializer.JAVA, Serializer.INTEGER)
+                .createOrOpen();
+
+        floatAttributeMap = this.db
+                .hashMap("floatAttribute", Serializer.JAVA, Serializer.FLOAT)
+                .createOrOpen();
+
+        doubleAttributeMap = this.db
+                .hashMap("doubleAttribute", Serializer.JAVA, Serializer.DOUBLE)
+                .createOrOpen();
+
+        booleanAttributeMap = this.db
+                .hashMap("booleanAttribute", Serializer.JAVA, Serializer.BOOLEAN)
+                .createOrOpen();
+
+        attributesMap = this.db
+                .hashMap("attributes", Serializer.JAVA, Serializer.JAVA)
                 .createOrOpen();
 
         projectRootNodeMap = this.db
@@ -326,7 +350,7 @@ public class MapDbAppFileSystemStorage implements AppFileSystemStorage {
         NodeId nodeId = UuidNodeId.generate();
         nodeNameMap.put(nodeId, name);
         nodePseudoClassMap.put(nodeId, nodePseudoClass);
-        stringAttributesMap.put(nodeId, Collections.emptySet());
+        attributesMap.put(nodeId, Collections.emptySet());
         childNodesMap.put(nodeId, Collections.emptyList());
         if (parentNodeId != null) {
             parentNodeMap.put(nodeId, parentNodeId);
@@ -364,10 +388,15 @@ public class MapDbAppFileSystemStorage implements AppFileSystemStorage {
         }
         String name = nodeNameMap.remove(nodeId);
         String nodePseudoClass = nodePseudoClassMap.remove(nodeId);
-        for (String attributeName : stringAttributesMap.get(nodeId)) {
-            stringAttributeMap.remove(new NamedLink(nodeId, attributeName));
+        for (String attributeName : attributesMap.get(nodeId)) {
+            NamedLink namedLink = new NamedLink(nodeId, attributeName);
+            stringAttributeMap.remove(namedLink);
+            integerAttributeMap.remove(namedLink);
+            floatAttributeMap.remove(namedLink);
+            doubleAttributeMap.remove(namedLink);
+            booleanAttributeMap.remove(namedLink);
         }
-        stringAttributesMap.remove(nodeId);
+        attributesMap.remove(nodeId);
         childNodesMap.remove(nodeId);
         NodeId parentNodeId = parentNodeMap.remove(nodeId);
         if (parentNodeId != null) {
@@ -386,18 +415,16 @@ public class MapDbAppFileSystemStorage implements AppFileSystemStorage {
         dependencyNodesMap.remove(nodeId);
     }
 
-    @Override
-    public String getStringAttribute(NodeId nodeId, String name) {
+    private <T> T getAttribute(ConcurrentMap<NamedLink, T> map, NodeId nodeId, String name) {
         Objects.requireNonNull(nodeId);
         Objects.requireNonNull(name);
         if (!nodeNameMap.containsKey(nodeId)) {
             throw new AfsStorageException("Node " + nodeId + " not found");
         }
-        return stringAttributeMap.get(new NamedLink(nodeId, name));
+        return map.get(new NamedLink(nodeId, name));
     }
 
-    @Override
-    public void setStringAttribute(NodeId nodeId, String name, String value) {
+    private <T> void setAttribute(ConcurrentMap<NamedLink, T> map, NodeId nodeId, String name, T value) {
         Objects.requireNonNull(nodeId);
         Objects.requireNonNull(name);
         if (!nodeNameMap.containsKey(nodeId)) {
@@ -405,12 +432,63 @@ public class MapDbAppFileSystemStorage implements AppFileSystemStorage {
         }
         NamedLink namedLink = new NamedLink(nodeId, name);
         if (value == null) {
-            stringAttributeMap.remove(namedLink);
-            stringAttributesMap.put(nodeId, remove(stringAttributesMap.get(nodeId), name));
+            map.remove(namedLink);
+            attributesMap.put(nodeId, remove(attributesMap.get(nodeId), name));
         } else {
-            stringAttributeMap.put(namedLink, value);
-            stringAttributesMap.put(nodeId, add(stringAttributesMap.get(nodeId), name));
+            map.put(namedLink, value);
+            attributesMap.put(nodeId, add(attributesMap.get(nodeId), name));
         }
+    }
+
+    @Override
+    public String getStringAttribute(NodeId nodeId, String name) {
+        return getAttribute(stringAttributeMap, nodeId, name);
+    }
+
+    @Override
+    public void setStringAttribute(NodeId nodeId, String name, String value) {
+        setAttribute(stringAttributeMap, nodeId, name, value);
+    }
+
+    @Override
+    public int getIntAttribute(NodeId nodeId, String name) {
+        return getAttribute(integerAttributeMap, nodeId, name);
+    }
+
+    @Override
+    public void setIntAttribute(NodeId nodeId, String name, int value) {
+        setAttribute(integerAttributeMap, nodeId, name, value);
+    }
+
+    @Override
+    public float getFloatAttribute(NodeId nodeId, String name) {
+        return getAttribute(floatAttributeMap, nodeId, name);
+
+    }
+
+    @Override
+    public void setFloatAttribute(NodeId nodeId, String name, float value) {
+        setAttribute(floatAttributeMap, nodeId, name, value);
+    }
+
+    @Override
+    public double getDoubleAttribute(NodeId nodeId, String name) {
+        return getAttribute(doubleAttributeMap, nodeId, name);
+    }
+
+    @Override
+    public void setDoubleAttribute(NodeId nodeId, String name, double value) {
+        setAttribute(doubleAttributeMap, nodeId, name, value);
+    }
+
+    @Override
+    public boolean getBooleanAttribute(NodeId nodeId, String name) {
+        return getAttribute(booleanAttributeMap, nodeId, name);
+    }
+
+    @Override
+    public void setBooleanAttribute(NodeId nodeId, String name, boolean value) {
+        setAttribute(booleanAttributeMap, nodeId, name, value);
     }
 
     @Override
