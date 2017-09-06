@@ -69,12 +69,30 @@ public abstract class AbstractAppFileSystemStorageTest {
         assertEquals(1, storage.getChildNodes(testFolderId).size());
 
         // attribute tests
+
+        // set string attribute
         storage.setStringAttribute(testData2Id, "str", "test");
         assertEquals("test", storage.getStringAttribute(testData2Id, "str"));
 
         // unset string attribute
         storage.setStringAttribute(testData2Id, "str", null);
         assertNull(storage.getStringAttribute(testData2Id, "str"));
+
+        // set int attribute
+        storage.setIntAttribute(testData2Id, "int", 3);
+        assertEquals(3, storage.getIntAttribute(testData2Id, "int"));
+
+        // set float attribute
+        storage.setFloatAttribute(testData2Id, "float", 4f);
+        assertEquals(4f, storage.getFloatAttribute(testData2Id, "float"), 0f);
+
+        // set double attribute
+        storage.setDoubleAttribute(testData2Id, "double", 5d);
+        assertEquals(5d, storage.getDoubleAttribute(testData2Id, "double"), 0d);
+
+        // set boolean attribute
+        storage.setBooleanAttribute(testData2Id, "bool", true);
+        assertTrue(storage.getBooleanAttribute(testData2Id, "bool"));
 
         try (Writer writer = storage.writeStringAttribute(testData2Id, "str")) {
             writer.write("word1");

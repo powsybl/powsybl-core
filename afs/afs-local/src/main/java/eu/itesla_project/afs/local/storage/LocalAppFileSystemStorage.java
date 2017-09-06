@@ -184,6 +184,46 @@ public class LocalAppFileSystemStorage implements AppFileSystemStorage {
     }
 
     @Override
+    public int getIntAttribute(NodeId nodeId, String name) {
+        throw new AssertionError();
+    }
+
+    @Override
+    public void setIntAttribute(NodeId nodeId, String name, int value) {
+        throw new AssertionError();
+    }
+
+    @Override
+    public float getFloatAttribute(NodeId nodeId, String name) {
+        throw new AssertionError();
+    }
+
+    @Override
+    public void setFloatAttribute(NodeId nodeId, String name, float value) {
+        throw new AssertionError();
+    }
+
+    @Override
+    public double getDoubleAttribute(NodeId nodeId, String name) {
+        throw new AssertionError();
+    }
+
+    @Override
+    public void setDoubleAttribute(NodeId nodeId, String name, double value) {
+        throw new AssertionError();
+    }
+
+    @Override
+    public boolean getBooleanAttribute(NodeId nodeId, String name) {
+        throw new AssertionError();
+    }
+
+    @Override
+    public void setBooleanAttribute(NodeId nodeId, String name, boolean value) {
+        throw new AssertionError();
+    }
+
+    @Override
     public DataSource getDataSourceAttribute(NodeId nodeId, String name) {
         Objects.requireNonNull(nodeId);
         Path path = ((PathNodeId) nodeId).getPath();
