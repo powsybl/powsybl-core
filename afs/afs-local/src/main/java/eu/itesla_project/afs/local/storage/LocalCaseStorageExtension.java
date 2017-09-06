@@ -7,13 +7,9 @@
 package eu.itesla_project.afs.local.storage;
 
 import com.google.auto.service.AutoService;
-import eu.itesla_project.commons.config.ComponentDefaultConfig;
 import eu.itesla_project.commons.datasource.ReadOnlyDataSource;
 import eu.itesla_project.computation.ComputationManager;
-import eu.itesla_project.iidm.import_.ImportConfig;
-import eu.itesla_project.iidm.import_.Importer;
-import eu.itesla_project.iidm.import_.Importers;
-import eu.itesla_project.iidm.import_.ImportersLoader;
+import eu.itesla_project.iidm.import_.*;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -31,7 +27,7 @@ public class LocalCaseStorageExtension implements LocalFileStorageExtension {
     private final ImportersLoader importersLoader;
 
     public LocalCaseStorageExtension() {
-        this(ImportConfig.load(), ComponentDefaultConfig.load().newFactoryImpl(ImportersLoader.class));
+        this(ImportConfig.load(), new ImportersServiceLoader());
     }
 
     public LocalCaseStorageExtension(ImportConfig importConfig, ImportersLoader importersLoader) {
