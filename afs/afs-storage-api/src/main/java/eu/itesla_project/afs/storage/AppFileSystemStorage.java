@@ -47,6 +47,22 @@ public interface AppFileSystemStorage extends AutoCloseable {
 
     Writer writeStringAttribute(NodeId nodeId, String name);
 
+    int getIntAttribute(NodeId nodeId, String name);
+
+    void setIntAttribute(NodeId nodeId, String name, int value);
+
+    float getFloatAttribute(NodeId nodeId, String name);
+
+    void setFloatAttribute(NodeId nodeId, String name, float value);
+
+    double getDoubleAttribute(NodeId nodeId, String name);
+
+    void setDoubleAttribute(NodeId nodeId, String name, double value);
+
+    boolean getBooleanAttribute(NodeId nodeId, String name);
+
+    void setBooleanAttribute(NodeId nodeId, String name, boolean value);
+
     DataSource getDataSourceAttribute(NodeId nodeId, String name);
 
     NodeId getDependency(NodeId nodeId, String name);
