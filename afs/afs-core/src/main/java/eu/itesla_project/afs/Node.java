@@ -63,7 +63,11 @@ public class Node extends AbstractNodeBase<Folder> {
             return new Project(nodeId, storage, fileSystem);
         } else {
             FileExtension extension = fileSystem.getData().getFileExtensionByPseudoClass(nodePseudoClass);
-            return extension.createFile(nodeId, storage, fileSystem);
+            if (extension != null) {
+                return extension.createFile(nodeId, storage, fileSystem);
+            } else {
+                return new UnknownFile(nodeId, storage, fileSystem);
+            }
         }
     }
 }

@@ -110,11 +110,7 @@ public class AppData implements AutoCloseable {
 
     FileExtension getFileExtensionByPseudoClass(String filePseudoClass) {
         Objects.requireNonNull(filePseudoClass);
-        FileExtension extension = fileExtensionsByPseudoClass.get(filePseudoClass);
-        if (extension == null) {
-            throw new AfsException("No extension found for file pseudo class '" + filePseudoClass + "'");
-        }
-        return extension;
+        return fileExtensionsByPseudoClass.get(filePseudoClass);
     }
 
     ProjectFileExtension getProjectFileExtension(Class<?> projectFileOrProjectFileBuilderClass) {
@@ -129,12 +125,7 @@ public class AppData implements AutoCloseable {
 
     ProjectFileExtension getProjectFileExtensionByPseudoClass(String projectFilePseudoClass) {
         Objects.requireNonNull(projectFilePseudoClass);
-        ProjectFileExtension extension = projectFileExtensionsByPseudoClass.get(projectFilePseudoClass);
-        if (extension == null) {
-            throw new AfsException("No extension found for project file or project file builder pseudo class '"
-                    + projectFilePseudoClass + "'");
-        }
-        return extension;
+        return projectFileExtensionsByPseudoClass.get(projectFilePseudoClass);
     }
 
     public ComponentDefaultConfig getComponentDefaultConfig() {
