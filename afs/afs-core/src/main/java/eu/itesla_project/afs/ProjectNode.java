@@ -71,14 +71,22 @@ public class ProjectNode extends AbstractNodeBase<ProjectFolder> {
             return new ProjectFolder(nodeId, storage, projectId, fileSystem);
         } else {
             ProjectFileExtension extension = getProject().getFileSystem().getData().getProjectFileExtensionByPseudoClass(projectNodePseudoClass);
-            return extension.createProjectFile(nodeId, storage, projectId, fileSystem);
+            if (extension != null) {
+                return extension.createProjectFile(nodeId, storage, projectId, fileSystem);
+            } else {
+                return new UnknownProjectFile(nodeId, storage, projectId, fileSystem);
+            }
         }
     }
 
     protected ProjectFile findProjectFile(NodeId nodeId) {
         String projectNodePseudoClass = storage.getNodePseudoClass(nodeId);
         ProjectFileExtension extension = getProject().getFileSystem().getData().getProjectFileExtensionByPseudoClass(projectNodePseudoClass);
-        return extension.createProjectFile(nodeId, storage, projectId, fileSystem);
+        if (extension != null) {
+            return extension.createProjectFile(nodeId, storage, projectId, fileSystem);
+        } else {
+            return new UnknownProjectFile(nodeId, storage, projectId, fileSystem);
+        }
     }
 
     public List<ProjectFile> getBackwardDependencies() {
