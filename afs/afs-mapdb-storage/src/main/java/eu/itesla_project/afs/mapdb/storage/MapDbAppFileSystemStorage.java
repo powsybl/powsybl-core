@@ -451,8 +451,9 @@ public class MapDbAppFileSystemStorage implements AppFileSystemStorage {
     }
 
     @Override
-    public int getIntAttribute(NodeId nodeId, String name) {
-        return getAttribute(integerAttributeMap, nodeId, name);
+    public OptionalInt getIntAttribute(NodeId nodeId, String name) {
+        Integer i = getAttribute(integerAttributeMap, nodeId, name);
+        return i == null ? OptionalInt.empty() : OptionalInt.of(i);
     }
 
     @Override
@@ -461,19 +462,9 @@ public class MapDbAppFileSystemStorage implements AppFileSystemStorage {
     }
 
     @Override
-    public float getFloatAttribute(NodeId nodeId, String name) {
-        return getAttribute(floatAttributeMap, nodeId, name);
-
-    }
-
-    @Override
-    public void setFloatAttribute(NodeId nodeId, String name, float value) {
-        setAttribute(floatAttributeMap, nodeId, name, value);
-    }
-
-    @Override
-    public double getDoubleAttribute(NodeId nodeId, String name) {
-        return getAttribute(doubleAttributeMap, nodeId, name);
+    public OptionalDouble getDoubleAttribute(NodeId nodeId, String name) {
+        Double d = getAttribute(doubleAttributeMap, nodeId, name);
+        return d == null ? OptionalDouble.empty() : OptionalDouble.of(d);
     }
 
     @Override
@@ -482,8 +473,9 @@ public class MapDbAppFileSystemStorage implements AppFileSystemStorage {
     }
 
     @Override
-    public boolean getBooleanAttribute(NodeId nodeId, String name) {
-        return getAttribute(booleanAttributeMap, nodeId, name);
+    public Optional<Boolean> getBooleanAttribute(NodeId nodeId, String name) {
+        Boolean b = getAttribute(booleanAttributeMap, nodeId, name);
+        return b == null ? Optional.empty() : Optional.of(b);
     }
 
     @Override
