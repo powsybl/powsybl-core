@@ -184,7 +184,7 @@ public class LocalAppFileSystemStorage implements AppFileSystemStorage {
     }
 
     @Override
-    public int getIntAttribute(NodeId nodeId, String name) {
+    public OptionalInt getIntAttribute(NodeId nodeId, String name) {
         throw new AssertionError();
     }
 
@@ -194,17 +194,7 @@ public class LocalAppFileSystemStorage implements AppFileSystemStorage {
     }
 
     @Override
-    public float getFloatAttribute(NodeId nodeId, String name) {
-        throw new AssertionError();
-    }
-
-    @Override
-    public void setFloatAttribute(NodeId nodeId, String name, float value) {
-        throw new AssertionError();
-    }
-
-    @Override
-    public double getDoubleAttribute(NodeId nodeId, String name) {
+    public OptionalDouble getDoubleAttribute(NodeId nodeId, String name) {
         throw new AssertionError();
     }
 
@@ -214,7 +204,7 @@ public class LocalAppFileSystemStorage implements AppFileSystemStorage {
     }
 
     @Override
-    public boolean getBooleanAttribute(NodeId nodeId, String name) {
+    public Optional<Boolean> getBooleanAttribute(NodeId nodeId, String name) {
         throw new AssertionError();
     }
 

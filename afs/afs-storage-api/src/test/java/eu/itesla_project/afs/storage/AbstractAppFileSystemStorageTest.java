@@ -71,6 +71,7 @@ public abstract class AbstractAppFileSystemStorageTest {
         // attribute tests
 
         // set string attribute
+        assertNull(storage.getStringAttribute(testData2Id, "str"));
         storage.setStringAttribute(testData2Id, "str", "test");
         assertEquals("test", storage.getStringAttribute(testData2Id, "str"));
 
@@ -79,20 +80,22 @@ public abstract class AbstractAppFileSystemStorageTest {
         assertNull(storage.getStringAttribute(testData2Id, "str"));
 
         // set int attribute
+        assertFalse(storage.getIntAttribute(testData2Id, "int").isPresent());
         storage.setIntAttribute(testData2Id, "int", 3);
-        assertEquals(3, storage.getIntAttribute(testData2Id, "int"));
-
-        // set float attribute
-        storage.setFloatAttribute(testData2Id, "float", 4f);
-        assertEquals(4f, storage.getFloatAttribute(testData2Id, "float"), 0f);
+        assertTrue(storage.getIntAttribute(testData2Id, "int").isPresent());
+        assertEquals(3, storage.getIntAttribute(testData2Id, "int").getAsInt());
 
         // set double attribute
+        assertFalse(storage.getDoubleAttribute(testData2Id, "double").isPresent());
         storage.setDoubleAttribute(testData2Id, "double", 5d);
-        assertEquals(5d, storage.getDoubleAttribute(testData2Id, "double"), 0d);
+        assertTrue(storage.getDoubleAttribute(testData2Id, "double").isPresent());
+        assertEquals(5d, storage.getDoubleAttribute(testData2Id, "double").getAsDouble(), 0d);
 
         // set boolean attribute
+        assertFalse(storage.getBooleanAttribute(testData2Id, "bool").isPresent());
         storage.setBooleanAttribute(testData2Id, "bool", true);
-        assertTrue(storage.getBooleanAttribute(testData2Id, "bool"));
+        assertTrue(storage.getBooleanAttribute(testData2Id, "bool").isPresent());
+        assertTrue(storage.getBooleanAttribute(testData2Id, "bool").get());
 
         try (Writer writer = storage.writeStringAttribute(testData2Id, "str")) {
             writer.write("word1");

@@ -13,6 +13,9 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.List;
+import java.util.Optional;
+import java.util.OptionalDouble;
+import java.util.OptionalInt;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -47,19 +50,15 @@ public interface AppFileSystemStorage extends AutoCloseable {
 
     Writer writeStringAttribute(NodeId nodeId, String name);
 
-    int getIntAttribute(NodeId nodeId, String name);
+    OptionalInt getIntAttribute(NodeId nodeId, String name);
 
     void setIntAttribute(NodeId nodeId, String name, int value);
 
-    float getFloatAttribute(NodeId nodeId, String name);
-
-    void setFloatAttribute(NodeId nodeId, String name, float value);
-
-    double getDoubleAttribute(NodeId nodeId, String name);
+    OptionalDouble getDoubleAttribute(NodeId nodeId, String name);
 
     void setDoubleAttribute(NodeId nodeId, String name, double value);
 
-    boolean getBooleanAttribute(NodeId nodeId, String name);
+    Optional<Boolean> getBooleanAttribute(NodeId nodeId, String name);
 
     void setBooleanAttribute(NodeId nodeId, String name, boolean value);
 
