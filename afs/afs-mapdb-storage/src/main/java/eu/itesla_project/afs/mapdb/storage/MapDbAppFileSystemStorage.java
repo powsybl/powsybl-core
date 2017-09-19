@@ -9,6 +9,7 @@ package eu.itesla_project.afs.mapdb.storage;
 import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import eu.itesla_project.afs.storage.AfsStorageException;
 import eu.itesla_project.afs.storage.AppFileSystemStorage;
 import eu.itesla_project.afs.storage.NodeId;
 import eu.itesla_project.afs.storage.PseudoClass;
