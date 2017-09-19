@@ -10,6 +10,7 @@ import eu.itesla_project.afs.storage.AppFileSystemStorage;
 import eu.itesla_project.afs.storage.NodeId;
 import eu.itesla_project.afs.storage.PseudoClass;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -30,6 +31,7 @@ public class ProjectFolder extends ProjectNode implements FolderBase<ProjectNode
         return storage.getChildNodes(id)
                 .stream()
                 .map(this::findProjectNode)
+                .sorted(Comparator.comparing(ProjectNode::getName))
                 .collect(Collectors.toList());
     }
 
