@@ -8,7 +8,6 @@ package eu.itesla_project.afs.local.storage;
 
 import com.google.auto.service.AutoService;
 import eu.itesla_project.commons.datasource.ReadOnlyDataSource;
-import eu.itesla_project.computation.ComputationManager;
 import eu.itesla_project.iidm.import_.*;
 
 import java.nio.file.Files;
@@ -19,29 +18,29 @@ import java.util.Objects;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-@AutoService(LocalFileStorageExtension.class)
-public class LocalCaseStorageExtension implements LocalFileStorageExtension {
+@AutoService(LocalFileScanner.class)
+public class LocalCaseScanner implements LocalFileScanner {
 
     private final ImportConfig importConfig;
 
     private final ImportersLoader importersLoader;
 
-    public LocalCaseStorageExtension() {
+    public LocalCaseScanner() {
         this(ImportConfig.load(), new ImportersServiceLoader());
     }
 
-    public LocalCaseStorageExtension(ImportConfig importConfig, ImportersLoader importersLoader) {
+    public LocalCaseScanner(ImportConfig importConfig, ImportersLoader importersLoader) {
         this.importConfig = Objects.requireNonNull(importConfig);
         this.importersLoader = Objects.requireNonNull(importersLoader);
     }
 
     @Override
-    public LocalFileStorage scan(Path path, ComputationManager computationManager) {
+    public LocalFile scanFile(Path path, LocalFileScannerContext context) {
         if (Files.isRegularFile(path)) {
             ReadOnlyDataSource dataSource = Importers.createDataSource(path);
-            for (Importer importer : Importers.list(importersLoader, computationManager, importConfig)) {
+            for (Importer importer : Importers.list(importersLoader, context.getComputationManager(), importConfig)) {
                 if (importer.exists(dataSource)) {
-                    return new LocalCaseStorage(path, importer);
+                    return new LocalCase(path, importer);
                 }
             }
         }

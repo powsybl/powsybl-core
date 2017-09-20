@@ -9,7 +9,8 @@ package eu.itesla_project.afs.local;
 import com.google.auto.service.AutoService;
 import eu.itesla_project.afs.AppFileSystem;
 import eu.itesla_project.afs.AppFileSystemProvider;
-import eu.itesla_project.afs.local.storage.LocalFileStorageExtension;
+import eu.itesla_project.afs.local.storage.LocalFileScanner;
+import eu.itesla_project.afs.local.storage.LocalFolderScanner;
 import eu.itesla_project.commons.util.ServiceLoaderCache;
 import eu.itesla_project.computation.ComputationManager;
 
@@ -25,21 +26,26 @@ public class LocalAppFileSystemProvider implements AppFileSystemProvider {
 
     private final List<LocalAppFileSystemConfig> configs;
 
-    private final List<LocalFileStorageExtension> extensions;
+    private final List<LocalFileScanner> fileScanners;
+
+    private final List<LocalFolderScanner> folderScanners;
 
     public LocalAppFileSystemProvider() {
-        this(LocalAppFileSystemConfig.load(), new ServiceLoaderCache<>(LocalFileStorageExtension.class).getServices());
+        this(LocalAppFileSystemConfig.load(), new ServiceLoaderCache<>(LocalFileScanner.class).getServices(),
+                new ServiceLoaderCache<>(LocalFolderScanner.class).getServices());
     }
 
-    public LocalAppFileSystemProvider(List<LocalAppFileSystemConfig> configs, List<LocalFileStorageExtension> extensions) {
+    public LocalAppFileSystemProvider(List<LocalAppFileSystemConfig> configs, List<LocalFileScanner> fileScanners,
+                                      List<LocalFolderScanner> folderScanners) {
         this.configs = Objects.requireNonNull(configs);
-        this.extensions = Objects.requireNonNull(extensions);
+        this.fileScanners = Objects.requireNonNull(fileScanners);
+        this.folderScanners = Objects.requireNonNull(folderScanners);
     }
 
     @Override
     public List<AppFileSystem> getFileSystems(ComputationManager computationManager) {
         return configs.stream()
-                .map(config -> new LocalAppFileSystem(config, extensions, computationManager))
+                .map(config -> new LocalAppFileSystem(config, fileScanners, folderScanners, computationManager))
                 .collect(Collectors.toList());
     }
 }

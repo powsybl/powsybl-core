@@ -9,8 +9,8 @@ package eu.itesla_project.afs.local;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import eu.itesla_project.afs.AppFileSystem;
-import eu.itesla_project.afs.local.storage.LocalCaseStorageExtension;
-import eu.itesla_project.afs.local.storage.LocalFileStorageExtension;
+import eu.itesla_project.afs.local.storage.LocalCaseScanner;
+import eu.itesla_project.afs.local.storage.LocalFileScanner;
 import eu.itesla_project.computation.ComputationManager;
 import eu.itesla_project.iidm.import_.ImportConfig;
 import eu.itesla_project.iidm.import_.ImportersLoaderList;
@@ -47,11 +47,12 @@ public class LocalAppFileSystemProviderTest {
     public void test() {
         ComputationManager computationManager = Mockito.mock(ComputationManager.class);
         LocalAppFileSystemConfig config = new LocalAppFileSystemConfig("drive", true, fileSystem.getPath("/work"));
-        LocalFileStorageExtension extension = new LocalCaseStorageExtension(new ImportConfig(),
+        LocalFileScanner extension = new LocalCaseScanner(new ImportConfig(),
                                                                             new ImportersLoaderList(Collections.emptyList(),
                                                                                                     Collections.emptyList()));
         List<AppFileSystem> fileSystems = new LocalAppFileSystemProvider(Collections.singletonList(config),
-                                                                         Collections.singletonList(extension))
+                                                                         Collections.singletonList(extension),
+                                                                         Collections.emptyList())
                 .getFileSystems(computationManager);
         assertEquals(1, fileSystems.size());
         assertTrue(fileSystems.get(0) instanceof LocalAppFileSystem);
