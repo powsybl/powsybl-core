@@ -55,11 +55,11 @@ public class LocalAppFileSystemStorageTest {
         Files.createFile(path2);
         ComputationManager computationManager = Mockito.mock(ComputationManager.class);
         Network network = Mockito.mock(Network.class);
-        List<LocalFileStorageExtension> extensions
-                = Collections.singletonList(new LocalCaseStorageExtension(new ImportConfig(),
+        List<LocalFileScanner> fileExtensions
+                = Collections.singletonList(new LocalCaseScanner(new ImportConfig(),
                                                                           new ImportersLoaderList(Collections.singletonList(new TestImporter(network)),
                                                                                                   Collections.emptyList())));
-        storage = new LocalAppFileSystemStorage(rootDir, "mem", extensions, computationManager);
+        storage = new LocalAppFileSystemStorage(rootDir, "mem", fileExtensions, Collections.emptyList(), computationManager);
     }
 
     @After

@@ -6,15 +6,13 @@
  */
 package eu.itesla_project.afs.local.storage;
 
-import eu.itesla_project.computation.ComputationManager;
-
 import java.nio.file.Path;
 
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface LocalFileStorageExtension {
+public interface LocalFileScanner {
 
-    LocalFileStorage scan(Path path, ComputationManager computationManager);
+    LocalFile scanFile(Path path, LocalFileScannerContext context);
 }
