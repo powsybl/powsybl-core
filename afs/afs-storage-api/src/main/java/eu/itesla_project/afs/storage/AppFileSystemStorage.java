@@ -86,11 +86,7 @@ public interface AppFileSystemStorage extends AutoCloseable {
 
     void invalidateCache();
 
-    // transaction management
-
-    void commit();
-
-    void rollback();
+    void flush();
 
     @Override
     void close();

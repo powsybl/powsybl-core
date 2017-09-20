@@ -42,7 +42,7 @@ public class ModificationScript extends ProjectFile {
 
     public void write(String content) {
         storage.setStringAttribute(id, SCRIPT_CONTENT, content);
-        storage.commit();
+        storage.flush();
         notifyDependencyChanged();
     }
 }

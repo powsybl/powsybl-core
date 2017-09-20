@@ -68,22 +68,17 @@ public class ModificationScriptBuilder implements ProjectFileBuilder<Modificatio
             throw new AfsException("Content is not set");
         }
 
-        try {
-            // create project file
-            NodeId id = storage.createNode(folderId, name, ModificationScript.PSEUDO_CLASS);
+        // create project file
+        NodeId id = storage.createNode(folderId, name, ModificationScript.PSEUDO_CLASS);
 
-            // set type
-            storage.setStringAttribute(id, ModificationScript.SCRIPT_TYPE, type.name());
+        // set type
+        storage.setStringAttribute(id, ModificationScript.SCRIPT_TYPE, type.name());
 
-            // store script
-            storage.setStringAttribute(id, ModificationScript.SCRIPT_CONTENT, content);
+        // store script
+        storage.setStringAttribute(id, ModificationScript.SCRIPT_CONTENT, content);
 
-            storage.commit();
+        storage.flush();
 
-            return new ModificationScript(id, storage, projectId, fileSystem);
-        } catch (Exception e) {
-            storage.rollback();
-            throw e;
-        }
+        return new ModificationScript(id, storage, projectId, fileSystem);
     }
 }
