@@ -78,22 +78,17 @@ public class VirtualCaseBuilder implements ProjectFileBuilder<VirtualCase> {
             throw new AfsException("Invalid script path " + scriptPath);
         }
 
-        try {
-            // create project file
-            NodeId id = storage.createNode(folderId, name, VirtualCase.PSEUDO_CLASS);
+        // create project file
+        NodeId id = storage.createNode(folderId, name, VirtualCase.PSEUDO_CLASS);
 
-            // create case link
-            storage.addDependency(id, VirtualCase.CASE_DEPENDENCY_NAME, aCase.getId());
+        // create case link
+        storage.addDependency(id, VirtualCase.CASE_DEPENDENCY_NAME, aCase.getId());
 
-            // create script link
-            storage.addDependency(id, VirtualCase.SCRIPT_DEPENDENCY_NAME, script.getId());
+        // create script link
+        storage.addDependency(id, VirtualCase.SCRIPT_DEPENDENCY_NAME, script.getId());
 
-            storage.commit();
+        storage.flush();
 
-            return new VirtualCase(id, storage, projectId, fileSystem);
-        } catch (Exception e) {
-            storage.rollback();
-            throw e;
-        }
+        return new VirtualCase(id, storage, projectId, fileSystem);
     }
 }

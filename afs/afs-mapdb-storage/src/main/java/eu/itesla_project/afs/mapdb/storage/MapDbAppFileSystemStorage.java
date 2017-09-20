@@ -596,13 +596,8 @@ public class MapDbAppFileSystemStorage implements AppFileSystemStorage {
     }
 
     @Override
-    public void commit() {
+    public void flush() {
         db.commit();
-    }
-
-    @Override
-    public void rollback() {
-        db.rollback();
     }
 
     @Override

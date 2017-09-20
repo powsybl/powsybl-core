@@ -77,7 +77,7 @@ public class VirtualCase extends ProjectFile implements ProjectCase {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-        storage.commit();
+        storage.flush();
     }
 
     private void runGroovyScript(Network network, Reader reader, Writer out) throws IOException {
@@ -130,6 +130,6 @@ public class VirtualCase extends ProjectFile implements ProjectCase {
     public void onDependencyChanged() {
         storage.setStringAttribute(id, SCRIPT_OUTPUT, null);
         storage.invalidateCache(id, NETWORK_CACHE_KEY);
-        storage.commit();
+        storage.flush();
     }
 }

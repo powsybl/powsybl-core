@@ -64,35 +64,30 @@ public class ImportedCaseBuilder implements ProjectFileBuilder<ImportedCase> {
             throw new AfsException("Case is not set");
         }
 
+        // create project file
+        NodeId id = storage.createNode(folderId, aCase.getName(), ImportedCase.PSEUDO_CLASS);
+
+        // store importer format
+        storage.setStringAttribute(id, ImportedCase.FORMAT, aCase.getImporter().getFormat());
+
+        // store case data
+        aCase.getImporter().copy(aCase.getDataSource(), storage.getDataSourceAttribute(id, ImportedCase.DATA_SOURCE));
+
+        // store parameters
         try {
-            // create project file
-            NodeId id = storage.createNode(folderId, aCase.getName(), ImportedCase.PSEUDO_CLASS);
-
-            // store importer format
-            storage.setStringAttribute(id, ImportedCase.FORMAT, aCase.getImporter().getFormat());
-
-            // store case data
-            aCase.getImporter().copy(aCase.getDataSource(), storage.getDataSourceAttribute(id, ImportedCase.DATA_SOURCE));
-
-            // store parameters
+            StringWriter writer = new StringWriter();
             try {
-                StringWriter writer = new StringWriter();
-                try {
-                    parameters.store(writer, "");
-                } finally {
-                    writer.close();
-                }
-                storage.setStringAttribute(id, ImportedCase.PARAMETERS, writer.toString());
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
+                parameters.store(writer, "");
+            } finally {
+                writer.close();
             }
-
-            storage.commit();
-
-            return new ImportedCase(id, storage, projectId, fileSystem);
-        } catch (Exception e) {
-            storage.rollback();
-            throw e;
+            storage.setStringAttribute(id, ImportedCase.PARAMETERS, writer.toString());
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
+
+        storage.flush();
+
+        return new ImportedCase(id, storage, projectId, fileSystem);
     }
 }

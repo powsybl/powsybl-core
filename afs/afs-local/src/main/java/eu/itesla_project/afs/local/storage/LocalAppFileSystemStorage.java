@@ -270,11 +270,7 @@ public class LocalAppFileSystemStorage implements AppFileSystemStorage {
     }
 
     @Override
-    public void commit() {
-    }
-
-    @Override
-    public void rollback() {
+    public void flush() {
     }
 
     @Override
