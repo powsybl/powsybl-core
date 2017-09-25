@@ -11,7 +11,7 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-        
+
     <parent>
         <groupId>eu.itesla_project</groupId>
         <artifactId>action</artifactId>
@@ -62,7 +62,7 @@
             <artifactId>iidm-api</artifactId>
             <version>${project.version}</version>
         </dependency>
-        
+
 
         <!-- Test dependencies -->
         <dependency>
@@ -94,6 +94,12 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>iidm-test</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>action-util</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>

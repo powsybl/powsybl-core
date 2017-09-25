@@ -13,6 +13,7 @@ import eu.itesla_project.iidm.network.test.EurostagTutorialExample1Factory;
 import groovy.lang.GroovyCodeSource;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -21,6 +22,9 @@ import static org.junit.Assert.assertTrue;
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
 public class ActionDslLoaderTest {
+
+    @org.junit.Rule
+    public final ExpectedException exception = ExpectedException.none();
 
     private Network network;
 
@@ -53,5 +57,22 @@ public class ActionDslLoaderTest {
         assertEquals("action", action.getId());
         assertEquals("action description", action.getDescription());
         assertEquals(0, action.getTasks().size());
+    }
+
+    @Test
+    public void testDslExtension() {
+        ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/actions2.groovy"))).load(network);
+        Action another = actionDb.getAction("anotherAction");
+        exception.expect(RuntimeException.class);
+        exception.expectMessage("Switch 'switchId' not found");
+        another.run(network, null);
+    }
+
+    @Test
+    public void testUnvalidate() {
+        ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/actions2.groovy"))).load(network);
+        Action someAction = actionDb.getAction("someAction");
+        exception.expect(ActionDslException.class);
+        someAction.run(network, null);
     }
 }

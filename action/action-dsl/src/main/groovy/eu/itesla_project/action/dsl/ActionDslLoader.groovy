@@ -112,17 +112,17 @@ class ActionDslLoader extends DslLoader {
             // contingencies
             binding.contingency = { String id, Closure<Void> closure ->
                 def cloned = closure.clone()
-                ContingencySpec spec = new ContingencySpec()
-                cloned.delegate = spec
+                ContingencySpec contingencySpec = new ContingencySpec()
+                cloned.delegate = contingencySpec
                 cloned()
-                if (!spec.equipments) {
+                if (!contingencySpec.equipments) {
                     throw new RuntimeException("'equipments' field is not set")
                 }
-                if (spec.equipments.length == 0) {
+                if (contingencySpec.equipments.length == 0) {
                     throw new RuntimeException("'equipments' field is empty")
                 }
                 def elements = []
-                for (String equipment : spec.equipments) {
+                for (String equipment : contingencySpec.equipments) {
                     Identifiable identifiable = network.getIdentifiable(equipment)
                     if (identifiable == null) {
                         throw new ActionDslException("Equipment '" + equipment + "' of contingency '" + id + "' not found")
@@ -148,18 +148,18 @@ class ActionDslLoader extends DslLoader {
             // rules
             binding.rule = { String id, Closure<Void> closure ->
                 def cloned = closure.clone()
-                RuleSpec spec = new RuleSpec()
-                cloned.delegate = spec
+                RuleSpec ruleSpec = new RuleSpec()
+                cloned.delegate = ruleSpec
                 cloned()
-                if (!spec.when) {
+                if (!ruleSpec.when) {
                     throw new RuntimeException("'when' field is not set")
                 }
-                if (spec.apply.length == 0) {
+                if (ruleSpec.apply.length == 0) {
                     throw new RuntimeException("'apply' field is empty")
                 }
-                Rule rule = new Rule(id, new ExpressionCondition(spec.when), spec.life, spec.apply)
-                if (spec.description) {
-                    rule.setDescription(spec.description)
+                Rule rule = new Rule(id, new ExpressionCondition(ruleSpec.when), ruleSpec.life, ruleSpec.apply)
+                if (ruleSpec.description) {
+                    rule.setDescription(ruleSpec.description)
                 }
                 rulesDb.addRule(rule)
                 LOGGER.debug("Found rule '{}'", id)

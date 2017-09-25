@@ -7,6 +7,7 @@
 package eu.itesla_project.action.dsl.task
 
 import com.google.auto.service.AutoService
+import eu.itesla_project.action.dsl.ActionDslException
 import eu.itesla_project.action.dsl.DslConstants
 import eu.itesla_project.action.dsl.spi.DslTaskExtension
 import eu.itesla_project.computation.ComputationManager
@@ -27,7 +28,11 @@ class ScriptDslTaskExtension implements DslTaskExtension, DslConstants {
                 binding.setVariable("computationManager", computationManager)
                 binding.setVariable(SCRIPT_IS_RUNNING, true)
                 try {
+                    closure.owner.delegate.metaClass = null
+                    closure.resolveStrategy = Closure.OWNER_ONLY
                     closure.call()
+                } catch (MissingMethodException e) {
+                    throw new ActionDslException("Dsl extension task is forbidden in task script")
                 } finally {
                     binding.setVariable(SCRIPT_IS_RUNNING, null)
                     binding.setVariable("network", oldNetwork)
