@@ -10,14 +10,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <parent>
-        <artifactId>afs</artifactId>
-        <groupId>eu.itesla_project</groupId>
-        <version>0.1-SNAPSHOT</version>
-    </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>afs-mapdb-storage</artifactId>
+    <parent>
+        <artifactId>powsybl-afs</artifactId>
+        <groupId>com.powsybl</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>powsybl-afs-mapdb-storage</artifactId>
     <name>AFS MapDB storage</name>
 
     <dependencies>
@@ -26,10 +27,9 @@
             <groupId>org.mapdb</groupId>
             <artifactId>mapdb</artifactId>
         </dependency>
-
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>afs-storage-api</artifactId>
+            <artifactId>powsybl-afs-storage-api</artifactId>
             <version>${project.version}</version>
         </dependency>
 
@@ -59,10 +59,9 @@
             <artifactId>slf4j-simple</artifactId>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>afs-storage-api</artifactId>
+            <artifactId>powsybl-afs-storage-api</artifactId>
             <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
@@ -70,3 +69,4 @@
     </dependencies>
 
 </project>
+

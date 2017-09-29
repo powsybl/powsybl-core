@@ -10,14 +10,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <parent>
-        <artifactId>ipst-core</artifactId>
-        <groupId>eu.itesla_project</groupId>
-        <version>0.1-SNAPSHOT</version>
-    </parent>
     <modelVersion>4.0.0</modelVersion>
+    
+    <parent>
+        <artifactId>powsybl-core</artifactId>
+        <groupId>com.powsybl</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
 
-    <artifactId>scripting</artifactId>
+    <artifactId>powsybl-scripting</artifactId>
     <name>Scripting</name>
 
     <build>
@@ -52,20 +53,19 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
-
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>afs-core</artifactId>
+            <artifactId>powsybl-afs-core</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>computation</artifactId>
+            <artifactId>powsybl-computation</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>tools</artifactId>
+            <artifactId>powsybl-tools</artifactId>
             <version>${project.version}</version>
         </dependency>
 
@@ -90,23 +90,22 @@
             <artifactId>slf4j-simple</artifactId>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>afs-core</artifactId>
+            <artifactId>powsybl-afs-core</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
             <type>test-jar</type>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>afs-mapdb-storage</artifactId>
+            <artifactId>powsybl-afs-mapdb-storage</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>tools</artifactId>
+            <artifactId>powsybl-tools</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
             <type>test-jar</type>
@@ -114,3 +113,4 @@
     </dependencies>
 
 </project>
+

@@ -13,13 +13,13 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>eu.itesla_project</groupId>
-        <artifactId>ipst-core</artifactId>
-        <version>0.1-SNAPSHOT</version>
+        <groupId>com.powsybl</groupId>
+        <artifactId>powsybl-core</artifactId>
+        <version>1.0-SNAPSHOT</version>
     </parent>
 
     <packaging>pom</packaging>
-    <artifactId>iidm</artifactId>
+    <artifactId>powsybl-iidm</artifactId>
     <name>IIDM</name>
 
     <modules>
@@ -31,3 +31,4 @@
     </modules>
 
 </project>
+

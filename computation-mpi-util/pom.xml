@@ -10,27 +10,31 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <parent>
-        <groupId>eu.itesla_project</groupId>
-        <artifactId>ipst-core</artifactId>
-        <version>0.1-SNAPSHOT</version>
-    </parent>
     <modelVersion>4.0.0</modelVersion>
+    
+    <parent>
+        <groupId>com.powsybl</groupId>
+        <artifactId>powsybl-core</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
 
-    <artifactId>computation-mpi-util</artifactId>
+    <artifactId>powsybl-computation-mpi-util</artifactId>
     <name>MPI Computation utilities</name>
 
     <dependencies>
+        <!-- Compilation dependencies -->
         <dependency>
-            <groupId>eu.itesla_project</groupId>
-            <artifactId>computation-mpi</artifactId>
+            <groupId>com.powsybl</groupId>
+            <artifactId>powsybl-computation-mpi</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>eu.itesla_project</groupId>
-            <artifactId>iidm-impl</artifactId>
+            <groupId>com.powsybl</groupId>
+            <artifactId>powsybl-iidm-impl</artifactId>
             <version>${project.version}</version>
         </dependency>
+        
+        <!-- Test dependencies -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -39,3 +43,4 @@
     </dependencies>
 
 </project>
+

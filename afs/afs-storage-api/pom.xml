@@ -10,14 +10,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <parent>
-        <artifactId>afs</artifactId>
-        <groupId>eu.itesla_project</groupId>
-        <version>0.1-SNAPSHOT</version>
-    </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>afs-storage-api</artifactId>
+    <parent>
+        <artifactId>powsybl-afs</artifactId>
+        <groupId>com.powsybl</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>powsybl-afs-storage-api</artifactId>
     <name>AFS storage SPI</name>
 
     <build>
@@ -40,7 +41,7 @@
         <!-- Compilation dependencies -->
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>commons</artifactId>
+            <artifactId>powsybl-commons</artifactId>
             <version>${project.version}</version>
         </dependency>
 
@@ -53,3 +54,4 @@
     </dependencies>
 
 </project>
+

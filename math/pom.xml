@@ -7,24 +7,23 @@
     file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 -->
-<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>eu.itesla_project</groupId>
-        <artifactId>ipst-core</artifactId>
-        <version>0.1-SNAPSHOT</version>
+        <groupId>com.powsybl</groupId>
+        <artifactId>powsybl-core</artifactId>
+        <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>math</artifactId>
-    <version>0.1-SNAPSHOT</version>
-
+    <artifactId>powsybl-math</artifactId>
     <name>Math</name>
     <description>This is a library that provides mathematical utilities</description>
 
     <dependencies>
-        <!-- third party dependencies -->
+        <!-- Compilation dependencies -->
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
@@ -37,11 +36,9 @@
             <groupId>net.sf.trove4j</groupId>
             <artifactId>trove4j</artifactId>
         </dependency>
-
-        <!-- core dependencies -->
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>commons</artifactId>
+            <artifactId>powsybl-commons</artifactId>
             <version>${project.version}</version>
         </dependency>
 
@@ -62,4 +59,6 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+    
 </project>
+

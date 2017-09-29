@@ -12,13 +12,17 @@
 /afs/afs-mapdb-storage/target/
 /afs/afs-storage-api/target/
 /case-repository/target/
+/cim1-converter/target/
+/cim1-model/target/
 /commons/target/
 /computation-local/target/
 /computation-mpi/target/
 /computation-mpi-util/target/
 /computation/target/
 /contingency-api/target/
-/distribution-core/target
+/distribution-core/target/
+/entsoe-case-repository/target/
+/entsoe-util/target/
 /iidm/target/
 /iidm/iidm-api/target
 /iidm/iidm-converter-api/target/
@@ -28,11 +32,14 @@
 /loadflow-api/target/
 /loadflow-validation/target/
 /math/target/
+/network-merge/target/
 /security-analysis/target/
 /simulation-api/target/
 /scripting/target/
 /tools/target/
 /target/
+/ucte-converter/target/
+/ucte-network/target/
 
 # CMake projects
 /build/
@@ -42,7 +49,7 @@
 /.idea
 *.iml
 
-# iPST compilation settings
+# Compilation settings
 install.cfg
 
 # Eclipse projects
@@ -51,3 +58,4 @@ install.cfg
 org.eclipse.core.resources.prefs
 org.eclipse.jdt.core.prefs
 org.eclipse.m2e.core.prefs
+

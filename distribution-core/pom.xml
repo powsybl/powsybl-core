@@ -13,15 +13,13 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>eu.itesla_project</groupId>
-        <artifactId>ipst-core</artifactId>
-        <version>0.1-SNAPSHOT</version>
+        <groupId>com.powsybl</groupId>
+        <artifactId>powsybl-core</artifactId>
+        <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>distribution-core</artifactId>
-
     <packaging>pom</packaging>
-
+    <artifactId>powsybl-distribution-core</artifactId>
     <name>Distribution</name>
 
     <dependencies>
@@ -37,173 +35,214 @@
             <scope>runtime</scope>
         </dependency>
     
-        <!-- iPST core -->
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>action-dsl</artifactId>
+            <artifactId>powsybl-action-dsl</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>action-dsl-spi</artifactId>
+            <artifactId>powsybl-action-dsl-spi</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>action-simulator</artifactId>
+            <artifactId>powsybl-action-simulator</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>action-util</artifactId>
+            <artifactId>powsybl-action-util</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>afs-core</artifactId>
+            <artifactId>powsybl-afs-core</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>afs-ext-base</artifactId>
+            <artifactId>powsybl-afs-ext-base</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>afs-local</artifactId>
+            <artifactId>powsybl-afs-local</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>afs-mapdb</artifactId>
+            <artifactId>powsybl-afs-mapdb</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>afs-mapdb-storage</artifactId>
+            <artifactId>powsybl-afs-mapdb-storage</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>afs-storage-api</artifactId>
+            <artifactId>powsybl-afs-storage-api</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>case-repository</artifactId>
+            <artifactId>powsybl-case-repository</artifactId>
             <version>${project.version}</version>
         </dependency>
     
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>commons</artifactId>
+            <artifactId>powsybl-cim1-converter</artifactId>
             <version>${project.version}</version>
         </dependency>
         
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>computation</artifactId>
+            <artifactId>powsybl-cim1-model</artifactId>
             <version>${project.version}</version>
         </dependency>
     
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>computation-local</artifactId>
+            <artifactId>powsybl-commons</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-computation</artifactId>
             <version>${project.version}</version>
         </dependency>
     
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>computation-mpi</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>computation-mpi-util</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>contingency-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>iidm-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>iidm-converter-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>iidm-impl</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>iidm-test</artifactId>
+            <artifactId>powsybl-computation-local</artifactId>
             <version>${project.version}</version>
         </dependency>
     
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>iidm-xml-converter</artifactId>
+            <artifactId>powsybl-computation-mpi</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-computation-mpi-util</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-contingency-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-entsoe-case-repository</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-entsoe-util</artifactId>
+            <version>${project.version}</version>
+        </dependency> 
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-iidm-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-iidm-converter-api</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>loadflow-api</artifactId>
+            <artifactId>powsybl-iidm-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-iidm-test</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-iidm-xml-converter</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>loadflow-validation</artifactId>
+            <artifactId>powsybl-loadflow-api</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>math</artifactId>
+            <artifactId>powsybl-loadflow-validation</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>scripting</artifactId>
+            <artifactId>powsybl-math</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>security-analysis</artifactId>
+            <artifactId>powsybl-network-merge</artifactId>
+            <version>${project.version}</version>
+        </dependency> 
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-scripting</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-security-analysis</artifactId>
             <version>${project.version}</version>
         </dependency>
          
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>simulation-api</artifactId>
+            <artifactId>powsybl-simulation-api</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>tools</artifactId>
+            <artifactId>powsybl-tools</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-ucte-converter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-ucte-network</artifactId>
             <version>${project.version}</version>
         </dependency>
 

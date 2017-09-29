@@ -13,12 +13,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>afs</artifactId>
-        <groupId>eu.itesla_project</groupId>
-        <version>0.1-SNAPSHOT</version>
+        <artifactId>powsybl-afs</artifactId>
+        <groupId>com.powsybl</groupId>
+        <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>afs-core</artifactId>
+    <artifactId>powsybl-afs-core</artifactId>
     <name>AFS core</name>
 
     <build>
@@ -41,12 +41,12 @@
         <!-- Compilation dependencies -->
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>afs-storage-api</artifactId>
+            <artifactId>powsybl-afs-storage-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>computation-local</artifactId>
+            <artifactId>powsybl-computation-local</artifactId>
             <version>${project.version}</version>
         </dependency>
 
@@ -71,22 +71,21 @@
             <artifactId>slf4j-simple</artifactId>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>afs-mapdb-storage</artifactId>
+            <artifactId>powsybl-afs-mapdb-storage</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>iidm-api</artifactId>
+            <artifactId>powsybl-iidm-api</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>tools</artifactId>
+            <artifactId>powsybl-tools</artifactId>
             <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
@@ -94,3 +93,4 @@
     </dependencies>
 
 </project>
+

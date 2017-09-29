@@ -7,18 +7,18 @@
     file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>eu.itesla_project</groupId>
-        <artifactId>iidm</artifactId>
-        <version>0.1-SNAPSHOT</version>
+        <groupId>com.powsybl</groupId>
+        <artifactId>powsybl-iidm</artifactId>
+        <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>iidm-converter-api</artifactId>
-
+    <artifactId>powsybl-iidm-converter-api</artifactId>
     <name>IIDM converter API</name>
     <description>This is the API for IIDM importers and exporters</description>
 
@@ -38,17 +38,17 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>computation</artifactId>
+            <artifactId>powsybl-computation</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>computation-local</artifactId>
+            <artifactId>powsybl-computation-local</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>iidm-api</artifactId>
+            <artifactId>powsybl-iidm-api</artifactId>
             <version>${project.version}</version>
         </dependency>
 
@@ -75,16 +75,18 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>iidm-impl</artifactId>
+            <artifactId>powsybl-iidm-impl</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>tools</artifactId>
+            <artifactId>powsybl-tools</artifactId>
             <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
     </dependencies>
+    
 </project>
+

@@ -7,18 +7,18 @@
     file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>eu.itesla_project</groupId>
-        <artifactId>iidm</artifactId>
-        <version>0.1-SNAPSHOT</version>
+        <groupId>com.powsybl</groupId>
+        <artifactId>powsybl-iidm</artifactId>
+        <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>iidm-api</artifactId>
-
+    <artifactId>powsybl-iidm-api</artifactId>
     <name>IIDM API</name>
     <description>This is the API of the network model</description>
 
@@ -34,6 +34,7 @@
     </build>
 
     <dependencies>
+        <!-- Compilation dependencies -->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-math3</artifactId>
@@ -56,9 +57,11 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>commons</artifactId>
+            <artifactId>powsybl-commons</artifactId>
             <version>${project.version}</version>
         </dependency>
+        
+        <!-- Test dependencies -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -70,5 +73,6 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
+    
 </project>
+

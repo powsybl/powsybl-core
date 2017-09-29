@@ -13,12 +13,12 @@
     <modelVersion>4.0.0</modelVersion>
     
     <parent>
-        <groupId>eu.itesla_project</groupId>
-        <artifactId>action</artifactId>
-        <version>0.1-SNAPSHOT</version>
+        <groupId>com.powsybl</groupId>
+        <artifactId>powsybl-action</artifactId>
+        <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>action-util</artifactId>
+    <artifactId>powsybl-action-util</artifactId>
     <name>Action utilities</name>
 
     <build>
@@ -40,27 +40,27 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>action-dsl-spi</artifactId>
+            <artifactId>powsybl-action-dsl-spi</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>computation</artifactId>
+            <artifactId>powsybl-computation</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>contingency-api</artifactId>
+            <artifactId>powsybl-contingency-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>iidm-api</artifactId>
+            <artifactId>powsybl-iidm-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>loadflow-api</artifactId>
+            <artifactId>powsybl-loadflow-api</artifactId>
             <version>${project.version}</version>
         </dependency>
 
@@ -82,13 +82,13 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>iidm-impl</artifactId>
+            <artifactId>powsybl-iidm-impl</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>iidm-test</artifactId>
+            <artifactId>powsybl-iidm-test</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
