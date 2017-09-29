@@ -4,10 +4,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.computation.mpi;
+package com.powsybl.computation.mpi;
 
 import com.google.common.collect.ImmutableMap;
-import eu.itesla_project.computation.ComputationResourcesStatus;
+import com.powsybl.computation.ComputationResourcesStatus;
 import java.util.Map;
 import org.joda.time.DateTime;
 

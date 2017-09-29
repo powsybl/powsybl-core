@@ -26,7 +26,7 @@
 
 log4cpp::Category& LOGGER = log4cpp::Category::getInstance("Master");
 
-namespace itesla {
+namespace powsybl {
 
 namespace master {
 
@@ -76,9 +76,9 @@ public:
     int commRank();
     int commSize();
     const std::string& mpiVersion();
-    void startTasks(const itesla::jni::JavaUtilList& tasks);
-    void checkTasksCompletion(const itesla::jni::JavaUtilList& runningTasks, const itesla::jni::JavaUtilList& completedTasks);
-    void broadcastCommonFile(const itesla::jni::ByteArray& file);
+    void startTasks(const powsybl::jni::JavaUtilList& tasks);
+    void checkTasksCompletion(const powsybl::jni::JavaUtilList& runningTasks, const powsybl::jni::JavaUtilList& completedTasks);
+    void broadcastCommonFile(const powsybl::jni::ByteArray& file);
 
 private:
     void checkThread() const;
@@ -120,7 +120,7 @@ void CommunicationManager::init() {
 
     LOGGER.debugStream() << "starting " << log4cpp::eol;
     
-    itesla::mpi::initThreadFunneled();
+    powsybl::mpi::initThreadFunneled();
     if (MPI_Comm_rank(MPI_COMM_WORLD, &_commRank) != MPI_SUCCESS) {
         throw std::runtime_error("MPI_Comm_rank error");
     }
@@ -128,9 +128,9 @@ void CommunicationManager::init() {
         throw std::runtime_error("MPI_Comm_size error");
     }
 
-    _mpiVersion = itesla::mpi::version();
+    _mpiVersion = powsybl::mpi::version();
 
-    LOGGER.debugStream() << "started on " << itesla::mpi::processorName() 
+    LOGGER.debugStream() << "started on " << powsybl::mpi::processorName() 
                          << ", communicator size: " << _commSize << log4cpp::eol;
 
     LOGGER.debugStream() << "waiting for slaves to start" << log4cpp::eol;
@@ -241,17 +241,17 @@ void CommunicationManager::checkStep(Step step1, Step step2) {
     }
 }
 
-void CommunicationManager::startTasks(const itesla::jni::JavaUtilList& tasks) {
+void CommunicationManager::startTasks(const powsybl::jni::JavaUtilList& tasks) {
     checkThread();
 
     ensureStep(Step::TASKS_EXECUTION);
 
     for (size_t i = 0; i < tasks.size() ; i++) {
-        itesla::jni::EuIteslaProjectComputationMpiMpiTask task(tasks.env(), tasks.get(i));
+        powsybl::jni::ComPowsyblComputationMpiMpiTask task(tasks.env(), tasks.get(i));
         int taskId = task.id();
         int rank = task.rank();
         int thread = task.thread();
-        itesla::jni::ByteArray message(tasks.env(), task.message());
+        powsybl::jni::ByteArray message(tasks.env(), task.message());
 
         // create job mpi context
         std::shared_ptr<TaskContext> context(new TaskContext(std::string(message.get(), message.length())));
@@ -269,7 +269,7 @@ void CommunicationManager::startTasks(const itesla::jni::JavaUtilList& tasks) {
     }
 }
 
-void CommunicationManager::checkTasksCompletion(const itesla::jni::JavaUtilList& runningTasks, const itesla::jni::JavaUtilList& completedTasks) {
+void CommunicationManager::checkTasksCompletion(const powsybl::jni::JavaUtilList& runningTasks, const powsybl::jni::JavaUtilList& completedTasks) {
     checkThread();
 
     if (runningTasks.size() == 0) {
@@ -279,7 +279,7 @@ void CommunicationManager::checkTasksCompletion(const itesla::jni::JavaUtilList&
     checkStep(Step::TASKS_EXECUTION);
 
     for (size_t i = 0; i < runningTasks.size() ; i++) {
-        itesla::jni::EuIteslaProjectComputationMpiMpiTask task(runningTasks.env(), runningTasks.get(i));
+        powsybl::jni::ComPowsyblComputationMpiMpiTask task(runningTasks.env(), runningTasks.get(i));
         int taskId = task.id();
         std::shared_ptr<TaskContext> context = _taskContexts[taskId];
         int flag;
@@ -325,7 +325,7 @@ void CommunicationManager::checkTasksCompletion(const itesla::jni::JavaUtilList&
     }
 }
 
-void CommunicationManager::broadcastCommonFile(const itesla::jni::ByteArray& file) {
+void CommunicationManager::broadcastCommonFile(const powsybl::jni::ByteArray& file) {
     checkThread();
 
     ensureStep(Step::COMMON_FILES_BCAST);
@@ -355,151 +355,151 @@ void CommunicationManager::broadcastCommonFile(const itesla::jni::ByteArray& fil
 extern "C" {
 #endif
 
-std::shared_ptr<itesla::master::CommunicationManager> MANAGER;
+std::shared_ptr<powsybl::master::CommunicationManager> MANAGER;
 
 /*
- * Class:     eu_itesla_project_computation_mpi_JniMpiNativeServices
+ * Class:     com.powsybl_computation_mpi_JniMpiNativeServices
  * Method:    initMpi
  * Signature: ()V
  */
-JNIEXPORT void JNICALL Java_eu_itesla_1project_computation_mpi_JniMpiNativeServices_initMpi(JNIEnv * env, jobject, jint coresPerRank, jboolean verbose) {
+JNIEXPORT void JNICALL Java_com_powsybl_computation_mpi_JniMpiNativeServices_initMpi(JNIEnv * env, jobject, jint coresPerRank, jboolean verbose) {
     try {
         LOGGER.setPriority(verbose ? log4cpp::Priority::DEBUG : log4cpp::Priority::ERROR);
-        LOGGER.addAppender(itesla::io::createConsoleLogAppender());
+        LOGGER.addAppender(powsybl::io::createConsoleLogAppender());
 
-        MANAGER.reset(new itesla::master::CommunicationManager(coresPerRank));
+        MANAGER.reset(new powsybl::master::CommunicationManager(coresPerRank));
         MANAGER->init();
         if (MANAGER->commRank() != 0) {
             throw std::runtime_error("CommunicationManager (data manager) must have MPI rank 0");
         }
 
-        itesla::jni::JavaUtilList::init(env);
-        itesla::jni::EuIteslaProjectComputationMpiMpiTask::init(env);
+        powsybl::jni::JavaUtilList::init(env);
+        powsybl::jni::ComPowsyblComputationMpiMpiTask::init(env);
     } catch (const std::exception& e) {
         LOGGER.fatalStream() << e.what() << log4cpp::eol;
-        itesla::jni::throwJavaLangRuntimeException(env, e.what());
+        powsybl::jni::throwJavaLangRuntimeException(env, e.what());
     } catch (...) {
         LOGGER.fatalStream() << "Unknown exception" << log4cpp::eol;
-        itesla::jni::throwJavaLangRuntimeException(env, "Unknown exception");
+        powsybl::jni::throwJavaLangRuntimeException(env, "Unknown exception");
     }
 }
 
 /*
- * Class:     eu_itesla_project_computation_mpi_JniMpiNativeServices
+ * Class:     com.powsybl_computation_mpi_JniMpiNativeServices
  * Method:    terminateMpi
  * Signature: ()V
  */
-JNIEXPORT void JNICALL Java_eu_itesla_1project_computation_mpi_JniMpiNativeServices_terminateMpi(JNIEnv * env, jobject) {
+JNIEXPORT void JNICALL Java_com_powsybl_computation_mpi_JniMpiNativeServices_terminateMpi(JNIEnv * env, jobject) {
     try {
         MANAGER->shutdown();
         MANAGER.reset();
     } catch (const std::exception& e) {
         LOGGER.fatalStream() << e.what() << log4cpp::eol;
-        itesla::jni::throwJavaLangRuntimeException(env, e.what());
+        powsybl::jni::throwJavaLangRuntimeException(env, e.what());
     } catch (...) {
         LOGGER.fatalStream() << "Unknown exception" << log4cpp::eol;
-        itesla::jni::throwJavaLangRuntimeException(env, "Unknown exception");
+        powsybl::jni::throwJavaLangRuntimeException(env, "Unknown exception");
     }
 }
 
 /*
- * Class:     eu_itesla_project_computation_mpi_JniMpiNativeServices
+ * Class:     com.powsybl_computation_mpi_JniMpiNativeServices
  * Method:    getMpiVersion
  * Signature: ()Ljava/lang/String;
  */
-JNIEXPORT jstring JNICALL Java_eu_itesla_1project_computation_mpi_JniMpiNativeServices_getMpiVersion(JNIEnv * env, jobject) {
+JNIEXPORT jstring JNICALL Java_com_powsybl_computation_mpi_JniMpiNativeServices_getMpiVersion(JNIEnv * env, jobject) {
     try {
         std::string version = MANAGER->mpiVersion();
         return env->NewStringUTF(version.c_str());
     } catch (const std::exception& e) {
         LOGGER.fatalStream() << e.what() << log4cpp::eol;
-        itesla::jni::throwJavaLangRuntimeException(env, e.what());
+        powsybl::jni::throwJavaLangRuntimeException(env, e.what());
     } catch (...) {
         LOGGER.fatalStream() << "Unknown exception" << log4cpp::eol;
-        itesla::jni::throwJavaLangRuntimeException(env, "Unknown exception");
+        powsybl::jni::throwJavaLangRuntimeException(env, "Unknown exception");
     }
     return NULL;
 }
 
 /*
- * Class:     eu_itesla_project_computation_mpi_JniMpiNativeServices
+ * Class:     com.powsybl_computation_mpi_JniMpiNativeServices
  * Method:    getMpiCommSize
  * Signature: ()I
  */
-JNIEXPORT jint JNICALL Java_eu_itesla_1project_computation_mpi_JniMpiNativeServices_getMpiCommSize(JNIEnv * env, jobject) {
+JNIEXPORT jint JNICALL Java_com_powsybl_computation_mpi_JniMpiNativeServices_getMpiCommSize(JNIEnv * env, jobject) {
     try {
         return MANAGER->commSize();
     } catch (const std::exception& e) {
         LOGGER.fatalStream() << e.what() << log4cpp::eol;
-        itesla::jni::throwJavaLangRuntimeException(env, e.what());
+        powsybl::jni::throwJavaLangRuntimeException(env, e.what());
     } catch (...) {
         LOGGER.fatalStream() << "Unknown exception" << log4cpp::eol;
-        itesla::jni::throwJavaLangRuntimeException(env, "Unknown exception");
+        powsybl::jni::throwJavaLangRuntimeException(env, "Unknown exception");
     }
     return -1;
 }
 
 /*
- * Class:     eu_itesla_project_computation_mpi_JniMpiNativeServices
+ * Class:     com.powsybl_computation_mpi_JniMpiNativeServices
  * Method:    startTasks
  * Signature: (Ljava/util/List;)V
  */
-JNIEXPORT void JNICALL Java_eu_itesla_1project_computation_mpi_JniMpiNativeServices_startTasks(JNIEnv * env, jobject, jobject jtask) {
+JNIEXPORT void JNICALL Java_com_powsybl_computation_mpi_JniMpiNativeServices_startTasks(JNIEnv * env, jobject, jobject jtask) {
     try {
-        itesla::jni::JavaUtilList tasks(env, jtask);
+        powsybl::jni::JavaUtilList tasks(env, jtask);
 
         // send job messages
         MANAGER->startTasks(tasks);
 
     } catch (const std::exception& e) {
         LOGGER.fatalStream() << e.what() << log4cpp::eol;
-        itesla::jni::throwJavaLangRuntimeException(env, e.what());
+        powsybl::jni::throwJavaLangRuntimeException(env, e.what());
     } catch (...) {
         LOGGER.fatalStream() << "Unknown exception" << log4cpp::eol;
-        itesla::jni::throwJavaLangRuntimeException(env, "Unknown exception");
+        powsybl::jni::throwJavaLangRuntimeException(env, "Unknown exception");
     }
 }
 
 /*
- * Class:     eu_itesla_project_computation_mpi_JniMpiNativeServices
+ * Class:     com.powsybl_computation_mpi_JniMpiNativeServices
  * Method:    checkTasksCompletion
  * Signature: (Ljava/util/List;Ljava/util/List;)V
  */
-JNIEXPORT void JNICALL Java_eu_itesla_1project_computation_mpi_JniMpiNativeServices_checkTasksCompletion(JNIEnv * env, jobject, jobject jrunningtasks, jobject jcompletedtasks) {
+JNIEXPORT void JNICALL Java_com_powsybl_computation_mpi_JniMpiNativeServices_checkTasksCompletion(JNIEnv * env, jobject, jobject jrunningtasks, jobject jcompletedtasks) {
     try {
-        itesla::jni::JavaUtilList runningTasks(env, jrunningtasks);
-        itesla::jni::JavaUtilList completedTasks(env, jcompletedtasks);
+        powsybl::jni::JavaUtilList runningTasks(env, jrunningtasks);
+        powsybl::jni::JavaUtilList completedTasks(env, jcompletedtasks);
 
         // check tasks completion
         MANAGER->checkTasksCompletion(runningTasks, completedTasks);
 
     } catch (const std::exception& e) {
         LOGGER.fatalStream() << e.what() << log4cpp::eol;
-        itesla::jni::throwJavaLangRuntimeException(env, e.what());
+        powsybl::jni::throwJavaLangRuntimeException(env, e.what());
     } catch (...) {
         LOGGER.fatalStream() << "Unknown exception" << log4cpp::eol;
-        itesla::jni::throwJavaLangRuntimeException(env, "Unknown exception");
+        powsybl::jni::throwJavaLangRuntimeException(env, "Unknown exception");
     }
 }
 
 /*
- * Class:     eu_itesla_project_computation_mpi_JniMpiNativeServices
+ * Class:     com.powsybl_computation_mpi_JniMpiNativeServices
  * Method:    sendCommonFile
  * Signature: ([B)V
  */
-JNIEXPORT void JNICALL Java_eu_itesla_1project_computation_mpi_JniMpiNativeServices_sendCommonFile(JNIEnv * env, jobject, jbyteArray jfile) {
+JNIEXPORT void JNICALL Java_com_powsybl_computation_mpi_JniMpiNativeServices_sendCommonFile(JNIEnv * env, jobject, jbyteArray jfile) {
     try {
-        itesla::jni::ByteArray file(env, jfile);
+        powsybl::jni::ByteArray file(env, jfile);
 
         // broadcast the common file message to all slaves
         MANAGER->broadcastCommonFile(file);
 
     } catch (const std::exception& e) {
         LOGGER.fatalStream() << e.what() << log4cpp::eol;
-        itesla::jni::throwJavaLangRuntimeException(env, e.what());
+        powsybl::jni::throwJavaLangRuntimeException(env, e.what());
     } catch (...) {
         LOGGER.fatalStream() << "Unknown exception" << log4cpp::eol;
-        itesla::jni::throwJavaLangRuntimeException(env, "Unknown exception");
+        powsybl::jni::throwJavaLangRuntimeException(env, "Unknown exception");
     }
 }
 

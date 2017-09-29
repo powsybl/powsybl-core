@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.security.json;
+package com.powsybl.security.json;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
@@ -14,14 +14,14 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import eu.itesla_project.contingency.Contingency;
-import eu.itesla_project.contingency.ContingencyElement;
-import eu.itesla_project.contingency.json.ContingencyDeserializer;
-import eu.itesla_project.contingency.json.ContingencyElementDeserializer;
-import eu.itesla_project.security.LimitViolation;
-import eu.itesla_project.security.LimitViolationsResult;
-import eu.itesla_project.security.PostContingencyResult;
-import eu.itesla_project.security.SecurityAnalysisResult;
+import com.powsybl.contingency.Contingency;
+import com.powsybl.contingency.ContingencyElement;
+import com.powsybl.contingency.json.ContingencyDeserializer;
+import com.powsybl.contingency.json.ContingencyElementDeserializer;
+import com.powsybl.security.LimitViolation;
+import com.powsybl.security.LimitViolationsResult;
+import com.powsybl.security.PostContingencyResult;
+import com.powsybl.security.SecurityAnalysisResult;
 
 import java.io.IOException;
 import java.io.InputStream;

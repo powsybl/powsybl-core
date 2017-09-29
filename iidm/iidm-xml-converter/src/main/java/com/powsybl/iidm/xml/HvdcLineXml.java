@@ -4,11 +4,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.iidm.xml;
+package com.powsybl.iidm.xml;
 
-import eu.itesla_project.iidm.network.HvdcLine;
-import eu.itesla_project.iidm.network.HvdcLineAdder;
-import eu.itesla_project.iidm.network.Network;
+import com.powsybl.iidm.network.HvdcLine;
+import com.powsybl.iidm.network.HvdcLineAdder;
+import com.powsybl.iidm.network.Network;
 
 import javax.xml.stream.XMLStreamException;
 

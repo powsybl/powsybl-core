@@ -4,12 +4,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.ucte.network;
+package com.powsybl.ucte.network;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-import static eu.itesla_project.ucte.network.UcteElementStatus.REAL_ELEMENT_IN_OPERATION;
+import static com.powsybl.ucte.network.UcteElementStatus.REAL_ELEMENT_IN_OPERATION;
 import static org.junit.Assert.assertEquals;
 
 /**

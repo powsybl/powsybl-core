@@ -4,9 +4,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.action.dsl;
+package com.powsybl.action.dsl;
 
-import eu.itesla_project.action.dsl.ast.BooleanLiteralNode;
+import com.powsybl.action.dsl.ast.BooleanLiteralNode;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

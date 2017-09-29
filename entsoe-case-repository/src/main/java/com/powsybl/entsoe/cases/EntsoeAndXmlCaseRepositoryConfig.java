@@ -4,12 +4,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.entsoe.cases;
+package com.powsybl.entsoe.cases;
 
 import com.google.common.collect.Multimap;
-import eu.itesla_project.commons.config.PlatformConfig;
-import eu.itesla_project.iidm.import_.Importers;
-import eu.itesla_project.entsoe.util.EntsoeGeographicalCode;
+import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.iidm.import_.Importers;
+import com.powsybl.entsoe.util.EntsoeGeographicalCode;
 
 import java.nio.file.Path;
 import java.util.Collection;

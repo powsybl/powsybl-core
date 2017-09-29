@@ -4,12 +4,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.iidm.network.impl;
+package com.powsybl.iidm.network.impl;
 
-import eu.itesla_project.iidm.network.CurrentLimits;
-import eu.itesla_project.iidm.network.CurrentLimits.TemporaryLimit;
-import eu.itesla_project.iidm.network.CurrentLimitsAdder;
-import eu.itesla_project.iidm.network.impl.CurrentLimitsImpl.TemporaryLimitImpl;
+import com.powsybl.iidm.network.CurrentLimits;
+import com.powsybl.iidm.network.CurrentLimits.TemporaryLimit;
+import com.powsybl.iidm.network.CurrentLimitsAdder;
+import com.powsybl.iidm.network.impl.CurrentLimitsImpl.TemporaryLimitImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

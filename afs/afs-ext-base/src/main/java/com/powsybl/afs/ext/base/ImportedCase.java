@@ -4,17 +4,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.afs.ext.base;
+package com.powsybl.afs.ext.base;
 
-import eu.itesla_project.afs.AfsException;
-import eu.itesla_project.afs.AppFileSystem;
-import eu.itesla_project.afs.ProjectFile;
-import eu.itesla_project.afs.storage.AppFileSystemStorage;
-import eu.itesla_project.afs.storage.NodeId;
-import eu.itesla_project.commons.datasource.ReadOnlyDataSource;
-import eu.itesla_project.iidm.import_.Importer;
-import eu.itesla_project.iidm.import_.ImportersLoader;
-import eu.itesla_project.iidm.network.Network;
+import com.powsybl.afs.AfsException;
+import com.powsybl.afs.AppFileSystem;
+import com.powsybl.afs.ProjectFile;
+import com.powsybl.afs.storage.AppFileSystemStorage;
+import com.powsybl.afs.storage.NodeId;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.iidm.import_.Importer;
+import com.powsybl.iidm.import_.ImportersLoader;
+import com.powsybl.iidm.network.Network;
 
 import java.io.IOException;
 import java.io.StringReader;

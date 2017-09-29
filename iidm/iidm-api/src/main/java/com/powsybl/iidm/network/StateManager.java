@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.iidm.network;
+package com.powsybl.iidm.network;
 
 import java.util.Collection;
 import java.util.List;
@@ -40,7 +40,7 @@ public interface StateManager {
      * Set the working state.
      *
      * @param stateId the id of the working state
-     * @throws eu.itesla_project.commons.ITeslaException if the state is not found
+     * @throws com.powsybl.commons.PowsyblException if the state is not found
      */
     void setWorkingState(String stateId);
 
@@ -49,7 +49,7 @@ public interface StateManager {
      *
      * @param sourceStateId the source state id
      * @param targetStateIds the target state id list (the ones that will be created)
-     * @throws eu.itesla_project.commons.ITeslaException
+     * @throws com.powsybl.commons.PowsyblException
      *                         if the source state is not found or if a state with
      *                         an id of targetStateIds already exists
      */
@@ -60,7 +60,7 @@ public interface StateManager {
      *
      * @param sourceStateId the source state id
      * @param targetStateId the target state id (the one that will be created)
-     * @throws eu.itesla_project.commons.ITeslaException
+     * @throws com.powsybl.commons.PowsyblException
      *                         if the source state is not found or if a state with
      *                         the id targetStateId already exists
      */

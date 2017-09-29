@@ -4,12 +4,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.iidm.network.util;
+package com.powsybl.iidm.network.util;
 
-import eu.itesla_project.commons.util.Colors;
-import eu.itesla_project.iidm.network.Branch;
-import eu.itesla_project.iidm.network.Bus;
-import eu.itesla_project.iidm.network.Network;
+import com.powsybl.commons.util.Colors;
+import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.Network;
 import org.kohsuke.graphviz.Edge;
 import org.kohsuke.graphviz.Graph;
 import org.kohsuke.graphviz.Node;

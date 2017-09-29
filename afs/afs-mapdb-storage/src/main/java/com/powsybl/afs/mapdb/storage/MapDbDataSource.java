@@ -4,12 +4,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.afs.mapdb.storage;
+package com.powsybl.afs.mapdb.storage;
 
-import eu.itesla_project.afs.storage.NodeId;
-import eu.itesla_project.commons.datasource.DefaultDataSourceObserver;
-import eu.itesla_project.commons.datasource.DataSource;
-import eu.itesla_project.commons.datasource.ObservableOutputStream;
+import com.powsybl.afs.storage.NodeId;
+import com.powsybl.commons.datasource.DefaultDataSourceObserver;
+import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.commons.datasource.ObservableOutputStream;
 
 import java.io.*;
 import java.util.Objects;

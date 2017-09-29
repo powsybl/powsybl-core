@@ -4,10 +4,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.iidm.network.impl;
+package com.powsybl.iidm.network.impl;
 
-import eu.itesla_project.commons.ITeslaException;
-import eu.itesla_project.iidm.network.*;
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.*;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -91,7 +91,7 @@ public class VoltageLevelTest {
     @Test
     public void duplicateVoltageLevel() {
         createVoltageLevel("duplicate", "duplicate", 100.0f, 2.0f, 10.0f);
-        thrown.expect(ITeslaException.class);
+        thrown.expect(PowsyblException.class);
         createVoltageLevel("duplicate", "duplicate", 100.0f, 2.0f, 10.0f);
     }
 

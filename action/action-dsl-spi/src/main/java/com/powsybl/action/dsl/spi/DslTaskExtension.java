@@ -4,9 +4,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.action.dsl.spi;
+package com.powsybl.action.dsl.spi;
 
-import eu.itesla_project.contingency.tasks.ModificationTask;
+import com.powsybl.contingency.tasks.ModificationTask;
 import groovy.lang.Binding;
 import groovy.lang.MetaClass;
 

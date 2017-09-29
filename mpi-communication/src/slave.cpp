@@ -38,7 +38,7 @@
 #include "ioutil.hpp"
 #include "messages.pb.h"
 
-namespace itesla {
+namespace powsybl {
 
 namespace slave {
 
@@ -90,10 +90,10 @@ void writeInputFile(const messages::Task::InputFile& inputFile, const boost::fil
             }
             break;
         case messages::Task_InputFile_PreProcessor_ARCHIVE_UNZIP:
-            itesla::io::unzipMem(inputFile.data(), dir);
+            powsybl::io::unzipMem(inputFile.data(), dir);
             break;
         case messages::Task_InputFile_PreProcessor_FILE_GUNZIP:
-            itesla::io::gunzipMem(inputFile.data(), dir / inputFile.name().substr(0, inputFile.name().size()-3));
+            powsybl::io::gunzipMem(inputFile.data(), dir / inputFile.name().substr(0, inputFile.name().size()-3));
             break;
         default:
             throw std::runtime_error("Unknown pre-processor");
@@ -114,7 +114,7 @@ void explodeInputFileArchive(messages::Task_InputFile_PreProcessor preProcessor,
                 boost::filesystem::path explodedArchiveDir = toExplodedArchiveDir(archiveFile);
                 boost::filesystem::remove_all(explodedArchiveDir);
                 boost::filesystem::create_directory(explodedArchiveDir);
-                itesla::io::unzipFile(archiveFile, explodedArchiveDir);
+                powsybl::io::unzipFile(archiveFile, explodedArchiveDir);
             }
             break;
         case messages::Task_InputFile_PreProcessor_FILE_GUNZIP:
@@ -122,7 +122,7 @@ void explodeInputFileArchive(messages::Task_InputFile_PreProcessor preProcessor,
                 boost::filesystem::path explodedArchiveDir = toExplodedArchiveDir(archiveFile);
                 boost::filesystem::remove_all(explodedArchiveDir);
                 boost::filesystem::create_directory(explodedArchiveDir);
-                itesla::io::gunzipFile(archiveFile, explodedArchiveDir);
+                powsybl::io::gunzipFile(archiveFile, explodedArchiveDir);
             }
             break;
         default:
@@ -383,7 +383,7 @@ std::string chunkFileName(const std::string& fileName, int chunk) {
 
 void CommunicationManager::commonFilesBroadcastStep(const std::shared_ptr<CommunicationManager::MpiThreadContext>& mpiThreadContext, log4cpp::Category& logger) {
 
-    boost::filesystem::path commonDir = itesla::slave::commonDir(mpiThreadContext->_localDir, mpiThreadContext->_rank);
+    boost::filesystem::path commonDir = powsybl::slave::commonDir(mpiThreadContext->_localDir, mpiThreadContext->_rank);
 
     while (true) {
         int length;
@@ -607,7 +607,7 @@ void CommunicationManager::tasksExecutionStep(const std::shared_ptr<Communicatio
              it != mpiThreadContext->_initializedJobs.end();
              it++) {
             int jobId = *it;
-            boost::filesystem::path jobDir = itesla::slave::jobDir(mpiThreadContext->_localDir, mpiThreadContext->_rank, jobId); 
+            boost::filesystem::path jobDir = powsybl::slave::jobDir(mpiThreadContext->_localDir, mpiThreadContext->_rank, jobId); 
             boost::filesystem::remove_all(jobDir);            
         }
         mpiThreadContext->_initializedJobs.clear();
@@ -620,7 +620,7 @@ void CommunicationManager::tasksExecutionStep(const std::shared_ptr<Communicatio
 
 void CommunicationManager::mpiThread(const std::shared_ptr<CommunicationManager::MpiThreadContext>& mpiThreadContext) {
     try {
-        itesla::mpi::initThreadFunneled();
+        powsybl::mpi::initThreadFunneled();
 
         // OpenMPI bug... unset SIGCHLD handler
         signal(SIGCHLD, SIG_DFL);
@@ -635,7 +635,7 @@ void CommunicationManager::mpiThread(const std::shared_ptr<CommunicationManager:
         log4cpp::Category& logger = createLogger(mpiThreadContext->_rank, -1, mpiThreadContext->_verbose);
 
         boost::filesystem::space_info space = boost::filesystem::space(mpiThreadContext->_localDir); 
-        logger.infoStream() << "started on " << itesla::mpi::processorName() << " (" << space.available / 1024 << "k/" << space.capacity / 1024 
+        logger.infoStream() << "started on " << powsybl::mpi::processorName() << " (" << space.available / 1024 << "k/" << space.capacity / 1024 
                             << "k available on " << mpiThreadContext->_localDir.string() << ")" << log4cpp::eol;
 
         // start synchronization
@@ -689,9 +689,9 @@ void CommunicationManager::workerThread(const std::shared_ptr<CommunicationManag
     try {
         log4cpp::Category& logger = createLogger(mpiThreadContext->_rank, threadNum, mpiThreadContext->_verbose);
 
-        boost::filesystem::path commonDir = itesla::slave::commonDir(mpiThreadContext->_localDir, mpiThreadContext->_rank);
+        boost::filesystem::path commonDir = powsybl::slave::commonDir(mpiThreadContext->_localDir, mpiThreadContext->_rank);
 
-        boost::filesystem::path workingDir = itesla::slave::workingDir(mpiThreadContext->_localDir, mpiThreadContext->_rank, threadNum);
+        boost::filesystem::path workingDir = powsybl::slave::workingDir(mpiThreadContext->_localDir, mpiThreadContext->_rank, threadNum);
         boost::filesystem::remove_all(workingDir);
         boost::filesystem::create_directory(workingDir);
 
@@ -707,12 +707,12 @@ void CommunicationManager::workerThread(const std::shared_ptr<CommunicationManag
             // remove completed job directories
             for (int i = 0; i < task.completedjobid_size(); i++) {
                 int jobId = task.completedjobid(i);
-                boost::filesystem::path jobDir = itesla::slave::jobDir(mpiThreadContext->_localDir, mpiThreadContext->_rank, jobId); 
+                boost::filesystem::path jobDir = powsybl::slave::jobDir(mpiThreadContext->_localDir, mpiThreadContext->_rank, jobId); 
                 boost::filesystem::remove_all(jobDir);
             }
 
             // create a directory to store job scoped files
-            boost::filesystem::path jobDir = itesla::slave::jobDir(mpiThreadContext->_localDir, mpiThreadContext->_rank, task.jobid()); 
+            boost::filesystem::path jobDir = powsybl::slave::jobDir(mpiThreadContext->_localDir, mpiThreadContext->_rank, task.jobid()); 
             if (task.initjob()) {
                 boost::filesystem::remove_all(jobDir);
                 boost::filesystem::create_directory(jobDir);
@@ -769,7 +769,7 @@ void CommunicationManager::workerThread(const std::shared_ptr<CommunicationManag
             }
 
             // update environment variables
-            std::map<std::string, std::string> env = itesla::io::getEnv();
+            std::map<std::string, std::string> env = powsybl::io::getEnv();
             std::map<std::string, std::string> env2;
             env2["PATH"] = env["PATH"];
             env2["LD_LIBRARY_PATH"] = env["LD_LIBRARY_PATH"];
@@ -801,7 +801,7 @@ void CommunicationManager::workerThread(const std::shared_ptr<CommunicationManag
                 int timeout = command.has_timeout() ? command.timeout() : -1;
                 logger.debugStream() << "executing '" << cmdStr << "' with a " << timeout << "s timeout" << log4cpp::eol;
                 std::chrono::system_clock::time_point t3 = std::chrono::system_clock::now();
-                exitCode = itesla::io::systemSafe(cmdStr, workingDir, env2, stdOutPath, timeout, logger);
+                exitCode = powsybl::io::systemSafe(cmdStr, workingDir, env2, stdOutPath, timeout, logger);
                 std::chrono::system_clock::time_point t4 = std::chrono::system_clock::now();
                 std::chrono::duration<float> commandDuration = std::chrono::duration_cast<std::chrono::duration<float>>(t4 - t3);
                 commandsDuration.push_back(commandDuration.count());
@@ -813,7 +813,7 @@ void CommunicationManager::workerThread(const std::shared_ptr<CommunicationManag
             if (exitCode != 0 && !mpiThreadContext->_archiveDir.empty()) {
                 std::string archiveName = "job-" + boost::lexical_cast<std::string>(task.jobid());
                 boost::filesystem::path archiveZipFile = mpiThreadContext->_archiveDir / (archiveName + ".zip");
-                itesla::io::zipDir(workingDir, archiveZipFile, archiveName);
+                powsybl::io::zipDir(workingDir, archiveZipFile, archiveName);
             }
 
             // create a result message
@@ -821,7 +821,7 @@ void CommunicationManager::workerThread(const std::shared_ptr<CommunicationManag
             result.set_exitcode(exitCode);
             
             // compute working directory size
-            size_t workingDataSize = itesla::io::dirSize(workingDir);
+            size_t workingDataSize = powsybl::io::dirSize(workingDir);
             result.set_workingdatasize(workingDataSize);
 
             // pack standard output in the result message
@@ -830,7 +830,7 @@ void CommunicationManager::workerThread(const std::shared_ptr<CommunicationManag
                 logger.debugStream() << "sending file '" << stdOutGzFileName << "'" << log4cpp::eol;
                 messages::TaskResult::OutputFile* stdOutFile = result.add_outputfile();
                 stdOutFile->set_name(stdOutGzFileName);
-                stdOutFile->set_data(itesla::io::gzipMem(stdOutPath, logger));
+                stdOutFile->set_data(powsybl::io::gzipMem(stdOutPath, logger));
             }
             // pack output files in the result message
             for (int i = 0; i < task.outputfile_size(); i++) {
@@ -842,11 +842,11 @@ void CommunicationManager::workerThread(const std::shared_ptr<CommunicationManag
                     switch (outputFile.postprocessor()) {
                         case messages::Task_OutputFile_PostProcessor_NONE:
                             outputFileName = outputFile.name();
-                            outputFileData = itesla::io::readFile(path);
+                            outputFileData = powsybl::io::readFile(path);
                             break;
                         case messages::Task_OutputFile_PostProcessor_FILE_GZIP:
                             outputFileName = outputFile.name() + ".gz";
-                            outputFileData = itesla::io::gzipMem(path, logger);
+                            outputFileData = powsybl::io::gzipMem(path, logger);
                             break;
                         default:
                             throw std::runtime_error("Unknown pre-processor");
@@ -883,7 +883,7 @@ void CommunicationManager::workerThread(const std::shared_ptr<CommunicationManag
             mpiThreadContext->sendToMaster(sendingContext);
 
             // clean working dir
-            itesla::io::cleanDir(workingDir);
+            powsybl::io::cleanDir(workingDir);
         }
 
         boost::filesystem::remove_all(workingDir);
@@ -908,7 +908,7 @@ int main(int argc, char *argv[]) {
         GOOGLE_PROTOBUF_VERIFY_VERSION;
 
         log4cpp::Category::getRoot().setPriority(log4cpp::Priority::ERROR);
-        log4cpp::Appender* consoleAppender = itesla::io::createConsoleLogAppender();
+        log4cpp::Appender* consoleAppender = powsybl::io::createConsoleLogAppender();
         consoleAppender->setThreshold(log4cpp::Priority::ERROR);
         log4cpp::Category::getRoot().addAppender(consoleAppender);
 
@@ -951,14 +951,14 @@ int main(int argc, char *argv[]) {
 
         if (vm.count("log-file")) {
             std::string logFile = vm["log-file"].as<std::string>();
-            log4cpp::Category::getRoot().addAppender(itesla::io::createFileLogAppender(logFile));
+            log4cpp::Category::getRoot().addAppender(powsybl::io::createFileLogAppender(logFile));
         }
 
-        std::shared_ptr<itesla::slave::CommunicationManager> manager(new itesla::slave::CommunicationManager(cores, localDir, verbose, archiveDir));
+        std::shared_ptr<powsybl::slave::CommunicationManager> manager(new powsybl::slave::CommunicationManager(cores, localDir, verbose, archiveDir));
         int rank;
         manager->start(rank);
 
-        boost::filesystem::path commonDir = itesla::slave::commonDir(localDir, rank);
+        boost::filesystem::path commonDir = powsybl::slave::commonDir(localDir, rank);
         boost::filesystem::remove_all(commonDir);
         boost::filesystem::create_directory(commonDir);
 

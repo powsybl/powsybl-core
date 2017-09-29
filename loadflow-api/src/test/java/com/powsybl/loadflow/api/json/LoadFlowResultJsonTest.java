@@ -4,12 +4,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.loadflow.api.json;
+package com.powsybl.loadflow.api.json;
 
-import eu.itesla_project.commons.AbstractConverterTest;
-import eu.itesla_project.loadflow.api.LoadFlowResult;
-import eu.itesla_project.loadflow.json.LoadFlowResultDeserializer;
-import eu.itesla_project.loadflow.json.LoadFlowResultSerializer;
+import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.loadflow.api.LoadFlowResult;
+import com.powsybl.loadflow.json.LoadFlowResultDeserializer;
+import com.powsybl.loadflow.json.LoadFlowResultSerializer;
 import org.junit.Assert;
 import org.junit.Test;
 

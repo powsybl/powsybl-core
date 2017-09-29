@@ -4,12 +4,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.afs.ext.base;
+package com.powsybl.afs.ext.base;
 
 import com.google.common.collect.ImmutableList;
-import eu.itesla_project.afs.*;
-import eu.itesla_project.afs.mapdb.storage.MapDbAppFileSystemStorage;
-import eu.itesla_project.afs.storage.AppFileSystemStorage;
+import com.powsybl.afs.*;
+import com.powsybl.afs.mapdb.storage.MapDbAppFileSystemStorage;
+import com.powsybl.afs.storage.AppFileSystemStorage;
 import org.junit.Test;
 
 import java.util.List;

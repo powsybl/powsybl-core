@@ -35,7 +35,7 @@
 
 extern char** environ;
 
-namespace itesla {
+namespace powsybl {
 
 namespace io {
 

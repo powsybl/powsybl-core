@@ -4,10 +4,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.computation;
+package com.powsybl.computation;
 
-import eu.itesla_project.computation.GroupCommand.SubCommand;
-import eu.itesla_project.computation.GroupCommandImpl.SubCommandImpl;
+import com.powsybl.computation.GroupCommand.SubCommand;
+import com.powsybl.computation.GroupCommandImpl.SubCommandImpl;
 
 import java.util.*;
 import java.util.function.Function;

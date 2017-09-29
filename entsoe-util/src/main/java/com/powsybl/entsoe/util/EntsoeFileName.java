@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.entsoe.util;
+package com.powsybl.entsoe.util;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;

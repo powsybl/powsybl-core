@@ -4,12 +4,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.loadflow.validation;
+package com.powsybl.loadflow.validation;
 
-import eu.itesla_project.iidm.network.*;
-import eu.itesla_project.iidm.network.Terminal.BusView;
-import eu.itesla_project.loadflow.api.LoadFlowParameters;
-import eu.itesla_project.loadflow.api.mock.LoadFlowFactoryMock;
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Terminal.BusView;
+import com.powsybl.loadflow.api.LoadFlowParameters;
+import com.powsybl.loadflow.api.mock.LoadFlowFactoryMock;
 import org.apache.commons.io.output.NullWriter;
 import org.junit.Before;
 import org.junit.Test;

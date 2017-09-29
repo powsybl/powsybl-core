@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.security.json;
+package com.powsybl.security.json;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,9 +12,9 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import eu.itesla_project.contingency.ContingencyElement;
-import eu.itesla_project.contingency.json.ContingencyElementSerializer;
-import eu.itesla_project.security.*;
+import com.powsybl.contingency.ContingencyElement;
+import com.powsybl.contingency.json.ContingencyElementSerializer;
+import com.powsybl.security.*;
 
 import java.io.IOException;
 import java.io.OutputStream;

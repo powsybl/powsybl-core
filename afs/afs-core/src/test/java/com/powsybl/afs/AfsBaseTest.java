@@ -4,13 +4,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.afs;
+package com.powsybl.afs;
 
 import com.google.common.collect.ImmutableList;
-import eu.itesla_project.afs.mapdb.storage.MapDbAppFileSystemStorage;
-import eu.itesla_project.afs.storage.AppFileSystemStorage;
-import eu.itesla_project.commons.config.ComponentDefaultConfig;
-import eu.itesla_project.computation.ComputationManager;
+import com.powsybl.afs.mapdb.storage.MapDbAppFileSystemStorage;
+import com.powsybl.afs.storage.AppFileSystemStorage;
+import com.powsybl.commons.config.ComponentDefaultConfig;
+import com.powsybl.computation.ComputationManager;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

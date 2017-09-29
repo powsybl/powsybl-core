@@ -16,13 +16,13 @@
 #include "jni.h"
 #include "jniwrapper.hpp"
 
-namespace itesla {
+namespace powsybl {
 
 namespace jni {
 
-class EuIteslaProjectComputationMpiMpiTask : public JniWrapper<jobject> {
+class ComPowsyblComputationMpiMpiTask : public JniWrapper<jobject> {
 public:
-    EuIteslaProjectComputationMpiMpiTask(JNIEnv* env, jobject obj)
+    ComPowsyblComputationMpiMpiTask(JNIEnv* env, jobject obj)
         : JniWrapper<jobject>(env, obj) {
     }
 

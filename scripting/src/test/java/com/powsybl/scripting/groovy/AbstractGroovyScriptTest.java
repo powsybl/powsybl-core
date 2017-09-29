@@ -4,15 +4,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.scripting.groovy;
+package com.powsybl.scripting.groovy;
 
-import eu.itesla_project.afs.AppData;
-import eu.itesla_project.afs.AppFileSystem;
-import eu.itesla_project.afs.FileExtension;
-import eu.itesla_project.afs.ProjectFileExtension;
-import eu.itesla_project.afs.storage.AppFileSystemStorage;
-import eu.itesla_project.commons.config.ComponentDefaultConfig;
-import eu.itesla_project.computation.ComputationManager;
+import com.powsybl.afs.AppData;
+import com.powsybl.afs.AppFileSystem;
+import com.powsybl.afs.FileExtension;
+import com.powsybl.afs.ProjectFileExtension;
+import com.powsybl.afs.storage.AppFileSystemStorage;
+import com.powsybl.commons.config.ComponentDefaultConfig;
+import com.powsybl.computation.ComputationManager;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

@@ -4,10 +4,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.cim1.converter;
+package com.powsybl.cim1.converter;
 
 import com.google.common.collect.ImmutableMap;
-import eu.itesla_project.iidm.network.Country;
+import com.powsybl.iidm.network.Country;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

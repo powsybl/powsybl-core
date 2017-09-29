@@ -4,10 +4,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.iidm.network.impl.util;
+package com.powsybl.iidm.network.impl.util;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import eu.itesla_project.iidm.network.impl.ThreadLocalMultiStateContext;
+import com.powsybl.iidm.network.impl.ThreadLocalMultiStateContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -4,11 +4,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.computation.mpi;
+package com.powsybl.computation.mpi;
 
-import eu.itesla_project.commons.config.ComponentDefaultConfig;
-import eu.itesla_project.commons.exceptions.UncheckedInterruptedException;
-import eu.itesla_project.computation.ComputationManager;
+import com.powsybl.commons.config.ComponentDefaultConfig;
+import com.powsybl.commons.exceptions.UncheckedInterruptedException;
+import com.powsybl.computation.ComputationManager;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;

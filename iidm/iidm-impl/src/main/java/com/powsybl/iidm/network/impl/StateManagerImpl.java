@@ -4,14 +4,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.iidm.network.impl;
+package com.powsybl.iidm.network.impl;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.HashBiMap;
 import com.google.common.primitives.Ints;
-import eu.itesla_project.commons.ITeslaException;
-import eu.itesla_project.iidm.network.StateManager;
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.StateManager;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -82,7 +82,7 @@ class StateManagerImpl implements StateManager {
     private int getStateIndex(String stateId) {
         Integer index = id2index.get(stateId);
         if (index == null) {
-            throw new ITeslaException("State '" + stateId + "' not found");
+            throw new PowsyblException("State '" + stateId + "' not found");
         }
         return index;
     }
@@ -132,7 +132,7 @@ class StateManagerImpl implements StateManager {
             List<Integer> recycled = new ArrayList<>();
             for (String targetStateId : targetStateIds) {
                 if (id2index.containsKey(targetStateId)) {
-                    throw new ITeslaException("Target state '" + targetStateId + "' already exists");
+                    throw new PowsyblException("Target state '" + targetStateId + "' already exists");
                 }
                 if (unusedIndexes.isEmpty()) {
                     // extend state array size
@@ -169,7 +169,7 @@ class StateManagerImpl implements StateManager {
         stateLock.lock();
         try {
             if (INITIAL_STATE_ID.equals(stateId)) {
-                throw new ITeslaException("Removing initial state is forbidden");
+                throw new PowsyblException("Removing initial state is forbidden");
             }
             int index = getStateIndex(stateId);
             id2index.remove(stateId);

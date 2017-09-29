@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.loadflow.validation;
+package com.powsybl.loadflow.validation;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -18,12 +18,12 @@ import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.itesla_project.commons.config.ConfigurationException;
-import eu.itesla_project.iidm.network.Bus;
-import eu.itesla_project.iidm.network.Generator;
-import eu.itesla_project.iidm.network.Line;
-import eu.itesla_project.iidm.network.Network;
-import eu.itesla_project.iidm.network.TwoWindingsTransformer;
+import com.powsybl.commons.config.ConfigurationException;
+import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TwoWindingsTransformer;
 
 /**
  *

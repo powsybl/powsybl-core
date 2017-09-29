@@ -4,12 +4,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.scripting;
+package com.powsybl.scripting;
 
-import eu.itesla_project.commons.config.ComponentDefaultConfig;
-import eu.itesla_project.commons.tools.AbstractToolTest;
-import eu.itesla_project.commons.tools.CommandLineTools;
-import eu.itesla_project.commons.tools.Tool;
+import com.powsybl.commons.config.ComponentDefaultConfig;
+import com.powsybl.tools.AbstractToolTest;
+import com.powsybl.tools.CommandLineTools;
+import com.powsybl.tools.Tool;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;

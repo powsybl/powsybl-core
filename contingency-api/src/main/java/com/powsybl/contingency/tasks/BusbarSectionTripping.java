@@ -4,14 +4,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.contingency.tasks;
+package com.powsybl.contingency.tasks;
 
-import eu.itesla_project.commons.ITeslaException;
-import eu.itesla_project.computation.ComputationManager;
-import eu.itesla_project.iidm.network.BusbarSection;
-import eu.itesla_project.iidm.network.Network;
-import eu.itesla_project.iidm.network.Switch;
-import eu.itesla_project.iidm.network.Terminal;
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.computation.ComputationManager;
+import com.powsybl.iidm.network.BusbarSection;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Switch;
+import com.powsybl.iidm.network.Terminal;
 
 import java.util.Objects;
 import java.util.Set;
@@ -33,7 +33,7 @@ public class BusbarSectionTripping extends AbstractTrippingTask {
 
         BusbarSection busbarSection = network.getBusbarSection(busbarSectionId);
         if (busbarSection == null) {
-            throw new ITeslaException("Busbar section '" + busbarSectionId + "' not found");
+            throw new PowsyblException("Busbar section '" + busbarSectionId + "' not found");
         }
 
         ContingencyTopologyTraverser.traverse(busbarSection.getTerminal(), switchesToOpen, terminalsToDisconnect);

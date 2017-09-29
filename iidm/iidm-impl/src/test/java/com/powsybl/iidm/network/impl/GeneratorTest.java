@@ -4,11 +4,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.iidm.network.impl;
+package com.powsybl.iidm.network.impl;
 
-import eu.itesla_project.commons.ITeslaException;
-import eu.itesla_project.iidm.network.*;
-import eu.itesla_project.iidm.network.test.FictitiousSwitchFactory;
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -144,7 +144,7 @@ public class GeneratorTest {
     public void duplicateEquipment() {
         createGenerator("duplicate", EnergySource.HYDRO, 20.0f, 11.f, 2.0f,
                 30.0f, 40.0f, true, 2.0f);
-        thrown.expect(ITeslaException.class);
+        thrown.expect(PowsyblException.class);
         thrown.expectMessage("contains an object 'GeneratorImpl' with the id 'duplicate'");
         createGenerator("duplicate", EnergySource.HYDRO, 20.0f, 11.f, 2.0f,
                 30.0f, 40.0f, true, 2.0f);
@@ -152,7 +152,7 @@ public class GeneratorTest {
 
     @Test
     public void duplicateId() {
-        thrown.expect(ITeslaException.class);
+        thrown.expect(PowsyblException.class);
         thrown.expectMessage("with the id 'A'");
         createGenerator("A", EnergySource.HYDRO, 20.0f, 11.f, 2.0f,
                 30.0f, 40.0f, true, 2.0f);

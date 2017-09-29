@@ -4,10 +4,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.iidm.export;
+package com.powsybl.iidm.export;
 
-import eu.itesla_project.commons.datasource.DataSource;
-import eu.itesla_project.iidm.network.Network;
+import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.iidm.network.Network;
 import java.util.Properties;
 
 /**
@@ -15,7 +15,7 @@ import java.util.Properties;
  *
  * <p><code>Exporter</code> lookup is based on the <code>ServiceLoader</code>
  * architecture so do not forget to create a
- * <code>META-INF/services/eu.itesla_project.iidm.export.Exporter</code> file
+ * <code>META-INF/services/com.powsybl.iidm.export.Exporter</code> file
  * with the fully qualified name of your <code>Exporter</code> implementation.
  *
  * @see java.util.ServiceLoader

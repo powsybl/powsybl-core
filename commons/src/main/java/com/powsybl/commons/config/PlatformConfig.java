@@ -4,12 +4,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.commons.config;
+package com.powsybl.commons.config;
 
-import eu.itesla_project.commons.exceptions.UncheckedParserConfigurationException;
-import eu.itesla_project.commons.exceptions.UncheckedSaxException;
-import eu.itesla_project.commons.io.CacheManager;
-import eu.itesla_project.commons.io.FileUtil;
+import com.powsybl.commons.exceptions.UncheckedParserConfigurationException;
+import com.powsybl.commons.exceptions.UncheckedSaxException;
+import com.powsybl.commons.io.CacheManager;
+import com.powsybl.commons.io.FileUtil;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;

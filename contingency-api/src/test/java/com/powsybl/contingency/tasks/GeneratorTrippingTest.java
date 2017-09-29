@@ -4,16 +4,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.contingency.tasks;
+package com.powsybl.contingency.tasks;
 
-import eu.itesla_project.commons.ITeslaException;
-import eu.itesla_project.contingency.ContingencyImpl;
-import eu.itesla_project.contingency.GeneratorContingency;
-import eu.itesla_project.iidm.network.Network;
-import eu.itesla_project.iidm.network.Switch;
-import eu.itesla_project.iidm.network.Terminal;
-import eu.itesla_project.iidm.network.test.EurostagTutorialExample1Factory;
-import eu.itesla_project.iidm.network.test.FictitiousSwitchFactory;
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.contingency.ContingencyImpl;
+import com.powsybl.contingency.GeneratorContingency;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Switch;
+import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 import org.junit.Test;
 
 import java.util.Collections;
@@ -43,7 +43,7 @@ public class GeneratorTrippingTest extends TrippingTest {
         assertFalse(network.getGenerator("GEN").getTerminal().isConnected());
     }
 
-    @Test(expected = ITeslaException.class)
+    @Test(expected = PowsyblException.class)
     public void unknownGeneratorTrippingTest() {
         Network network = EurostagTutorialExample1Factory.create();
 

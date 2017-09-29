@@ -14,7 +14,7 @@
 #include <string>
 #include <jni.h>
 
-namespace itesla {
+namespace powsybl {
 
 namespace jni {
 

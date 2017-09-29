@@ -4,10 +4,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.computation.mpi.util;
+package com.powsybl.computation.mpi.util;
 
-import eu.itesla_project.computation.mpi.MpiExecutorContext;
-import eu.itesla_project.computation.mpi.MpiExecutorContextFactory;
+import com.powsybl.computation.mpi.MpiExecutorContext;
+import com.powsybl.computation.mpi.MpiExecutorContextFactory;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>

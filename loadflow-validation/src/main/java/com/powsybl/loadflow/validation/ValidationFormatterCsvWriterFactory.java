@@ -4,11 +4,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.loadflow.validation;
+package com.powsybl.loadflow.validation;
 
 import java.io.Writer;
 
-import eu.itesla_project.commons.io.table.TableFormatterFactory;
+import com.powsybl.commons.io.table.TableFormatterFactory;
 
 /**
  *

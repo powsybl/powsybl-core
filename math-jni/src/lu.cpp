@@ -17,13 +17,13 @@
 #include <suitesparse/cs.h>
 #include "jniwrapper.hpp"
 
-namespace itesla {
+namespace powsybl {
 
 namespace jni {
 
-class EuIteslaProjectMathMatrixSparseMatrix : public JniWrapper<jobject> {
+class ComPowsyblMathMatrixSparseMatrix : public JniWrapper<jobject> {
 public:
-    EuIteslaProjectMathMatrixSparseMatrix(JNIEnv* env, int m, int n, const IntArray& ap, const IntArray& ai, const DoubleArray& ax);
+    ComPowsyblMathMatrixSparseMatrix(JNIEnv* env, int m, int n, const IntArray& ap, const IntArray& ai, const DoubleArray& ax);
 
     static void init(JNIEnv* env);
 
@@ -32,16 +32,16 @@ private:
     static jmethodID _constructor; 
 };
 
-jclass EuIteslaProjectMathMatrixSparseMatrix::_cls = 0;
-jmethodID EuIteslaProjectMathMatrixSparseMatrix::_constructor = 0;
+jclass ComPowsyblMathMatrixSparseMatrix::_cls = 0;
+jmethodID ComPowsyblMathMatrixSparseMatrix::_constructor = 0;
 
-void EuIteslaProjectMathMatrixSparseMatrix::init(JNIEnv* env) {
-    jclass localCls = env->FindClass("eu/itesla_project/math/matrix/SparseMatrix");
+void ComPowsyblMathMatrixSparseMatrix::init(JNIEnv* env) {
+    jclass localCls = env->FindClass("com/powsybl/math/matrix/SparseMatrix");
     _cls = reinterpret_cast<jclass>(env->NewGlobalRef(localCls));
     _constructor = env->GetMethodID(_cls, "<init>", "(II[I[I[D)V");
 }
 
-EuIteslaProjectMathMatrixSparseMatrix::EuIteslaProjectMathMatrixSparseMatrix(JNIEnv* env, int m, int n, const IntArray& ap, const IntArray& ai, const DoubleArray& ax)
+ComPowsyblMathMatrixSparseMatrix::ComPowsyblMathMatrixSparseMatrix(JNIEnv* env, int m, int n, const IntArray& ap, const IntArray& ai, const DoubleArray& ax)
     : JniWrapper<jobject>(env, env->NewObject(_cls, _constructor, m, n, ap.obj(), ai.obj(), ax.obj())) {
 }
 
@@ -123,16 +123,16 @@ extern "C" {
 #endif
 
 /*
- * Class:     eu_itesla_project_math_matrix_SparseLUDecomposition
+ * Class:     com.powsybl_math_matrix_SparseLUDecomposition
  * Method:    init
  * Signature: (Ljava/lang/String;[I[I[D)V
  */
-JNIEXPORT void JNICALL Java_eu_itesla_1project_math_matrix_SparseLUDecomposition_init(JNIEnv * env, jobject, jstring j_id, jintArray j_ap, jintArray j_ai, jdoubleArray j_ax) {
+JNIEXPORT void JNICALL Java_com_powsybl_math_matrix_SparseLUDecomposition_init(JNIEnv * env, jobject, jstring j_id, jintArray j_ap, jintArray j_ai, jdoubleArray j_ax) {
     try {
-        std::string id = itesla::jni::StringUTF(env, j_id).toStr();
-        itesla::jni::IntArray ap(env, j_ap);
-        itesla::jni::IntArray ai(env, j_ai);
-        itesla::jni::DoubleArray ax(env, j_ax);
+        std::string id = powsybl::jni::StringUTF(env, j_id).toStr();
+        powsybl::jni::IntArray ap(env, j_ap);
+        powsybl::jni::IntArray ai(env, j_ai);
+        powsybl::jni::DoubleArray ax(env, j_ax);
 
         std::shared_ptr<LUContext> context = MANAGER->createContext(id);
  
@@ -149,20 +149,20 @@ JNIEXPORT void JNICALL Java_eu_itesla_1project_math_matrix_SparseLUDecomposition
             throw std::runtime_error("klu_factor error " + context->error());
         }
     } catch (const std::exception& e) {
-        itesla::jni::throwJavaLangRuntimeException(env, e.what());
+        powsybl::jni::throwJavaLangRuntimeException(env, e.what());
     } catch (...) {
-        itesla::jni::throwJavaLangRuntimeException(env, "Unknown exception");
+        powsybl::jni::throwJavaLangRuntimeException(env, "Unknown exception");
     }
 }
 
 /*
- * Class:     eu_itesla_project_math_matrix_SparseLUDecomposition
+ * Class:     com.powsybl_math_matrix_SparseLUDecomposition
  * Method:    release
  * Signature: (Ljava/lang/String;)V
  */
-JNIEXPORT void JNICALL Java_eu_itesla_1project_math_matrix_SparseLUDecomposition_release(JNIEnv * env, jobject, jstring j_id) {
+JNIEXPORT void JNICALL Java_com_powsybl_math_matrix_SparseLUDecomposition_release(JNIEnv * env, jobject, jstring j_id) {
     try {
-        std::string id = itesla::jni::StringUTF(env, j_id).toStr();
+        std::string id = powsybl::jni::StringUTF(env, j_id).toStr();
 
         std::shared_ptr<LUContext> context = MANAGER->findContext(id);
 
@@ -175,21 +175,21 @@ JNIEXPORT void JNICALL Java_eu_itesla_1project_math_matrix_SparseLUDecomposition
 
         MANAGER->removeContext(id);
     } catch (const std::exception& e) {
-        itesla::jni::throwJavaLangRuntimeException(env, e.what());
+        powsybl::jni::throwJavaLangRuntimeException(env, e.what());
     } catch (...) {
-        itesla::jni::throwJavaLangRuntimeException(env, "Unknown exception");
+        powsybl::jni::throwJavaLangRuntimeException(env, "Unknown exception");
     }
 }
 
 /*
- * Class:     eu_itesla_project_math_matrix_SparseLUDecomposition
+ * Class:     com.powsybl_math_matrix_SparseLUDecomposition
  * Method:    solve
  * Signature: (Ljava/lang/String;[D)V
  */
-JNIEXPORT void JNICALL Java_eu_itesla_1project_math_matrix_SparseLUDecomposition_solve(JNIEnv * env, jobject, jstring j_id, jdoubleArray j_b) {
+JNIEXPORT void JNICALL Java_com_powsybl_math_matrix_SparseLUDecomposition_solve(JNIEnv * env, jobject, jstring j_id, jdoubleArray j_b) {
     try {
-        std::string id = itesla::jni::StringUTF(env, j_id).toStr();
-        itesla::jni::DoubleArray b(env, j_b);
+        std::string id = powsybl::jni::StringUTF(env, j_id).toStr();
+        powsybl::jni::DoubleArray b(env, j_b);
 
         std::shared_ptr<LUContext> context = MANAGER->findContext(id);
 
@@ -197,20 +197,20 @@ JNIEXPORT void JNICALL Java_eu_itesla_1project_math_matrix_SparseLUDecomposition
             throw std::runtime_error("klu_solve error " + context->error());
         }
     } catch (const std::exception& e) {
-        itesla::jni::throwJavaLangRuntimeException(env, e.what());
+        powsybl::jni::throwJavaLangRuntimeException(env, e.what());
     } catch (...) {
-        itesla::jni::throwJavaLangRuntimeException(env, "Unknown exception");
+        powsybl::jni::throwJavaLangRuntimeException(env, "Unknown exception");
     }
 }
 
 /*
- * Class:     eu_itesla_project_math_matrix_SparseLUDecomposition
+ * Class:     com.powsybl_math_matrix_SparseLUDecomposition
  * Method:    solve2
  * Signature: (Ljava/lang/String;IILjava/nio/ByteBuffer;)V
  */
-JNIEXPORT void JNICALL Java_eu_itesla_1project_math_matrix_SparseLUDecomposition_solve2(JNIEnv * env, jobject, jstring j_id, jint m, jint n, jobject j_b) {
+JNIEXPORT void JNICALL Java_com_powsybl_math_matrix_SparseLUDecomposition_solve2(JNIEnv * env, jobject, jstring j_id, jint m, jint n, jobject j_b) {
     try {
-        std::string id = itesla::jni::StringUTF(env, j_id).toStr();
+        std::string id = powsybl::jni::StringUTF(env, j_id).toStr();
         double* b = static_cast<double*>(env->GetDirectBufferAddress(j_b));
         if (!b) {
            throw std::runtime_error("GetDirectBufferAddress error");
@@ -222,42 +222,42 @@ JNIEXPORT void JNICALL Java_eu_itesla_1project_math_matrix_SparseLUDecomposition
             throw std::runtime_error("klu_solve error " + context->error());
         }
     } catch (const std::exception& e) {
-        itesla::jni::throwJavaLangRuntimeException(env, e.what());
+        powsybl::jni::throwJavaLangRuntimeException(env, e.what());
     } catch (...) {
-        itesla::jni::throwJavaLangRuntimeException(env, "Unknown exception");
+        powsybl::jni::throwJavaLangRuntimeException(env, "Unknown exception");
     }
 }
 
 /*
- * Class:     eu_itesla_project_math_matrix_SparseMatrix
+ * Class:     com.powsybl_math_matrix_SparseMatrix
  * Method:    nativeInit
  * Signature: ()V
  */
-JNIEXPORT void JNICALL Java_eu_itesla_1project_math_matrix_SparseMatrix_nativeInit(JNIEnv * env, jclass) {
+JNIEXPORT void JNICALL Java_com_powsybl_math_matrix_SparseMatrix_nativeInit(JNIEnv * env, jclass) {
     try {
         // lookup caching
-        itesla::jni::EuIteslaProjectMathMatrixSparseMatrix::init(env);
+        powsybl::jni::ComPowsyblMathMatrixSparseMatrix::init(env);
     } catch (const std::exception& e) {
-        itesla::jni::throwJavaLangRuntimeException(env, e.what());
+        powsybl::jni::throwJavaLangRuntimeException(env, e.what());
     } catch (...) {
-        itesla::jni::throwJavaLangRuntimeException(env, "Unknown exception");
+        powsybl::jni::throwJavaLangRuntimeException(env, "Unknown exception");
     }
 }
 
 /*
- * Class:     eu_itesla_project_math_matrix_SparseMatrix
+ * Class:     com.powsybl_math_matrix_SparseMatrix
  * Method:    times
- * Signature: (II[I[I[DII[I[I[D)Leu/itesla_project/math/matrix/SparseMatrix;
+ * Signature: (II[I[I[DII[I[I[D)Lcom/powsybl/math/matrix/SparseMatrix;
  */
-JNIEXPORT jobject JNICALL Java_eu_itesla_1project_math_matrix_SparseMatrix_times(JNIEnv * env, jobject, jint m1, jint n1, jintArray j_ap1, jintArray j_ai1, jdoubleArray j_ax1, 
+JNIEXPORT jobject JNICALL Java_com_powsybl_math_matrix_SparseMatrix_times(JNIEnv * env, jobject, jint m1, jint n1, jintArray j_ap1, jintArray j_ai1, jdoubleArray j_ax1, 
                                                                                  jint m2, jint n2, jintArray j_ap2, jintArray j_ai2, jdoubleArray j_ax2) {
     try {
-        itesla::jni::IntArray ap1(env, j_ap1);
-        itesla::jni::IntArray ai1(env, j_ai1);
-        itesla::jni::DoubleArray ax1(env, j_ax1);
-        itesla::jni::IntArray ap2(env, j_ap2);
-        itesla::jni::IntArray ai2(env, j_ai2);
-        itesla::jni::DoubleArray ax2(env, j_ax2);
+        powsybl::jni::IntArray ap1(env, j_ap1);
+        powsybl::jni::IntArray ai1(env, j_ai1);
+        powsybl::jni::DoubleArray ax1(env, j_ax1);
+        powsybl::jni::IntArray ap2(env, j_ap2);
+        powsybl::jni::IntArray ai2(env, j_ai2);
+        powsybl::jni::DoubleArray ax2(env, j_ax2);
 
         cs_di a1;
         a1.nz = -1;
@@ -285,14 +285,14 @@ JNIEXPORT jobject JNICALL Java_eu_itesla_1project_math_matrix_SparseMatrix_times
         cs_di_print(a3, 0);
 */
     
-        itesla::jni::IntArray ap3(env, a3->p, a3->n + 1);
-        itesla::jni::IntArray ai3(env, a3->i, a3->nzmax);
-        itesla::jni::DoubleArray ax3(env, a3->x, a3->nzmax);
-        return itesla::jni::EuIteslaProjectMathMatrixSparseMatrix(env, a3->m, a3->n, ap3, ai3, ax3).obj();
+        powsybl::jni::IntArray ap3(env, a3->p, a3->n + 1);
+        powsybl::jni::IntArray ai3(env, a3->i, a3->nzmax);
+        powsybl::jni::DoubleArray ax3(env, a3->x, a3->nzmax);
+        return powsybl::jni::ComPowsyblMathMatrixSparseMatrix(env, a3->m, a3->n, ap3, ai3, ax3).obj();
     } catch (const std::exception& e) {
-        itesla::jni::throwJavaLangRuntimeException(env, e.what());
+        powsybl::jni::throwJavaLangRuntimeException(env, e.what());
     } catch (...) {
-        itesla::jni::throwJavaLangRuntimeException(env, "Unknown exception");
+        powsybl::jni::throwJavaLangRuntimeException(env, "Unknown exception");
     }
     return 0;
 }

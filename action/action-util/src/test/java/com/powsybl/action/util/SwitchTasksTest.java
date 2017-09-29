@@ -4,12 +4,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.action.util;
+package com.powsybl.action.util;
 
-import eu.itesla_project.iidm.network.Generator;
-import eu.itesla_project.iidm.network.Network;
-import eu.itesla_project.iidm.network.Switch;
-import eu.itesla_project.iidm.network.test.NetworkTest1Factory;
+import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Switch;
+import com.powsybl.iidm.network.test.NetworkTest1Factory;
 import org.junit.Assert;
 import org.junit.Test;
 

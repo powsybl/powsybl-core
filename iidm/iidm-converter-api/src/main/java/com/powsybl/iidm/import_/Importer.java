@@ -4,12 +4,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.iidm.import_;
+package com.powsybl.iidm.import_;
 
-import eu.itesla_project.commons.datasource.DataSource;
-import eu.itesla_project.commons.datasource.ReadOnlyDataSource;
-import eu.itesla_project.iidm.network.Network;
-import eu.itesla_project.iidm.parameters.Parameter;
+import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.parameters.Parameter;
 
 import java.io.InputStream;
 import java.util.Collections;
@@ -21,7 +21,7 @@ import java.util.Properties;
  *
  * <p><code>Importer</code> lookup is based on the <code>ServiceLoader</code>
  * architecture so do not forget to create a
- * <code>META-INF/services/eu.itesla_project.iidm.importData.Importer</code> file
+ * <code>META-INF/services/com.powsybl.iidm.importData.Importer</code> file
  * with the fully qualified name of your <code>Importer</code> implementation.
  *
  * @see java.util.ServiceLoader

@@ -15,7 +15,7 @@
 #include <log4cpp/Appender.hh>
 #include <log4cpp/Category.hh>
 
-namespace itesla {
+namespace powsybl {
 
 namespace io {
 

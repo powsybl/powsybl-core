@@ -4,19 +4,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.scripting;
+package com.powsybl.scripting;
 
 import com.google.auto.service.AutoService;
-import eu.itesla_project.afs.AppData;
-import eu.itesla_project.afs.AppFileSystemProvider;
-import eu.itesla_project.afs.FileExtension;
-import eu.itesla_project.afs.ProjectFileExtension;
-import eu.itesla_project.commons.config.ComponentDefaultConfig;
-import eu.itesla_project.commons.tools.Command;
-import eu.itesla_project.commons.tools.Tool;
-import eu.itesla_project.commons.tools.ToolRunningContext;
-import eu.itesla_project.commons.util.ServiceLoaderCache;
-import eu.itesla_project.scripting.groovy.GroovyScripts;
+import com.powsybl.afs.AppData;
+import com.powsybl.afs.AppFileSystemProvider;
+import com.powsybl.afs.FileExtension;
+import com.powsybl.afs.ProjectFileExtension;
+import com.powsybl.commons.config.ComponentDefaultConfig;
+import com.powsybl.tools.Command;
+import com.powsybl.tools.Tool;
+import com.powsybl.tools.ToolRunningContext;
+import com.powsybl.commons.util.ServiceLoaderCache;
+import com.powsybl.scripting.groovy.GroovyScripts;
 import groovy.lang.Binding;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;

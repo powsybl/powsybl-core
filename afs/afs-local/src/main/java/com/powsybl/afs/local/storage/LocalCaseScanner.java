@@ -4,11 +4,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.afs.local.storage;
+package com.powsybl.afs.local.storage;
 
 import com.google.auto.service.AutoService;
-import eu.itesla_project.commons.datasource.ReadOnlyDataSource;
-import eu.itesla_project.iidm.import_.*;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.iidm.import_.*;
 
 import java.nio.file.Files;
 import java.nio.file.Path;

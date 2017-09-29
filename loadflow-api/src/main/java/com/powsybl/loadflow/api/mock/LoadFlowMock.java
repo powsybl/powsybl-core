@@ -4,11 +4,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.loadflow.api.mock;
+package com.powsybl.loadflow.api.mock;
 
-import eu.itesla_project.loadflow.api.LoadFlow;
-import eu.itesla_project.loadflow.api.LoadFlowParameters;
-import eu.itesla_project.loadflow.api.LoadFlowResult;
+import com.powsybl.loadflow.api.LoadFlow;
+import com.powsybl.loadflow.api.LoadFlowParameters;
+import com.powsybl.loadflow.api.LoadFlowResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

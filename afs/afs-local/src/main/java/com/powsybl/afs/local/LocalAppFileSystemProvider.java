@@ -4,15 +4,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.afs.local;
+package com.powsybl.afs.local;
 
 import com.google.auto.service.AutoService;
-import eu.itesla_project.afs.AppFileSystem;
-import eu.itesla_project.afs.AppFileSystemProvider;
-import eu.itesla_project.afs.local.storage.LocalFileScanner;
-import eu.itesla_project.afs.local.storage.LocalFolderScanner;
-import eu.itesla_project.commons.util.ServiceLoaderCache;
-import eu.itesla_project.computation.ComputationManager;
+import com.powsybl.afs.AppFileSystem;
+import com.powsybl.afs.AppFileSystemProvider;
+import com.powsybl.afs.local.storage.LocalFileScanner;
+import com.powsybl.afs.local.storage.LocalFolderScanner;
+import com.powsybl.commons.util.ServiceLoaderCache;
+import com.powsybl.computation.ComputationManager;
 
 import java.util.List;
 import java.util.Objects;

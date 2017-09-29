@@ -11,7 +11,7 @@
 #include <stdexcept>
 #include "mpitags.hpp"
 
-namespace itesla {
+namespace powsybl {
 
 std::string str(const Step& step) {
     switch (step) {

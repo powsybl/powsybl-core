@@ -4,21 +4,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.action.dsl
+package com.powsybl.action.dsl
 
-import eu.itesla_project.action.dsl.ast.ExpressionNode
-import eu.itesla_project.action.dsl.spi.DslTaskExtension
-import eu.itesla_project.contingency.BranchContingency
-import eu.itesla_project.contingency.BusbarSectionContingency
-import eu.itesla_project.contingency.ContingencyImpl
-import eu.itesla_project.contingency.GeneratorContingency
-import eu.itesla_project.contingency.tasks.ModificationTask
-import eu.itesla_project.iidm.network.BusbarSection
-import eu.itesla_project.iidm.network.Generator
-import eu.itesla_project.iidm.network.Identifiable
-import eu.itesla_project.iidm.network.Line
-import eu.itesla_project.iidm.network.Network
-import eu.itesla_project.iidm.network.TwoWindingsTransformer
+import com.powsybl.action.dsl.ast.ExpressionNode
+import com.powsybl.action.dsl.spi.DslTaskExtension
+import com.powsybl.contingency.BranchContingency
+import com.powsybl.contingency.BusbarSectionContingency
+import com.powsybl.contingency.ContingencyImpl
+import com.powsybl.contingency.GeneratorContingency
+import com.powsybl.contingency.tasks.ModificationTask
+import com.powsybl.iidm.network.BusbarSection
+import com.powsybl.iidm.network.Generator
+import com.powsybl.iidm.network.Identifiable
+import com.powsybl.iidm.network.Line
+import com.powsybl.iidm.network.Network
+import com.powsybl.iidm.network.TwoWindingsTransformer
 import org.codehaus.groovy.control.CompilationFailedException
 import org.slf4j.LoggerFactory
 

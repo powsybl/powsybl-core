@@ -4,15 +4,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.iidm.network.impl;
+package com.powsybl.iidm.network.impl;
 
 import com.google.common.collect.*;
-import eu.itesla_project.math.graph.GraphUtil;
-import eu.itesla_project.math.graph.GraphUtil.ConnectedComponentsComputationResult;
-import eu.itesla_project.iidm.network.*;
-import eu.itesla_project.iidm.network.TwoTerminalsConnectable.Side;
-import eu.itesla_project.iidm.network.impl.util.RefChain;
-import eu.itesla_project.iidm.network.impl.util.RefObj;
+import com.powsybl.math.graph.GraphUtil;
+import com.powsybl.math.graph.GraphUtil.ConnectedComponentsComputationResult;
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.TwoTerminalsConnectable.Side;
+import com.powsybl.iidm.network.impl.util.RefChain;
+import com.powsybl.iidm.network.impl.util.RefObj;
 import gnu.trove.list.array.TIntArrayList;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;

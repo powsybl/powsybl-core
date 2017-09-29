@@ -4,15 +4,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.action.dsl.task
+package com.powsybl.action.dsl.task
 
 import com.google.auto.service.AutoService
-import eu.itesla_project.action.dsl.ActionDslException
-import eu.itesla_project.action.dsl.DslConstants
-import eu.itesla_project.action.dsl.spi.DslTaskExtension
-import eu.itesla_project.computation.ComputationManager
-import eu.itesla_project.contingency.tasks.ModificationTask
-import eu.itesla_project.iidm.network.Network
+import com.powsybl.action.dsl.ActionDslException
+import com.powsybl.action.dsl.DslConstants
+import com.powsybl.action.dsl.spi.DslTaskExtension
+import com.powsybl.computation.ComputationManager
+import com.powsybl.contingency.tasks.ModificationTask
+import com.powsybl.iidm.network.Network
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>

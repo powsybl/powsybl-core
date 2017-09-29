@@ -4,12 +4,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.iidm.network.impl;
+package com.powsybl.iidm.network.impl;
 
 import com.google.common.collect.Sets;
-import eu.itesla_project.commons.ITeslaException;
-import eu.itesla_project.iidm.network.Identifiable;
-import eu.itesla_project.iidm.network.StateManager;
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.StateManager;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -121,17 +121,17 @@ public class StateManagerImplTest {
         try {
             stateManager.setWorkingState("UnknownState");
             assertFalse(true);
-        } catch (ITeslaException ignored) {
+        } catch (PowsyblException ignored) {
         }
         try {
             stateManager.removeState("UnknownState");
             assertFalse(true);
-        } catch (ITeslaException ignored) {
+        } catch (PowsyblException ignored) {
         }
         try {
             stateManager.removeState(StateManager.INITIAL_STATE_ID);
             assertFalse(true);
-        } catch (ITeslaException ignored) {
+        } catch (PowsyblException ignored) {
         }
         // cloning test
         stateManager.cloneState(StateManager.INITIAL_STATE_ID, "ClonedState1");

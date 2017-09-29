@@ -4,11 +4,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.action.dsl.ast;
+package com.powsybl.action.dsl.ast;
 
-import eu.itesla_project.action.dsl.GroovyUtil;
-import eu.itesla_project.iidm.network.Branch;
-import eu.itesla_project.iidm.network.Identifiable;
+import com.powsybl.action.dsl.GroovyUtil;
+import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.Identifiable;
 
 import java.util.ArrayList;
 import java.util.List;

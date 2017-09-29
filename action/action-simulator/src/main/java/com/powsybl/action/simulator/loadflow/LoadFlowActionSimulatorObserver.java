@@ -4,12 +4,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.action.simulator.loadflow;
+package com.powsybl.action.simulator.loadflow;
 
-import eu.itesla_project.action.dsl.Rule;
-import eu.itesla_project.contingency.Contingency;
-import eu.itesla_project.iidm.network.Network;
-import eu.itesla_project.security.LimitViolation;
+import com.powsybl.action.dsl.Rule;
+import com.powsybl.contingency.Contingency;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.security.LimitViolation;
 
 import java.util.List;
 import java.util.Map;

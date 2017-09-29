@@ -13,7 +13,7 @@
 
 #include <string>
 
-namespace itesla {
+namespace powsybl {
 
 const int MAX_CORES_PER_RANK = 1000;
 const int JOB_BUFFER_TAG = 0;

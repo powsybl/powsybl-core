@@ -14,7 +14,7 @@
 #include <boost/lexical_cast.hpp>
 #include "mpiutil.hpp"
 
-namespace itesla {
+namespace powsybl {
 
 namespace mpi {
 

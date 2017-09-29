@@ -10,18 +10,18 @@
 
 #include "jniutil.hpp"
 
-namespace itesla {
+namespace powsybl {
 
 namespace jni {
 
-jmethodID EuIteslaProjectComputationMpiMpiTask::_getIdMethodId = 0;   
-jmethodID EuIteslaProjectComputationMpiMpiTask::_getRankMethodId = 0;   
-jmethodID EuIteslaProjectComputationMpiMpiTask::_getThreadMethodId = 0;
-jmethodID EuIteslaProjectComputationMpiMpiTask::_getMessageMethodId = 0;   
-jmethodID EuIteslaProjectComputationMpiMpiTask::_setResultMessageMethodId = 0;   
+jmethodID ComPowsyblComputationMpiMpiTask::_getIdMethodId = 0;   
+jmethodID ComPowsyblComputationMpiMpiTask::_getRankMethodId = 0;   
+jmethodID ComPowsyblComputationMpiMpiTask::_getThreadMethodId = 0;
+jmethodID ComPowsyblComputationMpiMpiTask::_getMessageMethodId = 0;   
+jmethodID ComPowsyblComputationMpiMpiTask::_setResultMessageMethodId = 0;   
 
-void EuIteslaProjectComputationMpiMpiTask::init(JNIEnv* env) {
-    jclass _class = env->FindClass("eu/itesla_project/computation/mpi/MpiTask");
+void ComPowsyblComputationMpiMpiTask::init(JNIEnv* env) {
+    jclass _class = env->FindClass("com/powsybl/computation/mpi/MpiTask");
     _getIdMethodId = env->GetMethodID(_class, "getId", "()I");    
     _getRankMethodId = env->GetMethodID(_class, "getRank", "()I");
     _getThreadMethodId = env->GetMethodID(_class, "getThread", "()I");
@@ -29,23 +29,23 @@ void EuIteslaProjectComputationMpiMpiTask::init(JNIEnv* env) {
     _setResultMessageMethodId = env->GetMethodID(_class, "setResultMessage", "([B)V");    	
 }
 
-int EuIteslaProjectComputationMpiMpiTask::id() const {
+int ComPowsyblComputationMpiMpiTask::id() const {
     return _env->CallIntMethod(_obj, _getIdMethodId);
 }
 
-int EuIteslaProjectComputationMpiMpiTask::rank() const {
+int ComPowsyblComputationMpiMpiTask::rank() const {
 	return _env->CallIntMethod(_obj, _getRankMethodId);
 }
 
-int EuIteslaProjectComputationMpiMpiTask::thread() const {
+int ComPowsyblComputationMpiMpiTask::thread() const {
     return _env->CallIntMethod(_obj, _getThreadMethodId);
 }
 
-jbyteArray EuIteslaProjectComputationMpiMpiTask::message() const {
+jbyteArray ComPowsyblComputationMpiMpiTask::message() const {
 	return (jbyteArray) _env->CallObjectMethod(_obj, _getMessageMethodId);
 }
 
-void EuIteslaProjectComputationMpiMpiTask::resultMessage(const std::string& buffer) {
+void ComPowsyblComputationMpiMpiTask::resultMessage(const std::string& buffer) {
 	jbyteArray jresult = _env->NewByteArray(buffer.size());       
     _env->SetByteArrayRegion(jresult, 0, buffer.size(), (jbyte*) &buffer[0]);
 	_env->CallVoidMethod(_obj, _setResultMessageMethodId, jresult);

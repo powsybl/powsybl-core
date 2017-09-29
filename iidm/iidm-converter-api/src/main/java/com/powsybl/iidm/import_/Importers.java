@@ -4,17 +4,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.iidm.import_;
+package com.powsybl.iidm.import_;
 
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
-import eu.itesla_project.commons.config.MapModuleConfig;
-import eu.itesla_project.commons.datasource.*;
-import eu.itesla_project.computation.ComputationManager;
-import eu.itesla_project.computation.local.LocalComputationManager;
-import eu.itesla_project.iidm.network.Network;
-import eu.itesla_project.iidm.parameters.Parameter;
-import eu.itesla_project.iidm.parameters.ParameterDefaultValueConfig;
+import com.powsybl.commons.config.MapModuleConfig;
+import com.powsybl.commons.datasource.*;
+import com.powsybl.computation.ComputationManager;
+import com.powsybl.computation.local.LocalComputationManager;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.parameters.Parameter;
+import com.powsybl.iidm.parameters.ParameterDefaultValueConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -4,9 +4,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.ucte.converter;
+package com.powsybl.ucte.converter;
 
-import eu.itesla_project.iidm.import_.Importers;
+import com.powsybl.iidm.import_.Importers;
 import org.junit.Test;
 
 import static org.junit.Assert.*;

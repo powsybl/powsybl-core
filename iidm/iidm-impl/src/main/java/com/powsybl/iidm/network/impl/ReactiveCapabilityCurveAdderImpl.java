@@ -4,11 +4,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.iidm.network.impl;
+package com.powsybl.iidm.network.impl;
 
-import eu.itesla_project.iidm.network.ReactiveCapabilityCurve;
-import eu.itesla_project.iidm.network.ReactiveCapabilityCurveAdder;
-import eu.itesla_project.iidm.network.impl.ReactiveCapabilityCurveImpl.PointImpl;
+import com.powsybl.iidm.network.ReactiveCapabilityCurve;
+import com.powsybl.iidm.network.ReactiveCapabilityCurveAdder;
+import com.powsybl.iidm.network.impl.ReactiveCapabilityCurveImpl.PointImpl;
 import java.util.TreeMap;
 
 /**

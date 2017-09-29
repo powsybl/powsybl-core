@@ -4,11 +4,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.iidm.network.impl;
+package com.powsybl.iidm.network.impl;
 
 import com.google.common.collect.Iterables;
-import eu.itesla_project.commons.ITeslaException;
-import eu.itesla_project.iidm.network.*;
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +35,7 @@ class MergedBus extends AbstractIdentifiable<Bus> implements CalculatedBus {
 
     private void checkValidity() {
         if (!valid) {
-            throw new ITeslaException("Bus has been invalidated");
+            throw new PowsyblException("Bus has been invalidated");
         }
     }
 

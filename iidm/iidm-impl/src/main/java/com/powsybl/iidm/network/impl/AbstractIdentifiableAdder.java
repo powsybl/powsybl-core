@@ -4,10 +4,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.iidm.network.impl;
+package com.powsybl.iidm.network.impl;
 
-import eu.itesla_project.commons.ITeslaException;
-import eu.itesla_project.iidm.network.Identifiable;
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.Identifiable;
 
 /**
  *
@@ -45,7 +45,7 @@ abstract class AbstractIdentifiableAdder<T extends AbstractIdentifiableAdder<T>>
 
     protected String checkAndGetUniqueId() {
         if (id == null) {
-            throw new ITeslaException(getTypeDescription() + " id is not set");
+            throw new PowsyblException(getTypeDescription() + " id is not set");
         }
         String uniqueId;
         if (ensureIdUnicity) {
@@ -53,7 +53,7 @@ abstract class AbstractIdentifiableAdder<T extends AbstractIdentifiableAdder<T>>
         } else {
             if (getNetwork().getObjectStore().contains(id)) {
                 Identifiable obj = getNetwork().getObjectStore().get(id);
-                throw new ITeslaException("The network " + getNetwork().getId()
+                throw new PowsyblException("The network " + getNetwork().getId()
                         + " already contains an object '" + obj.getClass().getSimpleName()
                         + "' with the id '" + id + "'");
             }

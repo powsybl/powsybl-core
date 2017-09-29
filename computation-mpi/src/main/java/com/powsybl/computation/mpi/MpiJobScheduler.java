@@ -4,11 +4,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.computation.mpi;
+package com.powsybl.computation.mpi;
 
-import eu.itesla_project.computation.CommandExecution;
-import eu.itesla_project.computation.ExecutionListener;
-import eu.itesla_project.computation.ExecutionReport;
+import com.powsybl.computation.CommandExecution;
+import com.powsybl.computation.ExecutionListener;
+import com.powsybl.computation.ExecutionReport;
 
 import java.nio.file.Path;
 import java.util.Map;

@@ -4,22 +4,22 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.commons;
+package com.powsybl.commons;
 
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class ITeslaException extends RuntimeException {
+public class PowsyblException extends RuntimeException {
 
-    public ITeslaException() {
+    public PowsyblException() {
     }
 
-    public ITeslaException(String msg) {
+    public PowsyblException(String msg) {
         super(msg);
     }
 
-    public ITeslaException(Throwable throwable) {
+    public PowsyblException(Throwable throwable) {
         super(throwable);
     }
 }

@@ -4,12 +4,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.iidm.tools;
+package com.powsybl.iidm.tools;
 
 import com.google.auto.service.AutoService;
-import eu.itesla_project.commons.datasource.DataSource;
-import eu.itesla_project.iidm.export.Exporter;
-import eu.itesla_project.iidm.network.Network;
+import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.iidm.export.Exporter;
+import com.powsybl.iidm.network.Network;
 
 import java.util.Properties;
 

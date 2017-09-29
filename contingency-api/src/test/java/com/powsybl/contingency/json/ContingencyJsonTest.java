@@ -1,10 +1,10 @@
-package eu.itesla_project.contingency.json;
+package com.powsybl.contingency.json;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import eu.itesla_project.commons.AbstractConverterTest;
-import eu.itesla_project.contingency.*;
+import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.contingency.*;
 import org.junit.Test;
 
 import java.io.IOException;

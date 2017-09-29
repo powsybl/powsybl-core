@@ -4,12 +4,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.action.dsl;
+package com.powsybl.action.dsl;
 
 import com.google.common.collect.ImmutableList;
-import eu.itesla_project.contingency.ContingenciesProvider;
-import eu.itesla_project.contingency.Contingency;
-import eu.itesla_project.iidm.network.Network;
+import com.powsybl.contingency.ContingenciesProvider;
+import com.powsybl.contingency.Contingency;
+import com.powsybl.iidm.network.Network;
 import groovy.lang.GroovyCodeSource;
 import groovy.lang.GroovyShell;
 

@@ -4,11 +4,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.contingency.tasks;
+package com.powsybl.contingency.tasks;
 
-import eu.itesla_project.commons.ITeslaException;
-import eu.itesla_project.computation.ComputationManager;
-import eu.itesla_project.iidm.network.*;
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.computation.ComputationManager;
+import com.powsybl.iidm.network.*;
 
 import java.util.Objects;
 import java.util.Set;
@@ -37,7 +37,7 @@ public class BranchTripping extends AbstractTrippingTask {
 
         Branch branch = network.getBranch(branchId);
         if (branch == null) {
-            throw new ITeslaException("Branch '" + branchId + "' not found");
+            throw new PowsyblException("Branch '" + branchId + "' not found");
         }
         if (voltageLevelId != null) {
             if (voltageLevelId.equals(branch.getTerminal1().getVoltageLevel().getId())) {
@@ -45,7 +45,7 @@ public class BranchTripping extends AbstractTrippingTask {
             } else if (voltageLevelId.equals(branch.getTerminal2().getVoltageLevel().getId())) {
                 ContingencyTopologyTraverser.traverse(branch.getTerminal2(), switchesToOpen, terminalsToDisconnect);
             } else {
-                throw new ITeslaException("VoltageLevel '" + voltageLevelId + "' not connected to branch '" + branchId + "'");
+                throw new PowsyblException("VoltageLevel '" + voltageLevelId + "' not connected to branch '" + branchId + "'");
             }
         } else {
             ContingencyTopologyTraverser.traverse(branch.getTerminal1(), switchesToOpen, terminalsToDisconnect);

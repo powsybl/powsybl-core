@@ -4,11 +4,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.commons.datasource;
+package com.powsybl.commons.datasource;
 
 import com.google.common.io.ByteStreams;
-import eu.itesla_project.commons.io.ForwardingInputStream;
-import eu.itesla_project.commons.io.ForwardingOutputStream;
+import com.powsybl.commons.io.ForwardingInputStream;
+import com.powsybl.commons.io.ForwardingOutputStream;
 import net.java.truevfs.comp.zip.ZipEntry;
 import net.java.truevfs.comp.zip.ZipFile;
 import net.java.truevfs.comp.zip.ZipOutputStream;

@@ -4,12 +4,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.security.json;
+package com.powsybl.security.json;
 
-import eu.itesla_project.commons.AbstractConverterTest;
-import eu.itesla_project.contingency.*;
-import eu.itesla_project.iidm.network.Country;
-import eu.itesla_project.security.*;
+import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.contingency.*;
+import com.powsybl.iidm.network.Country;
+import com.powsybl.security.*;
 import org.junit.Test;
 
 import java.io.IOException;

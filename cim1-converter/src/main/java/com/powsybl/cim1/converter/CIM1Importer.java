@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.cim1.converter;
+package com.powsybl.cim1.converter;
 
 import cim1.CIMModelFactory;
 import cim1.model.CIMModel;
@@ -13,16 +13,16 @@ import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.io.ByteStreams;
 import com.google.gdata.util.io.base.UnicodeReader;
-import eu.itesla_project.commons.config.PlatformConfig;
-import eu.itesla_project.commons.datasource.DataSource;
-import eu.itesla_project.commons.datasource.DataSourceUtil;
-import eu.itesla_project.commons.datasource.ReadOnlyDataSource;
-import eu.itesla_project.iidm.import_.Importer;
-import eu.itesla_project.iidm.import_.Importers;
-import eu.itesla_project.iidm.network.Country;
-import eu.itesla_project.iidm.network.Network;
-import eu.itesla_project.iidm.parameters.Parameter;
-import eu.itesla_project.iidm.parameters.ParameterType;
+import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.commons.datasource.DataSourceUtil;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.iidm.import_.Importer;
+import com.powsybl.iidm.import_.Importers;
+import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.parameters.Parameter;
+import com.powsybl.iidm.parameters.ParameterType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

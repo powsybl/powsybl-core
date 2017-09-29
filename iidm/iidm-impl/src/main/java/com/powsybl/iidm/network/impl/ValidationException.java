@@ -4,15 +4,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.iidm.network.impl;
+package com.powsybl.iidm.network.impl;
 
-import eu.itesla_project.commons.ITeslaException;
+import com.powsybl.commons.PowsyblException;
 
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class ValidationException extends ITeslaException {
+class ValidationException extends PowsyblException {
 
     ValidationException(Validable validable, String msg) {
         super(validable.getMessageHeader() + msg);

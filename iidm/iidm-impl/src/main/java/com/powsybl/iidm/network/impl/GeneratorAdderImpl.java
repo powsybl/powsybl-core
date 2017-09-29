@@ -4,11 +4,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.iidm.network.impl;
+package com.powsybl.iidm.network.impl;
 
-import eu.itesla_project.iidm.network.GeneratorAdder;
-import eu.itesla_project.iidm.network.EnergySource;
-import eu.itesla_project.iidm.network.Terminal;
+import com.powsybl.iidm.network.GeneratorAdder;
+import com.powsybl.iidm.network.EnergySource;
+import com.powsybl.iidm.network.Terminal;
 
 /**
  *

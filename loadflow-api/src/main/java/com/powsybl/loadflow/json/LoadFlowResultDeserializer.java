@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.loadflow.json;
+package com.powsybl.loadflow.json;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
@@ -13,8 +13,8 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import eu.itesla_project.loadflow.api.LoadFlowResult;
-import eu.itesla_project.loadflow.api.LoadFlowResultImpl;
+import com.powsybl.loadflow.api.LoadFlowResult;
+import com.powsybl.loadflow.api.LoadFlowResultImpl;
 
 import java.io.IOException;
 import java.io.InputStream;

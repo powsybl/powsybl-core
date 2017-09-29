@@ -4,10 +4,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.math.matrix;
+package com.powsybl.math.matrix;
 
-import eu.itesla_project.math.matrix.trove.TDoubleArrayListHack;
-import eu.itesla_project.math.matrix.trove.TIntArrayListHack;
+import com.powsybl.math.matrix.trove.TDoubleArrayListHack;
+import com.powsybl.math.matrix.trove.TIntArrayListHack;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

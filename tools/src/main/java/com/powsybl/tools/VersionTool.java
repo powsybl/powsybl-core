@@ -4,10 +4,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.commons.tools;
+package com.powsybl.tools;
 
 import com.google.auto.service.AutoService;
-import eu.itesla_project.commons.Version;
+import com.powsybl.commons.Version;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 

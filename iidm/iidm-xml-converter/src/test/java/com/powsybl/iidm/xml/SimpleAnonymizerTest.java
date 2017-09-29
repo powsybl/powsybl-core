@@ -4,13 +4,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.iidm.xml;
+package com.powsybl.iidm.xml;
 
-import eu.itesla_project.commons.AbstractConverterTest;
-import eu.itesla_project.commons.config.InMemoryPlatformConfig;
-import eu.itesla_project.commons.config.PlatformConfig;
-import eu.itesla_project.commons.datasource.MemDataSource;
-import eu.itesla_project.iidm.network.Network;
+import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.config.InMemoryPlatformConfig;
+import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.datasource.MemDataSource;
+import com.powsybl.iidm.network.Network;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;

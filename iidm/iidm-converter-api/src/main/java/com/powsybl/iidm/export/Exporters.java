@@ -4,14 +4,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.iidm.export;
+package com.powsybl.iidm.export;
 
-import eu.itesla_project.commons.ITeslaException;
-import eu.itesla_project.commons.datasource.DataSource;
-import eu.itesla_project.commons.datasource.DataSourceObserver;
-import eu.itesla_project.commons.datasource.DataSourceUtil;
-import eu.itesla_project.commons.datasource.FileDataSource;
-import eu.itesla_project.iidm.network.Network;
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.commons.datasource.DataSourceObserver;
+import com.powsybl.commons.datasource.DataSourceUtil;
+import com.powsybl.commons.datasource.FileDataSource;
+import com.powsybl.iidm.network.Network;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -102,7 +102,7 @@ public final class Exporters {
     public static void export(String format, Network network, Properties parameters, DataSource dataSource) {
         Exporter exporter = getExporter(format);
         if (exporter == null) {
-            throw new ITeslaException("Export format " + format + " not supported");
+            throw new PowsyblException("Export format " + format + " not supported");
         }
         exporter.export(network, parameters, dataSource);
     }

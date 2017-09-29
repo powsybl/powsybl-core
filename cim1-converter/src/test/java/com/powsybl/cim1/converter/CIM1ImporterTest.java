@@ -4,14 +4,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.cim1.converter;
+package com.powsybl.cim1.converter;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import eu.itesla_project.commons.datasource.DataSource;
-import eu.itesla_project.commons.datasource.FileDataSource;
-import eu.itesla_project.commons.datasource.ReadOnlyDataSource;
-import eu.itesla_project.commons.datasource.ZipFileDataSource;
+import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.commons.datasource.FileDataSource;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.datasource.ZipFileDataSource;
 import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import static org.junit.Assert.*;

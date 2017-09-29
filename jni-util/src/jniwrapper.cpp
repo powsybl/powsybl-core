@@ -10,7 +10,7 @@
 
 #include "jniwrapper.hpp"
 
-namespace itesla {
+namespace powsybl {
 
 namespace jni {
 

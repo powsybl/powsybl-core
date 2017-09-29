@@ -4,15 +4,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.iidm.tools;
+package com.powsybl.iidm.tools;
 
-import eu.itesla_project.commons.config.InMemoryPlatformConfig;
-import eu.itesla_project.commons.config.MapModuleConfig;
-import eu.itesla_project.commons.config.PlatformConfig;
-import eu.itesla_project.commons.tools.AbstractToolTest;
-import eu.itesla_project.commons.tools.CommandLineTools;
-import eu.itesla_project.commons.tools.Tool;
-import eu.itesla_project.iidm.import_.ImportConfig;
+import com.powsybl.commons.config.InMemoryPlatformConfig;
+import com.powsybl.commons.config.MapModuleConfig;
+import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.tools.AbstractToolTest;
+import com.powsybl.tools.CommandLineTools;
+import com.powsybl.tools.Tool;
+import com.powsybl.iidm.import_.ImportConfig;
 import org.junit.Before;
 import org.junit.Test;
 

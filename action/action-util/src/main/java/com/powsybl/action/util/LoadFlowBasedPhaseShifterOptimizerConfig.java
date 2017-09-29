@@ -4,11 +4,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.action.util;
+package com.powsybl.action.util;
 
-import eu.itesla_project.commons.config.ModuleConfig;
-import eu.itesla_project.commons.config.PlatformConfig;
-import eu.itesla_project.loadflow.api.LoadFlowFactory;
+import com.powsybl.commons.config.ModuleConfig;
+import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.loadflow.api.LoadFlowFactory;
 
 import java.util.Objects;
 

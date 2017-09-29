@@ -4,18 +4,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.iidm.network.test;
+package com.powsybl.iidm.network.test;
 
-import eu.itesla_project.iidm.network.Network;
-import eu.itesla_project.iidm.network.Substation;
-import eu.itesla_project.iidm.network.NetworkFactory;
-import eu.itesla_project.iidm.network.VoltageLevel;
-import eu.itesla_project.iidm.network.TopologyKind;
-import eu.itesla_project.iidm.network.Bus;
-import eu.itesla_project.iidm.network.Country;
-import eu.itesla_project.iidm.network.TwoWindingsTransformer;
-import eu.itesla_project.iidm.network.Load;
-import eu.itesla_project.iidm.network.Generator;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Substation;
+import com.powsybl.iidm.network.NetworkFactory;
+import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.TopologyKind;
+import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.iidm.network.Load;
+import com.powsybl.iidm.network.Generator;
 
 /**
  * This is a network test based on Eurostag tutorial example 1.

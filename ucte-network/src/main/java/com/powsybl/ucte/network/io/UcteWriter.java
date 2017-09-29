@@ -4,18 +4,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.ucte.network.io;
+package com.powsybl.ucte.network.io;
 
-import eu.itesla_project.ucte.network.UcteAngleRegulation;
-import eu.itesla_project.ucte.network.UcteElementId;
-import eu.itesla_project.ucte.network.UcteLine;
-import eu.itesla_project.ucte.network.UcteTransformer;
-import eu.itesla_project.ucte.network.UcteCountryCode;
-import eu.itesla_project.ucte.network.UcteNode;
-import eu.itesla_project.ucte.network.UcteNetwork;
-import eu.itesla_project.ucte.network.UcteNodeCode;
-import eu.itesla_project.ucte.network.UctePhaseRegulation;
-import eu.itesla_project.ucte.network.UcteRegulation;
+import com.powsybl.ucte.network.UcteAngleRegulation;
+import com.powsybl.ucte.network.UcteElementId;
+import com.powsybl.ucte.network.UcteLine;
+import com.powsybl.ucte.network.UcteTransformer;
+import com.powsybl.ucte.network.UcteCountryCode;
+import com.powsybl.ucte.network.UcteNode;
+import com.powsybl.ucte.network.UcteNetwork;
+import com.powsybl.ucte.network.UcteNodeCode;
+import com.powsybl.ucte.network.UctePhaseRegulation;
+import com.powsybl.ucte.network.UcteRegulation;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.util.ArrayList;

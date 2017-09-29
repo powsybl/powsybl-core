@@ -4,17 +4,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.loadflow.validation;
+package com.powsybl.loadflow.validation;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import eu.itesla_project.commons.config.InMemoryPlatformConfig;
-import eu.itesla_project.commons.config.MapModuleConfig;
-import eu.itesla_project.commons.io.table.AsciiTableFormatterFactory;
-import eu.itesla_project.commons.io.table.TableFormatterFactory;
-import eu.itesla_project.loadflow.api.LoadFlowFactory;
-import eu.itesla_project.loadflow.api.LoadFlowParameters;
-import eu.itesla_project.loadflow.api.mock.LoadFlowFactoryMock;
+import com.powsybl.commons.config.InMemoryPlatformConfig;
+import com.powsybl.commons.config.MapModuleConfig;
+import com.powsybl.commons.io.table.AsciiTableFormatterFactory;
+import com.powsybl.commons.io.table.TableFormatterFactory;
+import com.powsybl.loadflow.api.LoadFlowFactory;
+import com.powsybl.loadflow.api.LoadFlowParameters;
+import com.powsybl.loadflow.api.mock.LoadFlowFactoryMock;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

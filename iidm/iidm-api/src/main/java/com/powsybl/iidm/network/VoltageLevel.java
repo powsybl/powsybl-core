@@ -4,9 +4,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.iidm.network;
+package com.powsybl.iidm.network;
 
-import eu.itesla_project.iidm.network.util.ShortIdDictionary;
+import com.powsybl.iidm.network.util.ShortIdDictionary;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -382,7 +382,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
          * Get the first node to which a switch is connected.
          *
          * @param switchId the id of the switch
-         * @throws ITeslaException if switch is not found
+         * @throws PowsyblException if switch is not found
          */
         int getNode1(String switchId);
 
@@ -390,7 +390,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
          * Get the second node to which a switch is connected.
          *
          * @param switchId the id of the switch
-         * @throws eu.itesla_project.commons.ITeslaException if switch is not found
+         * @throws com.powsybl.commons.PowsyblException if switch is not found
          */
         int getNode2(String switchId);
 
@@ -493,7 +493,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
 
         /**
          * Get a builder to create a new bus.
-         * @throws eu.itesla_project.commons.ITeslaException if the topology kind is NODE_BREAKER
+         * @throws com.powsybl.commons.PowsyblException if the topology kind is NODE_BREAKER
          */
         BusAdder newBus();
 
@@ -534,7 +534,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
          * <p>
          * Depends on the working state if topology kind is NODE_BREAKER.
          * @param switchId the id of the switch
-         * @throws eu.itesla_project.commons.ITeslaException if switch is not found
+         * @throws com.powsybl.commons.PowsyblException if switch is not found
          * @see StateManager
          */
         Bus getBus1(String switchId);
@@ -544,7 +544,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
          * <p>
          * Depends on the working state if topology kind is NODE_BREAKER.
          * @param switchId the id of the switch
-         * @throws eu.itesla_project.commons.ITeslaException if switch is not found
+         * @throws com.powsybl.commons.PowsyblException if switch is not found
          * @see StateManager
          */
         Bus getBus2(String switchId);
@@ -559,7 +559,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
 
         /**
          * Get a builer to create a new switch.
-         * @throws eu.itesla_project.commons.ITeslaException if the topology kind is NODE_BREAKER
+         * @throws com.powsybl.commons.PowsyblException if the topology kind is NODE_BREAKER
          */
         SwitchAdder newSwitch();
 

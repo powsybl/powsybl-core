@@ -4,9 +4,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.security;
+package com.powsybl.security;
 
-import eu.itesla_project.contingency.Contingency;
+import com.powsybl.contingency.Contingency;
 
 import java.util.Collections;
 import java.util.List;

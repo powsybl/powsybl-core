@@ -4,20 +4,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.iidm.tools;
+package com.powsybl.iidm.tools;
 
 import com.google.auto.service.AutoService;
-import eu.itesla_project.commons.ITeslaException;
-import eu.itesla_project.commons.tools.Command;
-import eu.itesla_project.commons.tools.Tool;
-import eu.itesla_project.commons.tools.ToolRunningContext;
-import eu.itesla_project.commons.datasource.DefaultDataSourceObserver;
-import eu.itesla_project.commons.datasource.DataSource;
-import eu.itesla_project.iidm.export.Exporter;
-import eu.itesla_project.iidm.export.Exporters;
-import eu.itesla_project.iidm.import_.ImportConfig;
-import eu.itesla_project.iidm.import_.Importers;
-import eu.itesla_project.iidm.network.Network;
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.tools.Command;
+import com.powsybl.tools.Tool;
+import com.powsybl.tools.ToolRunningContext;
+import com.powsybl.commons.datasource.DefaultDataSourceObserver;
+import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.iidm.export.Exporter;
+import com.powsybl.iidm.export.Exporters;
+import com.powsybl.iidm.import_.ImportConfig;
+import com.powsybl.iidm.import_.Importers;
+import com.powsybl.iidm.network.Network;
 import org.apache.commons.cli.CommandLine;
 
 import java.io.IOException;
@@ -72,7 +72,7 @@ public class ConversionTool implements Tool {
 
         Exporter exporter = Exporters.getExporter(outputFormat);
         if (exporter == null) {
-            throw new ITeslaException("Target format " + outputFormat + " not supported");
+            throw new PowsyblException("Target format " + outputFormat + " not supported");
         }
 
         Properties inputParams = readProperties(line, OptionType.IMPORT, context);

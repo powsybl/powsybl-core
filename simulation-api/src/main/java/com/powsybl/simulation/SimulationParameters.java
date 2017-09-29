@@ -4,10 +4,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.simulation;
+package com.powsybl.simulation;
 
-import eu.itesla_project.commons.config.ModuleConfig;
-import eu.itesla_project.commons.config.PlatformConfig;
+import com.powsybl.commons.config.ModuleConfig;
+import com.powsybl.commons.config.PlatformConfig;
 
 /**
  * Parameters used to convert a contingency static description to a dynamic simulation scenario.

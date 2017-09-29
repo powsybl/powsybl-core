@@ -4,18 +4,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.merge;
+package com.powsybl.merge;
 
-import eu.itesla_project.computation.ComputationManager;
-import eu.itesla_project.iidm.network.Country;
-import eu.itesla_project.iidm.network.Network;
-import eu.itesla_project.iidm.network.VoltageLevel;
-import eu.itesla_project.loadflow.api.LoadFlow;
-import eu.itesla_project.loadflow.api.LoadFlowFactory;
-import eu.itesla_project.loadflow.api.LoadFlowParameters;
-import eu.itesla_project.loadflow.api.LoadFlowResult;
-import eu.itesla_project.cases.CaseRepository;
-import eu.itesla_project.cases.CaseType;
+import com.powsybl.computation.ComputationManager;
+import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.loadflow.api.LoadFlow;
+import com.powsybl.loadflow.api.LoadFlowFactory;
+import com.powsybl.loadflow.api.LoadFlowParameters;
+import com.powsybl.loadflow.api.LoadFlowResult;
+import com.powsybl.cases.CaseRepository;
+import com.powsybl.cases.CaseType;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.slf4j.Logger;

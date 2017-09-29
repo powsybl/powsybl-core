@@ -4,20 +4,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.afs.local.storage;
+package com.powsybl.afs.local.storage;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import eu.itesla_project.afs.ext.base.Case;
-import eu.itesla_project.afs.ext.base.TestImporter;
-import eu.itesla_project.afs.storage.NodeId;
-import eu.itesla_project.afs.storage.PseudoClass;
-import eu.itesla_project.commons.datasource.DataSource;
-import eu.itesla_project.computation.ComputationManager;
-import eu.itesla_project.iidm.import_.ImportConfig;
-import eu.itesla_project.iidm.import_.ImportersLoaderList;
-import eu.itesla_project.iidm.network.Network;
+import com.powsybl.afs.ext.base.Case;
+import com.powsybl.afs.ext.base.TestImporter;
+import com.powsybl.afs.storage.NodeId;
+import com.powsybl.afs.storage.PseudoClass;
+import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.computation.ComputationManager;
+import com.powsybl.iidm.import_.ImportConfig;
+import com.powsybl.iidm.import_.ImportersLoaderList;
+import com.powsybl.iidm.network.Network;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

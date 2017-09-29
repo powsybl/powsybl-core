@@ -4,11 +4,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.ucte.network;
+package com.powsybl.ucte.network;
 
-import eu.itesla_project.commons.AbstractConverterTest;
-import eu.itesla_project.ucte.network.io.UcteReader;
-import eu.itesla_project.ucte.network.io.UcteWriter;
+import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.ucte.network.io.UcteReader;
+import com.powsybl.ucte.network.io.UcteWriter;
 import org.junit.Test;
 
 import java.io.*;

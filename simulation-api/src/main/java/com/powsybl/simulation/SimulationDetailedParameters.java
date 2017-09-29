@@ -4,12 +4,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.simulation;
+package com.powsybl.simulation;
 
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
-import eu.itesla_project.commons.config.PlatformConfig;
-import eu.itesla_project.commons.exceptions.UncheckedXmlStreamException;
+import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;

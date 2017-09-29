@@ -4,13 +4,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.afs.ext.base;
+package com.powsybl.afs.ext.base;
 
-import eu.itesla_project.afs.AfsException;
-import eu.itesla_project.afs.AppFileSystem;
-import eu.itesla_project.afs.ProjectFileBuilder;
-import eu.itesla_project.afs.storage.AppFileSystemStorage;
-import eu.itesla_project.afs.storage.NodeId;
+import com.powsybl.afs.AfsException;
+import com.powsybl.afs.AppFileSystem;
+import com.powsybl.afs.ProjectFileBuilder;
+import com.powsybl.afs.storage.AppFileSystemStorage;
+import com.powsybl.afs.storage.NodeId;
 
 import java.util.Objects;
 

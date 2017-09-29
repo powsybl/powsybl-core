@@ -4,11 +4,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.ucte.network.ext;
+package com.powsybl.ucte.network.ext;
 
-import eu.itesla_project.ucte.network.UcteCountryCode;
-import eu.itesla_project.ucte.network.UcteNodeCode;
-import eu.itesla_project.ucte.network.UcteVoltageLevelCode;
+import com.powsybl.ucte.network.UcteCountryCode;
+import com.powsybl.ucte.network.UcteNodeCode;
+import com.powsybl.ucte.network.UcteVoltageLevelCode;
 import org.junit.Test;
 
 import java.util.Collections;

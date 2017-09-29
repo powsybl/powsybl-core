@@ -4,11 +4,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.iidm.network.impl;
+package com.powsybl.iidm.network.impl;
 
-import eu.itesla_project.commons.ITeslaException;
-import eu.itesla_project.iidm.network.*;
-import eu.itesla_project.iidm.network.test.FictitiousSwitchFactory;
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -70,7 +70,7 @@ public class LoadTest {
                         .setQ0(1.0f)
                         .setNode(1)
                     .add();
-        thrown.expect(ITeslaException.class);
+        thrown.expect(PowsyblException.class);
         thrown.expectMessage("with the id 'duplicate'");
         createLoad("duplicate", 2.0f, 1.0f);
     }
@@ -78,7 +78,7 @@ public class LoadTest {
     @Test
     public void duplicateId() {
         // "C" id of voltageLevel
-        thrown.expect(ITeslaException.class);
+        thrown.expect(PowsyblException.class);
         thrown.expectMessage("with the id 'C'");
         createLoad("C", 2.0f, 1.0f);
     }

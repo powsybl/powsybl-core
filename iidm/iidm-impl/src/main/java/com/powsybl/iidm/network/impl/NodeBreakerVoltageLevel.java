@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.iidm.network.impl;
+package com.powsybl.iidm.network.impl;
 
 import com.google.common.base.Functions;
 import com.google.common.base.Predicate;
@@ -13,15 +13,15 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
-import eu.itesla_project.commons.ITeslaException;
-import eu.itesla_project.commons.util.Colors;
-import eu.itesla_project.math.graph.TraverseResult;
-import eu.itesla_project.math.graph.Traverser;
-import eu.itesla_project.math.graph.UndirectedGraph;
-import eu.itesla_project.math.graph.UndirectedGraphImpl;
-import eu.itesla_project.iidm.network.*;
-import eu.itesla_project.iidm.network.VoltageLevel.NodeBreakerView.SwitchAdder;
-import eu.itesla_project.iidm.network.util.ShortIdDictionary;
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.util.Colors;
+import com.powsybl.math.graph.TraverseResult;
+import com.powsybl.math.graph.Traverser;
+import com.powsybl.math.graph.UndirectedGraph;
+import com.powsybl.math.graph.UndirectedGraphImpl;
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.SwitchAdder;
+import com.powsybl.iidm.network.util.ShortIdDictionary;
 import gnu.trove.list.array.TIntArrayList;
 import org.kohsuke.graphviz.Edge;
 import org.kohsuke.graphviz.Graph;
@@ -342,7 +342,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             updateCache();
             CalculatedBus bus = busCache.getBus(id);
             if (throwException && bus == null) {
-                throw new ITeslaException("Bus " + id + " not found");
+                throw new PowsyblException("Bus " + id + " not found");
             }
             return bus;
         }
@@ -394,7 +394,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             SwitchImpl aSwitch = graph.getEdgeObject(edge);
             if (!aSwitch.isRetained()) {
                 if (throwException) {
-                    throw new ITeslaException("Switch " + switchId + " not found");
+                    throw new PowsyblException("Switch " + switchId + " not found");
                 }
                 return null;
             }
@@ -407,7 +407,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             SwitchImpl aSwitch = graph.getEdgeObject(edge);
             if (!aSwitch.isRetained()) {
                 if (throwException) {
-                    throw new ITeslaException("Switch " + switchId + " not found");
+                    throw new PowsyblException("Switch " + switchId + " not found");
                 }
                 return null;
             }
@@ -432,7 +432,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                 }
             }
             if (throwException) {
-                throw new ITeslaException("Switch " + switchId + " not found");
+                throw new PowsyblException("Switch " + switchId + " not found");
             }
             return null;
         }
@@ -538,7 +538,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
     private Integer getEdge(String switchId, boolean throwException) {
         Integer edge = switches.get(switchId);
         if (throwException && edge == null) {
-            throw new ITeslaException("Switch " + switchId + " not found");
+            throw new PowsyblException("Switch " + switchId + " not found");
         }
         return edge;
     }
@@ -575,8 +575,8 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         return getConnectables(clazz).size();
     }
 
-    static ITeslaException createNotSupportedNodeBreakerTopologyException() {
-        return new ITeslaException("Not supported in a node/breaker topology");
+    static PowsyblException createNotSupportedNodeBreakerTopologyException() {
+        return new PowsyblException("Not supported in a node/breaker topology");
     }
 
     CalculatedBusBreakerTopology getCalculatedBusBreakerTopology() {

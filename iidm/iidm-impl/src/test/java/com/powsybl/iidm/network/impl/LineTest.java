@@ -4,11 +4,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.iidm.network.impl;
+package com.powsybl.iidm.network.impl;
 
-import eu.itesla_project.commons.ITeslaException;
-import eu.itesla_project.iidm.network.*;
-import eu.itesla_project.iidm.network.test.NoEquipmentNetworkFactory;
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -183,7 +183,7 @@ public class LineTest {
     @Test
     public void duplicateAcLine() {
         createLineBetweenVoltageAB("duplicate", "duplicate", 1.0f, 2.0f, 3.0f, 3.5f, 4.0f, 4.5f);
-        thrown.expect(ITeslaException.class);
+        thrown.expect(PowsyblException.class);
         createLineBetweenVoltageAB("duplicate", "duplicate", 1.0f, 2.0f, 3.0f, 3.5f, 4.0f, 4.5f);
     }
 
@@ -386,7 +386,7 @@ public class LineTest {
     public void duplicate() {
         createTieLineWithHalfline2ByDefault("duplicate", "duplicate", "id1", 1.0f, 2.0f,
             3.0f, 3.5f, 4.0f, 4.5f, 5.0f, 6.0f, "duplicate");
-        thrown.expect(ITeslaException.class);
+        thrown.expect(PowsyblException.class);
         createTieLineWithHalfline2ByDefault("duplicate", "duplicate", "id1", 1.0f, 2.0f,
             3.0f, 3.5f, 4.0f, 4.5f, 5.0f, 6.0f, "duplicate");
     }

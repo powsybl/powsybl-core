@@ -4,18 +4,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.iidm.network.impl;
+package com.powsybl.iidm.network.impl;
 
 import com.google.common.base.Functions;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Iterables;
-import eu.itesla_project.commons.ITeslaException;
-import eu.itesla_project.math.graph.TraverseResult;
-import eu.itesla_project.math.graph.Traverser;
-import eu.itesla_project.math.graph.UndirectedGraphImpl;
-import eu.itesla_project.iidm.network.*;
-import eu.itesla_project.iidm.network.util.Networks;
-import eu.itesla_project.iidm.network.util.ShortIdDictionary;
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.math.graph.TraverseResult;
+import com.powsybl.math.graph.Traverser;
+import com.powsybl.math.graph.UndirectedGraphImpl;
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.Networks;
+import com.powsybl.iidm.network.util.ShortIdDictionary;
 
 import java.io.*;
 import java.util.*;
@@ -105,7 +105,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         Objects.requireNonNull(busId, "bus id is null");
         Integer v = buses.get(busId);
         if (throwException && v == null) {
-            throw new ITeslaException("Bus " + busId
+            throw new PowsyblException("Bus " + busId
                     + " not found in substation voltage level "
                     + BusBreakerVoltageLevel.this.id);
         }
@@ -128,7 +128,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         Objects.requireNonNull(switchId, "switch id is null");
         Integer e = switches.get(switchId);
         if (throwException && e == null) {
-            throw new ITeslaException("Switch " + switchId
+            throw new PowsyblException("Switch " + switchId
                     + " not found in substation voltage level"
                     + BusBreakerVoltageLevel.this.id);
         }
@@ -274,7 +274,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
             updateCache();
             MergedBus bus = states.get().cache.getMergedBus(mergedBusId);
             if (throwException && bus == null) {
-                throw new ITeslaException("Bus " + mergedBusId
+                throw new PowsyblException("Bus " + mergedBusId
                         + " not found in substation voltage level "
                         + BusBreakerVoltageLevel.this.id);
             }
@@ -361,8 +361,8 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         return getConnectables(clazz).size();
     }
 
-    static ITeslaException createNotSupportedBusBreakerTopologyException() {
-        return new ITeslaException("Not supported in a bus breaker topology");
+    static PowsyblException createNotSupportedBusBreakerTopologyException() {
+        return new PowsyblException("Not supported in a bus breaker topology");
     }
 
     private final NodeBreakerViewExt nodeBreakerView = new NodeBreakerViewExt() {

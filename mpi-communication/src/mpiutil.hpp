@@ -11,7 +11,7 @@
 #ifndef MPIUTIL_HPP
 #define MPIUTIL_HPP
 
-namespace itesla {
+namespace powsybl {
 
 namespace mpi {
 

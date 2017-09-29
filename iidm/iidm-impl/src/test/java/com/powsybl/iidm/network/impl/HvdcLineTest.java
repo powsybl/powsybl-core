@@ -4,14 +4,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.iidm.network.impl;
+package com.powsybl.iidm.network.impl;
 
-import eu.itesla_project.commons.ITeslaException;
-import eu.itesla_project.iidm.network.HvdcConverterStation;
-import eu.itesla_project.iidm.network.HvdcLine;
-import eu.itesla_project.iidm.network.Network;
-import eu.itesla_project.iidm.network.StateManager;
-import eu.itesla_project.iidm.network.test.HvdcTestNetwork;
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.HvdcConverterStation;
+import com.powsybl.iidm.network.HvdcLine;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.StateManager;
+import com.powsybl.iidm.network.test.HvdcTestNetwork;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -145,7 +145,7 @@ public class HvdcLineTest {
                 10.0f, 10.0f, 20.0f, "C1", "C2");
         HvdcLine line = network.getHvdcLine("duplicate");
         assertNotNull(line);
-        thrown.expect(ITeslaException.class);
+        thrown.expect(PowsyblException.class);
         createHvdcLine("duplicate", "duplicate", 10.0f, HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER,
                 10.0f, 10.0f, 20.0f, "C1", "C2");
     }

@@ -4,15 +4,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.computation.mpi;
+package com.powsybl.computation.mpi;
 
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
-import eu.itesla_project.computation.*;
-import eu.itesla_project.computation.mpi.generated.Messages;
+import com.powsybl.computation.*;
+import com.powsybl.computation.mpi.generated.Messages;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

@@ -4,13 +4,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.iidm.import_;
+package com.powsybl.iidm.import_;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import eu.itesla_project.commons.config.InMemoryPlatformConfig;
-import eu.itesla_project.commons.config.MapModuleConfig;
-import eu.itesla_project.commons.config.PlatformConfig;
+import com.powsybl.commons.config.InMemoryPlatformConfig;
+import com.powsybl.commons.config.MapModuleConfig;
+import com.powsybl.commons.config.PlatformConfig;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

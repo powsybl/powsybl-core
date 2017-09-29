@@ -5,9 +5,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package eu.itesla_project.action.simulator;
+package com.powsybl.action.simulator;
 
-import eu.itesla_project.iidm.network.Network;
+import com.powsybl.iidm.network.Network;
 import org.junit.Test;
 
 public class PreDefinedMethodsTest extends AbstractLoadFlowRulesEngineTest {

@@ -4,13 +4,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.iidm.network.impl;
+package com.powsybl.iidm.network.impl;
 
-import eu.itesla_project.iidm.network.Network;
-import eu.itesla_project.iidm.network.StateManager;
-import eu.itesla_project.iidm.network.StaticVarCompensator;
-import eu.itesla_project.iidm.network.VoltageLevel;
-import eu.itesla_project.iidm.network.test.SvcTestCaseFactory;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.StateManager;
+import com.powsybl.iidm.network.StaticVarCompensator;
+import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.test.SvcTestCaseFactory;
 import org.junit.After;
 import static org.junit.Assert.*;
 import org.junit.Before;

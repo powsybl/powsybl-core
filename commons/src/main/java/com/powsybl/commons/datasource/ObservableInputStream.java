@@ -4,9 +4,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.commons.datasource;
+package com.powsybl.commons.datasource;
 
-import eu.itesla_project.commons.io.ForwardingInputStream;
+import com.powsybl.commons.io.ForwardingInputStream;
 
 import java.io.IOException;
 import java.io.InputStream;

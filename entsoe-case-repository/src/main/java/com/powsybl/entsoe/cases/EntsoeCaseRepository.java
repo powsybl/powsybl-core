@@ -4,22 +4,22 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.entsoe.cases;
+package com.powsybl.entsoe.cases;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import eu.itesla_project.cases.CaseRepository;
-import eu.itesla_project.cases.CaseType;
-import eu.itesla_project.computation.ComputationManager;
-import eu.itesla_project.commons.datasource.ReadOnlyDataSource;
-import eu.itesla_project.commons.datasource.ReadOnlyDataSourceFactory;
-import eu.itesla_project.commons.datasource.GenericReadOnlyDataSource;
-import eu.itesla_project.iidm.import_.Importer;
-import eu.itesla_project.iidm.import_.Importers;
-import eu.itesla_project.iidm.network.Country;
-import eu.itesla_project.iidm.network.Network;
-import eu.itesla_project.entsoe.util.EntsoeFileName;
-import eu.itesla_project.entsoe.util.EntsoeGeographicalCode;
+import com.powsybl.cases.CaseRepository;
+import com.powsybl.cases.CaseType;
+import com.powsybl.computation.ComputationManager;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.datasource.ReadOnlyDataSourceFactory;
+import com.powsybl.commons.datasource.GenericReadOnlyDataSource;
+import com.powsybl.iidm.import_.Importer;
+import com.powsybl.iidm.import_.Importers;
+import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.entsoe.util.EntsoeFileName;
+import com.powsybl.entsoe.util.EntsoeGeographicalCode;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Interval;

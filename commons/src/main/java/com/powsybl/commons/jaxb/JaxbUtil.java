@@ -4,12 +4,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.commons.jaxb;
+package com.powsybl.commons.jaxb;
 
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
-import eu.itesla_project.commons.exceptions.UncheckedJaxbException;
-import eu.itesla_project.commons.exceptions.UncheckedTransformerException;
+import com.powsybl.commons.exceptions.UncheckedJaxbException;
+import com.powsybl.commons.exceptions.UncheckedTransformerException;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;

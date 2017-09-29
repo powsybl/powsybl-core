@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.commons.util;
+package com.powsybl.commons.util;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;

@@ -4,12 +4,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.iidm.network.impl;
+package com.powsybl.iidm.network.impl;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import eu.itesla_project.commons.ITeslaException;
-import eu.itesla_project.iidm.network.Identifiable;
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.Identifiable;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -30,7 +30,7 @@ class ObjectStore {
 
     static void checkId(String id) {
         if (id == null || id.isEmpty()) {
-            throw new ITeslaException("Invalid id '" + id + "'");
+            throw new PowsyblException("Invalid id '" + id + "'");
         }
     }
 
@@ -62,7 +62,7 @@ class ObjectStore {
     void checkAndAdd(Identifiable<?> obj) {
         checkId(obj.getId());
         if (objectsById.containsKey(obj.getId())) {
-            throw new ITeslaException("Object (" + obj.getClass().getName()
+            throw new PowsyblException("Object (" + obj.getClass().getName()
                     + ") '" + obj.getId() + "' already exists");
         }
         objectsById.put(obj.getId(), obj);
@@ -110,7 +110,7 @@ class ObjectStore {
         checkId(obj.getId());
         Identifiable old = objectsById.remove(obj.getId());
         if (old == null || old != obj) {
-            throw new ITeslaException("Object (" + obj.getClass().getName()
+            throw new PowsyblException("Object (" + obj.getClass().getName()
                     + ") '" + obj.getId() + "' not found");
         }
         Set<Identifiable<?>> all = objectsByClass.get(obj.getClass());

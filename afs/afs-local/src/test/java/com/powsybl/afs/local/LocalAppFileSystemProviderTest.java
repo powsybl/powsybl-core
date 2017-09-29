@@ -4,16 +4,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.afs.local;
+package com.powsybl.afs.local;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import eu.itesla_project.afs.AppFileSystem;
-import eu.itesla_project.afs.local.storage.LocalCaseScanner;
-import eu.itesla_project.afs.local.storage.LocalFileScanner;
-import eu.itesla_project.computation.ComputationManager;
-import eu.itesla_project.iidm.import_.ImportConfig;
-import eu.itesla_project.iidm.import_.ImportersLoaderList;
+import com.powsybl.afs.AppFileSystem;
+import com.powsybl.afs.local.storage.LocalCaseScanner;
+import com.powsybl.afs.local.storage.LocalFileScanner;
+import com.powsybl.computation.ComputationManager;
+import com.powsybl.iidm.import_.ImportConfig;
+import com.powsybl.iidm.import_.ImportersLoaderList;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

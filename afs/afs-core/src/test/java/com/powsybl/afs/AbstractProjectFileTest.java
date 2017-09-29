@@ -4,13 +4,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.afs;
+package com.powsybl.afs;
 
-import eu.itesla_project.afs.storage.AppFileSystemStorage;
-import eu.itesla_project.commons.config.ComponentDefaultConfig;
-import eu.itesla_project.computation.ComputationManager;
-import eu.itesla_project.iidm.network.Network;
-import eu.itesla_project.iidm.network.NetworkFactory;
+import com.powsybl.afs.storage.AppFileSystemStorage;
+import com.powsybl.commons.config.ComponentDefaultConfig;
+import com.powsybl.computation.ComputationManager;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.NetworkFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.mockito.Mockito;

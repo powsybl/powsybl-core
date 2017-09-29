@@ -4,13 +4,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.action.dsl;
+package com.powsybl.action.dsl;
 
-import eu.itesla_project.action.dsl.ast.*;
-import eu.itesla_project.contingency.Contingency;
-import eu.itesla_project.iidm.network.Line;
-import eu.itesla_project.iidm.network.Network;
-import eu.itesla_project.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.action.dsl.ast.*;
+import com.powsybl.contingency.Contingency;
+import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.Before;
 import org.junit.Test;
 

@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.contingency.json;
+package com.powsybl.contingency.json;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -17,9 +17,9 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 
-import eu.itesla_project.contingency.Contingency;
-import eu.itesla_project.contingency.ContingencyElement;
-import eu.itesla_project.contingency.ContingencyImpl;
+import com.powsybl.contingency.Contingency;
+import com.powsybl.contingency.ContingencyElement;
+import com.powsybl.contingency.ContingencyImpl;
 
 /**
  *

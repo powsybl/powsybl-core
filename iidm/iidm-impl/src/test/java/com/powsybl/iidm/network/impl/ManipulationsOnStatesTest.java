@@ -1,10 +1,10 @@
-package eu.itesla_project.iidm.network.impl;
+package com.powsybl.iidm.network.impl;
 
 import com.google.common.collect.Sets;
-import eu.itesla_project.commons.ITeslaException;
-import eu.itesla_project.iidm.network.Network;
-import eu.itesla_project.iidm.network.StateManager;
-import eu.itesla_project.iidm.network.test.NoEquipmentNetworkFactory;
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.StateManager;
+import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -32,14 +32,14 @@ public class ManipulationsOnStatesTest {
 
     @Test
     public void errorRemoveInitialState() {
-        thrown.expect(ITeslaException.class);
+        thrown.expect(PowsyblException.class);
         thrown.expectMessage("Removing initial state is forbidden");
         stateManager.removeState(StateManager.INITIAL_STATE_ID);
     }
 
     @Test
     public void errorNotExistingState() {
-        thrown.expect(ITeslaException.class);
+        thrown.expect(PowsyblException.class);
         thrown.expectMessage("not found");
         stateManager.removeState("not_exists");
     }
@@ -54,7 +54,7 @@ public class ManipulationsOnStatesTest {
     @Test
     public void errorCloneToExistingState() {
         stateManager.cloneState(StateManager.INITIAL_STATE_ID, "hello");
-        thrown.expect(ITeslaException.class);
+        thrown.expect(PowsyblException.class);
         thrown.expectMessage("already exists");
         stateManager.cloneState(StateManager.INITIAL_STATE_ID, "hello");
     }

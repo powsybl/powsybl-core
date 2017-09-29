@@ -4,15 +4,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.iidm.import_;
+package com.powsybl.iidm.import_;
 
 import com.google.auto.service.AutoService;
 import com.google.common.io.CharStreams;
-import eu.itesla_project.commons.config.ModuleConfig;
-import eu.itesla_project.commons.config.PlatformConfig;
-import eu.itesla_project.computation.ComputationManager;
-import eu.itesla_project.iidm.network.Network;
-import eu.itesla_project.iidm.network.util.Networks;
+import com.powsybl.commons.config.ModuleConfig;
+import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.computation.ComputationManager;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.util.Networks;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

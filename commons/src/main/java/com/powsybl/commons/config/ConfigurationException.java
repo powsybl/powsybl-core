@@ -4,14 +4,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.commons.config;
+package com.powsybl.commons.config;
 
-import eu.itesla_project.commons.ITeslaException;
+import com.powsybl.commons.PowsyblException;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public class ConfigurationException extends ITeslaException {
+public class ConfigurationException extends PowsyblException {
 
     public ConfigurationException(Throwable throwable) {
         super(throwable);

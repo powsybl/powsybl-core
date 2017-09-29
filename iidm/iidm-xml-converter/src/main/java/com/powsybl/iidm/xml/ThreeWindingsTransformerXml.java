@@ -4,12 +4,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.iidm.xml;
+package com.powsybl.iidm.xml;
 
-import eu.itesla_project.iidm.network.RatioTapChanger;
-import eu.itesla_project.iidm.network.Substation;
-import eu.itesla_project.iidm.network.ThreeWindingsTransformer;
-import eu.itesla_project.iidm.network.ThreeWindingsTransformerAdder;
+import com.powsybl.iidm.network.RatioTapChanger;
+import com.powsybl.iidm.network.Substation;
+import com.powsybl.iidm.network.ThreeWindingsTransformer;
+import com.powsybl.iidm.network.ThreeWindingsTransformerAdder;
 
 import javax.xml.stream.XMLStreamException;
 

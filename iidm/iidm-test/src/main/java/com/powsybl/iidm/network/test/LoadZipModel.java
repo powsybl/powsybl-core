@@ -4,10 +4,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.iidm.network.test;
+package com.powsybl.iidm.network.test;
 
-import eu.itesla_project.iidm.network.Identifiable;
-import eu.itesla_project.iidm.network.Load;
+import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.Load;
 
 import java.util.Objects;
 

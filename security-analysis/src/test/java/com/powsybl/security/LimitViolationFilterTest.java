@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.security;
+package com.powsybl.security;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -22,9 +22,9 @@ import org.junit.Test;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 
-import eu.itesla_project.commons.config.InMemoryPlatformConfig;
-import eu.itesla_project.commons.config.MapModuleConfig;
-import eu.itesla_project.iidm.network.Country;
+import com.powsybl.commons.config.InMemoryPlatformConfig;
+import com.powsybl.commons.config.MapModuleConfig;
+import com.powsybl.iidm.network.Country;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>

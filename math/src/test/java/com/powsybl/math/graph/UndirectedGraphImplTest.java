@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.math.graph;
+package com.powsybl.math.graph;
 
 import gnu.trove.list.array.TIntArrayList;
 import org.junit.After;

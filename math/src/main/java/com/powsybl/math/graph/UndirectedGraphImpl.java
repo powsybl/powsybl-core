@@ -4,11 +4,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package eu.itesla_project.math.graph;
+package com.powsybl.math.graph;
 
 import com.google.common.base.Predicates;
 import com.google.common.collect.FluentIterable;
-import eu.itesla_project.commons.ITeslaException;
+import com.powsybl.commons.PowsyblException;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.list.linked.TIntLinkedList;
 
@@ -108,13 +108,13 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
 
     private void checkVertex(int v) {
         if (v < 0 || v >= vertices.size() || vertices.get(v) == null) {
-            throw new ITeslaException("Vertex " + v + " not found");
+            throw new PowsyblException("Vertex " + v + " not found");
         }
     }
 
     private void checkEdge(int e) {
         if (e < 0 || e >= edges.size() || edges.get(e) == null) {
-            throw new ITeslaException("Edge " + e + " not found");
+            throw new PowsyblException("Edge " + e + " not found");
         }
     }
 
