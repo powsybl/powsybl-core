@@ -54,11 +54,11 @@ By default, the toolchain will:
 
 | Target | Description |
 | ------ | ----------- |
-| clean | Clean iPST modules |
+| clean | Clean modules |
 | clean-thirdparty | Clean the thirdparty libraries |
-| compile | Compile iPST modules |
-| package | Compile iPST modules and create a distributable package |
-| __install__ | __Compile iPST modules and install it__ |
+| compile | Compile modules |
+| package | Compile modules and create a distributable package |
+| __install__ | __Compile modules and install it__ |
 | docs | Generate the documentation (Doxygen/Javadoc) |
 | help | Display this help |
 
@@ -87,16 +87,13 @@ each time you use the toolchain.
 
 ### Default configuration file
 ```
+#  -- Global options --
 ipst_prefix=$HOME/itools
 ipst_package_type=zip
 
-#  -- iPST thirdparty libraries --
+#  -- Thirdparty libraries --
 thirdparty_build=true
 thirdparty_prefix=$HOME/powsybl_thirdparty
 thirdparty_download=true
 thirdparty_packs=$HOME/powsybl_packs
 ```
-
-## License
-https://www.mozilla.org/en-US/MPL/2.0/
-
