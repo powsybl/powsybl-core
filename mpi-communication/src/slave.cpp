@@ -42,9 +42,9 @@ namespace powsybl {
 
 namespace slave {
 
-const std::string COMMON_DIR_PREFIX = "itesla_common_";
-const std::string WORKING_DIR_PREFIX = "itesla_work_";
-const std::string JOB_DIR_PREFIX = "itesla_job_";
+const std::string COMMON_DIR_PREFIX = "itools_common_";
+const std::string WORKING_DIR_PREFIX = "itools_work_";
+const std::string JOB_DIR_PREFIX = "itools_job_";
 
 boost::filesystem::path commonDir(const boost::filesystem::path& localDir, int rank) {
     return localDir / (COMMON_DIR_PREFIX + boost::lexical_cast<std::string>(rank));

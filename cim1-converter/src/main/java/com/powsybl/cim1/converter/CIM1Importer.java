@@ -314,7 +314,7 @@ public class CIM1Importer implements Importer, CIM1Constants {
                                                                      substationIdExcludedFromMapping,
                                                                      namingStrategyFactory);
 
-                // CIM model to iTesla model
+                // CIM model to IIDM model
                 network = new CIM1Converter(model, dataSource.getBaseName(), config)
                         .convert();
             }

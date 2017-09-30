@@ -110,7 +110,7 @@ public class LocalComputationManager implements ComputationManager {
         permits = new Semaphore(config.getAvailableCore());
         //make sure the localdir exists
         Files.createDirectories(config.getLocalDir());
-        commonDir = new WorkingDirectory(config.getLocalDir(), "itesla_common_", false);
+        commonDir = new WorkingDirectory(config.getLocalDir(), "itools_common_", false);
         LOGGER.info(config.toString());
     }
 

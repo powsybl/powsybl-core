@@ -1221,7 +1221,7 @@ class CIM1Converter implements CIM1Constants {
     }
 
     Network convert() {
-        LOGGER.trace("Converting CIM model to iTesla model");
+        LOGGER.trace("Converting CIM model to IIDM model");
 
         for (cim1.model.IEC61970CIMVersion v : cimModel.getId_IEC61970CIMVersion().values()) {
             if (!CIM_ENTSOE_PROFILE_1ST_EDITION_VERSION.equals(v.version)) {

@@ -10,22 +10,22 @@ sourceDir=$(dirname $(readlink -f $0))
 
 ## install default settings
 ###############################################################################
-ipst_prefix=$HOME/itesla
-ipst_package_version=`mvn -U -f "$sourceDir/pom.xml" org.apache.maven.plugins:maven-help-plugin:evaluate -Dexpression=project.version | grep -v "Download" | grep -v "\["`
-ipst_package_name=ipst-core-$ipst_package_version
-ipst_package_type=zip
+powsybl_prefix=$HOME/itools
+powsybl_package_version=`mvn -U -f "$sourceDir/pom.xml" org.apache.maven.plugins:maven-help-plugin:evaluate -Dexpression=project.version | grep -v "Download" | grep -v "\["`
+powsybl_package_name=powsybl-core-$powsybl_package_version
+powsybl_package_type=zip
 
 thirdparty_build=true
-thirdparty_prefix=$HOME/itesla_thirdparty
+thirdparty_prefix=$HOME/powsybl_thirdparty
 thirdparty_download=true
-thirdparty_packs=$HOME/itesla_packs
+thirdparty_packs=$HOME/powsybl_packs
 
 # Targets
-ipst_clean=false
-ipst_compile=false
-ipst_docs=false
-ipst_package=false
-ipst_install=false
+powsybl_clean=false
+powsybl_compile=false
+powsybl_docs=false
+powsybl_package=false
+powsybl_install=false
 thirdparty_clean=false
 
 
@@ -44,25 +44,25 @@ usage() {
     echo "usage: $cmd [options] [target...]"
     echo ""
     echo "Available targets:"
-    echo "  clean                    Clean iPST modules"
+    echo "  clean                    Clean modules"
     echo "  clean-thirdparty         Clean the thirdparty libraries"
-    echo "  compile                  Compile iPST modules"
-    echo "  package                  Compile iPST modules and create a distributable package"
-    echo "  install                  Compile iPST modules and install it (default target)"
+    echo "  compile                  Compile modules"
+    echo "  package                  Compile modules and create a distributable package"
+    echo "  install                  Compile modules and install it (default target)"
     echo "  help                     Display this help"
     echo "  docs                     Generate the documentation (Doxygen/Javadoc)"
     echo ""
-    echo "iPST options:"
+    echo "Options:"
     echo "  --help                   Display this help"
-    echo "  --prefix                 Set the installation directory (default is $HOME/itesla)"
+    echo "  --prefix                 Set the installation directory (default is $HOME/itools)"
     echo "  --package-type           Set the package format. The supported formats are zip, tar, tar.gz and tar.bz2 (default is zip)"
     echo ""
     echo "Thirdparty options:"
     echo "  --with-thirdparty        Enable the compilation of thirdparty libraries (default)"
     echo "  --without-thirdparty     Disable the compilation of thirdparty libraries"
-    echo "  --thirdparty-prefix      Set the thirdparty installation directory (default is $HOME/itesla_thirdparty)"
+    echo "  --thirdparty-prefix      Set the thirdparty installation directory (default is $HOME/powsybl_thirdparty)"
     echo "  --thirdparty-download    Sets false to compile thirdparty libraries from a local repository (default is true)"
-    echo "  --thirdparty-packs       Sets the thirdparty libraries local repository (default is $HOME/itesla_packs)"
+    echo "  --thirdparty-packs       Sets the thirdparty libraries local repository (default is $HOME/powsybl_packs)"
     echo ""
 }
 
@@ -96,13 +96,13 @@ writeEmptyLine() {
 }
 
 writeSettings() {
-    writeComment " -- iPST global options --"
-    writeSetting "ipst_prefix" ${ipst_prefix}
-    writeSetting "ipst_package_type" ${ipst_package_type}
+    writeComment " -- Global options --"
+    writeSetting "powsybl_prefix" ${powsybl_prefix}
+    writeSetting "powsybl_package_type" ${powsybl_package_type}
 
     writeEmptyLine
 
-    writeComment " -- iPST thirdparty libraries --"
+    writeComment " -- Thirdparty libraries --"
     writeSetting "thirdparty_build" ${thirdparty_build}
     writeSetting "thirdparty_prefix" ${thirdparty_prefix}
     writeSetting "thirdparty_download" ${thirdparty_download}
@@ -116,7 +116,7 @@ writeSettings() {
 ###############################################################################
 buildthirdparty()
 {
-    if [[ $thirdparty_clean = true || $ipst_compile = true ]]; then
+    if [[ $thirdparty_clean = true || $powsybl_compile = true ]]; then
         echo "** C++ thirdparty libraries"
 
         if [ $thirdparty_clean = true ]; then
@@ -124,10 +124,10 @@ buildthirdparty()
             rm -rf "$thirdparty_prefix"
         fi
 
-        if [ $ipst_compile = true ]; then
+        if [ $powsybl_compile = true ]; then
             if [ $thirdparty_build = true ]; then
                  echo "**** Building the C++ thirdparty libraries"
-                 thirdparty_builddir="${thirdparty_prefix}/build/ipst-core"
+                 thirdparty_builddir="${thirdparty_prefix}/build/powsybl-core"
                  cmake -Dprefix="$thirdparty_prefix" -Ddownload="$thirdparty_download" -Dpacks="$thirdparty_packs" -G "Unix Makefiles" -H"$sourceDir/thirdparty" -B"$thirdparty_builddir" || exit $?
                  make -C "$thirdparty_builddir" || exit $?
 
@@ -141,31 +141,31 @@ buildthirdparty()
 
 ## Build C++ modules
 ###############################################################################
-ipst_cpp()
+powsybl_cpp()
 {
-    if [[ $ipst_clean = true || $ipst_compile = true || $ipst_docs = true ]]; then
-        echo "** iPST C++ modules"
+    if [[ $powsybl_clean = true || $powsybl_compile = true || $powsybl_docs = true ]]; then
+        echo "** C++ modules"
 
-        ipst_builddir=$sourceDir/build
+        powsybl_builddir=$sourceDir/build
 
-        if [ $ipst_clean = true ]; then
+        if [ $powsybl_clean = true ]; then
             echo "**** Removing build directory (if already exists)."
-            rm -rf "$ipst_builddir"
+            rm -rf "$powsybl_builddir"
         fi
 
-        if [[ $ipst_compile = true || $ipst_docs = true ]]; then
+        if [[ $powsybl_compile = true || $powsybl_docs = true ]]; then
             # TODO: rename variable
-            cmake -DCMAKE_INSTALL_PREFIX="$ipst_prefix" -Dthirdparty_prefix="$thirdparty_prefix" -G "Unix Makefiles" -H"$sourceDir" -B"$ipst_builddir" || exit $?
+            cmake -DCMAKE_INSTALL_PREFIX="$powsybl_prefix" -Dthirdparty_prefix="$thirdparty_prefix" -G "Unix Makefiles" -H"$sourceDir" -B"$powsybl_builddir" || exit $?
 
-            if [ $ipst_compile = true ]; then
+            if [ $powsybl_compile = true ]; then
                 echo "**** Compiling C++ modules"
-                make -C "$ipst_builddir" || exit $?
-                export LD_LIBRARY_PATH=$ipst_builddir/lib:$LD_LIBRARY_PATH
+                make -C "$powsybl_builddir" || exit $?
+                export LD_LIBRARY_PATH=$powsybl_builddir/lib:$LD_LIBRARY_PATH
             fi
 
-            if [ $ipst_docs = true ]; then
+            if [ $powsybl_docs = true ]; then
                 echo "**** Generating Doxygen documentation"
-                make -C "$ipst_builddir" doc || exit $?
+                make -C "$powsybl_builddir" doc || exit $?
             fi
         fi
     fi
@@ -173,19 +173,19 @@ ipst_cpp()
 
 ## Build Java Modules
 ###############################################################################
-ipst_java()
+powsybl_java()
 {
-    if [[ $ipst_clean = true || $ipst_compile = true || $ipst_docs = true ]]; then
-        echo "** Building iPST Java modules"
+    if [[ $powsybl_clean = true || $powsybl_compile = true || $powsybl_docs = true ]]; then
+        echo "** Building Java modules"
 
         mvn_options=""
-        [ $ipst_clean = true ] && mvn_options="$mvn_options clean"
-        [ $ipst_compile = true ] && mvn_options="$mvn_options install"
+        [ $powsybl_clean = true ] && mvn_options="$mvn_options clean"
+        [ $powsybl_compile = true ] && mvn_options="$mvn_options install"
         if [ ! -z "$mvn_options" ]; then
             mvn -f "$sourceDir/pom.xml" $mvn_options || exit $?
         fi
 
-        if [ $ipst_docs = true ]; then
+        if [ $powsybl_docs = true ]; then
             echo "**** Generating Javadoc documentation"
             mvn -f "$sourceDir/pom.xml" javadoc:javadoc || exit $?
             mvn -f "$sourceDir/distribution-core/pom.xml" install || exit $?
@@ -193,35 +193,35 @@ ipst_java()
     fi
 }
 
-## Package iPST
+## Package
 ###############################################################################
-ipst_package()
+powsybl_package()
 {
-    if [ $ipst_package = true ]; then
-        echo "** Packaging iPST"
+    if [ $powsybl_package = true ]; then
+        echo "** Packaging"
 
-        case "$ipst_package_type" in
+        case "$powsybl_package_type" in
             zip)
-                [ -f "${ipst_package_name}.zip" ] && rm -f "${ipst_package_name}.zip"
-                $(cd "$sourceDir/distribution-core/target/distribution-core-${ipst_package_version}-full" && zip -rq "$sourceDir/${ipst_package_name}.zip" "itesla")
-                zip -qT "${ipst_package_name}.zip" > /dev/null 2>&1 || exit $?
+                [ -f "${powsybl_package_name}.zip" ] && rm -f "${powsybl_package_name}.zip"
+                $(cd "$sourceDir/distribution-core/target/distribution-core-${powsybl_package_version}-full" && zip -rq "$sourceDir/${powsybl_package_name}.zip" "itools")
+                zip -qT "${powsybl_package_name}.zip" > /dev/null 2>&1 || exit $?
                 ;;
 
             tar)
-                [ -f "${ipst_package_name}.tar" ] && rm -f "${ipst_package_name}.tar"
-                tar -cf "${ipst_package_name}.tar" -C "$sourceDir/distribution-core/target/distribution-core-${ipst_package_version}-full" . || exit $?
+                [ -f "${powsybl_package_name}.tar" ] && rm -f "${powsybl_package_name}.tar"
+                tar -cf "${powsybl_package_name}.tar" -C "$sourceDir/distribution-core/target/distribution-core-${powsybl_package_version}-full" . || exit $?
                 ;;
 
             tar.gz | tgz)
-                [ -f "${ipst_package_name}.tar.gz" ] && rm -f "${ipst_package_name}.tar.gz"
-                [ -f "${ipst_package_name}.tgz" ] && rm -f "${ipst_package_name}.tgz"
-                tar -czf "${ipst_package_name}.tar.gz" -C "$sourceDir/distribution-core/target/distribution-core-${ipst_package_version}-full" . || exit $?
+                [ -f "${powsybl_package_name}.tar.gz" ] && rm -f "${powsybl_package_name}.tar.gz"
+                [ -f "${powsybl_package_name}.tgz" ] && rm -f "${powsybl_package_name}.tgz"
+                tar -czf "${powsybl_package_name}.tar.gz" -C "$sourceDir/distribution-core/target/distribution-core-${powsybl_package_version}-full" . || exit $?
                 ;;
 
             tar.bz2 | tbz)
-                [ -f "${ipst_package_name}.tar.bz2" ] && rm -f "${ipst_package_name}.tar.bz2"
-                [ -f "${ipst_package_name}.tbz" ] && rm -f "${ipst_package_name}.tbz"
-                tar -cjf "${ipst_package_name}.tar.bz2" -C "$sourceDir/distribution-core/target/distribution-core-${ipst_package_version}-full" . || exit $?
+                [ -f "${powsybl_package_name}.tar.bz2" ] && rm -f "${powsybl_package_name}.tar.bz2"
+                [ -f "${powsybl_package_name}.tbz" ] && rm -f "${powsybl_package_name}.tbz"
+                tar -cjf "${powsybl_package_name}.tar.bz2" -C "$sourceDir/distribution-core/target/distribution-core-${powsybl_package_version}-full" . || exit $?
                 ;;
 
             *)
@@ -232,43 +232,43 @@ ipst_package()
     fi
 }
 
-## Install iPST
+## Install
 ###############################################################################
-ipst_install()
+powsybl_install()
 {
-    if [ $ipst_install = true ]; then
-        echo "** Installing iPST"
+    if [ $powsybl_install = true ]; then
+        echo "** Installing powsybl"
 
         echo "**** Copying files"
-        mkdir -p "$ipst_prefix" || exit $?
-        cp -Rp "$sourceDir/distribution-core/target/distribution-core-${ipst_package_version}-full/itesla"/* "$ipst_prefix" || exit $?
+        mkdir -p "$powsybl_prefix" || exit $?
+        cp -Rp "$sourceDir/distribution-core/target/powsybl-distribution-core-${powsybl_package_version}-full/itools"/* "$powsybl_prefix" || exit $?
 
-        if [ ! -f "$ipst_prefix/etc/itesla.conf" ]; then
+        if [ ! -f "$powsybl_prefix/etc/itools.conf" ]; then
             echo "**** Copying configuration files"
-            mkdir -p "$ipst_prefix/etc" || exit $?
+            mkdir -p "$powsybl_prefix/etc" || exit $?
 
-            echo "#itesla_cache_dir=" >> "$ipst_prefix/etc/itesla.conf"
-            echo "#itesla_config_dir=" >> "$ipst_prefix/etc/itesla.conf"
-            echo "itesla_config_name=config" >> "$ipst_prefix/etc/itesla.conf"
-            echo "#java_xmx=8G" >> "$ipst_prefix/etc/itesla.conf"
-            echo "mpi_tasks=3" >> "$ipst_prefix/etc/itesla.conf"
-            echo "mpi_hosts=localhost" >> "$ipst_prefix/etc/itesla.conf"
+            echo "#itools_cache_dir=" >> "$powsybl_prefix/etc/itools.conf"
+            echo "#itools_config_dir=" >> "$powsybl_prefix/etc/itools.conf"
+            echo "itools_config_name=config" >> "$powsybl_prefix/etc/itools.conf"
+            echo "#java_xmx=8G" >> "$powsybl_prefix/etc/itools.conf"
+            echo "mpi_tasks=3" >> "$powsybl_prefix/etc/itools.conf"
+            echo "mpi_hosts=localhost" >> "$powsybl_prefix/etc/itools.conf"
         fi
     fi
 }
 
 ## Parse command line
 ###############################################################################
-ipst_options="prefix:,package-type:"
+powsybl_options="prefix:,package-type:"
 thirdparty_options="with-thirdparty,without-thirdparty,thirdparty-prefix:,thirdparty-download,thirdparty-packs:"
 
-opts=`getopt -o '' --long "help,$ipst_options,$thirdparty_options" -n 'install.sh' -- "$@"`
+opts=`getopt -o '' --long "help,$powsybl_options,$thirdparty_options" -n 'install.sh' -- "$@"`
 eval set -- "$opts"
 while true; do
     case "$1" in
-        # iPST options
-        --prefix) ipst_prefix=$2 ; shift 2 ;;
-        --package-type) ipst_package_type=$2 ; shift 2 ;;
+        # Options
+        --prefix) powsybl_prefix=$2 ; shift 2 ;;
+        --package-type) powsybl_package_type=$2 ; shift 2 ;;
 
         # Third-party options
         --with-thirdparty) thirdparty_build=true ; shift ;;
@@ -288,38 +288,38 @@ done
 if [ $# -ne 0 ]; then
     for command in $*; do
         case "$command" in
-            clean) ipst_clean=true ;;
+            clean) powsybl_clean=true ;;
             clean-thirdparty) thirdparty_clean=true ; thirdparty_build=true ;;
-            compile) ipst_compile=true ;;
-            docs) ipst_docs=true ;;
-            package) ipst_package=true ; ipst_compile=true ;;
-            install) ipst_install=true ; ipst_compile=true ;;
+            compile) powsybl_compile=true ;;
+            docs) powsybl_docs=true ;;
+            package) powsybl_package=true ; powsybl_compile=true ;;
+            install) powsybl_install=true ; powsybl_compile=true ;;
             help) usage; exit 0 ;;
             *) usage ; exit 1 ;;
         esac
     done
 else
-    ipst_compile=true
-    ipst_install=true
+    powsybl_compile=true
+    powsybl_install=true
 fi
 
-## Build iPST platform
+## Build platform
 ###############################################################################
 
 # Build required C++ thirdparty libraries
 buildthirdparty
 
 # Build C++ modules
-ipst_cpp
+powsybl_cpp
 
 # Build Java modules
-ipst_java
+powsybl_java
 
-# Package iPST
-ipst_package
+# Package
+powsybl_package
 
-# Install iPST
-ipst_install
+# Install
+powsybl_install
 
 # Save settings
 writeSettings > "${settings}"

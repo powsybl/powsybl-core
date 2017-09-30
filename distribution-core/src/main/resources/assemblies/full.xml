@@ -14,7 +14,7 @@
     <formats>
         <format>dir</format>
     </formats>
-    <baseDirectory>itesla</baseDirectory>
+    <baseDirectory>itools</baseDirectory>
     <includeBaseDirectory>true</includeBaseDirectory>
     <dependencySets>
         <dependencySet>

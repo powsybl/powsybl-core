@@ -14,7 +14,7 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * This is intended to become the base class for all dynamic simulator integrated
- * in the iTESLA platform.
+ * in the platform.
  * TODO: extend the API with simulation result querying
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>

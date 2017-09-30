@@ -9,7 +9,7 @@
 installBinDir=$(dirname $(readlink -f $0))
 installDir=${installBinDir%/*}
 
-. $installDir/etc/itesla.conf
+. $installDir/etc/itools.conf
 
 if [[ -n "$OMPI_MCA_rmaps_base_cpus_per_rank" ]]; then
 	CORES=$OMPI_MCA_rmaps_base_cpus_per_rank
@@ -29,11 +29,11 @@ if [ $rank = 0 ]; then
     fi
     export LD_PRELOAD=libmpi.so
     export LD_LIBRARY_PATH=${installDir}/lib:$LD_LIBRARY_PATH
-    [ -n "$itesla_cache_dir" ] && options+="-Ditesla.cache.dir=$itesla_cache_dir"
-    [ -n "$itesla_config_dir" ] && options+=" -Ditesla.config.dir=$itesla_config_dir"
-    [ -n "$itesla_config_name" ] && options+=" -Ditesla.config.name=$itesla_config_name"
+    [ -n "$itools_cache_dir" ] && options+="-Ditools.cache.dir=$itools_cache_dir"
+    [ -n "$itools_config_dir" ] && options+=" -Ditools.config.dir=$itools_config_dir"
+    [ -n "$itools_config_name" ] && options+=" -Ditools.config.name=$itools_config_name"
     options+=" -Dlogback.configurationFile="
-    [ -f "$itesla_config_dir/logback-itools.xml" ] && options+="$itesla_config_dir" || options+="$installDir/etc"
+    [ -f "$itools_config_dir/logback-itools.xml" ] && options+="$itools_config_dir" || options+="$installDir/etc"
     options+="/logback-itools.xml"
     [ -z "$java_xmx" ] && java_xmx=8G
     $JAVA_HOME/bin/java \
@@ -49,8 +49,8 @@ com.powsybl.computation.mpi.MpiMaster \
 --stdout-archive=$tmpdir/stdout-archive.zip
 else
     mkdir $HOME/archive > /dev/null 2>&1
-    rm -r $tmpdir/itesla_common_${rank}* > /dev/null 2>&1
-    rm -r $tmpdir/itesla_job_${rank}* > /dev/null 2>&1
-    rm -r $tmpdir/itesla_work_${rank}* > /dev/null 2>&1
+    rm -r $tmpdir/itools_common_${rank}* > /dev/null 2>&1
+    rm -r $tmpdir/itools_job_${rank}* > /dev/null 2>&1
+    rm -r $tmpdir/itools_work_${rank}* > /dev/null 2>&1
     ${installDir}/bin/slave --tmp-dir=$tmpdir --archive-dir=$HOME/archive --log-file=$tmpdir/slave.log --cores=$CORES
 fi

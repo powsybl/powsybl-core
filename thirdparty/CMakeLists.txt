@@ -19,7 +19,7 @@ set(CMAKE_VERBOSE_MAKEFILE off)
 
 if (NOT download)
     if (NOT DEFINED packs)
-        set(packs "$ENV{HOME}/itesla_packs")
+        set(packs "$ENV{HOME}/powsybl_packs")
     endif()
 
     if (NOT IS_DIRECTORY "${packs}")

@@ -30,10 +30,7 @@ import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.events.XMLEvent;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -67,12 +64,12 @@ public class XMLImporter implements Importer, XmlConstants {
 
     @Override
     public InputStream get16x16Icon() {
-        return XMLImporter.class.getResourceAsStream("/icons/itesla16x16.png");
+        return XMLImporter.class.getResourceAsStream("/icons/iidm16x16.png");
     }
 
     @Override
     public List<Parameter> getParameters() {
-        return Arrays.asList(THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND);
+        return Collections.singletonList(THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND);
     }
 
     @Override

@@ -4,10 +4,8 @@
 [![Dependency Status](https://www.versioneye.com/user/projects/583eb4cd8de3f346e6b7ac52/badge.svg?style=flat)](https://www.versioneye.com/user/projects/583eb4cd8de3f346e6b7ac52)
 [![MPL-2.0 License](https://img.shields.io/badge/license-MPL_2.0-blue.svg)](https://www.mozilla.org/en-US/MPL/2.0/)
 
-# iPST core
-http://www.itesla-project.eu/
-
-http://www.itesla-pst.org
+# Powsybl - core
+http://www.powsybl.com
 
 ## Environment requirements
 In order to build iPST you need:
@@ -42,9 +40,9 @@ $> yum install bzip2-devel
 ```
 
 ## Install
-To easily compile iPST, you can use the toolchain:
+To easily compile, you can use the toolchain:
 ```
-$> git clone https://github.com/itesla/ipst-core.git
+$> git clone https://github.com/powsybl/powsybl-core.git
 $> ./install.sh
 ```
 By default, the toolchain will:
@@ -74,7 +72,7 @@ each time you use the toolchain.
 | Option | Description | Default value |
 | ------ | ----------- | ------------- |
 | --help | Display this help | |
-| --prefix | Set the installation directory | $HOME/itesla |
+| --prefix | Set the installation directory | $HOME/itools |
 | --package-type | Set the package format. The supported formats are zip, tar, tar.gz and tar.bz2 | zip |
 
 #### Third-parties
@@ -83,20 +81,20 @@ each time you use the toolchain.
 | ------ | ----------- | ------------- |
 | --with-thirdparty | Enable the compilation of thirdparty libraries | |
 | --without-thirdparty | Disable the compilation of thirdparty libraries | |
-| --thirdparty-prefix | Set the thirdparty installation directory | $HOME/itesla_thirdparty |
+| --thirdparty-prefix | Set the thirdparty installation directory | $HOME/powsybl_thirdparty |
 | --thirdparty-download | Sets false to compile thirdparty libraries from a local repository | true |
-| --thirdparty-packs | Sets the thirdparty libraries local repository | $HOME/itesla_packs |
+| --thirdparty-packs | Sets the thirdparty libraries local repository | $HOME/powsybl_packs |
 
 ### Default configuration file
 ```
-ipst_prefix=$HOME/itesla
+ipst_prefix=$HOME/itools
 ipst_package_type=zip
 
 #  -- iPST thirdparty libraries --
 thirdparty_build=true
-thirdparty_prefix=$HOME/itesla_thirdparty
+thirdparty_prefix=$HOME/powsybl_thirdparty
 thirdparty_download=true
-thirdparty_packs=$HOME/itesla_packs
+thirdparty_packs=$HOME/powsybl_packs
 ```
 
 ## License

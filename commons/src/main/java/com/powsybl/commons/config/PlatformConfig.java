@@ -50,7 +50,7 @@ public class PlatformConfig {
     static {
         CONFIG_DIR = FileUtil.createDirectory(getDefaultConfigDir(FileSystems.getDefault()));
 
-        CONFIG_NAME = System.getProperty("itesla.config.name");
+        CONFIG_NAME = System.getProperty("itools.config.name");
 
         CACHE_DIR = FileUtil.createDirectory(getDefaultCacheDir(FileSystems.getDefault()));
     }
@@ -65,7 +65,7 @@ public class PlatformConfig {
             Path configDir = getDefaultConfigDir(fileSystem);
             Path cacheDir = getDefaultCacheDir(fileSystem);
 
-            String configName = System.getProperty("itesla.config.name");
+            String configName = System.getProperty("itools.config.name");
             if (configName != null) {
                 try {
                     defaultConfig = new XmlPlatformConfig(fileSystem, configDir, cacheDir, configName);
@@ -130,11 +130,11 @@ public class PlatformConfig {
     }
 
     static Path getDefaultConfigDir(FileSystem fileSystem) {
-        return getDirectory(fileSystem, "itesla.config.dir", ".itesla");
+        return getDirectory(fileSystem, "itools.config.dir", ".itools");
     }
 
     static Path getDefaultCacheDir(FileSystem fileSystem) {
-        return getDirectory(fileSystem, "itesla.cache.dir", ".cache", "itesla");
+        return getDirectory(fileSystem, "itools.cache.dir", ".cache", "itools");
     }
 
     private static Path getDirectory(FileSystem fileSystem, String propertyName, String... folders) {
