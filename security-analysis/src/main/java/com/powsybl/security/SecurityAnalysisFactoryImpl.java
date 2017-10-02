@@ -9,7 +9,7 @@ package com.powsybl.security;
 import com.powsybl.commons.config.ComponentDefaultConfig;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.loadflow.api.LoadFlowFactory;
+import com.powsybl.loadflow.LoadFlowFactory;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
