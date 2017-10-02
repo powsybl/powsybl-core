@@ -8,14 +8,14 @@ package com.powsybl.loadflow.validation;
 
 import com.google.auto.service.AutoService;
 import com.google.common.collect.Sets;
+import com.powsybl.loadflow.LoadFlow;
+import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
 import com.powsybl.tools.ToolRunningContext;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.StateManager;
-import com.powsybl.loadflow.api.LoadFlow;
-import com.powsybl.loadflow.api.LoadFlowParameters;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;

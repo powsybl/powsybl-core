@@ -15,9 +15,9 @@ import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.StateManager;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.loadflow.api.LoadFlowFactory;
-import com.powsybl.loadflow.api.LoadFlowParameters;
-import com.powsybl.loadflow.api.mock.LoadFlowFactoryMock;
+import com.powsybl.loadflow.LoadFlowFactory;
+import com.powsybl.loadflow.LoadFlowParameters;
+import com.powsybl.loadflow.mock.LoadFlowFactoryMock;
 import org.junit.Test;
 import org.mockito.Mockito;
 

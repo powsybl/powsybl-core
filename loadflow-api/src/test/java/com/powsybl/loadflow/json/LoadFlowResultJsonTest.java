@@ -4,12 +4,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.loadflow.api.json;
+package com.powsybl.loadflow.json;
 
 import com.powsybl.commons.AbstractConverterTest;
-import com.powsybl.loadflow.api.LoadFlowResult;
-import com.powsybl.loadflow.json.LoadFlowResultDeserializer;
-import com.powsybl.loadflow.json.LoadFlowResultSerializer;
+import com.powsybl.loadflow.LoadFlowResult;
 import org.junit.Assert;
 import org.junit.Test;
 

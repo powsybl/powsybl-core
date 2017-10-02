@@ -13,8 +13,8 @@ import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.io.table.CsvTableFormatterFactory;
 import com.powsybl.commons.io.table.TableFormatterFactory;
-import com.powsybl.loadflow.api.LoadFlowFactory;
-import com.powsybl.loadflow.api.LoadFlowParameters;
+import com.powsybl.loadflow.LoadFlowFactory;
+import com.powsybl.loadflow.LoadFlowParameters;
 
 /**
  *

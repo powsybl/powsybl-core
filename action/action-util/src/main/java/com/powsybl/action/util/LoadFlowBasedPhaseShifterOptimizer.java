@@ -11,9 +11,9 @@ import com.powsybl.commons.exceptions.UncheckedInstantiationException;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
-import com.powsybl.loadflow.api.LoadFlow;
-import com.powsybl.loadflow.api.LoadFlowFactory;
-import com.powsybl.loadflow.api.LoadFlowResult;
+import com.powsybl.loadflow.LoadFlow;
+import com.powsybl.loadflow.LoadFlowFactory;
+import com.powsybl.loadflow.LoadFlowResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

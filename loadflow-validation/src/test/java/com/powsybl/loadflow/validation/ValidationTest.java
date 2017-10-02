@@ -8,8 +8,8 @@ package com.powsybl.loadflow.validation;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.Terminal.BusView;
-import com.powsybl.loadflow.api.LoadFlowParameters;
-import com.powsybl.loadflow.api.mock.LoadFlowFactoryMock;
+import com.powsybl.loadflow.LoadFlowParameters;
+import com.powsybl.loadflow.mock.LoadFlowFactoryMock;
 import org.apache.commons.io.output.NullWriter;
 import org.junit.Before;
 import org.junit.Test;

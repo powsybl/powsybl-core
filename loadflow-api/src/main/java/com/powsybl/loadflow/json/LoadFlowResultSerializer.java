@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import com.powsybl.loadflow.api.LoadFlowResult;
+import com.powsybl.loadflow.LoadFlowResult;
 
 import java.io.IOException;
 import java.io.OutputStream;

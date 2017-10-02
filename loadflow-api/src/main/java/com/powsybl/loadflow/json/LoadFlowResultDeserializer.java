@@ -13,8 +13,8 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.powsybl.loadflow.api.LoadFlowResult;
-import com.powsybl.loadflow.api.LoadFlowResultImpl;
+import com.powsybl.loadflow.LoadFlowResult;
+import com.powsybl.loadflow.LoadFlowResultImpl;
 
 import java.io.IOException;
 import java.io.InputStream;

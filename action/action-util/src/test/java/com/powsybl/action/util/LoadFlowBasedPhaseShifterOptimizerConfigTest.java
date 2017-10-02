@@ -12,9 +12,9 @@ import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.MapModuleConfig;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.loadflow.api.LoadFlow;
-import com.powsybl.loadflow.api.LoadFlowFactory;
-import com.powsybl.loadflow.api.mock.LoadFlowFactoryMock;
+import com.powsybl.loadflow.LoadFlow;
+import com.powsybl.loadflow.LoadFlowFactory;
+import com.powsybl.loadflow.mock.LoadFlowFactoryMock;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -25,7 +25,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public class LoadFlowBasesPhaseShifterOptimizerConfigTest {
+public class LoadFlowBasedPhaseShifterOptimizerConfigTest {
 
     private static class AnotherLoadFlowFactoryMock implements LoadFlowFactory {
 
