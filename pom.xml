@@ -23,7 +23,6 @@
     <modules>
         <module>action</module>
         <module>afs</module>
-        <module>case-repository</module>
         <module>cim1-converter</module>
         <module>cim1-model</module>
         <module>commons</module>
@@ -33,13 +32,11 @@
         <module>computation-mpi-util</module>
         <module>contingency-api</module>
         <module>distribution-core</module>
-        <module>entsoe-case-repository</module>
         <module>entsoe-util</module>
         <module>iidm</module>
         <module>loadflow-api</module>
         <module>loadflow-validation</module>
         <module>math</module>
-        <module>network-merge</module>
         <module>scripting</module>
         <module>security-analysis</module>
         <module>simulation-api</module>
