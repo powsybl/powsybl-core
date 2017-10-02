@@ -1,7 +1,15 @@
 language: java
 
+dist: trusty
+
 jdk:
 - oraclejdk8
 
+addons:
+    sonarcloud:
+        organization: "powsybl-ci-github"
+        token:
+            secure: ${SONAR_TOKEN}
+
 script:
-- mvn clean verify -Pjacoco coveralls:report
+- mvn clean verify -Pjacoco coveralls:report sonar:sonar
