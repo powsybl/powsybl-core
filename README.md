@@ -1,7 +1,7 @@
-[![Build Status](https://travis-ci.org/itesla/ipst-core.svg?branch=master)](https://travis-ci.org/itesla/ipst-core)
-[![Build status](https://ci.appveyor.com/api/projects/status/t5dr5dma767vnm2g/branch/master?svg=true)](https://ci.appveyor.com/project/geofjamg/ipst-core-33ptj/branch/master)
-[![Coverage Status](https://coveralls.io/repos/github/itesla/ipst-core/badge.svg?branch=master)](https://coveralls.io/github/itesla/ipst-core?branch=master)
-[![Dependency Status](https://www.versioneye.com/user/projects/583eb4cd8de3f346e6b7ac52/badge.svg?style=flat)](https://www.versioneye.com/user/projects/583eb4cd8de3f346e6b7ac52)
+[![Build Status](https://travis-ci.org/powsybl/powsybl-core.svg?branch=master)](https://travis-ci.org/powsybl/powsybl-core)
+[![Build status](https://ci.appveyor.com/api/projects/status/76o2bbmsewpbpr97/branch/master?svg=true)](https://ci.appveyor.com/project/powsybl/powsybl-core/branch/master)
+[![Coverage Status](https://coveralls.io/repos/github/powsybl/powsybl-core/badge.svg?branch=master)](https://coveralls.io/github/powsybl/powsybl-core?branch=master)
+[![Dependency Status](https://www.versioneye.com/user/projects/59d241d16725bd4557abc716/badge.svg?style=flat)](https://www.versioneye.com/user/projects/59d241d16725bd4557abc716)
 [![MPL-2.0 License](https://img.shields.io/badge/license-MPL_2.0-blue.svg)](https://www.mozilla.org/en-US/MPL/2.0/)
 
 # Powsybl - core
