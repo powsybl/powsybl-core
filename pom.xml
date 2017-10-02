@@ -23,8 +23,7 @@
     <modules>
         <module>action</module>
         <module>afs</module>
-        <module>cim1-converter</module>
-        <module>cim1-model</module>
+        <module>cim1</module>
         <module>commons</module>
         <module>computation</module>
         <module>computation-local</module>
@@ -41,8 +40,7 @@
         <module>security-analysis</module>
         <module>simulation-api</module>
         <module>tools</module>
-        <module>ucte-converter</module>
-        <module>ucte-network</module>
+        <module>ucte</module>
     </modules>
 
     <properties>
