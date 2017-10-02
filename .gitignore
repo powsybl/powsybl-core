@@ -12,8 +12,8 @@
 /afs/afs-mapdb-storage/target/
 /afs/afs-storage-api/target/
 /case-repository/target/
-/cim1-converter/target/
-/cim1-model/target/
+/cim1/cim1-converter/target/
+/cim1/cim1-model/target/
 /commons/target/
 /computation-local/target/
 /computation-mpi/target/
@@ -38,8 +38,8 @@
 /scripting/target/
 /tools/target/
 /target/
-/ucte-converter/target/
-/ucte-network/target/
+/ucte/ucte-converter/target/
+/ucte/ucte-network/target/
 
 # CMake projects
 /build/
