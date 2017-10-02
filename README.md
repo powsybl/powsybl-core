@@ -8,7 +8,7 @@
 http://www.powsybl.com
 
 ## Environment requirements
-In order to build iPST you need:
+In order to build the project, you need:
   * JDK *(1.8 or greater)*
   * Maven 
   * CMake *(2.6 or greater)*
@@ -48,7 +48,7 @@ $> ./install.sh
 By default, the toolchain will:
   * download and compile all external packages from the Internet
   * compile C++ and Java modules
-  * install iPST
+  * install the platform
 
 ### Targets
 
@@ -67,7 +67,7 @@ By default, the toolchain will:
 The toolchain options are saved in the *install.cfg* configuration file. This configuration file is loaded and updated
 each time you use the toolchain.
 
-#### iPST
+#### Global options
 
 | Option | Description | Default value |
 | ------ | ----------- | ------------- |
@@ -88,8 +88,8 @@ each time you use the toolchain.
 ### Default configuration file
 ```
 #  -- Global options --
-ipst_prefix=$HOME/itools
-ipst_package_type=zip
+powsybl_prefix=$HOME/itools
+powsybl_package_type=zip
 
 #  -- Thirdparty libraries --
 thirdparty_build=true
