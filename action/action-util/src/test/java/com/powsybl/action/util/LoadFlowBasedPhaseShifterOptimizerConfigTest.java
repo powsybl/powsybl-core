@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.action.simulator.loadflow;
+package com.powsybl.action.util;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
@@ -20,12 +20,12 @@ import org.junit.Test;
 import java.io.IOException;
 import java.nio.file.FileSystem;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public class LoadFlowActionSimulatorConfigTest {
+public class LoadFlowBasedPhaseShifterOptimizerConfigTest {
 
     private static class AnotherLoadFlowFactoryMock implements LoadFlowFactory {
 
@@ -39,24 +39,14 @@ public class LoadFlowActionSimulatorConfigTest {
     public void test() throws IOException {
         try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
             InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
-            MapModuleConfig moduleConfig = platformConfig.createModuleConfig("load-flow-action-simulator");
+            MapModuleConfig moduleConfig = platformConfig.createModuleConfig("load-flow-based-phase-shifter-optimizer");
             moduleConfig.setClassProperty("load-flow-factory", LoadFlowFactoryMock.class);
-            moduleConfig.setStringProperty("max-iterations", "15");
-            moduleConfig.setStringProperty("ignore-pre-contingency-violations", "true");
 
-            LoadFlowActionSimulatorConfig config = LoadFlowActionSimulatorConfig.load(platformConfig);
-
+            LoadFlowBasedPhaseShifterOptimizerConfig config = LoadFlowBasedPhaseShifterOptimizerConfig.load(platformConfig);
             assertEquals(LoadFlowFactoryMock.class, config.getLoadFlowFactoryClass());
             config.setLoadFlowFactoryClass(AnotherLoadFlowFactoryMock.class);
             assertEquals(AnotherLoadFlowFactoryMock.class, config.getLoadFlowFactoryClass());
-
-            assertEquals(15, config.getMaxIterations());
-            config.setMaxIterations(10);
-            assertEquals(10, config.getMaxIterations());
-
-            assertTrue(config.isIgnorePreContingencyViolations());
-            config.setIgnorePreContingencyViolations(false);
-            assertFalse(config.isIgnorePreContingencyViolations());
         }
     }
+
 }

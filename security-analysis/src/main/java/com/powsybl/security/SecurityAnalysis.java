@@ -7,7 +7,7 @@
 package com.powsybl.security;
 
 import com.powsybl.contingency.ContingenciesProvider;
-import com.powsybl.loadflow.api.LoadFlowParameters;
+import com.powsybl.loadflow.LoadFlowParameters;
 
 import java.util.concurrent.CompletableFuture;
 

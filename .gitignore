@@ -29,8 +29,8 @@
 /iidm/iidm-impl/target/
 /iidm/iidm-test/target/
 /iidm/iidm-xml-converter/target/
-/loadflow-api/target/
-/loadflow-validation/target/
+/loadflow/loadflow-api/target/
+/loadflow/loadflow-validation/target/
 /math/target/
 /network-merge/target/
 /security-analysis/target/
