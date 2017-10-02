@@ -5,14 +5,3 @@ jdk:
 
 script:
 - mvn clean verify -Pjacoco coveralls:report
-
-addons:
-  ssh_known_hosts: sftp.dc0.gpaas.net
-before_install:
-- openssl aes-256-cbc -K $encrypted_744b8f420bdf_key -iv $encrypted_744b8f420bdf_iv
-  -in id_rsa_gandi.enc -out /tmp/id_rsa_gandi -d
-- eval "$(ssh-agent -s)"
-- chmod 600 /tmp/id_rsa_gandi
-- ssh-add /tmp/id_rsa_gandi
-after_success:
-- test $TRAVIS_BRANCH = "master" && test $TRAVIS_PULL_REQUEST = "false" && mvn javadoc:javadoc && rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/target/site/apidocs  $JAVADOC_USER@sftp.dc0.gpaas.net:vhosts/www.itesla-pst.org/htdocs/javadoc/ipst-core
