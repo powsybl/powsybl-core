@@ -10,7 +10,7 @@ sourceDir=$(dirname $(readlink -f $0))
 
 ## install default settings
 ###############################################################################
-powsybl_prefix=$HOME/itools
+powsybl_prefix=$HOME/powsybl
 powsybl_package_version=`mvn -U -f "$sourceDir/pom.xml" org.apache.maven.plugins:maven-help-plugin:evaluate -Dexpression=project.version | grep -v "Download" | grep -v "\["`
 powsybl_package_name=powsybl-core-$powsybl_package_version
 powsybl_package_type=zip
@@ -54,7 +54,7 @@ usage() {
     echo ""
     echo "Options:"
     echo "  --help                   Display this help"
-    echo "  --prefix                 Set the installation directory (default is $HOME/itools)"
+    echo "  --prefix                 Set the installation directory (default is $HOME/powsybl)"
     echo "  --package-type           Set the package format. The supported formats are zip, tar, tar.gz and tar.bz2 (default is zip)"
     echo ""
     echo "Thirdparty options:"
@@ -203,7 +203,7 @@ powsybl_package()
         case "$powsybl_package_type" in
             zip)
                 [ -f "${powsybl_package_name}.zip" ] && rm -f "${powsybl_package_name}.zip"
-                $(cd "$sourceDir/distribution-core/target/distribution-core-${powsybl_package_version}-full" && zip -rq "$sourceDir/${powsybl_package_name}.zip" "itools")
+                $(cd "$sourceDir/distribution-core/target/distribution-core-${powsybl_package_version}-full" && zip -rq "$sourceDir/${powsybl_package_name}.zip" "powsybl")
                 zip -qT "${powsybl_package_name}.zip" > /dev/null 2>&1 || exit $?
                 ;;
 
@@ -241,7 +241,7 @@ powsybl_install()
 
         echo "**** Copying files"
         mkdir -p "$powsybl_prefix" || exit $?
-        cp -Rp "$sourceDir/distribution-core/target/powsybl-distribution-core-${powsybl_package_version}-full/itools"/* "$powsybl_prefix" || exit $?
+        cp -Rp "$sourceDir/distribution-core/target/powsybl-distribution-core-${powsybl_package_version}-full/powsybl"/* "$powsybl_prefix" || exit $?
 
         if [ ! -f "$powsybl_prefix/etc/itools.conf" ]; then
             echo "**** Copying configuration files"
