@@ -1,10 +1,13 @@
+# Powsybl - core
+
 [![Build Status](https://travis-ci.org/powsybl/powsybl-core.svg?branch=master)](https://travis-ci.org/powsybl/powsybl-core)
 [![Build status](https://ci.appveyor.com/api/projects/status/76o2bbmsewpbpr97/branch/master?svg=true)](https://ci.appveyor.com/project/powsybl/powsybl-core/branch/master)
 [![Coverage Status](https://coveralls.io/repos/github/powsybl/powsybl-core/badge.svg?branch=master)](https://coveralls.io/github/powsybl/powsybl-core?branch=master)
+[![Coverage Status](https://sonarcloud.io/api/badges/measure?key=com.powsybl%3Apowsybl-core&metric=coverage)](https://sonarcloud.io/component_measures?id=com.powsybl%3Apowsybl-core&metric=coverage)
+[![Quality Gate](https://sonarcloud.io/api/badges/gate?key=com.powsybl%3Apowsybl-core)](https://sonarcloud.io/dashboard?id=com.powsybl%3Apowsybl-core)
 [![Dependency Status](https://www.versioneye.com/user/projects/59d241d16725bd4557abc716/badge.svg?style=flat)](https://www.versioneye.com/user/projects/59d241d16725bd4557abc716)
 [![MPL-2.0 License](https://img.shields.io/badge/license-MPL_2.0-blue.svg)](https://www.mozilla.org/en-US/MPL/2.0/)
 
-# Powsybl - core
 http://www.powsybl.com
 
 ## Environment requirements

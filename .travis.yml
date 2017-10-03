@@ -10,6 +10,8 @@ addons:
         organization: "powsybl-ci-github"
         token:
             secure: ${SONAR_TOKEN}
+        github_token:
+            secure: ${GITHUB_TOKEN}
 
 script:
 - mvn clean verify -Pjacoco coveralls:report sonar:sonar
