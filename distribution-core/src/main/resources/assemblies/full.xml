@@ -14,7 +14,7 @@
     <formats>
         <format>dir</format>
     </formats>
-    <baseDirectory>itools</baseDirectory>
+    <baseDirectory>powsybl</baseDirectory>
     <includeBaseDirectory>true</includeBaseDirectory>
     <dependencySets>
         <dependencySet>

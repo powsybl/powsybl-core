@@ -75,7 +75,7 @@ each time you use the toolchain.
 | Option | Description | Default value |
 | ------ | ----------- | ------------- |
 | --help | Display this help | |
-| --prefix | Set the installation directory | $HOME/itools |
+| --prefix | Set the installation directory | $HOME/powsybl |
 | --package-type | Set the package format. The supported formats are zip, tar, tar.gz and tar.bz2 | zip |
 
 #### Third-parties
@@ -91,7 +91,7 @@ each time you use the toolchain.
 ### Default configuration file
 ```
 #  -- Global options --
-powsybl_prefix=$HOME/itools
+powsybl_prefix=$HOME/powsybl
 powsybl_package_type=zip
 
 #  -- Thirdparty libraries --
