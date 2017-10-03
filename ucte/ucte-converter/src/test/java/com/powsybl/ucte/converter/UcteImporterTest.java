@@ -6,14 +6,9 @@
  */
 package com.powsybl.ucte.converter;
 
-import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.import_.ImportConfig;
-import com.powsybl.iidm.import_.Importers;
-import com.powsybl.iidm.import_.ImportersLoaderList;
+import com.powsybl.commons.datasource.DataSourceUtil;
+import com.powsybl.commons.datasource.ReadOnlyMemDataSource;
 import org.junit.Test;
-import org.mockito.Mockito;
-
-import java.util.Collections;
 /**
  * @author Sebastien Murgey <sebastien.murgey at rte-france.com>
  */
@@ -21,8 +16,7 @@ public class UcteImporterTest {
     @Test
     public void trimIssueTest() throws Exception  {
         // Import network that could fail because of id conflicts due to trim mechanism
-        Importers.loadNetwork("importIssue.uct", getClass().getResourceAsStream("/importIssue.uct"),
-                Mockito.mock(ComputationManager.class), new ImportConfig(), null,
-                new ImportersLoaderList(Collections.singletonList(new UcteImporter()), Collections.emptyList()));
+        ReadOnlyMemDataSource dataSource = DataSourceUtil.createReadOnlyMemDataSource("importIssue.uct", getClass().getResourceAsStream("/importIssue.uct"));
+        new UcteImporter().importData(dataSource, null);
     }
 }
