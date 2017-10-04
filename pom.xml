@@ -63,9 +63,10 @@
         <groovyeclipsecompiler.version>2.9.2-01</groovyeclipsecompiler.version>
         <groovyeclipsebatch.version>2.4.3-01</groovyeclipsebatch.version>
 
-        <sonar.exclusions>
-            **/cim1/**/*, **/generated/**/*
-        </sonar.exclusions>
+        <!-- Sonar configuration -->
+        <sonar.exclusions>**/cim1/**/*,**/generated/**/*</sonar.exclusions>
+        <sonar.sources>src/main/java,src/main/groovy</sonar.sources>
+        <sonar.tests>src/test/java,src/test/groovy</sonar.tests>
 
         <autoservice.version>1.0-rc2</autoservice.version>
         <commonscli.version>1.3.1</commonscli.version>
