@@ -104,7 +104,11 @@ abstract class AbstractBranch<I extends Connectable<I>> extends AbstractConnecta
     }
 
     public boolean isOverloaded() {
-        return checkTemporaryLimits1() != null || checkTemporaryLimits2() != null;
+        return isOverloaded(1.0f, Integer.MAX_VALUE);
+    }
+
+    public boolean isOverloaded(float limitReduction, int duration) {
+        return checkTemporaryLimits1(limitReduction, duration) != null || checkTemporaryLimits2(limitReduction, duration) != null;
     }
 
     public int getOverloadDuration() {
@@ -182,13 +186,17 @@ abstract class AbstractBranch<I extends Connectable<I>> extends AbstractConnecta
     }
 
     public OverloadImpl checkTemporaryLimits(Side side, float limitReduction) {
+        return checkTemporaryLimits(side, limitReduction, Integer.MAX_VALUE);
+    }
+
+    private OverloadImpl checkTemporaryLimits(Side side, float limitReduction, int duration) {
         Objects.requireNonNull(side);
         switch (side) {
             case ONE:
-                return checkTemporaryLimits1(limitReduction);
+                return checkTemporaryLimits1(limitReduction, duration);
 
             case TWO:
-                return checkTemporaryLimits2(limitReduction);
+                return checkTemporaryLimits2(limitReduction, duration);
 
             default:
                 throw new AssertionError();
@@ -200,7 +208,11 @@ abstract class AbstractBranch<I extends Connectable<I>> extends AbstractConnecta
     }
 
     public OverloadImpl checkTemporaryLimits1(float limitReduction) {
-        return checkTemporaryLimits(getTerminal1(), limits1, limitReduction);
+        return checkTemporaryLimits1(limitReduction, Integer.MAX_VALUE);
+    }
+
+    private OverloadImpl checkTemporaryLimits1(float limitReduction, int duration) {
+        return checkTemporaryLimits(getTerminal1(), limits1, limitReduction, duration);
     }
 
     public OverloadImpl checkTemporaryLimits1() {
@@ -211,18 +223,30 @@ abstract class AbstractBranch<I extends Connectable<I>> extends AbstractConnecta
         return checkTemporaryLimits(getTerminal2(), limits2, limitReduction);
     }
 
+    private OverloadImpl checkTemporaryLimits2(float limitReduction, int duration) {
+        return checkTemporaryLimits(getTerminal2(), limits2, limitReduction, duration);
+    }
+
     public OverloadImpl checkTemporaryLimits2() {
         return checkTemporaryLimits2(1f);
     }
 
     private static OverloadImpl checkTemporaryLimits(TerminalExt t, CurrentLimits limits, float limitReduction) {
+        return checkTemporaryLimits(t, limits, limitReduction, Integer.MAX_VALUE);
+    }
+
+    private static OverloadImpl checkTemporaryLimits(TerminalExt t, CurrentLimits limits, float limitReduction, int duration) {
         Objects.requireNonNull(t);
         float i = t.getI();
         if (limits != null && !Float.isNaN(limits.getPermanentLimit()) && !Float.isNaN(i)) {
             float previousLimit = limits.getPermanentLimit();
             for (CurrentLimits.TemporaryLimit tl : limits.getTemporaryLimits()) { // iterate in ascending order
-                if (i >= previousLimit * limitReduction && i < tl.getValue() * limitReduction) {
-                    return new OverloadImpl(tl, previousLimit);
+                if (i >= previousLimit * limitReduction) {
+                    if (i < tl.getValue() * limitReduction && duration < tl.getAcceptableDuration()) {
+                        return null;
+                    } else if (i < tl.getValue() * limitReduction && duration > tl.getAcceptableDuration()) {
+                        return new OverloadImpl(tl, previousLimit);
+                    }
                 }
                 previousLimit = tl.getValue();
             }
