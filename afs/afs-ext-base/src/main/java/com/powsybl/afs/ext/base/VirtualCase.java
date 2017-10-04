@@ -57,10 +57,13 @@ public class VirtualCase extends ProjectFile implements ProjectCase {
 
     public Network loadFromCache() {
         try (InputStream is = storage.readFromCache(id, NETWORK_CACHE_KEY)) {
-            return NetworkXml.read(is);
+            if (is != null) {
+                return NetworkXml.read(is);
+            }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+        return null;
     }
 
     public void saveToCache(Network network) {
