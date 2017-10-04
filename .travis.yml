@@ -14,5 +14,4 @@ addons:
             secure: ${GITHUB_TOKEN}
 
 script:
-- mvn clean verify -Pjacoco coveralls:report
-- sonar-scanner
+- mvn clean verify -Pjacoco coveralls:report sonar:sonar
