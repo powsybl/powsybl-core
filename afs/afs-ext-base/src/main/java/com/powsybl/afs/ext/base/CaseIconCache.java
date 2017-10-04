@@ -32,7 +32,9 @@ public enum CaseIconCache {
             cache = new HashMap<>();
             for (Importer importer : Importers.list(loader, computationManager, new ImportConfig())) {
                 try (InputStream is = importer.get16x16Icon()) {
-                    cache.put(importer.getFormat(), new FileIcon(importer.getFormat(), is));
+                    if (is != null) {
+                        cache.put(importer.getFormat(), new FileIcon(importer.getFormat(), is));
+                    }
                 } catch (IOException e) {
                     throw new UncheckedIOException(e);
                 }
