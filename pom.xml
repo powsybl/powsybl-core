@@ -65,8 +65,8 @@
 
         <!-- Sonar configuration -->
         <sonar.exclusions>**/cim1/**/*,**/generated/**/*</sonar.exclusions>
-        <sonar.sources>src/main/java,src/main/groovy</sonar.sources>
-        <sonar.tests>src/test/java,src/test/groovy</sonar.tests>
+        <sonar.sources>src/main</sonar.sources>
+        <sonar.tests>src/test</sonar.tests>
 
         <autoservice.version>1.0-rc2</autoservice.version>
         <commonscli.version>1.3.1</commonscli.version>
