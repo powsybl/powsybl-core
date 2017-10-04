@@ -13,6 +13,7 @@
 /afs/afs-storage-api/target/
 /cim1/cim1-converter/target/
 /cim1/cim1-model/target/
+/cim1/target/
 /commons/target/
 /computation-local/target/
 /computation-mpi/target/
@@ -29,6 +30,7 @@
 /iidm/iidm-xml-converter/target/
 /loadflow/loadflow-api/target/
 /loadflow/loadflow-validation/target/
+/loadflow/target/
 /math/target/
 /security-analysis/target/
 /simulation-api/target/
@@ -37,6 +39,7 @@
 /target/
 /ucte/ucte-converter/target/
 /ucte/ucte-network/target/
+/ucte/target/
 
 # CMake projects
 /build/
