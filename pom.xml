@@ -64,8 +64,8 @@
         <groovyeclipsebatch.version>2.4.3-01</groovyeclipsebatch.version>
 
         <sonar.exclusions>
-            cim1/**,
-            **/generated/**
+            **/cim1/**/*,
+            **/generated/**/*
         </sonar.exclusions>
 
         <autoservice.version>1.0-rc2</autoservice.version>
