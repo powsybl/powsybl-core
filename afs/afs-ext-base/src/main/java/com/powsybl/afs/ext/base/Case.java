@@ -15,6 +15,8 @@ import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.import_.ImportersLoader;
 
+import java.util.Objects;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -25,10 +27,13 @@ public class Case extends File {
     static final String FORMAT = "format";
     static final String DATA_SOURCE = "dataSource";
 
-    public Case(NodeId id, AppFileSystemStorage storage, AppFileSystem fileSystem) {
-        super(id, storage, fileSystem, CaseIconCache.INSTANCE.get(fileSystem.getData().getComponentDefaultConfig().newFactoryImpl(ImportersLoader.class),
+    private final ImportersLoader importersLoader;
+
+    public Case(NodeId id, AppFileSystemStorage storage, AppFileSystem fileSystem, ImportersLoader importersLoader) {
+        super(id, storage, fileSystem, CaseIconCache.INSTANCE.get(importersLoader,
                                                                   fileSystem.getData().getComputationManager(),
                                                                   getFormat(storage, id)));
+        this.importersLoader = Objects.requireNonNull(importersLoader);
     }
 
     private static String getFormat(AppFileSystemStorage storage, NodeId id) {
@@ -45,7 +50,7 @@ public class Case extends File {
 
     public Importer getImporter() {
         String format = getFormat();
-        return fileSystem.getData().getComponentDefaultConfig().newFactoryImpl(ImportersLoader.class).loadImporters()
+        return importersLoader.loadImporters()
                 .stream()
                 .filter(importer -> importer.getFormat().equals(format))
                 .findFirst()

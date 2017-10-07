@@ -17,7 +17,6 @@ import com.powsybl.iidm.import_.ImportersLoaderList;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -29,26 +28,29 @@ import static org.junit.Assert.*;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class ImportedCaseTest extends AbstractProjectFileTest {
+
     @Override
     protected AppFileSystemStorage createStorage() {
         return MapDbAppFileSystemStorage.createHeap("mem");
     }
 
+    private ImportersLoader createImportersLoader() {
+        return new ImportersLoaderList(Collections.singletonList(new TestImporter(network)), Collections.emptyList());
+    }
+
     @Override
     protected List<FileExtension> getFileExtensions() {
-        return ImmutableList.of(new CaseExtension());
+        return ImmutableList.of(new CaseExtension(createImportersLoader()));
     }
 
     @Override
     protected List<ProjectFileExtension> getProjectFileExtensions() {
-        return ImmutableList.of(new ImportedCaseExtension());
+        return ImmutableList.of(new ImportedCaseExtension(createImportersLoader()));
     }
 
     @Before
     public void setup() throws IOException {
         super.setup();
-        Mockito.when(componentDefaultConfig.newFactoryImpl(ImportersLoader.class))
-                .thenReturn(new ImportersLoaderList(Collections.singletonList(new TestImporter(network)), Collections.emptyList()));
         NodeId rootFolderId = storage.getRootNode();
         NodeId caseId = storage.createNode(rootFolderId, "network", Case.PSEUDO_CLASS);
         storage.setStringAttribute(caseId, "description", "Test format");
