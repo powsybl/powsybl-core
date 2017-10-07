@@ -14,7 +14,6 @@ import gnu.trove.list.array.TIntArrayList;
 public class TIntArrayListHack extends TIntArrayList {
 
     public TIntArrayListHack() {
-        super();
     }
 
     public TIntArrayListHack(int capacity) {

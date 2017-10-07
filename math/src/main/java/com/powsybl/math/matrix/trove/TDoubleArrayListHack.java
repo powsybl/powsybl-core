@@ -14,7 +14,6 @@ import gnu.trove.list.array.TDoubleArrayList;
 public class TDoubleArrayListHack extends TDoubleArrayList {
 
     public TDoubleArrayListHack() {
-        super();
     }
 
     public TDoubleArrayListHack(int capacity) {
