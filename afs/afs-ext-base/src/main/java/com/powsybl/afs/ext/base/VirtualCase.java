@@ -56,17 +56,12 @@ public class VirtualCase extends ProjectFile implements ProjectCase {
     }
 
     public Network loadFromCache() {
-        InputStream is = storage.readFromCache(id, NETWORK_CACHE_KEY);
-        if (is != null) {
-            try {
+        try (InputStream is = storage.readFromCache(id, NETWORK_CACHE_KEY)) {
+            if (is != null) {
                 return NetworkXml.read(is);
-            } finally {
-                try {
-                    is.close();
-                } catch (IOException e) {
-                    throw new UncheckedIOException(e);
-                }
             }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
         return null;
     }
@@ -80,7 +75,7 @@ public class VirtualCase extends ProjectFile implements ProjectCase {
         storage.flush();
     }
 
-    private void runGroovyScript(Network network, Reader reader, Writer out) throws IOException {
+    private void runGroovyScript(Network network, Reader reader, Writer out) {
         // put network in the binding so that it is accessible from the script
         Binding binding = new Binding();
         binding.setProperty("network", network);
