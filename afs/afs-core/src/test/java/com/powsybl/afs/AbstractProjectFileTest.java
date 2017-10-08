@@ -7,7 +7,6 @@
 package com.powsybl.afs;
 
 import com.powsybl.afs.storage.AppFileSystemStorage;
-import com.powsybl.commons.config.ComponentDefaultConfig;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
@@ -32,8 +31,6 @@ public abstract class AbstractProjectFileTest {
 
     protected Network network;
 
-    protected ComponentDefaultConfig componentDefaultConfig;
-
     protected abstract AppFileSystemStorage createStorage();
 
     protected List<FileExtension> getFileExtensions() {
@@ -46,13 +43,11 @@ public abstract class AbstractProjectFileTest {
 
     @Before
     public void setup() throws IOException {
-        componentDefaultConfig = Mockito.mock(ComponentDefaultConfig.class);
         network = NetworkFactory.create("test", "test");
         ComputationManager computationManager = Mockito.mock(ComputationManager.class);
         storage = createStorage();
         afs = new AppFileSystem("mem", false, storage);
         ad = new AppData(computationManager,
-                         componentDefaultConfig,
                          Collections.singletonList(computationManager1 -> Collections.singletonList(afs)),
                          getFileExtensions(),
                          getProjectFileExtensions());

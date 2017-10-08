@@ -19,6 +19,7 @@ import com.powsybl.iidm.network.Network;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.UncheckedIOException;
+import java.util.Objects;
 import java.util.Properties;
 
 /**
@@ -32,11 +33,15 @@ public class ImportedCase extends ProjectFile implements ProjectCase {
     static final String DATA_SOURCE = "dataSource";
     static final String PARAMETERS = "parameters";
 
-    public ImportedCase(NodeId id, AppFileSystemStorage storage, NodeId projectId, AppFileSystem fileSystem) {
+    private final ImportersLoader importersLoader;
+
+    public ImportedCase(NodeId id, AppFileSystemStorage storage, NodeId projectId, AppFileSystem fileSystem,
+                        ImportersLoader importersLoader) {
         super(id, storage, projectId, fileSystem, CaseIconCache.INSTANCE.get(
-                fileSystem.getData().getComponentDefaultConfig().newFactoryImpl(ImportersLoader.class),
+                importersLoader,
                 fileSystem.getData().getComputationManager(),
                 getFormat(storage, id)));
+        this.importersLoader = Objects.requireNonNull(importersLoader);
     }
 
     private static String getFormat(AppFileSystemStorage storage, NodeId id) {
@@ -59,7 +64,7 @@ public class ImportedCase extends ProjectFile implements ProjectCase {
 
     public Importer getImporter() {
         String format = getFormat(storage, id);
-        return getProject().getFileSystem().getData().getComponentDefaultConfig().newFactoryImpl(ImportersLoader.class).loadImporters()
+        return importersLoader.loadImporters()
                 .stream()
                 .filter(importer -> importer.getFormat().equals(format))
                 .findFirst()
