@@ -47,10 +47,8 @@ public final class CleanableExecutors {
                 LOGGER.trace("activeCount={} ,corePoolSize={} ,largestPoolSize={} ,maximumPoolSize={}",
                         getActiveCount(), getCorePoolSize(), getLargestPoolSize(), getMaximumPoolSize());
             }
-            if (t != null) {
-                if (LOGGER.isErrorEnabled()) {
-                    LOGGER.error(t.toString(), t);
-                }
+            if (t != null && LOGGER.isErrorEnabled()) {
+                LOGGER.error(t.toString(), t);
             }
             for (ThreadCleaner cleaner : cleaners) {
                 cleaner.clean();
