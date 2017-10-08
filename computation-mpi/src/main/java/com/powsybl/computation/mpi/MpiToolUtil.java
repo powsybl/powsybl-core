@@ -90,7 +90,7 @@ public final class MpiToolUtil {
 
         ComponentDefaultConfig config = ComponentDefaultConfig.load();
 
-        MpiExecutorContext mpiExecutorContext = config.newFactoryImpl(MpiExecutorContextFactory.class, DefaultMpiExecutorContextFactory.class).create();
+        MpiExecutorContext mpiExecutorContext = new MpiExecutorContext();
         MpiStatisticsFactory statisticsFactory = createMpiStatisticsFactory(config, statisticsDbDir, statisticsDbName);
         try {
             MpiStatistics statistics = statisticsFactory.create(statisticsDbDir, statisticsDbName);

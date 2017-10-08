@@ -6,25 +6,66 @@
  */
 package com.powsybl.computation.mpi;
 
+import com.powsybl.commons.concurrent.CleanableExecutors;
+
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface MpiExecutorContext {
+public class MpiExecutorContext {
 
-    ExecutorService getSchedulerExecutor();
+    private final ScheduledExecutorService monitorExecutorService;
+    private final ExecutorService schedulerExecutorService;
+    private final ExecutorService computationExecutorService;
+    private final ExecutorService applicationExecutorService;
 
-    ScheduledExecutorService getMonitorExecutor();
+    public MpiExecutorContext() {
+        this(100);
+    }
 
-    ExecutorService getBeforeExecutor();
+    public MpiExecutorContext(int poolSize) {
+        monitorExecutorService = Executors.newScheduledThreadPool(1);
+        schedulerExecutorService = Executors.newCachedThreadPool();
+        computationExecutorService = CleanableExecutors.newSizeLimitedThreadPool("COMPUTATION_POOL", poolSize);
+        applicationExecutorService = CleanableExecutors.newSizeLimitedThreadPool("APPLICATION_POOL", poolSize);
+    }
 
-    ExecutorService getCommandExecutor();
+    public ScheduledExecutorService getMonitorExecutor() {
+        return monitorExecutorService;
+    }
 
-    ExecutorService getAfterExecutor();
+    public ExecutorService getSchedulerExecutor() {
+        return schedulerExecutorService;
+    }
 
-    ExecutorService getApplicationExecutor();
+    public ExecutorService getBeforeExecutor() {
+        return computationExecutorService;
+    }
 
-    void shutdown() throws InterruptedException;
+    public ExecutorService getCommandExecutor() {
+        return computationExecutorService;
+    }
+
+    public ExecutorService getAfterExecutor() {
+        return computationExecutorService;
+    }
+
+    public ExecutorService getApplicationExecutor() {
+        return applicationExecutorService;
+    }
+
+    public void shutdown() throws InterruptedException {
+        monitorExecutorService.shutdown();
+        schedulerExecutorService.shutdown();
+        computationExecutorService.shutdown();
+        applicationExecutorService.shutdown();
+        monitorExecutorService.awaitTermination(15, TimeUnit.MINUTES);
+        schedulerExecutorService.awaitTermination(15, TimeUnit.MINUTES);
+        computationExecutorService.awaitTermination(15, TimeUnit.MINUTES);
+        applicationExecutorService.awaitTermination(15, TimeUnit.MINUTES);
+    }
 }

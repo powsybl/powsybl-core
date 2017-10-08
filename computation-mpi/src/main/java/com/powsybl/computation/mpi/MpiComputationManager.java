@@ -50,11 +50,11 @@ public class MpiComputationManager implements ComputationManager {
     private Future<?> busyCoresPrintTask;
 
     public MpiComputationManager(Path localDir, MpiJobScheduler scheduler) throws IOException, InterruptedException {
-        this(localDir, scheduler, new NoMpiStatistics(), new DefaultMpiExecutorContext());
+        this(localDir, scheduler, new NoMpiStatistics(), new MpiExecutorContext());
     }
 
     public MpiComputationManager(Path localDir, MpiNativeServices nativeServices) throws IOException, InterruptedException {
-        this(localDir, nativeServices, new NoMpiStatistics(), new DefaultMpiExecutorContext(), 1, false, null);
+        this(localDir, nativeServices, new NoMpiStatistics(), new MpiExecutorContext(), 1, false, null);
     }
 
     public MpiComputationManager(Path localDir, MpiStatistics statistics, MpiExecutorContext executorContext,
