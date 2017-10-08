@@ -43,8 +43,10 @@ public final class CleanableExecutors {
         @Override
         protected void afterExecute(Runnable r, Throwable t) {
             super.afterExecute(r, t);
-            LOGGER.trace("activeCount={} ,corePoolSize={} ,largestPoolSize={} ,maximumPoolSize={}",
-                    getActiveCount(), getCorePoolSize(), getLargestPoolSize(), getMaximumPoolSize());
+            if (LOGGER.isTraceEnabled()) {
+                LOGGER.trace("activeCount={} ,corePoolSize={} ,largestPoolSize={} ,maximumPoolSize={}",
+                        getActiveCount(), getCorePoolSize(), getLargestPoolSize(), getMaximumPoolSize());
+            }
             if (t != null) {
                 LOGGER.error(t.toString(), t);
             }

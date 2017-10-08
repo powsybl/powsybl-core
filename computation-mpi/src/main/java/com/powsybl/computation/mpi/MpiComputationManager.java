@@ -260,7 +260,7 @@ public class MpiComputationManager implements ComputationManager {
                         throw new RuntimeException(t);
                     }
                     return ctxt;
-                }, executorContext.getBeforeExecutor())
+                }, executorContext.getComputationExecutor())
                 .thenComposeAsync(ctxt -> {
                     if (ctxt.parametersList.isEmpty()) {
                         ctxt.report = new ExecutionReport(Collections.emptyList());
@@ -310,7 +310,7 @@ public class MpiComputationManager implements ComputationManager {
                             return ctxt;
                         });
                     }
-                }, executorContext.getCommandExecutor())
+                }, executorContext.getComputationExecutor())
                 .thenApplyAsync(ctxt -> {
                     try {
                         return handler.after(ctxt.workingDir.toPath(), ctxt.report);
@@ -323,7 +323,7 @@ public class MpiComputationManager implements ComputationManager {
                             throw new UncheckedIOException(e2);
                         }
                     }
-                }, executorContext.getAfterExecutor());
+                }, executorContext.getComputationExecutor());
     }
 
     @Override

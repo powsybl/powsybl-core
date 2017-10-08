@@ -42,15 +42,7 @@ public class MpiExecutorContext {
         return schedulerExecutorService;
     }
 
-    public ExecutorService getBeforeExecutor() {
-        return computationExecutorService;
-    }
-
-    public ExecutorService getCommandExecutor() {
-        return computationExecutorService;
-    }
-
-    public ExecutorService getAfterExecutor() {
+    public ExecutorService getComputationExecutor() {
         return computationExecutorService;
     }
 
