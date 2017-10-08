@@ -48,7 +48,9 @@ public final class CleanableExecutors {
                         getActiveCount(), getCorePoolSize(), getLargestPoolSize(), getMaximumPoolSize());
             }
             if (t != null) {
-                LOGGER.error(t.toString(), t);
+                if (LOGGER.isErrorEnabled()) {
+                    LOGGER.error(t.toString(), t);
+                }
             }
             for (ThreadCleaner cleaner : cleaners) {
                 cleaner.clean();
