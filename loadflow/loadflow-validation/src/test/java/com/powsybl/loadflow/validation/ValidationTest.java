@@ -134,16 +134,16 @@ public class ValidationTest {
 
         looseConfig = new ValidationConfig(0.1f, true, LoadFlowFactoryMock.class, ValidationConfig.TABLE_FORMATTER_FACTORY_DEFAULT,
                                            ValidationConfig.EPSILON_X_DEFAULT, ValidationConfig.APPLY_REACTANCE_CORRECTION_DEFAULT,
-                                           ValidationOutputWriter.CSV_MULTILINE, new LoadFlowParameters());
+                                           ValidationOutputWriter.CSV_MULTILINE, new LoadFlowParameters(), ValidationConfig.OK_MISSING_VALUES_DEFAULT);
         strictConfig = new ValidationConfig(0.01f, false, LoadFlowFactoryMock.class, ValidationConfig.TABLE_FORMATTER_FACTORY_DEFAULT,
                                             ValidationConfig.EPSILON_X_DEFAULT, ValidationConfig.APPLY_REACTANCE_CORRECTION_DEFAULT,
-                                            ValidationOutputWriter.CSV_MULTILINE, new LoadFlowParameters());
+                                            ValidationOutputWriter.CSV_MULTILINE, new LoadFlowParameters(), ValidationConfig.OK_MISSING_VALUES_DEFAULT);
         looseConfigSpecificCompatibility = new ValidationConfig(0.1f, true, LoadFlowFactoryMock.class, ValidationConfig.TABLE_FORMATTER_FACTORY_DEFAULT,
                 ValidationConfig.EPSILON_X_DEFAULT, ValidationConfig.APPLY_REACTANCE_CORRECTION_DEFAULT,
-                ValidationOutputWriter.CSV_MULTILINE, new LoadFlowParameters().setSpecificCompatibility(true));
+                ValidationOutputWriter.CSV_MULTILINE, new LoadFlowParameters().setSpecificCompatibility(true), ValidationConfig.OK_MISSING_VALUES_DEFAULT);
         strictConfigSpecificCompatibility = new ValidationConfig(0.01f, false, LoadFlowFactoryMock.class, ValidationConfig.TABLE_FORMATTER_FACTORY_DEFAULT,
                 ValidationConfig.EPSILON_X_DEFAULT, ValidationConfig.APPLY_REACTANCE_CORRECTION_DEFAULT,
-                ValidationOutputWriter.CSV_MULTILINE, new LoadFlowParameters().setSpecificCompatibility(true));
+                ValidationOutputWriter.CSV_MULTILINE, new LoadFlowParameters().setSpecificCompatibility(true), ValidationConfig.OK_MISSING_VALUES_DEFAULT);
 
 
         Bus genBus = Mockito.mock(Bus.class);
@@ -187,6 +187,12 @@ public class ValidationTest {
 
         assertTrue(Validation.checkFlows("test", r, x, rho1, rho2, u1, u2, theta1, theta2, alpha1, alpha2, g1, g2, b1, b2, p1, q1, p2, q2, looseConfig, NullWriter.NULL_WRITER));
         assertFalse(Validation.checkFlows("test", r, x, rho1, rho2, u1, u2, theta1, theta2, alpha1, alpha2, g1, g2, b1, b2, p1, q1, p2, q2, strictConfig, NullWriter.NULL_WRITER));
+
+        // check with NaN values
+        assertFalse(Validation.checkFlows("test", r, x, Double.NaN, rho2, u1, u2, theta1, theta2, alpha1, alpha2, g1, g2, b1, b2, p1, q1, p2, q2, looseConfig, NullWriter.NULL_WRITER));
+        looseConfig.setOkMissingValues(true);
+        assertTrue(Validation.checkFlows("test", r, x, Double.NaN, rho2, u1, u2, theta1, theta2, alpha1, alpha2, g1, g2, b1, b2, p1, q1, p2, q2, looseConfig, NullWriter.NULL_WRITER));
+        looseConfig.setOkMissingValues(false);
     }
 
     @Test
@@ -252,6 +258,11 @@ public class ValidationTest {
         assertFalse(Validation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, strictConfig, NullWriter.NULL_WRITER));
         p = -39.5056f;
         assertTrue(Validation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, strictConfig, NullWriter.NULL_WRITER));
+        // check with NaN values
+        assertFalse(Validation.checkGenerators("test", p, q, v, Float.NaN, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, strictConfig, NullWriter.NULL_WRITER));
+        strictConfig.setOkMissingValues(true);
+        assertTrue(Validation.checkGenerators("test", p, q, v, Float.NaN, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, strictConfig, NullWriter.NULL_WRITER));
+        strictConfig.setOkMissingValues(false);
 
         //  if voltageRegulatorOn="false" then reactive power should be equal to set point
         voltageRegulatorOn = false;
@@ -259,12 +270,28 @@ public class ValidationTest {
         q = 3.7f;
         assertFalse(Validation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, strictConfig, NullWriter.NULL_WRITER));
         assertTrue(Validation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, looseConfig, NullWriter.NULL_WRITER));
+        // check with NaN values
+        assertFalse(Validation.checkGenerators("test", p, q, v, targetP, Float.NaN, targetV, voltageRegulatorOn, minQ, maxQ, looseConfig, NullWriter.NULL_WRITER));
+        looseConfig.setOkMissingValues(true);
+        assertTrue(Validation.checkGenerators("test", p, q, v, targetP, Float.NaN, targetV, voltageRegulatorOn, minQ, maxQ, looseConfig, NullWriter.NULL_WRITER));
+        looseConfig.setOkMissingValues(false);
 
         // if voltageRegulatorOn="true" then either V at the connected bus is equal to g.getTargetV()
         voltageRegulatorOn = true;
         assertTrue(Validation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, strictConfig, NullWriter.NULL_WRITER));
         v = 400f;
         assertFalse(Validation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, strictConfig, NullWriter.NULL_WRITER));
+
+        // check with NaN values
+        v = 380f;
+        assertFalse(Validation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, Float.NaN, maxQ, strictConfig, NullWriter.NULL_WRITER));
+        assertFalse(Validation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, Float.NaN, strictConfig, NullWriter.NULL_WRITER));
+        assertFalse(Validation.checkGenerators("test", p, q, v, targetP, targetQ, Float.NaN, voltageRegulatorOn, minQ, maxQ, strictConfig, NullWriter.NULL_WRITER));
+        strictConfig.setOkMissingValues(true);
+        assertTrue(Validation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, Float.NaN, maxQ, strictConfig, NullWriter.NULL_WRITER));
+        assertTrue(Validation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, Float.NaN, strictConfig, NullWriter.NULL_WRITER));
+        assertTrue(Validation.checkGenerators("test", p, q, v, targetP, targetQ, Float.NaN, voltageRegulatorOn, minQ, maxQ, strictConfig, NullWriter.NULL_WRITER));
+        strictConfig.setOkMissingValues(false);
 
         // if voltageRegulatorOn="true" then either q is equal to g.getReactiveLimits().getMinQ(p) and v is lower than targetV
         q = 10f;

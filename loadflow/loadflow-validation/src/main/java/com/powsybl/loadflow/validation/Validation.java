@@ -77,24 +77,24 @@ public final class Validation {
             double p2Calc = rho2 * rho1 * u2 * u1 * y * Math.sin(theta2 - theta1 - ksi + alpha2 - alpha1) + rho2 * rho2 * u2 * u2 * (y * Math.sin(ksi) + g2);
             double q2Calc = -rho2 * rho1 * u2 * u1 * y * Math.cos(theta2 - theta1 - ksi + alpha2 - alpha1) + rho2 * rho2 * u2 * u2 * (y * Math.cos(ksi) - b2);
 
-            flowsWriter.write(id, p1, p1Calc, q1, q1Calc, p2, p2Calc, q2, q2Calc, r, x, g1, g2, b1, b2, rho1, rho2, alpha1, alpha2, u1, u2, theta1, theta2, z, y, ksi);
+            if ((Double.isNaN(p1Calc) && !config.areOkMissingValues()) || Math.abs(p1 - p1Calc) > config.getThreshold()) {
+                LOGGER.warn("Flows validation error: " + id + " P1 " + p1 + " " + p1Calc);
+                ok = false;
+            }
+            if ((Double.isNaN(q1Calc) && !config.areOkMissingValues()) || Math.abs(q1 - q1Calc) > config.getThreshold()) {
+                LOGGER.warn("Flows validation error: " + id + " Q1 " + q1 + " " + q1Calc);
+                ok = false;
+            }
+            if ((Double.isNaN(p2Calc) && !config.areOkMissingValues()) || Math.abs(p2 - p2Calc) > config.getThreshold()) {
+                LOGGER.warn("Flows validation error: " + id + " P2 " + p2 + " " + p2Calc);
+                ok = false;
+            }
+            if ((Double.isNaN(q2Calc) && !config.areOkMissingValues()) || Math.abs(q2 - q2Calc) > config.getThreshold()) {
+                LOGGER.warn("Flows validation error: " + id + " Q2 " + q2 + " " + q2Calc);
+                ok = false;
+            }
 
-            if (Math.abs(p1 - p1Calc) > config.getThreshold()) {
-                LOGGER.warn(id + " P1 " + p1 + " " + p1Calc);
-                ok = false;
-            }
-            if (Math.abs(q1 - q1Calc) > config.getThreshold()) {
-                LOGGER.warn(id + " Q1 " + q1 + " " + q1Calc);
-                ok = false;
-            }
-            if (Math.abs(p2 - p2Calc) > config.getThreshold()) {
-                LOGGER.warn(id + " P2 " + p2 + " " + p2Calc);
-                ok = false;
-            }
-            if (Math.abs(q2 - q2Calc) > config.getThreshold()) {
-                LOGGER.warn(id + " Q2 " + q2 + " " + q2Calc);
-                ok = false;
-            }
+            flowsWriter.write(id, p1, p1Calc, q1, q1Calc, p2, p2Calc, q2, q2Calc, r, x, g1, g2, b1, b2, rho1, rho2, alpha1, alpha2, u1, u2, theta1, theta2, z, y, ksi, ok);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -300,14 +300,14 @@ public final class Validation {
         float targetQ = gen.getTargetQ();
         float targetV = gen.getTargetV();
         boolean voltageRegulatorOn = gen.isVoltageRegulatorOn();
-        float minQ = gen.getReactiveLimits().getMinQ(p);
-        float maxQ = gen.getReactiveLimits().getMaxQ(p);
+        float minQ = gen.getReactiveLimits().getMinQ(targetP);
+        float maxQ = gen.getReactiveLimits().getMaxQ(targetP);
         if (bus != null && !Float.isNaN(bus.getV())) {
             float v = bus.getV();
             return checkGenerators(gen.getId(), p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, config, generatorsWriter);
         }
         try {
-            generatorsWriter.write(gen.getId(), p, q, Float.NaN, targetP, targetQ, targetV, gen.getTerminal().isConnected(), voltageRegulatorOn, minQ, maxQ);
+            generatorsWriter.write(gen.getId(), p, q, Float.NaN, targetP, targetQ, targetV, gen.getTerminal().isConnected(), voltageRegulatorOn, minQ, maxQ, true);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -331,38 +331,40 @@ public final class Validation {
                                           boolean voltageRegulatorOn, float minQ, float maxQ, ValidationConfig config, ValidationWriter generatorsWriter) {
         boolean ok = true;
         try {
-            generatorsWriter.write(id, p, q, v, targetP, targetQ, targetV, true, voltageRegulatorOn, minQ, maxQ);
             // a validation error should be detected if there is both a voltage and a target but no p or q
             if (Float.isNaN(p) || Float.isNaN(q)) {
                 if ((!Float.isNaN(targetP) && targetP != 0)
                     || (!Float.isNaN(targetQ) && targetQ != 0)) {
-                    LOGGER.warn(id + ": P=" + p + " targetP=" + targetP + " - Q=" + q + " targetP=" + targetQ);
-                    return false;
+                    LOGGER.warn("Generators validation error: " + id + ": P=" + p + " targetP=" + targetP + " - Q=" + q + " targetP=" + targetQ);
+                    ok = false;
                 } else {
-                    return true;
+                    ok = true;
+                }
+            } else {
+                // active power should be equal to set point
+                if ((Float.isNaN(targetP) && !config.areOkMissingValues()) || Math.abs(p + targetP) > config.getThreshold()) {
+                    LOGGER.warn("Generators validation error: " + id + ": P=" + p + " targetP=" + targetP);
+                    ok = false;
+                }
+                // if voltageRegulatorOn="false" then reactive power should be equal to set point
+                if (!voltageRegulatorOn && ((Float.isNaN(targetQ) && !config.areOkMissingValues()) || Math.abs(q + targetQ) > config.getThreshold())) {
+                    LOGGER.warn("Generators validation error: " + id + ": voltage regulator off - Q=" + q + " targetQ=" + targetQ);
+                    ok = false;
+                }
+                // if voltageRegulatorOn="true" then
+                // either q is equal to g.getReactiveLimits().getMinQ(p) and V is lower than g.getTargetV()
+                // or q is equal to g.getReactiveLimits().getMaxQ(p) and V is higher than g.getTargetV()
+                // or V at the connected bus is equal to g.getTargetV()
+                if (voltageRegulatorOn
+                    && (((Float.isNaN(minQ) || Float.isNaN(maxQ) || Float.isNaN(targetV)) && !config.areOkMissingValues())
+                        || ((Math.abs(q + minQ) > config.getThreshold() || (v - targetV) >= config.getThreshold())
+                            && (Math.abs(q + maxQ) > config.getThreshold() || (targetV - v) >= config.getThreshold())
+                            && Math.abs(v - targetV) > config.getThreshold()))) {
+                    LOGGER.warn("Generators validation error: " + id + ": voltage regulator on - Q=" + q + " minQ=" + minQ + " maxQ=" + maxQ + " - V=" + v + " targetV=" + targetV);
+                    ok = false;
                 }
             }
-            // active power should be equal to set point
-            if (Math.abs(p + targetP) > config.getThreshold()) {
-                LOGGER.warn(id + ": P=" + p + " targetP=" + targetP);
-                ok = false;
-            }
-            // if voltageRegulatorOn="false" then reactive power should be equal to set point
-            if (!voltageRegulatorOn && Math.abs(q + targetQ) > config.getThreshold()) {
-                LOGGER.warn(id + ": voltage regulator off - Q=" + q + " targetQ=" + targetQ);
-                ok = false;
-            }
-            // if voltageRegulatorOn="true" then
-            // either q is equal to g.getReactiveLimits().getMinQ(p) and V is lower than g.getTargetV()
-            // or q is equal to g.getReactiveLimits().getMaxQ(p) and V is higher than g.getTargetV()
-            // or V at the connected bus is equal to g.getTargetV()
-            if (voltageRegulatorOn
-                && (Math.abs(q + minQ) > config.getThreshold() || (v - targetV) >= config.getThreshold())
-                && (Math.abs(q + maxQ) > config.getThreshold() || (targetV - v) >= config.getThreshold())
-                && Math.abs(v - targetV) > config.getThreshold()) {
-                LOGGER.warn(id + ": voltage regulator on - Q=" + q + " minQ=" + minQ + " maxQ=" + maxQ + " - V=" + v + " targetV=" + targetV);
-                ok = false;
-            }
+            generatorsWriter.write(id, p, q, v, targetP, targetQ, targetV, true, voltageRegulatorOn, minQ, maxQ, ok);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

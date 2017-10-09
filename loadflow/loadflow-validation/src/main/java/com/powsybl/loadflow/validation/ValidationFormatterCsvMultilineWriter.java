@@ -49,7 +49,7 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
     @Override
     public void write(String branchId, double p1, double p1Calc, double q1, double q1Calc, double p2, double p2Calc, double q2, double q2Calc,
                       double r, double x, double g1, double g2, double b1, double b2, double rho1, double rho2, double alpha1, double alpha2,
-                      double u1, double u2, double theta1, double theta2, double z, double y, double ksi) throws IOException {
+                      double u1, double u2, double theta1, double theta2, double z, double y, double ksi, boolean ok) throws IOException {
         Objects.requireNonNull(branchId);
         formatter.writeCell(branchId).writeCell("network_p1").writeCell(p1)
                  .writeCell(branchId).writeCell("expected_p1").writeCell(p1Calc)
@@ -76,16 +76,17 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
                      .writeCell(branchId).writeCell("theta2").writeCell(theta2)
                      .writeCell(branchId).writeCell("z").writeCell(z)
                      .writeCell(branchId).writeCell("y").writeCell(y)
-                     .writeCell(branchId).writeCell("ksi").writeCell(ksi);
+                     .writeCell(branchId).writeCell("ksi").writeCell(ksi)
+                     .writeCell(branchId).writeCell("validation").writeCell(ok ? "success" : "fail");
         }
     }
 
     @Override
     public void write(String generatorId, float p, float q, float v, float targetP, float targetQ, float targetV,
-                      boolean connected, boolean voltageRegulatorOn, float minQ, float maxQ) throws IOException {
+                      boolean connected, boolean voltageRegulatorOn, float minQ, float maxQ, boolean ok) throws IOException {
         Objects.requireNonNull(generatorId);
-        formatter.writeCell(generatorId).writeCell("p").writeCell(p)
-                 .writeCell(generatorId).writeCell("q").writeCell(q)
+        formatter.writeCell(generatorId).writeCell("p").writeCell(-p)
+                 .writeCell(generatorId).writeCell("q").writeCell(-q)
                  .writeCell(generatorId).writeCell("v").writeCell(v)
                  .writeCell(generatorId).writeCell("targetP").writeCell(targetP)
                  .writeCell(generatorId).writeCell("targetQ").writeCell(targetQ)
@@ -94,7 +95,8 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
             formatter.writeCell(generatorId).writeCell("connected").writeCell(connected)
                      .writeCell(generatorId).writeCell("voltageRegulatorOn").writeCell(voltageRegulatorOn)
                      .writeCell(generatorId).writeCell("minQ").writeCell(minQ)
-                     .writeCell(generatorId).writeCell("maxQ").writeCell(maxQ);
+                     .writeCell(generatorId).writeCell("maxQ").writeCell(maxQ)
+                     .writeCell(generatorId).writeCell("validation").writeCell(ok ? "success" : "fail");
         }
     }
 
