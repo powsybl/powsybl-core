@@ -19,3 +19,9 @@ action ('anotherAction') {
         closeSwitch('switchId')
     }
 }
+
+action ('fixtap') {
+    tasks {
+        fixPhaseShifterTap('NGEN_NHV1', 1)
+    }
+}

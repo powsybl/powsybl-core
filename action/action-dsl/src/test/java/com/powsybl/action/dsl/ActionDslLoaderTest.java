@@ -9,14 +9,14 @@ package com.powsybl.action.dsl;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyElement;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import groovy.lang.GroovyCodeSource;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
@@ -69,10 +69,52 @@ public class ActionDslLoaderTest {
     }
 
     @Test
+    public void testFixTapDslExtension() {
+        ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/actions2.groovy"))).load(network);
+        Action fixtapAction = actionDb.getAction("fixtap");
+        addPhaseShifter();
+        PhaseTapChanger phaseTapChanger = network.getTwoWindingsTransformer("NGEN_NHV1").getPhaseTapChanger();
+        assertEquals(0, phaseTapChanger.getTapPosition());
+        assertTrue(phaseTapChanger.isRegulating());
+        assertEquals(PhaseTapChanger.RegulationMode.CURRENT_LIMITER, phaseTapChanger.getRegulationMode());
+        fixtapAction.run(network, null);
+        assertEquals(1, phaseTapChanger.getTapPosition());
+        assertEquals(PhaseTapChanger.RegulationMode.FIXED_TAP, phaseTapChanger.getRegulationMode());
+        assertFalse(phaseTapChanger.isRegulating());
+    }
+
+    @Test
     public void testUnvalidate() {
         ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/actions2.groovy"))).load(network);
         Action someAction = actionDb.getAction("someAction");
         exception.expect(ActionDslException.class);
         someAction.run(network, null);
+    }
+
+    private void addPhaseShifter() {
+        network.getTwoWindingsTransformer("NGEN_NHV1").newPhaseTapChanger()
+                .setTapPosition(0)
+                .setLowTapPosition(0)
+                .setRegulating(true)
+                .setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
+                .setRegulationTerminal(network.getTwoWindingsTransformer("NGEN_NHV1").getTerminal2())
+                .setRegulationValue(1.0f)
+                .beginStep()
+                    .setR(1.0f)
+                    .setX(2.0f)
+                    .setG(3.0f)
+                    .setB(4.0f)
+                    .setAlpha(5.0f)
+                    .setRho(6.0f)
+                .endStep()
+                .beginStep()
+                    .setR(1.0f)
+                    .setX(2.0f)
+                    .setG(3.0f)
+                    .setB(4.0f)
+                    .setAlpha(5.0f)
+                    .setRho(6.0f)
+                .endStep()
+                .add();
     }
 }
