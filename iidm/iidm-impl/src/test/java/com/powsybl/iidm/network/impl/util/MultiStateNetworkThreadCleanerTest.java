@@ -6,11 +6,13 @@
  */
 package com.powsybl.iidm.network.impl.util;
 
+import com.powsybl.commons.concurrent.CleanableExecutors;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.StateManager;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.Test;
 
+import java.util.Collections;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -21,7 +23,7 @@ import static org.junit.Assert.fail;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class MultiStateNetworkAwareExecutorsTest {
+public class MultiStateNetworkThreadCleanerTest {
 
     @Test
     public void testAfterExecute() throws Exception {
@@ -29,7 +31,7 @@ public class MultiStateNetworkAwareExecutorsTest {
         StateManager manager = network.getStateManager();
         manager.allowStateMultiThreadAccess(true);
         assertTrue(manager.getWorkingStateId().equals(StateManager.INITIAL_STATE_ID));
-        ExecutorService service = MultiStateNetworkAwareExecutors.newFixedThreadPool(1);
+        ExecutorService service = CleanableExecutors.newFixedThreadPool("TEST_POOL", 1, Collections.singleton(new MultiStateNetworkThreadCleaner()));
         Thread[] threads = new Thread[1];
         service.submit(() -> {
             manager.setWorkingState(StateManager.INITIAL_STATE_ID);
