@@ -11,12 +11,27 @@ import com.powsybl.afs.AppFileSystem;
 import com.powsybl.afs.FileExtension;
 import com.powsybl.afs.storage.AppFileSystemStorage;
 import com.powsybl.afs.storage.NodeId;
+import com.powsybl.iidm.import_.ImportersLoader;
+import com.powsybl.iidm.import_.ImportersServiceLoader;
+
+import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @AutoService(FileExtension.class)
 public class CaseExtension implements FileExtension {
+
+    private final ImportersLoader importersLoader;
+
+    public CaseExtension() {
+        this(new ImportersServiceLoader());
+    }
+
+    public CaseExtension(ImportersLoader importersLoader) {
+        this.importersLoader = Objects.requireNonNull(importersLoader);
+    }
+
     @Override
     public Class<Case> getFileClass() {
         return Case.class;
@@ -29,6 +44,6 @@ public class CaseExtension implements FileExtension {
 
     @Override
     public Case createFile(NodeId id, AppFileSystemStorage storage, AppFileSystem fileSystem) {
-        return new Case(id, storage, fileSystem);
+        return new Case(id, storage, fileSystem, importersLoader);
     }
 }
