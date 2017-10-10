@@ -69,7 +69,7 @@ public class LoadFlowBasedPhaseShifterOptimizer implements PhaseShifterOptimizer
             throw new RuntimeException("Transformer '" + phaseShifterId + "' is not a phase shifter");
         }
 
-        Integer optimalTap = null;
+        int optimalTap;
 
         // fromNode a temporary state that will be used to move the phase shifter tap without changing the current state
         String stateId = network.getStateManager().getWorkingStateId();
