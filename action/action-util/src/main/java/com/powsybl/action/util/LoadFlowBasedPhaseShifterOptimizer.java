@@ -69,7 +69,7 @@ public class LoadFlowBasedPhaseShifterOptimizer implements PhaseShifterOptimizer
             throw new RuntimeException("Transformer '" + phaseShifterId + "' is not a phase shifter");
         }
 
-        int optimalTap;
+        Integer optimalTap = null;
 
         // fromNode a temporary state that will be used to move the phase shifter tap without changing the current state
         String stateId = network.getStateManager().getWorkingStateId();
@@ -84,41 +84,77 @@ public class LoadFlowBasedPhaseShifterOptimizer implements PhaseShifterOptimizer
                 throw new RuntimeException("Phase shifter already overloaded");
             }
             int tapPosInc = 1; // start by incrementing tap +1
-            float i;
+            float i = getI(phaseShifter);
             float limit = getLimit(phaseShifter);
             int tapPos = phaseShifter.getPhaseTapChanger().getTapPosition();
             int maxTap = phaseShifter.getPhaseTapChanger().getHighTapPosition();
+            int minTap = phaseShifter.getPhaseTapChanger().getLowTapPosition();
+            int topTap = maxTap;
+            int btmTap = minTap;
 
-            // increment tap until going above permanent limit
-            while ((i = getI(phaseShifter)) < limit && tapPos < maxTap) {
-                // increment tap
-                tapPos += tapPosInc;
-                phaseShifter.getPhaseTapChanger().setTapPosition(tapPos);
-
-                // run load flow
-                runLoadFlow(loadFlow);
-
-                // wrong direction, negate the increment
-                if (getI(phaseShifter) < i) {
-                    // we don't go in the right direction
-                    tapPosInc *= -1;
-                }
+            phaseShifter.getPhaseTapChanger().setTapPosition(maxTap);
+            runLoadFlow(loadFlow);
+            float iMax = getI(phaseShifter);
+            phaseShifter.getPhaseTapChanger().setTapPosition(minTap);
+            runLoadFlow(loadFlow);
+            float iMin = getI(phaseShifter);
+            float direction = iMax > i ? 1.0f : -1.0f;
+            if (direction < 0) {
+                float itmp = iMin;
+                iMin = iMax;
+                iMax = itmp;
+                int ttmp = minTap;
+                minTap = maxTap;
+                maxTap = ttmp;
             }
 
-            if (i < limit) {
-                // we reached the maximal (ou minimal) tap and phase shifter is not overloaded
-                optimalTap = phaseShifter.getPhaseTapChanger().getTapPosition();
-            } else {
-                // with the last tap, phase shifter is overloaded, in that case we take the previous tap as the optimmal one
-                optimalTap = phaseShifter.getPhaseTapChanger().getTapPosition() - tapPosInc;
-                phaseShifter.getPhaseTapChanger().setTapPosition(optimalTap);
-
-                // just to be sure, check that with the previous tap, phase shifter is not overloaded...
-                runLoadFlow(loadFlow);
-                // check there phase shifter is not overloaded
-                if (getI(phaseShifter) >= limit) {
-                    throw new AssertionError("Phase shifter should not be overload");
+            if ((iMax - limit) * (iMin - limit) < 0) {
+                // we can find a optimal tap
+                optimalTap = tapPos;
+                if (direction > 0) {
+                    btmTap = tapPos;
+                } else {
+                    topTap = tapPos;
                 }
+                iMin = i;
+                do {
+                    float ratio = (limit - i) / (iMax - iMin);
+                    tapPosInc = (direction > 0) ? (int) (ratio * (topTap - tapPos)) : (int) (ratio * (tapPos - btmTap));
+                    if (tapPosInc == 0) {
+                        // move one step at least
+                        tapPosInc = ratio > 0 ? 1 : -1;
+                    }
+                    tapPosInc = (int) direction * tapPosInc;
+
+                    tapPos += tapPosInc;
+                    phaseShifter.getPhaseTapChanger().setTapPosition(tapPos);
+                    runLoadFlow(loadFlow);
+                    i = getI(phaseShifter);
+
+                    if (i >= limit) {
+                        if (direction > 0) {
+                            topTap = tapPos;
+                        } else {
+                            btmTap = tapPos;
+                        }
+                        iMax = i;
+                    } else {
+                        if (direction > 0) {
+                            btmTap = optimalTap;
+                        } else {
+                            topTap = optimalTap;
+                        }
+                        optimalTap = tapPos;
+                        iMax = i;
+                    }
+                } while (topTap - btmTap > 1);
+            } else if (iMax == limit) {
+                optimalTap = maxTap - 1;
+            } else if (iMin == limit) {
+                optimalTap = minTap + 1;
+            } else {
+                // all the tap under limit
+                optimalTap = iMax > iMin ? maxTap : minTap;
             }
         } catch (IllegalAccessException e) {
             throw new UncheckedIllegalAccessException(e);

@@ -64,7 +64,7 @@ public class LoadFlowBasedPhaseShifterOptimizerTest {
                 @Override
                 public boolean isOk() {
                     int tapPos = network.getTwoWindingsTransformer("CI").getPhaseTapChanger().getTapPosition();
-
+                    PhaseTapChanger phaseTapChanger = network.getTwoWindingsTransformer("CI").getPhaseTapChanger();
                     Terminal terminal = network.getTwoWindingsTransformer("CI").getTerminal1();
                     terminal.setQ(10.f);
                     Float activeP;
@@ -119,7 +119,42 @@ public class LoadFlowBasedPhaseShifterOptimizerTest {
             assertNotNull(phaseTapChanger);
             LoadFlowBasedPhaseShifterOptimizer optimizer = new LoadFlowBasedPhaseShifterOptimizer(new LocalComputationManager(), config);
             assertEquals(22, phaseTapChanger.getTapPosition());
-
+            /**
+             tap:0    P:0,000000    I:24,630026
+             tap:1    P:15,000000    I:44,402412
+             tap:2    P:30,000000    I:77,886978
+             tap:3    P:45,000000    I:113,538811
+             tap:4    P:60,000000    I:149,818604
+             tap:5    P:75,000000    I:186,359970
+             tap:6    P:90,000000    I:223,034378
+             tap:7    P:105,000000    I:259,785492
+             tap:8    P:120,000000    I:296,584778
+             tap:9    P:135,000000    I:333,416321
+             tap:10    P:150,000000    I:370,270477
+             tap:11    P:165,000000    I:407,141113
+             tap:12    P:180,000000    I:444,024109
+             tap:13    P:195,000000    I:480,916626
+             tap:14    P:210,000000    I:517,816650
+             tap:15    P:225,000000    I:554,722656
+             tap:16    P:240,000000    I:591,633545
+             tap:17    P:255,000000    I:628,548401
+             tap:18    P:270,000000    I:665,466675
+             tap:19    P:285,000000    I:702,387695
+             tap:20    P:300,000000    I:739,311157
+             tap:21    P:315,000000    I:776,236694
+             tap:22    P:330,000000    I:813,163940
+             tap:23    P:345,000000    I:850,092773
+             tap:24    P:360,000000    I:887,022949
+             tap:25    P:375,000000    I:923,954346
+             -------------------------------------- Limit:931.0f
+             tap:26    P:390,000000    I:960,886719
+             tap:27    P:405,000000    I:997,820068
+             tap:28    P:420,000000    I:1034,754272
+             tap:29    P:435,000000    I:1071,689209
+             tap:30    P:450,000000    I:1108,624756
+             tap:31    P:465,000000    I:1145,561035
+             tap:32    P:480,000000    I:1182,497803
+             */
             optimizer.findMaximalFlowTap(network, phaseShifterId);
             assertEquals(25, phaseTapChanger.getTapPosition());
             // overloaded already
@@ -131,8 +166,60 @@ public class LoadFlowBasedPhaseShifterOptimizerTest {
             }
             twoWindingsTransformerCI.getCurrentLimits1().setPermanentLimit(123456.0f);
             optimizer.findMaximalFlowTap(network, phaseShifterId);
-            assertEquals(32, phaseTapChanger.getTapPosition());
+            assertEquals(phaseTapChanger.getHighTapPosition(), phaseTapChanger.getTapPosition());
 
+
+            // reverse order (tap bigger current smaller)
+            /**
+             tap:0    P:510,000000    I:1256,372803
+             tap:1    P:495,000000    I:1219,435059
+             tap:2    P:480,000000    I:1182,497803
+             tap:3    P:465,000000    I:1145,561035
+             tap:4    P:450,000000    I:1108,624756
+             tap:5    P:435,000000    I:1071,689209
+             tap:6    P:420,000000    I:1034,754272
+             tap:7    P:405,000000    I:997,820068
+             tap:8    P:390,000000    I:960,886719
+             -------------------------------------- Limit:931.0f
+             tap:9    P:375,000000    I:923,954346
+             tap:10    P:360,000000    I:887,022949
+             tap:11    P:345,000000    I:850,092773
+             tap:12    P:330,000000    I:813,163940
+             tap:13    P:315,000000    I:776,236694
+             tap:14    P:300,000000    I:739,311157
+             tap:15    P:285,000000    I:702,387695
+             tap:16    P:270,000000    I:665,466675
+             tap:17    P:255,000000    I:628,548401
+             tap:18    P:240,000000    I:591,633545
+             tap:19    P:225,000000    I:554,722656
+             tap:20    P:210,000000    I:517,816650
+             tap:21    P:195,000000    I:480,916626
+             tap:22    P:180,000000    I:444,024109
+             tap:23    P:165,000000    I:407,141113
+             tap:24    P:150,000000    I:370,270477
+             tap:25    P:135,000000    I:333,416321
+             tap:26    P:120,000000    I:296,584778
+             tap:27    P:105,000000    I:259,785492
+             tap:28    P:90,000000    I:223,034378
+             tap:29    P:75,000000    I:186,359970
+             tap:30    P:60,000000    I:149,818604
+             tap:31    P:45,000000    I:113,538811
+             tap:32    P:30,000000    I:77,886978
+             */
+            network.setCaseDate(dateTime);
+            twoWindingsTransformerCI.getCurrentLimits1().setPermanentLimit(123456.0f);
+            optimizer.findMaximalFlowTap(network, phaseShifterId);
+            assertEquals(phaseTapChanger.getLowTapPosition(), phaseTapChanger.getTapPosition());
+            twoWindingsTransformerCI.getCurrentLimits1().setPermanentLimit(931.0f);
+            // overloaded already
+            try {
+                optimizer.findMaximalFlowTap(network, phaseShifterId);
+                fail();
+            } catch (Exception ignored) {
+            }
+            phaseTapChanger.setTapPosition(30);
+            optimizer.findMaximalFlowTap(network, phaseShifterId);
+            assertEquals(9, phaseTapChanger.getTapPosition());
         }
     }
 
