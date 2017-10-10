@@ -6,13 +6,11 @@
  */
 package com.powsybl.scripting;
 
-import com.powsybl.commons.config.ComponentDefaultConfig;
 import com.powsybl.tools.AbstractToolTest;
 import com.powsybl.tools.CommandLineTools;
 import com.powsybl.tools.Tool;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import java.util.Collections;
 
@@ -21,15 +19,12 @@ import java.util.Collections;
  */
 public class RunScriptToolTest extends AbstractToolTest {
 
-    private ComponentDefaultConfig componentDefaultConfig;
-
     private RunScriptTool tool;
 
     @Override
     @Before
     public void setUp() throws Exception {
-        componentDefaultConfig = Mockito.mock(ComponentDefaultConfig.class);
-        tool = new RunScriptTool(componentDefaultConfig, Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+        tool = new RunScriptTool(Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
         super.setUp();
     }
 

@@ -28,7 +28,6 @@
         <module>computation</module>
         <module>computation-local</module>
         <module>computation-mpi</module>
-        <module>computation-mpi-util</module>
         <module>contingency-api</module>
         <module>distribution-core</module>
         <module>entsoe-util</module>

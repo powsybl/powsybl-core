@@ -134,8 +134,9 @@ public class LocalComputationManager implements ComputationManager {
         Objects.requireNonNull(env);
         Objects.requireNonNull(workingDirPrefix);
 
-        WorkingDirectory workingDir = new WorkingDirectory(config.getLocalDir(), workingDirPrefix, debug);
         return new CommandExecutor() {
+            private final WorkingDirectory workingDir = new WorkingDirectory(config.getLocalDir(), workingDirPrefix, debug);
+
             @Override
             public Path getWorkingDir() {
                 return workingDir.toPath();
@@ -148,7 +149,7 @@ public class LocalComputationManager implements ComputationManager {
                     if (listener != null) {
                         listener.onExecutionStart(0, execution.getExecutionCount() - 1);
                     }
-                    ExecutionReport report = execute(workingDir.toPath(), Arrays.asList(execution), env, (execution1, executionIndex) -> {
+                    ExecutionReport report = execute(workingDir.toPath(), Collections.singletonList(execution), env, (execution1, executionIndex) -> {
                         if (listener != null) {
                             listener.onExecutionCompletion(executionIndex);
                         }
@@ -165,7 +166,7 @@ public class LocalComputationManager implements ComputationManager {
             public ExecutionReport start(CommandExecution execution) throws Exception {
                 enter();
                 try {
-                    return execute(workingDir.toPath(), Arrays.asList(execution), env, null);
+                    return execute(workingDir.toPath(), Collections.singletonList(execution), env, null);
                 } finally {
                     exit();
                 }

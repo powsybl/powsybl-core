@@ -151,6 +151,7 @@ public class SimulationDetailedParameters {
                                 parameters.getContingencies().put(contingency.getId(), contingency);
                                 break;
                             case "branch":
+                                Objects.requireNonNull(contingency);
                                 Branch branch = new Branch(xmlsr.getAttributeValue(null, "id"),
                                                            parseDoubleIfNotNull(xmlsr.getAttributeValue(null, "shortCircuitDuration")),
                                                            parseDoubleIfNotNull(xmlsr.getAttributeValue(null, "shortCircuitDistance")),
@@ -158,6 +159,7 @@ public class SimulationDetailedParameters {
                                 contingency.getBranches().put(branch.getId(), branch);
                                 break;
                             case "generator":
+                                Objects.requireNonNull(contingency);
                                 Generator generator = new Generator(xmlsr.getAttributeValue(null, "id"),
                                                                     parseDoubleIfNotNull(xmlsr.getAttributeValue(null, "shortCircuitDuration")));
                                 contingency.getGenerators().put(generator.getId(), generator);
