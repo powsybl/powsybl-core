@@ -32,6 +32,7 @@ import com.powsybl.iidm.network.TwoWindingsTransformer;
 public final class Validation {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Validation.class);
+    private static final String VALIDATION_ERROR = "validation error";
 
     private Validation() {
     }
@@ -62,7 +63,7 @@ public final class Validation {
     public static boolean checkFlows(String id, double r, double x, double rho1, double rho2, double u1, double u2, double theta1, double theta2, double alpha1,
                                       double alpha2, double g1, double g2, double b1, double b2, float p1, float q1, float p2, float q2, ValidationConfig config,
                                       ValidationWriter flowsWriter) {
-        boolean ok = true;
+        boolean validated = true;
         try {
             double fixedX = x;
             if (Math.abs(fixedX) < config.getEpsilonX() && config.applyReactanceCorrection()) {
@@ -78,27 +79,27 @@ public final class Validation {
             double q2Calc = -rho2 * rho1 * u2 * u1 * y * Math.cos(theta2 - theta1 - ksi + alpha2 - alpha1) + rho2 * rho2 * u2 * u2 * (y * Math.cos(ksi) - b2);
 
             if ((Double.isNaN(p1Calc) && !config.areOkMissingValues()) || Math.abs(p1 - p1Calc) > config.getThreshold()) {
-                LOGGER.warn("Flows validation error: " + id + " P1 " + p1 + " " + p1Calc);
-                ok = false;
+                LOGGER.warn(ValidationType.FLOWS + " " + VALIDATION_ERROR + ": " + id + " P1 " + p1 + " " + p1Calc);
+                validated = false;
             }
             if ((Double.isNaN(q1Calc) && !config.areOkMissingValues()) || Math.abs(q1 - q1Calc) > config.getThreshold()) {
-                LOGGER.warn("Flows validation error: " + id + " Q1 " + q1 + " " + q1Calc);
-                ok = false;
+                LOGGER.warn(ValidationType.FLOWS + " " + VALIDATION_ERROR + ": " + id + " Q1 " + q1 + " " + q1Calc);
+                validated = false;
             }
             if ((Double.isNaN(p2Calc) && !config.areOkMissingValues()) || Math.abs(p2 - p2Calc) > config.getThreshold()) {
-                LOGGER.warn("Flows validation error: " + id + " P2 " + p2 + " " + p2Calc);
-                ok = false;
+                LOGGER.warn(ValidationType.FLOWS + " " + VALIDATION_ERROR + ": " + id + " P2 " + p2 + " " + p2Calc);
+                validated = false;
             }
             if ((Double.isNaN(q2Calc) && !config.areOkMissingValues()) || Math.abs(q2 - q2Calc) > config.getThreshold()) {
-                LOGGER.warn("Flows validation error: " + id + " Q2 " + q2 + " " + q2Calc);
-                ok = false;
+                LOGGER.warn(ValidationType.FLOWS + " " + VALIDATION_ERROR + ": " + id + " Q2 " + q2 + " " + q2Calc);
+                validated = false;
             }
 
-            flowsWriter.write(id, p1, p1Calc, q1, q1Calc, p2, p2Calc, q2, q2Calc, r, x, g1, g2, b1, b2, rho1, rho2, alpha1, alpha2, u1, u2, theta1, theta2, z, y, ksi, ok);
+            flowsWriter.write(id, p1, p1Calc, q1, q1Calc, p2, p2Calc, q2, q2Calc, r, x, g1, g2, b1, b2, rho1, rho2, alpha1, alpha2, u1, u2, theta1, theta2, z, y, ksi, validated);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-        return ok;
+        return validated;
     }
 
     public static boolean checkFlows(Line l, ValidationConfig config, Writer writer) {
@@ -237,17 +238,17 @@ public final class Validation {
     public static boolean checkFlows(Network network, ValidationConfig config, ValidationWriter flowsWriter) {
         LOGGER.info("Checking flows of network {}", network.getId());
 
-        boolean linesOk = network.getLineStream()
+        boolean linesValidated = network.getLineStream()
                 .sorted(Comparator.comparing(Line::getId))
                 .map(l -> checkFlows(l, config, flowsWriter))
                 .reduce(Boolean::logicalAnd).orElse(true);
 
-        boolean transformersOk = network.getTwoWindingsTransformerStream()
+        boolean transformersValidated = network.getTwoWindingsTransformerStream()
                 .sorted(Comparator.comparing(TwoWindingsTransformer::getId))
                 .map(t -> checkFlows(t, config, flowsWriter))
                 .reduce(Boolean::logicalAnd).orElse(true);
 
-        return linesOk && transformersOk;
+        return linesValidated && transformersValidated;
     }
 
     public static boolean checkGenerators(Network network, ValidationConfig config, Path file) throws IOException {
@@ -270,11 +271,11 @@ public final class Validation {
 
     public static boolean checkGenerators(Network network, ValidationConfig config, ValidationWriter generatorsWriter) {
         LOGGER.info("Checking generators of network {}", network.getId());
-        boolean generatorsOk = network.getGeneratorStream()
+        boolean generatorsValidated = network.getGeneratorStream()
                 .sorted(Comparator.comparing(Generator::getId))
                 .map(gen -> checkGenerators(gen, config, generatorsWriter))
                 .reduce(Boolean::logicalAnd).orElse(true);
-        return generatorsOk;
+        return generatorsValidated;
     }
 
     public static boolean checkGenerators(Generator gen, ValidationConfig config, Writer writer) {
@@ -329,27 +330,27 @@ public final class Validation {
 
     public static boolean checkGenerators(String id, float p, float q, float v, float targetP, float targetQ, float targetV,
                                           boolean voltageRegulatorOn, float minQ, float maxQ, ValidationConfig config, ValidationWriter generatorsWriter) {
-        boolean ok = true;
+        boolean validated = true;
         try {
             // a validation error should be detected if there is both a voltage and a target but no p or q
             if (Float.isNaN(p) || Float.isNaN(q)) {
                 if ((!Float.isNaN(targetP) && targetP != 0)
                     || (!Float.isNaN(targetQ) && targetQ != 0)) {
-                    LOGGER.warn("Generators validation error: " + id + ": P=" + p + " targetP=" + targetP + " - Q=" + q + " targetP=" + targetQ);
-                    ok = false;
+                    LOGGER.warn(ValidationType.GENERATORS + " " + VALIDATION_ERROR + ": " + id + ": P=" + p + " targetP=" + targetP + " - Q=" + q + " targetQ=" + targetQ);
+                    validated = false;
                 } else {
-                    ok = true;
+                    validated = true;
                 }
             } else {
                 // active power should be equal to set point
                 if ((Float.isNaN(targetP) && !config.areOkMissingValues()) || Math.abs(p + targetP) > config.getThreshold()) {
-                    LOGGER.warn("Generators validation error: " + id + ": P=" + p + " targetP=" + targetP);
-                    ok = false;
+                    LOGGER.warn(ValidationType.GENERATORS + " " + VALIDATION_ERROR + ": " + id + ": P=" + p + " targetP=" + targetP);
+                    validated = false;
                 }
                 // if voltageRegulatorOn="false" then reactive power should be equal to set point
                 if (!voltageRegulatorOn && ((Float.isNaN(targetQ) && !config.areOkMissingValues()) || Math.abs(q + targetQ) > config.getThreshold())) {
-                    LOGGER.warn("Generators validation error: " + id + ": voltage regulator off - Q=" + q + " targetQ=" + targetQ);
-                    ok = false;
+                    LOGGER.warn(ValidationType.GENERATORS + " " + VALIDATION_ERROR + ": " + id + ": voltage regulator off - Q=" + q + " targetQ=" + targetQ);
+                    validated = false;
                 }
                 // if voltageRegulatorOn="true" then
                 // either q is equal to g.getReactiveLimits().getMinQ(p) and V is lower than g.getTargetV()
@@ -360,15 +361,15 @@ public final class Validation {
                         || ((Math.abs(q + minQ) > config.getThreshold() || (v - targetV) >= config.getThreshold())
                             && (Math.abs(q + maxQ) > config.getThreshold() || (targetV - v) >= config.getThreshold())
                             && Math.abs(v - targetV) > config.getThreshold()))) {
-                    LOGGER.warn("Generators validation error: " + id + ": voltage regulator on - Q=" + q + " minQ=" + minQ + " maxQ=" + maxQ + " - V=" + v + " targetV=" + targetV);
-                    ok = false;
+                    LOGGER.warn(ValidationType.GENERATORS + " " + VALIDATION_ERROR + ": " + id + ": voltage regulator on - Q=" + q + " minQ=" + minQ + " maxQ=" + maxQ + " - V=" + v + " targetV=" + targetV);
+                    validated = false;
                 }
             }
-            generatorsWriter.write(id, p, q, v, targetP, targetQ, targetV, true, voltageRegulatorOn, minQ, maxQ, ok);
+            generatorsWriter.write(id, p, q, v, targetP, targetQ, targetV, true, voltageRegulatorOn, minQ, maxQ, validated);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-        return ok;
+        return validated;
     }
 
 }
