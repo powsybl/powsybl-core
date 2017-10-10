@@ -83,6 +83,9 @@ public class XmlPlatformConfigTest {
             assertNull(modConfig.getOptinalBooleanProperty("b2"));
             assertFalse(modConfig.getOptionalBooleanProperty("b2").isPresent());
             assertTrue(modConfig.getBooleanProperty("b2", true));
+            assertFalse(modConfig.getOptionalFloatProperty("f").isPresent());
+            assertEquals(1.5f, modConfig.getFloatProperty("f", 1.5f), 0d);
+            assertEquals(2.3f, modConfig.getFloatProperty("d"), 0d);
             assertEquals(2.3d, modConfig.getDoubleProperty("d"), 0d);
             try {
                 modConfig.getDoubleProperty("d2");
