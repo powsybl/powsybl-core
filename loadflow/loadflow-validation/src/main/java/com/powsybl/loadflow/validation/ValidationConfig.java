@@ -28,6 +28,7 @@ public class ValidationConfig {
     public static final float EPSILON_X_DEFAULT = 0.1f;
     public static final boolean APPLY_REACTANCE_CORRECTION_DEFAULT = false;
     public static final ValidationOutputWriter VALIDATION_OUTPUT_WRITER_DEFAULT = ValidationOutputWriter.CSV_MULTILINE;
+    public static final boolean OK_MISSING_VALUES_DEFAULT = false;
 
     private float threshold;
     private boolean verbose;
@@ -37,6 +38,8 @@ public class ValidationConfig {
     private boolean applyReactanceCorrection;
     private ValidationOutputWriter validationOutputWriter;
     private LoadFlowParameters loadFlowParameters;
+    private boolean okMissingValues;
+
     public static ValidationConfig load() {
         return load(PlatformConfig.defaultConfig());
     }
@@ -50,6 +53,7 @@ public class ValidationConfig {
         float epsilonX = EPSILON_X_DEFAULT;
         boolean applyReactanceCorrection = APPLY_REACTANCE_CORRECTION_DEFAULT;
         ValidationOutputWriter validationOutputWriter = VALIDATION_OUTPUT_WRITER_DEFAULT;
+        boolean okMissingValues = OK_MISSING_VALUES_DEFAULT;
         LoadFlowParameters loadFlowParameter = LoadFlowParameters.load();
         if (platformConfig.moduleExists("loadflow-validation")) {
             ModuleConfig config = platformConfig.getModuleConfig("loadflow-validation");
@@ -62,13 +66,16 @@ public class ValidationConfig {
             epsilonX = config.getFloatProperty("epsilon-x", EPSILON_X_DEFAULT);
             applyReactanceCorrection = config.getBooleanProperty("apply-reactance-correction", APPLY_REACTANCE_CORRECTION_DEFAULT);
             validationOutputWriter = config.getEnumProperty("output-writer", ValidationOutputWriter.class, VALIDATION_OUTPUT_WRITER_DEFAULT);
+            okMissingValues = config.getBooleanProperty("ok-missing-values", OK_MISSING_VALUES_DEFAULT);
         }
-        return new ValidationConfig(threshold, verbose, loadFlowFactory, tableFormatterFactory, epsilonX, applyReactanceCorrection, validationOutputWriter, loadFlowParameter);
+        return new ValidationConfig(threshold, verbose, loadFlowFactory, tableFormatterFactory, epsilonX, applyReactanceCorrection, validationOutputWriter, loadFlowParameter,
+                                    okMissingValues);
     }
 
     public ValidationConfig(float threshold, boolean verbose, Class<? extends LoadFlowFactory> loadFlowFactory,
                             Class<? extends TableFormatterFactory> tableFormatterFactory, float epsilonX,
-                            boolean applyReactanceCorrection, ValidationOutputWriter validationOutputWriter, LoadFlowParameters loadFlowParameters) {
+                            boolean applyReactanceCorrection, ValidationOutputWriter validationOutputWriter, LoadFlowParameters loadFlowParameters,
+                            boolean okMissingValues) {
         if (threshold < 0) {
             throw new IllegalArgumentException("Negative values for threshold not permitted");
         }
@@ -83,6 +90,7 @@ public class ValidationConfig {
         this.applyReactanceCorrection = applyReactanceCorrection;
         this.validationOutputWriter = Objects.requireNonNull(validationOutputWriter);
         this.loadFlowParameters = Objects.requireNonNull(loadFlowParameters);
+        this.okMissingValues = okMissingValues;
     }
 
     public float getThreshold() {
@@ -117,6 +125,10 @@ public class ValidationConfig {
         return loadFlowParameters;
     }
 
+    public boolean areOkMissingValues() {
+        return okMissingValues;
+    }
+
     public void setThreshold(float threshold) {
         this.threshold = threshold;
     }
@@ -149,6 +161,10 @@ public class ValidationConfig {
         this.loadFlowParameters = Objects.requireNonNull(loadFlowParameters);
     }
 
+    public void setOkMissingValues(boolean okMissingValues) {
+        this.okMissingValues = okMissingValues;
+    }
+
     @Override
     public String toString() {
         return getClass().getSimpleName() + " [" +
@@ -160,6 +176,7 @@ public class ValidationConfig {
                 ", applyReactanceCorrection=" + applyReactanceCorrection +
                 ", validationOutputWriter=" + validationOutputWriter +
                 ", loadFlowParameters=" + loadFlowParameters +
+                ", okMissingValues=" + okMissingValues +
                 "]";
     }
 }
