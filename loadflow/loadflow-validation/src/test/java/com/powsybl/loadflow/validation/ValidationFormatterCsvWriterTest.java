@@ -83,7 +83,7 @@ public class ValidationFormatterCsvWriterTest {
                                           "test " + ValidationType.FLOWS + " check",
                                           String.join(";", "id", "network_p1", "expected_p1", "network_q1", "expected_q1", "network_p2", "expected_p2",
                                                       "network_q2", "expected_q2", "r", "x", "g1", "g2", "b1", "b2", "rho1", "rho2", "alpha1", "alpha2",
-                                                      "u1", "u2", "theta1", "theta2", "z", "y", "ksi"),
+                                                      "u1", "u2", "theta1", "theta2", "z", "y", "ksi", "validation"),
                                           String.join(";", branchId,
                                                       String.format(Locale.getDefault(), "%g", p1), String.format(Locale.getDefault(), "%g", p1Calc),
                                                       String.format(Locale.getDefault(), "%g", q1), String.format(Locale.getDefault(), "%g", q1Calc),
@@ -97,7 +97,7 @@ public class ValidationFormatterCsvWriterTest {
                                                       String.format(Locale.getDefault(), "%g", u1), String.format(Locale.getDefault(), "%g", u2),
                                                       String.format(Locale.getDefault(), "%g", theta1), String.format(Locale.getDefault(), "%g", theta2),
                                                       String.format(Locale.getDefault(), "%g", z), String.format(Locale.getDefault(), "%g", y),
-                                                      String.format(Locale.getDefault(), "%g", ksi)));
+                                                      String.format(Locale.getDefault(), "%g", ksi), "success"));
         testFlows(flowsContent, true);
     }
 
@@ -106,7 +106,7 @@ public class ValidationFormatterCsvWriterTest {
         TableFormatterConfig config = new TableFormatterConfig(Locale.getDefault(), ';', "inv", true, true);
         try (ValidationWriter flowsWriter = new ValidationFormatterCsvWriter("test", CsvTableFormatterFactory.class, config, writer, verbose, ValidationType.FLOWS)) {
             flowsWriter.write(branchId, p1, p1Calc, q1, q1Calc, p2, p2Calc, q2, q2Calc, r, x, g1, g2, b1, b2, rho1, rho2,
-                              alpha1, alpha2, u1, u2, theta1, theta2, z, y, ksi);
+                              alpha1, alpha2, u1, u2, theta1, theta2, z, y, ksi, true);
             assertEquals(flowsContent, writer.toString().trim());
         }
     }
@@ -117,7 +117,7 @@ public class ValidationFormatterCsvWriterTest {
                                                "test " + ValidationType.GENERATORS + " check",
                                                String.join(";", "id", "p", "q", "v", "targetP", "targetQ", "targetV"),
                                                String.join(";", generatorId,
-                                                           String.format(Locale.getDefault(), "%g", p), String.format(Locale.getDefault(), "%g", q),
+                                                           String.format(Locale.getDefault(), "%g", -p), String.format(Locale.getDefault(), "%g", -q),
                                                            String.format(Locale.getDefault(), "%g", v), String.format(Locale.getDefault(), "%g", targetP),
                                                            String.format(Locale.getDefault(), "%g", targetQ), String.format(Locale.getDefault(), "%g", targetV)));
         testGenerators(generatorsContent, false);
@@ -127,13 +127,13 @@ public class ValidationFormatterCsvWriterTest {
     public void testGeneratorsVerbose() throws Exception {
         String generatorsContent = String.join(System.lineSeparator(),
                                                "test " + ValidationType.GENERATORS + " check",
-                                               String.join(";", "id", "p", "q", "v", "targetP", "targetQ", "targetV", "connected", "voltageRegulatorOn", "minQ", "maxQ"),
+                                               String.join(";", "id", "p", "q", "v", "targetP", "targetQ", "targetV", "connected", "voltageRegulatorOn", "minQ", "maxQ", "validation"),
                                                String.join(";", generatorId,
-                                                           String.format(Locale.getDefault(), "%g", p), String.format(Locale.getDefault(), "%g", q),
+                                                           String.format(Locale.getDefault(), "%g", -p), String.format(Locale.getDefault(), "%g", -q),
                                                            String.format(Locale.getDefault(), "%g", v), String.format(Locale.getDefault(), "%g", targetP),
                                                            String.format(Locale.getDefault(), "%g", targetQ), String.format(Locale.getDefault(), "%g", targetV),
                                                            Boolean.toString(connected), Boolean.toString(voltageRegulatorOn),
-                                                           String.format(Locale.getDefault(), "%g", minQ), String.format(Locale.getDefault(), "%g", maxQ)));
+                                                           String.format(Locale.getDefault(), "%g", minQ), String.format(Locale.getDefault(), "%g", maxQ), "success"));
         testGenerators(generatorsContent, true);
     }
 
@@ -141,7 +141,7 @@ public class ValidationFormatterCsvWriterTest {
         Writer writer = new StringWriter();
         TableFormatterConfig config = new TableFormatterConfig(Locale.getDefault(), ';', "inv", true, true);
         try (ValidationWriter generatorsWriter = new ValidationFormatterCsvWriter("test", CsvTableFormatterFactory.class, config, writer, verbose, ValidationType.GENERATORS)) {
-            generatorsWriter.write(generatorId, p, q, v, targetP, targetQ, targetV, connected, voltageRegulatorOn, minQ, maxQ);
+            generatorsWriter.write(generatorId, p, q, v, targetP, targetQ, targetV, connected, voltageRegulatorOn, minQ, maxQ, true);
             assertEquals(generatorsContent, writer.toString().trim());
         }
     }
