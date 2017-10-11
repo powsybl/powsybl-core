@@ -140,12 +140,12 @@ public class LoadFlowBasedPhaseShifterOptimizer implements PhaseShifterOptimizer
                         iMax = i;
                     } else {
                         if (direction > 0) {
-                            btmTap = optimalTap;
+                            btmTap = tapPos;
                         } else {
-                            topTap = optimalTap;
+                            topTap = tapPos;
                         }
                         optimalTap = tapPos;
-                        iMax = i;
+                        iMin = i;
                     }
                 } while (topTap - btmTap > 1);
             } else if (iMax == limit) {
