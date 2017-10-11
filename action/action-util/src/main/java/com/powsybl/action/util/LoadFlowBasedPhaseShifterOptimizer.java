@@ -109,7 +109,7 @@ public class LoadFlowBasedPhaseShifterOptimizer implements PhaseShifterOptimizer
             }
 
             if ((iMax - limit) * (iMin - limit) < 0) {
-                // we can find a optimal tap
+                // we can find a optimal tap by dichotomy-newton algo
                 optimalTap = tapPos;
                 if (direction > 0) {
                     btmTap = tapPos;
@@ -119,42 +119,21 @@ public class LoadFlowBasedPhaseShifterOptimizer implements PhaseShifterOptimizer
                 iMin = i;
                 do {
                     float ratio = (limit - i) / (iMax - iMin);
-                    tapPosInc = (direction > 0) ? (int) (ratio * (topTap - tapPos)) : (int) (ratio * (tapPos - btmTap));
-                    if (tapPosInc == 0) {
-                        // move one step at least
-                        tapPosInc = ratio > 0 ? 1 : -1;
-                    }
-                    tapPosInc = (int) direction * tapPosInc;
+                    tapPosInc = calculTapInc(ratio, direction, topTap, tapPos, btmTap);
 
                     tapPos += tapPosInc;
                     phaseShifter.getPhaseTapChanger().setTapPosition(tapPos);
                     runLoadFlow(loadFlow);
                     i = getI(phaseShifter);
 
-                    if (i >= limit) {
-                        if (direction > 0) {
-                            topTap = tapPos;
-                        } else {
-                            btmTap = tapPos;
-                        }
-                        iMax = i;
-                    } else {
-                        if (direction > 0) {
-                            btmTap = tapPos;
-                        } else {
-                            topTap = tapPos;
-                        }
-                        optimalTap = tapPos;
-                        iMin = i;
-                    }
+                    topTap = updateTopTap(i, limit, direction, topTap, tapPos);
+                    btmTap = updateBtmTap(i, limit, direction, btmTap, tapPos);
+                    iMax = updateIMax(i, limit, iMax);
+                    iMin = updateIMin(i, limit, iMin);
+                    optimalTap = updateOptimal(i, limit, tapPos, optimalTap);
                 } while (topTap - btmTap > 1);
-            } else if (iMax == limit) {
-                optimalTap = maxTap - 1;
-            } else if (iMin == limit) {
-                optimalTap = minTap + 1;
             } else {
-                // all the tap under limit
-                optimalTap = iMax > iMin ? maxTap : minTap;
+                optimalTap = getOptimalDirectly(iMax, iMin, limit, maxTap, minTap);
             }
         } catch (IllegalAccessException e) {
             throw new UncheckedIllegalAccessException(e);
@@ -171,5 +150,58 @@ public class LoadFlowBasedPhaseShifterOptimizer implements PhaseShifterOptimizer
 
         // set the best optimal tap on the current state
         phaseShifter.getPhaseTapChanger().setTapPosition(optimalTap);
+    }
+
+    private int getOptimalDirectly(float iMax, float iMin, float limit, int maxTap, int minTap) {
+        if (iMax == limit) {
+            return maxTap - 1;
+        } else if (iMin == limit) {
+            return minTap + 1;
+        } else {
+            // all the tap under limit
+            return iMax > iMin ? maxTap : minTap;
+        }
+    }
+
+    private int updateBtmTap(float i, float limit, float direction, int previousBtmTap, int tapPos) {
+        if (i >= limit && direction < 0) {
+            return tapPos;
+        }
+        if (i < limit && direction > 0) {
+            return tapPos;
+        }
+        return previousBtmTap;
+    }
+
+    private int updateTopTap(float i, float limit, float direction, int previousTopTap, int tapPos) {
+        if (i >= limit && direction > 0) {
+            return tapPos;
+        }
+        if (i < limit && direction < 0) {
+            return tapPos;
+        }
+        return previousTopTap;
+    }
+
+    private float updateIMax(float i, float limit, float previousIMax) {
+        return i >= limit ? i : previousIMax;
+    }
+
+    private float updateIMin(float i, float limit, float previousIMin) {
+        return i < limit ? i : previousIMin;
+    }
+
+    private int updateOptimal(float i, float limit, int tapPos, int previousOptimal) {
+        return i < limit ? tapPos : previousOptimal;
+    }
+
+    private int calculTapInc(float ratio, float direction, int topTap, int tapPos, int btmTap) {
+        int tapPosInc = (direction > 0) ? (int) (ratio * (topTap - tapPos)) : (int) (ratio * (tapPos - btmTap));
+        if (tapPosInc == 0) {
+            // move one step at least
+            tapPosInc = ratio > 0 ? 1 : -1;
+        }
+        tapPosInc = (int) direction * tapPosInc;
+        return tapPosInc;
     }
 }
