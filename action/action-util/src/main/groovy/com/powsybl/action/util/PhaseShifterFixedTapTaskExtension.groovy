@@ -11,11 +11,11 @@ import com.powsybl.action.dsl.spi.DslTaskExtension
 import com.powsybl.contingency.tasks.ModificationTask
 
 @AutoService(DslTaskExtension.class)
-class FixPhaseShifterTapTaskExtension implements DslTaskExtension {
+class PhaseShifterFixedTapTaskExtension implements DslTaskExtension {
     @Override
     void addToSpec(MetaClass tasksSpecMetaClass, List<ModificationTask> tasks, Binding binding) {
-        tasksSpecMetaClass.fixPhaseShifterTap = { String id, int position ->
-            tasks.add(new FixPhaseShifterTapTask(id, position))
+        tasksSpecMetaClass.phaseShifterFixedTap = { String id, int position ->
+            tasks.add(new PhaseShifterFixedTapTask(id, position))
         }
     }
 }

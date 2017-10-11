@@ -20,8 +20,8 @@ action ('anotherAction') {
     }
 }
 
-action ('fixtap') {
+action ('fixedTap') {
     tasks {
-        fixPhaseShifterTap('NGEN_NHV1', 1)
+        phaseShifterFixedTap('NGEN_NHV1', 1)
     }
 }

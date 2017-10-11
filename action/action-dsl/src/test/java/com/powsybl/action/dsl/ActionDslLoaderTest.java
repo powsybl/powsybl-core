@@ -71,13 +71,14 @@ public class ActionDslLoaderTest {
     @Test
     public void testFixTapDslExtension() {
         ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/actions2.groovy"))).load(network);
-        Action fixtapAction = actionDb.getAction("fixtap");
+        Action fixedTapAction = actionDb.getAction("fixedTap");
+        assertNotNull(fixedTapAction);
         addPhaseShifter();
         PhaseTapChanger phaseTapChanger = network.getTwoWindingsTransformer("NGEN_NHV1").getPhaseTapChanger();
         assertEquals(0, phaseTapChanger.getTapPosition());
         assertTrue(phaseTapChanger.isRegulating());
         assertEquals(PhaseTapChanger.RegulationMode.CURRENT_LIMITER, phaseTapChanger.getRegulationMode());
-        fixtapAction.run(network, null);
+        fixedTapAction.run(network, null);
         assertEquals(1, phaseTapChanger.getTapPosition());
         assertEquals(PhaseTapChanger.RegulationMode.FIXED_TAP, phaseTapChanger.getRegulationMode());
         assertFalse(phaseTapChanger.isRegulating());

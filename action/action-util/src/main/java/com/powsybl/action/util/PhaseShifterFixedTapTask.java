@@ -6,6 +6,7 @@
  */
 package com.powsybl.action.util;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.tasks.ModificationTask;
 import com.powsybl.iidm.network.Network;
@@ -14,12 +15,12 @@ import com.powsybl.iidm.network.TwoWindingsTransformer;
 
 import java.util.Objects;
 
-public class FixPhaseShifterTapTask implements ModificationTask {
+public class PhaseShifterFixedTapTask implements ModificationTask {
 
     private final String phaseShifterId;
     private final int tapPosition;
 
-    public FixPhaseShifterTapTask(String phaseShifterId, int tapPosition) {
+    public PhaseShifterFixedTapTask(String phaseShifterId, int tapPosition) {
         this.phaseShifterId = Objects.requireNonNull(phaseShifterId);
         this.tapPosition = tapPosition;
     }
@@ -29,10 +30,10 @@ public class FixPhaseShifterTapTask implements ModificationTask {
         Objects.requireNonNull(network);
         TwoWindingsTransformer phaseShifter = network.getTwoWindingsTransformer(phaseShifterId);
         if (phaseShifter == null) {
-            throw new RuntimeException("Phase shifter '" + phaseShifterId + "' not found");
+            throw new PowsyblException("Transformer '" + phaseShifterId + "' not found");
         }
         if (phaseShifter.getPhaseTapChanger() == null) {
-            throw new RuntimeException("Transformer '" + phaseShifterId + "' is not a phase shifter");
+            throw new PowsyblException("Transformer '" + phaseShifterId + "' is not a phase shifter");
         }
         phaseShifter.getPhaseTapChanger().setTapPosition(tapPosition);
         phaseShifter.getPhaseTapChanger().setRegulating(false);
