@@ -118,6 +118,7 @@ public class LoadFlowBasedPhaseShifterOptimizerTest {
             PhaseTapChanger phaseTapChanger = twoWindingsTransformerCI.getPhaseTapChanger();
             assertNotNull(phaseTapChanger);
             LoadFlowBasedPhaseShifterOptimizer optimizer = new LoadFlowBasedPhaseShifterOptimizer(new LocalComputationManager(), config);
+            phaseTapChanger.setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP);
             assertEquals(22, phaseTapChanger.getTapPosition());
             /**
              tap:0    P:0,000000    I:24,630026
@@ -157,6 +158,7 @@ public class LoadFlowBasedPhaseShifterOptimizerTest {
              */
             optimizer.findMaximalFlowTap(network, phaseShifterId);
             assertEquals(25, phaseTapChanger.getTapPosition());
+            assertEquals(PhaseTapChanger.RegulationMode.CURRENT_LIMITER, phaseTapChanger.getRegulationMode());
             // overloaded already
             phaseTapChanger.setTapPosition(27);
             try {

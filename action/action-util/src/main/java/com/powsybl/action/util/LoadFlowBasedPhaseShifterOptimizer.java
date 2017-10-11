@@ -10,6 +10,7 @@ import com.powsybl.commons.exceptions.UncheckedIllegalAccessException;
 import com.powsybl.commons.exceptions.UncheckedInstantiationException;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowFactory;
@@ -150,6 +151,7 @@ public class LoadFlowBasedPhaseShifterOptimizer implements PhaseShifterOptimizer
 
         // set the best optimal tap on the current state
         phaseShifter.getPhaseTapChanger().setTapPosition(optimalTap);
+        phaseShifter.getPhaseTapChanger().setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER);
     }
 
     private int getOptimalDirectly(float iMax, float iMin, float limit, int maxTap, int minTap) {
