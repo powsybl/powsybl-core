@@ -31,8 +31,12 @@ public class LoadFlowParameters implements Cloneable {
     }
 
     public static LoadFlowParameters load() {
+        return load(PlatformConfig.defaultConfig());
+    }
+
+    public static LoadFlowParameters load(PlatformConfig platformConfig) {
         LoadFlowParameters parameters = new LoadFlowParameters();
-        load(parameters);
+        load(parameters, platformConfig);
         return parameters;
     }
 
@@ -41,6 +45,9 @@ public class LoadFlowParameters implements Cloneable {
     }
 
     protected static void load(LoadFlowParameters parameters, PlatformConfig platformConfig) {
+        Objects.requireNonNull(parameters);
+        Objects.requireNonNull(platformConfig);
+
         ModuleConfig config = platformConfig.getModuleConfigIfExists("load-flow-default-parameters");
         if (config != null) {
             parameters.setVoltageInitMode(config.getEnumProperty("voltageInitMode", VoltageInitMode.class, DEFAULT_VOLTAGE_INIT_MODE));
