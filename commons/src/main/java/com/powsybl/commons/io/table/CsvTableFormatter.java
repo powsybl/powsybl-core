@@ -11,6 +11,8 @@ import java.io.Writer;
 import java.util.Locale;
 import java.util.Objects;
 
+import org.nocrala.tools.texttablefmt.CellStyle;
+
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -88,6 +90,11 @@ public class CsvTableFormatter extends AbstractTableFormatter {
             column = 0;
         }
         return this;
+    }
+
+    @Override
+    protected TableFormatter write(String value, CellStyle cellStyle) throws IOException {
+        return write(value);
     }
 
     @Override
