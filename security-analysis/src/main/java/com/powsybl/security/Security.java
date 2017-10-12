@@ -280,7 +280,7 @@ public final class Security {
     }
 
     public static String getNumberStringFormat() {
-        return new String("%.4f");
+        return "%.4f";
     }
 
     /**

@@ -26,7 +26,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-fLimitViolationTyperance.com>
+ * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class SecurityTest {
 
@@ -105,13 +105,16 @@ public class SecurityTest {
 
     @Test
     public void printLimitsViolations() throws Exception {
-        assertEquals("+---------+--------------+---------------+----------------+----------------+-----------+-----------+------------------+----------------+\n" +
+    	Locale tmpLocale = Locale.getDefault();
+    	Locale.setDefault(Locale.FRANCE);
+    	assertEquals("+---------+--------------+---------------+----------------+----------------+-----------+-----------+------------------+----------------+\n" +
                      "| Country | Base voltage | Equipment (2) | Violation type | Violation name | Value     | Limit     | abs(value-limit) | Loading rate % |\n" +
                      "+---------+--------------+---------------+----------------+----------------+-----------+-----------+------------------+----------------+\n" +
                      "|         |              | line1         | CURRENT        | 20'            | 1100,0000 | 1000,0000 |        1000,0000 |       110,0000 |\n" +
                      "|         |              | line2         | CURRENT        | 10'            |  950,0000 |  900,0000 |         900,0000 |       106,0000 |\n" +
                      "+---------+--------------+---------------+----------------+----------------+-----------+-----------+------------------+----------------+",
                      Security.printLimitsViolations(Arrays.asList(line1Violation, line2Violation), new LimitViolationFilter()));
+    	Locale.setDefault(tmpLocale);
     }
 
 
