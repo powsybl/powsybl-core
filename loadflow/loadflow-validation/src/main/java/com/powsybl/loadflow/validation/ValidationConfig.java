@@ -54,7 +54,7 @@ public class ValidationConfig {
         boolean applyReactanceCorrection = APPLY_REACTANCE_CORRECTION_DEFAULT;
         ValidationOutputWriter validationOutputWriter = VALIDATION_OUTPUT_WRITER_DEFAULT;
         boolean okMissingValues = OK_MISSING_VALUES_DEFAULT;
-        LoadFlowParameters loadFlowParameter = LoadFlowParameters.load();
+        LoadFlowParameters loadFlowParameter = LoadFlowParameters.load(platformConfig);
         if (platformConfig.moduleExists("loadflow-validation")) {
             ModuleConfig config = platformConfig.getModuleConfig("loadflow-validation");
             threshold = config.getFloatProperty("threshold", THRESHOLD_DEFAULT);
