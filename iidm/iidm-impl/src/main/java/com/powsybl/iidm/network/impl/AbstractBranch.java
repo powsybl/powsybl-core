@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.TwoTerminalsConnectable.Side;
 
+import java.util.Iterator;
 import java.util.Objects;
 
 /**
@@ -108,13 +109,32 @@ abstract class AbstractBranch<I extends Connectable<I>> extends AbstractConnecta
     }
 
     public boolean isOverloaded(float limitReduction, int duration) {
-        if (checkPermanentLimit1(limitReduction) && limits1.getTemporaryLimits().size() == 0) {
-            return true;
+        return isOverloaded1(limitReduction, duration) || isOverloaded2(limitReduction, duration);
+    }
+
+    private boolean isOverloaded1(float limitReduction, int duration) {
+        if (checkPermanentLimit1(limitReduction)) {
+            if (limits1.getTemporaryLimits().size() == 0) {
+                return true;
+            } else {
+                OverloadImpl overload = checkTemporaryLimits1(limitReduction, duration);
+                return overload != null ? true : false;
+            }
+        } else {
+            return false;
         }
-        if (checkPermanentLimit2(limitReduction) && limits2.getTemporaryLimits().size() == 0) {
-            return true;
+    }
+
+    private boolean isOverloaded2(float limitReduction, int duration) {
+        if (checkPermanentLimit2(limitReduction)) {
+            if (limits1.getTemporaryLimits().size() == 0) {
+                return true;
+            } else {
+                return checkTemporaryLimits2(limitReduction, duration) == null ? true : false;
+            }
+        } else {
+            return false;
         }
-        return checkTemporaryLimits1(limitReduction, duration) != null || checkTemporaryLimits2(limitReduction, duration) != null;
     }
 
     public int getOverloadDuration() {
@@ -162,10 +182,9 @@ abstract class AbstractBranch<I extends Connectable<I>> extends AbstractConnecta
     // return true if overloaded
     private static boolean checkPermanentLimit(Terminal terminal, CurrentLimits limits, float limitReduction) {
         float i = terminal.getI();
-        if (limits != null && !Float.isNaN(limits.getPermanentLimit()) && !Float.isNaN(i)) {
-            if (i >= limits.getPermanentLimit() * limitReduction) {
-                return true;
-            }
+        if (limits != null && !Float.isNaN(limits.getPermanentLimit()) && !Float.isNaN(i)
+                && i >= limits.getPermanentLimit() * limitReduction) {
+            return true;
         }
         return false;
     }
@@ -247,7 +266,10 @@ abstract class AbstractBranch<I extends Connectable<I>> extends AbstractConnecta
         float i = t.getI();
         if (limits != null && !Float.isNaN(limits.getPermanentLimit()) && !Float.isNaN(i)) {
             float previousLimit = limits.getPermanentLimit();
-            for (CurrentLimits.TemporaryLimit tl : limits.getTemporaryLimits()) { // iterate in ascending order
+            CurrentLimits.TemporaryLimit lastTemporaryLimit = null;
+            Iterator<CurrentLimits.TemporaryLimit> it = limits.getTemporaryLimits().iterator();
+            while (it.hasNext()) {
+                CurrentLimits.TemporaryLimit tl = it.next();
                 if (i >= previousLimit * limitReduction) {
                     if (i < tl.getValue() * limitReduction && duration < tl.getAcceptableDuration()) {
                         return null;
@@ -256,6 +278,13 @@ abstract class AbstractBranch<I extends Connectable<I>> extends AbstractConnecta
                     }
                 }
                 previousLimit = tl.getValue();
+                if (!it.hasNext()) {
+                    lastTemporaryLimit = tl;
+                }
+            }
+            if (lastTemporaryLimit != null && i >= previousLimit * limitReduction) {
+                // bigger than last limit
+                return new OverloadImpl(lastTemporaryLimit, previousLimit);
             }
         }
         return null;

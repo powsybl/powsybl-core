@@ -112,7 +112,10 @@ public class CurrentLimitsTest {
         assertTrue(l.isOverloaded(1.0f, 61));
         assertEquals(60, l.getOverloadDuration());
 
-        assertFalse(l.isOverloaded(0.01f, Integer.MAX_VALUE));
+        assertTrue(l.isOverloaded(0.01f, Integer.MAX_VALUE));
+
+        l.getTerminal1().setP(90000).setQ(50000);
+        assertTrue(l.isOverloaded());
     }
 
     @Test
