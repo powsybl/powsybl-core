@@ -108,6 +108,12 @@ abstract class AbstractBranch<I extends Connectable<I>> extends AbstractConnecta
     }
 
     public boolean isOverloaded(float limitReduction, int duration) {
+        if (checkPermanentLimit1(limitReduction) && limits1.getTemporaryLimits().size() == 0) {
+            return true;
+        }
+        if (checkPermanentLimit2(limitReduction) && limits2.getTemporaryLimits().size() == 0) {
+            return true;
+        }
         return checkTemporaryLimits1(limitReduction, duration) != null || checkTemporaryLimits2(limitReduction, duration) != null;
     }
 
@@ -153,10 +159,11 @@ abstract class AbstractBranch<I extends Connectable<I>> extends AbstractConnecta
         return checkPermanentLimit2(1f);
     }
 
+    // return true if overloaded
     private static boolean checkPermanentLimit(Terminal terminal, CurrentLimits limits, float limitReduction) {
         float i = terminal.getI();
         if (limits != null && !Float.isNaN(limits.getPermanentLimit()) && !Float.isNaN(i)) {
-            if (i > limits.getPermanentLimit() * limitReduction) {
+            if (i >= limits.getPermanentLimit() * limitReduction) {
                 return true;
             }
         }
