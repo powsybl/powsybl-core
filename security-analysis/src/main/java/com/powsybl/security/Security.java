@@ -7,15 +7,17 @@
  */
 package com.powsybl.security;
 
+import com.powsybl.commons.io.table.AsciiTableFormatterFactory;
 import com.powsybl.commons.io.table.Column;
 import com.powsybl.commons.io.table.TableFormatter;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.commons.io.table.TableFormatterFactory;
 import com.powsybl.iidm.network.*;
-import org.nocrala.tools.texttablefmt.BorderStyle;
-import org.nocrala.tools.texttablefmt.Table;
+import org.nocrala.tools.texttablefmt.CellStyle;
+import org.nocrala.tools.texttablefmt.CellStyle.HorizontalAlign;
 
 import java.io.IOException;
+import java.io.StringWriter;
 import java.io.UncheckedIOException;
 import java.io.Writer;
 import java.util.*;
@@ -160,33 +162,49 @@ public final class Security {
     public static String printLimitsViolations(List<LimitViolation> violations, LimitViolationFilter filter) {
         Objects.requireNonNull(violations);
         Objects.requireNonNull(filter);
+
+        TableFormatterFactory formatterFactory = new AsciiTableFormatterFactory();
+        Writer writer = new StringWriter();
+        TableFormatterConfig formatterConfig = new TableFormatterConfig(Locale.getDefault(), ',', "inv", true, true);
         List<LimitViolation> filteredViolations = filter.apply(violations);
-        if (filteredViolations.size() > 0) {
-            filteredViolations.sort(Comparator.comparing(LimitViolation::getSubjectId));
-            Table table = new Table(9, BorderStyle.CLASSIC_WIDE);
-            table.addCell("Country");
-            table.addCell("Base voltage");
-            table.addCell("Equipment (" + filteredViolations.size() + ")");
-            table.addCell("Violation type");
-            table.addCell("Violation name");
-            table.addCell("Value");
-            table.addCell("Limit");
-            table.addCell("abs(value-limit)");
-            table.addCell("Loading rate %");
-            for (LimitViolation violation : filteredViolations) {
-                table.addCell(violation.getCountry() != null ? violation.getCountry().name() : "");
-                table.addCell(Float.isNaN(violation.getBaseVoltage()) ? "" : Float.toString(violation.getBaseVoltage()));
-                table.addCell(violation.getSubjectId());
-                table.addCell(violation.getLimitType().name());
-                table.addCell(getViolationName(violation));
-                table.addCell(Float.toString(violation.getValue()));
-                table.addCell(getViolationLimit(violation));
-                table.addCell(Float.toString(Math.abs(violation.getValue() - violation.getLimit() * violation.getLimitReduction())));
-                table.addCell(Integer.toString(getViolationValue(violation)));
-            }
-            return table.render();
+
+        try (TableFormatter formatter = formatterFactory.create(writer,
+                "",
+                formatterConfig,
+                new Column("Country"),
+                new Column("Base voltage"),
+                new Column("Equipment (" + filteredViolations.size() + ")"),
+                new Column("Violation type"),
+                new Column("Violation name"),
+                new Column("Value"),
+                new Column("Limit"),
+                new Column("abs(value-limit)"),
+                new Column("Loading rate %"))) {
+            filteredViolations.stream()
+                    .sorted(Comparator.comparing(LimitViolation::getSubjectId))
+                    .forEach(violation -> {
+                        try {
+                            formatter.writeCell(violation.getCountry() != null ? violation.getCountry().name() : "")
+                                     .writeCell(Float.isNaN(violation.getBaseVoltage()) ? "" : Float.toString(violation.getBaseVoltage()))
+                                     .writeCell(violation.getSubjectId())
+                                     .writeCell(violation.getLimitType().name())
+                                     .writeCell(getViolationName(violation))
+                                     .writeCell(violation.getValue(), createNumberCellStyle(), getNumberStringFormat())
+                                     .writeCell(getViolationLimit(violation), createNumberCellStyle(), getNumberStringFormat())
+                                     .writeCell(getAbsValueLimit(violation), createNumberCellStyle(), getNumberStringFormat())
+                                     .writeCell(getViolationValue(violation), createNumberCellStyle(), getNumberStringFormat());
+                        } catch (IOException e) {
+                            throw new UncheckedIOException(e);
+                        }
+                    });
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
-        return null;
+        return writer.toString().trim();
+    }
+
+    private static float getAbsValueLimit(LimitViolation violation) {
+        return Float.valueOf(Float.toString(violation.getLimit()) + (violation.getLimitReduction() != 1f ? " * " + violation.getLimitReduction() : ""));
     }
 
     public static void printPreContingencyViolations(SecurityAnalysisResult result, Writer writer, TableFormatterFactory formatterFactory,
@@ -229,9 +247,9 @@ public final class Security {
                                     .writeCell(violation.getSubjectId())
                                     .writeCell(violation.getLimitType().name())
                                     .writeCell(getViolationName(violation))
-                                    .writeCell(violation.getValue())
-                                    .writeCell(getViolationLimit(violation))
-                                    .writeCell(getViolationValue(violation));
+                                    .writeCell(violation.getValue(), createNumberCellStyle(), getNumberStringFormat())
+                                    .writeCell(getViolationLimit(violation), createNumberCellStyle(), getNumberStringFormat())
+                                    .writeCell(getViolationValueFloat(violation), createNumberCellStyle(), getNumberStringFormat());
                         } catch (IOException e) {
                             throw new UncheckedIOException(e);
                         }
@@ -245,12 +263,24 @@ public final class Security {
         return Objects.toString(violation.getLimitName(), "");
     }
 
-    private static String getViolationLimit(LimitViolation violation) {
-        return Float.toString(violation.getLimit()) + (violation.getLimitReduction() != 1f ? " * " + violation.getLimitReduction() : "");
+    private static float getViolationLimit(LimitViolation violation) {
+        return Float.valueOf(Float.toString(violation.getLimit()) + (violation.getLimitReduction() != 1f ? " * " + violation.getLimitReduction() : ""));
     }
 
     private static int getViolationValue(LimitViolation violation) {
         return Math.round(Math.abs(violation.getValue()) / violation.getLimit() * 100f);
+    }
+
+    private static float getViolationValueFloat(LimitViolation violation) {
+        return Math.abs(violation.getValue()) / violation.getLimit() * 100f;
+    }
+
+    public static CellStyle createNumberCellStyle() {
+        return new CellStyle(HorizontalAlign.right);
+    }
+
+    public static String getNumberStringFormat() {
+        return "%.4f";
     }
 
     /**
@@ -370,9 +400,9 @@ public final class Security {
                                                             .writeCell(violation.getSubjectId())
                                                             .writeCell(violation.getLimitType().name())
                                                             .writeCell(getViolationName(violation))
-                                                            .writeCell(violation.getValue())
-                                                            .writeCell(getViolationLimit(violation))
-                                                            .writeCell(getViolationValue(violation));
+                                                            .writeCell(violation.getValue(), createNumberCellStyle(), getNumberStringFormat())
+                                                            .writeCell(getViolationLimit(violation), createNumberCellStyle(), getNumberStringFormat())
+                                                            .writeCell(getViolationValueFloat(violation), createNumberCellStyle(), getNumberStringFormat());
                                                 } catch (IOException e) {
                                                     throw new UncheckedIOException(e);
                                                 }

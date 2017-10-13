@@ -7,6 +7,7 @@
 package com.powsybl.commons.io.table;
 
 import org.nocrala.tools.texttablefmt.BorderStyle;
+import org.nocrala.tools.texttablefmt.CellStyle;
 import org.nocrala.tools.texttablefmt.Table;
 
 import java.io.IOException;
@@ -52,8 +53,18 @@ public class AsciiTableFormatter extends AbstractTableFormatter {
     }
 
     @Override
+    protected TableFormatter write(String value, CellStyle cellStyle) throws IOException {
+        table.addCell(value, cellStyle);
+        return this;
+    }
+
+    @Override
     public void close() throws IOException {
-        writer.write(title + ":" + System.lineSeparator());
+        if (null == title || title.isEmpty()) {
+            writer.write(System.lineSeparator());
+        } else {
+            writer.write(title + ":" + System.lineSeparator());
+        }
         writer.write(table.render() + System.lineSeparator());
         writer.close();
     }

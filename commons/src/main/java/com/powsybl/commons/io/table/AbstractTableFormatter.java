@@ -10,6 +10,8 @@ import java.io.IOException;
 import java.util.Locale;
 import java.util.Objects;
 
+import org.nocrala.tools.texttablefmt.CellStyle;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -26,9 +28,16 @@ public abstract class AbstractTableFormatter implements TableFormatter {
 
     protected abstract TableFormatter write(String value) throws IOException;
 
+    protected abstract TableFormatter write(String value, CellStyle cellStyle) throws IOException;
+
     @Override
     public TableFormatter writeCell(String s) throws IOException {
         return write(s);
+    }
+
+    @Override
+    public TableFormatter writeCell(String s, CellStyle cellStyle) throws IOException {
+        return write(s, cellStyle);
     }
 
     @Override
@@ -54,6 +63,21 @@ public abstract class AbstractTableFormatter implements TableFormatter {
     @Override
     public TableFormatter writeCell(double d) throws IOException {
         return write(Double.isNaN(d) ? invalidString : String.format(locale, "%g", d));
+    }
+
+    @Override
+    public TableFormatter writeCell(int i, CellStyle cellStyle) throws IOException {
+        return write(Integer.toString(i), cellStyle);
+    }
+
+    @Override
+    public TableFormatter writeCell(float f, CellStyle cellStyle, String stringFormat) throws IOException {
+        return write(Float.isNaN(f) ? invalidString : String.format(locale, stringFormat, f), cellStyle);
+    }
+
+    @Override
+    public TableFormatter writeCell(double d, CellStyle cellStyle, String stringFormat) throws IOException {
+        return write(Double.isNaN(d) ? invalidString : String.format(locale, stringFormat, d), cellStyle);
     }
 
     @Override
