@@ -138,6 +138,10 @@ class ConditionDslLoader extends DslLoader implements DslConstants {
             ExpressionHelper.newMostLoaded(branchIds)
         }
 
+        binding.isOverloaded = {lineIds, reduction = 1 as float, duration = Integer.MAX_VALUE->
+            ExpressionHelper.newIsOverloadedNode(lineIds, reduction, duration)
+        }
+
         NetworkNode.metaClass.propertyMissing = { String name ->
             ExpressionHelper.newNetworkProperty(delegate, name)
         }

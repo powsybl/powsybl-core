@@ -281,4 +281,17 @@ public class ExpressionEvaluator extends DefaultExpressionVisitor<Object, Void> 
         List<String> sortedBranchIds = sortBranches(node.getBranchIds());
         return sortedBranchIds.get(sortedBranchIds.size() - 1);
     }
+
+    @Override
+    public Object visitIsOverloaded(IsOverloadedNode isOverloadedNode, Void arg) {
+        float reduction = isOverloadedNode.getReduction();
+        int duration = isOverloadedNode.getDuration();
+        for (String lineId : isOverloadedNode.getLineIds()) {
+            boolean overloaded = context.getNetwork().getLine(lineId).isOverloaded(reduction, duration);
+            if (overloaded) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
