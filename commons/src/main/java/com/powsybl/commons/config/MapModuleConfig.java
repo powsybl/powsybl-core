@@ -170,6 +170,12 @@ public class MapModuleConfig implements ModuleConfig {
     }
 
     @Override
+    public Optional<Float> getOptionalFloatProperty(String name) {
+        String value = getStringProperty(name, null);
+        return Optional.ofNullable(value != null ? Float.parseFloat(value) : null);
+    }
+
+    @Override
     public double getDoubleProperty(String name) {
         return Double.parseDouble(getStringProperty(name));
     }

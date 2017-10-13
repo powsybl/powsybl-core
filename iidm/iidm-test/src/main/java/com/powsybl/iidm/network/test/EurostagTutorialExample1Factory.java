@@ -11,10 +11,8 @@ import com.powsybl.iidm.network.Substation;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.TopologyKind;
-import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
-import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Generator;
 
 /**
@@ -61,16 +59,16 @@ public final class EurostagTutorialExample1Factory {
                 .setNominalV(150)
                 .setTopologyKind(TopologyKind.BUS_BREAKER)
             .add();
-        Bus ngen = vlgen.getBusBreakerView().newBus()
+        vlgen.getBusBreakerView().newBus()
                 .setId("NGEN")
             .add();
-        Bus nhv1 = vlhv1.getBusBreakerView().newBus()
+        vlhv1.getBusBreakerView().newBus()
                 .setId("NHV1")
             .add();
-        Bus nhv2 = vlhv2.getBusBreakerView().newBus()
+        vlhv2.getBusBreakerView().newBus()
                 .setId("NHV2")
             .add();
-        Bus nload = vlload.getBusBreakerView().newBus()
+        vlload.getBusBreakerView().newBus()
                 .setId("NLOAD")
             .add();
         network.newLine()
@@ -103,8 +101,8 @@ public final class EurostagTutorialExample1Factory {
                 .setG2(0f)
                 .setB2(386E-6f / 2)
             .add();
-        float zb380 = 380 * 380 / 100;
-        TwoWindingsTransformer ngenNhv1 = p1.newTwoWindingsTransformer()
+        int zb380 = 380 * 380 / 100;
+        p1.newTwoWindingsTransformer()
                 .setId("NGEN_NHV1")
                 .setVoltageLevel1("VLGEN")
                 .setBus1("NGEN")
@@ -119,7 +117,7 @@ public final class EurostagTutorialExample1Factory {
                 .setG(0)
                 .setB(0)
             .add();
-        float zb150 = 150 * 150 / 100;
+        int zb150 = 150 * 150 / 100;
         TwoWindingsTransformer nhv2Nload = p2.newTwoWindingsTransformer()
                 .setId("NHV2_NLOAD")
                 .setVoltageLevel1("VLHV2")
@@ -164,7 +162,7 @@ public final class EurostagTutorialExample1Factory {
                 .setTargetV(158)
                 .setRegulationTerminal(nhv2Nload.getTerminal2())
             .add();
-        Load load = vlload.newLoad()
+        vlload.newLoad()
                 .setId("LOAD")
                 .setBus("NLOAD")
                 .setConnectableBus("NLOAD")
