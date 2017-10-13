@@ -116,6 +116,15 @@ public class CurrentLimitsTest {
     }
 
     @Test
+    public void testLimitWithoutTempLimit() {
+        Line l = createNetwork().getLine("L");
+        l.newCurrentLimits1().setPermanentLimit(1000.0f).add();
+        l.getTerminal1().getBusBreakerView().getBus().setV(390);
+        l.getTerminal1().setP(800).setQ(400); // i = 1324.0969
+        assertTrue(l.isOverloaded());
+    }
+
+    @Test
     public void testSetterGetter() {
         Line line = createNetwork().getLine("L");
         CurrentLimits currentLimits = line.newCurrentLimits1()
