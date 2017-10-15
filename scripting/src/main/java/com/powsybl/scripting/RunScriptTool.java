@@ -11,12 +11,11 @@ import com.powsybl.afs.AppData;
 import com.powsybl.afs.AppFileSystemProvider;
 import com.powsybl.afs.FileExtension;
 import com.powsybl.afs.ProjectFileExtension;
-import com.powsybl.commons.config.ComponentDefaultConfig;
+import com.powsybl.commons.util.ServiceLoaderCache;
+import com.powsybl.scripting.groovy.GroovyScripts;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
 import com.powsybl.tools.ToolRunningContext;
-import com.powsybl.commons.util.ServiceLoaderCache;
-import com.powsybl.scripting.groovy.GroovyScripts;
 import groovy.lang.Binding;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -70,8 +69,6 @@ public class RunScriptTool implements Tool {
         }
     };
 
-    private final ComponentDefaultConfig componentDefaultConfig;
-
     private final List<AppFileSystemProvider> fileSystemProviders;
 
     private final List<FileExtension> fileExtensions;
@@ -79,15 +76,13 @@ public class RunScriptTool implements Tool {
     private final List<ProjectFileExtension> projectFileExtensions;
 
     public RunScriptTool() {
-        this(ComponentDefaultConfig.load(),
-                new ServiceLoaderCache<>(AppFileSystemProvider.class).getServices(),
+        this(new ServiceLoaderCache<>(AppFileSystemProvider.class).getServices(),
                 new ServiceLoaderCache<>(FileExtension.class).getServices(),
                 new ServiceLoaderCache<>(ProjectFileExtension.class).getServices());
     }
 
-    public RunScriptTool(ComponentDefaultConfig componentDefaultConfig, List<AppFileSystemProvider> fileSystemProviders,
+    public RunScriptTool(List<AppFileSystemProvider> fileSystemProviders,
                          List<FileExtension> fileExtensions, List<ProjectFileExtension> projectFileExtensions) {
-        this.componentDefaultConfig = Objects.requireNonNull(componentDefaultConfig);
         this.fileSystemProviders = Objects.requireNonNull(fileSystemProviders);
         this.fileExtensions = Objects.requireNonNull(fileExtensions);
         this.projectFileExtensions = Objects.requireNonNull(projectFileExtensions);
@@ -103,7 +98,7 @@ public class RunScriptTool implements Tool {
         Path file = context.getFileSystem().getPath(line.getOptionValue("file"));
         Writer writer = new OutputStreamWriter(context.getOutputStream());
         try {
-            try (AppData data = new AppData(context.getComputationManager(), componentDefaultConfig, fileSystemProviders,
+            try (AppData data = new AppData(context.getComputationManager(), fileSystemProviders,
                     fileExtensions, projectFileExtensions)) {
                 if (file.getFileName().toString().endsWith(".groovy")) {
                     try {

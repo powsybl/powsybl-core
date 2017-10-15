@@ -50,11 +50,11 @@ public class MpiComputationManager implements ComputationManager {
     private Future<?> busyCoresPrintTask;
 
     public MpiComputationManager(Path localDir, MpiJobScheduler scheduler) throws IOException, InterruptedException {
-        this(localDir, scheduler, new NoMpiStatistics(), new DefaultMpiExecutorContext());
+        this(localDir, scheduler, new NoMpiStatistics(), new MpiExecutorContext());
     }
 
     public MpiComputationManager(Path localDir, MpiNativeServices nativeServices) throws IOException, InterruptedException {
-        this(localDir, nativeServices, new NoMpiStatistics(), new DefaultMpiExecutorContext(), 1, false, null);
+        this(localDir, nativeServices, new NoMpiStatistics(), new MpiExecutorContext(), 1, false, null);
     }
 
     public MpiComputationManager(Path localDir, MpiStatistics statistics, MpiExecutorContext executorContext,
@@ -260,7 +260,7 @@ public class MpiComputationManager implements ComputationManager {
                         throw new RuntimeException(t);
                     }
                     return ctxt;
-                }, executorContext.getBeforeExecutor())
+                }, executorContext.getComputationExecutor())
                 .thenComposeAsync(ctxt -> {
                     if (ctxt.parametersList.isEmpty()) {
                         ctxt.report = new ExecutionReport(Collections.emptyList());
@@ -310,7 +310,7 @@ public class MpiComputationManager implements ComputationManager {
                             return ctxt;
                         });
                     }
-                }, executorContext.getCommandExecutor())
+                }, executorContext.getComputationExecutor())
                 .thenApplyAsync(ctxt -> {
                     try {
                         return handler.after(ctxt.workingDir.toPath(), ctxt.report);
@@ -323,7 +323,7 @@ public class MpiComputationManager implements ComputationManager {
                             throw new UncheckedIOException(e2);
                         }
                     }
-                }, executorContext.getAfterExecutor());
+                }, executorContext.getComputationExecutor());
     }
 
     @Override

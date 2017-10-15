@@ -125,13 +125,7 @@
             <artifactId>powsybl-computation-mpi</artifactId>
             <version>${project.version}</version>
         </dependency>
-        
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-computation-mpi-util</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        
+
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-contingency-api</artifactId>
