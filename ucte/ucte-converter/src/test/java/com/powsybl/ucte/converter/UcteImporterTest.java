@@ -6,17 +6,17 @@
  */
 package com.powsybl.ucte.converter;
 
-import com.powsybl.iidm.import_.Importers;
+import com.powsybl.commons.datasource.DataSourceUtil;
+import com.powsybl.commons.datasource.ReadOnlyMemDataSource;
 import org.junit.Test;
-
-import static org.junit.Assert.*;
 /**
  * @author Sebastien Murgey <sebastien.murgey at rte-france.com>
  */
 public class UcteImporterTest {
     @Test
     public void trimIssueTest() throws Exception  {
-        // Import network taht could fail beacuse of id conflicts due to trim mechanism
-        Importers.loadNetwork("importIssue.uct", getClass().getResourceAsStream("/importIssue.uct"));
+        // Import network that could fail because of id conflicts due to trim mechanism
+        ReadOnlyMemDataSource dataSource = DataSourceUtil.createReadOnlyMemDataSource("importIssue.uct", getClass().getResourceAsStream("/importIssue.uct"));
+        new UcteImporter().importData(dataSource, null);
     }
 }
