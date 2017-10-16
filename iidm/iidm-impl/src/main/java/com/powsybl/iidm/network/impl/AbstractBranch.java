@@ -114,7 +114,7 @@ abstract class AbstractBranch<I extends Connectable<I>> extends AbstractConnecta
 
     private boolean isOverloaded1(float limitReduction, int duration) {
         if (checkPermanentLimit1(limitReduction)) {
-            if (limits1.getTemporaryLimits().size() == 0) {
+            if (limits1.getTemporaryLimits().isEmpty()) {
                 return true;
             } else {
                 OverloadImpl overload = checkTemporaryLimits1(limitReduction, duration);
@@ -127,7 +127,7 @@ abstract class AbstractBranch<I extends Connectable<I>> extends AbstractConnecta
 
     private boolean isOverloaded2(float limitReduction, int duration) {
         if (checkPermanentLimit2(limitReduction)) {
-            if (limits1.getTemporaryLimits().size() == 0) {
+            if (limits1.getTemporaryLimits().isEmpty()) {
                 return true;
             } else {
                 return checkTemporaryLimits2(limitReduction, duration) == null ? true : false;
@@ -182,11 +182,8 @@ abstract class AbstractBranch<I extends Connectable<I>> extends AbstractConnecta
     // return true if overloaded
     private static boolean checkPermanentLimit(Terminal terminal, CurrentLimits limits, float limitReduction) {
         float i = terminal.getI();
-        if (limits != null && !Float.isNaN(limits.getPermanentLimit()) && !Float.isNaN(i)
-                && i >= limits.getPermanentLimit() * limitReduction) {
-            return true;
-        }
-        return false;
+        return limits != null && !Float.isNaN(limits.getPermanentLimit()) && !Float.isNaN(i)
+                && (i >= limits.getPermanentLimit() * limitReduction);
     }
 
     static final class OverloadImpl implements Branch.Overload {
@@ -273,7 +270,7 @@ abstract class AbstractBranch<I extends Connectable<I>> extends AbstractConnecta
                 if (i >= previousLimit * limitReduction) {
                     if (i < tl.getValue() * limitReduction && duration < tl.getAcceptableDuration()) {
                         return null;
-                    } else if (i < tl.getValue() * limitReduction && duration > tl.getAcceptableDuration()) {
+                    } else if (i < tl.getValue() * limitReduction && duration >= tl.getAcceptableDuration()) {
                         return new OverloadImpl(tl, previousLimit);
                     }
                 }

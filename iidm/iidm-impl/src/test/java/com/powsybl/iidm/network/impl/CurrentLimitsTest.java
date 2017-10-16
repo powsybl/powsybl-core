@@ -108,7 +108,7 @@ public class CurrentLimitsTest {
         assertEquals(60, l.checkTemporaryLimits1().getTemporaryLimit().getAcceptableDuration());
         assertEquals(1400.0f, l.checkTemporaryLimits1().getPreviousLimit(), 0.0f);
         assertFalse(l.isOverloaded(1.0f, 59));
-        assertFalse(l.isOverloaded(1.0f, 60));
+        assertTrue(l.isOverloaded(1.0f, 60));
         assertTrue(l.isOverloaded(1.0f, 61));
         assertEquals(60, l.getOverloadDuration());
 
