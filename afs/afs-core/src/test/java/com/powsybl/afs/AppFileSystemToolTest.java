@@ -37,7 +37,7 @@ public class AppFileSystemToolTest extends AbstractToolTest {
             protected AppData createAppData() {
                 AppFileSystemStorage storage = MapDbAppFileSystemStorage.createHeap("mem");
                 AppFileSystem afs = new AppFileSystem("mem", false, storage);
-                AppData appData = new AppData(computationManager, componentDefaultConfig, Collections.singletonList(computationManager1 -> Collections.singletonList(afs)),
+                AppData appData = new AppData(computationManager, Collections.singletonList(computationManager1 -> Collections.singletonList(afs)),
                         Collections.emptyList(), Collections.emptyList());
                 afs.getRootFolder().createProject("test_project1", "");
                 afs.getRootFolder().createProject("test_project2", "");

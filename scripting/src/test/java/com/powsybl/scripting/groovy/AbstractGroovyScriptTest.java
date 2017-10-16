@@ -11,7 +11,6 @@ import com.powsybl.afs.AppFileSystem;
 import com.powsybl.afs.FileExtension;
 import com.powsybl.afs.ProjectFileExtension;
 import com.powsybl.afs.storage.AppFileSystemStorage;
-import com.powsybl.commons.config.ComponentDefaultConfig;
 import com.powsybl.computation.ComputationManager;
 import org.junit.After;
 import org.junit.Before;
@@ -31,8 +30,6 @@ import static org.junit.Assert.assertEquals;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public abstract class AbstractGroovyScriptTest {
-
-    protected ComponentDefaultConfig componentDefaultConfig;
 
     protected AppData data;
 
@@ -58,9 +55,8 @@ public abstract class AbstractGroovyScriptTest {
 
     @Before
     public void setUp() throws Exception {
-        componentDefaultConfig = Mockito.mock(ComponentDefaultConfig.class);
         ComputationManager computationManager = Mockito.mock(ComputationManager.class);
-        data = new AppData(computationManager, componentDefaultConfig,
+        data = new AppData(computationManager,
                 singletonList(cm -> singletonList(new AppFileSystem("mem", false, createStorage()))),
                 getFileExtensions(), getProjectFileExtensions());
     }

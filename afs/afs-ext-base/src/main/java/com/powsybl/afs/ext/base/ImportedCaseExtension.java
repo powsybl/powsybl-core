@@ -11,12 +11,27 @@ import com.powsybl.afs.AppFileSystem;
 import com.powsybl.afs.ProjectFileExtension;
 import com.powsybl.afs.storage.AppFileSystemStorage;
 import com.powsybl.afs.storage.NodeId;
+import com.powsybl.iidm.import_.ImportersLoader;
+import com.powsybl.iidm.import_.ImportersServiceLoader;
+
+import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @AutoService(ProjectFileExtension.class)
 public class ImportedCaseExtension implements ProjectFileExtension {
+
+    private final ImportersLoader importersLoader;
+
+    public ImportedCaseExtension() {
+        this(new ImportersServiceLoader());
+    }
+
+    public ImportedCaseExtension(ImportersLoader importersLoader) {
+        this.importersLoader = Objects.requireNonNull(importersLoader);
+    }
+
     @Override
     public Class<ImportedCase> getProjectFileClass() {
         return ImportedCase.class;
@@ -34,11 +49,11 @@ public class ImportedCaseExtension implements ProjectFileExtension {
 
     @Override
     public ImportedCase createProjectFile(NodeId id, AppFileSystemStorage storage, NodeId projectId, AppFileSystem fileSystem) {
-        return new ImportedCase(id, storage, projectId, fileSystem);
+        return new ImportedCase(id, storage, projectId, fileSystem, importersLoader);
     }
 
     @Override
     public ImportedCaseBuilder createProjectFileBuilder(NodeId folderId, AppFileSystemStorage storage, NodeId projectId, AppFileSystem fileSystem) {
-        return new ImportedCaseBuilder(folderId, storage, projectId, fileSystem);
+        return new ImportedCaseBuilder(folderId, storage, projectId, fileSystem, importersLoader);
     }
 }

@@ -53,6 +53,8 @@ public interface ModuleConfig {
 
     float getFloatProperty(String name, float defaultValue);
 
+    Optional<Float> getOptionalFloatProperty(String name);
+
     double getDoubleProperty(String name);
 
     double getDoubleProperty(String name, double defaultValue);

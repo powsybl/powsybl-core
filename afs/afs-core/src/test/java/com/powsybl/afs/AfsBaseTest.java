@@ -9,7 +9,6 @@ package com.powsybl.afs;
 import com.google.common.collect.ImmutableList;
 import com.powsybl.afs.mapdb.storage.MapDbAppFileSystemStorage;
 import com.powsybl.afs.storage.AppFileSystemStorage;
-import com.powsybl.commons.config.ComponentDefaultConfig;
 import com.powsybl.computation.ComputationManager;
 import org.junit.After;
 import org.junit.Before;
@@ -37,10 +36,9 @@ public class AfsBaseTest {
     public void setup() throws IOException {
         storage = MapDbAppFileSystemStorage.createHeap("mem");
 
-        ComponentDefaultConfig componentDefaultConfig = Mockito.mock(ComponentDefaultConfig.class);
         ComputationManager computationManager = Mockito.mock(ComputationManager.class);
         afs = new AppFileSystem("mem", true, storage);
-        ad = new AppData(computationManager, componentDefaultConfig, Collections.singletonList(computationManager1 -> Collections.singletonList(afs)),
+        ad = new AppData(computationManager, Collections.singletonList(computationManager1 -> Collections.singletonList(afs)),
                 Collections.emptyList(), Collections.singletonList(new FooFileExtension()));
     }
 

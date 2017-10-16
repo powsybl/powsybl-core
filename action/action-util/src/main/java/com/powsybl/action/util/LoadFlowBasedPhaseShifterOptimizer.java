@@ -80,7 +80,7 @@ public class LoadFlowBasedPhaseShifterOptimizer implements PhaseShifterOptimizer
             LoadFlowFactory loadFlowFactory = config.getLoadFlowFactoryClass().newInstance();
             LoadFlow loadFlow = loadFlowFactory.create(network, computationManager, 0);
             runLoadFlow(loadFlow);
-            if (phaseShifter.getTerminal1().getP() >= phaseShifter.getCurrentLimits1().getPermanentLimit()) {
+            if (phaseShifter.getTerminal1().getI() >= phaseShifter.getCurrentLimits1().getPermanentLimit()) {
                 throw new RuntimeException("Phase shifter already overloaded");
             }
             int tapPosInc = 1; // start by incrementing tap +1

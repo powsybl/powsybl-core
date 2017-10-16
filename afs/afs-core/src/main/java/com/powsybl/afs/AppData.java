@@ -7,7 +7,6 @@
 package com.powsybl.afs;
 
 import com.powsybl.afs.storage.AppFileSystemStorage;
-import com.powsybl.commons.config.ComponentDefaultConfig;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
@@ -21,8 +20,6 @@ import java.util.stream.Collectors;
 public class AppData implements AutoCloseable {
 
     private final ComputationManager computationManager;
-
-    private final ComponentDefaultConfig componentDefaultConfig;
 
     private final Map<String, AppFileSystem> fileSystems = new HashMap<>();
 
@@ -38,16 +35,14 @@ public class AppData implements AutoCloseable {
 
     public AppData() {
         this(LocalComputationManager.getDefault(),
-                ComponentDefaultConfig.load(),
                 new ServiceLoaderCache<>(AppFileSystemProvider.class).getServices(),
                 new ServiceLoaderCache<>(FileExtension.class).getServices(),
                 new ServiceLoaderCache<>(ProjectFileExtension.class).getServices());
     }
 
-    public AppData(ComputationManager computationManager, ComponentDefaultConfig componentDefaultConfig, List<AppFileSystemProvider> fileSystemProviders,
+    public AppData(ComputationManager computationManager, List<AppFileSystemProvider> fileSystemProviders,
                    List<FileExtension> fileExtensions, List<ProjectFileExtension> projectFileExtensions) {
         this.computationManager = Objects.requireNonNull(computationManager);
-        this.componentDefaultConfig = Objects.requireNonNull(componentDefaultConfig);
         Objects.requireNonNull(fileSystemProviders);
         Objects.requireNonNull(fileExtensions);
         Objects.requireNonNull(projectFileExtensions);
@@ -126,10 +121,6 @@ public class AppData implements AutoCloseable {
     ProjectFileExtension getProjectFileExtensionByPseudoClass(String projectFilePseudoClass) {
         Objects.requireNonNull(projectFilePseudoClass);
         return projectFileExtensionsByPseudoClass.get(projectFilePseudoClass);
-    }
-
-    public ComponentDefaultConfig getComponentDefaultConfig() {
-        return componentDefaultConfig;
     }
 
     public ComputationManager getComputationManager() {

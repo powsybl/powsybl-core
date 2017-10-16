@@ -11,6 +11,7 @@ import com.powsybl.afs.AppFileSystem;
 import com.powsybl.afs.ProjectFileBuilder;
 import com.powsybl.afs.storage.AppFileSystemStorage;
 import com.powsybl.afs.storage.NodeId;
+import com.powsybl.iidm.import_.ImportersLoader;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -32,15 +33,19 @@ public class ImportedCaseBuilder implements ProjectFileBuilder<ImportedCase> {
 
     private final AppFileSystem fileSystem;
 
+    private final ImportersLoader importersLoader;
+
     private Case aCase;
 
     private final Properties parameters = new Properties();;
 
-    public ImportedCaseBuilder(NodeId folderId, AppFileSystemStorage storage, NodeId projectId, AppFileSystem fileSystem) {
+    public ImportedCaseBuilder(NodeId folderId, AppFileSystemStorage storage, NodeId projectId, AppFileSystem fileSystem,
+                               ImportersLoader importersLoader) {
         this.folderId = Objects.requireNonNull(folderId);
         this.storage = Objects.requireNonNull(storage);
         this.projectId = Objects.requireNonNull(projectId);
         this.fileSystem = Objects.requireNonNull(fileSystem);
+        this.importersLoader = Objects.requireNonNull(importersLoader);
     }
 
     public ImportedCaseBuilder withCase(Case aCase) {
@@ -88,6 +93,6 @@ public class ImportedCaseBuilder implements ProjectFileBuilder<ImportedCase> {
 
         storage.flush();
 
-        return new ImportedCase(id, storage, projectId, fileSystem);
+        return new ImportedCase(id, storage, projectId, fileSystem, importersLoader);
     }
 }

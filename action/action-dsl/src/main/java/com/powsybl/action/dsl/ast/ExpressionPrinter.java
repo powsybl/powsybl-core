@@ -8,10 +8,8 @@ package com.powsybl.action.dsl.ast;
 
 import org.apache.commons.io.output.WriterOutputStream;
 
-import java.io.IOException;
 import java.io.PrintStream;
 import java.io.StringWriter;
-import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 import java.util.Objects;
@@ -27,13 +25,8 @@ public class ExpressionPrinter extends DefaultExpressionVisitor<Void, Void> {
         StringWriter writer = new StringWriter();
         try (PrintStream os = new PrintStream(new WriterOutputStream(writer, StandardCharsets.UTF_8))) {
             print(node, os);
-        } finally {
-            try {
-                writer.close();
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
         }
+
         return writer.toString();
     }
 
