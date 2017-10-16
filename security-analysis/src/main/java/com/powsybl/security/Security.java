@@ -30,6 +30,8 @@ public final class Security {
 
     private final static String PERMANENT_LIMIT_NAME = "Permanent limit";
 
+    private final static String NUNBER_STRING_FORMAT = "%.4f";
+
     public enum CurrentLimitType {
         PATL,
         TATL
@@ -189,10 +191,10 @@ public final class Security {
                                      .writeCell(violation.getSubjectId())
                                      .writeCell(violation.getLimitType().name())
                                      .writeCell(getViolationName(violation))
-                                     .writeCell(violation.getValue(), createNumberCellStyle(), getNumberStringFormat())
-                                     .writeCell(getViolationLimit(violation), createNumberCellStyle(), getNumberStringFormat())
-                                     .writeCell(getAbsValueLimit(violation), createNumberCellStyle(), getNumberStringFormat())
-                                     .writeCell(getViolationValue(violation), createNumberCellStyle(), getNumberStringFormat());
+                                     .writeCell(violation.getValue(), createNumberCellStyle(), Security.NUNBER_STRING_FORMAT)
+                                     .writeCell(getViolationLimit(violation), createNumberCellStyle(), Security.NUNBER_STRING_FORMAT)
+                                     .writeCell(getAbsValueLimit(violation), createNumberCellStyle(), Security.NUNBER_STRING_FORMAT)
+                                     .writeCell(getViolationValue(violation), createNumberCellStyle(), Security.NUNBER_STRING_FORMAT);
                         } catch (IOException e) {
                             throw new UncheckedIOException(e);
                         }
@@ -247,9 +249,9 @@ public final class Security {
                                     .writeCell(violation.getSubjectId())
                                     .writeCell(violation.getLimitType().name())
                                     .writeCell(getViolationName(violation))
-                                    .writeCell(violation.getValue(), createNumberCellStyle(), getNumberStringFormat())
-                                    .writeCell(getViolationLimit(violation), createNumberCellStyle(), getNumberStringFormat())
-                                    .writeCell(getViolationValueFloat(violation), createNumberCellStyle(), getNumberStringFormat());
+                                    .writeCell(violation.getValue(), createNumberCellStyle(), Security.NUNBER_STRING_FORMAT)
+                                    .writeCell(getViolationLimit(violation), createNumberCellStyle(), Security.NUNBER_STRING_FORMAT)
+                                    .writeCell(getViolationValue(violation), createNumberCellStyle(), Security.NUNBER_STRING_FORMAT);
                         } catch (IOException e) {
                             throw new UncheckedIOException(e);
                         }
@@ -267,20 +269,12 @@ public final class Security {
         return Float.valueOf(Float.toString(violation.getLimit()) + (violation.getLimitReduction() != 1f ? " * " + violation.getLimitReduction() : ""));
     }
 
-    private static int getViolationValue(LimitViolation violation) {
-        return Math.round(Math.abs(violation.getValue()) / violation.getLimit() * 100f);
-    }
-
-    private static float getViolationValueFloat(LimitViolation violation) {
+    private static float getViolationValue(LimitViolation violation) {
         return Math.abs(violation.getValue()) / violation.getLimit() * 100f;
     }
 
     public static CellStyle createNumberCellStyle() {
         return new CellStyle(HorizontalAlign.right);
-    }
-
-    public static String getNumberStringFormat() {
-        return "%.4f";
     }
 
     /**
@@ -400,9 +394,9 @@ public final class Security {
                                                             .writeCell(violation.getSubjectId())
                                                             .writeCell(violation.getLimitType().name())
                                                             .writeCell(getViolationName(violation))
-                                                            .writeCell(violation.getValue(), createNumberCellStyle(), getNumberStringFormat())
-                                                            .writeCell(getViolationLimit(violation), createNumberCellStyle(), getNumberStringFormat())
-                                                            .writeCell(getViolationValueFloat(violation), createNumberCellStyle(), getNumberStringFormat());
+                                                            .writeCell(violation.getValue(), createNumberCellStyle(), Security.NUNBER_STRING_FORMAT)
+                                                            .writeCell(getViolationLimit(violation), createNumberCellStyle(), Security.NUNBER_STRING_FORMAT)
+                                                            .writeCell(getViolationValue(violation), createNumberCellStyle(), Security.NUNBER_STRING_FORMAT);
                                                 } catch (IOException e) {
                                                     throw new UncheckedIOException(e);
                                                 }
