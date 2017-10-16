@@ -109,7 +109,6 @@ public final class Security {
 
     public static List<LimitViolation> checkLimits(Network network, CurrentLimitType currentLimitType, float limitReduction) {
         Objects.requireNonNull(currentLimitType);
-
         return checkLimits(network, EnumSet.of(currentLimitType), limitReduction);
     }
 
