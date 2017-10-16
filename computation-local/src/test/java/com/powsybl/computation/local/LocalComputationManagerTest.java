@@ -10,6 +10,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
+import com.powsybl.commons.config.InMemoryPlatformConfig;
+import com.powsybl.commons.config.MapModuleConfig;
+import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.computation.*;
 import org.junit.After;
 import org.junit.Before;
@@ -20,6 +23,7 @@ import java.io.OutputStream;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
 import java.util.zip.GZIPOutputStream;
@@ -61,6 +65,27 @@ public class LocalComputationManagerTest {
     @Test
     public void testLocalDir() throws Exception {
         assertEquals(localDir, new LocalComputationManager(config).getLocalDir());
+    }
+
+    @Test
+    public void testConfig() throws Exception {
+        InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
+
+        LocalComputationConfig config = LocalComputationConfig.load(platformConfig);
+        assertEquals(1, config.getAvailableCore());
+        assertEquals(Paths.get(System.getProperty("java.io.tmpdir")), config.getLocalDir());
+
+        MapModuleConfig moduleConfig = platformConfig.createModuleConfig("computation-local");
+        moduleConfig.setPathProperty("tmpDir", localDir);
+        moduleConfig.setStringProperty("availableCore", "-1");
+
+        config = LocalComputationConfig.load(platformConfig);
+        assertEquals(Runtime.getRuntime().availableProcessors(), config.getAvailableCore());
+        assertEquals(localDir, config.getLocalDir());
+
+        config = new LocalComputationConfig(localDir);
+        assertEquals(1, config.getAvailableCore());
+        assertEquals(localDir, config.getLocalDir());
     }
 
     @Test

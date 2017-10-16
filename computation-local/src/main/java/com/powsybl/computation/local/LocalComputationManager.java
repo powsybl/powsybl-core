@@ -7,6 +7,7 @@
 package com.powsybl.computation.local;
 
 import com.google.common.io.ByteStreams;
+import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.io.WorkingDirectory;
 import com.powsybl.computation.*;
 import net.java.truevfs.comp.zip.ZipEntry;
@@ -93,6 +94,10 @@ public class LocalComputationManager implements ComputationManager {
 
     public LocalComputationManager() throws IOException {
         this(LocalComputationConfig.load());
+    }
+
+    public LocalComputationManager(PlatformConfig platformConfig) throws IOException {
+        this(LocalComputationConfig.load(platformConfig));
     }
 
     public LocalComputationManager(Path localDir)  throws IOException {
