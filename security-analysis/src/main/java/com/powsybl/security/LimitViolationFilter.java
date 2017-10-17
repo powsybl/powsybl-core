@@ -11,6 +11,7 @@ import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.iidm.network.Country;
 
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -20,15 +21,18 @@ import java.util.stream.Collectors;
  */
 public class LimitViolationFilter {
 
-    private static final Set<LimitViolationType> DEFAULT_VIOLATION_TYPES = null;
+    private static final Set<LimitViolationType> DEFAULT_VIOLATION_TYPES = EnumSet.allOf(LimitViolationType.class);
     private static final float DEFAULT_MIN_BASE_VOLTAGE = 0f;
-    private static final Set<Country> DEFAULT_COUNTRIES = null;
+    private static final Set<Country> DEFAULT_COUNTRIES = EnumSet.allOf(Country.class);
 
     private static Set<LimitViolationType> checkViolationTypes(Set<LimitViolationType> violationTypes) {
-        if (violationTypes != null && violationTypes.isEmpty()) {
+        if (violationTypes == null) {
+            return DEFAULT_VIOLATION_TYPES;
+        } else if (!violationTypes.isEmpty()) {
+            return violationTypes;
+        } else {
             throw new IllegalArgumentException("Bad violation types filter");
         }
-        return violationTypes;
     }
 
     private static float checkMinBaseVoltage(float minBaseVoltage) {
@@ -39,10 +43,13 @@ public class LimitViolationFilter {
     }
 
     private static Set<Country> checkCountries(Set<Country> countries) {
-        if (countries != null && countries.isEmpty()) {
+        if (countries == null) {
+            return DEFAULT_COUNTRIES;
+        } else if (!countries.isEmpty()) {
+            return countries;
+        } else {
             throw new IllegalArgumentException("Bad countries filter");
         }
-        return countries;
     }
 
     public static LimitViolationFilter load() {
@@ -113,9 +120,21 @@ public class LimitViolationFilter {
 
     public List<LimitViolation> apply(List<LimitViolation> violations) {
         return violations.stream()
-                .filter(violation -> violationTypes == null || violationTypes.contains(violation.getLimitType()))
-                .filter(violation -> Float.isNaN(violation.getBaseVoltage()) || violation.getBaseVoltage() > minBaseVoltage)
-                .filter(violation -> countries == null || countries.contains(violation.getCountry()))
+                .filter(violation -> accept(violation.getLimitType()))
+                .filter(violation -> accept(violation.getBaseVoltage()))
+                .filter(violation -> accept(violation.getCountry()))
                 .collect(Collectors.toList());
+    }
+
+    private boolean accept(Country country) {
+        return (country == null) || countries.contains(country);
+    }
+
+    private boolean accept(float baseVoltage) {
+        return Float.isNaN(baseVoltage) || baseVoltage >= minBaseVoltage;
+    }
+
+    private boolean accept(LimitViolationType limitViolationType) {
+        return violationTypes.contains(limitViolationType);
     }
 }

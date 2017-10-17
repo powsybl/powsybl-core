@@ -7,7 +7,6 @@
 package com.powsybl.security;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
 import java.nio.file.FileSystem;
@@ -63,9 +62,9 @@ public class LimitViolationFilterTest {
         assertEquals(EnumSet.of(Country.FR), filter.getCountries());
         assertEquals(225f, filter.getMinBaseVoltage(), 0f);
         filter.setViolationTypes(null);
-        assertNull(filter.getViolationTypes());
+        assertEquals(LimitViolationType.values().length, filter.getViolationTypes().size());
         filter.setCountries(null);
-        assertNull(filter.getCountries());
+        assertEquals(Country.values().length, filter.getCountries().size());
         try {
             filter.setViolationTypes(EnumSet.noneOf(LimitViolationType.class));
             fail();
