@@ -6,6 +6,7 @@
  */
 package com.powsybl.commons.io.table;
 
+import org.apache.commons.lang3.StringUtils;
 import org.nocrala.tools.texttablefmt.BorderStyle;
 import org.nocrala.tools.texttablefmt.CellStyle;
 import org.nocrala.tools.texttablefmt.Table;
@@ -60,9 +61,7 @@ public class AsciiTableFormatter extends AbstractTableFormatter {
 
     @Override
     public void close() throws IOException {
-        if (null == title || title.isEmpty()) {
-            writer.write(System.lineSeparator());
-        } else {
+        if (!StringUtils.isEmpty(title)) {
             writer.write(title + ":" + System.lineSeparator());
         }
         writer.write(table.render() + System.lineSeparator());

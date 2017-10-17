@@ -6,6 +6,9 @@
  */
 package com.powsybl.commons.io.table;
 
+import org.nocrala.tools.texttablefmt.CellStyle;
+import org.nocrala.tools.texttablefmt.CellStyle.HorizontalAlign;
+
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -14,11 +17,18 @@ public class Column {
 
     private final String name;
 
-    public Column(String name) {
+    private final CellStyle cellStyle;
+    
+    public Column(String name, CellStyle cellStyle) {
         this.name = name;
+        this.cellStyle = cellStyle;
     }
 
-    public String getName() {
+    public CellStyle getCellStyle() {
+		return cellStyle;
+	}
+
+	public String getName() {
         return name;
     }
 

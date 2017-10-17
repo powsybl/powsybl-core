@@ -80,6 +80,10 @@
             <groupId>org.ow2.sirocco</groupId>
             <artifactId>sirocco-text-table-formatter</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+       </dependency>
 
         <!-- Test dependencies -->
         <dependency>

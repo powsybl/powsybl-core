@@ -21,6 +21,7 @@ import java.io.StringWriter;
 import java.io.UncheckedIOException;
 import java.io.Writer;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
@@ -28,9 +29,9 @@ import java.util.stream.Collectors;
  */
 public final class Security {
 
-    private final static String PERMANENT_LIMIT_NAME = "Permanent limit";
+private static final String PERMANENT_LIMIT_NAME = "Permanent limit";
 
-    private final static String NUNBER_STRING_FORMAT = "%.4f";
+    private static final String NUNBER_STRING_FORMAT = "%.4f";
 
     public enum CurrentLimitType {
         PATL,
@@ -183,26 +184,30 @@ public final class Security {
                 new Column("Loading rate %"))) {
             filteredViolations.stream()
                     .sorted(Comparator.comparing(LimitViolation::getSubjectId))
-                    .forEach(violation -> {
-                        try {
-                            formatter.writeCell(violation.getCountry() != null ? violation.getCountry().name() : "")
-                                     .writeCell(Float.isNaN(violation.getBaseVoltage()) ? "" : Float.toString(violation.getBaseVoltage()))
-                                     .writeCell(violation.getSubjectId())
-                                     .writeCell(violation.getLimitType().name())
-                                     .writeCell(getViolationName(violation))
-                                     .writeCell(violation.getValue(), createNumberCellStyle(), Security.NUNBER_STRING_FORMAT)
-                                     .writeCell(getViolationLimit(violation), createNumberCellStyle(), Security.NUNBER_STRING_FORMAT)
-                                     .writeCell(getAbsValueLimit(violation), createNumberCellStyle(), Security.NUNBER_STRING_FORMAT)
-                                     .writeCell(getViolationValue(violation), createNumberCellStyle(), Security.NUNBER_STRING_FORMAT);
-                        } catch (IOException e) {
-                            throw new UncheckedIOException(e);
-                        }
-                    });
+                    .forEach(writeLine(formatter));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
         return writer.toString().trim();
     }
+
+	private static Consumer<? super LimitViolation> writeLine(TableFormatter formatter) {
+		return violation -> {
+		    try {
+		        formatter.writeCell(violation.getCountry() != null ? violation.getCountry().name() : "")
+		                 .writeCell(Float.isNaN(violation.getBaseVoltage()) ? "" : Float.toString(violation.getBaseVoltage()))
+		                 .writeCell(violation.getSubjectId())
+		                 .writeCell(violation.getLimitType().name())
+		                 .writeCell(getViolationName(violation))
+		                 .writeCell(violation.getValue(), createNumberCellStyle(), Security.NUNBER_STRING_FORMAT)
+		                 .writeCell(getViolationLimit(violation), createNumberCellStyle(), Security.NUNBER_STRING_FORMAT)
+		                 .writeCell(getAbsValueLimit(violation), createNumberCellStyle(), Security.NUNBER_STRING_FORMAT)
+		                 .writeCell(getViolationValue(violation), createNumberCellStyle(), Security.NUNBER_STRING_FORMAT);
+		    } catch (IOException e) {
+		        throw new UncheckedIOException(e);
+		    }
+		};
+	}
 
     private static float getAbsValueLimit(LimitViolation violation) {
         return Float.valueOf(Float.toString(violation.getLimit()) + (violation.getLimitReduction() != 1f ? " * " + violation.getLimitReduction() : ""));
@@ -273,7 +278,9 @@ public final class Security {
     }
 
     public static CellStyle createNumberCellStyle() {
-        return new CellStyle(HorizontalAlign.right);
+    	CellStyle cellStyle = new CellStyle(HorizontalAlign.right);
+    	return new CellStyle(HorizontalAlign.right);
+        
     }
 
     /**
