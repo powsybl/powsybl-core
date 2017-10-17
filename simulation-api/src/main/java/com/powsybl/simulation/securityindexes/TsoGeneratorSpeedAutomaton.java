@@ -60,21 +60,7 @@ public class TsoGeneratorSpeedAutomaton extends AbstractSecurityIndex {
                             break;
 
                         case "gen":
-                            if (state == null) {
-                                throw new IllegalStateException();
-                            }
-                            switch (state) {
-                                case UNDER:
-                                    onUnderSpeedDiconnectedGenerators.add(text);
-                                    break;
-
-                                case OVER:
-                                    onOverSpeedDiconnectedGenerators.add(text);
-                                    break;
-
-                                default:
-                                    throw new AssertionError();
-                            }
+                            LimitsXmlParsingState.addGenerator(state, text, onUnderSpeedDiconnectedGenerators, onOverSpeedDiconnectedGenerators);
                             break;
 
                         case "index":

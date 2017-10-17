@@ -61,21 +61,7 @@ public class TsoGeneratorVoltageAutomaton extends AbstractSecurityIndex {
                             break;
 
                         case "gen":
-                            if (state == null) {
-                                throw new IllegalStateException();
-                            }
-                            switch (state) {
-                                case UNDER:
-                                    onUnderVoltageDiconnectedGenerators.add(text);
-                                    break;
-
-                                case OVER:
-                                    onOverVoltageDiconnectedGenerators.add(text);
-                                    break;
-
-                                default:
-                                    throw new AssertionError();
-                            }
+                            LimitsXmlParsingState.addGenerator(state, text, onUnderVoltageDiconnectedGenerators, onOverVoltageDiconnectedGenerators);
                             break;
 
                         case "index":

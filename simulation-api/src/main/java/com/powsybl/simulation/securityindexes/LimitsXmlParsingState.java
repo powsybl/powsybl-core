@@ -6,11 +6,31 @@
  */
 package com.powsybl.simulation.securityindexes;
 
+import java.util.List;
+
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public enum LimitsXmlParsingState {
+enum LimitsXmlParsingState {
     UNDER,
-    OVER
+    OVER;
+
+    static void addGenerator(LimitsXmlParsingState state, String generatorId, List<String> onUnderDiconnectedGenerators, List<String> onOverDiconnectedGenerators) {
+        if (state == null) {
+            throw new IllegalStateException();
+        }
+        switch (state) {
+            case UNDER:
+                onUnderDiconnectedGenerators.add(generatorId);
+                break;
+
+            case OVER:
+                onOverDiconnectedGenerators.add(generatorId);
+                break;
+
+            default:
+                throw new AssertionError();
+        }
+    }
 }
