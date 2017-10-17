@@ -23,12 +23,14 @@ public class TsoGeneratorSpeedAutomaton extends AbstractSecurityIndex {
 
     static final String XML_NAME = "tso-generator-speed-automaton";
 
+    private static final String ON_UNDER_SPEED_DISCONNECTED_GENERATORS = "onUnderSpeedDisconnectedGenerators";
+    private static final String ON_OVER_SPEED_DISCONNECTED_GENERATORS = "onOverSpeedDisconnectedGenerators";
+
     private final List<String> onUnderSpeedDiconnectedGenerators;
     private final List<String> onOverSpeedDiconnectedGenerators;
 
     public static TsoGeneratorSpeedAutomaton fromXml(String contingencyId, XMLStreamReader xmlsr) throws XMLStreamException {
-        boolean under = false;
-        boolean over = false;
+        LimitsXmlParsingState state = null;
         String text = null;
         List<String> onUnderSpeedDiconnectedGenerators = new ArrayList<>();
         List<String> onOverSpeedDiconnectedGenerators = new ArrayList<>();
@@ -38,33 +40,29 @@ public class TsoGeneratorSpeedAutomaton extends AbstractSecurityIndex {
                 case XMLEvent.CHARACTERS:
                     text = xmlsr.getText();
                     break;
+
                 case XMLEvent.START_ELEMENT:
                     switch (xmlsr.getLocalName()) {
-                        case "onUnderSpeedDisconnectedGenerators":
-                            under = true;
+                        case ON_UNDER_SPEED_DISCONNECTED_GENERATORS:
+                            state = LimitsXmlParsingState.UNDER;
                             break;
-                        case "onOverSpeedDisconnectedGenerators":
-                            over = true;
+
+                        case ON_OVER_SPEED_DISCONNECTED_GENERATORS:
+                            state = LimitsXmlParsingState.OVER;
                             break;
                     }
                     break;
                 case XMLEvent.END_ELEMENT:
                     switch (xmlsr.getLocalName()) {
-                        case "onUnderSpeedDisconnectedGenerators":
-                            under = false;
+                        case ON_UNDER_SPEED_DISCONNECTED_GENERATORS:
+                        case ON_OVER_SPEED_DISCONNECTED_GENERATORS:
+                            state = null;
                             break;
-                        case "onOverSpeedDisconnectedGenerators":
-                            over = false;
-                            break;
+
                         case "gen":
-                            if (under) {
-                                onUnderSpeedDiconnectedGenerators.add(text);
-                            } else if (over) {
-                                onOverSpeedDiconnectedGenerators.add(text);
-                            } else {
-                                throw new AssertionError();
-                            }
+                            LimitsXmlParsingState.addGenerator(state, text, onUnderSpeedDiconnectedGenerators, onOverSpeedDiconnectedGenerators);
                             break;
+
                         case "index":
                             return new TsoGeneratorSpeedAutomaton(contingencyId, onUnderSpeedDiconnectedGenerators, onOverSpeedDiconnectedGenerators);
                     }
