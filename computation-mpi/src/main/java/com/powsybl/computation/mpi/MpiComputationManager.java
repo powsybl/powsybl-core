@@ -74,10 +74,10 @@ public class MpiComputationManager implements ComputationManager {
         this.scheduler = scheduler;
         if (executorContext.getMonitorExecutor() != null) {
             busyCoresPrintTask = executorContext.getMonitorExecutor().scheduleAtFixedRate(
-                    () -> LOGGER.info("Busy cores {}/{}, {} tasks/s", scheduler.getResources().getBusyCores(),
-                                                                      scheduler.getResources().getAvailableCores(),
-                                                                      ((float) scheduler.getStartedTasksAndReset()) / LOG_DELAY),
-                    0, LOG_DELAY, TimeUnit.SECONDS);
+                () -> LOGGER.info("Busy cores {}/{}, {} tasks/s", scheduler.getResources().getBusyCores(),
+                                                                  scheduler.getResources().getAvailableCores(),
+                                                                  ((float) scheduler.getStartedTasksAndReset()) / LOG_DELAY),
+                0, LOG_DELAY, TimeUnit.SECONDS);
         }
     }
 
