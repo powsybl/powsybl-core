@@ -6,7 +6,6 @@
  */
 package com.powsybl.ucte.network.ext;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 import com.powsybl.ucte.network.*;
@@ -125,12 +124,7 @@ public class UcteNetworkExt implements UcteNetwork {
 
         // in the same substation...
         // ...nodes with same geographical spot
-        Multimap<String, UcteNode> nodesByGeographicalSpot = Multimaps.index(network.getNodes(), new Function<UcteNode, String>() {
-            @Override
-            public String apply(UcteNode node) {
-                return node.getCode().getGeographicalSpot();
-            }
-        });
+        Multimap<String, UcteNode> nodesByGeographicalSpot = Multimaps.index(network.getNodes(), node -> node.getCode().getGeographicalSpot());
         for (Map.Entry<String, Collection<UcteNode>> entry : nodesByGeographicalSpot.asMap().entrySet()) {
             for (UcteNode n1 : entry.getValue()) {
                 for (UcteNode n2 : entry.getValue()) {
@@ -197,13 +191,10 @@ public class UcteNetworkExt implements UcteNetwork {
                             }
                         })
                         .findFirst()
-                        .get();
+                        .orElseThrow(() -> new AssertionError());
 
                 Multimap<UcteVoltageLevelCode, UcteNodeCode> nodesByVoltageLevel
-                        = Multimaps.index(substationNodes, nodeCode -> {
-                            return nodeCode.getVoltageLevelCode();
-                        });
-
+                        = Multimaps.index(substationNodes, UcteNodeCode::getVoltageLevelCode);
 
                 String substationName = mainNode.getUcteCountryCode().getUcteCode() + mainNode.getGeographicalSpot();
                 List<UcteVoltageLevel> voltageLevels = new ArrayList<>();
