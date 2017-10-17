@@ -38,9 +38,11 @@ public class OverloadSecurityIndex extends AbstractSecurityIndex {
                         return new OverloadSecurityIndex(contingencyId, Double.parseDouble(text));
                     }
                     break;
+                default:
+                    break;
             }
         }
-        throw new InternalError("Should not have happened");
+        throw new AssertionError("fx element not found");
     }
 
     public OverloadSecurityIndex(String contingencyId, double indexValue) {
@@ -54,7 +56,7 @@ public class OverloadSecurityIndex extends AbstractSecurityIndex {
 
     @Override
     public boolean isOk() {
-        return !(indexValue > INDEX_THRESHOLD);
+        return indexValue <= INDEX_THRESHOLD;
     }
 
     @Override

@@ -8,13 +8,15 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
 
+import java.util.Objects;
+
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTransformer> implements ThreeWindingsTransformer {
 
-    static abstract class AbstractLegBase<T extends AbstractLegBase<T>> implements Validable, CurrentLimitsOwner<Void> {
+    abstract static class AbstractLegBase<T extends AbstractLegBase<T>> implements Validable, CurrentLimitsOwner<Void> {
 
         protected ThreeWindingsTransformerImpl transformer;
 
@@ -159,7 +161,7 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
 
     }
 
-    private static abstract class AbstractLeg2or3<T extends AbstractLeg2or3<T>> extends AbstractLegBase<T> implements RatioTapChangerParent {
+    private abstract static class AbstractLeg2or3<T extends AbstractLeg2or3<T>> extends AbstractLegBase<T> implements RatioTapChangerParent {
 
         private RatioTapChangerImpl ratioTapChanger;
 
@@ -295,6 +297,21 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
 
             default:
                 throw new AssertionError();
+        }
+    }
+
+    @Override
+    public Side getSide(Terminal terminal) {
+        Objects.requireNonNull(terminal);
+
+        if (getLeg1().getTerminal() == terminal) {
+            return Side.ONE;
+        } else if (getLeg2().getTerminal() == terminal) {
+            return Side.TWO;
+        } else if (getLeg3().getTerminal() == terminal) {
+            return Side.THREE;
+        } else {
+            throw new AssertionError("The terminal is not connected to this three windings transformer");
         }
     }
 

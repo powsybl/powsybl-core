@@ -117,7 +117,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         if (v != null) {
             ConfiguredBus bus = graph.getVertexObject(v);
             if (!bus.getId().equals(busId)) {
-                throw new InternalError("Must not happened");
+                throw new AssertionError("Invalid bus id (expected: " + busId + ", actual: " + bus.getId() + ")");
             }
             return bus;
         }
@@ -140,7 +140,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         if (e != null) {
             SwitchImpl aSwitch = graph.getEdgeObject(e);
             if (!aSwitch.getId().equals(switchId)) {
-                throw new InternalError("Must not happened");
+                throw new AssertionError("Invalid switch id (expected: " + switchId + ", actual: " + aSwitch.getId() + ")");
             }
             return aSwitch;
         }
@@ -593,7 +593,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
             ConfiguredBus b1 = graph.getVertexObject(v1);
             ConfiguredBus b2 = graph.getVertexObject(v2);
             if (bus == b1 || bus == b2) {
-                throw new RuntimeException("Cannot remove bus '" + bus.getId()
+                throw new PowsyblException("Cannot remove bus '" + bus.getId()
                         + "' because switch '" + switchId + "' is connected to it");
             }
         }
@@ -630,7 +630,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
     private void removeSwitch(String switchId) {
         Integer e = switches.remove(switchId);
         if (e == null) {
-            throw new RuntimeException("Switch '" + switchId
+            throw new PowsyblException("Switch '" + switchId
                     + "' not found in substation voltage level '" + id + "'");
         }
         SwitchImpl aSwitch = graph.removeEdge(e);

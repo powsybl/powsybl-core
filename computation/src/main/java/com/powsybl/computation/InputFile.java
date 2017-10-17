@@ -53,7 +53,7 @@ public class InputFile {
                     }
                     break;
                 default:
-                    throw new InternalError();
+                    throw new AssertionError("Unexpected FilePreProcessor value: " + preProcessor);
             }
         }
         return name;

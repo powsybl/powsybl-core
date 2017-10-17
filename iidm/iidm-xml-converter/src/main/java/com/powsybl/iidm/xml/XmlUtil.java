@@ -41,9 +41,18 @@ public final class XmlUtil {
                 case XMLStreamConstants.CHARACTERS:
                     text = reader.getText();
                     break;
+
+                default:
+                    break;
             }
         }
         return text;
+    }
+
+    public static void writeBoolean(String name, boolean value, XMLStreamWriter writer) throws XMLStreamException {
+        if (value) {
+            writer.writeAttribute(name, Boolean.toString(value));
+        }
     }
 
     public static void writeFloat(String name, float value, XMLStreamWriter writer) throws XMLStreamException {
@@ -53,7 +62,9 @@ public final class XmlUtil {
     }
 
     public static void writeInt(String name, int value, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeAttribute(name, Integer.toString(value));
+        if (value != Integer.MAX_VALUE) {
+            writer.writeAttribute(name, Integer.toString(value));
+        }
     }
 
     public static int readIntAttribute(XMLStreamReader reader, String attributeName) {

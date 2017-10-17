@@ -43,11 +43,17 @@ public class TsoUndervoltageSecurityIndex extends AbstractSecurityIndex {
 
                         case "undervoltage-count":
                             return new TsoUndervoltageSecurityIndex(contingencyId, Integer.parseInt(text), computationSucceed);
+
+                        default:
+                            break;
                     }
+                    break;
+
+                default:
                     break;
             }
         }
-        throw new InternalError("Should not happened");
+        throw new AssertionError("undervoltage-count element not found");
     }
 
     public TsoUndervoltageSecurityIndex(String contingencyId, int undervoltageCount) {

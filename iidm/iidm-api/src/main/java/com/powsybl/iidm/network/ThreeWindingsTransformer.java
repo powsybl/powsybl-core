@@ -122,6 +122,11 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
     Terminal getTerminal(Side side);
 
     /**
+     * Get the side the terminal is connected to.
+     */
+    Side getSide(Terminal terminal);
+
+    /**
      * Get the substation to which the transformer belongs.
      */
     Substation getSubstation();

@@ -507,7 +507,7 @@ class CIM1Converter implements CIM1Constants {
                 break;
 
             default:
-                throw new InternalError();
+                throw new AssertionError("Unexpected PhaseTapChangerKind value: " + ptc.getPhaseTapChangerType());
         }
 
         float alphaMax = (float) alphaList.stream().mapToDouble(Float::doubleValue).max().getAsDouble();
@@ -529,7 +529,7 @@ class CIM1Converter implements CIM1Constants {
                         break;
 
                     default:
-                        throw new InternalError();
+                        throw new AssertionError("Unexpected PhaseTapChangerKind value: " + ptc.getPhaseTapChangerType());
                 }
             }
             ptca.beginStep()
