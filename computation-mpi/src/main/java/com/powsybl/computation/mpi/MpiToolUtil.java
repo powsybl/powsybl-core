@@ -93,28 +93,29 @@ public final class MpiToolUtil {
         MpiExecutorContext mpiExecutorContext = new MpiExecutorContext();
         MpiStatisticsFactory statisticsFactory = createMpiStatisticsFactory(config, statisticsDbDir, statisticsDbName);
         try {
-            MpiStatistics statistics = statisticsFactory.create(statisticsDbDir, statisticsDbName);
+            try (MpiStatistics statistics = statisticsFactory.create(statisticsDbDir, statisticsDbName)) {
 
-            return new MpiComputationManager(tmpDir, statistics, mpiExecutorContext, coresPerRank, verbose, stdOutArchive) {
-                @Override
-                public void close() throws Exception {
-                    try {
-                        super.close();
-                    } catch (Exception e) {
-                        LOGGER.error(e.toString(), e);
+                return new MpiComputationManager(tmpDir, statistics, mpiExecutorContext, coresPerRank, verbose, stdOutArchive) {
+                    @Override
+                    public void close() throws Exception {
+                        try {
+                            super.close();
+                        } catch (Exception e) {
+                            LOGGER.error(e.toString(), e);
+                        }
+                        try {
+                            statistics.close();
+                        } catch (Exception e) {
+                            LOGGER.error(e.toString(), e);
+                        }
+                        try {
+                            mpiExecutorContext.shutdown();
+                        } catch (Exception e) {
+                            LOGGER.error(e.toString(), e);
+                        }
                     }
-                    try {
-                        statistics.close();
-                    } catch (Exception e) {
-                        LOGGER.error(e.toString(), e);
-                    }
-                    try {
-                        mpiExecutorContext.shutdown();
-                    } catch (Exception e) {
-                        LOGGER.error(e.toString(), e);
-                    }
-                }
-            };
+                };
+            }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         } catch (InterruptedException e) {

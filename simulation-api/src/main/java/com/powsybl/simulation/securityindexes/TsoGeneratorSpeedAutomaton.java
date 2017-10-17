@@ -1,7 +1,7 @@
 /**
  * Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
  * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * License, v. 2.0. If ON_UNDER_SPEED_DISCONNECTED_GENERATORS copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 package com.powsybl.simulation.securityindexes;
@@ -23,12 +23,14 @@ public class TsoGeneratorSpeedAutomaton extends AbstractSecurityIndex {
 
     static final String XML_NAME = "tso-generator-speed-automaton";
 
+    private static final String ON_UNDER_SPEED_DISCONNECTED_GENERATORS = "onUnderSpeedDisconnectedGenerators";
+    private static final String ON_OVER_SPEED_DISCONNECTED_GENERATORS = "onOverSpeedDisconnectedGenerators";
+
     private final List<String> onUnderSpeedDiconnectedGenerators;
     private final List<String> onOverSpeedDiconnectedGenerators;
 
     public static TsoGeneratorSpeedAutomaton fromXml(String contingencyId, XMLStreamReader xmlsr) throws XMLStreamException {
-        boolean under = false;
-        boolean over = false;
+        LimitsXmlParsingState state = null;
         String text = null;
         List<String> onUnderSpeedDiconnectedGenerators = new ArrayList<>();
         List<String> onOverSpeedDiconnectedGenerators = new ArrayList<>();
@@ -38,33 +40,43 @@ public class TsoGeneratorSpeedAutomaton extends AbstractSecurityIndex {
                 case XMLEvent.CHARACTERS:
                     text = xmlsr.getText();
                     break;
+
                 case XMLEvent.START_ELEMENT:
                     switch (xmlsr.getLocalName()) {
-                        case "onUnderSpeedDisconnectedGenerators":
-                            under = true;
+                        case ON_UNDER_SPEED_DISCONNECTED_GENERATORS:
+                            state = LimitsXmlParsingState.UNDER;
                             break;
-                        case "onOverSpeedDisconnectedGenerators":
-                            over = true;
+
+                        case ON_OVER_SPEED_DISCONNECTED_GENERATORS:
+                            state = LimitsXmlParsingState.OVER;
                             break;
                     }
                     break;
                 case XMLEvent.END_ELEMENT:
                     switch (xmlsr.getLocalName()) {
-                        case "onUnderSpeedDisconnectedGenerators":
-                            under = false;
+                        case ON_UNDER_SPEED_DISCONNECTED_GENERATORS:
+                        case ON_OVER_SPEED_DISCONNECTED_GENERATORS:
+                            state = null;
                             break;
-                        case "onOverSpeedDisconnectedGenerators":
-                            over = false;
-                            break;
+
                         case "gen":
-                            if (under) {
-                                onUnderSpeedDiconnectedGenerators.add(text);
-                            } else if (over) {
-                                onOverSpeedDiconnectedGenerators.add(text);
-                            } else {
-                                throw new AssertionError();
+                            if (state == null) {
+                                throw new IllegalStateException();
+                            }
+                            switch (state) {
+                                case UNDER:
+                                    onUnderSpeedDiconnectedGenerators.add(text);
+                                    break;
+
+                                case OVER:
+                                    onOverSpeedDiconnectedGenerators.add(text);
+                                    break;
+
+                                default:
+                                    throw new AssertionError();
                             }
                             break;
+
                         case "index":
                             return new TsoGeneratorSpeedAutomaton(contingencyId, onUnderSpeedDiconnectedGenerators, onOverSpeedDiconnectedGenerators);
                     }

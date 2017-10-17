@@ -1,7 +1,7 @@
 /**
  * Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
  * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * License, v. 2.0. If ON_UNDER_VOLTAGE_DISCONNECTED_GENERATORS copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 package com.powsybl.simulation.securityindexes;
@@ -23,12 +23,14 @@ public class TsoGeneratorVoltageAutomaton extends AbstractSecurityIndex {
 
     static final String XML_NAME = "tso-generator-voltage-automaton";
 
+    private static final String ON_UNDER_VOLTAGE_DISCONNECTED_GENERATORS = "onUnderVoltageDisconnectedGenerators";
+    private static final String ON_OVER_VOLTAGE_DISCONNECTED_GENERATORS = "onOverVoltageDisconnectedGenerators";
+
     private final List<String> onUnderVoltageDiconnectedGenerators;
     private final List<String> onOverVoltageDiconnectedGenerators;
 
     public static TsoGeneratorVoltageAutomaton fromXml(String contingencyId, XMLStreamReader xmlsr) throws XMLStreamException {
-        boolean under = false;
-        boolean over = false;
+        LimitsXmlParsingState state = null;
         String text = null;
         List<String> onUnderVoltageDiconnectedGenerators = new ArrayList<>();
         List<String> onOverVoltageDiconnectedGenerators = new ArrayList<>();
@@ -38,33 +40,44 @@ public class TsoGeneratorVoltageAutomaton extends AbstractSecurityIndex {
                 case XMLEvent.CHARACTERS:
                     text = xmlsr.getText();
                     break;
+
                 case XMLEvent.START_ELEMENT:
                     switch (xmlsr.getLocalName()) {
-                        case "onUnderVoltageDisconnectedGenerators":
-                            under = true;
+                        case ON_UNDER_VOLTAGE_DISCONNECTED_GENERATORS:
+                            state = LimitsXmlParsingState.UNDER;
                             break;
-                        case "onOverVoltageDisconnectedGenerators":
-                            over = true;
+
+                        case ON_OVER_VOLTAGE_DISCONNECTED_GENERATORS:
+                            state = LimitsXmlParsingState.OVER;
                             break;
                     }
                     break;
+
                 case XMLEvent.END_ELEMENT:
                     switch (xmlsr.getLocalName()) {
-                        case "onUnderVoltageDisconnectedGenerators":
-                            under = false;
+                        case ON_UNDER_VOLTAGE_DISCONNECTED_GENERATORS:
+                        case ON_OVER_VOLTAGE_DISCONNECTED_GENERATORS:
+                            state = null;
                             break;
-                        case "onOverVoltageDisconnectedGenerators":
-                            over = false;
-                            break;
+
                         case "gen":
-                            if (under) {
-                                onUnderVoltageDiconnectedGenerators.add(text);
-                            } else if (over) {
-                                onOverVoltageDiconnectedGenerators.add(text);
-                            } else {
-                                throw new AssertionError();
+                            if (state == null) {
+                                throw new IllegalStateException();
+                            }
+                            switch (state) {
+                                case UNDER:
+                                    onUnderVoltageDiconnectedGenerators.add(text);
+                                    break;
+
+                                case OVER:
+                                    onOverVoltageDiconnectedGenerators.add(text);
+                                    break;
+
+                                default:
+                                    throw new AssertionError();
                             }
                             break;
+
                         case "index":
                             return new TsoGeneratorVoltageAutomaton(contingencyId, onUnderVoltageDiconnectedGenerators, onOverVoltageDiconnectedGenerators);
                     }
