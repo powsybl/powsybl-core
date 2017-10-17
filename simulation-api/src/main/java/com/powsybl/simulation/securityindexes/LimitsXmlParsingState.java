@@ -10,7 +10,6 @@ package com.powsybl.simulation.securityindexes;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-
 public enum LimitsXmlParsingState {
     UNDER,
     OVER
