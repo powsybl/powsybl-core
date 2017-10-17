@@ -333,11 +333,24 @@ public class MpiComputationManager implements ComputationManager {
     }
 
     @Override
-    public void close() throws Exception {
-        scheduler.shutdown();
-        statistics.close();
+    public void close() {
+        try {
+            scheduler.shutdown();
+        } catch (Exception e) {
+            LOGGER.error(e.toString(), e);
+        }
+        try {
+            statistics.close();
+        } catch (Exception e) {
+            LOGGER.error(e.toString(), e);
+        }
         if (busyCoresPrintTask != null) {
             busyCoresPrintTask.cancel(true);
+        }
+        try {
+            executorContext.shutdown();
+        } catch (Exception e) {
+            LOGGER.error(e.toString(), e);
         }
     }
 

@@ -12,8 +12,6 @@ import com.powsybl.computation.ComputationManager;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -24,8 +22,6 @@ import java.nio.file.Path;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public final class MpiToolUtil {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(MpiToolUtil.class);
 
     private MpiToolUtil() {
     }
@@ -90,32 +86,10 @@ public final class MpiToolUtil {
 
         ComponentDefaultConfig config = ComponentDefaultConfig.load();
 
-        MpiExecutorContext mpiExecutorContext = new MpiExecutorContext();
         MpiStatisticsFactory statisticsFactory = createMpiStatisticsFactory(config, statisticsDbDir, statisticsDbName);
         try {
-            try (MpiStatistics statistics = statisticsFactory.create(statisticsDbDir, statisticsDbName)) {
-
-                return new MpiComputationManager(tmpDir, statistics, mpiExecutorContext, coresPerRank, verbose, stdOutArchive) {
-                    @Override
-                    public void close() throws Exception {
-                        try {
-                            super.close();
-                        } catch (Exception e) {
-                            LOGGER.error(e.toString(), e);
-                        }
-                        try {
-                            statistics.close();
-                        } catch (Exception e) {
-                            LOGGER.error(e.toString(), e);
-                        }
-                        try {
-                            mpiExecutorContext.shutdown();
-                        } catch (Exception e) {
-                            LOGGER.error(e.toString(), e);
-                        }
-                    }
-                };
-            }
+            return new MpiComputationManager(tmpDir, statisticsFactory.create(statisticsDbDir, statisticsDbName),
+                                             new MpiExecutorContext(), coresPerRank, verbose, stdOutArchive);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         } catch (InterruptedException e) {
