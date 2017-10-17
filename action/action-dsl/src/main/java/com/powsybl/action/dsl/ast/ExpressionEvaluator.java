@@ -286,8 +286,8 @@ public class ExpressionEvaluator extends DefaultExpressionVisitor<Object, Void> 
     public Object visitIsOverloaded(IsOverloadedNode isOverloadedNode, Void arg) {
         float reduction = isOverloadedNode.getReduction();
         int duration = isOverloadedNode.getDuration();
-        for (String lineId : isOverloadedNode.getLineIds()) {
-            boolean overloaded = context.getNetwork().getLine(lineId).isOverloaded(reduction, duration);
+        for (String branchId : isOverloadedNode.getBranchIds()) {
+            boolean overloaded = context.getNetwork().getBranch(branchId).isOverloaded(reduction, duration);
             if (overloaded) {
                 return true;
             }

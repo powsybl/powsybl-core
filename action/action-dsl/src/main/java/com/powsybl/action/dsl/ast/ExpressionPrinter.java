@@ -244,7 +244,7 @@ public class ExpressionPrinter extends DefaultExpressionVisitor<Void, Void> {
     public Void visitIsOverloaded(IsOverloadedNode node, Void arg) {
         out.print("isOverloaded(");
         out.print("[");
-        Iterator<String> it = node.getLineIds().iterator();
+        Iterator<String> it = node.getBranchIds().iterator();
         while (it.hasNext()) {
             out.print(it.next());
             if (it.hasNext()) {
