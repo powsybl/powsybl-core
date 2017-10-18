@@ -11,6 +11,7 @@ import com.powsybl.commons.config.PlatformConfig;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -28,10 +29,16 @@ public class LocalComputationConfig {
     private final int availableCore;
 
     public static LocalComputationConfig load() {
+        return load(PlatformConfig.defaultConfig());
+    }
+
+    public static LocalComputationConfig load(PlatformConfig platformConfig) {
+        Objects.requireNonNull(platformConfig);
+
         Path localDir = DEFAULT_LOCAL_DIR;
         int availableCore = DEFAULT_AVAILABLE_CORE;
-        if (PlatformConfig.defaultConfig().moduleExists(CONFIG_MODULE_NAME)) {
-            ModuleConfig config = PlatformConfig.defaultConfig().getModuleConfig(CONFIG_MODULE_NAME);
+        if (platformConfig.moduleExists(CONFIG_MODULE_NAME)) {
+            ModuleConfig config = platformConfig.getModuleConfig(CONFIG_MODULE_NAME);
             localDir = config.getPathProperty("tmpDir", DEFAULT_LOCAL_DIR);
             availableCore = config.getIntProperty("availableCore", DEFAULT_AVAILABLE_CORE);
         }
