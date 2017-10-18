@@ -49,8 +49,8 @@ public final class XmlUtil {
         return text;
     }
 
-    public static void writeBoolean(String name, boolean value, XMLStreamWriter writer) throws XMLStreamException {
-        if (value) {
+    public static void writeOptionalBoolean(String name, boolean value, boolean absentValue, XMLStreamWriter writer) throws XMLStreamException {
+        if (value != absentValue) {
             writer.writeAttribute(name, Boolean.toString(value));
         }
     }
@@ -61,8 +61,18 @@ public final class XmlUtil {
         }
     }
 
+    public static void writeOptionalFloat(String name, float value, float absentValue, XMLStreamWriter writer) throws XMLStreamException {
+        if (!Float.isNaN(value) && value != absentValue) {
+            writer.writeAttribute(name, Float.toString(value));
+        }
+    }
+
     public static void writeInt(String name, int value, XMLStreamWriter writer) throws XMLStreamException {
-        if (value != Integer.MAX_VALUE) {
+        writer.writeAttribute(name, Integer.toString(value));
+    }
+
+    public static void writeOptionalInt(String name, int value, int absentValue, XMLStreamWriter writer) throws XMLStreamException {
+        if (value != absentValue) {
             writer.writeAttribute(name, Integer.toString(value));
         }
     }

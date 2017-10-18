@@ -166,11 +166,9 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
             for (CurrentLimits.TemporaryLimit tl : limits.getTemporaryLimits()) {
                 writer.writeEmptyElement(IIDM_URI, "temporaryLimit");
                 writer.writeAttribute("name", tl.getName());
-                XmlUtil.writeInt("acceptableDuration", tl.getAcceptableDuration(), writer);
-                if (tl.getValue() != Float.MAX_VALUE) {
-                    writer.writeAttribute("value", Float.toString(tl.getValue()));
-                }
-                XmlUtil.writeBoolean("fictitious", tl.isFictitious(), writer);
+                XmlUtil.writeOptionalInt("acceptableDuration", tl.getAcceptableDuration(), Integer.MAX_VALUE, writer);
+                XmlUtil.writeOptionalFloat("value", tl.getValue(), Float.MAX_VALUE, writer);
+                XmlUtil.writeOptionalBoolean("fictitious", tl.isFictitious(), false, writer);
             }
             if (!limits.getTemporaryLimits().isEmpty()) {
                 writer.writeEndElement();
