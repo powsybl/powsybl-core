@@ -15,6 +15,7 @@ public class NetworkComponentNode implements NetworkNode {
 
     enum ComponentType {
         LINE,
+        BRANCH,
         TRANSFORMER,
         GENERATOR,
         LOAD,
