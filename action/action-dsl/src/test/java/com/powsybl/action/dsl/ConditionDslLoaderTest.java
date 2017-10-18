@@ -71,6 +71,7 @@ public class ConditionDslLoaderTest {
         loadAndAssert("line('NHV1_NHV2_1')", "line('NHV1_NHV2_1')");
         loadAndAssert("line('NHV1_NHV2_1').terminal1.p", "line('NHV1_NHV2_1').terminal1.p");
         loadAndAssert("transformer('NGEN_NHV1')", "transformer('NGEN_NHV1')");
+        loadAndAssert("branch('NGEN_NHV1')", "branch('NGEN_NHV1')");
         loadAndAssert("load('LOAD')", "load('LOAD')");
 
         loadAndAssert("1", "1"); // integer
@@ -153,6 +154,9 @@ public class ConditionDslLoaderTest {
         // IIDM method call
         evalAndAssert(800f, "line('NHV1_NHV2_1').currentLimits1.getTemporaryLimitValue(1200)");
         evalAndAssert(false, "line('NHV1_NHV2_1').overloaded");
+
+        evalAndAssert(800f, "branch('NHV1_NHV2_1').currentLimits1.getTemporaryLimitValue(1200)");
+        evalAndAssert(0f, "branch('NHV2_NLOAD').g");
     }
 
     @Test
