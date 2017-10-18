@@ -107,6 +107,10 @@ abstract class AbstractBranch<I extends Connectable<I>> extends AbstractConnecta
         return checkTemporaryLimits1() != null || checkTemporaryLimits2() != null;
     }
 
+    public boolean isOverloaded(float reduction) {
+        return checkTemporaryLimits1(reduction) != null || checkTemporaryLimits2(reduction) != null;
+    }
+
     public int getOverloadDuration() {
         Branch.Overload o1 = checkTemporaryLimits1();
         Branch.Overload o2 = checkTemporaryLimits2();
