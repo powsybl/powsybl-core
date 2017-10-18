@@ -236,7 +236,7 @@ public class LocalComputationManager implements ComputationManager {
                                 break;
 
                             default:
-                                throw new InternalError();
+                                throw new AssertionError("Unexpected FilePreProcessor value: " + file.getPreProcessor());
                         }
                     }
                 }
@@ -269,7 +269,7 @@ public class LocalComputationManager implements ComputationManager {
                         }
                         break;
                     default:
-                        throw new InternalError();
+                        throw new AssertionError("Unexpected CommandType value: " + command.getType());
                 }
 
                 if (exitValue != 0) {
@@ -290,7 +290,7 @@ public class LocalComputationManager implements ComputationManager {
                                     break;
 
                                 default:
-                                    throw new InternalError();
+                                    throw new AssertionError("Unexpected FilePostProcessor value: " + file.getPostProcessor());
                             }
                         }
                     }

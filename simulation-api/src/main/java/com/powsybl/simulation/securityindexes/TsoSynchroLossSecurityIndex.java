@@ -24,6 +24,8 @@ public class TsoSynchroLossSecurityIndex extends AbstractSecurityIndex {
 
     static final String XML_NAME = "tso-synchro-loss";
 
+    private static final String GENERATOR = "generator";
+
     private final int synchroLossCount;
 
     private final Map<String, Float> desynchronizedGenerators;
@@ -40,15 +42,15 @@ public class TsoSynchroLossSecurityIndex extends AbstractSecurityIndex {
                     text = xmlsr.getText();
                     break;
                 case XMLEvent.START_ELEMENT:
-                    if ("generator".equals(xmlsr.getLocalName())) {
+                    if (GENERATOR.equals(xmlsr.getLocalName())) {
                         id = xmlsr.getAttributeValue(null, "id");
                     }
                     break;
                 case XMLEvent.END_ELEMENT:
                     switch (xmlsr.getLocalName()) {
-                        case "generator":
+                        case GENERATOR:
                             if (id == null) {
-                                throw new AssertionError();
+                                throw new AssertionError("The required attribute 'id' is missing");
                             }
                             float p = Float.parseFloat(text);
                             desynchronizedGenerators.put(id, p);
@@ -59,11 +61,16 @@ public class TsoSynchroLossSecurityIndex extends AbstractSecurityIndex {
                             break;
                         case "index":
                             return new TsoSynchroLossSecurityIndex(contingencyId, synchroLossCount, desynchronizedGenerators);
+                        default:
+                            break;
                     }
+                    break;
+
+                default:
                     break;
             }
         }
-        throw new InternalError("Should not happened");
+        throw new AssertionError("index element not found");
     }
 
     public TsoSynchroLossSecurityIndex(String contingencyId, int synchroLossCount, Map<String, Float> desynchronizedGenerators) {
@@ -98,7 +105,7 @@ public class TsoSynchroLossSecurityIndex extends AbstractSecurityIndex {
         for (Map.Entry<String, Float> e : desynchronizedGenerators.entrySet()) {
             String id = e.getKey();
             float p = e.getValue();
-            xmlWriter.writeStartElement("generator");
+            xmlWriter.writeStartElement(GENERATOR);
             xmlWriter.writeAttribute("id", id);
             xmlWriter.writeCharacters(Float.toString(p));
             xmlWriter.writeEndElement();

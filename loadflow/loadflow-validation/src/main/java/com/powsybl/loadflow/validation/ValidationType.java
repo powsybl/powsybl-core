@@ -36,7 +36,7 @@ public enum ValidationType {
             case GENERATORS:
                 return Validation.checkGenerators(network, config, folder.resolve(file));
             default:
-                throw new InternalError();
+                throw new AssertionError("Unexpected ValidationType value: " + this);
         }
     }
 

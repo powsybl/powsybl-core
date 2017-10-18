@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.xml;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 
 import javax.xml.stream.XMLStreamException;
@@ -19,6 +20,12 @@ import java.util.function.Supplier;
  */
 public abstract class AbstractConnectableXml<T extends Connectable, A extends IdentifiableAdder<A>, P extends Container> extends AbstractIdentifiableXml<T, A, P> {
 
+    private static final String BUS = "bus";
+    private static final String CONNECTABLE_BUS = "connectableBus";
+    private static final String NODE = "node";
+
+    private static final String CURRENT_LIMITS = "currentLimits";
+
     private static String indexToString(Integer index) {
         return index != null ? index.toString() : "";
     }
@@ -27,32 +34,32 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
         if (context.getOptions().isForceBusBranchTopo()) {
             Bus bus = t.getBusView().getBus();
             if (bus != null) {
-                context.getWriter().writeAttribute("bus" + indexToString(index), context.getAnonymizer().anonymizeString(bus.getId()));
+                context.getWriter().writeAttribute(BUS + indexToString(index), context.getAnonymizer().anonymizeString(bus.getId()));
             }
             Bus connectableBus = t.getBusView().getConnectableBus();
             if (connectableBus != null) {
-                context.getWriter().writeAttribute("connectableBus" + indexToString(index), context.getAnonymizer().anonymizeString(connectableBus.getId()));
+                context.getWriter().writeAttribute(CONNECTABLE_BUS + indexToString(index), context.getAnonymizer().anonymizeString(connectableBus.getId()));
             }
         } else {
             switch (t.getVoltageLevel().getTopologyKind()) {
                 case NODE_BREAKER:
-                    context.getWriter().writeAttribute("node" + indexToString(index),
+                    context.getWriter().writeAttribute(NODE + indexToString(index),
                             Integer.toString(t.getNodeBreakerView().getNode()));
                     break;
 
                 case BUS_BREAKER:
                     Bus bus = t.getBusBreakerView().getBus();
                     if (bus != null) {
-                        context.getWriter().writeAttribute("bus" + indexToString(index), context.getAnonymizer().anonymizeString(bus.getId()));
+                        context.getWriter().writeAttribute(BUS + indexToString(index), context.getAnonymizer().anonymizeString(bus.getId()));
                     }
                     Bus connectableBus = t.getBusBreakerView().getConnectableBus();
                     if (connectableBus != null) {
-                        context.getWriter().writeAttribute("connectableBus" + indexToString(index), context.getAnonymizer().anonymizeString(connectableBus.getId()));
+                        context.getWriter().writeAttribute(CONNECTABLE_BUS + indexToString(index), context.getAnonymizer().anonymizeString(connectableBus.getId()));
                     }
                     break;
 
                 default:
-                    throw new AssertionError();
+                    throw new AssertionError("Unexpected TopologyKind value: " + t.getVoltageLevel().getTopologyKind());
             }
         }
         if (index != null) {
@@ -61,9 +68,9 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
     }
 
     protected static void readNodeOrBus(InjectionAdder adder, XmlReaderContext context) {
-        String bus = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "bus"));
-        String connectableBus = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "connectableBus"));
-        Integer node = XmlUtil.readOptionalIntegerAttribute(context.getReader(), "node");
+        String bus = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, BUS));
+        String connectableBus = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, CONNECTABLE_BUS));
+        Integer node = XmlUtil.readOptionalIntegerAttribute(context.getReader(), NODE);
         if (bus != null) {
             adder.setBus(bus);
         }
@@ -126,7 +133,7 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
         CurrentLimitsAdder adder = currentLimitOwner.get();
         float permanentLimit = XmlUtil.readOptionalFloatAttribute(reader, "permanentLimit");
         adder.setPermanentLimit(permanentLimit);
-        XmlUtil.readUntilEndElement("currentLimits" + indexToString(index), reader, () -> {
+        XmlUtil.readUntilEndElement(CURRENT_LIMITS + indexToString(index), reader, () -> {
             if ("temporaryLimit".equals(reader.getLocalName())) {
                 String name = reader.getAttributeValue(null, "name");
                 int acceptableDuration = XmlUtil.readOptionalIntegerAttribute(reader, "acceptableDuration", Integer.MAX_VALUE);
@@ -149,25 +156,19 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
 
     public static void writeCurrentLimits(Integer index, CurrentLimits limits, XMLStreamWriter writer, String nsUri) throws XMLStreamException {
         if (!Float.isNaN(limits.getPermanentLimit())
-                || limits.getTemporaryLimits().size() > 0) {
+                || !limits.getTemporaryLimits().isEmpty()) {
             if (limits.getTemporaryLimits().isEmpty()) {
-                writer.writeEmptyElement(nsUri, "currentLimits" + indexToString(index));
+                writer.writeEmptyElement(nsUri, CURRENT_LIMITS + indexToString(index));
             } else {
-                writer.writeStartElement(nsUri, "currentLimits" + indexToString(index));
+                writer.writeStartElement(nsUri, CURRENT_LIMITS + indexToString(index));
             }
             XmlUtil.writeFloat("permanentLimit", limits.getPermanentLimit(), writer);
             for (CurrentLimits.TemporaryLimit tl : limits.getTemporaryLimits()) {
                 writer.writeEmptyElement(IIDM_URI, "temporaryLimit");
                 writer.writeAttribute("name", tl.getName());
-                if (tl.getAcceptableDuration() != Integer.MAX_VALUE) {
-                    writer.writeAttribute("acceptableDuration", Integer.toString(tl.getAcceptableDuration()));
-                }
-                if (tl.getValue() != Float.MAX_VALUE) {
-                    writer.writeAttribute("value", Float.toString(tl.getValue()));
-                }
-                if (tl.isFictitious()) {
-                    writer.writeAttribute("fictitious", Boolean.toString(tl.isFictitious()));
-                }
+                XmlUtil.writeOptionalInt("acceptableDuration", tl.getAcceptableDuration(), Integer.MAX_VALUE, writer);
+                XmlUtil.writeOptionalFloat("value", tl.getValue(), Float.MAX_VALUE, writer);
+                XmlUtil.writeOptionalBoolean("fictitious", tl.isFictitious(), false, writer);
             }
             if (!limits.getTemporaryLimits().isEmpty()) {
                 writer.writeEndElement();
@@ -178,7 +179,7 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
     protected static void writeTerminalRef(Terminal t, XmlWriterContext context, String elementName) throws XMLStreamException {
         Connectable c = t.getConnectable();
         if (!context.getFilter().test(c)) {
-            throw new RuntimeException("Oups, terminal ref point to a filtered equipment " + c.getId());
+            throw new PowsyblException("Oups, terminal ref point to a filtered equipment " + c.getId());
         }
         context.getWriter().writeEmptyElement(IIDM_URI, elementName);
         context.getWriter().writeAttribute("id", context.getAnonymizer().anonymizeString(c.getId()));
@@ -187,23 +188,12 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
                 // nothing to do
             } else if (c instanceof Branch) {
                 Branch branch = (Branch) c;
-                context.getWriter().writeAttribute("side", branch.getTerminal1() == t
-                        ? Branch.Side.ONE.name() : Branch.Side.TWO.name());
+                context.getWriter().writeAttribute("side", branch.getSide(t).name());
             } else if (c instanceof ThreeWindingsTransformer) {
                 ThreeWindingsTransformer twt = (ThreeWindingsTransformer) c;
-                ThreeWindingsTransformer.Side side;
-                if (twt.getLeg1().getTerminal() == t) {
-                    side = ThreeWindingsTransformer.Side.ONE;
-                } else if (twt.getLeg2().getTerminal() == t) {
-                    side = ThreeWindingsTransformer.Side.TWO;
-                } else if (twt.getLeg3().getTerminal() == t) {
-                    side = ThreeWindingsTransformer.Side.THREE;
-                } else {
-                    throw new InternalError();
-                }
-                context.getWriter().writeAttribute("side", side.name());
+                context.getWriter().writeAttribute("side", twt.getSide(t).name());
             } else {
-                throw new AssertionError();
+                throw new AssertionError("Unexpected Connectable instance: " + c.getClass());
             }
         }
     }
@@ -216,9 +206,10 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
             return side.equals(Branch.Side.ONE.name()) ? ((Branch) identifiable).getTerminal1()
                     : ((Branch) identifiable).getTerminal2();
         } else if (identifiable instanceof ThreeWindingsTransformer) {
-            throw new AssertionError("TODO"); // FIXME
+            ThreeWindingsTransformer twt = (ThreeWindingsTransformer) identifiable;
+            return twt.getTerminal(ThreeWindingsTransformer.Side.valueOf(side));
         } else {
-            throw new AssertionError();
+            throw new AssertionError("Unexpected Identifiable instance: " + identifiable.getClass());
         }
     }
 }
