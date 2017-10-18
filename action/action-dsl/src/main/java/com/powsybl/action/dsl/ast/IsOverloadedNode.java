@@ -6,6 +6,8 @@
  */
 package com.powsybl.action.dsl.ast;
 
+import com.powsybl.commons.PowsyblException;
+
 import java.util.List;
 import java.util.Objects;
 
@@ -18,10 +20,10 @@ public class IsOverloadedNode implements ExpressionNode {
     public IsOverloadedNode(List<String> branchIds, float reduction) {
         this.branchIds = Objects.requireNonNull(branchIds);
         if (branchIds.isEmpty()) {
-            throw new RuntimeException("List of branch should contain at least one branchId");
+            throw new PowsyblException("List of branch should contain at least one branchId");
         }
         if (reduction < 0) {
-            throw new RuntimeException("Reduction is not valid");
+            throw new PowsyblException("Reduction is not valid");
         }
         this.reduction = reduction;
     }
