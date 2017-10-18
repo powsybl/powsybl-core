@@ -34,4 +34,6 @@ public interface ExpressionVisitor<R, A> {
     R visitLoadingRank(LoadingRankNode node, A arg);
 
     R visitMostLoaded(MostLoadedNode mostLoadedNode, A arg);
+
+    R visitIsOverloaded(IsOverloadedNode isOverloadedNode, A arg);
 }

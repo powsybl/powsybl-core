@@ -88,6 +88,11 @@ public class CurrentLimitsTest {
         assertFalse(l.isOverloaded());
         assertFalse(l.checkPermanentLimit1());
         assertNull(l.checkTemporaryLimits1());
+        assertFalse(l.isOverloaded(1.0f, Integer.MAX_VALUE));
+
+        l.getTerminal1().setP(666).setQ(333); // i = 1102.3107
+        assertFalse(l.isOverloaded(0.99f, 19 * 60));
+        assertTrue(l.isOverloaded(0.99f, 21 * 60));
 
         l.getTerminal1().setP(800).setQ(400); // i = 1324.0969
         assertTrue(l.isOverloaded());
@@ -102,6 +107,24 @@ public class CurrentLimitsTest {
         assertNotNull(l.checkTemporaryLimits1());
         assertEquals(60, l.checkTemporaryLimits1().getTemporaryLimit().getAcceptableDuration());
         assertEquals(1400.0f, l.checkTemporaryLimits1().getPreviousLimit(), 0.0f);
+        assertFalse(l.isOverloaded(1.0f, 59));
+        assertTrue(l.isOverloaded(1.0f, 60));
+        assertTrue(l.isOverloaded(1.0f, 61));
+        assertEquals(60, l.getOverloadDuration());
+
+        assertTrue(l.isOverloaded(0.01f, Integer.MAX_VALUE));
+
+        l.getTerminal1().setP(90000).setQ(50000);
+        assertTrue(l.isOverloaded());
+    }
+
+    @Test
+    public void testLimitWithoutTempLimit() {
+        Line l = createNetwork().getLine("L");
+        l.newCurrentLimits1().setPermanentLimit(1000.0f).add();
+        l.getTerminal1().getBusBreakerView().getBus().setV(390);
+        l.getTerminal1().setP(800).setQ(400); // i = 1324.0969
+        assertTrue(l.isOverloaded());
     }
 
     @Test

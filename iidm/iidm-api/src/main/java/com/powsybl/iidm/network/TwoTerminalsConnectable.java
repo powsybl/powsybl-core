@@ -52,6 +52,8 @@ public interface TwoTerminalsConnectable<I extends TwoTerminalsConnectable<I>> e
 
     boolean isOverloaded();
 
+    boolean isOverloaded(float limitReduction, int duration);
+
     int getOverloadDuration();
 
     boolean checkPermanentLimit(Side side, float limitReduction);

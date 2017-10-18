@@ -139,6 +139,57 @@ public class ConditionDslLoaderTest {
     }
 
     @Test
+    public void testIsOverloadedNode() throws IOException {
+        line1.getTerminal1().setP(100.0f).setQ(50.0f);
+        evalAndAssert(false, "isOverloaded(['NHV1_NHV2_1','NHV1_NHV2_2'])");
+
+        line1.newCurrentLimits1().setPermanentLimit(0.00001f).add();
+        assertNotNull(line1.getCurrentLimits1());
+        evalAndAssert(true, "isOverloaded(['NHV1_NHV2_1','NHV1_NHV2_2'])");
+
+        line1.getTerminal1().setP(600.0f).setQ(300.0f); // i = 1019.2061
+        float current = line1.getTerminal1().getI();
+        line1.newCurrentLimits1().setPermanentLimit(current - 100).add();
+        evalAndAssert(true, "isOverloaded(['NHV1_NHV2_1','NHV1_NHV2_2'])");
+        evalAndAssert(true, "isOverloaded(['NHV1_NHV2_1','NHV1_NHV2_2'], 0.05)");
+        evalAndAssert(true, "isOverloaded(['NHV1_NHV2_1','NHV1_NHV2_2'], 0.05, 10*60)");
+        line1.newCurrentLimits1().setPermanentLimit(current).add();
+        evalAndAssert(true, "isOverloaded(['NHV1_NHV2_1','NHV1_NHV2_2'])"); // permanent = real current
+        line1.newCurrentLimits1().setPermanentLimit(current * 2).add();
+        evalAndAssert(false, "isOverloaded(['NHV1_NHV2_1','NHV1_NHV2_2'], 0.9)");
+        evalAndAssert(false, "isOverloaded(['NHV1_NHV2_1','NHV1_NHV2_2'], 0.9, 10*60)");
+
+        addLimitOnLine1();
+        line1.getTerminal1().setP(400.0f).setQ(150.0f); // i = 649.06
+        evalAndAssert(false, "isOverloaded(['NHV1_NHV2_1','NHV1_NHV2_2'], 1, 9*60)");
+        evalAndAssert(true, "isOverloaded(['NHV1_NHV2_1','NHV1_NHV2_2'], 1, 21*60)");
+        line1.getTerminal1().setP(400000.0f).setQ(150.0f);
+        evalAndAssert(true, "isOverloaded(['NHV1_NHV2_1','NHV1_NHV2_2'], 1, 21*60)");
+
+    }
+
+    private void addLimitOnLine1() {
+        line1.newCurrentLimits1()
+                .setPermanentLimit(400)
+                .beginTemporaryLimit()
+                    .setName("20")
+                    .setAcceptableDuration(20 * 60)
+                    .setValue(600)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                    .setName("10")
+                    .setAcceptableDuration(10 * 60)
+                    .setValue(700)
+                    .endTemporaryLimit()
+                .beginTemporaryLimit()
+                    .setName("5")
+                    .setAcceptableDuration(5 * 60)
+                    .setValue(800)
+                .endTemporaryLimit()
+                .add();
+    }
+
+    @Test
     public void testNetworkAccess() throws IOException {
         // add temporary limits
         line1.newCurrentLimits1()
