@@ -7,10 +7,12 @@
 package com.powsybl.commons.io.table;
 
 import java.io.IOException;
+import java.text.NumberFormat;
 import java.util.Locale;
 import java.util.Objects;
 
 import org.nocrala.tools.texttablefmt.CellStyle;
+import org.nocrala.tools.texttablefmt.CellStyle.HorizontalAlign;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -28,7 +30,7 @@ public abstract class AbstractTableFormatter implements TableFormatter {
 
     protected abstract TableFormatter write(String value) throws IOException;
 
-    protected abstract TableFormatter write(String value, CellStyle cellStyle) throws IOException;
+    protected abstract TableFormatter write(String value, HorizontalAlignment horizontalAlignment) throws IOException;
 
     @Override
     public TableFormatter writeCell(String s) throws IOException {
@@ -36,8 +38,8 @@ public abstract class AbstractTableFormatter implements TableFormatter {
     }
 
     @Override
-    public TableFormatter writeCell(String s, CellStyle cellStyle) throws IOException {
-        return write(s, cellStyle);
+    public TableFormatter writeCell(String s, HorizontalAlignment horizontalAlignment) throws IOException {
+        return write(s, horizontalAlignment);
     }
 
     @Override
@@ -66,18 +68,18 @@ public abstract class AbstractTableFormatter implements TableFormatter {
     }
 
     @Override
-    public TableFormatter writeCell(int i, CellStyle cellStyle) throws IOException {
-        return write(Integer.toString(i), cellStyle);
+    public TableFormatter writeCell(int i, HorizontalAlignment horizontalAlignment) throws IOException {
+        return write(Integer.toString(i), horizontalAlignment);
     }
 
     @Override
-    public TableFormatter writeCell(float f, CellStyle cellStyle, String stringFormat) throws IOException {
-        return write(Float.isNaN(f) ? invalidString : String.format(locale, stringFormat, f), cellStyle);
+    public TableFormatter writeCell(float f, HorizontalAlignment horizontalAlignment, NumberFormat numberFormatter) throws IOException {
+        return write(Float.isNaN(f) ? invalidString : formatFloat(f, numberFormatter), horizontalAlignment);
     }
 
     @Override
-    public TableFormatter writeCell(double d, CellStyle cellStyle, String stringFormat) throws IOException {
-        return write(Double.isNaN(d) ? invalidString : String.format(locale, stringFormat, d), cellStyle);
+    public TableFormatter writeCell(double d, HorizontalAlignment horizontalAlignment, NumberFormat numberFormatter) throws IOException {
+        return write(Double.isNaN(d) ? invalidString : formatDouble(d, numberFormatter), horizontalAlignment);
     }
 
     @Override
@@ -85,4 +87,27 @@ public abstract class AbstractTableFormatter implements TableFormatter {
         return write(Boolean.toString(b));
     }
 
+    @Override
+    public String formatDouble(double d, NumberFormat numberFormatter) {
+        return numberFormatter.format(d);
+    }
+
+    @Override
+    public String formatFloat(float f, NumberFormat numberFormatter) {
+        return numberFormatter.format(f);
+    }
+
+    @Override
+    public CellStyle convertCellStyle(HorizontalAlignment horizontalAlignment) {
+        switch (horizontalAlignment) {
+            case L:
+                return new CellStyle(HorizontalAlign.left);
+            case C:
+                return new CellStyle(HorizontalAlign.center);
+            case R:
+                return new CellStyle(HorizontalAlign.right);
+            default:
+                return new CellStyle();
+        }
+    }
 }

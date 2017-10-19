@@ -8,7 +8,6 @@ package com.powsybl.commons.io.table;
 
 import org.apache.commons.lang3.StringUtils;
 import org.nocrala.tools.texttablefmt.BorderStyle;
-import org.nocrala.tools.texttablefmt.CellStyle;
 import org.nocrala.tools.texttablefmt.Table;
 
 import java.io.IOException;
@@ -54,8 +53,8 @@ public class AsciiTableFormatter extends AbstractTableFormatter {
     }
 
     @Override
-    protected TableFormatter write(String value, CellStyle cellStyle) throws IOException {
-        table.addCell(value, cellStyle);
+    protected TableFormatter write(String value, HorizontalAlignment horizontalAlignment) throws IOException {
+        table.addCell(value, convertCellStyle(horizontalAlignment));
         return this;
     }
 

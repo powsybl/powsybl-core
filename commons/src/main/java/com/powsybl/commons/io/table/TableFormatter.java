@@ -7,6 +7,7 @@
 package com.powsybl.commons.io.table;
 
 import java.io.IOException;
+import java.text.NumberFormat;
 
 import org.nocrala.tools.texttablefmt.CellStyle;
 
@@ -19,7 +20,7 @@ public interface TableFormatter extends AutoCloseable {
 
     TableFormatter writeCell(String s) throws IOException;
 
-    TableFormatter writeCell(String s, CellStyle cellStyle) throws IOException;
+    TableFormatter writeCell(String s, HorizontalAlignment horizontalAlignment) throws IOException;
 
     TableFormatter writeEmptyCell() throws IOException;
 
@@ -35,9 +36,15 @@ public interface TableFormatter extends AutoCloseable {
 
     @Override void close() throws IOException;
 
-    TableFormatter writeCell(int i, CellStyle cellStyle) throws IOException;
+    TableFormatter writeCell(int i, HorizontalAlignment horizontalAlignment) throws IOException;
 
-    TableFormatter writeCell(float f, CellStyle cellStyle, String stringFormat) throws IOException;
+    TableFormatter writeCell(float f, HorizontalAlignment horizontalAlignment, NumberFormat numberFormat) throws IOException;
 
-    TableFormatter writeCell(double d, CellStyle cellStyle, String stringFormat) throws IOException;
+    TableFormatter writeCell(double d, HorizontalAlignment horizontalAlignment, NumberFormat numberFormat) throws IOException;
+
+    String formatDouble(double d, NumberFormat numberFormatter);
+
+    String formatFloat(float f, NumberFormat numberFormatter);
+
+    CellStyle convertCellStyle(HorizontalAlignment horizontalAlignment);
 }

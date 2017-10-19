@@ -73,8 +73,6 @@ public class TableFormatterConfig {
     }
 
     public Locale getLocale() {
-
-Move these 3 methods near the others. You should probably add writeCell methods with only the value as parameters
         return locale;
     }
 
