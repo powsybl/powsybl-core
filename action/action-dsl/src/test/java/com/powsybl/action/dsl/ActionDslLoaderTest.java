@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import groovy.lang.GroovyCodeSource;
+import groovy.lang.MissingMethodException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -89,6 +90,15 @@ public class ActionDslLoaderTest {
         ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/actions2.groovy"))).load(network);
         Action someAction = actionDb.getAction("someAction");
         exception.expect(ActionDslException.class);
+        exception.expectMessage("Dsl extension task(closeSwitch) is forbidden in task script");
+        someAction.run(network, null);
+    }
+
+    @Test
+    public void testNonExistMethodInScript() {
+        ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/actions2.groovy"))).load(network);
+        Action someAction = actionDb.getAction("missingMethod");
+        exception.expect(MissingMethodException.class);
         someAction.run(network, null);
     }
 
