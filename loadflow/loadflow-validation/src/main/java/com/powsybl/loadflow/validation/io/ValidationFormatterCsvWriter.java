@@ -111,6 +111,38 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                     new Column("targetQ"),
                     new Column("targetV")
                 };
+            case BUSES:
+                if (verbose) {
+                    return new Column[] {
+                        new Column("id"),
+                        new Column("incomingP"),
+                        new Column("incomingQ"),
+                        new Column("loadP"),
+                        new Column("loadQ"),
+                        new Column("genP"),
+                        new Column("genQ"),
+                        new Column("shuntP"),
+                        new Column("shuntQ"),
+                        new Column("svcP"),
+                        new Column("svcQ"),
+                        new Column("vscCSP"),
+                        new Column("vscCSQ"),
+                        new Column("lineP"),
+                        new Column("lineQ"),
+                        new Column("twtP"),
+                        new Column("twtQ"),
+                        new Column("tltP"),
+                        new Column("tltQ"),
+                        new Column("validation")
+                    };
+                }
+                return new Column[] {
+                    new Column("id"),
+                    new Column("incomingP"),
+                    new Column("incomingQ"),
+                    new Column("loadP"),
+                    new Column("loadQ")
+                };
             default:
                 throw new AssertionError("Unexpected ValidationType value: " + validationType);
         }
@@ -168,6 +200,35 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                      .writeCell(voltageRegulatorOn)
                      .writeCell(minQ)
                      .writeCell(maxQ)
+                     .writeCell(validated ? "success" : "fail");
+        }
+    }
+
+    @Override
+    public void write(String busId, double incomingP, double incomingQ, double loadP, double loadQ, double genP, double genQ,
+                      double shuntP, double shuntQ, double svcP, double svcQ, double vscCSP, double vscCSQ, double lineP, double lineQ,
+                      double twtP, double twtQ, double tltP, double tltQ, boolean validated) throws IOException {
+        Objects.requireNonNull(busId);
+        formatter.writeCell(busId)
+                 .writeCell(incomingP)
+                 .writeCell(incomingQ)
+                 .writeCell(loadP)
+                 .writeCell(loadQ);
+        if (verbose) {
+            formatter.writeCell(genP)
+                     .writeCell(genQ)
+                     .writeCell(shuntP)
+                     .writeCell(shuntQ)
+                     .writeCell(svcP)
+                     .writeCell(svcQ)
+                     .writeCell(vscCSP)
+                     .writeCell(vscCSQ)
+                     .writeCell(lineP)
+                     .writeCell(lineQ)
+                     .writeCell(twtP)
+                     .writeCell(twtQ)
+                     .writeCell(tltP)
+                     .writeCell(tltQ)
                      .writeCell(validated ? "success" : "fail");
         }
     }

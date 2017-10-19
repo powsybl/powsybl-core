@@ -21,6 +21,10 @@ public interface ValidationWriter extends AutoCloseable {
     void write(String generatorId, float p, float q, float v, float targetP, float targetQ, float targetV,
                boolean connected, boolean voltageRegulatorOn, float minQ, float maxQ, boolean validated) throws IOException;
 
+    void write(String busId, double incomingP, double incomingQ, double loadP, double loadQ, double genP, double genQ,
+               double shuntP, double shuntQ, double svcP, double svcQ, double vscCSP, double vscCSQ, double lineP, double lineQ,
+               double twtP, double twtQ, double tltP, double tltQ, boolean validated) throws IOException;
+
     @Override
     void close() throws IOException;
 

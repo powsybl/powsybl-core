@@ -62,6 +62,26 @@ public abstract class AbstractValidationFormatterWriterTest {
     protected final float minQ = -10f;
     protected final float maxQ = 0f;
 
+    protected final String busId = "busId";
+    protected final double incomingP = -37.2287f;
+    protected final double incomingQ = -174.383f;
+    protected final double loadP = 37.2286f;
+    protected final double loadQ = 174.38244f;
+    protected final double genP = -2020f;
+    protected final double genQ = 91.54;
+    protected final double shuntP = 0f;
+    protected final double shuntQ = 175.8437f;
+    protected final double svcP = 0f;
+    protected final double svcQ = 0f;
+    protected final double vscCSP = 0f;
+    protected final double vscCSQ = 0f;
+    protected final double lineP = 1982.7713f;
+    protected final double lineQ = -441.7662f;
+    protected final double twtP = 0f;
+    protected final double twtQ = 0f;
+    protected final double tltP = 0f;
+    protected final double tltQ = 0f;
+
     @Test
     public void testFlows() throws Exception {
         testFlows(getFlowsContent(), false);
@@ -112,5 +132,30 @@ public abstract class AbstractValidationFormatterWriterTest {
     }
 
     protected abstract ValidationWriter getGeneratorsValidationFormatterCsvWriter(TableFormatterConfig config, Writer writer, boolean verbose);
+
+    @Test
+    public void testBuses() throws Exception {
+        testBuses(getBusesContent(), false);
+    }
+
+    protected abstract String getBusesContent();
+
+    @Test
+    public void testBusesVerbose() throws Exception {
+        testBuses(getBusesVerboseContent(), true);
+    }
+
+    protected abstract String getBusesVerboseContent();
+
+    private void testBuses(String busesContent, boolean verbose) throws IOException {
+        Writer writer = new StringWriter();
+        TableFormatterConfig config = new TableFormatterConfig(Locale.getDefault(), ';', "inv", true, true);
+        try (ValidationWriter busesWriter = getBusesValidationFormatterCsvWriter(config, writer, verbose)) {
+            busesWriter.write(busId, incomingP, incomingQ, loadP, loadQ, genP, genQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ, lineP, lineQ, twtP, twtQ, tltP, tltQ, true);
+            assertEquals(busesContent, writer.toString().trim());
+        }
+    }
+
+    protected abstract ValidationWriter getBusesValidationFormatterCsvWriter(TableFormatterConfig config, Writer writer, boolean verbose);
 
 }

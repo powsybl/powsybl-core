@@ -89,4 +89,37 @@ public class ValidationFormatterCsvWriterTest extends AbstractValidationFormatte
         return new ValidationFormatterCsvWriter("test", CsvTableFormatterFactory.class, config, writer, verbose, ValidationType.GENERATORS);
     }
 
+    @Override
+    protected String getBusesContent() {
+        return String.join(System.lineSeparator(),
+                "test " + ValidationType.BUSES + " check",
+                String.join(";", "id", "incomingP", "incomingQ", "loadP", "loadQ"),
+                String.join(";", busId,
+                            String.format(Locale.getDefault(), "%g", incomingP), String.format(Locale.getDefault(), "%g", incomingQ),
+                            String.format(Locale.getDefault(), "%g", loadP), String.format(Locale.getDefault(), "%g", loadQ)));
+    }
+
+    @Override
+    protected String getBusesVerboseContent() {
+        return String.join(System.lineSeparator(),
+                "test " + ValidationType.BUSES + " check",
+                String.join(";", "id", "incomingP", "incomingQ", "loadP", "loadQ", "genP", "genQ", "shuntP", "shuntQ", "svcP", "svcQ",
+                            "vscCSP", "vscCSQ", "lineP", "lineQ", "twtP", "twtQ", "tltP", "tltQ", "validation"),
+                String.join(";", busId,
+                            String.format(Locale.getDefault(), "%g", incomingP), String.format(Locale.getDefault(), "%g", incomingQ),
+                            String.format(Locale.getDefault(), "%g", loadP), String.format(Locale.getDefault(), "%g", loadQ),
+                            String.format(Locale.getDefault(), "%g", genP), String.format(Locale.getDefault(), "%g", genQ),
+                            String.format(Locale.getDefault(), "%g", shuntP), String.format(Locale.getDefault(), "%g", shuntQ),
+                            String.format(Locale.getDefault(), "%g", svcP), String.format(Locale.getDefault(), "%g", svcQ),
+                            String.format(Locale.getDefault(), "%g", vscCSP), String.format(Locale.getDefault(), "%g", vscCSQ),
+                            String.format(Locale.getDefault(), "%g", lineP), String.format(Locale.getDefault(), "%g", lineQ),
+                            String.format(Locale.getDefault(), "%g", twtP), String.format(Locale.getDefault(), "%g", twtQ),
+                            String.format(Locale.getDefault(), "%g", tltP), String.format(Locale.getDefault(), "%g", tltQ), "success"));
+    }
+
+    @Override
+    protected ValidationWriter getBusesValidationFormatterCsvWriter(TableFormatterConfig config, Writer writer, boolean verbose) {
+        return new ValidationFormatterCsvWriter("test", CsvTableFormatterFactory.class, config, writer, verbose, ValidationType.BUSES);
+    }
+
 }

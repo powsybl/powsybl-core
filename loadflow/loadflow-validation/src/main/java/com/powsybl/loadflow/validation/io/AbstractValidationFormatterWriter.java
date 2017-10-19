@@ -45,6 +45,11 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
                                boolean connected, boolean voltageRegulatorOn, float minQ, float maxQ, boolean validated) throws IOException;
 
     @Override
+    public abstract void write(String busId, double incomingP, double incomingQ, double loadP, double loadQ, double genP, double genQ,
+                               double shuntP, double shuntQ, double svcP, double svcQ, double vscCSP, double vscCSQ, double lineP, double lineQ,
+                               double twtP, double twtQ, double tltP, double tltQ, boolean validated) throws IOException;
+
+    @Override
     public void close() throws IOException {
         formatter.close();
     }

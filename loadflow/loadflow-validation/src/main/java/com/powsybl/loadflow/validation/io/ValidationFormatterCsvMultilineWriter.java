@@ -101,4 +101,32 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
         }
     }
 
+    @Override
+    public void write(String busId, double incomingP, double incomingQ, double loadP, double loadQ, double genP, double genQ,
+                      double shuntP, double shuntQ, double svcP, double svcQ, double vscCSP, double vscCSQ, double lineP, double lineQ,
+                      double twtP, double twtQ, double tltP, double tltQ, boolean validated) throws IOException {
+        Objects.requireNonNull(busId);
+        formatter.writeCell(busId).writeCell("incomingP").writeCell(incomingP)
+                 .writeCell(busId).writeCell("incomingQ").writeCell(incomingQ)
+                 .writeCell(busId).writeCell("loadP").writeCell(loadP)
+                 .writeCell(busId).writeCell("loadQ").writeCell(loadQ);
+        if (verbose) {
+            formatter.writeCell(busId).writeCell("genP").writeCell(genP)
+                     .writeCell(busId).writeCell("genQ").writeCell(genQ)
+                     .writeCell(busId).writeCell("shuntP").writeCell(shuntP)
+                     .writeCell(busId).writeCell("shuntQ").writeCell(shuntQ)
+                     .writeCell(busId).writeCell("svcP").writeCell(svcP)
+                     .writeCell(busId).writeCell("svcQ").writeCell(svcQ)
+                     .writeCell(busId).writeCell("vscCSP").writeCell(vscCSP)
+                     .writeCell(busId).writeCell("vscCSQ").writeCell(vscCSQ)
+                     .writeCell(busId).writeCell("lineP").writeCell(lineP)
+                     .writeCell(busId).writeCell("lineQ").writeCell(lineQ)
+                     .writeCell(busId).writeCell("twtP").writeCell(twtP)
+                     .writeCell(busId).writeCell("twtQ").writeCell(twtQ)
+                     .writeCell(busId).writeCell("tltP").writeCell(tltP)
+                     .writeCell(busId).writeCell("tltQ").writeCell(tltQ)
+                     .writeCell(busId).writeCell("validation").writeCell(validated ? "success" : "fail");
+        }
+    }
+
 }

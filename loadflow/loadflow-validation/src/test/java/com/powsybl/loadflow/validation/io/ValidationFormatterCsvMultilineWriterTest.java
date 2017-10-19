@@ -108,4 +108,46 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
         return new ValidationFormatterCsvMultilineWriter("test", CsvTableFormatterFactory.class, config, writer, verbose, ValidationType.GENERATORS);
     }
 
+    @Override
+    protected String getBusesContent() {
+        return String.join(System.lineSeparator(),
+                           "test " + ValidationType.BUSES + " check",
+                           String.join(";", "id", "characteristic", "value"),
+                           String.join(";", busId, "incomingP", String.format(Locale.getDefault(), "%g", incomingP)),
+                           String.join(";", busId, "incomingQ", String.format(Locale.getDefault(), "%g", incomingQ)),
+                           String.join(";", busId, "loadP", String.format(Locale.getDefault(), "%g", loadP)),
+                           String.join(";", busId, "loadQ", String.format(Locale.getDefault(), "%g", loadQ)));
+    }
+
+    @Override
+    protected String getBusesVerboseContent() {
+        return String.join(System.lineSeparator(),
+                "test " + ValidationType.BUSES + " check",
+                String.join(";", "id", "characteristic", "value"),
+                String.join(";", busId, "incomingP", String.format(Locale.getDefault(), "%g", incomingP)),
+                String.join(";", busId, "incomingQ", String.format(Locale.getDefault(), "%g", incomingQ)),
+                String.join(";", busId, "loadP", String.format(Locale.getDefault(), "%g", loadP)),
+                String.join(";", busId, "loadQ", String.format(Locale.getDefault(), "%g", loadQ)),
+                String.join(";", busId, "genP", String.format(Locale.getDefault(), "%g", genP)),
+                String.join(";", busId, "genQ", String.format(Locale.getDefault(), "%g", genQ)),
+                String.join(";", busId, "shuntP", String.format(Locale.getDefault(), "%g", shuntP)),
+                String.join(";", busId, "shuntQ", String.format(Locale.getDefault(), "%g", shuntQ)),
+                String.join(";", busId, "svcP", String.format(Locale.getDefault(), "%g", svcP)),
+                String.join(";", busId, "svcQ", String.format(Locale.getDefault(), "%g", svcQ)),
+                String.join(";", busId, "vscCSP", String.format(Locale.getDefault(), "%g", vscCSP)),
+                String.join(";", busId, "vscCSQ", String.format(Locale.getDefault(), "%g", vscCSQ)),
+                String.join(";", busId, "lineP", String.format(Locale.getDefault(), "%g", lineP)),
+                String.join(";", busId, "lineQ", String.format(Locale.getDefault(), "%g", lineQ)),
+                String.join(";", busId, "twtP", String.format(Locale.getDefault(), "%g", twtP)),
+                String.join(";", busId, "twtQ", String.format(Locale.getDefault(), "%g", twtQ)),
+                String.join(";", busId, "tltP", String.format(Locale.getDefault(), "%g", tltP)),
+                String.join(";", busId, "tltQ", String.format(Locale.getDefault(), "%g", tltQ)),
+                String.join(";", busId, "validation", "success"));
+    }
+
+    @Override
+    protected ValidationWriter getBusesValidationFormatterCsvWriter(TableFormatterConfig config, Writer writer, boolean verbose) {
+        return new ValidationFormatterCsvMultilineWriter("test", CsvTableFormatterFactory.class, config, writer, verbose, ValidationType.BUSES);
+    }
+
 }
