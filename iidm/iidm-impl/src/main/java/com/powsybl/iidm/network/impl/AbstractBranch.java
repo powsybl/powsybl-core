@@ -107,8 +107,8 @@ abstract class AbstractBranch<I extends Connectable<I>> extends AbstractConnecta
         return isOverloaded(1.0f);
     }
 
-    public boolean isOverloaded(float reduction) {
-        return checkPermanentLimit1(reduction) || checkPermanentLimit2(reduction);
+    public boolean isOverloaded(float limitReduction) {
+        return checkPermanentLimit1(limitReduction) || checkPermanentLimit2(limitReduction);
     }
 
     public int getOverloadDuration() {

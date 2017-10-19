@@ -6,7 +6,6 @@
  */
 package com.powsybl.action.dsl.ast;
 
-import com.powsybl.commons.PowsyblException;
 
 import java.util.List;
 import java.util.Objects;
@@ -15,25 +14,25 @@ import java.util.Objects;
 public class IsOverloadedNode implements ExpressionNode {
 
     private final List<String> branchIds;
-    private final float reduction;
+    private final float limitReduction;
 
-    public IsOverloadedNode(List<String> branchIds, float reduction) {
+    public IsOverloadedNode(List<String> branchIds, float limitReduction) {
         this.branchIds = Objects.requireNonNull(branchIds);
         if (branchIds.isEmpty()) {
-            throw new PowsyblException("List of branch should contain at least one branchId");
+            throw new IllegalArgumentException("The list of branch Ids should not be empty");
         }
-        if (reduction < 0) {
-            throw new PowsyblException("Reduction is not valid");
+        if (limitReduction < 0) {
+            throw new IllegalArgumentException("Limit reduction is not valid");
         }
-        this.reduction = reduction;
+        this.limitReduction = limitReduction;
     }
 
     public List<String> getBranchIds() {
         return branchIds;
     }
 
-    public float getReduction() {
-        return reduction;
+    public float getLimitReductionReduction() {
+        return limitReduction;
     }
 
     @Override

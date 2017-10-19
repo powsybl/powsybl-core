@@ -284,9 +284,9 @@ public class ExpressionEvaluator extends DefaultExpressionVisitor<Object, Void> 
 
     @Override
     public Object visitIsOverloaded(IsOverloadedNode isOverloadedNode, Void arg) {
-        float reduction = isOverloadedNode.getReduction();
+        float limitReductionReduction = isOverloadedNode.getLimitReductionReduction();
         for (String branchId : isOverloadedNode.getBranchIds()) {
-            boolean overloaded = context.getNetwork().getBranch(branchId).isOverloaded(reduction);
+            boolean overloaded = context.getNetwork().getBranch(branchId).isOverloaded(limitReductionReduction);
             if (overloaded) {
                 return true;
             }

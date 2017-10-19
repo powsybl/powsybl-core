@@ -158,13 +158,13 @@ public class ConditionDslLoaderTest {
         evalAndAssert(false, "isOverloaded(['NHV1_NHV2_1','NHV1_NHV2_2'], 0.9)");
         evalAndAssert(true, "isOverloaded(['NHV1_NHV2_1','NHV1_NHV2_2'], 0.1)");
 
-        addLimitOnLine1();
+        addCurrentLimitsOnLine1();
         line1.getTerminal1().setP(400.0f).setQ(150.0f); // i = 649.06
         evalAndAssert(true, "isOverloaded(['NHV1_NHV2_1','NHV1_NHV2_2'], 1)");
 
     }
 
-    private void addLimitOnLine1() {
+    private void addCurrentLimitsOnLine1() {
         line1.newCurrentLimits1()
                 .setPermanentLimit(400)
                 .beginTemporaryLimit()
