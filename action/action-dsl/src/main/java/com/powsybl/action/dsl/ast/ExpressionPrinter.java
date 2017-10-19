@@ -45,6 +45,9 @@ public class ExpressionPrinter extends DefaultExpressionVisitor<Void, Void> {
     @Override
     public Void visitNetworkComponent(NetworkComponentNode node, Void arg) {
         switch (node.getComponentType()) {
+            case BRANCH:
+                out.print("branch");
+                break;
             case LINE:
                 out.print("line");
                 break;

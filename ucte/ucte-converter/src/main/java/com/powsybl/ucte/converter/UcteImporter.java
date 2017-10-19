@@ -417,7 +417,7 @@ public class UcteImporter implements Importer {
                 }
 
                 default:
-                    throw new InternalError();
+                    throw new AssertionError("Unexpected UcteElementStatus value: " + ucteLine.getStatus());
             }
         }
     }
@@ -475,7 +475,7 @@ public class UcteImporter implements Importer {
                     break;
 
                 default:
-                    throw new InternalError();
+                    throw new AssertionError("Unexpected UcteAngleRegulationType value: " + ucteAngleRegulation.getType());
             }
             ptca.beginStep()
                     .setRho(rho)
@@ -599,7 +599,7 @@ public class UcteImporter implements Importer {
                     break;
 
                 default:
-                    throw new InternalError();
+                    throw new AssertionError("Unexpected UcteElementStatus value: " + ucteTransfo.getStatus());
             }
 
             TwoWindingsTransformer transformer;

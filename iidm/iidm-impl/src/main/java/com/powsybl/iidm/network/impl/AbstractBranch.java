@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.TwoTerminalsConnectable.Side;
 
@@ -51,13 +52,25 @@ abstract class AbstractBranch<I extends Connectable<I>> extends AbstractConnecta
         boolean side1 = getTerminal1().getVoltageLevel().getId().equals(voltageLevelId);
         boolean side2 = getTerminal2().getVoltageLevel().getId().equals(voltageLevelId);
         if (side1 && side2) {
-            throw new RuntimeException("Both terminals are connected to voltage level " + voltageLevelId);
+            throw new PowsyblException("Both terminals are connected to voltage level " + voltageLevelId);
         } else if (side1) {
             return getTerminal1();
         } else if (side2) {
             return getTerminal2();
         } else {
-            throw new RuntimeException("No terminal connected to voltage level " + voltageLevelId);
+            throw new PowsyblException("No terminal connected to voltage level " + voltageLevelId);
+        }
+    }
+
+    public Side getSide(Terminal terminal) {
+        Objects.requireNonNull(terminal);
+
+        if (terminals.get(0) == terminal) {
+            return Side.ONE;
+        } else if (terminals.get(1) == terminal) {
+            return Side.TWO;
+        } else {
+            throw new AssertionError("The terminal is not connected to this branch");
         }
     }
 
@@ -71,7 +84,7 @@ abstract class AbstractBranch<I extends Connectable<I>> extends AbstractConnecta
                 limits2 = limits;
                 break;
             default:
-                throw new InternalError();
+                throw new AssertionError("Unexpected Branch.Side value: " + side);
         }
     }
 
@@ -82,7 +95,7 @@ abstract class AbstractBranch<I extends Connectable<I>> extends AbstractConnecta
             case TWO:
                 return limits2;
             default:
-                throw new InternalError();
+                throw new AssertionError("Unexpected Branch.Side value: " + side);
         }
 
     }
@@ -155,8 +168,10 @@ abstract class AbstractBranch<I extends Connectable<I>> extends AbstractConnecta
 
     private static boolean checkPermanentLimit(Terminal terminal, CurrentLimits limits, float limitReduction) {
         float i = terminal.getI();
-        return limits != null && !Float.isNaN(limits.getPermanentLimit()) && !Float.isNaN(i)
-            && (i >= limits.getPermanentLimit() * limitReduction);
+        return limits != null &&
+            !Float.isNaN(limits.getPermanentLimit()) &&
+            !Float.isNaN(i) &&
+            (i >= limits.getPermanentLimit() * limitReduction);
     }
 
     static final class OverloadImpl implements Branch.Overload {
