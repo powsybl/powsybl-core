@@ -109,6 +109,9 @@ public class ConditionDslLoaderTest {
         loadAndAssert("contingencyOccurred('contingency1')", "contingencyOccurred('contingency1')");
         loadAndAssert("contingencyOccurred()", "contingencyOccurred()");
         evalAndAssert(false, "contingencyOccurred()");
+        loadAndAssert("mostLoaded([NHV1_NHV2_1, NHV1_NHV2_2])", "mostLoaded(['NHV1_NHV2_1','NHV1_NHV2_2'])");
+        loadAndAssert("isOverloaded([NHV1_NHV2_1, NHV1_NHV2_2])", "isOverloaded(['NHV1_NHV2_1','NHV1_NHV2_2'])");
+
     }
 
     @Test
