@@ -32,9 +32,9 @@ public enum ValidationType {
         Objects.requireNonNull(folder);
         switch (this) {
             case FLOWS:
-                return Validation.checkFlows(network, config, folder.resolve(file));
+                return FlowsValidation.checkFlows(network, config, folder.resolve(file));
             case GENERATORS:
-                return Validation.checkGenerators(network, config, folder.resolve(file));
+                return GeneratorsValidation.checkGenerators(network, config, folder.resolve(file));
             default:
                 throw new AssertionError("Unexpected ValidationType value: " + this);
         }
