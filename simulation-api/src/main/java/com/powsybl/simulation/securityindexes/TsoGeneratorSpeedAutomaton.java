@@ -69,7 +69,7 @@ public class TsoGeneratorSpeedAutomaton extends AbstractSecurityIndex {
                     break;
             }
         }
-        throw new AssertionError("Should not happened");
+        throw new AssertionError("Should not happen");
     }
 
     public TsoGeneratorSpeedAutomaton(String contingencyId, List<String> onUnderSpeedDiconnectedGenerators, List<String> onOverSpeedDiconnectedGenerators) {

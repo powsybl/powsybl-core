@@ -22,12 +22,6 @@
     <name>UCTE network</name>
 
     <dependencies>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-commons</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
         <!-- Compilation dependencies -->
         <dependency>
             <groupId>com.google.guava</groupId>
@@ -40,6 +34,11 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-commons</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <!-- Test dependencies -->

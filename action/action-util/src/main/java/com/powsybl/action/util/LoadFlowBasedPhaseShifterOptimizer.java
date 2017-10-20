@@ -48,7 +48,7 @@ public class LoadFlowBasedPhaseShifterOptimizer implements PhaseShifterOptimizer
                 throw new PowsyblException("Load flow diverged during phase shifter optimization");
             }
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new PowsyblException(e);
         }
     }
 

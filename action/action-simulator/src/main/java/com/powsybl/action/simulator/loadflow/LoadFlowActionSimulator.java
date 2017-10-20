@@ -9,6 +9,7 @@ package com.powsybl.action.simulator.loadflow;
 import com.powsybl.action.dsl.*;
 import com.powsybl.action.dsl.ast.*;
 import com.powsybl.action.simulator.ActionSimulator;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedIllegalAccessException;
 import com.powsybl.commons.exceptions.UncheckedInstantiationException;
 import com.powsybl.computation.ComputationManager;
@@ -144,7 +145,7 @@ public class LoadFlowActionSimulator implements ActionSimulator {
         try {
             result = loadFlow.run();
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new PowsyblException(e);
         }
         if (result.isOk()) {
             List<LimitViolation> violations = LIMIT_VIOLATION_FILTER.apply(Security.checkLimits(context.getNetwork(), 1));

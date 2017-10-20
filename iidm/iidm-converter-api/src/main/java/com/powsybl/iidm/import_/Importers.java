@@ -185,7 +185,7 @@ public final class Importers {
                 try {
                     getPostProcessor(name).process(network, computationManager);
                 } catch (Exception e) {
-                    throw new RuntimeException(e);
+                    throw new PowsyblException(e);
                 }
             }
             return network;

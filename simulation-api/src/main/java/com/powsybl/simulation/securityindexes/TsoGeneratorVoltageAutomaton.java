@@ -70,7 +70,7 @@ public class TsoGeneratorVoltageAutomaton extends AbstractSecurityIndex {
                     break;
             }
         }
-        throw new AssertionError("Should not happened");
+        throw new AssertionError("Should not happen");
     }
 
     public TsoGeneratorVoltageAutomaton(String contingencyId, List<String> onUnderVoltageDiconnectedGenerators, List<String> onOverVoltageDiconnectedGenerators) {
