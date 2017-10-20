@@ -59,7 +59,7 @@ public final class FlowsValidation {
         try {
             double fixedX = x;
             if (Math.abs(fixedX) < config.getEpsilonX() && config.applyReactanceCorrection()) {
-                LOGGER.info("x " + fixedX + " -> " + config.getEpsilonX());
+                LOGGER.info("x {} -> {}", fixedX, config.getEpsilonX());
                 fixedX = config.getEpsilonX();
             }
             double z = Math.hypot(r, fixedX);
@@ -71,19 +71,19 @@ public final class FlowsValidation {
             double q2Calc = -rho2 * rho1 * u2 * u1 * y * Math.cos(theta2 - theta1 - ksi + alpha2 - alpha1) + rho2 * rho2 * u2 * u2 * (y * Math.cos(ksi) - b2);
 
             if ((Double.isNaN(p1Calc) && !config.areOkMissingValues()) || Math.abs(p1 - p1Calc) > config.getThreshold()) {
-                LOGGER.warn(ValidationType.FLOWS + " " + ValidationUtils.VALIDATION_ERROR + ": " + id + " P1 " + p1 + " " + p1Calc);
+                LOGGER.warn("{} {}: {} P1 {} {}", ValidationType.FLOWS, ValidationUtils.VALIDATION_ERROR, id, p1, p1Calc);
                 validated = false;
             }
             if ((Double.isNaN(q1Calc) && !config.areOkMissingValues()) || Math.abs(q1 - q1Calc) > config.getThreshold()) {
-                LOGGER.warn(ValidationType.FLOWS + " " + ValidationUtils.VALIDATION_ERROR + ": " + id + " Q1 " + q1 + " " + q1Calc);
+                LOGGER.warn("{} {}: {} Q1 {} {}", ValidationType.FLOWS, ValidationUtils.VALIDATION_ERROR, id, q1, q1Calc);
                 validated = false;
             }
             if ((Double.isNaN(p2Calc) && !config.areOkMissingValues()) || Math.abs(p2 - p2Calc) > config.getThreshold()) {
-                LOGGER.warn(ValidationType.FLOWS + " " + ValidationUtils.VALIDATION_ERROR + ": " + id + " P2 " + p2 + " " + p2Calc);
+                LOGGER.warn("{} {}: {} P2 {} {}", ValidationType.FLOWS, ValidationUtils.VALIDATION_ERROR, id, p2, p2Calc);
                 validated = false;
             }
             if ((Double.isNaN(q2Calc) && !config.areOkMissingValues()) || Math.abs(q2 - q2Calc) > config.getThreshold()) {
-                LOGGER.warn(ValidationType.FLOWS + " " + ValidationUtils.VALIDATION_ERROR + ": " + id + " Q2 " + q2 + " " + q2Calc);
+                LOGGER.warn("{} {}: {} Q2 {} {}", ValidationType.FLOWS, ValidationUtils.VALIDATION_ERROR, id, q2, q2Calc);
                 validated = false;
             }
 

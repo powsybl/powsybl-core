@@ -59,12 +59,11 @@ public final class GeneratorsValidation {
         Objects.requireNonNull(config);
         Objects.requireNonNull(generatorsWriter);
         LOGGER.info("Checking generators of network {}", network.getId());
-        boolean generatorsValidated = network.getGeneratorStream()
-                                             .sorted(Comparator.comparing(Generator::getId))
-                                             .map(gen -> checkGenerators(gen, config, generatorsWriter))
-                                             .reduce(Boolean::logicalAnd)
-                                             .orElse(true);
-        return generatorsValidated;
+        return network.getGeneratorStream()
+                      .sorted(Comparator.comparing(Generator::getId))
+                      .map(gen -> checkGenerators(gen, config, generatorsWriter))
+                      .reduce(Boolean::logicalAnd)
+                      .orElse(true);
     }
 
     public static boolean checkGenerators(Generator gen, ValidationConfig config, Writer writer) {
@@ -124,42 +123,52 @@ public final class GeneratorsValidation {
         Objects.requireNonNull(generatorsWriter);
         boolean validated = true;
         try {
-            // a validation error should be detected if there is both a voltage and a target but no p or q
             if (Float.isNaN(p) || Float.isNaN(q)) {
-                if ((!Float.isNaN(targetP) && targetP != 0)
-                    || (!Float.isNaN(targetQ) && targetQ != 0)) {
-                    LOGGER.warn(ValidationType.GENERATORS + " " + ValidationUtils.VALIDATION_ERROR + ": " + id + ": P=" + p + " targetP=" + targetP + " - Q=" + q + " targetQ=" + targetQ);
-                    validated = false;
-                } else {
-                    validated = true;
-                }
+                validated = checkGeneratorsNaNValues(id, p, maxQ, targetP, targetQ);
             } else {
-                // active power should be equal to set point
-                if ((Float.isNaN(targetP) && !config.areOkMissingValues()) || Math.abs(p + targetP) > config.getThreshold()) {
-                    LOGGER.warn(ValidationType.GENERATORS + " " + ValidationUtils.VALIDATION_ERROR + ": " + id + ": P=" + p + " targetP=" + targetP);
-                    validated = false;
-                }
-                // if voltageRegulatorOn="false" then reactive power should be equal to set point
-                if (!voltageRegulatorOn && ((Float.isNaN(targetQ) && !config.areOkMissingValues()) || Math.abs(q + targetQ) > config.getThreshold())) {
-                    LOGGER.warn(ValidationType.GENERATORS + " " + ValidationUtils.VALIDATION_ERROR + ": " + id + ": voltage regulator off - Q=" + q + " targetQ=" + targetQ);
-                    validated = false;
-                }
-                // if voltageRegulatorOn="true" then
-                // either q is equal to g.getReactiveLimits().getMinQ(p) and V is lower than g.getTargetV()
-                // or q is equal to g.getReactiveLimits().getMaxQ(p) and V is higher than g.getTargetV()
-                // or V at the connected bus is equal to g.getTargetV()
-                if (voltageRegulatorOn
-                    && (((Float.isNaN(minQ) || Float.isNaN(maxQ) || Float.isNaN(targetV)) && !config.areOkMissingValues())
-                        || ((Math.abs(q + minQ) > config.getThreshold() || (v - targetV) >= config.getThreshold())
-                            && (Math.abs(q + maxQ) > config.getThreshold() || (targetV - v) >= config.getThreshold())
-                            && Math.abs(v - targetV) > config.getThreshold()))) {
-                    LOGGER.warn(ValidationType.GENERATORS + " " + ValidationUtils.VALIDATION_ERROR + ": " + id + ": voltage regulator on - Q=" + q + " minQ=" + minQ + " maxQ=" + maxQ + " - V=" + v + " targetV=" + targetV);
-                    validated = false;
-                }
+                validated = checkGeneratorsValues(id, p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, config);
             }
             generatorsWriter.write(id, p, q, v, targetP, targetQ, targetV, true, voltageRegulatorOn, minQ, maxQ, validated);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
+        }
+        return validated;
+    }
+
+    private static boolean checkGeneratorsNaNValues(String id, float p, float q, float targetP, float targetQ) {
+        // a validation error should be detected if there is both a voltage and a target but no p or q
+        if ((!Float.isNaN(targetP) && targetP != 0)
+            || (!Float.isNaN(targetQ) && targetQ != 0)) {
+            LOGGER.warn("{} {}: {}: P={} targetP={} - Q={} targetQ={}", ValidationType.GENERATORS, ValidationUtils.VALIDATION_ERROR, id, p, targetP, q, targetQ);
+            return false;
+        }
+        return true;
+    }
+
+    private static boolean checkGeneratorsValues(String id, float p, float q, float v, float targetP, float targetQ, float targetV,
+                                                 boolean voltageRegulatorOn, float minQ, float maxQ, ValidationConfig config) {
+        boolean validated = true;
+        // active power should be equal to set point
+        if ((Float.isNaN(targetP) && !config.areOkMissingValues()) || Math.abs(p + targetP) > config.getThreshold()) {
+            LOGGER.warn("{} {}: {}: P={} targetP={}", ValidationType.GENERATORS, ValidationUtils.VALIDATION_ERROR, id, p, targetP);
+            validated = false;
+        }
+        // if voltageRegulatorOn="false" then reactive power should be equal to set point
+        if (!voltageRegulatorOn && ((Float.isNaN(targetQ) && !config.areOkMissingValues()) || Math.abs(q + targetQ) > config.getThreshold())) {
+            LOGGER.warn("{} {}: {}: voltage regulator off - Q={} targetQ={}", ValidationType.GENERATORS, ValidationUtils.VALIDATION_ERROR, id, q, targetQ);
+            validated = false;
+        }
+        // if voltageRegulatorOn="true" then
+        // either q is equal to g.getReactiveLimits().getMinQ(p) and V is lower than g.getTargetV()
+        // or q is equal to g.getReactiveLimits().getMaxQ(p) and V is higher than g.getTargetV()
+        // or V at the connected bus is equal to g.getTargetV()
+        if (voltageRegulatorOn
+            && (((Float.isNaN(minQ) || Float.isNaN(maxQ) || Float.isNaN(targetV)) && !config.areOkMissingValues())
+                || ((Math.abs(q + minQ) > config.getThreshold() || (v - targetV) >= config.getThreshold())
+                    && (Math.abs(q + maxQ) > config.getThreshold() || (targetV - v) >= config.getThreshold())
+                    && Math.abs(v - targetV) > config.getThreshold()))) {
+            LOGGER.warn("{} {}: {}: voltage regulator on - Q={} minQ={} maxQ={} - V={} targetV={}", ValidationType.GENERATORS, ValidationUtils.VALIDATION_ERROR, id, q, minQ, maxQ, v, targetV);
+            validated = false;
         }
         return validated;
     }

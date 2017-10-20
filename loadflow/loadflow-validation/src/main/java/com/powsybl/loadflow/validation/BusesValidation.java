@@ -66,13 +66,12 @@ public final class BusesValidation {
         Objects.requireNonNull(config);
         Objects.requireNonNull(busesWriter);
         LOGGER.info("Checking buses of network {}", network.getId());
-        boolean busesValidated = network.getBusView()
-                                        .getBusStream()
-                                        .sorted(Comparator.comparing(Bus::getId))
-                                        .map(bus -> checkBuses(bus, config, busesWriter))
-                                        .reduce(Boolean::logicalAnd)
-                                        .orElse(true);
-        return busesValidated;
+        return network.getBusView()
+                      .getBusStream()
+                      .sorted(Comparator.comparing(Bus::getId))
+                      .map(bus -> checkBuses(bus, config, busesWriter))
+                      .reduce(Boolean::logicalAnd)
+                      .orElse(true);
     }
 
     public static boolean checkBuses(Bus bus, ValidationConfig config, Writer writer) {
@@ -91,22 +90,22 @@ public final class BusesValidation {
         Objects.requireNonNull(bus);
         Objects.requireNonNull(config);
         Objects.requireNonNull(busesWriter);
-        Double loadP = bus.getLoadStream().map(Load::getTerminal).mapToDouble(Terminal::getP).sum();
-        Double loadQ = bus.getLoadStream().map(Load::getTerminal).mapToDouble(Terminal::getQ).sum();
-        Double genP = bus.getGeneratorStream().map(Generator::getTerminal).mapToDouble(Terminal::getP).sum();
-        Double genQ = bus.getGeneratorStream().map(Generator::getTerminal).mapToDouble(Terminal::getQ).sum();
-        Double shuntP = bus.getShuntStream().map(ShuntCompensator::getTerminal).mapToDouble(Terminal::getP).sum();
-        Double shuntQ = bus.getShuntStream().map(ShuntCompensator::getTerminal).mapToDouble(Terminal::getQ).sum();
-        Double svcP = bus.getStaticVarCompensatorStream().map(StaticVarCompensator::getTerminal).mapToDouble(Terminal::getP).sum();
-        Double svcQ = bus.getStaticVarCompensatorStream().map(StaticVarCompensator::getTerminal).mapToDouble(Terminal::getQ).sum();
-        Double vscCSP = bus.getVscConverterStationStream().map(VscConverterStation::getTerminal).mapToDouble(Terminal::getP).sum();
-        Double vscCSQ = bus.getVscConverterStationStream().map(VscConverterStation::getTerminal).mapToDouble(Terminal::getQ).sum();
-        Double lineP = bus.getLineStream().map(line -> getBranchTerminal(line, bus)).mapToDouble(Terminal::getP).sum();
-        Double lineQ = bus.getLineStream().map(line -> getBranchTerminal(line, bus)).mapToDouble(Terminal::getQ).sum();
-        Double twtP = bus.getTwoWindingTransformerStream().map(twt -> getBranchTerminal(twt, bus)).mapToDouble(Terminal::getP).sum();
-        Double twtQ = bus.getTwoWindingTransformerStream().map(twt -> getBranchTerminal(twt, bus)).mapToDouble(Terminal::getQ).sum();
-        Double tltP = bus.getThreeWindingTransformerStream().map(tlt -> getThreeWindingTransformerTerminal(tlt, bus)).mapToDouble(Terminal::getP).sum();
-        Double tltQ = bus.getThreeWindingTransformerStream().map(tlt -> getThreeWindingTransformerTerminal(tlt, bus)).mapToDouble(Terminal::getQ).sum();
+        double loadP = bus.getLoadStream().map(Load::getTerminal).mapToDouble(Terminal::getP).sum();
+        double loadQ = bus.getLoadStream().map(Load::getTerminal).mapToDouble(Terminal::getQ).sum();
+        double genP = bus.getGeneratorStream().map(Generator::getTerminal).mapToDouble(Terminal::getP).sum();
+        double genQ = bus.getGeneratorStream().map(Generator::getTerminal).mapToDouble(Terminal::getQ).sum();
+        double shuntP = bus.getShuntStream().map(ShuntCompensator::getTerminal).mapToDouble(Terminal::getP).sum();
+        double shuntQ = bus.getShuntStream().map(ShuntCompensator::getTerminal).mapToDouble(Terminal::getQ).sum();
+        double svcP = bus.getStaticVarCompensatorStream().map(StaticVarCompensator::getTerminal).mapToDouble(Terminal::getP).sum();
+        double svcQ = bus.getStaticVarCompensatorStream().map(StaticVarCompensator::getTerminal).mapToDouble(Terminal::getQ).sum();
+        double vscCSP = bus.getVscConverterStationStream().map(VscConverterStation::getTerminal).mapToDouble(Terminal::getP).sum();
+        double vscCSQ = bus.getVscConverterStationStream().map(VscConverterStation::getTerminal).mapToDouble(Terminal::getQ).sum();
+        double lineP = bus.getLineStream().map(line -> getBranchTerminal(line, bus)).mapToDouble(Terminal::getP).sum();
+        double lineQ = bus.getLineStream().map(line -> getBranchTerminal(line, bus)).mapToDouble(Terminal::getQ).sum();
+        double twtP = bus.getTwoWindingTransformerStream().map(twt -> getBranchTerminal(twt, bus)).mapToDouble(Terminal::getP).sum();
+        double twtQ = bus.getTwoWindingTransformerStream().map(twt -> getBranchTerminal(twt, bus)).mapToDouble(Terminal::getQ).sum();
+        double tltP = bus.getThreeWindingTransformerStream().map(tlt -> getThreeWindingTransformerTerminal(tlt, bus)).mapToDouble(Terminal::getP).sum();
+        double tltQ = bus.getThreeWindingTransformerStream().map(tlt -> getThreeWindingTransformerTerminal(tlt, bus)).mapToDouble(Terminal::getQ).sum();
         return checkBuses(bus.getId(), loadP, loadQ, genP, genQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ, lineP, lineQ, twtP, twtQ, tltP, tltQ, config, busesWriter);
     }
 
@@ -151,11 +150,11 @@ public final class BusesValidation {
             Double incomingP = genP + shuntP + svcP + vscCSP + lineP + twtP + tltP;
             Double incomingQ = genQ + shuntQ + svcQ + vscCSQ + lineQ + twtQ + tltQ;
             if (((Double.isNaN(incomingP) || Double.isNaN(loadP)) && !config.areOkMissingValues()) || Math.abs(incomingP + loadP) > config.getThreshold()) {
-                LOGGER.warn(ValidationType.BUSES + " " + ValidationUtils.VALIDATION_ERROR + ": " + id + " P " + incomingP + " " + loadP);
+                LOGGER.warn("{} {}: {} P {} {}", ValidationType.BUSES, ValidationUtils.VALIDATION_ERROR, id, incomingP, loadP);
                 validated = false;
             }
             if (((Double.isNaN(incomingQ) || Double.isNaN(loadQ)) && !config.areOkMissingValues()) || Math.abs(incomingQ + loadQ) > config.getThreshold()) {
-                LOGGER.warn(ValidationType.BUSES + " " + ValidationUtils.VALIDATION_ERROR + ": " + id + " Q " + incomingQ + " " + loadQ);
+                LOGGER.warn("{} {}: {} Q {} {}", ValidationType.BUSES, ValidationUtils.VALIDATION_ERROR, id, incomingQ, loadQ);
                 validated = false;
             }
             busesWriter.write(id, incomingP, incomingQ, loadP, loadQ, genP, genQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ, lineP, lineQ, twtP, twtQ, tltP, tltQ, validated);
