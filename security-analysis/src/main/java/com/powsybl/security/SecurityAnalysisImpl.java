@@ -14,21 +14,15 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowFactory;
 import com.powsybl.loadflow.LoadFlowParameters;
-import com.powsybl.loadflow.LoadFlowResult;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class SecurityAnalysisImpl implements SecurityAnalysis {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(SecurityAnalysisImpl.class);
 
     private final Network network;
     private final ComputationManager computationManager;
@@ -82,32 +76,24 @@ public class SecurityAnalysisImpl implements SecurityAnalysis {
 
                             // run one loadflow per contingency
                             futures[i] = CompletableFuture
-                                    .supplyAsync(new Supplier<Void>() {
-                                        @Override
-                                        public Void get() {
-                                            network.getStateManager().cloneState(StateManager.INITIAL_STATE_ID, postContStateId);
-                                            network.getStateManager().setWorkingState(postContStateId);
+                                    .supplyAsync((Supplier<Void>) () -> {
+                                        network.getStateManager().cloneState(StateManager.INITIAL_STATE_ID, postContStateId);
+                                        network.getStateManager().setWorkingState(postContStateId);
 
-                                            // apply the contingency on the network
-                                            contingency.toTask().modify(network, computationManager);
+                                        // apply the contingency on the network
+                                        contingency.toTask().modify(network, computationManager);
 
-                                            return null;
-                                        }
+                                        return null;
                                     }, computationManager.getExecutor())
                                     .thenComposeAsync(aVoid -> loadFlow.runAsync(postContStateId, postContParameters), computationManager.getExecutor())
-                                    .handleAsync(new BiFunction<LoadFlowResult, Throwable, Void>() {
-                                        @Override
-                                        public Void apply(LoadFlowResult loadFlowResult, Throwable throwable) {
-                                            network.getStateManager().setWorkingState(postContStateId);
+                                    .handleAsync((result, throwable) -> {
+                                        network.getStateManager().setWorkingState(postContStateId);
 
-                                            postContingencyResults.add(new PostContingencyResult(contingency,
-                                                                                                    loadFlowResult.isOk(),
-                                                                                                    checkLimits(network)));
+                                        postContingencyResults.add(new PostContingencyResult(contingency, result.isOk(), checkLimits(network)));
 
-                                            network.getStateManager().removeState(postContStateId);
+                                        network.getStateManager().removeState(postContStateId);
 
-                                            return null;
-                                        }
+                                        return null;
                                     }, computationManager.getExecutor());
                         }
                     } else {
@@ -115,7 +101,7 @@ public class SecurityAnalysisImpl implements SecurityAnalysis {
                     }
 
                     return CompletableFuture.allOf(futures)
-                            .thenApplyAsync(aVoid -> new SecurityAnalysisResult(new LimitViolationsResult(preContingencyComputationOk[0], preContingencyLimitViolations), postContingencyResults));
+                            .thenApplyAsync(aVoid -> new SecurityAnalysisResult(network, new LimitViolationsResult(preContingencyComputationOk[0], preContingencyLimitViolations), postContingencyResults));
                 }, computationManager.getExecutor());
     }
 
