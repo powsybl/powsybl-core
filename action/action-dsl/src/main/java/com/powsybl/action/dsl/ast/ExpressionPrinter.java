@@ -232,14 +232,18 @@ public class ExpressionPrinter extends DefaultExpressionVisitor<Void, Void> {
     public Void visitMostLoaded(MostLoadedNode node, Void arg) {
         out.print("mostLoaded(");
         out.print("[");
-        Iterator<String> it = node.getBranchIds().iterator();
-        while (it.hasNext()) {
-            out.print(it.next());
-            if (it.hasNext()) {
-                out.print(", ");
-            }
-        }
+        out.print(String.join(", ", node.getBranchIds()));
         out.print("])");
         return null;
     }
+
+    @Override
+    public Void visitIsOverloaded(IsOverloadedNode node, Void arg) {
+        out.print("isOverloaded(");
+        out.print("[");
+        out.print(String.join(", ", node.getBranchIds()));
+        out.print("])");
+        return null;
+    }
+
 }

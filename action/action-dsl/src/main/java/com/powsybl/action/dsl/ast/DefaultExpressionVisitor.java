@@ -78,4 +78,9 @@ public class DefaultExpressionVisitor<R, A> implements ExpressionVisitor<R, A> {
     public R visitMostLoaded(MostLoadedNode mostLoadedNode, A arg) {
         return null;
     }
+
+    @Override
+    public R visitIsOverloaded(IsOverloadedNode isOverloadedNode, A arg) {
+        return null;
+    }
 }

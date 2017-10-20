@@ -117,7 +117,11 @@ abstract class AbstractBranch<I extends Connectable<I>> extends AbstractConnecta
     }
 
     public boolean isOverloaded() {
-        return checkTemporaryLimits1() != null || checkTemporaryLimits2() != null;
+        return isOverloaded(1.0f);
+    }
+
+    public boolean isOverloaded(float limitReduction) {
+        return checkPermanentLimit1(limitReduction) || checkPermanentLimit2(limitReduction);
     }
 
     public int getOverloadDuration() {
@@ -167,7 +171,7 @@ abstract class AbstractBranch<I extends Connectable<I>> extends AbstractConnecta
         return limits != null &&
             !Float.isNaN(limits.getPermanentLimit()) &&
             !Float.isNaN(i) &&
-            (i > limits.getPermanentLimit() * limitReduction);
+            (i >= limits.getPermanentLimit() * limitReduction);
     }
 
     static final class OverloadImpl implements Branch.Overload {
