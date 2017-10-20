@@ -410,7 +410,7 @@ class MpiJobSchedulerImpl implements MpiJobScheduler {
                 break;
 
             default:
-                throw new InternalError();
+                throw new AssertionError("Unexpected CommandType value: " + command.getType());
         }
 
         for (OutputFile outputFile : command.getOutputFiles()) {

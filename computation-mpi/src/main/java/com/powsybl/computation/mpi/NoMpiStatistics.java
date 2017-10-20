@@ -42,7 +42,7 @@ public class NoMpiStatistics implements MpiStatistics {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
     }
 
 }

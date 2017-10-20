@@ -45,6 +45,9 @@ public class ExpressionPrinter extends DefaultExpressionVisitor<Void, Void> {
     @Override
     public Void visitNetworkComponent(NetworkComponentNode node, Void arg) {
         switch (node.getComponentType()) {
+            case BRANCH:
+                out.print("branch");
+                break;
             case LINE:
                 out.print("line");
                 break;
@@ -229,14 +232,18 @@ public class ExpressionPrinter extends DefaultExpressionVisitor<Void, Void> {
     public Void visitMostLoaded(MostLoadedNode node, Void arg) {
         out.print("mostLoaded(");
         out.print("[");
-        Iterator<String> it = node.getBranchIds().iterator();
-        while (it.hasNext()) {
-            out.print(it.next());
-            if (it.hasNext()) {
-                out.print(", ");
-            }
-        }
+        out.print(String.join(", ", node.getBranchIds()));
         out.print("])");
         return null;
     }
+
+    @Override
+    public Void visitIsOverloaded(IsOverloadedNode node, Void arg) {
+        out.print("isOverloaded(");
+        out.print("[");
+        out.print(String.join(", ", node.getBranchIds()));
+        out.print("])");
+        return null;
+    }
+
 }

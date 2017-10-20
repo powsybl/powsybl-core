@@ -58,11 +58,17 @@ public class TsoOverloadSecurityIndex extends AbstractSecurityIndex {
 
                         case "index":
                             return new TsoOverloadSecurityIndex(contingencyId, overloadCount, overloadedBranches, computationSucceed);
+
+                        default:
+                            break;
                     }
+                    break;
+
+                default:
                     break;
             }
         }
-        throw new InternalError("Should not happened");
+        throw new AssertionError("index element not found");
     }
 
     public TsoOverloadSecurityIndex(String contingencyId, int overloadCount) {

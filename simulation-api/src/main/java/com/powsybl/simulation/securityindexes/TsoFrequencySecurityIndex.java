@@ -39,9 +39,11 @@ public class TsoFrequencySecurityIndex extends AbstractSecurityIndex {
                         return new TsoFrequencySecurityIndex(contingencyId, Integer.parseInt(text));
                     }
                     break;
+                default:
+                    break;
             }
         }
-        throw new InternalError("Should not happened");
+        throw new AssertionError("freq-out-count element not found");
     }
 
     public TsoFrequencySecurityIndex(String contingencyId, int freqOutCount) {

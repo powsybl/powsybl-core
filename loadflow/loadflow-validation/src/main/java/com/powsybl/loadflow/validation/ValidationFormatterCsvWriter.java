@@ -111,7 +111,7 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                     new Column("targetV")
                 };
             default:
-                throw new InternalError();
+                throw new AssertionError("Unexpected ValidationType value: " + validationType);
         }
     }
 

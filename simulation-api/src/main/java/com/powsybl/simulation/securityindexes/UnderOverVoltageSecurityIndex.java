@@ -38,9 +38,11 @@ public class UnderOverVoltageSecurityIndex extends AbstractSecurityIndex {
                         return new UnderOverVoltageSecurityIndex(contingencyId, Double.parseDouble(text));
                     }
                     break;
+                default:
+                    break;
             }
         }
-        throw new InternalError("Should not have happened");
+        throw new AssertionError("vx element not found");
     }
 
     public UnderOverVoltageSecurityIndex(String contingencyId, double indexValue) {
@@ -54,7 +56,7 @@ public class UnderOverVoltageSecurityIndex extends AbstractSecurityIndex {
 
     @Override
     public boolean isOk() {
-        return !(indexValue > INDEX_THRESHOLD);
+        return indexValue <= INDEX_THRESHOLD;
     }
 
     @Override

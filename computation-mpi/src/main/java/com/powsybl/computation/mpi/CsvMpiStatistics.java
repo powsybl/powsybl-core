@@ -596,8 +596,12 @@ public class CsvMpiStatistics implements MpiStatistics {
     }
 
     @Override
-    public void close() throws Exception {
-        internalWriter.close();
+    public void close() {
+        try {
+            internalWriter.close();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
 }
