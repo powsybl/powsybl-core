@@ -50,7 +50,9 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
             }
             context.getWriter().writeEndElement();
         } else {
-            switch (vl.getTopologyKind()) {
+        	// TODO: trouver le topologyKind a exporter (min(vl.getTopologyKind(), context.getOptions().getTopolyKind());
+        	TopologyKind topologyKind = min(vl.getTopologyKind(), context.getOptions().getTopologyKind())
+        	switch (topologyKind)
                 case NODE_BREAKER:
                     context.getWriter().writeStartElement(IIDM_URI, "nodeBreakerTopology");
                     context.getWriter().writeAttribute("nodeCount", Integer.toString(vl.getNodeBreakerView().getNodeCount()));

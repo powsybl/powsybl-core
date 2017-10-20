@@ -9,12 +9,21 @@ package com.powsybl.iidm.xml;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.iidm.export.Exporter;
+import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Substation;
+import com.powsybl.iidm.network.Switch;
+import com.powsybl.iidm.network.Terminal.BusBreakerView;
+import com.powsybl.iidm.network.TopologyKind;
+import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.security.LimitViolation;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.Comparator;
 import java.util.Properties;
 
 /**
@@ -65,6 +74,8 @@ public class XMLExporter implements Exporter, XmlConstants {
 
     public static final String SKIP_EXTENSIONS_PROPERTIES = "iidm.export.xml.skip-extensions";
 
+    public static final String TOPOLOGY_KIND = "topology-kind";
+
     @Override
     public String getFormat() {
         return "XIIDM";
@@ -81,7 +92,7 @@ public class XMLExporter implements Exporter, XmlConstants {
             throw new IllegalArgumentException("network is null");
         }
 
-        XMLExportOptions options = new XMLExportOptions();
+       XMLExportOptions options = new XMLExportOptions();
         if (parameters != null) {
             options.setIndent(!"false".equals(parameters.getProperty(INDENT_PROPERTY)))
                     .setWithBranchSV("true".equals(parameters.getProperty(WITH_BRANCH_STATE_VARIABLES_PROPERTY)))
@@ -89,6 +100,7 @@ public class XMLExporter implements Exporter, XmlConstants {
                     .setOnlyMainCc("true".equals(parameters.getProperty(ONLY_MAIN_CC_PROPERTIES)))
                     .setAnonymized("true".equals(parameters.getProperty(ANONYMISED_PROPERTIES)))
                     .setSkipExtensions("true".equals(parameters.getProperty(SKIP_EXTENSIONS_PROPERTIES)));
+            // .setTopolog....
         }
 
         try {

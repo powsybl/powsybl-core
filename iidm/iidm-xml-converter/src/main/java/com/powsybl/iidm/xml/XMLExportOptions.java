@@ -6,6 +6,8 @@
  */
 package com.powsybl.iidm.xml;
 
+import com.powsybl.iidm.network.TopologyKind;
+
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -24,14 +26,17 @@ public class XMLExportOptions {
 
     private boolean skipExtensions = false;
 
+    private TopologyKind topologyKind = TopologyKind.BUS_BREAKER;
+
     public XMLExportOptions() {
     }
 
-    public XMLExportOptions(boolean withBranchSV, boolean forceBusBranchTopo, boolean indent, boolean onlyMainCc) {
+    public XMLExportOptions(boolean withBranchSV, boolean forceBusBranchTopo, boolean indent, boolean onlyMainCc, TopologyKind topologyKind) {
         this.withBranchSV = withBranchSV;
         this.forceBusBranchTopo = forceBusBranchTopo;
         this.indent = indent;
         this.onlyMainCc = onlyMainCc;
+        this.topologyKind = topologyKind;
     }
 
     public boolean isWithBranchSV() {
@@ -86,5 +91,9 @@ public class XMLExportOptions {
     public XMLExportOptions setSkipExtensions(boolean skipExtensions) {
         this.skipExtensions = skipExtensions;
         return this;
+    }
+
+    public TopologyKind getTopologyKind() {
+        return topologyKind;
     }
 }
