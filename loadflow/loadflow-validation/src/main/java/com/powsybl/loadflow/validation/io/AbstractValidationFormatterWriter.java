@@ -21,6 +21,10 @@ import com.powsybl.loadflow.validation.ValidationType;
  */
 public abstract class AbstractValidationFormatterWriter implements ValidationWriter {
 
+    protected static final String SUCCESS = "success";
+    protected static final String FAIL = "fail";
+    protected static final String VALIDATION = "validation";
+
     protected TableFormatter formatter;
 
     protected TableFormatter createTableFormatter(String id, Class<? extends TableFormatterFactory> formatterFactoryClass,

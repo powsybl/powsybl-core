@@ -64,7 +64,7 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
                            String.join(";", branchId, "z", String.format(Locale.getDefault(), "%g", z)),
                            String.join(";", branchId, "y", String.format(Locale.getDefault(), "%g", y)),
                            String.join(";", branchId, "ksi", String.format(Locale.getDefault(), "%g", ksi)),
-                           String.join(";", branchId, ValidationWriter.VALIDATION, ValidationWriter.SUCCESS));
+                           String.join(";", branchId, "validation", "success"));
     }
 
     @Override
@@ -100,7 +100,7 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
                            String.join(";", generatorId, "voltageRegulatorOn", Boolean.toString(voltageRegulatorOn)),
                            String.join(";", generatorId, "minQ", String.format(Locale.getDefault(), "%g", minQ)),
                            String.join(";", generatorId, "maxQ", String.format(Locale.getDefault(), "%g", maxQ)),
-                           String.join(";", generatorId, ValidationWriter.VALIDATION, ValidationWriter.SUCCESS));
+                           String.join(";", generatorId, "validation", "success"));
     }
 
     @Override
@@ -142,7 +142,7 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
                 String.join(";", busId, "twtQ", String.format(Locale.getDefault(), "%g", twtQ)),
                 String.join(";", busId, "tltP", String.format(Locale.getDefault(), "%g", tltP)),
                 String.join(";", busId, "tltQ", String.format(Locale.getDefault(), "%g", tltQ)),
-                String.join(";", busId, ValidationWriter.VALIDATION, ValidationWriter.SUCCESS));
+                String.join(";", busId, AbstractValidationFormatterWriter.VALIDATION, "success"));
     }
 
     @Override
