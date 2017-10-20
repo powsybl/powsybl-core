@@ -6,6 +6,7 @@
  */
 package com.powsybl.math.matrix;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.math.matrix.trove.TDoubleArrayListHack;
 import com.powsybl.math.matrix.trove.TIntArrayListHack;
 import org.slf4j.Logger;
@@ -41,7 +42,7 @@ public class SparseMatrix extends AbstractMatrix {
 
     private static void checkNativeInit() {
         if (!NATIVE_INIT) {
-            throw new RuntimeException("Native init has failed");
+            throw new PowsyblException("Native init has failed");
         }
     }
 
@@ -102,7 +103,7 @@ public class SparseMatrix extends AbstractMatrix {
             columnStart[n] = values.size();
             currentColumn = n;
         } else {
-            throw new RuntimeException("Columns have to be filled in the right order");
+            throw new PowsyblException("Columns have to be filled in the right order");
         }
         values.add(value);
         rowIndices.add(m);
@@ -121,7 +122,7 @@ public class SparseMatrix extends AbstractMatrix {
     public Matrix times(Matrix other) {
         checkNativeInit();
         if (!(other instanceof SparseMatrix)) {
-            throw new RuntimeException("Sparse and dense matrix multiplication is not supported");
+            throw new PowsyblException("Sparse and dense matrix multiplication is not supported");
         }
         SparseMatrix o = (SparseMatrix) other;
         return times(m, n, columnStart, rowIndices.getData(), values.getData(),

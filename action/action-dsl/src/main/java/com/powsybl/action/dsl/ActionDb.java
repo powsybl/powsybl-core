@@ -6,6 +6,7 @@
  */
 package com.powsybl.action.dsl;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.contingency.Contingency;
 
 import java.util.Collection;
@@ -37,7 +38,7 @@ public class ActionDb {
         Objects.requireNonNull(id);
         Contingency contingency = contingencies.get(id);
         if (contingency == null) {
-            throw new RuntimeException("Contingency '" + id + "' not found");
+            throw new PowsyblException("Contingency '" + id + "' not found");
         }
         return contingency;
     }
@@ -60,7 +61,7 @@ public class ActionDb {
         Objects.requireNonNull(id);
         Action action = actions.get(id);
         if (action == null) {
-            throw new RuntimeException("Action '" + id + "' not found");
+            throw new PowsyblException("Action '" + id + "' not found");
         }
         return action;
     }

@@ -6,6 +6,7 @@
  */
 package com.powsybl.commons.config;
 
+import com.powsybl.commons.PowsyblException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +51,7 @@ public class PropertiesPlatformConfig extends PlatformConfig {
             public ModuleConfig getModuleConfig(String name) {
                 ModuleConfig moduleConfig = getModuleConfigIfExists(name);
                 if (moduleConfig == null) {
-                    throw new RuntimeException("Module " + name + " not found");
+                    throw new PowsyblException("Module " + name + " not found");
                 }
                 return moduleConfig;
             }

@@ -6,6 +6,8 @@
  */
 package com.powsybl.iidm.network;
 
+import com.powsybl.commons.PowsyblException;
+
 import java.util.Iterator;
 
 /**
@@ -53,7 +55,7 @@ public final class Equipments {
                 if (itVLB.hasNext()) {
                     bus = itVLB.next();
                 } else {
-                    throw new RuntimeException("Cannot find a connection bus");
+                    throw new PowsyblException("Cannot find a connection bus");
                 }
             }
         }

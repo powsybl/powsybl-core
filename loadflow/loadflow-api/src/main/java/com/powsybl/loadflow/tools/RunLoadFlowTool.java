@@ -7,6 +7,7 @@
 package com.powsybl.loadflow.tools;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.ComponentDefaultConfig;
 import com.powsybl.commons.io.table.*;
 import com.powsybl.tools.Command;
@@ -135,7 +136,7 @@ public class RunLoadFlowTool implements Tool {
         context.getOutputStream().println("Loading network '" + caseFile + "'");
         Network network = Importers.loadNetwork(caseFile, context.getComputationManager(), importConfig, null);
         if (network == null) {
-            throw new RuntimeException("Case '" + caseFile + "' not found");
+            throw new PowsyblException("Case '" + caseFile + "' not found");
         }
         LoadFlow loadFlow = defaultConfig.newFactoryImpl(LoadFlowFactory.class).create(network, context.getComputationManager(), 0);
         LoadFlowResult result = loadFlow.run();

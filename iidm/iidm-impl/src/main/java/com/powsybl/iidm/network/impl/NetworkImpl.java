@@ -7,6 +7,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.google.common.collect.*;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.math.graph.GraphUtil;
 import com.powsybl.math.graph.GraphUtil.ConnectedComponentsComputationResult;
 import com.powsybl.iidm.network.*;
@@ -773,7 +774,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Mult
         // one state but an internal array with a size greater that one and
         // some re-usable states
         if (stateManager.getStateArraySize() != 1 || otherNetwork.stateManager.getStateArraySize() != 1) {
-            throw new RuntimeException("Merging of multi-states network is not supported");
+            throw new PowsyblException("Merging of multi-states network is not supported");
         }
 
         long start = System.currentTimeMillis();
@@ -787,7 +788,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Mult
             }
             Collection<String> objs = entry.getValue();
             if (objs.size() > 0) {
-                throw new RuntimeException("The following object(s) of type "
+                throw new PowsyblException("The following object(s) of type "
                         + clazz.getSimpleName() + " exist(s) in both networks: "
                         + objs);
             }
@@ -851,7 +852,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Mult
                 // mapping by id
                 if (dl1.getUcteXnodeCode() != null && dl2.getUcteXnodeCode() != null
                         && !dl1.getUcteXnodeCode().equals(dl2.getUcteXnodeCode())) {
-                    throw new RuntimeException("Dangling line couple " + dl1.getId()
+                    throw new PowsyblException("Dangling line couple " + dl1.getId()
                             + " have inconsistent Xnodes (" + dl1.getUcteXnodeCode()
                             + "!=" + dl2.getUcteXnodeCode() + ")");
                 }

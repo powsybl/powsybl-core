@@ -22,6 +22,12 @@
     <name>UCTE network</name>
 
     <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-commons</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <!-- Compilation dependencies -->
         <dependency>
             <groupId>com.google.guava</groupId>

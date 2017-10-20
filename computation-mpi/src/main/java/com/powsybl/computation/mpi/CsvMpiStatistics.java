@@ -10,6 +10,7 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Joiner.MapJoiner;
 import com.google.common.base.Splitter;
 import com.google.common.base.Splitter.MapSplitter;
+import com.powsybl.commons.PowsyblException;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.slf4j.Logger;
@@ -135,13 +136,13 @@ public class CsvMpiStatistics implements MpiStatistics {
                 }
                 String[] tokens = line.split(CSV_SEPARATOR);
                 if (tokens.length < 1) {
-                    throw new RuntimeException("Cannot detect line key");
+                    throw new PowsyblException("Cannot detect line key");
                 }
                 String key = tokens[0];
                 switch (key) {
                     case COMMON_FILE_TRANSFER_KEY: {
                         if (tokens.length != 4) {
-                            throw new RuntimeException("Incorrect " + COMMON_FILE_TRANSFER_KEY + " line '" + line + "'");
+                            throw new PowsyblException("Incorrect " + COMMON_FILE_TRANSFER_KEY + " line '" + line + "'");
                         }
                         String fileName = tokens[1];
                         long size = Long.parseLong(tokens[2]);
@@ -151,7 +152,7 @@ public class CsvMpiStatistics implements MpiStatistics {
                     }
                     case JOB_START_KEY: {
                         if (tokens.length != 3 && tokens.length != 4) {
-                            throw new RuntimeException("Incorrect " + JOB_START_KEY + " line '" + line + "'");
+                            throw new PowsyblException("Incorrect " + JOB_START_KEY + " line '" + line + "'");
                         }
                         int jobId = Integer.parseInt(tokens[1]);
                         String commandId = tokens[2];
@@ -164,7 +165,7 @@ public class CsvMpiStatistics implements MpiStatistics {
                     }
                     case JOB_END_KEY: {
                         if (tokens.length != 2) {
-                            throw new RuntimeException("Incorrect " + JOB_END_KEY + " line '" + line + "'");
+                            throw new PowsyblException("Incorrect " + JOB_END_KEY + " line '" + line + "'");
                         }
                         int jobId = Integer.parseInt(tokens[1]);
                         jobs.remove(jobId);
@@ -172,7 +173,7 @@ public class CsvMpiStatistics implements MpiStatistics {
                     }
                     case TASK_START_KEY: {
                         if (tokens.length != 8) {
-                            throw new RuntimeException("Incorrect " + TASK_START_KEY + " line '" + line + "'");
+                            throw new PowsyblException("Incorrect " + TASK_START_KEY + " line '" + line + "'");
                         }
                         int taskId = Integer.parseInt(tokens[1]);
                         int jobId = Integer.parseInt(tokens[2]);
@@ -186,7 +187,7 @@ public class CsvMpiStatistics implements MpiStatistics {
                     }
                     case TASK_END_KEY: {
                         if (tokens.length != 8) {
-                            throw new RuntimeException("Incorrect " + TASK_END_KEY + " line '" + line + "'");
+                            throw new PowsyblException("Incorrect " + TASK_END_KEY + " line '" + line + "'");
                         }
                         int taskId = Integer.parseInt(tokens[1]);
                         TaskExecution task = tasks.get(taskId);
@@ -208,7 +209,7 @@ public class CsvMpiStatistics implements MpiStatistics {
                         break;
                     }
                     default:
-                        throw new RuntimeException("Unknown key " + key);
+                        throw new PowsyblException("Unknown key " + key);
                 }
             }
         }
