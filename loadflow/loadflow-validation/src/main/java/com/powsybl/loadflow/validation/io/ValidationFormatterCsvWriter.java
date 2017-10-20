@@ -71,7 +71,7 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                         new Column("z"),
                         new Column("y"),
                         new Column("ksi"),
-                        new Column("validation")
+                        new Column(VALIDATION)
                     };
                 }
                 return new Column[] {
@@ -99,7 +99,7 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                         new Column("voltageRegulatorOn"),
                         new Column("minQ"),
                         new Column("maxQ"),
-                        new Column("validation")
+                        new Column(VALIDATION)
                     };
                 }
                 return new Column[] {
@@ -133,7 +133,7 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                         new Column("twtQ"),
                         new Column("tltP"),
                         new Column("tltQ"),
-                        new Column("validation")
+                        new Column(VALIDATION)
                     };
                 }
                 return new Column[] {
@@ -180,7 +180,7 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                      .writeCell(z)
                      .writeCell(y)
                      .writeCell(ksi)
-                     .writeCell(validated ? "success" : "fail");
+                     .writeCell(validated ? SUCCESS : FAIL);
         }
     }
 
@@ -200,7 +200,7 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                      .writeCell(voltageRegulatorOn)
                      .writeCell(minQ)
                      .writeCell(maxQ)
-                     .writeCell(validated ? "success" : "fail");
+                     .writeCell(validated ? SUCCESS : FAIL);
         }
     }
 
@@ -229,7 +229,7 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                      .writeCell(twtQ)
                      .writeCell(tltP)
                      .writeCell(tltQ)
-                     .writeCell(validated ? "success" : "fail");
+                     .writeCell(validated ? SUCCESS : FAIL);
         }
     }
 

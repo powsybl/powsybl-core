@@ -78,7 +78,7 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
                      .writeCell(branchId).writeCell("z").writeCell(z)
                      .writeCell(branchId).writeCell("y").writeCell(y)
                      .writeCell(branchId).writeCell("ksi").writeCell(ksi)
-                     .writeCell(branchId).writeCell("validation").writeCell(validated ? "success" : "fail");
+                     .writeCell(branchId).writeCell(VALIDATION).writeCell(validated ? SUCCESS : FAIL);
         }
     }
 
@@ -97,7 +97,7 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
                      .writeCell(generatorId).writeCell("voltageRegulatorOn").writeCell(voltageRegulatorOn)
                      .writeCell(generatorId).writeCell("minQ").writeCell(minQ)
                      .writeCell(generatorId).writeCell("maxQ").writeCell(maxQ)
-                     .writeCell(generatorId).writeCell("validation").writeCell(validated ? "success" : "fail");
+                     .writeCell(generatorId).writeCell(VALIDATION).writeCell(validated ? SUCCESS : FAIL);
         }
     }
 
@@ -125,7 +125,7 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
                      .writeCell(busId).writeCell("twtQ").writeCell(twtQ)
                      .writeCell(busId).writeCell("tltP").writeCell(tltP)
                      .writeCell(busId).writeCell("tltQ").writeCell(tltQ)
-                     .writeCell(busId).writeCell("validation").writeCell(validated ? "success" : "fail");
+                     .writeCell(busId).writeCell(VALIDATION).writeCell(validated ? SUCCESS : FAIL);
         }
     }
 

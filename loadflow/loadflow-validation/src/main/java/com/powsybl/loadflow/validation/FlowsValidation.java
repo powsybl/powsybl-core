@@ -163,49 +163,49 @@ public final class FlowsValidation {
         float q2 = twt.getTerminal2().getQ();
         Bus bus1 = twt.getTerminal1().getBusView().getBus();
         Bus bus2 = twt.getTerminal2().getBusView().getBus();
-        if (bus1 != null && bus2 != null && !Float.isNaN(p1) && !Float.isNaN(p2) && !Float.isNaN(q1) && !Float.isNaN(q2)) {
-            float r = twt.getR();
-            float x = twt.getX();
-            double g1 = twt.getG();
-            double g2 = 0f;
-            double b1 = twt.getB();
-            double b2 = 0f;
-            if (config.getLoadFlowParameters().isSpecificCompatibility()) {
-                g1 = twt.getG() / 2;
-                g2 = twt.getG() / 2;
-                b1 = twt.getB() / 2;
-                b2 = twt.getB() / 2;
-            }
-            if (twt.getRatioTapChanger() != null) {
-                r *= 1 + twt.getRatioTapChanger().getCurrentStep().getR() / 100;
-                x *= 1 + twt.getRatioTapChanger().getCurrentStep().getX() / 100;
-                g1 *= 1 + twt.getRatioTapChanger().getCurrentStep().getG() / 100;
-                b1 *= 1 + twt.getRatioTapChanger().getCurrentStep().getB() / 100;
-            }
-            if (twt.getPhaseTapChanger() != null) {
-                r *= 1 + twt.getPhaseTapChanger().getCurrentStep().getR() / 100;
-                x *= 1 + twt.getPhaseTapChanger().getCurrentStep().getX() / 100;
-                g1 *= 1 + twt.getPhaseTapChanger().getCurrentStep().getG() / 100;
-                b1 *= 1 + twt.getPhaseTapChanger().getCurrentStep().getB() / 100;
-            }
-
-            double rho1 = twt.getRatedU2() / twt.getRatedU1();
-            if (twt.getRatioTapChanger() != null) {
-                rho1 *= twt.getRatioTapChanger().getCurrentStep().getRho();
-            }
-            if (twt.getPhaseTapChanger() != null) {
-                rho1 *= twt.getPhaseTapChanger().getCurrentStep().getRho();
-            }
-            double rho2 = 1f;
-            double u1 = bus1.getV();
-            double u2 = bus2.getV();
-            double theta1 = Math.toRadians(bus1.getAngle());
-            double theta2 = Math.toRadians(bus2.getAngle());
-            double alpha1 = twt.getPhaseTapChanger() != null ? Math.toRadians(twt.getPhaseTapChanger().getCurrentStep().getAlpha()) : 0f;
-            double alpha2 = 0f;
-            return checkFlows(twt.getId(), r, x, rho1, rho2, u1, u2, theta1, theta2, alpha1, alpha2, g1, g2, b1, b2, p1, q1, p2, q2, config, flowsWriter);
+        if (bus1 == null || bus2 == null || Float.isNaN(p1) || Float.isNaN(p2) || Float.isNaN(q1) || Float.isNaN(q2)) {
+            return true;
         }
-        return true;
+        float r = twt.getR();
+        float x = twt.getX();
+        double g1 = twt.getG();
+        double g2 = 0f;
+        double b1 = twt.getB();
+        double b2 = 0f;
+        if (config.getLoadFlowParameters().isSpecificCompatibility()) {
+            g1 = twt.getG() / 2;
+            g2 = twt.getG() / 2;
+            b1 = twt.getB() / 2;
+            b2 = twt.getB() / 2;
+        }
+        if (twt.getRatioTapChanger() != null) {
+            r *= 1 + twt.getRatioTapChanger().getCurrentStep().getR() / 100;
+            x *= 1 + twt.getRatioTapChanger().getCurrentStep().getX() / 100;
+            g1 *= 1 + twt.getRatioTapChanger().getCurrentStep().getG() / 100;
+            b1 *= 1 + twt.getRatioTapChanger().getCurrentStep().getB() / 100;
+        }
+        if (twt.getPhaseTapChanger() != null) {
+            r *= 1 + twt.getPhaseTapChanger().getCurrentStep().getR() / 100;
+            x *= 1 + twt.getPhaseTapChanger().getCurrentStep().getX() / 100;
+            g1 *= 1 + twt.getPhaseTapChanger().getCurrentStep().getG() / 100;
+            b1 *= 1 + twt.getPhaseTapChanger().getCurrentStep().getB() / 100;
+        }
+
+        double rho1 = twt.getRatedU2() / twt.getRatedU1();
+        if (twt.getRatioTapChanger() != null) {
+            rho1 *= twt.getRatioTapChanger().getCurrentStep().getRho();
+        }
+        if (twt.getPhaseTapChanger() != null) {
+            rho1 *= twt.getPhaseTapChanger().getCurrentStep().getRho();
+        }
+        double rho2 = 1f;
+        double u1 = bus1.getV();
+        double u2 = bus2.getV();
+        double theta1 = Math.toRadians(bus1.getAngle());
+        double theta2 = Math.toRadians(bus2.getAngle());
+        double alpha1 = twt.getPhaseTapChanger() != null ? Math.toRadians(twt.getPhaseTapChanger().getCurrentStep().getAlpha()) : 0f;
+        double alpha2 = 0f;
+        return checkFlows(twt.getId(), r, x, rho1, rho2, u1, u2, theta1, theta2, alpha1, alpha2, g1, g2, b1, b2, p1, q1, p2, q2, config, flowsWriter);
     }
 
     public static boolean checkFlows(Network network, ValidationConfig config, Writer writer) {
