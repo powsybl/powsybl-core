@@ -12,6 +12,16 @@ package com.powsybl.iidm.network;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public enum TopologyKind {
-    NODE_BREAKER,
-    BUS_BREAKER
+    NODE_BREAKER(0),
+    BUS_BREAKER(1);
+
+    private Integer level;
+
+    TopologyKind(int level) {
+        this.level = level;
+    }
+
+    public boolean isWorseThan(TopologyKind other) {
+        return this.level > other.level;
+    }
 }
