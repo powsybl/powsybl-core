@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Connectable;
 
 import java.util.ArrayList;
@@ -34,7 +35,7 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
 
     protected NetworkImpl getNetwork() {
         if (terminals.isEmpty()) {
-            throw new RuntimeException(id + " is not attached to a network");
+            throw new PowsyblException(id + " is not attached to a network");
         }
         return terminals.get(0).getVoltageLevel().getNetwork();
     }

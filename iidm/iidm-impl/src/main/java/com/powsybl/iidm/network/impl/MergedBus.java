@@ -170,7 +170,7 @@ class MergedBus extends AbstractIdentifiable<Bus> implements CalculatedBus {
                 return cc;
             }
         }
-        throw new RuntimeException("Should not happened");
+        throw new AssertionError("Should not happen");
     }
 
     @Override
@@ -190,7 +190,7 @@ class MergedBus extends AbstractIdentifiable<Bus> implements CalculatedBus {
                 return sc;
             }
         }
-        throw new RuntimeException("Should not happened");
+        throw new AssertionError("Should not happen");
     }
 
     @Override

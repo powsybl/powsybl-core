@@ -22,4 +22,8 @@ public class PowsyblException extends RuntimeException {
     public PowsyblException(Throwable throwable) {
         super(throwable);
     }
+
+    public PowsyblException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

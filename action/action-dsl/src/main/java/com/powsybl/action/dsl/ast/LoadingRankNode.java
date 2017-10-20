@@ -6,6 +6,8 @@
  */
 package com.powsybl.action.dsl.ast;
 
+import com.powsybl.commons.PowsyblException;
+
 import java.util.List;
 import java.util.Objects;
 
@@ -22,7 +24,7 @@ public class LoadingRankNode implements ExpressionNode {
         this.branchIdToRankNode = Objects.requireNonNull(branchIdToRankNode);
         this.branchIds = Objects.requireNonNull(branchIds);
         if (branchIds.isEmpty()) {
-            throw new RuntimeException("List of branch to compare has to be greater or equal to one");
+            throw new PowsyblException("List of branch to compare has to be greater or equal to one");
         }
     }
 

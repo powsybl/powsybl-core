@@ -6,6 +6,8 @@
  */
 package com.powsybl.commons.config;
 
+import com.powsybl.commons.PowsyblException;
+
 import java.nio.file.FileSystem;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -40,7 +42,7 @@ public class InMemoryPlatformConfig extends PlatformConfig {
         public ModuleConfig getModuleConfig(String name) {
             ModuleConfig config = configs.get(name);
             if (config == null) {
-                throw new RuntimeException("Module " + name + " not found");
+                throw new PowsyblException("Module " + name + " not found");
             }
             return config;
         }
@@ -53,7 +55,7 @@ public class InMemoryPlatformConfig extends PlatformConfig {
         public MapModuleConfig createModuleConfig(String name) {
             MapModuleConfig config = configs.get(name);
             if (config != null) {
-                throw new RuntimeException("Module " + name + " already exists");
+                throw new PowsyblException("Module " + name + " already exists");
             }
             config = new MapModuleConfig(fileSystem);
             configs.put(name, config);

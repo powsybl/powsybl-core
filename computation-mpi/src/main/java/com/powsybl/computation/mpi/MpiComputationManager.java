@@ -6,6 +6,7 @@
  */
 package com.powsybl.computation.mpi;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.FileUtil;
 import com.powsybl.commons.io.WorkingDirectory;
 import com.powsybl.computation.*;
@@ -253,7 +254,7 @@ public class MpiComputationManager implements ComputationManager {
                         } catch (IOException e2) {
                             LOGGER.error(e2.toString(), e2);
                         }
-                        throw new RuntimeException(t);
+                        throw new PowsyblException(t);
                     }
                     return ctxt;
                 }, executorContext.getComputationExecutor())
