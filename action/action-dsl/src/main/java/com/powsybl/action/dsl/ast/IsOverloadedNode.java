@@ -31,7 +31,7 @@ public class IsOverloadedNode implements ExpressionNode {
         return branchIds;
     }
 
-    public float getLimitReductionReduction() {
+    public float getLimitReduction() {
         return limitReduction;
     }
 
