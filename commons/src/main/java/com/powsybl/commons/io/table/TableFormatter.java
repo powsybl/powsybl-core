@@ -34,17 +34,17 @@ public interface TableFormatter extends AutoCloseable {
 
     TableFormatter writeCell(boolean b) throws IOException;
 
-    @Override void close() throws IOException;
-
     TableFormatter writeCell(int i, HorizontalAlignment horizontalAlignment) throws IOException;
 
     TableFormatter writeCell(float f, HorizontalAlignment horizontalAlignment, NumberFormat numberFormat) throws IOException;
 
     TableFormatter writeCell(double d, HorizontalAlignment horizontalAlignment, NumberFormat numberFormat) throws IOException;
 
-    String formatDouble(double d, NumberFormat numberFormatter);
+    @Override void close() throws IOException;
 
-    String formatFloat(float f, NumberFormat numberFormatter);
+    String getFormatDouble(double d, NumberFormat numberFormatter);
+
+    String getFormatFloat(float f, NumberFormat numberFormatter);
 
     CellStyle convertCellStyle(HorizontalAlignment horizontalAlignment);
 }

@@ -74,12 +74,12 @@ public abstract class AbstractTableFormatter implements TableFormatter {
 
     @Override
     public TableFormatter writeCell(float f, HorizontalAlignment horizontalAlignment, NumberFormat numberFormatter) throws IOException {
-        return write(Float.isNaN(f) ? invalidString : formatFloat(f, numberFormatter), horizontalAlignment);
+        return write(Float.isNaN(f) ? invalidString : getFormatFloat(f, numberFormatter), horizontalAlignment);
     }
 
     @Override
     public TableFormatter writeCell(double d, HorizontalAlignment horizontalAlignment, NumberFormat numberFormatter) throws IOException {
-        return write(Double.isNaN(d) ? invalidString : formatDouble(d, numberFormatter), horizontalAlignment);
+        return write(Double.isNaN(d) ? invalidString : getFormatDouble(d, numberFormatter), horizontalAlignment);
     }
 
     @Override
@@ -88,12 +88,12 @@ public abstract class AbstractTableFormatter implements TableFormatter {
     }
 
     @Override
-    public String formatDouble(double d, NumberFormat numberFormatter) {
+    public String getFormatDouble(double d, NumberFormat numberFormatter) {
         return numberFormatter.format(d);
     }
 
     @Override
-    public String formatFloat(float f, NumberFormat numberFormatter) {
+    public String getFormatFloat(float f, NumberFormat numberFormatter) {
         return numberFormatter.format(f);
     }
 

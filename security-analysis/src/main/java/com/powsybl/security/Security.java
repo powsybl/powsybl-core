@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.UncheckedIOException;
 import java.io.Writer;
-import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.*;
 import java.util.function.Consumer;
@@ -31,8 +30,6 @@ import java.util.stream.Collectors;
 public final class Security {
 
     private static final String PERMANENT_LIMIT_NAME = "Permanent limit";
-
-    private static final String NUNBER_FORMAT = "##.0000";
 
     public enum CurrentLimitType {
         PATL,
@@ -163,12 +160,16 @@ public final class Security {
     }
 
     public static String printLimitsViolations(List<LimitViolation> violations, LimitViolationFilter filter) {
+        return printLimitsViolations(violations, filter, TableFormatterConfig.load());
+    }
+
+    public static String printLimitsViolations(List<LimitViolation> violations, LimitViolationFilter filter, TableFormatterConfig formatterConfig) {
         Objects.requireNonNull(violations);
         Objects.requireNonNull(filter);
+        Objects.requireNonNull(formatterConfig);
 
         TableFormatterFactory formatterFactory = new AsciiTableFormatterFactory();
         Writer writer = new StringWriter();
-        TableFormatterConfig formatterConfig = new TableFormatterConfig(Locale.getDefault(), ',', "inv", true, true);
         List<LimitViolation> filteredViolations = filter.apply(violations);
 
         try (TableFormatter formatter = formatterFactory.create(writer,
@@ -185,15 +186,15 @@ public final class Security {
                 new Column("Loading rate %"))) {
             filteredViolations.stream()
                     .sorted(Comparator.comparing(LimitViolation::getSubjectId))
-                    .forEach(writeLineLimitsViolations(formatter));
+                    .forEach(writeLineLimitsViolations(formatter, formatterConfig.getLocale()));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
         return writer.toString().trim();
     }
 
-    private static Consumer<? super LimitViolation> writeLineLimitsViolations(TableFormatter formatter) {
-        NumberFormat numberFormatter = createNumberFormat();
+    private static Consumer<? super LimitViolation> writeLineLimitsViolations(TableFormatter formatter, Locale locale) {
+        NumberFormat numberFormatter = createNumberFormat(locale);
         return violation -> {
             try {
                 formatter.writeCell(violation.getCountry() != null ? violation.getCountry().name() : "")
@@ -225,6 +226,8 @@ public final class Security {
         Objects.requireNonNull(result);
         Objects.requireNonNull(writer);
         Objects.requireNonNull(formatterFactory);
+        Objects.requireNonNull(formatterConfig);
+
         try (TableFormatter formatter = formatterFactory.create(writer,
                 "Pre-contingency violations",
                 formatterConfig,
@@ -249,14 +252,14 @@ public final class Security {
                     : result.getPreContingencyResult().getLimitViolations();
             filteredLimitViolations.stream()
                     .sorted(Comparator.comparing(LimitViolation::getSubjectId))
-                    .forEach(writeLinePreContingencyViolations(formatter));
+                    .forEach(writeLinePreContingencyViolations(formatter, formatterConfig.getLocale()));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    private static Consumer<? super LimitViolation> writeLinePreContingencyViolations(TableFormatter formatter) {
-        NumberFormat numberFormatter = createNumberFormat();
+    private static Consumer<? super LimitViolation> writeLinePreContingencyViolations(TableFormatter formatter, Locale locale) {
+        NumberFormat numberFormatter = createNumberFormat(locale);
         return violation -> {
             try {
                 formatter.writeEmptyCell()
@@ -284,8 +287,12 @@ public final class Security {
         return Math.abs(violation.getValue()) / violation.getLimit() * 100f;
     }
 
-    private static NumberFormat createNumberFormat() {
-        return  new DecimalFormat(Security.NUNBER_FORMAT);
+    private static NumberFormat createNumberFormat(Locale locale) {
+        NumberFormat numberFormat = NumberFormat.getInstance(locale);
+        numberFormat.setMaximumFractionDigits(4);
+        numberFormat.setMinimumFractionDigits(4);
+        numberFormat.setGroupingUsed(false);
+        return numberFormat;
     }
 
     /**
@@ -360,7 +367,7 @@ public final class Security {
                 result.getPostContingencyResults()
                         .stream()
                         .sorted(Comparator.comparing(o2 -> o2.getContingency().getId()))
-                        .forEach(writeLinePostContingencyResult(limitViolationFilter, preContingencyViolations, formatter));
+                        .forEach(writeLinePostContingencyResult(limitViolationFilter, preContingencyViolations, formatter, formatterConfig.getLocale()));
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
@@ -369,7 +376,7 @@ public final class Security {
 
     private static Consumer<? super PostContingencyResult> writeLinePostContingencyResult(
         LimitViolationFilter limitViolationFilter, Set<LimitViolationKey> preContingencyViolations,
-        TableFormatter formatter) {
+        TableFormatter formatter, Locale locale) {
         return postContingencyResult -> {
             try {
                 // configured filtering
@@ -407,7 +414,7 @@ public final class Security {
 
                     filteredLimitViolations2.stream()
                             .sorted(Comparator.comparing(LimitViolation::getSubjectId))
-                            .forEach(writeLineFilteredLimitViolations2(formatter));
+                            .forEach(writeLineFilteredLimitViolations2(formatter, locale));
                 }
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
@@ -415,8 +422,8 @@ public final class Security {
         };
     }
 
-    private static Consumer<? super LimitViolation> writeLineFilteredLimitViolations2(TableFormatter formatter) {
-        NumberFormat numberFormatter = createNumberFormat();
+    private static Consumer<? super LimitViolation> writeLineFilteredLimitViolations2(TableFormatter formatter, Locale locale) {
+        NumberFormat numberFormatter = createNumberFormat(locale);
         return violation -> {
             try {
                 formatter.writeEmptyCell()

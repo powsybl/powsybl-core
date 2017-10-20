@@ -55,6 +55,7 @@ public class SecurityTest {
     @Test
     public void printPreContingencyViolations() throws Exception {
         StringWriter writer = new StringWriter();
+        //System.out.println(formatterConfig);
         try {
             Security.printPreContingencyViolations(result, writer, formatterFactory, formatterConfig, null);
         } finally {
@@ -105,16 +106,13 @@ public class SecurityTest {
 
     @Test
     public void printLimitsViolations() throws Exception {
-        Locale tmpLocale = Locale.getDefault();
-        Locale.setDefault(Locale.FRANCE);
         assertEquals("+---------+--------------+---------------+----------------+----------------+-----------+-----------+------------------+----------------+\n" +
                      "| Country | Base voltage | Equipment (2) | Violation type | Violation name | Value     | Limit     | abs(value-limit) | Loading rate % |\n" +
                      "+---------+--------------+---------------+----------------+----------------+-----------+-----------+------------------+----------------+\n" +
-                     "|         |              | line1         | CURRENT        | 20'            | 1100,0000 | 1000,0000 |        1000,0000 |       110,0000 |\n" +
-                     "|         |              | line2         | CURRENT        | 10'            |  950,0000 |  900,0000 |         900,0000 |       105,5556 |\n" +
+                     "|         |              | line1         | CURRENT        | 20'            | 1100.0000 | 1000.0000 |        1000.0000 |       110.0000 |\n" +
+                     "|         |              | line2         | CURRENT        | 10'            |  950.0000 |  900.0000 |         900.0000 |       105.5556 |\n" +
                      "+---------+--------------+---------------+----------------+----------------+-----------+-----------+------------------+----------------+",
-                     Security.printLimitsViolations(Arrays.asList(line1Violation, line2Violation), new LimitViolationFilter()));
-        Locale.setDefault(tmpLocale);
+                     Security.printLimitsViolations(Arrays.asList(line1Violation, line2Violation), new LimitViolationFilter(), formatterConfig));
     }
 
 
