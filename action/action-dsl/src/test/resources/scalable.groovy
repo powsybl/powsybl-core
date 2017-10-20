@@ -32,7 +32,7 @@ action('testProportional') {
     tasks {
         script {
             variationValue = 15000
-            gens = getScalables('GEN', 'GEN2', 'GEN3')
+            gens = scalables('GEN', 'GEN2', 'GEN3')
             variation = proportional([50.0f,20.0f,30.0f], gens)
             variation.reset(network)
             variation.scale(network, variationValue)

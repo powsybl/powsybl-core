@@ -34,7 +34,7 @@ public class ScalableActionTest {
     }
 
     @Test
-    public void testGeneratorScableStack() {
+    public void testGeneratorScalableStack() {
         ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/scalable.groovy"))).load(network);
         Action action = actionDb.getAction("actionScale"); // scale to 15000
         assertEquals(607.0f, g1.getTargetP(), 0.0f);
@@ -54,7 +54,7 @@ public class ScalableActionTest {
     }
 
     @Test
-    public void testGeneratorScableProportional() {
+    public void testGeneratorScalableProportional() {
         ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/scalable.groovy"))).load(network);
         Action action = actionDb.getAction("testProportional"); // scale to 15000
         assertEquals(607.0f, g1.getTargetP(), 0.0f);

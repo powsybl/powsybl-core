@@ -16,15 +16,12 @@ import java.util.Objects;
 
 class IdentifierScalable extends AbstractScalable {
 
-
     private final String id;
 
     private Scalable scalable;
 
     public IdentifierScalable(String id) {
-        Objects.requireNonNull(id);
-
-        this.id = id;
+        this.id = Objects.requireNonNull(id);
     }
 
     private void initScalable(Network n) {
@@ -35,7 +32,7 @@ class IdentifierScalable extends AbstractScalable {
             if (identifiable instanceof Generator) {
                 scalable = new GeneratorScalable(id);
             } else {
-                throw new PowsyblException(identifiable.getClass() + " not support scalable yet");
+                throw new PowsyblException("Unable to create a scalable from " + identifiable.getClass());
             }
         }
     }

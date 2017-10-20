@@ -39,11 +39,11 @@ public interface Scalable {
         return new GeneratorScalable(id);
     }
 
-    static Scalable getScalable(String id) {
+    static Scalable scalable(String id) {
         return new IdentifierScalable(id);
     }
 
-    static List<Scalable> getScalables(String... ids) {
+    static List<Scalable> scalables(String... ids) {
         return Arrays.stream(ids).map(IdentifierScalable::new).collect(Collectors.toList());
     }
 
@@ -80,7 +80,7 @@ public interface Scalable {
     }
 
     static StackScalable stack(String... ids) {
-        IdentifierScalable[] identifierScalables = Arrays.stream(ids).map(IdentifierScalable::new).toArray(IdentifierScalable[]::new);
+        List<Scalable> identifierScalables = Arrays.stream(ids).map(IdentifierScalable::new).collect(Collectors.toList());
         return new StackScalable(identifierScalables);
     }
 }
