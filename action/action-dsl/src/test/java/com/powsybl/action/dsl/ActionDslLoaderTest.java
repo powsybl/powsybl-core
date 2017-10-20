@@ -95,7 +95,7 @@ public class ActionDslLoaderTest {
     }
 
     @Test
-    public void testNonExistMethodInScript() {
+    public void testUnKnownMethodInScript() {
         ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/actions2.groovy"))).load(network);
         Action someAction = actionDb.getAction("missingMethod");
         exception.expect(MissingMethodException.class);

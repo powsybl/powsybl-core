@@ -24,7 +24,7 @@ action ('missingMethod') {
     description 'asdf'
     tasks {
         script {
-            nonExistMethod("foo")
+            unknownMethod("foo")
         }
     }
 }
