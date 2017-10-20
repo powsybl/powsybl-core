@@ -6,10 +6,12 @@
  */
 package com.powsybl.action.dsl;
 
+import com.powsybl.commons.PowsyblException;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class ActionDslException extends RuntimeException {
+public class ActionDslException extends PowsyblException {
 
     public ActionDslException(String message) {
         super(message);

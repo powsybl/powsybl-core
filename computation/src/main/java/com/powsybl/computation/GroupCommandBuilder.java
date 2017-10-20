@@ -6,6 +6,7 @@
  */
 package com.powsybl.computation;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.computation.GroupCommand.SubCommand;
 import com.powsybl.computation.GroupCommandImpl.SubCommandImpl;
 
@@ -55,7 +56,7 @@ public class GroupCommandBuilder extends AbstractCommandBuilder<GroupCommandBuil
 
         public SubCommandBuilder timeout(int timeout) {
             if (timeout < -1 || timeout == 0) {
-                throw new RuntimeException("invalid timeout");
+                throw new PowsyblException("invalid timeout");
             }
             this.timeout = timeout;
             return this;
@@ -63,7 +64,7 @@ public class GroupCommandBuilder extends AbstractCommandBuilder<GroupCommandBuil
 
         public GroupCommandBuilder add() {
             if (program == null) {
-                throw new RuntimeException("program is not set");
+                throw new PowsyblException("program is not set");
             }
             subCommands.add(new SubCommandImpl(program, args, timeout));
             return GroupCommandBuilder.this;
@@ -80,7 +81,7 @@ public class GroupCommandBuilder extends AbstractCommandBuilder<GroupCommandBuil
 
     public GroupCommand build() {
         if (id == null) {
-            throw new RuntimeException("id is not set");
+            throw new PowsyblException("id is not set");
         }
         return new GroupCommandImpl(id, subCommands, inputFiles, outputFiles);
     }

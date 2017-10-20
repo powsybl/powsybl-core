@@ -52,10 +52,10 @@ class CIM1PsseNamingStrategy implements CIM1NamingStrategy {
             }
         }
         if (name.toString().isEmpty()) {
-            throw new RuntimeException(object.getId() + " is unnamed");
+            throw new CIM1Exception(object.getId() + " is unnamed");
         }
         if (names.contains(name.toString())) {
-            throw new RuntimeException(object.getId() + " name is not unique: " + name);
+            throw new CIM1Exception(object.getId() + " name is not unique: " + name);
         }
         names.add(name.toString());
         idMapping.put(object.getId(), name.toString());
@@ -104,7 +104,7 @@ class CIM1PsseNamingStrategy implements CIM1NamingStrategy {
     public String getId(IdentifiedObject object) {
         String id = getIdMapping().get(object.getId());
         if (id == null) {
-            throw new RuntimeException("Mapping not found for id " + object.getId());
+            throw new CIM1Exception("Mapping not found for id " + object.getId());
         }
         return id;
     }
@@ -118,7 +118,7 @@ class CIM1PsseNamingStrategy implements CIM1NamingStrategy {
     public String getCimId(String id) {
         String cimId = getIdMapping().inverse().get(id);
         if (cimId == null) {
-            throw new RuntimeException("Mapping not found for id " + id);
+            throw new CIM1Exception("Mapping not found for id " + id);
         }
         return cimId;
     }

@@ -6,6 +6,8 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.PowsyblException;
+
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -21,7 +23,7 @@ class MultiStateContext implements StateContext {
     @Override
     public int getStateIndex() {
         if (index == -1) {
-            throw new RuntimeException("State not set");
+            throw new PowsyblException("State not set");
         }
         return index;
     }

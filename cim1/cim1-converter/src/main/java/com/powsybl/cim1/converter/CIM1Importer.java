@@ -17,6 +17,7 @@ import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.DataSourceUtil;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Country;
@@ -233,7 +234,7 @@ public class CIM1Importer implements Importer, CIM1Constants {
             if (Files.exists(path)) {
                 return Files.newInputStream(path);
             } else {
-                throw new RuntimeException("EQ boundary file not found");
+                throw new CIM1Exception("EQ boundary file not found");
             }
         }
     }
@@ -247,7 +248,7 @@ public class CIM1Importer implements Importer, CIM1Constants {
             if (Files.exists(path)) {
                 return Files.newInputStream(path);
             } else {
-                throw new RuntimeException("TP boundary file not found");
+                throw new CIM1Exception("TP boundary file not found");
             }
         }
     }
@@ -292,7 +293,12 @@ public class CIM1Importer implements Importer, CIM1Constants {
             try (Reader bseqr = new UnicodeReader(getEqBoundaryFile(dataSource), null);
                  Reader bstpr = new UnicodeReader(getTpBoundaryFile(dataSource), null)) {
 
-                CIMModel model = loadModel(dataSource, bseqr, bstpr);
+                CIMModel model;
+                try {
+                    model = loadModel(dataSource, bseqr, bstpr);
+                } catch (Exception e) {
+                    throw new CIM1Exception(e);
+                }
 
                 boolean invertVoltageStepIncrementOutOfPhase = (Boolean) Importers.readParameter(FORMAT, parameters, INVERT_VOLTAGE_STEP_INCREMENT_OUT_OF_PHASE_PARAMETER);
                 Country defaultCountry = Country.valueOf((String) Importers.readParameter(FORMAT, parameters, DEFAULT_COUNTRY_PARAMETER));
@@ -318,8 +324,10 @@ public class CIM1Importer implements Importer, CIM1Constants {
                 network = new CIM1Converter(model, dataSource.getBaseName(), config)
                         .convert();
             }
-        } catch (Exception e) {
-            throw new CIM1Exception(e);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        } catch (XMLStreamException e) {
+            throw new UncheckedXmlStreamException(e);
         }
 
         LOGGER.debug("CIM import done in " + (System.currentTimeMillis() - startTime) + " ms");

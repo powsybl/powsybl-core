@@ -7,6 +7,7 @@
 package com.powsybl.computation.local;
 
 import com.google.common.io.ByteStreams;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.io.WorkingDirectory;
 import com.powsybl.computation.*;
@@ -211,7 +212,7 @@ public class LocalComputationManager implements ComputationManager {
                         // if not check if the file exists in the common directory
                         path = commonDir.toPath().resolve(fileName);
                         if (!Files.exists(path)) {
-                            throw new RuntimeException("Input file '" + fileName + "' not found in the working and common directory");
+                            throw new PowsyblException("Input file '" + fileName + "' not found in the working and common directory");
                         }
                         if (file.getPreProcessor() == null) {
                             Files.copy(path, workingDir.resolve(path.getFileName()));

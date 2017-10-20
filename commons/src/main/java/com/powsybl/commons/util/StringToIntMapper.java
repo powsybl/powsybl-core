@@ -9,6 +9,7 @@ package com.powsybl.commons.util;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+import com.powsybl.commons.PowsyblException;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -119,7 +120,7 @@ public class StringToIntMapper<SUBSET extends Enum<SUBSET> & IntCounter> {
             }
             String[] tokens = line.split(";");
             if (tokens.length != 3) {
-                throw new RuntimeException("Bad format: " + line);
+                throw new PowsyblException("Bad format: " + line);
             }
             SUBSET subset = Enum.valueOf(clazz, tokens[0]);
             String id = tokens[1];

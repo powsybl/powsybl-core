@@ -7,6 +7,7 @@
 package com.powsybl.action.dsl.ast;
 
 import com.powsybl.action.dsl.GroovyUtil;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Identifiable;
 
@@ -39,7 +40,7 @@ public class ExpressionEvaluator extends DefaultExpressionVisitor<Object, Void> 
     public Object visitNetworkComponent(NetworkComponentNode node, Void arg) {
         Identifiable identifiable = context.getNetwork().getIdentifiable(node.getComponentId());
         if (identifiable == null) {
-            throw new RuntimeException("Network component '" + node.getComponentId() + "' not found");
+            throw new PowsyblException("Network component '" + node.getComponentId() + "' not found");
         }
         return identifiable;
     }
@@ -48,7 +49,7 @@ public class ExpressionEvaluator extends DefaultExpressionVisitor<Object, Void> 
     public Object visitNetworkProperty(NetworkPropertyNode node, Void arg) {
         Object parentValue = node.getParent().accept(this, arg);
         if (parentValue == null) {
-            throw new RuntimeException("Cannot call a property '" + node.getPropertyName() + "' on a null object");
+            throw new PowsyblException("Cannot call a property '" + node.getPropertyName() + "' on a null object");
         }
         return GroovyUtil.callProperty(parentValue, node.getPropertyName());
     }
@@ -57,7 +58,7 @@ public class ExpressionEvaluator extends DefaultExpressionVisitor<Object, Void> 
     public Object visitNetworkMethod(NetworkMethodNode node, Void arg) {
         Object parentValue = node.getParent().accept(this, arg);
         if (parentValue == null) {
-            throw new RuntimeException("Cannot call a method '" + node.getMethodName() + "' on a null object");
+            throw new PowsyblException("Cannot call a method '" + node.getMethodName() + "' on a null object");
         }
         return GroovyUtil.callMethod(parentValue, node.getMethodName(), node.getArgs());
     }
@@ -67,10 +68,10 @@ public class ExpressionEvaluator extends DefaultExpressionVisitor<Object, Void> 
         Object result1 = node.getLeft().accept(this, arg);
         Object result2 = node.getRight().accept(this, arg);
         if (!(result1 instanceof Number)) {
-            throw new RuntimeException("Left operand of comparison should return a number");
+            throw new PowsyblException("Left operand of comparison should return a number");
         }
         if (!(result2 instanceof Number)) {
-            throw new RuntimeException("Right operand of comparison should return a number");
+            throw new PowsyblException("Right operand of comparison should return a number");
         }
         double value1 = ((Number) result1).doubleValue();
         double value2 = ((Number) result2).doubleValue();
@@ -96,7 +97,7 @@ public class ExpressionEvaluator extends DefaultExpressionVisitor<Object, Void> 
     public Object visitNotOperator(LogicalNotOperator node, Void arg) {
         Object result = node.getChild().accept(this, arg);
         if (!(result instanceof Boolean)) {
-            throw new RuntimeException("Operand of not operator should return a boolean");
+            throw new PowsyblException("Operand of not operator should return a boolean");
         }
         return !(Boolean) result;
     }
@@ -106,10 +107,10 @@ public class ExpressionEvaluator extends DefaultExpressionVisitor<Object, Void> 
         Object result1 = node.getLeft().accept(this, arg);
         Object result2 = node.getRight().accept(this, arg);
         if (!(result1 instanceof Boolean)) {
-            throw new RuntimeException("Left operand of comparison should return a boolean");
+            throw new PowsyblException("Left operand of comparison should return a boolean");
         }
         if (!(result2 instanceof Boolean)) {
-            throw new RuntimeException("Right operand of comparison should return a boolean");
+            throw new PowsyblException("Right operand of comparison should return a boolean");
         }
         boolean value1 = (Boolean) result1;
         boolean value2 = (Boolean) result2;
@@ -128,10 +129,10 @@ public class ExpressionEvaluator extends DefaultExpressionVisitor<Object, Void> 
         Object result1 = node.getLeft().accept(this, arg);
         Object result2 = node.getRight().accept(this, arg);
         if (!(result1 instanceof Number)) {
-            throw new RuntimeException("Left operand of arithmetic operation should return a number (" + result1.getClass() + ")");
+            throw new PowsyblException("Left operand of arithmetic operation should return a number (" + result1.getClass() + ")");
         }
         if (!(result2 instanceof Number)) {
-            throw new RuntimeException("Right operand of arithmetic operation should return a number (" + result2.getClass() + ")");
+            throw new PowsyblException("Right operand of arithmetic operation should return a number (" + result2.getClass() + ")");
         }
         double value1 = ((Number) result1).doubleValue();
         double value2 = ((Number) result2).doubleValue();
@@ -264,7 +265,7 @@ public class ExpressionEvaluator extends DefaultExpressionVisitor<Object, Void> 
 
         String branchIdToRank = (String) node.getBranchIdToRankNode().accept(this, arg);
         if (!branchIds.contains(branchIdToRank)) {
-            throw new RuntimeException("Branch to rank has to be in the list");
+            throw new PowsyblException("Branch to rank has to be in the list");
         }
 
         List<String> sortedBranchIds = sortBranches(branchIds);

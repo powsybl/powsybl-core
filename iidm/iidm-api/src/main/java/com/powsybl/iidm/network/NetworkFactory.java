@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.network;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import java.util.List;
 
@@ -28,7 +29,7 @@ public final class NetworkFactory {
     public static Network create(String id, String sourceFormat) {
         List<NetworkFactoryService> services = LOADER.getServices();
         if (services.isEmpty()) {
-            throw new RuntimeException("No IIDM implementation found");
+            throw new PowsyblException("No IIDM implementation found");
         }
         return services.get(0).createNetwork(id, sourceFormat);
     }
