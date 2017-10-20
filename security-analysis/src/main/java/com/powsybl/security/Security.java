@@ -31,6 +31,10 @@ public final class Security {
 
     private static final String PERMANENT_LIMIT_NAME = "Permanent limit";
 
+    private static final int MAXIMUM_FRACTION_DIGITS = 4;
+
+    private static final int MINIMUM_FRACTION_DIGITS = 4;
+
     public enum CurrentLimitType {
         PATL,
         TATL
@@ -289,8 +293,8 @@ public final class Security {
 
     private static NumberFormat createNumberFormat(Locale locale) {
         NumberFormat numberFormat = NumberFormat.getInstance(locale);
-        numberFormat.setMaximumFractionDigits(4);
-        numberFormat.setMinimumFractionDigits(4);
+        numberFormat.setMaximumFractionDigits(Security.MAXIMUM_FRACTION_DIGITS);
+        numberFormat.setMinimumFractionDigits(Security.MINIMUM_FRACTION_DIGITS);
         numberFormat.setGroupingUsed(false);
         return numberFormat;
     }
