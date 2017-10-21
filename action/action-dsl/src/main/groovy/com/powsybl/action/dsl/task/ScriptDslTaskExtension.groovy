@@ -27,12 +27,17 @@ class ScriptDslTaskExtension implements DslTaskExtension, DslConstants {
                 binding.setVariable("network", network)
                 binding.setVariable("computationManager", computationManager)
                 binding.setVariable(SCRIPT_IS_RUNNING, true)
+                MetaClass delegateMetaClass = closure.owner.delegate.metaClass;
                 try {
                     closure.owner.delegate.metaClass = null
                     closure.resolveStrategy = Closure.OWNER_ONLY
                     closure.call()
                 } catch (MissingMethodException e) {
-                    throw new ActionDslException("Dsl extension task is forbidden in task script")
+                    if (delegateMetaClass.respondsTo(closure, e.getMethod(), String)) {
+                        throw new ActionDslException("Dsl extension task(" + e.getMethod() + ") is forbidden in task script")
+                    } else {
+                        throw e
+                    }
                 } finally {
                     binding.setVariable(SCRIPT_IS_RUNNING, null)
                     binding.setVariable("network", oldNetwork)
