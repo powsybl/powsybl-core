@@ -50,6 +50,7 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
             }
             context.getWriter().writeEndElement();
         } else {
+            switch (vl.getTopologyKind()) {
                 case NODE_BREAKER:
                     context.getWriter().writeStartElement(IIDM_URI, "nodeBreakerTopology");
                     context.getWriter().writeAttribute("nodeCount", Integer.toString(vl.getNodeBreakerView().getNodeCount()));
