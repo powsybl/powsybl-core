@@ -55,6 +55,7 @@ public class SecurityTest {
     @Test
     public void printPreContingencyViolations() throws Exception {
         StringWriter writer = new StringWriter();
+        //System.out.println(formatterConfig);
         try {
             Security.printPreContingencyViolations(result, writer, formatterFactory, formatterConfig, null);
         } finally {
@@ -64,7 +65,7 @@ public class SecurityTest {
                                  "Pre-contingency violations",
                                  "Action,Equipment,Violation type,Violation name,Value,Limit,Loading rate %",
                                  "action1,,,,,,",
-                                 ",line1,CURRENT,20',1100.00,1000.0,110"),
+                                 ",line1,CURRENT,20',1100.0000,1000.0000,110.0000"),
                      writer.toString().trim());
     }
 
@@ -81,8 +82,8 @@ public class SecurityTest {
                                  "Contingency,Status,Action,Equipment,Violation type,Violation name,Value,Limit,Loading rate %",
                                  "contingency1,converge,,,,,,,",
                                  ",,action2,,,,,,",
-                                 ",,,line1,CURRENT,20',1100.00,1000.0,110",
-                                 ",,,line2,CURRENT,10',950.000,900.0,106"),
+                                 ",,,line1,CURRENT,20',1100.0000,1000.0000,110.0000",
+                                 ",,,line2,CURRENT,10',950.0000,900.0000,105.5556"),
                      writer.toString().trim());
     }
 
@@ -99,21 +100,21 @@ public class SecurityTest {
                                  "Contingency,Status,Action,Equipment,Violation type,Violation name,Value,Limit,Loading rate %",
                                  "contingency1,converge,,,,,,,",
                                  ",,action2,,,,,,",
-                                 ",,,line2,CURRENT,10',950.000,900.0,106"),
+                                 ",,,line2,CURRENT,10',950.0000,900.0000,105.5556"),
                      writer.toString().trim());
     }
 
     @Test
-    public void printLimitsViolations() {
-        assertEquals(String.join("\n",
-                                 "+---------+--------------+---------------+----------------+----------------+--------+--------+------------------+----------------+",
-                                 "| Country | Base voltage | Equipment (2) | Violation type | Violation name | Value  | Limit  | abs(value-limit) | Loading rate % |",
-                                 "+---------+--------------+---------------+----------------+----------------+--------+--------+------------------+----------------+",
-                                 "|         |              | line1         | CURRENT        | 20'            | 1100.0 | 1000.0 | 100.0            | 110            |",
-                                 "|         |              | line2         | CURRENT        | 10'            | 950.0  | 900.0  | 50.0             | 106            |",
-                                 "+---------+--------------+---------------+----------------+----------------+--------+--------+------------------+----------------+"),
-                     Security.printLimitsViolations(Arrays.asList(line1Violation, line2Violation), new LimitViolationFilter()));
+    public void printLimitsViolations() throws Exception {
+        assertEquals("+---------+--------------+---------------+----------------+----------------+-----------+-----------+------------------+----------------+\n" +
+                     "| Country | Base voltage | Equipment (2) | Violation type | Violation name | Value     | Limit     | abs(value-limit) | Loading rate % |\n" +
+                     "+---------+--------------+---------------+----------------+----------------+-----------+-----------+------------------+----------------+\n" +
+                     "|         |              | line1         | CURRENT        | 20'            | 1100.0000 | 1000.0000 |        1000.0000 |       110.0000 |\n" +
+                     "|         |              | line2         | CURRENT        | 10'            |  950.0000 |  900.0000 |         900.0000 |       105.5556 |\n" +
+                     "+---------+--------------+---------------+----------------+----------------+-----------+-----------+------------------+----------------+",
+                     Security.printLimitsViolations(Arrays.asList(line1Violation, line2Violation), new LimitViolationFilter(), formatterConfig));
     }
+
 
     @Test
     public void checkLimits() {
