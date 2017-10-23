@@ -8,6 +8,9 @@ package com.powsybl.iidm.xml;
 
 import com.powsybl.iidm.network.*;
 
+import java.util.Collections;
+import java.util.EnumSet;
+
 import javax.xml.stream.XMLStreamException;
 
 /**
@@ -35,7 +38,9 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
         XmlUtil.writeFloat("nominalV", vl.getNominalV(), context.getWriter());
         XmlUtil.writeFloat("lowVoltageLimit", vl.getLowVoltageLimit(), context.getWriter());
         XmlUtil.writeFloat("highVoltageLimit", vl.getHighVoltageLimit(), context.getWriter());
-        context.getWriter().writeAttribute("topologyKind", vl.getTopologyKind().name());
+        
+        TopologyKind maxTopologyKind = Collections.max(EnumSet.of(vl.getTopologyKind(), context.getOptions().getTopologyKind()));
+        context.getWriter().writeAttribute("topologyKind", maxTopologyKind.name());
     }
 
     @Override
@@ -51,45 +56,8 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
             context.getWriter().writeEndElement();
         } else {
 
-        	
-        	TopologyKind minTopologyKind = TopologyKind.min(vl.getTopologyKind(), context.getOptions().getTopologyKind());
-        	switch (minTopologyKind) {
-		        case NODE_BREAKER:
-		            context.getWriter().writeStartElement(IIDM_URI, "nodeBreakerTopology");
-		            context.getWriter().writeAttribute("nodeCount", Integer.toString(vl.getNodeBreakerView().getNodeCount()));
-		            for (BusbarSection bs : vl.getNodeBreakerView().getBusbarSections()) {
-		                BusbarSectionXml.INSTANCE.write(bs, null, context);
-		            }
-		            for (Switch sw : vl.getNodeBreakerView().getSwitches()) {
-		                NodeBreakerViewSwitchXml.INSTANCE.write(sw, vl, context);
-		            }
-		            context.getWriter().writeEndElement();
-		            break;
-		
-		        case BUS_BREAKER:
-		            context.getWriter().writeStartElement(IIDM_URI, "busBreakerTopology");
-		            for (Bus b : vl.getBusBreakerView().getBuses()) {
-		                if (!context.getFilter().test(b)) {
-		                    continue;
-		                }
-		                BusXml.INSTANCE.write(b, null, context);
-		            }
-		            for (Switch sw : vl.getBusBreakerView().getSwitches()) {
-		                Bus b1 = vl.getBusBreakerView().getBus1(context.getAnonymizer().anonymizeString(sw.getId()));
-		                Bus b2 = vl.getBusBreakerView().getBus2(context.getAnonymizer().anonymizeString(sw.getId()));
-		                if (!context.getFilter().test(b1) || !context.getFilter().test(b2)) {
-		                    continue;
-		                }
-		                BusBreakerViewSwitchXml.INSTANCE.write(sw, vl, context);
-		            }
-		            context.getWriter().writeEndElement();
-		            break;
-		
-		        default:
-		            throw new AssertionError();
-		    }
-        	
-            switch (vl.getTopologyKind()) {
+            TopologyKind maxTopologyKind = Collections.max(EnumSet.of(vl.getTopologyKind(), context.getOptions().getTopologyKind()));
+            switch (maxTopologyKind) {
                 case NODE_BREAKER:
                     context.getWriter().writeStartElement(IIDM_URI, "nodeBreakerTopology");
                     context.getWriter().writeAttribute("nodeCount", Integer.toString(vl.getNodeBreakerView().getNodeCount()));
@@ -101,7 +69,6 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
                     }
                     context.getWriter().writeEndElement();
                     break;
-
                 case BUS_BREAKER:
                     context.getWriter().writeStartElement(IIDM_URI, "busBreakerTopology");
                     for (Bus b : vl.getBusBreakerView().getBuses()) {
@@ -120,7 +87,6 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
                     }
                     context.getWriter().writeEndElement();
                     break;
-
                 default:
                     throw new AssertionError();
             }

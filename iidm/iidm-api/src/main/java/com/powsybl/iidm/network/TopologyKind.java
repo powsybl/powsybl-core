@@ -12,34 +12,6 @@ package com.powsybl.iidm.network;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public enum TopologyKind {
-    BUS_BREAKER(0),
-    NODE_BREAKER(1);
-
-    private Integer level;
-
-    TopologyKind(int level) {
-        this.level = level;
-    }
-
-    public Integer getLevel() {
-        return level;
-    }
-
-    public void setLevel(Integer level) {
-        this.level = level;
-    }
-
-    public static TopologyKind min(TopologyKind first, TopologyKind second) {
-        int min = Math.min(first.getLevel(), second.getLevel());
-        return TopologyKind.valueOf(min);
-    }
-
-    public static TopologyKind valueOf(int level) {
-        for (TopologyKind topologyKind : values()) {
-            if (topologyKind.level == level) {
-                return topologyKind;
-            }
-        }
-        throw new IllegalArgumentException("level of TopologyKind" + String.valueOf(level));
-    }
+    NODE_BREAKER,
+    BUS_BREAKER;
 }
