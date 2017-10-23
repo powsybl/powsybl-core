@@ -89,7 +89,7 @@ public class MultiCriteriaVoltageStabilityIndex extends AbstractSecurityIndex {
                     break;
             }
         }
-        throw new AssertionError("Should not happened");
+        throw new AssertionError("Should not happen");
     }
 
     public MultiCriteriaVoltageStabilityIndex(String contingencyId, Map<String, Float> lockedTapChangerLoads,

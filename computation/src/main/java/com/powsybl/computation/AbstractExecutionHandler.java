@@ -6,6 +6,8 @@
  */
 package com.powsybl.computation;
 
+import com.powsybl.commons.PowsyblException;
+
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
@@ -37,7 +39,7 @@ public abstract class AbstractExecutionHandler<R> implements ExecutionHandler<R>
     public R after(Path workingDir, ExecutionReport report) throws IOException {
         if (report.getErrors().size() > 0) {
             report.log();
-            throw new RuntimeException("Execution error");
+            throw new PowsyblException("Execution error");
         }
         return null;
     }

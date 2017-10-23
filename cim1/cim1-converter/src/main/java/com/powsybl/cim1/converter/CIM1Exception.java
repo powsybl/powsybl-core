@@ -6,11 +6,13 @@
  */
 package com.powsybl.cim1.converter;
 
+import com.powsybl.commons.PowsyblException;
+
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class CIM1Exception extends RuntimeException {
+public class CIM1Exception extends PowsyblException {
 
     public CIM1Exception(String message) {
         super(message);

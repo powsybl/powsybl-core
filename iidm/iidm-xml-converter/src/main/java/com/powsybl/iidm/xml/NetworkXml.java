@@ -8,6 +8,7 @@ package com.powsybl.iidm.xml;
 
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedSaxException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.util.ServiceLoaderCache;
@@ -75,7 +76,7 @@ public final class NetworkXml implements XmlConstants {
     private static ExtensionXml findExtensionXmlOrThrowException(String name) {
         ExtensionXml extensionXml = findExtensionXml(name);
         if (extensionXml == null) {
-            throw new RuntimeException("Xml serializer not found for extension " + name);
+            throw new PowsyblException("Xml serializer not found for extension " + name);
         }
         return extensionXml;
     }
@@ -141,12 +142,12 @@ public final class NetworkXml implements XmlConstants {
         for (String extensionName : getNetworkExtensions(n)) {
             ExtensionXml extensionXml = findExtensionXmlOrThrowException(extensionName);
             if (extensionUris.contains(extensionXml.getNamespaceUri())) {
-                throw new RuntimeException("Extension namespace URI collision");
+                throw new PowsyblException("Extension namespace URI collision");
             } else {
                 extensionUris.add(extensionXml.getNamespaceUri());
             }
             if (extensionPrefixes.contains(extensionXml.getNamespacePrefix())) {
-                throw new RuntimeException("Extension namespace prefix collision");
+                throw new PowsyblException("Extension namespace prefix collision");
             } else {
                 extensionPrefixes.add(extensionXml.getNamespacePrefix());
             }
@@ -298,7 +299,7 @@ public final class NetworkXml implements XmlConstants {
                         String id2 = context.getAnonymizer().deanonymizeString(reader.getAttributeValue(null, "id"));
                         Identifiable identifiable = network.getIdentifiable(id2);
                         if (identifiable == null) {
-                            throw new RuntimeException("Identifiable " + id2 + " not found");
+                            throw new PowsyblException("Identifiable " + id2 + " not found");
                         }
                         XmlUtil.readUntilEndElement(EXTENSION_ELEMENT_NAME, reader, new XmlUtil.XmlEventHandler() {
 
@@ -331,7 +332,7 @@ public final class NetworkXml implements XmlConstants {
 
             if (extensionNamesNotFound.size() > 0) {
                 if (config.isThrowExceptionIfExtensionNotFound()) {
-                    throw new RuntimeException("Extensions " + extensionNamesNotFound + " not found");
+                    throw new PowsyblException("Extensions " + extensionNamesNotFound + " not found");
                 } else {
                     LOGGER.error("Extensions {} not found", extensionNamesNotFound);
                 }
@@ -370,7 +371,7 @@ public final class NetworkXml implements XmlConstants {
                         String id = reader.getAttributeValue(null, "id");
                         vl[0] = network.getVoltageLevel(id);
                         if (vl[0] == null) {
-                            throw new RuntimeException("Voltage level '" + id + "' not found");
+                            throw new PowsyblException("Voltage level '" + id + "' not found");
                         }
                         break;
                     }

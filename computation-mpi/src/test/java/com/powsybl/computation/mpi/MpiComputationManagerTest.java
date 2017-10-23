@@ -11,6 +11,7 @@ import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.computation.*;
 import com.powsybl.computation.mpi.generated.Messages;
 import org.junit.After;
@@ -218,7 +219,7 @@ public class MpiComputationManagerTest {
                     @Override
                     public List<CommandExecution> before(Path workingDir) throws IOException {
                         workingDirSav[0] = workingDir;
-                        throw new RuntimeException("test error");
+                        throw new PowsyblException("test error");
                     }
                 }).join();
             fail();
@@ -240,7 +241,7 @@ public class MpiComputationManagerTest {
 
                 @Override
                 public String after(Path workingDir, ExecutionReport report) throws IOException {
-                    throw new RuntimeException("test error");
+                    throw new PowsyblException("test error");
                 }
             }).join();
             fail();
