@@ -93,11 +93,11 @@ public class XMLExportOptions {
         return this;
     }
 
-	public TopologyKind getTopologyKind() {
-		return topologyKind;
-	}
+    public TopologyKind getTopologyKind() {
+        return topologyKind;
+    }
 
-	public void setTopologyKind(TopologyKind topologyKind) {
-		this.topologyKind = topologyKind;
-	}
+    public void setTopologyKind(TopologyKind topologyKind) {
+        this.topologyKind = topologyKind;
+    }
 }

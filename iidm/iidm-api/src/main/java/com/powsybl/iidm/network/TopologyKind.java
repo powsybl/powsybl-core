@@ -22,24 +22,24 @@ public enum TopologyKind {
     }
 
     public Integer getLevel() {
-		return level;
-	}
+        return level;
+    }
 
-	public void setLevel(Integer level) {
-		this.level = level;
-	}
+    public void setLevel(Integer level) {
+        this.level = level;
+    }
 
     public static TopologyKind min(TopologyKind first, TopologyKind second) {
-    	int min = Math.min(first.getLevel(), second.getLevel());
-    	return TopologyKind.valueOf(min);
+        int min = Math.min(first.getLevel(), second.getLevel());
+        return TopologyKind.valueOf(min);
     }
-    
-	public static TopologyKind valueOf(int level) {
-	    for (TopologyKind topologyKind : values()) {
-	        if (topologyKind.level == level) {
-	            return topologyKind;
-	        }
-	    }
-	    throw new IllegalArgumentException("level of TopologyKind" + String.valueOf(level));   
-	}
+
+    public static TopologyKind valueOf(int level) {
+        for (TopologyKind topologyKind : values()) {
+            if (topologyKind.level == level) {
+                return topologyKind;
+            }
+        }
+        throw new IllegalArgumentException("level of TopologyKind" + String.valueOf(level));
+    }
 }
