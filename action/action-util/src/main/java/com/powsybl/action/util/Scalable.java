@@ -40,11 +40,11 @@ public interface Scalable {
     }
 
     static Scalable scalable(String id) {
-        return new IdentifierScalable(id);
+        return new ScalableAdapter(id);
     }
 
     static List<Scalable> scalables(String... ids) {
-        return Arrays.stream(ids).map(IdentifierScalable::new).collect(Collectors.toList());
+        return Arrays.stream(ids).map(ScalableAdapter::new).collect(Collectors.toList());
     }
 
     static ProportionalScalable proportional(List<Float> percentages, List<Scalable> scalables) {
@@ -80,7 +80,7 @@ public interface Scalable {
     }
 
     static StackScalable stack(String... ids) {
-        List<Scalable> identifierScalables = Arrays.stream(ids).map(IdentifierScalable::new).collect(Collectors.toList());
+        List<Scalable> identifierScalables = Arrays.stream(ids).map(ScalableAdapter::new).collect(Collectors.toList());
         return new StackScalable(identifierScalables);
     }
 }
