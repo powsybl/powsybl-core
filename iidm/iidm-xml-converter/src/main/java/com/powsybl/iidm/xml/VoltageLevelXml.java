@@ -50,6 +50,45 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
             }
             context.getWriter().writeEndElement();
         } else {
+
+        	
+        	TopologyKind minTopologyKind = TopologyKind.min(vl.getTopologyKind(), context.getOptions().getTopologyKind());
+        	switch (minTopologyKind) {
+		        case NODE_BREAKER:
+		            context.getWriter().writeStartElement(IIDM_URI, "nodeBreakerTopology");
+		            context.getWriter().writeAttribute("nodeCount", Integer.toString(vl.getNodeBreakerView().getNodeCount()));
+		            for (BusbarSection bs : vl.getNodeBreakerView().getBusbarSections()) {
+		                BusbarSectionXml.INSTANCE.write(bs, null, context);
+		            }
+		            for (Switch sw : vl.getNodeBreakerView().getSwitches()) {
+		                NodeBreakerViewSwitchXml.INSTANCE.write(sw, vl, context);
+		            }
+		            context.getWriter().writeEndElement();
+		            break;
+		
+		        case BUS_BREAKER:
+		            context.getWriter().writeStartElement(IIDM_URI, "busBreakerTopology");
+		            for (Bus b : vl.getBusBreakerView().getBuses()) {
+		                if (!context.getFilter().test(b)) {
+		                    continue;
+		                }
+		                BusXml.INSTANCE.write(b, null, context);
+		            }
+		            for (Switch sw : vl.getBusBreakerView().getSwitches()) {
+		                Bus b1 = vl.getBusBreakerView().getBus1(context.getAnonymizer().anonymizeString(sw.getId()));
+		                Bus b2 = vl.getBusBreakerView().getBus2(context.getAnonymizer().anonymizeString(sw.getId()));
+		                if (!context.getFilter().test(b1) || !context.getFilter().test(b2)) {
+		                    continue;
+		                }
+		                BusBreakerViewSwitchXml.INSTANCE.write(sw, vl, context);
+		            }
+		            context.getWriter().writeEndElement();
+		            break;
+		
+		        default:
+		            throw new AssertionError();
+		    }
+        	
             switch (vl.getTopologyKind()) {
                 case NODE_BREAKER:
                     context.getWriter().writeStartElement(IIDM_URI, "nodeBreakerTopology");
