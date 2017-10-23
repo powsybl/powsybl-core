@@ -6,10 +6,12 @@
  */
 package com.powsybl.afs.storage;
 
+import com.powsybl.commons.PowsyblException;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class AfsStorageException extends RuntimeException {
+public class AfsStorageException extends PowsyblException {
 
     public AfsStorageException(String message) {
         super(message);

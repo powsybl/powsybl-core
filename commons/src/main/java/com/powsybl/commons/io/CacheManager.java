@@ -11,6 +11,7 @@ import com.google.common.hash.HashCode;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hasher;
 import com.google.common.hash.Hashing;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedInterruptedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,7 +79,7 @@ public class CacheManager {
                         otherKeys = stream.collect(Collectors.toList());
                     }
                     if (!keys.equals(otherKeys)) {
-                        throw new RuntimeException("Inconsistent cache hash code");
+                        throw new PowsyblException("Inconsistent cache hash code");
                     }
                 } else {
                     Files.createDirectories(path);
@@ -159,7 +160,7 @@ public class CacheManager {
                 CacheEntry cacheEntry = cacheEntries.get(baseDir.toString());
                 if (cacheEntry != null) {
                     if (!cacheEntry.getKeys().equals(keys)) {
-                        throw new RuntimeException("Inconsistent hash");
+                        throw new PowsyblException("Inconsistent hash");
                     }
                 } else {
                     cacheEntry = new CacheEntry(baseDir, keys);

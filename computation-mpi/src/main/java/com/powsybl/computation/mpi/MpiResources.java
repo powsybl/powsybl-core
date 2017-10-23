@@ -9,6 +9,8 @@ package com.powsybl.computation.mpi;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Semaphore;
+
+import com.powsybl.commons.PowsyblException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +52,7 @@ class MpiResources {
             LOGGER.debug("MPI cores {} reserved", reservedCores);
             return reservedCores;
         } else {
-            throw new RuntimeException("Fail to reserve all cores");
+            throw new PowsyblException("Fail to reserve all cores");
         }
     }
 

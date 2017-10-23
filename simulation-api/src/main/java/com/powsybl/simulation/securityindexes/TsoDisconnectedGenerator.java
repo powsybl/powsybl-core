@@ -58,7 +58,7 @@ public class TsoDisconnectedGenerator extends AbstractSecurityIndex {
                     break;
             }
         }
-        throw new AssertionError("Should not happened");
+        throw new AssertionError("Should not happen");
     }
 
     public TsoDisconnectedGenerator(String contingencyId, Map<String, Float> disconnectedGenerators) {

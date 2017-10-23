@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.HvdcLineAdder;
 import com.powsybl.iidm.network.impl.util.Ref;
@@ -101,11 +102,11 @@ public class HvdcLineAdderImpl extends AbstractIdentifiableAdder<HvdcLineAdderIm
         ValidationUtil.checkMaxP(this, maxP);
         AbstractHvdcConverterStation<?> converterStation1 = getNetwork().getHvdcConverterStation(converterStationId1);
         if (converterStation1 == null) {
-            throw new RuntimeException("Side 1 converter station " + converterStationId1 + " not found");
+            throw new PowsyblException("Side 1 converter station " + converterStationId1 + " not found");
         }
         AbstractHvdcConverterStation<?> converterStation2 = getNetwork().getHvdcConverterStation(converterStationId2);
         if (converterStation2 == null) {
-            throw new RuntimeException("Side 2 converter station " + converterStationId2 + " not found");
+            throw new PowsyblException("Side 2 converter station " + converterStationId2 + " not found");
         }
         HvdcLineImpl hvdcLine = new HvdcLineImpl(id, name, r, nominalV, maxP, convertersMode, activePowerSetpoint,
                                                  converterStation1, converterStation2, networkRef);

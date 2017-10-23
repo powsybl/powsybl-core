@@ -6,6 +6,7 @@
  */
 package com.powsybl.security;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.ComponentDefaultConfig;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.ContingenciesProvider;
@@ -53,7 +54,7 @@ public class SecurityAnalyzer {
 
         Network network = Importers.loadNetwork(caseFile);
         if (network == null) {
-            throw new RuntimeException("Case '" + caseFile + "' not found");
+            throw new PowsyblException("Case '" + caseFile + "' not found");
         }
 
         ContingenciesProvider contingenciesProvider = contingenciesFile != null
@@ -68,7 +69,7 @@ public class SecurityAnalyzer {
 
         Network network = Importers.loadNetwork(filename, networkData);
         if (network == null) {
-            throw new RuntimeException("Error loading network");
+            throw new PowsyblException("Error loading network");
         }
 
         ContingenciesProvider contingenciesProvider = contingencies != null

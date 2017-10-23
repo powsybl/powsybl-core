@@ -116,10 +116,10 @@ class ActionDslLoader extends DslLoader {
                 cloned.delegate = contingencySpec
                 cloned()
                 if (!contingencySpec.equipments) {
-                    throw new RuntimeException("'equipments' field is not set")
+                    throw new ActionDslException("'equipments' field is not set")
                 }
                 if (contingencySpec.equipments.length == 0) {
-                    throw new RuntimeException("'equipments' field is empty")
+                    throw new ActionDslException("'equipments' field is empty")
                 }
                 def elements = []
                 for (String equipment : contingencySpec.equipments) {
@@ -152,10 +152,10 @@ class ActionDslLoader extends DslLoader {
                 cloned.delegate = ruleSpec
                 cloned()
                 if (!ruleSpec.when) {
-                    throw new RuntimeException("'when' field is not set")
+                    throw new ActionDslException("'when' field is not set")
                 }
                 if (ruleSpec.apply.length == 0) {
-                    throw new RuntimeException("'apply' field is empty")
+                    throw new ActionDslException("'apply' field is empty")
                 }
                 Rule rule = new Rule(id, new ExpressionCondition(ruleSpec.when), ruleSpec.life, ruleSpec.apply)
                 if (ruleSpec.description) {
