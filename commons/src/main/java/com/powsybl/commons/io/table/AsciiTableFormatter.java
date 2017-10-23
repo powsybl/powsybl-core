@@ -23,13 +23,10 @@ public class AsciiTableFormatter extends AbstractTableFormatter {
 
     private final String title;
 
-    private final Writer writer;
-
     private final Table table;
 
     public AsciiTableFormatter(Writer writer, String title, TableFormatterConfig config, Column... columns) {
-        super(config.getLocale(), config.getInvalidString());
-        this.writer = writer;
+        super(writer, config);
         this.title = title;
         this.table = new Table(columns.length, BorderStyle.CLASSIC_WIDE);
         for (Column column : columns) {
