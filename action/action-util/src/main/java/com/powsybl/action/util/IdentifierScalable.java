@@ -10,6 +10,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.Objects;
@@ -19,6 +20,7 @@ class IdentifierScalable extends AbstractScalable {
     private final String id;
 
     private Scalable scalable;
+    private String networkId;
 
     public IdentifierScalable(String id) {
         this.id = Objects.requireNonNull(id);
@@ -27,10 +29,12 @@ class IdentifierScalable extends AbstractScalable {
     private void initScalable(Network n) {
         Objects.requireNonNull(n);
 
-        if (scalable == null) {
+        // re-init if network changed
+        if (scalable == null || !StringUtils.equals(n.getId(), networkId)) {
             Identifiable identifiable = n.getIdentifiable(id);
             if (identifiable instanceof Generator) {
                 scalable = new GeneratorScalable(id);
+                networkId = n.getId();
             } else {
                 throw new PowsyblException("Unable to create a scalable from " + identifiable.getClass());
             }
