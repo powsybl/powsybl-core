@@ -286,7 +286,7 @@ public final class Security {
     }
 
     private static float getViolationLimit(LimitViolation violation) {
-        return Float.valueOf(Float.toString(violation.getLimit()) + (violation.getLimitReduction() != 1f ? " * " + violation.getLimitReduction() : ""));
+        return violation.getLimit() * violation.getLimitReduction();
     }
 
     private static float getViolationValue(LimitViolation violation) {
