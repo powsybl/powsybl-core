@@ -16,7 +16,6 @@ import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.Terminal.BusBreakerView;
 import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.VoltageLevel;
-import com.powsybl.security.LimitViolation;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +42,7 @@ import java.util.Properties;
  *         <td>iidm.export.xml.with-branch-state-variables</td>
  *         <td>if true export branches state (active and reactive flow)</td>
  *         <td>true or false</td>
- *     </tr>
+ *     </tr>ConversionTool
  *     <tr>
  *         <td>iidm.export.xml.force-bus-branch-topo</td>
  *         <td>if true remove switches and aggregate buses</td>
@@ -51,6 +50,11 @@ import java.util.Properties;
  *     </tr>
  *     <tr>
  *         <td>iidm.export.xml.only-main-cc</td>
+ *         <td>if true only export equipments of the main connected component</td>
+ *         <td>true or false</td>
+ *     </tr>
+ *     <tr>
+ *         <td>iidm.export.xml.topology-kind</td>
  *         <td>if true only export equipments of the main connected component</td>
  *         <td>true or false</td>
  *     </tr>
@@ -74,7 +78,7 @@ public class XMLExporter implements Exporter, XmlConstants {
 
     public static final String SKIP_EXTENSIONS_PROPERTIES = "iidm.export.xml.skip-extensions";
 
-    public static final String TOPOLOGY_KIND = "topology-kind";
+    public static final String TOPOLOGY_KIND = "iidm.export.xml.topology-kind";
 
     @Override
     public String getFormat() {
@@ -99,8 +103,8 @@ public class XMLExporter implements Exporter, XmlConstants {
                     .setForceBusBranchTopo("true".equals(parameters.getProperty(FORCE_BUS_BRANCH_TOPO_PROPERTY, "false")))
                     .setOnlyMainCc("true".equals(parameters.getProperty(ONLY_MAIN_CC_PROPERTIES)))
                     .setAnonymized("true".equals(parameters.getProperty(ANONYMISED_PROPERTIES)))
-                    .setSkipExtensions("true".equals(parameters.getProperty(SKIP_EXTENSIONS_PROPERTIES)));
-            // .setTopolog....
+                    .setSkipExtensions("true".equals(parameters.getProperty(SKIP_EXTENSIONS_PROPERTIES)))
+                    .setTopologyKind( (TopologyKind.valueOf(parameters.getProperty(TOPOLOGY_KIND)))); 
         }
 
         try {
