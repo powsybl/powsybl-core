@@ -104,7 +104,7 @@ public class XMLExporter implements Exporter, XmlConstants {
                     .setOnlyMainCc("true".equals(parameters.getProperty(ONLY_MAIN_CC_PROPERTIES)))
                     .setAnonymized("true".equals(parameters.getProperty(ANONYMISED_PROPERTIES)))
                     .setSkipExtensions("true".equals(parameters.getProperty(SKIP_EXTENSIONS_PROPERTIES)))
-                    .setTopologyKind( (TopologyKind.valueOf(parameters.getProperty(TOPOLOGY_KIND)))); 
+                    .setTopologyKind( TopologyKind.valueOf(parameters.getProperty(TOPOLOGY_KIND))); 
         }
 
         try {
