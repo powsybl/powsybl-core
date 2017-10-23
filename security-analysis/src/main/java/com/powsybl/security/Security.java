@@ -208,10 +208,10 @@ public final class Security {
                          .writeCell(violation.getSubjectId())
                          .writeCell(violation.getLimitType().name())
                          .writeCell(getViolationName(violation))
-                         .writeCell(violation.getValue(), HorizontalAlignment.R, numberFormatter)
-                         .writeCell(getViolationLimit(violation), HorizontalAlignment.R, numberFormatter)
-                         .writeCell(getAbsValueLimit(violation), HorizontalAlignment.R, numberFormatter)
-                         .writeCell(getViolationValue(violation), HorizontalAlignment.R, numberFormatter);
+                         .writeCell(violation.getValue(), HorizontalAlignment.RIGHT, numberFormatter)
+                         .writeCell(getViolationLimit(violation), HorizontalAlignment.RIGHT, numberFormatter)
+                         .writeCell(getAbsValueLimit(violation), HorizontalAlignment.RIGHT, numberFormatter)
+                         .writeCell(getViolationValue(violation), HorizontalAlignment.RIGHT, numberFormatter);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
@@ -272,9 +272,9 @@ public final class Security {
                         .writeCell(violation.getSubjectId())
                         .writeCell(violation.getLimitType().name())
                         .writeCell(getViolationName(violation))
-                        .writeCell(violation.getValue(), HorizontalAlignment.R, numberFormatter)
-                        .writeCell(getViolationLimit(violation), HorizontalAlignment.R, numberFormatter)
-                        .writeCell(getViolationValue(violation), HorizontalAlignment.R, numberFormatter);
+                        .writeCell(violation.getValue(), HorizontalAlignment.RIGHT, numberFormatter)
+                        .writeCell(getViolationLimit(violation), HorizontalAlignment.RIGHT, numberFormatter)
+                        .writeCell(getViolationValue(violation), HorizontalAlignment.RIGHT, numberFormatter);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
@@ -438,9 +438,9 @@ public final class Security {
                         .writeCell(violation.getSubjectId())
                         .writeCell(violation.getLimitType().name())
                         .writeCell(getViolationName(violation))
-                        .writeCell(violation.getValue(), HorizontalAlignment.R, numberFormatter)
-                        .writeCell(getViolationLimit(violation), HorizontalAlignment.R, numberFormatter)
-                        .writeCell(getViolationValue(violation), HorizontalAlignment.R, numberFormatter);
+                        .writeCell(violation.getValue(), HorizontalAlignment.RIGHT, numberFormatter)
+                        .writeCell(getViolationLimit(violation), HorizontalAlignment.RIGHT, numberFormatter)
+                        .writeCell(getViolationValue(violation), HorizontalAlignment.RIGHT, numberFormatter);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }

@@ -76,7 +76,7 @@ public class CsvTableFormatter extends AbstractTableFormatter {
     }
 
     @Override
-    protected TableFormatter write(String value) throws IOException {
+    protected TableFormatter write(String value, HorizontalAlignment horizontalAlignment) throws IOException {
         writeHeaderIfNotDone();
         writer.append(value);
         if (column < columns.length - 1) {
@@ -88,11 +88,6 @@ public class CsvTableFormatter extends AbstractTableFormatter {
             column = 0;
         }
         return this;
-    }
-
-    @Override
-    protected TableFormatter write(String value, HorizontalAlignment horizontalAlignment) throws IOException {
-        return write(value);
     }
 
     @Override
