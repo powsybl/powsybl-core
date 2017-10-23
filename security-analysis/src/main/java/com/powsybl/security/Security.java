@@ -374,14 +374,14 @@ public final class Security {
                 result.getPostContingencyResults()
                         .stream()
                         .sorted(Comparator.comparing(o2 -> o2.getContingency().getId()))
-                        .forEach(writeLinePostContingencyResult(limitViolationFilter, preContingencyViolations, formatter, numberFormatter));
+                        .forEach(writePostContingencyResult(limitViolationFilter, preContingencyViolations, formatter, numberFormatter));
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
         }
     }
 
-    private static Consumer<? super PostContingencyResult> writeLinePostContingencyResult(
+    private static Consumer<? super PostContingencyResult> writePostContingencyResult(
         LimitViolationFilter limitViolationFilter, Set<LimitViolationKey> preContingencyViolations,
         TableFormatter formatter, NumberFormat numberFormatter) {
         return postContingencyResult -> {
@@ -421,7 +421,7 @@ public final class Security {
 
                     filteredLimitViolations2.stream()
                             .sorted(Comparator.comparing(LimitViolation::getSubjectId))
-                            .forEach(writeLineFilteredLimitViolations2(formatter, numberFormatter));
+                            .forEach(writeLimitViolation(formatter, numberFormatter));
                 }
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
@@ -429,7 +429,7 @@ public final class Security {
         };
     }
 
-    private static Consumer<? super LimitViolation> writeLineFilteredLimitViolations2(TableFormatter formatter, NumberFormat numberFormatter) {
+    private static Consumer<? super LimitViolation> writeLimitViolation(TableFormatter formatter, NumberFormat numberFormatter) {
         return violation -> {
             try {
                 formatter.writeEmptyCell()
