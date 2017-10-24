@@ -9,6 +9,7 @@ package com.powsybl.commons.io.table;
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 
+import java.text.NumberFormat;
 import java.util.Locale;
 
 /**
@@ -23,11 +24,17 @@ public class TableFormatterConfig {
     private static final String DEFAULT_INVALID_STRING = "inv";
     private static final boolean DEFAULT_PRINT_HEADER = true;
     private static final boolean DEFAULT_PRINT_TITLE = true;
+    private static final HorizontalAlignment DEFAULT_HORIZONTAL_ALIGNMENT = HorizontalAlignment.LEFT;
+    private static final int DEFAULT_NUMBER_FORMAT_MAXIMUM_FRACTION_DIGITS = 4;
+    private static final int DEFAULT_NUMBER_FORMAT_MINIMUM_FRACTION_DIGITS = 4;
+    private static final boolean DEFAULT_NUMBER_FORMAT_GROUPING_USED = false;
 
     private final Locale locale;
     private final char csvSeparator;
     private final String invalidString;
-    private final boolean printHeader;
+    private final HorizontalAlignment horizontalAlignment;
+    private final NumberFormat numberFormat;
+
     private final boolean printTitle;
 
     public static TableFormatterConfig load() {
@@ -40,6 +47,11 @@ public class TableFormatterConfig {
         String invalidString = DEFAULT_INVALID_STRING;
         boolean printHeader = DEFAULT_PRINT_HEADER;
         boolean printTitle = DEFAULT_PRINT_TITLE;
+        HorizontalAlignment horizontalAlignment = DEFAULT_HORIZONTAL_ALIGNMENT;
+        int numberFormatMaximumFractionDigits = DEFAULT_NUMBER_FORMAT_MAXIMUM_FRACTION_DIGITS;
+        int numberFormatMinimumFractionDigits = DEFAULT_NUMBER_FORMAT_MINIMUM_FRACTION_DIGITS;
+        boolean numberFormatGroupingUsed = DEFAULT_NUMBER_FORMAT_GROUPING_USED;
+        
         if (platformConfig.moduleExists(CONFIG_MODULE_NAME)) {
             ModuleConfig config = platformConfig.getModuleConfig(CONFIG_MODULE_NAME);
             language = config.getStringProperty("language", DEFAULT_LANGUAGE);
@@ -47,7 +59,14 @@ public class TableFormatterConfig {
             invalidString = config.getStringProperty("invalid-string", DEFAULT_INVALID_STRING);
             printHeader = config.getBooleanProperty("print-header", DEFAULT_PRINT_HEADER);
             printTitle = config.getBooleanProperty("print-title", DEFAULT_PRINT_TITLE);
+            printTitle = config.getBooleanProperty("print-title", DEFAULT_PRINT_TITLE);
+            horizontalAlignment = config.getBooleanProperty("horizontal-alignment", DEFAULT_HORIZONTAL_ALIGNMENT);
+            numberFormatMaximumFractionDigits = DEFAULT_NUMBER_FORMAT_MAXIMUM_FRACTION_DIGITS;
+            numberFormatMinimumFractionDigits = DEFAULT_NUMBER_FORMAT_MINIMUM_FRACTION_DIGITS;
+            numberFormatGroupingUsed = DEFAULT_NUMBER_FORMAT_GROUPING_USED;
         }
+
+        
         Locale locale = Locale.forLanguageTag(language);
         return new TableFormatterConfig(locale, separator.charAt(0), invalidString, printHeader, printTitle);
     }
@@ -58,6 +77,12 @@ public class TableFormatterConfig {
         this.invalidString = invalidString;
         this.printHeader = printHeader;
         this.printTitle = printTitle;
+    }
+
+    public TableFormatterConfig(Locale locale, char csvSeparator, String invalidString, boolean printHeader, boolean printTitle, NumberFormat numberFormat, HorizontalAlignment horizontalAlignment) {
+        this(locale, csvSeparator, invalidString, printHeader, printTitle);
+        this.numberFormat = numberFormat;
+        this.horizontalAlignment = horizontalAlignment;
     }
 
     public TableFormatterConfig(Locale locale, String invalidString, boolean printHeader, boolean printTitle) {
