@@ -554,7 +554,7 @@ public class MapDbAppFileSystemStorage implements AppFileSystemStorage {
         childNodesMap.put(nodeId, new UuidNodeIdList());
         if (parentNodeId != null) {
             parentNodeMap.put(nodeId, (UuidNodeId) parentNodeId);
-            childNodesMap.put((UuidNodeId) parentNodeId, childNodesMap.get(parentNodeId).add(nodeId));
+            childNodesMap.compute((UuidNodeId) parentNodeId, (useless, nodeIdList) -> nodeIdList.add(nodeId));
             childNodeMap.put(new NamedLink((UuidNodeId) parentNodeId, name), nodeId);
         }
         if (nodePseudoClass.equals(PseudoClass.PROJECT_PSEUDO_CLASS)) {
@@ -600,7 +600,7 @@ public class MapDbAppFileSystemStorage implements AppFileSystemStorage {
         childNodesMap.remove(nodeId);
         UuidNodeId parentNodeId = parentNodeMap.remove(nodeId);
         if (parentNodeId != null) {
-            childNodesMap.put(parentNodeId, childNodesMap.get(parentNodeId).remove((UuidNodeId) nodeId));
+            childNodesMap.compute(parentNodeId, (useless, nodeIdList) -> nodeIdList.remove((UuidNodeId) nodeId));
             childNodeMap.remove(new NamedLink(parentNodeId, name));
         }
         if (nodePseudoClass.equals(PseudoClass.PROJECT_PSEUDO_CLASS)) {

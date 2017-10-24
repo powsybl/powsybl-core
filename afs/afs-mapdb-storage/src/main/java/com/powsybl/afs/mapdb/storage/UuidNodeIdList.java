@@ -53,4 +53,18 @@ public class UuidNodeIdList {
         newNodeIds.remove(nodeId);
         return new UuidNodeIdList(newNodeIds);
     }
+
+    @Override
+    public int hashCode() {
+        return nodeIds.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof UuidNodeIdList) {
+            UuidNodeIdList other = (UuidNodeIdList) obj;
+            return nodeIds.equals(other.nodeIds);
+        }
+        return false;
+    }
 }

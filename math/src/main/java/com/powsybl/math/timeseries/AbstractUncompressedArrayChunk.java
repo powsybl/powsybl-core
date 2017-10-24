@@ -16,6 +16,8 @@ import java.io.UncheckedIOException;
  */
 public abstract class AbstractUncompressedArrayChunk {
 
+    private static final double COMPRESSION_FACTOR = 1d;
+
     protected final int offset;
 
     public AbstractUncompressedArrayChunk(int offset) {
@@ -31,7 +33,7 @@ public abstract class AbstractUncompressedArrayChunk {
     }
 
     public double getCompressionFactor() {
-        return 1d;
+        return COMPRESSION_FACTOR;
     }
 
     protected abstract void writeValuesJson(JsonGenerator generator) throws IOException;
