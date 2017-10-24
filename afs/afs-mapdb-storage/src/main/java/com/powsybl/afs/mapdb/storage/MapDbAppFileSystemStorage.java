@@ -760,13 +760,31 @@ public class MapDbAppFileSystemStorage implements AppFileSystemStorage {
         }
     }
 
-    private <P extends AbstractPoint,
-             C extends ArrayChunk<P>,
-             T extends TimeSeries<P, C>> List<T> getTimeSeries(NodeId nodeId,
-                                                               Set<String> timeSeriesNames,
-                                                               int version,
-                                                               ConcurrentMap<TimeSeriesChunkKey, C> map,
-                                                               BiFunction<TimeSeriesMetadata, List<C>, T> constr) {
+    private <P extends AbstractPoint, C extends ArrayChunk<P>> List<C> getChunks(NodeId nodeId, int version, String timeSeriesName,
+                                                                                 TimeSeriesMetadata metadata,
+                                                                                 ConcurrentMap<TimeSeriesChunkKey, C> map) {
+        TimeSeriesKey key = new TimeSeriesKey((UuidNodeId) nodeId, version, timeSeriesName);
+        Integer lastChunkNum = timeSeriesLastChunkMap.get(key);
+        if (lastChunkNum == null) {
+            return Collections.emptyList();
+        }
+        List<C> chunks = new ArrayList<>(lastChunkNum + 1);
+        for (int chunkNum = 0; chunkNum <= lastChunkNum; chunkNum++) {
+            C chunk = map.get(new TimeSeriesChunkKey(key, chunkNum));
+            if (chunk == null) {
+                throw new AssertionError("chunk is null");
+            }
+            if (chunk.getDataType() != metadata.getDataType()) {
+                throw new IllegalStateException("Bad chunk data type");
+            }
+            chunks.add(chunk);
+        }
+        return chunks;
+    }
+
+    private <P extends AbstractPoint, C extends ArrayChunk<P>, T extends TimeSeries<P, C>>
+        List<T> getTimeSeries(NodeId nodeId, Set<String> timeSeriesNames, int version,
+                              ConcurrentMap<TimeSeriesChunkKey, C> map, BiFunction<TimeSeriesMetadata, List<C>, T> constr) {
         Objects.requireNonNull(nodeId);
         Objects.requireNonNull(timeSeriesNames);
         checkVersion(version);
@@ -778,20 +796,8 @@ public class MapDbAppFileSystemStorage implements AppFileSystemStorage {
             if (metadata == null) {
                 throw createTimeSeriesNotFoundAtNode(timeSeriesName, nodeId);
             }
-            TimeSeriesKey key = new TimeSeriesKey((UuidNodeId) nodeId, version, timeSeriesName);
-            Integer lastChunkNum = timeSeriesLastChunkMap.get(key);
-            if (lastChunkNum != null) {
-                List<C> chunks = new ArrayList<>(lastChunkNum + 1);
-                for (int chunkNum = 0; chunkNum <= lastChunkNum; chunkNum++) {
-                    C chunk = map.get(new TimeSeriesChunkKey(key, chunkNum));
-                    if (chunk == null) {
-                        throw new AssertionError("chunk is null");
-                    }
-                    if (chunk.getDataType() != metadata.getDataType()) {
-                        throw new IllegalStateException("Bad chunk data type");
-                    }
-                    chunks.add(chunk);
-                }
+            List<C> chunks = getChunks(nodeId, version, timeSeriesName, metadata, map);
+            if (!chunks.isEmpty()) {
                 timeSeriesList.add(constr.apply(metadata, chunks));
             }
         }

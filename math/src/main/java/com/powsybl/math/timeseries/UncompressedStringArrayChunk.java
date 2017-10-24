@@ -10,10 +10,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import gnu.trove.list.array.TIntArrayList;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -110,6 +107,9 @@ public class UncompressedStringArrayChunk extends AbstractUncompressedArrayChunk
 
             @Override
             public StringPoint next() {
+                if (!hasNext()) {
+                    throw new NoSuchElementException();
+                }
                 StringPoint point = new StringPoint(offset + i, index.getTimeAt(offset + i), values[i]);
                 i++;
                 return point;

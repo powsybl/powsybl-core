@@ -12,6 +12,7 @@ import gnu.trove.list.array.TIntArrayList;
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -97,6 +98,9 @@ public class UncompressedDoubleArrayChunk extends AbstractUncompressedArrayChunk
 
             @Override
             public DoublePoint next() {
+                if (!hasNext()) {
+                    throw new NoSuchElementException();
+                }
                 DoublePoint point = new DoublePoint(offset + i, index.getTimeAt(offset + i), values[i]);
                 i++;
                 return point;
