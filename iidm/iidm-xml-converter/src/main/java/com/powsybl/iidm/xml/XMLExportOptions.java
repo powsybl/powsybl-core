@@ -26,7 +26,7 @@ public class XMLExportOptions {
 
     private boolean skipExtensions = false;
 
-    private TopologyKind topologyKind = TopologyKind.BUS_BREAKER;
+    private TopologyKind topologyKind = TopologyKind.NODE_BREAKER;
 
     public XMLExportOptions() {
     }
