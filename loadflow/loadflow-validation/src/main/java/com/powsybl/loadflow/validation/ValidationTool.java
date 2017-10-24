@@ -8,6 +8,7 @@ package com.powsybl.loadflow.validation;
 
 import com.google.auto.service.AutoService;
 import com.google.common.collect.Sets;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.tools.Command;
@@ -114,7 +115,7 @@ public class ValidationTool implements Tool {
         context.getOutputStream().println("Loading case " + caseFile);
         Network network = Importers.loadNetwork(caseFile);
         if (network == null) {
-            throw new RuntimeException("Case " + caseFile + " not found");
+            throw new PowsyblException("Case " + caseFile + " not found");
         }
         if (line.hasOption("load-flow")) {
             context.getOutputStream().println("Running loadflow on network " + network.getId());
@@ -123,7 +124,7 @@ public class ValidationTool implements Tool {
             loadFlow.runAsync(StateManager.INITIAL_STATE_ID, parameters)
                     .thenAccept(loadFlowResult -> {
                         if (!loadFlowResult.isOk()) {
-                            throw new RuntimeException("Loadflow on network " + network.getId() + " does not converge");
+                            throw new PowsyblException("Loadflow on network " + network.getId() + " does not converge");
                         }
                     })
                     .join();

@@ -6,6 +6,7 @@
  */
 package com.powsybl.entsoe.util;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.iidm.network.Country;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
@@ -99,7 +100,7 @@ public class BoundaryPointXlsParser {
     public Map<String, BoundaryPoint> parseDefault() throws IOException {
         Path defaultBoundaryPoint = PlatformConfig.defaultConfig().getConfigDir().resolve("BoundaryPoint.xls");
         if (!Files.exists(defaultBoundaryPoint)) {
-            throw new RuntimeException("Boundary point sheet " + defaultBoundaryPoint + " not found");
+            throw new PowsyblException("Boundary point sheet " + defaultBoundaryPoint + " not found");
         }
         try (InputStream is = Files.newInputStream(defaultBoundaryPoint)) {
             return parse(is);

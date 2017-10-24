@@ -6,7 +6,9 @@
  */
 package com.powsybl.commons.io.table;
 
+import org.apache.commons.lang3.StringUtils;
 import org.nocrala.tools.texttablefmt.BorderStyle;
+import org.nocrala.tools.texttablefmt.CellStyle;
 import org.nocrala.tools.texttablefmt.Table;
 
 import java.io.IOException;
@@ -46,15 +48,30 @@ public class AsciiTableFormatter extends AbstractTableFormatter {
     }
 
     @Override
-    protected TableFormatter write(String value) throws IOException {
-        table.addCell(value);
+    protected TableFormatter write(String value, HorizontalAlignment horizontalAlignment) throws IOException {
+        table.addCell(value, convertCellStyle(horizontalAlignment));
         return this;
     }
 
     @Override
     public void close() throws IOException {
-        writer.write(title + ":" + System.lineSeparator());
+        if (!StringUtils.isEmpty(title)) {
+            writer.write(title + ":" + System.lineSeparator());
+        }
         writer.write(table.render() + System.lineSeparator());
         writer.close();
+    }
+
+    private static CellStyle convertCellStyle(HorizontalAlignment horizontalAlignment) {
+        switch (horizontalAlignment) {
+            case LEFT:
+                return new CellStyle(CellStyle.HorizontalAlign.left);
+            case CENTER:
+                return new CellStyle(CellStyle.HorizontalAlign.center);
+            case RIGHT:
+                return new CellStyle(CellStyle.HorizontalAlign.right);
+            default:
+                return new CellStyle();
+        }
     }
 }

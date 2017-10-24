@@ -137,7 +137,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
         checkVertex(v);
         for (Edge<E> e : edges) {
             if (e.getV1() == v || e.getV2() == v) {
-                throw new RuntimeException("An edge is connected to vertex " + v);
+                throw new PowsyblException("An edge is connected to vertex " + v);
             }
         }
         V obj = vertices.get(v).getObject();
@@ -160,7 +160,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     @Override
     public void removeAllVertices() {
         if (edges.size() > 0) {
-            throw new RuntimeException("Cannot remove all vertices because there is still some edges in the graph");
+            throw new PowsyblException("Cannot remove all vertices because there is still some edges in the graph");
         }
         vertices.clear();
         invalidateAdjacencyList();

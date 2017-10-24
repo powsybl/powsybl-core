@@ -6,6 +6,7 @@
  */
 package com.powsybl.loadflow.mock;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.LoadFlowResult;
@@ -66,7 +67,7 @@ class LoadFlowMock implements LoadFlow {
         try {
             return CompletableFuture.completedFuture(run(parameters));
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new PowsyblException(e);
         }
     }
 };

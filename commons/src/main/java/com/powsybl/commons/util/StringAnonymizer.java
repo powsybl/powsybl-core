@@ -8,6 +8,7 @@ package com.powsybl.commons.util;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+import com.powsybl.commons.PowsyblException;
 import org.supercsv.io.CsvListReader;
 import org.supercsv.io.CsvListWriter;
 import org.supercsv.prefs.CsvPreference;
@@ -63,7 +64,7 @@ public class StringAnonymizer {
         }
         String str2 = mapping.inverse().get(str);
         if (str2 == null) {
-            throw new RuntimeException("Mapping not found for anonymized string '" + str + "'");
+            throw new PowsyblException("Mapping not found for anonymized string '" + str + "'");
         }
         return str2;
     }
@@ -82,7 +83,7 @@ public class StringAnonymizer {
         try {
             while ((nextLine = csvReader.read()) != null) {
                 if (nextLine.size() != 2) {
-                    throw new RuntimeException("Invalid line '" + nextLine + "'");
+                    throw new PowsyblException("Invalid line '" + nextLine + "'");
                 }
                 mapping.put(nextLine.get(0), nextLine.get(1));
             }

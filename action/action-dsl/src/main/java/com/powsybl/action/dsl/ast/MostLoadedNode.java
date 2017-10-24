@@ -6,6 +6,8 @@
  */
 package com.powsybl.action.dsl.ast;
 
+import com.powsybl.commons.PowsyblException;
+
 import java.util.List;
 import java.util.Objects;
 
@@ -19,7 +21,7 @@ public class MostLoadedNode implements ExpressionNode {
     public MostLoadedNode(List<String> branchIds) {
         this.branchIds = Objects.requireNonNull(branchIds);
         if (branchIds.isEmpty()) {
-            throw new RuntimeException("List of branch to compare has to be greater or equal to one");
+            throw new PowsyblException("List of branch to compare has to be greater or equal to one");
         }
     }
 

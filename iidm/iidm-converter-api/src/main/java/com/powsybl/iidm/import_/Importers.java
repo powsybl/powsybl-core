@@ -8,6 +8,7 @@ package com.powsybl.iidm.import_;
 
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.MapModuleConfig;
 import com.powsybl.commons.datasource.*;
 import com.powsybl.computation.ComputationManager;
@@ -127,7 +128,7 @@ public final class Importers {
                 return ipp;
             }
         }
-        throw new RuntimeException("Post processor " + name + " not found");
+        throw new PowsyblException("Post processor " + name + " not found");
     }
 
     private static ImportPostProcessor getPostProcessor(String name) {
@@ -184,7 +185,7 @@ public final class Importers {
                 try {
                     getPostProcessor(name).process(network, computationManager);
                 } catch (Exception e) {
-                    throw new RuntimeException(e);
+                    throw new PowsyblException(e);
                 }
             }
             return network;
@@ -233,7 +234,7 @@ public final class Importers {
     public static Network importData(String format, ReadOnlyDataSource dataSource, Properties parameters, ComputationManager computationManager) {
         Importer importer = getImporter(format, computationManager);
         if (importer == null) {
-            throw new RuntimeException("Import format " + format + " not supported");
+            throw new PowsyblException("Import format " + format + " not supported");
         }
         return importer.importData(dataSource, parameters);
     }
@@ -362,7 +363,7 @@ public final class Importers {
 
     public static DataSource createDataSource(Path file) {
         if (!Files.isRegularFile(file)) {
-            throw new RuntimeException("File " + file + " does not exist or is not a regular file");
+            throw new PowsyblException("File " + file + " does not exist or is not a regular file");
         }
         Path absFile = file.toAbsolutePath();
         return createDataSource(absFile.getParent(), absFile.getFileName().toString());
@@ -402,7 +403,7 @@ public final class Importers {
 
     public static void loadNetworks(Path dir, boolean parallel, ComputationManager computationManager, ImportConfig config, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener) throws IOException, InterruptedException, ExecutionException {
         if (!Files.isDirectory(dir)) {
-            throw new RuntimeException("Directory " + dir + " does not exist or is not a regular directory");
+            throw new PowsyblException("Directory " + dir + " does not exist or is not a regular directory");
         }
         for (Importer importer : Importers.list(computationManager, config)) {
             Importers.importAll(dir, importer, parallel, consumer, listener);

@@ -6,10 +6,12 @@
  */
 package com.powsybl.afs;
 
+import com.powsybl.commons.PowsyblException;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class AfsException extends RuntimeException {
+public class AfsException extends PowsyblException {
 
     public AfsException(String message) {
         super(message);
