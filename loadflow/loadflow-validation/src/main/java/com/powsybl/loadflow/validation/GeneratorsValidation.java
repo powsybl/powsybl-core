@@ -125,6 +125,8 @@ public final class GeneratorsValidation {
         try {
             if (Float.isNaN(p) || Float.isNaN(q)) {
                 validated = checkGeneratorsNaNValues(id, p, maxQ, targetP, targetQ);
+            } else if (maxQ < minQ && config.isNoRequirementIfReactiveBoundInversion()) { // when maxQ < minQ if noRequirementIfReactiveBoundInversion return true
+                validated = true;
             } else {
                 validated = checkGeneratorsValues(id, p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, config);
             }
@@ -148,10 +150,6 @@ public final class GeneratorsValidation {
     private static boolean checkGeneratorsValues(String id, float p, float q, float v, float targetP, float targetQ, float targetV,
                                                  boolean voltageRegulatorOn, float minQ, float maxQ, ValidationConfig config) {
         boolean validated = true;
-        // when maxQ < minQ if noRequirementIfReactiveBoundInversion return true
-        if (maxQ < minQ && config.isNoRequirementIfReactiveBoundInversion()) {
-            return true;
-        }
         // active power should be equal to set point
         if ((Float.isNaN(targetP) && !config.areOkMissingValues()) || Math.abs(p + targetP) > config.getThreshold()) {
             LOGGER.warn("{} {}: {}: P={} targetP={}", ValidationType.GENERATORS, ValidationUtils.VALIDATION_ERROR, id, p, targetP);
