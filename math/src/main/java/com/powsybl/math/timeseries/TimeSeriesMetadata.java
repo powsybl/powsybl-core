@@ -79,54 +79,68 @@ public class TimeSeriesMetadata {
         }
     }
 
+    private static class JsonParsingContext {
+        private String name;
+        private TimeSeriesDataType dataType;
+        private Map<String, String> tags = new HashMap<>();
+        private TimeSeriesIndex index;
+        private boolean insideTags = false;
+
+        public boolean isComplete() {
+            return name != null && dataType != null && index != null;
+        }
+    }
+
+    static void parseFieldName(JsonParser parser, JsonParsingContext context) throws IOException {
+        String fieldName = parser.getCurrentName();
+        switch (fieldName) {
+            case "metadata":
+                break;
+            case "name":
+                context.name = parser.nextTextValue();
+                break;
+            case "dataType":
+                context.dataType = TimeSeriesDataType.valueOf(parser.nextTextValue());
+                break;
+            case "tags":
+                context.insideTags = true;
+                break;
+            case "regularIndex":
+                context.index = RegularTimeSeriesIndex.parseJson(parser);
+                break;
+            default:
+                if (context.insideTags) {
+                    context.tags.put(fieldName, parser.nextTextValue());
+                } else {
+                    throw new IllegalStateException("Unexpected field name " + fieldName);
+                }
+        }
+    }
+
     static TimeSeriesMetadata parseJson(JsonParser parser) {
         try {
-            String name = null;
-            TimeSeriesDataType dataType = null;
-            Map<String, String> tags = new HashMap<>();
-            TimeSeriesIndex index = null;
-            boolean insideTags = false;
             JsonToken token;
+            JsonParsingContext context = new JsonParsingContext();
             while ((token = parser.nextToken()) != null) {
                 switch (token) {
                     case FIELD_NAME:
-                        String fieldName = parser.getCurrentName();
-                        switch (fieldName) {
-                            case "metadata":
-                                break;
-                            case "name":
-                                name = parser.nextTextValue();
-                                break;
-                            case "dataType":
-                                dataType = TimeSeriesDataType.valueOf(parser.nextTextValue());
-                                break;
-                            case "tags":
-                                insideTags = true;
-                                break;
-                            case "regularIndex":
-                                index = RegularTimeSeriesIndex.parseJson(parser);
-                                break;
-                            default:
-                                if (insideTags) {
-                                    tags.put(fieldName, parser.nextTextValue());
-                                } else {
-                                    throw new IllegalStateException("Unexpected field name " + fieldName);
-                                }
-                        }
+                        parseFieldName(parser, context);
                         break;
                     case END_ARRAY:
-                        if (insideTags) {
-                            insideTags = false;
+                        if (context.insideTags) {
+                            context.insideTags = false;
                         }
                         break;
                     case END_OBJECT:
-                        if (!insideTags) {
-                            if (name == null || dataType == null || index == null) {
-                                throw new IllegalStateException("Incomplete time series metadata json");
+                        if (!context.insideTags) {
+                            if (context.isComplete()) {
+                                return new TimeSeriesMetadata(context.name, context.dataType, context.tags, context.index);
                             } else {
-                                return new TimeSeriesMetadata(name, dataType, tags, index);
+                                throw new IllegalStateException("Incomplete time series metadata json");
                             }
                         }
+                        break;
+                    default:
                         break;
                 }
             }

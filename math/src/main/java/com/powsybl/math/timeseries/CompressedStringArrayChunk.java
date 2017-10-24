@@ -9,10 +9,7 @@ package com.powsybl.math.timeseries;
 import com.fasterxml.jackson.core.JsonGenerator;
 
 import java.io.IOException;
-import java.util.Iterator;
-import java.util.Objects;
-import java.util.Spliterator;
-import java.util.Spliterators;
+import java.util.*;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -93,6 +90,9 @@ public class CompressedStringArrayChunk extends AbstractCompressedArrayChunk imp
 
             @Override
             public StringPoint next() {
+                if (!hasNext()) {
+                    throw new NoSuchElementException();
+                }
                 StringPoint point = new StringPoint(i, index.getTimeAt(i), stepValues[step]);
                 i += stepLengths[step];
                 step++;
