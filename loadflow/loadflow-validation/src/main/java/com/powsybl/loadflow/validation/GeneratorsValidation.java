@@ -148,6 +148,10 @@ public final class GeneratorsValidation {
     private static boolean checkGeneratorsValues(String id, float p, float q, float v, float targetP, float targetQ, float targetV,
                                                  boolean voltageRegulatorOn, float minQ, float maxQ, ValidationConfig config) {
         boolean validated = true;
+        // when maxQ < minQ if noRequirementIfReactiveBoundInversion return true
+        if (maxQ < minQ && config.isNoRequirementIfReactiveBoundInversion()) {
+            return true;
+        }
         // active power should be equal to set point
         if ((Float.isNaN(targetP) && !config.areOkMissingValues()) || Math.abs(p + targetP) > config.getThreshold()) {
             LOGGER.warn("{} {}: {}: P={} targetP={}", ValidationType.GENERATORS, ValidationUtils.VALIDATION_ERROR, id, p, targetP);
@@ -164,13 +168,21 @@ public final class GeneratorsValidation {
         // or V at the connected bus is equal to g.getTargetV()
         if (voltageRegulatorOn
             && (((Float.isNaN(minQ) || Float.isNaN(maxQ) || Float.isNaN(targetV)) && !config.areOkMissingValues())
-                || ((Math.abs(q + minQ) > config.getThreshold() || (v - targetV) >= config.getThreshold())
-                    && (Math.abs(q + maxQ) > config.getThreshold() || (targetV - v) >= config.getThreshold())
+                || ((Math.abs(q + getMinQ(minQ, maxQ)) > config.getThreshold() || (v - targetV) >= config.getThreshold())
+                    && (Math.abs(q + getMaxQ(minQ, maxQ)) > config.getThreshold() || (targetV - v) >= config.getThreshold())
                     && Math.abs(v - targetV) > config.getThreshold()))) {
             LOGGER.warn("{} {}: {}: voltage regulator on - Q={} minQ={} maxQ={} - V={} targetV={}", ValidationType.GENERATORS, ValidationUtils.VALIDATION_ERROR, id, q, minQ, maxQ, v, targetV);
             validated = false;
         }
         return validated;
+    }
+
+    private static float getMaxQ(float minQ, float maxQ) {
+        return maxQ < minQ ? minQ : maxQ;
+    }
+
+    private static float getMinQ(float minQ, float maxQ) {
+        return maxQ < minQ ? maxQ : minQ;
     }
 
 }

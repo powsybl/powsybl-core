@@ -29,6 +29,7 @@ public class ValidationConfig {
     public static final boolean APPLY_REACTANCE_CORRECTION_DEFAULT = false;
     public static final ValidationOutputWriter VALIDATION_OUTPUT_WRITER_DEFAULT = ValidationOutputWriter.CSV_MULTILINE;
     public static final boolean OK_MISSING_VALUES_DEFAULT = false;
+    public static final boolean NO_REQUIREMENT_IF_REACTIVE_BOUND_INVERSION_DEFAULT = false;
 
     private float threshold;
     private boolean verbose;
@@ -39,6 +40,7 @@ public class ValidationConfig {
     private ValidationOutputWriter validationOutputWriter;
     private LoadFlowParameters loadFlowParameters;
     private boolean okMissingValues;
+    private boolean noRequirementIfReactiveBoundInversion;
 
     public static ValidationConfig load() {
         return load(PlatformConfig.defaultConfig());
@@ -54,6 +56,7 @@ public class ValidationConfig {
         boolean applyReactanceCorrection = APPLY_REACTANCE_CORRECTION_DEFAULT;
         ValidationOutputWriter validationOutputWriter = VALIDATION_OUTPUT_WRITER_DEFAULT;
         boolean okMissingValues = OK_MISSING_VALUES_DEFAULT;
+        boolean noRequirementIfReactiveBoundInversion = NO_REQUIREMENT_IF_REACTIVE_BOUND_INVERSION_DEFAULT;
         LoadFlowParameters loadFlowParameter = LoadFlowParameters.load(platformConfig);
         if (platformConfig.moduleExists("loadflow-validation")) {
             ModuleConfig config = platformConfig.getModuleConfig("loadflow-validation");
@@ -67,15 +70,16 @@ public class ValidationConfig {
             applyReactanceCorrection = config.getBooleanProperty("apply-reactance-correction", APPLY_REACTANCE_CORRECTION_DEFAULT);
             validationOutputWriter = config.getEnumProperty("output-writer", ValidationOutputWriter.class, VALIDATION_OUTPUT_WRITER_DEFAULT);
             okMissingValues = config.getBooleanProperty("ok-missing-values", OK_MISSING_VALUES_DEFAULT);
+            noRequirementIfReactiveBoundInversion = config.getBooleanProperty("no-requirement-if-reactive-bound-inversion", NO_REQUIREMENT_IF_REACTIVE_BOUND_INVERSION_DEFAULT);
         }
         return new ValidationConfig(threshold, verbose, loadFlowFactory, tableFormatterFactory, epsilonX, applyReactanceCorrection, validationOutputWriter, loadFlowParameter,
-                                    okMissingValues);
+                                    okMissingValues, noRequirementIfReactiveBoundInversion);
     }
 
     public ValidationConfig(float threshold, boolean verbose, Class<? extends LoadFlowFactory> loadFlowFactory,
                             Class<? extends TableFormatterFactory> tableFormatterFactory, float epsilonX,
                             boolean applyReactanceCorrection, ValidationOutputWriter validationOutputWriter, LoadFlowParameters loadFlowParameters,
-                            boolean okMissingValues) {
+                            boolean okMissingValues, boolean noRequirementIfReactiveBoundInversion) {
         if (threshold < 0) {
             throw new IllegalArgumentException("Negative values for threshold not permitted");
         }
@@ -91,6 +95,7 @@ public class ValidationConfig {
         this.validationOutputWriter = Objects.requireNonNull(validationOutputWriter);
         this.loadFlowParameters = Objects.requireNonNull(loadFlowParameters);
         this.okMissingValues = okMissingValues;
+        this.noRequirementIfReactiveBoundInversion = noRequirementIfReactiveBoundInversion;
     }
 
     public float getThreshold() {
@@ -129,6 +134,10 @@ public class ValidationConfig {
         return okMissingValues;
     }
 
+    public boolean isNoRequirementIfReactiveBoundInversion() {
+        return noRequirementIfReactiveBoundInversion;
+    }
+
     public void setThreshold(float threshold) {
         this.threshold = threshold;
     }
@@ -165,6 +174,10 @@ public class ValidationConfig {
         this.okMissingValues = okMissingValues;
     }
 
+    public void setNoRequirementIfReactiveBoundInversion(boolean noRequirementIfReactiveBoundInversion) {
+        this.noRequirementIfReactiveBoundInversion = noRequirementIfReactiveBoundInversion;
+    }
+
     @Override
     public String toString() {
         return getClass().getSimpleName() + " [" +
@@ -177,6 +190,7 @@ public class ValidationConfig {
                 ", validationOutputWriter=" + validationOutputWriter +
                 ", loadFlowParameters=" + loadFlowParameters +
                 ", okMissingValues=" + okMissingValues +
+                ", noRequirementIfReactiveBoundInversion=" + noRequirementIfReactiveBoundInversion +
                 "]";
     }
 }

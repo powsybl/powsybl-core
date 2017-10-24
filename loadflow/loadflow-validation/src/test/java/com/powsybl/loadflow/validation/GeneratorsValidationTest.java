@@ -121,6 +121,14 @@ public class GeneratorsValidationTest extends AbstractValidationTest {
         q = 5f;
         assertFalse(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, strictConfig, NullWriter.NULL_WRITER));
 
+        // when maxQ < minQ
+        strictConfig.setNoRequirementIfReactiveBoundInversion(true);
+        // if noRequirementIfReactiveBoundInversion return true
+        assertTrue(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, maxQ, minQ, strictConfig, NullWriter.NULL_WRITER));
+        strictConfig.setNoRequirementIfReactiveBoundInversion(false);
+        // the code switches the 2 values to go back to a situation where minQ < maxQ and the normal tests are done
+        assertFalse(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, maxQ, minQ, strictConfig, NullWriter.NULL_WRITER));
+
         // if voltageRegulatorOn="true" then either q is equal to g.getReactiveLimits().getMaxQ(p) and v is higher than targetV
         q = 0f;
         assertTrue(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, strictConfig, NullWriter.NULL_WRITER));
