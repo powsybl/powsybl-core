@@ -60,10 +60,10 @@ public class TableFormatterConfig {
             printHeader = config.getBooleanProperty("print-header", DEFAULT_PRINT_HEADER);
             printTitle = config.getBooleanProperty("print-title", DEFAULT_PRINT_TITLE);
             printTitle = config.getBooleanProperty("print-title", DEFAULT_PRINT_TITLE);
-            horizontalAlignment = config.getBooleanProperty("horizontal-alignment", DEFAULT_HORIZONTAL_ALIGNMENT);
-            numberFormatMaximumFractionDigits = DEFAULT_NUMBER_FORMAT_MAXIMUM_FRACTION_DIGITS;
-            numberFormatMinimumFractionDigits = DEFAULT_NUMBER_FORMAT_MINIMUM_FRACTION_DIGITS;
-            numberFormatGroupingUsed = DEFAULT_NUMBER_FORMAT_GROUPING_USED;
+            horizontalAlignment = HorizontalAlignment.valueOf(config.getStringProperty("horizontal-alignment", DEFAULT_HORIZONTAL_ALIGNMENT.name()));
+            numberFormatMaximumFractionDigits = config.getIntProperty("number-format-maximum-fraction-digits", DEFAULT_NUMBER_FORMAT_MAXIMUM_FRACTION_DIGITS);
+            numberFormatMinimumFractionDigits = config.getIntProperty("number-format-minimum-fraction-digits", DEFAULT_NUMBER_FORMAT_MINIMUM_FRACTION_DIGITS);
+            numberFormatGroupingUsed = config.getBooleanProperty("print-title", DEFAULT_NUMBER_FORMAT_GROUPING_USED);
         }
 
         
