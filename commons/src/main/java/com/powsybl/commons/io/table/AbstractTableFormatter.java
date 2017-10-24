@@ -7,8 +7,8 @@
 package com.powsybl.commons.io.table;
 
 import java.io.IOException;
+import java.io.Writer;
 import java.text.NumberFormat;
-import java.util.Locale;
 import java.util.Objects;
 
 /**
@@ -16,15 +16,18 @@ import java.util.Objects;
  */
 public abstract class AbstractTableFormatter implements TableFormatter {
 
-    protected final Locale locale;
+    protected final Writer writer;
 
-    protected final String invalidString;
+    protected final TableFormatterConfig config;
 
-    protected AbstractTableFormatter(Locale locale, String invalidString) {
-        this.locale = Objects.requireNonNull(locale);
-        this.invalidString = Objects.requireNonNull(invalidString);
+    protected AbstractTableFormatter(Writer writer, TableFormatterConfig config) {
+        this.writer = Objects.requireNonNull(writer);
+        this.config = Objects.requireNonNull(config);
     }
 
+    /**
+     * @deprecated Use write(String, HorizontalAlignment) instead
+     */
     @Deprecated
     protected TableFormatter write(String value) throws IOException {
         return write(value, HorizontalAlignment.LEFT);
@@ -81,14 +84,14 @@ public abstract class AbstractTableFormatter implements TableFormatter {
 
     @Override
     public TableFormatter writeCell(float f, HorizontalAlignment horizontalAlignment) throws IOException {
-        return write(Float.isNaN(f) ? invalidString : String.format(locale, "%g", f), horizontalAlignment);
+        return write(Float.isNaN(f) ? config.getInvalidString() : String.format(config.getLocale(), "%g", f), horizontalAlignment);
     }
 
     @Override
     public TableFormatter writeCell(float f, HorizontalAlignment horizontalAlignment, NumberFormat numberFormat) throws IOException {
         Objects.requireNonNull(numberFormat);
 
-        return write(Float.isNaN(f) ? invalidString : numberFormat.format(f), horizontalAlignment);
+        return write(Float.isNaN(f) ? config.getInvalidString() : numberFormat.format(f), horizontalAlignment);
     }
 
     @Override
@@ -98,14 +101,14 @@ public abstract class AbstractTableFormatter implements TableFormatter {
 
     @Override
     public TableFormatter writeCell(double d, HorizontalAlignment horizontalAlignment) throws IOException {
-        return write(Double.isNaN(d) ? invalidString : String.format(locale, "%g", d), horizontalAlignment);
+        return write(Double.isNaN(d) ? config.getInvalidString() : String.format(config.getLocale(), "%g", d), horizontalAlignment);
     }
 
     @Override
     public TableFormatter writeCell(double d, HorizontalAlignment horizontalAlignment, NumberFormat numberFormat) throws IOException {
         Objects.requireNonNull(numberFormat);
 
-        return write(Double.isNaN(d) ? invalidString : numberFormat.format(d), horizontalAlignment);
+        return write(Double.isNaN(d) ? config.getInvalidString() : numberFormat.format(d), horizontalAlignment);
     }
 
     @Override
