@@ -6,10 +6,12 @@
  */
 package com.powsybl.afs.mapdb.storage;
 
-import com.powsybl.afs.storage.NodeId;
-import com.powsybl.commons.datasource.DefaultDataSourceObserver;
 import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.commons.datasource.DefaultDataSourceObserver;
 import com.powsybl.commons.datasource.ObservableOutputStream;
+import org.mapdb.DataInput2;
+import org.mapdb.DataOutput2;
+import org.mapdb.Serializer;
 
 import java.io.*;
 import java.util.Objects;
@@ -20,11 +22,9 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class MapDbDataSource implements DataSource {
 
-    static class Key implements Serializable {
+    static class Key {
 
-        private static final long serialVersionUID = -667026329394633704L;
-
-        private final NodeId nodeId;
+        private final UuidNodeId nodeId;
 
         private final String attributeName;
 
@@ -32,11 +32,27 @@ public class MapDbDataSource implements DataSource {
 
         private final String ext;
 
-        Key(NodeId nodeId, String attributeName, String suffix, String ext) {
+        Key(UuidNodeId nodeId, String attributeName, String suffix, String ext) {
             this.nodeId = Objects.requireNonNull(nodeId);
             this.attributeName = Objects.requireNonNull(attributeName);
             this.suffix = suffix;
             this.ext = ext;
+        }
+
+        UuidNodeId getNodeId() {
+            return nodeId;
+        }
+
+        String getAttributeName() {
+            return attributeName;
+        }
+
+        String getSuffix() {
+            return suffix;
+        }
+
+        String getExt() {
+            return ext;
         }
 
         @Override
@@ -56,7 +72,29 @@ public class MapDbDataSource implements DataSource {
         }
     }
 
-    private final NodeId nodeId;
+    public static class KeySerializer implements Serializer<Key>, Serializable {
+
+        public static final KeySerializer INSTANCE = new KeySerializer();
+
+        @Override
+        public void serialize(DataOutput2 out, Key key) throws IOException {
+            UuidNodeIdSerializer.INSTANCE.serialize(out, key.getNodeId());
+            out.writeUTF(key.getAttributeName());
+            out.writeUTF(Objects.toString(key.getSuffix(), ""));
+            out.writeUTF(Objects.toString(key.getExt(), ""));
+        }
+
+        @Override
+        public Key deserialize(DataInput2 input, int available) throws IOException {
+            UuidNodeId nodeId = UuidNodeIdSerializer.INSTANCE.deserialize(input, available);
+            String attributeName = input.readUTF();
+            String suffix = input.readUTF();
+            String ext = input.readUTF();
+            return new Key(nodeId, attributeName, suffix.isEmpty() ? null : suffix, ext.isEmpty() ? null : ext);
+        }
+    }
+
+    private final UuidNodeId nodeId;
 
     private final String attributeName;
 
@@ -64,7 +102,7 @@ public class MapDbDataSource implements DataSource {
 
     private final ConcurrentMap<String, byte[]> data2;
 
-    public MapDbDataSource(NodeId nodeId, String attributeName, ConcurrentMap<Key, byte[]> data, ConcurrentMap<String, byte[]> data2) {
+    public MapDbDataSource(UuidNodeId nodeId, String attributeName, ConcurrentMap<Key, byte[]> data, ConcurrentMap<String, byte[]> data2) {
         this.nodeId = Objects.requireNonNull(nodeId);
         this.attributeName = Objects.requireNonNull(attributeName);
         this.data = Objects.requireNonNull(data);

@@ -12,6 +12,7 @@ import com.powsybl.afs.storage.AppFileSystemStorage;
 import com.powsybl.afs.storage.NodeId;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.computation.ComputationManager;
+import com.powsybl.math.timeseries.*;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -269,6 +270,71 @@ public class LocalAppFileSystemStorage implements AppFileSystemStorage {
         if (file != null) {
             return file.getDataSourceAttribute(name);
         }
+        throw new AssertionError();
+    }
+
+    @Override
+    public void createTimeSeries(NodeId nodeId, TimeSeriesMetadata metadata) {
+        throw new AssertionError();
+    }
+
+    @Override
+    public Set<String> getTimeSeriesNames(NodeId nodeId) {
+        Objects.requireNonNull(nodeId);
+        Path path = ((PathNodeId) nodeId).getPath();
+        LocalFile file = scanFile(path, true);
+        if (file != null) {
+            return file.getTimeSeriesNames();
+        }
+        throw new AssertionError();
+    }
+
+    @Override
+    public List<TimeSeriesMetadata> getTimeSeriesMetadata(NodeId nodeId, Set<String> timeSeriesNames) {
+        Objects.requireNonNull(nodeId);
+        Path path = ((PathNodeId) nodeId).getPath();
+        LocalFile file = scanFile(path, true);
+        if (file != null) {
+            return file.getTimeSeriesMetadata(timeSeriesNames);
+        }
+        throw new AssertionError();
+
+    }
+
+    @Override
+    public List<DoubleTimeSeries> getDoubleTimeSeries(NodeId nodeId, Set<String> timeSeriesNames, int version) {
+        Objects.requireNonNull(nodeId);
+        Path path = ((PathNodeId) nodeId).getPath();
+        LocalFile file = scanFile(path, true);
+        if (file != null) {
+            return file.getDoubleTimeSeries(timeSeriesNames, version);
+        }
+        throw new AssertionError();
+    }
+
+    @Override
+    public void addDoubleTimeSeriesData(NodeId nodeId, int version, String timeSeriesName, List<DoubleArrayChunk> chunks) {
+        throw new AssertionError();
+    }
+
+    @Override
+    public List<StringTimeSeries> getStringTimeSeries(NodeId nodeId, Set<String> timeSeriesNames, int version) {
+        Objects.requireNonNull(nodeId);
+        Path path = ((PathNodeId) nodeId).getPath();
+        LocalFile file = scanFile(path, true);
+        if (file != null) {
+            return file.getStringTimeSeries(timeSeriesNames, version);
+        }
+        throw new AssertionError();
+    }
+
+    @Override
+    public void addStringTimeSeriesData(NodeId nodeId, int version, String timeSeriesName, List<StringArrayChunk> chunks) {
+        throw new AssertionError();
+    }
+
+    @Override
+    public void removeAllTimeSeries(NodeId nodeId) {
         throw new AssertionError();
     }
 

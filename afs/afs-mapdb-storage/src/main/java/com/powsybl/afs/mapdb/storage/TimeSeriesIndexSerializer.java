@@ -1,0 +1,54 @@
+/**
+ * Copyright (c) 2017, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+package com.powsybl.afs.mapdb.storage;
+
+import com.powsybl.math.timeseries.RegularTimeSeriesIndex;
+import com.powsybl.math.timeseries.TimeSeriesIndex;
+import org.mapdb.DataInput2;
+import org.mapdb.DataOutput2;
+import org.mapdb.Serializer;
+
+import java.io.IOException;
+import java.io.Serializable;
+
+/**
+ * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ */
+public class TimeSeriesIndexSerializer implements Serializer<TimeSeriesIndex>, Serializable {
+
+    public static final TimeSeriesIndexSerializer INSTANCE = new TimeSeriesIndexSerializer();
+
+    @Override
+    public void serialize(DataOutput2 out, TimeSeriesIndex index) throws IOException {
+        if (index instanceof RegularTimeSeriesIndex) {
+            RegularTimeSeriesIndex regularIndex = (RegularTimeSeriesIndex) index;
+            out.writeUTF("regularIndex");
+            out.writeLong(regularIndex.getStartTime());
+            out.writeLong(regularIndex.getEndTime());
+            out.writeLong(regularIndex.getSpacing());
+            out.writeInt(regularIndex.getFirstVersion());
+            out.writeInt(regularIndex.getVersionCount());
+        } else {
+            throw new AssertionError();
+        }
+    }
+
+    @Override
+    public TimeSeriesIndex deserialize(DataInput2 input, int available) throws IOException {
+        String indexType = input.readUTF();
+        long startTime = input.readLong();
+        long endTime = input.readLong();
+        long spacing = input.readLong();
+        int firstVersion = input.readInt();
+        int versionCount = input.readInt();
+        if ("regularIndex".equals(indexType)) {
+            return new RegularTimeSeriesIndex(startTime, endTime, spacing, firstVersion, versionCount);
+        } else {
+            throw new AssertionError();
+        }
+    }
+}
