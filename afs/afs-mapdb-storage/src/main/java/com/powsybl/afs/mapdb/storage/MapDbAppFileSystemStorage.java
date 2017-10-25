@@ -26,27 +26,27 @@ import java.util.function.BiFunction;
  */
 public class MapDbAppFileSystemStorage implements AppFileSystemStorage {
 
+    private static final String ROOT_NODE = "rootNode";
+
     public static MapDbAppFileSystemStorage createMem(String fileSystemName) {
         DBMaker.Maker maker = DBMaker.memoryDB();
-        return new MapDbAppFileSystemStorage(fileSystemName, maker, maker::make);
+        return new MapDbAppFileSystemStorage(fileSystemName, maker::make);
     }
 
     public static MapDbAppFileSystemStorage createHeap(String fileSystemName) {
         DBMaker.Maker maker = DBMaker.heapDB();
-        return new MapDbAppFileSystemStorage(fileSystemName, maker, maker::make);
+        return new MapDbAppFileSystemStorage(fileSystemName, maker::make);
     }
 
     public static MapDbAppFileSystemStorage createMmapFile(String fileSystemName, File dbFile) {
         DBMaker.Maker maker = DBMaker.fileDB(dbFile);
-        return new MapDbAppFileSystemStorage(fileSystemName, maker, () -> maker
+        return new MapDbAppFileSystemStorage(fileSystemName, () -> maker
                 .fileMmapEnable()
                 .fileMmapEnableIfSupported()
                 .fileMmapPreclearDisable()
                 .transactionEnable()
                 .make());
     }
-
-    private final DBMaker.Maker maker;
 
     private final DB db;
 
@@ -331,12 +331,11 @@ public class MapDbAppFileSystemStorage implements AppFileSystemStorage {
 
     private final ConcurrentMap<NamedLink, byte[]> cacheMap;
 
-    protected MapDbAppFileSystemStorage(String fileSystemName, DBMaker.Maker maker, Supplier<DB> db) {
-        this.maker = Objects.requireNonNull(maker);
+    protected MapDbAppFileSystemStorage(String fileSystemName, Supplier<DB> db) {
         this.db = db.get();
 
         rootNodeMap = this.db
-                .hashMap("rootNode", Serializer.STRING, UuidNodeIdSerializer.INSTANCE)
+                .hashMap(ROOT_NODE, Serializer.STRING, UuidNodeIdSerializer.INSTANCE)
                 .createOrOpen();
 
         childNodesMap = this.db
@@ -438,7 +437,7 @@ public class MapDbAppFileSystemStorage implements AppFileSystemStorage {
         // create root node
         if (rootNodeMap.isEmpty()) {
             UuidNodeId rootNodeId = createNode(null, fileSystemName, PseudoClass.FOLDER_PSEUDO_CLASS);
-            rootNodeMap.put("rootNode", rootNodeId);
+            rootNodeMap.put(ROOT_NODE, rootNodeId);
         }
     }
 
@@ -462,16 +461,30 @@ public class MapDbAppFileSystemStorage implements AppFileSystemStorage {
 
     @Override
     public NodeId getRootNode() {
-        return rootNodeMap.get("rootNode");
+        return rootNodeMap.get(ROOT_NODE);
     }
 
     private AfsStorageException createNodeNotFoundException(NodeId nodeId) {
         return new AfsStorageException("Node " + nodeId + " not found");
     }
 
+    private static UuidNodeId checkNodeId(NodeId nodeId) {
+        if (!(nodeId instanceof UuidNodeId)) {
+            throw new AfsStorageException("node id is expected to be a UUID");
+        }
+        return (UuidNodeId) nodeId;
+    }
+
+    private static UuidNodeId checkNullableNodeId(NodeId nodeId) {
+        if (nodeId == null) {
+            return null;
+        }
+        return checkNodeId(nodeId);
+    }
+
     @Override
     public String getNodeName(NodeId nodeId) {
-        Objects.requireNonNull(nodeId);
+        checkNodeId(nodeId);
         String name = nodeNameMap.get(nodeId);
         if (name == null) {
             throw createNodeNotFoundException(nodeId);
@@ -481,7 +494,7 @@ public class MapDbAppFileSystemStorage implements AppFileSystemStorage {
 
     @Override
     public List<NodeId> getChildNodes(NodeId nodeId) {
-        Objects.requireNonNull(nodeId);
+        checkNodeId(nodeId);
         UuidNodeIdList childNodes = childNodesMap.get(nodeId);
         if (childNodes == null) {
             throw createNodeNotFoundException(nodeId);
@@ -491,17 +504,17 @@ public class MapDbAppFileSystemStorage implements AppFileSystemStorage {
 
     @Override
     public NodeId getChildNode(NodeId parentNodeId, String name) {
-        Objects.requireNonNull(parentNodeId);
+        UuidNodeId parentUuidNodeId = checkNodeId(parentNodeId);
         Objects.requireNonNull(name);
-        if (!nodeNameMap.containsKey(parentNodeId)) {
-            throw new AfsStorageException("Parent node " + parentNodeId + " not found");
+        if (!nodeNameMap.containsKey(parentUuidNodeId)) {
+            throw createNodeNotFoundException(parentUuidNodeId);
         }
-        return childNodeMap.get(new NamedLink((UuidNodeId) parentNodeId, name));
+        return childNodeMap.get(new NamedLink(parentUuidNodeId, name));
     }
 
     @Override
     public NodeId getParentNode(NodeId nodeId) {
-        Objects.requireNonNull(nodeId);
+        checkNodeId(nodeId);
         if (!nodeNameMap.containsKey(nodeId)) {
             throw createNodeNotFoundException(nodeId);
         }
@@ -510,29 +523,29 @@ public class MapDbAppFileSystemStorage implements AppFileSystemStorage {
 
     @Override
     public void setParentNode(NodeId nodeId, NodeId newParentNodeId) {
-        Objects.requireNonNull(nodeId);
-        Objects.requireNonNull(newParentNodeId);
-        if (!nodeNameMap.containsKey(nodeId)) {
-            throw createNodeNotFoundException(nodeId);
+        UuidNodeId uuidNodeId = checkNodeId(nodeId);
+        UuidNodeId newParentUuidNodeId = checkNodeId(newParentNodeId);
+        if (!nodeNameMap.containsKey(uuidNodeId)) {
+            throw createNodeNotFoundException(uuidNodeId);
         }
-        if (!nodeNameMap.containsKey(newParentNodeId)) {
-            throw new AfsStorageException("New parent node " + newParentNodeId + " not found");
+        if (!nodeNameMap.containsKey(newParentUuidNodeId)) {
+            throw createNodeNotFoundException(newParentUuidNodeId);
         }
-        UuidNodeId oldParentNodeId = parentNodeMap.get(nodeId);
+        UuidNodeId oldParentNodeId = parentNodeMap.get(uuidNodeId);
         if (oldParentNodeId == null) {
             throw new AfsStorageException("Cannot change parent of root folder");
         }
 
-        parentNodeMap.put((UuidNodeId) nodeId, (UuidNodeId) newParentNodeId);
+        parentNodeMap.put(uuidNodeId, newParentUuidNodeId);
 
         // remove from old parent
-        String name = nodeNameMap.get(nodeId);
+        String name = nodeNameMap.get(uuidNodeId);
         childNodeMap.remove(new NamedLink(oldParentNodeId, name));
-        childNodesMap.put(oldParentNodeId, childNodesMap.get(oldParentNodeId).remove((UuidNodeId) nodeId));
+        childNodesMap.put(oldParentNodeId, childNodesMap.get(oldParentNodeId).remove(uuidNodeId));
 
         // add to new parent
-        childNodesMap.put((UuidNodeId) newParentNodeId, childNodesMap.get(newParentNodeId).add((UuidNodeId) nodeId));
-        childNodeMap.put(new NamedLink((UuidNodeId) newParentNodeId, name), (UuidNodeId) nodeId);
+        childNodesMap.put(newParentUuidNodeId, childNodesMap.get(newParentUuidNodeId).add(uuidNodeId));
+        childNodeMap.put(new NamedLink(newParentUuidNodeId, name), uuidNodeId);
     }
 
     @Override
@@ -542,20 +555,21 @@ public class MapDbAppFileSystemStorage implements AppFileSystemStorage {
 
     @Override
     public UuidNodeId createNode(NodeId parentNodeId, String name, String nodePseudoClass) {
+        UuidNodeId parentUuidNodeId = checkNullableNodeId(parentNodeId);
         Objects.requireNonNull(name);
         Objects.requireNonNull(nodePseudoClass);
-        if (parentNodeId != null && !nodeNameMap.containsKey(parentNodeId)) {
-            throw new AfsStorageException("Parent node " + parentNodeId + " not found");
+        if (parentUuidNodeId != null && !nodeNameMap.containsKey(parentUuidNodeId)) {
+            throw createNodeNotFoundException(parentUuidNodeId);
         }
         UuidNodeId nodeId = UuidNodeId.generate();
         nodeNameMap.put(nodeId, name);
         nodePseudoClassMap.put(nodeId, nodePseudoClass);
         attributesMap.put(nodeId, Collections.emptySet());
         childNodesMap.put(nodeId, new UuidNodeIdList());
-        if (parentNodeId != null) {
-            parentNodeMap.put(nodeId, (UuidNodeId) parentNodeId);
-            childNodesMap.compute((UuidNodeId) parentNodeId, (useless, nodeIdList) -> nodeIdList.add(nodeId));
-            childNodeMap.put(new NamedLink((UuidNodeId) parentNodeId, name), nodeId);
+        if (parentUuidNodeId != null) {
+            parentNodeMap.put(nodeId, parentUuidNodeId);
+            childNodesMap.compute(parentUuidNodeId, (useless, nodeIdList) -> nodeIdList.add(nodeId));
+            childNodeMap.put(new NamedLink(parentUuidNodeId, name), nodeId);
         }
         if (nodePseudoClass.equals(PseudoClass.PROJECT_PSEUDO_CLASS)) {
             // create root project folder
@@ -579,64 +593,65 @@ public class MapDbAppFileSystemStorage implements AppFileSystemStorage {
 
     @Override
     public void deleteNode(NodeId nodeId) {
-        Objects.requireNonNull(nodeId);
-        if (childNodesMap.get(nodeId).size() > 0) {
+        UuidNodeId uuidNodeId = checkNodeId(nodeId);
+        if (childNodesMap.get(uuidNodeId).size() > 0) {
             throw new AfsStorageException("Cannot delete a node with children, remove children before");
         }
-        if (!getBackwardDependencies(nodeId).isEmpty()) {
+        if (!getBackwardDependencies(uuidNodeId).isEmpty()) {
             throw new AfsStorageException("Cannot delete a node that is a dependency of another node");
         }
-        String name = nodeNameMap.remove(nodeId);
-        String nodePseudoClass = nodePseudoClassMap.remove(nodeId);
-        for (String attributeName : attributesMap.get(nodeId)) {
-            NamedLink namedLink = new NamedLink((UuidNodeId) nodeId, attributeName);
+        String name = nodeNameMap.remove(uuidNodeId);
+        String nodePseudoClass = nodePseudoClassMap.remove(uuidNodeId);
+        for (String attributeName : attributesMap.get(uuidNodeId)) {
+            NamedLink namedLink = new NamedLink(uuidNodeId, attributeName);
             stringAttributeMap.remove(namedLink);
             integerAttributeMap.remove(namedLink);
             floatAttributeMap.remove(namedLink);
             doubleAttributeMap.remove(namedLink);
             booleanAttributeMap.remove(namedLink);
         }
-        attributesMap.remove(nodeId);
-        childNodesMap.remove(nodeId);
-        UuidNodeId parentNodeId = parentNodeMap.remove(nodeId);
+        attributesMap.remove(uuidNodeId);
+        childNodesMap.remove(uuidNodeId);
+        UuidNodeId parentNodeId = parentNodeMap.remove(uuidNodeId);
         if (parentNodeId != null) {
-            childNodesMap.compute(parentNodeId, (useless, nodeIdList) -> nodeIdList.remove((UuidNodeId) nodeId));
+            childNodesMap.compute(parentNodeId, (useless, nodeIdList) -> nodeIdList.remove(uuidNodeId));
             childNodeMap.remove(new NamedLink(parentNodeId, name));
         }
         if (nodePseudoClass.equals(PseudoClass.PROJECT_PSEUDO_CLASS)) {
             // also remove everything inside the project
             throw new UnsupportedOperationException("TODO"); // TODO
         }
-        for (NodeId toNodeId : getDependencies(nodeId)) {
-            String dependencyName = dependencyNameMap.remove(new UnorderedNodeIdPair((UuidNodeId) nodeId, (UuidNodeId) toNodeId));
-            dependencyNodeMap.remove(new NamedLink((UuidNodeId) nodeId, dependencyName));
-            backwardDependencyNodesMap.put((UuidNodeId) toNodeId, backwardDependencyNodesMap.get(toNodeId).remove((UuidNodeId) nodeId));
+        for (NodeId toNodeId : getDependencies(uuidNodeId)) {
+            UuidNodeId toUuidNodeId = checkNodeId(toNodeId);
+            String dependencyName = dependencyNameMap.remove(new UnorderedNodeIdPair(uuidNodeId, toUuidNodeId));
+            dependencyNodeMap.remove(new NamedLink(uuidNodeId, dependencyName));
+            backwardDependencyNodesMap.put(toUuidNodeId, backwardDependencyNodesMap.get(toUuidNodeId).remove(uuidNodeId));
         }
-        dependencyNodesMap.remove(nodeId);
+        dependencyNodesMap.remove(uuidNodeId);
     }
 
     private <T> T getAttribute(ConcurrentMap<NamedLink, T> map, NodeId nodeId, String name) {
-        Objects.requireNonNull(nodeId);
+        UuidNodeId uuidNodeId = checkNodeId(nodeId);
         Objects.requireNonNull(name);
-        if (!nodeNameMap.containsKey(nodeId)) {
-            throw createNodeNotFoundException(nodeId);
+        if (!nodeNameMap.containsKey(uuidNodeId)) {
+            throw createNodeNotFoundException(uuidNodeId);
         }
-        return map.get(new NamedLink((UuidNodeId) nodeId, name));
+        return map.get(new NamedLink(uuidNodeId, name));
     }
 
     private <T> void setAttribute(ConcurrentMap<NamedLink, T> map, NodeId nodeId, String name, T value) {
-        Objects.requireNonNull(nodeId);
+        UuidNodeId uuidNodeId = checkNodeId(nodeId);
         Objects.requireNonNull(name);
-        if (!nodeNameMap.containsKey(nodeId)) {
-            throw createNodeNotFoundException(nodeId);
+        if (!nodeNameMap.containsKey(uuidNodeId)) {
+            throw createNodeNotFoundException(uuidNodeId);
         }
-        NamedLink namedLink = new NamedLink((UuidNodeId) nodeId, name);
+        NamedLink namedLink = new NamedLink(uuidNodeId, name);
         if (value == null) {
             map.remove(namedLink);
-            attributesMap.put((UuidNodeId) nodeId, remove(attributesMap.get(nodeId), name));
+            attributesMap.put(uuidNodeId, remove(attributesMap.get(uuidNodeId), name));
         } else {
             map.put(namedLink, value);
-            attributesMap.put((UuidNodeId) nodeId, add(attributesMap.get(nodeId), name));
+            attributesMap.put(uuidNodeId, add(attributesMap.get(uuidNodeId), name));
         }
     }
 
@@ -704,30 +719,30 @@ public class MapDbAppFileSystemStorage implements AppFileSystemStorage {
 
     @Override
     public DataSource getDataSourceAttribute(NodeId nodeId, String name) {
-        return new MapDbDataSource((UuidNodeId) nodeId, name, dataSourceAttributeDataMap, dataSourceAttributeData2Map);
+        return new MapDbDataSource(checkNodeId(nodeId), name, dataSourceAttributeDataMap, dataSourceAttributeData2Map);
     }
 
     @Override
     public void createTimeSeries(NodeId nodeId, TimeSeriesMetadata metadata) {
-        Objects.requireNonNull(nodeId);
+        UuidNodeId uuidNodeId = checkNodeId(nodeId);
         Objects.requireNonNull(metadata);
-        if (!nodeNameMap.containsKey(nodeId)) {
-            throw createNodeNotFoundException(nodeId);
+        if (!nodeNameMap.containsKey(uuidNodeId)) {
+            throw createNodeNotFoundException(uuidNodeId);
         }
-        Set<String> names = timeSeriesNamesMap.get(nodeId);
+        Set<String> names = timeSeriesNamesMap.get(uuidNodeId);
         if (names == null) {
             names = new HashSet<>();
         }
         if (names.contains(metadata.getName())) {
-            throw new AfsStorageException("Time series " + metadata.getName() + " already exists at node " + nodeId);
+            throw new AfsStorageException("Time series " + metadata.getName() + " already exists at node " + uuidNodeId);
         }
-        timeSeriesNamesMap.put((UuidNodeId) nodeId, add(names, metadata.getName()));
-        timeSeriesMetadataMap.put(new NamedLink((UuidNodeId) nodeId, metadata.getName()), metadata);
+        timeSeriesNamesMap.put(uuidNodeId, add(names, metadata.getName()));
+        timeSeriesMetadataMap.put(new NamedLink(uuidNodeId, metadata.getName()), metadata);
     }
 
     @Override
     public Set<String> getTimeSeriesNames(NodeId nodeId) {
-        Objects.requireNonNull(nodeId);
+        checkNodeId(nodeId);
         Set<String> names = timeSeriesNamesMap.get(nodeId);
         if (names == null) {
             throw createNodeNotFoundException(nodeId);
@@ -741,13 +756,13 @@ public class MapDbAppFileSystemStorage implements AppFileSystemStorage {
 
     @Override
     public List<TimeSeriesMetadata> getTimeSeriesMetadata(NodeId nodeId, Set<String> timeSeriesNames) {
-        Objects.requireNonNull(nodeId);
+        UuidNodeId uuidNodeId = checkNodeId(nodeId);
         Objects.requireNonNull(timeSeriesNames);
         List<TimeSeriesMetadata> metadataList = new ArrayList<>();
         for (String timeSeriesName : timeSeriesNames) {
-            TimeSeriesMetadata metadata = timeSeriesMetadataMap.get(new NamedLink((UuidNodeId) nodeId, timeSeriesName));
+            TimeSeriesMetadata metadata = timeSeriesMetadataMap.get(new NamedLink(uuidNodeId, timeSeriesName));
             if (metadata == null) {
-                throw createTimeSeriesNotFoundAtNode(timeSeriesName, nodeId);
+                throw createTimeSeriesNotFoundAtNode(timeSeriesName, uuidNodeId);
             }
             metadataList.add(metadata);
         }
@@ -760,10 +775,10 @@ public class MapDbAppFileSystemStorage implements AppFileSystemStorage {
         }
     }
 
-    private <P extends AbstractPoint, C extends ArrayChunk<P>> List<C> getChunks(NodeId nodeId, int version, String timeSeriesName,
+    private <P extends AbstractPoint, C extends ArrayChunk<P>> List<C> getChunks(UuidNodeId nodeId, int version, String timeSeriesName,
                                                                                  TimeSeriesMetadata metadata,
                                                                                  ConcurrentMap<TimeSeriesChunkKey, C> map) {
-        TimeSeriesKey key = new TimeSeriesKey((UuidNodeId) nodeId, version, timeSeriesName);
+        TimeSeriesKey key = new TimeSeriesKey(nodeId, version, timeSeriesName);
         Integer lastChunkNum = timeSeriesLastChunkMap.get(key);
         if (lastChunkNum == null) {
             return Collections.emptyList();
@@ -785,18 +800,18 @@ public class MapDbAppFileSystemStorage implements AppFileSystemStorage {
     private <P extends AbstractPoint, C extends ArrayChunk<P>, T extends TimeSeries<P, C>>
         List<T> getTimeSeries(NodeId nodeId, Set<String> timeSeriesNames, int version,
                               ConcurrentMap<TimeSeriesChunkKey, C> map, BiFunction<TimeSeriesMetadata, List<C>, T> constr) {
-        Objects.requireNonNull(nodeId);
+        UuidNodeId uuidNodeId = checkNodeId(nodeId);
         Objects.requireNonNull(timeSeriesNames);
         checkVersion(version);
         Objects.requireNonNull(map);
         Objects.requireNonNull(constr);
         List<T> timeSeriesList = new ArrayList<>();
         for (String timeSeriesName : timeSeriesNames) {
-            TimeSeriesMetadata metadata = timeSeriesMetadataMap.get(new NamedLink((UuidNodeId) nodeId, timeSeriesName));
+            TimeSeriesMetadata metadata = timeSeriesMetadataMap.get(new NamedLink(uuidNodeId, timeSeriesName));
             if (metadata == null) {
                 throw createTimeSeriesNotFoundAtNode(timeSeriesName, nodeId);
             }
-            List<C> chunks = getChunks(nodeId, version, timeSeriesName, metadata, map);
+            List<C> chunks = getChunks(uuidNodeId, version, timeSeriesName, metadata, map);
             if (!chunks.isEmpty()) {
                 timeSeriesList.add(constr.apply(metadata, chunks));
             }
@@ -809,13 +824,13 @@ public class MapDbAppFileSystemStorage implements AppFileSystemStorage {
                                                                                       String timeSeriesName,
                                                                                       List<C> chunks,
                                                                                       ConcurrentMap<TimeSeriesChunkKey, C> map) {
-        Objects.requireNonNull(nodeId);
+        UuidNodeId uuidNodeId = checkNodeId(nodeId);
         checkVersion(version);
         Objects.requireNonNull(timeSeriesName);
         Objects.requireNonNull(chunks);
         Objects.requireNonNull(map);
         for (C chunk : chunks) {
-            TimeSeriesKey key = new TimeSeriesKey((UuidNodeId) nodeId, version, timeSeriesName);
+            TimeSeriesKey key = new TimeSeriesKey(uuidNodeId, version, timeSeriesName);
             Integer lastNum = timeSeriesLastChunkMap.get(key);
             int num;
             if (lastNum == null) {
@@ -850,19 +865,19 @@ public class MapDbAppFileSystemStorage implements AppFileSystemStorage {
 
     @Override
     public void removeAllTimeSeries(NodeId nodeId) {
-        Objects.requireNonNull(nodeId);
-        Set<String> names = timeSeriesNamesMap.get(nodeId);
+        UuidNodeId uuidNodeId = checkNodeId(nodeId);
+        Set<String> names = timeSeriesNamesMap.get(uuidNodeId);
         if (names != null) {
             for (String name : names) {
-                timeSeriesMetadataMap.remove(new NamedLink((UuidNodeId) nodeId, name));
+                timeSeriesMetadataMap.remove(new NamedLink(uuidNodeId, name));
             }
-            timeSeriesNamesMap.remove(nodeId);
+            timeSeriesNamesMap.remove(uuidNodeId);
         }
     }
 
     @Override
     public NodeId getProjectRootNode(NodeId projectNodeId) {
-        Objects.requireNonNull(projectNodeId);
+        checkNodeId(projectNodeId);
         NodeId projectRootNodeId = projectRootNodeMap.get(projectNodeId);
         if (projectRootNodeId == null) {
             throw createNodeNotFoundException(projectNodeId);
@@ -872,34 +887,34 @@ public class MapDbAppFileSystemStorage implements AppFileSystemStorage {
 
     @Override
     public NodeId getDependency(NodeId nodeId, String name) {
-        Objects.requireNonNull(nodeId);
+        UuidNodeId uuidNodeId = checkNodeId(nodeId);
         Objects.requireNonNull(name);
-        if (!nodeNameMap.containsKey(nodeId)) {
+        if (!nodeNameMap.containsKey(uuidNodeId)) {
             throw createNodeNotFoundException(nodeId);
         }
-        return dependencyNodeMap.get(new NamedLink((UuidNodeId) nodeId, name));
+        return dependencyNodeMap.get(new NamedLink(uuidNodeId, name));
     }
 
     @Override
     public void addDependency(NodeId nodeId, String name, NodeId toNodeId) {
-        Objects.requireNonNull(nodeId);
+        UuidNodeId uuidNodeId = checkNodeId(nodeId);
         Objects.requireNonNull(name);
-        Objects.requireNonNull(toNodeId);
+        UuidNodeId uuidToNodeId = checkNodeId(toNodeId);
         if (!nodeNameMap.containsKey(nodeId)) {
-            throw createNodeNotFoundException(nodeId);
+            throw createNodeNotFoundException(uuidNodeId);
         }
         if (!nodeNameMap.containsKey(toNodeId)) {
-            throw createNodeNotFoundException(toNodeId);
+            throw createNodeNotFoundException(uuidToNodeId);
         }
-        dependencyNodesMap.put((UuidNodeId) nodeId, dependencyNodesMap.get(nodeId).add((UuidNodeId) toNodeId));
-        dependencyNodeMap.put(new NamedLink((UuidNodeId) nodeId, name), (UuidNodeId) toNodeId);
-        dependencyNameMap.put(new UnorderedNodeIdPair((UuidNodeId) nodeId, (UuidNodeId) toNodeId), name);
-        backwardDependencyNodesMap.put((UuidNodeId) toNodeId, backwardDependencyNodesMap.get(toNodeId).add((UuidNodeId) nodeId));
+        dependencyNodesMap.put(uuidNodeId, dependencyNodesMap.get(uuidNodeId).add(uuidToNodeId));
+        dependencyNodeMap.put(new NamedLink(uuidNodeId, name), uuidToNodeId);
+        dependencyNameMap.put(new UnorderedNodeIdPair(uuidNodeId, uuidToNodeId), name);
+        backwardDependencyNodesMap.put(uuidToNodeId, backwardDependencyNodesMap.get(uuidToNodeId).add(uuidNodeId));
     }
 
     @Override
     public List<NodeId> getDependencies(NodeId nodeId) {
-        Objects.requireNonNull(nodeId);
+        checkNodeId(nodeId);
         UuidNodeIdList dependencyNodeIds = dependencyNodesMap.get(nodeId);
         if (dependencyNodeIds == null) {
             throw createNodeNotFoundException(nodeId);
@@ -909,7 +924,7 @@ public class MapDbAppFileSystemStorage implements AppFileSystemStorage {
 
     @Override
     public List<NodeId> getBackwardDependencies(NodeId nodeId) {
-        Objects.requireNonNull(nodeId);
+        checkNodeId(nodeId);
         UuidNodeIdList backwardDependencyNodeIds = backwardDependencyNodesMap.get(nodeId);
         if (backwardDependencyNodeIds == null) {
             throw createNodeNotFoundException(nodeId);
@@ -919,24 +934,27 @@ public class MapDbAppFileSystemStorage implements AppFileSystemStorage {
 
     @Override
     public InputStream readFromCache(NodeId nodeId, String key) {
-        byte[] value = cacheMap.get(new NamedLink((UuidNodeId) nodeId, key));
+        UuidNodeId uuidNodeId = checkNodeId(nodeId);
+        byte[] value = cacheMap.get(new NamedLink(uuidNodeId, key));
         return value != null ? new ByteArrayInputStream(value) : null;
     }
 
     @Override
     public OutputStream writeToCache(NodeId nodeId, String key) {
+        UuidNodeId uuidNodeId = checkNodeId(nodeId);
         return new ByteArrayOutputStream() {
             @Override
             public void close() throws IOException {
                 super.close();
-                cacheMap.put(new NamedLink((UuidNodeId) nodeId, key), toByteArray());
+                cacheMap.put(new NamedLink(uuidNodeId, key), toByteArray());
             }
         };
     }
 
     @Override
     public void invalidateCache(NodeId nodeId, String key) {
-        cacheMap.remove(new NamedLink((UuidNodeId) nodeId, key));
+        UuidNodeId uuidNodeId = checkNodeId(nodeId);
+        cacheMap.remove(new NamedLink(uuidNodeId, key));
     }
 
     @Override
