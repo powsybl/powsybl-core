@@ -31,12 +31,6 @@ public final class Security {
 
     private static final String PERMANENT_LIMIT_NAME = "Permanent limit";
 
-    private static final int MAXIMUM_FRACTION_DIGITS = 4;
-
-    private static final int MINIMUM_FRACTION_DIGITS = 4;
-
-    private static final boolean NUMBER_FORMAT_GROUPING_USED = false;
-
     public enum CurrentLimitType {
         PATL,
         TATL
@@ -178,7 +172,6 @@ public final class Security {
         Writer writer = new StringWriter();
         List<LimitViolation> filteredViolations = filter.apply(violations);
 
-        NumberFormat numberFormatter = createNumberFormat(formatterConfig.getLocale());
         try (TableFormatter formatter = formatterFactory.create(writer,
                 "",
                 formatterConfig,
@@ -193,7 +186,7 @@ public final class Security {
                 new Column("Loading rate %"))) {
             filteredViolations.stream()
                     .sorted(Comparator.comparing(LimitViolation::getSubjectId))
-                    .forEach(writeLineLimitsViolations(formatter, numberFormatter));
+                    .forEach(writeLineLimitsViolations(formatter, formatterConfig.getNumberFormat()));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -234,7 +227,6 @@ public final class Security {
         Objects.requireNonNull(formatterFactory);
         Objects.requireNonNull(formatterConfig);
 
-        NumberFormat numberFormatter = createNumberFormat(formatterConfig.getLocale());
         try (TableFormatter formatter = formatterFactory.create(writer,
                 "Pre-contingency violations",
                 formatterConfig,
@@ -259,7 +251,7 @@ public final class Security {
                     : result.getPreContingencyResult().getLimitViolations();
             filteredLimitViolations.stream()
                     .sorted(Comparator.comparing(LimitViolation::getSubjectId))
-                    .forEach(writeLinePreContingencyViolations(formatter, numberFormatter));
+                    .forEach(writeLinePreContingencyViolations(formatter, formatterConfig.getNumberFormat()));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -291,14 +283,6 @@ public final class Security {
 
     private static float getViolationValue(LimitViolation violation) {
         return Math.abs(violation.getValue()) / violation.getLimit() * 100f;
-    }
-
-    private static NumberFormat createNumberFormat(Locale locale) {
-        NumberFormat numberFormat = NumberFormat.getInstance(locale);
-        numberFormat.setMaximumFractionDigits(Security.MAXIMUM_FRACTION_DIGITS);
-        numberFormat.setMinimumFractionDigits(Security.MINIMUM_FRACTION_DIGITS);
-        numberFormat.setGroupingUsed(Security.NUMBER_FORMAT_GROUPING_USED);
-        return numberFormat;
     }
 
     /**
@@ -358,7 +342,6 @@ public final class Security {
                             .collect(Collectors.toSet())
                     : Collections.emptySet();
 
-            NumberFormat numberFormatter = createNumberFormat(formatterConfig.getLocale());
             try (TableFormatter formatter = formatterFactory.create(writer,
                     "Post-contingency limit violations",
                     formatterConfig,
@@ -374,7 +357,7 @@ public final class Security {
                 result.getPostContingencyResults()
                         .stream()
                         .sorted(Comparator.comparing(o2 -> o2.getContingency().getId()))
-                        .forEach(writePostContingencyResult(limitViolationFilter, preContingencyViolations, formatter, numberFormatter));
+                        .forEach(writePostContingencyResult(limitViolationFilter, preContingencyViolations, formatter, formatterConfig.getNumberFormat()));
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }

@@ -32,10 +32,10 @@ public class TableFormatterConfig {
     private final Locale locale;
     private final char csvSeparator;
     private final String invalidString;
+    private final boolean printHeader;
+    private final boolean printTitle;
     private final HorizontalAlignment horizontalAlignment;
     private final NumberFormat numberFormat;
-
-    private final boolean printTitle;
 
     public static TableFormatterConfig load() {
         return load(PlatformConfig.defaultConfig());
@@ -51,7 +51,7 @@ public class TableFormatterConfig {
         int numberFormatMaximumFractionDigits = DEFAULT_NUMBER_FORMAT_MAXIMUM_FRACTION_DIGITS;
         int numberFormatMinimumFractionDigits = DEFAULT_NUMBER_FORMAT_MINIMUM_FRACTION_DIGITS;
         boolean numberFormatGroupingUsed = DEFAULT_NUMBER_FORMAT_GROUPING_USED;
-        
+
         if (platformConfig.moduleExists(CONFIG_MODULE_NAME)) {
             ModuleConfig config = platformConfig.getModuleConfig(CONFIG_MODULE_NAME);
             language = config.getStringProperty("language", DEFAULT_LANGUAGE);
@@ -63,26 +63,31 @@ public class TableFormatterConfig {
             horizontalAlignment = HorizontalAlignment.valueOf(config.getStringProperty("horizontal-alignment", DEFAULT_HORIZONTAL_ALIGNMENT.name()));
             numberFormatMaximumFractionDigits = config.getIntProperty("number-format-maximum-fraction-digits", DEFAULT_NUMBER_FORMAT_MAXIMUM_FRACTION_DIGITS);
             numberFormatMinimumFractionDigits = config.getIntProperty("number-format-minimum-fraction-digits", DEFAULT_NUMBER_FORMAT_MINIMUM_FRACTION_DIGITS);
-            numberFormatGroupingUsed = config.getBooleanProperty("print-title", DEFAULT_NUMBER_FORMAT_GROUPING_USED);
+            numberFormatGroupingUsed = config.getBooleanProperty("number-format-grouping-used", DEFAULT_NUMBER_FORMAT_GROUPING_USED);
         }
 
-        
         Locale locale = Locale.forLanguageTag(language);
-        return new TableFormatterConfig(locale, separator.charAt(0), invalidString, printHeader, printTitle);
+
+        NumberFormat numberFormat = NumberFormat.getInstance(locale);
+        numberFormat.setMaximumFractionDigits(numberFormatMaximumFractionDigits);
+        numberFormat.setMinimumFractionDigits(numberFormatMinimumFractionDigits);
+        numberFormat.setGroupingUsed(numberFormatGroupingUsed);
+
+        return new TableFormatterConfig(locale, separator.charAt(0), invalidString, printHeader, printTitle, horizontalAlignment, numberFormat);
     }
 
     public TableFormatterConfig(Locale locale, char csvSeparator, String invalidString, boolean printHeader, boolean printTitle) {
+        this(locale, csvSeparator, invalidString, printHeader, printTitle, DEFAULT_HORIZONTAL_ALIGNMENT, NumberFormat.getInstance(locale));
+    }
+
+    public TableFormatterConfig(Locale locale, char csvSeparator, String invalidString, boolean printHeader, boolean printTitle, HorizontalAlignment horizontalAlignment, NumberFormat numberFormat) {
         this.locale = locale;
         this.csvSeparator = csvSeparator;
         this.invalidString = invalidString;
         this.printHeader = printHeader;
         this.printTitle = printTitle;
-    }
-
-    public TableFormatterConfig(Locale locale, char csvSeparator, String invalidString, boolean printHeader, boolean printTitle, NumberFormat numberFormat, HorizontalAlignment horizontalAlignment) {
-        this(locale, csvSeparator, invalidString, printHeader, printTitle);
-        this.numberFormat = numberFormat;
         this.horizontalAlignment = horizontalAlignment;
+        this.numberFormat = numberFormat;
     }
 
     public TableFormatterConfig(Locale locale, String invalidString, boolean printHeader, boolean printTitle) {
@@ -117,6 +122,14 @@ public class TableFormatterConfig {
         return printTitle;
     }
 
+    public HorizontalAlignment getHorizontalAlignment() {
+        return horizontalAlignment;
+    }
+
+    public NumberFormat getNumberFormat() {
+        return numberFormat;
+    }
+
     @Override
     public String toString() {
         return getClass().getSimpleName() + " [locale=" + locale +
@@ -124,6 +137,8 @@ public class TableFormatterConfig {
                 ", invalidString=" + invalidString +
                 ", printHeader=" + printHeader +
                 ", printTitle=" + printTitle +
+                ", horizontalAlignment=" + horizontalAlignment +
+                ", numberFormat=" + numberFormat.toString() +
                 "]";
     }
 }

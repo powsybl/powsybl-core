@@ -7,6 +7,7 @@
 package com.powsybl.security;
 
 import com.powsybl.commons.io.table.CsvTableFormatterFactory;
+import com.powsybl.commons.io.table.HorizontalAlignment;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Bus;
@@ -17,6 +18,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.io.StringWriter;
+import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -30,7 +32,7 @@ import static org.junit.Assert.assertTrue;
  */
 public class SecurityTest {
 
-    private final TableFormatterConfig formatterConfig = new TableFormatterConfig(Locale.US, ',', "inv", true, true);
+    TableFormatterConfig formatterConfig;
 
     private final CsvTableFormatterFactory formatterFactory = new CsvTableFormatterFactory();
 
@@ -40,6 +42,13 @@ public class SecurityTest {
 
     @Before
     public void setUp() {
+        NumberFormat numberFormat = NumberFormat.getInstance(Locale.US);
+        //NumberFormat numberFormat1 = NumberFormat.getNumberInstance(Locale.US);
+        numberFormat.setMaximumFractionDigits(4);
+        numberFormat.setMinimumFractionDigits(4);
+        numberFormat.setGroupingUsed(false);
+
+        formatterConfig = new TableFormatterConfig(Locale.US, ',', "inv", true, true, HorizontalAlignment.LEFT, numberFormat);
         // create pre-contingency results, just one violation on line1
         line1Violation = new LimitViolation("line1", LimitViolationType.CURRENT, 1000f, "20'", 1100);
         LimitViolationsResult preContingencyResult = new LimitViolationsResult(true, Collections.singletonList(line1Violation), Collections.singletonList("action1"));
