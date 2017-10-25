@@ -26,7 +26,7 @@ public class CompressedStringArrayChunk extends AbstractCompressedArrayChunk imp
 
     public CompressedStringArrayChunk(int offset, int uncompressedLength, String[] stepValues, int[] stepLengths) {
         super(offset, uncompressedLength, stepLengths);
-        CompressedDoubleArrayChunk.check(offset, uncompressedLength, stepValues.length, stepLengths.length);
+        check(offset, uncompressedLength, stepValues.length, stepLengths.length);
         this.stepValues = Objects.requireNonNull(stepValues);
         updateEstimatedSize();
     }

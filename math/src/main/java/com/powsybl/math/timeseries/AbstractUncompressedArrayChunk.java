@@ -22,6 +22,9 @@ public abstract class AbstractUncompressedArrayChunk {
     protected final int offset;
 
     public AbstractUncompressedArrayChunk(int offset) {
+        if (offset < 0) {
+            throw new IllegalArgumentException("Bad offset value " + offset);
+        }
         this.offset = offset;
     }
 
