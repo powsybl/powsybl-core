@@ -124,7 +124,7 @@ public final class GeneratorsValidation {
         boolean validated = true;
         try {
             if (Float.isNaN(p) || Float.isNaN(q)) {
-                validated = checkGeneratorsNaNValues(id, p, maxQ, targetP, targetQ);
+                validated = checkGeneratorsNaNValues(id, p, q, targetP, targetQ);
             } else if (maxQ < minQ && config.isNoRequirementIfReactiveBoundInversion()) { // when maxQ < minQ if noRequirementIfReactiveBoundInversion return true
                 validated = true;
             } else {
