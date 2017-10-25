@@ -93,6 +93,7 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Arra
     }
 
     public void writeJson(JsonGenerator generator) {
+        Objects.requireNonNull(generator);
         try {
             metadata.writeJson(generator);
             generator.writeFieldName("chunks");

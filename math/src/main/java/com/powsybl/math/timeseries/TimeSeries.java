@@ -20,6 +20,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 /**
@@ -38,6 +39,7 @@ public interface TimeSeries<P extends AbstractPoint, C extends ArrayChunk<P>> ex
     void writeJson(JsonGenerator generator);
 
     static void writeJson(JsonGenerator generator, List<TimeSeries> timeSeriesList) {
+        Objects.requireNonNull(timeSeriesList);
         for (TimeSeries timeSeries : timeSeriesList) {
             timeSeries.writeJson(generator);
         }
@@ -159,6 +161,7 @@ public interface TimeSeries<P extends AbstractPoint, C extends ArrayChunk<P>> ex
     }
 
     static List<TimeSeries> parseJson(JsonParser parser) {
+        Objects.requireNonNull(parser);
         List<TimeSeries> timeSeriesList = new ArrayList<>();
         try {
             JsonParsingContext context = new JsonParsingContext();

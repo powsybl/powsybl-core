@@ -58,6 +58,10 @@ public class UncompressedStringArrayChunk extends AbstractUncompressedArrayChunk
 
     @Override
     public void fillArray(String[] array) {
+        Objects.requireNonNull(array);
+        if ((offset + values.length) > array.length) {
+            throw new IllegalArgumentException("Incorrect array length");
+        }
         System.arraycopy(values, 0, array, offset, values.length);
     }
 

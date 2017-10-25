@@ -48,6 +48,9 @@ public class CompressedDoubleArrayChunk extends AbstractCompressedArrayChunk imp
     @Override
     public void fillArray(double[] array) {
         Objects.requireNonNull(array);
+        if ((offset + uncompressedLength) > array.length) {
+            throw new IllegalArgumentException("Incorrect array size");
+        }
         int k = 0;
         for (int i = 0; i < stepValues.length; i++) {
             double value = stepValues[i];

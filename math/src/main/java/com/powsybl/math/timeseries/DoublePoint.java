@@ -42,6 +42,6 @@ public class DoublePoint extends AbstractPoint {
 
     @Override
     public String toString() {
-        return "DoublePoint(" + index + ", " + Instant.ofEpochMilli(time) + ", " + value + ")";
+        return "DoublePoint(index=" + index + ", time=" + Instant.ofEpochMilli(time) + ", value=" + value + ")";
     }
 }

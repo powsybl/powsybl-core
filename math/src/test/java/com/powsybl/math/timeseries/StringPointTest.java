@@ -24,7 +24,7 @@ public class StringPointTest {
         assertEquals(0, point.getIndex());
         assertEquals(Instant.parse("2015-01-01T00:00:00Z").toEpochMilli(), point.getTime());
         assertEquals("a", point.getValue());
-        assertEquals("StringPoint(0, 2015-01-01T00:00:00Z, a)", point.toString());
+        assertEquals("StringPoint(index=0, time=2015-01-01T00:00:00Z, value=a)", point.toString());
     }
 
     @Test

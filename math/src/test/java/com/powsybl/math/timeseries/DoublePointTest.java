@@ -24,7 +24,7 @@ public class DoublePointTest {
         assertEquals(0, point.getIndex());
         assertEquals(Instant.parse("2015-01-01T00:00:00Z").toEpochMilli(), point.getTime());
         assertEquals(10d, point.getValue(), 0d);
-        assertEquals("DoublePoint(0, 2015-01-01T00:00:00Z, 10.0)", point.toString());
+        assertEquals("DoublePoint(index=0, time=2015-01-01T00:00:00Z, value=10.0)", point.toString());
     }
 
     @Test

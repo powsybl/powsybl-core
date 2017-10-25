@@ -19,9 +19,12 @@ import java.io.Serializable;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class StringArrayChunkSerializer implements Serializer<StringArrayChunk>, Serializable {
+public final class StringArrayChunkSerializer implements Serializer<StringArrayChunk>, Serializable {
 
     public static final StringArrayChunkSerializer INSTANCE = new StringArrayChunkSerializer();
+
+    private StringArrayChunkSerializer() {
+    }
 
     @Override
     public void serialize(DataOutput2 out, StringArrayChunk chunk) throws IOException {

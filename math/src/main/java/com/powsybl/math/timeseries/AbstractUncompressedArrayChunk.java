@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -39,6 +40,7 @@ public abstract class AbstractUncompressedArrayChunk {
     protected abstract void writeValuesJson(JsonGenerator generator) throws IOException;
 
     public void writeJson(JsonGenerator generator) {
+        Objects.requireNonNull(generator);
         try {
             generator.writeNumberField("offset", offset);
             generator.writeFieldName("values");

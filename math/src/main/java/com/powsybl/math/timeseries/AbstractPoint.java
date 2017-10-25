@@ -18,6 +18,9 @@ public abstract class AbstractPoint {
     protected final long time;
 
     protected AbstractPoint(int index, long time) {
+        if (index < 0) {
+            throw new IllegalArgumentException("Bad index value " + index);
+        }
         this.index = index;
         this.time = Objects.requireNonNull(time);
     }

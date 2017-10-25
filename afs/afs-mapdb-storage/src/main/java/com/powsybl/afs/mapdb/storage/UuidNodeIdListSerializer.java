@@ -18,9 +18,12 @@ import java.util.List;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class UuidNodeIdListSerializer implements Serializer<UuidNodeIdList>, Serializable {
+public final class UuidNodeIdListSerializer implements Serializer<UuidNodeIdList>, Serializable {
 
     public static final UuidNodeIdListSerializer INSTANCE = new UuidNodeIdListSerializer();
+
+    private UuidNodeIdListSerializer() {
+    }
 
     @Override
     public void serialize(DataOutput2 out, UuidNodeIdList nodeIdList) throws IOException {
@@ -33,7 +36,7 @@ public class UuidNodeIdListSerializer implements Serializer<UuidNodeIdList>, Ser
     @Override
     public UuidNodeIdList deserialize(DataInput2 input, int available) throws IOException {
         int size = input.readInt();
-        List<UuidNodeId> nodeIds = new ArrayList<>();
+        List<UuidNodeId> nodeIds = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
             nodeIds.add(UuidNodeIdSerializer.INSTANCE.deserialize(input, available));
         }

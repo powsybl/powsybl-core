@@ -404,21 +404,6 @@
                 <version>${jodatime.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.apache.servicemix.bundles</groupId>
-                <artifactId>org.apache.servicemix.bundles.gdata</artifactId>
-                <version>${gdata.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.mapdb</groupId>
-                <artifactId>mapdb</artifactId>
-                <version>${mapdb.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.threeten</groupId>
-                <artifactId>threeten-extra</artifactId>
-                <version>${threeten.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>net.java.dev.stax-utils</groupId>
                 <artifactId>stax-utils</artifactId>
                 <version>${staxutils.version}</version>
@@ -460,6 +445,11 @@
                 <version>${poi.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.apache.servicemix.bundles</groupId>
+                <artifactId>org.apache.servicemix.bundles.gdata</artifactId>
+                <version>${gdata.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.codehaus.groovy</groupId>
                 <artifactId>groovy-all</artifactId>
                 <version>${groovy.version}</version>
@@ -473,6 +463,11 @@
                 <groupId>org.kohsuke</groupId>
                 <artifactId>graphviz-api</artifactId>
                 <version>${graphvizapi.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mapdb</groupId>
+                <artifactId>mapdb</artifactId>
+                <version>${mapdb.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
@@ -494,6 +489,11 @@
                         <artifactId>log4j</artifactId>
                     </exclusion>
                 </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.threeten</groupId>
+                <artifactId>threeten-extra</artifactId>
+                <version>${threeten.version}</version>
             </dependency>
 
             <!-- Runtime dependencies -->

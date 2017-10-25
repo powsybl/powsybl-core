@@ -18,9 +18,12 @@ import java.io.Serializable;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class TimeSeriesIndexSerializer implements Serializer<TimeSeriesIndex>, Serializable {
+public final class TimeSeriesIndexSerializer implements Serializer<TimeSeriesIndex>, Serializable {
 
     public static final TimeSeriesIndexSerializer INSTANCE = new TimeSeriesIndexSerializer();
+
+    private TimeSeriesIndexSerializer() {
+    }
 
     @Override
     public void serialize(DataOutput2 out, TimeSeriesIndex index) throws IOException {

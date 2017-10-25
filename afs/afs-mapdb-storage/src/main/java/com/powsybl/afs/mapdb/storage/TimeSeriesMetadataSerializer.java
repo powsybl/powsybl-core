@@ -21,9 +21,12 @@ import java.util.Map;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class TimeSeriesMetadataSerializer implements Serializer<TimeSeriesMetadata>, Serializable {
+public final class TimeSeriesMetadataSerializer implements Serializer<TimeSeriesMetadata>, Serializable {
 
     public static final TimeSeriesMetadataSerializer INSTANCE = new TimeSeriesMetadataSerializer();
+
+    private TimeSeriesMetadataSerializer() {
+    }
 
     @Override
     public void serialize(DataOutput2 out, TimeSeriesMetadata metadata) throws IOException {

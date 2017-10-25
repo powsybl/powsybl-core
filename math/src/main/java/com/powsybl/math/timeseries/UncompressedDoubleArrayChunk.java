@@ -50,6 +50,10 @@ public class UncompressedDoubleArrayChunk extends AbstractUncompressedArrayChunk
 
     @Override
     public void fillArray(double[] array) {
+        Objects.requireNonNull(array);
+        if ((offset + values.length) > array.length) {
+            throw new IllegalArgumentException("Incorrect array length");
+        }
         System.arraycopy(values, 0, array, offset, values.length);
     }
 

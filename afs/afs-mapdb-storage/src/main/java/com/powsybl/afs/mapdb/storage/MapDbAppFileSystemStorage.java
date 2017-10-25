@@ -84,9 +84,12 @@ public class MapDbAppFileSystemStorage implements AppFileSystemStorage {
         }
     }
 
-    public static class NamedLinkSerializer implements Serializer<NamedLink>, Serializable {
+    public static final class NamedLinkSerializer implements Serializer<NamedLink>, Serializable {
 
         public static final NamedLinkSerializer INSTANCE = new NamedLinkSerializer();
+
+        private NamedLinkSerializer() {
+        }
 
         @Override
         public void serialize(DataOutput2 out, NamedLink namedLink) throws IOException {
@@ -137,9 +140,12 @@ public class MapDbAppFileSystemStorage implements AppFileSystemStorage {
         }
     }
 
-    public static class UnorderedNodeIdPairSerializer implements Serializer<UnorderedNodeIdPair>, Serializable {
+    public static final class UnorderedNodeIdPairSerializer implements Serializer<UnorderedNodeIdPair>, Serializable {
 
         public static final UnorderedNodeIdPairSerializer INSTANCE = new UnorderedNodeIdPairSerializer();
+
+        private UnorderedNodeIdPairSerializer() {
+        }
 
         @Override
         public void serialize(DataOutput2 out, UnorderedNodeIdPair pair) throws IOException {
@@ -199,13 +205,16 @@ public class MapDbAppFileSystemStorage implements AppFileSystemStorage {
 
         @Override
         public String toString() {
-            return "TimeSeriesKey(nodeId=" + nodeId + ", " + version + ", " + timeSeriesName + ")";
+            return "TimeSeriesKey(nodeId=" + nodeId + ", version=" + version + ", timeSeriesName=" + timeSeriesName + ")";
         }
     }
 
-    public static class TimeSeriesKeySerializer implements Serializer<TimeSeriesKey>, Serializable {
+    public static final class TimeSeriesKeySerializer implements Serializer<TimeSeriesKey>, Serializable {
 
         public static final TimeSeriesKeySerializer INSTANCE = new TimeSeriesKeySerializer();
+
+        private TimeSeriesKeySerializer() {
+        }
 
         @Override
         public void serialize(DataOutput2 out, TimeSeriesKey key) throws IOException {
@@ -263,9 +272,12 @@ public class MapDbAppFileSystemStorage implements AppFileSystemStorage {
         }
     }
 
-    public static class TimeSeriesChunkKeySerializer implements Serializer<TimeSeriesChunkKey>, Serializable {
+    public static final class TimeSeriesChunkKeySerializer implements Serializer<TimeSeriesChunkKey>, Serializable {
 
         public static final TimeSeriesChunkKeySerializer INSTANCE = new TimeSeriesChunkKeySerializer();
+
+        private TimeSeriesChunkKeySerializer() {
+        }
 
         @Override
         public void serialize(DataOutput2 out, TimeSeriesChunkKey chunkKey) throws IOException {
@@ -868,9 +880,7 @@ public class MapDbAppFileSystemStorage implements AppFileSystemStorage {
         UuidNodeId uuidNodeId = checkNodeId(nodeId);
         Set<String> names = timeSeriesNamesMap.get(uuidNodeId);
         if (names != null) {
-            for (String name : names) {
-                timeSeriesMetadataMap.remove(new NamedLink(uuidNodeId, name));
-            }
+            names.forEach(name -> timeSeriesMetadataMap.remove(new NamedLink(uuidNodeId, name)));
             timeSeriesNamesMap.remove(uuidNodeId);
         }
     }

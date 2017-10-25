@@ -66,6 +66,9 @@ public class CompressedStringArrayChunk extends AbstractCompressedArrayChunk imp
     @Override
     public void fillArray(String[] array) {
         Objects.requireNonNull(array);
+        if ((offset + uncompressedLength) > array.length) {
+            throw new IllegalArgumentException("Incorrect array size");
+        }
         int k = 0;
         for (int i = 0; i < stepValues.length; i++) {
             String value = stepValues[i];

@@ -76,6 +76,7 @@ public abstract class AbstractCompressedArrayChunk {
     protected abstract void writeStepValuesJson(JsonGenerator generator) throws IOException;
 
     public void writeJson(JsonGenerator generator) {
+        Objects.requireNonNull(generator);
         try {
             generator.writeNumberField("offset", offset);
             generator.writeNumberField("uncompressedLength", uncompressedLength);

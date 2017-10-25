@@ -206,15 +206,19 @@ public class LocalAppFileSystemStorage implements AppFileSystemStorage {
         throw new AssertionError();
     }
 
-    @Override
-    public String getStringAttribute(NodeId nodeId, String name) {
+    private LocalFile getFile(NodeId nodeId) {
         Objects.requireNonNull(nodeId);
         Path path = ((PathNodeId) nodeId).getPath();
         LocalFile file = scanFile(path, true);
-        if (file != null) {
-            return file.getStringAttribute(name);
+        if (file == null) {
+            throw new AssertionError();
         }
-        throw new AssertionError();
+        return file;
+    }
+
+    @Override
+    public String getStringAttribute(NodeId nodeId, String name) {
+        return getFile(nodeId).getStringAttribute(name);
     }
 
     @Override
@@ -264,13 +268,7 @@ public class LocalAppFileSystemStorage implements AppFileSystemStorage {
 
     @Override
     public DataSource getDataSourceAttribute(NodeId nodeId, String name) {
-        Objects.requireNonNull(nodeId);
-        Path path = ((PathNodeId) nodeId).getPath();
-        LocalFile file = scanFile(path, true);
-        if (file != null) {
-            return file.getDataSourceAttribute(name);
-        }
-        throw new AssertionError();
+        return getFile(nodeId).getDataSourceAttribute(name);
     }
 
     @Override
@@ -280,36 +278,17 @@ public class LocalAppFileSystemStorage implements AppFileSystemStorage {
 
     @Override
     public Set<String> getTimeSeriesNames(NodeId nodeId) {
-        Objects.requireNonNull(nodeId);
-        Path path = ((PathNodeId) nodeId).getPath();
-        LocalFile file = scanFile(path, true);
-        if (file != null) {
-            return file.getTimeSeriesNames();
-        }
-        throw new AssertionError();
+        return getFile(nodeId).getTimeSeriesNames();
     }
 
     @Override
     public List<TimeSeriesMetadata> getTimeSeriesMetadata(NodeId nodeId, Set<String> timeSeriesNames) {
-        Objects.requireNonNull(nodeId);
-        Path path = ((PathNodeId) nodeId).getPath();
-        LocalFile file = scanFile(path, true);
-        if (file != null) {
-            return file.getTimeSeriesMetadata(timeSeriesNames);
-        }
-        throw new AssertionError();
-
+        return getFile(nodeId).getTimeSeriesMetadata(timeSeriesNames);
     }
 
     @Override
     public List<DoubleTimeSeries> getDoubleTimeSeries(NodeId nodeId, Set<String> timeSeriesNames, int version) {
-        Objects.requireNonNull(nodeId);
-        Path path = ((PathNodeId) nodeId).getPath();
-        LocalFile file = scanFile(path, true);
-        if (file != null) {
-            return file.getDoubleTimeSeries(timeSeriesNames, version);
-        }
-        throw new AssertionError();
+        return getFile(nodeId).getDoubleTimeSeries(timeSeriesNames, version);
     }
 
     @Override
@@ -319,13 +298,7 @@ public class LocalAppFileSystemStorage implements AppFileSystemStorage {
 
     @Override
     public List<StringTimeSeries> getStringTimeSeries(NodeId nodeId, Set<String> timeSeriesNames, int version) {
-        Objects.requireNonNull(nodeId);
-        Path path = ((PathNodeId) nodeId).getPath();
-        LocalFile file = scanFile(path, true);
-        if (file != null) {
-            return file.getStringTimeSeries(timeSeriesNames, version);
-        }
-        throw new AssertionError();
+        return getFile(nodeId).getStringTimeSeries(timeSeriesNames, version);
     }
 
     @Override

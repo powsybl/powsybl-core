@@ -72,9 +72,12 @@ public class MapDbDataSource implements DataSource {
         }
     }
 
-    public static class KeySerializer implements Serializer<Key>, Serializable {
+    public static final class KeySerializer implements Serializer<Key>, Serializable {
 
         public static final KeySerializer INSTANCE = new KeySerializer();
+
+        private KeySerializer() {
+        }
 
         @Override
         public void serialize(DataOutput2 out, Key key) throws IOException {

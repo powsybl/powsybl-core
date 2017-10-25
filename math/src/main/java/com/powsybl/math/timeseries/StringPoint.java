@@ -41,6 +41,6 @@ public class StringPoint extends AbstractPoint {
 
     @Override
     public String toString() {
-        return "StringPoint(" + index + ", " + Instant.ofEpochMilli(time) + ", " + value + ")";
+        return "StringPoint(index=" + index + ", time=" + Instant.ofEpochMilli(time) + ", value=" + value + ")";
     }
 }

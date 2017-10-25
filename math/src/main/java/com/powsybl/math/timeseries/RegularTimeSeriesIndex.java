@@ -33,12 +33,27 @@ public class RegularTimeSeriesIndex implements TimeSeriesIndex {
     private final int versionCount;
 
     public RegularTimeSeriesIndex(long startTime, long endTime, long spacing, int firstVersion, int versionCount) {
-        this.startTime = startTime;
-        this.endTime = endTime;
-        this.spacing = spacing;
+        if (startTime < 0) {
+            throw new IllegalArgumentException("Bad start time value " + startTime);
+        }
+        if (endTime < 0) {
+            throw new IllegalArgumentException("Bad end time value " + endTime);
+        }
+        if (spacing < 0) {
+            throw new IllegalArgumentException("Bad spacing value " + spacing);
+        }
         if (spacing > endTime - startTime) {
             throw new IllegalArgumentException("Spacing " + spacing + " is longer than interval " + (endTime - startTime));
         }
+        if (firstVersion < 0) {
+            throw new IllegalArgumentException("Bad first version value " + firstVersion);
+        }
+        if (versionCount < 1) {
+            throw new IllegalArgumentException("Bad version count value " + versionCount);
+        }
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.spacing = spacing;
         this.firstVersion = firstVersion;
         this.versionCount = versionCount;
     }
@@ -49,6 +64,7 @@ public class RegularTimeSeriesIndex implements TimeSeriesIndex {
     }
 
     public static RegularTimeSeriesIndex parseJson(JsonParser parser) {
+        Objects.requireNonNull(parser);
         JsonToken token;
         try {
             long startTime = -1;
@@ -145,6 +161,7 @@ public class RegularTimeSeriesIndex implements TimeSeriesIndex {
 
     @Override
     public void writeJson(JsonGenerator generator) {
+        Objects.requireNonNull(generator);
         try {
             generator.writeFieldName("regularIndex");
             generator.writeStartObject();
