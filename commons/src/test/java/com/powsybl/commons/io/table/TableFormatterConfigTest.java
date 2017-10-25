@@ -38,7 +38,7 @@ public class TableFormatterConfigTest {
     public void testConfig() throws IOException {
         TableFormatterConfig config = new TableFormatterConfig();
 
-        NumberFormat numberFormat = NumberFormat.getNumberInstance(Locale.getDefault());
+        NumberFormat numberFormat = NumberFormat.getInstance(Locale.getDefault());
 
         testConfig(config, Locale.getDefault(), ';', "inv", true, true, HorizontalAlignment.LEFT, numberFormat);
 

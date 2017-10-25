@@ -43,7 +43,6 @@ public class SecurityTest {
     @Before
     public void setUp() {
         NumberFormat numberFormat = NumberFormat.getInstance(Locale.US);
-        //NumberFormat numberFormat1 = NumberFormat.getNumberInstance(Locale.US);
         numberFormat.setMaximumFractionDigits(4);
         numberFormat.setMinimumFractionDigits(4);
         numberFormat.setGroupingUsed(false);

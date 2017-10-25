@@ -84,7 +84,7 @@ public abstract class AbstractTableFormatter implements TableFormatter {
 
     @Override
     public TableFormatter writeCell(float f, HorizontalAlignment horizontalAlignment) throws IOException {
-        return writeCell(f, horizontalAlignment, config.getNumberFormat());
+        return write(Float.isNaN(f) ? config.getInvalidString() : String.format(config.getLocale(), "%g", f), horizontalAlignment);
     }
 
     @Override
@@ -101,7 +101,7 @@ public abstract class AbstractTableFormatter implements TableFormatter {
 
     @Override
     public TableFormatter writeCell(double d, HorizontalAlignment horizontalAlignment) throws IOException {
-        return writeCell(d, horizontalAlignment, config.getNumberFormat());
+        return write(Double.isNaN(d) ? config.getInvalidString() : String.format(config.getLocale(), "%g", d), horizontalAlignment);
     }
 
     @Override

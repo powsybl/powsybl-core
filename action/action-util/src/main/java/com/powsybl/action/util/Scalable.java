@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -36,6 +37,14 @@ public interface Scalable {
 
     static GeneratorScalable gen(String id) {
         return new GeneratorScalable(id);
+    }
+
+    static Scalable scalable(String id) {
+        return new ScalableAdapter(id);
+    }
+
+    static List<Scalable> scalables(String... ids) {
+        return Arrays.stream(ids).map(ScalableAdapter::new).collect(Collectors.toList());
     }
 
     static ProportionalScalable proportional(List<Float> percentages, List<Scalable> scalables) {
@@ -68,5 +77,10 @@ public interface Scalable {
 
     static StackScalable stack(Scalable... scalables) {
         return new StackScalable(scalables);
+    }
+
+    static StackScalable stack(String... ids) {
+        List<Scalable> identifierScalables = Arrays.stream(ids).map(ScalableAdapter::new).collect(Collectors.toList());
+        return new StackScalable(identifierScalables);
     }
 }

@@ -11,6 +11,7 @@ import com.powsybl.commons.config.PlatformConfig;
 
 import java.text.NumberFormat;
 import java.util.Locale;
+import java.util.Objects;
 
 /**
  * @author c.biasuzzi@techrain.it
@@ -81,6 +82,9 @@ public class TableFormatterConfig {
     }
 
     public TableFormatterConfig(Locale locale, char csvSeparator, String invalidString, boolean printHeader, boolean printTitle, HorizontalAlignment horizontalAlignment, NumberFormat numberFormat) {
+        Objects.requireNonNull(locale);
+        Objects.requireNonNull(numberFormat);
+
         this.locale = locale;
         this.csvSeparator = csvSeparator;
         this.invalidString = invalidString;
