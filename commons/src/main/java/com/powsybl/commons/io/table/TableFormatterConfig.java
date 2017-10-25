@@ -60,7 +60,6 @@ public class TableFormatterConfig {
             invalidString = config.getStringProperty("invalid-string", DEFAULT_INVALID_STRING);
             printHeader = config.getBooleanProperty("print-header", DEFAULT_PRINT_HEADER);
             printTitle = config.getBooleanProperty("print-title", DEFAULT_PRINT_TITLE);
-            printTitle = config.getBooleanProperty("print-title", DEFAULT_PRINT_TITLE);
             horizontalAlignment = HorizontalAlignment.valueOf(config.getStringProperty("horizontal-alignment", DEFAULT_HORIZONTAL_ALIGNMENT.name()));
             numberFormatMaximumFractionDigits = config.getIntProperty("number-format-maximum-fraction-digits", DEFAULT_NUMBER_FORMAT_MAXIMUM_FRACTION_DIGITS);
             numberFormatMinimumFractionDigits = config.getIntProperty("number-format-minimum-fraction-digits", DEFAULT_NUMBER_FORMAT_MINIMUM_FRACTION_DIGITS);
