@@ -14,6 +14,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
+import java.text.NumberFormat;
 import java.util.Locale;
 
 import static org.junit.Assert.assertEquals;
@@ -23,18 +24,23 @@ import static org.junit.Assert.assertEquals;
  */
 public class TableFormatterConfigTest {
 
-    private void testConfig(TableFormatterConfig config, Locale locale, char separator, String invalidString, boolean printHeader, boolean printTitle) {
+    private void testConfig(TableFormatterConfig config, Locale locale, char separator, String invalidString, boolean printHeader, boolean printTitle, HorizontalAlignment horizontalAlignment, NumberFormat numberFormat) {
         assertEquals(locale, config.getLocale());
         assertEquals(separator, config.getCsvSeparator());
         assertEquals(invalidString, config.getInvalidString());
         assertEquals(printHeader, config.getPrintHeader());
         assertEquals(printTitle, config.getPrintTitle());
+        assertEquals(horizontalAlignment, config.getHorizontalAlignment());
+        assertEquals(numberFormat.getClass(), config.getNumberFormat().getClass());
     }
 
     @Test
     public void testConfig() throws IOException {
         TableFormatterConfig config = new TableFormatterConfig();
-        testConfig(config, Locale.getDefault(), ';', "inv", true, true);
+
+        NumberFormat numberFormat = NumberFormat.getNumberInstance(Locale.getDefault());
+
+        testConfig(config, Locale.getDefault(), ';', "inv", true, true, HorizontalAlignment.LEFT, numberFormat);
 
         try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
             InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
@@ -44,9 +50,11 @@ public class TableFormatterConfigTest {
             moduleConfig.setStringProperty("invalid-string", "NaN");
             moduleConfig.setStringProperty("print-header", "false");
             moduleConfig.setStringProperty("print-title", "false");
+            moduleConfig.setStringProperty("horizontal-alignment", HorizontalAlignment.LEFT.name());
+            moduleConfig.setClassProperty("numberFormat", numberFormat.getClass());
 
             config = TableFormatterConfig.load(platformConfig);
-            testConfig(config, Locale.US, '\t', "NaN", false, false);
+            testConfig(config, Locale.US, '\t', "NaN", false, false, HorizontalAlignment.LEFT, numberFormat);
         }
     }
 }
