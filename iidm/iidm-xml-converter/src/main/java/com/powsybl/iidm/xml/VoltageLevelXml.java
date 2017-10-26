@@ -33,75 +33,76 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
         return true;
     }
 
-	//@Override
-	protected TopologyLevel convertTopologyKindToTopologyLevel(TopologyKind topologyKind) {
-	    switch (topologyKind) {
-		case NODE_BREAKER:
-			return TopologyLevel.NODE_BREAKER; 
-		case BUS_BREAKER:
-			return TopologyLevel.BUS_BREAKER; 
-		default:
-			return TopologyLevel.BUS_BREAKER; 
-		}
-	}
-    
+    private TopologyLevel convertTopologyKindToTopologyLevel(TopologyKind topologyKind) {
+        switch (topologyKind) {
+            case NODE_BREAKER:
+                return TopologyLevel.NODE_BREAKER;
+            case BUS_BREAKER:
+                return TopologyLevel.BUS_BREAKER;
+            default:
+                return TopologyLevel.NODE_BREAKER;
+        }
+    }
+
+    private TopologyLevel getMaxTopologyLevel(TopologyLevel vlTopologyLevel, TopologyLevel optionsTopologyLevel) {
+        return Collections.max(EnumSet.of(vlTopologyLevel, optionsTopologyLevel));
+    }
+
     @Override
     protected void writeRootElementAttributes(VoltageLevel vl, Substation s, XmlWriterContext context) throws XMLStreamException {
         XmlUtil.writeFloat("nominalV", vl.getNominalV(), context.getWriter());
         XmlUtil.writeFloat("lowVoltageLimit", vl.getLowVoltageLimit(), context.getWriter());
         XmlUtil.writeFloat("highVoltageLimit", vl.getHighVoltageLimit(), context.getWriter());
-        
-        TopologyKind maxTopologyKind = Collections.max(EnumSet.of(vl.getTopologyKind(), context.getOptions().getTopologyKind()));
-        context.getWriter().writeAttribute("topologyKind", maxTopologyKind.name());
+
+        TopologyLevel topologyLevel = getMaxTopologyLevel(convertTopologyKindToTopologyLevel(vl.getTopologyKind()), context.getOptions().getTopologyLevel());
+        context.getWriter().writeAttribute("topologyKind", topologyLevel.getTopologyKind().name());
     }
 
     @Override
     protected void writeSubElements(VoltageLevel vl, Substation s, XmlWriterContext context) throws XMLStreamException {
-        if (context.getOptions().isForceBusBranchTopo()) {
-            context.getWriter().writeStartElement(IIDM_URI, "busBreakerTopology");
-            for (Bus b : vl.getBusView().getBuses()) {
-                if (!context.getFilter().test(b)) {
-                    continue;
+        TopologyLevel maxTopologyLevel = getMaxTopologyLevel(convertTopologyKindToTopologyLevel(vl.getTopologyKind()), context.getOptions().getTopologyLevel());
+        switch (maxTopologyLevel) {
+            case NODE_BREAKER:
+                context.getWriter().writeStartElement(IIDM_URI, "nodeBreakerTopology");
+                context.getWriter().writeAttribute("nodeCount", Integer.toString(vl.getNodeBreakerView().getNodeCount()));
+                for (BusbarSection bs : vl.getNodeBreakerView().getBusbarSections()) {
+                    BusbarSectionXml.INSTANCE.write(bs, null, context);
                 }
-                BusXml.INSTANCE.write(b, null, context);
-            }
-            context.getWriter().writeEndElement();
-        } else {
-
-            TopologyKind maxTopologyKind = Collections.max(EnumSet.of(vl.getTopologyKind(), context.getOptions().getTopologyKind()));
-            switch (maxTopologyKind) {
-                case NODE_BREAKER:
-                    context.getWriter().writeStartElement(IIDM_URI, "nodeBreakerTopology");
-                    context.getWriter().writeAttribute("nodeCount", Integer.toString(vl.getNodeBreakerView().getNodeCount()));
-                    for (BusbarSection bs : vl.getNodeBreakerView().getBusbarSections()) {
-                        BusbarSectionXml.INSTANCE.write(bs, null, context);
+                for (Switch sw : vl.getNodeBreakerView().getSwitches()) {
+                    NodeBreakerViewSwitchXml.INSTANCE.write(sw, vl, context);
+                }
+                context.getWriter().writeEndElement();
+                break;
+            case BUS_BREAKER:
+                context.getWriter().writeStartElement(IIDM_URI, "busBreakerTopology");
+                for (Bus b : vl.getBusBreakerView().getBuses()) {
+                    if (!context.getFilter().test(b)) {
+                        continue;
                     }
-                    for (Switch sw : vl.getNodeBreakerView().getSwitches()) {
-                        NodeBreakerViewSwitchXml.INSTANCE.write(sw, vl, context);
+                    BusXml.INSTANCE.write(b, null, context);
+                }
+                for (Switch sw : vl.getBusBreakerView().getSwitches()) {
+                    Bus b1 = vl.getBusBreakerView().getBus1(context.getAnonymizer().anonymizeString(sw.getId()));
+                    Bus b2 = vl.getBusBreakerView().getBus2(context.getAnonymizer().anonymizeString(sw.getId()));
+                    if (!context.getFilter().test(b1) || !context.getFilter().test(b2)) {
+                        continue;
                     }
-                    context.getWriter().writeEndElement();
-                    break;
-                case BUS_BREAKER:
-                    context.getWriter().writeStartElement(IIDM_URI, "busBreakerTopology");
-                    for (Bus b : vl.getBusBreakerView().getBuses()) {
-                        if (!context.getFilter().test(b)) {
-                            continue;
-                        }
-                        BusXml.INSTANCE.write(b, null, context);
+                    BusBreakerViewSwitchXml.INSTANCE.write(sw, vl, context);
+                }
+                context.getWriter().writeEndElement();
+                break;
+            case BUS_BRANCH:
+                context.getWriter().writeStartElement(IIDM_URI, "busBreakerTopology");
+                for (Bus b : vl.getBusView().getBuses()) {
+                    if (!context.getFilter().test(b)) {
+                        continue;
                     }
-                    for (Switch sw : vl.getBusBreakerView().getSwitches()) {
-                        Bus b1 = vl.getBusBreakerView().getBus1(context.getAnonymizer().anonymizeString(sw.getId()));
-                        Bus b2 = vl.getBusBreakerView().getBus2(context.getAnonymizer().anonymizeString(sw.getId()));
-                        if (!context.getFilter().test(b1) || !context.getFilter().test(b2)) {
-                            continue;
-                        }
-                        BusBreakerViewSwitchXml.INSTANCE.write(sw, vl, context);
-                    }
-                    context.getWriter().writeEndElement();
-                    break;
-                default:
-                    throw new AssertionError();
-            }
+                    BusXml.INSTANCE.write(b, null, context);
+                }
+                context.getWriter().writeEndElement();
+                break;
+            default:
+                throw new AssertionError();
         }
         if (vl.getGeneratorCount() > 0) {
             for (Generator g : vl.getGenerators()) {

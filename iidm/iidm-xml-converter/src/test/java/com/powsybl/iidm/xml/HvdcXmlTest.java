@@ -19,7 +19,6 @@ public class HvdcXmlTest extends AbstractConverterTest {
 
     @Test
     public void roundTripLccTest() throws IOException {
-    	NetworkXml.write(HvdcTestNetwork.createLcc(), System.out);
         roundTripXmlTest(HvdcTestNetwork.createLcc(),
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
