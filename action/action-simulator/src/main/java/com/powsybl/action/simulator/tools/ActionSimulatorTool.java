@@ -14,6 +14,7 @@ import com.powsybl.action.simulator.ActionSimulator;
 import com.powsybl.action.simulator.loadflow.LoadFlowActionSimulator;
 import com.powsybl.action.simulator.loadflow.LoadFlowActionSimulatorConfig;
 import com.powsybl.action.simulator.loadflow.LoadFlowActionSimulatorLogPrinter;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.table.AsciiTableFormatterFactory;
 import com.powsybl.commons.io.table.CsvTableFormatterFactory;
 import com.powsybl.tools.Command;
@@ -161,7 +162,7 @@ public class ActionSimulatorTool implements Tool {
         // load network
         Network network = Importers.loadNetwork(caseFile);
         if (network == null) {
-            throw new RuntimeException("Case " + caseFile + " not found");
+            throw new PowsyblException("Case " + caseFile + " not found");
         }
 
         try {

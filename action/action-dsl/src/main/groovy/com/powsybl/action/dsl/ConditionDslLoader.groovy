@@ -13,7 +13,6 @@ import com.powsybl.action.dsl.ast.ExpressionNode
 import com.powsybl.action.dsl.ast.LogicalBinaryOperator
 import com.powsybl.action.dsl.ast.NetworkComponentNode
 import com.powsybl.action.dsl.ast.NetworkNode
-import com.powsybl.commons.PowsyblException
 import com.powsybl.iidm.network.Branch
 import com.powsybl.iidm.network.Generator
 import com.powsybl.iidm.network.Identifiable
@@ -44,7 +43,7 @@ class ConditionDslLoader extends DslLoader implements DslConstants {
     private static Line getLine(Network network, String id) {
         Line l = network.getLine(id)
         if (l == null) {
-            throw new RuntimeException("Line '" + id + "' not found")
+            throw new ActionDslException("Line '" + id + "' not found")
         }
         l
     }
@@ -52,7 +51,7 @@ class ConditionDslLoader extends DslLoader implements DslConstants {
     private static Branch getBranch(Network network, String id) {
         Branch b = network.getBranch(id)
         if (b == null) {
-            throw new PowsyblException("Branch '" + id + "' not found")
+            throw new ActionDslException("Branch '" + id + "' not found")
         }
         b
     }
@@ -152,6 +151,10 @@ class ConditionDslLoader extends DslLoader implements DslConstants {
 
         binding.mostLoaded = { branchIds ->
             ExpressionHelper.newMostLoaded(branchIds)
+        }
+
+        binding.isOverloaded = {branchIds, limitReduction = 1 as float ->
+            ExpressionHelper.newIsOverloadedNode(branchIds, limitReduction)
         }
 
         NetworkNode.metaClass.propertyMissing = { String name ->

@@ -16,6 +16,6 @@ public class MapDbAppFileSystemStorageTest extends AbstractAppFileSystemStorageT
 
     @Override
     protected AppFileSystemStorage createStorage() {
-        return MapDbAppFileSystemStorage.createHeap("mem");
+        return MapDbAppFileSystemStorage.createMem("mem");
     }
 }

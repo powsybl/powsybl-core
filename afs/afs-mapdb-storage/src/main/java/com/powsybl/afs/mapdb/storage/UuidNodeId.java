@@ -8,16 +8,13 @@ package com.powsybl.afs.mapdb.storage;
 
 import com.powsybl.afs.storage.NodeId;
 
-import java.io.Serializable;
 import java.util.Objects;
 import java.util.UUID;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class UuidNodeId implements NodeId, Serializable {
-
-    private static final long serialVersionUID = -4867531465363658004L;
+public class UuidNodeId implements NodeId {
 
     private final UUID uuid;
 

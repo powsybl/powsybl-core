@@ -17,10 +17,12 @@ import java.util.Objects;
  */
 public class CsvTableFormatter extends AbstractTableFormatter {
 
-    protected final Writer writer;
-
     protected final String title;
 
+    /**
+     * @deprecated Use config.getCsvSeparator() instead
+     */
+    @Deprecated
     protected final char separator;
 
     protected final Column[] columns;
@@ -29,10 +31,12 @@ public class CsvTableFormatter extends AbstractTableFormatter {
 
     protected int column = 0;
 
-    protected final boolean writeTitle;
-
     public CsvTableFormatter(Writer writer, String title, TableFormatterConfig config, Column... columns) {
-        this(writer, title, config.getCsvSeparator(), config.getInvalidString(), config.getPrintHeader(), config.getPrintTitle(), config.getLocale(), columns);
+        super(writer, config);
+        this.title = Objects.requireNonNull(title);
+        this.separator = config.getCsvSeparator();
+        this.columns = Objects.requireNonNull(columns);
+        this.headerDone = !config.getPrintHeader();
     }
 
     public CsvTableFormatter(Writer writer, String title, char separator, String invalidString, boolean writeHeader, Locale locale, Column... columns) {
@@ -40,13 +44,7 @@ public class CsvTableFormatter extends AbstractTableFormatter {
     }
 
     public CsvTableFormatter(Writer writer, String title, char separator, String invalidString, boolean writeHeader, boolean writeTitle, Locale locale, Column... columns) {
-        super(locale, invalidString);
-        this.writer = Objects.requireNonNull(writer);
-        this.title = Objects.requireNonNull(title);
-        this.separator = separator;
-        this.columns = Objects.requireNonNull(columns);
-        headerDone = !writeHeader;
-        this.writeTitle = writeTitle;
+        this(writer, title, new TableFormatterConfig(locale, separator, invalidString, writeHeader, writeTitle), columns);
     }
 
     private void writeHeaderIfNotDone() throws IOException {
@@ -58,13 +56,13 @@ public class CsvTableFormatter extends AbstractTableFormatter {
     }
 
     protected void writeHeader() throws IOException {
-        if (writeTitle) {
+        if (config.getPrintHeader()) {
             writer.append(title).append(System.lineSeparator());
         }
         for (int i = 0; i < columns.length; i++) {
             writer.append(columns[i].getName());
             if (i < columns.length - 1) {
-                writer.append(separator);
+                writer.append(config.getCsvSeparator());
             }
         }
         writer.append(System.lineSeparator());
@@ -76,11 +74,11 @@ public class CsvTableFormatter extends AbstractTableFormatter {
     }
 
     @Override
-    protected TableFormatter write(String value) throws IOException {
+    protected TableFormatter write(String value, HorizontalAlignment horizontalAlignment) throws IOException {
         writeHeaderIfNotDone();
         writer.append(value);
         if (column < columns.length - 1) {
-            writer.append(separator);
+            writer.append(config.getCsvSeparator());
         }
         column++;
         if (column == columns.length) {

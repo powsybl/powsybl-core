@@ -6,6 +6,7 @@
  */
 package com.powsybl.commons.config;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedIllegalAccessException;
 import com.powsybl.commons.exceptions.UncheckedInstantiationException;
 
@@ -38,7 +39,7 @@ public interface ComponentDefaultConfig {
             Objects.requireNonNull(factoryBaseClass);
             String propertyName = factoryBaseClass.getSimpleName();
             if (config == null) {
-                throw new RuntimeException("Property " + propertyName + " is not set");
+                throw new PowsyblException("Property " + propertyName + " is not set");
             }
             return config.getClassProperty(propertyName, factoryBaseClass);
         }

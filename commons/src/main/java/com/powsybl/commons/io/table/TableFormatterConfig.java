@@ -52,7 +52,7 @@ public class TableFormatterConfig {
         return new TableFormatterConfig(locale, separator.charAt(0), invalidString, printHeader, printTitle);
     }
 
-    public TableFormatterConfig(Locale locale, char csvSeparator, String invalidString, Boolean printHeader, Boolean printTitle) {
+    public TableFormatterConfig(Locale locale, char csvSeparator, String invalidString, boolean printHeader, boolean printTitle) {
         this.locale = locale;
         this.csvSeparator = csvSeparator;
         this.invalidString = invalidString;
@@ -60,7 +60,7 @@ public class TableFormatterConfig {
         this.printTitle = printTitle;
     }
 
-    public TableFormatterConfig(Locale locale, String invalidString, Boolean printHeader, Boolean printTitle) {
+    public TableFormatterConfig(Locale locale, String invalidString, boolean printHeader, boolean printTitle) {
         this(locale, DEFAULT_CSV_SEPARATOR, invalidString, printHeader, printTitle);
     }
 

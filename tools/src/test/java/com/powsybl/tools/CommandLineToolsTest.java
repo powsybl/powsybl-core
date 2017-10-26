@@ -6,6 +6,7 @@
  */
 package com.powsybl.tools;
 
+import com.powsybl.commons.PowsyblException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
@@ -105,7 +106,7 @@ public class CommandLineToolsTest extends AbstractToolTest {
 
         @Override
         public void run(CommandLine line, ToolRunningContext context) throws Exception {
-            throw new RuntimeException("error2");
+            throw new PowsyblException("error2");
         }
     }
 
@@ -151,7 +152,7 @@ public class CommandLineToolsTest extends AbstractToolTest {
         assertCommand(new String[] {"tool1", "--option1", "file.txt"}, CommandLineTools.COMMAND_OK_STATUS, "result1", "");
 
         // command failure
-        assertCommand(new String[] {"tool2"}, CommandLineTools.EXECUTION_ERROR_STATUS, "", "java.lang.RuntimeException: error2.*");
+        assertCommand(new String[] {"tool2"}, CommandLineTools.EXECUTION_ERROR_STATUS, "", "com.powsybl.commons.PowsyblException: error2.*");
 
         // invalid option
         assertCommand(new String[] {"tool1", "--optionA", "file.txt"}, CommandLineTools.INVALID_COMMAND_STATUS, "",

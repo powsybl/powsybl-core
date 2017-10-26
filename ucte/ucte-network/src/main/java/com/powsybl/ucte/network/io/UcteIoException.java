@@ -6,11 +6,13 @@
  */
 package com.powsybl.ucte.network.io;
 
+import com.powsybl.commons.PowsyblException;
+
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class UcteIoException extends RuntimeException {
+public class UcteIoException extends PowsyblException {
 
     public UcteIoException() {
     }

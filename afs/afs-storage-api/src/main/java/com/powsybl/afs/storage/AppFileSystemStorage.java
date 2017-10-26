@@ -7,15 +7,13 @@
 package com.powsybl.afs.storage;
 
 import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.math.timeseries.*;
 
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
-import java.util.List;
-import java.util.Optional;
-import java.util.OptionalDouble;
-import java.util.OptionalInt;
+import java.util.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -63,6 +61,42 @@ public interface AppFileSystemStorage extends AutoCloseable {
     void setBooleanAttribute(NodeId nodeId, String name, boolean value);
 
     DataSource getDataSourceAttribute(NodeId nodeId, String name);
+
+    static UnsupportedOperationException createNotImplementedException() {
+        return new UnsupportedOperationException("Not implemented");
+    }
+
+    default void createTimeSeries(NodeId nodeId, TimeSeriesMetadata metadata) {
+        throw createNotImplementedException();
+    }
+
+    default Set<String> getTimeSeriesNames(NodeId nodeId) {
+        throw createNotImplementedException();
+    }
+
+    default List<TimeSeriesMetadata> getTimeSeriesMetadata(NodeId nodeId, Set<String> timeSeriesNames) {
+        throw createNotImplementedException();
+    }
+
+    default List<DoubleTimeSeries> getDoubleTimeSeries(NodeId nodeId, Set<String> timeSeriesNames, int version) {
+        throw createNotImplementedException();
+    }
+
+    default void addDoubleTimeSeriesData(NodeId nodeId, int version, String timeSeriesName, List<DoubleArrayChunk> chunks) {
+        throw createNotImplementedException();
+    }
+
+    default List<StringTimeSeries> getStringTimeSeries(NodeId nodeId, Set<String> timeSeriesNames, int version) {
+        throw createNotImplementedException();
+    }
+
+    default void addStringTimeSeriesData(NodeId nodeId, int version, String timeSeriesName, List<StringArrayChunk> chunks) {
+        throw createNotImplementedException();
+    }
+
+    default void removeAllTimeSeries(NodeId nodeId) {
+        throw createNotImplementedException();
+    }
 
     NodeId getDependency(NodeId nodeId, String name);
 

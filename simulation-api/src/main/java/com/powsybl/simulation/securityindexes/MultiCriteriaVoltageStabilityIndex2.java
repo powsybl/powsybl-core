@@ -105,7 +105,7 @@ public class MultiCriteriaVoltageStabilityIndex2 extends AbstractSecurityIndex {
                     break;
             }
         }
-        throw new AssertionError("Should not happened");
+        throw new AssertionError("Should not happen");
     }
 
     public MultiCriteriaVoltageStabilityIndex2(String contingencyId, boolean converge, Map<String, Float> criteria1, Map<String, Float> criteria2, Set<String> criteria3) {
