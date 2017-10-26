@@ -82,4 +82,5 @@ abstract class AbstractIdentifiableXml<T extends Identifiable, A extends Identif
         T identifiable = readRootElementAttributes(adder, context);
         readSubElements(identifiable, context);
     }
+
 }

@@ -10,7 +10,7 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.iidm.export.Exporter;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.TopologyKind;
+import com.powsybl.iidm.network.TopologyLevel;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +38,7 @@ import java.util.Properties;
  *         <td>true or false</td>
  *     </tr>ConversionTool
  *     <tr>
+ *         <td>@deprecated</td>
  *         <td>iidm.export.xml.force-bus-branch-topo</td>
  *         <td>if true remove switches and aggregate buses</td>
  *         <td>true or false</td>
@@ -48,9 +49,9 @@ import java.util.Properties;
  *         <td>true or false</td>
  *     </tr>
  *     <tr>
- *         <td>iidm.export.xml.topology-kind</td>
+ *         <td>iidm.export.xml.topology-level</td>
  *         <td>if BUS_BREAKER will change the view for the nodes with NODE_BREAKER to BUS_BREAKER</td>
- *         <td>BUS_BREAKER(0) or NODE_BREAKER(1)</td>
+ *         <td>NODE_BREAKER, BUS_BREAKER, BUS_BRANCH</td>
  *     </tr>
  * </table>
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -64,6 +65,7 @@ public class XMLExporter implements Exporter, XmlConstants {
 
     public static final String WITH_BRANCH_STATE_VARIABLES_PROPERTY = "iidm.export.xml.with-branch-state-variables";
 
+    @Deprecated
     public static final String FORCE_BUS_BRANCH_TOPO_PROPERTY = "iidm.export.xml.force-bus-branch-topo";
 
     public static final String ONLY_MAIN_CC_PROPERTIES = "iidm.export.xml.only-main-cc";
@@ -72,7 +74,7 @@ public class XMLExporter implements Exporter, XmlConstants {
 
     public static final String SKIP_EXTENSIONS_PROPERTIES = "iidm.export.xml.skip-extensions";
 
-    public static final String TOPOLOGY_KIND = "iidm.export.xml.topology-kind";
+    public static final String TOPOLOGY_LEVEL = "iidm.export.xml.topology-level";
 
     @Override
     public String getFormat() {
@@ -98,7 +100,7 @@ public class XMLExporter implements Exporter, XmlConstants {
                     .setOnlyMainCc("true".equals(parameters.getProperty(ONLY_MAIN_CC_PROPERTIES)))
                     .setAnonymized("true".equals(parameters.getProperty(ANONYMISED_PROPERTIES)))
                     .setSkipExtensions("true".equals(parameters.getProperty(SKIP_EXTENSIONS_PROPERTIES)))
-                    .setTopologyKind(TopologyKind.valueOf(parameters.getProperty(TOPOLOGY_KIND, TopologyKind.NODE_BREAKER.name())));
+                    .setTopologyLevel(TopologyLevel.valueOf(parameters.getProperty(TOPOLOGY_LEVEL, TopologyLevel.NODE_BREAKER.name())));
         }
 
         try {

@@ -12,7 +12,17 @@ package com.powsybl.iidm.network;
  * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
  */
 public enum TopologyLevel {
-    NODE_BREAKER,
-    BUS_BREAKER,
-    BUS_BRANCH;
+    NODE_BREAKER(TopologyKind.NODE_BREAKER),
+    BUS_BREAKER(TopologyKind.BUS_BREAKER),
+    BUS_BRANCH(TopologyKind.BUS_BREAKER);
+
+    private final TopologyKind topologyKind;
+
+    TopologyLevel(TopologyKind topologyKind) {
+        this.topologyKind = topologyKind;
+    }
+
+    public TopologyKind getTopologyKind() {
+        return topologyKind;
+    }
 }
