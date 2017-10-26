@@ -19,7 +19,7 @@ import java.util.EnumSet;
 /**
  * @author Teofil Calin Banc<teofil-calin.banc at rte-france.com>
  */
-public class MaxTopologyLevel {
+public class MaxTopologyLevelTest {
 
     @Test
     public void testMaxBusBreakerBusBreaker() throws Exception {
