@@ -64,6 +64,7 @@ public class AppData implements AutoCloseable {
     }
 
     public void addFileSystem(AppFileSystem fileSystem) {
+        Objects.requireNonNull(fileSystem);
         if (fileSystems.containsKey(fileSystem.getName())) {
             throw new AfsException("A file system with the same name '" + fileSystem.getName() + "' already exists");
         }
