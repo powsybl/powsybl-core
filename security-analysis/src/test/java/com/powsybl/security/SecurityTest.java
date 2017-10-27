@@ -119,7 +119,7 @@ public class SecurityTest {
 
     @Test
     public void printLimitsViolations() throws Exception {
-        assertEquals(String.join(System.lineSeparator(),
+        assertEquals(String.join("\n",
             "+---------+--------------+---------------+----------------+----------------+-----------+-----------+------------------+----------------+",
             "| Country | Base voltage | Equipment (4) | Violation type | Violation name | Value     | Limit     | abs(value-limit) | Loading rate % |",
             "+---------+--------------+---------------+----------------+----------------+-----------+-----------+------------------+----------------+",
