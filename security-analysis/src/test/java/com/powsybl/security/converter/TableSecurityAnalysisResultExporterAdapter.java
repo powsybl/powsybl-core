@@ -9,6 +9,7 @@ package com.powsybl.security.converter;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.commons.io.table.TableFormatterFactory;
 
+import java.util.Locale;
 import java.util.Objects;
 
 /**
@@ -31,7 +32,7 @@ public class TableSecurityAnalysisResultExporterAdapter extends AbstractTableSec
 
     @Override
     protected TableFormatterConfig getTableFormatterConfig() {
-        return new TableFormatterConfig();
+        return new TableFormatterConfig(Locale.US, ';', "inv", true, true);
     }
 
     @Override
