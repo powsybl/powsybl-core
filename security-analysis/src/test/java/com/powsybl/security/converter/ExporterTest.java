@@ -10,6 +10,8 @@ import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.contingency.*;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.security.*;
+import com.powsybl.security.json.SecurityAnalysisResultDeserializer;
+import com.powsybl.security.json.SecurityAnalysisResultSerializer;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -70,6 +72,11 @@ public class ExporterTest extends AbstractConverterTest {
         writeTest(result, ExporterTest::writeAscii, AbstractConverterTest::compareTxt, "/SecurityAnalysisResult.txt");
         writeTest(result, ExporterTest::writeCsv, AbstractConverterTest::compareTxt, "/SecurityAnalysisResult.csv");
         writeTest(result, ExporterTest::writeJson, AbstractConverterTest::compareTxt, "/SecurityAnalysisResult.json");
+    }
+
+    @Test
+    public void roundTripJson() throws IOException {
+        roundTripTest(result, SecurityAnalysisResultSerializer::write, SecurityAnalysisResultDeserializer::read, "/SecurityAnalysisResult.json");
     }
 
     private static void writeAscii(SecurityAnalysisResult result, Path path) {
