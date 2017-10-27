@@ -48,11 +48,7 @@ public class AppData implements AutoCloseable {
         Objects.requireNonNull(projectFileExtensions);
         for (AppFileSystemProvider provider : fileSystemProviders) {
             for (AppFileSystem fileSystem : provider.getFileSystems(computationManager)) {
-                if (fileSystems.containsKey(fileSystem.getName())) {
-                    throw new AfsException("A file system with the same name '" + fileSystem.getName() + "' already exists");
-                }
-                fileSystem.setData(this);
-                fileSystems.put(fileSystem.getName(), fileSystem);
+                addFileSystem(fileSystem);
             }
         }
         for (FileExtension extension : fileExtensions) {
@@ -65,6 +61,15 @@ public class AppData implements AutoCloseable {
             this.projectFileExtensionsByPseudoClass.put(extension.getProjectFilePseudoClass(), extension);
             this.projectFileClasses.add(extension.getProjectFileClass());
         }
+    }
+
+    public void addFileSystem(AppFileSystem fileSystem) {
+        Objects.requireNonNull(fileSystem);
+        if (fileSystems.containsKey(fileSystem.getName())) {
+            throw new AfsException("A file system with the same name '" + fileSystem.getName() + "' already exists");
+        }
+        fileSystem.setData(this);
+        fileSystems.put(fileSystem.getName(), fileSystem);
     }
 
     public Collection<AppFileSystem> getFileSystems() {
@@ -141,7 +146,7 @@ public class AppData implements AutoCloseable {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         getFileSystems().forEach(AppFileSystem::close);
     }
 }
