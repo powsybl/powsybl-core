@@ -6,6 +6,7 @@
  */
 package com.powsybl.computation;
 
+import com.powsybl.commons.PowsyblException;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -25,7 +26,7 @@ public class FunctionFileNameTest {
     @Test(expected = RuntimeException.class)
     public void checkTest() {
         FunctionFileName fileName = new FunctionFileName(executionNumber -> "file-" + executionNumber,
-            s -> { throw new RuntimeException("error"); });
+            s -> { throw new PowsyblException("error"); });
         fileName.getName(0);
     }
 }

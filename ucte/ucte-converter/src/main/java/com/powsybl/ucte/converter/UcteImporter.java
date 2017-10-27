@@ -9,6 +9,7 @@ package com.powsybl.ucte.converter;
 import com.google.auto.service.AutoService;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Iterables;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.network.*;
@@ -308,7 +309,7 @@ public class UcteImporter implements Importer {
                     LOGGER.trace("Create coupler '{}'", ucteLine.getId());
 
                     if (ucteVoltageLevel1 != ucteVoltageLevel2) {
-                        throw new RuntimeException("Coupler between two different voltage levels");
+                        throw new PowsyblException("Coupler between two different voltage levels");
                     }
 
                     if (nodeCode1.getUcteCountryCode() == UcteCountryCode.XX &&
@@ -352,7 +353,7 @@ public class UcteImporter implements Importer {
                         LOGGER.info("Create coupler '{}' from low impedance line ({})", ucteLine.getId(), z);
 
                         if (ucteVoltageLevel1 != ucteVoltageLevel2) {
-                            throw new RuntimeException("Nodes coupled with a low impedance line are expected to be in the same voltage level");
+                            throw new PowsyblException("Nodes coupled with a low impedance line are expected to be in the same voltage level");
                         }
                         VoltageLevel voltageLevel = network.getVoltageLevel(ucteVoltageLevel1.getName());
                         voltageLevel.getBusBreakerView().newSwitch()
@@ -409,7 +410,7 @@ public class UcteImporter implements Importer {
                             createDanglingLine(ucteNetwork, ucteLine, connected, xnode, nodeCode1, ucteVoltageLevel1, network);
 
                         } else {
-                            throw new RuntimeException("Line between 2 Xnodes");
+                            throw new PowsyblException("Line between 2 Xnodes");
                         }
                     }
 
@@ -417,7 +418,7 @@ public class UcteImporter implements Importer {
                 }
 
                 default:
-                    throw new InternalError();
+                    throw new AssertionError("Unexpected UcteElementStatus value: " + ucteLine.getStatus());
             }
         }
     }
@@ -475,7 +476,7 @@ public class UcteImporter implements Importer {
                     break;
 
                 default:
-                    throw new InternalError();
+                    throw new AssertionError("Unexpected UcteAngleRegulationType value: " + ucteAngleRegulation.getType());
             }
             ptca.beginStep()
                     .setRho(rho)
@@ -599,7 +600,7 @@ public class UcteImporter implements Importer {
                     break;
 
                 default:
-                    throw new InternalError();
+                    throw new AssertionError("Unexpected UcteElementStatus value: " + ucteTransfo.getStatus());
             }
 
             TwoWindingsTransformer transformer;
@@ -681,7 +682,7 @@ public class UcteImporter implements Importer {
         try {
             String ext = findExtension(dataSource);
             if (ext == null) {
-                throw new RuntimeException("File " + dataSource.getBaseName()
+                throw new PowsyblException("File " + dataSource.getBaseName()
                         + "." + Joiner.on("|").join(EXTENSIONS) + " not found");
             }
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, ext)))) {

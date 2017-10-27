@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.xml;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.IdentifiableAdder;
 
@@ -68,7 +69,7 @@ abstract class AbstractIdentifiableXml<T extends Identifiable, A extends Identif
             String value = context.getReader().getAttributeValue(null, "value");
             identifiable.getProperties().put(name, value);
         } else {
-            throw new RuntimeException("Unknown element name <" + context.getReader().getLocalName() + "> in <" + identifiable.getId() + ">");
+            throw new PowsyblException("Unknown element name <" + context.getReader().getLocalName() + "> in <" + identifiable.getId() + ">");
         }
     }
 

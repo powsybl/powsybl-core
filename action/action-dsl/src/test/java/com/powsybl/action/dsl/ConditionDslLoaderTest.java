@@ -71,6 +71,7 @@ public class ConditionDslLoaderTest {
         loadAndAssert("line('NHV1_NHV2_1')", "line('NHV1_NHV2_1')");
         loadAndAssert("line('NHV1_NHV2_1').terminal1.p", "line('NHV1_NHV2_1').terminal1.p");
         loadAndAssert("transformer('NGEN_NHV1')", "transformer('NGEN_NHV1')");
+        loadAndAssert("branch('NGEN_NHV1')", "branch('NGEN_NHV1')");
         loadAndAssert("load('LOAD')", "load('LOAD')");
 
         loadAndAssert("1", "1"); // integer
@@ -109,6 +110,9 @@ public class ConditionDslLoaderTest {
         loadAndAssert("contingencyOccurred('contingency1')", "contingencyOccurred('contingency1')");
         loadAndAssert("contingencyOccurred()", "contingencyOccurred()");
         evalAndAssert(false, "contingencyOccurred()");
+        loadAndAssert("mostLoaded([NHV1_NHV2_1, NHV1_NHV2_2])", "mostLoaded(['NHV1_NHV2_1','NHV1_NHV2_2'])");
+        loadAndAssert("isOverloaded([NHV1_NHV2_1, NHV1_NHV2_2])", "isOverloaded(['NHV1_NHV2_1','NHV1_NHV2_2'])");
+
     }
 
     @Test
@@ -139,6 +143,53 @@ public class ConditionDslLoaderTest {
     }
 
     @Test
+    public void testIsOverloadedNode() throws IOException {
+        line1.getTerminal1().setP(100.0f).setQ(50.0f);
+        evalAndAssert(false, "isOverloaded(['NHV1_NHV2_1','NHV1_NHV2_2'])");
+
+        line1.newCurrentLimits1().setPermanentLimit(0.00001f).add();
+        assertNotNull(line1.getCurrentLimits1());
+        evalAndAssert(true, "isOverloaded(['NHV1_NHV2_1','NHV1_NHV2_2'])");
+
+        line1.getTerminal1().setP(600.0f).setQ(300.0f); // i = 1019.2061
+        float current = line1.getTerminal1().getI();
+        line1.newCurrentLimits1().setPermanentLimit(current - 100).add();
+        evalAndAssert(true, "isOverloaded(['NHV1_NHV2_1','NHV1_NHV2_2'])");
+        evalAndAssert(true, "isOverloaded(['NHV1_NHV2_1','NHV1_NHV2_2'], 0.05)");
+        line1.newCurrentLimits1().setPermanentLimit(current).add();
+        evalAndAssert(true, "isOverloaded(['NHV1_NHV2_1','NHV1_NHV2_2'])"); // permanent = real current
+        line1.newCurrentLimits1().setPermanentLimit(current * 2).add();
+        evalAndAssert(false, "isOverloaded(['NHV1_NHV2_1','NHV1_NHV2_2'], 0.9)");
+        evalAndAssert(true, "isOverloaded(['NHV1_NHV2_1','NHV1_NHV2_2'], 0.1)");
+
+        addCurrentLimitsOnLine1();
+        line1.getTerminal1().setP(400.0f).setQ(150.0f); // i = 649.06
+        evalAndAssert(true, "isOverloaded(['NHV1_NHV2_1','NHV1_NHV2_2'], 1)");
+
+    }
+
+    private void addCurrentLimitsOnLine1() {
+        line1.newCurrentLimits1()
+                .setPermanentLimit(400)
+                .beginTemporaryLimit()
+                    .setName("20")
+                    .setAcceptableDuration(20 * 60)
+                    .setValue(600)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                    .setName("10")
+                    .setAcceptableDuration(10 * 60)
+                    .setValue(700)
+                    .endTemporaryLimit()
+                .beginTemporaryLimit()
+                    .setName("5")
+                    .setAcceptableDuration(5 * 60)
+                    .setValue(800)
+                .endTemporaryLimit()
+                .add();
+    }
+
+    @Test
     public void testNetworkAccess() throws IOException {
         // add temporary limits
         line1.newCurrentLimits1()
@@ -153,6 +204,9 @@ public class ConditionDslLoaderTest {
         // IIDM method call
         evalAndAssert(800f, "line('NHV1_NHV2_1').currentLimits1.getTemporaryLimitValue(1200)");
         evalAndAssert(false, "line('NHV1_NHV2_1').overloaded");
+
+        evalAndAssert(800f, "branch('NHV1_NHV2_1').currentLimits1.getTemporaryLimitValue(1200)");
+        evalAndAssert(0f, "branch('NHV2_NLOAD').g");
     }
 
     @Test

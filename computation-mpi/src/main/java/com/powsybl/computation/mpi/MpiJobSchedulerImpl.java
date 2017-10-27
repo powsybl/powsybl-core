@@ -9,6 +9,7 @@ package com.powsybl.computation.mpi;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.ByteStreams;
 import com.google.protobuf.ByteString;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.computation.*;
 import com.powsybl.computation.mpi.generated.Messages;
 import org.joda.time.DateTime;
@@ -337,7 +338,7 @@ class MpiJobSchedulerImpl implements MpiJobScheduler {
                                                                .setPreProcessor(createPreProcessor(file.getPreProcessor()))
                                                                .build());
                     } else {
-                        throw new RuntimeException("Input file " + fileName
+                        throw new PowsyblException("Input file " + fileName
                                 + " not found in the working directory nor in the common file list");
                     }
                 }
@@ -389,7 +390,7 @@ class MpiJobSchedulerImpl implements MpiJobScheduler {
                                                                .setPreProcessor(createPreProcessor(file.getPreProcessor()))
                                                                .build());
                     } else {
-                        throw new RuntimeException("Input file " + fileName
+                        throw new PowsyblException("Input file " + fileName
                                 + " not found in the common file list");
                     }
                 }
@@ -410,7 +411,7 @@ class MpiJobSchedulerImpl implements MpiJobScheduler {
                 break;
 
             default:
-                throw new InternalError();
+                throw new AssertionError("Unexpected CommandType value: " + command.getType());
         }
 
         for (OutputFile outputFile : command.getOutputFiles()) {

@@ -13,6 +13,7 @@ import com.powsybl.action.dsl.ast.ExpressionNode
 import com.powsybl.action.dsl.ast.LogicalBinaryOperator
 import com.powsybl.action.dsl.ast.NetworkComponentNode
 import com.powsybl.action.dsl.ast.NetworkNode
+import com.powsybl.iidm.network.Branch
 import com.powsybl.iidm.network.Generator
 import com.powsybl.iidm.network.Identifiable
 import com.powsybl.iidm.network.Line
@@ -42,9 +43,17 @@ class ConditionDslLoader extends DslLoader implements DslConstants {
     private static Line getLine(Network network, String id) {
         Line l = network.getLine(id)
         if (l == null) {
-            throw new RuntimeException("Line '" + id + "' not found")
+            throw new ActionDslException("Line '" + id + "' not found")
         }
         l
+    }
+
+    private static Branch getBranch(Network network, String id) {
+        Branch b = network.getBranch(id)
+        if (b == null) {
+            throw new ActionDslException("Branch '" + id + "' not found")
+        }
+        b
     }
 
     private static TwoWindingsTransformer getTwoWindingsTransformer(Network network, String id) {
@@ -84,6 +93,12 @@ class ConditionDslLoader extends DslLoader implements DslConstants {
             Network network = binding.getVariable("network")
             Line l = getLine(network, id)
             binding.hasVariable(SCRIPT_IS_RUNNING) ? l : ExpressionHelper.newNetworkComponent(id, NetworkComponentNode.ComponentType.LINE)
+        }
+
+        binding.branch = { id ->
+            Network network = binding.getVariable("network")
+            Branch b = getBranch(network, id)
+            binding.hasVariable(SCRIPT_IS_RUNNING) ? l : ExpressionHelper.newNetworkComponent(id, NetworkComponentNode.ComponentType.BRANCH)
         }
 
         binding.transformer = { id ->
@@ -136,6 +151,10 @@ class ConditionDslLoader extends DslLoader implements DslConstants {
 
         binding.mostLoaded = { branchIds ->
             ExpressionHelper.newMostLoaded(branchIds)
+        }
+
+        binding.isOverloaded = {branchIds, limitReduction = 1 as float ->
+            ExpressionHelper.newIsOverloadedNode(branchIds, limitReduction)
         }
 
         NetworkNode.metaClass.propertyMissing = { String name ->

@@ -10,6 +10,7 @@ import com.google.auto.service.AutoService;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.Sets;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.ComponentDefaultConfig;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
@@ -203,7 +204,7 @@ public class ImpactAnalysisTool implements Tool {
             // load the network
             Network network = Importers.loadNetwork(caseFile);
             if (network == null) {
-                throw new RuntimeException("Case '" + caseFile + "' not found");
+                throw new PowsyblException("Case '" + caseFile + "' not found");
             }
             network.getStateManager().allowStateMultiThreadAccess(true);
 
@@ -220,7 +221,7 @@ public class ImpactAnalysisTool implements Tool {
             }
         } else if (Files.isDirectory(caseFile)) {
             if (outputCsvFile == null) {
-                throw new RuntimeException("In case of multiple impact analyses, only output to csv file is supported");
+                throw new PowsyblException("In case of multiple impact analyses, only output to csv file is supported");
             }
             Map<String, Map<SecurityIndexId, SecurityIndex>> securityIndexesPerCase = new LinkedHashMap<>();
             Importers.loadNetworks(caseFile, false, network -> {

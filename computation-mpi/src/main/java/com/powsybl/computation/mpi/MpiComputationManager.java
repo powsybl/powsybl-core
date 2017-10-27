@@ -6,6 +6,7 @@
  */
 package com.powsybl.computation.mpi;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.FileUtil;
 import com.powsybl.commons.io.WorkingDirectory;
 import com.powsybl.computation.*;
@@ -49,7 +50,7 @@ public class MpiComputationManager implements ComputationManager {
 
     private Future<?> busyCoresPrintTask;
 
-    public MpiComputationManager(Path localDir, MpiJobScheduler scheduler) throws IOException, InterruptedException {
+    public MpiComputationManager(Path localDir, MpiJobScheduler scheduler) {
         this(localDir, scheduler, new NoMpiStatistics(), new MpiExecutorContext());
     }
 
@@ -67,21 +68,17 @@ public class MpiComputationManager implements ComputationManager {
         this(localDir, new MpiJobSchedulerImpl(nativeServices, statistics, coresPerRank, verbose, executorContext.getSchedulerExecutor(), stdOutArchive), statistics, executorContext);
     }
 
-    public MpiComputationManager(Path localDir, MpiJobScheduler scheduler, MpiStatistics statistics, MpiExecutorContext executorContext) throws IOException, InterruptedException {
+    public MpiComputationManager(Path localDir, MpiJobScheduler scheduler, MpiStatistics statistics, MpiExecutorContext executorContext) {
         this.localDir = Objects.requireNonNull(localDir);
         this.statistics = Objects.requireNonNull(statistics);
         this.executorContext = Objects.requireNonNull(executorContext);
         this.scheduler = scheduler;
         if (executorContext.getMonitorExecutor() != null) {
-            busyCoresPrintTask = executorContext.getMonitorExecutor().scheduleAtFixedRate(new Runnable() {
-                @Override
-                public void run() {
-                    LOGGER.info("Busy cores {}/{}, {} tasks/s",
-                            scheduler.getResources().getBusyCores(),
-                            scheduler.getResources().getAvailableCores(),
-                            ((float) scheduler.getStartedTasksAndReset()) / LOG_DELAY);
-                }
-            }, 0, LOG_DELAY, TimeUnit.SECONDS);
+            busyCoresPrintTask = executorContext.getMonitorExecutor().scheduleAtFixedRate(
+                () -> LOGGER.info("Busy cores {}/{}, {} tasks/s", scheduler.getResources().getBusyCores(),
+                                                                  scheduler.getResources().getAvailableCores(),
+                                                                  ((float) scheduler.getStartedTasksAndReset()) / LOG_DELAY),
+                0, LOG_DELAY, TimeUnit.SECONDS);
         }
     }
 
@@ -104,7 +101,7 @@ public class MpiComputationManager implements ComputationManager {
 
             private int chunk = 0;
 
-            private void checkSize(boolean last) throws IOException {
+            private void checkSize(boolean last) {
                 if (last || buffer.size() > CHUNK_MAX_SIZE) {
                     scheduler.sendCommonFile(new CommonFile(fileName, buffer.toByteArray(), chunk++, last));
                     buffer.reset();
@@ -255,9 +252,9 @@ public class MpiComputationManager implements ComputationManager {
                         try {
                             ctxt.workingDir.close();
                         } catch (IOException e2) {
-                            throw new UncheckedIOException(e2);
+                            LOGGER.error(e2.toString(), e2);
                         }
-                        throw new RuntimeException(t);
+                        throw new PowsyblException(t);
                     }
                     return ctxt;
                 }, executorContext.getComputationExecutor())
@@ -320,7 +317,7 @@ public class MpiComputationManager implements ComputationManager {
                         try {
                             ctxt.workingDir.close();
                         } catch (IOException e2) {
-                            throw new UncheckedIOException(e2);
+                            LOGGER.error(e2.toString(), e2);
                         }
                     }
                 }, executorContext.getComputationExecutor());
@@ -337,11 +334,24 @@ public class MpiComputationManager implements ComputationManager {
     }
 
     @Override
-    public void close() throws Exception {
-        scheduler.shutdown();
-        statistics.close();
+    public void close() {
+        try {
+            scheduler.shutdown();
+        } catch (Exception e) {
+            LOGGER.error(e.toString(), e);
+        }
+        try {
+            statistics.close();
+        } catch (Exception e) {
+            LOGGER.error(e.toString(), e);
+        }
         if (busyCoresPrintTask != null) {
             busyCoresPrintTask.cancel(true);
+        }
+        try {
+            executorContext.shutdown();
+        } catch (Exception e) {
+            LOGGER.error(e.toString(), e);
         }
     }
 

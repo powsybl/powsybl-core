@@ -81,6 +81,10 @@ public final class ExpressionHelper {
         return new MostLoadedNode(branchIds);
     }
 
+    public static IsOverloadedNode newIsOverloadedNode(List<String> branchIds, float limitReduction) {
+        return new IsOverloadedNode(branchIds, limitReduction);
+    }
+
     public static ContingencyOccurredNode newContingencyOccured(String contingencyId) {
         return new ContingencyOccurredNode(contingencyId);
     }

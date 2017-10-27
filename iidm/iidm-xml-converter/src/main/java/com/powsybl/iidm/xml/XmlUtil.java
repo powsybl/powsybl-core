@@ -41,9 +41,18 @@ public final class XmlUtil {
                 case XMLStreamConstants.CHARACTERS:
                     text = reader.getText();
                     break;
+
+                default:
+                    break;
             }
         }
         return text;
+    }
+
+    public static void writeOptionalBoolean(String name, boolean value, boolean absentValue, XMLStreamWriter writer) throws XMLStreamException {
+        if (value != absentValue) {
+            writer.writeAttribute(name, Boolean.toString(value));
+        }
     }
 
     public static void writeFloat(String name, float value, XMLStreamWriter writer) throws XMLStreamException {
@@ -52,8 +61,20 @@ public final class XmlUtil {
         }
     }
 
+    public static void writeOptionalFloat(String name, float value, float absentValue, XMLStreamWriter writer) throws XMLStreamException {
+        if (!Float.isNaN(value) && value != absentValue) {
+            writer.writeAttribute(name, Float.toString(value));
+        }
+    }
+
     public static void writeInt(String name, int value, XMLStreamWriter writer) throws XMLStreamException {
         writer.writeAttribute(name, Integer.toString(value));
+    }
+
+    public static void writeOptionalInt(String name, int value, int absentValue, XMLStreamWriter writer) throws XMLStreamException {
+        if (value != absentValue) {
+            writer.writeAttribute(name, Integer.toString(value));
+        }
     }
 
     public static int readIntAttribute(XMLStreamReader reader, String attributeName) {

@@ -6,6 +6,8 @@
  */
 package com.powsybl.computation;
 
+import com.powsybl.commons.PowsyblException;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -55,17 +57,17 @@ public class SimpleCommandBuilder extends AbstractCommandBuilder<SimpleCommandBu
     public SimpleCommandBuilder timeout(int timeout) {
         this.timeout = timeout;
         if (timeout < -1 || timeout == 0) {
-            throw new RuntimeException("invalid timeout");
+            throw new PowsyblException("invalid timeout");
         }
         return this;
     }
 
     public SimpleCommand build() {
         if (id == null) {
-            throw new RuntimeException("id is not set");
+            throw new PowsyblException("id is not set");
         }
         if (program == null) {
-            throw new RuntimeException("program is not set");
+            throw new PowsyblException("program is not set");
         }
         return new SimpleCommandImpl(id, program, args, timeout, inputFiles, outputFiles);
     }

@@ -78,8 +78,7 @@ public class SmallSignalSecurityIndex extends AbstractSecurityIndex {
             }
             return new SmallSignalSecurityIndex(contingencyId, gmi, ami, smi);
         } catch (JAXBException e) {
-            e.printStackTrace();
-            throw new InternalError("Should not have happened");
+            throw new UncheckedJaxbException(e);
         }
     }
 

@@ -7,6 +7,7 @@
 package com.powsybl.commons.config;
 
 import com.google.common.base.Joiner;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedClassNotFoundException;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
@@ -79,7 +80,7 @@ public class MapModuleConfig implements ModuleConfig {
     public String getStringProperty(String name) {
         String value = (String) properties.get(name);
         if (value == null || value.trim().isEmpty()) {
-            throw new RuntimeException("Property " + name + " is not set");
+            throw new PowsyblException("Property " + name + " is not set");
         }
         return substitureEnvVar(value);
     }
@@ -167,6 +168,12 @@ public class MapModuleConfig implements ModuleConfig {
     @Override
     public float getFloatProperty(String name, float defaultValue) {
         return Float.parseFloat(getStringProperty(name, Float.toString(defaultValue)));
+    }
+
+    @Override
+    public Optional<Float> getOptionalFloatProperty(String name) {
+        String value = getStringProperty(name, null);
+        return Optional.ofNullable(value != null ? Float.parseFloat(value) : null);
     }
 
     @Override

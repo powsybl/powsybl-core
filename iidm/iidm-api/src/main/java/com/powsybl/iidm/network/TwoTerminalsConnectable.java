@@ -7,7 +7,7 @@
 package com.powsybl.iidm.network;
 
 /**
- * Use {@link Branch} instead.
+ * @deprecated Use {@link Branch} instead.
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -40,6 +40,8 @@ public interface TwoTerminalsConnectable<I extends TwoTerminalsConnectable<I>> e
 
     Terminal getTerminal(String voltageLevelId);
 
+    Side getSide(Terminal terminal);
+
     CurrentLimits getCurrentLimits(Side side);
 
     CurrentLimits getCurrentLimits1();
@@ -51,6 +53,8 @@ public interface TwoTerminalsConnectable<I extends TwoTerminalsConnectable<I>> e
     CurrentLimitsAdder newCurrentLimits2();
 
     boolean isOverloaded();
+
+    boolean isOverloaded(float limitReduction);
 
     int getOverloadDuration();
 

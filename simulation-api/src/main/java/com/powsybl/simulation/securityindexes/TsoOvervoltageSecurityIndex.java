@@ -43,11 +43,17 @@ public class TsoOvervoltageSecurityIndex extends AbstractSecurityIndex {
 
                         case "overvoltage-count":
                             return new TsoOvervoltageSecurityIndex(contingencyId, Integer.parseInt(text), computationSucceed);
+
+                        default:
+                            break;
                     }
+                    break;
+
+                default:
                     break;
             }
         }
-        throw new InternalError("Should not happened");
+        throw new AssertionError("overvoltage-count element not found");
     }
 
     public TsoOvervoltageSecurityIndex(String contingencyId, int overvoltageCount) {

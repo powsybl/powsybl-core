@@ -132,7 +132,7 @@ public class XMLImporter implements Importer, XmlConstants {
         try {
             String ext = findExtension(fromDataSource);
             if (!exists(fromDataSource, ext)) {
-                throw new RuntimeException("From data source is not importable");
+                throw new PowsyblException("From data source is not importable");
             }
             // copy iidm file
             try (InputStream is = fromDataSource.newInputStream(null, ext);
@@ -159,7 +159,7 @@ public class XMLImporter implements Importer, XmlConstants {
         try {
             String ext = findExtension(dataSource);
             if (ext == null) {
-                throw new RuntimeException("File " + dataSource.getBaseName()
+                throw new PowsyblException("File " + dataSource.getBaseName()
                         + "." + Joiner.on("|").join(EXTENSIONS) + " not found");
             }
             boolean throwExceptionIfExtensionNotFound = (Boolean) Importers.readParameter(getFormat(), parameters, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND, defaultValueConfig);

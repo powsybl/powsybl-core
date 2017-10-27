@@ -7,6 +7,8 @@
 package com.powsybl.computation.local;
 
 import com.google.common.io.ByteStreams;
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.io.WorkingDirectory;
 import com.powsybl.computation.*;
 import net.java.truevfs.comp.zip.ZipEntry;
@@ -93,6 +95,10 @@ public class LocalComputationManager implements ComputationManager {
 
     public LocalComputationManager() throws IOException {
         this(LocalComputationConfig.load());
+    }
+
+    public LocalComputationManager(PlatformConfig platformConfig) throws IOException {
+        this(LocalComputationConfig.load(platformConfig));
     }
 
     public LocalComputationManager(Path localDir)  throws IOException {
@@ -206,7 +212,7 @@ public class LocalComputationManager implements ComputationManager {
                         // if not check if the file exists in the common directory
                         path = commonDir.toPath().resolve(fileName);
                         if (!Files.exists(path)) {
-                            throw new RuntimeException("Input file '" + fileName + "' not found in the working and common directory");
+                            throw new PowsyblException("Input file '" + fileName + "' not found in the working and common directory");
                         }
                         if (file.getPreProcessor() == null) {
                             Files.copy(path, workingDir.resolve(path.getFileName()));
@@ -231,7 +237,7 @@ public class LocalComputationManager implements ComputationManager {
                                 break;
 
                             default:
-                                throw new InternalError();
+                                throw new AssertionError("Unexpected FilePreProcessor value: " + file.getPreProcessor());
                         }
                     }
                 }
@@ -264,7 +270,7 @@ public class LocalComputationManager implements ComputationManager {
                         }
                         break;
                     default:
-                        throw new InternalError();
+                        throw new AssertionError("Unexpected CommandType value: " + command.getType());
                 }
 
                 if (exitValue != 0) {
@@ -285,7 +291,7 @@ public class LocalComputationManager implements ComputationManager {
                                     break;
 
                                 default:
-                                    throw new InternalError();
+                                    throw new AssertionError("Unexpected FilePostProcessor value: " + file.getPostProcessor());
                             }
                         }
                     }

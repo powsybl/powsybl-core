@@ -6,6 +6,8 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.PowsyblException;
+
 import java.util.function.Supplier;
 
 /**
@@ -22,7 +24,7 @@ public class ThreadLocalMultiStateContext implements StateContext {
     public int getStateIndex() {
         Integer i = index.get();
         if (i == null) {
-            throw new RuntimeException("State not set for current thread " + Thread.currentThread().getName());
+            throw new PowsyblException("State not set for current thread " + Thread.currentThread().getName());
         }
         return i;
     }

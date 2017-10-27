@@ -69,7 +69,8 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                         new Column("theta2"),
                         new Column("z"),
                         new Column("y"),
-                        new Column("ksi")
+                        new Column("ksi"),
+                        new Column("validation")
                     };
                 }
                 return new Column[] {
@@ -96,7 +97,8 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                         new Column("connected"),
                         new Column("voltageRegulatorOn"),
                         new Column("minQ"),
-                        new Column("maxQ")
+                        new Column("maxQ"),
+                        new Column("validation")
                     };
                 }
                 return new Column[] {
@@ -109,14 +111,14 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                     new Column("targetV")
                 };
             default:
-                throw new InternalError();
+                throw new AssertionError("Unexpected ValidationType value: " + validationType);
         }
     }
 
     @Override
     public void write(String branchId, double p1, double p1Calc, double q1, double q1Calc, double p2, double p2Calc, double q2, double q2Calc,
                       double r, double x, double g1, double g2, double b1, double b2, double rho1, double rho2, double alpha1, double alpha2,
-                      double u1, double u2, double theta1, double theta2, double z, double y, double ksi) throws IOException {
+                      double u1, double u2, double theta1, double theta2, double z, double y, double ksi, boolean validated) throws IOException {
         Objects.requireNonNull(branchId);
         formatter.writeCell(branchId)
                  .writeCell(p1)
@@ -144,17 +146,18 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                      .writeCell(theta2)
                      .writeCell(z)
                      .writeCell(y)
-                     .writeCell(ksi);
+                     .writeCell(ksi)
+                     .writeCell(validated ? "success" : "fail");
         }
     }
 
     @Override
     public void write(String generatorId, float p, float q, float v, float targetP, float targetQ, float targetV,
-                      boolean connected, boolean voltageRegulatorOn, float minQ, float maxQ) throws IOException {
+                      boolean connected, boolean voltageRegulatorOn, float minQ, float maxQ, boolean validated) throws IOException {
         Objects.requireNonNull(generatorId);
         formatter.writeCell(generatorId)
-                 .writeCell(p)
-                 .writeCell(q)
+                 .writeCell(-p)
+                 .writeCell(-q)
                  .writeCell(v)
                  .writeCell(targetP)
                  .writeCell(targetQ)
@@ -163,7 +166,8 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
             formatter.writeCell(connected)
                      .writeCell(voltageRegulatorOn)
                      .writeCell(minQ)
-                     .writeCell(maxQ);
+                     .writeCell(maxQ)
+                     .writeCell(validated ? "success" : "fail");
         }
     }
 

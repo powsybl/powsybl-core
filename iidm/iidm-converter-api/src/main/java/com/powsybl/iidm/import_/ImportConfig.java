@@ -19,7 +19,7 @@ import java.util.Objects;
  */
 public class ImportConfig {
 
-    public static final List<String> DEFAULT_POST_PROCESSORS = Collections.emptyList();
+    private static final List<String> DEFAULT_POST_PROCESSORS = Collections.emptyList();
 
     private final List<String> postProcessors;
 

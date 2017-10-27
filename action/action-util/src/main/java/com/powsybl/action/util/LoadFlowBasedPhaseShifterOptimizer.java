@@ -6,6 +6,7 @@
  */
 package com.powsybl.action.util;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedIllegalAccessException;
 import com.powsybl.commons.exceptions.UncheckedInstantiationException;
 import com.powsybl.computation.ComputationManager;
@@ -44,10 +45,10 @@ public class LoadFlowBasedPhaseShifterOptimizer implements PhaseShifterOptimizer
         try {
             LoadFlowResult result = loadFlow.run();
             if (!result.isOk()) {
-                throw new RuntimeException("Load flow diverged during phase shifter optimization");
+                throw new PowsyblException("Load flow diverged during phase shifter optimization");
             }
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new PowsyblException(e);
         }
     }
 
@@ -63,10 +64,10 @@ public class LoadFlowBasedPhaseShifterOptimizer implements PhaseShifterOptimizer
     public void findMaximalFlowTap(Network network, String phaseShifterId) {
         TwoWindingsTransformer phaseShifter = network.getTwoWindingsTransformer(phaseShifterId);
         if (phaseShifter == null) {
-            throw new RuntimeException("Phase shifter '" + phaseShifterId + "' not found");
+            throw new PowsyblException("Phase shifter '" + phaseShifterId + "' not found");
         }
         if (phaseShifter.getPhaseTapChanger() == null) {
-            throw new RuntimeException("Transformer '" + phaseShifterId + "' is not a phase shifter");
+            throw new PowsyblException("Transformer '" + phaseShifterId + "' is not a phase shifter");
         }
 
         int optimalTap;
@@ -81,7 +82,7 @@ public class LoadFlowBasedPhaseShifterOptimizer implements PhaseShifterOptimizer
             LoadFlow loadFlow = loadFlowFactory.create(network, computationManager, 0);
             runLoadFlow(loadFlow);
             if (phaseShifter.getTerminal1().getI() >= phaseShifter.getCurrentLimits1().getPermanentLimit()) {
-                throw new RuntimeException("Phase shifter already overloaded");
+                throw new PowsyblException("Phase shifter already overloaded");
             }
             int tapPosInc = 1; // start by incrementing tap +1
             float i;

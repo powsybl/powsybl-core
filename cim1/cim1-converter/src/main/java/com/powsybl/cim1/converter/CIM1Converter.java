@@ -158,7 +158,7 @@ class CIM1Converter implements CIM1Constants {
                                     break;
                                 case "TATL":
                                     if (olt.getDirection() != cim1.model.OperationalLimitDirectionKind.absoluteValue) {
-                                        throw new RuntimeException("Direction not supported " + olt.getDirection());
+                                        throw new CIM1Exception("Direction not supported " + olt.getDirection());
                                     }
                                     int acceptableDuration = (int) olt.getAcceptableDuration();
                                     cla.beginTemporaryLimit()
@@ -507,7 +507,7 @@ class CIM1Converter implements CIM1Constants {
                 break;
 
             default:
-                throw new InternalError();
+                throw new AssertionError("Unexpected PhaseTapChangerKind value: " + ptc.getPhaseTapChangerType());
         }
 
         float alphaMax = (float) alphaList.stream().mapToDouble(Float::doubleValue).max().getAsDouble();
@@ -529,7 +529,7 @@ class CIM1Converter implements CIM1Constants {
                         break;
 
                     default:
-                        throw new InternalError();
+                        throw new AssertionError("Unexpected PhaseTapChangerKind value: " + ptc.getPhaseTapChangerType());
                 }
             }
             ptca.beginStep()

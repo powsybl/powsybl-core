@@ -39,9 +39,11 @@ public class TransientSecurityIndex extends AbstractSecurityIndex {
                         return new TransientSecurityIndex(contingencyId, Double.parseDouble(text));
                     }
                     break;
+                default:
+                    break;
             }
         }
-        throw new InternalError("Should not have happened");
+        throw new AssertionError("j element not found");
     }
 
     public TransientSecurityIndex(String contingencyId, double j) {
