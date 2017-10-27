@@ -14,21 +14,22 @@ import com.powsybl.security.LimitViolationFilter;
 import com.powsybl.security.LimitViolationsResult;
 
 import java.io.IOException;
+import java.util.Objects;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
 public class LimitViolationsResultSerializer extends StdSerializer<LimitViolationsResult> {
 
-    private final Network network;
+    private final transient Network network;
 
-    private final LimitViolationFilter filter;
+    private final transient LimitViolationFilter filter;
 
     public LimitViolationsResultSerializer(Network network, LimitViolationFilter filter) {
         super(LimitViolationsResult.class);
 
         this.network = network;
-        this.filter = filter;
+        this.filter = Objects.requireNonNull(filter);
     }
 
     @Override

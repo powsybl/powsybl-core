@@ -9,11 +9,6 @@ package com.powsybl.security.converter;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.io.table.AsciiTableFormatterFactory;
 import com.powsybl.commons.io.table.TableFormatterFactory;
-import com.powsybl.security.LimitViolationFilter;
-import com.powsybl.security.Security;
-import com.powsybl.security.SecurityAnalysisResult;
-
-import java.io.Writer;
 
 /**
  * A SecurityAnalysisResultExporter implementation which renders the result in ASCII tables.
@@ -21,7 +16,7 @@ import java.io.Writer;
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
 @AutoService(SecurityAnalysisResultExporter.class)
-public class AsciiSecurityAnalysisResultExporter implements SecurityAnalysisResultExporter {
+public class AsciiSecurityAnalysisResultExporter extends AbstractTableSecurityAnalysisResultExporter {
 
     @Override
     public String getFormat() {
@@ -34,9 +29,7 @@ public class AsciiSecurityAnalysisResultExporter implements SecurityAnalysisResu
     }
 
     @Override
-    public void export(SecurityAnalysisResult result, LimitViolationFilter limitViolationFilter, Writer writer) {
-        TableFormatterFactory tableFormatterFactory = new AsciiTableFormatterFactory();
-        Security.printPreContingencyViolations(result, writer, tableFormatterFactory, limitViolationFilter);
-        Security.printPostContingencyViolations(result, writer, tableFormatterFactory, limitViolationFilter);
+    protected TableFormatterFactory getTableFormatterFactory() {
+        return new AsciiTableFormatterFactory();
     }
 }

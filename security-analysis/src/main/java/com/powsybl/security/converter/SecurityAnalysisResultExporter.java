@@ -38,5 +38,4 @@ public interface SecurityAnalysisResultExporter {
      * @param writer The writer used for the export
      */
     void export(SecurityAnalysisResult result, LimitViolationFilter limitViolationFilter, Writer writer);
-
 }

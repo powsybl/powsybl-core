@@ -138,19 +138,32 @@ public final class Security {
         return violations;
     }
 
+    /**
+     * @deprecated use printLimitsViolations(network, List<LimitViolation>, LimitViolationFilter, TableFormatterConfig) instead.
+     */
     @Deprecated
     public static String printLimitsViolations(List<LimitViolation> violations) {
         return printLimitsViolations(null, violations, LimitViolationFilter.load(), TableFormatterConfig.load());
     }
 
+    /**
+     * @deprecated use printLimitsViolations(network, List<LimitViolation>, LimitViolationFilter, TableFormatterConfig) instead.
+     */
     @Deprecated
     public static String printLimitsViolations(List<LimitViolation> violations, LimitViolationFilter filter) {
         return printLimitsViolations(null, violations, filter, TableFormatterConfig.load());
     }
 
+    /**
+     * @deprecated use printLimitsViolations(network, List<LimitViolation>, LimitViolationFilter, TableFormatterConfig) instead.
+     */
     @Deprecated
     public static String printLimitsViolations(List<LimitViolation> violations, LimitViolationFilter filter, TableFormatterConfig formatterConfig) {
         return printLimitsViolations(null, violations, filter, formatterConfig);
+    }
+
+    public static String printLimitsViolations(Network network) {
+        return printLimitsViolations(network, checkLimits(network), LimitViolationFilter.load(), TableFormatterConfig.load());
     }
 
     public static String printLimitsViolations(Network network, List<LimitViolation> violations, LimitViolationFilter filter) {
@@ -186,10 +199,6 @@ public final class Security {
             throw new UncheckedIOException(e);
         }
         return writer.toString().trim();
-    }
-
-    private static float getAbsValueLimit(LimitViolation violation) {
-        return Float.valueOf(Float.toString(violation.getLimit()) + (violation.getLimitReduction() != 1f ? " * " + violation.getLimitReduction() : ""));
     }
 
     public static void printPreContingencyViolations(SecurityAnalysisResult result, Writer writer, TableFormatterFactory formatterFactory,
@@ -290,7 +299,7 @@ public final class Security {
                     .writeCell(getViolationName(violation))
                     .writeCell(violation.getValue(), HorizontalAlignment.RIGHT, numberFormatter)
                     .writeCell(getViolationLimit(violation), HorizontalAlignment.RIGHT, numberFormatter)
-                    .writeCell(getViolationValue(violation), HorizontalAlignment.RIGHT, numberFormatter);
+                    .writeCell(getLoadingRate(violation), HorizontalAlignment.RIGHT, numberFormatter);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
@@ -356,7 +365,7 @@ public final class Security {
                     .writeCell(getViolationName(violation))
                     .writeCell(violation.getValue(), HorizontalAlignment.RIGHT, numberFormatter)
                     .writeCell(getViolationLimit(violation), HorizontalAlignment.RIGHT, numberFormatter)
-                    .writeCell(getViolationValue(violation), HorizontalAlignment.RIGHT, numberFormatter);
+                    .writeCell(getLoadingRate(violation), HorizontalAlignment.RIGHT, numberFormatter);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
@@ -373,8 +382,8 @@ public final class Security {
                     .writeCell(getViolationName(violation))
                     .writeCell(violation.getValue(), HorizontalAlignment.RIGHT, numberFormatter)
                     .writeCell(getViolationLimit(violation), HorizontalAlignment.RIGHT, numberFormatter)
-                    .writeCell(getAbsValueLimit(violation), HorizontalAlignment.RIGHT, numberFormatter)
-                    .writeCell(getViolationValue(violation), HorizontalAlignment.RIGHT, numberFormatter);
+                    .writeCell(getViolation(violation), HorizontalAlignment.RIGHT, numberFormatter)
+                    .writeCell(getLoadingRate(violation), HorizontalAlignment.RIGHT, numberFormatter);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
@@ -401,8 +410,12 @@ public final class Security {
         return violation.getLimit() * violation.getLimitReduction();
     }
 
-    private static float getViolationValue(LimitViolation violation) {
+    private static float getLoadingRate(LimitViolation violation) {
         return Math.abs(violation.getValue()) / violation.getLimit() * 100f;
+    }
+
+    private static float getViolation(LimitViolation violation) {
+        return Math.abs(violation.getValue() - violation.getLimit() * violation.getLimitReduction());
     }
 
     private static NumberFormat createNumberFormat(Locale locale) {

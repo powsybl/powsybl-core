@@ -8,12 +8,14 @@ package com.powsybl.security;
 
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
@@ -31,7 +33,7 @@ public class LimitViolationTest {
             .map(v -> LimitViolation.getCountry(v, network))
             .collect(Collectors.toList());
 
-        Assert.assertEquals(expectedCountries, countries);
+        assertEquals(expectedCountries, countries);
     }
 
     @Test
@@ -43,7 +45,19 @@ public class LimitViolationTest {
             .map(v -> LimitViolation.getNominalVoltage(v, network))
             .collect(Collectors.toList());
 
-        Assert.assertEquals(expectedVoltages, voltages);
+        assertEquals(expectedVoltages, voltages);
     }
 
+    @Test
+    public void testDeprecatedConstructors() {
+        LimitViolation limitViolation = new LimitViolation("subjectId", LimitViolationType.HIGH_VOLTAGE, 100.0f, "limitName", 110.0f);
+        assertEquals("subjectId", limitViolation.getSubjectId());
+        assertEquals(LimitViolationType.HIGH_VOLTAGE, limitViolation.getLimitType());
+        assertEquals("limitName", limitViolation.getLimitName());
+        assertEquals(100.0f, limitViolation.getLimit(), 0.0f);
+        assertEquals(1.0f, limitViolation.getLimitReduction(), 0.0f);
+        assertEquals(110.0f, limitViolation.getValue(), 0.0f);
+        assertNull(limitViolation.getCountry());
+        assertEquals(Float.NaN, limitViolation.getBaseVoltage(), 0.0f);
+    }
 }

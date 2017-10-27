@@ -9,9 +9,6 @@ package com.powsybl.security.converter;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.io.table.CsvTableFormatterFactory;
 import com.powsybl.commons.io.table.TableFormatterFactory;
-import com.powsybl.security.LimitViolationFilter;
-import com.powsybl.security.Security;
-import com.powsybl.security.SecurityAnalysisResult;
 
 import java.io.*;
 
@@ -21,7 +18,7 @@ import java.io.*;
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
 @AutoService(SecurityAnalysisResultExporter.class)
-public class CsvSecurityAnalysisResultExporter implements SecurityAnalysisResultExporter {
+public class CsvSecurityAnalysisResultExporter extends AbstractTableSecurityAnalysisResultExporter {
 
     @Override
     public String getFormat() {
@@ -34,9 +31,7 @@ public class CsvSecurityAnalysisResultExporter implements SecurityAnalysisResult
     }
 
     @Override
-    public void export(SecurityAnalysisResult result, LimitViolationFilter limitViolationFilter, Writer writer) {
-        TableFormatterFactory tableFormatterFactory = new CsvTableFormatterFactory();
-        Security.printPreContingencyViolations(result, writer, tableFormatterFactory, limitViolationFilter);
-        Security.printPostContingencyViolations(result, writer, tableFormatterFactory, limitViolationFilter);
+    protected TableFormatterFactory getTableFormatterFactory() {
+        return new CsvTableFormatterFactory();
     }
 }

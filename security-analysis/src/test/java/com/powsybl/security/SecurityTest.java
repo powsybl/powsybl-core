@@ -37,6 +37,9 @@ public class SecurityTest {
     private SecurityAnalysisResult result;
     private LimitViolation line1Violation;
     private LimitViolation line2Violation;
+    private LimitViolation vl1Violation;
+    private LimitViolation bus1Violation;
+    private List<LimitViolation> violations;
 
     @Before
     public void setUp() {
@@ -50,7 +53,11 @@ public class SecurityTest {
         Contingency contingency1 = Mockito.mock(Contingency.class);
         Mockito.when(contingency1.getId()).thenReturn("contingency1");
         line2Violation = new LimitViolation("LINE2", LimitViolationType.CURRENT, "10'", 900f, 1.0f, 950, Branch.Side.ONE);
-        PostContingencyResult postContingencyResult = new PostContingencyResult(contingency1, true, Arrays.asList(line1Violation, line2Violation), Collections.singletonList("action2"));
+        vl1Violation = new LimitViolation("VL1", LimitViolationType.HIGH_VOLTAGE, 250.0f, 1.0f, 300.0f);
+        bus1Violation = new LimitViolation("BUS1", LimitViolationType.LOW_VOLTAGE, 200.0f, 0.9f, 300.0f);
+        violations =  Arrays.asList(line1Violation, line2Violation, vl1Violation, bus1Violation);
+
+        PostContingencyResult postContingencyResult = new PostContingencyResult(contingency1, true, violations, Collections.singletonList("action2"));
         result = new SecurityAnalysisResult(network, preContingencyResult, Collections.singletonList(postContingencyResult));
     }
 
@@ -84,8 +91,10 @@ public class SecurityTest {
                                  "Contingency,Status,Action,Equipment,Violation type,Violation name,Value,Limit,Loading rate %",
                                  "contingency1,converge,,,,,,,",
                                  ",,action2,,,,,,",
+                                 ",,,BUS1,LOW_VOLTAGE,,300.0000,180.0000,150.0000",
                                  ",,,LINE1,CURRENT,20',1100.0000,1000.0000,110.0000",
-                                 ",,,LINE2,CURRENT,10',950.0000,900.0000,105.5556"),
+                                 ",,,LINE2,CURRENT,10',950.0000,900.0000,105.5556",
+                                 ",,,VL1,HIGH_VOLTAGE,,300.0000,250.0000,120.0000"),
                      writer.toString().trim());
     }
 
@@ -102,19 +111,24 @@ public class SecurityTest {
                                  "Contingency,Status,Action,Equipment,Violation type,Violation name,Value,Limit,Loading rate %",
                                  "contingency1,converge,,,,,,,",
                                  ",,action2,,,,,,",
-                                 ",,,LINE2,CURRENT,10',950.0000,900.0000,105.5556"),
+                                 ",,,BUS1,LOW_VOLTAGE,,300.0000,180.0000,150.0000",
+                                 ",,,LINE2,CURRENT,10',950.0000,900.0000,105.5556",
+                                 ",,,VL1,HIGH_VOLTAGE,,300.0000,250.0000,120.0000"),
                      writer.toString().trim());
     }
 
     @Test
     public void printLimitsViolations() throws Exception {
-        assertEquals("+---------+--------------+---------------+----------------+----------------+-----------+-----------+------------------+----------------+\n" +
-                     "| Country | Base voltage | Equipment (2) | Violation type | Violation name | Value     | Limit     | abs(value-limit) | Loading rate % |\n" +
-                     "+---------+--------------+---------------+----------------+----------------+-----------+-----------+------------------+----------------+\n" +
-                     "| FR      | 380.0        | LINE1         | CURRENT        | 20'            | 1100.0000 | 1000.0000 |        1000.0000 |       110.0000 |\n" +
-                     "| FR      | 220.0        | LINE2         | CURRENT        | 10'            |  950.0000 |  900.0000 |         900.0000 |       105.5556 |\n" +
-                     "+---------+--------------+---------------+----------------+----------------+-----------+-----------+------------------+----------------+",
-                     Security.printLimitsViolations(network, Arrays.asList(line1Violation, line2Violation), new LimitViolationFilter(), formatterConfig));
+        assertEquals(String.join(System.lineSeparator(),
+            "+---------+--------------+---------------+----------------+----------------+-----------+-----------+------------------+----------------+",
+            "| Country | Base voltage | Equipment (4) | Violation type | Violation name | Value     | Limit     | abs(value-limit) | Loading rate % |",
+            "+---------+--------------+---------------+----------------+----------------+-----------+-----------+------------------+----------------+",
+            "| FR      | 220.0        | BUS1          | LOW_VOLTAGE    |                |  300.0000 |  180.0000 |         120.0000 |       150.0000 |",
+            "| FR      | 380.0        | LINE1         | CURRENT        | 20'            | 1100.0000 | 1000.0000 |         100.0000 |       110.0000 |",
+            "| FR      | 220.0        | LINE2         | CURRENT        | 10'            |  950.0000 |  900.0000 |          50.0000 |       105.5556 |",
+            "| FR      | 220.0        | VL1           | HIGH_VOLTAGE   |                |  300.0000 |  250.0000 |          50.0000 |       120.0000 |",
+            "+---------+--------------+---------------+----------------+----------------+-----------+-----------+------------------+----------------+"),
+            Security.printLimitsViolations(network, violations, new LimitViolationFilter(), formatterConfig));
     }
 
 
