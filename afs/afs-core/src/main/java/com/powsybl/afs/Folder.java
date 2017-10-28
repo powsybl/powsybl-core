@@ -46,13 +46,18 @@ public class Folder extends Node implements FolderBase<Node, Folder> {
 
     @Override
     public Folder createFolder(String name) {
-        NodeId folderId = storage.createNode(id, name, Folder.PSEUDO_CLASS);
+        NodeId folderId = storage.getChildNode(id, name);
+        if (folderId == null) {
+            folderId = storage.createNode(id, name, Folder.PSEUDO_CLASS);
+        }
         return new Folder(folderId, storage, fileSystem);
     }
 
-    public Project createProject(String name, String description) {
-        NodeId projectId = storage.createNode(id, name, Project.PSEUDO_CLASS);
-        storage.setStringAttribute(projectId, "description", description);
-        return new Project(projectId, storage, fileSystem);
+    public Project createProject(String name) {
+        NodeId projectNodeId = storage.getChildNode(id, name);
+        if (projectNodeId == null) {
+            projectNodeId = storage.createNode(id, name, Project.PSEUDO_CLASS);
+        }
+        return new Project(projectNodeId, storage, fileSystem);
     }
 }

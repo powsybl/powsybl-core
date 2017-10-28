@@ -68,6 +68,10 @@ public class ModificationScriptBuilder implements ProjectFileBuilder<Modificatio
             throw new AfsException("Content is not set");
         }
 
+        if (storage.getChildNode(folderId, name) != null) {
+            throw new AfsException("Parent folder already contains a '" + name + "' node");
+        }
+
         // create project file
         NodeId id = storage.createNode(folderId, name, ModificationScript.PSEUDO_CLASS);
 
