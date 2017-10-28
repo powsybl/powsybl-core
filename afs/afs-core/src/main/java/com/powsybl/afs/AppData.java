@@ -45,6 +45,7 @@ public class AppData implements AutoCloseable {
 
         @Override
         public void log(String message, Object... args) {
+            // no-op
         }
     }
 
@@ -57,7 +58,7 @@ public class AppData implements AutoCloseable {
 
     public AppData(ComputationManager computationManager, List<AppFileSystemProvider> fileSystemProviders,
                    List<FileExtension> fileExtensions, List<ProjectFileExtension> projectFileExtensions) {
-        this(computationManager, fileSystemProviders, fileExtensions, projectFileExtensions, () -> new NoOpAppLogger());
+        this(computationManager, fileSystemProviders, fileExtensions, projectFileExtensions, NoOpAppLogger::new);
     }
 
     public AppData(ComputationManager computationManager, List<AppFileSystemProvider> fileSystemProviders,

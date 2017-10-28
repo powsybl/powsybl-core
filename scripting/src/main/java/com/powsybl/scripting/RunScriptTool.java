@@ -98,7 +98,7 @@ public class RunScriptTool implements Tool {
             AppLogger logger = new AppLogger() {
                 @Override
                 public void log(String message, Object... args) {
-                    System.out.println(String.format(message, args));
+                    context.getOutputStream().println(String.format(message, args));
                 }
 
                 @Override
