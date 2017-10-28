@@ -62,7 +62,7 @@ public class VirtualCaseTest extends AbstractProjectFileTest {
         Case aCase = (Case) afs.getRootFolder().getChildren().get(0);
 
         // create project
-        Project project = afs.getRootFolder().createProject("project", "");
+        Project project = afs.getRootFolder().createProject("project");
 
         // create project folder
         ProjectFolder folder = project.getRootFolder().createFolder("folder");

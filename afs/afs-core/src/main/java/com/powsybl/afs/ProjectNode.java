@@ -46,6 +46,7 @@ public class ProjectNode extends AbstractNodeBase<ProjectFolder> {
         return parentNode != null ? new ProjectFolder(parentNode, storage, projectId, fileSystem) : null;
     }
 
+    @Override
     public NodePath getPath() {
         return NodePath.find(this, path -> path.stream()
                                                .skip(1) // skip project node
