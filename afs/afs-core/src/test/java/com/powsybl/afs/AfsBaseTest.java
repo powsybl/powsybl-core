@@ -84,7 +84,8 @@ public class AfsBaseTest {
         assertNotNull(mayBeDir2otherWay);
         assertEquals("dir2", mayBeDir2otherWay.getName());
 
-        Project project1 = dir2.createProject("project1", "test project");
+        Project project1 = dir2.createProject("project1");
+        project1.setDescription("test project");
         assertNotNull(project1);
         assertEquals("project1", project1.getName());
         assertEquals("test project", project1.getDescription());
@@ -118,7 +119,7 @@ public class AfsBaseTest {
 
     @Test
     public void moveToTest() throws IOException {
-        Project project = afs.getRootFolder().createProject("test", "");
+        Project project = afs.getRootFolder().createProject("test");
         ProjectFolder test1 = project.getRootFolder().createFolder("test1");
         ProjectFolder test2 = project.getRootFolder().createFolder("test2");
         FooFile file = test1.fileBuilder(FooFileBuilder.class)
