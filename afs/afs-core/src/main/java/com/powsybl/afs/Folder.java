@@ -50,9 +50,8 @@ public class Folder extends Node implements FolderBase<Node, Folder> {
         return new Folder(folderId, storage, fileSystem);
     }
 
-    public Project createProject(String name, String description) {
+    public Project createProject(String name) {
         NodeId projectId = storage.createNode(id, name, Project.PSEUDO_CLASS);
-        storage.setStringAttribute(projectId, "description", description);
         return new Project(projectId, storage, fileSystem);
     }
 }

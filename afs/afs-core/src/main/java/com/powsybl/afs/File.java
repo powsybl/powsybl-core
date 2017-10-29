@@ -16,6 +16,8 @@ import java.util.Objects;
  */
 public class File extends Node {
 
+    protected static final String DESCRIPTION = "description";
+
     protected final FileIcon icon;
 
     public File(NodeId id, AppFileSystemStorage storage, AppFileSystem fileSystem, FileIcon icon) {
@@ -28,6 +30,6 @@ public class File extends Node {
     }
 
     public String getDescription() {
-        return storage.getStringAttribute(id, "description");
+        return storage.getStringAttribute(id, DESCRIPTION);
     }
 }

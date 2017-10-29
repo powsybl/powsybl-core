@@ -71,7 +71,7 @@ public class ImportedCaseTest extends AbstractProjectFileTest {
         assertNotNull(aCase.getIcon());
 
         // create project
-        Project project = root.createProject("project", "");
+        Project project = root.createProject("project");
         assertNotNull(project);
 
         // create project folder
