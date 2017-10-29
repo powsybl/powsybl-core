@@ -62,7 +62,7 @@ public class LocalCase implements LocalFile {
 
     @Override
     public OptionalInt getIntAttribute(String name) {
-        throw new AssertionError(name);
+        throw new AssertionError();
     }
 
     @Override
