@@ -238,7 +238,7 @@ public class LocalAppFileSystemStorage implements AppFileSystemStorage {
 
     @Override
     public OptionalInt getIntAttribute(NodeId nodeId, String name) {
-        throw new AssertionError();
+        return getFile(nodeId).getIntAttribute(name);
     }
 
     @Override
@@ -248,7 +248,7 @@ public class LocalAppFileSystemStorage implements AppFileSystemStorage {
 
     @Override
     public OptionalDouble getDoubleAttribute(NodeId nodeId, String name) {
-        throw new AssertionError();
+        return getFile(nodeId).getDoubleAttribute(name);
     }
 
     @Override
@@ -258,7 +258,7 @@ public class LocalAppFileSystemStorage implements AppFileSystemStorage {
 
     @Override
     public Optional<Boolean> getBooleanAttribute(NodeId nodeId, String name) {
-        throw new AssertionError();
+        return getFile(nodeId).getBooleanAttribute(name);
     }
 
     @Override
