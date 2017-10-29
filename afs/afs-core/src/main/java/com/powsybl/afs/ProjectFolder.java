@@ -42,12 +42,27 @@ public class ProjectFolder extends ProjectNode implements FolderBase<ProjectNode
     }
 
     @Override
-    public ProjectFolder createFolder(String name) {
-        NodeId folderNodeId = storage.getChildNode(id, name);
-        if (folderNodeId == null) {
-            folderNodeId = storage.createNode(id, name, ProjectFolder.PSEUDO_CLASS);
+    public <T extends ProjectNode> T getChild(Class<T> clazz, String name, String... more) {
+        Objects.requireNonNull(clazz);
+        ProjectNode projectNode = getChild(name, more);
+        if (projectNode != null && clazz.isAssignableFrom(projectNode.getClass())) {
+            return (T) projectNode;
         }
-        return new ProjectFolder(folderNodeId, storage, projectId, fileSystem);
+        return null;
+    }
+
+    @Override
+    public ProjectFolder getFolder(String name, String... more) {
+        return getChild(ProjectFolder.class, name, more);
+    }
+
+    @Override
+    public ProjectFolder createFolder(String name) {
+        NodeId folderId = storage.getChildNode(id, name);
+        if (folderId == null) {
+            folderId = storage.createNode(id, name, ProjectFolder.PSEUDO_CLASS);
+        }
+        return new ProjectFolder(folderId, storage, projectId, fileSystem);
     }
 
     public <F extends ProjectFile, B extends ProjectFileBuilder<F>> B fileBuilder(Class<B> clazz) {

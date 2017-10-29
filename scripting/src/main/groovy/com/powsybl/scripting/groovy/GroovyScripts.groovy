@@ -8,6 +8,8 @@ package com.powsybl.scripting.groovy
 
 import com.powsybl.afs.AfsException
 import com.powsybl.afs.AppData
+import com.powsybl.afs.FileExtension
+import com.powsybl.afs.Folder
 import com.powsybl.afs.ProjectFileExtension
 import com.powsybl.afs.ProjectFolder
 import org.codehaus.groovy.control.CompilerConfiguration
@@ -20,10 +22,23 @@ import java.nio.file.Path
  */
 class GroovyScripts {
 
+    private static String findBuilderPseudoClass(String name, args) {
+        if (name.endsWith("Builder") && name.size() > 7 && args.length == 0) {
+            name.substring(0, name.length() - 7)
+        }
+    }
+
+    private static findGetChildPseudoClass(String name, args) {
+        if (name.startsWith("get") && name.size() > 3 && args.length > 0 && !args.find { !(it instanceof String) }) {
+            String substr = name.substring(3)
+            substr[0].toLowerCase() + substr[1..-1]
+        }
+    }
+
     static {
         ProjectFolder.metaClass.methodMissing = { String name, args ->
-            if (name.endsWith("Builder") && name.size() > 7) {
-                String projectFilePseudoClass = name.substring(0, name.length() - 7)
+            String projectFilePseudoClass;
+            if ((projectFilePseudoClass = findBuilderPseudoClass(name, args))) {
                 ProjectFileExtension extension = delegate.getProject().getFileSystem().getData()
                         .getProjectFileExtensionByPseudoClass(projectFilePseudoClass)
                 if (!extension) {
@@ -31,6 +46,30 @@ class GroovyScripts {
                             + projectFilePseudoClass + "'");
                 }
                 delegate.fileBuilder(extension.getProjectFileBuilderClass())
+            } else if ((projectFilePseudoClass = findGetChildPseudoClass(name, args))) {
+                ProjectFileExtension extension = delegate.getProject().getFileSystem().getData()
+                        .getProjectFileExtensionByPseudoClass(projectFilePseudoClass)
+                if (extension) {
+                    if (args.length == 1) {
+                        delegate.getChild(args[0])
+                    } else {
+                        delegate.getChild(args[0], args[1..-1])
+                    }
+                }
+            }
+        }
+
+        Folder.metaClass.methodMissing = { String name, args ->
+            String filePseudoClass = findGetChildPseudoClass(name, args)
+            if (filePseudoClass) {
+                FileExtension extension = delegate.getFileSystem().getData().getFileExtensionByPseudoClass(filePseudoClass)
+                if (extension) {
+                    if (args.length == 1) {
+                        delegate.getChild(args[0])
+                    } else {
+                        delegate.getChild(args[0], args[1..-1])
+                    }
+                }
             }
         }
     }
