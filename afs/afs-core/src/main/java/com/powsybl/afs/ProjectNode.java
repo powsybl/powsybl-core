@@ -85,7 +85,7 @@ public class ProjectNode extends AbstractNodeBase<ProjectFolder> {
     }
 
     public List<ProjectFile> getBackwardDependencies() {
-        return storage.getBackwardDependencyInfos(info.getId())
+        return storage.getBackwardDependenciesInfo(info.getId())
                 .stream()
                 .map(this::findProjectFile)
                 .collect(Collectors.toList());

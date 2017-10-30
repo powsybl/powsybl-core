@@ -29,7 +29,7 @@ public class ProjectFolder extends ProjectNode implements FolderBase<ProjectNode
 
     @Override
     public List<ProjectNode> getChildren() {
-        return storage.getChildNodeInfos(info.getId())
+        return storage.getChildNodesInfo(info.getId())
                 .stream()
                 .map(this::findProjectNode)
                 .sorted(Comparator.comparing(ProjectNode::getName))

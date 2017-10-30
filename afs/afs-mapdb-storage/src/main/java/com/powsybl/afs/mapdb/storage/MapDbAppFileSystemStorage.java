@@ -48,8 +48,6 @@ public class MapDbAppFileSystemStorage implements AppFileSystemStorage {
                 .make());
     }
 
-    private final DB db;
-
     private static final class NamedLink {
 
         private final UuidNodeId nodeId;
@@ -293,6 +291,10 @@ public class MapDbAppFileSystemStorage implements AppFileSystemStorage {
         }
     }
 
+    private final String fileSystemName;
+
+    private final DB db;
+
     private final ConcurrentMap<String, UuidNodeId> rootNodeMap;
 
     private final ConcurrentMap<UuidNodeId, UuidNodeIdList> childNodesMap;
@@ -344,6 +346,7 @@ public class MapDbAppFileSystemStorage implements AppFileSystemStorage {
     private final ConcurrentMap<NamedLink, byte[]> cacheMap;
 
     protected MapDbAppFileSystemStorage(String fileSystemName, Supplier<DB> db) {
+        this.fileSystemName = Objects.requireNonNull(fileSystemName);
         this.db = db.get();
 
         rootNodeMap = this.db
@@ -464,6 +467,11 @@ public class MapDbAppFileSystemStorage implements AppFileSystemStorage {
                 .addAll(strings)
                 .add(string)
                 .build();
+    }
+
+    @Override
+    public String getFileSystemName() {
+        return fileSystemName;
     }
 
     @Override

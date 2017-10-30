@@ -33,7 +33,7 @@ public class Folder extends Node implements FolderBase<Node, Folder> {
 
     @Override
     public List<Node> getChildren() {
-        return storage.getChildNodeInfos(info.getId())
+        return storage.getChildNodesInfo(info.getId())
                 .stream()
                 .map(this::findNode)
                 .sorted(Comparator.comparing(Node::getName))

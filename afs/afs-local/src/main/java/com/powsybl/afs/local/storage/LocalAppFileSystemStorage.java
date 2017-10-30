@@ -88,6 +88,11 @@ public class LocalAppFileSystemStorage implements AppFileSystemStorage {
     }
 
     @Override
+    public String getFileSystemName() {
+        return fileSystemName;
+    }
+
+    @Override
     public NodeId fromString(String str) {
         return new PathNodeId(rootDir.getFileSystem().getPath(str));
     }

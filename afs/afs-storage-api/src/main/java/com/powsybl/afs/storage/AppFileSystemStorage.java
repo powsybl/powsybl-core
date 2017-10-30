@@ -21,6 +21,8 @@ import java.util.stream.Collectors;
  */
 public interface AppFileSystemStorage extends AutoCloseable {
 
+    String getFileSystemName();
+
     NodeId fromString(String str);
 
     String getNodeName(NodeId nodeId);
@@ -37,7 +39,7 @@ public interface AppFileSystemStorage extends AutoCloseable {
 
     List<NodeId> getChildNodes(NodeId nodeId);
 
-    default List<NodeInfo> getChildNodeInfos(NodeId nodeId) {
+    default List<NodeInfo> getChildNodesInfo(NodeId nodeId) {
         return getChildNodes(nodeId).stream().map(this::getNodeInfo).collect(Collectors.toList());
     }
 
@@ -137,13 +139,13 @@ public interface AppFileSystemStorage extends AutoCloseable {
 
     List<NodeId> getDependencies(NodeId nodeId);
 
-    default List<NodeInfo> getDependencyInfos(NodeId nodeId) {
+    default List<NodeInfo> getDependenciesInfo(NodeId nodeId) {
         return getDependencies(nodeId).stream().map(this::getNodeInfo).collect(Collectors.toList());
     }
 
     List<NodeId> getBackwardDependencies(NodeId nodeId);
 
-    default List<NodeInfo> getBackwardDependencyInfos(NodeId nodeId) {
+    default List<NodeInfo> getBackwardDependenciesInfo(NodeId nodeId) {
         return getBackwardDependencies(nodeId).stream().map(this::getNodeInfo).collect(Collectors.toList());
     }
 
