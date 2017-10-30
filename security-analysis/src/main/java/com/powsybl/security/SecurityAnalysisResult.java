@@ -6,6 +6,8 @@
  */
 package com.powsybl.security;
 
+import com.powsybl.iidm.network.Network;
+
 import java.util.List;
 import java.util.Objects;
 
@@ -14,14 +16,29 @@ import java.util.Objects;
  */
 public class SecurityAnalysisResult {
 
+    private final Network network;
+
     private final LimitViolationsResult preContingencyResult;
 
     private final List<PostContingencyResult> postContingencyResults;
 
     public SecurityAnalysisResult(LimitViolationsResult preContingencyResult,
                                   List<PostContingencyResult> postContingencyResults) {
+        this.network = null;
         this.preContingencyResult = Objects.requireNonNull(preContingencyResult);
         this.postContingencyResults = Objects.requireNonNull(postContingencyResults);
+    }
+
+    public SecurityAnalysisResult(Network network,
+                                  LimitViolationsResult preContingencyResult,
+                                  List<PostContingencyResult> postContingencyResults) {
+        this.network = Objects.requireNonNull(network);
+        this.preContingencyResult = Objects.requireNonNull(preContingencyResult);
+        this.postContingencyResults = Objects.requireNonNull(postContingencyResults);
+    }
+
+    public Network getNetwork() {
+        return network;
     }
 
     public LimitViolationsResult getPreContingencyResult() {

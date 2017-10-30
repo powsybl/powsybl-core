@@ -57,10 +57,10 @@ public class LoadFlowActionSimulatorLogPrinter extends DefaultLoadFlowActionSimu
     }
 
     @Override
-    public void loadFlowConverged(Contingency contingency, List<LimitViolation> violations) {
-        if (violations.size() > 0) {
+    public void loadFlowConverged(Network network, Contingency contingency, List<LimitViolation> violations) {
+        if (!violations.isEmpty()) {
             out.println("        Violations:");
-            out.println(Security.printLimitsViolations(violations, LoadFlowActionSimulator.NO_FILTER));
+            out.println(Security.printLimitsViolations(network, violations, LoadFlowActionSimulator.NO_FILTER));
         }
     }
 
@@ -73,13 +73,13 @@ public class LoadFlowActionSimulatorLogPrinter extends DefaultLoadFlowActionSimu
                 Table table = new Table(3, BorderStyle.CLASSIC_WIDE);
                 table.addCell("Variable");
                 table.addCell("Value");
-                variables.entrySet().forEach(e -> {
-                    table.addCell(e.getKey());
-                    table.addCell(Objects.toString(e.getValue()));
+                variables.forEach((key, value) -> {
+                    table.addCell(key);
+                    table.addCell(Objects.toString(value));
                 });
-                actions.entrySet().forEach(e -> {
-                    table.addCell(e.getKey() + ".actionTaken");
-                    table.addCell(e.getValue().toString());
+                actions.forEach((key, value) -> {
+                    table.addCell(key + ".actionTaken");
+                    table.addCell(value.toString());
                 });
                 out.println(table.render());
             }

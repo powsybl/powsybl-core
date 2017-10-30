@@ -8,6 +8,7 @@ package com.powsybl.action.simulator.tools;
 
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyImpl;
+import com.powsybl.iidm.network.Branch;
 import com.powsybl.security.*;
 import org.junit.Test;
 
@@ -28,11 +29,11 @@ public class SecurityAnalysisResultBuilderTest {
     }
 
     private List<LimitViolation> createPreContingencyViolations() {
-        return Collections.singletonList(new LimitViolation("line1", LimitViolationType.CURRENT, 100, "IST", 0.0f, 101, null, 63.0f));
+        return Collections.singletonList(new LimitViolation("line1", LimitViolationType.CURRENT, "IST", 100, 1.0f, 101, Branch.Side.TWO));
     }
 
     private List<LimitViolation> createPostContingencyViolations() {
-        return Collections.singletonList(new LimitViolation("line2", LimitViolationType.CURRENT, 100, "IST", 0.0f, 110, null, 380.0f));
+        return Collections.singletonList(new LimitViolation("line2", LimitViolationType.CURRENT, "IST", 100, 1.0f, 110, Branch.Side.ONE));
     }
 
     private void testLimitViolation(LimitViolationsResult result, boolean convergent, List<String> equipmentsId, List<String> actionsId) {
@@ -66,7 +67,7 @@ public class SecurityAnalysisResultBuilderTest {
         builder.beforePreContingencyAnalysis(null);
         builder.afterAction(null, "pre-action");
         if (convergent) {
-            builder.loadFlowConverged(null, createPreContingencyViolations());
+            builder.loadFlowConverged(null, null, createPreContingencyViolations());
         } else {
             builder.loadFlowDiverged(null);
         }
@@ -76,7 +77,7 @@ public class SecurityAnalysisResultBuilderTest {
         builder.afterAction(contingency, "post-action1");
         builder.afterAction(contingency, "post-action2");
         if (convergent) {
-            builder.loadFlowConverged(contingency, createPostContingencyViolations());
+            builder.loadFlowConverged(null, contingency, createPostContingencyViolations());
         } else {
             builder.loadFlowDiverged(contingency);
         }

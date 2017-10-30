@@ -16,9 +16,8 @@ import com.powsybl.contingency.ContingencyElement;
 import com.powsybl.contingency.json.ContingencyElementSerializer;
 import com.powsybl.security.*;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.UncheckedIOException;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
@@ -58,20 +57,26 @@ public class SecurityAnalysisResultSerializer extends StdSerializer<SecurityAnal
     }
 
     public static void write(SecurityAnalysisResult result, LimitViolationFilter filter, OutputStream out) throws IOException {
+        Objects.requireNonNull(out);
+        try (OutputStreamWriter writer = new OutputStreamWriter(out, StandardCharsets.UTF_8)) {
+            write(result, filter, writer);
+        }
+    }
+
+    public static void write(SecurityAnalysisResult result, LimitViolationFilter filter, Writer writer) throws IOException {
         Objects.requireNonNull(result);
         Objects.requireNonNull(filter);
-        Objects.requireNonNull(out);
+        Objects.requireNonNull(writer);
         ObjectMapper objectMapper = new ObjectMapper();
         SimpleModule module = new SimpleModule();
         module.addSerializer(SecurityAnalysisResult.class, new SecurityAnalysisResultSerializer());
         module.addSerializer(PostContingencyResult.class, new PostContingencyResultSerializer());
-        module.addSerializer(LimitViolationsResult.class, new LimitViolationsResultSerializer(filter));
+        module.addSerializer(LimitViolationsResult.class, new LimitViolationsResultSerializer(result.getNetwork(), filter));
         module.addSerializer(LimitViolation.class, new LimitViolationSerializer());
         module.addSerializer(ContingencyElement.class, new ContingencyElementSerializer());
         objectMapper.registerModule(module);
 
-        ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
-        writer.writeValue(out, result);
-
+        ObjectWriter objectWriter = objectMapper.writerWithDefaultPrettyPrinter();
+        objectWriter.writeValue(writer, result);
     }
 }

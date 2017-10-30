@@ -7,7 +7,7 @@
  */
 package com.powsybl.security;
 
-import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.*;
 
 import java.util.Objects;
 
@@ -32,6 +32,12 @@ public class LimitViolation {
 
     private final float baseVoltage;
 
+    private final Branch.Side side;
+
+    /**
+     * @deprecated use LimitViolation(String, LimitViolationType, String, float, float, float, Branch.Side) instead
+     */
+    @Deprecated
     public LimitViolation(String subjectId, LimitViolationType limitType, float limit, String limitName,
                           float limitReduction, float value, Country country, float baseVoltage) {
         this.subjectId = Objects.requireNonNull(subjectId);
@@ -42,10 +48,32 @@ public class LimitViolation {
         this.value = value;
         this.country = country;
         this.baseVoltage = baseVoltage;
+        this.side = null;
     }
 
+    /**
+     * @deprecated use LimitViolation(String, LimitViolationType, String, float, float, float, Branch.Side) instead
+     */
+    @Deprecated
     public LimitViolation(String subjectId, LimitViolationType limitType, float limit, String limitName, float value) {
         this(subjectId, limitType, limit, limitName, 1, value, null, Float.NaN);
+    }
+
+    public LimitViolation(String subjectId, LimitViolationType limitType, String limitName, float limit, float limitReduction,
+                          float value, Branch.Side side) {
+        this.subjectId = Objects.requireNonNull(subjectId);
+        this.limitType = Objects.requireNonNull(limitType);
+        this.limitName = limitName;
+        this.limit = limit;
+        this.limitReduction = limitReduction;
+        this.value = value;
+        this.side = checkSide(limitType, side);
+        this.country = null;
+        this.baseVoltage = Float.NaN;
+    }
+
+    public LimitViolation(String subjectId, LimitViolationType limitType, float limit, float limitReduction, float value) {
+        this(subjectId, limitType, null, limit, limitReduction, value, null);
     }
 
     public String getSubjectId() {
@@ -72,12 +100,85 @@ public class LimitViolation {
         return value;
     }
 
+    public Branch.Side getSide() {
+        return side;
+    }
+
+    /**
+     * @deprecated Use LimitViolation.getCountry(LimitViolation, Network) instead.
+     */
+    @Deprecated
     public Country getCountry() {
         return country;
     }
 
+    /**
+     * @deprecated Use LimitViolation.getNominalVoltage(LimitViolation, Network) instead.
+     */
+    @Deprecated
     public float getBaseVoltage() {
         return baseVoltage;
     }
 
+    private static Branch.Side checkSide(LimitViolationType limitType, Branch.Side side) {
+        if (limitType == LimitViolationType.CURRENT) {
+            return Objects.requireNonNull(side);
+        } else {
+            return null;
+        }
+    }
+
+    static Country getCountry(LimitViolation limitViolation, Network network) {
+        Objects.requireNonNull(limitViolation);
+        Objects.requireNonNull(network);
+
+        Country country;
+
+        Identifiable identifiable = network.getIdentifiable(limitViolation.getSubjectId());
+        if (identifiable instanceof Branch) {
+            Branch branch = (Branch) identifiable;
+            country = branch.getTerminal(limitViolation.getSide()).getVoltageLevel().getSubstation().getCountry();
+        } else if (identifiable instanceof Injection) {
+            Injection injection = (Injection) identifiable;
+            country = injection.getTerminal().getVoltageLevel().getSubstation().getCountry();
+        } else if (identifiable instanceof VoltageLevel) {
+            VoltageLevel voltageLevel = (VoltageLevel) identifiable;
+            country = voltageLevel.getSubstation().getCountry();
+        } else if (identifiable instanceof Bus) {
+            Bus bus = (Bus) identifiable;
+            country = bus.getVoltageLevel().getSubstation().getCountry();
+        } else {
+            throw new AssertionError("Unexpected identifiable type: " + identifiable.getClass());
+        }
+
+        return country;
+    }
+
+    static float getNominalVoltage(LimitViolation limitViolation, Network network) {
+        Objects.requireNonNull(limitViolation);
+        Objects.requireNonNull(network);
+
+        float nominalVoltage;
+
+        Identifiable identifiable = network.getIdentifiable(limitViolation.getSubjectId());
+        if (identifiable == null) {
+            throw new AssertionError("Unable to find the identifiable: " + limitViolation.getSubjectId());
+        } else if (identifiable instanceof Branch) {
+            Branch branch = (Branch) identifiable;
+            nominalVoltage = branch.getTerminal(limitViolation.getSide()).getVoltageLevel().getNominalV();
+        } else if (identifiable instanceof Injection) {
+            Injection injection = (Injection) identifiable;
+            nominalVoltage = injection.getTerminal().getVoltageLevel().getNominalV();
+        } else if (identifiable instanceof VoltageLevel) {
+            VoltageLevel voltageLevel = (VoltageLevel) identifiable;
+            nominalVoltage = voltageLevel.getNominalV();
+        } else if (identifiable instanceof Bus) {
+            Bus bus = (Bus) identifiable;
+            nominalVoltage = bus.getVoltageLevel().getNominalV();
+        } else {
+            throw new AssertionError("Unexpected identifiable type: " + identifiable.getClass());
+        }
+
+        return nominalVoltage;
+    }
 }

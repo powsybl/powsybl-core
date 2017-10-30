@@ -24,6 +24,10 @@ import java.util.Objects;
  */
 public class SecurityAnalyzer {
 
+    /**
+     * @deprecated Use SecurityAnalysisResultExport plugin instead.
+     */
+    @Deprecated
     public enum Format {
         CSV,
         JSON
