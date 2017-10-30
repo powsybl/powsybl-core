@@ -70,33 +70,31 @@ public final class Security {
         if (branch.checkPermanentLimit(side, limitReduction)) {
             violations.add(new LimitViolation(branch.getId(),
                 LimitViolationType.CURRENT,
-                branch.getCurrentLimits(side).getPermanentLimit(),
                 PERMANENT_LIMIT_NAME,
+                branch.getCurrentLimits(side).getPermanentLimit(),
                 limitReduction,
                 branch.getTerminal(side).getI(),
-                getCountry(branch, side),
-                getNominalVoltage(branch, side)));
+                side));
         }
     }
 
-    private static void checkCurrentLimits(Branch branch, Branch.Side side, EnumSet<CurrentLimitType> currentLimitTypes,
+    private static void checkCurrentLimits(Branch branch, Branch.Side side, Set<CurrentLimitType> currentLimitTypes,
                                            float limitReduction, List<LimitViolation> violations) {
         Branch.Overload o1 = branch.checkTemporaryLimits(side, limitReduction);
         if (currentLimitTypes.contains(CurrentLimitType.TATL) && (o1 != null)) {
             violations.add(new LimitViolation(branch.getId(),
                 LimitViolationType.CURRENT,
-                o1.getPreviousLimit(),
                 getLimitName(o1.getTemporaryLimit().getAcceptableDuration()),
+                o1.getPreviousLimit(),
                 limitReduction,
                 branch.getTerminal(side).getI(),
-                getCountry(branch, side),
-                getNominalVoltage(branch, side)));
+                side));
         } else if (currentLimitTypes.contains(CurrentLimitType.PATL)) {
             checkPermanentLimit(branch, side, limitReduction, violations);
         }
     }
 
-    private static void checkCurrentLimits(Iterable<? extends Branch> branches, EnumSet<CurrentLimitType> currentLimitTypes,
+    private static void checkCurrentLimits(Iterable<? extends Branch> branches, Set<CurrentLimitType> currentLimitTypes,
                                            float limitReduction, List<LimitViolation> violations) {
         for (Branch branch : branches) {
             checkCurrentLimits(branch, Branch.Side.ONE, currentLimitTypes, limitReduction, violations);
@@ -117,7 +115,7 @@ public final class Security {
         return checkLimits(network, EnumSet.of(currentLimitType), limitReduction);
     }
 
-    public static List<LimitViolation> checkLimits(Network network, EnumSet<CurrentLimitType> currentLimitTypes, float limitReduction) {
+    public static List<LimitViolation> checkLimits(Network network, Set<CurrentLimitType> currentLimitTypes, float limitReduction) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(currentLimitTypes);
         //if (limitReduction <= 0 || limitReduction > 1) {
@@ -133,8 +131,7 @@ public final class Security {
                 for (Bus b : vl.getBusView().getBuses()) {
                     if (!Float.isNaN(b.getV())) {
                         if (b.getV() < vl.getLowVoltageLimit()) {
-                            violations.add(new LimitViolation(vl.getId(), LimitViolationType.LOW_VOLTAGE, vl.getLowVoltageLimit(), null,
-                                    1, b.getV(), vl.getSubstation().getCountry(), vl.getNominalV()));
+                            violations.add(new LimitViolation(vl.getId(), LimitViolationType.LOW_VOLTAGE, vl.getLowVoltageLimit(), 1, b.getV()));
                         }
                     }
                 }
@@ -143,8 +140,7 @@ public final class Security {
                 for (Bus b : vl.getBusView().getBuses()) {
                     if (!Float.isNaN(b.getV())) {
                         if (b.getV() > vl.getHighVoltageLimit()) {
-                            violations.add(new LimitViolation(vl.getId(), LimitViolationType.HIGH_VOLTAGE, vl.getHighVoltageLimit(), null,
-                                    1, b.getV(), vl.getSubstation().getCountry(), vl.getNominalV()));
+                            violations.add(new LimitViolation(vl.getId(), LimitViolationType.HIGH_VOLTAGE, vl.getHighVoltageLimit(), 1, b.getV()));
                         }
                     }
                 }

@@ -10,7 +10,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.Branch;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.LimitViolationType;
 
@@ -33,8 +33,7 @@ class LimitViolationDeserializer extends StdDeserializer<LimitViolation> {
         float limit = Float.NaN;
         float limitReduction = Float.NaN;
         float value = Float.NaN;
-        Country country = null;
-        float baseVoltage = Float.NaN;
+        Branch.Side side = null;
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
@@ -66,14 +65,9 @@ class LimitViolationDeserializer extends StdDeserializer<LimitViolation> {
                     value = parser.readValueAs(Float.class);
                     break;
 
-                case "country":
+                case "side":
                     parser.nextToken();
-                    country = parser.readValueAs(Country.class);
-                    break;
-
-                case "baseVoltage":
-                    parser.nextToken();
-                    baseVoltage = parser.readValueAs(Float.class);
+                    side = parser.readValueAs(Branch.Side.class);
                     break;
 
                 default:
@@ -81,6 +75,6 @@ class LimitViolationDeserializer extends StdDeserializer<LimitViolation> {
             }
         }
 
-        return new LimitViolation(subjectId, limitType, limit, limitName, limitReduction, value, country, baseVoltage);
+        return new LimitViolation(subjectId, limitType, limitName, limit, limitReduction, value, side);
     }
 }
