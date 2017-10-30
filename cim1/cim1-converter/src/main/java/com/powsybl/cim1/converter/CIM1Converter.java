@@ -1475,19 +1475,6 @@ class CIM1Converter implements CIM1Constants {
             }
         }
 
-        if (synchronousMachinesWithoutRegulatingControl.size() > 0) {
-            LOGGER.warn("Synchronous machines without regulating control: {}", synchronousMachinesWithoutRegulatingControl);
-        }
-
-        if (synchronousMachinesRegulatingVoltageWithZeroTargetVoltage.size() > 0) {
-            LOGGER.warn("Synchronous machines with voltage regulator on and a voltage setpoint to zero, fixed to nominal voltage: {}",
-                    synchronousMachinesRegulatingVoltageWithZeroTargetVoltage);
-        }
-
-        if (synchronousMachinesWithReactiveRangeForMinus9999MW.size() > 0) {
-            LOGGER.warn("CVG bug: synchronous machines with a reactive limit associated to -9999 MW: {}", synchronousMachinesWithReactiveRangeForMinus9999MW);
-        }
-
         if (substationsNotAssociatedToValidCountry.size() > 0) {
             LOGGER.warn("Substations not associated to a valid country and so on associated to default country {}: {}",
                     config.getDefaultCountry(), substationsNotAssociatedToValidCountry);
@@ -1506,6 +1493,19 @@ class CIM1Converter implements CIM1Constants {
                         synchronousMachinesRegulatingVoltageWithZeroTargetVoltage,
                         synchronousMachinesWithReactiveRangeForMinus9999MW);
             }
+        }
+
+        if (synchronousMachinesWithoutRegulatingControl.size() > 0) {
+            LOGGER.warn("Synchronous machines without regulating control: {}", synchronousMachinesWithoutRegulatingControl);
+        }
+
+        if (synchronousMachinesRegulatingVoltageWithZeroTargetVoltage.size() > 0) {
+            LOGGER.warn("Synchronous machines with voltage regulator on and a voltage setpoint to zero, fixed to nominal voltage: {}",
+                    synchronousMachinesRegulatingVoltageWithZeroTargetVoltage);
+        }
+
+        if (synchronousMachinesWithReactiveRangeForMinus9999MW.size() > 0) {
+            LOGGER.warn("CVG bug: synchronous machines with a reactive limit associated to -9999 MW: {}", synchronousMachinesWithReactiveRangeForMinus9999MW);
         }
 
         if (noOperationalLimitInOperationalLimitSet.size() > 0) {
