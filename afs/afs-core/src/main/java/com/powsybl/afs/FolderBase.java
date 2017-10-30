@@ -17,5 +17,9 @@ public interface FolderBase<NODE extends AbstractNodeBase<FOLDER>, FOLDER extend
 
     NODE getChild(String name, String... more);
 
+    <T extends NODE> T getChild(Class<T> clazz, String name, String... more);
+
+    FOLDER getFolder(String name, String... more);
+
     FOLDER createFolder(String name);
 }

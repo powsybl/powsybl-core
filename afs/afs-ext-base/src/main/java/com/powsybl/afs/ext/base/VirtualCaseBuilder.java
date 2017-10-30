@@ -67,6 +67,10 @@ public class VirtualCaseBuilder implements ProjectFileBuilder<VirtualCase> {
             throw new AfsException("Script path is not set");
         }
 
+        if (storage.getChildNode(folderId, name) != null) {
+            throw new AfsException("Parent folder already contains a '" + name + "' node");
+        }
+
         // check links
         Project project = new Project(projectId, storage, fileSystem);
         ProjectFile aCase = (ProjectFile) project.getRootFolder().getChild(casePath);

@@ -42,8 +42,26 @@ public class ProjectFolder extends ProjectNode implements FolderBase<ProjectNode
     }
 
     @Override
+    public <T extends ProjectNode> T getChild(Class<T> clazz, String name, String... more) {
+        Objects.requireNonNull(clazz);
+        ProjectNode projectNode = getChild(name, more);
+        if (projectNode != null && clazz.isAssignableFrom(projectNode.getClass())) {
+            return (T) projectNode;
+        }
+        return null;
+    }
+
+    @Override
+    public ProjectFolder getFolder(String name, String... more) {
+        return getChild(ProjectFolder.class, name, more);
+    }
+
+    @Override
     public ProjectFolder createFolder(String name) {
-        NodeId folderId = storage.createNode(id, name, ProjectFolder.PSEUDO_CLASS);
+        NodeId folderId = storage.getChildNode(id, name);
+        if (folderId == null) {
+            folderId = storage.createNode(id, name, ProjectFolder.PSEUDO_CLASS);
+        }
         return new ProjectFolder(folderId, storage, projectId, fileSystem);
     }
 

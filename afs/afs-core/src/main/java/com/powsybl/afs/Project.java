@@ -10,6 +10,7 @@ import com.powsybl.afs.storage.AppFileSystemStorage;
 import com.powsybl.afs.storage.NodeId;
 import com.powsybl.afs.storage.PseudoClass;
 
+import java.util.Objects;
 import java.util.ResourceBundle;
 
 /**
@@ -29,5 +30,11 @@ public class Project extends File {
 
     public ProjectFolder getRootFolder() {
         return new ProjectFolder(storage.getProjectRootNode(id), storage, id, fileSystem);
+    }
+
+    public Project setDescription(String description) {
+        Objects.requireNonNull(description);
+        storage.setStringAttribute(id, DESCRIPTION, description);
+        return this;
     }
 }
