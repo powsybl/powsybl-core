@@ -12,6 +12,7 @@ import com.powsybl.afs.storage.PseudoClass;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -45,14 +46,34 @@ public class Folder extends Node implements FolderBase<Node, Folder> {
     }
 
     @Override
+    public <T extends Node> T getChild(Class<T> clazz, String name, String... more) {
+        Objects.requireNonNull(clazz);
+        Node node = getChild(name, more);
+        if (node != null && clazz.isAssignableFrom(node.getClass())) {
+            return (T) node;
+        }
+        return null;
+    }
+
+    @Override
+    public Folder getFolder(String name, String... more) {
+        return getChild(Folder.class, name, more);
+    }
+
+    @Override
     public Folder createFolder(String name) {
-        NodeId folderId = storage.createNode(id, name, Folder.PSEUDO_CLASS);
+        NodeId folderId = storage.getChildNode(id, name);
+        if (folderId == null) {
+            folderId = storage.createNode(id, name, Folder.PSEUDO_CLASS);
+        }
         return new Folder(folderId, storage, fileSystem);
     }
 
-    public Project createProject(String name, String description) {
-        NodeId projectId = storage.createNode(id, name, Project.PSEUDO_CLASS);
-        storage.setStringAttribute(projectId, "description", description);
+    public Project createProject(String name) {
+        NodeId projectId = storage.getChildNode(id, name);
+        if (projectId == null) {
+            projectId = storage.createNode(id, name, Project.PSEUDO_CLASS);
+        }
         return new Project(projectId, storage, fileSystem);
     }
 }

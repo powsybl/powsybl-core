@@ -34,14 +34,16 @@ public class AfsExtensionGroovyScriptTest extends AbstractGroovyScriptTest {
     @Override
     protected Reader getCodeReader() {
         return new StringReader(String.join(System.lineSeparator(),
-                "project = afs.getNode('mem:/').createProject('test', '')",
+                "project = afs.getNode('mem:/').createProject('test')",
                 "foo = project.getRootFolder().fooBuilder().build()",
-                "print foo.getName()"
+                "println foo.getName()",
+                "foo2 = project.getRootFolder().getFoo(\"foo\")", // try to reload
+                "print foo2.getName()"
         ));
     }
 
     @Override
     protected String getExpectedOutput() {
-        return "foo";
+        return "foo" + System.lineSeparator() + "foo";
     }
 }

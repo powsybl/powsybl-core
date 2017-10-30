@@ -12,6 +12,7 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 
 import java.util.*;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
@@ -33,6 +34,21 @@ public class AppData implements AutoCloseable {
 
     private final Set<Class<? extends ProjectFile>> projectFileClasses = new HashSet<>();
 
+    private final Supplier<AppLogger> loggerFactory;
+
+    private static class NoOpAppLogger implements AppLogger {
+
+        @Override
+        public AppLogger tagged(String tag) {
+            return this;
+        }
+
+        @Override
+        public void log(String message, Object... args) {
+            // no-op
+        }
+    }
+
     public AppData() {
         this(LocalComputationManager.getDefault(),
                 new ServiceLoaderCache<>(AppFileSystemProvider.class).getServices(),
@@ -42,17 +58,20 @@ public class AppData implements AutoCloseable {
 
     public AppData(ComputationManager computationManager, List<AppFileSystemProvider> fileSystemProviders,
                    List<FileExtension> fileExtensions, List<ProjectFileExtension> projectFileExtensions) {
+        this(computationManager, fileSystemProviders, fileExtensions, projectFileExtensions, NoOpAppLogger::new);
+    }
+
+    public AppData(ComputationManager computationManager, List<AppFileSystemProvider> fileSystemProviders,
+                   List<FileExtension> fileExtensions, List<ProjectFileExtension> projectFileExtensions,
+                   Supplier<AppLogger> loggerFactory) {
         this.computationManager = Objects.requireNonNull(computationManager);
+        this.loggerFactory = Objects.requireNonNull(loggerFactory);
         Objects.requireNonNull(fileSystemProviders);
         Objects.requireNonNull(fileExtensions);
         Objects.requireNonNull(projectFileExtensions);
         for (AppFileSystemProvider provider : fileSystemProviders) {
             for (AppFileSystem fileSystem : provider.getFileSystems(computationManager)) {
-                if (fileSystems.containsKey(fileSystem.getName())) {
-                    throw new AfsException("A file system with the same name '" + fileSystem.getName() + "' already exists");
-                }
-                fileSystem.setData(this);
-                fileSystems.put(fileSystem.getName(), fileSystem);
+                addFileSystem(fileSystem);
             }
         }
         for (FileExtension extension : fileExtensions) {
@@ -65,6 +84,23 @@ public class AppData implements AutoCloseable {
             this.projectFileExtensionsByPseudoClass.put(extension.getProjectFilePseudoClass(), extension);
             this.projectFileClasses.add(extension.getProjectFileClass());
         }
+    }
+
+    public AppLogger createLogger() {
+        AppLogger logger = loggerFactory.get();
+        if (logger == null) {
+            throw new NullPointerException("Null logger");
+        }
+        return logger;
+    }
+
+    public void addFileSystem(AppFileSystem fileSystem) {
+        Objects.requireNonNull(fileSystem);
+        if (fileSystems.containsKey(fileSystem.getName())) {
+            throw new AfsException("A file system with the same name '" + fileSystem.getName() + "' already exists");
+        }
+        fileSystem.setData(this);
+        fileSystems.put(fileSystem.getName(), fileSystem);
     }
 
     public Collection<AppFileSystem> getFileSystems() {
@@ -141,7 +177,7 @@ public class AppData implements AutoCloseable {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         getFileSystems().forEach(AppFileSystem::close);
     }
 }
