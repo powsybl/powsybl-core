@@ -9,7 +9,6 @@ package com.powsybl.security.json;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import com.powsybl.security.LimitViolationFilter;
 import com.powsybl.security.LimitViolationsResult;
 
 import java.io.IOException;
@@ -19,19 +18,15 @@ import java.io.IOException;
  */
 public class LimitViolationsResultSerializer extends StdSerializer<LimitViolationsResult> {
 
-    private final LimitViolationFilter filter;
-
-    public LimitViolationsResultSerializer(LimitViolationFilter filter) {
+    public LimitViolationsResultSerializer() {
         super(LimitViolationsResult.class);
-
-        this.filter = filter;
     }
 
     @Override
     public void serialize(LimitViolationsResult limitViolationsResult, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeBooleanField("computationOk", limitViolationsResult.isComputationOk());
-        jsonGenerator.writeObjectField("limitViolations", filter.apply(limitViolationsResult.getLimitViolations()));
+        jsonGenerator.writeObjectField("limitViolations", limitViolationsResult.getLimitViolations());
         jsonGenerator.writeObjectField("actionsTaken", limitViolationsResult.getActionsTaken());
         jsonGenerator.writeEndObject();
     }

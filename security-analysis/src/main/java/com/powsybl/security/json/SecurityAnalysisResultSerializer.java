@@ -18,9 +18,8 @@ import com.powsybl.security.*;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.UncheckedIOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.Objects;
 
 /**
@@ -43,35 +42,29 @@ public class SecurityAnalysisResultSerializer extends StdSerializer<SecurityAnal
         jsonGenerator.writeEndObject();
     }
 
-    public static void write(SecurityAnalysisResult result, Path jsonFile) {
-        write(result, new LimitViolationFilter(), jsonFile);
+    /**
+     * @deprecated use write(SecurityAnalysisResult, Writer) instead.
+     */
+    @Deprecated
+    public static void write(SecurityAnalysisResult result, LimitViolationFilter filter, OutputStream outputStream) throws IOException {
+        write(result, new OutputStreamWriter(outputStream));
     }
 
-    public static void write(SecurityAnalysisResult result, LimitViolationFilter filter, Path jsonFile) {
-        Objects.requireNonNull(jsonFile);
-
-        try (OutputStream os = Files.newOutputStream(jsonFile)) {
-            write(result, filter, os);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    public static void write(SecurityAnalysisResult result, LimitViolationFilter filter, OutputStream out) throws IOException {
+    public static void write(SecurityAnalysisResult result, Writer writer) throws IOException {
         Objects.requireNonNull(result);
-        Objects.requireNonNull(filter);
-        Objects.requireNonNull(out);
+        Objects.requireNonNull(writer);
+
         ObjectMapper objectMapper = new ObjectMapper();
         SimpleModule module = new SimpleModule();
         module.addSerializer(SecurityAnalysisResult.class, new SecurityAnalysisResultSerializer());
         module.addSerializer(PostContingencyResult.class, new PostContingencyResultSerializer());
-        module.addSerializer(LimitViolationsResult.class, new LimitViolationsResultSerializer(filter));
+        module.addSerializer(LimitViolationsResult.class, new LimitViolationsResultSerializer());
         module.addSerializer(LimitViolation.class, new LimitViolationSerializer());
         module.addSerializer(ContingencyElement.class, new ContingencyElementSerializer());
         objectMapper.registerModule(module);
 
-        ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
-        writer.writeValue(out, result);
+        ObjectWriter objectWriter = objectMapper.writerWithDefaultPrettyPrinter();
+        objectWriter.writeValue(writer, result);
 
     }
 }
