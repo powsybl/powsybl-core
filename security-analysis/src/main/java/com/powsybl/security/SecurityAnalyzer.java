@@ -49,13 +49,8 @@ public class SecurityAnalyzer {
         this.contingenciesProviderFactory = Objects.requireNonNull(contingenciesProviderFactory);
     }
 
-    public SecurityAnalysisResult analyze(Path caseFile, Path contingenciesFile) {
-        Objects.requireNonNull(caseFile);
-
-        Network network = Importers.loadNetwork(caseFile);
-        if (network == null) {
-            throw new PowsyblException("Case '" + caseFile + "' not found");
-        }
+    public SecurityAnalysisResult analyze(Network network, Path contingenciesFile) {
+        Objects.requireNonNull(network);
 
         ContingenciesProvider contingenciesProvider = contingenciesFile != null
                 ? contingenciesProviderFactory.create(contingenciesFile) : new EmptyContingencyListProvider();

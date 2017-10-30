@@ -8,7 +8,8 @@
       "limitName" : "limit",
       "limit" : 100.0,
       "limitReduction" : 0.95,
-      "value" : 110.0
+      "value" : 110.0,
+      "side" : "ONE"
     } ],
     "actionsTaken" : [ ]
   },
@@ -38,7 +39,8 @@
         "limitName" : "20'",
         "limit" : 100.0,
         "limitReduction" : 1.0,
-        "value" : 110.0
+        "value" : 110.0,
+        "side" : "TWO"
       }, {
         "subjectId" : "GEN",
         "limitType" : "HIGH_VOLTAGE",
@@ -50,9 +52,7 @@
         "limitType" : "LOW_VOLTAGE",
         "limit" : 100.0,
         "limitReduction" : 0.7,
-        "value" : 115.0,
-        "country" : "FR",
-        "baseVoltage" : 400.0
+        "value" : 115.0
       } ],
       "actionsTaken" : [ "action1", "action2" ]
     }
