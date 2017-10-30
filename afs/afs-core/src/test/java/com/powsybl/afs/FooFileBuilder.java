@@ -8,6 +8,7 @@ package com.powsybl.afs;
 
 import com.powsybl.afs.storage.AppFileSystemStorage;
 import com.powsybl.afs.storage.NodeId;
+import com.powsybl.afs.storage.NodeInfo;
 
 import java.util.Objects;
 
@@ -21,20 +22,22 @@ class FooFileBuilder implements ProjectFileBuilder<FooFile> {
 
     private final AppFileSystemStorage storage;
 
-    private final NodeId projectId;
+    private final NodeInfo projectInfo;
 
     private final AppFileSystem fileSystem;
 
-    FooFileBuilder(NodeId folderId, AppFileSystemStorage storage, NodeId projectId, AppFileSystem fileSystem) {
+    FooFileBuilder(NodeId folderId, AppFileSystemStorage storage, NodeInfo projectInfo, AppFileSystem fileSystem) {
         this.folderId = Objects.requireNonNull(folderId);
         this.storage = Objects.requireNonNull(storage);
-        this.projectId = Objects.requireNonNull(projectId);
+        this.projectInfo = Objects.requireNonNull(projectInfo);
         this.fileSystem = Objects.requireNonNull(fileSystem);
     }
 
     @Override
     public FooFile build() {
-        NodeId id = storage.createNode(folderId, "foo", "foo");
-        return new FooFile(id, storage, projectId, fileSystem);
+        String name = "foo";
+        String pseudoClass = "foo";
+        NodeId id = storage.createNode(folderId, name, pseudoClass);
+        return new FooFile(new NodeInfo(id, name, pseudoClass), storage, projectInfo, fileSystem);
     }
 }
