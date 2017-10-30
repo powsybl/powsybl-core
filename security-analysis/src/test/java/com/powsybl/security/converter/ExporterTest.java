@@ -29,8 +29,6 @@ import static org.junit.Assert.*;
  */
 public class ExporterTest extends AbstractConverterTest {
 
-    private static final LimitViolationFilter NO_FILTER = new LimitViolationFilter();
-
     private static final Network NETWORK = TestingNetworkFactory.createFromEurostag();
 
     private static SecurityAnalysisResult create() {
@@ -69,7 +67,7 @@ public class ExporterTest extends AbstractConverterTest {
 
         roundTripTest(result, ExporterTest::writeJson, SecurityAnalysisResultDeserializer::read, "/SecurityAnalysisResult.json");
 
-        BiConsumer<SecurityAnalysisResult, Path> exporter = (res, path) -> { SecurityAnalysisResultExporters.export(res, NETWORK, NO_FILTER, path, "JSON"); };
+        BiConsumer<SecurityAnalysisResult, Path> exporter = (res, path) -> { SecurityAnalysisResultExporters.export(res, NETWORK, path, "JSON"); };
         roundTripTest(result, exporter, SecurityAnalysisResultDeserializer::read, "/SecurityAnalysisResult.json");
     }
 
@@ -102,7 +100,7 @@ public class ExporterTest extends AbstractConverterTest {
             assertNotNull(exporter);
             assertEquals(format, exporter.getFormat());
 
-            exporter.export(result, network, NO_FILTER, writer);
+            exporter.export(result, network, writer);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

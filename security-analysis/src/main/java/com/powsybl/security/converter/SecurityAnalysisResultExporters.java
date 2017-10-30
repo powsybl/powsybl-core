@@ -7,8 +7,8 @@
 package com.powsybl.security.converter;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.io.ForwardingWriter;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.security.LimitViolationFilter;
 import com.powsybl.security.SecurityAnalysisResult;
 
 import java.io.IOException;
@@ -17,7 +17,6 @@ import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
-
 
 /**
  * A utility class to work with security analysis result exporters
@@ -59,19 +58,18 @@ public final class SecurityAnalysisResultExporters {
         return null;
     }
 
-    public static void export(SecurityAnalysisResult result, Network network, LimitViolationFilter filter, Path path, String format) {
+    public static void export(SecurityAnalysisResult result, Network network, Path path, String format) {
         Objects.requireNonNull(path);
 
         try (Writer writer = Files.newBufferedWriter(path)) {
-            export(result, network, filter, writer, format);
+            export(result, network, writer, format);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    public static void export(SecurityAnalysisResult result, Network network, LimitViolationFilter filter, Writer writer, String format) {
+    public static void export(SecurityAnalysisResult result, Network network, Writer writer, String format) {
         Objects.requireNonNull(result);
-        Objects.requireNonNull(filter);
         Objects.requireNonNull(writer);
         Objects.requireNonNull(format);
 
@@ -80,6 +78,12 @@ public final class SecurityAnalysisResultExporters {
             throw new PowsyblException("Unsupported format: " + format + " [" + getFormats() + "]");
         }
 
-        exporter.export(result, network, filter, writer);
+        Writer fwdWriter = new ForwardingWriter<Writer>(writer) {
+            @Override
+            public void close() throws IOException {
+                writer.flush();
+            }
+        };
+        exporter.export(result, network, fwdWriter);
     }
 }

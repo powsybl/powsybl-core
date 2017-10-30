@@ -14,10 +14,11 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.contingency.ContingencyElement;
 import com.powsybl.contingency.json.ContingencyElementSerializer;
-import com.powsybl.iidm.network.Network;
 import com.powsybl.security.*;
 
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.Objects;
 
@@ -41,17 +42,23 @@ public class SecurityAnalysisResultSerializer extends StdSerializer<SecurityAnal
         jsonGenerator.writeEndObject();
     }
 
-    public static void write(SecurityAnalysisResult result, Network network, LimitViolationFilter filter, Writer writer) throws IOException {
+    /**
+     * @deprecated use write(SecurityAnalysisResult, Writer) instead.
+     */
+    @Deprecated
+    public static void write(SecurityAnalysisResult result, LimitViolationFilter filter, OutputStream outputStream) throws IOException {
+        write(result, new OutputStreamWriter(outputStream));
+    }
+
+    public static void write(SecurityAnalysisResult result, Writer writer) throws IOException {
         Objects.requireNonNull(result);
-        Objects.requireNonNull(network);
-        Objects.requireNonNull(filter);
         Objects.requireNonNull(writer);
 
         ObjectMapper objectMapper = new ObjectMapper();
         SimpleModule module = new SimpleModule();
         module.addSerializer(SecurityAnalysisResult.class, new SecurityAnalysisResultSerializer());
         module.addSerializer(PostContingencyResult.class, new PostContingencyResultSerializer());
-        module.addSerializer(LimitViolationsResult.class, new LimitViolationsResultSerializer(network, filter));
+        module.addSerializer(LimitViolationsResult.class, new LimitViolationsResultSerializer());
         module.addSerializer(LimitViolation.class, new LimitViolationSerializer());
         module.addSerializer(ContingencyElement.class, new ContingencyElementSerializer());
         objectMapper.registerModule(module);

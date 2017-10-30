@@ -15,8 +15,6 @@ import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowFactory;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.LoadFlowResult;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -28,20 +26,29 @@ import java.util.function.Supplier;
  */
 public class SecurityAnalysisImpl implements SecurityAnalysis {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SecurityAnalysisImpl.class);
-
     private final Network network;
+
+    private final LimitViolationFilter filter;
+
     private final ComputationManager computationManager;
+
     private final LoadFlowFactory loadFlowFactory;
 
     public SecurityAnalysisImpl(Network network, ComputationManager computationManager, LoadFlowFactory loadFlowFactory) {
+        this(network, new LimitViolationFilter(), computationManager, loadFlowFactory);
+    }
+
+    public SecurityAnalysisImpl(Network network, LimitViolationFilter filter, ComputationManager computationManager, LoadFlowFactory loadFlowFactory) {
         this.network = Objects.requireNonNull(network);
+        this.filter = Objects.requireNonNull(filter);
         this.computationManager = Objects.requireNonNull(computationManager);
         this.loadFlowFactory = Objects.requireNonNull(loadFlowFactory);
     }
 
-    private static List<LimitViolation> checkLimits(Network network) {
-        return Security.checkLimits(network, 1f);
+    private List<LimitViolation> checkLimits(Network network) {
+        List<LimitViolation> violations = Security.checkLimits(network, 1f);
+
+        return filter.apply(violations, network);
     }
 
     @Override

@@ -7,7 +7,6 @@
 package com.powsybl.security.converter;
 
 import com.powsybl.iidm.network.Network;
-import com.powsybl.security.LimitViolationFilter;
 import com.powsybl.security.SecurityAnalysisResult;
 
 import java.io.Writer;
@@ -36,9 +35,8 @@ public interface SecurityAnalysisResultExporter {
      *
      * @param result The result of the security analysis
      * @param network The network used for the computation
-     * @param limitViolationFilter A LimitViolationFilter instance to filter the limit violations
      * @param writer The writer used for the export
      */
-    void export(SecurityAnalysisResult result, Network network, LimitViolationFilter limitViolationFilter, Writer writer);
+    void export(SecurityAnalysisResult result, Network network, Writer writer);
 
 }

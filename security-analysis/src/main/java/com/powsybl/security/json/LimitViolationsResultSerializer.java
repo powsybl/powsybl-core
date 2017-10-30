@@ -9,34 +9,24 @@ package com.powsybl.security.json;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.security.LimitViolationFilter;
 import com.powsybl.security.LimitViolationsResult;
 
 import java.io.IOException;
-import java.util.Objects;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
 public class LimitViolationsResultSerializer extends StdSerializer<LimitViolationsResult> {
 
-    private final transient Network network;
-
-    private final transient LimitViolationFilter filter;
-
-    public LimitViolationsResultSerializer(Network network, LimitViolationFilter filter) {
+    public LimitViolationsResultSerializer() {
         super(LimitViolationsResult.class);
-
-        this.network = Objects.requireNonNull(network);
-        this.filter = Objects.requireNonNull(filter);
     }
 
     @Override
     public void serialize(LimitViolationsResult limitViolationsResult, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeBooleanField("computationOk", limitViolationsResult.isComputationOk());
-        jsonGenerator.writeObjectField("limitViolations", filter.apply(limitViolationsResult.getLimitViolations(), network));
+        jsonGenerator.writeObjectField("limitViolations", limitViolationsResult.getLimitViolations());
         jsonGenerator.writeObjectField("actionsTaken", limitViolationsResult.getActionsTaken());
         jsonGenerator.writeEndObject();
     }

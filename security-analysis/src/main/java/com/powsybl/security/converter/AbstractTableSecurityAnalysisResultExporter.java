@@ -9,7 +9,6 @@ package com.powsybl.security.converter;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.commons.io.table.TableFormatterFactory;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.security.LimitViolationFilter;
 import com.powsybl.security.Security;
 import com.powsybl.security.SecurityAnalysisResult;
 
@@ -28,16 +27,15 @@ public abstract class AbstractTableSecurityAnalysisResultExporter implements Sec
     }
 
     @Override
-    public void export(SecurityAnalysisResult result, Network network, LimitViolationFilter limitViolationFilter, Writer writer) {
+    public void export(SecurityAnalysisResult result, Network network, Writer writer) {
         Objects.requireNonNull(result);
         Objects.requireNonNull(network);
-        Objects.requireNonNull(limitViolationFilter);
         Objects.requireNonNull(writer);
 
         TableFormatterFactory tableFormatterFactory = getTableFormatterFactory();
         TableFormatterConfig tableFormatterConfig = getTableFormatterConfig();
 
-        Security.printPreContingencyViolations(result, writer, tableFormatterFactory, tableFormatterConfig, limitViolationFilter);
-        Security.printPostContingencyViolations(result, writer, tableFormatterFactory, tableFormatterConfig, limitViolationFilter, true);
+        Security.printPreContingencyViolations(result, writer, tableFormatterFactory, tableFormatterConfig, null);
+        Security.printPostContingencyViolations(result, writer, tableFormatterFactory, tableFormatterConfig, null, true);
     }
 }

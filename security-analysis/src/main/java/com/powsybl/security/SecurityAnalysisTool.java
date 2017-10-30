@@ -125,18 +125,18 @@ public class SecurityAnalysisTool implements Tool {
             throw new PowsyblException("Case '" + caseFile + "' not found");
         }
 
-        SecurityAnalyzer analyzer = new SecurityAnalyzer(context.getComputationManager(), 0);
+        LimitViolationFilter limitViolationFilter = LimitViolationFilter.load();
+        limitViolationFilter.setViolationTypes(limitViolationTypes);
+
+        SecurityAnalyzer analyzer = new SecurityAnalyzer(limitViolationFilter, context.getComputationManager(), 0);
         SecurityAnalysisResult result = analyzer.analyze(network, contingenciesFile);
 
         if (!result.getPreContingencyResult().isComputationOk()) {
             context.getErrorStream().println("Pre-contingency state divergence");
         } else {
-            LimitViolationFilter limitViolationFilter = LimitViolationFilter.load();
-            limitViolationFilter.setViolationTypes(limitViolationTypes);
-
             if (outputFile != null) {
                 context.getOutputStream().println("Writing results to '" + outputFile + "'");
-                SecurityAnalysisResultExporters.export(result, network, limitViolationFilter, outputFile, format);
+                SecurityAnalysisResultExporters.export(result, network, outputFile, format);
             } else {
                 // To avoid the closing of System.out
                 Writer writer = new OutputStreamWriter(context.getOutputStream()) {
@@ -146,7 +146,7 @@ public class SecurityAnalysisTool implements Tool {
                     }
                 };
 
-                SecurityAnalysisResultExporters.export(result, network, limitViolationFilter, writer, "ASCII");
+                SecurityAnalysisResultExporters.export(result, network, writer, "ASCII");
             }
         }
     }
