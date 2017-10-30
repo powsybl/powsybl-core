@@ -32,7 +32,7 @@ public class Node extends AbstractNodeBase<Folder> {
     }
 
     @Override
-    public Folder getFolder() {
+    public Folder getParent() {
         NodeId parentNodeId = storage.getParentNode(id);
         return parentNodeId != null ? new Folder(parentNodeId, storage, fileSystem) : null;
     }

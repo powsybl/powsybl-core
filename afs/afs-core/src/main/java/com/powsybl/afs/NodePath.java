@@ -35,8 +35,8 @@ public class NodePath {
     }
 
     private static <FOLDER extends NODE, NODE extends AbstractNodeBase<FOLDER>> void addPath(NODE node, List<String> path) {
-        if (node.getFolder() != null) {
-            addPath(node.getFolder(), path);
+        if (node.getParent() != null) {
+            addPath(node.getParent(), path);
         }
         path.add(node.getName());
     }

@@ -25,7 +25,7 @@ public abstract class AbstractNodeBase<FOLDER> {
         this.storage = Objects.requireNonNull(storage);
     }
 
-    public abstract FOLDER getFolder();
+    public abstract FOLDER getParent();
 
     public String getName() {
         return storage.getNodeName(id);
