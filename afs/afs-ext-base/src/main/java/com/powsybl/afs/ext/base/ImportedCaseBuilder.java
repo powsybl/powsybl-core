@@ -69,8 +69,14 @@ public class ImportedCaseBuilder implements ProjectFileBuilder<ImportedCase> {
             throw new AfsException("Case is not set");
         }
 
+        String name = aCase.getName();
+
+        if (storage.getChildNode(folderId, name) != null) {
+            throw new AfsException("Parent folder already contains a '" + name + "' node");
+        }
+
         // create project file
-        NodeId id = storage.createNode(folderId, aCase.getName(), ImportedCase.PSEUDO_CLASS);
+        NodeId id = storage.createNode(folderId, name, ImportedCase.PSEUDO_CLASS);
 
         // store importer format
         storage.setStringAttribute(id, ImportedCase.FORMAT, aCase.getImporter().getFormat());

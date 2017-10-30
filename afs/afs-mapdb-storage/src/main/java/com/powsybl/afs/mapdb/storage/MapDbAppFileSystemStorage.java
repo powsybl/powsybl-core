@@ -570,8 +570,14 @@ public class MapDbAppFileSystemStorage implements AppFileSystemStorage {
         UuidNodeId parentUuidNodeId = checkNullableNodeId(parentNodeId);
         Objects.requireNonNull(name);
         Objects.requireNonNull(nodePseudoClass);
-        if (parentUuidNodeId != null && !nodeNameMap.containsKey(parentUuidNodeId)) {
-            throw createNodeNotFoundException(parentUuidNodeId);
+        if (parentUuidNodeId != null) {
+            if (!nodeNameMap.containsKey(parentUuidNodeId)) {
+                throw createNodeNotFoundException(parentUuidNodeId);
+            }
+            // check parent node does not already have a child with the same name
+            if (childNodeMap.containsKey(new NamedLink(parentUuidNodeId, name))) {
+                throw new AfsStorageException("Node " + parentUuidNodeId + " already have a child named " + name);
+            }
         }
         UuidNodeId nodeId = UuidNodeId.generate();
         nodeNameMap.put(nodeId, name);
