@@ -6,16 +6,30 @@
  */
 package com.powsybl.scripting.groovy
 
-import com.powsybl.afs.AfsException
-import com.powsybl.afs.AppData
-import com.powsybl.afs.FileExtension
-import com.powsybl.afs.Folder
-import com.powsybl.afs.ProjectFileExtension
-import com.powsybl.afs.ProjectFolder
+import com.powsybl.afs.*
 import org.codehaus.groovy.control.CompilerConfiguration
 
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
+
+class BuilderSpec {
+
+    private final def builder
+
+    BuilderSpec(Object builder) {
+        this.builder = builder
+    }
+
+    def methodMissing(String name, args) {
+        ["with", "set"].forEach {
+            def setterName = it + name.capitalize();
+            def setter = builder.metaClass.getMetaMethod(setterName, args)
+            if (setter) {
+                setter.invoke(builder, args)
+            }
+        }
+    }
+}
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -28,33 +42,49 @@ class GroovyScripts {
         }
     }
 
+    private static String findGroovyBuilderPseudoClass(String name, args) {
+        if (name.startsWith("build") && name.size() > 5 && args.length == 1 && args[0] instanceof Closure) {
+            name.substring(5).uncapitalize()
+        }
+    }
+
     private static findGetChildPseudoClass(String name, args) {
         if (name.startsWith("get") && name.size() > 3 && args.length > 0 && !args.find { !(it instanceof String) }) {
-            String substr = name.substring(3)
-            substr[0].toLowerCase() + substr[1..-1]
+            name.substring(3).uncapitalize()
         }
+    }
+
+    private static createBuilder(projectFilePseudoClass, delegate) {
+        ProjectFileExtension extension = delegate.getProject().getFileSystem().getData()
+                .getProjectFileExtensionByPseudoClass(projectFilePseudoClass)
+        if (!extension) {
+            throw new AfsException("No extension found for project file pseudo class '"
+                    + projectFilePseudoClass + "'");
+        }
+        delegate.fileBuilder(extension.getProjectFileBuilderClass())
     }
 
     static {
         ProjectFolder.metaClass.methodMissing = { String name, args ->
             String projectFilePseudoClass;
             if ((projectFilePseudoClass = findBuilderPseudoClass(name, args))) {
-                ProjectFileExtension extension = delegate.getProject().getFileSystem().getData()
-                        .getProjectFileExtensionByPseudoClass(projectFilePseudoClass)
-                if (!extension) {
-                    throw new AfsException("No extension found for project file pseudo class '"
-                            + projectFilePseudoClass + "'");
-                }
-                delegate.fileBuilder(extension.getProjectFileBuilderClass())
+                createBuilder(projectFilePseudoClass, delegate)
+            } else if ((projectFilePseudoClass = findGroovyBuilderPseudoClass(name, args))) {
+                def closure = args[0]
+
+                def builder = createBuilder(projectFilePseudoClass, delegate)
+
+                def cloned = closure.clone()
+                BuilderSpec spec = new BuilderSpec(builder)
+                cloned.delegate = spec
+                cloned()
+
+                builder.build();
             } else if ((projectFilePseudoClass = findGetChildPseudoClass(name, args))) {
                 ProjectFileExtension extension = delegate.getProject().getFileSystem().getData()
                         .getProjectFileExtensionByPseudoClass(projectFilePseudoClass)
                 if (extension) {
-                    if (args.length == 1) {
-                        delegate.getChild(args[0])
-                    } else {
-                        delegate.getChild(args[0], args[1..-1])
-                    }
+                    delegate.invokeMethod("getChild", args)
                 }
             }
         }
@@ -64,11 +94,7 @@ class GroovyScripts {
             if (filePseudoClass) {
                 FileExtension extension = delegate.getFileSystem().getData().getFileExtensionByPseudoClass(filePseudoClass)
                 if (extension) {
-                    if (args.length == 1) {
-                        delegate.getChild(args[0])
-                    } else {
-                        delegate.getChild(args[0], args[1..-1])
-                    }
+                    delegate.invokeMethod("getChild", args)
                 }
             }
         }
