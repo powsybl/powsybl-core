@@ -40,32 +40,32 @@ public abstract class AbstractTableFormatter implements TableFormatter {
 
     @Override
     public TableFormatter writeEmptyCell() throws IOException {
-        return writeCell("");
+        return write("");
     }
 
     @Override
     public TableFormatter writeCell(char c) throws IOException {
-        return writeCell(Character.toString(c));
+        return write(Character.toString(c));
     }
 
     @Override
     public TableFormatter writeCell(int i) throws IOException {
-        return writeCell(Integer.toString(i));
+        return write(Integer.toString(i));
     }
 
     @Override
     public TableFormatter writeCell(float f) throws IOException {
-        return writeCell(Float.isNaN(f) ? config.getInvalidString() : format(f));
+        return write(Float.isNaN(f) ? config.getInvalidString() : format(f));
     }
 
     @Override
     public TableFormatter writeCell(double d) throws IOException {
-        return writeCell(Double.isNaN(d) ? config.getInvalidString() : format(d));
+        return write(Double.isNaN(d) ? config.getInvalidString() : format(d));
     }
 
     @Override
     public TableFormatter writeCell(boolean b) throws IOException {
-        return writeCell(Boolean.toString(b));
+        return write(Boolean.toString(b));
     }
 
     private <T> String format(T value) {
