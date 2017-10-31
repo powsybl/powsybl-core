@@ -56,7 +56,7 @@ public class AsciiTableFormatter extends AbstractTableFormatter {
             writer.write(title + ":" + System.lineSeparator());
         }
         writer.write(table.render() + System.lineSeparator());
-        writer.close();
+        writer.flush();
     }
 
     private static CellStyle convertCellStyle(HorizontalAlignment horizontalAlignment) {
