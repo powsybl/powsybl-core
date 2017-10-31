@@ -140,7 +140,9 @@ public class LoadFlowActionSimulator implements ActionSimulator {
             if (!violations.isEmpty()) {
                 LOGGER.info("Violations: \n{}", Security.printLimitsViolations(violations, NO_FILTER));
             }
-            observers.forEach(o -> o.loadFlowConverged(context.getContingency(), violations));
+
+            observers.forEach(o -> o.loadFlowConverged(context.getNetwork(), context.getContingency(), violations));
+            printSystemOut(" loadFlowConverged", context.getNetwork());
 
             // no more violations => work complete
             if (violations.isEmpty()) {
@@ -215,11 +217,12 @@ public class LoadFlowActionSimulator implements ActionSimulator {
 
                         // apply action
                         LOGGER.info("Apply action '{}'", action.getId());
-                        observers.forEach(o-> o.beforeAction(context.getContingency(), actionId));
+                        observers.forEach(o -> o.beforeAction(context.getContingency(), actionId));
 
                         action.run(context.getNetwork(), computationManager);
 
-                        observers.forEach(o-> o.afterAction(context.getContingency(), actionId));
+                        observers.forEach(o -> o.afterAction(context.getContingency(), actionId));
+
                         actionsTaken.add(actionId);
                     }
                 }
@@ -240,8 +243,15 @@ public class LoadFlowActionSimulator implements ActionSimulator {
             }
         } else {
             LOGGER.warn("Loadflow diverged: {}", result.getMetrics());
-            observers.forEach(o -> o.loadFlowDiverged(context.getContingency()));
+            observers.forEach(o -> o.loadFlowDiverged(context.getNetwork(), context.getContingency()));
+            printSystemOut("loadFlowDiverged", context.getNetwork());
             return false;
         }
+    }
+
+    void printSystemOut(String where, Network network) {
+        System.out.println(" where : " + where);
+        System.out.println(" Network : " + " network.getId() " + network.getId());
+        System.out.println("           " + " network.getCaseDate() " + network.getCaseDate());
     }
 }

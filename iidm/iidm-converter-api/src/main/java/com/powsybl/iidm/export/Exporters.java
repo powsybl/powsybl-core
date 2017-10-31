@@ -86,6 +86,7 @@ public final class Exporters {
      * @param file the network file
      */
     public static void export(String format, Network network, Properties parameters, Path file) {
+        System.out.println("export(String format, Network network, Properties parameters, Path file)");
         DataSource dataSource = createDataSource(file);
         export(format, network, parameters, dataSource);
     }
