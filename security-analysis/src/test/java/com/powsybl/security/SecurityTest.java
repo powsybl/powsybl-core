@@ -7,7 +7,6 @@
 package com.powsybl.security;
 
 import com.powsybl.commons.io.table.CsvTableFormatterFactory;
-import com.powsybl.commons.io.table.HorizontalAlignment;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Bus;
@@ -47,7 +46,7 @@ public class SecurityTest {
         numberFormat.setMinimumFractionDigits(4);
         numberFormat.setGroupingUsed(false);
 
-        formatterConfig = new TableFormatterConfig(Locale.US, ',', "inv", true, true, HorizontalAlignment.LEFT, numberFormat);
+        formatterConfig = new TableFormatterConfig(Locale.US, ',', "inv", true, true);
         // create pre-contingency results, just one violation on line1
         line1Violation = new LimitViolation("line1", LimitViolationType.CURRENT, 1000f, "20'", 1100);
         LimitViolationsResult preContingencyResult = new LimitViolationsResult(true, Collections.singletonList(line1Violation), Collections.singletonList("action1"));
@@ -73,7 +72,7 @@ public class SecurityTest {
                                  "Pre-contingency violations",
                                  "Action,Equipment,Violation type,Violation name,Value,Limit,Loading rate %",
                                  "action1,,,,,,",
-                                 ",line1,CURRENT,20',1100.0000,1000.0000,110.0000"),
+                                 ",line1,CURRENT,20',1100.0000,1000.0000,110.00"),
                      writer.toString().trim());
     }
 
@@ -90,8 +89,8 @@ public class SecurityTest {
                                  "Contingency,Status,Action,Equipment,Violation type,Violation name,Value,Limit,Loading rate %",
                                  "contingency1,converge,,,,,,,",
                                  ",,action2,,,,,,",
-                                 ",,,line1,CURRENT,20',1100.0000,1000.0000,110.0000",
-                                 ",,,line2,CURRENT,10',950.0000,900.0000,105.5556"),
+                                 ",,,line1,CURRENT,20',1100.0000,1000.0000,110.00",
+                                 ",,,line2,CURRENT,10',950.0000,900.0000,105.56"),
                      writer.toString().trim());
     }
 
@@ -108,7 +107,7 @@ public class SecurityTest {
                                  "Contingency,Status,Action,Equipment,Violation type,Violation name,Value,Limit,Loading rate %",
                                  "contingency1,converge,,,,,,,",
                                  ",,action2,,,,,,",
-                                 ",,,line2,CURRENT,10',950.0000,900.0000,105.5556"),
+                                 ",,,line2,CURRENT,10',950.0000,900.0000,105.56"),
                      writer.toString().trim());
     }
 
@@ -117,8 +116,8 @@ public class SecurityTest {
         assertEquals("+---------+--------------+---------------+----------------+----------------+-----------+-----------+------------------+----------------+\n" +
                      "| Country | Base voltage | Equipment (2) | Violation type | Violation name | Value     | Limit     | abs(value-limit) | Loading rate % |\n" +
                      "+---------+--------------+---------------+----------------+----------------+-----------+-----------+------------------+----------------+\n" +
-                     "|         |              | line1         | CURRENT        | 20'            | 1100.0000 | 1000.0000 |        1000.0000 |       110.0000 |\n" +
-                     "|         |              | line2         | CURRENT        | 10'            |  950.0000 |  900.0000 |         900.0000 |       105.5556 |\n" +
+                     "|         |              | line1         | CURRENT        | 20'            | 1100.0000 | 1000.0000 |        1000.0000 |         110.00 |\n" +
+                     "|         |              | line2         | CURRENT        | 10'            |  950.0000 |  900.0000 |         900.0000 |         105.56 |\n" +
                      "+---------+--------------+---------------+----------------+----------------+-----------+-----------+------------------+----------------+",
                      Security.printLimitsViolations(Arrays.asList(line1Violation, line2Violation), new LimitViolationFilter(), formatterConfig));
     }

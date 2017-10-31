@@ -168,6 +168,9 @@ public final class Security {
         Writer writer = new StringWriter();
         List<LimitViolation> filteredViolations = filter.apply(violations);
 
+        NumberFormat numberFormat = getFormatter(formatterConfig.getLocale());
+        NumberFormat percentageFormat = getPercentageFormatter(formatterConfig.getLocale());
+
         try (TableFormatter formatter = formatterFactory.create(writer,
                 "",
                 formatterConfig,
@@ -176,20 +179,28 @@ public final class Security {
                 new Column("Equipment (" + filteredViolations.size() + ")"),
                 new Column("Violation type"),
                 new Column("Violation name"),
-                new Column("Value"),
-                new Column("Limit"),
-                new Column("abs(value-limit)"),
-                new Column("Loading rate %"))) {
+                new Column("Value")
+                    .setHorizontalAlignment(HorizontalAlignment.RIGHT)
+                    .setNumberFormat(numberFormat),
+                new Column("Limit")
+                    .setHorizontalAlignment(HorizontalAlignment.RIGHT)
+                    .setNumberFormat(numberFormat),
+                new Column("abs(value-limit)")
+                    .setHorizontalAlignment(HorizontalAlignment.RIGHT)
+                    .setNumberFormat(numberFormat),
+                new Column("Loading rate %")
+                    .setHorizontalAlignment(HorizontalAlignment.RIGHT)
+                    .setNumberFormat(percentageFormat))) {
             filteredViolations.stream()
                     .sorted(Comparator.comparing(LimitViolation::getSubjectId))
-                    .forEach(writeLineLimitsViolations(formatter, formatterConfig.getNumberFormat()));
+                    .forEach(writeLineLimitsViolations(formatter));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
         return writer.toString().trim();
     }
 
-    private static Consumer<? super LimitViolation> writeLineLimitsViolations(TableFormatter formatter, NumberFormat numberFormatter) {
+    private static Consumer<? super LimitViolation> writeLineLimitsViolations(TableFormatter formatter) {
         return violation -> {
             try {
                 formatter.writeCell(violation.getCountry() != null ? violation.getCountry().name() : "")
@@ -197,10 +208,10 @@ public final class Security {
                          .writeCell(violation.getSubjectId())
                          .writeCell(violation.getLimitType().name())
                          .writeCell(getViolationName(violation))
-                         .writeCell(violation.getValue(), HorizontalAlignment.RIGHT, numberFormatter)
-                         .writeCell(getViolationLimit(violation), HorizontalAlignment.RIGHT, numberFormatter)
-                         .writeCell(getAbsValueLimit(violation), HorizontalAlignment.RIGHT, numberFormatter)
-                         .writeCell(getViolationValue(violation), HorizontalAlignment.RIGHT, numberFormatter);
+                         .writeCell(violation.getValue())
+                         .writeCell(getViolationLimit(violation))
+                         .writeCell(getAbsValueLimit(violation))
+                         .writeCell(getViolationValue(violation));
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
@@ -223,6 +234,9 @@ public final class Security {
         Objects.requireNonNull(formatterFactory);
         Objects.requireNonNull(formatterConfig);
 
+        NumberFormat numberFormat = getFormatter(formatterConfig.getLocale());
+        NumberFormat percentageFormat = getPercentageFormatter(formatterConfig.getLocale());
+
         try (TableFormatter formatter = formatterFactory.create(writer,
                 "Pre-contingency violations",
                 formatterConfig,
@@ -230,9 +244,15 @@ public final class Security {
                 new Column("Equipment"),
                 new Column("Violation type"),
                 new Column("Violation name"),
-                new Column("Value"),
-                new Column("Limit"),
-                new Column("Loading rate %"))) {
+                new Column("Value")
+                    .setHorizontalAlignment(HorizontalAlignment.RIGHT)
+                    .setNumberFormat(numberFormat),
+                new Column("Limit")
+                    .setHorizontalAlignment(HorizontalAlignment.RIGHT)
+                    .setNumberFormat(numberFormat),
+                new Column("Loading rate %")
+                    .setHorizontalAlignment(HorizontalAlignment.RIGHT)
+                    .setNumberFormat(percentageFormat))) {
             for (String action : result.getPreContingencyResult().getActionsTaken()) {
                 formatter.writeCell(action)
                         .writeEmptyCell()
@@ -247,22 +267,22 @@ public final class Security {
                     : result.getPreContingencyResult().getLimitViolations();
             filteredLimitViolations.stream()
                     .sorted(Comparator.comparing(LimitViolation::getSubjectId))
-                    .forEach(writeLinePreContingencyViolations(formatter, formatterConfig.getNumberFormat()));
+                    .forEach(writeLinePreContingencyViolations(formatter));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    private static Consumer<? super LimitViolation> writeLinePreContingencyViolations(TableFormatter formatter, NumberFormat numberFormatter) {
+    private static Consumer<? super LimitViolation> writeLinePreContingencyViolations(TableFormatter formatter) {
         return violation -> {
             try {
                 formatter.writeEmptyCell()
                         .writeCell(violation.getSubjectId())
                         .writeCell(violation.getLimitType().name())
                         .writeCell(getViolationName(violation))
-                        .writeCell(violation.getValue(), HorizontalAlignment.RIGHT, numberFormatter)
-                        .writeCell(getViolationLimit(violation), HorizontalAlignment.RIGHT, numberFormatter)
-                        .writeCell(getViolationValue(violation), HorizontalAlignment.RIGHT, numberFormatter);
+                        .writeCell(violation.getValue())
+                        .writeCell(getViolationLimit(violation))
+                        .writeCell(getViolationValue(violation));
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
@@ -279,6 +299,22 @@ public final class Security {
 
     private static float getViolationValue(LimitViolation violation) {
         return Math.abs(violation.getValue()) / violation.getLimit() * 100f;
+    }
+
+    private static NumberFormat getFormatter(Locale locale) {
+        NumberFormat numberFormat = NumberFormat.getNumberInstance(locale);
+        numberFormat.setMinimumFractionDigits(4);
+        numberFormat.setMaximumFractionDigits(4);
+        numberFormat.setGroupingUsed(false);
+        return numberFormat;
+    }
+
+    private static NumberFormat getPercentageFormatter(Locale locale) {
+        NumberFormat numberFormat = NumberFormat.getNumberInstance(locale);
+        numberFormat.setMinimumFractionDigits(2);
+        numberFormat.setMaximumFractionDigits(2);
+        numberFormat.setGroupingUsed(false);
+        return numberFormat;
     }
 
     /**
@@ -338,6 +374,9 @@ public final class Security {
                             .collect(Collectors.toSet())
                     : Collections.emptySet();
 
+            NumberFormat numberFormat = getFormatter(formatterConfig.getLocale());
+            NumberFormat percentageFormat = getPercentageFormatter(formatterConfig.getLocale());
+
             try (TableFormatter formatter = formatterFactory.create(writer,
                     "Post-contingency limit violations",
                     formatterConfig,
@@ -347,22 +386,27 @@ public final class Security {
                     new Column("Equipment"),
                     new Column("Violation type"),
                     new Column("Violation name"),
-                    new Column("Value"),
-                    new Column("Limit"),
-                    new Column("Loading rate %"))) {
+                    new Column("Value")
+                        .setHorizontalAlignment(HorizontalAlignment.RIGHT)
+                        .setNumberFormat(numberFormat),
+                    new Column("Limit")
+                        .setHorizontalAlignment(HorizontalAlignment.RIGHT)
+                        .setNumberFormat(numberFormat),
+                    new Column("Loading rate %")
+                        .setHorizontalAlignment(HorizontalAlignment.RIGHT)
+                        .setNumberFormat(percentageFormat))) {
                 result.getPostContingencyResults()
                         .stream()
                         .sorted(Comparator.comparing(o2 -> o2.getContingency().getId()))
-                        .forEach(writePostContingencyResult(limitViolationFilter, preContingencyViolations, formatter, formatterConfig.getNumberFormat()));
+                        .forEach(writePostContingencyResult(limitViolationFilter, preContingencyViolations, formatter));
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
         }
     }
 
-    private static Consumer<? super PostContingencyResult> writePostContingencyResult(
-        LimitViolationFilter limitViolationFilter, Set<LimitViolationKey> preContingencyViolations,
-        TableFormatter formatter, NumberFormat numberFormatter) {
+    private static Consumer<? super PostContingencyResult> writePostContingencyResult(LimitViolationFilter limitViolationFilter,
+        Set<LimitViolationKey> preContingencyViolations, TableFormatter formatter) {
         return postContingencyResult -> {
             try {
                 // configured filtering
@@ -400,7 +444,7 @@ public final class Security {
 
                     filteredLimitViolations2.stream()
                             .sorted(Comparator.comparing(LimitViolation::getSubjectId))
-                            .forEach(writeLimitViolation(formatter, numberFormatter));
+                            .forEach(writeLimitViolation(formatter));
                 }
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
@@ -408,7 +452,7 @@ public final class Security {
         };
     }
 
-    private static Consumer<? super LimitViolation> writeLimitViolation(TableFormatter formatter, NumberFormat numberFormatter) {
+    private static Consumer<? super LimitViolation> writeLimitViolation(TableFormatter formatter) {
         return violation -> {
             try {
                 formatter.writeEmptyCell()
@@ -417,9 +461,9 @@ public final class Security {
                         .writeCell(violation.getSubjectId())
                         .writeCell(violation.getLimitType().name())
                         .writeCell(getViolationName(violation))
-                        .writeCell(violation.getValue(), HorizontalAlignment.RIGHT, numberFormatter)
-                        .writeCell(getViolationLimit(violation), HorizontalAlignment.RIGHT, numberFormatter)
-                        .writeCell(getViolationValue(violation), HorizontalAlignment.RIGHT, numberFormatter);
+                        .writeCell(violation.getValue())
+                        .writeCell(getViolationLimit(violation))
+                        .writeCell(getViolationValue(violation));
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
