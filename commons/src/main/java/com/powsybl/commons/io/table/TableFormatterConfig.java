@@ -10,6 +10,7 @@ import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 
 import java.util.Locale;
+import java.util.Objects;
 
 /**
  * @author c.biasuzzi@techrain.it
@@ -40,6 +41,7 @@ public class TableFormatterConfig {
         String invalidString = DEFAULT_INVALID_STRING;
         boolean printHeader = DEFAULT_PRINT_HEADER;
         boolean printTitle = DEFAULT_PRINT_TITLE;
+
         if (platformConfig.moduleExists(CONFIG_MODULE_NAME)) {
             ModuleConfig config = platformConfig.getModuleConfig(CONFIG_MODULE_NAME);
             language = config.getStringProperty("language", DEFAULT_LANGUAGE);
@@ -48,11 +50,13 @@ public class TableFormatterConfig {
             printHeader = config.getBooleanProperty("print-header", DEFAULT_PRINT_HEADER);
             printTitle = config.getBooleanProperty("print-title", DEFAULT_PRINT_TITLE);
         }
+
         Locale locale = Locale.forLanguageTag(language);
         return new TableFormatterConfig(locale, separator.charAt(0), invalidString, printHeader, printTitle);
     }
 
     public TableFormatterConfig(Locale locale, char csvSeparator, String invalidString, boolean printHeader, boolean printTitle) {
+        Objects.requireNonNull(locale);
         this.locale = locale;
         this.csvSeparator = csvSeparator;
         this.invalidString = invalidString;

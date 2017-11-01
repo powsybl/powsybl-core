@@ -26,7 +26,7 @@ public class AsciiTableFormatter extends AbstractTableFormatter {
     private final Table table;
 
     public AsciiTableFormatter(Writer writer, String title, TableFormatterConfig config, Column... columns) {
-        super(writer, config);
+        super(writer, config, columns);
         this.title = title;
         this.table = new Table(columns.length, BorderStyle.CLASSIC_WIDE);
         for (Column column : columns) {
@@ -45,8 +45,12 @@ public class AsciiTableFormatter extends AbstractTableFormatter {
     }
 
     @Override
-    protected TableFormatter write(String value, HorizontalAlignment horizontalAlignment) throws IOException {
+    protected TableFormatter write(String value) throws IOException {
+        HorizontalAlignment horizontalAlignment = columns[column].getHorizontalAlignment();
+        column = (column + 1) % columns.length;
+
         table.addCell(value, convertCellStyle(horizontalAlignment));
+
         return this;
     }
 
