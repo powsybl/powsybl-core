@@ -154,6 +154,15 @@ public class RunLoadFlowTool implements Tool {
         }
     }
 
+    private void printLoadFlowResult(LoadFlowResult result, Path outputFile, TableFormatterFactory formatterFactory,
+                                     TableFormatterConfig formatterConfig) {
+        try (Writer writer = Files.newBufferedWriter(outputFile, StandardCharsets.UTF_8)) {
+            printLoadFlowResult(result, writer, formatterFactory, formatterConfig);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
     private void printLoadFlowResult(LoadFlowResult result, Writer writer, TableFormatterFactory formatterFactory,
                                      TableFormatterConfig formatterConfig) {
         try (TableFormatter formatter = formatterFactory.create(writer,
@@ -169,23 +178,19 @@ public class RunLoadFlowTool implements Tool {
     }
 
     private void printResult(LoadFlowResult result, ToolRunningContext context) {
-        Writer writer = new OutputStreamWriter(context.getOutputStream()) {
-            @Override
-            public void close() throws IOException {
-                flush();
-            }
-        };
+        Writer writer = new OutputStreamWriter(context.getOutputStream());
+
         AsciiTableFormatterFactory asciiTableFormatterFactory = new AsciiTableFormatterFactory();
         printLoadFlowResult(result, writer, asciiTableFormatterFactory, TableFormatterConfig.load());
     }
 
 
-    private void exportResult(LoadFlowResult result, ToolRunningContext context, Path outputFile, Format format) throws IOException {
+    private void exportResult(LoadFlowResult result, ToolRunningContext context, Path outputFile, Format format) {
         context.getOutputStream().println("Writing results to '" + outputFile + "'");
         switch (format) {
             case CSV:
                 CsvTableFormatterFactory csvTableFormatterFactory = new CsvTableFormatterFactory();
-                printLoadFlowResult(result, Files.newBufferedWriter(outputFile, StandardCharsets.UTF_8), csvTableFormatterFactory, TableFormatterConfig.load());
+                printLoadFlowResult(result, outputFile, csvTableFormatterFactory, TableFormatterConfig.load());
                 break;
 
             case JSON:

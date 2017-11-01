@@ -19,7 +19,6 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
-import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.file.Path;
@@ -139,13 +138,7 @@ public class SecurityAnalysisTool implements Tool {
                 SecurityAnalysisResultExporters.export(result, network, outputFile, format);
             } else {
                 // To avoid the closing of System.out
-                Writer writer = new OutputStreamWriter(context.getOutputStream()) {
-                    @Override
-                    public void close() throws IOException {
-                        flush();
-                    }
-                };
-
+                Writer writer = new OutputStreamWriter(context.getOutputStream());
                 SecurityAnalysisResultExporters.export(result, network, writer, "ASCII");
             }
         }
