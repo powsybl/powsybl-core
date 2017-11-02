@@ -33,17 +33,6 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
         return true;
     }
 
-    private TopologyLevel convertTopologyKindToTopologyLevel(TopologyKind topologyKind) {
-        switch (topologyKind) {
-            case NODE_BREAKER:
-                return TopologyLevel.NODE_BREAKER;
-            case BUS_BREAKER:
-                return TopologyLevel.BUS_BREAKER;
-            default:
-                return TopologyLevel.NODE_BREAKER;
-        }
-    }
-
     private TopologyLevel getMaxTopologyLevel(TopologyLevel vlTopologyLevel, TopologyLevel optionsTopologyLevel) {
         return Collections.max(EnumSet.of(vlTopologyLevel, optionsTopologyLevel));
     }
@@ -54,13 +43,13 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
         XmlUtil.writeFloat("lowVoltageLimit", vl.getLowVoltageLimit(), context.getWriter());
         XmlUtil.writeFloat("highVoltageLimit", vl.getHighVoltageLimit(), context.getWriter());
 
-        TopologyLevel topologyLevel = getMaxTopologyLevel(convertTopologyKindToTopologyLevel(vl.getTopologyKind()), context.getOptions().getTopologyLevel());
-        context.getWriter().writeAttribute("topologyKind", topologyLevel.getTopologyKind().name());
+        TopologyLevel topologyLevel = getMaxTopologyLevel(TopologyLevel.fromTopologyKind(vl.getTopologyKind()), context.getOptions().getTopologyLevel());
+        context.getWriter().writeAttribute("topologyKind", topologyLevel.toTopologyKind().name());
     }
 
     @Override
     protected void writeSubElements(VoltageLevel vl, Substation s, XmlWriterContext context) throws XMLStreamException {
-        TopologyLevel maxTopologyLevel = getMaxTopologyLevel(convertTopologyKindToTopologyLevel(vl.getTopologyKind()), context.getOptions().getTopologyLevel());
+        TopologyLevel maxTopologyLevel = getMaxTopologyLevel(TopologyLevel.fromTopologyKind(vl.getTopologyKind()), context.getOptions().getTopologyLevel());
         switch (maxTopologyLevel) {
             case NODE_BREAKER:
                 context.getWriter().writeStartElement(IIDM_URI, "nodeBreakerTopology");

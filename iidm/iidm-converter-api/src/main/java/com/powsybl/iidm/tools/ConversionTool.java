@@ -19,6 +19,8 @@ import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.cli.CommandLine;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,6 +35,8 @@ import java.util.Properties;
  */
 @AutoService(Tool.class)
 public class ConversionTool implements Tool {
+
+    private static Logger LOGGER = LoggerFactory.getLogger(ConversionTool.class);
 
     private enum OptionType {
         IMPORT("import-parameters", 'I'),
@@ -79,6 +83,11 @@ public class ConversionTool implements Tool {
         Network network = Importers.loadNetwork(context.getFileSystem().getPath(inputFile), context.getComputationManager(), createImportConfig(), inputParams);
 
         Properties outputParams = readProperties(line, OptionType.EXPORT, context);
+
+        if (outputParams.containsKey("forceBusBranchTopo")) {
+            LOGGER.warn("forceBusBranchTopo functionality is deprecated!");
+        }
+
         DataSource ds2 = Exporters.createDataSource(context.getFileSystem().getPath(outputFile), new DefaultDataSourceObserver() {
             @Override
             public void opened(String streamName) {

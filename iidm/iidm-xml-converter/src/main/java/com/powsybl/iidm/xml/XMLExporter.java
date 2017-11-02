@@ -50,7 +50,7 @@ import java.util.Properties;
  *     </tr>
  *     <tr>
  *         <td>iidm.export.xml.topology-level</td>
- *         <td>if BUS_BREAKER will change the view for the nodes with NODE_BREAKER to BUS_BREAKER</td>
+ *         <td></td>
  *         <td>NODE_BREAKER, BUS_BREAKER, BUS_BRANCH</td>
  *     </tr>
  * </table>

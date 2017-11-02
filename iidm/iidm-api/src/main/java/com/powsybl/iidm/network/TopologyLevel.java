@@ -28,14 +28,14 @@ public enum TopologyLevel {
         return topologyKind;
     }
 
-    public static TopologyLevel fromTopologyKind(final TopologyKind topologyKind){
+    public static TopologyLevel fromTopologyKind(final TopologyKind topologyKind) {
         switch (topologyKind) {
             case NODE_BREAKER:
                 return TopologyLevel.NODE_BREAKER;
             case BUS_BREAKER:
                 return TopologyLevel.BUS_BREAKER;
-    		default:
-    		    return TopologyLevel.NODE_BREAKER;
+            default:
+                return TopologyLevel.NODE_BREAKER;
         }
     }
 }

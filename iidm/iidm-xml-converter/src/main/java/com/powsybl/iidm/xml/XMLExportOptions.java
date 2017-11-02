@@ -35,7 +35,7 @@ public class XMLExportOptions {
     public XMLExportOptions(boolean withBranchSV, boolean forceBusBranchTopo, boolean indent, boolean onlyMainCc) {
         this(withBranchSV, forceBusBranchTopo, indent, onlyMainCc, TopologyLevel.NODE_BREAKER);
     }
-    
+
     public XMLExportOptions(boolean withBranchSV, boolean forceBusBranchTopo, boolean indent, boolean onlyMainCc, TopologyLevel topologyLevel) {
         this.withBranchSV = withBranchSV;
         this.forceBusBranchTopo = forceBusBranchTopo;
