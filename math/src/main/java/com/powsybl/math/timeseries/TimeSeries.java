@@ -61,7 +61,7 @@ public interface TimeSeries<P extends AbstractPoint, C extends ArrayChunk<P>> ex
         } else if (metadata.getDataType() == TimeSeriesDataType.STRING) {
             timeSeriesList.add(new StringTimeSeries(metadata, stringChunks));
         } else {
-            throw new AssertionError();
+            throw new AssertionError("Unexpected time series data type " + metadata.getDataType());
         }
     }
 
@@ -80,7 +80,7 @@ public interface TimeSeries<P extends AbstractPoint, C extends ArrayChunk<P>> ex
                             break;
                         case "chunks":
                             if (metadata == null) {
-                                throw new AssertionError();
+                                throw new AssertionError("metadata is null");
                             }
                             parseChunks(parser, metadata, timeSeriesList);
                             metadata = null;

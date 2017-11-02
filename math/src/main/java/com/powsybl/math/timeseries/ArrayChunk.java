@@ -159,6 +159,8 @@ public interface ArrayChunk<P extends AbstractPoint> {
             context.doubleChunks.add(new UncompressedDoubleArrayChunk(context.offset, context.doubleValues.toArray()));
         } else if (context.stringValues != null) {
             context.stringChunks.add(new UncompressedStringArrayChunk(context.offset, context.stringValues.toArray(new String[context.stringValues.size()])));
+        } else {
+            throw new AssertionError("doubleValues are stringChunks are not expected to null at the same time");
         }
     }
 
@@ -176,6 +178,8 @@ public interface ArrayChunk<P extends AbstractPoint> {
             context.stringValues = null;
             context.stepLengths = null;
             context.uncompressedLength = -1;
+        } else {
+            throw new AssertionError("doubleValues are stringChunks are not expected to null at the same time");
         }
     }
 
