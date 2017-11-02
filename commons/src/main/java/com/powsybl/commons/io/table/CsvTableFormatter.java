@@ -86,6 +86,6 @@ public class CsvTableFormatter extends AbstractTableFormatter {
     @Override
     public void close() throws IOException {
         writeHeaderIfNotDone();
-        writer.close();
+        writer.flush();
     }
 }
