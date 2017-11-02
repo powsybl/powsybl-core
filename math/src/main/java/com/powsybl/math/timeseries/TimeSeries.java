@@ -36,18 +36,18 @@ public interface TimeSeries<P extends AbstractPoint, C extends ArrayChunk<P>> ex
 
     void writeJson(JsonGenerator generator);
 
-    static void writeJson(JsonGenerator generator, List<TimeSeries> timeSeriesList) {
+    static void writeJson(JsonGenerator generator, List<? extends TimeSeries> timeSeriesList) {
         Objects.requireNonNull(timeSeriesList);
         for (TimeSeries timeSeries : timeSeriesList) {
             timeSeries.writeJson(generator);
         }
     }
 
-    static void writeJson(Writer writer, List<TimeSeries> timeSeriesList) {
+    static void writeJson(Writer writer, List<? extends TimeSeries> timeSeriesList) {
         JsonUtil.writeJson(writer, generator -> writeJson(generator, timeSeriesList));
     }
 
-    static void writeJson(Path file, List<TimeSeries> timeSeriesList) {
+    static void writeJson(Path file, List<? extends TimeSeries> timeSeriesList) {
         JsonUtil.writeJson(file, generator -> writeJson(generator, timeSeriesList));
     }
 
