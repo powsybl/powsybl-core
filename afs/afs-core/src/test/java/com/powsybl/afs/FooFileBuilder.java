@@ -25,6 +25,8 @@ class FooFileBuilder implements ProjectFileBuilder<FooFile> {
 
     private final AppFileSystem fileSystem;
 
+    private String name;
+
     FooFileBuilder(NodeId folderId, AppFileSystemStorage storage, NodeId projectId, AppFileSystem fileSystem) {
         this.folderId = Objects.requireNonNull(folderId);
         this.storage = Objects.requireNonNull(storage);
@@ -32,9 +34,17 @@ class FooFileBuilder implements ProjectFileBuilder<FooFile> {
         this.fileSystem = Objects.requireNonNull(fileSystem);
     }
 
+    public FooFileBuilder withName(String name) {
+        this.name = name;
+        return this;
+    }
+
     @Override
     public FooFile build() {
-        NodeId id = storage.createNode(folderId, "foo", "foo");
+        if (name == null) {
+            throw new IllegalStateException("name is not set");
+        }
+        NodeId id = storage.createNode(folderId, name, "foo");
         return new FooFile(id, storage, projectId, fileSystem);
     }
 }

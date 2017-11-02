@@ -25,17 +25,12 @@ public class CsvTableFormatter extends AbstractTableFormatter {
     @Deprecated
     protected final char separator;
 
-    protected final Column[] columns;
-
     protected boolean headerDone = false;
 
-    protected int column = 0;
-
     public CsvTableFormatter(Writer writer, String title, TableFormatterConfig config, Column... columns) {
-        super(writer, config);
+        super(writer, config, columns);
         this.title = Objects.requireNonNull(title);
         this.separator = config.getCsvSeparator();
-        this.columns = Objects.requireNonNull(columns);
         this.headerDone = !config.getPrintHeader();
     }
 
@@ -74,7 +69,7 @@ public class CsvTableFormatter extends AbstractTableFormatter {
     }
 
     @Override
-    protected TableFormatter write(String value, HorizontalAlignment horizontalAlignment) throws IOException {
+    protected TableFormatter write(String value) throws IOException {
         writeHeaderIfNotDone();
         writer.append(value);
         if (column < columns.length - 1) {
@@ -91,6 +86,6 @@ public class CsvTableFormatter extends AbstractTableFormatter {
     @Override
     public void close() throws IOException {
         writeHeaderIfNotDone();
-        writer.close();
+        writer.flush();
     }
 }

@@ -145,20 +145,15 @@ public class ActionSimulatorTool implements Tool {
             public void onFinalStateResult(SecurityAnalysisResult result) {
                 context.getOutputStream().println("Final result");
                 LimitViolationFilter filter = LimitViolationFilter.load();
-                Writer soutWriter = new OutputStreamWriter(context.getOutputStream()) {
-                    @Override
-                    public void close() throws IOException {
-                        flush();
-                    }
-                };
+                Writer soutWriter = new OutputStreamWriter(context.getOutputStream());
                 AsciiTableFormatterFactory asciiTableFormatterFactory = new AsciiTableFormatterFactory();
                 Security.printPreContingencyViolations(result, soutWriter, asciiTableFormatterFactory, filter);
                 Security.printPostContingencyViolations(result, soutWriter, asciiTableFormatterFactory, filter, !config.isIgnorePreContingencyViolations());
                 if (csvFile != null) {
-                    try {
+                    try (Writer writer = Files.newBufferedWriter(csvFile, StandardCharsets.UTF_8)) {
                         CsvTableFormatterFactory csvTableFormatterFactory = new CsvTableFormatterFactory();
-                        Security.printPreContingencyViolations(result, Files.newBufferedWriter(csvFile, StandardCharsets.UTF_8), csvTableFormatterFactory, filter);
-                        Security.printPostContingencyViolations(result, Files.newBufferedWriter(csvFile, StandardCharsets.UTF_8, StandardOpenOption.APPEND), csvTableFormatterFactory, filter, !config.isIgnorePreContingencyViolations());
+                        Security.printPreContingencyViolations(result, writer, csvTableFormatterFactory, filter);
+                        Security.printPostContingencyViolations(result, writer, csvTableFormatterFactory, filter, !config.isIgnorePreContingencyViolations());
                     } catch (IOException e) {
                         throw new UncheckedIOException(e);
                     }
