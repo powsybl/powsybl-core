@@ -34,6 +34,7 @@ public class TableFormatterConfigTest {
     @Test
     public void testConfig() throws IOException {
         TableFormatterConfig config = new TableFormatterConfig();
+
         testConfig(config, Locale.getDefault(), ';', "inv", true, true);
 
         try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {

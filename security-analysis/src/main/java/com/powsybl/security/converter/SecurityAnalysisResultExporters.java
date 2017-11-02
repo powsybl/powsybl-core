@@ -7,7 +7,6 @@
 package com.powsybl.security.converter;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.io.ForwardingWriter;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.SecurityAnalysisResult;
 
@@ -78,12 +77,6 @@ public final class SecurityAnalysisResultExporters {
             throw new PowsyblException("Unsupported format: " + format + " [" + getFormats() + "]");
         }
 
-        Writer fwdWriter = new ForwardingWriter<Writer>(writer) {
-            @Override
-            public void close() throws IOException {
-                writer.flush();
-            }
-        };
-        exporter.export(result, network, fwdWriter);
+        exporter.export(result, network, writer);
     }
 }
