@@ -12,9 +12,13 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.security.LimitViolation;
 
 import java.nio.file.Path;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.TimeZone;
 
 /**
  * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
@@ -31,27 +35,21 @@ public class CaseExporter extends DefaultLoadFlowActionSimulatorObserver {
 
     @Override
     public void loadFlowDiverged(Network network, Contingency contingency) {
-        System.out.println(" loadFlowDiverged ");
-        exportNetwork(network);
+        exportNetwork(network, "Diverged");
     }
 
     @Override
     public void loadFlowConverged(Network network, Contingency contingency, List<LimitViolation> violations) {
-        System.out.println(" loadFlowConverged ");
-        exportNetwork(network);
+        exportNetwork(network, "Converged");
     }
 
-    private void exportNetwork(Network network) {
-        printSystemOut("exportNetwork", network, outputCaseFolder.resolve(network.getId() + "." + network.getCaseDate() + "." + outputCaseFormat + ".gz"), outputCaseFormat);
-        Exporters.export(outputCaseFormat, network, new Properties(), outputCaseFolder.resolve(network.getId() + "." + network.getCaseDate().toString() + "." + outputCaseFormat + ".gz"));
+    private void exportNetwork(Network network, String aString) {
+        Exporters.export(outputCaseFormat, network, new Properties(), outputCaseFolder.resolve(aString  + "_" + network.getId() + "_" + dateForName() + "." + outputCaseFormat + ".gz"));
     }
 
-    void printSystemOut(String where, Network network, Path outputCaseFolder, String outputCaseFormat) {
-        System.out.println(" outputCaseFolder : " + outputCaseFolder.toString());
-        System.out.println(" outputCaseFormat : " + outputCaseFormat);
-
-        System.out.println(" where : " + where);
-        System.out.println(" Network : " + " network.getId() " + network.getId());
-        System.out.println("           " + " network.getCaseDate() " + network.getCaseDate());
+    private String dateForName() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmssSSS", Locale.getDefault());
+        sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+        return sdf.format(new Date());
     }
 }

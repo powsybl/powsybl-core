@@ -110,6 +110,7 @@ public class ActionSimulatorTool implements Tool {
                         .build());
                 options.addOption(Option.builder().longOpt("output-case-folder")
                         .desc("output case folder path")
+                        .required()
                         .hasArg()
                         .argName("CASEFOLDER")
                         .build());
@@ -190,14 +191,12 @@ public class ActionSimulatorTool implements Tool {
             throw new PowsyblException("Case " + caseFile + " not found");
         }
 
+        if (!Files.exists(outputCaseFolder)) {
+            Files.createDirectories(outputCaseFolder);
+        }
         if (line.hasOption("output-case-folder")) {
-            if (!Files.exists(outputCaseFolder)) {
-                Files.createDirectories(outputCaseFolder);
-            }
-            if (line.hasOption("output-case-folder")) {
-                if (!line.hasOption("output-case-format")) {
-                    throw new ParseException("Missing required option: output-case-format");
-                }
+            if (!line.hasOption("output-case-format")) {
+                throw new ParseException("Missing required option: output-case-format");
             }
         }
 

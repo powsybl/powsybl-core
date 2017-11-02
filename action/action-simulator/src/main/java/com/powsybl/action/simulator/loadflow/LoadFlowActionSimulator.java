@@ -142,7 +142,6 @@ public class LoadFlowActionSimulator implements ActionSimulator {
             }
 
             observers.forEach(o -> o.loadFlowConverged(context.getNetwork(), context.getContingency(), violations));
-            printSystemOut(" loadFlowConverged", context.getNetwork());
 
             // no more violations => work complete
             if (violations.isEmpty()) {
@@ -244,14 +243,7 @@ public class LoadFlowActionSimulator implements ActionSimulator {
         } else {
             LOGGER.warn("Loadflow diverged: {}", result.getMetrics());
             observers.forEach(o -> o.loadFlowDiverged(context.getNetwork(), context.getContingency()));
-            printSystemOut("loadFlowDiverged", context.getNetwork());
             return false;
         }
-    }
-
-    void printSystemOut(String where, Network network) {
-        System.out.println(" where : " + where);
-        System.out.println(" Network : " + " network.getId() " + network.getId());
-        System.out.println("           " + " network.getCaseDate() " + network.getCaseDate());
     }
 }
