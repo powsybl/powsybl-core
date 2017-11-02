@@ -21,5 +21,7 @@ public interface TimeSeriesIndex {
 
     long getTimeAt(int point);
 
+    String getType();
+
     void writeJson(JsonGenerator generator);
 }
