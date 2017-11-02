@@ -123,6 +123,7 @@ public class AfsBaseTest {
         ProjectFolder test1 = project.getRootFolder().createFolder("test1");
         ProjectFolder test2 = project.getRootFolder().createFolder("test2");
         FooFile file = test1.fileBuilder(FooFileBuilder.class)
+                .withName("foo")
                 .build();
         assertEquals(test1.getId(), file.getParent().getId());
         assertEquals(1, test1.getChildren().size());
