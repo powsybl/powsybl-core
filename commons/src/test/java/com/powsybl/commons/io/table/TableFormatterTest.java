@@ -11,6 +11,7 @@ import org.junit.Test;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 
@@ -44,7 +45,8 @@ public class TableFormatterTest {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         TableFormatterConfig config = new TableFormatterConfig(Locale.US, ';', "inv", true, true);
         CsvTableFormatterFactory factory = new CsvTableFormatterFactory();
-        try (TableFormatter formatter = factory.create(new OutputStreamWriter(bos, StandardCharsets.UTF_8), "csv test", config, COLUMNS)) {
+        try (Writer writer = new OutputStreamWriter(bos, StandardCharsets.UTF_8);
+             TableFormatter formatter = factory.create(writer, "csv test", config, COLUMNS)) {
             write(formatter);
         }
         assertEquals("csv test" + System.lineSeparator() +
@@ -59,7 +61,8 @@ public class TableFormatterTest {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         TableFormatterConfig config = new TableFormatterConfig(Locale.US, "inv");
         AsciiTableFormatterFactory factory = new AsciiTableFormatterFactory();
-        try (TableFormatter formatter = factory.create(new OutputStreamWriter(bos, StandardCharsets.UTF_8), "ascii test", config, COLUMNS)) {
+        try (Writer writer = new OutputStreamWriter(bos, StandardCharsets.UTF_8);
+             TableFormatter formatter = factory.create(writer, "ascii test", config, COLUMNS)) {
             write(formatter);
         }
         assertEquals("ascii test:" + System.lineSeparator() +
