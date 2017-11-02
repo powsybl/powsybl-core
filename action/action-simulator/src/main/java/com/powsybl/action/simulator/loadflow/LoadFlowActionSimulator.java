@@ -140,7 +140,6 @@ public class LoadFlowActionSimulator implements ActionSimulator {
             if (!violations.isEmpty()) {
                 LOGGER.info("Violations: \n{}", Security.printLimitsViolations(violations, NO_FILTER));
             }
-
             observers.forEach(o -> o.loadFlowConverged(context.getNetwork(), context.getContingency(), violations));
 
             // no more violations => work complete
@@ -216,12 +215,11 @@ public class LoadFlowActionSimulator implements ActionSimulator {
 
                         // apply action
                         LOGGER.info("Apply action '{}'", action.getId());
-                        observers.forEach(o -> o.beforeAction(context.getContingency(), actionId));
+                        observers.forEach(o-> o.beforeAction(context.getContingency(), actionId));
 
                         action.run(context.getNetwork(), computationManager);
 
-                        observers.forEach(o -> o.afterAction(context.getContingency(), actionId));
-
+                        observers.forEach(o-> o.afterAction(context.getContingency(), actionId));
                         actionsTaken.add(actionId);
                     }
                 }
