@@ -17,6 +17,7 @@ class BuilderSpec {
     private final def builder
 
     BuilderSpec(Object builder) {
+        assert builder
         this.builder = builder
     }
 

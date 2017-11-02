@@ -54,8 +54,6 @@ public class AfsExtensionGroovyScriptTest extends AbstractGroovyScriptTest {
 
     @Override
     protected String getExpectedOutput() {
-        return "foo" + System.lineSeparator() +
-                "foo" + System.lineSeparator() +
-                "foo2";
+        return String.join(System.lineSeparator(), "foo", "foo", "foo2");
     }
 }
