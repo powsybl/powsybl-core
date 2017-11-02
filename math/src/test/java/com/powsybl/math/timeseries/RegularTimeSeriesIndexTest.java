@@ -44,13 +44,11 @@ public class RegularTimeSeriesIndexTest {
         // test json
         String jsonRef = String.join(System.lineSeparator(),
                 "{",
-                "  \"regularIndex\" : {",
-                "    \"startTime\" : 1420070400000,",
-                "    \"endTime\" : 1420074000000,",
-                "    \"spacing\" : 900000,",
-                "    \"firstVersion\" : 1,",
-                "    \"versionCount\" : 1",
-                "  }",
+                "  \"startTime\" : 1420070400000,",
+                "  \"endTime\" : 1420074000000,",
+                "  \"spacing\" : 900000,",
+                "  \"firstVersion\" : 1,",
+                "  \"versionCount\" : 1",
                 "}");
         String json = JsonUtil.toJson(index::writeJson);
         assertEquals(jsonRef, json);
