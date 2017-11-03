@@ -60,10 +60,11 @@ public class TimeSeriesMetadata {
 
     public void writeJson(JsonGenerator generator) {
         try {
-            generator.writeFieldName("metadata");
             generator.writeStartObject();
+
             generator.writeStringField("name", name);
             generator.writeStringField("dataType", dataType.name());
+
             generator.writeFieldName("tags");
             generator.writeStartArray();
             for (Map.Entry<String, String> e : tags.entrySet()) {
@@ -72,7 +73,10 @@ public class TimeSeriesMetadata {
                 generator.writeEndObject();
             }
             generator.writeEndArray();
+
+            generator.writeFieldName(index.getType());
             index.writeJson(generator);
+
             generator.writeEndObject();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -105,7 +109,7 @@ public class TimeSeriesMetadata {
             case "tags":
                 context.insideTags = true;
                 break;
-            case "regularIndex":
+            case RegularTimeSeriesIndex.TYPE:
                 context.index = RegularTimeSeriesIndex.parseJson(parser);
                 break;
             default:
