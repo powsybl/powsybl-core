@@ -154,7 +154,7 @@ public class Substation extends EquipmentContainer {
         if (setInverse) {
             
             if (contains_VoltageLevelsValue != null) {
-                contains_VoltageLevelsValue.setMemberOf_Substation(this, false);
+                contains_VoltageLevelsValue.setMemberOfSubstation(this, false);
             }
         }
     }
