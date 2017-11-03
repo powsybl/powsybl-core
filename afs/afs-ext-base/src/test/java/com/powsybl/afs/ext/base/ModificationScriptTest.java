@@ -38,7 +38,7 @@ public class ModificationScriptTest extends AbstractProjectFileTest {
 
     @Test
     public void test() throws Exception {
-        Project project = afs.getRootFolder().createProject("project", "");
+        Project project = afs.getRootFolder().createProject("project");
         ProjectFolder rootFolder = project.getRootFolder();
 
         // create groovy script

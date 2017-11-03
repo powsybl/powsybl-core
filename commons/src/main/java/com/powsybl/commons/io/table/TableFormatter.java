@@ -7,7 +7,6 @@
 package com.powsybl.commons.io.table;
 
 import java.io.IOException;
-import java.text.NumberFormat;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -18,35 +17,17 @@ public interface TableFormatter extends AutoCloseable {
 
     TableFormatter writeCell(String s) throws IOException;
 
-    TableFormatter writeCell(String s, HorizontalAlignment horizontalAlignment) throws IOException;
-
     TableFormatter writeEmptyCell() throws IOException;
 
     TableFormatter writeCell(char c) throws IOException;
 
-    TableFormatter writeCell(char c, HorizontalAlignment horizontalAlignment) throws IOException;
-
     TableFormatter writeCell(int i) throws IOException;
-
-    TableFormatter writeCell(int i, HorizontalAlignment horizontalAlignment) throws IOException;
-
-    TableFormatter writeCell(int i, HorizontalAlignment horizontalAlignment, NumberFormat numberFormat) throws IOException;
 
     TableFormatter writeCell(float f) throws IOException;
 
-    TableFormatter writeCell(float f, HorizontalAlignment horizontalAlignment) throws IOException;
-
-    TableFormatter writeCell(float f, HorizontalAlignment horizontalAlignment, NumberFormat numberFormat) throws IOException;
-
     TableFormatter writeCell(double d) throws IOException;
 
-    TableFormatter writeCell(double d, HorizontalAlignment horizontalAlignment) throws IOException;
-
-    TableFormatter writeCell(double d, HorizontalAlignment horizontalAlignment, NumberFormat numberFormat) throws IOException;
-
     TableFormatter writeCell(boolean b) throws IOException;
-
-    TableFormatter writeCell(boolean b, HorizontalAlignment horizontalAlignment) throws IOException;
 
     @Override void close() throws IOException;
 }

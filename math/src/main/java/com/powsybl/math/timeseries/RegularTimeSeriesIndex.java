@@ -22,6 +22,8 @@ import java.util.Objects;
  */
 public class RegularTimeSeriesIndex implements TimeSeriesIndex {
 
+    public static final String TYPE = "regularIndex";
+
     private final long startTime; // in ms from epoch
 
     private final long endTime; // in ms from epoch
@@ -76,8 +78,6 @@ public class RegularTimeSeriesIndex implements TimeSeriesIndex {
                 if (token == JsonToken.FIELD_NAME) {
                     String fieldName = parser.getCurrentName();
                     switch (fieldName) {
-                        case "regularIndex":
-                            break;
                         case "startTime":
                             startTime = parser.nextLongValue(-1);
                             break;
@@ -160,10 +160,14 @@ public class RegularTimeSeriesIndex implements TimeSeriesIndex {
     }
 
     @Override
+    public String getType() {
+        return TYPE;
+    }
+
+    @Override
     public void writeJson(JsonGenerator generator) {
         Objects.requireNonNull(generator);
         try {
-            generator.writeFieldName("regularIndex");
             generator.writeStartObject();
             generator.writeNumberField("startTime", startTime);
             generator.writeNumberField("endTime", endTime);

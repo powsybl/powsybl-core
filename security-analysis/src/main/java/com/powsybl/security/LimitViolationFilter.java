@@ -10,9 +10,11 @@ package com.powsybl.security;
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.Network;
 
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -118,12 +120,27 @@ public class LimitViolationFilter {
         return this;
     }
 
+    /**
+     * @deprecated use apply(List<LimitViolation>, Network) instead.
+     */
+    @Deprecated
     public List<LimitViolation> apply(List<LimitViolation> violations) {
         return violations.stream()
                 .filter(violation -> accept(violation.getLimitType()))
                 .filter(violation -> accept(violation.getBaseVoltage()))
                 .filter(violation -> accept(violation.getCountry()))
                 .collect(Collectors.toList());
+    }
+
+    public List<LimitViolation> apply(List<LimitViolation> violations, Network network) {
+        Objects.requireNonNull(violations);
+        Objects.requireNonNull(network);
+
+        return violations.stream()
+            .filter(violation -> accept(violation.getLimitType()))
+            .filter(violation -> accept(LimitViolation.getNominalVoltage(violation, network)))
+            .filter(violation -> accept(LimitViolation.getCountry(violation, network)))
+            .collect(Collectors.toList());
     }
 
     private boolean accept(Country country) {

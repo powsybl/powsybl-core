@@ -7,10 +7,7 @@
 package com.powsybl.scripting;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.afs.AppData;
-import com.powsybl.afs.AppFileSystemProvider;
-import com.powsybl.afs.FileExtension;
-import com.powsybl.afs.ProjectFileExtension;
+import com.powsybl.afs.*;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.scripting.groovy.GroovyScripts;
 import com.powsybl.tools.Command;
@@ -98,8 +95,19 @@ public class RunScriptTool implements Tool {
         Path file = context.getFileSystem().getPath(line.getOptionValue("file"));
         Writer writer = new OutputStreamWriter(context.getOutputStream());
         try {
+            AppLogger logger = new AppLogger() {
+                @Override
+                public void log(String message, Object... args) {
+                    context.getOutputStream().println(String.format(message, args));
+                }
+
+                @Override
+                public AppLogger tagged(String tag) {
+                    return this;
+                }
+            };
             try (AppData data = new AppData(context.getComputationManager(), fileSystemProviders,
-                    fileExtensions, projectFileExtensions)) {
+                    fileExtensions, projectFileExtensions, () -> logger)) {
                 if (file.getFileName().toString().endsWith(".groovy")) {
                     try {
                         Binding binding = new Binding();
