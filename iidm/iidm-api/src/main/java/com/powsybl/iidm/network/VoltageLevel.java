@@ -606,7 +606,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
         /**
          * Called when a terminal in encountered.
          *
-         * @param terminal the encountered terminal
+         * @param terminal the encountered terminalgetTopologyKind
          * @param connected in bus/breaker topology, give the terminal connection status
          * @return true to continue the graph traversal, false otherwise
          */
@@ -685,7 +685,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
      * Get generator count.
      */
     int getGeneratorCount();
-
+    getTopologyKind
     /**
      * Get a builder to create a new load.
      */
