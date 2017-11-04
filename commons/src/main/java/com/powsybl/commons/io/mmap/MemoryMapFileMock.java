@@ -26,5 +26,6 @@ public class MemoryMapFileMock implements MemoryMappedFile {
 
     @Override
     public void close() throws IOException {
+        // nothing to close in the mock
     }
 }

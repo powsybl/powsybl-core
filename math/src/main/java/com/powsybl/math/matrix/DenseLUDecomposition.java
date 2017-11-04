@@ -33,5 +33,6 @@ public class DenseLUDecomposition implements LUDecomposition {
 
     @Override
     public void close() {
+        // nothing to close
     }
 }

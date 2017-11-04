@@ -44,10 +44,6 @@ class HvdcLineXml extends AbstractIdentifiableXml<HvdcLine, HvdcLineAdder, Netwo
     }
 
     @Override
-    protected void writeSubElements(HvdcLine l, Network parent, XmlWriterContext context) throws XMLStreamException {
-    }
-
-    @Override
     protected HvdcLineAdder createAdder(Network n) {
         return n.newHvdcLine();
     }

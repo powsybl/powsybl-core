@@ -33,7 +33,7 @@ class CorePool {
             throw new IllegalArgumentException("Not enough cores");
         }
         List<Core> borrowedCores = new ArrayList<>(n);
-        if (preferedRanks != null && preferedRanks.size() > 0) {
+        if (preferedRanks != null && !preferedRanks.isEmpty()) {
             END: for (int preferedRank : preferedRanks) {
                 for (Core preferedCore : coresPerRank.get(preferedRank)) {
                     if (borrowedCores.size() >= n) {

@@ -72,9 +72,6 @@ public class GroupCommandBuilder extends AbstractCommandBuilder<GroupCommandBuil
 
     }
 
-    public GroupCommandBuilder() {
-    }
-
     public SubCommandBuilder subCommand() {
         return new SubCommandBuilder();
     }

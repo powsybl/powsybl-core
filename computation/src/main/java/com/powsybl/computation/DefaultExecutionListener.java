@@ -14,14 +14,17 @@ public class DefaultExecutionListener implements ExecutionListener {
 
     @Override
     public void onExecutionStart(int fromExecutionIndex, int toExecutionIndex) {
+        // empty default implementation
     }
 
     @Override
     public void onExecutionCompletion(int executionIndex) {
+        // empty default implementation
     }
 
     @Override
     public void onEnd(ExecutionReport report) {
+        // empty default implementation
     }
 
 }
