@@ -110,6 +110,7 @@ public class CacheManager {
             try {
                 semaphore.acquire();
             } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
                 throw new UncheckedInterruptedException(e);
             }
         }
@@ -146,7 +147,7 @@ public class CacheManager {
 
         public CacheEntry build() {
             Path baseDir = cacheDir.resolve(name);
-            if (keys.size() > 0) {
+            if (!keys.isEmpty()) {
                 HashFunction hf = Hashing.md5();
                 Hasher h = hf.newHasher();
                 for (String key : keys) {
