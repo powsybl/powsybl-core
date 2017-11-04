@@ -93,6 +93,7 @@ public final class MpiToolUtil {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
             throw new UncheckedInterruptedException(e);
         }
     }
