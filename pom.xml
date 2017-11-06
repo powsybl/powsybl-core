@@ -23,6 +23,7 @@
     <modules>
         <module>action</module>
         <module>afs</module>
+        <module>cim-anonymiser</module>
         <module>cim1</module>
         <module>commons</module>
         <module>computation</module>
