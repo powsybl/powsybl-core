@@ -111,6 +111,7 @@ class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, Statefu
 
     @Override
     public void reduceStateArraySize(int number) {
+        // nothing to do
     }
 
     @Override

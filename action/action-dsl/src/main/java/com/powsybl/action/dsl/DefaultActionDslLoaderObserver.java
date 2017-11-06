@@ -12,21 +12,26 @@ package com.powsybl.action.dsl;
 public class DefaultActionDslLoaderObserver implements ActionDslLoaderObserver {
     @Override
     public void begin(String dslFile) {
+        // empty default implementation
     }
 
     @Override
     public void contingencyFound(String contingencyId) {
+        // empty default implementation
     }
 
     @Override
     public void ruleFound(String ruleId) {
+        // empty default implementation
     }
 
     @Override
     public void actionFound(String actionId) {
+        // empty default implementation
     }
 
     @Override
     public void end() {
+        // empty default implementation
     }
 }

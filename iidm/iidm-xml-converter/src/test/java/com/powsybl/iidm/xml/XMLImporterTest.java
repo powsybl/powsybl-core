@@ -100,7 +100,7 @@ public class XMLImporterTest {
 
     @Test
     public void getFormat() throws Exception {
-        assertEquals(importer.getFormat(), "XIIDM");
+        assertEquals("XIIDM", importer.getFormat());
     }
 
     @Test
@@ -110,13 +110,13 @@ public class XMLImporterTest {
 
     @Test
     public void getParameters() throws Exception {
-        assertEquals(importer.getParameters().size(), 1);
-        assertEquals(importer.getParameters().get(0).getName(), "throwExceptionIfExtensionNotFound");
+        assertEquals(1, importer.getParameters().size());
+        assertEquals("throwExceptionIfExtensionNotFound", importer.getParameters().get(0).getName());
     }
 
     @Test
     public void getComment() throws Exception {
-        assertEquals(importer.getComment(), "IIDM XML v 1.0 importer");
+        assertEquals("IIDM XML v 1.0 importer", importer.getComment());
     }
 
     @Test

@@ -62,8 +62,7 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
 
     @Override
     public Collection<TerminalExt> getConnectedTerminals() {
-        checkValidity();
-        return Collections.unmodifiableCollection(terminals);
+        return getTerminals();
     }
 
     @Override

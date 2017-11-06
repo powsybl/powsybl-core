@@ -29,7 +29,7 @@ public class ExecutionReport {
     }
 
     public void log() {
-        if (errors.size() > 0) {
+        if (!errors.isEmpty()) {
             LOGGER.error("{} commands have failed: {}", errors.size(), errors);
             if (LOGGER.isTraceEnabled()) {
                 for (ExecutionError error : errors) {
