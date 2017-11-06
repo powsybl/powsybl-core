@@ -11,6 +11,7 @@ import com.powsybl.afs.AppFileSystem;
 import com.powsybl.afs.ProjectFile;
 import com.powsybl.afs.storage.AppFileSystemStorage;
 import com.powsybl.afs.storage.NodeId;
+import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.import_.ImportersLoader;
@@ -35,12 +36,12 @@ public class ImportedCase extends ProjectFile implements ProjectCase {
 
     private final ImportersLoader importersLoader;
 
-    public ImportedCase(NodeId id, AppFileSystemStorage storage, NodeId projectId, AppFileSystem fileSystem,
+    public ImportedCase(NodeInfo info, AppFileSystemStorage storage, NodeInfo projectInfo, AppFileSystem fileSystem,
                         ImportersLoader importersLoader) {
-        super(id, storage, projectId, fileSystem, CaseIconCache.INSTANCE.get(
+        super(info, storage, projectInfo, fileSystem, CaseIconCache.INSTANCE.get(
                 importersLoader,
                 fileSystem.getData().getComputationManager(),
-                getFormat(storage, id)));
+                getFormat(storage, info.getId())));
         this.importersLoader = Objects.requireNonNull(importersLoader);
     }
 
@@ -49,12 +50,12 @@ public class ImportedCase extends ProjectFile implements ProjectCase {
     }
 
     public ReadOnlyDataSource getDataSource() {
-        return storage.getDataSourceAttribute(id, DATA_SOURCE);
+        return storage.getDataSourceAttribute(info.getId(), DATA_SOURCE);
     }
 
     public Properties getParameters() {
         Properties parameters = new Properties();
-        try (StringReader reader = new StringReader(storage.getStringAttribute(id, PARAMETERS))) {
+        try (StringReader reader = new StringReader(storage.getStringAttribute(info.getId(), PARAMETERS))) {
             parameters.load(reader);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -63,7 +64,7 @@ public class ImportedCase extends ProjectFile implements ProjectCase {
     }
 
     public Importer getImporter() {
-        String format = getFormat(storage, id);
+        String format = getFormat(storage, info.getId());
         return importersLoader.loadImporters()
                 .stream()
                 .filter(importer -> importer.getFormat().equals(format))

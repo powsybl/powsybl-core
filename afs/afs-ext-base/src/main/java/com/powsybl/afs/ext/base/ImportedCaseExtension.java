@@ -10,7 +10,7 @@ import com.google.auto.service.AutoService;
 import com.powsybl.afs.AppFileSystem;
 import com.powsybl.afs.ProjectFileExtension;
 import com.powsybl.afs.storage.AppFileSystemStorage;
-import com.powsybl.afs.storage.NodeId;
+import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.iidm.import_.ImportersLoader;
 import com.powsybl.iidm.import_.ImportersServiceLoader;
 
@@ -48,12 +48,12 @@ public class ImportedCaseExtension implements ProjectFileExtension {
     }
 
     @Override
-    public ImportedCase createProjectFile(NodeId id, AppFileSystemStorage storage, NodeId projectId, AppFileSystem fileSystem) {
-        return new ImportedCase(id, storage, projectId, fileSystem, importersLoader);
+    public ImportedCase createProjectFile(NodeInfo info, AppFileSystemStorage storage, NodeInfo projectInfo, AppFileSystem fileSystem) {
+        return new ImportedCase(info, storage, projectInfo, fileSystem, importersLoader);
     }
 
     @Override
-    public ImportedCaseBuilder createProjectFileBuilder(NodeId folderId, AppFileSystemStorage storage, NodeId projectId, AppFileSystem fileSystem) {
-        return new ImportedCaseBuilder(folderId, storage, projectId, fileSystem, importersLoader);
+    public ImportedCaseBuilder createProjectFileBuilder(NodeInfo folderInfo, AppFileSystemStorage storage, NodeInfo projectInfo, AppFileSystem fileSystem) {
+        return new ImportedCaseBuilder(folderInfo, storage, projectInfo, fileSystem, importersLoader);
     }
 }

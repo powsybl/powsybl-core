@@ -8,6 +8,7 @@ package com.powsybl.afs;
 
 import com.powsybl.afs.storage.AppFileSystemStorage;
 import com.powsybl.afs.storage.NodeId;
+import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.afs.storage.PseudoClass;
 
 import java.util.Comparator;
@@ -22,17 +23,17 @@ public class Folder extends Node implements FolderBase<Node, Folder> {
 
     public static final String PSEUDO_CLASS = PseudoClass.FOLDER_PSEUDO_CLASS;
 
-    public Folder(NodeId id, AppFileSystemStorage storage, AppFileSystem fileSystem) {
-        super(id, storage, fileSystem, true);
+    public Folder(NodeInfo info, AppFileSystemStorage storage, AppFileSystem fileSystem) {
+        super(info, storage, fileSystem, true);
     }
 
     public boolean isWritable() {
-        return storage.isWritable(id);
+        return storage.isWritable(info.getId());
     }
 
     @Override
     public List<Node> getChildren() {
-        return storage.getChildNodes(id)
+        return storage.getChildNodesInfo(info.getId())
                 .stream()
                 .map(this::findNode)
                 .sorted(Comparator.comparing(Node::getName))
@@ -41,8 +42,8 @@ public class Folder extends Node implements FolderBase<Node, Folder> {
 
     @Override
     public Node getChild(String name, String... more) {
-        NodeId childId = getChildId(name, more);
-        return childId != null ? findNode(childId) : null;
+        NodeInfo childInfo = getChildInfo(name, more);
+        return childInfo != null ? findNode(childInfo) : null;
     }
 
     @Override
@@ -62,18 +63,18 @@ public class Folder extends Node implements FolderBase<Node, Folder> {
 
     @Override
     public Folder createFolder(String name) {
-        NodeId folderId = storage.getChildNode(id, name);
+        NodeId folderId = storage.getChildNode(info.getId(), name);
         if (folderId == null) {
-            folderId = storage.createNode(id, name, Folder.PSEUDO_CLASS);
+            folderId = storage.createNode(info.getId(), name, Folder.PSEUDO_CLASS);
         }
-        return new Folder(folderId, storage, fileSystem);
+        return new Folder(new NodeInfo(folderId, name, Folder.PSEUDO_CLASS), storage, fileSystem);
     }
 
     public Project createProject(String name) {
-        NodeId projectId = storage.getChildNode(id, name);
+        NodeId projectId = storage.getChildNode(info.getId(), name);
         if (projectId == null) {
-            projectId = storage.createNode(id, name, Project.PSEUDO_CLASS);
+            projectId = storage.createNode(info.getId(), name, Project.PSEUDO_CLASS);
         }
-        return new Project(projectId, storage, fileSystem);
+        return new Project(new NodeInfo(projectId, name, Project.PSEUDO_CLASS), storage, fileSystem);
     }
 }
