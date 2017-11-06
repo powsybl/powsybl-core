@@ -37,7 +37,7 @@ public abstract class AbstractExecutionHandler<R> implements ExecutionHandler<R>
 
     @Override
     public R after(Path workingDir, ExecutionReport report) throws IOException {
-        if (report.getErrors().size() > 0) {
+        if (!report.getErrors().isEmpty()) {
             report.log();
             throw new PowsyblException("Execution error");
         }

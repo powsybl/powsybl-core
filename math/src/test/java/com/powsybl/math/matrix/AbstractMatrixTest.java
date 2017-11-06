@@ -48,11 +48,11 @@ public abstract class AbstractMatrixTest {
         Matrix cs = a.times(b);
         DenseMatrix c = cs.toDense();
 
-        assertEquals(c.getM(), 3);
-        assertEquals(c.getN(), 1);
-        assertEquals(c.getValue(0, 0), 4, EPSILON);
-        assertEquals(c.getValue(1, 0), 15, EPSILON);
-        assertEquals(c.getValue(2, 0), 8, EPSILON);
+        assertEquals(3, c.getM());
+        assertEquals(1, c.getN());
+        assertEquals(4, c.getValue(0, 0), EPSILON);
+        assertEquals(15, c.getValue(1, 0), EPSILON);
+        assertEquals(8, c.getValue(2, 0), EPSILON);
     }
 
     @Test
@@ -130,16 +130,16 @@ public abstract class AbstractMatrixTest {
             x2.setValue(4, 1, 19);
 
             decomposition.solve(x2);
-            assertEquals(x2.getValue(0, 0), 1, EPSILON);
-            assertEquals(x2.getValue(1, 0), 2, EPSILON);
-            assertEquals(x2.getValue(2, 0), 3, EPSILON);
-            assertEquals(x2.getValue(3, 0), 4, EPSILON);
-            assertEquals(x2.getValue(4, 0), 5, EPSILON);
-            assertEquals(x2.getValue(0, 1), 1, EPSILON);
-            assertEquals(x2.getValue(1, 1), 2, EPSILON);
-            assertEquals(x2.getValue(2, 1), 3, EPSILON);
-            assertEquals(x2.getValue(3, 1), 4, EPSILON);
-            assertEquals(x2.getValue(4, 1), 5, EPSILON);
+            assertEquals(1, x2.getValue(0, 0), EPSILON);
+            assertEquals(2, x2.getValue(1, 0), EPSILON);
+            assertEquals(3, x2.getValue(2, 0), EPSILON);
+            assertEquals(4, x2.getValue(3, 0), EPSILON);
+            assertEquals(5, x2.getValue(4, 0), EPSILON);
+            assertEquals(1, x2.getValue(0, 1), EPSILON);
+            assertEquals(2, x2.getValue(1, 1), EPSILON);
+            assertEquals(3, x2.getValue(2, 1), EPSILON);
+            assertEquals(4, x2.getValue(3, 1), EPSILON);
+            assertEquals(5, x2.getValue(4, 1), EPSILON);
         }
     }
 

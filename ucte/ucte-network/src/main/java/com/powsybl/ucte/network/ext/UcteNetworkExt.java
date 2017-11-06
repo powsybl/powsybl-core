@@ -183,7 +183,7 @@ public class UcteNetworkExt implements UcteNetwork {
                                     nodeCode2.getUcteCountryCode() == UcteCountryCode.XX) {
                                 return -1;
                             } else {
-                                int c = Float.compare(nodeCode2.getVoltageLevelCode().getVoltageLevel(), nodeCode1.getVoltageLevelCode().getVoltageLevel());
+                                int c = Integer.compare(nodeCode2.getVoltageLevelCode().getVoltageLevel(), nodeCode1.getVoltageLevelCode().getVoltageLevel());
                                 if (c == 0) {
                                     c = nodeCode2.getBusbar().compareTo(nodeCode1.getBusbar());
                                 }
@@ -191,7 +191,7 @@ public class UcteNetworkExt implements UcteNetwork {
                             }
                         })
                         .findFirst()
-                        .orElseThrow(() -> new AssertionError());
+                        .orElseThrow(AssertionError::new);
 
                 Multimap<UcteVoltageLevelCode, UcteNodeCode> nodesByVoltageLevel
                         = Multimaps.index(substationNodes, UcteNodeCode::getVoltageLevelCode);

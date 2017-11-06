@@ -16,10 +16,12 @@ public class DefaultDataSourceObserver implements DataSourceObserver {
 
     @Override
     public void opened(String streamName) {
+        // empty default implementation
     }
 
     @Override
     public void closed(String streamName) {
+        // empty default implementation
     }
 
 }

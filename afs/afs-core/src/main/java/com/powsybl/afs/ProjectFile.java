@@ -43,5 +43,6 @@ public class ProjectFile extends ProjectNode {
     }
 
     public void onDependencyChanged() {
+        // method to override to be notified in case of dependency change
     }
 }

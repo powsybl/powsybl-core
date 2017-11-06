@@ -363,9 +363,11 @@ public class LocalAppFileSystemStorage implements AppFileSystemStorage {
 
     @Override
     public void flush() {
+        // read only storage so nothing to flush
     }
 
     @Override
     public void close() {
+        // nothing to close
     }
 }
