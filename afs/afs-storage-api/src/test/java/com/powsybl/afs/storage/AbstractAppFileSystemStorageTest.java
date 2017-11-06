@@ -54,13 +54,17 @@ public abstract class AbstractAppFileSystemStorageTest {
         assertTrue(storage.getChildNodes(rootFolderId).isEmpty());
         NodeId testFolderId = storage.createNode(rootFolderId, "test", PseudoClass.FOLDER_PSEUDO_CLASS);
         assertEquals(rootFolderId, storage.getParentNode(testFolderId));
+        assertEquals(new NodeInfo(rootFolderId, storage.getFileSystemName(), PseudoClass.FOLDER_PSEUDO_CLASS), storage.getParentNodeInfo(testFolderId));
         assertEquals("test", storage.getNodeName(testFolderId));
         assertEquals(PseudoClass.FOLDER_PSEUDO_CLASS, storage.getNodePseudoClass(testFolderId));
+        assertEquals(new NodeInfo(testFolderId, "test", PseudoClass.FOLDER_PSEUDO_CLASS), storage.getNodeInfo(testFolderId));
         assertEquals(testFolderId, storage.fromString(testFolderId.toString()));
         assertTrue(storage.getChildNodes(testFolderId).isEmpty());
         assertEquals(1, storage.getChildNodes(rootFolderId).size());
         assertEquals(testFolderId, storage.getChildNodes(rootFolderId).get(0));
+        assertEquals(Arrays.asList(new NodeInfo(testFolderId, "test", PseudoClass.FOLDER_PSEUDO_CLASS)), storage.getChildNodesInfo(rootFolderId));
         assertNotNull(storage.getChildNode(rootFolderId, "test"));
+        assertEquals(new NodeInfo(testFolderId, "test", PseudoClass.FOLDER_PSEUDO_CLASS), storage.getChildNodeInfo(rootFolderId, "test"));
 
         // dependency tests
         NodeId testDataId = storage.createNode(testFolderId, "data", "data");
@@ -68,8 +72,11 @@ public abstract class AbstractAppFileSystemStorageTest {
         assertEquals(2, storage.getChildNodes(testFolderId).size());
         storage.addDependency(testDataId, "mylink", testData2Id);
         assertEquals(Arrays.asList(testData2Id), storage.getDependencies(testDataId));
+        assertEquals(Arrays.asList(new NodeInfo(testData2Id, "data2", "data")), storage.getDependenciesInfo(testDataId));
         assertEquals(Arrays.asList(testDataId), storage.getBackwardDependencies(testData2Id));
+        assertEquals(Arrays.asList(new NodeInfo(testDataId, "data", "data")), storage.getBackwardDependenciesInfo(testData2Id));
         assertEquals(testData2Id, storage.getDependency(testDataId, "mylink"));
+        assertEquals(new NodeInfo(testData2Id, "data2", "data"), storage.getDependencyInfo(testDataId, "mylink"));
         assertNull(storage.getDependency(testDataId, "mylink2"));
         storage.deleteNode(testDataId);
         assertEquals(1, storage.getChildNodes(testFolderId).size());
