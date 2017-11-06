@@ -43,10 +43,6 @@ public class StaticVarCompensatorXml extends AbstractConnectableXml<StaticVarCom
     }
 
     @Override
-    protected void writeSubElements(StaticVarCompensator svc, VoltageLevel vl, XmlWriterContext context) throws XMLStreamException {
-    }
-
-    @Override
     protected StaticVarCompensatorAdder createAdder(VoltageLevel vl) {
         return vl.newStaticVarCompensator();
     }

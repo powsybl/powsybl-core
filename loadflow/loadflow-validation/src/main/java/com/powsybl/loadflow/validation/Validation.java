@@ -67,7 +67,7 @@ public final class Validation {
         try {
             double fixedX = x;
             if (Math.abs(fixedX) < config.getEpsilonX() && config.applyReactanceCorrection()) {
-                LOGGER.info("x " + fixedX + " -> " + config.getEpsilonX());
+                LOGGER.info("x {} -> {}", fixedX, config.getEpsilonX());
                 fixedX = config.getEpsilonX();
             }
             double z = Math.hypot(r, fixedX);
@@ -79,19 +79,19 @@ public final class Validation {
             double q2Calc = -rho2 * rho1 * u2 * u1 * y * Math.cos(theta2 - theta1 - ksi + alpha2 - alpha1) + rho2 * rho2 * u2 * u2 * (y * Math.cos(ksi) - b2);
 
             if ((Double.isNaN(p1Calc) && !config.areOkMissingValues()) || Math.abs(p1 - p1Calc) > config.getThreshold()) {
-                LOGGER.warn(ValidationType.FLOWS + " " + VALIDATION_ERROR + ": " + id + " P1 " + p1 + " " + p1Calc);
+                LOGGER.warn("{} {}: {} P1 {} {}", ValidationType.FLOWS, VALIDATION_ERROR, id, p1, p1Calc);
                 validated = false;
             }
             if ((Double.isNaN(q1Calc) && !config.areOkMissingValues()) || Math.abs(q1 - q1Calc) > config.getThreshold()) {
-                LOGGER.warn(ValidationType.FLOWS + " " + VALIDATION_ERROR + ": " + id + " Q1 " + q1 + " " + q1Calc);
+                LOGGER.warn("{} {}: {} Q1 {} {}", ValidationType.FLOWS, VALIDATION_ERROR, id, q1, q1Calc);
                 validated = false;
             }
             if ((Double.isNaN(p2Calc) && !config.areOkMissingValues()) || Math.abs(p2 - p2Calc) > config.getThreshold()) {
-                LOGGER.warn(ValidationType.FLOWS + " " + VALIDATION_ERROR + ": " + id + " P2 " + p2 + " " + p2Calc);
+                LOGGER.warn("{} {}: {} P2 {} {}", ValidationType.FLOWS, VALIDATION_ERROR, id, p2, p2Calc);
                 validated = false;
             }
             if ((Double.isNaN(q2Calc) && !config.areOkMissingValues()) || Math.abs(q2 - q2Calc) > config.getThreshold()) {
-                LOGGER.warn(ValidationType.FLOWS + " " + VALIDATION_ERROR + ": " + id + " Q2 " + q2 + " " + q2Calc);
+                LOGGER.warn("{} {}: {} Q2 {} {}", ValidationType.FLOWS, VALIDATION_ERROR, id, q2, q2Calc);
                 validated = false;
             }
 
@@ -271,11 +271,10 @@ public final class Validation {
 
     public static boolean checkGenerators(Network network, ValidationConfig config, ValidationWriter generatorsWriter) {
         LOGGER.info("Checking generators of network {}", network.getId());
-        boolean generatorsValidated = network.getGeneratorStream()
+        return network.getGeneratorStream()
                 .sorted(Comparator.comparing(Generator::getId))
                 .map(gen -> checkGenerators(gen, config, generatorsWriter))
                 .reduce(Boolean::logicalAnd).orElse(true);
-        return generatorsValidated;
     }
 
     public static boolean checkGenerators(Generator gen, ValidationConfig config, Writer writer) {
@@ -336,7 +335,7 @@ public final class Validation {
             if (Float.isNaN(p) || Float.isNaN(q)) {
                 if ((!Float.isNaN(targetP) && targetP != 0)
                     || (!Float.isNaN(targetQ) && targetQ != 0)) {
-                    LOGGER.warn(ValidationType.GENERATORS + " " + VALIDATION_ERROR + ": " + id + ": P=" + p + " targetP=" + targetP + " - Q=" + q + " targetQ=" + targetQ);
+                    LOGGER.warn("{} {}: {}: P={} targetP={} - Q={} targetQ={}", ValidationType.GENERATORS, VALIDATION_ERROR, id, p, targetP, q, targetQ);
                     validated = false;
                 } else {
                     validated = true;
@@ -344,12 +343,12 @@ public final class Validation {
             } else {
                 // active power should be equal to set point
                 if ((Float.isNaN(targetP) && !config.areOkMissingValues()) || Math.abs(p + targetP) > config.getThreshold()) {
-                    LOGGER.warn(ValidationType.GENERATORS + " " + VALIDATION_ERROR + ": " + id + ": P=" + p + " targetP=" + targetP);
+                    LOGGER.warn("{} {}: {}: P={} targetP={}", ValidationType.GENERATORS, VALIDATION_ERROR, id, p, targetP);
                     validated = false;
                 }
                 // if voltageRegulatorOn="false" then reactive power should be equal to set point
                 if (!voltageRegulatorOn && ((Float.isNaN(targetQ) && !config.areOkMissingValues()) || Math.abs(q + targetQ) > config.getThreshold())) {
-                    LOGGER.warn(ValidationType.GENERATORS + " " + VALIDATION_ERROR + ": " + id + ": voltage regulator off - Q=" + q + " targetQ=" + targetQ);
+                    LOGGER.warn("{} {}: {}: voltage regulator off - Q={} targetQ={}", ValidationType.GENERATORS, VALIDATION_ERROR, id, q, targetQ);
                     validated = false;
                 }
                 // if voltageRegulatorOn="true" then
@@ -361,7 +360,8 @@ public final class Validation {
                         || ((Math.abs(q + minQ) > config.getThreshold() || (v - targetV) >= config.getThreshold())
                             && (Math.abs(q + maxQ) > config.getThreshold() || (targetV - v) >= config.getThreshold())
                             && Math.abs(v - targetV) > config.getThreshold()))) {
-                    LOGGER.warn(ValidationType.GENERATORS + " " + VALIDATION_ERROR + ": " + id + ": voltage regulator on - Q=" + q + " minQ=" + minQ + " maxQ=" + maxQ + " - V=" + v + " targetV=" + targetV);
+                    LOGGER.warn("{} {}: {}: voltage regulator on - Q={} minQ={} maxQ={} - V={} targetV={}",
+                            ValidationType.GENERATORS, VALIDATION_ERROR, id, q, minQ, maxQ, v, targetV);
                     validated = false;
                 }
             }

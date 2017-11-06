@@ -32,7 +32,7 @@ class NetworkListenerList {
     }
 
     void notifyUpdate(Identifiable identifiable, String attribute, Object oldValue, Object newValue) {
-        if (listeners.size() > 0 && !Objects.equals(oldValue, newValue)) {
+        if (!listeners.isEmpty() && !Objects.equals(oldValue, newValue)) {
             for (NetworkListener listener : listeners) {
                 try {
                     listener.onUpdate(identifiable, attribute, oldValue, newValue);
