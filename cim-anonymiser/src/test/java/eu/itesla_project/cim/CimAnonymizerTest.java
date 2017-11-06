@@ -39,6 +39,10 @@ public class CimAnonymizerTest {
     }
 
     @Test
+    public void fakeTest() {
+    }
+
+    @Test
     @Ignore
     public void anonymizeZip() throws Exception {
         String eq = String.join(System.lineSeparator(),
