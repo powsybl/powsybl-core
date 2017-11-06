@@ -85,7 +85,7 @@ public class ConversionTool implements Tool {
         Properties outputParams = readProperties(line, OptionType.EXPORT, context);
 
         if (outputParams.containsKey("forceBusBranchTopo")) {
-            LOGGER.warn("forceBusBranchTopo functionality is deprecated!");
+            LOGGER.warn("forceBusBranchTopo functionality is deprecated, please use topologyLevel functionality!");
         }
 
         DataSource ds2 = Exporters.createDataSource(context.getFileSystem().getPath(outputFile), new DefaultDataSourceObserver() {
