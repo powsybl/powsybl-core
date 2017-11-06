@@ -26,7 +26,8 @@ abstract class AbstractIdentifiableXml<T extends Identifiable, A extends Identif
 
     protected abstract void writeRootElementAttributes(T identifiable, P parent, XmlWriterContext context) throws XMLStreamException;
 
-    protected abstract void writeSubElements(T identifiable, P parent, XmlWriterContext context) throws XMLStreamException;
+    protected void writeSubElements(T identifiable, P parent, XmlWriterContext context) throws XMLStreamException {
+    }
 
     final public void write(T identifiable, P parent, XmlWriterContext context) throws XMLStreamException {
         boolean hasSubElements = hasSubElements(identifiable);

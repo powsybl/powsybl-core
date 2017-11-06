@@ -33,9 +33,7 @@ public final class JsonUtil {
         JsonFactory factory = new JsonFactory();
         try (JsonGenerator generator = factory.createGenerator(writer)) {
             generator.useDefaultPrettyPrinter();
-            generator.writeStartObject();
             consumer.accept(generator);
-            generator.writeEndObject();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

@@ -78,12 +78,14 @@ public abstract class AbstractCompressedArrayChunk {
     public void writeJson(JsonGenerator generator) {
         Objects.requireNonNull(generator);
         try {
+            generator.writeStartObject();
             generator.writeNumberField("offset", offset);
             generator.writeNumberField("uncompressedLength", uncompressedLength);
             generator.writeFieldName("stepValues");
             writeStepValuesJson(generator);
             generator.writeFieldName("stepLengths");
             generator.writeArray(stepLengths, 0, stepLengths.length);
+            generator.writeEndObject();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

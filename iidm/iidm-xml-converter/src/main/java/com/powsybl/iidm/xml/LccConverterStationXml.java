@@ -41,10 +41,6 @@ public class LccConverterStationXml extends AbstractConnectableXml<LccConverterS
     }
 
     @Override
-    protected void writeSubElements(LccConverterStation cs, VoltageLevel vl, XmlWriterContext context) throws XMLStreamException {
-    }
-
-    @Override
     protected LccConverterStationAdder createAdder(VoltageLevel vl) {
         return vl.newLccConverterStation();
     }

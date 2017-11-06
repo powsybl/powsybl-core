@@ -7,7 +7,7 @@
 package com.powsybl.afs;
 
 import com.powsybl.afs.storage.AppFileSystemStorage;
-import com.powsybl.afs.storage.NodeId;
+import com.powsybl.afs.storage.NodeInfo;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -20,7 +20,7 @@ public interface ProjectFileExtension {
 
     Class<? extends ProjectFileBuilder<? extends ProjectFile>> getProjectFileBuilderClass();
 
-    <T extends ProjectFile> T createProjectFile(NodeId id, AppFileSystemStorage storage, NodeId projectId, AppFileSystem fileSystem);
+    <T extends ProjectFile> T createProjectFile(NodeInfo info, AppFileSystemStorage storage, NodeInfo projectInfo, AppFileSystem fileSystem);
 
-    ProjectFileBuilder<? extends ProjectFile> createProjectFileBuilder(NodeId folderId, AppFileSystemStorage storage, NodeId projectId, AppFileSystem fileSystem);
+    ProjectFileBuilder<? extends ProjectFile> createProjectFileBuilder(NodeInfo folderInfo, AppFileSystemStorage storage, NodeInfo projectInfo, AppFileSystem fileSystem);
 }

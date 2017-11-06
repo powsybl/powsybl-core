@@ -7,7 +7,7 @@
 package com.powsybl.afs;
 
 import com.powsybl.afs.storage.AppFileSystemStorage;
-import com.powsybl.afs.storage.NodeId;
+import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.afs.storage.PseudoClass;
 
 import java.util.Objects;
@@ -24,17 +24,18 @@ public class Project extends File {
 
     private static final FileIcon PROJECT_ICON = new FileIcon(PROJECT_LABEL, Project.class.getResourceAsStream("/icons/project16x16.png"));
 
-    public Project(NodeId id, AppFileSystemStorage storage, AppFileSystem fileSystem) {
-        super(id, storage, fileSystem, PROJECT_ICON);
+    public Project(NodeInfo info, AppFileSystemStorage storage, AppFileSystem fileSystem) {
+        super(info, storage, fileSystem, PROJECT_ICON);
     }
 
     public ProjectFolder getRootFolder() {
-        return new ProjectFolder(storage.getProjectRootNode(id), storage, id, fileSystem);
+        NodeInfo rootInfo = storage.getProjectRootNodeInfo(info.getId());
+        return new ProjectFolder(rootInfo, storage, info, fileSystem);
     }
 
     public Project setDescription(String description) {
         Objects.requireNonNull(description);
-        storage.setStringAttribute(id, DESCRIPTION, description);
+        storage.setStringAttribute(info.getId(), DESCRIPTION, description);
         return this;
     }
 }

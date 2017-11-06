@@ -45,9 +45,11 @@ public abstract class AbstractUncompressedArrayChunk {
     public void writeJson(JsonGenerator generator) {
         Objects.requireNonNull(generator);
         try {
+            generator.writeStartObject();
             generator.writeNumberField("offset", offset);
             generator.writeFieldName("values");
             writeValuesJson(generator);
+            generator.writeEndObject();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

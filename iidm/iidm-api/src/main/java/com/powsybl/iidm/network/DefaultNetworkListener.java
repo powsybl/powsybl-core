@@ -12,13 +12,16 @@ package com.powsybl.iidm.network;
 public class DefaultNetworkListener implements NetworkListener {
     @Override
     public void onCreation(Identifiable identifiable) {
+        // empty default implementation
     }
 
     @Override
     public void onRemoval(Identifiable identifiable) {
+        // empty default implementation
     }
 
     @Override
     public void onUpdate(Identifiable identifiable, String attribute, Object oldValue, Object newValue) {
+        // empty default implementation
     }
 }

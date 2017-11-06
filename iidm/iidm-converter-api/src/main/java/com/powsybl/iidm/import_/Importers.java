@@ -65,7 +65,7 @@ public final class Importers {
         Objects.requireNonNull(computationManager);
         Objects.requireNonNull(config);
         List<String> postProcessorNames = config.getPostProcessors();
-        if (postProcessorNames != null && postProcessorNames.size() > 0) {
+        if (postProcessorNames != null && !postProcessorNames.isEmpty()) {
             return new ImporterWrapper(importer, computationManager, postProcessorNames);
         }
         return importer;

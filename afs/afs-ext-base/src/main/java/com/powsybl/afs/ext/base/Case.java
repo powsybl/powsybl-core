@@ -11,6 +11,7 @@ import com.powsybl.afs.AppFileSystem;
 import com.powsybl.afs.File;
 import com.powsybl.afs.storage.AppFileSystemStorage;
 import com.powsybl.afs.storage.NodeId;
+import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.import_.ImportersLoader;
@@ -29,10 +30,10 @@ public class Case extends File {
 
     private final ImportersLoader importersLoader;
 
-    public Case(NodeId id, AppFileSystemStorage storage, AppFileSystem fileSystem, ImportersLoader importersLoader) {
-        super(id, storage, fileSystem, CaseIconCache.INSTANCE.get(importersLoader,
+    public Case(NodeInfo info, AppFileSystemStorage storage, AppFileSystem fileSystem, ImportersLoader importersLoader) {
+        super(info, storage, fileSystem, CaseIconCache.INSTANCE.get(importersLoader,
                                                                   fileSystem.getData().getComputationManager(),
-                                                                  getFormat(storage, id)));
+                                                                  getFormat(storage, info.getId())));
         this.importersLoader = Objects.requireNonNull(importersLoader);
     }
 
@@ -41,11 +42,11 @@ public class Case extends File {
     }
 
     private String getFormat() {
-        return getFormat(storage, id);
+        return getFormat(storage, info.getId());
     }
 
     public ReadOnlyDataSource getDataSource() {
-        return storage.getDataSourceAttribute(id, DATA_SOURCE);
+        return storage.getDataSourceAttribute(info.getId(), DATA_SOURCE);
     }
 
     public Importer getImporter() {
