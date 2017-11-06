@@ -7,6 +7,7 @@
 package com.powsybl.afs;
 
 import com.powsybl.afs.storage.AppFileSystemStorage;
+import com.powsybl.afs.storage.NodeInfo;
 
 import java.util.Objects;
 
@@ -46,7 +47,8 @@ public class AppFileSystem implements AutoCloseable {
     }
 
     public Folder getRootFolder() {
-        return new Folder(storage.getRootNode(), storage, this);
+        NodeInfo rootInfo = storage.getRootNodeInfo();
+        return new Folder(rootInfo, storage, this);
     }
 
     public AppData getData() {

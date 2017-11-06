@@ -7,7 +7,7 @@
 package com.powsybl.afs;
 
 import com.powsybl.afs.storage.AppFileSystemStorage;
-import com.powsybl.afs.storage.NodeId;
+import com.powsybl.afs.storage.NodeInfo;
 
 import java.util.List;
 import java.util.Objects;
@@ -18,21 +18,17 @@ import java.util.stream.Collectors;
  */
 public class ProjectNode extends AbstractNodeBase<ProjectFolder> {
 
-    protected final NodeId projectId;
+    protected final NodeInfo projectInfo;
 
     protected final AppFileSystem fileSystem;
 
     protected final boolean folder;
 
-    protected ProjectNode(NodeId id, AppFileSystemStorage storage, NodeId projectId, AppFileSystem fileSystem, boolean folder) {
-        super(id, storage);
-        this.projectId = Objects.requireNonNull(projectId);
+    protected ProjectNode(NodeInfo info, AppFileSystemStorage storage, NodeInfo projectInfo, AppFileSystem fileSystem, boolean folder) {
+        super(info, storage);
+        this.projectInfo = Objects.requireNonNull(projectInfo);
         this.fileSystem = Objects.requireNonNull(fileSystem);
         this.folder = folder;
-    }
-
-    public NodeId getId() {
-        return id;
     }
 
     @Override
@@ -42,8 +38,8 @@ public class ProjectNode extends AbstractNodeBase<ProjectFolder> {
 
     @Override
     public ProjectFolder getParent() {
-        NodeId parentNode = storage.getParentNode(id);
-        return parentNode != null ? new ProjectFolder(parentNode, storage, projectId, fileSystem) : null;
+        NodeInfo parentInfo = storage.getParentNodeInfo(info.getId());
+        return parentInfo != null ? new ProjectFolder(parentInfo, storage, projectInfo, fileSystem) : null;
     }
 
     @Override
@@ -54,44 +50,42 @@ public class ProjectNode extends AbstractNodeBase<ProjectFolder> {
     }
 
     public Project getProject() {
-        return new Project(projectId, storage, fileSystem);
+        return new Project(projectInfo, storage, fileSystem);
     }
 
     public void moveTo(ProjectFolder folder) {
         Objects.requireNonNull(folder);
-        storage.setParentNode(id, folder.id);
+        storage.setParentNode(info.getId(), folder.getId());
     }
 
     public void delete() {
-        storage.deleteNode(id);
+        storage.deleteNode(info.getId());
     }
 
-    protected ProjectNode findProjectNode(NodeId nodeId) {
-        String projectNodePseudoClass = storage.getNodePseudoClass(nodeId);
-        if (ProjectFolder.PSEUDO_CLASS.equals(projectNodePseudoClass)) {
-            return new ProjectFolder(nodeId, storage, projectId, fileSystem);
+    protected ProjectNode findProjectNode(NodeInfo nodeInfo) {
+        if (ProjectFolder.PSEUDO_CLASS.equals(nodeInfo.getPseudoClass())) {
+            return new ProjectFolder(nodeInfo, storage, projectInfo, fileSystem);
         } else {
-            ProjectFileExtension extension = getProject().getFileSystem().getData().getProjectFileExtensionByPseudoClass(projectNodePseudoClass);
+            ProjectFileExtension extension = getProject().getFileSystem().getData().getProjectFileExtensionByPseudoClass(nodeInfo.getPseudoClass());
             if (extension != null) {
-                return extension.createProjectFile(nodeId, storage, projectId, fileSystem);
+                return extension.createProjectFile(nodeInfo, storage, projectInfo, fileSystem);
             } else {
-                return new UnknownProjectFile(nodeId, storage, projectId, fileSystem);
+                return new UnknownProjectFile(nodeInfo, storage, projectInfo, fileSystem);
             }
         }
     }
 
-    protected ProjectFile findProjectFile(NodeId nodeId) {
-        String projectNodePseudoClass = storage.getNodePseudoClass(nodeId);
-        ProjectFileExtension extension = getProject().getFileSystem().getData().getProjectFileExtensionByPseudoClass(projectNodePseudoClass);
+    protected ProjectFile findProjectFile(NodeInfo nodeInfo) {
+        ProjectFileExtension extension = getProject().getFileSystem().getData().getProjectFileExtensionByPseudoClass(nodeInfo.getPseudoClass());
         if (extension != null) {
-            return extension.createProjectFile(nodeId, storage, projectId, fileSystem);
+            return extension.createProjectFile(nodeInfo, storage, projectInfo, fileSystem);
         } else {
-            return new UnknownProjectFile(nodeId, storage, projectId, fileSystem);
+            return new UnknownProjectFile(nodeInfo, storage, projectInfo, fileSystem);
         }
     }
 
     public List<ProjectFile> getBackwardDependencies() {
-        return storage.getBackwardDependencies(id)
+        return storage.getBackwardDependenciesInfo(info.getId())
                 .stream()
                 .map(this::findProjectFile)
                 .collect(Collectors.toList());

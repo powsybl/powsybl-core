@@ -46,7 +46,7 @@ public class MemoryMappedFileImplTest {
     public void getBuffer() throws IOException {
         ByteBuffer buffer = memoryMappedFile.getBuffer(100);
         assertNotNull(buffer);
-        assertEquals(buffer.remaining(), 100);
+        assertEquals(100, buffer.remaining());
     }
 
 }
