@@ -111,7 +111,7 @@ public class ZipFileDataSource implements DataSource {
         return null;
     }
 
-    private static class AddEntryToZipOutputStream extends ForwardingOutputStream<ZipOutputStream> {
+    private static final class AddEntryToZipOutputStream extends ForwardingOutputStream<ZipOutputStream> {
 
         private final Path zipFilePath;
 
