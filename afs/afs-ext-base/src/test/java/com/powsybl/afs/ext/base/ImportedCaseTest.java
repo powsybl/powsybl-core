@@ -71,7 +71,7 @@ public class ImportedCaseTest extends AbstractProjectFileTest {
         assertNotNull(aCase.getIcon());
 
         // create project
-        Project project = root.createProject("project", "");
+        Project project = root.createProject("project");
         assertNotNull(project);
 
         // create project folder
@@ -106,6 +106,8 @@ public class ImportedCaseTest extends AbstractProjectFileTest {
         assertEquals(TestImporter.FORMAT, importedCase2.getImporter().getFormat());
         assertEquals(2, importedCase2.getParameters().size());
         assertEquals("true", importedCase2.getParameters().getProperty("param1"));
+
+        assertNotNull(folder.getChild(ImportedCase.class, "network"));
 
         // deleteProjectNode imported case
         projectNode.delete();

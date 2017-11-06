@@ -29,33 +29,36 @@ public class SecurityAnalyzer {
         JSON
     }
 
+    private final LimitViolationFilter filter;
+
     private final ComputationManager computationManager;
+
     private final int priority;
+
     private final SecurityAnalysisFactory securityAnalysisFactory;
+
     private final ContingenciesProviderFactory contingenciesProviderFactory;
 
+    /**
+     * @deprecated use SecurityAnalyzer(LimitViolationFilter, ComputationManager, int) instead.
+     */
+    @Deprecated
     public SecurityAnalyzer(ComputationManager computationManager, int priority) {
+        this(new LimitViolationFilter(), computationManager, priority);
+    }
+
+    public SecurityAnalyzer(LimitViolationFilter filter, ComputationManager computationManager, int priority) {
+        this.filter = Objects.requireNonNull(filter);
         this.computationManager = Objects.requireNonNull(computationManager);
         this.priority = priority;
+
         ComponentDefaultConfig defaultConfig = ComponentDefaultConfig.load();
         securityAnalysisFactory = defaultConfig.newFactoryImpl(SecurityAnalysisFactory.class);
         contingenciesProviderFactory = defaultConfig.newFactoryImpl(ContingenciesProviderFactory.class);
     }
 
-    public SecurityAnalyzer(ComputationManager computationManager, int priority, SecurityAnalysisFactory securityAnalysisFactory, ContingenciesProviderFactory contingenciesProviderFactory) {
-        this.computationManager = Objects.requireNonNull(computationManager);
-        this.priority = priority;
-        this.securityAnalysisFactory = Objects.requireNonNull(securityAnalysisFactory);
-        this.contingenciesProviderFactory = Objects.requireNonNull(contingenciesProviderFactory);
-    }
-
-    public SecurityAnalysisResult analyze(Path caseFile, Path contingenciesFile) {
-        Objects.requireNonNull(caseFile);
-
-        Network network = Importers.loadNetwork(caseFile);
-        if (network == null) {
-            throw new PowsyblException("Case '" + caseFile + "' not found");
-        }
+    public SecurityAnalysisResult analyze(Network network, Path contingenciesFile) {
+        Objects.requireNonNull(network);
 
         ContingenciesProvider contingenciesProvider = contingenciesFile != null
                 ? contingenciesProviderFactory.create(contingenciesFile) : new EmptyContingencyListProvider();
@@ -84,7 +87,7 @@ public class SecurityAnalyzer {
 
         network.getStateManager().allowStateMultiThreadAccess(true);
 
-        SecurityAnalysis securityAnalysis = securityAnalysisFactory.create(network, computationManager, priority);
+        SecurityAnalysis securityAnalysis = securityAnalysisFactory.create(network, filter, computationManager, priority);
 
         return securityAnalysis.runAsync(contingenciesProvider).join();
     }

@@ -7,7 +7,7 @@
 package com.powsybl.afs;
 
 import com.powsybl.afs.storage.AppFileSystemStorage;
-import com.powsybl.afs.storage.NodeId;
+import com.powsybl.afs.storage.NodeInfo;
 
 /**
  *
@@ -15,7 +15,7 @@ import com.powsybl.afs.storage.NodeId;
  */
 class FooFile extends ProjectFile {
 
-    FooFile(NodeId id, AppFileSystemStorage storage, NodeId projectId, AppFileSystem fileSystem) {
-        super(id, storage, projectId, fileSystem, new FileIcon("?", new byte[]{}));
+    FooFile(NodeInfo info, AppFileSystemStorage storage, NodeInfo projectInfo, AppFileSystem fileSystem) {
+        super(info, storage, projectInfo, fileSystem, new FileIcon("?", new byte[]{}));
     }
 }

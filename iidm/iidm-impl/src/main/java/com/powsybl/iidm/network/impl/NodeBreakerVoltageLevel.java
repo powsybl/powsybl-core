@@ -881,7 +881,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         // paths are already sorted
         List<TIntArrayList> paths = graph.findAllPaths(node, NodeBreakerVoltageLevel::isBusbarSection, NodeBreakerVoltageLevel::isOpenedDisconnector);
         boolean connected = false;
-        if (paths.size() > 0) {
+        if (!paths.isEmpty()) {
             // the shorted path is the best, close all opened breakers of the path
             TIntArrayList shortestPath = paths.get(0);
             for (int i = 0; i < shortestPath.size(); i++) {

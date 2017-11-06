@@ -10,7 +10,7 @@ import com.google.auto.service.AutoService;
 import com.powsybl.afs.AppFileSystem;
 import com.powsybl.afs.ProjectFileExtension;
 import com.powsybl.afs.storage.AppFileSystemStorage;
-import com.powsybl.afs.storage.NodeId;
+import com.powsybl.afs.storage.NodeInfo;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -33,12 +33,12 @@ public class ModificationScriptExtension implements ProjectFileExtension {
     }
 
     @Override
-    public ModificationScript createProjectFile(NodeId id, AppFileSystemStorage storage, NodeId projectId, AppFileSystem fileSystem) {
-        return new ModificationScript(id, storage, projectId, fileSystem);
+    public ModificationScript createProjectFile(NodeInfo info, AppFileSystemStorage storage, NodeInfo projectInfo, AppFileSystem fileSystem) {
+        return new ModificationScript(info, storage, projectInfo, fileSystem);
     }
 
     @Override
-    public ModificationScriptBuilder createProjectFileBuilder(NodeId folderId, AppFileSystemStorage storage, NodeId projectId, AppFileSystem fileSystem) {
-        return new ModificationScriptBuilder(folderId, storage, projectId, fileSystem);
+    public ModificationScriptBuilder createProjectFileBuilder(NodeInfo folderInfo, AppFileSystemStorage storage, NodeInfo projectInfo, AppFileSystem fileSystem) {
+        return new ModificationScriptBuilder(folderInfo, storage, projectInfo, fileSystem);
     }
 }

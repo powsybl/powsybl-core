@@ -14,41 +14,51 @@ public class DefaultTopologyVisitor implements TopologyVisitor {
 
     @Override
     public void visitBusbarSection(BusbarSection section) {
+        // empty default implementation
     }
 
     @Override
     public void visitLine(Line line, Line.Side side) {
+        // empty default implementation
     }
 
     @Override
     public void visitTwoWindingsTransformer(TwoWindingsTransformer transformer, TwoWindingsTransformer.Side side) {
+        // empty default implementation
     }
 
     @Override
     public void visitThreeWindingsTransformer(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side) {
+        // empty default implementation
     }
 
     @Override
     public void visitGenerator(Generator generator) {
+        // empty default implementation
     }
 
     @Override
     public void visitLoad(Load load) {
+        // empty default implementation
     }
 
     @Override
     public void visitShuntCompensator(ShuntCompensator sc) {
+        // empty default implementation
     }
 
     @Override
     public void visitDanglingLine(DanglingLine danglingLine) {
+        // empty default implementation
     }
 
     @Override
     public void visitStaticVarCompensator(StaticVarCompensator staticVarCompensator) {
+        // empty default implementation
     }
 
     @Override
     public void visitHvdcConverterStation(HvdcConverterStation<?> converterStation) {
+        // empty default implementation
     }
 }

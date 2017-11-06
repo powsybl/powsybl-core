@@ -6,16 +6,22 @@
  */
 package com.powsybl.afs.storage;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Sets;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.CharStreams;
 import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.math.timeseries.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.threeten.extra.Interval;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -48,13 +54,17 @@ public abstract class AbstractAppFileSystemStorageTest {
         assertTrue(storage.getChildNodes(rootFolderId).isEmpty());
         NodeId testFolderId = storage.createNode(rootFolderId, "test", PseudoClass.FOLDER_PSEUDO_CLASS);
         assertEquals(rootFolderId, storage.getParentNode(testFolderId));
+        assertEquals(new NodeInfo(rootFolderId, storage.getFileSystemName(), PseudoClass.FOLDER_PSEUDO_CLASS), storage.getParentNodeInfo(testFolderId));
         assertEquals("test", storage.getNodeName(testFolderId));
         assertEquals(PseudoClass.FOLDER_PSEUDO_CLASS, storage.getNodePseudoClass(testFolderId));
+        assertEquals(new NodeInfo(testFolderId, "test", PseudoClass.FOLDER_PSEUDO_CLASS), storage.getNodeInfo(testFolderId));
         assertEquals(testFolderId, storage.fromString(testFolderId.toString()));
         assertTrue(storage.getChildNodes(testFolderId).isEmpty());
         assertEquals(1, storage.getChildNodes(rootFolderId).size());
         assertEquals(testFolderId, storage.getChildNodes(rootFolderId).get(0));
+        assertEquals(Arrays.asList(new NodeInfo(testFolderId, "test", PseudoClass.FOLDER_PSEUDO_CLASS)), storage.getChildNodesInfo(rootFolderId));
         assertNotNull(storage.getChildNode(rootFolderId, "test"));
+        assertEquals(new NodeInfo(testFolderId, "test", PseudoClass.FOLDER_PSEUDO_CLASS), storage.getChildNodeInfo(rootFolderId, "test"));
 
         // dependency tests
         NodeId testDataId = storage.createNode(testFolderId, "data", "data");
@@ -62,8 +72,11 @@ public abstract class AbstractAppFileSystemStorageTest {
         assertEquals(2, storage.getChildNodes(testFolderId).size());
         storage.addDependency(testDataId, "mylink", testData2Id);
         assertEquals(Arrays.asList(testData2Id), storage.getDependencies(testDataId));
+        assertEquals(Arrays.asList(new NodeInfo(testData2Id, "data2", "data")), storage.getDependenciesInfo(testDataId));
         assertEquals(Arrays.asList(testDataId), storage.getBackwardDependencies(testData2Id));
+        assertEquals(Arrays.asList(new NodeInfo(testDataId, "data", "data")), storage.getBackwardDependenciesInfo(testData2Id));
         assertEquals(testData2Id, storage.getDependency(testDataId, "mylink"));
+        assertEquals(new NodeInfo(testData2Id, "data2", "data"), storage.getDependencyInfo(testDataId, "mylink"));
         assertNull(storage.getDependency(testDataId, "mylink2"));
         storage.deleteNode(testDataId);
         assertEquals(1, storage.getChildNodes(testFolderId).size());
@@ -143,6 +156,44 @@ public abstract class AbstractAppFileSystemStorageTest {
         try (InputStream is = ds.newInputStream("file1")) {
             assertEquals("word1word2", new String(ByteStreams.toByteArray(is), StandardCharsets.UTF_8));
         }
+
+        // time series test
+        TimeSeriesMetadata metadata1 = new TimeSeriesMetadata("ts1",
+                                                              TimeSeriesDataType.DOUBLE,
+                                                              ImmutableMap.of("var1", "value1"),
+                                                              RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T01:15:00Z"),
+                                                                                            Duration.ofMinutes(15), 1, 1));
+        storage.createTimeSeries(testData2Id, metadata1);
+        storage.flush();
+        assertEquals(Sets.newHashSet("ts1"), storage.getTimeSeriesNames(testData2Id));
+        List<TimeSeriesMetadata> metadataList = storage.getTimeSeriesMetadata(testData2Id, Sets.newHashSet("ts1"));
+        assertEquals(1, metadataList.size());
+        assertEquals(metadata1, metadataList.get(0));
+        storage.addDoubleTimeSeriesData(testData2Id, 0, "ts1", Arrays.asList(new UncompressedDoubleArrayChunk(2, new double[] {1d, 2d}),
+                                                                             new UncompressedDoubleArrayChunk(5, new double[] {3d})));
+        storage.flush();
+        List<DoubleTimeSeries> doubleTimeSeries = storage.getDoubleTimeSeries(testData2Id, Sets.newHashSet("ts1"), 0);
+        assertEquals(1, doubleTimeSeries.size());
+        DoubleTimeSeries ts1 = doubleTimeSeries.get(0);
+        assertArrayEquals(new double[] {Double.NaN, Double.NaN, 1d, 2d, Double.NaN, 3d}, ts1.toArray(), 0d);
+
+        TimeSeriesMetadata metadata2 = new TimeSeriesMetadata("ts2",
+                                                              TimeSeriesDataType.STRING,
+                                                              ImmutableMap.of(),
+                                                              RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T01:15:00Z"),
+                                                                                            Duration.ofMinutes(15), 1, 1));
+        storage.createTimeSeries(testData2Id, metadata2);
+        storage.flush();
+        assertEquals(Sets.newHashSet("ts1", "ts2"), storage.getTimeSeriesNames(testData2Id));
+        metadataList = storage.getTimeSeriesMetadata(testData2Id, Sets.newHashSet("ts1"));
+        assertEquals(1, metadataList.size());
+        storage.addStringTimeSeriesData(testData2Id, 0, "ts2", Arrays.asList(new UncompressedStringArrayChunk(2, new String[] {"a", "b"}),
+                                                                             new UncompressedStringArrayChunk(5, new String[] {"c"})));
+        storage.flush();
+        List<StringTimeSeries> stringTimeSeries = storage.getStringTimeSeries(testData2Id, Sets.newHashSet("ts2"), 0);
+        assertEquals(1, stringTimeSeries.size());
+        StringTimeSeries ts2 = stringTimeSeries.get(0);
+        assertArrayEquals(new String[] {null, null, "a", "b", null, "c"}, ts2.toArray());
 
         // create project test
         NodeId projectId = storage.createNode(testFolderId, "project", PseudoClass.PROJECT_PSEUDO_CLASS);

@@ -8,6 +8,7 @@ package com.powsybl.afs;
 
 import com.powsybl.afs.storage.AppFileSystemStorage;
 import com.powsybl.afs.storage.NodeId;
+import com.powsybl.afs.storage.NodeInfo;
 
 import java.util.Objects;
 
@@ -16,46 +17,50 @@ import java.util.Objects;
  */
 public abstract class AbstractNodeBase<FOLDER> {
 
-    protected final NodeId id;
+    protected final NodeInfo info;
 
     protected final AppFileSystemStorage storage;
 
-    public AbstractNodeBase(NodeId id, AppFileSystemStorage storage) {
-        this.id = Objects.requireNonNull(id);
+    public AbstractNodeBase(NodeInfo info, AppFileSystemStorage storage) {
+        this.info = Objects.requireNonNull(info);
         this.storage = Objects.requireNonNull(storage);
     }
 
-    public abstract FOLDER getFolder();
+    public abstract FOLDER getParent();
+
+    public NodeId getId() {
+        return info.getId();
+    }
 
     public String getName() {
-        return storage.getNodeName(id);
+        return info.getName();
     }
 
     public abstract NodePath getPath();
 
     public abstract boolean isFolder();
 
-    private NodeId getChildId(NodeId nodeId, String name) {
+    private NodeInfo getChildInfo(NodeInfo nodeInfo, String name) {
         Objects.requireNonNull(name);
-        NodeId childId = nodeId;
+        NodeInfo childInfo = nodeInfo;
         for (String name2 : name.split(AppFileSystem.PATH_SEPARATOR)) {
-            childId = storage.getChildNode(childId, name2);
-            if (childId == null) {
+            childInfo = storage.getChildNodeInfo(childInfo.getId(), name2);
+            if (childInfo == null) {
                 return null;
             }
         }
-        return childId;
+        return childInfo;
     }
 
-    protected NodeId getChildId(String name, String... more) {
-        NodeId childId = getChildId(id, name);
+    protected NodeInfo getChildInfo(String name, String... more) {
+        NodeInfo childInfo = getChildInfo(info, name);
         for (String name2 : more) {
-            childId = getChildId(childId, name2);
-            if (childId == null) {
+            childInfo = getChildInfo(childInfo, name2);
+            if (childInfo == null) {
                 return null;
             }
         }
-        return childId;
+        return childInfo;
     }
 
     @Override

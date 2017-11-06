@@ -787,7 +787,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Mult
                 continue;
             }
             Collection<String> objs = entry.getValue();
-            if (objs.size() > 0) {
+            if (!objs.isEmpty()) {
                 throw new PowsyblException("The following object(s) of type "
                         + clazz.getSimpleName() + " exist(s) in both networks: "
                         + objs);
@@ -982,7 +982,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Mult
             mergedLineByBoundary.put(new Boundary(lm.country1, lm.country2), lm);
         }
 
-        if (lines.size() > 0) {
+        if (!lines.isEmpty()) {
             LOGGER.info("{} dangling line couples have been replaced by a line: {}", lines.size(),
                     mergedLineByBoundary.asMap().entrySet().stream().map(e -> e.getKey() + ": " + e.getValue().size()).collect(Collectors.toList()));
         }

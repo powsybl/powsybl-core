@@ -330,7 +330,7 @@ public final class NetworkXml implements XmlConstants {
 
             context.getEndTasks().forEach(Runnable::run);
 
-            if (extensionNamesNotFound.size() > 0) {
+            if (!extensionNamesNotFound.isEmpty()) {
                 if (config.isThrowExceptionIfExtensionNotFound()) {
                     throw new PowsyblException("Extensions " + extensionNamesNotFound + " not found");
                 } else {
@@ -415,9 +415,9 @@ public final class NetworkXml implements XmlConstants {
                         break;
                     }
 
-                    case HvdcLineXml.ROOT_ELEMENT_NAME: {
+                    case HvdcLineXml.ROOT_ELEMENT_NAME:
                         // Nothing to do
-                    }
+                        break;
 
                     case ThreeWindingsTransformerXml.ROOT_ELEMENT_NAME:
                         throw new AssertionError();

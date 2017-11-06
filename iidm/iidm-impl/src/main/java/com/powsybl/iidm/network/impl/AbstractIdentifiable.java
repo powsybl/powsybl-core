@@ -50,7 +50,7 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> implements Identi
 
     @Override
     public boolean hasProperty() {
-        return properties != null && properties.size() > 0;
+        return properties != null && !properties.isEmpty();
     }
 
     @Override

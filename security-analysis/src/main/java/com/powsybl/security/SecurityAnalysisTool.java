@@ -7,25 +7,21 @@
 package com.powsybl.security;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.commons.io.table.AsciiTableFormatterFactory;
-import com.powsybl.commons.io.table.CsvTableFormatterFactory;
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.import_.Importers;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.security.converter.SecurityAnalysisResultExporters;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
 import com.powsybl.tools.ToolRunningContext;
-import com.powsybl.security.SecurityAnalyzer.Format;
-import com.powsybl.security.json.SecurityAnalysisResultSerializer;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
-import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Set;
@@ -36,6 +32,12 @@ import java.util.stream.Collectors;
  */
 @AutoService(Tool.class)
 public class SecurityAnalysisTool implements Tool {
+
+    private static final String CASE_FILE_OPTION = "case-file";
+    private static final String LIMIT_TYPES_OPTION = "limit-types";
+    private static final String OUTPUT_FILE_OPTION = "output-file";
+    private static final String OUTPUT_FORMAT_OPTION = "output-format";
+    private static final String CONTINGENCIES_FILE_OPTION = "contingencies-file";
 
     @Override
     public Command getCommand() {
@@ -58,32 +60,32 @@ public class SecurityAnalysisTool implements Tool {
             @Override
             public Options getOptions() {
                 Options options = new Options();
-                options.addOption(Option.builder().longOpt("case-file")
-                        .desc("the case path")
-                        .hasArg()
-                        .argName("FILE")
-                        .required()
-                        .build());
-                options.addOption(Option.builder().longOpt("limit-types")
-                        .desc("limit type filter (all if not set)")
-                        .hasArg()
-                        .argName("LIMIT-TYPES")
-                        .build());
-                options.addOption(Option.builder().longOpt("output-file")
-                        .desc("the output path")
-                        .hasArg()
-                        .argName("FILE")
-                        .build());
-                options.addOption(Option.builder().longOpt("output-format")
-                        .desc("the output format " + Arrays.toString(Format.values()))
-                        .hasArg()
-                        .argName("FORMAT")
-                        .build());
-                options.addOption(Option.builder().longOpt("contingencies-file")
-                        .desc("the contingencies path")
-                        .hasArg()
-                        .argName("FILE")
-                        .build());
+                options.addOption(Option.builder().longOpt(CASE_FILE_OPTION)
+                    .desc("the case path")
+                    .hasArg()
+                    .argName("FILE")
+                    .required()
+                    .build());
+                options.addOption(Option.builder().longOpt(LIMIT_TYPES_OPTION)
+                    .desc("limit type filter (all if not set)")
+                    .hasArg()
+                    .argName("LIMIT-TYPES")
+                    .build());
+                options.addOption(Option.builder().longOpt(OUTPUT_FILE_OPTION)
+                    .desc("the output path")
+                    .hasArg()
+                    .argName("FILE")
+                    .build());
+                options.addOption(Option.builder().longOpt(OUTPUT_FORMAT_OPTION)
+                    .desc("the output format " + SecurityAnalysisResultExporters.getFormats())
+                    .hasArg()
+                    .argName("FORMAT")
+                    .build());
+                options.addOption(Option.builder().longOpt(CONTINGENCIES_FILE_OPTION)
+                    .desc("the contingencies path")
+                    .hasArg()
+                    .argName("FILE")
+                    .build());
                 return options;
             }
 
@@ -96,60 +98,49 @@ public class SecurityAnalysisTool implements Tool {
 
     @Override
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
-        Path caseFile = context.getFileSystem().getPath(line.getOptionValue("case-file"));
-        Set<LimitViolationType> limitViolationTypes = line.hasOption("limit-types")
-                ? Arrays.stream(line.getOptionValue("limit-types").split(",")).map(LimitViolationType::valueOf).collect(Collectors.toSet())
-                : EnumSet.allOf(LimitViolationType.class);
+        Path caseFile = context.getFileSystem().getPath(line.getOptionValue(CASE_FILE_OPTION));
+
+        Set<LimitViolationType> limitViolationTypes = line.hasOption(LIMIT_TYPES_OPTION)
+            ? Arrays.stream(line.getOptionValue(LIMIT_TYPES_OPTION).split(",")).map(LimitViolationType::valueOf).collect(Collectors.toSet())
+            : EnumSet.allOf(LimitViolationType.class);
+
+        // Output file and output format
         Path outputFile = null;
-        Format format = null;
-        if (line.hasOption("output-file")) {
-            outputFile = context.getFileSystem().getPath(line.getOptionValue("output-file"));
-            if (!line.hasOption("output-format")) {
+        String format = null;
+        if (line.hasOption(OUTPUT_FILE_OPTION)) {
+            outputFile = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_FILE_OPTION));
+            if (!line.hasOption(OUTPUT_FORMAT_OPTION)) {
                 throw new ParseException("Missing required option: output-format");
             }
-            format = Format.valueOf(line.getOptionValue("output-format"));
+            format = line.getOptionValue(OUTPUT_FORMAT_OPTION);
         }
 
-        context.getOutputStream().println("Loading network '" + caseFile + "'");
+        // Contingencies file
+        Path contingenciesFile = line.hasOption(CONTINGENCIES_FILE_OPTION) ? context.getFileSystem().getPath(line.getOptionValue(CONTINGENCIES_FILE_OPTION)) : null;
 
-        SecurityAnalysisResult result = new SecurityAnalyzer(context.getComputationManager(), 0).analyze(caseFile, line.hasOption("contingencies-file") ? context.getFileSystem().getPath(line.getOptionValue("contingencies-file")) : null);
+        context.getOutputStream().println("Loading network '" + caseFile + "'");
+        Network network = Importers.loadNetwork(caseFile);
+        if (network == null) {
+            throw new PowsyblException("Case '" + caseFile + "' not found");
+        }
+
+        LimitViolationFilter limitViolationFilter = LimitViolationFilter.load();
+        limitViolationFilter.setViolationTypes(limitViolationTypes);
+
+        SecurityAnalyzer analyzer = new SecurityAnalyzer(limitViolationFilter, context.getComputationManager(), 0);
+        SecurityAnalysisResult result = analyzer.analyze(network, contingenciesFile);
 
         if (!result.getPreContingencyResult().isComputationOk()) {
             context.getErrorStream().println("Pre-contingency state divergence");
-        }
-        LimitViolationFilter limitViolationFilter = LimitViolationFilter.load();
-        limitViolationFilter.setViolationTypes(limitViolationTypes);
-        if (outputFile != null) {
-            exportResult(result, limitViolationFilter, context, outputFile, format);
         } else {
-            printResult(result, limitViolationFilter, context);
-        }
-    }
-
-    private void printResult(SecurityAnalysisResult result, LimitViolationFilter limitViolationFilter, ToolRunningContext context) {
-        Writer writer = new OutputStreamWriter(context.getOutputStream()) {
-            @Override
-            public void close() throws IOException {
-                flush();
+            if (outputFile != null) {
+                context.getOutputStream().println("Writing results to '" + outputFile + "'");
+                SecurityAnalysisResultExporters.export(result, network, outputFile, format);
+            } else {
+                // To avoid the closing of System.out
+                Writer writer = new OutputStreamWriter(context.getOutputStream());
+                SecurityAnalysisResultExporters.export(result, network, writer, "ASCII");
             }
-        };
-        AsciiTableFormatterFactory asciiTableFormatterFactory = new AsciiTableFormatterFactory();
-        Security.printPreContingencyViolations(result, writer, asciiTableFormatterFactory, limitViolationFilter);
-        Security.printPostContingencyViolations(result, writer, asciiTableFormatterFactory, limitViolationFilter);
-    }
-
-    private void exportResult(SecurityAnalysisResult result, LimitViolationFilter limitViolationFilter, ToolRunningContext context, Path outputFile, Format format) throws IOException {
-        context.getOutputStream().println("Writing results to '" + outputFile + "'");
-        switch (format) {
-            case CSV:
-                CsvTableFormatterFactory csvTableFormatterFactory = new CsvTableFormatterFactory();
-                Security.printPreContingencyViolations(result, Files.newBufferedWriter(outputFile, StandardCharsets.UTF_8), csvTableFormatterFactory, limitViolationFilter);
-                Security.printPostContingencyViolations(result, Files.newBufferedWriter(outputFile, StandardCharsets.UTF_8, StandardOpenOption.APPEND), csvTableFormatterFactory, limitViolationFilter);
-                break;
-
-            case JSON:
-                SecurityAnalysisResultSerializer.write(result, limitViolationFilter, outputFile);
-                break;
         }
     }
 }

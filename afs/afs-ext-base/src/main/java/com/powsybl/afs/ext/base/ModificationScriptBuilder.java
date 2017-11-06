@@ -11,6 +11,7 @@ import com.powsybl.afs.AppFileSystem;
 import com.powsybl.afs.ProjectFileBuilder;
 import com.powsybl.afs.storage.AppFileSystemStorage;
 import com.powsybl.afs.storage.NodeId;
+import com.powsybl.afs.storage.NodeInfo;
 
 import java.util.Objects;
 
@@ -19,11 +20,11 @@ import java.util.Objects;
  */
 public class ModificationScriptBuilder implements ProjectFileBuilder<ModificationScript> {
 
-    private final NodeId folderId;
+    private final NodeInfo folderInfo;
 
     private final AppFileSystemStorage storage;
 
-    private final NodeId projectId;
+    private final NodeInfo projectInfo;
 
     private final AppFileSystem fileSystem;
 
@@ -33,10 +34,10 @@ public class ModificationScriptBuilder implements ProjectFileBuilder<Modificatio
 
     private String content;
 
-    public ModificationScriptBuilder(NodeId folderId, AppFileSystemStorage storage, NodeId projectId, AppFileSystem fileSystem) {
-        this.folderId = Objects.requireNonNull(folderId);
+    public ModificationScriptBuilder(NodeInfo folderInfo, AppFileSystemStorage storage, NodeInfo projectInfo, AppFileSystem fileSystem) {
+        this.folderInfo = Objects.requireNonNull(folderInfo);
         this.storage = Objects.requireNonNull(storage);
-        this.projectId = Objects.requireNonNull(projectId);
+        this.projectInfo = Objects.requireNonNull(projectInfo);
         this.fileSystem = Objects.requireNonNull(fileSystem);
     }
 
@@ -68,8 +69,12 @@ public class ModificationScriptBuilder implements ProjectFileBuilder<Modificatio
             throw new AfsException("Content is not set");
         }
 
+        if (storage.getChildNode(folderInfo.getId(), name) != null) {
+            throw new AfsException("Parent folder already contains a '" + name + "' node");
+        }
+
         // create project file
-        NodeId id = storage.createNode(folderId, name, ModificationScript.PSEUDO_CLASS);
+        NodeId id = storage.createNode(folderInfo.getId(), name, ModificationScript.PSEUDO_CLASS);
 
         // set type
         storage.setStringAttribute(id, ModificationScript.SCRIPT_TYPE, type.name());
@@ -79,6 +84,6 @@ public class ModificationScriptBuilder implements ProjectFileBuilder<Modificatio
 
         storage.flush();
 
-        return new ModificationScript(id, storage, projectId, fileSystem);
+        return new ModificationScript(new NodeInfo(id, name, ModificationScript.PSEUDO_CLASS), storage, projectInfo, fileSystem);
     }
 }

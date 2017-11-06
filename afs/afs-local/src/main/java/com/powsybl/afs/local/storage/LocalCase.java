@@ -10,6 +10,8 @@ import com.powsybl.afs.ext.base.Case;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.import_.Importers;
+import com.powsybl.math.timeseries.DoubleTimeSeries;
+import com.powsybl.math.timeseries.TimeSeriesMetadata;
 
 import java.nio.file.Path;
 import java.util.*;
@@ -60,7 +62,7 @@ public class LocalCase implements LocalFile {
 
     @Override
     public OptionalInt getIntAttribute(String name) {
-        throw new AssertionError(name);
+        throw new AssertionError();
     }
 
     @Override
@@ -82,5 +84,20 @@ public class LocalCase implements LocalFile {
             default:
                 throw new AssertionError();
         }
+    }
+
+    @Override
+    public Set<String> getTimeSeriesNames() {
+        throw new AssertionError();
+    }
+
+    @Override
+    public List<TimeSeriesMetadata> getTimeSeriesMetadata(Set<String> timeSeriesNames) {
+        throw new AssertionError();
+    }
+
+    @Override
+    public List<DoubleTimeSeries> getDoubleTimeSeries(Set<String> timeSeriesNames, int version) {
+        throw new AssertionError();
     }
 }

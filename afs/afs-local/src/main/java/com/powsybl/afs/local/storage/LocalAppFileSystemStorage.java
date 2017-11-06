@@ -12,6 +12,7 @@ import com.powsybl.afs.storage.AppFileSystemStorage;
 import com.powsybl.afs.storage.NodeId;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.computation.ComputationManager;
+import com.powsybl.math.timeseries.*;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -84,6 +85,11 @@ public class LocalAppFileSystemStorage implements AppFileSystemStorage {
             folderCache.put(path, folder);
         }
         return folder;
+    }
+
+    @Override
+    public String getFileSystemName() {
+        return fileSystemName;
     }
 
     @Override
@@ -205,15 +211,19 @@ public class LocalAppFileSystemStorage implements AppFileSystemStorage {
         throw new AssertionError();
     }
 
-    @Override
-    public String getStringAttribute(NodeId nodeId, String name) {
+    private LocalFile getFile(NodeId nodeId) {
         Objects.requireNonNull(nodeId);
         Path path = ((PathNodeId) nodeId).getPath();
         LocalFile file = scanFile(path, true);
-        if (file != null) {
-            return file.getStringAttribute(name);
+        if (file == null) {
+            throw new AssertionError();
         }
-        throw new AssertionError();
+        return file;
+    }
+
+    @Override
+    public String getStringAttribute(NodeId nodeId, String name) {
+        return getFile(nodeId).getStringAttribute(name);
     }
 
     @Override
@@ -233,7 +243,7 @@ public class LocalAppFileSystemStorage implements AppFileSystemStorage {
 
     @Override
     public OptionalInt getIntAttribute(NodeId nodeId, String name) {
-        throw new AssertionError();
+        return getFile(nodeId).getIntAttribute(name);
     }
 
     @Override
@@ -243,7 +253,7 @@ public class LocalAppFileSystemStorage implements AppFileSystemStorage {
 
     @Override
     public OptionalDouble getDoubleAttribute(NodeId nodeId, String name) {
-        throw new AssertionError();
+        return getFile(nodeId).getDoubleAttribute(name);
     }
 
     @Override
@@ -253,7 +263,7 @@ public class LocalAppFileSystemStorage implements AppFileSystemStorage {
 
     @Override
     public Optional<Boolean> getBooleanAttribute(NodeId nodeId, String name) {
-        throw new AssertionError();
+        return getFile(nodeId).getBooleanAttribute(name);
     }
 
     @Override
@@ -263,12 +273,46 @@ public class LocalAppFileSystemStorage implements AppFileSystemStorage {
 
     @Override
     public DataSource getDataSourceAttribute(NodeId nodeId, String name) {
-        Objects.requireNonNull(nodeId);
-        Path path = ((PathNodeId) nodeId).getPath();
-        LocalFile file = scanFile(path, true);
-        if (file != null) {
-            return file.getDataSourceAttribute(name);
-        }
+        return getFile(nodeId).getDataSourceAttribute(name);
+    }
+
+    @Override
+    public void createTimeSeries(NodeId nodeId, TimeSeriesMetadata metadata) {
+        throw new AssertionError();
+    }
+
+    @Override
+    public Set<String> getTimeSeriesNames(NodeId nodeId) {
+        return getFile(nodeId).getTimeSeriesNames();
+    }
+
+    @Override
+    public List<TimeSeriesMetadata> getTimeSeriesMetadata(NodeId nodeId, Set<String> timeSeriesNames) {
+        return getFile(nodeId).getTimeSeriesMetadata(timeSeriesNames);
+    }
+
+    @Override
+    public List<DoubleTimeSeries> getDoubleTimeSeries(NodeId nodeId, Set<String> timeSeriesNames, int version) {
+        return getFile(nodeId).getDoubleTimeSeries(timeSeriesNames, version);
+    }
+
+    @Override
+    public void addDoubleTimeSeriesData(NodeId nodeId, int version, String timeSeriesName, List<DoubleArrayChunk> chunks) {
+        throw new AssertionError();
+    }
+
+    @Override
+    public List<StringTimeSeries> getStringTimeSeries(NodeId nodeId, Set<String> timeSeriesNames, int version) {
+        return getFile(nodeId).getStringTimeSeries(timeSeriesNames, version);
+    }
+
+    @Override
+    public void addStringTimeSeriesData(NodeId nodeId, int version, String timeSeriesName, List<StringArrayChunk> chunks) {
+        throw new AssertionError();
+    }
+
+    @Override
+    public void removeAllTimeSeries(NodeId nodeId) {
         throw new AssertionError();
     }
 
@@ -319,9 +363,11 @@ public class LocalAppFileSystemStorage implements AppFileSystemStorage {
 
     @Override
     public void flush() {
+        // read only storage so nothing to flush
     }
 
     @Override
     public void close() {
+        // nothing to close
     }
 }

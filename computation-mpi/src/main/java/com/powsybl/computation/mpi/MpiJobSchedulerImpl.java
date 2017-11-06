@@ -124,7 +124,7 @@ class MpiJobSchedulerImpl implements MpiJobScheduler {
                     long time = System.currentTimeMillis();
 
                     List<MpiTask> completedTasks = new ArrayList<>();
-                    while (!stopRequested || jobs.size() > 0) {
+                    while (!stopRequested || !jobs.isEmpty()) {
                         boolean sleep = true;
 
                         // check performances
@@ -190,7 +190,7 @@ class MpiJobSchedulerImpl implements MpiJobScheduler {
                             } finally {
                                 checkTaskCompletionTime += System.currentTimeMillis() - t0;
                             }
-                            if (completedTasks.size() > 0) {
+                            if (!completedTasks.isEmpty()) {
                                 DateTime endTime = DateTime.now();
 
                                 // release cores as fast as possible
@@ -443,7 +443,7 @@ class MpiJobSchedulerImpl implements MpiJobScheduler {
             if (taskIndex < execution.getExecutionCount()) {
                 // reserve one core for each of the execution instances
                 List<Core> allocatedCores = resources.reserveCores(execution.getExecutionCount() - taskIndex, job.getUsedRanks());
-                if (allocatedCores != null && allocatedCores.size() > 0) {
+                if (allocatedCores != null && !allocatedCores.isEmpty()) {
 
                     if (taskIndex == 0) {
                         statistics.logJobStart(job.getId(), command.getId(), execution.getTags());

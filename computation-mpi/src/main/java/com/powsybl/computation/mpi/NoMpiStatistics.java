@@ -19,30 +19,37 @@ public class NoMpiStatistics implements MpiStatistics {
 
     @Override
     public void logCommonFileTransfer(String fileName, int chunk, long size, long duration) {
+        // no-op implementation
     }
 
     @Override
     public void logJobStart(int jobId, String commandId, Map<String, String> tags) {
+        // no-op implementation
     }
 
     @Override
     public void logJobEnd(int jobId) {
+        // no-op implementation
     }
 
     @Override
     public void logTaskStart(int taskId, int jobId, int taskIndex, DateTime startTime, int slaveRank, int slaveThread, long inputMessageSize) {
+        // no-op implementation
     }
 
     @Override
     public void logTaskEnd(int taskId, long taskDuration, List<Long> commandsDuration, long dataTransferDuration, long outputMessageSize, long workingDataSize, int exitCode) {
+        // no-op implementation
     }
 
     @Override
     public void exportTasksToCsv(Writer writer) {
+        // no-op implementation
     }
 
     @Override
     public void close() {
+        // no-op implementation
     }
 
 }

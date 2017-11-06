@@ -103,9 +103,6 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
 
     private final List<UndirectedGraphListener> listeners = new CopyOnWriteArrayList<>();
 
-    public UndirectedGraphImpl() {
-    }
-
     private void checkVertex(int v) {
         if (v < 0 || v >= vertices.size() || vertices.get(v) == null) {
             throw new PowsyblException("Vertex " + v + " not found");
@@ -159,7 +156,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
 
     @Override
     public void removeAllVertices() {
-        if (edges.size() > 0) {
+        if (!edges.isEmpty()) {
             throw new PowsyblException("Cannot remove all vertices because there is still some edges in the graph");
         }
         vertices.clear();

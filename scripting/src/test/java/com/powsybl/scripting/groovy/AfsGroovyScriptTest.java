@@ -25,7 +25,7 @@ public class AfsGroovyScriptTest extends AbstractGroovyScriptTest {
     @Override
     protected Reader getCodeReader() {
         return new StringReader(String.join(System.lineSeparator(),
-                "project = afs.getNode('mem:/').createProject('test', '')",
+                "project = afs.getNode('mem:/').createProject('test')",
                 "print project.getName()"
         ));
     }

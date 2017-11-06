@@ -8,6 +8,7 @@ package com.powsybl.afs;
 
 import com.powsybl.afs.storage.AppFileSystemStorage;
 import com.powsybl.afs.storage.NodeId;
+import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.afs.storage.PseudoClass;
 
 import java.util.Comparator;
@@ -22,13 +23,13 @@ public class ProjectFolder extends ProjectNode implements FolderBase<ProjectNode
 
     public static final String PSEUDO_CLASS = PseudoClass.PROJECT_FOLDER_PSEUDO_CLASS;
 
-    public ProjectFolder(NodeId id, AppFileSystemStorage storage, NodeId projectId, AppFileSystem fileSystem) {
-        super(id, storage, projectId, fileSystem, true);
+    public ProjectFolder(NodeInfo info, AppFileSystemStorage storage, NodeInfo projectInfo, AppFileSystem fileSystem) {
+        super(info, storage, projectInfo, fileSystem, true);
     }
 
     @Override
     public List<ProjectNode> getChildren() {
-        return storage.getChildNodes(id)
+        return storage.getChildNodesInfo(info.getId())
                 .stream()
                 .map(this::findProjectNode)
                 .sorted(Comparator.comparing(ProjectNode::getName))
@@ -37,20 +38,38 @@ public class ProjectFolder extends ProjectNode implements FolderBase<ProjectNode
 
     @Override
     public ProjectNode getChild(String name, String... more) {
-        NodeId childId = getChildId(name, more);
-        return childId != null ? findProjectNode(childId) : null;
+        NodeInfo childInfo = getChildInfo(name, more);
+        return childInfo != null ? findProjectNode(childInfo) : null;
+    }
+
+    @Override
+    public <T extends ProjectNode> T getChild(Class<T> clazz, String name, String... more) {
+        Objects.requireNonNull(clazz);
+        ProjectNode projectNode = getChild(name, more);
+        if (projectNode != null && clazz.isAssignableFrom(projectNode.getClass())) {
+            return (T) projectNode;
+        }
+        return null;
+    }
+
+    @Override
+    public ProjectFolder getFolder(String name, String... more) {
+        return getChild(ProjectFolder.class, name, more);
     }
 
     @Override
     public ProjectFolder createFolder(String name) {
-        NodeId folderId = storage.createNode(id, name, ProjectFolder.PSEUDO_CLASS);
-        return new ProjectFolder(folderId, storage, projectId, fileSystem);
+        NodeId folderId = storage.getChildNode(info.getId(), name);
+        if (folderId == null) {
+            folderId = storage.createNode(info.getId(), name, ProjectFolder.PSEUDO_CLASS);
+        }
+        return new ProjectFolder(new NodeInfo(folderId, name, ProjectFolder.PSEUDO_CLASS), storage, projectInfo, fileSystem);
     }
 
     public <F extends ProjectFile, B extends ProjectFileBuilder<F>> B fileBuilder(Class<B> clazz) {
         Objects.requireNonNull(clazz);
         ProjectFileExtension extension = getProject().getFileSystem().getData().getProjectFileExtension(clazz);
-        ProjectFileBuilder<F> builder = (ProjectFileBuilder<F>) extension.createProjectFileBuilder(id, storage, projectId, fileSystem);
+        ProjectFileBuilder<F> builder = (ProjectFileBuilder<F>) extension.createProjectFileBuilder(info, storage, projectInfo, fileSystem);
         return (B) builder;
     }
 }

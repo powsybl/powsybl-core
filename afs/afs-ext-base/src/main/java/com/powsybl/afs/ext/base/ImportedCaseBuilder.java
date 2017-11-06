@@ -11,6 +11,7 @@ import com.powsybl.afs.AppFileSystem;
 import com.powsybl.afs.ProjectFileBuilder;
 import com.powsybl.afs.storage.AppFileSystemStorage;
 import com.powsybl.afs.storage.NodeId;
+import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.iidm.import_.ImportersLoader;
 
 import java.io.IOException;
@@ -25,11 +26,11 @@ import java.util.Properties;
  */
 public class ImportedCaseBuilder implements ProjectFileBuilder<ImportedCase> {
 
-    private final NodeId folderId;
+    private final NodeInfo folderInfo;
 
     private final AppFileSystemStorage storage;
 
-    private final NodeId projectId;
+    private final NodeInfo projectInfo;
 
     private final AppFileSystem fileSystem;
 
@@ -39,11 +40,11 @@ public class ImportedCaseBuilder implements ProjectFileBuilder<ImportedCase> {
 
     private final Properties parameters = new Properties();;
 
-    public ImportedCaseBuilder(NodeId folderId, AppFileSystemStorage storage, NodeId projectId, AppFileSystem fileSystem,
+    public ImportedCaseBuilder(NodeInfo folderInfo, AppFileSystemStorage storage, NodeInfo projectInfo, AppFileSystem fileSystem,
                                ImportersLoader importersLoader) {
-        this.folderId = Objects.requireNonNull(folderId);
+        this.folderInfo = Objects.requireNonNull(folderInfo);
         this.storage = Objects.requireNonNull(storage);
-        this.projectId = Objects.requireNonNull(projectId);
+        this.projectInfo = Objects.requireNonNull(projectInfo);
         this.fileSystem = Objects.requireNonNull(fileSystem);
         this.importersLoader = Objects.requireNonNull(importersLoader);
     }
@@ -69,8 +70,14 @@ public class ImportedCaseBuilder implements ProjectFileBuilder<ImportedCase> {
             throw new AfsException("Case is not set");
         }
 
+        String name = aCase.getName();
+
+        if (storage.getChildNode(folderInfo.getId(), name) != null) {
+            throw new AfsException("Parent folder already contains a '" + name + "' node");
+        }
+
         // create project file
-        NodeId id = storage.createNode(folderId, aCase.getName(), ImportedCase.PSEUDO_CLASS);
+        NodeId id = storage.createNode(folderInfo.getId(), name, ImportedCase.PSEUDO_CLASS);
 
         // store importer format
         storage.setStringAttribute(id, ImportedCase.FORMAT, aCase.getImporter().getFormat());
@@ -93,6 +100,6 @@ public class ImportedCaseBuilder implements ProjectFileBuilder<ImportedCase> {
 
         storage.flush();
 
-        return new ImportedCase(id, storage, projectId, fileSystem, importersLoader);
+        return new ImportedCase(new NodeInfo(id, name, ImportedCase.PSEUDO_CLASS), storage, projectInfo, fileSystem, importersLoader);
     }
 }

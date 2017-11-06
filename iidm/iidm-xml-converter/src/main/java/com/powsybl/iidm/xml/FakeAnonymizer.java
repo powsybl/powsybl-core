@@ -37,9 +37,11 @@ public class FakeAnonymizer implements Anonymizer {
 
     @Override
     public void read(BufferedReader reader) {
+        // nothing to do in fake impl
     }
 
     @Override
     public void write(BufferedWriter writer) {
+        // nothing to do in fake impl
     }
 }

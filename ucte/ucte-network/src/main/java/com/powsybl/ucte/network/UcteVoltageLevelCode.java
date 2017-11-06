@@ -61,9 +61,9 @@ public enum UcteVoltageLevelCode {
      */
     _500(500);
 
-    private final float voltageLevel;
+    private final int voltageLevel;
 
-    UcteVoltageLevelCode(float voltageLevel) {
+    UcteVoltageLevelCode(int voltageLevel) {
         this.voltageLevel = voltageLevel;
     }
 
@@ -71,7 +71,7 @@ public enum UcteVoltageLevelCode {
      * Gets the voltage level (kV).
      * @return the voltage level (kV)
      */
-    public float getVoltageLevel() {
+    public int getVoltageLevel() {
         return voltageLevel;
     }
 

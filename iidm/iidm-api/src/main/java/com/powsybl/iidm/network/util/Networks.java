@@ -86,26 +86,26 @@ public final class Networks {
     public static void printBalanceSummary(String title, Network network, Logger logger) {
 
         class ConnectedPower {
-            int busCount = 0;
+            private int busCount = 0;
 
-            List<String> connectedLoads = new ArrayList<>();
-            List<String> disconnectedLoads = new ArrayList<>();
-            float connectedLoadVolume = 0f;
-            float disconnectedLoadVolume = 0f;
+            private List<String> connectedLoads = new ArrayList<>();
+            private List<String> disconnectedLoads = new ArrayList<>();
+            private float connectedLoadVolume = 0f;
+            private float disconnectedLoadVolume = 0f;
 
-            float connectedMaxGeneration = 0f;
-            float disconnectedMaxGeneration = 0f;
-            float connectedGeneration = 0f;
-            float disconnectedGeneration = 0f;
-            List<String> connectedGenerators = new ArrayList<>();
-            List<String> disconnectedGenerators = new ArrayList<>();
+            private float connectedMaxGeneration = 0f;
+            private float disconnectedMaxGeneration = 0f;
+            private float connectedGeneration = 0f;
+            private float disconnectedGeneration = 0f;
+            private List<String> connectedGenerators = new ArrayList<>();
+            private List<String> disconnectedGenerators = new ArrayList<>();
 
-            List<String> connectedShunts = new ArrayList<>();
-            List<String> disconnectedShunts = new ArrayList<>();
-            float connectedShuntPositiveVolume = 0f;
-            float disconnectedShuntPositiveVolume = 0f;
-            float connectedShuntNegativeVolume = 0f;
-            float disconnectedShuntNegativeVolume = 0f;
+            private List<String> connectedShunts = new ArrayList<>();
+            private List<String> disconnectedShunts = new ArrayList<>();
+            private float connectedShuntPositiveVolume = 0f;
+            private float disconnectedShuntPositiveVolume = 0f;
+            private float connectedShuntNegativeVolume = 0f;
+            private float disconnectedShuntNegativeVolume = 0f;
         }
 
         ConnectedPower balanceMainCC = new ConnectedPower();
@@ -229,51 +229,61 @@ public final class Networks {
         table.addCell(Integer.toString(balanceMainCC.busCount), centerStyle, 2);
         table.addCell(Integer.toString(balanceOtherCC.busCount), centerStyle, 2);
         table.addCell("Load count");
-        table.addCell("" + balanceMainCC.connectedLoads.size());
-        table.addCell("" + balanceMainCC.disconnectedLoads.size());
-        table.addCell("" + balanceOtherCC.connectedLoads.size());
-        table.addCell("" + balanceOtherCC.disconnectedLoads.size());
+        table.addCell(Integer.toString(balanceMainCC.connectedLoads.size()));
+        table.addCell(Integer.toString(balanceMainCC.disconnectedLoads.size()));
+        table.addCell(Integer.toString(balanceOtherCC.connectedLoads.size()));
+        table.addCell(Integer.toString(balanceOtherCC.disconnectedLoads.size()));
         table.addCell("Load (MW)");
-        table.addCell("" + balanceMainCC.connectedLoadVolume);
-        table.addCell("" + balanceMainCC.disconnectedLoadVolume);
-        table.addCell("" + balanceOtherCC.connectedLoadVolume);
-        table.addCell("" + balanceOtherCC.disconnectedLoadVolume);
+        table.addCell(Float.toString(balanceMainCC.connectedLoadVolume));
+        table.addCell(Float.toString(balanceMainCC.disconnectedLoadVolume));
+        table.addCell(Float.toString(balanceOtherCC.connectedLoadVolume));
+        table.addCell(Float.toString(balanceOtherCC.disconnectedLoadVolume));
         table.addCell("Generator count");
-        table.addCell("" + balanceMainCC.connectedGenerators.size());
-        table.addCell("" + balanceMainCC.disconnectedGenerators.size());
-        table.addCell("" + balanceOtherCC.connectedGenerators.size());
-        table.addCell("" + balanceOtherCC.disconnectedGenerators.size());
+        table.addCell(Integer.toString(balanceMainCC.connectedGenerators.size()));
+        table.addCell(Integer.toString(balanceMainCC.disconnectedGenerators.size()));
+        table.addCell(Integer.toString(balanceOtherCC.connectedGenerators.size()));
+        table.addCell(Integer.toString(balanceOtherCC.disconnectedGenerators.size()));
         table.addCell("Max generation (MW)");
-        table.addCell("" + balanceMainCC.connectedMaxGeneration);
-        table.addCell("" + balanceMainCC.disconnectedMaxGeneration);
-        table.addCell("" + balanceOtherCC.connectedMaxGeneration);
-        table.addCell("" + balanceOtherCC.disconnectedMaxGeneration);
+        table.addCell(Float.toString(balanceMainCC.connectedMaxGeneration));
+        table.addCell(Float.toString(balanceMainCC.disconnectedMaxGeneration));
+        table.addCell(Float.toString(balanceOtherCC.connectedMaxGeneration));
+        table.addCell(Float.toString(balanceOtherCC.disconnectedMaxGeneration));
         table.addCell("Generation (MW)");
-        table.addCell("" + balanceMainCC.connectedGeneration);
-        table.addCell("" + balanceMainCC.disconnectedGeneration);
-        table.addCell("" + balanceOtherCC.connectedGeneration);
-        table.addCell("" + balanceOtherCC.disconnectedGeneration);
+        table.addCell(Float.toString(balanceMainCC.connectedGeneration));
+        table.addCell(Float.toString(balanceMainCC.disconnectedGeneration));
+        table.addCell(Float.toString(balanceOtherCC.connectedGeneration));
+        table.addCell(Float.toString(balanceOtherCC.disconnectedGeneration));
         table.addCell("Shunt at nom V (MVar)");
-        table.addCell("" + balanceMainCC.connectedShuntPositiveVolume + " " + balanceMainCC.connectedShuntNegativeVolume + " (" + balanceMainCC.connectedShunts.size() + ")");
-        table.addCell("" + balanceMainCC.disconnectedShuntPositiveVolume + " " + balanceMainCC.disconnectedShuntNegativeVolume + " (" + balanceMainCC.disconnectedShunts.size() + ")");
-        table.addCell("" + balanceOtherCC.connectedShuntPositiveVolume + " " + balanceOtherCC.connectedShuntNegativeVolume + " (" + balanceOtherCC.connectedShunts.size() + ")");
-        table.addCell("" + balanceOtherCC.disconnectedShuntPositiveVolume + " " + balanceOtherCC.disconnectedShuntNegativeVolume + " (" + balanceOtherCC.disconnectedShunts.size() + ")");
+        table.addCell(Float.toString(balanceMainCC.connectedShuntPositiveVolume) + " " +
+                Float.toString(balanceMainCC.connectedShuntNegativeVolume) +
+                " (" + Integer.toString(balanceMainCC.connectedShunts.size()) + ")");
+        table.addCell(Float.toString(balanceMainCC.disconnectedShuntPositiveVolume) + " " +
+                Float.toString(balanceMainCC.disconnectedShuntNegativeVolume) +
+                " (" + Integer.toString(balanceMainCC.disconnectedShunts.size()) + ")");
+        table.addCell(Float.toString(balanceOtherCC.connectedShuntPositiveVolume) + " " +
+                Float.toString(balanceOtherCC.connectedShuntNegativeVolume) +
+                " (" + Integer.toString(balanceOtherCC.connectedShunts.size()) + ")");
+        table.addCell(Float.toString(balanceOtherCC.disconnectedShuntPositiveVolume) + " " +
+                Float.toString(balanceOtherCC.disconnectedShuntNegativeVolume) +
+                " (" + Integer.toString(balanceOtherCC.disconnectedShunts.size()) + ")");
 
-        logger.debug("Active balance at step '{}':\n{}", title, table.render());
+        if (logger.isDebugEnabled()) {
+            logger.debug("Active balance at step '{}':\n{}", title, table.render());
+        }
 
-        if (balanceOtherCC.connectedLoads.size() > 0) {
+        if (!balanceOtherCC.connectedLoads.isEmpty()) {
             logger.trace("Connected loads in other CC: {}", balanceOtherCC.connectedLoads);
         }
-        if (balanceOtherCC.disconnectedLoads.size() > 0) {
+        if (!balanceOtherCC.disconnectedLoads.isEmpty()) {
             logger.trace("Disconnected loads in other CC: {}", balanceOtherCC.disconnectedLoads);
         }
-        if (balanceOtherCC.connectedGenerators.size() > 0) {
+        if (!balanceOtherCC.connectedGenerators.isEmpty()) {
             logger.trace("Connected generators in other CC: {}", balanceOtherCC.connectedGenerators);
         }
-        if (balanceOtherCC.disconnectedGenerators.size() > 0) {
+        if (!balanceOtherCC.disconnectedGenerators.isEmpty()) {
             logger.trace("Disconnected generators in other CC: {}", balanceOtherCC.disconnectedGenerators);
         }
-        if (balanceOtherCC.disconnectedShunts.size() > 0) {
+        if (!balanceOtherCC.disconnectedShunts.isEmpty()) {
             logger.trace("Disconnected shunts in other CC: {}", balanceOtherCC.disconnectedShunts);
         }
     }

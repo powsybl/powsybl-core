@@ -7,7 +7,7 @@
 package com.powsybl.afs;
 
 import com.powsybl.afs.storage.AppFileSystemStorage;
-import com.powsybl.afs.storage.NodeId;
+import com.powsybl.afs.storage.NodeInfo;
 
 import java.util.Objects;
 
@@ -20,8 +20,8 @@ public class Node extends AbstractNodeBase<Folder> {
 
     protected final boolean folder;
 
-    protected Node(NodeId id, AppFileSystemStorage storage, AppFileSystem fileSystem, boolean folder) {
-        super(id, storage);
+    protected Node(NodeInfo info, AppFileSystemStorage storage, AppFileSystem fileSystem, boolean folder) {
+        super(info, storage);
         this.fileSystem = Objects.requireNonNull(fileSystem);
         this.folder = folder;
     }
@@ -32,9 +32,9 @@ public class Node extends AbstractNodeBase<Folder> {
     }
 
     @Override
-    public Folder getFolder() {
-        NodeId parentNodeId = storage.getParentNode(id);
-        return parentNodeId != null ? new Folder(parentNodeId, storage, fileSystem) : null;
+    public Folder getParent() {
+        NodeInfo parentInfo = storage.getParentNodeInfo(info.getId());
+        return parentInfo != null ? new Folder(parentInfo, storage, fileSystem) : null;
     }
 
     @Override
@@ -54,19 +54,18 @@ public class Node extends AbstractNodeBase<Folder> {
         return fileSystem;
     }
 
-    protected Node findNode(NodeId nodeId) {
-        Objects.requireNonNull(nodeId);
-        String nodePseudoClass = storage.getNodePseudoClass(nodeId);
-        if (Folder.PSEUDO_CLASS.equals(nodePseudoClass)) {
-            return new Folder(nodeId, storage, fileSystem);
-        } else if (Project.PSEUDO_CLASS.equals(nodePseudoClass)) {
-            return new Project(nodeId, storage, fileSystem);
+    protected Node findNode(NodeInfo nodeInfo) {
+        Objects.requireNonNull(nodeInfo);
+        if (Folder.PSEUDO_CLASS.equals(nodeInfo.getPseudoClass())) {
+            return new Folder(nodeInfo, storage, fileSystem);
+        } else if (Project.PSEUDO_CLASS.equals(nodeInfo.getPseudoClass())) {
+            return new Project(nodeInfo, storage, fileSystem);
         } else {
-            FileExtension extension = fileSystem.getData().getFileExtensionByPseudoClass(nodePseudoClass);
+            FileExtension extension = fileSystem.getData().getFileExtensionByPseudoClass(nodeInfo.getPseudoClass());
             if (extension != null) {
-                return extension.createFile(nodeId, storage, fileSystem);
+                return extension.createFile(nodeInfo, storage, fileSystem);
             } else {
-                return new UnknownFile(nodeId, storage, fileSystem);
+                return new UnknownFile(nodeInfo, storage, fileSystem);
             }
         }
     }

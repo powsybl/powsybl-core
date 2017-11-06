@@ -6,11 +6,18 @@
  */
 package com.powsybl.commons.json;
 
+import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
 import com.google.common.base.Strings;
 
-import java.io.IOException;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Objects;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
@@ -18,6 +25,64 @@ import java.util.Objects;
 public final class JsonUtil {
 
     private JsonUtil() {
+    }
+
+    public static void writeJson(Writer writer, Consumer<JsonGenerator> consumer) {
+        Objects.requireNonNull(writer);
+        Objects.requireNonNull(consumer);
+        JsonFactory factory = new JsonFactory();
+        try (JsonGenerator generator = factory.createGenerator(writer)) {
+            generator.useDefaultPrettyPrinter();
+            consumer.accept(generator);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public static String toJson(Consumer<JsonGenerator> consumer) {
+        try (StringWriter writer = new StringWriter()) {
+            writeJson(writer, consumer);
+            return writer.toString();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public static void writeJson(Path file, Consumer<JsonGenerator> consumer) {
+        Objects.requireNonNull(file);
+        Objects.requireNonNull(consumer);
+        try (BufferedWriter writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
+            writeJson(writer, consumer);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public static <T> T parseJson(Path file, Function<JsonParser, T> function) {
+        Objects.requireNonNull(false);
+        try (BufferedReader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
+            return parseJson(reader, function);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public static <T> T parseJson(String json, Function<JsonParser, T> function) {
+        Objects.requireNonNull(json);
+        try (StringReader reader = new StringReader(json)) {
+            return parseJson(reader, function);
+        }
+    }
+
+    public static <T> T parseJson(Reader reader, Function<JsonParser, T> function) {
+        Objects.requireNonNull(reader);
+        Objects.requireNonNull(function);
+        JsonFactory factory = new JsonFactory();
+        try (JsonParser parser = factory.createParser(reader)) {
+            return function.apply(parser);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     public static void writeOptionalStringField(JsonGenerator jsonGenerator, String fieldName, String value) throws IOException {
