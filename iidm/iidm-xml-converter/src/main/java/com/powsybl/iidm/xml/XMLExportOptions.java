@@ -6,6 +6,8 @@
  */
 package com.powsybl.iidm.xml;
 
+import com.powsybl.iidm.network.TopologyLevel;
+
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -14,6 +16,7 @@ public class XMLExportOptions {
 
     private boolean withBranchSV = true;
 
+    @Deprecated
     private boolean forceBusBranchTopo = false;
 
     private boolean indent = true;
@@ -24,14 +27,21 @@ public class XMLExportOptions {
 
     private boolean skipExtensions = false;
 
+    private TopologyLevel topologyLevel = TopologyLevel.NODE_BREAKER;
+
     public XMLExportOptions() {
     }
 
     public XMLExportOptions(boolean withBranchSV, boolean forceBusBranchTopo, boolean indent, boolean onlyMainCc) {
+        this(withBranchSV, forceBusBranchTopo, indent, onlyMainCc, TopologyLevel.NODE_BREAKER);
+    }
+
+    public XMLExportOptions(boolean withBranchSV, boolean forceBusBranchTopo, boolean indent, boolean onlyMainCc, TopologyLevel topologyLevel) {
         this.withBranchSV = withBranchSV;
         this.forceBusBranchTopo = forceBusBranchTopo;
         this.indent = indent;
         this.onlyMainCc = onlyMainCc;
+        this.topologyLevel = topologyLevel;
     }
 
     public boolean isWithBranchSV() {
@@ -43,10 +53,24 @@ public class XMLExportOptions {
         return this;
     }
 
+    /**
+     * @deprecated  forceBusBranchTopo functionality has been merged to convert-network</br>
+     *              functionality with topology-level as parameter</br>
+     *              use {@link #getTopologyLevel()}
+     */
+    @Deprecated
     public boolean isForceBusBranchTopo() {
         return forceBusBranchTopo;
     }
 
+    /**
+     * @param forceBusBranchTopo
+     *
+     * @deprecated  forceBusBranchTopo functionality has been merged to convert-network</br>
+     *              functionality with topology-level as parameter</br>
+     *              use {@link #setTopologyLevel()}
+     */
+    @Deprecated
     public XMLExportOptions setForceBusBranchTopo(boolean forceBusBranchTopo) {
         this.forceBusBranchTopo = forceBusBranchTopo;
         return this;
@@ -86,5 +110,13 @@ public class XMLExportOptions {
     public XMLExportOptions setSkipExtensions(boolean skipExtensions) {
         this.skipExtensions = skipExtensions;
         return this;
+    }
+
+    public TopologyLevel getTopologyLevel() {
+        return topologyLevel;
+    }
+
+    public void setTopologyLevel(TopologyLevel topologyLevel) {
+        this.topologyLevel = topologyLevel;
     }
 }

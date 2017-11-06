@@ -13,5 +13,5 @@ package com.powsybl.iidm.network;
  */
 public enum TopologyKind {
     NODE_BREAKER,
-    BUS_BREAKER
+    BUS_BREAKER;
 }

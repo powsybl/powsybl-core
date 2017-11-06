@@ -25,8 +25,8 @@ import org.slf4j.LoggerFactory;
  *
  * This class "VoltageLevel.java" represents the
  * class VoltageLevel extends EquipmentContainer
- *    + BaseVoltage   1..1   BaseVoltage 
- *    + MemberOf_Substation   1..1   Substation 
+ *    + BaseVoltage   1..1   BaseVoltage
+ *    + MemberOf_Substation   1..1   Substation
 
  */
 public class VoltageLevel extends EquipmentContainer {
@@ -54,14 +54,14 @@ public class VoltageLevel extends EquipmentContainer {
      * Comment from profile:
      * The association is used in the naming hierarchy.
      */
-    public Substation memberOf_Substation;
+    public Substation memberOfSubstation;
 
     /**
      * The id of the attribute "memberOf_Substation"
      * This id is mainly used to resolve links after parsing an instance
      */
 
-    public String idMemberOf_Substation;
+    public String idMemberOfSubstation;
 
     /**
      * The current bitset describing the state of each CIM attribute of this
@@ -82,7 +82,7 @@ public class VoltageLevel extends EquipmentContainer {
     private final Map<Subset, BitSet> minBitsets
             = new EnumMap<Subset, BitSet>(Subset.class);
 
-    
+
     /**
      * Utility to return the "baseVoltage"
      *
@@ -119,20 +119,20 @@ public class VoltageLevel extends EquipmentContainer {
         this.baseVoltage = baseVoltageValue;
         this.currentBitset.set(0);
         if (setInverse) {
-            
+
             if (baseVoltageValue != null) {
                 baseVoltageValue.addVoltageLevel(this, false);
             }
         }
     }
-    
+
     /**
      * Utility to return the "memberOf_Substation"
      *
      * @return the value of the attribute "memberOf_Substation"
      */
-    public Substation getMemberOf_Substation() {
-        return this.memberOf_Substation;
+    public Substation getMemberOfSubstation() {
+        return this.memberOfSubstation;
     }
 
     /**
@@ -142,29 +142,29 @@ public class VoltageLevel extends EquipmentContainer {
      *            if true the attribute "memberOf_Substation" is already set
      *            if false it isn't yet
      */
-    public boolean memberOf_SubstationIsSet() {
+    public boolean memberOfSubstationIsSet() {
         return this.currentBitset.get(1);
     }
 
     /**
      * Utility to set the "memberOf_SubstationValue"
      *
-     * @param memberOf_SubstationValue
+     * @param memberOfSubstationValue
      *            instance to set
      * @param setInverse
      *            boolean to specify whether to set the inverse association
      *            or not
      * @throws LinkageException
      */
-    public void setMemberOf_Substation(
-            Substation memberOf_SubstationValue,
+    public void setMemberOfSubstation(
+            Substation memberOfSubstationValue,
             boolean setInverse) throws LinkageException {
-        this.memberOf_Substation = memberOf_SubstationValue;
+        this.memberOfSubstation = memberOfSubstationValue;
         this.currentBitset.set(1);
         if (setInverse) {
-            
-            if (memberOf_SubstationValue != null) {
-                memberOf_SubstationValue.addContains_VoltageLevels(this, false);
+
+            if (memberOfSubstationValue != null) {
+                memberOfSubstationValue.addContains_VoltageLevels(this, false);
             }
         }
     }
@@ -203,9 +203,9 @@ public class VoltageLevel extends EquipmentContainer {
      * Utility to read an attribute
      * This function is called by the CIMModel
      *
-     * @param class_name
+     * @param className
      *            the read name of class
-     * @param attr_name
+     * @param attrName
      *            the read name of attribute
      * @param value
      *            the read value of the attribute
@@ -214,33 +214,32 @@ public class VoltageLevel extends EquipmentContainer {
      * @throws InterpretationException
      */
     @Override
-    public void readAttribute(final String class_name, final String attr_name,
+    public void readAttribute(final String className, final String attrName,
                               final String value, CIMModel model) throws InterpretationException {
 
-        if (class_name.equals("VoltageLevel")) {
-                StringBuilder errorMessage = new StringBuilder("The attribute \"");
-                errorMessage.append(attr_name);
-                errorMessage.append("\" in class \"");
-                errorMessage.append(class_name);
-                errorMessage
-                        .append("\" could not be found in the model !");
-                throw new InterpretationException(errorMessage.toString());
-            } else {
+        if (className.equals("VoltageLevel")) {
+            StringBuilder errorMessage = new StringBuilder("The attribute \"");
+            errorMessage.append(attrName);
+            errorMessage.append("\" in class \"");
+            errorMessage.append(className);
+            errorMessage.append("\" could not be found in the model !");
+            throw new InterpretationException(errorMessage.toString());
+        } else {
                 // We do not check if we are in the proper subset
                 // to call the function on
                 // the parent class
-                super.readAttribute(class_name, attr_name, value, model);
+            super.readAttribute(className, attrName, value, model);
 
-            }
+        }
     }
 
     /**
      * Utility to read a reference to a resource
      * This function is called by the CIMModel
      *
-     * @param class_name
+     * @param className
      *            the read name of class
-     * @param resource_name
+     * @param resourceName
      *            the read name of the associated resource
      * @param id
      *            the id of the associated resource
@@ -249,69 +248,69 @@ public class VoltageLevel extends EquipmentContainer {
      * @throws InterpretationException
      */
     @Override
-    public void readResource(final String class_name,
-            final String resource_name, final String id, CIMModel model)
+    public void readResource(final String className,
+            final String resourceName, final String id, CIMModel model)
             throws InterpretationException, LinkageException {
-        if (class_name.equals("VoltageLevel")) {
+        if (className.equals("VoltageLevel")) {
 
-            if (resource_name.equals("BaseVoltage")) {
+            if (resourceName.equals("BaseVoltage")) {
 
                 if (!(model.isCurrentSubsetSet())
                         || (model.getCurrentSubset() == Subset.Equipment)) {
                     idBaseVoltage = id.substring(1);
                     if (!super.isAddedToUnresolved()) {
-                          model.addUnresolved();
-                          super.addToUnresolved();
+                        model.addUnresolved();
+                        super.addToUnresolved();
                     }
 
                     return;
                 } else {
                     StringBuilder errorMessage
                             = new StringBuilder("The association \"");
-                    errorMessage.append(resource_name);
+                    errorMessage.append(resourceName);
                     errorMessage.append("\" in class");
-                    errorMessage.append("\""+class_name+" \"");
+                    errorMessage.append("\"" + className + " \"");
                     errorMessage.append("is not supposed to be in the subset \"");
                     errorMessage.append(model.getCurrentSubset().getIdentifier());
                     errorMessage.append("\"");
                     throw new InterpretationException(errorMessage.toString());
                 }
-           }
+            }
 
 
-            if (resource_name.equals("MemberOf_Substation")) {
+            if (resourceName.equals("MemberOf_Substation")) {
 
                 if (!(model.isCurrentSubsetSet())
                         || (model.getCurrentSubset() == Subset.Equipment)) {
-                    idMemberOf_Substation = id.substring(1);
+                    idMemberOfSubstation = id.substring(1);
                     if (!super.isAddedToUnresolved()) {
-                          model.addUnresolved();
-                          super.addToUnresolved();
+                        model.addUnresolved();
+                        super.addToUnresolved();
                     }
 
                     return;
                 } else {
                     StringBuilder errorMessage
                             = new StringBuilder("The association \"");
-                    errorMessage.append(resource_name);
+                    errorMessage.append(resourceName);
                     errorMessage.append("\" in class");
-                    errorMessage.append("\""+class_name+" \"");
+                    errorMessage.append("\"" + className + " \"");
                     errorMessage.append("is not supposed to be in the subset \"");
                     errorMessage.append(model.getCurrentSubset().getIdentifier());
                     errorMessage.append("\"");
                     throw new InterpretationException(errorMessage.toString());
                 }
-           }
+            }
 
 
             StringBuilder errorMessage = new StringBuilder("The association \"");
-            errorMessage.append(resource_name);
+            errorMessage.append(resourceName);
             errorMessage.append("\" in class \"");
-            errorMessage.append(class_name);
+            errorMessage.append(className);
             errorMessage.append("\" could not be found in the model !");
             throw new InterpretationException(errorMessage.toString());
         } else {
-            super.readResource(class_name, resource_name, id, model);
+            super.readResource(className, resourceName, id, model);
         }
     }
 
@@ -395,50 +394,50 @@ public class VoltageLevel extends EquipmentContainer {
          */
 
         switch (subset) {
-        case Equipment: {
+            case Equipment: {
 
-            if (writeID) {
-                try {
-                    xmlsw.writeStartElement(CIMURI.CIMURI, "VoltageLevel");
-                    xmlsw.writeAttribute(CIMModel.rdfURI, "ID", getId());
-                    // xmlsw.writeCharacters("\n");
-                } catch (XMLStreamException e) {
-                    StringBuilder errorMessage = new StringBuilder(
-                            "Error while trying to write the class ");
-                    errorMessage.append("VoltageLevel ");
-                    errorMessage.append("which ID has been initialized to : ");
-                    errorMessage.append(getId());
-                    errorMessage.append(" in the subset ");
-                    errorMessage.append("Equipment");
-                   LOGGER.error(errorMessage.toString());
-                   LOGGER.error(e.toString(), e);
-                }
-            }
-
-            writeClass(xmlsw);
-            super.write(xmlsw, subset, false);
-            if (writeID) {
-
-                try {
-                    xmlsw.writeEndElement();
-                    // xmlsw.writeCharacters("\n");
-                } catch (XMLStreamException e) {
-                    StringBuilder errorMessage = new StringBuilder(
-                            "Error while trying to write end element of ");
-                    errorMessage.append("VoltageLevel ");
-                    errorMessage.append("which ID has been initialized to : ");
-                    errorMessage.append(getId());
-                    errorMessage.append(" in the subset ");
-                    errorMessage.append("Equipment");
-                    LOGGER.error(errorMessage.toString());
-                    LOGGER.error(e.toString(), e);
+                if (writeID) {
+                    try {
+                        xmlsw.writeStartElement(CIMURI.CIMURI, "VoltageLevel");
+                        xmlsw.writeAttribute(CIMModel.rdfURI, "ID", getId());
+                        // xmlsw.writeCharacters("\n");
+                    } catch (XMLStreamException e) {
+                        StringBuilder errorMessage = new StringBuilder(
+                                "Error while trying to write the class ");
+                        errorMessage.append("VoltageLevel ");
+                        errorMessage.append("which ID has been initialized to : ");
+                        errorMessage.append(getId());
+                        errorMessage.append(" in the subset ");
+                        errorMessage.append("Equipment");
+                        LOGGER.error(errorMessage.toString());
+                        LOGGER.error(e.toString(), e);
+                    }
                 }
 
+                writeClass(xmlsw);
+                super.write(xmlsw, subset, false);
+                if (writeID) {
+
+                    try {
+                        xmlsw.writeEndElement();
+                        // xmlsw.writeCharacters("\n");
+                    } catch (XMLStreamException e) {
+                        StringBuilder errorMessage = new StringBuilder(
+                                "Error while trying to write end element of ");
+                        errorMessage.append("VoltageLevel ");
+                        errorMessage.append("which ID has been initialized to : ");
+                        errorMessage.append(getId());
+                        errorMessage.append(" in the subset ");
+                        errorMessage.append("Equipment");
+                        LOGGER.error(errorMessage.toString());
+                        LOGGER.error(e.toString(), e);
+                    }
+
+                }
+                break;
             }
-            break;
-        }
-        default: {// Do nothing !
-        }
+            default: { // Do nothing !
+            }
         }
         return;
     }
@@ -457,32 +456,31 @@ public class VoltageLevel extends EquipmentContainer {
     public void resolveLinks(CIMModel model, CIMModel boundaryModel) throws LinkageException {
         if (idBaseVoltage != null) {
             BaseVoltage attributeToSet =
-                    model.searchBaseVoltage
-                    (idBaseVoltage);
+                    model.searchBaseVoltage(idBaseVoltage);
 
             if (attributeToSet != null) {
                 boolean setInverse = true;
 
                 try {
                     this.setBaseVoltage(attributeToSet, setInverse);
-                } catch(LinkageException e) {
-                   LOGGER.error(e.toString(), e);
+                } catch (LinkageException e) {
+                    LOGGER.error(e.toString(), e);
                     throw new LinkageException(e.getMessage());
                 }
             } else if (boundaryModel != null) {
                 BaseVoltage attributeToSetFromBoundary = boundaryModel.searchBaseVoltage(idBaseVoltage);
-                if(attributeToSetFromBoundary != null) {
+                if (attributeToSetFromBoundary != null) {
                     attributeToSetFromBoundary.setFromBoundary(true);
                     try {
                         model.createBaseVoltage(idBaseVoltage, attributeToSetFromBoundary);
                     } catch (InterpretationException e) {
-                       LOGGER.error(e.toString(), e);
+                        LOGGER.error(e.toString(), e);
                     }
                     boolean setInverse = true;
                     try {
                         this.setBaseVoltage(attributeToSetFromBoundary, setInverse);
-                    } catch(LinkageException e) {
-                       LOGGER.error(e.toString(), e);
+                    } catch (LinkageException e) {
+                        LOGGER.error(e.toString(), e);
                         throw new LinkageException(e.getMessage());
                     }
                     attributeToSetFromBoundary.resolveLinks(model, boundaryModel);
@@ -507,41 +505,40 @@ public class VoltageLevel extends EquipmentContainer {
         }
 
 
-        if (idMemberOf_Substation != null) {
+        if (idMemberOfSubstation != null) {
             Substation attributeToSet =
-                    model.searchSubstation
-                    (idMemberOf_Substation);
+                    model.searchSubstation(idMemberOfSubstation);
 
             if (attributeToSet != null) {
                 boolean setInverse = true;
 
                 try {
-                    this.setMemberOf_Substation(attributeToSet, setInverse);
-                } catch(LinkageException e) {
-                   LOGGER.error(e.toString(), e);
+                    this.setMemberOfSubstation(attributeToSet, setInverse);
+                } catch (LinkageException e) {
+                    LOGGER.error(e.toString(), e);
                     throw new LinkageException(e.getMessage());
                 }
             } else if (boundaryModel != null) {
-                Substation attributeToSetFromBoundary = boundaryModel.searchSubstation(idMemberOf_Substation);
-                if(attributeToSetFromBoundary != null) {
+                Substation attributeToSetFromBoundary = boundaryModel.searchSubstation(idMemberOfSubstation);
+                if (attributeToSetFromBoundary != null) {
                     attributeToSetFromBoundary.setFromBoundary(true);
                     try {
-                        model.createSubstation(idMemberOf_Substation, attributeToSetFromBoundary);
+                        model.createSubstation(idMemberOfSubstation, attributeToSetFromBoundary);
                     } catch (InterpretationException e) {
-                       LOGGER.error(e.toString(), e);
+                        LOGGER.error(e.toString(), e);
                     }
                     boolean setInverse = true;
                     try {
-                        this.setMemberOf_Substation(attributeToSetFromBoundary, setInverse);
-                    } catch(LinkageException e) {
-                       LOGGER.error(e.toString(), e);
+                        this.setMemberOfSubstation(attributeToSetFromBoundary, setInverse);
+                    } catch (LinkageException e) {
+                        LOGGER.error(e.toString(), e);
                         throw new LinkageException(e.getMessage());
                     }
                     attributeToSetFromBoundary.resolveLinks(model, boundaryModel);
                 } else {
                     StringBuilder errorMessage = new StringBuilder(
                             "Could not find the reference to object of type \"Substation\" and id \"");
-                    errorMessage.append(idMemberOf_Substation);
+                    errorMessage.append(idMemberOfSubstation);
                     errorMessage.append("\" in \"VoltageLevel\" of id \"");
                     errorMessage.append(this.getId());
                     errorMessage.append("\" !");
@@ -550,7 +547,7 @@ public class VoltageLevel extends EquipmentContainer {
             } else {
                 StringBuilder errorMessage = new StringBuilder(
                         "Could not find the reference to object of type \"Substation\" and id \"");
-                errorMessage.append(idMemberOf_Substation);
+                errorMessage.append(idMemberOfSubstation);
                 errorMessage.append("\" in \"VoltageLevel\" of id \"");
                 errorMessage.append(this.getId());
                 errorMessage.append("\" !");
@@ -579,7 +576,7 @@ public class VoltageLevel extends EquipmentContainer {
         intersection.or(this.minBitsets.get(subset));
         // we create a copy of minBitsets.get(subset)
         intersection.and(this.currentBitset);
-        boolean consistent = (this.minBitsets.get(subset).equals(intersection));
+        boolean consistent = this.minBitsets.get(subset).equals(intersection);
         StringBuilder message = new StringBuilder("");
 
         if (!consistent) {
@@ -590,10 +587,11 @@ public class VoltageLevel extends EquipmentContainer {
         // message.append((super.modelConsistency(subset)).getRight());
 
         if (super.modelConsistency().isConsistent()) {
-            consistent = consistent && (true);
+            //consistent = consistent && true;
             message.append((super.modelConsistency(subset)).getMessage());
         } else {
-            consistent = consistent && (false);
+            // consistent = consistent && false;
+            consistent = false;
             message.append((super.modelConsistency(subset)).getMessage());
         }
 
@@ -614,21 +612,22 @@ public class VoltageLevel extends EquipmentContainer {
         intersection.or(this.minBitset);
         // we create a copy of minBitSet
         intersection.and(this.currentBitset);
-        boolean consistent = (this.minBitset.equals(intersection));
+        boolean consistent = this.minBitset.equals(intersection);
         StringBuilder message = new StringBuilder("");
 
         if (!consistent) {
-        message.append(getMessageForConsistency(this.minBitset));
+            message.append(getMessageForConsistency(this.minBitset));
         }
         // consistent = (super.modelConsistency().getLeft()) ? (consistent &&
         // (true)):(consistent && (false))
         // message += (super.modelConsistency(subset)).getRight();
 
         if (super.modelConsistency().isConsistent()) {
-            consistent = consistent && (true);
+            // consistent = consistent && true;
             message.append((super.modelConsistency()).getMessage());
         } else {
-            consistent = consistent && (false);
+            // consistent = consistent && false;
+            consistent = false;
             message.append((super.modelConsistency()).getMessage());
         }
 
@@ -664,14 +663,14 @@ public class VoltageLevel extends EquipmentContainer {
         }
 
         if (otherVoltageLevel.currentBitset.get(1)) {
-            Substation memberOf_SubstationAssociation = otherVoltageLevel.getMemberOf_Substation();
+            Substation memberOfSubstationAssociation = otherVoltageLevel.getMemberOfSubstation();
 
             //this.idMemberOf_Substation = (memberOf_SubstationAssociation != null) ? memberOf_SubstationAssociation.getId() : "";
-            if (memberOf_SubstationAssociation != null) {
-                this.idMemberOf_Substation = memberOf_SubstationAssociation.getId();
+            if (memberOfSubstationAssociation != null) {
+                this.idMemberOfSubstation = memberOfSubstationAssociation.getId();
                 // the proper bit will be set when the setter is called
             } else {
-                this.idMemberOf_Substation = "";
+                this.idMemberOfSubstation = "";
             }
         }
 
@@ -689,49 +688,49 @@ public class VoltageLevel extends EquipmentContainer {
     private void writeClass(XMLStreamWriter xmlsw) {
 
         if (currentBitset.get(0)) {
-        if (idBaseVoltage != null) {
-            try {
-                // xmlsw.writeCharacters("\t");
-                xmlsw.writeEmptyElement(CIMURI.CIMURI,
-                        "VoltageLevel.BaseVoltage");
-                xmlsw.writeAttribute(CIMModel.rdfURI, "resource", "#"
-                        + idBaseVoltage);
-                // xmlsw.writeCharacters("\n");
-            } catch(XMLStreamException e) {
-                StringBuilder errorMessage = new StringBuilder(
-                        "Error while trying to write the resource attribute ");
-                errorMessage.append("BaseVoltage");
-                errorMessage.append(" in class ");
-                errorMessage.append("VoltageLevel ");
-                errorMessage.append("which ID has been initialized to : ");
-                errorMessage.append(getId());
-                LOGGER.error(errorMessage.toString());
-                LOGGER.error(e.toString(), e);
+            if (idBaseVoltage != null) {
+                try {
+                    // xmlsw.writeCharacters("\t");
+                    xmlsw.writeEmptyElement(CIMURI.CIMURI,
+                            "VoltageLevel.BaseVoltage");
+                    xmlsw.writeAttribute(CIMModel.rdfURI, "resource", "#"
+                            + idBaseVoltage);
+                    // xmlsw.writeCharacters("\n");
+                } catch (XMLStreamException e) {
+                    StringBuilder errorMessage = new StringBuilder(
+                            "Error while trying to write the resource attribute ");
+                    errorMessage.append("BaseVoltage");
+                    errorMessage.append(" in class ");
+                    errorMessage.append("VoltageLevel ");
+                    errorMessage.append("which ID has been initialized to : ");
+                    errorMessage.append(getId());
+                    LOGGER.error(errorMessage.toString());
+                    LOGGER.error(e.toString(), e);
+                }
             }
-        }
         }
 
         if (currentBitset.get(1)) {
-        if (idMemberOf_Substation != null) {
-            try {
-                // xmlsw.writeCharacters("\t");
-                xmlsw.writeEmptyElement(CIMURI.CIMURI,
-                        "VoltageLevel.MemberOf_Substation");
-                xmlsw.writeAttribute(CIMModel.rdfURI, "resource", "#"
-                        + idMemberOf_Substation);
-                // xmlsw.writeCharacters("\n");
-            } catch(XMLStreamException e) {
-                StringBuilder errorMessage = new StringBuilder(
-                        "Error while trying to write the resource attribute ");
-                errorMessage.append("MemberOf_Substation");
-                errorMessage.append(" in class ");
-                errorMessage.append("VoltageLevel ");
-                errorMessage.append("which ID has been initialized to : ");
-                errorMessage.append(getId());
-                LOGGER.error(errorMessage.toString());
-                LOGGER.error(e.toString(), e);
+            if (idMemberOfSubstation != null) {
+                try {
+                    // xmlsw.writeCharacters("\t");
+                    xmlsw.writeEmptyElement(CIMURI.CIMURI,
+                            "VoltageLevel.MemberOf_Substation");
+                    xmlsw.writeAttribute(CIMModel.rdfURI, "resource", "#"
+                            + idMemberOfSubstation);
+                    // xmlsw.writeCharacters("\n");
+                } catch (XMLStreamException e) {
+                    StringBuilder errorMessage = new StringBuilder(
+                            "Error while trying to write the resource attribute ");
+                    errorMessage.append("MemberOf_Substation");
+                    errorMessage.append(" in class ");
+                    errorMessage.append("VoltageLevel ");
+                    errorMessage.append("which ID has been initialized to : ");
+                    errorMessage.append(getId());
+                    LOGGER.error(errorMessage.toString());
+                    LOGGER.error(e.toString(), e);
+                }
             }
-        }
         }
 
         return;
@@ -830,8 +829,8 @@ public class VoltageLevel extends EquipmentContainer {
                 idBaseVoltage = "";
                 this.currentBitset.clear(0);
                 // reset the Reference
-                memberOf_Substation = null;
-                idMemberOf_Substation = "";
+                memberOfSubstation = null;
+                idMemberOfSubstation = "";
                 this.currentBitset.clear(1);
                 super.clearAssociations(subset);
                 break;
@@ -851,8 +850,4 @@ public class VoltageLevel extends EquipmentContainer {
         VoltageLevel newInstanceSP = newInstance;
         return newInstanceSP;
     }
-
 }
-
-
-

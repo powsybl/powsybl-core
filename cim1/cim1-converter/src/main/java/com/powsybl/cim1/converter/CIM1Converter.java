@@ -1250,7 +1250,7 @@ class CIM1Converter implements CIM1Constants {
                 cim1.model.TopologicalNode tn = t.getTopologicalNode();
                 if (!isXNode(tn)) {
                     cim1.model.VoltageLevel vl = (cim1.model.VoltageLevel) tn.getConnectivityNodeContainer();
-                    cim1.model.Substation s = vl.getMemberOf_Substation();
+                    cim1.model.Substation s = vl.getMemberOfSubstation();
                     substationsIds.add(namingStrategy.getId(s));
                 }
             }
@@ -1438,7 +1438,7 @@ class CIM1Converter implements CIM1Constants {
                     // Nodes
                     if (vl.topologicalNode == null) {
                         LOGGER.warn("No topological node for voltage level {} in substation {}",
-                                vl.getId(), vl.idMemberOf_Substation);
+                                vl.getId(), vl.idMemberOfSubstation);
                     } else {
                         for (cim1.model.TopologicalNode tn : vl.getTopologicalNode()) {
                             LOGGER.trace("Create bus {}", namingStrategy.getId(tn));
