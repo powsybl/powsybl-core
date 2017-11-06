@@ -10,6 +10,8 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.iidm.export.Exporter;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TopologyLevel;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,6 +38,7 @@ import java.util.Properties;
  *         <td>true or false</td>
  *     </tr>
  *     <tr>
+ *         <td>@deprecated</td>
  *         <td>iidm.export.xml.force-bus-branch-topo</td>
  *         <td>if true remove switches and aggregate buses</td>
  *         <td>true or false</td>
@@ -44,6 +47,11 @@ import java.util.Properties;
  *         <td>iidm.export.xml.only-main-cc</td>
  *         <td>if true only export equipments of the main connected component</td>
  *         <td>true or false</td>
+ *     </tr>
+ *     <tr>
+ *         <td>iidm.export.xml.topology-level</td>
+ *         <td>the detail level used in the export of voltage levels</td>
+ *         <td>NODE_BREAKER, BUS_BREAKER, BUS_BRANCH</td>
  *     </tr>
  * </table>
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -57,6 +65,7 @@ public class XMLExporter implements Exporter, XmlConstants {
 
     public static final String WITH_BRANCH_STATE_VARIABLES_PROPERTY = "iidm.export.xml.with-branch-state-variables";
 
+    @Deprecated
     public static final String FORCE_BUS_BRANCH_TOPO_PROPERTY = "iidm.export.xml.force-bus-branch-topo";
 
     public static final String ONLY_MAIN_CC_PROPERTIES = "iidm.export.xml.only-main-cc";
@@ -64,6 +73,8 @@ public class XMLExporter implements Exporter, XmlConstants {
     public static final String ANONYMISED_PROPERTIES = "iidm.export.xml.anonymised";
 
     public static final String SKIP_EXTENSIONS_PROPERTIES = "iidm.export.xml.skip-extensions";
+
+    public static final String TOPOLOGY_LEVEL_PROPERTY = "iidm.export.xml.topology-level";
 
     @Override
     public String getFormat() {
@@ -83,12 +94,19 @@ public class XMLExporter implements Exporter, XmlConstants {
 
         XMLExportOptions options = new XMLExportOptions();
         if (parameters != null) {
-            options.setIndent(!"false".equals(parameters.getProperty(INDENT_PROPERTY)))
-                    .setWithBranchSV("true".equals(parameters.getProperty(WITH_BRANCH_STATE_VARIABLES_PROPERTY)))
-                    .setForceBusBranchTopo("true".equals(parameters.getProperty(FORCE_BUS_BRANCH_TOPO_PROPERTY, "false")))
-                    .setOnlyMainCc("true".equals(parameters.getProperty(ONLY_MAIN_CC_PROPERTIES)))
-                    .setAnonymized("true".equals(parameters.getProperty(ANONYMISED_PROPERTIES)))
-                    .setSkipExtensions("true".equals(parameters.getProperty(SKIP_EXTENSIONS_PROPERTIES)));
+            options.setIndent(Boolean.parseBoolean(parameters.getProperty(INDENT_PROPERTY, "true")))
+                .setWithBranchSV(Boolean.parseBoolean(parameters.getProperty(WITH_BRANCH_STATE_VARIABLES_PROPERTY, "true")))
+                .setOnlyMainCc(Boolean.parseBoolean(parameters.getProperty(ONLY_MAIN_CC_PROPERTIES, "false")))
+                .setAnonymized(Boolean.parseBoolean(parameters.getProperty(ANONYMISED_PROPERTIES, "false")))
+                .setSkipExtensions(Boolean.parseBoolean(parameters.getProperty(SKIP_EXTENSIONS_PROPERTIES, "false")));
+
+            if (parameters.containsKey(TOPOLOGY_LEVEL_PROPERTY)) {
+                options.setTopologyLevel(TopologyLevel.valueOf(parameters.getProperty(TOPOLOGY_LEVEL_PROPERTY)));
+            } else if (parameters.containsKey(FORCE_BUS_BRANCH_TOPO_PROPERTY)) {
+                LOGGER.warn("The property '{}' is deprecated. Use '{}' instead", FORCE_BUS_BRANCH_TOPO_PROPERTY, TOPOLOGY_LEVEL_PROPERTY);
+                boolean forceBusBranch = "true".equals(parameters.getProperty(FORCE_BUS_BRANCH_TOPO_PROPERTY, "false"));
+                options.setTopologyLevel(forceBusBranch ? TopologyLevel.BUS_BRANCH : TopologyLevel.NODE_BREAKER);
+            }
         }
 
         try {
