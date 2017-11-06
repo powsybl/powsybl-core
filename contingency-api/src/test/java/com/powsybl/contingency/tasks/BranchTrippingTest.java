@@ -26,7 +26,7 @@ import static org.junit.Assert.*;
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public class BranchTrippingTest extends TrippingTest {
+public class BranchTrippingTest extends AbstractTrippingTest {
 
     @Test
     public void lineTrippingTest() {

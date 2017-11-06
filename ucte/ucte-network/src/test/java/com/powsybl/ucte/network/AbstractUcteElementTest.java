@@ -15,7 +15,7 @@ import static org.junit.Assert.assertNull;
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public class UcteElementTest {
+abstract class AbstractUcteElementTest {
 
     protected void testElement(UcteElement element) {
         Objects.requireNonNull(element);

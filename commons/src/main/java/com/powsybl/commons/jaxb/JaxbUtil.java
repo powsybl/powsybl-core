@@ -30,7 +30,7 @@ import java.nio.file.Path;
  */
 public final class JaxbUtil {
 
-    private final static Supplier<TransformerFactory> TRANSFORMER_FACTORY_SUPPLIER = Suppliers.memoize(TransformerFactory::newInstance);
+    private static final Supplier<TransformerFactory> TRANSFORMER_FACTORY_SUPPLIER = Suppliers.memoize(TransformerFactory::newInstance);
 
     private JaxbUtil() {
     }
