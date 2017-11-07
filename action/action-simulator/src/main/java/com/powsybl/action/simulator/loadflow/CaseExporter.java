@@ -40,6 +40,7 @@ public class CaseExporter extends DefaultLoadFlowActionSimulatorObserver {
 
     @Override
     public void loadFlowConverged(Network network, Contingency contingency, List<LimitViolation> violations) {
+        Objects.requireNonNull(contingency.getId());
         exportNetwork(network, contingency.getId());
     }
 
