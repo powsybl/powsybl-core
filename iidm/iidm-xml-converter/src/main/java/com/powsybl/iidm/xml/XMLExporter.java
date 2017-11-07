@@ -65,9 +65,6 @@ public class XMLExporter implements Exporter, XmlConstants {
 
     public static final String WITH_BRANCH_STATE_VARIABLES_PROPERTY = "iidm.export.xml.with-branch-state-variables";
 
-    @Deprecated
-    public static final String FORCE_BUS_BRANCH_TOPO_PROPERTY = "iidm.export.xml.force-bus-branch-topo";
-
     public static final String ONLY_MAIN_CC_PROPERTIES = "iidm.export.xml.only-main-cc";
 
     public static final String ANONYMISED_PROPERTIES = "iidm.export.xml.anonymised";
@@ -94,19 +91,12 @@ public class XMLExporter implements Exporter, XmlConstants {
 
         XMLExportOptions options = new XMLExportOptions();
         if (parameters != null) {
-            options.setIndent(Boolean.parseBoolean(parameters.getProperty(INDENT_PROPERTY, "true")))
-                .setWithBranchSV(Boolean.parseBoolean(parameters.getProperty(WITH_BRANCH_STATE_VARIABLES_PROPERTY, "true")))
-                .setOnlyMainCc(Boolean.parseBoolean(parameters.getProperty(ONLY_MAIN_CC_PROPERTIES, "false")))
-                .setAnonymized(Boolean.parseBoolean(parameters.getProperty(ANONYMISED_PROPERTIES, "false")))
-                .setSkipExtensions(Boolean.parseBoolean(parameters.getProperty(SKIP_EXTENSIONS_PROPERTIES, "false")));
-
-            if (parameters.containsKey(TOPOLOGY_LEVEL_PROPERTY)) {
-                options.setTopologyLevel(TopologyLevel.valueOf(parameters.getProperty(TOPOLOGY_LEVEL_PROPERTY)));
-            } else if (parameters.containsKey(FORCE_BUS_BRANCH_TOPO_PROPERTY)) {
-                LOGGER.warn("The property '{}' is deprecated. Use '{}' instead", FORCE_BUS_BRANCH_TOPO_PROPERTY, TOPOLOGY_LEVEL_PROPERTY);
-                boolean forceBusBranch = "true".equals(parameters.getProperty(FORCE_BUS_BRANCH_TOPO_PROPERTY, "false"));
-                options.setTopologyLevel(forceBusBranch ? TopologyLevel.BUS_BRANCH : TopologyLevel.NODE_BREAKER);
-            }
+            options.setIndent(Boolean.parseBoolean(parameters.getProperty(INDENT_PROPERTY, Boolean.TRUE.toString())))
+                .setWithBranchSV(Boolean.parseBoolean(parameters.getProperty(WITH_BRANCH_STATE_VARIABLES_PROPERTY, Boolean.TRUE.toString())))
+                .setOnlyMainCc(Boolean.parseBoolean(parameters.getProperty(ONLY_MAIN_CC_PROPERTIES, Boolean.FALSE.toString())))
+                .setAnonymized(Boolean.parseBoolean(parameters.getProperty(ANONYMISED_PROPERTIES, Boolean.FALSE.toString())))
+                .setSkipExtensions(Boolean.parseBoolean(parameters.getProperty(SKIP_EXTENSIONS_PROPERTIES, Boolean.FALSE.toString())))
+                .setTopologyLevel(TopologyLevel.valueOf(parameters.getProperty(TOPOLOGY_LEVEL_PROPERTY, TopologyLevel.NODE_BREAKER.name())));
         }
 
         try {
