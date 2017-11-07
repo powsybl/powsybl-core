@@ -121,7 +121,7 @@ public class TimeSeriesMetadata {
         }
     }
 
-    static TimeSeriesMetadata parseJson(JsonParser parser) {
+    public static TimeSeriesMetadata parseJson(JsonParser parser) {
         try {
             JsonToken token;
             JsonParsingContext context = new JsonParsingContext();
