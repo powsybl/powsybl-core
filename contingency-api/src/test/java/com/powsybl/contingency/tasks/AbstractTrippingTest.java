@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-class TrippingTest {
+abstract class AbstractTrippingTest {
 
     protected List<Boolean> getSwitchStates(Network network, Set<String> switchIds) {
         Objects.requireNonNull(network);

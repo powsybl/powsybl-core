@@ -27,7 +27,7 @@ import static org.junit.Assert.*;
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public class GeneratorTrippingTest extends TrippingTest {
+public class GeneratorTrippingTest extends AbstractTrippingTest {
 
     @Test
     public void generatorTrippingTest() {

@@ -19,7 +19,7 @@ public abstract class AbstractMatrix implements Matrix {
     public Matrix copy(MatrixFactory factory) {
         Objects.requireNonNull(factory);
         Matrix matrix = factory.create(getM(), getN(), getEstimatedNonZeroValueCount());
-        iterateNonZeroValue((i, j, value) -> matrix.setValue(i, j, value));
+        iterateNonZeroValue(matrix::setValue);
         return matrix;
     }
 }

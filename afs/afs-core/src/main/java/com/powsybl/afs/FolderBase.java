@@ -11,15 +11,15 @@ import java.util.List;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface FolderBase<NODE extends AbstractNodeBase<FOLDER>, FOLDER extends FolderBase<NODE, FOLDER>> {
+public interface FolderBase<N extends AbstractNodeBase<F>, F extends FolderBase<N, F>> {
 
-    List<NODE> getChildren();
+    List<N> getChildren();
 
-    NODE getChild(String name, String... more);
+    N getChild(String name, String... more);
 
-    <T extends NODE> T getChild(Class<T> clazz, String name, String... more);
+    <T extends N> T getChild(Class<T> clazz, String name, String... more);
 
-    FOLDER getFolder(String name, String... more);
+    F getFolder(String name, String... more);
 
-    FOLDER createFolder(String name);
+    F createFolder(String name);
 }

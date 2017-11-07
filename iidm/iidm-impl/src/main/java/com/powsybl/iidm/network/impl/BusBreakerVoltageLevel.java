@@ -10,12 +10,11 @@ import com.google.common.base.Functions;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Iterables;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.math.graph.TraverseResult;
-import com.powsybl.math.graph.Traverser;
-import com.powsybl.math.graph.UndirectedGraphImpl;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.iidm.network.util.ShortIdDictionary;
+import com.powsybl.math.graph.TraverseResult;
+import com.powsybl.math.graph.UndirectedGraphImpl;
 
 import java.io.*;
 import java.util.*;
@@ -229,16 +228,13 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
                 if (!encountered[v]) {
                     final Set<ConfiguredBus> busSet = new LinkedHashSet<>(1);
                     busSet.add(graph.getVertexObject(v));
-                    graph.traverse(v, new Traverser<SwitchImpl>() {
-                        @Override
-                        public TraverseResult traverse(int v1, int e, int v2) {
-                            SwitchImpl aSwitch = graph.getEdgeObject(e);
-                            if (aSwitch.isOpen()) {
-                                return TraverseResult.TERMINATE;
-                            } else {
-                                busSet.add(graph.getVertexObject(v2));
-                                return TraverseResult.CONTINUE;
-                            }
+                    graph.traverse(v, (v1, e, v2) -> {
+                        SwitchImpl aSwitch = graph.getEdgeObject(e);
+                        if (aSwitch.isOpen()) {
+                            return TraverseResult.TERMINATE;
+                        } else {
+                            busSet.add(graph.getVertexObject(v2));
+                            return TraverseResult.CONTINUE;
                         }
                     }, encountered);
                     if (isBusValid(busSet)) {
@@ -315,10 +311,8 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
                            float nominalV, float lowVoltageLimit, float highVoltageLimit) {
         super(id, name, substation, nominalV, lowVoltageLimit, highVoltageLimit);
         states = new StateArray<>(substation.getNetwork().getRef(), StateImpl::new);
-        graph.addListener(() -> {
-            // invalidate topology and connected components
-            invalidateCache();
-        });
+        // invalidate topology and connected components
+        graph.addListener(this::invalidateCache);
     }
 
     @Override
