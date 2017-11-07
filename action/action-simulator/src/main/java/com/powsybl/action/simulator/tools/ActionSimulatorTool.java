@@ -172,11 +172,6 @@ public class ActionSimulatorTool implements Tool {
         boolean verbose = line.hasOption("verbose");
         Path csvFile = line.hasOption("output-csv") ? context.getFileSystem().getPath(line.getOptionValue("output-csv")) : null;
 
-        if (line.hasOption("output-case-folder")) {
-            this.outputCaseFolder = Paths.get(line.getOptionValue("output-case-folder"));
-            this.outputCaseFormat = line.getOptionValue("output-case-format");
-        }
-
         context.getOutputStream().println("Loading network '" + caseFile + "'");
 
         // load network
@@ -185,13 +180,13 @@ public class ActionSimulatorTool implements Tool {
             throw new PowsyblException("Case " + caseFile + " not found");
         }
 
+        this.outputCaseFolder = Paths.get(line.getOptionValue("output-case-folder"));
+        this.outputCaseFormat = line.getOptionValue("output-case-format");
         if (!Files.exists(outputCaseFolder)) {
             Files.createDirectories(outputCaseFolder);
         }
-        if (line.hasOption("output-case-folder")) {
-            if (!line.hasOption("output-case-format")) {
-                throw new ParseException("Missing required option: output-case-format");
-            }
+        if (!line.hasOption("output-case-format")) {
+            throw new ParseException("Missing required option: output-case-format");
         }
 
         try {
