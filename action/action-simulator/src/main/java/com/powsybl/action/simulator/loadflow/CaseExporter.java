@@ -20,6 +20,8 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.TimeZone;
 
+import org.apache.commons.lang3.StringUtils;
+
 /**
  * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
  */
@@ -40,8 +42,11 @@ public class CaseExporter extends DefaultLoadFlowActionSimulatorObserver {
 
     @Override
     public void loadFlowConverged(Network network, Contingency contingency, List<LimitViolation> violations) {
-        Objects.requireNonNull(contingency.getId());
-        exportNetwork(network, contingency.getId());
+        if(StringUtils.isNotEmpty(contingency.getId())) {
+            exportNetwork(network, contingency.getId());
+        } else {
+            exportNetwork(network, "Converged");
+        }
     }
 
     private void exportNetwork(Network network, String aString) {
