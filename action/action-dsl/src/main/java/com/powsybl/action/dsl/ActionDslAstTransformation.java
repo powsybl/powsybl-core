@@ -30,7 +30,7 @@ import java.util.List;
 @GroovyASTTransformation
 public class ActionDslAstTransformation implements ASTTransformation {
 
-    private static Logger LOGGER = LoggerFactory.getLogger(ActionDslAstTransformation.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ActionDslAstTransformation.class);
 
     private static final boolean DEBUG = false;
 
@@ -100,6 +100,8 @@ public class ActionDslAstTransformation implements ASTTransformation {
                         return new MethodCallExpression(transform(binExpr.getLeftExpression()),
                                 "or2",
                                 new ArgumentListExpression(transform(binExpr.getRightExpression())));
+                    default:
+                        break;
                 }
             } else if (exp instanceof NotExpression) {
                 return new MethodCallExpression(transform(((NotExpression) exp).getExpression()),

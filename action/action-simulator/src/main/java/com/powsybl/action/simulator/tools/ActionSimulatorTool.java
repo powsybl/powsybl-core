@@ -51,7 +51,7 @@ import java.util.stream.Collectors;
 @AutoService(Tool.class)
 public class ActionSimulatorTool implements Tool {
 
-    private static Logger LOGGER = LoggerFactory.getLogger(ActionSimulatorTool.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ActionSimulatorTool.class);
 
     @Override
     public Command getCommand() {

@@ -148,8 +148,8 @@ public class LocalAppFileSystemStorage implements AppFileSystemStorage {
         LocalFolder folder = scanFolder(path, false);
         if (folder != null) {
             childNodesIds.addAll(folder.getChildPaths().stream()
-                    .filter(childPath -> isLocalNode(childPath))
-                    .map(childPath -> new PathNodeId(childPath))
+                    .filter(this::isLocalNode)
+                    .map(PathNodeId::new)
                     .collect(Collectors.toList()));
         } else {
             throw new AssertionError();

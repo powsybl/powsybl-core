@@ -356,11 +356,9 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
                     encountered[v1] = true;
                     traverse(v1, traverser, encountered);
                 }
-            } else if (!encountered[v2]) {
-                if (traverser.traverse(v1, e, v2) == TraverseResult.CONTINUE) {
-                    encountered[v2] = true;
-                    traverse(v2, traverser, encountered);
-                }
+            } else if (!encountered[v2] && traverser.traverse(v1, e, v2) == TraverseResult.CONTINUE) {
+                encountered[v2] = true;
+                traverse(v2, traverser, encountered);
             }
         }
     }
@@ -385,8 +383,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     }
 
     private boolean findAllPaths(int e, int v1or2, Function<V, Boolean> pathComplete, Function<E, Boolean> pathCanceled,
-                                 TIntArrayList adjacentEdges, int i, TIntArrayList path, BitSet encountered,
-                                 List<TIntArrayList> paths) {
+                                 TIntArrayList path, BitSet encountered, List<TIntArrayList> paths) {
         if (encountered.get(v1or2)) {
             return false;
         }
@@ -426,11 +423,11 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
                 encountered2 = encountered;
             }
             if (v == v2) {
-                if (findAllPaths(e, v1, pathComplete, pathCanceled, adjacentEdges, i, path2, encountered2, paths)) {
+                if (findAllPaths(e, v1, pathComplete, pathCanceled, path2, encountered2, paths)) {
                     continue;
                 }
             } else if (v == v1) {
-                if (findAllPaths(e, v2, pathComplete, pathCanceled, adjacentEdges, i, path2, encountered2, paths)) {
+                if (findAllPaths(e, v2, pathComplete, pathCanceled, path2, encountered2, paths)) {
                     continue;
                 }
             } else {

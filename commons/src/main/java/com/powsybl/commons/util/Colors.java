@@ -11,7 +11,7 @@ import java.util.Random;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-final public class Colors {
+public final class Colors {
 
     private static final double GOLDEN_RATIO_CONJUGATE = 0.618033988749895;
 

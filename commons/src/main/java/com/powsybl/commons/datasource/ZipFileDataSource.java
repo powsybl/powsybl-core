@@ -111,6 +111,57 @@ public class ZipFileDataSource implements DataSource {
         return null;
     }
 
+    private static final class AddEntryToZipOutputStream extends ForwardingOutputStream<ZipOutputStream> {
+
+        private final Path zipFilePath;
+
+        private final String fileName;
+
+        private AddEntryToZipOutputStream(Path zipFilePath, String fileName) throws IOException {
+            super(new ZipOutputStream(Files.newOutputStream(getTmpZipFilePath(zipFilePath))));
+            this.zipFilePath = zipFilePath;
+            this.fileName = fileName;
+
+            // create new entry
+            os.putNextEntry(new ZipEntry(fileName));
+        }
+
+        private static Path getTmpZipFilePath(Path zipFilePath) {
+            return zipFilePath.getParent().resolve(zipFilePath.getFileName() + ".tmp");
+        }
+
+        @Override
+        public void close() throws IOException {
+            // close new entry
+            os.closeEntry();
+
+            // copy existing entries
+            if (Files.exists(zipFilePath)) {
+                try (ZipFile zipFile = new ZipFile(zipFilePath)) {
+                    Enumeration<? extends ZipEntry> e = zipFile.entries();
+                    while (e.hasMoreElements()) {
+                        ZipEntry zipEntry = e.nextElement();
+                        if (!zipEntry.getName().equals(fileName)) {
+                            os.putNextEntry(zipEntry);
+                            try (InputStream zis = zipFile.getInputStream(zipEntry.getName())) {
+                                ByteStreams.copy(zis, os);
+                            }
+                            os.closeEntry();
+                        }
+                    }
+                }
+            }
+
+            // close zip
+            super.close();
+
+            // swap with tmp zip
+            Path tmpZipFilePath = getTmpZipFilePath(zipFilePath);
+            Files.copy(tmpZipFilePath, zipFilePath, StandardCopyOption.REPLACE_EXISTING);
+            Files.delete(tmpZipFilePath);
+        }
+    }
+
     @Override
     public OutputStream newOutputStream(String fileName, boolean append) throws IOException {
         Objects.requireNonNull(fileName);
@@ -118,34 +169,7 @@ public class ZipFileDataSource implements DataSource {
             throw new UnsupportedOperationException("append not supported in zip file data source");
         }
         Path zipFilePath = getZipFilePath();
-        Path tmpZipFilePath = zipFilePath.getParent().resolve(zipFilePath.getFileName() + ".tmp");
-        ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(tmpZipFilePath));
-        zos.putNextEntry(new ZipEntry(fileName));
-        OutputStream fos = new ForwardingOutputStream<ZipOutputStream>(zos) {
-            @Override
-            public void close() throws IOException {
-                os.closeEntry();
-                // copy existing entries
-                if (Files.exists(zipFilePath)) {
-                    try (ZipFile zipFile = new ZipFile(zipFilePath)) {
-                        Enumeration<? extends ZipEntry> e = zipFile.entries();
-                        while (e.hasMoreElements()) {
-                            ZipEntry zipEntry = e.nextElement();
-                            if (!zipEntry.getName().equals(fileName)) {
-                                zos.putNextEntry(zipEntry);
-                                try (InputStream zis = zipFile.getInputStream(zipEntry.getName())) {
-                                    ByteStreams.copy(zis, zos);
-                                }
-                                zos.closeEntry();
-                            }
-                        }
-                    }
-                }
-                zos.close();
-                Files.copy(tmpZipFilePath, zipFilePath, StandardCopyOption.REPLACE_EXISTING);
-                Files.delete(tmpZipFilePath);
-            }
-        };
+        OutputStream fos = new AddEntryToZipOutputStream(zipFilePath, fileName);
         return observer != null ? new ObservableOutputStream(fos, zipFilePath + ":" + fileName, observer) : fos;
     }
 

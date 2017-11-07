@@ -15,7 +15,7 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public abstract class AbstractNodeBase<FOLDER> {
+public abstract class AbstractNodeBase<F> {
 
     protected final NodeInfo info;
 
@@ -26,7 +26,7 @@ public abstract class AbstractNodeBase<FOLDER> {
         this.storage = Objects.requireNonNull(storage);
     }
 
-    public abstract FOLDER getParent();
+    public abstract F getParent();
 
     public NodeId getId() {
         return info.getId();
