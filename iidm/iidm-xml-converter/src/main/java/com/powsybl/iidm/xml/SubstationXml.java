@@ -38,7 +38,7 @@ class SubstationXml extends AbstractIdentifiableXml<Substation, SubstationAdder,
         if (s.getTso() != null) {
             context.getWriter().writeAttribute("tso", context.getAnonymizer().anonymizeString(s.getTso()));
         }
-        if (s.getGeographicalTags().size() > 0) {
+        if (!s.getGeographicalTags().isEmpty()) {
             context.getWriter().writeAttribute("geographicalTags", s.getGeographicalTags().stream()
                     .map(tag -> context.getAnonymizer().anonymizeString(tag))
                     .collect(Collectors.joining(",")));

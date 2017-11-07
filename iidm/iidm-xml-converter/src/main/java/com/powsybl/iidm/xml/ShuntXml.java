@@ -42,10 +42,6 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
     }
 
     @Override
-    protected void writeSubElements(ShuntCompensator sc, VoltageLevel vl, XmlWriterContext context) throws XMLStreamException {
-    }
-
-    @Override
     protected ShuntCompensatorAdder createAdder(VoltageLevel vl) {
         return vl.newShunt();
     }

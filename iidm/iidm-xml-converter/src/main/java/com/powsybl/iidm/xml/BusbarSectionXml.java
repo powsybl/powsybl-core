@@ -41,10 +41,6 @@ class BusbarSectionXml extends AbstractIdentifiableXml<BusbarSection, BusbarSect
     }
 
     @Override
-    protected void writeSubElements(BusbarSection bs, VoltageLevel vl, XmlWriterContext context) throws XMLStreamException {
-    }
-
-    @Override
     protected BusbarSectionAdder createAdder(VoltageLevel vl) {
         return vl.getNodeBreakerView().newBusbarSection();
     }

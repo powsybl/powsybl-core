@@ -88,6 +88,11 @@ public class LocalAppFileSystemStorage implements AppFileSystemStorage {
     }
 
     @Override
+    public String getFileSystemName() {
+        return fileSystemName;
+    }
+
+    @Override
     public NodeId fromString(String str) {
         return new PathNodeId(rootDir.getFileSystem().getPath(str));
     }
@@ -358,9 +363,11 @@ public class LocalAppFileSystemStorage implements AppFileSystemStorage {
 
     @Override
     public void flush() {
+        // read only storage so nothing to flush
     }
 
     @Override
     public void close() {
+        // nothing to close
     }
 }

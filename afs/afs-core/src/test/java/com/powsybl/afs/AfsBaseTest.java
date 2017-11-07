@@ -72,7 +72,7 @@ public class AfsBaseTest {
         assertNotNull(dir2);
         assertNotNull(dir2.getParent());
         assertEquals("mem:/dir1", dir2.getParent().getPath().toString());
-        assertEquals(dir1.getChildren().size(), 2);
+        assertEquals(2, dir1.getChildren().size());
         Folder dir3 = root.getFolder("dir3");
         assertNull(dir3);
         String str = dir2.getPath().toString();

@@ -41,10 +41,6 @@ abstract class AbstractSwitchXml<A extends IdentifiableAdder<A>> extends Abstrac
     }
 
     @Override
-    protected void writeSubElements(Switch s, VoltageLevel vl, XmlWriterContext context) throws XMLStreamException {
-    }
-
-    @Override
     protected void readSubElements(Switch s, XmlReaderContext context) throws XMLStreamException {
         readUntilEndRootElement(context.getReader(), () -> AbstractSwitchXml.super.readSubElements(s, context));
     }

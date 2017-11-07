@@ -10,7 +10,7 @@ import com.powsybl.afs.AppFileSystem;
 import com.powsybl.afs.FileIcon;
 import com.powsybl.afs.ProjectFile;
 import com.powsybl.afs.storage.AppFileSystemStorage;
-import com.powsybl.afs.storage.NodeId;
+import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.xml.NetworkXml;
 import groovy.lang.Binding;
@@ -35,28 +35,28 @@ public class VirtualCase extends ProjectFile implements ProjectCase {
     static final String CASE_DEPENDENCY_NAME = "case";
     static final String SCRIPT_DEPENDENCY_NAME = "script";
 
-    public VirtualCase(NodeId id, AppFileSystemStorage storage, NodeId projectId, AppFileSystem fileSystem) {
-        super(id, storage, projectId, fileSystem, VIRTUAL_CASE_ICON);
+    public VirtualCase(NodeInfo info, AppFileSystemStorage storage, NodeInfo projectInfo, AppFileSystem fileSystem) {
+        super(info, storage, projectInfo, fileSystem, VIRTUAL_CASE_ICON);
     }
 
     public ProjectCase getCase() {
-        return (ProjectCase) findProjectFile(storage.getDependency(id, CASE_DEPENDENCY_NAME));
+        return (ProjectCase) findProjectFile(storage.getDependencyInfo(info.getId(), CASE_DEPENDENCY_NAME));
     }
 
     public ModificationScript getScript() {
-        return (ModificationScript) findProjectFile(storage.getDependency(id, SCRIPT_DEPENDENCY_NAME));
+        return (ModificationScript) findProjectFile(storage.getDependencyInfo(info.getId(), SCRIPT_DEPENDENCY_NAME));
     }
 
     public Writer getScriptOutputWriter() {
-        return storage.writeStringAttribute(id, SCRIPT_OUTPUT);
+        return storage.writeStringAttribute(info.getId(), SCRIPT_OUTPUT);
     }
 
     public Reader getScriptOutputReader() {
-        return storage.readStringAttribute(id, SCRIPT_OUTPUT);
+        return storage.readStringAttribute(info.getId(), SCRIPT_OUTPUT);
     }
 
     public Network loadFromCache() {
-        try (InputStream is = storage.readFromCache(id, NETWORK_CACHE_KEY)) {
+        try (InputStream is = storage.readFromCache(info.getId(), NETWORK_CACHE_KEY)) {
             if (is != null) {
                 return NetworkXml.read(is);
             }
@@ -67,7 +67,7 @@ public class VirtualCase extends ProjectFile implements ProjectCase {
     }
 
     public void saveToCache(Network network) {
-        try (OutputStream os = storage.writeToCache(id, NETWORK_CACHE_KEY)) {
+        try (OutputStream os = storage.writeToCache(info.getId(), NETWORK_CACHE_KEY)) {
             NetworkXml.write(network, os);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -123,8 +123,8 @@ public class VirtualCase extends ProjectFile implements ProjectCase {
 
     @Override
     public void onDependencyChanged() {
-        storage.setStringAttribute(id, SCRIPT_OUTPUT, null);
-        storage.invalidateCache(id, NETWORK_CACHE_KEY);
+        storage.setStringAttribute(info.getId(), SCRIPT_OUTPUT, null);
+        storage.invalidateCache(info.getId(), NETWORK_CACHE_KEY);
         storage.flush();
     }
 }

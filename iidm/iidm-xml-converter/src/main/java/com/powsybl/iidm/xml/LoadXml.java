@@ -43,10 +43,6 @@ class LoadXml extends AbstractConnectableXml<Load, LoadAdder, VoltageLevel> {
     }
 
     @Override
-    protected void writeSubElements(Load l, VoltageLevel vl, XmlWriterContext context) throws XMLStreamException {
-    }
-
-    @Override
     protected LoadAdder createAdder(VoltageLevel vl) {
         return vl.newLoad();
     }
