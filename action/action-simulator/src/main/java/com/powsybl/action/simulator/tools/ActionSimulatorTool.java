@@ -11,6 +11,7 @@ import com.powsybl.action.dsl.DefaultActionDslLoaderObserver;
 import com.powsybl.action.dsl.ActionDb;
 import com.powsybl.action.dsl.ActionDslLoader;
 import com.powsybl.action.simulator.ActionSimulator;
+import com.powsybl.action.simulator.loadflow.CaseExporter;
 import com.powsybl.action.simulator.loadflow.LoadFlowActionSimulator;
 import com.powsybl.action.simulator.loadflow.LoadFlowActionSimulatorConfig;
 import com.powsybl.action.simulator.loadflow.LoadFlowActionSimulatorLogPrinter;
@@ -21,6 +22,7 @@ import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
 import com.powsybl.tools.ToolRunningContext;
 import com.powsybl.contingency.Contingency;
+import com.powsybl.iidm.export.Exporters;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.LimitViolationFilter;
@@ -29,6 +31,7 @@ import com.powsybl.security.SecurityAnalysisResult;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import org.codehaus.groovy.runtime.StackTraceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +43,7 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -52,6 +56,9 @@ import java.util.stream.Collectors;
 public class ActionSimulatorTool implements Tool {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ActionSimulatorTool.class);
+
+    private Path outputCaseFolder;
+    private String outputCaseFormat;
 
     @Override
     public Command getCommand() {
@@ -100,6 +107,17 @@ public class ActionSimulatorTool implements Tool {
                         .hasArg()
                         .argName("FILE")
                         .build());
+                options.addOption(Option.builder().longOpt("output-case-folder")
+                        .desc("output case folder path")
+                        .required()
+                        .hasArg()
+                        .argName("CASEFOLDER")
+                        .build());
+                options.addOption(Option.builder().longOpt("output-case-format")
+                        .desc("case output format " + Exporters.getFormats())
+                        .hasArg()
+                        .argName("CASEFORMAT")
+                        .build());
                 return options;
             }
 
@@ -116,6 +134,9 @@ public class ActionSimulatorTool implements Tool {
 
         // log print
         LoadFlowActionSimulatorLogPrinter logPrinter = new LoadFlowActionSimulatorLogPrinter(context.getOutputStream(), context.getErrorStream(), verbose);
+
+        // case exporter
+        CaseExporter caseExporter = new CaseExporter(this.outputCaseFolder, this.outputCaseFormat);
 
         // security analysis print
         AbstractSecurityAnalysisResultBuilder securityAnalysisPrinter = new AbstractSecurityAnalysisResultBuilder() {
@@ -139,7 +160,7 @@ public class ActionSimulatorTool implements Tool {
             }
         };
 
-        return new LoadFlowActionSimulator(network, context.getComputationManager(), config, logPrinter, securityAnalysisPrinter);
+        return new LoadFlowActionSimulator(network, context.getComputationManager(), config, logPrinter, securityAnalysisPrinter, caseExporter);
     }
 
     @Override
@@ -151,12 +172,26 @@ public class ActionSimulatorTool implements Tool {
         boolean verbose = line.hasOption("verbose");
         Path csvFile = line.hasOption("output-csv") ? context.getFileSystem().getPath(line.getOptionValue("output-csv")) : null;
 
+        if (line.hasOption("output-case-folder")) {
+            this.outputCaseFolder = Paths.get(line.getOptionValue("output-case-folder"));
+            this.outputCaseFormat = line.getOptionValue("output-case-format");
+        }
+
         context.getOutputStream().println("Loading network '" + caseFile + "'");
 
         // load network
         Network network = Importers.loadNetwork(caseFile);
         if (network == null) {
             throw new PowsyblException("Case " + caseFile + " not found");
+        }
+
+        if (!Files.exists(outputCaseFolder)) {
+            Files.createDirectories(outputCaseFolder);
+        }
+        if (line.hasOption("output-case-folder")) {
+            if (!line.hasOption("output-case-format")) {
+                throw new ParseException("Missing required option: output-case-format");
+            }
         }
 
         try {
