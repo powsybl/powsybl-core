@@ -15,7 +15,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public class UcteLineTest extends UcteElementTest {
+public class UcteLineTest extends AbstractUcteElementTest {
 
     private UcteElementId createElementId() {
         UcteNodeCode node1 = new UcteNodeCode(UcteCountryCode.FR, "AAAAA", UcteVoltageLevelCode._380, 'A');
