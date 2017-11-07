@@ -79,7 +79,7 @@ public class ValidationTool implements Tool {
                     .argName("VALIDATION_WRITER")
                     .build());
             options.addOption(Option.builder().longOpt("types")
-                    .desc("validation types (FLOWS/GENERATORS/...) to run, all of them if the option if not specified")
+                    .desc("validation types (FLOWS/GENERATORS/BUSES) to run, all of them if the option if not specified")
                     .hasArg()
                     .argName("VALIDATION_TYPE,VALIDATION_TYPE,...")
                     .build());

@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.loadflow.validation;
+package com.powsybl.loadflow.validation.io;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -13,6 +13,7 @@ import java.util.Objects;
 import com.powsybl.commons.io.table.Column;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.commons.io.table.TableFormatterFactory;
+import com.powsybl.loadflow.validation.ValidationType;
 
 /**
  *
@@ -77,7 +78,7 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
                      .writeCell(branchId).writeCell("z").writeCell(z)
                      .writeCell(branchId).writeCell("y").writeCell(y)
                      .writeCell(branchId).writeCell("ksi").writeCell(ksi)
-                     .writeCell(branchId).writeCell("validation").writeCell(validated ? "success" : "fail");
+                     .writeCell(branchId).writeCell(VALIDATION).writeCell(validated ? SUCCESS : FAIL);
         }
     }
 
@@ -96,7 +97,35 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
                      .writeCell(generatorId).writeCell("voltageRegulatorOn").writeCell(voltageRegulatorOn)
                      .writeCell(generatorId).writeCell("minQ").writeCell(minQ)
                      .writeCell(generatorId).writeCell("maxQ").writeCell(maxQ)
-                     .writeCell(generatorId).writeCell("validation").writeCell(validated ? "success" : "fail");
+                     .writeCell(generatorId).writeCell(VALIDATION).writeCell(validated ? SUCCESS : FAIL);
+        }
+    }
+
+    @Override
+    public void write(String busId, double incomingP, double incomingQ, double loadP, double loadQ, double genP, double genQ,
+                      double shuntP, double shuntQ, double svcP, double svcQ, double vscCSP, double vscCSQ, double lineP, double lineQ,
+                      double twtP, double twtQ, double tltP, double tltQ, boolean validated) throws IOException {
+        Objects.requireNonNull(busId);
+        formatter.writeCell(busId).writeCell("incomingP").writeCell(incomingP)
+                 .writeCell(busId).writeCell("incomingQ").writeCell(incomingQ)
+                 .writeCell(busId).writeCell("loadP").writeCell(loadP)
+                 .writeCell(busId).writeCell("loadQ").writeCell(loadQ);
+        if (verbose) {
+            formatter.writeCell(busId).writeCell("genP").writeCell(genP)
+                     .writeCell(busId).writeCell("genQ").writeCell(genQ)
+                     .writeCell(busId).writeCell("shuntP").writeCell(shuntP)
+                     .writeCell(busId).writeCell("shuntQ").writeCell(shuntQ)
+                     .writeCell(busId).writeCell("svcP").writeCell(svcP)
+                     .writeCell(busId).writeCell("svcQ").writeCell(svcQ)
+                     .writeCell(busId).writeCell("vscCSP").writeCell(vscCSP)
+                     .writeCell(busId).writeCell("vscCSQ").writeCell(vscCSQ)
+                     .writeCell(busId).writeCell("lineP").writeCell(lineP)
+                     .writeCell(busId).writeCell("lineQ").writeCell(lineQ)
+                     .writeCell(busId).writeCell("twtP").writeCell(twtP)
+                     .writeCell(busId).writeCell("twtQ").writeCell(twtQ)
+                     .writeCell(busId).writeCell("tltP").writeCell(tltP)
+                     .writeCell(busId).writeCell("tltQ").writeCell(tltQ)
+                     .writeCell(busId).writeCell(VALIDATION).writeCell(validated ? SUCCESS : FAIL);
         }
     }
 

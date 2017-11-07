@@ -33,6 +33,14 @@ public class ValidationConfigTest {
     InMemoryPlatformConfig platformConfig;
     FileSystem fileSystem;
     Class<? extends LoadFlowFactory> loadFlowFactory = LoadFlowFactoryMock.class;
+    float threshold = 0.1f;
+    boolean verbose = true;
+    Class<? extends TableFormatterFactory> tableFormatterFactory = AsciiTableFormatterFactory.class;
+    float epsilonX = 0.1f;
+    boolean applyReactanceCorrection = true;
+    ValidationOutputWriter validationOutputWriter = ValidationOutputWriter.CSV;
+    boolean okMissingValues = true;
+    boolean noRequirementIfReactiveBoundInversion = true;
 
     @Before
     public void setUp() {
@@ -52,15 +60,11 @@ public class ValidationConfigTest {
         ValidationConfig config = ValidationConfig.load(platformConfig);
         checkValues(config, ValidationConfig.THRESHOLD_DEFAULT, ValidationConfig.VERBOSE_DEFAULT, loadFlowFactory, ValidationConfig.TABLE_FORMATTER_FACTORY_DEFAULT,
                     ValidationConfig.EPSILON_X_DEFAULT, ValidationConfig.APPLY_REACTANCE_CORRECTION_DEFAULT, ValidationConfig.VALIDATION_OUTPUT_WRITER_DEFAULT,
-                    ValidationConfig.OK_MISSING_VALUES_DEFAULT);
+                    ValidationConfig.OK_MISSING_VALUES_DEFAULT, ValidationConfig.NO_REQUIREMENT_IF_REACTIVE_BOUND_INVERSION_DEFAULT);
     }
 
     @Test
     public void checkIncompleteConfig() throws Exception {
-        float threshold = 0.1f;
-        boolean verbose = true;
-        float epsilonX = 0.1f;
-        boolean applyReactanceCorrection = true;
         MapModuleConfig moduleConfig = platformConfig.createModuleConfig("loadflow-validation");
         moduleConfig.setStringProperty("threshold", Float.toString(threshold));
         moduleConfig.setStringProperty("verbose", Boolean.toString(verbose));
@@ -68,18 +72,12 @@ public class ValidationConfigTest {
         moduleConfig.setStringProperty("apply-reactance-correction", Boolean.toString(applyReactanceCorrection));
         ValidationConfig config = ValidationConfig.load(platformConfig);
         checkValues(config, threshold, verbose, loadFlowFactory, ValidationConfig.TABLE_FORMATTER_FACTORY_DEFAULT, epsilonX, applyReactanceCorrection,
-                    ValidationConfig.VALIDATION_OUTPUT_WRITER_DEFAULT, ValidationConfig.OK_MISSING_VALUES_DEFAULT);
+                    ValidationConfig.VALIDATION_OUTPUT_WRITER_DEFAULT, ValidationConfig.OK_MISSING_VALUES_DEFAULT,
+                    ValidationConfig.NO_REQUIREMENT_IF_REACTIVE_BOUND_INVERSION_DEFAULT);
     }
 
     @Test
     public void checkCompleteConfig() throws Exception {
-        float threshold = 0.1f;
-        boolean verbose = true;
-        Class<? extends TableFormatterFactory> tableFormatterFactory = AsciiTableFormatterFactory.class;
-        float epsilonX = 0.1f;
-        boolean applyReactanceCorrection = true;
-        ValidationOutputWriter validationOutputWriter = ValidationOutputWriter.CSV;
-        boolean okMissingValues = true;
         MapModuleConfig moduleConfig = platformConfig.createModuleConfig("loadflow-validation");
         moduleConfig.setStringProperty("threshold", Float.toString(threshold));
         moduleConfig.setStringProperty("verbose", Boolean.toString(verbose));
@@ -89,19 +87,14 @@ public class ValidationConfigTest {
         moduleConfig.setStringProperty("apply-reactance-correction", Boolean.toString(applyReactanceCorrection));
         moduleConfig.setStringProperty("output-writer", validationOutputWriter.name());
         moduleConfig.setStringProperty("ok-missing-values", Boolean.toString(okMissingValues));
+        moduleConfig.setStringProperty("no-requirement-if-reactive-bound-inversion", Boolean.toString(noRequirementIfReactiveBoundInversion));
         ValidationConfig config = ValidationConfig.load(platformConfig);
-        checkValues(config, threshold, verbose, loadFlowFactory, tableFormatterFactory, epsilonX, applyReactanceCorrection, validationOutputWriter, okMissingValues);
+        checkValues(config, threshold, verbose, loadFlowFactory, tableFormatterFactory, epsilonX, applyReactanceCorrection, validationOutputWriter, okMissingValues,
+                    noRequirementIfReactiveBoundInversion);
     }
 
     @Test
     public void checkSetters() throws Exception {
-        float threshold = 0.1f;
-        boolean verbose = true;
-        Class<? extends TableFormatterFactory> tableFormatterFactory = AsciiTableFormatterFactory.class;
-        float epsilonX = 0.1f;
-        boolean applyReactanceCorrection = true;
-        ValidationOutputWriter validationOutputWriter = ValidationOutputWriter.CSV;
-        boolean okMissingValues = true;
         ValidationConfig config = ValidationConfig.load(platformConfig);
         config.setThreshold(threshold);
         config.setVerbose(verbose);
@@ -111,12 +104,14 @@ public class ValidationConfigTest {
         config.setApplyReactanceCorrection(applyReactanceCorrection);
         config.setValidationOutputWriter(validationOutputWriter);
         config.setOkMissingValues(okMissingValues);
-        checkValues(config, threshold, verbose, loadFlowFactory, tableFormatterFactory, epsilonX, applyReactanceCorrection, validationOutputWriter, okMissingValues);
+        config.setNoRequirementIfReactiveBoundInversion(noRequirementIfReactiveBoundInversion);
+        checkValues(config, threshold, verbose, loadFlowFactory, tableFormatterFactory, epsilonX, applyReactanceCorrection, validationOutputWriter, okMissingValues,
+                    noRequirementIfReactiveBoundInversion);
     }
 
     private void checkValues(ValidationConfig config, float threshold, boolean verbose, Class<? extends LoadFlowFactory> loadFlowFactory,
                              Class<? extends TableFormatterFactory> tableFormatterFactory, float epsilonX, boolean applyReactanceCorrection,
-                             ValidationOutputWriter validationOutputWriter, boolean okMissingValues) {
+                             ValidationOutputWriter validationOutputWriter, boolean okMissingValues, boolean noRequirementIfReactiveBoundInversion) {
         assertEquals(threshold, config.getThreshold(), 0f);
         assertEquals(verbose, config.isVerbose());
         assertEquals(loadFlowFactory, config.getLoadFlowFactory());
@@ -125,6 +120,7 @@ public class ValidationConfigTest {
         assertEquals(applyReactanceCorrection, config.applyReactanceCorrection());
         assertEquals(validationOutputWriter, config.getValidationOutputWriter());
         assertEquals(okMissingValues, config.areOkMissingValues());
+        assertEquals(noRequirementIfReactiveBoundInversion, config.isNoRequirementIfReactiveBoundInversion());
     }
 
     @Test
@@ -132,35 +128,35 @@ public class ValidationConfigTest {
         try {
             new ValidationConfig(-1, false, loadFlowFactory, ValidationConfig.TABLE_FORMATTER_FACTORY_DEFAULT, 1,
                                  ValidationConfig.APPLY_REACTANCE_CORRECTION_DEFAULT, ValidationOutputWriter.CSV_MULTILINE, new LoadFlowParameters(),
-                                 ValidationConfig.OK_MISSING_VALUES_DEFAULT);
+                                 ValidationConfig.OK_MISSING_VALUES_DEFAULT, ValidationConfig.NO_REQUIREMENT_IF_REACTIVE_BOUND_INVERSION_DEFAULT);
             fail();
         } catch (Exception ignored) {
         }
         try {
             new ValidationConfig(1, false, null, ValidationConfig.TABLE_FORMATTER_FACTORY_DEFAULT, 1,
                                  ValidationConfig.APPLY_REACTANCE_CORRECTION_DEFAULT, ValidationOutputWriter.CSV_MULTILINE, new LoadFlowParameters(),
-                                 ValidationConfig.OK_MISSING_VALUES_DEFAULT);
+                                 ValidationConfig.OK_MISSING_VALUES_DEFAULT, ValidationConfig.NO_REQUIREMENT_IF_REACTIVE_BOUND_INVERSION_DEFAULT);
             fail();
         } catch (Exception ignored) {
         }
         try {
             new ValidationConfig(1, false, loadFlowFactory, null, ValidationConfig.EPSILON_X_DEFAULT,
                                 ValidationConfig.APPLY_REACTANCE_CORRECTION_DEFAULT, ValidationOutputWriter.CSV_MULTILINE, new LoadFlowParameters(),
-                                ValidationConfig.OK_MISSING_VALUES_DEFAULT);
+                                ValidationConfig.OK_MISSING_VALUES_DEFAULT, ValidationConfig.NO_REQUIREMENT_IF_REACTIVE_BOUND_INVERSION_DEFAULT);
             fail();
         } catch (Exception ignored) {
         }
         try {
             new ValidationConfig(1, false, loadFlowFactory, ValidationConfig.TABLE_FORMATTER_FACTORY_DEFAULT, -1,
                                  ValidationConfig.APPLY_REACTANCE_CORRECTION_DEFAULT, ValidationOutputWriter.CSV_MULTILINE, new LoadFlowParameters(),
-                                 ValidationConfig.OK_MISSING_VALUES_DEFAULT);
+                                 ValidationConfig.OK_MISSING_VALUES_DEFAULT, ValidationConfig.NO_REQUIREMENT_IF_REACTIVE_BOUND_INVERSION_DEFAULT);
             fail();
         } catch (Exception ignored) {
         }
         try {
             new ValidationConfig(1, false, loadFlowFactory, ValidationConfig.TABLE_FORMATTER_FACTORY_DEFAULT, 1,
                                  ValidationConfig.APPLY_REACTANCE_CORRECTION_DEFAULT, null, new LoadFlowParameters(),
-                                 ValidationConfig.OK_MISSING_VALUES_DEFAULT);
+                                 ValidationConfig.OK_MISSING_VALUES_DEFAULT, ValidationConfig.NO_REQUIREMENT_IF_REACTIVE_BOUND_INVERSION_DEFAULT);
             fail();
         } catch (Exception ignored) {
         }
