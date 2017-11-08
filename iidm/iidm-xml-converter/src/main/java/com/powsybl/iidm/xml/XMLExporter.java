@@ -38,12 +38,6 @@ import java.util.Properties;
  *         <td>true or false</td>
  *     </tr>
  *     <tr>
- *         <td>@deprecated</td>
- *         <td>iidm.export.xml.force-bus-branch-topo</td>
- *         <td>if true remove switches and aggregate buses</td>
- *         <td>true or false</td>
- *     </tr>
- *     <tr>
  *         <td>iidm.export.xml.only-main-cc</td>
  *         <td>if true only export equipments of the main connected component</td>
  *         <td>true or false</td>
