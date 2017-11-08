@@ -76,6 +76,11 @@ public interface Bus extends Identifiable<Bus> {
     boolean isInMainSynchronousComponent();
 
     /**
+     * Get the number of terminals connected to this bus.
+     */
+    int getConnectedTerminalCount();
+
+    /**
      * Get the AC lines connected to the bus.
      */
     Iterable<Line> getLines();
