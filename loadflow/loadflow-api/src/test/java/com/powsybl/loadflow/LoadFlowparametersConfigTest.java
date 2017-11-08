@@ -129,7 +129,7 @@ public class LoadFlowparametersConfigTest {
         LoadFlowParameters.VoltageInitMode voltageInitMode = LoadFlowParameters.VoltageInitMode.UNIFORM_VALUES;
         LoadFlowParameters parameters = new LoadFlowParameters(voltageInitMode, transformerVoltageControlOn,
                 noGeneratorReactiveLimits, phaseShifterRegulationOn, specificCompatibility);
-        LoadFlowParameters parametersCloned = parameters.clone();
+        LoadFlowParameters parametersCloned = parameters.copy();
         checkValues(parametersCloned, parameters.getVoltageInitMode(), parameters.isTransformerVoltageControlOn(),
                 parameters.isNoGeneratorReactiveLimits(), parameters.isPhaseShifterRegulationOn(), parameters.isSpecificCompatibility());
     }
