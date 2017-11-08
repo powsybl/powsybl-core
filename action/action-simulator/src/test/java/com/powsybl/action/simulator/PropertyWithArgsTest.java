@@ -7,6 +7,7 @@
 package com.powsybl.action.simulator;
 
 import com.powsybl.iidm.network.Network;
+import org.junit.Test;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -25,7 +26,7 @@ public class PropertyWithArgsTest extends AbstractLoadFlowRulesEngineTest {
         return "/property-with-args.groovy";
     }
 
-   // @Test
+    @Test
     public void test() {
         engine.start(actionDb);
     }
