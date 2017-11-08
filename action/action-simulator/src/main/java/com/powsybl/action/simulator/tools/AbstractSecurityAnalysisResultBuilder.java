@@ -42,7 +42,7 @@ public abstract class AbstractSecurityAnalysisResultBuilder extends DefaultLoadF
     }
 
     @Override
-    public void loadFlowDiverged(Contingency contingency) {
+    public void loadFlowDiverged(Network network, Contingency contingency, int round) {
         if (precontingency) {
             preContingencyResult = new LimitViolationsResult(false, Collections.emptyList(), preContingencyActions);
         } else {
@@ -52,7 +52,7 @@ public abstract class AbstractSecurityAnalysisResultBuilder extends DefaultLoadF
     }
 
     @Override
-    public void loadFlowConverged(Contingency contingency, List<LimitViolation> violations) {
+    public void loadFlowConverged(Network network, Contingency contingency, int round, List<LimitViolation> violations) {
         if (precontingency) {
             preContingencyResult = new LimitViolationsResult(true, violations, preContingencyActions);
         } else {

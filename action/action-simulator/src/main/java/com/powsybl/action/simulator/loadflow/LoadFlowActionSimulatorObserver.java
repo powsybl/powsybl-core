@@ -31,9 +31,9 @@ public interface LoadFlowActionSimulatorObserver {
 
     void roundEnd(Contingency contingency, int round);
 
-    void loadFlowDiverged(Contingency contingency);
+    void loadFlowDiverged(Network network, Contingency contingency, int round);
 
-    void loadFlowConverged(Contingency contingency, List<LimitViolation> violations);
+    void loadFlowConverged(Network network, Contingency contingency, int round, List<LimitViolation> violations);
 
     void ruleChecked(Contingency contingency, Rule rule, RuleEvaluationStatus status, Map<String, Object> variables, Map<String, Boolean> actions);
 
