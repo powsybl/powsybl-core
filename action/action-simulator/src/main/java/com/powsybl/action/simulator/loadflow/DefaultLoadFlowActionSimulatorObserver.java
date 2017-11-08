@@ -50,10 +50,12 @@ public class DefaultLoadFlowActionSimulatorObserver implements LoadFlowActionSim
 
     @Override
     public void loadFlowDiverged(Network network, Contingency contingency, int round) {
+        // empty default implementation
     }
 
     @Override
     public void loadFlowConverged(Network network, Contingency contingency, int round, List<LimitViolation> violations) {
+        // empty default implementation
     }
 
     @Override

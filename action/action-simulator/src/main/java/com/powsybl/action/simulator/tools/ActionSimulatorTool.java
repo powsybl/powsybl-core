@@ -43,7 +43,6 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -59,6 +58,14 @@ public class ActionSimulatorTool implements Tool {
 
     private Path outputCaseFolder;
     private String outputCaseFormat;
+
+    private static final String CASE_FILE = "case-file";
+    private static final String DSL_FILE = "dsl-file";
+    private static final String CONTINGENCIES = "contingencies";
+    private static final String VERBOSE = "verbose";
+    private static final String OUTPUT_CVS = "output-csv";
+    private static final String OUTPUT_CASE_FOLDER = "output-case-folder";
+    private static final String OUTPUT_CASE_FORMAT = "output-case-format";
 
     @Override
     public Command getCommand() {
@@ -81,40 +88,40 @@ public class ActionSimulatorTool implements Tool {
             @Override
             public Options getOptions() {
                 Options options = new Options();
-                options.addOption(Option.builder().longOpt("case-file")
+                options.addOption(Option.builder().longOpt(ActionSimulatorTool.CASE_FILE)
                         .desc("the case path")
                         .hasArg()
                         .argName("FILE")
                         .required()
                         .build());
-                options.addOption(Option.builder().longOpt("dsl-file")
+                options.addOption(Option.builder().longOpt(ActionSimulatorTool.DSL_FILE)
                         .desc("the Groovy DSL path")
                         .hasArg()
                         .argName("FILE")
                         .required()
                         .build());
-                options.addOption(Option.builder().longOpt("contingencies")
+                options.addOption(Option.builder().longOpt(ActionSimulatorTool.CONTINGENCIES)
                         .desc("contingencies to test")
                         .hasArg()
                         .argName("CONTINGENCY1,CONTINGENCY2,...")
                         .build());
-                options.addOption(Option.builder().longOpt("verbose")
+                options.addOption(Option.builder().longOpt(ActionSimulatorTool.VERBOSE)
                         .desc("verbose mode")
                         .required(false)
                         .build());
-                options.addOption(Option.builder().longOpt("output-csv")
+                options.addOption(Option.builder().longOpt(ActionSimulatorTool.OUTPUT_CVS)
                         .desc("the CSV output path")
                         .hasArg()
                         .argName("FILE")
                         .build());
-                options.addOption(Option.builder().longOpt("output-case-folder")
+                options.addOption(Option.builder().longOpt(ActionSimulatorTool.OUTPUT_CASE_FOLDER)
                         .desc("output case folder path")
                         .required()
                         .hasArg()
                         .argName("CASEFOLDER")
                         .build());
-                options.addOption(Option.builder().longOpt("output-case-format")
-                        .desc("case output format " + Exporters.getFormats())
+                options.addOption(Option.builder().longOpt(ActionSimulatorTool.OUTPUT_CASE_FORMAT)
+                        .desc("output case format " + Exporters.getFormats())
                         .hasArg()
                         .argName("CASEFORMAT")
                         .build());
@@ -165,12 +172,12 @@ public class ActionSimulatorTool implements Tool {
 
     @Override
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
-        Path caseFile = context.getFileSystem().getPath(line.getOptionValue("case-file"));
-        Path dslFile = context.getFileSystem().getPath(line.getOptionValue("dsl-file"));
-        List<String> contingencies = line.hasOption("contingencies") ? Arrays.stream(line.getOptionValue("contingencies").split(",")).collect(Collectors.toList())
+        Path caseFile = context.getFileSystem().getPath(line.getOptionValue(ActionSimulatorTool.CASE_FILE));
+        Path dslFile = context.getFileSystem().getPath(line.getOptionValue(ActionSimulatorTool.DSL_FILE));
+        List<String> contingencies = line.hasOption(ActionSimulatorTool.CONTINGENCIES) ? Arrays.stream(line.getOptionValue(ActionSimulatorTool.CONTINGENCIES).split(",")).collect(Collectors.toList())
                                                                      : Collections.emptyList();
-        boolean verbose = line.hasOption("verbose");
-        Path csvFile = line.hasOption("output-csv") ? context.getFileSystem().getPath(line.getOptionValue("output-csv")) : null;
+        boolean verbose = line.hasOption(ActionSimulatorTool.VERBOSE);
+        Path csvFile = line.hasOption(ActionSimulatorTool.OUTPUT_CVS) ? context.getFileSystem().getPath(line.getOptionValue(ActionSimulatorTool.OUTPUT_CVS)) : null;
 
         context.getOutputStream().println("Loading network '" + caseFile + "'");
 
@@ -180,12 +187,12 @@ public class ActionSimulatorTool implements Tool {
             throw new PowsyblException("Case " + caseFile + " not found");
         }
 
-        this.outputCaseFolder = Paths.get(line.getOptionValue("output-case-folder"));
-        this.outputCaseFormat = line.getOptionValue("output-case-format");
+        this.outputCaseFolder = context.getFileSystem().getPath(line.getOptionValue(ActionSimulatorTool.OUTPUT_CASE_FOLDER));
+        this.outputCaseFormat = line.getOptionValue(ActionSimulatorTool.OUTPUT_CASE_FORMAT);
         if (!this.outputCaseFolder.toFile().exists()) {
             Files.createDirectories(outputCaseFolder);
         }
-        if (!line.hasOption("output-case-format")) {
+        if (!line.hasOption(ActionSimulatorTool.OUTPUT_CASE_FORMAT)) {
             throw new ParseException("Missing required option: output-case-format");
         }
 
