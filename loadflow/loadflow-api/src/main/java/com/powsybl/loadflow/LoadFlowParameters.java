@@ -16,7 +16,7 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class LoadFlowParameters implements Cloneable {
+public class LoadFlowParameters {
 
     public static final VoltageInitMode DEFAULT_VOLTAGE_INIT_MODE = VoltageInitMode.UNIFORM_VALUES;
     public static final boolean DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON = false;
@@ -151,8 +151,7 @@ public class LoadFlowParameters implements Cloneable {
                 "specificCompatibility", specificCompatibility);
     }
 
-    @Override
-    public LoadFlowParameters clone() {
+    public LoadFlowParameters copy() {
         return new LoadFlowParameters(this);
     }
 
