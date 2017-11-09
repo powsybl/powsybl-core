@@ -24,7 +24,7 @@ import java.util.List;
  */
 public final class SecurityIndexParser {
 
-    private final static Supplier<XMLInputFactory> XML_INPUT_FACTORY_SUPPLIER = Suppliers.memoize(XMLInputFactory::newInstance);
+    private static final Supplier<XMLInputFactory> XML_INPUT_FACTORY_SUPPLIER = Suppliers.memoize(XMLInputFactory::newInstance);
 
     private SecurityIndexParser() {
     }

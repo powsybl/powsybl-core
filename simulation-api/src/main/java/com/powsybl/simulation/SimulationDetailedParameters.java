@@ -31,7 +31,7 @@ import java.util.Objects;
  */
 public class SimulationDetailedParameters {
 
-    private final static Supplier<XMLInputFactory> XML_INPUT_FACTORY_SUPPLIER = Suppliers.memoize(XMLInputFactory::newInstance);
+    private static final Supplier<XMLInputFactory> XML_INPUT_FACTORY_SUPPLIER = Suppliers.memoize(XMLInputFactory::newInstance);
 
     public static class Contingency {
 
