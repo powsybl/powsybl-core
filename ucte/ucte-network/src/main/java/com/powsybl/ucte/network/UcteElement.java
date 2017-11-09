@@ -160,6 +160,10 @@ public class UcteElement implements UcteRecord {
                     LOGGER.warn("Small reactance {} of element '{}' fixed to {}", oldReactance, id, reactance);
                 }
                 break;
+            case BUSBAR_COUPLER_IN_OPERATION:
+            case BUSBAR_COUPLER_OUT_OF_OPERATION:
+                // nothing to do
+                break;
             default:
                 throw new AssertionError("Unexpected UcteElementStatus value: " + status);
         }

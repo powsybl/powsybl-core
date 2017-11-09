@@ -67,6 +67,11 @@ public class MultiCriteriaVoltageStabilityIndex2 extends AbstractSecurityIndex {
                             id = xmlsr.getAttributeValue(null, "id");
                             break;
 
+                        case "converge":
+                        case "index":
+                            // nothing to do
+                            break;
+
                         default:
                             throw new AssertionError("Unexpected element: " + xmlsr.getLocalName());
                     }

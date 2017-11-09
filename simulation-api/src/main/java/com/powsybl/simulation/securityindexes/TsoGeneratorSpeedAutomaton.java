@@ -51,6 +51,11 @@ public class TsoGeneratorSpeedAutomaton extends AbstractSecurityIndex {
                             state = LimitsXmlParsingState.OVER;
                             break;
 
+                        case "gen":
+                        case "index":
+                            // nothing to do
+                            break;
+
                         default:
                             throw new AssertionError("Unexpected element: " + xmlsr.getLocalName());
                     }

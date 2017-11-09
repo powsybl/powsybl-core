@@ -80,7 +80,7 @@ public final class SecurityIndexParser {
                                         indexes.add(MultiCriteriaVoltageStabilityIndex.fromXml(contingencyId, xmlsr));
                                         break;
                                     default:
-                                        throw new AssertionError("Unexpected element: " + xmlsr.getLocalName());
+                                        throw new AssertionError("Unexpected attribute value: " + xmlsr.getAttributeValue(null, "name"));
                                 }
                                 break;
 
