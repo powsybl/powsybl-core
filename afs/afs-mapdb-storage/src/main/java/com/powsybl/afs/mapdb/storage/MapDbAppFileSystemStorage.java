@@ -768,10 +768,13 @@ public class MapDbAppFileSystemStorage implements AppFileSystemStorage {
 
     @Override
     public Set<String> getTimeSeriesNames(NodeId nodeId) {
-        checkNodeId(nodeId);
-        Set<String> names = timeSeriesNamesMap.get(nodeId);
+        UuidNodeId uuidNodeId = checkNodeId(nodeId);
+        if (!nodeNameMap.containsKey(uuidNodeId)) {
+            throw createNodeNotFoundException(uuidNodeId);
+        }
+        Set<String> names = timeSeriesNamesMap.get(uuidNodeId);
         if (names == null) {
-            throw createNodeNotFoundException(nodeId);
+            return Collections.emptySet();
         }
         return names;
     }

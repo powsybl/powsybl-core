@@ -21,6 +21,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -53,6 +54,7 @@ public abstract class AbstractAppFileSystemStorageTest {
         assertEquals(PseudoClass.FOLDER_PSEUDO_CLASS, storage.getNodePseudoClass(rootFolderId));
         assertTrue(storage.getChildNodes(rootFolderId).isEmpty());
         NodeId testFolderId = storage.createNode(rootFolderId, "test", PseudoClass.FOLDER_PSEUDO_CLASS);
+        storage.flush();
         assertEquals(rootFolderId, storage.getParentNode(testFolderId));
         assertEquals(new NodeInfo(rootFolderId, storage.getFileSystemName(), PseudoClass.FOLDER_PSEUDO_CLASS), storage.getParentNodeInfo(testFolderId));
         assertEquals("test", storage.getNodeName(testFolderId));
@@ -62,7 +64,7 @@ public abstract class AbstractAppFileSystemStorageTest {
         assertTrue(storage.getChildNodes(testFolderId).isEmpty());
         assertEquals(1, storage.getChildNodes(rootFolderId).size());
         assertEquals(testFolderId, storage.getChildNodes(rootFolderId).get(0));
-        assertEquals(Arrays.asList(new NodeInfo(testFolderId, "test", PseudoClass.FOLDER_PSEUDO_CLASS)), storage.getChildNodesInfo(rootFolderId));
+        assertEquals(Collections.singletonList(new NodeInfo(testFolderId, "test", PseudoClass.FOLDER_PSEUDO_CLASS)), storage.getChildNodesInfo(rootFolderId));
         assertNull(storage.getChildNode(rootFolderId, "???"));
         assertNotNull(storage.getChildNode(rootFolderId, "test"));
         assertEquals(new NodeInfo(testFolderId, "test", PseudoClass.FOLDER_PSEUDO_CLASS), storage.getChildNodeInfo(rootFolderId, "test"));
@@ -70,16 +72,18 @@ public abstract class AbstractAppFileSystemStorageTest {
         // dependency tests
         NodeId testDataId = storage.createNode(testFolderId, "data", "data");
         NodeId testData2Id = storage.createNode(testFolderId, "data2", "data");
+        storage.flush();
         assertEquals(2, storage.getChildNodes(testFolderId).size());
         storage.addDependency(testDataId, "mylink", testData2Id);
-        assertEquals(Arrays.asList(testData2Id), storage.getDependencies(testDataId));
-        assertEquals(Arrays.asList(new NodeInfo(testData2Id, "data2", "data")), storage.getDependenciesInfo(testDataId));
-        assertEquals(Arrays.asList(testDataId), storage.getBackwardDependencies(testData2Id));
-        assertEquals(Arrays.asList(new NodeInfo(testDataId, "data", "data")), storage.getBackwardDependenciesInfo(testData2Id));
+        assertEquals(Collections.singletonList(testData2Id), storage.getDependencies(testDataId));
+        assertEquals(Collections.singletonList(new NodeInfo(testData2Id, "data2", "data")), storage.getDependenciesInfo(testDataId));
+        assertEquals(Collections.singletonList(testDataId), storage.getBackwardDependencies(testData2Id));
+        assertEquals(Collections.singletonList(new NodeInfo(testDataId, "data", "data")), storage.getBackwardDependenciesInfo(testData2Id));
         assertEquals(testData2Id, storage.getDependency(testDataId, "mylink"));
         assertEquals(new NodeInfo(testData2Id, "data2", "data"), storage.getDependencyInfo(testDataId, "mylink"));
         assertNull(storage.getDependency(testDataId, "mylink2"));
         storage.deleteNode(testDataId);
+        storage.flush();
         assertEquals(1, storage.getChildNodes(testFolderId).size());
 
         // attribute tests
@@ -87,33 +91,39 @@ public abstract class AbstractAppFileSystemStorageTest {
         // set string attribute
         assertNull(storage.getStringAttribute(testData2Id, "str"));
         storage.setStringAttribute(testData2Id, "str", "test");
+        storage.flush();
         assertEquals("test", storage.getStringAttribute(testData2Id, "str"));
 
         // unset string attribute
         storage.setStringAttribute(testData2Id, "str", null);
+        storage.flush();
         assertNull(storage.getStringAttribute(testData2Id, "str"));
 
         // set int attribute
         assertFalse(storage.getIntAttribute(testData2Id, "int").isPresent());
         storage.setIntAttribute(testData2Id, "int", 3);
+        storage.flush();
         assertTrue(storage.getIntAttribute(testData2Id, "int").isPresent());
         assertEquals(3, storage.getIntAttribute(testData2Id, "int").getAsInt());
 
         // set double attribute
         assertFalse(storage.getDoubleAttribute(testData2Id, "double").isPresent());
         storage.setDoubleAttribute(testData2Id, "double", 5d);
+        storage.flush();
         assertTrue(storage.getDoubleAttribute(testData2Id, "double").isPresent());
         assertEquals(5d, storage.getDoubleAttribute(testData2Id, "double").getAsDouble(), 0d);
 
         // set boolean attribute
         assertFalse(storage.getBooleanAttribute(testData2Id, "bool").isPresent());
         storage.setBooleanAttribute(testData2Id, "bool", true);
+        storage.flush();
         assertTrue(storage.getBooleanAttribute(testData2Id, "bool").isPresent());
         assertTrue(storage.getBooleanAttribute(testData2Id, "bool").get());
 
         try (Writer writer = storage.writeStringAttribute(testData2Id, "str")) {
             writer.write("word1");
         }
+        storage.flush();
         try (Reader reader = storage.readStringAttribute(testData2Id, "str")) {
             assertEquals("word1", CharStreams.toString(reader));
         }
@@ -124,8 +134,10 @@ public abstract class AbstractAppFileSystemStorageTest {
         try (OutputStream os = ds.newOutputStream(null, "ext", false)) {
             os.write("word1".getBytes(StandardCharsets.UTF_8));
         }
+
+        storage.flush();
         assertTrue(ds.exists(null, "ext"));
-        try (InputStream is = ds.newInputStream(null, "ext2")) {
+        try (InputStream ignored = ds.newInputStream(null, "ext2")) {
             fail();
         } catch (Exception ignored) {
         }
@@ -135,6 +147,7 @@ public abstract class AbstractAppFileSystemStorageTest {
         try (OutputStream os = ds.newOutputStream(null, "ext", true)) {
             os.write("word2".getBytes(StandardCharsets.UTF_8));
         }
+        storage.flush();
         try (InputStream is = ds.newInputStream(null, "ext")) {
             assertEquals("word1word2", new String(ByteStreams.toByteArray(is), StandardCharsets.UTF_8));
         }
@@ -143,8 +156,9 @@ public abstract class AbstractAppFileSystemStorageTest {
         try (OutputStream os = ds.newOutputStream("file1", false)) {
             os.write("word1".getBytes(StandardCharsets.UTF_8));
         }
+        storage.flush();
         assertTrue(ds.exists("file1"));
-        try (InputStream is = ds.newInputStream("file2")) {
+        try (InputStream ignored = ds.newInputStream("file2")) {
             fail();
         } catch (Exception ignored) {
         }
@@ -154,6 +168,7 @@ public abstract class AbstractAppFileSystemStorageTest {
         try (OutputStream os = ds.newOutputStream("file1", true)) {
             os.write("word2".getBytes(StandardCharsets.UTF_8));
         }
+        storage.flush();
         try (InputStream is = ds.newInputStream("file1")) {
             assertEquals("word1word2", new String(ByteStreams.toByteArray(is), StandardCharsets.UTF_8));
         }
@@ -196,8 +211,13 @@ public abstract class AbstractAppFileSystemStorageTest {
         StringTimeSeries ts2 = stringTimeSeries.get(0);
         assertArrayEquals(new String[] {null, null, "a", "b", null, "c"}, ts2.toArray());
 
+        storage.removeAllTimeSeries(testData2Id);
+        storage.flush();
+        assertTrue(storage.getTimeSeriesNames(testData2Id).isEmpty());
+
         // create project test
         NodeId projectId = storage.createNode(testFolderId, "project", PseudoClass.PROJECT_PSEUDO_CLASS);
+        storage.flush();
         assertNotNull(storage.getProjectRootNode(projectId));
         NodeId projectRootId = storage.getProjectRootNode(projectId);
         assertEquals("root", storage.getNodeName(projectRootId));
@@ -209,18 +229,21 @@ public abstract class AbstractAppFileSystemStorageTest {
         try (OutputStream os = storage.writeToCache(testData2Id, "cache1")) {
             os.write(data);
         }
+        storage.flush();
 
         try (InputStream is = storage.readFromCache(testData2Id, "cache1")) {
             assertArrayEquals(data, ByteStreams.toByteArray(is));
         }
 
         storage.invalidateCache(testData2Id, "cache1");
+        storage.flush();
         assertNull(storage.readFromCache(testData2Id, "cache1"));
 
         try (OutputStream os = storage.writeToCache(testData2Id, "cache2")) {
             os.write("data2".getBytes(StandardCharsets.UTF_8));
         }
         storage.invalidateCache();
+        storage.flush();
         assertNull(storage.readFromCache(testData2Id, "cache2"));
     }
 
@@ -229,9 +252,12 @@ public abstract class AbstractAppFileSystemStorageTest {
         NodeId rootFolderId = storage.getRootNode();
         NodeId folder1Id = storage.createNode(rootFolderId, "test1", PseudoClass.FOLDER_PSEUDO_CLASS);
         NodeId folder2Id = storage.createNode(rootFolderId, "test2", PseudoClass.FOLDER_PSEUDO_CLASS);
+        storage.flush();
         NodeId fileId = storage.createNode(folder1Id, "file", "file-type");
+        storage.flush();
         assertEquals(folder1Id, storage.getParentNode(fileId));
         storage.setParentNode(fileId, folder2Id);
+        storage.flush();
         assertEquals(folder2Id, storage.getParentNode(fileId));
     }
 
