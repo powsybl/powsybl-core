@@ -50,6 +50,9 @@ public class TsoGeneratorVoltageAutomaton extends AbstractSecurityIndex {
                         case ON_OVER_VOLTAGE_DISCONNECTED_GENERATORS:
                             state = LimitsXmlParsingState.OVER;
                             break;
+
+                        default:
+                            throw new AssertionError("Unexpected element: " + xmlsr.getLocalName());
                     }
                     break;
 
@@ -66,7 +69,13 @@ public class TsoGeneratorVoltageAutomaton extends AbstractSecurityIndex {
 
                         case "index":
                             return new TsoGeneratorVoltageAutomaton(contingencyId, onUnderVoltageDiconnectedGenerators, onOverVoltageDiconnectedGenerators);
+
+                        default:
+                            throw new AssertionError("Unexpected element: " + xmlsr.getLocalName());
                     }
+                    break;
+
+                default:
                     break;
             }
         }

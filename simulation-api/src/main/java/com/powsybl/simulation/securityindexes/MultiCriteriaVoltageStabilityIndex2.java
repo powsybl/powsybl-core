@@ -66,6 +66,9 @@ public class MultiCriteriaVoltageStabilityIndex2 extends AbstractSecurityIndex {
                         case "bus":
                             id = xmlsr.getAttributeValue(null, "id");
                             break;
+
+                        default:
+                            throw new AssertionError("Unexpected element: " + xmlsr.getLocalName());
                     }
                     break;
 
@@ -101,7 +104,13 @@ public class MultiCriteriaVoltageStabilityIndex2 extends AbstractSecurityIndex {
 
                         case "index":
                             return new MultiCriteriaVoltageStabilityIndex2(contingencyId, converge, criteria1, criteria2, criteria3);
+
+                        default:
+                            throw new AssertionError("Unexpected element: " + xmlsr.getLocalName());
                     }
+                    break;
+
+                default:
                     break;
             }
         }

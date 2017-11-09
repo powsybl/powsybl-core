@@ -50,6 +50,9 @@ public class TsoGeneratorSpeedAutomaton extends AbstractSecurityIndex {
                         case ON_OVER_SPEED_DISCONNECTED_GENERATORS:
                             state = LimitsXmlParsingState.OVER;
                             break;
+
+                        default:
+                            throw new AssertionError("Unexpected element: " + xmlsr.getLocalName());
                     }
                     break;
                 case XMLEvent.END_ELEMENT:
@@ -65,7 +68,13 @@ public class TsoGeneratorSpeedAutomaton extends AbstractSecurityIndex {
 
                         case "index":
                             return new TsoGeneratorSpeedAutomaton(contingencyId, onUnderSpeedDiconnectedGenerators, onOverSpeedDiconnectedGenerators);
+
+                        default:
+                            throw new AssertionError("Unexpected element: " + xmlsr.getLocalName());
                     }
+                    break;
+
+                default:
                     break;
             }
         }

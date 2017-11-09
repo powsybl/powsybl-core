@@ -36,6 +36,7 @@ public class TsoDisconnectedGenerator extends AbstractSecurityIndex {
                 case XMLEvent.CHARACTERS:
                     text = xmlsr.getText();
                     break;
+
                 case XMLEvent.START_ELEMENT:
                     if ("generator".equals(xmlsr.getLocalName())) {
                         id = xmlsr.getAttributeValue(null, "id");
@@ -54,7 +55,12 @@ public class TsoDisconnectedGenerator extends AbstractSecurityIndex {
                             break;
                         case "index":
                             return new TsoDisconnectedGenerator(contingencyId, disconnectedGenerators);
+                        default:
+                            throw new AssertionError("Unexpected element: " + xmlsr.getLocalName());
                     }
+                    break;
+
+                default:
                     break;
             }
         }

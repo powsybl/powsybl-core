@@ -53,6 +53,8 @@ public class MultiCriteriaVoltageStabilityIndex extends AbstractSecurityIndex {
                         case "underVoltageAutomatonGenerator":
                             id = xmlsr.getAttributeValue(null, "id");
                             break;
+                        default:
+                            throw new AssertionError("Unexpected element: " + xmlsr.getLocalName());
                     }
                     break;
 
@@ -85,7 +87,12 @@ public class MultiCriteriaVoltageStabilityIndex extends AbstractSecurityIndex {
                         case "index":
                             return new MultiCriteriaVoltageStabilityIndex(contingencyId, lockedTapChangerLoads, stoppedTapChangerLoads,
                                                                           underVoltageAutomatonGenerators, underVoltageBuses);
+                        default:
+                            throw new AssertionError("Unexpected element: " + xmlsr.getLocalName());
                     }
+                    break;
+
+                default:
                     break;
             }
         }
