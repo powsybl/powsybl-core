@@ -51,20 +51,20 @@ public class ContingencyElementDeserializer extends StdDeserializer<ContingencyE
 
         if (type != null) {
             switch (type) {
-                case LINE:
-                    return new LineContingency(id, voltageLevelId);
-
                 case BRANCH:
                     return new BranchContingency(id, voltageLevelId);
 
                 case GENERATOR:
                     return new GeneratorContingency(id);
 
+                case HVDC_LINE:
+                    return new HvdcLineContingency(id, voltageLevelId);
+
                 case BUSBAR_SECTION:
                     return new BusbarSectionContingency(id);
 
                 default:
-                    throw new AssertionError();
+                    throw new AssertionError("Unexpected ContingencyElementType value: " + type);
             }
         }
 
