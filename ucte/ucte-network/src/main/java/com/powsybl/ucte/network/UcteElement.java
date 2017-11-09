@@ -160,6 +160,8 @@ public class UcteElement implements UcteRecord {
                     LOGGER.warn("Small reactance {} of element '{}' fixed to {}", oldReactance, id, reactance);
                 }
                 break;
+            default:
+                throw new AssertionError("Unexpected UcteElementStatus value: " + status);
         }
         if (currentLimit == null) {
             LOGGER.warn("Missing current limit for element '{}'", id);

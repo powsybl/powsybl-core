@@ -173,6 +173,8 @@ public class UcteImporter implements Importer {
                 case W:
                     energySource = EnergySource.WIND;
                     break;
+                default:
+                    throw new AssertionError("Unexpected UctePowerPlantType value: " + ucteNode.getPowerPlantType());
             }
         }
 
