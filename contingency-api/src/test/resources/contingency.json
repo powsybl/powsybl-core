@@ -8,12 +8,12 @@
     "id" : "NHV1_NHV2_1",
     "type" : "BRANCH"
   }, {
-    "id" : "NHV1_NHV2_2",
-    "type" : "LINE",
-    "voltageLevelId" : "VLHV1"
+    "id" : "HVDC1",
+    "type" : "HVDC_LINE"
   }, {
-    "id" : "NHV1_NHV2_2",
-    "type" : "LINE"
+    "id" : "HVDC1",
+    "type" : "HVDC_LINE",
+    "voltageLevelId" : "VL1"
   }, {
     "id" : "GEN",
     "type" : "GENERATOR"
