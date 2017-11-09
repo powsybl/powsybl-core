@@ -550,7 +550,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Mult
         return busView;
     }
 
-    private static abstract class AbstractComponentsManager<C extends Component> {
+    private abstract static class AbstractComponentsManager<C extends Component> {
 
         protected final NetworkImpl network;
 
@@ -661,6 +661,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Mult
             super(network);
         }
 
+        @Override
         protected void fillAdjacencyList(Map<String, Integer> id2num, TIntArrayList[] adjacencyList) {
             super.fillAdjacencyList(id2num, adjacencyList);
             for (HvdcLineImpl line : network.objectStore.getAll(HvdcLineImpl.class)) {

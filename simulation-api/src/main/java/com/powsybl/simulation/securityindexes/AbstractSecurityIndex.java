@@ -23,7 +23,7 @@ import java.io.UncheckedIOException;
  */
 abstract class AbstractSecurityIndex implements SecurityIndex {
 
-    protected final static Supplier<XMLOutputFactory> XML_OUTPUT_FACTORY_SUPPLIER = Suppliers.memoize(new Supplier<XMLOutputFactory>() {
+    protected static final Supplier<XMLOutputFactory> XML_OUTPUT_FACTORY_SUPPLIER = Suppliers.memoize(new Supplier<XMLOutputFactory>() {
         @Override
         public XMLOutputFactory get() {
             return XMLOutputFactory.newInstance();
@@ -50,7 +50,7 @@ abstract class AbstractSecurityIndex implements SecurityIndex {
         return builder.toString();
     }
 
-    abstract protected void toXml(XMLStreamWriter xmlWriter) throws XMLStreamException;
+    protected abstract void toXml(XMLStreamWriter xmlWriter) throws XMLStreamException;
 
     @Override
     public String toXml() {
