@@ -21,6 +21,14 @@ public class MultiCriteriaVoltageStabilityIndex extends AbstractSecurityIndex {
 
     static final String XML_NAME = "multi-criteria-voltage-stability";
 
+    private static final String TAG_ID = "id";
+    private static final String TAG_INDEX = "index";
+    private static final String TAG_LOCKED_TAP_CHANGER_LOAD = "lockedTapChangerLoad";
+    private static final String TAG_NAME = "name";
+    private static final String TAG_STOPPED_TAP_CHANGER_LOAD = "stoppedTapChangerLoad";
+    private static final String TAG_UNDER_VOLTAGE_AUTOMATON_GENERATOR = "underVoltageAutomatonGenerator";
+    private static final String TAG_UNDER_BUS_VOLTAGE = "underVoltageBus";
+
     private static final float LOCKED_TAP_CHANGER_LOAD_THRESHOLD = 0f;
     private static final float STOPPED_TAP_CHANGER_LOAD_THRESHOLD = 0f;
     private static final float UNDER_VOLTAGE_AUTOMATON_GENERATOR_THRESHOLD = 0f;
@@ -48,13 +56,13 @@ public class MultiCriteriaVoltageStabilityIndex extends AbstractSecurityIndex {
                     break;
                 case XMLEvent.START_ELEMENT:
                     switch (xmlsr.getLocalName()) {
-                        case "lockedTapChangerLoad":
-                        case "stoppedTapChangerLoad":
-                        case "underVoltageAutomatonGenerator":
-                            id = xmlsr.getAttributeValue(null, "id");
+                        case TAG_LOCKED_TAP_CHANGER_LOAD:
+                        case TAG_STOPPED_TAP_CHANGER_LOAD:
+                        case TAG_UNDER_VOLTAGE_AUTOMATON_GENERATOR:
+                            id = xmlsr.getAttributeValue(null, TAG_ID);
                             break;
-                        case "underVoltageBus":
-                        case "index":
+                        case TAG_UNDER_BUS_VOLTAGE:
+                        case TAG_INDEX:
                             // nothing to do
                             break;
                         default:
@@ -64,31 +72,31 @@ public class MultiCriteriaVoltageStabilityIndex extends AbstractSecurityIndex {
 
                 case XMLEvent.END_ELEMENT:
                     switch (xmlsr.getLocalName()) {
-                        case "lockedTapChangerLoad":
+                        case TAG_LOCKED_TAP_CHANGER_LOAD:
                             if (id == null) {
                                 throw new AssertionError();
                             }
                             lockedTapChangerLoads.put(id, Float.parseFloat(text));
                             id = null;
                             break;
-                        case "stoppedTapChangerLoad":
+                        case TAG_STOPPED_TAP_CHANGER_LOAD:
                             if (id == null) {
                                 throw new AssertionError();
                             }
                             stoppedTapChangerLoads.put(id, Float.parseFloat(text));
                             id = null;
                             break;
-                        case "underVoltageAutomatonGenerator":
+                        case TAG_UNDER_VOLTAGE_AUTOMATON_GENERATOR:
                             if (id == null) {
                                 throw new AssertionError();
                             }
                             underVoltageAutomatonGenerators.put(id, Float.parseFloat(text));
                             id = null;
                             break;
-                        case "underVoltageBus":
+                        case TAG_UNDER_BUS_VOLTAGE:
                             underVoltageBuses.add(text);
                             break;
-                        case "index":
+                        case TAG_INDEX:
                             return new MultiCriteriaVoltageStabilityIndex(contingencyId, lockedTapChangerLoads, stoppedTapChangerLoads,
                                                                           underVoltageAutomatonGenerators, underVoltageBuses);
                         default:
@@ -140,34 +148,14 @@ public class MultiCriteriaVoltageStabilityIndex extends AbstractSecurityIndex {
     @Override
     protected void toXml(XMLStreamWriter xmlWriter) throws XMLStreamException {
         xmlWriter.writeStartDocument();
-        xmlWriter.writeStartElement("index");
-        xmlWriter.writeAttribute("name", XML_NAME);
-        for (Map.Entry<String, Float> e : lockedTapChangerLoads.entrySet()) {
-            String id = e.getKey();
-            float p = e.getValue();
-            xmlWriter.writeStartElement("lockedTapChangerLoad");
-            xmlWriter.writeAttribute("id", id);
-            xmlWriter.writeCharacters(Float.toString(p));
-            xmlWriter.writeEndElement();
-        }
-        for (Map.Entry<String, Float> e : stoppedTapChangerLoads.entrySet()) {
-            String id = e.getKey();
-            float p = e.getValue();
-            xmlWriter.writeStartElement("stoppedTapChangerLoad");
-            xmlWriter.writeAttribute("id", id);
-            xmlWriter.writeCharacters(Float.toString(p));
-            xmlWriter.writeEndElement();
-        }
-        for (Map.Entry<String, Float> e : underVoltageAutomatonGenerators.entrySet()) {
-            String id = e.getKey();
-            float p = e.getValue();
-            xmlWriter.writeStartElement("underVoltageAutomatonGenerators");
-            xmlWriter.writeAttribute("id", id);
-            xmlWriter.writeCharacters(Float.toString(p));
-            xmlWriter.writeEndElement();
-        }
+        xmlWriter.writeStartElement(TAG_INDEX);
+        xmlWriter.writeAttribute(TAG_NAME, XML_NAME);
+        toXml(xmlWriter, TAG_LOCKED_TAP_CHANGER_LOAD, lockedTapChangerLoads);
+        toXml(xmlWriter, TAG_STOPPED_TAP_CHANGER_LOAD, stoppedTapChangerLoads);
+        toXml(xmlWriter, TAG_UNDER_VOLTAGE_AUTOMATON_GENERATOR, underVoltageAutomatonGenerators);
+
         for (String underVoltageBus : underVoltageBuses) {
-            xmlWriter.writeStartElement("underVoltageBus");
+            xmlWriter.writeStartElement(TAG_UNDER_BUS_VOLTAGE);
             xmlWriter.writeCharacters(underVoltageBus);
             xmlWriter.writeEndElement();
         }
@@ -175,11 +163,22 @@ public class MultiCriteriaVoltageStabilityIndex extends AbstractSecurityIndex {
         xmlWriter.writeEndDocument();
     }
 
+    private static void toXml(XMLStreamWriter xmlWriter, String xmlTagName, Map<String, Float> values) throws XMLStreamException {
+        for (Map.Entry<String, Float> e : values.entrySet()) {
+            String id = e.getKey();
+            float p = e.getValue();
+            xmlWriter.writeStartElement(xmlTagName);
+            xmlWriter.writeAttribute(TAG_ID, id);
+            xmlWriter.writeCharacters(Float.toString(p));
+            xmlWriter.writeEndElement();
+        }
+    }
+
     @Override
     public Map<String, String> toMap() {
-        return ImmutableMap.of("lockedTapChangerLoads", lockedTapChangerLoads.toString(),
-                               "stoppedTapChangerLoads", stoppedTapChangerLoads.toString(),
-                               "underVoltageAutomatonGenerators", underVoltageAutomatonGenerators.toString(),
-                               "underVoltageBuses", underVoltageBuses.toString());
+        return ImmutableMap.of(TAG_LOCKED_TAP_CHANGER_LOAD, lockedTapChangerLoads.toString(),
+                               TAG_STOPPED_TAP_CHANGER_LOAD, stoppedTapChangerLoads.toString(),
+                               TAG_UNDER_VOLTAGE_AUTOMATON_GENERATOR, underVoltageAutomatonGenerators.toString(),
+                               TAG_UNDER_BUS_VOLTAGE, underVoltageBuses.toString());
     }
 }

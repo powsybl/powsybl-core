@@ -19,7 +19,7 @@ import java.util.Map;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class TsoGeneratorVoltageAutomaton extends AbstractSecurityIndex {
+public class TsoGeneratorVoltageAutomaton extends AbstractTsoGeneratorAutomaton {
 
     static final String XML_NAME = "tso-generator-voltage-automaton";
 
@@ -51,8 +51,8 @@ public class TsoGeneratorVoltageAutomaton extends AbstractSecurityIndex {
                             state = LimitsXmlParsingState.OVER;
                             break;
 
-                        case "gen":
-                        case "index":
+                        case GEN:
+                        case INDEX:
                             // nothing to do
                             break;
 
@@ -68,11 +68,11 @@ public class TsoGeneratorVoltageAutomaton extends AbstractSecurityIndex {
                             state = null;
                             break;
 
-                        case "gen":
+                        case GEN:
                             LimitsXmlParsingState.addGenerator(state, text, onUnderVoltageDiconnectedGenerators, onOverVoltageDiconnectedGenerators);
                             break;
 
-                        case "index":
+                        case INDEX:
                             return new TsoGeneratorVoltageAutomaton(contingencyId, onUnderVoltageDiconnectedGenerators, onOverVoltageDiconnectedGenerators);
 
                         default:
@@ -108,30 +108,14 @@ public class TsoGeneratorVoltageAutomaton extends AbstractSecurityIndex {
 
     @Override
     protected void toXml(XMLStreamWriter xmlWriter) throws XMLStreamException {
-        xmlWriter.writeStartDocument();
-        xmlWriter.writeStartElement("index");
-        xmlWriter.writeAttribute("name", XML_NAME);
-        xmlWriter.writeStartElement("onUnderVoltageDisconnectedGenerators");
-        for (String gen : onUnderVoltageDiconnectedGenerators) {
-            xmlWriter.writeStartElement("gen");
-            xmlWriter.writeCharacters(gen);
-            xmlWriter.writeEndElement();
-        }
-        xmlWriter.writeEndElement();
-        xmlWriter.writeStartElement("onOverVoltageDisconnectedGenerators");
-        for (String gen : onOverVoltageDiconnectedGenerators) {
-            xmlWriter.writeStartElement("gen");
-            xmlWriter.writeCharacters(gen);
-            xmlWriter.writeEndElement();
-        }
-        xmlWriter.writeEndElement();
-        xmlWriter.writeEndElement();
-        xmlWriter.writeEndDocument();
+        toXml(xmlWriter, XML_NAME,
+            ON_UNDER_VOLTAGE_DISCONNECTED_GENERATORS, onUnderVoltageDiconnectedGenerators,
+            ON_OVER_VOLTAGE_DISCONNECTED_GENERATORS, onOverVoltageDiconnectedGenerators);
     }
 
     @Override
     public Map<String, String> toMap() {
-        return ImmutableMap.of("onUnderVoltageDiconnectedGenerators", onUnderVoltageDiconnectedGenerators.toString(),
-                               "onOverVoltageDiconnectedGenerators", onOverVoltageDiconnectedGenerators.toString());
+        return ImmutableMap.of(ON_UNDER_VOLTAGE_DISCONNECTED_GENERATORS, onUnderVoltageDiconnectedGenerators.toString(),
+                               ON_OVER_VOLTAGE_DISCONNECTED_GENERATORS, onOverVoltageDiconnectedGenerators.toString());
     }
 }

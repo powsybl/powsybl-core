@@ -19,7 +19,7 @@ import java.util.Map;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class TsoGeneratorSpeedAutomaton extends AbstractSecurityIndex {
+public class TsoGeneratorSpeedAutomaton extends AbstractTsoGeneratorAutomaton {
 
     static final String XML_NAME = "tso-generator-speed-automaton";
 
@@ -51,8 +51,8 @@ public class TsoGeneratorSpeedAutomaton extends AbstractSecurityIndex {
                             state = LimitsXmlParsingState.OVER;
                             break;
 
-                        case "gen":
-                        case "index":
+                        case GEN:
+                        case INDEX:
                             // nothing to do
                             break;
 
@@ -67,11 +67,11 @@ public class TsoGeneratorSpeedAutomaton extends AbstractSecurityIndex {
                             state = null;
                             break;
 
-                        case "gen":
+                        case GEN:
                             LimitsXmlParsingState.addGenerator(state, text, onUnderSpeedDiconnectedGenerators, onOverSpeedDiconnectedGenerators);
                             break;
 
-                        case "index":
+                        case INDEX:
                             return new TsoGeneratorSpeedAutomaton(contingencyId, onUnderSpeedDiconnectedGenerators, onOverSpeedDiconnectedGenerators);
 
                         default:
@@ -107,30 +107,14 @@ public class TsoGeneratorSpeedAutomaton extends AbstractSecurityIndex {
 
     @Override
     protected void toXml(XMLStreamWriter xmlWriter) throws XMLStreamException {
-        xmlWriter.writeStartDocument();
-        xmlWriter.writeStartElement("index");
-        xmlWriter.writeAttribute("name", XML_NAME);
-        xmlWriter.writeStartElement("onUnderSpeedDisconnectedGenerators");
-        for (String gen : onUnderSpeedDiconnectedGenerators) {
-            xmlWriter.writeStartElement("gen");
-            xmlWriter.writeCharacters(gen);
-            xmlWriter.writeEndElement();
-        }
-        xmlWriter.writeEndElement();
-        xmlWriter.writeStartElement("onOverSpeedDisconnectedGenerators");
-        for (String gen : onOverSpeedDiconnectedGenerators) {
-            xmlWriter.writeStartElement("gen");
-            xmlWriter.writeCharacters(gen);
-            xmlWriter.writeEndElement();
-        }
-        xmlWriter.writeEndElement();
-        xmlWriter.writeEndElement();
-        xmlWriter.writeEndDocument();
+        toXml(xmlWriter, XML_NAME,
+            ON_UNDER_SPEED_DISCONNECTED_GENERATORS, onUnderSpeedDiconnectedGenerators,
+            ON_OVER_SPEED_DISCONNECTED_GENERATORS, onOverSpeedDiconnectedGenerators);
     }
 
     @Override
     public Map<String, String> toMap() {
-        return ImmutableMap.of("onUnderSpeedDiconnectedGenerators", onUnderSpeedDiconnectedGenerators.toString(),
-                               "onOverSpeedDiconnectedGenerators", onOverSpeedDiconnectedGenerators.toString());
+        return ImmutableMap.of(ON_UNDER_SPEED_DISCONNECTED_GENERATORS, onUnderSpeedDiconnectedGenerators.toString(),
+                               ON_OVER_SPEED_DISCONNECTED_GENERATORS, onOverSpeedDiconnectedGenerators.toString());
     }
 }

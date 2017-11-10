@@ -24,6 +24,15 @@ public class MultiCriteriaVoltageStabilityIndex2 extends AbstractSecurityIndex {
 
     static final String XML_NAME = "multi-criteria-voltage-stability2";
 
+    private static final String TAG_BUS = "bus";
+    private static final String TAG_CONVERGE = "converge";
+    private static final String TAG_CRITERIA1 = "criteria1";
+    private static final String TAG_CRITERIA2 = "criteria2";
+    private static final String TAG_CRITERIA3 = "criteria3";
+    private static final String TAG_ID = "id";
+    private static final String TAG_INDEX = "index";
+    private static final String TAG_NAME = "name";
+
     private static final float CRITERIA1_THRESHOLD = 200f;
     private static final float CRITERIA2_THRESHOLD = 1500f;
 
@@ -51,24 +60,24 @@ public class MultiCriteriaVoltageStabilityIndex2 extends AbstractSecurityIndex {
                     break;
                 case XMLEvent.START_ELEMENT:
                     switch (xmlsr.getLocalName()) {
-                        case "criteria1":
+                        case TAG_CRITERIA1:
                             criteria1 = new LinkedHashMap<>();
                             break;
 
-                        case "criteria2":
+                        case TAG_CRITERIA2:
                             criteria2 = new LinkedHashMap<>();
                             break;
 
-                        case "criteria3":
+                        case TAG_CRITERIA3:
                             criteria3 = new LinkedHashSet<>();
                             break;
 
-                        case "bus":
-                            id = xmlsr.getAttributeValue(null, "id");
+                        case TAG_BUS:
+                            id = xmlsr.getAttributeValue(null, TAG_ID);
                             break;
 
-                        case "converge":
-                        case "index":
+                        case TAG_CONVERGE:
+                        case TAG_INDEX:
                             // nothing to do
                             break;
 
@@ -79,23 +88,23 @@ public class MultiCriteriaVoltageStabilityIndex2 extends AbstractSecurityIndex {
 
                 case XMLEvent.END_ELEMENT:
                     switch (xmlsr.getLocalName()) {
-                        case "converge":
+                        case TAG_CONVERGE:
                             converge = Boolean.parseBoolean(text);
                             break;
 
-                        case "criteria1":
+                        case TAG_CRITERIA1:
                             criteria1 = null;
                             break;
 
-                        case "criteria2":
+                        case TAG_CRITERIA2:
                             criteria2 = null;
                             break;
 
-                        case "criteria3":
+                        case TAG_CRITERIA3:
                             criteria3 = null;
                             break;
 
-                        case "bus":
+                        case TAG_BUS:
                             if (criteria1 != null) {
                                 criteria1.put(id, Float.parseFloat(text));
                             } else if (criteria2 != null) {
@@ -107,7 +116,7 @@ public class MultiCriteriaVoltageStabilityIndex2 extends AbstractSecurityIndex {
                             }
                             break;
 
-                        case "index":
+                        case TAG_INDEX:
                             return new MultiCriteriaVoltageStabilityIndex2(contingencyId, converge, criteria1, criteria2, criteria3);
 
                         default:
@@ -160,38 +169,19 @@ public class MultiCriteriaVoltageStabilityIndex2 extends AbstractSecurityIndex {
     @Override
     protected void toXml(XMLStreamWriter xmlWriter) throws XMLStreamException {
         xmlWriter.writeStartDocument();
-        xmlWriter.writeStartElement("index");
-        xmlWriter.writeAttribute("name", XML_NAME);
+        xmlWriter.writeStartElement(TAG_INDEX);
+        xmlWriter.writeAttribute(TAG_NAME, XML_NAME);
 
-        xmlWriter.writeStartElement("converge");
+        xmlWriter.writeStartElement(TAG_CONVERGE);
         xmlWriter.writeCharacters(Boolean.toString(converge));
         xmlWriter.writeEndElement();
 
-        xmlWriter.writeStartElement("criteria1");
-        for (Map.Entry<String, Float> e : criteria1.entrySet()) {
-            String id = e.getKey();
-            float p = e.getValue();
-            xmlWriter.writeStartElement("bus");
-            xmlWriter.writeAttribute("id", id);
-            xmlWriter.writeCharacters(Float.toString(p));
-            xmlWriter.writeEndElement();
-        }
-        xmlWriter.writeEndElement();
+        toXml(xmlWriter, TAG_CRITERIA1, criteria1);
+        toXml(xmlWriter, TAG_CRITERIA2, criteria2);
 
-        xmlWriter.writeStartElement("criteria2");
-        for (Map.Entry<String, Float> e : criteria2.entrySet()) {
-            String id = e.getKey();
-            float p = e.getValue();
-            xmlWriter.writeStartElement("bus");
-            xmlWriter.writeAttribute("id", id);
-            xmlWriter.writeCharacters(Float.toString(p));
-            xmlWriter.writeEndElement();
-        }
-        xmlWriter.writeEndElement();
-
-        xmlWriter.writeStartElement("criteria3");
+        xmlWriter.writeStartElement(TAG_CRITERIA3);
         for (String underVoltageBus : criteria3) {
-            xmlWriter.writeStartElement("bus");
+            xmlWriter.writeStartElement(TAG_BUS);
             xmlWriter.writeCharacters(underVoltageBus);
             xmlWriter.writeEndElement();
         }
@@ -201,11 +191,24 @@ public class MultiCriteriaVoltageStabilityIndex2 extends AbstractSecurityIndex {
         xmlWriter.writeEndDocument();
     }
 
+    private static void toXml(XMLStreamWriter xmlWriter, String xmlCriteriaTagName, Map<String, Float> criteria) throws XMLStreamException {
+        xmlWriter.writeStartElement(xmlCriteriaTagName);
+        for (Map.Entry<String, Float> e : criteria.entrySet()) {
+            String id = e.getKey();
+            float p = e.getValue();
+            xmlWriter.writeStartElement(TAG_BUS);
+            xmlWriter.writeAttribute(TAG_ID, id);
+            xmlWriter.writeCharacters(Float.toString(p));
+            xmlWriter.writeEndElement();
+        }
+        xmlWriter.writeEndElement();
+    }
+
     @Override
     public Map<String, String> toMap() {
-        return ImmutableMap.of("converge", Boolean.toString(converge),
-                               "criteria1", criteria1.toString(),
-                               "criteria2", criteria2.toString(),
-                               "criteria3", criteria3.toString());
+        return ImmutableMap.of(TAG_CONVERGE, Boolean.toString(converge),
+                               TAG_CRITERIA1, criteria1.toString(),
+                               TAG_CRITERIA2, criteria2.toString(),
+                               TAG_CRITERIA3, criteria3.toString());
     }
 }
