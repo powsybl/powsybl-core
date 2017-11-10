@@ -79,6 +79,9 @@ public final class SecurityIndexParser {
                                     case MultiCriteriaVoltageStabilityIndex.XML_NAME:
                                         indexes.add(MultiCriteriaVoltageStabilityIndex.fromXml(contingencyId, xmlsr));
                                         break;
+                                    case MultiCriteriaVoltageStabilityIndex2.XML_NAME:
+                                        indexes.add(MultiCriteriaVoltageStabilityIndex2.fromXml(contingencyId, xmlsr));
+                                        break;
                                     default:
                                         throw new AssertionError("Unexpected attribute value: " + xmlsr.getAttributeValue(null, "name"));
                                 }

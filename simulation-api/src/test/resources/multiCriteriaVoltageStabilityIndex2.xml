@@ -1,0 +1,16 @@
+<?xml version="1.0" ?>
+<index name="multi-criteria-voltage-stability2">
+    <converge>true</converge>
+    <criteria1>
+        <bus id="c1.1">1.1</bus>
+        <bus id="c1.2">1.2</bus>
+    </criteria1>
+    <criteria2>
+        <bus id="c2.1">2.1</bus>
+    </criteria2>
+    <criteria3>
+        <bus>c3.1</bus>
+        <bus>c3.2</bus>
+        <bus>c3.3</bus>
+    </criteria3>
+</index>

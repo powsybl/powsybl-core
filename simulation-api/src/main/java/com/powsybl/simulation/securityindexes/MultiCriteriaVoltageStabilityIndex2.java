@@ -12,10 +12,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 import javax.xml.stream.events.XMLEvent;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -36,6 +33,12 @@ public class MultiCriteriaVoltageStabilityIndex2 extends AbstractSecurityIndex {
     private static final float CRITERIA1_THRESHOLD = 200f;
     private static final float CRITERIA2_THRESHOLD = 1500f;
 
+    private enum CriteriaState {
+        ONE,
+        TWO,
+        THREE
+    }
+
     private boolean converge;
 
     private final Map<String, Float> criteria1;
@@ -46,9 +49,10 @@ public class MultiCriteriaVoltageStabilityIndex2 extends AbstractSecurityIndex {
 
     public static MultiCriteriaVoltageStabilityIndex2 fromXml(String contingencyId, XMLStreamReader xmlsr) throws XMLStreamException {
         Boolean converge = null;
-        Map<String, Float> criteria1 = null;
-        Map<String, Float> criteria2 = null;
-        Set<String> criteria3 = null;
+        Map<String, Float> criteria1 = new LinkedHashMap<>();
+        Map<String, Float> criteria2 = new LinkedHashMap<>();
+        Set<String> criteria3 = new LinkedHashSet<>();
+        CriteriaState state = null;
 
         String text = null;
         String id = null;
@@ -58,18 +62,19 @@ public class MultiCriteriaVoltageStabilityIndex2 extends AbstractSecurityIndex {
                 case XMLEvent.CHARACTERS:
                     text = xmlsr.getText();
                     break;
+
                 case XMLEvent.START_ELEMENT:
                     switch (xmlsr.getLocalName()) {
                         case TAG_CRITERIA1:
-                            criteria1 = new LinkedHashMap<>();
+                            state = CriteriaState.ONE;
                             break;
 
                         case TAG_CRITERIA2:
-                            criteria2 = new LinkedHashMap<>();
+                            state = CriteriaState.TWO;
                             break;
 
                         case TAG_CRITERIA3:
-                            criteria3 = new LinkedHashSet<>();
+                            state = CriteriaState.THREE;
                             break;
 
                         case TAG_BUS:
@@ -93,26 +98,28 @@ public class MultiCriteriaVoltageStabilityIndex2 extends AbstractSecurityIndex {
                             break;
 
                         case TAG_CRITERIA1:
-                            criteria1 = null;
-                            break;
-
                         case TAG_CRITERIA2:
-                            criteria2 = null;
-                            break;
-
                         case TAG_CRITERIA3:
-                            criteria3 = null;
+                            state = null;
                             break;
 
                         case TAG_BUS:
-                            if (criteria1 != null) {
-                                criteria1.put(id, Float.parseFloat(text));
-                            } else if (criteria2 != null) {
-                                criteria2.put(id, Float.parseFloat(text));
-                            } else if (criteria3 != null) {
-                                criteria3.add(id);
-                            } else {
-                                throw new AssertionError();
+                            if (state == null) {
+                                throw new IllegalStateException("state is null");
+                            }
+
+                            switch (state) {
+                                case ONE:
+                                    criteria1.put(id, Float.parseFloat(text));
+                                    break;
+                                case TWO:
+                                    criteria2.put(id, Float.parseFloat(text));
+                                    break;
+                                case THREE:
+                                    criteria3.add(text);
+                                    break;
+                                default:
+                                    throw new AssertionError("Unexpected CriteriaState value: " + state);
                             }
                             break;
 
@@ -134,9 +141,9 @@ public class MultiCriteriaVoltageStabilityIndex2 extends AbstractSecurityIndex {
     public MultiCriteriaVoltageStabilityIndex2(String contingencyId, boolean converge, Map<String, Float> criteria1, Map<String, Float> criteria2, Set<String> criteria3) {
         super(contingencyId, SecurityIndexType.MULTI_CRITERIA_VOLTAGE_STABILITY2);
         this.converge = converge;
-        this.criteria1 = criteria1;
-        this.criteria2 = criteria2;
-        this.criteria3 = criteria3;
+        this.criteria1 = Objects.requireNonNull(criteria1);
+        this.criteria2 = Objects.requireNonNull(criteria2);
+        this.criteria3 = Objects.requireNonNull(criteria3);
     }
 
     public boolean isConverge() {
