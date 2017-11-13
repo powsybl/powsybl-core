@@ -122,4 +122,33 @@ public class ValidationFormatterCsvWriterTest extends AbstractValidationFormatte
         return new ValidationFormatterCsvWriter("test", CsvTableFormatterFactory.class, config, writer, verbose, ValidationType.BUSES);
     }
 
+    @Override
+    protected String getSvcsContent() {
+        return String.join(System.lineSeparator(),
+                           "test " + ValidationType.SVCS + " check",
+                           String.join(";", "id", "p", "q", "v", "reactivePowerSetPoint", "voltageSetPoint"),
+                           String.join(";", svcId,
+                                       String.format(Locale.getDefault(), "%g", -p), String.format(Locale.getDefault(), "%g", -q),
+                                       String.format(Locale.getDefault(), "%g", v), String.format(Locale.getDefault(), "%g", reactivePowerSetPoint),
+                                       String.format(Locale.getDefault(), "%g", voltageSetPoint)));
+    }
+
+    @Override
+    protected String getSvcsVerboseContent() {
+        return String.join(System.lineSeparator(),
+                           "test " + ValidationType.SVCS + " check",
+                           String.join(";", "id", "p", "q", "v", "reactivePowerSetPoint", "voltageSetPoint", "connected", "regulationMode", "bMin", "bMax", "validation"),
+                           String.join(";", svcId,
+                                       String.format(Locale.getDefault(), "%g", -p), String.format(Locale.getDefault(), "%g", -q),
+                                       String.format(Locale.getDefault(), "%g", v), String.format(Locale.getDefault(), "%g", reactivePowerSetPoint),
+                                       String.format(Locale.getDefault(), "%g", voltageSetPoint), Boolean.toString(connected),
+                                       regulationMode.name(), String.format(Locale.getDefault(), "%g", bMin),
+                                       String.format(Locale.getDefault(), "%g", bMax), "success"));
+    }
+
+    @Override
+    protected ValidationWriter getSvcsValidationFormatterCsvWriter(TableFormatterConfig config, Writer writer, boolean verbose) {
+        return new ValidationFormatterCsvWriter("test", CsvTableFormatterFactory.class, config, writer, verbose, ValidationType.SVCS);
+    }
+
 }

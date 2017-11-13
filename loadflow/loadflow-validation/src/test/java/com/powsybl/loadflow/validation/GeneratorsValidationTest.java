@@ -137,6 +137,7 @@ public class GeneratorsValidationTest extends AbstractValidationTest {
         q = 5f;
         v = 400f;
         assertFalse(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, strictConfig, NullWriter.NULL_WRITER));
+
         // a validation error should be detected if there is both a voltage and a target but no p or q
         v = 380f;
         p = Float.NaN;
