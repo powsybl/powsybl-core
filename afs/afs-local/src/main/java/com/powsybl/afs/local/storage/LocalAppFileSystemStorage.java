@@ -10,6 +10,7 @@ import com.google.common.collect.ImmutableList;
 import com.powsybl.afs.Folder;
 import com.powsybl.afs.storage.AppFileSystemStorage;
 import com.powsybl.afs.storage.NodeId;
+import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.math.timeseries.*;
@@ -98,8 +99,8 @@ public class LocalAppFileSystemStorage implements AppFileSystemStorage {
     }
 
     @Override
-    public NodeId getRootNode() {
-        return new PathNodeId(rootDir);
+    public NodeInfo createRootNodeIfNotExists(String name, String nodePseudoClass) {
+        return new NodeInfo(new PathNodeId(rootDir), name, nodePseudoClass);
     }
 
     @Override
@@ -333,11 +334,6 @@ public class LocalAppFileSystemStorage implements AppFileSystemStorage {
 
     @Override
     public List<NodeId> getBackwardDependencies(NodeId nodeId) {
-        throw new AssertionError();
-    }
-
-    @Override
-    public NodeId getProjectRootNode(NodeId projectId) {
         throw new AssertionError();
     }
 

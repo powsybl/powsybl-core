@@ -39,14 +39,20 @@ public class ProjectNode extends AbstractNodeBase<ProjectFolder> {
     @Override
     public ProjectFolder getParent() {
         NodeInfo parentInfo = storage.getParentNodeInfo(info.getId());
-        return parentInfo != null ? new ProjectFolder(parentInfo, storage, projectInfo, fileSystem) : null;
+        return ProjectFolder.PSEUDO_CLASS.equals(parentInfo.getPseudoClass()) ? new ProjectFolder(parentInfo, storage, projectInfo, fileSystem) : null;
+    }
+
+    private static boolean pathStop(ProjectNode projectNode) {
+        return projectNode.getParent() == null;
+    }
+
+    private static String pathToString(List<String> path) {
+        return path.stream().skip(1).collect(Collectors.joining(AppFileSystem.PATH_SEPARATOR));
     }
 
     @Override
     public NodePath getPath() {
-        return NodePath.find(this, path -> path.stream()
-                                               .skip(1) // skip project node
-                                               .collect(Collectors.joining(AppFileSystem.PATH_SEPARATOR)));
+        return NodePath.find(this, ProjectNode::pathStop, ProjectNode::pathToString);
     }
 
     public Project getProject() {

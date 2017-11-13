@@ -25,13 +25,15 @@ public interface AppFileSystemStorage extends AutoCloseable {
 
     NodeId fromString(String str);
 
-    String getNodeName(NodeId nodeId);
-
-    boolean isWritable(NodeId nodeId);
+    NodeInfo createRootNodeIfNotExists(String name, String nodePseudoClass);
 
     NodeId createNode(NodeId parentNodeId, String name, String nodePseudoClass);
 
+    String getNodeName(NodeId nodeId);
+
     String getNodePseudoClass(NodeId nodeId);
+
+    boolean isWritable(NodeId nodeId);
 
     default NodeInfo getNodeInfo(NodeId nodeId) {
         return new NodeInfo(nodeId, getNodeName(nodeId), getNodePseudoClass(nodeId));
@@ -147,18 +149,6 @@ public interface AppFileSystemStorage extends AutoCloseable {
 
     default List<NodeInfo> getBackwardDependenciesInfo(NodeId nodeId) {
         return getBackwardDependencies(nodeId).stream().map(this::getNodeInfo).collect(Collectors.toList());
-    }
-
-    NodeId getRootNode();
-
-    default NodeInfo getRootNodeInfo() {
-        return getNodeInfo(getRootNode());
-    }
-
-    NodeId getProjectRootNode(NodeId projectNodeId);
-
-    default NodeInfo getProjectRootNodeInfo(NodeId projectNodeId) {
-        return getNodeInfo(getProjectRootNode(projectNodeId));
     }
 
     // cache management
