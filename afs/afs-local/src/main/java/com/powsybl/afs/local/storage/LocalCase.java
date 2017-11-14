@@ -11,6 +11,7 @@ import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.math.timeseries.DoubleTimeSeries;
+import com.powsybl.math.timeseries.StringTimeSeries;
 import com.powsybl.math.timeseries.TimeSeriesMetadata;
 
 import java.nio.file.Path;
@@ -98,6 +99,11 @@ public class LocalCase implements LocalFile {
 
     @Override
     public List<DoubleTimeSeries> getDoubleTimeSeries(Set<String> timeSeriesNames, int version) {
+        throw new AssertionError();
+    }
+
+    @Override
+    public List<StringTimeSeries> getStringTimeSeries(Set<String> timeSeriesNames, int version) {
         throw new AssertionError();
     }
 }
