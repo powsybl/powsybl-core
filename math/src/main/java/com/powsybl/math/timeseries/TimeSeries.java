@@ -24,7 +24,7 @@ import java.util.stream.Stream;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface TimeSeries<P extends AbstractPoint, C extends ArrayChunk<P>> extends Iterable<P> {
+public interface TimeSeries<P extends AbstractPoint> extends Iterable<P> {
 
     TimeSeriesMetadata getMetadata();
 
