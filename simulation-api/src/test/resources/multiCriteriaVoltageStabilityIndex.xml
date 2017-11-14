@@ -1,0 +1,11 @@
+<?xml version="1.0" ?>
+<index name="multi-criteria-voltage-stability">
+    <lockedTapChangerLoad id="locked1">1.0</lockedTapChangerLoad>
+    <lockedTapChangerLoad id="locked2">2.0</lockedTapChangerLoad>
+    <stoppedTapChangerLoad id="stopped1">1.0</stoppedTapChangerLoad>
+    <stoppedTapChangerLoad id="stopped2">2.0</stoppedTapChangerLoad>
+    <underVoltageAutomatonGenerator id="gen1">1.0</underVoltageAutomatonGenerator>
+    <underVoltageAutomatonGenerator id="gen2">1.0</underVoltageAutomatonGenerator>
+    <underVoltageBus>bus1</underVoltageBus>
+    <underVoltageBus>bus2</underVoltageBus>
+</index>

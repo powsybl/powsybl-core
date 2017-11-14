@@ -39,6 +39,7 @@
         <module name="MemberName"/>
         <module name="MethodName"/>
         <module name="MethodParamPad"/>
+        <module name="ModifierOrder"/>
         <module name="MultipleVariableDeclarations"/>
         <module name="MutableException"/>
         <module name="NeedBraces"/>

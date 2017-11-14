@@ -55,19 +55,19 @@ public class LocalComputationManager implements ComputationManager {
 
     private static final Lock LOCK = new ReentrantLock();
 
-    private static LocalComputationManager DEFAULT;
+    private static LocalComputationManager defaultInstance;
 
     public static ComputationManager getDefault() {
         LOCK.lock();
         try {
-            if (DEFAULT == null) {
+            if (defaultInstance == null) {
                 try {
-                    DEFAULT = new LocalComputationManager();
+                    defaultInstance = new LocalComputationManager();
                     Runtime.getRuntime().addShutdownHook(new Thread() {
                         @Override
                         public void run() {
                             try {
-                                DEFAULT.close();
+                                defaultInstance.close();
                             } catch (IOException e) {
                                 throw new UncheckedIOException(e);
                             }
@@ -77,7 +77,7 @@ public class LocalComputationManager implements ComputationManager {
                     throw new UncheckedIOException(e);
                 }
             }
-            return DEFAULT;
+            return defaultInstance;
         } finally {
             LOCK.unlock();
         }
@@ -117,7 +117,9 @@ public class LocalComputationManager implements ComputationManager {
         //make sure the localdir exists
         Files.createDirectories(config.getLocalDir());
         commonDir = new WorkingDirectory(config.getLocalDir(), "itools_common_", false);
-        LOGGER.info(config.toString());
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info(config.toString());
+        }
     }
 
     @Override
@@ -199,8 +201,10 @@ public class LocalComputationManager implements ComputationManager {
             Command command = commandExecution.getCommand();
 
             for (int executionIndex = 0; executionIndex < commandExecution.getExecutionCount(); executionIndex++) {
-                LOGGER.debug("Executing command {} in working directory {}",
-                        command.toString(executionIndex), workingDir);
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Executing command {} in working directory {}",
+                            command.toString(executionIndex), workingDir);
+                }
 
                 // pre-processing
                 for (InputFile file : command.getInputFiles()) {
@@ -281,17 +285,14 @@ public class LocalComputationManager implements ComputationManager {
                         String fileName = file.getName(executionIndex);
                         Path path = workingDir.resolve(fileName);
                         if (file.getPostProcessor() != null && Files.isRegularFile(path)) {
-                            switch (file.getPostProcessor()) {
-                                case FILE_GZIP:
-                                    // gzip the file
-                                    try (InputStream is = Files.newInputStream(path);
-                                         OutputStream os = new GZIPOutputStream(Files.newOutputStream(workingDir.resolve(fileName + ".gz")))) {
-                                        ByteStreams.copy(is, os);
-                                    }
-                                    break;
+                            if (file.getPostProcessor() == FilePostProcessor.FILE_GZIP) { // gzip the file
+                                try (InputStream is = Files.newInputStream(path);
+                                     OutputStream os = new GZIPOutputStream(Files.newOutputStream(workingDir.resolve(fileName + ".gz")))) {
+                                    ByteStreams.copy(is, os);
+                                }
 
-                                default:
-                                    throw new AssertionError("Unexpected FilePostProcessor value: " + file.getPostProcessor());
+                            } else {
+                                throw new AssertionError("Unexpected FilePostProcessor value: " + file.getPostProcessor());
                             }
                         }
                     }
@@ -327,7 +328,7 @@ public class LocalComputationManager implements ComputationManager {
                     ExecutionReport report = null;
                     enter();
                     try {
-                        report = execute(workingDir.toPath(), commandExecutionList, environment.getVariables(), (execution, executionIndex) -> handler.onProgress(execution, executionIndex));
+                        report = execute(workingDir.toPath(), commandExecutionList, environment.getVariables(), handler::onProgress);
                     } finally {
                         exit();
                     }

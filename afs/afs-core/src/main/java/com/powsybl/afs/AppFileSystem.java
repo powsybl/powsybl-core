@@ -26,12 +26,15 @@ public class AppFileSystem implements AutoCloseable {
 
     private final AppFileSystemStorage storage;
 
+    private final NodeInfo rootNodeInfo;
+
     private AppData data;
 
     public AppFileSystem(String name, boolean remotelyAccessible, AppFileSystemStorage storage) {
         this.name = Objects.requireNonNull(name);
         this.remotelyAccessible = remotelyAccessible;
         this.storage = Objects.requireNonNull(storage);
+        rootNodeInfo = storage.createRootNodeIfNotExists(name, Folder.PSEUDO_CLASS);
     }
 
     public String getName() {
@@ -47,8 +50,7 @@ public class AppFileSystem implements AutoCloseable {
     }
 
     public Folder getRootFolder() {
-        NodeInfo rootInfo = storage.getRootNodeInfo();
-        return new Folder(rootInfo, storage, this);
+        return new Folder(rootNodeInfo, storage, this);
     }
 
     public AppData getData() {

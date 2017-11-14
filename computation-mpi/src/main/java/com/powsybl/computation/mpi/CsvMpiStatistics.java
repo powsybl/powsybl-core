@@ -66,6 +66,7 @@ public class CsvMpiStatistics implements MpiStatistics {
         }
 
         private static final class TaskExecution {
+
             final int taskId;
             final int jobId;
             final int taskIndex;
@@ -80,6 +81,7 @@ public class CsvMpiStatistics implements MpiStatistics {
             Long outputMessageSize;
             Long workingDataSize;
             Integer exitCode;
+
             private TaskExecution(int taskId, int jobId, int taskIndex, DateTime startTime, int slaveRank, int slaveThread, long inputMessageSize) {
                 this.taskId = taskId;
                 this.jobId = jobId;
@@ -92,9 +94,11 @@ public class CsvMpiStatistics implements MpiStatistics {
         }
 
         private static final class CommonFileTransfer {
+
             String fileName;
             long size;
             long duration;
+
             private CommonFileTransfer(String fileName, long size, long duration) {
                 this.fileName = fileName;
                 this.size = size;
@@ -110,7 +114,7 @@ public class CsvMpiStatistics implements MpiStatistics {
 
         }
 
-        private static abstract class AbstractHandler implements Handler {
+        private abstract static class AbstractHandler implements Handler {
 
             @Override
             public void onTaskEnd(TaskExecution task, JobExecution job) {
@@ -418,7 +422,7 @@ public class CsvMpiStatistics implements MpiStatistics {
 
         Path commonFilesTransferCsv = dbDir.resolve("common-files-transfer.csv");
 
-        LOGGER.info("Writing " + commonFilesTransferCsv);
+        LOGGER.info("Writing {}", commonFilesTransferCsv);
 
         try (BufferedWriter commonFilesTransferWriter = Files.newBufferedWriter(commonFilesTransferCsv, StandardCharsets.UTF_8)) {
             commonFilesTransferWriter.write("File name" + CSV_SEPARATOR + "File size (bytes)" + CSV_SEPARATOR + "Transfer duration (ms)");
@@ -453,7 +457,7 @@ public class CsvMpiStatistics implements MpiStatistics {
         }
 
         Path tasksCountCsv = dbDir.resolve("tasks-count.csv");
-        LOGGER.info("Writing " + tasksCountCsv);
+        LOGGER.info("Writing {}", tasksCountCsv);
 
         final Map<String, CommandStats> tasksPerCommandId = new HashMap<>();
         try (StatisticsReader reader = new StatisticsReader(csv)) {
@@ -494,7 +498,7 @@ public class CsvMpiStatistics implements MpiStatistics {
         Path csv = dbDir.resolve(dbName + ".csv");
 
         Path busyCoresCsv = dbDir.resolve("busy-cores.csv");
-        LOGGER.info("Writing " + busyCoresCsv);
+        LOGGER.info("Writing {}", busyCoresCsv);
 
         final DateTime[] min = new DateTime[1];
         final DateTime[] max = new DateTime[1];
@@ -558,7 +562,7 @@ public class CsvMpiStatistics implements MpiStatistics {
         Path csv = dbDir.resolve(dbName + ".csv");
 
         Path workingDataSizeCsv = dbDir.resolve("working-data-size.csv");
-        LOGGER.info("Writing " + workingDataSizeCsv);
+        LOGGER.info("Writing {}", workingDataSizeCsv);
 
         final Map<String, AtomicLong> workingDataSizePerSlave = new HashMap<>();
         final long[] totalWorkingDataSize = new long[1];

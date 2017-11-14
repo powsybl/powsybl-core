@@ -42,7 +42,7 @@ public abstract class AbstractExecutor {
         }
     }
 
-    abstract protected void clean() throws Exception;
+    protected abstract void clean() throws Exception;
 
     protected void startRun() throws Exception {
         runLock.lock();
