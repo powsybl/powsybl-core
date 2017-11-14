@@ -53,8 +53,10 @@ public abstract class AbstractAppFileSystemStorageTest {
         NodeInfo rootFolderInfo = storage.createRootNodeIfNotExists(storage.getFileSystemName(), FOLDER_PSEUDO_CLASS);
         assertNotNull(rootFolderInfo.getId());
         assertNull(storage.getParentNode(rootFolderInfo.getId()));
+        assertNull(storage.getParentNodeInfo(rootFolderInfo.getId()));
         assertEquals(FOLDER_PSEUDO_CLASS, storage.getNodePseudoClass(rootFolderInfo.getId()));
         assertTrue(storage.getChildNodes(rootFolderInfo.getId()).isEmpty());
+        assertTrue(storage.getChildNodesInfo(rootFolderInfo.getId()).isEmpty());
         NodeId testFolderId = storage.createNode(rootFolderInfo.getId(), "test", FOLDER_PSEUDO_CLASS);
         storage.flush();
         assertEquals(rootFolderInfo.getId(), storage.getParentNode(testFolderId));
@@ -68,6 +70,7 @@ public abstract class AbstractAppFileSystemStorageTest {
         assertEquals(testFolderId, storage.getChildNodes(rootFolderInfo.getId()).get(0));
         assertEquals(Collections.singletonList(new NodeInfo(testFolderId, "test", FOLDER_PSEUDO_CLASS)), storage.getChildNodesInfo(rootFolderInfo.getId()));
         assertNull(storage.getChildNode(rootFolderInfo.getId(), "???"));
+        assertNull(storage.getChildNodeInfo(rootFolderInfo.getId(), "???"));
         assertNotNull(storage.getChildNode(rootFolderInfo.getId(), "test"));
         assertEquals(new NodeInfo(testFolderId, "test", FOLDER_PSEUDO_CLASS), storage.getChildNodeInfo(rootFolderInfo.getId(), "test"));
 
@@ -76,6 +79,10 @@ public abstract class AbstractAppFileSystemStorageTest {
         NodeId testData2Id = storage.createNode(testFolderId, "data2", "data");
         storage.flush();
         assertEquals(2, storage.getChildNodes(testFolderId).size());
+        assertTrue(storage.getDependencies(testDataId).isEmpty());
+        assertTrue(storage.getDependenciesInfo(testDataId).isEmpty());
+        assertTrue(storage.getBackwardDependencies(testData2Id).isEmpty());
+        assertTrue(storage.getBackwardDependenciesInfo(testData2Id).isEmpty());
         storage.addDependency(testDataId, "mylink", testData2Id);
         assertEquals(Collections.singletonList(testData2Id), storage.getDependencies(testDataId));
         assertEquals(Collections.singletonList(new NodeInfo(testData2Id, "data2", "data")), storage.getDependenciesInfo(testDataId));
@@ -84,6 +91,7 @@ public abstract class AbstractAppFileSystemStorageTest {
         assertEquals(testData2Id, storage.getDependency(testDataId, "mylink"));
         assertEquals(new NodeInfo(testData2Id, "data2", "data"), storage.getDependencyInfo(testDataId, "mylink"));
         assertNull(storage.getDependency(testDataId, "mylink2"));
+        assertNull(storage.getDependencyInfo(testDataId, "mylink2"));
         storage.deleteNode(testDataId);
         storage.flush();
         assertEquals(1, storage.getChildNodes(testFolderId).size());
