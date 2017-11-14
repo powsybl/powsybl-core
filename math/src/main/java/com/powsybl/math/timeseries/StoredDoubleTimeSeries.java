@@ -28,6 +28,10 @@ public class StoredDoubleTimeSeries extends AbstractTimeSeries<DoublePoint, Doub
         return new CompressedDoubleArrayChunk(i, length, NAN_ARRAY, new int[] {length});
     }
 
+    public List<DoubleArrayChunk> getChunks() {
+        return chunks;
+    }
+
     @Override
     public double[] toArray() {
         double[] array = new double[metadata.getIndex().getPointCount()];

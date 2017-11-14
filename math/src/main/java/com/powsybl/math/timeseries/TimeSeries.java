@@ -28,8 +28,6 @@ public interface TimeSeries<P extends AbstractPoint, C extends ArrayChunk<P>> ex
 
     TimeSeriesMetadata getMetadata();
 
-    List<C> getChunks();
-
     Stream<P> stream();
 
     Iterator<P> iterator();
