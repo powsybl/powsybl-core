@@ -40,6 +40,7 @@ class BusXml extends AbstractIdentifiableXml<Bus, BusAdder, VoltageLevel> {
 
     @Override
     protected void writeSubElements(Bus b, VoltageLevel vl, XmlWriterContext context) throws XMLStreamException {
+        // no sub elements to write
     }
 
     @Override
