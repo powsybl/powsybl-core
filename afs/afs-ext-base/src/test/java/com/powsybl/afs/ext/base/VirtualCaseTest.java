@@ -19,7 +19,6 @@ import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
@@ -50,7 +49,7 @@ public class VirtualCaseTest extends AbstractProjectFileTest {
     }
 
     @Before
-    public void setup() throws IOException {
+    public void setup() {
         super.setup();
         NodeInfo rootFolderInfo = storage.createRootNodeIfNotExists("root", Folder.PSEUDO_CLASS);
         NodeId caseId = storage.createNode(rootFolderInfo.getId(), "network", Case.PSEUDO_CLASS);

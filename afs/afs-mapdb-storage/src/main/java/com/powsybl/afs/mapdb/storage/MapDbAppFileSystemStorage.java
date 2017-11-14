@@ -805,7 +805,7 @@ public class MapDbAppFileSystemStorage implements AppFileSystemStorage {
         return chunks;
     }
 
-    private <P extends AbstractPoint, C extends ArrayChunk<P>, T extends TimeSeries<P, C>>
+    private <P extends AbstractPoint, C extends ArrayChunk<P>, T extends TimeSeries<P>>
         List<T> getTimeSeries(NodeId nodeId, Set<String> timeSeriesNames, int version,
                               ConcurrentMap<TimeSeriesChunkKey, C> map, BiFunction<TimeSeriesMetadata, List<C>, T> constr) {
         UuidNodeId uuidNodeId = checkNodeId(nodeId);
