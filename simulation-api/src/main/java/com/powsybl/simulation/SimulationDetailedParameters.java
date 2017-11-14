@@ -163,6 +163,9 @@ public class SimulationDetailedParameters {
                                 Generator generator = new Generator(xmlsr.getAttributeValue(null, "id"),
                                                                     parseDoubleIfNotNull(xmlsr.getAttributeValue(null, "shortCircuitDuration")));
                                 contingency.getGenerators().put(generator.getId(), generator);
+                                break;
+                            default:
+                                throw new AssertionError("Unexpected element: " + xmlsr.getLocalName());
                         }
                         break;
 
@@ -171,7 +174,18 @@ public class SimulationDetailedParameters {
                             case "contingency":
                                 contingency = null;
                                 break;
+
+                            case "branch":
+                            case "generator":
+                                // nothing to do
+                                break;
+
+                            default:
+                                throw new AssertionError("Unexpected element: " + xmlsr.getLocalName());
                         }
+                        break;
+
+                    default:
                         break;
                 }
             }

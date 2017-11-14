@@ -421,6 +421,9 @@ public final class NetworkXml implements XmlConstants {
 
                     case ThreeWindingsTransformerXml.ROOT_ELEMENT_NAME:
                         throw new AssertionError();
+
+                    default:
+                        throw new AssertionError("Unexpected element: " + reader.getLocalName());
                 }
             });
         } catch (XMLStreamException e) {
