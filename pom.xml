@@ -62,6 +62,9 @@
         <groovyeclipsecompiler.version>2.9.2-01</groovyeclipsecompiler.version>
         <groovyeclipsebatch.version>2.4.3-01</groovyeclipsebatch.version>
 
+        <!-- Sonar configuration -->
+        <jacoco.destFile>${java.io.tmpdir}/jacoco-powsybl-core.exec</jacoco.destFile>
+        <sonar.jacoco.reportPaths>${jacoco.destFile}</sonar.jacoco.reportPaths>
         <sonar.exclusions>
             **/cim1/**/*, **/generated/**/*
         </sonar.exclusions>
@@ -312,6 +315,10 @@
                                 <goals>
                                     <goal>prepare-agent</goal>
                                 </goals>
+                                <configuration>
+                                    <destFile>${jacoco.destFile}</destFile>
+                                    <append>true</append>
+                                </configuration>
                             </execution>
                         </executions>
                     </plugin>
