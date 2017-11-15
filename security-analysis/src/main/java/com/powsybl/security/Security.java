@@ -33,6 +33,20 @@ public final class Security {
 
     private static final String PERMANENT_LIMIT_NAME = "Permanent limit";
 
+    private static final String CONTINGENCY = "Contingency";
+    private static final String STATUS = "Status";
+    private static final String ACTION = "Action";
+    private static final String COUNTRY = "Country";
+    private static final String BASE_VOLTAGE = "Base voltage";
+    private static final String EQUIPMENT = "Equipment";
+    private static final String END = "End";
+    private static final String VIOLATION_TYPE = "Violation type";
+    private static final String VIOLATION_NAME = "Violation name";
+    private static final String VALUE = "Value";
+    private static final String LIMIT = "Limit";
+    private static final String ABS_VALUE_LIMIT = "abs(value-limit)";
+    private static final String LOADING_RATE = "Loading rate %";
+
     public enum CurrentLimitType {
         PATL,
         TATL
@@ -196,23 +210,23 @@ public final class Security {
         try (TableFormatter formatter = formatterFactory.create(writer,
                 "",
                 formatterConfig,
-                new Column("Country"),
-                new Column("Base voltage")
+                new Column(COUNTRY),
+                new Column(BASE_VOLTAGE)
                     .setHorizontalAlignment(HorizontalAlignment.RIGHT),
-                new Column("Equipment (" + filteredViolations.size() + ")"),
-                new Column("End"),
-                new Column("Violation type"),
-                new Column("Violation name"),
-                new Column("Value")
+                new Column(EQUIPMENT + " (" + filteredViolations.size() + ")"),
+                new Column(END),
+                new Column(VIOLATION_TYPE),
+                new Column(VIOLATION_NAME),
+                new Column(VALUE)
                     .setHorizontalAlignment(HorizontalAlignment.RIGHT)
                     .setNumberFormat(numberFormat),
-                new Column("Limit")
+                new Column(LIMIT)
                     .setHorizontalAlignment(HorizontalAlignment.RIGHT)
                     .setNumberFormat(numberFormat),
-                new Column("abs(value-limit)")
+                new Column(ABS_VALUE_LIMIT)
                     .setHorizontalAlignment(HorizontalAlignment.RIGHT)
                     .setNumberFormat(numberFormat),
-                new Column("Loading rate %")
+                new Column(LOADING_RATE)
                     .setHorizontalAlignment(HorizontalAlignment.RIGHT)
                     .setNumberFormat(percentageFormat))) {
             filteredViolations.stream()
@@ -270,20 +284,20 @@ public final class Security {
         try (TableFormatter formatter = formatterFactory.create(writer,
                 "",
                 formatterConfig,
-                new Column("Country"),
-                new Column("Base voltage"),
-                new Column("Equipment (" + filteredViolations.size() + ")"),
-                new Column("Violation type"),
-                new Column("Violation name"),
-                new Column("Value")
+                new Column(COUNTRY),
+                new Column(BASE_VOLTAGE),
+                new Column(EQUIPMENT + " (" + filteredViolations.size() + ")"),
+                new Column(VIOLATION_TYPE),
+                new Column(VIOLATION_NAME),
+                new Column(VALUE)
                     .setHorizontalAlignment(HorizontalAlignment.RIGHT),
-                new Column("Limit")
+                new Column(LIMIT)
                     .setHorizontalAlignment(HorizontalAlignment.RIGHT)
                     .setNumberFormat(numberFormat),
-                new Column("abs(value-limit)")
+                new Column(ABS_VALUE_LIMIT)
                     .setHorizontalAlignment(HorizontalAlignment.RIGHT)
                     .setNumberFormat(numberFormat),
-                new Column("Loading rate %")
+                new Column(LOADING_RATE)
                     .setHorizontalAlignment(HorizontalAlignment.RIGHT)
                     .setNumberFormat(percentageFormat))) {
             filteredViolations.stream()
@@ -343,24 +357,24 @@ public final class Security {
         try (TableFormatter formatter = formatterFactory.create(writer,
                 "Pre-contingency violations",
                 formatterConfig,
-                new Column("Action"),
-                new Column("Country"),
-                new Column("Base voltage")
+                new Column(ACTION),
+                new Column(COUNTRY),
+                new Column(BASE_VOLTAGE)
                     .setHorizontalAlignment(HorizontalAlignment.RIGHT),
-                new Column("Equipment (" + filteredLimitViolations.size() + ")"),
-                new Column("End"),
-                new Column("Violation type"),
-                new Column("Violation name"),
-                new Column("Value")
+                new Column(EQUIPMENT + " (" + filteredLimitViolations.size() + ")"),
+                new Column(END),
+                new Column(VIOLATION_TYPE),
+                new Column(VIOLATION_NAME),
+                new Column(VALUE)
                     .setHorizontalAlignment(HorizontalAlignment.RIGHT)
                     .setNumberFormat(numberFormat),
-                new Column("Limit")
+                new Column(LIMIT)
                     .setHorizontalAlignment(HorizontalAlignment.RIGHT)
                     .setNumberFormat(numberFormat),
-                new Column("abs(value-limit)")
+                new Column(ABS_VALUE_LIMIT)
                     .setHorizontalAlignment(HorizontalAlignment.RIGHT)
                     .setNumberFormat(numberFormat),
-                new Column("Loading rate %")
+                new Column(LOADING_RATE)
                     .setHorizontalAlignment(HorizontalAlignment.RIGHT)
                     .setNumberFormat(percentageFormat))) {
             for (String action : result.getPreContingencyResult().getActionsTaken()) {
@@ -430,17 +444,17 @@ public final class Security {
         try (TableFormatter formatter = formatterFactory.create(writer,
                 "Pre-contingency violations",
                 formatterConfig,
-                new Column("Action"),
-                new Column("Equipment"),
-                new Column("Violation type"),
-                new Column("Violation name"),
-                new Column("Value")
+                new Column(ACTION),
+                new Column(EQUIPMENT),
+                new Column(VIOLATION_TYPE),
+                new Column(VIOLATION_NAME),
+                new Column(VALUE)
                     .setHorizontalAlignment(HorizontalAlignment.RIGHT)
                     .setNumberFormat(numberFormat),
-                new Column("Limit")
+                new Column(LIMIT)
                     .setHorizontalAlignment(HorizontalAlignment.RIGHT)
                     .setNumberFormat(numberFormat),
-                new Column("Loading rate %")
+                new Column(LOADING_RATE)
                     .setHorizontalAlignment(HorizontalAlignment.RIGHT)
                     .setNumberFormat(percentageFormat))) {
             for (String action : result.getPreContingencyResult().getActionsTaken()) {
@@ -618,26 +632,26 @@ public final class Security {
             try (TableFormatter formatter = formatterFactory.create(writer,
                 "Post-contingency limit violations",
                 formatterConfig,
-                new Column("Contingency"),
-                new Column("Status"),
-                new Column("Action"),
-                new Column("Country"),
-                new Column("Base voltage")
+                new Column(CONTINGENCY),
+                new Column(STATUS),
+                new Column(ACTION),
+                new Column(COUNTRY),
+                new Column(BASE_VOLTAGE)
                     .setHorizontalAlignment(HorizontalAlignment.RIGHT),
-                new Column("Equipment (" + sumFilter + ")"),
-                new Column("End"),
-                new Column("Violation type"),
-                new Column("Violation name"),
-                new Column("Value")
+                new Column(EQUIPMENT + " (" + sumFilter + ")"),
+                new Column(END),
+                new Column(VIOLATION_TYPE),
+                new Column(VIOLATION_NAME),
+                new Column(VALUE)
                     .setHorizontalAlignment(HorizontalAlignment.RIGHT)
                     .setNumberFormat(numberFormat),
-                new Column("Limit")
+                new Column(LIMIT)
                     .setHorizontalAlignment(HorizontalAlignment.RIGHT)
                     .setNumberFormat(numberFormat),
-                new Column("abs(value-limit)")
+                new Column(ABS_VALUE_LIMIT)
                     .setHorizontalAlignment(HorizontalAlignment.RIGHT)
                     .setNumberFormat(numberFormat),
-                new Column("Loading rate %")
+                new Column(LOADING_RATE)
                     .setHorizontalAlignment(HorizontalAlignment.RIGHT)
                     .setNumberFormat(percentageFormat))) {
                 result.getPostContingencyResults()
@@ -760,19 +774,19 @@ public final class Security {
             try (TableFormatter formatter = formatterFactory.create(writer,
                     "Post-contingency limit violations",
                     formatterConfig,
-                    new Column("Contingency"),
-                    new Column("Status"),
-                    new Column("Action"),
-                    new Column("Equipment"),
-                    new Column("Violation type"),
-                    new Column("Violation name"),
-                    new Column("Value")
+                    new Column(CONTINGENCY),
+                    new Column(STATUS),
+                    new Column(ACTION),
+                    new Column(EQUIPMENT),
+                    new Column(VIOLATION_TYPE),
+                    new Column(VIOLATION_NAME),
+                    new Column(VALUE)
                         .setHorizontalAlignment(HorizontalAlignment.RIGHT)
                         .setNumberFormat(numberFormat),
-                    new Column("Limit")
+                    new Column(LIMIT)
                         .setHorizontalAlignment(HorizontalAlignment.RIGHT)
                         .setNumberFormat(numberFormat),
-                    new Column("Loading rate %")
+                    new Column(LOADING_RATE)
                         .setHorizontalAlignment(HorizontalAlignment.RIGHT)
                         .setNumberFormat(percentageFormat))) {
                 result.getPostContingencyResults()
