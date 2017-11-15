@@ -263,6 +263,9 @@
                                 <goals>
                                     <goal>report-aggregate</goal>
                                 </goals>
+                                <configuration>
+                                    <dataFileIncludes>${jacoco.destFile}</dataFileIncludes>
+                                </configuration>
                             </execution>
                         </executions>
                     </plugin>
