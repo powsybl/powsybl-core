@@ -16,6 +16,8 @@ import java.util.Objects;
  */
 public class LimitViolation {
 
+    private static final String UNEXPECTED_IDENTIFIABLE_TYPE = "Unexpected identifiable type: ";
+
     private final String subjectId;
 
     private final LimitViolationType limitType;
@@ -52,7 +54,7 @@ public class LimitViolation {
     }
 
     /**
-     * @deprecated use LimitViolation(String, LimitViolationType, String, float, float, float) instead.
+     * @deprecated use LimitViolation(String, Lirearguard action mitViolationType, String, float, float, float) instead.
      */
     @Deprecated
     public LimitViolation(String subjectId, LimitViolationType limitType, float limit, String limitName, float value) {
@@ -148,7 +150,7 @@ public class LimitViolation {
             Bus bus = (Bus) identifiable;
             country = bus.getVoltageLevel().getSubstation().getCountry();
         } else {
-            throw new AssertionError("Unexpected identifiable type: " + identifiable.getClass());
+            throw new AssertionError(UNEXPECTED_IDENTIFIABLE_TYPE + identifiable.getClass());
         }
 
         return country;
@@ -174,7 +176,7 @@ public class LimitViolation {
             Bus bus = (Bus) identifiable;
             voltageLevelName = bus.getVoltageLevel().getName();
         } else {
-            throw new AssertionError("Unexpected identifiable type: " + identifiable.getClass());
+            throw new AssertionError(UNEXPECTED_IDENTIFIABLE_TYPE + identifiable.getClass());
         }
 
         return voltageLevelName;
@@ -199,7 +201,7 @@ public class LimitViolation {
             VoltageLevel voltageLevel = (VoltageLevel) identifiable;
             nominalVoltage = voltageLevel.getNominalV();
         } else {
-            throw new AssertionError("Unexpected identifiable type: " + identifiable.getClass());
+            throw new AssertionError(UNEXPECTED_IDENTIFIABLE_TYPE + identifiable.getClass());
         }
 
         return nominalVoltage;
