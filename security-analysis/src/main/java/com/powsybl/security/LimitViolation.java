@@ -154,6 +154,32 @@ public class LimitViolation {
         return country;
     }
 
+    static String getVoltageLevelName(LimitViolation limitViolation, Network network) {
+        Objects.requireNonNull(limitViolation);
+        Objects.requireNonNull(network);
+
+        String voltageLevelName;
+
+        Identifiable identifiable = network.getIdentifiable(limitViolation.getSubjectId());
+        if (identifiable instanceof Branch) {
+            Branch branch = (Branch) identifiable;
+            voltageLevelName = branch.getTerminal(limitViolation.getSide()).getVoltageLevel().getName();
+        } else if (identifiable instanceof Injection) {
+            Injection injection = (Injection) identifiable;
+            voltageLevelName = injection.getTerminal().getVoltageLevel().getName();
+        } else if (identifiable instanceof VoltageLevel) {
+            VoltageLevel voltageLevel = (VoltageLevel) identifiable;
+            voltageLevelName = voltageLevel.getName();
+        } else if (identifiable instanceof Bus) {
+            Bus bus = (Bus) identifiable;
+            voltageLevelName = bus.getVoltageLevel().getName();
+        } else {
+            throw new AssertionError("Unexpected identifiable type: " + identifiable.getClass());
+        }
+
+        return voltageLevelName;
+    }
+
     static float getNominalVoltage(LimitViolation limitViolation, Network network) {
         Objects.requireNonNull(limitViolation);
         Objects.requireNonNull(network);

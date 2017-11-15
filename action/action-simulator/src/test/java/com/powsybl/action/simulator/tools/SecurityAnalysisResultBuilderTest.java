@@ -66,7 +66,7 @@ public class SecurityAnalysisResultBuilderTest {
         builder.beforePreContingencyAnalysis(null);
         builder.afterAction(null, "pre-action");
         if (convergent) {
-            builder.loadFlowConverged(null, createPreContingencyViolations());
+            builder.loadFlowConverged(null, null, createPreContingencyViolations());
         } else {
             builder.loadFlowDiverged(null);
         }
@@ -76,7 +76,7 @@ public class SecurityAnalysisResultBuilderTest {
         builder.afterAction(contingency, "post-action1");
         builder.afterAction(contingency, "post-action2");
         if (convergent) {
-            builder.loadFlowConverged(contingency, createPostContingencyViolations());
+            builder.loadFlowConverged(contingency, null, createPostContingencyViolations());
         } else {
             builder.loadFlowDiverged(contingency);
         }

@@ -52,7 +52,7 @@ public abstract class AbstractSecurityAnalysisResultBuilder extends DefaultLoadF
     }
 
     @Override
-    public void loadFlowConverged(Contingency contingency, List<LimitViolation> violations) {
+    public void loadFlowConverged(Contingency contingency, Network network, List<LimitViolation> violations) {
         if (precontingency) {
             preContingencyResult = new LimitViolationsResult(true, violations, preContingencyActions);
         } else {

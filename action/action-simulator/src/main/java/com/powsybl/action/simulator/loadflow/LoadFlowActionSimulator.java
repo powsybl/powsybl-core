@@ -138,9 +138,9 @@ public class LoadFlowActionSimulator implements ActionSimulator {
         if (result.isOk()) {
             List<LimitViolation> violations = LIMIT_VIOLATION_FILTER.apply(Security.checkLimits(context.getNetwork(), 1));
             if (!violations.isEmpty()) {
-                LOGGER.info("Violations: \n{}", Security.printLimitsViolations(violations, NO_FILTER));
+                LOGGER.info("Violations: \n{}", Security.printLimitsViolations(violations, network, NO_FILTER));
             }
-            observers.forEach(o -> o.loadFlowConverged(context.getContingency(), violations));
+            observers.forEach(o -> o.loadFlowConverged(context.getContingency(), network, violations));
 
             // no more violations => work complete
             if (violations.isEmpty()) {

@@ -57,10 +57,10 @@ public class LoadFlowActionSimulatorLogPrinter extends DefaultLoadFlowActionSimu
     }
 
     @Override
-    public void loadFlowConverged(Contingency contingency, List<LimitViolation> violations) {
+    public void loadFlowConverged(Contingency contingency, Network network, List<LimitViolation> violations) {
         if (!violations.isEmpty()) {
             out.println("        Violations:");
-            out.println(Security.printLimitsViolations(violations, LoadFlowActionSimulator.NO_FILTER));
+            out.println(Security.printLimitsViolations(violations, network, LoadFlowActionSimulator.NO_FILTER));
         }
     }
 
