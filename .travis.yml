@@ -14,4 +14,4 @@ addons:
             secure: ${GITHUB_TOKEN}
 
 script:
-- mvn clean verify -Pjacoco coveralls:report sonar:sonar
+- mvn clean verify -Dproject.jacoco.destFile=${PWD}/target/jacoco.exec -Pjacoco coveralls:report sonar:sonar

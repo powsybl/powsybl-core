@@ -46,6 +46,7 @@
 
         <java.version>1.8</java.version>
 
+        <maven.antrun.version>1.8</maven.antrun.version>
         <maven.build-helper.version>3.0.0</maven.build-helper.version>
         <maven.compiler.version>3.6.0</maven.compiler.version>
         <maven.findbugs.version>3.0.4</maven.findbugs.version>
@@ -62,8 +63,9 @@
         <groovyeclipsecompiler.version>2.9.2-01</groovyeclipsecompiler.version>
         <groovyeclipsebatch.version>2.4.3-01</groovyeclipsebatch.version>
 
-        <!-- Sonar configuration -->
-        <jacoco.destFile>${java.io.tmpdir}/jacoco-powsybl-core.exec</jacoco.destFile>
+        <!-- Sonar/Jacoco configuration -->
+        <project.jacoco.destFile>${java.io.tmpdir}/jacoco-powsybl-core.exec</project.jacoco.destFile>
+        <sonar.jacoco.reportPaths>${project.jacoco.destFile}</sonar.jacoco.reportPaths>
         <sonar.exclusions>
             **/cim1/**/*, **/generated/**/*
         </sonar.exclusions>
@@ -283,6 +285,15 @@
                         </jacocoReports>
                     </configuration>
                 </plugin>
+                <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>${maven.jacoco.version}</version>
+                    <configuration>
+                        <destFile>${project.jacoco.destFile}</destFile>
+                        <append>true</append>
+                    </configuration>
+                </plugin>
             </plugins>
         </pluginManagement>
     </build>
@@ -314,27 +325,6 @@
                                 <goals>
                                     <goal>prepare-agent</goal>
                                 </goals>
-                                <configuration>
-                                    <destFile>${jacoco.destFile}</destFile>
-                                    <append>true</append>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-antrun-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>run</goal>
-                                </goals>
-                                <configuration>
-                                    <tasks>
-                                        <copy file="${jacoco.destFile}" tofile="${project.build.directory}/jacoco.exec" failonerror="false"/>
-                                    </tasks>
-                                </configuration>
                             </execution>
                         </executions>
                     </plugin>
