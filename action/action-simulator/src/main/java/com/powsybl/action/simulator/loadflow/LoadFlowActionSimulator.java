@@ -140,7 +140,7 @@ public class LoadFlowActionSimulator implements ActionSimulator {
             if (!violations.isEmpty()) {
                 LOGGER.info("Violations: \n{}", Security.printLimitsViolations(violations, NO_FILTER));
             }
-            observers.forEach(o -> o.loadFlowConverged(context.getNetwork(), context.getContingency(), context.getRound(), violations));
+            observers.forEach(o -> o.loadFlowConverged(context.getContingency(), violations, context.getNetwork(), context.getRound()));
 
             // no more violations => work complete
             if (violations.isEmpty()) {
@@ -240,7 +240,7 @@ public class LoadFlowActionSimulator implements ActionSimulator {
             }
         } else {
             LOGGER.warn("Loadflow diverged: {}", result.getMetrics());
-            observers.forEach(o -> o.loadFlowDiverged(context.getNetwork(), context.getContingency(), context.getRound()));
+            observers.forEach(o -> o.loadFlowDiverged(context.getContingency(), context.getNetwork(), context.getRound()));
             return false;
         }
     }

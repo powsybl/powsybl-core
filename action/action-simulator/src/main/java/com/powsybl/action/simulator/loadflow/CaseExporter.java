@@ -12,18 +12,16 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.security.LimitViolation;
 
 import java.nio.file.Path;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.Properties;
-import java.util.TimeZone;
 
 import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
+ * Allows to export to the "outputCaseFolder" folder in the "outputCaseFormat" format the case
+ * for action-simulator. The call of this observer is optional.
  */
 public class CaseExporter extends DefaultLoadFlowActionSimulatorObserver {
 
@@ -36,27 +34,22 @@ public class CaseExporter extends DefaultLoadFlowActionSimulatorObserver {
     }
 
     @Override
-    public void loadFlowDiverged(Network network, Contingency contingency, int round) {
-        exportNetwork(network, contingency, round);
+    public void loadFlowDiverged(Contingency contingency, Network network, int round) {
+        exportNetwork(contingency, network, round);
     }
 
     @Override
-    public void loadFlowConverged(Network network, Contingency contingency, int round, List<LimitViolation> violations) {
-        exportNetwork(network, contingency, round);
+    public void loadFlowConverged(Contingency contingency, List<LimitViolation> violations, Network network, int round) {
+        exportNetwork(contingency, network, round);
     }
 
-    private void exportNetwork(Network network, Contingency contingency, int round) {
+    private void exportNetwork(Contingency contingency, Network network, int round) {
         if (null != contingency && StringUtils.isNotEmpty(contingency.getId())) {
             String contingencyIdAndRound = contingency.getId().replace(' ', '_').replace('.', '_') + String.valueOf("_Round_" + round);
-            Exporters.export(outputCaseFormat, network, new Properties(), outputCaseFolder.resolve(contingencyIdAndRound + "_" + network.getId() + "_" + dateForName() + "." + outputCaseFormat + ".gz"));
+            Exporters.export(outputCaseFormat, network, new Properties(), outputCaseFolder.resolve(contingencyIdAndRound + "_" + network.getId() + "_" + "." + outputCaseFormat + ".gz"));
         } else {
-            Exporters.export(outputCaseFormat, network, new Properties(), outputCaseFolder.resolve("N_situation" + "_" + network.getId() + "_" + dateForName() + "." + outputCaseFormat + ".gz"));
+            String nSituationAndRound = "N_situation" + String.valueOf("_Round_" + round);
+            Exporters.export(outputCaseFormat, network, new Properties(), outputCaseFolder.resolve(nSituationAndRound + "_" + network.getId() + "_" + "." + outputCaseFormat + ".gz"));
         }
-    }
-
-    private String dateForName() {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmssSSS", Locale.getDefault());
-        sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-        return sdf.format(new Date());
     }
 }
