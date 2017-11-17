@@ -9,7 +9,6 @@ package com.powsybl.afs;
 import com.powsybl.afs.storage.AppFileSystemStorage;
 import com.powsybl.afs.storage.NodeId;
 import com.powsybl.afs.storage.NodeInfo;
-import com.powsybl.afs.storage.PseudoClass;
 
 import java.util.Comparator;
 import java.util.List;
@@ -21,7 +20,7 @@ import java.util.stream.Collectors;
  */
 public class ProjectFolder extends ProjectNode implements FolderBase<ProjectNode, ProjectFolder> {
 
-    public static final String PSEUDO_CLASS = PseudoClass.PROJECT_FOLDER_PSEUDO_CLASS;
+    public static final String PSEUDO_CLASS = "projectFolder";
 
     public ProjectFolder(NodeInfo info, AppFileSystemStorage storage, NodeInfo projectInfo, AppFileSystem fileSystem) {
         super(info, storage, projectInfo, fileSystem, true);

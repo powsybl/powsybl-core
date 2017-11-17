@@ -9,6 +9,7 @@ package com.powsybl.afs;
 import com.powsybl.afs.storage.AppFileSystemStorage;
 import com.powsybl.afs.storage.NodeInfo;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -37,17 +38,23 @@ public class Node extends AbstractNodeBase<Folder> {
         return parentInfo != null ? new Folder(parentInfo, storage, fileSystem) : null;
     }
 
+    private static boolean pathStop(Node node) {
+        return node.getParent() == null;
+    }
+
+    private static String pathToString(List<String> path) {
+        StringBuilder builder = new StringBuilder();
+        builder.append(path.get(0))
+                .append(AppFileSystem.FS_SEPARATOR);
+        for (int i = 1; i < path.size(); i++) {
+            builder.append(AppFileSystem.PATH_SEPARATOR).append(path.get(i));
+        }
+        return builder.toString();
+    }
+
     @Override
     public NodePath getPath() {
-        return NodePath.find(this, path -> {
-            StringBuilder builder = new StringBuilder();
-            builder.append(path.get(0))
-                    .append(AppFileSystem.FS_SEPARATOR);
-            for (int i = 1; i < path.size(); i++) {
-                builder.append(AppFileSystem.PATH_SEPARATOR).append(path.get(i));
-            }
-            return builder.toString();
-        });
+        return NodePath.find(this, Node::pathStop, Node::pathToString);
     }
 
     public AppFileSystem getFileSystem() {

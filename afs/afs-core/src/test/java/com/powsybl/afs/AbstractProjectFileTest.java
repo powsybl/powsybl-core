@@ -14,7 +14,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.mockito.Mockito;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
@@ -42,7 +41,7 @@ public abstract class AbstractProjectFileTest {
     }
 
     @Before
-    public void setup() throws IOException {
+    public void setup() {
         network = NetworkFactory.create("test", "test");
         ComputationManager computationManager = Mockito.mock(ComputationManager.class);
         storage = createStorage();
@@ -54,7 +53,7 @@ public abstract class AbstractProjectFileTest {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         storage.close();
     }
 }

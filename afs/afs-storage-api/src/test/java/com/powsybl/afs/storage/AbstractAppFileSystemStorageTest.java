@@ -31,6 +31,8 @@ import static org.junit.Assert.*;
  */
 public abstract class AbstractAppFileSystemStorageTest {
 
+    private static final String FOLDER_PSEUDO_CLASS = "folder";
+
     private AppFileSystemStorage storage;
 
     protected abstract AppFileSystemStorage createStorage();
@@ -48,32 +50,39 @@ public abstract class AbstractAppFileSystemStorageTest {
     @Test
     public void test() throws IOException {
         // folder and create tests
-        NodeId rootFolderId = storage.getRootNode();
-        assertNotNull(rootFolderId);
-        assertNull(storage.getParentNode(rootFolderId));
-        assertEquals(PseudoClass.FOLDER_PSEUDO_CLASS, storage.getNodePseudoClass(rootFolderId));
-        assertTrue(storage.getChildNodes(rootFolderId).isEmpty());
-        NodeId testFolderId = storage.createNode(rootFolderId, "test", PseudoClass.FOLDER_PSEUDO_CLASS);
+        NodeInfo rootFolderInfo = storage.createRootNodeIfNotExists(storage.getFileSystemName(), FOLDER_PSEUDO_CLASS);
+        assertNotNull(rootFolderInfo.getId());
+        assertNull(storage.getParentNode(rootFolderInfo.getId()));
+        assertNull(storage.getParentNodeInfo(rootFolderInfo.getId()));
+        assertEquals(FOLDER_PSEUDO_CLASS, storage.getNodePseudoClass(rootFolderInfo.getId()));
+        assertTrue(storage.getChildNodes(rootFolderInfo.getId()).isEmpty());
+        assertTrue(storage.getChildNodesInfo(rootFolderInfo.getId()).isEmpty());
+        NodeId testFolderId = storage.createNode(rootFolderInfo.getId(), "test", FOLDER_PSEUDO_CLASS);
         storage.flush();
-        assertEquals(rootFolderId, storage.getParentNode(testFolderId));
-        assertEquals(new NodeInfo(rootFolderId, storage.getFileSystemName(), PseudoClass.FOLDER_PSEUDO_CLASS), storage.getParentNodeInfo(testFolderId));
+        assertEquals(rootFolderInfo.getId(), storage.getParentNode(testFolderId));
+        assertEquals(new NodeInfo(rootFolderInfo.getId(), storage.getFileSystemName(), FOLDER_PSEUDO_CLASS), storage.getParentNodeInfo(testFolderId));
         assertEquals("test", storage.getNodeName(testFolderId));
-        assertEquals(PseudoClass.FOLDER_PSEUDO_CLASS, storage.getNodePseudoClass(testFolderId));
-        assertEquals(new NodeInfo(testFolderId, "test", PseudoClass.FOLDER_PSEUDO_CLASS), storage.getNodeInfo(testFolderId));
+        assertEquals(FOLDER_PSEUDO_CLASS, storage.getNodePseudoClass(testFolderId));
+        assertEquals(new NodeInfo(testFolderId, "test", FOLDER_PSEUDO_CLASS), storage.getNodeInfo(testFolderId));
         assertEquals(testFolderId, storage.fromString(testFolderId.toString()));
         assertTrue(storage.getChildNodes(testFolderId).isEmpty());
-        assertEquals(1, storage.getChildNodes(rootFolderId).size());
-        assertEquals(testFolderId, storage.getChildNodes(rootFolderId).get(0));
-        assertEquals(Collections.singletonList(new NodeInfo(testFolderId, "test", PseudoClass.FOLDER_PSEUDO_CLASS)), storage.getChildNodesInfo(rootFolderId));
-        assertNull(storage.getChildNode(rootFolderId, "???"));
-        assertNotNull(storage.getChildNode(rootFolderId, "test"));
-        assertEquals(new NodeInfo(testFolderId, "test", PseudoClass.FOLDER_PSEUDO_CLASS), storage.getChildNodeInfo(rootFolderId, "test"));
+        assertEquals(1, storage.getChildNodes(rootFolderInfo.getId()).size());
+        assertEquals(testFolderId, storage.getChildNodes(rootFolderInfo.getId()).get(0));
+        assertEquals(Collections.singletonList(new NodeInfo(testFolderId, "test", FOLDER_PSEUDO_CLASS)), storage.getChildNodesInfo(rootFolderInfo.getId()));
+        assertNull(storage.getChildNode(rootFolderInfo.getId(), "???"));
+        assertNull(storage.getChildNodeInfo(rootFolderInfo.getId(), "???"));
+        assertNotNull(storage.getChildNode(rootFolderInfo.getId(), "test"));
+        assertEquals(new NodeInfo(testFolderId, "test", FOLDER_PSEUDO_CLASS), storage.getChildNodeInfo(rootFolderInfo.getId(), "test"));
 
         // dependency tests
         NodeId testDataId = storage.createNode(testFolderId, "data", "data");
         NodeId testData2Id = storage.createNode(testFolderId, "data2", "data");
         storage.flush();
         assertEquals(2, storage.getChildNodes(testFolderId).size());
+        assertTrue(storage.getDependencies(testDataId).isEmpty());
+        assertTrue(storage.getDependenciesInfo(testDataId).isEmpty());
+        assertTrue(storage.getBackwardDependencies(testData2Id).isEmpty());
+        assertTrue(storage.getBackwardDependenciesInfo(testData2Id).isEmpty());
         storage.addDependency(testDataId, "mylink", testData2Id);
         assertEquals(Collections.singletonList(testData2Id), storage.getDependencies(testDataId));
         assertEquals(Collections.singletonList(new NodeInfo(testData2Id, "data2", "data")), storage.getDependenciesInfo(testDataId));
@@ -82,6 +91,7 @@ public abstract class AbstractAppFileSystemStorageTest {
         assertEquals(testData2Id, storage.getDependency(testDataId, "mylink"));
         assertEquals(new NodeInfo(testData2Id, "data2", "data"), storage.getDependencyInfo(testDataId, "mylink"));
         assertNull(storage.getDependency(testDataId, "mylink2"));
+        assertNull(storage.getDependencyInfo(testDataId, "mylink2"));
         storage.deleteNode(testDataId);
         storage.flush();
         assertEquals(1, storage.getChildNodes(testFolderId).size());
@@ -215,15 +225,6 @@ public abstract class AbstractAppFileSystemStorageTest {
         storage.flush();
         assertTrue(storage.getTimeSeriesNames(testData2Id).isEmpty());
 
-        // create project test
-        NodeId projectId = storage.createNode(testFolderId, "project", PseudoClass.PROJECT_PSEUDO_CLASS);
-        storage.flush();
-        assertNotNull(storage.getProjectRootNode(projectId));
-        NodeId projectRootId = storage.getProjectRootNode(projectId);
-        assertEquals("root", storage.getNodeName(projectRootId));
-        assertEquals(PseudoClass.PROJECT_FOLDER_PSEUDO_CLASS, storage.getNodePseudoClass(projectRootId));
-        assertTrue(storage.getChildNodes(projectRootId).isEmpty());
-
         // test cache
         byte[] data = "data".getBytes(StandardCharsets.UTF_8);
         try (OutputStream os = storage.writeToCache(testData2Id, "cache1")) {
@@ -249,9 +250,9 @@ public abstract class AbstractAppFileSystemStorageTest {
 
     @Test
     public void setParentTest() throws IOException {
-        NodeId rootFolderId = storage.getRootNode();
-        NodeId folder1Id = storage.createNode(rootFolderId, "test1", PseudoClass.FOLDER_PSEUDO_CLASS);
-        NodeId folder2Id = storage.createNode(rootFolderId, "test2", PseudoClass.FOLDER_PSEUDO_CLASS);
+        NodeInfo rootFolderInfo = storage.createRootNodeIfNotExists(storage.getFileSystemName(), FOLDER_PSEUDO_CLASS);
+        NodeId folder1Id = storage.createNode(rootFolderInfo.getId(), "test1", FOLDER_PSEUDO_CLASS);
+        NodeId folder2Id = storage.createNode(rootFolderInfo.getId(), "test2", FOLDER_PSEUDO_CLASS);
         storage.flush();
         NodeId fileId = storage.createNode(folder1Id, "file", "file-type");
         storage.flush();
