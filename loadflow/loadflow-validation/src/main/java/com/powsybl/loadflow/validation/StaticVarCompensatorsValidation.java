@@ -67,13 +67,13 @@ public final class StaticVarCompensatorsValidation {
                       .orElse(true);
     }
 
-    public static boolean checkSVCs(StaticVarCompensator sva, ValidationConfig config, Writer writer) {
-        Objects.requireNonNull(sva);
+    public static boolean checkSVCs(StaticVarCompensator svc, ValidationConfig config, Writer writer) {
+        Objects.requireNonNull(svc);
         Objects.requireNonNull(config);
         Objects.requireNonNull(writer);
 
-        try (ValidationWriter svcsWriter = ValidationUtils.createValidationWriter(sva.getId(), config, writer, ValidationType.SVCS)) {
-            return checkSVCs(sva, config, svcsWriter);
+        try (ValidationWriter svcsWriter = ValidationUtils.createValidationWriter(svc.getId(), config, writer, ValidationType.SVCS)) {
+            return checkSVCs(svc, config, svcsWriter);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -86,37 +86,37 @@ public final class StaticVarCompensatorsValidation {
         float p = svc.getTerminal().getP();
         float q = svc.getTerminal().getQ();
         Bus bus = svc.getTerminal().getBusView().getBus();
-        float reactivePowerSetPoint = svc.getReactivePowerSetPoint();
-        float voltageSetPoint = svc.getVoltageSetPoint();
+        float reactivePowerSetpoint = svc.getReactivePowerSetPoint();
+        float voltageSetpoint = svc.getVoltageSetPoint();
         RegulationMode regulationMode = svc.getRegulationMode();
         float bMin = svc.getBmin();
         float bMax = svc.getBmax();
         if (bus != null && !Float.isNaN(bus.getV())) {
             float v = bus.getV();
-            return checkSVCs(svc.getId(), p, q, v, reactivePowerSetPoint, voltageSetPoint, regulationMode, bMin, bMax, config, svcsWriter);
+            return checkSVCs(svc.getId(), p, q, v, reactivePowerSetpoint, voltageSetpoint, regulationMode, bMin, bMax, config, svcsWriter);
         }
         try {
-            svcsWriter.write(svc.getId(), p, q, Float.NaN, reactivePowerSetPoint, voltageSetPoint, svc.getTerminal().isConnected(), regulationMode, bMin, bMax, true);
+            svcsWriter.write(svc.getId(), p, q, Float.NaN, reactivePowerSetpoint, voltageSetpoint, svc.getTerminal().isConnected(), regulationMode, bMin, bMax, true);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
         return true;
     }
 
-    public static boolean checkSVCs(String id, float p, float q, float v, float reactivePowerSetPoint, float voltageSetPoint,
+    public static boolean checkSVCs(String id, float p, float q, float v, float reactivePowerSetpoint, float voltageSetpoint,
                                     RegulationMode regulationMode, float bMin, float bMax, ValidationConfig config, Writer writer) {
         Objects.requireNonNull(id);
         Objects.requireNonNull(config);
         Objects.requireNonNull(writer);
 
         try (ValidationWriter svcsWriter = ValidationUtils.createValidationWriter(id, config, writer, ValidationType.SVCS)) {
-            return checkSVCs(id, p, q, v, reactivePowerSetPoint, voltageSetPoint, regulationMode, bMin, bMax, config, svcsWriter);
+            return checkSVCs(id, p, q, v, reactivePowerSetpoint, voltageSetpoint, regulationMode, bMin, bMax, config, svcsWriter);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    public static boolean checkSVCs(String id, float p, float q, float v, float reactivePowerSetPoint, float voltageSetPoint,
+    public static boolean checkSVCs(String id, float p, float q, float v, float reactivePowerSetpoint, float voltageSetpoint,
                                     RegulationMode regulationMode, float bMin, float bMax, ValidationConfig config, ValidationWriter svcsWriter) {
         Objects.requireNonNull(id);
         Objects.requireNonNull(config);
@@ -124,27 +124,27 @@ public final class StaticVarCompensatorsValidation {
         boolean validated = true;
         try {
             if (Float.isNaN(p) || Float.isNaN(q)) {
-                validated = checkSVCsNaNValues(id, p, q, reactivePowerSetPoint);
+                validated = checkSVCsNaNValues(id, p, q, reactivePowerSetpoint);
             } else {
-                validated = checkSVCsValues(id, p, q, v, reactivePowerSetPoint, voltageSetPoint, regulationMode, bMin, bMax, config);
+                validated = checkSVCsValues(id, p, q, v, reactivePowerSetpoint, voltageSetpoint, regulationMode, bMin, bMax, config);
             }
-            svcsWriter.write(id, p, q, v, reactivePowerSetPoint, voltageSetPoint, true, regulationMode, bMin, bMax, validated);
+            svcsWriter.write(id, p, q, v, reactivePowerSetpoint, voltageSetpoint, true, regulationMode, bMin, bMax, validated);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
         return validated;
     }
 
-    private static boolean checkSVCsNaNValues(String id, float p, float q, float reactivePowerSetPoint) {
-        // a validation error should be detected if there is a set point but no p or q
-        if (!Float.isNaN(reactivePowerSetPoint) && reactivePowerSetPoint != 0) {
-            LOGGER.warn("{} {}: {}: P={} Q={} reactivePowerSetPoint={}", ValidationType.SVCS, ValidationUtils.VALIDATION_ERROR, id, p, q, reactivePowerSetPoint);
+    private static boolean checkSVCsNaNValues(String id, float p, float q, float reactivePowerSetpoint) {
+        // a validation error should be detected if there is a setpoint but no p or q
+        if (!Float.isNaN(reactivePowerSetpoint) && reactivePowerSetpoint != 0) {
+            LOGGER.warn("{} {}: {}: P={} Q={} reactivePowerSetpoint={}", ValidationType.SVCS, ValidationUtils.VALIDATION_ERROR, id, p, q, reactivePowerSetpoint);
             return false;
         }
         return true;
     }
 
-    private static boolean checkSVCsValues(String id, float p, float q, float v, float reactivePowerSetPoint, float voltageSetPoint,
+    private static boolean checkSVCsValues(String id, float p, float q, float v, float reactivePowerSetpoint, float voltageSetpoint,
                                            RegulationMode regulationMode, float bMin, float bMax, ValidationConfig config) {
         boolean validated = true;
         // active power should be equal to 0
@@ -152,21 +152,21 @@ public final class StaticVarCompensatorsValidation {
             LOGGER.warn("{} {}: {}: P={}", ValidationType.SVCS, ValidationUtils.VALIDATION_ERROR, id, p);
             validated = false;
         }
-        // if regulationMode=VOLTAGE then reactive power should be equal to set point
-        if (regulationMode == RegulationMode.VOLTAGE && ((Float.isNaN(reactivePowerSetPoint) && !config.areOkMissingValues()) || Math.abs(q + reactivePowerSetPoint) > config.getThreshold())) {
-            LOGGER.warn("{} {}: {}: regulator mode={} - Q={} reactivePowerSetPoint={}", ValidationType.SVCS, ValidationUtils.VALIDATION_ERROR, id, regulationMode, q, reactivePowerSetPoint);
+        // if regulationMode=VOLTAGE then reactive power should be equal to setpoint
+        if (regulationMode == RegulationMode.VOLTAGE && ((Float.isNaN(reactivePowerSetpoint) && !config.areOkMissingValues()) || Math.abs(q + reactivePowerSetpoint) > config.getThreshold())) {
+            LOGGER.warn("{} {}: {}: regulator mode={} - Q={} reactivePowerSetpoint={}", ValidationType.SVCS, ValidationUtils.VALIDATION_ERROR, id, regulationMode, q, reactivePowerSetpoint);
             validated = false;
         }
         // if regulationMode<>VOLTAGE then
-        // either q is equal to bMin * V and V is lower than voltageSetPoint
-        // or q is equal to bMax * V and V is higher than voltageSetPoint
-        // or V at the connected bus is equal to voltageSetPoint
+        // either q is equal to bMin * V and V is lower than voltageSetpoint
+        // or q is equal to bMax * V and V is higher than voltageSetpoint
+        // or V at the connected bus is equal to voltageSetpoint
         if (regulationMode != RegulationMode.VOLTAGE
-            && (((Float.isNaN(bMin) || Float.isNaN(bMax) || Float.isNaN(voltageSetPoint)) && !config.areOkMissingValues())
-                || ((Math.abs(q + bMin * v) > config.getThreshold() || (v - voltageSetPoint) >= config.getThreshold())
-                    && (Math.abs(q + bMax * v) > config.getThreshold() || (voltageSetPoint - v) >= config.getThreshold())
-                    && Math.abs(v - voltageSetPoint) > config.getThreshold()))) {
-            LOGGER.warn("{} {}: {}: regulator mode={} - Q={} bMin={} bMax={} - V={} targetV={}", ValidationType.SVCS, ValidationUtils.VALIDATION_ERROR, id, regulationMode, q, bMin, bMax, v, voltageSetPoint);
+            && (((Float.isNaN(bMin) || Float.isNaN(bMax) || Float.isNaN(voltageSetpoint)) && !config.areOkMissingValues())
+                || ((Math.abs(q + bMin * v) > config.getThreshold() || (v - voltageSetpoint) >= config.getThreshold())
+                    && (Math.abs(q + bMax * v) > config.getThreshold() || (voltageSetpoint - v) >= config.getThreshold())
+                    && Math.abs(v - voltageSetpoint) > config.getThreshold()))) {
+            LOGGER.warn("{} {}: {}: regulator mode={} - Q={} bMin={} bMax={} - V={} targetV={}", ValidationType.SVCS, ValidationUtils.VALIDATION_ERROR, id, regulationMode, q, bMin, bMax, v, voltageSetpoint);
             validated = false;
         }
         return validated;

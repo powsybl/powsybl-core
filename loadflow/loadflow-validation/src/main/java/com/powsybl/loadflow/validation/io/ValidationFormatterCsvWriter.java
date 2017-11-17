@@ -151,8 +151,8 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                         new Column("p"),
                         new Column("q"),
                         new Column("v"),
-                        new Column("reactivePowerSetPoint"),
-                        new Column("voltageSetPoint"),
+                        new Column("reactivePowerSetpoint"),
+                        new Column("voltageSetpoint"),
                         new Column("connected"),
                         new Column("regulationMode"),
                         new Column("bMin"),
@@ -165,8 +165,8 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                     new Column("p"),
                     new Column("q"),
                     new Column("v"),
-                    new Column("reactivePowerSetPoint"),
-                    new Column("voltageSetPoint")
+                    new Column("reactivePowerSetpoint"),
+                    new Column("voltageSetpoint")
                 };
             default:
                 throw new AssertionError("Unexpected ValidationType value: " + validationType);
@@ -259,15 +259,15 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
     }
 
     @Override
-    public void write(String svcId, float p, float q, float v, float reactivePowerSetPoint, float voltageSetPoint,
+    public void write(String svcId, float p, float q, float v, float reactivePowerSetpoint, float voltageSetpoint,
                       boolean connected, RegulationMode regulationMode, float bMin, float bMax, boolean validated) throws IOException {
         Objects.requireNonNull(svcId);
         formatter.writeCell(svcId)
                  .writeCell(-p)
                  .writeCell(-q)
                  .writeCell(v)
-                 .writeCell(reactivePowerSetPoint)
-                 .writeCell(voltageSetPoint);
+                 .writeCell(reactivePowerSetpoint)
+                 .writeCell(voltageSetpoint);
         if (verbose) {
             formatter.writeCell(connected)
                      .writeCell(regulationMode.name())

@@ -158,8 +158,8 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
                            String.join(";", svcId, "p", String.format(Locale.getDefault(), "%g", -p)),
                            String.join(";", svcId, "q", String.format(Locale.getDefault(), "%g", -q)),
                            String.join(";", svcId, "v", String.format(Locale.getDefault(), "%g", v)),
-                           String.join(";", svcId, "reactivePowerSetPoint", String.format(Locale.getDefault(), "%g", reactivePowerSetPoint)),
-                           String.join(";", svcId, "voltageSetPoint", String.format(Locale.getDefault(), "%g", voltageSetPoint)));
+                           String.join(";", svcId, "reactivePowerSetpoint", String.format(Locale.getDefault(), "%g", reactivePowerSetpoint)),
+                           String.join(";", svcId, "voltageSetpoint", String.format(Locale.getDefault(), "%g", voltageSetpoint)));
     }
 
     @Override
@@ -170,8 +170,8 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
                            String.join(";", svcId, "p", String.format(Locale.getDefault(), "%g", -p)),
                            String.join(";", svcId, "q", String.format(Locale.getDefault(), "%g", -q)),
                            String.join(";", svcId, "v", String.format(Locale.getDefault(), "%g", v)),
-                           String.join(";", svcId, "reactivePowerSetPoint", String.format(Locale.getDefault(), "%g", reactivePowerSetPoint)),
-                           String.join(";", svcId, "voltageSetPoint", String.format(Locale.getDefault(), "%g", voltageSetPoint)),
+                           String.join(";", svcId, "reactivePowerSetpoint", String.format(Locale.getDefault(), "%g", reactivePowerSetpoint)),
+                           String.join(";", svcId, "voltageSetpoint", String.format(Locale.getDefault(), "%g", voltageSetpoint)),
                            String.join(";", svcId, "connected", Boolean.toString(connected)),
                            String.join(";", svcId, "regulationMode", regulationMode.name()),
                            String.join(";", svcId, "bMin", String.format(Locale.getDefault(), "%g", bMin)),

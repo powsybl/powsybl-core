@@ -85,8 +85,8 @@ public abstract class AbstractValidationFormatterWriterTest {
     protected final double tltQ = 0f;
 
     protected final String svcId = "svcId";
-    protected final float reactivePowerSetPoint = -3.72344f;
-    protected final float voltageSetPoint = 380f;
+    protected final float reactivePowerSetpoint = -3.72344f;
+    protected final float voltageSetpoint = 380f;
     protected final RegulationMode regulationMode = RegulationMode.VOLTAGE;
     protected final float bMin = -10f;
     protected final float bMax = 0f;
@@ -185,7 +185,7 @@ public abstract class AbstractValidationFormatterWriterTest {
         Writer writer = new StringWriter();
         TableFormatterConfig config = new TableFormatterConfig(Locale.getDefault(), ';', "inv", true, true);
         try (ValidationWriter svcsWriter = getSvcsValidationFormatterCsvWriter(config, writer, verbose)) {
-            svcsWriter.write(svcId, p, q, v, reactivePowerSetPoint, voltageSetPoint, verbose, regulationMode, bMin, bMax, validated);
+            svcsWriter.write(svcId, p, q, v, reactivePowerSetpoint, voltageSetpoint, verbose, regulationMode, bMin, bMax, validated);
             assertEquals(svcsContent, writer.toString().trim());
         }
     }
