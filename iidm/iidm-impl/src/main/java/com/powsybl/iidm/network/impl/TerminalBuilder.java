@@ -51,8 +51,15 @@ class TerminalBuilder {
                     "connection node and connection bus are exclusives");
         }
 
-        return node != null ? new NodeTerminal(network, node)
-                            : new BusTerminal(network, connectionBus, bus != null);
+        if (node == null) {
+            if (connectionBus == null) {
+                throw new ValidationException(validable, "connectable bus is not set");
+            }
+
+            return new BusTerminal(network, connectionBus, bus != null);
+        } else {
+            return new NodeTerminal(network, node);
+        }
     }
 
     private String getConnectionBus() {
