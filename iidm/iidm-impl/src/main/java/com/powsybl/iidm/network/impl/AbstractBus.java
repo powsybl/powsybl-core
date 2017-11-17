@@ -47,7 +47,7 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> {
     public abstract int getConnectedTerminalCount();
 
     public int getConnectedOrConnectableTerminalCount() {
-        return (int) getTerminals().size();
+        return getTerminals().size();
     }
 
     public abstract Iterable<TerminalExt> getConnectedTerminals();
