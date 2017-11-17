@@ -45,19 +45,25 @@ class TerminalBuilder {
     }
 
     TerminalExt build() {
-        if (node != null && connectableBus != null) {
+        String connectionBus = getConnectionBus();
+        if (node != null && connectionBus != null) {
             throw new ValidationException(validable,
                     "connection node and connection bus are exclusives");
         }
-        if (node == null) {
-            if (connectableBus == null) {
-                throw new ValidationException(validable, "connectable bus is not set");
-            }
-            if (bus != null && !bus.equals(connectableBus)) {
+
+        return node != null ? new NodeTerminal(network, node)
+                            : new BusTerminal(network, connectionBus, bus != null);
+    }
+
+    private String getConnectionBus() {
+        if (bus != null) {
+            if ((connectableBus != null) && (!bus.equals(connectableBus))) {
                 throw new ValidationException(validable, "connection bus is different to connectable bus");
             }
+
+            return bus;
+        } else {
+            return connectableBus;
         }
-        return node != null ? new NodeTerminal(network, node)
-                            : new BusTerminal(network, connectableBus, bus != null);
     }
 }
