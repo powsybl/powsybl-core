@@ -91,41 +91,21 @@ public interface AppFileSystemStorage extends AutoCloseable {
 
     DataSource getDataSourceAttribute(NodeId nodeId, String name);
 
-    static UnsupportedOperationException createNotImplementedException() {
-        return new UnsupportedOperationException("Not implemented");
-    }
+    void createTimeSeries(NodeId nodeId, TimeSeriesMetadata metadata);
 
-    default void createTimeSeries(NodeId nodeId, TimeSeriesMetadata metadata) {
-        throw createNotImplementedException();
-    }
+    Set<String> getTimeSeriesNames(NodeId nodeId);
 
-    default Set<String> getTimeSeriesNames(NodeId nodeId) {
-        throw createNotImplementedException();
-    }
+    List<TimeSeriesMetadata> getTimeSeriesMetadata(NodeId nodeId, Set<String> timeSeriesNames);
 
-    default List<TimeSeriesMetadata> getTimeSeriesMetadata(NodeId nodeId, Set<String> timeSeriesNames) {
-        throw createNotImplementedException();
-    }
+    List<DoubleTimeSeries> getDoubleTimeSeries(NodeId nodeId, Set<String> timeSeriesNames, int version);
 
-    default List<DoubleTimeSeries> getDoubleTimeSeries(NodeId nodeId, Set<String> timeSeriesNames, int version) {
-        throw createNotImplementedException();
-    }
+    void addDoubleTimeSeriesData(NodeId nodeId, int version, String timeSeriesName, List<DoubleArrayChunk> chunks);
 
-    default void addDoubleTimeSeriesData(NodeId nodeId, int version, String timeSeriesName, List<DoubleArrayChunk> chunks) {
-        throw createNotImplementedException();
-    }
+    List<StringTimeSeries> getStringTimeSeries(NodeId nodeId, Set<String> timeSeriesNames, int version);
 
-    default List<StringTimeSeries> getStringTimeSeries(NodeId nodeId, Set<String> timeSeriesNames, int version) {
-        throw createNotImplementedException();
-    }
+    void addStringTimeSeriesData(NodeId nodeId, int version, String timeSeriesName, List<StringArrayChunk> chunks);
 
-    default void addStringTimeSeriesData(NodeId nodeId, int version, String timeSeriesName, List<StringArrayChunk> chunks) {
-        throw createNotImplementedException();
-    }
-
-    default void removeAllTimeSeries(NodeId nodeId) {
-        throw createNotImplementedException();
-    }
+    void removeAllTimeSeries(NodeId nodeId);
 
     NodeId getDependency(NodeId nodeId, String name);
 
