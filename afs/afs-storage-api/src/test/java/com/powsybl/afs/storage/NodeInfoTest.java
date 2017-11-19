@@ -1,0 +1,55 @@
+/**
+ * Copyright (c) 2017, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+package com.powsybl.afs.storage;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.powsybl.afs.storage.json.AppStorageJsonModule;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+
+/**
+ * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ */
+public class NodeInfoTest {
+
+    private AppFileSystemStorage storage;
+
+    private ObjectMapper objectMapper;
+
+    @Before
+    public void setUp() throws Exception {
+        storage = Mockito.mock(AppFileSystemStorage.class);
+        Mockito.when(storage.fromString(Mockito.anyString()))
+                .then(invocationOnMock -> new NodeIdMock(invocationOnMock.getArguments()[0].toString()));
+
+        objectMapper = new ObjectMapper()
+                .registerModule(new AppStorageJsonModule(storage));
+    }
+
+    @Test
+    public void nodeIdTest() throws IOException {
+        List<NodeId> idList = Arrays.asList(new NodeIdMock("a"), new NodeIdMock("b"));
+        List<NodeId> idList2 = objectMapper.readValue(objectMapper.writeValueAsString(idList),
+                                                      TypeFactory.defaultInstance().constructCollectionType(List.class, NodeId.class));
+        assertEquals(idList, idList2);
+    }
+
+    @Test
+    public void nodeInfoTest() throws IOException {
+        NodeInfo info = new NodeInfo(new NodeIdMock("a"), "b", "c");
+        NodeInfo info2 = objectMapper.readValue(objectMapper.writeValueAsString(info), NodeInfo.class);
+        assertEquals(info, info2);
+    }
+}
