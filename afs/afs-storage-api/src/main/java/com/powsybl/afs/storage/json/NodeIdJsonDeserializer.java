@@ -21,7 +21,7 @@ import java.util.Objects;
  */
 public class NodeIdJsonDeserializer extends StdDeserializer<NodeId> {
 
-    private final AppFileSystemStorage storage;
+    private final transient AppFileSystemStorage storage;
 
     public NodeIdJsonDeserializer(AppFileSystemStorage storage) {
         super(NodeId.class);
@@ -30,6 +30,7 @@ public class NodeIdJsonDeserializer extends StdDeserializer<NodeId> {
 
     @Override
     public NodeId deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) {
+        Objects.requireNonNull(storage, "NodeIdJsonDeserializer should not be serialized/deserialized");
         try {
             return storage.fromString(jsonParser.getValueAsString());
         } catch (IOException e) {

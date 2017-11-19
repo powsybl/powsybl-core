@@ -123,6 +123,20 @@ public interface ArrayChunk<P extends AbstractPoint> {
         private TIntArrayList stepLengths;
         private int uncompressedLength = -1;
         private boolean valuesOrLengthArray = false;
+
+        void addDoubleValue(double value) {
+            if (doubleValues == null) {
+                doubleValues = new TDoubleArrayList();
+            }
+            doubleValues.add(value);
+        }
+
+        void addStringValue(String value) {
+            if (stringValues == null) {
+                stringValues = new ArrayList<>();
+            }
+            stringValues.add(value);
+        }
     }
 
     static void parseFieldName(JsonParser parser, JsonParsingContext context) throws IOException {
@@ -187,6 +201,17 @@ public interface ArrayChunk<P extends AbstractPoint> {
         context.offset = -1;
     }
 
+    static void parseValueNumberInt(JsonParser parser, JsonParsingContext context) throws IOException {
+        if (context.stepLengths != null) {
+            context.stepLengths.add(parser.getIntValue());
+        } else {
+            context.addDoubleValue(parser.getIntValue());
+        }
+    }
+
+    /**
+     * @deprecated Use parseJson(JsonParser, List<DoubleArrayChunk>, List<StringArrayChunk>)
+     */
     @Deprecated
     static void parseJson(JsonParser parser, TimeSeriesDataType dataType, List<DoubleArrayChunk> doubleChunks,
                           List<StringArrayChunk> stringChunks) {
@@ -224,28 +249,13 @@ public interface ArrayChunk<P extends AbstractPoint> {
                         }
                         break;
                     case VALUE_NUMBER_FLOAT:
-                        if (context.doubleValues == null) {
-                            context.doubleValues = new TDoubleArrayList();
-                        }
-                        context.doubleValues.add(parser.getDoubleValue());
+                        context.addDoubleValue(parser.getDoubleValue());
                         break;
                     case VALUE_NUMBER_INT:
-                        if (context.stepLengths != null) {
-                            context.stepLengths.add(parser.getIntValue());
-                        } else if (context.doubleValues != null) {
-                            if (context.doubleValues == null) {
-                                context.doubleValues = new TDoubleArrayList();
-                            }
-                            context.doubleValues.add(parser.getIntValue());
-                        } else {
-                            throw new IllegalStateException("Should not happen");
-                        }
+                        parseValueNumberInt(parser, context);
                         break;
                     case VALUE_STRING:
-                        if (context.stringValues == null) {
-                            context.stringValues = new ArrayList<>();
-                        }
-                        context.stringValues.add(parser.getValueAsString());
+                        context.addStringValue(parser.getValueAsString());
                         break;
                     default:
                         break;

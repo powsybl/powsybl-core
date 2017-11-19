@@ -23,7 +23,7 @@ import java.util.Objects;
  */
 public class NodeInfoJsonDeserializer extends StdDeserializer<NodeInfo> {
 
-    private final AppFileSystemStorage storage;
+    private final transient AppFileSystemStorage storage;
 
     public NodeInfoJsonDeserializer(AppFileSystemStorage storage) {
         super(NodeInfo.class);
@@ -32,6 +32,7 @@ public class NodeInfoJsonDeserializer extends StdDeserializer<NodeInfo> {
 
     @Override
     public NodeInfo deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) {
+        Objects.requireNonNull(storage, "NodeInfoJsonDeserializer should not be serialized/deserialized");
         try {
             NodeId id = null;
             String name = null;
