@@ -6,7 +6,7 @@
  */
 package com.powsybl.afs;
 
-import com.powsybl.afs.storage.AppFileSystemStorage;
+import com.powsybl.afs.storage.ListenableAppStorage;
 import com.powsybl.afs.storage.NodeInfo;
 
 /**
@@ -18,5 +18,5 @@ public interface FileExtension {
 
     String getFilePseudoClass();
 
-    <T extends File> T createFile(NodeInfo info, AppFileSystemStorage storage, AppFileSystem fileSystem);
+    <T extends File> T createFile(NodeInfo info, ListenableAppStorage storage, AppFileSystem fileSystem);
 }

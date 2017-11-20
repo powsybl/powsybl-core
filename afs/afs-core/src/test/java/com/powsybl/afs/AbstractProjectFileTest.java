@@ -6,7 +6,7 @@
  */
 package com.powsybl.afs;
 
-import com.powsybl.afs.storage.AppFileSystemStorage;
+import com.powsybl.afs.storage.AppStorage;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
@@ -22,7 +22,7 @@ import java.util.List;
  */
 public abstract class AbstractProjectFileTest {
 
-    protected AppFileSystemStorage storage;
+    protected AppStorage storage;
 
     protected AppFileSystem afs;
 
@@ -30,7 +30,7 @@ public abstract class AbstractProjectFileTest {
 
     protected Network network;
 
-    protected abstract AppFileSystemStorage createStorage();
+    protected abstract AppStorage createStorage();
 
     protected List<FileExtension> getFileExtensions() {
         return Collections.emptyList();

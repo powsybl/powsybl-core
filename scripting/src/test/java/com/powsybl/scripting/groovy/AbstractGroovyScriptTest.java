@@ -10,7 +10,7 @@ import com.powsybl.afs.AppData;
 import com.powsybl.afs.AppFileSystem;
 import com.powsybl.afs.FileExtension;
 import com.powsybl.afs.ProjectFileExtension;
-import com.powsybl.afs.storage.AppFileSystemStorage;
+import com.powsybl.afs.storage.AppStorage;
 import com.powsybl.computation.ComputationManager;
 import org.junit.After;
 import org.junit.Before;
@@ -41,8 +41,8 @@ public abstract class AbstractGroovyScriptTest {
         return emptyList();
     }
 
-    protected AppFileSystemStorage createStorage() {
-        return Mockito.mock(AppFileSystemStorage.class);
+    protected AppStorage createStorage() {
+        return Mockito.mock(AppStorage.class);
     }
 
     protected List<FileExtension> getFileExtensions() {

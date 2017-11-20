@@ -9,7 +9,7 @@ package com.powsybl.afs.ext.base;
 import com.powsybl.afs.AfsException;
 import com.powsybl.afs.AppFileSystem;
 import com.powsybl.afs.ProjectFileBuilder;
-import com.powsybl.afs.storage.AppFileSystemStorage;
+import com.powsybl.afs.storage.ListenableAppStorage;
 import com.powsybl.afs.storage.NodeId;
 import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.iidm.import_.ImportersLoader;
@@ -28,7 +28,7 @@ public class ImportedCaseBuilder implements ProjectFileBuilder<ImportedCase> {
 
     private final NodeInfo folderInfo;
 
-    private final AppFileSystemStorage storage;
+    private final ListenableAppStorage storage;
 
     private final NodeInfo projectInfo;
 
@@ -40,7 +40,7 @@ public class ImportedCaseBuilder implements ProjectFileBuilder<ImportedCase> {
 
     private final Properties parameters = new Properties();;
 
-    public ImportedCaseBuilder(NodeInfo folderInfo, AppFileSystemStorage storage, NodeInfo projectInfo, AppFileSystem fileSystem,
+    public ImportedCaseBuilder(NodeInfo folderInfo, ListenableAppStorage storage, NodeInfo projectInfo, AppFileSystem fileSystem,
                                ImportersLoader importersLoader) {
         this.folderInfo = Objects.requireNonNull(folderInfo);
         this.storage = Objects.requireNonNull(storage);

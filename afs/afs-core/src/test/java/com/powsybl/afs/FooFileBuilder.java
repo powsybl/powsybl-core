@@ -6,7 +6,7 @@
  */
 package com.powsybl.afs;
 
-import com.powsybl.afs.storage.AppFileSystemStorage;
+import com.powsybl.afs.storage.ListenableAppStorage;
 import com.powsybl.afs.storage.NodeId;
 import com.powsybl.afs.storage.NodeInfo;
 
@@ -20,7 +20,7 @@ class FooFileBuilder implements ProjectFileBuilder<FooFile> {
 
     private final NodeId folderId;
 
-    private final AppFileSystemStorage storage;
+    private final ListenableAppStorage storage;
 
     private final NodeInfo projectInfo;
 
@@ -28,7 +28,7 @@ class FooFileBuilder implements ProjectFileBuilder<FooFile> {
 
     private String name;
 
-    FooFileBuilder(NodeId folderId, AppFileSystemStorage storage, NodeInfo projectInfo, AppFileSystem fileSystem) {
+    FooFileBuilder(NodeId folderId, ListenableAppStorage storage, NodeInfo projectInfo, AppFileSystem fileSystem) {
         this.folderId = Objects.requireNonNull(folderId);
         this.storage = Objects.requireNonNull(storage);
         this.projectInfo = Objects.requireNonNull(projectInfo);

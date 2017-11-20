@@ -9,7 +9,8 @@ package com.powsybl.afs.ext.base;
 import com.powsybl.afs.AfsException;
 import com.powsybl.afs.AppFileSystem;
 import com.powsybl.afs.File;
-import com.powsybl.afs.storage.AppFileSystemStorage;
+import com.powsybl.afs.storage.AppStorage;
+import com.powsybl.afs.storage.ListenableAppStorage;
 import com.powsybl.afs.storage.NodeId;
 import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
@@ -30,14 +31,14 @@ public class Case extends File {
 
     private final ImportersLoader importersLoader;
 
-    public Case(NodeInfo info, AppFileSystemStorage storage, AppFileSystem fileSystem, ImportersLoader importersLoader) {
+    public Case(NodeInfo info, ListenableAppStorage storage, AppFileSystem fileSystem, ImportersLoader importersLoader) {
         super(info, storage, fileSystem, CaseIconCache.INSTANCE.get(importersLoader,
                                                                   fileSystem.getData().getComputationManager(),
                                                                   getFormat(storage, info.getId())));
         this.importersLoader = Objects.requireNonNull(importersLoader);
     }
 
-    private static String getFormat(AppFileSystemStorage storage, NodeId id) {
+    private static String getFormat(AppStorage storage, NodeId id) {
         return storage.getStringAttribute(id, FORMAT);
     }
 

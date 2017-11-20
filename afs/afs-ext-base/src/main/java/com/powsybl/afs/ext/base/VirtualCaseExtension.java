@@ -9,7 +9,7 @@ package com.powsybl.afs.ext.base;
 import com.google.auto.service.AutoService;
 import com.powsybl.afs.AppFileSystem;
 import com.powsybl.afs.ProjectFileExtension;
-import com.powsybl.afs.storage.AppFileSystemStorage;
+import com.powsybl.afs.storage.ListenableAppStorage;
 import com.powsybl.afs.storage.NodeInfo;
 
 /**
@@ -33,12 +33,12 @@ public class VirtualCaseExtension implements ProjectFileExtension {
     }
 
     @Override
-    public VirtualCase createProjectFile(NodeInfo info, AppFileSystemStorage storage, NodeInfo projectInfo, AppFileSystem fileSystem) {
+    public VirtualCase createProjectFile(NodeInfo info, ListenableAppStorage storage, NodeInfo projectInfo, AppFileSystem fileSystem) {
         return new VirtualCase(info, storage, projectInfo, fileSystem);
     }
 
     @Override
-    public VirtualCaseBuilder createProjectFileBuilder(NodeInfo folderInfo, AppFileSystemStorage storage, NodeInfo projectInfo, AppFileSystem fileSystem) {
+    public VirtualCaseBuilder createProjectFileBuilder(NodeInfo folderInfo, ListenableAppStorage storage, NodeInfo projectInfo, AppFileSystem fileSystem) {
         return new VirtualCaseBuilder(folderInfo, storage, projectInfo, fileSystem);
     }
 }

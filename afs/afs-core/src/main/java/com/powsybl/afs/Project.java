@@ -6,7 +6,7 @@
  */
 package com.powsybl.afs;
 
-import com.powsybl.afs.storage.AppFileSystemStorage;
+import com.powsybl.afs.storage.ListenableAppStorage;
 import com.powsybl.afs.storage.NodeInfo;
 
 import java.util.Objects;
@@ -25,7 +25,7 @@ public class Project extends File {
 
     private static final FileIcon PROJECT_ICON = new FileIcon(PROJECT_LABEL, Project.class.getResourceAsStream("/icons/project16x16.png"));
 
-    public Project(NodeInfo info, AppFileSystemStorage storage, AppFileSystem fileSystem) {
+    public Project(NodeInfo info, ListenableAppStorage storage, AppFileSystem fileSystem) {
         super(info, storage, fileSystem, PROJECT_ICON);
     }
 

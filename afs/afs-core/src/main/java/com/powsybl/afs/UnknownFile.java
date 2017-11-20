@@ -6,7 +6,7 @@
  */
 package com.powsybl.afs;
 
-import com.powsybl.afs.storage.AppFileSystemStorage;
+import com.powsybl.afs.storage.ListenableAppStorage;
 import com.powsybl.afs.storage.NodeInfo;
 
 /**
@@ -16,7 +16,7 @@ public class UnknownFile extends File {
 
     static final FileIcon GHOST_ICON = new FileIcon("ghost", UnknownFile.class.getResourceAsStream("/icons/ghost16x16.png"));
 
-    public UnknownFile(NodeInfo info, AppFileSystemStorage storage, AppFileSystem fileSystem) {
+    public UnknownFile(NodeInfo info, ListenableAppStorage storage, AppFileSystem fileSystem) {
         super(info, storage, fileSystem, GHOST_ICON);
     }
 }

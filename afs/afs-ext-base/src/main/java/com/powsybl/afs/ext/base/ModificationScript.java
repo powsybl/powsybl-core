@@ -9,7 +9,7 @@ package com.powsybl.afs.ext.base;
 import com.powsybl.afs.AppFileSystem;
 import com.powsybl.afs.FileIcon;
 import com.powsybl.afs.ProjectFile;
-import com.powsybl.afs.storage.AppFileSystemStorage;
+import com.powsybl.afs.storage.ListenableAppStorage;
 import com.powsybl.afs.storage.NodeInfo;
 
 /**
@@ -28,7 +28,7 @@ public class ModificationScript extends ProjectFile {
 
     private static final FileIcon SCRIPT_ICON = new FileIcon("script", ModificationScript.class.getResourceAsStream("/icons/script16x16.png"));
 
-    public ModificationScript(NodeInfo info, AppFileSystemStorage storage, NodeInfo projectInfo, AppFileSystem fileSystem) {
+    public ModificationScript(NodeInfo info, ListenableAppStorage storage, NodeInfo projectInfo, AppFileSystem fileSystem) {
         super(info, storage, projectInfo, fileSystem, SCRIPT_ICON);
     }
 

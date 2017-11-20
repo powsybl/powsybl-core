@@ -8,10 +8,7 @@ package com.powsybl.afs.mapdb.storage;
 
 import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableSet;
-import com.powsybl.afs.storage.AfsStorageException;
-import com.powsybl.afs.storage.AppFileSystemStorage;
-import com.powsybl.afs.storage.NodeId;
-import com.powsybl.afs.storage.NodeInfo;
+import com.powsybl.afs.storage.*;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.math.timeseries.*;
 import org.mapdb.*;
@@ -24,21 +21,21 @@ import java.util.function.BiFunction;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class MapDbAppFileSystemStorage implements AppFileSystemStorage {
+public class MapDbAppStorage implements AppStorage {
 
-    public static MapDbAppFileSystemStorage createMem(String fileSystemName) {
+    public static MapDbAppStorage createMem(String fileSystemName) {
         DBMaker.Maker maker = DBMaker.memoryDB();
-        return new MapDbAppFileSystemStorage(fileSystemName, maker::make);
+        return new MapDbAppStorage(fileSystemName, maker::make);
     }
 
-    public static MapDbAppFileSystemStorage createHeap(String fileSystemName) {
+    public static MapDbAppStorage createHeap(String fileSystemName) {
         DBMaker.Maker maker = DBMaker.heapDB();
-        return new MapDbAppFileSystemStorage(fileSystemName, maker::make);
+        return new MapDbAppStorage(fileSystemName, maker::make);
     }
 
-    public static MapDbAppFileSystemStorage createMmapFile(String fileSystemName, File dbFile) {
+    public static MapDbAppStorage createMmapFile(String fileSystemName, File dbFile) {
         DBMaker.Maker maker = DBMaker.fileDB(dbFile);
-        return new MapDbAppFileSystemStorage(fileSystemName, () -> maker
+        return new MapDbAppStorage(fileSystemName, () -> maker
                 .fileMmapEnable()
                 .fileMmapEnableIfSupported()
                 .fileMmapPreclearDisable()
@@ -341,7 +338,7 @@ public class MapDbAppFileSystemStorage implements AppFileSystemStorage {
 
     private final ConcurrentMap<NamedLink, byte[]> cacheMap;
 
-    protected MapDbAppFileSystemStorage(String fileSystemName, Supplier<DB> db) {
+    protected MapDbAppStorage(String fileSystemName, Supplier<DB> db) {
         this.fileSystemName = Objects.requireNonNull(fileSystemName);
         this.db = db.get();
 

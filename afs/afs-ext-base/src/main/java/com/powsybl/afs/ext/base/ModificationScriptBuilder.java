@@ -9,7 +9,7 @@ package com.powsybl.afs.ext.base;
 import com.powsybl.afs.AfsException;
 import com.powsybl.afs.AppFileSystem;
 import com.powsybl.afs.ProjectFileBuilder;
-import com.powsybl.afs.storage.AppFileSystemStorage;
+import com.powsybl.afs.storage.ListenableAppStorage;
 import com.powsybl.afs.storage.NodeId;
 import com.powsybl.afs.storage.NodeInfo;
 
@@ -22,7 +22,7 @@ public class ModificationScriptBuilder implements ProjectFileBuilder<Modificatio
 
     private final NodeInfo folderInfo;
 
-    private final AppFileSystemStorage storage;
+    private final ListenableAppStorage storage;
 
     private final NodeInfo projectInfo;
 
@@ -34,7 +34,7 @@ public class ModificationScriptBuilder implements ProjectFileBuilder<Modificatio
 
     private String content;
 
-    public ModificationScriptBuilder(NodeInfo folderInfo, AppFileSystemStorage storage, NodeInfo projectInfo, AppFileSystem fileSystem) {
+    public ModificationScriptBuilder(NodeInfo folderInfo, ListenableAppStorage storage, NodeInfo projectInfo, AppFileSystem fileSystem) {
         this.folderInfo = Objects.requireNonNull(folderInfo);
         this.storage = Objects.requireNonNull(storage);
         this.projectInfo = Objects.requireNonNull(projectInfo);

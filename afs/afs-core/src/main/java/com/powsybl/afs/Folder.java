@@ -6,7 +6,7 @@
  */
 package com.powsybl.afs;
 
-import com.powsybl.afs.storage.AppFileSystemStorage;
+import com.powsybl.afs.storage.ListenableAppStorage;
 import com.powsybl.afs.storage.NodeId;
 import com.powsybl.afs.storage.NodeInfo;
 
@@ -22,7 +22,7 @@ public class Folder extends Node implements FolderBase<Node, Folder> {
 
     public static final String PSEUDO_CLASS = "folder";
 
-    public Folder(NodeInfo info, AppFileSystemStorage storage, AppFileSystem fileSystem) {
+    public Folder(NodeInfo info, ListenableAppStorage storage, AppFileSystem fileSystem) {
         super(info, storage, fileSystem, true);
     }
 

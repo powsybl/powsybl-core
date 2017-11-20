@@ -6,7 +6,7 @@
  */
 package com.powsybl.afs;
 
-import com.powsybl.afs.storage.AppFileSystemStorage;
+import com.powsybl.afs.storage.ListenableAppStorage;
 import com.powsybl.afs.storage.NodeInfo;
 
 import java.util.List;
@@ -24,7 +24,7 @@ public class ProjectNode extends AbstractNodeBase<ProjectFolder> {
 
     protected final boolean folder;
 
-    protected ProjectNode(NodeInfo info, AppFileSystemStorage storage, NodeInfo projectInfo, AppFileSystem fileSystem, boolean folder) {
+    protected ProjectNode(NodeInfo info, ListenableAppStorage storage, NodeInfo projectInfo, AppFileSystem fileSystem, boolean folder) {
         super(info, storage);
         this.projectInfo = Objects.requireNonNull(projectInfo);
         this.fileSystem = Objects.requireNonNull(fileSystem);

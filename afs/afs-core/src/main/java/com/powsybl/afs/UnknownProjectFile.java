@@ -6,7 +6,7 @@
  */
 package com.powsybl.afs;
 
-import com.powsybl.afs.storage.AppFileSystemStorage;
+import com.powsybl.afs.storage.ListenableAppStorage;
 import com.powsybl.afs.storage.NodeInfo;
 
 /**
@@ -14,7 +14,7 @@ import com.powsybl.afs.storage.NodeInfo;
  */
 public class UnknownProjectFile extends ProjectFile {
 
-    public UnknownProjectFile(NodeInfo info, AppFileSystemStorage storage, NodeInfo projectInfo, AppFileSystem fileSystem) {
+    public UnknownProjectFile(NodeInfo info, ListenableAppStorage storage, NodeInfo projectInfo, AppFileSystem fileSystem) {
         super(info, storage, projectInfo, fileSystem, UnknownFile.GHOST_ICON);
     }
 }
