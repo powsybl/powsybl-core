@@ -15,6 +15,7 @@ import com.powsybl.action.simulator.loadflow.CaseExporter;
 import com.powsybl.action.simulator.loadflow.LoadFlowActionSimulator;
 import com.powsybl.action.simulator.loadflow.LoadFlowActionSimulatorConfig;
 import com.powsybl.action.simulator.loadflow.LoadFlowActionSimulatorLogPrinter;
+import com.powsybl.action.simulator.loadflow.LoadFlowActionSimulatorObserver;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.table.AsciiTableFormatterFactory;
 import com.powsybl.commons.io.table.CsvTableFormatterFactory;
@@ -43,6 +44,7 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -55,9 +57,6 @@ import java.util.stream.Collectors;
 public class ActionSimulatorTool implements Tool {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ActionSimulatorTool.class);
-
-    private Path outputCaseFolder;
-    private String outputCaseFormat;
 
     private static final String CASE_FILE = "case-file";
     private static final String DSL_FILE = "dsl-file";
@@ -116,7 +115,6 @@ public class ActionSimulatorTool implements Tool {
                         .build());
                 options.addOption(Option.builder().longOpt(OUTPUT_CASE_FOLDER)
                         .desc("output case folder path")
-                        .required(false)
                         .hasArg()
                         .argName("CASEFOLDER")
                         .build());
@@ -135,12 +133,14 @@ public class ActionSimulatorTool implements Tool {
         };
     }
 
-    private ActionSimulator createActionSimulator(Network network, ToolRunningContext context, boolean verbose, Path csvFile) {
+    private ActionSimulator createActionSimulator(Network network, ToolRunningContext context, boolean verbose, Path csvFile, Path outputCaseFolder, String outputCaseFormat) {
+        List<LoadFlowActionSimulatorObserver> observers = new ArrayList<LoadFlowActionSimulatorObserver>();
         // config
         LoadFlowActionSimulatorConfig config = LoadFlowActionSimulatorConfig.load();
 
         // log print
         LoadFlowActionSimulatorLogPrinter logPrinter = new LoadFlowActionSimulatorLogPrinter(context.getOutputStream(), context.getErrorStream(), verbose);
+        observers.add(logPrinter);
 
         // security analysis print
         AbstractSecurityAnalysisResultBuilder securityAnalysisPrinter = new AbstractSecurityAnalysisResultBuilder() {
@@ -163,14 +163,14 @@ public class ActionSimulatorTool implements Tool {
                 }
             }
         };
+        observers.add(securityAnalysisPrinter);
 
-        if (null != this.outputCaseFolder) {
+        if (null != outputCaseFolder) {
             // case exporter
-            CaseExporter caseExporter = new CaseExporter(this.outputCaseFolder, this.outputCaseFormat);
-            return new LoadFlowActionSimulator(network, context.getComputationManager(), config, logPrinter, securityAnalysisPrinter, caseExporter);
-        } else {
-            return new LoadFlowActionSimulator(network, context.getComputationManager(), config, logPrinter, securityAnalysisPrinter);
+            CaseExporter caseExporter = new CaseExporter(outputCaseFolder, outputCaseFormat);
+            observers.add(caseExporter);
         }
+        return new LoadFlowActionSimulator(network, context.getComputationManager(), config, observers);
     }
 
     @Override
@@ -190,14 +190,15 @@ public class ActionSimulatorTool implements Tool {
             throw new PowsyblException("Case " + caseFile + " not found");
         }
 
+        Path outputCaseFolder = null;
+        String outputCaseFormat = null;
         if (line.hasOption(OUTPUT_CASE_FOLDER)) {
-            this.outputCaseFolder = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_CASE_FOLDER));
-            this.outputCaseFormat = line.getOptionValue(OUTPUT_CASE_FORMAT);
-            if (!this.outputCaseFolder.toFile().exists()) {
-                Files.createDirectories(outputCaseFolder);
-            }
+            outputCaseFolder = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_CASE_FOLDER));
+            outputCaseFormat = line.getOptionValue(OUTPUT_CASE_FORMAT);
             if (!line.hasOption(OUTPUT_CASE_FORMAT)) {
                 throw new ParseException("Missing required option: output-case-format");
+            } else if (!outputCaseFolder.toFile().exists()) {
+                Files.createDirectories(outputCaseFolder);
             }
         }
 
@@ -237,7 +238,7 @@ public class ActionSimulatorTool implements Tool {
             }
 
             // action simulator
-            ActionSimulator actionSimulator = createActionSimulator(network, context, verbose, csvFile);
+            ActionSimulator actionSimulator = createActionSimulator(network, context, verbose, csvFile, outputCaseFolder, outputCaseFormat);
             context.getOutputStream().println("Using '" + actionSimulator.getName() + "' rules engine");
 
             // start simulator

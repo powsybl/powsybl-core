@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
 
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
@@ -44,12 +43,12 @@ public class CaseExporter extends DefaultLoadFlowActionSimulatorObserver {
     }
 
     private void exportNetwork(Contingency contingency, Network network, int round) {
-        if (null != contingency && StringUtils.isNotEmpty(contingency.getId())) {
-            String contingencyIdAndRound = contingency.getId().replace(' ', '_').replace('.', '_') + String.valueOf("_Round_" + round);
-            Exporters.export(outputCaseFormat, network, new Properties(), outputCaseFolder.resolve(contingencyIdAndRound + "_" + network.getId() + "_" + "." + outputCaseFormat + ".gz"));
+        String rootFileName;
+        if (null != contingency) {
+            rootFileName = contingency.getId() + String.valueOf("_Round_" + round);
         } else {
-            String nSituationAndRound = "N_situation" + String.valueOf("_Round_" + round);
-            Exporters.export(outputCaseFormat, network, new Properties(), outputCaseFolder.resolve(nSituationAndRound + "_" + network.getId() + "_" + "." + outputCaseFormat + ".gz"));
+            rootFileName = "N_situation" + String.valueOf("_Round_" + round);
         }
+        Exporters.export(outputCaseFormat, network, new Properties(), outputCaseFolder.resolve(rootFileName + "_" + network.getId() + "." + outputCaseFormat + ".gz"));
     }
 }

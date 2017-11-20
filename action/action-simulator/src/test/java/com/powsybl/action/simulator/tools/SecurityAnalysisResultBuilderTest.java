@@ -7,6 +7,7 @@
 package com.powsybl.action.simulator.tools;
 
 import com.powsybl.contingency.Contingency;
+import com.powsybl.iidm.network.Branch;
 import com.powsybl.contingency.ContingencyImpl;
 import com.powsybl.security.*;
 import org.junit.Test;
@@ -28,11 +29,11 @@ public class SecurityAnalysisResultBuilderTest {
     }
 
     private List<LimitViolation> createPreContingencyViolations() {
-        return Collections.singletonList(new LimitViolation("line1", LimitViolationType.CURRENT, 100, "IST", 0.0f, 101, null, 63.0f));
+        return Collections.singletonList(new LimitViolation("line1", LimitViolationType.CURRENT, "IST", 0.0f, 100, 101, Branch.Side.ONE));
     }
 
     private List<LimitViolation> createPostContingencyViolations() {
-        return Collections.singletonList(new LimitViolation("line2", LimitViolationType.CURRENT, 100, "IST", 0.0f, 110, null, 380.0f));
+        return Collections.singletonList(new LimitViolation("line2", LimitViolationType.CURRENT, "IST", 0.0f, 100, 110, Branch.Side.ONE));
     }
 
     private void testLimitViolation(LimitViolationsResult result, boolean convergent, List<String> equipmentsId, List<String> actionsId) {

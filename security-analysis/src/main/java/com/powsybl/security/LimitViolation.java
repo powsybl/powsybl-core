@@ -35,7 +35,7 @@ public class LimitViolation {
     private final Branch.Side side;
 
     /**
-     * @deprecated use LimitViolation(String, LimitViolationType, String, float, float, float) instead.
+      *@deprecated use  LimitViolation(String, LimitViolationType, String, float, float, float, Branch.Side) instead.
      */
     @Deprecated
     public LimitViolation(String subjectId, LimitViolationType limitType, float limit, String limitName,
@@ -52,7 +52,7 @@ public class LimitViolation {
     }
 
     /**
-     * @deprecated use LimitViolation(String, LimitViolationType, String, float, float, float) instead.
+      *@deprecated use  LimitViolation(String, LimitViolationType, String, float, float, float, Branch.Side) instead.
      */
     @Deprecated
     public LimitViolation(String subjectId, LimitViolationType limitType, float limit, String limitName, float value) {
