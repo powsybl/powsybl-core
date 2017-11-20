@@ -158,21 +158,27 @@ public final class NetworkXml implements XmlConstants {
 
     private static void writeExtensions(Network n, XmlWriterContext context) throws XMLStreamException {
         for (Identifiable<?> identifiable : n.getIdentifiables()) {
-            for (Identifiable.Extension<? extends Identifiable<?>> extension : identifiable.getExtensions()) {
-                ExtensionXml extensionXml = findExtensionXmlOrThrowException(extension.getName());
+            Collection<? extends Identifiable.Extension<? extends Identifiable<?>>> extensions = identifiable.getExtensions();
+            if (!extensions.isEmpty()) {
                 context.getWriter().writeStartElement(IIDM_URI, EXTENSION_ELEMENT_NAME);
-                context.getWriter().writeAttribute("id", context.getAnonymizer().anonymizeString(extension.getIdentifiable().getId()));
-                if (extensionXml.hasSubElements()) {
-                    context.getWriter().writeStartElement(extensionXml.getNamespaceUri(), extension.getName());
-                } else {
-                    context.getWriter().writeEmptyElement(extensionXml.getNamespaceUri(), extension.getName());
+                context.getWriter().writeAttribute("id", context.getAnonymizer().anonymizeString(identifiable.getId()));
+
+                for (Identifiable.Extension<? extends Identifiable<?>> extension : identifiable.getExtensions()) {
+                    ExtensionXml extensionXml = findExtensionXmlOrThrowException(extension.getName());
+                    if (extensionXml.hasSubElements()) {
+                        context.getWriter().writeStartElement(extensionXml.getNamespaceUri(), extension.getName());
+                    } else {
+                        context.getWriter().writeEmptyElement(extensionXml.getNamespaceUri(), extension.getName());
+                    }
+                    extensionXml.write(extension, context);
+                    if (extensionXml.hasSubElements()) {
+                        context.getWriter().writeEndElement();
+                    }
                 }
-                extensionXml.write(extension, context);
-                if (extensionXml.hasSubElements()) {
-                    context.getWriter().writeEndElement();
-                }
+
                 context.getWriter().writeEndElement();
             }
+
         }
     }
 
@@ -367,53 +373,27 @@ public final class NetworkXml implements XmlConstants {
             XmlUtil.readUntilEndElement(NETWORK_ROOT_ELEMENT_NAME, reader, () -> {
 
                 switch (reader.getLocalName()) {
-                    case VoltageLevelXml.ROOT_ELEMENT_NAME: {
-                        String id = reader.getAttributeValue(null, "id");
-                        vl[0] = network.getVoltageLevel(id);
-                        if (vl[0] == null) {
-                            throw new PowsyblException("Voltage level '" + id + "' not found");
-                        }
+                    case VoltageLevelXml.ROOT_ELEMENT_NAME:
+                        updateVoltageLevel(reader, network, vl);
                         break;
-                    }
 
-                    case BusXml.ROOT_ELEMENT_NAME: {
-                        String id = reader.getAttributeValue(null, "id");
-                        float v = XmlUtil.readFloatAttribute(reader, "v");
-                        float angle = XmlUtil.readFloatAttribute(reader, "angle");
-                        Bus b = vl[0].getBusBreakerView().getBus(id);
-                        if (b == null) {
-                            b = vl[0].getBusView().getBus(id);
-                        }
-                        b.setV(v > 0 ? v : Float.NaN).setAngle(angle);
+                    case BusXml.ROOT_ELEMENT_NAME:
+                        updateBus(reader, vl);
                         break;
-                    }
 
                     case GeneratorXml.ROOT_ELEMENT_NAME:
                     case LoadXml.ROOT_ELEMENT_NAME:
                     case ShuntXml.ROOT_ELEMENT_NAME:
                     case DanglingLineXml.ROOT_ELEMENT_NAME:
                     case LccConverterStationXml.ROOT_ELEMENT_NAME:
-                    case VscConverterStationXml.ROOT_ELEMENT_NAME: {
-                        String id = reader.getAttributeValue(null, "id");
-                        float p = XmlUtil.readOptionalFloatAttribute(reader, "p");
-                        float q = XmlUtil.readOptionalFloatAttribute(reader, "q");
-                        Injection inj = (Injection) network.getIdentifiable(id);
-                        inj.getTerminal().setP(p).setQ(q);
+                    case VscConverterStationXml.ROOT_ELEMENT_NAME:
+                        updateInjection(reader, network);
                         break;
-                    }
 
                     case LineXml.ROOT_ELEMENT_NAME:
-                    case TwoWindingsTransformerXml.ROOT_ELEMENT_NAME: {
-                        String id = reader.getAttributeValue(null, "id");
-                        float p1 = XmlUtil.readOptionalFloatAttribute(reader, "p1");
-                        float q1 = XmlUtil.readOptionalFloatAttribute(reader, "q1");
-                        float p2 = XmlUtil.readOptionalFloatAttribute(reader, "p2");
-                        float q2 = XmlUtil.readOptionalFloatAttribute(reader, "q2");
-                        Branch branch = (Branch) network.getIdentifiable(id);
-                        branch.getTerminal1().setP(p1).setQ(q1);
-                        branch.getTerminal2().setP(p2).setQ(q2);
+                    case TwoWindingsTransformerXml.ROOT_ELEMENT_NAME:
+                        updateBranch(reader, network);
                         break;
-                    }
 
                     case HvdcLineXml.ROOT_ELEMENT_NAME:
                         // Nothing to do
@@ -437,6 +417,44 @@ public final class NetworkXml implements XmlConstants {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    private static void updateVoltageLevel(XMLStreamReader reader, Network network, VoltageLevel[] vl) {
+        String id = reader.getAttributeValue(null, "id");
+        vl[0] = network.getVoltageLevel(id);
+        if (vl[0] == null) {
+            throw new PowsyblException("Voltage level '" + id + "' not found");
+        }
+    }
+
+    private static void updateBus(XMLStreamReader reader, VoltageLevel[] vl) {
+        String id = reader.getAttributeValue(null, "id");
+        float v = XmlUtil.readFloatAttribute(reader, "v");
+        float angle = XmlUtil.readFloatAttribute(reader, "angle");
+        Bus b = vl[0].getBusBreakerView().getBus(id);
+        if (b == null) {
+            b = vl[0].getBusView().getBus(id);
+        }
+        b.setV(v > 0 ? v : Float.NaN).setAngle(angle);
+    }
+
+    private static void updateInjection(XMLStreamReader reader, Network network) {
+        String id = reader.getAttributeValue(null, "id");
+        float p = XmlUtil.readOptionalFloatAttribute(reader, "p");
+        float q = XmlUtil.readOptionalFloatAttribute(reader, "q");
+        Injection inj = (Injection) network.getIdentifiable(id);
+        inj.getTerminal().setP(p).setQ(q);
+    }
+
+    private static void updateBranch(XMLStreamReader reader, Network network) {
+        String id = reader.getAttributeValue(null, "id");
+        float p1 = XmlUtil.readOptionalFloatAttribute(reader, "p1");
+        float q1 = XmlUtil.readOptionalFloatAttribute(reader, "q1");
+        float p2 = XmlUtil.readOptionalFloatAttribute(reader, "p2");
+        float q2 = XmlUtil.readOptionalFloatAttribute(reader, "q2");
+        Branch branch = (Branch) network.getIdentifiable(id);
+        branch.getTerminal1().setP(p1).setQ(q1);
+        branch.getTerminal2().setP(p2).setQ(q2);
     }
 
     public static byte[] gzip(Network network) {
