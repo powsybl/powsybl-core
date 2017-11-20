@@ -93,11 +93,11 @@ public class ZipFileDataSource implements DataSource {
         return newInputStream(DataSourceUtil.getFileName(baseName, suffix, ext));
     }
 
-    private static final class InputStreamFromZipFile extends ForwardingInputStream<InputStream> {
+    private static final class ZipEntryInputStream extends ForwardingInputStream<InputStream> {
 
         private final ZipFile zipFile;
 
-        public InputStreamFromZipFile(ZipFile zipFile, String fileName) throws IOException {
+        public ZipEntryInputStream(ZipFile zipFile, String fileName) throws IOException {
             super(zipFile.getInputStream(fileName));
             this.zipFile = zipFile;
         }
@@ -115,19 +115,19 @@ public class ZipFileDataSource implements DataSource {
         Objects.requireNonNull(fileName);
         Path zipFilePath = getZipFilePath();
         if (entryExists(zipFilePath, fileName)) {
-            InputStream is = new InputStreamFromZipFile(new ZipFile(zipFilePath), fileName);
+            InputStream is = new ZipEntryInputStream(new ZipFile(zipFilePath), fileName);
             return observer != null ? new ObservableInputStream(is, zipFilePath + ":" + fileName, observer) : is;
         }
         return null;
     }
 
-    private static final class AddEntryToZipOutputStream extends ForwardingOutputStream<ZipOutputStream> {
+    private static final class ZipEntryOutputStream extends ForwardingOutputStream<ZipOutputStream> {
 
         private final Path zipFilePath;
 
         private final String fileName;
 
-        private AddEntryToZipOutputStream(Path zipFilePath, String fileName) throws IOException {
+        private ZipEntryOutputStream(Path zipFilePath, String fileName) throws IOException {
             super(new ZipOutputStream(Files.newOutputStream(getTmpZipFilePath(zipFilePath))));
             this.zipFilePath = zipFilePath;
             this.fileName = fileName;
@@ -179,7 +179,7 @@ public class ZipFileDataSource implements DataSource {
             throw new UnsupportedOperationException("append not supported in zip file data source");
         }
         Path zipFilePath = getZipFilePath();
-        OutputStream os = new AddEntryToZipOutputStream(zipFilePath, fileName);
+        OutputStream os = new ZipEntryOutputStream(zipFilePath, fileName);
         return observer != null ? new ObservableOutputStream(os, zipFilePath + ":" + fileName, observer) : os;
     }
 
