@@ -110,7 +110,7 @@ public class SecurityAnalysisTool implements Tool {
         if (line.hasOption(OUTPUT_FILE_OPTION)) {
             outputFile = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_FILE_OPTION));
             if (!line.hasOption(OUTPUT_FORMAT_OPTION)) {
-                throw new ParseException("Missing required option: output-format");
+                throw new ParseException("Missing required option: " + OUTPUT_FORMAT_OPTION);
             }
             format = line.getOptionValue(OUTPUT_FORMAT_OPTION);
         }
