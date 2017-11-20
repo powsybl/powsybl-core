@@ -24,8 +24,6 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.StringUtils;
-
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -53,31 +51,6 @@ public final class Security {
     }
 
     private Security() {
-    }
-
-    /**
-     * @deprecated this method could be safely removed, is no more used.
-     */
-    @Deprecated
-    private static Country getCountry(Branch branch, Branch.Side side) {
-        return branch.getTerminal(side).getVoltageLevel().getSubstation().getCountry();
-    }
-
-    /**
-     * @deprecated this method could be safely removed, is no more used.
-     */
-    @Deprecated
-    private static float getNominalVoltage(Branch branch) {
-        return Math.max(branch.getTerminal1().getVoltageLevel().getNominalV(),
-                        branch.getTerminal2().getVoltageLevel().getNominalV());
-    }
-
-    /**
-     * @deprecated this method could be safely removed, is no more used.
-     */
-    @Deprecated
-    private static float getNominalVoltage(Branch branch, Branch.Side side) {
-        return branch.getTerminal(side).getVoltageLevel().getNominalV();
     }
 
     public static String getLimitName(int acceptableDuration) {
@@ -197,6 +170,7 @@ public final class Security {
 
     public static String printLimitsViolations(List<LimitViolation> violations, Network network, LimitViolationFilter filter, TableFormatterConfig formatterConfig) {
         Objects.requireNonNull(violations);
+        Objects.requireNonNull(network);
         Objects.requireNonNull(filter);
         Objects.requireNonNull(formatterConfig);
 
@@ -210,11 +184,11 @@ public final class Security {
         try (TableFormatter formatter = formatterFactory.create(writer,
                 "",
                 formatterConfig,
+                new Column(EQUIPMENT + " (" + filteredViolations.size() + ")"),
+                new Column(END),
                 new Column(COUNTRY),
                 new Column(BASE_VOLTAGE)
                     .setHorizontalAlignment(HorizontalAlignment.RIGHT),
-                new Column(EQUIPMENT + " (" + filteredViolations.size() + ")"),
-                new Column(END),
                 new Column(VIOLATION_TYPE),
                 new Column(VIOLATION_NAME),
                 new Column(VALUE)
@@ -241,10 +215,10 @@ public final class Security {
     private static Consumer<? super LimitViolation> writeLineLimitsViolations(Network network, TableFormatter formatter) {
         return violation -> {
             try {
-                formatter.writeCell(LimitViolation.getCountry(violation, network) != null ? LimitViolation.getCountry(violation, network).name() : "")
-                         .writeCell(Float.isNaN(LimitViolation.getNominalVoltage(violation, network)) ? "" : Integer.toString((int) LimitViolation.getNominalVoltage(violation, network)))
-                         .writeCell(violation.getSubjectId())
-                         .writeCell(StringUtils.isNotBlank(LimitViolation.getVoltageLevelName(violation, network)) ? LimitViolation.getVoltageLevelName(violation, network) : "")
+                formatter.writeCell(violation.getSubjectId())
+                         .writeCell(LimitViolation.getVoltageLevelId(violation, network))
+                         .writeCell(LimitViolation.getCountry(violation, network).name())
+                         .writeCell(Objects.toString((int) LimitViolation.getNominalVoltage(violation, network), ""))
                          .writeCell(violation.getLimitType().name())
                          .writeCell(getViolationName(violation))
                          .writeCell(violation.getValue())
@@ -343,6 +317,7 @@ public final class Security {
     public static void printPreContingencyViolations(SecurityAnalysisResult result, Network network, Writer writer, TableFormatterFactory formatterFactory,
                                                      TableFormatterConfig formatterConfig, LimitViolationFilter limitViolationFilter) {
         Objects.requireNonNull(result);
+        Objects.requireNonNull(network);
         Objects.requireNonNull(writer);
         Objects.requireNonNull(formatterFactory);
         Objects.requireNonNull(formatterConfig);
@@ -358,11 +333,11 @@ public final class Security {
                 "Pre-contingency violations",
                 formatterConfig,
                 new Column(ACTION),
+                new Column(EQUIPMENT + " (" + filteredLimitViolations.size() + ")"),
+                new Column(END),
                 new Column(COUNTRY),
                 new Column(BASE_VOLTAGE)
                     .setHorizontalAlignment(HorizontalAlignment.RIGHT),
-                new Column(EQUIPMENT + " (" + filteredLimitViolations.size() + ")"),
-                new Column(END),
                 new Column(VIOLATION_TYPE),
                 new Column(VIOLATION_NAME),
                 new Column(VALUE)
@@ -402,10 +377,10 @@ public final class Security {
         return violation -> {
             try {
                 formatter.writeEmptyCell()
-                        .writeCell(LimitViolation.getCountry(violation, network) != null ? LimitViolation.getCountry(violation, network).name() : "")
-                        .writeCell(Float.isNaN(LimitViolation.getNominalVoltage(violation, network)) ? "" : Integer.toString((int) LimitViolation.getNominalVoltage(violation, network)))
                         .writeCell(violation.getSubjectId())
-                        .writeCell(StringUtils.isNotBlank(LimitViolation.getVoltageLevelName(violation, network)) ? LimitViolation.getVoltageLevelName(violation, network) : "")
+                        .writeCell(LimitViolation.getVoltageLevelId(violation, network))
+                        .writeCell(LimitViolation.getCountry(violation, network).name())
+                        .writeCell(Objects.toString((int) LimitViolation.getNominalVoltage(violation, network), ""))
                         .writeCell(violation.getLimitType().name())
                         .writeCell(getViolationName(violation))
                         .writeCell(violation.getValue())
@@ -598,6 +573,7 @@ public final class Security {
     public static void printPostContingencyViolations(SecurityAnalysisResult result, Network network, Writer writer, TableFormatterFactory formatterFactory,
             TableFormatterConfig formatterConfig, LimitViolationFilter limitViolationFilter, boolean filterPreContingencyViolations) {
         Objects.requireNonNull(result);
+        Objects.requireNonNull(network);
         Objects.requireNonNull(writer);
         Objects.requireNonNull(formatterFactory);
         if (!result.getPostContingencyResults().isEmpty()) {
@@ -635,11 +611,11 @@ public final class Security {
                 new Column(CONTINGENCY),
                 new Column(STATUS),
                 new Column(ACTION),
+                new Column(EQUIPMENT + " (" + sumFilter + ")"),
+                new Column(END),
                 new Column(COUNTRY),
                 new Column(BASE_VOLTAGE)
                     .setHorizontalAlignment(HorizontalAlignment.RIGHT),
-                new Column(EQUIPMENT + " (" + sumFilter + ")"),
-                new Column(END),
                 new Column(VIOLATION_TYPE),
                 new Column(VIOLATION_NAME),
                 new Column(VALUE)
@@ -682,9 +658,9 @@ public final class Security {
                     formatter.writeCell(postContingencyResult.getContingency().getId())
                             .writeCell(postContingencyResult.getLimitViolationsResult().isComputationOk() ? "converge" : "diverge")
                             .writeEmptyCell()
+                            .writeCell(EQUIPMENT + " (" + filteredLimitViolations2.size() + ")")
                             .writeEmptyCell()
                             .writeEmptyCell()
-                            .writeCell("(" + filteredLimitViolations2.size() + ")")
                             .writeEmptyCell()
                             .writeEmptyCell()
                             .writeEmptyCell()
@@ -726,10 +702,10 @@ public final class Security {
                 formatter.writeEmptyCell()
                         .writeEmptyCell()
                         .writeEmptyCell()
-                        .writeCell(LimitViolation.getCountry(violation, network) != null ? LimitViolation.getCountry(violation, network).name() : "")
-                        .writeCell(Float.isNaN(LimitViolation.getNominalVoltage(violation, network)) ? "" : Integer.toString((int) LimitViolation.getNominalVoltage(violation, network)))
                         .writeCell(violation.getSubjectId())
-                        .writeCell(StringUtils.isNotBlank(LimitViolation.getVoltageLevelName(violation, network)) ? LimitViolation.getVoltageLevelName(violation, network) : "")
+                        .writeCell(LimitViolation.getVoltageLevelId(violation, network))
+                        .writeCell(LimitViolation.getCountry(violation, network).name())
+                        .writeCell(Objects.toString((int) LimitViolation.getNominalVoltage(violation, network), ""))
                         .writeCell(violation.getLimitType().name())
                         .writeCell(getViolationName(violation))
                         .writeCell(violation.getValue())

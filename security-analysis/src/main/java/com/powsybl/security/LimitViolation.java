@@ -54,7 +54,7 @@ public class LimitViolation {
     }
 
     /**
-     * @deprecated use LimitViolation(String, Lirearguard action mitViolationType, String, float, float, float) instead.
+     * @deprecated use LimitViolation(String, LimitViolationType, String, float, float, float) instead.
      */
     @Deprecated
     public LimitViolation(String subjectId, LimitViolationType limitType, float limit, String limitName, float value) {
@@ -156,30 +156,30 @@ public class LimitViolation {
         return country;
     }
 
-    static String getVoltageLevelName(LimitViolation limitViolation, Network network) {
+    static String getVoltageLevelId(LimitViolation limitViolation, Network network) {
         Objects.requireNonNull(limitViolation);
         Objects.requireNonNull(network);
 
-        String voltageLevelName;
+        String voltageLevelId;
 
         Identifiable identifiable = network.getIdentifiable(limitViolation.getSubjectId());
         if (identifiable instanceof Branch) {
             Branch branch = (Branch) identifiable;
-            voltageLevelName = branch.getTerminal(limitViolation.getSide()).getVoltageLevel().getName();
+            voltageLevelId = branch.getTerminal(limitViolation.getSide()).getVoltageLevel().getId();
         } else if (identifiable instanceof Injection) {
             Injection injection = (Injection) identifiable;
-            voltageLevelName = injection.getTerminal().getVoltageLevel().getName();
+            voltageLevelId = injection.getTerminal().getVoltageLevel().getId();
         } else if (identifiable instanceof VoltageLevel) {
             VoltageLevel voltageLevel = (VoltageLevel) identifiable;
-            voltageLevelName = voltageLevel.getName();
+            voltageLevelId = voltageLevel.getId();
         } else if (identifiable instanceof Bus) {
             Bus bus = (Bus) identifiable;
-            voltageLevelName = bus.getVoltageLevel().getName();
+            voltageLevelId = bus.getVoltageLevel().getId();
         } else {
             throw new AssertionError(UNEXPECTED_IDENTIFIABLE_TYPE + identifiable.getClass());
         }
 
-        return voltageLevelName;
+        return voltageLevelId;
     }
 
     static float getNominalVoltage(LimitViolation limitViolation, Network network) {
