@@ -51,7 +51,7 @@ public class CsvTableFormatter extends AbstractTableFormatter {
     }
 
     protected void writeHeader() throws IOException {
-        if (config.getPrintHeader()) {
+        if (config.getPrintTitle()) {
             writer.append(title).append(System.lineSeparator());
         }
         for (int i = 0; i < columns.length; i++) {
