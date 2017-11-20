@@ -6,6 +6,7 @@
  */
 package com.powsybl.security;
 
+import com.powsybl.commons.io.table.AsciiTableFormatterFactory;
 import com.powsybl.commons.io.table.CsvTableFormatterFactory;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.contingency.Contingency;
@@ -32,6 +33,7 @@ public class SecurityTest {
     TableFormatterConfig formatterConfig;
 
     private final CsvTableFormatterFactory formatterFactory = new CsvTableFormatterFactory();
+    private final AsciiTableFormatterFactory formatterFactoryAscii = new AsciiTableFormatterFactory();
 
     private SecurityAnalysisResult result;
     private LimitViolation line1Violation;
@@ -72,6 +74,24 @@ public class SecurityTest {
     }
 
     @Test
+    public void printPreContingencyViolationsAscii() throws Exception {
+        StringWriter writer = new StringWriter();
+        try {
+            Security.printPreContingencyViolations(result, network, writer, formatterFactoryAscii, formatterConfig, null);
+        } finally {
+            writer.close();
+        }
+        assertEquals("Pre-contingency violations:\n" +
+                "+---------+---------------+-------+---------+--------------+----------------+-----------------+-----------+----------+------------------+----------------+\n" +
+                "| Action  | Equipment (1) | End   | Country | Base voltage | Violation type | Violation name  | Value     | Limit    | abs(value-limit) | Loading rate % |\n" +
+                "+---------+---------------+-------+---------+--------------+----------------+-----------------+-----------+----------+------------------+----------------+\n" +
+                "| action1 |               |       |         |              |                |                 |           |          |                  |                |\n" +
+                "|         | NHV1_NHV2_1   | VLHV1 | FR      |          380 | CURRENT        | Permanent limit | 1100.0000 | 950.0000 |         150.0000 |         110.00 |\n" +
+                "+---------+---------------+-------+---------+--------------+----------------+-----------------+-----------+----------+------------------+----------------+",
+                     writer.toString().trim());
+    }
+
+    @Test
     public void printPostContingencyViolations() throws Exception {
         StringWriter writer = new StringWriter();
         try {
@@ -86,6 +106,26 @@ public class SecurityTest {
                                  ",,action2,,,,,,,,,,",
                                  ",,,NHV1_NHV2_1,VLHV1,FR,380,CURRENT,Permanent limit,1100.0000,950.0000,150.0000,110.00",
                                  ",,,NHV1_NHV2_2,VLHV1,FR,380,CURRENT,Permanent limit,950.0000,855.0000,95.0000,105.56"),
+                     writer.toString().trim());
+    }
+
+    @Test
+    public void printPostContingencyViolationsAscii() throws Exception {
+        StringWriter writer = new StringWriter();
+        try {
+            Security.printPostContingencyViolations(result, network, writer, formatterFactoryAscii, formatterConfig, null, false);
+        } finally {
+            writer.close();
+        }
+        assertEquals("Post-contingency limit violations:\n" +
+                "+--------------+----------+---------+---------------+-------+---------+--------------+----------------+-----------------+-----------+----------+------------------+----------------+\n" +
+                "| Contingency  | Status   | Action  | Equipment (2) | End   | Country | Base voltage | Violation type | Violation name  | Value     | Limit    | abs(value-limit) | Loading rate % |\n" +
+                "+--------------+----------+---------+---------------+-------+---------+--------------+----------------+-----------------+-----------+----------+------------------+----------------+\n" +
+                "| contingency1 | converge |         | Equipment (2) |       |         |              |                |                 |           |          |                  |                |\n" +
+                "|              |          | action2 |               |       |         |              |                |                 |           |          |                  |                |\n" +
+                "|              |          |         | NHV1_NHV2_1   | VLHV1 | FR      |          380 | CURRENT        | Permanent limit | 1100.0000 | 950.0000 |         150.0000 |         110.00 |\n" +
+                "|              |          |         | NHV1_NHV2_2   | VLHV1 | FR      |          380 | CURRENT        | Permanent limit |  950.0000 | 855.0000 |          95.0000 |         105.56 |\n" +
+                "+--------------+----------+---------+---------------+-------+---------+--------------+----------------+-----------------+-----------+----------+------------------+----------------+",
                      writer.toString().trim());
     }
 
@@ -107,7 +147,26 @@ public class SecurityTest {
     }
 
     @Test
-    public void printLimitsViolationsNew() throws Exception {
+    public void printPostContingencyViolationsWithPreContingencyViolationsFilteringAscii() throws Exception {
+        StringWriter writer = new StringWriter();
+        try {
+            Security.printPostContingencyViolations(result, network, writer, formatterFactoryAscii, formatterConfig, null, true);
+        } finally {
+            writer.close();
+        }
+        assertEquals("Post-contingency limit violations:\n" +
+                "+--------------+----------+---------+---------------+-------+---------+--------------+----------------+-----------------+----------+----------+------------------+----------------+\n" +
+                "| Contingency  | Status   | Action  | Equipment (1) | End   | Country | Base voltage | Violation type | Violation name  | Value    | Limit    | abs(value-limit) | Loading rate % |\n" +
+                "+--------------+----------+---------+---------------+-------+---------+--------------+----------------+-----------------+----------+----------+------------------+----------------+\n" +
+                "| contingency1 | converge |         | Equipment (1) |       |         |              |                |                 |          |          |                  |                |\n" +
+                "|              |          | action2 |               |       |         |              |                |                 |          |          |                  |                |\n" +
+                "|              |          |         | NHV1_NHV2_2   | VLHV1 | FR      |          380 | CURRENT        | Permanent limit | 950.0000 | 855.0000 |          95.0000 |         105.56 |\n" +
+                "+--------------+----------+---------+---------------+-------+---------+--------------+----------------+-----------------+----------+----------+------------------+----------------+",
+                     writer.toString().trim());
+    }
+
+    @Test
+    public void printLimitsViolations() throws Exception {
         assertEquals("+---------------+-------+---------+--------------+----------------+-----------------+-----------+----------+------------------+----------------+\n" +
                      "| Equipment (2) | End   | Country | Base voltage | Violation type | Violation name  | Value     | Limit    | abs(value-limit) | Loading rate % |\n" +
                      "+---------------+-------+---------+--------------+----------------+-----------------+-----------+----------+------------------+----------------+\n" +

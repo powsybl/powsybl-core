@@ -46,4 +46,16 @@ public class LimitViolationTest {
         Assert.assertEquals(expectedVoltages, voltages);
     }
 
+    @Test
+    public void testVoltageLevelIds() {
+        List<LimitViolation> violations = Security.checkLimits(network);
+
+        List<String> expectedVoltageLevelIds = Arrays.asList("VLHV1", "VLHV2", "VLHV1", "VLHV2", "VLHV1");
+        List<String> voltages = violations.stream()
+            .map(v -> LimitViolation.getVoltageLevelId(v, network))
+            .collect(Collectors.toList());
+
+        Assert.assertEquals(expectedVoltageLevelIds, voltages);
+    }
+
 }
