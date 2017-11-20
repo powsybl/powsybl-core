@@ -11,6 +11,8 @@ import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
 import com.powsybl.tools.ToolRunningContext;
 import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
 
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
@@ -24,16 +26,65 @@ import java.nio.file.Path;
 @AutoService(Tool.class)
 public class ExportTasksStatisticsTool implements Tool {
 
+    private static final String STATISTICS_DB_DIR = "statistics-db-dir";
+    private static final String STATISTICS_DB_NAME = "statistics-db-name";
+    private static final String OUTPUT_FILE = "output-file";
+
     @Override
     public Command getCommand() {
-        return ExportTasksStatisticsCommand.INSTANCE;
+        return new Command() {
+            @Override
+            public String getName() {
+                return "export-tasks-statistics";
+            }
+
+            @Override
+            public String getTheme() {
+                return "MPI statistics";
+            }
+
+            @Override
+            public String getDescription() {
+                return "export tasks statistics to CSV";
+            }
+
+            @Override
+            @SuppressWarnings("static-access")
+            public Options getOptions() {
+                Options options = new Options();
+                options.addOption(Option.builder().longOpt(STATISTICS_DB_DIR)
+                        .desc("statistics db directory")
+                        .hasArg()
+                        .argName("DIR")
+                        .required()
+                        .build());
+                options.addOption(Option.builder().longOpt(STATISTICS_DB_NAME)
+                        .desc("statistics db name")
+                        .hasArg()
+                        .argName("NAME")
+                        .required()
+                        .build());
+                options.addOption(Option.builder().longOpt(OUTPUT_FILE)
+                        .desc("CSV output file")
+                        .hasArg()
+                        .argName("FILE")
+                        .required()
+                        .build());
+                return options;
+            }
+
+            @Override
+            public String getUsageFooter() {
+                return null;
+            }
+        };
     }
 
     @Override
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
-        Path statisticsDbDir = context.getFileSystem().getPath(line.getOptionValue("statistics-db-dir"));
-        String statisticsDbName = line.getOptionValue("statistics-db-name");
-        Path outputFile = context.getFileSystem().getPath(line.getOptionValue("output-file"));
+        Path statisticsDbDir = context.getFileSystem().getPath(line.getOptionValue(STATISTICS_DB_DIR));
+        String statisticsDbName = line.getOptionValue(STATISTICS_DB_NAME);
+        Path outputFile = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_FILE));
         try (MpiStatistics statistics = new CsvMpiStatistics(statisticsDbDir, statisticsDbName)) {
             try (Writer writer = Files.newBufferedWriter(outputFile, StandardCharsets.UTF_8)) {
                 statistics.exportTasksToCsv(writer);

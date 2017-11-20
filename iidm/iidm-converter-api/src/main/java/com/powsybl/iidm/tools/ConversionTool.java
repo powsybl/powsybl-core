@@ -19,6 +19,8 @@ import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,9 +36,15 @@ import java.util.Properties;
 @AutoService(Tool.class)
 public class ConversionTool implements Tool {
 
+    private static final String INPUT_FILE = "input-file";
+    private static final String OUTPUT_FORMAT = "output-format";
+    private static final String OUTPUT_FILE = "output-file";
+    private static final String IMPORT_PARAMETERS = "import-parameters";
+    private static final String EXPORT_PARAMETERS = "export-parameters";
+
     private enum OptionType {
-        IMPORT("import-parameters", 'I'),
-        EXPORT("export-parameters", 'E');
+        IMPORT(IMPORT_PARAMETERS, 'I'),
+        EXPORT(EXPORT_PARAMETERS, 'E');
 
         OptionType(String longOpt, char shortOpt) {
             this.longOpt = Objects.requireNonNull(longOpt);
@@ -61,14 +69,83 @@ public class ConversionTool implements Tool {
 
     @Override
     public Command getCommand() {
-        return ConversionCommand.INSTANCE;
+        return new Command() {
+
+            @Override
+            public String getName() {
+                return "convert-network";
+            }
+
+            @Override
+            public String getTheme() {
+                return "Data conversion";
+            }
+
+            @Override
+            public String getDescription() {
+                return "convert a network from one format to another";
+            }
+
+            @Override
+            @SuppressWarnings("static-access")
+            public Options getOptions() {
+                Options options = new Options();
+                options.addOption(Option.builder().longOpt(INPUT_FILE)
+                        .desc("the input file")
+                        .hasArg()
+                        .argName("INPUT_FILE")
+                        .required()
+                        .build());
+                options.addOption(Option.builder().longOpt(OUTPUT_FORMAT)
+                        .desc("the output file format")
+                        .hasArg()
+                        .argName("OUTPUT_FORMAT")
+                        .required()
+                        .build());
+                options.addOption(Option.builder().longOpt(OUTPUT_FILE)
+                        .desc("the output file")
+                        .hasArg()
+                        .argName("OUTPUT_FILE")
+                        .required()
+                        .build());
+                options.addOption(Option.builder().longOpt(IMPORT_PARAMETERS)
+                        .desc("the importer configuation file")
+                        .hasArg()
+                        .argName("IMPORT_PARAMETERS")
+                        .build());
+                options.addOption(Option.builder("I")
+                        .desc("use value for given importer parameter")
+                        .argName("property=value")
+                        .numberOfArgs(2)
+                        .valueSeparator('=')
+                        .build());
+                options.addOption(Option.builder().longOpt(EXPORT_PARAMETERS)
+                        .desc("the exporter configuration file")
+                        .hasArg()
+                        .argName("EXPORT_PARAMETERS")
+                        .build());
+                options.addOption(Option.builder("E")
+                        .desc("use value for given exporter parameter")
+                        .argName("property=value")
+                        .numberOfArgs(2)
+                        .valueSeparator('=')
+                        .build());
+
+                return options;
+            }
+
+            @Override
+            public String getUsageFooter() {
+                return "Where OUTPUT_FORMAT is one of " + Exporters.getFormats();
+            }
+        };
     }
 
     @Override
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
-        String inputFile = line.getOptionValue("input-file");
-        String outputFormat = line.getOptionValue("output-format");
-        String outputFile = line.getOptionValue("output-file");
+        String inputFile = line.getOptionValue(INPUT_FILE);
+        String outputFormat = line.getOptionValue(OUTPUT_FORMAT);
+        String outputFile = line.getOptionValue(OUTPUT_FILE);
 
         Exporter exporter = Exporters.getExporter(outputFormat);
         if (exporter == null) {
