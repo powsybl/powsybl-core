@@ -87,7 +87,6 @@ public class ConversionTool implements Tool {
             }
 
             @Override
-            @SuppressWarnings("static-access")
             public Options getOptions() {
                 Options options = new Options();
                 options.addOption(Option.builder().longOpt(INPUT_FILE)

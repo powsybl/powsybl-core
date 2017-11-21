@@ -49,7 +49,6 @@ public class ExportTasksStatisticsTool implements Tool {
             }
 
             @Override
-            @SuppressWarnings("static-access")
             public Options getOptions() {
                 Options options = new Options();
                 options.addOption(Option.builder().longOpt(STATISTICS_DB_DIR)
