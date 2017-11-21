@@ -42,6 +42,13 @@ import java.util.Properties;
 @AutoService(Tool.class)
 public class RunLoadFlowTool implements Tool {
 
+    private static final String CASE_FILE = "case-file";
+    private static final String OUTPUT_FILE = "output-file";
+    private static final String OUTPUT_FORMAT = "output-format";
+    private static final String SKIP_POSTPROC = "skip-postproc";
+    private static final String OUTPUT_CASE_FORMAT = "output-case-format";
+    private static final String OUTPUT_CASE_FILE = "output-case-file";
+
     private enum Format {
         CSV,
         JSON
@@ -68,31 +75,31 @@ public class RunLoadFlowTool implements Tool {
             @Override
             public Options getOptions() {
                 Options options = new Options();
-                options.addOption(Option.builder().longOpt("case-file")
+                options.addOption(Option.builder().longOpt(CASE_FILE)
                         .desc("the case path")
                         .hasArg()
                         .argName("FILE")
                         .required()
                         .build());
-                options.addOption(Option.builder().longOpt("output-file")
+                options.addOption(Option.builder().longOpt(OUTPUT_FILE)
                         .desc("loadflow results output path")
                         .hasArg()
                         .argName("FILE")
                         .build());
-                options.addOption(Option.builder().longOpt("output-format")
+                options.addOption(Option.builder().longOpt(OUTPUT_FORMAT)
                         .desc("loadflow results output format " + Arrays.toString(Format.values()))
                         .hasArg()
                         .argName("FORMAT")
                         .build());
-                options.addOption(Option.builder().longOpt("skip-postproc")
+                options.addOption(Option.builder().longOpt(SKIP_POSTPROC)
                         .desc("skip network importer post processors (when configured)")
                         .build());
-                options.addOption(Option.builder().longOpt("output-case-format")
+                options.addOption(Option.builder().longOpt(OUTPUT_CASE_FORMAT)
                         .desc("modified network output format " + Exporters.getFormats())
                         .hasArg()
                         .argName("CASEFORMAT")
                         .build());
-                options.addOption(Option.builder().longOpt("output-case-file")
+                options.addOption(Option.builder().longOpt(OUTPUT_CASE_FILE)
                         .desc("modified network base name")
                         .hasArg()
                         .argName("FILE")
@@ -109,8 +116,8 @@ public class RunLoadFlowTool implements Tool {
 
     @Override
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
-        Path caseFile = context.getFileSystem().getPath(line.getOptionValue("case-file"));
-        boolean skipPostProc = line.hasOption("skip-postproc");
+        Path caseFile = context.getFileSystem().getPath(line.getOptionValue(CASE_FILE));
+        boolean skipPostProc = line.hasOption(SKIP_POSTPROC);
         Path outputFile = null;
         Format format = null;
         Path outputCaseFile = null;
@@ -118,18 +125,18 @@ public class RunLoadFlowTool implements Tool {
 
         ImportConfig importConfig = (!skipPostProc) ? ImportConfig.load() : new ImportConfig();
         // process a single network: output-file/output-format options available
-        if (line.hasOption("output-file")) {
-            outputFile = context.getFileSystem().getPath(line.getOptionValue("output-file"));
-            if (!line.hasOption("output-format")) {
-                throw new ParseException("Missing required option: output-format");
+        if (line.hasOption(OUTPUT_FILE)) {
+            outputFile = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_FILE));
+            if (!line.hasOption(OUTPUT_FORMAT)) {
+                throw new ParseException("Missing required option: " + OUTPUT_CASE_FORMAT);
             }
-            format = Format.valueOf(line.getOptionValue("output-format"));
+            format = Format.valueOf(line.getOptionValue(OUTPUT_FORMAT));
         }
 
-        if (line.hasOption("output-case-file")) {
-            outputCaseFile = context.getFileSystem().getPath(line.getOptionValue("output-case-file"));
-            if (!line.hasOption("output-case-format")) {
-                throw new ParseException("Missing required option: output-case-format");
+        if (line.hasOption(OUTPUT_CASE_FILE)) {
+            outputCaseFile = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_CASE_FILE));
+            if (!line.hasOption(OUTPUT_CASE_FORMAT)) {
+                throw new ParseException("Missing required option: " + OUTPUT_CASE_FORMAT);
             }
         }
 
@@ -149,7 +156,7 @@ public class RunLoadFlowTool implements Tool {
 
         // exports the modified network to the filesystem, if requested
         if (outputCaseFile != null) {
-            String outputCaseFormat = line.getOptionValue("output-case-format");
+            String outputCaseFormat = line.getOptionValue(OUTPUT_CASE_FORMAT);
             Exporters.export(outputCaseFormat, network, new Properties(), outputCaseFile);
         }
     }
