@@ -72,10 +72,7 @@ public class ZipFileDataSource implements DataSource {
         return exists(DataSourceUtil.getFileName(baseName, suffix, ext));
     }
 
-    @Override
-    public boolean exists(String fileName) throws IOException {
-        Objects.requireNonNull(fileName);
-        Path zipFilePath = getZipFilePath();
+    private static boolean entryExists(Path zipFilePath, String fileName) throws IOException {
         if (Files.exists(zipFilePath)) {
             try (ZipFile zipFile = new ZipFile(zipFilePath)) {
                 return zipFile.entry(fileName) != null;
@@ -85,39 +82,52 @@ public class ZipFileDataSource implements DataSource {
     }
 
     @Override
+    public boolean exists(String fileName) throws IOException {
+        Objects.requireNonNull(fileName);
+        Path zipFilePath = getZipFilePath();
+        return entryExists(zipFilePath, fileName);
+    }
+
+    @Override
     public InputStream newInputStream(String suffix, String ext) throws IOException {
         return newInputStream(DataSourceUtil.getFileName(baseName, suffix, ext));
+    }
+
+    private static final class ZipEntryInputStream extends ForwardingInputStream<InputStream> {
+
+        private final ZipFile zipFile;
+
+        public ZipEntryInputStream(ZipFile zipFile, String fileName) throws IOException {
+            super(zipFile.getInputStream(fileName));
+            this.zipFile = zipFile;
+        }
+
+        @Override
+        public void close() throws IOException {
+            super.close();
+
+            zipFile.close();
+        }
     }
 
     @Override
     public InputStream newInputStream(String fileName) throws IOException {
         Objects.requireNonNull(fileName);
         Path zipFilePath = getZipFilePath();
-        if (Files.exists(zipFilePath)) {
-            ZipFile zipFile = new ZipFile(zipFilePath);
-            InputStream is = zipFile.getInputStream(fileName);
-            if (is != null) {
-                InputStream fis = new ForwardingInputStream<InputStream>(is) {
-                    @Override
-                    public void close() throws IOException {
-                        zipFile.close();
-                    }
-                };
-                return observer != null ? new ObservableInputStream(fis, zipFilePath + ":" + fileName, observer) : fis;
-            } else {
-                zipFile.close();
-            }
+        if (entryExists(zipFilePath, fileName)) {
+            InputStream is = new ZipEntryInputStream(new ZipFile(zipFilePath), fileName);
+            return observer != null ? new ObservableInputStream(is, zipFilePath + ":" + fileName, observer) : is;
         }
         return null;
     }
 
-    private static final class AddEntryToZipOutputStream extends ForwardingOutputStream<ZipOutputStream> {
+    private static final class ZipEntryOutputStream extends ForwardingOutputStream<ZipOutputStream> {
 
         private final Path zipFilePath;
 
         private final String fileName;
 
-        private AddEntryToZipOutputStream(Path zipFilePath, String fileName) throws IOException {
+        private ZipEntryOutputStream(Path zipFilePath, String fileName) throws IOException {
             super(new ZipOutputStream(Files.newOutputStream(getTmpZipFilePath(zipFilePath))));
             this.zipFilePath = zipFilePath;
             this.fileName = fileName;
@@ -169,8 +179,8 @@ public class ZipFileDataSource implements DataSource {
             throw new UnsupportedOperationException("append not supported in zip file data source");
         }
         Path zipFilePath = getZipFilePath();
-        OutputStream fos = new AddEntryToZipOutputStream(zipFilePath, fileName);
-        return observer != null ? new ObservableOutputStream(fos, zipFilePath + ":" + fileName, observer) : fos;
+        OutputStream os = new ZipEntryOutputStream(zipFilePath, fileName);
+        return observer != null ? new ObservableOutputStream(os, zipFilePath + ":" + fileName, observer) : os;
     }
 
     @Override
