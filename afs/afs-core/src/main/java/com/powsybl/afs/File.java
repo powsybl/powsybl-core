@@ -6,9 +6,6 @@
  */
 package com.powsybl.afs;
 
-import com.powsybl.afs.storage.ListenableAppStorage;
-import com.powsybl.afs.storage.NodeInfo;
-
 import java.util.Objects;
 
 /**
@@ -20,8 +17,8 @@ public class File extends Node {
 
     protected final FileIcon icon;
 
-    public File(NodeInfo info, ListenableAppStorage storage, AppFileSystem fileSystem, FileIcon icon) {
-        super(info, storage, fileSystem, false);
+    public File(FileCreationContext context, FileIcon icon) {
+        super(context, false);
         this.icon = Objects.requireNonNull(icon);
     }
 

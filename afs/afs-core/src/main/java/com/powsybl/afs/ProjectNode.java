@@ -6,7 +6,6 @@
  */
 package com.powsybl.afs;
 
-import com.powsybl.afs.storage.ListenableAppStorage;
 import com.powsybl.afs.storage.NodeInfo;
 
 import java.util.List;
@@ -24,10 +23,10 @@ public class ProjectNode extends AbstractNodeBase<ProjectFolder> {
 
     protected final boolean folder;
 
-    protected ProjectNode(NodeInfo info, ListenableAppStorage storage, NodeInfo projectInfo, AppFileSystem fileSystem, boolean folder) {
-        super(info, storage);
-        this.projectInfo = Objects.requireNonNull(projectInfo);
-        this.fileSystem = Objects.requireNonNull(fileSystem);
+    protected ProjectNode(ProjectFileCreationContext context, boolean folder) {
+        super(context.getInfo(), context.getStorage());
+        this.projectInfo = Objects.requireNonNull(context.getProjectInfo());
+        this.fileSystem = Objects.requireNonNull(context.getFileSystem());
         this.folder = folder;
     }
 
@@ -39,7 +38,8 @@ public class ProjectNode extends AbstractNodeBase<ProjectFolder> {
     @Override
     public ProjectFolder getParent() {
         NodeInfo parentInfo = storage.getParentNodeInfo(info.getId());
-        return ProjectFolder.PSEUDO_CLASS.equals(parentInfo.getPseudoClass()) ? new ProjectFolder(parentInfo, storage, projectInfo, fileSystem) : null;
+        return ProjectFolder.PSEUDO_CLASS.equals(parentInfo.getPseudoClass()) ? new ProjectFolder(new ProjectFileCreationContext(parentInfo, storage, projectInfo, fileSystem))
+                                                                              : null;
     }
 
     private static boolean pathStop(ProjectNode projectNode) {
@@ -56,7 +56,7 @@ public class ProjectNode extends AbstractNodeBase<ProjectFolder> {
     }
 
     public Project getProject() {
-        return new Project(projectInfo, storage, fileSystem);
+        return new Project(new FileCreationContext(projectInfo, storage, fileSystem));
     }
 
     public void moveTo(ProjectFolder folder) {
@@ -69,24 +69,26 @@ public class ProjectNode extends AbstractNodeBase<ProjectFolder> {
     }
 
     protected ProjectNode findProjectNode(NodeInfo nodeInfo) {
+        ProjectFileCreationContext context = new ProjectFileCreationContext(nodeInfo, storage, projectInfo, fileSystem);
         if (ProjectFolder.PSEUDO_CLASS.equals(nodeInfo.getPseudoClass())) {
-            return new ProjectFolder(nodeInfo, storage, projectInfo, fileSystem);
+            return new ProjectFolder(context);
         } else {
             ProjectFileExtension extension = getProject().getFileSystem().getData().getProjectFileExtensionByPseudoClass(nodeInfo.getPseudoClass());
             if (extension != null) {
-                return extension.createProjectFile(nodeInfo, storage, projectInfo, fileSystem);
+                return extension.createProjectFile(context);
             } else {
-                return new UnknownProjectFile(nodeInfo, storage, projectInfo, fileSystem);
+                return new UnknownProjectFile(context);
             }
         }
     }
 
     protected ProjectFile findProjectFile(NodeInfo nodeInfo) {
+        ProjectFileCreationContext context = new ProjectFileCreationContext(nodeInfo, storage, projectInfo, fileSystem);
         ProjectFileExtension extension = getProject().getFileSystem().getData().getProjectFileExtensionByPseudoClass(nodeInfo.getPseudoClass());
         if (extension != null) {
-            return extension.createProjectFile(nodeInfo, storage, projectInfo, fileSystem);
+            return extension.createProjectFile(context);
         } else {
-            return new UnknownProjectFile(nodeInfo, storage, projectInfo, fileSystem);
+            return new UnknownProjectFile(context);
         }
     }
 

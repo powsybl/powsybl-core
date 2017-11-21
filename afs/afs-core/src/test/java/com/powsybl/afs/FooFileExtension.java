@@ -6,9 +6,6 @@
  */
 package com.powsybl.afs;
 
-import com.powsybl.afs.storage.ListenableAppStorage;
-import com.powsybl.afs.storage.NodeInfo;
-
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -30,12 +27,12 @@ public class FooFileExtension implements ProjectFileExtension {
     }
 
     @Override
-    public FooFile createProjectFile(NodeInfo info, ListenableAppStorage storage, NodeInfo projectInfo, AppFileSystem fileSystem) {
-        return new FooFile(info, storage, projectInfo, fileSystem);
+    public FooFile createProjectFile(ProjectFileCreationContext context) {
+        return new FooFile(context);
     }
 
     @Override
-    public FooFileBuilder createProjectFileBuilder(NodeInfo folderInfo, ListenableAppStorage storage, NodeInfo projectInfo, AppFileSystem fileSystem) {
-        return new FooFileBuilder(folderInfo.getId(), storage, projectInfo, fileSystem);
+    public FooFileBuilder createProjectFileBuilder(ProjectFileBuildContext context) {
+        return new FooFileBuilder(context);
     }
 }

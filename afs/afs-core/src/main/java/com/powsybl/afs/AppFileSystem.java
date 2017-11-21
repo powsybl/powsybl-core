@@ -7,6 +7,7 @@
 package com.powsybl.afs;
 
 import com.powsybl.afs.storage.AppStorage;
+import com.powsybl.afs.storage.DefaultListenableAppStorage;
 import com.powsybl.afs.storage.ListenableAppStorage;
 import com.powsybl.afs.storage.NodeInfo;
 
@@ -32,9 +33,13 @@ public class AppFileSystem implements AutoCloseable {
     private AppData data;
 
     public AppFileSystem(String name, boolean remotelyAccessible, AppStorage storage) {
+        this(name, remotelyAccessible, new DefaultListenableAppStorage(storage));
+    }
+
+    public AppFileSystem(String name, boolean remotelyAccessible, ListenableAppStorage storage) {
         this.name = Objects.requireNonNull(name);
         this.remotelyAccessible = remotelyAccessible;
-        this.storage = new ListenableAppStorage(Objects.requireNonNull(storage));
+        this.storage = Objects.requireNonNull(storage);
         rootNodeInfo = storage.createRootNodeIfNotExists(name, Folder.PSEUDO_CLASS);
     }
 
@@ -51,7 +56,7 @@ public class AppFileSystem implements AutoCloseable {
     }
 
     public Folder getRootFolder() {
-        return new Folder(rootNodeInfo, storage, this);
+        return new Folder(new FileCreationContext(rootNodeInfo, storage, this));
     }
 
     public AppData getData() {

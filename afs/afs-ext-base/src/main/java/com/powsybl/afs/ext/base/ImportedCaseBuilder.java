@@ -7,9 +7,9 @@
 package com.powsybl.afs.ext.base;
 
 import com.powsybl.afs.AfsException;
-import com.powsybl.afs.AppFileSystem;
 import com.powsybl.afs.ProjectFileBuilder;
-import com.powsybl.afs.storage.ListenableAppStorage;
+import com.powsybl.afs.ProjectFileBuildContext;
+import com.powsybl.afs.ProjectFileCreationContext;
 import com.powsybl.afs.storage.NodeId;
 import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.iidm.import_.ImportersLoader;
@@ -26,13 +26,7 @@ import java.util.Properties;
  */
 public class ImportedCaseBuilder implements ProjectFileBuilder<ImportedCase> {
 
-    private final NodeInfo folderInfo;
-
-    private final ListenableAppStorage storage;
-
-    private final NodeInfo projectInfo;
-
-    private final AppFileSystem fileSystem;
+    private final ProjectFileBuildContext context;
 
     private final ImportersLoader importersLoader;
 
@@ -40,12 +34,8 @@ public class ImportedCaseBuilder implements ProjectFileBuilder<ImportedCase> {
 
     private final Properties parameters = new Properties();;
 
-    public ImportedCaseBuilder(NodeInfo folderInfo, ListenableAppStorage storage, NodeInfo projectInfo, AppFileSystem fileSystem,
-                               ImportersLoader importersLoader) {
-        this.folderInfo = Objects.requireNonNull(folderInfo);
-        this.storage = Objects.requireNonNull(storage);
-        this.projectInfo = Objects.requireNonNull(projectInfo);
-        this.fileSystem = Objects.requireNonNull(fileSystem);
+    public ImportedCaseBuilder(ProjectFileBuildContext context, ImportersLoader importersLoader) {
+        this.context = Objects.requireNonNull(context);
         this.importersLoader = Objects.requireNonNull(importersLoader);
     }
 
@@ -72,18 +62,18 @@ public class ImportedCaseBuilder implements ProjectFileBuilder<ImportedCase> {
 
         String name = aCase.getName();
 
-        if (storage.getChildNode(folderInfo.getId(), name) != null) {
+        if (context.getStorage().getChildNode(context.getFolderInfo().getId(), name) != null) {
             throw new AfsException("Parent folder already contains a '" + name + "' node");
         }
 
         // create project file
-        NodeId id = storage.createNode(folderInfo.getId(), name, ImportedCase.PSEUDO_CLASS);
+        NodeId id = context.getStorage().createNode(context.getFolderInfo().getId(), name, ImportedCase.PSEUDO_CLASS);
 
         // store importer format
-        storage.setStringAttribute(id, ImportedCase.FORMAT, aCase.getImporter().getFormat());
+        context.getStorage().setStringAttribute(id, ImportedCase.FORMAT, aCase.getImporter().getFormat());
 
         // store case data
-        aCase.getImporter().copy(aCase.getDataSource(), storage.getDataSourceAttribute(id, ImportedCase.DATA_SOURCE));
+        aCase.getImporter().copy(aCase.getDataSource(), context.getStorage().getDataSourceAttribute(id, ImportedCase.DATA_SOURCE));
 
         // store parameters
         try {
@@ -93,13 +83,17 @@ public class ImportedCaseBuilder implements ProjectFileBuilder<ImportedCase> {
             } finally {
                 writer.close();
             }
-            storage.setStringAttribute(id, ImportedCase.PARAMETERS, writer.toString());
+            context.getStorage().setStringAttribute(id, ImportedCase.PARAMETERS, writer.toString());
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
 
-        storage.flush();
+        context.getStorage().flush();
 
-        return new ImportedCase(new NodeInfo(id, name, ImportedCase.PSEUDO_CLASS), storage, projectInfo, fileSystem, importersLoader);
+        return new ImportedCase(new ProjectFileCreationContext(new NodeInfo(id, name, ImportedCase.PSEUDO_CLASS),
+                                                               context.getStorage(),
+                                                               context.getProjectInfo(),
+                                                               context.getFileSystem()),
+                                importersLoader);
     }
 }

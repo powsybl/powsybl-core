@@ -6,9 +6,6 @@
  */
 package com.powsybl.afs;
 
-import com.powsybl.afs.storage.ListenableAppStorage;
-import com.powsybl.afs.storage.NodeInfo;
-
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -20,7 +17,7 @@ public interface ProjectFileExtension {
 
     Class<? extends ProjectFileBuilder<? extends ProjectFile>> getProjectFileBuilderClass();
 
-    <T extends ProjectFile> T createProjectFile(NodeInfo info, ListenableAppStorage storage, NodeInfo projectInfo, AppFileSystem fileSystem);
+    <T extends ProjectFile> T createProjectFile(ProjectFileCreationContext context);
 
-    ProjectFileBuilder<? extends ProjectFile> createProjectFileBuilder(NodeInfo folderInfo, ListenableAppStorage storage, NodeInfo projectInfo, AppFileSystem fileSystem);
+    ProjectFileBuilder<? extends ProjectFile> createProjectFileBuilder(ProjectFileBuildContext context);
 }

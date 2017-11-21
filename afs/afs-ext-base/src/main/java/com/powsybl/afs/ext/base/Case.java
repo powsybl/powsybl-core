@@ -7,12 +7,10 @@
 package com.powsybl.afs.ext.base;
 
 import com.powsybl.afs.AfsException;
-import com.powsybl.afs.AppFileSystem;
 import com.powsybl.afs.File;
+import com.powsybl.afs.FileCreationContext;
 import com.powsybl.afs.storage.AppStorage;
-import com.powsybl.afs.storage.ListenableAppStorage;
 import com.powsybl.afs.storage.NodeId;
-import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.import_.ImportersLoader;
@@ -31,10 +29,10 @@ public class Case extends File {
 
     private final ImportersLoader importersLoader;
 
-    public Case(NodeInfo info, ListenableAppStorage storage, AppFileSystem fileSystem, ImportersLoader importersLoader) {
-        super(info, storage, fileSystem, CaseIconCache.INSTANCE.get(importersLoader,
-                                                                  fileSystem.getData().getComputationManager(),
-                                                                  getFormat(storage, info.getId())));
+    public Case(FileCreationContext context, ImportersLoader importersLoader) {
+        super(context, CaseIconCache.INSTANCE.get(importersLoader,
+                                                  context.getFileSystem().getData().getComputationManager(),
+                                                  getFormat(context.getStorage(), context.getInfo().getId())));
         this.importersLoader = Objects.requireNonNull(importersLoader);
     }
 
