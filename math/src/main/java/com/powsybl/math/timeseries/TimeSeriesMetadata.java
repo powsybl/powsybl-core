@@ -14,7 +14,7 @@ import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -86,7 +86,7 @@ public class TimeSeriesMetadata {
     private static class JsonParsingContext {
         private String name;
         private TimeSeriesDataType dataType;
-        private Map<String, String> tags = new HashMap<>();
+        private Map<String, String> tags = new LinkedHashMap<>();
         private TimeSeriesIndex index;
         private boolean insideTags = false;
 
@@ -97,27 +97,27 @@ public class TimeSeriesMetadata {
 
     static void parseFieldName(JsonParser parser, JsonParsingContext context) throws IOException {
         String fieldName = parser.getCurrentName();
-        switch (fieldName) {
-            case "metadata":
-                break;
-            case "name":
-                context.name = parser.nextTextValue();
-                break;
-            case "dataType":
-                context.dataType = TimeSeriesDataType.valueOf(parser.nextTextValue());
-                break;
-            case "tags":
-                context.insideTags = true;
-                break;
-            case RegularTimeSeriesIndex.TYPE:
-                context.index = RegularTimeSeriesIndex.parseJson(parser);
-                break;
-            default:
-                if (context.insideTags) {
-                    context.tags.put(fieldName, parser.nextTextValue());
-                } else {
+        if (context.insideTags) {
+            context.tags.put(fieldName, parser.nextTextValue());
+        } else {
+            switch (fieldName) {
+                case "metadata":
+                    break;
+                case "name":
+                    context.name = parser.nextTextValue();
+                    break;
+                case "dataType":
+                    context.dataType = TimeSeriesDataType.valueOf(parser.nextTextValue());
+                    break;
+                case "tags":
+                    context.insideTags = true;
+                    break;
+                case RegularTimeSeriesIndex.TYPE:
+                    context.index = RegularTimeSeriesIndex.parseJson(parser);
+                    break;
+                default:
                     throw new IllegalStateException("Unexpected field name " + fieldName);
-                }
+            }
         }
     }
 
