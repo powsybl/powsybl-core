@@ -35,7 +35,14 @@ import java.util.stream.Collectors;
 @AutoService(Tool.class)
 public class ValidationTool implements Tool {
 
-    private static Command COMMAND = new Command() {
+    private static final String CASE_FILE = "case-file";
+    private static final String OUTPUT_FOLDER = "output-folder";
+    private static final String LOAD_FLOW = "load-flow";
+    private static final String VERBOSE = "verbose";
+    private static final String OUTPUT_FORMAT = "output-format";
+    private static final String TYPES = "types";
+
+    private static final Command COMMAND = new Command() {
 
         @Override
         public String getName() {
@@ -55,30 +62,30 @@ public class ValidationTool implements Tool {
         @Override
         public Options getOptions() {
             Options options = new Options();
-            options.addOption(Option.builder().longOpt("case-file")
+            options.addOption(Option.builder().longOpt(CASE_FILE)
                     .desc("case file path")
                     .hasArg()
                     .argName("FILE")
                     .required()
                     .build());
-            options.addOption(Option.builder().longOpt("output-folder")
+            options.addOption(Option.builder().longOpt(OUTPUT_FOLDER)
                     .desc("output folder path")
                     .hasArg()
                     .argName("FOLDER")
                     .required()
                     .build());
-            options.addOption(Option.builder().longOpt("load-flow")
+            options.addOption(Option.builder().longOpt(LOAD_FLOW)
                     .desc("run loadflow")
                     .build());
-            options.addOption(Option.builder().longOpt("verbose")
+            options.addOption(Option.builder().longOpt(VERBOSE)
                     .desc("verbose output")
                     .build());
-            options.addOption(Option.builder().longOpt("output-format")
+            options.addOption(Option.builder().longOpt(OUTPUT_FORMAT)
                     .desc("output format (CSV/CSV_MULTILINE)")
                     .hasArg()
                     .argName("VALIDATION_WRITER")
                     .build());
-            options.addOption(Option.builder().longOpt("types")
+            options.addOption(Option.builder().longOpt(TYPES)
                     .desc("validation types (FLOWS/GENERATORS/BUSES/SVCS) to run, all of them if the option if not specified")
                     .hasArg()
                     .argName("VALIDATION_TYPE,VALIDATION_TYPE,...")
@@ -100,24 +107,24 @@ public class ValidationTool implements Tool {
 
     @Override
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
-        Path caseFile = Paths.get(line.getOptionValue("case-file"));
-        Path outputFolder = Paths.get(line.getOptionValue("output-folder"));
+        Path caseFile = Paths.get(line.getOptionValue(CASE_FILE));
+        Path outputFolder = Paths.get(line.getOptionValue(OUTPUT_FOLDER));
         if (!Files.exists(outputFolder)) {
             Files.createDirectories(outputFolder);
         }
         ValidationConfig config = ValidationConfig.load();
-        if (line.hasOption("verbose")) {
+        if (line.hasOption(VERBOSE)) {
             config.setVerbose(true);
         }
-        if (line.hasOption("output-format")) {
-            config.setValidationOutputWriter(ValidationOutputWriter.valueOf(line.getOptionValue("output-format")));
+        if (line.hasOption(OUTPUT_FORMAT)) {
+            config.setValidationOutputWriter(ValidationOutputWriter.valueOf(line.getOptionValue(OUTPUT_FORMAT)));
         }
         context.getOutputStream().println("Loading case " + caseFile);
         Network network = Importers.loadNetwork(caseFile);
         if (network == null) {
             throw new PowsyblException("Case " + caseFile + " not found");
         }
-        if (line.hasOption("load-flow")) {
+        if (line.hasOption(LOAD_FLOW)) {
             context.getOutputStream().println("Running loadflow on network " + network.getId());
             LoadFlowParameters parameters = LoadFlowParameters.load();
             LoadFlow loadFlow = config.getLoadFlowFactory().newInstance().create(network, context.getComputationManager(), 0);
@@ -130,8 +137,8 @@ public class ValidationTool implements Tool {
                     .join();
         }
         Set<ValidationType> validationTypes = Sets.newHashSet(ValidationType.values());
-        if (line.hasOption("types")) {
-            validationTypes = Arrays.stream(line.getOptionValue("types").split(","))
+        if (line.hasOption(TYPES)) {
+            validationTypes = Arrays.stream(line.getOptionValue(TYPES).split(","))
                                     .map(ValidationType::valueOf)
                                     .collect(Collectors.toSet());
         }
