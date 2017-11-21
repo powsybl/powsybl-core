@@ -22,6 +22,10 @@
     <artifactId>powsybl-ucte</artifactId>
     <name>UCTE</name>
 
+    <properties>
+        <jacoco.destFile>${project.basedir}/../../${jacoco.relativeDestFile}</jacoco.destFile>
+    </properties>
+
     <modules>
         <module>ucte-converter</module>
         <module>ucte-network</module>

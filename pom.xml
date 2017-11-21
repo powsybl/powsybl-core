@@ -64,8 +64,9 @@
         <groovyeclipsebatch.version>2.4.3-01</groovyeclipsebatch.version>
 
         <!-- Sonar/Jacoco configuration -->
-        <project.jacoco.destFile>${java.io.tmpdir}/jacoco-powsybl-core.exec</project.jacoco.destFile>
-        <sonar.jacoco.reportPaths>${project.jacoco.destFile}</sonar.jacoco.reportPaths>
+        <jacoco.relativeDestFile>distribution-core/target/jacoco.exec</jacoco.relativeDestFile>
+        <jacoco.destFile>${project.basedir}/../${jacoco.relativeDestFile}</jacoco.destFile>
+        <sonar.jacoco.reportPaths>${jacoco.destFile}</sonar.jacoco.reportPaths>
         <sonar.exclusions>
             **/cim1/**/*, **/generated/**/*
         </sonar.exclusions>
@@ -290,7 +291,7 @@
                     <artifactId>jacoco-maven-plugin</artifactId>
                     <version>${maven.jacoco.version}</version>
                     <configuration>
-                        <destFile>${project.jacoco.destFile}</destFile>
+                        <destFile>${jacoco.destFile}</destFile>
                         <append>true</append>
                     </configuration>
                 </plugin>

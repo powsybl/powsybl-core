@@ -22,6 +22,10 @@
     <artifactId>powsybl-loadflow</artifactId>
     <name>Load-Flow</name>
 
+    <properties>
+        <jacoco.destFile>${project.basedir}/../../${jacoco.relativeDestFile}</jacoco.destFile>
+    </properties>
+
     <modules>
         <module>loadflow-api</module>
         <module>loadflow-validation</module>
