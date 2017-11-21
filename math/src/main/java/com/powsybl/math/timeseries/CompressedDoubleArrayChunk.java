@@ -97,4 +97,21 @@ public class CompressedDoubleArrayChunk extends AbstractCompressedArrayChunk imp
     protected void writeStepValuesJson(JsonGenerator generator) throws IOException {
         generator.writeArray(stepValues, 0, stepValues.length);
     }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(offset, uncompressedLength, stepLengths, stepValues);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof CompressedDoubleArrayChunk) {
+            CompressedDoubleArrayChunk other = (CompressedDoubleArrayChunk) obj;
+            return offset == other.offset &&
+                    uncompressedLength == other.uncompressedLength &&
+                    Arrays.equals(stepLengths, other.stepLengths) &&
+                    Arrays.equals(stepValues, other.stepValues);
+        }
+        return false;
+    }
 }

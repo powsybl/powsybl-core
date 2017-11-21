@@ -6,8 +6,10 @@
  */
 package com.powsybl.math.timeseries;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Iterators;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.math.timeseries.json.TimeSeriesJsonModule;
 import org.junit.Test;
 import org.threeten.extra.Interval;
 
@@ -45,6 +47,8 @@ public class StoredDoubleTimeSeriesTest {
                                    new DoublePoint(6, Instant.parse("2015-01-01T01:30:00Z").toEpochMilli(), 4d)};
         assertArrayEquals(pointsRef, timeSeries.stream().toArray());
         assertArrayEquals(pointsRef, Iterators.toArray(timeSeries.iterator(), DoublePoint.class));
+
+        // json test
         String jsonRef = String.join(System.lineSeparator(),
                 "{",
                 "  \"metadata\" : {",
@@ -76,5 +80,11 @@ public class StoredDoubleTimeSeriesTest {
         assertEquals(1, timeSeriesList.size());
         String json2 = JsonUtil.toJson(timeSeriesList.get(0)::writeJson);
         assertEquals(json, json2);
+
+        // test json with object mapper
+        ObjectMapper objectMapper = new ObjectMapper()
+                .registerModule(new TimeSeriesJsonModule());
+
+        assertEquals(timeSeries, objectMapper.readValue(objectMapper.writeValueAsString(timeSeries), DoubleTimeSeries.class));
     }
 }

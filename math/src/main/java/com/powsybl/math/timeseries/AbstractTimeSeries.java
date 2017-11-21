@@ -105,4 +105,18 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Arra
             throw new UncheckedIOException(e);
         }
     }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(metadata, chunks);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof AbstractTimeSeries) {
+            AbstractTimeSeries other = (AbstractTimeSeries) obj;
+            return metadata.equals(other.metadata) && chunks.equals(other.chunks);
+        }
+        return false;
+    }
 }
