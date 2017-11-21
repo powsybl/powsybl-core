@@ -42,8 +42,6 @@ public class MpiComputationManager implements ComputationManager {
 
     private final Path localDir;
 
-    private final MpiStatistics statistics;
-
     private final MpiExecutorContext executorContext;
 
     private final MpiJobScheduler scheduler;
@@ -51,26 +49,28 @@ public class MpiComputationManager implements ComputationManager {
     private Future<?> busyCoresPrintTask;
 
     public MpiComputationManager(Path localDir, MpiJobScheduler scheduler) {
-        this(localDir, scheduler, new NoMpiStatistics(), new MpiExecutorContext());
+        this(localDir, scheduler, new MpiExecutorContext());
     }
 
     public MpiComputationManager(Path localDir, MpiNativeServices nativeServices) throws IOException, InterruptedException {
-        this(localDir, nativeServices, new NoMpiStatistics(), new MpiExecutorContext(), 1, false, null);
+        this(localDir, nativeServices, new NoMpiStatisticsFactory(), null, null, new MpiExecutorContext(), 1, false, null);
     }
 
-    public MpiComputationManager(Path localDir, MpiStatistics statistics, MpiExecutorContext executorContext,
-                                 int coresPerRank, boolean verbose, Path stdOutArchive) throws IOException, InterruptedException {
-        this(localDir, new JniMpiNativeServices(), statistics, executorContext, coresPerRank, verbose, stdOutArchive);
-    }
-
-    public MpiComputationManager(Path localDir, MpiNativeServices nativeServices, MpiStatistics statistics,
+    public MpiComputationManager(Path localDir, MpiStatisticsFactory statisticsFactory, Path statisticsDbDir, String statisticsDbName,
                                  MpiExecutorContext executorContext, int coresPerRank, boolean verbose, Path stdOutArchive) throws IOException, InterruptedException {
-        this(localDir, new MpiJobSchedulerImpl(nativeServices, statistics, coresPerRank, verbose, executorContext.getSchedulerExecutor(), stdOutArchive), statistics, executorContext);
+        this(localDir, new JniMpiNativeServices(), statisticsFactory, statisticsDbDir, statisticsDbName, executorContext,
+            coresPerRank, verbose, stdOutArchive);
     }
 
-    public MpiComputationManager(Path localDir, MpiJobScheduler scheduler, MpiStatistics statistics, MpiExecutorContext executorContext) {
+    public MpiComputationManager(Path localDir, MpiNativeServices nativeServices, MpiStatisticsFactory statisticsFactory,
+                                 Path statisticsDbDir, String statisticsDbName, MpiExecutorContext executorContext,
+                                 int coresPerRank, boolean verbose, Path stdOutArchive) throws IOException, InterruptedException {
+        this(localDir, new MpiJobSchedulerImpl(nativeServices, statisticsFactory, statisticsDbDir, statisticsDbName, coresPerRank,
+                                               verbose, executorContext.getSchedulerExecutor(), stdOutArchive),  executorContext);
+    }
+
+    public MpiComputationManager(Path localDir, MpiJobScheduler scheduler, MpiExecutorContext executorContext) {
         this.localDir = Objects.requireNonNull(localDir);
-        this.statistics = Objects.requireNonNull(statistics);
         this.executorContext = Objects.requireNonNull(executorContext);
         this.scheduler = scheduler;
         if (executorContext.getMonitorExecutor() != null) {
@@ -337,11 +337,6 @@ public class MpiComputationManager implements ComputationManager {
     public void close() {
         try {
             scheduler.shutdown();
-        } catch (Exception e) {
-            LOGGER.error(e.toString(), e);
-        }
-        try {
-            statistics.close();
         } catch (Exception e) {
             LOGGER.error(e.toString(), e);
         }
