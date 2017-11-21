@@ -13,6 +13,7 @@ import java.util.Objects;
 import com.powsybl.commons.io.table.Column;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.commons.io.table.TableFormatterFactory;
+import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
 import com.powsybl.loadflow.validation.ValidationType;
 
 /**
@@ -126,6 +127,24 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
                      .writeCell(busId).writeCell("tltP").writeCell(tltP)
                      .writeCell(busId).writeCell("tltQ").writeCell(tltQ)
                      .writeCell(busId).writeCell(VALIDATION).writeCell(validated ? SUCCESS : FAIL);
+        }
+    }
+
+    @Override
+    public void write(String svcId, float p, float q, float v, float reactivePowerSetpoint, float voltageSetpoint,
+                      boolean connected, RegulationMode regulationMode, float bMin, float bMax, boolean validated) throws IOException {
+        Objects.requireNonNull(svcId);
+        formatter.writeCell(svcId).writeCell("p").writeCell(-p)
+                 .writeCell(svcId).writeCell("q").writeCell(-q)
+                 .writeCell(svcId).writeCell("v").writeCell(v)
+                 .writeCell(svcId).writeCell("reactivePowerSetpoint").writeCell(reactivePowerSetpoint)
+                 .writeCell(svcId).writeCell("voltageSetpoint").writeCell(voltageSetpoint);
+        if (verbose) {
+            formatter.writeCell(svcId).writeCell("connected").writeCell(connected)
+                     .writeCell(svcId).writeCell("regulationMode").writeCell(regulationMode.name())
+                     .writeCell(svcId).writeCell("bMin").writeCell(bMin)
+                     .writeCell(svcId).writeCell("bMax").writeCell(bMax)
+                     .writeCell(svcId).writeCell(VALIDATION).writeCell(validated ? SUCCESS : FAIL);
         }
     }
 
