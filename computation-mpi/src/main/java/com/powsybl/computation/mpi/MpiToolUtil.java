@@ -66,16 +66,6 @@ public final class MpiToolUtil {
         return options;
     }
 
-    private static MpiStatisticsFactory createMpiStatisticsFactory(ComponentDefaultConfig config, Path statisticsDbDir, String statisticsDbName) {
-        MpiStatisticsFactory statisticsFactory;
-        if (statisticsDbDir != null && statisticsDbName != null) {
-            statisticsFactory = config.newFactoryImpl(MpiStatisticsFactory.class, NoMpiStatisticsFactory.class);
-        } else {
-            statisticsFactory = new NoMpiStatisticsFactory();
-        }
-        return statisticsFactory;
-    }
-
     public static ComputationManager createMpiComputationManager(CommandLine line, FileSystem fileSystem) {
         Path tmpDir = fileSystem.getPath(line.hasOption("tmp-dir") ? line.getOptionValue("tmp-dir") : System.getProperty("java.io.tmpdir"));
         Path statisticsDbDir = line.hasOption("statistics-db-dir") ? fileSystem.getPath(line.getOptionValue("statistics-db-dir")) : null;
@@ -86,9 +76,9 @@ public final class MpiToolUtil {
 
         ComponentDefaultConfig config = ComponentDefaultConfig.load();
 
-        MpiStatisticsFactory statisticsFactory = createMpiStatisticsFactory(config, statisticsDbDir, statisticsDbName);
+        MpiStatisticsFactory statisticsFactory = config.newFactoryImpl(MpiStatisticsFactory.class, NoMpiStatisticsFactory.class);
         try {
-            return new MpiComputationManager(tmpDir, statisticsFactory.create(statisticsDbDir, statisticsDbName),
+            return new MpiComputationManager(tmpDir, statisticsFactory, statisticsDbDir, statisticsDbName,
                                              new MpiExecutorContext(), coresPerRank, verbose, stdOutArchive);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
