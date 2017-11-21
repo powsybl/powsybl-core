@@ -6,8 +6,11 @@
  */
 package com.powsybl.math.timeseries;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.google.common.collect.ImmutableList;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.math.timeseries.json.TimeSeriesJsonModule;
 import org.junit.Test;
 import org.threeten.extra.Interval;
 
@@ -15,6 +18,7 @@ import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
@@ -68,6 +72,8 @@ public class DoubleArrayChunkTest {
         Arrays.fill(array, Double.NaN);
         compressedChunk.fillArray(array);
         assertArrayEquals(new double[] {Double.NaN, 1d, 2d, 2d, 2d, 2d, 3d}, array, 0d);
+
+        // json test
         String jsonRef = String.join(System.lineSeparator(),
                 "{",
                 "  \"offset\" : 1,",
@@ -76,6 +82,21 @@ public class DoubleArrayChunkTest {
                 "  \"stepLengths\" : [ 1, 4, 1 ]",
                 "}");
         assertEquals(jsonRef, JsonUtil.toJson(compressedChunk::writeJson));
+
+        // test json with object mapper
+        ObjectMapper objectMapper = new ObjectMapper()
+                .registerModule(new TimeSeriesJsonModule());
+
+        List<DoubleArrayChunk> chunks = objectMapper.readValue(objectMapper.writeValueAsString(Arrays.asList(chunk, compressedChunk)),
+                                                               TypeFactory.defaultInstance().constructCollectionType(List.class, DoubleArrayChunk.class));
+        assertEquals(2, chunks.size());
+        assertEquals(chunk, chunks.get(0));
+        assertEquals(compressedChunk, chunks.get(1));
+
+        // check base class (ArrayChunk) deserializer
+        assertTrue(objectMapper.readValue(objectMapper.writeValueAsString(chunk), ArrayChunk.class) instanceof DoubleArrayChunk);
+
+        // stream test
         RegularTimeSeriesIndex index = RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T01:30:00Z"),
                                                                      Duration.ofMinutes(15), 1, 1);
         assertEquals(ImmutableList.of(new DoublePoint(1, Instant.parse("2015-01-01T00:15:00Z").toEpochMilli(), 1d),
