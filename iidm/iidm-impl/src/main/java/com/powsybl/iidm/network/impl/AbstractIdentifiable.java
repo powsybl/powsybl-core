@@ -89,7 +89,7 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> implements Identi
 
     @Override
     public Collection<Extension<I>> getExtensions() {
-        return extensions.values();
+        return extensionsByName.values();
     }
 
     @Override
