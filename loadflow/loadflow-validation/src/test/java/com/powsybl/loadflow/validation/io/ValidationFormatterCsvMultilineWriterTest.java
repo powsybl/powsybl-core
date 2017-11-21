@@ -150,4 +150,38 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
         return new ValidationFormatterCsvMultilineWriter("test", CsvTableFormatterFactory.class, config, writer, verbose, ValidationType.BUSES);
     }
 
+    @Override
+    protected String getSvcsContent() {
+        return String.join(System.lineSeparator(),
+                           "test " + ValidationType.SVCS + " check",
+                           String.join(";", "id", "characteristic", "value"),
+                           String.join(";", svcId, "p", String.format(Locale.getDefault(), "%g", -p)),
+                           String.join(";", svcId, "q", String.format(Locale.getDefault(), "%g", -q)),
+                           String.join(";", svcId, "v", String.format(Locale.getDefault(), "%g", v)),
+                           String.join(";", svcId, "reactivePowerSetpoint", String.format(Locale.getDefault(), "%g", reactivePowerSetpoint)),
+                           String.join(";", svcId, "voltageSetpoint", String.format(Locale.getDefault(), "%g", voltageSetpoint)));
+    }
+
+    @Override
+    protected String getSvcsVerboseContent() {
+        return String.join(System.lineSeparator(),
+                           "test " + ValidationType.SVCS + " check",
+                           String.join(";", "id", "characteristic", "value"),
+                           String.join(";", svcId, "p", String.format(Locale.getDefault(), "%g", -p)),
+                           String.join(";", svcId, "q", String.format(Locale.getDefault(), "%g", -q)),
+                           String.join(";", svcId, "v", String.format(Locale.getDefault(), "%g", v)),
+                           String.join(";", svcId, "reactivePowerSetpoint", String.format(Locale.getDefault(), "%g", reactivePowerSetpoint)),
+                           String.join(";", svcId, "voltageSetpoint", String.format(Locale.getDefault(), "%g", voltageSetpoint)),
+                           String.join(";", svcId, "connected", Boolean.toString(connected)),
+                           String.join(";", svcId, "regulationMode", regulationMode.name()),
+                           String.join(";", svcId, "bMin", String.format(Locale.getDefault(), "%g", bMin)),
+                           String.join(";", svcId, "bMax", String.format(Locale.getDefault(), "%g", bMax)),
+                           String.join(";", svcId, "validation", "success"));
+    }
+
+    @Override
+    protected ValidationWriter getSvcsValidationFormatterCsvWriter(TableFormatterConfig config, Writer writer, boolean verbose) {
+        return new ValidationFormatterCsvMultilineWriter("test", CsvTableFormatterFactory.class, config, writer, verbose, ValidationType.SVCS);
+    }
+
 }
