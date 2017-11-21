@@ -16,6 +16,7 @@ import java.util.Locale;
 import org.junit.Test;
 
 import com.powsybl.commons.io.table.TableFormatterConfig;
+import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
 
 /**
  *
@@ -49,6 +50,7 @@ public abstract class AbstractValidationFormatterWriterTest {
     protected final double z = Math.hypot(r, x);
     protected final double y = 1 / z;
     protected final double ksi = Math.atan2(r, x);
+    protected final boolean validated = true;
 
     protected final String generatorId = "generatorId";
     protected final float p = -39.5056f;
@@ -82,6 +84,13 @@ public abstract class AbstractValidationFormatterWriterTest {
     protected final double tltP = 0f;
     protected final double tltQ = 0f;
 
+    protected final String svcId = "svcId";
+    protected final float reactivePowerSetpoint = -3.72344f;
+    protected final float voltageSetpoint = 380f;
+    protected final RegulationMode regulationMode = RegulationMode.VOLTAGE;
+    protected final float bMin = -10f;
+    protected final float bMax = 0f;
+
     @Test
     public void testFlows() throws Exception {
         testFlows(getFlowsContent(), false);
@@ -101,7 +110,7 @@ public abstract class AbstractValidationFormatterWriterTest {
         TableFormatterConfig config = new TableFormatterConfig(Locale.getDefault(), ';', "inv", true, true);
         try (ValidationWriter flowsWriter = getFlowsValidationFormatterCsvWriter(config, writer, verbose)) {
             flowsWriter.write(branchId, p1, p1Calc, q1, q1Calc, p2, p2Calc, q2, q2Calc, r, x, g1, g2, b1, b2, rho1, rho2,
-                              alpha1, alpha2, u1, u2, theta1, theta2, z, y, ksi, true);
+                              alpha1, alpha2, u1, u2, theta1, theta2, z, y, ksi, validated);
             assertEquals(flowsContent, writer.toString().trim());
         }
     }
@@ -126,7 +135,7 @@ public abstract class AbstractValidationFormatterWriterTest {
         Writer writer = new StringWriter();
         TableFormatterConfig config = new TableFormatterConfig(Locale.getDefault(), ';', "inv", true, true);
         try (ValidationWriter generatorsWriter = getGeneratorsValidationFormatterCsvWriter(config, writer, verbose)) {
-            generatorsWriter.write(generatorId, p, q, v, targetP, targetQ, targetV, connected, voltageRegulatorOn, minQ, maxQ, true);
+            generatorsWriter.write(generatorId, p, q, v, targetP, targetQ, targetV, connected, voltageRegulatorOn, minQ, maxQ, validated);
             assertEquals(generatorsContent, writer.toString().trim());
         }
     }
@@ -151,11 +160,35 @@ public abstract class AbstractValidationFormatterWriterTest {
         Writer writer = new StringWriter();
         TableFormatterConfig config = new TableFormatterConfig(Locale.getDefault(), ';', "inv", true, true);
         try (ValidationWriter busesWriter = getBusesValidationFormatterCsvWriter(config, writer, verbose)) {
-            busesWriter.write(busId, incomingP, incomingQ, loadP, loadQ, genP, genQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ, lineP, lineQ, twtP, twtQ, tltP, tltQ, true);
+            busesWriter.write(busId, incomingP, incomingQ, loadP, loadQ, genP, genQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ, lineP, lineQ, twtP, twtQ, tltP, tltQ, validated);
             assertEquals(busesContent, writer.toString().trim());
         }
     }
 
     protected abstract ValidationWriter getBusesValidationFormatterCsvWriter(TableFormatterConfig config, Writer writer, boolean verbose);
 
+    @Test
+    public void testSvcs() throws Exception {
+        testSvcs(getSvcsContent(), false);
+    }
+
+    protected abstract String getSvcsContent();
+
+    @Test
+    public void testSvcsVerbose() throws Exception {
+        testSvcs(getSvcsVerboseContent(), true);
+    }
+
+    protected abstract String getSvcsVerboseContent();
+
+    protected void testSvcs(String svcsContent, boolean verbose) throws IOException {
+        Writer writer = new StringWriter();
+        TableFormatterConfig config = new TableFormatterConfig(Locale.getDefault(), ';', "inv", true, true);
+        try (ValidationWriter svcsWriter = getSvcsValidationFormatterCsvWriter(config, writer, verbose)) {
+            svcsWriter.write(svcId, p, q, v, reactivePowerSetpoint, voltageSetpoint, verbose, regulationMode, bMin, bMax, validated);
+            assertEquals(svcsContent, writer.toString().trim());
+        }
+    }
+
+    protected abstract ValidationWriter getSvcsValidationFormatterCsvWriter(TableFormatterConfig config, Writer writer, boolean verbose);
 }

@@ -94,7 +94,7 @@ public final class BusesValidation {
         double loadQ = bus.getLoadStream().map(Load::getTerminal).mapToDouble(Terminal::getQ).sum();
         double genP = bus.getGeneratorStream().map(Generator::getTerminal).mapToDouble(Terminal::getP).sum();
         double genQ = bus.getGeneratorStream().map(Generator::getTerminal).mapToDouble(Terminal::getQ).sum();
-        double shuntP = bus.getShuntStream().map(ShuntCompensator::getTerminal).mapToDouble(Terminal::getP).sum();
+        double shuntP = bus.getShuntStream().map(ShuntCompensator::getTerminal).mapToDouble(Terminal::getP).map(p -> Double.isNaN(p) ? 0 : p).sum();
         double shuntQ = bus.getShuntStream().map(ShuntCompensator::getTerminal).mapToDouble(Terminal::getQ).sum();
         double svcP = bus.getStaticVarCompensatorStream().map(StaticVarCompensator::getTerminal).mapToDouble(Terminal::getP).sum();
         double svcQ = bus.getStaticVarCompensatorStream().map(StaticVarCompensator::getTerminal).mapToDouble(Terminal::getQ).sum();
