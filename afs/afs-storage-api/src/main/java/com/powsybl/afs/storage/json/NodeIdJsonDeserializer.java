@@ -9,28 +9,28 @@ package com.powsybl.afs.storage.json;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.powsybl.afs.storage.AfsStorageException;
 import com.powsybl.afs.storage.AppFileSystemStorage;
 import com.powsybl.afs.storage.NodeId;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class NodeIdJsonDeserializer extends StdDeserializer<NodeId> {
 
-    private final transient AppFileSystemStorage storage;
-
-    public NodeIdJsonDeserializer(AppFileSystemStorage storage) {
+    public NodeIdJsonDeserializer() {
         super(NodeId.class);
-        this.storage = Objects.requireNonNull(storage);
     }
 
     @Override
     public NodeId deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) {
-        Objects.requireNonNull(storage, "NodeIdJsonDeserializer should not be serialized/deserialized");
+        AppFileSystemStorage storage = (AppFileSystemStorage) deserializationContext.getAttribute("storage");
+        if (storage == null) {
+            throw new AfsStorageException("Storage not found in deserialization context");
+        }
         try {
             return storage.fromString(jsonParser.getValueAsString());
         } catch (IOException e) {

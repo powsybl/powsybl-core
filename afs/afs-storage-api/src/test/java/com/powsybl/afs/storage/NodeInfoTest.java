@@ -35,7 +35,9 @@ public class NodeInfoTest {
                 .then(invocationOnMock -> new NodeIdMock(invocationOnMock.getArguments()[0].toString()));
 
         objectMapper = new ObjectMapper()
-                .registerModule(new AppStorageJsonModule(storage));
+                .registerModule(new AppStorageJsonModule());
+        // add storage as an attribute du deserialization context
+        objectMapper.setConfig(objectMapper.getDeserializationConfig().withAttribute("storage", this.storage));
     }
 
     @Test

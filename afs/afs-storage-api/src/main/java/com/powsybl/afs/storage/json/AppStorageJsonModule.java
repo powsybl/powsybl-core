@@ -6,25 +6,20 @@
  */
 package com.powsybl.afs.storage.json;
 
-import com.powsybl.afs.storage.AppFileSystemStorage;
 import com.powsybl.afs.storage.NodeId;
 import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.math.timeseries.json.TimeSeriesJsonModule;
-
-import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class AppStorageJsonModule extends TimeSeriesJsonModule {
 
-    public AppStorageJsonModule(AppFileSystemStorage storage) {
-        Objects.requireNonNull(storage);
-
+    public AppStorageJsonModule() {
         addSerializer(NodeId.class, new NodeIdJsonSerializer());
         addSerializer(NodeInfo.class, new NodeInfoJsonSerializer());
 
-        addDeserializer(NodeId.class, new NodeIdJsonDeserializer(storage));
-        addDeserializer(NodeInfo.class, new NodeInfoJsonDeserializer(storage));
+        addDeserializer(NodeId.class, new NodeIdJsonDeserializer());
+        addDeserializer(NodeInfo.class, new NodeInfoJsonDeserializer());
     }
 }
