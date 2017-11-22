@@ -9,6 +9,7 @@ package com.powsybl.afs.storage;
 import com.powsybl.math.timeseries.DoubleArrayChunk;
 import com.powsybl.math.timeseries.StringArrayChunk;
 import com.powsybl.math.timeseries.TimeSeriesMetadata;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -66,6 +67,11 @@ public class DefaultListenableAppStorageTest {
                 methodCalled = "timeSeriesRemoved";
             }
         });
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        listenableStorage.removeListeners(this);
     }
 
     @Test

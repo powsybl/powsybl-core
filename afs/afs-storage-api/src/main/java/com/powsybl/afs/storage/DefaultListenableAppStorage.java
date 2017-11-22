@@ -22,7 +22,7 @@ public class DefaultListenableAppStorage implements ListenableAppStorage {
 
     private final AppStorage storage;
 
-    private final WeakHashMap<Object, AppStorageListener> listeners = new WeakHashMap<>();
+    private final WeakHashMap<Object, List<AppStorageListener>> listeners = new WeakHashMap<>();
 
     public DefaultListenableAppStorage(AppStorage storage) {
         this.storage = Objects.requireNonNull(storage);
@@ -46,7 +46,7 @@ public class DefaultListenableAppStorage implements ListenableAppStorage {
     @Override
     public NodeId createNode(NodeId parentNodeId, String name, String nodePseudoClass) {
         NodeId nodeId = storage.createNode(parentNodeId, name, nodePseudoClass);
-        listeners.values().forEach(l -> l.nodeCreated(nodeId));
+        listeners.values().stream().flatMap(List::stream).forEach(l -> l.nodeCreated(nodeId));
         return nodeId;
     }
 
@@ -108,7 +108,7 @@ public class DefaultListenableAppStorage implements ListenableAppStorage {
     @Override
     public void deleteNode(NodeId nodeId) {
         storage.deleteNode(nodeId);
-        listeners.values().forEach(l -> l.nodeRemoved(nodeId));
+        listeners.values().stream().flatMap(List::stream).forEach(l -> l.nodeRemoved(nodeId));
     }
 
     @Override
@@ -119,7 +119,7 @@ public class DefaultListenableAppStorage implements ListenableAppStorage {
     @Override
     public void setStringAttribute(NodeId nodeId, String name, String value) {
         storage.setStringAttribute(nodeId, name, value);
-        listeners.values().forEach(l -> l.attributeUpdated(nodeId, name));
+        listeners.values().stream().flatMap(List::stream).forEach(l -> l.attributeUpdated(nodeId, name));
     }
 
     @Override
@@ -140,7 +140,7 @@ public class DefaultListenableAppStorage implements ListenableAppStorage {
     @Override
     public void setIntAttribute(NodeId nodeId, String name, int value) {
         storage.setIntAttribute(nodeId, name, value);
-        listeners.values().forEach(l -> l.attributeUpdated(nodeId, name));
+        listeners.values().stream().flatMap(List::stream).forEach(l -> l.attributeUpdated(nodeId, name));
     }
 
     @Override
@@ -151,7 +151,7 @@ public class DefaultListenableAppStorage implements ListenableAppStorage {
     @Override
     public void setDoubleAttribute(NodeId nodeId, String name, double value) {
         storage.setDoubleAttribute(nodeId, name, value);
-        listeners.values().forEach(l -> l.attributeUpdated(nodeId, name));
+        listeners.values().stream().flatMap(List::stream).forEach(l -> l.attributeUpdated(nodeId, name));
     }
 
     @Override
@@ -162,7 +162,7 @@ public class DefaultListenableAppStorage implements ListenableAppStorage {
     @Override
     public void setBooleanAttribute(NodeId nodeId, String name, boolean value) {
         storage.setBooleanAttribute(nodeId, name, value);
-        listeners.values().forEach(l -> l.attributeUpdated(nodeId, name));
+        listeners.values().stream().flatMap(List::stream).forEach(l -> l.attributeUpdated(nodeId, name));
     }
 
     @Override
@@ -173,7 +173,7 @@ public class DefaultListenableAppStorage implements ListenableAppStorage {
     @Override
     public void createTimeSeries(NodeId nodeId, TimeSeriesMetadata metadata) {
         storage.createTimeSeries(nodeId, metadata);
-        listeners.values().forEach(l -> l.timeSeriesCreated(nodeId, metadata.getName()));
+        listeners.values().stream().flatMap(List::stream).forEach(l -> l.timeSeriesCreated(nodeId, metadata.getName()));
     }
 
     @Override
@@ -194,7 +194,7 @@ public class DefaultListenableAppStorage implements ListenableAppStorage {
     @Override
     public void addDoubleTimeSeriesData(NodeId nodeId, int version, String timeSeriesName, List<DoubleArrayChunk> chunks) {
         storage.addDoubleTimeSeriesData(nodeId, version, timeSeriesName, chunks);
-        listeners.values().forEach(l -> l.timeSeriesDataUpdated(nodeId, timeSeriesName));
+        listeners.values().stream().flatMap(List::stream).forEach(l -> l.timeSeriesDataUpdated(nodeId, timeSeriesName));
     }
 
     @Override
@@ -205,13 +205,13 @@ public class DefaultListenableAppStorage implements ListenableAppStorage {
     @Override
     public void addStringTimeSeriesData(NodeId nodeId, int version, String timeSeriesName, List<StringArrayChunk> chunks) {
         storage.addStringTimeSeriesData(nodeId, version, timeSeriesName, chunks);
-        listeners.values().forEach(l -> l.timeSeriesDataUpdated(nodeId, timeSeriesName));
+        listeners.values().stream().flatMap(List::stream).forEach(l -> l.timeSeriesDataUpdated(nodeId, timeSeriesName));
     }
 
     @Override
     public void removeAllTimeSeries(NodeId nodeId) {
         storage.removeAllTimeSeries(nodeId);
-        listeners.values().forEach(l -> l.timeSeriesRemoved(nodeId));
+        listeners.values().stream().flatMap(List::stream).forEach(l -> l.timeSeriesRemoved(nodeId));
     }
 
     @Override
@@ -227,7 +227,7 @@ public class DefaultListenableAppStorage implements ListenableAppStorage {
     @Override
     public void addDependency(NodeId nodeId, String name, NodeId toNodeId) {
         storage.addDependency(nodeId, name, toNodeId);
-        listeners.values().forEach(l -> l.dependencyAdded(nodeId, name));
+        listeners.values().stream().flatMap(List::stream).forEach(l -> l.dependencyAdded(nodeId, name));
     }
 
     @Override
@@ -282,11 +282,11 @@ public class DefaultListenableAppStorage implements ListenableAppStorage {
 
     @Override
     public void addListener(Object target, AppStorageListener l) {
-        listeners.put(target, l);
+        listeners.computeIfAbsent(target, k -> new ArrayList<>()).add(l);
     }
 
     @Override
-    public void removeListener(Object target) {
+    public void removeListeners(Object target) {
         listeners.remove(target);
     }
 }

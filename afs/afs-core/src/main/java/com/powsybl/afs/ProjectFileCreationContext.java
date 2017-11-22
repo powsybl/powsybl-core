@@ -14,36 +14,16 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class ProjectFileCreationContext {
-
-    public ProjectFileCreationContext(NodeInfo info, ListenableAppStorage storage, NodeInfo projectInfo, AppFileSystem fileSystem) {
-        this.info = Objects.requireNonNull(info);
-        this.storage = Objects.requireNonNull(storage);
-        this.projectInfo = Objects.requireNonNull(projectInfo);
-        this.fileSystem = Objects.requireNonNull(fileSystem);
-    }
+public class ProjectFileCreationContext extends ProjectFileContext {
 
     private final NodeInfo info;
 
-    private final ListenableAppStorage storage;
-
-    private final NodeInfo projectInfo;
-
-    private final AppFileSystem fileSystem;
+    public ProjectFileCreationContext(NodeInfo info, ListenableAppStorage storage, NodeInfo projectInfo, AppFileSystem fileSystem) {
+        super(storage, projectInfo, fileSystem);
+        this.info = Objects.requireNonNull(info);
+    }
 
     public NodeInfo getInfo() {
         return info;
-    }
-
-    public ListenableAppStorage getStorage() {
-        return storage;
-    }
-
-    public NodeInfo getProjectInfo() {
-        return projectInfo;
-    }
-
-    public AppFileSystem getFileSystem() {
-        return fileSystem;
     }
 }
