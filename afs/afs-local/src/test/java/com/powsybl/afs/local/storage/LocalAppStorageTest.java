@@ -35,7 +35,7 @@ import static org.junit.Assert.*;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class LocalAppFileSystemStorageTest {
+public class LocalAppStorageTest {
 
     private FileSystem fileSystem;
 
@@ -43,7 +43,7 @@ public class LocalAppFileSystemStorageTest {
 
     private Path path2;
 
-    private LocalAppFileSystemStorage storage;
+    private LocalAppStorage storage;
 
     @Before
     public void setUp() throws Exception {
@@ -60,7 +60,7 @@ public class LocalAppFileSystemStorageTest {
                 = Collections.singletonList(new LocalCaseScanner(new ImportConfig(),
                                                                           new ImportersLoaderList(Collections.singletonList(new TestImporter(network)),
                                                                                                   Collections.emptyList())));
-        storage = new LocalAppFileSystemStorage(rootDir, "mem", fileExtensions, Collections.emptyList(), computationManager);
+        storage = new LocalAppStorage(rootDir, "mem", fileExtensions, Collections.emptyList(), computationManager);
     }
 
     @After

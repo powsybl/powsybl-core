@@ -6,16 +6,16 @@
  */
 package com.powsybl.afs.mapdb.storage;
 
-import com.powsybl.afs.storage.AbstractAppFileSystemStorageTest;
-import com.powsybl.afs.storage.AppFileSystemStorage;
+import com.powsybl.afs.storage.AbstractAppStorageTest;
+import com.powsybl.afs.storage.AppStorage;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class MapDbAppFileSystemStorageTest extends AbstractAppFileSystemStorageTest {
+public class MapDbAppStorageTest extends AbstractAppStorageTest {
 
     @Override
-    protected AppFileSystemStorage createStorage() {
-        return MapDbAppFileSystemStorage.createMem("mem");
+    protected AppStorage createStorage() {
+        return MapDbAppStorage.createMem("mem");
     }
 }

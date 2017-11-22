@@ -9,7 +9,7 @@ package com.powsybl.afs.mapdb;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.afs.AppFileSystem;
-import com.powsybl.afs.mapdb.storage.MapDbAppFileSystemStorage;
+import com.powsybl.afs.mapdb.storage.MapDbAppStorage;
 import com.powsybl.computation.ComputationManager;
 import org.junit.After;
 import org.junit.Before;
@@ -51,7 +51,7 @@ public class MapDbAppFileSystemProviderTest {
         ComputationManager computationManager = Mockito.mock(ComputationManager.class);
         MapDbAppFileSystemConfig config = new MapDbAppFileSystemConfig("drive", true, dbFile);
         List<AppFileSystem> fileSystems = new MapDbAppFileSystemProvider(Collections.singletonList(config),
-            (name, file) -> MapDbAppFileSystemStorage.createHeap(name))
+            (name, file) -> MapDbAppStorage.createHeap(name))
                 .getFileSystems(computationManager);
         assertEquals(1, fileSystems.size());
         assertTrue(fileSystems.get(0) instanceof MapDbAppFileSystem);

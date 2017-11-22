@@ -7,11 +7,10 @@
 package com.powsybl.afs.ext.base;
 
 import com.powsybl.afs.AfsException;
-import com.powsybl.afs.AppFileSystem;
 import com.powsybl.afs.ProjectFile;
-import com.powsybl.afs.storage.AppFileSystemStorage;
+import com.powsybl.afs.ProjectFileCreationContext;
+import com.powsybl.afs.storage.AppStorage;
 import com.powsybl.afs.storage.NodeId;
-import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.import_.ImportersLoader;
@@ -36,16 +35,15 @@ public class ImportedCase extends ProjectFile implements ProjectCase {
 
     private final ImportersLoader importersLoader;
 
-    public ImportedCase(NodeInfo info, AppFileSystemStorage storage, NodeInfo projectInfo, AppFileSystem fileSystem,
-                        ImportersLoader importersLoader) {
-        super(info, storage, projectInfo, fileSystem, CaseIconCache.INSTANCE.get(
+    public ImportedCase(ProjectFileCreationContext context, ImportersLoader importersLoader) {
+        super(context, CaseIconCache.INSTANCE.get(
                 importersLoader,
-                fileSystem.getData().getComputationManager(),
-                getFormat(storage, info.getId())));
+                context.getFileSystem().getData().getComputationManager(),
+                getFormat(context.getStorage(), context.getInfo().getId())));
         this.importersLoader = Objects.requireNonNull(importersLoader);
     }
 
-    private static String getFormat(AppFileSystemStorage storage, NodeId id) {
+    private static String getFormat(AppStorage storage, NodeId id) {
         return storage.getStringAttribute(id, FORMAT);
     }
 

@@ -24,13 +24,13 @@ import static org.junit.Assert.assertEquals;
  */
 public class NodeInfoTest {
 
-    private AppFileSystemStorage storage;
+    private AppStorage storage;
 
     private ObjectMapper objectMapper;
 
     @Before
     public void setUp() throws Exception {
-        storage = Mockito.mock(AppFileSystemStorage.class);
+        storage = Mockito.mock(AppStorage.class);
         Mockito.when(storage.fromString(Mockito.anyString()))
                 .then(invocationOnMock -> new NodeIdMock(invocationOnMock.getArguments()[0].toString()));
 

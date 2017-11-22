@@ -7,14 +7,14 @@
 package com.powsybl.afs.mapdb;
 
 import com.powsybl.afs.AppFileSystem;
-import com.powsybl.afs.mapdb.storage.MapDbAppFileSystemStorage;
+import com.powsybl.afs.mapdb.storage.MapDbAppStorage;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class MapDbAppFileSystem extends AppFileSystem {
 
-    public MapDbAppFileSystem(String driveName, boolean remotelyAccessible, MapDbAppFileSystemStorage storage) {
+    public MapDbAppFileSystem(String driveName, boolean remotelyAccessible, MapDbAppStorage storage) {
         super(driveName, remotelyAccessible, storage);
     }
 }
