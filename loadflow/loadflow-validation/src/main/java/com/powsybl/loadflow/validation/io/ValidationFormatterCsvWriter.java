@@ -96,7 +96,7 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                         new Column("targetP"),
                         new Column("targetQ"),
                         new Column("targetV"),
-                        new Column("connected"),
+                        new Column(CONNECTED),
                         new Column("voltageRegulatorOn"),
                         new Column("minQ"),
                         new Column("maxQ"),
@@ -153,7 +153,7 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                         new Column("v"),
                         new Column("reactivePowerSetpoint"),
                         new Column("voltageSetpoint"),
-                        new Column("connected"),
+                        new Column(CONNECTED),
                         new Column("regulationMode"),
                         new Column("bMin"),
                         new Column("bMax"),
@@ -167,6 +167,28 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                     new Column("v"),
                     new Column("reactivePowerSetpoint"),
                     new Column("voltageSetpoint")
+                };
+            case SHUNTS:
+                if (verbose) {
+                    return new Column[] {
+                        new Column("id"),
+                        new Column("q"),
+                        new Column("expectedQ"),
+                        new Column("p"),
+                        new Column("currentSectionCount"),
+                        new Column("maximumSectionCount"),
+                        new Column("bPerSection"),
+                        new Column("v"),
+                        new Column(CONNECTED),
+                        new Column("qMax"),
+                        new Column("nominalV"),
+                        new Column(VALIDATION)
+                    };
+                }
+                return new Column[] {
+                    new Column("id"),
+                    new Column("q"),
+                    new Column("expectedQ")
                 };
             default:
                 throw new AssertionError("Unexpected ValidationType value: " + validationType);
@@ -273,6 +295,26 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                      .writeCell(regulationMode.name())
                      .writeCell(bMin)
                      .writeCell(bMax)
+                     .writeCell(validated ? SUCCESS : FAIL);
+        }
+    }
+
+    @Override
+    public void write(String shuntId, float q, float expectedQ, float p, int currentSectionCount, int maximumSectionCount,
+                      float bPerSection, float v, boolean connected, float qMax, float nominalV, boolean validated) throws IOException {
+        Objects.requireNonNull(shuntId);
+        formatter.writeCell(shuntId)
+                 .writeCell(q)
+                 .writeCell(expectedQ);
+        if (verbose) {
+            formatter.writeCell(p)
+                     .writeCell(currentSectionCount)
+                     .writeCell(maximumSectionCount)
+                     .writeCell(bPerSection)
+                     .writeCell(v)
+                     .writeCell(connected)
+                     .writeCell(qMax)
+                     .writeCell(nominalV)
                      .writeCell(validated ? SUCCESS : FAIL);
         }
     }

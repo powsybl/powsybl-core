@@ -86,7 +86,7 @@ public class ValidationTool implements Tool {
                     .argName("VALIDATION_WRITER")
                     .build());
             options.addOption(Option.builder().longOpt(TYPES)
-                    .desc("validation types (FLOWS/GENERATORS/BUSES/SVCS) to run, all of them if the option if not specified")
+                    .desc("validation types (FLOWS/GENERATORS/BUSES/SVCS/SHUNTS) to run, all of them if the option if not specified")
                     .hasArg()
                     .argName("VALIDATION_TYPE,VALIDATION_TYPE,...")
                     .build());
@@ -151,6 +151,7 @@ public class ValidationTool implements Tool {
                 context.getErrorStream().println("Error validating load-flow results of network " + network.getId()
                                                  + " - validation type: " + validationType
                                                  + " - error: " + e.getMessage());
+                e.printStackTrace(context.getErrorStream());
             }
         });
     }
