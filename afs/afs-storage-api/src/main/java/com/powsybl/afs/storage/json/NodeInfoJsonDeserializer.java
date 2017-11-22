@@ -11,7 +11,7 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.afs.storage.AfsStorageException;
-import com.powsybl.afs.storage.AppFileSystemStorage;
+import com.powsybl.afs.storage.AppStorage;
 import com.powsybl.afs.storage.NodeId;
 import com.powsybl.afs.storage.NodeInfo;
 
@@ -29,7 +29,7 @@ public class NodeInfoJsonDeserializer extends StdDeserializer<NodeInfo> {
 
     @Override
     public NodeInfo deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) {
-        AppFileSystemStorage storage = (AppFileSystemStorage) deserializationContext.getAttribute("storage");
+        AppStorage storage = (AppStorage) deserializationContext.getAttribute("storage");
         if (storage == null) {
             throw new AfsStorageException("Storage not found in deserialization context");
         }

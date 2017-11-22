@@ -9,7 +9,7 @@ package com.powsybl.afs.mapdb;
 import com.google.auto.service.AutoService;
 import com.powsybl.afs.AppFileSystem;
 import com.powsybl.afs.AppFileSystemProvider;
-import com.powsybl.afs.mapdb.storage.MapDbAppFileSystemStorage;
+import com.powsybl.afs.mapdb.storage.MapDbAppStorage;
 import com.powsybl.computation.ComputationManager;
 
 import java.nio.file.Path;
@@ -26,14 +26,14 @@ public class MapDbAppFileSystemProvider implements AppFileSystemProvider {
 
     private final List<MapDbAppFileSystemConfig> configs;
 
-    private final BiFunction<String, Path, MapDbAppFileSystemStorage> storageProvider;
+    private final BiFunction<String, Path, MapDbAppStorage> storageProvider;
 
     public MapDbAppFileSystemProvider() {
-        this(MapDbAppFileSystemConfig.load(), (name, path) -> MapDbAppFileSystemStorage.createMmapFile(name, path.toFile()));
+        this(MapDbAppFileSystemConfig.load(), (name, path) -> MapDbAppStorage.createMmapFile(name, path.toFile()));
     }
 
     public MapDbAppFileSystemProvider(List<MapDbAppFileSystemConfig> configs,
-                                      BiFunction<String, Path, MapDbAppFileSystemStorage> storageProvider) {
+                                      BiFunction<String, Path, MapDbAppStorage> storageProvider) {
         this.configs = Objects.requireNonNull(configs);
         this.storageProvider = Objects.requireNonNull(storageProvider);
     }
@@ -42,7 +42,7 @@ public class MapDbAppFileSystemProvider implements AppFileSystemProvider {
     public List<AppFileSystem> getFileSystems(ComputationManager computationManager) {
         return configs.stream()
                 .map(config ->  {
-                    MapDbAppFileSystemStorage storage = storageProvider.apply(config.getDriveName(), config.getDbFile());
+                    MapDbAppStorage storage = storageProvider.apply(config.getDriveName(), config.getDbFile());
                     return new MapDbAppFileSystem(config.getDriveName(), config.isRemotelyAccessible(), storage);
                 })
                 .collect(Collectors.toList());

@@ -6,11 +6,9 @@
  */
 package com.powsybl.afs.ext.base;
 
-import com.powsybl.afs.AppFileSystem;
 import com.powsybl.afs.FileIcon;
 import com.powsybl.afs.ProjectFile;
-import com.powsybl.afs.storage.AppFileSystemStorage;
-import com.powsybl.afs.storage.NodeInfo;
+import com.powsybl.afs.ProjectFileCreationContext;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.xml.NetworkXml;
 import groovy.lang.Binding;
@@ -35,8 +33,8 @@ public class VirtualCase extends ProjectFile implements ProjectCase {
     static final String CASE_DEPENDENCY_NAME = "case";
     static final String SCRIPT_DEPENDENCY_NAME = "script";
 
-    public VirtualCase(NodeInfo info, AppFileSystemStorage storage, NodeInfo projectInfo, AppFileSystem fileSystem) {
-        super(info, storage, projectInfo, fileSystem, VIRTUAL_CASE_ICON);
+    public VirtualCase(ProjectFileCreationContext context) {
+        super(context, VIRTUAL_CASE_ICON);
     }
 
     public ProjectCase getCase() {

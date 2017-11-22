@@ -9,8 +9,8 @@ package com.powsybl.afs.ext.base;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.CharStreams;
 import com.powsybl.afs.*;
-import com.powsybl.afs.mapdb.storage.MapDbAppFileSystemStorage;
-import com.powsybl.afs.storage.AppFileSystemStorage;
+import com.powsybl.afs.mapdb.storage.MapDbAppStorage;
+import com.powsybl.afs.storage.AppStorage;
 import com.powsybl.afs.storage.NodeId;
 import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.iidm.import_.ImportersLoader;
@@ -34,8 +34,8 @@ public class VirtualCaseTest extends AbstractProjectFileTest {
     }
 
     @Override
-    protected AppFileSystemStorage createStorage() {
-        return MapDbAppFileSystemStorage.createHeap("mem");
+    protected AppStorage createStorage() {
+        return MapDbAppStorage.createHeap("mem");
     }
 
     @Override

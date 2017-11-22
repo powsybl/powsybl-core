@@ -6,7 +6,7 @@
  */
 package com.powsybl.afs;
 
-import com.powsybl.afs.storage.AppFileSystemStorage;
+import com.powsybl.afs.storage.ListenableAppStorage;
 import com.powsybl.afs.storage.NodeId;
 import com.powsybl.afs.storage.NodeInfo;
 
@@ -19,9 +19,9 @@ public abstract class AbstractNodeBase<F> {
 
     protected final NodeInfo info;
 
-    protected final AppFileSystemStorage storage;
+    protected final ListenableAppStorage storage;
 
-    public AbstractNodeBase(NodeInfo info, AppFileSystemStorage storage) {
+    public AbstractNodeBase(NodeInfo info, ListenableAppStorage storage) {
         this.info = Objects.requireNonNull(info);
         this.storage = Objects.requireNonNull(storage);
     }

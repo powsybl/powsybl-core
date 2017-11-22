@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface AppFileSystemStorage extends AutoCloseable {
+public interface AppStorage extends AutoCloseable {
 
     String getFileSystemName();
 

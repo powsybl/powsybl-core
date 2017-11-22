@@ -7,9 +7,9 @@
 package com.powsybl.afs.ext.base;
 
 import com.powsybl.afs.AfsException;
-import com.powsybl.afs.AppFileSystem;
 import com.powsybl.afs.ProjectFileBuilder;
-import com.powsybl.afs.storage.AppFileSystemStorage;
+import com.powsybl.afs.ProjectFileBuildContext;
+import com.powsybl.afs.ProjectFileCreationContext;
 import com.powsybl.afs.storage.NodeId;
 import com.powsybl.afs.storage.NodeInfo;
 
@@ -20,13 +20,7 @@ import java.util.Objects;
  */
 public class ModificationScriptBuilder implements ProjectFileBuilder<ModificationScript> {
 
-    private final NodeInfo folderInfo;
-
-    private final AppFileSystemStorage storage;
-
-    private final NodeInfo projectInfo;
-
-    private final AppFileSystem fileSystem;
+    private final ProjectFileBuildContext context;
 
     private String name;
 
@@ -34,11 +28,8 @@ public class ModificationScriptBuilder implements ProjectFileBuilder<Modificatio
 
     private String content;
 
-    public ModificationScriptBuilder(NodeInfo folderInfo, AppFileSystemStorage storage, NodeInfo projectInfo, AppFileSystem fileSystem) {
-        this.folderInfo = Objects.requireNonNull(folderInfo);
-        this.storage = Objects.requireNonNull(storage);
-        this.projectInfo = Objects.requireNonNull(projectInfo);
-        this.fileSystem = Objects.requireNonNull(fileSystem);
+    public ModificationScriptBuilder(ProjectFileBuildContext context) {
+        this.context = Objects.requireNonNull(context);
     }
 
     public ModificationScriptBuilder withName(String name) {
@@ -69,21 +60,24 @@ public class ModificationScriptBuilder implements ProjectFileBuilder<Modificatio
             throw new AfsException("Content is not set");
         }
 
-        if (storage.getChildNode(folderInfo.getId(), name) != null) {
+        if (context.getStorage().getChildNode(context.getFolderInfo().getId(), name) != null) {
             throw new AfsException("Parent folder already contains a '" + name + "' node");
         }
 
         // create project file
-        NodeId id = storage.createNode(folderInfo.getId(), name, ModificationScript.PSEUDO_CLASS);
+        NodeId id = context.getStorage().createNode(context.getFolderInfo().getId(), name, ModificationScript.PSEUDO_CLASS);
 
         // set type
-        storage.setStringAttribute(id, ModificationScript.SCRIPT_TYPE, type.name());
+        context.getStorage().setStringAttribute(id, ModificationScript.SCRIPT_TYPE, type.name());
 
         // store script
-        storage.setStringAttribute(id, ModificationScript.SCRIPT_CONTENT, content);
+        context.getStorage().setStringAttribute(id, ModificationScript.SCRIPT_CONTENT, content);
 
-        storage.flush();
+        context.getStorage().flush();
 
-        return new ModificationScript(new NodeInfo(id, name, ModificationScript.PSEUDO_CLASS), storage, projectInfo, fileSystem);
+        return new ModificationScript(new ProjectFileCreationContext(new NodeInfo(id, name, ModificationScript.PSEUDO_CLASS),
+                                                                     context.getStorage(),
+                                                                     context.getProjectInfo(),
+                                                                     context.getFileSystem()));
     }
 }
