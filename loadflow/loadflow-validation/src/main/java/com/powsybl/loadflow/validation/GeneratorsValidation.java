@@ -150,12 +150,12 @@ public final class GeneratorsValidation {
     private static boolean checkGeneratorsValues(String id, float p, float q, float v, float targetP, float targetQ, float targetV,
                                                  boolean voltageRegulatorOn, float minQ, float maxQ, ValidationConfig config) {
         boolean validated = true;
-        // active power should be equal to set point
+        // active power should be equal to setpoint
         if ((Float.isNaN(targetP) && !config.areOkMissingValues()) || Math.abs(p + targetP) > config.getThreshold()) {
             LOGGER.warn("{} {}: {}: P={} targetP={}", ValidationType.GENERATORS, ValidationUtils.VALIDATION_ERROR, id, p, targetP);
             validated = false;
         }
-        // if voltageRegulatorOn="false" then reactive power should be equal to set point
+        // if voltageRegulatorOn="false" then reactive power should be equal to setpoint
         if (!voltageRegulatorOn && ((Float.isNaN(targetQ) && !config.areOkMissingValues()) || Math.abs(q + targetQ) > config.getThreshold())) {
             LOGGER.warn("{} {}: {}: voltage regulator off - Q={} targetQ={}", ValidationType.GENERATORS, ValidationUtils.VALIDATION_ERROR, id, q, targetQ);
             validated = false;

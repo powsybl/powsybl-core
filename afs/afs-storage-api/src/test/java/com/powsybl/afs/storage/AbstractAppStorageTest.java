@@ -29,13 +29,13 @@ import static org.junit.Assert.*;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public abstract class AbstractAppFileSystemStorageTest {
+public abstract class AbstractAppStorageTest {
 
     private static final String FOLDER_PSEUDO_CLASS = "folder";
 
-    private AppFileSystemStorage storage;
+    private AppStorage storage;
 
-    protected abstract AppFileSystemStorage createStorage();
+    protected abstract AppStorage createStorage();
 
     @Before
     public void setUp() throws Exception {

@@ -8,7 +8,7 @@ package com.powsybl.afs.local.storage;
 
 import com.google.common.collect.ImmutableList;
 import com.powsybl.afs.Folder;
-import com.powsybl.afs.storage.AppFileSystemStorage;
+import com.powsybl.afs.storage.AppStorage;
 import com.powsybl.afs.storage.NodeId;
 import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.commons.datasource.DataSource;
@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class LocalAppFileSystemStorage implements AppFileSystemStorage {
+public class LocalAppStorage implements AppStorage {
 
     private final Path rootDir;
 
@@ -42,8 +42,8 @@ public class LocalAppFileSystemStorage implements AppFileSystemStorage {
 
     private final Map<Path, LocalFolder> folderCache = new HashMap<>();
 
-    public LocalAppFileSystemStorage(Path rootDir, String fileSystemName, List<LocalFileScanner> fileScanners,
-                                     List<LocalFolderScanner> folderScanners, ComputationManager computationManager) {
+    public LocalAppStorage(Path rootDir, String fileSystemName, List<LocalFileScanner> fileScanners,
+                           List<LocalFolderScanner> folderScanners, ComputationManager computationManager) {
         this.rootDir = Objects.requireNonNull(rootDir);
         this.fileSystemName = Objects.requireNonNull(fileSystemName);
         this.fileScanners = Objects.requireNonNull(fileScanners);

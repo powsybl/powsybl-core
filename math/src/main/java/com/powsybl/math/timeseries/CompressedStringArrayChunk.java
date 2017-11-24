@@ -119,4 +119,21 @@ public class CompressedStringArrayChunk extends AbstractCompressedArrayChunk imp
         }
         generator.writeEndArray();
     }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(offset, uncompressedLength, stepLengths, stepValues);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof CompressedStringArrayChunk) {
+            CompressedStringArrayChunk other = (CompressedStringArrayChunk) obj;
+            return offset == other.offset &&
+                    uncompressedLength == other.uncompressedLength &&
+                    Arrays.equals(stepLengths, other.stepLengths) &&
+                    Arrays.equals(stepValues, other.stepValues);
+        }
+        return false;
+    }
 }

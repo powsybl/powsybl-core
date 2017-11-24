@@ -71,7 +71,7 @@ public class GeneratorsValidationTest extends AbstractValidationTest {
 
     @Test
     public void checkGeneratorsValues() {
-        // active power should be equal to set point
+        // active power should be equal to setpoint
         assertTrue(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, strictConfig, NullWriter.NULL_WRITER));
         p = -39.8f;
         assertFalse(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, strictConfig, NullWriter.NULL_WRITER));
@@ -83,7 +83,7 @@ public class GeneratorsValidationTest extends AbstractValidationTest {
         assertTrue(GeneratorsValidation.checkGenerators("test", p, q, v, Float.NaN, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, strictConfig, NullWriter.NULL_WRITER));
         strictConfig.setOkMissingValues(false);
 
-        //  if voltageRegulatorOn="false" then reactive power should be equal to set point
+        //  if voltageRegulatorOn="false" then reactive power should be equal to setpoint
         voltageRegulatorOn = false;
         assertTrue(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, strictConfig, NullWriter.NULL_WRITER));
         q = 3.7f;
@@ -137,6 +137,7 @@ public class GeneratorsValidationTest extends AbstractValidationTest {
         q = 5f;
         v = 400f;
         assertFalse(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, strictConfig, NullWriter.NULL_WRITER));
+
         // a validation error should be detected if there is both a voltage and a target but no p or q
         v = 380f;
         p = Float.NaN;
@@ -149,7 +150,7 @@ public class GeneratorsValidationTest extends AbstractValidationTest {
 
     @Test
     public void checkGenerators() {
-        // active power should be equal to set point
+        // active power should be equal to setpoint
         assertTrue(GeneratorsValidation.checkGenerators(generator, strictConfig, NullWriter.NULL_WRITER));
         Mockito.when(genTerminal.getP()).thenReturn(-39.8f);
         assertFalse(GeneratorsValidation.checkGenerators(generator, strictConfig, NullWriter.NULL_WRITER));
