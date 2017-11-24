@@ -129,4 +129,19 @@ public class UncompressedStringArrayChunk extends AbstractUncompressedArrayChunk
         }
         generator.writeEndArray();
     }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(offset, values);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof UncompressedStringArrayChunk) {
+            UncompressedStringArrayChunk other = (UncompressedStringArrayChunk) obj;
+            return offset == other.offset &&
+                    Arrays.equals(values, other.values);
+        }
+        return false;
+    }
 }

@@ -6,10 +6,8 @@
  */
 package com.powsybl.afs;
 
-import com.powsybl.afs.storage.AppFileSystemStorage;
 import com.powsybl.afs.storage.NodeId;
 import com.powsybl.afs.storage.NodeInfo;
-import com.powsybl.afs.storage.PseudoClass;
 
 import java.util.Comparator;
 import java.util.List;
@@ -21,10 +19,10 @@ import java.util.stream.Collectors;
  */
 public class Folder extends Node implements FolderBase<Node, Folder> {
 
-    public static final String PSEUDO_CLASS = PseudoClass.FOLDER_PSEUDO_CLASS;
+    public static final String PSEUDO_CLASS = "folder";
 
-    public Folder(NodeInfo info, AppFileSystemStorage storage, AppFileSystem fileSystem) {
-        super(info, storage, fileSystem, true);
+    public Folder(FileCreationContext context) {
+        super(context, true);
     }
 
     public boolean isWritable() {
@@ -65,16 +63,19 @@ public class Folder extends Node implements FolderBase<Node, Folder> {
     public Folder createFolder(String name) {
         NodeId folderId = storage.getChildNode(info.getId(), name);
         if (folderId == null) {
-            folderId = storage.createNode(info.getId(), name, Folder.PSEUDO_CLASS);
+            folderId = storage.createNode(info.getId(), name, PSEUDO_CLASS);
         }
-        return new Folder(new NodeInfo(folderId, name, Folder.PSEUDO_CLASS), storage, fileSystem);
+        return new Folder(new FileCreationContext(new NodeInfo(folderId, name, PSEUDO_CLASS), storage, fileSystem));
     }
 
     public Project createProject(String name) {
         NodeId projectId = storage.getChildNode(info.getId(), name);
         if (projectId == null) {
             projectId = storage.createNode(info.getId(), name, Project.PSEUDO_CLASS);
+
+            // create root project folder
+            storage.createNode(projectId, Project.ROOT_FOLDER_NAME, ProjectFolder.PSEUDO_CLASS);
         }
-        return new Project(new NodeInfo(projectId, name, Project.PSEUDO_CLASS), storage, fileSystem);
+        return new Project(new FileCreationContext(new NodeInfo(projectId, name, Project.PSEUDO_CLASS), storage, fileSystem));
     }
 }

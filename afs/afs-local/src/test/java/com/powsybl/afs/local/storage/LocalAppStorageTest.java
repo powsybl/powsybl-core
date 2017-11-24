@@ -9,10 +9,11 @@ package com.powsybl.afs.local.storage;
 import com.google.common.collect.ImmutableList;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
+import com.powsybl.afs.Folder;
 import com.powsybl.afs.ext.base.Case;
 import com.powsybl.afs.ext.base.TestImporter;
 import com.powsybl.afs.storage.NodeId;
-import com.powsybl.afs.storage.PseudoClass;
+import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.import_.ImportConfig;
@@ -34,7 +35,7 @@ import static org.junit.Assert.*;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class LocalAppFileSystemStorageTest {
+public class LocalAppStorageTest {
 
     private FileSystem fileSystem;
 
@@ -42,7 +43,7 @@ public class LocalAppFileSystemStorageTest {
 
     private Path path2;
 
-    private LocalAppFileSystemStorage storage;
+    private LocalAppStorage storage;
 
     @Before
     public void setUp() throws Exception {
@@ -59,7 +60,7 @@ public class LocalAppFileSystemStorageTest {
                 = Collections.singletonList(new LocalCaseScanner(new ImportConfig(),
                                                                           new ImportersLoaderList(Collections.singletonList(new TestImporter(network)),
                                                                                                   Collections.emptyList())));
-        storage = new LocalAppFileSystemStorage(rootDir, "mem", fileExtensions, Collections.emptyList(), computationManager);
+        storage = new LocalAppStorage(rootDir, "mem", fileExtensions, Collections.emptyList(), computationManager);
     }
 
     @After
@@ -70,20 +71,20 @@ public class LocalAppFileSystemStorageTest {
 
     @Test
     public void test() {
-        NodeId rootNode = storage.getRootNode();
-        assertEquals("mem", storage.getNodeName(rootNode));
-        assertFalse(storage.isWritable(rootNode));
-        assertNull(storage.getParentNode(rootNode));
-        assertEquals(ImmutableList.of(new PathNodeId(path1), new PathNodeId(path2)), storage.getChildNodes(rootNode));
-        NodeId case1 = storage.getChildNode(rootNode, "n.tst");
+        NodeInfo rootNodeInfo = storage.createRootNodeIfNotExists("mem", Folder.PSEUDO_CLASS);
+        assertEquals("mem", storage.getNodeName(rootNodeInfo.getId()));
+        assertFalse(storage.isWritable(rootNodeInfo.getId()));
+        assertNull(storage.getParentNode(rootNodeInfo.getId()));
+        assertEquals(ImmutableList.of(new PathNodeId(path1), new PathNodeId(path2)), storage.getChildNodes(rootNodeInfo.getId()));
+        NodeId case1 = storage.getChildNode(rootNodeInfo.getId(), "n.tst");
         assertNotNull(case1);
-        assertEquals(rootNode, storage.getParentNode(case1));
-        NodeId case2 = storage.getChildNode(rootNode, "n2.tst");
+        assertEquals(rootNodeInfo.getId(), storage.getParentNode(case1));
+        NodeId case2 = storage.getChildNode(rootNodeInfo.getId(), "n2.tst");
         assertNotNull(case2);
         assertEquals("/cases/n.tst", case1.toString());
         assertEquals(case1, storage.fromString(case1.toString()));
-        assertNull(storage.getChildNode(rootNode, "n3.tst"));
-        assertEquals(PseudoClass.FOLDER_PSEUDO_CLASS, storage.getNodePseudoClass(rootNode));
+        assertNull(storage.getChildNode(rootNodeInfo.getId(), "n3.tst"));
+        assertEquals(Folder.PSEUDO_CLASS, storage.getNodePseudoClass(rootNodeInfo.getId()));
         assertEquals(Case.PSEUDO_CLASS, storage.getNodePseudoClass(case1));
         assertEquals("TEST", storage.getStringAttribute(case1, "format"));
         assertEquals("Test format", storage.getStringAttribute(case1, "description"));

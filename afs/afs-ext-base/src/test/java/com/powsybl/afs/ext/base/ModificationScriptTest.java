@@ -8,8 +8,8 @@ package com.powsybl.afs.ext.base;
 
 import com.google.common.collect.ImmutableList;
 import com.powsybl.afs.*;
-import com.powsybl.afs.mapdb.storage.MapDbAppFileSystemStorage;
-import com.powsybl.afs.storage.AppFileSystemStorage;
+import com.powsybl.afs.mapdb.storage.MapDbAppStorage;
+import com.powsybl.afs.storage.AppStorage;
 import org.junit.Test;
 
 import java.util.List;
@@ -22,8 +22,8 @@ import static org.junit.Assert.*;
 public class ModificationScriptTest extends AbstractProjectFileTest {
 
     @Override
-    protected AppFileSystemStorage createStorage() {
-        return MapDbAppFileSystemStorage.createHeap("mem");
+    protected AppStorage createStorage() {
+        return MapDbAppStorage.createHeap("mem");
     }
 
     @Override

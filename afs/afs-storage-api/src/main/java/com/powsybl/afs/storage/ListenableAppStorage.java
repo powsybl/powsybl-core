@@ -9,9 +9,9 @@ package com.powsybl.afs.storage;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface PseudoClass {
+public interface ListenableAppStorage extends AppStorage {
 
-    String FOLDER_PSEUDO_CLASS = "folder";
-    String PROJECT_PSEUDO_CLASS = "project";
-    String PROJECT_FOLDER_PSEUDO_CLASS = "projectFolder";
+    void addListener(Object target, AppStorageListener l);
+
+    void removeListeners(Object target);
 }

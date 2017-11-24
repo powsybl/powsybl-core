@@ -24,11 +24,9 @@ import java.util.stream.Stream;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface TimeSeries<P extends AbstractPoint, C extends ArrayChunk<P>> extends Iterable<P> {
+public interface TimeSeries<P extends AbstractPoint> extends Iterable<P> {
 
     TimeSeriesMetadata getMetadata();
-
-    List<C> getChunks();
 
     Stream<P> stream();
 
@@ -55,10 +53,16 @@ public interface TimeSeries<P extends AbstractPoint, C extends ArrayChunk<P>> ex
         Objects.requireNonNull(metadata);
         List<DoubleArrayChunk> doubleChunks = new ArrayList<>();
         List<StringArrayChunk> stringChunks = new ArrayList<>();
-        ArrayChunk.parseJson(parser, metadata.getDataType(), doubleChunks, stringChunks);
+        ArrayChunk.parseJson(parser, doubleChunks, stringChunks);
         if (metadata.getDataType() == TimeSeriesDataType.DOUBLE) {
+            if (!stringChunks.isEmpty()) {
+                throw new TimeSeriesException("String chunks found in a double time series");
+            }
             timeSeriesList.add(new StoredDoubleTimeSeries(metadata, doubleChunks));
         } else if (metadata.getDataType() == TimeSeriesDataType.STRING) {
+            if (!doubleChunks.isEmpty()) {
+                throw new TimeSeriesException("Double chunks found in a string time series");
+            }
             timeSeriesList.add(new StringTimeSeries(metadata, stringChunks));
         } else {
             throw new AssertionError("Unexpected time series data type " + metadata.getDataType());
@@ -66,6 +70,10 @@ public interface TimeSeries<P extends AbstractPoint, C extends ArrayChunk<P>> ex
     }
 
     static List<TimeSeries> parseJson(JsonParser parser) {
+        return parseJson(parser, false);
+    }
+
+    static List<TimeSeries> parseJson(JsonParser parser, boolean single) {
         Objects.requireNonNull(parser);
         List<TimeSeries> timeSeriesList = new ArrayList<>();
         try {
@@ -88,7 +96,8 @@ public interface TimeSeries<P extends AbstractPoint, C extends ArrayChunk<P>> ex
                         default:
                             break;
                     }
-
+                } else if (token == JsonToken.END_OBJECT && single) {
+                    break;
                 }
             }
         } catch (IOException e) {

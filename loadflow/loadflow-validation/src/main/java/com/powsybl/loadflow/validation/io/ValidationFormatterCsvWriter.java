@@ -13,6 +13,7 @@ import java.util.Objects;
 import com.powsybl.commons.io.table.Column;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.commons.io.table.TableFormatterFactory;
+import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
 import com.powsybl.loadflow.validation.ValidationType;
 
 /**
@@ -143,6 +144,30 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                     new Column("loadP"),
                     new Column("loadQ")
                 };
+            case SVCS:
+                if (verbose) {
+                    return new Column[] {
+                        new Column("id"),
+                        new Column("p"),
+                        new Column("q"),
+                        new Column("v"),
+                        new Column("reactivePowerSetpoint"),
+                        new Column("voltageSetpoint"),
+                        new Column("connected"),
+                        new Column("regulationMode"),
+                        new Column("bMin"),
+                        new Column("bMax"),
+                        new Column(VALIDATION)
+                    };
+                }
+                return new Column[] {
+                    new Column("id"),
+                    new Column("p"),
+                    new Column("q"),
+                    new Column("v"),
+                    new Column("reactivePowerSetpoint"),
+                    new Column("voltageSetpoint")
+                };
             default:
                 throw new AssertionError("Unexpected ValidationType value: " + validationType);
         }
@@ -229,6 +254,25 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                      .writeCell(twtQ)
                      .writeCell(tltP)
                      .writeCell(tltQ)
+                     .writeCell(validated ? SUCCESS : FAIL);
+        }
+    }
+
+    @Override
+    public void write(String svcId, float p, float q, float v, float reactivePowerSetpoint, float voltageSetpoint,
+                      boolean connected, RegulationMode regulationMode, float bMin, float bMax, boolean validated) throws IOException {
+        Objects.requireNonNull(svcId);
+        formatter.writeCell(svcId)
+                 .writeCell(-p)
+                 .writeCell(-q)
+                 .writeCell(v)
+                 .writeCell(reactivePowerSetpoint)
+                 .writeCell(voltageSetpoint);
+        if (verbose) {
+            formatter.writeCell(connected)
+                     .writeCell(regulationMode.name())
+                     .writeCell(bMin)
+                     .writeCell(bMax)
                      .writeCell(validated ? SUCCESS : FAIL);
         }
     }

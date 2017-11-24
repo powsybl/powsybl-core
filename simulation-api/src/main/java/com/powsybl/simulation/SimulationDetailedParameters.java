@@ -31,7 +31,7 @@ import java.util.Objects;
  */
 public class SimulationDetailedParameters {
 
-    private final static Supplier<XMLInputFactory> XML_INPUT_FACTORY_SUPPLIER = Suppliers.memoize(XMLInputFactory::newInstance);
+    private static final Supplier<XMLInputFactory> XML_INPUT_FACTORY_SUPPLIER = Suppliers.memoize(XMLInputFactory::newInstance);
 
     public static class Contingency {
 
@@ -163,6 +163,9 @@ public class SimulationDetailedParameters {
                                 Generator generator = new Generator(xmlsr.getAttributeValue(null, "id"),
                                                                     parseDoubleIfNotNull(xmlsr.getAttributeValue(null, "shortCircuitDuration")));
                                 contingency.getGenerators().put(generator.getId(), generator);
+                                break;
+                            default:
+                                throw new AssertionError("Unexpected element: " + xmlsr.getLocalName());
                         }
                         break;
 
@@ -171,7 +174,18 @@ public class SimulationDetailedParameters {
                             case "contingency":
                                 contingency = null;
                                 break;
+
+                            case "branch":
+                            case "generator":
+                                // nothing to do
+                                break;
+
+                            default:
+                                throw new AssertionError("Unexpected element: " + xmlsr.getLocalName());
                         }
+                        break;
+
+                    default:
                         break;
                 }
             }

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<iidm:network xmlns:iidm="http://www.itesla_project.eu/schema/iidm/1_0" xmlns:bar="http://www.itesla_project.eu/schema/iidm/ext/loadbar/1_0" xmlns:foo="http://www.itesla_project.eu/schema/iidm/ext/loadfoo/1_0" id="test" caseDate="2017-11-17T12:00:00.000+01:00" forecastDistance="0" sourceFormat="test">
+    <iidm:substation id="S" country="FR">
+        <iidm:voltageLevel id="VL" nominalV="20.0" lowVoltageLimit="15.0" highVoltageLimit="25.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="BUS"/>
+            </iidm:busBreakerTopology>
+            <iidm:load id="LOAD" loadType="UNDEFINED" p0="0.0" q0="0.0" bus="BUS" connectableBus="BUS"/>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:extension id="LOAD">
+        <foo:loadFoo/>
+        <bar:loadBar/>
+    </iidm:extension>
+</iidm:network>
