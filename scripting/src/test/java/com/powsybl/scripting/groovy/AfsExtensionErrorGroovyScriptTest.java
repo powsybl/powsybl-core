@@ -7,8 +7,8 @@
 package com.powsybl.scripting.groovy;
 
 import com.powsybl.afs.AfsException;
-import com.powsybl.afs.mapdb.storage.MapDbAppFileSystemStorage;
-import com.powsybl.afs.storage.AppFileSystemStorage;
+import com.powsybl.afs.mapdb.storage.MapDbAppStorage;
+import com.powsybl.afs.storage.AppStorage;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -23,8 +23,8 @@ import java.io.StringReader;
 public class AfsExtensionErrorGroovyScriptTest extends AbstractGroovyScriptTest {
 
     @Override
-    protected AppFileSystemStorage createStorage() {
-        return MapDbAppFileSystemStorage.createHeap("mem");
+    protected AppStorage createStorage() {
+        return MapDbAppStorage.createHeap("mem");
     }
 
     @Override

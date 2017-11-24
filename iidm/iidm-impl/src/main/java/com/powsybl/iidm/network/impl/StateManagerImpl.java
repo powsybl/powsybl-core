@@ -146,7 +146,7 @@ class StateManagerImpl implements StateManager {
                     recycled.add(index);
                 }
             }
-            if (recycled.size() > 0) {
+            if (!recycled.isEmpty()) {
                 int[] indexes = Ints.toArray(recycled);
                 for (Stateful obj : getStafulObjects()) {
                     obj.allocateStateArrayElement(indexes, sourceIndex);

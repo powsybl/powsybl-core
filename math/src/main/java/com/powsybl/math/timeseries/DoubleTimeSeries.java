@@ -13,7 +13,7 @@ import java.util.stream.StreamSupport;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface DoubleTimeSeries extends TimeSeries<DoublePoint, DoubleArrayChunk> {
+public interface DoubleTimeSeries extends TimeSeries<DoublePoint> {
 
     double[] toArray();
 

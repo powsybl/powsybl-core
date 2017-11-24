@@ -550,7 +550,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Mult
         return busView;
     }
 
-    private static abstract class AbstractComponentsManager<C extends Component> {
+    private abstract static class AbstractComponentsManager<C extends Component> {
 
         protected final NetworkImpl network;
 
@@ -661,6 +661,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Mult
             super(network);
         }
 
+        @Override
         protected void fillAdjacencyList(Map<String, Integer> id2num, TIntArrayList[] adjacencyList) {
             super.fillAdjacencyList(id2num, adjacencyList);
             for (HvdcLineImpl line : network.objectStore.getAll(HvdcLineImpl.class)) {
@@ -787,7 +788,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Mult
                 continue;
             }
             Collection<String> objs = entry.getValue();
-            if (objs.size() > 0) {
+            if (!objs.isEmpty()) {
                 throw new PowsyblException("The following object(s) of type "
                         + clazz.getSimpleName() + " exist(s) in both networks: "
                         + objs);
@@ -982,7 +983,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Mult
             mergedLineByBoundary.put(new Boundary(lm.country1, lm.country2), lm);
         }
 
-        if (lines.size() > 0) {
+        if (!lines.isEmpty()) {
             LOGGER.info("{} dangling line couples have been replaced by a line: {}", lines.size(),
                     mergedLineByBoundary.asMap().entrySet().stream().map(e -> e.getKey() + ": " + e.getValue().size()).collect(Collectors.toList()));
         }

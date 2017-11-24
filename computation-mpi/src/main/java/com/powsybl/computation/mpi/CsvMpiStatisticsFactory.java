@@ -18,6 +18,9 @@ public class CsvMpiStatisticsFactory implements MpiStatisticsFactory {
 
     @Override
     public MpiStatistics create(Path dbDir, String dbName) {
+        if (dbDir == null || dbName == null) {
+            return new NoMpiStatistics();
+        }
         try {
             return new CsvMpiStatistics(dbDir, dbName);
         } catch (IOException e) {

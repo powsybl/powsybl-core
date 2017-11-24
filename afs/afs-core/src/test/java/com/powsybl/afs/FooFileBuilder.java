@@ -6,8 +6,8 @@
  */
 package com.powsybl.afs;
 
-import com.powsybl.afs.storage.AppFileSystemStorage;
 import com.powsybl.afs.storage.NodeId;
+import com.powsybl.afs.storage.NodeInfo;
 
 import java.util.Objects;
 
@@ -17,24 +17,29 @@ import java.util.Objects;
  */
 class FooFileBuilder implements ProjectFileBuilder<FooFile> {
 
-    private final NodeId folderId;
+    private final ProjectFileBuildContext context;
 
-    private final AppFileSystemStorage storage;
+    private String name;
 
-    private final NodeId projectId;
+    FooFileBuilder(ProjectFileBuildContext context) {
+        this.context = Objects.requireNonNull(context);
+    }
 
-    private final AppFileSystem fileSystem;
-
-    FooFileBuilder(NodeId folderId, AppFileSystemStorage storage, NodeId projectId, AppFileSystem fileSystem) {
-        this.folderId = Objects.requireNonNull(folderId);
-        this.storage = Objects.requireNonNull(storage);
-        this.projectId = Objects.requireNonNull(projectId);
-        this.fileSystem = Objects.requireNonNull(fileSystem);
+    public FooFileBuilder withName(String name) {
+        this.name = name;
+        return this;
     }
 
     @Override
     public FooFile build() {
-        NodeId id = storage.createNode(folderId, "foo", "foo");
-        return new FooFile(id, storage, projectId, fileSystem);
+        if (name == null) {
+            throw new IllegalStateException("name is not set");
+        }
+        String pseudoClass = "foo";
+        NodeId id = context.getStorage().createNode(context.getFolderInfo().getId(), name, pseudoClass);
+        return new FooFile(new ProjectFileCreationContext(new NodeInfo(id, name, pseudoClass),
+                                                          context.getStorage(),
+                                                          context.getProjectInfo(),
+                                                          context.getFileSystem()));
     }
 }

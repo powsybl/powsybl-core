@@ -6,6 +6,10 @@
  */
 package com.powsybl.iidm.xml;
 
+import com.powsybl.iidm.network.TopologyLevel;
+
+import java.util.Objects;
+
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -13,8 +17,6 @@ package com.powsybl.iidm.xml;
 public class XMLExportOptions {
 
     private boolean withBranchSV = true;
-
-    private boolean forceBusBranchTopo = false;
 
     private boolean indent = true;
 
@@ -24,14 +26,16 @@ public class XMLExportOptions {
 
     private boolean skipExtensions = false;
 
+    private TopologyLevel topologyLevel = TopologyLevel.NODE_BREAKER;
+
     public XMLExportOptions() {
     }
 
-    public XMLExportOptions(boolean withBranchSV, boolean forceBusBranchTopo, boolean indent, boolean onlyMainCc) {
+    public XMLExportOptions(boolean withBranchSV, boolean indent, boolean onlyMainCc, TopologyLevel topologyLevel) {
         this.withBranchSV = withBranchSV;
-        this.forceBusBranchTopo = forceBusBranchTopo;
         this.indent = indent;
         this.onlyMainCc = onlyMainCc;
+        this.topologyLevel = topologyLevel;
     }
 
     public boolean isWithBranchSV() {
@@ -40,15 +44,6 @@ public class XMLExportOptions {
 
     public XMLExportOptions setWithBranchSV(boolean withBranchSV) {
         this.withBranchSV = withBranchSV;
-        return this;
-    }
-
-    public boolean isForceBusBranchTopo() {
-        return forceBusBranchTopo;
-    }
-
-    public XMLExportOptions setForceBusBranchTopo(boolean forceBusBranchTopo) {
-        this.forceBusBranchTopo = forceBusBranchTopo;
         return this;
     }
 
@@ -85,6 +80,15 @@ public class XMLExportOptions {
 
     public XMLExportOptions setSkipExtensions(boolean skipExtensions) {
         this.skipExtensions = skipExtensions;
+        return this;
+    }
+
+    public TopologyLevel getTopologyLevel() {
+        return topologyLevel;
+    }
+
+    public XMLExportOptions setTopologyLevel(TopologyLevel topologyLevel) {
+        this.topologyLevel = Objects.requireNonNull(topologyLevel);
         return this;
     }
 }

@@ -6,9 +6,6 @@
  */
 package com.powsybl.afs;
 
-import com.powsybl.afs.storage.AppFileSystemStorage;
-import com.powsybl.afs.storage.NodeId;
-
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -20,7 +17,7 @@ public interface ProjectFileExtension {
 
     Class<? extends ProjectFileBuilder<? extends ProjectFile>> getProjectFileBuilderClass();
 
-    <T extends ProjectFile> T createProjectFile(NodeId id, AppFileSystemStorage storage, NodeId projectId, AppFileSystem fileSystem);
+    <T extends ProjectFile> T createProjectFile(ProjectFileCreationContext context);
 
-    ProjectFileBuilder<? extends ProjectFile> createProjectFileBuilder(NodeId folderId, AppFileSystemStorage storage, NodeId projectId, AppFileSystem fileSystem);
+    ProjectFileBuilder<? extends ProjectFile> createProjectFileBuilder(ProjectFileBuildContext context);
 }

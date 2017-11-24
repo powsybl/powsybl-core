@@ -15,10 +15,16 @@ import com.powsybl.loadflow.LoadFlowFactory;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class SecurityAnalysisFactoryImpl implements SecurityAnalysisFactory {
+
     @Override
     public SecurityAnalysis create(Network network, ComputationManager computationManager, int priority) {
+        return create(network, new LimitViolationFilter(), computationManager, priority);
+    }
+
+    @Override
+    public SecurityAnalysis create(Network network, LimitViolationFilter filter, ComputationManager computationManager, int priority) {
         ComponentDefaultConfig defaultConfig = ComponentDefaultConfig.load();
         LoadFlowFactory loadFlowFactory = defaultConfig.newFactoryImpl(LoadFlowFactory.class);
-        return new SecurityAnalysisImpl(network, computationManager, loadFlowFactory);
+        return new SecurityAnalysisImpl(network, filter, computationManager, loadFlowFactory);
     }
 }

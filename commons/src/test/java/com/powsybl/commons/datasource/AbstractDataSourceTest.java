@@ -88,11 +88,11 @@ public abstract class AbstractDataSourceTest {
 
         // check content is ok
         try (InputStream is = dataSource.newInputStream(suffix, ext)) {
-            assertEquals(new String(ByteStreams.toByteArray(is), StandardCharsets.UTF_8),
-                    "line1" + (appendTest() ? System.lineSeparator() + "line2" : ""));
+            assertEquals("line1" + (appendTest() ? System.lineSeparator() + "line2" : ""),
+                    new String(ByteStreams.toByteArray(is), StandardCharsets.UTF_8));
         }
         try (InputStream is = dataSource.newInputStream("dummy.txt")) {
-            assertEquals(new String(ByteStreams.toByteArray(is), StandardCharsets.UTF_8), "otherline1");
+            assertEquals("otherline1", new String(ByteStreams.toByteArray(is), StandardCharsets.UTF_8));
         }
     }
 

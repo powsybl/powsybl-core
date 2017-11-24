@@ -7,7 +7,7 @@
 package com.powsybl.afs.local;
 
 import com.powsybl.afs.AppFileSystem;
-import com.powsybl.afs.local.storage.LocalAppFileSystemStorage;
+import com.powsybl.afs.local.storage.LocalAppStorage;
 import com.powsybl.afs.local.storage.LocalFileScanner;
 import com.powsybl.afs.local.storage.LocalFolderScanner;
 import com.powsybl.computation.ComputationManager;
@@ -24,7 +24,7 @@ public class LocalAppFileSystem extends AppFileSystem {
                               List<LocalFolderScanner> folderScanners, ComputationManager computationManager) {
         super(config.getDriveName(),
                 config.isRemotelyAccessible(),
-                new LocalAppFileSystemStorage(config.getRootDir(), config.getDriveName(), fileScanners, folderScanners,
+                new LocalAppStorage(config.getRootDir(), config.getDriveName(), fileScanners, folderScanners,
                                               computationManager));
     }
 }

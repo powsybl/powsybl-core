@@ -95,17 +95,28 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Arra
     public void writeJson(JsonGenerator generator) {
         Objects.requireNonNull(generator);
         try {
+            generator.writeStartObject();
+            generator.writeFieldName("metadata");
             metadata.writeJson(generator);
             generator.writeFieldName("chunks");
-            generator.writeStartArray();
-            for (C chunk : chunks) {
-                generator.writeStartObject();
-                chunk.writeJson(generator);
-                generator.writeEndObject();
-            }
-            generator.writeEndArray();
+            ArrayChunk.writeJson(generator, chunks);
+            generator.writeEndObject();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(metadata, chunks);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof AbstractTimeSeries) {
+            AbstractTimeSeries other = (AbstractTimeSeries) obj;
+            return metadata.equals(other.metadata) && chunks.equals(other.chunks);
+        }
+        return false;
     }
 }

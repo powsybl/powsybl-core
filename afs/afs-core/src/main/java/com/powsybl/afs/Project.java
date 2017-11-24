@@ -6,9 +6,7 @@
  */
 package com.powsybl.afs;
 
-import com.powsybl.afs.storage.AppFileSystemStorage;
-import com.powsybl.afs.storage.NodeId;
-import com.powsybl.afs.storage.PseudoClass;
+import com.powsybl.afs.storage.NodeInfo;
 
 import java.util.Objects;
 import java.util.ResourceBundle;
@@ -18,23 +16,26 @@ import java.util.ResourceBundle;
  */
 public class Project extends File {
 
-    public static final String PSEUDO_CLASS = PseudoClass.PROJECT_PSEUDO_CLASS;
+    public static final String PSEUDO_CLASS = "project";
+
+    public static final String ROOT_FOLDER_NAME = "root";
 
     private static final String PROJECT_LABEL = ResourceBundle.getBundle("lang.Project").getString("Project");
 
     private static final FileIcon PROJECT_ICON = new FileIcon(PROJECT_LABEL, Project.class.getResourceAsStream("/icons/project16x16.png"));
 
-    public Project(NodeId id, AppFileSystemStorage storage, AppFileSystem fileSystem) {
-        super(id, storage, fileSystem, PROJECT_ICON);
+    public Project(FileCreationContext context) {
+        super(context, PROJECT_ICON);
     }
 
     public ProjectFolder getRootFolder() {
-        return new ProjectFolder(storage.getProjectRootNode(id), storage, id, fileSystem);
+        NodeInfo rootFolderInfo = storage.getChildNodeInfo(info.getId(), ROOT_FOLDER_NAME);
+        return new ProjectFolder(new ProjectFileCreationContext(rootFolderInfo, storage, info, fileSystem));
     }
 
     public Project setDescription(String description) {
         Objects.requireNonNull(description);
-        storage.setStringAttribute(id, DESCRIPTION, description);
+        storage.setStringAttribute(info.getId(), DESCRIPTION, description);
         return this;
     }
 }

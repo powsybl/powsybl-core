@@ -6,13 +6,18 @@
  */
 package com.powsybl.math.timeseries;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.google.common.collect.ImmutableMap;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.math.timeseries.json.TimeSeriesJsonModule;
 import org.junit.Test;
 import org.threeten.extra.Interval;
 
 import java.io.IOException;
 import java.time.Duration;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -37,25 +42,36 @@ public class TimeSeriesMetadataTest {
         // test json
         String jsonRef = String.join(System.lineSeparator(),
                 "{",
-                "  \"metadata\" : {",
-                "    \"name\" : \"ts1\",",
-                "    \"dataType\" : \"DOUBLE\",",
-                "    \"tags\" : [ {",
-                "      \"var1\" : \"value1\"",
-                "    } ],",
-                "    \"regularIndex\" : {",
-                "      \"startTime\" : 1420070400000,",
-                "      \"endTime\" : 1420074000000,",
-                "      \"spacing\" : 900000,",
-                "      \"firstVersion\" : 1,",
-                "      \"versionCount\" : 1",
-                "    }",
+                "  \"name\" : \"ts1\",",
+                "  \"dataType\" : \"DOUBLE\",",
+                "  \"tags\" : [ {",
+                "    \"var1\" : \"value1\"",
+                "  } ],",
+                "  \"regularIndex\" : {",
+                "    \"startTime\" : 1420070400000,",
+                "    \"endTime\" : 1420074000000,",
+                "    \"spacing\" : 900000,",
+                "    \"firstVersion\" : 1,",
+                "    \"versionCount\" : 1",
                 "  }",
                 "}");
         String json = JsonUtil.toJson(metadata::writeJson);
         assertEquals(jsonRef, json);
         TimeSeriesMetadata metadata2 = JsonUtil.parseJson(json, TimeSeriesMetadata::parseJson);
-        assertTrue(metadata2 instanceof TimeSeriesMetadata);
+        assertNotNull(metadata2);
         assertEquals(metadata, metadata2);
+
+        // test json with object mapper
+        ObjectMapper objectMapper = new ObjectMapper()
+                .registerModule(new TimeSeriesJsonModule());
+
+        assertEquals(metadata, objectMapper.readValue(objectMapper.writeValueAsString(metadata), TimeSeriesMetadata.class));
+
+        // test with a list of metadata
+        List<TimeSeriesMetadata> metadataList = objectMapper.readValue(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(Arrays.asList(metadata, metadata)),
+                                                                       TypeFactory.defaultInstance().constructCollectionType(List.class, TimeSeriesMetadata.class));
+        assertEquals(2, metadataList.size());
+        assertEquals(metadata, metadataList.get(0));
+        assertEquals(metadata, metadataList.get(1));
     }
 }

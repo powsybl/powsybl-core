@@ -75,7 +75,9 @@ public class SecurityAnalysisTest {
         });
         Mockito.when(contingenciesProvider.getContingencies(network)).thenReturn(Collections.singletonList(contingency));
 
-        SecurityAnalysisResult result = new SecurityAnalysisImpl(network, computationManager, loadflowFactory)
+        LimitViolationFilter filter = new LimitViolationFilter();
+
+        SecurityAnalysisResult result = new SecurityAnalysisImpl(network, filter, computationManager, loadflowFactory)
                                                 .runAsync(contingenciesProvider, StateManager.INITIAL_STATE_ID, new LoadFlowParameters())
                                                 .join();
 

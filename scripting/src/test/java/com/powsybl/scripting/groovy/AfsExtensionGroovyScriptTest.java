@@ -8,8 +8,8 @@ package com.powsybl.scripting.groovy;
 
 import com.powsybl.afs.FooFileExtension;
 import com.powsybl.afs.ProjectFileExtension;
-import com.powsybl.afs.mapdb.storage.MapDbAppFileSystemStorage;
-import com.powsybl.afs.storage.AppFileSystemStorage;
+import com.powsybl.afs.mapdb.storage.MapDbAppStorage;
+import com.powsybl.afs.storage.AppStorage;
 
 import java.io.Reader;
 import java.io.StringReader;
@@ -22,8 +22,8 @@ import java.util.List;
 public class AfsExtensionGroovyScriptTest extends AbstractGroovyScriptTest {
 
     @Override
-    protected AppFileSystemStorage createStorage() {
-        return MapDbAppFileSystemStorage.createHeap("mem");
+    protected AppStorage createStorage() {
+        return MapDbAppStorage.createHeap("mem");
     }
 
     @Override
@@ -35,15 +35,25 @@ public class AfsExtensionGroovyScriptTest extends AbstractGroovyScriptTest {
     protected Reader getCodeReader() {
         return new StringReader(String.join(System.lineSeparator(),
                 "project = afs.getNode('mem:/').createProject('test')",
-                "foo = project.getRootFolder().fooBuilder().build()",
+                "root = project.getRootFolder()",
+                "",
+                "foo = root.fooBuilder()",
+                "    .withName('foo')",
+                "    .build()",
                 "println foo.getName()",
-                "foo2 = project.getRootFolder().getFoo(\"foo\")", // try to reload
+                "",
+                "foo = root.getFoo(\"foo\")", // try to reload
+                "println foo.getName()",
+                "",
+                "foo2 = root.buildFoo {", // groovy idiomatic builder
+                "    name 'foo2'",
+                "}",
                 "print foo2.getName()"
         ));
     }
 
     @Override
     protected String getExpectedOutput() {
-        return "foo" + System.lineSeparator() + "foo";
+        return String.join(System.lineSeparator(), "foo", "foo", "foo2");
     }
 }

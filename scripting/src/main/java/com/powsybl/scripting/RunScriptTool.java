@@ -31,6 +31,8 @@ import java.util.Objects;
 @AutoService(Tool.class)
 public class RunScriptTool implements Tool {
 
+    public static final String FILE = "file";
+
     private static final Command COMMAND = new Command() {
         @Override
         public String getName() {
@@ -51,7 +53,7 @@ public class RunScriptTool implements Tool {
         public Options getOptions() {
             Options options = new Options();
             options.addOption(Option.builder()
-                    .longOpt("file")
+                    .longOpt(FILE)
                     .desc("the script file")
                     .hasArg()
                     .required()
@@ -92,7 +94,7 @@ public class RunScriptTool implements Tool {
 
     @Override
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
-        Path file = context.getFileSystem().getPath(line.getOptionValue("file"));
+        Path file = context.getFileSystem().getPath(line.getOptionValue(FILE));
         Writer writer = new OutputStreamWriter(context.getOutputStream());
         try {
             AppLogger logger = new AppLogger() {

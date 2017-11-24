@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -18,11 +19,11 @@ public class NodePath {
 
     private final List<String> path;
 
-    private final Function<List<String>, String> toStringFct;
+    private final Function<List<String>, String> pathToString;
 
-    public NodePath(List<String> path, Function<List<String>, String> toStringFct) {
+    public NodePath(List<String> path, Function<List<String>, String> pathToString) {
         this.path = Objects.requireNonNull(path);
-        this.toStringFct = Objects.requireNonNull(toStringFct);
+        this.pathToString = Objects.requireNonNull(pathToString);
     }
 
     public List<String> toList() {
@@ -31,20 +32,22 @@ public class NodePath {
 
     @Override
     public String toString() {
-        return toStringFct.apply(path);
+        return pathToString.apply(path);
     }
 
-    private static <FOLDER extends NODE, NODE extends AbstractNodeBase<FOLDER>> void addPath(NODE node, List<String> path) {
-        if (node.getParent() != null) {
-            addPath(node.getParent(), path);
+    private static <F extends N, N extends AbstractNodeBase<F>> void addPath(N node, Predicate<N> pathStop, List<String> path) {
+        if (!pathStop.test(node)) {
+            addPath(node.getParent(), pathStop, path);
         }
         path.add(node.getName());
     }
 
-    public static <FOLDER extends NODE, NODE extends AbstractNodeBase<FOLDER>> NodePath find(NODE node, Function<List<String>, String> toStringFct) {
+    public static <F extends N, N extends AbstractNodeBase<F>> NodePath find(N node, Predicate<N> pathStop, Function<List<String>, String> pathToString) {
         Objects.requireNonNull(node);
+        Objects.requireNonNull(pathStop);
+        Objects.requireNonNull(pathToString);
         List<String> path = new ArrayList<>(1);
-        addPath(node, path);
-        return new NodePath(path, toStringFct);
+        addPath(node, pathStop, path);
+        return new NodePath(path, pathToString);
     }
 }

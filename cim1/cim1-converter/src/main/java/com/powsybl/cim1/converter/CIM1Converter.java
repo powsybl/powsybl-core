@@ -1018,7 +1018,7 @@ class CIM1Converter implements CIM1Constants {
                     cdMap.put(cd.getXvalue(), cd);
                 }
             }
-            if (cdMap.size() > 0) {
+            if (!cdMap.isEmpty()) {
                 if (cdMap.size() == 1) {
                     // there is just one value of minQ and maxQ
                     cim1.model.CurveData cd = cdMap.values().iterator().next();
@@ -1275,7 +1275,7 @@ class CIM1Converter implements CIM1Constants {
             }
         });
 
-        if (substationIdMapping.size() > 0) {
+        if (!substationIdMapping.isEmpty()) {
             LOGGER.warn("Substation id mapping needed for {} substations: {}", substationIdMapping.size(), substationIdMapping);
         }
 
@@ -1308,7 +1308,7 @@ class CIM1Converter implements CIM1Constants {
                                 + tn.getId() + ")");
                     }
                 }
-                if (branches.size() > 0 || injections.size() > 0) {
+                if (!branches.isEmpty() || !injections.isEmpty()) {
                     if (branches.size() == 2) {
                         if (branches.get(0) instanceof cim1.model.TransformerWinding
                                 || branches.get(1) instanceof cim1.model.TransformerWinding) {
@@ -1316,7 +1316,7 @@ class CIM1Converter implements CIM1Constants {
                         }
                         LOGGER.trace("Found merged XNODE {} ({})", tn.getId(), findUcteXnodeCode(tn));
                         mergedXNodes.put(tn, branches);
-                        if (injections.size() > 0) {
+                        if (!injections.isEmpty()) {
                             for (cim1.model.ConductingEquipment inj : injections) {
                                 cim1.model.SvPowerFlow f = inj.getTerminals().get(0).getSvPowerFlow();
                                 if (f != null) {
@@ -1331,7 +1331,7 @@ class CIM1Converter implements CIM1Constants {
                         if (loads.isEmpty()) {
                             LOGGER.trace("Found boundary XNODE {} ({})", tn.getId(), findUcteXnodeCode(tn));
                             boundaryXNodes.put(tn, null);
-                            if (injections.size() > 0) {
+                            if (!injections.isEmpty()) {
                                 LOGGER.warn("Strange boundary XNODE topology {}", xNodeTopo);
                             }
                         } else if (loads.size() == 1) {
@@ -1475,7 +1475,7 @@ class CIM1Converter implements CIM1Constants {
             }
         }
 
-        if (substationsNotAssociatedToValidCountry.size() > 0) {
+        if (!substationsNotAssociatedToValidCountry.isEmpty()) {
             LOGGER.warn("Substations not associated to a valid country and so on associated to default country {}: {}",
                     config.getDefaultCountry(), substationsNotAssociatedToValidCountry);
         }
@@ -1495,20 +1495,20 @@ class CIM1Converter implements CIM1Constants {
             }
         }
 
-        if (synchronousMachinesWithoutRegulatingControl.size() > 0) {
+        if (!synchronousMachinesWithoutRegulatingControl.isEmpty()) {
             LOGGER.warn("Synchronous machines without regulating control: {}", synchronousMachinesWithoutRegulatingControl);
         }
 
-        if (synchronousMachinesRegulatingVoltageWithZeroTargetVoltage.size() > 0) {
+        if (!synchronousMachinesRegulatingVoltageWithZeroTargetVoltage.isEmpty()) {
             LOGGER.warn("Synchronous machines with voltage regulator on and a voltage setpoint to zero, fixed to nominal voltage: {}",
                     synchronousMachinesRegulatingVoltageWithZeroTargetVoltage);
         }
 
-        if (synchronousMachinesWithReactiveRangeForMinus9999MW.size() > 0) {
+        if (!synchronousMachinesWithReactiveRangeForMinus9999MW.isEmpty()) {
             LOGGER.warn("CVG bug: synchronous machines with a reactive limit associated to -9999 MW: {}", synchronousMachinesWithReactiveRangeForMinus9999MW);
         }
 
-        if (noOperationalLimitInOperationalLimitSet.size() > 0) {
+        if (!noOperationalLimitInOperationalLimitSet.isEmpty()) {
             LOGGER.warn("No OperationalLimit in OperationalLimitSet {}", noOperationalLimitInOperationalLimitSet);
         }
 

@@ -21,15 +21,15 @@ import java.util.stream.Collectors;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class CurrentLimitsAdderImpl<SIDE, OWNER extends CurrentLimitsOwner<SIDE>> implements CurrentLimitsAdder {
+public class CurrentLimitsAdderImpl<S, O extends CurrentLimitsOwner<S>> implements CurrentLimitsAdder {
 
     private static final Comparator<Integer> ACCEPTABLE_DURATION_COMPARATOR = (acceptableDuraction1, acceptableDuraction2) -> acceptableDuraction2 - acceptableDuraction1;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CurrentLimitsAdderImpl.class);
 
-    private final SIDE side;
+    private final S side;
 
-    private final OWNER owner;
+    private final O owner;
 
     private float permanentLimit = Float.NaN;
 
@@ -92,7 +92,7 @@ public class CurrentLimitsAdderImpl<SIDE, OWNER extends CurrentLimitsOwner<SIDE>
 
     }
 
-    public CurrentLimitsAdderImpl(SIDE side, OWNER owner) {
+    public CurrentLimitsAdderImpl(S side, O owner) {
         this.side = side;
         this.owner = owner;
     }
@@ -125,7 +125,7 @@ public class CurrentLimitsAdderImpl<SIDE, OWNER extends CurrentLimitsOwner<SIDE>
         }
         // check name unicity
         temporaryLimits.values().stream()
-                .collect(Collectors.groupingBy(tl -> tl.getName()))
+                .collect(Collectors.groupingBy(TemporaryLimit::getName))
                 .forEach((name, temporaryLimits1) -> {
                     if (temporaryLimits1.size() > 1) {
                         throw new ValidationException(owner, temporaryLimits1.size() + "temporary limits have the same name " + name);

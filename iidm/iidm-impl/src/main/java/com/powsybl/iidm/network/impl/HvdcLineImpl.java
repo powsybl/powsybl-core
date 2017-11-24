@@ -170,6 +170,7 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine, S
 
     @Override
     public void deleteStateArrayElement(int index) {
+        // nothing to do
     }
 
     @Override
