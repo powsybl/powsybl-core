@@ -22,6 +22,10 @@
     <artifactId>powsybl-iidm</artifactId>
     <name>IIDM</name>
 
+    <properties>
+        <jacoco.destFile>${project.basedir}/../../${jacoco.relativeDestFile}</jacoco.destFile>
+    </properties>
+
     <modules>
         <module>iidm-api</module>
         <module>iidm-converter-api</module>

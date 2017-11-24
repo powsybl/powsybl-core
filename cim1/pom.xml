@@ -22,6 +22,10 @@
     <artifactId>powsybl-cim1</artifactId>
     <name>CIM1</name>
 
+    <properties>
+        <jacoco.destFile>${project.basedir}/../../${jacoco.relativeDestFile}</jacoco.destFile>
+    </properties>
+
     <modules>
         <module>cim1-converter</module>
         <module>cim1-model</module>

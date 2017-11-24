@@ -22,6 +22,10 @@
     <artifactId>powsybl-action</artifactId>
     <name>Action</name>
 
+    <properties>
+        <jacoco.destFile>${project.basedir}/../../${jacoco.relativeDestFile}</jacoco.destFile>
+    </properties>
+
     <modules>
         <module>action-dsl</module>
         <module>action-dsl-spi</module>

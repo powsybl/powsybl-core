@@ -22,6 +22,10 @@
     <artifactId>powsybl-afs</artifactId>
     <name>AFS</name>
 
+    <properties>
+        <jacoco.destFile>${project.basedir}/../../${jacoco.relativeDestFile}</jacoco.destFile>
+    </properties>
+
     <modules>
         <module>afs-core</module>
         <module>afs-ext-base</module>
