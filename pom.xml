@@ -47,6 +47,7 @@
 
         <java.version>1.8</java.version>
 
+        <maven.antrun.version>1.8</maven.antrun.version>
         <maven.build-helper.version>3.0.0</maven.build-helper.version>
         <maven.compiler.version>3.6.0</maven.compiler.version>
         <maven.findbugs.version>3.0.4</maven.findbugs.version>
@@ -63,6 +64,10 @@
         <groovyeclipsecompiler.version>2.9.2-01</groovyeclipsecompiler.version>
         <groovyeclipsebatch.version>2.4.3-01</groovyeclipsebatch.version>
 
+        <sonar.jacoco.reportPaths>
+            ../target/jacoco-merge.exec,
+            ../../target/jacoco-merge.exec
+        </sonar.jacoco.reportPaths>
         <sonar.exclusions>
             **/cim1/**/*, **/generated/**/*
         </sonar.exclusions>
@@ -313,6 +318,9 @@
                                 <goals>
                                     <goal>prepare-agent</goal>
                                 </goals>
+                                <configuration>
+                                    <destFile>${project.build.directory}/jacoco-${project.artifactId}.exec</destFile>
+                                </configuration>
                             </execution>
                         </executions>
                     </plugin>
