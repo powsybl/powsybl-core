@@ -27,7 +27,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class BusbarSectionTrippingTest extends TrippingTest {
+public class BusbarSectionTrippingTest extends AbstractTrippingTest {
 
     @Test
     public void busbarSectionTrippingTest() throws IOException {

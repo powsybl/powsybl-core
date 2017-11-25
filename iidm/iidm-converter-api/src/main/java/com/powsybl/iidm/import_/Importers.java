@@ -45,7 +45,7 @@ public final class Importers {
 
     private static final ImportersLoader LOADER = new ImportersServiceLoader();
 
-    private final static Supplier<ImportConfig> CONFIG = Suppliers.memoize(() -> ImportConfig.load());
+    private static final Supplier<ImportConfig> CONFIG = Suppliers.memoize(ImportConfig::load);
 
     private Importers() {
     }

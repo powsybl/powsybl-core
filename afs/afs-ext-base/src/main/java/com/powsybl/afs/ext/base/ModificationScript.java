@@ -6,11 +6,9 @@
  */
 package com.powsybl.afs.ext.base;
 
-import com.powsybl.afs.AppFileSystem;
 import com.powsybl.afs.FileIcon;
 import com.powsybl.afs.ProjectFile;
-import com.powsybl.afs.storage.AppFileSystemStorage;
-import com.powsybl.afs.storage.NodeId;
+import com.powsybl.afs.ProjectFileCreationContext;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -28,20 +26,20 @@ public class ModificationScript extends ProjectFile {
 
     private static final FileIcon SCRIPT_ICON = new FileIcon("script", ModificationScript.class.getResourceAsStream("/icons/script16x16.png"));
 
-    public ModificationScript(NodeId id, AppFileSystemStorage storage, NodeId projectId, AppFileSystem fileSystem) {
-        super(id, storage, projectId, fileSystem, SCRIPT_ICON);
+    public ModificationScript(ProjectFileCreationContext context) {
+        super(context, SCRIPT_ICON);
     }
 
     public ScriptType getScriptType() {
-        return ScriptType.valueOf(storage.getStringAttribute(id, SCRIPT_TYPE));
+        return ScriptType.valueOf(storage.getStringAttribute(info.getId(), SCRIPT_TYPE));
     }
 
     public String read() {
-        return storage.getStringAttribute(id, SCRIPT_CONTENT);
+        return storage.getStringAttribute(info.getId(), SCRIPT_CONTENT);
     }
 
     public void write(String content) {
-        storage.setStringAttribute(id, SCRIPT_CONTENT, content);
+        storage.setStringAttribute(info.getId(), SCRIPT_CONTENT, content);
         storage.flush();
         notifyDependencyChanged();
     }

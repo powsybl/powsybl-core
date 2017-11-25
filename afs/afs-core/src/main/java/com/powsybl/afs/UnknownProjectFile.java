@@ -6,15 +6,12 @@
  */
 package com.powsybl.afs;
 
-import com.powsybl.afs.storage.AppFileSystemStorage;
-import com.powsybl.afs.storage.NodeId;
-
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class UnknownProjectFile extends ProjectFile {
 
-    public UnknownProjectFile(NodeId id, AppFileSystemStorage storage, NodeId projectId, AppFileSystem fileSystem) {
-        super(id, storage, projectId, fileSystem, UnknownFile.ICON);
+    public UnknownProjectFile(ProjectFileCreationContext context) {
+        super(context, UnknownFile.GHOST_ICON);
     }
 }

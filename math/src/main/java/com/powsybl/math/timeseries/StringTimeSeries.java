@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class StringTimeSeries extends AbstractTimeSeries<StringPoint, StringArrayChunk> implements TimeSeries<StringPoint, StringArrayChunk> {
+public class StringTimeSeries extends AbstractTimeSeries<StringPoint, StringArrayChunk> implements TimeSeries<StringPoint> {
 
     private static final String[] NULL_ARRAY = new String[] {null};
 

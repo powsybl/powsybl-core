@@ -24,7 +24,7 @@ import java.util.List;
  */
 public final class SecurityIndexParser {
 
-    private final static Supplier<XMLInputFactory> XML_INPUT_FACTORY_SUPPLIER = Suppliers.memoize(XMLInputFactory::newInstance);
+    private static final Supplier<XMLInputFactory> XML_INPUT_FACTORY_SUPPLIER = Suppliers.memoize(XMLInputFactory::newInstance);
 
     private SecurityIndexParser() {
     }
@@ -79,9 +79,20 @@ public final class SecurityIndexParser {
                                     case MultiCriteriaVoltageStabilityIndex.XML_NAME:
                                         indexes.add(MultiCriteriaVoltageStabilityIndex.fromXml(contingencyId, xmlsr));
                                         break;
+                                    case MultiCriteriaVoltageStabilityIndex2.XML_NAME:
+                                        indexes.add(MultiCriteriaVoltageStabilityIndex2.fromXml(contingencyId, xmlsr));
+                                        break;
+                                    default:
+                                        throw new AssertionError("Unexpected attribute value: " + xmlsr.getAttributeValue(null, "name"));
                                 }
                                 break;
+
+                            default:
+                                throw new AssertionError("Unexpected element: " + xmlsr.getLocalName());
                         }
+                        break;
+
+                    default:
                         break;
                 }
             }

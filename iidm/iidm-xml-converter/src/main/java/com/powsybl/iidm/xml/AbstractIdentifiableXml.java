@@ -29,7 +29,7 @@ abstract class AbstractIdentifiableXml<T extends Identifiable, A extends Identif
     protected void writeSubElements(T identifiable, P parent, XmlWriterContext context) throws XMLStreamException {
     }
 
-    final public void write(T identifiable, P parent, XmlWriterContext context) throws XMLStreamException {
+    public final void write(T identifiable, P parent, XmlWriterContext context) throws XMLStreamException {
         boolean hasSubElements = hasSubElements(identifiable);
         if (hasSubElements || identifiable.hasProperty()) {
             context.getWriter().writeStartElement(IIDM_URI, getRootElementName());
@@ -74,7 +74,7 @@ abstract class AbstractIdentifiableXml<T extends Identifiable, A extends Identif
         }
     }
 
-    final public void read(P parent, XmlReaderContext context) throws XMLStreamException {
+    public final void read(P parent, XmlReaderContext context) throws XMLStreamException {
         A adder = createAdder(parent);
         String id = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "id"));
         String name = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "name"));

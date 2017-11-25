@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.BranchContingency;
 import com.powsybl.contingency.ContingencyElement;
+import com.powsybl.contingency.HvdcLineContingency;
 
 import java.io.IOException;
 
@@ -32,6 +33,9 @@ public class ContingencyElementSerializer extends StdSerializer<ContingencyEleme
         if (contingencyElement instanceof BranchContingency) {
             BranchContingency branchContingencyElement = (BranchContingency) contingencyElement;
             JsonUtil.writeOptionalStringField(jsonGenerator, "voltageLevelId", branchContingencyElement.getVoltageLevelId());
+        } else if (contingencyElement instanceof HvdcLineContingency) {
+            HvdcLineContingency hvdcLineContingencyElement = (HvdcLineContingency) contingencyElement;
+            JsonUtil.writeOptionalStringField(jsonGenerator, "voltageLevelId", hvdcLineContingencyElement.getVoltageLevelId());
         }
         jsonGenerator.writeEndObject();
     }

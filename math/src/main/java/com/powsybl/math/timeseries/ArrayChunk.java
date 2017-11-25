@@ -89,7 +89,7 @@ public interface ArrayChunk<P extends AbstractPoint> {
      * @param generator a json generator (jackson)
      * @throws IOException in case of json writing error
      */
-    void writeJson(JsonGenerator generator) throws IOException;
+    void writeJson(JsonGenerator generator);
 
     /**
      * Serialize a chunk list to json
@@ -123,13 +123,29 @@ public interface ArrayChunk<P extends AbstractPoint> {
         private TIntArrayList stepLengths;
         private int uncompressedLength = -1;
         private boolean valuesOrLengthArray = false;
+
+        void addDoubleValue(double value) {
+            if (doubleValues == null) {
+                doubleValues = new TDoubleArrayList();
+            }
+            doubleValues.add(value);
+        }
+
+        void addStringValue(String value) {
+            if (stringValues == null) {
+                stringValues = new ArrayList<>();
+            }
+            stringValues.add(value);
+        }
     }
 
-    static void parseFieldName(JsonParser parser, TimeSeriesDataType dataType, JsonParsingContext context) throws IOException {
+    static void parseFieldName(JsonParser parser, JsonParsingContext context) throws IOException {
         String fieldName = parser.getCurrentName();
         switch (fieldName) {
             case "offset":
                 context.offset = parser.nextIntValue(-1);
+                context.doubleValues = null;
+                context.stringValues = null;
                 break;
             case "uncompressedLength":
                 context.uncompressedLength = parser.nextIntValue(-1);
@@ -140,13 +156,6 @@ public interface ArrayChunk<P extends AbstractPoint> {
                 break;
             case "values":
             case "stepValues":
-                if (dataType == TimeSeriesDataType.DOUBLE) {
-                    context.doubleValues = new TDoubleArrayList();
-                } else if (dataType == TimeSeriesDataType.STRING) {
-                    context.stringValues = new ArrayList<>();
-                } else {
-                    throw new AssertionError();
-                }
                 context.valuesOrLengthArray = true;
                 break;
             default:
@@ -192,8 +201,30 @@ public interface ArrayChunk<P extends AbstractPoint> {
         context.offset = -1;
     }
 
+    static void parseValueNumberInt(JsonParser parser, JsonParsingContext context) throws IOException {
+        if (context.stepLengths != null) {
+            context.stepLengths.add(parser.getIntValue());
+        } else {
+            context.addDoubleValue(parser.getIntValue());
+        }
+    }
+
+    /**
+     * @deprecated Use parseJson(JsonParser, List<DoubleArrayChunk>, List<StringArrayChunk>)
+     */
+    @Deprecated
     static void parseJson(JsonParser parser, TimeSeriesDataType dataType, List<DoubleArrayChunk> doubleChunks,
                           List<StringArrayChunk> stringChunks) {
+        parseJson(parser, doubleChunks, stringChunks, false);
+    }
+
+    static void parseJson(JsonParser parser, List<DoubleArrayChunk> doubleChunks,
+                          List<StringArrayChunk> stringChunks) {
+        parseJson(parser, doubleChunks, stringChunks, false);
+    }
+
+    static void parseJson(JsonParser parser, List<DoubleArrayChunk> doubleChunks,
+                          List<StringArrayChunk> stringChunks, boolean single) {
         Objects.requireNonNull(parser);
         try {
             JsonParsingContext context = new JsonParsingContext(doubleChunks, stringChunks);
@@ -201,11 +232,15 @@ public interface ArrayChunk<P extends AbstractPoint> {
             while ((token = parser.nextToken()) != null) {
                 switch (token) {
                     case FIELD_NAME:
-                        parseFieldName(parser, dataType, context);
+                        parseFieldName(parser, context);
                         break;
                     case END_OBJECT:
                         parseEndObject(context);
-                        break;
+                        if (single) {
+                            return;
+                        } else {
+                            break;
+                        }
                     case END_ARRAY:
                         if (context.valuesOrLengthArray) {
                             context.valuesOrLengthArray = false;
@@ -214,19 +249,13 @@ public interface ArrayChunk<P extends AbstractPoint> {
                         }
                         break;
                     case VALUE_NUMBER_FLOAT:
-                        context.doubleValues.add(parser.getDoubleValue());
+                        context.addDoubleValue(parser.getDoubleValue());
                         break;
                     case VALUE_NUMBER_INT:
-                        if (context.stepLengths != null) {
-                            context.stepLengths.add(parser.getIntValue());
-                        } else if (context.doubleValues != null) {
-                            context.doubleValues.add(parser.getIntValue());
-                        } else {
-                            throw new IllegalStateException("Should not happen");
-                        }
+                        parseValueNumberInt(parser, context);
                         break;
                     case VALUE_STRING:
-                        context.stringValues.add(parser.getValueAsString());
+                        context.addStringValue(parser.getValueAsString());
                         break;
                     default:
                         break;

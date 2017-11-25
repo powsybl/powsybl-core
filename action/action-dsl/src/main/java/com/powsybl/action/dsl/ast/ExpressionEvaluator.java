@@ -201,24 +201,41 @@ public class ExpressionEvaluator extends DefaultExpressionVisitor<Object, Void> 
             float permanentLimit1 = getPermanentLimit(branchAndSide1.getBranch(), branchAndSide1.getSide());
             float permanentLimit2 = getPermanentLimit(branchAndSide2.getBranch(), branchAndSide2.getSide());
             int c;
-            if (overload1 == null && overload2 == null) {
-                // no overload, compare load based on permanent limit
-                c = compare(i1 / permanentLimit1, i2 / permanentLimit2);
-            } else if (overload1 == null && overload2 != null) {
-                c = -1;
-            } else if (overload1 != null && overload2 == null) {
-                c = 1;
-            } else { // overload1 != null && overload2 != null
-                // first compare acceptable duration
-                c = -Integer.compare(overload1.getTemporaryLimit().getAcceptableDuration(),
-                                     overload2.getTemporaryLimit().getAcceptableDuration());
-                if (c == 0) {
-                    // and then overload based on temporary limit
-                    c = compare(i1 / overload1.getTemporaryLimit().getValue(),
-                            i2 / overload2.getTemporaryLimit().getValue());
+            if (overload1 == null) {
+                if (overload2 == null) {
+                    // no overload, compare load based on permanent limit
+                    c = compare(i1 / permanentLimit1, i2 / permanentLimit2);
+                } else {
+                    c = -1;
+                }
+            } else {
+                if (overload2 == null) {
+                    c = 1;
+                } else {
+                    // first compare acceptable duration
+                    c = -Integer.compare(overload1.getTemporaryLimit().getAcceptableDuration(),
+                            overload2.getTemporaryLimit().getAcceptableDuration());
+                    if (c == 0) {
+                        // and then overload based on temporary limit
+                        c = compare(i1 / overload1.getTemporaryLimit().getValue(),
+                                i2 / overload2.getTemporaryLimit().getValue());
+                    }
                 }
             }
             return c;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(branch, side);
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof BranchAndSide) {
+                return ((BranchAndSide) obj).compareTo(this) == 0;
+            }
+            return false;
         }
 
         @Override
@@ -244,7 +261,7 @@ public class ExpressionEvaluator extends DefaultExpressionVisitor<Object, Void> 
     }
 
     private List<String> sortBranches(List<String> branchIds) {
-        List<String> sortedBranchIds = branchIds.stream()
+        return branchIds.stream()
                 .map(id -> context.getNetwork().getBranch(id))
                 .map(branch -> {
                     BranchAndSide branchAndSide1 = new BranchAndSide(branch, Branch.Side.ONE);
@@ -255,7 +272,6 @@ public class ExpressionEvaluator extends DefaultExpressionVisitor<Object, Void> 
                 .sorted()
                 .map(branchAndSide -> branchAndSide.getBranch().getId())
                 .collect(Collectors.toList());
-        return sortedBranchIds;
     }
 
     @Override
@@ -273,8 +289,7 @@ public class ExpressionEvaluator extends DefaultExpressionVisitor<Object, Void> 
         if (i == -1) {
             throw new AssertionError();
         }
-        int rank = sortedBranchIds.size() - i; // just a convention
-        return rank;
+        return sortedBranchIds.size() - i; // just a convention
     }
 
     @Override

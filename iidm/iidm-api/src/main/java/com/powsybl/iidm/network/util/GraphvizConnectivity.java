@@ -7,9 +7,7 @@
 package com.powsybl.iidm.network.util;
 
 import com.powsybl.commons.util.Colors;
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.*;
 import org.kohsuke.graphviz.Edge;
 import org.kohsuke.graphviz.Graph;
 import org.kohsuke.graphviz.Node;
@@ -47,14 +45,14 @@ public class GraphvizConnectivity {
         }
     }
 
-    public void write(OutputStream os) throws IOException {
+    public void write(OutputStream os) {
         Graph graph = new Graph().id("\"" +  network.getId() + "\"");
         int maxCC = network.getBusView().getBusStream().mapToInt(b -> b.getConnectedComponent().getNum()).max().getAsInt();
         String[] colors = Colors.generateColorScale(maxCC + 1);
         Map<String, Node> nodes = new HashMap<>();
         for (Bus b : network.getBusView().getBuses()) {
-            long load = Math.round(b.getLoadStream().mapToDouble(l -> l.getP0()).sum());
-            long maxGeneration = Math.round(b.getGeneratorStream().mapToDouble(l -> l.getMaxP()).sum());
+            long load = Math.round(b.getLoadStream().mapToDouble(Load::getP0).sum());
+            long maxGeneration = Math.round(b.getGeneratorStream().mapToDouble(Generator::getMaxP).sum());
             String busId = getBusId(b);
             Node n = new Node()
                     .id(busId)

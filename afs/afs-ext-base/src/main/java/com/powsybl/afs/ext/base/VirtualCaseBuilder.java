@@ -7,8 +7,8 @@
 package com.powsybl.afs.ext.base;
 
 import com.powsybl.afs.*;
-import com.powsybl.afs.storage.AppFileSystemStorage;
 import com.powsybl.afs.storage.NodeId;
+import com.powsybl.afs.storage.NodeInfo;
 
 import java.util.Objects;
 
@@ -17,13 +17,7 @@ import java.util.Objects;
  */
 public class VirtualCaseBuilder implements ProjectFileBuilder<VirtualCase> {
 
-    private final NodeId folderId;
-
-    private final AppFileSystemStorage storage;
-
-    private final NodeId projectId;
-
-    private final AppFileSystem fileSystem;
+    private final ProjectFileBuildContext context;
 
     private String name;
 
@@ -31,12 +25,8 @@ public class VirtualCaseBuilder implements ProjectFileBuilder<VirtualCase> {
 
     private String scriptPath;
 
-    public VirtualCaseBuilder(NodeId folderId, AppFileSystemStorage storage, NodeId projectId, AppFileSystem fileSystem) {
-        this.folderId = Objects.requireNonNull(folderId);
-        this.storage = Objects.requireNonNull(storage);
-        this.projectId = Objects.requireNonNull(projectId);
-        this.fileSystem = Objects.requireNonNull(fileSystem);
-
+    public VirtualCaseBuilder(ProjectFileBuildContext context) {
+        this.context = Objects.requireNonNull(context);
     }
 
     public VirtualCaseBuilder withName(String name) {
@@ -67,12 +57,12 @@ public class VirtualCaseBuilder implements ProjectFileBuilder<VirtualCase> {
             throw new AfsException("Script path is not set");
         }
 
-        if (storage.getChildNode(folderId, name) != null) {
+        if (context.getStorage().getChildNode(context.getFolderInfo().getId(), name) != null) {
             throw new AfsException("Parent folder already contains a '" + name + "' node");
         }
 
         // check links
-        Project project = new Project(projectId, storage, fileSystem);
+        Project project = new Project(new FileCreationContext(context.getProjectInfo(), context.getStorage(), context.getFileSystem()));
         ProjectFile aCase = (ProjectFile) project.getRootFolder().getChild(casePath);
         if (!(aCase instanceof ProjectCase)) {
             throw new AfsException("Invalid case path " + casePath);
@@ -83,16 +73,19 @@ public class VirtualCaseBuilder implements ProjectFileBuilder<VirtualCase> {
         }
 
         // create project file
-        NodeId id = storage.createNode(folderId, name, VirtualCase.PSEUDO_CLASS);
+        NodeId id = context.getStorage().createNode(context.getFolderInfo().getId(), name, VirtualCase.PSEUDO_CLASS);
 
         // create case link
-        storage.addDependency(id, VirtualCase.CASE_DEPENDENCY_NAME, aCase.getId());
+        context.getStorage().addDependency(id, VirtualCase.CASE_DEPENDENCY_NAME, aCase.getId());
 
         // create script link
-        storage.addDependency(id, VirtualCase.SCRIPT_DEPENDENCY_NAME, script.getId());
+        context.getStorage().addDependency(id, VirtualCase.SCRIPT_DEPENDENCY_NAME, script.getId());
 
-        storage.flush();
+        context.getStorage().flush();
 
-        return new VirtualCase(id, storage, projectId, fileSystem);
+        return new VirtualCase(new ProjectFileCreationContext(new NodeInfo(id, name, VirtualCase.PSEUDO_CLASS),
+                                                              context.getStorage(),
+                                                              context.getProjectInfo(),
+                                                              context.getFileSystem()));
     }
 }

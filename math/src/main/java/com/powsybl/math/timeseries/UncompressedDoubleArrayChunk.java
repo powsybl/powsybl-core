@@ -11,6 +11,7 @@ import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.list.array.TIntArrayList;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Objects;
@@ -115,5 +116,20 @@ public class UncompressedDoubleArrayChunk extends AbstractUncompressedArrayChunk
     @Override
     protected void writeValuesJson(JsonGenerator generator) throws IOException {
         generator.writeArray(values, 0, values.length);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(offset, values);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof UncompressedDoubleArrayChunk) {
+            UncompressedDoubleArrayChunk other = (UncompressedDoubleArrayChunk) obj;
+            return offset == other.offset &&
+                    Arrays.equals(values, other.values);
+        }
+        return false;
     }
 }

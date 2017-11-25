@@ -9,16 +9,16 @@ package com.powsybl.afs.ext.base;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.CharStreams;
 import com.powsybl.afs.*;
-import com.powsybl.afs.mapdb.storage.MapDbAppFileSystemStorage;
-import com.powsybl.afs.storage.AppFileSystemStorage;
+import com.powsybl.afs.mapdb.storage.MapDbAppStorage;
+import com.powsybl.afs.storage.AppStorage;
 import com.powsybl.afs.storage.NodeId;
+import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.iidm.import_.ImportersLoader;
 import com.powsybl.iidm.import_.ImportersLoaderList;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
@@ -34,8 +34,8 @@ public class VirtualCaseTest extends AbstractProjectFileTest {
     }
 
     @Override
-    protected AppFileSystemStorage createStorage() {
-        return MapDbAppFileSystemStorage.createHeap("mem");
+    protected AppStorage createStorage() {
+        return MapDbAppStorage.createHeap("mem");
     }
 
     @Override
@@ -49,10 +49,10 @@ public class VirtualCaseTest extends AbstractProjectFileTest {
     }
 
     @Before
-    public void setup() throws IOException {
+    public void setup() {
         super.setup();
-        NodeId rootFolderId = storage.getRootNode();
-        NodeId caseId = storage.createNode(rootFolderId, "network", Case.PSEUDO_CLASS);
+        NodeInfo rootFolderInfo = storage.createRootNodeIfNotExists("root", Folder.PSEUDO_CLASS);
+        NodeId caseId = storage.createNode(rootFolderInfo.getId(), "network", Case.PSEUDO_CLASS);
         storage.setStringAttribute(caseId, Case.FORMAT, TestImporter.FORMAT);
     }
 

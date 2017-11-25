@@ -31,39 +31,37 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
     }
 
     protected static void writeNodeOrBus(Integer index, Terminal t, XmlWriterContext context) throws XMLStreamException {
-        if (context.getOptions().isForceBusBranchTopo()) {
-            Bus bus = t.getBusView().getBus();
-            if (bus != null) {
-                context.getWriter().writeAttribute(BUS + indexToString(index), context.getAnonymizer().anonymizeString(bus.getId()));
-            }
-            Bus connectableBus = t.getBusView().getConnectableBus();
-            if (connectableBus != null) {
-                context.getWriter().writeAttribute(CONNECTABLE_BUS + indexToString(index), context.getAnonymizer().anonymizeString(connectableBus.getId()));
-            }
-        } else {
-            switch (t.getVoltageLevel().getTopologyKind()) {
-                case NODE_BREAKER:
-                    context.getWriter().writeAttribute(NODE + indexToString(index),
-                            Integer.toString(t.getNodeBreakerView().getNode()));
-                    break;
-
-                case BUS_BREAKER:
-                    Bus bus = t.getBusBreakerView().getBus();
-                    if (bus != null) {
-                        context.getWriter().writeAttribute(BUS + indexToString(index), context.getAnonymizer().anonymizeString(bus.getId()));
-                    }
-                    Bus connectableBus = t.getBusBreakerView().getConnectableBus();
-                    if (connectableBus != null) {
-                        context.getWriter().writeAttribute(CONNECTABLE_BUS + indexToString(index), context.getAnonymizer().anonymizeString(connectableBus.getId()));
-                    }
-                    break;
-
-                default:
-                    throw new AssertionError("Unexpected TopologyKind value: " + t.getVoltageLevel().getTopologyKind());
-            }
+        TopologyLevel topologyLevel = TopologyLevel.min(t.getVoltageLevel().getTopologyKind(), context.getOptions().getTopologyLevel());
+        switch (topologyLevel) {
+            case NODE_BREAKER:
+                writeNode(index, t, context);
+                break;
+            case BUS_BREAKER:
+                writeBus(index, t.getBusBreakerView().getBus(), t.getBusBreakerView().getConnectableBus(), context);
+                break;
+            case BUS_BRANCH:
+                writeBus(index, t.getBusView().getBus(), t.getBusView().getConnectableBus(), context);
+                break;
+            default:
+                throw new AssertionError("Unexpected TopologyLevel value: " + topologyLevel);
         }
+
         if (index != null) {
             context.getWriter().writeAttribute("voltageLevelId" + index, context.getAnonymizer().anonymizeString(t.getVoltageLevel().getId()));
+        }
+    }
+
+    private static void writeNode(Integer index, Terminal t, XmlWriterContext context) throws XMLStreamException {
+        context.getWriter().writeAttribute(NODE + indexToString(index),
+            Integer.toString(t.getNodeBreakerView().getNode()));
+    }
+
+    private static void writeBus(Integer index, Bus bus, Bus connectableBus, XmlWriterContext context) throws XMLStreamException {
+        if (bus != null) {
+            context.getWriter().writeAttribute(BUS + indexToString(index), context.getAnonymizer().anonymizeString(bus.getId()));
+        }
+        if (connectableBus != null) {
+            context.getWriter().writeAttribute(CONNECTABLE_BUS + indexToString(index), context.getAnonymizer().anonymizeString(connectableBus.getId()));
         }
     }
 
@@ -126,7 +124,7 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
         float p = XmlUtil.readOptionalFloatAttribute(reader, "p" + indexToString(index));
         float q = XmlUtil.readOptionalFloatAttribute(reader, "q" + indexToString(index));
         t.setP(p)
-                .setQ(q);
+            .setQ(q);
     }
 
     public static void readCurrentLimits(Integer index, Supplier<CurrentLimitsAdder> currentLimitOwner, XMLStreamReader reader) throws XMLStreamException {
@@ -140,11 +138,11 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
                 float value = XmlUtil.readOptionalFloatAttribute(reader, "value", Float.MAX_VALUE);
                 boolean fictitious = XmlUtil.readOptionalBoolAttribute(reader, "fictitious", false);
                 adder.beginTemporaryLimit()
-                        .setName(name)
-                        .setAcceptableDuration(acceptableDuration)
-                        .setValue(value)
-                        .setFictitious(fictitious)
-                        .endTemporaryLimit();
+                    .setName(name)
+                    .setAcceptableDuration(acceptableDuration)
+                    .setValue(value)
+                    .setFictitious(fictitious)
+                    .endTemporaryLimit();
             }
         });
         adder.add();
@@ -156,7 +154,7 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
 
     public static void writeCurrentLimits(Integer index, CurrentLimits limits, XMLStreamWriter writer, String nsUri) throws XMLStreamException {
         if (!Float.isNaN(limits.getPermanentLimit())
-                || !limits.getTemporaryLimits().isEmpty()) {
+            || !limits.getTemporaryLimits().isEmpty()) {
             if (limits.getTemporaryLimits().isEmpty()) {
                 writer.writeEmptyElement(nsUri, CURRENT_LIMITS + indexToString(index));
             } else {
@@ -204,7 +202,7 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
             return ((Injection) identifiable).getTerminal();
         } else if (identifiable instanceof Branch) {
             return side.equals(Branch.Side.ONE.name()) ? ((Branch) identifiable).getTerminal1()
-                    : ((Branch) identifiable).getTerminal2();
+                : ((Branch) identifiable).getTerminal2();
         } else if (identifiable instanceof ThreeWindingsTransformer) {
             ThreeWindingsTransformer twt = (ThreeWindingsTransformer) identifiable;
             return twt.getTerminal(ThreeWindingsTransformer.Side.valueOf(side));
