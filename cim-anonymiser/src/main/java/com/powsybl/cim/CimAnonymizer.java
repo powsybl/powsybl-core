@@ -11,7 +11,9 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.util.StringAnonymizer;
 import javanet.staxutils.helpers.EventWriterDelegate;
-import net.java.truevfs.access.TPath;
+import net.java.truevfs.comp.zip.ZipEntry;
+import net.java.truevfs.comp.zip.ZipFile;
+import net.java.truevfs.comp.zip.ZipOutputStream;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.*;
@@ -24,7 +26,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.stream.Stream;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -62,34 +63,13 @@ public class CimAnonymizer {
     private static final QName RDF_RESOURCE = new QName(RDF_URI, "resource");
     private static final QName RDF_ABOUT = new QName(RDF_URI, "about");
 
-    private final XMLInputFactory inputFactory = XMLInputFactory.newFactory();
-    private final XMLOutputFactory outputFactory = XMLOutputFactory.newFactory();
-    private final XMLEventFactory eventFactory = XMLEventFactory.newInstance();
-
-    private static void readRdfIdValues(Path cimFile, XMLInputFactory inputFactory, Set<String> rdfIdValues) {
-        // memoize RDF ID values of the document
-        try (Reader reader = Files.newBufferedReader(cimFile, StandardCharsets.UTF_8)) {
-            XMLEventReader eventReader = inputFactory.createXMLEventReader(reader);
-            while (eventReader.hasNext()) {
-                XMLEvent event = eventReader.nextEvent();
-                if (event.isStartElement()) {
-                    StartElement startElement = event.asStartElement();
-                    Iterator it = startElement.getAttributes();
-                    while (it.hasNext()) {
-                        Attribute attribute = (Attribute) it.next();
-                        QName name = attribute.getName();
-                        if (RDF_ID.equals(name)) {
-                            rdfIdValues.add(attribute.getValue());
-                        }
-                    }
-                }
-            }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        } catch (XMLStreamException e) {
-            throw new UncheckedXmlStreamException(e);
-        }
+    private static class XmlStaxContext {
+        private final XMLInputFactory inputFactory = XMLInputFactory.newFactory();
+        private final XMLOutputFactory outputFactory = XMLOutputFactory.newFactory();
+        private final XMLEventFactory eventFactory = XMLEventFactory.newInstance();
     }
+
+    private final XmlStaxContext xmlStaxContext = new XmlStaxContext();
 
     private static XMLEvent anonymizeCharacters(Characters characters, Set<String> exclude, Set<String> skipped, XMLEventFactory eventFactory,
                                                 StringAnonymizer dictionary) {
@@ -101,14 +81,11 @@ public class CimAnonymizer {
         }
     }
 
-    private static void anonymizeFile(Path cimFile, Path anonymizedCimFile, XMLInputFactory inputFactory,
-                                      XMLOutputFactory outputFactory, XMLEventFactory eventFactory,
+    private static void anonymizeFile(InputStream cimFileInputStream, OutputStream anonymizedCimFileOutputStream, XmlStaxContext xmlStaxContext,
                                       StringAnonymizer dictionary, Set<String> rdfIdValues, Set<String> skipped) {
-        try (Writer writer = Files.newBufferedWriter(anonymizedCimFile, StandardCharsets.UTF_8);
-             Reader reader = Files.newBufferedReader(cimFile, StandardCharsets.UTF_8)) {
-
-            XMLEventReader eventReader = inputFactory.createXMLEventReader(reader);
-            XMLEventWriter eventWriter = new EventWriterDelegate(outputFactory.createXMLEventWriter(writer)) {
+        try {
+            XMLEventReader eventReader = xmlStaxContext.inputFactory.createXMLEventReader(cimFileInputStream);
+            XMLEventWriter eventWriter = new EventWriterDelegate(xmlStaxContext.outputFactory.createXMLEventWriter(anonymizedCimFileOutputStream)) {
 
                 private boolean identifiedObjectName = false;
                 private boolean identifiedObjectDescription = false;
@@ -132,7 +109,7 @@ public class CimAnonymizer {
                                     Attribute attribute = (Attribute) it.next();
                                     Attribute newAttribute = null;
                                     if (attribute.getName().equals(RDF_ID)) {
-                                        newAttribute = eventFactory.createAttribute(attribute.getName(), dictionary.anonymize(attribute.getValue()));
+                                        newAttribute = xmlStaxContext.eventFactory.createAttribute(attribute.getName(), dictionary.anonymize(attribute.getValue()));
                                     } else if (attribute.getName().equals(RDF_RESOURCE) ||
                                             attribute.getName().equals(RDF_ABOUT)) {
                                         // skip outside graph rdf:ID references
@@ -147,7 +124,7 @@ public class CimAnonymizer {
                                             value = attribute.getValue();
                                         }
                                         if ((valueNsUri == null || !valueNsUri.matches(CIM_URI_PATTERN)) && (rdfIdValues == null || rdfIdValues.contains(value))) {
-                                            newAttribute = eventFactory.createAttribute(attribute.getName(),
+                                            newAttribute = xmlStaxContext.eventFactory.createAttribute(attribute.getName(),
                                                     (valueNsUri != null ? valueNsUri : "") + "#" + dictionary.anonymize(value));
                                         } else {
                                             skipped.add(attribute.getValue());
@@ -157,7 +134,7 @@ public class CimAnonymizer {
                                     }
                                     newAttributes.add(newAttribute != null ? newAttribute : attribute);
                                 }
-                                newEvent = eventFactory.createStartElement(startElement.getName(),
+                                newEvent = xmlStaxContext.eventFactory.createStartElement(startElement.getName(),
                                         newAttributes.iterator(),
                                         startElement.getNamespaces());
                             }
@@ -166,10 +143,10 @@ public class CimAnonymizer {
                         Characters characters = event.asCharacters();
                         if (identifiedObjectName) {
                             identifiedObjectName = false;
-                            newEvent = anonymizeCharacters(characters, NAMES_TO_EXCLUDE, skipped, eventFactory, dictionary);
+                            newEvent = anonymizeCharacters(characters, NAMES_TO_EXCLUDE, skipped, xmlStaxContext.eventFactory, dictionary);
                         } else if (identifiedObjectDescription) {
                             identifiedObjectDescription = false;
-                            newEvent = anonymizeCharacters(characters, DESCRIPTIONS_TO_EXCLUDE, skipped, eventFactory, dictionary);
+                            newEvent = anonymizeCharacters(characters, DESCRIPTIONS_TO_EXCLUDE, skipped, xmlStaxContext.eventFactory, dictionary);
                         }
                     }
 
@@ -177,8 +154,6 @@ public class CimAnonymizer {
                 }
             };
             eventWriter.add(eventReader);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
         }
@@ -206,13 +181,32 @@ public class CimAnonymizer {
         }
     }
 
-    private Set<String> getRdfIdValues(TPath zipFile2) {
+    private Set<String> getRdfIdValues(ZipFile zipFileData) {
         Set<String> rdfIdValues = new HashSet<>();
         // memoize rdf:ID values, will be used to detect outside graph references
-        try (Stream<Path> stream = Files.list(zipFile2)) {
-            stream.forEach(cimFile -> readRdfIdValues(cimFile, inputFactory, rdfIdValues));
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+        for (ZipEntry entry : zipFileData) {
+            // memoize RDF ID values of the document
+            try (InputStream is = zipFileData.getInputStream(entry.getName())) {
+                XMLEventReader eventReader = xmlStaxContext.inputFactory.createXMLEventReader(is);
+                while (eventReader.hasNext()) {
+                    XMLEvent event = eventReader.nextEvent();
+                    if (event.isStartElement()) {
+                        StartElement startElement = event.asStartElement();
+                        Iterator it = startElement.getAttributes();
+                        while (it.hasNext()) {
+                            Attribute attribute = (Attribute) it.next();
+                            QName name = attribute.getName();
+                            if (RDF_ID.equals(name)) {
+                                rdfIdValues.add(attribute.getValue());
+                            }
+                        }
+                    }
+                }
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            } catch (XMLStreamException e) {
+                throw new UncheckedXmlStreamException(e);
+            }
         }
         return rdfIdValues;
     }
@@ -229,30 +223,34 @@ public class CimAnonymizer {
             throw new PowsyblException(anonymizedCimFileDir + " has to be a directory");
         }
 
-        Path anonymizedCimZipFile = anonymizedCimFileDir.resolve(cimZipFile.getFileName());
-
         // load dictionary
         StringAnonymizer dictionary = loadDic(dictionaryFile);
 
-        TPath zipFile2 = new TPath(cimZipFile);
-
-        Set<String> rdfIdValues = skipExternalRef ? getRdfIdValues(zipFile2) : null;
-
-        Set<String> skipped = new HashSet<>();
-
         // anonymize each file of the archive
-        Path anonymizedCimZipFile2 = new TPath(anonymizedCimZipFile);
-        try (Stream<Path> stream = Files.list(zipFile2)) {
-            stream.forEach(cimFile -> {
-                Path anonymizedCimFile = anonymizedCimZipFile2.resolve(cimFile.getFileName());
-                anonymizeFile(cimFile, anonymizedCimFile, inputFactory, outputFactory, eventFactory, dictionary, rdfIdValues, skipped);
-            });
+        try (ZipFile zipFileData = new ZipFile(cimZipFile)) {
+
+            Set<String> rdfIdValues = skipExternalRef ? getRdfIdValues(zipFileData) : null;
+
+            Set<String> skipped = new HashSet<>();
+
+            Path anonymizedCimZipFile = anonymizedCimFileDir.resolve(cimZipFile.getFileName());
+            try (ZipOutputStream anonymizedZipOutputStream = new ZipOutputStream(Files.newOutputStream(anonymizedCimZipFile))) {
+
+                for (ZipEntry entry : zipFileData) {
+                    anonymizedZipOutputStream.putNextEntry(entry);
+                    try (InputStream cimFileInputStream = zipFileData.getInputStream(entry.getName())) {
+                        anonymizeFile(cimFileInputStream, anonymizedZipOutputStream, xmlStaxContext, dictionary, rdfIdValues, skipped);
+                    }
+                    anonymizedZipOutputStream.closeEntry();
+                }
+            }
+
+            logger.logSkipped(skipped);
+
+            saveDic(dictionary, dictionaryFile);
+
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-
-        logger.logSkipped(skipped);
-
-        saveDic(dictionary, dictionaryFile);
     }
 }

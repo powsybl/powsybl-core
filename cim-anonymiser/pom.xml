@@ -70,24 +70,8 @@
             <artifactId>stax-utils</artifactId>
         </dependency>
         <dependency>
-            <groupId>net.java.truecommons</groupId>
-            <artifactId>truecommons-services</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>net.java.truecommons</groupId>
-            <artifactId>truecommons-key-default</artifactId>
-        </dependency>
-        <dependency>
             <groupId>net.java.truevfs</groupId>
             <artifactId>truevfs-driver-zip</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>net.java.truevfs</groupId>
-            <artifactId>truevfs-access</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>net.java.truevfs</groupId>
-            <artifactId>truevfs-kernel-impl</artifactId>
         </dependency>
 
         <dependency>

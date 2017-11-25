@@ -6,20 +6,23 @@
  */
 package eu.itesla_project.cim;
 
+import com.google.common.io.ByteStreams;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.cim.CimAnonymizer;
 import net.java.truevfs.comp.zip.ZipEntry;
+import net.java.truevfs.comp.zip.ZipFile;
 import net.java.truevfs.comp.zip.ZipOutputStream;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -39,11 +42,6 @@ public class CimAnonymizerTest {
     }
 
     @Test
-    public void fakeTest() {
-    }
-
-    @Test
-    @Ignore
     public void anonymizeZip() throws Exception {
         String eq = String.join(System.lineSeparator(),
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>",
@@ -73,5 +71,35 @@ public class CimAnonymizerTest {
         }
 
         new CimAnonymizer().anonymizeZip(cimZipFile, anonymizedCimFileDir, dictionaryFile, new CimAnonymizer.DefaultLogger(), false);
+
+        Path anonymizedCimZipFile = anonymizedCimFileDir.resolve("sample.zip");
+        assertTrue(Files.exists(anonymizedCimZipFile));
+        try (ZipFile anonymizedCimZipFileData = new ZipFile(anonymizedCimZipFile)) {
+            assertNotNull(anonymizedCimZipFileData.entry("sample_EQ.xml"));
+            String anonymizedEq = String.join(System.lineSeparator(),
+                    "<?xml version=\"1.0\" encoding=\"UTF-8\"?><rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\" xmlns:cim=\"http://iec.ch/TC57/2009/CIM-schema-cim14#\">",
+                    "<cim:ACLineSegment rdf:ID=\"A\">",
+                    "<cim:Conductor.gch>0</cim:Conductor.gch>",
+                    "<cim:Conductor.x>0.001</cim:Conductor.x>",
+                    "<cim:Conductor.bch>0</cim:Conductor.bch>",
+                    "<cim:Conductor.r>0.0008</cim:Conductor.r>",
+                    "<cim:ConductingEquipment.BaseVoltage rdf:resource=\"#B\"></cim:ConductingEquipment.BaseVoltage>",
+                    "<cim:IdentifiedObject.name>C</cim:IdentifiedObject.name>",
+                    "</cim:ACLineSegment>",
+                    "<cim:BaseVoltage rdf:ID=\"B\">",
+                    "<cim:BaseVoltage.isDC>false</cim:BaseVoltage.isDC>",
+                    "<cim:BaseVoltage.nominalVoltage>1</cim:BaseVoltage.nominalVoltage>",
+                    "<cim:IdentifiedObject.name>D</cim:IdentifiedObject.name>",
+                    "</cim:BaseVoltage>",
+                    "</rdf:RDF>");
+            assertEquals(anonymizedEq, new String(ByteStreams.toByteArray(anonymizedCimZipFileData.getInputStream("sample_EQ.xml")), StandardCharsets.UTF_8));
+        }
+
+        String dictionaryCsv = String.join(System.lineSeparator(),
+                "L1;A",
+                "_BV_10;B",
+                "Line 1;C",
+                "10;D") + System.lineSeparator();
+        assertEquals(dictionaryCsv, new String(Files.readAllBytes(dictionaryFile), StandardCharsets.UTF_8));
     }
 }
