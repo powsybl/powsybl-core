@@ -71,13 +71,95 @@ public class CimAnonymizer {
 
     private final XmlStaxContext xmlStaxContext = new XmlStaxContext();
 
-    private static XMLEvent anonymizeCharacters(Characters characters, Set<String> exclude, Set<String> skipped, XMLEventFactory eventFactory,
-                                                StringAnonymizer dictionary) {
-        if (exclude.contains(characters.getData())) {
-            skipped.add(characters.getData());
-            return null;
-        } else {
-            return eventFactory.createCharacters(dictionary.anonymize(characters.getData()));
+    private static class XmlAnonymizer extends EventWriterDelegate {
+
+        private final XmlStaxContext xmlStaxContext;
+        private final StringAnonymizer dictionary;
+        private final Set<String> rdfIdValues;
+        private final Set<String> skipped;
+
+        private boolean identifiedObjectName = false;
+        private boolean identifiedObjectDescription = false;
+
+        public XmlAnonymizer(XMLEventWriter out, XmlStaxContext xmlStaxContext, StringAnonymizer dictionary, Set<String> rdfIdValues, Set<String> skipped) {
+            super(out);
+            this.xmlStaxContext = Objects.requireNonNull(xmlStaxContext);
+            this.dictionary = Objects.requireNonNull(dictionary);
+            this.rdfIdValues = Objects.requireNonNull(rdfIdValues);
+            this.skipped = Objects.requireNonNull(skipped);
+        }
+
+        private static XMLEvent anonymizeCharacters(Characters characters, Set<String> exclude, Set<String> skipped, XMLEventFactory eventFactory,
+                                                    StringAnonymizer dictionary) {
+            if (exclude.contains(characters.getData())) {
+                skipped.add(characters.getData());
+                return null;
+            } else {
+                return eventFactory.createCharacters(dictionary.anonymize(characters.getData()));
+            }
+        }
+
+        @Override
+        public void add(XMLEvent event) throws XMLStreamException {
+
+            XMLEvent newEvent = null;
+
+            if (event.isStartElement()) {
+                StartElement startElement = event.asStartElement();
+                if (startElement.getName().getLocalPart().equals("IdentifiedObject.name")) {
+                    identifiedObjectName = true;
+                } else if (startElement.getName().getLocalPart().equals("IdentifiedObject.description")) {
+                    identifiedObjectDescription = true;
+                } else {
+                    Iterator it = startElement.getAttributes();
+                    if (it.hasNext()) {
+                        List<Attribute> newAttributes = new ArrayList<>();
+                        while (it.hasNext()) {
+                            Attribute attribute = (Attribute) it.next();
+                            Attribute newAttribute = null;
+                            if (attribute.getName().equals(RDF_ID)) {
+                                newAttribute = xmlStaxContext.eventFactory.createAttribute(attribute.getName(), dictionary.anonymize(attribute.getValue()));
+                            } else if (attribute.getName().equals(RDF_RESOURCE) ||
+                                    attribute.getName().equals(RDF_ABOUT)) {
+                                // skip outside graph rdf:ID references
+                                int hashTagPos = attribute.getValue().indexOf('#');
+                                String valueNsUri;
+                                String value;
+                                if (hashTagPos != -1) {
+                                    valueNsUri = attribute.getValue().substring(0, hashTagPos);
+                                    value = attribute.getValue().substring(hashTagPos + 1);
+                                } else {
+                                    valueNsUri = null;
+                                    value = attribute.getValue();
+                                }
+                                if ((valueNsUri == null || !valueNsUri.matches(CIM_URI_PATTERN)) && (rdfIdValues == null || rdfIdValues.contains(value))) {
+                                    newAttribute = xmlStaxContext.eventFactory.createAttribute(attribute.getName(),
+                                            (valueNsUri != null ? valueNsUri : "") + "#" + dictionary.anonymize(value));
+                                } else {
+                                    skipped.add(attribute.getValue());
+                                }
+                            } else {
+                                throw new AssertionError("Unknown attribute " + attribute.getName());
+                            }
+                            newAttributes.add(newAttribute != null ? newAttribute : attribute);
+                        }
+                        newEvent = xmlStaxContext.eventFactory.createStartElement(startElement.getName(),
+                                newAttributes.iterator(),
+                                startElement.getNamespaces());
+                    }
+                }
+            } else if (event.isCharacters()) {
+                Characters characters = event.asCharacters();
+                if (identifiedObjectName) {
+                    identifiedObjectName = false;
+                    newEvent = anonymizeCharacters(characters, NAMES_TO_EXCLUDE, skipped, xmlStaxContext.eventFactory, dictionary);
+                } else if (identifiedObjectDescription) {
+                    identifiedObjectDescription = false;
+                    newEvent = anonymizeCharacters(characters, DESCRIPTIONS_TO_EXCLUDE, skipped, xmlStaxContext.eventFactory, dictionary);
+                }
+            }
+
+            super.add(newEvent != null ? newEvent : event);
         }
     }
 
@@ -85,74 +167,8 @@ public class CimAnonymizer {
                                       StringAnonymizer dictionary, Set<String> rdfIdValues, Set<String> skipped) {
         try {
             XMLEventReader eventReader = xmlStaxContext.inputFactory.createXMLEventReader(cimFileInputStream);
-            XMLEventWriter eventWriter = new EventWriterDelegate(xmlStaxContext.outputFactory.createXMLEventWriter(anonymizedCimFileOutputStream)) {
-
-                private boolean identifiedObjectName = false;
-                private boolean identifiedObjectDescription = false;
-
-                @Override
-                public void add(XMLEvent event) throws XMLStreamException {
-
-                    XMLEvent newEvent = null;
-
-                    if (event.isStartElement()) {
-                        StartElement startElement = event.asStartElement();
-                        if (startElement.getName().getLocalPart().equals("IdentifiedObject.name")) {
-                            identifiedObjectName = true;
-                        } else if (startElement.getName().getLocalPart().equals("IdentifiedObject.description")) {
-                            identifiedObjectDescription = true;
-                        } else {
-                            Iterator it = startElement.getAttributes();
-                            if (it.hasNext()) {
-                                List<Attribute> newAttributes = new ArrayList<>();
-                                while (it.hasNext()) {
-                                    Attribute attribute = (Attribute) it.next();
-                                    Attribute newAttribute = null;
-                                    if (attribute.getName().equals(RDF_ID)) {
-                                        newAttribute = xmlStaxContext.eventFactory.createAttribute(attribute.getName(), dictionary.anonymize(attribute.getValue()));
-                                    } else if (attribute.getName().equals(RDF_RESOURCE) ||
-                                            attribute.getName().equals(RDF_ABOUT)) {
-                                        // skip outside graph rdf:ID references
-                                        int hashTagPos = attribute.getValue().indexOf('#');
-                                        String valueNsUri;
-                                        String value;
-                                        if (hashTagPos != -1) {
-                                            valueNsUri = attribute.getValue().substring(0, hashTagPos);
-                                            value = attribute.getValue().substring(hashTagPos + 1);
-                                        } else {
-                                            valueNsUri = null;
-                                            value = attribute.getValue();
-                                        }
-                                        if ((valueNsUri == null || !valueNsUri.matches(CIM_URI_PATTERN)) && (rdfIdValues == null || rdfIdValues.contains(value))) {
-                                            newAttribute = xmlStaxContext.eventFactory.createAttribute(attribute.getName(),
-                                                    (valueNsUri != null ? valueNsUri : "") + "#" + dictionary.anonymize(value));
-                                        } else {
-                                            skipped.add(attribute.getValue());
-                                        }
-                                    } else {
-                                        throw new AssertionError("Unknown attribute " + attribute.getName());
-                                    }
-                                    newAttributes.add(newAttribute != null ? newAttribute : attribute);
-                                }
-                                newEvent = xmlStaxContext.eventFactory.createStartElement(startElement.getName(),
-                                        newAttributes.iterator(),
-                                        startElement.getNamespaces());
-                            }
-                        }
-                    } else if (event.isCharacters()) {
-                        Characters characters = event.asCharacters();
-                        if (identifiedObjectName) {
-                            identifiedObjectName = false;
-                            newEvent = anonymizeCharacters(characters, NAMES_TO_EXCLUDE, skipped, xmlStaxContext.eventFactory, dictionary);
-                        } else if (identifiedObjectDescription) {
-                            identifiedObjectDescription = false;
-                            newEvent = anonymizeCharacters(characters, DESCRIPTIONS_TO_EXCLUDE, skipped, xmlStaxContext.eventFactory, dictionary);
-                        }
-                    }
-
-                    super.add(newEvent != null ? newEvent : event);
-                }
-            };
+            XMLEventWriter eventWriter = new XmlAnonymizer(xmlStaxContext.outputFactory.createXMLEventWriter(anonymizedCimFileOutputStream),
+                    xmlStaxContext, dictionary, rdfIdValues, skipped);
             eventWriter.add(eventReader);
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);

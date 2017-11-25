@@ -94,7 +94,6 @@
         <supercsv.version>2.4.0</supercsv.version>
         <threeten.version>1.0</threeten.version>
         <trove4j.version>3.0.3</trove4j.version>
-        <truecommons.version>2.5.0</truecommons.version>
         <truevfs.version>0.11.1</truevfs.version>
         <xmlunit.version>2.3.0</xmlunit.version>
     </properties>
@@ -420,26 +419,6 @@
                 <groupId>net.java.truevfs</groupId>
                 <artifactId>truevfs-driver-zip</artifactId>
                 <version>${truevfs.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>net.java.truevfs</groupId>
-                <artifactId>truevfs-access</artifactId>
-                <version>${truevfs.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>net.java.truevfs</groupId>
-                <artifactId>truevfs-kernel-impl</artifactId>
-                <version>${truevfs.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>net.java.truecommons</groupId>
-                <artifactId>truecommons-services</artifactId>
-                <version>${truecommons.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>net.java.truecommons</groupId>
-                <artifactId>truecommons-key-default</artifactId>
-                <version>${truecommons.version}</version>
             </dependency>
             <dependency>
                 <groupId>net.sf.supercsv</groupId>
