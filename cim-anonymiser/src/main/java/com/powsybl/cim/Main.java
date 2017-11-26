@@ -93,7 +93,7 @@ public final class Main {
         } catch (ParseException e) {
             printHelp();
             System.exit(-1);
-        } catch (Throwable e) {
+        } catch (Exception e) {
             e.printStackTrace();
             System.exit(-2);
         }
