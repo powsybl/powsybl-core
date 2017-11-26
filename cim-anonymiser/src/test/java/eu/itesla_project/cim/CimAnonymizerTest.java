@@ -6,7 +6,6 @@
  */
 package eu.itesla_project.cim;
 
-import com.google.common.io.ByteStreams;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.cim.CimAnonymizer;
@@ -16,7 +15,12 @@ import net.java.truevfs.comp.zip.ZipOutputStream;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.xmlunit.builder.DiffBuilder;
+import org.xmlunit.builder.Input;
+import org.xmlunit.diff.Diff;
 
+import javax.xml.transform.Source;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
@@ -77,7 +81,8 @@ public class CimAnonymizerTest {
         try (ZipFile anonymizedCimZipFileData = new ZipFile(anonymizedCimZipFile)) {
             assertNotNull(anonymizedCimZipFileData.entry("sample_EQ.xml"));
             String anonymizedEq = String.join(System.lineSeparator(),
-                    "<?xml version=\"1.0\" encoding=\"UTF-8\"?><rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\" xmlns:cim=\"http://iec.ch/TC57/2009/CIM-schema-cim14#\">",
+                    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>",
+                    "<rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\" xmlns:cim=\"http://iec.ch/TC57/2009/CIM-schema-cim14#\">",
                     "<cim:ACLineSegment rdf:ID=\"A\">",
                     "<cim:Conductor.gch>0</cim:Conductor.gch>",
                     "<cim:Conductor.x>0.001</cim:Conductor.x>",
@@ -92,7 +97,20 @@ public class CimAnonymizerTest {
                     "<cim:IdentifiedObject.name>D</cim:IdentifiedObject.name>",
                     "</cim:BaseVoltage>",
                     "</rdf:RDF>");
-            assertEquals(anonymizedEq, new String(ByteStreams.toByteArray(anonymizedCimZipFileData.getInputStream("sample_EQ.xml")), StandardCharsets.UTF_8));
+            Source control = Input.fromString(anonymizedEq).build();
+            try (InputStream is = anonymizedCimZipFileData.getInputStream("sample_EQ.xml")) {
+                Source test = Input.fromStream(is).build();
+                Diff myDiff = DiffBuilder.compare(control)
+                        .withTest(test)
+                        .ignoreWhitespace()
+                        .ignoreComments()
+                        .build();
+                boolean hasDiff = myDiff.hasDifferences();
+                if (hasDiff) {
+                    System.err.println(myDiff.toString());
+                }
+                assertFalse(hasDiff);
+            }
         }
 
         String dictionaryCsv = String.join(System.lineSeparator(),

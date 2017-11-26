@@ -85,7 +85,7 @@ public class CimAnonymizer {
             super(out);
             this.xmlStaxContext = Objects.requireNonNull(xmlStaxContext);
             this.dictionary = Objects.requireNonNull(dictionary);
-            this.rdfIdValues = Objects.requireNonNull(rdfIdValues);
+            this.rdfIdValues = rdfIdValues;
             this.skipped = Objects.requireNonNull(skipped);
         }
 
@@ -170,6 +170,8 @@ public class CimAnonymizer {
             XMLEventWriter eventWriter = new XmlAnonymizer(xmlStaxContext.outputFactory.createXMLEventWriter(anonymizedCimFileOutputStream),
                     xmlStaxContext, dictionary, rdfIdValues, skipped);
             eventWriter.add(eventReader);
+            eventWriter.close();
+            eventReader.close();
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
         }
@@ -218,6 +220,7 @@ public class CimAnonymizer {
                         }
                     }
                 }
+                eventReader.close();
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             } catch (XMLStreamException e) {
@@ -251,7 +254,6 @@ public class CimAnonymizer {
 
             Path anonymizedCimZipFile = anonymizedCimFileDir.resolve(cimZipFile.getFileName());
             try (ZipOutputStream anonymizedZipOutputStream = new ZipOutputStream(Files.newOutputStream(anonymizedCimZipFile))) {
-
                 for (ZipEntry entry : zipFileData) {
                     anonymizedZipOutputStream.putNextEntry(entry);
                     try (InputStream cimFileInputStream = zipFileData.getInputStream(entry.getName())) {
