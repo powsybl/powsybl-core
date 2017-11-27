@@ -62,7 +62,9 @@ public class VirtualCaseBuilder implements ProjectFileBuilder<VirtualCase> {
         }
 
         // check links
-        Project project = new Project(new FileCreationContext(context.getProjectInfo(), context.getStorage(), context.getFileSystem()));
+        Project project = new ProjectFolder(new ProjectFileCreationContext(context.getFolderInfo(),
+                                                                           context.getStorage(),
+                                                                           context.getFileSystem())).getProject();
         ProjectFile aCase = (ProjectFile) project.getRootFolder().getChild(casePath);
         if (!(aCase instanceof ProjectCase)) {
             throw new AfsException("Invalid case path " + casePath);
@@ -85,7 +87,6 @@ public class VirtualCaseBuilder implements ProjectFileBuilder<VirtualCase> {
 
         return new VirtualCase(new ProjectFileCreationContext(new NodeInfo(id, name, VirtualCase.PSEUDO_CLASS),
                                                               context.getStorage(),
-                                                              context.getProjectInfo(),
                                                               context.getFileSystem()));
     }
 }
