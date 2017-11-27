@@ -50,8 +50,7 @@ public class CimAnonymizer {
         }
     }
 
-    private static final Set<String> NAMES_TO_EXCLUDE = ImmutableSet.of("PATL",
-            "TATL");
+    private static final Set<String> NAMES_TO_EXCLUDE = ImmutableSet.of("PATL", "TATL");
 
     private static final Set<String> DESCRIPTIONS_TO_EXCLUDE = ImmutableSet.of();
 
@@ -189,7 +188,6 @@ public class CimAnonymizer {
 
         @Override
         public void add(XMLEvent event) throws XMLStreamException {
-
             XMLEvent newEvent = null;
 
             if (event.isStartElement()) {
