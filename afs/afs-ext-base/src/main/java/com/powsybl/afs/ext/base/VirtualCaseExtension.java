@@ -15,7 +15,7 @@ import com.powsybl.afs.ProjectFileExtension;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @AutoService(ProjectFileExtension.class)
-public class VirtualCaseExtension implements ProjectFileExtension {
+public class VirtualCaseExtension implements ProjectFileExtension<VirtualCase, VirtualCaseBuilder> {
     @Override
     public Class<VirtualCase> getProjectFileClass() {
         return VirtualCase.class;

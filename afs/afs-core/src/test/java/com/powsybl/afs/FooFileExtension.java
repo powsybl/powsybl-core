@@ -10,7 +10,7 @@ package com.powsybl.afs;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class FooFileExtension implements ProjectFileExtension {
+public class FooFileExtension implements ProjectFileExtension<FooFile, FooFileBuilder> {
     @Override
     public Class<FooFile> getProjectFileClass() {
         return FooFile.class;
