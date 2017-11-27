@@ -34,6 +34,11 @@ public class DefaultListenableAppStorage implements ListenableAppStorage {
     }
 
     @Override
+    public boolean isRemote() {
+        return storage.isRemote();
+    }
+
+    @Override
     public NodeId fromString(String str) {
         return storage.fromString(str);
     }
