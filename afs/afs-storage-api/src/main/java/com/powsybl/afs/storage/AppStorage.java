@@ -23,6 +23,10 @@ public interface AppStorage extends AutoCloseable {
 
     String getFileSystemName();
 
+    default boolean isRemote() {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
     NodeId fromString(String str);
 
     NodeInfo createRootNodeIfNotExists(String name, String nodePseudoClass);

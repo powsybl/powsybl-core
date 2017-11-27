@@ -9,15 +9,15 @@ package com.powsybl.afs;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface ProjectFileExtension {
+public interface ProjectFileExtension<T extends ProjectFile, U extends ProjectFileBuilder<T>> {
 
-    Class<? extends ProjectFile> getProjectFileClass();
+    Class<T> getProjectFileClass();
 
     String getProjectFilePseudoClass();
 
-    Class<? extends ProjectFileBuilder<? extends ProjectFile>> getProjectFileBuilderClass();
+    Class<U> getProjectFileBuilderClass();
 
-    <T extends ProjectFile> T createProjectFile(ProjectFileCreationContext context);
+    T createProjectFile(ProjectFileCreationContext context);
 
-    ProjectFileBuilder<? extends ProjectFile> createProjectFileBuilder(ProjectFileBuildContext context);
+    ProjectFileBuilder<T> createProjectFileBuilder(ProjectFileBuildContext context);
 }

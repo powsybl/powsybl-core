@@ -23,6 +23,7 @@
     <modules>
         <module>action</module>
         <module>afs</module>
+        <module>cim-anonymiser</module>
         <module>cim1</module>
         <module>commons</module>
         <module>computation</module>
@@ -53,6 +54,7 @@
         <maven.javadoc.version>2.10.4</maven.javadoc.version>
         <maven.jacoco.version>0.7.8</maven.jacoco.version>
         <maven.buildnumber.version>1.4</maven.buildnumber.version>
+        <maven.shade.version>3.1.0</maven.shade.version>
         <maven.surefire.version>2.19.1</maven.surefire.version>
         <maven.templating.version>1.0.0</maven.templating.version>
         <maven.jar.version>3.0.2</maven.jar.version>

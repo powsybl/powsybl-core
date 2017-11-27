@@ -15,7 +15,7 @@ import com.powsybl.afs.ProjectFileExtension;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @AutoService(ProjectFileExtension.class)
-public class ModificationScriptExtension implements ProjectFileExtension {
+public class ModificationScriptExtension implements ProjectFileExtension<ModificationScript, ModificationScriptBuilder> {
     @Override
     public Class<ModificationScript> getProjectFileClass() {
         return ModificationScript.class;
