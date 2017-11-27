@@ -19,7 +19,7 @@ import java.util.Objects;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @AutoService(ProjectFileExtension.class)
-public class ImportedCaseExtension implements ProjectFileExtension {
+public class ImportedCaseExtension implements ProjectFileExtension<ImportedCase, ImportedCaseBuilder> {
 
     private final ImportersLoader importersLoader;
 
