@@ -17,15 +17,12 @@ import java.util.stream.Collectors;
  */
 public class ProjectNode extends AbstractNodeBase<ProjectFolder> {
 
-    protected final NodeInfo projectInfo;
-
     protected final AppFileSystem fileSystem;
 
     protected final boolean folder;
 
     protected ProjectNode(ProjectFileCreationContext context, boolean folder) {
         super(context.getInfo(), context.getStorage());
-        this.projectInfo = Objects.requireNonNull(context.getProjectInfo());
         this.fileSystem = Objects.requireNonNull(context.getFileSystem());
         this.folder = folder;
     }
@@ -38,7 +35,7 @@ public class ProjectNode extends AbstractNodeBase<ProjectFolder> {
     @Override
     public ProjectFolder getParent() {
         NodeInfo parentInfo = storage.getParentNodeInfo(info.getId());
-        return ProjectFolder.PSEUDO_CLASS.equals(parentInfo.getPseudoClass()) ? new ProjectFolder(new ProjectFileCreationContext(parentInfo, storage, projectInfo, fileSystem))
+        return ProjectFolder.PSEUDO_CLASS.equals(parentInfo.getPseudoClass()) ? new ProjectFolder(new ProjectFileCreationContext(parentInfo, storage, fileSystem))
                                                                               : null;
     }
 
@@ -56,7 +53,12 @@ public class ProjectNode extends AbstractNodeBase<ProjectFolder> {
     }
 
     public Project getProject() {
-        return new Project(new FileCreationContext(projectInfo, storage, fileSystem));
+        // walk the node hierarchy until finding a project node
+        NodeInfo parentInfo = storage.getParentNodeInfo(info.getId());
+        while (!Project.PSEUDO_CLASS.equals(parentInfo.getPseudoClass())) {
+            parentInfo = storage.getParentNodeInfo(parentInfo.getId());
+        }
+        return new Project(new FileCreationContext(parentInfo, storage, fileSystem));
     }
 
     public void moveTo(ProjectFolder folder) {
@@ -68,34 +70,10 @@ public class ProjectNode extends AbstractNodeBase<ProjectFolder> {
         storage.deleteNode(info.getId());
     }
 
-    protected ProjectNode findProjectNode(NodeInfo nodeInfo) {
-        ProjectFileCreationContext context = new ProjectFileCreationContext(nodeInfo, storage, projectInfo, fileSystem);
-        if (ProjectFolder.PSEUDO_CLASS.equals(nodeInfo.getPseudoClass())) {
-            return new ProjectFolder(context);
-        } else {
-            ProjectFileExtension extension = getProject().getFileSystem().getData().getProjectFileExtensionByPseudoClass(nodeInfo.getPseudoClass());
-            if (extension != null) {
-                return extension.createProjectFile(context);
-            } else {
-                return new UnknownProjectFile(context);
-            }
-        }
-    }
-
-    protected ProjectFile findProjectFile(NodeInfo nodeInfo) {
-        ProjectFileCreationContext context = new ProjectFileCreationContext(nodeInfo, storage, projectInfo, fileSystem);
-        ProjectFileExtension extension = getProject().getFileSystem().getData().getProjectFileExtensionByPseudoClass(nodeInfo.getPseudoClass());
-        if (extension != null) {
-            return extension.createProjectFile(context);
-        } else {
-            return new UnknownProjectFile(context);
-        }
-    }
-
     public List<ProjectFile> getBackwardDependencies() {
         return storage.getBackwardDependenciesInfo(info.getId())
                 .stream()
-                .map(this::findProjectFile)
+                .map(fileSystem::findProjectFile)
                 .collect(Collectors.toList());
     }
 
@@ -105,5 +83,9 @@ public class ProjectNode extends AbstractNodeBase<ProjectFolder> {
             // propagate
             projectFile.notifyDependencyChanged();
         });
+    }
+
+    public AppFileSystem getFileSystem() {
+        return fileSystem;
     }
 }

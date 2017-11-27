@@ -6,10 +6,7 @@
  */
 package com.powsybl.afs;
 
-import com.powsybl.afs.storage.AppStorage;
-import com.powsybl.afs.storage.DefaultListenableAppStorage;
-import com.powsybl.afs.storage.ListenableAppStorage;
-import com.powsybl.afs.storage.NodeInfo;
+import com.powsybl.afs.storage.*;
 
 import java.util.Objects;
 
@@ -57,6 +54,43 @@ public class AppFileSystem implements AutoCloseable {
 
     public Folder getRootFolder() {
         return new Folder(new FileCreationContext(rootNodeInfo, storage, this));
+    }
+
+    public Node findNode(NodeInfo nodeInfo) {
+        Objects.requireNonNull(nodeInfo);
+        Objects.requireNonNull(data);
+        FileCreationContext context = new FileCreationContext(nodeInfo, storage, this);
+        if (Folder.PSEUDO_CLASS.equals(nodeInfo.getPseudoClass())) {
+            return new Folder(context);
+        } else if (Project.PSEUDO_CLASS.equals(nodeInfo.getPseudoClass())) {
+            return new Project(context);
+        } else {
+            FileExtension extension = data.getFileExtensionByPseudoClass(nodeInfo.getPseudoClass());
+            if (extension != null) {
+                return extension.createFile(context);
+            } else {
+                return new UnknownFile(context);
+            }
+        }
+    }
+
+    public ProjectNode findProjectNode(NodeInfo nodeInfo) {
+        if (ProjectFolder.PSEUDO_CLASS.equals(nodeInfo.getPseudoClass())) {
+            return new ProjectFolder(new ProjectFileCreationContext(nodeInfo, storage, this));
+        } else {
+            return findProjectFile(nodeInfo);
+        }
+    }
+
+    public ProjectFile findProjectFile(NodeInfo nodeInfo) {
+        Objects.requireNonNull(data);
+        ProjectFileCreationContext context = new ProjectFileCreationContext(nodeInfo, storage, this);
+        ProjectFileExtension extension = data.getProjectFileExtensionByPseudoClass(nodeInfo.getPseudoClass());
+        if (extension != null) {
+            return extension.createProjectFile(context);
+        } else {
+            return new UnknownProjectFile(context);
+        }
     }
 
     public AppData getData() {

@@ -29,7 +29,7 @@ public class ProjectFolder extends ProjectNode implements FolderBase<ProjectNode
     public List<ProjectNode> getChildren() {
         return storage.getChildNodesInfo(info.getId())
                 .stream()
-                .map(this::findProjectNode)
+                .map(fileSystem::findProjectNode)
                 .sorted(Comparator.comparing(ProjectNode::getName))
                 .collect(Collectors.toList());
     }
@@ -37,7 +37,7 @@ public class ProjectFolder extends ProjectNode implements FolderBase<ProjectNode
     @Override
     public ProjectNode getChild(String name, String... more) {
         NodeInfo childInfo = getChildInfo(name, more);
-        return childInfo != null ? findProjectNode(childInfo) : null;
+        return childInfo != null ? fileSystem.findProjectNode(childInfo) : null;
     }
 
     @Override
@@ -61,13 +61,13 @@ public class ProjectFolder extends ProjectNode implements FolderBase<ProjectNode
         if (folderId == null) {
             folderId = storage.createNode(info.getId(), name, ProjectFolder.PSEUDO_CLASS);
         }
-        return new ProjectFolder(new ProjectFileCreationContext(new NodeInfo(folderId, name, ProjectFolder.PSEUDO_CLASS), storage, projectInfo, fileSystem));
+        return new ProjectFolder(new ProjectFileCreationContext(new NodeInfo(folderId, name, ProjectFolder.PSEUDO_CLASS), storage, fileSystem));
     }
 
     public <F extends ProjectFile, B extends ProjectFileBuilder<F>> B fileBuilder(Class<B> clazz) {
         Objects.requireNonNull(clazz);
-        ProjectFileExtension extension = getProject().getFileSystem().getData().getProjectFileExtension(clazz);
-        ProjectFileBuilder<F> builder = (ProjectFileBuilder<F>) extension.createProjectFileBuilder(new ProjectFileBuildContext(info, storage, projectInfo, fileSystem));
+        ProjectFileExtension extension = fileSystem.getData().getProjectFileExtension(clazz);
+        ProjectFileBuilder<F> builder = (ProjectFileBuilder<F>) extension.createProjectFileBuilder(new ProjectFileBuildContext(info, storage, fileSystem));
         return (B) builder;
     }
 }

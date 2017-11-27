@@ -7,8 +7,8 @@
 package com.powsybl.afs.ext.base;
 
 import com.powsybl.afs.AfsException;
-import com.powsybl.afs.ProjectFileBuilder;
 import com.powsybl.afs.ProjectFileBuildContext;
+import com.powsybl.afs.ProjectFileBuilder;
 import com.powsybl.afs.ProjectFileCreationContext;
 import com.powsybl.afs.storage.NodeId;
 import com.powsybl.afs.storage.NodeInfo;
@@ -92,7 +92,6 @@ public class ImportedCaseBuilder implements ProjectFileBuilder<ImportedCase> {
 
         return new ImportedCase(new ProjectFileCreationContext(new NodeInfo(id, name, ImportedCase.PSEUDO_CLASS),
                                                                context.getStorage(),
-                                                               context.getProjectInfo(),
                                                                context.getFileSystem()),
                                 importersLoader);
     }

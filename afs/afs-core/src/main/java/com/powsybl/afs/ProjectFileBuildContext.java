@@ -18,8 +18,8 @@ public class ProjectFileBuildContext extends ProjectFileContext {
 
     private final NodeInfo folderInfo;
 
-    public ProjectFileBuildContext(NodeInfo folderInfo, ListenableAppStorage storage, NodeInfo projectInfo, AppFileSystem fileSystem) {
-        super(storage, projectInfo, fileSystem);
+    public ProjectFileBuildContext(NodeInfo folderInfo, ListenableAppStorage storage, AppFileSystem fileSystem) {
+        super(storage, fileSystem);
         this.folderInfo = Objects.requireNonNull(folderInfo);
     }
 

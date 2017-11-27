@@ -38,11 +38,11 @@ public class VirtualCase extends ProjectFile implements ProjectCase {
     }
 
     public ProjectCase getCase() {
-        return (ProjectCase) findProjectFile(storage.getDependencyInfo(info.getId(), CASE_DEPENDENCY_NAME));
+        return (ProjectCase) fileSystem.findProjectFile(storage.getDependencyInfo(info.getId(), CASE_DEPENDENCY_NAME));
     }
 
     public ModificationScript getScript() {
-        return (ModificationScript) findProjectFile(storage.getDependencyInfo(info.getId(), SCRIPT_DEPENDENCY_NAME));
+        return (ModificationScript) fileSystem.findProjectFile(storage.getDependencyInfo(info.getId(), SCRIPT_DEPENDENCY_NAME));
     }
 
     public Writer getScriptOutputWriter() {

@@ -33,7 +33,7 @@ public class Folder extends Node implements FolderBase<Node, Folder> {
     public List<Node> getChildren() {
         return storage.getChildNodesInfo(info.getId())
                 .stream()
-                .map(this::findNode)
+                .map(fileSystem::findNode)
                 .sorted(Comparator.comparing(Node::getName))
                 .collect(Collectors.toList());
     }
@@ -41,7 +41,7 @@ public class Folder extends Node implements FolderBase<Node, Folder> {
     @Override
     public Node getChild(String name, String... more) {
         NodeInfo childInfo = getChildInfo(name, more);
-        return childInfo != null ? findNode(childInfo) : null;
+        return childInfo != null ? fileSystem.findNode(childInfo) : null;
     }
 
     @Override
