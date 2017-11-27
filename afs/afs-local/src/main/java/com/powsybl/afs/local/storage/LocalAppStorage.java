@@ -94,6 +94,11 @@ public class LocalAppStorage implements AppStorage {
     }
 
     @Override
+    public boolean isRemote() {
+        return false;
+    }
+
+    @Override
     public NodeId fromString(String str) {
         return new PathNodeId(rootDir.getFileSystem().getPath(str));
     }
