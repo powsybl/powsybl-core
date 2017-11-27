@@ -457,6 +457,11 @@ public class MapDbAppStorage implements AppStorage {
     }
 
     @Override
+    public boolean isRemote() {
+        return false;
+    }
+
+    @Override
     public NodeId fromString(String str) {
         return new UuidNodeId(UUID.fromString(str));
     }
