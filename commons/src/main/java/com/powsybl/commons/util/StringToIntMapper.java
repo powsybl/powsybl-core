@@ -25,29 +25,33 @@ import java.util.Map;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class StringToIntMapper<SUBSET extends Enum<SUBSET> & IntCounter> {
+public class StringToIntMapper<S extends Enum<S> & IntCounter> {
 
-    private final Class<SUBSET> clazz;
+    private final Class<S> clazz;
 
-    private final Map<SUBSET, BiMap<String, Integer>> id2num;
+    private final Map<S, BiMap<String, Integer>> id2num;
 
-    private final Map<SUBSET, Integer> counter;
+    private final Map<S, Integer> counter;
 
     private boolean modified = false;
 
-    public StringToIntMapper(Class<SUBSET> clazz) {
+    public StringToIntMapper(Class<S> clazz) {
         this.clazz = clazz;
         id2num = new EnumMap<>(clazz);
         counter = new EnumMap<>(clazz);
-        for (SUBSET s : clazz.getEnumConstants()) {
+        for (S s : clazz.getEnumConstants()) {
             id2num.put(s, HashBiMap.<String, Integer>create());
             counter.put(s, s.getInitialValue());
         }
     }
 
-    public synchronized int newInt(SUBSET subset, String id) {
+    private static IllegalArgumentException createSubsetIsNullException() {
+        return new IllegalArgumentException("subset is null");
+    }
+
+    public synchronized int newInt(S subset, String id) {
         if (subset == null) {
-            throw new IllegalArgumentException("subset is null");
+            throw createSubsetIsNullException();
         }
         if (id == null) {
             throw new IllegalArgumentException("id is null");
@@ -62,9 +66,9 @@ public class StringToIntMapper<SUBSET extends Enum<SUBSET> & IntCounter> {
         return num;
     }
 
-    public synchronized int getInt(SUBSET subset, String id) {
+    public synchronized int getInt(S subset, String id) {
         if (subset == null) {
-            throw new IllegalArgumentException("subset is null");
+            throw createSubsetIsNullException();
         }
         if (id == null) {
             throw new IllegalArgumentException("id is null");
@@ -76,9 +80,9 @@ public class StringToIntMapper<SUBSET extends Enum<SUBSET> & IntCounter> {
         return num;
     }
 
-    public synchronized String getId(SUBSET subset, int num) {
+    public synchronized String getId(S subset, int num) {
         if (subset == null) {
-            throw new IllegalArgumentException("subset is null");
+            throw createSubsetIsNullException();
         }
         if (num < subset.getInitialValue() || num >= counter.get(subset)) {
             throw new IllegalArgumentException("invalid num " + num);
@@ -86,7 +90,7 @@ public class StringToIntMapper<SUBSET extends Enum<SUBSET> & IntCounter> {
         return id2num.get(subset).inverse().get(num);
     }
 
-    public synchronized boolean isMapped(SUBSET subset, String id) {
+    public synchronized boolean isMapped(S subset, String id) {
         Map<String, Integer> numbers = id2num.get(subset);
         return numbers.containsKey(id);
     }
@@ -96,8 +100,8 @@ public class StringToIntMapper<SUBSET extends Enum<SUBSET> & IntCounter> {
     }
 
     public synchronized void dump(Writer writer) throws IOException {
-        for (Map.Entry<SUBSET, BiMap<String, Integer>> entry : id2num.entrySet()) {
-            SUBSET subset = entry.getKey();
+        for (Map.Entry<S, BiMap<String, Integer>> entry : id2num.entrySet()) {
+            S subset = entry.getKey();
             for (Map.Entry<String, Integer> entry1 : entry.getValue().entrySet()) {
                 String id = entry1.getKey();
                 Integer num = entry1.getValue();
@@ -122,7 +126,7 @@ public class StringToIntMapper<SUBSET extends Enum<SUBSET> & IntCounter> {
             if (tokens.length != 3) {
                 throw new PowsyblException("Bad format: " + line);
             }
-            SUBSET subset = Enum.valueOf(clazz, tokens[0]);
+            S subset = Enum.valueOf(clazz, tokens[0]);
             String id = tokens[1];
             int num = Integer.parseInt(tokens[2]);
             id2num.get(subset).put(id, num);
@@ -136,7 +140,7 @@ public class StringToIntMapper<SUBSET extends Enum<SUBSET> & IntCounter> {
         }
     }
 
-    public synchronized void reset(SUBSET subset) {
+    public synchronized void reset(S subset) {
         if (subset == null) {
             throw new IllegalArgumentException("subset is null");
         }

@@ -27,9 +27,6 @@ public class SimpleCommandBuilder extends AbstractCommandBuilder<SimpleCommandBu
 
     private int timeout = -1;
 
-    public SimpleCommandBuilder() {
-    }
-
     public SimpleCommandBuilder program(String program) {
         this.program = program;
         return this;

@@ -6,9 +6,6 @@
  */
 package com.powsybl.afs;
 
-import com.powsybl.afs.storage.AppFileSystemStorage;
-import com.powsybl.afs.storage.NodeId;
-
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -20,9 +17,8 @@ public class ProjectFile extends ProjectNode {
 
     protected final FileIcon icon;
 
-    protected ProjectFile(NodeId id, AppFileSystemStorage storage, NodeId projectId, AppFileSystem fileSystem,
-                          FileIcon icon) {
-        super(id, storage, projectId, fileSystem, true);
+    protected ProjectFile(ProjectFileCreationContext context, FileIcon icon) {
+        super(context, true);
         this.icon = Objects.requireNonNull(icon);
     }
 
@@ -36,12 +32,13 @@ public class ProjectFile extends ProjectNode {
     }
 
     public List<ProjectNode> getDependencies() {
-        return storage.getDependencies(id)
+        return storage.getDependenciesInfo(info.getId())
                 .stream()
-                .map(this::findProjectNode)
+                .map(fileSystem::findProjectNode)
                 .collect(Collectors.toList());
     }
 
     public void onDependencyChanged() {
+        // method to override to be notified in case of dependency change
     }
 }

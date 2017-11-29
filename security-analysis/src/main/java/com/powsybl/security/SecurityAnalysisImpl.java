@@ -64,7 +64,7 @@ public class SecurityAnalysisImpl implements SecurityAnalysis {
         final List<PostContingencyResult> postContingencyResults = Collections.synchronizedList(new ArrayList<>());
 
         // start post contingency LF from pre-contingency state variables
-        LoadFlowParameters postContParameters = parameters.clone().setVoltageInitMode(LoadFlowParameters.VoltageInitMode.PREVIOUS_VALUES);
+        LoadFlowParameters postContParameters = parameters.copy().setVoltageInitMode(LoadFlowParameters.VoltageInitMode.PREVIOUS_VALUES);
 
         return loadFlow.runAsync(workingStateId, parameters) // run base load flow
                 .thenComposeAsync(loadFlowResult -> {

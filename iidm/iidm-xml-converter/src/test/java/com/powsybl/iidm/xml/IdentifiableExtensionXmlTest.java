@@ -6,10 +6,13 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.network.test.LoadBarExt;
+import com.powsybl.iidm.network.test.LoadFooExt;
 import com.powsybl.iidm.network.test.LoadZipModel;
+import org.joda.time.DateTime;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -21,7 +24,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class IdentifiableExtensionXmlTest {
+public class IdentifiableExtensionXmlTest extends AbstractConverterTest {
 
     @Test
     public void test() throws IOException {
@@ -51,5 +54,43 @@ public class IdentifiableExtensionXmlTest {
                     && zipModel.getV0() == zipModel2.getV0()
             );
         }
+    }
+
+    @Test
+    public void testMultipleExtensions() throws IOException {
+        roundTripTest(createMultipleExtensionsNetwork(),
+            NetworkXml::writeAndValidate,
+            NetworkXml::read,
+            "/multiple-extensions.xml");
+    }
+
+    private Network createMultipleExtensionsNetwork() {
+        Network network = NetworkFactory.create("test", "test");
+        network.setCaseDate(DateTime.parse("2017-11-17T12:00:00+01:00"));
+        Substation s = network.newSubstation()
+            .setId("S")
+            .setCountry(Country.FR)
+            .add();
+        VoltageLevel vl = s.newVoltageLevel()
+            .setId("VL")
+            .setTopologyKind(TopologyKind.BUS_BREAKER)
+            .setNominalV(20.0f)
+            .setLowVoltageLimit(15.0f)
+            .setHighVoltageLimit(25.0f)
+            .add();
+        vl.getBusBreakerView().newBus()
+            .setId("BUS")
+            .add();
+        Load load = vl.newLoad()
+            .setId("LOAD")
+            .setP0(0.0f)
+            .setQ0(0.0f)
+            .setBus("BUS")
+            .setConnectableBus("BUS")
+            .add();
+        load.addExtension(LoadFooExt.class, new LoadFooExt(load));
+        load.addExtension(LoadBarExt.class, new LoadBarExt(load));
+
+        return network;
     }
 }

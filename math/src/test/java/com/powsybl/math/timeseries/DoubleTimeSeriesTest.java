@@ -51,6 +51,11 @@ public class DoubleTimeSeriesTest {
         }
 
         @Override
+        public String getType() {
+            return "testIndex";
+        }
+
+        @Override
         public void writeJson(JsonGenerator generator) {
             throw new AssertionError();
         }

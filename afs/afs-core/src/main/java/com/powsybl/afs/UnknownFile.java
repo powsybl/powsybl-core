@@ -6,17 +6,14 @@
  */
 package com.powsybl.afs;
 
-import com.powsybl.afs.storage.AppFileSystemStorage;
-import com.powsybl.afs.storage.NodeId;
-
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class UnknownFile extends File {
 
-    static final FileIcon ICON = new FileIcon("ghost", UnknownFile.class.getResourceAsStream("/icons/ghost16x16.png"));
+    static final FileIcon GHOST_ICON = new FileIcon("ghost", UnknownFile.class.getResourceAsStream("/icons/ghost16x16.png"));
 
-    public UnknownFile(NodeId id, AppFileSystemStorage storage, AppFileSystem fileSystem) {
-        super(id, storage, fileSystem, ICON);
+    public UnknownFile(FileCreationContext context) {
+        super(context, GHOST_ICON);
     }
 }

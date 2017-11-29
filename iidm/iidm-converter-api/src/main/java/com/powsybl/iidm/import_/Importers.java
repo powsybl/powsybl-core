@@ -45,7 +45,7 @@ public final class Importers {
 
     private static final ImportersLoader LOADER = new ImportersServiceLoader();
 
-    private final static Supplier<ImportConfig> CONFIG = Suppliers.memoize(() -> ImportConfig.load());
+    private static final Supplier<ImportConfig> CONFIG = Suppliers.memoize(ImportConfig::load);
 
     private Importers() {
     }
@@ -65,7 +65,7 @@ public final class Importers {
         Objects.requireNonNull(computationManager);
         Objects.requireNonNull(config);
         List<String> postProcessorNames = config.getPostProcessors();
-        if (postProcessorNames != null && postProcessorNames.size() > 0) {
+        if (postProcessorNames != null && !postProcessorNames.isEmpty()) {
             return new ImporterWrapper(importer, computationManager, postProcessorNames);
         }
         return importer;

@@ -6,17 +6,14 @@
  */
 package com.powsybl.afs;
 
-import com.powsybl.afs.storage.AppFileSystemStorage;
-import com.powsybl.afs.storage.NodeId;
-
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface FileExtension {
+public interface FileExtension<T extends File> {
 
-    Class<? extends File> getFileClass();
+    Class<T> getFileClass();
 
     String getFilePseudoClass();
 
-    <T extends File> T createFile(NodeId id, AppFileSystemStorage storage, AppFileSystem fileSystem);
+    T createFile(FileCreationContext context);
 }

@@ -48,7 +48,7 @@ public class SmallSignalSecurityIndex extends AbstractSecurityIndex {
         }
     }
 
-    public static SmallSignalSecurityIndex fromXml(String contingencyId, XMLStreamReader xmlsr) throws XMLStreamException {
+    public static SmallSignalSecurityIndex fromXml(String contingencyId, XMLStreamReader xmlsr) {
         try {
             Unmarshaller u = JAXB_CONTEXT.createUnmarshaller();
             Index index = (Index) u.unmarshal(xmlsr);
@@ -59,20 +59,22 @@ public class SmallSignalSecurityIndex extends AbstractSecurityIndex {
             for (Matrix m : index.getMatrices()) {
                 switch (m.getName()) {
                     case "gmi":
-                        double[][] gmiIndexData = m.getMatrix();
+                        double[][] gmiIndexData = m.getValues();
                         if ((gmiIndexData != null) && (gmiIndexData[0].length > 0)) {
                             gmi = gmiIndexData[0][0];
                         }
                         break;
                     case "ami":
-                        double[][] amiIndexData = m.getMatrix();
+                        double[][] amiIndexData = m.getValues();
                         if (amiIndexData != null) {
                             ami = amiIndexData[0];
                         }
                         break;
                     case "smi":
-                        double[][] smiIndexData = m.getMatrix();
+                        double[][] smiIndexData = m.getValues();
                         smi = smiIndexData;
+                        break;
+                    default:
                         break;
                 }
             }
@@ -116,7 +118,7 @@ public class SmallSignalSecurityIndex extends AbstractSecurityIndex {
         return ImmutableMap.of("gmi", Double.toString(gmi), "ami", Arrays.toString(ami), "smi", Arrays.deepToString(smi));
     }
 
-    public static void toXml(SmallSignalSecurityIndex index, XMLStreamWriter writer) throws XMLStreamException, JAXBException {
+    public static void toXml(SmallSignalSecurityIndex index, XMLStreamWriter writer) throws JAXBException {
         JAXBContext jc;
         jc = JAXBContext.newInstance(Index.class);
         SmallSignalSecurityIndex.Index lindex = new Index(index.getId().getSecurityIndexType().getLabel().toLowerCase());
@@ -203,25 +205,24 @@ public class SmallSignalSecurityIndex extends AbstractSecurityIndex {
 
         @Override
         public String toString() {
-            String retString = "[";
-            retString += getName() + ":";
+            StringBuilder builder = new StringBuilder("[")
+                    .append(getName()).append(":");
             for (Matrix m : getMatrices()) {
-
-                retString += m.toString();
+                builder.append(m.toString());
             }
-            retString += "]";
-            return retString;
+            builder.append("]");
+            return builder.toString();
         }
     }
 
 
     public static class Matrix {
         private String name;
-        private double[][] matrix;
+        private double[][] values;
 
-        public Matrix(String name, double[][] matrix) {
+        public Matrix(String name, double[][] values) {
             this.name = name;
-            this.matrix = matrix;
+            this.values = values;
         }
 
         @XmlAttribute
@@ -235,30 +236,30 @@ public class SmallSignalSecurityIndex extends AbstractSecurityIndex {
 
         @Override
         public String toString() {
-            String retString = "[";
-            retString += getName() + ": [";
-            if (matrix != null) {
-                for (int i = 0; i < matrix.length; i++) {
-                    retString += "[";
-                    for (int j = 0; j < matrix[0].length; j++) {
-                        retString += matrix[i][j] + " ";
+            StringBuilder builder = new StringBuilder("[")
+                    .append(getName()).append(": [");
+            if (values != null) {
+                for (int i = 0; i < values.length; i++) {
+                    builder.append("[");
+                    for (int j = 0; j < values[0].length; j++) {
+                        builder.append(values[i][j]).append(" ");
                     }
-                    retString += "]";
+                    builder.append("]");
                 }
             }
-            retString += "]]";
-            return retString;
+            builder.append("]]");
+            return builder.toString();
         }
 
 
         @XmlElement(name = "m")
         @XmlJavaTypeAdapter(MatrixAdapter.class)
-        public double[][] getMatrix() {
-            return matrix;
+        public double[][] getValues() {
+            return values;
         }
 
-        public void setMatrix(double[][] matrix) {
-            this.matrix = matrix;
+        public void setValues(double[][] values) {
+            this.values = values;
         }
 
         public Matrix() {
@@ -284,7 +285,7 @@ public class SmallSignalSecurityIndex extends AbstractSecurityIndex {
         public AdaptedMatrix marshal(double[][] matrix) throws Exception {
             AdaptedMatrix adaptedMatrix = new AdaptedMatrix();
             if (matrix != null) {
-                adaptedMatrix.rows = new ArrayList<AdaptedRow>(matrix.length);
+                adaptedMatrix.rows = new ArrayList<>(matrix.length);
                 for (double[] row : matrix) {
                     if (matrix[0].length == 1 && Double.isNaN(matrix[0][0])) {
                         break;
@@ -308,23 +309,4 @@ public class SmallSignalSecurityIndex extends AbstractSecurityIndex {
         }
 
     }
-
-
-    /*
-    @Override
-    public boolean equals(Object obj) {
-        if ((obj == null) || (!(obj instanceof SmallSignalSecurityIndex)))
-            return false;
-        SmallSignalSecurityIndex objs=(SmallSignalSecurityIndex) obj;
-        if (Double.compare(gmi,objs.gmi)!=0)
-            return false;
-        if (!Arrays.equals(ami, objs.ami))
-            return false;
-        if (!Arrays.deepEquals(smi, objs.smi))
-            return false;
-        return true;
-    }
-    */
-
-
 }

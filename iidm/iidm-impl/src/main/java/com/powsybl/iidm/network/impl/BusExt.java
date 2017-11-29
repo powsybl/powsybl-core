@@ -16,8 +16,6 @@ import java.util.stream.Stream;
  */
 interface BusExt extends Bus {
 
-    int getConnectedTerminalCount();
-
     Iterable<TerminalExt> getConnectedTerminals();
 
     Stream<TerminalExt> getConnectedTerminalStream();

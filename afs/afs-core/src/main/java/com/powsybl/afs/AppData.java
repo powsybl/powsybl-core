@@ -6,7 +6,7 @@
  */
 package com.powsybl.afs;
 
-import com.powsybl.afs.storage.AppFileSystemStorage;
+import com.powsybl.afs.storage.ListenableAppStorage;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
@@ -171,7 +171,7 @@ public class AppData implements AutoCloseable {
                 .collect(Collectors.toList());
     }
 
-    public AppFileSystemStorage getRemotelyAccessibleStorage(String fileSystemName) {
+    public ListenableAppStorage getRemotelyAccessibleStorage(String fileSystemName) {
         AppFileSystem afs = fileSystems.get(fileSystemName);
         return afs != null ? afs.getStorage() : null;
     }

@@ -7,9 +7,9 @@
 package com.powsybl.afs.ext.base;
 
 import com.powsybl.afs.AfsException;
-import com.powsybl.afs.AppFileSystem;
 import com.powsybl.afs.File;
-import com.powsybl.afs.storage.AppFileSystemStorage;
+import com.powsybl.afs.FileCreationContext;
+import com.powsybl.afs.storage.AppStorage;
 import com.powsybl.afs.storage.NodeId;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.import_.Importer;
@@ -29,23 +29,23 @@ public class Case extends File {
 
     private final ImportersLoader importersLoader;
 
-    public Case(NodeId id, AppFileSystemStorage storage, AppFileSystem fileSystem, ImportersLoader importersLoader) {
-        super(id, storage, fileSystem, CaseIconCache.INSTANCE.get(importersLoader,
-                                                                  fileSystem.getData().getComputationManager(),
-                                                                  getFormat(storage, id)));
+    public Case(FileCreationContext context, ImportersLoader importersLoader) {
+        super(context, CaseIconCache.INSTANCE.get(importersLoader,
+                                                  context.getFileSystem().getData().getComputationManager(),
+                                                  getFormat(context.getStorage(), context.getInfo().getId())));
         this.importersLoader = Objects.requireNonNull(importersLoader);
     }
 
-    private static String getFormat(AppFileSystemStorage storage, NodeId id) {
+    private static String getFormat(AppStorage storage, NodeId id) {
         return storage.getStringAttribute(id, FORMAT);
     }
 
     private String getFormat() {
-        return getFormat(storage, id);
+        return getFormat(storage, info.getId());
     }
 
     public ReadOnlyDataSource getDataSource() {
-        return storage.getDataSourceAttribute(id, DATA_SOURCE);
+        return storage.getDataSourceAttribute(info.getId(), DATA_SOURCE);
     }
 
     public Importer getImporter() {

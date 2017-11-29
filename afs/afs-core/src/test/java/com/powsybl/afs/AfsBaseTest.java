@@ -7,8 +7,8 @@
 package com.powsybl.afs;
 
 import com.google.common.collect.ImmutableList;
-import com.powsybl.afs.mapdb.storage.MapDbAppFileSystemStorage;
-import com.powsybl.afs.storage.AppFileSystemStorage;
+import com.powsybl.afs.mapdb.storage.MapDbAppStorage;
+import com.powsybl.afs.storage.AppStorage;
 import com.powsybl.computation.ComputationManager;
 import org.junit.After;
 import org.junit.Before;
@@ -26,7 +26,7 @@ import static org.junit.Assert.*;
  */
 public class AfsBaseTest {
 
-    private AppFileSystemStorage storage;
+    private AppStorage storage;
 
     private AppFileSystem afs;
 
@@ -34,7 +34,7 @@ public class AfsBaseTest {
 
     @Before
     public void setup() throws IOException {
-        storage = MapDbAppFileSystemStorage.createHeap("mem");
+        storage = MapDbAppStorage.createHeap("mem");
 
         ComputationManager computationManager = Mockito.mock(ComputationManager.class);
         afs = new AppFileSystem("mem", true, storage);
@@ -72,7 +72,7 @@ public class AfsBaseTest {
         assertNotNull(dir2);
         assertNotNull(dir2.getParent());
         assertEquals("mem:/dir1", dir2.getParent().getPath().toString());
-        assertEquals(dir1.getChildren().size(), 2);
+        assertEquals(2, dir1.getChildren().size());
         Folder dir3 = root.getFolder("dir3");
         assertNull(dir3);
         String str = dir2.getPath().toString();

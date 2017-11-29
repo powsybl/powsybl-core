@@ -366,7 +366,7 @@ public final class Security {
         Objects.requireNonNull(result);
         Objects.requireNonNull(writer);
         Objects.requireNonNull(formatterFactory);
-        if (result.getPostContingencyResults().size() > 0) {
+        if (!result.getPostContingencyResults().isEmpty()) {
             Set<LimitViolationKey> preContingencyViolations = filterPreContingencyViolations
                     ? result.getPreContingencyResult().getLimitViolations()
                             .stream()
@@ -419,7 +419,7 @@ public final class Security {
                         .filter(violation -> preContingencyViolations.isEmpty() || !preContingencyViolations.contains(toKey(violation)))
                         .collect(Collectors.toList());
 
-                if (filteredLimitViolations2.size() > 0 || !postContingencyResult.getLimitViolationsResult().isComputationOk()) {
+                if (!filteredLimitViolations2.isEmpty() || !postContingencyResult.getLimitViolationsResult().isComputationOk()) {
                     formatter.writeCell(postContingencyResult.getContingency().getId())
                             .writeCell(postContingencyResult.getLimitViolationsResult().isComputationOk() ? "converge" : "diverge")
                             .writeEmptyCell()

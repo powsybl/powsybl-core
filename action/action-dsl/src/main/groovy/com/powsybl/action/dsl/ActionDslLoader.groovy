@@ -12,9 +12,11 @@ import com.powsybl.contingency.BranchContingency
 import com.powsybl.contingency.BusbarSectionContingency
 import com.powsybl.contingency.ContingencyImpl
 import com.powsybl.contingency.GeneratorContingency
+import com.powsybl.contingency.HvdcLineContingency
 import com.powsybl.contingency.tasks.ModificationTask
 import com.powsybl.iidm.network.BusbarSection
 import com.powsybl.iidm.network.Generator
+import com.powsybl.iidm.network.HvdcLine
 import com.powsybl.iidm.network.Identifiable
 import com.powsybl.iidm.network.Line
 import com.powsybl.iidm.network.Network
@@ -129,6 +131,8 @@ class ActionDslLoader extends DslLoader {
                     }
                     if (identifiable instanceof Line || identifiable instanceof TwoWindingsTransformer) {
                         elements.add(new BranchContingency(equipment))
+                    } else if (identifiable instanceof HvdcLine) {
+                        elements.add(new HvdcLineContingency(equipment))
                     } else if (identifiable instanceof Generator) {
                         elements.add(new GeneratorContingency(equipment))
                     } else if (identifiable instanceof BusbarSection) {

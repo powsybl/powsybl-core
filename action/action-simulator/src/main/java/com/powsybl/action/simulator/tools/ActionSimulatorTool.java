@@ -51,7 +51,13 @@ import java.util.stream.Collectors;
 @AutoService(Tool.class)
 public class ActionSimulatorTool implements Tool {
 
-    private static Logger LOGGER = LoggerFactory.getLogger(ActionSimulatorTool.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ActionSimulatorTool.class);
+
+    private static final String CASE_FILE = "case-file";
+    private static final String DSL_FILE = "dsl-file";
+    private static final String CONTINGENCIES = "contingencies";
+    private static final String VERBOSE = "verbose";
+    private static final String OUTPUT_CSV = "output-csv";
 
     @Override
     public Command getCommand() {
@@ -74,28 +80,28 @@ public class ActionSimulatorTool implements Tool {
             @Override
             public Options getOptions() {
                 Options options = new Options();
-                options.addOption(Option.builder().longOpt("case-file")
+                options.addOption(Option.builder().longOpt(CASE_FILE)
                         .desc("the case path")
                         .hasArg()
                         .argName("FILE")
                         .required()
                         .build());
-                options.addOption(Option.builder().longOpt("dsl-file")
+                options.addOption(Option.builder().longOpt(DSL_FILE)
                         .desc("the Groovy DSL path")
                         .hasArg()
                         .argName("FILE")
                         .required()
                         .build());
-                options.addOption(Option.builder().longOpt("contingencies")
+                options.addOption(Option.builder().longOpt(CONTINGENCIES)
                         .desc("contingencies to test")
                         .hasArg()
                         .argName("CONTINGENCY1,CONTINGENCY2,...")
                         .build());
-                options.addOption(Option.builder().longOpt("verbose")
+                options.addOption(Option.builder().longOpt(VERBOSE)
                         .desc("verbose mode")
                         .required(false)
                         .build());
-                options.addOption(Option.builder().longOpt("output-csv")
+                options.addOption(Option.builder().longOpt(OUTPUT_CSV)
                         .desc("the CSV output path")
                         .hasArg()
                         .argName("FILE")
@@ -144,12 +150,12 @@ public class ActionSimulatorTool implements Tool {
 
     @Override
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
-        Path caseFile = context.getFileSystem().getPath(line.getOptionValue("case-file"));
-        Path dslFile = context.getFileSystem().getPath(line.getOptionValue("dsl-file"));
-        List<String> contingencies = line.hasOption("contingencies") ? Arrays.stream(line.getOptionValue("contingencies").split(",")).collect(Collectors.toList())
+        Path caseFile = context.getFileSystem().getPath(line.getOptionValue(CASE_FILE));
+        Path dslFile = context.getFileSystem().getPath(line.getOptionValue(DSL_FILE));
+        List<String> contingencies = line.hasOption(CONTINGENCIES) ? Arrays.stream(line.getOptionValue(CONTINGENCIES).split(",")).collect(Collectors.toList())
                                                                      : Collections.emptyList();
-        boolean verbose = line.hasOption("verbose");
-        Path csvFile = line.hasOption("output-csv") ? context.getFileSystem().getPath(line.getOptionValue("output-csv")) : null;
+        boolean verbose = line.hasOption(VERBOSE);
+        Path csvFile = line.hasOption(OUTPUT_CSV) ? context.getFileSystem().getPath(line.getOptionValue(OUTPUT_CSV)) : null;
 
         context.getOutputStream().println("Loading network '" + caseFile + "'");
 

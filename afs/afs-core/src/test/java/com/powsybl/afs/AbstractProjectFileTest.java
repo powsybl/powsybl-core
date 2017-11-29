@@ -6,7 +6,7 @@
  */
 package com.powsybl.afs;
 
-import com.powsybl.afs.storage.AppFileSystemStorage;
+import com.powsybl.afs.storage.AppStorage;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
@@ -14,7 +14,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.mockito.Mockito;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
@@ -23,7 +22,7 @@ import java.util.List;
  */
 public abstract class AbstractProjectFileTest {
 
-    protected AppFileSystemStorage storage;
+    protected AppStorage storage;
 
     protected AppFileSystem afs;
 
@@ -31,7 +30,7 @@ public abstract class AbstractProjectFileTest {
 
     protected Network network;
 
-    protected abstract AppFileSystemStorage createStorage();
+    protected abstract AppStorage createStorage();
 
     protected List<FileExtension> getFileExtensions() {
         return Collections.emptyList();
@@ -42,7 +41,7 @@ public abstract class AbstractProjectFileTest {
     }
 
     @Before
-    public void setup() throws IOException {
+    public void setup() {
         network = NetworkFactory.create("test", "test");
         ComputationManager computationManager = Mockito.mock(ComputationManager.class);
         storage = createStorage();
@@ -54,7 +53,7 @@ public abstract class AbstractProjectFileTest {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         storage.close();
     }
 }

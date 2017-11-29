@@ -7,10 +7,9 @@
 package com.powsybl.afs.ext.base;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.afs.AppFileSystem;
+import com.powsybl.afs.ProjectFileBuildContext;
+import com.powsybl.afs.ProjectFileCreationContext;
 import com.powsybl.afs.ProjectFileExtension;
-import com.powsybl.afs.storage.AppFileSystemStorage;
-import com.powsybl.afs.storage.NodeId;
 import com.powsybl.iidm.import_.ImportersLoader;
 import com.powsybl.iidm.import_.ImportersServiceLoader;
 
@@ -20,7 +19,7 @@ import java.util.Objects;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @AutoService(ProjectFileExtension.class)
-public class ImportedCaseExtension implements ProjectFileExtension {
+public class ImportedCaseExtension implements ProjectFileExtension<ImportedCase, ImportedCaseBuilder> {
 
     private final ImportersLoader importersLoader;
 
@@ -48,12 +47,12 @@ public class ImportedCaseExtension implements ProjectFileExtension {
     }
 
     @Override
-    public ImportedCase createProjectFile(NodeId id, AppFileSystemStorage storage, NodeId projectId, AppFileSystem fileSystem) {
-        return new ImportedCase(id, storage, projectId, fileSystem, importersLoader);
+    public ImportedCase createProjectFile(ProjectFileCreationContext context) {
+        return new ImportedCase(context, importersLoader);
     }
 
     @Override
-    public ImportedCaseBuilder createProjectFileBuilder(NodeId folderId, AppFileSystemStorage storage, NodeId projectId, AppFileSystem fileSystem) {
-        return new ImportedCaseBuilder(folderId, storage, projectId, fileSystem, importersLoader);
+    public ImportedCaseBuilder createProjectFileBuilder(ProjectFileBuildContext context) {
+        return new ImportedCaseBuilder(context, importersLoader);
     }
 }
