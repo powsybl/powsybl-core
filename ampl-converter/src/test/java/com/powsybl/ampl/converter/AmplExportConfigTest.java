@@ -9,7 +9,6 @@ package com.powsybl.ampl.converter;
 import com.powsybl.ampl.converter.AmplExportConfig.ExportActionType;
 import com.powsybl.ampl.converter.AmplExportConfig.ExportScope;
 
-import org.junit.Assert;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -30,6 +29,7 @@ public class AmplExportConfigTest {
             config.setExportScope(null);
             fail();
         } catch (NullPointerException e) {
+            // NullPointerException is expected here
         }
 
         assertTrue(config.isExportXNodes());
@@ -39,6 +39,11 @@ public class AmplExportConfigTest {
         assertEquals(ExportActionType.CURATIVE, config.getActionType());
         config.setActionType(ExportActionType.PREVENTIVE);
         assertEquals(ExportActionType.PREVENTIVE, config.getActionType());
+        try {
+            config.setActionType(null);
+        } catch (NullPointerException e) {
+            // NullPointerException is expected here
+        }
 
         assertFalse(config.isExportRatioTapChangerVoltageTarget());
         config.setExportRatioTapChangerVoltageTarget(true);
