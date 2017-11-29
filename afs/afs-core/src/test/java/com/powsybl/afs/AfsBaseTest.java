@@ -66,6 +66,10 @@ public class AfsBaseTest {
         assertTrue(dir1.isFolder());
         assertTrue(dir1.isWritable());
         assertEquals("dir1", dir1.getName());
+        assertNotNull(dir1.getCreationDate());
+        assertNotNull(dir1.getModificationDate());
+        assertEquals(0, dir1.getVersion());
+        assertFalse(dir1.isAheadOfVersion());
         assertEquals(dir1.getName(), dir1.toString());
         assertEquals("mem", dir1.getParent().getName());
         Folder dir2 = dir1.getFolder("dir2");

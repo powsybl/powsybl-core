@@ -30,6 +30,10 @@ public class NodeInfoJsonSerializer extends StdSerializer<NodeInfo> {
             jsonGenerator.writeStringField("id", nodeInfo.getId().toString());
             jsonGenerator.writeStringField("name", nodeInfo.getName());
             jsonGenerator.writeStringField("pseudoClass", nodeInfo.getPseudoClass());
+            jsonGenerator.writeStringField("description", nodeInfo.getDescription());
+            jsonGenerator.writeNumberField("creationTime", nodeInfo.getCreationTime());
+            jsonGenerator.writeNumberField("modificationTime", nodeInfo.getModificationTime());
+            jsonGenerator.writeNumberField("version", nodeInfo.getVersion());
             jsonGenerator.writeEndObject();
         } catch (IOException e) {
             throw new UncheckedIOException(e);

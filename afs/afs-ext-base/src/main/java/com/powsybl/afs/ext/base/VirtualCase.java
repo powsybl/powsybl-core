@@ -23,6 +23,7 @@ import java.io.*;
 public class VirtualCase extends ProjectFile implements ProjectCase {
 
     public static final String PSEUDO_CLASS = "virtualCase";
+    public static final int VERSION = 0;
 
     private static final FileIcon VIRTUAL_CASE_ICON = new FileIcon("virtualCase", VirtualCase.class.getResourceAsStream("/icons/virtualCase16x16.png"));
 
@@ -34,7 +35,7 @@ public class VirtualCase extends ProjectFile implements ProjectCase {
     static final String SCRIPT_DEPENDENCY_NAME = "script";
 
     public VirtualCase(ProjectFileCreationContext context) {
-        super(context, VIRTUAL_CASE_ICON);
+        super(context, VERSION, VIRTUAL_CASE_ICON);
     }
 
     public ProjectCase getCase() {

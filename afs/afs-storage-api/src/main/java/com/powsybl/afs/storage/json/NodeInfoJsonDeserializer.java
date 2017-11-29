@@ -37,6 +37,10 @@ public class NodeInfoJsonDeserializer extends StdDeserializer<NodeInfo> {
             NodeId id = null;
             String name = null;
             String pseudoClass = null;
+            String description = null;
+            long creationTime = -1;
+            long modificationTime = -1;
+            int version = -1;
             while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
                 switch (jsonParser.getCurrentName()) {
                     case "id":
@@ -54,11 +58,31 @@ public class NodeInfoJsonDeserializer extends StdDeserializer<NodeInfo> {
                         pseudoClass = jsonParser.getValueAsString();
                         break;
 
+                    case "description":
+                        jsonParser.nextToken();
+                        description = jsonParser.getValueAsString();
+                        break;
+
+                    case "creationTime":
+                        jsonParser.nextToken();
+                        creationTime = jsonParser.getValueAsLong();
+                        break;
+
+                    case "modificationTime":
+                        jsonParser.nextToken();
+                        modificationTime = jsonParser.getValueAsLong();
+                        break;
+
+                    case "version":
+                        jsonParser.nextToken();
+                        version = jsonParser.getValueAsInt();
+                        break;
+
                     default:
                         throw new AssertionError("Unexpected field: " + jsonParser.getCurrentName());
                 }
             }
-            return new NodeInfo(id, name, pseudoClass);
+            return new NodeInfo(id, name, pseudoClass, description, creationTime, modificationTime, version);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

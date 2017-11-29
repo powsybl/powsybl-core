@@ -11,7 +11,7 @@ package com.powsybl.afs;
  */
 public class UnknownProjectFile extends ProjectFile {
 
-    public UnknownProjectFile(ProjectFileCreationContext context) {
-        super(context, UnknownFile.GHOST_ICON);
+    UnknownProjectFile(ProjectFileCreationContext context) {
+        super(context, context.getInfo().getVersion(), UnknownFile.GHOST_ICON);
     }
 }

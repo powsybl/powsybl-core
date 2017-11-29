@@ -6,7 +6,6 @@
  */
 package com.powsybl.afs;
 
-import com.powsybl.afs.storage.NodeId;
 import com.powsybl.afs.storage.NodeInfo;
 
 import java.util.Comparator;
@@ -20,9 +19,10 @@ import java.util.stream.Collectors;
 public class ProjectFolder extends ProjectNode implements FolderBase<ProjectNode, ProjectFolder> {
 
     public static final String PSEUDO_CLASS = "projectFolder";
+    public static final int VERSION = 0;
 
     public ProjectFolder(ProjectFileCreationContext context) {
-        super(context, true);
+        super(context, VERSION, true);
     }
 
     @Override
@@ -57,11 +57,11 @@ public class ProjectFolder extends ProjectNode implements FolderBase<ProjectNode
 
     @Override
     public ProjectFolder createFolder(String name) {
-        NodeId folderId = storage.getChildNode(info.getId(), name);
-        if (folderId == null) {
-            folderId = storage.createNode(info.getId(), name, ProjectFolder.PSEUDO_CLASS);
+        NodeInfo folderInfo = storage.getChildNodeInfo(info.getId(), name);
+        if (folderInfo == null) {
+            folderInfo = storage.createNode(info.getId(), name, PSEUDO_CLASS, VERSION);
         }
-        return new ProjectFolder(new ProjectFileCreationContext(new NodeInfo(folderId, name, ProjectFolder.PSEUDO_CLASS), storage, fileSystem));
+        return new ProjectFolder(new ProjectFileCreationContext(folderInfo, storage, fileSystem));
     }
 
     public <F extends ProjectFile, B extends ProjectFileBuilder<F>> B fileBuilder(Class<B> clazz) {
