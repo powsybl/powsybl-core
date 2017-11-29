@@ -7,16 +7,17 @@
 package com.powsybl.ampl.converter;
 
 import com.google.common.io.CharStreams;
+import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.network.test.HvdcTestNetwork;
-import com.powsybl.iidm.network.test.SvcTestCaseFactory;
+import com.powsybl.iidm.network.test.*;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 
@@ -31,54 +32,72 @@ public class AmplNetworkWriterTest {
     }
 
     @Test
-    public void writeEurostag() throws Exception {
+    public void test() {
+        AmplExporter exporter = new AmplExporter();
+        Assert.assertEquals("AMPL", exporter.getFormat());
+    }
+
+    @Test
+    public void writeEurostag() throws IOException {
         Network network = EurostagTutorialExample1Factory.create();
 
         MemDataSource dataSource = new MemDataSource();
-        new AmplNetworkWriter(network, dataSource, new AmplExportConfig(AmplExportConfig.ExportScope.ALL, true, AmplExportConfig.ExportActionType.CURATIVE))
-                .write();
+        AmplExporter exporter = new AmplExporter();
+        exporter.export(network, new Properties(), dataSource);
 
-        assertEqualsToRef(dataSource, "_network_substations", "eurostag-tutorial-example1-substations.txt");
-        assertEqualsToRef(dataSource, "_network_buses", "eurostag-tutorial-example1-buses.txt");
-        assertEqualsToRef(dataSource, "_network_tct", "eurostag-tutorial-example1-tct.txt");
-        assertEqualsToRef(dataSource, "_network_rtc", "eurostag-tutorial-example1-rtc.txt");
-        assertEqualsToRef(dataSource, "_network_ptc", "eurostag-tutorial-example1-ptc.txt");
-        assertEqualsToRef(dataSource, "_network_loads", "eurostag-tutorial-example1-loads.txt");
-        assertEqualsToRef(dataSource, "_network_shunts", "eurostag-tutorial-example1-shunts.txt");
-        assertEqualsToRef(dataSource, "_network_generators", "eurostag-tutorial-example1-generators.txt");
-        assertEqualsToRef(dataSource, "_network_limits", "eurostag-tutorial-example1-limits.txt");
+        assertEqualsToRef(dataSource, "_network_substations", "inputs/eurostag-tutorial-example1-substations.txt");
+        assertEqualsToRef(dataSource, "_network_buses", "inputs/eurostag-tutorial-example1-buses.txt");
+        assertEqualsToRef(dataSource, "_network_tct", "inputs/eurostag-tutorial-example1-tct.txt");
+        assertEqualsToRef(dataSource, "_network_rtc", "inputs/eurostag-tutorial-example1-rtc.txt");
+        assertEqualsToRef(dataSource, "_network_ptc", "inputs/eurostag-tutorial-example1-ptc.txt");
+        assertEqualsToRef(dataSource, "_network_loads", "inputs/eurostag-tutorial-example1-loads.txt");
+        assertEqualsToRef(dataSource, "_network_shunts", "inputs/eurostag-tutorial-example1-shunts.txt");
+        assertEqualsToRef(dataSource, "_network_generators", "inputs/eurostag-tutorial-example1-generators.txt");
+        assertEqualsToRef(dataSource, "_network_limits", "inputs/eurostag-tutorial-example1-limits.txt");
     }
 
     @Test
-    public void writeSVC() throws Exception {
+    public void writePhaseTapChanger() throws IOException {
+        Network network = PhaseShifterTestCaseFactory.create();
+
+        MemDataSource dataSource = new MemDataSource();
+        export(network, dataSource);
+
+        assertEqualsToRef(dataSource, "_network_ptc", "inputs/ptc-test-case.txt");
+    }
+
+    @Test
+    public void writeSVC() throws IOException {
         Network network = SvcTestCaseFactory.create();
 
         MemDataSource dataSource = new MemDataSource();
-        new AmplNetworkWriter(network, dataSource, new AmplExportConfig(AmplExportConfig.ExportScope.ALL, true, AmplExportConfig.ExportActionType.CURATIVE))
-                .write();
+        export(network, dataSource);
 
-        assertEqualsToRef(dataSource, "_network_static_var_compensators", "svc-test-case.txt");
+        assertEqualsToRef(dataSource, "_network_static_var_compensators", "inputs/svc-test-case.txt");
     }
 
     @Test
-    public void writeLcc() throws Exception {
+    public void writeLcc() throws IOException {
         Network network = HvdcTestNetwork.createLcc();
 
         MemDataSource dataSource = new MemDataSource();
-        new AmplNetworkWriter(network, dataSource, new AmplExportConfig(AmplExportConfig.ExportScope.ALL, true, AmplExportConfig.ExportActionType.CURATIVE))
-                .write();
+        export(network, dataSource);
 
-        assertEqualsToRef(dataSource, "_network_hvdc", "lcc-test-case.txt");
+        assertEqualsToRef(dataSource, "_network_hvdc", "inputs/lcc-test-case.txt");
     }
 
     @Test
-    public void writeVsc() throws Exception {
+    public void writeVsc() throws IOException {
         Network network = HvdcTestNetwork.createVsc();
 
         MemDataSource dataSource = new MemDataSource();
-        new AmplNetworkWriter(network, dataSource, new AmplExportConfig(AmplExportConfig.ExportScope.ALL, true, AmplExportConfig.ExportActionType.CURATIVE))
-                .write();
+        export(network, dataSource);
 
-        assertEqualsToRef(dataSource, "_network_hvdc", "vsc-test-case.txt");
+        assertEqualsToRef(dataSource, "_network_hvdc", "inputs/vsc-test-case.txt");
+    }
+
+    private static void export(Network network, DataSource dataSource) {
+        AmplExporter exporter = new AmplExporter();
+        exporter.export(network, new Properties(), dataSource);
     }
 }

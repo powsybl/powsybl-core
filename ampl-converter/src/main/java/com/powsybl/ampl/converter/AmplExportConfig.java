@@ -7,6 +7,8 @@
  */
 package com.powsybl.ampl.converter;
 
+import java.util.Objects;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -47,9 +49,9 @@ public class AmplExportConfig {
     }
 
     public AmplExportConfig(ExportScope exportScope, boolean exportXNodes, ExportActionType actionType, boolean exportRatioTapChangerVoltageTarget) {
-        this.exportScope = exportScope;
+        this.exportScope = Objects.requireNonNull(exportScope);
         this.exportXNodes = exportXNodes;
-        this.actionType = actionType;
+        this.actionType = Objects.requireNonNull(actionType);
         this.exportRatioTapChangerVoltageTarget = exportRatioTapChangerVoltageTarget;
     }
 
@@ -57,28 +59,36 @@ public class AmplExportConfig {
         return exportScope;
     }
 
-    public void setExportScope(ExportScope exportScope) {
-        this.exportScope = exportScope;
+    public AmplExportConfig setExportScope(ExportScope exportScope) {
+        this.exportScope = Objects.requireNonNull(exportScope);
+        return this;
     }
 
     public boolean isExportXNodes() {
         return exportXNodes;
     }
 
-    public void setExportXNodes(boolean exportXNodes) {
+    public AmplExportConfig setExportXNodes(boolean exportXNodes) {
         this.exportXNodes = exportXNodes;
+        return this;
     }
 
     public ExportActionType getActionType() {
         return actionType;
     }
 
+    public AmplExportConfig setActionType(ExportActionType actionType) {
+        this.actionType = Objects.requireNonNull(actionType);
+        return this;
+    }
+
     public boolean isExportRatioTapChangerVoltageTarget() {
         return exportRatioTapChangerVoltageTarget;
     }
 
-    public void setExportRatioTapChangerVoltageTarget(boolean exportRatioTapChangerVoltageTarget) {
+    public AmplExportConfig setExportRatioTapChangerVoltageTarget(boolean exportRatioTapChangerVoltageTarget) {
         this.exportRatioTapChangerVoltageTarget = exportRatioTapChangerVoltageTarget;
+        return this;
     }
 
 }
