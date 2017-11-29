@@ -6,7 +6,7 @@
  */
 package com.powsybl.ampl.converter;
 
-import com.google.common.io.CharStreams;
+import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.iidm.network.Network;
@@ -14,21 +14,20 @@ import com.powsybl.iidm.network.test.*;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
+import java.io.InputStream;
 import java.util.Properties;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class AmplNetworkWriterTest {
+public class AmplNetworkWriterTest extends AbstractConverterTest {
 
     private void assertEqualsToRef(MemDataSource dataSource, String suffix, String refFileName) throws IOException {
-        assertEquals(CharStreams.toString(new InputStreamReader(getClass().getResourceAsStream("/" + refFileName), StandardCharsets.UTF_8)),
-                     new String(dataSource.getData(suffix, "txt"), StandardCharsets.UTF_8));
+        try (InputStream actual = new ByteArrayInputStream(dataSource.getData(suffix, "txt"))) {
+            compareTxt(getClass().getResourceAsStream("/" + refFileName), actual);
+        }
     }
 
     @Test
