@@ -96,9 +96,8 @@ public class XMLExporter implements Exporter, XmlConstants {
         try {
             long startTime = System.currentTimeMillis();
 
-            try (OutputStream os = dataSource.newOutputStream(null, "xiidm", false);
-                 BufferedOutputStream bos = new BufferedOutputStream(os)) {
-                Anonymizer anonymizer = NetworkXml.write(network, options, bos);
+            try (OutputStream os = new BufferedOutputStream(dataSource.newOutputStream(null, "xiidm", false))) {
+                Anonymizer anonymizer = NetworkXml.write(network, options, os);
                 if (anonymizer != null) {
                     try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(dataSource.newOutputStream("_mapping", "csv", false), StandardCharsets.UTF_8))) {
                         anonymizer.write(writer);

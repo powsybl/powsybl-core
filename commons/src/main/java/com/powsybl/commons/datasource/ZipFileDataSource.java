@@ -167,8 +167,7 @@ public class ZipFileDataSource implements DataSource {
 
             // swap with tmp zip
             Path tmpZipFilePath = getTmpZipFilePath(zipFilePath);
-            Files.copy(tmpZipFilePath, zipFilePath, StandardCopyOption.REPLACE_EXISTING);
-            Files.delete(tmpZipFilePath);
+            Files.move(tmpZipFilePath, zipFilePath, StandardCopyOption.REPLACE_EXISTING);
         }
     }
 

@@ -6,6 +6,9 @@
  */
 package com.powsybl.action.simulator.loadflow;
 
+import com.powsybl.commons.datasource.CompressionFormat;
+import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.commons.datasource.DataSourceUtil;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.export.Exporters;
 import com.powsybl.iidm.network.Network;
@@ -30,11 +33,13 @@ public class CaseExporter extends DefaultLoadFlowActionSimulatorObserver {
 
     private final String outputCaseFormat;
 
+    private final CompressionFormat compressionFormat;
 
-    public CaseExporter(Path outputCaseFolder, String basename, String outputCaseFormat) {
+    public CaseExporter(Path outputCaseFolder, String basename, String outputCaseFormat, CompressionFormat compressionFormat) {
         this.outputCaseFolder = Objects.requireNonNull(outputCaseFolder);
         this.basename = Objects.requireNonNull(basename);
         this.outputCaseFormat = Objects.requireNonNull(outputCaseFormat);
+        this.compressionFormat = compressionFormat;
     }
 
     @Override
@@ -48,12 +53,20 @@ public class CaseExporter extends DefaultLoadFlowActionSimulatorObserver {
     }
 
     private void exportNetwork(Contingency contingency, Network network, int round) {
-        String suffix;
-        if (null != contingency) {
-            suffix = contingency.getId();
-        } else {
-            suffix = "N";
-        }
-        Exporters.export(outputCaseFormat, network, new Properties(), outputCaseFolder.resolve(basename + "-" + suffix + "-R" + round + "." + outputCaseFormat + ".gz"));
+        DataSource dataSource = DataSourceUtil.createDataSource(outputCaseFolder, getBasename(contingency, round), compressionFormat, null);
+        Exporters.export(outputCaseFormat, network, new Properties(), dataSource);
+    }
+
+    /**
+     * Return the basename of the case file based on the initial basename, the contingency Id and the round
+     */
+    private final String getBasename(Contingency contingency, int round) {
+        return new StringBuilder()
+            .append(basename)
+            .append("-")
+            .append((contingency == null) ? "N" : contingency.getId())
+            .append("-R")
+            .append(round)
+            .toString();
     }
 }

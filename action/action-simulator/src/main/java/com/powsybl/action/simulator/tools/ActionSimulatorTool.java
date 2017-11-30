@@ -17,10 +17,12 @@ import com.powsybl.action.simulator.loadflow.LoadFlowActionSimulatorConfig;
 import com.powsybl.action.simulator.loadflow.LoadFlowActionSimulatorLogPrinter;
 import com.powsybl.action.simulator.loadflow.LoadFlowActionSimulatorObserver;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.datasource.CompressionFormat;
 import com.powsybl.commons.datasource.DataSourceUtil;
 import com.powsybl.commons.io.table.AsciiTableFormatterFactory;
 import com.powsybl.commons.io.table.CsvTableFormatterFactory;
 import com.powsybl.tools.Command;
+import com.powsybl.tools.CommandLineUtil;
 import com.powsybl.tools.Tool;
 import com.powsybl.tools.ToolRunningContext;
 import com.powsybl.contingency.Contingency;
@@ -60,6 +62,7 @@ public class ActionSimulatorTool implements Tool {
     private static final String OUTPUT_CSV = "output-csv";
     private static final String OUTPUT_CASE_FOLDER = "output-case-folder";
     private static final String OUTPUT_CASE_FORMAT = "output-case-format";
+    private static final String OUTPUT_COMPRESSION_FORMAT = "output-compression-format";
 
     @Override
     public Command getCommand() {
@@ -118,6 +121,11 @@ public class ActionSimulatorTool implements Tool {
                         .hasArg()
                         .argName("CASEFORMAT")
                         .build());
+                options.addOption(Option.builder().longOpt(OUTPUT_COMPRESSION_FORMAT)
+                        .desc("output compression format " + CompressionFormat.getFormats())
+                        .hasArg()
+                        .argName("COMPRESSION_FORMAT")
+                        .build());
                 return options;
             }
 
@@ -155,8 +163,8 @@ public class ActionSimulatorTool implements Tool {
         };
     }
 
-    private static LoadFlowActionSimulatorObserver createCaseExporter(Path outputCaseFolder, String basename, String outputCaseFormat) {
-        return new CaseExporter(outputCaseFolder, basename, outputCaseFormat);
+    private static LoadFlowActionSimulatorObserver createCaseExporter(Path outputCaseFolder, String basename, String outputCaseFormat, CompressionFormat compressionFormat) {
+        return new CaseExporter(outputCaseFolder, basename, outputCaseFormat, compressionFormat);
     }
 
     @Override
@@ -202,7 +210,8 @@ public class ActionSimulatorTool implements Tool {
             observers.add(createLogPrinter(context, verbose));
             observers.add(createSecurityAnalysisPrinter(context, config, csvFile));
             if (outputCaseFolder != null) {
-                observers.add(createCaseExporter(outputCaseFolder, DataSourceUtil.getBaseName(caseFile), outputCaseFormat));
+                CompressionFormat compressionFormat = CommandLineUtil.getOptionValue(line, OUTPUT_COMPRESSION_FORMAT, CompressionFormat.class, null);
+                observers.add(createCaseExporter(outputCaseFolder, DataSourceUtil.getBaseName(caseFile), outputCaseFormat, compressionFormat));
             }
 
             // action simulator

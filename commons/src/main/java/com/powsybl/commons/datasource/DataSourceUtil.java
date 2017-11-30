@@ -39,6 +39,26 @@ public interface DataSourceUtil {
         return pos == -1 ? fileName : fileName.substring(0, pos);
     }
 
+    static DataSource createDataSource(Path directory, String basename, CompressionFormat compressionExtension, DataSourceObserver observer) {
+        Objects.requireNonNull(directory);
+        Objects.requireNonNull(basename);
+
+        if (compressionExtension == null) {
+            return new FileDataSource(directory, basename, observer);
+        } else {
+            switch (compressionExtension) {
+                case GZIP:
+                    return new GzFileDataSource(directory, basename, observer);
+                case BZIP2:
+                    return new Bzip2FileDataSource(directory, basename, observer);
+                case ZIP:
+                    return new ZipFileDataSource(directory, basename, observer);
+                default:
+                    throw new AssertionError("Unexpected CompressionFormat value: " + compressionExtension);
+            }
+        }
+    }
+
     static DataSource createDataSource(Path directory, String fileNameOrBaseName, DataSourceObserver observer) {
         Objects.requireNonNull(directory);
         Objects.requireNonNull(fileNameOrBaseName);
