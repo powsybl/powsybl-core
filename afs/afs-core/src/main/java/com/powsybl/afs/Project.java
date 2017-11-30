@@ -30,7 +30,7 @@ public class Project extends File {
 
     public ProjectFolder getRootFolder() {
         NodeInfo rootFolderInfo = storage.getChildNodeInfo(info.getId(), ROOT_FOLDER_NAME);
-        return new ProjectFolder(new ProjectFileCreationContext(rootFolderInfo, storage, info, fileSystem));
+        return new ProjectFolder(new ProjectFileCreationContext(rootFolderInfo, storage, fileSystem));
     }
 
     public Project setDescription(String description) {

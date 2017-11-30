@@ -59,21 +59,4 @@ public class Node extends AbstractNodeBase<Folder> {
     public AppFileSystem getFileSystem() {
         return fileSystem;
     }
-
-    protected Node findNode(NodeInfo nodeInfo) {
-        Objects.requireNonNull(nodeInfo);
-        FileCreationContext context = new FileCreationContext(nodeInfo, storage, fileSystem);
-        if (Folder.PSEUDO_CLASS.equals(nodeInfo.getPseudoClass())) {
-            return new Folder(context);
-        } else if (Project.PSEUDO_CLASS.equals(nodeInfo.getPseudoClass())) {
-            return new Project(context);
-        } else {
-            FileExtension extension = fileSystem.getData().getFileExtensionByPseudoClass(nodeInfo.getPseudoClass());
-            if (extension != null) {
-                return extension.createFile(context);
-            } else {
-                return new UnknownFile(context);
-            }
-        }
-    }
 }

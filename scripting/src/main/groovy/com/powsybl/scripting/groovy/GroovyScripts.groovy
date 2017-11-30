@@ -56,7 +56,7 @@ class GroovyScripts {
     }
 
     private static createBuilder(projectFilePseudoClass, delegate) {
-        ProjectFileExtension extension = delegate.getProject().getFileSystem().getData()
+        ProjectFileExtension extension = delegate.getFileSystem().getData()
                 .getProjectFileExtensionByPseudoClass(projectFilePseudoClass)
         if (!extension) {
             throw new AfsException("No extension found for project file pseudo class '"

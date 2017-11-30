@@ -7,8 +7,8 @@
 package com.powsybl.afs.ext.base;
 
 import com.powsybl.afs.AfsException;
-import com.powsybl.afs.ProjectFileBuilder;
 import com.powsybl.afs.ProjectFileBuildContext;
+import com.powsybl.afs.ProjectFileBuilder;
 import com.powsybl.afs.ProjectFileCreationContext;
 import com.powsybl.afs.storage.NodeId;
 import com.powsybl.afs.storage.NodeInfo;
@@ -77,7 +77,6 @@ public class ModificationScriptBuilder implements ProjectFileBuilder<Modificatio
 
         return new ModificationScript(new ProjectFileCreationContext(new NodeInfo(id, name, ModificationScript.PSEUDO_CLASS),
                                                                      context.getStorage(),
-                                                                     context.getProjectInfo(),
                                                                      context.getFileSystem()));
     }
 }

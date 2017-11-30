@@ -34,7 +34,7 @@ public class ProjectFile extends ProjectNode {
     public List<ProjectNode> getDependencies() {
         return storage.getDependenciesInfo(info.getId())
                 .stream()
-                .map(this::findProjectNode)
+                .map(fileSystem::findProjectNode)
                 .collect(Collectors.toList());
     }
 

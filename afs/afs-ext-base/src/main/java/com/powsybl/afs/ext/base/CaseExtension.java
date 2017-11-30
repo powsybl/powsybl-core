@@ -18,7 +18,7 @@ import java.util.Objects;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @AutoService(FileExtension.class)
-public class CaseExtension implements FileExtension {
+public class CaseExtension implements FileExtension<Case> {
 
     private final ImportersLoader importersLoader;
 
