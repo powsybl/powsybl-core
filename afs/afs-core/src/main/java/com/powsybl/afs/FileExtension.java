@@ -9,11 +9,11 @@ package com.powsybl.afs;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface FileExtension {
+public interface FileExtension<T extends File> {
 
-    Class<? extends File> getFileClass();
+    Class<T> getFileClass();
 
     String getFilePseudoClass();
 
-    <T extends File> T createFile(FileCreationContext context);
+    T createFile(FileCreationContext context);
 }

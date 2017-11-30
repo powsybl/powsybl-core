@@ -23,11 +23,15 @@ public interface AppStorage extends AutoCloseable {
 
     String getFileSystemName();
 
+    default boolean isRemote() {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
     NodeId fromString(String str);
 
     NodeInfo createRootNodeIfNotExists(String name, String nodePseudoClass);
 
-    NodeId createNode(NodeId parentNodeId, String name, String nodePseudoClass);
+    NodeInfo createNode(NodeId parentNodeId, String name, String nodePseudoClass, int version);
 
     String getNodeName(NodeId nodeId);
 
@@ -35,9 +39,9 @@ public interface AppStorage extends AutoCloseable {
 
     boolean isWritable(NodeId nodeId);
 
-    default NodeInfo getNodeInfo(NodeId nodeId) {
-        return new NodeInfo(nodeId, getNodeName(nodeId), getNodePseudoClass(nodeId));
-    }
+    NodeInfo getNodeInfo(NodeId nodeId);
+
+    void setDescription(NodeId nodeId, String description);
 
     List<NodeId> getChildNodes(NodeId nodeId);
 

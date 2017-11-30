@@ -13,20 +13,14 @@ import java.util.Objects;
  */
 public class File extends Node {
 
-    protected static final String DESCRIPTION = "description";
-
     protected final FileIcon icon;
 
-    public File(FileCreationContext context, FileIcon icon) {
-        super(context, false);
+    public File(FileCreationContext context, int codeVersion, FileIcon icon) {
+        super(context, codeVersion, false);
         this.icon = Objects.requireNonNull(icon);
     }
 
     public FileIcon getIcon() {
         return icon;
-    }
-
-    public String getDescription() {
-        return storage.getStringAttribute(info.getId(), DESCRIPTION);
     }
 }

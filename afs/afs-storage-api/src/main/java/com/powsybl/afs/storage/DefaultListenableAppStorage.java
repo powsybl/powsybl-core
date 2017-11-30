@@ -34,6 +34,11 @@ public class DefaultListenableAppStorage implements ListenableAppStorage {
     }
 
     @Override
+    public boolean isRemote() {
+        return storage.isRemote();
+    }
+
+    @Override
     public NodeId fromString(String str) {
         return storage.fromString(str);
     }
@@ -44,10 +49,10 @@ public class DefaultListenableAppStorage implements ListenableAppStorage {
     }
 
     @Override
-    public NodeId createNode(NodeId parentNodeId, String name, String nodePseudoClass) {
-        NodeId nodeId = storage.createNode(parentNodeId, name, nodePseudoClass);
-        listeners.values().stream().flatMap(List::stream).forEach(l -> l.nodeCreated(nodeId));
-        return nodeId;
+    public NodeInfo createNode(NodeId parentNodeId, String name, String nodePseudoClass, int version) {
+        NodeInfo nodeInfo = storage.createNode(parentNodeId, name, nodePseudoClass, version);
+        listeners.values().stream().flatMap(List::stream).forEach(l -> l.nodeCreated(nodeInfo.getId()));
+        return nodeInfo;
     }
 
     @Override
@@ -68,6 +73,11 @@ public class DefaultListenableAppStorage implements ListenableAppStorage {
     @Override
     public NodeInfo getNodeInfo(NodeId nodeId) {
         return storage.getNodeInfo(nodeId);
+    }
+
+    @Override
+    public void setDescription(NodeId nodeId, String description) {
+        storage.setDescription(nodeId, description);
     }
 
     @Override

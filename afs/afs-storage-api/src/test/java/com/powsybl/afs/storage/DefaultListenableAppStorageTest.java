@@ -30,6 +30,8 @@ public class DefaultListenableAppStorageTest {
     @Before
     public void setUp() {
         AppStorage storage = Mockito.mock(AppStorage.class);
+        Mockito.when(storage.createNode(Mockito.any(NodeId.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyInt()))
+                .thenReturn(new NodeInfo(new NodeIdMock("result"), "", "", "", 0, 0, 0));
         listenableStorage = new DefaultListenableAppStorage(storage);
         listenableStorage.addListener(this, new DefaultAppStorageListener() {
             @Override
@@ -76,7 +78,7 @@ public class DefaultListenableAppStorageTest {
 
     @Test
     public void test() {
-        listenableStorage.createNode(new NodeIdMock("node1"), "node2", "file");
+        listenableStorage.createNode(new NodeIdMock("node1"), "node2", "file", 0);
         assertEquals("nodeCreated", methodCalled);
 
         listenableStorage.deleteNode(new NodeIdMock("node1"));

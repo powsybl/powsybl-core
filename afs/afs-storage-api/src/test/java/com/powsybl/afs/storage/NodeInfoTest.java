@@ -50,7 +50,7 @@ public class NodeInfoTest {
 
     @Test
     public void nodeInfoTest() throws IOException {
-        NodeInfo info = new NodeInfo(new NodeIdMock("a"), "b", "c");
+        NodeInfo info = new NodeInfo(new NodeIdMock("a"), "b", "c", "d", 1000000, 1000001, 0);
         NodeInfo info2 = objectMapper.readValue(objectMapper.writeValueAsString(info), NodeInfo.class);
         assertEquals(info, info2);
     }

@@ -7,10 +7,9 @@
 package com.powsybl.afs.ext.base;
 
 import com.powsybl.afs.AfsException;
-import com.powsybl.afs.ProjectFileBuilder;
 import com.powsybl.afs.ProjectFileBuildContext;
+import com.powsybl.afs.ProjectFileBuilder;
 import com.powsybl.afs.ProjectFileCreationContext;
-import com.powsybl.afs.storage.NodeId;
 import com.powsybl.afs.storage.NodeInfo;
 
 import java.util.Objects;
@@ -65,19 +64,16 @@ public class ModificationScriptBuilder implements ProjectFileBuilder<Modificatio
         }
 
         // create project file
-        NodeId id = context.getStorage().createNode(context.getFolderInfo().getId(), name, ModificationScript.PSEUDO_CLASS);
+        NodeInfo info = context.getStorage().createNode(context.getFolderInfo().getId(), name, ModificationScript.PSEUDO_CLASS, ModificationScript.VERSION);
 
         // set type
-        context.getStorage().setStringAttribute(id, ModificationScript.SCRIPT_TYPE, type.name());
+        context.getStorage().setStringAttribute(info.getId(), ModificationScript.SCRIPT_TYPE, type.name());
 
         // store script
-        context.getStorage().setStringAttribute(id, ModificationScript.SCRIPT_CONTENT, content);
+        context.getStorage().setStringAttribute(info.getId(), ModificationScript.SCRIPT_CONTENT, content);
 
         context.getStorage().flush();
 
-        return new ModificationScript(new ProjectFileCreationContext(new NodeInfo(id, name, ModificationScript.PSEUDO_CLASS),
-                                                                     context.getStorage(),
-                                                                     context.getProjectInfo(),
-                                                                     context.getFileSystem()));
+        return new ModificationScript(new ProjectFileCreationContext(info, context.getStorage(), context.getFileSystem()));
     }
 }

@@ -13,7 +13,7 @@ public class UnknownFile extends File {
 
     static final FileIcon GHOST_ICON = new FileIcon("ghost", UnknownFile.class.getResourceAsStream("/icons/ghost16x16.png"));
 
-    public UnknownFile(FileCreationContext context) {
-        super(context, GHOST_ICON);
+    UnknownFile(FileCreationContext context) {
+        super(context, context.getInfo().getVersion(), GHOST_ICON);
     }
 }

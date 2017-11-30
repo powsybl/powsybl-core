@@ -81,7 +81,7 @@ public class SecurityAnalyzer {
         return analyze(network, contingenciesProvider);
     }
 
-    private SecurityAnalysisResult analyze(Network network, ContingenciesProvider contingenciesProvider) {
+    public SecurityAnalysisResult analyze(Network network, ContingenciesProvider contingenciesProvider) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(contingenciesProvider);
 
