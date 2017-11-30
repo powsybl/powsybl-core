@@ -40,6 +40,10 @@ public abstract class AbstractProjectFileTest {
         return Collections.emptyList();
     }
 
+    protected List<ServiceExtension> getServiceExtensions() {
+        return Collections.emptyList();
+    }
+
     @Before
     public void setup() {
         network = NetworkFactory.create("test", "test");
@@ -49,7 +53,8 @@ public abstract class AbstractProjectFileTest {
         ad = new AppData(computationManager,
                          Collections.singletonList(computationManager1 -> Collections.singletonList(afs)),
                          getFileExtensions(),
-                         getProjectFileExtensions());
+                         getProjectFileExtensions(),
+                         getServiceExtensions());
     }
 
     @After

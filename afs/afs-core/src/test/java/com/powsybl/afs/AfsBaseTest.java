@@ -39,7 +39,7 @@ public class AfsBaseTest {
         ComputationManager computationManager = Mockito.mock(ComputationManager.class);
         afs = new AppFileSystem("mem", true, storage);
         ad = new AppData(computationManager, Collections.singletonList(computationManager1 -> Collections.singletonList(afs)),
-                Collections.emptyList(), Collections.singletonList(new FooFileExtension()));
+                Collections.emptyList(), Collections.singletonList(new FooFileExtension()), Collections.emptyList());
     }
 
     @After

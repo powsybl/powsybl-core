@@ -23,7 +23,7 @@ public class ModificationScriptBuilder implements ProjectFileBuilder<Modificatio
 
     private String name;
 
-    private ModificationScript.ScriptType type;
+    private ScriptType type;
 
     private String content;
 
@@ -36,7 +36,7 @@ public class ModificationScriptBuilder implements ProjectFileBuilder<Modificatio
         return this;
     }
 
-    public ModificationScriptBuilder withType(ModificationScript.ScriptType type) {
+    public ModificationScriptBuilder withType(ScriptType type) {
         this.type = type;
         return this;
     }

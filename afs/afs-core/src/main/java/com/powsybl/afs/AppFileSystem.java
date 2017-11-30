@@ -93,6 +93,11 @@ public class AppFileSystem implements AutoCloseable {
         }
     }
 
+    public <U> U findService(Class<U> serviceClass) {
+        Objects.requireNonNull(data);
+        return data.findService(serviceClass, storage.isRemote());
+    }
+
     public AppData getData() {
         return data;
     }
