@@ -17,6 +17,7 @@ import com.powsybl.action.simulator.loadflow.LoadFlowActionSimulatorConfig;
 import com.powsybl.action.simulator.loadflow.LoadFlowActionSimulatorLogPrinter;
 import com.powsybl.action.simulator.loadflow.LoadFlowActionSimulatorObserver;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.datasource.DataSourceUtil;
 import com.powsybl.commons.io.table.AsciiTableFormatterFactory;
 import com.powsybl.commons.io.table.CsvTableFormatterFactory;
 import com.powsybl.tools.Command;
@@ -133,17 +134,12 @@ public class ActionSimulatorTool implements Tool {
         };
     }
 
-    private ActionSimulator createActionSimulator(Network network, ToolRunningContext context, boolean verbose, Path csvFile, Path outputCaseFolder, String outputCaseFormat) {
-        List<LoadFlowActionSimulatorObserver> observers = new ArrayList<LoadFlowActionSimulatorObserver>();
-        // config
-        LoadFlowActionSimulatorConfig config = LoadFlowActionSimulatorConfig.load();
+    private static LoadFlowActionSimulatorObserver createLogPrinter(ToolRunningContext context, boolean verbose) {
+        return new LoadFlowActionSimulatorLogPrinter(context.getOutputStream(), context.getErrorStream(), verbose);
+    }
 
-        // log print
-        LoadFlowActionSimulatorLogPrinter logPrinter = new LoadFlowActionSimulatorLogPrinter(context.getOutputStream(), context.getErrorStream(), verbose);
-        observers.add(logPrinter);
-
-        // security analysis print
-        AbstractSecurityAnalysisResultBuilder securityAnalysisPrinter = new AbstractSecurityAnalysisResultBuilder() {
+    private static LoadFlowActionSimulatorObserver createSecurityAnalysisPrinter(ToolRunningContext context, LoadFlowActionSimulatorConfig config, Path csvFile) {
+        return new AbstractSecurityAnalysisResultBuilder() {
             @Override
             public void onFinalStateResult(SecurityAnalysisResult result) {
                 context.getOutputStream().println("Final result");
@@ -163,14 +159,10 @@ public class ActionSimulatorTool implements Tool {
                 }
             }
         };
-        observers.add(securityAnalysisPrinter);
+    }
 
-        if (null != outputCaseFolder) {
-            // case exporter
-            CaseExporter caseExporter = new CaseExporter(outputCaseFolder, outputCaseFormat);
-            observers.add(caseExporter);
-        }
-        return new LoadFlowActionSimulator(network, context.getComputationManager(), config, observers);
+    private static LoadFlowActionSimulatorObserver createCaseExporter(Path outputCaseFolder, String basename, String outputCaseFormat) {
+        return new CaseExporter(outputCaseFolder, basename, outputCaseFormat);
     }
 
     @Override
@@ -182,14 +174,6 @@ public class ActionSimulatorTool implements Tool {
         boolean verbose = line.hasOption(VERBOSE);
         Path csvFile = line.hasOption(OUTPUT_CSV) ? context.getFileSystem().getPath(line.getOptionValue(OUTPUT_CSV)) : null;
 
-        context.getOutputStream().println("Loading network '" + caseFile + "'");
-
-        // load network
-        Network network = Importers.loadNetwork(caseFile);
-        if (network == null) {
-            throw new PowsyblException("Case " + caseFile + " not found");
-        }
-
         Path outputCaseFolder = null;
         String outputCaseFormat = null;
         if (line.hasOption(OUTPUT_CASE_FOLDER)) {
@@ -200,6 +184,13 @@ public class ActionSimulatorTool implements Tool {
             } else if (!outputCaseFolder.toFile().exists()) {
                 Files.createDirectories(outputCaseFolder);
             }
+        }
+
+        // load network
+        context.getOutputStream().println("Loading network '" + caseFile + "'");
+        Network network = Importers.loadNetwork(caseFile);
+        if (network == null) {
+            throw new PowsyblException("Case " + caseFile + " not found");
         }
 
         try {
@@ -237,8 +228,17 @@ public class ActionSimulatorTool implements Tool {
                 contingencies = actionDb.getContingencies().stream().map(Contingency::getId).collect(Collectors.toList());
             }
 
+            LoadFlowActionSimulatorConfig config = LoadFlowActionSimulatorConfig.load();
+
+            List<LoadFlowActionSimulatorObserver> observers = new ArrayList<>();
+            observers.add(createLogPrinter(context, verbose));
+            observers.add(createSecurityAnalysisPrinter(context, config, csvFile));
+            if (outputCaseFolder != null) {
+                observers.add(createCaseExporter(outputCaseFolder, DataSourceUtil.getBaseName(caseFile), outputCaseFormat));
+            }
+
             // action simulator
-            ActionSimulator actionSimulator = createActionSimulator(network, context, verbose, csvFile, outputCaseFolder, outputCaseFormat);
+            ActionSimulator actionSimulator = new LoadFlowActionSimulator(network, context.getComputationManager(), config, observers);
             context.getOutputStream().println("Using '" + actionSimulator.getName() + "' rules engine");
 
             // start simulator

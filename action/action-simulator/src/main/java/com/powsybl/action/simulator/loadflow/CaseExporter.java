@@ -25,10 +25,15 @@ import java.util.Properties;
 public class CaseExporter extends DefaultLoadFlowActionSimulatorObserver {
 
     private final Path outputCaseFolder;
+
+    private final String basename;
+
     private final String outputCaseFormat;
 
-    public CaseExporter(Path outputCaseFolder, String outputCaseFormat) {
+
+    public CaseExporter(Path outputCaseFolder, String basename, String outputCaseFormat) {
         this.outputCaseFolder = Objects.requireNonNull(outputCaseFolder);
+        this.basename = Objects.requireNonNull(basename);
         this.outputCaseFormat = Objects.requireNonNull(outputCaseFormat);
     }
 
@@ -47,8 +52,8 @@ public class CaseExporter extends DefaultLoadFlowActionSimulatorObserver {
         if (null != contingency) {
             suffix = contingency.getId();
         } else {
-            suffix = "N_situation";
+            suffix = "N";
         }
-        Exporters.export(outputCaseFormat, network, new Properties(), outputCaseFolder.resolve(network.getId() + "_" + suffix + "_Round_" + round + "." + outputCaseFormat + ".gz"));
+        Exporters.export(outputCaseFormat, network, new Properties(), outputCaseFolder.resolve(basename + "-" + suffix + "-R" + round + "." + outputCaseFormat + ".gz"));
     }
 }
