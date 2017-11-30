@@ -11,7 +11,6 @@ import com.google.common.collect.ImmutableMap;
 import com.powsybl.afs.*;
 import com.powsybl.afs.mapdb.storage.MapDbAppStorage;
 import com.powsybl.afs.storage.AppStorage;
-import com.powsybl.afs.storage.NodeId;
 import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.iidm.import_.ImportersLoader;
 import com.powsybl.iidm.import_.ImportersLoaderList;
@@ -52,9 +51,9 @@ public class ImportedCaseTest extends AbstractProjectFileTest {
     public void setup() {
         super.setup();
         NodeInfo rootFolderInfo = storage.createRootNodeIfNotExists("root", Folder.PSEUDO_CLASS);
-        NodeId caseId = storage.createNode(rootFolderInfo.getId(), "network", Case.PSEUDO_CLASS);
-        storage.setStringAttribute(caseId, "description", "Test format");
-        storage.setStringAttribute(caseId, "format", TestImporter.FORMAT);
+        NodeInfo caseInfo = storage.createNode(rootFolderInfo.getId(), "network", Case.PSEUDO_CLASS, Case.VERSION);
+        storage.setDescription(caseInfo.getId(), "Test format");
+        storage.setStringAttribute(caseInfo.getId(), "format", TestImporter.FORMAT);
     }
 
     @Test

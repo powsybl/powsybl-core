@@ -28,6 +28,7 @@ import java.util.Properties;
 public class ImportedCase extends ProjectFile implements ProjectCase {
 
     public static final String PSEUDO_CLASS = "importedCase";
+    public static final int VERSION = 0;
 
     static final String FORMAT = "format";
     static final String DATA_SOURCE = "dataSource";
@@ -36,7 +37,7 @@ public class ImportedCase extends ProjectFile implements ProjectCase {
     private final ImportersLoader importersLoader;
 
     public ImportedCase(ProjectFileCreationContext context, ImportersLoader importersLoader) {
-        super(context, CaseIconCache.INSTANCE.get(
+        super(context, VERSION, CaseIconCache.INSTANCE.get(
                 importersLoader,
                 context.getFileSystem().getData().getComputationManager(),
                 getFormat(context.getStorage(), context.getInfo().getId())));

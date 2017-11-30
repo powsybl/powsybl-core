@@ -7,10 +7,9 @@
 package com.powsybl.afs.ext.base;
 
 import com.powsybl.afs.AfsException;
-import com.powsybl.afs.ProjectFileBuilder;
 import com.powsybl.afs.ProjectFileBuildContext;
+import com.powsybl.afs.ProjectFileBuilder;
 import com.powsybl.afs.ProjectFileCreationContext;
-import com.powsybl.afs.storage.NodeId;
 import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.iidm.import_.ImportersLoader;
 
@@ -67,13 +66,13 @@ public class ImportedCaseBuilder implements ProjectFileBuilder<ImportedCase> {
         }
 
         // create project file
-        NodeId id = context.getStorage().createNode(context.getFolderInfo().getId(), name, ImportedCase.PSEUDO_CLASS);
+        NodeInfo info = context.getStorage().createNode(context.getFolderInfo().getId(), name, ImportedCase.PSEUDO_CLASS, ImportedCase.VERSION);
 
         // store importer format
-        context.getStorage().setStringAttribute(id, ImportedCase.FORMAT, aCase.getImporter().getFormat());
+        context.getStorage().setStringAttribute(info.getId(), ImportedCase.FORMAT, aCase.getImporter().getFormat());
 
         // store case data
-        aCase.getImporter().copy(aCase.getDataSource(), context.getStorage().getDataSourceAttribute(id, ImportedCase.DATA_SOURCE));
+        aCase.getImporter().copy(aCase.getDataSource(), context.getStorage().getDataSourceAttribute(info.getId(), ImportedCase.DATA_SOURCE));
 
         // store parameters
         try {
@@ -83,17 +82,14 @@ public class ImportedCaseBuilder implements ProjectFileBuilder<ImportedCase> {
             } finally {
                 writer.close();
             }
-            context.getStorage().setStringAttribute(id, ImportedCase.PARAMETERS, writer.toString());
+            context.getStorage().setStringAttribute(info.getId(), ImportedCase.PARAMETERS, writer.toString());
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
 
         context.getStorage().flush();
 
-        return new ImportedCase(new ProjectFileCreationContext(new NodeInfo(id, name, ImportedCase.PSEUDO_CLASS),
-                                                               context.getStorage(),
-                                                               context.getProjectInfo(),
-                                                               context.getFileSystem()),
+        return new ImportedCase(new ProjectFileCreationContext(info, context.getStorage(), context.getFileSystem()),
                                 importersLoader);
     }
 }

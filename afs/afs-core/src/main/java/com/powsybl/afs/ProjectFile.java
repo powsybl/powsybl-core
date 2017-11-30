@@ -17,8 +17,8 @@ public class ProjectFile extends ProjectNode {
 
     protected final FileIcon icon;
 
-    protected ProjectFile(ProjectFileCreationContext context, FileIcon icon) {
-        super(context, true);
+    protected ProjectFile(ProjectFileCreationContext context, int codeVersion, FileIcon icon) {
+        super(context, codeVersion, true);
         this.icon = Objects.requireNonNull(icon);
     }
 
@@ -34,7 +34,7 @@ public class ProjectFile extends ProjectNode {
     public List<ProjectNode> getDependencies() {
         return storage.getDependenciesInfo(info.getId())
                 .stream()
-                .map(this::findProjectNode)
+                .map(fileSystem::findProjectNode)
                 .collect(Collectors.toList());
     }
 
