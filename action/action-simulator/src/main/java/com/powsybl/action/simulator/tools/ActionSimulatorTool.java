@@ -38,17 +38,11 @@ import org.codehaus.groovy.runtime.StackTraceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.UncheckedIOException;
-import java.io.Writer;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -196,33 +190,7 @@ public class ActionSimulatorTool implements Tool {
         try {
             // load actions from Groovy DSL
             ActionDb actionDb = new ActionDslLoader(dslFile.toFile())
-                    .load(network, new DefaultActionDslLoaderObserver() {
-                        @Override
-                        public void begin(String dslFile) {
-                            context.getOutputStream().println("Loading DSL '" + dslFile + "'");
-                        }
-
-                        @Override
-                        public void contingencyFound(String contingencyId) {
-                            if (verbose) {
-                                context.getOutputStream().println("    Found contingency '" + contingencyId + "'");
-                            }
-                        }
-
-                        @Override
-                        public void ruleFound(String ruleId) {
-                            if (verbose) {
-                                context.getOutputStream().println("    Found rule '" + ruleId + "'");
-                            }
-                        }
-
-                        @Override
-                        public void actionFound(String actionId) {
-                            if (verbose) {
-                                context.getOutputStream().println("    Found action '" + actionId + "'");
-                            }
-                        }
-                    });
+                    .load(network, new ActionDslLoaderObserver(context.getOutputStream(), verbose));
 
             if (contingencies.isEmpty()) {
                 contingencies = actionDb.getContingencies().stream().map(Contingency::getId).collect(Collectors.toList());
@@ -248,6 +216,44 @@ public class ActionSimulatorTool implements Tool {
             LOGGER.trace(e.toString(), e); // to avoid user screen pollution...
             Throwable rootCause = StackTraceUtils.sanitizeRootCause(e);
             rootCause.printStackTrace(context.getErrorStream());
+        }
+    }
+
+    private static class ActionDslLoaderObserver extends DefaultActionDslLoaderObserver {
+
+        private final PrintStream outputStream;
+
+        private final boolean verbose;
+
+        public ActionDslLoaderObserver(PrintStream outputStream, boolean verbose) {
+            this.outputStream = Objects.requireNonNull(outputStream);
+            this.verbose = verbose;
+        }
+
+        @Override
+        public void begin(String dslFile) {
+            outputStream.println("Loading DSL '" + dslFile + "'");
+        }
+
+        @Override
+        public void contingencyFound(String contingencyId) {
+            if (verbose) {
+                outputStream.println("    Found contingency '" + contingencyId + "'");
+            }
+        }
+
+        @Override
+        public void ruleFound(String ruleId) {
+            if (verbose) {
+                outputStream.println("    Found rule '" + ruleId + "'");
+            }
+        }
+
+        @Override
+        public void actionFound(String actionId) {
+            if (verbose) {
+                outputStream.println("    Found action '" + actionId + "'");
+            }
         }
     }
 
