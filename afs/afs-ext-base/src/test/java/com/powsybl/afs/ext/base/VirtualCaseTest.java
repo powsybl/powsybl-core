@@ -176,10 +176,7 @@ public class VirtualCaseTest extends AbstractProjectFileTest {
         assertNotNull(networkWithError);
         assertEquals(0, networkWithError.getSubstationCount());
         assertNotNull(virtualCaseWithError.getScriptError());
-        assertEquals(String.join(System.lineSeparator(),
-                "No signature of method: test.prin() is applicable for argument types: (java.lang.String) values: [hello]",
-                "Possible solutions: print(java.lang.Object), print(java.io.PrintWriter), print(java.lang.Object), run(), run(), printf(java.lang.String, [Ljava.lang.Object;)"),
-                virtualCaseWithError.getScriptError().getMessage());
+        assertTrue(virtualCaseWithError.getScriptError().getMessage().contains("No signature of method: test.prin() is applicable"));
         assertEquals("", virtualCaseWithError.getScriptOutput());
     }
 }
