@@ -526,7 +526,7 @@ public class MapDbAppStorage implements AppStorage {
             throw createNodeNotFoundException(nodeId);
         }
         if (description == null) {
-            throw new AfsStorageException("Description in null");
+            throw new NullPointerException("Description in null");
         }
         nodeInfo.setDescription(description);
         nodeInfoMap.put(uuidNodeId, nodeInfo);

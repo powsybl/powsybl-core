@@ -56,7 +56,7 @@ public abstract class AbstractNodeBase<F> {
     }
 
     public ZonedDateTime getModificationDate() {
-        return Instant.ofEpochMilli(info.getCreationTime()).atZone(ZoneId.systemDefault());
+        return Instant.ofEpochMilli(info.getModificationTime()).atZone(ZoneId.systemDefault());
     }
 
     public int getVersion() {
