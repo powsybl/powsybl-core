@@ -6,27 +6,28 @@
  */
 package com.powsybl.loadflow.validation;
 
-import com.google.auto.service.AutoService;
-import com.google.common.collect.Sets;
-import com.powsybl.commons.PowsyblException;
-import com.powsybl.loadflow.LoadFlow;
-import com.powsybl.loadflow.LoadFlowParameters;
-import com.powsybl.tools.Command;
-import com.powsybl.tools.Tool;
-import com.powsybl.tools.ToolRunningContext;
-import com.powsybl.iidm.import_.Importers;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.StateManager;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
-
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+
+import com.google.auto.service.AutoService;
+import com.google.common.collect.Sets;
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.import_.Importers;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.StateManager;
+import com.powsybl.loadflow.LoadFlow;
+import com.powsybl.loadflow.LoadFlowParameters;
+import com.powsybl.tools.Command;
+import com.powsybl.tools.Tool;
+import com.powsybl.tools.ToolRunningContext;
 
 /**
  *
@@ -81,12 +82,12 @@ public class ValidationTool implements Tool {
                     .desc("verbose output")
                     .build());
             options.addOption(Option.builder().longOpt(OUTPUT_FORMAT)
-                    .desc("output format (CSV/CSV_MULTILINE)")
+                    .desc("output format " + Arrays.toString(ValidationOutputWriter.values()))
                     .hasArg()
                     .argName("VALIDATION_WRITER")
                     .build());
             options.addOption(Option.builder().longOpt(TYPES)
-                    .desc("validation types (FLOWS/GENERATORS/BUSES/SVCS/SHUNTS) to run, all of them if the option if not specified")
+                    .desc("validation types " + Arrays.toString(ValidationType.values()) + " to run, all of them if the option if not specified")
                     .hasArg()
                     .argName("VALIDATION_TYPE,VALIDATION_TYPE,...")
                     .build());
@@ -151,7 +152,6 @@ public class ValidationTool implements Tool {
                 context.getErrorStream().println("Error validating load-flow results of network " + network.getId()
                                                  + " - validation type: " + validationType
                                                  + " - error: " + e.getMessage());
-                e.printStackTrace(context.getErrorStream());
             }
         });
     }

@@ -74,19 +74,11 @@ public class ShuntCompensatorsValidationTest extends AbstractValidationTest {
 
     @Test
     public void checkShuntsValues() {
-        // “p” is always 0 or NaN
+        // “p” is always NaN
         assertTrue(ShuntCompensatorsValidation.checkShunts("test", p, q, currentSectionCount, maximumSectionCount, bPerSection, v, qMax, nominalV, strictConfig, NullWriter.NULL_WRITER));
         p = 1f;
         assertFalse(ShuntCompensatorsValidation.checkShunts("test", p, q, currentSectionCount, maximumSectionCount, bPerSection, v, qMax, nominalV,  strictConfig, NullWriter.NULL_WRITER));
         p = Float.NaN;
-
-        // 0 lower or equal “currentSectionCount” lower or equal “maximumSectionCount”
-        assertTrue(ShuntCompensatorsValidation.checkShunts("test", p, q, currentSectionCount, maximumSectionCount, bPerSection, v, qMax, nominalV,  strictConfig, NullWriter.NULL_WRITER));
-        currentSectionCount = -1;
-        assertFalse(ShuntCompensatorsValidation.checkShunts("test", p, q, currentSectionCount, maximumSectionCount, bPerSection, v, qMax, nominalV,  strictConfig, NullWriter.NULL_WRITER));
-        currentSectionCount = 2;
-        assertFalse(ShuntCompensatorsValidation.checkShunts("test", p, q, currentSectionCount, maximumSectionCount, bPerSection, v, qMax, nominalV,  strictConfig, NullWriter.NULL_WRITER));
-        currentSectionCount = 1;
 
         // “q” = - bPerSection * currentSectionCount * v^2
         assertTrue(ShuntCompensatorsValidation.checkShunts("test", p, q, currentSectionCount, maximumSectionCount, bPerSection, v, qMax, nominalV,  strictConfig, NullWriter.NULL_WRITER));

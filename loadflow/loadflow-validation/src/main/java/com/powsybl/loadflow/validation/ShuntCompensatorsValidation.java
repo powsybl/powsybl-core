@@ -89,8 +89,8 @@ public final class ShuntCompensatorsValidation {
         int currentSectionCount = shunt.getCurrentSectionCount();
         int maximumSectionCount = shunt.getMaximumSectionCount();
         float bPerSection = shunt.getbPerSection();
-        float qMax = shunt.getProperties().containsKey("qMax") ? Float.parseFloat((String) shunt.getProperties().get("qMax")) : Float.NaN;
         float nominalV = shunt.getTerminal().getVoltageLevel().getNominalV();
+        float qMax = bPerSection * maximumSectionCount * nominalV * nominalV;
         Bus bus = shunt.getTerminal().getBusView().getBus();
         if (bus != null && !Float.isNaN(bus.getV())) {
             float v = bus.getV();
@@ -123,14 +123,9 @@ public final class ShuntCompensatorsValidation {
     public static boolean checkShunts(String id, float p, float q, int currentSectionCount, int maximumSectionCount, float bPerSection,
                                       float v, float qMax, float nominalV, ValidationConfig config, ValidationWriter shuntsWriter) {
         boolean validated = true;
-        // “p” is always 0 or NaN
-        if (!Float.isNaN(p) && p != 0) {
+        // “p” is always NaN
+        if (!Float.isNaN(p)) {
             LOGGER.warn("{} {}: {}: P={}", ValidationType.SHUNTS, ValidationUtils.VALIDATION_ERROR, id, p);
-            validated = false;
-        }
-        // 0 lower or equal “currentSectionCount” lower or equal “maximumSectionCount”
-        if (currentSectionCount < 0 || currentSectionCount > maximumSectionCount) {
-            LOGGER.warn("{} {}: {}:  section count {} max {}", ValidationType.SHUNTS, ValidationUtils.VALIDATION_ERROR, id, currentSectionCount, maximumSectionCount);
             validated = false;
         }
         // “q” = - bPerSection * currentSectionCount * v^2
@@ -139,11 +134,6 @@ public final class ShuntCompensatorsValidation {
             || Math.abs(q - expectedQ) > config.getThreshold()) {
             LOGGER.warn("{} {}: {}:  Q {} {}", ValidationType.SHUNTS, ValidationUtils.VALIDATION_ERROR, id, q, expectedQ);
             validated = false;
-        }
-        // “qMax” = “bPerSection” * “maximumSectionCount” * “nominalV”^2 - if not, print a warning
-        float expectedQmax = bPerSection * maximumSectionCount * nominalV * nominalV;
-        if (Math.abs(qMax - expectedQmax) > config.getThreshold()) {
-            LOGGER.warn("{} {}: {}:  Qmax {} {}", ValidationType.SHUNTS, ValidationUtils.VALIDATION_WARNING, id, qMax, expectedQmax);
         }
         try {
             shuntsWriter.write(id, q, expectedQ, p, currentSectionCount, maximumSectionCount, bPerSection, v, true, qMax, nominalV, validated);

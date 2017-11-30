@@ -205,7 +205,7 @@ public abstract class AbstractValidationFormatterWriterTest {
         testShunts(getShuntsContent(), false);
     }
 
-    protected abstract  String getShuntsContent();
+    protected abstract String getShuntsContent();
 
     @Test
     public void testShuntsVerbose() throws Exception {
