@@ -7,7 +7,6 @@
 package com.powsybl.afs.ext.base;
 
 import com.powsybl.afs.*;
-import com.powsybl.afs.storage.NodeId;
 import com.powsybl.afs.storage.NodeInfo;
 
 import java.util.Objects;
@@ -75,18 +74,16 @@ public class VirtualCaseBuilder implements ProjectFileBuilder<VirtualCase> {
         }
 
         // create project file
-        NodeId id = context.getStorage().createNode(context.getFolderInfo().getId(), name, VirtualCase.PSEUDO_CLASS);
+        NodeInfo info = context.getStorage().createNode(context.getFolderInfo().getId(), name, VirtualCase.PSEUDO_CLASS, VirtualCase.VERSION);
 
         // create case link
-        context.getStorage().addDependency(id, VirtualCase.CASE_DEPENDENCY_NAME, aCase.getId());
+        context.getStorage().addDependency(info.getId(), VirtualCase.CASE_DEPENDENCY_NAME, aCase.getId());
 
         // create script link
-        context.getStorage().addDependency(id, VirtualCase.SCRIPT_DEPENDENCY_NAME, script.getId());
+        context.getStorage().addDependency(info.getId(), VirtualCase.SCRIPT_DEPENDENCY_NAME, script.getId());
 
         context.getStorage().flush();
 
-        return new VirtualCase(new ProjectFileCreationContext(new NodeInfo(id, name, VirtualCase.PSEUDO_CLASS),
-                                                              context.getStorage(),
-                                                              context.getFileSystem()));
+        return new VirtualCase(new ProjectFileCreationContext(info, context.getStorage(), context.getFileSystem()));
     }
 }

@@ -13,6 +13,6 @@ package com.powsybl.afs;
 class FooFile extends ProjectFile {
 
     FooFile(ProjectFileCreationContext context) {
-        super(context, new FileIcon("?", new byte[]{}));
+        super(context, 0, new FileIcon("?", new byte[]{}));
     }
 }

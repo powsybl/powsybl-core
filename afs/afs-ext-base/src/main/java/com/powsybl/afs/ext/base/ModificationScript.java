@@ -16,6 +16,7 @@ import com.powsybl.afs.ProjectFileCreationContext;
 public class ModificationScript extends ProjectFile {
 
     public static final String PSEUDO_CLASS = "modificationScript";
+    public static final int VERSION = 0;
 
     static final String SCRIPT_TYPE = "scriptType";
     static final String SCRIPT_CONTENT = "scriptContent";
@@ -27,7 +28,7 @@ public class ModificationScript extends ProjectFile {
     private static final FileIcon SCRIPT_ICON = new FileIcon("script", ModificationScript.class.getResourceAsStream("/icons/script16x16.png"));
 
     public ModificationScript(ProjectFileCreationContext context) {
-        super(context, SCRIPT_ICON);
+        super(context, VERSION, SCRIPT_ICON);
     }
 
     public ScriptType getScriptType() {
