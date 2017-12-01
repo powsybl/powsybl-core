@@ -138,8 +138,9 @@ public class NetworkTest {
 
     @Test
     public void testStreams() {
-        Function<Stream<? extends Identifiable<?>>, List<String>> mapper = stream -> stream.map(Identifiable::getId).collect(Collectors.toList());
-        Function<Stream<? extends Identifiable<?>>, Set<String>> mapperSet = stream -> stream.map(Identifiable::getId).collect(Collectors.toSet());
+        //Function<Stream<? extends Identifiable<?>>, List<String>> mapper = stream -> stream.map(Identifiable::getId).collect(Collectors.toList());
+        Function<Stream<? extends Identifiable>, List<String>> mapper = stream -> stream.map(Identifiable::getId).collect(Collectors.toList());
+        Function<Stream<? extends Identifiable>, Set<String>> mapperSet = stream -> stream.map(Identifiable::getId).collect(Collectors.toSet());
 
         Network network = EurostagTutorialExample1Factory.create();
         assertEquals(Arrays.asList("P1", "P2"), mapper.apply(network.getSubstationStream()));
@@ -162,6 +163,9 @@ public class NetworkTest {
         assertEquals(network.getTwoWindingsTransformerCount(), network.getTwoWindingsTransformerStream().count());
         assertEquals(Collections.singleton("NGEN_NHV1"), mapperSet.apply(network.getSubstation("P1").getTwoWindingsTransformerStream()));
         assertEquals(Collections.singleton("NHV2_NLOAD"), mapperSet.apply(network.getSubstation("P2").getTwoWindingsTransformerStream()));
+
+        assertEquals(Arrays.asList("NHV1_NHV2_1", "NHV1_NHV2_2", "NGEN_NHV1", "NHV2_NLOAD"), mapper.apply(network.getBranchStream()));
+        assertEquals(network.getBranchCount(), network.getBranchStream().count());
 
         assertEquals(Collections.emptyList(), mapper.apply(network.getThreeWindingsTransformerStream()));
         assertEquals(network.getThreeWindingsTransformerCount(), network.getThreeWindingsTransformerStream().count());
