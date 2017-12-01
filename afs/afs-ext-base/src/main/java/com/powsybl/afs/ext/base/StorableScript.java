@@ -6,16 +6,15 @@
  */
 package com.powsybl.afs.ext.base;
 
-import com.powsybl.iidm.network.Network;
-
 /**
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface ProjectCase {
+public interface StorableScript {
 
-    Network getNetwork();
+    ScriptType getScriptType();
 
-    ScriptError getScriptError();
+    String readScript();
 
-    String getScriptOutput();
+    void writeScript(String content);
 }

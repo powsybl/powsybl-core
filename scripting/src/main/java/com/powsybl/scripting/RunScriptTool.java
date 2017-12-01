@@ -74,17 +74,22 @@ public class RunScriptTool implements Tool {
 
     private final List<ProjectFileExtension> projectFileExtensions;
 
+    private final List<ServiceExtension> serviceExtensions;
+
     public RunScriptTool() {
         this(new ServiceLoaderCache<>(AppFileSystemProvider.class).getServices(),
                 new ServiceLoaderCache<>(FileExtension.class).getServices(),
-                new ServiceLoaderCache<>(ProjectFileExtension.class).getServices());
+                new ServiceLoaderCache<>(ProjectFileExtension.class).getServices(),
+                new ServiceLoaderCache<>(ServiceExtension.class).getServices());
     }
 
     public RunScriptTool(List<AppFileSystemProvider> fileSystemProviders,
-                         List<FileExtension> fileExtensions, List<ProjectFileExtension> projectFileExtensions) {
+                         List<FileExtension> fileExtensions, List<ProjectFileExtension> projectFileExtensions,
+                         List<ServiceExtension> serviceExtensions) {
         this.fileSystemProviders = Objects.requireNonNull(fileSystemProviders);
         this.fileExtensions = Objects.requireNonNull(fileExtensions);
         this.projectFileExtensions = Objects.requireNonNull(projectFileExtensions);
+        this.serviceExtensions = Objects.requireNonNull(serviceExtensions);
     }
 
     @Override
@@ -109,7 +114,7 @@ public class RunScriptTool implements Tool {
                 }
             };
             try (AppData data = new AppData(context.getComputationManager(), fileSystemProviders,
-                    fileExtensions, projectFileExtensions, () -> logger)) {
+                    fileExtensions, projectFileExtensions, serviceExtensions, () -> logger)) {
                 if (file.getFileName().toString().endsWith(".groovy")) {
                     try {
                         Binding binding = new Binding();

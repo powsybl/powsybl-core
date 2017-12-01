@@ -6,16 +6,9 @@
  */
 package com.powsybl.afs.ext.base;
 
-import com.powsybl.iidm.network.Network;
-
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface ProjectCase {
-
-    Network getNetwork();
-
-    ScriptError getScriptError();
-
-    String getScriptOutput();
+public enum ScriptType {
+    GROOVY
 }

@@ -6,16 +6,19 @@
  */
 package com.powsybl.afs.ext.base;
 
+import com.powsybl.afs.ProjectFile;
 import com.powsybl.iidm.network.Network;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface ProjectCase {
+public interface NetworkService {
 
-    Network getNetwork();
+    <T extends ProjectFile & ProjectCase> Network getNetwork(T projectCase);
 
-    ScriptError getScriptError();
+    <T extends ProjectFile & ProjectCase> ScriptError getScriptError(T projectCase);
 
-    String getScriptOutput();
+    <T extends ProjectFile & ProjectCase> String getScriptOutput(T projectCase);
+
+    <T extends ProjectFile & ProjectCase> void invalidateCache(T projectCase);
 }
