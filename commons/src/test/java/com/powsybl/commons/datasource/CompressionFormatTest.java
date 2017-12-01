@@ -26,9 +26,9 @@ public class CompressionFormatTest {
         assertEquals("zip", CompressionFormat.ZIP.getExtension());
 
         List<String> formats = Arrays.asList(
-            CompressionFormat.GZIP.getExtension(),
-            CompressionFormat.BZIP2.getExtension(),
-            CompressionFormat.ZIP.getExtension());
+            CompressionFormat.GZIP.name(),
+            CompressionFormat.BZIP2.name(),
+            CompressionFormat.ZIP.name());
         assertEquals(formats, CompressionFormat.getFormats());
     }
 }

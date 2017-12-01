@@ -29,7 +29,7 @@ public enum CompressionFormat {
 
     public static Collection<String> getFormats() {
         return Arrays.stream(CompressionFormat.values())
-            .map(CompressionFormat::getExtension)
+            .map(CompressionFormat::name)
             .collect(Collectors.toList());
     }
 
