@@ -138,7 +138,6 @@ public class NetworkTest {
 
     @Test
     public void testStreams() {
-        //Function<Stream<? extends Identifiable<?>>, List<String>> mapper = stream -> stream.map(Identifiable::getId).collect(Collectors.toList());
         Function<Stream<? extends Identifiable>, List<String>> mapper = stream -> stream.map(Identifiable::getId).collect(Collectors.toList());
         Function<Stream<? extends Identifiable>, Set<String>> mapperSet = stream -> stream.map(Identifiable::getId).collect(Collectors.toSet());
 
