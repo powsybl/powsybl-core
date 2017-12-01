@@ -134,7 +134,7 @@ public class LocalNetworkService implements NetworkService {
         } else if (projectCase instanceof VirtualCase) {
             return loadNetwork((VirtualCase) projectCase);
         } else {
-            throw new AssertionError();
+            throw new AssertionError("ProjectCase implementation " + projectCase.getClass().getName() + " not supported");
         }
     }
 

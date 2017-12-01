@@ -44,10 +44,10 @@ public class ScriptError {
                 return new ScriptError(cause.getMessage(), cause.getStartLine(), cause.getStartColumn(),
                         cause.getEndLine(), cause.getEndColumn());
             } else {
-                throw new AssertionError();
+                throw new AssertionError("SyntaxErrorMessage is expected");
             }
         } else {
-            throw new AssertionError();
+            throw new AssertionError("At least one error is expected");
         }
     }
 

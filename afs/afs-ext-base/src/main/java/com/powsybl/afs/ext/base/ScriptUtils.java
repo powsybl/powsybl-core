@@ -47,12 +47,10 @@ public final class ScriptUtils {
 
     static ScriptError runScript(Network network, ScriptType scriptType, String scriptContent, Writer scriptOutputWriter) {
         try (Reader reader = new StringReader(scriptContent)) {
-            switch (scriptType) {
-                case GROOVY:
-                    return runGroovyScript(network, reader, scriptOutputWriter);
-
-                default:
-                    throw new AssertionError();
+            if (scriptType == ScriptType.GROOVY) {
+                return runGroovyScript(network, reader, scriptOutputWriter);
+            } else {
+                throw new AssertionError("Script type " + scriptType + " not supported");
             }
 
         } catch (IOException e) {
