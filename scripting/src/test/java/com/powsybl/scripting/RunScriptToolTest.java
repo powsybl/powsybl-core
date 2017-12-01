@@ -24,7 +24,7 @@ public class RunScriptToolTest extends AbstractToolTest {
     @Override
     @Before
     public void setUp() throws Exception {
-        tool = new RunScriptTool(Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+        tool = new RunScriptTool(Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
         super.setUp();
     }
 
