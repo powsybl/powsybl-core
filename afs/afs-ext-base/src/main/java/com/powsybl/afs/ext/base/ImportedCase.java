@@ -72,10 +72,17 @@ public class ImportedCase extends ProjectFile implements ProjectCase {
     }
 
     @Override
-    public Network loadNetwork() {
-        Importer importer = getImporter();
-        ReadOnlyDataSource dataSource = getDataSource();
-        Properties parameters = getParameters();
-        return importer.importData(dataSource, parameters);
+    public Network getNetwork() {
+        return fileSystem.findService(NetworkService.class).getNetwork(this);
+    }
+
+    @Override
+    public ScriptError getScriptError() {
+        return null;
+    }
+
+    @Override
+    public String getScriptOutput() {
+        return "";
     }
 }

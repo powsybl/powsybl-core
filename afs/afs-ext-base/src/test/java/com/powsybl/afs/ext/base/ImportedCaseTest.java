@@ -14,7 +14,6 @@ import com.powsybl.afs.storage.AppStorage;
 import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.iidm.import_.ImportersLoader;
 import com.powsybl.iidm.import_.ImportersLoaderList;
-import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -45,6 +44,11 @@ public class ImportedCaseTest extends AbstractProjectFileTest {
     @Override
     protected List<ProjectFileExtension> getProjectFileExtensions() {
         return ImmutableList.of(new ImportedCaseExtension(createImportersLoader()));
+    }
+
+    @Override
+    protected List<ServiceExtension> getServiceExtensions() {
+        return ImmutableList.of(new LocalNetworkServiceExtension());
     }
 
     @Before
@@ -92,8 +96,9 @@ public class ImportedCaseTest extends AbstractProjectFileTest {
         assertNotNull(importedCase);
         assertFalse(importedCase.isFolder());
         assertNotNull(importedCase.getIcon());
-        Network network = importedCase.loadNetwork();
-        assertNotNull(network);
+        assertNotNull(importedCase.getNetwork());
+        assertNull(importedCase.getScriptError());
+        assertEquals("", importedCase.getScriptOutput());
         assertTrue(importedCase.getDependencies().isEmpty());
 
         // try to reload the imported case
