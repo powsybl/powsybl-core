@@ -6,10 +6,7 @@
  */
 package com.powsybl.scripting.groovy;
 
-import com.powsybl.afs.AppData;
-import com.powsybl.afs.AppFileSystem;
-import com.powsybl.afs.FileExtension;
-import com.powsybl.afs.ProjectFileExtension;
+import com.powsybl.afs.*;
 import com.powsybl.afs.storage.AppStorage;
 import com.powsybl.computation.ComputationManager;
 import org.junit.After;
@@ -53,12 +50,16 @@ public abstract class AbstractGroovyScriptTest {
         return emptyList();
     }
 
+    protected List<ServiceExtension> getServiceExtensions() {
+        return emptyList();
+    }
+
     @Before
     public void setUp() throws Exception {
         ComputationManager computationManager = Mockito.mock(ComputationManager.class);
         data = new AppData(computationManager,
                 singletonList(cm -> singletonList(new AppFileSystem("mem", false, createStorage()))),
-                getFileExtensions(), getProjectFileExtensions());
+                getFileExtensions(), getProjectFileExtensions(), getServiceExtensions());
     }
 
     @After

@@ -7,11 +7,9 @@
 package com.powsybl.afs.ext.base;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.io.CharStreams;
 import com.powsybl.afs.*;
 import com.powsybl.afs.mapdb.storage.MapDbAppStorage;
 import com.powsybl.afs.storage.AppStorage;
-import com.powsybl.afs.storage.NodeId;
 import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.iidm.import_.ImportersLoader;
 import com.powsybl.iidm.import_.ImportersLoaderList;
@@ -48,12 +46,17 @@ public class VirtualCaseTest extends AbstractProjectFileTest {
         return ImmutableList.of(new ImportedCaseExtension(createImportersLoader()), new ModificationScriptExtension(), new VirtualCaseExtension());
     }
 
+    @Override
+    protected List<ServiceExtension> getServiceExtensions() {
+        return ImmutableList.of(new LocalNetworkServiceExtension());
+    }
+
     @Before
     public void setup() {
         super.setup();
         NodeInfo rootFolderInfo = storage.createRootNodeIfNotExists("root", Folder.PSEUDO_CLASS);
-        NodeId caseId = storage.createNode(rootFolderInfo.getId(), "network", Case.PSEUDO_CLASS);
-        storage.setStringAttribute(caseId, Case.FORMAT, TestImporter.FORMAT);
+        NodeInfo caseInfo = storage.createNode(rootFolderInfo.getId(), "network", Case.PSEUDO_CLASS, Case.VERSION);
+        storage.setStringAttribute(caseInfo.getId(), Case.FORMAT, TestImporter.FORMAT);
     }
 
     @Test
@@ -75,7 +78,7 @@ public class VirtualCaseTest extends AbstractProjectFileTest {
         // create groovy script
         ModificationScript script = folder.fileBuilder(ModificationScriptBuilder.class)
                 .withName("script")
-                .withType(ModificationScript.ScriptType.GROOVY)
+                .withType(ScriptType.GROOVY)
                 .withContent("print 'hello'")
                 .build();
 
@@ -140,22 +143,40 @@ public class VirtualCaseTest extends AbstractProjectFileTest {
         assertEquals(2, virtualCase.getDependencies().size());
         assertEquals(1, importedCase.getBackwardDependencies().size());
         assertEquals(1, script.getBackwardDependencies().size());
-        Network network = virtualCase.loadNetwork();
-        assertNotNull(network);
+        assertNotNull(virtualCase.getNetwork());
+        assertNull(virtualCase.getScriptError());
 
         // check script output
-        assertEquals("hello", CharStreams.toString(virtualCase.getScriptOutputReader()));
+        assertEquals("hello", virtualCase.getScriptOutput());
 
         // test cache invalidation
-        script.write("print 'bye'");
-        assertNull(virtualCase.getScriptOutputReader());
-        Network network2 = virtualCase.loadNetwork();
-        assertNotNull(network2);
-        assertEquals("bye", CharStreams.toString(virtualCase.getScriptOutputReader()));
+        script.writeScript("print 'bye'");
+        assertNotNull(virtualCase.getNetwork());
+        assertNull(virtualCase.getScriptError());
+        assertEquals("bye", virtualCase.getScriptOutput());
 
         virtualCase.delete();
         assertTrue(importedCase.getBackwardDependencies().isEmpty());
         assertTrue(script.getBackwardDependencies().isEmpty());
 
+        // test script error
+        folder.fileBuilder(ModificationScriptBuilder.class)
+                .withName("scriptWithError")
+                .withType(ScriptType.GROOVY)
+                .withContent("prin 'hello'")
+                .build();
+
+        VirtualCase virtualCaseWithError = folder.fileBuilder(VirtualCaseBuilder.class)
+                .withName("network2")
+                .withCase("folder/network")
+                .withScript("folder/scriptWithError")
+                .build();
+
+        Network networkWithError = virtualCaseWithError.getNetwork();
+        assertNotNull(networkWithError);
+        assertEquals(0, networkWithError.getSubstationCount());
+        assertNotNull(virtualCaseWithError.getScriptError());
+        assertTrue(virtualCaseWithError.getScriptError().getMessage().contains("No signature of method: test.prin() is applicable"));
+        assertEquals("", virtualCaseWithError.getScriptOutput());
     }
 }

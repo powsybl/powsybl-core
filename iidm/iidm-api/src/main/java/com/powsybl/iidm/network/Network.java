@@ -58,6 +58,8 @@ public interface Network extends Container<Network> {
 
         /**
          * Get all switches.
+         *
+         * @deprecated use getSwitches() instead.
          */
         @Deprecated
         Iterable<Switch> getSwitchs();
@@ -230,6 +232,11 @@ public interface Network extends Container<Network> {
      * Get all branches
      */
     Stream<Branch> getBranchStream();
+
+    /**
+     * Get the branch count.
+     */
+    int getBranchCount();
 
     /**
      * Get all AC lines.

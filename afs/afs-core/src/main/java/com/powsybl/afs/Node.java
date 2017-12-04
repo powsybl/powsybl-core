@@ -20,8 +20,8 @@ public class Node extends AbstractNodeBase<Folder> {
 
     protected final boolean folder;
 
-    protected Node(FileCreationContext context, boolean folder) {
-        super(context.getInfo(), context.getStorage());
+    protected Node(FileCreationContext context, int codeVersion, boolean folder) {
+        super(context.getInfo(), context.getStorage(), codeVersion);
         this.fileSystem = Objects.requireNonNull(context.getFileSystem());
         this.folder = folder;
     }

@@ -10,6 +10,9 @@ import com.powsybl.afs.storage.ListenableAppStorage;
 import com.powsybl.afs.storage.NodeId;
 import com.powsybl.afs.storage.NodeInfo;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Objects;
 
 /**
@@ -21,9 +24,12 @@ public abstract class AbstractNodeBase<F> {
 
     protected final ListenableAppStorage storage;
 
-    public AbstractNodeBase(NodeInfo info, ListenableAppStorage storage) {
+    protected int codeVersion;
+
+    public AbstractNodeBase(NodeInfo info, ListenableAppStorage storage, int codeVersion) {
         this.info = Objects.requireNonNull(info);
         this.storage = Objects.requireNonNull(storage);
+        this.codeVersion = codeVersion;
     }
 
     public abstract F getParent();
@@ -34,6 +40,35 @@ public abstract class AbstractNodeBase<F> {
 
     public String getName() {
         return info.getName();
+    }
+
+    public String getDescription() {
+        return info.getDescription();
+    }
+
+    public void setDescription(String description) {
+        storage.setDescription(info.getId(), description);
+        info.setDescription(description);
+    }
+
+    public ZonedDateTime getCreationDate() {
+        return Instant.ofEpochMilli(info.getCreationTime()).atZone(ZoneId.systemDefault());
+    }
+
+    public ZonedDateTime getModificationDate() {
+        return Instant.ofEpochMilli(info.getModificationTime()).atZone(ZoneId.systemDefault());
+    }
+
+    public int getVersion() {
+        return info.getVersion();
+    }
+
+    protected int getCodeVersion() {
+        return codeVersion;
+    }
+
+    public boolean isAheadOfVersion() {
+        return info.getVersion() > getCodeVersion();
     }
 
     public abstract NodePath getPath();

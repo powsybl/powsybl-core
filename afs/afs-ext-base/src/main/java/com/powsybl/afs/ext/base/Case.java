@@ -23,6 +23,7 @@ import java.util.Objects;
 public class Case extends File {
 
     public static final String PSEUDO_CLASS = "case";
+    public static final int VERSION = 0;
 
     static final String FORMAT = "format";
     static final String DATA_SOURCE = "dataSource";
@@ -30,9 +31,9 @@ public class Case extends File {
     private final ImportersLoader importersLoader;
 
     public Case(FileCreationContext context, ImportersLoader importersLoader) {
-        super(context, CaseIconCache.INSTANCE.get(importersLoader,
-                                                  context.getFileSystem().getData().getComputationManager(),
-                                                  getFormat(context.getStorage(), context.getInfo().getId())));
+        super(context, VERSION, CaseIconCache.INSTANCE.get(importersLoader,
+                                                           context.getFileSystem().getData().getComputationManager(),
+                                                           getFormat(context.getStorage(), context.getInfo().getId())));
         this.importersLoader = Objects.requireNonNull(importersLoader);
     }
 

@@ -21,8 +21,8 @@ public class ProjectNode extends AbstractNodeBase<ProjectFolder> {
 
     protected final boolean folder;
 
-    protected ProjectNode(ProjectFileCreationContext context, boolean folder) {
-        super(context.getInfo(), context.getStorage());
+    protected ProjectNode(ProjectFileCreationContext context, int codeVersion, boolean folder) {
+        super(context.getInfo(), context.getStorage(), codeVersion);
         this.fileSystem = Objects.requireNonNull(context.getFileSystem());
         this.folder = folder;
     }

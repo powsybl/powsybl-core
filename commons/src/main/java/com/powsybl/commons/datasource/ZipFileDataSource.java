@@ -127,10 +127,13 @@ public class ZipFileDataSource implements DataSource {
 
         private final String fileName;
 
+        private boolean closed;
+
         private ZipEntryOutputStream(Path zipFilePath, String fileName) throws IOException {
             super(new ZipOutputStream(Files.newOutputStream(getTmpZipFilePath(zipFilePath))));
             this.zipFilePath = zipFilePath;
             this.fileName = fileName;
+            this.closed = false;
 
             // create new entry
             os.putNextEntry(new ZipEntry(fileName));
@@ -142,33 +145,36 @@ public class ZipFileDataSource implements DataSource {
 
         @Override
         public void close() throws IOException {
-            // close new entry
-            os.closeEntry();
+            if (!closed) {
+                // close new entry
+                os.closeEntry();
 
-            // copy existing entries
-            if (Files.exists(zipFilePath)) {
-                try (ZipFile zipFile = new ZipFile(zipFilePath)) {
-                    Enumeration<? extends ZipEntry> e = zipFile.entries();
-                    while (e.hasMoreElements()) {
-                        ZipEntry zipEntry = e.nextElement();
-                        if (!zipEntry.getName().equals(fileName)) {
-                            os.putNextEntry(zipEntry);
-                            try (InputStream zis = zipFile.getInputStream(zipEntry.getName())) {
-                                ByteStreams.copy(zis, os);
+                // copy existing entries
+                if (Files.exists(zipFilePath)) {
+                    try (ZipFile zipFile = new ZipFile(zipFilePath)) {
+                        Enumeration<? extends ZipEntry> e = zipFile.entries();
+                        while (e.hasMoreElements()) {
+                            ZipEntry zipEntry = e.nextElement();
+                            if (!zipEntry.getName().equals(fileName)) {
+                                os.putNextEntry(zipEntry);
+                                try (InputStream zis = zipFile.getInputStream(zipEntry.getName())) {
+                                    ByteStreams.copy(zis, os);
+                                }
+                                os.closeEntry();
                             }
-                            os.closeEntry();
                         }
                     }
                 }
+
+                // close zip
+                super.close();
+
+                // swap with tmp zip
+                Path tmpZipFilePath = getTmpZipFilePath(zipFilePath);
+                Files.move(tmpZipFilePath, zipFilePath, StandardCopyOption.REPLACE_EXISTING);
+
+                closed = true;
             }
-
-            // close zip
-            super.close();
-
-            // swap with tmp zip
-            Path tmpZipFilePath = getTmpZipFilePath(zipFilePath);
-            Files.copy(tmpZipFilePath, zipFilePath, StandardCopyOption.REPLACE_EXISTING);
-            Files.delete(tmpZipFilePath);
         }
     }
 
