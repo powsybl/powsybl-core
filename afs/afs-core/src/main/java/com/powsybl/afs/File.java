@@ -6,9 +6,6 @@
  */
 package com.powsybl.afs;
 
-import com.powsybl.afs.storage.AppFileSystemStorage;
-import com.powsybl.afs.storage.NodeInfo;
-
 import java.util.Objects;
 
 /**
@@ -16,20 +13,14 @@ import java.util.Objects;
  */
 public class File extends Node {
 
-    protected static final String DESCRIPTION = "description";
-
     protected final FileIcon icon;
 
-    public File(NodeInfo info, AppFileSystemStorage storage, AppFileSystem fileSystem, FileIcon icon) {
-        super(info, storage, fileSystem, false);
+    public File(FileCreationContext context, int codeVersion, FileIcon icon) {
+        super(context, codeVersion, false);
         this.icon = Objects.requireNonNull(icon);
     }
 
     public FileIcon getIcon() {
         return icon;
-    }
-
-    public String getDescription() {
-        return storage.getStringAttribute(info.getId(), DESCRIPTION);
     }
 }

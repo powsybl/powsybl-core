@@ -6,7 +6,6 @@
  */
 package com.powsybl.afs;
 
-import com.powsybl.afs.storage.AppFileSystemStorage;
 import com.powsybl.afs.storage.NodeInfo;
 
 import java.util.List;
@@ -18,16 +17,13 @@ import java.util.stream.Collectors;
  */
 public class ProjectNode extends AbstractNodeBase<ProjectFolder> {
 
-    protected final NodeInfo projectInfo;
-
     protected final AppFileSystem fileSystem;
 
     protected final boolean folder;
 
-    protected ProjectNode(NodeInfo info, AppFileSystemStorage storage, NodeInfo projectInfo, AppFileSystem fileSystem, boolean folder) {
-        super(info, storage);
-        this.projectInfo = Objects.requireNonNull(projectInfo);
-        this.fileSystem = Objects.requireNonNull(fileSystem);
+    protected ProjectNode(ProjectFileCreationContext context, int codeVersion, boolean folder) {
+        super(context.getInfo(), context.getStorage(), codeVersion);
+        this.fileSystem = Objects.requireNonNull(context.getFileSystem());
         this.folder = folder;
     }
 
@@ -39,7 +35,8 @@ public class ProjectNode extends AbstractNodeBase<ProjectFolder> {
     @Override
     public ProjectFolder getParent() {
         NodeInfo parentInfo = storage.getParentNodeInfo(info.getId());
-        return ProjectFolder.PSEUDO_CLASS.equals(parentInfo.getPseudoClass()) ? new ProjectFolder(parentInfo, storage, projectInfo, fileSystem) : null;
+        return ProjectFolder.PSEUDO_CLASS.equals(parentInfo.getPseudoClass()) ? new ProjectFolder(new ProjectFileCreationContext(parentInfo, storage, fileSystem))
+                                                                              : null;
     }
 
     private static boolean pathStop(ProjectNode projectNode) {
@@ -56,7 +53,12 @@ public class ProjectNode extends AbstractNodeBase<ProjectFolder> {
     }
 
     public Project getProject() {
-        return new Project(projectInfo, storage, fileSystem);
+        // walk the node hierarchy until finding a project node
+        NodeInfo parentInfo = storage.getParentNodeInfo(info.getId());
+        while (!Project.PSEUDO_CLASS.equals(parentInfo.getPseudoClass())) {
+            parentInfo = storage.getParentNodeInfo(parentInfo.getId());
+        }
+        return new Project(new FileCreationContext(parentInfo, storage, fileSystem));
     }
 
     public void moveTo(ProjectFolder folder) {
@@ -68,32 +70,10 @@ public class ProjectNode extends AbstractNodeBase<ProjectFolder> {
         storage.deleteNode(info.getId());
     }
 
-    protected ProjectNode findProjectNode(NodeInfo nodeInfo) {
-        if (ProjectFolder.PSEUDO_CLASS.equals(nodeInfo.getPseudoClass())) {
-            return new ProjectFolder(nodeInfo, storage, projectInfo, fileSystem);
-        } else {
-            ProjectFileExtension extension = getProject().getFileSystem().getData().getProjectFileExtensionByPseudoClass(nodeInfo.getPseudoClass());
-            if (extension != null) {
-                return extension.createProjectFile(nodeInfo, storage, projectInfo, fileSystem);
-            } else {
-                return new UnknownProjectFile(nodeInfo, storage, projectInfo, fileSystem);
-            }
-        }
-    }
-
-    protected ProjectFile findProjectFile(NodeInfo nodeInfo) {
-        ProjectFileExtension extension = getProject().getFileSystem().getData().getProjectFileExtensionByPseudoClass(nodeInfo.getPseudoClass());
-        if (extension != null) {
-            return extension.createProjectFile(nodeInfo, storage, projectInfo, fileSystem);
-        } else {
-            return new UnknownProjectFile(nodeInfo, storage, projectInfo, fileSystem);
-        }
-    }
-
     public List<ProjectFile> getBackwardDependencies() {
         return storage.getBackwardDependenciesInfo(info.getId())
                 .stream()
-                .map(this::findProjectFile)
+                .map(fileSystem::findProjectFile)
                 .collect(Collectors.toList());
     }
 
@@ -103,5 +83,9 @@ public class ProjectNode extends AbstractNodeBase<ProjectFolder> {
             // propagate
             projectFile.notifyDependencyChanged();
         });
+    }
+
+    public AppFileSystem getFileSystem() {
+        return fileSystem;
     }
 }

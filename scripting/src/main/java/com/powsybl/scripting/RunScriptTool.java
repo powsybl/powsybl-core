@@ -31,6 +31,8 @@ import java.util.Objects;
 @AutoService(Tool.class)
 public class RunScriptTool implements Tool {
 
+    public static final String FILE = "file";
+
     private static final Command COMMAND = new Command() {
         @Override
         public String getName() {
@@ -51,7 +53,7 @@ public class RunScriptTool implements Tool {
         public Options getOptions() {
             Options options = new Options();
             options.addOption(Option.builder()
-                    .longOpt("file")
+                    .longOpt(FILE)
                     .desc("the script file")
                     .hasArg()
                     .required()
@@ -72,17 +74,22 @@ public class RunScriptTool implements Tool {
 
     private final List<ProjectFileExtension> projectFileExtensions;
 
+    private final List<ServiceExtension> serviceExtensions;
+
     public RunScriptTool() {
         this(new ServiceLoaderCache<>(AppFileSystemProvider.class).getServices(),
                 new ServiceLoaderCache<>(FileExtension.class).getServices(),
-                new ServiceLoaderCache<>(ProjectFileExtension.class).getServices());
+                new ServiceLoaderCache<>(ProjectFileExtension.class).getServices(),
+                new ServiceLoaderCache<>(ServiceExtension.class).getServices());
     }
 
     public RunScriptTool(List<AppFileSystemProvider> fileSystemProviders,
-                         List<FileExtension> fileExtensions, List<ProjectFileExtension> projectFileExtensions) {
+                         List<FileExtension> fileExtensions, List<ProjectFileExtension> projectFileExtensions,
+                         List<ServiceExtension> serviceExtensions) {
         this.fileSystemProviders = Objects.requireNonNull(fileSystemProviders);
         this.fileExtensions = Objects.requireNonNull(fileExtensions);
         this.projectFileExtensions = Objects.requireNonNull(projectFileExtensions);
+        this.serviceExtensions = Objects.requireNonNull(serviceExtensions);
     }
 
     @Override
@@ -92,7 +99,7 @@ public class RunScriptTool implements Tool {
 
     @Override
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
-        Path file = context.getFileSystem().getPath(line.getOptionValue("file"));
+        Path file = context.getFileSystem().getPath(line.getOptionValue(FILE));
         Writer writer = new OutputStreamWriter(context.getOutputStream());
         try {
             AppLogger logger = new AppLogger() {
@@ -107,7 +114,7 @@ public class RunScriptTool implements Tool {
                 }
             };
             try (AppData data = new AppData(context.getComputationManager(), fileSystemProviders,
-                    fileExtensions, projectFileExtensions, () -> logger)) {
+                    fileExtensions, projectFileExtensions, serviceExtensions, () -> logger)) {
                 if (file.getFileName().toString().endsWith(".groovy")) {
                     try {
                         Binding binding = new Binding();

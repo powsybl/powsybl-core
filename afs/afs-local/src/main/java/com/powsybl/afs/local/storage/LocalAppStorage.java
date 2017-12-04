@@ -8,25 +8,26 @@ package com.powsybl.afs.local.storage;
 
 import com.google.common.collect.ImmutableList;
 import com.powsybl.afs.Folder;
-import com.powsybl.afs.storage.AppFileSystemStorage;
+import com.powsybl.afs.storage.AppStorage;
 import com.powsybl.afs.storage.NodeId;
 import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.math.timeseries.*;
 
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Reader;
-import java.io.Writer;
+import java.io.*;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class LocalAppFileSystemStorage implements AppFileSystemStorage {
+public class LocalAppStorage implements AppStorage {
+
+    private static final int DEFAULT_VERSION = 0;
 
     private final Path rootDir;
 
@@ -42,8 +43,8 @@ public class LocalAppFileSystemStorage implements AppFileSystemStorage {
 
     private final Map<Path, LocalFolder> folderCache = new HashMap<>();
 
-    public LocalAppFileSystemStorage(Path rootDir, String fileSystemName, List<LocalFileScanner> fileScanners,
-                                     List<LocalFolderScanner> folderScanners, ComputationManager computationManager) {
+    public LocalAppStorage(Path rootDir, String fileSystemName, List<LocalFileScanner> fileScanners,
+                           List<LocalFolderScanner> folderScanners, ComputationManager computationManager) {
         this.rootDir = Objects.requireNonNull(rootDir);
         this.fileSystemName = Objects.requireNonNull(fileSystemName);
         this.fileScanners = Objects.requireNonNull(fileScanners);
@@ -94,26 +95,71 @@ public class LocalAppFileSystemStorage implements AppFileSystemStorage {
     }
 
     @Override
+    public boolean isRemote() {
+        return false;
+    }
+
+    @Override
     public NodeId fromString(String str) {
         return new PathNodeId(rootDir.getFileSystem().getPath(str));
     }
 
     @Override
     public NodeInfo createRootNodeIfNotExists(String name, String nodePseudoClass) {
-        return new NodeInfo(new PathNodeId(rootDir), name, nodePseudoClass);
+        BasicFileAttributes attr;
+        try {
+            attr = Files.readAttributes(rootDir, BasicFileAttributes.class);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+        return new NodeInfo(new PathNodeId(rootDir),
+                            name,
+                            nodePseudoClass,
+                            "",
+                            attr.creationTime().toMillis(),
+                            attr.lastModifiedTime().toMillis(),
+                            DEFAULT_VERSION);
     }
 
     @Override
     public String getNodePseudoClass(NodeId nodeId) {
+        return getNodeInfo(nodeId).getPseudoClass();
+    }
+
+    @Override
+    public String getNodeName(NodeId nodeId) {
+        return getNodeInfo(nodeId).getName();
+    }
+
+    @Override
+    public NodeInfo getNodeInfo(NodeId nodeId) {
         Objects.requireNonNull(nodeId);
         Path path = ((PathNodeId) nodeId).getPath();
+        BasicFileAttributes attr;
+        try {
+            attr = Files.readAttributes(rootDir, BasicFileAttributes.class);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
         LocalFile file = scanFile(path, true);
         if (file != null) {
-            return file.getPseudoClass();
+            return new NodeInfo(nodeId,
+                                file.getName(),
+                                file.getPseudoClass(),
+                                "",
+                                attr.creationTime().toMillis(),
+                                attr.lastModifiedTime().toMillis(),
+                                DEFAULT_VERSION);
         } else {
             LocalFolder folder = scanFolder(path, true);
             if (folder != null) {
-                return Folder.PSEUDO_CLASS;
+                return new NodeInfo(nodeId,
+                                    folder.getName(),
+                                    Folder.PSEUDO_CLASS,
+                                    "",
+                                    attr.creationTime().toMillis(),
+                                    attr.lastModifiedTime().toMillis(),
+                                    DEFAULT_VERSION);
             } else {
                 throw new AssertionError();
             }
@@ -121,20 +167,8 @@ public class LocalAppFileSystemStorage implements AppFileSystemStorage {
     }
 
     @Override
-    public String getNodeName(NodeId nodeId) {
-        Objects.requireNonNull(nodeId);
-        Path path = ((PathNodeId) nodeId).getPath();
-        LocalFile file = scanFile(path, true);
-        if (file != null) {
-            return file.getName();
-        } else {
-            LocalFolder folder = scanFolder(path, true);
-            if (folder != null) {
-                return folder.getName();
-            } else {
-                throw new AssertionError();
-            }
-        }
+    public void setDescription(NodeId nodeId, String description) {
+        throw new AssertionError();
     }
 
     private boolean isLocalNode(Path path) {
@@ -203,7 +237,7 @@ public class LocalAppFileSystemStorage implements AppFileSystemStorage {
     }
 
     @Override
-    public NodeId createNode(NodeId parentNodeId, String name, String nodePseudoClass) {
+    public NodeInfo createNode(NodeId parentNodeId, String name, String nodePseudoClass, int version) {
         throw new AssertionError();
     }
 

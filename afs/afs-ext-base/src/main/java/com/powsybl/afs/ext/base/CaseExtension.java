@@ -7,10 +7,8 @@
 package com.powsybl.afs.ext.base;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.afs.AppFileSystem;
+import com.powsybl.afs.FileCreationContext;
 import com.powsybl.afs.FileExtension;
-import com.powsybl.afs.storage.AppFileSystemStorage;
-import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.iidm.import_.ImportersLoader;
 import com.powsybl.iidm.import_.ImportersServiceLoader;
 
@@ -20,7 +18,7 @@ import java.util.Objects;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @AutoService(FileExtension.class)
-public class CaseExtension implements FileExtension {
+public class CaseExtension implements FileExtension<Case> {
 
     private final ImportersLoader importersLoader;
 
@@ -43,7 +41,7 @@ public class CaseExtension implements FileExtension {
     }
 
     @Override
-    public Case createFile(NodeInfo info, AppFileSystemStorage storage, AppFileSystem fileSystem) {
-        return new Case(info, storage, fileSystem, importersLoader);
+    public Case createFile(FileCreationContext context) {
+        return new Case(context, importersLoader);
     }
 }

@@ -9,13 +9,11 @@ package com.powsybl.afs.ext.base;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.powsybl.afs.*;
-import com.powsybl.afs.mapdb.storage.MapDbAppFileSystemStorage;
-import com.powsybl.afs.storage.AppFileSystemStorage;
-import com.powsybl.afs.storage.NodeId;
+import com.powsybl.afs.mapdb.storage.MapDbAppStorage;
+import com.powsybl.afs.storage.AppStorage;
 import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.iidm.import_.ImportersLoader;
 import com.powsybl.iidm.import_.ImportersLoaderList;
-import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -30,8 +28,8 @@ import static org.junit.Assert.*;
 public class ImportedCaseTest extends AbstractProjectFileTest {
 
     @Override
-    protected AppFileSystemStorage createStorage() {
-        return MapDbAppFileSystemStorage.createHeap("mem");
+    protected AppStorage createStorage() {
+        return MapDbAppStorage.createHeap("mem");
     }
 
     private ImportersLoader createImportersLoader() {
@@ -48,13 +46,18 @@ public class ImportedCaseTest extends AbstractProjectFileTest {
         return ImmutableList.of(new ImportedCaseExtension(createImportersLoader()));
     }
 
+    @Override
+    protected List<ServiceExtension> getServiceExtensions() {
+        return ImmutableList.of(new LocalNetworkServiceExtension());
+    }
+
     @Before
     public void setup() {
         super.setup();
         NodeInfo rootFolderInfo = storage.createRootNodeIfNotExists("root", Folder.PSEUDO_CLASS);
-        NodeId caseId = storage.createNode(rootFolderInfo.getId(), "network", Case.PSEUDO_CLASS);
-        storage.setStringAttribute(caseId, "description", "Test format");
-        storage.setStringAttribute(caseId, "format", TestImporter.FORMAT);
+        NodeInfo caseInfo = storage.createNode(rootFolderInfo.getId(), "network", Case.PSEUDO_CLASS, Case.VERSION);
+        storage.setDescription(caseInfo.getId(), "Test format");
+        storage.setStringAttribute(caseInfo.getId(), "format", TestImporter.FORMAT);
     }
 
     @Test
@@ -93,8 +96,9 @@ public class ImportedCaseTest extends AbstractProjectFileTest {
         assertNotNull(importedCase);
         assertFalse(importedCase.isFolder());
         assertNotNull(importedCase.getIcon());
-        Network network = importedCase.loadNetwork();
-        assertNotNull(network);
+        assertNotNull(importedCase.getNetwork());
+        assertNull(importedCase.getScriptError());
+        assertEquals("", importedCase.getScriptOutput());
         assertTrue(importedCase.getDependencies().isEmpty());
 
         // try to reload the imported case

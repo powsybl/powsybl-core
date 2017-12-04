@@ -7,11 +7,10 @@
 package com.powsybl.afs.ext.base;
 
 import com.powsybl.afs.AfsException;
-import com.powsybl.afs.AppFileSystem;
 import com.powsybl.afs.File;
-import com.powsybl.afs.storage.AppFileSystemStorage;
+import com.powsybl.afs.FileCreationContext;
+import com.powsybl.afs.storage.AppStorage;
 import com.powsybl.afs.storage.NodeId;
-import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.import_.ImportersLoader;
@@ -24,20 +23,21 @@ import java.util.Objects;
 public class Case extends File {
 
     public static final String PSEUDO_CLASS = "case";
+    public static final int VERSION = 0;
 
     static final String FORMAT = "format";
     static final String DATA_SOURCE = "dataSource";
 
     private final ImportersLoader importersLoader;
 
-    public Case(NodeInfo info, AppFileSystemStorage storage, AppFileSystem fileSystem, ImportersLoader importersLoader) {
-        super(info, storage, fileSystem, CaseIconCache.INSTANCE.get(importersLoader,
-                                                                  fileSystem.getData().getComputationManager(),
-                                                                  getFormat(storage, info.getId())));
+    public Case(FileCreationContext context, ImportersLoader importersLoader) {
+        super(context, VERSION, CaseIconCache.INSTANCE.get(importersLoader,
+                                                           context.getFileSystem().getData().getComputationManager(),
+                                                           getFormat(context.getStorage(), context.getInfo().getId())));
         this.importersLoader = Objects.requireNonNull(importersLoader);
     }
 
-    private static String getFormat(AppFileSystemStorage storage, NodeId id) {
+    private static String getFormat(AppStorage storage, NodeId id) {
         return storage.getStringAttribute(id, FORMAT);
     }
 

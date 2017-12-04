@@ -6,7 +6,6 @@
  */
 package com.powsybl.afs;
 
-import com.powsybl.afs.storage.AppFileSystemStorage;
 import com.powsybl.afs.storage.NodeInfo;
 
 import java.util.List;
@@ -21,9 +20,9 @@ public class Node extends AbstractNodeBase<Folder> {
 
     protected final boolean folder;
 
-    protected Node(NodeInfo info, AppFileSystemStorage storage, AppFileSystem fileSystem, boolean folder) {
-        super(info, storage);
-        this.fileSystem = Objects.requireNonNull(fileSystem);
+    protected Node(FileCreationContext context, int codeVersion, boolean folder) {
+        super(context.getInfo(), context.getStorage(), codeVersion);
+        this.fileSystem = Objects.requireNonNull(context.getFileSystem());
         this.folder = folder;
     }
 
@@ -35,7 +34,7 @@ public class Node extends AbstractNodeBase<Folder> {
     @Override
     public Folder getParent() {
         NodeInfo parentInfo = storage.getParentNodeInfo(info.getId());
-        return parentInfo != null ? new Folder(parentInfo, storage, fileSystem) : null;
+        return parentInfo != null ? new Folder(new FileCreationContext(parentInfo, storage, fileSystem)) : null;
     }
 
     private static boolean pathStop(Node node) {
@@ -59,21 +58,5 @@ public class Node extends AbstractNodeBase<Folder> {
 
     public AppFileSystem getFileSystem() {
         return fileSystem;
-    }
-
-    protected Node findNode(NodeInfo nodeInfo) {
-        Objects.requireNonNull(nodeInfo);
-        if (Folder.PSEUDO_CLASS.equals(nodeInfo.getPseudoClass())) {
-            return new Folder(nodeInfo, storage, fileSystem);
-        } else if (Project.PSEUDO_CLASS.equals(nodeInfo.getPseudoClass())) {
-            return new Project(nodeInfo, storage, fileSystem);
-        } else {
-            FileExtension extension = fileSystem.getData().getFileExtensionByPseudoClass(nodeInfo.getPseudoClass());
-            if (extension != null) {
-                return extension.createFile(nodeInfo, storage, fileSystem);
-            } else {
-                return new UnknownFile(nodeInfo, storage, fileSystem);
-            }
-        }
     }
 }

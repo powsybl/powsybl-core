@@ -6,13 +6,13 @@
  */
 package com.powsybl.afs;
 
-import com.powsybl.afs.mapdb.storage.MapDbAppFileSystemStorage;
-import com.powsybl.afs.storage.AppFileSystemStorage;
+import com.powsybl.afs.mapdb.storage.MapDbAppStorage;
+import com.powsybl.afs.storage.AppStorage;
 import com.powsybl.commons.config.ComponentDefaultConfig;
+import com.powsybl.computation.ComputationManager;
 import com.powsybl.tools.AbstractToolTest;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
-import com.powsybl.computation.ComputationManager;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -35,10 +35,10 @@ public class AppFileSystemToolTest extends AbstractToolTest {
         tool = new AppFileSystemTool() {
             @Override
             protected AppData createAppData() {
-                AppFileSystemStorage storage = MapDbAppFileSystemStorage.createHeap("mem");
+                AppStorage storage = MapDbAppStorage.createHeap("mem");
                 AppFileSystem afs = new AppFileSystem("mem", false, storage);
                 AppData appData = new AppData(computationManager, Collections.singletonList(computationManager1 -> Collections.singletonList(afs)),
-                        Collections.emptyList(), Collections.emptyList());
+                        Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
                 afs.getRootFolder().createProject("test_project1");
                 afs.getRootFolder().createProject("test_project2");
                 return appData;

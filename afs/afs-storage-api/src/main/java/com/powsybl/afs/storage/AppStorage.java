@@ -19,15 +19,19 @@ import java.util.stream.Collectors;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface AppFileSystemStorage extends AutoCloseable {
+public interface AppStorage extends AutoCloseable {
 
     String getFileSystemName();
+
+    default boolean isRemote() {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 
     NodeId fromString(String str);
 
     NodeInfo createRootNodeIfNotExists(String name, String nodePseudoClass);
 
-    NodeId createNode(NodeId parentNodeId, String name, String nodePseudoClass);
+    NodeInfo createNode(NodeId parentNodeId, String name, String nodePseudoClass, int version);
 
     String getNodeName(NodeId nodeId);
 
@@ -35,9 +39,9 @@ public interface AppFileSystemStorage extends AutoCloseable {
 
     boolean isWritable(NodeId nodeId);
 
-    default NodeInfo getNodeInfo(NodeId nodeId) {
-        return new NodeInfo(nodeId, getNodeName(nodeId), getNodePseudoClass(nodeId));
-    }
+    NodeInfo getNodeInfo(NodeId nodeId);
+
+    void setDescription(NodeId nodeId, String description);
 
     List<NodeId> getChildNodes(NodeId nodeId);
 
@@ -91,41 +95,21 @@ public interface AppFileSystemStorage extends AutoCloseable {
 
     DataSource getDataSourceAttribute(NodeId nodeId, String name);
 
-    static UnsupportedOperationException createNotImplementedException() {
-        return new UnsupportedOperationException("Not implemented");
-    }
+    void createTimeSeries(NodeId nodeId, TimeSeriesMetadata metadata);
 
-    default void createTimeSeries(NodeId nodeId, TimeSeriesMetadata metadata) {
-        throw createNotImplementedException();
-    }
+    Set<String> getTimeSeriesNames(NodeId nodeId);
 
-    default Set<String> getTimeSeriesNames(NodeId nodeId) {
-        throw createNotImplementedException();
-    }
+    List<TimeSeriesMetadata> getTimeSeriesMetadata(NodeId nodeId, Set<String> timeSeriesNames);
 
-    default List<TimeSeriesMetadata> getTimeSeriesMetadata(NodeId nodeId, Set<String> timeSeriesNames) {
-        throw createNotImplementedException();
-    }
+    List<DoubleTimeSeries> getDoubleTimeSeries(NodeId nodeId, Set<String> timeSeriesNames, int version);
 
-    default List<DoubleTimeSeries> getDoubleTimeSeries(NodeId nodeId, Set<String> timeSeriesNames, int version) {
-        throw createNotImplementedException();
-    }
+    void addDoubleTimeSeriesData(NodeId nodeId, int version, String timeSeriesName, List<DoubleArrayChunk> chunks);
 
-    default void addDoubleTimeSeriesData(NodeId nodeId, int version, String timeSeriesName, List<DoubleArrayChunk> chunks) {
-        throw createNotImplementedException();
-    }
+    List<StringTimeSeries> getStringTimeSeries(NodeId nodeId, Set<String> timeSeriesNames, int version);
 
-    default List<StringTimeSeries> getStringTimeSeries(NodeId nodeId, Set<String> timeSeriesNames, int version) {
-        throw createNotImplementedException();
-    }
+    void addStringTimeSeriesData(NodeId nodeId, int version, String timeSeriesName, List<StringArrayChunk> chunks);
 
-    default void addStringTimeSeriesData(NodeId nodeId, int version, String timeSeriesName, List<StringArrayChunk> chunks) {
-        throw createNotImplementedException();
-    }
-
-    default void removeAllTimeSeries(NodeId nodeId) {
-        throw createNotImplementedException();
-    }
+    void removeAllTimeSeries(NodeId nodeId);
 
     NodeId getDependency(NodeId nodeId, String name);
 

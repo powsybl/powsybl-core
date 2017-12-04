@@ -24,6 +24,8 @@ import com.powsybl.simulation.securityindexes.SecurityIndex;
 import com.powsybl.simulation.securityindexes.SecurityIndexId;
 import com.powsybl.simulation.securityindexes.SecurityIndexType;
 import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
 import org.nocrala.tools.texttablefmt.BorderStyle;
 import org.nocrala.tools.texttablefmt.Table;
 import org.slf4j.Logger;
@@ -48,10 +50,56 @@ public class ImpactAnalysisTool implements Tool {
     private static final Logger LOGGER = LoggerFactory.getLogger(ImpactAnalysisTool.class);
 
     private static final char CSV_SEPARATOR = ';';
+    private static final String CASE_FILE = "case-file";
+    private static final String CONTINGENCIES = "contingencies";
+    private static final String OUTPUT_CSV_FILE = "output-csv-file";
 
     @Override
     public Command getCommand() {
-        return ImpactAnalysisCommand.INSTANCE;
+        return new Command() {
+
+            @Override
+            public String getName() {
+                return "run-impact-analysis";
+            }
+
+            @Override
+            public String getTheme() {
+                return "Computation";
+            }
+
+            @Override
+            public String getDescription() {
+                return "run an impact analysis";
+            }
+
+            @Override
+            public Options getOptions() {
+                Options options = new Options();
+                options.addOption(Option.builder().longOpt(CASE_FILE)
+                        .desc("the case path")
+                        .hasArg()
+                        .argName("FILE")
+                        .required()
+                        .build());
+                options.addOption(Option.builder().longOpt(CONTINGENCIES)
+                        .desc("contingencies to test separated by , (all the db in not set)")
+                        .hasArg()
+                        .argName("LIST")
+                        .build());
+                options.addOption(Option.builder().longOpt(OUTPUT_CSV_FILE)
+                        .desc("output CSV file path (pretty print on standard output if not specified)")
+                        .hasArg()
+                        .argName("FILE")
+                        .build());
+                return options;
+            }
+
+            @Override
+            public String getUsageFooter() {
+                return null;
+            }
+        };
     }
 
     private static String okToStr(Boolean b) {
@@ -187,12 +235,12 @@ public class ImpactAnalysisTool implements Tool {
     @Override
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
         ComponentDefaultConfig defaultConfig = ComponentDefaultConfig.load();
-        Path caseFile = context.getFileSystem().getPath(line.getOptionValue("case-file"));
-        final Set<String> contingencyIds = line.hasOption("contingencies")
-                ?  Sets.newHashSet(line.getOptionValue("contingencies").split(",")) : null;
+        Path caseFile = context.getFileSystem().getPath(line.getOptionValue(CASE_FILE));
+        final Set<String> contingencyIds = line.hasOption(CONTINGENCIES)
+                ?  Sets.newHashSet(line.getOptionValue(CONTINGENCIES).split(",")) : null;
         Path outputCsvFile = null;
-        if (line.hasOption("output-csv-file")) {
-            outputCsvFile = context.getFileSystem().getPath(line.getOptionValue("output-csv-file"));
+        if (line.hasOption(OUTPUT_CSV_FILE)) {
+            outputCsvFile = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_CSV_FILE));
         }
 
         ContingenciesProvider contingenciesProvider = defaultConfig.newFactoryImpl(ContingenciesProviderFactory.class).create();

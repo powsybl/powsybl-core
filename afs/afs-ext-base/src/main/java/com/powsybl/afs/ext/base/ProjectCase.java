@@ -13,5 +13,9 @@ import com.powsybl.iidm.network.Network;
  */
 public interface ProjectCase {
 
-    Network loadNetwork();
+    Network getNetwork();
+
+    ScriptError getScriptError();
+
+    String getScriptOutput();
 }

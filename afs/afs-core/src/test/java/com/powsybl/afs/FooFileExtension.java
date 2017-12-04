@@ -6,14 +6,11 @@
  */
 package com.powsybl.afs;
 
-import com.powsybl.afs.storage.AppFileSystemStorage;
-import com.powsybl.afs.storage.NodeInfo;
-
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class FooFileExtension implements ProjectFileExtension {
+public class FooFileExtension implements ProjectFileExtension<FooFile, FooFileBuilder> {
     @Override
     public Class<FooFile> getProjectFileClass() {
         return FooFile.class;
@@ -30,12 +27,12 @@ public class FooFileExtension implements ProjectFileExtension {
     }
 
     @Override
-    public FooFile createProjectFile(NodeInfo info, AppFileSystemStorage storage, NodeInfo projectInfo, AppFileSystem fileSystem) {
-        return new FooFile(info, storage, projectInfo, fileSystem);
+    public FooFile createProjectFile(ProjectFileCreationContext context) {
+        return new FooFile(context);
     }
 
     @Override
-    public FooFileBuilder createProjectFileBuilder(NodeInfo folderInfo, AppFileSystemStorage storage, NodeInfo projectInfo, AppFileSystem fileSystem) {
-        return new FooFileBuilder(folderInfo.getId(), storage, projectInfo, fileSystem);
+    public FooFileBuilder createProjectFileBuilder(ProjectFileBuildContext context) {
+        return new FooFileBuilder(context);
     }
 }

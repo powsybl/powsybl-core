@@ -7,16 +7,15 @@
 package com.powsybl.afs.ext.base;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.afs.AppFileSystem;
+import com.powsybl.afs.ProjectFileBuildContext;
+import com.powsybl.afs.ProjectFileCreationContext;
 import com.powsybl.afs.ProjectFileExtension;
-import com.powsybl.afs.storage.AppFileSystemStorage;
-import com.powsybl.afs.storage.NodeInfo;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @AutoService(ProjectFileExtension.class)
-public class ModificationScriptExtension implements ProjectFileExtension {
+public class ModificationScriptExtension implements ProjectFileExtension<ModificationScript, ModificationScriptBuilder> {
     @Override
     public Class<ModificationScript> getProjectFileClass() {
         return ModificationScript.class;
@@ -33,12 +32,12 @@ public class ModificationScriptExtension implements ProjectFileExtension {
     }
 
     @Override
-    public ModificationScript createProjectFile(NodeInfo info, AppFileSystemStorage storage, NodeInfo projectInfo, AppFileSystem fileSystem) {
-        return new ModificationScript(info, storage, projectInfo, fileSystem);
+    public ModificationScript createProjectFile(ProjectFileCreationContext context) {
+        return new ModificationScript(context);
     }
 
     @Override
-    public ModificationScriptBuilder createProjectFileBuilder(NodeInfo folderInfo, AppFileSystemStorage storage, NodeInfo projectInfo, AppFileSystem fileSystem) {
-        return new ModificationScriptBuilder(folderInfo, storage, projectInfo, fileSystem);
+    public ModificationScriptBuilder createProjectFileBuilder(ProjectFileBuildContext context) {
+        return new ModificationScriptBuilder(context);
     }
 }

@@ -6,7 +6,7 @@
  */
 package com.powsybl.afs;
 
-import com.powsybl.afs.storage.AppFileSystemStorage;
+import com.powsybl.afs.storage.ListenableAppStorage;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
@@ -34,6 +34,8 @@ public class AppData implements AutoCloseable {
 
     private final Set<Class<? extends ProjectFile>> projectFileClasses = new HashSet<>();
 
+    private final Map<ServiceExtension.ServiceKey, Object> services = new HashMap<>();
+
     private final Supplier<AppLogger> loggerFactory;
 
     private static class NoOpAppLogger implements AppLogger {
@@ -53,17 +55,20 @@ public class AppData implements AutoCloseable {
         this(LocalComputationManager.getDefault(),
                 new ServiceLoaderCache<>(AppFileSystemProvider.class).getServices(),
                 new ServiceLoaderCache<>(FileExtension.class).getServices(),
-                new ServiceLoaderCache<>(ProjectFileExtension.class).getServices());
-    }
-
-    public AppData(ComputationManager computationManager, List<AppFileSystemProvider> fileSystemProviders,
-                   List<FileExtension> fileExtensions, List<ProjectFileExtension> projectFileExtensions) {
-        this(computationManager, fileSystemProviders, fileExtensions, projectFileExtensions, NoOpAppLogger::new);
+                new ServiceLoaderCache<>(ProjectFileExtension.class).getServices(),
+                new ServiceLoaderCache<>(ServiceExtension.class).getServices());
     }
 
     public AppData(ComputationManager computationManager, List<AppFileSystemProvider> fileSystemProviders,
                    List<FileExtension> fileExtensions, List<ProjectFileExtension> projectFileExtensions,
-                   Supplier<AppLogger> loggerFactory) {
+                   List<ServiceExtension> serviceExtensions) {
+        this(computationManager, fileSystemProviders, fileExtensions, projectFileExtensions, serviceExtensions,
+                NoOpAppLogger::new);
+    }
+
+    public AppData(ComputationManager computationManager, List<AppFileSystemProvider> fileSystemProviders,
+                   List<FileExtension> fileExtensions, List<ProjectFileExtension> projectFileExtensions,
+                   List<ServiceExtension> serviceExtensions, Supplier<AppLogger> loggerFactory) {
         this.computationManager = Objects.requireNonNull(computationManager);
         this.loggerFactory = Objects.requireNonNull(loggerFactory);
         Objects.requireNonNull(fileSystemProviders);
@@ -83,6 +88,9 @@ public class AppData implements AutoCloseable {
             this.projectFileExtensions.put(extension.getProjectFileBuilderClass(), extension);
             this.projectFileExtensionsByPseudoClass.put(extension.getProjectFilePseudoClass(), extension);
             this.projectFileClasses.add(extension.getProjectFileClass());
+        }
+        for (ServiceExtension extension : serviceExtensions) {
+            this.services.put(extension.getServiceKey(), extension.createService());
         }
     }
 
@@ -171,9 +179,18 @@ public class AppData implements AutoCloseable {
                 .collect(Collectors.toList());
     }
 
-    public AppFileSystemStorage getRemotelyAccessibleStorage(String fileSystemName) {
+    public ListenableAppStorage getRemotelyAccessibleStorage(String fileSystemName) {
         AppFileSystem afs = fileSystems.get(fileSystemName);
         return afs != null ? afs.getStorage() : null;
+    }
+
+    <U> U findService(Class<U> serviceClass, boolean remote) {
+        ServiceExtension.ServiceKey<U> serviceKey = new ServiceExtension.ServiceKey<>(serviceClass, remote);
+        U service = (U) services.get(serviceKey);
+        if (service == null) {
+            throw new AfsException("No service found for key " + serviceKey + "");
+        }
+        return service;
     }
 
     @Override

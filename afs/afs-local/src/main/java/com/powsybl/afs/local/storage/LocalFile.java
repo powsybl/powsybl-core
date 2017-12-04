@@ -6,7 +6,6 @@
  */
 package com.powsybl.afs.local.storage;
 
-import com.powsybl.afs.storage.AppFileSystemStorage;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.math.timeseries.DoubleTimeSeries;
 import com.powsybl.math.timeseries.StringTimeSeries;
@@ -32,19 +31,11 @@ public interface LocalFile extends LocalNode {
 
     DataSource getDataSourceAttribute(String name);
 
-    default Set<String> getTimeSeriesNames() {
-        throw AppFileSystemStorage.createNotImplementedException();
-    }
+    Set<String> getTimeSeriesNames();
 
-    default List<TimeSeriesMetadata> getTimeSeriesMetadata(Set<String> timeSeriesNames) {
-        throw AppFileSystemStorage.createNotImplementedException();
-    }
+    List<TimeSeriesMetadata> getTimeSeriesMetadata(Set<String> timeSeriesNames);
 
-    default List<DoubleTimeSeries> getDoubleTimeSeries(Set<String> timeSeriesNames, int version) {
-        throw AppFileSystemStorage.createNotImplementedException();
-    }
+    List<DoubleTimeSeries> getDoubleTimeSeries(Set<String> timeSeriesNames, int version);
 
-    default List<StringTimeSeries> getStringTimeSeries(Set<String> timeSeriesNames, int version) {
-        throw AppFileSystemStorage.createNotImplementedException();
-    }
+    List<StringTimeSeries> getStringTimeSeries(Set<String> timeSeriesNames, int version);
 }

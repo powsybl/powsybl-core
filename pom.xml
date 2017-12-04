@@ -23,6 +23,7 @@
     <modules>
         <module>action</module>
         <module>afs</module>
+        <module>cim-anonymiser</module>
         <module>cim1</module>
         <module>commons</module>
         <module>computation</module>
@@ -46,12 +47,14 @@
 
         <java.version>1.8</java.version>
 
+        <maven.antrun.version>1.8</maven.antrun.version>
         <maven.build-helper.version>3.0.0</maven.build-helper.version>
         <maven.compiler.version>3.6.0</maven.compiler.version>
         <maven.findbugs.version>3.0.4</maven.findbugs.version>
         <maven.javadoc.version>2.10.4</maven.javadoc.version>
         <maven.jacoco.version>0.7.8</maven.jacoco.version>
         <maven.buildnumber.version>1.4</maven.buildnumber.version>
+        <maven.shade.version>3.1.0</maven.shade.version>
         <maven.surefire.version>2.19.1</maven.surefire.version>
         <maven.templating.version>1.0.0</maven.templating.version>
         <maven.jar.version>3.0.2</maven.jar.version>
@@ -62,6 +65,10 @@
         <groovyeclipsecompiler.version>2.9.2-01</groovyeclipsecompiler.version>
         <groovyeclipsebatch.version>2.4.3-01</groovyeclipsebatch.version>
 
+        <sonar.jacoco.reportPaths>
+            ../target/jacoco-merge.exec,
+            ../../target/jacoco-merge.exec
+        </sonar.jacoco.reportPaths>
         <sonar.exclusions>
             **/cim1/**/*, **/generated/**/*
         </sonar.exclusions>
@@ -312,6 +319,9 @@
                                 <goals>
                                     <goal>prepare-agent</goal>
                                 </goals>
+                                <configuration>
+                                    <destFile>${project.build.directory}/jacoco-${project.artifactId}.exec</destFile>
+                                </configuration>
                             </execution>
                         </executions>
                     </plugin>

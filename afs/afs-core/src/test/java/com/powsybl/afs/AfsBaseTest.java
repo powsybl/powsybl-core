@@ -7,8 +7,8 @@
 package com.powsybl.afs;
 
 import com.google.common.collect.ImmutableList;
-import com.powsybl.afs.mapdb.storage.MapDbAppFileSystemStorage;
-import com.powsybl.afs.storage.AppFileSystemStorage;
+import com.powsybl.afs.mapdb.storage.MapDbAppStorage;
+import com.powsybl.afs.storage.AppStorage;
 import com.powsybl.computation.ComputationManager;
 import org.junit.After;
 import org.junit.Before;
@@ -26,7 +26,7 @@ import static org.junit.Assert.*;
  */
 public class AfsBaseTest {
 
-    private AppFileSystemStorage storage;
+    private AppStorage storage;
 
     private AppFileSystem afs;
 
@@ -34,12 +34,12 @@ public class AfsBaseTest {
 
     @Before
     public void setup() throws IOException {
-        storage = MapDbAppFileSystemStorage.createHeap("mem");
+        storage = MapDbAppStorage.createHeap("mem");
 
         ComputationManager computationManager = Mockito.mock(ComputationManager.class);
         afs = new AppFileSystem("mem", true, storage);
         ad = new AppData(computationManager, Collections.singletonList(computationManager1 -> Collections.singletonList(afs)),
-                Collections.emptyList(), Collections.singletonList(new FooFileExtension()));
+                Collections.emptyList(), Collections.singletonList(new FooFileExtension()), Collections.emptyList());
     }
 
     @After
@@ -66,6 +66,10 @@ public class AfsBaseTest {
         assertTrue(dir1.isFolder());
         assertTrue(dir1.isWritable());
         assertEquals("dir1", dir1.getName());
+        assertNotNull(dir1.getCreationDate());
+        assertNotNull(dir1.getModificationDate());
+        assertEquals(0, dir1.getVersion());
+        assertFalse(dir1.isAheadOfVersion());
         assertEquals(dir1.getName(), dir1.toString());
         assertEquals("mem", dir1.getParent().getName());
         Folder dir2 = dir1.getFolder("dir2");
