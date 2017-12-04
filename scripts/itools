@@ -18,6 +18,18 @@ installDir=${installBinDir%/*}
     
 parallel=false
 
+itools_config_help() {
+    echo "Available itools configuration ARGS are:"
+    echo "  --config-name     Override configuration xml file name ( current setting: $itools_config_name )"
+    echo "  --parallel        Override parallel mode (current setting: not parallel)"
+    echo ""
+}
+
+itoolsHelp=false
+if [ $# -eq 0 ]; then
+    itoolsHelp=true
+fi
+
 args=("$@")
 for ((i=0; i<${#args[@]}; i++)); do
     current=${args[i]}
@@ -32,8 +44,15 @@ for ((i=0; i<${#args[@]}; i++)); do
            parallel=true
            unset args[i]
            ;;
+        --help)
+           itoolsHelp=true
+           ;;
     esac
 done
+
+if $itoolsHelp ; then
+    itools_config_help;
+fi
 
 [ -n "$itools_cache_dir" ] && options+="-Ditools.cache.dir=$itools_cache_dir"
 [ -n "$itools_config_dir" ] && options+=" -Ditools.config.dir=$itools_config_dir"
@@ -55,4 +74,3 @@ else
 $options \
 com.powsybl.computation.local.Main "${args[@]}"
 fi
-
