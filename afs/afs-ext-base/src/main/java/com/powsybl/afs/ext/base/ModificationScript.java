@@ -40,6 +40,6 @@ public class ModificationScript extends ProjectFile implements StorableScript {
     public void writeScript(String content) {
         storage.setStringAttribute(info.getId(), SCRIPT_CONTENT, content);
         storage.flush();
-        notifyDependencyChanged();
+        notifyDependencyListeners();
     }
 }

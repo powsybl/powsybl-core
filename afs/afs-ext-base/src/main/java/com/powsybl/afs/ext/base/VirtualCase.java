@@ -6,15 +6,13 @@
  */
 package com.powsybl.afs.ext.base;
 
-import com.powsybl.afs.FileIcon;
-import com.powsybl.afs.ProjectFile;
-import com.powsybl.afs.ProjectFileCreationContext;
+import com.powsybl.afs.*;
 import com.powsybl.iidm.network.Network;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class VirtualCase extends ProjectFile implements ProjectCase, RunnableScript {
+public class VirtualCase extends ProjectFile implements ProjectCase, RunnableScript, DependencyListener {
 
     public static final String PSEUDO_CLASS = "virtualCase";
     public static final int VERSION = 0;
@@ -24,16 +22,21 @@ public class VirtualCase extends ProjectFile implements ProjectCase, RunnableScr
     static final String CASE_DEPENDENCY_NAME = "case";
     static final String SCRIPT_DEPENDENCY_NAME = "script";
 
+    private final DependencyCache<ProjectCase> projectCaseDependency = new DependencyCache<>(this, CASE_DEPENDENCY_NAME, ProjectCase.class);
+
+    private final DependencyCache<ModificationScript> modificationScriptDependency = new DependencyCache<>(this, SCRIPT_DEPENDENCY_NAME, ModificationScript.class);
+
     public VirtualCase(ProjectFileCreationContext context) {
         super(context, VERSION, VIRTUAL_CASE_ICON);
+        addDependencyListener(this, this);
     }
 
     public ProjectCase getCase() {
-        return (ProjectCase) fileSystem.findProjectFile(storage.getDependencyInfo(info.getId(), CASE_DEPENDENCY_NAME));
+        return projectCaseDependency.get();
     }
 
     public ModificationScript getScript() {
-        return (ModificationScript) fileSystem.findProjectFile(storage.getDependencyInfo(info.getId(), SCRIPT_DEPENDENCY_NAME));
+        return modificationScriptDependency.get();
     }
 
     @Override
@@ -67,7 +70,7 @@ public class VirtualCase extends ProjectFile implements ProjectCase, RunnableScr
     }
 
     @Override
-    public void onDependencyChanged() {
+    public void dependencyChanged() {
         fileSystem.findService(NetworkService.class).invalidateCache(this);
     }
 }
