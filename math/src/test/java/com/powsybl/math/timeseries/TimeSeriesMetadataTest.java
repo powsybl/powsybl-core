@@ -40,6 +40,10 @@ public class TimeSeriesMetadataTest {
         assertEquals(tags, metadata.getTags());
         assertSame(index, metadata.getIndex());
 
+        // toString test
+        assertEquals("TimeSeriesMetadata(name=ts1, dataType=DOUBLE, tags={var1=value1}, index=RegularTimeSeriesIndex(startTime=2015-01-01T00:00:00Z, endTime=2015-01-01T01:00:00Z, spacing=PT15M, firstVersion=1, versionCount=1))",
+                     metadata.toString());
+
         // test json
         String jsonRef = String.join(System.lineSeparator(),
                 "{",
