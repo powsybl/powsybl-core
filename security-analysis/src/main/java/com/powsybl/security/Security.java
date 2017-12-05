@@ -68,7 +68,8 @@ public final class Security {
                 branch.getCurrentLimits(side).getPermanentLimit(),
                 limitReduction,
                 branch.getTerminal(side).getI(),
-                side));
+                branch.getTerminal(side).getP(),
+                side, Float.NaN, Float.NaN, Integer.MAX_VALUE));
         }
     }
 
@@ -82,7 +83,9 @@ public final class Security {
                 o1.getPreviousLimit(),
                 limitReduction,
                 branch.getTerminal(side).getI(),
-                side));
+                branch.getTerminal(side).getP(),
+                side,
+                Float.NaN, Float.NaN, o1.getTemporaryLimit().getAcceptableDuration()));
         } else if (currentLimitTypes.contains(CurrentLimitType.PATL)) {
             checkPermanentLimit(branch, side, limitReduction, violations);
         }
