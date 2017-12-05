@@ -56,6 +56,8 @@ public class ProjectFile extends ProjectNode {
     }
 
     public void addDependencyListener(Object source, DependencyListener listener) {
+        Objects.requireNonNull(source);
+        Objects.requireNonNull(listener);
         listeners.computeIfAbsent(source, k -> new ArrayList<>()).add(listener);
     }
 
