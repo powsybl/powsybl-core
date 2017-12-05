@@ -136,7 +136,7 @@ public class LoadFlowActionSimulator implements ActionSimulator {
             throw new PowsyblException(e);
         }
         if (result.isOk()) {
-            List<LimitViolation> violations = LIMIT_VIOLATION_FILTER.apply(Security.checkLimits(context.getNetwork(), 1));
+            List<LimitViolation> violations = LIMIT_VIOLATION_FILTER.apply(Security.checkLimits(context.getNetwork(), 1), context.getNetwork());
             if (!violations.isEmpty()) {
                 LOGGER.info("Violations: \n{}", Security.printLimitsViolations(violations, network, NO_FILTER));
             }

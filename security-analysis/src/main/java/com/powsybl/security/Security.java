@@ -113,7 +113,7 @@ public final class Security {
     public static List<LimitViolation> checkLimits(Network network, Set<CurrentLimitType> currentLimitTypes, float limitReduction) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(currentLimitTypes);
-        //if (limitReduction <= 0 || limitReduction > 1) {
+
         // allow to increase the limits
         if (limitReduction <= 0) {
             throw new IllegalArgumentException("Bad limit reduction " + limitReduction);
@@ -252,8 +252,8 @@ public final class Security {
         Writer writer = new StringWriter();
         List<LimitViolation> filteredViolations = filter.apply(violations);
 
-        NumberFormat numberFormat = getFormatter(formatterConfig.getLocale());
-        NumberFormat percentageFormat = getPercentageFormatter(formatterConfig.getLocale());
+        NumberFormat numberFormat = getFormatter(formatterConfig.getLocale(), 4, 4);
+        NumberFormat percentageFormat = getFormatter(formatterConfig.getLocale(), 2, 2);
 
         try (TableFormatter formatter = formatterFactory.create(writer,
                 "",
@@ -413,8 +413,8 @@ public final class Security {
         Objects.requireNonNull(formatterFactory);
         Objects.requireNonNull(formatterConfig);
 
-        NumberFormat numberFormat = getFormatter(formatterConfig.getLocale());
-        NumberFormat percentageFormat = getPercentageFormatter(formatterConfig.getLocale());
+        NumberFormat numberFormat = getFormatter(formatterConfig.getLocale(), 4, 4);
+        NumberFormat percentageFormat = getFormatter(formatterConfig.getLocale(), 2, 2);
 
         try (TableFormatter formatter = formatterFactory.create(writer,
                 "Pre-contingency violations",
@@ -488,30 +488,6 @@ public final class Security {
         NumberFormat numberFormat = NumberFormat.getNumberInstance(locale);
         numberFormat.setMinimumFractionDigits(minimumFractionDigits);
         numberFormat.setMaximumFractionDigits(maximumFractionDigits);
-        numberFormat.setGroupingUsed(false);
-        return numberFormat;
-    }
-
-    /**
-     * @deprecated Use getFormatter(Locale, int, int) instead.
-     */
-    @Deprecated
-    private static NumberFormat getFormatter(Locale locale) {
-        NumberFormat numberFormat = NumberFormat.getNumberInstance(locale);
-        numberFormat.setMinimumFractionDigits(4);
-        numberFormat.setMaximumFractionDigits(4);
-        numberFormat.setGroupingUsed(false);
-        return numberFormat;
-    }
-
-    /**
-     * @deprecated Use getFormatter(Locale, int, int) instead.
-     */
-    @Deprecated
-    private static NumberFormat getPercentageFormatter(Locale locale) {
-        NumberFormat numberFormat = NumberFormat.getNumberInstance(locale);
-        numberFormat.setMinimumFractionDigits(2);
-        numberFormat.setMaximumFractionDigits(2);
         numberFormat.setGroupingUsed(false);
         return numberFormat;
     }
@@ -744,8 +720,8 @@ public final class Security {
                             .collect(Collectors.toSet())
                     : Collections.emptySet();
 
-            NumberFormat numberFormat = getFormatter(formatterConfig.getLocale());
-            NumberFormat percentageFormat = getPercentageFormatter(formatterConfig.getLocale());
+            NumberFormat numberFormat = getFormatter(formatterConfig.getLocale(), 4, 4);
+            NumberFormat percentageFormat = getFormatter(formatterConfig.getLocale(), 2, 2);
 
             try (TableFormatter formatter = formatterFactory.create(writer,
                     "Post-contingency limit violations",
