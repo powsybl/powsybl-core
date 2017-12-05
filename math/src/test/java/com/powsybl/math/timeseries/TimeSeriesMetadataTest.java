@@ -17,6 +17,7 @@ import org.threeten.extra.Interval;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -73,5 +74,19 @@ public class TimeSeriesMetadataTest {
         assertEquals(2, metadataList.size());
         assertEquals(metadata, metadataList.get(0));
         assertEquals(metadata, metadataList.get(1));
+    }
+
+    @Test
+    public void testInfiniteIndex() throws IOException {
+        assertEquals("infiniteIndex", InfiniteTimeSeriesIndex.INSTANCE.getType());
+        assertEquals(1, InfiniteTimeSeriesIndex.INSTANCE.getFirstVersion());
+        assertEquals(1, InfiniteTimeSeriesIndex.INSTANCE.getVersionCount());
+        assertEquals(2, InfiniteTimeSeriesIndex.INSTANCE.getPointCount());
+        assertEquals(InfiniteTimeSeriesIndex.START_TIME, InfiniteTimeSeriesIndex.INSTANCE.getTimeAt(0));
+        assertEquals(InfiniteTimeSeriesIndex.END_TIME, InfiniteTimeSeriesIndex.INSTANCE.getTimeAt(1));
+        assertEquals("InfiniteTimeSeriesIndex()", InfiniteTimeSeriesIndex.INSTANCE.toString());
+        TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, Collections.emptyMap(), InfiniteTimeSeriesIndex.INSTANCE);
+        TimeSeriesMetadata metadata2 = JsonUtil.parseJson(JsonUtil.toJson(metadata::writeJson), TimeSeriesMetadata::parseJson);
+        assertEquals(metadata, metadata2);
     }
 }
