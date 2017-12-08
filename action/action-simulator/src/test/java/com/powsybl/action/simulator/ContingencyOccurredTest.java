@@ -8,11 +8,10 @@ package com.powsybl.action.simulator;
 
 import com.powsybl.action.simulator.loadflow.DefaultLoadFlowActionSimulatorObserver;
 import com.powsybl.action.simulator.loadflow.LoadFlowActionSimulatorObserver;
-import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import org.junit.Test;
-
+import com.powsybl.action.simulator.loadflow.RunningContext;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -54,20 +53,20 @@ public class ContingencyOccurredTest extends AbstractLoadFlowRulesEngineTest {
             }
 
             @Override
-            public void beforePreContingencyAnalysis(Network network) {
-                preContNetwork = network;
+            public void beforePreContingencyAnalysis(RunningContext runningContext) {
+                preContNetwork = runningContext.getNetwork();
                 overload(preContNetwork);
             }
 
             @Override
-            public void postContingencyAnalysisNetworkLoaded(Contingency contingency, Network network) {
-                postContNetwork = network;
+            public void postContingencyAnalysisNetworkLoaded(RunningContext runningContext) {
+                postContNetwork = runningContext.getNetwork();
                 overload(postContNetwork);
             }
 
             @Override
-            public void beforeAction(Contingency contingency, String actionId) {
-                if (contingency == null) {
+            public void beforeAction(RunningContext runningContext, String actionId) {
+                if (runningContext.getContingency() == null) {
                     preContActions.add(actionId);
                     underload(preContNetwork);
                 } else {
