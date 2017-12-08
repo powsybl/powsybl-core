@@ -7,7 +7,6 @@
 package com.powsybl.action.simulator.loadflow;
 
 import com.powsybl.action.dsl.Rule;
-import com.powsybl.contingency.Contingency;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.Security;
 import org.nocrala.tools.texttablefmt.BorderStyle;
@@ -63,7 +62,8 @@ public class LoadFlowActionSimulatorLogPrinter extends DefaultLoadFlowActionSimu
         }
     }
 
-    public void ruleChecked(Contingency contingency, Rule rule, RuleEvaluationStatus status, Map<String, Object> variables, Map<String, Boolean> actions) {
+    @Override
+    public void ruleChecked(RunningContext runningContext, Rule rule, RuleEvaluationStatus status, Map<String, Object> variables, Map<String, Boolean> actions) {
         if (verbose || status == RuleEvaluationStatus.TRUE) {
             out.println("        Rule '" + rule.getId() + "' evaluated to " + status);
         }
