@@ -14,6 +14,7 @@ import com.powsybl.afs.storage.NodeId;
 import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.math.timeseries.*;
+import org.apache.commons.lang3.SystemUtils;
 import org.mapdb.*;
 
 import java.io.*;
@@ -38,13 +39,17 @@ public class MapDbAppStorage implements AppStorage {
     }
 
     public static MapDbAppStorage createMmapFile(String fileSystemName, File dbFile) {
-        DBMaker.Maker maker = DBMaker.fileDB(dbFile);
-        return new MapDbAppStorage(fileSystemName, () -> maker
-                .fileMmapEnable()
-                .fileMmapEnableIfSupported()
-                .fileMmapPreclearDisable()
-                .transactionEnable()
-                .make());
+        return new MapDbAppStorage(fileSystemName, () -> {
+            DBMaker.Maker maker = DBMaker.fileDB(dbFile)
+                    .transactionEnable();
+            // mmap support doesnt' work on Windows
+            if (!SystemUtils.IS_OS_WINDOWS) {
+                maker.fileMmapEnable()
+                        .fileMmapEnableIfSupported()
+                        .fileMmapPreclearDisable();
+            }
+            return maker.make();
+        });
     }
 
     private static final class NamedLink {
