@@ -292,11 +292,14 @@ public class DefaultListenableAppStorage implements ListenableAppStorage {
 
     @Override
     public void addListener(Object target, AppStorageListener l) {
+        Objects.requireNonNull(target);
+        Objects.requireNonNull(l);
         listeners.computeIfAbsent(target, k -> new ArrayList<>()).add(l);
     }
 
     @Override
     public void removeListeners(Object target) {
+        Objects.requireNonNull(target);
         listeners.remove(target);
     }
 }

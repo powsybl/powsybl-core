@@ -74,6 +74,16 @@ public class VirtualCase extends ProjectFile implements ProjectCase, RunnableScr
         getScript().writeScript(content);
     }
 
+    @Override
+    public void addListener(ScriptListener listener) {
+        getScript().addListener(listener);
+    }
+
+    @Override
+    public void removeListener(ScriptListener listener) {
+        getScript().removeListener(listener);
+    }
+
     private void invalidateNetworkCache() {
         fileSystem.findService(NetworkService.class).invalidateCache(this);
     }
