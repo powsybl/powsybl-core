@@ -7,18 +7,9 @@
 package com.powsybl.afs.ext.base;
 
 /**
- *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface StorableScript {
+public interface ScriptListener {
 
-    ScriptType getScriptType();
-
-    String readScript();
-
-    void writeScript(String content);
-
-    void addListener(ScriptListener listener);
-
-    void removeListener(ScriptListener listener);
+    void scriptUpdated();
 }
