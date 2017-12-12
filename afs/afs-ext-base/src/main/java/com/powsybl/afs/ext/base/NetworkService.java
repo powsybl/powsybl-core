@@ -16,6 +16,8 @@ public interface NetworkService {
 
     <T extends ProjectFile & ProjectCase> Network getNetwork(T projectCase);
 
+    <T extends ProjectFile & ProjectCase> String queryNetwork(T projectCase, String groovyScript);
+
     <T extends ProjectFile & ProjectCase> ScriptError getScriptError(T projectCase);
 
     <T extends ProjectFile & ProjectCase> String getScriptOutput(T projectCase);

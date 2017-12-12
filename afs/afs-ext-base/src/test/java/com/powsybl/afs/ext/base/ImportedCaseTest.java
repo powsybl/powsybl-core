@@ -101,6 +101,9 @@ public class ImportedCaseTest extends AbstractProjectFileTest {
         assertEquals("", importedCase.getScriptOutput());
         assertTrue(importedCase.getDependencies().isEmpty());
 
+        // test network query
+        assertEquals("[\"s1\"]", importedCase.queryNetwork("network.substations.collect { it.id }"));
+
         // try to reload the imported case
         assertEquals(1, folder.getChildren().size());
         ProjectNode projectNode = folder.getChildren().get(0);
@@ -113,7 +116,7 @@ public class ImportedCaseTest extends AbstractProjectFileTest {
 
         assertNotNull(folder.getChild(ImportedCase.class, "network"));
 
-        // deleteProjectNode imported case
+        // delete imported case
         projectNode.delete();
         assertTrue(folder.getChildren().isEmpty());
         try {
