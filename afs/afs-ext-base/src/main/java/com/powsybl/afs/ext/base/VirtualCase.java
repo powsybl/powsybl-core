@@ -40,6 +40,11 @@ public class VirtualCase extends ProjectFile implements ProjectCase, RunnableScr
     }
 
     @Override
+    public String queryNetwork(String groovyScript) {
+        return fileSystem.findService(NetworkService.class).queryNetwork(this, groovyScript);
+    }
+
+    @Override
     public Network getNetwork() {
         return fileSystem.findService(NetworkService.class).getNetwork(this);
     }
@@ -70,7 +75,29 @@ public class VirtualCase extends ProjectFile implements ProjectCase, RunnableScr
     }
 
     @Override
-    public void dependencyChanged() {
+    public void addListener(ScriptListener listener) {
+        getScript().addListener(listener);
+    }
+
+    @Override
+    public void removeListener(ScriptListener listener) {
+        getScript().removeListener(listener);
+    }
+
+    private void invalidateNetworkCache() {
         fileSystem.findService(NetworkService.class).invalidateCache(this);
+    }
+
+    @Override
+    public void dependencyChanged() {
+        invalidateNetworkCache();
+    }
+
+    @Override
+    public void delete() {
+        super.delete();
+
+        // also clean cache
+        invalidateNetworkCache();
     }
 }
