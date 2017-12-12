@@ -16,7 +16,7 @@ import java.time.Duration;
 import java.time.Instant;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -38,7 +38,7 @@ public class RegularTimeSeriesIndexTest {
         assertEquals(Instant.ofEpochMilli(index.getStartTime() + 15 * 60 * 1000).toEpochMilli(), index.getTimeAt(1));
 
         // test to string
-        assertEquals("index(startTime=2015-01-01T00:00:00Z, endTime=2015-01-01T01:00:00Z, spacing=PT15M, firstVersion=1, versionCount=1)",
+        assertEquals("RegularTimeSeriesIndex(startTime=2015-01-01T00:00:00Z, endTime=2015-01-01T01:00:00Z, spacing=PT15M, firstVersion=1, versionCount=1)",
                      index.toString());
 
         // test json
@@ -52,8 +52,8 @@ public class RegularTimeSeriesIndexTest {
                 "}");
         String json = JsonUtil.toJson(index::writeJson);
         assertEquals(jsonRef, json);
-        TimeSeriesIndex index2 = JsonUtil.parseJson(json, RegularTimeSeriesIndex::parseJson);
-        assertTrue(index2 instanceof RegularTimeSeriesIndex);
+        RegularTimeSeriesIndex index2 = JsonUtil.parseJson(json, RegularTimeSeriesIndex::parseJson);
+        assertNotNull(index2);
         assertEquals(index, index2);
     }
 

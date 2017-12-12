@@ -57,34 +57,38 @@ public class LocalAppStorage implements AppStorage {
 
     private LocalFile scanFile(Path path, boolean useCache) {
         LocalFile file = null;
-        if (useCache && fileCache.containsKey(path)) {
-            file = fileCache.get(path);
-        } else {
-            LocalFileScannerContext context = new LocalFileScannerContext(computationManager);
-            for (LocalFileScanner fileScanner : fileScanners) {
-                file = fileScanner.scanFile(path, context);
-                if (file != null) {
-                    break;
+        if (Files.isReadable(path)) {
+            if (useCache && fileCache.containsKey(path)) {
+                file = fileCache.get(path);
+            } else {
+                LocalFileScannerContext context = new LocalFileScannerContext(computationManager);
+                for (LocalFileScanner fileScanner : fileScanners) {
+                    file = fileScanner.scanFile(path, context);
+                    if (file != null) {
+                        break;
+                    }
                 }
+                fileCache.put(path, file);
             }
-            fileCache.put(path, file);
         }
         return file;
     }
 
     private LocalFolder scanFolder(Path path, boolean useCache) {
         LocalFolder folder = null;
-        if (useCache && folderCache.containsKey(path)) {
-            folder = folderCache.get(path);
-        } else {
-            LocalFolderScannerContext context = new LocalFolderScannerContext(rootDir, fileSystemName, computationManager);
-            for (LocalFolderScanner folderScanner : folderScanners) {
-                folder = folderScanner.scanFolder(path, context);
-                if (folder != null) {
-                    break;
+        if (Files.isReadable(path)) {
+            if (useCache && folderCache.containsKey(path)) {
+                folder = folderCache.get(path);
+            } else {
+                LocalFolderScannerContext context = new LocalFolderScannerContext(rootDir, fileSystemName, computationManager);
+                for (LocalFolderScanner folderScanner : folderScanners) {
+                    folder = folderScanner.scanFolder(path, context);
+                    if (folder != null) {
+                        break;
+                    }
                 }
+                folderCache.put(path, folder);
             }
-            folderCache.put(path, folder);
         }
         return folder;
     }
