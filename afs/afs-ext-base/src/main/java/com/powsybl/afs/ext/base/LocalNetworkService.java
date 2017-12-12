@@ -80,7 +80,7 @@ public class LocalNetworkService implements NetworkService {
 
     private ModifiedNetwork applyScript(Network network, String previousScriptOutput, ModificationScript script) {
         ScriptResult result = ScriptUtils.runScript(network, script.getScriptType(), script.readScript());
-        if (result.getError()  == null) {
+        if (result.getError() == null) {
             return new ModifiedNetwork(network, null, previousScriptOutput + result.getOutput());
         } else {
             // return an empty network
@@ -91,17 +91,14 @@ public class LocalNetworkService implements NetworkService {
     private ModifiedNetwork loadNetworkFromVirtualCase(VirtualCase virtualCase) {
         ProjectCase baseCase = virtualCase.getCase();
 
-        // getNetwork network
         ModifiedNetwork modifiedNetwork = loadNetworkFromProjectCase(baseCase);
 
         if (modifiedNetwork.getScriptError() != null) {
             return modifiedNetwork;
         }
 
-        // getNetwork script
         ModificationScript script = virtualCase.getScript();
 
-        // apply script
         LOGGER.info("Applying script to network of project case " + virtualCase.getId());
 
         return applyScript(modifiedNetwork.getNetwork(), modifiedNetwork.getScriptOutput(), script);
