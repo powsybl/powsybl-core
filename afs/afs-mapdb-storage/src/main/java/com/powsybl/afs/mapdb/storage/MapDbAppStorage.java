@@ -42,10 +42,10 @@ public class MapDbAppStorage implements AppStorage {
         return new MapDbAppStorage(fileSystemName, () -> {
             DBMaker.Maker maker = DBMaker.fileDB(dbFile)
                     .transactionEnable();
-            // mmap support doesnt' work on Windows
+            // it is not recommanded to use mmap on Windows (crash)
+            // http://www.mapdb.org/blog/mmap_files_alloc_and_jvm_crash/
             if (!SystemUtils.IS_OS_WINDOWS) {
-                maker.fileMmapEnable()
-                        .fileMmapEnableIfSupported()
+                maker.fileMmapEnableIfSupported()
                         .fileMmapPreclearDisable();
             }
             return maker.make();
