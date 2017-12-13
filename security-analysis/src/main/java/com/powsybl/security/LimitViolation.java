@@ -28,11 +28,19 @@ public class LimitViolation {
 
     private final float value;
 
+    private final float valueMW;
+
     private final Country country;
 
     private final float baseVoltage;
 
     private final Branch.Side side;
+
+    private final float valueBefore;
+
+    private final float valueBeforeMW;
+
+    private final int acceptableDuration;
 
     /**
      * @deprecated use LimitViolation(String, LimitViolationType, String, float, float, float, Branch.Side) instead.
@@ -46,9 +54,13 @@ public class LimitViolation {
         this.limitName = limitName;
         this.limitReduction = limitReduction;
         this.value = value;
+        this.valueMW = Float.NaN;
         this.country = country;
         this.baseVoltage = baseVoltage;
         this.side = null;
+        this.valueBefore = Float.NaN;
+        this.valueBeforeMW = Float.NaN;
+        this.acceptableDuration = Integer.MAX_VALUE;
     }
 
     /**
@@ -59,21 +71,26 @@ public class LimitViolation {
         this(subjectId, limitType, limit, limitName, 1, value, null, Float.NaN);
     }
 
-    public LimitViolation(String subjectId, LimitViolationType limitType, String limitName, float limit, float limitReduction,
-                          float value, Branch.Side side) {
+    public LimitViolation(String subjectId, LimitViolationType limitType, String limitName, float limit,
+                          float limitReduction, float value, float valueMW, Branch.Side side, float valueBefore,
+                          float valueBeforeMW, int acceptableDuration) {
         this.subjectId = Objects.requireNonNull(subjectId);
         this.limitType = Objects.requireNonNull(limitType);
         this.limitName = limitName;
         this.limit = limit;
         this.limitReduction = limitReduction;
         this.value = value;
+        this.valueMW = valueMW;
         this.side = checkSide(limitType, side);
         this.country = null;
         this.baseVoltage = Float.NaN;
+        this.valueBefore = valueBefore;
+        this.valueBeforeMW = valueBeforeMW;
+        this.acceptableDuration = acceptableDuration;
     }
 
     public LimitViolation(String subjectId, LimitViolationType limitType, float limit, float limitReduction, float value) {
-        this(subjectId, limitType, null, limit, limitReduction, value, null);
+        this(subjectId, limitType, null, limit, limitReduction, value, Float.NaN, null, Float.NaN, Float.NaN, Integer.MAX_VALUE);
     }
 
     public String getSubjectId() {
@@ -100,8 +117,24 @@ public class LimitViolation {
         return value;
     }
 
+    public float getValueMW() {
+        return valueMW;
+    }
+
     public Branch.Side getSide() {
         return side;
+    }
+
+    public float getValueBefore() {
+        return valueBefore;
+    }
+
+    public float getValueBeforeMW() {
+        return valueBeforeMW;
+    }
+
+    public int getAcceptableDuration() {
+        return acceptableDuration;
     }
 
     /**
@@ -128,7 +161,7 @@ public class LimitViolation {
         }
     }
 
-    static Country getCountry(LimitViolation limitViolation, Network network) {
+    public static Country getCountry(LimitViolation limitViolation, Network network, Branch.Side side) {
         Objects.requireNonNull(limitViolation);
         Objects.requireNonNull(network);
 
@@ -137,7 +170,7 @@ public class LimitViolation {
         Identifiable identifiable = network.getIdentifiable(limitViolation.getSubjectId());
         if (identifiable instanceof Branch) {
             Branch branch = (Branch) identifiable;
-            country = branch.getTerminal(limitViolation.getSide()).getVoltageLevel().getSubstation().getCountry();
+            country = branch.getTerminal(side).getVoltageLevel().getSubstation().getCountry();
         } else if (identifiable instanceof Injection) {
             Injection injection = (Injection) identifiable;
             country = injection.getTerminal().getVoltageLevel().getSubstation().getCountry();
@@ -154,7 +187,11 @@ public class LimitViolation {
         return country;
     }
 
-    static float getNominalVoltage(LimitViolation limitViolation, Network network) {
+    public static Country getCountry(LimitViolation limitViolation, Network network) {
+        return getCountry(limitViolation, network, limitViolation.getSide());
+    }
+
+    public static float getNominalVoltage(LimitViolation limitViolation, Network network, Branch.Side side) {
         Objects.requireNonNull(limitViolation);
         Objects.requireNonNull(network);
 
@@ -165,7 +202,7 @@ public class LimitViolation {
             throw new AssertionError("Unable to find the identifiable: " + limitViolation.getSubjectId());
         } else if (identifiable instanceof Branch) {
             Branch branch = (Branch) identifiable;
-            nominalVoltage = branch.getTerminal(limitViolation.getSide()).getVoltageLevel().getNominalV();
+            nominalVoltage = branch.getTerminal(side).getVoltageLevel().getNominalV();
         } else if (identifiable instanceof Injection) {
             Injection injection = (Injection) identifiable;
             nominalVoltage = injection.getTerminal().getVoltageLevel().getNominalV();
@@ -177,5 +214,67 @@ public class LimitViolation {
         }
 
         return nominalVoltage;
+    }
+
+    public static float getNominalVoltage(LimitViolation limitViolation, Network network) {
+        return getNominalVoltage(limitViolation, network, limitViolation.getSide());
+    }
+
+    public static String getRegion(LimitViolation limitViolation, Network network, Branch.Side side) {
+        Objects.requireNonNull(limitViolation);
+        Objects.requireNonNull(network);
+
+        String region = null;
+
+        Identifiable identifiable = network.getIdentifiable(limitViolation.getSubjectId());
+        if (identifiable == null) {
+            throw new AssertionError("Unable to find the identifiable: " + limitViolation.getSubjectId());
+        } else if (identifiable instanceof Branch) {
+            Branch branch = (Branch) identifiable;
+            region = branch.getTerminal(side).getVoltageLevel().getSubstation().getProperties().getProperty("regionCvg");
+        } else if (identifiable instanceof Injection) {
+            Injection injection = (Injection) identifiable;
+            region = injection.getTerminal().getVoltageLevel().getSubstation().getProperties().getProperty("regionCvg");
+        } else if (identifiable instanceof VoltageLevel) {
+            VoltageLevel voltageLevel = (VoltageLevel) identifiable;
+            region = voltageLevel.getSubstation().getProperties().getProperty("regionCvg");
+        } else {
+            throw new AssertionError("Unexpected identifiable type: " + identifiable.getClass());
+        }
+
+        return region;
+    }
+
+    public static String getRegion(LimitViolation limitViolation, Network network) {
+        return getRegion(limitViolation, network, limitViolation.getSide());
+    }
+
+    public static String getSubstation(LimitViolation limitViolation, Network network, Branch.Side side) {
+        Objects.requireNonNull(limitViolation);
+        Objects.requireNonNull(network);
+
+        String substation = null;
+
+        Identifiable identifiable = network.getIdentifiable(limitViolation.getSubjectId());
+        if (identifiable == null) {
+            throw new AssertionError("Unable to find the identifiable: " + limitViolation.getSubjectId());
+        } else if (identifiable instanceof Branch) {
+            Branch branch = (Branch) identifiable;
+            substation = branch.getTerminal(side).getVoltageLevel().getName();
+        } else if (identifiable instanceof Injection) {
+            Injection injection = (Injection) identifiable;
+            substation = injection.getTerminal().getVoltageLevel().getName();
+        } else if (identifiable instanceof VoltageLevel) {
+            VoltageLevel voltageLevel = (VoltageLevel) identifiable;
+            substation = voltageLevel.getName();
+        } else {
+            throw new AssertionError("Unexpected identifiable type: " + identifiable.getClass());
+        }
+
+        return substation;
+    }
+
+    public static String getSubstation(LimitViolation limitViolation, Network network) {
+        return getSubstation(limitViolation, network, limitViolation.getSide());
     }
 }

@@ -17,11 +17,11 @@ import com.powsybl.security.LimitViolationType;
 import java.io.IOException;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Olivier Bretteville <olivier.bretteville at rte-france.com>
  */
-class LimitViolationDeserializer extends StdDeserializer<LimitViolation> {
+class ApogeeLimitViolationDeserializer extends StdDeserializer<LimitViolation> {
 
-    LimitViolationDeserializer() {
+    ApogeeLimitViolationDeserializer() {
         super(LimitViolation.class);
     }
 
@@ -74,9 +74,14 @@ class LimitViolationDeserializer extends StdDeserializer<LimitViolation> {
                     valueMW = parser.readValueAs(Float.class);
                     break;
 
-                case "side":
+                case "isOrigin":
                     parser.nextToken();
-                    side = parser.readValueAs(Branch.Side.class);
+                    boolean isOrigin = parser.readValueAs(Boolean.class);
+                    if (isOrigin) {
+                        side = Branch.Side.ONE;
+                    } else {
+                        side = Branch.Side.TWO;
+                    }
                     break;
 
                 case "valueBefore":
@@ -89,9 +94,24 @@ class LimitViolationDeserializer extends StdDeserializer<LimitViolation> {
                     valueBeforeMW = parser.readValueAs(Float.class);
                     break;
 
-                case "acceptableDuration":
+                case "limitDuration":
                     parser.nextToken();
                     acceptableDuration = parser.readValueAs(Integer.class);
+                    break;
+
+                case "country":
+                case "countryOr":
+                case "countryEx":
+                case "region":
+                case "regionOr":
+                case "regionEx":
+                case "substation":
+                case "substationOr":
+                case "substationEx":
+                case "baseVoltage":
+                case "baseVoltageOr":
+                case "baseVoltageEx":
+                    // Attributes of the network -> not read
                     break;
 
                 default:

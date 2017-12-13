@@ -88,8 +88,8 @@ public class LimitViolationFilterTest {
     public void apply() throws Exception {
         Network network = TestingNetworkFactory.create();
 
-        LimitViolation line1Violation = new LimitViolation("LINE1", LimitViolationType.CURRENT, "", 1000f, 1, 1100f, Branch.Side.ONE);
-        LimitViolation line2Violation = new LimitViolation("LINE2", LimitViolationType.CURRENT, "", 900f, 1, 950f, Branch.Side.TWO);
+        LimitViolation line1Violation = new LimitViolation("LINE1", LimitViolationType.CURRENT, "", 1000f, 1, 1100f, 1100f * 0.225f, Branch.Side.ONE, Float.NaN, Float.NaN, 0);
+        LimitViolation line2Violation = new LimitViolation("LINE2", LimitViolationType.CURRENT, "", 900f, 1, 950f, 950f * 0.400f, Branch.Side.TWO, Float.NaN, Float.NaN, Integer.MAX_VALUE);
         LimitViolation vl1Violation = new LimitViolation("VL1", LimitViolationType.HIGH_VOLTAGE, 200f, 1, 250f);
 
         LimitViolationFilter filter = new LimitViolationFilter();
