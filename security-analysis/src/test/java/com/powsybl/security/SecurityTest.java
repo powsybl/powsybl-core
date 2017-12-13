@@ -145,4 +145,84 @@ public class SecurityTest {
             }
         });
     }
+
+    public void setUpDeprecated() {
+        formatterConfig = new TableFormatterConfig(Locale.US, ',', "inv", true, true);
+        // create pre-contingency results, just one violation on line1
+        line1Violation = new LimitViolation("line1", LimitViolationType.CURRENT, 1000f, "20'", 1100);
+        LimitViolationsResult preContingencyResult = new LimitViolationsResult(true, Collections.singletonList(line1Violation), Collections.singletonList("action1"));
+
+        // create post-contingency results, still the line1 violation plus line2 violation
+        Contingency contingency1 = Mockito.mock(Contingency.class);
+        Mockito.when(contingency1.getId()).thenReturn("contingency1");
+        line2Violation = new LimitViolation("line2", LimitViolationType.CURRENT, 900f, "10'", 950);
+        PostContingencyResult postContingencyResult = new PostContingencyResult(contingency1, true, Arrays.asList(line1Violation, line2Violation), Collections.singletonList("action2"));
+        result = new SecurityAnalysisResult(preContingencyResult, Collections.singletonList(postContingencyResult));
+    }
+
+    @Test
+    public void printPreContingencyViolationsDeprecated() throws Exception {
+        setUpDeprecated();
+        StringWriter writer = new StringWriter();
+        //System.out.println(formatterConfig);
+        try {
+            Security.printPreContingencyViolations(result, writer, formatterFactory, formatterConfig, null);
+        } finally {
+            writer.close();
+        }
+        assertEquals(String.join(System.lineSeparator(),
+                "Pre-contingency violations",
+                "Action,Equipment,Violation type,Violation name,Value,Limit,Loading rate %",
+                "action1,,,,,,",
+                ",line1,CURRENT,20',1100.0000,1000.0000,110.00"),
+                writer.toString().trim());
+    }
+
+    @Test
+    public void printPostContingencyViolationsDeprecated() throws Exception {
+        setUpDeprecated();
+        StringWriter writer = new StringWriter();
+        try {
+            Security.printPostContingencyViolations(result, writer, formatterFactory, formatterConfig, null, false);
+        } finally {
+            writer.close();
+        }
+        assertEquals(String.join(System.lineSeparator(),
+                "Post-contingency limit violations",
+                "Contingency,Status,Action,Equipment,Violation type,Violation name,Value,Limit,Loading rate %",
+                "contingency1,converge,,,,,,,",
+                ",,action2,,,,,,",
+                ",,,line1,CURRENT,20',1100.0000,1000.0000,110.00",
+                ",,,line2,CURRENT,10',950.0000,900.0000,105.56"),
+                writer.toString().trim());
+    }
+
+    @Test
+    public void printPostContingencyViolationsWithPreContingencyViolationsFilteringDeprecated() throws Exception {
+        setUpDeprecated();
+        StringWriter writer = new StringWriter();
+        try {
+            Security.printPostContingencyViolations(result, writer, formatterFactory, formatterConfig, null, true);
+        } finally {
+            writer.close();
+        }
+        assertEquals(String.join(System.lineSeparator(),
+                "Post-contingency limit violations",
+                "Contingency,Status,Action,Equipment,Violation type,Violation name,Value,Limit,Loading rate %",
+                "contingency1,converge,,,,,,,",
+                ",,action2,,,,,,",
+                ",,,line2,CURRENT,10',950.0000,900.0000,105.56"),
+                writer.toString().trim());
+    }
+    @Test
+    public void printLimitsViolationsDeprecated() throws Exception {
+        setUpDeprecated();
+        assertEquals("+---------+--------------+---------------+----------------+----------------+---------+-----------+------------------+----------------+\n" +
+                        "| Country | Base voltage | Equipment (2) | Violation type | Violation name | Value   | Limit     | abs(value-limit) | Loading rate % |\n" +
+                        "+---------+--------------+---------------+----------------+----------------+---------+-----------+------------------+----------------+\n" +
+                        "|         |              | line1         | CURRENT        | 20'            | 1100.00 | 1000.0000 |         100.0000 |         110.00 |\n" +
+                        "|         |              | line2         | CURRENT        | 10'            | 950.000 |  900.0000 |          50.0000 |         105.56 |\n" +
+                        "+---------+--------------+---------------+----------------+----------------+---------+-----------+------------------+----------------+",
+                Security.printLimitsViolations(Arrays.asList(line1Violation, line2Violation), new LimitViolationFilter(), formatterConfig));
+    }
 }
