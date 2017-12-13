@@ -146,6 +146,10 @@ public class SecurityTest {
         });
     }
 
+    /**
+     * @deprecated to be removed in the next release.
+     */
+    @Deprecated
     public void setUpDeprecated() {
         formatterConfig = new TableFormatterConfig(Locale.US, ',', "inv", true, true);
         // create pre-contingency results, just one violation on line1
@@ -160,6 +164,10 @@ public class SecurityTest {
         result = new SecurityAnalysisResult(preContingencyResult, Collections.singletonList(postContingencyResult));
     }
 
+    /**
+     * @deprecated to be removed in the next release.
+     */
+    @Deprecated
     @Test
     public void printPreContingencyViolationsDeprecated() throws Exception {
         setUpDeprecated();
@@ -178,6 +186,10 @@ public class SecurityTest {
                 writer.toString().trim());
     }
 
+    /**
+     * @deprecated to be removed in the next release.
+     */
+    @Deprecated
     @Test
     public void printPostContingencyViolationsDeprecated() throws Exception {
         setUpDeprecated();
@@ -197,6 +209,10 @@ public class SecurityTest {
                 writer.toString().trim());
     }
 
+    /**
+     * @deprecated to be removed in the next release.
+     */
+    @Deprecated
     @Test
     public void printPostContingencyViolationsWithPreContingencyViolationsFilteringDeprecated() throws Exception {
         setUpDeprecated();
@@ -214,6 +230,11 @@ public class SecurityTest {
                 ",,,line2,CURRENT,10',950.0000,900.0000,105.56"),
                 writer.toString().trim());
     }
+
+    /**
+     * @deprecated to be removed in the next release.
+     */
+    @Deprecated
     @Test
     public void printLimitsViolationsDeprecated() throws Exception {
         setUpDeprecated();
