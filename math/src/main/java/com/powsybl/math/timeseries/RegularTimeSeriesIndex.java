@@ -182,7 +182,7 @@ public class RegularTimeSeriesIndex implements TimeSeriesIndex {
 
     @Override
     public String toString() {
-        return "index(startTime=" + Instant.ofEpochMilli(startTime) + ", endTime=" + Instant.ofEpochMilli(endTime) +
+        return "RegularTimeSeriesIndex(startTime=" + Instant.ofEpochMilli(startTime) + ", endTime=" + Instant.ofEpochMilli(endTime) +
                 ", spacing=" + Duration.ofMillis(spacing) + ", firstVersion=" + firstVersion + ", versionCount=" + versionCount + ")";
     }
 }

@@ -6,18 +6,10 @@
  */
 package com.powsybl.afs.ext.base;
 
-import com.powsybl.iidm.network.Network;
-
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface ProjectCase {
+public interface ScriptListener {
 
-    String queryNetwork(String groovyScript);
-
-    Network getNetwork();
-
-    ScriptError getScriptError();
-
-    String getScriptOutput();
+    void scriptUpdated();
 }

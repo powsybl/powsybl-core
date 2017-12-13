@@ -77,8 +77,14 @@ public class ModificationScriptTest extends AbstractProjectFileTest {
         assertFalse(script.isFolder());
         assertTrue(script.getDependencies().isEmpty());
         assertEquals("println 'hello'", script.readScript());
+        boolean[] scriptUpdated = new boolean[1];
+        scriptUpdated[0] = false;
+        ScriptListener listener = () -> scriptUpdated[0] = true;
+        script.addListener(listener);
         script.writeScript("println 'bye'");
         assertEquals("println 'bye'", script.readScript());
+        assertTrue(scriptUpdated[0]);
+        script.removeListener(listener);
 
         // check script file is correctly scanned
         assertEquals(1, rootFolder.getChildren().size());

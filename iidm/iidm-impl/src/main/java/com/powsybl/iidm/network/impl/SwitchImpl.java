@@ -22,22 +22,23 @@ class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, Statefu
 
     private final SwitchKind kind;
 
-    private boolean retained;
-
     private boolean fictitious;
 
     private final BitSet open;
+
+    private final BitSet retained;
 
     SwitchImpl(VoltageLevelExt voltageLevel,
                String id, String name, SwitchKind kind, final boolean open, boolean retained, boolean fictitious) {
         super(id, name);
         this.voltageLevel = voltageLevel;
         this.kind = kind;
-        this.retained = retained;
         this.fictitious = fictitious;
         int stateArraySize = voltageLevel.getNetwork().getStateManager().getStateArraySize();
         this.open = new BitSet(stateArraySize);
         this.open.set(0, stateArraySize, open);
+        this.retained = new BitSet(stateArraySize);
+        this.retained.set(0, stateArraySize, retained);
     }
 
     @Override
@@ -69,7 +70,7 @@ class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, Statefu
 
     @Override
     public boolean isRetained() {
-        return retained;
+        return retained.get(voltageLevel.getNetwork().getStateIndex());
     }
 
     @Override
@@ -77,11 +78,12 @@ class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, Statefu
         if (voltageLevel.getTopologyKind() != TopologyKind.NODE_BREAKER) {
             throw new ValidationException(this, "retain status is not modifiable in a non node/breaker voltage level");
         }
-        boolean oldValue = this.retained;
+        NetworkImpl network = voltageLevel.getNetwork();
+        int index = network.getStateIndex();
+        boolean oldValue = this.retained.get(index);
         if (oldValue != retained) {
-            this.retained = retained;
+            this.retained.set(index, retained);
             voltageLevel.invalidateCache();
-            NetworkImpl network = voltageLevel.getNetwork();
             network.getListeners().notifyUpdate(this, "retained", oldValue, retained);
         }
     }
@@ -104,9 +106,8 @@ class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, Statefu
 
     @Override
     public void extendStateArraySize(int initStateArraySize, int number, int sourceIndex) {
-        for (int i = 0; i < number; i++) {
-            this.open.set(initStateArraySize + i, this.open.get(sourceIndex));
-        }
+        this.open.set(initStateArraySize, initStateArraySize + number, this.open.get(sourceIndex));
+        this.retained.set(initStateArraySize, initStateArraySize + number, this.retained.get(sourceIndex));
     }
 
     @Override
@@ -123,6 +124,7 @@ class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, Statefu
     public void allocateStateArrayElement(int[] indexes, final int sourceIndex) {
         for (int index : indexes) {
             open.set(index, open.get(sourceIndex));
+            retained.set(index, retained.get(sourceIndex));
         }
     }
 

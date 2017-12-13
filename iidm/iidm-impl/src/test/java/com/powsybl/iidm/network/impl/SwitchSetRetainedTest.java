@@ -51,10 +51,23 @@ public class SwitchSetRetainedTest {
         Network network = createNetwork();
         VoltageLevel vl = network.getVoltageLevel("VL");
         assertNotNull(vl);
-        assertEquals(2, Iterables.size(vl.getBusBreakerView().getBuses()));
-        Switch b1 = vl.getNodeBreakerView().getSwitch("B1");
+
+        Switch b1 = network.getSwitch("B1");
         assertNotNull(b1);
+
+        StateManager stateManager = network.getStateManager();
+        stateManager.allowStateMultiThreadAccess(true);
+        stateManager.cloneState(StateManager.INITIAL_STATE_ID, "backup");
+
+        assertTrue(b1.isRetained());
+        assertEquals(2, Iterables.size(vl.getBusBreakerView().getBuses()));
+
         b1.setRetained(false);
+        assertFalse(b1.isRetained());
         assertEquals(1, Iterables.size(vl.getBusBreakerView().getBuses()));
+
+        stateManager.setWorkingState("backup");
+        assertTrue(b1.isRetained());
+        assertEquals(2, Iterables.size(vl.getBusBreakerView().getBuses()));
     }
 }

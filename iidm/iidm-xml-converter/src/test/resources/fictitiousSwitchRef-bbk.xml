@@ -10,6 +10,9 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="N_21" v="236.44736" angle="15.250391"/>
                 <iidm:bus id="N_22" v="236.44736" angle="15.250391"/>
+                <iidm:bus id="N_23"/>
+                <iidm:bus id="N_24"/>
+                <iidm:bus id="N_25"/>
                 <iidm:bus id="N_26"/>
                 <iidm:bus id="N_27"/>
                 <iidm:bus id="N_28"/>
