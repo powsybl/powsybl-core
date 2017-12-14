@@ -9,10 +9,9 @@ package com.powsybl.security;
 import com.powsybl.commons.io.table.CsvTableFormatterFactory;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.contingency.Contingency;
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -24,7 +23,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
+import static org.hamcrest.CoreMatchers.either;
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -131,6 +133,20 @@ public class SecurityTest {
                      Security.printLimitsViolations(Arrays.asList(line1Violation, line2Violation), new LimitViolationFilter(), formatterConfig));
     }
 
+    @Test
+    public void checkAttributes() {
+        assertEquals(Branch.Side.ONE, line1Violation.getSide());
+        assertEquals(110f, line1Violation.getValueMW(), 0f);
+        assertEquals(1200, line1Violation.getAcceptableDuration());
+        assertTrue(Float.isNaN(line1Violation.getValueBefore()));
+        assertTrue(Float.isNaN(line1Violation.getValueBeforeMW()));
+
+        assertEquals(Branch.Side.TWO, line2Violation.getSide());
+        assertEquals(95f, line2Violation.getValueMW(), 0f);
+        assertEquals(600, line2Violation.getAcceptableDuration());
+        assertEquals(800f, line2Violation.getValueBefore(), 0f);
+        assertEquals(80f, line2Violation.getValueBeforeMW(), 0f);
+    }
 
     @Test
     public void checkLimits() {
@@ -170,6 +186,11 @@ public class SecurityTest {
             } else {
                 assertEquals(LimitViolationType.CURRENT, violation.getLimitType());
             }
+            assertEquals(Country.FR, LimitViolation.getCountry(violation, network));
+            assertEquals(380f, LimitViolation.getNominalVoltage(violation, network), 0f);
+            assertEquals(null, LimitViolation.getRegion(violation, network));
+            String substation = LimitViolation.getSubstation(violation, network);
+            assertThat(substation, either(equalTo("VLHV1")).or(equalTo("VLHV2")));
         });
 
         violations = Security.checkLimits(network, 1);

@@ -97,26 +97,6 @@ public class LimitViolation {
         return new LimitViolation(subjectId, limitType, limitName, limit, limitReduction, value, side);
     }
 
-    /*
-    public LimitViolation(String subjectId, LimitViolationType limitType, String limitName, float limit,
-                          float limitReduction, float value, float valueMW, Branch.Side side, float valueBefore,
-                          float valueBeforeMW, int acceptableDuration) {
-        this.subjectId = Objects.requireNonNull(subjectId);
-        this.limitType = Objects.requireNonNull(limitType);
-        this.limitName = limitName;
-        this.limit = limit;
-        this.limitReduction = limitReduction;
-        this.value = value;
-        this.valueMW = valueMW;
-        this.side = checkSide(limitType, side);
-        this.country = null;
-        this.baseVoltage = Float.NaN;
-        this.valueBefore = valueBefore;
-        this.valueBeforeMW = valueBeforeMW;
-        this.acceptableDuration = acceptableDuration;
-    }
-     */
-
     public LimitViolation(String subjectId, LimitViolationType limitType, float limit, float limitReduction, float value) {
         this(subjectId, limitType, null, limit, limitReduction, value, null);
     }
