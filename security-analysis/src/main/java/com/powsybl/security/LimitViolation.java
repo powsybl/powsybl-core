@@ -16,6 +16,10 @@ import java.util.Objects;
  */
 public class LimitViolation {
 
+    private static final String UNEXPECTED_IDENTIFIABLE_TYPE = "Unexpected identifiable type: ";
+    private static final String IDENTIFIABLE_NOT_FOUND = "Unable to find the identifiable: ";
+    private static final String REGIONCVG = "regionCvg";
+
     private final String subjectId;
 
     private final LimitViolationType limitType;
@@ -28,11 +32,19 @@ public class LimitViolation {
 
     private final float value;
 
+    private float valueMW;
+
     private final Country country;
 
     private final float baseVoltage;
 
     private final Branch.Side side;
+
+    private float valueBefore;
+
+    private float valueBeforeMW;
+
+    private int acceptableDuration;
 
     /**
      * @deprecated use LimitViolation(String, LimitViolationType, String, float, float, float, Branch.Side) instead.
@@ -46,9 +58,13 @@ public class LimitViolation {
         this.limitName = limitName;
         this.limitReduction = limitReduction;
         this.value = value;
+        this.valueMW = Float.NaN;
         this.country = country;
         this.baseVoltage = baseVoltage;
         this.side = null;
+        this.valueBefore = Float.NaN;
+        this.valueBeforeMW = Float.NaN;
+        this.acceptableDuration = Integer.MAX_VALUE;
     }
 
     /**
@@ -63,14 +79,43 @@ public class LimitViolation {
                           float value, Branch.Side side) {
         this.subjectId = Objects.requireNonNull(subjectId);
         this.limitType = Objects.requireNonNull(limitType);
+        this.limit = limit;
+        this.limitName = limitName;
+        this.limitReduction = limitReduction;
+        this.value = value;
+        this.valueMW = Float.NaN;
+        this.country = null;
+        this.baseVoltage = Float.NaN;
+        this.side = checkSide(limitType, side);
+        this.valueBefore = Float.NaN;
+        this.valueBeforeMW = Float.NaN;
+        this.acceptableDuration = Integer.MAX_VALUE;
+    }
+
+    public static LimitViolation newLimitViolation(String subjectId, LimitViolationType limitType, String limitName, float limit, float limitReduction,
+                                                   float value, Branch.Side side) {
+        return new LimitViolation(subjectId, limitType, limitName, limit, limitReduction, value, side);
+    }
+
+    /*
+    public LimitViolation(String subjectId, LimitViolationType limitType, String limitName, float limit,
+                          float limitReduction, float value, float valueMW, Branch.Side side, float valueBefore,
+                          float valueBeforeMW, int acceptableDuration) {
+        this.subjectId = Objects.requireNonNull(subjectId);
+        this.limitType = Objects.requireNonNull(limitType);
         this.limitName = limitName;
         this.limit = limit;
         this.limitReduction = limitReduction;
         this.value = value;
+        this.valueMW = valueMW;
         this.side = checkSide(limitType, side);
         this.country = null;
         this.baseVoltage = Float.NaN;
+        this.valueBefore = valueBefore;
+        this.valueBeforeMW = valueBeforeMW;
+        this.acceptableDuration = acceptableDuration;
     }
+     */
 
     public LimitViolation(String subjectId, LimitViolationType limitType, float limit, float limitReduction, float value) {
         this(subjectId, limitType, null, limit, limitReduction, value, null);
@@ -100,8 +145,44 @@ public class LimitViolation {
         return value;
     }
 
+    public float getValueMW() {
+        return valueMW;
+    }
+
+    public LimitViolation setValueMW(float valueMW) {
+        this.valueMW = valueMW;
+        return this;
+    }
+
     public Branch.Side getSide() {
         return side;
+    }
+
+    public float getValueBefore() {
+        return valueBefore;
+    }
+
+    public LimitViolation setValueBefore(float valueBefore) {
+        this.valueBefore = valueBefore;
+        return this;
+    }
+
+    public float getValueBeforeMW() {
+        return valueBeforeMW;
+    }
+
+    public LimitViolation setValueBeforeMW(float valueBeforeMW) {
+        this.valueBeforeMW = valueBeforeMW;
+        return this;
+    }
+
+    public int getAcceptableDuration() {
+        return acceptableDuration;
+    }
+
+    public LimitViolation setAcceptableDuration(int acceptableDuration) {
+        this.acceptableDuration = acceptableDuration;
+        return this;
     }
 
     /**
@@ -128,7 +209,7 @@ public class LimitViolation {
         }
     }
 
-    static Country getCountry(LimitViolation limitViolation, Network network) {
+    public static Country getCountry(LimitViolation limitViolation, Network network, Branch.Side side) {
         Objects.requireNonNull(limitViolation);
         Objects.requireNonNull(network);
 
@@ -137,7 +218,7 @@ public class LimitViolation {
         Identifiable identifiable = network.getIdentifiable(limitViolation.getSubjectId());
         if (identifiable instanceof Branch) {
             Branch branch = (Branch) identifiable;
-            country = branch.getTerminal(limitViolation.getSide()).getVoltageLevel().getSubstation().getCountry();
+            country = branch.getTerminal(side).getVoltageLevel().getSubstation().getCountry();
         } else if (identifiable instanceof Injection) {
             Injection injection = (Injection) identifiable;
             country = injection.getTerminal().getVoltageLevel().getSubstation().getCountry();
@@ -148,13 +229,17 @@ public class LimitViolation {
             Bus bus = (Bus) identifiable;
             country = bus.getVoltageLevel().getSubstation().getCountry();
         } else {
-            throw new AssertionError("Unexpected identifiable type: " + identifiable.getClass());
+            throw new AssertionError(UNEXPECTED_IDENTIFIABLE_TYPE + identifiable.getClass());
         }
 
         return country;
     }
 
-    static float getNominalVoltage(LimitViolation limitViolation, Network network) {
+    public static Country getCountry(LimitViolation limitViolation, Network network) {
+        return getCountry(limitViolation, network, limitViolation.getSide());
+    }
+
+    public static float getNominalVoltage(LimitViolation limitViolation, Network network, Branch.Side side) {
         Objects.requireNonNull(limitViolation);
         Objects.requireNonNull(network);
 
@@ -162,10 +247,10 @@ public class LimitViolation {
 
         Identifiable identifiable = network.getIdentifiable(limitViolation.getSubjectId());
         if (identifiable == null) {
-            throw new AssertionError("Unable to find the identifiable: " + limitViolation.getSubjectId());
+            throw new AssertionError(IDENTIFIABLE_NOT_FOUND + limitViolation.getSubjectId());
         } else if (identifiable instanceof Branch) {
             Branch branch = (Branch) identifiable;
-            nominalVoltage = branch.getTerminal(limitViolation.getSide()).getVoltageLevel().getNominalV();
+            nominalVoltage = branch.getTerminal(side).getVoltageLevel().getNominalV();
         } else if (identifiable instanceof Injection) {
             Injection injection = (Injection) identifiable;
             nominalVoltage = injection.getTerminal().getVoltageLevel().getNominalV();
@@ -173,9 +258,71 @@ public class LimitViolation {
             VoltageLevel voltageLevel = (VoltageLevel) identifiable;
             nominalVoltage = voltageLevel.getNominalV();
         } else {
-            throw new AssertionError("Unexpected identifiable type: " + identifiable.getClass());
+            throw new AssertionError(UNEXPECTED_IDENTIFIABLE_TYPE + identifiable.getClass());
         }
 
         return nominalVoltage;
+    }
+
+    public static float getNominalVoltage(LimitViolation limitViolation, Network network) {
+        return getNominalVoltage(limitViolation, network, limitViolation.getSide());
+    }
+
+    public static String getRegion(LimitViolation limitViolation, Network network, Branch.Side side) {
+        Objects.requireNonNull(limitViolation);
+        Objects.requireNonNull(network);
+
+        String region = null;
+
+        Identifiable identifiable = network.getIdentifiable(limitViolation.getSubjectId());
+        if (identifiable == null) {
+            throw new AssertionError(IDENTIFIABLE_NOT_FOUND + limitViolation.getSubjectId());
+        } else if (identifiable instanceof Branch) {
+            Branch branch = (Branch) identifiable;
+            region = branch.getTerminal(side).getVoltageLevel().getSubstation().getProperties().getProperty(REGIONCVG);
+        } else if (identifiable instanceof Injection) {
+            Injection injection = (Injection) identifiable;
+            region = injection.getTerminal().getVoltageLevel().getSubstation().getProperties().getProperty(REGIONCVG);
+        } else if (identifiable instanceof VoltageLevel) {
+            VoltageLevel voltageLevel = (VoltageLevel) identifiable;
+            region = voltageLevel.getSubstation().getProperties().getProperty(REGIONCVG);
+        } else {
+            throw new AssertionError(UNEXPECTED_IDENTIFIABLE_TYPE + identifiable.getClass());
+        }
+
+        return region;
+    }
+
+    public static String getRegion(LimitViolation limitViolation, Network network) {
+        return getRegion(limitViolation, network, limitViolation.getSide());
+    }
+
+    public static String getSubstation(LimitViolation limitViolation, Network network, Branch.Side side) {
+        Objects.requireNonNull(limitViolation);
+        Objects.requireNonNull(network);
+
+        String substation = null;
+
+        Identifiable identifiable = network.getIdentifiable(limitViolation.getSubjectId());
+        if (identifiable == null) {
+            throw new AssertionError(IDENTIFIABLE_NOT_FOUND + limitViolation.getSubjectId());
+        } else if (identifiable instanceof Branch) {
+            Branch branch = (Branch) identifiable;
+            substation = branch.getTerminal(side).getVoltageLevel().getName();
+        } else if (identifiable instanceof Injection) {
+            Injection injection = (Injection) identifiable;
+            substation = injection.getTerminal().getVoltageLevel().getName();
+        } else if (identifiable instanceof VoltageLevel) {
+            VoltageLevel voltageLevel = (VoltageLevel) identifiable;
+            substation = voltageLevel.getName();
+        } else {
+            throw new AssertionError(UNEXPECTED_IDENTIFIABLE_TYPE + identifiable.getClass());
+        }
+
+        return substation;
+    }
+
+    public static String getSubstation(LimitViolation limitViolation, Network network) {
+        return getSubstation(limitViolation, network, limitViolation.getSide());
     }
 }

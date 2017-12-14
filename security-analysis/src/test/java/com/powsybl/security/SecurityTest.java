@@ -9,6 +9,7 @@ package com.powsybl.security;
 import com.powsybl.commons.io.table.CsvTableFormatterFactory;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.contingency.Contingency;
+import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
@@ -48,13 +49,21 @@ public class SecurityTest {
 
         formatterConfig = new TableFormatterConfig(Locale.US, ',', "inv", true, true);
         // create pre-contingency results, just one violation on line1
-        line1Violation = new LimitViolation("line1", LimitViolationType.CURRENT, 1000f, "20'", 1100);
+        line1Violation = LimitViolation.newLimitViolation("line1", LimitViolationType.CURRENT, "20'",
+                1000f, 1f, 1100f, Branch.Side.ONE)
+                .setValueMW(110f)
+                .setAcceptableDuration(1200);
         LimitViolationsResult preContingencyResult = new LimitViolationsResult(true, Collections.singletonList(line1Violation), Collections.singletonList("action1"));
 
         // create post-contingency results, still the line1 violation plus line2 violation
         Contingency contingency1 = Mockito.mock(Contingency.class);
         Mockito.when(contingency1.getId()).thenReturn("contingency1");
-        line2Violation = new LimitViolation("line2", LimitViolationType.CURRENT, 900f, "10'", 950);
+        line2Violation = LimitViolation.newLimitViolation("line2", LimitViolationType.CURRENT, "10'",
+                900f, 1f, 950f, Branch.Side.TWO)
+                .setValueMW(95f)
+                .setValueBefore(800f)
+                .setValueBeforeMW(80f)
+                .setAcceptableDuration(600);
         PostContingencyResult postContingencyResult = new PostContingencyResult(contingency1, true, Arrays.asList(line1Violation, line2Violation), Collections.singletonList("action2"));
         result = new SecurityAnalysisResult(preContingencyResult, Collections.singletonList(postContingencyResult));
     }

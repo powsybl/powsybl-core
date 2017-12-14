@@ -33,7 +33,11 @@ class LimitViolationDeserializer extends StdDeserializer<LimitViolation> {
         float limit = Float.NaN;
         float limitReduction = Float.NaN;
         float value = Float.NaN;
+        float valueMW = Float.NaN;
         Branch.Side side = null;
+        float valueBefore = Float.NaN;
+        float valueBeforeMW = Float.NaN;
+        int acceptableDuration = Integer.MAX_VALUE;
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
@@ -65,9 +69,29 @@ class LimitViolationDeserializer extends StdDeserializer<LimitViolation> {
                     value = parser.readValueAs(Float.class);
                     break;
 
+                case "valueMW":
+                    parser.nextToken();
+                    valueMW = parser.readValueAs(Float.class);
+                    break;
+
                 case "side":
                     parser.nextToken();
                     side = parser.readValueAs(Branch.Side.class);
+                    break;
+
+                case "valueBefore":
+                    parser.nextToken();
+                    valueBefore = parser.readValueAs(Float.class);
+                    break;
+
+                case "valueBeforeMW":
+                    parser.nextToken();
+                    valueBeforeMW = parser.readValueAs(Float.class);
+                    break;
+
+                case "acceptableDuration":
+                    parser.nextToken();
+                    acceptableDuration = parser.readValueAs(Integer.class);
                     break;
 
                 default:
@@ -75,6 +99,10 @@ class LimitViolationDeserializer extends StdDeserializer<LimitViolation> {
             }
         }
 
-        return new LimitViolation(subjectId, limitType, limitName, limit, limitReduction, value, side);
+        return LimitViolation.newLimitViolation(subjectId, limitType, limitName, limit, limitReduction, value, side)
+                .setValueMW(valueMW)
+                .setValueBefore(valueBefore)
+                .setValueBeforeMW(valueBeforeMW)
+                .setAcceptableDuration(acceptableDuration);
     }
 }

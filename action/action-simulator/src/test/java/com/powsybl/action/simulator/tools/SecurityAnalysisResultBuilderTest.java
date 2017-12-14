@@ -29,11 +29,14 @@ public class SecurityAnalysisResultBuilderTest {
     }
 
     private List<LimitViolation> createPreContingencyViolations() {
-        return Collections.singletonList(new LimitViolation("line1", LimitViolationType.CURRENT, "IST", 0.0f, 100, 101, Branch.Side.ONE));
+        return Collections.singletonList(LimitViolation.newLimitViolation("line1", LimitViolationType.CURRENT, "IST", 0.0f, 100, 101, Branch.Side.ONE)
+                .setValueMW(101 * 0.225f)
+                .setAcceptableDuration(0));
     }
 
     private List<LimitViolation> createPostContingencyViolations() {
-        return Collections.singletonList(new LimitViolation("line2", LimitViolationType.CURRENT, "IST", 0.0f, 100, 110, Branch.Side.ONE));
+        return Collections.singletonList(LimitViolation.newLimitViolation("line2", LimitViolationType.CURRENT, "IST", 0.0f, 100, 110, Branch.Side.ONE)
+                .setValueMW(110 * 0.225f));
     }
 
     private void testLimitViolation(LimitViolationsResult result, boolean convergent, List<String> equipmentsId, List<String> actionsId) {
