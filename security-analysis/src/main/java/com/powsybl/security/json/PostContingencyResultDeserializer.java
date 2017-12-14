@@ -19,9 +19,9 @@ import java.io.IOException;
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-class PostContingencyResultDeserializer extends StdDeserializer<PostContingencyResult> {
+public class PostContingencyResultDeserializer extends StdDeserializer<PostContingencyResult> {
 
-    PostContingencyResultDeserializer() {
+    public PostContingencyResultDeserializer() {
         super(PostContingencyResult.class);
     }
 
