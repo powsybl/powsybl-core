@@ -11,7 +11,6 @@ import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
