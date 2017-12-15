@@ -190,8 +190,10 @@ public final class FlowsValidation {
         boolean connected2 =  bus2 != null ? true : false;
         Bus connectableBus1 = l.getTerminal1().getBusView().getConnectableBus();
         Bus connectableBus2 = l.getTerminal2().getBusView().getConnectableBus();
-        boolean mainComponent1 =  bus1 != null ? bus1.isInMainConnectedComponent() : (connectableBus1 != null ? connectableBus1.isInMainConnectedComponent() : false);
-        boolean mainComponent2 =  bus2 != null ? bus2.isInMainConnectedComponent() : (connectableBus2 != null ? connectableBus2.isInMainConnectedComponent() : false);
+        boolean connectableMainComponent1 =  connectableBus1 != null ? connectableBus1.isInMainConnectedComponent() : false;
+        boolean connectableMainComponent2 =  connectableBus2 != null ? connectableBus2.isInMainConnectedComponent() : false;
+        boolean mainComponent1 =  bus1 != null ? bus1.isInMainConnectedComponent() : connectableMainComponent1;
+        boolean mainComponent2 =  bus2 != null ? bus2.isInMainConnectedComponent() : connectableMainComponent2;
         return checkFlows(l.getId(), r, x, rho1, rho2, u1, u2, theta1, theta2, alpha1, alpha2, g1, g2, b1, b2, p1, q1, p2, q2, connected1, connected2,
                           mainComponent1, mainComponent2, config, flowsWriter);
     }
@@ -222,38 +224,13 @@ public final class FlowsValidation {
         float q2 = twt.getTerminal2().getQ();
         Bus bus1 = twt.getTerminal1().getBusView().getBus();
         Bus bus2 = twt.getTerminal2().getBusView().getBus();
-        float r = twt.getR();
-        float x = twt.getX();
-        double g1 = twt.getG();
-        double g2 = 0f;
-        double b1 = twt.getB();
-        double b2 = 0f;
-        if (config.getLoadFlowParameters().isSpecificCompatibility()) {
-            g1 = twt.getG() / 2;
-            g2 = twt.getG() / 2;
-            b1 = twt.getB() / 2;
-            b2 = twt.getB() / 2;
-        }
-        if (twt.getRatioTapChanger() != null) {
-            r *= 1 + twt.getRatioTapChanger().getCurrentStep().getR() / 100;
-            x *= 1 + twt.getRatioTapChanger().getCurrentStep().getX() / 100;
-            g1 *= 1 + twt.getRatioTapChanger().getCurrentStep().getG() / 100;
-            b1 *= 1 + twt.getRatioTapChanger().getCurrentStep().getB() / 100;
-        }
-        if (twt.getPhaseTapChanger() != null) {
-            r *= 1 + twt.getPhaseTapChanger().getCurrentStep().getR() / 100;
-            x *= 1 + twt.getPhaseTapChanger().getCurrentStep().getX() / 100;
-            g1 *= 1 + twt.getPhaseTapChanger().getCurrentStep().getG() / 100;
-            b1 *= 1 + twt.getPhaseTapChanger().getCurrentStep().getB() / 100;
-        }
-
-        double rho1 = twt.getRatedU2() / twt.getRatedU1();
-        if (twt.getRatioTapChanger() != null) {
-            rho1 *= twt.getRatioTapChanger().getCurrentStep().getRho();
-        }
-        if (twt.getPhaseTapChanger() != null) {
-            rho1 *= twt.getPhaseTapChanger().getCurrentStep().getRho();
-        }
+        float r = (float) getR(twt);
+        float x = (float) getX(twt);
+        double g1 = getG1(twt, config);
+        double g2 = config.getLoadFlowParameters().isSpecificCompatibility() ? twt.getG() / 2 : 0f;
+        double b1 = getB1(twt, config);
+        double b2 = config.getLoadFlowParameters().isSpecificCompatibility() ? twt.getB() / 2 : 0f;
+        double rho1 = getRho1(twt);
         double rho2 = 1f;
         double u1 = bus1 != null ? bus1.getV() : Double.NaN;
         double u2 = bus2 != null ? bus2.getV() : Double.NaN;
@@ -265,10 +242,51 @@ public final class FlowsValidation {
         boolean connected2 =  bus2 != null ? true : false;
         Bus connectableBus1 = twt.getTerminal1().getBusView().getConnectableBus();
         Bus connectableBus2 = twt.getTerminal2().getBusView().getConnectableBus();
-        boolean mainComponent1 =  bus1 != null ? bus1.isInMainConnectedComponent() : (connectableBus1 != null ? connectableBus1.isInMainConnectedComponent() : false);
-        boolean mainComponent2 =  bus2 != null ? bus2.isInMainConnectedComponent() : (connectableBus2 != null ? connectableBus2.isInMainConnectedComponent() : false);
+        boolean connectableMainComponent1 =  connectableBus1 != null ? connectableBus1.isInMainConnectedComponent() : false;
+        boolean connectableMainComponent2 =  connectableBus2 != null ? connectableBus2.isInMainConnectedComponent() : false;
+        boolean mainComponent1 =  bus1 != null ? bus1.isInMainConnectedComponent() : connectableMainComponent1;
+        boolean mainComponent2 =  bus2 != null ? bus2.isInMainConnectedComponent() : connectableMainComponent2;
         return checkFlows(twt.getId(), r, x, rho1, rho2, u1, u2, theta1, theta2, alpha1, alpha2, g1, g2, b1, b2, p1, q1, p2, q2, connected1, connected2,
                           mainComponent1, mainComponent2, config, flowsWriter);
+    }
+
+    private static double getValue(float initialValue, float rtpStepValue, float ptpStepValue) {
+        return initialValue * (1 + rtpStepValue / 100) * (1 + ptpStepValue / 100);
+    }
+
+    private static double getR(TwoWindingsTransformer twt) {
+        return getValue(twt.getR(),
+                twt.getRatioTapChanger() != null ? twt.getRatioTapChanger().getCurrentStep().getR() : 0,
+                twt.getPhaseTapChanger() != null ? twt.getPhaseTapChanger().getCurrentStep().getR() : 0);
+    }
+
+    private static double getX(TwoWindingsTransformer twt) {
+        return getValue(twt.getX(),
+                twt.getRatioTapChanger() != null ? twt.getRatioTapChanger().getCurrentStep().getX() : 0,
+                twt.getPhaseTapChanger() != null ? twt.getPhaseTapChanger().getCurrentStep().getX() : 0);
+    }
+
+    private static double getG1(TwoWindingsTransformer twt, ValidationConfig config) {
+        return getValue(config.getLoadFlowParameters().isSpecificCompatibility() ? twt.getG() / 2 : twt.getG(),
+                twt.getRatioTapChanger() != null ? twt.getRatioTapChanger().getCurrentStep().getG() : 0,
+                twt.getPhaseTapChanger() != null ? twt.getPhaseTapChanger().getCurrentStep().getG() : 0);
+    }
+
+    private static double getB1(TwoWindingsTransformer twt, ValidationConfig config) {
+        return getValue(config.getLoadFlowParameters().isSpecificCompatibility() ? twt.getB() / 2 : twt.getB(),
+                twt.getRatioTapChanger() != null ? twt.getRatioTapChanger().getCurrentStep().getB() : 0,
+                twt.getPhaseTapChanger() != null ? twt.getPhaseTapChanger().getCurrentStep().getB() : 0);
+    }
+
+    private static double getRho1(TwoWindingsTransformer twt) {
+        double rho1 = twt.getRatedU2() / twt.getRatedU1();
+        if (twt.getRatioTapChanger() != null) {
+            rho1 *= twt.getRatioTapChanger().getCurrentStep().getRho();
+        }
+        if (twt.getPhaseTapChanger() != null) {
+            rho1 *= twt.getPhaseTapChanger().getCurrentStep().getRho();
+        }
+        return rho1;
     }
 
     public static boolean checkFlows(Network network, ValidationConfig config, Writer writer) {
