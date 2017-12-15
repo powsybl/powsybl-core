@@ -7,8 +7,6 @@
 package com.powsybl.action.simulator.loadflow;
 
 import com.powsybl.action.dsl.Rule;
-import com.powsybl.contingency.Contingency;
-import com.powsybl.iidm.network.Network;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.Security;
 import org.nocrala.tools.texttablefmt.BorderStyle;
@@ -37,34 +35,35 @@ public class LoadFlowActionSimulatorLogPrinter extends DefaultLoadFlowActionSimu
     }
 
     @Override
-    public void beforePreContingencyAnalysis(Network network) {
+    public void beforePreContingencyAnalysis(RunningContext runningContext) {
         out.println("Starting pre-contingency analysis");
     }
 
     @Override
-    public void beforePostContingencyAnalysis(Contingency contingency) {
-        out.println("Starting post-contingency '" + contingency.getId() + "' analysis");
+    public void beforePostContingencyAnalysis(RunningContext runningContext) {
+        out.println("Starting post-contingency '" + runningContext.getContingency().getId() + "' analysis");
     }
 
     @Override
-    public void roundBegin(Contingency contingency, int round) {
-        out.println("    Round " + round);
+    public void roundBegin(RunningContext runningContext) {
+        out.println("    Round " + runningContext.getRound());
     }
 
     @Override
-    public void loadFlowDiverged(Contingency contingency, Network network, int round) {
+    public void loadFlowDiverged(RunningContext runningContext) {
         out.println("    Load flow diverged");
     }
 
     @Override
-    public void loadFlowConverged(Contingency contingency, List<LimitViolation> violations, Network network, int round) {
+    public void loadFlowConverged(RunningContext runningContext, List<LimitViolation> violations) {
         if (!violations.isEmpty()) {
             out.println("        Violations:");
-            out.println(Security.printLimitsViolations(violations, LoadFlowActionSimulator.NO_FILTER));
+            out.println(Security.printLimitsViolations(violations, runningContext.getNetwork(), LoadFlowActionSimulator.NO_FILTER));
         }
     }
 
-    public void ruleChecked(Contingency contingency, Rule rule, RuleEvaluationStatus status, Map<String, Object> variables, Map<String, Boolean> actions) {
+    @Override
+    public void ruleChecked(RunningContext runningContext, Rule rule, RuleEvaluationStatus status, Map<String, Object> variables, Map<String, Boolean> actions) {
         if (verbose || status == RuleEvaluationStatus.TRUE) {
             out.println("        Rule '" + rule.getId() + "' evaluated to " + status);
         }
@@ -87,17 +86,17 @@ public class LoadFlowActionSimulatorLogPrinter extends DefaultLoadFlowActionSimu
     }
 
     @Override
-    public void beforeAction(Contingency contingency, String actionId) {
+    public void beforeAction(RunningContext runningContext, String actionId) {
         out.println("        Applying action '" + actionId + "'");
     }
 
     @Override
-    public void noMoreViolations(Contingency contingency) {
+    public void noMoreViolations(RunningContext runningContext) {
         out.println("        No more violation");
     }
 
     @Override
-    public void violationsAnymoreAndNoRulesMatch(Contingency contingency) {
+    public void violationsAnymoreAndNoRulesMatch(RunningContext runningContext) {
         err.println("        Still some violations and no rule match...");
     }
 }
