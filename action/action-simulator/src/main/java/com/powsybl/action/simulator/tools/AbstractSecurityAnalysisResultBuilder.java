@@ -7,10 +7,9 @@
 package com.powsybl.action.simulator.tools;
 
 import com.powsybl.action.simulator.loadflow.DefaultLoadFlowActionSimulatorObserver;
+import com.powsybl.action.simulator.loadflow.RunningContext;
 import com.powsybl.contingency.Contingency;
-import com.powsybl.iidm.network.Network;
 import com.powsybl.security.*;
-
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -30,7 +29,7 @@ public abstract class AbstractSecurityAnalysisResultBuilder extends DefaultLoadF
     private boolean precontingency;
 
     @Override
-    public void beforePreContingencyAnalysis(Network network) {
+    public void beforePreContingencyAnalysis(RunningContext runningContext) {
         precontingency = true;
         preContingencyResult = null;
     }
@@ -42,25 +41,25 @@ public abstract class AbstractSecurityAnalysisResultBuilder extends DefaultLoadF
     }
 
     @Override
-    public void loadFlowDiverged(Contingency contingency, Network network, int round) {
+    public void loadFlowDiverged(RunningContext runningContext) {
         if (precontingency) {
             preContingencyResult = new LimitViolationsResult(false, Collections.emptyList(), preContingencyActions);
         } else {
-            Objects.requireNonNull(contingency);
-            postContingencyResults.put(contingency.getId(), new PostContingencyResult(contingency, false, Collections.emptyList(), getPostContingencyActions(contingency)));
+            Objects.requireNonNull(runningContext.getContingency());
+            postContingencyResults.put(runningContext.getContingency().getId(), new PostContingencyResult(runningContext.getContingency(), false, Collections.emptyList(), getPostContingencyActions(runningContext.getContingency())));
         }
     }
 
     @Override
-    public void loadFlowConverged(Contingency contingency, List<LimitViolation> violations, Network network, int round) {
+    public void loadFlowConverged(RunningContext runningContext, List<LimitViolation> violations) {
         if (precontingency) {
             preContingencyResult = new LimitViolationsResult(true, violations, preContingencyActions);
         } else {
-            Objects.requireNonNull(contingency);
-            postContingencyResults.put(contingency.getId(), new PostContingencyResult(contingency,
+            Objects.requireNonNull(runningContext.getContingency());
+            postContingencyResults.put(runningContext.getContingency().getId(), new PostContingencyResult(runningContext.getContingency(),
                                                                                       true,
                                                                                       violations,
-                                                                                      getPostContingencyActions(contingency)));
+                                                                                      getPostContingencyActions(runningContext.getContingency())));
         }
     }
 
@@ -69,13 +68,13 @@ public abstract class AbstractSecurityAnalysisResultBuilder extends DefaultLoadF
     }
 
     @Override
-    public void afterAction(Contingency contingency, String actionId) {
+    public void afterAction(RunningContext runningContext, String actionId) {
         Objects.requireNonNull(actionId);
         if (precontingency) {
             preContingencyActions.add(actionId);
         } else {
-            Objects.requireNonNull(contingency);
-            getPostContingencyActions(contingency).add(actionId);
+            Objects.requireNonNull(runningContext.getContingency());
+            getPostContingencyActions(runningContext.getContingency()).add(actionId);
         }
     }
 
