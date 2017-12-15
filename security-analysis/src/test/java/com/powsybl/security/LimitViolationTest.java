@@ -8,7 +8,6 @@ package com.powsybl.security;
 
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Arrays;
