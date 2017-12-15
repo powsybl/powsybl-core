@@ -72,7 +72,7 @@ public class DefaultLoadFlowActionSimulatorObserver implements LoadFlowActionSim
     }
 
     @Override
-    public void  noMoreViolations(RunningContext runningContext) {
+    public void noMoreViolations(RunningContext runningContext) {
         // empty default implementation
     }
 

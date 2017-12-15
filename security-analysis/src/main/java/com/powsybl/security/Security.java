@@ -232,7 +232,7 @@ public final class Security {
     }
 
     /**
-     * @deprecated Use printLimitsViolations(Network, List<LimitViolation>, LimitViolationFilter) instead.
+     * @deprecated Use printLimitsViolations(List<LimitViolation>, Network, LimitViolationFilter) instead.
      */
     @Deprecated
     public static String printLimitsViolations(List<LimitViolation> violations, LimitViolationFilter filter) {
@@ -240,7 +240,7 @@ public final class Security {
     }
 
     /**
-     * @deprecated Use printLimitsViolations(Network, List<LimitViolation>, LimitViolationFilter, TableFormatterConfig) instead.
+     * @deprecated Use printLimitsViolations(List<LimitViolation>, Network, LimitViolationFilter, TableFormatterConfig) instead.
      */
     @Deprecated
     public static String printLimitsViolations(List<LimitViolation> violations, LimitViolationFilter filter, TableFormatterConfig formatterConfig) {
@@ -394,7 +394,7 @@ public final class Security {
     }
 
     /**
-     * @deprecated Use printPreContingencyViolations(Network, SecurityAnalysisResult, Writer, TableFormatterFactory, LimitViolationFilter) instead.
+     * @deprecated Use printPreContingencyViolations(SecurityAnalysisResult, Network, Writer, TableFormatterFactory, LimitViolationFilter) instead.
      */
     @Deprecated
     public static void printPreContingencyViolations(SecurityAnalysisResult result, Writer writer, TableFormatterFactory formatterFactory,
@@ -403,7 +403,7 @@ public final class Security {
     }
 
     /**
-     * @deprecated Use printPreContingencyViolations(Network, SecurityAnalysisResult, Writer, TableFormatterFactory, LimitViolationFilter) instead.
+     * @deprecated Use printPreContingencyViolations(SecurityAnalysisResult, Network, Writer, TableFormatterFactory, LimitViolationFilter) instead.
      */
     @Deprecated
     public static void printPreContingencyViolations(SecurityAnalysisResult result, Writer writer, TableFormatterFactory formatterFactory,
@@ -532,7 +532,7 @@ public final class Security {
     }
 
     /**
-     * @deprecated Use printPostContingencyViolations(Network, SecurityAnalysisResult, Writer, TableFormatterFactory,LimitViolationFilter) instead.
+     * @deprecated Use printPostContingencyViolations(SecurityAnalysisResult, Network, Writer, TableFormatterFactory,LimitViolationFilter) instead.
      */
     @Deprecated
     public static void printPostContingencyViolations(SecurityAnalysisResult result, Writer writer, TableFormatterFactory formatterFactory,
@@ -695,7 +695,7 @@ public final class Security {
     }
 
     /**
-     * @deprecated Use printPostContingencyViolations(Network, SecurityAnalysisResult, Writer, TableFormatterFactory, LimitViolationFilter, boolean) instead.
+     * @deprecated Use printPostContingencyViolations(SecurityAnalysisResult, Network, Writer, TableFormatterFactory, LimitViolationFilter, boolean) instead.
      */
     @Deprecated
     public static void printPostContingencyViolations(SecurityAnalysisResult result, Writer writer, TableFormatterFactory formatterFactory,
@@ -704,7 +704,7 @@ public final class Security {
     }
 
     /**
-     * @deprecated Use printPostContingencyViolations(Network, SecurityAnalysisResult, Writer, TableFormatterFactory, TableFormatterConfig, LimitViolationFilter, boolean) instead.
+     * @deprecated Use printPostContingencyViolations(SecurityAnalysisResult, Network, Writer, TableFormatterFactory, TableFormatterConfig, LimitViolationFilter, boolean) instead.
      */
     @Deprecated
     public static void printPostContingencyViolations(SecurityAnalysisResult result, Writer writer, TableFormatterFactory formatterFactory,
@@ -752,7 +752,7 @@ public final class Security {
     }
 
     /**
-     * @deprecated Use writePostContingencyResult(Network, LimitViolationFilter, Set<LimitViolationKey>, TableFormatter) instead.
+     * @deprecated Use writePostContingencyResult(LimitViolationFilter, Network, Set<LimitViolationKey>, TableFormatter) instead.
      */
     @Deprecated
     private static Consumer<? super PostContingencyResult> writePostContingencyResult(LimitViolationFilter limitViolationFilter,
@@ -803,7 +803,7 @@ public final class Security {
     }
 
     /**
-     * @deprecated Use writeLimitViolation(TableFormatter) instead.
+     * @deprecated Use writeLimitViolation(Network, TableFormatter) instead.
      */
     @Deprecated
     private static Consumer<? super LimitViolation> writeLimitViolation(TableFormatter formatter) {

@@ -7,9 +7,9 @@
 package com.powsybl.action.simulator.tools;
 
 import com.powsybl.action.simulator.loadflow.DefaultLoadFlowActionSimulatorObserver;
+import com.powsybl.action.simulator.loadflow.RunningContext;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.security.*;
-import com.powsybl.action.simulator.loadflow.RunningContext;
 import java.util.*;
 import java.util.stream.Collectors;
 

@@ -93,16 +93,16 @@ public class LoadFlowActionSimulator implements ActionSimulator {
             for (String contingencyId : contingencyIds) {
                 Contingency contingency = actionDb.getContingency(contingencyId);
                 Network network2 = NetworkXml.gunzip(networkXmlGz);
-                RunningContext runningContextC = new RunningContext(network2, contingency);
+                RunningContext runningContext2 = new RunningContext(network2, contingency);
 
-                observers.forEach(o -> o.beforePostContingencyAnalysis(runningContextC));
+                observers.forEach(o -> o.beforePostContingencyAnalysis(runningContext2));
 
                 LOGGER.info("Starting post-contingency analysis '{}'", contingency.getId());
                 contingency.toTask().modify(network2, computationManager);
 
-                observers.forEach(o -> o.postContingencyAnalysisNetworkLoaded(runningContextC));
+                observers.forEach(o -> o.postContingencyAnalysisNetworkLoaded(runningContext2));
 
-                next(actionDb, runningContextC);
+                next(actionDb, runningContext2);
             }
         }
 

@@ -8,10 +8,10 @@ package com.powsybl.action.simulator;
 
 import com.powsybl.action.simulator.loadflow.DefaultLoadFlowActionSimulatorObserver;
 import com.powsybl.action.simulator.loadflow.LoadFlowActionSimulatorObserver;
+import com.powsybl.action.simulator.loadflow.RunningContext;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import org.junit.Test;
-import com.powsybl.action.simulator.loadflow.RunningContext;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
