@@ -20,7 +20,8 @@ public enum ValidationType {
     FLOWS("branches_flows.csv"),
     GENERATORS("generators.csv"),
     BUSES("buses.csv"),
-    SVCS("svcs.csv");
+    SVCS("svcs.csv"),
+    SHUNTS("shunts.csv");
 
     private final String file;
 
@@ -41,6 +42,8 @@ public enum ValidationType {
                 return BusesValidation.checkBuses(network, config, folder.resolve(file));
             case SVCS:
                 return StaticVarCompensatorsValidation.checkSVCs(network, config, folder.resolve(file));
+            case SHUNTS:
+                return ShuntCompensatorsValidation.checkShunts(network, config, folder.resolve(file));
             default:
                 throw new AssertionError("Unexpected ValidationType value: " + this);
         }

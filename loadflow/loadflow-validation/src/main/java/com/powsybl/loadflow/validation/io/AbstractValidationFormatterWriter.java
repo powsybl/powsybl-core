@@ -24,6 +24,7 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
     protected static final String SUCCESS = "success";
     protected static final String FAIL = "fail";
     protected static final String VALIDATION = "validation";
+    protected static final String CONNECTED = "connected";
 
     protected TableFormatter formatter;
 

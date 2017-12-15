@@ -16,8 +16,6 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -25,8 +23,6 @@ import java.util.stream.Collectors;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class MapModuleConfig implements ModuleConfig {
-
-    private static final Pattern VAR_PATTERN = Pattern.compile("\\$\\{(\\w+)\\}|\\$(\\w+)"); // match ${ENV_VAR_NAME} or $ENV_VAR_NAME
 
     private final Map<Object, Object> properties;
 
@@ -65,15 +61,7 @@ public class MapModuleConfig implements ModuleConfig {
         if (str == null) {
             return null;
         }
-        Matcher m = VAR_PATTERN.matcher(str);
-        StringBuffer sb = new StringBuffer();
-        while (m.find()) {
-            String envVarName = m.group(1) == null ? m.group(2) : m.group(1);
-            String envVarValue = System.getenv(envVarName);
-            m.appendReplacement(sb, envVarValue == null ? "" : envVarValue);
-        }
-        m.appendTail(sb);
-        return sb.toString();
+        return str.replace("$HOME", System.getProperty("user.home"));
     }
 
     @Override
