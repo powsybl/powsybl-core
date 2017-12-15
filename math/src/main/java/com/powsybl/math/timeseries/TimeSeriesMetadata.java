@@ -115,6 +115,9 @@ public class TimeSeriesMetadata {
                 case RegularTimeSeriesIndex.TYPE:
                     context.index = RegularTimeSeriesIndex.parseJson(parser);
                     break;
+                case InfiniteTimeSeriesIndex.TYPE:
+                    context.index = InfiniteTimeSeriesIndex.parseJson(parser);
+                    break;
                 default:
                     throw new IllegalStateException("Unexpected field name " + fieldName);
             }
@@ -169,5 +172,10 @@ public class TimeSeriesMetadata {
                     index.equals(other.index);
         }
         return false;
+    }
+
+    @Override
+    public String toString() {
+        return "TimeSeriesMetadata(name=" + name + ", dataType=" + dataType + ", tags=" + tags + ", index=" + index + ")";
     }
 }

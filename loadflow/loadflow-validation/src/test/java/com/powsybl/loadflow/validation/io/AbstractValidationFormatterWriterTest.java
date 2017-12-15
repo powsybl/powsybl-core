@@ -91,6 +91,14 @@ public abstract class AbstractValidationFormatterWriterTest {
     protected final float bMin = -10f;
     protected final float bMax = 0f;
 
+    protected final String shuntId = "shuntId";
+    protected final float expectedQ = 3.724f;
+    protected int currentSectionCount = 0;
+    protected int maximumSectionCount = 1;
+    protected float bPerSection = -0.16f;
+    protected float qMax = -144.4f;
+    protected final float nominalV = 380f;
+
     @Test
     public void testFlows() throws Exception {
         testFlows(getFlowsContent(), false);
@@ -191,4 +199,30 @@ public abstract class AbstractValidationFormatterWriterTest {
     }
 
     protected abstract ValidationWriter getSvcsValidationFormatterCsvWriter(TableFormatterConfig config, Writer writer, boolean verbose);
+
+    @Test
+    public void testShunts() throws Exception {
+        testShunts(getShuntsContent(), false);
+    }
+
+    protected abstract String getShuntsContent();
+
+    @Test
+    public void testShuntsVerbose() throws Exception {
+        testShunts(getShuntsVerboseContent(), true);
+    }
+
+    protected abstract String getShuntsVerboseContent();
+
+    protected void testShunts(String shuntsContent, boolean verbose) throws IOException {
+        Writer writer = new StringWriter();
+        TableFormatterConfig config = new TableFormatterConfig(Locale.getDefault(), ';', "inv", true, true);
+        try (ValidationWriter shuntsWriter = getShuntsValidationFormatterCsvWriter(config, writer, verbose)) {
+            shuntsWriter.write(shuntId, q, expectedQ, p, currentSectionCount, maximumSectionCount, bPerSection, v, connected, qMax, nominalV, validated);
+            assertEquals(shuntsContent, writer.toString().trim());
+        }
+    }
+
+    protected abstract ValidationWriter getShuntsValidationFormatterCsvWriter(TableFormatterConfig config, Writer writer, boolean verbose);
+
 }

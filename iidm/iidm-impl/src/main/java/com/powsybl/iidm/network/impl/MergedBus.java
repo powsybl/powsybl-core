@@ -66,16 +66,6 @@ class MergedBus extends AbstractIdentifiable<Bus> implements CalculatedBus {
     }
 
     @Override
-    public int getConnectedOrConnectableTerminalCount() {
-        checkValidity();
-        int count = 0;
-        for (ConfiguredBus bus : buses) {
-            count += bus.getConnectedOrConnectableTerminalCount();
-        }
-        return count;
-    }
-
-    @Override
     public Iterable<TerminalExt> getConnectedTerminals() {
         checkValidity();
         List<Iterable<TerminalExt>> iterables = new ArrayList<>(buses.size());

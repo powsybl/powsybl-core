@@ -77,14 +77,6 @@ public class ProjectNode extends AbstractNodeBase<ProjectFolder> {
                 .collect(Collectors.toList());
     }
 
-    protected void notifyDependencyChanged() {
-        getBackwardDependencies().forEach(projectFile -> {
-            projectFile.onDependencyChanged();
-            // propagate
-            projectFile.notifyDependencyChanged();
-        });
-    }
-
     public AppFileSystem getFileSystem() {
         return fileSystem;
     }

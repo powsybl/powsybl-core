@@ -35,7 +35,7 @@ public abstract class AbstractTableSecurityAnalysisResultExporter implements Sec
         TableFormatterFactory tableFormatterFactory = getTableFormatterFactory();
         TableFormatterConfig tableFormatterConfig = getTableFormatterConfig();
 
-        Security.printPreContingencyViolations(result, writer, tableFormatterFactory, tableFormatterConfig, null);
-        Security.printPostContingencyViolations(result, writer, tableFormatterFactory, tableFormatterConfig, null, true);
+        Security.printPreContingencyViolations(result, network, writer, tableFormatterFactory, tableFormatterConfig, null);
+        Security.printPostContingencyViolations(result, network, writer, tableFormatterFactory, tableFormatterConfig, null, true);
     }
 }

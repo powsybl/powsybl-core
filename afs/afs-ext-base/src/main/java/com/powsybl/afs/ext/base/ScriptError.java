@@ -82,4 +82,28 @@ public class ScriptError {
     public int getEndColumn() {
         return endColumn;
     }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(message, startLine, startColumn, endLine, endColumn);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof ScriptError) {
+            ScriptError other = (ScriptError) obj;
+            return message.equals(other.message) &&
+                    startLine == other.startLine &&
+                    startColumn == other.startColumn &&
+                    endLine == other.endLine &&
+                    endColumn == other.endColumn;
+        }
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        return "ScriptError(message=" + message + ", startLine=" + startLine  + ", startColumn=" + startColumn +
+                ", endLine=" + endLine + ", endColumn=" + endColumn + ")";
+    }
 }
