@@ -7,7 +7,7 @@
 #
 
 if [ -z $JAVA_HOME ]; then
-    echo "JAVA_HOME is not defined"
+    echo "JAVA_HOME is not defined" >&2
     exit -1
 fi
 
@@ -18,11 +18,18 @@ installDir=${installBinDir%/*}
     
 parallel=false
 
-itools_config_help() {
-    echo "Available itools configuration ARGS are:"
-    echo "  --config-name     Override configuration xml file name ( current setting: $itools_config_name )"
-    echo "  --parallel        Override parallel mode (current setting: not parallel)"
-    echo ""
+printUsage() {
+    if $parallel ; then
+        parallelStatus="parallel";
+    else
+        parallelStatus="not parallel";
+    fi
+    echo "usage: itools [OPTIONS] COMMAND [ARGS]" 1>&2
+    echo "" >&2
+    echo "Available itools options are:" >&2
+    echo "  --config-name     Override configuration xml file name ( current setting: $itools_config_name )" >&2
+    echo "  --parallel        Override parallel mode (current setting: $parallelStatus)" >&2
+    echo "" >&2
 }
 
 itoolsHelp=false
@@ -51,7 +58,7 @@ for ((i=0; i<${#args[@]}; i++)); do
 done
 
 if $itoolsHelp ; then
-    itools_config_help;
+    printUsage;
 fi
 
 [ -n "$itools_cache_dir" ] && options+="-Ditools.cache.dir=$itools_cache_dir"

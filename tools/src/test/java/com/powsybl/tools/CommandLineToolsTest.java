@@ -132,9 +132,7 @@ public class CommandLineToolsTest extends AbstractToolTest {
     @Test
     public void test() throws IOException {
         // usage when no command is specified
-        String usage = "usage: itools COMMAND [ARGS]" + System.lineSeparator() +
-                System.lineSeparator() +
-                "Available commands are:" + System.lineSeparator() +
+        String usage = "Available commands are:" + System.lineSeparator() +
                 System.lineSeparator() +
                 "theme1:" + System.lineSeparator() +
                 "   tool1                                    test tool1" + System.lineSeparator() +
@@ -157,7 +155,7 @@ public class CommandLineToolsTest extends AbstractToolTest {
         // invalid option
         assertCommand(new String[] {"tool1", "--optionA", "file.txt"}, CommandLineTools.INVALID_COMMAND_STATUS, "",
                 "error: Unrecognized option: --optionA" + System.lineSeparator() +
-                        "usage: itools tool1 [--help] --option1 <FILE>" + System.lineSeparator() +
+                        "command usage: tool1 [--help] --option1 <FILE>" + System.lineSeparator() +
                         "    --help             display the help and quit" + System.lineSeparator() +
                         "    --option1 <FILE>   this is option 1" + System.lineSeparator() +
                         System.lineSeparator() +
@@ -166,7 +164,7 @@ public class CommandLineToolsTest extends AbstractToolTest {
         // required option not specified
         assertCommand(new String[] {"tool1"}, CommandLineTools.INVALID_COMMAND_STATUS, "",
                 "error: Missing required option: option1" + System.lineSeparator() +
-                        "usage: itools tool1 [--help] --option1 <FILE>" + System.lineSeparator() +
+                        "command usage: tool1 [--help] --option1 <FILE>" + System.lineSeparator() +
                         "    --help             display the help and quit" + System.lineSeparator() +
                         "    --option1 <FILE>   this is option 1" + System.lineSeparator() +
                         System.lineSeparator() +
@@ -174,7 +172,7 @@ public class CommandLineToolsTest extends AbstractToolTest {
 
         // command help
         assertCommand(new String[] {"tool1", "--help"}, CommandLineTools.COMMAND_OK_STATUS, "",
-                        "usage: itools tool1 [--help] --option1 <FILE>" + System.lineSeparator() +
+                        "command usage: tool1 [--help] --option1 <FILE>" + System.lineSeparator() +
                         "    --help             display the help and quit" + System.lineSeparator() +
                         "    --option1 <FILE>   this is option 1" + System.lineSeparator() +
                         System.lineSeparator() +

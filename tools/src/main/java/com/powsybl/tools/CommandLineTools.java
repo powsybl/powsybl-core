@@ -23,7 +23,6 @@ import java.util.stream.Collectors;
  */
 public class CommandLineTools {
 
-    private static final String TOOL_NAME = "itools";
     public static final int COMMAND_OK_STATUS = 0;
     public static final int COMMAND_NOT_FOUND_STATUS = 1;
     public static final int INVALID_COMMAND_STATUS = 2;
@@ -41,12 +40,7 @@ public class CommandLineTools {
 
     private int printUsage(PrintStream err) {
         StringBuilder usage = new StringBuilder();
-        usage.append("usage: ")
-                .append(TOOL_NAME)
-                .append(" COMMAND [ARGS]")
-                .append(System.lineSeparator())
-                .append(System.lineSeparator())
-                .append("Available commands are:")
+        usage.append("Available commands are:")
                 .append(System.lineSeparator())
                 .append(System.lineSeparator());
 
@@ -82,10 +76,11 @@ public class CommandLineTools {
 
     private void printCommandUsage(String name, Options options, String usageFooter, PrintStream err) {
         HelpFormatter formatter = new HelpFormatter();
+        formatter.setSyntaxPrefix("command usage: ");
         PrintWriter writer = new PrintWriter(err);
         formatter.printHelp(writer,
                             80,
-                            TOOL_NAME + " " + name,
+                            name,
                             "", // header
                             getOptionsWithHelp(options),
                             formatter.getLeftPadding(),
