@@ -71,9 +71,9 @@ public final class FlowsValidation {
             double computedTheta1 = computeTheta(connected1, connected2, theta1, theta2, alpha1, alpha2, computedU1, computedU2, rho1, rho2, g1, b1, y, ksi);
             double computedTheta2 = computeTheta(connected2, connected1, theta2, theta1, alpha2, alpha1, computedU2, computedU1, rho2, rho1, g2, b2, y, ksi);
             double p1Calc = connected1 ? rho1 * rho2 * computedU1 * computedU2 * y * Math.sin(computedTheta1 - computedTheta2 - ksi + alpha1 - alpha2) + rho1 * rho1 * computedU1 * computedU1 * (y * Math.sin(ksi) + g1) : Float.NaN;
-            double q1Calc = connected1 ?  -rho1 * rho2 * computedU1 * computedU2 * y * Math.cos(computedTheta1 - computedTheta2 - ksi + alpha1 - alpha2) + rho1 * rho1 * computedU1 * computedU1 * (y * Math.cos(ksi) - b1) : Float.NaN;
-            double p2Calc = connected2 ?  rho2 * rho1 * computedU2 * computedU1 * y * Math.sin(computedTheta2 - computedTheta1 - ksi + alpha2 - alpha1) + rho2 * rho2 * computedU2 * computedU2 * (y * Math.sin(ksi) + g2) : Float.NaN;
-            double q2Calc = connected2 ?  -rho2 * rho1 * computedU2 * computedU1 * y * Math.cos(computedTheta2 - computedTheta1 - ksi + alpha2 - alpha1) + rho2 * rho2 * computedU2 * computedU2 * (y * Math.cos(ksi) - b2) : Float.NaN;
+            double q1Calc = connected1 ? -rho1 * rho2 * computedU1 * computedU2 * y * Math.cos(computedTheta1 - computedTheta2 - ksi + alpha1 - alpha2) + rho1 * rho1 * computedU1 * computedU1 * (y * Math.cos(ksi) - b1) : Float.NaN;
+            double p2Calc = connected2 ? rho2 * rho1 * computedU2 * computedU1 * y * Math.sin(computedTheta2 - computedTheta1 - ksi + alpha2 - alpha1) + rho2 * rho2 * computedU2 * computedU2 * (y * Math.sin(ksi) + g2) : Float.NaN;
+            double q2Calc = connected2 ? -rho2 * rho1 * computedU2 * computedU1 * y * Math.cos(computedTheta2 - computedTheta1 - ksi + alpha2 - alpha1) + rho2 * rho2 * computedU2 * computedU2 * (y * Math.cos(ksi) - b2) : Float.NaN;
 
             if (!connected1) {
                 validated &= checkDisconnectedTerminal(id, "1", p1, p1Calc, q1, q1Calc, config);
@@ -186,14 +186,14 @@ public final class FlowsValidation {
         double g2 = l.getG2();
         double b1 = l.getB1();
         double b2 = l.getB2();
-        boolean connected1 =  bus1 != null ? true : false;
-        boolean connected2 =  bus2 != null ? true : false;
+        boolean connected1 = bus1 != null ? true : false;
+        boolean connected2 = bus2 != null ? true : false;
         Bus connectableBus1 = l.getTerminal1().getBusView().getConnectableBus();
         Bus connectableBus2 = l.getTerminal2().getBusView().getConnectableBus();
-        boolean connectableMainComponent1 =  connectableBus1 != null ? connectableBus1.isInMainConnectedComponent() : false;
-        boolean connectableMainComponent2 =  connectableBus2 != null ? connectableBus2.isInMainConnectedComponent() : false;
-        boolean mainComponent1 =  bus1 != null ? bus1.isInMainConnectedComponent() : connectableMainComponent1;
-        boolean mainComponent2 =  bus2 != null ? bus2.isInMainConnectedComponent() : connectableMainComponent2;
+        boolean connectableMainComponent1 = connectableBus1 != null ? connectableBus1.isInMainConnectedComponent() : false;
+        boolean connectableMainComponent2 = connectableBus2 != null ? connectableBus2.isInMainConnectedComponent() : false;
+        boolean mainComponent1 = bus1 != null ? bus1.isInMainConnectedComponent() : connectableMainComponent1;
+        boolean mainComponent2 = bus2 != null ? bus2.isInMainConnectedComponent() : connectableMainComponent2;
         return checkFlows(l.getId(), r, x, rho1, rho2, u1, u2, theta1, theta2, alpha1, alpha2, g1, g2, b1, b2, p1, q1, p2, q2, connected1, connected2,
                           mainComponent1, mainComponent2, config, flowsWriter);
     }
@@ -238,20 +238,20 @@ public final class FlowsValidation {
         double theta2 = bus2 != null ? Math.toRadians(bus2.getAngle()) : Double.NaN;
         double alpha1 = twt.getPhaseTapChanger() != null ? Math.toRadians(twt.getPhaseTapChanger().getCurrentStep().getAlpha()) : 0f;
         double alpha2 = 0f;
-        boolean connected1 =  bus1 != null ? true : false;
-        boolean connected2 =  bus2 != null ? true : false;
+        boolean connected1 = bus1 != null ? true : false;
+        boolean connected2 = bus2 != null ? true : false;
         Bus connectableBus1 = twt.getTerminal1().getBusView().getConnectableBus();
         Bus connectableBus2 = twt.getTerminal2().getBusView().getConnectableBus();
-        boolean connectableMainComponent1 =  connectableBus1 != null ? connectableBus1.isInMainConnectedComponent() : false;
-        boolean connectableMainComponent2 =  connectableBus2 != null ? connectableBus2.isInMainConnectedComponent() : false;
-        boolean mainComponent1 =  bus1 != null ? bus1.isInMainConnectedComponent() : connectableMainComponent1;
-        boolean mainComponent2 =  bus2 != null ? bus2.isInMainConnectedComponent() : connectableMainComponent2;
+        boolean connectableMainComponent1 = connectableBus1 != null ? connectableBus1.isInMainConnectedComponent() : false;
+        boolean connectableMainComponent2 = connectableBus2 != null ? connectableBus2.isInMainConnectedComponent() : false;
+        boolean mainComponent1 = bus1 != null ? bus1.isInMainConnectedComponent() : connectableMainComponent1;
+        boolean mainComponent2 = bus2 != null ? bus2.isInMainConnectedComponent() : connectableMainComponent2;
         return checkFlows(twt.getId(), r, x, rho1, rho2, u1, u2, theta1, theta2, alpha1, alpha2, g1, g2, b1, b2, p1, q1, p2, q2, connected1, connected2,
                           mainComponent1, mainComponent2, config, flowsWriter);
     }
 
-    private static double getValue(float initialValue, float rtpStepValue, float ptpStepValue) {
-        return initialValue * (1 + rtpStepValue / 100) * (1 + ptpStepValue / 100);
+    private static double getValue(float initialValue, float rtcStepValue, float ptcStepValue) {
+        return initialValue * (1 + rtcStepValue / 100) * (1 + ptcStepValue / 100);
     }
 
     private static double getR(TwoWindingsTransformer twt) {
