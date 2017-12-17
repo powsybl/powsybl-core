@@ -52,7 +52,11 @@ public class AppData implements AutoCloseable {
     }
 
     public AppData() {
-        this(LocalComputationManager.getDefault(),
+        this(LocalComputationManager.getDefault());
+    }
+
+    public AppData(ComputationManager computationManager) {
+        this(computationManager,
                 new ServiceLoaderCache<>(AppFileSystemProvider.class).getServices(),
                 new ServiceLoaderCache<>(FileExtension.class).getServices(),
                 new ServiceLoaderCache<>(ProjectFileExtension.class).getServices(),
