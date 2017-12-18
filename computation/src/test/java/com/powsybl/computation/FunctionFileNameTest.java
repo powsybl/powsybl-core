@@ -21,6 +21,7 @@ public class FunctionFileNameTest {
         FunctionFileName fileName = new FunctionFileName(executionNumber -> "file-" + executionNumber, null);
         assertEquals("file-0", fileName.getName(0));
         assertTrue(fileName.dependsOnExecutionNumber());
+        assertEquals("file-" + Command.EXECUTION_NUMBER_PATTERN, fileName.getName());
     }
 
     @Test(expected = RuntimeException.class)

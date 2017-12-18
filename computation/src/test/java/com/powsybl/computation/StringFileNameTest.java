@@ -19,6 +19,7 @@ public class StringFileNameTest {
     public void test() {
         StringFileName fileName = new StringFileName("file");
         assertEquals("file", fileName.getName(0));
+        assertEquals("file", fileName.getName());
         assertFalse(fileName.dependsOnExecutionNumber());
     }
 
@@ -26,6 +27,7 @@ public class StringFileNameTest {
     public void test2() {
         StringFileName fileName = new StringFileName("file-" + Command.EXECUTION_NUMBER_PATTERN);
         assertEquals("file-0", fileName.getName(0));
+        assertEquals("file-" + Command.EXECUTION_NUMBER_PATTERN, fileName.getName());
         assertEquals("file-*", fileName.getName(-1));
         assertTrue(fileName.dependsOnExecutionNumber());
     }

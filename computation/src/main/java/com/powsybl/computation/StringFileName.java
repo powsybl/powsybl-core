@@ -29,6 +29,11 @@ public class StringFileName implements FileName {
     }
 
     @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
     public boolean dependsOnExecutionNumber() {
         return name.contains(Command.EXECUTION_NUMBER_PATTERN);
     }

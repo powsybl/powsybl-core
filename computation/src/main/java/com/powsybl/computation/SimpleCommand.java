@@ -18,6 +18,8 @@ public interface SimpleCommand extends Command {
 
     List<String> getArgs(int executionNumber);
 
+    List<String> getArgs();
+
     int getTimeout();
 
 }

@@ -21,6 +21,7 @@ public class OutputFileTest {
     public void test() {
         OutputFile file = new OutputFile("test");
         assertEquals("test", file.getName(1));
+        assertEquals("test", file.getName());
         assertFalse(file.dependsOnExecutionNumber());
         assertNull(file.getPostProcessor());
     }
@@ -29,6 +30,7 @@ public class OutputFileTest {
     public void test2() {
         OutputFile file = new OutputFile("test" + Command.EXECUTION_NUMBER_PATTERN);
         assertEquals("test1", file.getName(1));
+        assertEquals("test" + Command.EXECUTION_NUMBER_PATTERN, file.getName());
         assertTrue(file.dependsOnExecutionNumber());
         assertNull(file.getPostProcessor());
     }
@@ -37,6 +39,7 @@ public class OutputFileTest {
     public void test3() {
         OutputFile file = new OutputFile(integer -> "test" + integer, null);
         assertEquals("test1", file.getName(1));
+        assertEquals("test" + Command.EXECUTION_NUMBER_PATTERN, file.getName());
         assertTrue(file.dependsOnExecutionNumber());
         assertNull(file.getPostProcessor());
     }
