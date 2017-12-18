@@ -43,13 +43,13 @@ public class CaseExporter extends DefaultLoadFlowActionSimulatorObserver {
     }
 
     @Override
-    public void loadFlowDiverged(Contingency contingency, Network network, int round) {
-        exportNetwork(contingency, network, round);
+    public void loadFlowDiverged(RunningContext runningContext) {
+        exportNetwork(runningContext.getContingency(), runningContext.getNetwork(), runningContext.getRound());
     }
 
     @Override
-    public void loadFlowConverged(Contingency contingency, List<LimitViolation> violations, Network network, int round) {
-        exportNetwork(contingency, network, round);
+    public void loadFlowConverged(RunningContext runningContext, List<LimitViolation> violations) {
+        exportNetwork(runningContext.getContingency(), runningContext.getNetwork(), runningContext.getRound());
     }
 
     private void exportNetwork(Contingency contingency, Network network, int round) {

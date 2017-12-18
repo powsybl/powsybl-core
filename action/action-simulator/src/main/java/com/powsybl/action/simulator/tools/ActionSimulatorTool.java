@@ -140,7 +140,7 @@ public class ActionSimulatorTool implements Tool {
         return new LoadFlowActionSimulatorLogPrinter(context.getOutputStream(), context.getErrorStream(), verbose);
     }
 
-    private static LoadFlowActionSimulatorObserver createSecurityAnalysisPrinter(ToolRunningContext context, LoadFlowActionSimulatorConfig config, Path csvFile) {
+    private static LoadFlowActionSimulatorObserver createSecurityAnalysisPrinter(Network network, ToolRunningContext context, LoadFlowActionSimulatorConfig config, Path csvFile) {
         return new AbstractSecurityAnalysisResultBuilder() {
             @Override
             public void onFinalStateResult(SecurityAnalysisResult result) {
@@ -148,13 +148,13 @@ public class ActionSimulatorTool implements Tool {
                 LimitViolationFilter filter = LimitViolationFilter.load();
                 Writer soutWriter = new OutputStreamWriter(context.getOutputStream());
                 AsciiTableFormatterFactory asciiTableFormatterFactory = new AsciiTableFormatterFactory();
-                Security.printPreContingencyViolations(result, soutWriter, asciiTableFormatterFactory, filter);
-                Security.printPostContingencyViolations(result, soutWriter, asciiTableFormatterFactory, filter, !config.isIgnorePreContingencyViolations());
+                Security.printPreContingencyViolations(result, network, soutWriter, asciiTableFormatterFactory, filter);
+                Security.printPostContingencyViolations(result, network, soutWriter, asciiTableFormatterFactory, filter, !config.isIgnorePreContingencyViolations());
                 if (csvFile != null) {
                     try (Writer writer = Files.newBufferedWriter(csvFile, StandardCharsets.UTF_8)) {
                         CsvTableFormatterFactory csvTableFormatterFactory = new CsvTableFormatterFactory();
-                        Security.printPreContingencyViolations(result, writer, csvTableFormatterFactory, filter);
-                        Security.printPostContingencyViolations(result, writer, csvTableFormatterFactory, filter, !config.isIgnorePreContingencyViolations());
+                        Security.printPreContingencyViolations(result, network, writer, csvTableFormatterFactory, filter);
+                        Security.printPostContingencyViolations(result, network, writer, csvTableFormatterFactory, filter, !config.isIgnorePreContingencyViolations());
                     } catch (IOException e) {
                         throw new UncheckedIOException(e);
                     }
@@ -208,7 +208,7 @@ public class ActionSimulatorTool implements Tool {
 
             List<LoadFlowActionSimulatorObserver> observers = new ArrayList<>();
             observers.add(createLogPrinter(context, verbose));
-            observers.add(createSecurityAnalysisPrinter(context, config, csvFile));
+            observers.add(createSecurityAnalysisPrinter(network, context, config, csvFile));
             if (outputCaseFolder != null) {
                 CompressionFormat compressionFormat = CommandLineUtil.getOptionValue(line, OUTPUT_COMPRESSION_FORMAT, CompressionFormat.class, null);
                 observers.add(createCaseExporter(outputCaseFolder, DataSourceUtil.getBaseName(caseFile), outputCaseFormat, compressionFormat));
