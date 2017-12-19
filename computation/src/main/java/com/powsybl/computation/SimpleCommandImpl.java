@@ -57,7 +57,7 @@ class SimpleCommandImpl extends AbstractCommand implements SimpleCommand {
     }
 
     private void rebuildPattern() {
-        List<String> argsPattern = new ArrayList<>();
+        argsPattern = new ArrayList<>();
         List<String> list1 = args.apply(1);
         List<String> list2 = args.apply(2);
         for (int i = 0; i < list1.size(); i++) {
@@ -77,7 +77,6 @@ class SimpleCommandImpl extends AbstractCommand implements SimpleCommand {
                 argsPattern.add(str1);
             }
         }
-        this.argsPattern = argsPattern;
     }
 
     @Override
