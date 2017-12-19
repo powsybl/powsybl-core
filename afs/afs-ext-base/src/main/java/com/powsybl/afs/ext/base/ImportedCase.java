@@ -7,11 +7,10 @@
 package com.powsybl.afs.ext.base;
 
 import com.powsybl.afs.AfsException;
-import com.powsybl.afs.AppFileSystem;
 import com.powsybl.afs.ProjectFile;
-import com.powsybl.afs.storage.AppFileSystemStorage;
+import com.powsybl.afs.ProjectFileCreationContext;
+import com.powsybl.afs.storage.AppStorage;
 import com.powsybl.afs.storage.NodeId;
-import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.import_.ImportersLoader;
@@ -29,6 +28,7 @@ import java.util.Properties;
 public class ImportedCase extends ProjectFile implements ProjectCase {
 
     public static final String PSEUDO_CLASS = "importedCase";
+    public static final int VERSION = 0;
 
     static final String FORMAT = "format";
     static final String DATA_SOURCE = "dataSource";
@@ -36,16 +36,15 @@ public class ImportedCase extends ProjectFile implements ProjectCase {
 
     private final ImportersLoader importersLoader;
 
-    public ImportedCase(NodeInfo info, AppFileSystemStorage storage, NodeInfo projectInfo, AppFileSystem fileSystem,
-                        ImportersLoader importersLoader) {
-        super(info, storage, projectInfo, fileSystem, CaseIconCache.INSTANCE.get(
+    public ImportedCase(ProjectFileCreationContext context, ImportersLoader importersLoader) {
+        super(context, VERSION, CaseIconCache.INSTANCE.get(
                 importersLoader,
-                fileSystem.getData().getComputationManager(),
-                getFormat(storage, info.getId())));
+                context.getFileSystem().getData().getComputationManager(),
+                getFormat(context.getStorage(), context.getInfo().getId())));
         this.importersLoader = Objects.requireNonNull(importersLoader);
     }
 
-    private static String getFormat(AppFileSystemStorage storage, NodeId id) {
+    private static String getFormat(AppStorage storage, NodeId id) {
         return storage.getStringAttribute(id, FORMAT);
     }
 
@@ -73,10 +72,30 @@ public class ImportedCase extends ProjectFile implements ProjectCase {
     }
 
     @Override
-    public Network loadNetwork() {
-        Importer importer = getImporter();
-        ReadOnlyDataSource dataSource = getDataSource();
-        Properties parameters = getParameters();
-        return importer.importData(dataSource, parameters);
+    public String queryNetwork(String groovyScript) {
+        return fileSystem.findService(NetworkService.class).queryNetwork(this, groovyScript);
+    }
+
+    @Override
+    public Network getNetwork() {
+        return fileSystem.findService(NetworkService.class).getNetwork(this);
+    }
+
+    @Override
+    public ScriptError getScriptError() {
+        return null;
+    }
+
+    @Override
+    public String getScriptOutput() {
+        return "";
+    }
+
+    @Override
+    public void delete() {
+        super.delete();
+
+        // also clean cache
+        fileSystem.findService(NetworkService.class).invalidateCache(this);
     }
 }

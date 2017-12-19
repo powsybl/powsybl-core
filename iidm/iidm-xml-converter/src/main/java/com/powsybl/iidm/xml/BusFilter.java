@@ -78,7 +78,7 @@ public class BusFilter {
     }
 
     public boolean test(Bus b) {
-        return (buses == null || buses.contains(b.getId())) && b.getConnectedOrConnectableTerminalCount() > 0;
+        return buses == null || buses.contains(b.getId());
     }
 
     public boolean test(Connectable<?> connectable) {

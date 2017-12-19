@@ -7,8 +7,6 @@
 package com.powsybl.action.simulator.loadflow;
 
 import com.powsybl.action.dsl.Rule;
-import com.powsybl.contingency.Contingency;
-import com.powsybl.iidm.network.Network;
 import com.powsybl.security.LimitViolation;
 
 import java.util.List;
@@ -19,7 +17,7 @@ import java.util.Map;
  */
 public class DefaultLoadFlowActionSimulatorObserver implements LoadFlowActionSimulatorObserver {
     @Override
-    public void beforePreContingencyAnalysis(Network network) {
+    public void beforePreContingencyAnalysis(RunningContext runningContext) {
         // empty default implementation
     }
 
@@ -29,57 +27,57 @@ public class DefaultLoadFlowActionSimulatorObserver implements LoadFlowActionSim
     }
 
     @Override
-    public void beforePostContingencyAnalysis(Contingency contingency) {
+    public void beforePostContingencyAnalysis(RunningContext runningContext) {
         // empty default implementation
     }
 
     @Override
-    public void postContingencyAnalysisNetworkLoaded(Contingency contingency, Network network) {
+    public void postContingencyAnalysisNetworkLoaded(RunningContext runningContext) {
         // empty default implementation
     }
 
     @Override
-    public void roundBegin(Contingency contingency, int round) {
+    public void roundBegin(RunningContext runningContext) {
         // empty default implementation
     }
 
     @Override
-    public void roundEnd(Contingency contingency, int round) {
+    public void roundEnd(RunningContext runningContext) {
         // empty default implementation
     }
 
     @Override
-    public void loadFlowDiverged(Contingency contingency) {
+    public void loadFlowDiverged(RunningContext runningContext) {
         // empty default implementation
     }
 
     @Override
-    public void loadFlowConverged(Contingency contingency, List<LimitViolation> violations) {
+    public void loadFlowConverged(RunningContext runningContext, List<LimitViolation> violations) {
         // empty default implementation
     }
 
     @Override
-    public void ruleChecked(Contingency contingency, Rule rule, RuleEvaluationStatus status, Map<String, Object> variables, Map<String, Boolean> actions) {
+    public void ruleChecked(RunningContext runningContext, Rule rule, RuleEvaluationStatus status, Map<String, Object> variables, Map<String, Boolean> actions) {
         // empty default implementation
     }
 
     @Override
-    public void beforeAction(Contingency contingency, String actionId) {
+    public void beforeAction(RunningContext runningContext, String actionId) {
         // empty default implementation
     }
 
     @Override
-    public void afterAction(Contingency contingency, String actionId) {
+    public void afterAction(RunningContext runningContext, String actionId) {
         // empty default implementation
     }
 
     @Override
-    public void noMoreViolations(Contingency contingency) {
+    public void noMoreViolations(RunningContext runningContext) {
         // empty default implementation
     }
 
     @Override
-    public void violationsAnymoreAndNoRulesMatch(Contingency contingency) {
+    public void violationsAnymoreAndNoRulesMatch(RunningContext runningContext) {
         // empty default implementation
     }
 

@@ -13,6 +13,7 @@ import java.util.Objects;
 import com.powsybl.commons.io.table.Column;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.commons.io.table.TableFormatterFactory;
+import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
 import com.powsybl.loadflow.validation.ValidationType;
 
 /**
@@ -95,7 +96,7 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                         new Column("targetP"),
                         new Column("targetQ"),
                         new Column("targetV"),
-                        new Column("connected"),
+                        new Column(CONNECTED),
                         new Column("voltageRegulatorOn"),
                         new Column("minQ"),
                         new Column("maxQ"),
@@ -142,6 +143,52 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                     new Column("incomingQ"),
                     new Column("loadP"),
                     new Column("loadQ")
+                };
+            case SVCS:
+                if (verbose) {
+                    return new Column[] {
+                        new Column("id"),
+                        new Column("p"),
+                        new Column("q"),
+                        new Column("v"),
+                        new Column("reactivePowerSetpoint"),
+                        new Column("voltageSetpoint"),
+                        new Column(CONNECTED),
+                        new Column("regulationMode"),
+                        new Column("bMin"),
+                        new Column("bMax"),
+                        new Column(VALIDATION)
+                    };
+                }
+                return new Column[] {
+                    new Column("id"),
+                    new Column("p"),
+                    new Column("q"),
+                    new Column("v"),
+                    new Column("reactivePowerSetpoint"),
+                    new Column("voltageSetpoint")
+                };
+            case SHUNTS:
+                if (verbose) {
+                    return new Column[] {
+                        new Column("id"),
+                        new Column("q"),
+                        new Column("expectedQ"),
+                        new Column("p"),
+                        new Column("currentSectionCount"),
+                        new Column("maximumSectionCount"),
+                        new Column("bPerSection"),
+                        new Column("v"),
+                        new Column(CONNECTED),
+                        new Column("qMax"),
+                        new Column("nominalV"),
+                        new Column(VALIDATION)
+                    };
+                }
+                return new Column[] {
+                    new Column("id"),
+                    new Column("q"),
+                    new Column("expectedQ")
                 };
             default:
                 throw new AssertionError("Unexpected ValidationType value: " + validationType);
@@ -229,6 +276,45 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                      .writeCell(twtQ)
                      .writeCell(tltP)
                      .writeCell(tltQ)
+                     .writeCell(validated ? SUCCESS : FAIL);
+        }
+    }
+
+    @Override
+    public void write(String svcId, float p, float q, float v, float reactivePowerSetpoint, float voltageSetpoint,
+                      boolean connected, RegulationMode regulationMode, float bMin, float bMax, boolean validated) throws IOException {
+        Objects.requireNonNull(svcId);
+        formatter.writeCell(svcId)
+                 .writeCell(-p)
+                 .writeCell(-q)
+                 .writeCell(v)
+                 .writeCell(reactivePowerSetpoint)
+                 .writeCell(voltageSetpoint);
+        if (verbose) {
+            formatter.writeCell(connected)
+                     .writeCell(regulationMode.name())
+                     .writeCell(bMin)
+                     .writeCell(bMax)
+                     .writeCell(validated ? SUCCESS : FAIL);
+        }
+    }
+
+    @Override
+    public void write(String shuntId, float q, float expectedQ, float p, int currentSectionCount, int maximumSectionCount,
+                      float bPerSection, float v, boolean connected, float qMax, float nominalV, boolean validated) throws IOException {
+        Objects.requireNonNull(shuntId);
+        formatter.writeCell(shuntId)
+                 .writeCell(q)
+                 .writeCell(expectedQ);
+        if (verbose) {
+            formatter.writeCell(p)
+                     .writeCell(currentSectionCount)
+                     .writeCell(maximumSectionCount)
+                     .writeCell(bPerSection)
+                     .writeCell(v)
+                     .writeCell(connected)
+                     .writeCell(qMax)
+                     .writeCell(nominalV)
                      .writeCell(validated ? SUCCESS : FAIL);
         }
     }

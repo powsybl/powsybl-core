@@ -35,7 +35,7 @@ public class LimitViolation {
     private final Branch.Side side;
 
     /**
-     * @deprecated use LimitViolation(String, LimitViolationType, String, float, float, float) instead.
+     * @deprecated use LimitViolation(String, LimitViolationType, String, float, float, float, Branch.Side) instead.
      */
     @Deprecated
     public LimitViolation(String subjectId, LimitViolationType limitType, float limit, String limitName,
@@ -52,7 +52,7 @@ public class LimitViolation {
     }
 
     /**
-     * @deprecated use LimitViolation(String, LimitViolationType, String, float, float, float) instead.
+     * @deprecated use LimitViolation(String, LimitViolationType, String, float, float, float, Branch.Side) instead.
      */
     @Deprecated
     public LimitViolation(String subjectId, LimitViolationType limitType, float limit, String limitName, float value) {
@@ -128,54 +128,42 @@ public class LimitViolation {
         }
     }
 
-    static Country getCountry(LimitViolation limitViolation, Network network) {
-        Objects.requireNonNull(limitViolation);
+    private static VoltageLevel getVoltageLevel(LimitViolation limitViolation, Network network) {
         Objects.requireNonNull(network);
-
-        Country country;
+        Objects.requireNonNull(limitViolation);
 
         Identifiable identifiable = network.getIdentifiable(limitViolation.getSubjectId());
         if (identifiable instanceof Branch) {
             Branch branch = (Branch) identifiable;
-            country = branch.getTerminal(limitViolation.getSide()).getVoltageLevel().getSubstation().getCountry();
+            return branch.getTerminal(limitViolation.getSide()).getVoltageLevel();
         } else if (identifiable instanceof Injection) {
             Injection injection = (Injection) identifiable;
-            country = injection.getTerminal().getVoltageLevel().getSubstation().getCountry();
+            return injection.getTerminal().getVoltageLevel();
         } else if (identifiable instanceof VoltageLevel) {
-            VoltageLevel voltageLevel = (VoltageLevel) identifiable;
-            country = voltageLevel.getSubstation().getCountry();
+            return (VoltageLevel) identifiable;
         } else if (identifiable instanceof Bus) {
             Bus bus = (Bus) identifiable;
-            country = bus.getVoltageLevel().getSubstation().getCountry();
+            return bus.getVoltageLevel();
         } else {
             throw new AssertionError("Unexpected identifiable type: " + identifiable.getClass());
         }
+    }
 
-        return country;
+    static Country getCountry(LimitViolation limitViolation, Network network) {
+        VoltageLevel voltageLevel = getVoltageLevel(limitViolation, network);
+
+        return voltageLevel.getSubstation().getCountry();
+    }
+
+    static String getVoltageLevelId(LimitViolation limitViolation, Network network) {
+        VoltageLevel voltageLevel = getVoltageLevel(limitViolation, network);
+
+        return voltageLevel.getId();
     }
 
     static float getNominalVoltage(LimitViolation limitViolation, Network network) {
-        Objects.requireNonNull(limitViolation);
-        Objects.requireNonNull(network);
+        VoltageLevel voltageLevel = getVoltageLevel(limitViolation, network);
 
-        float nominalVoltage;
-
-        Identifiable identifiable = network.getIdentifiable(limitViolation.getSubjectId());
-        if (identifiable == null) {
-            throw new AssertionError("Unable to find the identifiable: " + limitViolation.getSubjectId());
-        } else if (identifiable instanceof Branch) {
-            Branch branch = (Branch) identifiable;
-            nominalVoltage = branch.getTerminal(limitViolation.getSide()).getVoltageLevel().getNominalV();
-        } else if (identifiable instanceof Injection) {
-            Injection injection = (Injection) identifiable;
-            nominalVoltage = injection.getTerminal().getVoltageLevel().getNominalV();
-        } else if (identifiable instanceof VoltageLevel) {
-            VoltageLevel voltageLevel = (VoltageLevel) identifiable;
-            nominalVoltage = voltageLevel.getNominalV();
-        } else {
-            throw new AssertionError("Unexpected identifiable type: " + identifiable.getClass());
-        }
-
-        return nominalVoltage;
+        return voltageLevel.getNominalV();
     }
 }

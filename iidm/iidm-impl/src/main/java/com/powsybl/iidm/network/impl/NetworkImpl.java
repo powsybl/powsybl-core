@@ -263,6 +263,11 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Mult
     }
 
     @Override
+    public int getBranchCount() {
+        return getLineCount() + getTwoWindingsTransformerCount();
+    }
+
+    @Override
     public Stream<Line> getLineStream() {
         return Stream.concat(objectStore.getAll(LineImpl.class).stream(), objectStore.getAll(TieLineImpl.class).stream());
     }

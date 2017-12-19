@@ -203,25 +203,25 @@ powsybl_package()
         case "$powsybl_package_type" in
             zip)
                 [ -f "${powsybl_package_name}.zip" ] && rm -f "${powsybl_package_name}.zip"
-                $(cd "$sourceDir/distribution-core/target/distribution-core-${powsybl_package_version}-full" && zip -rq "$sourceDir/${powsybl_package_name}.zip" "powsybl")
+                $(cd "$sourceDir/distribution-core/target/powsybl-distribution-core-${powsybl_package_version}-full" && zip -rq "$sourceDir/${powsybl_package_name}.zip" "powsybl")
                 zip -qT "${powsybl_package_name}.zip" > /dev/null 2>&1 || exit $?
                 ;;
 
             tar)
                 [ -f "${powsybl_package_name}.tar" ] && rm -f "${powsybl_package_name}.tar"
-                tar -cf "${powsybl_package_name}.tar" -C "$sourceDir/distribution-core/target/distribution-core-${powsybl_package_version}-full" . || exit $?
+                tar -cf "${powsybl_package_name}.tar" -C "$sourceDir/distribution-core/target/powsybl-distribution-core-${powsybl_package_version}-full" . || exit $?
                 ;;
 
             tar.gz | tgz)
                 [ -f "${powsybl_package_name}.tar.gz" ] && rm -f "${powsybl_package_name}.tar.gz"
                 [ -f "${powsybl_package_name}.tgz" ] && rm -f "${powsybl_package_name}.tgz"
-                tar -czf "${powsybl_package_name}.tar.gz" -C "$sourceDir/distribution-core/target/distribution-core-${powsybl_package_version}-full" . || exit $?
+                tar -czf "${powsybl_package_name}.tar.gz" -C "$sourceDir/distribution-core/target/powsybl-distribution-core-${powsybl_package_version}-full" . || exit $?
                 ;;
 
             tar.bz2 | tbz)
                 [ -f "${powsybl_package_name}.tar.bz2" ] && rm -f "${powsybl_package_name}.tar.bz2"
                 [ -f "${powsybl_package_name}.tbz" ] && rm -f "${powsybl_package_name}.tbz"
-                tar -cjf "${powsybl_package_name}.tar.bz2" -C "$sourceDir/distribution-core/target/distribution-core-${powsybl_package_version}-full" . || exit $?
+                tar -cjf "${powsybl_package_name}.tar.bz2" -C "$sourceDir/distribution-core/target/powsybl-distribution-core-${powsybl_package_version}-full" . || exit $?
                 ;;
 
             *)

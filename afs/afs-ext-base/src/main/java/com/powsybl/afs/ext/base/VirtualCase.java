@@ -6,125 +6,98 @@
  */
 package com.powsybl.afs.ext.base;
 
-import com.powsybl.afs.AppFileSystem;
-import com.powsybl.afs.FileIcon;
-import com.powsybl.afs.ProjectFile;
-import com.powsybl.afs.storage.AppFileSystemStorage;
-import com.powsybl.afs.storage.NodeInfo;
+import com.powsybl.afs.*;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.xml.NetworkXml;
-import groovy.lang.Binding;
-import groovy.lang.GroovyShell;
-import org.codehaus.groovy.control.CompilerConfiguration;
-
-import java.io.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class VirtualCase extends ProjectFile implements ProjectCase {
+public class VirtualCase extends ProjectFile implements ProjectCase, RunnableScript, DependencyListener {
 
     public static final String PSEUDO_CLASS = "virtualCase";
+    public static final int VERSION = 0;
 
     private static final FileIcon VIRTUAL_CASE_ICON = new FileIcon("virtualCase", VirtualCase.class.getResourceAsStream("/icons/virtualCase16x16.png"));
-
-    private static final String NETWORK_CACHE_KEY = "network";
-
-    private static final String SCRIPT_OUTPUT = "scriptOutput";
 
     static final String CASE_DEPENDENCY_NAME = "case";
     static final String SCRIPT_DEPENDENCY_NAME = "script";
 
-    public VirtualCase(NodeInfo info, AppFileSystemStorage storage, NodeInfo projectInfo, AppFileSystem fileSystem) {
-        super(info, storage, projectInfo, fileSystem, VIRTUAL_CASE_ICON);
+    private final DependencyCache<ProjectCase> projectCaseDependency = new DependencyCache<>(this, CASE_DEPENDENCY_NAME, ProjectCase.class);
+
+    private final DependencyCache<ModificationScript> modificationScriptDependency = new DependencyCache<>(this, SCRIPT_DEPENDENCY_NAME, ModificationScript.class);
+
+    public VirtualCase(ProjectFileCreationContext context) {
+        super(context, VERSION, VIRTUAL_CASE_ICON);
+        addDependencyListener(this, this);
     }
 
     public ProjectCase getCase() {
-        return (ProjectCase) findProjectFile(storage.getDependencyInfo(info.getId(), CASE_DEPENDENCY_NAME));
+        return projectCaseDependency.get();
     }
 
     public ModificationScript getScript() {
-        return (ModificationScript) findProjectFile(storage.getDependencyInfo(info.getId(), SCRIPT_DEPENDENCY_NAME));
-    }
-
-    public Writer getScriptOutputWriter() {
-        return storage.writeStringAttribute(info.getId(), SCRIPT_OUTPUT);
-    }
-
-    public Reader getScriptOutputReader() {
-        return storage.readStringAttribute(info.getId(), SCRIPT_OUTPUT);
-    }
-
-    public Network loadFromCache() {
-        try (InputStream is = storage.readFromCache(info.getId(), NETWORK_CACHE_KEY)) {
-            if (is != null) {
-                return NetworkXml.read(is);
-            }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-        return null;
-    }
-
-    public void saveToCache(Network network) {
-        try (OutputStream os = storage.writeToCache(info.getId(), NETWORK_CACHE_KEY)) {
-            NetworkXml.write(network, os);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-        storage.flush();
-    }
-
-    private void runGroovyScript(Network network, Reader reader, Writer out) {
-        // put network in the binding so that it is accessible from the script
-        Binding binding = new Binding();
-        binding.setProperty("network", network);
-        binding.setProperty("out", out);
-
-        CompilerConfiguration conf = new CompilerConfiguration();
-        GroovyShell shell = new GroovyShell(binding, conf);
-        shell.evaluate(reader);
+        return modificationScriptDependency.get();
     }
 
     @Override
-    public Network loadNetwork() {
-        // load network from the cache
-        Network network = loadFromCache();
-
-        // if no network cached, recreate it
-        if (network == null) {
-            // load network
-            network = getCase().loadNetwork();
-
-            // load script
-            ModificationScript script = getScript();
-
-            try (Reader reader = new StringReader(script.read());
-                 Writer out = getScriptOutputWriter()) {
-                switch (script.getScriptType()) {
-                    case GROOVY:
-                        runGroovyScript(network, reader, out);
-                        break;
-
-                    default:
-                        throw new AssertionError();
-                }
-
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-
-            // store network in the cache
-            saveToCache(network);
-        }
-
-        return network;
+    public String queryNetwork(String groovyScript) {
+        return fileSystem.findService(NetworkService.class).queryNetwork(this, groovyScript);
     }
 
     @Override
-    public void onDependencyChanged() {
-        storage.setStringAttribute(info.getId(), SCRIPT_OUTPUT, null);
-        storage.invalidateCache(info.getId(), NETWORK_CACHE_KEY);
-        storage.flush();
+    public Network getNetwork() {
+        return fileSystem.findService(NetworkService.class).getNetwork(this);
+    }
+
+    @Override
+    public ScriptError getScriptError() {
+        return fileSystem.findService(NetworkService.class).getScriptError(this);
+    }
+
+    @Override
+    public String getScriptOutput() {
+        return fileSystem.findService(NetworkService.class).getScriptOutput(this);
+    }
+
+    @Override
+    public ScriptType getScriptType() {
+        return getScript().getScriptType();
+    }
+
+    @Override
+    public String readScript() {
+        return getScript().readScript();
+    }
+
+    @Override
+    public void writeScript(String content) {
+        getScript().writeScript(content);
+    }
+
+    @Override
+    public void addListener(ScriptListener listener) {
+        getScript().addListener(listener);
+    }
+
+    @Override
+    public void removeListener(ScriptListener listener) {
+        getScript().removeListener(listener);
+    }
+
+    private void invalidateNetworkCache() {
+        fileSystem.findService(NetworkService.class).invalidateCache(this);
+    }
+
+    @Override
+    public void dependencyChanged() {
+        invalidateNetworkCache();
+    }
+
+    @Override
+    public void delete() {
+        super.delete();
+
+        // also clean cache
+        invalidateNetworkCache();
     }
 }

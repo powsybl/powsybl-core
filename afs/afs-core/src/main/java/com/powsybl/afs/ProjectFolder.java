@@ -6,8 +6,6 @@
  */
 package com.powsybl.afs;
 
-import com.powsybl.afs.storage.AppFileSystemStorage;
-import com.powsybl.afs.storage.NodeId;
 import com.powsybl.afs.storage.NodeInfo;
 
 import java.util.Comparator;
@@ -21,16 +19,17 @@ import java.util.stream.Collectors;
 public class ProjectFolder extends ProjectNode implements FolderBase<ProjectNode, ProjectFolder> {
 
     public static final String PSEUDO_CLASS = "projectFolder";
+    public static final int VERSION = 0;
 
-    public ProjectFolder(NodeInfo info, AppFileSystemStorage storage, NodeInfo projectInfo, AppFileSystem fileSystem) {
-        super(info, storage, projectInfo, fileSystem, true);
+    public ProjectFolder(ProjectFileCreationContext context) {
+        super(context, VERSION, true);
     }
 
     @Override
     public List<ProjectNode> getChildren() {
         return storage.getChildNodesInfo(info.getId())
                 .stream()
-                .map(this::findProjectNode)
+                .map(fileSystem::findProjectNode)
                 .sorted(Comparator.comparing(ProjectNode::getName))
                 .collect(Collectors.toList());
     }
@@ -38,7 +37,7 @@ public class ProjectFolder extends ProjectNode implements FolderBase<ProjectNode
     @Override
     public ProjectNode getChild(String name, String... more) {
         NodeInfo childInfo = getChildInfo(name, more);
-        return childInfo != null ? findProjectNode(childInfo) : null;
+        return childInfo != null ? fileSystem.findProjectNode(childInfo) : null;
     }
 
     @Override
@@ -58,17 +57,17 @@ public class ProjectFolder extends ProjectNode implements FolderBase<ProjectNode
 
     @Override
     public ProjectFolder createFolder(String name) {
-        NodeId folderId = storage.getChildNode(info.getId(), name);
-        if (folderId == null) {
-            folderId = storage.createNode(info.getId(), name, ProjectFolder.PSEUDO_CLASS);
+        NodeInfo folderInfo = storage.getChildNodeInfo(info.getId(), name);
+        if (folderInfo == null) {
+            folderInfo = storage.createNode(info.getId(), name, PSEUDO_CLASS, VERSION);
         }
-        return new ProjectFolder(new NodeInfo(folderId, name, ProjectFolder.PSEUDO_CLASS), storage, projectInfo, fileSystem);
+        return new ProjectFolder(new ProjectFileCreationContext(folderInfo, storage, fileSystem));
     }
 
     public <F extends ProjectFile, B extends ProjectFileBuilder<F>> B fileBuilder(Class<B> clazz) {
         Objects.requireNonNull(clazz);
-        ProjectFileExtension extension = getProject().getFileSystem().getData().getProjectFileExtension(clazz);
-        ProjectFileBuilder<F> builder = (ProjectFileBuilder<F>) extension.createProjectFileBuilder(info, storage, projectInfo, fileSystem);
+        ProjectFileExtension extension = fileSystem.getData().getProjectFileExtension(clazz);
+        ProjectFileBuilder<F> builder = (ProjectFileBuilder<F>) extension.createProjectFileBuilder(new ProjectFileBuildContext(info, storage, fileSystem));
         return (B) builder;
     }
 }

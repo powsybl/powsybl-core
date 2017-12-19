@@ -6,13 +6,19 @@
  */
 package com.powsybl.math.timeseries;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.google.common.collect.ImmutableMap;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.math.timeseries.json.TimeSeriesJsonModule;
 import org.junit.Test;
 import org.threeten.extra.Interval;
 
 import java.io.IOException;
 import java.time.Duration;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -34,6 +40,10 @@ public class TimeSeriesMetadataTest {
         assertEquals(tags, metadata.getTags());
         assertSame(index, metadata.getIndex());
 
+        // toString test
+        assertEquals("TimeSeriesMetadata(name=ts1, dataType=DOUBLE, tags={var1=value1}, index=RegularTimeSeriesIndex(startTime=2015-01-01T00:00:00Z, endTime=2015-01-01T01:00:00Z, spacing=PT15M, firstVersion=1, versionCount=1))",
+                     metadata.toString());
+
         // test json
         String jsonRef = String.join(System.lineSeparator(),
                 "{",
@@ -53,7 +63,34 @@ public class TimeSeriesMetadataTest {
         String json = JsonUtil.toJson(metadata::writeJson);
         assertEquals(jsonRef, json);
         TimeSeriesMetadata metadata2 = JsonUtil.parseJson(json, TimeSeriesMetadata::parseJson);
-        assertTrue(metadata2 instanceof TimeSeriesMetadata);
+        assertNotNull(metadata2);
+        assertEquals(metadata, metadata2);
+
+        // test json with object mapper
+        ObjectMapper objectMapper = new ObjectMapper()
+                .registerModule(new TimeSeriesJsonModule());
+
+        assertEquals(metadata, objectMapper.readValue(objectMapper.writeValueAsString(metadata), TimeSeriesMetadata.class));
+
+        // test with a list of metadata
+        List<TimeSeriesMetadata> metadataList = objectMapper.readValue(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(Arrays.asList(metadata, metadata)),
+                                                                       TypeFactory.defaultInstance().constructCollectionType(List.class, TimeSeriesMetadata.class));
+        assertEquals(2, metadataList.size());
+        assertEquals(metadata, metadataList.get(0));
+        assertEquals(metadata, metadataList.get(1));
+    }
+
+    @Test
+    public void testInfiniteIndex() throws IOException {
+        assertEquals("infiniteIndex", InfiniteTimeSeriesIndex.INSTANCE.getType());
+        assertEquals(1, InfiniteTimeSeriesIndex.INSTANCE.getFirstVersion());
+        assertEquals(1, InfiniteTimeSeriesIndex.INSTANCE.getVersionCount());
+        assertEquals(2, InfiniteTimeSeriesIndex.INSTANCE.getPointCount());
+        assertEquals(InfiniteTimeSeriesIndex.START_TIME, InfiniteTimeSeriesIndex.INSTANCE.getTimeAt(0));
+        assertEquals(InfiniteTimeSeriesIndex.END_TIME, InfiniteTimeSeriesIndex.INSTANCE.getTimeAt(1));
+        assertEquals("InfiniteTimeSeriesIndex()", InfiniteTimeSeriesIndex.INSTANCE.toString());
+        TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, Collections.emptyMap(), InfiniteTimeSeriesIndex.INSTANCE);
+        TimeSeriesMetadata metadata2 = JsonUtil.parseJson(JsonUtil.toJson(metadata::writeJson), TimeSeriesMetadata::parseJson);
         assertEquals(metadata, metadata2);
     }
 }

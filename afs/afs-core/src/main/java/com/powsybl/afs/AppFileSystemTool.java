@@ -21,6 +21,8 @@ import org.apache.commons.cli.Options;
 @AutoService(Tool.class)
 public class AppFileSystemTool implements Tool {
 
+    public static final String LS = "ls";
+
     protected AppData createAppData() {
         return new AppData();
     }
@@ -48,7 +50,7 @@ public class AppFileSystemTool implements Tool {
                 Options options = new Options();
                 OptionGroup optionGroup = new OptionGroup();
                 optionGroup.addOption(Option.builder()
-                        .longOpt("ls")
+                        .longOpt(LS)
                         .desc("list files")
                         .hasArg()
                         .optionalArg(true)
@@ -68,8 +70,8 @@ public class AppFileSystemTool implements Tool {
     @Override
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
         try (AppData appData = createAppData()) {
-            if (line.hasOption("ls")) {
-                String path = line.getOptionValue("ls");
+            if (line.hasOption(LS)) {
+                String path = line.getOptionValue(LS);
                 if (path == null) {
                     for (AppFileSystem afs : appData.getFileSystems()) {
                         context.getOutputStream().println(afs.getName());

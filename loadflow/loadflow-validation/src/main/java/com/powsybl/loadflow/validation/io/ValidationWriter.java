@@ -8,6 +8,8 @@ package com.powsybl.loadflow.validation.io;
 
 import java.io.IOException;
 
+import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
+
 /**
  *
  * @author Massimo Ferraro <massimo.ferraro@techrain.it>
@@ -24,6 +26,12 @@ public interface ValidationWriter extends AutoCloseable {
     void write(String busId, double incomingP, double incomingQ, double loadP, double loadQ, double genP, double genQ,
                double shuntP, double shuntQ, double svcP, double svcQ, double vscCSP, double vscCSQ, double lineP, double lineQ,
                double twtP, double twtQ, double tltP, double tltQ, boolean validated) throws IOException;
+
+    void write(String svcId, float p, float q, float v, float reactivePowerSetpoint, float voltageSetpoint,
+               boolean connected, RegulationMode regulationMode, float bMin, float bMax, boolean validated) throws IOException;
+
+    void write(String shuntId, float q, float expectedQ, float p, int currentSectionCount, int maximumSectionCount, float bPerSection,
+               float v, boolean connected, float qMax, float nominalV, boolean validated) throws IOException;
 
     @Override
     void close() throws IOException;

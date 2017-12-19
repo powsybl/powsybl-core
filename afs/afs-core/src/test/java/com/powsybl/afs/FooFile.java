@@ -6,16 +6,13 @@
  */
 package com.powsybl.afs;
 
-import com.powsybl.afs.storage.AppFileSystemStorage;
-import com.powsybl.afs.storage.NodeInfo;
-
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 class FooFile extends ProjectFile {
 
-    FooFile(NodeInfo info, AppFileSystemStorage storage, NodeInfo projectInfo, AppFileSystem fileSystem) {
-        super(info, storage, projectInfo, fileSystem, new FileIcon("?", new byte[]{}));
+    FooFile(ProjectFileCreationContext context) {
+        super(context, 0, new FileIcon("?", new byte[]{}));
     }
 }
