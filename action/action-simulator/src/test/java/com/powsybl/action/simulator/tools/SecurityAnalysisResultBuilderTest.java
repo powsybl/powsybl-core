@@ -6,9 +6,10 @@
  */
 package com.powsybl.action.simulator.tools;
 
+import com.powsybl.action.simulator.loadflow.RunningContext;
 import com.powsybl.contingency.Contingency;
-import com.powsybl.iidm.network.Branch;
 import com.powsybl.contingency.ContingencyImpl;
+import com.powsybl.iidm.network.Branch;
 import com.powsybl.security.*;
 import org.junit.Test;
 
@@ -69,20 +70,24 @@ public class SecurityAnalysisResultBuilderTest {
 
         builder.beforePreContingencyAnalysis(null);
         builder.afterAction(null, "pre-action");
+        RunningContext runningContext = new RunningContext(null, null);
+        runningContext.setRound(0);
         if (convergent) {
-            builder.loadFlowConverged(null, createPreContingencyViolations(), null, 0);
+            builder.loadFlowConverged(runningContext, createPreContingencyViolations());
         } else {
-            builder.loadFlowDiverged(null, null, 0);
+            builder.loadFlowDiverged(runningContext);
         }
         builder.afterPreContingencyAnalysis();
 
         Contingency contingency = createContingency();
-        builder.afterAction(contingency, "post-action1");
-        builder.afterAction(contingency, "post-action2");
+        RunningContext runningContext1 = new RunningContext(null, contingency);
+        runningContext1.setRound(0);
+        builder.afterAction(runningContext1, "post-action1");
+        builder.afterAction(runningContext1, "post-action2");
         if (convergent) {
-            builder.loadFlowConverged(contingency, createPostContingencyViolations(),  null, 0);
+            builder.loadFlowConverged(runningContext1, createPostContingencyViolations());
         } else {
-            builder.loadFlowDiverged(contingency, null, 0);
+            builder.loadFlowDiverged(runningContext1);
         }
 
         builder.afterPostContingencyAnalysis();
