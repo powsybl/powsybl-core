@@ -184,14 +184,14 @@ public class LimitViolation {
         }
     }
 
-    private static VoltageLevel getVoltageLevel(LimitViolation limitViolation, Network network) {
+    public static VoltageLevel getVoltageLevel(LimitViolation limitViolation, Network network, Branch.Side side) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(limitViolation);
 
         Identifiable identifiable = network.getIdentifiable(limitViolation.getSubjectId());
         if (identifiable instanceof Branch) {
             Branch branch = (Branch) identifiable;
-            return branch.getTerminal(limitViolation.getSide()).getVoltageLevel();
+            return branch.getTerminal(side).getVoltageLevel();
         } else if (identifiable instanceof Injection) {
             Injection injection = (Injection) identifiable;
             return injection.getTerminal().getVoltageLevel();
@@ -205,19 +205,43 @@ public class LimitViolation {
         }
     }
 
+    public static VoltageLevel getVoltageLevel(LimitViolation limitViolation, Network network) {
+        Objects.requireNonNull(limitViolation);
+
+        return getVoltageLevel(limitViolation, network, limitViolation.getSide());
+    }
+
+    public static Country getCountry(LimitViolation limitViolation, Network network, Branch.Side side) {
+        VoltageLevel voltageLevel = getVoltageLevel(limitViolation, network, side);
+
+        return voltageLevel.getSubstation().getCountry();
+    }
+
     public static Country getCountry(LimitViolation limitViolation, Network network) {
         VoltageLevel voltageLevel = getVoltageLevel(limitViolation, network);
 
         return voltageLevel.getSubstation().getCountry();
     }
 
-    static String getVoltageLevelId(LimitViolation limitViolation, Network network) {
+    public static String getVoltageLevelId(LimitViolation limitViolation, Network network, Branch.Side side) {
+        VoltageLevel voltageLevel = getVoltageLevel(limitViolation, network, side);
+
+        return voltageLevel.getId();
+    }
+
+    public static String getVoltageLevelId(LimitViolation limitViolation, Network network) {
         VoltageLevel voltageLevel = getVoltageLevel(limitViolation, network);
 
         return voltageLevel.getId();
     }
 
-    static float getNominalVoltage(LimitViolation limitViolation, Network network) {
+    public static float getNominalVoltage(LimitViolation limitViolation, Network network, Branch.Side side) {
+        VoltageLevel voltageLevel = getVoltageLevel(limitViolation, network, side);
+
+        return voltageLevel.getNominalV();
+    }
+
+    public static float getNominalVoltage(LimitViolation limitViolation, Network network) {
         VoltageLevel voltageLevel = getVoltageLevel(limitViolation, network);
 
         return voltageLevel.getNominalV();
