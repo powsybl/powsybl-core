@@ -16,9 +16,8 @@ import java.util.Objects;
  */
 public class LimitViolation {
 
-    private static final String UNEXPECTED_IDENTIFIABLE_TYPE = "Unexpected identifiable type: ";
-    private static final String IDENTIFIABLE_NOT_FOUND = "Unable to find the identifiable: ";
-    private static final String REGIONCVG = "regionCvg";
+    public static final String UNEXPECTED_IDENTIFIABLE_TYPE = "Unexpected identifiable type: ";
+    public static final String IDENTIFIABLE_NOT_FOUND = "Unable to find the identifiable: ";
 
     private final String subjectId;
 
@@ -216,6 +215,8 @@ public class LimitViolation {
     }
 
     public static Country getCountry(LimitViolation limitViolation, Network network) {
+        Objects.requireNonNull(limitViolation);
+
         return getCountry(limitViolation, network, limitViolation.getSide());
     }
 
@@ -245,64 +246,37 @@ public class LimitViolation {
     }
 
     public static float getNominalVoltage(LimitViolation limitViolation, Network network) {
+        Objects.requireNonNull(limitViolation);
+
         return getNominalVoltage(limitViolation, network, limitViolation.getSide());
     }
 
-    public static String getRegion(LimitViolation limitViolation, Network network, Branch.Side side) {
+    public static String getSubstationId(LimitViolation limitViolation, Network network, Branch.Side side) {
         Objects.requireNonNull(limitViolation);
         Objects.requireNonNull(network);
 
-        String region = null;
+        String substationId = null;
 
         Identifiable identifiable = network.getIdentifiable(limitViolation.getSubjectId());
         if (identifiable == null) {
             throw new AssertionError(IDENTIFIABLE_NOT_FOUND + limitViolation.getSubjectId());
         } else if (identifiable instanceof Branch) {
             Branch branch = (Branch) identifiable;
-            region = branch.getTerminal(side).getVoltageLevel().getSubstation().getProperties().getProperty(REGIONCVG);
+            substationId = branch.getTerminal(side).getVoltageLevel().getId();
         } else if (identifiable instanceof Injection) {
             Injection injection = (Injection) identifiable;
-            region = injection.getTerminal().getVoltageLevel().getSubstation().getProperties().getProperty(REGIONCVG);
+            substationId = injection.getTerminal().getVoltageLevel().getId();
         } else if (identifiable instanceof VoltageLevel) {
             VoltageLevel voltageLevel = (VoltageLevel) identifiable;
-            region = voltageLevel.getSubstation().getProperties().getProperty(REGIONCVG);
+            substationId = voltageLevel.getId();
         } else {
             throw new AssertionError(UNEXPECTED_IDENTIFIABLE_TYPE + identifiable.getClass());
         }
 
-        return region;
+        return substationId;
     }
 
-    public static String getRegion(LimitViolation limitViolation, Network network) {
-        return getRegion(limitViolation, network, limitViolation.getSide());
-    }
-
-    public static String getSubstation(LimitViolation limitViolation, Network network, Branch.Side side) {
-        Objects.requireNonNull(limitViolation);
-        Objects.requireNonNull(network);
-
-        String substation = null;
-
-        Identifiable identifiable = network.getIdentifiable(limitViolation.getSubjectId());
-        if (identifiable == null) {
-            throw new AssertionError(IDENTIFIABLE_NOT_FOUND + limitViolation.getSubjectId());
-        } else if (identifiable instanceof Branch) {
-            Branch branch = (Branch) identifiable;
-            substation = branch.getTerminal(side).getVoltageLevel().getName();
-        } else if (identifiable instanceof Injection) {
-            Injection injection = (Injection) identifiable;
-            substation = injection.getTerminal().getVoltageLevel().getName();
-        } else if (identifiable instanceof VoltageLevel) {
-            VoltageLevel voltageLevel = (VoltageLevel) identifiable;
-            substation = voltageLevel.getName();
-        } else {
-            throw new AssertionError(UNEXPECTED_IDENTIFIABLE_TYPE + identifiable.getClass());
-        }
-
-        return substation;
-    }
-
-    public static String getSubstation(LimitViolation limitViolation, Network network) {
-        return getSubstation(limitViolation, network, limitViolation.getSide());
+    public static String getSubstationId(LimitViolation limitViolation, Network network) {
+        return getSubstationId(limitViolation, network, limitViolation.getSide());
     }
 }

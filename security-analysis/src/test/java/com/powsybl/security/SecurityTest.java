@@ -187,9 +187,8 @@ public class SecurityTest {
             }
             assertEquals(Country.FR, LimitViolation.getCountry(violation, network));
             assertEquals(380f, LimitViolation.getNominalVoltage(violation, network), 0f);
-            assertEquals(null, LimitViolation.getRegion(violation, network));
-            String substation = LimitViolation.getSubstation(violation, network);
-            assertThat(substation, either(equalTo("VLHV1")).or(equalTo("VLHV2")));
+            String substationId = LimitViolation.getSubstationId(violation, network);
+            assertThat(substationId, either(equalTo("VLHV1")).or(equalTo("VLHV2")));
         });
 
         violations = Security.checkLimits(network, 1);

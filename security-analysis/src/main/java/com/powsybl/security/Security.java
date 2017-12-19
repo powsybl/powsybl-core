@@ -62,9 +62,13 @@ public final class Security {
 
     private static void checkPermanentLimit(Branch branch, Branch.Side side, float limitReduction, List<LimitViolation> violations) {
         if (branch.checkPermanentLimit(side, limitReduction)) {
-            violations.add(LimitViolation.newLimitViolation(branch.getId(), LimitViolationType.CURRENT,
-                    PERMANENT_LIMIT_NAME, branch.getCurrentLimits(side).getPermanentLimit(),
-                    limitReduction, branch.getTerminal(side).getI(), side)
+            violations.add(LimitViolation.newLimitViolation(branch.getId(),
+                    LimitViolationType.CURRENT,
+                    PERMANENT_LIMIT_NAME,
+                    branch.getCurrentLimits(side).getPermanentLimit(),
+                    limitReduction,
+                    branch.getTerminal(side).getI(),
+                    side)
                         .setValueMW(branch.getTerminal(side).getP()));
         }
     }
@@ -73,9 +77,13 @@ public final class Security {
                                            float limitReduction, List<LimitViolation> violations) {
         Branch.Overload o1 = branch.checkTemporaryLimits(side, limitReduction);
         if (currentLimitTypes.contains(CurrentLimitType.TATL) && (o1 != null)) {
-            violations.add(LimitViolation.newLimitViolation(branch.getId(), LimitViolationType.CURRENT,
-                    getLimitName(o1.getTemporaryLimit().getAcceptableDuration()), o1.getPreviousLimit(),
-                    limitReduction, branch.getTerminal(side).getI(), side)
+            violations.add(LimitViolation.newLimitViolation(branch.getId(),
+                    LimitViolationType.CURRENT,
+                    getLimitName(o1.getTemporaryLimit().getAcceptableDuration()),
+                    o1.getPreviousLimit(),
+                    limitReduction,
+                    branch.getTerminal(side).getI(),
+                    side)
                         .setValueMW(branch.getTerminal(side).getP())
                         .setAcceptableDuration(o1.getTemporaryLimit().getAcceptableDuration()));
         } else if (currentLimitTypes.contains(CurrentLimitType.PATL)) {
