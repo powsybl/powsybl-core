@@ -152,21 +152,26 @@ public final class StaticVarCompensatorsValidation {
             LOGGER.warn("{} {}: {}: P={}", ValidationType.SVCS, ValidationUtils.VALIDATION_ERROR, id, p);
             validated = false;
         }
-        // if regulationMode=VOLTAGE then reactive power should be equal to setpoint
-        if (regulationMode == RegulationMode.VOLTAGE && ((Float.isNaN(reactivePowerSetpoint) && !config.areOkMissingValues()) || Math.abs(q + reactivePowerSetpoint) > config.getThreshold())) {
+        // if regulationMode = REACTIVE_POWER then reactive power should be equal to setpoint
+        if (regulationMode == RegulationMode.REACTIVE_POWER && ((Float.isNaN(reactivePowerSetpoint) && !config.areOkMissingValues()) || Math.abs(q + reactivePowerSetpoint) > config.getThreshold())) {
             LOGGER.warn("{} {}: {}: regulator mode={} - Q={} reactivePowerSetpoint={}", ValidationType.SVCS, ValidationUtils.VALIDATION_ERROR, id, regulationMode, q, reactivePowerSetpoint);
             validated = false;
         }
-        // if regulationMode<>VOLTAGE then
+        // if regulationMode = VOLTAGE then
         // either q is equal to bMin * V and V is lower than voltageSetpoint
         // or q is equal to bMax * V and V is higher than voltageSetpoint
         // or V at the connected bus is equal to voltageSetpoint
-        if (regulationMode != RegulationMode.VOLTAGE
+        if (regulationMode == RegulationMode.VOLTAGE
             && (((Float.isNaN(bMin) || Float.isNaN(bMax) || Float.isNaN(voltageSetpoint)) && !config.areOkMissingValues())
                 || ((Math.abs(q + bMin * v) > config.getThreshold() || (v - voltageSetpoint) >= config.getThreshold())
                     && (Math.abs(q + bMax * v) > config.getThreshold() || (voltageSetpoint - v) >= config.getThreshold())
                     && Math.abs(v - voltageSetpoint) > config.getThreshold()))) {
             LOGGER.warn("{} {}: {}: regulator mode={} - Q={} bMin={} bMax={} - V={} targetV={}", ValidationType.SVCS, ValidationUtils.VALIDATION_ERROR, id, regulationMode, q, bMin, bMax, v, voltageSetpoint);
+            validated = false;
+        }
+        // if regulationMode = OFF then reactive power should be equal to 0
+        if (regulationMode == RegulationMode.OFF && Math.abs(q) > config.getThreshold()) {
+            LOGGER.warn("{} {}: {}: regulator mode={} - Q={} ", ValidationType.SVCS, ValidationUtils.VALIDATION_ERROR, id, regulationMode, q);
             validated = false;
         }
         return validated;

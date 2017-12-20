@@ -18,7 +18,8 @@ public interface ValidationWriter extends AutoCloseable {
 
     void write(String branchId, double p1, double p1Calc, double q1, double q1Calc, double p2, double p2Calc, double q2, double q2Calc,
                double r, double x, double g1, double g2, double b1, double b2, double rho1, double rho2, double alpha1, double alpha2,
-               double u1, double u2, double theta1, double theta2, double z, double y, double ksi, boolean validated) throws IOException;
+               double u1, double u2, double theta1, double theta2, double z, double y, double ksi, boolean connected1, boolean connected2,
+               boolean mainComponent1, boolean mainComponent2, boolean validated) throws IOException;
 
     void write(String generatorId, float p, float q, float v, float targetP, float targetQ, float targetV,
                boolean connected, boolean voltageRegulatorOn, float minQ, float maxQ, boolean validated) throws IOException;
@@ -29,6 +30,9 @@ public interface ValidationWriter extends AutoCloseable {
 
     void write(String svcId, float p, float q, float v, float reactivePowerSetpoint, float voltageSetpoint,
                boolean connected, RegulationMode regulationMode, float bMin, float bMax, boolean validated) throws IOException;
+
+    void write(String shuntId, float q, float expectedQ, float p, int currentSectionCount, int maximumSectionCount, float bPerSection,
+               float v, boolean connected, float qMax, float nominalV, boolean validated) throws IOException;
 
     @Override
     void close() throws IOException;

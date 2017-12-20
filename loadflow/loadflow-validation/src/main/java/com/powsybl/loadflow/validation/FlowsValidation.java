@@ -36,22 +36,23 @@ public final class FlowsValidation {
     }
 
     public static boolean checkFlows(String id, double r, double x, double rho1, double rho2, double u1, double u2, double theta1, double theta2, double alpha1,
-                                     double alpha2, double g1, double g2, double b1, double b2, float p1, float q1, float p2, float q2,
-                                     ValidationConfig config, Writer writer) {
+                                     double alpha2, double g1, double g2, double b1, double b2, float p1, float q1, float p2, float q2, boolean connected1,
+                                     boolean connected2, boolean mainComponent1, boolean mainComponent2, ValidationConfig config, Writer writer) {
         Objects.requireNonNull(id);
         Objects.requireNonNull(config);
         Objects.requireNonNull(writer);
 
         try (ValidationWriter flowsWriter = ValidationUtils.createValidationWriter(id, config, writer, ValidationType.FLOWS)) {
-            return checkFlows(id, r, x, rho1, rho2, u1, u2, theta1, theta2, alpha1, alpha2, g1, g2, b1, b2, p1, q1, p2, q2, config, flowsWriter);
+            return checkFlows(id, r, x, rho1, rho2, u1, u2, theta1, theta2, alpha1, alpha2, g1, g2, b1, b2, p1, q1, p2, q2, connected1, connected2,
+                              mainComponent1, mainComponent2, config, flowsWriter);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
     public static boolean checkFlows(String id, double r, double x, double rho1, double rho2, double u1, double u2, double theta1, double theta2, double alpha1,
-                                      double alpha2, double g1, double g2, double b1, double b2, float p1, float q1, float p2, float q2, ValidationConfig config,
-                                      ValidationWriter flowsWriter) {
+                                      double alpha2, double g1, double g2, double b1, double b2, float p1, float q1, float p2, float q2, boolean connected1,
+                                      boolean connected2, boolean mainComponent1, boolean mainComponent2, ValidationConfig config, ValidationWriter flowsWriter) {
         Objects.requireNonNull(id);
         Objects.requireNonNull(config);
         Objects.requireNonNull(flowsWriter);
@@ -65,31 +66,85 @@ public final class FlowsValidation {
             double z = Math.hypot(r, fixedX);
             double y = 1 / z;
             double ksi = Math.atan2(r, fixedX);
-            double p1Calc = rho1 * rho2 * u1 * u2 * y * Math.sin(theta1 - theta2 - ksi + alpha1 - alpha2) + rho1 * rho1 * u1 * u1 * (y * Math.sin(ksi) + g1);
-            double q1Calc = -rho1 * rho2 * u1 * u2 * y * Math.cos(theta1 - theta2 - ksi + alpha1 - alpha2) + rho1 * rho1 * u1 * u1 * (y * Math.cos(ksi) - b1);
-            double p2Calc = rho2 * rho1 * u2 * u1 * y * Math.sin(theta2 - theta1 - ksi + alpha2 - alpha1) + rho2 * rho2 * u2 * u2 * (y * Math.sin(ksi) + g2);
-            double q2Calc = -rho2 * rho1 * u2 * u1 * y * Math.cos(theta2 - theta1 - ksi + alpha2 - alpha1) + rho2 * rho2 * u2 * u2 * (y * Math.cos(ksi) - b2);
+            double computedU1 = computeU(connected1, connected2, u1, u2, rho1, rho2, g1, b1, y, ksi);
+            double computedU2 = computeU(connected2, connected1, u2, u1, rho2, rho1, g2, b2, y, ksi);
+            double computedTheta1 = computeTheta(connected1, connected2, theta1, theta2, alpha1, alpha2, computedU1, computedU2, rho1, rho2, g1, b1, y, ksi);
+            double computedTheta2 = computeTheta(connected2, connected1, theta2, theta1, alpha2, alpha1, computedU2, computedU1, rho2, rho1, g2, b2, y, ksi);
+            double p1Calc = connected1 ? rho1 * rho2 * computedU1 * computedU2 * y * Math.sin(computedTheta1 - computedTheta2 - ksi + alpha1 - alpha2) + rho1 * rho1 * computedU1 * computedU1 * (y * Math.sin(ksi) + g1) : Float.NaN;
+            double q1Calc = connected1 ? -rho1 * rho2 * computedU1 * computedU2 * y * Math.cos(computedTheta1 - computedTheta2 - ksi + alpha1 - alpha2) + rho1 * rho1 * computedU1 * computedU1 * (y * Math.cos(ksi) - b1) : Float.NaN;
+            double p2Calc = connected2 ? rho2 * rho1 * computedU2 * computedU1 * y * Math.sin(computedTheta2 - computedTheta1 - ksi + alpha2 - alpha1) + rho2 * rho2 * computedU2 * computedU2 * (y * Math.sin(ksi) + g2) : Float.NaN;
+            double q2Calc = connected2 ? -rho2 * rho1 * computedU2 * computedU1 * y * Math.cos(computedTheta2 - computedTheta1 - ksi + alpha2 - alpha1) + rho2 * rho2 * computedU2 * computedU2 * (y * Math.cos(ksi) - b2) : Float.NaN;
 
-            if ((Double.isNaN(p1Calc) && !config.areOkMissingValues()) || Math.abs(p1 - p1Calc) > config.getThreshold()) {
-                LOGGER.warn("{} {}: {} P1 {} {}", ValidationType.FLOWS, ValidationUtils.VALIDATION_ERROR, id, p1, p1Calc);
-                validated = false;
+            if (!connected1) {
+                validated &= checkDisconnectedTerminal(id, "1", p1, p1Calc, q1, q1Calc, config);
             }
-            if ((Double.isNaN(q1Calc) && !config.areOkMissingValues()) || Math.abs(q1 - q1Calc) > config.getThreshold()) {
-                LOGGER.warn("{} {}: {} Q1 {} {}", ValidationType.FLOWS, ValidationUtils.VALIDATION_ERROR, id, q1, q1Calc);
-                validated = false;
+            if (!connected2) {
+                validated &= checkDisconnectedTerminal(id, "2", p2, p2Calc, q2, q2Calc, config);
             }
-            if ((Double.isNaN(p2Calc) && !config.areOkMissingValues()) || Math.abs(p2 - p2Calc) > config.getThreshold()) {
-                LOGGER.warn("{} {}: {} P2 {} {}", ValidationType.FLOWS, ValidationUtils.VALIDATION_ERROR, id, p2, p2Calc);
-                validated = false;
+            if (connected1 && mainComponent1) {
+                validated &= checkConnectedTerminal(id, "1", p1, p1Calc, q1, q1Calc, config);
             }
-            if ((Double.isNaN(q2Calc) && !config.areOkMissingValues()) || Math.abs(q2 - q2Calc) > config.getThreshold()) {
-                LOGGER.warn("{} {}: {} Q2 {} {}", ValidationType.FLOWS, ValidationUtils.VALIDATION_ERROR, id, q2, q2Calc);
-                validated = false;
+            if (connected2 && mainComponent2) {
+                validated &= checkConnectedTerminal(id, "2", p2, p2Calc, q2, q2Calc, config);
             }
 
-            flowsWriter.write(id, p1, p1Calc, q1, q1Calc, p2, p2Calc, q2, q2Calc, r, x, g1, g2, b1, b2, rho1, rho2, alpha1, alpha2, u1, u2, theta1, theta2, z, y, ksi, validated);
+            flowsWriter.write(id, p1, p1Calc, q1, q1Calc, p2, p2Calc, q2, q2Calc, r, x, g1, g2, b1, b2, rho1, rho2, alpha1, alpha2, u1, u2, theta1, theta2, z, y, ksi,
+                              connected1, connected2, mainComponent1, mainComponent2, validated);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
+        }
+        return validated;
+    }
+
+    private static double computeU(boolean connected, boolean otherConnected, double u, double otherU, double rho, double otherRho, double g, double b, double y, double ksi) {
+        if (connected) {
+            return u;
+        }
+        if (!otherConnected) {
+            return u;
+        }
+        double z1 = y * Math.sin(ksi) + g;
+        double z2 = y * Math.cos(ksi) - b;
+        return 1 / Math.sqrt(z1 * z1 + z2 * z2) * (otherRho / rho) * y * otherU;
+    }
+
+    private static double computeTheta(boolean connected, boolean otherConnected, double theta, double otherTheta, double alpha, double otherAlpha, double u, double otherU,
+                                       double rho, double otherRho, double g, double b, double y, double ksi) {
+        if (connected) {
+            return theta;
+        }
+        if (!otherConnected) {
+            return theta;
+        }
+        double z1 = y * Math.sin(ksi) + g;
+        double z2 = y * Math.cos(ksi) - b;
+        double phi = -(-otherTheta - ksi + alpha - otherAlpha);
+        double cosTheatMinusPhi = rho / otherRho * u / otherU * (Math.cos(ksi) - b / y);
+        return Math.atan(-z1 / z2) + phi + (cosTheatMinusPhi < 0 ? Math.PI : 0);
+    }
+
+    private static boolean checkDisconnectedTerminal(String id, String terminalNumber, float p, double pCalc, float q, double qCalc, ValidationConfig config) {
+        boolean validated = true;
+        if (!Float.isNaN(p) && Math.abs(p) > config.getThreshold()) {
+            LOGGER.warn("{} {}: {} disconnected P{} {} {}", ValidationType.FLOWS, ValidationUtils.VALIDATION_ERROR, id, terminalNumber, p, pCalc);
+            validated = false;
+        }
+        if (!Float.isNaN(q) && Math.abs(q) > config.getThreshold()) {
+            LOGGER.warn("{} {}: {} disconnected Q{} {} {}", ValidationType.FLOWS, ValidationUtils.VALIDATION_ERROR, id, terminalNumber, q, qCalc);
+            validated = false;
+        }
+        return validated;
+    }
+
+    private static boolean checkConnectedTerminal(String id, String terminalNumber, float p, double pCalc, float q, double qCalc, ValidationConfig config) {
+        boolean validated = true;
+        if ((Double.isNaN(pCalc) && !config.areOkMissingValues()) || Math.abs(p - pCalc) > config.getThreshold()) {
+            LOGGER.warn("{} {}: {} P{} {} {}", ValidationType.FLOWS, ValidationUtils.VALIDATION_ERROR, id, terminalNumber, p, pCalc);
+            validated = false;
+        }
+        if ((Double.isNaN(qCalc) && !config.areOkMissingValues()) || Math.abs(q - qCalc) > config.getThreshold()) {
+            LOGGER.warn("{} {}: {} Q{} {} {}", ValidationType.FLOWS, ValidationUtils.VALIDATION_ERROR, id, terminalNumber, q, qCalc);
+            validated = false;
         }
         return validated;
     }
@@ -117,24 +172,30 @@ public final class FlowsValidation {
         float q2 = l.getTerminal2().getQ();
         Bus bus1 = l.getTerminal1().getBusView().getBus();
         Bus bus2 = l.getTerminal2().getBusView().getBus();
-        if (bus1 != null && bus2 != null && !Float.isNaN(p1) && !Float.isNaN(p2) && !Float.isNaN(q1) && !Float.isNaN(q2)) {
-            double r = l.getR();
-            double x = l.getX();
-            double rho1 = 1f;
-            double rho2 = 1f;
-            double u1 = bus1.getV();
-            double u2 = bus2.getV();
-            double theta1 = Math.toRadians(bus1.getAngle());
-            double theta2 = Math.toRadians(bus2.getAngle());
-            double alpha1 = 0f;
-            double alpha2 = 0f;
-            double g1 = l.getG1();
-            double g2 = l.getG2();
-            double b1 = l.getB1();
-            double b2 = l.getB2();
-            return checkFlows(l.getId(), r, x, rho1, rho2, u1, u2, theta1, theta2, alpha1, alpha2, g1, g2, b1, b2, p1, q1, p2, q2, config, flowsWriter);
-        }
-        return true;
+        double r = l.getR();
+        double x = l.getX();
+        double rho1 = 1f;
+        double rho2 = 1f;
+        double u1 = bus1 != null ? bus1.getV() : Double.NaN;
+        double u2 = bus2 != null ? bus2.getV() : Double.NaN;
+        double theta1 = bus1 != null ? Math.toRadians(bus1.getAngle()) : Double.NaN;
+        double theta2 = bus2 != null ? Math.toRadians(bus2.getAngle()) : Double.NaN;
+        double alpha1 = 0f;
+        double alpha2 = 0f;
+        double g1 = l.getG1();
+        double g2 = l.getG2();
+        double b1 = l.getB1();
+        double b2 = l.getB2();
+        boolean connected1 = bus1 != null ? true : false;
+        boolean connected2 = bus2 != null ? true : false;
+        Bus connectableBus1 = l.getTerminal1().getBusView().getConnectableBus();
+        Bus connectableBus2 = l.getTerminal2().getBusView().getConnectableBus();
+        boolean connectableMainComponent1 = connectableBus1 != null ? connectableBus1.isInMainConnectedComponent() : false;
+        boolean connectableMainComponent2 = connectableBus2 != null ? connectableBus2.isInMainConnectedComponent() : false;
+        boolean mainComponent1 = bus1 != null ? bus1.isInMainConnectedComponent() : connectableMainComponent1;
+        boolean mainComponent2 = bus2 != null ? bus2.isInMainConnectedComponent() : connectableMainComponent2;
+        return checkFlows(l.getId(), r, x, rho1, rho2, u1, u2, theta1, theta2, alpha1, alpha2, g1, g2, b1, b2, p1, q1, p2, q2, connected1, connected2,
+                          mainComponent1, mainComponent2, config, flowsWriter);
     }
 
     public static boolean checkFlows(TwoWindingsTransformer twt, ValidationConfig config, Writer writer) {
@@ -163,34 +224,61 @@ public final class FlowsValidation {
         float q2 = twt.getTerminal2().getQ();
         Bus bus1 = twt.getTerminal1().getBusView().getBus();
         Bus bus2 = twt.getTerminal2().getBusView().getBus();
-        if (bus1 == null || bus2 == null || Float.isNaN(p1) || Float.isNaN(p2) || Float.isNaN(q1) || Float.isNaN(q2)) {
-            return true;
-        }
-        float r = twt.getR();
-        float x = twt.getX();
-        double g1 = twt.getG();
-        double g2 = 0f;
-        double b1 = twt.getB();
-        double b2 = 0f;
-        if (config.getLoadFlowParameters().isSpecificCompatibility()) {
-            g1 = twt.getG() / 2;
-            g2 = twt.getG() / 2;
-            b1 = twt.getB() / 2;
-            b2 = twt.getB() / 2;
-        }
-        if (twt.getRatioTapChanger() != null) {
-            r *= 1 + twt.getRatioTapChanger().getCurrentStep().getR() / 100;
-            x *= 1 + twt.getRatioTapChanger().getCurrentStep().getX() / 100;
-            g1 *= 1 + twt.getRatioTapChanger().getCurrentStep().getG() / 100;
-            b1 *= 1 + twt.getRatioTapChanger().getCurrentStep().getB() / 100;
-        }
-        if (twt.getPhaseTapChanger() != null) {
-            r *= 1 + twt.getPhaseTapChanger().getCurrentStep().getR() / 100;
-            x *= 1 + twt.getPhaseTapChanger().getCurrentStep().getX() / 100;
-            g1 *= 1 + twt.getPhaseTapChanger().getCurrentStep().getG() / 100;
-            b1 *= 1 + twt.getPhaseTapChanger().getCurrentStep().getB() / 100;
-        }
+        float r = (float) getR(twt);
+        float x = (float) getX(twt);
+        double g1 = getG1(twt, config);
+        double g2 = config.getLoadFlowParameters().isSpecificCompatibility() ? twt.getG() / 2 : 0f;
+        double b1 = getB1(twt, config);
+        double b2 = config.getLoadFlowParameters().isSpecificCompatibility() ? twt.getB() / 2 : 0f;
+        double rho1 = getRho1(twt);
+        double rho2 = 1f;
+        double u1 = bus1 != null ? bus1.getV() : Double.NaN;
+        double u2 = bus2 != null ? bus2.getV() : Double.NaN;
+        double theta1 = bus1 != null ? Math.toRadians(bus1.getAngle()) : Double.NaN;
+        double theta2 = bus2 != null ? Math.toRadians(bus2.getAngle()) : Double.NaN;
+        double alpha1 = twt.getPhaseTapChanger() != null ? Math.toRadians(twt.getPhaseTapChanger().getCurrentStep().getAlpha()) : 0f;
+        double alpha2 = 0f;
+        boolean connected1 = bus1 != null ? true : false;
+        boolean connected2 = bus2 != null ? true : false;
+        Bus connectableBus1 = twt.getTerminal1().getBusView().getConnectableBus();
+        Bus connectableBus2 = twt.getTerminal2().getBusView().getConnectableBus();
+        boolean connectableMainComponent1 = connectableBus1 != null ? connectableBus1.isInMainConnectedComponent() : false;
+        boolean connectableMainComponent2 = connectableBus2 != null ? connectableBus2.isInMainConnectedComponent() : false;
+        boolean mainComponent1 = bus1 != null ? bus1.isInMainConnectedComponent() : connectableMainComponent1;
+        boolean mainComponent2 = bus2 != null ? bus2.isInMainConnectedComponent() : connectableMainComponent2;
+        return checkFlows(twt.getId(), r, x, rho1, rho2, u1, u2, theta1, theta2, alpha1, alpha2, g1, g2, b1, b2, p1, q1, p2, q2, connected1, connected2,
+                          mainComponent1, mainComponent2, config, flowsWriter);
+    }
 
+    private static double getValue(float initialValue, float rtcStepValue, float ptcStepValue) {
+        return initialValue * (1 + rtcStepValue / 100) * (1 + ptcStepValue / 100);
+    }
+
+    private static double getR(TwoWindingsTransformer twt) {
+        return getValue(twt.getR(),
+                twt.getRatioTapChanger() != null ? twt.getRatioTapChanger().getCurrentStep().getR() : 0,
+                twt.getPhaseTapChanger() != null ? twt.getPhaseTapChanger().getCurrentStep().getR() : 0);
+    }
+
+    private static double getX(TwoWindingsTransformer twt) {
+        return getValue(twt.getX(),
+                twt.getRatioTapChanger() != null ? twt.getRatioTapChanger().getCurrentStep().getX() : 0,
+                twt.getPhaseTapChanger() != null ? twt.getPhaseTapChanger().getCurrentStep().getX() : 0);
+    }
+
+    private static double getG1(TwoWindingsTransformer twt, ValidationConfig config) {
+        return getValue(config.getLoadFlowParameters().isSpecificCompatibility() ? twt.getG() / 2 : twt.getG(),
+                twt.getRatioTapChanger() != null ? twt.getRatioTapChanger().getCurrentStep().getG() : 0,
+                twt.getPhaseTapChanger() != null ? twt.getPhaseTapChanger().getCurrentStep().getG() : 0);
+    }
+
+    private static double getB1(TwoWindingsTransformer twt, ValidationConfig config) {
+        return getValue(config.getLoadFlowParameters().isSpecificCompatibility() ? twt.getB() / 2 : twt.getB(),
+                twt.getRatioTapChanger() != null ? twt.getRatioTapChanger().getCurrentStep().getB() : 0,
+                twt.getPhaseTapChanger() != null ? twt.getPhaseTapChanger().getCurrentStep().getB() : 0);
+    }
+
+    private static double getRho1(TwoWindingsTransformer twt) {
         double rho1 = twt.getRatedU2() / twt.getRatedU1();
         if (twt.getRatioTapChanger() != null) {
             rho1 *= twt.getRatioTapChanger().getCurrentStep().getRho();
@@ -198,14 +286,7 @@ public final class FlowsValidation {
         if (twt.getPhaseTapChanger() != null) {
             rho1 *= twt.getPhaseTapChanger().getCurrentStep().getRho();
         }
-        double rho2 = 1f;
-        double u1 = bus1.getV();
-        double u2 = bus2.getV();
-        double theta1 = Math.toRadians(bus1.getAngle());
-        double theta2 = Math.toRadians(bus2.getAngle());
-        double alpha1 = twt.getPhaseTapChanger() != null ? Math.toRadians(twt.getPhaseTapChanger().getCurrentStep().getAlpha()) : 0f;
-        double alpha2 = 0f;
-        return checkFlows(twt.getId(), r, x, rho1, rho2, u1, u2, theta1, theta2, alpha1, alpha2, g1, g2, b1, b2, p1, q1, p2, q2, config, flowsWriter);
+        return rho1;
     }
 
     public static boolean checkFlows(Network network, ValidationConfig config, Writer writer) {

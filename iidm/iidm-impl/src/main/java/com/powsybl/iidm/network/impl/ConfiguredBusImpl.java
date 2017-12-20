@@ -101,8 +101,8 @@ class ConfiguredBusImpl extends AbstractBus implements ConfiguredBus, Stateful {
 
     @Override
     public BusExt setV(float v) {
-        if (v <= 0) {
-            throw new ValidationException(this, "voltage cannot be <= 0");
+        if (v < 0) {
+            throw new ValidationException(this, "voltage cannot be < 0");
         }
         float oldValue = this.v.set(network.get().getStateIndex(), v);
         notifyUpdate("v", oldValue, v);

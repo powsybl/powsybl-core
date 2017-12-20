@@ -7,10 +7,7 @@
 package com.powsybl.action.simulator.loadflow;
 
 import com.powsybl.action.dsl.Rule;
-import com.powsybl.contingency.Contingency;
-import com.powsybl.iidm.network.Network;
 import com.powsybl.security.LimitViolation;
-
 import java.util.List;
 import java.util.Map;
 
@@ -19,31 +16,31 @@ import java.util.Map;
  */
 public interface LoadFlowActionSimulatorObserver {
 
-    void beforePreContingencyAnalysis(Network network);
+    void beforePreContingencyAnalysis(RunningContext runningContext);
 
     void afterPreContingencyAnalysis();
 
-    void beforePostContingencyAnalysis(Contingency contingency);
+    void beforePostContingencyAnalysis(RunningContext runningContext);
 
-    void postContingencyAnalysisNetworkLoaded(Contingency contingency, Network network);
+    void postContingencyAnalysisNetworkLoaded(RunningContext runningContext);
 
-    void roundBegin(Contingency contingency, int round);
+    void roundBegin(RunningContext runningContext);
 
-    void roundEnd(Contingency contingency, int round);
+    void roundEnd(RunningContext runningContext);
 
-    void loadFlowDiverged(Contingency contingency, Network network, int round);
+    void loadFlowDiverged(RunningContext runningContext);
 
-    void loadFlowConverged(Contingency contingency, List<LimitViolation> violations, Network network, int round);
+    void loadFlowConverged(RunningContext runningContext, List<LimitViolation> violations);
 
-    void ruleChecked(Contingency contingency, Rule rule, RuleEvaluationStatus status, Map<String, Object> variables, Map<String, Boolean> actions);
+    void ruleChecked(RunningContext runningContext, Rule rule, RuleEvaluationStatus status, Map<String, Object> variables, Map<String, Boolean> actions);
 
-    void beforeAction(Contingency contingency, String actionId);
+    void beforeAction(RunningContext runningContext, String actionId);
 
-    void afterAction(Contingency contingency, String actionId);
+    void afterAction(RunningContext runningContext, String actionId);
 
-    void noMoreViolations(Contingency contingency);
+    void noMoreViolations(RunningContext runningContext);
 
-    void violationsAnymoreAndNoRulesMatch(Contingency contingency);
+    void violationsAnymoreAndNoRulesMatch(RunningContext runningContext);
 
     void afterPostContingencyAnalysis();
 }
