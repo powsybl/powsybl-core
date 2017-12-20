@@ -555,26 +555,6 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         return graph.getVertexObjectStream().filter(Objects::nonNull).map(Function.identity());
     }
 
-    @Override
-    public <C extends Connectable> FluentIterable<C> getConnectables(final Class<C> clazz) {
-        return FluentIterable.from(getTerminals())
-                .transform(Terminal::getConnectable)
-                .filter(clazz);
-    }
-
-    @Override
-    public <C extends Connectable> Stream<C> getConnectableStream(Class<C> clazz) {
-        return getTerminalStream()
-                .map(Terminal::getConnectable)
-                .filter(clazz::isInstance)
-                .map(clazz::cast);
-    }
-
-    @Override
-    public <C extends Connectable> int getConnectableCount(final Class<C> clazz) {
-        return getConnectables(clazz).size();
-    }
-
     static PowsyblException createNotSupportedNodeBreakerTopologyException() {
         return new PowsyblException("Not supported in a node/breaker topology");
     }
