@@ -334,27 +334,6 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         return graph.getVertexObjectStream().flatMap(bus -> bus.getTerminals().stream());
     }
 
-    @Override
-    public <C extends Connectable> FluentIterable<C> getConnectables(Class<C> clazz) {
-        Iterable<Terminal> terminals = getTerminals();
-        return FluentIterable.from(terminals)
-                .transform(Terminal::getConnectable)
-                .filter(clazz);
-    }
-
-    @Override
-    public <C extends Connectable> Stream<C> getConnectableStream(Class<C> clazz) {
-        return getTerminalStream()
-                .map(Terminal::getConnectable)
-                .filter(clazz::isInstance)
-                .map(clazz::cast);
-    }
-
-    @Override
-    public <C extends Connectable> int getConnectableCount(Class<C> clazz) {
-        return getConnectables(clazz).size();
-    }
-
     static PowsyblException createNotSupportedBusBreakerTopologyException() {
         return new PowsyblException("Not supported in a bus breaker topology");
     }

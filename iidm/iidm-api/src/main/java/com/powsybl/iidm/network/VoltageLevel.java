@@ -667,6 +667,45 @@ public interface VoltageLevel extends Container<VoltageLevel> {
     <T extends Connectable> T getConnectable(String id, Class<T> aClass);
 
     /**
+     * Get an Iterable on all the equipments connected to this substation voltage level for a given type.
+     * @param clazz equipments type
+     * @return all the equipments of the given type
+     */
+    <T extends Connectable> Iterable<T> getConnectables(Class<T> clazz);
+
+    /**
+     * Get a Stream on all the equipments connected to this substation voltage level for a given type.
+     * @param clazz equipments type
+     * @return all the equipments of the given type
+     */
+    <T extends Connectable> Stream<T> getConnectableStream(Class<T> clazz);
+
+    /**
+     * Count the equipments connected to this substation voltage level for a given type.
+     * @param clazz equipments type
+     * @return all the equipment of the given type
+     */
+    <T extends Connectable> int getConnectableCount(Class<T> clazz);
+
+    /**
+     * Get an Iterable on all the equipments connected to this substation voltage level.
+     * @return all the equipments
+     */
+    Iterable<Connectable> getConnectables();
+
+    /**
+     * Get a Stream on all the equipments connected to this substation voltage level.
+     * @return all the equipments
+     */
+    Stream<Connectable> getConnectableStream();
+
+    /**
+     * Count the equipments connected to this substation voltage level.
+     * @return all the equipments
+     */
+    int getConnectableCount();
+
+    /**
      * Get a builder to create a new generator.
      */
     GeneratorAdder newGenerator();

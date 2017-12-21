@@ -6,10 +6,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.VoltageLevel;
-
-import java.util.stream.Stream;
 
 /**
  *
@@ -38,12 +35,6 @@ interface VoltageLevelExt extends VoltageLevel, Stateful {
     @Override BusBreakerViewExt getBusBreakerView();
 
     @Override BusViewExt getBusView();
-
-    <C extends Connectable> Iterable<C> getConnectables(Class<C> clazz);
-
-    <C extends Connectable> Stream<C> getConnectableStream(Class<C> clazz);
-
-    <C extends Connectable> int getConnectableCount(Class<C> clazz);
 
     @Override SubstationImpl getSubstation();
 
