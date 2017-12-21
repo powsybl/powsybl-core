@@ -7,7 +7,7 @@
 #
 
 if [ -z $JAVA_HOME ]; then
-    echo "JAVA_HOME is not defined"
+    echo "JAVA_HOME is not defined" >&2
     exit -1
 fi
 
@@ -15,7 +15,7 @@ installBinDir=$(dirname $(readlink -f $0))
 installDir=${installBinDir%/*}
 
 . $installDir/etc/itools.conf
-    
+
 parallel=false
 
 args=("$@")
@@ -55,4 +55,3 @@ else
 $options \
 com.powsybl.computation.local.Main "${args[@]}"
 fi
-
