@@ -14,7 +14,7 @@ import java.util.Map;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface LocalExecutor {
+public interface LocalCommandExecutor {
 
     int execute(String program, List<String> args, Path outFile, Path errFile, Path workingDir, Map<String, String> env) throws IOException, InterruptedException;
 

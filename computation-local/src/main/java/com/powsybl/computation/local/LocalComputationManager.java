@@ -51,7 +51,9 @@ public class LocalComputationManager implements ComputationManager {
 
     private final Semaphore permits;
 
-    private final LocalExecutor localExecutor;
+    private final Executor executor;
+
+    private final LocalCommandExecutor localCommandExecutor;
 
     private static final Lock LOCK = new ReentrantLock();
 
@@ -83,11 +85,11 @@ public class LocalComputationManager implements ComputationManager {
         }
     }
 
-    private static LocalExecutor getLocalExecutor() {
+    private static LocalCommandExecutor getLocalCommandExecutor() {
         if (SystemUtils.IS_OS_WINDOWS) {
-            return new WindowsLocalExecutor();
+            return new WindowsLocalCommandExecutor();
         } else if (SystemUtils.IS_OS_UNIX) {
-            return new UnixLocalExecutor();
+            return new UnixLocalCommandExecutor();
         } else {
             throw new UnsupportedOperationException("OS not supported for local execution");
         }
@@ -95,6 +97,10 @@ public class LocalComputationManager implements ComputationManager {
 
     public LocalComputationManager() throws IOException {
         this(LocalComputationConfig.load());
+    }
+
+    public LocalComputationManager(Executor executor) throws IOException {
+        this(LocalComputationConfig.load(), executor);
     }
 
     public LocalComputationManager(PlatformConfig platformConfig) throws IOException {
@@ -106,12 +112,17 @@ public class LocalComputationManager implements ComputationManager {
     }
 
     public LocalComputationManager(LocalComputationConfig config) throws IOException {
-        this(config, getLocalExecutor());
+        this(config, ForkJoinPool.commonPool());
     }
 
-    public LocalComputationManager(LocalComputationConfig config, LocalExecutor localExecutor) throws IOException {
+    public LocalComputationManager(LocalComputationConfig config, Executor executor) throws IOException {
+        this(config, getLocalCommandExecutor(), executor);
+    }
+
+    public LocalComputationManager(LocalComputationConfig config, LocalCommandExecutor localCommandExecutor, Executor executor) throws IOException {
         this.config = Objects.requireNonNull(config);
-        this.localExecutor = Objects.requireNonNull(localExecutor);
+        this.localCommandExecutor = Objects.requireNonNull(localCommandExecutor);
+        this.executor = Objects.requireNonNull(executor);
         status = new LocalComputationResourcesStatus(config.getAvailableCore());
         permits = new Semaphore(config.getAvailableCore());
         //make sure the localdir exists
@@ -253,7 +264,7 @@ public class LocalComputationManager implements ComputationManager {
                 switch (command.getType()) {
                     case SIMPLE:
                         SimpleCommand simpleCmd = (SimpleCommand) command;
-                        exitValue = localExecutor.execute(simpleCmd.getProgram(),
+                        exitValue = localCommandExecutor.execute(simpleCmd.getProgram(),
                                 simpleCmd.getArgs(executionIndex),
                                 outFile,
                                 errFile,
@@ -262,7 +273,7 @@ public class LocalComputationManager implements ComputationManager {
                         break;
                     case GROUP:
                         for (GroupCommand.SubCommand subCmd : ((GroupCommand) command).getSubCommands()) {
-                            exitValue = localExecutor.execute(subCmd.getProgram(),
+                            exitValue = localCommandExecutor.execute(subCmd.getProgram(),
                                     subCmd.getArgs(executionIndex),
                                     outFile,
                                     errFile,
@@ -321,7 +332,7 @@ public class LocalComputationManager implements ComputationManager {
         Objects.requireNonNull(environment);
         Objects.requireNonNull(handler);
         CompletableFuture<R> f = new CompletableFuture<>();
-        getExecutor().execute(() -> {
+        executor.execute(() -> {
             try {
                 try (WorkingDirectory workingDir = new WorkingDirectory(config.getLocalDir(), environment.getWorkingDirPrefix(), environment.isDebug())) {
                     List<CommandExecution> commandExecutionList = handler.before(workingDir.toPath());
@@ -349,7 +360,7 @@ public class LocalComputationManager implements ComputationManager {
 
     @Override
     public Executor getExecutor() {
-        return ForkJoinPool.commonPool();
+        return executor;
     }
 
     @Override

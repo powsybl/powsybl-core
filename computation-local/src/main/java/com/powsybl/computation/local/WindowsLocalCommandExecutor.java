@@ -21,9 +21,9 @@ import java.util.Map;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Nicolas Lhuillier <nicolas.lhuillier at rte-france.com>
  */
-public class WindowsLocalExecutor implements LocalExecutor {
+public class WindowsLocalCommandExecutor implements LocalCommandExecutor {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(WindowsLocalExecutor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(WindowsLocalCommandExecutor.class);
 
     @Override
     public int execute(String program, List<String> args, Path outFile, Path errFile, Path workingDir, Map<String, String> env) throws IOException, InterruptedException {

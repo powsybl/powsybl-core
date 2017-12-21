@@ -25,6 +25,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ForkJoinPool;
 import java.util.zip.GZIPOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -89,7 +90,7 @@ public class LocalComputationManagerTest {
 
     @Test
     public void test1() throws Exception {
-        LocalExecutor localExecutor = (program, args, outFile, errFile, workingDir, env) -> {
+        LocalCommandExecutor localCommandExecutor = (program, args, outFile, errFile, workingDir, env) -> {
             // check command line is correct
             assertEquals("prog1", program);
             assertEquals(ImmutableList.of("file1", "file2", "file3"), args);
@@ -106,7 +107,7 @@ public class LocalComputationManagerTest {
             // command exits badly
             return 1;
         };
-        try (ComputationManager computationManager = new LocalComputationManager(config, localExecutor)) {
+        try (ComputationManager computationManager = new LocalComputationManager(config, localCommandExecutor, ForkJoinPool.commonPool())) {
             computationManager.execute(new ExecutionEnvironment(ImmutableMap.of("var1", "val1"), PREFIX, false),
                     new AbstractExecutionHandler<Object>() {
                         @Override
@@ -149,7 +150,7 @@ public class LocalComputationManagerTest {
 
     @Test
     public void test2() throws Exception {
-        LocalExecutor localExecutor = (program, args, outFile, errFile, workingDir, env) -> {
+        LocalCommandExecutor localCommandExecutor = (program, args, outFile, errFile, workingDir, env) -> {
             // check working directory exists and standard output file
             assertTrue(Files.exists(workingDir));
             assertEquals(workingDir.resolve("prog2_cmd_0.out").toString(), outFile.toString());
@@ -180,7 +181,7 @@ public class LocalComputationManagerTest {
             // command is ok
             return 0;
         };
-        try (ComputationManager computationManager = new LocalComputationManager(config, localExecutor)) {
+        try (ComputationManager computationManager = new LocalComputationManager(config, localCommandExecutor, ForkJoinPool.commonPool())) {
 
             // create file1 as a common file
             computationManager.newCommonFile("file1").close();
