@@ -15,27 +15,8 @@ installBinDir=$(dirname $(readlink -f $0))
 installDir=${installBinDir%/*}
 
 . $installDir/etc/itools.conf
-    
+
 parallel=false
-
-printUsage() {
-    if $parallel ; then
-        parallelStatus="parallel";
-    else
-        parallelStatus="not parallel";
-    fi
-    echo "usage: itools [OPTIONS] COMMAND [ARGS]" 1>&2
-    echo "" >&2
-    echo "Available itools options are:" >&2
-    echo "  --config-name     Override configuration xml file name ( current setting: $itools_config_name )" >&2
-    echo "  --parallel        Override parallel mode (current setting: $parallelStatus)" >&2
-    echo "" >&2
-}
-
-itoolsHelp=false
-if [ $# -eq 0 ]; then
-    itoolsHelp=true
-fi
 
 args=("$@")
 for ((i=0; i<${#args[@]}; i++)); do
@@ -51,15 +32,8 @@ for ((i=0; i<${#args[@]}; i++)); do
            parallel=true
            unset args[i]
            ;;
-        --help)
-           itoolsHelp=true
-           ;;
     esac
 done
-
-if $itoolsHelp ; then
-    printUsage;
-fi
 
 [ -n "$itools_cache_dir" ] && options+="-Ditools.cache.dir=$itools_cache_dir"
 [ -n "$itools_config_dir" ] && options+=" -Ditools.config.dir=$itools_config_dir"

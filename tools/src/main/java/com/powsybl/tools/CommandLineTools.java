@@ -28,6 +28,8 @@ public class CommandLineTools {
     public static final int INVALID_COMMAND_STATUS = 2;
     public static final int EXECUTION_ERROR_STATUS = 3;
 
+    private static final String TOOL_NAME = "itools";
+
     private final Iterable<Tool> tools;
 
     public CommandLineTools() {
@@ -39,10 +41,21 @@ public class CommandLineTools {
     }
 
     private int printUsage(PrintStream err) {
-        StringBuilder usage = new StringBuilder();
-        usage.append("Available commands are:")
-                .append(System.lineSeparator())
-                .append(System.lineSeparator());
+        HelpFormatter formatter = new HelpFormatter();
+        PrintWriter usage = new PrintWriter(err);
+
+        formatter.printUsage(usage, 80, "itools [OPTIONS] COMMAND [ARGS]");
+
+        usage.append(System.lineSeparator())
+            .append("Available options are:")
+            .append(System.lineSeparator());
+
+        formatter.printOptions(usage, 80, getScriptOptions(), formatter.getLeftPadding(), formatter.getDescPadding());
+
+        usage.append(System.lineSeparator())
+            .append("Available commands are:")
+            .append(System.lineSeparator())
+            .append(System.lineSeparator());
 
         List<Tool> allTools = Lists.newArrayList(tools).stream()
                 .filter(t -> !t.getCommand().isHidden()).collect(Collectors.toList());
@@ -55,13 +68,31 @@ public class CommandLineTools {
             Collections.sort(tools, Comparator.comparing(t -> t.getCommand().getName()));
             usage.append(theme != null ? theme : "Others").append(":").append(System.lineSeparator());
             for (Tool tool : tools) {
-                usage.append(String.format("   %-40s %s", tool.getCommand().getName(), tool.getCommand().getDescription())).append(System.lineSeparator());
+                usage.append(String.format("    %-40s %s", tool.getCommand().getName(), tool.getCommand().getDescription())).append(System.lineSeparator());
             }
             usage.append(System.lineSeparator());
         }
 
-        err.print(usage);
+        usage.flush();
         return COMMAND_NOT_FOUND_STATUS;
+    }
+
+    private static Options getScriptOptions() {
+        Options options = new Options();
+        options.addOption(Option.builder()
+            .longOpt("config-name")
+            .desc("Override configuration file name")
+            .required(false)
+            .hasArg()
+            .argName("CONFIG_NAME")
+            .build());
+        options.addOption(Option.builder()
+            .longOpt("parallel")
+            .desc("Run command in parallel mode")
+            .required(false)
+            .build());
+
+        return options;
     }
 
     private static Options getOptionsWithHelp(Options options) {
@@ -76,17 +107,18 @@ public class CommandLineTools {
 
     private void printCommandUsage(String name, Options options, String usageFooter, PrintStream err) {
         HelpFormatter formatter = new HelpFormatter();
-        formatter.setSyntaxPrefix("command usage: ");
         PrintWriter writer = new PrintWriter(err);
-        formatter.printHelp(writer,
-                            80,
-                            name,
-                            "", // header
-                            getOptionsWithHelp(options),
-                            formatter.getLeftPadding(),
-                            formatter.getDescPadding(),
-                            System.lineSeparator() + Objects.toString(usageFooter, ""),
-                            true);
+
+        formatter.printUsage(writer, 80, TOOL_NAME + " [OPTIONS] " + name, getOptionsWithHelp(options));
+
+        formatter.printWrapped(writer, 80, System.lineSeparator() + "Available options are:" + System.lineSeparator());
+        formatter.printOptions(writer, 80, getScriptOptions(), formatter.getLeftPadding(), formatter.getDescPadding());
+
+        formatter.printWrapped(writer, 80, System.lineSeparator() + "Available arguments are:" + System.lineSeparator());
+        formatter.printOptions(writer, 80, getOptionsWithHelp(options), formatter.getLeftPadding(), formatter.getDescPadding());
+
+        formatter.printWrapped(writer, 80, System.lineSeparator() + Objects.toString(usageFooter, ""));
+
         writer.flush();
     }
 
