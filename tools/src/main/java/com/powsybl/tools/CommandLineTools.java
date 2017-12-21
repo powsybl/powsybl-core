@@ -23,12 +23,11 @@ import java.util.stream.Collectors;
  */
 public class CommandLineTools {
 
+    private static final String TOOL_NAME = "itools";
     public static final int COMMAND_OK_STATUS = 0;
     public static final int COMMAND_NOT_FOUND_STATUS = 1;
     public static final int INVALID_COMMAND_STATUS = 2;
     public static final int EXECUTION_ERROR_STATUS = 3;
-
-    private static final String TOOL_NAME = "itools";
 
     private final Iterable<Tool> tools;
 
