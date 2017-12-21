@@ -64,6 +64,10 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
                            String.join(";", branchId, "z", String.format(Locale.getDefault(), "%g", z)),
                            String.join(";", branchId, "y", String.format(Locale.getDefault(), "%g", y)),
                            String.join(";", branchId, "ksi", String.format(Locale.getDefault(), "%g", ksi)),
+                           String.join(";", branchId, "connected1", Boolean.toString(connected1)),
+                           String.join(";", branchId, "connected2", Boolean.toString(connected2)),
+                           String.join(";", branchId, "mainComponent1", Boolean.toString(mainComponent1)),
+                           String.join(";", branchId, "mainComponent2", Boolean.toString(mainComponent2)),
                            String.join(";", branchId, AbstractValidationFormatterWriter.VALIDATION, "success"));
     }
 

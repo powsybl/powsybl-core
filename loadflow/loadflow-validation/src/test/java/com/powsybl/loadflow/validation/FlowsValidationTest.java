@@ -41,7 +41,13 @@ public class FlowsValidationTest extends AbstractValidationTest {
     private final double ratedU2 = 20.0;
     private final double theta1 = 0.1257718437996544;
     private final double theta2 = 0.12547118123496284;
+    private final boolean connected1 = true;
+    private final boolean connected2 = true;
+    private final boolean mainComponent1 = true;
+    private final boolean mainComponent2 = true;
 
+    private Bus bus1;
+    private Bus bus2;
     private Terminal terminal1;
     private Terminal terminal2;
     private Line line1;
@@ -58,13 +64,15 @@ public class FlowsValidationTest extends AbstractValidationTest {
         float p2 = -39.5122f;
         float q2 = 3.7746f;
 
-        Bus bus1 = Mockito.mock(Bus.class);
+        bus1 = Mockito.mock(Bus.class);
         Mockito.when(bus1.getV()).thenReturn((float) u1);
         Mockito.when(bus1.getAngle()).thenReturn((float) Math.toDegrees(theta1));
+        Mockito.when(bus1.isInMainConnectedComponent()).thenReturn(true);
 
-        Bus bus2 = Mockito.mock(Bus.class);
+        bus2 = Mockito.mock(Bus.class);
         Mockito.when(bus2.getV()).thenReturn((float) u1);
         Mockito.when(bus2.getAngle()).thenReturn((float) Math.toDegrees(theta2));
+        Mockito.when(bus2.isInMainConnectedComponent()).thenReturn(true);
 
         BusView busView1 = Mockito.mock(BusView.class);
         Mockito.when(busView1.getBus()).thenReturn(bus1);
@@ -132,21 +140,41 @@ public class FlowsValidationTest extends AbstractValidationTest {
         float p2 = -40.073254f;
         float q2 = -2.3003194f;
 
-        assertTrue(FlowsValidation.checkFlows("test", r, x, rho1, rho2, u1, u2, theta1, theta2, alpha1, alpha2, g1, g2, b1, b2, p1, q1, p2, q2, looseConfig, NullWriter.NULL_WRITER));
-        assertFalse(FlowsValidation.checkFlows("test", r, x, rho1, rho2, u1, u2, theta1, theta2, alpha1, alpha2, g1, g2, b1, b2, p1, q1, p2, q2, strictConfig, NullWriter.NULL_WRITER));
+        assertTrue(FlowsValidation.checkFlows("test", r, x, rho1, rho2, u1, u2, theta1, theta2, alpha1, alpha2, g1, g2, b1, b2, p1, q1, p2, q2, connected1, connected2,
+                                              mainComponent1, mainComponent2, looseConfig, NullWriter.NULL_WRITER));
+        assertFalse(FlowsValidation.checkFlows("test", r, x, rho1, rho2, u1, u2, theta1, theta2, alpha1, alpha2, g1, g2, b1, b2, p1, q1, p2, q2, connected1, connected2,
+                                               mainComponent1, mainComponent2, strictConfig, NullWriter.NULL_WRITER));
 
         double r = 0.04 / (rho2 * rho2);
         double x = 0.423 / (rho2 * rho2);
         double rho1 = 1 / rho2;
         double rho2 = 1;
 
-        assertTrue(FlowsValidation.checkFlows("test", r, x, rho1, rho2, u1, u2, theta1, theta2, alpha1, alpha2, g1, g2, b1, b2, p1, q1, p2, q2, looseConfig, NullWriter.NULL_WRITER));
-        assertFalse(FlowsValidation.checkFlows("test", r, x, rho1, rho2, u1, u2, theta1, theta2, alpha1, alpha2, g1, g2, b1, b2, p1, q1, p2, q2, strictConfig, NullWriter.NULL_WRITER));
+        assertTrue(FlowsValidation.checkFlows("test", r, x, rho1, rho2, u1, u2, theta1, theta2, alpha1, alpha2, g1, g2, b1, b2, p1, q1, p2, q2, connected1, connected2,
+                                              mainComponent1, mainComponent2, looseConfig, NullWriter.NULL_WRITER));
+        assertFalse(FlowsValidation.checkFlows("test", r, x, rho1, rho2, u1, u2, theta1, theta2, alpha1, alpha2, g1, g2, b1, b2, p1, q1, p2, q2, connected1, connected2,
+                                               mainComponent1, mainComponent2, strictConfig, NullWriter.NULL_WRITER));
+
+        // check disconnected on one end
+        assertTrue(FlowsValidation.checkFlows("test", r, x, rho1, rho2, Float.NaN, u2, Float.NaN, theta2, alpha1, alpha2, g1, g2, b1, b2, Float.NaN, Float.NaN, 0f, 0f, false, connected2,
+                                            mainComponent1, mainComponent2, looseConfig, NullWriter.NULL_WRITER));
+        assertFalse(FlowsValidation.checkFlows("test", r, x, rho1, rho2, Float.NaN, u2, Float.NaN, theta2, alpha1, alpha2, g1, g2, b1, b2, Float.NaN, Float.NaN, 0.2f, 0f, false, connected2,
+                                               mainComponent1, mainComponent2, looseConfig, NullWriter.NULL_WRITER));
+
+        // check disconnected on both end
+        assertTrue(FlowsValidation.checkFlows("test", r, x, rho1, rho2, Float.NaN, Float.NaN, Float.NaN, Float.NaN, alpha1, alpha2, g1, g2, b1, b2, Float.NaN, Float.NaN, Float.NaN, Float.NaN,
+                                              false, false, mainComponent1, mainComponent2, looseConfig, NullWriter.NULL_WRITER));
+        assertFalse(FlowsValidation.checkFlows("test", r, x, rho1, rho2, Float.NaN, Float.NaN, Float.NaN, Float.NaN, alpha1, alpha2, g1, g2, b1, b2, p1, q2, Float.NaN, Float.NaN,
+                                              false, false, mainComponent1, mainComponent2, looseConfig, NullWriter.NULL_WRITER));
+        assertFalse(FlowsValidation.checkFlows("test", r, x, rho1, rho2, Float.NaN, Float.NaN, Float.NaN, Float.NaN, alpha1, alpha2, g1, g2, b1, b2, Float.NaN, Float.NaN, p2, q2,
+                                              false, false, mainComponent1, mainComponent2, looseConfig, NullWriter.NULL_WRITER));
 
         // check with NaN values
-        assertFalse(FlowsValidation.checkFlows("test", r, x, Double.NaN, rho2, u1, u2, theta1, theta2, alpha1, alpha2, g1, g2, b1, b2, p1, q1, p2, q2, looseConfig, NullWriter.NULL_WRITER));
+        assertFalse(FlowsValidation.checkFlows("test", r, x, Double.NaN, rho2, u1, u2, theta1, theta2, alpha1, alpha2, g1, g2, b1, b2, p1, q1, p2, q2, connected1, connected2,
+                                               mainComponent1, mainComponent2, looseConfig, NullWriter.NULL_WRITER));
         looseConfig.setOkMissingValues(true);
-        assertTrue(FlowsValidation.checkFlows("test", r, x, Double.NaN, rho2, u1, u2, theta1, theta2, alpha1, alpha2, g1, g2, b1, b2, p1, q1, p2, q2, looseConfig, NullWriter.NULL_WRITER));
+        assertTrue(FlowsValidation.checkFlows("test", r, x, Double.NaN, rho2, u1, u2, theta1, theta2, alpha1, alpha2, g1, g2, b1, b2, p1, q1, p2, q2, connected1, connected2,
+                                              mainComponent1, mainComponent2, looseConfig, NullWriter.NULL_WRITER));
         looseConfig.setOkMissingValues(false);
     }
 
@@ -154,12 +182,18 @@ public class FlowsValidationTest extends AbstractValidationTest {
     public void checkLineFlows() {
         assertTrue(FlowsValidation.checkFlows(line1, looseConfig, NullWriter.NULL_WRITER));
         assertFalse(FlowsValidation.checkFlows(line1, strictConfig, NullWriter.NULL_WRITER));
+        Mockito.when(bus1.isInMainConnectedComponent()).thenReturn(false);
+        Mockito.when(bus2.isInMainConnectedComponent()).thenReturn(false);
+        assertTrue(FlowsValidation.checkFlows(line1, strictConfig, NullWriter.NULL_WRITER));
     }
 
     @Test
     public void checkTransformerFlows() {
         assertTrue(FlowsValidation.checkFlows(transformer1, looseConfig, NullWriter.NULL_WRITER));
         assertFalse(FlowsValidation.checkFlows(transformer1, strictConfig, NullWriter.NULL_WRITER));
+        Mockito.when(bus1.isInMainConnectedComponent()).thenReturn(false);
+        Mockito.when(bus2.isInMainConnectedComponent()).thenReturn(false);
+        assertTrue(FlowsValidation.checkFlows(transformer1, strictConfig, NullWriter.NULL_WRITER));
     }
 
     @Test

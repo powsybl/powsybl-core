@@ -100,8 +100,8 @@ class NodeTerminal extends AbstractTerminal {
     }
 
     void setV(float v) {
-        if (v <= 0) {
-            throw new ValidationException(connectable, "voltage cannot be <= 0");
+        if (v < 0) {
+            throw new ValidationException(connectable, "voltage cannot be < 0");
         }
         this.v.set(network.get().getStateIndex(), v);
     }
