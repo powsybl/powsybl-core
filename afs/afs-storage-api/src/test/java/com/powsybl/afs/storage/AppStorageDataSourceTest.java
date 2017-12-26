@@ -32,6 +32,6 @@ public class AppStorageDataSourceTest {
         assertEquals("DATA_SOURCE_FILE_NAME__test.xml", fileName.toString());
         AppStorageDataSource.Name name = AppStorageDataSource.Name.parse("DATA_SOURCE_FILE_NAME__test.xml");
         assertTrue(name instanceof AppStorageDataSource.FileName);
-        assertEquals("test.xml", ((AppStorageDataSource.FileName) name).getFileName());
+        assertEquals("test.xml", ((AppStorageDataSource.FileName) name).getName());
     }
 }

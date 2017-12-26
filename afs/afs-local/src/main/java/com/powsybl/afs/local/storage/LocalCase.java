@@ -93,7 +93,7 @@ public class LocalCase implements LocalFile {
             }
         } else if (key instanceof AppStorageDataSource.FileName) {
             try {
-                return dataSource.newInputStream(((AppStorageDataSource.FileName) key).getFileName());
+                return dataSource.newInputStream(((AppStorageDataSource.FileName) key).getName());
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
@@ -115,7 +115,7 @@ public class LocalCase implements LocalFile {
             }
         } else if (key instanceof AppStorageDataSource.FileName) {
             try {
-                return dataSource.exists(((AppStorageDataSource.FileName) key).getFileName());
+                return dataSource.exists(((AppStorageDataSource.FileName) key).getName());
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }

@@ -333,8 +333,6 @@ public class MapDbAppStorage implements AppStorage {
 
     private final ConcurrentMap<UuidNodeId, UuidNodeIdList> backwardDependencyNodesMap;
 
-    private final ConcurrentMap<NamedLink, byte[]> cacheMap;
-
     protected MapDbAppStorage(String fileSystemName, Supplier<DB> db) {
         this.fileSystemName = Objects.requireNonNull(fileSystemName);
         this.db = db.get();
@@ -405,16 +403,6 @@ public class MapDbAppStorage implements AppStorage {
         backwardDependencyNodesMap = this.db
                 .hashMap("backwardDependencyNodes", UuidNodeIdSerializer.INSTANCE, UuidNodeIdListSerializer.INSTANCE)
                 .createOrOpen();
-
-        cacheMap = this.db
-                .hashMap("cache", NamedLinkSerializer.INSTANCE, Serializer.BYTE_ARRAY)
-                .createOrOpen();
-    }
-
-    private static Set<String> remove(Set<String> strings, String string) {
-        Set<String> newStrings = new HashSet<>(strings);
-        newStrings.remove(string);
-        return newStrings;
     }
 
     private static Set<String> add(Set<String> strings, String string) {

@@ -18,14 +18,14 @@ import java.util.Objects;
  */
 public class AppStorageDataSource implements DataSource {
 
-    public interface Name {
+    private static final String SEPARATOR = "__";
 
-        String SEPARATOR = "__";
+    public interface Name {
 
         static Name parse(String text) {
             Objects.requireNonNull(text);
             if (text.startsWith(SuffixAndExtension.START_PATTERN)) {
-                int pos2 = text.indexOf("__", SuffixAndExtension.START_PATTERN.length());
+                int pos2 = text.indexOf(SEPARATOR, SuffixAndExtension.START_PATTERN.length());
                 if (pos2 == -1) {
                     throw new IllegalStateException("Second separator not found");
                 }
@@ -72,19 +72,19 @@ public class AppStorageDataSource implements DataSource {
 
         public static final String START_PATTERN = "DATA_SOURCE_FILE_NAME" + SEPARATOR;
 
-        private final String fileName;
+        private final String name;
 
-        public FileName(String fileName) {
-            this.fileName = Objects.requireNonNull(fileName);
+        public FileName(String name) {
+            this.name = Objects.requireNonNull(name);
         }
 
-        public String getFileName() {
-            return fileName;
+        public String getName() {
+            return name;
         }
 
         @Override
         public String toString() {
-            return START_PATTERN + fileName;
+            return START_PATTERN + name;
         }
     }
 
