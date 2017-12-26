@@ -8,7 +8,6 @@ package com.powsybl.afs.storage;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
-import com.google.common.collect.ImmutableMap;
 import com.powsybl.afs.storage.json.AppStorageJsonModule;
 import org.junit.Before;
 import org.junit.Test;
