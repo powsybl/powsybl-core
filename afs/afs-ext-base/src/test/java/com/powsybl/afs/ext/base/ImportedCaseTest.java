@@ -55,9 +55,9 @@ public class ImportedCaseTest extends AbstractProjectFileTest {
     public void setup() {
         super.setup();
         NodeInfo rootFolderInfo = storage.createRootNodeIfNotExists("root", Folder.PSEUDO_CLASS);
-        NodeInfo caseInfo = storage.createNode(rootFolderInfo.getId(), "network", Case.PSEUDO_CLASS, Case.VERSION);
-        storage.setDescription(caseInfo.getId(), "Test format");
-        storage.setStringAttribute(caseInfo.getId(), "format", TestImporter.FORMAT);
+        NodeInfo caseInfo = storage.createNode(rootFolderInfo.getId(), "network", Case.PSEUDO_CLASS, "Test format", Case.VERSION,
+                Collections.singletonMap("format", TestImporter.FORMAT), Collections.emptyMap(), Collections.emptyMap(),
+                Collections.emptyMap());
     }
 
     @Test

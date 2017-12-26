@@ -6,7 +6,6 @@
  */
 package com.powsybl.afs.storage;
 
-import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.math.timeseries.*;
 
 import java.io.InputStream;
@@ -49,20 +48,12 @@ public class DefaultListenableAppStorage implements ListenableAppStorage {
     }
 
     @Override
-    public NodeInfo createNode(NodeId parentNodeId, String name, String nodePseudoClass, int version) {
-        NodeInfo nodeInfo = storage.createNode(parentNodeId, name, nodePseudoClass, version);
+    public NodeInfo createNode(NodeId parentNodeId, String name, String nodePseudoClass, String description, int version,
+                               Map<String, String> stringMetadata, Map<String, Double> doubleMetadata,
+                               Map<String, Integer> intMetadata, Map<String, Boolean> booleanMetadata) {
+        NodeInfo nodeInfo = storage.createNode(parentNodeId, name, nodePseudoClass, description, version, stringMetadata, doubleMetadata, intMetadata, booleanMetadata);
         listeners.values().stream().flatMap(List::stream).forEach(l -> l.nodeCreated(nodeInfo.getId()));
         return nodeInfo;
-    }
-
-    @Override
-    public String getNodeName(NodeId nodeId) {
-        return storage.getNodeName(nodeId);
-    }
-
-    @Override
-    public String getNodePseudoClass(NodeId nodeId) {
-        return storage.getNodePseudoClass(nodeId);
     }
 
     @Override
@@ -81,33 +72,18 @@ public class DefaultListenableAppStorage implements ListenableAppStorage {
     }
 
     @Override
-    public List<NodeId> getChildNodes(NodeId nodeId) {
+    public List<NodeInfo> getChildNodes(NodeId nodeId) {
         return storage.getChildNodes(nodeId);
     }
 
     @Override
-    public List<NodeInfo> getChildNodesInfo(NodeId nodeId) {
-        return storage.getChildNodesInfo(nodeId);
-    }
-
-    @Override
-    public NodeId getChildNode(NodeId nodeId, String name) {
+    public NodeInfo getChildNode(NodeId nodeId, String name) {
         return storage.getChildNode(nodeId, name);
     }
 
     @Override
-    public NodeInfo getChildNodeInfo(NodeId nodeId, String name) {
-        return storage.getChildNodeInfo(nodeId, name);
-    }
-
-    @Override
-    public NodeId getParentNode(NodeId nodeId) {
+    public NodeInfo getParentNode(NodeId nodeId) {
         return storage.getParentNode(nodeId);
-    }
-
-    @Override
-    public NodeInfo getParentNodeInfo(NodeId nodeId) {
-        return storage.getParentNodeInfo(nodeId);
     }
 
     @Override
@@ -122,62 +98,32 @@ public class DefaultListenableAppStorage implements ListenableAppStorage {
     }
 
     @Override
-    public String getStringAttribute(NodeId nodeId, String name) {
-        return storage.getStringAttribute(nodeId, name);
+    public Reader readStringData(NodeId nodeId, String name) {
+        return storage.readStringData(nodeId, name);
     }
 
     @Override
-    public void setStringAttribute(NodeId nodeId, String name, String value) {
-        storage.setStringAttribute(nodeId, name, value);
-        listeners.values().stream().flatMap(List::stream).forEach(l -> l.attributeUpdated(nodeId, name));
+    public Writer writeStringData(NodeId nodeId, String name) {
+        Writer writer = storage.writeStringData(nodeId, name);
+        listeners.values().stream().flatMap(List::stream).forEach(l -> l.nodeDataUpdated(nodeId, name));
+        return writer;
     }
 
     @Override
-    public Reader readStringAttribute(NodeId nodeId, String name) {
-        return storage.readStringAttribute(nodeId, name);
+    public InputStream readBinaryData(NodeId nodeId, String name) {
+        return storage.readBinaryData(nodeId, name);
     }
 
     @Override
-    public Writer writeStringAttribute(NodeId nodeId, String name) {
-        return storage.writeStringAttribute(nodeId, name);
+    public OutputStream writeBinaryData(NodeId nodeId, String name) {
+        OutputStream os = storage.writeBinaryData(nodeId, name);
+        listeners.values().stream().flatMap(List::stream).forEach(l -> l.nodeDataUpdated(nodeId, name));
+        return os;
     }
 
     @Override
-    public OptionalInt getIntAttribute(NodeId nodeId, String name) {
-        return storage.getIntAttribute(nodeId, name);
-    }
-
-    @Override
-    public void setIntAttribute(NodeId nodeId, String name, int value) {
-        storage.setIntAttribute(nodeId, name, value);
-        listeners.values().stream().flatMap(List::stream).forEach(l -> l.attributeUpdated(nodeId, name));
-    }
-
-    @Override
-    public OptionalDouble getDoubleAttribute(NodeId nodeId, String name) {
-        return storage.getDoubleAttribute(nodeId, name);
-    }
-
-    @Override
-    public void setDoubleAttribute(NodeId nodeId, String name, double value) {
-        storage.setDoubleAttribute(nodeId, name, value);
-        listeners.values().stream().flatMap(List::stream).forEach(l -> l.attributeUpdated(nodeId, name));
-    }
-
-    @Override
-    public Optional<Boolean> getBooleanAttribute(NodeId nodeId, String name) {
-        return storage.getBooleanAttribute(nodeId, name);
-    }
-
-    @Override
-    public void setBooleanAttribute(NodeId nodeId, String name, boolean value) {
-        storage.setBooleanAttribute(nodeId, name, value);
-        listeners.values().stream().flatMap(List::stream).forEach(l -> l.attributeUpdated(nodeId, name));
-    }
-
-    @Override
-    public DataSource getDataSourceAttribute(NodeId nodeId, String name) {
-        return storage.getDataSourceAttribute(nodeId, name);
+    public boolean dataExists(NodeId nodeId, String name) {
+        return storage.dataExists(nodeId, name);
     }
 
     @Override
@@ -225,13 +171,8 @@ public class DefaultListenableAppStorage implements ListenableAppStorage {
     }
 
     @Override
-    public NodeId getDependency(NodeId nodeId, String name) {
+    public NodeInfo getDependency(NodeId nodeId, String name) {
         return storage.getDependency(nodeId, name);
-    }
-
-    @Override
-    public NodeInfo getDependencyInfo(NodeId nodeId, String name) {
-        return storage.getDependencyInfo(nodeId, name);
     }
 
     @Override
@@ -241,43 +182,13 @@ public class DefaultListenableAppStorage implements ListenableAppStorage {
     }
 
     @Override
-    public List<NodeId> getDependencies(NodeId nodeId) {
+    public List<NodeInfo> getDependencies(NodeId nodeId) {
         return storage.getDependencies(nodeId);
     }
 
     @Override
-    public List<NodeInfo> getDependenciesInfo(NodeId nodeId) {
-        return storage.getDependenciesInfo(nodeId);
-    }
-
-    @Override
-    public List<NodeId> getBackwardDependencies(NodeId nodeId) {
+    public List<NodeInfo> getBackwardDependencies(NodeId nodeId) {
         return storage.getBackwardDependencies(nodeId);
-    }
-
-    @Override
-    public List<NodeInfo> getBackwardDependenciesInfo(NodeId nodeId) {
-        return storage.getBackwardDependenciesInfo(nodeId);
-    }
-
-    @Override
-    public InputStream readFromCache(NodeId nodeId, String key) {
-        return storage.readFromCache(nodeId, key);
-    }
-
-    @Override
-    public OutputStream writeToCache(NodeId nodeId, String key) {
-        return storage.writeToCache(nodeId, key);
-    }
-
-    @Override
-    public void invalidateCache(NodeId nodeId, String key) {
-        storage.invalidateCache(nodeId, key);
-    }
-
-    @Override
-    public void invalidateCache() {
-        storage.invalidateCache();
     }
 
     @Override

@@ -17,11 +17,21 @@ import com.powsybl.afs.storage.NodeInfo;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class NodeInfoJsonDeserializer extends StdDeserializer<NodeInfo> {
+
+    private enum MetadataType {
+        STRING_METADATA,
+        DOUBLE_METADATA,
+        INT_METADATA,
+        BOOLEAN_METADATA
+    }
 
     public NodeInfoJsonDeserializer() {
         super(NodeInfo.class);
@@ -41,48 +51,105 @@ public class NodeInfoJsonDeserializer extends StdDeserializer<NodeInfo> {
             long creationTime = -1;
             long modificationTime = -1;
             int version = -1;
-            while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
-                switch (jsonParser.getCurrentName()) {
-                    case "id":
-                        jsonParser.nextToken();
-                        id = storage.fromString(jsonParser.getValueAsString());
-                        break;
+            Map<String, String> stringMetadata = new HashMap<>();
+            Map<String, Double> doubleMetadata = new HashMap<>();
+            Map<String, Integer> intMetadata = new HashMap<>();
+            Map<String, Boolean> booleanMetadata = new HashMap<>();
+            MetadataType metadataType = null;
+            String metadataName = null;
 
-                    case "name":
-                        jsonParser.nextToken();
-                        name = jsonParser.getValueAsString();
-                        break;
+            JsonToken token;
+            while ((token = jsonParser.nextToken()) != null) {
+                if (token == JsonToken.END_ARRAY) {
+                    metadataType = null;
+                    metadataName = null;
+                } else if (token == JsonToken.FIELD_NAME) {
+                    switch (jsonParser.getCurrentName()) {
+                        case NodeInfoJsonSerializer.ID:
+                            jsonParser.nextToken();
+                            id = storage.fromString(jsonParser.getValueAsString());
+                            break;
 
-                    case "pseudoClass":
-                        jsonParser.nextToken();
-                        pseudoClass = jsonParser.getValueAsString();
-                        break;
+                        case NodeInfoJsonSerializer.NAME:
+                            jsonParser.nextToken();
+                            if (metadataType == null) {
+                                name = jsonParser.getValueAsString();
+                            } else {
+                                metadataName = jsonParser.getValueAsString();
+                            }
+                            break;
 
-                    case "description":
-                        jsonParser.nextToken();
-                        description = jsonParser.getValueAsString();
-                        break;
+                        case NodeInfoJsonSerializer.PSEUDO_CLASS:
+                            jsonParser.nextToken();
+                            pseudoClass = jsonParser.getValueAsString();
+                            break;
 
-                    case "creationTime":
-                        jsonParser.nextToken();
-                        creationTime = jsonParser.getValueAsLong();
-                        break;
+                        case NodeInfoJsonSerializer.DESCRIPTION:
+                            jsonParser.nextToken();
+                            description = jsonParser.getValueAsString();
+                            break;
 
-                    case "modificationTime":
-                        jsonParser.nextToken();
-                        modificationTime = jsonParser.getValueAsLong();
-                        break;
+                        case NodeInfoJsonSerializer.CREATION_TIME:
+                            jsonParser.nextToken();
+                            creationTime = jsonParser.getValueAsLong();
+                            break;
 
-                    case "version":
-                        jsonParser.nextToken();
-                        version = jsonParser.getValueAsInt();
-                        break;
+                        case NodeInfoJsonSerializer.MODIFICATION_TIME:
+                            jsonParser.nextToken();
+                            modificationTime = jsonParser.getValueAsLong();
+                            break;
 
-                    default:
-                        throw new AssertionError("Unexpected field: " + jsonParser.getCurrentName());
+                        case NodeInfoJsonSerializer.VERSION:
+                            jsonParser.nextToken();
+                            version = jsonParser.getValueAsInt();
+                            break;
+
+                        case NodeInfoJsonSerializer.VALUE:
+                            Objects.requireNonNull(metadataName);
+                            Objects.requireNonNull(metadataType);
+                            jsonParser.nextToken();
+                            switch (metadataType) {
+                                case STRING_METADATA:
+                                    stringMetadata.put(metadataName, jsonParser.getValueAsString());
+                                    break;
+                                case DOUBLE_METADATA:
+                                    doubleMetadata.put(metadataName, jsonParser.getValueAsDouble());
+                                    break;
+                                case INT_METADATA:
+                                    intMetadata.put(metadataName, jsonParser.getValueAsInt());
+                                    break;
+                                case BOOLEAN_METADATA:
+                                    booleanMetadata.put(metadataName, jsonParser.getValueAsBoolean());
+                                    break;
+                                default:
+                                    throw new AssertionError("Unexpected metadata type " + metadataType);
+                            }
+                            break;
+
+                        case NodeInfoJsonSerializer.STRING_METADATA:
+                            metadataType = MetadataType.STRING_METADATA;
+                            break;
+
+                        case NodeInfoJsonSerializer.DOUBLE_METADATA:
+                            metadataType = MetadataType.DOUBLE_METADATA;
+                            break;
+
+                        case NodeInfoJsonSerializer.INT_METADATA:
+                            metadataType = MetadataType.INT_METADATA;
+                            break;
+
+                        case NodeInfoJsonSerializer.BOOLEAN_METADATA:
+                            metadataType = MetadataType.BOOLEAN_METADATA;
+                            break;
+
+                        default:
+                            throw new AssertionError("Unexpected field: " + jsonParser.getCurrentName());
+
+                    }
                 }
             }
-            return new NodeInfo(id, name, pseudoClass, description, creationTime, modificationTime, version);
+            return new NodeInfo(id, name, pseudoClass, description, creationTime, modificationTime, version,
+                    stringMetadata, doubleMetadata, intMetadata, booleanMetadata);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

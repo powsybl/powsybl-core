@@ -6,15 +6,15 @@
  */
 package com.powsybl.afs.storage;
 
-import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.math.timeseries.*;
 
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -31,11 +31,8 @@ public interface AppStorage extends AutoCloseable {
 
     NodeInfo createRootNodeIfNotExists(String name, String nodePseudoClass);
 
-    NodeInfo createNode(NodeId parentNodeId, String name, String nodePseudoClass, int version);
-
-    String getNodeName(NodeId nodeId);
-
-    String getNodePseudoClass(NodeId nodeId);
+    NodeInfo createNode(NodeId parentNodeId, String name, String nodePseudoClass, String description, int version, Map<String, String> stringMetadata,
+                        Map<String, Double> doubleMetadata, Map<String, Integer> intMetadata, Map<String, Boolean> booleanMetadata);
 
     boolean isWritable(NodeId nodeId);
 
@@ -43,57 +40,25 @@ public interface AppStorage extends AutoCloseable {
 
     void setDescription(NodeId nodeId, String description);
 
-    List<NodeId> getChildNodes(NodeId nodeId);
+    List<NodeInfo> getChildNodes(NodeId nodeId);
 
-    default List<NodeInfo> getChildNodesInfo(NodeId nodeId) {
-        return getChildNodes(nodeId).stream().map(this::getNodeInfo).collect(Collectors.toList());
-    }
+    NodeInfo getChildNode(NodeId nodeId, String name);
 
-    NodeId getChildNode(NodeId nodeId, String name);
-
-    default NodeInfo getChildNodeInfo(NodeId nodeId, String name) {
-        NodeId childId = getChildNode(nodeId, name);
-        if (childId != null) {
-            return getNodeInfo(childId);
-        }
-        return null;
-    }
-
-    NodeId getParentNode(NodeId nodeId);
-
-    default NodeInfo getParentNodeInfo(NodeId nodeId) {
-        NodeId parentId = getParentNode(nodeId);
-        if (parentId != null) {
-            return getNodeInfo(parentId);
-        }
-        return null;
-    }
+    NodeInfo getParentNode(NodeId nodeId);
 
     void setParentNode(NodeId nodeId, NodeId newParentNodeId);
 
     void deleteNode(NodeId nodeId);
 
-    String getStringAttribute(NodeId nodeId, String name);
+    Reader readStringData(NodeId nodeId, String name);
 
-    void setStringAttribute(NodeId nodeId, String name, String value);
+    Writer writeStringData(NodeId nodeId, String name);
 
-    Reader readStringAttribute(NodeId nodeId, String name);
+    InputStream readBinaryData(NodeId nodeId, String name);
 
-    Writer writeStringAttribute(NodeId nodeId, String name);
+    OutputStream writeBinaryData(NodeId nodeId, String name);
 
-    OptionalInt getIntAttribute(NodeId nodeId, String name);
-
-    void setIntAttribute(NodeId nodeId, String name, int value);
-
-    OptionalDouble getDoubleAttribute(NodeId nodeId, String name);
-
-    void setDoubleAttribute(NodeId nodeId, String name, double value);
-
-    Optional<Boolean> getBooleanAttribute(NodeId nodeId, String name);
-
-    void setBooleanAttribute(NodeId nodeId, String name, boolean value);
-
-    DataSource getDataSourceAttribute(NodeId nodeId, String name);
+    boolean dataExists(NodeId nodeId, String name);
 
     void createTimeSeries(NodeId nodeId, TimeSeriesMetadata metadata);
 
@@ -111,39 +76,13 @@ public interface AppStorage extends AutoCloseable {
 
     void removeAllTimeSeries(NodeId nodeId);
 
-    NodeId getDependency(NodeId nodeId, String name);
-
-    default NodeInfo getDependencyInfo(NodeId nodeId, String name) {
-        NodeId depId = getDependency(nodeId, name);
-        if (depId != null) {
-            return getNodeInfo(depId);
-        }
-        return null;
-    }
+    NodeInfo getDependency(NodeId nodeId, String name);
 
     void addDependency(NodeId nodeId, String name, NodeId toNodeId);
 
-    List<NodeId> getDependencies(NodeId nodeId);
+    List<NodeInfo> getDependencies(NodeId nodeId);
 
-    default List<NodeInfo> getDependenciesInfo(NodeId nodeId) {
-        return getDependencies(nodeId).stream().map(this::getNodeInfo).collect(Collectors.toList());
-    }
-
-    List<NodeId> getBackwardDependencies(NodeId nodeId);
-
-    default List<NodeInfo> getBackwardDependenciesInfo(NodeId nodeId) {
-        return getBackwardDependencies(nodeId).stream().map(this::getNodeInfo).collect(Collectors.toList());
-    }
-
-    // cache management
-
-    InputStream readFromCache(NodeId nodeId, String key);
-
-    OutputStream writeToCache(NodeId nodeId, String key);
-
-    void invalidateCache(NodeId nodeId, String key);
-
-    void invalidateCache();
+    List<NodeInfo> getBackwardDependencies(NodeId nodeId);
 
     void flush();
 

@@ -12,7 +12,7 @@ import com.google.common.jimfs.Jimfs;
 import com.powsybl.afs.Folder;
 import com.powsybl.afs.ext.base.Case;
 import com.powsybl.afs.ext.base.TestImporter;
-import com.powsybl.afs.storage.NodeId;
+import com.powsybl.afs.storage.AppStorageDataSource;
 import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.computation.ComputationManager;
@@ -29,6 +29,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 
@@ -72,23 +73,24 @@ public class LocalAppStorageTest {
     @Test
     public void test() {
         NodeInfo rootNodeInfo = storage.createRootNodeIfNotExists("mem", Folder.PSEUDO_CLASS);
-        assertEquals("mem", storage.getNodeName(rootNodeInfo.getId()));
+        assertEquals("mem", rootNodeInfo.getName());
         assertFalse(storage.isWritable(rootNodeInfo.getId()));
         assertNull(storage.getParentNode(rootNodeInfo.getId()));
-        assertEquals(ImmutableList.of(new PathNodeId(path1), new PathNodeId(path2)), storage.getChildNodes(rootNodeInfo.getId()));
-        NodeId case1 = storage.getChildNode(rootNodeInfo.getId(), "n.tst");
+        assertEquals(ImmutableList.of(new PathNodeId(path1), new PathNodeId(path2)),
+                     storage.getChildNodes(rootNodeInfo.getId()).stream().map(NodeInfo::getId).collect(Collectors.toList()));
+        NodeInfo case1 = storage.getChildNode(rootNodeInfo.getId(), "n.tst");
         assertNotNull(case1);
-        assertEquals(rootNodeInfo.getId(), storage.getParentNode(case1));
-        NodeId case2 = storage.getChildNode(rootNodeInfo.getId(), "n2.tst");
+        assertEquals(rootNodeInfo, storage.getParentNode(case1.getId()));
+        NodeInfo case2 = storage.getChildNode(rootNodeInfo.getId(), "n2.tst");
         assertNotNull(case2);
-        assertEquals("/cases/n.tst", case1.toString());
-        assertEquals(case1, storage.fromString(case1.toString()));
+        assertEquals("/cases/n.tst", case1.getId().toString());
+        assertEquals(case1.getId(), storage.fromString(case1.getId().toString()));
         assertNull(storage.getChildNode(rootNodeInfo.getId(), "n3.tst"));
-        assertEquals(Folder.PSEUDO_CLASS, storage.getNodePseudoClass(rootNodeInfo.getId()));
-        assertEquals(Case.PSEUDO_CLASS, storage.getNodePseudoClass(case1));
-        assertEquals("TEST", storage.getStringAttribute(case1, "format"));
-        assertEquals("Test format", storage.getStringAttribute(case1, "description"));
-        DataSource ds = storage.getDataSourceAttribute(case1, "dataSource");
+        assertEquals(Folder.PSEUDO_CLASS, rootNodeInfo.getPseudoClass());
+        assertEquals(Case.PSEUDO_CLASS, case1.getPseudoClass());
+        assertEquals("TEST", case1.getStringMetadata().get("format"));
+        assertEquals("Test format", case1.getDescription());
+        DataSource ds = new AppStorageDataSource(storage, case1.getId());
         assertNotNull(ds);
     }
 }

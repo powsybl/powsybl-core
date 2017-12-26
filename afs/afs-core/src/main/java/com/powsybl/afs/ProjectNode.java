@@ -34,7 +34,7 @@ public class ProjectNode extends AbstractNodeBase<ProjectFolder> {
 
     @Override
     public ProjectFolder getParent() {
-        NodeInfo parentInfo = storage.getParentNodeInfo(info.getId());
+        NodeInfo parentInfo = storage.getParentNode(info.getId());
         return ProjectFolder.PSEUDO_CLASS.equals(parentInfo.getPseudoClass()) ? new ProjectFolder(new ProjectFileCreationContext(parentInfo, storage, fileSystem))
                                                                               : null;
     }
@@ -54,9 +54,9 @@ public class ProjectNode extends AbstractNodeBase<ProjectFolder> {
 
     public Project getProject() {
         // walk the node hierarchy until finding a project node
-        NodeInfo parentInfo = storage.getParentNodeInfo(info.getId());
+        NodeInfo parentInfo = storage.getParentNode(info.getId());
         while (!Project.PSEUDO_CLASS.equals(parentInfo.getPseudoClass())) {
-            parentInfo = storage.getParentNodeInfo(parentInfo.getId());
+            parentInfo = storage.getParentNode(parentInfo.getId());
         }
         return new Project(new FileCreationContext(parentInfo, storage, fileSystem));
     }
@@ -71,7 +71,7 @@ public class ProjectNode extends AbstractNodeBase<ProjectFolder> {
     }
 
     public List<ProjectFile> getBackwardDependencies() {
-        return storage.getBackwardDependenciesInfo(info.getId())
+        return storage.getBackwardDependencies(info.getId())
                 .stream()
                 .map(fileSystem::findProjectFile)
                 .collect(Collectors.toList());

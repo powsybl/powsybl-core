@@ -15,7 +15,7 @@ public interface AppStorageListener {
 
     void nodeRemoved(NodeId id);
 
-    void attributeUpdated(NodeId id, String attributeName);
+    void nodeDataUpdated(NodeId id, String attributeName);
 
     void dependencyAdded(NodeId id, String dependencyName);
 

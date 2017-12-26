@@ -6,16 +6,19 @@
  */
 package com.powsybl.afs.ext.base;
 
+import com.google.common.collect.ImmutableMap;
 import com.powsybl.afs.AfsException;
 import com.powsybl.afs.ProjectFileBuildContext;
 import com.powsybl.afs.ProjectFileBuilder;
 import com.powsybl.afs.ProjectFileCreationContext;
+import com.powsybl.afs.storage.AppStorageDataSource;
 import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.iidm.import_.ImportersLoader;
 
 import java.io.IOException;
-import java.io.StringWriter;
 import java.io.UncheckedIOException;
+import java.io.Writer;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
@@ -66,23 +69,15 @@ public class ImportedCaseBuilder implements ProjectFileBuilder<ImportedCase> {
         }
 
         // create project file
-        NodeInfo info = context.getStorage().createNode(context.getFolderInfo().getId(), name, ImportedCase.PSEUDO_CLASS, ImportedCase.VERSION);
-
-        // store importer format
-        context.getStorage().setStringAttribute(info.getId(), ImportedCase.FORMAT, aCase.getImporter().getFormat());
+        NodeInfo info = context.getStorage().createNode(context.getFolderInfo().getId(), name, ImportedCase.PSEUDO_CLASS, "", ImportedCase.VERSION,
+                ImmutableMap.of(ImportedCase.FORMAT, aCase.getImporter().getFormat()), Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
 
         // store case data
-        aCase.getImporter().copy(aCase.getDataSource(), context.getStorage().getDataSourceAttribute(info.getId(), ImportedCase.DATA_SOURCE));
+        aCase.getImporter().copy(aCase.getDataSource(), new AppStorageDataSource(context.getStorage(), info.getId()));
 
         // store parameters
-        try {
-            StringWriter writer = new StringWriter();
-            try {
-                parameters.store(writer, "");
-            } finally {
-                writer.close();
-            }
-            context.getStorage().setStringAttribute(info.getId(), ImportedCase.PARAMETERS, writer.toString());
+        try (Writer writer = context.getStorage().writeStringData(info.getId(), ImportedCase.PARAMETERS)) {
+            parameters.store(writer, "");
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

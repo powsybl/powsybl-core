@@ -22,7 +22,7 @@ public class DefaultAppStorageListener implements AppStorageListener {
     }
 
     @Override
-    public void attributeUpdated(NodeId id, String attributeName) {
+    public void nodeDataUpdated(NodeId id, String attributeName) {
         // empty default implementation
     }
 

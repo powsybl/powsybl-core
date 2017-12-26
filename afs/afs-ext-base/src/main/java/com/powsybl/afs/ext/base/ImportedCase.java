@@ -9,15 +9,14 @@ package com.powsybl.afs.ext.base;
 import com.powsybl.afs.AfsException;
 import com.powsybl.afs.ProjectFile;
 import com.powsybl.afs.ProjectFileCreationContext;
-import com.powsybl.afs.storage.AppStorage;
-import com.powsybl.afs.storage.NodeId;
+import com.powsybl.afs.storage.AppStorageDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.import_.ImportersLoader;
 import com.powsybl.iidm.network.Network;
 
 import java.io.IOException;
-import java.io.StringReader;
+import java.io.Reader;
 import java.io.UncheckedIOException;
 import java.util.Objects;
 import java.util.Properties;
@@ -31,7 +30,6 @@ public class ImportedCase extends ProjectFile implements ProjectCase {
     public static final int VERSION = 0;
 
     static final String FORMAT = "format";
-    static final String DATA_SOURCE = "dataSource";
     static final String PARAMETERS = "parameters";
 
     private final ImportersLoader importersLoader;
@@ -40,21 +38,17 @@ public class ImportedCase extends ProjectFile implements ProjectCase {
         super(context, VERSION, CaseIconCache.INSTANCE.get(
                 importersLoader,
                 context.getFileSystem().getData().getComputationManager(),
-                getFormat(context.getStorage(), context.getInfo().getId())));
+                context.getInfo().getStringMetadata().get(FORMAT)));
         this.importersLoader = Objects.requireNonNull(importersLoader);
     }
 
-    private static String getFormat(AppStorage storage, NodeId id) {
-        return storage.getStringAttribute(id, FORMAT);
-    }
-
     public ReadOnlyDataSource getDataSource() {
-        return storage.getDataSourceAttribute(info.getId(), DATA_SOURCE);
+        return new AppStorageDataSource(storage, info.getId());
     }
 
     public Properties getParameters() {
         Properties parameters = new Properties();
-        try (StringReader reader = new StringReader(storage.getStringAttribute(info.getId(), PARAMETERS))) {
+        try (Reader reader = storage.readStringData(info.getId(), PARAMETERS)) {
             parameters.load(reader);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -63,7 +57,7 @@ public class ImportedCase extends ProjectFile implements ProjectCase {
     }
 
     public Importer getImporter() {
-        String format = getFormat(storage, info.getId());
+        String format = info.getStringMetadata().get(FORMAT);
         return importersLoader.loadImporters()
                 .stream()
                 .filter(importer -> importer.getFormat().equals(format))

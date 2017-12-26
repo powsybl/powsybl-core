@@ -9,6 +9,7 @@ package com.powsybl.afs.ext.base;
 import com.powsybl.afs.*;
 import com.powsybl.afs.storage.NodeInfo;
 
+import java.util.Collections;
 import java.util.Objects;
 
 /**
@@ -74,7 +75,8 @@ public class VirtualCaseBuilder implements ProjectFileBuilder<VirtualCase> {
         }
 
         // create project file
-        NodeInfo info = context.getStorage().createNode(context.getFolderInfo().getId(), name, VirtualCase.PSEUDO_CLASS, VirtualCase.VERSION);
+        NodeInfo info = context.getStorage().createNode(context.getFolderInfo().getId(), name, VirtualCase.PSEUDO_CLASS, "", VirtualCase.VERSION,
+                Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
 
         // create case link
         context.getStorage().addDependency(info.getId(), VirtualCase.CASE_DEPENDENCY_NAME, aCase.getId());

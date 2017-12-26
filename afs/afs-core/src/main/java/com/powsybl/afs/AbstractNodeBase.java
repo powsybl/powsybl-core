@@ -79,7 +79,7 @@ public abstract class AbstractNodeBase<F> {
         Objects.requireNonNull(name);
         NodeInfo childInfo = nodeInfo;
         for (String name2 : name.split(AppFileSystem.PATH_SEPARATOR)) {
-            childInfo = storage.getChildNodeInfo(childInfo.getId(), name2);
+            childInfo = storage.getChildNode(childInfo.getId(), name2);
             if (childInfo == null) {
                 return null;
             }

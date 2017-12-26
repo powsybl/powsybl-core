@@ -8,6 +8,7 @@ package com.powsybl.afs.storage;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.google.common.collect.ImmutableMap;
 import com.powsybl.afs.storage.json.AppStorageJsonModule;
 import org.junit.Before;
 import org.junit.Test;
@@ -50,7 +51,8 @@ public class NodeInfoTest {
 
     @Test
     public void nodeInfoTest() throws IOException {
-        NodeInfo info = new NodeInfo(new NodeIdMock("a"), "b", "c", "d", 1000000, 1000001, 0);
+        NodeInfo info = new NodeInfo(new NodeIdMock("a"), "b", "c", "d", 1000000, 1000001, 0, ImmutableMap.of("s1", "s1"),
+                ImmutableMap.of("d1", 1d), ImmutableMap.of("i1", 2), ImmutableMap.of("b1", true));
         NodeInfo info2 = objectMapper.readValue(objectMapper.writeValueAsString(info), NodeInfo.class);
         assertEquals(info, info2);
     }

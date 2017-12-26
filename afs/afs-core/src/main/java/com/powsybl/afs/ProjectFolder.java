@@ -8,6 +8,7 @@ package com.powsybl.afs;
 
 import com.powsybl.afs.storage.NodeInfo;
 
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -27,7 +28,7 @@ public class ProjectFolder extends ProjectNode implements FolderBase<ProjectNode
 
     @Override
     public List<ProjectNode> getChildren() {
-        return storage.getChildNodesInfo(info.getId())
+        return storage.getChildNodes(info.getId())
                 .stream()
                 .map(fileSystem::findProjectNode)
                 .sorted(Comparator.comparing(ProjectNode::getName))
@@ -57,9 +58,10 @@ public class ProjectFolder extends ProjectNode implements FolderBase<ProjectNode
 
     @Override
     public ProjectFolder createFolder(String name) {
-        NodeInfo folderInfo = storage.getChildNodeInfo(info.getId(), name);
+        NodeInfo folderInfo = storage.getChildNode(info.getId(), name);
         if (folderInfo == null) {
-            folderInfo = storage.createNode(info.getId(), name, PSEUDO_CLASS, VERSION);
+            folderInfo = storage.createNode(info.getId(), name, PSEUDO_CLASS, "", VERSION, Collections.emptyMap(),
+                    Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
         }
         return new ProjectFolder(new ProjectFileCreationContext(folderInfo, storage, fileSystem));
     }

@@ -6,7 +6,9 @@
  */
 package com.powsybl.afs.local.storage;
 
+import com.google.common.collect.ImmutableMap;
 import com.powsybl.afs.ext.base.Case;
+import com.powsybl.afs.storage.AppStorageDataSource;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.import_.Importers;
@@ -14,6 +16,7 @@ import com.powsybl.math.timeseries.DoubleTimeSeries;
 import com.powsybl.math.timeseries.StringTimeSeries;
 import com.powsybl.math.timeseries.TimeSeriesMetadata;
 
+import java.io.*;
 import java.nio.file.Path;
 import java.util.*;
 
@@ -48,42 +51,76 @@ public class LocalCase implements LocalFile {
     }
 
     @Override
-    public String getStringAttribute(String name) {
-        switch (name) {
-            case "format":
-                return importer.getFormat();
+    public String getDescription() {
+        return importer.getComment();
+    }
 
-            case "description":
-                return importer.getComment();
+    @Override
+    public Map<String, String> getStringMetadata() {
+        return ImmutableMap.of("format", importer.getFormat());
+    }
 
-            default:
-                throw new AssertionError(name);
+    @Override
+    public Map<String, Double> getDoubleMetadata() {
+        return Collections.emptyMap();
+    }
+
+    @Override
+    public Map<String, Integer> getIntMetadata() {
+        return Collections.emptyMap();
+    }
+
+    @Override
+    public Map<String, Boolean> getBooleanMetadata() {
+        return Collections.emptyMap();
+    }
+
+    @Override
+    public Reader readStringData(String name) {
+        throw new AssertionError();
+    }
+
+    @Override
+    public InputStream readBinaryData(String name) {
+        DataSource dataSource = Importers.createDataSource(file);
+        AppStorageDataSource.Name key = AppStorageDataSource.Name.parse(name);
+        if (key instanceof AppStorageDataSource.SuffixAndExtension) {
+            try {
+                return dataSource.newInputStream(((AppStorageDataSource.SuffixAndExtension) key).getSuffix(),
+                                                 ((AppStorageDataSource.SuffixAndExtension) key).getExt());
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        } else if (key instanceof AppStorageDataSource.FileName) {
+            try {
+                return dataSource.newInputStream(((AppStorageDataSource.FileName) key).getFileName());
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        } else {
+            throw new AssertionError();
         }
     }
 
     @Override
-    public OptionalInt getIntAttribute(String name) {
-        throw new AssertionError();
-    }
-
-    @Override
-    public OptionalDouble getDoubleAttribute(String name) {
-        throw new AssertionError();
-    }
-
-    @Override
-    public Optional<Boolean> getBooleanAttribute(String name) {
-        throw new AssertionError();
-    }
-
-    @Override
-    public DataSource getDataSourceAttribute(String name) {
-        switch (name) {
-            case "dataSource":
-                return Importers.createDataSource(file);
-
-            default:
-                throw new AssertionError();
+    public boolean dataExists(String name) {
+        DataSource dataSource = Importers.createDataSource(file);
+        AppStorageDataSource.Name key = AppStorageDataSource.Name.parse(name);
+        if (key instanceof AppStorageDataSource.SuffixAndExtension) {
+            try {
+                return dataSource.exists(((AppStorageDataSource.SuffixAndExtension) key).getSuffix(),
+                                         ((AppStorageDataSource.SuffixAndExtension) key).getExt());
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        } else if (key instanceof AppStorageDataSource.FileName) {
+            try {
+                return dataSource.exists(((AppStorageDataSource.FileName) key).getFileName());
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        } else {
+            throw new AssertionError();
         }
     }
 

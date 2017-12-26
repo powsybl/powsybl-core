@@ -8,6 +8,7 @@ package com.powsybl.afs;
 
 import com.powsybl.afs.storage.NodeInfo;
 
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -31,7 +32,7 @@ public class Folder extends Node implements FolderBase<Node, Folder> {
 
     @Override
     public List<Node> getChildren() {
-        return storage.getChildNodesInfo(info.getId())
+        return storage.getChildNodes(info.getId())
                 .stream()
                 .map(fileSystem::findNode)
                 .sorted(Comparator.comparing(Node::getName))
@@ -61,20 +62,23 @@ public class Folder extends Node implements FolderBase<Node, Folder> {
 
     @Override
     public Folder createFolder(String name) {
-        NodeInfo folderInfo = storage.getChildNodeInfo(info.getId(), name);
+        NodeInfo folderInfo = storage.getChildNode(info.getId(), name);
         if (folderInfo == null) {
-            folderInfo = storage.createNode(info.getId(), name, PSEUDO_CLASS, VERSION);
+            folderInfo = storage.createNode(info.getId(), name, PSEUDO_CLASS, "", VERSION, Collections.emptyMap(),
+                    Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
         }
         return new Folder(new FileCreationContext(folderInfo, storage, fileSystem));
     }
 
     public Project createProject(String name) {
-        NodeInfo projectInfo = storage.getChildNodeInfo(info.getId(), name);
+        NodeInfo projectInfo = storage.getChildNode(info.getId(), name);
         if (projectInfo == null) {
-            projectInfo = storage.createNode(info.getId(), name, Project.PSEUDO_CLASS, Project.VERSION);
+            projectInfo = storage.createNode(info.getId(), name, Project.PSEUDO_CLASS, "", Project.VERSION, Collections.emptyMap(),
+                    Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
 
             // create root project folder
-            storage.createNode(projectInfo.getId(), Project.ROOT_FOLDER_NAME, ProjectFolder.PSEUDO_CLASS, ProjectFolder.VERSION);
+            storage.createNode(projectInfo.getId(), Project.ROOT_FOLDER_NAME, ProjectFolder.PSEUDO_CLASS, "", ProjectFolder.VERSION,
+                    Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
         }
         return new Project(new FileCreationContext(projectInfo, storage, fileSystem));
     }

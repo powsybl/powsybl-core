@@ -35,7 +35,7 @@ public class ProjectFile extends ProjectNode {
     }
 
     public List<ProjectNode> getDependencies() {
-        return storage.getDependenciesInfo(info.getId())
+        return storage.getDependencies(info.getId())
                 .stream()
                 .map(fileSystem::findProjectNode)
                 .collect(Collectors.toList());
@@ -44,7 +44,7 @@ public class ProjectFile extends ProjectNode {
     public <T> T getDependency(String name, Class<T> projectNodeClass) {
         Objects.requireNonNull(name);
         Objects.requireNonNull(projectNodeClass);
-        NodeInfo dependencyNodeInfo = storage.getDependencyInfo(info.getId(), name);
+        NodeInfo dependencyNodeInfo = storage.getDependency(info.getId(), name);
         if (dependencyNodeInfo == null) {
             return null;
         }

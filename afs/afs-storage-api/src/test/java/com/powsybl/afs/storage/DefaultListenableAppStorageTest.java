@@ -14,6 +14,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.io.IOException;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
@@ -30,8 +33,13 @@ public class DefaultListenableAppStorageTest {
     @Before
     public void setUp() {
         AppStorage storage = Mockito.mock(AppStorage.class);
-        Mockito.when(storage.createNode(Mockito.any(NodeId.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyInt()))
-                .thenReturn(new NodeInfo(new NodeIdMock("result"), "", "", "", 0, 0, 0));
+        Mockito.when(storage.createNode(Mockito.any(NodeId.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyInt(),
+                Mockito.anyMap(), Mockito.anyMap(), Mockito.anyMap(), Mockito.anyMap()))
+                .thenReturn(new NodeInfo(new NodeIdMock("result"), "", "", "", 0, 0, 0, Collections.emptyMap(), Collections.emptyMap(),
+                                                        Collections.emptyMap(), Collections.emptyMap()));
+        Mockito.when(storage.writeStringData(Mockito.any(NodeId.class), Mockito.anyString()))
+                .thenReturn(new StringWriter());
+
         listenableStorage = new DefaultListenableAppStorage(storage);
         listenableStorage.addListener(this, new DefaultAppStorageListener() {
             @Override
@@ -45,8 +53,8 @@ public class DefaultListenableAppStorageTest {
             }
 
             @Override
-            public void attributeUpdated(NodeId id, String attributeName) {
-                methodCalled = "attributeUpdated";
+            public void nodeDataUpdated(NodeId id, String attributeName) {
+                methodCalled = "nodeDataUpdated";
             }
 
             @Override
@@ -77,15 +85,18 @@ public class DefaultListenableAppStorageTest {
     }
 
     @Test
-    public void test() {
-        listenableStorage.createNode(new NodeIdMock("node1"), "node2", "file", 0);
+    public void test() throws IOException {
+        listenableStorage.createNode(new NodeIdMock("node1"), "node2", "file", "", 0, Collections.emptyMap(), Collections.emptyMap(),
+                Collections.emptyMap(), Collections.emptyMap());
         assertEquals("nodeCreated", methodCalled);
 
         listenableStorage.deleteNode(new NodeIdMock("node1"));
         assertEquals("nodeRemoved", methodCalled);
 
-        listenableStorage.setIntAttribute(new NodeIdMock("node1"), "attr", 1);
-        assertEquals("attributeUpdated", methodCalled);
+        try (Writer writer = listenableStorage.writeStringData(new NodeIdMock("node1"), "attr")) {
+            writer.write("hello");
+        }
+        assertEquals("nodeDataUpdated", methodCalled);
 
         listenableStorage.addDependency(new NodeIdMock("node1"), "a", new NodeIdMock("node1"));
         assertEquals("dependencyAdded", methodCalled);
