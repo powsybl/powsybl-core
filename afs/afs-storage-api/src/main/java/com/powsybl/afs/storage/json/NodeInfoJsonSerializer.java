@@ -48,10 +48,10 @@ public class NodeInfoJsonSerializer extends StdSerializer<NodeInfo> {
             jsonGenerator.writeNumberField(CREATION_TIME, nodeInfo.getCreationTime());
             jsonGenerator.writeNumberField(MODIFICATION_TIME, nodeInfo.getModificationTime());
             jsonGenerator.writeNumberField(VERSION, nodeInfo.getVersion());
-            if (!nodeInfo.getStringMetadata().isEmpty()) {
+            if (!nodeInfo.getMetadata().getStringMetadata().isEmpty()) {
                 jsonGenerator.writeFieldName(STRING_METADATA);
                 jsonGenerator.writeStartArray();
-                for (Map.Entry<String, String> e : nodeInfo.getStringMetadata().entrySet()) {
+                for (Map.Entry<String, String> e : nodeInfo.getMetadata().getStringMetadata().entrySet()) {
                     jsonGenerator.writeStartObject();
                     jsonGenerator.writeStringField(NAME, e.getKey());
                     jsonGenerator.writeStringField(VALUE, e.getValue());
@@ -59,10 +59,10 @@ public class NodeInfoJsonSerializer extends StdSerializer<NodeInfo> {
                 }
                 jsonGenerator.writeEndArray();
             }
-            if (!nodeInfo.getStringMetadata().isEmpty()) {
+            if (!nodeInfo.getMetadata().getDoubleMetadata().isEmpty()) {
                 jsonGenerator.writeFieldName(DOUBLE_METADATA);
                 jsonGenerator.writeStartArray();
-                for (Map.Entry<String, Double> e : nodeInfo.getDoubleMetadata().entrySet()) {
+                for (Map.Entry<String, Double> e : nodeInfo.getMetadata().getDoubleMetadata().entrySet()) {
                     jsonGenerator.writeStartObject();
                     jsonGenerator.writeStringField(NAME, e.getKey());
                     jsonGenerator.writeNumberField(VALUE, e.getValue());
@@ -70,10 +70,10 @@ public class NodeInfoJsonSerializer extends StdSerializer<NodeInfo> {
                 }
                 jsonGenerator.writeEndArray();
             }
-            if (!nodeInfo.getStringMetadata().isEmpty()) {
+            if (!nodeInfo.getMetadata().getIntMetadata().isEmpty()) {
                 jsonGenerator.writeFieldName(INT_METADATA);
                 jsonGenerator.writeStartArray();
-                for (Map.Entry<String, Integer> e : nodeInfo.getIntMetadata().entrySet()) {
+                for (Map.Entry<String, Integer> e : nodeInfo.getMetadata().getIntMetadata().entrySet()) {
                     jsonGenerator.writeStartObject();
                     jsonGenerator.writeStringField(NAME, e.getKey());
                     jsonGenerator.writeNumberField(VALUE, e.getValue());
@@ -81,10 +81,10 @@ public class NodeInfoJsonSerializer extends StdSerializer<NodeInfo> {
                 }
                 jsonGenerator.writeEndArray();
             }
-            if (!nodeInfo.getStringMetadata().isEmpty()) {
+            if (!nodeInfo.getMetadata().getBooleanMetadata().isEmpty()) {
                 jsonGenerator.writeFieldName(BOOLEAN_METADATA);
                 jsonGenerator.writeStartArray();
-                for (Map.Entry<String, Boolean> e : nodeInfo.getBooleanMetadata().entrySet()) {
+                for (Map.Entry<String, Boolean> e : nodeInfo.getMetadata().getBooleanMetadata().entrySet()) {
                     jsonGenerator.writeStartObject();
                     jsonGenerator.writeStringField(NAME, e.getKey());
                     jsonGenerator.writeBooleanField(VALUE, e.getValue());

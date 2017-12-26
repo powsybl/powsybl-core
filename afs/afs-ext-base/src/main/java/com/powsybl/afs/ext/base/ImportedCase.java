@@ -38,7 +38,7 @@ public class ImportedCase extends ProjectFile implements ProjectCase {
         super(context, VERSION, CaseIconCache.INSTANCE.get(
                 importersLoader,
                 context.getFileSystem().getData().getComputationManager(),
-                context.getInfo().getStringMetadata().get(FORMAT)));
+                context.getInfo().getMetadata().getStringMetadata().get(FORMAT)));
         this.importersLoader = Objects.requireNonNull(importersLoader);
     }
 
@@ -57,7 +57,7 @@ public class ImportedCase extends ProjectFile implements ProjectCase {
     }
 
     public Importer getImporter() {
-        String format = info.getStringMetadata().get(FORMAT);
+        String format = info.getMetadata().getStringMetadata().get(FORMAT);
         return importersLoader.loadImporters()
                 .stream()
                 .filter(importer -> importer.getFormat().equals(format))

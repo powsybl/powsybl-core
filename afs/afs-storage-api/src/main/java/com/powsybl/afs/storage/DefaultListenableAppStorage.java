@@ -48,10 +48,8 @@ public class DefaultListenableAppStorage implements ListenableAppStorage {
     }
 
     @Override
-    public NodeInfo createNode(NodeId parentNodeId, String name, String nodePseudoClass, String description, int version,
-                               Map<String, String> stringMetadata, Map<String, Double> doubleMetadata,
-                               Map<String, Integer> intMetadata, Map<String, Boolean> booleanMetadata) {
-        NodeInfo nodeInfo = storage.createNode(parentNodeId, name, nodePseudoClass, description, version, stringMetadata, doubleMetadata, intMetadata, booleanMetadata);
+    public NodeInfo createNode(NodeId parentNodeId, String name, String nodePseudoClass, String description, int version, NodeMetadata metadata) {
+        NodeInfo nodeInfo = storage.createNode(parentNodeId, name, nodePseudoClass, description, version, metadata);
         listeners.values().stream().flatMap(List::stream).forEach(l -> l.nodeCreated(nodeInfo.getId()));
         return nodeInfo;
     }

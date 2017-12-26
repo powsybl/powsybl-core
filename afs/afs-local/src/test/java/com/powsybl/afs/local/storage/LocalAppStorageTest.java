@@ -88,7 +88,7 @@ public class LocalAppStorageTest {
         assertNull(storage.getChildNode(rootNodeInfo.getId(), "n3.tst"));
         assertEquals(Folder.PSEUDO_CLASS, rootNodeInfo.getPseudoClass());
         assertEquals(Case.PSEUDO_CLASS, case1.getPseudoClass());
-        assertEquals("TEST", case1.getStringMetadata().get("format"));
+        assertEquals("TEST", case1.getMetadata().getStringMetadata().get("format"));
         assertEquals("Test format", case1.getDescription());
         DataSource ds = new AppStorageDataSource(storage, case1.getId());
         assertNotNull(ds);

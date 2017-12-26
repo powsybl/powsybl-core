@@ -33,10 +33,8 @@ public class DefaultListenableAppStorageTest {
     @Before
     public void setUp() {
         AppStorage storage = Mockito.mock(AppStorage.class);
-        Mockito.when(storage.createNode(Mockito.any(NodeId.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyInt(),
-                Mockito.anyMap(), Mockito.anyMap(), Mockito.anyMap(), Mockito.anyMap()))
-                .thenReturn(new NodeInfo(new NodeIdMock("result"), "", "", "", 0, 0, 0, Collections.emptyMap(), Collections.emptyMap(),
-                                                        Collections.emptyMap(), Collections.emptyMap()));
+        Mockito.when(storage.createNode(Mockito.any(NodeId.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyInt(), Mockito.any(NodeMetadata.class)))
+                .thenReturn(new NodeInfo(new NodeIdMock("result"), "", "", "", 0, 0, 0, new NodeMetadata()));
         Mockito.when(storage.writeStringData(Mockito.any(NodeId.class), Mockito.anyString()))
                 .thenReturn(new StringWriter());
 
@@ -86,8 +84,7 @@ public class DefaultListenableAppStorageTest {
 
     @Test
     public void test() throws IOException {
-        listenableStorage.createNode(new NodeIdMock("node1"), "node2", "file", "", 0, Collections.emptyMap(), Collections.emptyMap(),
-                Collections.emptyMap(), Collections.emptyMap());
+        listenableStorage.createNode(new NodeIdMock("node1"), "node2", "file", "", 0, new NodeMetadata());
         assertEquals("nodeCreated", methodCalled);
 
         listenableStorage.deleteNode(new NodeIdMock("node1"));

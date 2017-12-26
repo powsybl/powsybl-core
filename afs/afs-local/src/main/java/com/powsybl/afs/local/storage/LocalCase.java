@@ -6,9 +6,9 @@
  */
 package com.powsybl.afs.local.storage;
 
-import com.google.common.collect.ImmutableMap;
 import com.powsybl.afs.ext.base.Case;
 import com.powsybl.afs.storage.AppStorageDataSource;
+import com.powsybl.afs.storage.NodeMetadata;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.import_.Importers;
@@ -16,9 +16,14 @@ import com.powsybl.math.timeseries.DoubleTimeSeries;
 import com.powsybl.math.timeseries.StringTimeSeries;
 import com.powsybl.math.timeseries.TimeSeriesMetadata;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Reader;
+import java.io.UncheckedIOException;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  *
@@ -56,23 +61,8 @@ public class LocalCase implements LocalFile {
     }
 
     @Override
-    public Map<String, String> getStringMetadata() {
-        return ImmutableMap.of("format", importer.getFormat());
-    }
-
-    @Override
-    public Map<String, Double> getDoubleMetadata() {
-        return Collections.emptyMap();
-    }
-
-    @Override
-    public Map<String, Integer> getIntMetadata() {
-        return Collections.emptyMap();
-    }
-
-    @Override
-    public Map<String, Boolean> getBooleanMetadata() {
-        return Collections.emptyMap();
+    public NodeMetadata getMetadata() {
+        return new NodeMetadata().setStringMetadata("format", importer.getFormat());
     }
 
     @Override
@@ -83,17 +73,17 @@ public class LocalCase implements LocalFile {
     @Override
     public InputStream readBinaryData(String name) {
         DataSource dataSource = Importers.createDataSource(file);
-        AppStorageDataSource.Name key = AppStorageDataSource.Name.parse(name);
-        if (key instanceof AppStorageDataSource.SuffixAndExtension) {
+        AppStorageDataSource.Name dataSrcName = AppStorageDataSource.Name.parse(name);
+        if (dataSrcName instanceof AppStorageDataSource.SuffixAndExtension) {
             try {
-                return dataSource.newInputStream(((AppStorageDataSource.SuffixAndExtension) key).getSuffix(),
-                                                 ((AppStorageDataSource.SuffixAndExtension) key).getExt());
+                return dataSource.newInputStream(((AppStorageDataSource.SuffixAndExtension) dataSrcName).getSuffix(),
+                                                 ((AppStorageDataSource.SuffixAndExtension) dataSrcName).getExt());
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
-        } else if (key instanceof AppStorageDataSource.FileName) {
+        } else if (dataSrcName instanceof AppStorageDataSource.FileName) {
             try {
-                return dataSource.newInputStream(((AppStorageDataSource.FileName) key).getName());
+                return dataSource.newInputStream(((AppStorageDataSource.FileName) dataSrcName).getName());
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
@@ -105,17 +95,17 @@ public class LocalCase implements LocalFile {
     @Override
     public boolean dataExists(String name) {
         DataSource dataSource = Importers.createDataSource(file);
-        AppStorageDataSource.Name key = AppStorageDataSource.Name.parse(name);
-        if (key instanceof AppStorageDataSource.SuffixAndExtension) {
+        AppStorageDataSource.Name dataSrcName = AppStorageDataSource.Name.parse(name);
+        if (dataSrcName instanceof AppStorageDataSource.SuffixAndExtension) {
             try {
-                return dataSource.exists(((AppStorageDataSource.SuffixAndExtension) key).getSuffix(),
-                                         ((AppStorageDataSource.SuffixAndExtension) key).getExt());
+                return dataSource.exists(((AppStorageDataSource.SuffixAndExtension) dataSrcName).getSuffix(),
+                                         ((AppStorageDataSource.SuffixAndExtension) dataSrcName).getExt());
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
-        } else if (key instanceof AppStorageDataSource.FileName) {
+        } else if (dataSrcName instanceof AppStorageDataSource.FileName) {
             try {
-                return dataSource.exists(((AppStorageDataSource.FileName) key).getName());
+                return dataSource.exists(((AppStorageDataSource.FileName) dataSrcName).getName());
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }

@@ -11,6 +11,7 @@ import com.powsybl.afs.Folder;
 import com.powsybl.afs.storage.AppStorage;
 import com.powsybl.afs.storage.NodeId;
 import com.powsybl.afs.storage.NodeInfo;
+import com.powsybl.afs.storage.NodeMetadata;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.math.timeseries.*;
 
@@ -122,10 +123,7 @@ public class LocalAppStorage implements AppStorage {
                             attr.creationTime().toMillis(),
                             attr.lastModifiedTime().toMillis(),
                             DEFAULT_VERSION,
-                            Collections.emptyMap(),
-                            Collections.emptyMap(),
-                            Collections.emptyMap(),
-                            Collections.emptyMap());
+                            new NodeMetadata());
     }
 
     @Override
@@ -147,10 +145,7 @@ public class LocalAppStorage implements AppStorage {
                                 attr.creationTime().toMillis(),
                                 attr.lastModifiedTime().toMillis(),
                                 DEFAULT_VERSION,
-                                file.getStringMetadata(),
-                                file.getDoubleMetadata(),
-                                file.getIntMetadata(),
-                                file.getBooleanMetadata());
+                                file.getMetadata());
         } else {
             LocalFolder folder = scanFolder(path, true);
             if (folder != null) {
@@ -161,10 +156,7 @@ public class LocalAppStorage implements AppStorage {
                                     attr.creationTime().toMillis(),
                                     attr.lastModifiedTime().toMillis(),
                                     DEFAULT_VERSION,
-                                    Collections.emptyMap(),
-                                    Collections.emptyMap(),
-                                    Collections.emptyMap(),
-                                    Collections.emptyMap());
+                                    new NodeMetadata());
             } else {
                 throw new AssertionError();
             }
@@ -241,8 +233,7 @@ public class LocalAppStorage implements AppStorage {
     }
 
     @Override
-    public NodeInfo createNode(NodeId parentNodeId, String name, String nodePseudoClass, String description, int version, Map<String, String> stringMetadata,
-                               Map<String, Double> doubleMetadata, Map<String, Integer> intMetadata, Map<String, Boolean> booleanMetadata) {
+    public NodeInfo createNode(NodeId parentNodeId, String name, String nodePseudoClass, String description, int version, NodeMetadata metadata) {
         throw new AssertionError();
     }
 

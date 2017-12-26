@@ -8,13 +8,13 @@ package com.powsybl.afs.mapdb.storage;
 
 import com.powsybl.afs.storage.NodeId;
 import com.powsybl.afs.storage.NodeInfo;
+import com.powsybl.afs.storage.NodeMetadata;
 import org.mapdb.DataInput2;
 import org.mapdb.DataOutput2;
 import org.mapdb.Serializer;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -33,23 +33,23 @@ public class NodeInfoSerializer implements Serializer<NodeInfo>, Serializable {
         out.writeLong(nodeInfo.getCreationTime());
         out.writeLong(nodeInfo.getModificationTime());
         out.writeInt(nodeInfo.getVersion());
-        out.writeInt(nodeInfo.getStringMetadata().size());
-        for (Map.Entry<String, String> e : nodeInfo.getStringMetadata().entrySet()) {
+        out.writeInt(nodeInfo.getMetadata().getStringMetadata().size());
+        for (Map.Entry<String, String> e : nodeInfo.getMetadata().getStringMetadata().entrySet()) {
             out.writeUTF(e.getKey());
             out.writeUTF(e.getValue());
         }
-        out.writeInt(nodeInfo.getDoubleMetadata().size());
-        for (Map.Entry<String, Double> e : nodeInfo.getDoubleMetadata().entrySet()) {
+        out.writeInt(nodeInfo.getMetadata().getDoubleMetadata().size());
+        for (Map.Entry<String, Double> e : nodeInfo.getMetadata().getDoubleMetadata().entrySet()) {
             out.writeUTF(e.getKey());
             out.writeDouble(e.getValue());
         }
-        out.writeInt(nodeInfo.getIntMetadata().size());
-        for (Map.Entry<String, Integer> e : nodeInfo.getIntMetadata().entrySet()) {
+        out.writeInt(nodeInfo.getMetadata().getIntMetadata().size());
+        for (Map.Entry<String, Integer> e : nodeInfo.getMetadata().getIntMetadata().entrySet()) {
             out.writeUTF(e.getKey());
             out.writeInt(e.getValue());
         }
-        out.writeInt(nodeInfo.getBooleanMetadata().size());
-        for (Map.Entry<String, Boolean> e : nodeInfo.getBooleanMetadata().entrySet()) {
+        out.writeInt(nodeInfo.getMetadata().getBooleanMetadata().size());
+        for (Map.Entry<String, Boolean> e : nodeInfo.getMetadata().getBooleanMetadata().entrySet()) {
             out.writeUTF(e.getKey());
             out.writeBoolean(e.getValue());
         }
@@ -64,27 +64,23 @@ public class NodeInfoSerializer implements Serializer<NodeInfo>, Serializable {
         long creationTime = input.readLong();
         long modificationTime = input.readLong();
         int version = input.readInt();
+        NodeMetadata metadata = new NodeMetadata();
         int stringMetadataSize = input.readInt();
-        Map<String, String> stringMetadata = new HashMap<>(stringMetadataSize);
         for (int i = 0; i < stringMetadataSize; i++) {
-            stringMetadata.put(input.readUTF(), input.readUTF());
+            metadata.setStringMetadata(input.readUTF(), input.readUTF());
         }
         int doubleMetadataSize = input.readInt();
-        Map<String, Double> doubleMetadata = new HashMap<>(doubleMetadataSize);
         for (int i = 0; i < doubleMetadataSize; i++) {
-            doubleMetadata.put(input.readUTF(), input.readDouble());
+            metadata.setDoubleMetadata(input.readUTF(), input.readDouble());
         }
         int intMetadataSize = input.readInt();
-        Map<String, Integer> intMetadata = new HashMap<>(intMetadataSize);
         for (int i = 0; i < intMetadataSize; i++) {
-            intMetadata.put(input.readUTF(), input.readInt());
+            metadata.setIntMetadata(input.readUTF(), input.readInt());
         }
         int booleanMetadataSize = input.readInt();
-        Map<String, Boolean> booleanMetadata = new HashMap<>(booleanMetadataSize);
         for (int i = 0; i < booleanMetadataSize; i++) {
-            booleanMetadata.put(input.readUTF(), input.readBoolean());
+            metadata.setBooleanMetadata(input.readUTF(), input.readBoolean());
         }
-        return new NodeInfo(nodeId, name, pseudoClass, description, creationTime, modificationTime, version,
-                stringMetadata, doubleMetadata, intMetadata, booleanMetadata);
+        return new NodeInfo(nodeId, name, pseudoClass, description, creationTime, modificationTime, version, metadata);
     }
 }

@@ -6,7 +6,6 @@
  */
 package com.powsybl.afs.storage;
 
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -20,25 +19,18 @@ public class NodeInfo {
 
     private final String pseudoClass;
 
-    private String description;
+    private String description = "";
 
-    private long creationTime;
+    private final long creationTime;
 
     private long modificationTime;
 
     private int version;
 
-    private final Map<String, String> stringMetadata;
-
-    private final Map<String, Double> doubleMetadata;
-
-    private final Map<String, Integer> intMetadata;
-
-    private final Map<String, Boolean> booleanMetadata;
+    private final NodeMetadata metadata;
 
     public NodeInfo(NodeId id, String name, String pseudoClass, String description, long creationTime, long modificationTime,
-                    int version, Map<String, String> stringMetadata, Map<String, Double> doubleMetadata, Map<String, Integer> intMetadata,
-                    Map<String, Boolean> booleanMetadata) {
+                    int version, NodeMetadata metadata) {
         this.id = Objects.requireNonNull(id);
         this.name = Objects.requireNonNull(name);
         this.pseudoClass = Objects.requireNonNull(pseudoClass);
@@ -46,10 +38,7 @@ public class NodeInfo {
         this.creationTime = creationTime;
         this.modificationTime = modificationTime;
         this.version = version;
-        this.stringMetadata = Objects.requireNonNull(stringMetadata);
-        this.doubleMetadata = Objects.requireNonNull(doubleMetadata);
-        this.intMetadata = Objects.requireNonNull(intMetadata);
-        this.booleanMetadata = Objects.requireNonNull(booleanMetadata);
+        this.metadata = Objects.requireNonNull(metadata);
     }
 
     public NodeId getId() {
@@ -68,54 +57,40 @@ public class NodeInfo {
         return description;
     }
 
-    public void setDescription(String description) {
+    public NodeInfo setDescription(String description) {
         this.description = Objects.requireNonNull(description);
+        return this;
     }
 
     public long getCreationTime() {
         return creationTime;
     }
 
-    public void setCreationTime(long creationTime) {
-        this.creationTime = creationTime;
-    }
-
     public long getModificationTime() {
         return modificationTime;
     }
 
-    public void setModificationTime(long modificationTime) {
+    public NodeInfo setModificationTime(long modificationTime) {
         this.modificationTime = modificationTime;
+        return this;
     }
 
     public int getVersion() {
         return version;
     }
 
-    public void setVersion(int version) {
+    public NodeInfo setVersion(int version) {
         this.version = version;
+        return this;
     }
 
-    public Map<String, String> getStringMetadata() {
-        return stringMetadata;
-    }
-
-    public Map<String, Double> getDoubleMetadata() {
-        return doubleMetadata;
-    }
-
-    public Map<String, Integer> getIntMetadata() {
-        return intMetadata;
-    }
-
-    public Map<String, Boolean> getBooleanMetadata() {
-        return booleanMetadata;
+    public NodeMetadata getMetadata() {
+        return metadata;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, pseudoClass, description, creationTime, modificationTime, version,
-                stringMetadata, doubleMetadata, intMetadata, booleanMetadata);
+        return Objects.hash(id, name, pseudoClass, description, creationTime, modificationTime, version, metadata);
     }
 
     @Override
@@ -125,8 +100,7 @@ public class NodeInfo {
             return id.equals(other.id) && name.equals(other.name) && pseudoClass.equals(other.pseudoClass) &&
                     description.equals(other.description) && creationTime == other.creationTime &&
                     modificationTime == other.modificationTime && version == other.version &&
-                    stringMetadata.equals(other.stringMetadata) && doubleMetadata.equals(other.doubleMetadata) &&
-                    intMetadata.equals(other.intMetadata) && booleanMetadata.equals(other.booleanMetadata);
+                    metadata.equals(other.metadata);
         }
         return false;
     }
@@ -136,7 +110,6 @@ public class NodeInfo {
         return "NodeInfo(id=" + id + ", name=" + name + ", pseudoClass=" + pseudoClass +
                 ", description=" + description + ", creationTime=" + creationTime +
                 ", modificationTime=" + modificationTime + ", version=" + version +
-                ", stringMetadata=" + stringMetadata + ", doubleMetadata=" + doubleMetadata +
-                ", intMetadata=" + intMetadata + ", booleanMetadata=" + booleanMetadata + ")";
+                ", metadata=" + metadata + ")";
     }
 }

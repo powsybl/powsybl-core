@@ -48,7 +48,7 @@ public class ModificationScript extends ProjectFile implements StorableScript {
     }
 
     public ScriptType getScriptType() {
-        return ScriptType.valueOf(info.getStringMetadata().get(SCRIPT_TYPE));
+        return ScriptType.valueOf(info.getMetadata().getStringMetadata().get(SCRIPT_TYPE));
     }
 
     @Override

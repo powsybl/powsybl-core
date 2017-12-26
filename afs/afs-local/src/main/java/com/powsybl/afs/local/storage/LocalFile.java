@@ -6,6 +6,7 @@
  */
 package com.powsybl.afs.local.storage;
 
+import com.powsybl.afs.storage.NodeMetadata;
 import com.powsybl.math.timeseries.DoubleTimeSeries;
 import com.powsybl.math.timeseries.StringTimeSeries;
 import com.powsybl.math.timeseries.TimeSeriesMetadata;
@@ -13,7 +14,6 @@ import com.powsybl.math.timeseries.TimeSeriesMetadata;
 import java.io.InputStream;
 import java.io.Reader;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -26,13 +26,7 @@ public interface LocalFile extends LocalNode {
 
     String getDescription();
 
-    Map<String, String> getStringMetadata();
-
-    Map<String, Integer> getIntMetadata();
-
-    Map<String, Double> getDoubleMetadata();
-
-    Map<String, Boolean> getBooleanMetadata();
+    NodeMetadata getMetadata();
 
     Reader readStringData(String name);
 

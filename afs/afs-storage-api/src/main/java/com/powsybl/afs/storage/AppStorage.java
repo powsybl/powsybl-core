@@ -13,7 +13,6 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -31,8 +30,7 @@ public interface AppStorage extends AutoCloseable {
 
     NodeInfo createRootNodeIfNotExists(String name, String nodePseudoClass);
 
-    NodeInfo createNode(NodeId parentNodeId, String name, String nodePseudoClass, String description, int version, Map<String, String> stringMetadata,
-                        Map<String, Double> doubleMetadata, Map<String, Integer> intMetadata, Map<String, Boolean> booleanMetadata);
+    NodeInfo createNode(NodeId parentNodeId, String name, String nodePseudoClass, String description, int version, NodeMetadata metadata);
 
     boolean isWritable(NodeId nodeId);
 

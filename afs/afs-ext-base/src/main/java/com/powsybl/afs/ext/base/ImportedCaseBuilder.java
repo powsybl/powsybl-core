@@ -6,19 +6,18 @@
  */
 package com.powsybl.afs.ext.base;
 
-import com.google.common.collect.ImmutableMap;
 import com.powsybl.afs.AfsException;
 import com.powsybl.afs.ProjectFileBuildContext;
 import com.powsybl.afs.ProjectFileBuilder;
 import com.powsybl.afs.ProjectFileCreationContext;
 import com.powsybl.afs.storage.AppStorageDataSource;
 import com.powsybl.afs.storage.NodeInfo;
+import com.powsybl.afs.storage.NodeMetadata;
 import com.powsybl.iidm.import_.ImportersLoader;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.io.Writer;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
@@ -70,7 +69,7 @@ public class ImportedCaseBuilder implements ProjectFileBuilder<ImportedCase> {
 
         // create project file
         NodeInfo info = context.getStorage().createNode(context.getFolderInfo().getId(), name, ImportedCase.PSEUDO_CLASS, "", ImportedCase.VERSION,
-                ImmutableMap.of(ImportedCase.FORMAT, aCase.getImporter().getFormat()), Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
+                new NodeMetadata().setStringMetadata(ImportedCase.FORMAT, aCase.getImporter().getFormat()));
 
         // store case data
         aCase.getImporter().copy(aCase.getDataSource(), new AppStorageDataSource(context.getStorage(), info.getId()));

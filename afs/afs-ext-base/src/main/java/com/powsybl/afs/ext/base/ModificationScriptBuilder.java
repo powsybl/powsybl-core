@@ -6,16 +6,15 @@
  */
 package com.powsybl.afs.ext.base;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.io.CharStreams;
 import com.powsybl.afs.AfsException;
 import com.powsybl.afs.ProjectFileBuildContext;
 import com.powsybl.afs.ProjectFileBuilder;
 import com.powsybl.afs.ProjectFileCreationContext;
 import com.powsybl.afs.storage.NodeInfo;
+import com.powsybl.afs.storage.NodeMetadata;
 
 import java.io.*;
-import java.util.Collections;
 import java.util.Objects;
 
 /**
@@ -69,7 +68,7 @@ public class ModificationScriptBuilder implements ProjectFileBuilder<Modificatio
 
         // create project file
         NodeInfo info = context.getStorage().createNode(context.getFolderInfo().getId(), name, ModificationScript.PSEUDO_CLASS, "", ModificationScript.VERSION,
-                ImmutableMap.of(ModificationScript.SCRIPT_TYPE, type.name()), Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
+                new NodeMetadata().setStringMetadata(ModificationScript.SCRIPT_TYPE, type.name()));
 
         // store script
         try (Reader reader = new StringReader(content);

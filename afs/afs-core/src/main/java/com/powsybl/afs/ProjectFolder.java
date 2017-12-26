@@ -7,8 +7,8 @@
 package com.powsybl.afs;
 
 import com.powsybl.afs.storage.NodeInfo;
+import com.powsybl.afs.storage.NodeMetadata;
 
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -60,8 +60,7 @@ public class ProjectFolder extends ProjectNode implements FolderBase<ProjectNode
     public ProjectFolder createFolder(String name) {
         NodeInfo folderInfo = storage.getChildNode(info.getId(), name);
         if (folderInfo == null) {
-            folderInfo = storage.createNode(info.getId(), name, PSEUDO_CLASS, "", VERSION, Collections.emptyMap(),
-                    Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
+            folderInfo = storage.createNode(info.getId(), name, PSEUDO_CLASS, "", VERSION, new NodeMetadata());
         }
         return new ProjectFolder(new ProjectFileCreationContext(folderInfo, storage, fileSystem));
     }

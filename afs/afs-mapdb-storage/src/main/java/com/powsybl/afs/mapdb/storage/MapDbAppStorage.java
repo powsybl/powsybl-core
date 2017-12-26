@@ -8,10 +8,7 @@ package com.powsybl.afs.mapdb.storage;
 
 import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableSet;
-import com.powsybl.afs.storage.AfsStorageException;
-import com.powsybl.afs.storage.AppStorage;
-import com.powsybl.afs.storage.NodeId;
-import com.powsybl.afs.storage.NodeInfo;
+import com.powsybl.afs.storage.*;
 import com.powsybl.math.timeseries.*;
 import org.apache.commons.lang3.SystemUtils;
 import org.mapdb.*;
@@ -455,8 +452,7 @@ public class MapDbAppStorage implements AppStorage {
     public NodeInfo createRootNodeIfNotExists(String name, String nodePseudoClass) {
         NodeInfo rootNodeInfo = rootNodeVar.get();
         if (rootNodeInfo == null) {
-            rootNodeInfo = createNode(null, name, nodePseudoClass, "", 0, Collections.emptyMap(), Collections.emptyMap(),
-                                      Collections.emptyMap(), Collections.emptyMap());
+            rootNodeInfo = createNode(null, name, nodePseudoClass, "", 0, new NodeMetadata());
             rootNodeVar.set(rootNodeInfo);
         }
         return rootNodeInfo;
@@ -540,8 +536,7 @@ public class MapDbAppStorage implements AppStorage {
     }
 
     @Override
-    public NodeInfo createNode(NodeId parentNodeId, String name, String nodePseudoClass, String description, int version, Map<String, String> stringMetadata,
-                               Map<String, Double> doubleMetadata, Map<String, Integer> intMetadata, Map<String, Boolean> booleanMetadata) {
+    public NodeInfo createNode(NodeId parentNodeId, String name, String nodePseudoClass, String description, int version, NodeMetadata metadata) {
         UuidNodeId parentUuidNodeId = checkNullableNodeId(parentNodeId);
         Objects.requireNonNull(name);
         Objects.requireNonNull(nodePseudoClass);
@@ -554,8 +549,7 @@ public class MapDbAppStorage implements AppStorage {
         }
         UuidNodeId nodeId = UuidNodeId.generate();
         long creationTime = ZonedDateTime.now().toInstant().toEpochMilli();
-        NodeInfo nodeInfo = new NodeInfo(nodeId, name, nodePseudoClass, description, creationTime, creationTime, version,
-                                         stringMetadata, doubleMetadata, intMetadata, booleanMetadata);
+        NodeInfo nodeInfo = new NodeInfo(nodeId, name, nodePseudoClass, description, creationTime, creationTime, version, metadata);
         nodeInfoMap.put(nodeId, nodeInfo);
         dataNamesMap.put(nodeId, Collections.emptySet());
         childNodesMap.put(nodeId, new UuidNodeIdList());

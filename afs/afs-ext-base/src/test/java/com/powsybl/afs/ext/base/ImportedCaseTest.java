@@ -12,6 +12,7 @@ import com.powsybl.afs.*;
 import com.powsybl.afs.mapdb.storage.MapDbAppStorage;
 import com.powsybl.afs.storage.AppStorage;
 import com.powsybl.afs.storage.NodeInfo;
+import com.powsybl.afs.storage.NodeMetadata;
 import com.powsybl.iidm.import_.ImportersLoader;
 import com.powsybl.iidm.import_.ImportersLoaderList;
 import org.junit.Before;
@@ -56,8 +57,7 @@ public class ImportedCaseTest extends AbstractProjectFileTest {
         super.setup();
         NodeInfo rootFolderInfo = storage.createRootNodeIfNotExists("root", Folder.PSEUDO_CLASS);
         NodeInfo caseInfo = storage.createNode(rootFolderInfo.getId(), "network", Case.PSEUDO_CLASS, "Test format", Case.VERSION,
-                Collections.singletonMap("format", TestImporter.FORMAT), Collections.emptyMap(), Collections.emptyMap(),
-                Collections.emptyMap());
+                new NodeMetadata().setStringMetadata("format", TestImporter.FORMAT));
     }
 
     @Test
