@@ -44,13 +44,19 @@ public class NodeGenericMetadata {
         return stringMetadata;
     }
 
-    public String getString(String name) {
+    private <T> T getValue(Map<String, T> metadata, String name, String typeLabel) {
+        Objects.requireNonNull(metadata);
         Objects.requireNonNull(name);
-        String value = stringMetadata.get(name);
+        Objects.requireNonNull(typeLabel);
+        T value = metadata.get(name);
         if (value == null) {
-            throw new IllegalArgumentException("String metadata '" + name + "' not found");
+            throw new IllegalArgumentException(typeLabel + " metadata '" + name + "' not found");
         }
         return value;
+    }
+
+    public String getString(String name) {
+        return getValue(stringMetadata, name, "String");
     }
 
     public NodeGenericMetadata setDouble(String name, double value) {
@@ -59,12 +65,7 @@ public class NodeGenericMetadata {
     }
 
     public double getDouble(String name) {
-        Objects.requireNonNull(name);
-        Double value = doubleMetadata.get(name);
-        if (value == null) {
-            throw new IllegalArgumentException("Double metadata '" + name + "' not found");
-        }
-        return value;
+        return getValue(doubleMetadata, name, "Double");
     }
 
     public Map<String, Double> getDoubles() {
@@ -77,12 +78,7 @@ public class NodeGenericMetadata {
     }
 
     public int getInt(String name) {
-        Objects.requireNonNull(name);
-        Integer value = intMetadata.get(name);
-        if (value == null) {
-            throw new IllegalArgumentException("Integer metadata '" + name + "' not found");
-        }
-        return value;
+        return getValue(intMetadata, name, "Integer");
     }
 
     public Map<String, Integer> getInts() {
@@ -95,12 +91,7 @@ public class NodeGenericMetadata {
     }
 
     public boolean getBoolean(String name) {
-        Objects.requireNonNull(name);
-        Boolean value = booleanMetadata.get(name);
-        if (value == null) {
-            throw new IllegalArgumentException("Boolean metadata '" + name + "' not found");
-        }
-        return value;
+        return getValue(booleanMetadata, name, "Boolean");
     }
 
     public Map<String, Boolean> getBooleans() {
