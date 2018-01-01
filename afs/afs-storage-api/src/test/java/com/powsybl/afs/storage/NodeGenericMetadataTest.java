@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017, RTE (http://www.rte-france.com)
+ * Copyright (c) 2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -35,19 +35,19 @@ public class NodeGenericMetadataTest {
         assertEquals(metadata.getInt("i1"), 1);
         assertEquals(ImmutableMap.of("i1", 1), metadata.getInts());
         assertEquals(metadata.getBoolean("b1"), true);
-        assertEquals(ImmutableMap.of("b1", true), metadata. getBooleans());
+        assertEquals(ImmutableMap.of("b1", true), metadata.getBooleans());
 
         // check metadata not found
         try {
             metadata.getString("s3");
             fail();
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException ignored) {
         }
 
         // check equality
         new EqualsTester()
                 .addEqualityGroup(new NodeGenericMetadata().setString("s1", "a"),
-                                 new NodeGenericMetadata().setString("s1", "a"))
+                                  new NodeGenericMetadata().setString("s1", "a"))
                 .addEqualityGroup(new NodeGenericMetadata().setDouble("d1", 3d),
                                   new NodeGenericMetadata().setDouble("d1", 3d))
                 .testEquals();
