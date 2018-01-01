@@ -27,14 +27,14 @@ public class NodeGenericMetadataTest {
                 .setDouble("d1", 0d)
                 .setInt("i1", 1)
                 .setBoolean("b1", true);
-        assertEquals(metadata.getString("s1"), "a");
-        assertEquals(metadata.getString("s2"), "b");
+        assertEquals("a", metadata.getString("s1"));
+        assertEquals("b", metadata.getString("s2"));
         assertEquals(ImmutableMap.of("s1", "a", "s2", "b"), metadata.getStrings());
-        assertEquals(metadata.getDouble("d1"), 0d, 0d);
+        assertEquals(0d, metadata.getDouble("d1"), 0d);
         assertEquals(ImmutableMap.of("d1", 0d), metadata.getDoubles());
-        assertEquals(metadata.getInt("i1"), 1);
+        assertEquals(1, metadata.getInt("i1"));
         assertEquals(ImmutableMap.of("i1", 1), metadata.getInts());
-        assertEquals(metadata.getBoolean("b1"), true);
+        assertEquals(true, metadata.getBoolean("b1"));
         assertEquals(ImmutableMap.of("b1", true), metadata.getBooleans());
 
         // check metadata not found
