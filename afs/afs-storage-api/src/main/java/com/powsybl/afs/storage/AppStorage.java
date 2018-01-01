@@ -10,8 +10,6 @@ import com.powsybl.math.timeseries.*;
 
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.Reader;
-import java.io.Writer;
 import java.util.List;
 import java.util.Set;
 
@@ -22,65 +20,57 @@ public interface AppStorage extends AutoCloseable {
 
     String getFileSystemName();
 
-    default boolean isRemote() {
-        throw new UnsupportedOperationException("Not implemented");
-    }
-
-    NodeId fromString(String str);
+    boolean isRemote();
 
     NodeInfo createRootNodeIfNotExists(String name, String nodePseudoClass);
 
-    NodeInfo createNode(NodeId parentNodeId, String name, String nodePseudoClass, String description, int version, NodeMetadata metadata);
+    NodeInfo createNode(String parentNodeId, String name, String nodePseudoClass, String description, int version, NodeGenericMetadata genericMetadata);
 
-    boolean isWritable(NodeId nodeId);
+    boolean isWritable(String nodeId);
 
-    NodeInfo getNodeInfo(NodeId nodeId);
+    NodeInfo getNodeInfo(String nodeId);
 
-    void setDescription(NodeId nodeId, String description);
+    void setDescription(String nodeId, String description);
 
-    List<NodeInfo> getChildNodes(NodeId nodeId);
+    List<NodeInfo> getChildNodes(String nodeId);
 
-    NodeInfo getChildNode(NodeId nodeId, String name);
+    NodeInfo getChildNode(String nodeId, String name);
 
-    NodeInfo getParentNode(NodeId nodeId);
+    NodeInfo getParentNode(String nodeId);
 
-    void setParentNode(NodeId nodeId, NodeId newParentNodeId);
+    void setParentNode(String nodeId, String newParentNodeId);
 
-    void deleteNode(NodeId nodeId);
+    void deleteNode(String nodeId);
 
-    Reader readStringData(NodeId nodeId, String name);
+    InputStream readBinaryData(String nodeId, String name);
 
-    Writer writeStringData(NodeId nodeId, String name);
+    OutputStream writeBinaryData(String nodeId, String name);
 
-    InputStream readBinaryData(NodeId nodeId, String name);
+    boolean dataExists(String nodeId, String name);
 
-    OutputStream writeBinaryData(NodeId nodeId, String name);
+    void createTimeSeries(String nodeId, TimeSeriesMetadata metadata);
 
-    boolean dataExists(NodeId nodeId, String name);
+    Set<String> getTimeSeriesNames(String nodeId);
 
-    void createTimeSeries(NodeId nodeId, TimeSeriesMetadata metadata);
+    List<TimeSeriesMetadata> getTimeSeriesMetadata(String nodeId, Set<String> timeSeriesNames);
 
-    Set<String> getTimeSeriesNames(NodeId nodeId);
+    List<DoubleTimeSeries> getDoubleTimeSeries(String nodeId, Set<String> timeSeriesNames, int version);
 
-    List<TimeSeriesMetadata> getTimeSeriesMetadata(NodeId nodeId, Set<String> timeSeriesNames);
+    void addDoubleTimeSeriesData(String nodeId, int version, String timeSeriesName, List<DoubleArrayChunk> chunks);
 
-    List<DoubleTimeSeries> getDoubleTimeSeries(NodeId nodeId, Set<String> timeSeriesNames, int version);
+    List<StringTimeSeries> getStringTimeSeries(String nodeId, Set<String> timeSeriesNames, int version);
 
-    void addDoubleTimeSeriesData(NodeId nodeId, int version, String timeSeriesName, List<DoubleArrayChunk> chunks);
+    void addStringTimeSeriesData(String nodeId, int version, String timeSeriesName, List<StringArrayChunk> chunks);
 
-    List<StringTimeSeries> getStringTimeSeries(NodeId nodeId, Set<String> timeSeriesNames, int version);
+    void removeAllTimeSeries(String nodeId);
 
-    void addStringTimeSeriesData(NodeId nodeId, int version, String timeSeriesName, List<StringArrayChunk> chunks);
+    NodeInfo getDependency(String nodeId, String name);
 
-    void removeAllTimeSeries(NodeId nodeId);
+    void addDependency(String nodeId, String name, String toNodeId);
 
-    NodeInfo getDependency(NodeId nodeId, String name);
+    List<NodeInfo> getDependencies(String nodeId);
 
-    void addDependency(NodeId nodeId, String name, NodeId toNodeId);
-
-    List<NodeInfo> getDependencies(NodeId nodeId);
-
-    List<NodeInfo> getBackwardDependencies(NodeId nodeId);
+    List<NodeInfo> getBackwardDependencies(String nodeId);
 
     void flush();
 

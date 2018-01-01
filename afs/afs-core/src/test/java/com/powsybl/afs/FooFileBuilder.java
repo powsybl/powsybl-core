@@ -7,7 +7,7 @@
 package com.powsybl.afs;
 
 import com.powsybl.afs.storage.NodeInfo;
-import com.powsybl.afs.storage.NodeMetadata;
+import com.powsybl.afs.storage.NodeGenericMetadata;
 
 import java.util.Objects;
 
@@ -36,7 +36,7 @@ class FooFileBuilder implements ProjectFileBuilder<FooFile> {
             throw new IllegalStateException("name is not set");
         }
         String pseudoClass = "foo";
-        NodeInfo info = context.getStorage().createNode(context.getFolderInfo().getId(), name, pseudoClass, "", 0, new NodeMetadata());
+        NodeInfo info = context.getStorage().createNode(context.getFolderInfo().getId(), name, pseudoClass, "", 0, new NodeGenericMetadata());
         return new FooFile(new ProjectFileCreationContext(info,
                                                           context.getStorage(),
                                                           context.getFileSystem()));

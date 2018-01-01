@@ -76,19 +76,18 @@ public class LocalAppStorageTest {
         assertEquals("mem", rootNodeInfo.getName());
         assertFalse(storage.isWritable(rootNodeInfo.getId()));
         assertNull(storage.getParentNode(rootNodeInfo.getId()));
-        assertEquals(ImmutableList.of(new PathNodeId(path1), new PathNodeId(path2)),
+        assertEquals(ImmutableList.of(path1.toString(), path2.toString()),
                      storage.getChildNodes(rootNodeInfo.getId()).stream().map(NodeInfo::getId).collect(Collectors.toList()));
         NodeInfo case1 = storage.getChildNode(rootNodeInfo.getId(), "n.tst");
         assertNotNull(case1);
         assertEquals(rootNodeInfo, storage.getParentNode(case1.getId()));
         NodeInfo case2 = storage.getChildNode(rootNodeInfo.getId(), "n2.tst");
         assertNotNull(case2);
-        assertEquals("/cases/n.tst", case1.getId().toString());
-        assertEquals(case1.getId(), storage.fromString(case1.getId().toString()));
+        assertEquals("/cases/n.tst", case1.getId());
         assertNull(storage.getChildNode(rootNodeInfo.getId(), "n3.tst"));
         assertEquals(Folder.PSEUDO_CLASS, rootNodeInfo.getPseudoClass());
         assertEquals(Case.PSEUDO_CLASS, case1.getPseudoClass());
-        assertEquals("TEST", case1.getMetadata().getStringMetadata().get("format"));
+        assertEquals("TEST", case1.getGenericMetadata().getString("format"));
         assertEquals("Test format", case1.getDescription());
         DataSource ds = new AppStorageDataSource(storage, case1.getId());
         assertNotNull(ds);

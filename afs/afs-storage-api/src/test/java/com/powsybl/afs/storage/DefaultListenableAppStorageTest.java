@@ -14,9 +14,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.StringWriter;
-import java.io.Writer;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
@@ -33,45 +34,45 @@ public class DefaultListenableAppStorageTest {
     @Before
     public void setUp() {
         AppStorage storage = Mockito.mock(AppStorage.class);
-        Mockito.when(storage.createNode(Mockito.any(NodeId.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyInt(), Mockito.any(NodeMetadata.class)))
-                .thenReturn(new NodeInfo(new NodeIdMock("result"), "", "", "", 0, 0, 0, new NodeMetadata()));
-        Mockito.when(storage.writeStringData(Mockito.any(NodeId.class), Mockito.anyString()))
-                .thenReturn(new StringWriter());
+        Mockito.when(storage.createNode(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyInt(), Mockito.any(NodeGenericMetadata.class)))
+                .thenReturn(new NodeInfo("result", "", "", "", 0, 0, 0, new NodeGenericMetadata()));
+        Mockito.when(storage.writeBinaryData(Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(new ByteArrayOutputStream());
 
         listenableStorage = new DefaultListenableAppStorage(storage);
         listenableStorage.addListener(this, new DefaultAppStorageListener() {
             @Override
-            public void nodeCreated(NodeId id) {
+            public void nodeCreated(String id) {
                 methodCalled = "nodeCreated";
             }
 
             @Override
-            public void nodeRemoved(NodeId id) {
+            public void nodeRemoved(String id) {
                 methodCalled = "nodeRemoved";
             }
 
             @Override
-            public void nodeDataUpdated(NodeId id, String attributeName) {
+            public void nodeDataUpdated(String id, String attributeName) {
                 methodCalled = "nodeDataUpdated";
             }
 
             @Override
-            public void dependencyAdded(NodeId id, String dependencyName) {
+            public void dependencyAdded(String id, String dependencyName) {
                 methodCalled = "dependencyAdded";
             }
 
             @Override
-            public void timeSeriesCreated(NodeId id, String timeSeriesName) {
+            public void timeSeriesCreated(String id, String timeSeriesName) {
                 methodCalled = "timeSeriesCreated";
             }
 
             @Override
-            public void timeSeriesDataUpdated(NodeId id, String timeSeriesName) {
+            public void timeSeriesDataUpdated(String id, String timeSeriesName) {
                 methodCalled = "timeSeriesDataUpdated";
             }
 
             @Override
-            public void timeSeriesRemoved(NodeId id) {
+            public void timeSeriesRemoved(String id) {
                 methodCalled = "timeSeriesRemoved";
             }
         });
@@ -84,30 +85,30 @@ public class DefaultListenableAppStorageTest {
 
     @Test
     public void test() throws IOException {
-        listenableStorage.createNode(new NodeIdMock("node1"), "node2", "file", "", 0, new NodeMetadata());
+        listenableStorage.createNode("node1", "node2", "file", "", 0, new NodeGenericMetadata());
         assertEquals("nodeCreated", methodCalled);
 
-        listenableStorage.deleteNode(new NodeIdMock("node1"));
+        listenableStorage.deleteNode("node1");
         assertEquals("nodeRemoved", methodCalled);
 
-        try (Writer writer = listenableStorage.writeStringData(new NodeIdMock("node1"), "attr")) {
-            writer.write("hello");
+        try (OutputStream os = listenableStorage.writeBinaryData("node1", "attr")) {
+            os.write("hello".getBytes(StandardCharsets.UTF_8));
         }
         assertEquals("nodeDataUpdated", methodCalled);
 
-        listenableStorage.addDependency(new NodeIdMock("node1"), "a", new NodeIdMock("node1"));
+        listenableStorage.addDependency("node1", "a", "node1");
         assertEquals("dependencyAdded", methodCalled);
 
-        listenableStorage.createTimeSeries(new NodeIdMock("node1"), Mockito.mock(TimeSeriesMetadata.class));
+        listenableStorage.createTimeSeries("node1", Mockito.mock(TimeSeriesMetadata.class));
         assertEquals("timeSeriesCreated", methodCalled);
 
-        listenableStorage.addDoubleTimeSeriesData(new NodeIdMock("node1"), 1, "ts1", Collections.singletonList(Mockito.mock(DoubleArrayChunk.class)));
+        listenableStorage.addDoubleTimeSeriesData("node1", 1, "ts1", Collections.singletonList(Mockito.mock(DoubleArrayChunk.class)));
         assertEquals("timeSeriesDataUpdated", methodCalled);
 
-        listenableStorage.addStringTimeSeriesData(new NodeIdMock("node1"), 1, "ts1", Collections.singletonList(Mockito.mock(StringArrayChunk.class)));
+        listenableStorage.addStringTimeSeriesData("node1", 1, "ts1", Collections.singletonList(Mockito.mock(StringArrayChunk.class)));
         assertEquals("timeSeriesDataUpdated", methodCalled);
 
-        listenableStorage.removeAllTimeSeries(new NodeIdMock("node1"));
+        listenableStorage.removeAllTimeSeries("node1");
         assertEquals("timeSeriesRemoved", methodCalled);
     }
 }

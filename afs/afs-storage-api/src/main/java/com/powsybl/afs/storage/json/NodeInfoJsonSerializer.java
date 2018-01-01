@@ -13,14 +13,12 @@ import com.powsybl.afs.storage.NodeInfo;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.util.Map;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class NodeInfoJsonSerializer extends StdSerializer<NodeInfo> {
 
-    static final String VALUE = "value";
     static final String NAME = "name";
     static final String ID = "id";
     static final String DESCRIPTION = "description";
@@ -28,10 +26,7 @@ public class NodeInfoJsonSerializer extends StdSerializer<NodeInfo> {
     static final String CREATION_TIME = "creationTime";
     static final String MODIFICATION_TIME = "modificationTime";
     static final String VERSION = "version";
-    static final String STRING_METADATA = "stringMetadata";
-    static final String DOUBLE_METADATA = "doubleMetadata";
-    static final String INT_METADATA = "intMetadata";
-    static final String BOOLEAN_METADATA = "booleanMetadata";
+    static final String METADATA = "metadata";
 
     public NodeInfoJsonSerializer() {
         super(NodeInfo.class);
@@ -41,57 +36,15 @@ public class NodeInfoJsonSerializer extends StdSerializer<NodeInfo> {
     public void serialize(NodeInfo nodeInfo, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) {
         try {
             jsonGenerator.writeStartObject();
-            jsonGenerator.writeStringField(ID, nodeInfo.getId().toString());
+            jsonGenerator.writeStringField(ID, nodeInfo.getId());
             jsonGenerator.writeStringField(NAME, nodeInfo.getName());
             jsonGenerator.writeStringField(PSEUDO_CLASS, nodeInfo.getPseudoClass());
             jsonGenerator.writeStringField(DESCRIPTION, nodeInfo.getDescription());
             jsonGenerator.writeNumberField(CREATION_TIME, nodeInfo.getCreationTime());
             jsonGenerator.writeNumberField(MODIFICATION_TIME, nodeInfo.getModificationTime());
             jsonGenerator.writeNumberField(VERSION, nodeInfo.getVersion());
-            if (!nodeInfo.getMetadata().getStringMetadata().isEmpty()) {
-                jsonGenerator.writeFieldName(STRING_METADATA);
-                jsonGenerator.writeStartArray();
-                for (Map.Entry<String, String> e : nodeInfo.getMetadata().getStringMetadata().entrySet()) {
-                    jsonGenerator.writeStartObject();
-                    jsonGenerator.writeStringField(NAME, e.getKey());
-                    jsonGenerator.writeStringField(VALUE, e.getValue());
-                    jsonGenerator.writeEndObject();
-                }
-                jsonGenerator.writeEndArray();
-            }
-            if (!nodeInfo.getMetadata().getDoubleMetadata().isEmpty()) {
-                jsonGenerator.writeFieldName(DOUBLE_METADATA);
-                jsonGenerator.writeStartArray();
-                for (Map.Entry<String, Double> e : nodeInfo.getMetadata().getDoubleMetadata().entrySet()) {
-                    jsonGenerator.writeStartObject();
-                    jsonGenerator.writeStringField(NAME, e.getKey());
-                    jsonGenerator.writeNumberField(VALUE, e.getValue());
-                    jsonGenerator.writeEndObject();
-                }
-                jsonGenerator.writeEndArray();
-            }
-            if (!nodeInfo.getMetadata().getIntMetadata().isEmpty()) {
-                jsonGenerator.writeFieldName(INT_METADATA);
-                jsonGenerator.writeStartArray();
-                for (Map.Entry<String, Integer> e : nodeInfo.getMetadata().getIntMetadata().entrySet()) {
-                    jsonGenerator.writeStartObject();
-                    jsonGenerator.writeStringField(NAME, e.getKey());
-                    jsonGenerator.writeNumberField(VALUE, e.getValue());
-                    jsonGenerator.writeEndObject();
-                }
-                jsonGenerator.writeEndArray();
-            }
-            if (!nodeInfo.getMetadata().getBooleanMetadata().isEmpty()) {
-                jsonGenerator.writeFieldName(BOOLEAN_METADATA);
-                jsonGenerator.writeStartArray();
-                for (Map.Entry<String, Boolean> e : nodeInfo.getMetadata().getBooleanMetadata().entrySet()) {
-                    jsonGenerator.writeStartObject();
-                    jsonGenerator.writeStringField(NAME, e.getKey());
-                    jsonGenerator.writeBooleanField(VALUE, e.getValue());
-                    jsonGenerator.writeEndObject();
-                }
-                jsonGenerator.writeEndArray();
-            }
+            jsonGenerator.writeFieldName(METADATA);
+            new NodeGenericMetadataJsonSerializer().serialize(nodeInfo.getGenericMetadata(), jsonGenerator, serializerProvider);
             jsonGenerator.writeEndObject();
         } catch (IOException e) {
             throw new UncheckedIOException(e);

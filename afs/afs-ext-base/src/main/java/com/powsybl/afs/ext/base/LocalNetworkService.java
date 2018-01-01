@@ -10,7 +10,6 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.util.concurrent.UncheckedExecutionException;
 import com.powsybl.afs.ProjectFile;
-import com.powsybl.afs.storage.NodeId;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.network.Network;
@@ -58,7 +57,7 @@ public class LocalNetworkService implements NetworkService {
         }
     }
 
-    private final Cache<NodeId, ModifiedNetwork> networkCache;
+    private final Cache<String, ModifiedNetwork> networkCache;
 
     public LocalNetworkService() {
         networkCache = CacheBuilder.newBuilder()

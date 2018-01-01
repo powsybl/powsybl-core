@@ -6,8 +6,8 @@
  */
 package com.powsybl.afs;
 
+import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.afs.storage.NodeInfo;
-import com.powsybl.afs.storage.NodeMetadata;
 
 import java.util.Comparator;
 import java.util.List;
@@ -64,7 +64,7 @@ public class Folder extends Node implements FolderBase<Node, Folder> {
     public Folder createFolder(String name) {
         NodeInfo folderInfo = storage.getChildNode(info.getId(), name);
         if (folderInfo == null) {
-            folderInfo = storage.createNode(info.getId(), name, PSEUDO_CLASS, "", VERSION, new NodeMetadata());
+            folderInfo = storage.createNode(info.getId(), name, PSEUDO_CLASS, "", VERSION, new NodeGenericMetadata());
         }
         return new Folder(new FileCreationContext(folderInfo, storage, fileSystem));
     }
@@ -72,10 +72,10 @@ public class Folder extends Node implements FolderBase<Node, Folder> {
     public Project createProject(String name) {
         NodeInfo projectInfo = storage.getChildNode(info.getId(), name);
         if (projectInfo == null) {
-            projectInfo = storage.createNode(info.getId(), name, Project.PSEUDO_CLASS, "", Project.VERSION, new NodeMetadata());
+            projectInfo = storage.createNode(info.getId(), name, Project.PSEUDO_CLASS, "", Project.VERSION, new NodeGenericMetadata());
 
             // create root project folder
-            storage.createNode(projectInfo.getId(), Project.ROOT_FOLDER_NAME, ProjectFolder.PSEUDO_CLASS, "", ProjectFolder.VERSION, new NodeMetadata());
+            storage.createNode(projectInfo.getId(), Project.ROOT_FOLDER_NAME, ProjectFolder.PSEUDO_CLASS, "", ProjectFolder.VERSION, new NodeGenericMetadata());
         }
         return new Project(new FileCreationContext(projectInfo, storage, fileSystem));
     }

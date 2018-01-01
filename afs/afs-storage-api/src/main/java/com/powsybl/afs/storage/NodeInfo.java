@@ -13,7 +13,7 @@ import java.util.Objects;
  */
 public class NodeInfo {
 
-    private final NodeId id;
+    private final String id;
 
     private final String name;
 
@@ -27,10 +27,10 @@ public class NodeInfo {
 
     private int version;
 
-    private final NodeMetadata metadata;
+    private final NodeGenericMetadata genericMetadata;
 
-    public NodeInfo(NodeId id, String name, String pseudoClass, String description, long creationTime, long modificationTime,
-                    int version, NodeMetadata metadata) {
+    public NodeInfo(String id, String name, String pseudoClass, String description, long creationTime, long modificationTime,
+                    int version, NodeGenericMetadata genericMetadata) {
         this.id = Objects.requireNonNull(id);
         this.name = Objects.requireNonNull(name);
         this.pseudoClass = Objects.requireNonNull(pseudoClass);
@@ -38,10 +38,10 @@ public class NodeInfo {
         this.creationTime = creationTime;
         this.modificationTime = modificationTime;
         this.version = version;
-        this.metadata = Objects.requireNonNull(metadata);
+        this.genericMetadata = Objects.requireNonNull(genericMetadata);
     }
 
-    public NodeId getId() {
+    public String getId() {
         return id;
     }
 
@@ -84,13 +84,13 @@ public class NodeInfo {
         return this;
     }
 
-    public NodeMetadata getMetadata() {
-        return metadata;
+    public NodeGenericMetadata getGenericMetadata() {
+        return genericMetadata;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, pseudoClass, description, creationTime, modificationTime, version, metadata);
+        return Objects.hash(id, name, pseudoClass, description, creationTime, modificationTime, version, genericMetadata);
     }
 
     @Override
@@ -100,7 +100,7 @@ public class NodeInfo {
             return id.equals(other.id) && name.equals(other.name) && pseudoClass.equals(other.pseudoClass) &&
                     description.equals(other.description) && creationTime == other.creationTime &&
                     modificationTime == other.modificationTime && version == other.version &&
-                    metadata.equals(other.metadata);
+                    genericMetadata.equals(other.genericMetadata);
         }
         return false;
     }
@@ -110,6 +110,6 @@ public class NodeInfo {
         return "NodeInfo(id=" + id + ", name=" + name + ", pseudoClass=" + pseudoClass +
                 ", description=" + description + ", creationTime=" + creationTime +
                 ", modificationTime=" + modificationTime + ", version=" + version +
-                ", metadata=" + metadata + ")";
+                ", genericMetadata=" + genericMetadata + ")";
     }
 }

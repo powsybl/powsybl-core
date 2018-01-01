@@ -9,7 +9,6 @@ package com.powsybl.afs.storage;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import com.google.common.io.ByteStreams;
-import com.google.common.io.CharStreams;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.math.timeseries.*;
 import org.junit.After;
@@ -17,7 +16,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.threeten.extra.Interval;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Arrays;
@@ -55,6 +56,9 @@ public abstract class AbstractAppStorageTest {
         storage.flush();
         assertNotNull(rootFolderInfo.getId());
 
+        // assert root folder is writable
+        assertTrue(storage.isWritable(rootFolderInfo.getId()));
+
         // assert root folder parent is null
         assertNull(storage.getParentNode(rootFolderInfo.getId()));
 
@@ -67,7 +71,7 @@ public abstract class AbstractAppStorageTest {
 
         // 2) create a test folder
         NodeInfo testFolderInfo = storage.createNode(rootFolderInfo.getId(), "test", FOLDER_PSEUDO_CLASS, "", 0,
-                new NodeMetadata().setStringMetadata("k", "v"));
+                new NodeGenericMetadata().setString("k", "v"));
         storage.flush();
 
         // assert parent of test folder is root folder
@@ -78,16 +82,13 @@ public abstract class AbstractAppStorageTest {
         assertEquals("test", storage.getNodeInfo(testFolderInfo.getId()).getName());
         assertEquals(FOLDER_PSEUDO_CLASS, storage.getNodeInfo(testFolderInfo.getId()).getPseudoClass());
         assertEquals(0, storage.getNodeInfo(testFolderInfo.getId()).getVersion());
-        assertEquals(Collections.singletonMap("k", "v"), storage.getNodeInfo(testFolderInfo.getId()).getMetadata().getStringMetadata());
-        assertTrue(storage.getNodeInfo(testFolderInfo.getId()).getMetadata().getDoubleMetadata().isEmpty());
-        assertTrue(storage.getNodeInfo(testFolderInfo.getId()).getMetadata().getIntMetadata().isEmpty());
-        assertTrue(storage.getNodeInfo(testFolderInfo.getId()).getMetadata().getBooleanMetadata().isEmpty());
+        assertEquals(Collections.singletonMap("k", "v"), storage.getNodeInfo(testFolderInfo.getId()).getGenericMetadata().getStrings());
+        assertTrue(storage.getNodeInfo(testFolderInfo.getId()).getGenericMetadata().getDoubles().isEmpty());
+        assertTrue(storage.getNodeInfo(testFolderInfo.getId()).getGenericMetadata().getInts().isEmpty());
+        assertTrue(storage.getNodeInfo(testFolderInfo.getId()).getGenericMetadata().getBooleans().isEmpty());
         assertEquals("", storage.getNodeInfo(testFolderInfo.getId()).getDescription());
         assertTrue(storage.getNodeInfo(testFolderInfo.getId()).getCreationTime() > 0);
         assertTrue(storage.getNodeInfo(testFolderInfo.getId()).getModificationTime() > 0);
-
-        // check NodeId -> String -> NodeId
-        assertEquals(testFolderInfo.getId(), storage.fromString(testFolderInfo.getId().toString()));
 
         // check test folder is empty
         assertTrue(storage.getChildNodes(testFolderInfo.getId()).isEmpty());
@@ -108,12 +109,12 @@ public abstract class AbstractAppStorageTest {
         assertEquals("hello", storage.getNodeInfo(testFolderInfo.getId()).getDescription());
 
         // 4) create 2 data nodes in test folder
-        NodeInfo testDataInfo = storage.createNode(testFolderInfo.getId(), "data", DATA_FILE_CLASS, "", 0, new NodeMetadata());
+        NodeInfo testDataInfo = storage.createNode(testFolderInfo.getId(), "data", DATA_FILE_CLASS, "", 0, new NodeGenericMetadata());
         NodeInfo testData2Info = storage.createNode(testFolderInfo.getId(), "data2", DATA_FILE_CLASS, "", 0,
-                new NodeMetadata().setStringMetadata("s1", "v1")
-                                  .setDoubleMetadata("d1", 1d)
-                                  .setIntMetadata("i1", 2)
-                                  .setBooleanMetadata("b1", false));
+                new NodeGenericMetadata().setString("s1", "v1")
+                                         .setDouble("d1", 1d)
+                                         .setInt("i1", 2)
+                                         .setBoolean("b1", false));
         storage.flush();
 
         // check info are correctly stored even with metadata
@@ -151,21 +152,10 @@ public abstract class AbstractAppStorageTest {
         assertTrue(storage.getBackwardDependencies(testData2Info.getId()).isEmpty());
 
         // 7) check data node 2 metadata value
-        assertEquals(ImmutableMap.of("s1", "v1"), testData2Info.getMetadata().getStringMetadata());
-        assertEquals(ImmutableMap.of("d1", 1d), testData2Info.getMetadata().getDoubleMetadata());
-        assertEquals(ImmutableMap.of("i1", 2), testData2Info.getMetadata().getIntMetadata());
-        assertEquals(ImmutableMap.of("b1", false), testData2Info.getMetadata().getBooleanMetadata());
-
-        // check data node 2 string data write
-        try (Writer writer = storage.writeStringData(testData2Info.getId(), "str")) {
-            writer.write("word1");
-        }
-        storage.flush();
-        try (Reader reader = storage.readStringData(testData2Info.getId(), "str")) {
-            assertEquals("word1", CharStreams.toString(reader));
-        }
-        assertTrue(storage.dataExists(testData2Info.getId(), "str"));
-        assertFalse(storage.dataExists(testData2Info.getId(), "str2"));
+        assertEquals(ImmutableMap.of("s1", "v1"), testData2Info.getGenericMetadata().getStrings());
+        assertEquals(ImmutableMap.of("d1", 1d), testData2Info.getGenericMetadata().getDoubles());
+        assertEquals(ImmutableMap.of("i1", 2), testData2Info.getGenericMetadata().getInts());
+        assertEquals(ImmutableMap.of("b1", false), testData2Info.getGenericMetadata().getBooleans());
 
         // 8) check data node 2 binary data write
         try (OutputStream os = storage.writeBinaryData(testData2Info.getId(), "blob")) {
@@ -277,12 +267,12 @@ public abstract class AbstractAppStorageTest {
     public void parentChangeTest() throws IOException {
         // create root node and 2 folders
         NodeInfo rootFolderInfo = storage.createRootNodeIfNotExists(storage.getFileSystemName(), FOLDER_PSEUDO_CLASS);
-        NodeInfo folder1Info = storage.createNode(rootFolderInfo.getId(), "test1", FOLDER_PSEUDO_CLASS, "", 0, new NodeMetadata());
-        NodeInfo folder2Info = storage.createNode(rootFolderInfo.getId(), "test2", FOLDER_PSEUDO_CLASS, "", 0, new NodeMetadata());
+        NodeInfo folder1Info = storage.createNode(rootFolderInfo.getId(), "test1", FOLDER_PSEUDO_CLASS, "", 0, new NodeGenericMetadata());
+        NodeInfo folder2Info = storage.createNode(rootFolderInfo.getId(), "test2", FOLDER_PSEUDO_CLASS, "", 0, new NodeGenericMetadata());
         storage.flush();
 
         // create a file in folder 1
-        NodeInfo fileInfo = storage.createNode(folder1Info.getId(), "file", "file-type", "", 0, new NodeMetadata());
+        NodeInfo fileInfo = storage.createNode(folder1Info.getId(), "file", "file-type", "", 0, new NodeGenericMetadata());
         storage.flush();
 
         // check parent folder

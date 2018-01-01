@@ -10,8 +10,6 @@ import com.powsybl.math.timeseries.*;
 
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.Reader;
-import java.io.Writer;
 import java.util.*;
 
 /**
@@ -38,154 +36,137 @@ public class DefaultListenableAppStorage implements ListenableAppStorage {
     }
 
     @Override
-    public NodeId fromString(String str) {
-        return storage.fromString(str);
-    }
-
-    @Override
     public NodeInfo createRootNodeIfNotExists(String name, String nodePseudoClass) {
         return storage.createRootNodeIfNotExists(name, nodePseudoClass);
     }
 
     @Override
-    public NodeInfo createNode(NodeId parentNodeId, String name, String nodePseudoClass, String description, int version, NodeMetadata metadata) {
-        NodeInfo nodeInfo = storage.createNode(parentNodeId, name, nodePseudoClass, description, version, metadata);
+    public NodeInfo createNode(String parentNodeId, String name, String nodePseudoClass, String description, int version, NodeGenericMetadata genericMetadata) {
+        NodeInfo nodeInfo = storage.createNode(parentNodeId, name, nodePseudoClass, description, version, genericMetadata);
         listeners.values().stream().flatMap(List::stream).forEach(l -> l.nodeCreated(nodeInfo.getId()));
         return nodeInfo;
     }
 
     @Override
-    public boolean isWritable(NodeId nodeId) {
+    public boolean isWritable(String nodeId) {
         return storage.isWritable(nodeId);
     }
 
     @Override
-    public NodeInfo getNodeInfo(NodeId nodeId) {
+    public NodeInfo getNodeInfo(String nodeId) {
         return storage.getNodeInfo(nodeId);
     }
 
     @Override
-    public void setDescription(NodeId nodeId, String description) {
+    public void setDescription(String nodeId, String description) {
         storage.setDescription(nodeId, description);
     }
 
     @Override
-    public List<NodeInfo> getChildNodes(NodeId nodeId) {
+    public List<NodeInfo> getChildNodes(String nodeId) {
         return storage.getChildNodes(nodeId);
     }
 
     @Override
-    public NodeInfo getChildNode(NodeId nodeId, String name) {
+    public NodeInfo getChildNode(String nodeId, String name) {
         return storage.getChildNode(nodeId, name);
     }
 
     @Override
-    public NodeInfo getParentNode(NodeId nodeId) {
+    public NodeInfo getParentNode(String nodeId) {
         return storage.getParentNode(nodeId);
     }
 
     @Override
-    public void setParentNode(NodeId nodeId, NodeId newParentNodeId) {
+    public void setParentNode(String nodeId, String newParentNodeId) {
         storage.setParentNode(nodeId, newParentNodeId);
     }
 
     @Override
-    public void deleteNode(NodeId nodeId) {
+    public void deleteNode(String nodeId) {
         storage.deleteNode(nodeId);
         listeners.values().stream().flatMap(List::stream).forEach(l -> l.nodeRemoved(nodeId));
     }
 
     @Override
-    public Reader readStringData(NodeId nodeId, String name) {
-        return storage.readStringData(nodeId, name);
-    }
-
-    @Override
-    public Writer writeStringData(NodeId nodeId, String name) {
-        Writer writer = storage.writeStringData(nodeId, name);
-        listeners.values().stream().flatMap(List::stream).forEach(l -> l.nodeDataUpdated(nodeId, name));
-        return writer;
-    }
-
-    @Override
-    public InputStream readBinaryData(NodeId nodeId, String name) {
+    public InputStream readBinaryData(String nodeId, String name) {
         return storage.readBinaryData(nodeId, name);
     }
 
     @Override
-    public OutputStream writeBinaryData(NodeId nodeId, String name) {
+    public OutputStream writeBinaryData(String nodeId, String name) {
         OutputStream os = storage.writeBinaryData(nodeId, name);
         listeners.values().stream().flatMap(List::stream).forEach(l -> l.nodeDataUpdated(nodeId, name));
         return os;
     }
 
     @Override
-    public boolean dataExists(NodeId nodeId, String name) {
+    public boolean dataExists(String nodeId, String name) {
         return storage.dataExists(nodeId, name);
     }
 
     @Override
-    public void createTimeSeries(NodeId nodeId, TimeSeriesMetadata metadata) {
+    public void createTimeSeries(String nodeId, TimeSeriesMetadata metadata) {
         storage.createTimeSeries(nodeId, metadata);
         listeners.values().stream().flatMap(List::stream).forEach(l -> l.timeSeriesCreated(nodeId, metadata.getName()));
     }
 
     @Override
-    public Set<String> getTimeSeriesNames(NodeId nodeId) {
+    public Set<String> getTimeSeriesNames(String nodeId) {
         return storage.getTimeSeriesNames(nodeId);
     }
 
     @Override
-    public List<TimeSeriesMetadata> getTimeSeriesMetadata(NodeId nodeId, Set<String> timeSeriesNames) {
+    public List<TimeSeriesMetadata> getTimeSeriesMetadata(String nodeId, Set<String> timeSeriesNames) {
         return storage.getTimeSeriesMetadata(nodeId, timeSeriesNames);
     }
 
     @Override
-    public List<DoubleTimeSeries> getDoubleTimeSeries(NodeId nodeId, Set<String> timeSeriesNames, int version) {
+    public List<DoubleTimeSeries> getDoubleTimeSeries(String nodeId, Set<String> timeSeriesNames, int version) {
         return storage.getDoubleTimeSeries(nodeId, timeSeriesNames, version);
     }
 
     @Override
-    public void addDoubleTimeSeriesData(NodeId nodeId, int version, String timeSeriesName, List<DoubleArrayChunk> chunks) {
+    public void addDoubleTimeSeriesData(String nodeId, int version, String timeSeriesName, List<DoubleArrayChunk> chunks) {
         storage.addDoubleTimeSeriesData(nodeId, version, timeSeriesName, chunks);
         listeners.values().stream().flatMap(List::stream).forEach(l -> l.timeSeriesDataUpdated(nodeId, timeSeriesName));
     }
 
     @Override
-    public List<StringTimeSeries> getStringTimeSeries(NodeId nodeId, Set<String> timeSeriesNames, int version) {
+    public List<StringTimeSeries> getStringTimeSeries(String nodeId, Set<String> timeSeriesNames, int version) {
         return storage.getStringTimeSeries(nodeId, timeSeriesNames, version);
     }
 
     @Override
-    public void addStringTimeSeriesData(NodeId nodeId, int version, String timeSeriesName, List<StringArrayChunk> chunks) {
+    public void addStringTimeSeriesData(String nodeId, int version, String timeSeriesName, List<StringArrayChunk> chunks) {
         storage.addStringTimeSeriesData(nodeId, version, timeSeriesName, chunks);
         listeners.values().stream().flatMap(List::stream).forEach(l -> l.timeSeriesDataUpdated(nodeId, timeSeriesName));
     }
 
     @Override
-    public void removeAllTimeSeries(NodeId nodeId) {
+    public void removeAllTimeSeries(String nodeId) {
         storage.removeAllTimeSeries(nodeId);
         listeners.values().stream().flatMap(List::stream).forEach(l -> l.timeSeriesRemoved(nodeId));
     }
 
     @Override
-    public NodeInfo getDependency(NodeId nodeId, String name) {
+    public NodeInfo getDependency(String nodeId, String name) {
         return storage.getDependency(nodeId, name);
     }
 
     @Override
-    public void addDependency(NodeId nodeId, String name, NodeId toNodeId) {
+    public void addDependency(String nodeId, String name, String toNodeId) {
         storage.addDependency(nodeId, name, toNodeId);
         listeners.values().stream().flatMap(List::stream).forEach(l -> l.dependencyAdded(nodeId, name));
     }
 
     @Override
-    public List<NodeInfo> getDependencies(NodeId nodeId) {
+    public List<NodeInfo> getDependencies(String nodeId) {
         return storage.getDependencies(nodeId);
     }
 
     @Override
-    public List<NodeInfo> getBackwardDependencies(NodeId nodeId) {
+    public List<NodeInfo> getBackwardDependencies(String nodeId) {
         return storage.getBackwardDependencies(nodeId);
     }
 

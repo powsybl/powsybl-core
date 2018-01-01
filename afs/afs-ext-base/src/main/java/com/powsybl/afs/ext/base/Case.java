@@ -31,12 +31,12 @@ public class Case extends File {
     public Case(FileCreationContext context, ImportersLoader importersLoader) {
         super(context, VERSION, CaseIconCache.INSTANCE.get(importersLoader,
                                                            context.getFileSystem().getData().getComputationManager(),
-                                                           context.getInfo().getMetadata().getStringMetadata().get(FORMAT)));
+                                                           context.getInfo().getGenericMetadata().getString(FORMAT)));
         this.importersLoader = Objects.requireNonNull(importersLoader);
     }
 
     private String getFormat() {
-        return info.getMetadata().getStringMetadata().get(FORMAT);
+        return info.getGenericMetadata().getString(FORMAT);
     }
 
     public ReadOnlyDataSource getDataSource() {

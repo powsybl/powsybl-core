@@ -17,20 +17,20 @@ import java.util.UUID;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class UuidNodeIdSerializer implements Serializer<UuidNodeId>, Serializable {
+public class UuidSerializer implements Serializer<UUID>, Serializable {
 
-    public static final UuidNodeIdSerializer INSTANCE = new UuidNodeIdSerializer();
+    public static final UuidSerializer INSTANCE = new UuidSerializer();
 
     @Override
-    public void serialize(DataOutput2 out, UuidNodeId nodeId) throws IOException {
-        out.writeLong(nodeId.getUuid().getLeastSignificantBits());
-        out.writeLong(nodeId.getUuid().getMostSignificantBits());
+    public void serialize(DataOutput2 out, UUID uuid) throws IOException {
+        out.writeLong(uuid.getLeastSignificantBits());
+        out.writeLong(uuid.getMostSignificantBits());
     }
 
     @Override
-    public UuidNodeId deserialize(DataInput2 input, int available) throws IOException {
+    public UUID deserialize(DataInput2 input, int available) throws IOException {
         long leastSignificantBits = input.readLong();
         long mostSignificantBits = input.readLong();
-        return new UuidNodeId(new UUID(mostSignificantBits, leastSignificantBits));
+        return new UUID(mostSignificantBits, leastSignificantBits);
     }
 }

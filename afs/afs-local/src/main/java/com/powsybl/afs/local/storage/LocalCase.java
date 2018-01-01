@@ -8,7 +8,7 @@ package com.powsybl.afs.local.storage;
 
 import com.powsybl.afs.ext.base.Case;
 import com.powsybl.afs.storage.AppStorageDataSource;
-import com.powsybl.afs.storage.NodeMetadata;
+import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.import_.Importers;
@@ -18,7 +18,6 @@ import com.powsybl.math.timeseries.TimeSeriesMetadata;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Reader;
 import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.util.List;
@@ -61,13 +60,8 @@ public class LocalCase implements LocalFile {
     }
 
     @Override
-    public NodeMetadata getMetadata() {
-        return new NodeMetadata().setStringMetadata("format", importer.getFormat());
-    }
-
-    @Override
-    public Reader readStringData(String name) {
-        throw new AssertionError();
+    public NodeGenericMetadata getGenericMetadata() {
+        return new NodeGenericMetadata().setString("format", importer.getFormat());
     }
 
     @Override

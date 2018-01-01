@@ -6,9 +6,8 @@
  */
 package com.powsybl.afs.mapdb.storage;
 
-import com.powsybl.afs.storage.NodeId;
+import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.afs.storage.NodeInfo;
-import com.powsybl.afs.storage.NodeMetadata;
 import org.mapdb.DataInput2;
 import org.mapdb.DataOutput2;
 import org.mapdb.Serializer;
@@ -26,30 +25,30 @@ public class NodeInfoSerializer implements Serializer<NodeInfo>, Serializable {
 
     @Override
     public void serialize(DataOutput2 out, NodeInfo nodeInfo) throws IOException {
-        UuidNodeIdSerializer.INSTANCE.serialize(out, (UuidNodeId) nodeInfo.getId());
+        UuidSerializer.INSTANCE.serialize(out, MapDbAppStorage.checkNodeId(nodeInfo.getId()));
         out.writeUTF(nodeInfo.getName());
         out.writeUTF(nodeInfo.getPseudoClass());
         out.writeUTF(nodeInfo.getDescription());
         out.writeLong(nodeInfo.getCreationTime());
         out.writeLong(nodeInfo.getModificationTime());
         out.writeInt(nodeInfo.getVersion());
-        out.writeInt(nodeInfo.getMetadata().getStringMetadata().size());
-        for (Map.Entry<String, String> e : nodeInfo.getMetadata().getStringMetadata().entrySet()) {
+        out.writeInt(nodeInfo.getGenericMetadata().getStrings().size());
+        for (Map.Entry<String, String> e : nodeInfo.getGenericMetadata().getStrings().entrySet()) {
             out.writeUTF(e.getKey());
             out.writeUTF(e.getValue());
         }
-        out.writeInt(nodeInfo.getMetadata().getDoubleMetadata().size());
-        for (Map.Entry<String, Double> e : nodeInfo.getMetadata().getDoubleMetadata().entrySet()) {
+        out.writeInt(nodeInfo.getGenericMetadata().getDoubles().size());
+        for (Map.Entry<String, Double> e : nodeInfo.getGenericMetadata().getDoubles().entrySet()) {
             out.writeUTF(e.getKey());
             out.writeDouble(e.getValue());
         }
-        out.writeInt(nodeInfo.getMetadata().getIntMetadata().size());
-        for (Map.Entry<String, Integer> e : nodeInfo.getMetadata().getIntMetadata().entrySet()) {
+        out.writeInt(nodeInfo.getGenericMetadata().getInts().size());
+        for (Map.Entry<String, Integer> e : nodeInfo.getGenericMetadata().getInts().entrySet()) {
             out.writeUTF(e.getKey());
             out.writeInt(e.getValue());
         }
-        out.writeInt(nodeInfo.getMetadata().getBooleanMetadata().size());
-        for (Map.Entry<String, Boolean> e : nodeInfo.getMetadata().getBooleanMetadata().entrySet()) {
+        out.writeInt(nodeInfo.getGenericMetadata().getBooleans().size());
+        for (Map.Entry<String, Boolean> e : nodeInfo.getGenericMetadata().getBooleans().entrySet()) {
             out.writeUTF(e.getKey());
             out.writeBoolean(e.getValue());
         }
@@ -57,29 +56,29 @@ public class NodeInfoSerializer implements Serializer<NodeInfo>, Serializable {
 
     @Override
     public NodeInfo deserialize(DataInput2 input, int available) throws IOException {
-        NodeId nodeId = UuidNodeIdSerializer.INSTANCE.deserialize(input, available);
+        String nodeId = UuidSerializer.INSTANCE.deserialize(input, available).toString();
         String name = input.readUTF();
         String pseudoClass = input.readUTF();
         String description = input.readUTF();
         long creationTime = input.readLong();
         long modificationTime = input.readLong();
         int version = input.readInt();
-        NodeMetadata metadata = new NodeMetadata();
+        NodeGenericMetadata metadata = new NodeGenericMetadata();
         int stringMetadataSize = input.readInt();
         for (int i = 0; i < stringMetadataSize; i++) {
-            metadata.setStringMetadata(input.readUTF(), input.readUTF());
+            metadata.setString(input.readUTF(), input.readUTF());
         }
         int doubleMetadataSize = input.readInt();
         for (int i = 0; i < doubleMetadataSize; i++) {
-            metadata.setDoubleMetadata(input.readUTF(), input.readDouble());
+            metadata.setDouble(input.readUTF(), input.readDouble());
         }
         int intMetadataSize = input.readInt();
         for (int i = 0; i < intMetadataSize; i++) {
-            metadata.setIntMetadata(input.readUTF(), input.readInt());
+            metadata.setInt(input.readUTF(), input.readInt());
         }
         int booleanMetadataSize = input.readInt();
         for (int i = 0; i < booleanMetadataSize; i++) {
-            metadata.setBooleanMetadata(input.readUTF(), input.readBoolean());
+            metadata.setBoolean(input.readUTF(), input.readBoolean());
         }
         return new NodeInfo(nodeId, name, pseudoClass, description, creationTime, modificationTime, version, metadata);
     }

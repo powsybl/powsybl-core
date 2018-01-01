@@ -12,12 +12,14 @@ import com.powsybl.afs.ProjectFileBuilder;
 import com.powsybl.afs.ProjectFileCreationContext;
 import com.powsybl.afs.storage.AppStorageDataSource;
 import com.powsybl.afs.storage.NodeInfo;
-import com.powsybl.afs.storage.NodeMetadata;
+import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.iidm.import_.ImportersLoader;
 
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.UncheckedIOException;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
@@ -69,13 +71,13 @@ public class ImportedCaseBuilder implements ProjectFileBuilder<ImportedCase> {
 
         // create project file
         NodeInfo info = context.getStorage().createNode(context.getFolderInfo().getId(), name, ImportedCase.PSEUDO_CLASS, "", ImportedCase.VERSION,
-                new NodeMetadata().setStringMetadata(ImportedCase.FORMAT, aCase.getImporter().getFormat()));
+                new NodeGenericMetadata().setString(ImportedCase.FORMAT, aCase.getImporter().getFormat()));
 
         // store case data
         aCase.getImporter().copy(aCase.getDataSource(), new AppStorageDataSource(context.getStorage(), info.getId()));
 
         // store parameters
-        try (Writer writer = context.getStorage().writeStringData(info.getId(), ImportedCase.PARAMETERS)) {
+        try (Writer writer = new OutputStreamWriter(context.getStorage().writeBinaryData(info.getId(), ImportedCase.PARAMETERS), StandardCharsets.UTF_8)) {
             parameters.store(writer, "");
         } catch (IOException e) {
             throw new UncheckedIOException(e);

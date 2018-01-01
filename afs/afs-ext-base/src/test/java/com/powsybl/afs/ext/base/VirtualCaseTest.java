@@ -11,7 +11,7 @@ import com.powsybl.afs.*;
 import com.powsybl.afs.mapdb.storage.MapDbAppStorage;
 import com.powsybl.afs.storage.AppStorage;
 import com.powsybl.afs.storage.NodeInfo;
-import com.powsybl.afs.storage.NodeMetadata;
+import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.iidm.import_.ImportersLoader;
 import com.powsybl.iidm.import_.ImportersLoaderList;
 import com.powsybl.iidm.network.Network;
@@ -57,7 +57,7 @@ public class VirtualCaseTest extends AbstractProjectFileTest {
         super.setup();
         NodeInfo rootFolderInfo = storage.createRootNodeIfNotExists("root", Folder.PSEUDO_CLASS);
         storage.createNode(rootFolderInfo.getId(), "network", Case.PSEUDO_CLASS, "", Case.VERSION,
-                new NodeMetadata().setStringMetadata(Case.FORMAT, TestImporter.FORMAT));
+                new NodeGenericMetadata().setString(Case.FORMAT, TestImporter.FORMAT));
     }
 
     @Test

@@ -90,9 +90,9 @@ public class AppStorageDataSource implements DataSource {
 
     private final AppStorage storage;
 
-    private final NodeId nodeId;
+    private final String nodeId;
 
-    public AppStorageDataSource(AppStorage storage, NodeId nodeId) {
+    public AppStorageDataSource(AppStorage storage, String nodeId) {
         this.storage = Objects.requireNonNull(storage);
         this.nodeId = Objects.requireNonNull(nodeId);
     }

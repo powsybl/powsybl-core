@@ -10,55 +10,43 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.powsybl.afs.storage.*;
+import com.powsybl.afs.storage.NodeGenericMetadata;
+import com.powsybl.afs.storage.NodeInfo;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class NodeInfoJsonDeserializer extends StdDeserializer<NodeInfo> {
 
-    private enum MetadataType {
-        STRING_METADATA,
-        DOUBLE_METADATA,
-        INT_METADATA,
-        BOOLEAN_METADATA
-    }
-
     private static class JsonParsingContext {
-        NodeId id = null;
+        String id = null;
         String name = null;
         String pseudoClass = null;
         String description = null;
         long creationTime = -1;
         long modificationTime = -1;
         int version = -1;
-        final NodeMetadata metadata = new NodeMetadata();
-        MetadataType metadataType = null;
-        String metadataName = null;
+        NodeGenericMetadata metadata;
     }
 
     public NodeInfoJsonDeserializer() {
         super(NodeInfo.class);
     }
 
-    private static void parseFieldName(JsonParser jsonParser, AppStorage storage, JsonParsingContext parsingContext) throws IOException {
+    private static void parseFieldName(JsonParser jsonParser, DeserializationContext deserializationContext,
+                                       JsonParsingContext parsingContext) throws IOException {
         switch (jsonParser.getCurrentName()) {
             case NodeInfoJsonSerializer.ID:
                 jsonParser.nextToken();
-                parsingContext.id = storage.fromString(jsonParser.getValueAsString());
+                parsingContext.id = jsonParser.getValueAsString();
                 break;
 
             case NodeInfoJsonSerializer.NAME:
                 jsonParser.nextToken();
-                if (parsingContext.metadataType == null) {
-                    parsingContext.name = jsonParser.getValueAsString();
-                } else {
-                    parsingContext.metadataName = jsonParser.getValueAsString();
-                }
+                parsingContext.name = jsonParser.getValueAsString();
                 break;
 
             case NodeInfoJsonSerializer.PSEUDO_CLASS:
@@ -86,42 +74,9 @@ public class NodeInfoJsonDeserializer extends StdDeserializer<NodeInfo> {
                 parsingContext.version = jsonParser.getValueAsInt();
                 break;
 
-            case NodeInfoJsonSerializer.VALUE:
-                Objects.requireNonNull(parsingContext.metadataName);
-                Objects.requireNonNull(parsingContext.metadataType);
+            case NodeInfoJsonSerializer.METADATA:
                 jsonParser.nextToken();
-                switch (parsingContext.metadataType) {
-                    case STRING_METADATA:
-                        parsingContext.metadata.setStringMetadata(parsingContext.metadataName, jsonParser.getValueAsString());
-                        break;
-                    case DOUBLE_METADATA:
-                        parsingContext.metadata.setDoubleMetadata(parsingContext.metadataName, jsonParser.getValueAsDouble());
-                        break;
-                    case INT_METADATA:
-                        parsingContext.metadata.setIntMetadata(parsingContext.metadataName, jsonParser.getValueAsInt());
-                        break;
-                    case BOOLEAN_METADATA:
-                        parsingContext.metadata.setBooleanMetadata(parsingContext.metadataName, jsonParser.getValueAsBoolean());
-                        break;
-                    default:
-                        throw new AssertionError("Unexpected metadata type " + parsingContext.metadataType);
-                }
-                break;
-
-            case NodeInfoJsonSerializer.STRING_METADATA:
-                parsingContext.metadataType = MetadataType.STRING_METADATA;
-                break;
-
-            case NodeInfoJsonSerializer.DOUBLE_METADATA:
-                parsingContext.metadataType = MetadataType.DOUBLE_METADATA;
-                break;
-
-            case NodeInfoJsonSerializer.INT_METADATA:
-                parsingContext.metadataType = MetadataType.INT_METADATA;
-                break;
-
-            case NodeInfoJsonSerializer.BOOLEAN_METADATA:
-                parsingContext.metadataType = MetadataType.BOOLEAN_METADATA;
+                parsingContext.metadata = new NodeGenericMetadataJsonDeserializer().deserialize(jsonParser, deserializationContext);
                 break;
 
             default:
@@ -132,19 +87,14 @@ public class NodeInfoJsonDeserializer extends StdDeserializer<NodeInfo> {
 
     @Override
     public NodeInfo deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) {
-        AppStorage storage = (AppStorage) deserializationContext.getAttribute("storage");
-        if (storage == null) {
-            throw new AfsStorageException("Storage not found in deserialization context");
-        }
         try {
             JsonParsingContext parsingContext = new JsonParsingContext();
             JsonToken token;
             while ((token = jsonParser.nextToken()) != null) {
-                if (token == JsonToken.END_ARRAY) {
-                    parsingContext.metadataType = null;
-                    parsingContext.metadataName = null;
-                } else if (token == JsonToken.FIELD_NAME) {
-                    parseFieldName(jsonParser, storage, parsingContext);
+                if (token == JsonToken.FIELD_NAME) {
+                    parseFieldName(jsonParser, deserializationContext, parsingContext);
+                } else if (token == JsonToken.END_OBJECT) {
+                    break;
                 }
             }
             return new NodeInfo(parsingContext.id, parsingContext.name, parsingContext.pseudoClass, parsingContext.description,

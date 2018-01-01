@@ -7,7 +7,6 @@
 package com.powsybl.afs;
 
 import com.powsybl.afs.storage.ListenableAppStorage;
-import com.powsybl.afs.storage.NodeId;
 import com.powsybl.afs.storage.NodeInfo;
 
 import java.time.Instant;
@@ -34,7 +33,7 @@ public abstract class AbstractNodeBase<F> {
 
     public abstract F getParent();
 
-    public NodeId getId() {
+    public String getId() {
         return info.getId();
     }
 

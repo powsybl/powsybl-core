@@ -16,8 +16,10 @@ import com.powsybl.iidm.import_.ImportersLoader;
 import com.powsybl.iidm.network.Network;
 
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.Properties;
 
@@ -38,7 +40,7 @@ public class ImportedCase extends ProjectFile implements ProjectCase {
         super(context, VERSION, CaseIconCache.INSTANCE.get(
                 importersLoader,
                 context.getFileSystem().getData().getComputationManager(),
-                context.getInfo().getMetadata().getStringMetadata().get(FORMAT)));
+                context.getInfo().getGenericMetadata().getString(FORMAT)));
         this.importersLoader = Objects.requireNonNull(importersLoader);
     }
 
@@ -48,7 +50,7 @@ public class ImportedCase extends ProjectFile implements ProjectCase {
 
     public Properties getParameters() {
         Properties parameters = new Properties();
-        try (Reader reader = storage.readStringData(info.getId(), PARAMETERS)) {
+        try (Reader reader = new InputStreamReader(storage.readBinaryData(info.getId(), PARAMETERS), StandardCharsets.UTF_8)) {
             parameters.load(reader);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -57,7 +59,7 @@ public class ImportedCase extends ProjectFile implements ProjectCase {
     }
 
     public Importer getImporter() {
-        String format = info.getMetadata().getStringMetadata().get(FORMAT);
+        String format = info.getGenericMetadata().getString(FORMAT);
         return importersLoader.loadImporters()
                 .stream()
                 .filter(importer -> importer.getFormat().equals(format))
