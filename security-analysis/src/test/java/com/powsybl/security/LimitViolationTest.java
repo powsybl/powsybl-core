@@ -8,12 +8,15 @@ package com.powsybl.security;
 
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
@@ -31,7 +34,7 @@ public class LimitViolationTest {
             .map(v -> LimitViolation.getCountry(v, network))
             .collect(Collectors.toList());
 
-        Assert.assertEquals(expectedCountries, countries);
+        assertEquals(expectedCountries, countries);
     }
 
     @Test
@@ -43,7 +46,30 @@ public class LimitViolationTest {
             .map(v -> LimitViolation.getNominalVoltage(v, network))
             .collect(Collectors.toList());
 
-        Assert.assertEquals(expectedVoltages, voltages);
+        assertEquals(expectedVoltages, voltages);
+    }
+
+    @Test
+    public void testVoltageLevelIds() {
+        List<LimitViolation> violations = Security.checkLimits(network);
+
+        List<String> expectedVoltageLevelIds = Arrays.asList("VLHV1", "VLHV2", "VLHV1", "VLHV2", "VLHV1");
+        List<String> voltages = violations.stream()
+            .map(v -> LimitViolation.getVoltageLevelId(v, network))
+            .collect(Collectors.toList());
+
+        assertEquals(expectedVoltageLevelIds, voltages);
+    }
+
+    @Test
+    public void testDeprecated() {
+        LimitViolation violation = new LimitViolation("L1", LimitViolationType.CURRENT, 100.0f, "current", 0.95f, 97.0f, Country.FR, 225.0f);
+        assertEquals(Country.FR, violation.getCountry());
+        assertEquals(225.0f, violation.getBaseVoltage(), 0.0f);
+
+        violation = new LimitViolation("B1", LimitViolationType.HIGH_VOLTAGE, 100.0f, "voltage", 97.0f);
+        assertNull(violation.getCountry());
+        assertTrue(Float.isNaN(violation.getBaseVoltage()));
     }
 
 }

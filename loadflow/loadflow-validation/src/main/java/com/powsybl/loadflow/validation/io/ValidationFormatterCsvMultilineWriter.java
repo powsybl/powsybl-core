@@ -51,7 +51,8 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
     @Override
     public void write(String branchId, double p1, double p1Calc, double q1, double q1Calc, double p2, double p2Calc, double q2, double q2Calc,
                       double r, double x, double g1, double g2, double b1, double b2, double rho1, double rho2, double alpha1, double alpha2,
-                      double u1, double u2, double theta1, double theta2, double z, double y, double ksi, boolean validated) throws IOException {
+                      double u1, double u2, double theta1, double theta2, double z, double y, double ksi, boolean connected1, boolean connected2,
+                      boolean mainComponent1, boolean mainComponent2, boolean validated) throws IOException {
         Objects.requireNonNull(branchId);
         formatter.writeCell(branchId).writeCell("network_p1").writeCell(p1)
                  .writeCell(branchId).writeCell("expected_p1").writeCell(p1Calc)
@@ -79,6 +80,10 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
                      .writeCell(branchId).writeCell("z").writeCell(z)
                      .writeCell(branchId).writeCell("y").writeCell(y)
                      .writeCell(branchId).writeCell("ksi").writeCell(ksi)
+                     .writeCell(branchId).writeCell("connected1").writeCell(connected1)
+                     .writeCell(branchId).writeCell("connected2").writeCell(connected2)
+                     .writeCell(branchId).writeCell("mainComponent1").writeCell(mainComponent1)
+                     .writeCell(branchId).writeCell("mainComponent2").writeCell(mainComponent2)
                      .writeCell(branchId).writeCell(VALIDATION).writeCell(validated ? SUCCESS : FAIL);
         }
     }
@@ -94,7 +99,7 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
                  .writeCell(generatorId).writeCell("targetQ").writeCell(targetQ)
                  .writeCell(generatorId).writeCell("targetV").writeCell(targetV);
         if (verbose) {
-            formatter.writeCell(generatorId).writeCell("connected").writeCell(connected)
+            formatter.writeCell(generatorId).writeCell(CONNECTED).writeCell(connected)
                      .writeCell(generatorId).writeCell("voltageRegulatorOn").writeCell(voltageRegulatorOn)
                      .writeCell(generatorId).writeCell("minQ").writeCell(minQ)
                      .writeCell(generatorId).writeCell("maxQ").writeCell(maxQ)
@@ -140,11 +145,30 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
                  .writeCell(svcId).writeCell("reactivePowerSetpoint").writeCell(reactivePowerSetpoint)
                  .writeCell(svcId).writeCell("voltageSetpoint").writeCell(voltageSetpoint);
         if (verbose) {
-            formatter.writeCell(svcId).writeCell("connected").writeCell(connected)
+            formatter.writeCell(svcId).writeCell(CONNECTED).writeCell(connected)
                      .writeCell(svcId).writeCell("regulationMode").writeCell(regulationMode.name())
                      .writeCell(svcId).writeCell("bMin").writeCell(bMin)
                      .writeCell(svcId).writeCell("bMax").writeCell(bMax)
                      .writeCell(svcId).writeCell(VALIDATION).writeCell(validated ? SUCCESS : FAIL);
+        }
+    }
+
+    @Override
+    public void write(String shuntId, float q, float expectedQ, float p, int currentSectionCount, int maximumSectionCount,
+                      float bPerSection, float v, boolean connected, float qMax, float nominalV, boolean validated) throws IOException {
+        Objects.requireNonNull(shuntId);
+        formatter.writeCell(shuntId).writeCell("q").writeCell(q)
+                 .writeCell(shuntId).writeCell("expectedQ").writeCell(expectedQ);
+        if (verbose) {
+            formatter.writeCell(shuntId).writeCell("p").writeCell(p)
+                     .writeCell(shuntId).writeCell("currentSectionCount").writeCell(currentSectionCount)
+                     .writeCell(shuntId).writeCell("maximumSectionCount").writeCell(maximumSectionCount)
+                     .writeCell(shuntId).writeCell("bPerSection").writeCell(bPerSection)
+                     .writeCell(shuntId).writeCell("v").writeCell(v)
+                     .writeCell(shuntId).writeCell(CONNECTED).writeCell(connected)
+                     .writeCell(shuntId).writeCell("qMax").writeCell(qMax)
+                     .writeCell(shuntId).writeCell("nominalV").writeCell(nominalV)
+                     .writeCell(shuntId).writeCell(VALIDATION).writeCell(validated ? SUCCESS : FAIL);
         }
     }
 
