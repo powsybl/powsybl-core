@@ -7,6 +7,7 @@
 package com.powsybl.afs;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -43,14 +44,14 @@ public class DependencyCache<T> {
         });
     }
 
-    public T get() {
+    public Optional<T> get() {
         lock.lock();
         try {
             if (!cached) {
-                cache = projectFile.getDependency(dependencyName, dependencyClass);
+                cache = projectFile.getDependency(dependencyName, dependencyClass).orElse(null);
                 cached = true;
             }
-            return cache;
+            return Optional.ofNullable(cache);
         } finally {
             lock.unlock();
         }

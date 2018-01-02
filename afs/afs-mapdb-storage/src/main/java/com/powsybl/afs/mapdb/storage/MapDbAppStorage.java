@@ -493,20 +493,20 @@ public class MapDbAppStorage implements AppStorage {
     }
 
     @Override
-    public NodeInfo getChildNode(String parentString, String name) {
+    public Optional<NodeInfo> getChildNode(String parentString, String name) {
         UUID parentNodeUuid = checkNodeId(parentString);
         Objects.requireNonNull(name);
         checkNodeExists(parentNodeUuid);
         UUID childNodeUuid = childNodeMap.get(new NamedLink(parentNodeUuid, name));
-        return childNodeUuid != null ? getNodeInfo(childNodeUuid) : null;
+        return Optional.ofNullable(childNodeUuid).map(this::getNodeInfo);
     }
 
     @Override
-    public NodeInfo getParentNode(String nodeId) {
+    public Optional<NodeInfo> getParentNode(String nodeId) {
         UUID nodeUuid = checkNodeId(nodeId);
         checkNodeExists(nodeUuid);
         UUID parentNodeUuid = parentNodeMap.get(nodeUuid);
-        return parentNodeUuid != null ? getNodeInfo(parentNodeUuid) : null;
+        return Optional.ofNullable(parentNodeUuid).map(this::getNodeInfo);
     }
 
     @Override
@@ -593,12 +593,12 @@ public class MapDbAppStorage implements AppStorage {
     }
 
     @Override
-    public InputStream readBinaryData(String nodeId, String name) {
+    public Optional<InputStream> readBinaryData(String nodeId, String name) {
         UUID nodeUuid = checkNodeId(nodeId);
         Objects.requireNonNull(name);
         checkNodeExists(nodeUuid);
         byte[] value = dataMap.get(new NamedLink(nodeUuid, name));
-        return value != null ? new ByteArrayInputStream(value) : null;
+        return Optional.ofNullable(value).map(ByteArrayInputStream::new);
     }
 
     @Override
@@ -772,12 +772,12 @@ public class MapDbAppStorage implements AppStorage {
     }
 
     @Override
-    public NodeInfo getDependency(String nodeId, String name) {
+    public Optional<NodeInfo> getDependency(String nodeId, String name) {
         UUID nodeUuid = checkNodeId(nodeId);
         Objects.requireNonNull(name);
         checkNodeExists(nodeUuid);
         UUID dependencyNodeUuid = dependencyNodeMap.get(new NamedLink(nodeUuid, name));
-        return dependencyNodeUuid != null ? getNodeInfo(dependencyNodeUuid) : null;
+        return Optional.ofNullable(dependencyNodeUuid).map(this::getNodeInfo);
     }
 
     @Override

@@ -68,12 +68,12 @@ public class DefaultListenableAppStorage implements ListenableAppStorage {
     }
 
     @Override
-    public NodeInfo getChildNode(String nodeId, String name) {
+    public Optional<NodeInfo> getChildNode(String nodeId, String name) {
         return storage.getChildNode(nodeId, name);
     }
 
     @Override
-    public NodeInfo getParentNode(String nodeId) {
+    public Optional<NodeInfo> getParentNode(String nodeId) {
         return storage.getParentNode(nodeId);
     }
 
@@ -89,7 +89,7 @@ public class DefaultListenableAppStorage implements ListenableAppStorage {
     }
 
     @Override
-    public InputStream readBinaryData(String nodeId, String name) {
+    public Optional<InputStream> readBinaryData(String nodeId, String name) {
         return storage.readBinaryData(nodeId, name);
     }
 
@@ -150,7 +150,7 @@ public class DefaultListenableAppStorage implements ListenableAppStorage {
     }
 
     @Override
-    public NodeInfo getDependency(String nodeId, String name) {
+    public Optional<NodeInfo> getDependency(String nodeId, String name) {
         return storage.getDependency(nodeId, name);
     }
 

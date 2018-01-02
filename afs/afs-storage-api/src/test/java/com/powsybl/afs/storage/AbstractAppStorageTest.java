@@ -54,13 +54,13 @@ public abstract class AbstractAppStorageTest {
         // 1) create root folder
         NodeInfo rootFolderInfo = storage.createRootNodeIfNotExists(storage.getFileSystemName(), FOLDER_PSEUDO_CLASS);
         storage.flush();
-        assertNotNull(rootFolderInfo.getId());
+        assertNotNull(rootFolderInfo);
 
         // assert root folder is writable
         assertTrue(storage.isWritable(rootFolderInfo.getId()));
 
         // assert root folder parent is null
-        assertNull(storage.getParentNode(rootFolderInfo.getId()));
+        assertFalse(storage.getParentNode(rootFolderInfo.getId()).isPresent());
 
         // check root folder name and pseudo class is correct
         assertEquals(storage.getFileSystemName(), storage.getNodeInfo(rootFolderInfo.getId()).getName());
@@ -75,7 +75,7 @@ public abstract class AbstractAppStorageTest {
         storage.flush();
 
         // assert parent of test folder is root folder
-        assertEquals(rootFolderInfo, storage.getParentNode(testFolderInfo.getId()));
+        assertEquals(rootFolderInfo, storage.getParentNode(testFolderInfo.getId()).orElseThrow(AssertionError::new));
 
         // check test folder infos are corrects
         assertEquals(testFolderInfo.getId(), storage.getNodeInfo(testFolderInfo.getId()).getId());
@@ -96,11 +96,11 @@ public abstract class AbstractAppStorageTest {
         // check root folder has one child (test folder)
         assertEquals(1, storage.getChildNodes(rootFolderInfo.getId()).size());
         assertEquals(testFolderInfo, storage.getChildNodes(rootFolderInfo.getId()).get(0));
-        assertNotNull(storage.getChildNode(rootFolderInfo.getId(), "test"));
-        assertEquals(testFolderInfo, storage.getChildNode(rootFolderInfo.getId(), "test"));
+        assertTrue(storage.getChildNode(rootFolderInfo.getId(), "test").isPresent());
+        assertEquals(testFolderInfo, storage.getChildNode(rootFolderInfo.getId(), "test").orElseThrow(AssertionError::new));
 
         // check getChildNode return null if child does not exist
-        assertNull(storage.getChildNode(rootFolderInfo.getId(), "???"));
+        assertFalse(storage.getChildNode(rootFolderInfo.getId(), "???").isPresent());
 
         // 3) check description initial value and update
         assertEquals("", testFolderInfo.getDescription());
@@ -138,8 +138,8 @@ public abstract class AbstractAppStorageTest {
         assertEquals(testData2Info, storage.getDependencies(testDataInfo.getId()).get(0));
         assertEquals(1, storage.getBackwardDependencies(testData2Info.getId()).size());
         assertEquals(testDataInfo, storage.getBackwardDependencies(testData2Info.getId()).get(0));
-        assertEquals(testData2Info, storage.getDependency(testDataInfo.getId(), "mylink"));
-        assertNull(storage.getDependency(testDataInfo.getId(), "mylink2"));
+        assertEquals(testData2Info, storage.getDependency(testDataInfo.getId(), "mylink").orElseThrow(AssertionError::new));
+        assertFalse(storage.getDependency(testDataInfo.getId(), "mylink2").isPresent());
 
         // 6) delete data node
         storage.deleteNode(testDataInfo.getId());
@@ -162,7 +162,7 @@ public abstract class AbstractAppStorageTest {
             os.write("word2".getBytes(StandardCharsets.UTF_8));
         }
         storage.flush();
-        try (InputStream is = storage.readBinaryData(testData2Info.getId(), "blob")) {
+        try (InputStream is = storage.readBinaryData(testData2Info.getId(), "blob").orElseThrow(AssertionError::new)) {
             assertEquals("word2", new String(ByteStreams.toByteArray(is), StandardCharsets.UTF_8));
 
         }
@@ -276,14 +276,14 @@ public abstract class AbstractAppStorageTest {
         storage.flush();
 
         // check parent folder
-        assertEquals(folder1Info, storage.getParentNode(fileInfo.getId()));
+        assertEquals(folder1Info, storage.getParentNode(fileInfo.getId()).orElseThrow(AssertionError::new));
 
         // change parent to folder 2
         storage.setParentNode(fileInfo.getId(), folder2Info.getId());
         storage.flush();
 
         // check parent folder change
-        assertEquals(folder2Info, storage.getParentNode(fileInfo.getId()));
+        assertEquals(folder2Info, storage.getParentNode(fileInfo.getId()).orElseThrow(AssertionError::new));
     }
 
 }

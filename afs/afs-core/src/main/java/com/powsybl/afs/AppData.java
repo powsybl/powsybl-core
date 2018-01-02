@@ -124,18 +124,23 @@ public class AppData implements AutoCloseable {
         return fileSystems.get(name);
     }
 
-    public Node getNode(String pathStr) {
+    private static String[] more(String[] path) {
+        return path.length > 2 ? Arrays.copyOfRange(path, 2, path.length - 1) : new String[] {};
+    }
+
+    public Optional<Node> getNode(String pathStr) {
         Objects.requireNonNull(pathStr);
         String[] path = pathStr.split(AppFileSystem.FS_SEPARATOR + AppFileSystem.PATH_SEPARATOR);
         if (path.length == 0) { // wrong file system name
-            return null;
+            return Optional.empty();
         }
         String fileSystemName = path[0];
         AppFileSystem fileSystem = fileSystems.get(fileSystemName);
         if (fileSystem == null) {
-            return null;
+            return Optional.empty();
         }
-        return path.length == 1 ? fileSystem.getRootFolder() : fileSystem.getRootFolder().getChild(path[1], path.length > 2 ? Arrays.copyOfRange(path, 2, path.length - 1) : new String[] {});
+        return path.length == 1 ? Optional.of(fileSystem.getRootFolder())
+                                : fileSystem.getRootFolder().getChild(path[1], more(path));
     }
 
     public Set<Class<? extends ProjectFile>> getProjectFileClasses() {

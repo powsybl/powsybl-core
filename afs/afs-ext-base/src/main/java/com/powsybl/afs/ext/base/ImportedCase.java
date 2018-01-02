@@ -50,7 +50,7 @@ public class ImportedCase extends ProjectFile implements ProjectCase {
 
     public Properties getParameters() {
         Properties parameters = new Properties();
-        try (Reader reader = new InputStreamReader(storage.readBinaryData(info.getId(), PARAMETERS), StandardCharsets.UTF_8)) {
+        try (Reader reader = new InputStreamReader(storage.readBinaryData(info.getId(), PARAMETERS).orElseThrow(AssertionError::new), StandardCharsets.UTF_8)) {
             parameters.load(reader);
         } catch (IOException e) {
             throw new UncheckedIOException(e);

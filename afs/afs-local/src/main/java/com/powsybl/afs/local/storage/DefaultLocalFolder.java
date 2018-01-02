@@ -14,6 +14,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  *
@@ -47,8 +48,8 @@ public class DefaultLocalFolder implements LocalFolder {
     }
 
     @Override
-    public Path getChildPath(String name) {
-        return dir.resolve(name);
+    public Optional<Path> getChildPath(String name) {
+        return Optional.ofNullable(dir.resolve(name));
     }
 
     @Override
@@ -57,7 +58,7 @@ public class DefaultLocalFolder implements LocalFolder {
     }
 
     @Override
-    public Path getParentPath() {
-        return dir.equals(rootDir) ? null : dir.getParent();
+    public Optional<Path> getParentPath() {
+        return dir.equals(rootDir) ? Optional.empty() : Optional.ofNullable(dir.getParent());
     }
 }

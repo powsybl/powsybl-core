@@ -22,6 +22,7 @@ import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -45,8 +46,8 @@ public class LocalCase implements LocalFile {
     }
 
     @Override
-    public Path getParentPath() {
-        return file.getParent();
+    public Optional<Path> getParentPath() {
+        return Optional.ofNullable(file.getParent());
     }
 
     @Override
@@ -65,19 +66,19 @@ public class LocalCase implements LocalFile {
     }
 
     @Override
-    public InputStream readBinaryData(String name) {
+    public Optional<InputStream> readBinaryData(String name) {
         DataSource dataSource = Importers.createDataSource(file);
         AppStorageDataSource.Name dataSrcName = AppStorageDataSource.Name.parse(name);
         if (dataSrcName instanceof AppStorageDataSource.SuffixAndExtension) {
             try {
-                return dataSource.newInputStream(((AppStorageDataSource.SuffixAndExtension) dataSrcName).getSuffix(),
-                                                 ((AppStorageDataSource.SuffixAndExtension) dataSrcName).getExt());
+                return Optional.of(dataSource.newInputStream(((AppStorageDataSource.SuffixAndExtension) dataSrcName).getSuffix(),
+                                                             ((AppStorageDataSource.SuffixAndExtension) dataSrcName).getExt()));
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
         } else if (dataSrcName instanceof AppStorageDataSource.FileName) {
             try {
-                return dataSource.newInputStream(((AppStorageDataSource.FileName) dataSrcName).getName());
+                return Optional.of(dataSource.newInputStream(((AppStorageDataSource.FileName) dataSrcName).getName()));
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }

@@ -11,6 +11,7 @@ import com.powsybl.math.timeseries.*;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -34,15 +35,15 @@ public interface AppStorage extends AutoCloseable {
 
     List<NodeInfo> getChildNodes(String nodeId);
 
-    NodeInfo getChildNode(String nodeId, String name);
+    Optional<NodeInfo> getChildNode(String nodeId, String name);
 
-    NodeInfo getParentNode(String nodeId);
+    Optional<NodeInfo> getParentNode(String nodeId);
 
     void setParentNode(String nodeId, String newParentNodeId);
 
     void deleteNode(String nodeId);
 
-    InputStream readBinaryData(String nodeId, String name);
+    Optional<InputStream> readBinaryData(String nodeId, String name);
 
     OutputStream writeBinaryData(String nodeId, String name);
 
@@ -64,7 +65,7 @@ public interface AppStorage extends AutoCloseable {
 
     void removeAllTimeSeries(String nodeId);
 
-    NodeInfo getDependency(String nodeId, String name);
+    Optional<NodeInfo> getDependency(String nodeId, String name);
 
     void addDependency(String nodeId, String name, String toNodeId);
 

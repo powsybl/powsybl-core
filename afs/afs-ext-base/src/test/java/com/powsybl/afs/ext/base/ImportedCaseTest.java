@@ -114,7 +114,7 @@ public class ImportedCaseTest extends AbstractProjectFileTest {
         assertEquals(2, importedCase2.getParameters().size());
         assertEquals("true", importedCase2.getParameters().getProperty("param1"));
 
-        assertNotNull(folder.getChild(ImportedCase.class, "network"));
+        assertTrue(folder.getChild(ImportedCase.class, "network").isPresent());
 
         // delete imported case
         projectNode.delete();

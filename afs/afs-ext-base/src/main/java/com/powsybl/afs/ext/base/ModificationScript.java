@@ -54,7 +54,7 @@ public class ModificationScript extends ProjectFile implements StorableScript {
     @Override
     public String readScript() {
         try {
-            return CharStreams.toString(new InputStreamReader(storage.readBinaryData(info.getId(), SCRIPT_CONTENT), StandardCharsets.UTF_8));
+            return CharStreams.toString(new InputStreamReader(storage.readBinaryData(info.getId(), SCRIPT_CONTENT).orElseThrow(AssertionError::new), StandardCharsets.UTF_8));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

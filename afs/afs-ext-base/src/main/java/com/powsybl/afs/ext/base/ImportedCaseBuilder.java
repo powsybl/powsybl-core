@@ -11,8 +11,8 @@ import com.powsybl.afs.ProjectFileBuildContext;
 import com.powsybl.afs.ProjectFileBuilder;
 import com.powsybl.afs.ProjectFileCreationContext;
 import com.powsybl.afs.storage.AppStorageDataSource;
-import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.afs.storage.NodeGenericMetadata;
+import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.iidm.import_.ImportersLoader;
 
 import java.io.IOException;
@@ -35,7 +35,7 @@ public class ImportedCaseBuilder implements ProjectFileBuilder<ImportedCase> {
 
     private Case aCase;
 
-    private final Properties parameters = new Properties();;
+    private final Properties parameters = new Properties();
 
     public ImportedCaseBuilder(ProjectFileBuildContext context, ImportersLoader importersLoader) {
         this.context = Objects.requireNonNull(context);
@@ -65,7 +65,7 @@ public class ImportedCaseBuilder implements ProjectFileBuilder<ImportedCase> {
 
         String name = aCase.getName();
 
-        if (context.getStorage().getChildNode(context.getFolderInfo().getId(), name) != null) {
+        if (context.getStorage().getChildNode(context.getFolderInfo().getId(), name).isPresent()) {
             throw new AfsException("Parent folder already contains a '" + name + "' node");
         }
 
