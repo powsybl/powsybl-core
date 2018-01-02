@@ -37,7 +37,7 @@ public final class UuidListSerializer implements Serializer<UuidList>, Serializa
     @Override
     public UuidList deserialize(DataInput2 input, int available) throws IOException {
         int size = input.readInt();
-        List<UUID> uuids = new ArrayList<>();
+        List<UUID> uuids = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
             uuids.add(UuidSerializer.INSTANCE.deserialize(input, available));
         }

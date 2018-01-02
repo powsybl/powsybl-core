@@ -25,12 +25,12 @@ public class AppStorageDataSource implements DataSource {
         static Name parse(String text) {
             Objects.requireNonNull(text);
             if (text.startsWith(SuffixAndExtension.START_PATTERN)) {
-                int pos2 = text.indexOf(SEPARATOR, SuffixAndExtension.START_PATTERN.length());
-                if (pos2 == -1) {
+                int pos = text.indexOf(SEPARATOR, SuffixAndExtension.START_PATTERN.length());
+                if (pos == -1) {
                     throw new IllegalStateException("Second separator not found");
                 }
-                String suffixe = text.substring(SuffixAndExtension.START_PATTERN.length(), pos2);
-                String ext = text.substring(pos2 + SEPARATOR.length());
+                String suffixe = text.substring(SuffixAndExtension.START_PATTERN.length(), pos);
+                String ext = text.substring(pos + SEPARATOR.length());
                 return new SuffixAndExtension(suffixe, ext);
             } else if (text.startsWith(FileName.START_PATTERN)) {
                 String fileName = text.substring(FileName.START_PATTERN.length());
@@ -43,7 +43,7 @@ public class AppStorageDataSource implements DataSource {
 
     public static class SuffixAndExtension implements Name {
 
-        public static final String START_PATTERN = "DATA_SOURCE_SUFFIX_EXT" + SEPARATOR;
+        static final String START_PATTERN = "DATA_SOURCE_SUFFIX_EXT" + SEPARATOR;
 
         private final String suffix;
 
@@ -70,11 +70,11 @@ public class AppStorageDataSource implements DataSource {
 
     public static class FileName implements Name {
 
-        public static final String START_PATTERN = "DATA_SOURCE_FILE_NAME" + SEPARATOR;
+        static final String START_PATTERN = "DATA_SOURCE_FILE_NAME" + SEPARATOR;
 
         private final String name;
 
-        public FileName(String name) {
+        FileName(String name) {
             this.name = Objects.requireNonNull(name);
         }
 

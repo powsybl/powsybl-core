@@ -69,21 +69,17 @@ public class LocalCase implements LocalFile {
     public Optional<InputStream> readBinaryData(String name) {
         DataSource dataSource = Importers.createDataSource(file);
         AppStorageDataSource.Name dataSrcName = AppStorageDataSource.Name.parse(name);
-        if (dataSrcName instanceof AppStorageDataSource.SuffixAndExtension) {
-            try {
+        try {
+            if (dataSrcName instanceof AppStorageDataSource.SuffixAndExtension) {
                 return Optional.of(dataSource.newInputStream(((AppStorageDataSource.SuffixAndExtension) dataSrcName).getSuffix(),
                                                              ((AppStorageDataSource.SuffixAndExtension) dataSrcName).getExt()));
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-        } else if (dataSrcName instanceof AppStorageDataSource.FileName) {
-            try {
+            } else if (dataSrcName instanceof AppStorageDataSource.FileName) {
                 return Optional.of(dataSource.newInputStream(((AppStorageDataSource.FileName) dataSrcName).getName()));
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
+            } else {
+                throw new AssertionError("Unknown data source name " + dataSrcName);
             }
-        } else {
-            throw new AssertionError();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
     }
 
@@ -91,21 +87,17 @@ public class LocalCase implements LocalFile {
     public boolean dataExists(String name) {
         DataSource dataSource = Importers.createDataSource(file);
         AppStorageDataSource.Name dataSrcName = AppStorageDataSource.Name.parse(name);
-        if (dataSrcName instanceof AppStorageDataSource.SuffixAndExtension) {
-            try {
+        try {
+            if (dataSrcName instanceof AppStorageDataSource.SuffixAndExtension) {
                 return dataSource.exists(((AppStorageDataSource.SuffixAndExtension) dataSrcName).getSuffix(),
                                          ((AppStorageDataSource.SuffixAndExtension) dataSrcName).getExt());
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-        } else if (dataSrcName instanceof AppStorageDataSource.FileName) {
-            try {
+            } else if (dataSrcName instanceof AppStorageDataSource.FileName) {
                 return dataSource.exists(((AppStorageDataSource.FileName) dataSrcName).getName());
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
+            } else {
+                throw new AssertionError("Unknown data source name " + dataSrcName);
             }
-        } else {
-            throw new AssertionError();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
     }
 
