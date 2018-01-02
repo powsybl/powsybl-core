@@ -36,6 +36,8 @@ public class NodeGenericMetadata {
     }
 
     public NodeGenericMetadata setString(String name, String value) {
+        Objects.requireNonNull(name);
+        Objects.requireNonNull(value);
         stringMetadata.put(name, value);
         return this;
     }
@@ -44,7 +46,7 @@ public class NodeGenericMetadata {
         return stringMetadata;
     }
 
-    private <T> T getValue(Map<String, T> metadata, String name, String typeLabel) {
+    private static <T> T getValue(Map<String, T> metadata, String name, String typeLabel) {
         Objects.requireNonNull(metadata);
         Objects.requireNonNull(name);
         Objects.requireNonNull(typeLabel);
@@ -60,6 +62,7 @@ public class NodeGenericMetadata {
     }
 
     public NodeGenericMetadata setDouble(String name, double value) {
+        Objects.requireNonNull(name);
         doubleMetadata.put(name, value);
         return this;
     }
@@ -73,6 +76,7 @@ public class NodeGenericMetadata {
     }
 
     public NodeGenericMetadata setInt(String name, int value) {
+        Objects.requireNonNull(name);
         intMetadata.put(name, value);
         return this;
     }
@@ -86,6 +90,7 @@ public class NodeGenericMetadata {
     }
 
     public NodeGenericMetadata setBoolean(String name, boolean value) {
+        Objects.requireNonNull(name);
         booleanMetadata.put(name, value);
         return this;
     }
