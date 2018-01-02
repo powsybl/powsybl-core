@@ -13,6 +13,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -31,7 +32,7 @@ public abstract class AbstractNodeBase<F> {
         this.codeVersion = codeVersion;
     }
 
-    public abstract F getParent();
+    public abstract Optional<F> getParent();
 
     public String getId() {
         return info.getId();
@@ -78,7 +79,7 @@ public abstract class AbstractNodeBase<F> {
         Objects.requireNonNull(name);
         NodeInfo childInfo = nodeInfo;
         for (String name2 : name.split(AppFileSystem.PATH_SEPARATOR)) {
-            childInfo = storage.getChildNode(childInfo.getId(), name2);
+            childInfo = storage.getChildNode(childInfo.getId(), name2).orElse(null);
             if (childInfo == null) {
                 return null;
             }

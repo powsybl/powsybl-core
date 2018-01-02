@@ -194,23 +194,23 @@ public class LocalAppStorage implements AppStorage {
     }
 
     @Override
-    public NodeInfo getChildNode(String nodeId, String name) {
+    public Optional<NodeInfo> getChildNode(String nodeId, String name) {
         Path path = checkNodeId(nodeId);
         Objects.requireNonNull(name);
         LocalFolder folder = scanFolder(path, false);
         if (folder != null) {
-            Path childPath = folder.getChildPath(name);
-            if (childPath != null && isLocalNode(childPath)) {
-                return getNodeInfo(childPath);
+            Optional<Path> childPath = folder.getChildPath(name);
+            if (childPath.isPresent() && isLocalNode(childPath.get())) {
+                return childPath.map(this::getNodeInfo);
             }
         }
-        return null;
+        return Optional.empty();
     }
 
     @Override
-    public NodeInfo getParentNode(String nodeId) {
+    public Optional<NodeInfo> getParentNode(String nodeId) {
         Path path = checkNodeId(nodeId);
-        Path parentPath;
+        Optional<Path> parentPath;
         LocalFile file = scanFile(path, true);
         if (file != null) {
             parentPath = file.getParentPath();
@@ -222,7 +222,7 @@ public class LocalAppStorage implements AppStorage {
                 throw new AssertionError();
             }
         }
-        return parentPath == null ? null : getNodeInfo(parentPath);
+        return parentPath.map(this::getNodeInfo);
     }
 
     @Override
@@ -255,7 +255,7 @@ public class LocalAppStorage implements AppStorage {
     }
 
     @Override
-    public InputStream readBinaryData(String nodeId, String name) {
+    public Optional<InputStream> readBinaryData(String nodeId, String name) {
         Objects.requireNonNull(name);
         return getFile(nodeId).readBinaryData(name);
     }
@@ -318,7 +318,7 @@ public class LocalAppStorage implements AppStorage {
     }
 
     @Override
-    public NodeInfo getDependency(String nodeId, String name) {
+    public Optional<NodeInfo> getDependency(String nodeId, String name) {
         throw new AssertionError();
     }
 

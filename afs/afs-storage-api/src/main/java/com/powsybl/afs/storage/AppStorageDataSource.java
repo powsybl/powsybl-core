@@ -131,19 +131,13 @@ public class AppStorageDataSource implements DataSource {
 
     @Override
     public InputStream newInputStream(String suffix, String ext) throws IOException {
-        InputStream is = storage.readBinaryData(nodeId, new SuffixAndExtension(suffix, ext).toString());
-        if (is == null) {
-            throw new IOException("*" + Objects.toString(suffix, "") + "." + Objects.toString(ext, "") + " does not exist");
-        }
-        return is;
+        return storage.readBinaryData(nodeId, new SuffixAndExtension(suffix, ext).toString())
+                .orElseThrow(() -> new IOException("*" + Objects.toString(suffix, "") + "." + Objects.toString(ext, "") + " does not exist"));
     }
 
     @Override
     public InputStream newInputStream(String fileName) throws IOException {
-        InputStream is = storage.readBinaryData(nodeId, new FileName(fileName).toString());
-        if (is == null) {
-            throw new IOException(fileName + " does not exist");
-        }
-        return is;
+        return storage.readBinaryData(nodeId, new FileName(fileName).toString())
+                .orElseThrow(() -> new IOException(fileName + " does not exist"));
     }
 }

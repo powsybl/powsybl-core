@@ -13,6 +13,7 @@ import com.powsybl.math.timeseries.TimeSeriesMetadata;
 
 import java.io.InputStream;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -27,7 +28,7 @@ public interface LocalFile extends LocalNode {
 
     NodeGenericMetadata getGenericMetadata();
 
-    InputStream readBinaryData(String name);
+    Optional<InputStream> readBinaryData(String name);
 
     boolean dataExists(String name);
 

@@ -138,8 +138,8 @@ public class VirtualCaseTest extends AbstractProjectFileTest {
                 .build();
 
         assertEquals("network2", virtualCase.getName());
-        assertNotNull(virtualCase.getCase());
-        assertNotNull(virtualCase.getScript());
+        assertTrue(virtualCase.getCase().isPresent());
+        assertTrue(virtualCase.getScript().isPresent());
         assertNotNull(virtualCase.getIcon());
         assertEquals(2, virtualCase.getDependencies().size());
         assertEquals(1, importedCase.getBackwardDependencies().size());

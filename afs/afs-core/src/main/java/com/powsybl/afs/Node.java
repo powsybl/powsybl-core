@@ -6,10 +6,9 @@
  */
 package com.powsybl.afs;
 
-import com.powsybl.afs.storage.NodeInfo;
-
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -32,13 +31,12 @@ public class Node extends AbstractNodeBase<Folder> {
     }
 
     @Override
-    public Folder getParent() {
-        NodeInfo parentInfo = storage.getParentNode(info.getId());
-        return parentInfo != null ? new Folder(new FileCreationContext(parentInfo, storage, fileSystem)) : null;
+    public Optional<Folder> getParent() {
+        return storage.getParentNode(info.getId()).map(parentInfo -> new Folder(new FileCreationContext(parentInfo, storage, fileSystem)));
     }
 
     private static boolean pathStop(Node node) {
-        return node.getParent() == null;
+        return !node.getParent().isPresent();
     }
 
     private static String pathToString(List<String> path) {

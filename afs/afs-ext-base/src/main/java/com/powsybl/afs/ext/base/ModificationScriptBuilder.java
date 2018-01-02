@@ -11,8 +11,8 @@ import com.powsybl.afs.AfsException;
 import com.powsybl.afs.ProjectFileBuildContext;
 import com.powsybl.afs.ProjectFileBuilder;
 import com.powsybl.afs.ProjectFileCreationContext;
-import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.afs.storage.NodeGenericMetadata;
+import com.powsybl.afs.storage.NodeInfo;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -63,7 +63,7 @@ public class ModificationScriptBuilder implements ProjectFileBuilder<Modificatio
             throw new AfsException("Content is not set");
         }
 
-        if (context.getStorage().getChildNode(context.getFolderInfo().getId(), name) != null) {
+        if (context.getStorage().getChildNode(context.getFolderInfo().getId(), name).isPresent()) {
             throw new AfsException("Parent folder already contains a '" + name + "' node");
         }
 

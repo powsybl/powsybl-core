@@ -22,6 +22,6 @@ class AfsGroovyFacade {
     }
 
     Node getNode(String path) {
-        data.getNode(path)
+        data.getNode(path).orElse(null)
     }
 }
