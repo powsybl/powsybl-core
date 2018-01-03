@@ -6,11 +6,13 @@
  */
 package com.powsybl.afs;
 
+import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.afs.storage.NodeInfo;
 
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -31,7 +33,7 @@ public class Folder extends Node implements FolderBase<Node, Folder> {
 
     @Override
     public List<Node> getChildren() {
-        return storage.getChildNodesInfo(info.getId())
+        return storage.getChildNodes(info.getId())
                 .stream()
                 .map(fileSystem::findNode)
                 .sorted(Comparator.comparing(Node::getName))
@@ -39,43 +41,41 @@ public class Folder extends Node implements FolderBase<Node, Folder> {
     }
 
     @Override
-    public Node getChild(String name, String... more) {
+    public Optional<Node> getChild(String name, String... more) {
         NodeInfo childInfo = getChildInfo(name, more);
-        return childInfo != null ? fileSystem.findNode(childInfo) : null;
+        return Optional.ofNullable(childInfo).map(fileSystem::findNode);
     }
 
     @Override
-    public <T extends Node> T getChild(Class<T> clazz, String name, String... more) {
+    public <T extends Node> Optional<T> getChild(Class<T> clazz, String name, String... more) {
         Objects.requireNonNull(clazz);
-        Node node = getChild(name, more);
-        if (node != null && clazz.isAssignableFrom(node.getClass())) {
-            return (T) node;
-        }
-        return null;
+        return getChild(name, more)
+                .filter(node -> clazz.isAssignableFrom(node.getClass()))
+                .map(clazz::cast);
     }
 
     @Override
-    public Folder getFolder(String name, String... more) {
+    public Optional<Folder> getFolder(String name, String... more) {
         return getChild(Folder.class, name, more);
     }
 
     @Override
     public Folder createFolder(String name) {
-        NodeInfo folderInfo = storage.getChildNodeInfo(info.getId(), name);
-        if (folderInfo == null) {
-            folderInfo = storage.createNode(info.getId(), name, PSEUDO_CLASS, VERSION);
-        }
+        NodeInfo folderInfo = storage.getChildNode(info.getId(), name)
+                .orElse(storage.createNode(info.getId(), name, PSEUDO_CLASS, "", VERSION, new NodeGenericMetadata()));
         return new Folder(new FileCreationContext(folderInfo, storage, fileSystem));
     }
 
     public Project createProject(String name) {
-        NodeInfo projectInfo = storage.getChildNodeInfo(info.getId(), name);
-        if (projectInfo == null) {
-            projectInfo = storage.createNode(info.getId(), name, Project.PSEUDO_CLASS, Project.VERSION);
+        NodeInfo projectInfo = storage.getChildNode(info.getId(), name)
+                .orElseGet(() -> {
+                    NodeInfo newProjectInfo = storage.createNode(info.getId(), name, Project.PSEUDO_CLASS, "", Project.VERSION, new NodeGenericMetadata());
 
-            // create root project folder
-            storage.createNode(projectInfo.getId(), Project.ROOT_FOLDER_NAME, ProjectFolder.PSEUDO_CLASS, ProjectFolder.VERSION);
-        }
+                    // create root project folder
+                    storage.createNode(newProjectInfo.getId(), Project.ROOT_FOLDER_NAME, ProjectFolder.PSEUDO_CLASS, "", ProjectFolder.VERSION, new NodeGenericMetadata());
+
+                    return newProjectInfo;
+                });
         return new Project(new FileCreationContext(projectInfo, storage, fileSystem));
     }
 }

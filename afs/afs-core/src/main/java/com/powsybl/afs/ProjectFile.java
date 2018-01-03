@@ -6,8 +6,6 @@
  */
 package com.powsybl.afs;
 
-import com.powsybl.afs.storage.NodeInfo;
-
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -35,24 +33,19 @@ public class ProjectFile extends ProjectNode {
     }
 
     public List<ProjectNode> getDependencies() {
-        return storage.getDependenciesInfo(info.getId())
+        return storage.getDependencies(info.getId())
                 .stream()
                 .map(fileSystem::findProjectNode)
                 .collect(Collectors.toList());
     }
 
-    public <T> T getDependency(String name, Class<T> projectNodeClass) {
+    public <T> Optional<T> getDependency(String name, Class<T> nodeClass) {
         Objects.requireNonNull(name);
-        Objects.requireNonNull(projectNodeClass);
-        NodeInfo dependencyNodeInfo = storage.getDependencyInfo(info.getId(), name);
-        if (dependencyNodeInfo == null) {
-            return null;
-        }
-        ProjectNode dependencyNode = fileSystem.findProjectNode(dependencyNodeInfo);
-        if (projectNodeClass.isAssignableFrom(dependencyNode.getClass())) {
-            return (T) dependencyNode;
-        }
-        return null;
+        Objects.requireNonNull(nodeClass);
+        return storage.getDependency(info.getId(), name)
+                .map(fileSystem::findProjectNode)
+                .filter(dependencyNode -> nodeClass.isAssignableFrom(dependencyNode.getClass()))
+                .map(nodeClass::cast);
     }
 
     public void addDependencyListener(Object source, DependencyListener listener) {

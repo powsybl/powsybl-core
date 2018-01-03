@@ -13,21 +13,24 @@ import java.util.Objects;
  */
 public class NodeInfo {
 
-    private final NodeId id;
+    private final String id;
 
     private final String name;
 
     private final String pseudoClass;
 
-    private String description;
+    private String description = "";
 
-    private long creationTime;
+    private final long creationTime;
 
     private long modificationTime;
 
     private int version;
 
-    public NodeInfo(NodeId id, String name, String pseudoClass, String description, long creationTime, long modificationTime, int version) {
+    private final NodeGenericMetadata genericMetadata;
+
+    public NodeInfo(String id, String name, String pseudoClass, String description, long creationTime, long modificationTime,
+                    int version, NodeGenericMetadata genericMetadata) {
         this.id = Objects.requireNonNull(id);
         this.name = Objects.requireNonNull(name);
         this.pseudoClass = Objects.requireNonNull(pseudoClass);
@@ -35,9 +38,10 @@ public class NodeInfo {
         this.creationTime = creationTime;
         this.modificationTime = modificationTime;
         this.version = version;
+        this.genericMetadata = Objects.requireNonNull(genericMetadata);
     }
 
-    public NodeId getId() {
+    public String getId() {
         return id;
     }
 
@@ -53,37 +57,40 @@ public class NodeInfo {
         return description;
     }
 
-    public void setDescription(String description) {
+    public NodeInfo setDescription(String description) {
         this.description = Objects.requireNonNull(description);
+        return this;
     }
 
     public long getCreationTime() {
         return creationTime;
     }
 
-    public void setCreationTime(long creationTime) {
-        this.creationTime = creationTime;
-    }
-
     public long getModificationTime() {
         return modificationTime;
     }
 
-    public void setModificationTime(long modificationTime) {
+    public NodeInfo setModificationTime(long modificationTime) {
         this.modificationTime = modificationTime;
+        return this;
     }
 
     public int getVersion() {
         return version;
     }
 
-    public void setVersion(int version) {
+    public NodeInfo setVersion(int version) {
         this.version = version;
+        return this;
+    }
+
+    public NodeGenericMetadata getGenericMetadata() {
+        return genericMetadata;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, pseudoClass, description, creationTime, modificationTime, version);
+        return Objects.hash(id, name, pseudoClass, description, creationTime, modificationTime, version, genericMetadata);
     }
 
     @Override
@@ -92,7 +99,8 @@ public class NodeInfo {
             NodeInfo other = (NodeInfo) obj;
             return id.equals(other.id) && name.equals(other.name) && pseudoClass.equals(other.pseudoClass) &&
                     description.equals(other.description) && creationTime == other.creationTime &&
-                    modificationTime == other.modificationTime && version == other.version;
+                    modificationTime == other.modificationTime && version == other.version &&
+                    genericMetadata.equals(other.genericMetadata);
         }
         return false;
     }
@@ -101,6 +109,7 @@ public class NodeInfo {
     public String toString() {
         return "NodeInfo(id=" + id + ", name=" + name + ", pseudoClass=" + pseudoClass +
                 ", description=" + description + ", creationTime=" + creationTime +
-                ", modificationTime=" + modificationTime + ", version=" + version + ")";
+                ", modificationTime=" + modificationTime + ", version=" + version +
+                ", genericMetadata=" + genericMetadata + ")";
     }
 }

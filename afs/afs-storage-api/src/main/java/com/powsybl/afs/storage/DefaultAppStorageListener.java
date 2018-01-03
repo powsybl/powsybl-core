@@ -12,37 +12,37 @@ package com.powsybl.afs.storage;
 public class DefaultAppStorageListener implements AppStorageListener {
 
     @Override
-    public void nodeCreated(NodeId id) {
+    public void nodeCreated(String id) {
         // empty default implementation
     }
 
     @Override
-    public void nodeRemoved(NodeId id) {
+    public void nodeRemoved(String id) {
         // empty default implementation
     }
 
     @Override
-    public void attributeUpdated(NodeId id, String attributeName) {
+    public void nodeDataUpdated(String id, String attributeName) {
         // empty default implementation
     }
 
     @Override
-    public void dependencyAdded(NodeId id, String dependencyName) {
+    public void dependencyAdded(String id, String dependencyName) {
         // empty default implementation
     }
 
     @Override
-    public void timeSeriesCreated(NodeId id, String timeSeriesName) {
+    public void timeSeriesCreated(String id, String timeSeriesName) {
         // empty default implementation
     }
 
     @Override
-    public void timeSeriesDataUpdated(NodeId id, String timeSeriesName) {
+    public void timeSeriesDataUpdated(String id, String timeSeriesName) {
         // empty default implementation
     }
 
     @Override
-    public void timeSeriesRemoved(NodeId id) {
+    public void timeSeriesRemoved(String id) {
         // empty default implementation
     }
 }

@@ -6,12 +6,15 @@
  */
 package com.powsybl.afs.local.storage;
 
-import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.math.timeseries.DoubleTimeSeries;
 import com.powsybl.math.timeseries.StringTimeSeries;
 import com.powsybl.math.timeseries.TimeSeriesMetadata;
 
-import java.util.*;
+import java.io.InputStream;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  *
@@ -21,15 +24,13 @@ public interface LocalFile extends LocalNode {
 
     String getPseudoClass();
 
-    String getStringAttribute(String name);
+    String getDescription();
 
-    OptionalInt getIntAttribute(String name);
+    NodeGenericMetadata getGenericMetadata();
 
-    OptionalDouble getDoubleAttribute(String name);
+    Optional<InputStream> readBinaryData(String name);
 
-    Optional<Boolean> getBooleanAttribute(String name);
-
-    DataSource getDataSourceAttribute(String name);
+    boolean dataExists(String name);
 
     Set<String> getTimeSeriesNames();
 

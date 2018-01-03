@@ -8,6 +8,7 @@ package com.powsybl.afs.local.storage;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Optional;
 
 /**
  *
@@ -17,5 +18,5 @@ public interface LocalFolder extends LocalNode {
 
     List<Path> getChildPaths();
 
-    Path getChildPath(String name);
+    Optional<Path> getChildPath(String name);
 }

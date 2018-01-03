@@ -19,6 +19,15 @@ import java.io.UncheckedIOException;
  */
 public class NodeInfoJsonSerializer extends StdSerializer<NodeInfo> {
 
+    static final String NAME = "name";
+    static final String ID = "id";
+    static final String DESCRIPTION = "description";
+    static final String PSEUDO_CLASS = "pseudoClass";
+    static final String CREATION_TIME = "creationTime";
+    static final String MODIFICATION_TIME = "modificationTime";
+    static final String VERSION = "version";
+    static final String METADATA = "metadata";
+
     public NodeInfoJsonSerializer() {
         super(NodeInfo.class);
     }
@@ -27,13 +36,15 @@ public class NodeInfoJsonSerializer extends StdSerializer<NodeInfo> {
     public void serialize(NodeInfo nodeInfo, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) {
         try {
             jsonGenerator.writeStartObject();
-            jsonGenerator.writeStringField("id", nodeInfo.getId().toString());
-            jsonGenerator.writeStringField("name", nodeInfo.getName());
-            jsonGenerator.writeStringField("pseudoClass", nodeInfo.getPseudoClass());
-            jsonGenerator.writeStringField("description", nodeInfo.getDescription());
-            jsonGenerator.writeNumberField("creationTime", nodeInfo.getCreationTime());
-            jsonGenerator.writeNumberField("modificationTime", nodeInfo.getModificationTime());
-            jsonGenerator.writeNumberField("version", nodeInfo.getVersion());
+            jsonGenerator.writeStringField(ID, nodeInfo.getId());
+            jsonGenerator.writeStringField(NAME, nodeInfo.getName());
+            jsonGenerator.writeStringField(PSEUDO_CLASS, nodeInfo.getPseudoClass());
+            jsonGenerator.writeStringField(DESCRIPTION, nodeInfo.getDescription());
+            jsonGenerator.writeNumberField(CREATION_TIME, nodeInfo.getCreationTime());
+            jsonGenerator.writeNumberField(MODIFICATION_TIME, nodeInfo.getModificationTime());
+            jsonGenerator.writeNumberField(VERSION, nodeInfo.getVersion());
+            jsonGenerator.writeFieldName(METADATA);
+            new NodeGenericMetadataJsonSerializer().serialize(nodeInfo.getGenericMetadata(), jsonGenerator, serializerProvider);
             jsonGenerator.writeEndObject();
         } catch (IOException e) {
             throw new UncheckedIOException(e);

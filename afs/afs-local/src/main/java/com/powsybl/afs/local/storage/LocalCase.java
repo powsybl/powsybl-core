@@ -7,6 +7,8 @@
 package com.powsybl.afs.local.storage;
 
 import com.powsybl.afs.ext.base.Case;
+import com.powsybl.afs.storage.AppStorageDataSource;
+import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.import_.Importers;
@@ -14,8 +16,14 @@ import com.powsybl.math.timeseries.DoubleTimeSeries;
 import com.powsybl.math.timeseries.StringTimeSeries;
 import com.powsybl.math.timeseries.TimeSeriesMetadata;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  *
@@ -38,8 +46,8 @@ public class LocalCase implements LocalFile {
     }
 
     @Override
-    public Path getParentPath() {
-        return file.getParent();
+    public Optional<Path> getParentPath() {
+        return Optional.ofNullable(file.getParent());
     }
 
     @Override
@@ -48,42 +56,48 @@ public class LocalCase implements LocalFile {
     }
 
     @Override
-    public String getStringAttribute(String name) {
-        switch (name) {
-            case "format":
-                return importer.getFormat();
+    public String getDescription() {
+        return importer.getComment();
+    }
 
-            case "description":
-                return importer.getComment();
+    @Override
+    public NodeGenericMetadata getGenericMetadata() {
+        return new NodeGenericMetadata().setString("format", importer.getFormat());
+    }
 
-            default:
-                throw new AssertionError(name);
+    @Override
+    public Optional<InputStream> readBinaryData(String name) {
+        DataSource dataSource = Importers.createDataSource(file);
+        AppStorageDataSource.Name dataSrcName = AppStorageDataSource.Name.parse(name);
+        try {
+            if (dataSrcName instanceof AppStorageDataSource.SuffixAndExtension) {
+                return Optional.of(dataSource.newInputStream(((AppStorageDataSource.SuffixAndExtension) dataSrcName).getSuffix(),
+                                                             ((AppStorageDataSource.SuffixAndExtension) dataSrcName).getExt()));
+            } else if (dataSrcName instanceof AppStorageDataSource.FileName) {
+                return Optional.of(dataSource.newInputStream(((AppStorageDataSource.FileName) dataSrcName).getName()));
+            } else {
+                throw new AssertionError("Unknown data source name " + dataSrcName);
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
     }
 
     @Override
-    public OptionalInt getIntAttribute(String name) {
-        throw new AssertionError();
-    }
-
-    @Override
-    public OptionalDouble getDoubleAttribute(String name) {
-        throw new AssertionError();
-    }
-
-    @Override
-    public Optional<Boolean> getBooleanAttribute(String name) {
-        throw new AssertionError();
-    }
-
-    @Override
-    public DataSource getDataSourceAttribute(String name) {
-        switch (name) {
-            case "dataSource":
-                return Importers.createDataSource(file);
-
-            default:
-                throw new AssertionError();
+    public boolean dataExists(String name) {
+        DataSource dataSource = Importers.createDataSource(file);
+        AppStorageDataSource.Name dataSrcName = AppStorageDataSource.Name.parse(name);
+        try {
+            if (dataSrcName instanceof AppStorageDataSource.SuffixAndExtension) {
+                return dataSource.exists(((AppStorageDataSource.SuffixAndExtension) dataSrcName).getSuffix(),
+                                         ((AppStorageDataSource.SuffixAndExtension) dataSrcName).getExt());
+            } else if (dataSrcName instanceof AppStorageDataSource.FileName) {
+                return dataSource.exists(((AppStorageDataSource.FileName) dataSrcName).getName());
+            } else {
+                throw new AssertionError("Unknown data source name " + dataSrcName);
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
     }
 

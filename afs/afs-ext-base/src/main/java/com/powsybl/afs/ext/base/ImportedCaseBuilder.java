@@ -10,12 +10,16 @@ import com.powsybl.afs.AfsException;
 import com.powsybl.afs.ProjectFileBuildContext;
 import com.powsybl.afs.ProjectFileBuilder;
 import com.powsybl.afs.ProjectFileCreationContext;
+import com.powsybl.afs.storage.AppStorageDataSource;
+import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.iidm.import_.ImportersLoader;
 
 import java.io.IOException;
-import java.io.StringWriter;
+import java.io.OutputStreamWriter;
 import java.io.UncheckedIOException;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
@@ -31,7 +35,7 @@ public class ImportedCaseBuilder implements ProjectFileBuilder<ImportedCase> {
 
     private Case aCase;
 
-    private final Properties parameters = new Properties();;
+    private final Properties parameters = new Properties();
 
     public ImportedCaseBuilder(ProjectFileBuildContext context, ImportersLoader importersLoader) {
         this.context = Objects.requireNonNull(context);
@@ -61,28 +65,20 @@ public class ImportedCaseBuilder implements ProjectFileBuilder<ImportedCase> {
 
         String name = aCase.getName();
 
-        if (context.getStorage().getChildNode(context.getFolderInfo().getId(), name) != null) {
+        if (context.getStorage().getChildNode(context.getFolderInfo().getId(), name).isPresent()) {
             throw new AfsException("Parent folder already contains a '" + name + "' node");
         }
 
         // create project file
-        NodeInfo info = context.getStorage().createNode(context.getFolderInfo().getId(), name, ImportedCase.PSEUDO_CLASS, ImportedCase.VERSION);
-
-        // store importer format
-        context.getStorage().setStringAttribute(info.getId(), ImportedCase.FORMAT, aCase.getImporter().getFormat());
+        NodeInfo info = context.getStorage().createNode(context.getFolderInfo().getId(), name, ImportedCase.PSEUDO_CLASS, "", ImportedCase.VERSION,
+                new NodeGenericMetadata().setString(ImportedCase.FORMAT, aCase.getImporter().getFormat()));
 
         // store case data
-        aCase.getImporter().copy(aCase.getDataSource(), context.getStorage().getDataSourceAttribute(info.getId(), ImportedCase.DATA_SOURCE));
+        aCase.getImporter().copy(aCase.getDataSource(), new AppStorageDataSource(context.getStorage(), info.getId()));
 
         // store parameters
-        try {
-            StringWriter writer = new StringWriter();
-            try {
-                parameters.store(writer, "");
-            } finally {
-                writer.close();
-            }
-            context.getStorage().setStringAttribute(info.getId(), ImportedCase.PARAMETERS, writer.toString());
+        try (Writer writer = new OutputStreamWriter(context.getStorage().writeBinaryData(info.getId(), ImportedCase.PARAMETERS), StandardCharsets.UTF_8)) {
+            parameters.store(writer, "");
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

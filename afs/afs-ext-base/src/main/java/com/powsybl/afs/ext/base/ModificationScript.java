@@ -6,12 +6,14 @@
  */
 package com.powsybl.afs.ext.base;
 
+import com.google.common.io.CharStreams;
 import com.powsybl.afs.FileIcon;
 import com.powsybl.afs.ProjectFile;
 import com.powsybl.afs.ProjectFileCreationContext;
 import com.powsybl.afs.storage.DefaultAppStorageListener;
-import com.powsybl.afs.storage.NodeId;
 
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -35,7 +37,7 @@ public class ModificationScript extends ProjectFile implements StorableScript {
         super(context, VERSION, SCRIPT_ICON);
         storage.addListener(this, new DefaultAppStorageListener() {
             @Override
-            public void attributeUpdated(NodeId id, String attributeName) {
+            public void nodeDataUpdated(String id, String attributeName) {
                 if (id.equals(info.getId()) && SCRIPT_CONTENT.equals(attributeName)) {
                     for (ScriptListener listener : listeners) {
                         listener.scriptUpdated();
@@ -46,17 +48,26 @@ public class ModificationScript extends ProjectFile implements StorableScript {
     }
 
     public ScriptType getScriptType() {
-        return ScriptType.valueOf(storage.getStringAttribute(info.getId(), SCRIPT_TYPE));
+        return ScriptType.valueOf(info.getGenericMetadata().getString(SCRIPT_TYPE));
     }
 
     @Override
     public String readScript() {
-        return storage.getStringAttribute(info.getId(), SCRIPT_CONTENT);
+        try {
+            return CharStreams.toString(new InputStreamReader(storage.readBinaryData(info.getId(), SCRIPT_CONTENT).orElseThrow(AssertionError::new), StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     @Override
     public void writeScript(String content) {
-        storage.setStringAttribute(info.getId(), SCRIPT_CONTENT, content);
+        try (Reader reader = new StringReader(content);
+             Writer writer = new OutputStreamWriter(storage.writeBinaryData(info.getId(), SCRIPT_CONTENT), StandardCharsets.UTF_8)) {
+            CharStreams.copy(reader, writer);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
         storage.flush();
         notifyDependencyListeners();
     }

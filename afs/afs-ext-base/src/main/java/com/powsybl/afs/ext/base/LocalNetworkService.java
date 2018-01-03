@@ -9,8 +9,8 @@ package com.powsybl.afs.ext.base;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.util.concurrent.UncheckedExecutionException;
+import com.powsybl.afs.AfsException;
 import com.powsybl.afs.ProjectFile;
-import com.powsybl.afs.storage.NodeId;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.network.Network;
@@ -58,7 +58,7 @@ public class LocalNetworkService implements NetworkService {
         }
     }
 
-    private final Cache<NodeId, ModifiedNetwork> networkCache;
+    private final Cache<String, ModifiedNetwork> networkCache;
 
     public LocalNetworkService() {
         networkCache = CacheBuilder.newBuilder()
@@ -89,7 +89,8 @@ public class LocalNetworkService implements NetworkService {
     }
 
     private ModifiedNetwork loadNetworkFromVirtualCase(VirtualCase virtualCase) {
-        ProjectCase baseCase = virtualCase.getCase();
+        ProjectCase baseCase = virtualCase.getCase()
+                                          .orElseThrow(() -> new AfsException("Case link is dead"));
 
         ModifiedNetwork modifiedNetwork = loadNetworkFromProjectCase(baseCase);
 
@@ -97,7 +98,8 @@ public class LocalNetworkService implements NetworkService {
             return modifiedNetwork;
         }
 
-        ModificationScript script = virtualCase.getScript();
+        ModificationScript script = virtualCase.getScript()
+                                               .orElseThrow(VirtualCase::createScriptLinkIsDeadException);
 
         LOGGER.info("Applying script to network of project case " + virtualCase.getId());
 

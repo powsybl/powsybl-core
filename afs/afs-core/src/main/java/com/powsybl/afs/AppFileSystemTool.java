@@ -15,6 +15,8 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionGroup;
 import org.apache.commons.cli.Options;
 
+import java.util.Optional;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -77,15 +79,15 @@ public class AppFileSystemTool implements Tool {
                         context.getOutputStream().println(afs.getName());
                     }
                 } else {
-                    Node node = appData.getNode(path);
-                    if (node == null) {
-                        context.getErrorStream().println("'" + path + "' does not exist");
-                    } else {
-                        if (node.isFolder()) {
-                            ((Folder) node).getChildren().forEach(child -> context.getOutputStream().println(child.getName()));
+                    Optional<Node> node = appData.getNode(path);
+                    if (node.isPresent()) {
+                        if (node.get().isFolder()) {
+                            ((Folder) node.get()).getChildren().forEach(child -> context.getOutputStream().println(child.getName()));
                         } else {
                             context.getErrorStream().println("'" + path + "' is not a folder");
                         }
+                    } else {
+                        context.getErrorStream().println("'" + path + "' does not exist");
                     }
                 }
             } else {
