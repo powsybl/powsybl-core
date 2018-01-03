@@ -29,9 +29,9 @@ public class AppStorageDataSource implements DataSource {
                 if (pos == -1) {
                     throw new IllegalStateException("Second separator not found");
                 }
-                String suffixe = text.substring(SuffixAndExtension.START_PATTERN.length(), pos);
+                String suffix = text.substring(SuffixAndExtension.START_PATTERN.length(), pos);
                 String ext = text.substring(pos + SEPARATOR.length());
-                return new SuffixAndExtension(suffixe, ext);
+                return new SuffixAndExtension(suffix, ext);
             } else if (text.startsWith(FileName.START_PATTERN)) {
                 String fileName = text.substring(FileName.START_PATTERN.length());
                 return new FileName(fileName);
