@@ -46,7 +46,7 @@ public class StorageChangeBuffer {
         changeSet.getChanges().add(change);
         if (changeSet.getChanges().size() >= maximumChange ||
                 changeSet.getEstimatedSize() >= maximumSize) {
-            flushNotProtected();
+            flush();
         }
     }
 
@@ -80,19 +80,20 @@ public class StorageChangeBuffer {
     }
 
     public boolean isEmpty() {
-        return changeSet.getChanges().isEmpty();
-    }
-
-    private void flushNotProtected() {
-        flusher.flush(changeSet);
-
-        changeSet.getChanges().clear();
+        lock.lock();
+        try {
+            return changeSet.getChanges().isEmpty();
+        } finally {
+            lock.unlock();
+        }
     }
 
     public void flush() {
         lock.lock();
         try {
-            flushNotProtected();
+            flusher.flush(changeSet);
+
+            changeSet.getChanges().clear();
         } finally {
             lock.unlock();
         }
