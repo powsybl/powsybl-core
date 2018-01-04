@@ -113,7 +113,7 @@ public abstract class AbstractAppStorageTest {
         long oldModificationTime = testFolderInfo.getModificationTime();
         storage.updateModificationTime(testFolderInfo.getId());
         storage.flush();
-        assertTrue(storage.getNodeInfo(testFolderInfo.getId()).getModificationTime() > oldModificationTime);
+        assertTrue(storage.getNodeInfo(testFolderInfo.getId()).getModificationTime() >= oldModificationTime);
 
         // 5) create 2 data nodes in test folder
         NodeInfo testDataInfo = storage.createNode(testFolderInfo.getId(), "data", DATA_FILE_CLASS, "", 0, new NodeGenericMetadata());
