@@ -183,6 +183,7 @@ public class DefaultListenableAppStorage implements ListenableAppStorage {
     @Override
     public void removeDependency(String nodeId, String name, String toNodeId) {
         storage.removeDependency(nodeId, name, toNodeId);
+        listeners.values().stream().flatMap(List::stream).forEach(l -> l.dependencyRemoved(nodeId, name));
     }
 
     @Override

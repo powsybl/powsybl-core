@@ -19,6 +19,8 @@ public interface AppStorageListener {
 
     void dependencyAdded(String id, String dependencyName);
 
+    void dependencyRemoved(String id, String dependencyName);
+
     void timeSeriesCreated(String id, String timeSeriesName);
 
     void timeSeriesDataUpdated(String id, String timeSeriesName);

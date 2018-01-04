@@ -32,6 +32,11 @@ public class DefaultAppStorageListener implements AppStorageListener {
     }
 
     @Override
+    public void dependencyRemoved(String id, String dependencyName) {
+        // empty default implementation
+    }
+
+    @Override
     public void timeSeriesCreated(String id, String timeSeriesName) {
         // empty default implementation
     }

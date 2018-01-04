@@ -62,6 +62,11 @@ public class DefaultListenableAppStorageTest {
             }
 
             @Override
+            public void dependencyRemoved(String id, String dependencyName) {
+                methodCalled = "dependencyRemoved";
+            }
+
+            @Override
             public void timeSeriesCreated(String id, String timeSeriesName) {
                 methodCalled = "timeSeriesCreated";
             }
@@ -98,6 +103,9 @@ public class DefaultListenableAppStorageTest {
 
         listenableStorage.addDependency("node1", "a", "node1");
         assertEquals("dependencyAdded", methodCalled);
+
+        listenableStorage.removeDependency("node1", "a", "node1");
+        assertEquals("dependencyRemoved", methodCalled);
 
         listenableStorage.createTimeSeries("node1", Mockito.mock(TimeSeriesMetadata.class));
         assertEquals("timeSeriesCreated", methodCalled);
