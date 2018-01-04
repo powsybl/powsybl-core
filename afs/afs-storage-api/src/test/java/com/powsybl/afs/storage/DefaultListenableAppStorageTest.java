@@ -52,7 +52,7 @@ public class DefaultListenableAppStorageTest {
             }
 
             @Override
-            public void nodeDataUpdated(String id, String attributeName) {
+            public void nodeDataUpdated(String id, String dataName) {
                 methodCalled = "nodeDataUpdated";
             }
 

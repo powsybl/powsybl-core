@@ -9,6 +9,7 @@ package com.powsybl.afs.local.storage;
 import com.google.common.collect.ImmutableList;
 import com.powsybl.afs.Folder;
 import com.powsybl.afs.storage.AppStorage;
+import com.powsybl.afs.storage.NodeDependency;
 import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.computation.ComputationManager;
@@ -175,6 +176,11 @@ public class LocalAppStorage implements AppStorage {
         throw new AssertionError();
     }
 
+    @Override
+    public void updateModificationTime(String nodeId) {
+        throw new AssertionError();
+    }
+
     private boolean isLocalNode(Path path) {
         return scanFolder(path, false) != null || scanFile(path, false) != null;
     }
@@ -273,6 +279,11 @@ public class LocalAppStorage implements AppStorage {
     }
 
     @Override
+    public Set<String> getDataNames(String nodeId) {
+        return getFile(nodeId).getDataNames();
+    }
+
+    @Override
     public void createTimeSeries(String nodeId, TimeSeriesMetadata metadata) {
         throw new AssertionError();
     }
@@ -318,22 +329,27 @@ public class LocalAppStorage implements AppStorage {
     }
 
     @Override
-    public Optional<NodeInfo> getDependency(String nodeId, String name) {
-        throw new AssertionError();
-    }
-
-    @Override
     public void addDependency(String nodeId, String name, String toNodeId) {
         throw new AssertionError();
     }
 
     @Override
-    public List<NodeInfo> getDependencies(String nodeId) {
+    public Set<NodeInfo> getDependencies(String nodeId, String name) {
         throw new AssertionError();
     }
 
     @Override
-    public List<NodeInfo> getBackwardDependencies(String nodeId) {
+    public Set<NodeDependency> getDependencies(String nodeId) {
+        throw new AssertionError();
+    }
+
+    @Override
+    public Set<NodeInfo> getBackwardDependencies(String nodeId) {
+        throw new AssertionError();
+    }
+
+    @Override
+    public void removeDependency(String nodeId, String name, String toNodeId) {
         throw new AssertionError();
     }
 
