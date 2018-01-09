@@ -23,6 +23,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -471,6 +472,19 @@ public class MapDbAppStorage implements AppStorage {
             metadataList.add(metadata);
         }
         return metadataList;
+    }
+
+    @Override
+    public Set<Integer> getTimeSeriesDataVersions(String nodeId, String timeSeriesName) {
+        UUID nodeUuid = checkNodeId(nodeId);
+        checkNodeExists(nodeUuid);
+        Objects.requireNonNull(timeSeriesName);
+        return Stream.concat(doubleTimeSeriesChunksMap.keySet().stream(),
+                             stringTimeSeriesChunksMap.keySet().stream())
+                .map(TimeSeriesChunkKey::getTimeSeriesKey)
+                .filter(key -> key.getNodeUuid().equals(nodeUuid) && key.getTimeSeriesName().equals(timeSeriesName))
+                .map(TimeSeriesKey::getVersion)
+                .collect(Collectors.toSet());
     }
 
     private <P extends AbstractPoint, C extends ArrayChunk<P>> List<C> getChunks(UUID nodeId, int version, String timeSeriesName,

@@ -33,8 +33,6 @@ public final class TimeSeriesIndexSerializer implements Serializer<TimeSeriesInd
             out.writeLong(regularIndex.getStartTime());
             out.writeLong(regularIndex.getEndTime());
             out.writeLong(regularIndex.getSpacing());
-            out.writeInt(regularIndex.getFirstVersion());
-            out.writeInt(regularIndex.getVersionCount());
         } else {
             throw new AssertionError();
         }
@@ -46,10 +44,8 @@ public final class TimeSeriesIndexSerializer implements Serializer<TimeSeriesInd
         long startTime = input.readLong();
         long endTime = input.readLong();
         long spacing = input.readLong();
-        int firstVersion = input.readInt();
-        int versionCount = input.readInt();
         if ("regularIndex".equals(indexType)) {
-            return new RegularTimeSeriesIndex(startTime, endTime, spacing, firstVersion, versionCount);
+            return new RegularTimeSeriesIndex(startTime, endTime, spacing);
         } else {
             throw new AssertionError();
         }

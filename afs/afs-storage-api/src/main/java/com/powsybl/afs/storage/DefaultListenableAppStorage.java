@@ -132,6 +132,11 @@ public class DefaultListenableAppStorage implements ListenableAppStorage {
     }
 
     @Override
+    public Set<Integer> getTimeSeriesDataVersions(String nodeId, String timeSeriesName) {
+        return storage.getTimeSeriesDataVersions(nodeId, timeSeriesName);
+    }
+
+    @Override
     public List<DoubleTimeSeries> getDoubleTimeSeries(String nodeId, Set<String> timeSeriesNames, int version) {
         return storage.getDoubleTimeSeries(nodeId, timeSeriesNames, version);
     }
