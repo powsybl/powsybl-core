@@ -37,8 +37,8 @@ public class ModificationScript extends ProjectFile implements StorableScript {
         super(context, VERSION, SCRIPT_ICON);
         storage.addListener(this, new DefaultAppStorageListener() {
             @Override
-            public void nodeDataUpdated(String id, String attributeName) {
-                if (id.equals(info.getId()) && SCRIPT_CONTENT.equals(attributeName)) {
+            public void nodeDataUpdated(String id, String dataName) {
+                if (id.equals(info.getId()) && SCRIPT_CONTENT.equals(dataName)) {
                     for (ScriptListener listener : listeners) {
                         listener.scriptUpdated();
                     }
@@ -68,6 +68,7 @@ public class ModificationScript extends ProjectFile implements StorableScript {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+        storage.updateModificationTime(info.getId());
         storage.flush();
         notifyDependencyListeners();
     }

@@ -14,7 +14,6 @@ import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.afs.storage.NodeInfo;
 
 import java.io.IOException;
-import java.io.UncheckedIOException;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -86,21 +85,17 @@ public class NodeInfoJsonDeserializer extends StdDeserializer<NodeInfo> {
     }
 
     @Override
-    public NodeInfo deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) {
-        try {
-            JsonParsingContext parsingContext = new JsonParsingContext();
-            JsonToken token;
-            while ((token = jsonParser.nextToken()) != null) {
-                if (token == JsonToken.FIELD_NAME) {
-                    parseFieldName(jsonParser, deserializationContext, parsingContext);
-                } else if (token == JsonToken.END_OBJECT) {
-                    break;
-                }
+    public NodeInfo deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+        JsonParsingContext parsingContext = new JsonParsingContext();
+        JsonToken token;
+        while ((token = jsonParser.nextToken()) != null) {
+            if (token == JsonToken.FIELD_NAME) {
+                parseFieldName(jsonParser, deserializationContext, parsingContext);
+            } else if (token == JsonToken.END_OBJECT) {
+                break;
             }
-            return new NodeInfo(parsingContext.id, parsingContext.name, parsingContext.pseudoClass, parsingContext.description,
-                                parsingContext.creationTime, parsingContext.modificationTime, parsingContext.version, parsingContext.metadata);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
         }
+        return new NodeInfo(parsingContext.id, parsingContext.name, parsingContext.pseudoClass, parsingContext.description,
+                            parsingContext.creationTime, parsingContext.modificationTime, parsingContext.version, parsingContext.metadata);
     }
 }
