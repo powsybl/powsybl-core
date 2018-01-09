@@ -34,11 +34,11 @@ public class VirtualCase extends ProjectFile implements ProjectCase, RunnableScr
     }
 
     public Optional<ProjectCase> getCase() {
-        return projectCaseDependency.get();
+        return projectCaseDependency.getFirst();
     }
 
     public Optional<ModificationScript> getScript() {
-        return modificationScriptDependency.get();
+        return modificationScriptDependency.getFirst();
     }
 
     @Override

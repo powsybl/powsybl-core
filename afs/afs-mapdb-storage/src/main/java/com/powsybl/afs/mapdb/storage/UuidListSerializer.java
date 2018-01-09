@@ -19,7 +19,7 @@ import java.util.UUID;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public final class UuidListSerializer implements Serializer<UuidList>, Serializable {
+public final class UuidListSerializer implements Serializer<List<UUID>>, Serializable {
 
     public static final UuidListSerializer INSTANCE = new UuidListSerializer();
 
@@ -27,7 +27,7 @@ public final class UuidListSerializer implements Serializer<UuidList>, Serializa
     }
 
     @Override
-    public void serialize(DataOutput2 out, UuidList uuids) throws IOException {
+    public void serialize(DataOutput2 out, List<UUID> uuids) throws IOException {
         out.writeInt(uuids.size());
         for (int i = 0; i < uuids.size(); i++) {
             UuidSerializer.INSTANCE.serialize(out, uuids.get(i));
@@ -35,13 +35,13 @@ public final class UuidListSerializer implements Serializer<UuidList>, Serializa
     }
 
     @Override
-    public UuidList deserialize(DataInput2 input, int available) throws IOException {
+    public List<UUID> deserialize(DataInput2 input, int available) throws IOException {
         int size = input.readInt();
         List<UUID> uuids = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
             uuids.add(UuidSerializer.INSTANCE.deserialize(input, available));
         }
-        return new UuidList(uuids);
+        return uuids;
     }
 }
 

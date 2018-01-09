@@ -12,7 +12,6 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.afs.storage.NodeInfo;
 
 import java.io.IOException;
-import java.io.UncheckedIOException;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -33,21 +32,17 @@ public class NodeInfoJsonSerializer extends StdSerializer<NodeInfo> {
     }
 
     @Override
-    public void serialize(NodeInfo nodeInfo, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) {
-        try {
-            jsonGenerator.writeStartObject();
-            jsonGenerator.writeStringField(ID, nodeInfo.getId());
-            jsonGenerator.writeStringField(NAME, nodeInfo.getName());
-            jsonGenerator.writeStringField(PSEUDO_CLASS, nodeInfo.getPseudoClass());
-            jsonGenerator.writeStringField(DESCRIPTION, nodeInfo.getDescription());
-            jsonGenerator.writeNumberField(CREATION_TIME, nodeInfo.getCreationTime());
-            jsonGenerator.writeNumberField(MODIFICATION_TIME, nodeInfo.getModificationTime());
-            jsonGenerator.writeNumberField(VERSION, nodeInfo.getVersion());
-            jsonGenerator.writeFieldName(METADATA);
-            new NodeGenericMetadataJsonSerializer().serialize(nodeInfo.getGenericMetadata(), jsonGenerator, serializerProvider);
-            jsonGenerator.writeEndObject();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+    public void serialize(NodeInfo nodeInfo, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+        jsonGenerator.writeStartObject();
+        jsonGenerator.writeStringField(ID, nodeInfo.getId());
+        jsonGenerator.writeStringField(NAME, nodeInfo.getName());
+        jsonGenerator.writeStringField(PSEUDO_CLASS, nodeInfo.getPseudoClass());
+        jsonGenerator.writeStringField(DESCRIPTION, nodeInfo.getDescription());
+        jsonGenerator.writeNumberField(CREATION_TIME, nodeInfo.getCreationTime());
+        jsonGenerator.writeNumberField(MODIFICATION_TIME, nodeInfo.getModificationTime());
+        jsonGenerator.writeNumberField(VERSION, nodeInfo.getVersion());
+        jsonGenerator.writeFieldName(METADATA);
+        new NodeGenericMetadataJsonSerializer().serialize(nodeInfo.getGenericMetadata(), jsonGenerator, serializerProvider);
+        jsonGenerator.writeEndObject();
     }
 }

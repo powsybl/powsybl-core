@@ -63,6 +63,11 @@ public class DefaultListenableAppStorage implements ListenableAppStorage {
     }
 
     @Override
+    public void updateModificationTime(String nodeId) {
+        storage.updateModificationTime(nodeId);
+    }
+
+    @Override
     public List<NodeInfo> getChildNodes(String nodeId) {
         return storage.getChildNodes(nodeId);
     }
@@ -103,6 +108,11 @@ public class DefaultListenableAppStorage implements ListenableAppStorage {
     @Override
     public boolean dataExists(String nodeId, String name) {
         return storage.dataExists(nodeId, name);
+    }
+
+    @Override
+    public Set<String> getDataNames(String nodeId) {
+        return storage.getDataNames(nodeId);
     }
 
     @Override
@@ -150,24 +160,30 @@ public class DefaultListenableAppStorage implements ListenableAppStorage {
     }
 
     @Override
-    public Optional<NodeInfo> getDependency(String nodeId, String name) {
-        return storage.getDependency(nodeId, name);
-    }
-
-    @Override
     public void addDependency(String nodeId, String name, String toNodeId) {
         storage.addDependency(nodeId, name, toNodeId);
         listeners.values().stream().flatMap(List::stream).forEach(l -> l.dependencyAdded(nodeId, name));
     }
 
     @Override
-    public List<NodeInfo> getDependencies(String nodeId) {
+    public Set<NodeInfo> getDependencies(String nodeId, String name) {
+        return storage.getDependencies(nodeId, name);
+    }
+
+    @Override
+    public Set<NodeDependency> getDependencies(String nodeId) {
         return storage.getDependencies(nodeId);
     }
 
     @Override
-    public List<NodeInfo> getBackwardDependencies(String nodeId) {
+    public Set<NodeInfo> getBackwardDependencies(String nodeId) {
         return storage.getBackwardDependencies(nodeId);
+    }
+
+    @Override
+    public void removeDependency(String nodeId, String name, String toNodeId) {
+        storage.removeDependency(nodeId, name, toNodeId);
+        listeners.values().stream().flatMap(List::stream).forEach(l -> l.dependencyRemoved(nodeId, name));
     }
 
     @Override

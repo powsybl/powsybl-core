@@ -32,6 +32,8 @@ public interface LocalFile extends LocalNode {
 
     boolean dataExists(String name);
 
+    Set<String> getDataNames();
+
     Set<String> getTimeSeriesNames();
 
     List<TimeSeriesMetadata> getTimeSeriesMetadata(Set<String> timeSeriesNames);

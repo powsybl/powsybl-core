@@ -13,7 +13,6 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.afs.storage.NodeGenericMetadata;
 
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.util.Objects;
 
 /**
@@ -72,20 +71,16 @@ public class NodeGenericMetadataJsonDeserializer extends StdDeserializer<NodeGen
     }
 
     @Override
-    public NodeGenericMetadata deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) {
-        try {
-            JsonParsingContext parsingContext = new JsonParsingContext();
-            JsonToken token;
-            while ((token = jsonParser.nextToken()) != null) {
-                if (token == JsonToken.END_ARRAY) {
-                    break;
-                } else if (token == JsonToken.FIELD_NAME) {
-                    parseFieldName(jsonParser, parsingContext);
-                }
+    public NodeGenericMetadata deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+        JsonParsingContext parsingContext = new JsonParsingContext();
+        JsonToken token;
+        while ((token = jsonParser.nextToken()) != null) {
+            if (token == JsonToken.END_ARRAY) {
+                break;
+            } else if (token == JsonToken.FIELD_NAME) {
+                parseFieldName(jsonParser, parsingContext);
             }
-            return parsingContext.metadata;
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
         }
+        return parsingContext.metadata;
     }
 }

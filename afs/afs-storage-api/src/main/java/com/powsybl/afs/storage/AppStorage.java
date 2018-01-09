@@ -33,6 +33,8 @@ public interface AppStorage extends AutoCloseable {
 
     void setDescription(String nodeId, String description);
 
+    void updateModificationTime(String nodeId);
+
     List<NodeInfo> getChildNodes(String nodeId);
 
     Optional<NodeInfo> getChildNode(String nodeId, String name);
@@ -48,6 +50,8 @@ public interface AppStorage extends AutoCloseable {
     OutputStream writeBinaryData(String nodeId, String name);
 
     boolean dataExists(String nodeId, String name);
+
+    Set<String> getDataNames(String nodeId);
 
     void createTimeSeries(String nodeId, TimeSeriesMetadata metadata);
 
@@ -65,13 +69,15 @@ public interface AppStorage extends AutoCloseable {
 
     void removeAllTimeSeries(String nodeId);
 
-    Optional<NodeInfo> getDependency(String nodeId, String name);
-
     void addDependency(String nodeId, String name, String toNodeId);
 
-    List<NodeInfo> getDependencies(String nodeId);
+    Set<NodeInfo> getDependencies(String nodeId, String name);
 
-    List<NodeInfo> getBackwardDependencies(String nodeId);
+    Set<NodeDependency> getDependencies(String nodeId);
+
+    Set<NodeInfo> getBackwardDependencies(String nodeId);
+
+    void removeDependency(String nodeId, String name, String toNodeId);
 
     void flush();
 

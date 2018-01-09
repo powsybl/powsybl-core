@@ -7,6 +7,7 @@
 package com.powsybl.afs.storage;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.google.common.io.ByteStreams;
 import com.powsybl.commons.datasource.DataSource;
@@ -108,7 +109,13 @@ public abstract class AbstractAppStorageTest {
         storage.flush();
         assertEquals("hello", storage.getNodeInfo(testFolderInfo.getId()).getDescription());
 
-        // 4) create 2 data nodes in test folder
+        // 4) check modifiation time update
+        long oldModificationTime = testFolderInfo.getModificationTime();
+        storage.updateModificationTime(testFolderInfo.getId());
+        storage.flush();
+        assertTrue(storage.getNodeInfo(testFolderInfo.getId()).getModificationTime() >= oldModificationTime);
+
+        // 5) create 2 data nodes in test folder
         NodeInfo testDataInfo = storage.createNode(testFolderInfo.getId(), "data", DATA_FILE_CLASS, "", 0, new NodeGenericMetadata());
         NodeInfo testData2Info = storage.createNode(testFolderInfo.getId(), "data2", DATA_FILE_CLASS, "", 0,
                 new NodeGenericMetadata().setString("s1", "v1")
@@ -129,19 +136,30 @@ public abstract class AbstractAppStorageTest {
         assertTrue(storage.getBackwardDependencies(testDataInfo.getId()).isEmpty());
         assertTrue(storage.getBackwardDependencies(testData2Info.getId()).isEmpty());
 
-        // 5) create a dependency between data node and data node 2
+        // 6) create a dependency between data node and data node 2
         storage.addDependency(testDataInfo.getId(), "mylink", testData2Info.getId());
         storage.flush();
 
         // check dependency state
-        assertEquals(1, storage.getDependencies(testDataInfo.getId()).size());
-        assertEquals(testData2Info, storage.getDependencies(testDataInfo.getId()).get(0));
-        assertEquals(1, storage.getBackwardDependencies(testData2Info.getId()).size());
-        assertEquals(testDataInfo, storage.getBackwardDependencies(testData2Info.getId()).get(0));
-        assertEquals(testData2Info, storage.getDependency(testDataInfo.getId(), "mylink").orElseThrow(AssertionError::new));
-        assertFalse(storage.getDependency(testDataInfo.getId(), "mylink2").isPresent());
+        assertEquals(ImmutableSet.of(new NodeDependency("mylink", testData2Info)), storage.getDependencies(testDataInfo.getId()));
+        assertEquals(ImmutableSet.of(testDataInfo), storage.getBackwardDependencies(testData2Info.getId()));
+        assertEquals(ImmutableSet.of(testData2Info), storage.getDependencies(testDataInfo.getId(), "mylink"));
+        assertTrue(storage.getDependencies(testDataInfo.getId(), "mylink2").isEmpty());
 
-        // 6) delete data node
+        // 7) add then remove a second dependency
+        storage.addDependency(testDataInfo.getId(), "mylink2", testData2Info.getId());
+        storage.flush();
+
+        assertEquals(ImmutableSet.of(new NodeDependency("mylink", testData2Info), new NodeDependency("mylink2", testData2Info)), storage.getDependencies(testDataInfo.getId()));
+        assertEquals(ImmutableSet.of(testDataInfo), storage.getBackwardDependencies(testData2Info.getId()));
+        assertEquals(ImmutableSet.of(testData2Info), storage.getDependencies(testDataInfo.getId(), "mylink"));
+
+        storage.removeDependency(testDataInfo.getId(), "mylink2", testData2Info.getId());
+        assertEquals(ImmutableSet.of(new NodeDependency("mylink", testData2Info)), storage.getDependencies(testDataInfo.getId()));
+        assertEquals(ImmutableSet.of(testDataInfo), storage.getBackwardDependencies(testData2Info.getId()));
+        assertEquals(ImmutableSet.of(testData2Info), storage.getDependencies(testDataInfo.getId(), "mylink"));
+
+        // 8) delete data node
         storage.deleteNode(testDataInfo.getId());
         storage.flush();
 
@@ -151,13 +169,13 @@ public abstract class AbstractAppStorageTest {
         // check data node 2 backward dependency has been correctly updated
         assertTrue(storage.getBackwardDependencies(testData2Info.getId()).isEmpty());
 
-        // 7) check data node 2 metadata value
+        // 9) check data node 2 metadata value
         assertEquals(ImmutableMap.of("s1", "v1"), testData2Info.getGenericMetadata().getStrings());
         assertEquals(ImmutableMap.of("d1", 1d), testData2Info.getGenericMetadata().getDoubles());
         assertEquals(ImmutableMap.of("i1", 2), testData2Info.getGenericMetadata().getInts());
         assertEquals(ImmutableMap.of("b1", false), testData2Info.getGenericMetadata().getBooleans());
 
-        // 8) check data node 2 binary data write
+        // 10) check data node 2 binary data write
         try (OutputStream os = storage.writeBinaryData(testData2Info.getId(), "blob")) {
             os.write("word2".getBytes(StandardCharsets.UTF_8));
         }
@@ -168,8 +186,9 @@ public abstract class AbstractAppStorageTest {
         }
         assertTrue(storage.dataExists(testData2Info.getId(), "blob"));
         assertFalse(storage.dataExists(testData2Info.getId(), "blob2"));
+        assertEquals(ImmutableSet.of("blob"), storage.getDataNames(testData2Info.getId()));
 
-        // 9) check data source using pattern api
+        // 11) check data source using pattern api
         DataSource ds = new AppStorageDataSource(storage, testData2Info.getId());
         assertEquals("", ds.getBaseName());
         assertFalse(ds.exists(null, "ext"));
@@ -189,7 +208,7 @@ public abstract class AbstractAppStorageTest {
 
         assertFalse(ds.exists("file1"));
 
-        // 10) check data source using file name api
+        // 12) check data source using file name api
         try (OutputStream os = ds.newOutputStream("file1", false)) {
             os.write("word1".getBytes(StandardCharsets.UTF_8));
         }
@@ -204,7 +223,7 @@ public abstract class AbstractAppStorageTest {
             assertEquals("word1", new String(ByteStreams.toByteArray(is), StandardCharsets.UTF_8));
         }
 
-        // 11) create double time series
+        // 13) create double time series
         TimeSeriesMetadata metadata1 = new TimeSeriesMetadata("ts1",
                                                               TimeSeriesDataType.DOUBLE,
                                                               ImmutableMap.of("var1", "value1"),
@@ -219,7 +238,7 @@ public abstract class AbstractAppStorageTest {
         assertEquals(1, metadataList.size());
         assertEquals(metadata1, metadataList.get(0));
 
-        // 12) add data to double time series
+        // 14) add data to double time series
         storage.addDoubleTimeSeriesData(testData2Info.getId(), 0, "ts1", Arrays.asList(new UncompressedDoubleArrayChunk(2, new double[] {1d, 2d}),
                                                                                        new UncompressedDoubleArrayChunk(5, new double[] {3d})));
         storage.flush();
@@ -230,7 +249,7 @@ public abstract class AbstractAppStorageTest {
         DoubleTimeSeries ts1 = doubleTimeSeries.get(0);
         assertArrayEquals(new double[] {Double.NaN, Double.NaN, 1d, 2d, Double.NaN, 3d}, ts1.toArray(), 0d);
 
-        // 13) create a second string time series
+        // 15) create a second string time series
         TimeSeriesMetadata metadata2 = new TimeSeriesMetadata("ts2",
                                                               TimeSeriesDataType.STRING,
                                                               ImmutableMap.of(),
@@ -244,7 +263,7 @@ public abstract class AbstractAppStorageTest {
         metadataList = storage.getTimeSeriesMetadata(testData2Info.getId(), Sets.newHashSet("ts1"));
         assertEquals(1, metadataList.size());
 
-        // 14) add data to double time series
+        // 16) add data to double time series
         storage.addStringTimeSeriesData(testData2Info.getId(), 0, "ts2", Arrays.asList(new UncompressedStringArrayChunk(2, new String[] {"a", "b"}),
                                                                                        new UncompressedStringArrayChunk(5, new String[] {"c"})));
         storage.flush();
@@ -255,7 +274,7 @@ public abstract class AbstractAppStorageTest {
         StringTimeSeries ts2 = stringTimeSeries.get(0);
         assertArrayEquals(new String[] {null, null, "a", "b", null, "c"}, ts2.toArray());
 
-        // 15) remove all time series
+        // 17) remove all time series
         storage.removeAllTimeSeries(testData2Info.getId());
         storage.flush();
 
