@@ -79,7 +79,7 @@ public class LocalCase implements LocalFile {
             }
 
             @Override
-            public Optional<InputStream> onOther() {
+            public Optional<InputStream> onOther(AppStorageDataSource.Name name) {
                 throw new AssertionError("Unknown data source name " + name);
             }
         });
@@ -100,7 +100,7 @@ public class LocalCase implements LocalFile {
             }
 
             @Override
-            public Boolean onOther() {
+            public Boolean onOther(AppStorageDataSource.Name name) {
                 throw new AssertionError("Unknown data source name " + name);
             }
         });

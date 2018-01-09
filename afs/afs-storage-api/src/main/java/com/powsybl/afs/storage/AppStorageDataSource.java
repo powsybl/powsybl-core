@@ -51,7 +51,7 @@ public class AppStorageDataSource implements DataSource {
                 } else if (dataSrcName instanceof AppStorageDataSource.FileName) {
                     result = handler.onFileName((AppStorageDataSource.FileName) dataSrcName);
                 } else {
-                    result = handler.onOther();
+                    result = handler.onOther(dataSrcName);
                 }
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
@@ -66,7 +66,7 @@ public class AppStorageDataSource implements DataSource {
 
         T onFileName(AppStorageDataSource.FileName fileName) throws IOException;
 
-        T onOther();
+        T onOther(AppStorageDataSource.Name name);
     }
 
     public static class SuffixAndExtension implements Name {
