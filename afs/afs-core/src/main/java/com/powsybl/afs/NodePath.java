@@ -37,7 +37,7 @@ public class NodePath {
 
     private static <F extends N, N extends AbstractNodeBase<F>> void addPath(N node, Predicate<N> pathStop, List<String> path) {
         if (!pathStop.test(node)) {
-            addPath(node.getParent(), pathStop, path);
+            addPath(node.getParent().orElse(null), pathStop, path);
         }
         path.add(node.getName());
     }

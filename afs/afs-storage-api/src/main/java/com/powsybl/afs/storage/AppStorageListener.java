@@ -11,17 +11,17 @@ package com.powsybl.afs.storage;
  */
 public interface AppStorageListener {
 
-    void nodeCreated(NodeId id);
+    void nodeCreated(String id);
 
-    void nodeRemoved(NodeId id);
+    void nodeRemoved(String id);
 
-    void attributeUpdated(NodeId id, String attributeName);
+    void nodeDataUpdated(String id, String attributeName);
 
-    void dependencyAdded(NodeId id, String dependencyName);
+    void dependencyAdded(String id, String dependencyName);
 
-    void timeSeriesCreated(NodeId id, String timeSeriesName);
+    void timeSeriesCreated(String id, String timeSeriesName);
 
-    void timeSeriesDataUpdated(NodeId id, String timeSeriesName);
+    void timeSeriesDataUpdated(String id, String timeSeriesName);
 
-    void timeSeriesRemoved(NodeId id);
+    void timeSeriesRemoved(String id);
 }

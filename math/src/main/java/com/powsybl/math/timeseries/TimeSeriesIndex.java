@@ -13,6 +13,13 @@ import com.fasterxml.jackson.core.JsonGenerator;
  */
 public interface TimeSeriesIndex {
 
+    static int checkVersion(int version) {
+        if (version < 0) {
+            throw new IllegalArgumentException("Bad version " + version);
+        }
+        return version;
+    }
+
     int getPointCount();
 
     int getFirstVersion();

@@ -38,7 +38,8 @@ public class ValidationFormatterCsvWriterTest extends AbstractValidationFormatte
                            "test " + ValidationType.FLOWS + " check",
                            String.join(";", "id", "network_p1", "expected_p1", "network_q1", "expected_q1", "network_p2", "expected_p2",
                                        "network_q2", "expected_q2", "r", "x", "g1", "g2", "b1", "b2", "rho1", "rho2", "alpha1", "alpha2",
-                                       "u1", "u2", "theta1", "theta2", "z", "y", "ksi", "validation"),
+                                       "u1", "u2", "theta1", "theta2", "z", "y", "ksi", "connected1", "connected2", "mainComponent1",
+                                       "mainComponent2", AbstractValidationFormatterWriter.VALIDATION),
                            String.join(";", branchId,
                                        String.format(Locale.getDefault(), "%g", p1), String.format(Locale.getDefault(), "%g", p1Calc),
                                        String.format(Locale.getDefault(), "%g", q1), String.format(Locale.getDefault(), "%g", q1Calc),
@@ -52,7 +53,8 @@ public class ValidationFormatterCsvWriterTest extends AbstractValidationFormatte
                                        String.format(Locale.getDefault(), "%g", u1), String.format(Locale.getDefault(), "%g", u2),
                                        String.format(Locale.getDefault(), "%g", theta1), String.format(Locale.getDefault(), "%g", theta2),
                                        String.format(Locale.getDefault(), "%g", z), String.format(Locale.getDefault(), "%g", y),
-                                       String.format(Locale.getDefault(), "%g", ksi), "success"));
+                                       String.format(Locale.getDefault(), "%g", ksi), Boolean.toString(connected1), Boolean.toString(connected2),
+                                       Boolean.toString(mainComponent1), Boolean.toString(mainComponent2), "success"));
     }
 
     @Override
@@ -75,7 +77,8 @@ public class ValidationFormatterCsvWriterTest extends AbstractValidationFormatte
     protected String getGeneratorsVerboseContent() {
         return String.join(System.lineSeparator(),
                            "test " + ValidationType.GENERATORS + " check",
-                           String.join(";", "id", "p", "q", "v", "targetP", "targetQ", "targetV", "connected", "voltageRegulatorOn", "minQ", "maxQ", "validation"),
+                           String.join(";", "id", "p", "q", "v", "targetP", "targetQ", "targetV", AbstractValidationFormatterWriter.CONNECTED,
+                                       "voltageRegulatorOn", "minQ", "maxQ", AbstractValidationFormatterWriter.VALIDATION),
                            String.join(";", generatorId,
                                        String.format(Locale.getDefault(), "%g", -p), String.format(Locale.getDefault(), "%g", -q),
                                        String.format(Locale.getDefault(), "%g", v), String.format(Locale.getDefault(), "%g", targetP),
@@ -104,7 +107,7 @@ public class ValidationFormatterCsvWriterTest extends AbstractValidationFormatte
         return String.join(System.lineSeparator(),
                 "test " + ValidationType.BUSES + " check",
                 String.join(";", "id", "incomingP", "incomingQ", "loadP", "loadQ", "genP", "genQ", "shuntP", "shuntQ", "svcP", "svcQ",
-                            "vscCSP", "vscCSQ", "lineP", "lineQ", "twtP", "twtQ", "tltP", "tltQ", "validation"),
+                            "vscCSP", "vscCSQ", "lineP", "lineQ", "twtP", "twtQ", "tltP", "tltQ", AbstractValidationFormatterWriter.VALIDATION),
                 String.join(";", busId,
                             String.format(Locale.getDefault(), "%g", incomingP), String.format(Locale.getDefault(), "%g", incomingQ),
                             String.format(Locale.getDefault(), "%g", loadP), String.format(Locale.getDefault(), "%g", loadQ),
@@ -137,7 +140,8 @@ public class ValidationFormatterCsvWriterTest extends AbstractValidationFormatte
     protected String getSvcsVerboseContent() {
         return String.join(System.lineSeparator(),
                            "test " + ValidationType.SVCS + " check",
-                           String.join(";", "id", "p", "q", "v", "reactivePowerSetpoint", "voltageSetpoint", "connected", "regulationMode", "bMin", "bMax", "validation"),
+                           String.join(";", "id", "p", "q", "v", "reactivePowerSetpoint", "voltageSetpoint", AbstractValidationFormatterWriter.CONNECTED,
+                                       "regulationMode", "bMin", "bMax", AbstractValidationFormatterWriter.VALIDATION),
                            String.join(";", svcId,
                                        String.format(Locale.getDefault(), "%g", -p), String.format(Locale.getDefault(), "%g", -q),
                                        String.format(Locale.getDefault(), "%g", v), String.format(Locale.getDefault(), "%g", reactivePowerSetpoint),
@@ -149,6 +153,34 @@ public class ValidationFormatterCsvWriterTest extends AbstractValidationFormatte
     @Override
     protected ValidationWriter getSvcsValidationFormatterCsvWriter(TableFormatterConfig config, Writer writer, boolean verbose) {
         return new ValidationFormatterCsvWriter("test", CsvTableFormatterFactory.class, config, writer, verbose, ValidationType.SVCS);
+    }
+
+    @Override
+    protected String getShuntsContent() {
+        return String.join(System.lineSeparator(),
+                           "test " + ValidationType.SHUNTS + " check",
+                           String.join(";", "id", "q", "expectedQ"),
+                           String.join(";", shuntId,
+                                       String.format(Locale.getDefault(), "%g", q), String.format(Locale.getDefault(), "%g", expectedQ)));
+    }
+
+    @Override
+    protected String getShuntsVerboseContent() {
+        return String.join(System.lineSeparator(),
+                           "test " + ValidationType.SHUNTS + " check",
+                           String.join(";", "id", "q", "expectedQ", "p", "currentSectionCount", "maximumSectionCount", "bPerSection", "v",
+                                       AbstractValidationFormatterWriter.CONNECTED, "qMax", "nominalV", AbstractValidationFormatterWriter.VALIDATION),
+                           String.join(";", shuntId,
+                                       String.format(Locale.getDefault(), "%g", q), String.format(Locale.getDefault(), "%g", expectedQ),
+                                       String.format(Locale.getDefault(), "%g", p), Integer.toString(currentSectionCount),
+                                       Integer.toString(maximumSectionCount), String.format(Locale.getDefault(), "%g", bPerSection),
+                                       String.format(Locale.getDefault(), "%g", v), Boolean.toString(connected),
+                                       String.format(Locale.getDefault(), "%g", qMax), String.format(Locale.getDefault(), "%g", nominalV), "success"));
+    }
+
+    @Override
+    protected ValidationWriter getShuntsValidationFormatterCsvWriter(TableFormatterConfig config, Writer writer, boolean verbose) {
+        return new ValidationFormatterCsvWriter("test", CsvTableFormatterFactory.class, config, writer, verbose, ValidationType.SHUNTS);
     }
 
 }

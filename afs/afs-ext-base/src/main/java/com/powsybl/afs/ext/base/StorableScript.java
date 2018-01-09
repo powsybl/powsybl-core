@@ -17,4 +17,8 @@ public interface StorableScript {
     String readScript();
 
     void writeScript(String content);
+
+    void addListener(ScriptListener listener);
+
+    void removeListener(ScriptListener listener);
 }

@@ -56,20 +56,26 @@ public class CaseExporterTest {
         CaseExporter exporter = new CaseExporter(tmpDir, "basename", "XIIDM", CompressionFormat.GZIP);
 
         // Export N state
-        exporter.loadFlowConverged(null, null, network, 0);
+        RunningContext runningContext = new RunningContext(network, null);
+        runningContext.setRound(0);
+        exporter.loadFlowConverged(runningContext, null);
         Path path = tmpDir.resolve("basename-N-R0.xiidm.gz");
         assertTrue(Files.exists(path));
 
-        exporter.loadFlowDiverged(null, network, 1);
+        runningContext.setRound(1);
+        exporter.loadFlowDiverged(runningContext);
         path = tmpDir.resolve("basename-N-R1.xiidm.gz");
         assertTrue(Files.exists(path));
 
         // Export N-1 state
-        exporter.loadFlowConverged(contingency, null, network, 2);
+        RunningContext runningContext1 = new RunningContext(network, contingency);
+        runningContext1.setRound(2);
+        exporter.loadFlowConverged(runningContext1, null);
         path = tmpDir.resolve("basename-contingency-R2.xiidm.gz");
         assertTrue(Files.exists(path));
 
-        exporter.loadFlowDiverged(contingency, network, 3);
+        runningContext1.setRound(3);
+        exporter.loadFlowDiverged(runningContext1);
         path = tmpDir.resolve("basename-contingency-R3.xiidm.gz");
         assertTrue(Files.exists(path));
     }

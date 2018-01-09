@@ -29,7 +29,7 @@ public class Project extends File {
     }
 
     public ProjectFolder getRootFolder() {
-        NodeInfo rootFolderInfo = storage.getChildNodeInfo(info.getId(), ROOT_FOLDER_NAME);
+        NodeInfo rootFolderInfo = storage.getChildNode(info.getId(), ROOT_FOLDER_NAME).orElseThrow(AssertionError::new);
         return new ProjectFolder(new ProjectFileCreationContext(rootFolderInfo, storage, fileSystem));
     }
 }

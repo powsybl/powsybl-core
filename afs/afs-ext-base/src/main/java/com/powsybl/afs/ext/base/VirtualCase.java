@@ -6,15 +6,15 @@
  */
 package com.powsybl.afs.ext.base;
 
-import com.powsybl.afs.FileIcon;
-import com.powsybl.afs.ProjectFile;
-import com.powsybl.afs.ProjectFileCreationContext;
+import com.powsybl.afs.*;
 import com.powsybl.iidm.network.Network;
+
+import java.util.Optional;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class VirtualCase extends ProjectFile implements ProjectCase, RunnableScript {
+public class VirtualCase extends ProjectFile implements ProjectCase, RunnableScript, DependencyListener {
 
     public static final String PSEUDO_CLASS = "virtualCase";
     public static final int VERSION = 0;
@@ -24,16 +24,26 @@ public class VirtualCase extends ProjectFile implements ProjectCase, RunnableScr
     static final String CASE_DEPENDENCY_NAME = "case";
     static final String SCRIPT_DEPENDENCY_NAME = "script";
 
+    private final DependencyCache<ProjectCase> projectCaseDependency = new DependencyCache<>(this, CASE_DEPENDENCY_NAME, ProjectCase.class);
+
+    private final DependencyCache<ModificationScript> modificationScriptDependency = new DependencyCache<>(this, SCRIPT_DEPENDENCY_NAME, ModificationScript.class);
+
     public VirtualCase(ProjectFileCreationContext context) {
         super(context, VERSION, VIRTUAL_CASE_ICON);
+        addDependencyListener(this, this);
     }
 
-    public ProjectCase getCase() {
-        return (ProjectCase) fileSystem.findProjectFile(storage.getDependencyInfo(info.getId(), CASE_DEPENDENCY_NAME));
+    public Optional<ProjectCase> getCase() {
+        return projectCaseDependency.get();
     }
 
-    public ModificationScript getScript() {
-        return (ModificationScript) fileSystem.findProjectFile(storage.getDependencyInfo(info.getId(), SCRIPT_DEPENDENCY_NAME));
+    public Optional<ModificationScript> getScript() {
+        return modificationScriptDependency.get();
+    }
+
+    @Override
+    public String queryNetwork(String groovyScript) {
+        return fileSystem.findService(NetworkService.class).queryNetwork(this, groovyScript);
     }
 
     @Override
@@ -51,23 +61,54 @@ public class VirtualCase extends ProjectFile implements ProjectCase, RunnableScr
         return fileSystem.findService(NetworkService.class).getScriptOutput(this);
     }
 
+    static AfsException createScriptLinkIsDeadException() {
+        return new AfsException("Script link is dead");
+    }
+
     @Override
     public ScriptType getScriptType() {
-        return getScript().getScriptType();
+        return getScript().orElseThrow(VirtualCase::createScriptLinkIsDeadException)
+                          .getScriptType();
     }
 
     @Override
     public String readScript() {
-        return getScript().readScript();
+        return getScript().orElseThrow(VirtualCase::createScriptLinkIsDeadException)
+                          .readScript();
     }
 
     @Override
     public void writeScript(String content) {
-        getScript().writeScript(content);
+        getScript().orElseThrow(VirtualCase::createScriptLinkIsDeadException)
+                   .writeScript(content);
     }
 
     @Override
-    public void onDependencyChanged() {
+    public void addListener(ScriptListener listener) {
+        getScript().orElseThrow(VirtualCase::createScriptLinkIsDeadException)
+                   .addListener(listener);
+    }
+
+    @Override
+    public void removeListener(ScriptListener listener) {
+        getScript().orElseThrow(VirtualCase::createScriptLinkIsDeadException)
+                   .removeListener(listener);
+    }
+
+    private void invalidateNetworkCache() {
         fileSystem.findService(NetworkService.class).invalidateCache(this);
+    }
+
+    @Override
+    public void dependencyChanged() {
+        invalidateNetworkCache();
+    }
+
+    @Override
+    public void delete() {
+        super.delete();
+
+        // also clean cache
+        invalidateNetworkCache();
     }
 }

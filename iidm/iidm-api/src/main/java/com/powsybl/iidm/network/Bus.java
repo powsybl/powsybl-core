@@ -81,11 +81,6 @@ public interface Bus extends Identifiable<Bus> {
     int getConnectedTerminalCount();
 
     /**
-     * Get the number of terminals connected or connectable to this bus.
-     */
-    int getConnectedOrConnectableTerminalCount();
-
-    /**
      * Get the AC lines connected to the bus.
      */
     Iterable<Line> getLines();

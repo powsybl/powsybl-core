@@ -27,32 +27,38 @@ public final class ScriptUtils {
     private ScriptUtils() {
     }
 
-    static ScriptError runGroovyScript(Network network, Reader reader, Writer out) {
-        // put network in the binding so that it is accessible from the script
-        Binding binding = new Binding();
-        binding.setProperty("network", network);
-        binding.setProperty("out", out);
+    private static ScriptResult runGroovyScript(Network network, Reader reader) {
+        String output = "";
+        ScriptError error = null;
+        Object value = null;
+        try (StringWriter outputWriter = new StringWriter()) {
+            // put network in the binding so that it is accessible from the script
+            Binding binding = new Binding();
+            binding.setProperty("network", network);
+            binding.setProperty("out", outputWriter);
 
-        CompilerConfiguration conf = new CompilerConfiguration();
-        GroovyShell shell = new GroovyShell(binding, conf);
-        try {
-            shell.evaluate(reader, SCRIPT_FILE_NAME);
+            CompilerConfiguration config = new CompilerConfiguration();
+            GroovyShell shell = new GroovyShell(binding, config);
+            value = shell.evaluate(reader, SCRIPT_FILE_NAME);
+            outputWriter.flush();
+            output = outputWriter.toString();
         } catch (MultipleCompilationErrorsException e) {
-            return ScriptError.fromGroovyException(e);
+            error = ScriptError.fromGroovyException(e);
         } catch (MissingPropertyException | MissingMethodException e) {
-            return ScriptError.fromGroovyException(e, SCRIPT_FILE_NAME);
+            error = ScriptError.fromGroovyException(e, SCRIPT_FILE_NAME);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
-        return null;
+        return new ScriptResult(output, error, value);
     }
 
-    static ScriptError runScript(Network network, ScriptType scriptType, String scriptContent, Writer scriptOutputWriter) {
+    static ScriptResult runScript(Network network, ScriptType scriptType, String scriptContent) {
         try (Reader reader = new StringReader(scriptContent)) {
             if (scriptType == ScriptType.GROOVY) {
-                return runGroovyScript(network, reader, scriptOutputWriter);
+                return runGroovyScript(network, reader);
             } else {
                 throw new AssertionError("Script type " + scriptType + " not supported");
             }
-
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
