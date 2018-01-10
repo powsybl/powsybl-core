@@ -5,7 +5,6 @@
     "limitViolations" : [ {
       "subjectId" : "NHV1_NHV2_1",
       "limitType" : "CURRENT",
-      "limitName" : "limit",
       "limit" : 100.0,
       "limitReduction" : 0.95,
       "value" : 110.0,
@@ -37,6 +36,7 @@
         "subjectId" : "NHV1_NHV2_2",
         "limitType" : "CURRENT",
         "limitName" : "20'",
+        "acceptableDuration" : 1200,
         "limit" : 100.0,
         "limitReduction" : 1.0,
         "value" : 110.0,

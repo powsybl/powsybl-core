@@ -53,6 +53,10 @@ public final class Security {
     private Security() {
     }
 
+    /**
+     * @deprecated The visibility of this method will be changed to private.
+     */
+    @Deprecated
     public static String getLimitName(int acceptableDuration) {
         if (acceptableDuration == Integer.MAX_VALUE) {
             return PERMANENT_LIMIT_NAME;
@@ -65,7 +69,8 @@ public final class Security {
         if (branch.checkPermanentLimit(side, limitReduction)) {
             violations.add(new LimitViolation(branch.getId(),
                 LimitViolationType.CURRENT,
-                PERMANENT_LIMIT_NAME,
+                null,
+                Integer.MAX_VALUE,
                 branch.getCurrentLimits(side).getPermanentLimit(),
                 limitReduction,
                 branch.getTerminal(side).getI(),
@@ -75,12 +80,13 @@ public final class Security {
 
     private static void checkCurrentLimits(Branch branch, Branch.Side side, Set<CurrentLimitType> currentLimitTypes,
                                            float limitReduction, List<LimitViolation> violations) {
-        Branch.Overload o1 = branch.checkTemporaryLimits(side, limitReduction);
-        if (currentLimitTypes.contains(CurrentLimitType.TATL) && (o1 != null)) {
+        Branch.Overload overload = branch.checkTemporaryLimits(side, limitReduction);
+        if (currentLimitTypes.contains(CurrentLimitType.TATL) && (overload != null)) {
             violations.add(new LimitViolation(branch.getId(),
                 LimitViolationType.CURRENT,
-                getLimitName(o1.getTemporaryLimit().getAcceptableDuration()),
-                o1.getPreviousLimit(),
+                overload.getPreviousLimitName(),
+                overload.getTemporaryLimit().getAcceptableDuration(),
+                overload.getPreviousLimit(),
                 limitReduction,
                 branch.getTerminal(side).getI(),
                 side));
@@ -216,9 +222,9 @@ public final class Security {
         return violation -> {
             try {
                 formatter.writeCell(violation.getSubjectId())
-                         .writeCell(LimitViolation.getVoltageLevelId(violation, network))
-                         .writeCell(LimitViolation.getCountry(violation, network).name())
-                         .writeCell((int) LimitViolation.getNominalVoltage(violation, network))
+                         .writeCell(LimitViolationHelper.getVoltageLevelId(violation, network))
+                         .writeCell(LimitViolationHelper.getCountry(violation, network).name())
+                         .writeCell((int) LimitViolationHelper.getNominalVoltage(violation, network))
                          .writeCell(violation.getLimitType().name())
                          .writeCell(getViolationName(violation))
                          .writeCell(violation.getValue())
@@ -378,9 +384,9 @@ public final class Security {
             try {
                 formatter.writeEmptyCell()
                         .writeCell(violation.getSubjectId())
-                        .writeCell(LimitViolation.getVoltageLevelId(violation, network))
-                        .writeCell(LimitViolation.getCountry(violation, network).name())
-                        .writeCell((int) LimitViolation.getNominalVoltage(violation, network))
+                        .writeCell(LimitViolationHelper.getVoltageLevelId(violation, network))
+                        .writeCell(LimitViolationHelper.getCountry(violation, network).name())
+                        .writeCell((int) LimitViolationHelper.getNominalVoltage(violation, network))
                         .writeCell(violation.getLimitType().name())
                         .writeCell(getViolationName(violation))
                         .writeCell(violation.getValue())
@@ -473,7 +479,17 @@ public final class Security {
     }
 
     private static String getViolationName(LimitViolation violation) {
-        return Objects.toString(violation.getLimitName(), "");
+        if (violation.getLimitName() != null) {
+            return violation.getLimitName();
+        } else if (violation.getAcceptableDuration() != Integer.MAX_VALUE) {
+            // TATL
+            return String.format("Overload %d'", violation.getAcceptableDuration() / 60);
+        } else if (violation.getLimitType() == LimitViolationType.CURRENT) {
+            // PATL
+            return PERMANENT_LIMIT_NAME;
+        } else {
+            return "";
+        }
     }
 
     private static float getViolationLimit(LimitViolation violation) {
@@ -679,9 +695,9 @@ public final class Security {
                         .writeEmptyCell()
                         .writeEmptyCell()
                         .writeCell(violation.getSubjectId())
-                        .writeCell(LimitViolation.getVoltageLevelId(violation, network))
-                        .writeCell(LimitViolation.getCountry(violation, network).name())
-                        .writeCell((int) LimitViolation.getNominalVoltage(violation, network))
+                        .writeCell(LimitViolationHelper.getVoltageLevelId(violation, network))
+                        .writeCell(LimitViolationHelper.getCountry(violation, network).name())
+                        .writeCell((int) LimitViolationHelper.getNominalVoltage(violation, network))
                         .writeCell(violation.getLimitType().name())
                         .writeCell(getViolationName(violation))
                         .writeCell(violation.getValue())

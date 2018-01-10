@@ -33,8 +33,8 @@ public class ExporterTest extends AbstractConverterTest {
 
     private static SecurityAnalysisResult create() {
         // Create a LimitViolation(CURRENT) to ensure backward compatibility works
-        LimitViolation violation1 = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, "limit", 100f, 0.95f, 110f, Branch.Side.ONE);
-        LimitViolation violation2 = new LimitViolation("NHV1_NHV2_2", LimitViolationType.CURRENT, "20'", 100f, 1.0f, 110f, Branch.Side.TWO);
+        LimitViolation violation1 = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 100f, 0.95f, 110f, Branch.Side.ONE);
+        LimitViolation violation2 = new LimitViolation("NHV1_NHV2_2", LimitViolationType.CURRENT, "20'", 1200, 100f, 1.0f, 110f, Branch.Side.TWO);
         LimitViolation violation3 = new LimitViolation("GEN", LimitViolationType.HIGH_VOLTAGE, 100f, 0.9f, 110f);
         LimitViolation violation4 = new LimitViolation("GEN2", LimitViolationType.LOW_VOLTAGE, 100f, 0.7f, 115f);
 

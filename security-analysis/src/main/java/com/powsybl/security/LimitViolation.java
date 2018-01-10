@@ -24,6 +24,8 @@ public class LimitViolation {
 
     private final String limitName;
 
+    private final int acceptableDuration;
+
     private final float limitReduction;
 
     private final float value;
@@ -44,6 +46,7 @@ public class LimitViolation {
         this.limitType = Objects.requireNonNull(limitType);
         this.limit = limit;
         this.limitName = limitName;
+        this.acceptableDuration = Integer.MAX_VALUE;
         this.limitReduction = limitReduction;
         this.value = value;
         this.country = country;
@@ -52,18 +55,28 @@ public class LimitViolation {
     }
 
     /**
-     * @deprecated use LimitViolation(String, LimitViolationType, String, float, float, float, Branch.Side) instead.
+     * @deprecated use LimitViolation(String, LimitViolationType, String, int, float, float, float, Branch.Side) instead.
      */
     @Deprecated
     public LimitViolation(String subjectId, LimitViolationType limitType, float limit, String limitName, float value) {
         this(subjectId, limitType, limit, limitName, 1, value, null, Float.NaN);
     }
 
+    /**
+     * @deprecated use LimitViolation(String, LimitViolationType, String, int, float, float, float, Branch.Side) instead.
+     */
+    @Deprecated
     public LimitViolation(String subjectId, LimitViolationType limitType, String limitName, float limit, float limitReduction,
                           float value, Branch.Side side) {
+        this(subjectId, limitType, limitName, Integer.MAX_VALUE, limit, limitReduction, value, side);
+    }
+
+    public LimitViolation(String subjectId, LimitViolationType limitType, String limitName, int acceptableDuration,
+                          float limit, float limitReduction, float value, Branch.Side side) {
         this.subjectId = Objects.requireNonNull(subjectId);
         this.limitType = Objects.requireNonNull(limitType);
         this.limitName = limitName;
+        this.acceptableDuration = acceptableDuration;
         this.limit = limit;
         this.limitReduction = limitReduction;
         this.value = value;
@@ -73,7 +86,7 @@ public class LimitViolation {
     }
 
     public LimitViolation(String subjectId, LimitViolationType limitType, float limit, float limitReduction, float value) {
-        this(subjectId, limitType, null, limit, limitReduction, value, null);
+        this(subjectId, limitType, null, Integer.MAX_VALUE, limit, limitReduction, value, null);
     }
 
     public String getSubjectId() {
@@ -92,6 +105,10 @@ public class LimitViolation {
         return limitName;
     }
 
+    public int getAcceptableDuration() {
+        return acceptableDuration;
+    }
+
     public float getLimitReduction() {
         return limitReduction;
     }
@@ -105,7 +122,7 @@ public class LimitViolation {
     }
 
     /**
-     * @deprecated Use LimitViolation.getCountry(LimitViolation, Network) instead.
+     * @deprecated Use LimitViolationHelper.getCountry(LimitViolation, Network) instead.
      */
     @Deprecated
     public Country getCountry() {
@@ -113,7 +130,7 @@ public class LimitViolation {
     }
 
     /**
-     * @deprecated Use LimitViolation.getNominalVoltage(LimitViolation, Network) instead.
+     * @deprecated Use LimitViolationHelper.getNominalVoltage(LimitViolation, Network) instead.
      */
     @Deprecated
     public float getBaseVoltage() {
@@ -126,44 +143,5 @@ public class LimitViolation {
         } else {
             return null;
         }
-    }
-
-    private static VoltageLevel getVoltageLevel(LimitViolation limitViolation, Network network) {
-        Objects.requireNonNull(network);
-        Objects.requireNonNull(limitViolation);
-
-        Identifiable identifiable = network.getIdentifiable(limitViolation.getSubjectId());
-        if (identifiable instanceof Branch) {
-            Branch branch = (Branch) identifiable;
-            return branch.getTerminal(limitViolation.getSide()).getVoltageLevel();
-        } else if (identifiable instanceof Injection) {
-            Injection injection = (Injection) identifiable;
-            return injection.getTerminal().getVoltageLevel();
-        } else if (identifiable instanceof VoltageLevel) {
-            return (VoltageLevel) identifiable;
-        } else if (identifiable instanceof Bus) {
-            Bus bus = (Bus) identifiable;
-            return bus.getVoltageLevel();
-        } else {
-            throw new AssertionError("Unexpected identifiable type: " + identifiable.getClass());
-        }
-    }
-
-    static Country getCountry(LimitViolation limitViolation, Network network) {
-        VoltageLevel voltageLevel = getVoltageLevel(limitViolation, network);
-
-        return voltageLevel.getSubstation().getCountry();
-    }
-
-    static String getVoltageLevelId(LimitViolation limitViolation, Network network) {
-        VoltageLevel voltageLevel = getVoltageLevel(limitViolation, network);
-
-        return voltageLevel.getId();
-    }
-
-    static float getNominalVoltage(LimitViolation limitViolation, Network network) {
-        VoltageLevel voltageLevel = getVoltageLevel(limitViolation, network);
-
-        return voltageLevel.getNominalV();
     }
 }
