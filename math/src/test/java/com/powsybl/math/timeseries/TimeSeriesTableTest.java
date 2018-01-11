@@ -9,6 +9,7 @@ package com.powsybl.math.timeseries;
 import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 
+import java.time.ZoneId;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -58,10 +59,10 @@ public class TimeSeriesTableTest {
         // test CSV export
         assertEquals(String.join(System.lineSeparator(),
                                  "Time;Version;ts1;ts2;ts3",
-                                 "1970-01-01T01:00:00+01:00;1;1.0;5.0;",
-                                 "1970-01-01T01:00:00.001+01:00;1;2.0;6.0;a",
-                                 "1970-01-01T01:00:00.002+01:00;1;3.0;7.0;b",
-                                 "1970-01-01T01:00:00.003+01:00;1;4.0;8.0;c") + System.lineSeparator(),
-                     table.toCsvString(';'));
+                                 "1970-01-01T00:00:00Z;1;1.0;5.0;",
+                                 "1970-01-01T00:00:00.001Z;1;2.0;6.0;a",
+                                 "1970-01-01T00:00:00.002Z;1;3.0;7.0;b",
+                                 "1970-01-01T00:00:00.003Z;1;4.0;8.0;c") + System.lineSeparator(),
+                     table.toCsvString(';', ZoneId.of("UTC")));
     }
 }

@@ -436,15 +436,15 @@ public final class TimeSeriesTable {
 
     public void writeCsv(Path file) {
         try (BufferedWriter writer = createWriter(file)) {
-            writeCsv(writer, TimeSeries.DEFAULT_SEPARATOR);
+            writeCsv(writer, TimeSeries.DEFAULT_SEPARATOR, ZoneId.systemDefault());
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    public String toCsvString(char separator) {
+    public String toCsvString(char separator, ZoneId zoneId) {
         try (StringWriter writer = new StringWriter()) {
-            writeCsv(writer, separator);
+            writeCsv(writer, separator, zoneId);
             writer.flush();
             return writer.toString();
         } catch (IOException e) {
@@ -452,7 +452,10 @@ public final class TimeSeriesTable {
         }
     }
 
-    public void writeCsv(Writer writer, char separator) {
+    public void writeCsv(Writer writer, char separator, ZoneId zoneId) {
+        Objects.requireNonNull(writer);
+        Objects.requireNonNull(zoneId);
+
         Stopwatch stopWatch = Stopwatch.createStarted();
 
         try {
@@ -495,10 +498,12 @@ public final class TimeSeriesTable {
                         }
                     }
 
+                    DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME.withZone(zoneId);
+
                     // then write cache to CSV
                     for (int cachedPoint = 0; cachedPoint < cachedPoints; cachedPoint++) {
                         ZonedDateTime dateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(tableIndex.getTimeAt(point + cachedPoint)), ZoneId.systemDefault());
-                        writer.write(dateTime.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
+                        writer.write(dateTime.format(dateTimeFormatter));
                         writer.write(separator);
                         writer.write(Integer.toString(version));
                         for (int i = 0; i < timeSeriesMetadata.size(); i++) {
