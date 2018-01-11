@@ -392,32 +392,44 @@ public final class TimeSeriesTable {
         updateStatistics(version);
 
         int statisticsIndex1 = getStatisticsIndex(version, timeSeriesNum1);
-        double mean1 = means[statisticsIndex1];
         double stdDev1 = stdDevs[statisticsIndex1];
 
         double[] r = new double[doubleTimeSeriesNames.size()];
 
-        for (int timeSeriesNum2 = 0; timeSeriesNum2 < doubleTimeSeriesNames.size(); timeSeriesNum2++) {
-            if (timeSeriesNum2 == timeSeriesNum1) {
-                r[timeSeriesNum2] = 1;
-            } else {
-                r[timeSeriesNum2] = 0;
-
+        if (stdDev1 == 0) { // constant time series
+            for (int timeSeriesNum2 = 0; timeSeriesNum2 < doubleTimeSeriesNames.size(); timeSeriesNum2++) {
                 int statisticsIndex2 = getStatisticsIndex(version, timeSeriesNum2);
-                double mean2 = means[statisticsIndex2];
                 double stdDev2 = stdDevs[statisticsIndex2];
 
-                int timeSeriesOffset1 = getTimeSeriesOffset(version, timeSeriesNum1);
-                int timeSeriesOffset2 = getTimeSeriesOffset(version, timeSeriesNum2);
+                // time series 1 is correlated to other constant time series
+                r[timeSeriesNum2] = stdDev2 == 0 ? 1 : 0;
+            }
+        } else {
+            double mean1 = means[statisticsIndex1];
 
-                for (int point = 0; point < tableIndex.getPointCount(); point++) {
-                    double value1 = doubleBuffer.get(timeSeriesOffset1 + point);
-                    double value2 = doubleBuffer.get(timeSeriesOffset2 + point);
-                    if (stdDev1 != 0 && stdDev2 != 0) {
-                        r[timeSeriesNum2] += (value1 - mean1) / stdDev1 * (value2 - mean2) / stdDev2;
+            for (int timeSeriesNum2 = 0; timeSeriesNum2 < doubleTimeSeriesNames.size(); timeSeriesNum2++) {
+                if (timeSeriesNum2 == timeSeriesNum1) {
+                    r[timeSeriesNum2] = 1;
+                } else {
+                    int statisticsIndex2 = getStatisticsIndex(version, timeSeriesNum2);
+                    double stdDev2 = stdDevs[statisticsIndex2];
+
+                    r[timeSeriesNum2] = 0;
+
+                    if (stdDev2 != 0) {
+                        double mean2 = means[statisticsIndex2];
+
+                        int timeSeriesOffset1 = getTimeSeriesOffset(version, timeSeriesNum1);
+                        int timeSeriesOffset2 = getTimeSeriesOffset(version, timeSeriesNum2);
+
+                        for (int point = 0; point < tableIndex.getPointCount(); point++) {
+                            double value1 = doubleBuffer.get(timeSeriesOffset1 + point);
+                            double value2 = doubleBuffer.get(timeSeriesOffset2 + point);
+                            r[timeSeriesNum2] += (value1 - mean1) / stdDev1 * (value2 - mean2) / stdDev2;
+                        }
+                        r[timeSeriesNum2] /= tableIndex.getPointCount() - 1;
                     }
                 }
-                r[timeSeriesNum2] /= tableIndex.getPointCount() - 1;
             }
         }
 
