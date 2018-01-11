@@ -6,6 +6,7 @@
  */
 package com.powsybl.math.timeseries;
 
+import java.nio.DoubleBuffer;
 import java.util.*;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -13,7 +14,9 @@ import java.util.stream.StreamSupport;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface DoubleTimeSeries extends TimeSeries<DoublePoint> {
+public interface DoubleTimeSeries extends TimeSeries<DoublePoint, DoubleTimeSeries> {
+
+    void fillBuffer(DoubleBuffer buffer, int timeSeriesOffset);
 
     double[] toArray();
 

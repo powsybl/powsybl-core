@@ -31,6 +31,14 @@ public class CompressedStringArrayChunk extends AbstractCompressedArrayChunk imp
         updateEstimatedSize();
     }
 
+    static int getStepEstimatedSize(String value) {
+        int estimatedSize = Integer.BYTES;
+        if (value != null) {
+            estimatedSize += value.length() * Character.BYTES;
+        }
+        return estimatedSize;
+    }
+
     private void updateEstimatedSize() {
         estimatedSize = 0;
         uncompressedEstimatedSize = 0;
@@ -38,9 +46,9 @@ public class CompressedStringArrayChunk extends AbstractCompressedArrayChunk imp
             String stepValue = stepValues[i];
             if (stepValue != null) {
                 int stepLength = stepLengths[i];
-                estimatedSize += stepValue.length() * Character.BYTES + Integer.BYTES;
                 uncompressedEstimatedSize += stepValue.length() * Character.BYTES * stepLength;
             }
+            estimatedSize += getStepEstimatedSize(stepValue);
         }
     }
 
@@ -64,16 +72,13 @@ public class CompressedStringArrayChunk extends AbstractCompressedArrayChunk imp
     }
 
     @Override
-    public void fillArray(String[] array) {
-        Objects.requireNonNull(array);
-        if ((offset + uncompressedLength) > array.length) {
-            throw new IllegalArgumentException("Incorrect array size");
-        }
+    public void fillBuffer(CompactStringBuffer buffer, int timeSeriesOffset) {
+        Objects.requireNonNull(buffer);
         int k = 0;
         for (int i = 0; i < stepValues.length; i++) {
             String value = stepValues[i];
             for (int j = 0; j < stepLengths[i]; j++) {
-                array[offset + k++] = value;
+                buffer.putString(timeSeriesOffset + offset + k++, value);
             }
         }
     }
@@ -109,6 +114,16 @@ public class CompressedStringArrayChunk extends AbstractCompressedArrayChunk imp
         return StreamSupport.stream(Spliterators.spliteratorUnknownSize(
                 iterator(index),
                 Spliterator.ORDERED | Spliterator.IMMUTABLE), false);
+    }
+
+    @Override
+    public StringArrayChunk tryToCompress() {
+        return this;
+    }
+
+    @Override
+    public Split<StringPoint, StringArrayChunk> splitAt(int splitIndex) {
+        throw new UnsupportedOperationException("TODO"); // TODO
     }
 
     @Override

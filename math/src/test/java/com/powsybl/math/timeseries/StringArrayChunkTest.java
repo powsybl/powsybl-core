@@ -37,9 +37,9 @@ public class StringArrayChunkTest {
         assertEquals(6, chunk.getEstimatedSize());
         assertFalse(chunk.isCompressed());
         assertEquals(1d, chunk.getCompressionFactor(), 0d);
-        String[] array = new String[4];
-        chunk.fillArray(array);
-        assertArrayEquals(new String[] {null, "a", "b", "c"}, array);
+        CompactStringBuffer buffer = new CompactStringBuffer(4);
+        chunk.fillBuffer(buffer, 0);
+        assertArrayEquals(new String[] {null, "a", "b", "c"}, buffer.toArray());
 
         // json test
         String jsonRef = String.join(System.lineSeparator(),
@@ -83,9 +83,9 @@ public class StringArrayChunkTest {
         assertEquals(30d / 36, compressedChunk.getCompressionFactor(), 0d);
         assertArrayEquals(new String[] {"aaa", "bbb", "ccc"}, compressedChunk.getStepValues());
         assertArrayEquals(new int[] {1, 4, 1}, compressedChunk.getStepLengths());
-        String[] array = new String[7];
-        compressedChunk.fillArray(array);
-        assertArrayEquals(new String[] {null, "aaa", "bbb", "bbb", "bbb", "bbb", "ccc"}, array);
+        CompactStringBuffer buffer = new CompactStringBuffer(7);
+        compressedChunk.fillBuffer(buffer, 0);
+        assertArrayEquals(new String[] {null, "aaa", "bbb", "bbb", "bbb", "bbb", "ccc"}, buffer.toArray());
         String jsonRef = String.join(System.lineSeparator(),
                 "{",
                 "  \"offset\" : 1,",
@@ -106,5 +106,29 @@ public class StringArrayChunkTest {
     public void compressFailureTest() throws IOException {
         UncompressedStringArrayChunk chunk = new UncompressedStringArrayChunk(1, new String[] {"aaa", "bbb", "bbb", "ccc"});
         assertSame(chunk, chunk.tryToCompress());
+    }
+
+    @Test
+    public void splitTest() throws IOException {
+        UncompressedStringArrayChunk chunk = new UncompressedStringArrayChunk(1, new String[]{"a", "b", "c"});
+        try {
+            chunk.splitAt(1);
+            fail();
+        } catch (IllegalArgumentException ignored) {
+        }
+        try {
+            chunk.splitAt(4);
+            fail();
+        } catch (IllegalArgumentException ignored) {
+        }
+        ArrayChunk.Split<StringPoint, StringArrayChunk> split = chunk.splitAt(2);
+        assertNotNull(split.getChunk1());
+        assertNotNull(split.getChunk2());
+        assertEquals(1, split.getChunk1().getOffset());
+        assertTrue(split.getChunk1() instanceof UncompressedStringArrayChunk);
+        assertArrayEquals(new String[] {"a"}, ((UncompressedStringArrayChunk) split.getChunk1()).getValues());
+        assertEquals(2, split.getChunk2().getOffset());
+        assertTrue(split.getChunk2() instanceof UncompressedStringArrayChunk);
+        assertArrayEquals(new String[] {"b", "c"}, ((UncompressedStringArrayChunk) split.getChunk2()).getValues());
     }
 }

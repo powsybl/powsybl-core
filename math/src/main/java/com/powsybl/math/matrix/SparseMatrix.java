@@ -7,8 +7,8 @@
 package com.powsybl.math.matrix;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.math.matrix.trove.TDoubleArrayListHack;
-import com.powsybl.math.matrix.trove.TIntArrayListHack;
+import com.powsybl.math.util.trove.TDoubleArrayListHack;
+import com.powsybl.math.util.trove.TIntArrayListHack;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

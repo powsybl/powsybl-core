@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class StringTimeSeries extends AbstractTimeSeries<StringPoint, StringArrayChunk> implements TimeSeries<StringPoint> {
+public class StringTimeSeries extends AbstractTimeSeries<StringPoint, StringArrayChunk, StringTimeSeries> implements TimeSeries<StringPoint, StringTimeSeries> {
 
     private static final String[] NULL_ARRAY = new String[] {null};
 
@@ -27,9 +27,18 @@ public class StringTimeSeries extends AbstractTimeSeries<StringPoint, StringArra
         return new CompressedStringArrayChunk(i, length, NULL_ARRAY, new int[] {length});
     }
 
+    @Override
+    protected StringTimeSeries createTimeSeries(StringArrayChunk chunk) {
+        return new StringTimeSeries(metadata, chunk);
+    }
+
+    public void fillBuffer(CompactStringBuffer buffer, int timeSeriesOffset) {
+        chunks.forEach(chunk -> chunk.fillBuffer(buffer, timeSeriesOffset));
+    }
+
     public String[] toArray() {
-        String[] array = new String[metadata.getIndex().getPointCount()];
-        chunks.forEach(chunk -> chunk.fillArray(array));
-        return array;
+        CompactStringBuffer buffer = new CompactStringBuffer(metadata.getIndex().getPointCount());
+        chunks.forEach(chunk -> chunk.fillBuffer(buffer, 0));
+        return buffer.toArray();
     }
 }

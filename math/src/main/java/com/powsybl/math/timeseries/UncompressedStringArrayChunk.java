@@ -32,7 +32,9 @@ public class UncompressedStringArrayChunk extends AbstractUncompressedArrayChunk
     private static int computeEstimatedSize(String[] values) {
         int estimatedSize = 0;
         for (String value : values) {
-            estimatedSize += value.length() * Character.BYTES;
+            if (value != null) {
+                estimatedSize += value.length() * Character.BYTES;
+            }
         }
         return estimatedSize;
     }
@@ -57,38 +59,58 @@ public class UncompressedStringArrayChunk extends AbstractUncompressedArrayChunk
     }
 
     @Override
-    public void fillArray(String[] array) {
-        Objects.requireNonNull(array);
-        if ((offset + values.length) > array.length) {
-            throw new IllegalArgumentException("Incorrect array length");
+    public void fillBuffer(CompactStringBuffer buffer, int timeSeriesOffset) {
+        Objects.requireNonNull(buffer);
+        for (int i = 0; i < values.length; i++) {
+            buffer.putString(timeSeriesOffset + offset + i, values[i]);
         }
-        System.arraycopy(values, 0, array, offset, values.length);
     }
 
+    @Override
     public StringArrayChunk tryToCompress() {
         List<String> stepValues = new ArrayList<>();
         TIntArrayList stepLengths = new TIntArrayList();
+        int compressedEstimatedSize = 0;
         for (String value : values) {
             if (stepValues.isEmpty()) {
+                // create first step
                 stepValues.add(value);
                 stepLengths.add(1);
+                compressedEstimatedSize += CompressedStringArrayChunk.getStepEstimatedSize(value);
             } else {
                 int previousIndex = stepValues.size() - 1;
                 String previousValue = stepValues.get(previousIndex);
                 if (Objects.equals(previousValue, value)) {
                     stepLengths.set(previousIndex, stepLengths.getQuick(previousIndex) + 1);
                 } else {
+                    // create a new step
                     stepValues.add(value);
                     stepLengths.add(1);
+                    compressedEstimatedSize += CompressedStringArrayChunk.getStepEstimatedSize(value);
                 }
-                // compression is not really interesting...
-                if (stepValues.size() > values.length * 0.60) {
-                    return this;
-                }
+            }
+            if (compressedEstimatedSize > estimatedSize) {
+                // compression is inefficient
+                return this;
             }
         }
         return new CompressedStringArrayChunk(offset, values.length, stepValues.toArray(new String[stepValues.size()]),
                                               stepLengths.toArray());
+    }
+
+    @Override
+    public Split<StringPoint, StringArrayChunk> splitAt(int splitIndex) {
+        // split at offset is not allowed because it will result to a null left chunk
+        if (splitIndex <= offset || splitIndex > (offset + values.length - 1)) {
+            throw new IllegalArgumentException("Split index " + splitIndex + " out of chunk range ]" + offset
+                    + ", " + (offset + values.length - 1) + "]");
+        }
+        String[] values1 = new String[splitIndex - offset];
+        String[] values2 = new String[values.length - values1.length];
+        System.arraycopy(values, 0, values1, 0, values1.length);
+        System.arraycopy(values, values1.length, values2, 0, values2.length);
+        return new Split<>(new UncompressedStringArrayChunk(offset, values1),
+                           new UncompressedStringArrayChunk(splitIndex, values2));
     }
 
     @Override

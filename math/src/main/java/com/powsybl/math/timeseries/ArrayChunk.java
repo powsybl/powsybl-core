@@ -23,7 +23,27 @@ import java.util.stream.Stream;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface ArrayChunk<P extends AbstractPoint> {
+public interface ArrayChunk<P extends AbstractPoint, A extends ArrayChunk<P, A>> {
+
+    class Split<P extends AbstractPoint, A extends ArrayChunk<P, A>> {
+
+        private final A chunk1;
+
+        private final A chunk2;
+
+        Split(A chunk1, A chunk2) {
+            this.chunk1 = Objects.requireNonNull(chunk1);
+            this.chunk2 = Objects.requireNonNull(chunk2);
+        }
+
+        A getChunk1() {
+            return chunk1;
+        }
+
+        A getChunk2() {
+            return chunk2;
+        }
+    }
 
     /**
      * Get array chunk offset.
@@ -82,6 +102,21 @@ public interface ArrayChunk<P extends AbstractPoint> {
      * @return a point iterator
      */
     Iterator<P> iterator(TimeSeriesIndex index);
+
+    /**
+     * Try to compress the chunk.
+     *
+     * @return the compressed chunk or itself if compression is  not efficient enough
+     */
+    A tryToCompress();
+
+    /**
+     * Split the chunk in two parts.
+     *
+     * @param splitIndex the split index
+     * @return both chunks
+     */
+    Split<P, A> splitAt(int splitIndex);
 
     /**
      * Serialize this array chunk to json.

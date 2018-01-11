@@ -16,7 +16,7 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public abstract class AbstractTimeSeriesChunksAddition<P extends AbstractPoint, T extends ArrayChunk<P>> extends AbstractStorageChange {
+public abstract class AbstractTimeSeriesChunksAddition<P extends AbstractPoint, T extends ArrayChunk<P, T>> extends AbstractStorageChange {
 
     protected int version;
 
