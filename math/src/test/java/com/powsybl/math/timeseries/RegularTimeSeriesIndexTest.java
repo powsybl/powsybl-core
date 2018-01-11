@@ -34,6 +34,7 @@ public class RegularTimeSeriesIndexTest {
         assertEquals(15 * 60 * 1000, index.getSpacing());
         assertEquals(5, index.getPointCount());
         assertEquals(Instant.ofEpochMilli(index.getStartTime() + 15 * 60 * 1000).toEpochMilli(), index.getTimeAt(1));
+        assertEquals("2015-01-01T00:15:00Z", TimeSeriesIndex.getInstantAt(index, 1).toString());
 
         // test to string
         assertEquals("RegularTimeSeriesIndex(startTime=2015-01-01T00:00:00Z, endTime=2015-01-01T01:00:00Z, spacing=PT15M)",
