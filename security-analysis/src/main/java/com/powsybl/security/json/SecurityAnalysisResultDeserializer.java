@@ -14,6 +14,9 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.extensions.ExtensionSupplier;
+import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyElement;
 import com.powsybl.contingency.json.ContingencyDeserializer;
@@ -47,6 +50,7 @@ public class SecurityAnalysisResultDeserializer extends StdDeserializer<Security
     public SecurityAnalysisResult deserialize(JsonParser parser, DeserializationContext ctx) throws IOException {
         LimitViolationsResult preContingencyResult = null;
         List<PostContingencyResult> postContingencyResults = Collections.emptyList();
+        List<Extension<SecurityAnalysisResult>> extensions = Collections.emptyList();
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
@@ -65,12 +69,20 @@ public class SecurityAnalysisResultDeserializer extends StdDeserializer<Security
                     });
                     break;
 
+                case "extensions":
+                    parser.nextToken();
+                    extensions = JsonUtil.readExtensions(parser, ctx);
+                    break;
+
                 default:
                     throw new AssertionError("Unexpected field: " + parser.getCurrentName());
             }
         }
 
-        return new SecurityAnalysisResult(preContingencyResult, postContingencyResults);
+        SecurityAnalysisResult result = new SecurityAnalysisResult(preContingencyResult, postContingencyResults);
+        ExtensionSupplier.addExtensions(result, extensions);
+
+        return result;
     }
 
     public static SecurityAnalysisResult read(Path jsonFile) {

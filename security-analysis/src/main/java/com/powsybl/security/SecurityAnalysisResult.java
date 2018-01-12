@@ -6,13 +6,15 @@
  */
 package com.powsybl.security;
 
+import com.powsybl.commons.extensions.AbstractExtendable;
+
 import java.util.List;
 import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class SecurityAnalysisResult {
+public class SecurityAnalysisResult extends AbstractExtendable<SecurityAnalysisResult> {
 
     private final LimitViolationsResult preContingencyResult;
 

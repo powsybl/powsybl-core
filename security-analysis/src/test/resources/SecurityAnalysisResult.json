@@ -40,7 +40,16 @@
         "limit" : 100.0,
         "limitReduction" : 1.0,
         "value" : 110.0,
-        "side" : "TWO"
+        "side" : "TWO",
+        "extensions" : {
+          "ExtraValues" : {
+            "extraValue1" : 10.0,
+            "extraValue2" : 20.0
+          },
+          "PreContingency" : {
+            "value" : 10.0
+          }
+        }
       }, {
         "subjectId" : "GEN",
         "limitType" : "HIGH_VOLTAGE",

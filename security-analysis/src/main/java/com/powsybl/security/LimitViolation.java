@@ -7,6 +7,7 @@
  */
 package com.powsybl.security;
 
+import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.iidm.network.*;
 
 import java.util.Objects;
@@ -14,7 +15,7 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class LimitViolation {
+public class LimitViolation extends AbstractExtendable<LimitViolation> {
 
     private final String subjectId;
 

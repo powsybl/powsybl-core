@@ -10,11 +10,16 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.extensions.ExtensionSupplier;
+import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.LimitViolationType;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
@@ -35,6 +40,8 @@ class LimitViolationDeserializer extends StdDeserializer<LimitViolation> {
         float limitReduction = Float.NaN;
         float value = Float.NaN;
         Branch.Side side = null;
+
+        List<Extension<LimitViolation>> extensions = Collections.emptyList();
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
@@ -76,11 +83,19 @@ class LimitViolationDeserializer extends StdDeserializer<LimitViolation> {
                     side = parser.readValueAs(Branch.Side.class);
                     break;
 
+                case "extensions":
+                    parser.nextToken();
+                    extensions = JsonUtil.readExtensions(parser, deserializationContext);
+                    break;
+
                 default:
                     throw new AssertionError("Unexpected field: " + parser.getCurrentName());
             }
         }
 
-        return new LimitViolation(subjectId, limitType, limitName, acceptableDuration, limit, limitReduction, value, side);
+        LimitViolation violation = new LimitViolation(subjectId, limitType, limitName, acceptableDuration, limit, limitReduction, value, side);
+        ExtensionSupplier.addExtensions(violation, extensions);
+
+        return violation;
     }
 }
