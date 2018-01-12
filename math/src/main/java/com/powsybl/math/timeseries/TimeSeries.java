@@ -33,8 +33,6 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
 
     Logger LOGGER = LoggerFactory.getLogger(TimeSeries.class);
 
-    char DEFAULT_SEPARATOR = ';';
-
     TimeSeriesMetadata getMetadata();
 
     Stream<P> stream();
@@ -59,7 +57,7 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
     }
 
     static Map<Integer, List<TimeSeries>> parseCsv(Path file) {
-        return parseCsv(file, DEFAULT_SEPARATOR);
+        return parseCsv(file, TimeSeriesConstants.DEFAULT_SEPARATOR);
     }
 
     static Map<Integer, List<TimeSeries>> parseCsv(String csv, char separator) {
@@ -102,30 +100,45 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
             values = new Object[names.size()];
         }
 
+        private static AssertionError assertDataType(TimeSeriesDataType dataType) {
+            return new AssertionError("Unexpected data type " + dataType);
+        }
+
+        private TDoubleArrayList createDoubleValues() {
+            TDoubleArrayList doubleValues = new TDoubleArrayList();
+            if (!times.isEmpty()) {
+                for (int j = 0; j < times.size(); j++) {
+                    doubleValues.add(Double.NaN);
+                }
+            }
+            return doubleValues;
+        }
+
+        private List<String> createStringValues() {
+            List<String> stringValues = new ArrayList<>();
+            if (!times.isEmpty()) {
+                for (int j = 0; j < times.size(); j++) {
+                    stringValues.add(null);
+                }
+            }
+            return stringValues;
+        }
+
         void parseToken(int i, String token) {
             if (dataTypes[i - 2] == null) {
                 try {
                     // test double parsing, in case of error we consider it a string time series
                     Double.parseDouble(token);
+
                     dataTypes[i - 2] = TimeSeriesDataType.DOUBLE;
-                    TDoubleArrayList doubleValues = new TDoubleArrayList();
-                    values[i - 2] = doubleValues;
-                    if (!times.isEmpty()) {
-                        for (int j = 0; j < times.size(); j++) {
-                            doubleValues.add(Double.NaN);
-                        }
-                    }
+                    TDoubleArrayList doubleValues = createDoubleValues();
                     doubleValues.add(parseDouble(token));
+                    values[i - 2] = doubleValues;
                 } catch (NumberFormatException ignored) {
                     dataTypes[i - 2] = TimeSeriesDataType.STRING;
-                    List<String> stringValues = new ArrayList<>();
-                    values[i - 2] = stringValues;
-                    if (!times.isEmpty()) {
-                        for (int j = 0; j < times.size(); j++) {
-                            stringValues.add(null);
-                        }
-                    }
+                    List<String> stringValues = createStringValues();
                     stringValues.add(checkString(token));
+                    values[i - 2] = stringValues;
                 }
             } else {
                 if (dataTypes[i - 2] == TimeSeriesDataType.DOUBLE) {
@@ -133,7 +146,7 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
                 } else if (dataTypes[i - 2] == TimeSeriesDataType.STRING) {
                     ((List<String>) values[i - 2]).add(checkString(token));
                 } else {
-                    throw new AssertionError("Unexpected data type " + dataTypes[i - 2]);
+                    throw assertDataType(dataTypes[i - 2]);
                 }
             }
         }
@@ -160,17 +173,16 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
                 } else if (dataTypes[i] == TimeSeriesDataType.STRING) {
                     ((List) values[i]).clear();
                 } else {
-                    throw new AssertionError("Unexpected data type " + dataTypes[i]);
+                    throw assertDataType(dataTypes[i]);
                 }
             }
         }
 
-        List<TimeSeries> createTimeSeries() {
+        private Duration checkRegularSpacing() {
             if (times.size() < 2) {
                 throw new TimeSeriesException("At least 2 rows are expected");
             }
 
-            // check time spacing is regular
             Duration spacing = null;
             for (int i = 1; i < times.size(); i++) {
                 Duration duration = Duration.between(times.get(i - 1), times.get(i));
@@ -182,6 +194,13 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
                     }
                 }
             }
+
+            return spacing;
+        }
+
+        List<TimeSeries> createTimeSeries() {
+            // check time spacing is regular
+            Duration spacing = checkRegularSpacing();
 
             Interval interval = Interval.of(times.get(0).toInstant(), times.get(times.size() - 1).toInstant());
             TimeSeriesIndex index = RegularTimeSeriesIndex.create(interval, spacing);
@@ -205,7 +224,7 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
                     StringArrayChunk chunk = new UncompressedStringArrayChunk(0, stringValues.toArray(new String[0])).tryToCompress();
                     timeSeriesList.add(new StringTimeSeries(metadata, chunk));
                 } else {
-                    throw new AssertionError("Unexpected data type " + dataTypes[i - 2]);
+                    throw assertDataType(dataTypes[i - 2]);
                 }
             }
             return timeSeriesList;

@@ -448,7 +448,7 @@ public final class TimeSeriesTable {
 
     public void writeCsv(Path file) {
         try (BufferedWriter writer = createWriter(file)) {
-            writeCsv(writer, TimeSeries.DEFAULT_SEPARATOR, ZoneId.systemDefault());
+            writeCsv(writer, TimeSeriesConstants.DEFAULT_SEPARATOR, ZoneId.systemDefault());
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -464,6 +464,18 @@ public final class TimeSeriesTable {
         }
     }
 
+    private void writeHeader(Writer writer, char separator) throws IOException {
+        // write header
+        writer.write("Time");
+        writer.write(separator);
+        writer.write("Version");
+        for (TimeSeriesMetadata metadata : timeSeriesMetadata) {
+            writer.write(separator);
+            writer.write(metadata.getName());
+        }
+        writer.write(System.lineSeparator());
+    }
+
     public void writeCsv(Writer writer, char separator, ZoneId zoneId) {
         Objects.requireNonNull(writer);
         Objects.requireNonNull(zoneId);
@@ -471,15 +483,7 @@ public final class TimeSeriesTable {
         Stopwatch stopWatch = Stopwatch.createStarted();
 
         try {
-            // write header
-            writer.write("Time");
-            writer.write(separator);
-            writer.write("Version");
-            for (TimeSeriesMetadata metadata : timeSeriesMetadata) {
-                writer.write(separator);
-                writer.write(metadata.getName());
-            }
-            writer.write(System.lineSeparator());
+            writeHeader(writer, separator);
 
             // read time series in the doubleBuffer per 10 points chunk to avoid cache missed and improve performances
             int cacheSize = 10;
