@@ -10,6 +10,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.FileUtil;
 import com.powsybl.commons.io.WorkingDirectory;
 import com.powsybl.computation.*;
+import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -321,6 +322,11 @@ public class MpiComputationManager implements ComputationManager {
                         }
                     }
                 }, executorContext.getComputationExecutor());
+    }
+
+    @Override
+    public <R> boolean cancel(CompletableFuture<R> completableFuture) {
+        throw new NotImplementedException("Cancel() not implemented in mpi computation manager yet");
     }
 
     @Override
