@@ -10,9 +10,9 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.google.common.base.Stopwatch;
+import com.google.common.primitives.Doubles;
 import com.powsybl.commons.json.JsonUtil;
 import gnu.trove.list.array.TDoubleArrayList;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.extra.Interval;
 
@@ -30,8 +30,6 @@ import java.util.stream.Stream;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>> extends Iterable<P> {
-
-    Logger LOGGER = LoggerFactory.getLogger(TimeSeries.class);
 
     TimeSeriesMetadata getMetadata();
 
@@ -126,15 +124,13 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
 
         void parseToken(int i, String token) {
             if (dataTypes[i - 2] == null) {
-                try {
-                    // test double parsing, in case of error we consider it a string time series
-                    Double.parseDouble(token);
-
+                // test double parsing, in case of error we consider it a string time series
+                if (Doubles.tryParse(token) != null) {
                     dataTypes[i - 2] = TimeSeriesDataType.DOUBLE;
                     TDoubleArrayList doubleValues = createDoubleValues();
                     doubleValues.add(parseDouble(token));
                     values[i - 2] = doubleValues;
-                } catch (NumberFormatException ignored) {
+                } else {
                     dataTypes[i - 2] = TimeSeriesDataType.STRING;
                     List<String> stringValues = createStringValues();
                     stringValues.add(checkString(token));
@@ -283,7 +279,8 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
             throw new UncheckedIOException(e);
         }
 
-        LOGGER.info("{} time series loaded from CSV in {} ms",
+        LoggerFactory.getLogger(TimeSeries.class)
+                .info("{} time series loaded from CSV in {} ms",
                 timeSeriesPerVersion.entrySet().stream().mapToInt(e -> e.getValue().size()).sum(),
                 stopwatch.elapsed(TimeUnit.MILLISECONDS));
 

@@ -383,6 +383,46 @@ public final class TimeSeriesTable {
                 .collect(Collectors.toList());
     }
 
+    private void computeConstantTimeSeriesPpmcc(double[] r, int version) {
+        for (int timeSeriesNum2 = 0; timeSeriesNum2 < doubleTimeSeriesNames.size(); timeSeriesNum2++) {
+            int statisticsIndex2 = getStatisticsIndex(version, timeSeriesNum2);
+            double stdDev2 = stdDevs[statisticsIndex2];
+
+            // time series 1 is correlated to other constant time series
+            r[timeSeriesNum2] = stdDev2 == 0 ? 1 : 0;
+        }
+    }
+
+    private void computeVariableTimeSeriesPpmcc(double[] r, int timeSeriesNum1, int statisticsIndex1, double stdDev1,
+                                                int version) {
+        double mean1 = means[statisticsIndex1];
+
+        for (int timeSeriesNum2 = 0; timeSeriesNum2 < doubleTimeSeriesNames.size(); timeSeriesNum2++) {
+            if (timeSeriesNum2 == timeSeriesNum1) {
+                r[timeSeriesNum2] = 1;
+            } else {
+                int statisticsIndex2 = getStatisticsIndex(version, timeSeriesNum2);
+                double stdDev2 = stdDevs[statisticsIndex2];
+
+                r[timeSeriesNum2] = 0;
+
+                if (stdDev2 != 0) {
+                    double mean2 = means[statisticsIndex2];
+
+                    int timeSeriesOffset1 = getTimeSeriesOffset(version, timeSeriesNum1);
+                    int timeSeriesOffset2 = getTimeSeriesOffset(version, timeSeriesNum2);
+
+                    for (int point = 0; point < tableIndex.getPointCount(); point++) {
+                        double value1 = doubleBuffer.get(timeSeriesOffset1 + point);
+                        double value2 = doubleBuffer.get(timeSeriesOffset2 + point);
+                        r[timeSeriesNum2] += (value1 - mean1) / stdDev1 * (value2 - mean2) / stdDev2;
+                    }
+                    r[timeSeriesNum2] /= tableIndex.getPointCount() - 1;
+                }
+            }
+        }
+    }
+
     public double[] computePpmcc(String timeSeriesName, int version) {
         int timeSeriesNum1 = doubleTimeSeriesNames.getIndex(timeSeriesName);
         checkVersion(version);
@@ -397,40 +437,9 @@ public final class TimeSeriesTable {
         double[] r = new double[doubleTimeSeriesNames.size()];
 
         if (stdDev1 == 0) { // constant time series
-            for (int timeSeriesNum2 = 0; timeSeriesNum2 < doubleTimeSeriesNames.size(); timeSeriesNum2++) {
-                int statisticsIndex2 = getStatisticsIndex(version, timeSeriesNum2);
-                double stdDev2 = stdDevs[statisticsIndex2];
-
-                // time series 1 is correlated to other constant time series
-                r[timeSeriesNum2] = stdDev2 == 0 ? 1 : 0;
-            }
+            computeConstantTimeSeriesPpmcc(r, version);
         } else {
-            double mean1 = means[statisticsIndex1];
-
-            for (int timeSeriesNum2 = 0; timeSeriesNum2 < doubleTimeSeriesNames.size(); timeSeriesNum2++) {
-                if (timeSeriesNum2 == timeSeriesNum1) {
-                    r[timeSeriesNum2] = 1;
-                } else {
-                    int statisticsIndex2 = getStatisticsIndex(version, timeSeriesNum2);
-                    double stdDev2 = stdDevs[statisticsIndex2];
-
-                    r[timeSeriesNum2] = 0;
-
-                    if (stdDev2 != 0) {
-                        double mean2 = means[statisticsIndex2];
-
-                        int timeSeriesOffset1 = getTimeSeriesOffset(version, timeSeriesNum1);
-                        int timeSeriesOffset2 = getTimeSeriesOffset(version, timeSeriesNum2);
-
-                        for (int point = 0; point < tableIndex.getPointCount(); point++) {
-                            double value1 = doubleBuffer.get(timeSeriesOffset1 + point);
-                            double value2 = doubleBuffer.get(timeSeriesOffset2 + point);
-                            r[timeSeriesNum2] += (value1 - mean1) / stdDev1 * (value2 - mean2) / stdDev2;
-                        }
-                        r[timeSeriesNum2] /= tableIndex.getPointCount() - 1;
-                    }
-                }
-            }
+            computeVariableTimeSeriesPpmcc(r, timeSeriesNum1, statisticsIndex1, stdDev1, version);
         }
 
         LOGGER.info("PPMCC computed in {} ms", stopWatch.elapsed(TimeUnit.MILLISECONDS));
@@ -464,16 +473,92 @@ public final class TimeSeriesTable {
         }
     }
 
-    private void writeHeader(Writer writer, char separator) throws IOException {
+    private void writeHeader(Writer writer, CsvConfig config) throws IOException {
         // write header
         writer.write("Time");
-        writer.write(separator);
+        writer.write(config.separator);
         writer.write("Version");
         for (TimeSeriesMetadata metadata : timeSeriesMetadata) {
-            writer.write(separator);
+            writer.write(config.separator);
             writer.write(metadata.getName());
         }
         writer.write(System.lineSeparator());
+    }
+
+    private class CsvCache {
+
+        static final int CACHE_SIZE = 10;
+
+        final double[] doubleCache = new double[CACHE_SIZE * doubleTimeSeriesNames.size()];
+
+        final String[] stringCache = new String[CACHE_SIZE * stringTimeSeriesNames.size()];
+    }
+
+    private static class  CsvConfig {
+
+        final char separator;
+
+        final DateTimeFormatter dateTimeFormatter;
+
+        public CsvConfig(char separator, DateTimeFormatter dateTimeFormatter) {
+            this.separator = separator;
+            this.dateTimeFormatter = dateTimeFormatter;
+        }
+    }
+
+    private void fillCache(int point, CsvCache cache, int cachedPoints, int version) {
+        for (int i = 0; i < timeSeriesMetadata.size(); i++) {
+            TimeSeriesMetadata metadata = timeSeriesMetadata.get(i);
+            int timeSeriesNum = timeSeriesIndexDoubleOrString.get(i);
+            int timeSeriesOffset = getTimeSeriesOffset(version, timeSeriesNum);
+            if (metadata.getDataType() == TimeSeriesDataType.DOUBLE) {
+                for (int cachedPoint = 0; cachedPoint < cachedPoints; cachedPoint++) {
+                    cache.doubleCache[cachedPoint * doubleTimeSeriesNames.size() + timeSeriesNum] = doubleBuffer.get(timeSeriesOffset + point + cachedPoint);
+                }
+            } else if (metadata.getDataType() == TimeSeriesDataType.STRING) {
+                for (int cachedPoint = 0; cachedPoint < cachedPoints; cachedPoint++) {
+                    cache.stringCache[cachedPoint * stringTimeSeriesNames.size() + timeSeriesNum] = stringBuffer.getString(timeSeriesOffset + point + cachedPoint);
+                }
+            } else {
+                throw new AssertionError("Unexpected data type " + metadata.getDataType());
+            }
+        }
+    }
+
+    private static void writeDouble(Writer writer, double value) throws IOException {
+        if (!Double.isNaN(value)) {
+            writer.write(Double.toString(value));
+        }
+    }
+
+    private static void writeString(Writer writer, String value) throws IOException {
+        if (value != null) {
+            writer.write(value);
+        }
+    }
+
+    private void dumpCache(Writer writer, CsvConfig config, int point, CsvCache cache, int cachedPoints, int version) throws IOException {
+        for (int cachedPoint = 0; cachedPoint < cachedPoints; cachedPoint++) {
+            ZonedDateTime dateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(tableIndex.getTimeAt(point + cachedPoint)), ZoneId.systemDefault());
+            writer.write(dateTime.format(config.dateTimeFormatter));
+            writer.write(config.separator);
+            writer.write(Integer.toString(version));
+            for (int i = 0; i < timeSeriesMetadata.size(); i++) {
+                TimeSeriesMetadata metadata = timeSeriesMetadata.get(i);
+                int timeSeriesNum = timeSeriesIndexDoubleOrString.get(i);
+                writer.write(config.separator);
+                if (metadata.getDataType() == TimeSeriesDataType.DOUBLE) {
+                    double value = cache.doubleCache[cachedPoint * doubleTimeSeriesNames.size() + timeSeriesNum];
+                    writeDouble(writer, value);
+                } else if (metadata.getDataType() == TimeSeriesDataType.STRING) {
+                    String value = cache.stringCache[cachedPoint * stringTimeSeriesNames.size() + timeSeriesNum];
+                    writeString(writer, value);
+                } else {
+                    throw new AssertionError("Unexpected data type " + metadata.getDataType());
+                }
+            }
+            writer.write(System.lineSeparator());
+        }
     }
 
     public void writeCsv(Writer writer, char separator, ZoneId zoneId) {
@@ -483,65 +568,24 @@ public final class TimeSeriesTable {
         Stopwatch stopWatch = Stopwatch.createStarted();
 
         try {
-            writeHeader(writer, separator);
+            CsvConfig config = new CsvConfig(separator, DateTimeFormatter.ISO_OFFSET_DATE_TIME.withZone(zoneId));
+
+            writeHeader(writer, config);
 
             // read time series in the doubleBuffer per 10 points chunk to avoid cache missed and improve performances
-            int cacheSize = 10;
-            double[] doubleCache = new double[cacheSize * doubleTimeSeriesNames.size()];
-            String[] stringCache = new String[cacheSize * stringTimeSeriesNames.size()];
+            CsvCache cache = new CsvCache();
 
             // write data
             for (int version = fromVersion; version <= toVersion; version++) {
-                for (int point = 0; point < tableIndex.getPointCount(); point += cacheSize) {
+                for (int point = 0; point < tableIndex.getPointCount(); point += CsvCache.CACHE_SIZE) {
 
-                    int cachedPoints = Math.min(cacheSize, tableIndex.getPointCount() - point);
+                    int cachedPoints = Math.min(CsvCache.CACHE_SIZE, tableIndex.getPointCount() - point);
 
                     // copy from doubleBuffer to cache
-                    for (int i = 0; i < timeSeriesMetadata.size(); i++) {
-                        TimeSeriesMetadata metadata = timeSeriesMetadata.get(i);
-                        int timeSeriesNum = timeSeriesIndexDoubleOrString.get(i);
-                        int timeSeriesOffset = getTimeSeriesOffset(version, timeSeriesNum);
-                        if (metadata.getDataType() == TimeSeriesDataType.DOUBLE) {
-                            for (int cachedPoint = 0; cachedPoint < cachedPoints; cachedPoint++) {
-                                doubleCache[cachedPoint * doubleTimeSeriesNames.size() + timeSeriesNum] = doubleBuffer.get(timeSeriesOffset + point + cachedPoint);
-                            }
-                        } else if (metadata.getDataType() == TimeSeriesDataType.STRING) {
-                            for (int cachedPoint = 0; cachedPoint < cachedPoints; cachedPoint++) {
-                                stringCache[cachedPoint * stringTimeSeriesNames.size() + timeSeriesNum] = stringBuffer.getString(timeSeriesOffset + point + cachedPoint);
-                            }
-                        } else {
-                            throw new AssertionError("Unexpected data type " + metadata.getDataType());
-                        }
-                    }
-
-                    DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME.withZone(zoneId);
+                    fillCache(point, cache, cachedPoints, version);
 
                     // then write cache to CSV
-                    for (int cachedPoint = 0; cachedPoint < cachedPoints; cachedPoint++) {
-                        ZonedDateTime dateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(tableIndex.getTimeAt(point + cachedPoint)), ZoneId.systemDefault());
-                        writer.write(dateTime.format(dateTimeFormatter));
-                        writer.write(separator);
-                        writer.write(Integer.toString(version));
-                        for (int i = 0; i < timeSeriesMetadata.size(); i++) {
-                            TimeSeriesMetadata metadata = timeSeriesMetadata.get(i);
-                            int timeSeriesNum = timeSeriesIndexDoubleOrString.get(i);
-                            writer.write(separator);
-                            if (metadata.getDataType() == TimeSeriesDataType.DOUBLE) {
-                                double value = doubleCache[cachedPoint * doubleTimeSeriesNames.size() + timeSeriesNum];
-                                if (!Double.isNaN(value)) {
-                                    writer.write(Double.toString(value));
-                                }
-                            } else if (metadata.getDataType() == TimeSeriesDataType.STRING) {
-                                String value = stringCache[cachedPoint * stringTimeSeriesNames.size() + timeSeriesNum];
-                                if (value != null) {
-                                    writer.write(value);
-                                }
-                            } else {
-                                throw new AssertionError("Unexpected data type " + metadata.getDataType());
-                            }
-                        }
-                        writer.write(System.lineSeparator());
-                    }
+                    dumpCache(writer, config, point, cache, cachedPoints, version);
                 }
             }
         } catch (IOException e) {
