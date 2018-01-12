@@ -31,16 +31,6 @@ public enum InfiniteTimeSeriesIndex implements TimeSeriesIndex {
     }
 
     @Override
-    public int getFirstVersion() {
-        return 1;
-    }
-
-    @Override
-    public int getVersionCount() {
-        return 1;
-    }
-
-    @Override
     public long getTimeAt(int point) {
         if (point == 0) {
             return START_TIME;

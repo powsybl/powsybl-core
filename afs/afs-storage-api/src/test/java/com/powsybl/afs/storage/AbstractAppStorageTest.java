@@ -228,7 +228,7 @@ public abstract class AbstractAppStorageTest {
                                                               TimeSeriesDataType.DOUBLE,
                                                               ImmutableMap.of("var1", "value1"),
                                                               RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T01:15:00Z"),
-                                                                                            Duration.ofMinutes(15), 1, 1));
+                                                                                            Duration.ofMinutes(15)));
         storage.createTimeSeries(testData2Info.getId(), metadata1);
         storage.flush();
 
@@ -243,6 +243,9 @@ public abstract class AbstractAppStorageTest {
                                                                                        new UncompressedDoubleArrayChunk(5, new double[] {3d})));
         storage.flush();
 
+        // check versions
+        assertEquals(ImmutableSet.of(0), storage.getTimeSeriesDataVersions(testData2Info.getId(), "ts1"));
+
         // check double time series data query
         List<DoubleTimeSeries> doubleTimeSeries = storage.getDoubleTimeSeries(testData2Info.getId(), Sets.newHashSet("ts1"), 0);
         assertEquals(1, doubleTimeSeries.size());
@@ -254,7 +257,7 @@ public abstract class AbstractAppStorageTest {
                                                               TimeSeriesDataType.STRING,
                                                               ImmutableMap.of(),
                                                               RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T01:15:00Z"),
-                                                                                            Duration.ofMinutes(15), 1, 1));
+                                                                                            Duration.ofMinutes(15)));
         storage.createTimeSeries(testData2Info.getId(), metadata2);
         storage.flush();
 

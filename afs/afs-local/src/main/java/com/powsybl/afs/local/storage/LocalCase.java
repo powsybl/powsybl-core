@@ -117,6 +117,11 @@ public class LocalCase implements LocalFile {
     }
 
     @Override
+    public Set<Integer> getTimeSeriesDataVersions(String timeSeriesName) {
+        throw new AssertionError();
+    }
+
+    @Override
     public List<TimeSeriesMetadata> getTimeSeriesMetadata(Set<String> timeSeriesNames) {
         throw new AssertionError();
     }
