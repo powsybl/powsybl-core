@@ -131,4 +131,35 @@ public class StringArrayChunkTest {
         assertTrue(split.getChunk2() instanceof UncompressedStringArrayChunk);
         assertArrayEquals(new String[] {"b", "c"}, ((UncompressedStringArrayChunk) split.getChunk2()).getValues());
     }
+
+    @Test
+    public void compressedSplitTest() throws IOException {
+        // index  0   1   2   3   4   5
+        // value  NaN a   a   b   b   b
+        //            [-------]   [---]
+        CompressedStringArrayChunk chunk = new CompressedStringArrayChunk(1, 5, new String[] {"a", "b"}, new int[] {2, 3});
+        try {
+            chunk.splitAt(0);
+            fail();
+        } catch (IllegalArgumentException ignored) {
+        }
+        try {
+            chunk.splitAt(6);
+            fail();
+        } catch (IllegalArgumentException ignored) {
+        }
+        ArrayChunk.Split<StringPoint, StringArrayChunk> split = chunk.splitAt(4);
+        assertNotNull(split.getChunk1());
+        assertNotNull(split.getChunk2());
+        assertEquals(1, split.getChunk1().getOffset());
+        assertTrue(split.getChunk1() instanceof CompressedStringArrayChunk);
+        assertEquals(3, ((CompressedStringArrayChunk) split.getChunk1()).getUncompressedLength());
+        assertArrayEquals(new String[] {"a", "b"}, ((CompressedStringArrayChunk) split.getChunk1()).getStepValues());
+        assertArrayEquals(new int[] {2, 1}, ((CompressedStringArrayChunk) split.getChunk1()).getStepLengths());
+        assertEquals(4, split.getChunk2().getOffset());
+        assertTrue(split.getChunk2() instanceof CompressedStringArrayChunk);
+        assertEquals(2, ((CompressedStringArrayChunk) split.getChunk2()).getUncompressedLength());
+        assertArrayEquals(new String[] {"b"}, ((CompressedStringArrayChunk) split.getChunk2()).getStepValues());
+        assertArrayEquals(new int[] {2}, ((CompressedStringArrayChunk) split.getChunk2()).getStepLengths());
+    }
 }

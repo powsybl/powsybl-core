@@ -123,7 +123,35 @@ public class CompressedStringArrayChunk extends AbstractCompressedArrayChunk imp
 
     @Override
     public Split<StringPoint, StringArrayChunk> splitAt(int splitIndex) {
-        throw new UnsupportedOperationException("TODO"); // TODO
+        // split at offset is not allowed because it will result to a null left chunk
+        if (splitIndex <= offset || splitIndex > (offset + uncompressedLength - 1)) {
+            throw new IllegalArgumentException("Split index " + splitIndex + " out of chunk range ]" + offset
+                    + ", " + (offset + uncompressedLength - 1) + "]");
+        }
+        int index = offset;
+        for (int step = 0; step < stepLengths.length; step++) {
+            if (index + stepLengths[step] > splitIndex) {
+                // first chunk
+                int[] stepLengths1 = new int[step + 1];
+                String[] stepValues1 = new String[stepLengths1.length];
+                System.arraycopy(stepLengths, 0, stepLengths1, 0, stepLengths1.length);
+                System.arraycopy(stepValues, 0, stepValues1, 0, stepValues1.length);
+                stepLengths1[step] = splitIndex - index;
+                CompressedStringArrayChunk chunk1 = new CompressedStringArrayChunk(offset, splitIndex - offset, stepValues1, stepLengths1);
+
+                // second chunk
+                int[] stepLengths2 = new int[stepLengths.length - step];
+                String[] stepValues2 = new String[stepLengths2.length];
+                System.arraycopy(stepLengths, step, stepLengths2, 0, stepLengths2.length);
+                System.arraycopy(stepValues, step, stepValues2, 0, stepValues2.length);
+                stepLengths2[0] = stepLengths[step] - stepLengths1[step];
+                CompressedStringArrayChunk chunk2 = new CompressedStringArrayChunk(splitIndex, uncompressedLength - chunk1.uncompressedLength, stepValues2, stepLengths2);
+
+                return new Split<>(chunk1, chunk2);
+            }
+            index += stepLengths[step];
+        }
+        throw new AssertionError("Should not happen");
     }
 
     @Override
