@@ -36,16 +36,6 @@ public class DoubleTimeSeriesTest {
         }
 
         @Override
-        public int getFirstVersion() {
-            return 1;
-        }
-
-        @Override
-        public int getVersionCount() {
-            return 1;
-        }
-
-        @Override
         public long getTimeAt(int point) {
             return startTime + point;
         }

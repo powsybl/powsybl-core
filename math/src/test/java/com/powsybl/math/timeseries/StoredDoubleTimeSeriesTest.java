@@ -30,7 +30,7 @@ public class StoredDoubleTimeSeriesTest {
     @Test
     public void test() throws IOException {
         RegularTimeSeriesIndex index = RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T01:45:00Z"),
-                                                                     Duration.ofMinutes(15), 1, 1);
+                                                                     Duration.ofMinutes(15));
         TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, Collections.emptyMap(), index);
         UncompressedDoubleArrayChunk chunk = new UncompressedDoubleArrayChunk(2, new double[] {1d, 2d});
         CompressedDoubleArrayChunk chunk2 = new CompressedDoubleArrayChunk(5, 3, new double[] {3d, 4d}, new int[] {1, 2});
@@ -58,9 +58,7 @@ public class StoredDoubleTimeSeriesTest {
                 "    \"regularIndex\" : {",
                 "      \"startTime\" : 1420070400000,",
                 "      \"endTime\" : 1420076700000,",
-                "      \"spacing\" : 900000,",
-                "      \"firstVersion\" : 1,",
-                "      \"versionCount\" : 1",
+                "      \"spacing\" : 900000",
                 "    }",
                 "  },",
                 "  \"chunks\" : [ {",

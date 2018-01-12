@@ -22,10 +22,6 @@ public interface TimeSeriesIndex {
 
     int getPointCount();
 
-    int getFirstVersion();
-
-    int getVersionCount();
-
     long getTimeAt(int point);
 
     String getType();

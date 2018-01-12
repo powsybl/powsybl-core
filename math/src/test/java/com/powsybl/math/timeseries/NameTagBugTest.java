@@ -30,9 +30,7 @@ public class NameTagBugTest {
                 "  \"regularIndex\" : {",
                 "    \"startTime\" : 1420070400000,",
                 "    \"endTime\" : 1420074000000,",
-                "    \"spacing\" : 900000,",
-                "    \"firstVersion\" : 1,",
-                "    \"versionCount\" : 1",
+                "    \"spacing\" : 900000",
                 "  }",
                 "}");
         TimeSeriesMetadata metadata = JsonUtil.parseJson(jsonRef, TimeSeriesMetadata::parseJson);

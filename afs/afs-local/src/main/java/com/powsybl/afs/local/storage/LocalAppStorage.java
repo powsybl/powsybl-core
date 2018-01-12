@@ -300,6 +300,12 @@ public class LocalAppStorage implements AppStorage {
     }
 
     @Override
+    public Set<Integer> getTimeSeriesDataVersions(String nodeId, String timeSeriesName) {
+        Objects.requireNonNull(timeSeriesName);
+        return getFile(nodeId).getTimeSeriesDataVersions(timeSeriesName);
+    }
+
+    @Override
     public List<DoubleTimeSeries> getDoubleTimeSeries(String nodeId, Set<String> timeSeriesNames, int version) {
         Objects.requireNonNull(timeSeriesNames);
         TimeSeriesIndex.checkVersion(version);
