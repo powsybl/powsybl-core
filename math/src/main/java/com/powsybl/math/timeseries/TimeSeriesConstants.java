@@ -14,5 +14,5 @@ public final class TimeSeriesConstants {
     private TimeSeriesConstants() {
     }
 
-    public static char DEFAULT_SEPARATOR = ';';
+    public static final char DEFAULT_SEPARATOR = ';';
 }
