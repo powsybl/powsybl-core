@@ -110,11 +110,11 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Arra
         }
         if (chunk.getLength() > newChunkSize) {
             // compute lower intersection index with new chunk size
-            int lowNewChunkIndex = Math.round(0.5f + (float) chunk.getOffset() / newChunkSize) * newChunkSize;
+            int newChunkLowIndex = Math.round(0.5f + (float) chunk.getOffset() / newChunkSize) * newChunkSize;
             if (LOGGER.isTraceEnabled()) {
-                LOGGER.trace("   At index {}", lowNewChunkIndex);
+                LOGGER.trace("   At index {}", newChunkLowIndex);
             }
-            ArrayChunk.Split<P, C> split = chunk.splitAt(lowNewChunkIndex);
+            ArrayChunk.Split<P, C> split = chunk.splitAt(newChunkLowIndex);
             if (LOGGER.isTraceEnabled()) {
                 LOGGER.trace("   Adding chunk [{}, {}]", split.getChunk1().getOffset(), split.getChunk1().getOffset() + split.getChunk1().getLength() - 1);
             }
@@ -128,14 +128,14 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Arra
         }
     }
 
-    public List<T> split(int n) {
-        if (n <= 1) {
-            throw new IllegalArgumentException("Bad split value " + n);
+    public List<T> split(int chunkCount) {
+        if (chunkCount <= 1) {
+            throw new IllegalArgumentException("Bad chunk count value " + chunkCount + ", it has to be greater than one");
         }
-        if (metadata.getIndex().getPointCount() < n) {
-            throw new IllegalArgumentException("Split value is greater than number of point");
+        if (metadata.getIndex().getPointCount() < chunkCount) {
+            throw new IllegalArgumentException("Chunk count is greater than number of point");
         }
-        int newChunkSize = Math.round((float) metadata.getIndex().getPointCount() / n);
+        int newChunkSize = Math.round((float) metadata.getIndex().getPointCount() / chunkCount);
         if (LOGGER.isTraceEnabled()) {
             LOGGER.trace("New chunk size {}", newChunkSize);
         }

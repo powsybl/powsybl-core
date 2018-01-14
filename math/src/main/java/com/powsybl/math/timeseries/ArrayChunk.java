@@ -106,7 +106,7 @@ public interface ArrayChunk<P extends AbstractPoint, A extends ArrayChunk<P, A>>
     /**
      * Try to compress the chunk.
      *
-     * @return the compressed chunk or itself if compression is  not efficient enough
+     * @return the compressed chunk or itself if compression is not efficient enough
      */
     A tryToCompress();
 

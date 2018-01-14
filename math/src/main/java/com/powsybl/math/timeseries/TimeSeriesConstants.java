@@ -11,8 +11,8 @@ package com.powsybl.math.timeseries;
  */
 public final class TimeSeriesConstants {
 
+    public static final char DEFAULT_SEPARATOR = ';';
+
     private TimeSeriesConstants() {
     }
-
-    public static final char DEFAULT_SEPARATOR = ';';
 }

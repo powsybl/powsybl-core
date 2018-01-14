@@ -8,8 +8,6 @@ package com.powsybl.math.timeseries;
 
 import com.google.common.base.Stopwatch;
 import gnu.trove.list.array.TIntArrayList;
-import gnu.trove.map.TObjectIntMap;
-import gnu.trove.map.hash.TObjectIntHashMap;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,34 +68,30 @@ public final class TimeSeriesTable {
 
     private class TimeSeriesNameMap {
 
-        private final List<String> indexToName = new ArrayList<>();
-
-        private final TObjectIntMap<String> nameToIndex = new TObjectIntHashMap<>();
+        private final BiList<String> names = new BiList<>();
 
         int add(String name) {
-            int i = indexToName.size();
-            indexToName.add(name);
-            nameToIndex.put(name, i);
-            return i;
+            return names.add(name);
         }
 
         String getName(int index) {
-            if (index < 0 || index >= indexToName.size()) {
+            if (index < 0 || index >= names.size()) {
                 throw new IllegalArgumentException("Time series at index " + index + " not found");
             }
-            return indexToName.get(index);
+            return names.get(index);
         }
 
         int getIndex(String name) {
             Objects.requireNonNull(name);
-            if (!nameToIndex.containsKey(name)) {
+            int index = names.indexOf(name);
+            if (index == -1) {
                 throw new IllegalArgumentException("Time series '" + name + "' not found");
             }
-            return nameToIndex.get(name);
+            return index;
         }
 
         int size() {
-            return indexToName.size();
+            return names.size();
         }
     }
 
@@ -128,7 +122,7 @@ public final class TimeSeriesTable {
         TimeSeriesIndex.checkVersion(fromVersion);
         TimeSeriesIndex.checkVersion(toVersion);
         if (toVersion < fromVersion) {
-            throw new TimeSeriesException("To version is expected to be greater tha from version");
+            throw new TimeSeriesException("toVersion (" + toVersion + ") is expected to be greater than fromVersion (" + fromVersion + ")");
         }
         this.fromVersion = fromVersion;
         this.toVersion = toVersion;
@@ -174,10 +168,7 @@ public final class TimeSeriesTable {
 
         // allocate double buffer
         int doubleBufferSize = versionCount * doubleTimeSeriesNames.size() * tableIndex.getPointCount();
-        doubleBuffer = createDoubleBuffer(doubleBufferSize);
-        for (int i = 0; i < doubleBufferSize; i++) {
-            doubleBuffer.put(Double.NaN);
-        }
+        doubleBuffer = createDoubleBuffer(doubleBufferSize, Double.NaN);
 
         // allocate string buffer
         int stringBufferSize = versionCount * stringTimeSeriesNames.size() * tableIndex.getPointCount();
@@ -197,6 +188,14 @@ public final class TimeSeriesTable {
 
     private static DoubleBuffer createDoubleBuffer(int size) {
         return ByteBuffer.allocateDirect(size * Double.BYTES).asDoubleBuffer();
+    }
+
+    private static DoubleBuffer createDoubleBuffer(int size, double initialValue) {
+        DoubleBuffer doubleBuffer = createDoubleBuffer(size);
+        for (int i = 0; i < size; i++) {
+            doubleBuffer.put(initialValue);
+        }
+        return doubleBuffer;
     }
 
     private int getTimeSeriesOffset(int version, int timeSeriesNum) {
@@ -494,7 +493,7 @@ public final class TimeSeriesTable {
         final String[] stringCache = new String[CACHE_SIZE * stringTimeSeriesNames.size()];
     }
 
-    private static class  CsvConfig {
+    private static class CsvConfig {
 
         final char separator;
 

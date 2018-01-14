@@ -6,13 +6,8 @@
  */
 package com.powsybl.math.timeseries;
 
-import gnu.trove.map.TObjectIntMap;
-import gnu.trove.map.hash.TObjectIntHashMap;
-
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -21,9 +16,7 @@ public class CompactStringBuffer {
 
     private final IntBuffer buffer;
 
-    private final List<String> numToNameDict = new ArrayList<>();
-
-    private final TObjectIntMap<String> nameToNumDict = new TObjectIntHashMap<>();
+    private final BiList<String> dict = new BiList<>();
 
     public CompactStringBuffer(int size) {
         this.buffer = createIntBuffer(size);
@@ -41,13 +34,10 @@ public class CompactStringBuffer {
         if (value == null) {
             num = -1;
         } else {
-            if (nameToNumDict.containsKey(value)) {
-                num = nameToNumDict.get(value);
-            } else {
+            num = dict.indexOf(value);
+            if (num == -1) {
                 // create a new entry
-                num = numToNameDict.size();
-                numToNameDict.add(value);
-                nameToNumDict.put(value, num);
+                num = dict.add(value);
             }
         }
         buffer.put(index, num);
@@ -58,7 +48,7 @@ public class CompactStringBuffer {
         if (num == -1) {
             return null;
         } else {
-            return numToNameDict.get(num);
+            return dict.get(num);
         }
     }
 

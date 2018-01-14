@@ -105,9 +105,7 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
         private TDoubleArrayList createDoubleValues() {
             TDoubleArrayList doubleValues = new TDoubleArrayList();
             if (!times.isEmpty()) {
-                for (int j = 0; j < times.size(); j++) {
-                    doubleValues.add(Double.NaN);
-                }
+                doubleValues.fill(0, times.size(), Double.NaN);
             }
             return doubleValues;
         }
@@ -186,7 +184,7 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
                     spacing = duration;
                 } else {
                     if (!duration.equals(spacing)) {
-                        throw new TimeSeriesException("Time spacing is expected to regular");
+                        throw new TimeSeriesException("Time spacing has to be regular");
                     }
                 }
             }
