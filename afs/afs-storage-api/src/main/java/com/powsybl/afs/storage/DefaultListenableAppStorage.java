@@ -6,211 +6,107 @@
  */
 package com.powsybl.afs.storage;
 
-import com.powsybl.math.timeseries.*;
+import com.powsybl.afs.storage.events.*;
+import com.powsybl.math.timeseries.DoubleArrayChunk;
+import com.powsybl.math.timeseries.StringArrayChunk;
+import com.powsybl.math.timeseries.TimeSeriesMetadata;
 
-import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.*;
+import java.util.List;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class DefaultListenableAppStorage implements ListenableAppStorage {
+public class DefaultListenableAppStorage extends ForwardingAppStorage implements ListenableAppStorage {
 
-    private final AppStorage storage;
-
-    private final WeakHashMap<Object, List<AppStorageListener>> listeners = new WeakHashMap<>();
+    private final AppStorageListenerList listeners = new AppStorageListenerList();
 
     public DefaultListenableAppStorage(AppStorage storage) {
-        this.storage = Objects.requireNonNull(storage);
-    }
-
-    @Override
-    public String getFileSystemName() {
-        return storage.getFileSystemName();
-    }
-
-    @Override
-    public boolean isRemote() {
-        return storage.isRemote();
+        super(storage);
     }
 
     @Override
     public NodeInfo createRootNodeIfNotExists(String name, String nodePseudoClass) {
-        return storage.createRootNodeIfNotExists(name, nodePseudoClass);
-    }
-
-    @Override
-    public NodeInfo createNode(String parentNodeId, String name, String nodePseudoClass, String description, int version, NodeGenericMetadata genericMetadata) {
-        NodeInfo nodeInfo = storage.createNode(parentNodeId, name, nodePseudoClass, description, version, genericMetadata);
-        listeners.values().stream().flatMap(List::stream).forEach(l -> l.nodeCreated(nodeInfo.getId()));
+        NodeInfo nodeInfo = super.createRootNodeIfNotExists(name, nodePseudoClass);
+        listeners.notify(new NodeCreated(nodeInfo.getId()));
         return nodeInfo;
     }
 
     @Override
-    public boolean isWritable(String nodeId) {
-        return storage.isWritable(nodeId);
-    }
-
-    @Override
-    public NodeInfo getNodeInfo(String nodeId) {
-        return storage.getNodeInfo(nodeId);
+    public NodeInfo createNode(String parentNodeId, String name, String nodePseudoClass, String description, int version, NodeGenericMetadata genericMetadata) {
+        NodeInfo nodeInfo = super.createNode(parentNodeId, name, nodePseudoClass, description, version, genericMetadata);
+        listeners.notify(new NodeCreated(nodeInfo.getId()));
+        return nodeInfo;
     }
 
     @Override
     public void setDescription(String nodeId, String description) {
-        storage.setDescription(nodeId, description);
-    }
-
-    @Override
-    public void updateModificationTime(String nodeId) {
-        storage.updateModificationTime(nodeId);
-    }
-
-    @Override
-    public List<NodeInfo> getChildNodes(String nodeId) {
-        return storage.getChildNodes(nodeId);
-    }
-
-    @Override
-    public Optional<NodeInfo> getChildNode(String nodeId, String name) {
-        return storage.getChildNode(nodeId, name);
-    }
-
-    @Override
-    public Optional<NodeInfo> getParentNode(String nodeId) {
-        return storage.getParentNode(nodeId);
+        super.setDescription(nodeId, description);
+        listeners.notify(new NodeDescriptionUpdated(nodeId, description));
     }
 
     @Override
     public void setParentNode(String nodeId, String newParentNodeId) {
-        storage.setParentNode(nodeId, newParentNodeId);
+        super.setParentNode(nodeId, newParentNodeId);
+        listeners.notify(new ParentChanged(nodeId));
     }
 
     @Override
     public void deleteNode(String nodeId) {
-        storage.deleteNode(nodeId);
-        listeners.values().stream().flatMap(List::stream).forEach(l -> l.nodeRemoved(nodeId));
-    }
-
-    @Override
-    public Optional<InputStream> readBinaryData(String nodeId, String name) {
-        return storage.readBinaryData(nodeId, name);
+        super.deleteNode(nodeId);
+        listeners.notify(new NodeRemoved(nodeId));
     }
 
     @Override
     public OutputStream writeBinaryData(String nodeId, String name) {
-        OutputStream os = storage.writeBinaryData(nodeId, name);
-        listeners.values().stream().flatMap(List::stream).forEach(l -> l.nodeDataUpdated(nodeId, name));
+        OutputStream os = super.writeBinaryData(nodeId, name);
+        listeners.notify(new NodeDataUpdated(nodeId, name));
         return os;
     }
 
     @Override
-    public boolean dataExists(String nodeId, String name) {
-        return storage.dataExists(nodeId, name);
-    }
-
-    @Override
-    public Set<String> getDataNames(String nodeId) {
-        return storage.getDataNames(nodeId);
-    }
-
-    @Override
     public void createTimeSeries(String nodeId, TimeSeriesMetadata metadata) {
-        storage.createTimeSeries(nodeId, metadata);
-        listeners.values().stream().flatMap(List::stream).forEach(l -> l.timeSeriesCreated(nodeId, metadata.getName()));
-    }
-
-    @Override
-    public Set<String> getTimeSeriesNames(String nodeId) {
-        return storage.getTimeSeriesNames(nodeId);
-    }
-
-    @Override
-    public List<TimeSeriesMetadata> getTimeSeriesMetadata(String nodeId, Set<String> timeSeriesNames) {
-        return storage.getTimeSeriesMetadata(nodeId, timeSeriesNames);
-    }
-
-    @Override
-    public Set<Integer> getTimeSeriesDataVersions(String nodeId, String timeSeriesName) {
-        return storage.getTimeSeriesDataVersions(nodeId, timeSeriesName);
-    }
-
-    @Override
-    public List<DoubleTimeSeries> getDoubleTimeSeries(String nodeId, Set<String> timeSeriesNames, int version) {
-        return storage.getDoubleTimeSeries(nodeId, timeSeriesNames, version);
+        super.createTimeSeries(nodeId, metadata);
+        listeners.notify(new TimeSeriesCreated(nodeId, metadata.getName()));
     }
 
     @Override
     public void addDoubleTimeSeriesData(String nodeId, int version, String timeSeriesName, List<DoubleArrayChunk> chunks) {
-        storage.addDoubleTimeSeriesData(nodeId, version, timeSeriesName, chunks);
-        listeners.values().stream().flatMap(List::stream).forEach(l -> l.timeSeriesDataUpdated(nodeId, timeSeriesName));
-    }
-
-    @Override
-    public List<StringTimeSeries> getStringTimeSeries(String nodeId, Set<String> timeSeriesNames, int version) {
-        return storage.getStringTimeSeries(nodeId, timeSeriesNames, version);
+        super.addDoubleTimeSeriesData(nodeId, version, timeSeriesName, chunks);
+        listeners.notify(new TimeSeriesDataUpdated(nodeId, timeSeriesName));
     }
 
     @Override
     public void addStringTimeSeriesData(String nodeId, int version, String timeSeriesName, List<StringArrayChunk> chunks) {
-        storage.addStringTimeSeriesData(nodeId, version, timeSeriesName, chunks);
-        listeners.values().stream().flatMap(List::stream).forEach(l -> l.timeSeriesDataUpdated(nodeId, timeSeriesName));
+        super.addStringTimeSeriesData(nodeId, version, timeSeriesName, chunks);
+        listeners.notify(new TimeSeriesDataUpdated(nodeId, timeSeriesName));
     }
 
     @Override
     public void removeAllTimeSeries(String nodeId) {
-        storage.removeAllTimeSeries(nodeId);
-        listeners.values().stream().flatMap(List::stream).forEach(l -> l.timeSeriesRemoved(nodeId));
+        super.removeAllTimeSeries(nodeId);
+        listeners.notify(new TimeSeriesAllRemoved(nodeId));
     }
 
     @Override
     public void addDependency(String nodeId, String name, String toNodeId) {
-        storage.addDependency(nodeId, name, toNodeId);
-        listeners.values().stream().flatMap(List::stream).forEach(l -> l.dependencyAdded(nodeId, name));
-    }
-
-    @Override
-    public Set<NodeInfo> getDependencies(String nodeId, String name) {
-        return storage.getDependencies(nodeId, name);
-    }
-
-    @Override
-    public Set<NodeDependency> getDependencies(String nodeId) {
-        return storage.getDependencies(nodeId);
-    }
-
-    @Override
-    public Set<NodeInfo> getBackwardDependencies(String nodeId) {
-        return storage.getBackwardDependencies(nodeId);
+        super.addDependency(nodeId, name, toNodeId);
+        listeners.notify(new DependencyAdded(nodeId, name));
     }
 
     @Override
     public void removeDependency(String nodeId, String name, String toNodeId) {
-        storage.removeDependency(nodeId, name, toNodeId);
-        listeners.values().stream().flatMap(List::stream).forEach(l -> l.dependencyRemoved(nodeId, name));
-    }
-
-    @Override
-    public void flush() {
-        storage.flush();
-    }
-
-    @Override
-    public void close() {
-        storage.close();
+        super.removeDependency(nodeId, name, toNodeId);
+        listeners.notify(new DependencyRemoved(nodeId, name));
     }
 
     @Override
     public void addListener(Object target, AppStorageListener l) {
-        Objects.requireNonNull(target);
-        Objects.requireNonNull(l);
-        listeners.computeIfAbsent(target, k -> new ArrayList<>()).add(l);
+        listeners.add(target, l);
     }
 
     @Override
     public void removeListeners(Object target) {
-        Objects.requireNonNull(target);
-        listeners.remove(target);
+        listeners.removeAll(target);
     }
 }
