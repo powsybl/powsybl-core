@@ -487,9 +487,9 @@ public class MapDbAppStorage implements AppStorage {
                 .collect(Collectors.toSet());
     }
 
-    private <P extends AbstractPoint, C extends ArrayChunk<P>> List<C> getChunks(UUID nodeId, int version, String timeSeriesName,
-                                                                                 TimeSeriesMetadata metadata,
-                                                                                 ConcurrentMap<TimeSeriesChunkKey, C> map) {
+    private <P extends AbstractPoint, C extends ArrayChunk<P, C>> List<C> getChunks(UUID nodeId, int version, String timeSeriesName,
+                                                                                    TimeSeriesMetadata metadata,
+                                                                                    ConcurrentMap<TimeSeriesChunkKey, C> map) {
         TimeSeriesKey key = new TimeSeriesKey(nodeId, version, timeSeriesName);
         Integer lastChunkNum = timeSeriesLastChunkMap.get(key);
         if (lastChunkNum == null) {
@@ -509,7 +509,7 @@ public class MapDbAppStorage implements AppStorage {
         return chunks;
     }
 
-    private <P extends AbstractPoint, C extends ArrayChunk<P>, T extends TimeSeries<P>>
+    private <P extends AbstractPoint, C extends ArrayChunk<P, C>, T extends TimeSeries<P, T>>
         List<T> getTimeSeries(String nodeId, Set<String> timeSeriesNames, int version,
                               ConcurrentMap<TimeSeriesChunkKey, C> map, BiFunction<TimeSeriesMetadata, List<C>, T> constr) {
         UUID nodeUuid = checkNodeId(nodeId);
@@ -531,11 +531,11 @@ public class MapDbAppStorage implements AppStorage {
         return timeSeriesList;
     }
 
-    private <P extends AbstractPoint, C extends ArrayChunk<P>> void addTimeSeriesData(String nodeId,
-                                                                                      int version,
-                                                                                      String timeSeriesName,
-                                                                                      List<C> chunks,
-                                                                                      ConcurrentMap<TimeSeriesChunkKey, C> map) {
+    private <P extends AbstractPoint, C extends ArrayChunk<P, C>> void addTimeSeriesData(String nodeId,
+                                                                                         int version,
+                                                                                         String timeSeriesName,
+                                                                                         List<C> chunks,
+                                                                                         ConcurrentMap<TimeSeriesChunkKey, C> map) {
         UUID nodeUuid = checkNodeId(nodeId);
         TimeSeriesIndex.checkVersion(version);
         Objects.requireNonNull(timeSeriesName);

@@ -6,13 +6,13 @@
  */
 package com.powsybl.math.timeseries;
 
-import java.util.Arrays;
+import java.nio.DoubleBuffer;
 import java.util.List;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class StoredDoubleTimeSeries extends AbstractTimeSeries<DoublePoint, DoubleArrayChunk> implements DoubleTimeSeries {
+public class StoredDoubleTimeSeries extends AbstractTimeSeries<DoublePoint, DoubleArrayChunk, DoubleTimeSeries> implements DoubleTimeSeries {
 
     private static final double[] NAN_ARRAY = new double[] {Double.NaN};
 
@@ -29,10 +29,22 @@ public class StoredDoubleTimeSeries extends AbstractTimeSeries<DoublePoint, Doub
     }
 
     @Override
+    protected DoubleTimeSeries createTimeSeries(DoubleArrayChunk chunk) {
+        return new StoredDoubleTimeSeries(metadata, chunk);
+    }
+
+    @Override
+    public void fillBuffer(DoubleBuffer buffer, int timeSeriesOffset) {
+        chunks.forEach(chunk -> chunk.fillBuffer(buffer, timeSeriesOffset));
+    }
+
+    @Override
     public double[] toArray() {
-        double[] array = new double[metadata.getIndex().getPointCount()];
-        Arrays.fill(array, Double.NaN);
-        chunks.forEach(chunk -> chunk.fillArray(array));
-        return array;
+        DoubleBuffer buffer = DoubleBuffer.allocate(metadata.getIndex().getPointCount());
+        for (int i = 0; i < metadata.getIndex().getPointCount(); i++) {
+            buffer.put(i, Double.NaN);
+        }
+        fillBuffer(buffer, 0);
+        return buffer.array();
     }
 }
