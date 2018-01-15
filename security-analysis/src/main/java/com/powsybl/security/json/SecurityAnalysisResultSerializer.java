@@ -39,6 +39,9 @@ public class SecurityAnalysisResultSerializer extends StdSerializer<SecurityAnal
         jsonGenerator.writeStartObject();
 
         jsonGenerator.writeStringField("version", VERSION);
+        if (result.getNetworkMetadata() != null) {
+            jsonGenerator.writeObjectField("network", result.getNetworkMetadata());
+        }
         jsonGenerator.writeObjectField("preContingencyResult", result.getPreContingencyResult());
         jsonGenerator.writeObjectField("postContingencyResults", result.getPostContingencyResults());
         JsonUtil.writeExtensions(result, jsonGenerator, serializerProvider);
@@ -61,6 +64,7 @@ public class SecurityAnalysisResultSerializer extends StdSerializer<SecurityAnal
         ObjectMapper objectMapper = new ObjectMapper();
         SimpleModule module = new SimpleModule();
         module.addSerializer(SecurityAnalysisResult.class, new SecurityAnalysisResultSerializer());
+        module.addSerializer(NetworkMetadata.class, new NetworkMetadataSerializer());
         module.addSerializer(PostContingencyResult.class, new PostContingencyResultSerializer());
         module.addSerializer(LimitViolationsResult.class, new LimitViolationsResultSerializer());
         module.addSerializer(LimitViolation.class, new LimitViolationSerializer());

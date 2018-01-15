@@ -53,7 +53,10 @@ public class ExporterTest extends AbstractConverterTest {
         LimitViolationsResult preContingencyResult = new LimitViolationsResult(true, Collections.singletonList(violation1));
         PostContingencyResult postContingencyResult = new PostContingencyResult(contingency, true, Arrays.asList(violation2, violation3, violation4), Arrays.asList("action1", "action2"));
 
-        return new SecurityAnalysisResult(preContingencyResult, Collections.singletonList(postContingencyResult));
+        SecurityAnalysisResult result = new SecurityAnalysisResult(preContingencyResult, Collections.singletonList(postContingencyResult));
+        result.setNetworkMetadata(new NetworkMetadata(NETWORK));
+
+        return result;
     }
 
     @Test

@@ -16,6 +16,8 @@ import java.util.Objects;
  */
 public class SecurityAnalysisResult extends AbstractExtendable<SecurityAnalysisResult> {
 
+    private NetworkMetadata networkMetadata;
+
     private final LimitViolationsResult preContingencyResult;
 
     private final List<PostContingencyResult> postContingencyResults;
@@ -24,6 +26,15 @@ public class SecurityAnalysisResult extends AbstractExtendable<SecurityAnalysisR
                                   List<PostContingencyResult> postContingencyResults) {
         this.preContingencyResult = Objects.requireNonNull(preContingencyResult);
         this.postContingencyResults = Objects.requireNonNull(postContingencyResults);
+    }
+
+    public NetworkMetadata getNetworkMetadata() {
+        return networkMetadata;
+    }
+
+    public SecurityAnalysisResult setNetworkMetadata(NetworkMetadata networkMetadata) {
+        this.networkMetadata = networkMetadata;
+        return this;
     }
 
     public LimitViolationsResult getPreContingencyResult() {
