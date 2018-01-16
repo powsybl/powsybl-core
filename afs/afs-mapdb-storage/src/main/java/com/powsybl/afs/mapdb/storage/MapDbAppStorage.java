@@ -463,6 +463,7 @@ public class MapDbAppStorage implements AppStorage {
     public boolean timeSeriesExists(String nodeId, String timeSeriesName) {
         UUID nodeUuid = checkNodeId(nodeId);
         checkNodeExists(nodeUuid);
+        Objects.requireNonNull(timeSeriesName);
         return timeSeriesNamesMap.get(nodeUuid).contains(timeSeriesName);
     }
 
