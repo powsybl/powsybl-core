@@ -138,17 +138,17 @@ public class NodeEventTest {
 
 
     @Test
-    public void timeSeriesAllRemovedTest() throws IOException {
-        TimeSeriesAllRemoved removed = new TimeSeriesAllRemoved("a");
-        assertEquals("a", removed.getId());
-        assertEquals(NodeEventType.TIME_SERIES_ALL_REMOVED, removed.getType());
+    public void timeSeriesClearedTest() throws IOException {
+        TimeSeriesCleared cleared = new TimeSeriesCleared("a");
+        assertEquals("a", cleared.getId());
+        assertEquals(NodeEventType.TIME_SERIES_CLEARED, cleared.getType());
 
-        TimeSeriesAllRemoved removed2 = objectMapper.readValue(objectMapper.writeValueAsString(removed), TimeSeriesAllRemoved.class);
-        assertEquals(removed, removed2);
+        TimeSeriesCleared cleared2 = objectMapper.readValue(objectMapper.writeValueAsString(cleared), TimeSeriesCleared.class);
+        assertEquals(cleared, cleared2);
 
         new EqualsTester()
-                .addEqualityGroup(new TimeSeriesAllRemoved("a"), new TimeSeriesAllRemoved("a"))
-                .addEqualityGroup(new TimeSeriesAllRemoved("b"), new TimeSeriesAllRemoved("b"))
+                .addEqualityGroup(new TimeSeriesCleared("a"), new TimeSeriesCleared("a"))
+                .addEqualityGroup(new TimeSeriesCleared("b"), new TimeSeriesCleared("b"))
                 .testEquals();
     }
 

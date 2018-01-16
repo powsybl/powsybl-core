@@ -330,7 +330,7 @@ public class LocalAppStorage implements AppStorage {
     }
 
     @Override
-    public void removeAllTimeSeries(String nodeId) {
+    public void clearTimeSeries(String nodeId) {
         throw new AssertionError();
     }
 

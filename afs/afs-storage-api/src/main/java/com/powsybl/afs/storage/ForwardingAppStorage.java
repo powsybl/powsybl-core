@@ -152,8 +152,8 @@ public class ForwardingAppStorage implements AppStorage {
     }
 
     @Override
-    public void removeAllTimeSeries(String nodeId) {
-        storage.removeAllTimeSeries(nodeId);
+    public void clearTimeSeries(String nodeId) {
+        storage.clearTimeSeries(nodeId);
     }
 
     @Override

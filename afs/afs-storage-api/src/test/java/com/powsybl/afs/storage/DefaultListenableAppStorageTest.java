@@ -79,7 +79,7 @@ public class DefaultListenableAppStorageTest {
         listenableStorage.addStringTimeSeriesData("node1", 1, "ts1", Collections.singletonList(Mockito.mock(StringArrayChunk.class)));
         assertEquals(new TimeSeriesDataUpdated("node1", "ts1"), lastEvent);
 
-        listenableStorage.removeAllTimeSeries("node1");
-        assertEquals(new TimeSeriesAllRemoved("node1"), lastEvent);
+        listenableStorage.clearTimeSeries("node1");
+        assertEquals(new TimeSeriesCleared("node1"), lastEvent);
     }
 }

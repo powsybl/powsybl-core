@@ -576,7 +576,7 @@ public class MapDbAppStorage implements AppStorage {
     }
 
     @Override
-    public void removeAllTimeSeries(String nodeId) {
+    public void clearTimeSeries(String nodeId) {
         UUID nodeUuid = checkNodeId(nodeId);
         Set<String> names = timeSeriesNamesMap.get(nodeUuid);
         if (names != null) {

@@ -12,11 +12,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class TimeSeriesAllRemoved extends NodeEvent {
+public class TimeSeriesCleared extends NodeEvent {
 
     @JsonCreator
-    public TimeSeriesAllRemoved(@JsonProperty("id") String id) {
-        super(id, NodeEventType.TIME_SERIES_ALL_REMOVED);
+    public TimeSeriesCleared(@JsonProperty("id") String id) {
+        super(id, NodeEventType.TIME_SERIES_CLEARED);
     }
 
     @Override
@@ -26,8 +26,8 @@ public class TimeSeriesAllRemoved extends NodeEvent {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof TimeSeriesAllRemoved) {
-            TimeSeriesAllRemoved other = (TimeSeriesAllRemoved) obj;
+        if (obj instanceof TimeSeriesCleared) {
+            TimeSeriesCleared other = (TimeSeriesCleared) obj;
             return id.equals(other.id);
         }
         return false;
@@ -35,6 +35,6 @@ public class TimeSeriesAllRemoved extends NodeEvent {
 
     @Override
     public String toString() {
-        return "TimeSeriesAllRemoved(id=" + id + ")";
+        return "TimeSeriesCleared(id=" + id + ")";
     }
 }

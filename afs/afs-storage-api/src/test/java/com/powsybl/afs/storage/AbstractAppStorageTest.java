@@ -341,12 +341,12 @@ public abstract class AbstractAppStorageTest {
         StringTimeSeries ts2 = stringTimeSeries.get(0);
         assertArrayEquals(new String[] {null, null, "a", "b", null, "c"}, ts2.toArray());
 
-        // 17) remove all time series
-        storage.removeAllTimeSeries(testData2Info.getId());
+        // 17) clear time series
+        storage.clearTimeSeries(testData2Info.getId());
         storage.flush();
 
         // check event
-        assertEquals(new TimeSeriesAllRemoved(testData2Info.getId()), eventStack.take());
+        assertEquals(new TimeSeriesCleared(testData2Info.getId()), eventStack.take());
 
         // check there is no more time series
         assertTrue(storage.getTimeSeriesNames(testData2Info.getId()).isEmpty());

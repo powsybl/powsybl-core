@@ -83,9 +83,9 @@ public class DefaultListenableAppStorage extends ForwardingAppStorage implements
     }
 
     @Override
-    public void removeAllTimeSeries(String nodeId) {
-        super.removeAllTimeSeries(nodeId);
-        listeners.notify(new TimeSeriesAllRemoved(nodeId));
+    public void clearTimeSeries(String nodeId) {
+        super.clearTimeSeries(nodeId);
+        listeners.notify(new TimeSeriesCleared(nodeId));
     }
 
     @Override
