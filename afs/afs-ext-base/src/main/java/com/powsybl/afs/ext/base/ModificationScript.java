@@ -10,7 +10,8 @@ import com.google.common.io.CharStreams;
 import com.powsybl.afs.FileIcon;
 import com.powsybl.afs.ProjectFile;
 import com.powsybl.afs.ProjectFileCreationContext;
-import com.powsybl.afs.storage.DefaultAppStorageListener;
+import com.powsybl.afs.storage.events.NodeDataUpdated;
+import com.powsybl.afs.storage.events.NodeEventType;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -35,10 +36,10 @@ public class ModificationScript extends ProjectFile implements StorableScript {
 
     public ModificationScript(ProjectFileCreationContext context) {
         super(context, VERSION, SCRIPT_ICON);
-        storage.addListener(this, new DefaultAppStorageListener() {
-            @Override
-            public void nodeDataUpdated(String id, String dataName) {
-                if (id.equals(info.getId()) && SCRIPT_CONTENT.equals(dataName)) {
+        storage.addListener(this, event -> {
+            if (event.getType() == NodeEventType.NODE_DATA_UPDATED) {
+                NodeDataUpdated dataUpdated = (NodeDataUpdated) event;
+                if (dataUpdated.getId().equals(info.getId()) && SCRIPT_CONTENT.equals(dataUpdated.getDataName())) {
                     for (ScriptListener listener : listeners) {
                         listener.scriptUpdated();
                     }
