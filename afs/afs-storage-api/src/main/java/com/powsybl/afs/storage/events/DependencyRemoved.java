@@ -46,6 +46,6 @@ public class DependencyRemoved extends NodeEvent {
 
     @Override
     public String toString() {
-        return "DependencyAdded(id=" + id + ", dependencyName=" + dependencyName + ")";
+        return "DependencyRemoved(id=" + id + ", dependencyName=" + dependencyName + ")";
     }
 }
