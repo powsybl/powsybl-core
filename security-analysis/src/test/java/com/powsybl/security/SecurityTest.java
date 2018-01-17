@@ -11,6 +11,7 @@ import com.powsybl.commons.io.table.CsvTableFormatterFactory;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,7 +23,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
+import static org.hamcrest.CoreMatchers.either;
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -44,13 +48,19 @@ public class SecurityTest {
     public void setUp() {
         formatterConfig = new TableFormatterConfig(Locale.US, ',', "inv", true, true);
         // create pre-contingency results, just one violation on line1
-        line1Violation = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, "Permanent limit", 1000f, 0.95f, 1100, Branch.Side.ONE);
+        line1Violation = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, "Permanent limit", 1000f, 0.95f, 1100, Branch.Side.ONE)
+                .setValueMW(110f)
+                .setAcceptableDuration(1200);
         LimitViolationsResult preContingencyResult = new LimitViolationsResult(true, Collections.singletonList(line1Violation), Collections.singletonList("action1"));
 
         // create post-contingency results, still the line1 violation plus line2 violation
         Contingency contingency1 = Mockito.mock(Contingency.class);
         Mockito.when(contingency1.getId()).thenReturn("contingency1");
-        line2Violation = new LimitViolation("NHV1_NHV2_2", LimitViolationType.CURRENT, "Permanent limit", 900f, 0.95f, 950, Branch.Side.ONE);
+        line2Violation = new LimitViolation("NHV1_NHV2_2", LimitViolationType.CURRENT, "Permanent limit", 900f, 0.95f, 950, Branch.Side.ONE)
+                .setValueMW(95f)
+                .setValueBefore(800f)
+                .setValueBeforeMW(80f)
+                .setAcceptableDuration(600);
         PostContingencyResult postContingencyResult = new PostContingencyResult(contingency1, true, Arrays.asList(line1Violation, line2Violation), Collections.singletonList("action2"));
         result = new SecurityAnalysisResult(preContingencyResult, Collections.singletonList(postContingencyResult));
 
@@ -174,17 +184,33 @@ public class SecurityTest {
     }
 
     @Test
+    public void checkAttributes() {
+        assertEquals(Branch.Side.ONE, line1Violation.getSide());
+        assertEquals(110f, line1Violation.getValueMW(), 0f);
+        assertEquals(1200, line1Violation.getAcceptableDuration());
+        assertTrue(Float.isNaN(line1Violation.getValueBefore()));
+        assertTrue(Float.isNaN(line1Violation.getValueBeforeMW()));
+
+        assertEquals(Branch.Side.ONE, line2Violation.getSide());
+        assertEquals(95f, line2Violation.getValueMW(), 0f);
+        assertEquals(600, line2Violation.getAcceptableDuration());
+        assertEquals(800f, line2Violation.getValueBefore(), 0f);
+        assertEquals(80f, line2Violation.getValueBeforeMW(), 0f);
+    }
+
+
+    @Test
     public void checkLimits() {
         List<LimitViolation> violations = Security.checkLimits(network);
 
         assertEquals(5, violations.size());
-        assertViolations(violations);
+        assertViolations(violations, network);
 
         violations = Security.checkLimits(network, 1);
-        assertViolations(violations);
+        assertViolations(violations, network);
     }
 
-    private static void assertViolations(List<LimitViolation> violations) {
+    private static void assertViolations(List<LimitViolation> violations, Network network) {
         assertEquals(5, violations.size());
         violations.forEach(violation ->  {
             assertTrue(Arrays.asList("VLHV1", "NHV1_NHV2_1", "NHV1_NHV2_2").contains(violation.getSubjectId()));
@@ -193,6 +219,10 @@ public class SecurityTest {
             } else {
                 assertEquals(LimitViolationType.CURRENT, violation.getLimitType());
             }
+            assertThat(LimitViolation.getCountry(violation, network), either(equalTo(Country.BE)).or(equalTo(Country.FR)));
+            assertEquals(380f, LimitViolation.getNominalVoltage(violation, network), 0f);
+            String voltageLevelId = LimitViolation.getVoltageLevelId(violation, network);
+            assertThat(voltageLevelId, either(equalTo("VLHV1")).or(equalTo("VLHV2")));
         });
     }
 }

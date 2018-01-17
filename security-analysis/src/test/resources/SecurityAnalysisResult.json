@@ -9,7 +9,9 @@
       "limit" : 100.0,
       "limitReduction" : 0.95,
       "value" : 110.0,
-      "side" : "ONE"
+      "valueMW" : 24.75,
+      "side" : "ONE",
+      "acceptableDuration" : 0
     } ],
     "actionsTaken" : [ ]
   },
@@ -40,6 +42,7 @@
         "limit" : 100.0,
         "limitReduction" : 1.0,
         "value" : 110.0,
+        "valueMW" : 24.75,
         "side" : "TWO"
       }, {
         "subjectId" : "GEN",

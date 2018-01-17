@@ -15,7 +15,6 @@ import java.util.Objects;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class LimitViolation {
-
     private final String subjectId;
 
     private final LimitViolationType limitType;
@@ -28,11 +27,19 @@ public class LimitViolation {
 
     private final float value;
 
+    private float valueMW;
+
     private final Country country;
 
     private final float baseVoltage;
 
     private final Branch.Side side;
+
+    private float valueBefore;
+
+    private float valueBeforeMW;
+
+    private int acceptableDuration;
 
     /**
      * @deprecated use LimitViolation(String, LimitViolationType, String, float, float, float, Branch.Side) instead.
@@ -46,9 +53,13 @@ public class LimitViolation {
         this.limitName = limitName;
         this.limitReduction = limitReduction;
         this.value = value;
+        this.valueMW = Float.NaN;
         this.country = country;
         this.baseVoltage = baseVoltage;
         this.side = null;
+        this.valueBefore = Float.NaN;
+        this.valueBeforeMW = Float.NaN;
+        this.acceptableDuration = Integer.MAX_VALUE;
     }
 
     /**
@@ -63,13 +74,22 @@ public class LimitViolation {
                           float value, Branch.Side side) {
         this.subjectId = Objects.requireNonNull(subjectId);
         this.limitType = Objects.requireNonNull(limitType);
-        this.limitName = limitName;
         this.limit = limit;
+        this.limitName = limitName;
         this.limitReduction = limitReduction;
         this.value = value;
-        this.side = checkSide(limitType, side);
+        this.valueMW = Float.NaN;
         this.country = null;
         this.baseVoltage = Float.NaN;
+        this.side = checkSide(limitType, side);
+        this.valueBefore = Float.NaN;
+        this.valueBeforeMW = Float.NaN;
+        this.acceptableDuration = Integer.MAX_VALUE;
+    }
+
+    public static LimitViolation newLimitViolation(String subjectId, LimitViolationType limitType, String limitName, float limit, float limitReduction,
+                                                   float value, Branch.Side side) {
+        return new LimitViolation(subjectId, limitType, limitName, limit, limitReduction, value, side);
     }
 
     public LimitViolation(String subjectId, LimitViolationType limitType, float limit, float limitReduction, float value) {
@@ -100,8 +120,44 @@ public class LimitViolation {
         return value;
     }
 
+    public float getValueMW() {
+        return valueMW;
+    }
+
+    public LimitViolation setValueMW(float valueMW) {
+        this.valueMW = valueMW;
+        return this;
+    }
+
     public Branch.Side getSide() {
         return side;
+    }
+
+    public float getValueBefore() {
+        return valueBefore;
+    }
+
+    public LimitViolation setValueBefore(float valueBefore) {
+        this.valueBefore = valueBefore;
+        return this;
+    }
+
+    public float getValueBeforeMW() {
+        return valueBeforeMW;
+    }
+
+    public LimitViolation setValueBeforeMW(float valueBeforeMW) {
+        this.valueBeforeMW = valueBeforeMW;
+        return this;
+    }
+
+    public int getAcceptableDuration() {
+        return acceptableDuration;
+    }
+
+    public LimitViolation setAcceptableDuration(int acceptableDuration) {
+        this.acceptableDuration = acceptableDuration;
+        return this;
     }
 
     /**
@@ -128,14 +184,14 @@ public class LimitViolation {
         }
     }
 
-    private static VoltageLevel getVoltageLevel(LimitViolation limitViolation, Network network) {
+    public static VoltageLevel getVoltageLevel(LimitViolation limitViolation, Network network, Branch.Side side) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(limitViolation);
 
         Identifiable identifiable = network.getIdentifiable(limitViolation.getSubjectId());
         if (identifiable instanceof Branch) {
             Branch branch = (Branch) identifiable;
-            return branch.getTerminal(limitViolation.getSide()).getVoltageLevel();
+            return branch.getTerminal(side).getVoltageLevel();
         } else if (identifiable instanceof Injection) {
             Injection injection = (Injection) identifiable;
             return injection.getTerminal().getVoltageLevel();
@@ -149,19 +205,43 @@ public class LimitViolation {
         }
     }
 
-    static Country getCountry(LimitViolation limitViolation, Network network) {
+    public static VoltageLevel getVoltageLevel(LimitViolation limitViolation, Network network) {
+        Objects.requireNonNull(limitViolation);
+
+        return getVoltageLevel(limitViolation, network, limitViolation.getSide());
+    }
+
+    public static Country getCountry(LimitViolation limitViolation, Network network, Branch.Side side) {
+        VoltageLevel voltageLevel = getVoltageLevel(limitViolation, network, side);
+
+        return voltageLevel.getSubstation().getCountry();
+    }
+
+    public static Country getCountry(LimitViolation limitViolation, Network network) {
         VoltageLevel voltageLevel = getVoltageLevel(limitViolation, network);
 
         return voltageLevel.getSubstation().getCountry();
     }
 
-    static String getVoltageLevelId(LimitViolation limitViolation, Network network) {
+    public static String getVoltageLevelId(LimitViolation limitViolation, Network network, Branch.Side side) {
+        VoltageLevel voltageLevel = getVoltageLevel(limitViolation, network, side);
+
+        return voltageLevel.getId();
+    }
+
+    public static String getVoltageLevelId(LimitViolation limitViolation, Network network) {
         VoltageLevel voltageLevel = getVoltageLevel(limitViolation, network);
 
         return voltageLevel.getId();
     }
 
-    static float getNominalVoltage(LimitViolation limitViolation, Network network) {
+    public static float getNominalVoltage(LimitViolation limitViolation, Network network, Branch.Side side) {
+        VoltageLevel voltageLevel = getVoltageLevel(limitViolation, network, side);
+
+        return voltageLevel.getNominalV();
+    }
+
+    public static float getNominalVoltage(LimitViolation limitViolation, Network network) {
         VoltageLevel voltageLevel = getVoltageLevel(limitViolation, network);
 
         return voltageLevel.getNominalV();
