@@ -14,14 +14,14 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.extensions.ExtensionSupplier;
+import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyElement;
 import com.powsybl.contingency.json.ContingencyDeserializer;
 import com.powsybl.contingency.json.ContingencyElementDeserializer;
-import com.powsybl.security.LimitViolation;
-import com.powsybl.security.LimitViolationsResult;
-import com.powsybl.security.PostContingencyResult;
-import com.powsybl.security.SecurityAnalysisResult;
+import com.powsybl.security.*;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -45,13 +45,20 @@ public class SecurityAnalysisResultDeserializer extends StdDeserializer<Security
 
     @Override
     public SecurityAnalysisResult deserialize(JsonParser parser, DeserializationContext ctx) throws IOException {
+        NetworkMetadata networkMetadata = null;
         LimitViolationsResult preContingencyResult = null;
         List<PostContingencyResult> postContingencyResults = Collections.emptyList();
+        List<Extension<SecurityAnalysisResult>> extensions = Collections.emptyList();
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
                 case "version":
                     parser.nextToken(); // skip
+                    break;
+
+                case "network":
+                    parser.nextToken();
+                    networkMetadata = parser.readValueAs(NetworkMetadata.class);
                     break;
 
                 case "preContingencyResult":
@@ -65,12 +72,21 @@ public class SecurityAnalysisResultDeserializer extends StdDeserializer<Security
                     });
                     break;
 
+                case "extensions":
+                    parser.nextToken();
+                    extensions = JsonUtil.readExtensions(parser, ctx);
+                    break;
+
                 default:
                     throw new AssertionError("Unexpected field: " + parser.getCurrentName());
             }
         }
 
-        return new SecurityAnalysisResult(preContingencyResult, postContingencyResults);
+        SecurityAnalysisResult result = new SecurityAnalysisResult(preContingencyResult, postContingencyResults);
+        result.setNetworkMetadata(networkMetadata);
+        ExtensionSupplier.addExtensions(result, extensions);
+
+        return result;
     }
 
     public static SecurityAnalysisResult read(Path jsonFile) {
@@ -82,6 +98,7 @@ public class SecurityAnalysisResultDeserializer extends StdDeserializer<Security
 
             SimpleModule module = new SimpleModule();
             module.addDeserializer(SecurityAnalysisResult.class, new SecurityAnalysisResultDeserializer());
+            module.addDeserializer(NetworkMetadata.class, new NetworkMetadataDeserializer());
             module.addDeserializer(PostContingencyResult.class, new PostContingencyResultDeserializer());
             module.addDeserializer(LimitViolationsResult.class, new LimitViolationResultDeserializer());
             module.addDeserializer(LimitViolation.class, new LimitViolationDeserializer());
