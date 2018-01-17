@@ -289,6 +289,8 @@ public abstract class AbstractAppStorageTest {
 
         // check double time series query
         assertEquals(Sets.newHashSet("ts1"), storage.getTimeSeriesNames(testData2Info.getId()));
+        assertTrue(storage.timeSeriesExists(testData2Info.getId(), "ts1"));
+        assertFalse(storage.timeSeriesExists(testData2Info.getId(), "ts9"));
         List<TimeSeriesMetadata> metadataList = storage.getTimeSeriesMetadata(testData2Info.getId(), Sets.newHashSet("ts1"));
         assertEquals(1, metadataList.size());
         assertEquals(metadata1, metadataList.get(0));

@@ -294,6 +294,11 @@ public class LocalAppStorage implements AppStorage {
     }
 
     @Override
+    public boolean timeSeriesExists(String nodeId, String timeSeriesName) {
+        return getFile(nodeId).timeSeriesExists(timeSeriesName);
+    }
+
+    @Override
     public List<TimeSeriesMetadata> getTimeSeriesMetadata(String nodeId, Set<String> timeSeriesNames) {
         Objects.requireNonNull(timeSeriesNames);
         return getFile(nodeId).getTimeSeriesMetadata(timeSeriesNames);

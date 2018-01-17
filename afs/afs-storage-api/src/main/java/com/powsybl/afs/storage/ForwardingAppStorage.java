@@ -122,6 +122,11 @@ public class ForwardingAppStorage implements AppStorage {
     }
 
     @Override
+    public boolean timeSeriesExists(String nodeId, String timeSeriesName) {
+        return storage.timeSeriesExists(nodeId, timeSeriesName);
+    }
+
+    @Override
     public List<TimeSeriesMetadata> getTimeSeriesMetadata(String nodeId, Set<String> timeSeriesNames) {
         return storage.getTimeSeriesMetadata(nodeId, timeSeriesNames);
     }

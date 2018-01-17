@@ -460,6 +460,14 @@ public class MapDbAppStorage implements AppStorage {
     }
 
     @Override
+    public boolean timeSeriesExists(String nodeId, String timeSeriesName) {
+        UUID nodeUuid = checkNodeId(nodeId);
+        checkNodeExists(nodeUuid);
+        Objects.requireNonNull(timeSeriesName);
+        return timeSeriesNamesMap.get(nodeUuid).contains(timeSeriesName);
+    }
+
+    @Override
     public List<TimeSeriesMetadata> getTimeSeriesMetadata(String nodeId, Set<String> timeSeriesNames) {
         UUID nodeUuid = checkNodeId(nodeId);
         Objects.requireNonNull(timeSeriesNames);
