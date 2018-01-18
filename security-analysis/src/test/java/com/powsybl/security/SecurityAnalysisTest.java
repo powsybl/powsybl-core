@@ -18,6 +18,10 @@ import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.loadflow.LoadFlowFactory;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.mock.LoadFlowFactoryMock;
+import com.powsybl.security.extensions.ActivePowerExtension;
+import com.powsybl.security.extensions.CurrentExtension;
+import com.powsybl.security.observers.CurrentLimitViolationObserver;
+import com.powsybl.security.observers.SecurityAnalysisObserverMock;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -25,6 +29,7 @@ import java.util.Collections;
 import java.util.concurrent.Executor;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -77,9 +82,11 @@ public class SecurityAnalysisTest {
 
         LimitViolationFilter filter = new LimitViolationFilter();
 
-        SecurityAnalysisResult result = new SecurityAnalysisImpl(network, filter, computationManager, loadflowFactory)
-                                                .runAsync(contingenciesProvider, StateManager.INITIAL_STATE_ID, new LoadFlowParameters())
-                                                .join();
+        SecurityAnalysis securityAnalysis = new SecurityAnalysisImpl(network, filter, computationManager, loadflowFactory);
+        securityAnalysis.addObserver(new SecurityAnalysisObserverMock());
+        securityAnalysis.addObserver(new CurrentLimitViolationObserver());
+
+        SecurityAnalysisResult result = securityAnalysis.runAsync(contingenciesProvider, StateManager.INITIAL_STATE_ID, new LoadFlowParameters()).join();
 
         assertTrue(result.getPreContingencyResult().isComputationOk());
         assertEquals(0, result.getPreContingencyResult().getLimitViolations().size());
@@ -89,6 +96,14 @@ public class SecurityAnalysisTest {
         LimitViolation violation = postcontingencyResult.getLimitViolationsResult().getLimitViolations().get(0);
         assertEquals(LimitViolationType.CURRENT, violation.getLimitType());
         assertEquals("NHV1_NHV2_1", violation.getSubjectId());
-    }
 
+        ActivePowerExtension extension1 = violation.getExtension(ActivePowerExtension.class);
+        assertNotNull(extension1);
+        assertEquals(560.0f, extension1.getPreContingencyValue(), 0.0f);
+        assertEquals(600.0f, extension1.getPostContingencyValue(), 0.0f);
+
+        CurrentExtension extension2 = violation.getExtension(CurrentExtension.class);
+        assertNotNull(extension2);
+        assertEquals(1192.5631f, extension2.getPreContingencyValue(), 0.0f);
+    }
 }

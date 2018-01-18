@@ -8,6 +8,7 @@ package com.powsybl.security;
 
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.loadflow.LoadFlowParameters;
+import com.powsybl.security.observers.SecurityAnalysisObserver;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -15,6 +16,13 @@ import java.util.concurrent.CompletableFuture;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public interface SecurityAnalysis {
+
+    default void addObserver(SecurityAnalysisObserver observer) {
+    }
+
+    default boolean removeObserver(SecurityAnalysisObserver observer) {
+        return false;
+    }
 
     CompletableFuture<SecurityAnalysisResult> runAsync(ContingenciesProvider contingenciesProvider, String workingStateId, LoadFlowParameters parameters);
 
