@@ -29,6 +29,7 @@
 /iidm/iidm-impl/target/
 /iidm/iidm-test/target/
 /iidm/iidm-xml-converter/target/
+/iidm/iidm-util/target/
 /loadflow/loadflow-api/target/
 /loadflow/loadflow-validation/target/
 /loadflow/target/
@@ -59,4 +60,3 @@ install.cfg
 org.eclipse.core.resources.prefs
 org.eclipse.jdt.core.prefs
 org.eclipse.m2e.core.prefs
-

@@ -28,6 +28,7 @@
         <module>iidm-impl</module>
         <module>iidm-test</module>
         <module>iidm-xml-converter</module>
+        <module>iidm-util</module>
     </modules>
 
 </project>

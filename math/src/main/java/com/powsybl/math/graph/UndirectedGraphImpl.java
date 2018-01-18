@@ -133,7 +133,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     public V removeVertex(int v) {
         checkVertex(v);
         for (Edge<E> e : edges) {
-            if (e.getV1() == v || e.getV2() == v) {
+            if (e != null && (e.getV1() == v || e.getV2() == v)) {
                 throw new PowsyblException("An edge is connected to vertex " + v);
             }
         }
