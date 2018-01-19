@@ -19,8 +19,8 @@ import java.io.IOException;
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-@AutoService(ExtensionJson.class)
-public class FooExtSerializer implements ExtensionJson<Foo, FooExt> {
+@AutoService(ExtensionJsonSerializer.class)
+public class FooExtSerializer implements ExtensionJsonSerializer<Foo, FooExt> {
 
     @Override
     public String getExtensionName() {
@@ -28,7 +28,12 @@ public class FooExtSerializer implements ExtensionJson<Foo, FooExt> {
     }
 
     @Override
-    public Class<? extends FooExt> getExtensionClass() {
+    public String getCategoryName() {
+        return "test";
+    }
+
+    @Override
+    public Class<? super FooExt> getExtensionClass() {
         return FooExt.class;
     }
 

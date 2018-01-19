@@ -11,7 +11,7 @@ import javax.xml.stream.XMLStreamWriter;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class XmlWriterContext extends XmlContext {
+public class XmlWriterContext extends XmlContext implements com.powsybl.commons.xml.XmlWriterContext {
 
     private final XMLStreamWriter writer;
     private final XMLExportOptions options;
@@ -24,6 +24,7 @@ public class XmlWriterContext extends XmlContext {
         this.filter = filter;
     }
 
+    @Override
     public XMLStreamWriter getWriter() {
         return writer;
     }

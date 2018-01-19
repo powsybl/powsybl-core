@@ -14,7 +14,7 @@ import java.util.Collection;
 public interface Extendable<O> {
 
     /**
-     * Add en extension to this identifiable.
+     * Add en extension to this extendable object.
      * @param type the extension class type
      * @param extension the extension
      * @param <E> the extension type
@@ -45,9 +45,8 @@ public interface Extendable<O> {
     <E extends Extension<O>> boolean removeExtension(Class<E> type);
 
     /**
-     * Get all extensions associated with this identifiable.
-     * @return all extensions associated to this identifiable
+     * Get all extensions associated with this extendable object..
+     * @return all extensions associated to this extendable object.
      */
-    Collection<Extension<O>> getExtensions();
-
+    <E extends Extension<O>> Collection<E> getExtensions();
 }

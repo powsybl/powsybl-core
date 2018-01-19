@@ -6,27 +6,20 @@
  */
 package com.powsybl.iidm.network.test;
 
-import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.Load;
 
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class LoadFooExt implements Identifiable.Extension<Load> {
-
-    private final Load load;
+public class LoadFooExt extends AbstractExtension<Load> {
 
     public LoadFooExt(Load load) {
-        this.load = load;
+        super(load);
     }
 
     @Override
     public String getName() {
         return "loadFoo";
-    }
-
-    @Override
-    public Load getIdentifiable() {
-        return load;
     }
 }

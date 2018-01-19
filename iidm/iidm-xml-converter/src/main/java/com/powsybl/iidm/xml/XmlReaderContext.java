@@ -14,7 +14,7 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class XmlReaderContext extends XmlContext {
+public class XmlReaderContext extends XmlContext implements com.powsybl.commons.xml.XmlReaderContext {
 
     private final XMLStreamReader reader;
     private final List<Runnable> endTasks = new ArrayList<>();
@@ -24,6 +24,7 @@ public class XmlReaderContext extends XmlContext {
         this.reader = Objects.requireNonNull(reader);
     }
 
+    @Override
     public XMLStreamReader getReader() {
         return reader;
     }

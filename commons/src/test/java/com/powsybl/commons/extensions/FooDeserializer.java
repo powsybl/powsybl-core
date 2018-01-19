@@ -12,6 +12,8 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import com.powsybl.commons.json.JsonUtil;
 
 import java.io.IOException;
@@ -23,6 +25,9 @@ import java.util.List;
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
 public class FooDeserializer extends StdDeserializer<Foo> {
+
+    private static final Supplier<ExtensionSerializerProvider> SUPPLIER =
+        Suppliers.memoize(() -> ExtensionSerializerProviders.createProvider(ExtensionJsonSerializer.class, "test"));
 
     public FooDeserializer() {
         super(Foo.class);
@@ -40,7 +45,7 @@ public class FooDeserializer extends StdDeserializer<Foo> {
         }
 
         Foo foo = new Foo();
-        ExtensionSupplier.addExtensions(foo, extensions);
+        SUPPLIER.get().addExtensions(foo, extensions);
 
         return foo;
     }
