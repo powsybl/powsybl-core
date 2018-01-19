@@ -46,6 +46,8 @@ public final class NetworkXml implements XmlConstants {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NetworkXml.class);
 
+    private static final String EXTENSION_CATEGORY_NAME = "network";
+
     static final String NETWORK_ROOT_ELEMENT_NAME = "network";
     private static final String EXTENSION_ELEMENT_NAME = "extension";
     private static final String IIDM_XSD = "iidm.xsd";
@@ -56,7 +58,7 @@ public final class NetworkXml implements XmlConstants {
     private static final Supplier<XMLInputFactory> XML_INPUT_FACTORY_SUPPLIER = Suppliers.memoize(XMLInputFactory::newInstance);
 
     private static final Supplier<ExtensionSerializerProvider<ExtensionXmlSerializer>> EXTENSIONS_SUPPLIER
-        = Suppliers.memoize(() -> ExtensionSerializerProviders.createProvider(ExtensionXmlSerializer.class, "network"));
+        = Suppliers.memoize(() -> ExtensionSerializerProviders.createProvider(ExtensionXmlSerializer.class, EXTENSION_CATEGORY_NAME));
 
     private NetworkXml() {
     }
@@ -146,7 +148,7 @@ public final class NetworkXml implements XmlConstants {
         }
     }
 
-    private static void writeExtensions(Network n, XmlWriterContext context) throws XMLStreamException {
+    private static void writeExtensions(Network n, NetworkXmlWriterContext context) throws XMLStreamException {
         for (Identifiable<?> identifiable : n.getIdentifiables()) {
             Collection<? extends Extension<? extends Identifiable<?>>> extensions = identifiable.getExtensions();
             if (!extensions.isEmpty()) {
@@ -192,7 +194,7 @@ public final class NetworkXml implements XmlConstants {
             writer.writeAttribute("sourceFormat", n.getSourceFormat());
             BusFilter filter = BusFilter.create(n, options);
             Anonymizer anonymizer = options.isAnonymized() ? new SimpleAnonymizer() : null;
-            XmlWriterContext context = new XmlWriterContext(anonymizer, writer, options, filter);
+            NetworkXmlWriterContext context = new NetworkXmlWriterContext(anonymizer, writer, options, filter);
             for (Substation s : n.getSubstations()) {
                 SubstationXml.INSTANCE.write(s, null, context);
             }
@@ -269,7 +271,7 @@ public final class NetworkXml implements XmlConstants {
             network.setCaseDate(date);
             network.setForecastDistance(forecastDistance);
 
-            XmlReaderContext context = new XmlReaderContext(anonymizer, reader);
+            NetworkXmlReaderContext context = new NetworkXmlReaderContext(anonymizer, reader);
 
             Set<String> extensionNamesNotFound = new TreeSet<>();
 

@@ -32,7 +32,7 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
         return tl.getCurrentLimits1() != null || tl.getCurrentLimits2() != null;
     }
 
-    private static void writeHalf(TieLine.HalfLine halfLine, XmlWriterContext context, int side) throws XMLStreamException {
+    private static void writeHalf(TieLine.HalfLine halfLine, NetworkXmlWriterContext context, int side) throws XMLStreamException {
         context.getWriter().writeAttribute("id_" + side, context.getAnonymizer().anonymizeString(halfLine.getId()));
         if (halfLine.getName() != null) {
             context.getWriter().writeAttribute("name_" + side, context.getAnonymizer().anonymizeString(halfLine.getName()));
@@ -48,7 +48,7 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
     }
 
     @Override
-    protected void writeRootElementAttributes(TieLine tl, Network n, XmlWriterContext context) throws XMLStreamException {
+    protected void writeRootElementAttributes(TieLine tl, Network n, NetworkXmlWriterContext context) throws XMLStreamException {
         context.getWriter().writeAttribute("ucteXnodeCode", tl.getUcteXnodeCode());
         writeNodeOrBus(1, tl.getTerminal1(), context);
         writeNodeOrBus(2, tl.getTerminal2(), context);
@@ -61,7 +61,7 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
     }
 
     @Override
-    protected void writeSubElements(TieLine tl, Network n, XmlWriterContext context) throws XMLStreamException {
+    protected void writeSubElements(TieLine tl, Network n, NetworkXmlWriterContext context) throws XMLStreamException {
         if (tl.getCurrentLimits1() != null) {
             writeCurrentLimits(1, tl.getCurrentLimits1(), context.getWriter());
         }
@@ -75,7 +75,7 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
         return n.newTieLine();
     }
 
-    private static void readHalf(TieLineAdder adder, XmlReaderContext context, int side) {
+    private static void readHalf(TieLineAdder adder, NetworkXmlReaderContext context, int side) {
         String id = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "id_" + side));
         String name = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "name_" + side));
         float r = XmlUtil.readFloatAttribute(context.getReader(), "r_" + side);
@@ -99,7 +99,7 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
     }
 
     @Override
-    protected TieLine readRootElementAttributes(TieLineAdder adder, XmlReaderContext context) {
+    protected TieLine readRootElementAttributes(TieLineAdder adder, NetworkXmlReaderContext context) {
         readHalf(adder.line1(), context, 1);
         readHalf(adder.line2(), context, 2);
         readNodeOrBus(adder, context);
@@ -112,7 +112,7 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
     }
 
     @Override
-    protected void readSubElements(TieLine tl, XmlReaderContext context) throws XMLStreamException {
+    protected void readSubElements(TieLine tl, NetworkXmlReaderContext context) throws XMLStreamException {
         readUntilEndRootElement(context.getReader(), () -> {
             switch (context.getReader().getLocalName()) {
                 case "currentLimits1":

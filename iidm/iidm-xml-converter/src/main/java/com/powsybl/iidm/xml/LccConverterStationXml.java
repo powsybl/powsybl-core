@@ -33,7 +33,7 @@ public class LccConverterStationXml extends AbstractConnectableXml<LccConverterS
     }
 
     @Override
-    protected void writeRootElementAttributes(LccConverterStation cs, VoltageLevel vl, XmlWriterContext context) throws XMLStreamException {
+    protected void writeRootElementAttributes(LccConverterStation cs, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
         XmlUtil.writeFloat("lossFactor", cs.getLossFactor(), context.getWriter());
         XmlUtil.writeFloat("powerFactor", cs.getPowerFactor(), context.getWriter());
         writeNodeOrBus(null, cs.getTerminal(), context);
@@ -46,7 +46,7 @@ public class LccConverterStationXml extends AbstractConnectableXml<LccConverterS
     }
 
     @Override
-    protected LccConverterStation readRootElementAttributes(LccConverterStationAdder adder, XmlReaderContext context) {
+    protected LccConverterStation readRootElementAttributes(LccConverterStationAdder adder, NetworkXmlReaderContext context) {
         float lossFactor = XmlUtil.readFloatAttribute(context.getReader(), "lossFactor");
         float powerFactor = XmlUtil.readOptionalFloatAttribute(context.getReader(), "powerFactor");
         readNodeOrBus(adder, context);
@@ -59,7 +59,7 @@ public class LccConverterStationXml extends AbstractConnectableXml<LccConverterS
     }
 
     @Override
-    protected void readSubElements(LccConverterStation cs, XmlReaderContext context) throws XMLStreamException {
+    protected void readSubElements(LccConverterStation cs, NetworkXmlReaderContext context) throws XMLStreamException {
         readUntilEndRootElement(context.getReader(), () -> LccConverterStationXml.super.readSubElements(cs, context));
     }
 }

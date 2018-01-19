@@ -33,7 +33,7 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
     }
 
     @Override
-    protected void writeRootElementAttributes(DanglingLine dl, VoltageLevel vl, XmlWriterContext context) throws XMLStreamException {
+    protected void writeRootElementAttributes(DanglingLine dl, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
         XmlUtil.writeFloat("p0", dl.getP0(), context.getWriter());
         XmlUtil.writeFloat("q0", dl.getQ0(), context.getWriter());
         XmlUtil.writeFloat("r", dl.getR(), context.getWriter());
@@ -48,7 +48,7 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
     }
 
     @Override
-    protected void writeSubElements(DanglingLine dl, VoltageLevel vl, XmlWriterContext context) throws XMLStreamException {
+    protected void writeSubElements(DanglingLine dl, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
         if (dl.getCurrentLimits() != null) {
             writeCurrentLimits(null, dl.getCurrentLimits(), context.getWriter());
         }
@@ -60,7 +60,7 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
     }
 
     @Override
-    protected DanglingLine readRootElementAttributes(DanglingLineAdder adder, XmlReaderContext context) {
+    protected DanglingLine readRootElementAttributes(DanglingLineAdder adder, NetworkXmlReaderContext context) {
         float p0 = XmlUtil.readFloatAttribute(context.getReader(), "p0");
         float q0 = XmlUtil.readFloatAttribute(context.getReader(), "q0");
         float r = XmlUtil.readFloatAttribute(context.getReader(), "r");
@@ -82,7 +82,7 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
     }
 
     @Override
-    protected void readSubElements(DanglingLine dl, XmlReaderContext context) throws XMLStreamException {
+    protected void readSubElements(DanglingLine dl, NetworkXmlReaderContext context) throws XMLStreamException {
         readUntilEndRootElement(context.getReader(), () -> {
             if ("currentLimits".equals(context.getReader().getLocalName())) {
                 readCurrentLimits(null, dl::newCurrentLimits, context.getReader());

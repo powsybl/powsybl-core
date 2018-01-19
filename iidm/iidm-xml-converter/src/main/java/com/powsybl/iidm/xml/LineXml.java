@@ -33,7 +33,7 @@ class LineXml extends AbstractConnectableXml<Line, LineAdder, Network> {
     }
 
     @Override
-    protected void writeRootElementAttributes(Line l, Network n, XmlWriterContext context) throws XMLStreamException {
+    protected void writeRootElementAttributes(Line l, Network n, NetworkXmlWriterContext context) throws XMLStreamException {
         XmlUtil.writeFloat("r", l.getR(), context.getWriter());
         XmlUtil.writeFloat("x", l.getX(), context.getWriter());
         XmlUtil.writeFloat("g1", l.getG1(), context.getWriter());
@@ -49,7 +49,7 @@ class LineXml extends AbstractConnectableXml<Line, LineAdder, Network> {
     }
 
     @Override
-    protected void writeSubElements(Line l, Network n, XmlWriterContext context) throws XMLStreamException {
+    protected void writeSubElements(Line l, Network n, NetworkXmlWriterContext context) throws XMLStreamException {
         if (l.getCurrentLimits1() != null) {
             writeCurrentLimits(1, l.getCurrentLimits1(), context.getWriter());
         }
@@ -64,7 +64,7 @@ class LineXml extends AbstractConnectableXml<Line, LineAdder, Network> {
     }
 
     @Override
-    protected Line readRootElementAttributes(LineAdder adder, XmlReaderContext context) {
+    protected Line readRootElementAttributes(LineAdder adder, NetworkXmlReaderContext context) {
         float r = XmlUtil.readFloatAttribute(context.getReader(), "r");
         float x = XmlUtil.readFloatAttribute(context.getReader(), "x");
         float g1 = XmlUtil.readFloatAttribute(context.getReader(), "g1");
@@ -85,7 +85,7 @@ class LineXml extends AbstractConnectableXml<Line, LineAdder, Network> {
     }
 
     @Override
-    protected void readSubElements(Line l, XmlReaderContext context) throws XMLStreamException {
+    protected void readSubElements(Line l, NetworkXmlReaderContext context) throws XMLStreamException {
         readUntilEndRootElement(context.getReader(), () -> {
             switch (context.getReader().getLocalName()) {
                 case "currentLimits1":
