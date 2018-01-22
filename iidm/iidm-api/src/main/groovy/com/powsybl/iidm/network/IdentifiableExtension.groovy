@@ -6,6 +6,8 @@
  */
 package com.powsybl.iidm.network
 
+import com.powsybl.commons.extensions.Extension
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -13,7 +15,7 @@ class IdentifiableExtension {
 
     static Object propertyMissing(Identifiable self, String name) {
         // first check if an extension exist then a property
-        Identifiable.Extension extension = self.getExtensionByName(name)
+        Extension extension = self.getExtensionByName(name)
         extension != null ? extension : self.properties[name]
     }
 

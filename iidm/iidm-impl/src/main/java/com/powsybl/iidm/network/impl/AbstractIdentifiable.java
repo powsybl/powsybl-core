@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.iidm.network.Identifiable;
 
 import java.util.*;
@@ -14,17 +15,13 @@ import java.util.*;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-abstract class AbstractIdentifiable<I extends Identifiable<I>> implements Identifiable<I>, Validable {
+abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractExtendable<I> implements Identifiable<I>, Validable {
 
     protected String id;
 
     protected String name;
 
     protected Properties properties;
-
-    protected final Map<Class<?>, Extension<I>> extensions = new HashMap<>();
-
-    protected final Map<String, Extension<I>> extensionsByName = new HashMap<>();
 
     AbstractIdentifiable(String id, String name) {
         this.id = id;
@@ -59,37 +56,6 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> implements Identi
             properties = new Properties();
         }
         return properties;
-    }
-
-    @Override
-    public <E extends Extension<I>> void addExtension(Class<? super E> type, E extension) {
-        Objects.requireNonNull(type);
-        Objects.requireNonNull(extension);
-        extensions.put(type, extension);
-        extensionsByName.put(extension.getName(), extension);
-    }
-
-    @Override
-    public <E extends Extension<I>> E getExtension(Class<E> type) {
-        Objects.requireNonNull(type);
-        return (E) extensions.get(type);
-    }
-
-    @Override
-    public <E extends Extension<I>> E getExtensionByName(String name) {
-        Objects.requireNonNull(name);
-        return (E) extensionsByName.get(name);
-    }
-
-    @Override
-    public <E extends Extension<I>> boolean removeExtension(Class<E> type) {
-        Objects.requireNonNull(type);
-        return extensions.remove(type) != null;
-    }
-
-    @Override
-    public Collection<Extension<I>> getExtensions() {
-        return extensionsByName.values();
     }
 
     @Override

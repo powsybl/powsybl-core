@@ -16,13 +16,9 @@ import java.io.IOException;
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public interface ExtensionJson<T extends Extendable, E extends Extension<T>> {
-
-    String getExtensionName();
-
-    Class<? extends E> getExtensionClass();
+public interface ExtensionJsonSerializer<T extends Extendable, E extends Extension<T>> extends ExtensionSerializer<T, E> {
 
     void serialize(E extension, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException;
 
-    E deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException;
+    E deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException;
 }

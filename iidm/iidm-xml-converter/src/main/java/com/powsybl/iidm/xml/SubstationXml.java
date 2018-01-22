@@ -33,7 +33,7 @@ class SubstationXml extends AbstractIdentifiableXml<Substation, SubstationAdder,
     }
 
     @Override
-    protected void writeRootElementAttributes(Substation s, Network n, XmlWriterContext context) throws XMLStreamException {
+    protected void writeRootElementAttributes(Substation s, Network n, NetworkXmlWriterContext context) throws XMLStreamException {
         context.getWriter().writeAttribute("country", context.getAnonymizer().anonymizeCountry(s.getCountry()).toString());
         if (s.getTso() != null) {
             context.getWriter().writeAttribute("tso", context.getAnonymizer().anonymizeString(s.getTso()));
@@ -46,7 +46,7 @@ class SubstationXml extends AbstractIdentifiableXml<Substation, SubstationAdder,
     }
 
     @Override
-    protected void writeSubElements(Substation s, Network n, XmlWriterContext context) throws XMLStreamException {
+    protected void writeSubElements(Substation s, Network n, NetworkXmlWriterContext context) throws XMLStreamException {
         for (VoltageLevel vl : s.getVoltageLevels()) {
             VoltageLevelXml.INSTANCE.write(vl, null, context);
         }
@@ -72,7 +72,7 @@ class SubstationXml extends AbstractIdentifiableXml<Substation, SubstationAdder,
     }
 
     @Override
-    protected Substation readRootElementAttributes(SubstationAdder adder, XmlReaderContext context) {
+    protected Substation readRootElementAttributes(SubstationAdder adder, NetworkXmlReaderContext context) {
         Country country = context.getAnonymizer().deanonymizeCountry(Country.valueOf(context.getReader().getAttributeValue(null, "country")));
         String tso = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "tso"));
         String geographicalTags = context.getReader().getAttributeValue(null, "geographicalTags");
@@ -87,7 +87,7 @@ class SubstationXml extends AbstractIdentifiableXml<Substation, SubstationAdder,
     }
 
     @Override
-    protected void readSubElements(Substation s, XmlReaderContext context) throws XMLStreamException {
+    protected void readSubElements(Substation s, NetworkXmlReaderContext context) throws XMLStreamException {
         readUntilEndRootElement(context.getReader(), () -> {
             switch (context.getReader().getLocalName()) {
                 case VoltageLevelXml.ROOT_ELEMENT_NAME:

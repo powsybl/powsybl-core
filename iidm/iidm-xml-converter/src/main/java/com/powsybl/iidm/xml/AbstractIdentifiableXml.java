@@ -24,12 +24,12 @@ abstract class AbstractIdentifiableXml<T extends Identifiable, A extends Identif
 
     protected abstract boolean hasSubElements(T identifiable);
 
-    protected abstract void writeRootElementAttributes(T identifiable, P parent, XmlWriterContext context) throws XMLStreamException;
+    protected abstract void writeRootElementAttributes(T identifiable, P parent, NetworkXmlWriterContext context) throws XMLStreamException;
 
-    protected void writeSubElements(T identifiable, P parent, XmlWriterContext context) throws XMLStreamException {
+    protected void writeSubElements(T identifiable, P parent, NetworkXmlWriterContext context) throws XMLStreamException {
     }
 
-    public final void write(T identifiable, P parent, XmlWriterContext context) throws XMLStreamException {
+    public final void write(T identifiable, P parent, NetworkXmlWriterContext context) throws XMLStreamException {
         boolean hasSubElements = hasSubElements(identifiable);
         if (hasSubElements || identifiable.hasProperty()) {
             context.getWriter().writeStartElement(IIDM_URI, getRootElementName());
@@ -62,9 +62,9 @@ abstract class AbstractIdentifiableXml<T extends Identifiable, A extends Identif
 
     protected abstract A createAdder(P parent);
 
-    protected abstract T readRootElementAttributes(A adder, XmlReaderContext context);
+    protected abstract T readRootElementAttributes(A adder, NetworkXmlReaderContext context);
 
-    protected void readSubElements(T identifiable, XmlReaderContext context) throws XMLStreamException {
+    protected void readSubElements(T identifiable, NetworkXmlReaderContext context) throws XMLStreamException {
         if (context.getReader().getLocalName().equals("property")) {
             String name = context.getReader().getAttributeValue(null, "name");
             String value = context.getReader().getAttributeValue(null, "value");
@@ -74,7 +74,7 @@ abstract class AbstractIdentifiableXml<T extends Identifiable, A extends Identif
         }
     }
 
-    public final void read(P parent, XmlReaderContext context) throws XMLStreamException {
+    public final void read(P parent, NetworkXmlReaderContext context) throws XMLStreamException {
         A adder = createAdder(parent);
         String id = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "id"));
         String name = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "name"));

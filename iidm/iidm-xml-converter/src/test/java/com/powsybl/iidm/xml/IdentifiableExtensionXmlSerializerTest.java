@@ -24,7 +24,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class IdentifiableExtensionXmlTest extends AbstractConverterTest {
+public class IdentifiableExtensionXmlSerializerTest extends AbstractConverterTest {
 
     @Test
     public void test() throws IOException {

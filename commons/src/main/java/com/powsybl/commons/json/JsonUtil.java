@@ -13,10 +13,9 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.common.base.Strings;
-import com.powsybl.commons.extensions.Extendable;
-import com.powsybl.commons.extensions.Extension;
-import com.powsybl.commons.extensions.ExtensionJson;
-import com.powsybl.commons.extensions.ExtensionSupplier;
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
+import com.powsybl.commons.extensions.*;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -32,6 +31,9 @@ import java.util.function.Function;
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
 public final class JsonUtil {
+
+    private static final Supplier<ExtensionSerializerProvider> SUPPLIER =
+        Suppliers.memoize(() -> ExtensionSerializerProviders.createProvider(ExtensionJsonSerializer.class));
 
     private JsonUtil() {
     }
@@ -130,16 +132,24 @@ public final class JsonUtil {
         }
     }
 
-    public static <T> void writeExtensions(Extendable<T> extendable, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public static <T> void writeExtensions(Extendable<T> extendable, JsonGenerator jsonGenerator,
+                                           SerializerProvider serializerProvider) throws IOException {
+        writeExtensions(extendable, jsonGenerator, serializerProvider, SUPPLIER.get());
+    }
+
+    public static <T> void writeExtensions(Extendable<T> extendable, JsonGenerator jsonGenerator,
+                                           SerializerProvider serializerProvider,
+                                           ExtensionSerializerProvider<ExtensionJsonSerializer> supplier) throws IOException {
         Objects.requireNonNull(extendable);
         Objects.requireNonNull(jsonGenerator);
         Objects.requireNonNull(serializerProvider);
+        Objects.requireNonNull(supplier);
 
         boolean headerDone = false;
 
         if (!extendable.getExtensions().isEmpty()) {
             for (Extension<T> extension : extendable.getExtensions()) {
-                ExtensionJson serializer = ExtensionSupplier.findExtensionJson(extension.getName());
+                ExtensionJsonSerializer serializer = supplier.findSerializer(extension.getName());
                 if (serializer != null) {
                     if (!headerDone) {
                         jsonGenerator.writeFieldName("extensions");
@@ -157,17 +167,23 @@ public final class JsonUtil {
     }
 
     public static <T> List<Extension<T>> readExtensions(JsonParser parser, DeserializationContext context) throws IOException {
+        return readExtensions(parser, context, SUPPLIER.get());
+    }
+
+    public static <T> List<Extension<T>> readExtensions(JsonParser parser, DeserializationContext context,
+                                                        ExtensionSerializerProvider<ExtensionJsonSerializer> supplier) throws IOException {
         Objects.requireNonNull(parser);
         Objects.requireNonNull(context);
+        Objects.requireNonNull(supplier);
 
         List<Extension<T>> extensions = new ArrayList<>();
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             String extensionName = parser.getCurrentName();
-            ExtensionJson extensionJson = ExtensionSupplier.findExtensionJson(extensionName);
-            if (extensionJson != null) {
+            ExtensionJsonSerializer extensionJsonSerializer = supplier.findSerializer(extensionName);
+            if (extensionJsonSerializer != null) {
                 parser.nextToken();
-                Extension<T> extension = extensionJson.deserialize(parser, context);
+                Extension<T> extension = extensionJsonSerializer.deserialize(parser, context);
                 extensions.add(extension);
             } else {
                 skip(parser);

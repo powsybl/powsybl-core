@@ -1,24 +1,21 @@
 /**
- * Copyright (c) 2016, RTE (http://www.rte-france.com)
+ * Copyright (c) 2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.iidm.xml;
+package com.powsybl.commons.extensions;
 
-import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.commons.xml.XmlReaderContext;
+import com.powsybl.commons.xml.XmlWriterContext;
 
 import javax.xml.stream.XMLStreamException;
 import java.io.InputStream;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public interface ExtensionXml<I extends Identifiable, E extends Identifiable.Extension<I>> {
-
-    String getExtensionName();
-
-    Class<? super E> getExtensionClass();
+public interface ExtensionXmlSerializer<T extends Extendable, E extends Extension<T>> extends ExtensionSerializer<T, E> {
 
     boolean hasSubElements();
 
@@ -30,5 +27,5 @@ public interface ExtensionXml<I extends Identifiable, E extends Identifiable.Ext
 
     void write(E extension, XmlWriterContext context) throws XMLStreamException;
 
-    E read(I identifiable, XmlReaderContext context) throws XMLStreamException;
+    E read(T extendable, XmlReaderContext context) throws XMLStreamException;
 }

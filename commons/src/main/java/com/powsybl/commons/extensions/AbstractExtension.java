@@ -8,6 +8,8 @@ package com.powsybl.commons.extensions;
 
 import com.powsybl.commons.PowsyblException;
 
+import java.util.Objects;
+
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
@@ -15,12 +17,20 @@ public abstract class AbstractExtension<T> implements Extension<T> {
 
     private T extendable;
 
+    protected AbstractExtension() {
+        this.extendable = null;
+    }
+
+    protected AbstractExtension(T extendable) {
+        this.extendable = Objects.requireNonNull(extendable);
+    }
+
     public T getExtendable() {
         return extendable;
     }
 
     public void setExtendable(T extendable) {
-        if ((extendable != null) && (this.extendable != null)) {
+        if ((extendable != null) && (this.extendable != null) && (this.extendable != extendable)) {
             throw new PowsyblException("Extension is already associated to the extendable " + extendable);
         }
 

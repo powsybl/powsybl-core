@@ -12,7 +12,7 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
-import com.powsybl.commons.extensions.ExtensionJson;
+import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.security.LimitViolation;
 
 import java.io.IOException;
@@ -20,8 +20,8 @@ import java.io.IOException;
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-@AutoService(ExtensionJson.class)
-public class ExtraValuesJson implements ExtensionJson<LimitViolation, ExtraValues> {
+@AutoService(ExtensionJsonSerializer.class)
+public class ExtraValuesJson implements ExtensionJsonSerializer<LimitViolation, ExtraValues> {
 
     @Override
     public String getExtensionName() {
@@ -29,7 +29,12 @@ public class ExtraValuesJson implements ExtensionJson<LimitViolation, ExtraValue
     }
 
     @Override
-    public Class<? extends ExtraValues> getExtensionClass() {
+    public String getCategoryName() {
+        return "security-analysis";
+    }
+
+    @Override
+    public Class<? super ExtraValues> getExtensionClass() {
         return ExtraValues.class;
     }
 

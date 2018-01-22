@@ -20,7 +20,7 @@ public class BusBreakerViewSwitchXml extends AbstractSwitchXml<VoltageLevel.BusB
     static final BusBreakerViewSwitchXml INSTANCE = new BusBreakerViewSwitchXml();
 
     @Override
-    protected void writeRootElementAttributes(Switch s, VoltageLevel vl, XmlWriterContext context) throws XMLStreamException {
+    protected void writeRootElementAttributes(Switch s, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
         super.writeRootElementAttributes(s, vl, context);
         VoltageLevel.BusBreakerView v = vl.getBusBreakerView();
         Bus bus1 = v.getBus1(s.getId());
@@ -35,7 +35,7 @@ public class BusBreakerViewSwitchXml extends AbstractSwitchXml<VoltageLevel.BusB
     }
 
     @Override
-    protected Switch readRootElementAttributes(VoltageLevel.BusBreakerView.SwitchAdder adder, XmlReaderContext context) {
+    protected Switch readRootElementAttributes(VoltageLevel.BusBreakerView.SwitchAdder adder, NetworkXmlReaderContext context) {
         boolean open = XmlUtil.readBoolAttribute(context.getReader(), "open");
         boolean fictitious = XmlUtil.readOptionalBoolAttribute(context.getReader(), "fictitious", false);
         String bus1 = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "bus1"));

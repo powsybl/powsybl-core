@@ -10,8 +10,12 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import com.powsybl.commons.extensions.Extension;
-import com.powsybl.commons.extensions.ExtensionSupplier;
+import com.powsybl.commons.extensions.ExtensionJsonSerializer;
+import com.powsybl.commons.extensions.ExtensionSerializerProvider;
+import com.powsybl.commons.extensions.ExtensionSerializerProviders;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.security.LimitViolation;
@@ -25,6 +29,9 @@ import java.util.List;
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
 class LimitViolationDeserializer extends StdDeserializer<LimitViolation> {
+
+    private static final Supplier<ExtensionSerializerProvider<ExtensionJsonSerializer>> SUPPLIER =
+        Suppliers.memoize(() -> ExtensionSerializerProviders.createProvider(ExtensionJsonSerializer.class, "security-analysis"));
 
     LimitViolationDeserializer() {
         super(LimitViolation.class);
@@ -85,7 +92,7 @@ class LimitViolationDeserializer extends StdDeserializer<LimitViolation> {
 
                 case "extensions":
                     parser.nextToken();
-                    extensions = JsonUtil.readExtensions(parser, deserializationContext);
+                    extensions = JsonUtil.readExtensions(parser, deserializationContext, SUPPLIER.get());
                     break;
 
                 default:
@@ -94,7 +101,7 @@ class LimitViolationDeserializer extends StdDeserializer<LimitViolation> {
         }
 
         LimitViolation violation = new LimitViolation(subjectId, limitType, limitName, acceptableDuration, limit, limitReduction, value, side);
-        ExtensionSupplier.addExtensions(violation, extensions);
+        SUPPLIER.get().addExtensions(violation, extensions);
 
         return violation;
     }

@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.extensions.ExtensionJson;
+import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.security.LimitViolation;
 
 import java.io.IOException;
@@ -21,8 +21,8 @@ import java.io.IOException;
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-@AutoService(ExtensionJson.class)
-public class PreContingencyJson implements ExtensionJson<LimitViolation, PreContingency> {
+@AutoService(ExtensionJsonSerializer.class)
+public class PreContingencyJson implements ExtensionJsonSerializer<LimitViolation, PreContingency> {
 
     @Override
     public String getExtensionName() {
@@ -30,7 +30,12 @@ public class PreContingencyJson implements ExtensionJson<LimitViolation, PreCont
     }
 
     @Override
-    public Class<? extends PreContingency> getExtensionClass() {
+    public String getCategoryName() {
+        return "security-analysis";
+    }
+
+    @Override
+    public Class<? super PreContingency> getExtensionClass() {
         return PreContingency.class;
     }
 
