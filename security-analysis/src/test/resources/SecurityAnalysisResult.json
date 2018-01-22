@@ -14,7 +14,12 @@
       "limit" : 100.0,
       "limitReduction" : 0.95,
       "value" : 110.0,
-      "side" : "ONE"
+      "side" : "ONE",
+      "extensions" : {
+        "ActivePower" : {
+          "value" : 220.0
+        }
+      }
     } ],
     "actionsTaken" : [ ]
   },
@@ -48,12 +53,12 @@
         "value" : 110.0,
         "side" : "TWO",
         "extensions" : {
-          "ExtraValues" : {
-            "extraValue1" : 10.0,
-            "extraValue2" : 20.0
+          "ActivePower" : {
+            "preContingencyValue" : 220.0,
+            "postContingencyValue" : 230.0
           },
-          "PreContingency" : {
-            "value" : 10.0
+          "Current" : {
+            "preContingencyValue" : 95.0
           }
         }
       }, {
