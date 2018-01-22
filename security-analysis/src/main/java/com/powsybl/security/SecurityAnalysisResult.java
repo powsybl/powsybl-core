@@ -6,13 +6,17 @@
  */
 package com.powsybl.security;
 
+import com.powsybl.commons.extensions.AbstractExtendable;
+
 import java.util.List;
 import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class SecurityAnalysisResult {
+public class SecurityAnalysisResult extends AbstractExtendable<SecurityAnalysisResult> {
+
+    private NetworkMetadata networkMetadata;
 
     private final LimitViolationsResult preContingencyResult;
 
@@ -22,6 +26,15 @@ public class SecurityAnalysisResult {
                                   List<PostContingencyResult> postContingencyResults) {
         this.preContingencyResult = Objects.requireNonNull(preContingencyResult);
         this.postContingencyResults = Objects.requireNonNull(postContingencyResults);
+    }
+
+    public NetworkMetadata getNetworkMetadata() {
+        return networkMetadata;
+    }
+
+    public SecurityAnalysisResult setNetworkMetadata(NetworkMetadata networkMetadata) {
+        this.networkMetadata = networkMetadata;
+        return this;
     }
 
     public LimitViolationsResult getPreContingencyResult() {

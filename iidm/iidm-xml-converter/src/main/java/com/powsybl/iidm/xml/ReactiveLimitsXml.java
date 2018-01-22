@@ -20,7 +20,7 @@ public class ReactiveLimitsXml implements XmlConstants {
 
     static final ReactiveLimitsXml INSTANCE = new ReactiveLimitsXml();
 
-    public void write(ReactiveLimitsHolder holder, XmlWriterContext context) throws XMLStreamException {
+    public void write(ReactiveLimitsHolder holder, NetworkXmlWriterContext context) throws XMLStreamException {
         switch (holder.getReactiveLimits().getKind()) {
             case CURVE: {
                 ReactiveCapabilityCurve curve = holder.getReactiveLimits(ReactiveCapabilityCurve.class);
@@ -48,7 +48,7 @@ public class ReactiveLimitsXml implements XmlConstants {
         }
     }
 
-    public void read(ReactiveLimitsHolder holder, XmlReaderContext context) throws XMLStreamException {
+    public void read(ReactiveLimitsHolder holder, NetworkXmlReaderContext context) throws XMLStreamException {
         switch (context.getReader().getLocalName()) {
             case "reactiveCapabilityCurve":
                 ReactiveCapabilityCurveAdder curveAdder = holder.newReactiveCapabilityCurve();

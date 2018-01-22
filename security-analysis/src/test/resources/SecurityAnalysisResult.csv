@@ -1,6 +1,6 @@
 Pre-contingency violations
 Action;Equipment (1);End;Country;Base voltage;Violation type;Violation name;Value;Limit;abs(value-limit);Loading rate %
-;NHV1_NHV2_1;VLHV1;FR;380;CURRENT;limit;110.0000;95.0000;15.0000;110.00
+;NHV1_NHV2_1;VLHV1;FR;380;CURRENT;Permanent limit;110.0000;95.0000;15.0000;110.00
 Post-contingency limit violations
 Contingency;Status;Action;Equipment (3);End;Country;Base voltage;Violation type;Violation name;Value;Limit;abs(value-limit);Loading rate %
 contingency;converge;;Equipment (3);;;;;;;;;
