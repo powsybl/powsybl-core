@@ -64,14 +64,14 @@ public class AppData implements AutoCloseable {
                 new ServiceLoaderCache<>(AppFileSystemProvider.class).getServices(),
                 new ServiceLoaderCache<>(FileExtension.class).getServices(),
                 new ServiceLoaderCache<>(ProjectFileExtension.class).getServices(),
-                new ServiceLoaderCache<>(ServiceExtension.class).getServices(), loggerFactory);
+                new ServiceLoaderCache<>(ServiceExtension.class).getServices(),
+                loggerFactory);
     }
 
     public AppData(ComputationManager computationManager, List<AppFileSystemProvider> fileSystemProviders,
                    List<FileExtension> fileExtensions, List<ProjectFileExtension> projectFileExtensions,
                    List<ServiceExtension> serviceExtensions) {
-        this(computationManager, fileSystemProviders, fileExtensions, projectFileExtensions, serviceExtensions,
-                NoOpAppLogger::new);
+        this(computationManager, fileSystemProviders, fileExtensions, projectFileExtensions, serviceExtensions, NoOpAppLogger::new);
     }
 
     public AppData(ComputationManager computationManager, List<AppFileSystemProvider> fileSystemProviders,

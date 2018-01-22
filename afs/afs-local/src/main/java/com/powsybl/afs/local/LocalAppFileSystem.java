@@ -22,15 +22,16 @@ import java.util.List;
 public class LocalAppFileSystem extends AppFileSystem {
 
     public LocalAppFileSystem(LocalAppFileSystemConfig config, ComputationManager computationManager) {
-        this(config, new ServiceLoaderCache<>(LocalFileScanner.class).getServices(),
-                new ServiceLoaderCache<>(LocalFolderScanner.class).getServices(), computationManager);
+        this(config,
+                new ServiceLoaderCache<>(LocalFileScanner.class).getServices(),
+                new ServiceLoaderCache<>(LocalFolderScanner.class).getServices(),
+                computationManager);
     }
 
     public LocalAppFileSystem(LocalAppFileSystemConfig config, List<LocalFileScanner> fileScanners,
                               List<LocalFolderScanner> folderScanners, ComputationManager computationManager) {
         super(config.getDriveName(),
                 config.isRemotelyAccessible(),
-                new LocalAppStorage(config.getRootDir(), config.getDriveName(), fileScanners, folderScanners,
-                                              computationManager));
+                new LocalAppStorage(config.getRootDir(), config.getDriveName(), fileScanners, folderScanners, computationManager));
     }
 }
