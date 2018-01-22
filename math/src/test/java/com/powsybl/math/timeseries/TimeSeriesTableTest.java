@@ -34,6 +34,13 @@ public class TimeSeriesTableTest {
 
         table.load(1, ImmutableList.of(ts1, ts2, ts3));
 
+        assertEquals(index, table.getTableIndex());
+
+        // test indexes
+        assertEquals(0, table.getDoubleTimeSeriesIndex("ts1"));
+        assertEquals(1, table.getDoubleTimeSeriesIndex("ts2"));
+        assertEquals(0, table.getStringTimeSeriesIndex("ts3"));
+
         // test values
         assertEquals(1, table.getDoubleValue(1, 0, 0), 0);
         assertEquals(2, table.getDoubleValue(1, 0, 1), 0);
