@@ -112,6 +112,10 @@ public final class TimeSeriesTable {
         int size() {
             return names.size();
         }
+
+        void clear() {
+            names.clear();
+        }
     }
 
     private int fromVersion;
@@ -210,6 +214,16 @@ public final class TimeSeriesTable {
 
             stdDevs = new double[doubleTimeSeriesNames.size() * versionCount];
             Arrays.fill(stdDevs, Double.NaN);
+        } catch (Exception e) {
+            timeSeriesMetadata = null;
+            tableIndex = null;
+            doubleTimeSeriesNames.clear();
+            stringTimeSeriesNames.clear();
+            timeSeriesIndexDoubleOrString.clear();
+            doubleBuffer = null;
+            stringBuffer = null;
+            means = null;
+            stdDevs = null;
         } finally {
             initLock.lock();
         }
