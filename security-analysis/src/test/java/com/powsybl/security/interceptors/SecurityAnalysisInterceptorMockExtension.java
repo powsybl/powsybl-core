@@ -4,22 +4,22 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.security.observers;
+package com.powsybl.security.interceptors;
 
 import com.google.auto.service.AutoService;
 
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-@AutoService(SecurityAnalysisObserverExtension.class)
-public class SecurityAnalysisObserverMockExtension implements SecurityAnalysisObserverExtension {
+@AutoService(SecurityAnalysisInterceptorExtension.class)
+public class SecurityAnalysisInterceptorMockExtension implements SecurityAnalysisInterceptorExtension {
     @Override
     public String getName() {
-        return "SecurityAnalysisObserverMock";
+        return "SecurityAnalysisInterceptorMock";
     }
 
     @Override
-    public SecurityAnalysisObserver createObserver() {
-        return new SecurityAnalysisObserverMock();
+    public SecurityAnalysisInterceptor createInterceptor() {
+        return new SecurityAnalysisInterceptorMock();
     }
 }

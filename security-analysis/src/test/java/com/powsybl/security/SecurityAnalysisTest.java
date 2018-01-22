@@ -20,8 +20,8 @@ import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.mock.LoadFlowFactoryMock;
 import com.powsybl.security.extensions.ActivePowerExtension;
 import com.powsybl.security.extensions.CurrentExtension;
-import com.powsybl.security.observers.CurrentLimitViolationObserver;
-import com.powsybl.security.observers.SecurityAnalysisObserverMock;
+import com.powsybl.security.interceptors.CurrentLimitViolationInterceptor;
+import com.powsybl.security.interceptors.SecurityAnalysisInterceptorMock;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -83,8 +83,8 @@ public class SecurityAnalysisTest {
         LimitViolationFilter filter = new LimitViolationFilter();
 
         SecurityAnalysis securityAnalysis = new SecurityAnalysisImpl(network, filter, computationManager, loadflowFactory);
-        securityAnalysis.addObserver(new SecurityAnalysisObserverMock());
-        securityAnalysis.addObserver(new CurrentLimitViolationObserver());
+        securityAnalysis.addInterceptor(new SecurityAnalysisInterceptorMock());
+        securityAnalysis.addInterceptor(new CurrentLimitViolationInterceptor());
 
         SecurityAnalysisResult result = securityAnalysis.runAsync(contingenciesProvider, StateManager.INITIAL_STATE_ID, new LoadFlowParameters()).join();
 

@@ -11,8 +11,8 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.converter.SecurityAnalysisResultExporters;
-import com.powsybl.security.observers.SecurityAnalysisObserver;
-import com.powsybl.security.observers.SecurityAnalysisObservers;
+import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
+import com.powsybl.security.interceptors.SecurityAnalysisInterceptors;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
 import com.powsybl.tools.ToolRunningContext;
@@ -99,7 +99,7 @@ public class SecurityAnalysisTool implements Tool {
             public String getUsageFooter() {
                 return String.join(System.lineSeparator(),
                     "Allowed LIMIT-TYPES values are " + Arrays.toString(LimitViolationType.values()),
-                    "Allowed EXTENSIONS values are " + SecurityAnalysisObservers.getExtensionNames()
+                    "Allowed EXTENSIONS values are " + SecurityAnalysisInterceptors.getExtensionNames()
                     );
             }
         };
@@ -113,8 +113,8 @@ public class SecurityAnalysisTool implements Tool {
             ? Arrays.stream(line.getOptionValue(LIMIT_TYPES_OPTION).split(",")).map(LimitViolationType::valueOf).collect(Collectors.toSet())
             : EnumSet.allOf(LimitViolationType.class);
 
-        Set<SecurityAnalysisObserver> observers = line.hasOption(WITH_EXTENSIONS_OPTION)
-            ? Arrays.stream(line.getOptionValue(WITH_EXTENSIONS_OPTION).split(",")).map(SecurityAnalysisObservers::createObserver).collect(Collectors.toSet())
+        Set<SecurityAnalysisInterceptor> interceptors = line.hasOption(WITH_EXTENSIONS_OPTION)
+            ? Arrays.stream(line.getOptionValue(WITH_EXTENSIONS_OPTION).split(",")).map(SecurityAnalysisInterceptors::createInterceptor).collect(Collectors.toSet())
             : Collections.emptySet();
 
         // Output file and output format
@@ -140,7 +140,7 @@ public class SecurityAnalysisTool implements Tool {
         LimitViolationFilter limitViolationFilter = LimitViolationFilter.load();
         limitViolationFilter.setViolationTypes(limitViolationTypes);
 
-        SecurityAnalyzer analyzer = new SecurityAnalyzer(limitViolationFilter, context.getComputationManager(), 0, observers);
+        SecurityAnalyzer analyzer = new SecurityAnalyzer(limitViolationFilter, context.getComputationManager(), 0, interceptors);
         SecurityAnalysisResult result = analyzer.analyze(network, contingenciesFile);
 
         if (!result.getPreContingencyResult().isComputationOk()) {

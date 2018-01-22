@@ -4,18 +4,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.security.observers;
+package com.powsybl.security.interceptors;
 
 import com.powsybl.security.LimitViolationsResult;
 import com.powsybl.security.PostContingencyResult;
 import com.powsybl.security.SecurityAnalysisResult;
 
 /**
- * Default implementation of the SecurityAnalysisObserver interface.
+ * Default implementation of the SecurityAnalysisInterceptor interface.
  *
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class DefaultSecurityAnalysisObserver implements SecurityAnalysisObserver {
+public class DefaultSecurityAnalysisInterceptor implements SecurityAnalysisInterceptor {
 
     @Override
     public void onPreContingencyResult(RunningContext context, LimitViolationsResult preContingencyResult) {

@@ -8,7 +8,7 @@ package com.powsybl.security;
 
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.loadflow.LoadFlowParameters;
-import com.powsybl.security.observers.SecurityAnalysisObserver;
+import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -17,10 +17,10 @@ import java.util.concurrent.CompletableFuture;
  */
 public interface SecurityAnalysis {
 
-    default void addObserver(SecurityAnalysisObserver observer) {
+    default void addInterceptor(SecurityAnalysisInterceptor interceptor) {
     }
 
-    default boolean removeObserver(SecurityAnalysisObserver observer) {
+    default boolean removeInterceptor(SecurityAnalysisInterceptor interceptor) {
         return false;
     }
 

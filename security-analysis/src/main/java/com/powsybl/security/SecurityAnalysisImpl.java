@@ -15,9 +15,9 @@ import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowFactory;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.LoadFlowResult;
-import com.powsybl.security.observers.CurrentLimitViolationObserver;
-import com.powsybl.security.observers.RunningContext;
-import com.powsybl.security.observers.SecurityAnalysisObserver;
+import com.powsybl.security.interceptors.CurrentLimitViolationInterceptor;
+import com.powsybl.security.interceptors.RunningContext;
+import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -37,7 +37,7 @@ public class SecurityAnalysisImpl implements SecurityAnalysis {
 
     private final LoadFlowFactory loadFlowFactory;
 
-    private final List<SecurityAnalysisObserver> observers = new ArrayList<>();
+    private final List<SecurityAnalysisInterceptor> interceptors = new ArrayList<>();
 
     public SecurityAnalysisImpl(Network network, ComputationManager computationManager, LoadFlowFactory loadFlowFactory) {
         this(network, new LimitViolationFilter(), computationManager, loadFlowFactory);
@@ -49,17 +49,17 @@ public class SecurityAnalysisImpl implements SecurityAnalysis {
         this.computationManager = Objects.requireNonNull(computationManager);
         this.loadFlowFactory = Objects.requireNonNull(loadFlowFactory);
 
-        observers.add(new CurrentLimitViolationObserver());
+        interceptors.add(new CurrentLimitViolationInterceptor());
     }
 
     @Override
-    public void addObserver(SecurityAnalysisObserver observer) {
-        observers.add(Objects.requireNonNull(observer));
+    public void addInterceptor(SecurityAnalysisInterceptor interceptor) {
+        interceptors.add(Objects.requireNonNull(interceptor));
     }
 
     @Override
-    public boolean removeObserver(SecurityAnalysisObserver observer) {
-        return observers.remove(observer);
+    public boolean removeInterceptor(SecurityAnalysisInterceptor interceptor) {
+        return interceptors.remove(interceptor);
     }
 
     private List<LimitViolation> checkLimits(Network network) {
@@ -95,7 +95,7 @@ public class SecurityAnalysisImpl implements SecurityAnalysis {
                     if (loadFlowResult.isOk()) {
                         limitViolationsResults[0].getLimitViolations().addAll(checkLimits(network));
 
-                        observers.forEach(o -> o.onPreContingencyResult(context, limitViolationsResults[0]));
+                        interceptors.forEach(o -> o.onPreContingencyResult(context, limitViolationsResults[0]));
 
                         List<Contingency> contingencies = contingenciesProvider.getContingencies(network);
 
@@ -131,7 +131,7 @@ public class SecurityAnalysisImpl implements SecurityAnalysis {
                                                 new PostContingencyResult(contingency, loadFlowResult.isOk(), checkLimits(network));
                                             postContingencyResults.add(postContingencyResult);
 
-                                            observers.forEach(o -> o.onPostContingencyResult(context, postContingencyResult));
+                                            interceptors.forEach(o -> o.onPostContingencyResult(context, postContingencyResult));
 
                                             network.getStateManager().removeState(postContStateId);
 
@@ -140,7 +140,7 @@ public class SecurityAnalysisImpl implements SecurityAnalysis {
                                     }, computationManager.getExecutor());
                         }
                     } else {
-                        observers.forEach(o -> o.onPreContingencyResult(context, limitViolationsResults[0]));
+                        interceptors.forEach(o -> o.onPreContingencyResult(context, limitViolationsResults[0]));
 
                         futures = new CompletableFuture[0];
                     }
@@ -150,7 +150,7 @@ public class SecurityAnalysisImpl implements SecurityAnalysis {
                             SecurityAnalysisResult result = new SecurityAnalysisResult(limitViolationsResults[0], postContingencyResults);
                             result.setNetworkMetadata(new NetworkMetadata(network));
 
-                            observers.forEach(o -> o.onSecurityAnalysisResult(context, result));
+                            interceptors.forEach(o -> o.onSecurityAnalysisResult(context, result));
 
                             return result;
                         });
