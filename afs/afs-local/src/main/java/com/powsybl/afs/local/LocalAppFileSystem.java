@@ -10,6 +10,7 @@ import com.powsybl.afs.AppFileSystem;
 import com.powsybl.afs.local.storage.LocalAppStorage;
 import com.powsybl.afs.local.storage.LocalFileScanner;
 import com.powsybl.afs.local.storage.LocalFolderScanner;
+import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.computation.ComputationManager;
 
 import java.util.List;
@@ -20,11 +21,17 @@ import java.util.List;
  */
 public class LocalAppFileSystem extends AppFileSystem {
 
+    public LocalAppFileSystem(LocalAppFileSystemConfig config, ComputationManager computationManager) {
+        this(config,
+                new ServiceLoaderCache<>(LocalFileScanner.class).getServices(),
+                new ServiceLoaderCache<>(LocalFolderScanner.class).getServices(),
+                computationManager);
+    }
+
     public LocalAppFileSystem(LocalAppFileSystemConfig config, List<LocalFileScanner> fileScanners,
                               List<LocalFolderScanner> folderScanners, ComputationManager computationManager) {
         super(config.getDriveName(),
                 config.isRemotelyAccessible(),
-                new LocalAppStorage(config.getRootDir(), config.getDriveName(), fileScanners, folderScanners,
-                                              computationManager));
+                new LocalAppStorage(config.getRootDir(), config.getDriveName(), fileScanners, folderScanners, computationManager));
     }
 }
