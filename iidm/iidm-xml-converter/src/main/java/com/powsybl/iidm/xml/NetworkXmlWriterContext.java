@@ -6,24 +6,27 @@
  */
 package com.powsybl.iidm.xml;
 
+import com.powsybl.commons.xml.XmlWriterContext;
+
 import javax.xml.stream.XMLStreamWriter;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class XmlWriterContext extends XmlContext {
+public class NetworkXmlWriterContext extends XmlContext implements XmlWriterContext {
 
     private final XMLStreamWriter writer;
     private final XMLExportOptions options;
     private final BusFilter filter;
 
-    XmlWriterContext(Anonymizer anonymizer, XMLStreamWriter writer, XMLExportOptions options, BusFilter filter) {
+    NetworkXmlWriterContext(Anonymizer anonymizer, XMLStreamWriter writer, XMLExportOptions options, BusFilter filter) {
         super(anonymizer);
         this.writer = writer;
         this.options = options;
         this.filter = filter;
     }
 
+    @Override
     public XMLStreamWriter getWriter() {
         return writer;
     }

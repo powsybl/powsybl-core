@@ -11,6 +11,8 @@ import com.powsybl.contingency.*;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.*;
+import com.powsybl.security.extensions.ExtraValues;
+import com.powsybl.security.extensions.PreContingency;
 import com.powsybl.security.json.SecurityAnalysisResultDeserializer;
 import org.junit.Test;
 
@@ -33,8 +35,10 @@ public class ExporterTest extends AbstractConverterTest {
 
     private static SecurityAnalysisResult create() {
         // Create a LimitViolation(CURRENT) to ensure backward compatibility works
-        LimitViolation violation1 = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, "limit", 100f, 0.95f, 110f, Branch.Side.ONE);
-        LimitViolation violation2 = new LimitViolation("NHV1_NHV2_2", LimitViolationType.CURRENT, "20'", 100f, 1.0f, 110f, Branch.Side.TWO);
+        LimitViolation violation1 = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 100f, 0.95f, 110f, Branch.Side.ONE);
+        LimitViolation violation2 = new LimitViolation("NHV1_NHV2_2", LimitViolationType.CURRENT, "20'", 1200, 100f, 1.0f, 110f, Branch.Side.TWO);
+        violation2.addExtension(PreContingency.class, new PreContingency(10.0f));
+        violation2.addExtension(ExtraValues.class, new ExtraValues(10.0f, 20.0f));
         LimitViolation violation3 = new LimitViolation("GEN", LimitViolationType.HIGH_VOLTAGE, 100f, 0.9f, 110f);
         LimitViolation violation4 = new LimitViolation("GEN2", LimitViolationType.LOW_VOLTAGE, 100f, 0.7f, 115f);
 
@@ -49,7 +53,10 @@ public class ExporterTest extends AbstractConverterTest {
         LimitViolationsResult preContingencyResult = new LimitViolationsResult(true, Collections.singletonList(violation1));
         PostContingencyResult postContingencyResult = new PostContingencyResult(contingency, true, Arrays.asList(violation2, violation3, violation4), Arrays.asList("action1", "action2"));
 
-        return new SecurityAnalysisResult(preContingencyResult, Collections.singletonList(postContingencyResult));
+        SecurityAnalysisResult result = new SecurityAnalysisResult(preContingencyResult, Collections.singletonList(postContingencyResult));
+        result.setNetworkMetadata(new NetworkMetadata(NETWORK));
+
+        return result;
     }
 
     @Test

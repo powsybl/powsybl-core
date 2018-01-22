@@ -1,0 +1,17 @@
+{
+  "extensions": {
+    "UnknownExt": {
+      "value1": null,
+      "value2": 10.0,
+      "subobject": {
+        "subvalue": null
+      }
+    },
+    "FooExt": {
+      "value": true
+    },
+    "BarExt": {
+      "value": false
+    }
+  }
+}

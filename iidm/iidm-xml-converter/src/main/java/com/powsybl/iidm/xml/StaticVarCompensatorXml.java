@@ -32,7 +32,7 @@ public class StaticVarCompensatorXml extends AbstractConnectableXml<StaticVarCom
     }
 
     @Override
-    protected void writeRootElementAttributes(StaticVarCompensator svc, VoltageLevel vl, XmlWriterContext context) throws XMLStreamException {
+    protected void writeRootElementAttributes(StaticVarCompensator svc, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
         XmlUtil.writeFloat("bMin", svc.getBmin(), context.getWriter());
         XmlUtil.writeFloat("bMax", svc.getBmax(), context.getWriter());
         XmlUtil.writeFloat("voltageSetPoint", svc.getVoltageSetPoint(), context.getWriter());
@@ -48,7 +48,7 @@ public class StaticVarCompensatorXml extends AbstractConnectableXml<StaticVarCom
     }
 
     @Override
-    protected StaticVarCompensator readRootElementAttributes(StaticVarCompensatorAdder adder, XmlReaderContext context) {
+    protected StaticVarCompensator readRootElementAttributes(StaticVarCompensatorAdder adder, NetworkXmlReaderContext context) {
         float bMin = XmlUtil.readFloatAttribute(context.getReader(), "bMin");
         float bMax = XmlUtil.readFloatAttribute(context.getReader(), "bMax");
         float voltageSetPoint = XmlUtil.readOptionalFloatAttribute(context.getReader(), "voltageSetPoint");
@@ -66,7 +66,7 @@ public class StaticVarCompensatorXml extends AbstractConnectableXml<StaticVarCom
     }
 
     @Override
-    protected void readSubElements(StaticVarCompensator svc, XmlReaderContext context) throws XMLStreamException {
+    protected void readSubElements(StaticVarCompensator svc, NetworkXmlReaderContext context) throws XMLStreamException {
         readUntilEndRootElement(context.getReader(), () -> super.readSubElements(svc, context));
     }
 }
