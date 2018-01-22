@@ -12,6 +12,7 @@ import gnu.trove.set.hash.TIntHashSet;
 
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Objects;
 
 /**
  *
@@ -114,13 +115,15 @@ public final class GraphUtil {
      * and which have no associated object.
      */
     public static <V, E> void removeIsolatedVertices(UndirectedGraph<V, E> graph) {
+        Objects.requireNonNull(graph, "Graph is null.");
+
         TIntSet connectedVertices = new TIntHashSet();
-        for (int e: graph.getEdges()) {
+        for (int e : graph.getEdges()) {
             connectedVertices.add(graph.getEdgeVertex1(e));
             connectedVertices.add(graph.getEdgeVertex2(e));
         }
 
-        for (int v: graph.getVertices()) {
+        for (int v : graph.getVertices()) {
             if (!connectedVertices.contains(v) && graph.getVertexObject(v) == null) {
                 graph.removeVertex(v);
             }

@@ -28,8 +28,8 @@
 /iidm/iidm-converter-api/target/
 /iidm/iidm-impl/target/
 /iidm/iidm-test/target/
-/iidm/iidm-xml-converter/target/
 /iidm/iidm-util/target/
+/iidm/iidm-xml-converter/target/
 /loadflow/loadflow-api/target/
 /loadflow/loadflow-validation/target/
 /loadflow/target/

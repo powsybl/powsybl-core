@@ -27,9 +27,8 @@
         <module>iidm-converter-api</module>
         <module>iidm-impl</module>
         <module>iidm-test</module>
-        <module>iidm-xml-converter</module>
         <module>iidm-util</module>
+        <module>iidm-xml-converter</module>
     </modules>
 
 </project>
-

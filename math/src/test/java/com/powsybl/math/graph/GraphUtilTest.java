@@ -1,6 +1,5 @@
 package com.powsybl.math.graph;
 
-import org.junit.Assert;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -20,14 +19,14 @@ public class GraphUtilTest {
         graph.addEdge(1, 2, null);
         graph.setVertexObject(0, new Object());
 
-        Assert.assertEquals(3, graph.getVertexCount());
-        //Vertex 0 is isolated but has an associated object: it must not be removed.
+        assertEquals(3, graph.getVertexCount());
+        // Vertex 0 is isolated but has an associated object: it must not be removed.
         GraphUtil.removeIsolatedVertices(graph);
-        Assert.assertEquals(3, graph.getVertexCount());
+        assertEquals(3, graph.getVertexCount());
         graph.setVertexObject(0, null);
-        //Now vertex 0 must be removed.
+        // Now vertex 0 must be removed.
         GraphUtil.removeIsolatedVertices(graph);
-        Assert.assertEquals(2, graph.getVertexCount());
+        assertEquals(2, graph.getVertexCount());
     }
 
 }

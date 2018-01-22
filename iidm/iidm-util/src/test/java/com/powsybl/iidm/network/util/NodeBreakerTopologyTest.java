@@ -11,8 +11,9 @@ import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
-import org.junit.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Sylvain Leclerc <sylvain.leclerc@rte-france.com>
@@ -27,27 +28,27 @@ public class NodeBreakerTopologyTest {
         VoltageLevel vl = network.getVoltageLevel("voltageLevel1");
         VoltageLevel.NodeBreakerView topo = vl.getNodeBreakerView();
 
-        Assert.assertNotNull(vl);
+        assertNotNull(vl);
 
-        Assert.assertNotNull(topo.getSwitch("load1Disconnector1"));
-        Assert.assertNotNull(topo.getSwitch("load1Breaker1"));
-        Assert.assertEquals(5, topo.getSwitchCount());
+        assertNotNull(topo.getSwitch("load1Disconnector1"));
+        assertNotNull(topo.getSwitch("load1Breaker1"));
+        assertEquals(5, topo.getSwitchCount());
 
         // remove the load
         vl.getConnectable("load1", Load.class).remove();
-        Assert.assertNull(vl.getConnectable("load1", Load.class));
+        assertNull(vl.getConnectable("load1", Load.class));
 
         // remove the switch connected to the bus bar
         topo.removeSwitch("load1Breaker1");
-        Assert.assertNull(topo.getSwitch("load1Breaker1"));
+        assertNull(topo.getSwitch("load1Breaker1"));
 
-        //The connecting switch of the load is now isolated: remove it
+        // The connecting switch of the load is now isolated: remove it
         NodeBreakerTopology.removeIsolatedSwitches(topo);
 
-        Assert.assertNull(topo.getSwitch("load1Disconnector1"));
-        Assert.assertNull(topo.getSwitch("load1Breaker1"));
+        assertNull(topo.getSwitch("load1Disconnector1"));
+        assertNull(topo.getSwitch("load1Breaker1"));
         // 2 switches have been removed
-        Assert.assertEquals(3, topo.getSwitchCount());
+        assertEquals(3, topo.getSwitchCount());
     }
 
 
@@ -71,8 +72,8 @@ public class NodeBreakerTopologyTest {
                 .add();
 
         // Check the new load is correctly connected to the bus corresponding to the bus bar.
-        Assert.assertEquals(bb.getTerminal().getBusView().getBus(), l.getTerminal().getBusView().getBus());
-        Assert.assertEquals(initialSwitchCount + 2, topo.getSwitchCount());
+        assertEquals(bb.getTerminal().getBusView().getBus(), l.getTerminal().getBusView().getBus());
+        assertEquals(initialSwitchCount + 2, topo.getSwitchCount());
     }
 
 }

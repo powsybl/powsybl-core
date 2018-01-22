@@ -8,7 +8,6 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
-import org.junit.Assert;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -102,14 +101,14 @@ public class NodeBreakerTest {
         Network network = NetworkTest1Factory.create();
 
         VoltageLevelExt vl = (VoltageLevelExt) network.getVoltageLevel("voltageLevel1");
-        Assert.assertNotNull(vl);
+        assertNotNull(vl);
 
         VoltageLevel.NodeBreakerView topo = vl.getNodeBreakerView();
-        Assert.assertEquals(10, topo.getNodeCount());
+        assertEquals(10, topo.getNodeCount());
         vl.clean();
 
-        //Check useless nodes have been removed from the topology
-        Assert.assertEquals(6, topo.getNodeCount());
+        // Check useless nodes have been removed from the topology
+        assertEquals(6, topo.getNodeCount());
     }
 
     @Test
@@ -117,26 +116,26 @@ public class NodeBreakerTest {
         Network network = NetworkTest1Factory.create();
 
         VoltageLevelExt vl = (VoltageLevelExt) network.getVoltageLevel("voltageLevel1");
-        Assert.assertNotNull(vl);
+        assertNotNull(vl);
 
         VoltageLevel.NodeBreakerView topo = vl.getNodeBreakerView();
         vl.clean();
 
-        Assert.assertEquals(6, topo.getNodeCount());
-        Assert.assertNotNull(topo.getSwitch("load1Disconnector1"));
-        Assert.assertNotNull(topo.getSwitch("load1Breaker1"));
+        assertEquals(6, topo.getNodeCount());
+        assertNotNull(topo.getSwitch("load1Disconnector1"));
+        assertNotNull(topo.getSwitch("load1Breaker1"));
         topo.removeSwitch("load1Disconnector1");
         topo.removeSwitch("load1Breaker1");
 
-        //Check the 2 switches and the intermediate node have been removed from the topology.
-        Assert.assertNull(topo.getSwitch("load1Disconnector1"));
-        Assert.assertNull(topo.getSwitch("load1Breaker1"));
-        Assert.assertEquals(5, topo.getNodeCount());
+        // Check the 2 switches and the intermediate node have been removed from the topology.
+        assertNull(topo.getSwitch("load1Disconnector1"));
+        assertNull(topo.getSwitch("load1Breaker1"));
+        assertEquals(5, topo.getNodeCount());
 
-        Assert.assertNull(network.getSwitch("load1Disconnector1"));
-        Assert.assertNull(network.getSwitch("load1Breaker1"));
-        Assert.assertNull(network.getIdentifiable("load1Disconnector1"));
-        Assert.assertNull(network.getIdentifiable("load1Breaker1"));
+        assertNull(network.getSwitch("load1Disconnector1"));
+        assertNull(network.getSwitch("load1Breaker1"));
+        assertNull(network.getIdentifiable("load1Disconnector1"));
+        assertNull(network.getIdentifiable("load1Breaker1"));
     }
 
     private static Bus getBus(Injection i) {
@@ -163,20 +162,20 @@ public class NodeBreakerTest {
         // The new load cannot be connected since the old load is still connected to the node.
         try {
             newLoad.add();
-            Assert.fail("Should have thrown a validation exception");
-        } catch (RuntimeException ignored) {
+            fail("Should have thrown a validation exception");
+        } catch (ValidationException ignored) {
         }
 
         l1.remove();
         // Now the load may be attached.
         Load l2 = newLoad.add();
 
-        Assert.assertNull(network.getLoad("load1"));
-        Assert.assertNotNull(network.getLoad("load2"));
-        Assert.assertEquals(n, l2.getTerminal().getNodeBreakerView().getNode());
+        assertNull(network.getLoad("load1"));
+        assertNotNull(network.getLoad("load2"));
+        assertEquals(n, l2.getTerminal().getNodeBreakerView().getNode());
 
         // Check thew load is connected to the correct bus bar.
         BusbarSection bb = vl.getNodeBreakerView().getBusbarSection("voltageLevel1BusbarSection1");
-        Assert.assertEquals(getBus(bb), getBus(l2));
+        assertEquals(getBus(bb), getBus(l2));
     }
 }

@@ -14,6 +14,7 @@ import gnu.trove.set.hash.TIntHashSet;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -34,16 +35,14 @@ public final class NodeBreakerTopology {
      * @param topo The node-breaker view of a voltage level.
      */
     public static void removeIsolatedSwitches(VoltageLevel.NodeBreakerView topo) {
+        Objects.requireNonNull(topo, "Node breaker topology view is null.");
 
         int[] nodes = topo.getNodes();
         final TIntSet encountered = new TIntHashSet();
         final Set<Switch> encounteredSwitches = new HashSet<>();
 
         for (int n : nodes) {
-            if (encountered.contains(n)) {
-                continue;
-            }
-            if (topo.getTerminal(n) == null) {
+            if (encountered.contains(n) || topo.getTerminal(n) == null) {
                 continue;
             }
             encountered.add(n);
@@ -55,7 +54,7 @@ public final class NodeBreakerTopology {
         }
 
         List<Switch> toRemove = topo.getSwitchStream().filter(sw -> !encounteredSwitches.contains(sw)).collect(Collectors.toList());
-        for (Switch sw: toRemove) {
+        for (Switch sw : toRemove) {
             topo.removeSwitch(sw.getId());
         }
     }
@@ -68,6 +67,8 @@ public final class NodeBreakerTopology {
      * @return   Node index of the connection point
      */
     public static int newStandardConnection(BusbarSection bb) {
+        Objects.requireNonNull(bb, "Busbar section is null.");
+
         int n = bb.getTerminal().getNodeBreakerView().getNode();
         VoltageLevel.NodeBreakerView topo = bb.getTerminal().getVoltageLevel().getNodeBreakerView();
 

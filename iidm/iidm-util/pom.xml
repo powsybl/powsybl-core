@@ -27,12 +27,16 @@
     <dependencies>
       <!-- Compilation dependencies -->
       <dependency>
-          <groupId>org.slf4j</groupId>
-          <artifactId>slf4j-api</artifactId>
-      </dependency>
-      <dependency>
           <groupId>com.google.guava</groupId>
           <artifactId>guava</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>net.sf.trove4j</groupId>
+          <artifactId>trove4j</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-api</artifactId>
       </dependency>
       <dependency>
           <groupId>${project.groupId}</groupId>
@@ -43,10 +47,6 @@
           <groupId>${project.groupId}</groupId>
           <artifactId>powsybl-iidm-api</artifactId>
           <version>${project.version}</version>
-      </dependency>
-      <dependency>
-          <groupId>net.sf.trove4j</groupId>
-          <artifactId>trove4j</artifactId>
       </dependency>
 
         <!-- Test dependencies -->
