@@ -216,11 +216,11 @@ public class LoadFlowActionSimulator implements ActionSimulator {
 
                         // apply action
                         LOGGER.info("Apply action '{}'", action.getId());
-                        observers.forEach(o-> o.beforeAction(context, actionId));
+                        observers.forEach(o -> o.beforeAction(context, actionId));
 
                         action.run(context.getNetwork(), computationManager);
 
-                        observers.forEach(o-> o.afterAction(context, actionId));
+                        observers.forEach(o -> o.afterAction(context, actionId));
                         actionsTaken.add(actionId);
                     }
                 }
