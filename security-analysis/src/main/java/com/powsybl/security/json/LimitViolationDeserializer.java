@@ -10,16 +10,28 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
+import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.extensions.ExtensionJsonSerializer;
+import com.powsybl.commons.extensions.ExtensionSerializerProvider;
+import com.powsybl.commons.extensions.ExtensionSerializerProviders;
+import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.LimitViolationType;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
 class LimitViolationDeserializer extends StdDeserializer<LimitViolation> {
+
+    private static final Supplier<ExtensionSerializerProvider<ExtensionJsonSerializer>> SUPPLIER =
+        Suppliers.memoize(() -> ExtensionSerializerProviders.createProvider(ExtensionJsonSerializer.class, "security-analysis"));
 
     LimitViolationDeserializer() {
         super(LimitViolation.class);
@@ -30,10 +42,13 @@ class LimitViolationDeserializer extends StdDeserializer<LimitViolation> {
         String subjectId = null;
         LimitViolationType limitType = null;
         String limitName = null;
+        int acceptableDuration = Integer.MAX_VALUE;
         float limit = Float.NaN;
         float limitReduction = Float.NaN;
         float value = Float.NaN;
         Branch.Side side = null;
+
+        List<Extension<LimitViolation>> extensions = Collections.emptyList();
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
@@ -48,6 +63,11 @@ class LimitViolationDeserializer extends StdDeserializer<LimitViolation> {
 
                 case "limitName":
                     limitName = parser.nextTextValue();
+                    break;
+
+                case "acceptableDuration":
+                    parser.nextToken();
+                    acceptableDuration = parser.readValueAs(Integer.class);
                     break;
 
                 case "limit":
@@ -70,11 +90,19 @@ class LimitViolationDeserializer extends StdDeserializer<LimitViolation> {
                     side = parser.readValueAs(Branch.Side.class);
                     break;
 
+                case "extensions":
+                    parser.nextToken();
+                    extensions = JsonUtil.readExtensions(parser, deserializationContext, SUPPLIER.get());
+                    break;
+
                 default:
                     throw new AssertionError("Unexpected field: " + parser.getCurrentName());
             }
         }
 
-        return new LimitViolation(subjectId, limitType, limitName, limit, limitReduction, value, side);
+        LimitViolation violation = new LimitViolation(subjectId, limitType, limitName, acceptableDuration, limit, limitReduction, value, side);
+        SUPPLIER.get().addExtensions(violation, extensions);
+
+        return violation;
     }
 }

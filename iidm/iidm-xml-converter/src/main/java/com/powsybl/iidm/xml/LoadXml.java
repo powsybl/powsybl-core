@@ -34,7 +34,7 @@ class LoadXml extends AbstractConnectableXml<Load, LoadAdder, VoltageLevel> {
     }
 
     @Override
-    protected void writeRootElementAttributes(Load l, VoltageLevel vl, XmlWriterContext context) throws XMLStreamException {
+    protected void writeRootElementAttributes(Load l, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
         context.getWriter().writeAttribute("loadType", l.getLoadType().name());
         XmlUtil.writeFloat("p0", l.getP0(), context.getWriter());
         XmlUtil.writeFloat("q0", l.getQ0(), context.getWriter());
@@ -48,7 +48,7 @@ class LoadXml extends AbstractConnectableXml<Load, LoadAdder, VoltageLevel> {
     }
 
     @Override
-    protected Load readRootElementAttributes(LoadAdder adder, XmlReaderContext context) {
+    protected Load readRootElementAttributes(LoadAdder adder, NetworkXmlReaderContext context) {
         String loadTypeStr = context.getReader().getAttributeValue(null, "loadType");
         LoadType loadType = loadTypeStr == null ? LoadType.UNDEFINED : LoadType.valueOf(loadTypeStr);
         float p0 = XmlUtil.readFloatAttribute(context.getReader(), "p0");
@@ -63,7 +63,7 @@ class LoadXml extends AbstractConnectableXml<Load, LoadAdder, VoltageLevel> {
     }
 
     @Override
-    protected void readSubElements(Load l, XmlReaderContext context) throws XMLStreamException {
+    protected void readSubElements(Load l, NetworkXmlReaderContext context) throws XMLStreamException {
         readUntilEndRootElement(context.getReader(), () -> LoadXml.super.readSubElements(l, context));
     }
 }

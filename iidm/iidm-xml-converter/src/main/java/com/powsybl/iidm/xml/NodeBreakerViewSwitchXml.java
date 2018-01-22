@@ -20,7 +20,7 @@ public class NodeBreakerViewSwitchXml extends AbstractSwitchXml<VoltageLevel.Nod
     static final NodeBreakerViewSwitchXml INSTANCE = new NodeBreakerViewSwitchXml();
 
     @Override
-    protected void writeRootElementAttributes(Switch s, VoltageLevel vl, XmlWriterContext context) throws XMLStreamException {
+    protected void writeRootElementAttributes(Switch s, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
         super.writeRootElementAttributes(s, vl, context);
         VoltageLevel.NodeBreakerView v = vl.getNodeBreakerView();
         context.getWriter().writeAttribute("node1", Integer.toString(v.getNode1(s.getId())));
@@ -33,7 +33,7 @@ public class NodeBreakerViewSwitchXml extends AbstractSwitchXml<VoltageLevel.Nod
     }
 
     @Override
-    protected Switch readRootElementAttributes(VoltageLevel.NodeBreakerView.SwitchAdder adder, XmlReaderContext context) {
+    protected Switch readRootElementAttributes(VoltageLevel.NodeBreakerView.SwitchAdder adder, NetworkXmlReaderContext context) {
         boolean open = XmlUtil.readBoolAttribute(context.getReader(), "open");
         SwitchKind kind = SwitchKind.valueOf(context.getReader().getAttributeValue(null, "kind"));
         boolean retained = XmlUtil.readBoolAttribute(context.getReader(), "retained");
