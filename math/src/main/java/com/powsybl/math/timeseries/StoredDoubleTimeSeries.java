@@ -16,6 +16,14 @@ public class StoredDoubleTimeSeries extends AbstractTimeSeries<DoublePoint, Doub
 
     private static final double[] NAN_ARRAY = new double[] {Double.NaN};
 
+    public static StoredDoubleTimeSeries create(String name, TimeSeriesIndex index, double[] values) {
+        if (index.getPointCount() != values.length) {
+            throw new IllegalArgumentException("Bad number of values " + values.length + ", expected " + index.getPointCount());
+        }
+        return new StoredDoubleTimeSeries(new TimeSeriesMetadata(name, TimeSeriesDataType.DOUBLE, index),
+                                          new UncompressedDoubleArrayChunk(0, values));
+    }
+
     public StoredDoubleTimeSeries(TimeSeriesMetadata metadata, DoubleArrayChunk... chunks) {
         super(metadata, chunks);
     }

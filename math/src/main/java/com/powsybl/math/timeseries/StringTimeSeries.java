@@ -15,6 +15,14 @@ public class StringTimeSeries extends AbstractTimeSeries<StringPoint, StringArra
 
     private static final String[] NULL_ARRAY = new String[] {null};
 
+    public static StringTimeSeries create(String name, TimeSeriesIndex index, String[] values) {
+        if (index.getPointCount() != values.length) {
+            throw new IllegalArgumentException("Bad number of values " + values.length + ", expected " + index.getPointCount());
+        }
+        return new StringTimeSeries(new TimeSeriesMetadata(name, TimeSeriesDataType.STRING, index),
+                new UncompressedStringArrayChunk(0, values));
+    }
+
     public StringTimeSeries(TimeSeriesMetadata metadata, StringArrayChunk... chunks) {
         super(metadata, chunks);
     }

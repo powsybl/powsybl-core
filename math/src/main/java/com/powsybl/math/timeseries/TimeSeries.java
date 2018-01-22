@@ -363,6 +363,10 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
         return JsonUtil.parseJson(json, TimeSeries::parseJson);
     }
 
+    static List<TimeSeries> parseJson(Reader reader) {
+        return JsonUtil.parseJson(reader, TimeSeries::parseJson);
+    }
+
     static List<TimeSeries> parseJson(Path file) {
         return JsonUtil.parseJson(file, TimeSeries::parseJson);
     }
