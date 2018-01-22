@@ -33,7 +33,7 @@ class HvdcLineXml extends AbstractIdentifiableXml<HvdcLine, HvdcLineAdder, Netwo
     }
 
     @Override
-    protected void writeRootElementAttributes(HvdcLine l, Network parent, XmlWriterContext context) throws XMLStreamException {
+    protected void writeRootElementAttributes(HvdcLine l, Network parent, NetworkXmlWriterContext context) throws XMLStreamException {
         XmlUtil.writeFloat("r", l.getR(), context.getWriter());
         XmlUtil.writeFloat("nominalV", l.getNominalV(), context.getWriter());
         context.getWriter().writeAttribute("convertersMode", l.getConvertersMode().name());
@@ -49,7 +49,7 @@ class HvdcLineXml extends AbstractIdentifiableXml<HvdcLine, HvdcLineAdder, Netwo
     }
 
     @Override
-    protected HvdcLine readRootElementAttributes(HvdcLineAdder adder, XmlReaderContext context) {
+    protected HvdcLine readRootElementAttributes(HvdcLineAdder adder, NetworkXmlReaderContext context) {
         float r = XmlUtil.readFloatAttribute(context.getReader(), "r");
         float nominalV = XmlUtil.readFloatAttribute(context.getReader(), "nominalV");
         HvdcLine.ConvertersMode convertersMode = HvdcLine.ConvertersMode.valueOf(context.getReader().getAttributeValue(null, "convertersMode"));
@@ -68,7 +68,7 @@ class HvdcLineXml extends AbstractIdentifiableXml<HvdcLine, HvdcLineAdder, Netwo
     }
 
     @Override
-    protected void readSubElements(HvdcLine l, XmlReaderContext context) throws XMLStreamException {
+    protected void readSubElements(HvdcLine l, NetworkXmlReaderContext context) throws XMLStreamException {
         readUntilEndRootElement(context.getReader(), () -> HvdcLineXml.super.readSubElements(l, context));
     }
 }

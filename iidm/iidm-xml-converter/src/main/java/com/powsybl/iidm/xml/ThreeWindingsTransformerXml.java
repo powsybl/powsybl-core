@@ -38,7 +38,7 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
     }
 
     @Override
-    protected void writeRootElementAttributes(ThreeWindingsTransformer twt, Substation s, XmlWriterContext context) throws XMLStreamException {
+    protected void writeRootElementAttributes(ThreeWindingsTransformer twt, Substation s, NetworkXmlWriterContext context) throws XMLStreamException {
         XmlUtil.writeFloat("r1", twt.getLeg1().getR(), context.getWriter());
         XmlUtil.writeFloat("x1", twt.getLeg1().getX(), context.getWriter());
         XmlUtil.writeFloat("g1", twt.getLeg1().getG(), context.getWriter());
@@ -61,7 +61,7 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
     }
 
     @Override
-    protected void writeSubElements(ThreeWindingsTransformer twt, Substation s, XmlWriterContext context) throws XMLStreamException {
+    protected void writeSubElements(ThreeWindingsTransformer twt, Substation s, NetworkXmlWriterContext context) throws XMLStreamException {
         RatioTapChanger rtc2 = twt.getLeg2().getRatioTapChanger();
         if (rtc2 != null) {
             writeRatioTapChanger("ratioTapChanger2", rtc2, context);
@@ -87,12 +87,12 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
     }
 
     @Override
-    protected ThreeWindingsTransformer readRootElementAttributes(ThreeWindingsTransformerAdder adder, XmlReaderContext context) {
+    protected ThreeWindingsTransformer readRootElementAttributes(ThreeWindingsTransformerAdder adder, NetworkXmlReaderContext context) {
         throw new AssertionError("TODO"); // FIXME
     }
 
     @Override
-    protected void readSubElements(ThreeWindingsTransformer identifiable, XmlReaderContext context) throws XMLStreamException {
+    protected void readSubElements(ThreeWindingsTransformer identifiable, NetworkXmlReaderContext context) throws XMLStreamException {
         throw new AssertionError("TODO"); // FIXME
     }
 }

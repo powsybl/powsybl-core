@@ -7,6 +7,9 @@
 package com.powsybl.iidm.xml;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.extensions.ExtensionXmlSerializer;
+import com.powsybl.commons.xml.XmlReaderContext;
+import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.test.LoadZipModel;
 
@@ -16,12 +19,17 @@ import java.io.InputStream;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-@AutoService(ExtensionXml.class)
-public class LoadZipModelXml implements ExtensionXml<Load, LoadZipModel> {
+@AutoService(ExtensionXmlSerializer.class)
+public class LoadZipModelXmlSerializer implements ExtensionXmlSerializer<Load, LoadZipModel> {
 
     @Override
     public String getExtensionName() {
         return "loadZipModel";
+    }
+
+    @Override
+    public String getCategoryName() {
+        return "network";
     }
 
     @Override
