@@ -45,4 +45,9 @@ public class BiList<E> {
     int size() {
         return list.size();
     }
+
+    void clear() {
+        list.clear();
+        reverse.clear();
+    }
 }
