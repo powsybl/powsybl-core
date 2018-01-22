@@ -8,6 +8,7 @@ package com.powsybl.math.timeseries;
 
 import java.nio.DoubleBuffer;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -17,6 +18,9 @@ public class StoredDoubleTimeSeries extends AbstractTimeSeries<DoublePoint, Doub
     private static final double[] NAN_ARRAY = new double[] {Double.NaN};
 
     public static StoredDoubleTimeSeries create(String name, TimeSeriesIndex index, double[] values) {
+        Objects.requireNonNull(name);
+        Objects.requireNonNull(index);
+        Objects.requireNonNull(values);
         if (index.getPointCount() != values.length) {
             throw new IllegalArgumentException("Bad number of values " + values.length + ", expected " + index.getPointCount());
         }
