@@ -7,6 +7,9 @@
 package com.powsybl.iidm.xml;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.extensions.ExtensionXmlSerializer;
+import com.powsybl.commons.xml.XmlReaderContext;
+import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.test.LoadBarExt;
 
@@ -16,12 +19,17 @@ import java.io.InputStream;
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-@AutoService(ExtensionXml.class)
-public class LoadBarXml implements ExtensionXml<Load, LoadBarExt> {
+@AutoService(ExtensionXmlSerializer.class)
+public class LoadBarXmlSerializer implements ExtensionXmlSerializer<Load, LoadBarExt> {
 
     @Override
     public String getExtensionName() {
         return "loadBar";
+    }
+
+    @Override
+    public String getCategoryName() {
+        return "network";
     }
 
     @Override

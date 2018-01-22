@@ -34,7 +34,7 @@ class TwoWindingsTransformerXml extends AbstractTransformerXml<TwoWindingsTransf
     }
 
     @Override
-    protected void writeRootElementAttributes(TwoWindingsTransformer twt, Substation s, XmlWriterContext context) throws XMLStreamException {
+    protected void writeRootElementAttributes(TwoWindingsTransformer twt, Substation s, NetworkXmlWriterContext context) throws XMLStreamException {
         XmlUtil.writeFloat("r", twt.getR(), context.getWriter());
         XmlUtil.writeFloat("x", twt.getX(), context.getWriter());
         XmlUtil.writeFloat("g", twt.getG(), context.getWriter());
@@ -50,7 +50,7 @@ class TwoWindingsTransformerXml extends AbstractTransformerXml<TwoWindingsTransf
     }
 
     @Override
-    protected void writeSubElements(TwoWindingsTransformer twt, Substation s, XmlWriterContext context) throws XMLStreamException {
+    protected void writeSubElements(TwoWindingsTransformer twt, Substation s, NetworkXmlWriterContext context) throws XMLStreamException {
         RatioTapChanger rtc = twt.getRatioTapChanger();
         if (rtc != null) {
             writeRatioTapChanger("ratioTapChanger", rtc, context);
@@ -73,7 +73,7 @@ class TwoWindingsTransformerXml extends AbstractTransformerXml<TwoWindingsTransf
     }
 
     @Override
-    protected TwoWindingsTransformer readRootElementAttributes(TwoWindingsTransformerAdder adder, XmlReaderContext context) {
+    protected TwoWindingsTransformer readRootElementAttributes(TwoWindingsTransformerAdder adder, NetworkXmlReaderContext context) {
         float r = XmlUtil.readFloatAttribute(context.getReader(), "r");
         float x = XmlUtil.readFloatAttribute(context.getReader(), "x");
         float g = XmlUtil.readFloatAttribute(context.getReader(), "g");
@@ -94,7 +94,7 @@ class TwoWindingsTransformerXml extends AbstractTransformerXml<TwoWindingsTransf
     }
 
     @Override
-    protected void readSubElements(TwoWindingsTransformer twt, XmlReaderContext context) throws XMLStreamException {
+    protected void readSubElements(TwoWindingsTransformer twt, NetworkXmlReaderContext context) throws XMLStreamException {
         readUntilEndRootElement(context.getReader(), () -> {
             switch (context.getReader().getLocalName()) {
                 case "currentLimits1":

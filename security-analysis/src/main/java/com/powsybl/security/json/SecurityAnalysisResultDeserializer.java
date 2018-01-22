@@ -14,8 +14,12 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import com.powsybl.commons.extensions.Extension;
-import com.powsybl.commons.extensions.ExtensionSupplier;
+import com.powsybl.commons.extensions.ExtensionJsonSerializer;
+import com.powsybl.commons.extensions.ExtensionSerializerProvider;
+import com.powsybl.commons.extensions.ExtensionSerializerProviders;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyElement;
@@ -38,6 +42,9 @@ import java.util.Objects;
  * @author Massimo Ferraro <massimo.ferraro@techrain.it>
  */
 public class SecurityAnalysisResultDeserializer extends StdDeserializer<SecurityAnalysisResult> {
+
+    private static final Supplier<ExtensionSerializerProvider<ExtensionJsonSerializer>> SUPPLIER =
+        Suppliers.memoize(() -> ExtensionSerializerProviders.createProvider(ExtensionJsonSerializer.class, "security-analysis"));
 
     SecurityAnalysisResultDeserializer() {
         super(SecurityAnalysisResult.class);
@@ -74,7 +81,7 @@ public class SecurityAnalysisResultDeserializer extends StdDeserializer<Security
 
                 case "extensions":
                     parser.nextToken();
-                    extensions = JsonUtil.readExtensions(parser, ctx);
+                    extensions = JsonUtil.readExtensions(parser, ctx, SUPPLIER.get());
                     break;
 
                 default:
@@ -84,7 +91,7 @@ public class SecurityAnalysisResultDeserializer extends StdDeserializer<Security
 
         SecurityAnalysisResult result = new SecurityAnalysisResult(preContingencyResult, postContingencyResults);
         result.setNetworkMetadata(networkMetadata);
-        ExtensionSupplier.addExtensions(result, extensions);
+        SUPPLIER.get().addExtensions(result, extensions);
 
         return result;
     }

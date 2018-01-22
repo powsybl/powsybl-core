@@ -6,6 +6,8 @@
  */
 package com.powsybl.commons.extensions;
 
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.PowsyblException;
 import org.junit.Test;
@@ -18,6 +20,9 @@ import static org.junit.Assert.*;
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
 public class ExtensionTest extends AbstractConverterTest {
+
+    private static final Supplier<ExtensionSerializerProvider> SUPPLIER =
+        Suppliers.memoize(() -> ExtensionSerializerProviders.createProvider(ExtensionJsonSerializer.class, "test"));
 
     @Test
     public void testExtendable() {
@@ -32,7 +37,7 @@ public class ExtensionTest extends AbstractConverterTest {
         assertSame(fooExt, foo.getExtension(FooExt.class));
         assertSame(fooExt, foo.getExtensionByName("FooExt"));
 
-        ExtensionJson serializer = ExtensionSupplier.findExtensionJson("FooExt");
+        ExtensionSerializer serializer = SUPPLIER.get().findSerializer("FooExt");
         assertNotNull(serializer);
         assertSame(fooExt, foo.getExtension(serializer.getExtensionClass()));
         assertSame(fooExt, foo.getExtensionByName(serializer.getExtensionName()));
@@ -49,12 +54,12 @@ public class ExtensionTest extends AbstractConverterTest {
 
     @Test
     public void testExtensionSupplier() {
-        assertNotNull(ExtensionSupplier.findExtensionJson("FooExt"));
-        assertNotNull(ExtensionSupplier.findExtensionJsonOrThrowException("FooExt"));
+        assertNotNull(SUPPLIER.get().findSerializer("FooExt"));
+        assertNotNull(SUPPLIER.get().findSerializerOrThrowException("FooExt"));
 
-        assertNull(ExtensionSupplier.findExtensionJson("BarExt"));
+        assertNull(SUPPLIER.get().findSerializer("BarExt"));
         try {
-            ExtensionSupplier.findExtensionJsonOrThrowException("BarExt");
+            SUPPLIER.get().findSerializerOrThrowException("BarExt");
             fail();
         } catch (PowsyblException e) {
             // Nothing to do

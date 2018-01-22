@@ -6,14 +6,13 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.commons.extensions.AbstractExtension;
+import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.LoadZipModel;
 import org.junit.Test;
-
-import java.util.Objects;
 
 import static org.junit.Assert.*;
 
@@ -22,17 +21,10 @@ import static org.junit.Assert.*;
  */
 public class IdentifiableExtensionTest {
 
-    public static class LoadFooModel implements Identifiable.Extension<Load> {
-
-        private final Load load;
+    public static class LoadFooModel extends AbstractExtension<Load> {
 
         public LoadFooModel(Load load) {
-            this.load = Objects.requireNonNull(load);
-        }
-
-        @Override
-        public Load getIdentifiable() {
-            return load;
+            super(load);
         }
 
         @Override
@@ -52,6 +44,6 @@ public class IdentifiableExtensionTest {
         assertTrue(load.getExtension(LoadZipModel.class) == zipModel);
         assertTrue(load.getExtension(LoadFooModel.class) == null);
         assertTrue(load.getExtensions().size() == 1);
-        assertArrayEquals(load.getExtensions().toArray(new Identifiable.Extension[0]), new Identifiable.Extension[] {zipModel});
+        assertArrayEquals(load.getExtensions().toArray(new Extension[0]), new Extension[] {zipModel});
     }
 }

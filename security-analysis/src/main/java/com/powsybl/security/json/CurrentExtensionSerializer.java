@@ -1,10 +1,10 @@
 /**
- * Copyright (c) 2017, RTE (http://www.rte-france.com)
+ * Copyright (c) 2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.security.extensions;
+package com.powsybl.security.json;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
@@ -13,40 +13,46 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.extensions.ExtensionJson;
+import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.security.LimitViolation;
+import com.powsybl.security.extensions.CurrentExtension;
 
 import java.io.IOException;
 
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-@AutoService(ExtensionJson.class)
-public class PreContingencyJson implements ExtensionJson<LimitViolation, PreContingency> {
+@AutoService(ExtensionJsonSerializer.class)
+public class CurrentExtensionSerializer implements ExtensionJsonSerializer<LimitViolation, CurrentExtension> {
 
     @Override
     public String getExtensionName() {
-        return "PreContingency";
+        return "Current";
     }
 
     @Override
-    public Class<? extends PreContingency> getExtensionClass() {
-        return PreContingency.class;
+    public String getCategoryName() {
+        return "security-analysis";
     }
 
     @Override
-    public void serialize(PreContingency extension, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public Class<? super CurrentExtension> getExtensionClass() {
+        return CurrentExtension.class;
+    }
+
+    @Override
+    public void serialize(CurrentExtension extension, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeNumberField("value", extension.getPreContingencyValue());
+        jsonGenerator.writeNumberField("preContingencyValue", extension.getPreContingencyValue());
         jsonGenerator.writeEndObject();
     }
 
     @Override
-    public PreContingency deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public CurrentExtension deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         float value = Float.NaN;
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            if (parser.getCurrentName().equals("value")) {
+            if (parser.getCurrentName().equals("preContingencyValue")) {
                 parser.nextToken();
                 value = parser.readValueAs(Float.class);
             } else {
@@ -54,6 +60,6 @@ public class PreContingencyJson implements ExtensionJson<LimitViolation, PreCont
             }
         }
 
-        return new PreContingency(value);
+        return new CurrentExtension(value);
     }
 }
