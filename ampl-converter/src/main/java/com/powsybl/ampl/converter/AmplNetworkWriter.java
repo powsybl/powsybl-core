@@ -162,7 +162,7 @@ public class AmplNetworkWriter {
                          .writeCell(actionNum)
                          .writeCell(vl1.getSubstation().getCountry().toString())
                          .writeCell(vlId)
-                         .writeEmptyCell();
+                         .writeCell("");
             }
             // voltage level associated to dangling lines middle bus
             for (DanglingLine dl : network.getDanglingLines()) {
@@ -182,7 +182,7 @@ public class AmplNetworkWriter {
                          .writeCell(actionNum)
                          .writeCell(vl.getSubstation().getCountry().toString())
                          .writeCell(dl.getId() + "_voltageLevel")
-                         .writeEmptyCell();
+                         .writeCell("");
             }
             if (config.isExportXNodes()) {
                 for (Line l : network.getLines()) {
@@ -202,7 +202,7 @@ public class AmplNetworkWriter {
                             .writeCell(actionNum)
                             .writeCell(XNODE_COUNTRY_NAME)
                             .writeCell(AmplUtil.getXnodeBusId(tieLine) + "_voltageLevel")
-                            .writeEmptyCell();
+                            .writeCell("");
                 }
             }
         }
@@ -721,7 +721,7 @@ public class AmplNetworkWriter {
                             .writeCell(faultNum)
                             .writeCell(actionNum)
                             .writeCell(id1)
-                            .writeEmptyCell();
+                            .writeCell("");
                 }
                 if (!isOnlyMainCc() || isBusExported(context, middleBusId) || isBusExported(context, bus2Id)) {
                     formatter.writeCell(num2)
@@ -749,7 +749,7 @@ public class AmplNetworkWriter {
                             .writeCell(faultNum)
                             .writeCell(actionNum)
                             .writeCell(id2)
-                            .writeEmptyCell();
+                            .writeCell("");
                 }
                 if (!isOnlyMainCc() || isBusExported(context, middleBusId) || isBusExported(context, bus3Id)) {
                     formatter.writeCell(num3)
@@ -777,7 +777,7 @@ public class AmplNetworkWriter {
                             .writeCell(faultNum)
                             .writeCell(actionNum)
                             .writeCell(id3)
-                            .writeEmptyCell();
+                            .writeCell("");
                 }
             }
             for (DanglingLine dl : network.getDanglingLines()) {

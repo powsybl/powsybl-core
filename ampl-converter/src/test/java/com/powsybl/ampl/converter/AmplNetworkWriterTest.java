@@ -56,6 +56,16 @@ public class AmplNetworkWriterTest extends AbstractConverterTest {
     }
 
     @Test
+    public void writeLcc() throws IOException {
+        Network network = HvdcTestNetwork.createLcc();
+
+        MemDataSource dataSource = new MemDataSource();
+        export(network, dataSource);
+
+        assertEqualsToRef(dataSource, "_network_hvdc", "inputs/lcc-test-case.txt");
+    }
+
+    @Test
     public void writePhaseTapChanger() throws IOException {
         Network network = PhaseShifterTestCaseFactory.create();
 
@@ -76,13 +86,19 @@ public class AmplNetworkWriterTest extends AbstractConverterTest {
     }
 
     @Test
-    public void writeLcc() throws IOException {
-        Network network = HvdcTestNetwork.createLcc();
+    public void writeThreeWindingsTransformer() throws IOException {
+        Network network = ThreeWindingsTransformerNetworkFactory.create();
 
         MemDataSource dataSource = new MemDataSource();
         export(network, dataSource);
 
-        assertEqualsToRef(dataSource, "_network_hvdc", "inputs/lcc-test-case.txt");
+        assertEqualsToRef(dataSource, "_network_branches", "inputs/three-windings-transformers-branches.txt");
+        assertEqualsToRef(dataSource, "_network_buses", "inputs/three-windings-transformers-buses.txt");
+        // TODO ajouter des ratio-tap-changers
+        assertEqualsToRef(dataSource, "_network_rtc", "inputs/three-windings-transformers-rtc.txt");
+        assertEqualsToRef(dataSource, "_network_substations", "inputs/three-windings-transformers-substations.txt");
+        // TODO
+        assertEqualsToRef(dataSource, "_network_tct", "inputs/three-windings-transformers-tct.txt");
     }
 
     @Test
