@@ -8,10 +8,10 @@ package com.powsybl.iidm.network.impl;
 
 import com.google.common.collect.Sets;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.StateManager;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
@@ -24,7 +24,7 @@ import org.junit.Test;
  */
 public class StateManagerImplTest {
 
-    private static final class IdentifiableMock implements Identifiable, Stateful {
+    private static final class IdentifiableMock extends AbstractExtendable<IdentifiableMock> implements Identifiable<IdentifiableMock>, Stateful {
 
         private final String id;
 
@@ -77,31 +77,6 @@ public class StateManagerImplTest {
 
         @Override
         public void allocateStateArrayElement(int[] indexes, int sourceIndex) {
-        }
-
-        @Override
-        public void addExtension(Class type, Extension extension) {
-            throw new AssertionError();
-        }
-
-        @Override
-        public boolean removeExtension(Class type) {
-            throw new AssertionError();
-        }
-
-        @Override
-        public Extension getExtension(Class type) {
-            throw new AssertionError();
-        }
-
-        @Override
-        public Extension getExtensionByName(String name) {
-            throw new AssertionError();
-        }
-
-        @Override
-        public Collection<Extension> getExtensions() {
-            throw new AssertionError();
         }
     }
 

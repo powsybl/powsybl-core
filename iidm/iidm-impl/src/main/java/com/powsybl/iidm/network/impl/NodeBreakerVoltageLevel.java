@@ -15,10 +15,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.util.Colors;
-import com.powsybl.math.graph.TraverseResult;
-import com.powsybl.math.graph.Traverser;
-import com.powsybl.math.graph.UndirectedGraph;
-import com.powsybl.math.graph.UndirectedGraphImpl;
+import com.powsybl.math.graph.*;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.SwitchAdder;
 import com.powsybl.iidm.network.util.ShortIdDictionary;
@@ -555,26 +552,6 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         return graph.getVertexObjectStream().filter(Objects::nonNull).map(Function.identity());
     }
 
-    @Override
-    public <C extends Connectable> FluentIterable<C> getConnectables(final Class<C> clazz) {
-        return FluentIterable.from(getTerminals())
-                .transform(Terminal::getConnectable)
-                .filter(clazz);
-    }
-
-    @Override
-    public <C extends Connectable> Stream<C> getConnectableStream(Class<C> clazz) {
-        return getTerminalStream()
-                .map(Terminal::getConnectable)
-                .filter(clazz::isInstance)
-                .map(clazz::cast);
-    }
-
-    @Override
-    public <C extends Connectable> int getConnectableCount(final Class<C> clazz) {
-        return getConnectables(clazz).size();
-    }
-
     static PowsyblException createNotSupportedNodeBreakerTopologyException() {
         return new PowsyblException("Not supported in a node/breaker topology");
     }
@@ -592,6 +569,11 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         @Override
         public int getNodeCount() {
             return graph.getVertexCount();
+        }
+
+        @Override
+        public int[] getNodes() {
+            return graph.getVertices();
         }
 
         @Override
@@ -615,6 +597,11 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         public int getNode2(String switchId) {
             int edge = getEdge(switchId, true);
             return graph.getEdgeVertex2(edge);
+        }
+
+        @Override
+        public Terminal getTerminal(int node) {
+            return graph.getVertexObject(node);
         }
 
         @Override
@@ -662,6 +649,20 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         @Override
+        public void removeSwitch(String switchId) {
+            Integer e = switches.remove(switchId);
+            if (e == null) {
+                throw new PowsyblException("Switch '" + switchId
+                        + "' not found in substation voltage level '" + id + "'");
+            }
+            SwitchImpl aSwitch = graph.removeEdge(e);
+            clean();
+
+            getNetwork().getObjectStore().remove(aSwitch);
+            getNetwork().getListeners().notifyRemoval(aSwitch);
+        }
+
+        @Override
         public BusbarSectionAdder newBusbarSection() {
             return new BusbarSectionAdderImpl(NodeBreakerVoltageLevel.this);
         }
@@ -686,6 +687,14 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             return getNetwork().getObjectStore().get(id, BusbarSection.class);
         }
 
+        private com.powsybl.math.graph.Traverser<SwitchImpl> adapt(Traverser t) {
+            return (v1, e, v2) -> t.traverse(v1, graph.getEdgeObject(e), v2) ? TraverseResult.CONTINUE : TraverseResult.TERMINATE;
+        }
+
+        @Override
+        public void traverse(int node, Traverser t) {
+            graph.traverse(node, adapt(t));
+        }
     };
 
     @Override
@@ -839,21 +848,6 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         assert node >= 0 && node < graph.getVertexCount();
         assert graph.getVertexObject(node) == terminal;
 
-        // remove adjacents edges
-        final TIntArrayList edgesToRemove = new TIntArrayList();
-        graph.traverse(node, new Traverser<SwitchImpl>() {
-            @Override
-            public TraverseResult traverse(int v1, int e, int v2) {
-                edgesToRemove.add(e);
-                return graph.getVertexObject(v2) == null ? TraverseResult.CONTINUE : TraverseResult.TERMINATE;
-            }
-        });
-        for (int i = 0; i < edgesToRemove.size(); i++) {
-            int e = edgesToRemove.getQuick(i);
-            SwitchImpl aSwitch = graph.getEdgeObject(e);
-            switches.remove(aSwitch.getId());
-            graph.removeEdge(e);
-        }
         graph.setVertexObject(node, null);
 
         // remove the link terminal -> voltage level
@@ -862,7 +856,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
     @Override
     public void clean() {
-        // TODO remove unused connection nodes
+        GraphUtil.removeIsolatedVertices(graph);
     }
 
     private static boolean isBusbarSection(Terminal t) {

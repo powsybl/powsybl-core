@@ -7,6 +7,7 @@
 package com.powsybl.afs;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -15,11 +16,11 @@ public interface FolderBase<N extends AbstractNodeBase<F>, F extends FolderBase<
 
     List<N> getChildren();
 
-    N getChild(String name, String... more);
+    Optional<N> getChild(String name, String... more);
 
-    <T extends N> T getChild(Class<T> clazz, String name, String... more);
+    <T extends N> Optional<T> getChild(Class<T> clazz, String name, String... more);
 
-    F getFolder(String name, String... more);
+    Optional<F> getFolder(String name, String... more);
 
     F createFolder(String name);
 }

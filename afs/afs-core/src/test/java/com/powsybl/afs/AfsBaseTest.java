@@ -39,7 +39,7 @@ public class AfsBaseTest {
         ComputationManager computationManager = Mockito.mock(ComputationManager.class);
         afs = new AppFileSystem("mem", true, storage);
         ad = new AppData(computationManager, Collections.singletonList(computationManager1 -> Collections.singletonList(afs)),
-                Collections.emptyList(), Collections.singletonList(new FooFileExtension()));
+                Collections.emptyList(), Collections.singletonList(new FooFileExtension()), Collections.emptyList());
     }
 
     @After
@@ -61,26 +61,30 @@ public class AfsBaseTest {
         assertNotNull(dir1);
         dir1.createFolder("dir2");
         dir1.createFolder("dir3");
-        dir1 = root.getFolder("dir1");
+        dir1 = root.getFolder("dir1").orElse(null);
         assertNotNull(dir1);
         assertTrue(dir1.isFolder());
         assertTrue(dir1.isWritable());
         assertEquals("dir1", dir1.getName());
+        assertNotNull(dir1.getCreationDate());
+        assertNotNull(dir1.getModificationDate());
+        assertEquals(0, dir1.getVersion());
+        assertFalse(dir1.isAheadOfVersion());
         assertEquals(dir1.getName(), dir1.toString());
-        assertEquals("mem", dir1.getParent().getName());
-        Folder dir2 = dir1.getFolder("dir2");
+        assertEquals("mem", dir1.getParent().orElseThrow(AssertionError::new).getName());
+        Folder dir2 = dir1.getFolder("dir2").orElse(null);
         assertNotNull(dir2);
         assertNotNull(dir2.getParent());
-        assertEquals("mem:/dir1", dir2.getParent().getPath().toString());
+        assertEquals("mem:/dir1", dir2.getParent().orElseThrow(AssertionError::new).getPath().toString());
         assertEquals(2, dir1.getChildren().size());
-        Folder dir3 = root.getFolder("dir3");
+        Folder dir3 = root.getFolder("dir3").orElse(null);
         assertNull(dir3);
         String str = dir2.getPath().toString();
         assertEquals("mem:/dir1/dir2", str);
-        Folder mayBeDir2 = afs.getRootFolder().getFolder("dir1/dir2");
+        Folder mayBeDir2 = afs.getRootFolder().getFolder("dir1/dir2").orElse(null);
         assertNotNull(mayBeDir2);
         assertEquals("dir2", mayBeDir2.getName());
-        Folder mayBeDir2otherWay = afs.getRootFolder().getChild(Folder.class, "dir1", "dir2");
+        Folder mayBeDir2otherWay = afs.getRootFolder().getChild(Folder.class, "dir1", "dir2").orElse(null);
         assertNotNull(mayBeDir2otherWay);
         assertEquals("dir2", mayBeDir2otherWay.getName());
 
@@ -91,7 +95,7 @@ public class AfsBaseTest {
         assertEquals("test project", project1.getDescription());
         assertNotNull(project1.getIcon());
         assertNotNull(project1.getParent());
-        assertEquals("mem:/dir1/dir2", project1.getParent().getPath().toString());
+        assertEquals("mem:/dir1/dir2", project1.getParent().orElseThrow(AssertionError::new).getPath().toString());
         assertTrue(project1.getRootFolder().getChildren().isEmpty());
         assertTrue(project1.getFileSystem() == afs);
 
@@ -114,7 +118,7 @@ public class AfsBaseTest {
         ProjectFolder dir6 = dir5.createFolder("dir6");
         assertEquals(ImmutableList.of("dir5", "dir6"), dir6.getPath().toList().subList(1, 3));
         assertEquals("dir5/dir6", dir6.getPath().toString());
-        assertEquals("dir6", project1.getRootFolder().getChild("dir5/dir6").getName());
+        assertEquals("dir6", project1.getRootFolder().getChild("dir5/dir6").orElseThrow(AssertionError::new).getName());
     }
 
     @Test
@@ -125,11 +129,11 @@ public class AfsBaseTest {
         FooFile file = test1.fileBuilder(FooFileBuilder.class)
                 .withName("foo")
                 .build();
-        assertEquals(test1.getId(), file.getParent().getId());
+        assertEquals(test1.getId(), file.getParent().orElseThrow(AssertionError::new).getId());
         assertEquals(1, test1.getChildren().size());
         assertTrue(test2.getChildren().isEmpty());
         file.moveTo(test2);
-        assertEquals(test2.getId(), file.getParent().getId());
+        assertEquals(test2.getId(), file.getParent().orElseThrow(AssertionError::new).getId());
         assertTrue(test1.getChildren().isEmpty());
         assertEquals(1, test2.getChildren().size());
     }

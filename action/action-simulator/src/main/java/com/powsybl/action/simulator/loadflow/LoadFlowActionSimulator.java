@@ -79,9 +79,10 @@ public class LoadFlowActionSimulator implements ActionSimulator {
         Objects.requireNonNull(actionDb);
 
         LOGGER.info("Starting pre-contingency analysis");
-        observers.forEach(o -> o.beforePreContingencyAnalysis(network));
+        RunningContext runningContext = new RunningContext(network);
+        observers.forEach(o -> o.beforePreContingencyAnalysis(runningContext));
 
-        boolean preContingencyAnalysisOk = next(actionDb, new RunningContext(network));
+        boolean preContingencyAnalysisOk = next(actionDb, runningContext);
 
         observers.forEach(LoadFlowActionSimulatorObserver::afterPreContingencyAnalysis);
 
@@ -91,17 +92,17 @@ public class LoadFlowActionSimulator implements ActionSimulator {
         if (preContingencyAnalysisOk || config.isIgnorePreContingencyViolations()) {
             for (String contingencyId : contingencyIds) {
                 Contingency contingency = actionDb.getContingency(contingencyId);
-
-                observers.forEach(o -> o.beforePostContingencyAnalysis(contingency));
-
                 Network network2 = NetworkXml.gunzip(networkXmlGz);
+                RunningContext runningContext2 = new RunningContext(network2, contingency);
+
+                observers.forEach(o -> o.beforePostContingencyAnalysis(runningContext2));
 
                 LOGGER.info("Starting post-contingency analysis '{}'", contingency.getId());
                 contingency.toTask().modify(network2, computationManager);
 
-                observers.forEach(o -> o.postContingencyAnalysisNetworkLoaded(contingency, network2));
+                observers.forEach(o -> o.postContingencyAnalysisNetworkLoaded(runningContext2));
 
-                next(actionDb, new RunningContext(network2, actionDb.getContingency(contingencyId)));
+                next(actionDb, runningContext2);
             }
         }
 
@@ -123,7 +124,7 @@ public class LoadFlowActionSimulator implements ActionSimulator {
             return false;
         }
 
-        observers.forEach(o -> o.roundBegin(context.getContingency(), context.getRound()));
+        observers.forEach(o -> o.roundBegin(context));
 
         LoadFlowFactory loadFlowFactory = newLoadFlowFactory();
         LoadFlow loadFlow = loadFlowFactory.create(context.getNetwork(), computationManager, 0);
@@ -136,16 +137,16 @@ public class LoadFlowActionSimulator implements ActionSimulator {
             throw new PowsyblException(e);
         }
         if (result.isOk()) {
-            List<LimitViolation> violations = LIMIT_VIOLATION_FILTER.apply(Security.checkLimits(context.getNetwork(), 1));
+            List<LimitViolation> violations = LIMIT_VIOLATION_FILTER.apply(Security.checkLimits(context.getNetwork(), 1), context.getNetwork());
             if (!violations.isEmpty()) {
-                LOGGER.info("Violations: \n{}", Security.printLimitsViolations(violations, NO_FILTER));
+                LOGGER.info("Violations: \n{}", Security.printLimitsViolations(violations, network, NO_FILTER));
             }
-            observers.forEach(o -> o.loadFlowConverged(context.getContingency(), violations));
+            observers.forEach(o -> o.loadFlowConverged(context, violations));
 
             // no more violations => work complete
             if (violations.isEmpty()) {
                 LOGGER.info("No more violation");
-                observers.forEach(o -> o.noMoreViolations(context.getContingency()));
+                observers.forEach(o -> o.noMoreViolations(context));
                 return true;
             }
 
@@ -207,7 +208,7 @@ public class LoadFlowActionSimulator implements ActionSimulator {
                             TreeMap::new));
                 }
 
-                observers.forEach(o -> o.ruleChecked(context.getContingency(), rule, status, variables, actions));
+                observers.forEach(o -> o.ruleChecked(context, rule, status, variables, actions));
 
                 if (status == RuleEvaluationStatus.TRUE) {
                     for (String actionId : rule.getActions()) {
@@ -215,11 +216,11 @@ public class LoadFlowActionSimulator implements ActionSimulator {
 
                         // apply action
                         LOGGER.info("Apply action '{}'", action.getId());
-                        observers.forEach(o-> o.beforeAction(context.getContingency(), actionId));
+                        observers.forEach(o-> o.beforeAction(context, actionId));
 
                         action.run(context.getNetwork(), computationManager);
 
-                        observers.forEach(o-> o.afterAction(context.getContingency(), actionId));
+                        observers.forEach(o-> o.afterAction(context, actionId));
                         actionsTaken.add(actionId);
                     }
                 }
@@ -228,19 +229,19 @@ public class LoadFlowActionSimulator implements ActionSimulator {
             // record the action in the time line
             context.getTimeLine().getActions().addAll(actionsTaken);
 
-            observers.forEach(o -> o.roundEnd(context.getContingency(), context.getRound()));
+            observers.forEach(o -> o.roundEnd(context));
 
             if (!actionsTaken.isEmpty()) {
                 context.setRound(context.getRound() + 1);
                 return next(actionDb, context);
             } else {
                 LOGGER.info("Still some violations and no rule match");
-                observers.forEach(o -> o.violationsAnymoreAndNoRulesMatch(context.getContingency()));
+                observers.forEach(o -> o.violationsAnymoreAndNoRulesMatch(context));
                 return false;
             }
         } else {
             LOGGER.warn("Loadflow diverged: {}", result.getMetrics());
-            observers.forEach(o -> o.loadFlowDiverged(context.getContingency()));
+            observers.forEach(o -> o.loadFlowDiverged(context));
             return false;
         }
     }

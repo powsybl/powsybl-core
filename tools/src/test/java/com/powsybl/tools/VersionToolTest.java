@@ -30,8 +30,6 @@ public class VersionToolTest extends AbstractToolTest {
     @Test
     public void run() throws Exception {
         assertCommand(new String[] {}, CommandLineTools.COMMAND_NOT_FOUND_STATUS, "",
-                "usage: itools COMMAND [ARGS]" + System.lineSeparator() +
-                System.lineSeparator() +
                 "Available commands are:" + System.lineSeparator() +
                 System.lineSeparator());
         assertCommand(new String[] {"version"}, CommandLineTools.COMMAND_OK_STATUS, Version.VERSION + System.lineSeparator(), "");

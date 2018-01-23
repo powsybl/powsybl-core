@@ -9,7 +9,7 @@ package com.powsybl.afs;
 import com.powsybl.afs.storage.AppStorage;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.NetworkFactory;
+import com.powsybl.iidm.network.Substation;
 import org.junit.After;
 import org.junit.Before;
 import org.mockito.Mockito;
@@ -40,16 +40,24 @@ public abstract class AbstractProjectFileTest {
         return Collections.emptyList();
     }
 
+    protected List<ServiceExtension> getServiceExtensions() {
+        return Collections.emptyList();
+    }
+
     @Before
     public void setup() {
-        network = NetworkFactory.create("test", "test");
+        network = Mockito.mock(Network.class);
+        Substation s = Mockito.mock(Substation.class);
+        Mockito.when(s.getId()).thenReturn("s1");
+        Mockito.when(network.getSubstations()).thenReturn(Collections.singletonList(s));
         ComputationManager computationManager = Mockito.mock(ComputationManager.class);
         storage = createStorage();
         afs = new AppFileSystem("mem", false, storage);
         ad = new AppData(computationManager,
                          Collections.singletonList(computationManager1 -> Collections.singletonList(afs)),
                          getFileExtensions(),
-                         getProjectFileExtensions());
+                         getProjectFileExtensions(),
+                         getServiceExtensions());
     }
 
     @After

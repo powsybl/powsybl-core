@@ -43,7 +43,6 @@ public class ReadOnlyMemDataSourceTest {
         ReadOnlyMemDataSource dataSource = createDataSource(extension);
         assertNotNull(dataSource);
         assertTrue(dataSource.exists("data.xiidm"));
-        System.out.println("DataSourceUtil.getFileName(baseName, suffix, ext) = " + DataSourceUtil.getFileName(dataSource.getBaseName(), "", "xiidm"));
         assertTrue(dataSource.exists(null, "xiidm"));
 
         assertArrayEquals(getUncompressedData(), ByteStreams.toByteArray(dataSource.newInputStream("data.xiidm")));

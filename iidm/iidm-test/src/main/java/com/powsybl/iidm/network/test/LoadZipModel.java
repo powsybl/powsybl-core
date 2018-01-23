@@ -6,10 +6,8 @@
  */
 package com.powsybl.iidm.network.test;
 
-import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.Load;
-
-import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -18,9 +16,8 @@ import java.util.Objects;
  * p = p0 * (a1 * (v / v0)^2 + a2 * v / v0 + a3)
  * q = q0 * (a4 * (v / v0)^2 + a5 * v / v0 + a6)
  */
-public class LoadZipModel implements Identifiable.Extension<Load> {
+public class LoadZipModel extends AbstractExtension<Load> {
 
-    Load load;
     float v0;
     float a1;
     float a2;
@@ -30,7 +27,7 @@ public class LoadZipModel implements Identifiable.Extension<Load> {
     float a6;
 
     public LoadZipModel(Load load, float a1, float a2, float a3, float a4, float a5, float a6, float v0) {
-        this.load = Objects.requireNonNull(load);
+        super(load);
         this.a1 = a1;
         this.a2 = a2;
         this.a3 = a3;
@@ -38,11 +35,6 @@ public class LoadZipModel implements Identifiable.Extension<Load> {
         this.a5 = a5;
         this.a6 = a6;
         this.v0 = v0;
-    }
-
-    @Override
-    public Load getIdentifiable() {
-        return load;
     }
 
     public float getV0() {

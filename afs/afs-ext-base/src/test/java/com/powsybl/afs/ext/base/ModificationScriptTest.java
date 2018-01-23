@@ -44,7 +44,7 @@ public class ModificationScriptTest extends AbstractProjectFileTest {
         // create groovy script
         try {
             rootFolder.fileBuilder(ModificationScriptBuilder.class)
-                    .withType(ModificationScript.ScriptType.GROOVY)
+                    .withType(ScriptType.GROOVY)
                     .withContent("println 'hello'")
                     .build();
             fail();
@@ -61,14 +61,14 @@ public class ModificationScriptTest extends AbstractProjectFileTest {
         try {
             rootFolder.fileBuilder(ModificationScriptBuilder.class)
                     .withName("script")
-                    .withType(ModificationScript.ScriptType.GROOVY)
+                    .withType(ScriptType.GROOVY)
                     .build();
             fail();
         } catch (AfsException ignored) {
         }
         ModificationScript script = rootFolder.fileBuilder(ModificationScriptBuilder.class)
                 .withName("script")
-                .withType(ModificationScript.ScriptType.GROOVY)
+                .withType(ScriptType.GROOVY)
                 .withContent("println 'hello'")
                 .build();
         assertNotNull(script);
@@ -76,9 +76,15 @@ public class ModificationScriptTest extends AbstractProjectFileTest {
         assertNotNull(script.getIcon());
         assertFalse(script.isFolder());
         assertTrue(script.getDependencies().isEmpty());
-        assertEquals("println 'hello'", script.read());
-        script.write("println 'bye'");
-        assertEquals("println 'bye'", script.read());
+        assertEquals("println 'hello'", script.readScript());
+        boolean[] scriptUpdated = new boolean[1];
+        scriptUpdated[0] = false;
+        ScriptListener listener = () -> scriptUpdated[0] = true;
+        script.addListener(listener);
+        script.writeScript("println 'bye'");
+        assertEquals("println 'bye'", script.readScript());
+        assertTrue(scriptUpdated[0]);
+        script.removeListener(listener);
 
         // check script file is correctly scanned
         assertEquals(1, rootFolder.getChildren().size());

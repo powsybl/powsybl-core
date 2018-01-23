@@ -6,12 +6,13 @@
  */
 package com.powsybl.afs;
 
-import com.powsybl.afs.storage.NodeId;
+import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.afs.storage.NodeInfo;
 
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -20,14 +21,15 @@ import java.util.stream.Collectors;
 public class ProjectFolder extends ProjectNode implements FolderBase<ProjectNode, ProjectFolder> {
 
     public static final String PSEUDO_CLASS = "projectFolder";
+    public static final int VERSION = 0;
 
     public ProjectFolder(ProjectFileCreationContext context) {
-        super(context, true);
+        super(context, VERSION, true);
     }
 
     @Override
     public List<ProjectNode> getChildren() {
-        return storage.getChildNodesInfo(info.getId())
+        return storage.getChildNodes(info.getId())
                 .stream()
                 .map(fileSystem::findProjectNode)
                 .sorted(Comparator.comparing(ProjectNode::getName))
@@ -35,33 +37,29 @@ public class ProjectFolder extends ProjectNode implements FolderBase<ProjectNode
     }
 
     @Override
-    public ProjectNode getChild(String name, String... more) {
+    public Optional<ProjectNode> getChild(String name, String... more) {
         NodeInfo childInfo = getChildInfo(name, more);
-        return childInfo != null ? fileSystem.findProjectNode(childInfo) : null;
+        return Optional.ofNullable(childInfo).map(fileSystem::findProjectNode);
     }
 
     @Override
-    public <T extends ProjectNode> T getChild(Class<T> clazz, String name, String... more) {
+    public <T extends ProjectNode> Optional<T> getChild(Class<T> clazz, String name, String... more) {
         Objects.requireNonNull(clazz);
-        ProjectNode projectNode = getChild(name, more);
-        if (projectNode != null && clazz.isAssignableFrom(projectNode.getClass())) {
-            return (T) projectNode;
-        }
-        return null;
+        return getChild(name, more)
+                .filter(projectNode -> clazz.isAssignableFrom(projectNode.getClass()))
+                .map(clazz::cast);
     }
 
     @Override
-    public ProjectFolder getFolder(String name, String... more) {
+    public Optional<ProjectFolder> getFolder(String name, String... more) {
         return getChild(ProjectFolder.class, name, more);
     }
 
     @Override
     public ProjectFolder createFolder(String name) {
-        NodeId folderId = storage.getChildNode(info.getId(), name);
-        if (folderId == null) {
-            folderId = storage.createNode(info.getId(), name, ProjectFolder.PSEUDO_CLASS);
-        }
-        return new ProjectFolder(new ProjectFileCreationContext(new NodeInfo(folderId, name, ProjectFolder.PSEUDO_CLASS), storage, fileSystem));
+        NodeInfo folderInfo = storage.getChildNode(info.getId(), name)
+                .orElse(storage.createNode(info.getId(), name, PSEUDO_CLASS, "", VERSION, new NodeGenericMetadata()));
+        return new ProjectFolder(new ProjectFileCreationContext(folderInfo, storage, fileSystem));
     }
 
     public <F extends ProjectFile, B extends ProjectFileBuilder<F>> B fileBuilder(Class<B> clazz) {

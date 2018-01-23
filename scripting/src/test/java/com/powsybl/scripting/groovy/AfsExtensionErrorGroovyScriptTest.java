@@ -9,7 +9,6 @@ package com.powsybl.scripting.groovy;
 import com.powsybl.afs.AfsException;
 import com.powsybl.afs.mapdb.storage.MapDbAppStorage;
 import com.powsybl.afs.storage.AppStorage;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -19,7 +18,6 @@ import java.io.StringReader;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-@Ignore
 public class AfsExtensionErrorGroovyScriptTest extends AbstractGroovyScriptTest {
 
     @Override

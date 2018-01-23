@@ -30,7 +30,7 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
         return index != null ? index.toString() : "";
     }
 
-    protected static void writeNodeOrBus(Integer index, Terminal t, XmlWriterContext context) throws XMLStreamException {
+    protected static void writeNodeOrBus(Integer index, Terminal t, NetworkXmlWriterContext context) throws XMLStreamException {
         TopologyLevel topologyLevel = TopologyLevel.min(t.getVoltageLevel().getTopologyKind(), context.getOptions().getTopologyLevel());
         switch (topologyLevel) {
             case NODE_BREAKER:
@@ -51,12 +51,12 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
         }
     }
 
-    private static void writeNode(Integer index, Terminal t, XmlWriterContext context) throws XMLStreamException {
+    private static void writeNode(Integer index, Terminal t, NetworkXmlWriterContext context) throws XMLStreamException {
         context.getWriter().writeAttribute(NODE + indexToString(index),
             Integer.toString(t.getNodeBreakerView().getNode()));
     }
 
-    private static void writeBus(Integer index, Bus bus, Bus connectableBus, XmlWriterContext context) throws XMLStreamException {
+    private static void writeBus(Integer index, Bus bus, Bus connectableBus, NetworkXmlWriterContext context) throws XMLStreamException {
         if (bus != null) {
             context.getWriter().writeAttribute(BUS + indexToString(index), context.getAnonymizer().anonymizeString(bus.getId()));
         }
@@ -65,7 +65,7 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
         }
     }
 
-    protected static void readNodeOrBus(InjectionAdder adder, XmlReaderContext context) {
+    protected static void readNodeOrBus(InjectionAdder adder, NetworkXmlReaderContext context) {
         String bus = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, BUS));
         String connectableBus = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, CONNECTABLE_BUS));
         Integer node = XmlUtil.readOptionalIntegerAttribute(context.getReader(), NODE);
@@ -80,7 +80,7 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
         }
     }
 
-    protected static void readNodeOrBus(BranchAdder adder, XmlReaderContext context) {
+    protected static void readNodeOrBus(BranchAdder adder, NetworkXmlReaderContext context) {
         String bus1 = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "bus1"));
         String connectableBus1 = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "connectableBus1"));
         Integer node1 = XmlUtil.readOptionalIntegerAttribute(context.getReader(), "node1");
@@ -174,7 +174,7 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
         }
     }
 
-    protected static void writeTerminalRef(Terminal t, XmlWriterContext context, String elementName) throws XMLStreamException {
+    protected static void writeTerminalRef(Terminal t, NetworkXmlWriterContext context, String elementName) throws XMLStreamException {
         Connectable c = t.getConnectable();
         if (!context.getFilter().test(c)) {
             throw new PowsyblException("Oups, terminal ref point to a filtered equipment " + c.getId());

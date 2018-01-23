@@ -6,8 +6,10 @@
  */
 package com.powsybl.action.simulator.tools;
 
+import com.powsybl.action.simulator.loadflow.RunningContext;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyImpl;
+import com.powsybl.iidm.network.Branch;
 import com.powsybl.security.*;
 import org.junit.Test;
 
@@ -28,11 +30,11 @@ public class SecurityAnalysisResultBuilderTest {
     }
 
     private List<LimitViolation> createPreContingencyViolations() {
-        return Collections.singletonList(new LimitViolation("line1", LimitViolationType.CURRENT, 100, "IST", 0.0f, 101, null, 63.0f));
+        return Collections.singletonList(new LimitViolation("line1", LimitViolationType.CURRENT, "IST", 0.0f, 100, 101, Branch.Side.ONE));
     }
 
     private List<LimitViolation> createPostContingencyViolations() {
-        return Collections.singletonList(new LimitViolation("line2", LimitViolationType.CURRENT, 100, "IST", 0.0f, 110, null, 380.0f));
+        return Collections.singletonList(new LimitViolation("line2", LimitViolationType.CURRENT, "IST", 0.0f, 100, 110, Branch.Side.ONE));
     }
 
     private void testLimitViolation(LimitViolationsResult result, boolean convergent, List<String> equipmentsId, List<String> actionsId) {
@@ -65,20 +67,24 @@ public class SecurityAnalysisResultBuilderTest {
 
         builder.beforePreContingencyAnalysis(null);
         builder.afterAction(null, "pre-action");
+        RunningContext runningContext = new RunningContext(null, null);
+        runningContext.setRound(0);
         if (convergent) {
-            builder.loadFlowConverged(null, createPreContingencyViolations());
+            builder.loadFlowConverged(runningContext, createPreContingencyViolations());
         } else {
-            builder.loadFlowDiverged(null);
+            builder.loadFlowDiverged(runningContext);
         }
         builder.afterPreContingencyAnalysis();
 
         Contingency contingency = createContingency();
-        builder.afterAction(contingency, "post-action1");
-        builder.afterAction(contingency, "post-action2");
+        RunningContext runningContext1 = new RunningContext(null, contingency);
+        runningContext1.setRound(0);
+        builder.afterAction(runningContext1, "post-action1");
+        builder.afterAction(runningContext1, "post-action2");
         if (convergent) {
-            builder.loadFlowConverged(contingency, createPostContingencyViolations());
+            builder.loadFlowConverged(runningContext1, createPostContingencyViolations());
         } else {
-            builder.loadFlowDiverged(contingency);
+            builder.loadFlowDiverged(runningContext1);
         }
 
         builder.afterPostContingencyAnalysis();

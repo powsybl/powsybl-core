@@ -6,11 +6,11 @@
  */
 package com.powsybl.scripting.groovy;
 
-import com.powsybl.afs.AppData;
-import com.powsybl.afs.AppFileSystem;
-import com.powsybl.afs.FileExtension;
-import com.powsybl.afs.ProjectFileExtension;
+import com.powsybl.afs.*;
 import com.powsybl.afs.storage.AppStorage;
+import com.powsybl.afs.storage.ForwardingAppStorage;
+import com.powsybl.afs.storage.ListenableAppStorage;
+import com.powsybl.afs.storage.events.AppStorageListener;
 import com.powsybl.computation.ComputationManager;
 import org.junit.After;
 import org.junit.Before;
@@ -30,6 +30,21 @@ import static org.junit.Assert.assertEquals;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public abstract class AbstractGroovyScriptTest {
+
+    private static class ListenableAppStorageMock extends ForwardingAppStorage implements ListenableAppStorage {
+
+        public ListenableAppStorageMock(AppStorage storage) {
+            super(storage);
+        }
+
+        @Override
+        public void addListener(Object target, AppStorageListener l) {
+        }
+
+        @Override
+        public void removeListeners(Object target) {
+        }
+    }
 
     protected AppData data;
 
@@ -53,12 +68,16 @@ public abstract class AbstractGroovyScriptTest {
         return emptyList();
     }
 
+    protected List<ServiceExtension> getServiceExtensions() {
+        return emptyList();
+    }
+
     @Before
     public void setUp() throws Exception {
         ComputationManager computationManager = Mockito.mock(ComputationManager.class);
         data = new AppData(computationManager,
-                singletonList(cm -> singletonList(new AppFileSystem("mem", false, createStorage()))),
-                getFileExtensions(), getProjectFileExtensions());
+                singletonList(cm -> singletonList(new AppFileSystem("mem", false, new ListenableAppStorageMock(createStorage())))),
+                getFileExtensions(), getProjectFileExtensions(), getServiceExtensions());
     }
 
     @After

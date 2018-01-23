@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+ * Copyright (c) 2016-2018, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -354,6 +354,11 @@ public interface VoltageLevel extends Container<VoltageLevel> {
         int getNodeCount();
 
         /**
+         * Get the list of nodes.
+         */
+        int[] getNodes();
+
+        /**
          * Set the number of node.
          */
         NodeBreakerView setNodeCount(int count);
@@ -395,6 +400,14 @@ public interface VoltageLevel extends Container<VoltageLevel> {
         int getNode2(String switchId);
 
         /**
+         * Get the terminal corresponding to the {@param node}.
+         * May return null.
+         *
+         * @throws PowsyblException if node is not found.
+         */
+        Terminal getTerminal(int node);
+
+        /**
          * Get a switch.
          *
          * @param switchId the id the switch
@@ -416,6 +429,12 @@ public interface VoltageLevel extends Container<VoltageLevel> {
          * Get the switch count.
          */
         int getSwitchCount();
+
+        /**
+         * Remove a switch.
+         * @param switchId the switch id
+         */
+        void removeSwitch(String switchId);
 
         /**
          * Get a builder to create a new busbar section.
@@ -444,6 +463,16 @@ public interface VoltageLevel extends Container<VoltageLevel> {
          */
         BusbarSection getBusbarSection(String id);
 
+        interface Traverser {
+            boolean traverse(int node1, Switch sw, int node2);
+        }
+
+        /**
+         * Performs a depth-first traversal of the topology graph,
+         * starting from {@param node}.
+         * The {@param traverser} callback is called every time an edge is traversed.
+         */
+        void traverse(int node, Traverser traverser);
     }
 
     /**
@@ -665,6 +694,45 @@ public interface VoltageLevel extends Container<VoltageLevel> {
      * @return the equipment
      */
     <T extends Connectable> T getConnectable(String id, Class<T> aClass);
+
+    /**
+     * Get an Iterable on all the equipments connected to this substation voltage level for a given type.
+     * @param clazz equipments type
+     * @return all the equipments of the given type
+     */
+    <T extends Connectable> Iterable<T> getConnectables(Class<T> clazz);
+
+    /**
+     * Get a Stream on all the equipments connected to this substation voltage level for a given type.
+     * @param clazz equipments type
+     * @return all the equipments of the given type
+     */
+    <T extends Connectable> Stream<T> getConnectableStream(Class<T> clazz);
+
+    /**
+     * Count the equipments connected to this substation voltage level for a given type.
+     * @param clazz equipments type
+     * @return all the equipment of the given type
+     */
+    <T extends Connectable> int getConnectableCount(Class<T> clazz);
+
+    /**
+     * Get an Iterable on all the equipments connected to this substation voltage level.
+     * @return all the equipments
+     */
+    Iterable<Connectable> getConnectables();
+
+    /**
+     * Get a Stream on all the equipments connected to this substation voltage level.
+     * @return all the equipments
+     */
+    Stream<Connectable> getConnectableStream();
+
+    /**
+     * Count the equipments connected to this substation voltage level.
+     * @return all the equipments
+     */
+    int getConnectableCount();
 
     /**
      * Get a builder to create a new generator.

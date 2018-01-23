@@ -15,6 +15,7 @@ import org.junit.Test;
 import org.threeten.extra.Interval;
 
 import java.io.IOException;
+import java.nio.DoubleBuffer;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
@@ -37,10 +38,12 @@ public class DoubleArrayChunkTest {
         assertEquals(24, chunk.getEstimatedSize());
         assertFalse(chunk.isCompressed());
         assertEquals(1d, chunk.getCompressionFactor(), 0d);
-        double[] array = new double[4];
-        Arrays.fill(array, Double.NaN);
-        chunk.fillArray(array);
-        assertArrayEquals(new double[] {Double.NaN, 1d, 2d, 3d}, array, 0d);
+        DoubleBuffer buffer = DoubleBuffer.allocate(4);
+        for (int i = 0; i < 4; i++) {
+            buffer.put(i, Double.NaN);
+        }
+        chunk.fillBuffer(buffer, 0);
+        assertArrayEquals(new double[] {Double.NaN, 1d, 2d, 3d}, buffer.array(), 0d);
         String jsonRef = String.join(System.lineSeparator(),
                 "{",
                 "  \"offset\" : 1,",
@@ -48,7 +51,7 @@ public class DoubleArrayChunkTest {
                 "}");
         assertEquals(jsonRef, JsonUtil.toJson(chunk::writeJson));
         RegularTimeSeriesIndex index = RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T00:45:00Z"),
-                                                                     Duration.ofMinutes(15), 1, 1);
+                                                                     Duration.ofMinutes(15));
         assertEquals(ImmutableList.of(new DoublePoint(1, Instant.parse("2015-01-01T00:15:00Z").toEpochMilli(), 1d),
                                       new DoublePoint(2, Instant.parse("2015-01-01T00:30:00Z").toEpochMilli(), 2d),
                                       new DoublePoint(3, Instant.parse("2015-01-01T00:45:00Z").toEpochMilli(), 3d)),
@@ -68,10 +71,12 @@ public class DoubleArrayChunkTest {
         assertEquals(36d / 48, compressedChunk.getCompressionFactor(), 0d);
         assertArrayEquals(new double[] {1d, 2d, 3d}, compressedChunk.getStepValues(), 0d);
         assertArrayEquals(new int[] {1, 4, 1}, compressedChunk.getStepLengths());
-        double[] array = new double[7];
-        Arrays.fill(array, Double.NaN);
-        compressedChunk.fillArray(array);
-        assertArrayEquals(new double[] {Double.NaN, 1d, 2d, 2d, 2d, 2d, 3d}, array, 0d);
+        DoubleBuffer buffer = DoubleBuffer.allocate(7);
+        for (int i = 0; i < 7; i++) {
+            buffer.put(i, Double.NaN);
+        }
+        compressedChunk.fillBuffer(buffer, 0);
+        assertArrayEquals(new double[] {Double.NaN, 1d, 2d, 2d, 2d, 2d, 3d}, buffer.array(), 0d);
 
         // json test
         String jsonRef = String.join(System.lineSeparator(),
@@ -98,7 +103,7 @@ public class DoubleArrayChunkTest {
 
         // stream test
         RegularTimeSeriesIndex index = RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T01:30:00Z"),
-                                                                     Duration.ofMinutes(15), 1, 1);
+                                                                     Duration.ofMinutes(15));
         assertEquals(ImmutableList.of(new DoublePoint(1, Instant.parse("2015-01-01T00:15:00Z").toEpochMilli(), 1d),
                                       new DoublePoint(2, Instant.parse("2015-01-01T00:30:00Z").toEpochMilli(), 2d),
                                       new DoublePoint(6, Instant.parse("2015-01-01T01:30:00Z").toEpochMilli(), 3d)),
@@ -129,5 +134,60 @@ public class DoubleArrayChunkTest {
     public void compressFailureTest() throws IOException {
         UncompressedDoubleArrayChunk chunk = new UncompressedDoubleArrayChunk(1, new double[] {1d, 2d, 2d, 3d});
         assertSame(chunk, chunk.tryToCompress());
+    }
+
+    @Test
+    public void uncompressedSplitTest() throws IOException {
+        UncompressedDoubleArrayChunk chunk = new UncompressedDoubleArrayChunk(1, new double[]{1d, 2d, 3d});
+        try {
+            chunk.splitAt(1);
+            fail();
+        } catch (IllegalArgumentException ignored) {
+        }
+        try {
+            chunk.splitAt(4);
+            fail();
+        } catch (IllegalArgumentException ignored) {
+        }
+        ArrayChunk.Split<DoublePoint, DoubleArrayChunk> split = chunk.splitAt(2);
+        assertNotNull(split.getChunk1());
+        assertNotNull(split.getChunk2());
+        assertEquals(1, split.getChunk1().getOffset());
+        assertTrue(split.getChunk1() instanceof UncompressedDoubleArrayChunk);
+        assertArrayEquals(new double[] {1d}, ((UncompressedDoubleArrayChunk) split.getChunk1()).getValues(), 0d);
+        assertEquals(2, split.getChunk2().getOffset());
+        assertTrue(split.getChunk2() instanceof UncompressedDoubleArrayChunk);
+        assertArrayEquals(new double[] {2d, 3d}, ((UncompressedDoubleArrayChunk) split.getChunk2()).getValues(), 0d);
+    }
+
+    @Test
+    public void compressedSplitTest() throws IOException {
+        // index  0   1   2   3   4   5
+        // value  NaN 1   1   2   2   2
+        //            [-------]   [---]
+        CompressedDoubleArrayChunk chunk = new CompressedDoubleArrayChunk(1, 5, new double[] {1d, 2d}, new int[] {2, 3});
+        try {
+            chunk.splitAt(0);
+            fail();
+        } catch (IllegalArgumentException ignored) {
+        }
+        try {
+            chunk.splitAt(6);
+            fail();
+        } catch (IllegalArgumentException ignored) {
+        }
+        ArrayChunk.Split<DoublePoint, DoubleArrayChunk> split = chunk.splitAt(4);
+        assertNotNull(split.getChunk1());
+        assertNotNull(split.getChunk2());
+        assertEquals(1, split.getChunk1().getOffset());
+        assertTrue(split.getChunk1() instanceof CompressedDoubleArrayChunk);
+        assertEquals(3, ((CompressedDoubleArrayChunk) split.getChunk1()).getUncompressedLength());
+        assertArrayEquals(new double[] {1d, 2d}, ((CompressedDoubleArrayChunk) split.getChunk1()).getStepValues(), 0d);
+        assertArrayEquals(new int[] {2, 1}, ((CompressedDoubleArrayChunk) split.getChunk1()).getStepLengths());
+        assertEquals(4, split.getChunk2().getOffset());
+        assertTrue(split.getChunk2() instanceof CompressedDoubleArrayChunk);
+        assertEquals(2, ((CompressedDoubleArrayChunk) split.getChunk2()).getUncompressedLength());
+        assertArrayEquals(new double[] {2d}, ((CompressedDoubleArrayChunk) split.getChunk2()).getStepValues(), 0d);
+        assertArrayEquals(new int[] {2}, ((CompressedDoubleArrayChunk) split.getChunk2()).getStepLengths());
     }
 }

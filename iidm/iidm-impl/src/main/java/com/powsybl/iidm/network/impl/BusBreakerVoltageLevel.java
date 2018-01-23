@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+ * Copyright (c) 2016-2018, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -334,27 +334,6 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         return graph.getVertexObjectStream().flatMap(bus -> bus.getTerminals().stream());
     }
 
-    @Override
-    public <C extends Connectable> FluentIterable<C> getConnectables(Class<C> clazz) {
-        Iterable<Terminal> terminals = getTerminals();
-        return FluentIterable.from(terminals)
-                .transform(Terminal::getConnectable)
-                .filter(clazz);
-    }
-
-    @Override
-    public <C extends Connectable> Stream<C> getConnectableStream(Class<C> clazz) {
-        return getTerminalStream()
-                .map(Terminal::getConnectable)
-                .filter(clazz::isInstance)
-                .map(clazz::cast);
-    }
-
-    @Override
-    public <C extends Connectable> int getConnectableCount(Class<C> clazz) {
-        return getConnectables(clazz).size();
-    }
-
     static PowsyblException createNotSupportedBusBreakerTopologyException() {
         return new PowsyblException("Not supported in a bus breaker topology");
     }
@@ -363,6 +342,11 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
 
         @Override
         public int getNodeCount() {
+            throw createNotSupportedBusBreakerTopologyException();
+        }
+
+        @Override
+        public int[] getNodes() {
             throw createNotSupportedBusBreakerTopologyException();
         }
 
@@ -378,6 +362,11 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
 
         @Override
         public int getNode2(String switchId) {
+            throw createNotSupportedBusBreakerTopologyException();
+        }
+
+        @Override
+        public Terminal getTerminal(int node) {
             throw createNotSupportedBusBreakerTopologyException();
         }
 
@@ -422,6 +411,11 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         @Override
+        public void removeSwitch(String switchId) {
+            throw createNotSupportedBusBreakerTopologyException();
+        }
+
+        @Override
         public BusbarSectionAdder newBusbarSection() {
             throw createNotSupportedBusBreakerTopologyException();
         }
@@ -446,6 +440,10 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
             throw createNotSupportedBusBreakerTopologyException();
         }
 
+        @Override
+        public void traverse(int node, Traverser traverser) {
+            throw createNotSupportedBusBreakerTopologyException();
+        }
     };
 
     @Override

@@ -6,8 +6,7 @@
  */
 package com.powsybl.afs;
 
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -17,8 +16,10 @@ public class ProjectFile extends ProjectNode {
 
     protected final FileIcon icon;
 
-    protected ProjectFile(ProjectFileCreationContext context, FileIcon icon) {
-        super(context, true);
+    private final WeakHashMap<Object, List<DependencyListener>> listeners = new WeakHashMap<>();
+
+    protected ProjectFile(ProjectFileCreationContext context, int codeVersion, FileIcon icon) {
+        super(context, codeVersion, true);
         this.icon = Objects.requireNonNull(icon);
     }
 
@@ -31,14 +32,32 @@ public class ProjectFile extends ProjectNode {
         return icon;
     }
 
-    public List<ProjectNode> getDependencies() {
-        return storage.getDependenciesInfo(info.getId())
+    public List<ProjectDependency<ProjectNode>> getDependencies() {
+        return storage.getDependencies(info.getId())
                 .stream()
-                .map(fileSystem::findProjectNode)
+                .map(dependency -> new ProjectDependency<>(dependency.getName(), fileSystem.findProjectNode(dependency.getNodeInfo())))
                 .collect(Collectors.toList());
     }
 
-    public void onDependencyChanged() {
-        // method to override to be notified in case of dependency change
+    public <T> List<T> getDependency(String name, Class<T> nodeClass) {
+        Objects.requireNonNull(name);
+        Objects.requireNonNull(nodeClass);
+        return storage.getDependencies(info.getId(), name).stream()
+                .map(fileSystem::findProjectNode)
+                .filter(dependencyNode -> nodeClass.isAssignableFrom(dependencyNode.getClass()))
+                .map(nodeClass::cast)
+                .collect(Collectors.toList());
+    }
+
+    public void addDependencyListener(Object source, DependencyListener listener) {
+        Objects.requireNonNull(source);
+        Objects.requireNonNull(listener);
+        listeners.computeIfAbsent(source, k -> new ArrayList<>()).add(listener);
+    }
+
+    protected void notifyDependencyListeners() {
+        listeners.values().stream().flatMap(Collection::stream).forEach(DependencyListener::dependencyChanged);
+        // propagate
+        getBackwardDependencies().forEach(ProjectFile::notifyDependencyListeners);
     }
 }

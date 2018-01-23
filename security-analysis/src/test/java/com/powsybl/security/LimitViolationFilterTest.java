@@ -99,31 +99,32 @@ public class LimitViolationFilterTest {
         filter = new LimitViolationFilter();
         filter.setViolationTypes(EnumSet.of(LimitViolationType.HIGH_VOLTAGE));
         filteredViolations = filter.apply(Arrays.asList(line1Violation, line2Violation, vl1Violation), network);
-        checkFilteredViolations(filteredViolations, network, "VL1", LimitViolationType.HIGH_VOLTAGE, 220f, Country.FR);
+        checkFilteredViolations(filteredViolations, network, "VL1", LimitViolationType.HIGH_VOLTAGE, 220f, Country.FR, "VL1");
 
         filter = new LimitViolationFilter();
         filter.setMinBaseVoltage(300f);
         filteredViolations = filter.apply(Arrays.asList(line1Violation, line2Violation, vl1Violation), network);
-        checkFilteredViolations(filteredViolations, network, "LINE1", LimitViolationType.CURRENT, 380f, Country.FR);
+        checkFilteredViolations(filteredViolations, network, "LINE1", LimitViolationType.CURRENT, 380f, Country.FR, "VL2");
 
         filter = new LimitViolationFilter();
         filter.setCountries(EnumSet.of(Country.BE));
         filteredViolations = filter.apply(Arrays.asList(line1Violation, line2Violation, vl1Violation), network);
-        checkFilteredViolations(filteredViolations, network, "LINE2", LimitViolationType.CURRENT, 220f, Country.BE);
+        checkFilteredViolations(filteredViolations, network, "LINE2", LimitViolationType.CURRENT, 220f, Country.BE, "VL3");
 
         filter = new LimitViolationFilter(EnumSet.of(LimitViolationType.CURRENT), 300f, EnumSet.of(Country.FR));
         filteredViolations = filter.apply(Arrays.asList(line1Violation, line2Violation, vl1Violation), network);
-        checkFilteredViolations(filteredViolations, network, "LINE1", LimitViolationType.CURRENT, 380f, Country.FR);
+        checkFilteredViolations(filteredViolations, network, "LINE1", LimitViolationType.CURRENT, 380f, Country.FR, "VL2");
     }
 
     private void checkFilteredViolations(List<LimitViolation> filteredViolations, Network network, String equipmentId, LimitViolationType violationType,
-                                         float baseVoltage, Country country) {
+                                         float baseVoltage, Country country, String voltageLevelId) {
         assertEquals(1, filteredViolations.size());
 
         LimitViolation violation = filteredViolations.get(0);
         assertEquals(equipmentId, violation.getSubjectId());
         assertEquals(violationType, violation.getLimitType());
-        assertEquals(baseVoltage, LimitViolation.getNominalVoltage(violation, network), 0f);
-        assertEquals(country, LimitViolation.getCountry(violation, network));
+        assertEquals(baseVoltage, LimitViolationHelper.getNominalVoltage(violation, network), 0f);
+        assertEquals(country, LimitViolationHelper.getCountry(violation, network));
+        assertEquals(voltageLevelId, LimitViolationHelper.getVoltageLevelId(violation, network));
     }
 }

@@ -17,6 +17,7 @@ import org.threeten.extra.Interval;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -29,7 +30,7 @@ public class TimeSeriesMetadataTest {
     @Test
     public void test() throws IOException {
         RegularTimeSeriesIndex index = RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T01:00:00Z"),
-                                                                     Duration.ofMinutes(15), 1, 1);
+                                                                     Duration.ofMinutes(15));
         ImmutableMap<String, String> tags = ImmutableMap.of("var1", "value1");
         TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, tags, index);
 
@@ -38,6 +39,10 @@ public class TimeSeriesMetadataTest {
         assertEquals(TimeSeriesDataType.DOUBLE, metadata.getDataType());
         assertEquals(tags, metadata.getTags());
         assertSame(index, metadata.getIndex());
+
+        // toString test
+        assertEquals("TimeSeriesMetadata(name=ts1, dataType=DOUBLE, tags={var1=value1}, index=RegularTimeSeriesIndex(startTime=2015-01-01T00:00:00Z, endTime=2015-01-01T01:00:00Z, spacing=PT15M))",
+                     metadata.toString());
 
         // test json
         String jsonRef = String.join(System.lineSeparator(),
@@ -50,9 +55,7 @@ public class TimeSeriesMetadataTest {
                 "  \"regularIndex\" : {",
                 "    \"startTime\" : 1420070400000,",
                 "    \"endTime\" : 1420074000000,",
-                "    \"spacing\" : 900000,",
-                "    \"firstVersion\" : 1,",
-                "    \"versionCount\" : 1",
+                "    \"spacing\" : 900000",
                 "  }",
                 "}");
         String json = JsonUtil.toJson(metadata::writeJson);
@@ -73,5 +76,17 @@ public class TimeSeriesMetadataTest {
         assertEquals(2, metadataList.size());
         assertEquals(metadata, metadataList.get(0));
         assertEquals(metadata, metadataList.get(1));
+    }
+
+    @Test
+    public void testInfiniteIndex() throws IOException {
+        assertEquals("infiniteIndex", InfiniteTimeSeriesIndex.INSTANCE.getType());
+        assertEquals(2, InfiniteTimeSeriesIndex.INSTANCE.getPointCount());
+        assertEquals(InfiniteTimeSeriesIndex.START_TIME, InfiniteTimeSeriesIndex.INSTANCE.getTimeAt(0));
+        assertEquals(InfiniteTimeSeriesIndex.END_TIME, InfiniteTimeSeriesIndex.INSTANCE.getTimeAt(1));
+        assertEquals("InfiniteTimeSeriesIndex()", InfiniteTimeSeriesIndex.INSTANCE.toString());
+        TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, Collections.emptyMap(), InfiniteTimeSeriesIndex.INSTANCE);
+        TimeSeriesMetadata metadata2 = JsonUtil.parseJson(JsonUtil.toJson(metadata::writeJson), TimeSeriesMetadata::parseJson);
+        assertEquals(metadata, metadata2);
     }
 }

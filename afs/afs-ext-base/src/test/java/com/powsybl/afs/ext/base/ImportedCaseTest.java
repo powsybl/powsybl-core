@@ -11,11 +11,10 @@ import com.google.common.collect.ImmutableMap;
 import com.powsybl.afs.*;
 import com.powsybl.afs.mapdb.storage.MapDbAppStorage;
 import com.powsybl.afs.storage.AppStorage;
-import com.powsybl.afs.storage.NodeId;
 import com.powsybl.afs.storage.NodeInfo;
+import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.iidm.import_.ImportersLoader;
 import com.powsybl.iidm.import_.ImportersLoaderList;
-import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -48,13 +47,17 @@ public class ImportedCaseTest extends AbstractProjectFileTest {
         return ImmutableList.of(new ImportedCaseExtension(createImportersLoader()));
     }
 
+    @Override
+    protected List<ServiceExtension> getServiceExtensions() {
+        return ImmutableList.of(new LocalNetworkServiceExtension());
+    }
+
     @Before
     public void setup() {
         super.setup();
         NodeInfo rootFolderInfo = storage.createRootNodeIfNotExists("root", Folder.PSEUDO_CLASS);
-        NodeId caseId = storage.createNode(rootFolderInfo.getId(), "network", Case.PSEUDO_CLASS);
-        storage.setStringAttribute(caseId, "description", "Test format");
-        storage.setStringAttribute(caseId, "format", TestImporter.FORMAT);
+        NodeInfo caseInfo = storage.createNode(rootFolderInfo.getId(), "network", Case.PSEUDO_CLASS, "Test format", Case.VERSION,
+                new NodeGenericMetadata().setString("format", TestImporter.FORMAT));
     }
 
     @Test
@@ -93,9 +96,13 @@ public class ImportedCaseTest extends AbstractProjectFileTest {
         assertNotNull(importedCase);
         assertFalse(importedCase.isFolder());
         assertNotNull(importedCase.getIcon());
-        Network network = importedCase.loadNetwork();
-        assertNotNull(network);
+        assertNotNull(importedCase.getNetwork());
+        assertNull(importedCase.getScriptError());
+        assertEquals("", importedCase.getScriptOutput());
         assertTrue(importedCase.getDependencies().isEmpty());
+
+        // test network query
+        assertEquals("[\"s1\"]", importedCase.queryNetwork("network.substations.collect { it.id }"));
 
         // try to reload the imported case
         assertEquals(1, folder.getChildren().size());
@@ -107,9 +114,9 @@ public class ImportedCaseTest extends AbstractProjectFileTest {
         assertEquals(2, importedCase2.getParameters().size());
         assertEquals("true", importedCase2.getParameters().getProperty("param1"));
 
-        assertNotNull(folder.getChild(ImportedCase.class, "network"));
+        assertTrue(folder.getChild(ImportedCase.class, "network").isPresent());
 
-        // deleteProjectNode imported case
+        // delete imported case
         projectNode.delete();
         assertTrue(folder.getChildren().isEmpty());
         try {

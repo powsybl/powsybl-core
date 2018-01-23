@@ -7,6 +7,8 @@
 package com.powsybl.afs.local.storage;
 
 import com.powsybl.afs.ext.base.Case;
+import com.powsybl.afs.storage.AppStorageDataSource;
+import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.import_.Importers;
@@ -14,8 +16,13 @@ import com.powsybl.math.timeseries.DoubleTimeSeries;
 import com.powsybl.math.timeseries.StringTimeSeries;
 import com.powsybl.math.timeseries.TimeSeriesMetadata;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  *
@@ -38,8 +45,8 @@ public class LocalCase implements LocalFile {
     }
 
     @Override
-    public Path getParentPath() {
-        return file.getParent();
+    public Optional<Path> getParentPath() {
+        return Optional.ofNullable(file.getParent());
     }
 
     @Override
@@ -48,47 +55,74 @@ public class LocalCase implements LocalFile {
     }
 
     @Override
-    public String getStringAttribute(String name) {
-        switch (name) {
-            case "format":
-                return importer.getFormat();
-
-            case "description":
-                return importer.getComment();
-
-            default:
-                throw new AssertionError(name);
-        }
+    public String getDescription() {
+        return importer.getComment();
     }
 
     @Override
-    public OptionalInt getIntAttribute(String name) {
-        throw new AssertionError();
+    public NodeGenericMetadata getGenericMetadata() {
+        return new NodeGenericMetadata().setString("format", importer.getFormat());
     }
 
     @Override
-    public OptionalDouble getDoubleAttribute(String name) {
-        throw new AssertionError();
+    public Optional<InputStream> readBinaryData(String name) {
+        DataSource dataSource = Importers.createDataSource(file);
+        return AppStorageDataSource.Name.parse(name, new AppStorageDataSource.NameHandler<Optional<InputStream>>() {
+            @Override
+            public Optional<InputStream> onSuffixAndExtension(AppStorageDataSource.SuffixAndExtension suffixAndExtension) throws IOException {
+                return Optional.of(dataSource.newInputStream(suffixAndExtension.getSuffix(), suffixAndExtension.getExt()));
+            }
+
+            @Override
+            public Optional<InputStream> onFileName(AppStorageDataSource.FileName fileName) throws IOException {
+                return Optional.of(dataSource.newInputStream(fileName.getName()));
+            }
+
+            @Override
+            public Optional<InputStream> onOther(AppStorageDataSource.Name name) {
+                throw new AssertionError("Unknown data source name " + name);
+            }
+        });
     }
 
     @Override
-    public Optional<Boolean> getBooleanAttribute(String name) {
-        throw new AssertionError();
+    public boolean dataExists(String name) {
+        DataSource dataSource = Importers.createDataSource(file);
+        return AppStorageDataSource.Name.parse(name, new AppStorageDataSource.NameHandler<Boolean>() {
+            @Override
+            public Boolean onSuffixAndExtension(AppStorageDataSource.SuffixAndExtension suffixAndExtension) throws IOException {
+                return dataSource.exists(suffixAndExtension.getSuffix(), suffixAndExtension.getExt());
+            }
+
+            @Override
+            public Boolean onFileName(AppStorageDataSource.FileName fileName) throws IOException {
+                return dataSource.exists(fileName.getName());
+            }
+
+            @Override
+            public Boolean onOther(AppStorageDataSource.Name name) {
+                throw new AssertionError("Unknown data source name " + name);
+            }
+        });
     }
 
     @Override
-    public DataSource getDataSourceAttribute(String name) {
-        switch (name) {
-            case "dataSource":
-                return Importers.createDataSource(file);
-
-            default:
-                throw new AssertionError();
-        }
+    public Set<String> getDataNames() {
+        throw new AssertionError("TODO"); // TODO
     }
 
     @Override
     public Set<String> getTimeSeriesNames() {
+        throw new AssertionError();
+    }
+
+    @Override
+    public boolean timeSeriesExists(String timeSeriesName) {
+        throw new AssertionError();
+    }
+
+    @Override
+    public Set<Integer> getTimeSeriesDataVersions(String timeSeriesName) {
         throw new AssertionError();
     }
 

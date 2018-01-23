@@ -7,10 +7,13 @@
 package com.powsybl.afs;
 
 import com.powsybl.afs.storage.ListenableAppStorage;
-import com.powsybl.afs.storage.NodeId;
 import com.powsybl.afs.storage.NodeInfo;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -21,19 +24,51 @@ public abstract class AbstractNodeBase<F> {
 
     protected final ListenableAppStorage storage;
 
-    public AbstractNodeBase(NodeInfo info, ListenableAppStorage storage) {
+    protected int codeVersion;
+
+    public AbstractNodeBase(NodeInfo info, ListenableAppStorage storage, int codeVersion) {
         this.info = Objects.requireNonNull(info);
         this.storage = Objects.requireNonNull(storage);
+        this.codeVersion = codeVersion;
     }
 
-    public abstract F getParent();
+    public abstract Optional<F> getParent();
 
-    public NodeId getId() {
+    public String getId() {
         return info.getId();
     }
 
     public String getName() {
         return info.getName();
+    }
+
+    public String getDescription() {
+        return info.getDescription();
+    }
+
+    public void setDescription(String description) {
+        storage.setDescription(info.getId(), description);
+        info.setDescription(description);
+    }
+
+    public ZonedDateTime getCreationDate() {
+        return Instant.ofEpochMilli(info.getCreationTime()).atZone(ZoneId.systemDefault());
+    }
+
+    public ZonedDateTime getModificationDate() {
+        return Instant.ofEpochMilli(info.getModificationTime()).atZone(ZoneId.systemDefault());
+    }
+
+    public int getVersion() {
+        return info.getVersion();
+    }
+
+    protected int getCodeVersion() {
+        return codeVersion;
+    }
+
+    public boolean isAheadOfVersion() {
+        return info.getVersion() > getCodeVersion();
     }
 
     public abstract NodePath getPath();
@@ -44,7 +79,7 @@ public abstract class AbstractNodeBase<F> {
         Objects.requireNonNull(name);
         NodeInfo childInfo = nodeInfo;
         for (String name2 : name.split(AppFileSystem.PATH_SEPARATOR)) {
-            childInfo = storage.getChildNodeInfo(childInfo.getId(), name2);
+            childInfo = storage.getChildNode(childInfo.getId(), name2).orElse(null);
             if (childInfo == null) {
                 return null;
             }

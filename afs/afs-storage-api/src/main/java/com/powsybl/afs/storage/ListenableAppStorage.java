@@ -6,6 +6,8 @@
  */
 package com.powsybl.afs.storage;
 
+import com.powsybl.afs.storage.events.AppStorageListener;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */

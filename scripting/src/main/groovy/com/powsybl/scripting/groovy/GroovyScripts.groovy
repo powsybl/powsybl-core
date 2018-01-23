@@ -85,7 +85,7 @@ class GroovyScripts {
                 ProjectFileExtension extension = delegate.getProject().getFileSystem().getData()
                         .getProjectFileExtensionByPseudoClass(projectFilePseudoClass)
                 if (extension) {
-                    delegate.invokeMethod("getChild", args)
+                    delegate.invokeMethod("getChild", args).orElse(null)
                 }
             }
         }
@@ -95,7 +95,7 @@ class GroovyScripts {
             if (filePseudoClass) {
                 FileExtension extension = delegate.getFileSystem().getData().getFileExtensionByPseudoClass(filePseudoClass)
                 if (extension) {
-                    delegate.invokeMethod("getChild", args)
+                    delegate.invokeMethod("getChild", args).orElse(null)
                 }
             }
         }

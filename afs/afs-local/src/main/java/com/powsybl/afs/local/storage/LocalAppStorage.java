@@ -9,17 +9,19 @@ package com.powsybl.afs.local.storage;
 import com.google.common.collect.ImmutableList;
 import com.powsybl.afs.Folder;
 import com.powsybl.afs.storage.AppStorage;
-import com.powsybl.afs.storage.NodeId;
+import com.powsybl.afs.storage.NodeDependency;
+import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.afs.storage.NodeInfo;
-import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.math.timeseries.*;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.Reader;
-import java.io.Writer;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -27,6 +29,8 @@ import java.util.stream.Collectors;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class LocalAppStorage implements AppStorage {
+
+    private static final int DEFAULT_VERSION = 0;
 
     private final Path rootDir;
 
@@ -56,34 +60,38 @@ public class LocalAppStorage implements AppStorage {
 
     private LocalFile scanFile(Path path, boolean useCache) {
         LocalFile file = null;
-        if (useCache && fileCache.containsKey(path)) {
-            file = fileCache.get(path);
-        } else {
-            LocalFileScannerContext context = new LocalFileScannerContext(computationManager);
-            for (LocalFileScanner fileScanner : fileScanners) {
-                file = fileScanner.scanFile(path, context);
-                if (file != null) {
-                    break;
+        if (Files.isReadable(path)) {
+            if (useCache && fileCache.containsKey(path)) {
+                file = fileCache.get(path);
+            } else {
+                LocalFileScannerContext context = new LocalFileScannerContext(computationManager);
+                for (LocalFileScanner fileScanner : fileScanners) {
+                    file = fileScanner.scanFile(path, context);
+                    if (file != null) {
+                        break;
+                    }
                 }
+                fileCache.put(path, file);
             }
-            fileCache.put(path, file);
         }
         return file;
     }
 
     private LocalFolder scanFolder(Path path, boolean useCache) {
         LocalFolder folder = null;
-        if (useCache && folderCache.containsKey(path)) {
-            folder = folderCache.get(path);
-        } else {
-            LocalFolderScannerContext context = new LocalFolderScannerContext(rootDir, fileSystemName, computationManager);
-            for (LocalFolderScanner folderScanner : folderScanners) {
-                folder = folderScanner.scanFolder(path, context);
-                if (folder != null) {
-                    break;
+        if (Files.isReadable(path)) {
+            if (useCache && folderCache.containsKey(path)) {
+                folder = folderCache.get(path);
+            } else {
+                LocalFolderScannerContext context = new LocalFolderScannerContext(rootDir, fileSystemName, computationManager);
+                for (LocalFolderScanner folderScanner : folderScanners) {
+                    folder = folderScanner.scanFolder(path, context);
+                    if (folder != null) {
+                        break;
+                    }
                 }
+                folderCache.put(path, folder);
             }
-            folderCache.put(path, folder);
         }
         return folder;
     }
@@ -98,27 +106,65 @@ public class LocalAppStorage implements AppStorage {
         return false;
     }
 
-    @Override
-    public NodeId fromString(String str) {
-        return new PathNodeId(rootDir.getFileSystem().getPath(str));
+    Path checkNodeId(String nodeId) {
+        Objects.requireNonNull(nodeId);
+        return rootDir.getFileSystem().getPath(nodeId);
     }
 
     @Override
     public NodeInfo createRootNodeIfNotExists(String name, String nodePseudoClass) {
-        return new NodeInfo(new PathNodeId(rootDir), name, nodePseudoClass);
+        Objects.requireNonNull(name);
+        Objects.requireNonNull(nodePseudoClass);
+        BasicFileAttributes attr;
+        try {
+            attr = Files.readAttributes(rootDir, BasicFileAttributes.class);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+        return new NodeInfo(rootDir.toString(),
+                            name,
+                            nodePseudoClass,
+                            "",
+                            attr.creationTime().toMillis(),
+                            attr.lastModifiedTime().toMillis(),
+                            DEFAULT_VERSION,
+                            new NodeGenericMetadata());
     }
 
     @Override
-    public String getNodePseudoClass(NodeId nodeId) {
-        Objects.requireNonNull(nodeId);
-        Path path = ((PathNodeId) nodeId).getPath();
+    public NodeInfo getNodeInfo(String nodeId) {
+        Path path = checkNodeId(nodeId);
+        return getNodeInfo(path);
+    }
+
+    private NodeInfo getNodeInfo(Path path) {
+        BasicFileAttributes attr;
+        try {
+            attr = Files.readAttributes(path, BasicFileAttributes.class);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
         LocalFile file = scanFile(path, true);
         if (file != null) {
-            return file.getPseudoClass();
+            return new NodeInfo(path.toString(),
+                                file.getName(),
+                                file.getPseudoClass(),
+                                file.getDescription(),
+                                attr.creationTime().toMillis(),
+                                attr.lastModifiedTime().toMillis(),
+                                DEFAULT_VERSION,
+                                file.getGenericMetadata());
         } else {
             LocalFolder folder = scanFolder(path, true);
             if (folder != null) {
-                return Folder.PSEUDO_CLASS;
+                return new NodeInfo(path.toString(),
+                                    folder.getName(),
+                                    Folder.PSEUDO_CLASS,
+                                    "",
+                                    attr.creationTime().toMillis(),
+                                    attr.lastModifiedTime().toMillis(),
+                                    DEFAULT_VERSION,
+                                    new NodeGenericMetadata());
             } else {
                 throw new AssertionError();
             }
@@ -126,20 +172,13 @@ public class LocalAppStorage implements AppStorage {
     }
 
     @Override
-    public String getNodeName(NodeId nodeId) {
-        Objects.requireNonNull(nodeId);
-        Path path = ((PathNodeId) nodeId).getPath();
-        LocalFile file = scanFile(path, true);
-        if (file != null) {
-            return file.getName();
-        } else {
-            LocalFolder folder = scanFolder(path, true);
-            if (folder != null) {
-                return folder.getName();
-            } else {
-                throw new AssertionError();
-            }
-        }
+    public void setDescription(String nodeId, String description) {
+        throw new AssertionError();
+    }
+
+    @Override
+    public void updateModificationTime(String nodeId) {
+        throw new AssertionError();
     }
 
     private boolean isLocalNode(Path path) {
@@ -147,42 +186,37 @@ public class LocalAppStorage implements AppStorage {
     }
 
     @Override
-    public List<NodeId> getChildNodes(NodeId nodeId) {
-        Objects.requireNonNull(nodeId);
-        Path path = ((PathNodeId) nodeId).getPath();
-        List<NodeId> childNodesIds = new ArrayList<>();
+    public List<NodeInfo> getChildNodes(String nodeId) {
+        Path path = checkNodeId(nodeId);
         LocalFolder folder = scanFolder(path, false);
         if (folder != null) {
-            childNodesIds.addAll(folder.getChildPaths().stream()
+            return folder.getChildPaths().stream()
                     .filter(this::isLocalNode)
-                    .map(PathNodeId::new)
-                    .collect(Collectors.toList()));
+                    .map(this::getNodeInfo)
+                    .collect(Collectors.toList());
         } else {
             throw new AssertionError();
         }
-        return childNodesIds;
     }
 
     @Override
-    public NodeId getChildNode(NodeId nodeId, String name) {
-        Objects.requireNonNull(nodeId);
+    public Optional<NodeInfo> getChildNode(String nodeId, String name) {
+        Path path = checkNodeId(nodeId);
         Objects.requireNonNull(name);
-        Path path = ((PathNodeId) nodeId).getPath();
         LocalFolder folder = scanFolder(path, false);
         if (folder != null) {
-            Path childPath = folder.getChildPath(name);
-            if (childPath != null && isLocalNode(childPath)) {
-                return new PathNodeId(childPath);
+            Optional<Path> childPath = folder.getChildPath(name);
+            if (childPath.isPresent() && isLocalNode(childPath.get())) {
+                return childPath.map(this::getNodeInfo);
             }
         }
-        return null;
+        return Optional.empty();
     }
 
     @Override
-    public NodeId getParentNode(NodeId nodeId) {
-        Objects.requireNonNull(nodeId);
-        Path path = ((PathNodeId) nodeId).getPath();
-        Path parentPath;
+    public Optional<NodeInfo> getParentNode(String nodeId) {
+        Path path = checkNodeId(nodeId);
+        Optional<Path> parentPath;
         LocalFile file = scanFile(path, true);
         if (file != null) {
             parentPath = file.getParentPath();
@@ -194,32 +228,31 @@ public class LocalAppStorage implements AppStorage {
                 throw new AssertionError();
             }
         }
-        return parentPath == null ? null : new PathNodeId(parentPath);
+        return parentPath.map(this::getNodeInfo);
     }
 
     @Override
-    public void setParentNode(NodeId nodeId, NodeId newParentNodeId) {
+    public void setParentNode(String nodeId, String newParentString) {
         throw new AssertionError();
     }
 
     @Override
-    public boolean isWritable(NodeId nodeId) {
+    public boolean isWritable(String nodeId) {
         return false;
     }
 
     @Override
-    public NodeId createNode(NodeId parentNodeId, String name, String nodePseudoClass) {
+    public NodeInfo createNode(String parentString, String name, String nodePseudoClass, String description, int version, NodeGenericMetadata genericMetadata) {
         throw new AssertionError();
     }
 
     @Override
-    public void deleteNode(NodeId nodeId) {
+    public void deleteNode(String nodeId) {
         throw new AssertionError();
     }
 
-    private LocalFile getFile(NodeId nodeId) {
-        Objects.requireNonNull(nodeId);
-        Path path = ((PathNodeId) nodeId).getPath();
+    private LocalFile getFile(String nodeId) {
+        Path path = checkNodeId(nodeId);
         LocalFile file = scanFile(path, true);
         if (file == null) {
             throw new AssertionError();
@@ -228,137 +261,106 @@ public class LocalAppStorage implements AppStorage {
     }
 
     @Override
-    public String getStringAttribute(NodeId nodeId, String name) {
-        return getFile(nodeId).getStringAttribute(name);
+    public Optional<InputStream> readBinaryData(String nodeId, String name) {
+        Objects.requireNonNull(name);
+        return getFile(nodeId).readBinaryData(name);
     }
 
     @Override
-    public void setStringAttribute(NodeId nodeId, String name, String value) {
+    public OutputStream writeBinaryData(String nodeId, String name) {
         throw new AssertionError();
     }
 
     @Override
-    public Reader readStringAttribute(NodeId nodeId, String name) {
+    public boolean dataExists(String nodeId, String name) {
+        Objects.requireNonNull(name);
+
+        return getFile(nodeId).dataExists(name);
+    }
+
+    @Override
+    public Set<String> getDataNames(String nodeId) {
+        return getFile(nodeId).getDataNames();
+    }
+
+    @Override
+    public void createTimeSeries(String nodeId, TimeSeriesMetadata metadata) {
         throw new AssertionError();
     }
 
     @Override
-    public Writer writeStringAttribute(NodeId nodeId, String name) {
-        throw new AssertionError();
-    }
-
-    @Override
-    public OptionalInt getIntAttribute(NodeId nodeId, String name) {
-        return getFile(nodeId).getIntAttribute(name);
-    }
-
-    @Override
-    public void setIntAttribute(NodeId nodeId, String name, int value) {
-        throw new AssertionError();
-    }
-
-    @Override
-    public OptionalDouble getDoubleAttribute(NodeId nodeId, String name) {
-        return getFile(nodeId).getDoubleAttribute(name);
-    }
-
-    @Override
-    public void setDoubleAttribute(NodeId nodeId, String name, double value) {
-        throw new AssertionError();
-    }
-
-    @Override
-    public Optional<Boolean> getBooleanAttribute(NodeId nodeId, String name) {
-        return getFile(nodeId).getBooleanAttribute(name);
-    }
-
-    @Override
-    public void setBooleanAttribute(NodeId nodeId, String name, boolean value) {
-        throw new AssertionError();
-    }
-
-    @Override
-    public DataSource getDataSourceAttribute(NodeId nodeId, String name) {
-        return getFile(nodeId).getDataSourceAttribute(name);
-    }
-
-    @Override
-    public void createTimeSeries(NodeId nodeId, TimeSeriesMetadata metadata) {
-        throw new AssertionError();
-    }
-
-    @Override
-    public Set<String> getTimeSeriesNames(NodeId nodeId) {
+    public Set<String> getTimeSeriesNames(String nodeId) {
         return getFile(nodeId).getTimeSeriesNames();
     }
 
     @Override
-    public List<TimeSeriesMetadata> getTimeSeriesMetadata(NodeId nodeId, Set<String> timeSeriesNames) {
+    public boolean timeSeriesExists(String nodeId, String timeSeriesName) {
+        return getFile(nodeId).timeSeriesExists(timeSeriesName);
+    }
+
+    @Override
+    public List<TimeSeriesMetadata> getTimeSeriesMetadata(String nodeId, Set<String> timeSeriesNames) {
+        Objects.requireNonNull(timeSeriesNames);
         return getFile(nodeId).getTimeSeriesMetadata(timeSeriesNames);
     }
 
     @Override
-    public List<DoubleTimeSeries> getDoubleTimeSeries(NodeId nodeId, Set<String> timeSeriesNames, int version) {
+    public Set<Integer> getTimeSeriesDataVersions(String nodeId, String timeSeriesName) {
+        Objects.requireNonNull(timeSeriesName);
+        return getFile(nodeId).getTimeSeriesDataVersions(timeSeriesName);
+    }
+
+    @Override
+    public List<DoubleTimeSeries> getDoubleTimeSeries(String nodeId, Set<String> timeSeriesNames, int version) {
+        Objects.requireNonNull(timeSeriesNames);
+        TimeSeriesIndex.checkVersion(version);
         return getFile(nodeId).getDoubleTimeSeries(timeSeriesNames, version);
     }
 
     @Override
-    public void addDoubleTimeSeriesData(NodeId nodeId, int version, String timeSeriesName, List<DoubleArrayChunk> chunks) {
+    public void addDoubleTimeSeriesData(String nodeId, int version, String timeSeriesName, List<DoubleArrayChunk> chunks) {
         throw new AssertionError();
     }
 
     @Override
-    public List<StringTimeSeries> getStringTimeSeries(NodeId nodeId, Set<String> timeSeriesNames, int version) {
+    public List<StringTimeSeries> getStringTimeSeries(String nodeId, Set<String> timeSeriesNames, int version) {
+        Objects.requireNonNull(timeSeriesNames);
+        TimeSeriesIndex.checkVersion(version);
         return getFile(nodeId).getStringTimeSeries(timeSeriesNames, version);
     }
 
     @Override
-    public void addStringTimeSeriesData(NodeId nodeId, int version, String timeSeriesName, List<StringArrayChunk> chunks) {
+    public void addStringTimeSeriesData(String nodeId, int version, String timeSeriesName, List<StringArrayChunk> chunks) {
         throw new AssertionError();
     }
 
     @Override
-    public void removeAllTimeSeries(NodeId nodeId) {
+    public void clearTimeSeries(String nodeId) {
         throw new AssertionError();
     }
 
     @Override
-    public NodeId getDependency(NodeId nodeId, String name) {
+    public void addDependency(String nodeId, String name, String toNodeId) {
         throw new AssertionError();
     }
 
     @Override
-    public void addDependency(NodeId nodeId, String name, NodeId toNodeId) {
+    public Set<NodeInfo> getDependencies(String nodeId, String name) {
         throw new AssertionError();
     }
 
     @Override
-    public List<NodeId> getDependencies(NodeId nodeId) {
+    public Set<NodeDependency> getDependencies(String nodeId) {
         throw new AssertionError();
     }
 
     @Override
-    public List<NodeId> getBackwardDependencies(NodeId nodeId) {
+    public Set<NodeInfo> getBackwardDependencies(String nodeId) {
         throw new AssertionError();
     }
 
     @Override
-    public InputStream readFromCache(NodeId projectFileId, String key) {
-        throw new AssertionError();
-    }
-
-    @Override
-    public OutputStream writeToCache(NodeId projectFileId, String key) {
-        throw new AssertionError();
-    }
-
-    @Override
-    public void invalidateCache(NodeId projectFileId, String key) {
-        throw new AssertionError();
-    }
-
-    @Override
-    public void invalidateCache() {
+    public void removeDependency(String nodeId, String name, String toNodeId) {
         throw new AssertionError();
     }
 

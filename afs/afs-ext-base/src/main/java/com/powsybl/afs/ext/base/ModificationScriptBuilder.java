@@ -6,13 +6,16 @@
  */
 package com.powsybl.afs.ext.base;
 
+import com.google.common.io.CharStreams;
 import com.powsybl.afs.AfsException;
 import com.powsybl.afs.ProjectFileBuildContext;
 import com.powsybl.afs.ProjectFileBuilder;
 import com.powsybl.afs.ProjectFileCreationContext;
-import com.powsybl.afs.storage.NodeId;
+import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.afs.storage.NodeInfo;
 
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 /**
@@ -24,7 +27,7 @@ public class ModificationScriptBuilder implements ProjectFileBuilder<Modificatio
 
     private String name;
 
-    private ModificationScript.ScriptType type;
+    private ScriptType type;
 
     private String content;
 
@@ -37,7 +40,7 @@ public class ModificationScriptBuilder implements ProjectFileBuilder<Modificatio
         return this;
     }
 
-    public ModificationScriptBuilder withType(ModificationScript.ScriptType type) {
+    public ModificationScriptBuilder withType(ScriptType type) {
         this.type = type;
         return this;
     }
@@ -60,23 +63,24 @@ public class ModificationScriptBuilder implements ProjectFileBuilder<Modificatio
             throw new AfsException("Content is not set");
         }
 
-        if (context.getStorage().getChildNode(context.getFolderInfo().getId(), name) != null) {
+        if (context.getStorage().getChildNode(context.getFolderInfo().getId(), name).isPresent()) {
             throw new AfsException("Parent folder already contains a '" + name + "' node");
         }
 
         // create project file
-        NodeId id = context.getStorage().createNode(context.getFolderInfo().getId(), name, ModificationScript.PSEUDO_CLASS);
-
-        // set type
-        context.getStorage().setStringAttribute(id, ModificationScript.SCRIPT_TYPE, type.name());
+        NodeInfo info = context.getStorage().createNode(context.getFolderInfo().getId(), name, ModificationScript.PSEUDO_CLASS, "", ModificationScript.VERSION,
+                new NodeGenericMetadata().setString(ModificationScript.SCRIPT_TYPE, type.name()));
 
         // store script
-        context.getStorage().setStringAttribute(id, ModificationScript.SCRIPT_CONTENT, content);
+        try (Reader reader = new StringReader(content);
+             Writer writer = new OutputStreamWriter(context.getStorage().writeBinaryData(info.getId(), ModificationScript.SCRIPT_CONTENT), StandardCharsets.UTF_8)) {
+            CharStreams.copy(reader, writer);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
 
         context.getStorage().flush();
 
-        return new ModificationScript(new ProjectFileCreationContext(new NodeInfo(id, name, ModificationScript.PSEUDO_CLASS),
-                                                                     context.getStorage(),
-                                                                     context.getFileSystem()));
+        return new ModificationScript(new ProjectFileCreationContext(info, context.getStorage(), context.getFileSystem()));
     }
 }
