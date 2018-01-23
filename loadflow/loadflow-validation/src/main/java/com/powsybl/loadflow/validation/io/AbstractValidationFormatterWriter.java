@@ -58,16 +58,23 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
 
     protected abstract Column[] getColumns();
 
+    protected String getValidated(boolean validated) {
+        return validated ? SUCCESS : FAIL;
+    }
+
     @Override
     public void write(String branchId, double p1, double p1Calc, double q1, double q1Calc, double p2, double p2Calc, double q2, double q2Calc,
                       double r, double x, double g1, double g2, double b1, double b2, double rho1, double rho2, double alpha1, double alpha2,
                       double u1, double u2, double theta1, double theta2, double z, double y, double ksi, boolean connected1, boolean connected2,
                       boolean mainComponent1, boolean mainComponent2, boolean validated) throws IOException {
         Objects.requireNonNull(branchId);
+        FlowData emptyFlowData = new FlowData(branchId, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
+                                              Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
+                                              Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, false, false, false, false);
         if (compareResults) {
             if (preLoadflowValidationCompleted) {
-                FlowData flowData = flowsData.get(branchId);
                 boolean found = flowsData.containsKey(branchId);
+                FlowData flowData = found ? flowsData.get(branchId) : emptyFlowData;
                 write(branchId, p1, p1Calc, q1, q1Calc, p2, p2Calc, q2, q2Calc, r, x, g1, g2, b1, b2, rho1, rho2, alpha1, alpha2, u1, u2,
                       theta1, theta2, z, y, ksi, connected1, connected2, mainComponent1, mainComponent2, validated, flowData, found, true);
                 flowsData.remove(branchId);
@@ -77,7 +84,7 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
             }
         } else {
             write(branchId, p1, p1Calc, q1, q1Calc, p2, p2Calc, q2, q2Calc, r, x, g1, g2, b1, b2, rho1, rho2, alpha1, alpha2, u1, u2,
-                  theta1, theta2, z, y, ksi, connected1, connected2, mainComponent1, mainComponent2, validated, null, false, true);
+                  theta1, theta2, z, y, ksi, connected1, connected2, mainComponent1, mainComponent2, validated, emptyFlowData, false, true);
         }
     }
 
@@ -90,10 +97,12 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
     public void write(String generatorId, float p, float q, float v, float targetP, float targetQ, float targetV,
                       boolean connected, boolean voltageRegulatorOn, float minQ, float maxQ, boolean validated) throws IOException {
         Objects.requireNonNull(generatorId);
+        GeneratorData emptyGeneratorData = new GeneratorData(generatorId, Float.NaN, Float.NaN, Float.NaN, Float.NaN, Float.NaN,
+                                                             Float.NaN, false, false, Float.NaN, Float.NaN, false);
         if (compareResults) {
             if (preLoadflowValidationCompleted) {
-                GeneratorData generatorData = generatorsData.get(generatorId);
                 boolean found = generatorsData.containsKey(generatorId);
+                GeneratorData generatorData = found ? generatorsData.get(generatorId) : emptyGeneratorData;
                 write(generatorId, p, q, v, targetP, targetQ, targetV, connected, voltageRegulatorOn,
                       minQ, maxQ, validated, generatorData, found, true);
                 generatorsData.remove(generatorId);
@@ -103,7 +112,7 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
             }
         } else {
             write(generatorId, p, q, v, targetP, targetQ, targetV, connected, voltageRegulatorOn,
-                  minQ, maxQ, validated, null, false, true);
+                  minQ, maxQ, validated, emptyGeneratorData, false, true);
         }
     }
 
@@ -116,10 +125,12 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
                       double shuntP, double shuntQ, double svcP, double svcQ, double vscCSP, double vscCSQ, double lineP, double lineQ,
                       double twtP, double twtQ, double tltP, double tltQ, boolean validated) throws IOException {
         Objects.requireNonNull(busId);
+        BusData emptyBusData = new BusData(busId, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
+                                           Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false);
         if (compareResults) {
             if (preLoadflowValidationCompleted) {
-                BusData busData = busesData.get(busId);
                 boolean found = busesData.containsKey(busId);
+                BusData busData = found ? busesData.get(busId) : emptyBusData;
                 write(busId, incomingP, incomingQ, loadP, loadQ, genP, genQ, shuntP, shuntQ, svcP, svcQ,
                       vscCSP, vscCSQ, lineP, lineQ, twtP, twtQ, tltP, tltQ, validated, busData, found, true);
                 busesData.remove(busId);
@@ -129,7 +140,7 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
             }
         } else {
             write(busId, incomingP, incomingQ, loadP, loadQ, genP, genQ, shuntP, shuntQ, svcP, svcQ,
-                  vscCSP, vscCSQ, lineP, lineQ, twtP, twtQ, tltP, tltQ, validated, null, false, true);
+                  vscCSP, vscCSQ, lineP, lineQ, twtP, twtQ, tltP, tltQ, validated, emptyBusData, false, true);
         }
     }
 
@@ -142,17 +153,18 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
     public void write(String svcId, float p, float q, float v, float reactivePowerSetpoint, float voltageSetpoint,
                       boolean connected, RegulationMode regulationMode, float bMin, float bMax, boolean validated) throws IOException {
         Objects.requireNonNull(svcId);
+        SvcData emptySvcData = new SvcData(svcId, Float.NaN, Float.NaN, Float.NaN, Float.NaN, Float.NaN, false, RegulationMode.OFF, Float.NaN, Float.NaN, false);
         if (compareResults) {
             if (preLoadflowValidationCompleted) {
-                SvcData svcData = svcsData.get(svcId);
                 boolean found = svcsData.containsKey(svcId);
+                SvcData svcData = found ? svcsData.get(svcId) : emptySvcData;
                 write(svcId, p, q, v, reactivePowerSetpoint, voltageSetpoint, connected, regulationMode, bMin, bMax, validated, svcData, found, true);
                 svcsData.remove(svcId);
             } else {
                 svcsData.put(svcId, new SvcData(svcId, p, q, v, reactivePowerSetpoint, voltageSetpoint, connected, regulationMode, bMin, bMax, validated));
             }
         } else {
-            write(svcId, p, q, v, reactivePowerSetpoint, voltageSetpoint, connected, regulationMode, bMin, bMax, validated, null, false, true);
+            write(svcId, p, q, v, reactivePowerSetpoint, voltageSetpoint, connected, regulationMode, bMin, bMax, validated, emptySvcData, false, true);
         }
     }
 
@@ -164,10 +176,11 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
     public void write(String shuntId, float q, float expectedQ, float p, int currentSectionCount, int maximumSectionCount,
                       float bPerSection, float v, boolean connected, float qMax, float nominalV, boolean validated) throws IOException {
         Objects.requireNonNull(shuntId);
+        ShuntData emptyShuntData = new ShuntData(shuntId, Float.NaN, Float.NaN, Float.NaN, -1, -1, Float.NaN, Float.NaN, false, Float.NaN, Float.NaN, false);
         if (compareResults) {
             if (preLoadflowValidationCompleted) {
-                ShuntData shuntData = shuntsData.get(shuntId);
                 boolean found = shuntsData.containsKey(shuntId);
+                ShuntData shuntData = found ? shuntsData.get(shuntId) : emptyShuntData;
                 write(shuntId, q, expectedQ, p, currentSectionCount, maximumSectionCount,
                       bPerSection, v, connected, qMax, nominalV, validated, shuntData, found, true);
                 shuntsData.remove(shuntId);
@@ -176,8 +189,7 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
                                                       bPerSection, v, connected, qMax, nominalV, validated));
             }
         } else {
-            write(shuntId, q, expectedQ, p, currentSectionCount, maximumSectionCount,
-                  bPerSection, v, connected, qMax, nominalV, validated, null, false, true);
+            write(shuntId, q, expectedQ, p, currentSectionCount, maximumSectionCount, bPerSection, v, connected, qMax, nominalV, validated, emptyShuntData, false, true);
         }
     }
 
@@ -225,7 +237,7 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
                     svcsData.values().forEach(svcData -> {
                         try {
                             write(svcData.svcId, Float.NaN, Float.NaN, Float.NaN, Float.NaN, Float.NaN,
-                                  false, null, Float.NaN, Float.NaN, false, svcData, true, false);
+                                  false, RegulationMode.OFF, Float.NaN, Float.NaN, false, svcData, true, false);
                         } catch (IOException e) {
                             LOGGER.error("Error writing data of svc {}: {}", svcData.svcId, e.getMessage());
                         }

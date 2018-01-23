@@ -14,8 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.EnumMap;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -184,8 +183,8 @@ public class ValidationTool implements Tool {
 
     class ValidationWriters implements AutoCloseable {
 
-        final Map<ValidationType, Writer> writers = new HashMap<>();
-        final Map<ValidationType, ValidationWriter> validationWriters = new HashMap<>();
+        final EnumMap<ValidationType, Writer> writers = new EnumMap<>(ValidationType.class);
+        final EnumMap<ValidationType, ValidationWriter> validationWriters = new EnumMap<>(ValidationType.class);
 
         ValidationWriters(String networkId, Set<ValidationType> validationTypes, Path folder, ValidationConfig config) {
             validationTypes.forEach(validationType -> {

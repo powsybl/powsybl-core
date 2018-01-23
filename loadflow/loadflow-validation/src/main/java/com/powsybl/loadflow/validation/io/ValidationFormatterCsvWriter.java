@@ -74,67 +74,64 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
             new Column("expected_q2")
         };
         if (verbose) {
-            flowColumns = ArrayUtils.addAll(flowColumns, new Column[] {
-                new Column("r"),
-                new Column("x"),
-                new Column("g1"),
-                new Column("g2"),
-                new Column("b1"),
-                new Column("b2"),
-                new Column("rho1"),
-                new Column("rho2"),
-                new Column("alpha1"),
-                new Column("alpha2"),
-                new Column("u1"),
-                new Column("u2"),
-                new Column("theta1"),
-                new Column("theta2"),
-                new Column("z"),
-                new Column("y"),
-                new Column("ksi"),
-                new Column("connected1"),
-                new Column("connected2"),
-                new Column("mainComponent1"),
-                new Column("mainComponent2"),
-                new Column(VALIDATION)
-            });
+            flowColumns = ArrayUtils.addAll(flowColumns,
+                                            new Column("r"),
+                                            new Column("x"),
+                                            new Column("g1"),
+                                            new Column("g2"),
+                                            new Column("b1"),
+                                            new Column("b2"),
+                                            new Column("rho1"),
+                                            new Column("rho2"),
+                                            new Column("alpha1"),
+                                            new Column("alpha2"),
+                                            new Column("u1"),
+                                            new Column("u2"),
+                                            new Column("theta1"),
+                                            new Column("theta2"),
+                                            new Column("z"),
+                                            new Column("y"),
+                                            new Column("ksi"),
+                                            new Column("connected1"),
+                                            new Column("connected2"),
+                                            new Column("mainComponent1"),
+                                            new Column("mainComponent2"),
+                                            new Column(VALIDATION));
         }
         if (compareResults) {
-            flowColumns = ArrayUtils.addAll(flowColumns, new Column[] {
-                new Column("network_p1" + POST_LF_SUFFIX),
-                new Column("expected_p1" + POST_LF_SUFFIX),
-                new Column("network_q1" + POST_LF_SUFFIX),
-                new Column("expected_q1" + POST_LF_SUFFIX),
-                new Column("network_p2" + POST_LF_SUFFIX),
-                new Column("expected_p2" + POST_LF_SUFFIX),
-                new Column("network_q2" + POST_LF_SUFFIX),
-                new Column("expected_q2" + POST_LF_SUFFIX)
-            });
+            flowColumns = ArrayUtils.addAll(flowColumns,
+                                            new Column("network_p1" + POST_LF_SUFFIX),
+                                            new Column("expected_p1" + POST_LF_SUFFIX),
+                                            new Column("network_q1" + POST_LF_SUFFIX),
+                                            new Column("expected_q1" + POST_LF_SUFFIX),
+                                            new Column("network_p2" + POST_LF_SUFFIX),
+                                            new Column("expected_p2" + POST_LF_SUFFIX),
+                                            new Column("network_q2" + POST_LF_SUFFIX),
+                                            new Column("expected_q2" + POST_LF_SUFFIX));
             if (verbose) {
-                flowColumns = ArrayUtils.addAll(flowColumns, new Column[] {
-                    new Column("r" + POST_LF_SUFFIX),
-                    new Column("x" + POST_LF_SUFFIX),
-                    new Column("g1" + POST_LF_SUFFIX),
-                    new Column("g2" + POST_LF_SUFFIX),
-                    new Column("b1" + POST_LF_SUFFIX),
-                    new Column("b2" + POST_LF_SUFFIX),
-                    new Column("rho1" + POST_LF_SUFFIX),
-                    new Column("rho2" + POST_LF_SUFFIX),
-                    new Column("alpha1" + POST_LF_SUFFIX),
-                    new Column("alpha2" + POST_LF_SUFFIX),
-                    new Column("u1" + POST_LF_SUFFIX),
-                    new Column("u2" + POST_LF_SUFFIX),
-                    new Column("theta1" + POST_LF_SUFFIX),
-                    new Column("theta2" + POST_LF_SUFFIX),
-                    new Column("z" + POST_LF_SUFFIX),
-                    new Column("y" + POST_LF_SUFFIX),
-                    new Column("ksi" + POST_LF_SUFFIX),
-                    new Column("connected1" + POST_LF_SUFFIX),
-                    new Column("connected2" + POST_LF_SUFFIX),
-                    new Column("mainComponent1" + POST_LF_SUFFIX),
-                    new Column("mainComponent2" + POST_LF_SUFFIX),
-                    new Column(VALIDATION + POST_LF_SUFFIX)
-                });
+                flowColumns = ArrayUtils.addAll(flowColumns,
+                                                new Column("r" + POST_LF_SUFFIX),
+                                                new Column("x" + POST_LF_SUFFIX),
+                                                new Column("g1" + POST_LF_SUFFIX),
+                                                new Column("g2" + POST_LF_SUFFIX),
+                                                new Column("b1" + POST_LF_SUFFIX),
+                                                new Column("b2" + POST_LF_SUFFIX),
+                                                new Column("rho1" + POST_LF_SUFFIX),
+                                                new Column("rho2" + POST_LF_SUFFIX),
+                                                new Column("alpha1" + POST_LF_SUFFIX),
+                                                new Column("alpha2" + POST_LF_SUFFIX),
+                                                new Column("u1" + POST_LF_SUFFIX),
+                                                new Column("u2" + POST_LF_SUFFIX),
+                                                new Column("theta1" + POST_LF_SUFFIX),
+                                                new Column("theta2" + POST_LF_SUFFIX),
+                                                new Column("z" + POST_LF_SUFFIX),
+                                                new Column("y" + POST_LF_SUFFIX),
+                                                new Column("ksi" + POST_LF_SUFFIX),
+                                                new Column("connected1" + POST_LF_SUFFIX),
+                                                new Column("connected2" + POST_LF_SUFFIX),
+                                                new Column("mainComponent1" + POST_LF_SUFFIX),
+                                                new Column("mainComponent2" + POST_LF_SUFFIX),
+                                                new Column(VALIDATION + POST_LF_SUFFIX));
             }
         }
         return flowColumns;
@@ -151,31 +148,28 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
             new Column("targetV")
         };
         if (verbose) {
-            generatorColumns = ArrayUtils.addAll(generatorColumns, new Column[] {
-                new Column(CONNECTED),
-                new Column("voltageRegulatorOn"),
-                new Column("minQ"),
-                new Column("maxQ"),
-                new Column(VALIDATION)
-            });
+            generatorColumns = ArrayUtils.addAll(generatorColumns,
+                                                 new Column(CONNECTED),
+                                                 new Column("voltageRegulatorOn"),
+                                                 new Column("minQ"),
+                                                 new Column("maxQ"),
+                                                 new Column(VALIDATION));
         }
         if (compareResults) {
-            generatorColumns = ArrayUtils.addAll(generatorColumns, new Column[] {
-                new Column("p" + POST_LF_SUFFIX),
-                new Column("q" + POST_LF_SUFFIX),
-                new Column("v" + POST_LF_SUFFIX),
-                new Column("targetP" + POST_LF_SUFFIX),
-                new Column("targetQ" + POST_LF_SUFFIX),
-                new Column("targetV" + POST_LF_SUFFIX)
-            });
+            generatorColumns = ArrayUtils.addAll(generatorColumns,
+                                                 new Column("p" + POST_LF_SUFFIX),
+                                                 new Column("q" + POST_LF_SUFFIX),
+                                                 new Column("v" + POST_LF_SUFFIX),
+                                                 new Column("targetP" + POST_LF_SUFFIX),
+                                                 new Column("targetQ" + POST_LF_SUFFIX),
+                                                 new Column("targetV" + POST_LF_SUFFIX));
             if (verbose) {
-                generatorColumns = ArrayUtils.addAll(generatorColumns, new Column[] {
-                    new Column(CONNECTED + POST_LF_SUFFIX),
-                    new Column("voltageRegulatorOn" + POST_LF_SUFFIX),
-                    new Column("minQ" + POST_LF_SUFFIX),
-                    new Column("maxQ" + POST_LF_SUFFIX),
-                    new Column(VALIDATION + POST_LF_SUFFIX)
-                });
+                generatorColumns = ArrayUtils.addAll(generatorColumns,
+                                                     new Column(CONNECTED + POST_LF_SUFFIX),
+                                                     new Column("voltageRegulatorOn" + POST_LF_SUFFIX),
+                                                     new Column("minQ" + POST_LF_SUFFIX),
+                                                     new Column("maxQ" + POST_LF_SUFFIX),
+                                                     new Column(VALIDATION + POST_LF_SUFFIX));
             }
         }
         return generatorColumns;
@@ -190,49 +184,46 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
             new Column("loadQ")
         };
         if (verbose) {
-            busColumns = ArrayUtils.addAll(busColumns, new Column[] {
-                new Column("genP"),
-                new Column("genQ"),
-                new Column("shuntP"),
-                new Column("shuntQ"),
-                new Column("svcP"),
-                new Column("svcQ"),
-                new Column("vscCSP"),
-                new Column("vscCSQ"),
-                new Column("lineP"),
-                new Column("lineQ"),
-                new Column("twtP"),
-                new Column("twtQ"),
-                new Column("tltP"),
-                new Column("tltQ"),
-                new Column(VALIDATION)
-            });
+            busColumns = ArrayUtils.addAll(busColumns,
+                                           new Column("genP"),
+                                           new Column("genQ"),
+                                           new Column("shuntP"),
+                                           new Column("shuntQ"),
+                                           new Column("svcP"),
+                                           new Column("svcQ"),
+                                           new Column("vscCSP"),
+                                           new Column("vscCSQ"),
+                                           new Column("lineP"),
+                                           new Column("lineQ"),
+                                           new Column("twtP"),
+                                           new Column("twtQ"),
+                                           new Column("tltP"),
+                                           new Column("tltQ"),
+                                           new Column(VALIDATION));
         }
         if (compareResults) {
-            busColumns = ArrayUtils.addAll(busColumns, new Column[] {
-                new Column("incomingP" + POST_LF_SUFFIX),
-                new Column("incomingQ" + POST_LF_SUFFIX),
-                new Column("loadP" + POST_LF_SUFFIX),
-                new Column("loadQ" + POST_LF_SUFFIX)
-            });
+            busColumns = ArrayUtils.addAll(busColumns,
+                                           new Column("incomingP" + POST_LF_SUFFIX),
+                                           new Column("incomingQ" + POST_LF_SUFFIX),
+                                           new Column("loadP" + POST_LF_SUFFIX),
+                                           new Column("loadQ" + POST_LF_SUFFIX));
             if (verbose) {
-                busColumns = ArrayUtils.addAll(busColumns, new Column[] {
-                    new Column("genP" + POST_LF_SUFFIX),
-                    new Column("genQ" + POST_LF_SUFFIX),
-                    new Column("shuntP" + POST_LF_SUFFIX),
-                    new Column("shuntQ" + POST_LF_SUFFIX),
-                    new Column("svcP" + POST_LF_SUFFIX),
-                    new Column("svcQ" + POST_LF_SUFFIX),
-                    new Column("vscCSP" + POST_LF_SUFFIX),
-                    new Column("vscCSQ" + POST_LF_SUFFIX),
-                    new Column("lineP" + POST_LF_SUFFIX),
-                    new Column("lineQ" + POST_LF_SUFFIX),
-                    new Column("twtP" + POST_LF_SUFFIX),
-                    new Column("twtQ" + POST_LF_SUFFIX),
-                    new Column("tltP" + POST_LF_SUFFIX),
-                    new Column("tltQ" + POST_LF_SUFFIX),
-                    new Column(VALIDATION + POST_LF_SUFFIX)
-                });
+                busColumns = ArrayUtils.addAll(busColumns,
+                                               new Column("genP" + POST_LF_SUFFIX),
+                                               new Column("genQ" + POST_LF_SUFFIX),
+                                               new Column("shuntP" + POST_LF_SUFFIX),
+                                               new Column("shuntQ" + POST_LF_SUFFIX),
+                                               new Column("svcP" + POST_LF_SUFFIX),
+                                               new Column("svcQ" + POST_LF_SUFFIX),
+                                               new Column("vscCSP" + POST_LF_SUFFIX),
+                                               new Column("vscCSQ" + POST_LF_SUFFIX),
+                                               new Column("lineP" + POST_LF_SUFFIX),
+                                               new Column("lineQ" + POST_LF_SUFFIX),
+                                               new Column("twtP" + POST_LF_SUFFIX),
+                                               new Column("twtQ" + POST_LF_SUFFIX),
+                                               new Column("tltP" + POST_LF_SUFFIX),
+                                               new Column("tltQ" + POST_LF_SUFFIX),
+                                               new Column(VALIDATION + POST_LF_SUFFIX));
             }
         }
         return busColumns;
@@ -248,30 +239,27 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
             new Column("voltageSetpoint")
         };
         if (verbose) {
-            svcColumns = ArrayUtils.addAll(svcColumns, new Column[] {
-                new Column(CONNECTED),
-                new Column("regulationMode"),
-                new Column("bMin"),
-                new Column("bMax"),
-                new Column(VALIDATION)
-            });
+            svcColumns = ArrayUtils.addAll(svcColumns,
+                                           new Column(CONNECTED),
+                                           new Column("regulationMode"),
+                                           new Column("bMin"),
+                                           new Column("bMax"),
+                                           new Column(VALIDATION));
         }
         if (compareResults) {
-            svcColumns = ArrayUtils.addAll(svcColumns, new Column[] {
-                new Column("p" + POST_LF_SUFFIX),
-                new Column("q" + POST_LF_SUFFIX),
-                new Column("v" + POST_LF_SUFFIX),
-                new Column("reactivePowerSetpoint" + POST_LF_SUFFIX),
-                new Column("voltageSetpoint" + POST_LF_SUFFIX)
-            });
+            svcColumns = ArrayUtils.addAll(svcColumns,
+                                           new Column("p" + POST_LF_SUFFIX),
+                                           new Column("q" + POST_LF_SUFFIX),
+                                           new Column("v" + POST_LF_SUFFIX),
+                                           new Column("reactivePowerSetpoint" + POST_LF_SUFFIX),
+                                           new Column("voltageSetpoint" + POST_LF_SUFFIX));
             if (verbose) {
-                svcColumns = ArrayUtils.addAll(svcColumns, new Column[] {
-                    new Column(CONNECTED + POST_LF_SUFFIX),
-                    new Column("regulationMode" + POST_LF_SUFFIX),
-                    new Column("bMin" + POST_LF_SUFFIX),
-                    new Column("bMax" + POST_LF_SUFFIX),
-                    new Column(VALIDATION + POST_LF_SUFFIX)
-                });
+                svcColumns = ArrayUtils.addAll(svcColumns,
+                                               new Column(CONNECTED + POST_LF_SUFFIX),
+                                               new Column("regulationMode" + POST_LF_SUFFIX),
+                                               new Column("bMin" + POST_LF_SUFFIX),
+                                               new Column("bMax" + POST_LF_SUFFIX),
+                                               new Column(VALIDATION + POST_LF_SUFFIX));
             }
         }
         return svcColumns;
@@ -284,35 +272,32 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
             new Column("expectedQ"),
         };
         if (verbose) {
-            shuntColumns = ArrayUtils.addAll(shuntColumns, new Column[] {
-                new Column("p"),
-                new Column("currentSectionCount"),
-                new Column("maximumSectionCount"),
-                new Column("bPerSection"),
-                new Column("v"),
-                new Column(CONNECTED),
-                new Column("qMax"),
-                new Column("nominalV"),
-                new Column(VALIDATION)
-            });
+            shuntColumns = ArrayUtils.addAll(shuntColumns,
+                                             new Column("p"),
+                                             new Column("currentSectionCount"),
+                                             new Column("maximumSectionCount"),
+                                             new Column("bPerSection"),
+                                             new Column("v"),
+                                             new Column(CONNECTED),
+                                             new Column("qMax"),
+                                             new Column("nominalV"),
+                                             new Column(VALIDATION));
         }
         if (compareResults) {
-            shuntColumns = ArrayUtils.addAll(shuntColumns, new Column[] {
-                new Column("q" + POST_LF_SUFFIX),
-                new Column("expectedQ" + POST_LF_SUFFIX),
-            });
+            shuntColumns = ArrayUtils.addAll(shuntColumns,
+                                             new Column("q" + POST_LF_SUFFIX),
+                                             new Column("expectedQ" + POST_LF_SUFFIX));
             if (verbose) {
-                shuntColumns = ArrayUtils.addAll(shuntColumns, new Column[] {
-                    new Column("p" + POST_LF_SUFFIX),
-                    new Column("currentSectionCount" + POST_LF_SUFFIX),
-                    new Column("maximumSectionCount" + POST_LF_SUFFIX),
-                    new Column("bPerSection" + POST_LF_SUFFIX),
-                    new Column("v" + POST_LF_SUFFIX),
-                    new Column(CONNECTED + POST_LF_SUFFIX),
-                    new Column("qMax" + POST_LF_SUFFIX),
-                    new Column("nominalV" + POST_LF_SUFFIX),
-                    new Column(VALIDATION + POST_LF_SUFFIX)
-                });
+                shuntColumns = ArrayUtils.addAll(shuntColumns,
+                                                 new Column("p" + POST_LF_SUFFIX),
+                                                 new Column("currentSectionCount" + POST_LF_SUFFIX),
+                                                 new Column("maximumSectionCount" + POST_LF_SUFFIX),
+                                                 new Column("bPerSection" + POST_LF_SUFFIX),
+                                                 new Column("v" + POST_LF_SUFFIX),
+                                                 new Column(CONNECTED + POST_LF_SUFFIX),
+                                                 new Column("qMax" + POST_LF_SUFFIX),
+                                                 new Column("nominalV" + POST_LF_SUFFIX),
+                                                 new Column(VALIDATION + POST_LF_SUFFIX));
             }
         }
         return shuntColumns;
@@ -382,7 +367,7 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                                  .writeCell(connected2)
                                  .writeCell(mainComponent1)
                                  .writeCell(mainComponent2)
-                                 .writeCell(validated ? SUCCESS : FAIL) :
+                                 .writeCell(getValidated(validated)) :
                         formatter.writeEmptyCell()
                                  .writeEmptyCell()
                                  .writeEmptyCell()
@@ -444,7 +429,7 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                                  .writeCell(voltageRegulatorOn)
                                  .writeCell(minQ)
                                  .writeCell(maxQ)
-                                 .writeCell(validated ? SUCCESS : FAIL) :
+                                 .writeCell(getValidated(validated)) :
                         formatter.writeEmptyCell()
                                  .writeEmptyCell()
                                  .writeEmptyCell()
@@ -499,7 +484,7 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                                  .writeCell(twtQ)
                                  .writeCell(tltP)
                                  .writeCell(tltQ)
-                                 .writeCell(validated ? SUCCESS : FAIL) :
+                                 .writeCell(getValidated(validated)) :
                         formatter.writeEmptyCell()
                                  .writeEmptyCell()
                                  .writeEmptyCell()
@@ -552,7 +537,7 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                                  .writeCell(regulationMode.name())
                                  .writeCell(bMin)
                                  .writeCell(bMax)
-                                 .writeCell(validated ? SUCCESS : FAIL) :
+                                 .writeCell(getValidated(validated)) :
                         formatter.writeEmptyCell()
                                  .writeEmptyCell()
                                  .writeEmptyCell()
@@ -592,7 +577,7 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                                  .writeCell(connected)
                                  .writeCell(qMax)
                                  .writeCell(nominalV)
-                                 .writeCell(validated ? SUCCESS : FAIL) :
+                                 .writeCell(getValidated(validated)) :
                         formatter.writeEmptyCell()
                                  .writeEmptyCell()
                                  .writeEmptyCell()
