@@ -168,16 +168,10 @@ public class ValidationTool implements Tool {
 
     private void runValidation(Network network, ValidationConfig config, Set<ValidationType> validationTypes, ValidationWriters validationWriter, ToolRunningContext context) {
         validationTypes.forEach(validationType -> {
-            try {
-                context.getOutputStream().println("Validate load-flow results of network " + network.getId()
-                                                  + " - validation type: " + validationType
-                                                  + " - result: " + (validationType.check(network, config, validationWriter.getWriter(validationType)) ? "success" : "fail"));
-                validationWriter.getWriter(validationType).setValidationCompleted();
-            } catch (Exception e) {
-                context.getErrorStream().println("Error validating load-flow results of network " + network.getId()
-                                                 + " - validation type: " + validationType
-                                                 + " - error: " + e.getMessage());
-            }
+            context.getOutputStream().println("Validate load-flow results of network " + network.getId()
+                                              + " - validation type: " + validationType
+                                              + " - result: " + (validationType.check(network, config, validationWriter.getWriter(validationType)) ? "success" : "fail"));
+            validationWriter.getWriter(validationType).setValidationCompleted();
         });
     }
 

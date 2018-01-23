@@ -199,65 +199,66 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
 
     @Override
     public void setValidationCompleted() {
-        if (preLoadflowValidationCompleted) {
-            switch (validationType) {
-                case FLOWS:
-                    flowsData.values().forEach(flowData -> {
-                        try {
-                            write(flowData.branchId, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
-                                  Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
-                                  Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, false, false, false, false, flowData, true, false);
-                        } catch (IOException e) {
-                            LOGGER.error("Error writing data of branch {}: {}", flowData.branchId, e.getMessage());
-                        }
-                    });
-                    break;
-                case GENERATORS:
-                    generatorsData.values().forEach(generatorData -> {
-                        try {
-                            write(generatorData.generatorId, Float.NaN, Float.NaN, Float.NaN, Float.NaN, Float.NaN,
-                                  Float.NaN, false, false, Float.NaN, Float.NaN, false, generatorData, true, false);
-                        } catch (IOException e) {
-                            LOGGER.error("Error writing data of generator {}: {}", generatorData.generatorId, e.getMessage());
-                        }
-                    });
-                    break;
-                case BUSES:
-                    busesData.values().forEach(busData -> {
-                        try {
-                            write(busData.busId, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
-                                  Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
-                                  Double.NaN, Double.NaN, Double.NaN, false, busData, true, false);
-                        } catch (IOException e) {
-                            LOGGER.error("Error writing data of bus {}: {}", busData.busId, e.getMessage());
-                        }
-                    });
-                    break;
-                case SVCS:
-                    svcsData.values().forEach(svcData -> {
-                        try {
-                            write(svcData.svcId, Float.NaN, Float.NaN, Float.NaN, Float.NaN, Float.NaN,
-                                  false, RegulationMode.OFF, Float.NaN, Float.NaN, false, svcData, true, false);
-                        } catch (IOException e) {
-                            LOGGER.error("Error writing data of svc {}: {}", svcData.svcId, e.getMessage());
-                        }
-                    });
-                    break;
-                case SHUNTS:
-                    shuntsData.values().forEach(shuntData -> {
-                        try {
-                            write(shuntData.shuntId, Float.NaN, Float.NaN, Float.NaN, -1, -1, Float.NaN,
-                                  Float.NaN, false, Float.NaN, Float.NaN, false, shuntData, true, false);
-                        } catch (IOException e) {
-                            LOGGER.error("Error writing data of shunt {}: {}", shuntData.shuntId, e.getMessage());
-                        }
-                    });
-                    break;
-                default:
-                    throw new AssertionError("Unexpected ValidationType value: " + validationType);
-            }
+        if (!preLoadflowValidationCompleted) {
+            preLoadflowValidationCompleted = true;
+            return;
         }
-        preLoadflowValidationCompleted = true;
+        switch (validationType) {
+            case FLOWS:
+                flowsData.values().forEach(flowData -> {
+                    try {
+                        write(flowData.branchId, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
+                              Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
+                              Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, false, false, false, false, flowData, true, false);
+                    } catch (IOException e) {
+                        LOGGER.error("Error writing data of branch {}: {}", flowData.branchId, e.getMessage());
+                    }
+                });
+                break;
+            case GENERATORS:
+                generatorsData.values().forEach(generatorData -> {
+                    try {
+                        write(generatorData.generatorId, Float.NaN, Float.NaN, Float.NaN, Float.NaN, Float.NaN,
+                              Float.NaN, false, false, Float.NaN, Float.NaN, false, generatorData, true, false);
+                    } catch (IOException e) {
+                        LOGGER.error("Error writing data of generator {}: {}", generatorData.generatorId, e.getMessage());
+                    }
+                });
+                break;
+            case BUSES:
+                busesData.values().forEach(busData -> {
+                    try {
+                        write(busData.busId, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
+                              Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
+                              Double.NaN, Double.NaN, Double.NaN, false, busData, true, false);
+                    } catch (IOException e) {
+                        LOGGER.error("Error writing data of bus {}: {}", busData.busId, e.getMessage());
+                    }
+                });
+                break;
+            case SVCS:
+                svcsData.values().forEach(svcData -> {
+                    try {
+                        write(svcData.svcId, Float.NaN, Float.NaN, Float.NaN, Float.NaN, Float.NaN,
+                              false, RegulationMode.OFF, Float.NaN, Float.NaN, false, svcData, true, false);
+                    } catch (IOException e) {
+                        LOGGER.error("Error writing data of svc {}: {}", svcData.svcId, e.getMessage());
+                    }
+                });
+                break;
+            case SHUNTS:
+                shuntsData.values().forEach(shuntData -> {
+                    try {
+                        write(shuntData.shuntId, Float.NaN, Float.NaN, Float.NaN, -1, -1, Float.NaN,
+                              Float.NaN, false, Float.NaN, Float.NaN, false, shuntData, true, false);
+                    } catch (IOException e) {
+                        LOGGER.error("Error writing data of shunt {}: {}", shuntData.shuntId, e.getMessage());
+                    }
+                });
+                break;
+            default:
+                throw new AssertionError("Unexpected ValidationType value: " + validationType);
+        }
     }
 
     @Override

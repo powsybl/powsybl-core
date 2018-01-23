@@ -50,7 +50,7 @@ public enum ValidationType {
         }
     }
 
-    public boolean check(Network network, ValidationConfig config, ValidationWriter validationWriter) throws IOException {
+    public boolean check(Network network, ValidationConfig config, ValidationWriter validationWriter) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(config);
         Objects.requireNonNull(validationWriter);
