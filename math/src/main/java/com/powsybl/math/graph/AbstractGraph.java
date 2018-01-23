@@ -150,7 +150,7 @@ public abstract class AbstractGraph<V, E> implements Graph<V, E> {
         checkVertex(v1);
         checkVertex(v2);
         int e;
-        Edge<E> edge = new Edge<E>(v1, v2, obj);
+        Edge<E> edge = new Edge<>(v1, v2, obj);
         if (removedEdges.isEmpty()) {
             e = edges.size();
             edges.add(edge);

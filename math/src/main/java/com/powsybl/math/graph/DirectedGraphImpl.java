@@ -122,9 +122,7 @@ public class DirectedGraphImpl<V, E> extends AbstractGraph<V, E> implements Dire
                 encountered2 = encountered;
             }
 
-            if (findAllPaths(e, head, pathComplete, pathCanceled, path2, encountered2, paths)) {
-                continue;
-            }
+            findAllPaths(e, head, pathComplete, pathCanceled, path2, encountered2, paths);
         }
     }
 
@@ -193,9 +191,8 @@ public class DirectedGraphImpl<V, E> extends AbstractGraph<V, E> implements Dire
                 Edge<E> edge = edges.get(e);
                 assert edge.getV1() == v;
 
-                if (!visited[edge.getV2()] && isCyclicUtil(edge.getV2(), visited, recStack)) {
-                    return true;
-                } else if (recStack[edge.getV2()]) {
+                if ((!visited[edge.getV2()] && isCyclicUtil(edge.getV2(), visited, recStack)) ||
+                        recStack[edge.getV2()]) {
                     return true;
                 }
             }
