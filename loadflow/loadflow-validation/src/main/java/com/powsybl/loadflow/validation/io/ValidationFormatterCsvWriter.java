@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017, RTE (http://www.rte-france.com)
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -10,7 +10,10 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.Objects;
 
+import org.apache.commons.lang3.ArrayUtils;
+
 import com.powsybl.commons.io.table.Column;
+import com.powsybl.commons.io.table.TableFormatter;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.commons.io.table.TableFormatterFactory;
 import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
@@ -23,309 +26,583 @@ import com.powsybl.loadflow.validation.ValidationType;
 public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWriter {
 
     private final boolean verbose;
-    private final ValidationType validationType;
 
     public ValidationFormatterCsvWriter(String id, Class<? extends TableFormatterFactory> formatterFactoryClass,
                                    TableFormatterConfig formatterConfig, Writer writer, boolean verbose,
-                                   ValidationType validationType) {
+                                   ValidationType validationType, boolean compareResults) {
         Objects.requireNonNull(id);
         Objects.requireNonNull(formatterFactoryClass);
         Objects.requireNonNull(writer);
         this.verbose = verbose;
         this.validationType = Objects.requireNonNull(validationType);
+        this.compareResults = compareResults;
         formatter = createTableFormatter(id, formatterFactoryClass, formatterConfig, writer, validationType);
     }
 
     public ValidationFormatterCsvWriter(String id, Class<? extends TableFormatterFactory> formatterFactoryClass,
-                                   Writer writer, boolean verbose, ValidationType validationType) {
-        this(id, formatterFactoryClass, TableFormatterConfig.load(), writer, verbose, validationType);
+                                   Writer writer, boolean verbose, ValidationType validationType, boolean compareResults) {
+        this(id, formatterFactoryClass, TableFormatterConfig.load(), writer, verbose, validationType, compareResults);
     }
 
     protected Column[] getColumns() {
         switch (validationType) {
             case FLOWS:
-                if (verbose) {
-                    return new Column[] {
-                        new Column("id"),
-                        new Column("network_p1"),
-                        new Column("expected_p1"),
-                        new Column("network_q1"),
-                        new Column("expected_q1"),
-                        new Column("network_p2"),
-                        new Column("expected_p2"),
-                        new Column("network_q2"),
-                        new Column("expected_q2"),
-                        new Column("r"),
-                        new Column("x"),
-                        new Column("g1"),
-                        new Column("g2"),
-                        new Column("b1"),
-                        new Column("b2"),
-                        new Column("rho1"),
-                        new Column("rho2"),
-                        new Column("alpha1"),
-                        new Column("alpha2"),
-                        new Column("u1"),
-                        new Column("u2"),
-                        new Column("theta1"),
-                        new Column("theta2"),
-                        new Column("z"),
-                        new Column("y"),
-                        new Column("ksi"),
-                        new Column("connected1"),
-                        new Column("connected2"),
-                        new Column("mainComponent1"),
-                        new Column("mainComponent2"),
-                        new Column(VALIDATION)
-                    };
-                }
-                return new Column[] {
-                    new Column("id"),
-                    new Column("network_p1"),
-                    new Column("expected_p1"),
-                    new Column("network_q1"),
-                    new Column("expected_q1"),
-                    new Column("network_p2"),
-                    new Column("expected_p2"),
-                    new Column("network_q2"),
-                    new Column("expected_q2")
-                };
+                return getFlowColumns();
             case GENERATORS:
-                if (verbose) {
-                    return new Column[] {
-                        new Column("id"),
-                        new Column("p"),
-                        new Column("q"),
-                        new Column("v"),
-                        new Column("targetP"),
-                        new Column("targetQ"),
-                        new Column("targetV"),
-                        new Column(CONNECTED),
-                        new Column("voltageRegulatorOn"),
-                        new Column("minQ"),
-                        new Column("maxQ"),
-                        new Column(VALIDATION)
-                    };
-                }
-                return new Column[] {
-                    new Column("id"),
-                    new Column("p"),
-                    new Column("q"),
-                    new Column("v"),
-                    new Column("targetP"),
-                    new Column("targetQ"),
-                    new Column("targetV")
-                };
+                return getGeneratorColumns();
             case BUSES:
-                if (verbose) {
-                    return new Column[] {
-                        new Column("id"),
-                        new Column("incomingP"),
-                        new Column("incomingQ"),
-                        new Column("loadP"),
-                        new Column("loadQ"),
-                        new Column("genP"),
-                        new Column("genQ"),
-                        new Column("shuntP"),
-                        new Column("shuntQ"),
-                        new Column("svcP"),
-                        new Column("svcQ"),
-                        new Column("vscCSP"),
-                        new Column("vscCSQ"),
-                        new Column("lineP"),
-                        new Column("lineQ"),
-                        new Column("twtP"),
-                        new Column("twtQ"),
-                        new Column("tltP"),
-                        new Column("tltQ"),
-                        new Column(VALIDATION)
-                    };
-                }
-                return new Column[] {
-                    new Column("id"),
-                    new Column("incomingP"),
-                    new Column("incomingQ"),
-                    new Column("loadP"),
-                    new Column("loadQ")
-                };
+                return getBusColumns();
             case SVCS:
-                if (verbose) {
-                    return new Column[] {
-                        new Column("id"),
-                        new Column("p"),
-                        new Column("q"),
-                        new Column("v"),
-                        new Column("reactivePowerSetpoint"),
-                        new Column("voltageSetpoint"),
-                        new Column(CONNECTED),
-                        new Column("regulationMode"),
-                        new Column("bMin"),
-                        new Column("bMax"),
-                        new Column(VALIDATION)
-                    };
-                }
-                return new Column[] {
-                    new Column("id"),
-                    new Column("p"),
-                    new Column("q"),
-                    new Column("v"),
-                    new Column("reactivePowerSetpoint"),
-                    new Column("voltageSetpoint")
-                };
+                return getSvcColumns();
             case SHUNTS:
-                if (verbose) {
-                    return new Column[] {
-                        new Column("id"),
-                        new Column("q"),
-                        new Column("expectedQ"),
-                        new Column("p"),
-                        new Column("currentSectionCount"),
-                        new Column("maximumSectionCount"),
-                        new Column("bPerSection"),
-                        new Column("v"),
-                        new Column(CONNECTED),
-                        new Column("qMax"),
-                        new Column("nominalV"),
-                        new Column(VALIDATION)
-                    };
-                }
-                return new Column[] {
-                    new Column("id"),
-                    new Column("q"),
-                    new Column("expectedQ")
-                };
+                return getShuntColumns();
             default:
                 throw new AssertionError("Unexpected ValidationType value: " + validationType);
         }
     }
 
-    @Override
-    public void write(String branchId, double p1, double p1Calc, double q1, double q1Calc, double p2, double p2Calc, double q2, double q2Calc,
-                      double r, double x, double g1, double g2, double b1, double b2, double rho1, double rho2, double alpha1, double alpha2,
-                      double u1, double u2, double theta1, double theta2, double z, double y, double ksi, boolean connected1, boolean connected2,
-                      boolean mainComponent1, boolean mainComponent2, boolean validated) throws IOException {
-        Objects.requireNonNull(branchId);
-        formatter.writeCell(branchId)
-                 .writeCell(p1)
-                 .writeCell(p1Calc)
-                 .writeCell(q1)
-                 .writeCell(q1Calc)
-                 .writeCell(p2)
-                 .writeCell(p2Calc)
-                 .writeCell(q2)
-                 .writeCell(q2Calc);
+    private Column[] getFlowColumns() {
+        Column[] flowColumns = new Column[] {
+            new Column("id"),
+            new Column("network_p1"),
+            new Column("expected_p1"),
+            new Column("network_q1"),
+            new Column("expected_q1"),
+            new Column("network_p2"),
+            new Column("expected_p2"),
+            new Column("network_q2"),
+            new Column("expected_q2")
+        };
         if (verbose) {
-            formatter.writeCell(r)
-                     .writeCell(x)
-                     .writeCell(g1)
-                     .writeCell(g2)
-                     .writeCell(b1)
-                     .writeCell(b2)
-                     .writeCell(rho1)
-                     .writeCell(rho2)
-                     .writeCell(alpha1)
-                     .writeCell(alpha2)
-                     .writeCell(u1)
-                     .writeCell(u2)
-                     .writeCell(theta1)
-                     .writeCell(theta2)
-                     .writeCell(z)
-                     .writeCell(y)
-                     .writeCell(ksi)
-                     .writeCell(connected1)
-                     .writeCell(connected2)
-                     .writeCell(mainComponent1)
-                     .writeCell(mainComponent2)
-                     .writeCell(validated ? SUCCESS : FAIL);
+            flowColumns = ArrayUtils.addAll(flowColumns, new Column[] {
+                new Column("r"),
+                new Column("x"),
+                new Column("g1"),
+                new Column("g2"),
+                new Column("b1"),
+                new Column("b2"),
+                new Column("rho1"),
+                new Column("rho2"),
+                new Column("alpha1"),
+                new Column("alpha2"),
+                new Column("u1"),
+                new Column("u2"),
+                new Column("theta1"),
+                new Column("theta2"),
+                new Column("z"),
+                new Column("y"),
+                new Column("ksi"),
+                new Column("connected1"),
+                new Column("connected2"),
+                new Column("mainComponent1"),
+                new Column("mainComponent2"),
+                new Column(VALIDATION)
+            });
         }
+        if (compareResults) {
+            flowColumns = ArrayUtils.addAll(flowColumns, new Column[] {
+                new Column("network_p1" + POST_LF_SUFFIX),
+                new Column("expected_p1" + POST_LF_SUFFIX),
+                new Column("network_q1" + POST_LF_SUFFIX),
+                new Column("expected_q1" + POST_LF_SUFFIX),
+                new Column("network_p2" + POST_LF_SUFFIX),
+                new Column("expected_p2" + POST_LF_SUFFIX),
+                new Column("network_q2" + POST_LF_SUFFIX),
+                new Column("expected_q2" + POST_LF_SUFFIX)
+            });
+            if (verbose) {
+                flowColumns = ArrayUtils.addAll(flowColumns, new Column[] {
+                    new Column("r" + POST_LF_SUFFIX),
+                    new Column("x" + POST_LF_SUFFIX),
+                    new Column("g1" + POST_LF_SUFFIX),
+                    new Column("g2" + POST_LF_SUFFIX),
+                    new Column("b1" + POST_LF_SUFFIX),
+                    new Column("b2" + POST_LF_SUFFIX),
+                    new Column("rho1" + POST_LF_SUFFIX),
+                    new Column("rho2" + POST_LF_SUFFIX),
+                    new Column("alpha1" + POST_LF_SUFFIX),
+                    new Column("alpha2" + POST_LF_SUFFIX),
+                    new Column("u1" + POST_LF_SUFFIX),
+                    new Column("u2" + POST_LF_SUFFIX),
+                    new Column("theta1" + POST_LF_SUFFIX),
+                    new Column("theta2" + POST_LF_SUFFIX),
+                    new Column("z" + POST_LF_SUFFIX),
+                    new Column("y" + POST_LF_SUFFIX),
+                    new Column("ksi" + POST_LF_SUFFIX),
+                    new Column("connected1" + POST_LF_SUFFIX),
+                    new Column("connected2" + POST_LF_SUFFIX),
+                    new Column("mainComponent1" + POST_LF_SUFFIX),
+                    new Column("mainComponent2" + POST_LF_SUFFIX),
+                    new Column(VALIDATION + POST_LF_SUFFIX)
+                });
+            }
+        }
+        return flowColumns;
+    }
+
+    private Column[] getGeneratorColumns() {
+        Column[] generatorColumns = new Column[] {
+            new Column("id"),
+            new Column("p"),
+            new Column("q"),
+            new Column("v"),
+            new Column("targetP"),
+            new Column("targetQ"),
+            new Column("targetV")
+        };
+        if (verbose) {
+            generatorColumns = ArrayUtils.addAll(generatorColumns, new Column[] {
+                new Column(CONNECTED),
+                new Column("voltageRegulatorOn"),
+                new Column("minQ"),
+                new Column("maxQ"),
+                new Column(VALIDATION)
+            });
+        }
+        if (compareResults) {
+            generatorColumns = ArrayUtils.addAll(generatorColumns, new Column[] {
+                new Column("p" + POST_LF_SUFFIX),
+                new Column("q" + POST_LF_SUFFIX),
+                new Column("v" + POST_LF_SUFFIX),
+                new Column("targetP" + POST_LF_SUFFIX),
+                new Column("targetQ" + POST_LF_SUFFIX),
+                new Column("targetV" + POST_LF_SUFFIX)
+            });
+            if (verbose) {
+                generatorColumns = ArrayUtils.addAll(generatorColumns, new Column[] {
+                    new Column(CONNECTED + POST_LF_SUFFIX),
+                    new Column("voltageRegulatorOn" + POST_LF_SUFFIX),
+                    new Column("minQ" + POST_LF_SUFFIX),
+                    new Column("maxQ" + POST_LF_SUFFIX),
+                    new Column(VALIDATION + POST_LF_SUFFIX)
+                });
+            }
+        }
+        return generatorColumns;
+    }
+
+    private Column[] getBusColumns() {
+        Column[] busColumns = new Column[] {
+            new Column("id"),
+            new Column("incomingP"),
+            new Column("incomingQ"),
+            new Column("loadP"),
+            new Column("loadQ")
+        };
+        if (verbose) {
+            busColumns = ArrayUtils.addAll(busColumns, new Column[] {
+                new Column("genP"),
+                new Column("genQ"),
+                new Column("shuntP"),
+                new Column("shuntQ"),
+                new Column("svcP"),
+                new Column("svcQ"),
+                new Column("vscCSP"),
+                new Column("vscCSQ"),
+                new Column("lineP"),
+                new Column("lineQ"),
+                new Column("twtP"),
+                new Column("twtQ"),
+                new Column("tltP"),
+                new Column("tltQ"),
+                new Column(VALIDATION)
+            });
+        }
+        if (compareResults) {
+            busColumns = ArrayUtils.addAll(busColumns, new Column[] {
+                new Column("incomingP" + POST_LF_SUFFIX),
+                new Column("incomingQ" + POST_LF_SUFFIX),
+                new Column("loadP" + POST_LF_SUFFIX),
+                new Column("loadQ" + POST_LF_SUFFIX)
+            });
+            if (verbose) {
+                busColumns = ArrayUtils.addAll(busColumns, new Column[] {
+                    new Column("genP" + POST_LF_SUFFIX),
+                    new Column("genQ" + POST_LF_SUFFIX),
+                    new Column("shuntP" + POST_LF_SUFFIX),
+                    new Column("shuntQ" + POST_LF_SUFFIX),
+                    new Column("svcP" + POST_LF_SUFFIX),
+                    new Column("svcQ" + POST_LF_SUFFIX),
+                    new Column("vscCSP" + POST_LF_SUFFIX),
+                    new Column("vscCSQ" + POST_LF_SUFFIX),
+                    new Column("lineP" + POST_LF_SUFFIX),
+                    new Column("lineQ" + POST_LF_SUFFIX),
+                    new Column("twtP" + POST_LF_SUFFIX),
+                    new Column("twtQ" + POST_LF_SUFFIX),
+                    new Column("tltP" + POST_LF_SUFFIX),
+                    new Column("tltQ" + POST_LF_SUFFIX),
+                    new Column(VALIDATION + POST_LF_SUFFIX)
+                });
+            }
+        }
+        return busColumns;
+    }
+
+    private Column[] getSvcColumns() {
+        Column[] svcColumns = new Column[] {
+            new Column("id"),
+            new Column("p"),
+            new Column("q"),
+            new Column("v"),
+            new Column("reactivePowerSetpoint"),
+            new Column("voltageSetpoint")
+        };
+        if (verbose) {
+            svcColumns = ArrayUtils.addAll(svcColumns, new Column[] {
+                new Column(CONNECTED),
+                new Column("regulationMode"),
+                new Column("bMin"),
+                new Column("bMax"),
+                new Column(VALIDATION)
+            });
+        }
+        if (compareResults) {
+            svcColumns = ArrayUtils.addAll(svcColumns, new Column[] {
+                new Column("p" + POST_LF_SUFFIX),
+                new Column("q" + POST_LF_SUFFIX),
+                new Column("v" + POST_LF_SUFFIX),
+                new Column("reactivePowerSetpoint" + POST_LF_SUFFIX),
+                new Column("voltageSetpoint" + POST_LF_SUFFIX)
+            });
+            if (verbose) {
+                svcColumns = ArrayUtils.addAll(svcColumns, new Column[] {
+                    new Column(CONNECTED + POST_LF_SUFFIX),
+                    new Column("regulationMode" + POST_LF_SUFFIX),
+                    new Column("bMin" + POST_LF_SUFFIX),
+                    new Column("bMax" + POST_LF_SUFFIX),
+                    new Column(VALIDATION + POST_LF_SUFFIX)
+                });
+            }
+        }
+        return svcColumns;
+    }
+
+    private Column[] getShuntColumns() {
+        Column[] shuntColumns = new Column[] {
+            new Column("id"),
+            new Column("q"),
+            new Column("expectedQ"),
+        };
+        if (verbose) {
+            shuntColumns = ArrayUtils.addAll(shuntColumns, new Column[] {
+                new Column("p"),
+                new Column("currentSectionCount"),
+                new Column("maximumSectionCount"),
+                new Column("bPerSection"),
+                new Column("v"),
+                new Column(CONNECTED),
+                new Column("qMax"),
+                new Column("nominalV"),
+                new Column(VALIDATION)
+            });
+        }
+        if (compareResults) {
+            shuntColumns = ArrayUtils.addAll(shuntColumns, new Column[] {
+                new Column("q" + POST_LF_SUFFIX),
+                new Column("expectedQ" + POST_LF_SUFFIX),
+            });
+            if (verbose) {
+                shuntColumns = ArrayUtils.addAll(shuntColumns, new Column[] {
+                    new Column("p" + POST_LF_SUFFIX),
+                    new Column("currentSectionCount" + POST_LF_SUFFIX),
+                    new Column("maximumSectionCount" + POST_LF_SUFFIX),
+                    new Column("bPerSection" + POST_LF_SUFFIX),
+                    new Column("v" + POST_LF_SUFFIX),
+                    new Column(CONNECTED + POST_LF_SUFFIX),
+                    new Column("qMax" + POST_LF_SUFFIX),
+                    new Column("nominalV" + POST_LF_SUFFIX),
+                    new Column(VALIDATION + POST_LF_SUFFIX)
+                });
+            }
+        }
+        return shuntColumns;
     }
 
     @Override
-    public void write(String generatorId, float p, float q, float v, float targetP, float targetQ, float targetV,
-                      boolean connected, boolean voltageRegulatorOn, float minQ, float maxQ, boolean validated) throws IOException {
-        Objects.requireNonNull(generatorId);
-        formatter.writeCell(generatorId)
-                 .writeCell(-p)
-                 .writeCell(-q)
-                 .writeCell(v)
-                 .writeCell(targetP)
-                 .writeCell(targetQ)
-                 .writeCell(targetV);
-        if (verbose) {
-            formatter.writeCell(connected)
-                     .writeCell(voltageRegulatorOn)
-                     .writeCell(minQ)
-                     .writeCell(maxQ)
-                     .writeCell(validated ? SUCCESS : FAIL);
+    protected void write(String branchId, double p1, double p1Calc, double q1, double q1Calc, double p2, double p2Calc, double q2, double q2Calc,
+                         double r, double x, double g1, double g2, double b1, double b2, double rho1, double rho2, double alpha1, double alpha2,
+                         double u1, double u2, double theta1, double theta2, double z, double y, double ksi, boolean connected1, boolean connected2,
+                         boolean mainComponent1, boolean mainComponent2, boolean validated, FlowData flowData, boolean found, boolean writeValues) throws IOException {
+        formatter.writeCell(branchId);
+        if (compareResults) {
+            formatter = found ?
+                        write(found, flowData.p1, flowData.p1Calc, flowData.q1, flowData.q1Calc, flowData.p2, flowData.p2Calc, flowData.q2, flowData.q2Calc,
+                              flowData.r, flowData.x, flowData.g1, flowData.g2, flowData.b1, flowData.b2, flowData.rho1, flowData.rho2, flowData.alpha1, flowData.alpha2,
+                              flowData.u1, flowData.u2, flowData.theta1, flowData.theta2, flowData.z, flowData.y, flowData.ksi, flowData.connected1, flowData.connected2,
+                              flowData.mainComponent1, flowData.mainComponent2, flowData.validated) :
+                        write(found, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
+                              Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
+                              Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, false, false, false, false);
         }
+        formatter = write(writeValues, p1, p1Calc, q1, q1Calc, p2, p2Calc, q2, q2Calc, r, x, g1, g2, b1, b2, rho1, rho2, alpha1, alpha2,
+                          u1, u2, theta1, theta2, z, y, ksi, connected1, connected2, mainComponent1, mainComponent2, validated);
+    }
+
+    private TableFormatter write(boolean writeValues, double p1, double p1Calc, double q1, double q1Calc, double p2, double p2Calc, double q2, double q2Calc,
+                                 double r, double x, double g1, double g2, double b1, double b2, double rho1, double rho2, double alpha1, double alpha2,
+                                 double u1, double u2, double theta1, double theta2, double z, double y, double ksi, boolean connected1, boolean connected2,
+                                 boolean mainComponent1, boolean mainComponent2, boolean validated) throws IOException {
+        formatter = writeValues ?
+                    formatter.writeCell(p1)
+                             .writeCell(p1Calc)
+                             .writeCell(q1)
+                             .writeCell(q1Calc)
+                             .writeCell(p2)
+                             .writeCell(p2Calc)
+                             .writeCell(q2)
+                             .writeCell(q2Calc) :
+                    formatter.writeEmptyCell()
+                             .writeEmptyCell()
+                             .writeEmptyCell()
+                             .writeEmptyCell()
+                             .writeEmptyCell()
+                             .writeEmptyCell()
+                             .writeEmptyCell()
+                             .writeEmptyCell();
+        if (verbose) {
+            formatter = writeValues ?
+                        formatter.writeCell(r)
+                                 .writeCell(x)
+                                 .writeCell(g1)
+                                 .writeCell(g2)
+                                 .writeCell(b1)
+                                 .writeCell(b2)
+                                 .writeCell(rho1)
+                                 .writeCell(rho2)
+                                 .writeCell(alpha1)
+                                 .writeCell(alpha2)
+                                 .writeCell(u1)
+                                 .writeCell(u2)
+                                 .writeCell(theta1)
+                                 .writeCell(theta2)
+                                 .writeCell(z)
+                                 .writeCell(y)
+                                 .writeCell(ksi)
+                                 .writeCell(connected1)
+                                 .writeCell(connected2)
+                                 .writeCell(mainComponent1)
+                                 .writeCell(mainComponent2)
+                                 .writeCell(validated ? SUCCESS : FAIL) :
+                        formatter.writeEmptyCell()
+                                 .writeEmptyCell()
+                                 .writeEmptyCell()
+                                 .writeEmptyCell()
+                                 .writeEmptyCell()
+                                 .writeEmptyCell()
+                                 .writeEmptyCell()
+                                 .writeEmptyCell()
+                                 .writeEmptyCell()
+                                 .writeEmptyCell()
+                                 .writeEmptyCell()
+                                 .writeEmptyCell()
+                                 .writeEmptyCell()
+                                 .writeEmptyCell()
+                                 .writeEmptyCell()
+                                 .writeEmptyCell()
+                                 .writeEmptyCell()
+                                 .writeEmptyCell()
+                                 .writeEmptyCell()
+                                 .writeEmptyCell()
+                                 .writeEmptyCell()
+                                 .writeEmptyCell();
+        }
+        return formatter;
     }
 
     @Override
-    public void write(String busId, double incomingP, double incomingQ, double loadP, double loadQ, double genP, double genQ,
-                      double shuntP, double shuntQ, double svcP, double svcQ, double vscCSP, double vscCSQ, double lineP, double lineQ,
-                      double twtP, double twtQ, double tltP, double tltQ, boolean validated) throws IOException {
-        Objects.requireNonNull(busId);
-        formatter.writeCell(busId)
-                 .writeCell(incomingP)
-                 .writeCell(incomingQ)
-                 .writeCell(loadP)
-                 .writeCell(loadQ);
-        if (verbose) {
-            formatter.writeCell(genP)
-                     .writeCell(genQ)
-                     .writeCell(shuntP)
-                     .writeCell(shuntQ)
-                     .writeCell(svcP)
-                     .writeCell(svcQ)
-                     .writeCell(vscCSP)
-                     .writeCell(vscCSQ)
-                     .writeCell(lineP)
-                     .writeCell(lineQ)
-                     .writeCell(twtP)
-                     .writeCell(twtQ)
-                     .writeCell(tltP)
-                     .writeCell(tltQ)
-                     .writeCell(validated ? SUCCESS : FAIL);
+    protected void write(String generatorId, float p, float q, float v, float targetP, float targetQ, float targetV,
+                         boolean connected, boolean voltageRegulatorOn, float minQ, float maxQ, boolean validated,
+                         GeneratorData generatorData, boolean found, boolean writeValues) throws IOException {
+        formatter.writeCell(generatorId);
+        if (compareResults) {
+            formatter = found ?
+                        write(found, generatorData.p, generatorData.q, generatorData.v, generatorData.targetP, generatorData.targetQ, generatorData.targetV,
+                              generatorData.connected, generatorData.voltageRegulatorOn, generatorData.minQ, generatorData.maxQ, generatorData.validated) :
+                        write(found, Float.NaN, Float.NaN, Float.NaN, Float.NaN, Float.NaN, Float.NaN, false, false, Float.NaN, Float.NaN, false);
         }
+        formatter = write(writeValues, p, q, v, targetP, targetQ, targetV, connected, voltageRegulatorOn, minQ, maxQ, validated);
+    }
+
+    private TableFormatter write(boolean writeValues, float p, float q, float v, float targetP, float targetQ, float targetV, boolean connected,
+                                 boolean voltageRegulatorOn, float minQ, float maxQ, boolean validated) throws IOException {
+        formatter = writeValues ?
+                    formatter.writeCell(-p)
+                             .writeCell(-q)
+                             .writeCell(v)
+                             .writeCell(targetP)
+                             .writeCell(targetQ)
+                             .writeCell(targetV) :
+                    formatter.writeEmptyCell()
+                             .writeEmptyCell()
+                             .writeEmptyCell()
+                             .writeEmptyCell()
+                             .writeEmptyCell()
+                             .writeEmptyCell();
+        if (verbose) {
+            formatter = writeValues ?
+                        formatter.writeCell(connected)
+                                 .writeCell(voltageRegulatorOn)
+                                 .writeCell(minQ)
+                                 .writeCell(maxQ)
+                                 .writeCell(validated ? SUCCESS : FAIL) :
+                        formatter.writeEmptyCell()
+                                 .writeEmptyCell()
+                                 .writeEmptyCell()
+                                 .writeEmptyCell()
+                                 .writeEmptyCell();
+        }
+        return formatter;
     }
 
     @Override
-    public void write(String svcId, float p, float q, float v, float reactivePowerSetpoint, float voltageSetpoint,
-                      boolean connected, RegulationMode regulationMode, float bMin, float bMax, boolean validated) throws IOException {
-        Objects.requireNonNull(svcId);
-        formatter.writeCell(svcId)
-                 .writeCell(-p)
-                 .writeCell(-q)
-                 .writeCell(v)
-                 .writeCell(reactivePowerSetpoint)
-                 .writeCell(voltageSetpoint);
-        if (verbose) {
-            formatter.writeCell(connected)
-                     .writeCell(regulationMode.name())
-                     .writeCell(bMin)
-                     .writeCell(bMax)
-                     .writeCell(validated ? SUCCESS : FAIL);
+    protected void write(String busId, double incomingP, double incomingQ, double loadP, double loadQ, double genP, double genQ, double shuntP, double shuntQ,
+                         double svcP, double svcQ, double vscCSP, double vscCSQ, double lineP, double lineQ, double twtP, double twtQ, double tltP, double tltQ,
+                         boolean validated, BusData busData, boolean found, boolean writeValues) throws IOException {
+        formatter.writeCell(busId);
+        if (compareResults) {
+            formatter = found ?
+                        write(found, busData.incomingP, busData.incomingQ, busData.loadP, busData.loadQ, busData.genP, busData.genQ,
+                              busData.shuntP, busData.shuntQ, busData.svcP, busData.svcQ, busData.vscCSP, busData.vscCSQ,
+                              busData.lineP, busData.lineQ, busData.twtP, busData.twtQ, busData.tltP, busData.tltQ, busData.validated) :
+                        write(found, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
+                              Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false);
         }
+        formatter = write(writeValues, incomingP, incomingQ, loadP, loadQ, genP, genQ, shuntP, shuntQ,
+                          svcP, svcQ, vscCSP, vscCSQ, lineP, lineQ, twtP, twtQ, tltP, tltQ, validated);
+    }
+
+    private TableFormatter write(boolean writeValues, double incomingP, double incomingQ, double loadP, double loadQ, double genP, double genQ,
+                                 double shuntP, double shuntQ, double svcP, double svcQ, double vscCSP, double vscCSQ, double lineP, double lineQ,
+                                 double twtP, double twtQ, double tltP, double tltQ, boolean validated) throws IOException {
+        formatter = writeValues ?
+                    formatter.writeCell(incomingP)
+                             .writeCell(incomingQ)
+                             .writeCell(loadP)
+                             .writeCell(loadQ) :
+                    formatter.writeEmptyCell()
+                             .writeEmptyCell()
+                             .writeEmptyCell()
+                             .writeEmptyCell();
+        if (verbose) {
+            formatter = writeValues ?
+                        formatter.writeCell(genP)
+                                 .writeCell(genQ)
+                                 .writeCell(shuntP)
+                                 .writeCell(shuntQ)
+                                 .writeCell(svcP)
+                                 .writeCell(svcQ)
+                                 .writeCell(vscCSP)
+                                 .writeCell(vscCSQ)
+                                 .writeCell(lineP)
+                                 .writeCell(lineQ)
+                                 .writeCell(twtP)
+                                 .writeCell(twtQ)
+                                 .writeCell(tltP)
+                                 .writeCell(tltQ)
+                                 .writeCell(validated ? SUCCESS : FAIL) :
+                        formatter.writeEmptyCell()
+                                 .writeEmptyCell()
+                                 .writeEmptyCell()
+                                 .writeEmptyCell()
+                                 .writeEmptyCell()
+                                 .writeEmptyCell()
+                                 .writeEmptyCell()
+                                 .writeEmptyCell()
+                                 .writeEmptyCell()
+                                 .writeEmptyCell()
+                                 .writeEmptyCell()
+                                 .writeEmptyCell()
+                                 .writeEmptyCell()
+                                 .writeEmptyCell()
+                                 .writeEmptyCell();
+        }
+        return formatter;
     }
 
     @Override
-    public void write(String shuntId, float q, float expectedQ, float p, int currentSectionCount, int maximumSectionCount,
-                      float bPerSection, float v, boolean connected, float qMax, float nominalV, boolean validated) throws IOException {
-        Objects.requireNonNull(shuntId);
-        formatter.writeCell(shuntId)
-                 .writeCell(q)
-                 .writeCell(expectedQ);
-        if (verbose) {
-            formatter.writeCell(p)
-                     .writeCell(currentSectionCount)
-                     .writeCell(maximumSectionCount)
-                     .writeCell(bPerSection)
-                     .writeCell(v)
-                     .writeCell(connected)
-                     .writeCell(qMax)
-                     .writeCell(nominalV)
-                     .writeCell(validated ? SUCCESS : FAIL);
+    protected void write(String svcId, float p, float q, float v, float reactivePowerSetpoint, float voltageSetpoint,
+                         boolean connected, RegulationMode regulationMode, float bMin, float bMax, boolean validated,
+                         SvcData svcData, boolean found, boolean writeValues) throws IOException {
+        formatter.writeCell(svcId);
+        if (compareResults) {
+            formatter = found ?
+                        write(found, svcData.p, svcData.q, svcData.v, svcData.reactivePowerSetpoint, svcData.voltageSetpoint,
+                              svcData.connected, svcData.regulationMode, svcData.bMin, svcData.bMax, svcData.validated) :
+                        write(found, Float.NaN, Float.NaN, Float.NaN, Float.NaN, Float.NaN, false, null, Float.NaN, Float.NaN, false);
         }
+        formatter = write(writeValues, p, q, v, reactivePowerSetpoint, voltageSetpoint, connected, regulationMode, bMin, bMax, validated);
     }
 
+    private TableFormatter write(boolean writeValues, float p, float q, float v, float reactivePowerSetpoint, float voltageSetpoint,
+                                 boolean connected, RegulationMode regulationMode, float bMin, float bMax, boolean validated) throws IOException {
+        formatter = writeValues ?
+                    formatter.writeCell(-p)
+                             .writeCell(-q)
+                             .writeCell(v)
+                             .writeCell(reactivePowerSetpoint)
+                             .writeCell(voltageSetpoint) :
+                    formatter.writeEmptyCell()
+                             .writeEmptyCell()
+                             .writeEmptyCell()
+                             .writeEmptyCell()
+                             .writeEmptyCell();
+        if (verbose) {
+            formatter = writeValues ?
+                        formatter.writeCell(connected)
+                                 .writeCell(regulationMode.name())
+                                 .writeCell(bMin)
+                                 .writeCell(bMax)
+                                 .writeCell(validated ? SUCCESS : FAIL) :
+                        formatter.writeEmptyCell()
+                                 .writeEmptyCell()
+                                 .writeEmptyCell()
+                                 .writeEmptyCell()
+                                 .writeEmptyCell();
+        }
+        return formatter;
+    }
+
+    protected void write(String shuntId, float q, float expectedQ, float p, int currentSectionCount, int maximumSectionCount,
+                         float bPerSection, float v, boolean connected, float qMax, float nominalV, boolean validated,
+                         ShuntData shuntData, boolean found, boolean writeValues) throws IOException {
+        formatter.writeCell(shuntId);
+        if (compareResults) {
+            formatter = found ?
+                        write(found, shuntData.q, shuntData.expectedQ, shuntData.p, shuntData.currentSectionCount, shuntData.maximumSectionCount,
+                              shuntData.bPerSection, shuntData.v, shuntData.connected, shuntData.qMax, shuntData.nominalV, shuntData.validated) :
+                        write(found, Float.NaN, Float.NaN, Float.NaN, -1, -1, Float.NaN, Float.NaN, false, Float.NaN, Float.NaN, false);
+        }
+        write(writeValues, q, expectedQ, p, currentSectionCount, maximumSectionCount, bPerSection, v, connected, qMax, nominalV, validated);
+    }
+
+    private TableFormatter write(boolean writeValues, float q, float expectedQ, float p, int currentSectionCount, int maximumSectionCount,
+                                 float bPerSection, float v, boolean connected, float qMax, float nominalV, boolean validated) throws IOException {
+        formatter = writeValues ?
+                    formatter.writeCell(q)
+                             .writeCell(expectedQ) :
+                    formatter.writeEmptyCell()
+                             .writeEmptyCell();
+        if (verbose) {
+            formatter = writeValues ?
+                        formatter.writeCell(p)
+                                 .writeCell(currentSectionCount)
+                                 .writeCell(maximumSectionCount)
+                                 .writeCell(bPerSection)
+                                 .writeCell(v)
+                                 .writeCell(connected)
+                                 .writeCell(qMax)
+                                 .writeCell(nominalV)
+                                 .writeCell(validated ? SUCCESS : FAIL) :
+                        formatter.writeEmptyCell()
+                                 .writeEmptyCell()
+                                 .writeEmptyCell()
+                                 .writeEmptyCell()
+                                 .writeEmptyCell()
+                                 .writeEmptyCell()
+                                 .writeEmptyCell()
+                                 .writeEmptyCell()
+                                 .writeEmptyCell();
+        }
+        return formatter;
+    }
 }
