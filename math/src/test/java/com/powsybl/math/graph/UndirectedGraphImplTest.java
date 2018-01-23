@@ -299,8 +299,8 @@ public class UndirectedGraphImplTest {
 
     @Test
     public void testAddListener() {
-        UndirectedGraphListener listener1 = Mockito.mock(UndirectedGraphListener.class);
-        UndirectedGraphListener listener2 = Mockito.mock(UndirectedGraphListener.class);
+        GraphListener listener1 = Mockito.mock(GraphListener.class);
+        GraphListener listener2 = Mockito.mock(GraphListener.class);
         graph.addListener(listener1);
         graph.addListener(listener2);
         Mockito.verify(listener1, Mockito.never()).graphChanged();
@@ -312,8 +312,8 @@ public class UndirectedGraphImplTest {
 
     @Test
     public void testRemoveListener() {
-        UndirectedGraphListener listener1 = Mockito.mock(UndirectedGraphListener.class);
-        UndirectedGraphListener listener2 = Mockito.mock(UndirectedGraphListener.class);
+        GraphListener listener1 = Mockito.mock(GraphListener.class);
+        GraphListener listener2 = Mockito.mock(GraphListener.class);
         graph.addListener(listener1);
         graph.addListener(listener2);
         graph.removeListener(listener1);

@@ -62,7 +62,7 @@ public class DirectedGraphImplTest {
     @Test
     public void testConstructor() {
         assertEquals(0, graph.getVertexCount());
-        assertEquals(0, graph.getArrowCount());
+        assertEquals(0, graph.getEdgeCount());
     }
 
     @Test
@@ -75,18 +75,18 @@ public class DirectedGraphImplTest {
     public void testAddArrow() {
         graph.addVertex();
         graph.addVertex();
-        int a = graph.addArrow(0, 1, null);
+        int a = graph.addEdge(0, 1, null);
         assertEquals(2, graph.getVertexCount());
         assertEquals(0, a);
-        assertEquals(1, graph.getArrowCount());
-        assertEquals(0, graph.getArrowTail(a));
-        assertEquals(1, graph.getArrowHead(a));
-        int a2 = graph.addArrow(1, 0, null);
+        assertEquals(1, graph.getEdgeCount());
+        assertEquals(0, graph.getEdgeTail(a));
+        assertEquals(1, graph.getEdgeHead(a));
+        int a2 = graph.addEdge(1, 0, null);
         assertEquals(2, graph.getVertexCount());
         assertEquals(1, a2);
-        assertEquals(2, graph.getArrowCount());
-        assertEquals(1, graph.getArrowTail(a2));
-        assertEquals(0, graph.getArrowHead(a2));
+        assertEquals(2, graph.getEdgeCount());
+        assertEquals(1, graph.getEdgeTail(a2));
+        assertEquals(0, graph.getEdgeHead(a2));
     }
 
     @Test
@@ -94,19 +94,19 @@ public class DirectedGraphImplTest {
         graph.addVertex();
         graph.addVertex();
         graph.addVertex();
-        int a = graph.addArrow(0, 1, null);
-        graph.removeArrow(a);
-        assertEquals(0, graph.getArrowCount());
-        a = graph.addArrow(0, 1, null);
+        int a = graph.addEdge(0, 1, null);
+        graph.removeEdge(a);
+        assertEquals(0, graph.getEdgeCount());
+        a = graph.addEdge(0, 1, null);
         assertEquals(0, a);
-        int a2 = graph.addArrow(1, 2, null);
-        graph.removeArrow(a);
-        assertEquals(1, graph.getArrowCount());
-        a = graph.addArrow(0, 1, null);
+        int a2 = graph.addEdge(1, 2, null);
+        graph.removeEdge(a);
+        assertEquals(1, graph.getEdgeCount());
+        a = graph.addEdge(0, 1, null);
         assertEquals(0, a);
-        graph.removeArrow(a);
-        graph.removeArrow(a2);
-        assertEquals(0, graph.getArrowCount());
+        graph.removeEdge(a);
+        graph.removeEdge(a2);
+        assertEquals(0, graph.getEdgeCount());
     }
 
     @Test
@@ -127,7 +127,7 @@ public class DirectedGraphImplTest {
         graph.addVertex();
         graph.addVertex();
         graph.addVertex();
-        graph.addArrow(0, 1, null);
+        graph.addEdge(0, 1, null);
         graph.removeVertex(2);
         exception.expect(PowsyblException.class);
         graph.removeVertex(0);
@@ -146,7 +146,7 @@ public class DirectedGraphImplTest {
     public void testRemoveAllVerticesException() {
         graph.addVertex();
         graph.addVertex();
-        graph.addArrow(0, 1, null);
+        graph.addEdge(0, 1, null);
         exception.expect(PowsyblException.class);
         graph.removeAllVertices();
     }
@@ -156,11 +156,11 @@ public class DirectedGraphImplTest {
         graph.addVertex();
         graph.addVertex();
         graph.addVertex();
-        graph.addArrow(0, 1, null);
-        graph.addArrow(1, 0, null);
-        assertEquals(2, graph.getArrowCount());
-        graph.removeAllArrows();
-        assertEquals(0, graph.getArrowCount());
+        graph.addEdge(0, 1, null);
+        graph.addEdge(1, 0, null);
+        assertEquals(2, graph.getEdgeCount());
+        graph.removeAllEdges();
+        assertEquals(0, graph.getEdgeCount());
     }
 
     @Test
@@ -194,9 +194,9 @@ public class DirectedGraphImplTest {
         graph.addVertex();
         graph.addVertex();
         graph.addVertex();
-        graph.addArrow(0, 1, "Arrow 1");
-        graph.addArrow(1, 2, "Arrow 2");
-        assertArrayEquals(new String[] {"Arrow 1", "Arrow 2"}, graph.getArrowObjectStream().toArray());
+        graph.addEdge(0, 1, "Arrow 1");
+        graph.addEdge(1, 2, "Arrow 2");
+        assertArrayEquals(new String[] {"Arrow 1", "Arrow 2"}, graph.getEdgeObjectStream().toArray());
     }
 
     @Test
@@ -213,32 +213,32 @@ public class DirectedGraphImplTest {
         graph.addVertex();
         graph.addVertex();
         graph.addVertex();
-        graph.addArrow(0, 1, null);
-        graph.addArrow(1, 2, null);
-        assertArrayEquals(new int[]{0, 1}, graph.getArrows());
+        graph.addEdge(0, 1, null);
+        graph.addEdge(1, 2, null);
+        assertArrayEquals(new int[]{0, 1}, graph.getEdges());
     }
 
     @Test
     public void testGetArrowObject() {
         graph.addVertex();
         graph.addVertex();
-        int a = graph.addArrow(0, 1, "Arrow");
-        assertEquals("Arrow", graph.getArrowObject(a));
+        int a = graph.addEdge(0, 1, "Arrow");
+        assertEquals("Arrow", graph.getEdgeObject(a));
     }
 
     @Test
     public void testGetArrowObjects() {
         graph.addVertex();
         graph.addVertex();
-        int a = graph.addArrow(0, 1, "Arrow");
-        assertEquals(1, graph.getArrowObjects(0, 1).size());
-        assertEquals(0, graph.getArrowObjects(1, 0).size());
+        int a = graph.addEdge(0, 1, "Arrow");
+        assertEquals(1, graph.getEdgeObjects(0, 1).size());
+        assertEquals(0, graph.getEdgeObjects(1, 0).size());
     }
 
     @Test
     public void testAddListener() {
-        DirectedGraphListener listener1 = Mockito.mock(DirectedGraphListener.class);
-        DirectedGraphListener listener2 = Mockito.mock(DirectedGraphListener.class);
+        GraphListener listener1 = Mockito.mock(GraphListener.class);
+        GraphListener listener2 = Mockito.mock(GraphListener.class);
         graph.addListener(listener1);
         graph.addListener(listener2);
         Mockito.verify(listener1, Mockito.never()).graphChanged();
@@ -250,8 +250,8 @@ public class DirectedGraphImplTest {
 
     @Test
     public void testRemoveListener() {
-        DirectedGraphListener listener1 = Mockito.mock(DirectedGraphListener.class);
-        DirectedGraphListener listener2 = Mockito.mock(DirectedGraphListener.class);
+        GraphListener listener1 = Mockito.mock(GraphListener.class);
+        GraphListener listener2 = Mockito.mock(GraphListener.class);
         graph.addListener(listener1);
         graph.addListener(listener2);
         graph.removeListener(listener1);
@@ -302,13 +302,13 @@ public class DirectedGraphImplTest {
         graph.addVertex();
         graph.addVertex();
         graph.setVertexObject(5, new Vertex("end"));
-        graph.addArrow(0, 1, null); // 0
-        graph.addArrow(0, 2, null); // 1
-        graph.addArrow(0, 3, null); // 2
-        graph.addArrow(4, 1, null); // 3
-        graph.addArrow(2, 4, null); // 4
-        graph.addArrow(5, 4, null); // 5
-        graph.addArrow(5, 3, null); // 6
+        graph.addEdge(0, 1, null); // 0
+        graph.addEdge(0, 2, null); // 1
+        graph.addEdge(0, 3, null); // 2
+        graph.addEdge(4, 1, null); // 3
+        graph.addEdge(2, 4, null); // 4
+        graph.addEdge(5, 4, null); // 5
+        graph.addEdge(5, 3, null); // 6
 
         Traverser<Object> traverser = Mockito.mock(Traverser.class);
         // Stops  on 1, 2 and 3
@@ -362,13 +362,13 @@ public class DirectedGraphImplTest {
         graph.addVertex();
         graph.addVertex();
         graph.setVertexObject(5, new Vertex("end"));
-        graph.addArrow(0, 1, null); // 0
-        graph.addArrow(0, 2, null); // 1
-        graph.addArrow(0, 3, null); // 2
-        graph.addArrow(4, 1, null); // 3
-        graph.addArrow(2, 4, null); // 4
-        graph.addArrow(5, 4, null); // 5
-        graph.addArrow(5, 3, null); // 6
+        graph.addEdge(0, 1, null); // 0
+        graph.addEdge(0, 2, null); // 1
+        graph.addEdge(0, 3, null); // 2
+        graph.addEdge(4, 1, null); // 3
+        graph.addEdge(2, 4, null); // 4
+        graph.addEdge(5, 4, null); // 5
+        graph.addEdge(5, 3, null); // 6
         graph.print(System.out, null, null);
     }
 
@@ -401,9 +401,7 @@ public class DirectedGraphImplTest {
      *  3 <-- 5 : 6
      *
      *  all paths (edge numbers) between vertex 0 and 5:
-     *  0, 3, 5
      *  1, 4, 5
-     *  2, 6
      */
     @Test
     public void testFindAllPaths() {
@@ -414,15 +412,96 @@ public class DirectedGraphImplTest {
         graph.addVertex();
         graph.addVertex();
         graph.setVertexObject(5, new Vertex("end"));
-        graph.addArrow(0, 1, null); // 0
-        graph.addArrow(0, 2, null); // 1
-        graph.addArrow(0, 3, null); // 2
-        graph.addArrow(4, 1, null); // 3
-        graph.addArrow(2, 4, null); // 4
-        graph.addArrow(4, 5, null); // 5
-        graph.addArrow(5, 3, null); // 6
+        graph.addEdge(0, 1, null); // 0
+        graph.addEdge(0, 2, null); // 1
+        graph.addEdge(0, 3, null); // 2
+        graph.addEdge(4, 1, null); // 3
+        graph.addEdge(2, 4, null); // 4
+        graph.addEdge(4, 5, null); // 5
+        graph.addEdge(5, 3, null); // 6
         List<TIntArrayList> paths = graph.findAllPaths(0, vertex -> vertex != null && "end".equals(vertex.name), null);
         assertTrue(paths.size() == 1);
         assertArrayEquals(paths.get(0).toArray(), new int[] {1, 4, 5});
+    }
+
+    /*
+     *  0 ------> 1
+     *  ^         |
+     *  |         |
+     *  |         |
+     *  |         v
+     *  3 <------ 2
+     *
+     *  arrows:
+     *  0 --> 1 : 0
+     *  1 --> 2 : 1
+     *  2 --> 3 : 2
+     *  3 --> 0 : 3
+     */
+    @Test
+    public void testCyclicGraph() {
+        graph.addVertex();
+        graph.addVertex();
+        graph.addVertex();
+        graph.addVertex();
+        graph.addEdge(0, 1, null); // 0
+        graph.addEdge(1, 2, null); // 1
+        graph.addEdge(2, 3, null); // 2
+        graph.addEdge(3, 0, null); // 3
+        assertTrue(graph.isCyclic());
+    }
+
+    /*
+     *  0 ------> 1
+     *          7 |
+     *        /   |
+     *      /     |
+     *    /       v
+     *  3 <------ 2
+     *
+     *  arrows:
+     *  0 --> 1 : 0
+     *  1 --> 2 : 1
+     *  2 --> 3 : 2
+     *  3 --> 1 : 3
+     */
+    @Test
+    public void testCyclicGraph2() {
+        graph.addVertex();
+        graph.addVertex();
+        graph.addVertex();
+        graph.addVertex();
+        graph.addEdge(0, 1, null); // 0
+        graph.addEdge(1, 2, null); // 1
+        graph.addEdge(2, 3, null); // 2
+        graph.addEdge(3, 1, null); // 3
+        assertTrue(graph.isCyclic());
+    }
+
+    /*
+     *  0 ------> 1
+     *  |         |
+     *  |         |
+     *  |         |
+     *  v         v
+     *  3 <------ 2
+     *
+     *  arrows:
+     *  0 --> 1 : 0
+     *  1 --> 2 : 1
+     *  2 --> 3 : 2
+     *  0 --> 3 : 3
+     */
+    @Test
+    public void testNonCyclicGraph() {
+        graph.addVertex();
+        graph.addVertex();
+        graph.addVertex();
+        graph.addVertex();
+        graph.addEdge(0, 1, null); // 0
+        graph.addEdge(1, 2, null); // 1
+        graph.addEdge(2, 3, null); // 2
+        graph.addEdge(0, 3, null); // 3
+        assertFalse(graph.isCyclic());
     }
 }
