@@ -94,10 +94,8 @@ public class AmplNetworkWriterTest extends AbstractConverterTest {
 
         assertEqualsToRef(dataSource, "_network_branches", "inputs/three-windings-transformers-branches.txt");
         assertEqualsToRef(dataSource, "_network_buses", "inputs/three-windings-transformers-buses.txt");
-        // TODO ajouter des ratio-tap-changers
         assertEqualsToRef(dataSource, "_network_rtc", "inputs/three-windings-transformers-rtc.txt");
         assertEqualsToRef(dataSource, "_network_substations", "inputs/three-windings-transformers-substations.txt");
-        // TODO
         assertEqualsToRef(dataSource, "_network_tct", "inputs/three-windings-transformers-tct.txt");
     }
 

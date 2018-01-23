@@ -53,132 +53,52 @@ public final class AmplUtil {
     }
 
     public static void fillMapper(StringToIntMapper<AmplSubset> mapper, Network network) {
-         // substations
-        for (VoltageLevel vl : network.getVoltageLevels()) {
-            mapper.newInt(AmplSubset.VOLTAGE_LEVEL, vl.getId());
-        }
-        for (ThreeWindingsTransformer twt : network.getThreeWindingsTransformers()) {
-            mapper.newInt(AmplSubset.VOLTAGE_LEVEL, twt.getId());
-        }
-        for (DanglingLine dl : network.getDanglingLines()) {
-            mapper.newInt(AmplSubset.VOLTAGE_LEVEL, dl.getId());
-        }
-        for (Line l : network.getLines()) {
-            if (l.isTieLine()) {
-                TieLine tl = (TieLine) l;
-                String vlId = AmplUtil.getXnodeVoltageLevelId(tl);
-                mapper.newInt(AmplSubset.VOLTAGE_LEVEL, vlId);
-            }
-        }
+        // Voltage levels
+        network.getVoltageLevelStream().forEach(vl -> mapper.newInt(AmplSubset.VOLTAGE_LEVEL, vl.getId()));
 
-        // buses
-        for (Bus b : getBuses(network)) {
-            mapper.newInt(AmplSubset.BUS, b.getId());
-        }
-        for (ThreeWindingsTransformer twt : network.getThreeWindingsTransformers()) {
-            String id = twt.getId(); // same id as the transformer
-            mapper.newInt(AmplSubset.BUS, id);
-        }
-        for (DanglingLine dl : network.getDanglingLines()) {
-            mapper.newInt(AmplSubset.BUS, dl.getId());
-        }
-        for (Line l : network.getLines()) {
-            if (l.isTieLine()) {
-                TieLine tl = (TieLine) l;
-                String busId = AmplUtil.getXnodeBusId(tl);
-                mapper.newInt(AmplSubset.BUS, busId);
-            }
-        }
+        // Buses
+        getBuses(network).forEach(b -> mapper.newInt(AmplSubset.BUS, b.getId()));
 
-        // branches
-        for (Line l : network.getLines()) {
-            mapper.newInt(AmplSubset.BRANCH, l.getId());
-            if (l.isTieLine()) {
-                TieLine tl = (TieLine) l;
-                mapper.newInt(AmplSubset.BRANCH, tl.getHalf1().getId());
-                mapper.newInt(AmplSubset.BRANCH, tl.getHalf2().getId());
-            }
-        }
-        for (TwoWindingsTransformer twt : network.getTwoWindingsTransformers()) {
-            mapper.newInt(AmplSubset.BRANCH, twt.getId());
-        }
-        for (ThreeWindingsTransformer twt : network.getThreeWindingsTransformers()) {
-            mapper.newInt(AmplSubset.THREE_WINDINGS_TRANSFO, twt.getId());
-            mapper.newInt(AmplSubset.BRANCH, twt.getId() + AmplConstants.LEG1_SUFFIX);
-            mapper.newInt(AmplSubset.BRANCH, twt.getId() + AmplConstants.LEG2_SUFFIX);
-            mapper.newInt(AmplSubset.BRANCH, twt.getId() + AmplConstants.LEG3_SUFFIX);
-        }
-        for (DanglingLine dl : network.getDanglingLines()) {
-            mapper.newInt(AmplSubset.BRANCH, dl.getId());
-        }
+        // Lines
+        fillLines(mapper, network);
 
-        // tct
-        for (TwoWindingsTransformer twt : network.getTwoWindingsTransformers()) {
-            if (twt.getRatioTapChanger() != null) {
-                mapper.newInt(AmplSubset.TAP_CHANGER_TABLE, twt.getId() + "_ratio_table");
-            }
-            if (twt.getPhaseTapChanger() != null) {
-                mapper.newInt(AmplSubset.TAP_CHANGER_TABLE, twt.getId() + "_phase_table");
-            }
-        }
-        for (ThreeWindingsTransformer twt : network.getThreeWindingsTransformers()) {
-            if (twt.getLeg2().getRatioTapChanger() != null) {
-                mapper.newInt(AmplSubset.TAP_CHANGER_TABLE, twt.getId() + "_leg2_ratio_table");
-            }
-            if (twt.getLeg3().getRatioTapChanger() != null) {
-                mapper.newInt(AmplSubset.TAP_CHANGER_TABLE, twt.getId() + "_leg3_ratio_table");
-            }
-        }
+        // Two windings transformers
+        fillTwoWindingsTransformers(mapper, network);
 
-        // rtc
-        for (TwoWindingsTransformer twt : network.getTwoWindingsTransformers()) {
-            if (twt.getRatioTapChanger() != null) {
-                String rtcId = twt.getId();
-                mapper.newInt(AmplSubset.RATIO_TAP_CHANGER, rtcId);
-            }
-        }
-        for (ThreeWindingsTransformer twt : network.getThreeWindingsTransformers()) {
-            if (twt.getLeg2().getRatioTapChanger() != null) {
-                mapper.newInt(AmplSubset.RATIO_TAP_CHANGER, twt.getId() + AmplConstants.LEG2_SUFFIX);
-            }
-            if (twt.getLeg3().getRatioTapChanger() != null) {
-                mapper.newInt(AmplSubset.RATIO_TAP_CHANGER, twt.getId() + AmplConstants.LEG3_SUFFIX);
-            }
-        }
+        // Three windings transformers
+        fillThreeWindingsTransformers(mapper, network);
 
-        // ptc
-        for (TwoWindingsTransformer twt : network.getTwoWindingsTransformers()) {
-            if (twt.getPhaseTapChanger() != null) {
-                mapper.newInt(AmplSubset.PHASE_TAP_CHANGER, twt.getId());
-            }
-        }
+        // Dangling lines
+        fillDanglingLines(mapper, network);
 
         // loads
-        for (Load l : network.getLoads()) {
-            mapper.newInt(AmplSubset.LOAD, l.getId());
-        }
-        for (DanglingLine dl : network.getDanglingLines()) {
-            mapper.newInt(AmplSubset.LOAD, dl.getId());
-        }
+        network.getLoadStream().forEach(l -> mapper.newInt(AmplSubset.LOAD, l.getId()));
 
         // shunts
-        for (ShuntCompensator sc : network.getShunts()) {
-            mapper.newInt(AmplSubset.SHUNT, sc.getId());
-        }
+        network.getShuntStream().forEach(sc -> mapper.newInt(AmplSubset.SHUNT, sc.getId()));
 
         // generators
-        for (Generator g : network.getGenerators()) {
-            mapper.newInt(AmplSubset.GENERATOR, g.getId());
-        }
+        network.getGeneratorStream().forEach(g -> mapper.newInt(AmplSubset.GENERATOR, g.getId()));
 
         // static var compensators
         network.getStaticVarCompensatorStream().forEach(svc -> mapper.newInt(AmplSubset.STATIC_VAR_COMPENSATOR, svc.getId()));
 
         // HVDC lines
         network.getHvdcLineStream().forEach(hvdc -> mapper.newInt(AmplSubset.HVDC_LINE, hvdc.getId()));
+    }
 
-        // limits
+    private static void fillLines(StringToIntMapper<AmplSubset> mapper, Network network) {
         for (Line l : network.getLines()) {
+            mapper.newInt(AmplSubset.BRANCH, l.getId());
+            if (l.isTieLine()) {
+                TieLine tl = (TieLine) l;
+                mapper.newInt(AmplSubset.VOLTAGE_LEVEL, AmplUtil.getXnodeVoltageLevelId(tl));
+                mapper.newInt(AmplSubset.BUS, AmplUtil.getXnodeBusId(tl));
+                mapper.newInt(AmplSubset.BRANCH, tl.getHalf1().getId());
+                mapper.newInt(AmplSubset.BRANCH, tl.getHalf2().getId());
+            }
+
+            // limits
             if (l.getCurrentLimits1() != null) {
                 createLimitsIds(mapper, l.getCurrentLimits1(), l.getId(), "_1_");
             }
@@ -186,7 +106,21 @@ public final class AmplUtil {
                 createLimitsIds(mapper, l.getCurrentLimits2(), l.getId(), "_2_");
             }
         }
+    }
+
+    private static void fillTwoWindingsTransformers(StringToIntMapper<AmplSubset> mapper, Network network) {
         for (TwoWindingsTransformer twt : network.getTwoWindingsTransformers()) {
+            mapper.newInt(AmplSubset.BRANCH, twt.getId());
+            if (twt.getRatioTapChanger() != null) {
+                mapper.newInt(AmplSubset.TAP_CHANGER_TABLE, twt.getId() + "_ratio_table");
+                mapper.newInt(AmplSubset.RATIO_TAP_CHANGER, twt.getId());
+            }
+            if (twt.getPhaseTapChanger() != null) {
+                mapper.newInt(AmplSubset.TAP_CHANGER_TABLE, twt.getId() + "_phase_table");
+                mapper.newInt(AmplSubset.PHASE_TAP_CHANGER, twt.getId());
+            }
+
+            // limits
             if (twt.getCurrentLimits1() != null) {
                 createLimitsIds(mapper, twt.getCurrentLimits1(), twt.getId(), "_1_");
             }
@@ -194,7 +128,26 @@ public final class AmplUtil {
                 createLimitsIds(mapper, twt.getCurrentLimits2(), twt.getId(), "_2_");
             }
         }
+    }
+
+    private static void fillThreeWindingsTransformers(StringToIntMapper<AmplSubset> mapper, Network network) {
         for (ThreeWindingsTransformer twt : network.getThreeWindingsTransformers()) {
+            mapper.newInt(AmplSubset.VOLTAGE_LEVEL, twt.getId());
+            mapper.newInt(AmplSubset.BUS, twt.getId());
+            mapper.newInt(AmplSubset.THREE_WINDINGS_TRANSFO, twt.getId());
+            mapper.newInt(AmplSubset.BRANCH, twt.getId() + AmplConstants.LEG1_SUFFIX);
+            mapper.newInt(AmplSubset.BRANCH, twt.getId() + AmplConstants.LEG2_SUFFIX);
+            mapper.newInt(AmplSubset.BRANCH, twt.getId() + AmplConstants.LEG3_SUFFIX);
+            if (twt.getLeg2().getRatioTapChanger() != null) {
+                mapper.newInt(AmplSubset.TAP_CHANGER_TABLE, twt.getId() + "_leg2_ratio_table");
+                mapper.newInt(AmplSubset.RATIO_TAP_CHANGER, twt.getId() + AmplConstants.LEG2_SUFFIX);
+            }
+            if (twt.getLeg3().getRatioTapChanger() != null) {
+                mapper.newInt(AmplSubset.TAP_CHANGER_TABLE, twt.getId() + "_leg3_ratio_table");
+                mapper.newInt(AmplSubset.RATIO_TAP_CHANGER, twt.getId() + AmplConstants.LEG3_SUFFIX);
+            }
+
+            // limits
             if (twt.getLeg1().getCurrentLimits() != null) {
                 createLimitsIds(mapper, twt.getLeg1().getCurrentLimits(), twt.getId() + AmplConstants.LEG1_SUFFIX, "");
             }
@@ -205,7 +158,16 @@ public final class AmplUtil {
                 createLimitsIds(mapper, twt.getLeg3().getCurrentLimits(),  twt.getId() + AmplConstants.LEG3_SUFFIX, "");
             }
         }
+    }
+
+    private static void fillDanglingLines(StringToIntMapper<AmplSubset> mapper, Network network) {
         for (DanglingLine dl : network.getDanglingLines()) {
+            mapper.newInt(AmplSubset.VOLTAGE_LEVEL, dl.getId());
+            mapper.newInt(AmplSubset.BUS, dl.getId());
+            mapper.newInt(AmplSubset.BRANCH, dl.getId());
+            mapper.newInt(AmplSubset.LOAD, dl.getId());
+
+            // limits
             if (dl.getCurrentLimits() != null) {
                 createLimitsIds(mapper, dl.getCurrentLimits(), dl.getId(), "");
             }
