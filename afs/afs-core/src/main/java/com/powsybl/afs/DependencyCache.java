@@ -6,7 +6,9 @@
  */
 package com.powsybl.afs;
 
+import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -22,7 +24,7 @@ public class DependencyCache<T> {
 
     private final Class<T> dependencyClass;
 
-    private T cache;
+    private List<T> cache;
 
     private boolean cached = false;
 
@@ -43,7 +45,12 @@ public class DependencyCache<T> {
         });
     }
 
-    public T get() {
+    public Optional<T> getFirst() {
+        List<T> all = getAll();
+        return all.isEmpty() ? Optional.empty() : Optional.of(all.get(0));
+    }
+
+    public List<T> getAll() {
         lock.lock();
         try {
             if (!cached) {

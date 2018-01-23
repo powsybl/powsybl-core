@@ -131,16 +131,22 @@ public class CommandLineToolsTest extends AbstractToolTest {
 
     @Test
     public void test() throws IOException {
+        String scriptOptions = "Available options are:" + System.lineSeparator() +
+            "    --config-name <CONFIG_NAME>   Override configuration file name" + System.lineSeparator() +
+            "    --parallel                    Run command in parallel mode" + System.lineSeparator();
+
         // usage when no command is specified
-        String usage = "usage: itools COMMAND [ARGS]" + System.lineSeparator() +
+        String usage = "usage: itools [OPTIONS] COMMAND [ARGS]" + System.lineSeparator() +
+                System.lineSeparator() +
+                scriptOptions +
                 System.lineSeparator() +
                 "Available commands are:" + System.lineSeparator() +
                 System.lineSeparator() +
                 "theme1:" + System.lineSeparator() +
-                "   tool1                                    test tool1" + System.lineSeparator() +
+                "    tool1                                    test tool1" + System.lineSeparator() +
                 System.lineSeparator() +
                 "theme2:" + System.lineSeparator() +
-                "   tool2                                    test tool2" + System.lineSeparator() +
+                "    tool2                                    test tool2" + System.lineSeparator() +
                 System.lineSeparator();
 
         assertCommand(new String[] {}, CommandLineTools.COMMAND_NOT_FOUND_STATUS, "", usage);
@@ -157,7 +163,11 @@ public class CommandLineToolsTest extends AbstractToolTest {
         // invalid option
         assertCommand(new String[] {"tool1", "--optionA", "file.txt"}, CommandLineTools.INVALID_COMMAND_STATUS, "",
                 "error: Unrecognized option: --optionA" + System.lineSeparator() +
-                        "usage: itools tool1 [--help] --option1 <FILE>" + System.lineSeparator() +
+                        "usage: itools [OPTIONS] tool1 [--help] --option1 <FILE>" + System.lineSeparator() +
+                        System.lineSeparator() +
+                        scriptOptions +
+                        System.lineSeparator() +
+                        "Available arguments are:" + System.lineSeparator() +
                         "    --help             display the help and quit" + System.lineSeparator() +
                         "    --option1 <FILE>   this is option 1" + System.lineSeparator() +
                         System.lineSeparator() +
@@ -166,7 +176,11 @@ public class CommandLineToolsTest extends AbstractToolTest {
         // required option not specified
         assertCommand(new String[] {"tool1"}, CommandLineTools.INVALID_COMMAND_STATUS, "",
                 "error: Missing required option: option1" + System.lineSeparator() +
-                        "usage: itools tool1 [--help] --option1 <FILE>" + System.lineSeparator() +
+                        "usage: itools [OPTIONS] tool1 [--help] --option1 <FILE>" + System.lineSeparator() +
+                        System.lineSeparator() +
+                        scriptOptions +
+                        System.lineSeparator() +
+                        "Available arguments are:" + System.lineSeparator() +
                         "    --help             display the help and quit" + System.lineSeparator() +
                         "    --option1 <FILE>   this is option 1" + System.lineSeparator() +
                         System.lineSeparator() +
@@ -174,7 +188,11 @@ public class CommandLineToolsTest extends AbstractToolTest {
 
         // command help
         assertCommand(new String[] {"tool1", "--help"}, CommandLineTools.COMMAND_OK_STATUS, "",
-                        "usage: itools tool1 [--help] --option1 <FILE>" + System.lineSeparator() +
+                        "usage: itools [OPTIONS] tool1 [--help] --option1 <FILE>" + System.lineSeparator() +
+                        System.lineSeparator() +
+                        scriptOptions +
+                        System.lineSeparator() +
+                        "Available arguments are:" + System.lineSeparator() +
                         "    --help             display the help and quit" + System.lineSeparator() +
                         "    --option1 <FILE>   this is option 1" + System.lineSeparator() +
                         System.lineSeparator() +

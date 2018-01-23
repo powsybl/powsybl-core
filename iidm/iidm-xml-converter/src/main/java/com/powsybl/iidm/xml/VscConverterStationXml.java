@@ -33,7 +33,7 @@ class VscConverterStationXml extends AbstractConnectableXml<VscConverterStation,
     }
 
     @Override
-    protected void writeRootElementAttributes(VscConverterStation cs, VoltageLevel vl, XmlWriterContext context) throws XMLStreamException {
+    protected void writeRootElementAttributes(VscConverterStation cs, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
         context.getWriter().writeAttribute("voltageRegulatorOn", Boolean.toString(cs.isVoltageRegulatorOn()));
         XmlUtil.writeFloat("lossFactor", cs.getLossFactor(), context.getWriter());
         XmlUtil.writeFloat("voltageSetpoint", cs.getVoltageSetpoint(), context.getWriter());
@@ -43,7 +43,7 @@ class VscConverterStationXml extends AbstractConnectableXml<VscConverterStation,
     }
 
     @Override
-    protected void writeSubElements(VscConverterStation cs, VoltageLevel vl, XmlWriterContext context) throws XMLStreamException {
+    protected void writeSubElements(VscConverterStation cs, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
         ReactiveLimitsXml.INSTANCE.write(cs, context);
     }
 
@@ -53,7 +53,7 @@ class VscConverterStationXml extends AbstractConnectableXml<VscConverterStation,
     }
 
     @Override
-    protected VscConverterStation readRootElementAttributes(VscConverterStationAdder adder, XmlReaderContext context) {
+    protected VscConverterStation readRootElementAttributes(VscConverterStationAdder adder, NetworkXmlReaderContext context) {
         boolean voltageRegulatorOn = XmlUtil.readBoolAttribute(context.getReader(), "voltageRegulatorOn");
         float lossFactor = XmlUtil.readFloatAttribute(context.getReader(), "lossFactor");
         float voltageSetpoint = XmlUtil.readOptionalFloatAttribute(context.getReader(), "voltageSetpoint");
@@ -70,7 +70,7 @@ class VscConverterStationXml extends AbstractConnectableXml<VscConverterStation,
     }
 
     @Override
-    protected void readSubElements(VscConverterStation cs, XmlReaderContext context) throws XMLStreamException {
+    protected void readSubElements(VscConverterStation cs, NetworkXmlReaderContext context) throws XMLStreamException {
         readUntilEndRootElement(context.getReader(), () -> {
             switch (context.getReader().getLocalName()) {
                 case "reactiveCapabilityCurve":

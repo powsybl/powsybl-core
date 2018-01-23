@@ -1,15 +1,25 @@
 {
   "version" : "1.0",
+  "network" : {
+    "id" : "sim1",
+    "sourceFormat" : "test",
+    "caseDate" : "2018-01-01T11:00:00.000+01:00",
+    "forecastDistance" : 0
+  },
   "preContingencyResult" : {
     "computationOk" : true,
     "limitViolations" : [ {
       "subjectId" : "NHV1_NHV2_1",
       "limitType" : "CURRENT",
-      "limitName" : "limit",
       "limit" : 100.0,
       "limitReduction" : 0.95,
       "value" : 110.0,
-      "side" : "ONE"
+      "side" : "ONE",
+      "extensions" : {
+        "ActivePower" : {
+          "value" : 220.0
+        }
+      }
     } ],
     "actionsTaken" : [ ]
   },
@@ -37,10 +47,20 @@
         "subjectId" : "NHV1_NHV2_2",
         "limitType" : "CURRENT",
         "limitName" : "20'",
+        "acceptableDuration" : 1200,
         "limit" : 100.0,
         "limitReduction" : 1.0,
         "value" : 110.0,
-        "side" : "TWO"
+        "side" : "TWO",
+        "extensions" : {
+          "ActivePower" : {
+            "preContingencyValue" : 220.0,
+            "postContingencyValue" : 230.0
+          },
+          "Current" : {
+            "preContingencyValue" : 95.0
+          }
+        }
       }, {
         "subjectId" : "GEN",
         "limitType" : "HIGH_VOLTAGE",

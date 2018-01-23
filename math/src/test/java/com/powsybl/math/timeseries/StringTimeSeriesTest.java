@@ -10,7 +10,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Iterators;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.math.timeseries.json.TimeSeriesJsonModule;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.threeten.extra.Interval;
 
 import java.io.IOException;
@@ -27,10 +29,13 @@ import static org.junit.Assert.*;
  */
 public class StringTimeSeriesTest {
 
+    @Rule
+    public ExpectedException exception = ExpectedException.none();
+
     @Test
     public void test() throws IOException {
         RegularTimeSeriesIndex index = RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T01:45:00Z"),
-                                                                     Duration.ofMinutes(15), 1, 1);
+                                                                     Duration.ofMinutes(15));
         TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.STRING, Collections.emptyMap(), index);
         UncompressedStringArrayChunk chunk = new UncompressedStringArrayChunk(2, new String[] {"a", "b"});
         CompressedStringArrayChunk chunk2 = new CompressedStringArrayChunk(5, 3, new String[] {"c", "d"}, new int[] {1, 2});
@@ -58,9 +63,7 @@ public class StringTimeSeriesTest {
                 "    \"regularIndex\" : {",
                 "      \"startTime\" : 1420070400000,",
                 "      \"endTime\" : 1420076700000,",
-                "      \"spacing\" : 900000,",
-                "      \"firstVersion\" : 1,",
-                "      \"versionCount\" : 1",
+                "      \"spacing\" : 900000",
                 "    }",
                 "  },",
                 "  \"chunks\" : [ {",
@@ -85,5 +88,21 @@ public class StringTimeSeriesTest {
                 .registerModule(new TimeSeriesJsonModule());
 
         assertEquals(timeSeries, objectMapper.readValue(objectMapper.writeValueAsString(timeSeries), StringTimeSeries.class));
+    }
+
+    @Test
+    public void testCreate() {
+        TimeSeriesIndex index = new TestTimeSeriesIndex(0L, 3);
+        StringTimeSeries ts1 = StringTimeSeries.create("ts1", index, new String[]{"a", "b", "c"});
+        assertEquals("ts1", ts1.getMetadata().getName());
+        assertEquals(TimeSeriesDataType.STRING, ts1.getMetadata().getDataType());
+        assertArrayEquals(new String[] {"a", "b", "c"}, ts1.toArray());
+    }
+
+    @Test
+    public void testCreateError() {
+        exception.expect(IllegalArgumentException.class);
+        exception.expectMessage("Bad number of values 2, expected 3");
+        StringTimeSeries.create("ts1", new TestTimeSeriesIndex(0L, 3), new String[]{"a", "b"});
     }
 }

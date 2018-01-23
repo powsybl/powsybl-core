@@ -26,19 +26,18 @@ public class RegularTimeSeriesIndexTest {
     @Test
     public void test() throws IOException {
         RegularTimeSeriesIndex index = RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T01:00:00Z"),
-                                                                     Duration.ofMinutes(15), 1, 1);
+                                                                     Duration.ofMinutes(15));
 
         // test getters
         assertEquals("2015-01-01T00:00:00Z", Instant.ofEpochMilli(index.getStartTime()).toString());
         assertEquals("2015-01-01T01:00:00Z", Instant.ofEpochMilli(index.getEndTime()).toString());
         assertEquals(15 * 60 * 1000, index.getSpacing());
-        assertEquals(1, index.getFirstVersion());
-        assertEquals(1, index.getVersionCount());
         assertEquals(5, index.getPointCount());
         assertEquals(Instant.ofEpochMilli(index.getStartTime() + 15 * 60 * 1000).toEpochMilli(), index.getTimeAt(1));
+        assertEquals("2015-01-01T00:15:00Z", TimeSeriesIndex.getInstantAt(index, 1).toString());
 
         // test to string
-        assertEquals("RegularTimeSeriesIndex(startTime=2015-01-01T00:00:00Z, endTime=2015-01-01T01:00:00Z, spacing=PT15M, firstVersion=1, versionCount=1)",
+        assertEquals("RegularTimeSeriesIndex(startTime=2015-01-01T00:00:00Z, endTime=2015-01-01T01:00:00Z, spacing=PT15M)",
                      index.toString());
 
         // test json
@@ -46,9 +45,7 @@ public class RegularTimeSeriesIndexTest {
                 "{",
                 "  \"startTime\" : 1420070400000,",
                 "  \"endTime\" : 1420074000000,",
-                "  \"spacing\" : 900000,",
-                "  \"firstVersion\" : 1,",
-                "  \"versionCount\" : 1",
+                "  \"spacing\" : 900000",
                 "}");
         String json = JsonUtil.toJson(index::writeJson);
         assertEquals(jsonRef, json);
@@ -60,16 +57,16 @@ public class RegularTimeSeriesIndexTest {
     @Test
     public void testEquals() {
         new EqualsTester()
-                .addEqualityGroup(RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T01:00:00Z"), Duration.ofMinutes(15), 1, 1),
-                                  RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T01:00:00Z"), Duration.ofMinutes(15), 1, 1))
-                .addEqualityGroup(RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T01:15:00Z"), Duration.ofMinutes(30), 2, 1),
-                                  RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T01:15:00Z"), Duration.ofMinutes(30), 2, 1))
+                .addEqualityGroup(RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T01:00:00Z"), Duration.ofMinutes(15)),
+                                  RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T01:00:00Z"), Duration.ofMinutes(15)))
+                .addEqualityGroup(RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T01:15:00Z"), Duration.ofMinutes(30)),
+                                  RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T01:15:00Z"), Duration.ofMinutes(30)))
                 .testEquals();
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testContructorError() {
         RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T00:10:00Z"),
-                                      Duration.ofMinutes(15), 1, 1);
+                                      Duration.ofMinutes(15));
     }
 }

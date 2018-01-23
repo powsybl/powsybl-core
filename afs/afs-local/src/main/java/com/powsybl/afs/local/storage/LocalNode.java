@@ -7,6 +7,7 @@
 package com.powsybl.afs.local.storage;
 
 import java.nio.file.Path;
+import java.util.Optional;
 
 /**
  *
@@ -16,5 +17,5 @@ public interface LocalNode {
 
     String getName();
 
-    Path getParentPath();
+    Optional<Path> getParentPath();
 }

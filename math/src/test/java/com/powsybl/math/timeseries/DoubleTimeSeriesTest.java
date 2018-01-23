@@ -6,7 +6,6 @@
  */
 package com.powsybl.math.timeseries;
 
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 
@@ -18,48 +17,6 @@ import static org.junit.Assert.*;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class DoubleTimeSeriesTest {
-
-    private static class TestTimeSeriesIndex implements TimeSeriesIndex {
-
-        private int pointCount;
-
-        private long startTime;
-
-        public TestTimeSeriesIndex(long startTime, int pointCount) {
-            this.startTime = startTime;
-            this.pointCount = pointCount;
-        }
-
-        @Override
-        public int getPointCount() {
-            return pointCount;
-        }
-
-        @Override
-        public int getFirstVersion() {
-            return 1;
-        }
-
-        @Override
-        public int getVersionCount() {
-            return 1;
-        }
-
-        @Override
-        public long getTimeAt(int point) {
-            return startTime + point;
-        }
-
-        @Override
-        public String getType() {
-            return "testIndex";
-        }
-
-        @Override
-        public void writeJson(JsonGenerator generator) {
-            throw new AssertionError();
-        }
-    }
 
     @Test
     public void test() {

@@ -9,11 +9,7 @@ package com.powsybl.math.timeseries;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface StringArrayChunk extends ArrayChunk<StringPoint> {
+public interface StringArrayChunk extends ArrayChunk<StringPoint, StringArrayChunk> {
 
-    /**
-     * Fill array with chunk values.
-     * @param array the array to fill
-     */
-    void fillArray(String[] array);
+    void fillBuffer(CompactStringBuffer buffer, int timeSeriesOffset);
 }

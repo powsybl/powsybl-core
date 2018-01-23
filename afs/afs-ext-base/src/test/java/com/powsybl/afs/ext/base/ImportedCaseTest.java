@@ -12,6 +12,7 @@ import com.powsybl.afs.*;
 import com.powsybl.afs.mapdb.storage.MapDbAppStorage;
 import com.powsybl.afs.storage.AppStorage;
 import com.powsybl.afs.storage.NodeInfo;
+import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.iidm.import_.ImportersLoader;
 import com.powsybl.iidm.import_.ImportersLoaderList;
 import org.junit.Before;
@@ -55,9 +56,8 @@ public class ImportedCaseTest extends AbstractProjectFileTest {
     public void setup() {
         super.setup();
         NodeInfo rootFolderInfo = storage.createRootNodeIfNotExists("root", Folder.PSEUDO_CLASS);
-        NodeInfo caseInfo = storage.createNode(rootFolderInfo.getId(), "network", Case.PSEUDO_CLASS, Case.VERSION);
-        storage.setDescription(caseInfo.getId(), "Test format");
-        storage.setStringAttribute(caseInfo.getId(), "format", TestImporter.FORMAT);
+        NodeInfo caseInfo = storage.createNode(rootFolderInfo.getId(), "network", Case.PSEUDO_CLASS, "Test format", Case.VERSION,
+                new NodeGenericMetadata().setString("format", TestImporter.FORMAT));
     }
 
     @Test
@@ -114,7 +114,7 @@ public class ImportedCaseTest extends AbstractProjectFileTest {
         assertEquals(2, importedCase2.getParameters().size());
         assertEquals("true", importedCase2.getParameters().getProperty("param1"));
 
-        assertNotNull(folder.getChild(ImportedCase.class, "network"));
+        assertTrue(folder.getChild(ImportedCase.class, "network").isPresent());
 
         // delete imported case
         projectNode.delete();

@@ -10,6 +10,7 @@ import com.powsybl.afs.storage.NodeInfo;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -33,14 +34,14 @@ public class ProjectNode extends AbstractNodeBase<ProjectFolder> {
     }
 
     @Override
-    public ProjectFolder getParent() {
-        NodeInfo parentInfo = storage.getParentNodeInfo(info.getId());
-        return ProjectFolder.PSEUDO_CLASS.equals(parentInfo.getPseudoClass()) ? new ProjectFolder(new ProjectFileCreationContext(parentInfo, storage, fileSystem))
-                                                                              : null;
+    public Optional<ProjectFolder> getParent() {
+        return storage.getParentNode(info.getId())
+                .filter(parentInfo -> ProjectFolder.PSEUDO_CLASS.equals(parentInfo.getPseudoClass()))
+                .map(parentInfo -> new ProjectFolder(new ProjectFileCreationContext(parentInfo, storage, fileSystem)));
     }
 
     private static boolean pathStop(ProjectNode projectNode) {
-        return projectNode.getParent() == null;
+        return !projectNode.getParent().isPresent();
     }
 
     private static String pathToString(List<String> path) {
@@ -54,9 +55,9 @@ public class ProjectNode extends AbstractNodeBase<ProjectFolder> {
 
     public Project getProject() {
         // walk the node hierarchy until finding a project node
-        NodeInfo parentInfo = storage.getParentNodeInfo(info.getId());
+        NodeInfo parentInfo = storage.getParentNode(info.getId()).orElseThrow(AssertionError::new);
         while (!Project.PSEUDO_CLASS.equals(parentInfo.getPseudoClass())) {
-            parentInfo = storage.getParentNodeInfo(parentInfo.getId());
+            parentInfo = storage.getParentNode(parentInfo.getId()).orElseThrow(AssertionError::new);
         }
         return new Project(new FileCreationContext(parentInfo, storage, fileSystem));
     }
@@ -71,7 +72,7 @@ public class ProjectNode extends AbstractNodeBase<ProjectFolder> {
     }
 
     public List<ProjectFile> getBackwardDependencies() {
-        return storage.getBackwardDependenciesInfo(info.getId())
+        return storage.getBackwardDependencies(info.getId())
                 .stream()
                 .map(fileSystem::findProjectFile)
                 .collect(Collectors.toList());

@@ -8,16 +8,25 @@ package com.powsybl.math.timeseries;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 
+import java.time.Instant;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public interface TimeSeriesIndex {
 
+    static int checkVersion(int version) {
+        if (version < 0) {
+            throw new IllegalArgumentException("Bad version " + version);
+        }
+        return version;
+    }
+
+    static Instant getInstantAt(TimeSeriesIndex index, int point) {
+        return Instant.ofEpochMilli(index.getTimeAt(point));
+    }
+
     int getPointCount();
-
-    int getFirstVersion();
-
-    int getVersionCount();
 
     long getTimeAt(int point);
 

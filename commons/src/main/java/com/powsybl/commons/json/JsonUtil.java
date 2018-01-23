@@ -9,12 +9,20 @@ package com.powsybl.commons.json;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.common.base.Strings;
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
+import com.powsybl.commons.extensions.*;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -23,6 +31,9 @@ import java.util.function.Function;
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
 public final class JsonUtil {
+
+    private static final Supplier<ExtensionSerializerProvider> SUPPLIER =
+        Suppliers.memoize(() -> ExtensionSerializerProviders.createProvider(ExtensionJsonSerializer.class));
 
     private JsonUtil() {
     }
@@ -121,4 +132,79 @@ public final class JsonUtil {
         }
     }
 
+    public static <T> void writeExtensions(Extendable<T> extendable, JsonGenerator jsonGenerator,
+                                           SerializerProvider serializerProvider) throws IOException {
+        writeExtensions(extendable, jsonGenerator, serializerProvider, SUPPLIER.get());
+    }
+
+    public static <T> void writeExtensions(Extendable<T> extendable, JsonGenerator jsonGenerator,
+                                           SerializerProvider serializerProvider,
+                                           ExtensionSerializerProvider<ExtensionJsonSerializer> supplier) throws IOException {
+        Objects.requireNonNull(extendable);
+        Objects.requireNonNull(jsonGenerator);
+        Objects.requireNonNull(serializerProvider);
+        Objects.requireNonNull(supplier);
+
+        boolean headerDone = false;
+
+        if (!extendable.getExtensions().isEmpty()) {
+            for (Extension<T> extension : extendable.getExtensions()) {
+                ExtensionJsonSerializer serializer = supplier.findSerializer(extension.getName());
+                if (serializer != null) {
+                    if (!headerDone) {
+                        jsonGenerator.writeFieldName("extensions");
+                        jsonGenerator.writeStartObject();
+                        headerDone = true;
+                    }
+                    jsonGenerator.writeFieldName(extension.getName());
+                    serializer.serialize(extension, jsonGenerator, serializerProvider);
+                }
+            }
+            if (headerDone) {
+                jsonGenerator.writeEndObject();
+            }
+        }
+    }
+
+    public static <T> List<Extension<T>> readExtensions(JsonParser parser, DeserializationContext context) throws IOException {
+        return readExtensions(parser, context, SUPPLIER.get());
+    }
+
+    public static <T> List<Extension<T>> readExtensions(JsonParser parser, DeserializationContext context,
+                                                        ExtensionSerializerProvider<ExtensionJsonSerializer> supplier) throws IOException {
+        Objects.requireNonNull(parser);
+        Objects.requireNonNull(context);
+        Objects.requireNonNull(supplier);
+
+        List<Extension<T>> extensions = new ArrayList<>();
+
+        while (parser.nextToken() != JsonToken.END_OBJECT) {
+            String extensionName = parser.getCurrentName();
+            ExtensionJsonSerializer extensionJsonSerializer = supplier.findSerializer(extensionName);
+            if (extensionJsonSerializer != null) {
+                parser.nextToken();
+                Extension<T> extension = extensionJsonSerializer.deserialize(parser, context);
+                extensions.add(extension);
+            } else {
+                skip(parser);
+            }
+        }
+
+        return extensions;
+    }
+
+    /**
+     * Skip a part of a JSON document
+     */
+    public static void skip(JsonParser parser) throws IOException {
+        int objectCount = 0;
+        do {
+            JsonToken token = parser.nextToken();
+            if (token == JsonToken.START_OBJECT) {
+                objectCount++;
+            } else if (token == JsonToken.END_OBJECT) {
+                objectCount--;
+            }
+        } while (objectCount != 0);
+    }
 }

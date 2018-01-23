@@ -31,6 +31,14 @@ public class CompressedStringArrayChunk extends AbstractCompressedArrayChunk imp
         updateEstimatedSize();
     }
 
+    static int getStepEstimatedSize(String value) {
+        int estimatedSize = Integer.BYTES;
+        if (value != null) {
+            estimatedSize += value.length() * Character.BYTES;
+        }
+        return estimatedSize;
+    }
+
     private void updateEstimatedSize() {
         estimatedSize = 0;
         uncompressedEstimatedSize = 0;
@@ -38,9 +46,9 @@ public class CompressedStringArrayChunk extends AbstractCompressedArrayChunk imp
             String stepValue = stepValues[i];
             if (stepValue != null) {
                 int stepLength = stepLengths[i];
-                estimatedSize += stepValue.length() * Character.BYTES + Integer.BYTES;
                 uncompressedEstimatedSize += stepValue.length() * Character.BYTES * stepLength;
             }
+            estimatedSize += getStepEstimatedSize(stepValue);
         }
     }
 
@@ -64,16 +72,13 @@ public class CompressedStringArrayChunk extends AbstractCompressedArrayChunk imp
     }
 
     @Override
-    public void fillArray(String[] array) {
-        Objects.requireNonNull(array);
-        if ((offset + uncompressedLength) > array.length) {
-            throw new IllegalArgumentException("Incorrect array size");
-        }
+    public void fillBuffer(CompactStringBuffer buffer, int timeSeriesOffset) {
+        Objects.requireNonNull(buffer);
         int k = 0;
         for (int i = 0; i < stepValues.length; i++) {
             String value = stepValues[i];
             for (int j = 0; j < stepLengths[i]; j++) {
-                array[offset + k++] = value;
+                buffer.putString(timeSeriesOffset + offset + k++, value);
             }
         }
     }
@@ -109,6 +114,44 @@ public class CompressedStringArrayChunk extends AbstractCompressedArrayChunk imp
         return StreamSupport.stream(Spliterators.spliteratorUnknownSize(
                 iterator(index),
                 Spliterator.ORDERED | Spliterator.IMMUTABLE), false);
+    }
+
+    @Override
+    public StringArrayChunk tryToCompress() {
+        return this;
+    }
+
+    @Override
+    public Split<StringPoint, StringArrayChunk> splitAt(int splitIndex) {
+        // split at offset is not allowed because it will result to a null left chunk
+        if (splitIndex <= offset || splitIndex > (offset + uncompressedLength - 1)) {
+            throw new IllegalArgumentException("Split index " + splitIndex + " out of chunk range ]" + offset
+                    + ", " + (offset + uncompressedLength - 1) + "]");
+        }
+        int index = offset;
+        for (int step = 0; step < stepLengths.length; step++) {
+            if (index + stepLengths[step] > splitIndex) {
+                // first chunk
+                int[] stepLengths1 = new int[step + 1];
+                String[] stepValues1 = new String[stepLengths1.length];
+                System.arraycopy(stepLengths, 0, stepLengths1, 0, stepLengths1.length);
+                System.arraycopy(stepValues, 0, stepValues1, 0, stepValues1.length);
+                stepLengths1[step] = splitIndex - index;
+                CompressedStringArrayChunk chunk1 = new CompressedStringArrayChunk(offset, splitIndex - offset, stepValues1, stepLengths1);
+
+                // second chunk
+                int[] stepLengths2 = new int[stepLengths.length - step];
+                String[] stepValues2 = new String[stepLengths2.length];
+                System.arraycopy(stepLengths, step, stepLengths2, 0, stepLengths2.length);
+                System.arraycopy(stepValues, step, stepValues2, 0, stepValues2.length);
+                stepLengths2[0] = stepLengths[step] - stepLengths1[step];
+                CompressedStringArrayChunk chunk2 = new CompressedStringArrayChunk(splitIndex, uncompressedLength - chunk1.uncompressedLength, stepValues2, stepLengths2);
+
+                return new Split<>(chunk1, chunk2);
+            }
+            index += stepLengths[step];
+        }
+        throw new AssertionError("Should not happen");
     }
 
     @Override

@@ -50,6 +50,10 @@ public abstract class AbstractValidationFormatterWriterTest {
     protected final double z = Math.hypot(r, x);
     protected final double y = 1 / z;
     protected final double ksi = Math.atan2(r, x);
+    protected final boolean connected1 = true;
+    protected final boolean connected2 = true;
+    protected final boolean mainComponent1 = true;
+    protected final boolean mainComponent2 = true;
     protected final boolean validated = true;
 
     protected final String generatorId = "generatorId";
@@ -118,7 +122,8 @@ public abstract class AbstractValidationFormatterWriterTest {
         TableFormatterConfig config = new TableFormatterConfig(Locale.getDefault(), ';', "inv", true, true);
         try (ValidationWriter flowsWriter = getFlowsValidationFormatterCsvWriter(config, writer, verbose)) {
             flowsWriter.write(branchId, p1, p1Calc, q1, q1Calc, p2, p2Calc, q2, q2Calc, r, x, g1, g2, b1, b2, rho1, rho2,
-                              alpha1, alpha2, u1, u2, theta1, theta2, z, y, ksi, validated);
+                              alpha1, alpha2, u1, u2, theta1, theta2, z, y, ksi, connected1, connected2, mainComponent1,
+                              mainComponent2, validated);
             assertEquals(flowsContent, writer.toString().trim());
         }
     }

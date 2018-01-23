@@ -6,15 +6,13 @@
  */
 package com.powsybl.afs.storage;
 
-import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.math.timeseries.*;
 
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.Reader;
-import java.io.Writer;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -23,127 +21,67 @@ public interface AppStorage extends AutoCloseable {
 
     String getFileSystemName();
 
-    default boolean isRemote() {
-        throw new UnsupportedOperationException("Not implemented");
-    }
-
-    NodeId fromString(String str);
+    boolean isRemote();
 
     NodeInfo createRootNodeIfNotExists(String name, String nodePseudoClass);
 
-    NodeInfo createNode(NodeId parentNodeId, String name, String nodePseudoClass, int version);
+    NodeInfo createNode(String parentNodeId, String name, String nodePseudoClass, String description, int version, NodeGenericMetadata genericMetadata);
 
-    String getNodeName(NodeId nodeId);
+    boolean isWritable(String nodeId);
 
-    String getNodePseudoClass(NodeId nodeId);
+    NodeInfo getNodeInfo(String nodeId);
 
-    boolean isWritable(NodeId nodeId);
+    void setDescription(String nodeId, String description);
 
-    NodeInfo getNodeInfo(NodeId nodeId);
+    void updateModificationTime(String nodeId);
 
-    void setDescription(NodeId nodeId, String description);
+    List<NodeInfo> getChildNodes(String nodeId);
 
-    List<NodeId> getChildNodes(NodeId nodeId);
+    Optional<NodeInfo> getChildNode(String nodeId, String name);
 
-    default List<NodeInfo> getChildNodesInfo(NodeId nodeId) {
-        return getChildNodes(nodeId).stream().map(this::getNodeInfo).collect(Collectors.toList());
-    }
+    Optional<NodeInfo> getParentNode(String nodeId);
 
-    NodeId getChildNode(NodeId nodeId, String name);
+    void setParentNode(String nodeId, String newParentNodeId);
 
-    default NodeInfo getChildNodeInfo(NodeId nodeId, String name) {
-        NodeId childId = getChildNode(nodeId, name);
-        if (childId != null) {
-            return getNodeInfo(childId);
-        }
-        return null;
-    }
+    void deleteNode(String nodeId);
 
-    NodeId getParentNode(NodeId nodeId);
+    Optional<InputStream> readBinaryData(String nodeId, String name);
 
-    default NodeInfo getParentNodeInfo(NodeId nodeId) {
-        NodeId parentId = getParentNode(nodeId);
-        if (parentId != null) {
-            return getNodeInfo(parentId);
-        }
-        return null;
-    }
+    OutputStream writeBinaryData(String nodeId, String name);
 
-    void setParentNode(NodeId nodeId, NodeId newParentNodeId);
+    boolean dataExists(String nodeId, String name);
 
-    void deleteNode(NodeId nodeId);
+    Set<String> getDataNames(String nodeId);
 
-    String getStringAttribute(NodeId nodeId, String name);
+    void createTimeSeries(String nodeId, TimeSeriesMetadata metadata);
 
-    void setStringAttribute(NodeId nodeId, String name, String value);
+    Set<String> getTimeSeriesNames(String nodeId);
 
-    Reader readStringAttribute(NodeId nodeId, String name);
+    boolean timeSeriesExists(String nodeId, String timeSeriesName);
 
-    Writer writeStringAttribute(NodeId nodeId, String name);
+    List<TimeSeriesMetadata> getTimeSeriesMetadata(String nodeId, Set<String> timeSeriesNames);
 
-    OptionalInt getIntAttribute(NodeId nodeId, String name);
+    Set<Integer> getTimeSeriesDataVersions(String nodeId, String timeSeriesName);
 
-    void setIntAttribute(NodeId nodeId, String name, int value);
+    List<DoubleTimeSeries> getDoubleTimeSeries(String nodeId, Set<String> timeSeriesNames, int version);
 
-    OptionalDouble getDoubleAttribute(NodeId nodeId, String name);
+    void addDoubleTimeSeriesData(String nodeId, int version, String timeSeriesName, List<DoubleArrayChunk> chunks);
 
-    void setDoubleAttribute(NodeId nodeId, String name, double value);
+    List<StringTimeSeries> getStringTimeSeries(String nodeId, Set<String> timeSeriesNames, int version);
 
-    Optional<Boolean> getBooleanAttribute(NodeId nodeId, String name);
+    void addStringTimeSeriesData(String nodeId, int version, String timeSeriesName, List<StringArrayChunk> chunks);
 
-    void setBooleanAttribute(NodeId nodeId, String name, boolean value);
+    void clearTimeSeries(String nodeId);
 
-    DataSource getDataSourceAttribute(NodeId nodeId, String name);
+    void addDependency(String nodeId, String name, String toNodeId);
 
-    void createTimeSeries(NodeId nodeId, TimeSeriesMetadata metadata);
+    Set<NodeInfo> getDependencies(String nodeId, String name);
 
-    Set<String> getTimeSeriesNames(NodeId nodeId);
+    Set<NodeDependency> getDependencies(String nodeId);
 
-    List<TimeSeriesMetadata> getTimeSeriesMetadata(NodeId nodeId, Set<String> timeSeriesNames);
+    Set<NodeInfo> getBackwardDependencies(String nodeId);
 
-    List<DoubleTimeSeries> getDoubleTimeSeries(NodeId nodeId, Set<String> timeSeriesNames, int version);
-
-    void addDoubleTimeSeriesData(NodeId nodeId, int version, String timeSeriesName, List<DoubleArrayChunk> chunks);
-
-    List<StringTimeSeries> getStringTimeSeries(NodeId nodeId, Set<String> timeSeriesNames, int version);
-
-    void addStringTimeSeriesData(NodeId nodeId, int version, String timeSeriesName, List<StringArrayChunk> chunks);
-
-    void removeAllTimeSeries(NodeId nodeId);
-
-    NodeId getDependency(NodeId nodeId, String name);
-
-    default NodeInfo getDependencyInfo(NodeId nodeId, String name) {
-        NodeId depId = getDependency(nodeId, name);
-        if (depId != null) {
-            return getNodeInfo(depId);
-        }
-        return null;
-    }
-
-    void addDependency(NodeId nodeId, String name, NodeId toNodeId);
-
-    List<NodeId> getDependencies(NodeId nodeId);
-
-    default List<NodeInfo> getDependenciesInfo(NodeId nodeId) {
-        return getDependencies(nodeId).stream().map(this::getNodeInfo).collect(Collectors.toList());
-    }
-
-    List<NodeId> getBackwardDependencies(NodeId nodeId);
-
-    default List<NodeInfo> getBackwardDependenciesInfo(NodeId nodeId) {
-        return getBackwardDependencies(nodeId).stream().map(this::getNodeInfo).collect(Collectors.toList());
-    }
-
-    // cache management
-
-    InputStream readFromCache(NodeId nodeId, String key);
-
-    OutputStream writeToCache(NodeId nodeId, String key);
-
-    void invalidateCache(NodeId nodeId, String key);
-
-    void invalidateCache();
+    void removeDependency(String nodeId, String name, String toNodeId);
 
     void flush();
 

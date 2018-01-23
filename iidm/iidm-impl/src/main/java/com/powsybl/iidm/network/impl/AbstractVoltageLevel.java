@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.google.common.collect.FluentIterable;
 import com.powsybl.iidm.network.*;
 
 import java.util.List;
@@ -118,6 +119,44 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
         } else {
             throw new AssertionError();
         }
+    }
+
+    @Override
+    public <T extends Connectable> FluentIterable<T> getConnectables(Class<T> clazz) {
+        Iterable<Terminal> terminals = getTerminals();
+        return FluentIterable.from(terminals)
+                .transform(Terminal::getConnectable)
+                .filter(clazz);
+    }
+
+    @Override
+    public <T extends Connectable> Stream<T> getConnectableStream(Class<T> clazz) {
+        return getTerminalStream()
+                .map(Terminal::getConnectable)
+                .filter(clazz::isInstance)
+                .map(clazz::cast);
+    }
+
+    @Override
+    public <T extends Connectable> int getConnectableCount(Class<T> clazz) {
+        return getConnectables(clazz).size();
+    }
+
+    @Override
+    public FluentIterable<Connectable> getConnectables() {
+        return FluentIterable.from(getTerminals())
+                .transform(Terminal::getConnectable);
+    }
+
+    @Override
+    public Stream<Connectable> getConnectableStream() {
+        return getTerminalStream()
+                .map(Terminal::getConnectable);
+    }
+
+    @Override
+    public int getConnectableCount() {
+        return getConnectables().size();
     }
 
     @Override

@@ -6,7 +6,8 @@
  */
 package com.powsybl.afs.storage.json;
 
-import com.powsybl.afs.storage.NodeId;
+import com.powsybl.afs.storage.NodeDependency;
+import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.math.timeseries.json.TimeSeriesJsonModule;
 
@@ -16,10 +17,12 @@ import com.powsybl.math.timeseries.json.TimeSeriesJsonModule;
 public class AppStorageJsonModule extends TimeSeriesJsonModule {
 
     public AppStorageJsonModule() {
-        addSerializer(NodeId.class, new NodeIdJsonSerializer());
+        addSerializer(NodeGenericMetadata.class, new NodeGenericMetadataJsonSerializer());
         addSerializer(NodeInfo.class, new NodeInfoJsonSerializer());
+        addSerializer(NodeDependency.class, new NodeDependencySerializer());
 
-        addDeserializer(NodeId.class, new NodeIdJsonDeserializer());
+        addDeserializer(NodeGenericMetadata.class, new NodeGenericMetadataJsonDeserializer());
         addDeserializer(NodeInfo.class, new NodeInfoJsonDeserializer());
+        addDeserializer(NodeDependency.class, new NodeDependencyDeserializer());
     }
 }

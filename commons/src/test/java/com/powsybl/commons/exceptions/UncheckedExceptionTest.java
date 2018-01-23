@@ -14,6 +14,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerException;
 
+import java.net.URISyntaxException;
+
 import static org.junit.Assert.assertSame;
 
 /**
@@ -74,5 +76,11 @@ public class UncheckedExceptionTest {
     public void xmlStreamTest() {
         XMLStreamException e = new XMLStreamException();
         assertSame(e, new UncheckedXmlStreamException(e).getCause());
+    }
+
+    @Test
+    public void uriSyntaxTest() {
+        URISyntaxException e = new URISyntaxException("", "");
+        assertSame(e, new UncheckedUriSyntaxException(e).getCause());
     }
 }

@@ -72,6 +72,10 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                         new Column("z"),
                         new Column("y"),
                         new Column("ksi"),
+                        new Column("connected1"),
+                        new Column("connected2"),
+                        new Column("mainComponent1"),
+                        new Column("mainComponent2"),
                         new Column(VALIDATION)
                     };
                 }
@@ -198,7 +202,8 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
     @Override
     public void write(String branchId, double p1, double p1Calc, double q1, double q1Calc, double p2, double p2Calc, double q2, double q2Calc,
                       double r, double x, double g1, double g2, double b1, double b2, double rho1, double rho2, double alpha1, double alpha2,
-                      double u1, double u2, double theta1, double theta2, double z, double y, double ksi, boolean validated) throws IOException {
+                      double u1, double u2, double theta1, double theta2, double z, double y, double ksi, boolean connected1, boolean connected2,
+                      boolean mainComponent1, boolean mainComponent2, boolean validated) throws IOException {
         Objects.requireNonNull(branchId);
         formatter.writeCell(branchId)
                  .writeCell(p1)
@@ -227,6 +232,10 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                      .writeCell(z)
                      .writeCell(y)
                      .writeCell(ksi)
+                     .writeCell(connected1)
+                     .writeCell(connected2)
+                     .writeCell(mainComponent1)
+                     .writeCell(mainComponent2)
                      .writeCell(validated ? SUCCESS : FAIL);
         }
     }

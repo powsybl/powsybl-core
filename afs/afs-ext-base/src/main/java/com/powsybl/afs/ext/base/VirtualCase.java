@@ -9,6 +9,8 @@ package com.powsybl.afs.ext.base;
 import com.powsybl.afs.*;
 import com.powsybl.iidm.network.Network;
 
+import java.util.Optional;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -31,12 +33,12 @@ public class VirtualCase extends ProjectFile implements ProjectCase, RunnableScr
         addDependencyListener(this, this);
     }
 
-    public ProjectCase getCase() {
-        return projectCaseDependency.get();
+    public Optional<ProjectCase> getCase() {
+        return projectCaseDependency.getFirst();
     }
 
-    public ModificationScript getScript() {
-        return modificationScriptDependency.get();
+    public Optional<ModificationScript> getScript() {
+        return modificationScriptDependency.getFirst();
     }
 
     @Override
@@ -59,29 +61,38 @@ public class VirtualCase extends ProjectFile implements ProjectCase, RunnableScr
         return fileSystem.findService(NetworkService.class).getScriptOutput(this);
     }
 
+    static AfsException createScriptLinkIsDeadException() {
+        return new AfsException("Script link is dead");
+    }
+
     @Override
     public ScriptType getScriptType() {
-        return getScript().getScriptType();
+        return getScript().orElseThrow(VirtualCase::createScriptLinkIsDeadException)
+                          .getScriptType();
     }
 
     @Override
     public String readScript() {
-        return getScript().readScript();
+        return getScript().orElseThrow(VirtualCase::createScriptLinkIsDeadException)
+                          .readScript();
     }
 
     @Override
     public void writeScript(String content) {
-        getScript().writeScript(content);
+        getScript().orElseThrow(VirtualCase::createScriptLinkIsDeadException)
+                   .writeScript(content);
     }
 
     @Override
     public void addListener(ScriptListener listener) {
-        getScript().addListener(listener);
+        getScript().orElseThrow(VirtualCase::createScriptLinkIsDeadException)
+                   .addListener(listener);
     }
 
     @Override
     public void removeListener(ScriptListener listener) {
-        getScript().removeListener(listener);
+        getScript().orElseThrow(VirtualCase::createScriptLinkIsDeadException)
+                   .removeListener(listener);
     }
 
     private void invalidateNetworkCache() {
