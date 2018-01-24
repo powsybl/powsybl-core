@@ -53,26 +53,26 @@ public final class EurostagTutorialExample1Factory {
                 .setNominalV(150)
                 .setTopologyKind(TopologyKind.BUS_BREAKER)
             .add();
-        vlgen.getBusBreakerView().newBus()
+        Bus ngen = vlgen.getBusBreakerView().newBus()
                 .setId("NGEN")
             .add();
-        vlhv1.getBusBreakerView().newBus()
+        Bus nhv1 = vlhv1.getBusBreakerView().newBus()
                 .setId("NHV1")
             .add();
-        vlhv2.getBusBreakerView().newBus()
+        Bus nhv2 = vlhv2.getBusBreakerView().newBus()
                 .setId("NHV2")
             .add();
-        vlload.getBusBreakerView().newBus()
+        Bus nload = vlload.getBusBreakerView().newBus()
                 .setId("NLOAD")
             .add();
         network.newLine()
                 .setId("NHV1_NHV2_1")
-                .setVoltageLevel1("VLHV1")
-                .setBus1("NHV1")
-                .setConnectableBus1("NHV1")
-                .setVoltageLevel2("VLHV2")
-                .setBus2("NHV2")
-                .setConnectableBus2("NHV2")
+                .setVoltageLevel1(vlhv1.getId())
+                .setBus1(nhv1.getId())
+                .setConnectableBus1(nhv1.getId())
+                .setVoltageLevel2(vlhv2.getId())
+                .setBus2(nhv2.getId())
+                .setConnectableBus2(nhv2.getId())
                 .setR(3)
                 .setX(33)
                 .setG1(0)
@@ -82,12 +82,12 @@ public final class EurostagTutorialExample1Factory {
             .add();
         network.newLine()
                 .setId("NHV1_NHV2_2")
-                .setVoltageLevel1("VLHV1")
-                .setBus1("NHV1")
-                .setConnectableBus1("NHV1")
-                .setVoltageLevel2("VLHV2")
-                .setBus2("NHV2")
-                .setConnectableBus2("NHV2")
+                .setVoltageLevel1(vlhv1.getId())
+                .setBus1(nhv1.getId())
+                .setConnectableBus1(nhv1.getId())
+                .setVoltageLevel2(vlhv2.getId())
+                .setBus2(nhv2.getId())
+                .setConnectableBus2(nhv2.getId())
                 .setR(3)
                 .setX(33)
                 .setG1(0)
@@ -98,13 +98,13 @@ public final class EurostagTutorialExample1Factory {
         int zb380 = 380 * 380 / 100;
         p1.newTwoWindingsTransformer()
                 .setId("NGEN_NHV1")
-                .setVoltageLevel1("VLGEN")
-                .setBus1("NGEN")
-                .setConnectableBus1("NGEN")
+                .setVoltageLevel1(vlgen.getId())
+                .setBus1(ngen.getId())
+                .setConnectableBus1(ngen.getId())
                 .setRatedU1(24f)
-                .setVoltageLevel2("VLHV1")
-                .setBus2("NHV1")
-                .setConnectableBus2("NHV1")
+                .setVoltageLevel2(vlhv1.getId())
+                .setBus2(nhv1.getId())
+                .setConnectableBus2(nhv1.getId())
                 .setRatedU2(400f)
                 .setR(0.24f / 1300 * zb380)
                 .setX(((float) Math.sqrt(10 * 10 - 0.24 * 0.24)) / 1300 * zb380)
@@ -114,13 +114,13 @@ public final class EurostagTutorialExample1Factory {
         int zb150 = 150 * 150 / 100;
         TwoWindingsTransformer nhv2Nload = p2.newTwoWindingsTransformer()
                 .setId("NHV2_NLOAD")
-                .setVoltageLevel1("VLHV2")
-                .setBus1("NHV2")
-                .setConnectableBus1("NHV2")
+                .setVoltageLevel1(vlhv2.getId())
+                .setBus1(nhv2.getId())
+                .setConnectableBus1(nhv2.getId())
                 .setRatedU1(400f)
-                .setVoltageLevel2("VLLOAD")
-                .setBus2("NLOAD")
-                .setConnectableBus2("NLOAD")
+                .setVoltageLevel2(vlload.getId())
+                .setBus2(nload.getId())
+                .setConnectableBus2(nload.getId())
                 .setRatedU2(158f)
                 .setR(0.21f / 1000 * zb150)
                 .setX(((float) Math.sqrt(18 * 18 - 0.21 * 0.21)) / 1000 * zb150)
@@ -158,15 +158,15 @@ public final class EurostagTutorialExample1Factory {
             .add();
         vlload.newLoad()
                 .setId("LOAD")
-                .setBus("NLOAD")
-                .setConnectableBus("NLOAD")
+                .setBus(nload.getId())
+                .setConnectableBus(nload.getId())
                 .setP0(600f)
                 .setQ0(200f)
             .add();
         Generator generator = vlgen.newGenerator()
                 .setId("GEN")
-                .setBus("NGEN")
-                .setConnectableBus("NGEN")
+                .setBus(ngen.getId())
+                .setConnectableBus(ngen.getId())
                 .setMinP(-9999.99f)
                 .setMaxP(9999.99f)
                 .setVoltageRegulatorOn(true)
@@ -201,10 +201,12 @@ public final class EurostagTutorialExample1Factory {
 
         ((Bus) network.getIdentifiable("NHV1")).setV(380f).getVoltageLevel().setLowVoltageLimit(400f).setHighVoltageLimit(500f);
         ((Bus) network.getIdentifiable("NHV2")).setV(380f).getVoltageLevel().setLowVoltageLimit(300f).setHighVoltageLimit(500f);
-        network.getLine("NHV1_NHV2_1").getTerminal1().setP(560f).setQ(550f);
-        network.getLine("NHV1_NHV2_1").getTerminal2().setP(560f).setQ(550f);
-        network.getLine("NHV1_NHV2_1").newCurrentLimits1().setPermanentLimit(500f).add();
-        network.getLine("NHV1_NHV2_1").newCurrentLimits2()
+
+        Line line = network.getLine("NHV1_NHV2_1");
+        line.getTerminal1().setP(560f).setQ(550f);
+        line.getTerminal2().setP(560f).setQ(550f);
+        line.newCurrentLimits1().setPermanentLimit(500f).add();
+        line.newCurrentLimits2()
             .setPermanentLimit(1100f)
             .beginTemporaryLimit()
             .setName("10'")
@@ -218,9 +220,10 @@ public final class EurostagTutorialExample1Factory {
             .endTemporaryLimit()
             .add();
 
-        network.getLine("NHV1_NHV2_2").getTerminal1().setP(560f).setQ(550f);
-        network.getLine("NHV1_NHV2_2").getTerminal2().setP(560f).setQ(550f);
-        network.getLine("NHV1_NHV2_2").newCurrentLimits1()
+        line = network.getLine("NHV1_NHV2_2");
+        line.getTerminal1().setP(560f).setQ(550f);
+        line.getTerminal2().setP(560f).setQ(550f);
+        line.newCurrentLimits1()
             .setPermanentLimit(1100f)
             .beginTemporaryLimit()
             .setName("20'")
@@ -228,7 +231,7 @@ public final class EurostagTutorialExample1Factory {
             .setValue(1200)
             .endTemporaryLimit()
             .add();
-        network.getLine("NHV1_NHV2_2").newCurrentLimits2().setPermanentLimit(500f).add();
+        line.newCurrentLimits2().setPermanentLimit(500f).add();
 
         return network;
     }
