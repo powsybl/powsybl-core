@@ -57,6 +57,8 @@ public interface AppStorage extends AutoCloseable {
 
     Set<String> getTimeSeriesNames(String nodeId);
 
+    boolean timeSeriesExists(String nodeId, String timeSeriesName);
+
     List<TimeSeriesMetadata> getTimeSeriesMetadata(String nodeId, Set<String> timeSeriesNames);
 
     Set<Integer> getTimeSeriesDataVersions(String nodeId, String timeSeriesName);
@@ -69,7 +71,7 @@ public interface AppStorage extends AutoCloseable {
 
     void addStringTimeSeriesData(String nodeId, int version, String timeSeriesName, List<StringArrayChunk> chunks);
 
-    void removeAllTimeSeries(String nodeId);
+    void clearTimeSeries(String nodeId);
 
     void addDependency(String nodeId, String name, String toNodeId);
 

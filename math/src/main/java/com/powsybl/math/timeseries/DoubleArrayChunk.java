@@ -6,14 +6,12 @@
  */
 package com.powsybl.math.timeseries;
 
+import java.nio.DoubleBuffer;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface DoubleArrayChunk extends ArrayChunk<DoublePoint> {
+public interface DoubleArrayChunk extends ArrayChunk<DoublePoint, DoubleArrayChunk> {
 
-    /**
-     * Fill array with chunk values.
-     * @param array the array to fill
-     */
-    void fillArray(double[] array);
+    void fillBuffer(DoubleBuffer buffer, int timeSeriesOffset);
 }

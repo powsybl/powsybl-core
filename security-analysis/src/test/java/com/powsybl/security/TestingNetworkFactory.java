@@ -8,6 +8,7 @@ package com.powsybl.security;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import org.joda.time.DateTime;
 
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
@@ -19,6 +20,7 @@ public final class TestingNetworkFactory {
 
     public static Network createFromEurostag() {
         Network network = EurostagTutorialExample1Factory.create();
+        network.setCaseDate(DateTime.parse("2018-01-01T11:00:00+01:00"));
 
         network.getSubstation("P2").setCountry(Country.BE);
 

@@ -14,10 +14,13 @@ import com.powsybl.contingency.ContingenciesProviderFactory;
 import com.powsybl.contingency.EmptyContingencyListProvider;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 
 import java.io.InputStream;
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * @author Giovanni Ferrari <giovanni.ferrari@techrain.it>
@@ -39,6 +42,8 @@ public class SecurityAnalyzer {
 
     private final ContingenciesProviderFactory contingenciesProviderFactory;
 
+    private final Set<SecurityAnalysisInterceptor> interceptors;
+
     /**
      * @deprecated use SecurityAnalyzer(LimitViolationFilter, ComputationManager, int) instead.
      */
@@ -48,9 +53,14 @@ public class SecurityAnalyzer {
     }
 
     public SecurityAnalyzer(LimitViolationFilter filter, ComputationManager computationManager, int priority) {
+        this(filter, computationManager, priority, Collections.emptySet());
+    }
+
+    public SecurityAnalyzer(LimitViolationFilter filter, ComputationManager computationManager, int priority, Set<SecurityAnalysisInterceptor> interceptors) {
         this.filter = Objects.requireNonNull(filter);
         this.computationManager = Objects.requireNonNull(computationManager);
         this.priority = priority;
+        this.interceptors = Objects.requireNonNull(interceptors);
 
         ComponentDefaultConfig defaultConfig = ComponentDefaultConfig.load();
         securityAnalysisFactory = defaultConfig.newFactoryImpl(SecurityAnalysisFactory.class);
@@ -88,6 +98,7 @@ public class SecurityAnalyzer {
         network.getStateManager().allowStateMultiThreadAccess(true);
 
         SecurityAnalysis securityAnalysis = securityAnalysisFactory.create(network, filter, computationManager, priority);
+        interceptors.forEach(securityAnalysis::addInterceptor);
 
         return securityAnalysis.runAsync(contingenciesProvider).join();
     }

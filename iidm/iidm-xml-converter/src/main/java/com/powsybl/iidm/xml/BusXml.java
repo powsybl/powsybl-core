@@ -33,13 +33,13 @@ class BusXml extends AbstractIdentifiableXml<Bus, BusAdder, VoltageLevel> {
     }
 
     @Override
-    protected void writeRootElementAttributes(Bus b, VoltageLevel vl, XmlWriterContext context) throws XMLStreamException {
+    protected void writeRootElementAttributes(Bus b, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
         XmlUtil.writeFloat("v", b.getV(), context.getWriter());
         XmlUtil.writeFloat("angle", b.getAngle(), context.getWriter());
     }
 
     @Override
-    protected void writeSubElements(Bus b, VoltageLevel vl, XmlWriterContext context) throws XMLStreamException {
+    protected void writeSubElements(Bus b, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
         // no sub elements to write
     }
 
@@ -49,7 +49,7 @@ class BusXml extends AbstractIdentifiableXml<Bus, BusAdder, VoltageLevel> {
     }
 
     @Override
-    protected Bus readRootElementAttributes(BusAdder adder, XmlReaderContext context) {
+    protected Bus readRootElementAttributes(BusAdder adder, NetworkXmlReaderContext context) {
         float v = XmlUtil.readOptionalFloatAttribute(context.getReader(), "v");
         float angle = XmlUtil.readOptionalFloatAttribute(context.getReader(), "angle");
         Bus b = adder.add();
@@ -59,7 +59,7 @@ class BusXml extends AbstractIdentifiableXml<Bus, BusAdder, VoltageLevel> {
     }
 
     @Override
-    protected void readSubElements(Bus b, XmlReaderContext context) throws XMLStreamException {
+    protected void readSubElements(Bus b, NetworkXmlReaderContext context) throws XMLStreamException {
         readUntilEndRootElement(context.getReader(), () -> BusXml.super.readSubElements(b, context));
     }
 }

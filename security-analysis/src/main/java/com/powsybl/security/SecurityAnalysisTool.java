@@ -11,6 +11,8 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.converter.SecurityAnalysisResultExporters;
+import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
+import com.powsybl.security.interceptors.SecurityAnalysisInterceptors;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
 import com.powsybl.tools.ToolRunningContext;
@@ -22,9 +24,7 @@ import org.apache.commons.cli.ParseException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -38,6 +38,7 @@ public class SecurityAnalysisTool implements Tool {
     private static final String OUTPUT_FILE_OPTION = "output-file";
     private static final String OUTPUT_FORMAT_OPTION = "output-format";
     private static final String CONTINGENCIES_FILE_OPTION = "contingencies-file";
+    private static final String WITH_EXTENSIONS_OPTION = "with-extensions";
 
     @Override
     public Command getCommand() {
@@ -86,12 +87,20 @@ public class SecurityAnalysisTool implements Tool {
                     .hasArg()
                     .argName("FILE")
                     .build());
+                options.addOption(Option.builder().longOpt(WITH_EXTENSIONS_OPTION)
+                    .desc("the extension list to enable")
+                    .hasArg()
+                    .argName("EXTENSIONS")
+                    .build());
                 return options;
             }
 
             @Override
             public String getUsageFooter() {
-                return "Where LIMIT-TYPES is one of " + Arrays.toString(LimitViolationType.values());
+                return String.join(System.lineSeparator(),
+                    "Allowed LIMIT-TYPES values are " + Arrays.toString(LimitViolationType.values()),
+                    "Allowed EXTENSIONS values are " + SecurityAnalysisInterceptors.getExtensionNames()
+                    );
             }
         };
     }
@@ -103,6 +112,10 @@ public class SecurityAnalysisTool implements Tool {
         Set<LimitViolationType> limitViolationTypes = line.hasOption(LIMIT_TYPES_OPTION)
             ? Arrays.stream(line.getOptionValue(LIMIT_TYPES_OPTION).split(",")).map(LimitViolationType::valueOf).collect(Collectors.toSet())
             : EnumSet.allOf(LimitViolationType.class);
+
+        Set<SecurityAnalysisInterceptor> interceptors = line.hasOption(WITH_EXTENSIONS_OPTION)
+            ? Arrays.stream(line.getOptionValue(WITH_EXTENSIONS_OPTION).split(",")).map(SecurityAnalysisInterceptors::createInterceptor).collect(Collectors.toSet())
+            : Collections.emptySet();
 
         // Output file and output format
         Path outputFile = null;
@@ -127,7 +140,7 @@ public class SecurityAnalysisTool implements Tool {
         LimitViolationFilter limitViolationFilter = LimitViolationFilter.load();
         limitViolationFilter.setViolationTypes(limitViolationTypes);
 
-        SecurityAnalyzer analyzer = new SecurityAnalyzer(limitViolationFilter, context.getComputationManager(), 0);
+        SecurityAnalyzer analyzer = new SecurityAnalyzer(limitViolationFilter, context.getComputationManager(), 0, interceptors);
         SecurityAnalysisResult result = analyzer.analyze(network, contingenciesFile);
 
         if (!result.getPreContingencyResult().isComputationOk()) {

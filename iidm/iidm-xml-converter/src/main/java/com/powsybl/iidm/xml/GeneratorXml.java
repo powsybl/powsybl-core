@@ -32,7 +32,7 @@ class GeneratorXml extends AbstractConnectableXml<Generator, GeneratorAdder, Vol
     }
 
     @Override
-    protected void writeRootElementAttributes(Generator g, VoltageLevel vl, XmlWriterContext context) throws XMLStreamException {
+    protected void writeRootElementAttributes(Generator g, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
         context.getWriter().writeAttribute("energySource", g.getEnergySource().name());
         XmlUtil.writeFloat("minP", g.getMinP(), context.getWriter());
         XmlUtil.writeFloat("maxP", g.getMaxP(), context.getWriter());
@@ -46,7 +46,7 @@ class GeneratorXml extends AbstractConnectableXml<Generator, GeneratorAdder, Vol
     }
 
     @Override
-    protected void writeSubElements(Generator g, VoltageLevel vl, XmlWriterContext context) throws XMLStreamException {
+    protected void writeSubElements(Generator g, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
         if (g.getRegulatingTerminal() != null
                 && !Objects.equals(g.getRegulatingTerminal().getBusBreakerView().getConnectableBus(),
                                   g.getTerminal().getBusBreakerView().getConnectableBus())) {
@@ -61,7 +61,7 @@ class GeneratorXml extends AbstractConnectableXml<Generator, GeneratorAdder, Vol
     }
 
     @Override
-    protected Generator readRootElementAttributes(GeneratorAdder adder, XmlReaderContext context) {
+    protected Generator readRootElementAttributes(GeneratorAdder adder, NetworkXmlReaderContext context) {
         EnergySource energySource = EnergySource.valueOf(context.getReader().getAttributeValue(null, "energySource"));
         float minP = XmlUtil.readFloatAttribute(context.getReader(), "minP");
         float maxP = XmlUtil.readFloatAttribute(context.getReader(), "maxP");
@@ -85,7 +85,7 @@ class GeneratorXml extends AbstractConnectableXml<Generator, GeneratorAdder, Vol
     }
 
     @Override
-    protected void readSubElements(Generator g, XmlReaderContext context) throws XMLStreamException {
+    protected void readSubElements(Generator g, NetworkXmlReaderContext context) throws XMLStreamException {
         readUntilEndRootElement(context.getReader(), () -> {
             switch (context.getReader().getLocalName()) {
                 case "regulatingTerminal":

@@ -12,5 +12,6 @@ package com.powsybl.security;
 public enum LimitViolationType {
     CURRENT,
     LOW_VOLTAGE,
-    HIGH_VOLTAGE
+    HIGH_VOLTAGE,
+    OTHER
 }

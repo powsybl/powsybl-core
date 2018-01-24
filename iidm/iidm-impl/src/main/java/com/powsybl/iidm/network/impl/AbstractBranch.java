@@ -178,16 +178,24 @@ abstract class AbstractBranch<I extends Connectable<I>> extends AbstractConnecta
 
         private final CurrentLimits.TemporaryLimit temporaryLimit;
 
+        private final String previousLimitName;
+
         private final float previousLimit;
 
-        private OverloadImpl(CurrentLimits.TemporaryLimit temporaryLimit, float previousLimit) {
+        private OverloadImpl(CurrentLimits.TemporaryLimit temporaryLimit, String previousLimitName, float previousLimit) {
             this.temporaryLimit = Objects.requireNonNull(temporaryLimit);
+            this.previousLimitName = previousLimitName;
             this.previousLimit = previousLimit;
         }
 
         @Override
         public CurrentLimits.TemporaryLimit getTemporaryLimit() {
             return temporaryLimit;
+        }
+
+        @Override
+        public String getPreviousLimitName() {
+            return previousLimitName;
         }
 
         @Override
@@ -234,11 +242,13 @@ abstract class AbstractBranch<I extends Connectable<I>> extends AbstractConnecta
         Objects.requireNonNull(t);
         float i = t.getI();
         if (limits != null && !Float.isNaN(limits.getPermanentLimit()) && !Float.isNaN(i)) {
+            String previousLimitName = null;
             float previousLimit = limits.getPermanentLimit();
             for (CurrentLimits.TemporaryLimit tl : limits.getTemporaryLimits()) { // iterate in ascending order
                 if (i >= previousLimit * limitReduction && i < tl.getValue() * limitReduction) {
-                    return new OverloadImpl(tl, previousLimit);
+                    return new OverloadImpl(tl, previousLimitName, previousLimit);
                 }
+                previousLimitName = tl.getName();
                 previousLimit = tl.getValue();
             }
         }

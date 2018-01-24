@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.network
 
+import com.powsybl.commons.extensions.AbstractExtension
 import org.junit.Before
 import org.junit.Test
 
@@ -16,30 +17,25 @@ import static org.junit.Assert.*
  */
 class IdentifiableExtensionTest {
 
-    static class Foo implements Identifiable.Extension {
+    static class Foo extends AbstractExtension<Substation> {
 
-        private float value;
+        private float value
 
         @Override
         String getName() {
             return "foo"
         }
-
-        @Override
-        Object getIdentifiable() {
-            return null
-        }
     }
 
-    private Substation s;
+    private Substation s
 
     @Before
     void setUp() throws Exception {
-        Network network = NetworkFactory.create("test", "test");
+        Network network = NetworkFactory.create("test", "test")
         s = network.newSubstation()
                 .setId("S")
                 .setCountry(Country.FR)
-                .add();
+                .add()
     }
 
     @Test
@@ -54,7 +50,7 @@ class IdentifiableExtensionTest {
     @Test
     void testExtension() {
         assertNull(s.foo)
-        s.addExtension(Substation.class, new Foo())
+        s.addExtension(Foo.class, new Foo())
         assertNotNull(s.foo)
         s.foo.value = 3f
         assertEquals(3f, s.foo.value, 0f)

@@ -102,19 +102,8 @@ public class RunScriptTool implements Tool {
         Path file = context.getFileSystem().getPath(line.getOptionValue(FILE));
         Writer writer = new OutputStreamWriter(context.getOutputStream());
         try {
-            AppLogger logger = new AppLogger() {
-                @Override
-                public void log(String message, Object... args) {
-                    context.getOutputStream().println(String.format(message, args));
-                }
-
-                @Override
-                public AppLogger tagged(String tag) {
-                    return this;
-                }
-            };
             try (AppData data = new AppData(context.getComputationManager(), fileSystemProviders,
-                    fileExtensions, projectFileExtensions, serviceExtensions, () -> logger)) {
+                    fileExtensions, projectFileExtensions, serviceExtensions, () -> new SoutAppLogger(context.getOutputStream()))) {
                 if (file.getFileName().toString().endsWith(".groovy")) {
                     try {
                         Binding binding = new Binding();

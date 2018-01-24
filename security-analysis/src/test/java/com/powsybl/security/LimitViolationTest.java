@@ -31,7 +31,7 @@ public class LimitViolationTest {
 
         List<Country> expectedCountries = Arrays.asList(Country.FR, Country.BE, Country.FR, Country.BE, Country.FR);
         List<Country> countries = violations.stream()
-            .map(v -> LimitViolation.getCountry(v, network))
+            .map(v -> LimitViolationHelper.getCountry(v, network))
             .collect(Collectors.toList());
 
         assertEquals(expectedCountries, countries);
@@ -43,7 +43,7 @@ public class LimitViolationTest {
 
         List<Float> expectedVoltages = Arrays.asList(380.0f, 380.0f, 380.0f, 380.0f, 380.0f);
         List<Float> voltages = violations.stream()
-            .map(v -> LimitViolation.getNominalVoltage(v, network))
+            .map(v -> LimitViolationHelper.getNominalVoltage(v, network))
             .collect(Collectors.toList());
 
         assertEquals(expectedVoltages, voltages);
@@ -55,7 +55,7 @@ public class LimitViolationTest {
 
         List<String> expectedVoltageLevelIds = Arrays.asList("VLHV1", "VLHV2", "VLHV1", "VLHV2", "VLHV1");
         List<String> voltages = violations.stream()
-            .map(v -> LimitViolation.getVoltageLevelId(v, network))
+            .map(v -> LimitViolationHelper.getVoltageLevelId(v, network))
             .collect(Collectors.toList());
 
         assertEquals(expectedVoltageLevelIds, voltages);

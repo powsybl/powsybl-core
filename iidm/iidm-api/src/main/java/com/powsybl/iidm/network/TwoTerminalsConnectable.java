@@ -24,6 +24,8 @@ public interface TwoTerminalsConnectable<I extends TwoTerminalsConnectable<I>> e
         CurrentLimits.TemporaryLimit getTemporaryLimit();
 
         float getPreviousLimit();
+
+        String getPreviousLimitName();
     }
 
     /**

@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.ContingencyElement;
 import com.powsybl.contingency.json.ContingencyElementSerializer;
 import com.powsybl.security.*;
@@ -36,9 +37,15 @@ public class SecurityAnalysisResultSerializer extends StdSerializer<SecurityAnal
     @Override
     public void serialize(SecurityAnalysisResult result, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
+
         jsonGenerator.writeStringField("version", VERSION);
+        if (result.getNetworkMetadata() != null) {
+            jsonGenerator.writeObjectField("network", result.getNetworkMetadata());
+        }
         jsonGenerator.writeObjectField("preContingencyResult", result.getPreContingencyResult());
         jsonGenerator.writeObjectField("postContingencyResults", result.getPostContingencyResults());
+        JsonUtil.writeExtensions(result, jsonGenerator, serializerProvider);
+
         jsonGenerator.writeEndObject();
     }
 
@@ -57,6 +64,7 @@ public class SecurityAnalysisResultSerializer extends StdSerializer<SecurityAnal
         ObjectMapper objectMapper = new ObjectMapper();
         SimpleModule module = new SimpleModule();
         module.addSerializer(SecurityAnalysisResult.class, new SecurityAnalysisResultSerializer());
+        module.addSerializer(NetworkMetadata.class, new NetworkMetadataSerializer());
         module.addSerializer(PostContingencyResult.class, new PostContingencyResultSerializer());
         module.addSerializer(LimitViolationsResult.class, new LimitViolationsResultSerializer());
         module.addSerializer(LimitViolation.class, new LimitViolationSerializer());

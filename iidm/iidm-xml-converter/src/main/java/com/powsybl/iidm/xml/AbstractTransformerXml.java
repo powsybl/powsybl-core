@@ -30,7 +30,7 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
         writer.writeAttribute("tapPosition", Integer.toString(tc.getTapPosition()));
     }
 
-    protected static void writeRatioTapChanger(String name, RatioTapChanger rtc, XmlWriterContext context) throws XMLStreamException {
+    protected static void writeRatioTapChanger(String name, RatioTapChanger rtc, NetworkXmlWriterContext context) throws XMLStreamException {
         context.getWriter().writeStartElement(IIDM_URI, name);
         writeTapChanger(rtc, context.getWriter());
         context.getWriter().writeAttribute("loadTapChangingCapabilities", Boolean.toString(rtc.hasLoadTapChangingCapabilities()));
@@ -51,7 +51,7 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
         context.getWriter().writeEndElement();
     }
 
-    protected static void readRatioTapChanger(TwoWindingsTransformer twt, XmlReaderContext context) throws XMLStreamException {
+    protected static void readRatioTapChanger(TwoWindingsTransformer twt, NetworkXmlReaderContext context) throws XMLStreamException {
         int lowTapPosition = XmlUtil.readIntAttribute(context.getReader(), "lowTapPosition");
         int tapPosition = XmlUtil.readIntAttribute(context.getReader(), "tapPosition");
         boolean regulating = XmlUtil.readOptionalBoolAttribute(context.getReader(), "regulating", false);
@@ -102,7 +102,7 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
         }
     }
 
-    protected static void writePhaseTapChanger(String name, PhaseTapChanger ptc, XmlWriterContext context) throws XMLStreamException {
+    protected static void writePhaseTapChanger(String name, PhaseTapChanger ptc, NetworkXmlWriterContext context) throws XMLStreamException {
         context.getWriter().writeStartElement(IIDM_URI, name);
         writeTapChanger(ptc, context.getWriter());
         context.getWriter().writeAttribute("regulationMode", ptc.getRegulationMode().name());
@@ -124,7 +124,7 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
         context.getWriter().writeEndElement();
     }
 
-    protected static void readPhaseTapChanger(TwoWindingsTransformer twt, XmlReaderContext context) throws XMLStreamException {
+    protected static void readPhaseTapChanger(TwoWindingsTransformer twt, NetworkXmlReaderContext context) throws XMLStreamException {
         int lowTapPosition = XmlUtil.readIntAttribute(context.getReader(), "lowTapPosition");
         int tapPosition = XmlUtil.readIntAttribute(context.getReader(), "tapPosition");
         PhaseTapChanger.RegulationMode regulationMode = PhaseTapChanger.RegulationMode.valueOf(context.getReader().getAttributeValue(null, "regulationMode"));

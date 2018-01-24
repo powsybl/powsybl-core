@@ -7,10 +7,11 @@
 package com.powsybl.math.timeseries;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import gnu.trove.list.array.TDoubleArrayList;
-import gnu.trove.list.array.TIntArrayList;
+import com.powsybl.math.util.trove.TDoubleArrayListHack;
+import com.powsybl.math.util.trove.TIntArrayListHack;
 
 import java.io.IOException;
+import java.nio.DoubleBuffer;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -50,17 +51,18 @@ public class UncompressedDoubleArrayChunk extends AbstractUncompressedArrayChunk
     }
 
     @Override
-    public void fillArray(double[] array) {
-        Objects.requireNonNull(array);
-        if ((offset + values.length) > array.length) {
-            throw new IllegalArgumentException("Incorrect array length");
+    public void fillBuffer(DoubleBuffer buffer, int timeSeriesOffset) {
+        Objects.requireNonNull(buffer);
+        for (int i = 0; i < values.length; i++) {
+            buffer.put(timeSeriesOffset + offset + i, values[i]);
         }
-        System.arraycopy(values, 0, array, offset, values.length);
     }
 
+    @Override
     public DoubleArrayChunk tryToCompress() {
-        TDoubleArrayList stepValues = new TDoubleArrayList();
-        TIntArrayList stepLengths = new TIntArrayList();
+        TDoubleArrayListHack stepValues = new TDoubleArrayListHack();
+        TIntArrayListHack stepLengths = new TIntArrayListHack();
+        int estimatedSize = getEstimatedSize();
         for (double value : values) {
             if (stepValues.isEmpty()) {
                 stepValues.add(value);
@@ -74,13 +76,28 @@ public class UncompressedDoubleArrayChunk extends AbstractUncompressedArrayChunk
                     stepValues.add(value);
                     stepLengths.add(1);
                 }
-                // compression is not really interesting...
-                if (stepValues.size() > values.length * 0.60) {
-                    return this;
-                }
+            }
+            if (CompressedDoubleArrayChunk.getEstimatedSize(stepValues.size(), stepLengths.size()) >= estimatedSize) {
+                // compression is inefficient
+                return this;
             }
         }
         return new CompressedDoubleArrayChunk(offset, values.length, stepValues.toArray(), stepLengths.toArray());
+    }
+
+    @Override
+    public Split<DoublePoint, DoubleArrayChunk> splitAt(int splitIndex) {
+        // split at offset is not allowed because it will result to a null left chunk
+        if (splitIndex <= offset || splitIndex > (offset + values.length - 1)) {
+            throw new IllegalArgumentException("Split index " + splitIndex + " out of chunk range ]" + offset
+                    + ", " + (offset + values.length - 1) + "]");
+        }
+        double[] values1 = new double[splitIndex - offset];
+        double[] values2 = new double[values.length - values1.length];
+        System.arraycopy(values, 0, values1, 0, values1.length);
+        System.arraycopy(values, values1.length, values2, 0, values2.length);
+        return new Split<>(new UncompressedDoubleArrayChunk(offset, values1),
+                           new UncompressedDoubleArrayChunk(splitIndex, values2));
     }
 
     @Override
