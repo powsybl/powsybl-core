@@ -9,9 +9,7 @@ package com.powsybl.action.dsl;
 import com.google.common.collect.Sets;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import com.powsybl.contingency.BranchContingency;
-import com.powsybl.contingency.Contingency;
-import com.powsybl.contingency.ContingencyElement;
+import com.powsybl.contingency.*;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.After;
@@ -27,6 +25,7 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
@@ -74,6 +73,11 @@ public class GroovyDslContingenciesProviderTest {
         assertEquals("NHV1_NHV2_1", element.getId());
     }
 
+
+    private static Set<String> getContingenciesNames(List<Contingency> contingencies) {
+        return contingencies.stream().map(Contingency::getId).collect(Collectors.toSet());
+    }
+
     @Test
     public void testAutomaticList() throws IOException {
         try (Writer writer = Files.newBufferedWriter(dslFile, StandardCharsets.UTF_8)) {
@@ -87,22 +91,39 @@ public class GroovyDslContingenciesProviderTest {
         List<Contingency> contingencies = GroovyDslContingenciesProvider.fromFile(dslFile)
                 .getContingencies(network);
         assertEquals(2, contingencies.size());
-        assertEquals(Sets.newHashSet("NHV1_NHV2_1", "NHV1_NHV2_2"), contingencies.stream().map(Contingency::getId).collect(Collectors.toSet()));
+        assertEquals(Sets.newHashSet("NHV1_NHV2_1", "NHV1_NHV2_2"), getContingenciesNames(contingencies));
+    }
+
+    private static String createAllBranchesDsl() {
+        return String.join(System.lineSeparator(),
+                "for (b in network.branches) {",
+                "    contingency(b.id) {",
+                "        equipments b.id",
+                "    }",
+                "}");
     }
 
     @Test
-    public void testAutomaticListFromInpuStream() throws IOException {
-        byte[] dslContent = String.join(System.lineSeparator(),
-                "for (l in network.lines) {",
-                "    contingency(l.id) {",
-                "        equipments l.id",
-                "    }",
-                "}").getBytes(StandardCharsets.UTF_8);
-        InputStream dslInputStream = new ByteArrayInputStream(dslContent);
+    public void testFactory() throws IOException {
+        ContingenciesProviderFactory factory = new GroovyDslContingenciesProviderFactory();
 
-        List<Contingency> contingencies = GroovyDslContingenciesProvider.fromInputStream(dslInputStream)
-                .getContingencies(network);
-        assertEquals(2, contingencies.size());
-        assertEquals(Sets.newHashSet("NHV1_NHV2_1", "NHV1_NHV2_2"), contingencies.stream().map(Contingency::getId).collect(Collectors.toSet()));
+        String dsl = createAllBranchesDsl();
+
+        InputStream inputStreamDsl = new ByteArrayInputStream(dsl.getBytes(StandardCharsets.UTF_8));
+
+        ContingenciesProvider providerFromStream = factory.create(inputStreamDsl);
+        assertTrue(providerFromStream instanceof GroovyDslContingenciesProvider);
+        List<Contingency> contingenciesFromStream = providerFromStream.getContingencies(network);
+        assertEquals(4, contingenciesFromStream.size());
+
+        try (Writer writer = Files.newBufferedWriter(dslFile, StandardCharsets.UTF_8)) {
+            writer.write(dsl);
+        }
+        ContingenciesProvider providerFromFile = factory.create(dslFile);
+        assertTrue(providerFromFile instanceof GroovyDslContingenciesProvider);
+        List<Contingency> contingenciesFromFile = providerFromFile.getContingencies(network);
+        assertEquals(4, contingenciesFromFile.size());
+
+        assertEquals(getContingenciesNames(contingenciesFromFile), getContingenciesNames(contingenciesFromStream));
     }
 }
