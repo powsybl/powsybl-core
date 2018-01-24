@@ -240,6 +240,16 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
     public ThreeWindingsTransformerImpl add() {
         String id = checkAndGetUniqueId();
 
+        if (leg1 == null || voltageLevel1 == null || terminal1 == null) {
+            throw new ValidationException(this, "Leg1 is not set");
+        }
+        if (leg2 == null || voltageLevel2 == null || terminal2 == null) {
+            throw new ValidationException(this, "Leg2 is not set");
+        }
+        if (leg3 == null || voltageLevel3 == null || terminal3 == null) {
+            throw new ValidationException(this, "Leg3 is not set");
+        }
+
         // check that the 3 windings transformer is attachable on the 3 sides
         voltageLevel1.attach(terminal1, true);
         voltageLevel2.attach(terminal2, true);

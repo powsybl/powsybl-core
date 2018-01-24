@@ -1,0 +1,5 @@
+#Metrics
+#"name" "value"
+metric1 value1
+metric2 value2
+'metric with space' 'value 3'
