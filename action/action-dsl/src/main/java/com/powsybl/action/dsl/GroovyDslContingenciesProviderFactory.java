@@ -10,6 +10,7 @@ import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.contingency.ContingenciesProviderFactory;
 
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.Objects;
 
@@ -22,13 +23,25 @@ public class GroovyDslContingenciesProviderFactory implements ContingenciesProvi
     public GroovyDslContingenciesProvider create() {
         ModuleConfig config = PlatformConfig.defaultConfig().getModuleConfig("groovy-dsl-contingencies");
         Path dslFile = config.getPathProperty("dsl-file");
-        return new GroovyDslContingenciesProvider(dslFile);
+        return GroovyDslContingenciesProvider.fromFile(dslFile);
     }
 
+    /**
+     * Creates a provider which will read the DSL content from a UTF-8 encoded file.
+     */
     @Override
     public GroovyDslContingenciesProvider create(Path dslFile) {
         Objects.requireNonNull(dslFile);
-        return new GroovyDslContingenciesProvider(dslFile);
+        return GroovyDslContingenciesProvider.fromFile(dslFile);
+    }
+
+    /**
+     * Creates a provider which will read the DSL content from a UTF-8 encoded input stream.
+     */
+    @Override
+    public GroovyDslContingenciesProvider create(InputStream dslStream) {
+        Objects.requireNonNull(dslStream);
+        return GroovyDslContingenciesProvider.fromInputStream(dslStream);
     }
 
 }

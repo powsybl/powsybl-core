@@ -18,7 +18,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
@@ -61,7 +63,7 @@ public class GroovyDslContingenciesProviderTest {
                     "    equipments 'NHV1_NHV2_1'",
                     "}"));
         }
-        List<Contingency> contingencies = new GroovyDslContingenciesProvider(dslFile)
+        List<Contingency> contingencies = GroovyDslContingenciesProvider.fromFile(dslFile)
                 .getContingencies(network);
         assertEquals(1, contingencies.size());
         Contingency contingency = contingencies.get(0);
@@ -82,7 +84,23 @@ public class GroovyDslContingenciesProviderTest {
                     "    }",
                     "}"));
         }
-        List<Contingency> contingencies = new GroovyDslContingenciesProvider(dslFile)
+        List<Contingency> contingencies = GroovyDslContingenciesProvider.fromFile(dslFile)
+                .getContingencies(network);
+        assertEquals(2, contingencies.size());
+        assertEquals(Sets.newHashSet("NHV1_NHV2_1", "NHV1_NHV2_2"), contingencies.stream().map(Contingency::getId).collect(Collectors.toSet()));
+    }
+
+    @Test
+    public void testAutomaticListFromInpuStream() throws IOException {
+        byte[] dslContent = String.join(System.lineSeparator(),
+                "for (l in network.lines) {",
+                "    contingency(l.id) {",
+                "        equipments l.id",
+                "    }",
+                "}").getBytes(StandardCharsets.UTF_8);
+        InputStream dslInputStream = new ByteArrayInputStream(dslContent);
+
+        List<Contingency> contingencies = GroovyDslContingenciesProvider.fromInputStream(dslInputStream)
                 .getContingencies(network);
         assertEquals(2, contingencies.size());
         assertEquals(Sets.newHashSet("NHV1_NHV2_1", "NHV1_NHV2_2"), contingencies.stream().map(Contingency::getId).collect(Collectors.toSet()));

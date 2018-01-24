@@ -13,9 +13,7 @@ import com.powsybl.iidm.network.Network;
 import groovy.lang.GroovyCodeSource;
 import groovy.lang.GroovyShell;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.io.UncheckedIOException;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -27,15 +25,33 @@ import java.util.Objects;
  */
 public class GroovyDslContingenciesProvider implements ContingenciesProvider {
 
-    private final Path dslFile;
+    interface ReaderSupplier {
+        Reader getReader() throws IOException;
+    }
 
-    public GroovyDslContingenciesProvider(Path dslFile) {
-        this.dslFile = Objects.requireNonNull(dslFile);
+    private final ReaderSupplier dslReaderSupplier;
+
+    /**
+     * Creates a provider which will read the DSL content from a UTF-8 encoded file.
+     */
+    public static GroovyDslContingenciesProvider fromFile(final Path path) {
+        return new GroovyDslContingenciesProvider(()-> Files.newBufferedReader(path, StandardCharsets.UTF_8));
+    }
+
+    /**
+     * Creates a provider which will read the DSL content from a UTF-8 encoded input stream.
+     */
+    public static GroovyDslContingenciesProvider fromInputStream(final InputStream input) {
+        return new GroovyDslContingenciesProvider(()-> new InputStreamReader(input, StandardCharsets.UTF_8));
+    }
+
+    public GroovyDslContingenciesProvider(ReaderSupplier supplier) {
+        this.dslReaderSupplier = Objects.requireNonNull(supplier);
     }
 
     @Override
     public List<Contingency> getContingencies(Network network) {
-        try (Reader reader = Files.newBufferedReader(dslFile, StandardCharsets.UTF_8)) {
+        try (Reader reader = dslReaderSupplier.getReader()) {
             ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(reader, "script", GroovyShell.DEFAULT_CODE_BASE))
                     .load(network);
             return ImmutableList.copyOf(actionDb.getContingencies());
