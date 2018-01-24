@@ -25,38 +25,42 @@ import java.util.Objects;
  */
 public class GroovyDslContingenciesProvider implements ContingenciesProvider {
 
-    interface ReaderSupplier {
-        Reader getReader() throws IOException;
+
+    private final ActionDslLoader dslLoader;
+
+    public GroovyDslContingenciesProvider(ActionDslLoader dslLoader) {
+        this.dslLoader = Objects.requireNonNull(dslLoader);
     }
 
-    private final ReaderSupplier dslReaderSupplier;
-
     /**
-     * Creates a provider which will read the DSL content from a UTF-8 encoded file.
+     * Creates a provider by reading the DSL content from a UTF-8 encoded file.
      */
     public static GroovyDslContingenciesProvider fromFile(final Path path) {
-        return new GroovyDslContingenciesProvider(()-> Files.newBufferedReader(path, StandardCharsets.UTF_8));
-    }
-
-    /**
-     * Creates a provider which will read the DSL content from a UTF-8 encoded input stream.
-     */
-    public static GroovyDslContingenciesProvider fromInputStream(final InputStream input) {
-        return new GroovyDslContingenciesProvider(()-> new InputStreamReader(input, StandardCharsets.UTF_8));
-    }
-
-    public GroovyDslContingenciesProvider(ReaderSupplier supplier) {
-        this.dslReaderSupplier = Objects.requireNonNull(supplier);
-    }
-
-    @Override
-    public List<Contingency> getContingencies(Network network) {
-        try (Reader reader = dslReaderSupplier.getReader()) {
-            ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(reader, "script", GroovyShell.DEFAULT_CODE_BASE))
-                    .load(network);
-            return ImmutableList.copyOf(actionDb.getContingencies());
+        try (Reader reader = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
+            return createProvider(reader);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
+
+    /**
+     * Creates a provider by reading the DSL content from a UTF-8 encoded input stream.
+     */
+    public static GroovyDslContingenciesProvider fromInputStream(final InputStream input) {
+        Reader reader = new InputStreamReader(input, StandardCharsets.UTF_8);
+        return createProvider(reader);
+    }
+
+    private static GroovyDslContingenciesProvider createProvider(final Reader reader) {
+        GroovyCodeSource src = new GroovyCodeSource(reader, "script", GroovyShell.DEFAULT_CODE_BASE);
+        ActionDslLoader loader = new ActionDslLoader(src);
+        return new GroovyDslContingenciesProvider(loader);
+    }
+
+    @Override
+    public List<Contingency> getContingencies(Network network) {
+        ActionDb actionDb = dslLoader.load(network);
+        return ImmutableList.copyOf(actionDb.getContingencies());
+    }
+
 }

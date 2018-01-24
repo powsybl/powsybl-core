@@ -126,4 +126,21 @@ public class GroovyDslContingenciesProviderTest {
 
         assertEquals(getContingenciesNames(contingenciesFromFile), getContingenciesNames(contingenciesFromStream));
     }
+
+    @Test
+    public void reuseProvider() {
+        ContingenciesProviderFactory factory = new GroovyDslContingenciesProviderFactory();
+
+        InputStream inputStreamDsl = new ByteArrayInputStream(createAllBranchesDsl().getBytes(StandardCharsets.UTF_8));
+
+        ContingenciesProvider provider = factory.create(inputStreamDsl);
+        assertTrue(provider instanceof GroovyDslContingenciesProvider);
+
+        List<Contingency> contingencies1 = provider.getContingencies(network);
+        assertEquals(4, contingencies1.size());
+        List<Contingency> contingencies2 = provider.getContingencies(network);
+        assertEquals(4, contingencies2.size());
+
+        assertEquals(getContingenciesNames(contingencies1), getContingenciesNames(contingencies2));
+    }
 }
