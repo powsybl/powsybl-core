@@ -87,7 +87,7 @@ public class AmplNetworkWriterTest extends AbstractConverterTest {
 
     @Test
     public void writeThreeWindingsTransformer() throws IOException {
-        Network network = ThreeWindingsTransformerNetworkFactory.create();
+        Network network = ThreeWindingsTransformerNetworkFactory.createWithCurrentLimits();
 
         MemDataSource dataSource = new MemDataSource();
         export(network, dataSource);
@@ -97,6 +97,7 @@ public class AmplNetworkWriterTest extends AbstractConverterTest {
         assertEqualsToRef(dataSource, "_network_rtc", "inputs/three-windings-transformers-rtc.txt");
         assertEqualsToRef(dataSource, "_network_substations", "inputs/three-windings-transformers-substations.txt");
         assertEqualsToRef(dataSource, "_network_tct", "inputs/three-windings-transformers-tct.txt");
+        assertEqualsToRef(dataSource, "_network_limits", "inputs/three-windings-transformers-limits.txt");
     }
 
     @Test
@@ -107,6 +108,30 @@ public class AmplNetworkWriterTest extends AbstractConverterTest {
         export(network, dataSource);
 
         assertEqualsToRef(dataSource, "_network_hvdc", "inputs/vsc-test-case.txt");
+    }
+
+    @Test
+    public void writeCurrentLimits() throws IOException {
+        Network network = EurostagTutorialExample1Factory.createWithCurrentLimits();
+
+        MemDataSource dataSource = new MemDataSource();
+        export(network, dataSource);
+
+        assertEqualsToRef(dataSource, "_network_limits", "inputs/current-limits-test-case.txt");
+    }
+
+    @Test
+    public void writeDanglingLines() throws IOException {
+        Network network = DanglingLineNetworkFactory.create();
+
+        MemDataSource dataSource = new MemDataSource();
+        export(network, dataSource);
+
+        assertEqualsToRef(dataSource, "_network_branches", "inputs/dangling-line-branches.txt");
+        assertEqualsToRef(dataSource, "_network_buses", "inputs/dangling-line-buses.txt");
+        assertEqualsToRef(dataSource, "_network_limits", "inputs/dangling-line-limits.txt");
+        assertEqualsToRef(dataSource, "_network_loads", "inputs/dangling-line-loads.txt");
+        assertEqualsToRef(dataSource, "_network_substations", "inputs/dangling-line-substations.txt");
     }
 
     private static void export(Network network, DataSource dataSource) {

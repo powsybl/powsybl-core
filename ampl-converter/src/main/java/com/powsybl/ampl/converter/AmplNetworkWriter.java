@@ -1139,7 +1139,7 @@ public class AmplNetworkWriter {
                          .writeCell(faultNum)
                          .writeCell(actionNum)
                          .writeCell(dl.getId() + "_load")
-                         .writeEmptyCell();
+                         .writeCell("");
             }
             if (!skipped.isEmpty()) {
                 LOGGER.trace("Skip loads {} because not connected and not connectable", skipped);
