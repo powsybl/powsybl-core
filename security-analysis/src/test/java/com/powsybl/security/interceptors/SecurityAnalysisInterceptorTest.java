@@ -32,8 +32,12 @@ public class SecurityAnalysisInterceptorTest {
             // Nothing to do
         }
 
-        interceptor = SecurityAnalysisInterceptors.createInterceptor("unknown-security-analysis-interceptor");
-        assertNull(interceptor);
+        try {
+            interceptor = SecurityAnalysisInterceptors.createInterceptor("unknown-security-analysis-interceptor");
+            fail();
+        } catch (IllegalArgumentException e) {
+            // Nothing to do
+        }
     }
 
 }
