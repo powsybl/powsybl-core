@@ -94,6 +94,17 @@ public class UndirectedGraphImplTest {
         assertTrue(graph.getEdgeCount() == 0);
     }
 
+    @Test
+    public void testRemoveVertex() {
+        graph.addVertex();
+        graph.addVertex();
+        graph.addVertex();
+        int e1 = graph.addEdge(0, 1, null);
+        int e2 = graph.addEdge(1, 2, null);
+        graph.removeEdge(e1);
+        graph.removeVertex(0);
+    }
+
     /**
      *           0
      *           |
