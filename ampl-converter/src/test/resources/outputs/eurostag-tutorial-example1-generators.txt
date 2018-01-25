@@ -1,0 +1,3 @@
+#Generators
+#"num" "V (pu)" "P (MW)" "Q (MVar)"
+1 1.00000 300.000 150.000

@@ -253,9 +253,9 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
 
     ThreeWindingsTransformerImpl(String id, String name, Leg1Impl leg1, Leg2Impl leg2, Leg3Impl leg3) {
         super(id, name);
-        this.leg1 = leg1;
-        this.leg2 = leg2;
-        this.leg3 = leg3;
+        this.leg1 = Objects.requireNonNull(leg1);
+        this.leg2 = Objects.requireNonNull(leg2);
+        this.leg3 = Objects.requireNonNull(leg3);
     }
 
     @Override

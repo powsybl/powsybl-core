@@ -1,0 +1,3 @@
+#Phase tap changers (phaseShifterTestCase/InitialState)
+#"num" "tap" "table" "fault" "curative" "id"
+1 2 1 0 0 "PS1"
