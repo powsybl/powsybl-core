@@ -31,7 +31,6 @@ public class GroovyDslContingenciesProviderFactory implements ContingenciesProvi
      */
     @Override
     public GroovyDslContingenciesProvider create(Path dslFile) {
-        Objects.requireNonNull(dslFile);
         return new GroovyDslContingenciesProvider(dslFile);
     }
 
@@ -40,7 +39,6 @@ public class GroovyDslContingenciesProviderFactory implements ContingenciesProvi
      */
     @Override
     public GroovyDslContingenciesProvider create(InputStream dslStream) {
-        Objects.requireNonNull(dslStream);
         return new GroovyDslContingenciesProvider(dslStream);
     }
 
