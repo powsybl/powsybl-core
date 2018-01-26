@@ -23,25 +23,25 @@ public class GroovyDslContingenciesProviderFactory implements ContingenciesProvi
     public GroovyDslContingenciesProvider create() {
         ModuleConfig config = PlatformConfig.defaultConfig().getModuleConfig("groovy-dsl-contingencies");
         Path dslFile = config.getPathProperty("dsl-file");
-        return GroovyDslContingenciesProvider.fromFile(dslFile);
+        return new GroovyDslContingenciesProvider(dslFile);
     }
 
     /**
-     * Creates a provider which will read the DSL content from a UTF-8 encoded file.
+     * Creates a provider which will read the DSL from a UTF-8 encoded file.
      */
     @Override
     public GroovyDslContingenciesProvider create(Path dslFile) {
         Objects.requireNonNull(dslFile);
-        return GroovyDslContingenciesProvider.fromFile(dslFile);
+        return new GroovyDslContingenciesProvider(dslFile);
     }
 
     /**
-     * Creates a provider which will read the DSL content from a UTF-8 encoded input stream.
+     * Creates a provider which will read the DSL from a UTF-8 encoded input stream.
      */
     @Override
     public GroovyDslContingenciesProvider create(InputStream dslStream) {
         Objects.requireNonNull(dslStream);
-        return GroovyDslContingenciesProvider.fromInputStream(dslStream);
+        return new GroovyDslContingenciesProvider(dslStream);
     }
 
 }

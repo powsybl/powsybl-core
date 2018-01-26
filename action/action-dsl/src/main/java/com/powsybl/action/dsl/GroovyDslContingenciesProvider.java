@@ -28,16 +28,13 @@ public class GroovyDslContingenciesProvider implements ContingenciesProvider {
 
     private final ActionDslLoader dslLoader;
 
-    public GroovyDslContingenciesProvider(ActionDslLoader dslLoader) {
-        this.dslLoader = Objects.requireNonNull(dslLoader);
-    }
-
     /**
-     * Creates a provider by reading the DSL content from a UTF-8 encoded file.
+     * Creates a provider by reading the DSL from a UTF-8 encoded file.
      */
-    public static GroovyDslContingenciesProvider fromFile(final Path path) {
+    public GroovyDslContingenciesProvider(final Path path) {
+        Objects.requireNonNull(path);
         try (Reader reader = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
-            return createProvider(reader);
+            this.dslLoader = createLoader(reader);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -46,15 +43,14 @@ public class GroovyDslContingenciesProvider implements ContingenciesProvider {
     /**
      * Creates a provider by reading the DSL content from a UTF-8 encoded input stream.
      */
-    public static GroovyDslContingenciesProvider fromInputStream(final InputStream input) {
-        Reader reader = new InputStreamReader(input, StandardCharsets.UTF_8);
-        return createProvider(reader);
+    public  GroovyDslContingenciesProvider(final InputStream input) {
+        Objects.requireNonNull(input);
+        this.dslLoader = createLoader(new InputStreamReader(input, StandardCharsets.UTF_8));
     }
 
-    private static GroovyDslContingenciesProvider createProvider(final Reader reader) {
+    private static ActionDslLoader createLoader(final Reader reader) {
         GroovyCodeSource src = new GroovyCodeSource(reader, "script", GroovyShell.DEFAULT_CODE_BASE);
-        ActionDslLoader loader = new ActionDslLoader(src);
-        return new GroovyDslContingenciesProvider(loader);
+        return new ActionDslLoader(src);
     }
 
     @Override

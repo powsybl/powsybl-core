@@ -62,7 +62,7 @@ public class GroovyDslContingenciesProviderTest {
                     "    equipments 'NHV1_NHV2_1'",
                     "}"));
         }
-        List<Contingency> contingencies = GroovyDslContingenciesProvider.fromFile(dslFile)
+        List<Contingency> contingencies = new GroovyDslContingenciesProvider(dslFile)
                 .getContingencies(network);
         assertEquals(1, contingencies.size());
         Contingency contingency = contingencies.get(0);
@@ -88,7 +88,7 @@ public class GroovyDslContingenciesProviderTest {
                     "    }",
                     "}"));
         }
-        List<Contingency> contingencies = GroovyDslContingenciesProvider.fromFile(dslFile)
+        List<Contingency> contingencies = new GroovyDslContingenciesProvider(dslFile)
                 .getContingencies(network);
         assertEquals(2, contingencies.size());
         assertEquals(Sets.newHashSet("NHV1_NHV2_1", "NHV1_NHV2_2"), getContingenciesNames(contingencies));
