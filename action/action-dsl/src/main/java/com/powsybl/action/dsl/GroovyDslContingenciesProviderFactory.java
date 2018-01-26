@@ -12,7 +12,6 @@ import com.powsybl.contingency.ContingenciesProviderFactory;
 
 import java.io.InputStream;
 import java.nio.file.Path;
-import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
