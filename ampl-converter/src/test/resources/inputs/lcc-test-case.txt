@@ -1,0 +1,3 @@
+#HVDC lines (hvdctest/InitialState)
+#"num" "fault" "curative" "id"
+1 0 0 "L"

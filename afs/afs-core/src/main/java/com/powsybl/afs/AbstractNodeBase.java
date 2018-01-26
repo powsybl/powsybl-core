@@ -89,6 +89,9 @@ public abstract class AbstractNodeBase<F> {
 
     protected NodeInfo getChildInfo(String name, String... more) {
         NodeInfo childInfo = getChildInfo(info, name);
+        if (childInfo == null) {
+            return null;
+        }
         for (String name2 : more) {
             childInfo = getChildInfo(childInfo, name2);
             if (childInfo == null) {

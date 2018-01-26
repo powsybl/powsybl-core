@@ -8,6 +8,7 @@ package com.powsybl.security;
 
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -23,7 +24,7 @@ import static org.junit.Assert.assertTrue;
  */
 public class LimitViolationTest {
 
-    private final Network network = TestingNetworkFactory.createFromEurostag();
+    private final Network network = EurostagTutorialExample1Factory.createWithCurrentLimits();
 
     @Test
     public void testCountry() {
