@@ -13,9 +13,7 @@ import com.powsybl.iidm.network.Network;
 import groovy.lang.GroovyCodeSource;
 import groovy.lang.GroovyShell;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.io.UncheckedIOException;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -27,20 +25,38 @@ import java.util.Objects;
  */
 public class GroovyDslContingenciesProvider implements ContingenciesProvider {
 
-    private final Path dslFile;
 
-    public GroovyDslContingenciesProvider(Path dslFile) {
-        this.dslFile = Objects.requireNonNull(dslFile);
-    }
+    private final ActionDslLoader dslLoader;
 
-    @Override
-    public List<Contingency> getContingencies(Network network) {
-        try (Reader reader = Files.newBufferedReader(dslFile, StandardCharsets.UTF_8)) {
-            ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(reader, "script", GroovyShell.DEFAULT_CODE_BASE))
-                    .load(network);
-            return ImmutableList.copyOf(actionDb.getContingencies());
+    /**
+     * Creates a provider by reading the DSL from a UTF-8 encoded file.
+     */
+    public GroovyDslContingenciesProvider(final Path path) {
+        Objects.requireNonNull(path);
+        try (Reader reader = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
+            this.dslLoader = createLoader(reader);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
+
+    /**
+     * Creates a provider by reading the DSL content from a UTF-8 encoded input stream.
+     */
+    public  GroovyDslContingenciesProvider(final InputStream input) {
+        Objects.requireNonNull(input);
+        this.dslLoader = createLoader(new InputStreamReader(input, StandardCharsets.UTF_8));
+    }
+
+    private static ActionDslLoader createLoader(final Reader reader) {
+        GroovyCodeSource src = new GroovyCodeSource(reader, "script", GroovyShell.DEFAULT_CODE_BASE);
+        return new ActionDslLoader(src);
+    }
+
+    @Override
+    public List<Contingency> getContingencies(Network network) {
+        ActionDb actionDb = dslLoader.load(network);
+        return ImmutableList.copyOf(actionDb.getContingencies());
+    }
+
 }
