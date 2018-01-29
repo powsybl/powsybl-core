@@ -19,6 +19,8 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.List;
 
@@ -304,7 +306,27 @@ public class UndirectedGraphImplTest {
         graph.addEdge(2, 4, null); // 4
         graph.addEdge(4, 5, null); // 5
         graph.addEdge(3, 5, null); // 6
-        graph.print(System.out, null, null);
+        ByteArrayOutputStream testStream = new ByteArrayOutputStream();
+        graph.print(new PrintStream(testStream), null, null);
+        assertEquals(expectedPrint(), testStream.toString());
+    }
+
+    private String expectedPrint() {
+        return "Vertices:\n" +
+            "0: null\n" +
+            "1: null\n" +
+            "2: null\n" +
+            "3: null\n" +
+            "4: null\n" +
+            "5: end\n" +
+            "Edges:\n" +
+            "0: 0<->1 null\n" +
+            "1: 0<->2 null\n" +
+            "2: 0<->3 null\n" +
+            "3: 1<->4 null\n" +
+            "4: 2<->4 null\n" +
+            "5: 4<->5 null\n" +
+            "6: 3<->5 null\n";
     }
 
     @Test
