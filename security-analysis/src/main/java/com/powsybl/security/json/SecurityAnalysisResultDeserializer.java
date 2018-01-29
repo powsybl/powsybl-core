@@ -13,7 +13,6 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.extensions.Extension;
@@ -21,11 +20,10 @@ import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.extensions.ExtensionSerializerProvider;
 import com.powsybl.commons.extensions.ExtensionSerializerProviders;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.contingency.Contingency;
-import com.powsybl.contingency.ContingencyElement;
-import com.powsybl.contingency.json.ContingencyDeserializer;
-import com.powsybl.contingency.json.ContingencyElementDeserializer;
-import com.powsybl.security.*;
+import com.powsybl.security.LimitViolationsResult;
+import com.powsybl.security.NetworkMetadata;
+import com.powsybl.security.PostContingencyResult;
+import com.powsybl.security.SecurityAnalysisResult;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -100,18 +98,9 @@ public class SecurityAnalysisResultDeserializer extends StdDeserializer<Security
         Objects.requireNonNull(jsonFile);
 
         try (InputStream is = Files.newInputStream(jsonFile)) {
-            ObjectMapper objectMapper = new ObjectMapper();
-            objectMapper.enable(DeserializationFeature.READ_ENUMS_USING_TO_STRING);
-
-            SimpleModule module = new SimpleModule();
-            module.addDeserializer(SecurityAnalysisResult.class, new SecurityAnalysisResultDeserializer());
-            module.addDeserializer(NetworkMetadata.class, new NetworkMetadataDeserializer());
-            module.addDeserializer(PostContingencyResult.class, new PostContingencyResultDeserializer());
-            module.addDeserializer(LimitViolationsResult.class, new LimitViolationResultDeserializer());
-            module.addDeserializer(LimitViolation.class, new LimitViolationDeserializer());
-            module.addDeserializer(Contingency.class, new ContingencyDeserializer());
-            module.addDeserializer(ContingencyElement.class, new ContingencyElementDeserializer());
-            objectMapper.registerModule(module);
+            ObjectMapper objectMapper = new ObjectMapper()
+                    .enable(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
+                    .registerModule(new SecurityAnalysisJsonModule());
 
             return objectMapper.readValue(is, SecurityAnalysisResult.class);
         } catch (IOException e) {

@@ -1,0 +1,8 @@
+#Temporary current limits (three-windings-transformer/InitialState)
+#"num" "branch" "side" "limit (A)" "accept. duration (s)" "fault" "curative"
+1 1 2 1200.00 1200 0 0
+2 1 2 1400.00 600 0 0
+3 2 1 120.000 1200 0 0
+4 2 1 140.000 600 0 0
+5 3 1 12.0000 1200 0 0
+6 3 1 14.0000 600 0 0

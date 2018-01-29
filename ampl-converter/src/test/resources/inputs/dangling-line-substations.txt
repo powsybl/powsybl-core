@@ -1,0 +1,4 @@
+#Substations (dangling-line/InitialState)
+#"num" "unused1" "unused2" "nomV (KV)" "minV (pu)" "maxV (pu)" "fault" "curative" "country" "id" "description"
+1 "" 0 100.000 0.800000 1.20000 0 0 "FR" "VL" "VL"
+2 "" 0 100.000 0.800000 1.20000 0 0 "FR" "DL_voltageLevel" ""
