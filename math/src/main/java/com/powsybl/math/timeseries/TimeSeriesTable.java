@@ -225,7 +225,7 @@ public final class TimeSeriesTable {
             means = null;
             stdDevs = null;
         } finally {
-            initLock.lock();
+            initLock.unlock();
         }
     }
 
@@ -509,7 +509,7 @@ public final class TimeSeriesTable {
                 computeVariableTimeSeriesPpmcc(r, timeSeriesNum1, statisticsIndex1, stdDev1, version);
             }
         } finally {
-            statsLock.lock();
+            statsLock.unlock();
         }
 
         LOGGER.info("PPMCC computed in {} ms", stopWatch.elapsed(TimeUnit.MILLISECONDS));
