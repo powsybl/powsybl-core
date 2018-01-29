@@ -84,7 +84,7 @@ public class StringTimeSeriesTest {
         assertEquals(json, json2);
 
         // test json with object mapper
-        ObjectMapper objectMapper = new ObjectMapper()
+        ObjectMapper objectMapper = JsonUtil.createObjectMapper()
                 .registerModule(new TimeSeriesJsonModule());
 
         assertEquals(timeSeries, objectMapper.readValue(objectMapper.writeValueAsString(timeSeries), StringTimeSeries.class));

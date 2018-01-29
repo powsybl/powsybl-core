@@ -199,29 +199,33 @@ public interface ArrayChunk<P extends AbstractPoint, A extends ArrayChunk<P, A>>
     }
 
     static void addUncompressedChunk(JsonParsingContext context) {
-        if (context.doubleValues != null) {
+        if (context.doubleValues != null && context.stringValues == null) {
             context.doubleChunks.add(new UncompressedDoubleArrayChunk(context.offset, context.doubleValues.toArray()));
-        } else if (context.stringValues != null) {
+        } else if (context.stringValues != null && context.doubleValues == null) {
             context.stringChunks.add(new UncompressedStringArrayChunk(context.offset, context.stringValues.toArray(new String[context.stringValues.size()])));
+        } else if (context.stringValues != null && context.doubleValues != null) {
+            throw new AssertionError("doubleValues and stringValues are not expected to be non null at the same time");
         } else {
             throw new AssertionError("doubleValues and stringValues are not expected to be null at the same time");
         }
     }
 
     static void addCompressedChunk(JsonParsingContext context) {
-        if (context.doubleValues != null) {
+        if (context.doubleValues != null && context.stringValues == null) {
             context.doubleChunks.add(new CompressedDoubleArrayChunk(context.offset, context.uncompressedLength,
                     context.doubleValues.toArray(), context.stepLengths.toArray()));
             context.doubleValues = null;
             context.stepLengths = null;
             context.uncompressedLength = -1;
-        } else if (context.stringValues != null) {
+        } else if (context.stringValues != null && context.doubleValues == null) {
             context.stringChunks.add(new CompressedStringArrayChunk(context.offset, context.uncompressedLength,
                     context.stringValues.toArray(new String[context.stringValues.size()]),
                     context.stepLengths.toArray()));
             context.stringValues = null;
             context.stepLengths = null;
             context.uncompressedLength = -1;
+        } else if (context.stringValues != null && context.doubleValues != null) {
+            throw new AssertionError("doubleValues and stringValues are not expected to be non null at the same time");
         } else {
             throw new AssertionError("doubleValues and stringValues are not expected to be null at the same time");
         }
@@ -242,15 +246,6 @@ public interface ArrayChunk<P extends AbstractPoint, A extends ArrayChunk<P, A>>
         } else {
             context.addDoubleValue(parser.getIntValue());
         }
-    }
-
-    /**
-     * @deprecated Use parseJson(JsonParser, List<DoubleArrayChunk>, List<StringArrayChunk>)
-     */
-    @Deprecated
-    static void parseJson(JsonParser parser, TimeSeriesDataType dataType, List<DoubleArrayChunk> doubleChunks,
-                          List<StringArrayChunk> stringChunks) {
-        parseJson(parser, doubleChunks, stringChunks, false);
     }
 
     static void parseJson(JsonParser parser, List<DoubleArrayChunk> doubleChunks,
@@ -292,6 +287,10 @@ public interface ArrayChunk<P extends AbstractPoint, A extends ArrayChunk<P, A>>
                     case VALUE_STRING:
                         context.addStringValue(parser.getValueAsString());
                         break;
+                    case VALUE_NULL:
+                        context.addStringValue(null);
+                        break;
+
                     default:
                         break;
                 }
