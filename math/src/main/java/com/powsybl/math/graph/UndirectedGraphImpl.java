@@ -454,17 +454,17 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
 
     @Override
     public void print(PrintStream out, Function<V, String> vertexToString, Function<E, String> edgeToString) {
-        out.append("Vertices:\n");
+        out.append("Vertices:").append(System.lineSeparator());
         for (int v = 0; v < vertices.size(); v++) {
             Vertex<V> vertex = vertices.get(v);
             if (vertex != null) {
                 String str = vertexToString == null ? Objects.toString(vertex.getObject()) : vertexToString.apply(vertex.getObject());
                 out.append(Integer.toString(v)).append(": ")
                         .append(str)
-                        .append("\n");
+                        .append(System.lineSeparator());
             }
         }
-        out.append("Edges:\n");
+        out.append("Edges:").append(System.lineSeparator());
         for (int e = 0; e < edges.size(); e++) {
             Edge<E> edge = edges.get(e);
             if (edge != null) {
@@ -472,7 +472,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
                 out.append(Integer.toString(e)).append(": ")
                         .append(Integer.toString(edge.getV1())).append("<->")
                         .append(Integer.toString(edge.getV2())).append(" ")
-                        .append(str).append("\n");
+                        .append(str).append(System.lineSeparator());
             }
         }
     }
