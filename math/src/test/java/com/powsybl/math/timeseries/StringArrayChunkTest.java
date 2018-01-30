@@ -17,6 +17,7 @@ import org.threeten.extra.Interval;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -50,7 +51,7 @@ public class StringArrayChunkTest {
         assertEquals(jsonRef, JsonUtil.toJson(chunk::writeJson));
 
         // test json with object mapper
-        ObjectMapper objectMapper = new ObjectMapper()
+        ObjectMapper objectMapper = JsonUtil.createObjectMapper()
                 .registerModule(new TimeSeriesJsonModule());
 
         List<StringArrayChunk> chunks = objectMapper.readValue(objectMapper.writeValueAsString(Arrays.asList(chunk)),
@@ -161,5 +162,24 @@ public class StringArrayChunkTest {
         assertEquals(2, ((CompressedStringArrayChunk) split.getChunk2()).getUncompressedLength());
         assertArrayEquals(new String[] {"b"}, ((CompressedStringArrayChunk) split.getChunk2()).getStepValues());
         assertArrayEquals(new int[] {2}, ((CompressedStringArrayChunk) split.getChunk2()).getStepLengths());
+    }
+
+    @Test
+    public void nullIssueTest() {
+        String json = String.join(System.lineSeparator(),
+                "{",
+                "  \"offset\" : 0,",
+                "  \"values\" : [ \"a\", null, null ]",
+                "}");
+        List<DoubleArrayChunk> doubleChunks = new ArrayList<>();
+        List<StringArrayChunk> stringChunks = new ArrayList<>();
+        JsonUtil.parseJson(json, parser -> {
+            ArrayChunk.parseJson(parser, doubleChunks, stringChunks);
+            return null;
+        });
+        assertEquals(0, doubleChunks.size());
+        assertEquals(1, stringChunks.size());
+        assertTrue(stringChunks.get(0) instanceof UncompressedStringArrayChunk);
+        assertArrayEquals(new String[] {"a", null, null}, ((UncompressedStringArrayChunk) stringChunks.get(0)).getValues());
     }
 }

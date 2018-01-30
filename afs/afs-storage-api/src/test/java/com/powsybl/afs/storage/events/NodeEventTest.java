@@ -8,6 +8,7 @@ package com.powsybl.afs.storage.events;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.testing.EqualsTester;
+import com.powsybl.commons.json.JsonUtil;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -24,7 +25,7 @@ public class NodeEventTest {
 
     @Before
     public void setUp() throws Exception {
-        objectMapper = new ObjectMapper();
+        objectMapper = JsonUtil.createObjectMapper();
     }
 
     @Test

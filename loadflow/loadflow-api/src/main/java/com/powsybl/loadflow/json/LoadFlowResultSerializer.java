@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.loadflow.LoadFlowResult;
 
 import java.io.IOException;
@@ -46,7 +47,7 @@ public class LoadFlowResultSerializer extends StdSerializer<LoadFlowResult> {
         Objects.requireNonNull(jsonFile);
 
         try (OutputStream os = Files.newOutputStream(jsonFile)) {
-            ObjectMapper objectMapper = new ObjectMapper();
+            ObjectMapper objectMapper = JsonUtil.createObjectMapper();
             SimpleModule module = new SimpleModule();
             module.addSerializer(LoadFlowResult.class, new LoadFlowResultSerializer());
             objectMapper.registerModule(module);

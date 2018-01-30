@@ -8,6 +8,7 @@ package com.powsybl.afs.storage;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.afs.storage.json.AppStorageJsonModule;
+import com.powsybl.commons.json.JsonUtil;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -27,7 +28,7 @@ public class NodeDependencyTest {
         assertEquals(info, dependency.getNodeInfo());
         assertEquals("NodeDependency(name=l, nodeInfo=NodeInfo(id=a, name=b, pseudoClass=c, description=d, creationTime=1000000, modificationTime=1000001, version=0, genericMetadata=NodeGenericMetadata(stringMetadata={}, doubleMetadata={}, intMetadata={}, booleanMetadata={})))", dependency.toString());
 
-        ObjectMapper objectMapper = new ObjectMapper()
+        ObjectMapper objectMapper = JsonUtil.createObjectMapper()
                 .registerModule(new AppStorageJsonModule());
 
         NodeDependency dependency2 = objectMapper.readValue(objectMapper.writeValueAsString(dependency), NodeDependency.class);
