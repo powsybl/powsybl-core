@@ -9,10 +9,10 @@ package com.powsybl.loadflow.json;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.loadflow.LoadFlowResultImpl;
 
@@ -66,8 +66,7 @@ public class LoadFlowResultDeserializer extends StdDeserializer<LoadFlowResult> 
 
     public static LoadFlowResult read(InputStream is) throws IOException {
         Objects.requireNonNull(is);
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.enable(DeserializationFeature.READ_ENUMS_USING_TO_STRING);
+        ObjectMapper objectMapper = JsonUtil.createObjectMapper();
 
         SimpleModule module = new SimpleModule();
         module.addDeserializer(LoadFlowResult.class, new LoadFlowResultDeserializer());

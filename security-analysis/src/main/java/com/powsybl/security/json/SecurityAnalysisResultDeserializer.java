@@ -10,7 +10,6 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.google.common.base.Supplier;
@@ -98,8 +97,7 @@ public class SecurityAnalysisResultDeserializer extends StdDeserializer<Security
         Objects.requireNonNull(jsonFile);
 
         try (InputStream is = Files.newInputStream(jsonFile)) {
-            ObjectMapper objectMapper = new ObjectMapper()
-                    .enable(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
+            ObjectMapper objectMapper = JsonUtil.createObjectMapper()
                     .registerModule(new SecurityAnalysisJsonModule());
 
             return objectMapper.readValue(is, SecurityAnalysisResult.class);
