@@ -51,7 +51,7 @@ public class FooDeserializer extends StdDeserializer<Foo> {
     }
 
     static Foo read(InputStream stream) throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = JsonUtil.createObjectMapper();
 
         SimpleModule module = new SimpleModule();
         module.addDeserializer(Foo.class, new FooDeserializer());

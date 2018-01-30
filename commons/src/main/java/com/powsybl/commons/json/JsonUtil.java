@@ -11,6 +11,8 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.common.base.Strings;
 import com.google.common.base.Supplier;
@@ -38,10 +40,23 @@ public final class JsonUtil {
     private JsonUtil() {
     }
 
+    public static ObjectMapper createObjectMapper() {
+        return new ObjectMapper()
+                .enable(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
+                .disable(JsonGenerator.Feature.QUOTE_NON_NUMERIC_NUMBERS)
+                .enable(JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS);
+    }
+
+    public static JsonFactory createJsonFactory() {
+        return new JsonFactory()
+                .disable(JsonGenerator.Feature.QUOTE_NON_NUMERIC_NUMBERS)
+                .enable(JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS);
+    }
+
     public static void writeJson(Writer writer, Consumer<JsonGenerator> consumer) {
         Objects.requireNonNull(writer);
         Objects.requireNonNull(consumer);
-        JsonFactory factory = new JsonFactory();
+        JsonFactory factory = createJsonFactory();
         try (JsonGenerator generator = factory.createGenerator(writer)) {
             generator.useDefaultPrettyPrinter();
             consumer.accept(generator);
@@ -88,7 +103,7 @@ public final class JsonUtil {
     public static <T> T parseJson(Reader reader, Function<JsonParser, T> function) {
         Objects.requireNonNull(reader);
         Objects.requireNonNull(function);
-        JsonFactory factory = new JsonFactory();
+        JsonFactory factory = createJsonFactory();
         try (JsonParser parser = factory.createParser(reader)) {
             return function.apply(parser);
         } catch (IOException e) {

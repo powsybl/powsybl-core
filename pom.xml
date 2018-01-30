@@ -23,6 +23,7 @@
     <modules>
         <module>action</module>
         <module>afs</module>
+        <module>ampl-converter</module>
         <module>cim-anonymiser</module>
         <module>cim1</module>
         <module>commons</module>

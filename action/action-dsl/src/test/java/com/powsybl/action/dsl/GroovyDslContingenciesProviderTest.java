@@ -9,22 +9,23 @@ package com.powsybl.action.dsl;
 import com.google.common.collect.Sets;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import com.powsybl.contingency.BranchContingency;
-import com.powsybl.contingency.Contingency;
-import com.powsybl.contingency.ContingencyElement;
+import com.powsybl.contingency.*;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
@@ -72,6 +73,11 @@ public class GroovyDslContingenciesProviderTest {
         assertEquals("NHV1_NHV2_1", element.getId());
     }
 
+
+    private static Set<String> getContingenciesNames(List<Contingency> contingencies) {
+        return contingencies.stream().map(Contingency::getId).collect(Collectors.toSet());
+    }
+
     @Test
     public void testAutomaticList() throws IOException {
         try (Writer writer = Files.newBufferedWriter(dslFile, StandardCharsets.UTF_8)) {
@@ -85,6 +91,56 @@ public class GroovyDslContingenciesProviderTest {
         List<Contingency> contingencies = new GroovyDslContingenciesProvider(dslFile)
                 .getContingencies(network);
         assertEquals(2, contingencies.size());
-        assertEquals(Sets.newHashSet("NHV1_NHV2_1", "NHV1_NHV2_2"), contingencies.stream().map(Contingency::getId).collect(Collectors.toSet()));
+        assertEquals(Sets.newHashSet("NHV1_NHV2_1", "NHV1_NHV2_2"), getContingenciesNames(contingencies));
+    }
+
+    private static String createAllBranchesDsl() {
+        return String.join(System.lineSeparator(),
+                "for (b in network.branches) {",
+                "    contingency(b.id) {",
+                "        equipments b.id",
+                "    }",
+                "}");
+    }
+
+    @Test
+    public void testFactory() throws IOException {
+        ContingenciesProviderFactory factory = new GroovyDslContingenciesProviderFactory();
+
+        String dsl = createAllBranchesDsl();
+
+        InputStream inputStreamDsl = new ByteArrayInputStream(dsl.getBytes(StandardCharsets.UTF_8));
+
+        ContingenciesProvider providerFromStream = factory.create(inputStreamDsl);
+        assertTrue(providerFromStream instanceof GroovyDslContingenciesProvider);
+        List<Contingency> contingenciesFromStream = providerFromStream.getContingencies(network);
+        assertEquals(4, contingenciesFromStream.size());
+
+        try (Writer writer = Files.newBufferedWriter(dslFile, StandardCharsets.UTF_8)) {
+            writer.write(dsl);
+        }
+        ContingenciesProvider providerFromFile = factory.create(dslFile);
+        assertTrue(providerFromFile instanceof GroovyDslContingenciesProvider);
+        List<Contingency> contingenciesFromFile = providerFromFile.getContingencies(network);
+        assertEquals(4, contingenciesFromFile.size());
+
+        assertEquals(getContingenciesNames(contingenciesFromFile), getContingenciesNames(contingenciesFromStream));
+    }
+
+    @Test
+    public void reuseProvider() {
+        ContingenciesProviderFactory factory = new GroovyDslContingenciesProviderFactory();
+
+        InputStream inputStreamDsl = new ByteArrayInputStream(createAllBranchesDsl().getBytes(StandardCharsets.UTF_8));
+
+        ContingenciesProvider provider = factory.create(inputStreamDsl);
+        assertTrue(provider instanceof GroovyDslContingenciesProvider);
+
+        List<Contingency> contingencies1 = provider.getContingencies(network);
+        assertEquals(4, contingencies1.size());
+        List<Contingency> contingencies2 = provider.getContingencies(network);
+        assertEquals(4, contingencies2.size());
+
+        assertEquals(getContingenciesNames(contingencies1), getContingenciesNames(contingencies2));
     }
 }
