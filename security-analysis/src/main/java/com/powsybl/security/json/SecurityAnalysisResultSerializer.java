@@ -59,11 +59,10 @@ public class SecurityAnalysisResultSerializer extends StdSerializer<SecurityAnal
         Objects.requireNonNull(result);
         Objects.requireNonNull(writer);
 
-        ObjectMapper objectMapper = new ObjectMapper()
+        ObjectMapper objectMapper = JsonUtil.createObjectMapper()
                 .registerModule(new SecurityAnalysisJsonModule());
 
         ObjectWriter objectWriter = objectMapper.writerWithDefaultPrettyPrinter();
         objectWriter.writeValue(writer, result);
-
     }
 }
