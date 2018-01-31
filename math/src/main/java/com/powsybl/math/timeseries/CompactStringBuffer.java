@@ -34,11 +34,7 @@ public class CompactStringBuffer {
         if (value == null) {
             num = -1;
         } else {
-            num = dict.indexOf(value);
-            if (num == -1) {
-                // create a new entry
-                num = dict.add(value);
-            }
+            num = dict.addIfNotAlreadyExist(value);
         }
         buffer.put(index, num);
     }
