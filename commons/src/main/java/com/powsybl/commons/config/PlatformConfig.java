@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+ * Copyright (c) 2016-2018, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -23,6 +23,7 @@ import java.util.Objects;
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
  */
 public class PlatformConfig {
 
@@ -83,6 +84,33 @@ public class PlatformConfig {
         return defaultConfig;
     }
 
+    public static synchronized PlatformConfig customConfig(Path configFile) {
+        return customConfig(FileSystems.getDefault(), configFile);
+    }
+
+    public static synchronized PlatformConfig customConfig(FileSystem fileSystem, Path configFile) {
+        Objects.requireNonNull(fileSystem);
+        Objects.requireNonNull(configFile);
+
+        Path configDir = getCustomConfigDir(fileSystem, configFile);
+        Path cacheDir = getCustomCacheDir(fileSystem, configFile);
+        String configName = getFileName(configFile);
+
+        PlatformConfig customnPlatformConfig = null;
+        if (configName != null) {
+            try {
+                customnPlatformConfig = new XmlPlatformConfig(fileSystem, configDir, cacheDir, configName);
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            } catch (SAXException e) {
+                throw new UncheckedSaxException(e);
+            } catch (ParserConfigurationException e) {
+                throw new UncheckedParserConfigurationException(e);
+            }
+        }
+        return customnPlatformConfig;
+    }
+
     public static synchronized void setDefaultCacheManager(CacheManager defaultCacheManager) {
         PlatformConfig.defaultCacheManager = defaultCacheManager;
     }
@@ -133,8 +161,17 @@ public class PlatformConfig {
         return getDirectory(fileSystem, "itools.config.dir", ".itools");
     }
 
+
     static Path getDefaultCacheDir(FileSystem fileSystem) {
         return getDirectory(fileSystem, "itools.cache.dir", ".cache", "itools");
+    }
+
+    static Path getCustomConfigDir(FileSystem fileSystem, Path configFile) {
+        return getDirectory(fileSystem, configFile);
+    }
+
+    static Path getCustomCacheDir(FileSystem fileSystem, Path configFile) {
+        return getDirectory(fileSystem, configFile);
     }
 
     private static Path getDirectory(FileSystem fileSystem, String propertyName, String... folders) {
@@ -153,5 +190,26 @@ public class PlatformConfig {
 
         return directory;
 
+    }
+
+    private static Path getDirectory(FileSystem fileSystem, Path configFile) {
+        Objects.requireNonNull(fileSystem);
+        Objects.requireNonNull(configFile);
+
+        String fileNamePlusPath  = configFile.toString();
+
+        String directoryName = fileNamePlusPath.substring(0, fileNamePlusPath.lastIndexOf("/") + 1);
+
+        return fileSystem.getPath(directoryName);
+    }
+
+    private static String getFileName(Path configFile) {
+        Objects.requireNonNull(configFile);
+
+        String fileNamePlusPath  = configFile.toString();
+
+        String fileName = fileNamePlusPath.substring(fileNamePlusPath.lastIndexOf('/') + 1);
+
+        return fileName.substring(0, fileName.indexOf("."));
     }
 }

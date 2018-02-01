@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017, RTE (http://www.rte-france.com)
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -15,6 +15,7 @@ import java.util.Collections;
 
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
+ * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
  */
 public class SecurityAnalysisToolTest extends AbstractToolTest {
 
@@ -34,12 +35,13 @@ public class SecurityAnalysisToolTest extends AbstractToolTest {
 
     @Override
     public void assertCommand() {
-        assertCommand(tool.getCommand(), "security-analysis", 6, 1);
+        assertCommand(tool.getCommand(), "security-analysis", 7, 1);
         assertOption(tool.getCommand().getOptions(), "case-file", true, true);
         assertOption(tool.getCommand().getOptions(), "limit-types", false, true);
         assertOption(tool.getCommand().getOptions(), "output-file", false, true);
         assertOption(tool.getCommand().getOptions(), "output-format", false, true);
         assertOption(tool.getCommand().getOptions(), "contingencies-file", false, true);
+        assertOption(tool.getCommand().getOptions(), "config-file", false, true);
         assertOption(tool.getCommand().getOptions(), "with-extensions", false, true);
     }
 

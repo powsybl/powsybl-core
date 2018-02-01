@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016-2017, RTE (http://www.rte-france.com)
+ * Copyright (c) 2016-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
  */
 @AutoService(Tool.class)
 public class SecurityAnalysisTool implements Tool {
@@ -38,6 +39,7 @@ public class SecurityAnalysisTool implements Tool {
     private static final String OUTPUT_FILE_OPTION = "output-file";
     private static final String OUTPUT_FORMAT_OPTION = "output-format";
     private static final String CONTINGENCIES_FILE_OPTION = "contingencies-file";
+    private static final String CONFIG_FILE = "config-file";
     private static final String WITH_EXTENSIONS_OPTION = "with-extensions";
 
     @Override
@@ -86,6 +88,11 @@ public class SecurityAnalysisTool implements Tool {
                     .desc("the contingencies path")
                     .hasArg()
                     .argName("FILE")
+                    .build());
+                options.addOption(Option.builder().longOpt(CONFIG_FILE)
+                    .desc("configuration file")
+                    .hasArg()
+                    .argName("CONFIG-FILE")
                     .build());
                 options.addOption(Option.builder().longOpt(WITH_EXTENSIONS_OPTION)
                     .desc("the extension list to enable")
@@ -137,11 +144,14 @@ public class SecurityAnalysisTool implements Tool {
             throw new PowsyblException("Case '" + caseFile + "' not found");
         }
 
+        // Configuration file
+        Path configFile = line.hasOption(CONFIG_FILE) ? context.getFileSystem().getPath(line.getOptionValue(CONFIG_FILE)) : null;
+
         LimitViolationFilter limitViolationFilter = LimitViolationFilter.load();
         limitViolationFilter.setViolationTypes(limitViolationTypes);
 
         SecurityAnalyzer analyzer = new SecurityAnalyzer(limitViolationFilter, context.getComputationManager(), 0, interceptors);
-        SecurityAnalysisResult result = analyzer.analyze(network, contingenciesFile);
+        SecurityAnalysisResult result = analyzer.analyze(network, contingenciesFile, configFile);
 
         if (!result.getPreContingencyResult().isComputationOk()) {
             context.getErrorStream().println("Pre-contingency state divergence");

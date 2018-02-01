@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, RTE (http://www.rte-france.com)
+ * Copyright (c) 2016-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -14,6 +14,8 @@ import com.powsybl.contingency.ContingenciesProviderFactory;
 import com.powsybl.contingency.EmptyContingencyListProvider;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.StateManager;
+import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 
 import java.io.InputStream;
@@ -24,6 +26,7 @@ import java.util.Set;
 
 /**
  * @author Giovanni Ferrari <giovanni.ferrari@techrain.it>
+ * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
  */
 public class SecurityAnalyzer {
 
@@ -67,16 +70,16 @@ public class SecurityAnalyzer {
         contingenciesProviderFactory = defaultConfig.newFactoryImpl(ContingenciesProviderFactory.class);
     }
 
-    public SecurityAnalysisResult analyze(Network network, Path contingenciesFile) {
+    public SecurityAnalysisResult analyze(Network network, java.nio.file.Path contingenciesFile, Path configFile) {
         Objects.requireNonNull(network);
 
         ContingenciesProvider contingenciesProvider = contingenciesFile != null
                 ? contingenciesProviderFactory.create(contingenciesFile) : new EmptyContingencyListProvider();
 
-        return analyze(network, contingenciesProvider);
+        return analyze(network, contingenciesProvider, configFile);
     }
 
-    public SecurityAnalysisResult analyze(String filename, InputStream networkData, InputStream contingencies) {
+    public SecurityAnalysisResult analyze(String filename, InputStream networkData, InputStream contingencies, java.nio.file.Path configFile) {
         Objects.requireNonNull(networkData);
         Objects.requireNonNull(filename);
 
@@ -88,19 +91,30 @@ public class SecurityAnalyzer {
         ContingenciesProvider contingenciesProvider = contingencies != null
                 ? contingenciesProviderFactory.create(contingencies) : new EmptyContingencyListProvider();
 
-        return analyze(network, contingenciesProvider);
+        return analyze(network, contingenciesProvider, configFile);
     }
 
-    public SecurityAnalysisResult analyze(Network network, ContingenciesProvider contingenciesProvider) {
+    public SecurityAnalysisResult analyze(Network network, ContingenciesProvider contingenciesProvider, java.nio.file.Path configFile) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(contingenciesProvider);
 
         network.getStateManager().allowStateMultiThreadAccess(true);
 
         SecurityAnalysis securityAnalysis = securityAnalysisFactory.create(network, filter, computationManager, priority);
+
+        LoadFlowParameters loadFlowParameters;
+        SecurityAnalysisParameters securityAnalysisParameters;
+        if (Objects.isNull(configFile)) {
+            loadFlowParameters = LoadFlowParameters.load();
+            securityAnalysisParameters = SecurityAnalysisParameters.load();
+        } else {
+            loadFlowParameters = LoadFlowParameters.load(configFile);
+            securityAnalysisParameters = SecurityAnalysisParameters.load(configFile);
+        }
+
         interceptors.forEach(securityAnalysis::addInterceptor);
 
-        return securityAnalysis.runAsync(contingenciesProvider).join();
+        return securityAnalysis.runAsync(contingenciesProvider, StateManager.INITIAL_STATE_ID, loadFlowParameters, securityAnalysisParameters).join();
     }
 
 }

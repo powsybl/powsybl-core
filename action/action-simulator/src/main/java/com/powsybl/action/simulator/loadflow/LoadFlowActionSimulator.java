@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017, RTE (http://www.rte-france.com)
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -18,6 +18,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.xml.NetworkXml;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowFactory;
+import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.LimitViolationFilter;
@@ -26,6 +27,7 @@ import com.powsybl.security.Security;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -47,6 +49,8 @@ public class LoadFlowActionSimulator implements ActionSimulator {
 
     private final List<LoadFlowActionSimulatorObserver> observers;
 
+    private Path configFile;
+
     public LoadFlowActionSimulator(Network network, ComputationManager computationManager) {
         this(network, computationManager, LoadFlowActionSimulatorConfig.load(), Collections.emptyList());
     }
@@ -62,6 +66,15 @@ public class LoadFlowActionSimulator implements ActionSimulator {
         this.computationManager = Objects.requireNonNull(computationManager);
         this.config = Objects.requireNonNull(config);
         this.observers = Objects.requireNonNull(observers);
+    }
+
+    public LoadFlowActionSimulator(Network network, ComputationManager computationManager, LoadFlowActionSimulatorConfig config,
+                                   List<LoadFlowActionSimulatorObserver> observers, Path configFile) {
+        this.network = Objects.requireNonNull(network);
+        this.computationManager = Objects.requireNonNull(computationManager);
+        this.config = Objects.requireNonNull(config);
+        this.observers = Objects.requireNonNull(observers);
+        this.configFile = configFile;
     }
 
     @Override
@@ -128,11 +141,19 @@ public class LoadFlowActionSimulator implements ActionSimulator {
 
         LoadFlowFactory loadFlowFactory = newLoadFlowFactory();
         LoadFlow loadFlow = loadFlowFactory.create(context.getNetwork(), computationManager, 0);
+        LoadFlowParameters parameters = null;
+        if (!Objects.isNull(configFile)) {
+            parameters = LoadFlowParameters.load(configFile);
+        }
 
         LOGGER.info("Running loadflow ({})", loadFlow.getName());
         LoadFlowResult result;
         try {
-            result = loadFlow.run();
+            if (!Objects.isNull(parameters)) {
+                result = loadFlow.run(parameters);
+            } else {
+                result = loadFlow.run();
+            }
         } catch (Exception e) {
             throw new PowsyblException(e);
         }
@@ -187,10 +208,10 @@ public class LoadFlowActionSimulator implements ActionSimulator {
                     LOGGER.debug("Evaluating {} to {}", ExpressionPrinter.toString(conditionExpr), Boolean.toString(ok));
 
                     variables = ExpressionVariableLister.list(conditionExpr).stream()
-                        .collect(Collectors.toMap(ExpressionPrinter::toString,
-                            n -> ExpressionEvaluator.evaluate(n, evalContext),
-                            (v1, v2) -> v1,
-                            TreeMap::new));
+                            .collect(Collectors.toMap(ExpressionPrinter::toString,
+                                n -> ExpressionEvaluator.evaluate(n, evalContext),
+                                (v1, v2) -> v1,
+                                TreeMap::new));
 
                     LOGGER.debug("Variables values: {}", variables);
 
@@ -202,10 +223,10 @@ public class LoadFlowActionSimulator implements ActionSimulator {
                     }
 
                     actions = ExpressionActionTakenLister.list(conditionExpr).stream()
-                        .collect(Collectors.toMap(s -> s,
-                            s -> context.getTimeLine().actionTaken(s),
-                            (s1, s2) -> s1,
-                            TreeMap::new));
+                            .collect(Collectors.toMap(s -> s,
+                                s -> context.getTimeLine().actionTaken(s),
+                                (s1, s2) -> s1,
+                                TreeMap::new));
                 }
 
                 observers.forEach(o -> o.ruleChecked(context, rule, status, variables, actions));
@@ -216,11 +237,12 @@ public class LoadFlowActionSimulator implements ActionSimulator {
 
                         // apply action
                         LOGGER.info("Apply action '{}'", action.getId());
-                        observers.forEach(o-> o.beforeAction(context, actionId));
+                        observers.forEach(o -> o.beforeAction(context, actionId));
 
                         action.run(context.getNetwork(), computationManager);
 
-                        observers.forEach(o-> o.afterAction(context, actionId));
+                        observers.forEach(o -> o.afterAction(context, actionId));
+
                         actionsTaken.add(actionId);
                     }
                 }

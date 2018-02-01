@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017, RTE (http://www.rte-france.com)
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -10,6 +10,7 @@ import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.MapModuleConfig;
+import com.powsybl.commons.extensions.AbstractExtension;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,6 +21,7 @@ import static org.junit.Assert.assertEquals;
 
 /**
  * @author Christian Biasuzzi <christian.biasuzzi@techrain.it>
+ * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
  */
 public class LoadFlowparametersConfigTest {
 
@@ -57,6 +59,29 @@ public class LoadFlowparametersConfigTest {
                 LoadFlowParameters.DEFAULT_PHASE_SHIFTER_REGULATION_ON,
                 LoadFlowParameters.DEFAULT_SPECIFIC_COMPATIBILITY);
     }
+
+    @Test
+    public void testExtensions() {
+        LoadFlowParameters parameters = new LoadFlowParameters();
+        ExtensionLoadFlowParameters extensionLoadFlowParameters = new ExtensionLoadFlowParameters();
+        parameters.addExtension(ExtensionLoadFlowParameters.class, extensionLoadFlowParameters);
+
+        assertEquals(parameters.getExtensions().size(), 1);
+        assertEquals(parameters.getExtensions().contains(extensionLoadFlowParameters), true);
+        assertEquals(parameters.getExtensionByName("extensionLoadFlowParameters") instanceof ExtensionLoadFlowParameters, true);
+        assertEquals(parameters.getExtension(ExtensionLoadFlowParameters.class) instanceof ExtensionLoadFlowParameters, true);
+    }
+
+    @Test
+    public void testNoExtensions() {
+        LoadFlowParameters parameters = LoadFlowParameters.load();
+
+        assertEquals(parameters.getExtensions().size(), 0);
+        assertEquals(parameters.getExtensions().contains(new ExtensionLoadFlowParameters()), false);
+        assertEquals(parameters.getExtensionByName("extensionLoadFlowParameters") instanceof ExtensionLoadFlowParameters, false);
+        assertEquals(parameters.getExtension(ExtensionLoadFlowParameters.class) instanceof ExtensionLoadFlowParameters, false);
+    }
+
 
     @Test
     public void checkConfig() throws Exception {
@@ -134,4 +159,19 @@ public class LoadFlowparametersConfigTest {
                 parameters.isNoGeneratorReactiveLimits(), parameters.isPhaseShifterRegulationOn(), parameters.isSpecificCompatibility());
     }
 
+    class ExtensionLoadFlowParameters extends AbstractExtension<LoadFlowParameters> {
+
+        @Override
+        public String getName() {
+            return "extensionLoadFlowParameters";
+        }
+
+        public ExtensionLoadFlowParameters() {
+        }
+
+        @Override
+        public String toString() {
+            return "";
+        }
+    }
 }

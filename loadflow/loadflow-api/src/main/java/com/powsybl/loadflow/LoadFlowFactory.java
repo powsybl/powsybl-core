@@ -16,5 +16,4 @@ import com.powsybl.iidm.network.Network;
 public interface LoadFlowFactory {
 
     LoadFlow create(Network network, ComputationManager computationManager, int priority);
-
 }

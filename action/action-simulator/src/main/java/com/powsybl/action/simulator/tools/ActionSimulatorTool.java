@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017, RTE (http://www.rte-france.com)
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -63,6 +63,7 @@ public class ActionSimulatorTool implements Tool {
     private static final String OUTPUT_CASE_FOLDER = "output-case-folder";
     private static final String OUTPUT_CASE_FORMAT = "output-case-format";
     private static final String OUTPUT_COMPRESSION_FORMAT = "output-compression-format";
+    private static final String CONFIG_FILE = "config-file";
 
     @Override
     public Command getCommand() {
@@ -125,6 +126,11 @@ public class ActionSimulatorTool implements Tool {
                         .desc("output compression format " + CompressionFormat.getFormats())
                         .hasArg()
                         .argName("COMPRESSION_FORMAT")
+                        .build());
+                options.addOption(Option.builder().longOpt(CONFIG_FILE)
+                        .desc("configuration file")
+                        .hasArg()
+                        .argName("CONFIG-FILE")
                         .build());
                 return options;
             }
@@ -195,6 +201,9 @@ public class ActionSimulatorTool implements Tool {
             throw new PowsyblException("Case " + caseFile + " not found");
         }
 
+        // Configuration file
+        Path configFile = line.hasOption(CONFIG_FILE) ? context.getFileSystem().getPath(line.getOptionValue(CONFIG_FILE)) : null;
+
         try {
             // load actions from Groovy DSL
             ActionDb actionDb = new ActionDslLoader(dslFile.toFile())
@@ -215,7 +224,12 @@ public class ActionSimulatorTool implements Tool {
             }
 
             // action simulator
-            ActionSimulator actionSimulator = new LoadFlowActionSimulator(network, context.getComputationManager(), config, observers);
+            ActionSimulator actionSimulator;
+            if (Objects.isNull(configFile)) {
+                actionSimulator = new LoadFlowActionSimulator(network, context.getComputationManager(), config, observers);
+            } else {
+                actionSimulator = new LoadFlowActionSimulator(network, context.getComputationManager(), config, observers, configFile);
+            }
             context.getOutputStream().println("Using '" + actionSimulator.getName() + "' rules engine");
 
             // start simulator

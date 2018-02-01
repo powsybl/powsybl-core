@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017, RTE (http://www.rte-france.com)
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -86,7 +86,7 @@ public class SecurityAnalysisTest {
         securityAnalysis.addInterceptor(new SecurityAnalysisInterceptorMock());
         securityAnalysis.addInterceptor(new CurrentLimitViolationInterceptor());
 
-        SecurityAnalysisResult result = securityAnalysis.runAsync(contingenciesProvider, StateManager.INITIAL_STATE_ID, new LoadFlowParameters()).join();
+        SecurityAnalysisResult result = securityAnalysis.runAsync(contingenciesProvider, StateManager.INITIAL_STATE_ID, new LoadFlowParameters(), new SecurityAnalysisParameters()).join();
 
         assertTrue(result.getPreContingencyResult().isComputationOk());
         assertEquals(0, result.getPreContingencyResult().getLimitViolations().size());

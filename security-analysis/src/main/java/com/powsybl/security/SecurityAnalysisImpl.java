@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, RTE (http://www.rte-france.com)
+ * Copyright (c) 2016-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -69,7 +69,7 @@ public class SecurityAnalysisImpl implements SecurityAnalysis {
     }
 
     @Override
-    public CompletableFuture<SecurityAnalysisResult> runAsync(ContingenciesProvider contingenciesProvider, String workingStateId, LoadFlowParameters parameters) {
+    public CompletableFuture<SecurityAnalysisResult> runAsync(ContingenciesProvider contingenciesProvider, String workingStateId, LoadFlowParameters parameters, SecurityAnalysisParameters sAParameters) {
         Objects.requireNonNull(contingenciesProvider);
         Objects.requireNonNull(workingStateId);
         Objects.requireNonNull(parameters);
@@ -159,7 +159,7 @@ public class SecurityAnalysisImpl implements SecurityAnalysis {
 
     @Override
     public CompletableFuture<SecurityAnalysisResult> runAsync(ContingenciesProvider contingenciesProvider, String workingStateId) {
-        return runAsync(contingenciesProvider, workingStateId, LoadFlowParameters.load());
+        return runAsync(contingenciesProvider, workingStateId, LoadFlowParameters.load(), new SecurityAnalysisParameters());
     }
 
     @Override

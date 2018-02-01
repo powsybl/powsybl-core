@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017, RTE (http://www.rte-france.com)
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -24,14 +24,17 @@ import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.StateManager;
 import com.powsybl.loadflow.LoadFlow;
+import com.powsybl.loadflow.LoadFlowFactory;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
 import com.powsybl.tools.ToolRunningContext;
+import java.util.Objects;
 
 /**
  *
  * @author Massimo Ferraro <massimo.ferraro@techrain.it>
+ * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
  */
 @AutoService(Tool.class)
 public class ValidationTool implements Tool {
@@ -42,6 +45,7 @@ public class ValidationTool implements Tool {
     private static final String VERBOSE = "verbose";
     private static final String OUTPUT_FORMAT = "output-format";
     private static final String TYPES = "types";
+    private static final String CONFIG_FILE = "config-file";
 
     private static final Command COMMAND = new Command() {
 
@@ -91,6 +95,11 @@ public class ValidationTool implements Tool {
                     .hasArg()
                     .argName("VALIDATION_TYPE,VALIDATION_TYPE,...")
                     .build());
+            options.addOption(Option.builder().longOpt(CONFIG_FILE)
+                    .desc("configuration file")
+                    .hasArg()
+                    .argName("CONFIG-FILE")
+                    .build());
             return options;
         }
 
@@ -108,8 +117,8 @@ public class ValidationTool implements Tool {
 
     @Override
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
-        Path caseFile = Paths.get(line.getOptionValue(CASE_FILE));
-        Path outputFolder = Paths.get(line.getOptionValue(OUTPUT_FOLDER));
+        java.nio.file.Path caseFile = Paths.get(line.getOptionValue(CASE_FILE));
+        java.nio.file.Path outputFolder = Paths.get(line.getOptionValue(OUTPUT_FOLDER));
         if (!Files.exists(outputFolder)) {
             Files.createDirectories(outputFolder);
         }
@@ -125,10 +134,20 @@ public class ValidationTool implements Tool {
         if (network == null) {
             throw new PowsyblException("Case " + caseFile + " not found");
         }
+
+        // Configuration file
+        Path configFile = line.hasOption(CONFIG_FILE) ? context.getFileSystem().getPath(line.getOptionValue(CONFIG_FILE)) : null;
+
         if (line.hasOption(LOAD_FLOW)) {
             context.getOutputStream().println("Running loadflow on network " + network.getId());
-            LoadFlowParameters parameters = LoadFlowParameters.load();
-            LoadFlow loadFlow = config.getLoadFlowFactory().newInstance().create(network, context.getComputationManager(), 0);
+            LoadFlowFactory loadFlowFactory = config.getLoadFlowFactory().newInstance();
+            LoadFlowParameters parameters;
+            if (Objects.isNull(configFile)) {
+                parameters = LoadFlowParameters.load();
+            } else {
+                parameters = LoadFlowParameters.load(configFile);
+            }
+            LoadFlow loadFlow = loadFlowFactory.create(network, context.getComputationManager(), 0);
             loadFlow.runAsync(StateManager.INITIAL_STATE_ID, parameters)
                     .thenAccept(loadFlowResult -> {
                         if (!loadFlowResult.isOk()) {
