@@ -176,13 +176,17 @@ public final class TimeSeriesTable {
 
             timeSeriesMetadata = new ArrayList<>(doubleTimeSeries.size() + stringTimeSeries.size());
 
-            for (DoubleTimeSeries timeSeries : doubleTimeSeries) {
+            for (DoubleTimeSeries timeSeries : doubleTimeSeries.stream()
+                                                               .sorted(Comparator.comparing(ts -> ts.getMetadata().getName()))
+                                                               .collect(Collectors.toList())) {
                 checkIndex(timeSeries);
                 timeSeriesMetadata.add(timeSeries.getMetadata());
                 int i = doubleTimeSeriesNames.add(timeSeries.getMetadata().getName());
                 timeSeriesIndexDoubleOrString.add(i);
             }
-            for (StringTimeSeries timeSeries : stringTimeSeries) {
+            for (StringTimeSeries timeSeries : stringTimeSeries.stream()
+                                                               .sorted(Comparator.comparing(ts -> ts.getMetadata().getName()))
+                                                               .collect(Collectors.toList())) {
                 checkIndex(timeSeries);
                 timeSeriesMetadata.add(timeSeries.getMetadata());
                 int i = stringTimeSeriesNames.add(timeSeries.getMetadata().getName());
