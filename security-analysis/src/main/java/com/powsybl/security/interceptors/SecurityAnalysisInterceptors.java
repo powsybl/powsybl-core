@@ -34,8 +34,11 @@ public final class SecurityAnalysisInterceptors {
         Objects.requireNonNull(name);
 
         SecurityAnalysisInterceptorExtension extension = EXTENSIONS.get().get(name);
+        if (extension == null) {
+            throw new IllegalArgumentException("The extension '" + name + "' doesn't exist");
+        }
 
-        return extension == null ? null : extension.createInterceptor();
+        return extension.createInterceptor();
     }
 
     private SecurityAnalysisInterceptors() {

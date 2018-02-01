@@ -128,17 +128,7 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Arra
         }
     }
 
-    public List<T> split(int chunkCount) {
-        if (chunkCount <= 1) {
-            throw new IllegalArgumentException("Bad chunk count value " + chunkCount + ", it has to be greater than one");
-        }
-        if (metadata.getIndex().getPointCount() < chunkCount) {
-            throw new IllegalArgumentException("Chunk count is greater than number of point");
-        }
-        int newChunkSize = Math.round((float) metadata.getIndex().getPointCount() / chunkCount);
-        if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace("New chunk size {}", newChunkSize);
-        }
+    public List<T> split(int newChunkSize) {
         List<T> splitList = new ArrayList<>();
         for (C chunk : getCheckedChunks(false)) {
             split(chunk, splitList, newChunkSize);

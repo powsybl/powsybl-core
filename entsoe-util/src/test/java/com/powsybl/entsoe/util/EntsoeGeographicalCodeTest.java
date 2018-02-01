@@ -23,6 +23,6 @@ public class EntsoeGeographicalCodeTest {
         assertTrue(EntsoeGeographicalCode.forCountry(Country.DE).equals(Sets.newHashSet(
                 EntsoeGeographicalCode.DE, EntsoeGeographicalCode.D1, EntsoeGeographicalCode.D2,
                 EntsoeGeographicalCode.D4, EntsoeGeographicalCode.D7, EntsoeGeographicalCode.D8)));
-        assertEquals(36 + 5, EntsoeGeographicalCode.values().length);
+        assertEquals(37 + 5, EntsoeGeographicalCode.values().length);
     }
 }

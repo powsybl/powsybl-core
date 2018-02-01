@@ -1,0 +1,3 @@
+#Branches (dangling-line/InitialState)
+#"num" "bus1" "bus2" "3wt num" "sub.1" "sub.2" "r (pu)" "x (pu)" "g1 (pu)" "g2 (pu)" "b1 (pu)" "b2 (pu)" "cst ratio (pu)" "ratio tc" "phase tc" "p1 (MW)" "p2 (MW)" "q1 (MVar)" "q2 (MVar)" "patl1 (A)" "patl2 (A)" "merged" "fault" "curative" "id" "description"
+1 -1 1 -1 1 2 0.100000 0.0100000 0.00500000 0.00500000 0.000500000 0.000500000 1.00000 -1 -1 -99999.0 -99999.0 -99999.0 -99999.0 100.000 100.000 false 0 0 "DL" "DL"

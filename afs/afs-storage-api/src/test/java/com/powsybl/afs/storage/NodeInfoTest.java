@@ -8,6 +8,7 @@ package com.powsybl.afs.storage;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.afs.storage.json.AppStorageJsonModule;
+import com.powsybl.commons.json.JsonUtil;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -24,7 +25,7 @@ public class NodeInfoTest {
 
     @Before
     public void setUp() throws Exception {
-        objectMapper = new ObjectMapper()
+        objectMapper = JsonUtil.createObjectMapper()
                 .registerModule(new AppStorageJsonModule());
     }
 

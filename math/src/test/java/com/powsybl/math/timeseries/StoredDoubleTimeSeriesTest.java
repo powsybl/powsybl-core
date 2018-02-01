@@ -86,7 +86,7 @@ public class StoredDoubleTimeSeriesTest {
         assertEquals(json, json2);
 
         // test json with object mapper
-        ObjectMapper objectMapper = new ObjectMapper()
+        ObjectMapper objectMapper = JsonUtil.createObjectMapper()
                 .registerModule(new TimeSeriesJsonModule());
 
         assertEquals(timeSeries, objectMapper.readValue(objectMapper.writeValueAsString(timeSeries), DoubleTimeSeries.class));
@@ -99,7 +99,7 @@ public class StoredDoubleTimeSeriesTest {
         TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, Collections.emptyMap(), index);
         UncompressedDoubleArrayChunk chunk = new UncompressedDoubleArrayChunk(3, new double[] {0d, 0d, 0d, 0d, 0d});
         StoredDoubleTimeSeries timeSeries = new StoredDoubleTimeSeries(metadata, chunk);
-        List<DoubleTimeSeries> split = timeSeries.split(5);
+        List<DoubleTimeSeries> split = timeSeries.split(2);
 
         // check there is 3 new chunks
         assertEquals(3, split.size());
@@ -118,7 +118,7 @@ public class StoredDoubleTimeSeriesTest {
         assertEquals(4, ((StoredDoubleTimeSeries) split.get(1)).getChunks().get(0).getOffset());
         assertEquals(2, ((StoredDoubleTimeSeries) split.get(1)).getChunks().get(0).getLength());
 
-        // check second chunk
+        // check third chunk
         assertTrue(split.get(2) instanceof StoredDoubleTimeSeries);
         assertEquals(1, ((StoredDoubleTimeSeries) split.get(2)).getChunks().size());
         assertTrue(((StoredDoubleTimeSeries) split.get(2)).getChunks().get(0) instanceof UncompressedDoubleArrayChunk);

@@ -10,6 +10,7 @@ import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.contingency.*;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.security.*;
 import com.powsybl.security.extensions.ActivePowerExtension;
 import com.powsybl.security.extensions.CurrentExtension;
@@ -31,7 +32,7 @@ import static org.junit.Assert.*;
  */
 public class ExporterTest extends AbstractConverterTest {
 
-    private static final Network NETWORK = TestingNetworkFactory.createFromEurostag();
+    private static final Network NETWORK = EurostagTutorialExample1Factory.createWithCurrentLimits();
 
     private static SecurityAnalysisResult create() {
         // Create a LimitViolation(CURRENT) to ensure backward compatibility works

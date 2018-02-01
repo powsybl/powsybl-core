@@ -12,6 +12,7 @@ import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -44,7 +45,7 @@ public class SecurityTest {
     public void setUp() {
         formatterConfig = new TableFormatterConfig(Locale.US, ',', "inv", true, true);
 
-        network = TestingNetworkFactory.createFromEurostag();
+        network = EurostagTutorialExample1Factory.createWithCurrentLimits();
 
         // create pre-contingency results, just one violation on line1
         line1Violation = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 1000f, 0.95f, 1100, Branch.Side.ONE);

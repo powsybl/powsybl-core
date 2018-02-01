@@ -8,6 +8,7 @@ package com.powsybl.afs.storage.buffer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.afs.storage.json.AppStorageJsonModule;
+import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.math.timeseries.*;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,7 +27,7 @@ public class StorageChangeTest {
 
     @Before
     public void setUp() throws Exception {
-        objectMapper = new ObjectMapper()
+        objectMapper = JsonUtil.createObjectMapper()
                 .registerModule(new AppStorageJsonModule());
     }
 

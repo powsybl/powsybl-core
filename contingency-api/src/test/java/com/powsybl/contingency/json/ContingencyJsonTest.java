@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.*;
 import org.junit.Test;
 
@@ -35,7 +36,7 @@ public class ContingencyJsonTest extends AbstractConverterTest {
         Objects.requireNonNull(jsonFile);
 
         try (InputStream is = Files.newInputStream(jsonFile)) {
-            ObjectMapper objectMapper = new ObjectMapper();
+            ObjectMapper objectMapper = JsonUtil.createObjectMapper();
             SimpleModule module = new SimpleModule();
             module.addDeserializer(Contingency.class, new ContingencyDeserializer());
             module.addDeserializer(ContingencyElement.class, new ContingencyElementDeserializer());
@@ -52,7 +53,7 @@ public class ContingencyJsonTest extends AbstractConverterTest {
         Objects.requireNonNull(jsonFile);
 
         try (OutputStream os = Files.newOutputStream(jsonFile)) {
-            ObjectMapper mapper = new ObjectMapper();
+            ObjectMapper mapper = JsonUtil.createObjectMapper();
             SimpleModule module = new SimpleModule();
             module.addSerializer(ContingencyElement.class, new ContingencyElementSerializer());
             mapper.registerModule(module);
