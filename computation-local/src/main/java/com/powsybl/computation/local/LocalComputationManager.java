@@ -51,7 +51,7 @@ public class LocalComputationManager implements ComputationManager {
 
     private final Semaphore permits;
 
-    private final Executor executor;
+    private final Executor threadPools;
 
     private final LocalCommandExecutor localCommandExecutor;
 
@@ -122,7 +122,7 @@ public class LocalComputationManager implements ComputationManager {
     public LocalComputationManager(LocalComputationConfig config, LocalCommandExecutor localCommandExecutor, Executor executor) throws IOException {
         this.config = Objects.requireNonNull(config);
         this.localCommandExecutor = Objects.requireNonNull(localCommandExecutor);
-        this.executor = Objects.requireNonNull(executor);
+        this.threadPools = Objects.requireNonNull(executor);
         status = new LocalComputationResourcesStatus(config.getAvailableCore());
         permits = new Semaphore(config.getAvailableCore());
         //make sure the localdir exists
@@ -332,7 +332,7 @@ public class LocalComputationManager implements ComputationManager {
         Objects.requireNonNull(environment);
         Objects.requireNonNull(handler);
         CompletableFuture<R> f = new CompletableFuture<>();
-        executor.execute(() -> {
+        threadPools.execute(() -> {
             try {
                 try (WorkingDirectory workingDir = new WorkingDirectory(config.getLocalDir(), environment.getWorkingDirPrefix(), environment.isDebug())) {
                     List<CommandExecution> commandExecutionList = handler.before(workingDir.toPath());
@@ -360,7 +360,7 @@ public class LocalComputationManager implements ComputationManager {
 
     @Override
     public Executor getExecutor() {
-        return executor;
+        return threadPools;
     }
 
     @Override
