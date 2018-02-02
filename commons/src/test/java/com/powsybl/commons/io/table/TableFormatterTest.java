@@ -34,10 +34,12 @@ public class TableFormatterTest {
     };
 
     private static void write(TableFormatter formatter) throws IOException {
-        formatter.writeCell(2).writeCell(Double.NaN).writeCell(2.4f).writeCell(true).writeEmptyCell()
-                .writeCell('a').writeCell("aaa").writeEmptyCell()
+        formatter.writeEmptyCells(8)
+                .writeCell(2).writeCell(Double.NaN).writeCell(2.4f).writeCell(true).writeEmptyCell()
+                .writeCell('a').writeCell("aaa").writeEmptyCells(1)
+                .writeEmptyLines(2)
                 .writeCell(3).writeCell(4.2).writeCell(Float.NaN).writeCell(false).writeEmptyCell()
-                .writeCell('b').writeCell("bbb").writeEmptyCell();
+                .writeCell('b').writeCell("bbb").writeEmptyLine();
     }
 
     @Test
@@ -51,7 +53,10 @@ public class TableFormatterTest {
         }
         assertEquals("csv test" + System.lineSeparator() +
                 "int;double;float;bool;empty;char;string;empty2" + System.lineSeparator() +
+                ";;;;;;;" + System.lineSeparator() +
                 "2;inv;2.40000;true;;a;aaa;" + System.lineSeparator() +
+                ";;;;;;;" + System.lineSeparator() +
+                ";;;;;;;" + System.lineSeparator() +
                 "3;4.20000;inv;false;;b;bbb;" + System.lineSeparator(),
             new String(bos.toByteArray(), StandardCharsets.UTF_8));
     }
@@ -69,7 +74,10 @@ public class TableFormatterTest {
                 "+-----+---------+---------+-------+-------+------+--------+--------+\n" +
                 "| int | double  | float   | bool  | empty | char | string | empty2 |\n" +
                 "+-----+---------+---------+-------+-------+------+--------+--------+\n" +
+                "|     |         |         |       |       |      |        |        |\n" +
                 "| 2   | inv     | 2.40000 | true  |       | a    | aaa    |        |\n" +
+                "|     |         |         |       |       |      |        |        |\n" +
+                "|     |         |         |       |       |      |        |        |\n" +
                 "| 3   | 4.20000 | inv     | false |       | b    | bbb    |        |\n" +
                 "+-----+---------+---------+-------+-------+------+--------+--------+" + System.lineSeparator(),
             new String(bos.toByteArray(), StandardCharsets.UTF_8));
