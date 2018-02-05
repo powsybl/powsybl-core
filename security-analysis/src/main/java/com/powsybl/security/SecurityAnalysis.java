@@ -25,7 +25,14 @@ public interface SecurityAnalysis {
         return false;
     }
 
-    CompletableFuture<SecurityAnalysisResult> runAsync(ContingenciesProvider contingenciesProvider, String workingStateId, LoadFlowParameters loadFlowParameters, SecurityAnalysisParameters securityAnalysisParameters);
+    @Deprecated
+    default CompletableFuture<SecurityAnalysisResult> runAsync(ContingenciesProvider contingenciesProvider, String workingStateId, LoadFlowParameters parameters) {
+        return null;
+    }
+
+    default CompletableFuture<SecurityAnalysisResult> runAsync(ContingenciesProvider contingenciesProvider, String workingStateId, LoadFlowParameters loadFlowParameters, SecurityAnalysisParameters securityAnalysisParameters) {
+        return runAsync(contingenciesProvider, workingStateId, loadFlowParameters);
+    }
 
     CompletableFuture<SecurityAnalysisResult> runAsync(ContingenciesProvider contingenciesProvider, String workingStateId);
 

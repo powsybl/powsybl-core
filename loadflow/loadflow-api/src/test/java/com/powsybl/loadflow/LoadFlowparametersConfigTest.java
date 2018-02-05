@@ -15,7 +15,12 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.file.FileSystem;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import static org.junit.Assert.assertEquals;
 
@@ -157,6 +162,38 @@ public class LoadFlowparametersConfigTest {
         LoadFlowParameters parametersCloned = parameters.copy();
         checkValues(parametersCloned, parameters.getVoltageInitMode(), parameters.isTransformerVoltageControlOn(),
                 parameters.isNoGeneratorReactiveLimits(), parameters.isPhaseShifterRegulationOn(), parameters.isSpecificCompatibility());
+    }
+
+    @Test
+    public void checkWithFile() throws IOException, URISyntaxException {
+        LoadFlowParameters.VoltageInitMode voltageInitMode = LoadFlowParameters.VoltageInitMode.DC_VALUES;
+        boolean transformerVoltageControlOn = false;
+        boolean noGeneratorReactiveLimits = true;
+        boolean phaseShifterRegulationOn = false;
+        boolean specificCompatibility = true;
+
+        Path testConfigFile = Paths.get(this.getClass().getResource("/testConfig.xml").toURI());
+
+        LoadFlowParameters loadFlowParameters = LoadFlowParameters.load(testConfigFile);
+
+        checkValues(loadFlowParameters, voltageInitMode, transformerVoltageControlOn, noGeneratorReactiveLimits,
+                phaseShifterRegulationOn, specificCompatibility);
+    }
+
+    @Test
+    public void checkWithInputStream() throws IOException, URISyntaxException {
+        LoadFlowParameters.VoltageInitMode voltageInitMode = LoadFlowParameters.VoltageInitMode.DC_VALUES;
+        boolean transformerVoltageControlOn = false;
+        boolean noGeneratorReactiveLimits = true;
+        boolean phaseShifterRegulationOn = false;
+        boolean specificCompatibility = true;
+
+        Path testConfigFile = Paths.get(this.getClass().getResource("/testConfig.xml").toURI());
+
+        LoadFlowParameters loadFlowParameters = LoadFlowParameters.load(Files.newInputStream(testConfigFile));
+
+        checkValues(loadFlowParameters, voltageInitMode, transformerVoltageControlOn, noGeneratorReactiveLimits,
+                phaseShifterRegulationOn, specificCompatibility);
     }
 
     class ExtensionLoadFlowParameters extends AbstractExtension<LoadFlowParameters> {

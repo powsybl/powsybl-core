@@ -24,6 +24,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  *
@@ -47,34 +48,50 @@ public class XmlPlatformConfig extends InMemoryPlatformConfig {
         if (Files.exists(file)) {
             LOGGER.info("Platform configuration defined by XML file {}", file);
             try (InputStream is = Files.newInputStream(file)) {
-                DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-                factory.setNamespaceAware(true);
-                DocumentBuilder builder = factory.newDocumentBuilder();
-                Document doc = builder.parse(is);
-                Element root = doc.getDocumentElement();
-                root.normalize();
-                NodeList moduleNodes = root.getChildNodes();
-                for (int i = 0; i < moduleNodes.getLength(); i++) {
-                    Node moduleNode = moduleNodes.item(i);
-                    if (moduleNode.getNodeType() == Node.ELEMENT_NODE) {
-                        String moduleName = moduleNode.getLocalName();
-                        Map<Object, Object> properties = new HashMap<>();
-                        NodeList propertyNodes = moduleNode.getChildNodes();
-                        for (int j = 0; j < propertyNodes.getLength(); j++) {
-                            Node propertyNode = propertyNodes.item(j);
-                            if (propertyNode.getNodeType() == Node.ELEMENT_NODE) {
-                                String propertyName = propertyNode.getLocalName();
-                                Node child = propertyNode.getFirstChild();
-                                String propertyValue = child != null ? child.getTextContent() : "";
-                                properties.put(propertyName, propertyValue);
-                            }
-                        }
-                        ((InMemoryModuleConfigContainer) container).getConfigs().put(moduleName, new MapModuleConfig(properties, fileSystem));
-                    }
-                }
+                handleInputStream(fileSystem, is);
             }
         } else {
             LOGGER.info("Platform configuration XML file {} not found", file);
+        }
+    }
+
+    public XmlPlatformConfig(FileSystem fileSystem, Path configDir, Path cacheDir, InputStream configInputStream)
+            throws IOException, SAXException, ParserConfigurationException {
+        super(fileSystem, configDir, cacheDir);
+
+        if (Objects.nonNull(configInputStream)) {
+            LOGGER.info("Platform configuration defined by InputStream");
+            handleInputStream(fileSystem, configInputStream);
+        } else {
+            LOGGER.info("Platform configuration InputStream is null");
+        }
+    }
+
+    private void handleInputStream(FileSystem fileSystem, InputStream is) throws ParserConfigurationException, SAXException, IOException {
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        factory.setNamespaceAware(true);
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document doc = builder.parse(is);
+        Element root = doc.getDocumentElement();
+        root.normalize();
+        NodeList moduleNodes = root.getChildNodes();
+        for (int i = 0; i < moduleNodes.getLength(); i++) {
+            Node moduleNode = moduleNodes.item(i);
+            if (moduleNode.getNodeType() == Node.ELEMENT_NODE) {
+                String moduleName = moduleNode.getLocalName();
+                Map<Object, Object> properties = new HashMap<>();
+                NodeList propertyNodes = moduleNode.getChildNodes();
+                for (int j = 0; j < propertyNodes.getLength(); j++) {
+                    Node propertyNode = propertyNodes.item(j);
+                    if (propertyNode.getNodeType() == Node.ELEMENT_NODE) {
+                        String propertyName = propertyNode.getLocalName();
+                        Node child = propertyNode.getFirstChild();
+                        String propertyValue = child != null ? child.getTextContent() : "";
+                        properties.put(propertyName, propertyValue);
+                    }
+                }
+                ((InMemoryModuleConfigContainer) container).getConfigs().put(moduleName, new MapModuleConfig(properties, fileSystem));
+            }
         }
     }
 

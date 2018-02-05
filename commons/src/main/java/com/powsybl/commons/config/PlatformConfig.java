@@ -14,6 +14,7 @@ import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
@@ -100,6 +101,28 @@ public class PlatformConfig {
         if (configName != null) {
             try {
                 customnPlatformConfig = new XmlPlatformConfig(fileSystem, configDir, cacheDir, configName);
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            } catch (SAXException e) {
+                throw new UncheckedSaxException(e);
+            } catch (ParserConfigurationException e) {
+                throw new UncheckedParserConfigurationException(e);
+            }
+        }
+        return customnPlatformConfig;
+    }
+
+    public static synchronized PlatformConfig configInputStream(InputStream configInputStream) {
+        Objects.requireNonNull(configInputStream);
+
+        FileSystem fileSystem = FileSystems.getDefault();
+        Path configDir = getDefaultConfigDir(fileSystem);
+        Path cacheDir = getDefaultCacheDir(fileSystem);
+
+        PlatformConfig customnPlatformConfig = null;
+        if (configInputStream != null) {
+            try {
+                customnPlatformConfig = new XmlPlatformConfig(fileSystem, configDir, cacheDir, configInputStream);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             } catch (SAXException e) {

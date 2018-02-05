@@ -12,6 +12,7 @@ import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.commons.extensions.Extension;
 
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.*;
 
@@ -39,6 +40,10 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
 
     public static LoadFlowParameters load(Path configFile) {
         return load(PlatformConfig.customConfig(configFile));
+    }
+
+    public static LoadFlowParameters load(InputStream configInputStream) {
+        return load(PlatformConfig.configInputStream(configInputStream));
     }
 
     public static LoadFlowParameters load(PlatformConfig platformConfig) {

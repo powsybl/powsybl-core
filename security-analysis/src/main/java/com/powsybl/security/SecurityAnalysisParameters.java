@@ -10,6 +10,7 @@ import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.commons.extensions.Extension;
 
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.ServiceLoader;
 
@@ -20,6 +21,10 @@ public class SecurityAnalysisParameters extends AbstractExtendable<SecurityAnaly
 
     public static SecurityAnalysisParameters load() {
         return load(PlatformConfig.defaultConfig());
+    }
+
+    public static SecurityAnalysisParameters load(InputStream configInputStream) {
+        return load(PlatformConfig.configInputStream(configInputStream));
     }
 
     public static SecurityAnalysisParameters load(Path configFile) {

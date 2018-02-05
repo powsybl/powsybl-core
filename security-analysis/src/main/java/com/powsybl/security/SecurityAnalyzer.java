@@ -70,7 +70,7 @@ public class SecurityAnalyzer {
         contingenciesProviderFactory = defaultConfig.newFactoryImpl(ContingenciesProviderFactory.class);
     }
 
-    public SecurityAnalysisResult analyze(Network network, java.nio.file.Path contingenciesFile, Path configFile) {
+    public SecurityAnalysisResult analyze(Network network, Path contingenciesFile, Path configFile) {
         Objects.requireNonNull(network);
 
         ContingenciesProvider contingenciesProvider = contingenciesFile != null
@@ -79,7 +79,7 @@ public class SecurityAnalyzer {
         return analyze(network, contingenciesProvider, configFile);
     }
 
-    public SecurityAnalysisResult analyze(String filename, InputStream networkData, InputStream contingencies, java.nio.file.Path configFile) {
+    public SecurityAnalysisResult analyze(String filename, InputStream networkData, InputStream contingencies, Path configFile) {
         Objects.requireNonNull(networkData);
         Objects.requireNonNull(filename);
 
@@ -94,7 +94,7 @@ public class SecurityAnalyzer {
         return analyze(network, contingenciesProvider, configFile);
     }
 
-    public SecurityAnalysisResult analyze(Network network, ContingenciesProvider contingenciesProvider, java.nio.file.Path configFile) {
+    public SecurityAnalysisResult analyze(Network network, ContingenciesProvider contingenciesProvider, Path configFile) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(contingenciesProvider);
 

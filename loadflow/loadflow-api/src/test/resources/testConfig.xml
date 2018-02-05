@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+    <load-flow-default-parameters>
+
+        <voltageInitMode>DC_VALUES</voltageInitMode>
+        <transformerVoltageControlOn>false</transformerVoltageControlOn>
+        <noGeneratorReactiveLimits>true</noGeneratorReactiveLimits>
+        <phaseShifterRegulationOn>false</phaseShifterRegulationOn>
+        <specificCompatibility>true</specificCompatibility>
+
+    </load-flow-default-parameters>
+</config>
