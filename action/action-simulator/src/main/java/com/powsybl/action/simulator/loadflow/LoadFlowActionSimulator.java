@@ -27,6 +27,7 @@ import com.powsybl.security.Security;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -50,6 +51,8 @@ public class LoadFlowActionSimulator implements ActionSimulator {
     private final List<LoadFlowActionSimulatorObserver> observers;
 
     private Path configFile;
+
+    private InputStream configInputStream;
 
     public LoadFlowActionSimulator(Network network, ComputationManager computationManager) {
         this(network, computationManager, LoadFlowActionSimulatorConfig.load(), Collections.emptyList());
@@ -75,6 +78,15 @@ public class LoadFlowActionSimulator implements ActionSimulator {
         this.config = Objects.requireNonNull(config);
         this.observers = Objects.requireNonNull(observers);
         this.configFile = configFile;
+    }
+
+    public LoadFlowActionSimulator(Network network, ComputationManager computationManager, LoadFlowActionSimulatorConfig config,
+                                   List<LoadFlowActionSimulatorObserver> observers, InputStream configInputStream) {
+        this.network = Objects.requireNonNull(network);
+        this.computationManager = Objects.requireNonNull(computationManager);
+        this.config = Objects.requireNonNull(config);
+        this.observers = Objects.requireNonNull(observers);
+        this.configInputStream = configInputStream;
     }
 
     @Override
@@ -144,9 +156,11 @@ public class LoadFlowActionSimulator implements ActionSimulator {
         LoadFlowParameters parameters = null;
         if (!Objects.isNull(configFile)) {
             parameters = LoadFlowParameters.load(configFile);
+        } else if (!Objects.isNull(configInputStream)) {
+            parameters = LoadFlowParameters.load(configInputStream);
         }
 
-        LOGGER.info("Running loadflow ({})", loadFlow.getName());
+            LOGGER.info("Running loadflow ({})", loadFlow.getName());
         LoadFlowResult result;
         try {
             if (!Objects.isNull(parameters)) {
