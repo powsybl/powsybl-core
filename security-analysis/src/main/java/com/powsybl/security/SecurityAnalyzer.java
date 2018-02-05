@@ -94,6 +94,44 @@ public class SecurityAnalyzer {
         return analyze(network, contingenciesProvider, configFile);
     }
 
+    public SecurityAnalysisResult analyze(String filename, InputStream networkData, InputStream contingencies, InputStream configInputStream) {
+        Objects.requireNonNull(networkData);
+        Objects.requireNonNull(filename);
+
+        Network network = Importers.loadNetwork(filename, networkData);
+        if (network == null) {
+            throw new PowsyblException("Error loading network");
+        }
+
+        ContingenciesProvider contingenciesProvider = contingencies != null
+                ? contingenciesProviderFactory.create(contingencies) : new EmptyContingencyListProvider();
+
+        return analyze(network, contingenciesProvider, configInputStream);
+    }
+
+    public SecurityAnalysisResult analyze(Network network, ContingenciesProvider contingenciesProvider, InputStream configInputStream) {
+        Objects.requireNonNull(network);
+        Objects.requireNonNull(contingenciesProvider);
+
+        network.getStateManager().allowStateMultiThreadAccess(true);
+
+        SecurityAnalysis securityAnalysis = securityAnalysisFactory.create(network, filter, computationManager, priority);
+
+        LoadFlowParameters loadFlowParameters;
+        SecurityAnalysisParameters securityAnalysisParameters;
+        if (Objects.isNull(configInputStream)) {
+            loadFlowParameters = LoadFlowParameters.load();
+            securityAnalysisParameters = SecurityAnalysisParameters.load();
+        } else {
+            loadFlowParameters = LoadFlowParameters.load(configInputStream);
+            securityAnalysisParameters = SecurityAnalysisParameters.load(configInputStream);
+        }
+
+        interceptors.forEach(securityAnalysis::addInterceptor);
+
+        return securityAnalysis.runAsync(contingenciesProvider, StateManager.INITIAL_STATE_ID, loadFlowParameters, securityAnalysisParameters).join();
+    }
+
     public SecurityAnalysisResult analyze(Network network, ContingenciesProvider contingenciesProvider, Path configFile) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(contingenciesProvider);
