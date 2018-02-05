@@ -13,6 +13,7 @@ import com.powsybl.loadflow.LoadFlowFactory;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.nio.file.Path;
 import java.util.Arrays;
 
 /**
@@ -36,7 +37,8 @@ public class PropertyWithArgsTest extends AbstractLoadFlowRulesEngineTest {
     @Override
     public void setUp() throws Exception {
         initialize();
-        engine = new LoadFlowActionSimulator(network, computationManager, new LoadFlowActionSimulatorConfig(LoadFlowFactory.class, 3, false), Arrays.asList(observer), null) {
+        Path configFile = null;
+        engine = new LoadFlowActionSimulator(network, computationManager, new LoadFlowActionSimulatorConfig(LoadFlowFactory.class, 3, false), Arrays.asList(observer), configFile) {
             @Override
             protected LoadFlowFactory newLoadFlowFactory() {
                 return loadFlowFactory;

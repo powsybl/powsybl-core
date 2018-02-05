@@ -160,7 +160,7 @@ public class LoadFlowActionSimulator implements ActionSimulator {
             parameters = LoadFlowParameters.load(configInputStream);
         }
 
-            LOGGER.info("Running loadflow ({})", loadFlow.getName());
+        LOGGER.info("Running loadflow ({})", loadFlow.getName());
         LoadFlowResult result;
         try {
             if (!Objects.isNull(parameters)) {
