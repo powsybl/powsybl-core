@@ -32,7 +32,7 @@ public class LocalTaskMonitorTest extends AbstractProjectFileTest {
         return MapDbAppStorage.createHeap("mem");
     }
 
-    private final static class ListenerState {
+    private static final class ListenerState {
         List<ProjectFile> started = new ArrayList<>();
         List<ProjectFile> stopped = new ArrayList<>();
         List<ProjectFile> updated = new ArrayList<>();
