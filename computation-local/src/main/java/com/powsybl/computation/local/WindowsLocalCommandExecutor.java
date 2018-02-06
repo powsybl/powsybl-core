@@ -21,7 +21,7 @@ import java.util.Map;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Nicolas Lhuillier <nicolas.lhuillier at rte-france.com>
  */
-public class WindowsLocalCommandExecutor implements LocalCommandExecutor {
+public class WindowsLocalCommandExecutor extends AbstractLocalCommandExecutor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WindowsLocalCommandExecutor.class);
 
@@ -63,6 +63,12 @@ public class WindowsLocalCommandExecutor implements LocalCommandExecutor {
                 .redirectOutput(outRedirect)
                 .redirectError(errRedirect)
                 .start();
+        try {
+            lock.writeLock().lock();
+            processMap.put(workingDir, process);
+        } finally {
+            lock.writeLock().unlock();
+        }
         int exitValue = process.waitFor();
 
         // to avoid 'two many open files' exception

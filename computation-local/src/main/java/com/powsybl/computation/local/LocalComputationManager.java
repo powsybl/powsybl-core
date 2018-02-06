@@ -331,10 +331,11 @@ public class LocalComputationManager implements ComputationManager {
     public <R> CompletableFuture<R> execute(ExecutionEnvironment environment, ExecutionHandler<R> handler) {
         Objects.requireNonNull(environment);
         Objects.requireNonNull(handler);
-        CompletableFuture<R> f = new CompletableFuture<>();
+        MyCf<R> f = new MyCf<>();
         threadPools.execute(() -> {
             try {
                 try (WorkingDirectory workingDir = new WorkingDirectory(config.getLocalDir(), environment.getWorkingDirPrefix(), environment.isDebug())) {
+                    f.setWorkingDir(workingDir.toPath());
                     List<CommandExecution> commandExecutionList = handler.before(workingDir.toPath());
                     ExecutionReport report = null;
                     enter();
@@ -351,6 +352,31 @@ public class LocalComputationManager implements ComputationManager {
             }
         });
         return f;
+    }
+
+    private class MyCf<R> extends CompletableFuture<R> {
+
+        private volatile boolean cancel = false;
+        private Path workingDir;
+
+        void setWorkingDir(Path workingDir) {
+            this.workingDir = workingDir;
+        }
+
+        @Override
+        public boolean isCancelled() {
+            return cancel;
+        }
+
+        @Override
+        public boolean cancel(boolean mayInterruptIfRunning) {
+            cancel = true;
+            super.cancel(mayInterruptIfRunning);
+            if (mayInterruptIfRunning) {
+                localCommandExecutor.stop(workingDir);
+            }
+            return true;
+        }
     }
 
     @Override

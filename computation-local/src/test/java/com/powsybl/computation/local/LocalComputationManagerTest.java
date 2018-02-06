@@ -25,6 +25,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ForkJoinPool;
 import java.util.zip.GZIPOutputStream;
 import java.util.zip.ZipEntry;
@@ -90,22 +91,25 @@ public class LocalComputationManagerTest {
 
     @Test
     public void test1() throws Exception {
-        LocalCommandExecutor localCommandExecutor = (program, args, outFile, errFile, workingDir, env) -> {
-            // check command line is correct
-            assertEquals("prog1", program);
-            assertEquals(ImmutableList.of("file1", "file2", "file3"), args);
-            assertEquals(ImmutableMap.of("var1", "val1"), env);
+        LocalCommandExecutor localCommandExecutor = new AbstractLocalCommandExecutor() {
+            @Override
+            public int execute(String program, List<String> args, Path outFile, Path errFile, Path workingDir, Map<String, String> env) throws IOException, InterruptedException {
+                // check command line is correct
+                assertEquals("prog1", program);
+                assertEquals(ImmutableList.of("file1", "file2", "file3"), args);
+                assertEquals(ImmutableMap.of("var1", "val1"), env);
 
-            // check working directory exists, contains inout files and standard output file
-            assertTrue(Files.exists(workingDir));
-            assertEquals(workingDir.resolve("prog1_cmd_0.out").toString(), outFile.toString());
-            assertEquals(workingDir.resolve("prog1_cmd_0.err").toString(),  errFile.toString());
-            assertTrue(Files.exists(workingDir.resolve("file1")));
-            assertTrue(Files.exists(workingDir.resolve("file2")));
-            assertTrue(Files.exists(workingDir.resolve("file3")));
+                // check working directory exists, contains inout files and standard output file
+                assertTrue(Files.exists(workingDir));
+                assertEquals(workingDir.resolve("prog1_cmd_0.out").toString(), outFile.toString());
+                assertEquals(workingDir.resolve("prog1_cmd_0.err").toString(), errFile.toString());
+                assertTrue(Files.exists(workingDir.resolve("file1")));
+                assertTrue(Files.exists(workingDir.resolve("file2")));
+                assertTrue(Files.exists(workingDir.resolve("file3")));
 
-            // command exits badly
-            return 1;
+                // command exits badly
+                return 1;
+            }
         };
         try (ComputationManager computationManager = new LocalComputationManager(config, localCommandExecutor, ForkJoinPool.commonPool())) {
             computationManager.execute(new ExecutionEnvironment(ImmutableMap.of("var1", "val1"), PREFIX, false),
@@ -150,36 +154,39 @@ public class LocalComputationManagerTest {
 
     @Test
     public void test2() throws Exception {
-        LocalCommandExecutor localCommandExecutor = (program, args, outFile, errFile, workingDir, env) -> {
-            // check working directory exists and standard output file
-            assertTrue(Files.exists(workingDir));
-            assertEquals(workingDir.resolve("prog2_cmd_0.out").toString(), outFile.toString());
-            assertEquals(workingDir.resolve("prog2_cmd_0.err").toString(), errFile.toString());
+        LocalCommandExecutor localCommandExecutor = new AbstractLocalCommandExecutor() {
+            @Override
+            public int execute(String program, List<String> args, Path outFile, Path errFile, Path workingDir, Map<String, String> env) throws IOException, InterruptedException {
+                // check working directory exists and standard output file
+                assertTrue(Files.exists(workingDir));
+                assertEquals(workingDir.resolve("prog2_cmd_0.out").toString(), outFile.toString());
+                assertEquals(workingDir.resolve("prog2_cmd_0.err").toString(), errFile.toString());
 
-            switch (program) {
-                case "prog2_1":
-                    // check command line is correct
-                    assertEquals(ImmutableList.of(), args);
-                    break;
+                switch (program) {
+                    case "prog2_1":
+                        // check command line is correct
+                        assertEquals(ImmutableList.of(), args);
+                        break;
 
-                case "prog2_2":
-                    // check command line is correct
-                    assertEquals(ImmutableList.of("file1"), args);
+                    case "prog2_2":
+                        // check command line is correct
+                        assertEquals(ImmutableList.of("file1"), args);
 
-                    // check input file exists
-                    assertTrue(Files.exists(workingDir.resolve("file1")));
+                        // check input file exists
+                        assertTrue(Files.exists(workingDir.resolve("file1")));
 
-                    // create output files
-                    Files.createFile(workingDir.resolve("outFile1"));
-                    Files.createFile(workingDir.resolve("outFile2"));
-                    break;
+                        // create output files
+                        Files.createFile(workingDir.resolve("outFile1"));
+                        Files.createFile(workingDir.resolve("outFile2"));
+                        break;
 
-                default:
-                    fail();
+                    default:
+                        fail();
+                }
+
+                // command is ok
+                return 0;
             }
-
-            // command is ok
-            return 0;
         };
         try (ComputationManager computationManager = new LocalComputationManager(config, localCommandExecutor, ForkJoinPool.commonPool())) {
 
