@@ -124,7 +124,7 @@ public class UcteNetworkExt implements UcteNetwork {
 
         // in the same substation...
         // ...nodes with same geographical spot
-        Multimap<String, UcteNode> nodesByGeographicalSpot = Multimaps.index(network.getNodes(), node -> node.getCode().getGeographicalSpot());
+        Multimap<String, UcteNode> nodesByGeographicalSpot = Multimaps.index(network.getNodes(), node -> node.getCode().getUcteCountryCode() + node.getCode().getGeographicalSpot());
         for (Map.Entry<String, Collection<UcteNode>> entry : nodesByGeographicalSpot.asMap().entrySet()) {
             for (UcteNode n1 : entry.getValue()) {
                 for (UcteNode n2 : entry.getValue()) {
