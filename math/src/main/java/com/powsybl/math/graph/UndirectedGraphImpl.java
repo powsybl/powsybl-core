@@ -160,6 +160,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
             throw new PowsyblException("Cannot remove all vertices because there is still some edges in the graph");
         }
         vertices.clear();
+        removedVertices.clear();
         invalidateAdjacencyList();
         notifyListener();
     }
@@ -343,6 +344,13 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     @Override
     public void traverse(int v, Traverser<E> traverser, boolean[] encountered) {
         checkVertex(v);
+        Objects.requireNonNull(traverser);
+        Objects.requireNonNull(encountered);
+
+        if (encountered.length < vertices.size()) {
+            throw new PowsyblException("Encountered array is too small");
+        }
+
         TIntArrayList[] adjacencyList = getAdjacencyList();
         TIntArrayList adjacentEdges = adjacencyList[v];
         encountered[v] = true;
