@@ -44,6 +44,27 @@ public abstract class AbstractTableFormatter implements TableFormatter {
     }
 
     @Override
+    public TableFormatter writeEmptyCells(int count) throws IOException {
+        for (int i = 0; i < count; ++i) {
+            writeEmptyCell();
+        }
+        return this;
+    }
+
+    @Override
+    public TableFormatter writeEmptyLine() throws IOException {
+        return writeEmptyCells(columns.length - column);
+    }
+
+    @Override
+    public TableFormatter writeEmptyLines(int count) throws IOException {
+        for (int i = 0; i < count; ++i) {
+            writeEmptyLine();
+        }
+        return this;
+    }
+
+    @Override
     public TableFormatter writeCell(char c) throws IOException {
         return write(Character.toString(c));
     }
