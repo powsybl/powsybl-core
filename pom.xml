@@ -62,7 +62,7 @@
         <maven.assembly.version>3.0.0</maven.assembly.version>
         <maven.license.version>3.0</maven.license.version>
         <maven.coveralls.version>4.3.0</maven.coveralls.version>
-        <maven.checkstyle.version>2.17</maven.checkstyle.version>
+        <maven.checkstyle.version>3.0.0</maven.checkstyle.version>
         <groovyeclipsecompiler.version>2.9.2-01</groovyeclipsecompiler.version>
         <groovyeclipsebatch.version>2.4.3-01</groovyeclipsebatch.version>
 
