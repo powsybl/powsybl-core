@@ -11,6 +11,7 @@
 /afs/afs-mapdb/target/
 /afs/afs-mapdb-storage/target/
 /afs/afs-storage-api/target/
+/ampl-converter/target/
 /cim-anonymiser/target/
 /cim1/cim1-converter/target/
 /cim1/cim1-model/target/
@@ -28,6 +29,7 @@
 /iidm/iidm-converter-api/target/
 /iidm/iidm-impl/target/
 /iidm/iidm-test/target/
+/iidm/iidm-util/target/
 /iidm/iidm-xml-converter/target/
 /loadflow/loadflow-api/target/
 /loadflow/loadflow-validation/target/
@@ -59,4 +61,3 @@ install.cfg
 org.eclipse.core.resources.prefs
 org.eclipse.jdt.core.prefs
 org.eclipse.m2e.core.prefs
-

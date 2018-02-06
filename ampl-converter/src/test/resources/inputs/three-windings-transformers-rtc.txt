@@ -1,0 +1,4 @@
+#Ratio tap changers (three-windings-transformer/InitialState)
+#"num" "tap" "table" "onLoad" "fault" "curative" "id"
+1 3 1 true 0 0 "3WT_leg2"
+2 1 2 true 0 0 "3WT_leg3"

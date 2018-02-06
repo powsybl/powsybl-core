@@ -1,0 +1,4 @@
+#Temporary current limits (dangling-line/InitialState)
+#"num" "branch" "side" "limit (A)" "accept. duration (s)" "fault" "curative"
+1 1 1 120.000 1200 0 0
+2 1 1 140.000 600 0 0

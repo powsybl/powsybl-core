@@ -37,17 +37,33 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
 
     Iterator<P> iterator();
 
-    List<T> split(int n);
+    List<T> split(int newChunkSize);
 
-    static <P extends AbstractPoint, T extends TimeSeries<P, T>> List<List<T>> split(List<T> timeSeriesList, int n) {
+    static <P extends AbstractPoint, T extends TimeSeries<P, T>> List<List<T>> split(List<T> timeSeriesList, int newChunkSize) {
         Objects.requireNonNull(timeSeriesList);
-        List<List<T>> splitList = new ArrayList<>(n);
-        for (int i = 0; i < n; i++) {
+        if (timeSeriesList.isEmpty()) {
+            throw new IllegalArgumentException("Time series list is empty");
+        }
+        TimeSeriesIndex index = timeSeriesList.get(0).getMetadata().getIndex();
+        for (int i = 1; i < timeSeriesList.size(); i++) {
+            TimeSeriesMetadata metadata = timeSeriesList.get(i).getMetadata();
+            if (!index.equals(metadata.getIndex())) {
+                throw new IllegalArgumentException("Time series '" + metadata.getName() + "' has a different index: "
+                        + metadata.getIndex() + " != " + index);
+            }
+        }
+        if (newChunkSize > index.getPointCount()) {
+            throw new IllegalArgumentException("New chunk size " + newChunkSize + " is greater than point count "
+                    + index.getPointCount());
+        }
+        int chunkCount = (int) Math.ceil((double) index.getPointCount() / newChunkSize);
+        List<List<T>> splitList = new ArrayList<>(chunkCount);
+        for (int i = 0; i < chunkCount; i++) {
             splitList.add(new ArrayList<>(timeSeriesList.size()));
         }
         for (T timeSeries : timeSeriesList) {
-            List<T> split = timeSeries.split(n);
-            for (int i = 0; i < n; i++) {
+            List<T> split = timeSeries.split(newChunkSize);
+            for (int i = 0; i < chunkCount; i++) {
                 splitList.get(i).add(split.get(i));
             }
         }
@@ -361,6 +377,10 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
 
     static List<TimeSeries> parseJson(String json) {
         return JsonUtil.parseJson(json, TimeSeries::parseJson);
+    }
+
+    static List<TimeSeries> parseJson(Reader reader) {
+        return JsonUtil.parseJson(reader, TimeSeries::parseJson);
     }
 
     static List<TimeSeries> parseJson(Path file) {

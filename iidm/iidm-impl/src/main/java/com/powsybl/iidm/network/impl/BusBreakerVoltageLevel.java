@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+ * Copyright (c) 2016-2018, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -346,6 +346,11 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         @Override
+        public int[] getNodes() {
+            throw createNotSupportedBusBreakerTopologyException();
+        }
+
+        @Override
         public NodeBreakerView setNodeCount(int count) {
             throw createNotSupportedBusBreakerTopologyException();
         }
@@ -357,6 +362,11 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
 
         @Override
         public int getNode2(String switchId) {
+            throw createNotSupportedBusBreakerTopologyException();
+        }
+
+        @Override
+        public Terminal getTerminal(int node) {
             throw createNotSupportedBusBreakerTopologyException();
         }
 
@@ -401,6 +411,11 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         @Override
+        public void removeSwitch(String switchId) {
+            throw createNotSupportedBusBreakerTopologyException();
+        }
+
+        @Override
         public BusbarSectionAdder newBusbarSection() {
             throw createNotSupportedBusBreakerTopologyException();
         }
@@ -425,6 +440,10 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
             throw createNotSupportedBusBreakerTopologyException();
         }
 
+        @Override
+        public void traverse(int node, Traverser traverser) {
+            throw createNotSupportedBusBreakerTopologyException();
+        }
     };
 
     @Override

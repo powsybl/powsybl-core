@@ -65,7 +65,7 @@ public class TimeSeriesMetadataTest {
         assertEquals(metadata, metadata2);
 
         // test json with object mapper
-        ObjectMapper objectMapper = new ObjectMapper()
+        ObjectMapper objectMapper = JsonUtil.createObjectMapper()
                 .registerModule(new TimeSeriesJsonModule());
 
         assertEquals(metadata, objectMapper.readValue(objectMapper.writeValueAsString(metadata), TimeSeriesMetadata.class));

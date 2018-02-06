@@ -59,6 +59,7 @@ public enum EntsoeGeographicalCode {
     SI(Country.SI),
     TR(Country.TR),
     UA(Country.UA),
+    UC(null),
     UX(null);
 
     private static Multimap<Country, EntsoeGeographicalCode> COUNTRY_TO_GEOGRAPHICAL_CODES;

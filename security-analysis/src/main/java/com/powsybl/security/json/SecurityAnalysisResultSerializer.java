@@ -10,12 +10,10 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.contingency.ContingencyElement;
-import com.powsybl.contingency.json.ContingencyElementSerializer;
-import com.powsybl.security.*;
+import com.powsybl.security.LimitViolationFilter;
+import com.powsybl.security.SecurityAnalysisResult;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -61,18 +59,10 @@ public class SecurityAnalysisResultSerializer extends StdSerializer<SecurityAnal
         Objects.requireNonNull(result);
         Objects.requireNonNull(writer);
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        SimpleModule module = new SimpleModule();
-        module.addSerializer(SecurityAnalysisResult.class, new SecurityAnalysisResultSerializer());
-        module.addSerializer(NetworkMetadata.class, new NetworkMetadataSerializer());
-        module.addSerializer(PostContingencyResult.class, new PostContingencyResultSerializer());
-        module.addSerializer(LimitViolationsResult.class, new LimitViolationsResultSerializer());
-        module.addSerializer(LimitViolation.class, new LimitViolationSerializer());
-        module.addSerializer(ContingencyElement.class, new ContingencyElementSerializer());
-        objectMapper.registerModule(module);
+        ObjectMapper objectMapper = JsonUtil.createObjectMapper()
+                .registerModule(new SecurityAnalysisJsonModule());
 
         ObjectWriter objectWriter = objectMapper.writerWithDefaultPrettyPrinter();
         objectWriter.writeValue(writer, result);
-
     }
 }

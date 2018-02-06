@@ -7,8 +7,6 @@
 package com.powsybl.security;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import org.joda.time.DateTime;
 
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
@@ -16,53 +14,6 @@ import org.joda.time.DateTime;
 public final class TestingNetworkFactory {
 
     private TestingNetworkFactory() {
-    }
-
-    public static Network createFromEurostag() {
-        Network network = EurostagTutorialExample1Factory.create();
-        network.setCaseDate(DateTime.parse("2018-01-01T11:00:00+01:00"));
-
-        network.getSubstation("P2").setCountry(Country.BE);
-
-        Generator generator = network.getVoltageLevel("VLGEN").newGenerator()
-            .setId("GEN2")
-            .setBus("NGEN")
-            .setConnectableBus("NGEN")
-            .setMinP(-9999.99f)
-            .setMaxP(9999.99f)
-            .setVoltageRegulatorOn(true)
-            .setTargetV(24.5f)
-            .setTargetP(607f)
-            .setTargetQ(301f)
-            .add();
-
-        ((Bus) network.getIdentifiable("NHV1")).setV(380f).getVoltageLevel().setLowVoltageLimit(400f).setHighVoltageLimit(500f);
-        ((Bus) network.getIdentifiable("NHV2")).setV(380f).getVoltageLevel().setLowVoltageLimit(300f).setHighVoltageLimit(500f);
-        network.getLine("NHV1_NHV2_1").getTerminal1().setP(560f).setQ(550f);
-        network.getLine("NHV1_NHV2_1").getTerminal2().setP(560f).setQ(550f);
-        network.getLine("NHV1_NHV2_1").newCurrentLimits1().setPermanentLimit(500f).add();
-        network.getLine("NHV1_NHV2_1").newCurrentLimits2()
-            .setPermanentLimit(1100f)
-            .beginTemporaryLimit()
-            .setName("10'")
-            .setAcceptableDuration(10 * 60)
-            .setValue(1200)
-            .endTemporaryLimit()
-            .add();
-
-        network.getLine("NHV1_NHV2_2").getTerminal1().setP(560f).setQ(550f);
-        network.getLine("NHV1_NHV2_2").getTerminal2().setP(560f).setQ(550f);
-        network.getLine("NHV1_NHV2_2").newCurrentLimits1()
-            .setPermanentLimit(1100f)
-            .beginTemporaryLimit()
-            .setName("20'")
-            .setAcceptableDuration(20 * 60)
-            .setValue(1200)
-            .endTemporaryLimit()
-            .add();
-        network.getLine("NHV1_NHV2_2").newCurrentLimits2().setPermanentLimit(500f).add();
-
-        return network;
     }
 
     public static Network create() {

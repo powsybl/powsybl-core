@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.nio.DoubleBuffer;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -89,7 +90,7 @@ public class DoubleArrayChunkTest {
         assertEquals(jsonRef, JsonUtil.toJson(compressedChunk::writeJson));
 
         // test json with object mapper
-        ObjectMapper objectMapper = new ObjectMapper()
+        ObjectMapper objectMapper = JsonUtil.createObjectMapper()
                 .registerModule(new TimeSeriesJsonModule());
 
         List<DoubleArrayChunk> chunks = objectMapper.readValue(objectMapper.writeValueAsString(Arrays.asList(chunk, compressedChunk)),
@@ -189,5 +190,29 @@ public class DoubleArrayChunkTest {
         assertEquals(2, ((CompressedDoubleArrayChunk) split.getChunk2()).getUncompressedLength());
         assertArrayEquals(new double[] {2d}, ((CompressedDoubleArrayChunk) split.getChunk2()).getStepValues(), 0d);
         assertArrayEquals(new int[] {2}, ((CompressedDoubleArrayChunk) split.getChunk2()).getStepLengths());
+    }
+
+    @Test
+    public void nanIssueTest() {
+        UncompressedDoubleArrayChunk chunk = new UncompressedDoubleArrayChunk(0, new double[] {1d, Double.NaN, Double.NaN});
+        String json = JsonUtil.toJson(chunk::writeJson);
+
+        String jsonRef = String.join(System.lineSeparator(),
+                "{",
+                "  \"offset\" : 0,",
+                "  \"values\" : [ 1.0, NaN, NaN ]",
+                "}");
+        assertEquals(jsonRef, json);
+
+        List<DoubleArrayChunk> doubleChunks = new ArrayList<>();
+        List<StringArrayChunk> stringChunks = new ArrayList<>();
+        JsonUtil.parseJson(json, parser -> {
+            ArrayChunk.parseJson(parser, doubleChunks, stringChunks);
+            return null;
+        });
+        assertEquals(1, doubleChunks.size());
+        assertEquals(0, stringChunks.size());
+        assertTrue(doubleChunks.get(0) instanceof UncompressedDoubleArrayChunk);
+        assertArrayEquals(new double[] {1d, Double.NaN, Double.NaN}, ((UncompressedDoubleArrayChunk) doubleChunks.get(0)).getValues(), 0d);
     }
 }
