@@ -75,18 +75,26 @@ public class LocalTaskMonitorTest extends AbstractProjectFileTest {
         monitor.addListener(listener);
         assertEquals(0L, monitor.takeSnapshot().getRevision());
         assertTrue(monitor.takeSnapshot().getTasks().isEmpty());
+
         monitor.startTask(foo);
         assertTrue(listenerState.started.size() == 1);
         listenerState.reset();
         assertEquals(1L, monitor.takeSnapshot().getRevision());
         assertEquals(Collections.singletonList(new TaskMonitor.Task(foo, 1L)), monitor.takeSnapshot().getTasks());
+
         monitor.updateTaskMessage(foo, "hello");
         assertTrue(listenerState.updated.size() == 1);
         assertTrue(listenerState.messages.size() == 1);
         assertEquals("hello", listenerState.messages.get(0));
         listenerState.reset();
+        assertEquals(2L, monitor.takeSnapshot().getRevision());
+        assertEquals(Collections.singletonList(new TaskMonitor.Task(foo, "hello", 2L)), monitor.takeSnapshot().getTasks());
+
         monitor.stopTask(foo);
         assertTrue(listenerState.stopped.size() == 1);
+        assertEquals(3L, monitor.takeSnapshot().getRevision());
+        assertTrue(monitor.takeSnapshot().getTasks().isEmpty());
+
         monitor.removeListener(listener);
     }
 }
