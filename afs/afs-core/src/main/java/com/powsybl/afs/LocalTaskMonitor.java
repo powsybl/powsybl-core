@@ -74,7 +74,12 @@ public class LocalTaskMonitor implements TaskMonitor {
 
     @Override
     public Snapshot takeSnapshot() {
-        return new Snapshot(new ArrayList<>(tasks.values()), revision);
+        lock.lock();
+        try {
+            return new Snapshot(new ArrayList<>(tasks.values()), revision);
+        } finally {
+            lock.unlock();
+        }
     }
 
     @Override
