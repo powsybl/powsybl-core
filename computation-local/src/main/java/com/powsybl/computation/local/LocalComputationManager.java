@@ -333,6 +333,7 @@ public class LocalComputationManager implements ComputationManager {
         Objects.requireNonNull(handler);
         MyCf<R> f = new MyCf<>();
         threadPools.execute(() -> {
+            f.setThread(Thread.currentThread());
             try {
                 try (WorkingDirectory workingDir = new WorkingDirectory(config.getLocalDir(), environment.getWorkingDirPrefix(), environment.isDebug())) {
                     f.setWorkingDir(workingDir.toPath());
@@ -354,23 +355,16 @@ public class LocalComputationManager implements ComputationManager {
         return f;
     }
 
-    private class MyCf<R> extends CompletableFuture<R> {
+    private class MyCf<R> extends ThreadInterruptedCompletableFuture<R> {
 
-        private volatile boolean cancel = false;
         private Path workingDir;
 
-        void setWorkingDir(Path workingDir) {
+        private void setWorkingDir(Path workingDir) {
             this.workingDir = workingDir;
         }
 
         @Override
-        public boolean isCancelled() {
-            return cancel;
-        }
-
-        @Override
         public boolean cancel(boolean mayInterruptIfRunning) {
-            cancel = true;
             super.cancel(mayInterruptIfRunning);
             if (mayInterruptIfRunning) {
                 localCommandExecutor.stop(workingDir);
