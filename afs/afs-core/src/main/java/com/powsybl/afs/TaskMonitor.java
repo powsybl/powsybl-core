@@ -32,6 +32,13 @@ public interface TaskMonitor {
             this(projectFile, null, revision);
         }
 
+        protected Task(Task other) {
+            Objects.requireNonNull(other);
+            projectFile = other.projectFile;
+            message = other.message;
+            revision = other.revision;
+        }
+
         public ProjectFile getProjectFile() {
             return projectFile;
         }

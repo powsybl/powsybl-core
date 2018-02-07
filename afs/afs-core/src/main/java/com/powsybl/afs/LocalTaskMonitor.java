@@ -9,6 +9,7 @@ package com.powsybl.afs;
 import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -74,7 +75,7 @@ public class LocalTaskMonitor implements TaskMonitor {
 
     @Override
     public Snapshot takeSnapshot() {
-        return new Snapshot(new ArrayList<>(tasks.values()), revision);
+        return new Snapshot(tasks.values().stream().map(Task::new).collect(Collectors.toList()), revision);
     }
 
     @Override
