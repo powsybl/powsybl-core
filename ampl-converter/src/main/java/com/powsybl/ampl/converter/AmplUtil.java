@@ -85,6 +85,9 @@ public final class AmplUtil {
 
         // HVDC lines
         network.getHvdcLineStream().forEach(hvdc -> mapper.newInt(AmplSubset.HVDC_LINE, hvdc.getId()));
+
+        // HvdcConverterStations
+        network.getHvdcConverterStations().forEach(conv -> mapper.newInt(AmplSubset.HVDC_CONVERTER_STATION,  conv.getId()));
     }
 
     private static void fillLines(StringToIntMapper<AmplSubset> mapper, Network network) {

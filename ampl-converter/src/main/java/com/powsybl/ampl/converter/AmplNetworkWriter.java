@@ -14,6 +14,8 @@ import com.powsybl.commons.io.table.TableFormatter;
 import com.powsybl.commons.util.StringToIntMapper;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.CurrentLimits.TemporaryLimit;
+import com.powsybl.iidm.network.HvdcConverterStation.HvdcType;
+import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
 import com.powsybl.iidm.network.util.ConnectedComponents;
 import com.powsybl.iidm.network.util.SV;
 import org.slf4j.Logger;
@@ -624,8 +626,22 @@ public class AmplNetworkWriter {
             float zb2 = vb2 * vb2 / AmplConstants.SB;
             float r = twt.getR() / zb2;
             float x = twt.getX() / zb2;
-            float g = twt.getG() * zb2;
-            float b = twt.getB() * zb2;
+            float g1;
+            float g2;
+            float b1;
+            float b2;
+            if (config.isSpecificCompatibility()) {
+                g1 = twt.getG() * zb2 / 2;
+                g2 = g1;
+                b1 = twt.getB() * zb2 / 2;
+                b2 = b1;
+            } else {
+                g1 = twt.getG() * zb2;
+                g2 = 0;
+                b1 = twt.getB() * zb2;
+                b2 = 0;
+            }
+
             float ratedU1 = twt.getRatedU1();
             float ratedU2 = twt.getRatedU2();
             float ratio = ratedU2 / vb2 / (ratedU1 / vb1);
@@ -641,10 +657,10 @@ public class AmplNetworkWriter {
                 .writeCell(vl2Num)
                 .writeCell(r)
                 .writeCell(x)
-                .writeCell(g)
-                .writeCell(0)
-                .writeCell(b)
-                .writeCell(0)
+                .writeCell(g1)
+                .writeCell(g2)
+                .writeCell(b1)
+                .writeCell(b2)
                 .writeCell(ratio)
                 .writeCell(rtcNum)
                 .writeCell(ptcNum)
@@ -1091,7 +1107,9 @@ public class AmplNetworkWriter {
                                                                   new Column(FAULT),
                                                                   new Column(config.getActionType().getLabel()),
                                                                   new Column("id"),
-                                                                  new Column(DESCRIPTION))) {
+                                                                  new Column(DESCRIPTION),
+                                                                  new Column("p0 (MW)"),
+                                                                  new Column("q0 (MVar)"))) {
             List<String> skipped = new ArrayList<>();
             for (Load l : network.getLoads()) {
                 Terminal t = l.getTerminal();
@@ -1113,12 +1131,14 @@ public class AmplNetworkWriter {
                 formatter.writeCell(num)
                          .writeCell(busNum)
                          .writeCell(vlNum)
-                         .writeCell(l.getP0())
-                         .writeCell(l.getQ0())
+                         .writeCell(t.getP())
+                         .writeCell(t.getQ())
                          .writeCell(faultNum)
                          .writeCell(actionNum)
                          .writeCell(id)
-                         .writeCell(l.getName());
+                         .writeCell(l.getName())
+                         .writeCell(l.getP0())
+                         .writeCell(l.getQ0());
             }
             for (DanglingLine dl : network.getDanglingLines()) {
                 String middleBusId = getDanglingLineMiddleBusId(dl);
@@ -1134,12 +1154,14 @@ public class AmplNetworkWriter {
                 formatter.writeCell(num)
                          .writeCell(busNum)
                          .writeCell(vlNum)
-                         .writeCell(dl.getP0())
-                         .writeCell(dl.getQ0())
+                         .writeCell(dl.getTerminal().getP())
+                         .writeCell(dl.getTerminal().getQ())
                          .writeCell(faultNum)
                          .writeCell(actionNum)
                          .writeCell(dl.getId() + "_load")
-                         .writeCell("");
+                         .writeCell("")
+                         .writeCell(dl.getP0())
+                         .writeCell(dl.getQ0());
             }
             if (!skipped.isEmpty()) {
                 LOGGER.trace("Skip loads {} because not connected and not connectable", skipped);
@@ -1179,7 +1201,9 @@ public class AmplNetworkWriter {
                                                                   new Column(FAULT),
                                                                   new Column(config.getActionType().getLabel()),
                                                                   new Column("id"),
-                                                                  new Column(DESCRIPTION))) {
+                                                                  new Column(DESCRIPTION),
+                                                                  new Column("P (MW)"),
+                                                                  new Column("Q (MVar)"))) {
             List<String> skipped = new ArrayList<>();
             for (ShuntCompensator sc : network.getShunts()) {
                 Terminal t = sc.getTerminal();
@@ -1224,7 +1248,9 @@ public class AmplNetworkWriter {
                          .writeCell(faultNum)
                          .writeCell(actionNum)
                          .writeCell(id)
-                         .writeCell(sc.getName());
+                         .writeCell(sc.getName())
+                         .writeCell(t.getP())
+                         .writeCell(t.getQ());
             }
             if (!skipped.isEmpty()) {
                 LOGGER.trace("Skip shunts {} because not connected and not connectable", skipped);
@@ -1240,18 +1266,55 @@ public class AmplNetworkWriter {
                                                                   !append,
                                                                   AmplConstants.LOCALE,
                                                                   new Column("num"),
+                                                                  new Column("bus"),
+                                                                  new Column("con. bus"),
+                                                                  new Column(SUBSTATION),
+                                                                  new Column("minB (S)"),
+                                                                  new Column("maxB (S)"),
+                                                                  new Column("v regul."),
+                                                                  new Column("targetV (pu)"),
                                                                   new Column(FAULT),
                                                                   new Column(config.getActionType().getLabel()),
+                                                                  new Column("P (MW)"),
+                                                                  new Column("Q (MVar)"),
                                                                   new Column("id"))) {
             List<String> skipped = new ArrayList<>();
             for (StaticVarCompensator svc : network.getStaticVarCompensators()) {
                 // FIXME
                 String id = svc.getId();
                 int num = mapper.getInt(AmplSubset.STATIC_VAR_COMPENSATOR, id);
+
+                Terminal t = svc.getTerminal();
+                Bus bus = AmplUtil.getBus(t);
+                int busNum = -1;
+                if (bus != null) {
+                    busNum = mapper.getInt(AmplSubset.BUS, bus.getId());
+                }
+
+                int conBusNum = -1;
+
+                Bus conBus = AmplUtil.getConnectableBus(t);
+                if (conBus != null) {
+                    conBusNum = mapper.getInt(AmplSubset.BUS, conBus.getId());
+                }
+
+                float vlSet = svc.getVoltageSetPoint();
+                float vb = t.getVoltageLevel().getNominalV();
+
+                int vlNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, t.getVoltageLevel().getId());
                 formatter.writeCell(num)
-                         .writeCell(faultNum)
-                         .writeCell(actionNum)
-                         .writeCell(id);
+                        .writeCell(busNum)
+                        .writeCell(conBusNum)
+                        .writeCell(vlNum)
+                        .writeCell(svc.getBmin())
+                        .writeCell(svc.getBmax())
+                        .writeCell(svc.getRegulationMode().equals(RegulationMode.VOLTAGE))
+                        .writeCell(vlSet / vb)
+                        .writeCell(faultNum)
+                        .writeCell(actionNum)
+                        .writeCell(t.getP())
+                        .writeCell(t.getQ())
+                        .writeCell(id);
             }
             if (!skipped.isEmpty()) {
                 LOGGER.trace("Skip static VAR compensators {} because not connected and not connectable", skipped);
@@ -1283,7 +1346,9 @@ public class AmplNetworkWriter {
                                                                   new Column(FAULT),
                                                                   new Column(config.getActionType().getLabel()),
                                                                   new Column("id"),
-                                                                  new Column(DESCRIPTION))) {
+                                                                  new Column(DESCRIPTION),
+                                                                  new Column("P (MW)"),
+                                                                  new Column("Q (MVar)"))) {
             List<String> skipped = new ArrayList<>();
             for (Generator g : network.getGenerators()) {
                 Terminal t = g.getTerminal();
@@ -1330,7 +1395,9 @@ public class AmplNetworkWriter {
                          .writeCell(faultNum)
                          .writeCell(actionNum)
                          .writeCell(id)
-                         .writeCell(g.getName());
+                         .writeCell(g.getName())
+                         .writeCell(t.getP())
+                         .writeCell(t.getQ());
             }
             if (!skipped.isEmpty()) {
                 LOGGER.trace("Skip generators {} because not connected and not connectable", skipped);
@@ -1424,21 +1491,186 @@ public class AmplNetworkWriter {
                                                                   new Column("num"),
                                                                   new Column(FAULT),
                                                                   new Column(config.getActionType().getLabel()),
-                                                                  new Column("id"))) {
+                                                                  new Column("id"),
+                                                                  new Column("r (ohm)"),
+                                                                  new Column("nomV (KV)"),
+                                                                  new Column("convertersMode"),
+                                                                  new Column("targetP (MW)"),
+                                                                  new Column("maxP (MW)"),
+                                                                  new Column("converterStation1"),
+                                                                  new Column("converterStation2"))) {
             List<String> skipped = new ArrayList<>();
             for (HvdcLine hvdcLine : network.getHvdcLines()) {
-                // FIXME
                 String id = hvdcLine.getId();
                 int num = mapper.getInt(AmplSubset.HVDC_LINE, id);
                 formatter.writeCell(num)
                         .writeCell(faultNum)
                         .writeCell(actionNum)
-                        .writeCell(id);
+                        .writeCell(id)
+                        .writeCell(hvdcLine.getR())
+                        .writeCell(hvdcLine.getNominalV())
+                        .writeCell(hvdcLine.getConvertersMode().name())
+                        .writeCell(hvdcLine.getActivePowerSetpoint())
+                        .writeCell(hvdcLine.getMaxP())
+                        .writeCell(mapper.getInt(AmplSubset.HVDC_CONVERTER_STATION, hvdcLine.getConverterStation1().getId()))
+                        .writeCell(mapper.getInt(AmplSubset.HVDC_CONVERTER_STATION, hvdcLine.getConverterStation2().getId()));
             }
             if (!skipped.isEmpty()) {
                 LOGGER.trace("Skip HVDC lines {} because not connected and not connectable", skipped);
             }
         }
+    }
+
+    private void writeHvdcConverterStations() throws IOException {
+        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_converter_station", "txt", append), StandardCharsets.UTF_8);
+             TableFormatter formatter = new AmplDatTableFormatter(writer,
+                                                                  getTableTitle("Converter Stations"),
+                                                                  AmplConstants.INVALID_FLOAT_VALUE,
+                                                                  !append,
+                                                                  AmplConstants.LOCALE,
+                                                                  new Column("num"),
+                                                                  new Column("bus"),
+                                                                  new Column("con. bus"),
+                                                                  new Column(SUBSTATION),
+                                                                  new Column("type"),
+                                                                  new Column("minP (MW)"),
+                                                                  new Column("maxP (MW)"),
+                                                                  new Column("minQmaxP (MVar)"),
+                                                                  new Column("minQ0 (MVar)"),
+                                                                  new Column("minQminP (MVar)"),
+                                                                  new Column("maxQmaxP (MVar)"),
+                                                                  new Column("maxQ0 (MVar)"),
+                                                                  new Column("maxQminP (MVar)"),
+                                                                  new Column("v regul."),
+                                                                  new Column("targetV (pu)"),
+                                                                  new Column("targetQ (MVar)"),
+                                                                  new Column("lossFactor (%PDC)"),
+                                                                  new Column("powerFactor"),
+                                                                  new Column(FAULT),
+                                                                  new Column(config.getActionType().getLabel()),
+                                                                  new Column("P (MW)"),
+                                                                  new Column("Q (MVar)"),
+                                                                  new Column("id"),
+                                                                  new Column(DESCRIPTION))) {
+
+            HashMap<String, HvdcLine> lineMap = new HashMap();
+            for (HvdcLine line : network.getHvdcLines()) {
+                HvdcConverterStation s1 = line.getConverterStation1();
+                HvdcConverterStation s2 = line.getConverterStation2();
+                if (s1 != null) {
+                    lineMap.put(s1.getId(), line);
+                }
+                if (s1 != null) {
+                    lineMap.put(s2.getId(), line);
+                }
+            }
+
+            List<String> skipped = new ArrayList<>();
+            for (HvdcConverterStation hvdcStation : network.getHvdcConverterStations()) {
+                String id = hvdcStation.getId();
+                Terminal t = hvdcStation.getTerminal();
+                Bus bus = AmplUtil.getBus(t);
+                int busNum = -1;
+                if (bus != null) {
+                    busNum = mapper.getInt(AmplSubset.BUS, bus.getId());
+                }
+
+                int conBusNum = -1;
+
+                Bus conBus = AmplUtil.getConnectableBus(t);
+                if (conBus != null) {
+                    conBusNum = mapper.getInt(AmplSubset.BUS, conBus.getId());
+                }
+
+                float maxP = Float.NaN;
+                HvdcLine line = lineMap.get(id);
+                if (line != null) {
+                    maxP = line.getMaxP();
+                }
+
+                if (hvdcStation.getHvdcType().equals(HvdcType.VSC)) {
+                    writeVscConverterStation((VscConverterStation) hvdcStation, formatter, busNum, conBusNum, maxP);
+                } else {
+                    writeLccConverterStation((LccConverterStation) hvdcStation, formatter, busNum, conBusNum, maxP);
+                }
+            }
+            if (!skipped.isEmpty()) {
+                LOGGER.trace("Skip HVDC lines {} because not connected and not connectable", skipped);
+            }
+        }
+    }
+
+    private void writeVscConverterStation(VscConverterStation station, TableFormatter formatter, int busNum, int conBusNum, float maxP) throws IOException {
+        Terminal t = station.getTerminal();
+        int vlNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, t.getVoltageLevel().getId());
+        float vlSet = station.getVoltageSetpoint();
+        float vb = t.getVoltageLevel().getNominalV();
+        float minP = -maxP;
+
+        int num = mapper.getInt(AmplSubset.HVDC_CONVERTER_STATION, station.getId());
+        formatter.writeCell(num)
+                .writeCell(busNum)
+                .writeCell(conBusNum != -1 ? conBusNum : busNum)
+                .writeCell(vlNum)
+                .writeCell(1)
+                .writeCell(minP)
+                .writeCell(maxP)
+                .writeCell(station.getReactiveLimits().getMinQ(maxP))
+                .writeCell(station.getReactiveLimits().getMinQ(0))
+                .writeCell(station.getReactiveLimits().getMinQ(minP))
+                .writeCell(station.getReactiveLimits().getMaxQ(maxP))
+                .writeCell(station.getReactiveLimits().getMaxQ(0))
+                .writeCell(station.getReactiveLimits().getMaxQ(minP))
+                .writeCell(station.isVoltageRegulatorOn())
+                .writeCell(vlSet / vb)
+                .writeCell(station.getReactivePowerSetpoint())
+                .writeCell(station.getLossFactor())
+                .writeCell(0)
+                .writeCell(faultNum)
+                .writeCell(actionNum)
+                .writeCell(station.getId())
+                .writeCell(t.getP())
+                .writeCell(t.getQ())
+                .writeCell(station.getName());
+    }
+
+    private void writeLccConverterStation(LccConverterStation station, TableFormatter formatter, int busNum, int conBusNum, float maxP) throws IOException {
+        Terminal t = station.getTerminal();
+        int vlNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, t.getVoltageLevel().getId());
+        float minP = -maxP;
+        float maxQ = getQ(maxP, station.getPowerFactor());
+
+        int num = mapper.getInt(AmplSubset.HVDC_CONVERTER_STATION, station.getId());
+
+        formatter.writeCell(num)
+                .writeCell(busNum)
+                .writeCell(conBusNum != -1 ? conBusNum : busNum)
+                .writeCell(vlNum)
+                .writeCell(2)
+                .writeCell(minP)
+                .writeCell(maxP)
+                .writeCell(-maxQ)
+                .writeCell(0)
+                .writeCell(-maxQ)
+                .writeCell(-maxQ)
+                .writeCell(0)
+                .writeCell(-maxQ)
+                .writeCell(Boolean.FALSE)
+                .writeCell(Float.NaN)
+                .writeCell(Float.NaN)
+                .writeCell(station.getLossFactor())
+                .writeCell(station.getPowerFactor())
+                .writeCell(faultNum)
+                .writeCell(actionNum)
+                .writeCell(station.getId())
+                .writeCell(t.getP())
+                .writeCell(t.getQ())
+                .writeCell(station.getName());
+    }
+
+    private float getQ(float p, float powerFactor) {
+        // Q = - P * sqrt( 1/max(1E-3,min(1,getPowerFactor()))²-1) )
+        return (float) (-p * Math.sqrt(1 / Math.pow(Math.max(0.001, Math.min(1, powerFactor)), 2) - 1));
     }
 
     public void write() throws IOException {
@@ -1457,6 +1689,7 @@ public class AmplNetworkWriter {
         writeShunts(context);
         writeStaticVarCompensators();
         writeSubstations();
+        writeHvdcConverterStations();
         writeHvdcLines();
     }
 }

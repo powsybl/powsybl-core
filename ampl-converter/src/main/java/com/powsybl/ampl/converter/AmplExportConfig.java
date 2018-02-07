@@ -44,6 +44,8 @@ public class AmplExportConfig {
 
     private boolean exportRatioTapChangerVoltageTarget;
 
+    private boolean specificCompatibility;
+
     public AmplExportConfig(ExportScope exportScope, boolean exportXNodes, ExportActionType actionType) {
         this(exportScope, exportXNodes, actionType, false);
     }
@@ -89,6 +91,14 @@ public class AmplExportConfig {
     public AmplExportConfig setExportRatioTapChangerVoltageTarget(boolean exportRatioTapChangerVoltageTarget) {
         this.exportRatioTapChangerVoltageTarget = exportRatioTapChangerVoltageTarget;
         return this;
+    }
+
+    public boolean isSpecificCompatibility() {
+        return specificCompatibility;
+    }
+
+    public void setSpecificCompatibility(boolean specificCompatibility) {
+        this.specificCompatibility = specificCompatibility;
     }
 
 }
