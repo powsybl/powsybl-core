@@ -75,7 +75,12 @@ public class LocalTaskMonitor implements TaskMonitor {
 
     @Override
     public Snapshot takeSnapshot() {
-        return new Snapshot(tasks.values().stream().map(Task::new).collect(Collectors.toList()), revision);
+        lock.lock();
+        try {
+            return new Snapshot(tasks.values().stream().map(Task::new).collect(Collectors.toList()), revision);
+        } finally {
+            lock.unlock();
+        }
     }
 
     @Override
