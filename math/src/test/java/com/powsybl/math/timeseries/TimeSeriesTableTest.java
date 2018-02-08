@@ -30,7 +30,7 @@ public class TimeSeriesTableTest {
         StringTimeSeries ts3 = new StringTimeSeries(metadata3, new UncompressedStringArrayChunk(1, new String[] {"a", "b", "c"}));
 
         // load time series in the table
-        TimeSeriesTable table = new TimeSeriesTable(1, 1);
+        TimeSeriesTable table = new TimeSeriesTable(1, 1, index);
 
         table.load(1, ImmutableList.of(ts1, ts2, ts3));
 
