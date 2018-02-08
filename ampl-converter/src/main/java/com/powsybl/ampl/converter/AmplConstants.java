@@ -12,18 +12,18 @@ import java.util.Locale;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-final class AmplConstants {
+public final class AmplConstants {
 
     private AmplConstants() {
     }
 
-    static final float INVALID_FLOAT_VALUE = -99999f;
+    public static final float INVALID_FLOAT_VALUE = -99999f;
 
-    static final Locale LOCALE = Locale.US;
+    public static final Locale LOCALE = Locale.US;
 
-    static final float SB = 100f;
+    public static final float SB = 100f;
 
-    static final String LEG1_SUFFIX = "_leg1";
-    static final String LEG2_SUFFIX = "_leg2";
-    static final String LEG3_SUFFIX = "_leg3";
+    public static final String LEG1_SUFFIX = "_leg1";
+    public static final String LEG2_SUFFIX = "_leg2";
+    public static final String LEG3_SUFFIX = "_leg3";
 }
