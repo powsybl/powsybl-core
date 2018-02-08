@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, RTE (http://www.rte-france.com)
+ * Copyright (c) 2016-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -14,6 +14,8 @@ import com.powsybl.contingency.ContingenciesProviderFactory;
 import com.powsybl.contingency.EmptyContingencyListProvider;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.StateManager;
+import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 
 import java.io.InputStream;
@@ -24,6 +26,7 @@ import java.util.Set;
 
 /**
  * @author Giovanni Ferrari <giovanni.ferrari@techrain.it>
+ * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
  */
 public class SecurityAnalyzer {
 
@@ -100,7 +103,7 @@ public class SecurityAnalyzer {
         SecurityAnalysis securityAnalysis = securityAnalysisFactory.create(network, filter, computationManager, priority);
         interceptors.forEach(securityAnalysis::addInterceptor);
 
-        return securityAnalysis.runAsync(contingenciesProvider).join();
+        return securityAnalysis.runAsync(contingenciesProvider, StateManager.INITIAL_STATE_ID, LoadFlowParameters.load(), SecurityAnalysisParameters.load()).join();
     }
 
 }
