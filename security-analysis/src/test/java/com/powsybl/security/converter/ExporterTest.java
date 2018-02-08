@@ -78,7 +78,9 @@ public class ExporterTest extends AbstractConverterTest {
 
         roundTripTest(result, ExporterTest::writeJson, SecurityAnalysisResultDeserializer::read, "/SecurityAnalysisResult.json");
 
-        BiConsumer<SecurityAnalysisResult, Path> exporter = (res, path) -> { SecurityAnalysisResultExporters.export(res, NETWORK, path, "JSON"); };
+        BiConsumer<SecurityAnalysisResult, Path> exporter = (res, path) -> {
+            SecurityAnalysisResultExporters.export(res, NETWORK, path, "JSON");
+        };
         roundTripTest(result, exporter, SecurityAnalysisResultDeserializer::read, "/SecurityAnalysisResult.json");
     }
 

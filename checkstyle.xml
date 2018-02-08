@@ -60,6 +60,8 @@
         <module name="UnusedImports"/>
         <module name="UpperEll"/>
         <module name="WhitespaceAfter"/>
-        <module name="WhitespaceAround"/>
+        <module name="WhitespaceAround">
+            <property name="ignoreEnhancedForColon" value="false"/>
+        </module>
     </module>
 </module>

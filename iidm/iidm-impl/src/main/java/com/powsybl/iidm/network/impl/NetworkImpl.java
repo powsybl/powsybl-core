@@ -937,7 +937,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Mult
         otherNetwork.ref.setRef(ref);
 
         Multimap<Boundary, LineMerge> mergedLineByBoundary = HashMultimap.create();
-        for (LineMerge lm:  lines) {
+        for (LineMerge lm : lines) {
             LOGGER.debug("Replacing dangling line couple '{}' (xnode={}, country1={}, country2={}) by a line",
                     lm.id, lm.xnode, lm.country1, lm.country2);
             TieLineAdderImpl la = newTieLine()
