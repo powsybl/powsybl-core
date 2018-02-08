@@ -336,14 +336,7 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                              .writeCell(p2Calc)
                              .writeCell(q2)
                              .writeCell(q2Calc) :
-                    formatter.writeEmptyCell()
-                             .writeEmptyCell()
-                             .writeEmptyCell()
-                             .writeEmptyCell()
-                             .writeEmptyCell()
-                             .writeEmptyCell()
-                             .writeEmptyCell()
-                             .writeEmptyCell();
+                    formatter.writeEmptyCells(8);
         if (verbose) {
             formatter = writeValues ?
                         formatter.writeCell(r)
@@ -368,28 +361,7 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                                  .writeCell(mainComponent1)
                                  .writeCell(mainComponent2)
                                  .writeCell(getValidated(validated)) :
-                        formatter.writeEmptyCell()
-                                 .writeEmptyCell()
-                                 .writeEmptyCell()
-                                 .writeEmptyCell()
-                                 .writeEmptyCell()
-                                 .writeEmptyCell()
-                                 .writeEmptyCell()
-                                 .writeEmptyCell()
-                                 .writeEmptyCell()
-                                 .writeEmptyCell()
-                                 .writeEmptyCell()
-                                 .writeEmptyCell()
-                                 .writeEmptyCell()
-                                 .writeEmptyCell()
-                                 .writeEmptyCell()
-                                 .writeEmptyCell()
-                                 .writeEmptyCell()
-                                 .writeEmptyCell()
-                                 .writeEmptyCell()
-                                 .writeEmptyCell()
-                                 .writeEmptyCell()
-                                 .writeEmptyCell();
+                        formatter.writeEmptyCells(22);
         }
         return formatter;
     }
@@ -417,12 +389,7 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                              .writeCell(targetP)
                              .writeCell(targetQ)
                              .writeCell(targetV) :
-                    formatter.writeEmptyCell()
-                             .writeEmptyCell()
-                             .writeEmptyCell()
-                             .writeEmptyCell()
-                             .writeEmptyCell()
-                             .writeEmptyCell();
+                    formatter.writeEmptyCells(6);
         if (verbose) {
             formatter = writeValues ?
                         formatter.writeCell(connected)
@@ -430,11 +397,7 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                                  .writeCell(minQ)
                                  .writeCell(maxQ)
                                  .writeCell(getValidated(validated)) :
-                        formatter.writeEmptyCell()
-                                 .writeEmptyCell()
-                                 .writeEmptyCell()
-                                 .writeEmptyCell()
-                                 .writeEmptyCell();
+                        formatter.writeEmptyCells(5);
         }
         return formatter;
     }
@@ -464,10 +427,7 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                              .writeCell(incomingQ)
                              .writeCell(loadP)
                              .writeCell(loadQ) :
-                    formatter.writeEmptyCell()
-                             .writeEmptyCell()
-                             .writeEmptyCell()
-                             .writeEmptyCell();
+                    formatter.writeEmptyCells(4);
         if (verbose) {
             formatter = writeValues ?
                         formatter.writeCell(genP)
@@ -485,21 +445,7 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                                  .writeCell(tltP)
                                  .writeCell(tltQ)
                                  .writeCell(getValidated(validated)) :
-                        formatter.writeEmptyCell()
-                                 .writeEmptyCell()
-                                 .writeEmptyCell()
-                                 .writeEmptyCell()
-                                 .writeEmptyCell()
-                                 .writeEmptyCell()
-                                 .writeEmptyCell()
-                                 .writeEmptyCell()
-                                 .writeEmptyCell()
-                                 .writeEmptyCell()
-                                 .writeEmptyCell()
-                                 .writeEmptyCell()
-                                 .writeEmptyCell()
-                                 .writeEmptyCell()
-                                 .writeEmptyCell();
+                        formatter.writeEmptyCells(15);
         }
         return formatter;
     }
@@ -526,11 +472,7 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                              .writeCell(v)
                              .writeCell(reactivePowerSetpoint)
                              .writeCell(voltageSetpoint) :
-                    formatter.writeEmptyCell()
-                             .writeEmptyCell()
-                             .writeEmptyCell()
-                             .writeEmptyCell()
-                             .writeEmptyCell();
+                    formatter.writeEmptyCells(5);
         if (verbose) {
             formatter = writeValues ?
                         formatter.writeCell(connected)
@@ -538,11 +480,7 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                                  .writeCell(bMin)
                                  .writeCell(bMax)
                                  .writeCell(getValidated(validated)) :
-                        formatter.writeEmptyCell()
-                                 .writeEmptyCell()
-                                 .writeEmptyCell()
-                                 .writeEmptyCell()
-                                 .writeEmptyCell();
+                        formatter.writeEmptyCells(5);
         }
         return formatter;
     }
@@ -565,8 +503,7 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
         formatter = writeValues ?
                     formatter.writeCell(q)
                              .writeCell(expectedQ) :
-                    formatter.writeEmptyCell()
-                             .writeEmptyCell();
+                    formatter.writeEmptyCells(2);
         if (verbose) {
             formatter = writeValues ?
                         formatter.writeCell(p)
@@ -578,15 +515,7 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                                  .writeCell(qMax)
                                  .writeCell(nominalV)
                                  .writeCell(getValidated(validated)) :
-                        formatter.writeEmptyCell()
-                                 .writeEmptyCell()
-                                 .writeEmptyCell()
-                                 .writeEmptyCell()
-                                 .writeEmptyCell()
-                                 .writeEmptyCell()
-                                 .writeEmptyCell()
-                                 .writeEmptyCell()
-                                 .writeEmptyCell();
+                        formatter.writeEmptyCells(9);
         }
         return formatter;
     }
