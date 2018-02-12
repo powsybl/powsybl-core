@@ -6,6 +6,9 @@
  */
 package com.powsybl.action.dsl;
 
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import groovy.lang.GroovyCodeSource;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -53,6 +56,11 @@ public class RuleTest {
             fail();
         } catch (RuntimeException ignored) {
         }
+    }
 
+    @Test
+    public void testGoldenRule() {
+        Network network = EurostagTutorialExample1Factory.create();
+        ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/golden_rule.groovy"))).load(network);
     }
 }
