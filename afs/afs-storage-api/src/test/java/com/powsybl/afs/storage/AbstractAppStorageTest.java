@@ -146,17 +146,19 @@ public abstract class AbstractAppStorageTest {
                                          .setDouble("d1", 1d)
                                          .setInt("i1", 2)
                                          .setBoolean("b1", false));
+        NodeInfo testData3Info = storage.createNode(testFolderInfo.getId(), "data3", DATA_FILE_CLASS, "", 0, new NodeGenericMetadata());
         storage.flush();
 
         // check events
         assertEquals(new NodeCreated(testDataInfo.getId()), eventStack.take());
         assertEquals(new NodeCreated(testData2Info.getId()), eventStack.take());
+        assertEquals(new NodeCreated(testData3Info.getId()), eventStack.take());
 
         // check info are correctly stored even with metadata
         assertEquals(testData2Info, storage.getNodeInfo(testData2Info.getId()));
 
         // check test folder has 2 children
-        assertEquals(2, storage.getChildNodes(testFolderInfo.getId()).size());
+        assertEquals(3, storage.getChildNodes(testFolderInfo.getId()).size());
 
         // check data nodes initial dependency state
         assertTrue(storage.getDependencies(testDataInfo.getId()).isEmpty());
@@ -206,7 +208,7 @@ public abstract class AbstractAppStorageTest {
         assertEquals(new NodeRemoved(testDataInfo.getId()), eventStack.take());
 
         // check test folder children have been correctly updated
-        assertEquals(1, storage.getChildNodes(testFolderInfo.getId()).size());
+        assertEquals(2, storage.getChildNodes(testFolderInfo.getId()).size());
 
         // check data node 2 backward dependency has been correctly updated
         assertTrue(storage.getBackwardDependencies(testData2Info.getId()).isEmpty());
@@ -291,9 +293,11 @@ public abstract class AbstractAppStorageTest {
         assertEquals(Sets.newHashSet("ts1"), storage.getTimeSeriesNames(testData2Info.getId()));
         assertTrue(storage.timeSeriesExists(testData2Info.getId(), "ts1"));
         assertFalse(storage.timeSeriesExists(testData2Info.getId(), "ts9"));
+        assertFalse(storage.timeSeriesExists(testData3Info.getId(), "ts1"));
         List<TimeSeriesMetadata> metadataList = storage.getTimeSeriesMetadata(testData2Info.getId(), Sets.newHashSet("ts1"));
         assertEquals(1, metadataList.size());
         assertEquals(metadata1, metadataList.get(0));
+        assertTrue(storage.getTimeSeriesMetadata(testData3Info.getId(), Sets.newHashSet("ts1")).isEmpty());
 
         // 14) add data to double time series
         storage.addDoubleTimeSeriesData(testData2Info.getId(), 0, "ts1", Arrays.asList(new UncompressedDoubleArrayChunk(2, new double[] {1d, 2d}),
@@ -311,6 +315,7 @@ public abstract class AbstractAppStorageTest {
         assertEquals(1, doubleTimeSeries.size());
         DoubleTimeSeries ts1 = doubleTimeSeries.get(0);
         assertArrayEquals(new double[] {Double.NaN, Double.NaN, 1d, 2d, Double.NaN, 3d}, ts1.toArray(), 0d);
+        assertTrue(storage.getDoubleTimeSeries(testData3Info.getId(), Sets.newHashSet("ts1"), 0).isEmpty());
 
         // 15) create a second string time series
         TimeSeriesMetadata metadata2 = new TimeSeriesMetadata("ts2",

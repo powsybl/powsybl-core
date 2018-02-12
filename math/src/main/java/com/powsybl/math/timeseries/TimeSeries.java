@@ -33,6 +33,8 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
 
     TimeSeriesMetadata getMetadata();
 
+    void synchronize(TimeSeriesIndex newIndex);
+
     Stream<P> stream();
 
     Iterator<P> iterator();

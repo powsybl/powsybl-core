@@ -455,16 +455,13 @@ public class MapDbAppStorage implements AppStorage {
         return names;
     }
 
-    private static AfsStorageException createTimeSeriesNotFoundAtNode(String timeSeriesName, UUID nodeUuid) {
-        return new AfsStorageException("Time series " + timeSeriesName + " not found at node " + nodeUuid);
-    }
-
     @Override
     public boolean timeSeriesExists(String nodeId, String timeSeriesName) {
         UUID nodeUuid = checkNodeId(nodeId);
         checkNodeExists(nodeUuid);
         Objects.requireNonNull(timeSeriesName);
-        return timeSeriesNamesMap.get(nodeUuid).contains(timeSeriesName);
+        Set<String> timeSeriesNames = timeSeriesNamesMap.get(nodeUuid);
+        return timeSeriesNames != null && timeSeriesNames.contains(timeSeriesName);
     }
 
     @Override
@@ -474,10 +471,9 @@ public class MapDbAppStorage implements AppStorage {
         List<TimeSeriesMetadata> metadataList = new ArrayList<>();
         for (String timeSeriesName : timeSeriesNames) {
             TimeSeriesMetadata metadata = timeSeriesMetadataMap.get(new NamedLink(nodeUuid, timeSeriesName));
-            if (metadata == null) {
-                throw createTimeSeriesNotFoundAtNode(timeSeriesName, nodeUuid);
+            if (metadata != null) {
+                metadataList.add(metadata);
             }
-            metadataList.add(metadata);
         }
         return metadataList;
     }
@@ -528,12 +524,11 @@ public class MapDbAppStorage implements AppStorage {
         List<T> timeSeriesList = new ArrayList<>();
         for (String timeSeriesName : timeSeriesNames) {
             TimeSeriesMetadata metadata = timeSeriesMetadataMap.get(new NamedLink(nodeUuid, timeSeriesName));
-            if (metadata == null) {
-                throw createTimeSeriesNotFoundAtNode(timeSeriesName, nodeUuid);
-            }
-            List<C> chunks = getChunks(nodeUuid, version, timeSeriesName, metadata, map);
-            if (!chunks.isEmpty()) {
-                timeSeriesList.add(constr.apply(metadata, chunks));
+            if (metadata != null) {
+                List<C> chunks = getChunks(nodeUuid, version, timeSeriesName, metadata, map);
+                if (!chunks.isEmpty()) {
+                    timeSeriesList.add(constr.apply(metadata, chunks));
+                }
             }
         }
         return timeSeriesList;
