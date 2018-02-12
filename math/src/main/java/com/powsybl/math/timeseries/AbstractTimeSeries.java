@@ -37,6 +37,13 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Arra
         this.chunks = Objects.requireNonNull(chunks);
     }
 
+    public void synchronize(TimeSeriesIndex newIndex) {
+        Objects.requireNonNull(newIndex);
+        if (!metadata.getIndex().equals(newIndex)) {
+            throw new UnsupportedOperationException("Not yet implemented");
+        }
+    }
+
     public List<C> getChunks() {
         return chunks;
     }
