@@ -124,7 +124,7 @@ public final class TimeSeriesTable {
 
     private List<TimeSeriesMetadata> timeSeriesMetadata;
 
-    private TimeSeriesIndex tableIndex;
+    private final TimeSeriesIndex tableIndex;
 
     private final TIntArrayList timeSeriesIndexDoubleOrString = new TIntArrayList(); // global index to typed index
 
@@ -145,7 +145,7 @@ public final class TimeSeriesTable {
 
     private final Lock statsLock = new ReentrantLock();
 
-    public TimeSeriesTable(int fromVersion, int toVersion) {
+    public TimeSeriesTable(int fromVersion, int toVersion, TimeSeriesIndex tableIndex) {
         TimeSeriesIndex.checkVersion(fromVersion);
         TimeSeriesIndex.checkVersion(toVersion);
         if (toVersion < fromVersion) {
@@ -153,18 +153,7 @@ public final class TimeSeriesTable {
         }
         this.fromVersion = fromVersion;
         this.toVersion = toVersion;
-    }
-
-    private void checkIndex(TimeSeries timeSeries) {
-        if (timeSeries.getMetadata().getIndex() != InfiniteTimeSeriesIndex.INSTANCE) {
-            if (tableIndex == null) {
-                tableIndex = timeSeries.getMetadata().getIndex();
-            } else {
-                if (!tableIndex.equals(timeSeries.getMetadata().getIndex())) {
-                    throw new TimeSeriesException("All time series must be synchronized");
-                }
-            }
-        }
+        this.tableIndex = Objects.requireNonNull(tableIndex);
     }
 
     private void initTable(List<DoubleTimeSeries> doubleTimeSeries, List<StringTimeSeries> stringTimeSeries) {
@@ -179,7 +168,7 @@ public final class TimeSeriesTable {
             for (DoubleTimeSeries timeSeries : doubleTimeSeries.stream()
                                                                .sorted(Comparator.comparing(ts -> ts.getMetadata().getName()))
                                                                .collect(Collectors.toList())) {
-                checkIndex(timeSeries);
+                timeSeries.synchronize(tableIndex);
                 timeSeriesMetadata.add(timeSeries.getMetadata());
                 int i = doubleTimeSeriesNames.add(timeSeries.getMetadata().getName());
                 timeSeriesIndexDoubleOrString.add(i);
@@ -187,7 +176,7 @@ public final class TimeSeriesTable {
             for (StringTimeSeries timeSeries : stringTimeSeries.stream()
                                                                .sorted(Comparator.comparing(ts -> ts.getMetadata().getName()))
                                                                .collect(Collectors.toList())) {
-                checkIndex(timeSeries);
+                timeSeries.synchronize(tableIndex);
                 timeSeriesMetadata.add(timeSeries.getMetadata());
                 int i = stringTimeSeriesNames.add(timeSeries.getMetadata().getName());
                 timeSeriesIndexDoubleOrString.add(i);
@@ -219,8 +208,8 @@ public final class TimeSeriesTable {
             stdDevs = new double[doubleTimeSeriesNames.size() * versionCount];
             Arrays.fill(stdDevs, Double.NaN);
         } catch (Exception e) {
+            LOGGER.error(e.toString(), e);
             timeSeriesMetadata = null;
-            tableIndex = null;
             doubleTimeSeriesNames.clear();
             stringTimeSeriesNames.clear();
             timeSeriesIndexDoubleOrString.clear();
@@ -280,9 +269,6 @@ public final class TimeSeriesTable {
         // check time series exists in the table
         int timeSeriesNum = doubleTimeSeriesNames.getIndex(timeSeries.getMetadata().getName());
 
-        // check time series index is the same than table one
-        checkIndex(timeSeries);
-
         // copy data
         int timeSeriesOffset = getTimeSeriesOffset(version, timeSeriesNum);
         timeSeries.fillBuffer(doubleBuffer, timeSeriesOffset);
@@ -294,9 +280,6 @@ public final class TimeSeriesTable {
     private void loadString(int version, StringTimeSeries timeSeries) {
         // check time series exists in the table
         int timeSeriesNum = stringTimeSeriesNames.getIndex(timeSeries.getMetadata().getName());
-
-        // check time series index is the same than table one
-        checkIndex(timeSeries);
 
         // copy data
         int timeSeriesOffset = getTimeSeriesOffset(version, timeSeriesNum);
