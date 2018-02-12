@@ -8,6 +8,9 @@ package com.powsybl.security;
 
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.AbstractExtendable;
+import com.powsybl.commons.extensions.Extension;
+
+import java.util.ServiceLoader;
 
 /**
  * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
@@ -20,6 +23,13 @@ public class SecurityAnalysisParameters extends AbstractExtendable<SecurityAnaly
 
     public static SecurityAnalysisParameters load(PlatformConfig platformConfig) {
         SecurityAnalysisParameters parameters = new SecurityAnalysisParameters();
+        parameters.readExtension(platformConfig);
         return parameters;
+    }
+
+    public void readExtension(PlatformConfig platformConfig) {
+        for (ExtensionSAParametersSerializer e : ServiceLoader.load(ExtensionSAParametersSerializer.class)) {
+            addExtension(Extension.class, e.deserialize(platformConfig));
+        }
     }
 }

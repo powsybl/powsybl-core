@@ -87,7 +87,7 @@ public class SecurityAnalysisTest {
         securityAnalysis.addInterceptor(new SecurityAnalysisInterceptorMock());
         securityAnalysis.addInterceptor(new CurrentLimitViolationInterceptor());
 
-        SecurityAnalysisResult result = securityAnalysis.runAsync(contingenciesProvider, StateManager.INITIAL_STATE_ID, LoadFlowParameters.load(), SecurityAnalysisParameters.load()).join();
+        SecurityAnalysisResult result = securityAnalysis.runAsync(contingenciesProvider, StateManager.INITIAL_STATE_ID, new LoadFlowParameters(), new SecurityAnalysisParameters()).join();
 
         assertTrue(result.getPreContingencyResult().isComputationOk());
         assertEquals(0, result.getPreContingencyResult().getLimitViolations().size());

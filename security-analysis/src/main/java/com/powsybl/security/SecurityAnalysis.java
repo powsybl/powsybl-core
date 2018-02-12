@@ -25,6 +25,9 @@ public interface SecurityAnalysis {
         return false;
     }
 
+    /**
+     * @deprecated Use CompletableFuture<SecurityAnalysisResult> runAsync(ContingenciesProvider, String, LoadFlowParameters, SecurityAnalysisParameters) instead
+     */
     @Deprecated
     default CompletableFuture<SecurityAnalysisResult> runAsync(ContingenciesProvider contingenciesProvider, String workingStateId, LoadFlowParameters parameters) {
         throw new UnsupportedOperationException("Unimplemented method.");
