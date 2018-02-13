@@ -22,20 +22,20 @@ public class SecurityAnalysisParametersTest {
         ExtensionSecurityAnalysisParameters extensionSecurityAnalysisParameters = new ExtensionSecurityAnalysisParameters();
         parameters.addExtension(ExtensionSecurityAnalysisParameters.class, extensionSecurityAnalysisParameters);
 
-        assertEquals(parameters.getExtensions().size(), 1);
-        assertEquals(parameters.getExtensions().contains(extensionSecurityAnalysisParameters), true);
-        assertEquals(parameters.getExtensionByName("extensionSecurityAnalysisParameters") instanceof ExtensionSecurityAnalysisParameters, true);
-        assertEquals(parameters.getExtension(ExtensionSecurityAnalysisParameters.class) instanceof ExtensionSecurityAnalysisParameters, true);
+        assertEquals(1, parameters.getExtensions().size());
+        assertEquals(true, parameters.getExtensions().contains(extensionSecurityAnalysisParameters));
+        assertEquals(true, parameters.getExtensionByName("extensionSecurityAnalysisParameters") instanceof ExtensionSecurityAnalysisParameters);
+        assertEquals(true, parameters.getExtension(ExtensionSecurityAnalysisParameters.class) instanceof ExtensionSecurityAnalysisParameters);
     }
 
     @Test
     public void testNoExtensions() {
         SecurityAnalysisParameters parameters = SecurityAnalysisParameters.load();
 
-        assertEquals(parameters.getExtensions().size(), 0);
-        assertEquals(parameters.getExtensions().contains(new ExtensionSecurityAnalysisParameters()), false);
-        assertEquals(parameters.getExtensionByName("extensionLoadFlowParameters") instanceof ExtensionSecurityAnalysisParameters, false);
-        assertEquals(parameters.getExtension(ExtensionSecurityAnalysisParameters.class) instanceof ExtensionSecurityAnalysisParameters, false);
+        assertEquals(0, parameters.getExtensions().size());
+        assertEquals(false, parameters.getExtensions().contains(new ExtensionSecurityAnalysisParameters()));
+        assertEquals(false, parameters.getExtensionByName("extensionLoadFlowParameters") instanceof ExtensionSecurityAnalysisParameters);
+        assertEquals(false, parameters.getExtension(ExtensionSecurityAnalysisParameters.class) instanceof ExtensionSecurityAnalysisParameters);
     }
 
     class ExtensionSecurityAnalysisParameters extends AbstractExtension<SecurityAnalysisParameters> {
