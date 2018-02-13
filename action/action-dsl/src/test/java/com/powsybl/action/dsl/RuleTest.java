@@ -53,6 +53,6 @@ public class RuleTest {
             fail();
         } catch (RuntimeException ignored) {
         }
-
     }
+
 }
