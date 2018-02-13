@@ -74,15 +74,23 @@ public class AppFileSystem implements AutoCloseable {
         }
     }
 
-    public ProjectNode findProjectNode(NodeInfo nodeInfo) {
+    public <T extends ProjectFile> T findProjectFile(String nodeId, Class<T> clazz) {
+        Objects.requireNonNull(nodeId);
+        Objects.requireNonNull(clazz);
+        NodeInfo nodeInfo = storage.getNodeInfo(nodeId);
+        ProjectFile projectFile = createProjectFile(nodeInfo);
+        return clazz.isAssignableFrom(projectFile.getClass()) ? (T) projectFile : null;
+    }
+
+    ProjectNode createProjectNode(NodeInfo nodeInfo) {
         if (ProjectFolder.PSEUDO_CLASS.equals(nodeInfo.getPseudoClass())) {
             return new ProjectFolder(new ProjectFileCreationContext(nodeInfo, storage, this));
         } else {
-            return findProjectFile(nodeInfo);
+            return createProjectFile(nodeInfo);
         }
     }
 
-    public ProjectFile findProjectFile(NodeInfo nodeInfo) {
+    ProjectFile createProjectFile(NodeInfo nodeInfo) {
         Objects.requireNonNull(data);
         ProjectFileCreationContext context = new ProjectFileCreationContext(nodeInfo, storage, this);
         ProjectFileExtension extension = data.getProjectFileExtensionByPseudoClass(nodeInfo.getPseudoClass());
@@ -91,11 +99,6 @@ public class AppFileSystem implements AutoCloseable {
         } else {
             return new UnknownProjectFile(context);
         }
-    }
-
-    public <U> U findService(Class<U> serviceClass) {
-        Objects.requireNonNull(data);
-        return data.findService(serviceClass, storage.isRemote());
     }
 
     public AppData getData() {

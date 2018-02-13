@@ -35,7 +35,7 @@ public class ProjectFile extends ProjectNode {
     public List<ProjectDependency<ProjectNode>> getDependencies() {
         return storage.getDependencies(info.getId())
                 .stream()
-                .map(dependency -> new ProjectDependency<>(dependency.getName(), fileSystem.findProjectNode(dependency.getNodeInfo())))
+                .map(dependency -> new ProjectDependency<>(dependency.getName(), fileSystem.createProjectNode(dependency.getNodeInfo())))
                 .collect(Collectors.toList());
     }
 
@@ -43,7 +43,7 @@ public class ProjectFile extends ProjectNode {
         Objects.requireNonNull(name);
         Objects.requireNonNull(nodeClass);
         return storage.getDependencies(info.getId(), name).stream()
-                .map(fileSystem::findProjectNode)
+                .map(fileSystem::createProjectNode)
                 .filter(dependencyNode -> nodeClass.isAssignableFrom(dependencyNode.getClass()))
                 .map(nodeClass::cast)
                 .collect(Collectors.toList());
@@ -53,6 +53,22 @@ public class ProjectFile extends ProjectNode {
         Objects.requireNonNull(source);
         Objects.requireNonNull(listener);
         listeners.computeIfAbsent(source, k -> new ArrayList<>()).add(listener);
+    }
+
+    public UUID startTask() {
+        return fileSystem.getData().getTaskMonitor().startTask(this).getId();
+    }
+
+    public AppLogger createLogger(UUID taskId) {
+        return new TaskMonitorLogger(fileSystem.getData().getTaskMonitor(), taskId);
+    }
+
+    public void stopTask(UUID id) {
+        fileSystem.getData().getTaskMonitor().stopTask(id);
+    }
+
+    public <U> U findService(Class<U> serviceClass) {
+        return fileSystem.getData().findService(serviceClass, storage.isRemote()).createService(this);
     }
 
     protected void notifyDependencyListeners() {

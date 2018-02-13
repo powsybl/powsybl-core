@@ -11,7 +11,7 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface ServiceExtension<U> {
+public interface ServiceExtension<T extends ProjectFile, U> {
 
     class ServiceKey<U> {
 
@@ -54,5 +54,5 @@ public interface ServiceExtension<U> {
 
     ServiceKey<U> getServiceKey();
 
-    U createService(TaskMonitor taskMonitor);
+    U createService(T projectFile);
 }

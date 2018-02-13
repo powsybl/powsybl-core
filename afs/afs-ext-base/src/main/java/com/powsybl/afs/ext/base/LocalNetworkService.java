@@ -21,13 +21,14 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 import java.util.Properties;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class LocalNetworkService implements NetworkService {
+public class LocalNetworkService<T extends ProjectFile & ProjectCase> implements NetworkService<T> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LocalNetworkService.class);
 
@@ -58,9 +59,12 @@ public class LocalNetworkService implements NetworkService {
         }
     }
 
+    private final T projectCase;
+
     private final Cache<String, ModifiedNetwork> networkCache;
 
-    public LocalNetworkService() {
+    public LocalNetworkService(T projectCase) {
+        this.projectCase = Objects.requireNonNull(projectCase);
         networkCache = CacheBuilder.newBuilder()
                 .maximumSize(50)
                 .expireAfterAccess(1, TimeUnit.HOURS)
@@ -116,20 +120,28 @@ public class LocalNetworkService implements NetworkService {
         }
     }
 
-    private <T extends ProjectFile & ProjectCase> ModifiedNetwork loadNetwork(T projectCase) {
+    private ModifiedNetwork loadNetwork(T projectCase) {
         Objects.requireNonNull(projectCase);
         try {
-            return networkCache.get(projectCase.getId(), () -> loadNetworkFromProjectCase(projectCase));
+            return networkCache.get(projectCase.getId(), () -> {
+                UUID taskId = projectCase.startTask();
+                try {
+                    projectCase.createLogger(taskId).log("Loading network...");
+                    return loadNetworkFromProjectCase(projectCase);
+                } finally {
+                    projectCase.stopTask(taskId);
+                }
+            });
         } catch (ExecutionException e) {
             throw new UncheckedExecutionException(e);
         }
     }
 
     @Override
-    public <T extends ProjectFile & ProjectCase> String queryNetwork(T projectCase, String groovyScript) {
+    public String queryNetwork(String groovyScript) {
         Objects.requireNonNull(projectCase);
         Objects.requireNonNull(groovyScript);
-        ScriptResult result = ScriptUtils.runScript(getNetwork(projectCase), ScriptType.GROOVY, groovyScript);
+        ScriptResult result = ScriptUtils.runScript(getNetwork(), ScriptType.GROOVY, groovyScript);
         String json = null;
         if (result.getError() == null) {
             if (result.getValue() != null) {
@@ -142,22 +154,22 @@ public class LocalNetworkService implements NetworkService {
     }
 
     @Override
-    public <T extends ProjectFile & ProjectCase> Network getNetwork(T projectCase) {
+    public Network getNetwork() {
         return loadNetwork(projectCase).getNetwork();
     }
 
     @Override
-    public <T extends ProjectFile & ProjectCase> ScriptError getScriptError(T projectCase) {
+    public ScriptError getScriptError() {
         return loadNetwork(projectCase).getScriptError();
     }
 
     @Override
-    public <T extends ProjectFile & ProjectCase> String getScriptOutput(T projectCase) {
+    public String getScriptOutput() {
         return loadNetwork(projectCase).getScriptOutput();
     }
 
     @Override
-    public <T extends ProjectFile & ProjectCase> void invalidateCache(T projectCase) {
+    public void invalidateCache() {
         Objects.requireNonNull(projectCase);
         networkCache.invalidate(projectCase.getId());
     }

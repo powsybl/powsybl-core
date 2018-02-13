@@ -12,15 +12,15 @@ import com.powsybl.iidm.network.Network;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface NetworkService {
+public interface NetworkService<T extends ProjectFile & ProjectCase> {
 
-    <T extends ProjectFile & ProjectCase> Network getNetwork(T projectCase);
+    Network getNetwork();
 
-    <T extends ProjectFile & ProjectCase> String queryNetwork(T projectCase, String groovyScript);
+    String queryNetwork(String groovyScript);
 
-    <T extends ProjectFile & ProjectCase> ScriptError getScriptError(T projectCase);
+    ScriptError getScriptError();
 
-    <T extends ProjectFile & ProjectCase> String getScriptOutput(T projectCase);
+    String getScriptOutput();
 
-    <T extends ProjectFile & ProjectCase> void invalidateCache(T projectCase);
+    void invalidateCache();
 }

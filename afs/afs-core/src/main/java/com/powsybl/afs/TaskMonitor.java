@@ -8,6 +8,7 @@ package com.powsybl.afs;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -16,31 +17,39 @@ public interface TaskMonitor {
 
     class Task {
 
-        private final ProjectFile projectFile;
+        private final UUID id;
+
+        private final String name;
 
         protected String message;
 
         protected long revision;
 
-        protected Task(ProjectFile projectFile, String message, long revision) {
-            this.projectFile = Objects.requireNonNull(projectFile);
+        protected Task(String name, String message, long revision) {
+            id = UUID.randomUUID();
+            this.name = name;
             this.message = message;
             this.revision = revision;
         }
 
-        protected Task(ProjectFile projectFile, long revision) {
-            this(projectFile, null, revision);
+        protected Task(String name, long revision) {
+            this(name, null, revision);
         }
 
         protected Task(Task other) {
             Objects.requireNonNull(other);
-            projectFile = other.projectFile;
+            id = other.id;
+            name = other.name;
             message = other.message;
             revision = other.revision;
         }
 
-        public ProjectFile getProjectFile() {
-            return projectFile;
+        public UUID getId() {
+            return id;
+        }
+
+        public String getName() {
+            return name;
         }
 
         public String getMessage() {
@@ -49,22 +58,6 @@ public interface TaskMonitor {
 
         public long getRevision() {
             return revision;
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(projectFile.getId(), message, revision);
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj instanceof Task) {
-                Task task = (Task) obj;
-                return task.projectFile.getId().equals(projectFile.getId()) &&
-                        task.revision == revision &&
-                        Objects.equals(task.message, message);
-            }
-            return false;
         }
     }
 
@@ -88,11 +81,11 @@ public interface TaskMonitor {
         }
     }
 
-    void startTask(ProjectFile projectFile);
+    Task startTask(ProjectFile projectFile);
 
-    void stopTask(ProjectFile projectFile);
+    void stopTask(UUID id);
 
-    void updateTaskMessage(ProjectFile projectFile, String message);
+    void updateTaskMessage(UUID id, String message);
 
     Snapshot takeSnapshot();
 
