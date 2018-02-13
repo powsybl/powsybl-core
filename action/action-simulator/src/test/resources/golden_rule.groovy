@@ -12,17 +12,10 @@ rule('golden') {
     apply 'respect'
 }
 
-rule('silver') {
-    description 'a silver rule'
-    when 2 > 1
-    life 1
-    apply 'respect'
-}
-
 action('respect') {
     tasks {
         script {
-            println "action done."
+            load('LOAD').p0 += 1
         }
     }
 }
