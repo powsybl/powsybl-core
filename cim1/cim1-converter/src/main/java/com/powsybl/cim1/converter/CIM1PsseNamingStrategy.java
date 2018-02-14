@@ -69,10 +69,10 @@ class CIM1PsseNamingStrategy implements CIM1NamingStrategy {
             for (cim1.model.SubGeographicalRegion r : model.getId_SubGeographicalRegion().values()) {
                 addName(idMapping, names, r);
             }
-            for (cim1.model.Substation s: model.getId_Substation().values()) {
+            for (cim1.model.Substation s : model.getId_Substation().values()) {
                 addName(idMapping, names, s);
             }
-            for (cim1.model.VoltageLevel vl: model.getId_VoltageLevel().values()) {
+            for (cim1.model.VoltageLevel vl : model.getId_VoltageLevel().values()) {
                 addName(idMapping, names, vl);
             }
             for (cim1.model.ACLineSegment l : model.getId_ACLineSegment().values()) {
@@ -90,10 +90,10 @@ class CIM1PsseNamingStrategy implements CIM1NamingStrategy {
             for (cim1.model.EnergyConsumer ec : model.getId_EnergyConsumer().values()) {
                 addName(idMapping, names, ec);
             }
-            for (cim1.model.ShuntCompensator sc: model.getId_ShuntCompensator().values()) {
+            for (cim1.model.ShuntCompensator sc : model.getId_ShuntCompensator().values()) {
                 addName(idMapping, names, sc);
             }
-            for (cim1.model.TopologicalNode tn: model.getId_TopologicalNode().values()) {
+            for (cim1.model.TopologicalNode tn : model.getId_TopologicalNode().values()) {
                 addName(idMapping, names, tn);
             }
         }

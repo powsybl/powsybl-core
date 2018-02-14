@@ -36,6 +36,8 @@ public class AppData implements AutoCloseable {
 
     private final Map<ServiceExtension.ServiceKey, Object> services = new HashMap<>();
 
+    private final TaskMonitor taskMonitor;
+
     private final Supplier<AppLogger> loggerFactory;
 
     private static class NoOpAppLogger implements AppLogger {
@@ -65,19 +67,21 @@ public class AppData implements AutoCloseable {
                 new ServiceLoaderCache<>(FileExtension.class).getServices(),
                 new ServiceLoaderCache<>(ProjectFileExtension.class).getServices(),
                 new ServiceLoaderCache<>(ServiceExtension.class).getServices(),
-                loggerFactory);
+                new LocalTaskMonitor(), loggerFactory);
     }
 
     public AppData(ComputationManager computationManager, List<AppFileSystemProvider> fileSystemProviders,
                    List<FileExtension> fileExtensions, List<ProjectFileExtension> projectFileExtensions,
                    List<ServiceExtension> serviceExtensions) {
-        this(computationManager, fileSystemProviders, fileExtensions, projectFileExtensions, serviceExtensions, NoOpAppLogger::new);
+        this(computationManager, fileSystemProviders, fileExtensions, projectFileExtensions, serviceExtensions,
+                new LocalTaskMonitor(), NoOpAppLogger::new);
     }
 
     public AppData(ComputationManager computationManager, List<AppFileSystemProvider> fileSystemProviders,
                    List<FileExtension> fileExtensions, List<ProjectFileExtension> projectFileExtensions,
-                   List<ServiceExtension> serviceExtensions, Supplier<AppLogger> loggerFactory) {
+                   List<ServiceExtension> serviceExtensions, TaskMonitor taskMonitor, Supplier<AppLogger> loggerFactory) {
         this.computationManager = Objects.requireNonNull(computationManager);
+        this.taskMonitor = Objects.requireNonNull(taskMonitor);
         this.loggerFactory = Objects.requireNonNull(loggerFactory);
         Objects.requireNonNull(fileSystemProviders);
         Objects.requireNonNull(fileExtensions);
@@ -98,7 +102,7 @@ public class AppData implements AutoCloseable {
             this.projectFileClasses.add(extension.getProjectFileClass());
         }
         for (ServiceExtension extension : serviceExtensions) {
-            this.services.put(extension.getServiceKey(), extension.createService());
+            this.services.put(extension.getServiceKey(), extension.createService(taskMonitor));
         }
     }
 
@@ -204,6 +208,10 @@ public class AppData implements AutoCloseable {
             throw new AfsException("No service found for key " + serviceKey + "");
         }
         return service;
+    }
+
+    public TaskMonitor getTaskMonitor() {
+        return taskMonitor;
     }
 
     @Override
