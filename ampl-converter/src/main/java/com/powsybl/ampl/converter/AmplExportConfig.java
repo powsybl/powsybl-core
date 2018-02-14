@@ -9,6 +9,9 @@ package com.powsybl.ampl.converter;
 
 import java.util.Objects;
 
+import com.powsybl.ampl.converter.AmplExportConfig.ExportActionType;
+import com.powsybl.ampl.converter.AmplExportConfig.ExportScope;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -46,15 +49,20 @@ public class AmplExportConfig {
 
     private boolean specificCompatibility;
 
+    private final AmplExtensionExportFactory extensionFactory;
+
     public AmplExportConfig(ExportScope exportScope, boolean exportXNodes, ExportActionType actionType) {
-        this(exportScope, exportXNodes, actionType, false);
+        this(exportScope, exportXNodes, actionType, false, false, null);
     }
 
-    public AmplExportConfig(ExportScope exportScope, boolean exportXNodes, ExportActionType actionType, boolean exportRatioTapChangerVoltageTarget) {
+    public AmplExportConfig(ExportScope exportScope, boolean exportXNodes, ExportActionType actionType, boolean exportRatioTapChangerVoltageTarget, boolean specificCompatibility,
+            AmplExtensionExportFactory extensionFactory) {
         this.exportScope = Objects.requireNonNull(exportScope);
         this.exportXNodes = exportXNodes;
         this.actionType = Objects.requireNonNull(actionType);
         this.exportRatioTapChangerVoltageTarget = exportRatioTapChangerVoltageTarget;
+        this.specificCompatibility = specificCompatibility;
+        this.extensionFactory = extensionFactory;
     }
 
     public ExportScope getExportScope() {
@@ -99,6 +107,9 @@ public class AmplExportConfig {
 
     public void setSpecificCompatibility(boolean specificCompatibility) {
         this.specificCompatibility = specificCompatibility;
+    }
+    public AmplExtensionExportFactory getExtensionFactory() {
+        return extensionFactory;
     }
 
 }

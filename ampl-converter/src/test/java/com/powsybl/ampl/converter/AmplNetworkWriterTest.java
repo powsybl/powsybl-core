@@ -9,8 +9,10 @@ package com.powsybl.ampl.converter;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.MemDataSource;
+import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.*;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -134,8 +136,21 @@ public class AmplNetworkWriterTest extends AbstractConverterTest {
         assertEqualsToRef(dataSource, "_network_substations", "inputs/dangling-line-substations.txt");
     }
 
+    @Test
+    public void writeExtension() throws IOException {
+        Network network = HvdcTestNetwork.createLcc();
+        HvdcLine l = network.getHvdcLine("L");
+        l.addExtension(FooExtension.class, new FooExtension());
+        MemDataSource dataSource = new MemDataSource();
+        export(network, dataSource);
+
+        assertEqualsToRef(dataSource, "foo-extension", "inputs/foo-extension.txt");
+    }
+
     private static void export(Network network, DataSource dataSource) {
         AmplExporter exporter = new AmplExporter();
-        exporter.export(network, new Properties(), dataSource);
+        Properties props = new Properties();
+        props.setProperty(AmplExporter.EXTENSION_EXPORT_FACTORY, "com.powsybl.ampl.converter.FooExtensionExportFactory");
+        exporter.export(network, props, dataSource);
     }
 }
