@@ -70,10 +70,18 @@ public class SecurityAnalysisImpl implements SecurityAnalysis {
     }
 
     @Override
-    public CompletableFuture<SecurityAnalysisResult> runAsync(ContingenciesProvider contingenciesProvider, String workingStateId, LoadFlowParameters loadFlowParameters, SecurityAnalysisParameters securityAnalysisParameters) {
+    public CompletableFuture<SecurityAnalysisResult> runAsync(ContingenciesProvider contingenciesProvider, String workingStateId, LoadFlowParameters loadFlowParameters) {
+        SecurityAnalysisParameters securityAnalysisParameters = new SecurityAnalysisParameters().setLoadFlowParameters(loadFlowParameters);
+        return runAsync(contingenciesProvider, workingStateId, securityAnalysisParameters);
+    }
+
+    @Override
+    public CompletableFuture<SecurityAnalysisResult> runAsync(ContingenciesProvider contingenciesProvider, String workingStateId, SecurityAnalysisParameters securityAnalysisParameters) {
         Objects.requireNonNull(contingenciesProvider);
         Objects.requireNonNull(workingStateId);
-        Objects.requireNonNull(loadFlowParameters);
+        Objects.requireNonNull(securityAnalysisParameters);
+
+        LoadFlowParameters loadFlowParameters = securityAnalysisParameters.getLoadFlowParameters();
 
         RunningContext context = new RunningContext(network, workingStateId);
 
@@ -160,7 +168,7 @@ public class SecurityAnalysisImpl implements SecurityAnalysis {
 
     @Override
     public CompletableFuture<SecurityAnalysisResult> runAsync(ContingenciesProvider contingenciesProvider, String workingStateId) {
-        return runAsync(contingenciesProvider, workingStateId, LoadFlowParameters.load(), SecurityAnalysisParameters.load());
+        return runAsync(contingenciesProvider, workingStateId, SecurityAnalysisParameters.load());
     }
 
     @Override

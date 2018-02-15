@@ -10,6 +10,7 @@ import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -25,19 +26,26 @@ public interface SecurityAnalysis {
         return false;
     }
 
+    default CompletableFuture<SecurityAnalysisResult> runAsync(ContingenciesProvider contingenciesProvider, String workingStateId, SecurityAnalysisParameters securityAnalysisParameters) {
+        Objects.requireNonNull(securityAnalysisParameters);
+        return runAsync(contingenciesProvider, workingStateId, securityAnalysisParameters.getLoadFlowParameters());
+    }
+
     /**
      * @deprecated Use CompletableFuture<SecurityAnalysisResult> runAsync(ContingenciesProvider, String, LoadFlowParameters, SecurityAnalysisParameters) instead
      */
     @Deprecated
-    default CompletableFuture<SecurityAnalysisResult> runAsync(ContingenciesProvider contingenciesProvider, String workingStateId, LoadFlowParameters parameters) {
-        throw new UnsupportedOperationException("Unimplemented method.");
-    }
+    CompletableFuture<SecurityAnalysisResult> runAsync(ContingenciesProvider contingenciesProvider, String workingStateId, LoadFlowParameters parameters);
 
-    default CompletableFuture<SecurityAnalysisResult> runAsync(ContingenciesProvider contingenciesProvider, String workingStateId, LoadFlowParameters loadFlowParameters, SecurityAnalysisParameters securityAnalysisParameters) {
-        return runAsync(contingenciesProvider, workingStateId, loadFlowParameters);
-    }
-
+    /**
+     * @deprecated Use CompletableFuture<SecurityAnalysisResult> runAsync(ContingenciesProvider, String, LoadFlowParameters, SecurityAnalysisParameters) instead
+     */
+    @Deprecated
     CompletableFuture<SecurityAnalysisResult> runAsync(ContingenciesProvider contingenciesProvider, String workingStateId);
 
+    /**
+     * @deprecated Use CompletableFuture<SecurityAnalysisResult> runAsync(ContingenciesProvider, String, LoadFlowParameters, SecurityAnalysisParameters) instead
+     */
+    @Deprecated
     CompletableFuture<SecurityAnalysisResult> runAsync(ContingenciesProvider contingenciesProvider);
 }

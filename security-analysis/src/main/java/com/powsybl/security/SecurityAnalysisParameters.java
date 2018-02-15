@@ -8,28 +8,55 @@ package com.powsybl.security;
 
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.AbstractExtendable;
-import com.powsybl.commons.extensions.Extension;
+import com.powsybl.loadflow.LoadFlowParameters;
 
+import java.util.Objects;
 import java.util.ServiceLoader;
 
 /**
+ * Parameters for security analysis computation.
+ * Extensions may be added, for instance for implementation-specific parameters.
+ *
  * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
+ * @author Sylvain LECLERC <sylvain.leclerc@rte-france.com>
  */
 public class SecurityAnalysisParameters extends AbstractExtendable<SecurityAnalysisParameters> {
 
+    private LoadFlowParameters loadFlowParameters = new LoadFlowParameters();
+
+    /**
+     * Load parameters from platform default config.
+     */
     public static SecurityAnalysisParameters load() {
         return load(PlatformConfig.defaultConfig());
     }
 
+    /**
+     * Load parameters from a provided platform config.
+     */
     public static SecurityAnalysisParameters load(PlatformConfig platformConfig) {
+        Objects.requireNonNull(platformConfig);
+
         SecurityAnalysisParameters parameters = new SecurityAnalysisParameters();
-        parameters.readExtension(platformConfig);
+        parameters.readExtensions(platformConfig);
+
+        parameters.setLoadFlowParameters(LoadFlowParameters.load(platformConfig));
+
         return parameters;
     }
 
-    public void readExtension(PlatformConfig platformConfig) {
-        for (ExtensionSAParametersSerializer e : ServiceLoader.load(ExtensionSAParametersSerializer.class)) {
-            addExtension(Extension.class, e.deserialize(platformConfig));
+    protected void readExtensions(PlatformConfig platformConfig) {
+        for (ParametersConfigLoader e : ServiceLoader.load(ParametersConfigLoader.class)) {
+            addExtension(e.getExtensionClass(), e.load(platformConfig));
         }
+    }
+
+    public LoadFlowParameters getLoadFlowParameters() {
+        return loadFlowParameters;
+    }
+
+    public SecurityAnalysisParameters setLoadFlowParameters(LoadFlowParameters loadFlowParameters) {
+        this.loadFlowParameters = Objects.requireNonNull(loadFlowParameters);
+        return this;
     }
 }

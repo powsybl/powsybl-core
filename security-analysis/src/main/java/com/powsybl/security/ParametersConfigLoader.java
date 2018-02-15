@@ -6,16 +6,15 @@
  */
 package com.powsybl.security;
 
-import com.powsybl.commons.config.PlatformConfig;
-import com.powsybl.commons.extensions.Extendable;
 import com.powsybl.commons.extensions.Extension;
-import com.powsybl.commons.extensions.ExtensionSerializer;
+import com.powsybl.commons.extensions.ExtensionConfigLoader;
 
 /**
+ * Loads an extension of {@link SecurityAnalysisParameters} from {@link com.powsybl.commons.config.PlatformConfig}
  *
  * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
+ * @author Sylvain LECLERC <sylvain.leclerc@rte-france.com>
  */
-public interface ExtensionSAParametersSerializer<T extends Extendable, E extends Extension<T>> extends ExtensionSerializer<T, E> {
+public interface ParametersConfigLoader<E extends Extension<SecurityAnalysisParameters> > extends ExtensionConfigLoader<SecurityAnalysisParameters, E> {
 
-    <E extends Extension<T>> E deserialize(PlatformConfig platformConfig);
 }

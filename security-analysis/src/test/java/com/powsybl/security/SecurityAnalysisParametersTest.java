@@ -6,51 +6,91 @@
  */
 package com.powsybl.security;
 
+import com.google.auto.service.AutoService;
+import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.AbstractExtension;
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
  */
 public class SecurityAnalysisParametersTest {
 
+    protected PlatformConfig config;
+
+    @Before
+    public void setUp() {
+        config = Mockito.mock(PlatformConfig.class);
+    }
+
     @Test
     public void testExtensions() {
         SecurityAnalysisParameters parameters = new SecurityAnalysisParameters();
-        ExtensionSecurityAnalysisParameters extensionSecurityAnalysisParameters = new ExtensionSecurityAnalysisParameters();
-        parameters.addExtension(ExtensionSecurityAnalysisParameters.class, extensionSecurityAnalysisParameters);
+        DummyExtension dummyExtension = new DummyExtension();
+        parameters.addExtension(DummyExtension.class, dummyExtension);
 
         assertEquals(1, parameters.getExtensions().size());
-        assertEquals(true, parameters.getExtensions().contains(extensionSecurityAnalysisParameters));
-        assertEquals(true, parameters.getExtensionByName("extensionSecurityAnalysisParameters") instanceof ExtensionSecurityAnalysisParameters);
-        assertEquals(true, parameters.getExtension(ExtensionSecurityAnalysisParameters.class) instanceof ExtensionSecurityAnalysisParameters);
+        assertEquals(true, parameters.getExtensions().contains(dummyExtension));
+        assertEquals(true, parameters.getExtensionByName("dummyExtension") instanceof DummyExtension);
+        assertEquals(true, parameters.getExtension(DummyExtension.class) instanceof DummyExtension);
     }
 
     @Test
     public void testNoExtensions() {
-        SecurityAnalysisParameters parameters = SecurityAnalysisParameters.load();
+        SecurityAnalysisParameters parameters = new SecurityAnalysisParameters();
 
         assertEquals(0, parameters.getExtensions().size());
-        assertEquals(false, parameters.getExtensions().contains(new ExtensionSecurityAnalysisParameters()));
-        assertEquals(false, parameters.getExtensionByName("extensionLoadFlowParameters") instanceof ExtensionSecurityAnalysisParameters);
-        assertEquals(false, parameters.getExtension(ExtensionSecurityAnalysisParameters.class) instanceof ExtensionSecurityAnalysisParameters);
+        assertEquals(false, parameters.getExtensions().contains(new DummyExtension()));
+        assertEquals(false, parameters.getExtensionByName("dummyExtension") instanceof DummyExtension);
+        assertEquals(false, parameters.getExtension(DummyExtension.class) instanceof DummyExtension);
     }
 
-    class ExtensionSecurityAnalysisParameters extends AbstractExtension<SecurityAnalysisParameters> {
+    @Test
+    public void testExtensionFromConfig() {
+        SecurityAnalysisParameters parameters = SecurityAnalysisParameters.load(config);
+
+        assertEquals(1, parameters.getExtensions().size());
+        assertEquals(true, parameters.getExtensionByName("dummyExtension") instanceof DummyExtension);
+        assertNotNull(parameters.getExtension(DummyExtension.class));
+    }
+
+    private static class DummyExtension extends AbstractExtension<SecurityAnalysisParameters> {
 
         @Override
         public String getName() {
-            return "extensionSecurityAnalysisParameters";
+            return "dummyExtension";
         }
+    }
 
-        public ExtensionSecurityAnalysisParameters() {
+    @AutoService(ParametersConfigLoader.class)
+    public static class DummyLoader implements ParametersConfigLoader<DummyExtension> {
+
+        public DummyLoader() {
         }
 
         @Override
-        public String toString() {
-            return "";
+        public DummyExtension load(PlatformConfig platformConfig) {
+            return new DummyExtension();
+        }
+
+        @Override
+        public String getExtensionName() {
+            return "dummyExtension";
+        }
+
+        @Override
+        public String getCategoryName() {
+            return "dummy-category";
+        }
+
+        @Override
+        public Class<? super DummyExtension> getExtensionClass() {
+            return DummyExtension.class;
         }
     }
 }
