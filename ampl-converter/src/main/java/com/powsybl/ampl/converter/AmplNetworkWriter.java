@@ -1699,11 +1699,6 @@ public class AmplNetworkWriter {
                 .writeCell(station.getName());
     }
 
-    private float getQ(float p, float powerFactor) {
-        // Q = - P * sqrt( 1/max(1E-3,min(1,getPowerFactor()))²-1) )
-        return (float) (-p * Math.sqrt(1 / Math.pow(Math.max(0.001, Math.min(1, powerFactor)), 2) - 1));
-    }
-
     private void writeConfig() throws IOException {
         try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_config", "txt", append), StandardCharsets.UTF_8);
                 TableFormatter formatter = new AmplDatTableFormatter(writer,
@@ -1711,17 +1706,36 @@ public class AmplNetworkWriter {
                                                                      AmplConstants.INVALID_FLOAT_VALUE,
                                                                      !append,
                                                                      AmplConstants.LOCALE,
-                                                                     new Column("property"),
-                                                                     new Column("value"))) {
+                                                                     new Column("Parameter"),
+                                                                     new Column("Value"))) {
 
             if (PlatformConfig.defaultConfig().moduleExists("amplOptimalPowerFlow")) {
                 ModuleConfig config = PlatformConfig.defaultConfig().getModuleConfig("amplOptimalPowerFlow");
                 for (String p : config.getPropertyNames()) {
-                    formatter.writeCell(p);
-                    formatter.writeCell(config.getStringProperty(p));
+                    if (p.matches("^[a-zA-Z0-9]*$") && isNumeric(config.getStringProperty(p))) {
+                        formatter.writeCell(p);
+                        formatter.writeCell(config.getStringProperty(p));
+                    }
                 }
             }
         }
+    }
+
+    private float getQ(float p, float powerFactor) {
+        // Q = - P * sqrt( 1/max(1E-3,min(1,getPowerFactor()))²-1) )
+        return (float) (-p * Math.sqrt(1 / Math.pow(Math.max(0.001, Math.min(1, powerFactor)), 2) - 1));
+    }
+
+    private boolean isNumeric(String s) {
+        if (s != null) {
+            try {
+                Double.parseDouble(s);
+                return true;
+            } catch (NumberFormatException e) {
+                return false;
+            }
+        }
+        return false;
     }
 
     public void write() throws IOException {
