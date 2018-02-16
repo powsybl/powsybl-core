@@ -11,10 +11,7 @@ import com.google.common.base.Suppliers;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedSaxException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
-import com.powsybl.commons.extensions.Extension;
-import com.powsybl.commons.extensions.ExtensionSerializerProvider;
-import com.powsybl.commons.extensions.ExtensionSerializerProviders;
-import com.powsybl.commons.extensions.ExtensionXmlSerializer;
+import com.powsybl.commons.extensions.*;
 import com.powsybl.iidm.network.*;
 import javanet.staxutils.IndentingXMLStreamWriter;
 import org.joda.time.DateTime;
@@ -57,8 +54,8 @@ public final class NetworkXml implements XmlConstants {
 
     private static final Supplier<XMLInputFactory> XML_INPUT_FACTORY_SUPPLIER = Suppliers.memoize(XMLInputFactory::newInstance);
 
-    private static final Supplier<ExtensionSerializerProvider<ExtensionXmlSerializer>> EXTENSIONS_SUPPLIER
-        = Suppliers.memoize(() -> ExtensionSerializerProviders.createProvider(ExtensionXmlSerializer.class, EXTENSION_CATEGORY_NAME));
+    private static final Supplier<ExtensionProviders<ExtensionXmlSerializer>> EXTENSIONS_SUPPLIER
+        = Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionXmlSerializer.class, EXTENSION_CATEGORY_NAME));
 
     private NetworkXml() {
     }
@@ -114,7 +111,7 @@ public final class NetworkXml implements XmlConstants {
     }
 
     static void validateWithExtensions(InputStream is) {
-        List<Source> additionalSchemas = EXTENSIONS_SUPPLIER.get().getSerializers().stream()
+        List<Source> additionalSchemas = EXTENSIONS_SUPPLIER.get().getProviders().stream()
             .map(e -> new StreamSource(e.getXsdAsStream()))
             .collect(Collectors.toList());
         validate(new StreamSource(is), additionalSchemas);
@@ -132,7 +129,7 @@ public final class NetworkXml implements XmlConstants {
         Set<String> extensionUris = new HashSet<>();
         Set<String> extensionPrefixes = new HashSet<>();
         for (String extensionName : getNetworkExtensions(n)) {
-            ExtensionXmlSerializer extensionXmlSerializer = EXTENSIONS_SUPPLIER.get().findSerializerOrThrowException(extensionName);
+            ExtensionXmlSerializer extensionXmlSerializer = EXTENSIONS_SUPPLIER.get().findProviderOrThrowException(extensionName);
             if (extensionUris.contains(extensionXmlSerializer.getNamespaceUri())) {
                 throw new PowsyblException("Extension namespace URI collision");
             } else {
@@ -156,7 +153,7 @@ public final class NetworkXml implements XmlConstants {
                 context.getWriter().writeAttribute("id", context.getAnonymizer().anonymizeString(identifiable.getId()));
 
                 for (Extension<? extends Identifiable<?>> extension : identifiable.getExtensions()) {
-                    ExtensionXmlSerializer extensionXmlSerializer = EXTENSIONS_SUPPLIER.get().findSerializerOrThrowException(extension.getName());
+                    ExtensionXmlSerializer extensionXmlSerializer = EXTENSIONS_SUPPLIER.get().findProviderOrThrowException(extension.getName());
                     if (extensionXmlSerializer.hasSubElements()) {
                         context.getWriter().writeStartElement(extensionXmlSerializer.getNamespaceUri(), extension.getName());
                     } else {
@@ -307,7 +304,7 @@ public final class NetworkXml implements XmlConstants {
                             public void onStartElement() throws XMLStreamException {
                                 if (topLevel) {
                                     String extensionName = reader.getLocalName();
-                                    ExtensionXmlSerializer extensionXmlSerializer = EXTENSIONS_SUPPLIER.get().findSerializer(extensionName);
+                                    ExtensionXmlSerializer extensionXmlSerializer = EXTENSIONS_SUPPLIER.get().findProvider(extensionName);
                                     if (extensionXmlSerializer != null) {
                                         Extension<? extends Identifiable<?>> extension = extensionXmlSerializer.read(identifiable, context);
                                         identifiable.addExtension(extensionXmlSerializer.getExtensionClass(), extension);
