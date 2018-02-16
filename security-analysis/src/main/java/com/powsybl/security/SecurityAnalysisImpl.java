@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, RTE (http://www.rte-france.com)
+ * Copyright (c) 2016-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -26,6 +26,7 @@ import java.util.function.Supplier;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
  */
 public class SecurityAnalysisImpl implements SecurityAnalysis {
 
@@ -69,10 +70,18 @@ public class SecurityAnalysisImpl implements SecurityAnalysis {
     }
 
     @Override
-    public CompletableFuture<SecurityAnalysisResult> runAsync(ContingenciesProvider contingenciesProvider, String workingStateId, LoadFlowParameters parameters) {
+    public CompletableFuture<SecurityAnalysisResult> runAsync(ContingenciesProvider contingenciesProvider, String workingStateId, LoadFlowParameters loadFlowParameters) {
+        SecurityAnalysisParameters securityAnalysisParameters = new SecurityAnalysisParameters().setLoadFlowParameters(loadFlowParameters);
+        return runAsync(contingenciesProvider, workingStateId, securityAnalysisParameters);
+    }
+
+    @Override
+    public CompletableFuture<SecurityAnalysisResult> runAsync(ContingenciesProvider contingenciesProvider, String workingStateId, SecurityAnalysisParameters securityAnalysisParameters) {
         Objects.requireNonNull(contingenciesProvider);
         Objects.requireNonNull(workingStateId);
-        Objects.requireNonNull(parameters);
+        Objects.requireNonNull(securityAnalysisParameters);
+
+        LoadFlowParameters loadFlowParameters = securityAnalysisParameters.getLoadFlowParameters();
 
         RunningContext context = new RunningContext(network, workingStateId);
 
@@ -82,9 +91,9 @@ public class SecurityAnalysisImpl implements SecurityAnalysis {
         final List<PostContingencyResult> postContingencyResults = Collections.synchronizedList(new ArrayList<>());
 
         // start post contingency LF from pre-contingency state variables
-        LoadFlowParameters postContParameters = parameters.copy().setVoltageInitMode(LoadFlowParameters.VoltageInitMode.PREVIOUS_VALUES);
+        LoadFlowParameters postContParameters = loadFlowParameters.copy().setVoltageInitMode(LoadFlowParameters.VoltageInitMode.PREVIOUS_VALUES);
 
-        return loadFlow.runAsync(workingStateId, parameters) // run base load flow
+        return loadFlow.runAsync(workingStateId, loadFlowParameters) // run base load flow
                 .thenComposeAsync(loadFlowResult -> {
                     network.getStateManager().setWorkingState(workingStateId);
 
@@ -159,7 +168,7 @@ public class SecurityAnalysisImpl implements SecurityAnalysis {
 
     @Override
     public CompletableFuture<SecurityAnalysisResult> runAsync(ContingenciesProvider contingenciesProvider, String workingStateId) {
-        return runAsync(contingenciesProvider, workingStateId, LoadFlowParameters.load());
+        return runAsync(contingenciesProvider, workingStateId, SecurityAnalysisParameters.load());
     }
 
     @Override
