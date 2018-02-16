@@ -101,7 +101,7 @@ public class LocalNetworkService implements NetworkService {
         ModificationScript script = virtualCase.getScript()
                                                .orElseThrow(VirtualCase::createScriptLinkIsDeadException);
 
-        LOGGER.info("Applying script to network of project case " + virtualCase.getId());
+        LOGGER.info("Applying script to network of project case {}", virtualCase.getId());
 
         return applyScript(modifiedNetwork.getNetwork(), modifiedNetwork.getScriptOutput(), script);
     }

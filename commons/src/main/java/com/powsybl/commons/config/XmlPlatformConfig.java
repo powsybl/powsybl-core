@@ -33,6 +33,9 @@ public class XmlPlatformConfig extends InMemoryPlatformConfig {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(XmlPlatformConfig.class);
 
+    /**
+     * @deprecated Use XmlPlatformConfig(FileSystem, Path, Path, String) instead.
+     */
     @Deprecated
     public XmlPlatformConfig(Path configDir, String configName, FileSystem fs)
             throws IOException, SAXException, ParserConfigurationException {

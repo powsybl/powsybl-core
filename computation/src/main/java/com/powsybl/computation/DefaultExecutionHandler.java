@@ -11,7 +11,8 @@ import java.nio.file.Path;
 import java.util.List;
 
 /**
- * Use {@link AbstractExecutionHandler} instead
+ * @deprecated Use {@link AbstractExecutionHandler} instead.
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @param <R>
  */

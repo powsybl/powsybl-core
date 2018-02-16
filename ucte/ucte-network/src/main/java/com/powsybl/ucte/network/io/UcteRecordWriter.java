@@ -9,6 +9,7 @@ package com.powsybl.ucte.network.io;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.util.Locale;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -53,7 +54,8 @@ class UcteRecordWriter {
     }
 
     private String alignAndTruncate(String str, int strLen, Alignment alignment) {
-        String formattedStr = String.format(java.util.Locale.US, "%" + (alignment.equals(Alignment.LEFT) ? "-" : "") + strLen + "s", str);
+        String format = String.format(Locale.US, alignment.equals(Alignment.LEFT) ? "%%-%ds" : "%%%ds", strLen);
+        String formattedStr = String.format(Locale.US, format, str);
         return formattedStr.substring(0, strLen);
     }
 

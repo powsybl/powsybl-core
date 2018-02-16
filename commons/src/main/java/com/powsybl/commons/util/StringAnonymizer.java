@@ -50,12 +50,8 @@ public class StringAnonymizer {
         if (str == null) {
             return null;
         }
-        String str2 = mapping.get(str);
-        if (str2 == null) {
-            str2 = getAlpha(mapping.size() + 1);
-            mapping.put(str, str2);
-        }
-        return str2;
+
+        return mapping.computeIfAbsent(str, k -> getAlpha(mapping.size() + 1));
     }
 
     public String deanonymize(String str) {
