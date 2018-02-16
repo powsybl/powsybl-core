@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017, RTE (http://www.rte-france.com)
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -9,6 +9,8 @@ package com.powsybl.loadflow.validation.io;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Objects;
+
+import org.apache.commons.lang3.ArrayUtils;
 
 import com.powsybl.commons.io.table.Column;
 import com.powsybl.commons.io.table.TableFormatterConfig;
@@ -26,150 +28,192 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
 
     public ValidationFormatterCsvMultilineWriter(String id, Class<? extends TableFormatterFactory> formatterFactoryClass,
                                             TableFormatterConfig formatterConfig, Writer writer, boolean verbose,
-                                            ValidationType validationType) {
+                                            ValidationType validationType, boolean compareResults) {
         Objects.requireNonNull(id);
         Objects.requireNonNull(formatterFactoryClass);
         Objects.requireNonNull(writer);
         this.verbose = verbose;
-        Objects.requireNonNull(validationType);
+        this.validationType = Objects.requireNonNull(validationType);
+        this.compareResults = compareResults;
         formatter = createTableFormatter(id, formatterFactoryClass, formatterConfig, writer, validationType);
     }
 
     public ValidationFormatterCsvMultilineWriter(String id, Class<? extends TableFormatterFactory> formatterFactoryClass,
-                                            Writer writer, boolean verbose, ValidationType validationType) {
-        this(id, formatterFactoryClass, TableFormatterConfig.load(), writer, verbose, validationType);
+                                            Writer writer, boolean verbose, ValidationType validationType, boolean compareResults) {
+        this(id, formatterFactoryClass, TableFormatterConfig.load(), writer, verbose, validationType, compareResults);
     }
 
     protected Column[] getColumns() {
-        return new Column[] {
+        Column[] columns = new Column[] {
             new Column("id"),
             new Column("characteristic"),
             new Column("value")
         };
+        if (compareResults) {
+            columns = ArrayUtils.add(columns, new Column("value" + POST_LF_SUFFIX));
+        }
+        return columns;
     }
 
     @Override
-    public void write(String branchId, double p1, double p1Calc, double q1, double q1Calc, double p2, double p2Calc, double q2, double q2Calc,
-                      double r, double x, double g1, double g2, double b1, double b2, double rho1, double rho2, double alpha1, double alpha2,
-                      double u1, double u2, double theta1, double theta2, double z, double y, double ksi, boolean connected1, boolean connected2,
-                      boolean mainComponent1, boolean mainComponent2, boolean validated) throws IOException {
-        Objects.requireNonNull(branchId);
-        formatter.writeCell(branchId).writeCell("network_p1").writeCell(p1)
-                 .writeCell(branchId).writeCell("expected_p1").writeCell(p1Calc)
-                 .writeCell(branchId).writeCell("network_q1").writeCell(q1)
-                 .writeCell(branchId).writeCell("expected_q1").writeCell(q1Calc)
-                 .writeCell(branchId).writeCell("network_p2").writeCell(p2)
-                 .writeCell(branchId).writeCell("expected_p2").writeCell(p2Calc)
-                 .writeCell(branchId).writeCell("network_q2").writeCell(q2)
-                 .writeCell(branchId).writeCell("expected_q2").writeCell(q2Calc);
+    protected void write(String branchId, double p1, double p1Calc, double q1, double q1Calc, double p2, double p2Calc, double q2, double q2Calc,
+                         double r, double x, double g1, double g2, double b1, double b2, double rho1, double rho2, double alpha1, double alpha2,
+                         double u1, double u2, double theta1, double theta2, double z, double y, double ksi, boolean connected1, boolean connected2,
+                         boolean mainComponent1, boolean mainComponent2, boolean validated, FlowData flowData, boolean found, boolean writeValues) throws IOException {
+        write(branchId, "network_p1", found, flowData.p1, writeValues, p1);
+        write(branchId, "expected_p1", found, flowData.p1Calc, writeValues, p1Calc);
+        write(branchId, "network_q1", found, flowData.q1, writeValues, q1);
+        write(branchId, "expected_q1", found, flowData.q1Calc, writeValues, q1Calc);
+        write(branchId, "network_p2", found, flowData.p2, writeValues, p2);
+        write(branchId, "expected_p2", found, flowData.p2Calc, writeValues, p2Calc);
+        write(branchId, "network_q2", found, flowData.q2, writeValues, q2);
+        write(branchId, "expected_q2", found, flowData.q2Calc, writeValues, q2Calc);
         if (verbose) {
-            formatter.writeCell(branchId).writeCell("r").writeCell(r)
-                     .writeCell(branchId).writeCell("x").writeCell(x)
-                     .writeCell(branchId).writeCell("g1").writeCell(g1)
-                     .writeCell(branchId).writeCell("g2").writeCell(g2)
-                     .writeCell(branchId).writeCell("b1").writeCell(b1)
-                     .writeCell(branchId).writeCell("b2").writeCell(b2)
-                     .writeCell(branchId).writeCell("rho1").writeCell(rho1)
-                     .writeCell(branchId).writeCell("rho2").writeCell(rho2)
-                     .writeCell(branchId).writeCell("alpha1").writeCell(alpha1)
-                     .writeCell(branchId).writeCell("alpha2").writeCell(alpha2)
-                     .writeCell(branchId).writeCell("u1").writeCell(u1)
-                     .writeCell(branchId).writeCell("u2").writeCell(u2)
-                     .writeCell(branchId).writeCell("theta1").writeCell(theta1)
-                     .writeCell(branchId).writeCell("theta2").writeCell(theta2)
-                     .writeCell(branchId).writeCell("z").writeCell(z)
-                     .writeCell(branchId).writeCell("y").writeCell(y)
-                     .writeCell(branchId).writeCell("ksi").writeCell(ksi)
-                     .writeCell(branchId).writeCell("connected1").writeCell(connected1)
-                     .writeCell(branchId).writeCell("connected2").writeCell(connected2)
-                     .writeCell(branchId).writeCell("mainComponent1").writeCell(mainComponent1)
-                     .writeCell(branchId).writeCell("mainComponent2").writeCell(mainComponent2)
-                     .writeCell(branchId).writeCell(VALIDATION).writeCell(validated ? SUCCESS : FAIL);
+            write(branchId, "r", found, flowData.r, writeValues, r);
+            write(branchId, "x", found, flowData.x, writeValues, x);
+            write(branchId, "g1", found, flowData.g1, writeValues, g1);
+            write(branchId, "g2", found, flowData.g2, writeValues, g2);
+            write(branchId, "b1", found, flowData.b1, writeValues, b1);
+            write(branchId, "b2", found, flowData.b2, writeValues, b2);
+            write(branchId, "rho1", found, flowData.rho1, writeValues, rho1);
+            write(branchId, "rho2", found, flowData.rho2, writeValues, rho2);
+            write(branchId, "alpha1", found, flowData.alpha1, writeValues, alpha1);
+            write(branchId, "alpha2", found, flowData.alpha2, writeValues, alpha2);
+            write(branchId, "u1", found, flowData.u1, writeValues, u1);
+            write(branchId, "u2", found, flowData.u2, writeValues, u2);
+            write(branchId, "theta1", found, flowData.theta1, writeValues, theta1);
+            write(branchId, "theta2", found, flowData.theta2, writeValues, theta2);
+            write(branchId, "z", found, flowData.z, writeValues, z);
+            write(branchId, "y", found, flowData.y, writeValues, y);
+            write(branchId, "ksi", found, flowData.ksi, writeValues, ksi);
+            write(branchId, "connected1", found, flowData.connected1, writeValues, connected1);
+            write(branchId, "connected2", found, flowData.connected2, writeValues, connected2);
+            write(branchId, "mainComponent1", found, flowData.mainComponent1, writeValues, mainComponent1);
+            write(branchId, "mainComponent2", found, flowData.mainComponent2, writeValues, mainComponent2);
+            write(branchId, VALIDATION, found, getValidated(flowData.validated), writeValues, getValidated(validated));
         }
     }
 
     @Override
-    public void write(String generatorId, float p, float q, float v, float targetP, float targetQ, float targetV,
-                      boolean connected, boolean voltageRegulatorOn, float minQ, float maxQ, boolean validated) throws IOException {
-        Objects.requireNonNull(generatorId);
-        formatter.writeCell(generatorId).writeCell("p").writeCell(-p)
-                 .writeCell(generatorId).writeCell("q").writeCell(-q)
-                 .writeCell(generatorId).writeCell("v").writeCell(v)
-                 .writeCell(generatorId).writeCell("targetP").writeCell(targetP)
-                 .writeCell(generatorId).writeCell("targetQ").writeCell(targetQ)
-                 .writeCell(generatorId).writeCell("targetV").writeCell(targetV);
+    protected void write(String generatorId, float p, float q, float v, float targetP, float targetQ, float targetV,
+            boolean connected, boolean voltageRegulatorOn, float minQ, float maxQ, boolean validated,
+            GeneratorData generatorData, boolean found, boolean writeValues) throws IOException {
+        write(generatorId, "p", found, -generatorData.p, writeValues, -p);
+        write(generatorId, "q", found, -generatorData.q, writeValues, -q);
+        write(generatorId, "v", found, generatorData.v, writeValues, v);
+        write(generatorId, "targetP", found, generatorData.targetP, writeValues, targetP);
+        write(generatorId, "targetQ", found, generatorData.targetQ, writeValues, targetQ);
+        write(generatorId, "targetV", found, generatorData.targetV, writeValues, targetV);
         if (verbose) {
-            formatter.writeCell(generatorId).writeCell(CONNECTED).writeCell(connected)
-                     .writeCell(generatorId).writeCell("voltageRegulatorOn").writeCell(voltageRegulatorOn)
-                     .writeCell(generatorId).writeCell("minQ").writeCell(minQ)
-                     .writeCell(generatorId).writeCell("maxQ").writeCell(maxQ)
-                     .writeCell(generatorId).writeCell(VALIDATION).writeCell(validated ? SUCCESS : FAIL);
+            write(generatorId, CONNECTED, found, generatorData.connected, writeValues, connected);
+            write(generatorId, "voltageRegulatorOn", found, generatorData.voltageRegulatorOn, writeValues, voltageRegulatorOn);
+            write(generatorId, "minQ", found, generatorData.minQ, writeValues, minQ);
+            write(generatorId, "maxQ", found, generatorData.maxQ, writeValues, maxQ);
+            write(generatorId, VALIDATION, found, getValidated(generatorData.validated), writeValues, getValidated(validated));
         }
     }
 
     @Override
-    public void write(String busId, double incomingP, double incomingQ, double loadP, double loadQ, double genP, double genQ,
-                      double shuntP, double shuntQ, double svcP, double svcQ, double vscCSP, double vscCSQ, double lineP, double lineQ,
-                      double twtP, double twtQ, double tltP, double tltQ, boolean validated) throws IOException {
-        Objects.requireNonNull(busId);
-        formatter.writeCell(busId).writeCell("incomingP").writeCell(incomingP)
-                 .writeCell(busId).writeCell("incomingQ").writeCell(incomingQ)
-                 .writeCell(busId).writeCell("loadP").writeCell(loadP)
-                 .writeCell(busId).writeCell("loadQ").writeCell(loadQ);
+    protected void write(String busId, double incomingP, double incomingQ, double loadP, double loadQ, double genP, double genQ,
+                         double shuntP, double shuntQ, double svcP, double svcQ, double vscCSP, double vscCSQ, double lineP, double lineQ,
+                         double twtP, double twtQ, double tltP, double tltQ, boolean validated, BusData busData, boolean found,
+                         boolean writeValues) throws IOException {
+        write(busId, "incomingP", found, busData.incomingP, writeValues, incomingP);
+        write(busId, "incomingQ", found, busData.incomingQ, writeValues, incomingQ);
+        write(busId, "loadP", found, busData.loadP, writeValues, loadP);
+        write(busId, "loadQ", found, busData.loadQ, writeValues, loadQ);
         if (verbose) {
-            formatter.writeCell(busId).writeCell("genP").writeCell(genP)
-                     .writeCell(busId).writeCell("genQ").writeCell(genQ)
-                     .writeCell(busId).writeCell("shuntP").writeCell(shuntP)
-                     .writeCell(busId).writeCell("shuntQ").writeCell(shuntQ)
-                     .writeCell(busId).writeCell("svcP").writeCell(svcP)
-                     .writeCell(busId).writeCell("svcQ").writeCell(svcQ)
-                     .writeCell(busId).writeCell("vscCSP").writeCell(vscCSP)
-                     .writeCell(busId).writeCell("vscCSQ").writeCell(vscCSQ)
-                     .writeCell(busId).writeCell("lineP").writeCell(lineP)
-                     .writeCell(busId).writeCell("lineQ").writeCell(lineQ)
-                     .writeCell(busId).writeCell("twtP").writeCell(twtP)
-                     .writeCell(busId).writeCell("twtQ").writeCell(twtQ)
-                     .writeCell(busId).writeCell("tltP").writeCell(tltP)
-                     .writeCell(busId).writeCell("tltQ").writeCell(tltQ)
-                     .writeCell(busId).writeCell(VALIDATION).writeCell(validated ? SUCCESS : FAIL);
+            write(busId, "genP", found, busData.genP, writeValues, genP);
+            write(busId, "genQ", found, busData.genQ, writeValues, genQ);
+            write(busId, "shuntP", found, busData.shuntP, writeValues, shuntP);
+            write(busId, "shuntQ", found, busData.shuntQ, writeValues, shuntQ);
+            write(busId, "svcP", found, busData.svcP, writeValues, svcP);
+            write(busId, "svcQ", found, busData.svcQ, writeValues, svcQ);
+            write(busId, "vscCSP", found, busData.vscCSP, writeValues, vscCSP);
+            write(busId, "vscCSQ", found, busData.vscCSQ, writeValues, vscCSQ);
+            write(busId, "lineP", found, busData.lineP, writeValues, lineP);
+            write(busId, "lineQ", found, busData.lineQ, writeValues, lineQ);
+            write(busId, "twtP", found, busData.twtP, writeValues, twtP);
+            write(busId, "twtQ", found, busData.twtQ, writeValues, twtQ);
+            write(busId, "tltP", found, busData.tltP, writeValues, tltP);
+            write(busId, "tltQ", found, busData.tltQ, writeValues, tltQ);
+            write(busId, VALIDATION, found, getValidated(busData.validated), writeValues, getValidated(validated));
         }
     }
 
     @Override
-    public void write(String svcId, float p, float q, float v, float reactivePowerSetpoint, float voltageSetpoint,
-                      boolean connected, RegulationMode regulationMode, float bMin, float bMax, boolean validated) throws IOException {
-        Objects.requireNonNull(svcId);
-        formatter.writeCell(svcId).writeCell("p").writeCell(-p)
-                 .writeCell(svcId).writeCell("q").writeCell(-q)
-                 .writeCell(svcId).writeCell("v").writeCell(v)
-                 .writeCell(svcId).writeCell("reactivePowerSetpoint").writeCell(reactivePowerSetpoint)
-                 .writeCell(svcId).writeCell("voltageSetpoint").writeCell(voltageSetpoint);
+    protected void write(String svcId, float p, float q, float v, float reactivePowerSetpoint, float voltageSetpoint,
+                         boolean connected, RegulationMode regulationMode, float bMin, float bMax, boolean validated,
+                         SvcData svcData, boolean found, boolean writeValues) throws IOException {
+        write(svcId, "p", found, -svcData.p, writeValues, -p);
+        write(svcId, "q", found, -svcData.q, writeValues, -q);
+        write(svcId, "v", found, svcData.v, writeValues, v);
+        write(svcId, "reactivePowerSetpoint", found, svcData.reactivePowerSetpoint, writeValues, reactivePowerSetpoint);
+        write(svcId, "voltageSetpoint", found, svcData.voltageSetpoint, writeValues, voltageSetpoint);
         if (verbose) {
-            formatter.writeCell(svcId).writeCell(CONNECTED).writeCell(connected)
-                     .writeCell(svcId).writeCell("regulationMode").writeCell(regulationMode.name())
-                     .writeCell(svcId).writeCell("bMin").writeCell(bMin)
-                     .writeCell(svcId).writeCell("bMax").writeCell(bMax)
-                     .writeCell(svcId).writeCell(VALIDATION).writeCell(validated ? SUCCESS : FAIL);
+            write(svcId, CONNECTED, found, svcData.connected, writeValues, connected);
+            write(svcId, "regulationMode", found, svcData.regulationMode.name(), writeValues, regulationMode.name());
+            write(svcId, "bMin", found, svcData.bMin, writeValues, bMin);
+            write(svcId, "bMax", found, svcData.bMax, writeValues, bMax);
+            write(svcId, VALIDATION, found, getValidated(svcData.validated), writeValues, getValidated(validated));
         }
     }
 
-    @Override
-    public void write(String shuntId, float q, float expectedQ, float p, int currentSectionCount, int maximumSectionCount,
-                      float bPerSection, float v, boolean connected, float qMax, float nominalV, boolean validated) throws IOException {
-        Objects.requireNonNull(shuntId);
-        formatter.writeCell(shuntId).writeCell("q").writeCell(q)
-                 .writeCell(shuntId).writeCell("expectedQ").writeCell(expectedQ);
+    protected void write(String shuntId, float q, float expectedQ, float p, int currentSectionCount, int maximumSectionCount,
+                         float bPerSection, float v, boolean connected, float qMax, float nominalV, boolean validated,
+                         ShuntData shuntData, boolean found, boolean writeValues) throws IOException {
+        write(shuntId, "q", found, shuntData.q, writeValues, q);
+        write(shuntId, "expectedQ", found, shuntData.expectedQ, writeValues, expectedQ);
         if (verbose) {
-            formatter.writeCell(shuntId).writeCell("p").writeCell(p)
-                     .writeCell(shuntId).writeCell("currentSectionCount").writeCell(currentSectionCount)
-                     .writeCell(shuntId).writeCell("maximumSectionCount").writeCell(maximumSectionCount)
-                     .writeCell(shuntId).writeCell("bPerSection").writeCell(bPerSection)
-                     .writeCell(shuntId).writeCell("v").writeCell(v)
-                     .writeCell(shuntId).writeCell(CONNECTED).writeCell(connected)
-                     .writeCell(shuntId).writeCell("qMax").writeCell(qMax)
-                     .writeCell(shuntId).writeCell("nominalV").writeCell(nominalV)
-                     .writeCell(shuntId).writeCell(VALIDATION).writeCell(validated ? SUCCESS : FAIL);
+            write(shuntId, "p", found, shuntData.p, writeValues, p);
+            write(shuntId, "currentSectionCount", found, shuntData.currentSectionCount, writeValues, currentSectionCount);
+            write(shuntId, "maximumSectionCount", found, shuntData.maximumSectionCount, writeValues, maximumSectionCount);
+            write(shuntId, "bPerSection", found, shuntData.bPerSection, writeValues, bPerSection);
+            write(shuntId, "v", found, shuntData.v, writeValues, v);
+            write(shuntId, CONNECTED, found, shuntData.connected, writeValues, connected);
+            write(shuntId, "qMax", found, shuntData.qMax, writeValues, qMax);
+            write(shuntId, "nominalV", found, shuntData.nominalV, writeValues, nominalV);
+            write(shuntId, VALIDATION, found, getValidated(shuntData.validated), writeValues, getValidated(validated));
         }
     }
 
+    private void write(String id, String label, boolean writeFirst, float first, boolean writeSecond, float second) throws IOException {
+        formatter.writeCell(id).writeCell(label);
+        if (compareResults) {
+            formatter = writeFirst ? formatter.writeCell(first) : formatter.writeEmptyCell();
+        }
+        formatter = writeSecond ? formatter.writeCell(second) : formatter.writeEmptyCell();
+    }
+
+    private void write(String id, String label, boolean writeFirst, double first, boolean writeSecond, double second) throws IOException {
+        formatter.writeCell(id).writeCell(label);
+        if (compareResults) {
+            formatter = writeFirst ? formatter.writeCell(first) : formatter.writeEmptyCell();
+        }
+        formatter = writeSecond ? formatter.writeCell(second) : formatter.writeEmptyCell();
+    }
+
+    private void write(String id, String label, boolean writeFirst, int first, boolean writeSecond, int second) throws IOException {
+        formatter.writeCell(id).writeCell(label);
+        if (compareResults) {
+            formatter = writeFirst ? formatter.writeCell(first) : formatter.writeEmptyCell();
+        }
+        formatter = writeSecond ? formatter.writeCell(second) : formatter.writeEmptyCell();
+    }
+
+    private void write(String id, String label, boolean writeFirst, boolean first, boolean writeSecond, boolean second) throws IOException {
+        formatter.writeCell(id).writeCell(label);
+        if (compareResults) {
+            formatter = writeFirst ? formatter.writeCell(first) : formatter.writeEmptyCell();
+        }
+        formatter = writeSecond ? formatter.writeCell(second) : formatter.writeEmptyCell();
+    }
+
+    private void write(String id, String label, boolean writeFirst, String first, boolean writeSecond, String second) throws IOException {
+        formatter.writeCell(id).writeCell(label);
+        if (compareResults) {
+            formatter = writeFirst ? formatter.writeCell(first) : formatter.writeEmptyCell();
+        }
+        formatter = writeSecond ? formatter.writeCell(second) : formatter.writeEmptyCell();
+    }
 }

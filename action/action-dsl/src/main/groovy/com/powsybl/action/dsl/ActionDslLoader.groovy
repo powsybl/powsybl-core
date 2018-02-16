@@ -6,6 +6,7 @@
  */
 package com.powsybl.action.dsl
 
+import com.powsybl.action.dsl.ast.BooleanLiteralNode
 import com.powsybl.action.dsl.ast.ExpressionNode
 import com.powsybl.action.dsl.spi.DslTaskExtension
 import com.powsybl.contingency.BranchContingency
@@ -54,6 +55,11 @@ class ActionDslLoader extends DslLoader {
         void when(ExpressionNode when) {
             assert when != null
             this.when = when
+        }
+
+        void when(boolean b) {
+            ExpressionNode node = new BooleanLiteralNode(b)
+            when(node)
         }
 
         void apply(String[] apply) {
