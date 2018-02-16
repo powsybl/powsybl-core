@@ -150,7 +150,7 @@ public class AmplNetworkWriterTest extends AbstractConverterTest {
     private static void export(Network network, DataSource dataSource) {
         AmplExporter exporter = new AmplExporter();
         Properties props = new Properties();
-        props.setProperty(AmplExporter.EXTENSION_EXPORT_FACTORY, "com.powsybl.ampl.converter.FooExtensionExportFactory");
+        props.setProperty(AmplExporter.EXTENSION_EXPORT_FACTORY_PROPERTY, "com.powsybl.ampl.converter.FooExtensionExportFactory");
         exporter.export(network, props, dataSource);
     }
 }
