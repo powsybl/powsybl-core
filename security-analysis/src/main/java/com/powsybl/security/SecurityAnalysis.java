@@ -32,19 +32,19 @@ public interface SecurityAnalysis {
     }
 
     /**
-     * @deprecated Use CompletableFuture<SecurityAnalysisResult> runAsync(ContingenciesProvider, String, LoadFlowParameters, SecurityAnalysisParameters) instead
+     * @deprecated Use CompletableFuture<SecurityAnalysisResult> runAsync(ContingenciesProvider, String, SecurityAnalysisParameters) instead
      */
     @Deprecated
     CompletableFuture<SecurityAnalysisResult> runAsync(ContingenciesProvider contingenciesProvider, String workingStateId, LoadFlowParameters parameters);
 
     /**
-     * @deprecated Use CompletableFuture<SecurityAnalysisResult> runAsync(ContingenciesProvider, String, LoadFlowParameters, SecurityAnalysisParameters) instead
+     * @deprecated Use CompletableFuture<SecurityAnalysisResult> runAsync(ContingenciesProvider, String, SecurityAnalysisParameters) instead
      */
     @Deprecated
     CompletableFuture<SecurityAnalysisResult> runAsync(ContingenciesProvider contingenciesProvider, String workingStateId);
 
     /**
-     * @deprecated Use CompletableFuture<SecurityAnalysisResult> runAsync(ContingenciesProvider, String, LoadFlowParameters, SecurityAnalysisParameters) instead
+     * @deprecated Use CompletableFuture<SecurityAnalysisResult> runAsync(ContingenciesProvider, String, SecurityAnalysisParameters) instead
      */
     @Deprecated
     CompletableFuture<SecurityAnalysisResult> runAsync(ContingenciesProvider contingenciesProvider);

@@ -70,9 +70,6 @@ public class SecurityAnalysisParametersTest {
     @AutoService(ParametersConfigLoader.class)
     public static class DummyLoader implements ParametersConfigLoader<DummyExtension> {
 
-        public DummyLoader() {
-        }
-
         @Override
         public DummyExtension load(PlatformConfig platformConfig) {
             return new DummyExtension();
@@ -85,7 +82,7 @@ public class SecurityAnalysisParametersTest {
 
         @Override
         public String getCategoryName() {
-            return "dummy-category";
+            return "security-analysis-parameters";
         }
 
         @Override
