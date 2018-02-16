@@ -70,6 +70,12 @@ public class AmplNetworkWriter {
     private static final String FAULT = "fault";
     private static final String DESCRIPTION = "description";
     private static final String SUBSTATION = "substation";
+    private static final String TARGET_V = "targetV (pu)";
+    private static final String CON_BUS = "con. bus";
+    private static final String MAXP = "maxP (MW)";
+    private static final String V_REGUL = "v regul.";
+    private static final String ACTIVE_POWER = "P (MW)";
+    private static final String REACTIVE_POWER = "Q (MVar)";
 
     private final Network network;
 
@@ -1223,7 +1229,7 @@ public class AmplNetworkWriter {
                                                                   AmplConstants.LOCALE,
                                                                   new Column("num"),
                                                                   new Column("bus"),
-                                                                  new Column("con. bus"),
+                                                                  new Column(CON_BUS),
                                                                   new Column(SUBSTATION),
                                                                   new Column("minB (pu)"),
                                                                   new Column("maxB (pu)"),
@@ -1233,8 +1239,8 @@ public class AmplNetworkWriter {
                                                                   new Column(config.getActionType().getLabel()),
                                                                   new Column("id"),
                                                                   new Column(DESCRIPTION),
-                                                                  new Column("P (MW)"),
-                                                                  new Column("Q (MVar)"))) {
+                                                                  new Column(ACTIVE_POWER),
+                                                                  new Column(REACTIVE_POWER))) {
             List<String> skipped = new ArrayList<>();
             for (ShuntCompensator sc : network.getShunts()) {
                 Terminal t = sc.getTerminal();
@@ -1298,16 +1304,16 @@ public class AmplNetworkWriter {
                                                                   AmplConstants.LOCALE,
                                                                   new Column("num"),
                                                                   new Column("bus"),
-                                                                  new Column("con. bus"),
+                                                                  new Column(CON_BUS),
                                                                   new Column(SUBSTATION),
                                                                   new Column("minB (S)"),
                                                                   new Column("maxB (S)"),
-                                                                  new Column("v regul."),
-                                                                  new Column("targetV (pu)"),
+                                                                  new Column(V_REGUL),
+                                                                  new Column(TARGET_V),
                                                                   new Column(FAULT),
                                                                   new Column(config.getActionType().getLabel()),
-                                                                  new Column("P (MW)"),
-                                                                  new Column("Q (MVar)"),
+                                                                  new Column(ACTIVE_POWER),
+                                                                  new Column(REACTIVE_POWER),
                                                                   new Column("id"))) {
             List<String> skipped = new ArrayList<>();
             for (StaticVarCompensator svc : network.getStaticVarCompensators()) {
@@ -1362,24 +1368,24 @@ public class AmplNetworkWriter {
                                                                   AmplConstants.LOCALE,
                                                                   new Column("num"),
                                                                   new Column("bus"),
-                                                                  new Column("con. bus"),
+                                                                  new Column(CON_BUS),
                                                                   new Column(SUBSTATION),
                                                                   new Column("minP (MW)"),
-                                                                  new Column("maxP (MW)"),
+                                                                  new Column(MAXP),
                                                                   new Column("minQmaxP (MVar)"),
                                                                   new Column("minQminP (MVar)"),
                                                                   new Column("maxQmaxP (MVar)"),
                                                                   new Column("maxQminP (MVar)"),
-                                                                  new Column("v regul."),
-                                                                  new Column("targetV (pu)"),
+                                                                  new Column(V_REGUL),
+                                                                  new Column(TARGET_V),
                                                                   new Column("targetP (MW)"),
                                                                   new Column("targetQ (MVar)"),
                                                                   new Column(FAULT),
                                                                   new Column(config.getActionType().getLabel()),
                                                                   new Column("id"),
                                                                   new Column(DESCRIPTION),
-                                                                  new Column("P (MW)"),
-                                                                  new Column("Q (MVar)"))) {
+                                                                  new Column(ACTIVE_POWER),
+                                                                  new Column(REACTIVE_POWER))) {
             List<String> skipped = new ArrayList<>();
             for (Generator g : network.getGenerators()) {
                 Terminal t = g.getTerminal();
@@ -1527,7 +1533,7 @@ public class AmplNetworkWriter {
                                                                   new Column("nomV (KV)"),
                                                                   new Column("convertersMode"),
                                                                   new Column("targetP (MW)"),
-                                                                  new Column("maxP (MW)"),
+                                                                  new Column(MAXP),
                                                                   new Column("converterStation1"),
                                                                   new Column("converterStation2"))) {
             List<String> skipped = new ArrayList<>();
@@ -1561,40 +1567,38 @@ public class AmplNetworkWriter {
                                                                   AmplConstants.LOCALE,
                                                                   new Column("num"),
                                                                   new Column("bus"),
-                                                                  new Column("con. bus"),
+                                                                  new Column(CON_BUS),
                                                                   new Column(SUBSTATION),
                                                                   new Column("type"),
                                                                   new Column("minP (MW)"),
-                                                                  new Column("maxP (MW)"),
+                                                                  new Column(MAXP),
                                                                   new Column("minQmaxP (MVar)"),
                                                                   new Column("minQ0 (MVar)"),
                                                                   new Column("minQminP (MVar)"),
                                                                   new Column("maxQmaxP (MVar)"),
                                                                   new Column("maxQ0 (MVar)"),
                                                                   new Column("maxQminP (MVar)"),
-                                                                  new Column("v regul."),
-                                                                  new Column("targetV (pu)"),
+                                                                  new Column(V_REGUL),
+                                                                  new Column(TARGET_V),
                                                                   new Column("targetQ (MVar)"),
                                                                   new Column("lossFactor (%PDC)"),
                                                                   new Column("powerFactor"),
                                                                   new Column(FAULT),
                                                                   new Column(config.getActionType().getLabel()),
-                                                                  new Column("P (MW)"),
-                                                                  new Column("Q (MVar)"),
+                                                                  new Column(ACTIVE_POWER),
+                                                                  new Column(REACTIVE_POWER),
                                                                   new Column("id"),
                                                                   new Column(DESCRIPTION))) {
 
             HashMap<String, HvdcLine> lineMap = new HashMap();
-            for (HvdcLine line : network.getHvdcLines()) {
-                HvdcConverterStation s1 = line.getConverterStation1();
-                HvdcConverterStation s2 = line.getConverterStation2();
-                if (s1 != null) {
-                    lineMap.put(s1.getId(), line);
+            network.getHvdcLines().forEach(line -> {
+                if (line.getConverterStation1() != null) {
+                    lineMap.put(line.getConverterStation1().getId(), line);
                 }
-                if (s1 != null) {
-                    lineMap.put(s2.getId(), line);
+                if (line.getConverterStation2() != null) {
+                    lineMap.put(line.getConverterStation2().getId(), line);
                 }
-            }
+            });
 
             List<String> skipped = new ArrayList<>();
             for (HvdcConverterStation hvdcStation : network.getHvdcConverterStations()) {
@@ -1612,12 +1616,7 @@ public class AmplNetworkWriter {
                 if (conBus != null) {
                     conBusNum = mapper.getInt(AmplSubset.BUS, conBus.getId());
                 }
-
-                float maxP = Float.NaN;
-                HvdcLine line = lineMap.get(id);
-                if (line != null) {
-                    maxP = line.getMaxP();
-                }
+                float maxP = lineMap.get(id) != null ? lineMap.get(id).getMaxP() : Float.NaN;
 
                 if (hvdcStation.getHvdcType().equals(HvdcType.VSC)) {
                     writeVscConverterStation((VscConverterStation) hvdcStation, formatter, busNum, conBusNum, maxP);
@@ -1710,11 +1709,11 @@ public class AmplNetworkWriter {
                                                                      new Column("Value"))) {
 
             if (PlatformConfig.defaultConfig().moduleExists("amplOptimalPowerFlow")) {
-                ModuleConfig config = PlatformConfig.defaultConfig().getModuleConfig("amplOptimalPowerFlow");
-                for (String p : config.getPropertyNames()) {
-                    if (p.matches("^[a-zA-Z0-9]*$") && isNumeric(config.getStringProperty(p))) {
+                ModuleConfig moduleConfig = PlatformConfig.defaultConfig().getModuleConfig("amplOptimalPowerFlow");
+                for (String p : moduleConfig.getPropertyNames()) {
+                    if (p.matches("^[a-zA-Z0-9]*$") && isNumeric(moduleConfig.getStringProperty(p))) {
                         formatter.writeCell(p);
-                        formatter.writeCell(config.getStringProperty(p));
+                        formatter.writeCell(moduleConfig.getStringProperty(p));
                     }
                 }
             }
