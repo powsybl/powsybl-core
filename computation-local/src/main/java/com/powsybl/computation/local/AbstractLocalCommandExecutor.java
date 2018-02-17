@@ -14,8 +14,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public abstract class AbstractLocalCommandExecutor implements LocalCommandExecutor {
 
-    protected Map<Path, Process> processMap = new HashMap<>();
-    protected ReadWriteLock lock = new ReentrantReadWriteLock();
+    protected final Map<Path, Process> processMap = new HashMap<>();
+    protected final ReadWriteLock lock = new ReentrantReadWriteLock();
 
     @Override
     public void stop(Path workingDir) {
