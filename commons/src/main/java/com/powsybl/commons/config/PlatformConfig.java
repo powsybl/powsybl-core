@@ -26,14 +26,17 @@ import java.util.Objects;
  */
 public class PlatformConfig {
 
+    /**
+     * @deprecated Use getDefaultConfigDir() instead.
+     */
     @Deprecated
     public static final Path CONFIG_DIR;
 
+    /**
+     * @deprecated Use getDefaultCacheDir() instead.
+     */
     @Deprecated
     public static final Path CACHE_DIR;
-
-    @Deprecated
-    private static final String CONFIG_NAME;
 
     private static PlatformConfig defaultConfig;
 
@@ -49,8 +52,6 @@ public class PlatformConfig {
 
     static {
         CONFIG_DIR = FileUtil.createDirectory(getDefaultConfigDir(FileSystems.getDefault()));
-
-        CONFIG_NAME = System.getProperty("itools.config.name");
 
         CACHE_DIR = FileUtil.createDirectory(getDefaultCacheDir(FileSystems.getDefault()));
     }

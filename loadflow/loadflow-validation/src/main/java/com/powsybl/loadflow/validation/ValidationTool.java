@@ -1,15 +1,20 @@
 /**
- * Copyright (c) 2017, RTE (http://www.rte-france.com)
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 package com.powsybl.loadflow.validation;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.EnumMap;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -25,6 +30,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.StateManager;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
+import com.powsybl.loadflow.validation.io.ValidationWriter;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
 import com.powsybl.tools.ToolRunningContext;
@@ -42,6 +48,7 @@ public class ValidationTool implements Tool {
     private static final String VERBOSE = "verbose";
     private static final String OUTPUT_FORMAT = "output-format";
     private static final String TYPES = "types";
+    private static final String COMPARE_RESULTS = "compare-results";
 
     private static final Command COMMAND = new Command() {
 
@@ -91,6 +98,9 @@ public class ValidationTool implements Tool {
                     .hasArg()
                     .argName("VALIDATION_TYPE,VALIDATION_TYPE,...")
                     .build());
+            options.addOption(Option.builder().longOpt(COMPARE_RESULTS)
+                    .desc("print output files with results both before and after the loadflow")
+                    .build());
             return options;
         }
 
@@ -120,22 +130,8 @@ public class ValidationTool implements Tool {
         if (line.hasOption(OUTPUT_FORMAT)) {
             config.setValidationOutputWriter(ValidationOutputWriter.valueOf(line.getOptionValue(OUTPUT_FORMAT)));
         }
-        context.getOutputStream().println("Loading case " + caseFile);
-        Network network = Importers.loadNetwork(caseFile);
-        if (network == null) {
-            throw new PowsyblException("Case " + caseFile + " not found");
-        }
-        if (line.hasOption(LOAD_FLOW)) {
-            context.getOutputStream().println("Running loadflow on network " + network.getId());
-            LoadFlowParameters parameters = LoadFlowParameters.load();
-            LoadFlow loadFlow = config.getLoadFlowFactory().newInstance().create(network, context.getComputationManager(), 0);
-            loadFlow.runAsync(StateManager.INITIAL_STATE_ID, parameters)
-                    .thenAccept(loadFlowResult -> {
-                        if (!loadFlowResult.isOk()) {
-                            throw new PowsyblException("Loadflow on network " + network.getId() + " does not converge");
-                        }
-                    })
-                    .join();
+        if (line.hasOption(COMPARE_RESULTS)) {
+            config.setCompareResults(true);
         }
         Set<ValidationType> validationTypes = Sets.newHashSet(ValidationType.values());
         if (line.hasOption(TYPES)) {
@@ -143,17 +139,81 @@ public class ValidationTool implements Tool {
                                     .map(ValidationType::valueOf)
                                     .collect(Collectors.toSet());
         }
-        validationTypes.forEach(validationType -> {
-            try {
-                context.getOutputStream().println("Validate load-flow results of network " + network.getId()
-                                                  + " - validation type: " + validationType
-                                                  + " - result: " + (validationType.check(network, config, outputFolder) ? "success" : "fail"));
-            } catch (Exception e) {
-                context.getErrorStream().println("Error validating load-flow results of network " + network.getId()
-                                                 + " - validation type: " + validationType
-                                                 + " - error: " + e.getMessage());
+        context.getOutputStream().println("Loading case " + caseFile);
+        Network network = Importers.loadNetwork(caseFile);
+        if (network == null) {
+            throw new PowsyblException("Case " + caseFile + " not found");
+        }
+        try (ValidationWriters validationWriters = new ValidationWriters(network.getId(), validationTypes, outputFolder, config)) {
+            if (config.isCompareResults()) {
+                context.getOutputStream().println("Running pre-loadflow validation on network " + network.getId());
+                runValidation(network, config, validationTypes, validationWriters, context);
             }
+            if (line.hasOption(LOAD_FLOW) || config.isCompareResults()) {
+                context.getOutputStream().println("Running loadflow on network " + network.getId());
+                LoadFlowParameters parameters = LoadFlowParameters.load();
+                LoadFlow loadFlow = config.getLoadFlowFactory().newInstance().create(network, context.getComputationManager(), 0);
+                loadFlow.runAsync(StateManager.INITIAL_STATE_ID, parameters)
+                        .thenAccept(loadFlowResult -> {
+                            if (!loadFlowResult.isOk()) {
+                                throw new PowsyblException("Loadflow on network " + network.getId() + " does not converge");
+                            }
+                        })
+                        .join();
+                context.getOutputStream().println("Running post-loadflow validation on network " + network.getId());
+            }
+            runValidation(network, config, validationTypes, validationWriters, context);
+        }
+    }
+
+    private void runValidation(Network network, ValidationConfig config, Set<ValidationType> validationTypes, ValidationWriters validationWriter, ToolRunningContext context) {
+        validationTypes.forEach(validationType -> {
+            context.getOutputStream().println("Validate load-flow results of network " + network.getId()
+                                              + " - validation type: " + validationType
+                                              + " - result: " + (validationType.check(network, config, validationWriter.getWriter(validationType)) ? "success" : "fail"));
+            validationWriter.getWriter(validationType).setValidationCompleted();
         });
+    }
+
+    class ValidationWriters implements AutoCloseable {
+
+        final EnumMap<ValidationType, Writer> writers = new EnumMap<>(ValidationType.class);
+        final EnumMap<ValidationType, ValidationWriter> validationWriters = new EnumMap<>(ValidationType.class);
+
+        ValidationWriters(String networkId, Set<ValidationType> validationTypes, Path folder, ValidationConfig config) {
+            validationTypes.forEach(validationType -> {
+                try {
+                    Writer writer = Files.newBufferedWriter(validationType.getOutputFile(folder), StandardCharsets.UTF_8);
+                    writers.put(validationType, writer);
+                    validationWriters.put(validationType, ValidationUtils.createValidationWriter(networkId, config, writer, validationType));
+                } catch (IOException e) {
+                    throw new UncheckedIOException(e);
+                }
+            });
+        }
+
+        ValidationWriter getWriter(ValidationType validationType) {
+            return validationWriters.get(validationType);
+        }
+
+        @Override
+        public void close() throws Exception {
+            validationWriters.values().forEach(validationWriter -> {
+                try {
+                    validationWriter.close();
+                } catch (IOException e) {
+                    throw new UncheckedIOException(e);
+                }
+            });
+            writers.values().forEach(writer -> {
+                try {
+                    writer.close();
+                } catch (IOException e) {
+                    throw new UncheckedIOException(e);
+                }
+            });
+        }
+
     }
 
 }

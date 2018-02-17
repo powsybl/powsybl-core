@@ -42,6 +42,9 @@ public interface ModuleConfig {
 
     int getIntProperty(String name);
 
+    /**
+     * @deprecated Use getOptionalIntegerProperty(String) instead.
+     */
     @Deprecated
     Integer getOptionalIntProperty(String name);
 
@@ -63,6 +66,9 @@ public interface ModuleConfig {
 
     boolean getBooleanProperty(String name, boolean defaultValue);
 
+    /**
+     * @deprecated Use getOptionalBooleanProperty(String) instead.
+     */
     @Deprecated
     Boolean getOptinalBooleanProperty(String name);
 

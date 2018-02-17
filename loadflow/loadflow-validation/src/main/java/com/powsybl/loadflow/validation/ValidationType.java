@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017, RTE (http://www.rte-france.com)
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -11,6 +11,7 @@ import java.nio.file.Path;
 import java.util.Objects;
 
 import com.powsybl.iidm.network.Network;
+import com.powsybl.loadflow.validation.io.ValidationWriter;
 
 /**
  *
@@ -47,6 +48,30 @@ public enum ValidationType {
             default:
                 throw new AssertionError("Unexpected ValidationType value: " + this);
         }
+    }
+
+    public boolean check(Network network, ValidationConfig config, ValidationWriter validationWriter) {
+        Objects.requireNonNull(network);
+        Objects.requireNonNull(config);
+        Objects.requireNonNull(validationWriter);
+        switch (this) {
+            case FLOWS:
+                return FlowsValidation.checkFlows(network, config, validationWriter);
+            case GENERATORS:
+                return GeneratorsValidation.checkGenerators(network, config, validationWriter);
+            case BUSES:
+                return BusesValidation.checkBuses(network, config, validationWriter);
+            case SVCS:
+                return StaticVarCompensatorsValidation.checkSVCs(network, config, validationWriter);
+            case SHUNTS:
+                return ShuntCompensatorsValidation.checkShunts(network, config, validationWriter);
+            default:
+                throw new AssertionError("Unexpected ValidationType value: " + this);
+        }
+    }
+
+    public Path getOutputFile(Path folder) {
+        return folder.resolve(file);
     }
 
 }

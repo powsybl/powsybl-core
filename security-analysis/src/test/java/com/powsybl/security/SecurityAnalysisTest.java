@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017, RTE (http://www.rte-france.com)
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -16,7 +16,6 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.StateManager;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.loadflow.LoadFlowFactory;
-import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.mock.LoadFlowFactoryMock;
 import com.powsybl.security.extensions.ActivePowerExtension;
 import com.powsybl.security.extensions.CurrentExtension;
@@ -28,13 +27,12 @@ import org.mockito.Mockito;
 import java.util.Collections;
 import java.util.concurrent.Executor;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  *
  * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
+ * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
  */
 public class SecurityAnalysisTest {
 
@@ -86,7 +84,7 @@ public class SecurityAnalysisTest {
         securityAnalysis.addInterceptor(new SecurityAnalysisInterceptorMock());
         securityAnalysis.addInterceptor(new CurrentLimitViolationInterceptor());
 
-        SecurityAnalysisResult result = securityAnalysis.runAsync(contingenciesProvider, StateManager.INITIAL_STATE_ID, new LoadFlowParameters()).join();
+        SecurityAnalysisResult result = securityAnalysis.runAsync(contingenciesProvider, StateManager.INITIAL_STATE_ID, new SecurityAnalysisParameters()).join();
 
         assertTrue(result.getPreContingencyResult().isComputationOk());
         assertEquals(0, result.getPreContingencyResult().getLimitViolations().size());

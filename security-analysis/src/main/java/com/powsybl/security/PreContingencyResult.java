@@ -9,6 +9,8 @@ package com.powsybl.security;
 import java.util.List;
 
 /**
+ * @deprecated Use LimitViolationsResult instead.
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */

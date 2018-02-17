@@ -13,5 +13,7 @@ public enum LimitViolationType {
     CURRENT,
     LOW_VOLTAGE,
     HIGH_VOLTAGE,
+    LOW_SHORT_CIRCUIT_CURRENT,
+    HIGH_SHORT_CIRCUIT_CURRENT,
     OTHER
 }
