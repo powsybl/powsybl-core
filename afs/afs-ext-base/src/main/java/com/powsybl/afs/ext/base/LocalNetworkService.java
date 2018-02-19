@@ -167,6 +167,7 @@ public class LocalNetworkService implements NetworkService {
 
     @Override
     public <T extends ProjectFile & ProjectCase> void invalidateCache(T projectCase) {
+        Objects.requireNonNull(projectCase);
         networkCache.invalidate(projectCase.getId());
     }
 }
