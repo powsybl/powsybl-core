@@ -573,11 +573,7 @@ public class CsvMpiStatistics implements MpiStatistics {
                 public void onTaskEnd(StatisticsReader.TaskExecution task, StatisticsReader.JobExecution job) {
                     if (task.workingDataSize != null) {
                         String slaveId = task.slaveRank + "_" + task.slaveThread;
-                        AtomicLong workingDataSize = workingDataSizePerSlave.get(slaveId);
-                        if (workingDataSize == null) {
-                            workingDataSize = new AtomicLong();
-                            workingDataSizePerSlave.put(slaveId, workingDataSize);
-                        }
+                        AtomicLong workingDataSize = workingDataSizePerSlave.computeIfAbsent(slaveId, k -> new AtomicLong());
                         workingDataSize.addAndGet(task.workingDataSize);
                         totalWorkingDataSize[0] += task.workingDataSize;
                     }

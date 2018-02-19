@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017, RTE (http://www.rte-france.com)
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -18,8 +18,8 @@ import com.powsybl.loadflow.validation.ValidationType;
 public class ValidationFormatterCsvWriterFactory implements ValidationWriterFactory {
 
     @Override
-    public ValidationWriter create(String id, Class<? extends TableFormatterFactory> formatterFactoryClass, Writer writer, boolean verbose, ValidationType validationType) {
-        return new ValidationFormatterCsvWriter(id, formatterFactoryClass, writer, verbose, validationType);
+    public ValidationWriter create(String id, Class<? extends TableFormatterFactory> formatterFactoryClass, Writer writer, boolean verbose, ValidationType validationType, boolean compareResults) {
+        return new ValidationFormatterCsvWriter(id, formatterFactoryClass, writer, verbose, validationType, compareResults);
     }
 
 }
