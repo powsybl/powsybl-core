@@ -23,6 +23,9 @@ public interface ComputationManager extends AutoCloseable {
 
     OutputStream newCommonFile(String fileName) throws IOException;
 
+    /**
+     * @deprecated Use execute(ExecutionEnvironment, ExecutionHandler<R>) instead.
+     */
     @Deprecated
     CommandExecutor newCommandExecutor(Map<String, String> env, String workingDirPrefix, boolean debug) throws Exception;
 

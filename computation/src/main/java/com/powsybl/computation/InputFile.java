@@ -31,7 +31,7 @@ public class InputFile {
     }
 
     public InputFile(Function<Integer, String> nameFunc, FilePreProcessor preProcessor) {
-        this.name = new FunctionFileName(nameFunc, name -> checkName(name, preProcessor));
+        this.name = new FunctionFileName(nameFunc, fileName -> checkName(fileName, preProcessor));
         this.preProcessor = preProcessor;
     }
 

@@ -24,6 +24,9 @@ public interface ExecutionHandler<R> {
         onProgress(execution, executionIndex);
     }
 
+    /**
+     * @deprecated Use onExecutionCompletion(CommandExecution, int) instead.
+     */
     @Deprecated
     void onProgress(CommandExecution execution, int executionIndex);
 
