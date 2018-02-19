@@ -643,7 +643,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Mult
                 setComponentNumber(bus, result.getComponentNumber()[i]);
             }
 
-            LOGGER.debug(getComponentLabel() + " components computed in {} ms", System.currentTimeMillis() - startTime);
+            LOGGER.debug("{} components computed in {} ms", getComponentLabel(), System.currentTimeMillis() - startTime);
         }
 
         List<C> getConnectedComponents() {

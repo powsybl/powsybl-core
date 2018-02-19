@@ -190,6 +190,6 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine, S
 
     @Override
     protected String getTypeDescription() {
-        return "hvdcLine";
+        return TYPE_DESCRIPTION;
     }
 }

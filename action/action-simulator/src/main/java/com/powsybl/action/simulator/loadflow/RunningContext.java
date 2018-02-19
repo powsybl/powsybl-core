@@ -59,12 +59,7 @@ public class RunningContext {
     }
 
     private AtomicInteger getRuleMatchCountInternal(String ruleId) {
-        AtomicInteger count = rulesMatchCount.get(ruleId);
-        if (count == null) {
-            count = new AtomicInteger();
-            rulesMatchCount.put(ruleId, count);
-        }
-        return count;
+        return rulesMatchCount.computeIfAbsent(ruleId, k -> new AtomicInteger());
     }
 
     public int getRuleMatchCount(String ruleId) {

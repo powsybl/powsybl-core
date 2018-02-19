@@ -7,7 +7,7 @@
 package com.powsybl.iidm.network;
 
 /**
- * Use {@link Injection} instead.
+ * @deprecated Use {@link Injection} instead.
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */

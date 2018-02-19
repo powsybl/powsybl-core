@@ -30,6 +30,9 @@ public interface Tool {
         run(line);
     }
 
+    /**
+     * @deprecated Use run(CommandLine, ToolRunningContext) instead.
+     */
     @Deprecated
     default void run(CommandLine line) throws Exception {
     }

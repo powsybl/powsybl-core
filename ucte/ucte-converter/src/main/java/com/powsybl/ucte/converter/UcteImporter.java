@@ -217,8 +217,8 @@ public class UcteImporter implements Importer {
 
         UcteNode ucteXnode = ucteNetwork.getNode(ucteXnodeCode);
 
-        LOGGER.warn("Create small impedance dangling line '{}' (coupler connected to XNODE '{}')",
-                xNodeName + yNodeName, ucteXnode.getCode());
+        LOGGER.warn("Create small impedance dangling line '{}{}' (coupler connected to XNODE '{}')",
+                xNodeName, yNodeName, ucteXnode.getCode());
 
         float p0 = 0;
         if (isValueValid(ucteXnode.getActiveLoad())) {
@@ -515,8 +515,8 @@ public class UcteImporter implements Importer {
 
         UcteNode ucteXnode = ucteNetwork.getNode(xNodeCode);
 
-        LOGGER.warn("Create small impedance dangling line '{}' (transformer connected to XNODE '{}')",
-                xNodeName + yNodeName, ucteXnode.getCode());
+        LOGGER.warn("Create small impedance dangling line '{}{}' (transformer connected to XNODE '{}')",
+                xNodeName, yNodeName, ucteXnode.getCode());
 
         float p0 = 0;
         if (isValueValid(ucteXnode.getActiveLoad())) {
