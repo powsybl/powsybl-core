@@ -154,5 +154,6 @@ public class LocalTaskMonitor implements TaskMonitor {
 
     @Override
     public void close() {
+        // nothing to clean
     }
 }
