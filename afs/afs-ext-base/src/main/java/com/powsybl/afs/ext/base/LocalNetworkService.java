@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 import java.util.Properties;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -31,7 +32,7 @@ public class LocalNetworkService implements NetworkService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LocalNetworkService.class);
 
-    private final class ModifiedNetwork {
+    private static final class ModifiedNetwork {
 
         private final Network network;
 
@@ -68,7 +69,7 @@ public class LocalNetworkService implements NetworkService {
                 .build();
     }
 
-    private ModifiedNetwork loadNetworkFromImportedCase(ImportedCase importedCase) {
+    private static ModifiedNetwork loadNetworkFromImportedCase(ImportedCase importedCase) {
         LOGGER.info("Loading network of project case {}", importedCase.getId());
 
         Importer importer = importedCase.getImporter();
@@ -78,7 +79,7 @@ public class LocalNetworkService implements NetworkService {
         return new ModifiedNetwork(network, null, "");
     }
 
-    private ModifiedNetwork applyScript(Network network, String previousScriptOutput, ModificationScript script) {
+    private static ModifiedNetwork applyScript(Network network, String previousScriptOutput, ModificationScript script) {
         ScriptResult result = ScriptUtils.runScript(network, script.getScriptType(), script.readScript());
         if (result.getError() == null) {
             return new ModifiedNetwork(network, null, previousScriptOutput + result.getOutput());
@@ -88,7 +89,7 @@ public class LocalNetworkService implements NetworkService {
         }
     }
 
-    private ModifiedNetwork loadNetworkFromVirtualCase(VirtualCase virtualCase) {
+    private static ModifiedNetwork loadNetworkFromVirtualCase(VirtualCase virtualCase) {
         ProjectCase baseCase = virtualCase.getCase()
                                           .orElseThrow(() -> new AfsException("Case link is dead"));
 
@@ -106,7 +107,7 @@ public class LocalNetworkService implements NetworkService {
         return applyScript(modifiedNetwork.getNetwork(), modifiedNetwork.getScriptOutput(), script);
     }
 
-    private ModifiedNetwork loadNetworkFromProjectCase(ProjectCase projectCase) {
+    private static ModifiedNetwork loadNetworkFromProjectCase(ProjectCase projectCase) {
         if (projectCase instanceof ImportedCase) {
             return loadNetworkFromImportedCase((ImportedCase) projectCase);
         } else if (projectCase instanceof VirtualCase) {
@@ -119,7 +120,15 @@ public class LocalNetworkService implements NetworkService {
     private <T extends ProjectFile & ProjectCase> ModifiedNetwork loadNetwork(T projectCase) {
         Objects.requireNonNull(projectCase);
         try {
-            return networkCache.get(projectCase.getId(), () -> loadNetworkFromProjectCase(projectCase));
+            return networkCache.get(projectCase.getId(), () -> {
+                UUID taskId = projectCase.startTask();
+                try {
+                    projectCase.createLogger(taskId).log("Loading network...");
+                    return loadNetworkFromProjectCase(projectCase);
+                } finally {
+                    projectCase.stopTask(taskId);
+                }
+            });
         } catch (ExecutionException e) {
             throw new UncheckedExecutionException(e);
         }

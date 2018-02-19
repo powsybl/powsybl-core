@@ -7,7 +7,6 @@
 package com.powsybl.afs.ext.base;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.afs.TaskMonitor;
 import com.powsybl.afs.ServiceExtension;
 
 /**
@@ -22,7 +21,7 @@ public class LocalNetworkServiceExtension implements ServiceExtension<NetworkSer
     }
 
     @Override
-    public NetworkService createService(TaskMonitor taskMonitor) {
+    public NetworkService createService() {
         return new LocalNetworkService();
     }
 }
