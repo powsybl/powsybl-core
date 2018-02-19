@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class LocalNetworkService<T extends ProjectFile & ProjectCase> implements NetworkService {
+public class LocalNetworkService implements NetworkService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LocalNetworkService.class);
 
@@ -59,12 +59,9 @@ public class LocalNetworkService<T extends ProjectFile & ProjectCase> implements
         }
     }
 
-    private final T projectCase;
-
     private final Cache<String, ModifiedNetwork> networkCache;
 
-    public LocalNetworkService(T projectCase) {
-        this.projectCase = Objects.requireNonNull(projectCase);
+    public LocalNetworkService() {
         networkCache = CacheBuilder.newBuilder()
                 .maximumSize(50)
                 .expireAfterAccess(1, TimeUnit.HOURS)
@@ -120,7 +117,8 @@ public class LocalNetworkService<T extends ProjectFile & ProjectCase> implements
         }
     }
 
-    private ModifiedNetwork loadNetwork() {
+    private <T extends ProjectFile & ProjectCase> ModifiedNetwork loadNetwork(T projectCase) {
+        Objects.requireNonNull(projectCase);
         try {
             return networkCache.get(projectCase.getId(), () -> {
                 UUID taskId = projectCase.startTask();
@@ -137,9 +135,10 @@ public class LocalNetworkService<T extends ProjectFile & ProjectCase> implements
     }
 
     @Override
-    public String queryNetwork(String groovyScript) {
+    public <T extends ProjectFile & ProjectCase> String queryNetwork(T projectCase, String groovyScript) {
+        Objects.requireNonNull(projectCase);
         Objects.requireNonNull(groovyScript);
-        ScriptResult result = ScriptUtils.runScript(getNetwork(), ScriptType.GROOVY, groovyScript);
+        ScriptResult result = ScriptUtils.runScript(getNetwork(projectCase), ScriptType.GROOVY, groovyScript);
         String json = null;
         if (result.getError() == null) {
             if (result.getValue() != null) {
@@ -152,22 +151,22 @@ public class LocalNetworkService<T extends ProjectFile & ProjectCase> implements
     }
 
     @Override
-    public Network getNetwork() {
-        return loadNetwork().getNetwork();
+    public <T extends ProjectFile & ProjectCase> Network getNetwork(T projectCase) {
+        return loadNetwork(projectCase).getNetwork();
     }
 
     @Override
-    public ScriptError getScriptError() {
-        return loadNetwork().getScriptError();
+    public <T extends ProjectFile & ProjectCase> ScriptError getScriptError(T projectCase) {
+        return loadNetwork(projectCase).getScriptError();
     }
 
     @Override
-    public String getScriptOutput() {
-        return loadNetwork().getScriptOutput();
+    public <T extends ProjectFile & ProjectCase> String getScriptOutput(T projectCase) {
+        return loadNetwork(projectCase).getScriptOutput();
     }
 
     @Override
-    public void invalidateCache() {
+    public <T extends ProjectFile & ProjectCase> void invalidateCache(T projectCase) {
         networkCache.invalidate(projectCase.getId());
     }
 }

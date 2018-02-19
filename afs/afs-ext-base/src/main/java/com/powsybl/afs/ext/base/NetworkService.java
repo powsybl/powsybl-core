@@ -6,6 +6,7 @@
  */
 package com.powsybl.afs.ext.base;
 
+import com.powsybl.afs.ProjectFile;
 import com.powsybl.iidm.network.Network;
 
 /**
@@ -13,13 +14,13 @@ import com.powsybl.iidm.network.Network;
  */
 public interface NetworkService {
 
-    Network getNetwork();
+    <T extends ProjectFile & ProjectCase> Network getNetwork(T projectCase);
 
-    String queryNetwork(String groovyScript);
+    <T extends ProjectFile & ProjectCase> String queryNetwork(T projectCase, String groovyScript);
 
-    ScriptError getScriptError();
+    <T extends ProjectFile & ProjectCase> ScriptError getScriptError(T projectCase);
 
-    String getScriptOutput();
+    <T extends ProjectFile & ProjectCase> String getScriptOutput(T projectCase);
 
-    void invalidateCache();
+    <T extends ProjectFile & ProjectCase> void invalidateCache(T projectCase);
 }

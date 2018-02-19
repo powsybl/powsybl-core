@@ -7,14 +7,13 @@
 package com.powsybl.afs.ext.base;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.afs.ProjectFile;
 import com.powsybl.afs.ServiceExtension;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @AutoService(ServiceExtension.class)
-public class LocalNetworkServiceExtension<T extends ProjectFile & ProjectCase> implements ServiceExtension<T, NetworkService> {
+public class LocalNetworkServiceExtension implements ServiceExtension<NetworkService> {
 
     @Override
     public ServiceKey<NetworkService> getServiceKey() {
@@ -22,7 +21,7 @@ public class LocalNetworkServiceExtension<T extends ProjectFile & ProjectCase> i
     }
 
     @Override
-    public NetworkService createService(T projectCase) {
-        return new LocalNetworkService<>(projectCase);
+    public NetworkService createService() {
+        return new LocalNetworkService();
     }
 }

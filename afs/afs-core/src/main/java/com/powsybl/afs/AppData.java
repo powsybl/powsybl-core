@@ -33,7 +33,7 @@ public class AppData implements AutoCloseable {
 
     private final Set<Class<? extends ProjectFile>> projectFileClasses = new HashSet<>();
 
-    private final Map<ServiceExtension.ServiceKey, ServiceExtension> serviceExtensions = new HashMap<>();
+    private final Map<ServiceExtension.ServiceKey, Object> services = new HashMap<>();
 
     public AppData() {
         this(LocalComputationManager.getDefault());
@@ -74,7 +74,7 @@ public class AppData implements AutoCloseable {
             this.projectFileClasses.add(extension.getProjectFileClass());
         }
         for (ServiceExtension extension : serviceExtensions) {
-            this.serviceExtensions.put(extension.getServiceKey(), extension);
+            this.services.put(extension.getServiceKey(), extension.createService());
         }
     }
 
@@ -165,9 +165,18 @@ public class AppData implements AutoCloseable {
         return afs != null ? afs.getStorage() : null;
     }
 
-    <T extends ProjectFile, U> ServiceExtension<T, U> findServiceExtension(Class<U> serviceClass, boolean remote) {
-        ServiceExtension.ServiceKey<U> serviceKey = new ServiceExtension.ServiceKey<>(serviceClass, remote);
-        return (ServiceExtension<T, U>) serviceExtensions.get(serviceKey);
+    <U> U findService(Class<U> serviceClass, boolean remoteStorage) {
+        U service = null;
+        if (remoteStorage) {
+            service = (U) services.get(new ServiceExtension.ServiceKey<>(serviceClass, true));
+        }
+        if (service == null) {
+            service = (U) services.get(new ServiceExtension.ServiceKey<>(serviceClass, false));
+        }
+        if (service == null) {
+            throw new AfsException("No service found for class " + serviceClass);
+        }
+        return service;
     }
 
     @Override

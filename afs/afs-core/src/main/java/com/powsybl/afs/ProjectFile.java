@@ -68,17 +68,7 @@ public class ProjectFile extends ProjectNode {
     }
 
     public <U> U findService(Class<U> serviceClass) {
-        ServiceExtension<ProjectFile, U> extension = null;
-        if (storage.isRemote()) {
-            extension = fileSystem.getData().findServiceExtension(serviceClass, true);
-        }
-        if (extension == null) {
-            extension = fileSystem.getData().findServiceExtension(serviceClass, false);
-        }
-        if (extension == null) {
-            throw new AfsException("No service extension found for class " + serviceClass);
-        }
-        return extension.createService(this);
+        return fileSystem.getData().findService(serviceClass, storage.isRemote());
     }
 
     protected void notifyDependencyListeners() {

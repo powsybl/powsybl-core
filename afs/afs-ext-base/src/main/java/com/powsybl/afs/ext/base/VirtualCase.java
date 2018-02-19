@@ -43,22 +43,22 @@ public class VirtualCase extends ProjectFile implements ProjectCase, RunnableScr
 
     @Override
     public String queryNetwork(String groovyScript) {
-        return findService(NetworkService.class).queryNetwork(groovyScript);
+        return findService(NetworkService.class).queryNetwork(this, groovyScript);
     }
 
     @Override
     public Network getNetwork() {
-        return findService(NetworkService.class).getNetwork();
+        return findService(NetworkService.class).getNetwork(this);
     }
 
     @Override
     public ScriptError getScriptError() {
-        return findService(NetworkService.class).getScriptError();
+        return findService(NetworkService.class).getScriptError(this);
     }
 
     @Override
     public String getScriptOutput() {
-        return findService(NetworkService.class).getScriptOutput();
+        return findService(NetworkService.class).getScriptOutput(this);
     }
 
     static AfsException createScriptLinkIsDeadException() {
@@ -96,7 +96,7 @@ public class VirtualCase extends ProjectFile implements ProjectCase, RunnableScr
     }
 
     private void invalidateNetworkCache() {
-        findService(NetworkService.class).invalidateCache();
+        findService(NetworkService.class).invalidateCache(this);
     }
 
     @Override
