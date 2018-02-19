@@ -6,6 +6,9 @@
  */
 package com.powsybl.afs;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.Objects;
 import java.util.UUID;
 
@@ -14,9 +17,11 @@ import java.util.UUID;
  */
 public class StartTaskEvent extends TaskEvent {
 
+    @JsonProperty("name")
     private final String name;
 
-    public StartTaskEvent(UUID taskId, long revision, String name) {
+    @JsonCreator
+    public StartTaskEvent(@JsonProperty("taskId") UUID taskId, @JsonProperty("revision") long revision, @JsonProperty("name") String name) {
         super(taskId, revision);
         this.name = Objects.requireNonNull(name);
     }
@@ -39,5 +44,10 @@ public class StartTaskEvent extends TaskEvent {
                     name.equals(other.name);
         }
         return false;
+    }
+
+    @Override
+    public String toString() {
+        return "StartTaskEvent(taskId=" + taskId + ", revision=" + revision + ", name=" + name + ")";
     }
 }

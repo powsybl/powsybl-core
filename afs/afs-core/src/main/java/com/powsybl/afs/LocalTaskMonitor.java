@@ -6,6 +6,9 @@
  */
 package com.powsybl.afs;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -16,11 +19,15 @@ import java.util.stream.Collectors;
  */
 public class LocalTaskMonitor implements TaskMonitor {
 
-    private static final class ModifiableTask extends Task {
+    public static class ModifiableTask extends Task {
 
+        @JsonProperty("projectId")
         private final String projectId;
 
-        private ModifiableTask(String name, long revision, String projectId) {
+        @JsonCreator
+        public ModifiableTask(@JsonProperty("name") String name,
+                              @JsonProperty("revision") long revision,
+                              @JsonProperty("projectId") String projectId) {
             super(name, revision);
             this.projectId = Objects.requireNonNull(projectId);
         }
@@ -143,5 +150,9 @@ public class LocalTaskMonitor implements TaskMonitor {
         } finally {
             lock.unlock();
         }
+    }
+
+    @Override
+    public void close() {
     }
 }

@@ -6,6 +6,9 @@
  */
 package com.powsybl.afs;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -13,16 +16,20 @@ import java.util.UUID;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface TaskMonitor {
+public interface TaskMonitor extends AutoCloseable {
 
     class Task {
 
+        @JsonProperty("id")
         private final UUID id;
 
+        @JsonProperty("name")
         private final String name;
 
+        @JsonProperty("message")
         protected String message;
 
+        @JsonProperty("revision")
         protected long revision;
 
         protected Task(String name, String message, long revision) {
@@ -63,11 +70,14 @@ public interface TaskMonitor {
 
     class Snapshot {
 
+        @JsonProperty("tasks")
         private final List<Task> tasks;
 
+        @JsonProperty("revision")
         private final long revision;
 
-        Snapshot(List<Task> tasks, long revision) {
+        @JsonCreator
+        Snapshot(@JsonProperty("tasks") List<Task> tasks, @JsonProperty("revision") long revision) {
             this.tasks = Objects.requireNonNull(tasks);
             this.revision = revision;
         }
@@ -92,4 +102,7 @@ public interface TaskMonitor {
     void addListener(TaskListener listener);
 
     void removeListener(TaskListener listener);
+
+    @Override
+    void close();
 }

@@ -6,16 +6,22 @@
  */
 package com.powsybl.afs;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import java.util.Objects;
 import java.util.UUID;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
+@JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS, include = JsonTypeInfo.As.PROPERTY)
 public class TaskEvent {
 
+    @JsonProperty("taskId")
     protected final UUID taskId;
 
+    @JsonProperty("revision")
     protected final long revision;
 
     protected TaskEvent(UUID taskId, long revision) {

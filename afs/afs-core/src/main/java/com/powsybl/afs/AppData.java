@@ -35,33 +35,26 @@ public class AppData implements AutoCloseable {
 
     private final Map<ServiceExtension.ServiceKey, ServiceExtension> serviceExtensions = new HashMap<>();
 
-    private final TaskMonitor taskMonitor;
-
     public AppData() {
         this(LocalComputationManager.getDefault());
     }
 
     public AppData(ComputationManager computationManager) {
+        this(computationManager, new ServiceLoaderCache<>(AppFileSystemProvider.class).getServices());
+    }
+
+    public AppData(ComputationManager computationManager, List<AppFileSystemProvider> fileSystemProviders) {
         this(computationManager,
-                new ServiceLoaderCache<>(AppFileSystemProvider.class).getServices(),
+                fileSystemProviders,
                 new ServiceLoaderCache<>(FileExtension.class).getServices(),
                 new ServiceLoaderCache<>(ProjectFileExtension.class).getServices(),
-                new ServiceLoaderCache<>(ServiceExtension.class).getServices(),
-                new LocalTaskMonitor());
+                new ServiceLoaderCache<>(ServiceExtension.class).getServices());
     }
 
     public AppData(ComputationManager computationManager, List<AppFileSystemProvider> fileSystemProviders,
                    List<FileExtension> fileExtensions, List<ProjectFileExtension> projectFileExtensions,
                    List<ServiceExtension> serviceExtensions) {
-        this(computationManager, fileSystemProviders, fileExtensions, projectFileExtensions, serviceExtensions,
-                new LocalTaskMonitor());
-    }
-
-    public AppData(ComputationManager computationManager, List<AppFileSystemProvider> fileSystemProviders,
-                   List<FileExtension> fileExtensions, List<ProjectFileExtension> projectFileExtensions,
-                   List<ServiceExtension> serviceExtensions, TaskMonitor taskMonitor) {
         this.computationManager = Objects.requireNonNull(computationManager);
-        this.taskMonitor = Objects.requireNonNull(taskMonitor);
         Objects.requireNonNull(fileSystemProviders);
         Objects.requireNonNull(fileExtensions);
         Objects.requireNonNull(projectFileExtensions);
@@ -172,17 +165,9 @@ public class AppData implements AutoCloseable {
         return afs != null ? afs.getStorage() : null;
     }
 
-    <T extends ProjectFile, U> ServiceExtension<T, U> findService(Class<U> serviceClass, boolean remote) {
+    <T extends ProjectFile, U> ServiceExtension<T, U> findServiceExtension(Class<U> serviceClass, boolean remote) {
         ServiceExtension.ServiceKey<U> serviceKey = new ServiceExtension.ServiceKey<>(serviceClass, remote);
-        ServiceExtension<T, U> serviceExtension = (ServiceExtension<T, U>) serviceExtensions.get(serviceKey);
-        if (serviceExtension == null) {
-            throw new AfsException("No service extension found for key " + serviceKey + "");
-        }
-        return serviceExtension;
-    }
-
-    public TaskMonitor getTaskMonitor() {
-        return taskMonitor;
+        return (ServiceExtension<T, U>) serviceExtensions.get(serviceKey);
     }
 
     @Override

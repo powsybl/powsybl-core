@@ -56,19 +56,29 @@ public class ProjectFile extends ProjectNode {
     }
 
     public UUID startTask() {
-        return fileSystem.getData().getTaskMonitor().startTask(this).getId();
+        return fileSystem.getTaskMonitor().startTask(this).getId();
     }
 
     public AppLogger createLogger(UUID taskId) {
-        return new TaskMonitorLogger(fileSystem.getData().getTaskMonitor(), taskId);
+        return new TaskMonitorLogger(fileSystem.getTaskMonitor(), taskId);
     }
 
     public void stopTask(UUID id) {
-        fileSystem.getData().getTaskMonitor().stopTask(id);
+        fileSystem.getTaskMonitor().stopTask(id);
     }
 
     public <U> U findService(Class<U> serviceClass) {
-        return fileSystem.getData().findService(serviceClass, storage.isRemote()).createService(this);
+        ServiceExtension<ProjectFile, U> extension = null;
+        if (storage.isRemote()) {
+            extension = fileSystem.getData().findServiceExtension(serviceClass, true);
+        }
+        if (extension == null) {
+            extension = fileSystem.getData().findServiceExtension(serviceClass, false);
+        }
+        if (extension == null) {
+            throw new AfsException("No service extension found for class " + serviceClass + "");
+        }
+        return extension.createService(this);
     }
 
     protected void notifyDependencyListeners() {

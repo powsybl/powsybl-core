@@ -6,6 +6,9 @@
  */
 package com.powsybl.afs;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.Objects;
 import java.util.UUID;
 
@@ -14,7 +17,8 @@ import java.util.UUID;
  */
 public class StopTaskEvent extends TaskEvent {
 
-    public StopTaskEvent(UUID taskId, long revision) {
+    @JsonCreator
+    public StopTaskEvent(@JsonProperty("taskId") UUID taskId, @JsonProperty("revision") long revision) {
         super(taskId, revision);
     }
 
@@ -31,5 +35,10 @@ public class StopTaskEvent extends TaskEvent {
                     revision == other.revision;
         }
         return false;
+    }
+
+    @Override
+    public String toString() {
+        return "StopTaskEvent(taskId=" + taskId + ", revision=" + revision + ")";
     }
 }

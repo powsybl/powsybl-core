@@ -27,16 +27,19 @@ public class AppFileSystem implements AutoCloseable {
 
     private final NodeInfo rootNodeInfo;
 
+    private final TaskMonitor taskMonitor;
+
     private AppData data;
 
     public AppFileSystem(String name, boolean remotelyAccessible, AppStorage storage) {
-        this(name, remotelyAccessible, new DefaultListenableAppStorage(storage));
+        this(name, remotelyAccessible, new DefaultListenableAppStorage(storage), new LocalTaskMonitor());
     }
 
-    public AppFileSystem(String name, boolean remotelyAccessible, ListenableAppStorage storage) {
+    public AppFileSystem(String name, boolean remotelyAccessible, ListenableAppStorage storage, TaskMonitor taskMonitor) {
         this.name = Objects.requireNonNull(name);
         this.remotelyAccessible = remotelyAccessible;
         this.storage = Objects.requireNonNull(storage);
+        this.taskMonitor = Objects.requireNonNull(taskMonitor);
         rootNodeInfo = storage.createRootNodeIfNotExists(name, Folder.PSEUDO_CLASS);
     }
 
@@ -101,6 +104,10 @@ public class AppFileSystem implements AutoCloseable {
         }
     }
 
+    public TaskMonitor getTaskMonitor() {
+        return taskMonitor;
+    }
+
     public AppData getData() {
         return data;
     }
@@ -112,5 +119,6 @@ public class AppFileSystem implements AutoCloseable {
     @Override
     public void close() {
         storage.close();
+        taskMonitor.close();
     }
 }
