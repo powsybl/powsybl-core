@@ -382,6 +382,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             updateCache(sw -> sw.isOpen() || sw.isRetained());
         }
 
+        @Override
         protected BusChecker getBusChecker() {
             return CALCULATED_BUS_BREAKER_CHECKER;
         }
@@ -506,11 +507,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             AtomicInteger i;
             lock.lock();
             try {
-                i = counter.get(voltageLevel);
-                if (i == null) {
-                    i = new AtomicInteger();
-                    counter.put(voltageLevel, i);
-                }
+                i = counter.computeIfAbsent(voltageLevel, k -> new AtomicInteger());
             } finally {
                 lock.unlock();
             }

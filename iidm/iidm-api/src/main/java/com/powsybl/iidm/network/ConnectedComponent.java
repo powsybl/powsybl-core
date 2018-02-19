@@ -7,7 +7,7 @@
 package com.powsybl.iidm.network;
 
 /**
- * To replace by @link{Component}
+ * @deprecated To replace by @link{Component}
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */

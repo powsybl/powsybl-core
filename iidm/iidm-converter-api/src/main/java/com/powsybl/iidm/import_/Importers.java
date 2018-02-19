@@ -369,11 +369,17 @@ public final class Importers {
         return createDataSource(absFile.getParent(), absFile.getFileName().toString());
     }
 
+    /**
+     * @deprecated Use createDataSource(Path, String) instead.
+     */
     @Deprecated
     public static DataSource createReadOnly(Path directory, String fileNameOrBaseName) {
         return createDataSource(directory, fileNameOrBaseName);
     }
 
+    /**
+     * @deprecated Use createDataSource(Path) instead.
+     */
     @Deprecated
     public static DataSource createReadOnly(Path file) {
         return createDataSource(file);

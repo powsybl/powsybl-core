@@ -9,6 +9,7 @@ package com.powsybl.computation;
 import java.nio.file.Path;
 
 /**
+ * @deprecated Use ExecutionHandler instead.
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
