@@ -6,13 +6,12 @@
  */
 package com.powsybl.afs.ext.base;
 
-import com.powsybl.afs.ProjectFile;
 import com.powsybl.iidm.network.Network;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface NetworkService<T extends ProjectFile & ProjectCase> {
+public interface NetworkService {
 
     Network getNetwork();
 

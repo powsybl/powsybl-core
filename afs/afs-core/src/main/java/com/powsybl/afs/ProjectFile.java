@@ -76,7 +76,7 @@ public class ProjectFile extends ProjectNode {
             extension = fileSystem.getData().findServiceExtension(serviceClass, false);
         }
         if (extension == null) {
-            throw new AfsException("No service extension found for class " + serviceClass + "");
+            throw new AfsException("No service extension found for class " + serviceClass);
         }
         return extension.createService(this);
     }

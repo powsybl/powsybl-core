@@ -104,7 +104,7 @@ public class RunScriptTool implements Tool {
         try {
             try (AppData data = new AppData(context.getComputationManager(), fileSystemProviders,
                     fileExtensions, projectFileExtensions, serviceExtensions)) {
-                SoutTaskListener listener = new SoutTaskListener(System.out);
+                SoutTaskListener listener = new SoutTaskListener(context.getOutputStream());
                 for (AppFileSystem fileSystem : data.getFileSystems()) {
                     fileSystem.getTaskMonitor().addListener(listener);
                 }

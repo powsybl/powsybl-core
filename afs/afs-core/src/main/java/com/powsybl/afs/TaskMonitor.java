@@ -34,7 +34,7 @@ public interface TaskMonitor extends AutoCloseable {
 
         protected Task(String name, String message, long revision) {
             id = UUID.randomUUID();
-            this.name = name;
+            this.name = Objects.requireNonNull(name);
             this.message = message;
             this.revision = revision;
         }

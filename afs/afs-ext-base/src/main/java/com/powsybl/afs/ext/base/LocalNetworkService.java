@@ -28,11 +28,11 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class LocalNetworkService<T extends ProjectFile & ProjectCase> implements NetworkService<T> {
+public class LocalNetworkService<T extends ProjectFile & ProjectCase> implements NetworkService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LocalNetworkService.class);
 
-    private final class ModifiedNetwork {
+    private static final class ModifiedNetwork {
 
         private final Network network;
 
@@ -72,7 +72,7 @@ public class LocalNetworkService<T extends ProjectFile & ProjectCase> implements
                 .build();
     }
 
-    private ModifiedNetwork loadNetworkFromImportedCase(ImportedCase importedCase) {
+    private static ModifiedNetwork loadNetworkFromImportedCase(ImportedCase importedCase) {
         LOGGER.info("Loading network of project case {}", importedCase.getId());
 
         Importer importer = importedCase.getImporter();
@@ -82,7 +82,7 @@ public class LocalNetworkService<T extends ProjectFile & ProjectCase> implements
         return new ModifiedNetwork(network, null, "");
     }
 
-    private ModifiedNetwork applyScript(Network network, String previousScriptOutput, ModificationScript script) {
+    private static ModifiedNetwork applyScript(Network network, String previousScriptOutput, ModificationScript script) {
         ScriptResult result = ScriptUtils.runScript(network, script.getScriptType(), script.readScript());
         if (result.getError() == null) {
             return new ModifiedNetwork(network, null, previousScriptOutput + result.getOutput());
@@ -92,7 +92,7 @@ public class LocalNetworkService<T extends ProjectFile & ProjectCase> implements
         }
     }
 
-    private ModifiedNetwork loadNetworkFromVirtualCase(VirtualCase virtualCase) {
+    private static ModifiedNetwork loadNetworkFromVirtualCase(VirtualCase virtualCase) {
         ProjectCase baseCase = virtualCase.getCase()
                                           .orElseThrow(() -> new AfsException("Case link is dead"));
 
@@ -110,7 +110,7 @@ public class LocalNetworkService<T extends ProjectFile & ProjectCase> implements
         return applyScript(modifiedNetwork.getNetwork(), modifiedNetwork.getScriptOutput(), script);
     }
 
-    private ModifiedNetwork loadNetworkFromProjectCase(ProjectCase projectCase) {
+    private static ModifiedNetwork loadNetworkFromProjectCase(ProjectCase projectCase) {
         if (projectCase instanceof ImportedCase) {
             return loadNetworkFromImportedCase((ImportedCase) projectCase);
         } else if (projectCase instanceof VirtualCase) {
@@ -120,8 +120,7 @@ public class LocalNetworkService<T extends ProjectFile & ProjectCase> implements
         }
     }
 
-    private ModifiedNetwork loadNetwork(T projectCase) {
-        Objects.requireNonNull(projectCase);
+    private ModifiedNetwork loadNetwork() {
         try {
             return networkCache.get(projectCase.getId(), () -> {
                 UUID taskId = projectCase.startTask();
@@ -139,7 +138,6 @@ public class LocalNetworkService<T extends ProjectFile & ProjectCase> implements
 
     @Override
     public String queryNetwork(String groovyScript) {
-        Objects.requireNonNull(projectCase);
         Objects.requireNonNull(groovyScript);
         ScriptResult result = ScriptUtils.runScript(getNetwork(), ScriptType.GROOVY, groovyScript);
         String json = null;
@@ -155,22 +153,21 @@ public class LocalNetworkService<T extends ProjectFile & ProjectCase> implements
 
     @Override
     public Network getNetwork() {
-        return loadNetwork(projectCase).getNetwork();
+        return loadNetwork().getNetwork();
     }
 
     @Override
     public ScriptError getScriptError() {
-        return loadNetwork(projectCase).getScriptError();
+        return loadNetwork().getScriptError();
     }
 
     @Override
     public String getScriptOutput() {
-        return loadNetwork(projectCase).getScriptOutput();
+        return loadNetwork().getScriptOutput();
     }
 
     @Override
     public void invalidateCache() {
-        Objects.requireNonNull(projectCase);
         networkCache.invalidate(projectCase.getId());
     }
 }

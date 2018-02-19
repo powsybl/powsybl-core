@@ -79,11 +79,11 @@ public class LocalTaskMonitor implements TaskMonitor {
         Objects.requireNonNull(id);
         lock.lock();
         try {
-            revision++;
             ModifiableTask task = tasks.remove(id);
             if (task == null) {
                 throw new IllegalArgumentException("Task '" + id + "' not found");
             }
+            revision++;
 
             // notification
             notifyListeners(new StopTaskEvent(id, revision), task.getProjectId());
