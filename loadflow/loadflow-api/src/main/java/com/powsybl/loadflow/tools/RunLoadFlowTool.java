@@ -10,6 +10,7 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.ComponentDefaultConfig;
 import com.powsybl.commons.io.table.*;
+import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
 import com.powsybl.tools.ToolRunningContext;
@@ -146,7 +147,7 @@ public class RunLoadFlowTool implements Tool {
             throw new PowsyblException("Case '" + caseFile + "' not found");
         }
         LoadFlow loadFlow = defaultConfig.newFactoryImpl(LoadFlowFactory.class).create(network, context.getComputationManager(), 0);
-        LoadFlowResult result = loadFlow.run();
+        LoadFlowResult result = loadFlow.run(LoadFlowParameters.load());
 
         if (outputFile != null) {
             exportResult(result, context, outputFile, format);
