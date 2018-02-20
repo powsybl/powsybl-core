@@ -6,22 +6,25 @@
  */
 package com.powsybl.loadflow;
 
+import com.google.auto.service.AutoService;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.MapModuleConfig;
+import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.extensions.AbstractExtension;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.nio.file.FileSystem;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 /**
  * @author Christian Biasuzzi <christian.biasuzzi@techrain.it>
  */
-public class LoadFlowparametersConfigTest {
+public class LoadFlowParametersTest {
 
     InMemoryPlatformConfig platformConfig;
     FileSystem fileSystem;
@@ -134,4 +137,67 @@ public class LoadFlowparametersConfigTest {
                 parameters.isNoGeneratorReactiveLimits(), parameters.isPhaseShifterRegulationOn(), parameters.isSpecificCompatibility());
     }
 
+
+    @Test
+    public void testExtensions() {
+        LoadFlowParameters parameters = new LoadFlowParameters();
+        DummyExtension dummyExtension = new DummyExtension();
+        parameters.addExtension(DummyExtension.class, dummyExtension);
+
+        assertEquals(1, parameters.getExtensions().size());
+        assertTrue(parameters.getExtensions().contains(dummyExtension));
+        assertTrue(parameters.getExtensionByName("dummyExtension") instanceof DummyExtension);
+        assertTrue(parameters.getExtension(DummyExtension.class) instanceof DummyExtension);
+    }
+
+    @Test
+    public void testNoExtensions() {
+        LoadFlowParameters parameters = new LoadFlowParameters();
+
+        assertEquals(0, parameters.getExtensions().size());
+        assertFalse(parameters.getExtensions().contains(new DummyExtension()));
+        assertFalse(parameters.getExtensionByName("dummyExtension") instanceof DummyExtension);
+        assertFalse(parameters.getExtension(DummyExtension.class) instanceof DummyExtension);
+    }
+
+    @Test
+    public void testExtensionFromConfig() {
+        LoadFlowParameters parameters = LoadFlowParameters.load(platformConfig);
+
+        assertEquals(1, parameters.getExtensions().size());
+        assertTrue(parameters.getExtensionByName("dummyExtension") instanceof DummyExtension);
+        assertNotNull(parameters.getExtension(DummyExtension.class));
+    }
+
+    private static class DummyExtension extends AbstractExtension<LoadFlowParameters> {
+
+        @Override
+        public String getName() {
+            return "dummyExtension";
+        }
+    }
+
+    @AutoService(LoadFlowParameters.ConfigLoader.class)
+    public static class DummyLoader implements LoadFlowParameters.ConfigLoader<DummyExtension> {
+
+        @Override
+        public DummyExtension load(PlatformConfig platformConfig) {
+            return new DummyExtension();
+        }
+
+        @Override
+        public String getExtensionName() {
+            return "dummyExtension";
+        }
+
+        @Override
+        public String getCategoryName() {
+            return "loadflow-parameters";
+        }
+
+        @Override
+        public Class<? super DummyExtension> getExtensionClass() {
+            return DummyExtension.class;
+        }
+    }
 }
