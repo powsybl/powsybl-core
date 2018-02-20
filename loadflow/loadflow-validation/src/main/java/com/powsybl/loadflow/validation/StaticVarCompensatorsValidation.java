@@ -159,9 +159,7 @@ public final class StaticVarCompensatorsValidation {
         // if the setpoint is outside [-bMax*V*V , -bMin*V*V] then the reactive power is equal to the nearest bound
         if (regulationMode == RegulationMode.REACTIVE_POWER
             && (ValidationUtils.areNaN(config, reactivePowerSetpoint, bMinVV, bMaxVV)
-                || (ValidationUtils.boundedWithin(-bMaxVV, -bMinVV, reactivePowerSetpoint, config.getThreshold()) && Math.abs(q + reactivePowerSetpoint) > config.getThreshold())
-                || (!ValidationUtils.boundedWithin(-bMaxVV, -bMinVV, reactivePowerSetpoint, config.getThreshold()) && Math.abs(q + closestBound(-bMaxVV, -bMinVV, reactivePowerSetpoint)) > config.getThreshold())
-                )) {
+                || Math.abs(q + setPoint(reactivePowerSetpoint, bMinVV, bMaxVV, config)) > config.getThreshold())) {
             LOGGER.warn("{} {}: {}: regulator mode={} - Q={} bMin={} bMax={} V={} reactivePowerSetpoint={}", ValidationType.SVCS, ValidationUtils.VALIDATION_ERROR, id, regulationMode, q, bMin, bMax, v, reactivePowerSetpoint);
             validated = false;
         }
@@ -198,4 +196,9 @@ public final class StaticVarCompensatorsValidation {
         return Math.abs(value - bound1) < Math.abs(value - bound2) ? bound1 : bound2;
     }
 
+    private static float setPoint(float reactivePowerSetpoint, float bMinVV, float bMaxVV, ValidationConfig config) {
+        return ValidationUtils.boundedWithin(-bMaxVV, -bMinVV, reactivePowerSetpoint, config.getThreshold())
+               ? reactivePowerSetpoint
+               : closestBound(-bMaxVV, -bMinVV, reactivePowerSetpoint);
+    }
 }
