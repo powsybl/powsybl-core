@@ -6,6 +6,9 @@
  */
 package com.powsybl.afs;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -16,10 +19,21 @@ import java.util.stream.Collectors;
  */
 public class LocalTaskMonitor implements TaskMonitor {
 
-    private static final class ModifiableTask extends Task {
+    public static class ModifiableTask extends Task {
 
-        private ModifiableTask(ProjectFile projectFile, long revision) {
-            super(projectFile, revision);
+        @JsonProperty("projectId")
+        private final String projectId;
+
+        @JsonCreator
+        public ModifiableTask(@JsonProperty("name") String name,
+                              @JsonProperty("revision") long revision,
+                              @JsonProperty("projectId") String projectId) {
+            super(name, revision);
+            this.projectId = Objects.requireNonNull(projectId);
+        }
+
+        private String getProjectId() {
+            return projectId;
         }
 
         private void setMessage(String message) {
@@ -31,7 +45,7 @@ public class LocalTaskMonitor implements TaskMonitor {
         }
     }
 
-    private final Map<String, ModifiableTask> tasks = new HashMap<>();
+    private final Map<UUID, ModifiableTask> tasks = new HashMap<>();
 
     private long revision = 0L;
 
@@ -40,34 +54,39 @@ public class LocalTaskMonitor implements TaskMonitor {
     private final List<TaskListener> listeners = new ArrayList<>();
 
     @Override
-    public void startTask(ProjectFile projectFile) {
+    public Task startTask(ProjectFile projectFile) {
         Objects.requireNonNull(projectFile);
         lock.lock();
         try {
             revision++;
-            tasks.put(projectFile.getId(), new ModifiableTask(projectFile, revision));
+            String taskName = projectFile.getPath().toString();
+            ModifiableTask task = new ModifiableTask(taskName,
+                                                     revision,
+                                                     projectFile.getProject().getId());
+            tasks.put(task.getId(), task);
 
             // notification
-            for (TaskListener listener : listeners) {
-                listener.taskStarted(projectFile);
-            }
+            notifyListeners(new StartTaskEvent(task.getId(), revision, taskName), task.getProjectId());
+
+            return task;
         } finally {
             lock.unlock();
         }
     }
 
     @Override
-    public void stopTask(ProjectFile projectFile) {
-        Objects.requireNonNull(projectFile);
+    public void stopTask(UUID id) {
+        Objects.requireNonNull(id);
         lock.lock();
         try {
+            ModifiableTask task = tasks.remove(id);
+            if (task == null) {
+                throw new IllegalArgumentException("Task '" + id + "' not found");
+            }
             revision++;
-            tasks.remove(projectFile.getId());
 
             // notification
-            for (TaskListener listener : listeners) {
-                listener.taskStopped(projectFile);
-            }
+            notifyListeners(new StopTaskEvent(id, revision), task.getProjectId());
         } finally {
             lock.unlock();
         }
@@ -84,24 +103,30 @@ public class LocalTaskMonitor implements TaskMonitor {
     }
 
     @Override
-    public void updateTaskMessage(ProjectFile projectFile, String message) {
-        Objects.requireNonNull(projectFile);
+    public void updateTaskMessage(UUID id, String message) {
+        Objects.requireNonNull(id);
         lock.lock();
         try {
-            ModifiableTask task = tasks.get(projectFile.getId());
+            ModifiableTask task = tasks.get(id);
             if (task == null) {
-                throw new AfsException("Project file " + projectFile.getId() + " is not associated to any task");
+                throw new IllegalArgumentException("Task '" + id + "' not found");
             }
             revision++;
             task.setMessage(message);
             task.setRevision(revision);
 
             // notification
-            for (TaskListener listener : listeners) {
-                listener.taskMessageUpdated(projectFile, message);
-            }
+            notifyListeners(new UpdateTaskMessageEvent(id, revision, message), task.getProjectId());
         } finally {
             lock.unlock();
+        }
+    }
+
+    private void notifyListeners(TaskEvent event, String projectId) {
+        for (TaskListener listener : listeners) {
+            if (listener.getProjectId() == null || listener.getProjectId().equals(projectId)) {
+                listener.onEvent(event);
+            }
         }
     }
 
@@ -125,5 +150,10 @@ public class LocalTaskMonitor implements TaskMonitor {
         } finally {
             lock.unlock();
         }
+    }
+
+    @Override
+    public void close() {
+        // nothing to clean
     }
 }

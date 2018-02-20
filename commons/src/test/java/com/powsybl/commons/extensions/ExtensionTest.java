@@ -21,8 +21,8 @@ import static org.junit.Assert.*;
  */
 public class ExtensionTest extends AbstractConverterTest {
 
-    private static final Supplier<ExtensionSerializerProvider> SUPPLIER =
-        Suppliers.memoize(() -> ExtensionSerializerProviders.createProvider(ExtensionJsonSerializer.class, "test"));
+    private static final Supplier<ExtensionProviders<ExtensionJsonSerializer>> SUPPLIER =
+        Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionJsonSerializer.class, "test"));
 
     @Test
     public void testExtendable() {
@@ -37,10 +37,10 @@ public class ExtensionTest extends AbstractConverterTest {
         assertSame(fooExt, foo.getExtension(FooExt.class));
         assertSame(fooExt, foo.getExtensionByName("FooExt"));
 
-        ExtensionSerializer serializer = SUPPLIER.get().findSerializer("FooExt");
-        assertNotNull(serializer);
-        assertSame(fooExt, foo.getExtension(serializer.getExtensionClass()));
-        assertSame(fooExt, foo.getExtensionByName(serializer.getExtensionName()));
+        ExtensionProvider provider = SUPPLIER.get().findProvider("FooExt");
+        assertNotNull(provider);
+        assertSame(fooExt, foo.getExtension(provider.getExtensionClass()));
+        assertSame(fooExt, foo.getExtensionByName(provider.getExtensionName()));
 
         assertSame(barExt, foo.getExtension(BarExt.class));
         assertSame(barExt, foo.getExtensionByName("BarExt"));
@@ -54,12 +54,12 @@ public class ExtensionTest extends AbstractConverterTest {
 
     @Test
     public void testExtensionSupplier() {
-        assertNotNull(SUPPLIER.get().findSerializer("FooExt"));
-        assertNotNull(SUPPLIER.get().findSerializerOrThrowException("FooExt"));
+        assertNotNull(SUPPLIER.get().findProvider("FooExt"));
+        assertNotNull(SUPPLIER.get().findProviderOrThrowException("FooExt"));
 
-        assertNull(SUPPLIER.get().findSerializer("BarExt"));
+        assertNull(SUPPLIER.get().findProvider("BarExt"));
         try {
-            SUPPLIER.get().findSerializerOrThrowException("BarExt");
+            SUPPLIER.get().findProviderOrThrowException("BarExt");
             fail();
         } catch (PowsyblException e) {
             // Nothing to do

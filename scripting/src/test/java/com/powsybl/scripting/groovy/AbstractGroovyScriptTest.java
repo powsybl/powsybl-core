@@ -7,9 +7,7 @@
 package com.powsybl.scripting.groovy;
 
 import com.powsybl.afs.*;
-import com.powsybl.afs.storage.AppStorage;
-import com.powsybl.afs.storage.ForwardingAppStorage;
-import com.powsybl.afs.storage.ListenableAppStorage;
+import com.powsybl.afs.storage.*;
 import com.powsybl.afs.storage.events.AppStorageListener;
 import com.powsybl.computation.ComputationManager;
 import org.junit.After;
@@ -57,7 +55,13 @@ public abstract class AbstractGroovyScriptTest {
     }
 
     protected AppStorage createStorage() {
-        return Mockito.mock(AppStorage.class);
+        AppStorage storage = Mockito.mock(AppStorage.class);
+        Mockito.when(storage.createRootNodeIfNotExists(Mockito.anyString(), Mockito.anyString()))
+                .thenAnswer(invocationOnMock -> new NodeInfo("id",
+                                                             (String) invocationOnMock.getArguments()[0],
+                                                             (String) invocationOnMock.getArguments()[1],
+                                                             "", 0L, 0L, 0, new NodeGenericMetadata()));
+        return storage;
     }
 
     protected List<FileExtension> getFileExtensions() {

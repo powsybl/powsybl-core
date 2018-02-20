@@ -69,12 +69,12 @@ public class ImportedCase extends ProjectFile implements ProjectCase {
 
     @Override
     public String queryNetwork(String groovyScript) {
-        return fileSystem.findService(NetworkService.class).queryNetwork(this, groovyScript);
+        return findService(NetworkService.class).queryNetwork(this, groovyScript);
     }
 
     @Override
     public Network getNetwork() {
-        return fileSystem.findService(NetworkService.class).getNetwork(this);
+        return findService(NetworkService.class).getNetwork(this);
     }
 
     @Override
@@ -92,6 +92,6 @@ public class ImportedCase extends ProjectFile implements ProjectCase {
         super.delete();
 
         // also clean cache
-        fileSystem.findService(NetworkService.class).invalidateCache(this);
+        findService(NetworkService.class).invalidateCache(this);
     }
 }

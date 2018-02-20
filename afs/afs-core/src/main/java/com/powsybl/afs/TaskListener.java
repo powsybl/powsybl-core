@@ -11,9 +11,7 @@ package com.powsybl.afs;
  */
 public interface TaskListener {
 
-    void taskStarted(ProjectFile projectFile);
+    String getProjectId();
 
-    void taskStopped(ProjectFile projectFile);
-
-    void taskMessageUpdated(ProjectFile projectFile, String message);
+    void onEvent(TaskEvent event);
 }

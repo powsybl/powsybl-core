@@ -77,14 +77,14 @@ public class LocalAppStorageTest {
         assertEquals("mem", rootNodeInfo.getName());
         assertFalse(storage.isWritable(rootNodeInfo.getId()));
         assertFalse(storage.getParentNode(rootNodeInfo.getId()).isPresent());
-        assertEquals(ImmutableList.of(path1.toString(), path2.toString()),
+        assertEquals(ImmutableList.of("%2Fcases%2Fn.tst", "%2Fcases%2Fn2.tst"),
                      storage.getChildNodes(rootNodeInfo.getId()).stream().map(NodeInfo::getId).collect(Collectors.toList()));
         Optional<NodeInfo> case1 = storage.getChildNode(rootNodeInfo.getId(), "n.tst");
         assertTrue(case1.isPresent());
         assertEquals(rootNodeInfo, storage.getParentNode(case1.get().getId()).orElseThrow(AssertionError::new));
         Optional<NodeInfo> case2 = storage.getChildNode(rootNodeInfo.getId(), "n2.tst");
         assertTrue(case2.isPresent());
-        assertEquals("/cases/n.tst", case1.get().getId());
+        assertEquals("%2Fcases%2Fn.tst", case1.get().getId());
         assertFalse(storage.getChildNode(rootNodeInfo.getId(), "n3.tst").isPresent());
         assertEquals(Folder.PSEUDO_CLASS, rootNodeInfo.getPseudoClass());
         assertEquals(Case.PSEUDO_CLASS, case1.get().getPseudoClass());

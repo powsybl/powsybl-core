@@ -31,7 +31,7 @@ public class ProjectFolder extends ProjectNode implements FolderBase<ProjectNode
     public List<ProjectNode> getChildren() {
         return storage.getChildNodes(info.getId())
                 .stream()
-                .map(fileSystem::findProjectNode)
+                .map(fileSystem::createProjectNode)
                 .sorted(Comparator.comparing(ProjectNode::getName))
                 .collect(Collectors.toList());
     }
@@ -39,7 +39,7 @@ public class ProjectFolder extends ProjectNode implements FolderBase<ProjectNode
     @Override
     public Optional<ProjectNode> getChild(String name, String... more) {
         NodeInfo childInfo = getChildInfo(name, more);
-        return Optional.ofNullable(childInfo).map(fileSystem::findProjectNode);
+        return Optional.ofNullable(childInfo).map(fileSystem::createProjectNode);
     }
 
     @Override
