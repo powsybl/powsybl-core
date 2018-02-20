@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017, RTE (http://www.rte-france.com)
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -78,26 +78,40 @@ public class StaticVarCompensatorsValidationTest extends AbstractValidationTest 
         regulationMode = RegulationMode.OFF;
         assertFalse(StaticVarCompensatorsValidation.checkSVCs("test", p, q, v, reactivePowerSetpoint, voltageSetpoint, regulationMode, bMin, bMax, strictConfig, NullWriter.NULL_WRITER));
 
-        //  if regulationMode = REACTIVE_POWER then reactive power should be equal to setpoint
+        //  if regulationMode = REACTIVE_POWER if the setpoint is in [-bMax*V*V , -bMin*V*V] then then reactive power should be equal to setpoint
         regulationMode = RegulationMode.REACTIVE_POWER;
         assertTrue(StaticVarCompensatorsValidation.checkSVCs("test", p, q, v, reactivePowerSetpoint, voltageSetpoint, regulationMode, bMin, bMax, strictConfig, NullWriter.NULL_WRITER));
         q = 3.7f;
         assertFalse(StaticVarCompensatorsValidation.checkSVCs("test", p, q, v, reactivePowerSetpoint, voltageSetpoint, regulationMode, bMin, bMax, strictConfig, NullWriter.NULL_WRITER));
         assertTrue(StaticVarCompensatorsValidation.checkSVCs("test", p, q, v, reactivePowerSetpoint, voltageSetpoint, regulationMode, bMin, bMax, looseConfig, NullWriter.NULL_WRITER));
-        // check with NaN values
-        assertFalse(StaticVarCompensatorsValidation.checkSVCs("test", p, q, v, Float.NaN, voltageSetpoint, regulationMode, bMin, bMax, strictConfig, NullWriter.NULL_WRITER));
-        strictConfig.setOkMissingValues(true);
-        assertTrue(StaticVarCompensatorsValidation.checkSVCs("test", p, q, v, Float.NaN, voltageSetpoint, regulationMode, bMin, bMax, strictConfig, NullWriter.NULL_WRITER));
-        strictConfig.setOkMissingValues(false);
 
-        // if regulationMode = VOLTAGE then either V at the connected bus is equal to voltageSetpoint
+        // check with NaN values
+        assertFalse(StaticVarCompensatorsValidation.checkSVCs("test", p, q, v, Float.NaN, voltageSetpoint, regulationMode, bMin, bMax, looseConfig, NullWriter.NULL_WRITER));
+        assertFalse(StaticVarCompensatorsValidation.checkSVCs("test", p, q, v, reactivePowerSetpoint, voltageSetpoint, regulationMode, Float.NaN, bMax, looseConfig, NullWriter.NULL_WRITER));
+        looseConfig.setOkMissingValues(true);
+        assertTrue(StaticVarCompensatorsValidation.checkSVCs("test", p, q, v, Float.NaN, voltageSetpoint, regulationMode, bMin, bMax, looseConfig, NullWriter.NULL_WRITER));
+        assertTrue(StaticVarCompensatorsValidation.checkSVCs("test", p, q, v, reactivePowerSetpoint, voltageSetpoint, regulationMode, Float.NaN, bMax, looseConfig, NullWriter.NULL_WRITER));
+        looseConfig.setOkMissingValues(false);
+
+        // if regulationMode = REACTIVE_POWER if the setpoint is outside [-bMax*V*V , -bMin*V*V] then the reactive power is equal to the nearest bound
+        reactivePowerSetpoint = -14500f;
+        assertFalse(StaticVarCompensatorsValidation.checkSVCs("test", p, q, v, reactivePowerSetpoint, voltageSetpoint, regulationMode, bMin, bMax, strictConfig, NullWriter.NULL_WRITER));
+        q = 14440f;
+        assertTrue(StaticVarCompensatorsValidation.checkSVCs("test", p, q, v, reactivePowerSetpoint, voltageSetpoint, regulationMode, bMin, bMax, strictConfig, NullWriter.NULL_WRITER));
+        reactivePowerSetpoint = -3.72344f;
+        q = 3.7f;
+
+        // if regulationMode = VOLTAGE then either V at the connected bus is equal to voltageSetpoint and q is bounded within [-bMax*V*V, -bMin*V*V]
         regulationMode = RegulationMode.VOLTAGE;
         assertTrue(StaticVarCompensatorsValidation.checkSVCs("test", p, q, v, reactivePowerSetpoint, voltageSetpoint, regulationMode, bMin, bMax, strictConfig, NullWriter.NULL_WRITER));
         v = 400f;
         assertFalse(StaticVarCompensatorsValidation.checkSVCs("test", p, q, v, reactivePowerSetpoint, voltageSetpoint, regulationMode, bMin, bMax, strictConfig, NullWriter.NULL_WRITER));
+        v = 380f;
+        q = 1445f;
+        assertFalse(StaticVarCompensatorsValidation.checkSVCs("test", p, q, v, reactivePowerSetpoint, voltageSetpoint, regulationMode, bMin, bMax, strictConfig, NullWriter.NULL_WRITER));
 
         // check with NaN values
-        v = 380f;
+        q = 3.7f;
         assertFalse(StaticVarCompensatorsValidation.checkSVCs("test", p, q, v, reactivePowerSetpoint, voltageSetpoint, regulationMode, Float.NaN, bMax, strictConfig, NullWriter.NULL_WRITER));
         assertFalse(StaticVarCompensatorsValidation.checkSVCs("test", p, q, v, reactivePowerSetpoint, voltageSetpoint, regulationMode, bMin, Float.NaN, strictConfig, NullWriter.NULL_WRITER));
         assertFalse(StaticVarCompensatorsValidation.checkSVCs("test", p, q, v, reactivePowerSetpoint, Float.NaN, regulationMode, bMin, bMax, strictConfig, NullWriter.NULL_WRITER));
@@ -107,15 +121,15 @@ public class StaticVarCompensatorsValidationTest extends AbstractValidationTest 
         assertTrue(StaticVarCompensatorsValidation.checkSVCs("test", p, q, v, reactivePowerSetpoint, Float.NaN, regulationMode, bMin, bMax, strictConfig, NullWriter.NULL_WRITER));
         strictConfig.setOkMissingValues(false);
 
-        // if regulationMode = VOLTAGE then either q is equal to bMin * V and V is lower than voltageSetpoint
-        q = 3.6f;
+        // if regulationMode = VOLTAGE then either q is equal to bMax * V * V and V is lower than voltageSetpoint
+        q = -12960f;
         v = 360f;
         assertTrue(StaticVarCompensatorsValidation.checkSVCs("test", p, q, v, reactivePowerSetpoint, voltageSetpoint, regulationMode, bMin, bMax, strictConfig, NullWriter.NULL_WRITER));
         v = 340f;
         assertFalse(StaticVarCompensatorsValidation.checkSVCs("test", p, q, v, reactivePowerSetpoint, voltageSetpoint, regulationMode, bMin, bMax, strictConfig, NullWriter.NULL_WRITER));
 
-        // if regulationMode = VOLTAGE then either q is equal to bMax * V and v is higher than voltageSetpoint
-        q = -40f;
+        // if regulationMode = VOLTAGE then either q is equal to bMin * V * V and V is higher than voltageSetpoint
+        q = 1600f;
         v = 400f;
         assertTrue(StaticVarCompensatorsValidation.checkSVCs("test", p, q, v, reactivePowerSetpoint, voltageSetpoint, regulationMode, bMin, bMax, strictConfig, NullWriter.NULL_WRITER));
         v = 420f;
