@@ -14,9 +14,11 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import java.io.IOException;
 
 /**
+ * An ExtensionProvider able to serialize/deserialize extensions from JSON.
+ *
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public interface ExtensionJsonSerializer<T extends Extendable, E extends Extension<T>> extends ExtensionSerializer<T, E> {
+public interface ExtensionJsonSerializer<T extends Extendable, E extends Extension<T>> extends ExtensionProvider<T, E> {
 
     void serialize(E extension, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException;
 

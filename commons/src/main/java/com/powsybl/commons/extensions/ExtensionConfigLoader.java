@@ -13,10 +13,10 @@ import com.powsybl.commons.config.PlatformConfig;
  *
  * @author Sylvain Leclerc <sylvain.leclerc@rte-france.com>
  */
-public interface ExtensionConfigLoader<T extends Extendable, E extends Extension<T> > extends ExtensionSerializer<T, E> {
+public interface ExtensionConfigLoader<T extends Extendable, E extends Extension<T> > extends ExtensionProvider<T, E> {
 
     /**
-     * Loads an extension instance from the provided platform configuration.
+     * Creates an extension instance from the provided platform configuration.
      */
     E load(PlatformConfig platformConfig);
 }
