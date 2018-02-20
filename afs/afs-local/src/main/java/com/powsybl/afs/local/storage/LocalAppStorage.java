@@ -12,13 +12,14 @@ import com.powsybl.afs.storage.AppStorage;
 import com.powsybl.afs.storage.NodeDependency;
 import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.afs.storage.NodeInfo;
+import com.powsybl.commons.exceptions.UncheckedUnsupportedEncodingException;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.math.timeseries.*;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.UncheckedIOException;
+import java.io.*;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -106,9 +107,22 @@ public class LocalAppStorage implements AppStorage {
         return false;
     }
 
-    Path checkNodeId(String nodeId) {
+    private Path nodeIdToPath(String nodeId) {
         Objects.requireNonNull(nodeId);
-        return rootDir.getFileSystem().getPath(nodeId);
+        try {
+            return rootDir.getFileSystem().getPath(URLDecoder.decode(nodeId, StandardCharsets.UTF_8.name()));
+        } catch (UnsupportedEncodingException e) {
+            throw new UncheckedUnsupportedEncodingException(e);
+        }
+    }
+
+    private String pathToNodeId(Path path) {
+        Objects.requireNonNull(path);
+        try {
+            return URLEncoder.encode(path.toString(), StandardCharsets.UTF_8.name());
+        } catch (UnsupportedEncodingException e) {
+            throw new UncheckedUnsupportedEncodingException(e);
+        }
     }
 
     @Override
@@ -121,7 +135,7 @@ public class LocalAppStorage implements AppStorage {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-        return new NodeInfo(rootDir.toString(),
+        return new NodeInfo(pathToNodeId(rootDir),
                             name,
                             nodePseudoClass,
                             "",
@@ -133,7 +147,7 @@ public class LocalAppStorage implements AppStorage {
 
     @Override
     public NodeInfo getNodeInfo(String nodeId) {
-        Path path = checkNodeId(nodeId);
+        Path path = nodeIdToPath(nodeId);
         return getNodeInfo(path);
     }
 
@@ -146,7 +160,7 @@ public class LocalAppStorage implements AppStorage {
         }
         LocalFile file = scanFile(path, true);
         if (file != null) {
-            return new NodeInfo(path.toString(),
+            return new NodeInfo(pathToNodeId(path),
                                 file.getName(),
                                 file.getPseudoClass(),
                                 file.getDescription(),
@@ -157,7 +171,7 @@ public class LocalAppStorage implements AppStorage {
         } else {
             LocalFolder folder = scanFolder(path, true);
             if (folder != null) {
-                return new NodeInfo(path.toString(),
+                return new NodeInfo(pathToNodeId(path),
                                     folder.getName(),
                                     Folder.PSEUDO_CLASS,
                                     "",
@@ -187,7 +201,7 @@ public class LocalAppStorage implements AppStorage {
 
     @Override
     public List<NodeInfo> getChildNodes(String nodeId) {
-        Path path = checkNodeId(nodeId);
+        Path path = nodeIdToPath(nodeId);
         LocalFolder folder = scanFolder(path, false);
         if (folder != null) {
             return folder.getChildPaths().stream()
@@ -201,7 +215,7 @@ public class LocalAppStorage implements AppStorage {
 
     @Override
     public Optional<NodeInfo> getChildNode(String nodeId, String name) {
-        Path path = checkNodeId(nodeId);
+        Path path = nodeIdToPath(nodeId);
         Objects.requireNonNull(name);
         LocalFolder folder = scanFolder(path, false);
         if (folder != null) {
@@ -215,7 +229,7 @@ public class LocalAppStorage implements AppStorage {
 
     @Override
     public Optional<NodeInfo> getParentNode(String nodeId) {
-        Path path = checkNodeId(nodeId);
+        Path path = nodeIdToPath(nodeId);
         Optional<Path> parentPath;
         LocalFile file = scanFile(path, true);
         if (file != null) {
@@ -252,7 +266,7 @@ public class LocalAppStorage implements AppStorage {
     }
 
     private LocalFile getFile(String nodeId) {
-        Path path = checkNodeId(nodeId);
+        Path path = nodeIdToPath(nodeId);
         LocalFile file = scanFile(path, true);
         if (file == null) {
             throw new AssertionError();
