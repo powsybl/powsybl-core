@@ -18,7 +18,7 @@ package com.powsybl.iidm.network;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @see LineAdder
  */
-public interface Line extends Branch<Line>, LineCharasteristics<Line> {
+public interface Line extends Branch<Line>, LineCharacteristics<Line> {
 
     boolean isTieLine();
 
