@@ -48,6 +48,19 @@ public class SimpleCommandTest {
                 .build();
 
         assertEquals(ImmutableList.of("arg1", "file1"), cmd1.getArgs(1));
+        assertEquals(ImmutableList.of("arg2", "file2"), cmd1.getArgs(2));
+        assertEquals(ImmutableList.of("arg" + Command.EXECUTION_NUMBER_PATTERN, "file" + Command.EXECUTION_NUMBER_PATTERN), cmd1.getArgs());
+    }
+
+    @Test
+    public void test3() {
+        SimpleCommand cmd = new SimpleCommandBuilder()
+                .id("cmd")
+                .program("prg")
+                .args("arg" + Command.EXECUTION_NUMBER_PATTERN, "fix")
+                .build();
+        assertEquals(ImmutableList.of("arg13", "fix"), cmd.getArgs(13));
+        assertEquals(ImmutableList.of("arg" + Command.EXECUTION_NUMBER_PATTERN, "fix"), cmd.getArgs());
     }
 
     @Test(expected = RuntimeException.class)

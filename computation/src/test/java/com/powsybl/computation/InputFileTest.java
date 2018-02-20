@@ -21,6 +21,7 @@ public class InputFileTest {
     public void test() {
         InputFile file = new InputFile("test");
         assertEquals("test", file.getName(1));
+        assertEquals("test", file.getName());
         assertFalse(file.dependsOnExecutionNumber());
         assertNull(file.getPreProcessor());
     }
@@ -29,6 +30,7 @@ public class InputFileTest {
     public void test2() {
         InputFile file = new InputFile("test" + Command.EXECUTION_NUMBER_PATTERN);
         assertEquals("test1", file.getName(1));
+        assertEquals("test" + Command.EXECUTION_NUMBER_PATTERN, file.getName());
         assertTrue(file.dependsOnExecutionNumber());
         assertNull(file.getPreProcessor());
     }
@@ -37,6 +39,7 @@ public class InputFileTest {
     public void test3() {
         InputFile file = new InputFile(integer -> "test" + integer, null);
         assertEquals("test1", file.getName(1));
+        assertEquals("test" + Command.EXECUTION_NUMBER_PATTERN, file.getName());
         assertTrue(file.dependsOnExecutionNumber());
         assertNull(file.getPreProcessor());
     }

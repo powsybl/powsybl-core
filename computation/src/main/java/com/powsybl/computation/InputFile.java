@@ -63,6 +63,10 @@ public class InputFile {
         return name.getName(executionNumber);
     }
 
+    public String getName() {
+        return name.getName();
+    }
+
     public FilePreProcessor getPreProcessor() {
         return preProcessor;
     }

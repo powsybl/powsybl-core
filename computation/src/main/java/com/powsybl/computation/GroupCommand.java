@@ -21,6 +21,8 @@ public interface GroupCommand extends Command {
 
         List<String> getArgs(int executionNumber);
 
+        List<String> getArgs();
+
         int getTimeout();
 
         // only used for display

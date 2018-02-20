@@ -47,6 +47,10 @@ public class OutputFile {
         return name.getName(executionNumber);
     }
 
+    public String getName() {
+        return name.getName();
+    }
+
     public FilePostProcessor getPostProcessor() {
         return postProcessor;
     }

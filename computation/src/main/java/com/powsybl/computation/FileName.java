@@ -13,5 +13,7 @@ public interface FileName {
 
     String getName(int executionNumber);
 
+    String getName();
+
     boolean dependsOnExecutionNumber();
 }
