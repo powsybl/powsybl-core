@@ -57,7 +57,7 @@ public abstract class AbstractLoadFlowRulesEngineTest {
         Mockito.when(loadFlowResult.isOk())
                 .thenReturn(true);
         Mockito.when(loadFlow.getName()).thenReturn("load flow mock");
-        Mockito.when(loadFlow.run())
+        Mockito.when(loadFlow.run(Mockito.any()))
                 .thenReturn(loadFlowResult);
         LoadFlowActionSimulatorObserver observer = createObserver();
         GroovyCodeSource src = new GroovyCodeSource(new InputStreamReader(getClass().getResourceAsStream(getDslFile())), "test", GroovyShell.DEFAULT_CODE_BASE);
