@@ -36,7 +36,7 @@ public class LoadFlowExtensionGroovyScriptTest extends AbstractGroovyScriptTest 
         Mockito.when(result.isOk())
                 .thenReturn(true);
         LoadFlow loadFlow = Mockito.mock(LoadFlow.class);
-        Mockito.when(loadFlow.run())
+        Mockito.when(loadFlow.run(Mockito.any()))
                 .thenReturn(result);
         loadFlowFactory = Mockito.mock(LoadFlowFactory.class);
         Mockito.when(loadFlowFactory.create(Mockito.any(Network.class), Mockito.any(ComputationManager.class), Mockito.anyInt()))

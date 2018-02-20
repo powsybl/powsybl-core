@@ -11,7 +11,7 @@ package com.powsybl.iidm.network;
  */
 public interface TieLine extends Line {
 
-    interface HalfLine extends LineCharasteristics<HalfLine> {
+    interface HalfLine extends LineCharacteristics<HalfLine> {
 
         String getId();
 
