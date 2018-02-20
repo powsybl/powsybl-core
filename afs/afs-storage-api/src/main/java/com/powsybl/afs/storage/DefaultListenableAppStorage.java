@@ -13,6 +13,8 @@ import com.powsybl.math.timeseries.TimeSeriesMetadata;
 
 import java.io.OutputStream;
 import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -21,92 +23,128 @@ public class DefaultListenableAppStorage extends ForwardingAppStorage implements
 
     private final AppStorageListenerList listeners = new AppStorageListenerList();
 
+    private NodeEventList eventList = new NodeEventList();
+
+    private final Lock lock = new ReentrantLock();
+
     public DefaultListenableAppStorage(AppStorage storage) {
         super(storage);
+    }
+
+    private void addEvent(NodeEvent event) {
+        lock.lock();
+        try {
+            eventList.getEvents().add(event);
+        } finally {
+            lock.unlock();
+        }
     }
 
     @Override
     public NodeInfo createRootNodeIfNotExists(String name, String nodePseudoClass) {
         NodeInfo nodeInfo = super.createRootNodeIfNotExists(name, nodePseudoClass);
-        listeners.notify(new NodeCreated(nodeInfo.getId()));
+        addEvent(new NodeCreated(nodeInfo.getId()));
         return nodeInfo;
     }
 
     @Override
     public NodeInfo createNode(String parentNodeId, String name, String nodePseudoClass, String description, int version, NodeGenericMetadata genericMetadata) {
         NodeInfo nodeInfo = super.createNode(parentNodeId, name, nodePseudoClass, description, version, genericMetadata);
-        listeners.notify(new NodeCreated(nodeInfo.getId()));
+        addEvent(new NodeCreated(nodeInfo.getId()));
         return nodeInfo;
     }
 
     @Override
     public void setDescription(String nodeId, String description) {
         super.setDescription(nodeId, description);
-        listeners.notify(new NodeDescriptionUpdated(nodeId, description));
+        addEvent(new NodeDescriptionUpdated(nodeId, description));
     }
 
     @Override
     public void setParentNode(String nodeId, String newParentNodeId) {
         super.setParentNode(nodeId, newParentNodeId);
-        listeners.notify(new ParentChanged(nodeId));
+        addEvent(new ParentChanged(nodeId));
     }
 
     @Override
     public void deleteNode(String nodeId) {
         super.deleteNode(nodeId);
-        listeners.notify(new NodeRemoved(nodeId));
+        addEvent(new NodeRemoved(nodeId));
     }
 
     @Override
     public OutputStream writeBinaryData(String nodeId, String name) {
         OutputStream os = super.writeBinaryData(nodeId, name);
-        listeners.notify(new NodeDataUpdated(nodeId, name));
+        addEvent(new NodeDataUpdated(nodeId, name));
         return os;
     }
 
     @Override
     public void createTimeSeries(String nodeId, TimeSeriesMetadata metadata) {
         super.createTimeSeries(nodeId, metadata);
-        listeners.notify(new TimeSeriesCreated(nodeId, metadata.getName()));
+        addEvent(new TimeSeriesCreated(nodeId, metadata.getName()));
     }
 
     @Override
     public void addDoubleTimeSeriesData(String nodeId, int version, String timeSeriesName, List<DoubleArrayChunk> chunks) {
         super.addDoubleTimeSeriesData(nodeId, version, timeSeriesName, chunks);
-        listeners.notify(new TimeSeriesDataUpdated(nodeId, timeSeriesName));
+        addEvent(new TimeSeriesDataUpdated(nodeId, timeSeriesName));
     }
 
     @Override
     public void addStringTimeSeriesData(String nodeId, int version, String timeSeriesName, List<StringArrayChunk> chunks) {
         super.addStringTimeSeriesData(nodeId, version, timeSeriesName, chunks);
-        listeners.notify(new TimeSeriesDataUpdated(nodeId, timeSeriesName));
+        addEvent(new TimeSeriesDataUpdated(nodeId, timeSeriesName));
     }
 
     @Override
     public void clearTimeSeries(String nodeId) {
         super.clearTimeSeries(nodeId);
-        listeners.notify(new TimeSeriesCleared(nodeId));
+        addEvent(new TimeSeriesCleared(nodeId));
     }
 
     @Override
     public void addDependency(String nodeId, String name, String toNodeId) {
         super.addDependency(nodeId, name, toNodeId);
-        listeners.notify(new DependencyAdded(nodeId, name));
+        addEvent(new DependencyAdded(nodeId, name));
     }
 
     @Override
     public void removeDependency(String nodeId, String name, String toNodeId) {
         super.removeDependency(nodeId, name, toNodeId);
-        listeners.notify(new DependencyRemoved(nodeId, name));
+        addEvent(new DependencyRemoved(nodeId, name));
+    }
+
+    @Override
+    public void flush() {
+        lock.lock();
+        try {
+            if (eventList != null) {
+                listeners.notify(eventList);
+                eventList = new NodeEventList();
+            }
+        } finally {
+            lock.unlock();
+        }
     }
 
     @Override
     public void addListener(Object target, AppStorageListener l) {
-        listeners.add(target, l);
+        lock.lock();
+        try {
+            listeners.add(target, l);
+        } finally {
+            lock.unlock();
+        }
     }
 
     @Override
     public void removeListeners(Object target) {
-        listeners.removeAll(target);
+        lock.lock();
+        try {
+            listeners.removeAll(target);
+        } finally {
+            lock.unlock();
+        }
     }
 }

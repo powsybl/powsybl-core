@@ -29,7 +29,7 @@ public class AppStorageListenerList {
         listeners.remove(target);
     }
 
-    public void notify(NodeEvent event) {
-        listeners.values().stream().flatMap(List::stream).forEach(l -> l.onEvent(event));
+    public void notify(NodeEventList eventList) {
+        listeners.values().stream().flatMap(List::stream).forEach(l -> l.onEvents(eventList));
     }
 }
