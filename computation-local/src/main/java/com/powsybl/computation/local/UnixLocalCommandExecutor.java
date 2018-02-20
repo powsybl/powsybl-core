@@ -20,7 +20,7 @@ import java.util.Map;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class UnixLocalCommandExecutor implements LocalCommandExecutor {
+public class UnixLocalCommandExecutor extends AbstractLocalCommandExecutor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UnixLocalCommandExecutor.class);
 
@@ -36,11 +36,11 @@ public class UnixLocalCommandExecutor implements LocalCommandExecutor {
         for (Map.Entry<String, String> entry : env2.entrySet()) {
             String name = entry.getKey();
             String value = entry.getValue();
-            internalCmd.append("export ").append(name).append("=").append(value);
+            internalCmd.append(name).append("=").append(value);
             if (name.endsWith("PATH")) {
                 internalCmd.append(File.pathSeparator).append("$").append(name);
             }
-            internalCmd.append("; ");
+            internalCmd.append(" ");
         }
         internalCmd.append(program);
         for (String arg : args) {
@@ -59,6 +59,12 @@ public class UnixLocalCommandExecutor implements LocalCommandExecutor {
                 .redirectOutput(outRedirect)
                 .redirectError(errRedirect)
                 .start();
+        try {
+            lock.writeLock().lock();
+            processMap.put(workingDir, process);
+        } finally {
+            lock.writeLock().unlock();
+        }
         int exitValue = process.waitFor();
 
         // to avoid 'two many open files' exception

@@ -309,7 +309,7 @@
                             <excludes>
                                 <!-- Exclude CIMv1 generated model -->
                                 <exclude>cim1/**</exclude>
-                                
+
                                 <!-- exclude generated classes -->
                                 <exclude>**/generated/**/*</exclude>
                             </excludes>
@@ -514,7 +514,7 @@
                 <version>${logback.version}</version>
                 <scope>runtime</scope>
             </dependency>
-            
+
             <!-- Test dependencies -->
             <dependency>
                 <groupId>com.google.guava</groupId>

@@ -18,4 +18,9 @@ public interface LocalCommandExecutor {
 
     int execute(String program, List<String> args, Path outFile, Path errFile, Path workingDir, Map<String, String> env) throws IOException, InterruptedException;
 
+    // kill -15
+    void stop(Path workingDir);
+
+    // kill -9
+    void stopForcibly(Path workingDir) throws InterruptedException;
 }
