@@ -45,7 +45,7 @@ public class DefaultListenableAppStorageTest {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         listenableStorage.removeListeners(this);
     }
 

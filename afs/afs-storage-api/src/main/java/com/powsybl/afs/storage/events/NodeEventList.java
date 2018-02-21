@@ -6,32 +6,38 @@
  */
 package com.powsybl.afs.storage.events;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.util.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class NodeEventList {
 
+    @JsonProperty("events")
     private List<NodeEvent> events;
 
     public NodeEventList() {
-        events = new ArrayList<>();
+        this(new ArrayList<>());
     }
 
     public NodeEventList(NodeEvent... events) {
-        this.events = new ArrayList<>(Arrays.asList(events));
+        this(new ArrayList<>(Arrays.asList(events)));
+    }
+
+    @JsonCreator
+    public NodeEventList(@JsonProperty("events") List<NodeEvent> events) {
+        this.events = Objects.requireNonNull(events);
+    }
+
+    public void addEvent(NodeEvent event) {
+        events.add(event);
     }
 
     public List<NodeEvent> getEvents() {
-        return events;
-    }
-
-    public void setEvents(List<NodeEvent> events) {
-        this.events = Objects.requireNonNull(events);
+        return Collections.unmodifiableList(events);
     }
 
     @Override

@@ -34,7 +34,7 @@ public class DefaultListenableAppStorage extends ForwardingAppStorage implements
     private void addEvent(NodeEvent event) {
         lock.lock();
         try {
-            eventList.getEvents().add(event);
+            eventList.addEvent(event);
         } finally {
             lock.unlock();
         }
@@ -117,12 +117,11 @@ public class DefaultListenableAppStorage extends ForwardingAppStorage implements
 
     @Override
     public void flush() {
+        super.flush();
         lock.lock();
         try {
-            if (eventList != null) {
-                listeners.notify(eventList);
-                eventList = new NodeEventList();
-            }
+            listeners.notify(eventList);
+            eventList = new NodeEventList();
         } finally {
             lock.unlock();
         }
@@ -130,21 +129,11 @@ public class DefaultListenableAppStorage extends ForwardingAppStorage implements
 
     @Override
     public void addListener(Object target, AppStorageListener l) {
-        lock.lock();
-        try {
-            listeners.add(target, l);
-        } finally {
-            lock.unlock();
-        }
+        listeners.add(target, l);
     }
 
     @Override
     public void removeListeners(Object target) {
-        lock.lock();
-        try {
-            listeners.removeAll(target);
-        } finally {
-            lock.unlock();
-        }
+        listeners.removeAll(target);
     }
 }
