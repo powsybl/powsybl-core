@@ -11,5 +11,5 @@ package com.powsybl.afs.storage.events;
  */
 public interface AppStorageListener {
 
-    void onEvent(NodeEvent event);
+    void onEvents(NodeEventList eventList);
 }

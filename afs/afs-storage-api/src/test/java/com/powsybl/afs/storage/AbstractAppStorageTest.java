@@ -55,7 +55,7 @@ public abstract class AbstractAppStorageTest {
         } else {
             this.storage = new DefaultListenableAppStorage(storage);
         }
-        this.storage.addListener(this, event -> eventStack.add(event));
+        this.storage.addListener(this, eventList -> eventStack.addAll(eventList.getEvents()));
     }
 
     @After
