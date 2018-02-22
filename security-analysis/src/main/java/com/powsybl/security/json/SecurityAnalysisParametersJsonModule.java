@@ -6,16 +6,15 @@
  */
 package com.powsybl.security.json;
 
-import com.powsybl.loadflow.json.LoadFlowParametersJsonModule;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.powsybl.security.SecurityAnalysisParameters;
 
 /**
  * @author Sylvain Leclerc <sylvain.leclerc@rte-france.com>
  */
-public class SecurityAnalysisParametersJsonModule extends LoadFlowParametersJsonModule {
+class SecurityAnalysisParametersJsonModule extends SimpleModule {
 
     public SecurityAnalysisParametersJsonModule() {
-        super();
         addDeserializer(SecurityAnalysisParameters.class, new SecurityAnalysisParametersDeserializer());
         addSerializer(SecurityAnalysisParameters.class, new SecurityAnalysisParametersSerializer());
     }

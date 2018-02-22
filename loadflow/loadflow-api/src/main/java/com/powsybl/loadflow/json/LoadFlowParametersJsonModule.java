@@ -12,7 +12,7 @@ import com.powsybl.loadflow.LoadFlowParameters;
 /**
  * @author Sylvain Leclerc <sylvain.leclerc@rte-france.com>
  */
-public class LoadFlowParametersJsonModule extends SimpleModule {
+class LoadFlowParametersJsonModule extends SimpleModule {
 
     public LoadFlowParametersJsonModule() {
         addDeserializer(LoadFlowParameters.class, new LoadFlowParametersDeserializer());

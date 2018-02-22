@@ -13,6 +13,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 
+import static com.powsybl.loadflow.LoadFlowParameters.VoltageInitMode.PREVIOUS_VALUES;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -24,7 +25,7 @@ public class JsonLoadFlowParametersTest extends AbstractConverterTest {
     @Test
     public void roundTrip() throws IOException {
         LoadFlowParameters parameters = new LoadFlowParameters()
-                .setVoltageInitMode(com.powsybl.loadflow.LoadFlowParameters.VoltageInitMode.PREVIOUS_VALUES)
+                .setVoltageInitMode(PREVIOUS_VALUES)
                 .setNoGeneratorReactiveLimits(true)
                 .setTransformerVoltageControlOn(true);
         roundTripTest(parameters, JsonLoadFlowParameters::write, JsonLoadFlowParameters::read, "/LoadFlowParameters.json");

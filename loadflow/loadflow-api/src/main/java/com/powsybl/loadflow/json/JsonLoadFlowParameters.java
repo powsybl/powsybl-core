@@ -6,8 +6,12 @@
  */
 package com.powsybl.loadflow.json;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.extensions.Extension;
@@ -87,8 +91,7 @@ public final class JsonLoadFlowParameters {
      */
     public static LoadFlowParameters update(LoadFlowParameters parameters, InputStream jsonStream) {
         try {
-            ObjectMapper objectMapper = JsonUtil.createObjectMapper()
-                    .registerModule(new LoadFlowParametersJsonModule());
+            ObjectMapper objectMapper = createObjectMapper();
             return objectMapper.readerForUpdating(parameters).readValue(jsonStream);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -113,12 +116,37 @@ public final class JsonLoadFlowParameters {
      */
     public static void write(LoadFlowParameters parameters, OutputStream outputStream) {
         try {
-            ObjectMapper objectMapper = JsonUtil.createObjectMapper()
-                    .registerModule(new LoadFlowParametersJsonModule());
+            ObjectMapper objectMapper = createObjectMapper();
             ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
             writer.writeValue(outputStream, parameters);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    private static ObjectMapper createObjectMapper() {
+        return JsonUtil.createObjectMapper()
+                .registerModule(new LoadFlowParametersJsonModule());
+    }
+
+    /**
+     *  Low level deserialization method, to be used for instance for reading load flow parameters nested in another object.
+     */
+    public static LoadFlowParameters deserialize(JsonParser parser, DeserializationContext context, LoadFlowParameters parameters) throws IOException {
+        return new LoadFlowParametersDeserializer().deserialize(parser, context, parameters);
+    }
+
+    /**
+     *  Low level deserialization method, to be used for instance for updating load flow parameters nested in another object.
+     */
+    public static LoadFlowParameters deserialize(JsonParser parser, DeserializationContext context) throws IOException {
+        return new LoadFlowParametersDeserializer().deserialize(parser, context);
+    }
+
+    /**
+     *  Low level serialization method, to be used for instance for writing load flow parameters nested in another object.
+     */
+    public static void serialize(LoadFlowParameters parameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException  {
+        new LoadFlowParametersSerializer().serialize(parameters, jsonGenerator, serializerProvider);
     }
 }

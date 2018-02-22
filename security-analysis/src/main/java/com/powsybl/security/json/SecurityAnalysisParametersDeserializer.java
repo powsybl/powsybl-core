@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.loadflow.LoadFlowParameters;
+import com.powsybl.loadflow.json.JsonLoadFlowParameters;
 import com.powsybl.security.SecurityAnalysisParameters;
 
 import java.io.IOException;
@@ -46,7 +46,7 @@ class SecurityAnalysisParametersDeserializer extends StdDeserializer<SecurityAna
 
                 case "load-flow-parameters":
                     parser.nextToken();
-                    parameters.setLoadFlowParameters(parser.readValueAs(LoadFlowParameters.class));
+                    JsonLoadFlowParameters.deserialize(parser, deserializationContext, parameters.getLoadFlowParameters());
                     break;
 
                 case "extensions":

@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.loadflow.json.JsonLoadFlowParameters;
 import com.powsybl.security.SecurityAnalysisParameters;
 
 import java.io.IOException;
@@ -30,7 +31,8 @@ class SecurityAnalysisParametersSerializer extends StdSerializer<SecurityAnalysi
 
         jsonGenerator.writeStringField("version", SecurityAnalysisParameters.VERSION);
 
-        jsonGenerator.writeObjectField("load-flow-parameters", parameters.getLoadFlowParameters());
+        jsonGenerator.writeFieldName("load-flow-parameters");
+        JsonLoadFlowParameters.serialize(parameters.getLoadFlowParameters(), jsonGenerator, serializerProvider);
 
         JsonUtil.writeExtensions(parameters, jsonGenerator, serializerProvider, JsonSecurityAnalysisParameters.getExtensionSerializers());
 

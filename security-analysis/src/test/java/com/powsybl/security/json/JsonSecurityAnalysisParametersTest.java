@@ -35,6 +35,15 @@ public class JsonSecurityAnalysisParametersTest extends AbstractConverterTest {
     }
 
     @Test
+    public void updateLoadFlowParameters() {
+        SecurityAnalysisParameters parameters = new SecurityAnalysisParameters();
+        parameters.getLoadFlowParameters().setSpecificCompatibility(true);
+        JsonSecurityAnalysisParameters.update(parameters, getClass().getResourceAsStream("/SecurityAnalysisParametersIncomplete.json"));
+
+        assertEquals(true, parameters.getLoadFlowParameters().isSpecificCompatibility());
+    }
+
+    @Test
     public void readExtension() throws IOException {
         SecurityAnalysisParameters parameters = JsonSecurityAnalysisParameters.read(getClass().getResourceAsStream("/SecurityAnalysisParametersWithExtension.json"));
         assertEquals(1, parameters.getExtensions().size());
