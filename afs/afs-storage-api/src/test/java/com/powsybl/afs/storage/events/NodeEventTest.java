@@ -184,4 +184,13 @@ public class NodeEventTest {
                 .addEqualityGroup(new TimeSeriesDataUpdated("c", "d"), new TimeSeriesDataUpdated("c", "d"))
                 .testEquals();
     }
+
+    @Test
+    public void eventListTest() throws IOException {
+        NodeEventList eventList = new NodeEventList(new NodeCreated("a"), new NodeRemoved("b"));
+        assertEquals("[NodeCreated(id=a), NodeRemoved(id=b)]", eventList.toString());
+
+        NodeEventList eventList2 = objectMapper.readValue(objectMapper.writeValueAsString(eventList), NodeEventList.class);
+        assertEquals(eventList, eventList2);
+    }
 }
