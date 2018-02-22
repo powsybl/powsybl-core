@@ -125,21 +125,21 @@ public final class JsonSecurityAnalysisParameters {
     }
 
     /**
-     *  Low level deserialization method, to be used for instance for reading load flow parameters nested in another object.
+     *  Low level deserialization method, to be used for instance for reading security analysis parameters nested in another object.
      */
     public static SecurityAnalysisParameters deserialize(JsonParser parser, DeserializationContext context, SecurityAnalysisParameters parameters) throws IOException {
         return new SecurityAnalysisParametersDeserializer().deserialize(parser, context, parameters);
     }
 
     /**
-     *  Low level deserialization method, to be used for instance for updating load flow parameters nested in another object.
+     *  Low level deserialization method, to be used for instance for updating lsecurity analysis parameters nested in another object.
      */
     public static SecurityAnalysisParameters deserialize(JsonParser parser, DeserializationContext context) throws IOException {
         return new SecurityAnalysisParametersDeserializer().deserialize(parser, context);
     }
 
     /**
-     *  Low level serialization method, to be used for instance for writing load flow parameters nested in another object.
+     *  Low level serialization method, to be used for instance for writing security analysis parameters nested in another object.
      */
     public static void serialize(SecurityAnalysisParameters parameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException  {
         new SecurityAnalysisParametersSerializer().serialize(parameters, jsonGenerator, serializerProvider);
