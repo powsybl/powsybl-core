@@ -308,6 +308,7 @@ public abstract class AbstractAppStorageTest {
         assertEquals(new TimeSeriesDataUpdated(testData2Info.getId(), "ts1"), eventStack.take());
 
         // check versions
+        assertEquals(ImmutableSet.of(0), storage.getTimeSeriesDataVersions(testData2Info.getId()));
         assertEquals(ImmutableSet.of(0), storage.getTimeSeriesDataVersions(testData2Info.getId(), "ts1"));
 
         // check double time series data query

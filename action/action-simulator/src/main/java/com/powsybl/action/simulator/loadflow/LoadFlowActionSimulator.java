@@ -18,6 +18,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.xml.NetworkXml;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowFactory;
+import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.LimitViolationFilter;
@@ -132,7 +133,7 @@ public class LoadFlowActionSimulator implements ActionSimulator {
         LOGGER.info("Running loadflow ({})", loadFlow.getName());
         LoadFlowResult result;
         try {
-            result = loadFlow.run();
+            result = loadFlow.run(LoadFlowParameters.load());
         } catch (Exception e) {
             throw new PowsyblException(e);
         }

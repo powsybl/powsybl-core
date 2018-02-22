@@ -132,6 +132,11 @@ public class ForwardingAppStorage implements AppStorage {
     }
 
     @Override
+    public Set<Integer> getTimeSeriesDataVersions(String nodeId) {
+        return storage.getTimeSeriesDataVersions(nodeId);
+    }
+
+    @Override
     public Set<Integer> getTimeSeriesDataVersions(String nodeId, String timeSeriesName) {
         return storage.getTimeSeriesDataVersions(nodeId, timeSeriesName);
     }

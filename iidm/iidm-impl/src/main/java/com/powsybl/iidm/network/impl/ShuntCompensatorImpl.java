@@ -76,7 +76,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     @Override
     public ShuntCompensatorImpl setMaximumSectionCount(int maximumSectionCount) {
         ValidationUtil.checkSections(this, getCurrentSectionCount(), maximumSectionCount);
-        float oldValue = this.maximumSectionCount;
+        int oldValue = this.maximumSectionCount;
         this.maximumSectionCount = maximumSectionCount;
         notifyUpdate("maximumSectionCount", oldValue, maximumSectionCount);
         return this;

@@ -13,9 +13,11 @@ import javax.xml.stream.XMLStreamException;
 import java.io.InputStream;
 
 /**
+ * An ExtensionProvider able to serialize/deserialize extensions from XML.
+ *
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public interface ExtensionXmlSerializer<T extends Extendable, E extends Extension<T>> extends ExtensionSerializer<T, E> {
+public interface ExtensionXmlSerializer<T extends Extendable, E extends Extension<T>> extends ExtensionProvider<T, E> {
 
     boolean hasSubElements();
 

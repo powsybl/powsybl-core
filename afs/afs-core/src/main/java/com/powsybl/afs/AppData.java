@@ -12,7 +12,6 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 
 import java.util.*;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
@@ -36,53 +35,26 @@ public class AppData implements AutoCloseable {
 
     private final Map<ServiceExtension.ServiceKey, Object> services = new HashMap<>();
 
-    private final TaskMonitor taskMonitor;
-
-    private final Supplier<AppLogger> loggerFactory;
-
-    private static class NoOpAppLogger implements AppLogger {
-
-        @Override
-        public AppLogger tagged(String tag) {
-            return this;
-        }
-
-        @Override
-        public void log(String message, Object... args) {
-            // no-op
-        }
-    }
-
     public AppData() {
         this(LocalComputationManager.getDefault());
     }
 
     public AppData(ComputationManager computationManager) {
-        this(computationManager, NoOpAppLogger::new);
+        this(computationManager, new ServiceLoaderCache<>(AppFileSystemProvider.class).getServices());
     }
 
-    public AppData(ComputationManager computationManager, Supplier<AppLogger> loggerFactory) {
+    public AppData(ComputationManager computationManager, List<AppFileSystemProvider> fileSystemProviders) {
         this(computationManager,
-                new ServiceLoaderCache<>(AppFileSystemProvider.class).getServices(),
+                fileSystemProviders,
                 new ServiceLoaderCache<>(FileExtension.class).getServices(),
                 new ServiceLoaderCache<>(ProjectFileExtension.class).getServices(),
-                new ServiceLoaderCache<>(ServiceExtension.class).getServices(),
-                new LocalTaskMonitor(), loggerFactory);
+                new ServiceLoaderCache<>(ServiceExtension.class).getServices());
     }
 
     public AppData(ComputationManager computationManager, List<AppFileSystemProvider> fileSystemProviders,
                    List<FileExtension> fileExtensions, List<ProjectFileExtension> projectFileExtensions,
                    List<ServiceExtension> serviceExtensions) {
-        this(computationManager, fileSystemProviders, fileExtensions, projectFileExtensions, serviceExtensions,
-                new LocalTaskMonitor(), NoOpAppLogger::new);
-    }
-
-    public AppData(ComputationManager computationManager, List<AppFileSystemProvider> fileSystemProviders,
-                   List<FileExtension> fileExtensions, List<ProjectFileExtension> projectFileExtensions,
-                   List<ServiceExtension> serviceExtensions, TaskMonitor taskMonitor, Supplier<AppLogger> loggerFactory) {
         this.computationManager = Objects.requireNonNull(computationManager);
-        this.taskMonitor = Objects.requireNonNull(taskMonitor);
-        this.loggerFactory = Objects.requireNonNull(loggerFactory);
         Objects.requireNonNull(fileSystemProviders);
         Objects.requireNonNull(fileExtensions);
         Objects.requireNonNull(projectFileExtensions);
@@ -102,16 +74,8 @@ public class AppData implements AutoCloseable {
             this.projectFileClasses.add(extension.getProjectFileClass());
         }
         for (ServiceExtension extension : serviceExtensions) {
-            this.services.put(extension.getServiceKey(), extension.createService(taskMonitor));
+            this.services.put(extension.getServiceKey(), extension.createService());
         }
-    }
-
-    public AppLogger createLogger() {
-        AppLogger logger = loggerFactory.get();
-        if (logger == null) {
-            throw new NullPointerException("Null logger");
-        }
-        return logger;
     }
 
     public void addFileSystem(AppFileSystem fileSystem) {
@@ -201,17 +165,18 @@ public class AppData implements AutoCloseable {
         return afs != null ? afs.getStorage() : null;
     }
 
-    <U> U findService(Class<U> serviceClass, boolean remote) {
-        ServiceExtension.ServiceKey<U> serviceKey = new ServiceExtension.ServiceKey<>(serviceClass, remote);
-        U service = (U) services.get(serviceKey);
+    <U> U findService(Class<U> serviceClass, boolean remoteStorage) {
+        U service = null;
+        if (remoteStorage) {
+            service = (U) services.get(new ServiceExtension.ServiceKey<>(serviceClass, true));
+        }
         if (service == null) {
-            throw new AfsException("No service found for key " + serviceKey + "");
+            service = (U) services.get(new ServiceExtension.ServiceKey<>(serviceClass, false));
+        }
+        if (service == null) {
+            throw new AfsException("No service found for class " + serviceClass);
         }
         return service;
-    }
-
-    public TaskMonitor getTaskMonitor() {
-        return taskMonitor;
     }
 
     @Override

@@ -54,5 +54,5 @@ public interface ServiceExtension<U> {
 
     ServiceKey<U> getServiceKey();
 
-    U createService(TaskMonitor taskMonitor);
+    U createService();
 }
