@@ -154,7 +154,7 @@ public final class JsonUtil {
 
     public static <T> void writeExtensions(Extendable<T> extendable, JsonGenerator jsonGenerator,
                                            SerializerProvider serializerProvider,
-                                           ExtensionProviders<ExtensionJsonSerializer> supplier) throws IOException {
+                                           ExtensionProviders<? extends ExtensionJsonSerializer> supplier) throws IOException {
         Objects.requireNonNull(extendable);
         Objects.requireNonNull(jsonGenerator);
         Objects.requireNonNull(serializerProvider);
@@ -186,7 +186,7 @@ public final class JsonUtil {
     }
 
     public static <T> List<Extension<T>> readExtensions(JsonParser parser, DeserializationContext context,
-                                                        ExtensionProviders<ExtensionJsonSerializer> supplier) throws IOException {
+                                                        ExtensionProviders<? extends ExtensionJsonSerializer> supplier) throws IOException {
         Objects.requireNonNull(parser);
         Objects.requireNonNull(context);
         Objects.requireNonNull(supplier);
