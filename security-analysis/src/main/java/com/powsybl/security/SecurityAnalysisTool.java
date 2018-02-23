@@ -73,10 +73,10 @@ public class SecurityAnalysisTool implements Tool {
                     .required()
                     .build());
                 options.addOption(Option.builder().longOpt(PARAMETERS_FILE)
-                        .desc("loadflow parameters as JSON file")
-                        .hasArg()
-                        .argName("FILE")
-                        .build());
+                    .desc("loadflow parameters as JSON file")
+                    .hasArg()
+                    .argName("FILE")
+                    .build());
                 options.addOption(Option.builder().longOpt(LIMIT_TYPES_OPTION)
                     .desc("limit type filter (all if not set)")
                     .hasArg()
@@ -98,10 +98,10 @@ public class SecurityAnalysisTool implements Tool {
                     .argName("FILE")
                     .build());
                 options.addOption(Option.builder().longOpt(WITH_EXTENSIONS_OPTION)
-                        .desc("the extension list to enable")
-                        .hasArg()
-                        .argName("EXTENSIONS")
-                        .build());
+                    .desc("the extension list to enable")
+                    .hasArg()
+                    .argName("EXTENSIONS")
+                    .build());
                 return options;
             }
 

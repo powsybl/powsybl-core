@@ -50,19 +50,23 @@ class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowParameters>
                     break;
 
                 case "transformerVoltageControlOn":
-                    parameters.setTransformerVoltageControlOn(parser.nextBooleanValue());
+                    parser.nextToken();
+                    parameters.setTransformerVoltageControlOn(parser.readValueAs(Boolean.class));
                     break;
 
                 case "noGeneratorReactiveLimits":
-                    parameters.setNoGeneratorReactiveLimits(parser.nextBooleanValue());
+                    parser.nextToken();
+                    parameters.setNoGeneratorReactiveLimits(parser.readValueAs(Boolean.class));
                     break;
 
                 case "phaseShifterRegulationOn":
-                    parameters.setPhaseShifterRegulationOn(parser.nextBooleanValue());
+                    parser.nextToken();
+                    parameters.setPhaseShifterRegulationOn(parser.readValueAs(Boolean.class));
                     break;
 
                 case "specificCompatibility":
-                    parameters.setSpecificCompatibility(parser.nextBooleanValue());
+                    parser.nextToken();
+                    parameters.setSpecificCompatibility(parser.readValueAs(Boolean.class));
                     break;
 
                 case "extensions":
