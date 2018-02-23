@@ -11,6 +11,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.ComponentDefaultConfig;
 import com.powsybl.commons.io.table.*;
 import com.powsybl.loadflow.LoadFlowParameters;
+import com.powsybl.loadflow.json.JsonLoadFlowParameters;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
 import com.powsybl.tools.ToolRunningContext;
@@ -44,6 +45,7 @@ import java.util.Properties;
 public class RunLoadFlowTool implements Tool {
 
     private static final String CASE_FILE = "case-file";
+    private static final String PARAMETERS_FILE = "parameters-file";
     private static final String OUTPUT_FILE = "output-file";
     private static final String OUTPUT_FORMAT = "output-format";
     private static final String SKIP_POSTPROC = "skip-postproc";
@@ -81,6 +83,11 @@ public class RunLoadFlowTool implements Tool {
                         .hasArg()
                         .argName("FILE")
                         .required()
+                        .build());
+                options.addOption(Option.builder().longOpt(PARAMETERS_FILE)
+                        .desc("loadflow parameters as JSON file")
+                        .hasArg()
+                        .argName("FILE")
                         .build());
                 options.addOption(Option.builder().longOpt(OUTPUT_FILE)
                         .desc("loadflow results output path")
@@ -147,7 +154,14 @@ public class RunLoadFlowTool implements Tool {
             throw new PowsyblException("Case '" + caseFile + "' not found");
         }
         LoadFlow loadFlow = defaultConfig.newFactoryImpl(LoadFlowFactory.class).create(network, context.getComputationManager(), 0);
-        LoadFlowResult result = loadFlow.run(LoadFlowParameters.load());
+
+        LoadFlowParameters params = LoadFlowParameters.load();
+        if (line.hasOption(PARAMETERS_FILE)) {
+            Path parametersFile = context.getFileSystem().getPath(line.getOptionValue(PARAMETERS_FILE));
+            JsonLoadFlowParameters.update(params, parametersFile);
+        }
+
+        LoadFlowResult result = loadFlow.run(params);
 
         if (outputFile != null) {
             exportResult(result, context, outputFile, format);
