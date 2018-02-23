@@ -52,29 +52,11 @@ public class UnixLocalCommandExecutor extends AbstractLocalCommandExecutor {
                 .add("-c")
                 .add(internalCmd.toString())
                 .build();
-        ProcessBuilder.Redirect outRedirect = ProcessBuilder.Redirect.appendTo(outFile.toFile());
-        ProcessBuilder.Redirect errRedirect = ProcessBuilder.Redirect.appendTo(errFile.toFile());
-        Process process = new ProcessBuilder(cmdLs)
-                .directory(workingDir.toFile())
-                .redirectOutput(outRedirect)
-                .redirectError(errRedirect)
-                .start();
-        try {
-            lock.writeLock().lock();
-            processMap.put(workingDir, process);
-        } finally {
-            lock.writeLock().unlock();
-        }
-        int exitValue = process.waitFor();
+        return execute(cmdLs, workingDir, outFile, errFile);
+    }
 
-        // to avoid 'two many open files' exception
-        process.getInputStream().close();
-        process.getOutputStream().close();
-        process.getErrorStream().close();
-
-        if (exitValue != 0) {
-            LOGGER.debug("Command '{}' has failed (exitValue={})", cmdLs, exitValue);
-        }
-        return exitValue;
+    @Override
+    void nonZeroLog(List<String> cmdLs, int exitCode) {
+        LOGGER.debug(NON_ZERO_LOG_PATTERN, cmdLs, exitCode);
     }
 }

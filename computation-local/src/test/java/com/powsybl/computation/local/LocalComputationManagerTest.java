@@ -93,6 +93,11 @@ public class LocalComputationManagerTest {
     public void test1() throws Exception {
         LocalCommandExecutor localCommandExecutor = new AbstractLocalCommandExecutor() {
             @Override
+            void nonZeroLog(List<String> cmdLs, int exitCode) {
+
+            }
+
+            @Override
             public int execute(String program, List<String> args, Path outFile, Path errFile, Path workingDir, Map<String, String> env) throws IOException, InterruptedException {
                 // check command line is correct
                 assertEquals("prog1", program);
@@ -155,6 +160,11 @@ public class LocalComputationManagerTest {
     @Test
     public void test2() throws Exception {
         LocalCommandExecutor localCommandExecutor = new AbstractLocalCommandExecutor() {
+            @Override
+            void nonZeroLog(List<String> cmdLs, int exitCode) {
+
+            }
+
             @Override
             public int execute(String program, List<String> args, Path outFile, Path errFile, Path workingDir, Map<String, String> env) throws IOException, InterruptedException {
                 // check working directory exists and standard output file
