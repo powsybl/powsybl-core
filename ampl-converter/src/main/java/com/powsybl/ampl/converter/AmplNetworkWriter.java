@@ -1311,6 +1311,7 @@ public class AmplNetworkWriter {
                                                                   new Column(FAULT),
                                                                   new Column(config.getActionType().getLabel()),
                                                                   new Column("id"),
+                                                                  new Column(DESCRIPTION),
                                                                   new Column(ACTIVE_POWER),
                                                                   new Column(REACTIVE_POWER))) {
             List<String> skipped = new ArrayList<>();
@@ -1348,6 +1349,7 @@ public class AmplNetworkWriter {
                         .writeCell(faultNum)
                         .writeCell(actionNum)
                         .writeCell(id)
+                        .writeCell(svc.getName())
                         .writeCell(t.getP())
                         .writeCell(t.getQ());
             }
