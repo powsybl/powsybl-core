@@ -6,8 +6,10 @@
  */
 package com.powsybl.computation.local;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -16,6 +18,8 @@ public abstract class AbstractLocalCommandExecutor implements LocalCommandExecut
 
     protected final Map<Path, Process> processMap = new HashMap<>();
     protected final ReadWriteLock lock = new ReentrantReadWriteLock();
+
+    protected static final String NON_ZERO_LOG_PATTERN = "Command '{}' has failed (exitValue={})";
 
     @Override
     public void stop(Path workingDir) {
@@ -42,4 +46,33 @@ public abstract class AbstractLocalCommandExecutor implements LocalCommandExecut
             lock.readLock().unlock();
         }
     }
+
+    protected int execute(List<String> cmdLs, Path workingDir, Path outFile, Path errFile) throws IOException, InterruptedException {
+        ProcessBuilder.Redirect outRedirect = ProcessBuilder.Redirect.appendTo(outFile.toFile());
+        ProcessBuilder.Redirect errRedirect = ProcessBuilder.Redirect.appendTo(errFile.toFile());
+        Process process = new ProcessBuilder(cmdLs)
+                .directory(workingDir.toFile())
+                .redirectOutput(outRedirect)
+                .redirectError(errRedirect)
+                .start();
+        try {
+            lock.writeLock().lock();
+            processMap.put(workingDir, process);
+        } finally {
+            lock.writeLock().unlock();
+        }
+        int exitCode = process.waitFor();
+
+        // to avoid 'too many open files' exception
+        process.getInputStream().close();
+        process.getOutputStream().close();
+        process.getErrorStream().close();
+
+        if (exitCode != 0) {
+            nonZeroLog(cmdLs, exitCode);
+        }
+        return exitCode;
+    }
+
+    abstract void nonZeroLog(List<String> cmdLs, int exitCode);
 }
