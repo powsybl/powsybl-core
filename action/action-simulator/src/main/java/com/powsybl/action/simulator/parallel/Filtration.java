@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 
 public class Filtration {
 
-    private static final Pattern pattern = Pattern.compile("\\d+/\\d+");
+    private static final Pattern PATTERN = Pattern.compile("\\d+/\\d+");
 
     private final Integer x;
     private final Integer y;
@@ -21,7 +21,7 @@ public class Filtration {
     public Filtration(String filtration) {
         Objects.requireNonNull(filtration);
 
-        boolean valid = pattern.matcher(filtration).find();
+        boolean valid = PATTERN.matcher(filtration).find();
         if (!valid) {
             throw new PowsyblException(filtration + " is not valid");
         }
@@ -37,7 +37,7 @@ public class Filtration {
 
     int from(int size) {
         checkSize(size);
-        return (x - 1) * size / y ;
+        return (x - 1) * size / y;
     }
 
     int to(int size) {
@@ -46,7 +46,8 @@ public class Filtration {
     }
 
     private void checkSize(int size) {
-        if (size < y)
+        if (size < y) {
             throw new PowsyblException("size is smaller than y");
+        }
     }
 }

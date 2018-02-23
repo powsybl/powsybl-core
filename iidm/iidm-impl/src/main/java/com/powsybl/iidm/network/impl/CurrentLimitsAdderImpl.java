@@ -113,13 +113,13 @@ public class CurrentLimitsAdderImpl<S, O extends CurrentLimitsOwner<S>> implemen
         float previousLimit = Float.NaN;
         for (TemporaryLimit tl : temporaryLimits.values()) { // iterate in ascending order
             if (tl.getValue() <= permanentLimit) {
-                LOGGER.debug("{}, temporary limit should be greather than permanent limit", owner.getMessageHeader());
+//                LOGGER.debug("{}, temporary limit should be greather than permanent limit", owner.getMessageHeader());
             }
             if (Float.isNaN(previousLimit)) {
                 previousLimit = tl.getValue();
             } else {
                 if (tl.getValue() <= previousLimit) {
-                    LOGGER.debug("{} : temporary limits should be in ascending value order", owner.getMessageHeader());
+//                    LOGGER.debug("{} : temporary limits should be in ascending value order", owner.getMessageHeader());
                 }
             }
         }

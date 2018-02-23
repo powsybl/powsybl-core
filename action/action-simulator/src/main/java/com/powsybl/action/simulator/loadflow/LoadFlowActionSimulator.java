@@ -246,4 +246,8 @@ public class LoadFlowActionSimulator implements ActionSimulator {
             return false;
         }
     }
+
+    protected ComputationManager getComputationManager() {
+        return computationManager;
+    }
 }

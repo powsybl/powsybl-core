@@ -16,6 +16,9 @@ import com.powsybl.action.simulator.loadflow.LoadFlowActionSimulator;
 import com.powsybl.action.simulator.loadflow.LoadFlowActionSimulatorConfig;
 import com.powsybl.action.simulator.loadflow.LoadFlowActionSimulatorLogPrinter;
 import com.powsybl.action.simulator.loadflow.LoadFlowActionSimulatorObserver;
+import com.powsybl.action.simulator.parallel.Filtration;
+import com.powsybl.action.simulator.parallel.LocalLoadFlowActionSimulator;
+import com.powsybl.action.simulator.parallel.ParallelLoadFlowActionSimulator;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.CompressionFormat;
 import com.powsybl.commons.datasource.DataSourceUtil;
@@ -51,18 +54,9 @@ import java.util.stream.Collectors;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @AutoService(Tool.class)
-public class ActionSimulatorTool implements Tool {
+public class ActionSimulatorTool implements Tool, ActionSimulatorToolConstants {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ActionSimulatorTool.class);
-
-    private static final String CASE_FILE = "case-file";
-    private static final String DSL_FILE = "dsl-file";
-    private static final String CONTINGENCIES = "contingencies";
-    private static final String VERBOSE = "verbose";
-    private static final String OUTPUT_CSV = "output-csv";
-    private static final String OUTPUT_CASE_FOLDER = "output-case-folder";
-    private static final String OUTPUT_CASE_FORMAT = "output-case-format";
-    private static final String OUTPUT_COMPRESSION_FORMAT = "output-compression-format";
 
     @Override
     public Command getCommand() {
@@ -125,6 +119,16 @@ public class ActionSimulatorTool implements Tool {
                         .desc("output compression format " + CompressionFormat.getFormats())
                         .hasArg()
                         .argName("COMPRESSION_FORMAT")
+                        .build());
+                options.addOption(Option.builder().longOpt(PARALLEL)
+                        .desc("parallizer into Y parts")
+                        .hasArg()
+                        .argName("NUMBER")
+                        .build());
+                options.addOption(Option.builder().longOpt(SUB_CONTINGENCIES)
+                        .desc("fitration")
+                        .hasArg()
+                        .argName("X/Y")
                         .build());
                 return options;
             }
@@ -215,7 +219,18 @@ public class ActionSimulatorTool implements Tool {
             }
 
             // action simulator
-            ActionSimulator actionSimulator = new LoadFlowActionSimulator(network, context.getComputationManager(), config, observers);
+            ActionSimulator actionSimulator = null;
+            if (line.hasOption(PARALLEL)) {
+                String para = line.getOptionValue(PARALLEL);
+                actionSimulator = new ParallelLoadFlowActionSimulator(network, context, Integer.parseInt(para), line, getCommand(), config, observers);
+            } else if (line.hasOption(SUB_CONTINGENCIES)) {
+                String filtreOpt = line.getOptionValue(SUB_CONTINGENCIES);
+                Filtration filtration = new Filtration(filtreOpt);
+                // TODO how to pass master observers to slave observers
+                actionSimulator = new LocalLoadFlowActionSimulator(network, filtration, config, observers);
+            } else {
+                actionSimulator = new LoadFlowActionSimulator(network, context.getComputationManager(), config, observers);
+            }
             context.getOutputStream().println("Using '" + actionSimulator.getName() + "' rules engine");
 
             // start simulator
