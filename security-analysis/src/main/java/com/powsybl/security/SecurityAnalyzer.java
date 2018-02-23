@@ -70,15 +70,23 @@ public class SecurityAnalyzer {
     }
 
     public SecurityAnalysisResult analyze(Network network, Path contingenciesFile) {
+        return analyze(network, contingenciesFile, SecurityAnalysisParameters.load());
+    }
+
+    public SecurityAnalysisResult analyze(Network network, Path contingenciesFile, SecurityAnalysisParameters parameters) {
         Objects.requireNonNull(network);
 
         ContingenciesProvider contingenciesProvider = contingenciesFile != null
                 ? contingenciesProviderFactory.create(contingenciesFile) : new EmptyContingencyListProvider();
 
-        return analyze(network, contingenciesProvider);
+        return analyze(network, contingenciesProvider, parameters);
     }
 
     public SecurityAnalysisResult analyze(String filename, InputStream networkData, InputStream contingencies) {
+        return analyze(filename, networkData, contingencies, SecurityAnalysisParameters.load());
+    }
+
+    public SecurityAnalysisResult analyze(String filename, InputStream networkData, InputStream contingencies, SecurityAnalysisParameters parameters) {
         Objects.requireNonNull(networkData);
         Objects.requireNonNull(filename);
 
@@ -90,19 +98,23 @@ public class SecurityAnalyzer {
         ContingenciesProvider contingenciesProvider = contingencies != null
                 ? contingenciesProviderFactory.create(contingencies) : new EmptyContingencyListProvider();
 
-        return analyze(network, contingenciesProvider);
+        return analyze(network, contingenciesProvider, parameters);
     }
 
     public SecurityAnalysisResult analyze(Network network, ContingenciesProvider contingenciesProvider) {
+        return analyze(network, contingenciesProvider, SecurityAnalysisParameters.load());
+    }
+
+    public SecurityAnalysisResult analyze(Network network, ContingenciesProvider contingenciesProvider, SecurityAnalysisParameters parameters) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(contingenciesProvider);
+        Objects.requireNonNull(parameters);
 
         network.getStateManager().allowStateMultiThreadAccess(true);
 
         SecurityAnalysis securityAnalysis = securityAnalysisFactory.create(network, filter, computationManager, priority);
         interceptors.forEach(securityAnalysis::addInterceptor);
 
-        return securityAnalysis.runAsync(contingenciesProvider, StateManager.INITIAL_STATE_ID, SecurityAnalysisParameters.load()).join();
+        return securityAnalysis.runAsync(contingenciesProvider, StateManager.INITIAL_STATE_ID, parameters).join();
     }
-
 }

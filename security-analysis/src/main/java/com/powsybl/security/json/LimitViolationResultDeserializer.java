@@ -37,7 +37,8 @@ class LimitViolationResultDeserializer extends StdDeserializer<LimitViolationsRe
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
                 case "computationOk":
-                    comutationOk = parser.nextBooleanValue();
+                    parser.nextToken();
+                    comutationOk = parser.readValueAs(Boolean.class);
                     break;
 
                 case "limitViolations":
