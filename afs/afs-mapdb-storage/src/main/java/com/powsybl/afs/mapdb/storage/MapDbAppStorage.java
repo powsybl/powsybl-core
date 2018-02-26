@@ -479,6 +479,18 @@ public class MapDbAppStorage implements AppStorage {
     }
 
     @Override
+    public Set<Integer> getTimeSeriesDataVersions(String nodeId) {
+        UUID nodeUuid = checkNodeId(nodeId);
+        checkNodeExists(nodeUuid);
+        return Stream.concat(doubleTimeSeriesChunksMap.keySet().stream(),
+                stringTimeSeriesChunksMap.keySet().stream())
+                .map(TimeSeriesChunkKey::getTimeSeriesKey)
+                .filter(key -> key.getNodeUuid().equals(nodeUuid))
+                .map(TimeSeriesKey::getVersion)
+                .collect(Collectors.toSet());
+    }
+
+    @Override
     public Set<Integer> getTimeSeriesDataVersions(String nodeId, String timeSeriesName) {
         UUID nodeUuid = checkNodeId(nodeId);
         checkNodeExists(nodeUuid);

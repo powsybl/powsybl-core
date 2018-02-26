@@ -61,10 +61,11 @@ public class ConversionToolTest extends AbstractToolTest {
     @Override
     public void assertCommand() {
         Tool tool = createConversionTool();
-        assertCommand(tool.getCommand(), "convert-network", 7, 3);
+        assertCommand(tool.getCommand(), "convert-network", 8, 3);
         assertOption(tool.getCommand().getOptions(), "input-file", true, true);
         assertOption(tool.getCommand().getOptions(), "output-file", true, true);
         assertOption(tool.getCommand().getOptions(), "output-format", true, true);
+        assertOption(tool.getCommand().getOptions(), "groovy-script", false, true);
         assertOption(tool.getCommand().getOptions(), "import-parameters", false, true);
         assertOption(tool.getCommand().getOptions(), "I", false, true);
         assertOption(tool.getCommand().getOptions(), "import-parameters", false, true);

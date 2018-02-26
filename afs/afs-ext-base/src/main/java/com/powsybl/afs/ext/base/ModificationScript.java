@@ -11,6 +11,7 @@ import com.powsybl.afs.FileIcon;
 import com.powsybl.afs.ProjectFile;
 import com.powsybl.afs.ProjectFileCreationContext;
 import com.powsybl.afs.storage.events.NodeDataUpdated;
+import com.powsybl.afs.storage.events.NodeEvent;
 import com.powsybl.afs.storage.events.NodeEventType;
 
 import java.io.*;
@@ -36,12 +37,14 @@ public class ModificationScript extends ProjectFile implements StorableScript {
 
     public ModificationScript(ProjectFileCreationContext context) {
         super(context, VERSION, SCRIPT_ICON);
-        storage.addListener(this, event -> {
-            if (event.getType() == NodeEventType.NODE_DATA_UPDATED) {
-                NodeDataUpdated dataUpdated = (NodeDataUpdated) event;
-                if (dataUpdated.getId().equals(info.getId()) && SCRIPT_CONTENT.equals(dataUpdated.getDataName())) {
-                    for (ScriptListener listener : listeners) {
-                        listener.scriptUpdated();
+        storage.addListener(this, eventList -> {
+            for (NodeEvent event : eventList.getEvents()) {
+                if (event.getType() == NodeEventType.NODE_DATA_UPDATED) {
+                    NodeDataUpdated dataUpdated = (NodeDataUpdated) event;
+                    if (dataUpdated.getId().equals(info.getId()) && SCRIPT_CONTENT.equals(dataUpdated.getDataName())) {
+                        for (ScriptListener listener : listeners) {
+                            listener.scriptUpdated();
+                        }
                     }
                 }
             }

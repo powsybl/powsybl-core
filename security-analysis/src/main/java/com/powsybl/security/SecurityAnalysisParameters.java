@@ -33,6 +33,8 @@ public class SecurityAnalysisParameters extends AbstractExtendable<SecurityAnaly
     public static interface ConfigLoader<E extends Extension<SecurityAnalysisParameters>> extends ExtensionConfigLoader<SecurityAnalysisParameters, E> {
     }
 
+    public static final String VERSION = "1.0";
+
     private static final Supplier<ExtensionProviders<ConfigLoader>> SUPPLIER =
         Suppliers.memoize(() -> ExtensionProviders.createProvider(ConfigLoader.class, "security-analysis-parameters"));
 

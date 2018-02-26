@@ -40,6 +40,8 @@ public interface LocalFile extends LocalNode {
 
     List<TimeSeriesMetadata> getTimeSeriesMetadata(Set<String> timeSeriesNames);
 
+    Set<Integer> getTimeSeriesDataVersions();
+
     Set<Integer> getTimeSeriesDataVersions(String timeSeriesName);
 
     List<DoubleTimeSeries> getDoubleTimeSeries(Set<String> timeSeriesNames, int version);
