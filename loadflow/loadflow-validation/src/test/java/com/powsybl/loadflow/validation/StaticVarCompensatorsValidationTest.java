@@ -78,7 +78,7 @@ public class StaticVarCompensatorsValidationTest extends AbstractValidationTest 
         regulationMode = RegulationMode.OFF;
         assertFalse(StaticVarCompensatorsValidation.checkSVCs("test", p, q, v, reactivePowerSetpoint, voltageSetpoint, regulationMode, bMin, bMax, strictConfig, NullWriter.NULL_WRITER));
 
-        //  if regulationMode = REACTIVE_POWER if the setpoint is in [-bMax*V*V , -bMin*V*V] then then reactive power should be equal to setpoint
+        //  if regulationMode = REACTIVE_POWER if the setpoint is in [Qmin=bMin*V*V, Qmax=bMax*V*V] then then reactive power should be equal to setpoint
         regulationMode = RegulationMode.REACTIVE_POWER;
         assertTrue(StaticVarCompensatorsValidation.checkSVCs("test", p, q, v, reactivePowerSetpoint, voltageSetpoint, regulationMode, bMin, bMax, strictConfig, NullWriter.NULL_WRITER));
         q = 3.7f;
@@ -93,15 +93,15 @@ public class StaticVarCompensatorsValidationTest extends AbstractValidationTest 
         assertTrue(StaticVarCompensatorsValidation.checkSVCs("test", p, q, v, reactivePowerSetpoint, voltageSetpoint, regulationMode, Float.NaN, bMax, looseConfig, NullWriter.NULL_WRITER));
         looseConfig.setOkMissingValues(false);
 
-        // if regulationMode = REACTIVE_POWER if the setpoint is outside [-bMax*V*V , -bMin*V*V] then the reactive power is equal to the nearest bound
-        reactivePowerSetpoint = -14500f;
+        // if regulationMode = REACTIVE_POWER if the setpoint is outside [Qmin=bMin*V*V, Qmax=bMax*V*V] then the reactive power is equal to the nearest bound
+        reactivePowerSetpoint = -1500f;
         assertFalse(StaticVarCompensatorsValidation.checkSVCs("test", p, q, v, reactivePowerSetpoint, voltageSetpoint, regulationMode, bMin, bMax, strictConfig, NullWriter.NULL_WRITER));
-        q = 14440f;
+        q = 1444f;
         assertTrue(StaticVarCompensatorsValidation.checkSVCs("test", p, q, v, reactivePowerSetpoint, voltageSetpoint, regulationMode, bMin, bMax, strictConfig, NullWriter.NULL_WRITER));
         reactivePowerSetpoint = -3.72344f;
         q = 3.7f;
 
-        // if regulationMode = VOLTAGE then either V at the connected bus is equal to voltageSetpoint and q is bounded within [-bMax*V*V, -bMin*V*V]
+        // if regulationMode = VOLTAGE then either V at the connected bus is equal to voltageSetpoint and q is bounded within [-Qmax=bMax*V*V, -Qmin=bMin*V*V]
         regulationMode = RegulationMode.VOLTAGE;
         assertTrue(StaticVarCompensatorsValidation.checkSVCs("test", p, q, v, reactivePowerSetpoint, voltageSetpoint, regulationMode, bMin, bMax, strictConfig, NullWriter.NULL_WRITER));
         v = 400f;

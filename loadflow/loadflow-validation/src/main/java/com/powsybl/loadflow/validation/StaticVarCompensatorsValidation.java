@@ -152,26 +152,26 @@ public final class StaticVarCompensatorsValidation {
             LOGGER.warn("{} {}: {}: P={}", ValidationType.SVCS, ValidationUtils.VALIDATION_ERROR, id, p);
             validated = false;
         }
-        float bMinVV = bMin * v * v;
-        float bMaxVV = bMax * v * v;
+        float qMin = bMin * v * v;
+        float qMax = bMax * v * v;
         // if regulationMode = REACTIVE_POWER
-        // if the setpoint is in [-bMax*V*V , -bMin*V*V] then then reactive power should be equal to setpoint
-        // if the setpoint is outside [-bMax*V*V , -bMin*V*V] then the reactive power is equal to the nearest bound
+        // if the setpoint is in [Qmin=bMin*V*V, Qmax=bMax*V*V] then reactive power should be equal to setpoint
+        // if the setpoint is outside [Qmin=bMin*V*V, Qmax=bMax*V*V] then the reactive power is equal to the nearest bound
         if (regulationMode == RegulationMode.REACTIVE_POWER
-            && (ValidationUtils.areNaN(config, reactivePowerSetpoint, bMinVV, bMaxVV)
-                || Math.abs(q + setPoint(reactivePowerSetpoint, bMinVV, bMaxVV, config)) > config.getThreshold())) {
+            && (ValidationUtils.areNaN(config, reactivePowerSetpoint, qMin, qMax)
+                || Math.abs(q + getSetPoint(reactivePowerSetpoint, qMin, qMax, config)) > config.getThreshold())) {
             LOGGER.warn("{} {}: {}: regulator mode={} - Q={} bMin={} bMax={} V={} reactivePowerSetpoint={}", ValidationType.SVCS, ValidationUtils.VALIDATION_ERROR, id, regulationMode, q, bMin, bMax, v, reactivePowerSetpoint);
             validated = false;
         }
         // if regulationMode = VOLTAGE then
-        // either q is equal to bMax * V * V and V is lower than voltageSetpoint
-        // or q is equal to bMin * V * V and V is higher than voltageSetpoint
-        // or V at the connected bus is equal to voltageSetpoint and q is bounded within [-bMax*V*V, -bMin*V*V]
+        // either q is equal to Qmax = bMax * V * V and V is lower than voltageSetpoint
+        // or q is equal to Qmin = bMin * V * V and V is higher than voltageSetpoint
+        // or V at the connected bus is equal to voltageSetpoint and q is bounded within [-Qmax=bMax*V*V, -Qmin=bMin*V*V]
         if (regulationMode == RegulationMode.VOLTAGE
-            && (ValidationUtils.areNaN(config, bMinVV, bMaxVV, v, voltageSetpoint)
-                || ((Math.abs(q + bMaxVV) > config.getThreshold() || (v - voltageSetpoint) >= config.getThreshold())
-                    && (Math.abs(q + bMinVV) > config.getThreshold() || (voltageSetpoint - v) >= config.getThreshold())
-                    && (Math.abs(v - voltageSetpoint) > config.getThreshold() || !ValidationUtils.boundedWithin(-bMaxVV, -bMinVV, q, config.getThreshold()))))) {
+            && (ValidationUtils.areNaN(config, qMin, qMax, v, voltageSetpoint)
+                || ((Math.abs(q + qMax) > config.getThreshold() || (v - voltageSetpoint) >= config.getThreshold())
+                    && (Math.abs(q + qMin) > config.getThreshold() || (voltageSetpoint - v) >= config.getThreshold())
+                    && (Math.abs(v - voltageSetpoint) > config.getThreshold() || !ValidationUtils.boundedWithin(-qMax, -qMin, q, config.getThreshold()))))) {
             LOGGER.warn("{} {}: {}: regulator mode={} - Q={} bMin={} bMax={} V={} targetV={}", ValidationType.SVCS, ValidationUtils.VALIDATION_ERROR, id, regulationMode, q, bMin, bMax, v, voltageSetpoint);
             validated = false;
         }
@@ -196,9 +196,9 @@ public final class StaticVarCompensatorsValidation {
         return Math.abs(value - bound1) < Math.abs(value - bound2) ? bound1 : bound2;
     }
 
-    private static float setPoint(float reactivePowerSetpoint, float bMinVV, float bMaxVV, ValidationConfig config) {
-        return ValidationUtils.boundedWithin(-bMaxVV, -bMinVV, reactivePowerSetpoint, config.getThreshold())
+    private static float getSetPoint(float reactivePowerSetpoint, float qMin, float qMax, ValidationConfig config) {
+        return ValidationUtils.boundedWithin(qMin, qMax, reactivePowerSetpoint, config.getThreshold())
                ? reactivePowerSetpoint
-               : closestBound(-bMaxVV, -bMinVV, reactivePowerSetpoint);
+               : closestBound(qMin, qMax, reactivePowerSetpoint);
     }
 }
