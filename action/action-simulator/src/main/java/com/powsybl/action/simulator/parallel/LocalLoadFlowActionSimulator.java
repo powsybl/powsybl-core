@@ -53,7 +53,6 @@ public class LocalLoadFlowActionSimulator extends LoadFlowActionSimulator {
         List<String> list = new ArrayList<>();
         int size = contingencyIds.size();
         list = contingencyIds.subList(filtration.from(size), filtration.to(size));
-        System.out.println("size:" + size + " from:" + filtration.from(size) + " to:" + filtration.to(size));
         return list;
     }
 }

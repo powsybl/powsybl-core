@@ -226,7 +226,6 @@ public class ActionSimulatorTool implements Tool, ActionSimulatorToolConstants {
             } else if (line.hasOption(SUB_CONTINGENCIES)) {
                 String filtreOpt = line.getOptionValue(SUB_CONTINGENCIES);
                 Filtration filtration = new Filtration(filtreOpt);
-                // TODO how to pass master observers to slave observers
                 actionSimulator = new LocalLoadFlowActionSimulator(network, filtration, config, observers);
             } else {
                 actionSimulator = new LoadFlowActionSimulator(network, context.getComputationManager(), config, observers);

@@ -17,6 +17,6 @@ public interface ActionSimulatorToolConstants {
     static final String OUTPUT_CASE_FORMAT = "output-case-format";
     static final String OUTPUT_COMPRESSION_FORMAT = "output-compression-format";
     static final String PARALLEL = "parallel";
-    static final String SUB_CONTINGENCIES = "filtre";
+    static final String SUB_CONTINGENCIES = "filter";
 
 }

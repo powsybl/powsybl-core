@@ -68,7 +68,9 @@ public class ParallelLoadFlowActionSimulator extends LoadFlowActionSimulator imp
     @Override
     public void start(ActionDb actionDb, List<String> contingencyIds) {
         ComputationManager manager = super.getComputationManager();
-        ExecutionEnvironment itoolsEnvironment = new ExecutionEnvironment(Collections.emptyMap(), "subTask_", true);
+        // TODO get debug from???
+        boolean debug = false;
+        ExecutionEnvironment itoolsEnvironment = new ExecutionEnvironment(Collections.emptyMap(), "subTask_", debug);
         int para = contingencyIds.size() > this.para ? this.para : contingencyIds.size();
         List<CompletableFuture<LoadFlowResult>> results = new ArrayList<>();
         for (int i = 1; i <= para; i++) {
@@ -135,11 +137,12 @@ public class ParallelLoadFlowActionSimulator extends LoadFlowActionSimulator imp
                 Path source = workingDir.resolve(subDirPostfix);
                 FileUtil.copyDir(source, dest);
             }
+            // copy output file to X_Y/ folder under user's output
             if (commandLine.hasOption(OUTPUT_CSV)) {
                 Path path = Paths.get(commandLine.getOptionValue(OUTPUT_CSV));
                 Path dest = path.getParent().resolve(subDirPostfix).resolve(path.getFileName());
                 Path parent = dest.getParent();
-                Files.createDirectory(parent);
+                Files.createDirectories(parent);
                 Path source = workingDir.resolve(path.getFileName());
                 Files.copy(source, dest);
             }
