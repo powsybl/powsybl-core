@@ -34,8 +34,9 @@ public class SecurityAnalysisToolTest extends AbstractToolTest {
 
     @Override
     public void assertCommand() {
-        assertCommand(tool.getCommand(), "security-analysis", 6, 1);
+        assertCommand(tool.getCommand(), "security-analysis", 7, 1);
         assertOption(tool.getCommand().getOptions(), "case-file", true, true);
+        assertOption(tool.getCommand().getOptions(), "parameters-file", false, true);
         assertOption(tool.getCommand().getOptions(), "limit-types", false, true);
         assertOption(tool.getCommand().getOptions(), "output-file", false, true);
         assertOption(tool.getCommand().getOptions(), "output-format", false, true);

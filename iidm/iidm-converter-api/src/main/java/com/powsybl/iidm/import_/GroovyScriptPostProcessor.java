@@ -35,22 +35,30 @@ public class GroovyScriptPostProcessor implements ImportPostProcessor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GroovyScriptPostProcessor.class);
 
-    private Path script;
+    private final Path script;
 
     public GroovyScriptPostProcessor() {
         this(PlatformConfig.defaultConfig());
     }
 
     public GroovyScriptPostProcessor(PlatformConfig platformConfig) {
+        this(getConfiguredScript(platformConfig));
+    }
+
+    public GroovyScriptPostProcessor(Path script) {
+        this.script = Objects.requireNonNull(script);
+    }
+
+    private static Path getConfiguredScript(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
 
         Path defaultScript = platformConfig.getConfigDir().resolve(DEFAULT_SCRIPT_NAME);
 
         ModuleConfig config = platformConfig.getModuleConfigIfExists("groovy-post-processor");
         if (config != null) {
-            script = config.getPathProperty("script", defaultScript);
+            return config.getPathProperty("script", defaultScript);
         } else {
-            script = defaultScript;
+            return defaultScript;
         }
     }
 

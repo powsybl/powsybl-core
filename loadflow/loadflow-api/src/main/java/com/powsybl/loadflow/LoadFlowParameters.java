@@ -11,10 +11,7 @@ import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableMap;
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
-import com.powsybl.commons.extensions.AbstractExtendable;
-import com.powsybl.commons.extensions.Extension;
-import com.powsybl.commons.extensions.ExtensionConfigLoader;
-import com.powsybl.commons.extensions.ExtensionProviders;
+import com.powsybl.commons.extensions.*;
 
 import java.util.Map;
 import java.util.Objects;
@@ -34,8 +31,13 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
     public interface ConfigLoader<E extends Extension<LoadFlowParameters>> extends ExtensionConfigLoader<LoadFlowParameters, E> {
     }
 
-    private static final Supplier<ExtensionProviders<ConfigLoader>> SUPPLIER =
-            Suppliers.memoize(() -> ExtensionProviders.createProvider(ConfigLoader.class, "loadflow-parameters"));
+    public enum VoltageInitMode {
+        UNIFORM_VALUES, // v=1pu, theta=0
+        PREVIOUS_VALUES,
+        DC_VALUES // preprocessing to compute DC angles
+    }
+
+    public static final String VERSION = "1.0";
 
     public static final VoltageInitMode DEFAULT_VOLTAGE_INIT_MODE = VoltageInitMode.UNIFORM_VALUES;
     public static final boolean DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON = false;
@@ -43,11 +45,8 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
     public static final boolean DEFAULT_PHASE_SHIFTER_REGULATION_ON = false;
     public static final boolean DEFAULT_SPECIFIC_COMPATIBILITY = false;
 
-    public enum VoltageInitMode {
-        UNIFORM_VALUES, // v=1pu, theta=0
-        PREVIOUS_VALUES,
-        DC_VALUES // preprocessing to compute DC angles
-    }
+    private static final Supplier<ExtensionProviders<ConfigLoader>> SUPPLIER =
+        Suppliers.memoize(() -> ExtensionProviders.createProvider(ConfigLoader.class, "loadflow-parameters"));
 
     /**
      * Loads parameters from the default platform configuration.
@@ -63,7 +62,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         LoadFlowParameters parameters = new LoadFlowParameters();
         load(parameters, platformConfig);
 
-        parameters.readExtensions(platformConfig);
+        parameters.loadExtensions(platformConfig);
 
         return parameters;
     }
@@ -188,7 +187,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         return toMap().toString();
     }
 
-    private void readExtensions(PlatformConfig platformConfig) {
+    private void loadExtensions(PlatformConfig platformConfig) {
         for (ExtensionConfigLoader provider : SUPPLIER.get().getProviders()) {
             addExtension(provider.getExtensionClass(), provider.load(platformConfig));
         }
