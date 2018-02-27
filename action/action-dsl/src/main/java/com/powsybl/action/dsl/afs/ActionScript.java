@@ -38,7 +38,7 @@ public class ActionScript extends ProjectFile implements StorableScript, Conting
 
     static final String SCRIPT_CONTENT = "scriptContent";
 
-    private static final FileIcon IAL_ICON = new FileIcon("script", ActionScript.class.getResourceAsStream("/icons/ial16x16.png"));
+    private static final FileIcon IAL_ICON = new FileIcon("ial", ActionScript.class.getResourceAsStream("/icons/ial16x16.png"));
 
     private final List<ScriptListener> listeners = new ArrayList<>();
 
