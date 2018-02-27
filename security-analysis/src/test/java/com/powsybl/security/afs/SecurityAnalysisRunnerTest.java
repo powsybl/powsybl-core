@@ -16,7 +16,12 @@ import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.computation.ComputationManager;
+import com.powsybl.contingency.BranchContingency;
 import com.powsybl.contingency.ContingenciesProvider;
+import com.powsybl.contingency.ContingencyImpl;
+import com.powsybl.contingency.afs.ContingencyStore;
+import com.powsybl.contingency.afs.ContingencyStoreBuilder;
+import com.powsybl.contingency.afs.ContingencyStoreExtension;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.import_.ImportersLoader;
 import com.powsybl.iidm.import_.ImportersLoaderList;
@@ -119,12 +124,14 @@ public class SecurityAnalysisRunnerTest extends AbstractProjectFileTest {
     @Override
     protected List<ProjectFileExtension> getProjectFileExtensions() {
         return ImmutableList.of(new ImportedCaseExtension(importersLoader),
+                                new ContingencyStoreExtension(),
                                 new SecurityAnalysisRunnerExtension());
     }
 
     @Override
     protected List<ServiceExtension> getServiceExtensions() {
-        return ImmutableList.of(new LocalSecurityAnalysisRunningServiceExtension(new SecurityAnalysisFactoryMock()),
+        return ImmutableList.of(new LocalSecurityAnalysisRunningServiceExtension(new SecurityAnalysisFactoryMock(),
+                                                                                 new SecurityAnalysisParameters()),
                                 new LocalNetworkServiceExtension());
     }
 
@@ -151,10 +158,17 @@ public class SecurityAnalysisRunnerTest extends AbstractProjectFileTest {
                 .withCase(aCase)
                 .build();
 
+        // create contingency list
+        ContingencyStore contingencyStore = project.getRootFolder().fileBuilder(ContingencyStoreBuilder.class)
+                .withName("contingencies")
+                .build();
+        contingencyStore.write(Collections.singletonList(new ContingencyImpl("c1", Collections.singletonList(new BranchContingency("l1")))));
+
         // create a security analysis runner that point to imported case
         SecurityAnalysisRunner runner = project.getRootFolder().fileBuilder(SecurityAnalysisRunnerBuilder.class)
                 .withName("sa")
                 .withCase("network")
+                .withContingencyStore("contingencies")
                 .build();
 
         assertNull(runner.readResult());

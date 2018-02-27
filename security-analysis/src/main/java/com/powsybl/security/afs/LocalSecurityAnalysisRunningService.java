@@ -31,8 +31,11 @@ public class LocalSecurityAnalysisRunningService implements SecurityAnalysisRunn
 
     private final SecurityAnalysisFactory factory;
 
-    public LocalSecurityAnalysisRunningService(SecurityAnalysisFactory factory) {
+    private final SecurityAnalysisParameters parameters;
+
+    public LocalSecurityAnalysisRunningService(SecurityAnalysisFactory factory, SecurityAnalysisParameters parameters) {
         this.factory = Objects.requireNonNull(factory);
+        this.parameters = Objects.requireNonNull(parameters);
     }
 
     @Override
@@ -40,8 +43,7 @@ public class LocalSecurityAnalysisRunningService implements SecurityAnalysisRunn
         Objects.requireNonNull(runner);
 
         ProjectCase aCase = runner.getCase().orElseThrow(() -> new AfsException("Invalid case link"));
-        // TODO just for testing
-        ContingenciesProvider contingenciesProvider = new EmptyContingencyListProvider();
+        ContingenciesProvider contingencyListProvider = runner.getContingencyListProvider().orElse(new EmptyContingencyListProvider());
         ComputationManager computationManager = runner.getFileSystem().getData().getComputationManager();
 
         UUID taskId = runner.startTask();
@@ -53,8 +55,7 @@ public class LocalSecurityAnalysisRunningService implements SecurityAnalysisRunn
 
             logger.log("Running security analysis...");
             SecurityAnalysis securityAnalysis = factory.create(network, computationManager, 0);
-            SecurityAnalysisParameters parameters = SecurityAnalysisParameters.load();
-            securityAnalysis.runAsync(contingenciesProvider, network.getStateManager().getWorkingStateId(), parameters)
+            securityAnalysis.runAsync(contingencyListProvider, network.getStateManager().getWorkingStateId(), parameters)
                     .handleAsync((result, throwable) -> {
                         if (throwable == null) {
                             logger.log("Security analysis complete, storing results...");

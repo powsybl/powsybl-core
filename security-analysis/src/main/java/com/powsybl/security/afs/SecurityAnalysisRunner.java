@@ -11,6 +11,7 @@ import com.powsybl.afs.FileIcon;
 import com.powsybl.afs.ProjectFile;
 import com.powsybl.afs.ProjectFileCreationContext;
 import com.powsybl.afs.ext.base.ProjectCase;
+import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.security.SecurityAnalysisResult;
 import com.powsybl.security.json.SecurityAnalysisResultDeserializer;
 import com.powsybl.security.json.SecurityAnalysisResultSerializer;
@@ -29,10 +30,13 @@ public class SecurityAnalysisRunner extends ProjectFile {
     static final int VERSION = 0;
     static final String RESULT_JSON_NAME = "resultJson";
     static final String CASE_DEPENDENCY_NAME = "case";
+    static final String CONTINGENCY_PROVIDER_DEPENDENCY_NAME = "contingencyListProvider";
 
     private static final FileIcon LOCK_ICON = new FileIcon("lock", SecurityAnalysisRunner.class.getResourceAsStream("/icons/lock16x16.png"));
 
     private final DependencyCache<ProjectCase> caseDependency = new DependencyCache<>(this, CASE_DEPENDENCY_NAME, ProjectCase.class);
+
+    private final DependencyCache<ContingenciesProvider> contingencyListProviderDependency = new DependencyCache<>(this, CONTINGENCY_PROVIDER_DEPENDENCY_NAME, ContingenciesProvider.class);
 
     public SecurityAnalysisRunner(ProjectFileCreationContext context) {
         super(context, VERSION, LOCK_ICON);
@@ -40,6 +44,10 @@ public class SecurityAnalysisRunner extends ProjectFile {
 
     public Optional<ProjectCase> getCase() {
         return caseDependency.getFirst();
+    }
+
+    public Optional<ContingenciesProvider> getContingencyListProvider() {
+        return contingencyListProviderDependency.getFirst();
     }
 
     public void run() {

@@ -48,4 +48,18 @@ public class HvdcLineContingency implements ContingencyElement {
     public AbstractTrippingTask toTask() {
         return new HvdcLineTripping(id, voltageLevelId);
     }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, voltageLevelId);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof HvdcLineContingency) {
+            HvdcLineContingency other = (HvdcLineContingency) obj;
+            return id.equals(other.id) && Objects.equals(voltageLevelId, other.voltageLevelId);
+        }
+        return false;
+    }
 }

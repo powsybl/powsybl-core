@@ -48,4 +48,17 @@ public class BranchContingency implements ContingencyElement {
         return new BranchTripping(id, voltageLevelId);
     }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, voltageLevelId);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof BranchContingency) {
+            BranchContingency other = (BranchContingency) obj;
+            return id.equals(other.id) && Objects.equals(voltageLevelId, other.voltageLevelId);
+        }
+        return false;
+    }
 }

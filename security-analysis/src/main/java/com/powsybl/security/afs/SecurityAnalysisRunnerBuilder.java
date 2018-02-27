@@ -10,6 +10,7 @@ import com.powsybl.afs.*;
 import com.powsybl.afs.ext.base.ProjectCase;
 import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.afs.storage.NodeInfo;
+import com.powsybl.contingency.ContingenciesProvider;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -25,6 +26,8 @@ public class SecurityAnalysisRunnerBuilder implements ProjectFileBuilder<Securit
 
     private String casePath;
 
+    private String contingencyStorePath;
+
     public SecurityAnalysisRunnerBuilder(ProjectFileBuildContext context) {
         this.context = Objects.requireNonNull(context);
     }
@@ -36,6 +39,11 @@ public class SecurityAnalysisRunnerBuilder implements ProjectFileBuilder<Securit
 
     public SecurityAnalysisRunnerBuilder withCase(String casePath) {
         this.casePath = Objects.requireNonNull(casePath);
+        return this;
+    }
+
+    public SecurityAnalysisRunnerBuilder withContingencyStore(String contingencyStorePath) {
+        this.contingencyStorePath = Objects.requireNonNull(contingencyStorePath);
         return this;
     }
 
@@ -60,6 +68,15 @@ public class SecurityAnalysisRunnerBuilder implements ProjectFileBuilder<Securit
         if (!aCase.isPresent() || !(aCase.get() instanceof ProjectCase)) {
             throw new AfsException("Invalid case path " + casePath);
         }
+        Optional<ProjectFile> contingencyStore;
+        if (contingencyStorePath != null) {
+            contingencyStore = project.getRootFolder().getChild(ProjectFile.class, contingencyStorePath);
+            if (!contingencyStore.isPresent() || !(contingencyStore.get() instanceof ContingenciesProvider)) {
+                throw new AfsException("Invalid contingency store path " + casePath);
+            }
+        } else {
+            contingencyStore = Optional.empty();
+        }
 
         // create project file
         NodeInfo info = context.getStorage().createNode(context.getFolderInfo().getId(), name, SecurityAnalysisRunner.PSEUDO_CLASS,
@@ -67,6 +84,9 @@ public class SecurityAnalysisRunnerBuilder implements ProjectFileBuilder<Securit
 
         // create case link
         context.getStorage().addDependency(info.getId(), SecurityAnalysisRunner.CASE_DEPENDENCY_NAME, aCase.get().getId());
+
+        // create contingency store link
+        contingencyStore.ifPresent(projectFile -> context.getStorage().addDependency(info.getId(), SecurityAnalysisRunner.CONTINGENCY_PROVIDER_DEPENDENCY_NAME, projectFile.getId()));
 
         context.getStorage().flush();
 

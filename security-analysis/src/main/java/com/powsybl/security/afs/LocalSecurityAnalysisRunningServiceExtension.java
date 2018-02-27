@@ -11,6 +11,7 @@ import com.powsybl.afs.ServiceExtension;
 import com.powsybl.commons.config.ComponentDefaultConfig;
 import com.powsybl.security.SecurityAnalysisFactory;
 import com.powsybl.security.SecurityAnalysisFactoryImpl;
+import com.powsybl.security.SecurityAnalysisParameters;
 
 import java.util.Objects;
 
@@ -22,12 +23,16 @@ public class LocalSecurityAnalysisRunningServiceExtension implements ServiceExte
 
     private final SecurityAnalysisFactory factory;
 
+    private final SecurityAnalysisParameters parameters;
+
     public LocalSecurityAnalysisRunningServiceExtension() {
-        this(ComponentDefaultConfig.load().newFactoryImpl(SecurityAnalysisFactory.class, SecurityAnalysisFactoryImpl.class));
+        this(ComponentDefaultConfig.load().newFactoryImpl(SecurityAnalysisFactory.class, SecurityAnalysisFactoryImpl.class),
+                SecurityAnalysisParameters.load());
     }
 
-    public LocalSecurityAnalysisRunningServiceExtension(SecurityAnalysisFactory factory) {
+    public LocalSecurityAnalysisRunningServiceExtension(SecurityAnalysisFactory factory, SecurityAnalysisParameters parameters) {
         this.factory = Objects.requireNonNull(factory);
+        this.parameters = Objects.requireNonNull(parameters);
     }
 
     @Override
@@ -37,6 +42,6 @@ public class LocalSecurityAnalysisRunningServiceExtension implements ServiceExte
 
     @Override
     public SecurityAnalysisRunningService createService() {
-        return new LocalSecurityAnalysisRunningService(factory);
+        return new LocalSecurityAnalysisRunningService(factory, parameters);
     }
 }

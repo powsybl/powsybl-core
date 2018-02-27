@@ -49,4 +49,18 @@ public class ContingencyImpl implements Contingency {
 
         return new CompoundModificationTask(subTasks);
     }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, elements);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof ContingencyImpl) {
+            ContingencyImpl other = (ContingencyImpl) obj;
+            return id.equals(other.id) && elements.equals(other.elements);
+        }
+        return false;
+    }
 }
