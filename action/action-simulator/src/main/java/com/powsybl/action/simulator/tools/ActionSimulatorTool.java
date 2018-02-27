@@ -222,7 +222,7 @@ public class ActionSimulatorTool implements Tool, ActionSimulatorToolConstants {
             ActionSimulator actionSimulator = null;
             if (line.hasOption(PARALLEL)) {
                 String para = line.getOptionValue(PARALLEL);
-                actionSimulator = new ParallelLoadFlowActionSimulator(network, context, Integer.parseInt(para), line, getCommand(), config, observers);
+                actionSimulator = new ParallelLoadFlowActionSimulator(network, context, Integer.parseInt(para), line, config, observers);
             } else if (line.hasOption(SUB_CONTINGENCIES)) {
                 String filtreOpt = line.getOptionValue(SUB_CONTINGENCIES);
                 Filtration filtration = new Filtration(filtreOpt);

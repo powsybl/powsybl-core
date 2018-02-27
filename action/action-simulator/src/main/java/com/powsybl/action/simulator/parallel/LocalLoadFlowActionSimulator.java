@@ -14,7 +14,6 @@ import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.Network;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -50,9 +49,7 @@ public class LocalLoadFlowActionSimulator extends LoadFlowActionSimulator {
     }
 
     private List<String> filterContingency(List<String> contingencyIds) {
-        List<String> list = new ArrayList<>();
         int size = contingencyIds.size();
-        list = contingencyIds.subList(filtration.from(size), filtration.to(size));
-        return list;
+        return contingencyIds.subList(filtration.from(size), filtration.to(size));
     }
 }

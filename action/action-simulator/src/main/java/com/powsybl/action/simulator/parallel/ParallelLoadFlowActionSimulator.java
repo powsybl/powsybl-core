@@ -15,11 +15,11 @@ import com.powsybl.commons.io.FileUtil;
 import com.powsybl.computation.*;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowResult;
-import com.powsybl.tools.Command;
 import com.powsybl.tools.ToolRunningContext;
 import org.apache.commons.cli.CommandLine;
 
 import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -33,30 +33,27 @@ public class ParallelLoadFlowActionSimulator extends LoadFlowActionSimulator imp
 
     private static final String ITOOLS_PRG = "itools";
 
-    private final int para;
+    private final int initPara;
     private final CommandLine commandLine;
-    private final Command command;
     private final ToolRunningContext context;
 
     private final Semaphore outputLock = new Semaphore(1);
     private static final String SUB_TASK_ID = "test";
 
-    public ParallelLoadFlowActionSimulator(Network network, ToolRunningContext context, Integer para, CommandLine commandLine,
-                                           Command command) {
-        this(network, context, para, commandLine, command, LoadFlowActionSimulatorConfig.load(), Collections.emptyList());
+    public ParallelLoadFlowActionSimulator(Network network, ToolRunningContext context, Integer initPara, CommandLine commandLine) {
+        this(network, context, initPara, commandLine, LoadFlowActionSimulatorConfig.load(), Collections.emptyList());
     }
 
-    public ParallelLoadFlowActionSimulator(Network network, ToolRunningContext context, Integer para, CommandLine commandLine,
-                                           Command command, LoadFlowActionSimulatorConfig config, LoadFlowActionSimulatorObserver... observers) {
-        this(network, context, para, commandLine, command, config, Arrays.asList(observers));
+    public ParallelLoadFlowActionSimulator(Network network, ToolRunningContext context, Integer initPara, CommandLine commandLine,
+                                           LoadFlowActionSimulatorConfig config, LoadFlowActionSimulatorObserver... observers) {
+        this(network, context, initPara, commandLine, config, Arrays.asList(observers));
     }
 
-    public ParallelLoadFlowActionSimulator(Network network, ToolRunningContext context, Integer para, CommandLine commandLine,
-                                           Command command, LoadFlowActionSimulatorConfig config, List<LoadFlowActionSimulatorObserver> observers) {
+    public ParallelLoadFlowActionSimulator(Network network, ToolRunningContext context, Integer initPara, CommandLine commandLine,
+                                           LoadFlowActionSimulatorConfig config, List<LoadFlowActionSimulatorObserver> observers) {
         super(network, context.getComputationManager(), config, observers);
-        this.para = Objects.requireNonNull(para);
+        this.initPara = Objects.requireNonNull(initPara);
         this.commandLine = Objects.requireNonNull(commandLine);
-        this.command = Objects.requireNonNull(command);
         this.context = Objects.requireNonNull(context);
     }
 
@@ -71,11 +68,11 @@ public class ParallelLoadFlowActionSimulator extends LoadFlowActionSimulator imp
         // TODO get debug from???
         boolean debug = false;
         ExecutionEnvironment itoolsEnvironment = new ExecutionEnvironment(Collections.emptyMap(), "subTask_", debug);
-        int para = contingencyIds.size() > this.para ? this.para : contingencyIds.size();
+        int correctedPara = contingencyIds.size() > this.initPara ? this.initPara : contingencyIds.size();
         List<CompletableFuture<LoadFlowResult>> results = new ArrayList<>();
-        for (int i = 1; i <= para; i++) {
+        for (int i = 1; i <= correctedPara; i++) {
             CompletableFuture<LoadFlowResult> future = manager.execute(itoolsEnvironment,
-                    new SubTaskHandler(i, para));
+                    new SubTaskHandler(i, correctedPara));
             results.add(future);
         }
         CompletableFuture.allOf(results.stream().toArray(CompletableFuture[]::new)).join();
@@ -84,18 +81,6 @@ public class ParallelLoadFlowActionSimulator extends LoadFlowActionSimulator imp
     @Override
     public void start(ActionDb actionDb, String... contingencyIds) {
         start(actionDb, Arrays.asList(contingencyIds));
-    }
-
-    private Path copyFromOptionValueToWorkingDir(String opt, Path workingDir) throws IOException {
-        Path source = Paths.get(commandLine.getOptionValue(opt));
-        String name = source.getFileName().toString();
-        Path dest = workingDir.resolve(name);
-        return Files.copy(source, dest);
-    }
-
-    private String toOption(String opt, String value) {
-        StringBuilder sb = new StringBuilder().append("--").append(opt).append("=").append(value);
-        return sb.toString();
     }
 
     private class SubTaskHandler extends AbstractExecutionHandler<LoadFlowResult> {
@@ -126,9 +111,13 @@ public class ParallelLoadFlowActionSimulator extends LoadFlowActionSimulator imp
         public LoadFlowResult after(Path workingDir, ExecutionReport report) throws IOException {
             // re-print sub process output
             outputLock.acquireUninterruptibly();
-            Files.lines(workingDir.resolve(SUB_TASK_ID + "_0.out"), UTF_8).forEach(l -> context.getOutputStream().println(l));
-            Files.lines(workingDir.resolve(SUB_TASK_ID + "_0.err"), UTF_8).forEach(l -> context.getErrorStream().println(l));
-            outputLock.release();
+            try (PrintStream out = context.getOutputStream();
+                PrintStream err = context.getErrorStream()) {
+                Files.lines(workingDir.resolve(SUB_TASK_ID + "_0.out"), UTF_8).forEach(out::println);
+                Files.lines(workingDir.resolve(SUB_TASK_ID + "_0.err"), UTF_8).forEach(err::println);
+            } finally {
+                outputLock.release();
+            }
 
             LoadFlowResult result = super.after(workingDir, report);
             // copy from slave output folders to user's output
@@ -196,6 +185,18 @@ public class ParallelLoadFlowActionSimulator extends LoadFlowActionSimulator imp
             }
 
             return args;
+        }
+
+        private Path copyFromOptionValueToWorkingDir(String opt, Path workingDir) throws IOException {
+            Path source = Paths.get(commandLine.getOptionValue(opt));
+            String name = source.getFileName().toString();
+            Path dest = workingDir.resolve(name);
+            return Files.copy(source, dest);
+        }
+
+        private String toOption(String opt, String value) {
+            StringBuilder sb = new StringBuilder().append("--").append(opt).append("=").append(value);
+            return sb.toString();
         }
     }
 }
