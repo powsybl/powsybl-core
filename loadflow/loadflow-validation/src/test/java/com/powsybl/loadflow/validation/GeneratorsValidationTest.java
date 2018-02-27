@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017, RTE (http://www.rte-france.com)
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -95,11 +95,15 @@ public class GeneratorsValidationTest extends AbstractValidationTest {
         assertTrue(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, Float.NaN, targetV, voltageRegulatorOn, minQ, maxQ, looseConfig, NullWriter.NULL_WRITER));
         looseConfig.setOkMissingValues(false);
 
-        // if voltageRegulatorOn="true" then either V at the connected bus is equal to g.getTargetV()
+        // if voltageRegulatorOn="true" then either V at the connected bus is equal to g.getTargetV() and the reactive bounds are satisfied
         voltageRegulatorOn = true;
         assertTrue(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, strictConfig, NullWriter.NULL_WRITER));
         v = 400f;
         assertFalse(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, strictConfig, NullWriter.NULL_WRITER));
+        v = 380f;
+        q = 11f;
+        assertFalse(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, strictConfig, NullWriter.NULL_WRITER));
+        q = 3.7f;
 
         // check with NaN values
         v = 380f;
