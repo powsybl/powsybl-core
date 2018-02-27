@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017, RTE (http://www.rte-france.com)
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -149,11 +149,11 @@ public final class BusesValidation {
         try {
             Double incomingP = genP + shuntP + svcP + vscCSP + lineP + twtP + tltP;
             Double incomingQ = genQ + shuntQ + svcQ + vscCSQ + lineQ + twtQ + tltQ;
-            if (((Double.isNaN(incomingP) || Double.isNaN(loadP)) && !config.areOkMissingValues()) || Math.abs(incomingP + loadP) > config.getThreshold()) {
+            if (ValidationUtils.areNaN(config, incomingP, loadP) || Math.abs(incomingP + loadP) > config.getThreshold()) {
                 LOGGER.warn("{} {}: {} P {} {}", ValidationType.BUSES, ValidationUtils.VALIDATION_ERROR, id, incomingP, loadP);
                 validated = false;
             }
-            if (((Double.isNaN(incomingQ) || Double.isNaN(loadQ)) && !config.areOkMissingValues()) || Math.abs(incomingQ + loadQ) > config.getThreshold()) {
+            if (ValidationUtils.areNaN(config, incomingQ, loadQ) || Math.abs(incomingQ + loadQ) > config.getThreshold()) {
                 LOGGER.warn("{} {}: {} Q {} {}", ValidationType.BUSES, ValidationUtils.VALIDATION_ERROR, id, incomingQ, loadQ);
                 validated = false;
             }
