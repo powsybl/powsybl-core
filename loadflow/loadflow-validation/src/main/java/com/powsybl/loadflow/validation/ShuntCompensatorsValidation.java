@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017, RTE (http://www.rte-france.com)
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -130,8 +130,7 @@ public final class ShuntCompensatorsValidation {
         }
         // “q” = - bPerSection * currentSectionCount * v^2
         float expectedQ = -bPerSection * currentSectionCount * v * v;
-        if (((Float.isNaN(q) || Float.isNaN(expectedQ)) && !config.areOkMissingValues())
-            || Math.abs(q - expectedQ) > config.getThreshold()) {
+        if (ValidationUtils.areNaN(config, q, expectedQ) || Math.abs(q - expectedQ) > config.getThreshold()) {
             LOGGER.warn("{} {}: {}:  Q {} {}", ValidationType.SHUNTS, ValidationUtils.VALIDATION_ERROR, id, q, expectedQ);
             validated = false;
         }
