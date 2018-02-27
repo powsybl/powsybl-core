@@ -6,6 +6,7 @@
  */
 package com.powsybl.action.dsl.afs;
 
+import com.google.common.io.ByteStreams;
 import com.google.common.io.CharStreams;
 import com.powsybl.action.dsl.ActionDb;
 import com.powsybl.action.dsl.ActionDslLoader;
@@ -58,14 +59,16 @@ public class ActionScript extends ProjectFile implements StorableScript, Conting
         });
     }
 
+    @Override
     public ScriptType getScriptType() {
         return ScriptType.GROOVY;
     }
 
     @Override
     public String readScript() {
-        try {
-            return CharStreams.toString(new InputStreamReader(storage.readBinaryData(info.getId(), SCRIPT_CONTENT).orElseThrow(AssertionError::new), StandardCharsets.UTF_8));
+        try (InputStream is = storage.readBinaryData(info.getId(), SCRIPT_CONTENT)
+                                     .orElseThrow(AssertionError::new)) {
+            return new String(ByteStreams.toByteArray(is), StandardCharsets.UTF_8);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
