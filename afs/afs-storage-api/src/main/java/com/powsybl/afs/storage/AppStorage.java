@@ -61,6 +61,8 @@ public interface AppStorage extends AutoCloseable {
 
     List<TimeSeriesMetadata> getTimeSeriesMetadata(String nodeId, Set<String> timeSeriesNames);
 
+    Set<Integer> getTimeSeriesDataVersions(String nodeId);
+
     Set<Integer> getTimeSeriesDataVersions(String nodeId, String timeSeriesName);
 
     List<DoubleTimeSeries> getDoubleTimeSeries(String nodeId, Set<String> timeSeriesNames, int version);

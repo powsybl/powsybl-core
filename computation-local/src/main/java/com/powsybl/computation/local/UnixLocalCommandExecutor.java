@@ -20,7 +20,7 @@ import java.util.Map;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class UnixLocalCommandExecutor implements LocalCommandExecutor {
+public class UnixLocalCommandExecutor extends AbstractLocalCommandExecutor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UnixLocalCommandExecutor.class);
 
@@ -36,11 +36,11 @@ public class UnixLocalCommandExecutor implements LocalCommandExecutor {
         for (Map.Entry<String, String> entry : env2.entrySet()) {
             String name = entry.getKey();
             String value = entry.getValue();
-            internalCmd.append("export ").append(name).append("=").append(value);
+            internalCmd.append(name).append("=").append(value);
             if (name.endsWith("PATH")) {
                 internalCmd.append(File.pathSeparator).append("$").append(name);
             }
-            internalCmd.append("; ");
+            internalCmd.append(" ");
         }
         internalCmd.append(program);
         for (String arg : args) {
@@ -52,23 +52,11 @@ public class UnixLocalCommandExecutor implements LocalCommandExecutor {
                 .add("-c")
                 .add(internalCmd.toString())
                 .build();
-        ProcessBuilder.Redirect outRedirect = ProcessBuilder.Redirect.appendTo(outFile.toFile());
-        ProcessBuilder.Redirect errRedirect = ProcessBuilder.Redirect.appendTo(errFile.toFile());
-        Process process = new ProcessBuilder(cmdLs)
-                .directory(workingDir.toFile())
-                .redirectOutput(outRedirect)
-                .redirectError(errRedirect)
-                .start();
-        int exitValue = process.waitFor();
+        return execute(cmdLs, workingDir, outFile, errFile);
+    }
 
-        // to avoid 'two many open files' exception
-        process.getInputStream().close();
-        process.getOutputStream().close();
-        process.getErrorStream().close();
-
-        if (exitValue != 0) {
-            LOGGER.debug("Command '{}' has failed (exitValue={})", cmdLs, exitValue);
-        }
-        return exitValue;
+    @Override
+    void nonZeroLog(List<String> cmdLs, int exitCode) {
+        LOGGER.debug(NON_ZERO_LOG_PATTERN, cmdLs, exitCode);
     }
 }

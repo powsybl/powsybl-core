@@ -13,10 +13,7 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.extensions.Extension;
-import com.powsybl.commons.extensions.ExtensionJsonSerializer;
-import com.powsybl.commons.extensions.ExtensionSerializerProvider;
-import com.powsybl.commons.extensions.ExtensionSerializerProviders;
+import com.powsybl.commons.extensions.*;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.security.NetworkMetadata;
 import org.joda.time.DateTime;
@@ -30,8 +27,8 @@ import java.util.List;
  */
 public class NetworkMetadataDeserializer extends StdDeserializer<NetworkMetadata> {
 
-    private static final Supplier<ExtensionSerializerProvider<ExtensionJsonSerializer>> SUPPLIER =
-        Suppliers.memoize(() -> ExtensionSerializerProviders.createProvider(ExtensionJsonSerializer.class, "security-analysis"));
+    private static final Supplier<ExtensionProviders<ExtensionJsonSerializer>> SUPPLIER =
+        Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionJsonSerializer.class, "security-analysis"));
 
     public NetworkMetadataDeserializer() {
         super(NetworkMetadata.class);

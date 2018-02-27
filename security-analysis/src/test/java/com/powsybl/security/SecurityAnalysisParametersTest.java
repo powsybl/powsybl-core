@@ -67,8 +67,8 @@ public class SecurityAnalysisParametersTest {
         }
     }
 
-    @AutoService(ParametersConfigLoader.class)
-    public static class DummyLoader implements ParametersConfigLoader<DummyExtension> {
+    @AutoService(SecurityAnalysisParameters.ConfigLoader.class)
+    public static class DummyLoader implements SecurityAnalysisParameters.ConfigLoader<DummyExtension> {
 
         @Override
         public DummyExtension load(PlatformConfig platformConfig) {

@@ -51,7 +51,7 @@ public class LocalComputationManager implements ComputationManager {
 
     private final Semaphore permits;
 
-    private final Executor executor;
+    private final Executor threadPools;
 
     private final LocalCommandExecutor localCommandExecutor;
 
@@ -122,7 +122,7 @@ public class LocalComputationManager implements ComputationManager {
     public LocalComputationManager(LocalComputationConfig config, LocalCommandExecutor localCommandExecutor, Executor executor) throws IOException {
         this.config = Objects.requireNonNull(config);
         this.localCommandExecutor = Objects.requireNonNull(localCommandExecutor);
-        this.executor = Objects.requireNonNull(executor);
+        this.threadPools = Objects.requireNonNull(executor);
         status = new LocalComputationResourcesStatus(config.getAvailableCore());
         permits = new Semaphore(config.getAvailableCore());
         //make sure the localdir exists
@@ -331,10 +331,12 @@ public class LocalComputationManager implements ComputationManager {
     public <R> CompletableFuture<R> execute(ExecutionEnvironment environment, ExecutionHandler<R> handler) {
         Objects.requireNonNull(environment);
         Objects.requireNonNull(handler);
-        CompletableFuture<R> f = new CompletableFuture<>();
-        executor.execute(() -> {
+        MyCf<R> f = new MyCf<>();
+        threadPools.execute(() -> {
+            f.setThread(Thread.currentThread());
             try {
                 try (WorkingDirectory workingDir = new WorkingDirectory(config.getLocalDir(), environment.getWorkingDirPrefix(), environment.isDebug())) {
+                    f.setWorkingDir(workingDir.toPath());
                     List<CommandExecution> commandExecutionList = handler.before(workingDir.toPath());
                     ExecutionReport report = null;
                     enter();
@@ -353,6 +355,24 @@ public class LocalComputationManager implements ComputationManager {
         return f;
     }
 
+    private class MyCf<R> extends ThreadInterruptedCompletableFuture<R> {
+
+        private Path workingDir;
+
+        private void setWorkingDir(Path workingDir) {
+            this.workingDir = workingDir;
+        }
+
+        @Override
+        public boolean cancel(boolean mayInterruptIfRunning) {
+            super.cancel(mayInterruptIfRunning);
+            if (mayInterruptIfRunning) {
+                localCommandExecutor.stop(workingDir);
+            }
+            return true;
+        }
+    }
+
     @Override
     public ComputationResourcesStatus getResourcesStatus() {
         return status;
@@ -360,7 +380,7 @@ public class LocalComputationManager implements ComputationManager {
 
     @Override
     public Executor getExecutor() {
-        return executor;
+        return threadPools;
     }
 
     @Override

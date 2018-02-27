@@ -9,7 +9,7 @@ package com.powsybl.iidm.network;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface LineCharasteristics<T> {
+public interface LineCharacteristics<T> {
 
     /**
      * Get the series resistance in &#937;.

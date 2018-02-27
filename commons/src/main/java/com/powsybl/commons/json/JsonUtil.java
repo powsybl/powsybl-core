@@ -34,8 +34,8 @@ import java.util.function.Function;
  */
 public final class JsonUtil {
 
-    private static final Supplier<ExtensionSerializerProvider> SUPPLIER =
-        Suppliers.memoize(() -> ExtensionSerializerProviders.createProvider(ExtensionJsonSerializer.class));
+    private static final Supplier<ExtensionProviders<ExtensionJsonSerializer>> SUPPLIER =
+        Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionJsonSerializer.class));
 
     private JsonUtil() {
     }
@@ -154,7 +154,7 @@ public final class JsonUtil {
 
     public static <T> void writeExtensions(Extendable<T> extendable, JsonGenerator jsonGenerator,
                                            SerializerProvider serializerProvider,
-                                           ExtensionSerializerProvider<ExtensionJsonSerializer> supplier) throws IOException {
+                                           ExtensionProviders<? extends ExtensionJsonSerializer> supplier) throws IOException {
         Objects.requireNonNull(extendable);
         Objects.requireNonNull(jsonGenerator);
         Objects.requireNonNull(serializerProvider);
@@ -164,7 +164,7 @@ public final class JsonUtil {
 
         if (!extendable.getExtensions().isEmpty()) {
             for (Extension<T> extension : extendable.getExtensions()) {
-                ExtensionJsonSerializer serializer = supplier.findSerializer(extension.getName());
+                ExtensionJsonSerializer serializer = supplier.findProvider(extension.getName());
                 if (serializer != null) {
                     if (!headerDone) {
                         jsonGenerator.writeFieldName("extensions");
@@ -186,7 +186,7 @@ public final class JsonUtil {
     }
 
     public static <T> List<Extension<T>> readExtensions(JsonParser parser, DeserializationContext context,
-                                                        ExtensionSerializerProvider<ExtensionJsonSerializer> supplier) throws IOException {
+                                                        ExtensionProviders<? extends ExtensionJsonSerializer> supplier) throws IOException {
         Objects.requireNonNull(parser);
         Objects.requireNonNull(context);
         Objects.requireNonNull(supplier);
@@ -195,7 +195,7 @@ public final class JsonUtil {
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             String extensionName = parser.getCurrentName();
-            ExtensionJsonSerializer extensionJsonSerializer = supplier.findSerializer(extensionName);
+            ExtensionJsonSerializer extensionJsonSerializer = supplier.findProvider(extensionName);
             if (extensionJsonSerializer != null) {
                 parser.nextToken();
                 Extension<T> extension = extensionJsonSerializer.deserialize(parser, context);

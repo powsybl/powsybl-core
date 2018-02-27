@@ -12,10 +12,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
-import com.powsybl.commons.extensions.Extension;
-import com.powsybl.commons.extensions.ExtensionJsonSerializer;
-import com.powsybl.commons.extensions.ExtensionSerializerProvider;
-import com.powsybl.commons.extensions.ExtensionSerializerProviders;
+import com.powsybl.commons.extensions.*;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.security.LimitViolation;
@@ -30,8 +27,8 @@ import java.util.List;
  */
 class LimitViolationDeserializer extends StdDeserializer<LimitViolation> {
 
-    private static final Supplier<ExtensionSerializerProvider<ExtensionJsonSerializer>> SUPPLIER =
-        Suppliers.memoize(() -> ExtensionSerializerProviders.createProvider(ExtensionJsonSerializer.class, "security-analysis"));
+    private static final Supplier<ExtensionProviders<ExtensionJsonSerializer>> SUPPLIER =
+        Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionJsonSerializer.class, "security-analysis"));
 
     LimitViolationDeserializer() {
         super(LimitViolation.class);

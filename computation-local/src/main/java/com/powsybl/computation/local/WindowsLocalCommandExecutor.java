@@ -21,7 +21,7 @@ import java.util.Map;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Nicolas Lhuillier <nicolas.lhuillier at rte-france.com>
  */
-public class WindowsLocalCommandExecutor implements LocalCommandExecutor {
+public class WindowsLocalCommandExecutor extends AbstractLocalCommandExecutor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WindowsLocalCommandExecutor.class);
 
@@ -56,23 +56,11 @@ public class WindowsLocalCommandExecutor implements LocalCommandExecutor {
                 .add("/c")
                 .add(internalCmd.toString())
                 .build();
-        ProcessBuilder.Redirect outRedirect = ProcessBuilder.Redirect.appendTo(outFile.toFile());
-        ProcessBuilder.Redirect errRedirect = ProcessBuilder.Redirect.appendTo(errFile.toFile());
-        Process process = new ProcessBuilder(cmdLs)
-                .directory(workingDir.toFile())
-                .redirectOutput(outRedirect)
-                .redirectError(errRedirect)
-                .start();
-        int exitValue = process.waitFor();
+        return execute(cmdLs, workingDir, outFile, errFile);
+    }
 
-        // to avoid 'two many open files' exception
-        process.getInputStream().close();
-        process.getOutputStream().close();
-        process.getErrorStream().close();
-
-        if (exitValue != 0) {
-            LOGGER.debug("Command '{}' has failed (exitValue={})", cmdLs, exitValue);
-        }
-        return exitValue;
+    @Override
+    void nonZeroLog(List<String> cmdLs, int exitCode) {
+        LOGGER.debug(NON_ZERO_LOG_PATTERN, cmdLs, exitCode);
     }
 }

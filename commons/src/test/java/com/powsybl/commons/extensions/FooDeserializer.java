@@ -26,8 +26,8 @@ import java.util.List;
  */
 public class FooDeserializer extends StdDeserializer<Foo> {
 
-    private static final Supplier<ExtensionSerializerProvider> SUPPLIER =
-        Suppliers.memoize(() -> ExtensionSerializerProviders.createProvider(ExtensionJsonSerializer.class, "test"));
+    private static final Supplier<ExtensionProviders<ExtensionJsonSerializer>> SUPPLIER =
+        Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionJsonSerializer.class, "test"));
 
     public FooDeserializer() {
         super(Foo.class);

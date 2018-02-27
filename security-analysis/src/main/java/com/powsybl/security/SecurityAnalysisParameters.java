@@ -6,12 +6,16 @@
  */
 package com.powsybl.security;
 
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.AbstractExtendable;
+import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.extensions.ExtensionConfigLoader;
+import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.loadflow.LoadFlowParameters;
 
 import java.util.Objects;
-import java.util.ServiceLoader;
 
 /**
  * Parameters for security analysis computation.
@@ -21,6 +25,18 @@ import java.util.ServiceLoader;
  * @author Sylvain LECLERC <sylvain.leclerc@rte-france.com>
  */
 public class SecurityAnalysisParameters extends AbstractExtendable<SecurityAnalysisParameters> {
+
+    /**
+     * A configuration loader interface for the SecurityAnalysisParameters extensions loaded from the platform configuration
+     * @param <E> The extension class
+     */
+    public static interface ConfigLoader<E extends Extension<SecurityAnalysisParameters>> extends ExtensionConfigLoader<SecurityAnalysisParameters, E> {
+    }
+
+    public static final String VERSION = "1.0";
+
+    private static final Supplier<ExtensionProviders<ConfigLoader>> SUPPLIER =
+        Suppliers.memoize(() -> ExtensionProviders.createProvider(ConfigLoader.class, "security-analysis-parameters"));
 
     private LoadFlowParameters loadFlowParameters = new LoadFlowParameters();
 
@@ -45,9 +61,9 @@ public class SecurityAnalysisParameters extends AbstractExtendable<SecurityAnaly
         return parameters;
     }
 
-    protected void readExtensions(PlatformConfig platformConfig) {
-        for (ParametersConfigLoader e : ServiceLoader.load(ParametersConfigLoader.class)) {
-            addExtension(e.getExtensionClass(), e.load(platformConfig));
+    private void readExtensions(PlatformConfig platformConfig) {
+        for (ExtensionConfigLoader provider : SUPPLIER.get().getProviders()) {
+            addExtension(provider.getExtensionClass(), provider.load(platformConfig));
         }
     }
 
