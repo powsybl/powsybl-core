@@ -20,6 +20,7 @@
 
     <artifactId>powsybl-action-dsl-spi</artifactId>
     <name>Action DSL SPI</name>
+    <description>A set of interfaces to extend the DSL</description>
 
     <dependencies>
         <!-- Compilation dependencies -->

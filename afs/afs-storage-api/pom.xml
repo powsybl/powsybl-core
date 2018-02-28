@@ -19,7 +19,8 @@
     </parent>
 
     <artifactId>powsybl-afs-storage-api</artifactId>
-    <name>AFS storage SPI</name>
+    <name>AFS storage API</name>
+    <description>AFS storage API</description>
 
     <build>
         <plugins>
