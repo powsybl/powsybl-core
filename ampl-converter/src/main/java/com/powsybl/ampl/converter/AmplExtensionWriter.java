@@ -7,7 +7,6 @@
 package com.powsybl.ampl.converter;
 
 import java.io.IOException;
-import java.util.Locale;
 
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.extensions.Extension;
@@ -19,9 +18,6 @@ import com.powsybl.iidm.network.Network;
 * @author Ferrari Giovanni <giovanni.ferrari@techrain.eu>
 */
 public interface AmplExtensionWriter {
-
-    static final float INVALID_FLOAT_VALUE = -99999f;
-    static final Locale LOCALE = Locale.US;
 
     public String getName();
 
