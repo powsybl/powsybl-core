@@ -41,6 +41,21 @@ public class XmlPlatformConfig extends InMemoryPlatformConfig {
         super(fileSystem, configDir, cacheDir);
     }
 
+    private static Map<Object, Object> readProperties(Node moduleNode) {
+        Map<Object, Object> properties = new HashMap<>();
+        NodeList propertyNodes = moduleNode.getChildNodes();
+        for (int j = 0; j < propertyNodes.getLength(); j++) {
+            Node propertyNode = propertyNodes.item(j);
+            if (propertyNode.getNodeType() == Node.ELEMENT_NODE) {
+                String propertyName = propertyNode.getLocalName();
+                Node child = propertyNode.getFirstChild();
+                String propertyValue = child != null ? child.getTextContent() : "";
+                properties.put(propertyName, propertyValue);
+            }
+        }
+        return properties;
+    }
+
     public static Optional<PlatformConfig> create(FileSystem fileSystem, Path configDir, Path cacheDir, String configName) {
         Path file = configDir.resolve(configName + ".xml");
         if (Files.exists(file)) {
@@ -60,17 +75,7 @@ public class XmlPlatformConfig extends InMemoryPlatformConfig {
                     Node moduleNode = moduleNodes.item(i);
                     if (moduleNode.getNodeType() == Node.ELEMENT_NODE) {
                         String moduleName = moduleNode.getLocalName();
-                        Map<Object, Object> properties = new HashMap<>();
-                        NodeList propertyNodes = moduleNode.getChildNodes();
-                        for (int j = 0; j < propertyNodes.getLength(); j++) {
-                            Node propertyNode = propertyNodes.item(j);
-                            if (propertyNode.getNodeType() == Node.ELEMENT_NODE) {
-                                String propertyName = propertyNode.getLocalName();
-                                Node child = propertyNode.getFirstChild();
-                                String propertyValue = child != null ? child.getTextContent() : "";
-                                properties.put(propertyName, propertyValue);
-                            }
-                        }
+                        Map<Object, Object> properties = readProperties(moduleNode);
                         ((InMemoryModuleConfigContainer) platformConfig.container).getConfigs()
                                 .put(moduleName, new MapModuleConfig(properties, fileSystem));
                     }
