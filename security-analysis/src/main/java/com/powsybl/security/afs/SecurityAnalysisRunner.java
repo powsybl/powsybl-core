@@ -11,8 +11,12 @@ import com.powsybl.afs.FileIcon;
 import com.powsybl.afs.ProjectFile;
 import com.powsybl.afs.ProjectFileCreationContext;
 import com.powsybl.afs.ext.base.ProjectCase;
+import com.powsybl.afs.storage.AppStorage;
+import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.contingency.ContingenciesProvider;
+import com.powsybl.security.SecurityAnalysisParameters;
 import com.powsybl.security.SecurityAnalysisResult;
+import com.powsybl.security.json.JsonSecurityAnalysisParameters;
 import com.powsybl.security.json.SecurityAnalysisResultDeserializer;
 import com.powsybl.security.json.SecurityAnalysisResultSerializer;
 
@@ -28,7 +32,8 @@ public class SecurityAnalysisRunner extends ProjectFile {
 
     public static final String PSEUDO_CLASS = "securityAnalysisConfig";
     static final int VERSION = 0;
-    static final String RESULT_JSON_NAME = "resultJson";
+    private static final String PARAMETERS_JSON_NAME = "parametersJson";
+    private static final String RESULT_JSON_NAME = "resultJson";
     static final String CASE_DEPENDENCY_NAME = "case";
     static final String CONTINGENCY_PROVIDER_DEPENDENCY_NAME = "contingencyListProvider";
 
@@ -54,6 +59,29 @@ public class SecurityAnalysisRunner extends ProjectFile {
         findService(SecurityAnalysisRunningService.class).run(this);
     }
 
+    public SecurityAnalysisParameters readParameters() {
+        try (InputStream is = storage.readBinaryData(info.getId(), PARAMETERS_JSON_NAME)
+                .orElseThrow(AssertionError::new)) {
+            return JsonSecurityAnalysisParameters.read(is);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    static void writeParameters(AppStorage storage, NodeInfo info, SecurityAnalysisParameters parameters) {
+        Objects.requireNonNull(parameters);
+        try (OutputStream os = storage.writeBinaryData(info.getId(), PARAMETERS_JSON_NAME)) {
+            JsonSecurityAnalysisParameters.write(parameters, os);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+        storage.flush();
+    }
+
+    public void writeParameters(SecurityAnalysisParameters parameters) {
+        writeParameters(storage, info, parameters);
+    }
+
     public SecurityAnalysisResult readResult() {
         try (InputStream is = storage.readBinaryData(info.getId(), RESULT_JSON_NAME).orElse(null)) {
             if (is != null) {
@@ -67,7 +95,7 @@ public class SecurityAnalysisRunner extends ProjectFile {
 
     public void writeResult(SecurityAnalysisResult result) {
         Objects.requireNonNull(result);
-        try (Writer writer = new OutputStreamWriter(storage.writeBinaryData(info.getId(), SecurityAnalysisRunner.RESULT_JSON_NAME), StandardCharsets.UTF_8)) {
+        try (Writer writer = new OutputStreamWriter(storage.writeBinaryData(info.getId(), RESULT_JSON_NAME), StandardCharsets.UTF_8)) {
             SecurityAnalysisResultSerializer.write(result, writer);
         } catch (IOException e) {
             throw new UncheckedIOException(e);

@@ -10,12 +10,25 @@ import com.google.auto.service.AutoService;
 import com.powsybl.afs.ProjectFileBuildContext;
 import com.powsybl.afs.ProjectFileCreationContext;
 import com.powsybl.afs.ProjectFileExtension;
+import com.powsybl.security.SecurityAnalysisParameters;
+
+import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @AutoService(ProjectFileExtension.class)
 public class SecurityAnalysisRunnerExtension implements ProjectFileExtension<SecurityAnalysisRunner, SecurityAnalysisRunnerBuilder> {
+
+    private final SecurityAnalysisParameters parameters;
+
+    public SecurityAnalysisRunnerExtension() {
+        this(SecurityAnalysisParameters.load());
+    }
+
+    public SecurityAnalysisRunnerExtension(SecurityAnalysisParameters parameters) {
+        this.parameters = Objects.requireNonNull(parameters);
+    }
 
     @Override
     public Class<SecurityAnalysisRunner> getProjectFileClass() {
@@ -39,6 +52,6 @@ public class SecurityAnalysisRunnerExtension implements ProjectFileExtension<Sec
 
     @Override
     public SecurityAnalysisRunnerBuilder createProjectFileBuilder(ProjectFileBuildContext context) {
-        return new SecurityAnalysisRunnerBuilder(context);
+        return new SecurityAnalysisRunnerBuilder(context, parameters);
     }
 }

@@ -31,11 +31,8 @@ public class LocalSecurityAnalysisRunningService implements SecurityAnalysisRunn
 
     private final SecurityAnalysisFactory factory;
 
-    private final SecurityAnalysisParameters parameters;
-
-    public LocalSecurityAnalysisRunningService(SecurityAnalysisFactory factory, SecurityAnalysisParameters parameters) {
+    public LocalSecurityAnalysisRunningService(SecurityAnalysisFactory factory) {
         this.factory = Objects.requireNonNull(factory);
-        this.parameters = Objects.requireNonNull(parameters);
     }
 
     @Override
@@ -44,6 +41,7 @@ public class LocalSecurityAnalysisRunningService implements SecurityAnalysisRunn
 
         ProjectCase aCase = runner.getCase().orElseThrow(() -> new AfsException("Invalid case link"));
         ContingenciesProvider contingencyListProvider = runner.getContingencyListProvider().orElse(new EmptyContingencyListProvider());
+        SecurityAnalysisParameters parameters = runner.readParameters();
         ComputationManager computationManager = runner.getFileSystem().getData().getComputationManager();
 
         UUID taskId = runner.startTask();

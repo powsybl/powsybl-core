@@ -125,13 +125,12 @@ public class SecurityAnalysisRunnerTest extends AbstractProjectFileTest {
     protected List<ProjectFileExtension> getProjectFileExtensions() {
         return ImmutableList.of(new ImportedCaseExtension(importersLoader),
                                 new ContingencyStoreExtension(),
-                                new SecurityAnalysisRunnerExtension());
+                                new SecurityAnalysisRunnerExtension(new SecurityAnalysisParameters()));
     }
 
     @Override
     protected List<ServiceExtension> getServiceExtensions() {
-        return ImmutableList.of(new LocalSecurityAnalysisRunningServiceExtension(new SecurityAnalysisFactoryMock(),
-                                                                                 new SecurityAnalysisParameters()),
+        return ImmutableList.of(new LocalSecurityAnalysisRunningServiceExtension(new SecurityAnalysisFactoryMock()),
                                 new LocalNetworkServiceExtension());
     }
 
@@ -171,10 +170,21 @@ public class SecurityAnalysisRunnerTest extends AbstractProjectFileTest {
                 .withContingencyStore("contingencies")
                 .build();
 
+        // check there is no results
         assertNull(runner.readResult());
 
+        // check default parameters can be changed
+        SecurityAnalysisParameters parameters = runner.readParameters();
+        assertNotNull(parameters);
+        assertFalse(parameters.getLoadFlowParameters().isSpecificCompatibility());
+        parameters.getLoadFlowParameters().setSpecificCompatibility(true);
+        runner.writeParameters(parameters);
+        assertTrue(runner.readParameters().getLoadFlowParameters().isSpecificCompatibility());
+
+        // run security analysis
         runner.run();
 
+        // check results
         SecurityAnalysisResult result = runner.readResult();
         assertNotNull(result);
         assertNotNull(result.getPreContingencyResult());

@@ -11,6 +11,7 @@ import com.powsybl.afs.ext.base.ProjectCase;
 import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.contingency.ContingenciesProvider;
+import com.powsybl.security.SecurityAnalysisParameters;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -22,14 +23,17 @@ public class SecurityAnalysisRunnerBuilder implements ProjectFileBuilder<Securit
 
     private final ProjectFileBuildContext context;
 
+    private final SecurityAnalysisParameters parameters;
+
     private String name;
 
     private String casePath;
 
     private String contingencyStorePath;
 
-    public SecurityAnalysisRunnerBuilder(ProjectFileBuildContext context) {
+    public SecurityAnalysisRunnerBuilder(ProjectFileBuildContext context, SecurityAnalysisParameters parameters) {
         this.context = Objects.requireNonNull(context);
+        this.parameters = Objects.requireNonNull(parameters);
     }
 
     public SecurityAnalysisRunnerBuilder withName(String name) {
@@ -87,6 +91,9 @@ public class SecurityAnalysisRunnerBuilder implements ProjectFileBuilder<Securit
 
         // create contingency store link
         contingencyStore.ifPresent(projectFile -> context.getStorage().addDependency(info.getId(), SecurityAnalysisRunner.CONTINGENCY_PROVIDER_DEPENDENCY_NAME, projectFile.getId()));
+
+        // write parameters using default one
+        SecurityAnalysisRunner.writeParameters(context.getStorage(), info, parameters);
 
         context.getStorage().flush();
 
