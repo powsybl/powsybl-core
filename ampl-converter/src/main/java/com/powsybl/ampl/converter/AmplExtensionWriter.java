@@ -7,6 +7,7 @@
 package com.powsybl.ampl.converter;
 
 import java.io.IOException;
+import java.util.Locale;
 
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.extensions.Extension;
@@ -19,8 +20,10 @@ import com.powsybl.iidm.network.Network;
 */
 public interface AmplExtensionWriter {
 
+    static final float INVALID_FLOAT_VALUE = -99999f;
+    static final Locale LOCALE = Locale.US;
+
     public String getName();
 
-    public void write(Extension<?> ext, Network network, DataSource dataSource, int faultNum, int actionNum,
-            boolean append, StringToIntMapper<AmplSubset> mapper, AmplExportConfig config) throws IOException;
+    public void write(int extendedNum, Extension<?> ext, Network network, StringToIntMapper<AmplSubset> mapper, DataSource dataSource, boolean append, AmplExportConfig config) throws IOException;
 }

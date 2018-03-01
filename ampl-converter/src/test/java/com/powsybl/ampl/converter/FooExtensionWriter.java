@@ -30,11 +30,9 @@ public class FooExtensionWriter implements AmplExtensionWriter {
     }
 
     @Override
-    public void write(Extension<?> ext, Network network, DataSource dataSource, int faultNum,
-            int actionNum, boolean append, StringToIntMapper<AmplSubset> mapper,
-            AmplExportConfig config) throws IOException {
+    public void write(int extended, Extension<?> ext, Network network, StringToIntMapper<AmplSubset> mapper, DataSource dataSource, boolean append, AmplExportConfig config) throws IOException {
         try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("foo-extension", "txt", false), StandardCharsets.UTF_8)) {
-            writer.write(ext.getName() + "\n");
+            writer.write(extended + " " + ext.getName() + "\n");
         }
 
     }

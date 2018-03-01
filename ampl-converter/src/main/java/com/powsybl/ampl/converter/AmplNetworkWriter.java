@@ -235,7 +235,7 @@ public class AmplNetworkWriter {
                          .writeCell(vl.getSubstation().getCountry().toString())
                          .writeCell(vl.getId())
                          .writeCell(vl.getName());
-                writeExtensions(vl);
+                writeExtensions(num, vl);
             }
             // voltage level associated to 3 windings transformers middle bus
             for (ThreeWindingsTransformer twt : network.getThreeWindingsTransformers()) {
@@ -254,7 +254,7 @@ public class AmplNetworkWriter {
                          .writeCell(vl1.getSubstation().getCountry().toString())
                          .writeCell(vlId)
                          .writeCell("");
-                writeExtensions(vl1);
+                writeExtensions(num, vl1);
             }
             // voltage level associated to dangling lines middle bus
             for (DanglingLine dl : network.getDanglingLines()) {
@@ -275,7 +275,7 @@ public class AmplNetworkWriter {
                          .writeCell(vl.getSubstation().getCountry().toString())
                          .writeCell(dl.getId() + "_voltageLevel")
                          .writeCell("");
-                writeExtensions(vl);
+                writeExtensions(num, vl);
             }
             if (config.isExportXNodes()) {
                 for (Line l : network.getLines()) {
@@ -296,7 +296,7 @@ public class AmplNetworkWriter {
                             .writeCell(XNODE_COUNTRY_NAME)
                             .writeCell(AmplUtil.getXnodeBusId(tieLine) + "_voltageLevel")
                             .writeCell("");
-                    writeExtensions(tieLine);
+                    writeExtensions(num, tieLine);
                 }
             }
         }
@@ -373,16 +373,16 @@ public class AmplNetworkWriter {
                     .writeCell(faultNum)
                     .writeCell(actionNum)
                     .writeCell(id);
-                writeExtensions(b);
+                writeExtensions(num, b);
             }
         }
     }
 
-    private <E> void writeExtensions(Extendable<E> extendable) throws IOException {
+    private <E> void writeExtensions(int extendedNum, Extendable<E> extendable) throws IOException {
         for (Extension<E> ext : extendable.getExtensions()) {
             AmplExtensionWriter extWriter = AmplExtensionWriters.getWriter(ext.getName());
             if (extWriter != null) {
-                extWriter.write(ext, network, dataSource, faultNum, actionNum, append, mapper, config);
+                extWriter.write(extendedNum, ext, network, mapper, dataSource, append, config);
             }
         }
     }
@@ -643,7 +643,7 @@ public class AmplNetworkWriter {
                     .writeCell(id)
                     .writeCell(l.getName());
             }
-            writeExtensions(l);
+            writeExtensions(num, l);
         }
     }
 
@@ -726,7 +726,7 @@ public class AmplNetworkWriter {
                 .writeCell(actionNum)
                 .writeCell(id)
                 .writeCell(twt.getName());
-            writeExtensions(twt);
+            writeExtensions(num, twt);
         }
     }
 
@@ -816,6 +816,7 @@ public class AmplNetworkWriter {
                     .writeCell(actionNum)
                     .writeCell(id1)
                     .writeCell("");
+                writeExtensions(num1, twt);
             }
             if (!isOnlyMainCc() || isBusExported(context, middleBusId) || isBusExported(context, bus2Id)) {
                 formatter.writeCell(num2)
@@ -844,6 +845,7 @@ public class AmplNetworkWriter {
                     .writeCell(actionNum)
                     .writeCell(id2)
                     .writeCell("");
+                writeExtensions(num2, twt);
             }
             if (!isOnlyMainCc() || isBusExported(context, middleBusId) || isBusExported(context, bus3Id)) {
                 formatter.writeCell(num3)
@@ -872,8 +874,8 @@ public class AmplNetworkWriter {
                     .writeCell(actionNum)
                     .writeCell(id3)
                     .writeCell("");
+                writeExtensions(num3, twt);
             }
-            writeExtensions(twt);
         }
     }
 
@@ -930,7 +932,7 @@ public class AmplNetworkWriter {
                 .writeCell(actionNum)
                 .writeCell(id)
                 .writeCell(dl.getName());
-            writeExtensions(dl);
+            writeExtensions(num, dl);
         }
     }
 
@@ -1193,7 +1195,7 @@ public class AmplNetworkWriter {
                          .writeCell(l.getName())
                          .writeCell(t.getP())
                          .writeCell(t.getQ());
-                writeExtensions(l);
+                writeExtensions(num, l);
             }
             for (DanglingLine dl : network.getDanglingLines()) {
                 String middleBusId = getDanglingLineMiddleBusId(dl);
@@ -1306,7 +1308,7 @@ public class AmplNetworkWriter {
                          .writeCell(sc.getName())
                          .writeCell(t.getP())
                          .writeCell(t.getQ());
-                writeExtensions(sc);
+                writeExtensions(num, sc);
             }
             if (!skipped.isEmpty()) {
                 LOGGER.trace("Skip shunts {} because not connected and not connectable", skipped);
@@ -1373,7 +1375,7 @@ public class AmplNetworkWriter {
                         .writeCell(svc.getName())
                         .writeCell(t.getP())
                         .writeCell(t.getQ());
-                writeExtensions(svc);
+                writeExtensions(num, svc);
             }
             if (!skipped.isEmpty()) {
                 LOGGER.trace("Skip static VAR compensators {} because not connected and not connectable", skipped);
@@ -1457,7 +1459,7 @@ public class AmplNetworkWriter {
                          .writeCell(g.getName())
                          .writeCell(t.getP())
                          .writeCell(t.getQ());
-                writeExtensions(g);
+                writeExtensions(num, g);
             }
             if (!skipped.isEmpty()) {
                 LOGGER.trace("Skip generators {} because not connected and not connectable", skipped);
@@ -1574,7 +1576,7 @@ public class AmplNetworkWriter {
                         .writeCell(hvdcLine.getMaxP())
                         .writeCell(mapper.getInt(AmplSubset.HVDC_CONVERTER_STATION, hvdcLine.getConverterStation1().getId()))
                         .writeCell(mapper.getInt(AmplSubset.HVDC_CONVERTER_STATION, hvdcLine.getConverterStation2().getId()));
-                writeExtensions(hvdcLine);
+                writeExtensions(num, hvdcLine);
             }
             if (!skipped.isEmpty()) {
                 LOGGER.trace("Skip HVDC lines {} because not connected and not connectable", skipped);
@@ -1686,7 +1688,7 @@ public class AmplNetworkWriter {
                 .writeCell(station.getName())
                 .writeCell(t.getP())
                 .writeCell(t.getQ());
-        writeExtensions(station);
+        writeExtensions(num, station);
     }
 
     private void writeLccConverterStation(LccConverterStation station, TableFormatter formatter, int busNum, int conBusNum, float maxP) throws IOException {
@@ -1721,7 +1723,7 @@ public class AmplNetworkWriter {
                 .writeCell(station.getName())
                 .writeCell(t.getP())
                 .writeCell(t.getQ());
-        writeExtensions(station);
+        writeExtensions(num, station);
     }
 
     private float getQ(float p, float powerFactor) {
