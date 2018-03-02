@@ -152,7 +152,7 @@ public class ValidationTool implements Tool {
             if (line.hasOption(LOAD_FLOW) || config.isCompareResults()) {
                 context.getOutputStream().println("Running loadflow on network " + network.getId());
                 LoadFlowParameters parameters = LoadFlowParameters.load();
-                LoadFlow loadFlow = config.getLoadFlowFactory().newInstance().create(network, context.getComputationManager(), 0);
+                LoadFlow loadFlow = config.getLoadFlowFactory().newInstance().create(network, context.getShortTimeExecutionComputationManager(), 0);
                 loadFlow.runAsync(StateManager.INITIAL_STATE_ID, parameters)
                         .thenAccept(loadFlowResult -> {
                             if (!loadFlowResult.isOk()) {

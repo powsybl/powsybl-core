@@ -36,4 +36,7 @@ public interface ComputationManager extends AutoCloseable {
     Executor getExecutor();
 
     Path getLocalDir();
+
+    @Override
+    void close();
 }

@@ -65,16 +65,7 @@ public class LocalComputationManager implements ComputationManager {
             if (defaultInstance == null) {
                 try {
                     defaultInstance = new LocalComputationManager();
-                    Runtime.getRuntime().addShutdownHook(new Thread() {
-                        @Override
-                        public void run() {
-                            try {
-                                defaultInstance.close();
-                            } catch (IOException e) {
-                                throw new UncheckedIOException(e);
-                            }
-                        }
-                    });
+                    Runtime.getRuntime().addShutdownHook(new Thread(() -> defaultInstance.close()));
                 } catch (IOException e) {
                     throw new UncheckedIOException(e);
                 }
@@ -384,8 +375,12 @@ public class LocalComputationManager implements ComputationManager {
     }
 
     @Override
-    public void close() throws IOException {
-        commonDir.close();
+    public void close() {
+        try {
+            commonDir.close();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
 }

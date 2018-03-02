@@ -25,8 +25,9 @@ public class AppFileSystemTool implements Tool {
 
     public static final String LS = "ls";
 
-    protected AppData createAppData() {
-        return new AppData();
+    protected AppData createAppData(ToolRunningContext context) {
+        return new AppData(context.getShortTimeExecutionComputationManager(),
+                           context.getLongTimeExecutionComputationManager());
     }
 
     @Override
@@ -70,8 +71,8 @@ public class AppFileSystemTool implements Tool {
     }
 
     @Override
-    public void run(CommandLine line, ToolRunningContext context) throws Exception {
-        try (AppData appData = createAppData()) {
+    public void run(CommandLine line, ToolRunningContext context) {
+        try (AppData appData = createAppData(context)) {
             if (line.hasOption(LS)) {
                 String path = line.getOptionValue(LS);
                 if (path == null) {
