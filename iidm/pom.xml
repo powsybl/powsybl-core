@@ -21,7 +21,7 @@
     <packaging>pom</packaging>
     <artifactId>powsybl-iidm</artifactId>
     <name>IIDM</name>
-    <description>IIDM meta-package</description>
+    <description>IIDM aggregator module</description>
 
     <modules>
         <module>iidm-api</module>

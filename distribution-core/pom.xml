@@ -21,7 +21,7 @@
     <packaging>pom</packaging>
     <artifactId>powsybl-distribution-core</artifactId>
     <name>Distribution</name>
-    <description>powsybl-core aggregation module</description>
+    <description>powsybl-core distribution module</description>
 
     <dependencies>
         <dependency>

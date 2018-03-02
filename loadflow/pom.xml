@@ -21,7 +21,7 @@
     <packaging>pom</packaging>
     <artifactId>powsybl-loadflow</artifactId>
     <name>Load-flow</name>
-    <description>Load-flow meta-package</description>
+    <description>Load-flow aggregator module</description>
 
     <modules>
         <module>loadflow-api</module>

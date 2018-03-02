@@ -21,7 +21,7 @@
     <packaging>pom</packaging>
     <artifactId>powsybl-action</artifactId>
     <name>Action</name>
-    <description>Action meta-package</description>
+    <description>Action aggregator module</description>
 
     <modules>
         <module>action-dsl</module>
