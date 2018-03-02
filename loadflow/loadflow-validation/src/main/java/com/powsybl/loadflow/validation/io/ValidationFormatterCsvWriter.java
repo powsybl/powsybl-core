@@ -195,6 +195,8 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                                            new Column("vscCSQ"),
                                            new Column("lineP"),
                                            new Column("lineQ"),
+                                           new Column("danglingLineP"),
+                                           new Column("danglingLineQ"),
                                            new Column("twtP"),
                                            new Column("twtQ"),
                                            new Column("tltP"),
@@ -219,6 +221,8 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                                                new Column("vscCSQ" + POST_LF_SUFFIX),
                                                new Column("lineP" + POST_LF_SUFFIX),
                                                new Column("lineQ" + POST_LF_SUFFIX),
+                                               new Column("danglingLineP" + POST_LF_SUFFIX),
+                                               new Column("danglingLineQ" + POST_LF_SUFFIX),
                                                new Column("twtP" + POST_LF_SUFFIX),
                                                new Column("twtQ" + POST_LF_SUFFIX),
                                                new Column("tltP" + POST_LF_SUFFIX),
@@ -404,23 +408,23 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
 
     @Override
     protected void write(String busId, double incomingP, double incomingQ, double loadP, double loadQ, double genP, double genQ, double shuntP, double shuntQ,
-                         double svcP, double svcQ, double vscCSP, double vscCSQ, double lineP, double lineQ, double twtP, double twtQ, double tltP, double tltQ,
+                         double svcP, double svcQ, double vscCSP, double vscCSQ, double lineP, double lineQ, double danglingLineP, double danglingLineQ, double twtP, double twtQ, double tltP, double tltQ,
                          boolean validated, BusData busData, boolean found, boolean writeValues) throws IOException {
         formatter.writeCell(busId);
         if (compareResults) {
             formatter = found ?
                         write(found, busData.incomingP, busData.incomingQ, busData.loadP, busData.loadQ, busData.genP, busData.genQ,
                               busData.shuntP, busData.shuntQ, busData.svcP, busData.svcQ, busData.vscCSP, busData.vscCSQ,
-                              busData.lineP, busData.lineQ, busData.twtP, busData.twtQ, busData.tltP, busData.tltQ, busData.validated) :
+                              busData.lineP, busData.lineQ, busData.danglingLineP, busData.danglingLineQ, busData.twtP, busData.twtQ, busData.tltP, busData.tltQ, busData.validated) :
                         write(found, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
-                              Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false);
+                              Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false);
         }
         formatter = write(writeValues, incomingP, incomingQ, loadP, loadQ, genP, genQ, shuntP, shuntQ,
-                          svcP, svcQ, vscCSP, vscCSQ, lineP, lineQ, twtP, twtQ, tltP, tltQ, validated);
+                          svcP, svcQ, vscCSP, vscCSQ, lineP, lineQ, danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, validated);
     }
 
     private TableFormatter write(boolean writeValues, double incomingP, double incomingQ, double loadP, double loadQ, double genP, double genQ,
-                                 double shuntP, double shuntQ, double svcP, double svcQ, double vscCSP, double vscCSQ, double lineP, double lineQ,
+                                 double shuntP, double shuntQ, double svcP, double svcQ, double vscCSP, double vscCSQ, double lineP, double lineQ, double danglingLineP, double danglingLineQ,
                                  double twtP, double twtQ, double tltP, double tltQ, boolean validated) throws IOException {
         formatter = writeValues ?
                     formatter.writeCell(incomingP)
@@ -440,12 +444,14 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                                  .writeCell(vscCSQ)
                                  .writeCell(lineP)
                                  .writeCell(lineQ)
+                                 .writeCell(danglingLineP)
+                                 .writeCell(danglingLineQ)
                                  .writeCell(twtP)
                                  .writeCell(twtQ)
                                  .writeCell(tltP)
                                  .writeCell(tltQ)
                                  .writeCell(getValidated(validated)) :
-                        formatter.writeEmptyCells(15);
+                        formatter.writeEmptyCells(17);
         }
         return formatter;
     }
