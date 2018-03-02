@@ -20,6 +20,7 @@
 
     <artifactId>powsybl-action-util</artifactId>
     <name>Action utilities</name>
+    <description>A set of DSL extensions and utility functions</description>
 
     <build>
         <plugins>

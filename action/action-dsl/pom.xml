@@ -20,6 +20,7 @@
 
     <artifactId>powsybl-action-dsl</artifactId>
     <name>Action, contingency and rule DSL</name>
+    <description>A DSL to describe actions, contingencies and rules</description>
 
     <build>
         <plugins>

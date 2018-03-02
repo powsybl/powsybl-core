@@ -187,7 +187,7 @@ powsybl_java()
 
         if [ $powsybl_docs = true ]; then
             echo "**** Generating Javadoc documentation"
-            mvn -f "$sourceDir/pom.xml" javadoc:javadoc || exit $?
+            mvn -f "$sourceDir/pom.xml" javadoc:aggregate || exit $?
             mvn -f "$sourceDir/distribution-core/pom.xml" install || exit $?
         fi
     fi

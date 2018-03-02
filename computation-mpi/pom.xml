@@ -20,6 +20,7 @@
     
     <artifactId>powsybl-computation-mpi</artifactId>
     <name>MPI computation</name>
+    <description>A computation implementation to run computations with MPI</description>
     
     <dependencies>
         <!-- Compilation dependencies -->

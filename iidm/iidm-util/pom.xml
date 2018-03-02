@@ -21,8 +21,8 @@
 
 
     <artifactId>powsybl-iidm-util</artifactId>
-    <name>IIDM Utilities</name>
-    <description>This is a library that provides utilities on top of IIDM API.</description>
+    <name>IIDM utilities</name>
+    <description>A set of utility classes over the IIDM API</description>
 
     <dependencies>
       <!-- Compilation dependencies -->
