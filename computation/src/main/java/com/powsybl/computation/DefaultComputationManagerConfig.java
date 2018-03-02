@@ -55,7 +55,9 @@ public class DefaultComputationManagerConfig {
             longTimeExecutionComputationManagerFactoryClass = null;
         }
         DefaultComputationManagerConfig config = new DefaultComputationManagerConfig(shortTimeExecutionComputationManagerFactoryClass, longTimeExecutionComputationManagerFactoryClass);
-        LOGGER.info(config.toString());
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info(config.toString());
+        }
         return config;
     }
 
@@ -84,7 +86,11 @@ public class DefaultComputationManagerConfig {
 
     @Override
     public String toString() {
-        return "DefaultComputationManagerConfig(shortTimeExecutionComputationManagerFactoryClass=" + shortTimeExecutionComputationManagerFactoryClass.getName()
-                + ", longTimeExecutionComputationManagerFactoryClass=" + longTimeExecutionComputationManagerFactoryClass.getName() + ")";
+        String str = "DefaultComputationManagerConfig(shortTimeExecutionComputationManagerFactoryClass=" + shortTimeExecutionComputationManagerFactoryClass.getName();
+        if (longTimeExecutionComputationManagerFactoryClass != null) {
+            str += ", longTimeExecutionComputationManagerFactoryClass=" + longTimeExecutionComputationManagerFactoryClass.getName();
+        }
+        str += ")";
+        return str;
     }
 }
