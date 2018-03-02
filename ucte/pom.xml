@@ -21,6 +21,7 @@
     <packaging>pom</packaging>
     <artifactId>powsybl-ucte</artifactId>
     <name>UCTE</name>
+    <description>UCTE aggregator module</description>
 
     <modules>
         <module>ucte-converter</module>

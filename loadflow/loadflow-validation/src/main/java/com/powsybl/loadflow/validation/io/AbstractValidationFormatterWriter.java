@@ -122,30 +122,30 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
 
     @Override
     public void write(String busId, double incomingP, double incomingQ, double loadP, double loadQ, double genP, double genQ,
-                      double shuntP, double shuntQ, double svcP, double svcQ, double vscCSP, double vscCSQ, double lineP, double lineQ,
+                      double shuntP, double shuntQ, double svcP, double svcQ, double vscCSP, double vscCSQ, double lineP, double lineQ, double danglingLineP, double danglingLineQ,
                       double twtP, double twtQ, double tltP, double tltQ, boolean validated) throws IOException {
         Objects.requireNonNull(busId);
-        BusData emptyBusData = new BusData(busId, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
+        BusData emptyBusData = new BusData(busId, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
                                            Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false);
         if (compareResults) {
             if (preLoadflowValidationCompleted) {
                 boolean found = busesData.containsKey(busId);
                 BusData busData = found ? busesData.get(busId) : emptyBusData;
                 write(busId, incomingP, incomingQ, loadP, loadQ, genP, genQ, shuntP, shuntQ, svcP, svcQ,
-                      vscCSP, vscCSQ, lineP, lineQ, twtP, twtQ, tltP, tltQ, validated, busData, found, true);
+                      vscCSP, vscCSQ, lineP, lineQ, danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, validated, busData, found, true);
                 busesData.remove(busId);
             } else {
                 busesData.put(busId, new BusData(busId, incomingP, incomingQ, loadP, loadQ, genP, genQ, shuntP, shuntQ,
-                                                 svcP, svcQ, vscCSP, vscCSQ, lineP, lineQ, twtP, twtQ, tltP, tltQ, validated));
+                                                 svcP, svcQ, vscCSP, vscCSQ, lineP, lineQ, danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, validated));
             }
         } else {
             write(busId, incomingP, incomingQ, loadP, loadQ, genP, genQ, shuntP, shuntQ, svcP, svcQ,
-                  vscCSP, vscCSQ, lineP, lineQ, twtP, twtQ, tltP, tltQ, validated, emptyBusData, false, true);
+                  vscCSP, vscCSQ, lineP, lineQ, danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, validated, emptyBusData, false, true);
         }
     }
 
     protected abstract void write(String busId, double incomingP, double incomingQ, double loadP, double loadQ, double genP, double genQ,
-                                  double shuntP, double shuntQ, double svcP, double svcQ, double vscCSP, double vscCSQ, double lineP, double lineQ,
+                                  double shuntP, double shuntQ, double svcP, double svcQ, double vscCSP, double vscCSQ, double lineP, double lineQ, double danglingLineP, double danglingLineQ,
                                   double twtP, double twtQ, double tltP, double tltQ, boolean validated, BusData busData, boolean found,
                                   boolean writeValues) throws IOException;
 
@@ -251,7 +251,7 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
         busesData.values().forEach(busData -> {
             try {
                 write(busData.busId, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
-                      Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
+                      Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
                       Double.NaN, Double.NaN, Double.NaN, false, busData, true, false);
             } catch (IOException e) {
                 LOGGER.error("Error writing data of bus {}: {}", busData.busId, e.getMessage());
@@ -408,6 +408,8 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
         final double vscCSQ;
         final double lineP;
         final double lineQ;
+        final double danglingLineP;
+        final double danglingLineQ;
         final double twtP;
         final double twtQ;
         final double tltP;
@@ -415,7 +417,7 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
         final boolean validated;
 
         BusData(String busId, double incomingP, double incomingQ, double loadP, double loadQ, double genP, double genQ,
-                double shuntP, double shuntQ, double svcP, double svcQ, double vscCSP, double vscCSQ, double lineP, double lineQ,
+                double shuntP, double shuntQ, double svcP, double svcQ, double vscCSP, double vscCSQ, double lineP, double lineQ, double danglingLineP, double danglingLineQ,
                 double twtP, double twtQ, double tltP, double tltQ, boolean validated) {
             this.busId = Objects.requireNonNull(busId);
             this.incomingP = incomingP;
@@ -432,6 +434,8 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
             this.vscCSQ = vscCSQ;
             this.lineP = lineP;
             this.lineQ = lineQ;
+            this.danglingLineP = danglingLineP;
+            this.danglingLineQ = danglingLineQ;
             this.twtP = twtP;
             this.twtQ = twtQ;
             this.tltP = tltP;

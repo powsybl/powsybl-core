@@ -19,8 +19,8 @@
     </parent>
 
     <artifactId>powsybl-iidm-impl</artifactId>
-    <name>IIDM implementation</name>
-    <description>This is an in memory implementation of the network model</description>
+    <name>IIDM network model implementation</name>
+    <description>An IIDM implementation</description>
 
     <dependencies>
         <!-- Compilation dependencies -->

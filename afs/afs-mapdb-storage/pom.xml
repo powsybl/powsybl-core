@@ -19,7 +19,8 @@
     </parent>
 
     <artifactId>powsybl-afs-mapdb-storage</artifactId>
-    <name>AFS MapDB storage</name>
+    <name>AFS MapDB storage implementation</name>
+    <description>An AFS storage implementation based on MapDB</description>
 
     <dependencies>
         <!-- Compilation dependencies -->
