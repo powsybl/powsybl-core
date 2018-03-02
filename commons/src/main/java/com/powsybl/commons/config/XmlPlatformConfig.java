@@ -27,6 +27,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -44,8 +45,8 @@ public class XmlPlatformConfig extends InMemoryPlatformConfig {
     private static Map<Object, Object> readProperties(Node moduleNode) {
         Map<Object, Object> properties = new HashMap<>();
         NodeList propertyNodes = moduleNode.getChildNodes();
-        for (int j = 0; j < propertyNodes.getLength(); j++) {
-            Node propertyNode = propertyNodes.item(j);
+        for (int i = 0; i < propertyNodes.getLength(); i++) {
+            Node propertyNode = propertyNodes.item(i);
             if (propertyNode.getNodeType() == Node.ELEMENT_NODE) {
                 String propertyName = propertyNode.getLocalName();
                 Node child = propertyNode.getFirstChild();
@@ -57,6 +58,10 @@ public class XmlPlatformConfig extends InMemoryPlatformConfig {
     }
 
     public static Optional<PlatformConfig> create(FileSystem fileSystem, Path configDir, Path cacheDir, String configName) {
+        Objects.requireNonNull(fileSystem);
+        Objects.requireNonNull(configDir);
+        Objects.requireNonNull(cacheDir);
+        Objects.requireNonNull(configName);
         Path file = configDir.resolve(configName + ".xml");
         if (Files.exists(file)) {
             LOGGER.info("Platform configuration defined by XML file {}", file);
