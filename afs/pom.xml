@@ -21,6 +21,7 @@
     <packaging>pom</packaging>
     <artifactId>powsybl-afs</artifactId>
     <name>AFS</name>
+    <description>AFS aggregator module</description>
 
     <modules>
         <module>afs-core</module>

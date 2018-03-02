@@ -19,7 +19,8 @@
     </parent>
 
     <artifactId>powsybl-afs-local</artifactId>
-    <name>AFS local file system impl</name>
+    <name>AFS local filesystem implementation</name>
+    <description>An AFS filesystem implementation based on NIO2</description>
 
     <dependencies>
         <!-- Compilation dependencies -->

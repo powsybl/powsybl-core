@@ -20,6 +20,7 @@
 
     <artifactId>powsybl-iidm-xml-converter</artifactId>
     <name>IIDM XML converter</name>
+    <description>A XML converter implementation for IIDM networks</description>
 
     <dependencies>
         <!-- Compilation dependencies -->
