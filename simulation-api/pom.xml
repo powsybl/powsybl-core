@@ -20,6 +20,7 @@
 
     <artifactId>powsybl-simulation-api</artifactId>
     <name>Time domain simulation API</name>
+    <description>The time domain simulation API</description>
 
     <dependencies>
         <!-- Compilation dependencies -->

@@ -20,6 +20,7 @@
 
     <artifactId>powsybl-computation</artifactId>
     <name>Computation API</name>
+    <description>An API to run computations</description>
 
     <dependencies>
         <!-- Compilation dependencies -->

@@ -20,7 +20,7 @@
 
     <artifactId>powsybl-commons</artifactId>
     <name>Commons</name>
-    <description>This is a library for miscellaneous utility classes</description>
+    <description>A set of miscellaneous utility classes</description>
 
     <build>
         <plugins>

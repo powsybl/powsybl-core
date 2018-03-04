@@ -18,8 +18,8 @@
     </parent>
 
     <artifactId>powsybl-ampl-converter</artifactId>
-
-    <name>AMPL converter</name>
+    <name>AMPL converter implementation</name>
+    <description>A converter implementation based on CSV-like files</description>
 
     <dependencies>
         <!-- Compilation dependencies -->

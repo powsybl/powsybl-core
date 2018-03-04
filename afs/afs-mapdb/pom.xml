@@ -19,7 +19,8 @@
     </parent>
 
     <artifactId>powsybl-afs-mapdb</artifactId>
-    <name>AFS MapDB impl</name>
+    <name>AFS MapDB filesystem implementation</name>
+    <description>An AFS filesystem implementation based on MapDB</description>
 
     <dependencies>
         <!-- Compilation dependencies -->

@@ -20,6 +20,7 @@
 
     <artifactId>powsybl-scripting</artifactId>
     <name>Scripting</name>
+    <description>A tool to run scripts over IIDM and AFS</description>
 
     <build>
         <plugins>
