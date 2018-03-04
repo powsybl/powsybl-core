@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -39,6 +40,10 @@ public class ContingencyStore extends ProjectFile implements ContingenciesProvid
 
     protected ContingencyStore(ProjectFileCreationContext context) {
         super(context, VERSION, BOLT_ICON);
+    }
+
+    public void write(Contingency... contingencies) {
+        write(Arrays.asList(contingencies));
     }
 
     public void write(List<Contingency> contingencies) {

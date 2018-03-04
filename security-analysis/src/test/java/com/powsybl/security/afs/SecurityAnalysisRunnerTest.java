@@ -18,7 +18,7 @@ import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.BranchContingency;
 import com.powsybl.contingency.ContingenciesProvider;
-import com.powsybl.contingency.ContingencyImpl;
+import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.afs.ContingencyStore;
 import com.powsybl.contingency.afs.ContingencyStoreBuilder;
 import com.powsybl.contingency.afs.ContingencyStoreExtension;
@@ -161,7 +161,7 @@ public class SecurityAnalysisRunnerTest extends AbstractProjectFileTest {
         ContingencyStore contingencyStore = project.getRootFolder().fileBuilder(ContingencyStoreBuilder.class)
                 .withName("contingencies")
                 .build();
-        contingencyStore.write(Collections.singletonList(new ContingencyImpl("c1", Collections.singletonList(new BranchContingency("l1")))));
+        contingencyStore.write(new Contingency("c1", new BranchContingency("l1")));
 
         // create a security analysis runner that point to imported case
         SecurityAnalysisRunner runner = project.getRootFolder().fileBuilder(SecurityAnalysisRunnerBuilder.class)

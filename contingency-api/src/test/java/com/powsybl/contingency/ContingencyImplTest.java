@@ -10,7 +10,6 @@ import com.powsybl.contingency.tasks.CompoundModificationTask;
 import com.powsybl.contingency.tasks.ModificationTask;
 import org.junit.Test;
 
-import java.util.Arrays;
 import java.util.Iterator;
 
 import static org.junit.Assert.assertEquals;
@@ -25,7 +24,7 @@ public class ContingencyImplTest {
     public void test() {
         ContingencyElement element1 = new BranchContingency("line");
         ContingencyElement element2 = new GeneratorContingency("generator");
-        ContingencyImpl contingency = new ContingencyImpl("contingency", Arrays.asList(element1, element2));
+        Contingency contingency = new Contingency("contingency", element1, element2);
 
         assertEquals("contingency", contingency.getId());
         assertEquals(2, contingency.getElements().size());

@@ -6,61 +6,21 @@
  */
 package com.powsybl.contingency;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
-import com.powsybl.contingency.tasks.CompoundModificationTask;
-import com.powsybl.contingency.tasks.ModificationTask;
 
 /**
+ * @deprecated Use {@link Contingency} instead.
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class ContingencyImpl implements Contingency {
-
-    private final String id;
-
-    private final List<ContingencyElement> elements;
+@Deprecated
+public class ContingencyImpl extends Contingency {
 
     public ContingencyImpl(String id, ContingencyElement elements) {
-        this(id, Collections.singletonList(elements));
+        super(id, elements);
     }
 
     public ContingencyImpl(String id, List<ContingencyElement> elements) {
-        this.id = Objects.requireNonNull(id);
-        this.elements = Objects.requireNonNull(elements);
-    }
-
-    @Override
-    public String getId() {
-        return id;
-    }
-
-    @Override
-    public Collection<ContingencyElement> getElements() {
-        return Collections.unmodifiableCollection(elements);
-    }
-
-    @Override
-    public ModificationTask toTask() {
-        List<ModificationTask> subTasks = elements.stream().map(ContingencyElement::toTask).collect(Collectors.toList());
-
-        return new CompoundModificationTask(subTasks);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, elements);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof ContingencyImpl) {
-            ContingencyImpl other = (ContingencyImpl) obj;
-            return id.equals(other.id) && elements.equals(other.elements);
-        }
-        return false;
+        super(id, elements);
     }
 }

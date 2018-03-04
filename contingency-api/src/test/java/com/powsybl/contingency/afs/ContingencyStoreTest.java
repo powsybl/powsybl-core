@@ -14,7 +14,6 @@ import com.powsybl.afs.mapdb.storage.MapDbAppStorage;
 import com.powsybl.afs.storage.AppStorage;
 import com.powsybl.contingency.BranchContingency;
 import com.powsybl.contingency.Contingency;
-import com.powsybl.contingency.ContingencyImpl;
 import org.junit.Test;
 
 import java.util.Collections;
@@ -46,7 +45,7 @@ public class ContingencyStoreTest extends AbstractProjectFileTest {
         ContingencyStore contingencyStore = project.getRootFolder().fileBuilder(ContingencyStoreBuilder.class)
                 .withName("contingencies")
                 .build();
-        List<Contingency> contingencies = Collections.singletonList(new ContingencyImpl("c1", Collections.singletonList(new BranchContingency("l1"))));
+        List<Contingency> contingencies = Collections.singletonList(new Contingency("c1", new BranchContingency("l1")));
         contingencyStore.write(contingencies);
         assertEquals(contingencies, contingencyStore.read());
     }
