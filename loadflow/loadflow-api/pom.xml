@@ -19,7 +19,8 @@
     </parent>
 
     <artifactId>powsybl-loadflow-api</artifactId>
-    <name>Loadflow API</name>
+    <name>Load-flow API</name>
+    <description>An API and a tool to run load-flow computations</description>
 
     <build>
         <plugins>

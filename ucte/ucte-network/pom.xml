@@ -19,7 +19,8 @@
     </parent>
 
     <artifactId>powsybl-ucte-network</artifactId>
-    <name>UCTE network</name>
+    <name>UCTE network model</name>
+    <description>UCTE-DEF network model</description>
 
     <dependencies>
         <!-- Compilation dependencies -->

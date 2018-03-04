@@ -20,6 +20,7 @@
 
     <artifactId>powsybl-contingency-api</artifactId>
     <name>Contingency API</name>
+    <description>An API to describe and trigger contingencies</description>
 
     <dependencies>
         <!-- Compilation dependencies -->

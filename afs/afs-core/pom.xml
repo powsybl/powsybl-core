@@ -19,7 +19,8 @@
     </parent>
 
     <artifactId>powsybl-afs-core</artifactId>
-    <name>AFS core</name>
+    <name>AFS core classes</name>
+    <description>AFS core classes</description>
 
     <build>
         <plugins>

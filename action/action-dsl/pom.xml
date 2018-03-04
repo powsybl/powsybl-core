@@ -20,6 +20,7 @@
 
     <artifactId>powsybl-action-dsl</artifactId>
     <name>Action, contingency and rule DSL</name>
+    <description>A DSL to describe actions, contingencies and rules</description>
 
     <build>
         <plugins>
@@ -44,12 +45,12 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-afs-ext-base</artifactId>
+            <artifactId>powsybl-action-dsl-spi</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-action-dsl-spi</artifactId>
+            <artifactId>powsybl-afs-ext-base</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -92,6 +93,12 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-action-util</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-afs-core</artifactId>
             <version>${project.version}</version>
             <type>test-jar</type>
@@ -112,12 +119,6 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-iidm-test</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-action-util</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>

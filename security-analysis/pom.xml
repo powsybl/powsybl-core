@@ -20,6 +20,7 @@
 
     <artifactId>powsybl-security-analysis</artifactId>
     <name>Security analysis</name>
+    <description>An API, an implementation and a tool to run security analysis</description>
 
     <build>
         <plugins>

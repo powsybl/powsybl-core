@@ -31,11 +31,13 @@ import java.util.Optional;
 public class SecurityAnalysisRunner extends ProjectFile {
 
     public static final String PSEUDO_CLASS = "securityAnalysisConfig";
+
     static final int VERSION = 0;
-    private static final String PARAMETERS_JSON_NAME = "parametersJson";
-    private static final String RESULT_JSON_NAME = "resultJson";
     static final String CASE_DEPENDENCY_NAME = "case";
     static final String CONTINGENCY_PROVIDER_DEPENDENCY_NAME = "contingencyListProvider";
+
+    private static final String PARAMETERS_JSON_NAME = "parametersJson";
+    private static final String RESULT_JSON_NAME = "resultJson";
 
     private static final FileIcon LOCK_ICON = new FileIcon("lock", SecurityAnalysisRunner.class.getResourceAsStream("/icons/lock16x16.png"));
 
