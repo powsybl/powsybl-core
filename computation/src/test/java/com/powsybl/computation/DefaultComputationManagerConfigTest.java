@@ -68,6 +68,8 @@ public class DefaultComputationManagerConfigTest {
         moduleConfig.setClassProperty("short-time-execution-computation-manager-factory", FirstComputationManagerFactory.class);
         moduleConfig.setClassProperty("long-time-execution-computation-manager-factory", SecondComputationManagerFactory.class);
         config = DefaultComputationManagerConfig.load(platformConfig);
-        assertEquals("DefaultComputationManagerConfig(shortTimeExecutionComputationManagerFactoryClass=com.powsybl.computation.DefaultComputationManagerConfigTest$FirstComputationManagerFactory, longTimeExecutionComputationManagerFactoryClass=com.powsybl.computation.DefaultComputationManagerConfigTest$SecondComputationManagerFactory)", config.toString());
+        assertEquals("DefaultComputationManagerConfig(shortTimeExecutionComputationManagerFactoryClass=" + FirstComputationManagerFactory.class.getName()
+                        + ", longTimeExecutionComputationManagerFactoryClass=" + SecondComputationManagerFactory.class.getName() + ")",
+                config.toString());
     }
 }

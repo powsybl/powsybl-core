@@ -156,7 +156,7 @@ public class SecurityAnalysisTool implements Tool {
             JsonSecurityAnalysisParameters.update(parameters, parametersFile);
         }
 
-        SecurityAnalyzer analyzer = new SecurityAnalyzer(limitViolationFilter, context.getShortTimeExecutionComputationManager(), 0, interceptors);
+        SecurityAnalyzer analyzer = new SecurityAnalyzer(limitViolationFilter, context.getLongTimeExecutionComputationManager(), 0, interceptors);
         SecurityAnalysisResult result = analyzer.analyze(network, contingenciesFile, parameters);
 
         if (!result.getPreContingencyResult().isComputationOk()) {

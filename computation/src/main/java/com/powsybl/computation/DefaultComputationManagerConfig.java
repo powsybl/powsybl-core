@@ -24,6 +24,13 @@ public class DefaultComputationManagerConfig {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultComputationManagerConfig.class);
 
+    /**
+     * A String is used here for default computation manager factory to avoid a direct dependency to local computation
+     * manager.
+     */
+    private static final String DEFAULT_SHORT_TIME_EXECUTION_COMPUTATION_MANAGER_FACTORY_CLASS
+            = "com.powsybl.computation.local.LocalComputationManagerFactory";
+
     private final Class<? extends ComputationManagerFactory> shortTimeExecutionComputationManagerFactoryClass;
 
     private final Class<? extends ComputationManagerFactory> longTimeExecutionComputationManagerFactoryClass;
@@ -48,7 +55,7 @@ public class DefaultComputationManagerConfig {
             longTimeExecutionComputationManagerFactoryClass = moduleConfig.getClassProperty("long-time-execution-computation-manager-factory", ComputationManagerFactory.class, null);
         } else {
             try {
-                shortTimeExecutionComputationManagerFactoryClass = (Class<? extends ComputationManagerFactory>) Class.forName("com.powsybl.computation.local.LocalComputationManagerFactory");
+                shortTimeExecutionComputationManagerFactoryClass = (Class<? extends ComputationManagerFactory>) Class.forName(DEFAULT_SHORT_TIME_EXECUTION_COMPUTATION_MANAGER_FACTORY_CLASS);
             } catch (ClassNotFoundException e) {
                 throw new UncheckedClassNotFoundException(e);
             }
