@@ -39,7 +39,7 @@ public class ImportedCase extends ProjectFile implements ProjectCase {
     public ImportedCase(ProjectFileCreationContext context, ImportersLoader importersLoader) {
         super(context, VERSION, CaseIconCache.INSTANCE.get(
                 importersLoader,
-                context.getFileSystem().getData().getComputationManager(),
+                context.getFileSystem().getData().getShortTimeExecutionComputationManager(),
                 context.getInfo().getGenericMetadata().getString(FORMAT)));
         this.importersLoader = Objects.requireNonNull(importersLoader);
     }

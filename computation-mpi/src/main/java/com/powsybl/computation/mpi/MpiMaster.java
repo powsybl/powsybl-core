@@ -12,7 +12,6 @@ import com.powsybl.computation.ComputationManager;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 
-import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
@@ -26,7 +25,7 @@ public final class MpiMaster {
     private MpiMaster() {
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         ToolInitializationContext initContext = new ToolInitializationContext() {
             @Override
             public PrintStream getOutputStream() {
@@ -49,8 +48,13 @@ public final class MpiMaster {
             }
 
             @Override
-            public ComputationManager createComputationManager(CommandLine commandLine) {
+            public ComputationManager createShortTimeExecutionComputationManager(CommandLine commandLine) {
                 return MpiToolUtil.createMpiComputationManager(commandLine, FileSystems.getDefault());
+            }
+
+            @Override
+            public ComputationManager createLongTimeExecutionComputationManager(CommandLine commandLine) {
+                return createShortTimeExecutionComputationManager(commandLine);
             }
         };
         int status = new CommandLineTools().run(args, initContext);

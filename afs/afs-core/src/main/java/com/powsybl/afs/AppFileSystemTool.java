@@ -25,8 +25,9 @@ public class AppFileSystemTool implements Tool {
 
     public static final String LS = "ls";
 
-    protected AppData createAppData() {
-        return new AppData();
+    protected AppData createAppData(ToolRunningContext context) {
+        return new AppData(context.getShortTimeExecutionComputationManager(),
+                           context.getLongTimeExecutionComputationManager());
     }
 
     @Override
@@ -69,27 +70,31 @@ public class AppFileSystemTool implements Tool {
         };
     }
 
+    private void runLs(ToolRunningContext context, AppData appData, String path) {
+        if (path == null) {
+            for (AppFileSystem afs : appData.getFileSystems()) {
+                context.getOutputStream().println(afs.getName());
+            }
+        } else {
+            Optional<Node> node = appData.getNode(path);
+            if (node.isPresent()) {
+                if (node.get().isFolder()) {
+                    ((Folder) node.get()).getChildren().forEach(child -> context.getOutputStream().println(child.getName()));
+                } else {
+                    context.getErrorStream().println("'" + path + "' is not a folder");
+                }
+            } else {
+                context.getErrorStream().println("'" + path + "' does not exist");
+            }
+        }
+    }
+
     @Override
-    public void run(CommandLine line, ToolRunningContext context) throws Exception {
-        try (AppData appData = createAppData()) {
+    public void run(CommandLine line, ToolRunningContext context) {
+        try (AppData appData = createAppData(context)) {
             if (line.hasOption(LS)) {
                 String path = line.getOptionValue(LS);
-                if (path == null) {
-                    for (AppFileSystem afs : appData.getFileSystems()) {
-                        context.getOutputStream().println(afs.getName());
-                    }
-                } else {
-                    Optional<Node> node = appData.getNode(path);
-                    if (node.isPresent()) {
-                        if (node.get().isFolder()) {
-                            ((Folder) node.get()).getChildren().forEach(child -> context.getOutputStream().println(child.getName()));
-                        } else {
-                            context.getErrorStream().println("'" + path + "' is not a folder");
-                        }
-                    } else {
-                        context.getErrorStream().println("'" + path + "' does not exist");
-                    }
-                }
+                runLs(context, appData, path);
             } else {
                 throw new AfsException("Undefined sub command");
             }

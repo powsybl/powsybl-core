@@ -150,14 +150,14 @@ class GroovyScripts {
 
         binding.afs = new AfsGroovyFacade(data)
 
-        binding.computationManager = data.getComputationManager()
+        binding.computationManager = data.getShortTimeExecutionComputationManager()
 
         if (out != null) {
             binding.out = out
         }
 
         // load extensions
-        extensions.forEach { it.load(binding, data.getComputationManager()) }
+        extensions.forEach { it.load(binding, data.getShortTimeExecutionComputationManager()) }
 
         GroovyShell shell = new GroovyShell(binding, conf)
         shell.evaluate(codeReader)

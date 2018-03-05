@@ -30,7 +30,7 @@ public class Case extends File {
 
     public Case(FileCreationContext context, ImportersLoader importersLoader) {
         super(context, VERSION, CaseIconCache.INSTANCE.get(importersLoader,
-                                                           context.getFileSystem().getData().getComputationManager(),
+                                                           context.getFileSystem().getData().getShortTimeExecutionComputationManager(),
                                                            context.getInfo().getGenericMetadata().getString(FORMAT)));
         this.importersLoader = Objects.requireNonNull(importersLoader);
     }
