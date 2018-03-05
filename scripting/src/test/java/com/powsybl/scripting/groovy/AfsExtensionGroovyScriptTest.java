@@ -39,6 +39,7 @@ public class AfsExtensionGroovyScriptTest extends AbstractGroovyScriptTest {
                 "",
                 "foo = root.fooBuilder()",
                 "    .withName('foo')",
+                "    .withClass('myClass')",
                 "    .build()",
                 "println foo.getName()",
                 "",
@@ -47,6 +48,7 @@ public class AfsExtensionGroovyScriptTest extends AbstractGroovyScriptTest {
                 "",
                 "foo2 = root.buildFoo {", // groovy idiomatic builder
                 "    name 'foo2'",
+                "    _class 'myClass2'",
                 "}",
                 "print foo2.getName()"
         ));
