@@ -125,20 +125,18 @@ class ActionDslLoader extends DslLoader {
                     Identifiable identifiable = network.getIdentifiable(equipment)
                     if (identifiable == null) {
                         LOGGER.warn("Equipment '{}' of contingency '{}' not found", equipment, id)
-                        valid = false;
+                        valid = false
+                    } else if (identifiable instanceof Line || identifiable instanceof TwoWindingsTransformer) {
+                        elements.add(new BranchContingency(equipment))
+                    } else if (identifiable instanceof HvdcLine) {
+                        elements.add(new HvdcLineContingency(equipment))
+                    } else if (identifiable instanceof Generator) {
+                        elements.add(new GeneratorContingency(equipment))
+                    } else if (identifiable instanceof BusbarSection) {
+                        elements.add(new BusbarSectionContingency(equipment))
                     } else {
-                        if (identifiable instanceof Line || identifiable instanceof TwoWindingsTransformer) {
-                            elements.add(new BranchContingency(equipment))
-                        } else if (identifiable instanceof HvdcLine) {
-                            elements.add(new HvdcLineContingency(equipment))
-                        } else if (identifiable instanceof Generator) {
-                            elements.add(new GeneratorContingency(equipment))
-                        } else if (identifiable instanceof BusbarSection) {
-                            elements.add(new BusbarSectionContingency(equipment))
-                        } else {
-                            LOGGER.warn("Equipment type {} not supported in contingencies", identifiable.getClass().name)
-                            valid = false
-                        }
+                        LOGGER.warn("Equipment type {} not supported in contingencies", identifiable.getClass().name)
+                        valid = false
                     }
                 }
                 if (valid) {
