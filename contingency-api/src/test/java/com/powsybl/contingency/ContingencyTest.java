@@ -8,9 +8,14 @@ package com.powsybl.contingency;
 
 import com.powsybl.contingency.tasks.CompoundModificationTask;
 import com.powsybl.contingency.tasks.ModificationTask;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -18,7 +23,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public class ContingencyImplTest {
+public class ContingencyTest {
 
     @Test
     public void test() {
@@ -35,5 +40,18 @@ public class ContingencyImplTest {
 
         ModificationTask task = contingency.toTask();
         assertTrue(task instanceof CompoundModificationTask);
+    }
+
+    @Test
+    public void validationTest() {
+        Network network = EurostagTutorialExample1Factory.create();
+        Contingency generatorContingency = new Contingency("GEN contingency", new GeneratorContingency("GEN"));
+        Contingency generatorInvalidContingency = new Contingency("GEN invalid contingency", new GeneratorContingency("GE"));
+        Contingency lineContingency = new Contingency("NHV1_NHV2_1 contingency", new BranchContingency("NHV1_NHV2_1", "VLHV1"));
+        Contingency lineInvalidContingency = new Contingency("NHV1_NHV2_1 invalid contingency", new BranchContingency("NHV1_NHV2_1", "VLHV"));
+        List<Contingency> validContingencies = Contingency.checkValidity(Arrays.asList(generatorContingency, generatorInvalidContingency,
+                                                                         lineContingency, lineInvalidContingency), network);
+        assertEquals(Arrays.asList("GEN contingency", "NHV1_NHV2_1 contingency"),
+                     validContingencies.stream().map(Contingency::getId).collect(Collectors.toList()));
     }
 }

@@ -14,29 +14,14 @@ import java.util.Objects;
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class HvdcLineContingency implements ContingencyElement {
-
-    private final String id;
-
-    private final String voltageLevelId;
+public class HvdcLineContingency extends AbstractSidedContingency {
 
     public HvdcLineContingency(String id) {
-        this(id, null);
+        super(id);
     }
 
     public HvdcLineContingency(String id, String voltageLevelId) {
-        this.id = Objects.requireNonNull(id);
-        this.voltageLevelId = voltageLevelId;
-    }
-
-    @Override
-    public String getId() {
-        return id;
-    }
-
-
-    public String getVoltageLevelId() {
-        return voltageLevelId;
+        super(id, voltageLevelId);
     }
 
     @Override

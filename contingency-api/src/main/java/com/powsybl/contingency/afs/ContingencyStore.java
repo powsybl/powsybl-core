@@ -70,6 +70,6 @@ public class ContingencyStore extends ProjectFile implements ContingenciesProvid
 
     @Override
     public List<Contingency> getContingencies(Network network) {
-        return read();
+        return Contingency.checkValidity(read(), network);
     }
 }
