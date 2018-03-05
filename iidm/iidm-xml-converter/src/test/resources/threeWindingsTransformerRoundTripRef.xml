@@ -1,65 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<iidm:network xmlns:iidm="http://www.itesla_project.eu/schema/iidm/1_0" id="threeWindingsTransformerTestCase" caseDate="2018-03-05T11:50:03.427+02:00" forecastDistance="0" sourceFormat="code">
-    <iidm:substation id="_37e14a0f-5e34-4647-a062-8bfd9305fa9d" name="PP_Brussels" country="BE">
-        <iidm:voltageLevel id="_929ba893-c9dc-44d7-b1fd-30834bd3ab85" name="21.0" nominalV="21.0" lowVoltageLimit="18.9" highVoltageLimit="23.1" topologyKind="BUS_BREAKER">
+<iidm:network xmlns:iidm="http://www.itesla_project.eu/schema/iidm/1_0" id="three-windings-transformer" caseDate="2018-03-05T13:30:30.486+01:00" forecastDistance="0" sourceFormat="test">
+    <iidm:substation id="SUBSTATION" country="FR">
+        <iidm:voltageLevel id="VL_132" nominalV="132.0" lowVoltageLimit="118.8" highVoltageLimit="145.2" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
-                <iidm:bus id="_f96d552a-618d-4d0c-a39a-2dea3c411dee" v="21.987" angle="-6.6508" />
+                <iidm:bus id="BUS_132" v="133.584" angle="-9.62"/>
             </iidm:busBreakerTopology>
+            <iidm:load id="LOAD_132" loadType="UNDEFINED" p0="7.6" q0="1.6" bus="BUS_132" connectableBus="BUS_132"/>
         </iidm:voltageLevel>
-        <iidm:voltageLevel id="_b10b171b-3bc5-4849-bb1f-61ed9ea1ec7c" name="225.0" nominalV="225.0" lowVoltageLimit="202.5" highVoltageLimit="247.5" topologyKind="BUS_BREAKER">
+        <iidm:voltageLevel id="VL_33" nominalV="33.0" lowVoltageLimit="29.7" highVoltageLimit="36.3" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
-                <iidm:bus id="_99b219f3-4593-428b-a4da-124a54630178" v="224.31526" angle="-8.77012" />
+                <iidm:bus id="BUS_33" v="34.881" angle="-15.24"/>
             </iidm:busBreakerTopology>
+            <iidm:load id="LOAD_33" loadType="UNDEFINED" p0="11.2" q0="7.5" bus="BUS_33" connectableBus="BUS_33" p="11.2" q="7.5"/>
         </iidm:voltageLevel>
-        <iidm:voltageLevel id="_469df5f7-058f-4451-a998-57a48e8a56fe" name="380.0" nominalV="380.0" lowVoltageLimit="342.0" highVoltageLimit="418.0" topologyKind="BUS_BREAKER">
-            <iidm:busBreakerTopology> 
-                <iidm:bus id="_e44141af-f1dc-44d3-bfa4-b674e5c953d7" v="412.989" angle="-6.78071" />
+        <iidm:voltageLevel id="VL_11" nominalV="11.0" lowVoltageLimit="9.9" highVoltageLimit="12.1" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="BUS_11" v="11.781" angle="-15.24"/>
             </iidm:busBreakerTopology>
+            <iidm:load id="LOAD_11" loadType="UNDEFINED" p0="0.0" q0="-10.6" bus="BUS_11" connectableBus="BUS_11" p="0.0" q="-10.6"/>
         </iidm:voltageLevel>
-        <iidm:threeWindingsTransformer
-            id="_84ed55f4-61f5-4d9d-8755-bba7b877a246" name="BE-TR3_1" 
-            r1="0.898462" x1="17.204128" g1="0.0" b1="2.4375E-6" ratedU1="400.0" 
-            r2="1.0707703" x2="19.6664" ratedU2="220.0"
-            r3="4.837007" x3="21.760727" ratedU3="21.0"
-            bus1="_e44141af-f1dc-44d3-bfa4-b674e5c953d7" connectableBus1="_e44141af-f1dc-44d3-bfa4-b674e5c953d7" voltageLevelId1="_469df5f7-058f-4451-a998-57a48e8a56fe"
-            bus2="_99b219f3-4593-428b-a4da-124a54630178" connectableBus2="_99b219f3-4593-428b-a4da-124a54630178" voltageLevelId2="_b10b171b-3bc5-4849-bb1f-61ed9ea1ec7c"
-            bus3="_f96d552a-618d-4d0c-a39a-2dea3c411dee" connectableBus3="_f96d552a-618d-4d0c-a39a-2dea3c411dee" voltageLevelId3="_929ba893-c9dc-44d7-b1fd-30834bd3ab85">
-            <iidm:ratioTapChanger2 lowTapPosition="1" tapPosition="17" loadTapChangingCapabilities="true" regulating="false">
-                <iidm:terminalRef id="_84ed55f4-61f5-4d9d-8755-bba7b877a246" side="TWO" />
-                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.9" />
-                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.90625" />
-                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.9125" />
-                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.91875" />
-                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.925" />
-                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.93125" />
-                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.9375" />
-                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.94375" />
-                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.95" />
-                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.95625" />
-                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.9625" />
-                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.96875" />
-                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.975" />
-                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.98125" />
-                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.9875" />
-                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.99375" />
-                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" />
-                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.00625" />
-                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0125" />
-                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.01875" />
-                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.025" />
-                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.03125" />
-                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0375" />
-                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.04375" />
-                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.05" />
-                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.05625" />
-                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0625" />
-                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.06875" />
-                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.075" />
-                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.08125" />
-                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0875" />
-                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.09375" />
-                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.1" />
+        <iidm:threeWindingsTransformer id="3WT" r1="17.424" x1="1.7424" g1="0.00573921" b1="5.73921E-4" ratedU1="132.0" r2="1.089" x2="0.1089" ratedU2="33.0" r3="0.121" x3="0.0121" ratedU3="11.0" bus1="BUS_132" connectableBus1="BUS_132" voltageLevelId1="VL_132" bus2="BUS_33" connectableBus2="BUS_33" voltageLevelId2="VL_33" bus3="BUS_11" connectableBus3="BUS_11" voltageLevelId3="VL_11">
+            <iidm:ratioTapChanger2 lowTapPosition="0" tapPosition="2" loadTapChangingCapabilities="true" regulating="true" targetV="33.0">
+                <iidm:terminalRef id="LOAD_33"/>
+                <iidm:step r="0.9801" x="0.09801" g="0.08264463" b="0.008264462" rho="0.9"/>
+                <iidm:step r="1.089" x="0.1089" g="0.09182736" b="0.009182736" rho="1.0"/>
+                <iidm:step r="1.1979" x="0.11979" g="0.1010101" b="0.01010101" rho="1.1"/>
             </iidm:ratioTapChanger2>
+            <iidm:ratioTapChanger3 lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="true" regulating="true" targetV="11.0">
+                <iidm:terminalRef id="LOAD_11"/>
+                <iidm:step r="0.1089" x="0.01089" g="0.8264463" b="0.08264463" rho="0.9"/>
+                <iidm:step r="0.121" x="0.0121" g="0.8264463" b="0.08264463" rho="1.0"/>
+                <iidm:step r="0.1331" x="0.01331" g="0.90909094" b="0.09090909" rho="1.1"/>
+            </iidm:ratioTapChanger3>
+            <iidm:currentLimits1 permanentLimit="1000.0">
+                <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="1200.0"/>
+                <iidm:temporaryLimit name="10'" acceptableDuration="600" value="1400.0"/>
+            </iidm:currentLimits1>
+            <iidm:currentLimits2 permanentLimit="100.0">
+                <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="120.0"/>
+                <iidm:temporaryLimit name="10'" acceptableDuration="600" value="140.0"/>
+            </iidm:currentLimits2>
+            <iidm:currentLimits3 permanentLimit="10.0">
+                <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="12.0"/>
+                <iidm:temporaryLimit name="10'" acceptableDuration="600" value="14.0"/>
+            </iidm:currentLimits3>
         </iidm:threeWindingsTransformer>
     </iidm:substation>
 </iidm:network>

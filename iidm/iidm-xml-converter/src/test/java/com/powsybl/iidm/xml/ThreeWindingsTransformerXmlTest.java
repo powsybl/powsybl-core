@@ -7,10 +7,13 @@
 package com.powsybl.iidm.xml;
 
 import java.io.IOException;
+import java.nio.file.Paths;
 
 import org.junit.Test;
 
 import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.datasource.FileDataSource;
+import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerTestCaseFactory;
 
 /**
@@ -20,7 +23,7 @@ public class ThreeWindingsTransformerXmlTest extends AbstractConverterTest {
 
     @Test
     public void roundTripTest() throws IOException {
-        roundTripXmlTest(ThreeWindingsTransformerTestCaseFactory.create(),
+        roundTripXmlTest(ThreeWindingsTransformerNetworkFactory.createWithCurrentLimits(),
                          NetworkXml::writeAndValidate,
                          NetworkXml::read,
                          "/threeWindingsTransformerRoundTripRef.xml");
