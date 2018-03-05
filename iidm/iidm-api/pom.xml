@@ -19,8 +19,8 @@
     </parent>
 
     <artifactId>powsybl-iidm-api</artifactId>
-    <name>IIDM API</name>
-    <description>This is the API of the network model</description>
+    <name>IIDM network model</name>
+    <description>An API to describe the network model</description>
 
     <build>
         <plugins>
