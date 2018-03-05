@@ -7,6 +7,7 @@
 package com.powsybl.action.simulator.loadflow;
 
 import com.powsybl.action.dsl.Rule;
+import com.powsybl.action.simulator.parallel.ChunkPath;
 import com.powsybl.security.LimitViolation;
 import java.util.List;
 import java.util.Map;
@@ -43,4 +44,7 @@ public interface LoadFlowActionSimulatorObserver {
     void violationsAnymoreAndNoRulesMatch(RunningContext runningContext);
 
     void afterPostContingencyAnalysis();
+
+    List<ChunkPath> getChunkFiles();
+
 }

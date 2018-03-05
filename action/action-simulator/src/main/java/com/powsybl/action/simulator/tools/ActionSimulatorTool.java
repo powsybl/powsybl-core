@@ -11,14 +11,8 @@ import com.powsybl.action.dsl.DefaultActionDslLoaderObserver;
 import com.powsybl.action.dsl.ActionDb;
 import com.powsybl.action.dsl.ActionDslLoader;
 import com.powsybl.action.simulator.ActionSimulator;
-import com.powsybl.action.simulator.loadflow.CaseExporter;
-import com.powsybl.action.simulator.loadflow.LoadFlowActionSimulator;
-import com.powsybl.action.simulator.loadflow.LoadFlowActionSimulatorConfig;
-import com.powsybl.action.simulator.loadflow.LoadFlowActionSimulatorLogPrinter;
-import com.powsybl.action.simulator.loadflow.LoadFlowActionSimulatorObserver;
-import com.powsybl.action.simulator.parallel.Filtration;
-import com.powsybl.action.simulator.parallel.LocalLoadFlowActionSimulator;
-import com.powsybl.action.simulator.parallel.ParallelLoadFlowActionSimulator;
+import com.powsybl.action.simulator.loadflow.*;
+import com.powsybl.action.simulator.parallel.*;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.CompressionFormat;
 import com.powsybl.commons.datasource.DataSourceUtil;
@@ -144,7 +138,8 @@ public class ActionSimulatorTool implements Tool, ActionSimulatorToolConstants {
         return new LoadFlowActionSimulatorLogPrinter(context.getOutputStream(), context.getErrorStream(), verbose);
     }
 
-    private static LoadFlowActionSimulatorObserver createSecurityAnalysisPrinter(Network network, ToolRunningContext context, LoadFlowActionSimulatorConfig config, Path csvFile) {
+    private static LoadFlowActionSimulatorObserver createSecurityAnalysisPrinter(Network network, ToolRunningContext context, LoadFlowActionSimulatorConfig config, Path csvFile,
+                                                                                 MergeSuggester suggester) {
         return new AbstractSecurityAnalysisResultBuilder() {
             @Override
             public void onFinalStateResult(SecurityAnalysisResult result) {
@@ -152,19 +147,39 @@ public class ActionSimulatorTool implements Tool, ActionSimulatorToolConstants {
                 LimitViolationFilter filter = LimitViolationFilter.load();
                 Writer soutWriter = new OutputStreamWriter(context.getOutputStream());
                 AsciiTableFormatterFactory asciiTableFormatterFactory = new AsciiTableFormatterFactory();
-                Security.printPreContingencyViolations(result, network, soutWriter, asciiTableFormatterFactory, filter);
+                if (!suggester.ignore("PreContingency")) {
+                    Security.printPreContingencyViolations(result, network, soutWriter, asciiTableFormatterFactory, filter);
+                }
                 Security.printPostContingencyViolations(result, network, soutWriter, asciiTableFormatterFactory, filter, !config.isIgnorePreContingencyViolations());
                 if (csvFile != null) {
                     try (Writer writer = Files.newBufferedWriter(csvFile, StandardCharsets.UTF_8)) {
                         CsvTableFormatterFactory csvTableFormatterFactory = new CsvTableFormatterFactory();
-                        Security.printPreContingencyViolations(result, network, writer, csvTableFormatterFactory, filter);
+                        if (!suggester.ignore("PreContingency")) {
+                            Security.printPreContingencyViolations(result, network, writer, csvTableFormatterFactory, filter);
+                        }
                         Security.printPostContingencyViolations(result, network, writer, csvTableFormatterFactory, filter, !config.isIgnorePreContingencyViolations());
                     } catch (IOException e) {
                         throw new UncheckedIOException(e);
                     }
                 }
             }
+
+            @Override
+            public List<ChunkPath> getChunkFiles() {
+                ChunkPath chunkFile = new ChunkPath(csvFile, MergeStrategy.APPEND, OUTPUT_CSV);
+                return Collections.singletonList(chunkFile);
+            }
         };
+    }
+
+    private static class SecurityAnalysisPrinterMergeSuggerter implements MergeSuggester {
+
+        final Map<String, Boolean> map = Collections.singletonMap("PreContingenc", true);
+
+        @Override
+        public boolean ignore(String seg) {
+            return map.get(seg) == null ? false : map.get(seg);
+        }
     }
 
     private static LoadFlowActionSimulatorObserver createCaseExporter(Path outputCaseFolder, String basename, String outputCaseFormat, CompressionFormat compressionFormat) {
@@ -212,7 +227,6 @@ public class ActionSimulatorTool implements Tool, ActionSimulatorToolConstants {
 
             List<LoadFlowActionSimulatorObserver> observers = new ArrayList<>();
             observers.add(createLogPrinter(context, verbose));
-            observers.add(createSecurityAnalysisPrinter(network, context, config, csvFile));
             if (outputCaseFolder != null) {
                 CompressionFormat compressionFormat = CommandLineUtil.getOptionValue(line, OUTPUT_COMPRESSION_FORMAT, CompressionFormat.class, null);
                 observers.add(createCaseExporter(outputCaseFolder, DataSourceUtil.getBaseName(caseFile), outputCaseFormat, compressionFormat));
@@ -227,8 +241,10 @@ public class ActionSimulatorTool implements Tool, ActionSimulatorToolConstants {
                 String filtreOpt = line.getOptionValue(SUB_CONTINGENCIES);
                 Filtration filtration = new Filtration(filtreOpt);
                 actionSimulator = new LocalLoadFlowActionSimulator(network, filtration, config, observers);
+                observers.add(createSecurityAnalysisPrinter(network, context, config, csvFile, new SecurityAnalysisPrinterMergeSuggerter()));
             } else {
                 actionSimulator = new LoadFlowActionSimulator(network, context.getComputationManager(), config, observers);
+                observers.add(createSecurityAnalysisPrinter(network, context, config, csvFile, new DefaultMergeSuggester()));
             }
             context.getOutputStream().println("Using '" + actionSimulator.getName() + "' rules engine");
 
