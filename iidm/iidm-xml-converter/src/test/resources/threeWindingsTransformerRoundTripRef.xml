@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<iidm:network xmlns:iidm="http://www.itesla_project.eu/schema/iidm/1_0" id="threeWindingsTransformerTestCase" caseDate="2018-03-05T11:50:03.427+02:00" forecastDistance="0" sourceFormat="code">
+    <iidm:substation id="_37e14a0f-5e34-4647-a062-8bfd9305fa9d" name="PP_Brussels" country="BE">
+        <iidm:voltageLevel id="_929ba893-c9dc-44d7-b1fd-30834bd3ab85" name="21.0" nominalV="21.0" lowVoltageLimit="18.9" highVoltageLimit="23.1" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="_f96d552a-618d-4d0c-a39a-2dea3c411dee" v="21.987" angle="-6.6508" />
+            </iidm:busBreakerTopology>
+        </iidm:voltageLevel>
+        <iidm:voltageLevel id="_b10b171b-3bc5-4849-bb1f-61ed9ea1ec7c" name="225.0" nominalV="225.0" lowVoltageLimit="202.5" highVoltageLimit="247.5" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="_99b219f3-4593-428b-a4da-124a54630178" v="224.31526" angle="-8.77012" />
+            </iidm:busBreakerTopology>
+        </iidm:voltageLevel>
+        <iidm:voltageLevel id="_469df5f7-058f-4451-a998-57a48e8a56fe" name="380.0" nominalV="380.0" lowVoltageLimit="342.0" highVoltageLimit="418.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology> 
+                <iidm:bus id="_e44141af-f1dc-44d3-bfa4-b674e5c953d7" v="412.989" angle="-6.78071" />
+            </iidm:busBreakerTopology>
+        </iidm:voltageLevel>
+        <iidm:threeWindingsTransformer
+            id="_84ed55f4-61f5-4d9d-8755-bba7b877a246" name="BE-TR3_1" 
+            r1="0.898462" x1="17.204128" g1="0.0" b1="2.4375E-6" ratedU1="400.0" 
+            r2="1.0707703" x2="19.6664" ratedU2="220.0"
+            r3="4.837007" x3="21.760727" ratedU3="21.0"
+            bus1="_e44141af-f1dc-44d3-bfa4-b674e5c953d7" connectableBus1="_e44141af-f1dc-44d3-bfa4-b674e5c953d7" voltageLevelId1="_469df5f7-058f-4451-a998-57a48e8a56fe"
+            bus2="_99b219f3-4593-428b-a4da-124a54630178" connectableBus2="_99b219f3-4593-428b-a4da-124a54630178" voltageLevelId2="_b10b171b-3bc5-4849-bb1f-61ed9ea1ec7c"
+            bus3="_f96d552a-618d-4d0c-a39a-2dea3c411dee" connectableBus3="_f96d552a-618d-4d0c-a39a-2dea3c411dee" voltageLevelId3="_929ba893-c9dc-44d7-b1fd-30834bd3ab85">
+            <iidm:ratioTapChanger2 lowTapPosition="1" tapPosition="17" loadTapChangingCapabilities="true" regulating="false">
+                <iidm:terminalRef id="_84ed55f4-61f5-4d9d-8755-bba7b877a246" side="TWO" />
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.9" />
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.90625" />
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.9125" />
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.91875" />
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.925" />
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.93125" />
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.9375" />
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.94375" />
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.95" />
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.95625" />
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.9625" />
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.96875" />
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.975" />
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.98125" />
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.9875" />
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.99375" />
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" />
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.00625" />
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0125" />
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.01875" />
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.025" />
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.03125" />
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0375" />
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.04375" />
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.05" />
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.05625" />
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0625" />
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.06875" />
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.075" />
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.08125" />
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0875" />
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.09375" />
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.1" />
+            </iidm:ratioTapChanger2>
+        </iidm:threeWindingsTransformer>
+    </iidm:substation>
+</iidm:network>
