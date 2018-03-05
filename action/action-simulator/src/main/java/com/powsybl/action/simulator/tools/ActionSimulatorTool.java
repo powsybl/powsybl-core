@@ -243,7 +243,7 @@ public class ActionSimulatorTool implements Tool, ActionSimulatorToolConstants {
                 actionSimulator = new LocalLoadFlowActionSimulator(network, filtration, config, observers);
                 observers.add(createSecurityAnalysisPrinter(network, context, config, csvFile, new SecurityAnalysisPrinterMergeSuggerter()));
             } else {
-                actionSimulator = new LoadFlowActionSimulator(network, context.getComputationManager(), config, observers);
+                actionSimulator = new LoadFlowActionSimulator(network, context.getShortTimeExecutionComputationManager(), config, observers);
                 observers.add(createSecurityAnalysisPrinter(network, context, config, csvFile, new DefaultMergeSuggester()));
             }
             context.getOutputStream().println("Using '" + actionSimulator.getName() + "' rules engine");

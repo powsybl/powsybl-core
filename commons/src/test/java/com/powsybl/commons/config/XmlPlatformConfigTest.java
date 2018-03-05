@@ -132,9 +132,10 @@ public class XmlPlatformConfigTest {
     }
 
     @Test
-    public void properties2XmlConvertionTest() throws IOException, XMLStreamException, SAXException, ParserConfigurationException {
+    public void properties2XmlConvertionTest() throws IOException, XMLStreamException {
         try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
             Path cfgDir = Files.createDirectory(fileSystem.getPath("config"));
+            Path cacheDir = Files.createDirectory(fileSystem.getPath("cache"));
             Properties prop1 = new Properties();
             prop1.setProperty("a", "hello");
             prop1.setProperty("b", "bye");
@@ -153,7 +154,7 @@ public class XmlPlatformConfigTest {
             String xmlConfigName = "config";
             PropertiesPlatformConfig.writeXml(cfgDir, cfgDir.resolve(xmlConfigName + ".xml"));
 
-            XmlPlatformConfig xmlConfig = new XmlPlatformConfig(cfgDir, xmlConfigName, fileSystem);
+            PlatformConfig xmlConfig = XmlPlatformConfig.create(fileSystem, cfgDir, cacheDir, xmlConfigName).orElseThrow(AssertionError::new);
             assertEquals("hello", xmlConfig.getModuleConfig("mod1").getStringProperty("a"));
             assertEquals("bye", xmlConfig.getModuleConfig("mod1").getStringProperty("b"));
             assertEquals("thanks", xmlConfig.getModuleConfig("mod2").getStringProperty("c"));

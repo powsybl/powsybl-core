@@ -19,7 +19,8 @@
     </parent>
 
     <artifactId>powsybl-ucte-converter</artifactId>
-    <name>UCTE converter</name>
+    <name>UCTE converter implementation</name>
+    <description>A converter implementation for UCTE networks</description>
 
     <dependencies>
         <!-- Compilation dependencies -->

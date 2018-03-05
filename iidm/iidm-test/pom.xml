@@ -19,8 +19,8 @@
     </parent>
 
     <artifactId>powsybl-iidm-test</artifactId>
-    <name>IIDM test</name>
-    <description>Utility classes to test the network model</description>
+    <name>IIDM testing networks</name>
+    <description>A set of network models for testing</description>
 
     <dependencies>
         <!-- Compilation dependencies -->

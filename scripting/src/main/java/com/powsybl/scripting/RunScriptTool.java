@@ -102,7 +102,8 @@ public class RunScriptTool implements Tool {
         Path file = context.getFileSystem().getPath(line.getOptionValue(FILE));
         Writer writer = new OutputStreamWriter(context.getOutputStream());
         try {
-            try (AppData data = new AppData(context.getComputationManager(), fileSystemProviders,
+            try (AppData data = new AppData(context.getShortTimeExecutionComputationManager(),
+                    context.getLongTimeExecutionComputationManager(), fileSystemProviders,
                     fileExtensions, projectFileExtensions, serviceExtensions)) {
                 SoutTaskListener listener = new SoutTaskListener(context.getOutputStream());
                 for (AppFileSystem fileSystem : data.getFileSystems()) {

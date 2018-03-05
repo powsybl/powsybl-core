@@ -12,7 +12,6 @@ import com.powsybl.action.simulator.parallel.ChunkPath;
 import com.powsybl.action.simulator.parallel.MergeStrategy;
 import com.powsybl.commons.datasource.CompressionFormat;
 import com.powsybl.contingency.Contingency;
-import com.powsybl.contingency.ContingencyImpl;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import org.junit.After;
@@ -23,7 +22,6 @@ import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -44,7 +42,7 @@ public class CaseExporterTest {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         tmpDir = Files.createDirectory(fileSystem.getPath("/tmp"));
 
-        contingency = new ContingencyImpl("contingency", Collections.emptyList());
+        contingency = new Contingency("contingency");
     }
 
     @After
@@ -53,7 +51,7 @@ public class CaseExporterTest {
     }
 
     @Test
-    public void test() throws IOException {
+    public void test() {
         Network network = NetworkFactory.create("id", "test");
 
         CaseExporter exporter = new CaseExporter(tmpDir, "basename", "XIIDM", CompressionFormat.GZIP);

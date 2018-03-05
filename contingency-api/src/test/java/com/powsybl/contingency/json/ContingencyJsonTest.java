@@ -29,7 +29,7 @@ public class ContingencyJsonTest extends AbstractConverterTest {
         elements.add(new GeneratorContingency("GEN"));
         elements.add(new BusbarSectionContingency("BBS1"));
 
-        return new ContingencyImpl("contingency", elements);
+        return new Contingency("contingency", elements);
     }
 
     private static Contingency read(Path jsonFile) {

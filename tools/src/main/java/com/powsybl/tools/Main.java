@@ -4,17 +4,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.computation.local;
+package com.powsybl.tools;
 
-import com.powsybl.tools.CommandLineTools;
-import com.powsybl.tools.ToolInitializationContext;
 import com.powsybl.computation.ComputationManager;
+import com.powsybl.computation.DefaultComputationManagerConfig;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 
-import java.io.IOException;
 import java.io.PrintStream;
-import java.io.UncheckedIOException;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 
@@ -27,7 +24,8 @@ public final class Main {
     private Main() {
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
+        DefaultComputationManagerConfig config = DefaultComputationManagerConfig.load();
         int status = new CommandLineTools().run(args, new ToolInitializationContext() {
             @Override
             public PrintStream getOutputStream() {
@@ -50,12 +48,13 @@ public final class Main {
             }
 
             @Override
-            public ComputationManager createComputationManager(CommandLine commandLine) {
-                try {
-                    return new LocalComputationManager();
-                } catch (IOException e) {
-                    throw new UncheckedIOException(e);
-                }
+            public ComputationManager createShortTimeExecutionComputationManager(CommandLine commandLine) {
+                return config.createShortTimeExecutionComputationManager();
+            }
+
+            @Override
+            public ComputationManager createLongTimeExecutionComputationManager(CommandLine commandLine) {
+                return config.createLongTimeExecutionComputationManager();
             }
         });
         if (status != CommandLineTools.COMMAND_OK_STATUS) {
