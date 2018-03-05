@@ -24,7 +24,7 @@ public class Case extends File {
     public static final String PSEUDO_CLASS = "case";
     public static final int VERSION = 0;
 
-    static final String FORMAT = "format";
+    public static final String FORMAT = "format";
 
     private final ImportersLoader importersLoader;
 

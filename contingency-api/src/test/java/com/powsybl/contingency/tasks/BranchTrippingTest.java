@@ -9,7 +9,7 @@ package com.powsybl.contingency.tasks;
 import com.google.common.collect.Sets;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.contingency.BranchContingency;
-import com.powsybl.contingency.ContingencyImpl;
+import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
@@ -37,7 +37,7 @@ public class BranchTrippingTest extends AbstractTrippingTest {
         assertTrue(line.getTerminal2().isConnected());
 
         BranchContingency tripping = new BranchContingency("NHV1_NHV2_1");
-        ContingencyImpl contingency = new ContingencyImpl("contingency", tripping);
+        Contingency contingency = new Contingency("contingency", tripping);
 
         ModificationTask task = contingency.toTask();
         task.modify(network, null);
@@ -51,7 +51,7 @@ public class BranchTrippingTest extends AbstractTrippingTest {
         assertTrue(line.getTerminal2().isConnected());
 
         tripping = new BranchContingency("NHV1_NHV2_1", "VLHV2");
-        contingency = new ContingencyImpl("contingency", tripping);
+        contingency = new Contingency("contingency", tripping);
         contingency.toTask().modify(network, null);
 
         assertTrue(line.getTerminal1().isConnected());
@@ -67,7 +67,7 @@ public class BranchTrippingTest extends AbstractTrippingTest {
         assertTrue(transformer.getTerminal2().isConnected());
 
         BranchContingency tripping = new BranchContingency("NHV2_NLOAD", "VLHV2");
-        ContingencyImpl contingency = new ContingencyImpl("contingency", tripping);
+        Contingency contingency = new Contingency("contingency", tripping);
         contingency.toTask().modify(network, null);
 
         assertFalse(transformer.getTerminal1().isConnected());
