@@ -8,6 +8,8 @@ package com.powsybl.security;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.io.table.AsciiTableFormatterFactory;
+import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.converter.SecurityAnalysisResultExporters;
@@ -164,11 +166,11 @@ public class SecurityAnalysisTool implements Tool {
         } else {
             if (outputFile != null) {
                 context.getOutputStream().println("Writing results to '" + outputFile + "'");
-                SecurityAnalysisResultExporters.export(result, network, outputFile, format);
+                SecurityAnalysisResultExporters.export(result, outputFile, format);
             } else {
                 // To avoid the closing of System.out
                 Writer writer = new OutputStreamWriter(context.getOutputStream());
-                SecurityAnalysisResultExporters.export(result, network, writer, "ASCII");
+                Security.print(result, network, writer, new AsciiTableFormatterFactory(), TableFormatterConfig.load());
             }
         }
     }
