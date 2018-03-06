@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.security.LimitViolationFilter;
 import com.powsybl.security.SecurityAnalysisResult;
+import com.powsybl.shortcircuit.ShortCircuitAnalysisResult;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -56,6 +57,17 @@ public class SecurityAnalysisResultSerializer extends StdSerializer<SecurityAnal
     }
 
     public static void write(SecurityAnalysisResult result, Writer writer) throws IOException {
+        Objects.requireNonNull(result);
+        Objects.requireNonNull(writer);
+
+        ObjectMapper objectMapper = JsonUtil.createObjectMapper()
+                .registerModule(new SecurityAnalysisJsonModule());
+
+        ObjectWriter objectWriter = objectMapper.writerWithDefaultPrettyPrinter();
+        objectWriter.writeValue(writer, result);
+    }
+
+    public static void write(ShortCircuitAnalysisResult result, Writer writer) throws IOException {
         Objects.requireNonNull(result);
         Objects.requireNonNull(writer);
 

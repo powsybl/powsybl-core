@@ -10,6 +10,7 @@ import com.google.auto.service.AutoService;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.SecurityAnalysisResult;
 import com.powsybl.security.json.SecurityAnalysisResultSerializer;
+import com.powsybl.shortcircuit.ShortCircuitAnalysisResult;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -34,6 +35,15 @@ public class JsonSecurityAnalysisResultExporter implements SecurityAnalysisResul
 
     @Override
     public void export(SecurityAnalysisResult result, Network network, Writer writer) {
+        try {
+            SecurityAnalysisResultSerializer.write(result, writer);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
+    public void export(ShortCircuitAnalysisResult result, Network network, Writer writer) {
         try {
             SecurityAnalysisResultSerializer.write(result, writer);
         } catch (IOException e) {

@@ -9,6 +9,7 @@ package com.powsybl.security.converter;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.SecurityAnalysisResult;
+import com.powsybl.shortcircuit.ShortCircuitAnalysisResult;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -77,6 +78,27 @@ public final class SecurityAnalysisResultExporters {
             throw new PowsyblException("Unsupported format: " + format + " [" + getFormats() + "]");
         }
 
+        exporter.export(result, network, writer);
+    }
+
+    public static void export(ShortCircuitAnalysisResult result, Path path, String format, Network network) {
+        Objects.requireNonNull(path);
+        try (Writer writer = Files.newBufferedWriter(path)) {
+            export(result, writer, format, network);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public static void export(ShortCircuitAnalysisResult result, Writer writer, String format, Network network) {
+        Objects.requireNonNull(result);
+        Objects.requireNonNull(writer);
+        Objects.requireNonNull(format);
+
+        SecurityAnalysisResultExporter exporter = getExporter(format);
+        if (exporter == null) {
+            throw new PowsyblException("Unsupported format: " + format + " [" + getFormats() + "]");
+        }
         exporter.export(result, network, writer);
     }
 }
