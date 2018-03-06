@@ -20,6 +20,7 @@
 
     <artifactId>powsybl-afs-ext-base</artifactId>
     <name>AFS base extensions</name>
+    <description>A set of AFS extension classes</description>
 
     <build>
         <plugins>

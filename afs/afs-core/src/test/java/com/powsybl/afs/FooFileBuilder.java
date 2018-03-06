@@ -21,12 +21,19 @@ class FooFileBuilder implements ProjectFileBuilder<FooFile> {
 
     private String name;
 
+    private String clazz;
+
     FooFileBuilder(ProjectFileBuildContext context) {
         this.context = Objects.requireNonNull(context);
     }
 
     public FooFileBuilder withName(String name) {
         this.name = name;
+        return this;
+    }
+
+    public FooFileBuilder withClass(String clazz) {
+        this.clazz = clazz;
         return this;
     }
 

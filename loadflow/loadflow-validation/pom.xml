@@ -19,7 +19,8 @@
     </parent>
 
     <artifactId>powsybl-loadflow-validation</artifactId>
-    <name>Loadflow Validation</name>
+    <name>Load-flow validation</name>
+    <description>A tool to check the load-flow results</description>
 
     <dependencies>
         <!-- Compilation dependencies -->

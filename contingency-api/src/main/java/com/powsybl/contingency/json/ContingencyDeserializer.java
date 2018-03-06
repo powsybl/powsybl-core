@@ -6,20 +6,18 @@
  */
 package com.powsybl.contingency.json;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyElement;
-import com.powsybl.contingency.ContingencyImpl;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  *
@@ -53,6 +51,6 @@ public class ContingencyDeserializer extends StdDeserializer<Contingency> {
             }
         }
 
-        return new ContingencyImpl(id, elements);
+        return new Contingency(id, elements);
     }
 }

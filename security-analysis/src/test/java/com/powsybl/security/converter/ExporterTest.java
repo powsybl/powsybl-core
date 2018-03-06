@@ -25,7 +25,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.BiConsumer;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
@@ -52,7 +53,7 @@ public class ExporterTest extends AbstractConverterTest {
             new GeneratorContingency("GEN"),
             new BusbarSectionContingency("BBS1")
         );
-        Contingency contingency = new ContingencyImpl("contingency", elements);
+        Contingency contingency = new Contingency("contingency", elements);
 
         LimitViolationsResult preContingencyResult = new LimitViolationsResult(true, Collections.singletonList(violation1));
         PostContingencyResult postContingencyResult = new PostContingencyResult(contingency, true, Arrays.asList(violation2, violation3, violation4), Arrays.asList("action1", "action2"));

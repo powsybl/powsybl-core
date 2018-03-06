@@ -153,11 +153,13 @@ public class CommandLineTools {
                 printCommandUsage(tool.getCommand().getName(), optionsExt, tool.getCommand().getUsageFooter(), initContext.getErrorStream());
             } else {
                 CommandLine line = parser.parse(optionsExt, Arrays.copyOfRange(args, 1, args.length));
-                try (ComputationManager computationManager = initContext.createComputationManager(line)) {
+                try (ComputationManager shortTimeExecutionComputationManager = initContext.createShortTimeExecutionComputationManager(line);
+                     ComputationManager longRunningTaskComputationManager = initContext.createLongTimeExecutionComputationManager(line)) {
                     tool.run(line, new ToolRunningContext(initContext.getOutputStream(),
                                                           initContext.getErrorStream(),
                                                           initContext.getFileSystem(),
-                                                          computationManager));
+                                                          shortTimeExecutionComputationManager,
+                                                          longRunningTaskComputationManager));
                 }
             }
             return COMMAND_OK_STATUS;

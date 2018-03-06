@@ -91,12 +91,19 @@ public class SecurityAnalysisResultDeserializer extends StdDeserializer<Security
     }
 
     public static SecurityAnalysisResult read(Path jsonFile) {
-        Objects.requireNonNull(jsonFile);
-
         try (InputStream is = Files.newInputStream(jsonFile)) {
-            ObjectMapper objectMapper = JsonUtil.createObjectMapper()
-                    .registerModule(new SecurityAnalysisJsonModule());
+            return read(is);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
 
+    public static SecurityAnalysisResult read(InputStream is) {
+        Objects.requireNonNull(is);
+
+        ObjectMapper objectMapper = JsonUtil.createObjectMapper()
+                .registerModule(new SecurityAnalysisJsonModule());
+        try {
             return objectMapper.readValue(is, SecurityAnalysisResult.class);
         } catch (IOException e) {
             throw new UncheckedIOException(e);

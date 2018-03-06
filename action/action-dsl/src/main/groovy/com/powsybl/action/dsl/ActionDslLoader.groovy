@@ -9,19 +9,9 @@ package com.powsybl.action.dsl
 import com.powsybl.action.dsl.ast.BooleanLiteralNode
 import com.powsybl.action.dsl.ast.ExpressionNode
 import com.powsybl.action.dsl.spi.DslTaskExtension
-import com.powsybl.contingency.BranchContingency
-import com.powsybl.contingency.BusbarSectionContingency
-import com.powsybl.contingency.ContingencyImpl
-import com.powsybl.contingency.GeneratorContingency
-import com.powsybl.contingency.HvdcLineContingency
+import com.powsybl.contingency.*
 import com.powsybl.contingency.tasks.ModificationTask
-import com.powsybl.iidm.network.BusbarSection
-import com.powsybl.iidm.network.Generator
-import com.powsybl.iidm.network.HvdcLine
-import com.powsybl.iidm.network.Identifiable
-import com.powsybl.iidm.network.Line
-import com.powsybl.iidm.network.Network
-import com.powsybl.iidm.network.TwoWindingsTransformer
+import com.powsybl.iidm.network.*
 import org.codehaus.groovy.control.CompilationFailedException
 import org.slf4j.LoggerFactory
 
@@ -130,12 +120,13 @@ class ActionDslLoader extends DslLoader {
                     throw new ActionDslException("'equipments' field is empty")
                 }
                 def elements = []
+                def valid = true
                 for (String equipment : contingencySpec.equipments) {
                     Identifiable identifiable = network.getIdentifiable(equipment)
                     if (identifiable == null) {
-                        throw new ActionDslException("Equipment '" + equipment + "' of contingency '" + id + "' not found")
-                    }
-                    if (identifiable instanceof Line || identifiable instanceof TwoWindingsTransformer) {
+                        LOGGER.warn("Equipment '{}' of contingency '{}' not found", equipment, id)
+                        valid = false
+                    } else if (identifiable instanceof Line || identifiable instanceof TwoWindingsTransformer) {
                         elements.add(new BranchContingency(equipment))
                     } else if (identifiable instanceof HvdcLine) {
                         elements.add(new HvdcLineContingency(equipment))
@@ -144,13 +135,18 @@ class ActionDslLoader extends DslLoader {
                     } else if (identifiable instanceof BusbarSection) {
                         elements.add(new BusbarSectionContingency(equipment))
                     } else {
-                        throw new ActionDslException("Equipment type " + identifiable.getClass().name + " not supported in contingencies")
+                        LOGGER.warn("Equipment type {} not supported in contingencies", identifiable.getClass().name)
+                        valid = false
                     }
                 }
-                LOGGER.debug("Found contingency '{}'", id)
-                observer?.contingencyFound(id)
-                ContingencyImpl contingency = new ContingencyImpl(id, elements)
-                rulesDb.addContingency(contingency)
+                if (valid) {
+                    LOGGER.debug("Found contingency '{}'", id)
+                    observer?.contingencyFound(id)
+                    Contingency contingency = new Contingency(id, elements)
+                    rulesDb.addContingency(contingency)
+                } else {
+                    LOGGER.warn("Contingency '{}' is invalid", id)
+                }
             }
 
             ConditionDslLoader.prepareClosures(binding)

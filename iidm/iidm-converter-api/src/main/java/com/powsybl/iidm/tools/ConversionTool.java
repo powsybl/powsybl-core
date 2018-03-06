@@ -159,12 +159,12 @@ public class ConversionTool implements Tool {
         }
 
         Properties inputParams = readProperties(line, OptionType.IMPORT, context);
-        Network network = Importers.loadNetwork(context.getFileSystem().getPath(inputFile), context.getComputationManager(), createImportConfig(), inputParams);
+        Network network = Importers.loadNetwork(context.getFileSystem().getPath(inputFile), context.getShortTimeExecutionComputationManager(), createImportConfig(), inputParams);
 
         if (line.hasOption(GROOVY_SCRIPT)) {
             Path groovyScript = context.getFileSystem().getPath(line.getOptionValue(GROOVY_SCRIPT));
             context.getOutputStream().println("Applying Groovy script " + groovyScript + "...");
-            new GroovyScriptPostProcessor(groovyScript).process(network, context.getComputationManager());
+            new GroovyScriptPostProcessor(groovyScript).process(network, context.getShortTimeExecutionComputationManager());
         }
 
         Properties outputParams = readProperties(line, OptionType.EXPORT, context);

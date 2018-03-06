@@ -26,5 +26,7 @@ public interface ToolInitializationContext {
 
     Options getAdditionalOptions();
 
-    ComputationManager createComputationManager(CommandLine commandLine);
+    ComputationManager createShortTimeExecutionComputationManager(CommandLine commandLine);
+
+    ComputationManager createLongTimeExecutionComputationManager(CommandLine commandLine);
 }

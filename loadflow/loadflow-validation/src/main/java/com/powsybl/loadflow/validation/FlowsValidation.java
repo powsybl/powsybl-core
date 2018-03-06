@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017, RTE (http://www.rte-france.com)
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -138,11 +138,11 @@ public final class FlowsValidation {
 
     private static boolean checkConnectedTerminal(String id, String terminalNumber, float p, double pCalc, float q, double qCalc, ValidationConfig config) {
         boolean validated = true;
-        if ((Double.isNaN(pCalc) && !config.areOkMissingValues()) || Math.abs(p - pCalc) > config.getThreshold()) {
+        if (ValidationUtils.areNaN(config, pCalc) || Math.abs(p - pCalc) > config.getThreshold()) {
             LOGGER.warn("{} {}: {} P{} {} {}", ValidationType.FLOWS, ValidationUtils.VALIDATION_ERROR, id, terminalNumber, p, pCalc);
             validated = false;
         }
-        if ((Double.isNaN(qCalc) && !config.areOkMissingValues()) || Math.abs(q - qCalc) > config.getThreshold()) {
+        if (ValidationUtils.areNaN(config, qCalc) || Math.abs(q - qCalc) > config.getThreshold()) {
             LOGGER.warn("{} {}: {} Q{} {} {}", ValidationType.FLOWS, ValidationUtils.VALIDATION_ERROR, id, terminalNumber, q, qCalc);
             validated = false;
         }

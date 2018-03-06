@@ -6,6 +6,7 @@
  */
 package com.powsybl.contingency;
 
+import com.google.common.testing.EqualsTester;
 import com.powsybl.contingency.tasks.BusbarSectionTripping;
 import org.junit.Test;
 
@@ -24,5 +25,11 @@ public class BusbarSectionContingencyTest {
 
         assertNotNull(contingency.toTask());
         assertTrue(contingency.toTask() instanceof BusbarSectionTripping);
+
+        new EqualsTester()
+                .addEqualityGroup(new BusbarSectionContingency("bbs1"), new BusbarSectionContingency("bbs1"))
+                .addEqualityGroup(new BusbarSectionContingency("bbs2"), new BusbarSectionContingency("bbs2"))
+                .testEquals();
+
     }
 }
