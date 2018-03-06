@@ -48,6 +48,14 @@ public class ToolRunningContext {
         return fileSystem;
     }
 
+    /**
+     * @deprecated Use getShortTimeExecutionComputationManager or getLongTimeExecutionComputationManager instead.
+     */
+    @Deprecated
+    public ComputationManager getComputationManager() {
+        return getShortTimeExecutionComputationManager();
+    }
+
     public ComputationManager getShortTimeExecutionComputationManager() {
         return shortTimeExecutioncomputationManager;
     }
