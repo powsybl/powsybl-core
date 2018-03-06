@@ -215,7 +215,7 @@ public class ActionSimulatorTool implements Tool {
             }
 
             // action simulator
-            ActionSimulator actionSimulator = new LoadFlowActionSimulator(network, context.getComputationManager(), config, observers);
+            ActionSimulator actionSimulator = new LoadFlowActionSimulator(network, context.getShortTimeExecutionComputationManager(), config, observers);
             context.getOutputStream().println("Using '" + actionSimulator.getName() + "' rules engine");
 
             // start simulator

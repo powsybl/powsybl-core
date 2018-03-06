@@ -97,7 +97,12 @@ public abstract class AbstractToolTest {
                 }
 
                 @Override
-                public ComputationManager createComputationManager(CommandLine commandLine) {
+                public ComputationManager createShortTimeExecutionComputationManager(CommandLine commandLine) {
+                    return computationManager;
+                }
+
+                @Override
+                public ComputationManager createLongTimeExecutionComputationManager(CommandLine commandLine) {
                     return computationManager;
                 }
             });

@@ -7,7 +7,7 @@
 package com.powsybl.contingency.tasks;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.contingency.ContingencyImpl;
+import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.HvdcLineContingency;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
@@ -35,7 +35,7 @@ public class HvdcLineTrippingTest {
 
         HvdcLineContingency tripping = new HvdcLineContingency("L");
 
-        ContingencyImpl contingency = new ContingencyImpl("contingency", tripping);
+        Contingency contingency = new Contingency("contingency", tripping);
 
         ModificationTask task = contingency.toTask();
         task.modify(network, null);
@@ -49,7 +49,7 @@ public class HvdcLineTrippingTest {
         assertTrue(terminal2.isConnected());
 
         tripping = new HvdcLineContingency("L", "VL1");
-        contingency = new ContingencyImpl("contingency", tripping);
+        contingency = new Contingency("contingency", tripping);
         contingency.toTask().modify(network, null);
 
         assertFalse(terminal1.isConnected());
@@ -61,7 +61,7 @@ public class HvdcLineTrippingTest {
         assertTrue(terminal2.isConnected());
 
         tripping = new HvdcLineContingency("L", "VL2");
-        contingency = new ContingencyImpl("contingency", tripping);
+        contingency = new Contingency("contingency", tripping);
         contingency.toTask().modify(network, null);
 
         assertTrue(terminal1.isConnected());

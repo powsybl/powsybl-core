@@ -9,7 +9,6 @@ package com.powsybl.afs;
 import com.powsybl.afs.storage.ListenableAppStorage;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.computation.local.LocalComputationManager;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -19,7 +18,9 @@ import java.util.stream.Collectors;
  */
 public class AppData implements AutoCloseable {
 
-    private final ComputationManager computationManager;
+    private final ComputationManager shortTimeExecutionComputationManager;
+
+    private final ComputationManager longTimeExecutionComputationManager;
 
     private final Map<String, AppFileSystem> fileSystems = new HashMap<>();
 
@@ -35,31 +36,27 @@ public class AppData implements AutoCloseable {
 
     private final Map<ServiceExtension.ServiceKey, Object> services = new HashMap<>();
 
-    public AppData() {
-        this(LocalComputationManager.getDefault());
+    public AppData(ComputationManager shortTimeExecutionComputationManager, ComputationManager longTimeExecutionComputationManager) {
+        this(shortTimeExecutionComputationManager, longTimeExecutionComputationManager,
+                getDefaultFileSystemProviders(), getDefaultFileExtensions(), getDefaultProjectFileExtensions(), getDefaultServiceExtensions());
     }
 
-    public AppData(ComputationManager computationManager) {
-        this(computationManager, new ServiceLoaderCache<>(AppFileSystemProvider.class).getServices());
+    public AppData(ComputationManager shortTimeExecutionComputationManager,
+                   ComputationManager longTimeExecutionComputationManager, List<AppFileSystemProvider> fileSystemProviders) {
+        this(shortTimeExecutionComputationManager, longTimeExecutionComputationManager,
+                fileSystemProviders, getDefaultFileExtensions(), getDefaultProjectFileExtensions(), getDefaultServiceExtensions());
     }
 
-    public AppData(ComputationManager computationManager, List<AppFileSystemProvider> fileSystemProviders) {
-        this(computationManager,
-                fileSystemProviders,
-                new ServiceLoaderCache<>(FileExtension.class).getServices(),
-                new ServiceLoaderCache<>(ProjectFileExtension.class).getServices(),
-                new ServiceLoaderCache<>(ServiceExtension.class).getServices());
-    }
-
-    public AppData(ComputationManager computationManager, List<AppFileSystemProvider> fileSystemProviders,
-                   List<FileExtension> fileExtensions, List<ProjectFileExtension> projectFileExtensions,
-                   List<ServiceExtension> serviceExtensions) {
-        this.computationManager = Objects.requireNonNull(computationManager);
+    public AppData(ComputationManager shortTimeExecutionComputationManager, ComputationManager longTimeExecutionComputationManager,
+                   List<AppFileSystemProvider> fileSystemProviders, List<FileExtension> fileExtensions,
+                   List<ProjectFileExtension> projectFileExtensions, List<ServiceExtension> serviceExtensions) {
         Objects.requireNonNull(fileSystemProviders);
         Objects.requireNonNull(fileExtensions);
         Objects.requireNonNull(projectFileExtensions);
+        this.shortTimeExecutionComputationManager = Objects.requireNonNull(shortTimeExecutionComputationManager);
+        this.longTimeExecutionComputationManager = longTimeExecutionComputationManager;
         for (AppFileSystemProvider provider : fileSystemProviders) {
-            for (AppFileSystem fileSystem : provider.getFileSystems(computationManager)) {
+            for (AppFileSystem fileSystem : provider.getFileSystems(shortTimeExecutionComputationManager)) {
                 addFileSystem(fileSystem);
             }
         }
@@ -76,6 +73,22 @@ public class AppData implements AutoCloseable {
         for (ServiceExtension extension : serviceExtensions) {
             this.services.put(extension.getServiceKey(), extension.createService());
         }
+    }
+
+    private static List<AppFileSystemProvider> getDefaultFileSystemProviders() {
+        return new ServiceLoaderCache<>(AppFileSystemProvider.class).getServices();
+    }
+
+    private static List<FileExtension> getDefaultFileExtensions() {
+        return new ServiceLoaderCache<>(FileExtension.class).getServices();
+    }
+
+    private static List<ProjectFileExtension> getDefaultProjectFileExtensions() {
+        return new ServiceLoaderCache<>(ProjectFileExtension.class).getServices();
+    }
+
+    private static List<ServiceExtension> getDefaultServiceExtensions() {
+        return new ServiceLoaderCache<>(ServiceExtension.class).getServices();
     }
 
     public void addFileSystem(AppFileSystem fileSystem) {
@@ -148,8 +161,20 @@ public class AppData implements AutoCloseable {
         return projectFileExtensionsByPseudoClass.get(projectFilePseudoClass);
     }
 
+    /**
+     * @deprecated Use getShortTimeExecutionComputationManager instead
+     */
+    @Deprecated
     public ComputationManager getComputationManager() {
-        return computationManager;
+        return getShortTimeExecutionComputationManager();
+    }
+
+    public ComputationManager getShortTimeExecutionComputationManager() {
+        return shortTimeExecutionComputationManager;
+    }
+
+    public ComputationManager getLongTimeExecutionComputationManager() {
+        return longTimeExecutionComputationManager != null ? longTimeExecutionComputationManager : shortTimeExecutionComputationManager;
     }
 
     public List<String> getRemotelyAccessibleFileSystemNames() {

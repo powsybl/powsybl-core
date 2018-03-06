@@ -149,11 +149,11 @@ public class RunLoadFlowTool implements Tool {
         }
 
         context.getOutputStream().println("Loading network '" + caseFile + "'");
-        Network network = Importers.loadNetwork(caseFile, context.getComputationManager(), importConfig, null);
+        Network network = Importers.loadNetwork(caseFile, context.getShortTimeExecutionComputationManager(), importConfig, null);
         if (network == null) {
             throw new PowsyblException("Case '" + caseFile + "' not found");
         }
-        LoadFlow loadFlow = defaultConfig.newFactoryImpl(LoadFlowFactory.class).create(network, context.getComputationManager(), 0);
+        LoadFlow loadFlow = defaultConfig.newFactoryImpl(LoadFlowFactory.class).create(network, context.getShortTimeExecutionComputationManager(), 0);
 
         LoadFlowParameters params = LoadFlowParameters.load();
         if (line.hasOption(PARAMETERS_FILE)) {

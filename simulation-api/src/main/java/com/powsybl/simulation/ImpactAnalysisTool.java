@@ -257,7 +257,7 @@ public class ImpactAnalysisTool implements Tool {
             network.getStateManager().allowStateMultiThreadAccess(true);
 
             Multimap<String, SecurityIndex> securityIndexesPerContingency
-                    = runImpactAnalysis(network, contingencyIds, context.getComputationManager(),
+                    = runImpactAnalysis(network, contingencyIds, context.getShortTimeExecutionComputationManager(),
                     simulatorFactory, contingenciesProvider, context.getOutputStream());
 
             if (securityIndexesPerContingency != null) {
@@ -275,7 +275,7 @@ public class ImpactAnalysisTool implements Tool {
             Importers.loadNetworks(caseFile, false, network -> {
                 try {
                     Multimap<String, SecurityIndex> securityIndexesPerContingency
-                            = runImpactAnalysis(network, contingencyIds, context.getComputationManager(),
+                            = runImpactAnalysis(network, contingencyIds, context.getShortTimeExecutionComputationManager(),
                             simulatorFactory, contingenciesProvider, context.getOutputStream());
                     if (securityIndexesPerContingency == null) {
                         securityIndexesPerCase.put(network.getId(), null);
