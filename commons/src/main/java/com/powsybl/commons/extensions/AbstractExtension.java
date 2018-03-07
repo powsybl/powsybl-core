@@ -6,6 +6,7 @@
  */
 package com.powsybl.commons.extensions;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.powsybl.commons.PowsyblException;
 
 import java.util.Objects;
@@ -24,7 +25,7 @@ public abstract class AbstractExtension<T> implements Extension<T> {
     protected AbstractExtension(T extendable) {
         this.extendable = Objects.requireNonNull(extendable);
     }
-
+    @JsonIgnore
     public T getExtendable() {
         return extendable;
     }
