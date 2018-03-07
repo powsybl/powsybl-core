@@ -76,7 +76,7 @@ public class SecurityAnalysisRunnerBuilder implements ProjectFileBuilder<Securit
         if (contingencyStorePath != null) {
             contingencyStore = project.getRootFolder().getChild(ProjectFile.class, contingencyStorePath);
             if (!contingencyStore.isPresent() || !(contingencyStore.get() instanceof ContingenciesProvider)) {
-                throw new AfsException("Invalid contingency store path " + casePath);
+                throw new AfsException("Invalid contingency store path " + contingencyStorePath);
             }
         } else {
             contingencyStore = Optional.empty();
