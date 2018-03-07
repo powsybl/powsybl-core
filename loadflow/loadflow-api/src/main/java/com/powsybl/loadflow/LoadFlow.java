@@ -22,7 +22,9 @@ public interface LoadFlow extends Versionable {
      * @deprecated Use LoadFlowResult run(LoadFlowParameters parameters) instead
      */
     @Deprecated
-    LoadFlowResult run() throws Exception;
+    default LoadFlowResult run() throws Exception {
+        throw new UnsupportedOperationException("deprecated");
+    }
 
     default CompletableFuture<LoadFlowResult> runAsync(String workingStateId, LoadFlowParameters parameters) {
         throw new UnsupportedOperationException();

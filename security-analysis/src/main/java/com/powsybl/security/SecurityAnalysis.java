@@ -35,17 +35,23 @@ public interface SecurityAnalysis {
      * @deprecated Use CompletableFuture<SecurityAnalysisResult> runAsync(ContingenciesProvider, String, SecurityAnalysisParameters) instead
      */
     @Deprecated
-    CompletableFuture<SecurityAnalysisResult> runAsync(ContingenciesProvider contingenciesProvider, String workingStateId, LoadFlowParameters parameters);
+    default CompletableFuture<SecurityAnalysisResult> runAsync(ContingenciesProvider contingenciesProvider, String workingStateId, LoadFlowParameters parameters) {
+        throw new UnsupportedOperationException("deprecated");
+    }
 
     /**
      * @deprecated Use CompletableFuture<SecurityAnalysisResult> runAsync(ContingenciesProvider, String, SecurityAnalysisParameters) instead
      */
     @Deprecated
-    CompletableFuture<SecurityAnalysisResult> runAsync(ContingenciesProvider contingenciesProvider, String workingStateId);
+    default CompletableFuture<SecurityAnalysisResult> runAsync(ContingenciesProvider contingenciesProvider, String workingStateId) {
+        throw new UnsupportedOperationException("deprecated");
+    }
 
     /**
      * @deprecated Use CompletableFuture<SecurityAnalysisResult> runAsync(ContingenciesProvider, String, SecurityAnalysisParameters) instead
      */
     @Deprecated
-    CompletableFuture<SecurityAnalysisResult> runAsync(ContingenciesProvider contingenciesProvider);
+    default CompletableFuture<SecurityAnalysisResult> runAsync(ContingenciesProvider contingenciesProvider) {
+        throw new UnsupportedOperationException("deprecated");
+    }
 }
