@@ -180,6 +180,12 @@ class CIM1Converter implements CIM1Constants {
     private void createLine(Network network, cim1.model.ACLineSegment l, Set<String> noOperationalLimitInOperationalLimitSet) {
         cim1.model.Terminal t1 = l.getTerminals().get(0);
         cim1.model.Terminal t2 = l.getTerminals().get(1);
+        // t1 and t2 respect sequenceNumber
+        if (t1.getSequenceNumber() == 2) {
+            cim1.model.Terminal t = t1;
+            t1 = t2;
+            t2 = t;
+        }
         cim1.model.TopologicalNode tn1 = t1.getTopologicalNode();
         cim1.model.TopologicalNode tn2 = t2.getTopologicalNode();
         String voltageLevelId1 = namingStrategy.getId(tn1.getConnectivityNodeContainer());
@@ -658,12 +664,23 @@ class CIM1Converter implements CIM1Constants {
         }
     }
 
+    private boolean isPrimary(cim1.model.TransformerWinding tw) {
+        return tw.getWindingType().equals(cim1.model.WindingType.primary);
+    }
+
     private void create2WTransfos(cim1.model.PowerTransformer pt,
-                                  cim1.model.TransformerWinding tw1,
-                                  cim1.model.TransformerWinding tw2,
+                                  cim1.model.TransformerWinding tw1p,
+                                  cim1.model.TransformerWinding tw2p,
                                   Network network,
                                   Set<String> noOperationalLimitInOperationalLimitSet,
                                   List<RatioTapChangerToCreate> ratioTapChangerToCreateList) {
+        cim1.model.TransformerWinding tw1 = tw1p;
+        cim1.model.TransformerWinding tw2 = tw2p;
+        if (!isPrimary(tw1)) {
+            cim1.model.TransformerWinding tw = tw1;
+            tw1 = tw2;
+            tw2 = tw;
+        }
         cim1.model.Terminal t1 = tw1.getTerminals().get(0);
         cim1.model.Terminal t2 = tw2.getTerminals().get(0);
         cim1.model.TopologicalNode tn1 = t1.getTopologicalNode();
@@ -943,7 +960,7 @@ class CIM1Converter implements CIM1Constants {
                 .setConnectableBus(namingStrategy.getId(tn))
                 .setCurrentSectionCount(sectionCount)
                 .setbPerSection(bPerSection)
-                .setMaximumSectionCount(sc.getMaximumSections())
+                .setMaximumSectionCount(Math.max(sc.getMaximumSections(), sectionCount))
             .add();
         addTerminalMapping(tn, shunt.getTerminal());
 
