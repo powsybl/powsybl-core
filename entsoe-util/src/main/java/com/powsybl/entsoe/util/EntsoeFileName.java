@@ -48,7 +48,12 @@ public class EntsoeFileName {
             }
         }
         if (str.length() >= 19) {
-            geographicalCode = EntsoeGeographicalCode.valueOf(str.substring(18, 20));
+            try {
+                String code = str.substring(18, 20);
+                geographicalCode = EntsoeGeographicalCode.valueOf(code);
+            } catch (IllegalArgumentException x) {
+                geographicalCode = EntsoeGeographicalCode.values()[0];
+            }
         }
 
         return new EntsoeFileName(date, forecastDistance, geographicalCode);
