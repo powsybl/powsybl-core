@@ -6,6 +6,7 @@
  */
 package com.powsybl.security.afs;
 
+import com.google.auto.service.AutoService;
 import com.google.common.collect.ImmutableList;
 import com.powsybl.afs.*;
 import com.powsybl.afs.ext.base.*;
@@ -15,9 +16,7 @@ import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.BranchContingency;
-import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.afs.ContingencyStore;
 import com.powsybl.contingency.afs.ContingencyStoreBuilder;
@@ -27,7 +26,6 @@ import com.powsybl.iidm.import_.ImportersLoader;
 import com.powsybl.iidm.import_.ImportersLoaderList;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.StateManager;
-import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.security.*;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,7 +36,6 @@ import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
-import java.util.concurrent.CompletableFuture;
 
 import static org.junit.Assert.*;
 
@@ -47,27 +44,30 @@ import static org.junit.Assert.*;
  */
 public class SecurityAnalysisRunnerTest extends AbstractProjectFileTest {
 
-    private static class SecurityAnalysisFactoryMock implements SecurityAnalysisFactory {
+    private static SecurityAnalysisResult createResult() {
+        LimitViolationsResult preContingencyResult = new LimitViolationsResult(true, ImmutableList.of(new LimitViolation("s1", LimitViolationType.HIGH_VOLTAGE, 400f, 1f, 440f)));
+        return new SecurityAnalysisResult(preContingencyResult, Collections.emptyList());
+    }
+
+    private static class SecurityAnalysisServiceMock implements SecurityAnalysisRunningService {
+
         @Override
-        public SecurityAnalysis create(Network network, ComputationManager computationManager, int priority) {
-            return new SecurityAnalysis() {
-                @Override
-                public CompletableFuture<SecurityAnalysisResult> runAsync(ContingenciesProvider contingenciesProvider, String workingStateId, LoadFlowParameters parameters) {
-                    LimitViolationsResult preContingencyResult = new LimitViolationsResult(true, ImmutableList.of(new LimitViolation("s1", LimitViolationType.HIGH_VOLTAGE, 400f, 1f, 440f)));
-                    SecurityAnalysisResult result = new SecurityAnalysisResult(preContingencyResult, Collections.emptyList());
-                    return CompletableFuture.completedFuture(result);
-                }
+        public void run(SecurityAnalysisRunner runner) {
+            runner.writeResult(createResult());
+        }
+    }
 
-                @Override
-                public CompletableFuture<SecurityAnalysisResult> runAsync(ContingenciesProvider contingenciesProvider, String workingStateId) {
-                    throw new AssertionError();
-                }
+    @AutoService(ServiceExtension.class)
+    public class SecurityAnalysisServiceExtensionMock implements ServiceExtension<SecurityAnalysisRunningService> {
 
-                @Override
-                public CompletableFuture<SecurityAnalysisResult> runAsync(ContingenciesProvider contingenciesProvider) {
-                    throw new AssertionError();
-                }
-            };
+        @Override
+        public ServiceKey<SecurityAnalysisRunningService> getServiceKey() {
+            return new ServiceKey<>(SecurityAnalysisRunningService.class, false);
+        }
+
+        @Override
+        public SecurityAnalysisRunningService createService() {
+            return new SecurityAnalysisServiceMock();
         }
     }
 
@@ -130,8 +130,8 @@ public class SecurityAnalysisRunnerTest extends AbstractProjectFileTest {
 
     @Override
     protected List<ServiceExtension> getServiceExtensions() {
-        return ImmutableList.of(new LocalSecurityAnalysisRunningServiceExtension(new SecurityAnalysisFactoryMock()),
-                                new LocalNetworkServiceExtension());
+        return ImmutableList.of(new SecurityAnalysisServiceExtensionMock(),
+                new LocalNetworkServiceExtension());
     }
 
     @Before
