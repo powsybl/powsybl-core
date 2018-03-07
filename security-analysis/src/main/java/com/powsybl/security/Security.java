@@ -839,4 +839,9 @@ public final class Security {
             }
         };
     }
+
+    public static void print(SecurityAnalysisResult result, Network network, Writer writer, TableFormatterFactory tableFormatterFactory, TableFormatterConfig tableFormatterConfig) {
+        printPreContingencyViolations(result, network, writer, tableFormatterFactory, tableFormatterConfig, null);
+        printPostContingencyViolations(result, network, writer, tableFormatterFactory, tableFormatterConfig, null, true);
+    }
 }
