@@ -8,6 +8,7 @@ package com.powsybl.security.converter;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.SecurityAnalysisResult;
+import com.powsybl.shortcircuit.ShortCircuitAnalysisResult;
 
 import java.io.Writer;
 
@@ -38,5 +39,14 @@ public interface SecurityAnalysisResultExporter {
      * @param writer The writer used for the export
      */
     void export(SecurityAnalysisResult result, Network network, Writer writer);
+
+    /**
+     * Export the result of a short circuit analysis performed on the network
+     *
+     * @param result The result of the short circuit analysis
+     * @param network The network used for the computation
+     * @param writer The writer used for the export
+     */
+    void export(ShortCircuitAnalysisResult result, Network network, Writer writer);
 
 }
