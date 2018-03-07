@@ -8,6 +8,7 @@ package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.LegAdder;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
@@ -109,6 +110,23 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
             adder.setNode2(node2);
         }
         adder.setVoltageLevel2(voltageLevelId2);
+    }
+
+    protected static void readNodeOrBus(int index, LegAdder adder, NetworkXmlReaderContext context) {
+        String bus = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, BUS + index));
+        String connectableBus = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, CONNECTABLE_BUS + index));
+        Integer node = XmlUtil.readOptionalIntegerAttribute(context.getReader(), NODE + index);
+        String voltageLevelId = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "voltageLevelId" + index));
+        if (bus != null) {
+            adder.setBus(bus);
+        }
+        if (connectableBus != null) {
+            adder.setConnectableBus(connectableBus);
+        }
+        if (node != null) {
+            adder.setNode(node);
+        }
+        adder.setVoltageLevel(voltageLevelId);
     }
 
     protected static void writePQ(Integer index, Terminal t, XMLStreamWriter writer) throws XMLStreamException {

@@ -6,9 +6,9 @@
  */
 package com.powsybl.computation.mpi;
 
+import com.powsybl.computation.ComputationManager;
 import com.powsybl.tools.CommandLineTools;
 import com.powsybl.tools.ToolInitializationContext;
-import com.powsybl.computation.ComputationManager;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 
@@ -26,7 +26,11 @@ public final class MpiMaster {
     }
 
     public static void main(String[] args) {
+
         ToolInitializationContext initContext = new ToolInitializationContext() {
+
+            private ComputationManager computationManager;
+
             @Override
             public PrintStream getOutputStream() {
                 return System.out;
@@ -47,14 +51,21 @@ public final class MpiMaster {
                 return FileSystems.getDefault();
             }
 
+            private synchronized ComputationManager createComputationManager(CommandLine commandLine) {
+                if (computationManager == null) {
+                    computationManager = MpiToolUtil.createMpiComputationManager(commandLine, FileSystems.getDefault());
+                }
+                return computationManager;
+            }
+
             @Override
             public ComputationManager createShortTimeExecutionComputationManager(CommandLine commandLine) {
-                return MpiToolUtil.createMpiComputationManager(commandLine, FileSystems.getDefault());
+                return createComputationManager(commandLine);
             }
 
             @Override
             public ComputationManager createLongTimeExecutionComputationManager(CommandLine commandLine) {
-                return createShortTimeExecutionComputationManager(commandLine);
+                return createComputationManager(commandLine);
             }
         };
         int status = new CommandLineTools().run(args, initContext);
