@@ -408,6 +408,22 @@ public interface VoltageLevel extends Container<VoltageLevel> {
         Terminal getTerminal(int node);
 
         /**
+         * Get the first terminal corresponding to the {@param switchId}.
+         * May return null.
+         *
+         * @throws PowsyblException if switch is not found.
+         */
+        Terminal getTerminal1(String switchId);
+
+        /**
+         * Get the second terminal corresponding to the {@param switchId}.
+         * May return null.
+         *
+         * @throws PowsyblException if switch is not found.
+         */
+        Terminal getTerminal2(String switchId);
+
+        /**
          * Get a switch.
          *
          * @param switchId the id the switch
