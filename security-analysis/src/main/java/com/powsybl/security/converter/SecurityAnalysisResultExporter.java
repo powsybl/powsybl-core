@@ -6,7 +6,6 @@
  */
 package com.powsybl.security.converter;
 
-import com.powsybl.iidm.network.Network;
 import com.powsybl.security.SecurityAnalysisResult;
 
 import java.io.Writer;
@@ -31,12 +30,11 @@ public interface SecurityAnalysisResultExporter {
     String getComment();
 
     /**
-     * Export the result of a security analysis performed on the network
+     * Export a result of a security analysis
      *
      * @param result The result of the security analysis
-     * @param network The network used for the computation
      * @param writer The writer used for the export
      */
-    void export(SecurityAnalysisResult result, Network network, Writer writer);
+    void export(SecurityAnalysisResult result, Writer writer);
 
 }
