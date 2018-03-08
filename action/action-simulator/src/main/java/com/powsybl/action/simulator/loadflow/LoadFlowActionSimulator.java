@@ -46,7 +46,9 @@ public class LoadFlowActionSimulator implements ActionSimulator {
 
     private final LoadFlowActionSimulatorConfig config;
 
-    private final List<LoadFlowActionSimulatorObserver> observers;
+    protected final List<LoadFlowActionSimulatorObserver> observers;
+
+    private boolean redirectOutput = false;
 
     public LoadFlowActionSimulator(Network network, ComputationManager computationManager) {
         this(network, computationManager, LoadFlowActionSimulatorConfig.load(), Collections.emptyList());
@@ -245,5 +247,9 @@ public class LoadFlowActionSimulator implements ActionSimulator {
             observers.forEach(o -> o.loadFlowDiverged(context));
             return false;
         }
+    }
+
+    protected ComputationManager getComputationManager() {
+        return computationManager;
     }
 }

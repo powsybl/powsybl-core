@@ -8,6 +8,8 @@ package com.powsybl.action.simulator.loadflow;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
+import com.powsybl.action.simulator.parallel.ChunkPath;
+import com.powsybl.action.simulator.parallel.MergeStrategy;
 import com.powsybl.commons.datasource.CompressionFormat;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
@@ -21,6 +23,7 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -76,5 +79,11 @@ public class CaseExporterTest {
         exporter.loadFlowDiverged(runningContext1);
         path = tmpDir.resolve("basename-contingency-R3.xiidm.gz");
         assertTrue(Files.exists(path));
+
+        assertEquals(1, exporter.getChunkFiles().size());
+        ChunkPath chunkPath = exporter.getChunkFiles().get(0);
+        assertEquals(MergeStrategy.DIRCOPY, chunkPath.getMergeType());
+        assertEquals(tmpDir, chunkPath.getPath());
+        assertEquals("output-case-folder", chunkPath.getCreatorOpt());
     }
 }

@@ -7,8 +7,10 @@
 package com.powsybl.action.simulator.loadflow;
 
 import com.powsybl.action.dsl.Rule;
+import com.powsybl.action.simulator.parallel.ChunkPath;
 import com.powsybl.security.LimitViolation;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -84,5 +86,10 @@ public class DefaultLoadFlowActionSimulatorObserver implements LoadFlowActionSim
     @Override
     public void afterPostContingencyAnalysis() {
         // empty default implementation
+    }
+
+    @Override
+    public List<ChunkPath> getChunkFiles() {
+        return Collections.EMPTY_LIST;
     }
 }

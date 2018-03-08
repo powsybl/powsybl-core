@@ -6,6 +6,9 @@
  */
 package com.powsybl.action.simulator.loadflow;
 
+import com.powsybl.action.simulator.parallel.ChunkPath;
+import com.powsybl.action.simulator.parallel.MergeStrategy;
+import com.powsybl.action.simulator.tools.ActionSimulatorToolConstants;
 import com.powsybl.commons.datasource.CompressionFormat;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.DataSourceUtil;
@@ -15,9 +18,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.security.LimitViolation;
 
 import java.nio.file.Path;
-import java.util.List;
-import java.util.Objects;
-import java.util.Properties;
+import java.util.*;
 
 
 /**
@@ -35,11 +36,14 @@ public class CaseExporter extends DefaultLoadFlowActionSimulatorObserver {
 
     private final CompressionFormat compressionFormat;
 
+    private final List<ChunkPath> chunkFiles;
+
     public CaseExporter(Path outputCaseFolder, String basename, String outputCaseFormat, CompressionFormat compressionFormat) {
         this.outputCaseFolder = Objects.requireNonNull(outputCaseFolder);
         this.basename = Objects.requireNonNull(basename);
         this.outputCaseFormat = Objects.requireNonNull(outputCaseFormat);
         this.compressionFormat = compressionFormat;
+        this.chunkFiles = Collections.singletonList(new ChunkPath(outputCaseFolder, MergeStrategy.DIRCOPY, ActionSimulatorToolConstants.OUTPUT_CASE_FOLDER));
     }
 
     @Override
@@ -68,5 +72,10 @@ public class CaseExporter extends DefaultLoadFlowActionSimulatorObserver {
             .append("-R")
             .append(round)
             .toString();
+    }
+
+    @Override
+    public List<ChunkPath> getChunkFiles() {
+        return chunkFiles;
     }
 }
