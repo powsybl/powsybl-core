@@ -9,6 +9,7 @@ package com.powsybl.commons.io;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.SecureRandom;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -20,7 +21,15 @@ public class WorkingDirectory implements AutoCloseable {
     private final boolean debug;
 
     public WorkingDirectory(Path parentDir, String prefix, boolean debug) throws IOException {
-        path = Files.createTempDirectory(parentDir, prefix);
+        if (parentDir.toUri().getHost() == null) {
+            path = Files.createTempDirectory(parentDir, prefix);
+        } else {
+            Path p;
+            long n = new SecureRandom().nextLong();
+            n = n == -9223372036854775808L ? 0L : Math.abs(n);
+            p = parentDir.resolve(prefix + Long.toString(n));
+            path = Files.createDirectory(p);
+        }
         this.debug = debug;
     }
 
