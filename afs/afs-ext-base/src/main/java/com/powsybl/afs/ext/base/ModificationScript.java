@@ -38,6 +38,7 @@ public class ModificationScript extends ProjectFile implements StorableScript {
     public ModificationScript(ProjectFileCreationContext context) {
         super(context, VERSION, SCRIPT_ICON);
         storage.addListener(this, eventList -> {
+            boolean invalidate = false;
             for (NodeEvent event : eventList.getEvents()) {
                 if (event.getType() == NodeEventType.NODE_DATA_UPDATED) {
                     NodeDataUpdated dataUpdated = (NodeDataUpdated) event;
@@ -45,8 +46,13 @@ public class ModificationScript extends ProjectFile implements StorableScript {
                         for (ScriptListener listener : listeners) {
                             listener.scriptUpdated();
                         }
+                        invalidate = true;
                     }
                 }
+            }
+            if (invalidate) {
+                // invalidate backward dependencies
+                invalidate();
             }
         });
     }
@@ -74,7 +80,6 @@ public class ModificationScript extends ProjectFile implements StorableScript {
         }
         storage.updateModificationTime(info.getId());
         storage.flush();
-        notifyDependencyListeners();
     }
 
     @Override

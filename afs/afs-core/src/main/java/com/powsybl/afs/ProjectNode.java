@@ -78,6 +78,11 @@ public class ProjectNode extends AbstractNodeBase<ProjectFolder> {
                 .collect(Collectors.toList());
     }
 
+    public void invalidate() {
+        // propagate
+        getBackwardDependencies().forEach(ProjectNode::invalidate);
+    }
+
     public AppFileSystem getFileSystem() {
         return fileSystem;
     }

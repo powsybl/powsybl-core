@@ -45,6 +45,22 @@ public class NodeEventTest {
     }
 
     @Test
+    public void backwardDependencyAddedTest() throws IOException {
+        BackwardDependencyAdded added = new BackwardDependencyAdded("a", "b");
+        assertEquals("a", added.getId());
+        assertEquals(NodeEventType.BACKWARD_DEPENDENCY_ADDED, added.getType());
+        assertEquals("b", added.getDependencyName());
+
+        BackwardDependencyAdded added2 = objectMapper.readValue(objectMapper.writeValueAsString(added), BackwardDependencyAdded.class);
+        assertEquals(added, added2);
+
+        new EqualsTester()
+                .addEqualityGroup(new BackwardDependencyAdded("a", "b"), new BackwardDependencyAdded("a", "b"))
+                .addEqualityGroup(new BackwardDependencyAdded("c", "d"), new BackwardDependencyAdded("c", "d"))
+                .testEquals();
+    }
+
+    @Test
     public void dependencyRemovedTest() throws IOException {
         DependencyRemoved removed = new DependencyRemoved("a", "b");
         assertEquals("a", removed.getId());
@@ -57,6 +73,22 @@ public class NodeEventTest {
         new EqualsTester()
                 .addEqualityGroup(new DependencyRemoved("a", "b"), new DependencyRemoved("a", "b"))
                 .addEqualityGroup(new DependencyRemoved("c", "d"), new DependencyRemoved("c", "d"))
+                .testEquals();
+    }
+
+    @Test
+    public void backwardDependencyRemovedTest() throws IOException {
+        BackwardDependencyRemoved removed = new BackwardDependencyRemoved("a", "b");
+        assertEquals("a", removed.getId());
+        assertEquals(NodeEventType.BACKWARD_DEPENDENCY_REMOVED, removed.getType());
+        assertEquals("b", removed.getDependencyName());
+
+        BackwardDependencyRemoved removed2 = objectMapper.readValue(objectMapper.writeValueAsString(removed), BackwardDependencyRemoved.class);
+        assertEquals(removed, removed2);
+
+        new EqualsTester()
+                .addEqualityGroup(new BackwardDependencyRemoved("a", "b"), new BackwardDependencyRemoved("a", "b"))
+                .addEqualityGroup(new BackwardDependencyRemoved("c", "d"), new BackwardDependencyRemoved("c", "d"))
                 .testEquals();
     }
 
