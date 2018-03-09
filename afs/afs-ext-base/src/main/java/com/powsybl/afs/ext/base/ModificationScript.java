@@ -9,9 +9,6 @@ package com.powsybl.afs.ext.base;
 import com.powsybl.afs.FileIcon;
 import com.powsybl.afs.ProjectFileCreationContext;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -24,8 +21,6 @@ public class ModificationScript extends AbstractModificationScript {
     static final String SCRIPT_CONTENT = "scriptContent";
 
     private static final FileIcon SCRIPT_ICON = new FileIcon("script", ModificationScript.class.getResourceAsStream("/icons/script16x16.png"));
-
-    private final List<ScriptListener> listeners = new ArrayList<>();
 
     public ModificationScript(ProjectFileCreationContext context) {
         super(context, VERSION, SCRIPT_ICON, SCRIPT_CONTENT);
