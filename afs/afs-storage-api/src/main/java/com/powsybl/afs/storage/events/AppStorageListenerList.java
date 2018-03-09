@@ -46,7 +46,7 @@ public class AppStorageListenerList {
     public void notify(NodeEventList eventList) {
         lock.lock();
         try {
-            listeners.values().stream().flatMap(List::stream).forEach(l -> l.onEvents(eventList));
+            new ArrayList<>(listeners.values()).stream().flatMap(List::stream).forEach(l -> l.onEvents(eventList));
         } finally {
             lock.unlock();
         }

@@ -46,6 +46,7 @@ public class ActionScript extends ProjectFile implements StorableScript, Conting
     public ActionScript(ProjectFileCreationContext context) {
         super(context, VERSION, IAL_ICON);
         storage.addListener(this, eventList -> {
+            boolean invalidate = false;
             for (NodeEvent event : eventList.getEvents()) {
                 if (event.getType() == NodeEventType.NODE_DATA_UPDATED) {
                     NodeDataUpdated dataUpdated = (NodeDataUpdated) event;
@@ -53,8 +54,13 @@ public class ActionScript extends ProjectFile implements StorableScript, Conting
                         for (ScriptListener listener : listeners) {
                             listener.scriptUpdated();
                         }
+                        invalidate = true;
                     }
                 }
+            }
+            if (invalidate) {
+                // invalidate backward dependencies
+                invalidate();
             }
         });
     }
@@ -84,7 +90,6 @@ public class ActionScript extends ProjectFile implements StorableScript, Conting
         }
         storage.updateModificationTime(info.getId());
         storage.flush();
-        notifyDependencyListeners();
     }
 
     @Override
