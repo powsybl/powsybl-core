@@ -6,11 +6,11 @@
  */
 package com.powsybl.contingency;
 
+import com.google.common.testing.EqualsTester;
 import com.powsybl.contingency.tasks.BranchTripping;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
@@ -29,5 +29,11 @@ public class BranchContingencyTest {
 
         contingency = new BranchContingency("id", "voltageLevelId");
         assertEquals("voltageLevelId", contingency.getVoltageLevelId());
+
+        new EqualsTester()
+                .addEqualityGroup(new BranchContingency("c1", "vl1"), new BranchContingency("c1", "vl1"))
+                .addEqualityGroup(new BranchContingency("c2"), new BranchContingency("c2"))
+                .testEquals();
+
     }
 }

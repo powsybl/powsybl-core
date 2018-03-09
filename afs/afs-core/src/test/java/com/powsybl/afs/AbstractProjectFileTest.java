@@ -53,7 +53,7 @@ public abstract class AbstractProjectFileTest {
         ComputationManager computationManager = Mockito.mock(ComputationManager.class);
         storage = createStorage();
         afs = new AppFileSystem("mem", false, storage);
-        ad = new AppData(computationManager,
+        ad = new AppData(computationManager, computationManager,
                          Collections.singletonList(computationManager1 -> Collections.singletonList(afs)),
                          getFileExtensions(),
                          getProjectFileExtensions(),

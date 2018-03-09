@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017, RTE (http://www.rte-france.com)
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -92,7 +92,7 @@ public final class StaticVarCompensatorsValidation {
         float bMin = svc.getBmin();
         float bMax = svc.getBmax();
         if (bus != null && !Float.isNaN(bus.getV())) {
-            float v = bus.getV();
+            float v = config.getLoadFlowParameters().isSpecificCompatibility() ? svc.getTerminal().getVoltageLevel().getNominalV() : bus.getV();
             return checkSVCs(svc.getId(), p, q, v, reactivePowerSetpoint, voltageSetpoint, regulationMode, bMin, bMax, config, svcsWriter);
         }
         try {
@@ -152,21 +152,27 @@ public final class StaticVarCompensatorsValidation {
             LOGGER.warn("{} {}: {}: P={}", ValidationType.SVCS, ValidationUtils.VALIDATION_ERROR, id, p);
             validated = false;
         }
-        // if regulationMode = REACTIVE_POWER then reactive power should be equal to setpoint
-        if (regulationMode == RegulationMode.REACTIVE_POWER && ((Float.isNaN(reactivePowerSetpoint) && !config.areOkMissingValues()) || Math.abs(q + reactivePowerSetpoint) > config.getThreshold())) {
-            LOGGER.warn("{} {}: {}: regulator mode={} - Q={} reactivePowerSetpoint={}", ValidationType.SVCS, ValidationUtils.VALIDATION_ERROR, id, regulationMode, q, reactivePowerSetpoint);
+        float qMin = bMin * v * v;
+        float qMax = bMax * v * v;
+        // if regulationMode = REACTIVE_POWER
+        // if the setpoint is in [Qmin=bMin*V*V, Qmax=bMax*V*V] then reactive power should be equal to setpoint
+        // if the setpoint is outside [Qmin=bMin*V*V, Qmax=bMax*V*V] then the reactive power is equal to the nearest bound
+        if (regulationMode == RegulationMode.REACTIVE_POWER
+            && (ValidationUtils.areNaN(config, reactivePowerSetpoint, qMin, qMax)
+                || Math.abs(q + getReactivePowerSetpoint(reactivePowerSetpoint, qMin, qMax, config)) > config.getThreshold())) {
+            LOGGER.warn("{} {}: {}: regulator mode={} - Q={} bMin={} bMax={} V={} reactivePowerSetpoint={}", ValidationType.SVCS, ValidationUtils.VALIDATION_ERROR, id, regulationMode, q, bMin, bMax, v, reactivePowerSetpoint);
             validated = false;
         }
         // if regulationMode = VOLTAGE then
-        // either q is equal to bMin * V and V is lower than voltageSetpoint
-        // or q is equal to bMax * V and V is higher than voltageSetpoint
-        // or V at the connected bus is equal to voltageSetpoint
+        // either q is equal to Qmax = bMax * V * V and V is lower than voltageSetpoint
+        // or q is equal to Qmin = bMin * V * V and V is higher than voltageSetpoint
+        // or V at the connected bus is equal to voltageSetpoint and q is bounded within [-Qmax=bMax*V*V, -Qmin=bMin*V*V]
         if (regulationMode == RegulationMode.VOLTAGE
-            && (((Float.isNaN(bMin) || Float.isNaN(bMax) || Float.isNaN(voltageSetpoint)) && !config.areOkMissingValues())
-                || ((Math.abs(q + bMin * v) > config.getThreshold() || (v - voltageSetpoint) >= config.getThreshold())
-                    && (Math.abs(q + bMax * v) > config.getThreshold() || (voltageSetpoint - v) >= config.getThreshold())
-                    && Math.abs(v - voltageSetpoint) > config.getThreshold()))) {
-            LOGGER.warn("{} {}: {}: regulator mode={} - Q={} bMin={} bMax={} - V={} targetV={}", ValidationType.SVCS, ValidationUtils.VALIDATION_ERROR, id, regulationMode, q, bMin, bMax, v, voltageSetpoint);
+            && (ValidationUtils.areNaN(config, qMin, qMax, v, voltageSetpoint)
+                || ((Math.abs(q + qMax) > config.getThreshold() || (v - voltageSetpoint) >= config.getThreshold())
+                    && (Math.abs(q + qMin) > config.getThreshold() || (voltageSetpoint - v) >= config.getThreshold())
+                    && (Math.abs(v - voltageSetpoint) > config.getThreshold() || !ValidationUtils.boundedWithin(-qMax, -qMin, q, config.getThreshold()))))) {
+            LOGGER.warn("{} {}: {}: regulator mode={} - Q={} bMin={} bMax={} V={} targetV={}", ValidationType.SVCS, ValidationUtils.VALIDATION_ERROR, id, regulationMode, q, bMin, bMax, v, voltageSetpoint);
             validated = false;
         }
         // if regulationMode = OFF then reactive power should be equal to 0
@@ -177,4 +183,22 @@ public final class StaticVarCompensatorsValidation {
         return validated;
     }
 
+    private static float closestBound(float bound1, float bound2, float value) {
+        if (Float.isNaN(value)) {
+            return Float.NaN;
+        }
+        if (Float.isNaN(bound1)) {
+            return bound2;
+        }
+        if (Float.isNaN(bound2)) {
+            return bound1;
+        }
+        return Math.abs(value - bound1) < Math.abs(value - bound2) ? bound1 : bound2;
+    }
+
+    private static float getReactivePowerSetpoint(float reactivePowerSetpoint, float qMin, float qMax, ValidationConfig config) {
+        return ValidationUtils.boundedWithin(qMin, qMax, reactivePowerSetpoint, config.getThreshold())
+               ? reactivePowerSetpoint
+               : closestBound(qMin, qMax, reactivePowerSetpoint);
+    }
 }

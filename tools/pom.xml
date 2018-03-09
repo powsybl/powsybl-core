@@ -20,6 +20,7 @@
 
     <artifactId>powsybl-tools</artifactId>
     <name>Tools</name>
+    <description>The powsybl command line tool</description>
 
     <build>
         <plugins>

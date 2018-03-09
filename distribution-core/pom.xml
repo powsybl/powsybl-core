@@ -7,8 +7,8 @@
     file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 -->
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xmlns="http://maven.apache.org/POM/4.0.0"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
@@ -21,6 +21,7 @@
     <packaging>pom</packaging>
     <artifactId>powsybl-distribution-core</artifactId>
     <name>Distribution</name>
+    <description>powsybl-core distribution module</description>
 
     <dependencies>
         <dependency>
@@ -279,7 +280,7 @@
                                 <configuration>
                                     <target name="copy jacoco reports">
                                         <copy todir="${project.build.directory}/jacoco" flatten="true">
-                                            <fileset dir=".." includes="**/jacoco*.exec"/>
+                                            <fileset dir=".." includes="**/jacoco*.exec" />
                                         </copy>
                                     </target>
                                 </configuration>

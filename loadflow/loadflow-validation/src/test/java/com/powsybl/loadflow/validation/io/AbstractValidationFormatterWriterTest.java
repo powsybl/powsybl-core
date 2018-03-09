@@ -86,6 +86,8 @@ public abstract class AbstractValidationFormatterWriterTest {
     protected final double vscCSQ = 0f;
     protected final double lineP = 1982.7713f;
     protected final double lineQ = -441.7662f;
+    protected final double danglingLineP = 0f;
+    protected final double danglingLineQ = 0f;
     protected final double twtP = 0f;
     protected final double twtQ = 0f;
     protected final double tltP = 0f;
@@ -274,10 +276,10 @@ public abstract class AbstractValidationFormatterWriterTest {
         Writer writer = new StringWriter();
         TableFormatterConfig config = new TableFormatterConfig(Locale.getDefault(), ';', "inv", true, true);
         try (ValidationWriter busesWriter = getBusesValidationFormatterCsvWriter(config, writer, verbose, compareResults)) {
-            busesWriter.write(busId1, incomingP, incomingQ, loadP, loadQ, genP, genQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ, lineP, lineQ, twtP, twtQ, tltP, tltQ, validated);
+            busesWriter.write(busId1, incomingP, incomingQ, loadP, loadQ, genP, genQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ, lineP, lineQ, danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, validated);
             busesWriter.setValidationCompleted();
             if (compareResults) {
-                busesWriter.write(busId2, incomingP, incomingQ, loadP, loadQ, genP, genQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ, lineP, lineQ, twtP, twtQ, tltP, tltQ, validated);
+                busesWriter.write(busId2, incomingP, incomingQ, loadP, loadQ, genP, genQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ, lineP, lineQ, danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, validated);
                 busesWriter.setValidationCompleted();
             }
             assertEquals(busesContent, writer.toString().trim());

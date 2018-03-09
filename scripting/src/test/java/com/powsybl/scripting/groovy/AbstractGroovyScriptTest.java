@@ -79,7 +79,7 @@ public abstract class AbstractGroovyScriptTest {
     @Before
     public void setUp() throws Exception {
         ComputationManager computationManager = Mockito.mock(ComputationManager.class);
-        data = new AppData(computationManager,
+        data = new AppData(computationManager, computationManager,
                 singletonList(cm -> singletonList(new AppFileSystem("mem", false, new ListenableAppStorageMock(createStorage())))),
                 getFileExtensions(), getProjectFileExtensions(), getServiceExtensions());
     }

@@ -25,12 +25,12 @@ import java.util.List;
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-class LimitViolationDeserializer extends StdDeserializer<LimitViolation> {
+public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> {
 
     private static final Supplier<ExtensionProviders<ExtensionJsonSerializer>> SUPPLIER =
         Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionJsonSerializer.class, "security-analysis"));
 
-    LimitViolationDeserializer() {
+    public LimitViolationDeserializer() {
         super(LimitViolation.class);
     }
 

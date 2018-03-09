@@ -6,8 +6,8 @@
  */
 package com.powsybl.contingency;
 
-import com.powsybl.contingency.tasks.BranchTripping;
 import com.powsybl.contingency.tasks.AbstractTrippingTask;
+import com.powsybl.contingency.tasks.BranchTripping;
 
 import java.util.Objects;
 
@@ -15,27 +15,14 @@ import java.util.Objects;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public class BranchContingency implements ContingencyElement {
-
-    private final String id;
-    private final String voltageLevelId;
+public class BranchContingency extends AbstractSidedContingency {
 
     public BranchContingency(String id) {
-        this(id, null);
+        super(id);
     }
 
     public BranchContingency(String id, String voltageLevelId) {
-        this.id = Objects.requireNonNull(id);
-        this.voltageLevelId = voltageLevelId;
-    }
-
-    @Override
-    public String getId() {
-        return id;
-    }
-
-    public String getVoltageLevelId() {
-        return voltageLevelId;
+        super(id, voltageLevelId);
     }
 
     @Override
@@ -48,4 +35,17 @@ public class BranchContingency implements ContingencyElement {
         return new BranchTripping(id, voltageLevelId);
     }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, voltageLevelId);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof BranchContingency) {
+            BranchContingency other = (BranchContingency) obj;
+            return id.equals(other.id) && Objects.equals(voltageLevelId, other.voltageLevelId);
+        }
+        return false;
+    }
 }

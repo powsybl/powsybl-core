@@ -36,4 +36,48 @@ public final class ValidationUtils {
             throw new ConfigurationException(e);
         }
     }
+
+    public static boolean areNaN(ValidationConfig config, float... values) {
+        Objects.requireNonNull(config);
+        if (config.areOkMissingValues()) {
+            return false;
+        }
+        boolean areNaN = false;
+        for (float value : values) {
+            if (Float.isNaN(value)) {
+                areNaN = true;
+                break;
+            }
+        }
+        return areNaN;
+    }
+
+    public static boolean areNaN(ValidationConfig config, double... values) {
+        Objects.requireNonNull(config);
+        if (config.areOkMissingValues()) {
+            return false;
+        }
+        boolean areNaN = false;
+        for (double value : values) {
+            if (Double.isNaN(value)) {
+                areNaN = true;
+                break;
+            }
+        }
+        return areNaN;
+    }
+
+    public static boolean boundedWithin(float lowerBound, float upperBound, float value, float margin) {
+        if (Float.isNaN(value) || (Float.isNaN(lowerBound) && Float.isNaN(upperBound))) {
+            return false;
+        }
+        if (Float.isNaN(lowerBound)) {
+            return value - margin <= upperBound;
+        }
+        if (Float.isNaN(upperBound)) {
+            return value + margin >= lowerBound;
+        }
+        return value + margin >= lowerBound && value - margin <= upperBound;
+    }
+
 }

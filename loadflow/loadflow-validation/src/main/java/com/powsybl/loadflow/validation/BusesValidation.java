@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017, RTE (http://www.rte-france.com)
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -28,6 +28,7 @@ import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.VscConverterStation;
+import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.loadflow.validation.io.ValidationWriter;
 
 /**
@@ -102,11 +103,13 @@ public final class BusesValidation {
         double vscCSQ = bus.getVscConverterStationStream().map(VscConverterStation::getTerminal).mapToDouble(Terminal::getQ).sum();
         double lineP = bus.getLineStream().map(line -> getBranchTerminal(line, bus)).mapToDouble(Terminal::getP).sum();
         double lineQ = bus.getLineStream().map(line -> getBranchTerminal(line, bus)).mapToDouble(Terminal::getQ).sum();
+        double danglingLineP = bus.getDanglingLineStream().map(DanglingLine::getTerminal).mapToDouble(Terminal::getP).sum();
+        double danglingLineQ = bus.getDanglingLineStream().map(DanglingLine::getTerminal).mapToDouble(Terminal::getQ).sum();
         double twtP = bus.getTwoWindingTransformerStream().map(twt -> getBranchTerminal(twt, bus)).mapToDouble(Terminal::getP).sum();
         double twtQ = bus.getTwoWindingTransformerStream().map(twt -> getBranchTerminal(twt, bus)).mapToDouble(Terminal::getQ).sum();
         double tltP = bus.getThreeWindingTransformerStream().map(tlt -> getThreeWindingTransformerTerminal(tlt, bus)).mapToDouble(Terminal::getP).sum();
         double tltQ = bus.getThreeWindingTransformerStream().map(tlt -> getThreeWindingTransformerTerminal(tlt, bus)).mapToDouble(Terminal::getQ).sum();
-        return checkBuses(bus.getId(), loadP, loadQ, genP, genQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ, lineP, lineQ, twtP, twtQ, tltP, tltQ, config, busesWriter);
+        return checkBuses(bus.getId(), loadP, loadQ, genP, genQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ, lineP, lineQ, danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, config, busesWriter);
     }
 
     private static Terminal getBranchTerminal(Branch branch, Bus bus) {
@@ -128,36 +131,36 @@ public final class BusesValidation {
     }
 
     public static boolean checkBuses(String id, double loadP, double loadQ, double genP, double genQ, double shuntP, double shuntQ,
-                                     double svcP, double svcQ, double vscCSP, double vscCSQ, double lineP, double lineQ,
+                                     double svcP, double svcQ, double vscCSP, double vscCSQ, double lineP, double lineQ, double danglingLineP, double danglingLineQ,
                                      double twtP, double twtQ, double tltP, double tltQ, ValidationConfig config, Writer writer) {
         Objects.requireNonNull(id);
         Objects.requireNonNull(config);
         Objects.requireNonNull(writer);
 
         try (ValidationWriter busesWriter = ValidationUtils.createValidationWriter(id, config, writer, ValidationType.BUSES)) {
-            return checkBuses(id, loadP, loadQ, genP, genQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ, lineP, lineQ, twtP, twtQ, tltP, tltQ, config, busesWriter);
+            return checkBuses(id, loadP, loadQ, genP, genQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ, lineP, lineQ, danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, config, busesWriter);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
     public static boolean checkBuses(String id, double loadP, double loadQ, double genP, double genQ, double shuntP, double shuntQ,
-                                     double svcP, double svcQ, double vscCSP, double vscCSQ, double lineP, double lineQ,
+                                     double svcP, double svcQ, double vscCSP, double vscCSQ, double lineP, double lineQ, double danglingLineP, double danglingLineQ,
                                      double twtP, double twtQ, double tltP, double tltQ, ValidationConfig config, ValidationWriter busesWriter) {
         Objects.requireNonNull(id);
         boolean validated = true;
         try {
-            Double incomingP = genP + shuntP + svcP + vscCSP + lineP + twtP + tltP;
-            Double incomingQ = genQ + shuntQ + svcQ + vscCSQ + lineQ + twtQ + tltQ;
-            if (((Double.isNaN(incomingP) || Double.isNaN(loadP)) && !config.areOkMissingValues()) || Math.abs(incomingP + loadP) > config.getThreshold()) {
+            double incomingP = genP + shuntP + svcP + vscCSP + lineP + danglingLineP + twtP + tltP;
+            double incomingQ = genQ + shuntQ + svcQ + vscCSQ + lineQ + danglingLineQ + twtQ + tltQ;
+            if (ValidationUtils.areNaN(config, incomingP, loadP) || Math.abs(incomingP + loadP) > config.getThreshold()) {
                 LOGGER.warn("{} {}: {} P {} {}", ValidationType.BUSES, ValidationUtils.VALIDATION_ERROR, id, incomingP, loadP);
                 validated = false;
             }
-            if (((Double.isNaN(incomingQ) || Double.isNaN(loadQ)) && !config.areOkMissingValues()) || Math.abs(incomingQ + loadQ) > config.getThreshold()) {
+            if (ValidationUtils.areNaN(config, incomingQ, loadQ) || Math.abs(incomingQ + loadQ) > config.getThreshold()) {
                 LOGGER.warn("{} {}: {} Q {} {}", ValidationType.BUSES, ValidationUtils.VALIDATION_ERROR, id, incomingQ, loadQ);
                 validated = false;
             }
-            busesWriter.write(id, incomingP, incomingQ, loadP, loadQ, genP, genQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ, lineP, lineQ, twtP, twtQ, tltP, tltQ, validated);
+            busesWriter.write(id, incomingP, incomingQ, loadP, loadQ, genP, genQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ, lineP, lineQ, danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, validated);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

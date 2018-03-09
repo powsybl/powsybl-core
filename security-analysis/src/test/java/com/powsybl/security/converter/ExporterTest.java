@@ -25,7 +25,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.BiConsumer;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
@@ -52,7 +53,7 @@ public class ExporterTest extends AbstractConverterTest {
             new GeneratorContingency("GEN"),
             new BusbarSectionContingency("BBS1")
         );
-        Contingency contingency = new ContingencyImpl("contingency", elements);
+        Contingency contingency = new Contingency("contingency", elements);
 
         LimitViolationsResult preContingencyResult = new LimitViolationsResult(true, Collections.singletonList(violation1));
         PostContingencyResult postContingencyResult = new PostContingencyResult(contingency, true, Arrays.asList(violation2, violation3, violation4), Arrays.asList("action1", "action2"));
@@ -64,56 +65,24 @@ public class ExporterTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testExporters() throws IOException {
-        SecurityAnalysisResult result = create();
-
-        writeTest(result, ExporterTest::writeAscii, AbstractConverterTest::compareTxt, "/SecurityAnalysisResult.txt");
-        writeTest(result, ExporterTest::writeCsv, AbstractConverterTest::compareTxt, "/SecurityAnalysisResult.csv");
-        writeTest(result, ExporterTest::writeJson, AbstractConverterTest::compareTxt, "/SecurityAnalysisResult.json");
-    }
-
-    @Test
     public void roundTripJson() throws IOException {
         SecurityAnalysisResult result = create();
 
         roundTripTest(result, ExporterTest::writeJson, SecurityAnalysisResultDeserializer::read, "/SecurityAnalysisResult.json");
 
         BiConsumer<SecurityAnalysisResult, Path> exporter = (res, path) -> {
-            SecurityAnalysisResultExporters.export(res, NETWORK, path, "JSON");
+            SecurityAnalysisResultExporters.export(res, path, "JSON");
         };
         roundTripTest(result, exporter, SecurityAnalysisResultDeserializer::read, "/SecurityAnalysisResult.json");
     }
 
-    private static void writeAscii(SecurityAnalysisResult result, Path path) {
-        write(result, NETWORK, path, "ASCII");
-    }
-
-    private static void writeCsv(SecurityAnalysisResult result, Path path) {
-        write(result, NETWORK, path, "CSV");
-    }
-
     private static void writeJson(SecurityAnalysisResult result, Path path) {
-        write(result, NETWORK, path, "JSON");
-    }
+        SecurityAnalysisResultExporter exporter = SecurityAnalysisResultExporters.getExporter("JSON");
+        assertNotNull(exporter);
+        assertEquals("JSON", exporter.getFormat());
 
-    private static void write(SecurityAnalysisResult result, Network network, Path path, String format) {
-        try (OutputStream stream = Files.newOutputStream(path)) {
-            Writer writer = new OutputStreamWriter(stream) {
-                @Override
-                public void close() throws IOException {
-                    flush();
-                }
-            };
-
-            SecurityAnalysisResultExporter exporter = SecurityAnalysisResultExporters.getExporter(format);
-            if (exporter instanceof AbstractTableSecurityAnalysisResultExporter) {
-                exporter = new TableSecurityAnalysisResultExporterAdapter((AbstractTableSecurityAnalysisResultExporter) exporter);
-            }
-
-            assertNotNull(exporter);
-            assertEquals(format, exporter.getFormat());
-
-            exporter.export(result, network, writer);
+        try (Writer writer = Files.newBufferedWriter(path)) {
+            exporter.export(result, writer);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

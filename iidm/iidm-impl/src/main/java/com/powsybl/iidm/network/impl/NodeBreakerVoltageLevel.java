@@ -602,6 +602,16 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         @Override
+        public Terminal getTerminal1(String switchId) {
+            return getTerminal(getNode1(switchId));
+        }
+
+        @Override
+        public Terminal getTerminal2(String switchId) {
+            return getTerminal(getNode2(switchId));
+        }
+
+        @Override
         public SwitchAdder newSwitch() {
             return new SwitchAdderImpl();
         }

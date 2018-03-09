@@ -7,7 +7,6 @@
 package com.powsybl.security.converter;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.iidm.network.Network;
 import com.powsybl.security.SecurityAnalysisResult;
 import com.powsybl.security.json.SecurityAnalysisResultSerializer;
 
@@ -33,7 +32,7 @@ public class JsonSecurityAnalysisResultExporter implements SecurityAnalysisResul
     }
 
     @Override
-    public void export(SecurityAnalysisResult result, Network network, Writer writer) {
+    public void export(SecurityAnalysisResult result, Writer writer) {
         try {
             SecurityAnalysisResultSerializer.write(result, writer);
         } catch (IOException e) {

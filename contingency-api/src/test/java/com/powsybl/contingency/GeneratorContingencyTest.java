@@ -6,6 +6,7 @@
  */
 package com.powsybl.contingency;
 
+import com.google.common.testing.EqualsTester;
 import com.powsybl.contingency.tasks.GeneratorTripping;
 import org.junit.Test;
 
@@ -24,5 +25,10 @@ public class GeneratorContingencyTest {
 
         assertNotNull(contingency.toTask());
         assertTrue(contingency.toTask() instanceof GeneratorTripping);
+
+        new EqualsTester()
+                .addEqualityGroup(new GeneratorContingency("g1"), new GeneratorContingency("g1"))
+                .addEqualityGroup(new GeneratorContingency("g2"), new GeneratorContingency("g2"))
+                .testEquals();
     }
 }

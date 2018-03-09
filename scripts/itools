@@ -53,5 +53,5 @@ else
 -Xmx$java_xmx \
 -cp "$installDir/share/java/*" \
 $options \
-com.powsybl.computation.local.Main "${args[@]}"
+com.powsybl.tools.Main "${args[@]}"
 fi

@@ -6,13 +6,12 @@
  */
 package com.powsybl.computation.mpi;
 
+import com.powsybl.computation.ComputationManager;
 import com.powsybl.tools.CommandLineTools;
 import com.powsybl.tools.ToolInitializationContext;
-import com.powsybl.computation.ComputationManager;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 
-import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
@@ -26,8 +25,12 @@ public final class MpiMaster {
     private MpiMaster() {
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
+
         ToolInitializationContext initContext = new ToolInitializationContext() {
+
+            private ComputationManager computationManager;
+
             @Override
             public PrintStream getOutputStream() {
                 return System.out;
@@ -48,9 +51,21 @@ public final class MpiMaster {
                 return FileSystems.getDefault();
             }
 
+            private synchronized ComputationManager createComputationManager(CommandLine commandLine) {
+                if (computationManager == null) {
+                    computationManager = MpiToolUtil.createMpiComputationManager(commandLine, FileSystems.getDefault());
+                }
+                return computationManager;
+            }
+
             @Override
-            public ComputationManager createComputationManager(CommandLine commandLine) {
-                return MpiToolUtil.createMpiComputationManager(commandLine, FileSystems.getDefault());
+            public ComputationManager createShortTimeExecutionComputationManager(CommandLine commandLine) {
+                return createComputationManager(commandLine);
+            }
+
+            @Override
+            public ComputationManager createLongTimeExecutionComputationManager(CommandLine commandLine) {
+                return createComputationManager(commandLine);
             }
         };
         int status = new CommandLineTools().run(args, initContext);
