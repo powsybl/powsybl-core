@@ -235,12 +235,14 @@ class StateManagerImpl implements StateManager {
 
     void forEachState(Runnable r) {
         stateLock.lock();
+        int currentStateIndex = stateContext.getStateIndex();
         try {
             for (int index : id2index.values()) {
                 stateContext.setStateIndex(index);
                 r.run();
             }
         } finally {
+            stateContext.setStateIndex(currentStateIndex);
             stateLock.unlock();
         }
     }
