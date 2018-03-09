@@ -49,10 +49,9 @@ public class EntsoeFileName {
         }
         if (str.length() >= 19) {
             try {
-                String code = str.substring(18, 20);
-                geographicalCode = EntsoeGeographicalCode.valueOf(code);
+                geographicalCode = EntsoeGeographicalCode.valueOf(str.substring(18, 20));
             } catch (IllegalArgumentException x) {
-                geographicalCode = EntsoeGeographicalCode.values()[0];
+                geographicalCode = null;
             }
         }
 
