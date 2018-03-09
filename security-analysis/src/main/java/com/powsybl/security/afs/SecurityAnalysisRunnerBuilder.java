@@ -74,10 +74,8 @@ public class SecurityAnalysisRunnerBuilder implements ProjectFileBuilder<Securit
         if (!folder.getProject().getId().equals(aCase.getProject().getId())) {
             throw new AfsException("Case and folder do not belong to the same project");
         }
-        if (contingencyStore != null) {
-            if (!folder.getProject().getId().equals(contingencyStore.getProject().getId())) {
-                throw new AfsException("Contingency store and folder do not belong to the same project");
-            }
+        if (contingencyStore != null && !folder.getProject().getId().equals(contingencyStore.getProject().getId())) {
+            throw new AfsException("Contingency store and folder do not belong to the same project");
         }
 
         // create project file
