@@ -168,7 +168,6 @@ public final class TimeSeriesTable {
             for (DoubleTimeSeries timeSeries : doubleTimeSeries.stream()
                                                                .sorted(Comparator.comparing(ts -> ts.getMetadata().getName()))
                                                                .collect(Collectors.toList())) {
-                timeSeries.synchronize(tableIndex);
                 timeSeriesMetadata.add(timeSeries.getMetadata());
                 int i = doubleTimeSeriesNames.add(timeSeries.getMetadata().getName());
                 timeSeriesIndexDoubleOrString.add(i);
@@ -176,7 +175,6 @@ public final class TimeSeriesTable {
             for (StringTimeSeries timeSeries : stringTimeSeries.stream()
                                                                .sorted(Comparator.comparing(ts -> ts.getMetadata().getName()))
                                                                .collect(Collectors.toList())) {
-                timeSeries.synchronize(tableIndex);
                 timeSeriesMetadata.add(timeSeries.getMetadata());
                 int i = stringTimeSeriesNames.add(timeSeries.getMetadata().getName());
                 timeSeriesIndexDoubleOrString.add(i);
@@ -317,9 +315,11 @@ public final class TimeSeriesTable {
         initTable(doubleTimeSeries, stringTimeSeries);
 
         for (DoubleTimeSeries timeSeries : doubleTimeSeries) {
+            timeSeries.synchronize(tableIndex);
             loadDouble(version, timeSeries);
         }
         for (StringTimeSeries timeSeries : stringTimeSeries) {
+            timeSeries.synchronize(tableIndex);
             loadString(version, timeSeries);
         }
 
