@@ -172,6 +172,7 @@ public abstract class AbstractAppStorageTest {
 
         // check event
         assertEquals(new DependencyAdded(testDataInfo.getId(), "mylink"), eventStack.take());
+        assertEquals(new BackwardDependencyAdded(testData2Info.getId(), "mylink"), eventStack.take());
 
         // check dependency state
         assertEquals(ImmutableSet.of(new NodeDependency("mylink", testData2Info)), storage.getDependencies(testDataInfo.getId()));
@@ -185,6 +186,7 @@ public abstract class AbstractAppStorageTest {
 
         // check event
         assertEquals(new DependencyAdded(testDataInfo.getId(), "mylink2"), eventStack.take());
+        assertEquals(new BackwardDependencyAdded(testData2Info.getId(), "mylink2"), eventStack.take());
 
         assertEquals(ImmutableSet.of(new NodeDependency("mylink", testData2Info), new NodeDependency("mylink2", testData2Info)), storage.getDependencies(testDataInfo.getId()));
         assertEquals(ImmutableSet.of(testDataInfo), storage.getBackwardDependencies(testData2Info.getId()));
@@ -195,6 +197,7 @@ public abstract class AbstractAppStorageTest {
 
         // check event
         assertEquals(new DependencyRemoved(testDataInfo.getId(), "mylink2"), eventStack.take());
+        assertEquals(new BackwardDependencyRemoved(testData2Info.getId(), "mylink2"), eventStack.take());
 
         assertEquals(ImmutableSet.of(new NodeDependency("mylink", testData2Info)), storage.getDependencies(testDataInfo.getId()));
         assertEquals(ImmutableSet.of(testDataInfo), storage.getBackwardDependencies(testData2Info.getId()));

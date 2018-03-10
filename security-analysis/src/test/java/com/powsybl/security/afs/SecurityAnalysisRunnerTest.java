@@ -153,7 +153,7 @@ public class SecurityAnalysisRunnerTest extends AbstractProjectFileTest {
         Project project = afs.getRootFolder().createProject("project");
 
         // import network.net in root folder of the project
-        project.getRootFolder().fileBuilder(ImportedCaseBuilder.class)
+        ImportedCase importedCase = project.getRootFolder().fileBuilder(ImportedCaseBuilder.class)
                 .withCase(aCase)
                 .build();
 
@@ -166,8 +166,8 @@ public class SecurityAnalysisRunnerTest extends AbstractProjectFileTest {
         // create a security analysis runner that point to imported case
         SecurityAnalysisRunner runner = project.getRootFolder().fileBuilder(SecurityAnalysisRunnerBuilder.class)
                 .withName("sa")
-                .withCase("network")
-                .withContingencyStore("contingencies")
+                .withCase(importedCase)
+                .withContingencyStore(contingencyStore)
                 .build();
 
         // check there is no results
