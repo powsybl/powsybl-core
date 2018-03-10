@@ -656,7 +656,7 @@ public class MapDbAppStorage implements AppStorage {
         checkNodeExists(nodeUuid);
         checkNodeExists(toNodeUuid);
         removeFromList(dependencyNodesMap, nodeUuid, new NamedLink(toNodeUuid, name));
-        dependencyNodesByNameMap.remove(new NamedLink(nodeUuid, name), toNodeUuid);
+        removeFromList(dependencyNodesByNameMap, new NamedLink(nodeUuid, name), toNodeUuid);
         removeFromList(backwardDependencyNodesMap, toNodeUuid, nodeUuid);
     }
 
