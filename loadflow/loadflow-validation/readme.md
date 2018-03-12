@@ -1,6 +1,13 @@
 # Loadflow validation
 
+The goal of the loadflow validation tool is to check that loadflow results, either read from an iidm Network model, or computed by a LoadFlow implementation, are consistent with power systems equations.
+
+The tool reports validation results in output files, with validation data and a success indicator for each equipment which has been tested.
+
+
 ## Configuration
+
+You may configure the following properties in your platform configuration file.
 
 ```
 <loadflow-validation>
@@ -28,7 +35,9 @@
 * *no-requirement-if-reactive-bound-inversion*: return validation success if there is a reactive bounds inversion (maxQ < minQ); default is false
 * *compare-results*: print output files with results both before and after the loadflow
 
-## itool command
+## itools command
+
+You can find below the help of the tool, as returned by the "--help" option.
 
 ```
 $ ./itools loadflow-validation --help
