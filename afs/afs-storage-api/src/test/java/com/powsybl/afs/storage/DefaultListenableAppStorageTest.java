@@ -65,13 +65,13 @@ public class DefaultListenableAppStorageTest {
         listenableStorage.flush();
         assertEquals(new NodeEventList(new NodeDataUpdated("node1", "attr")), lastEventList);
 
-        listenableStorage.addDependency("node1", "a", "node1");
+        listenableStorage.addDependency("node1", "a", "node2");
         listenableStorage.flush();
-        assertEquals(new NodeEventList(new DependencyAdded("node1", "a")), lastEventList);
+        assertEquals(new NodeEventList(new DependencyAdded("node1", "a"), new BackwardDependencyAdded("node2", "a")), lastEventList);
 
-        listenableStorage.removeDependency("node1", "a", "node1");
+        listenableStorage.removeDependency("node1", "a", "node2");
         listenableStorage.flush();
-        assertEquals(new NodeEventList(new DependencyRemoved("node1", "a")), lastEventList);
+        assertEquals(new NodeEventList(new DependencyRemoved("node1", "a"), new BackwardDependencyRemoved("node2", "a")), lastEventList);
 
         TimeSeriesMetadata metadata = Mockito.mock(TimeSeriesMetadata.class);
         Mockito.when(metadata.getName()).thenReturn("ts1");

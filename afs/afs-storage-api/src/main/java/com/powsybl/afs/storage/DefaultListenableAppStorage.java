@@ -107,12 +107,14 @@ public class DefaultListenableAppStorage extends ForwardingAppStorage implements
     public void addDependency(String nodeId, String name, String toNodeId) {
         super.addDependency(nodeId, name, toNodeId);
         addEvent(new DependencyAdded(nodeId, name));
+        addEvent(new BackwardDependencyAdded(toNodeId, name));
     }
 
     @Override
     public void removeDependency(String nodeId, String name, String toNodeId) {
         super.removeDependency(nodeId, name, toNodeId);
         addEvent(new DependencyRemoved(nodeId, name));
+        addEvent(new BackwardDependencyRemoved(toNodeId, name));
     }
 
     @Override
