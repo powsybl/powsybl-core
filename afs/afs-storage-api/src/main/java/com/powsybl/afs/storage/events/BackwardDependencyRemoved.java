@@ -14,15 +14,15 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class DependencyRemoved extends NodeEvent implements DependencyEvent {
+public class BackwardDependencyRemoved extends NodeEvent implements DependencyEvent {
 
     @JsonProperty("dependencyName")
     private final String dependencyName;
 
     @JsonCreator
-    public DependencyRemoved(@JsonProperty("id") String id,
-                             @JsonProperty("dependencyName") String dependencyName) {
-        super(id, NodeEventType.DEPENDENCY_REMOVED);
+    public BackwardDependencyRemoved(@JsonProperty("id") String id,
+                                     @JsonProperty("dependencyName") String dependencyName) {
+        super(id, NodeEventType.BACKWARD_DEPENDENCY_REMOVED);
         this.dependencyName = Objects.requireNonNull(dependencyName);
     }
 
@@ -38,8 +38,8 @@ public class DependencyRemoved extends NodeEvent implements DependencyEvent {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof DependencyRemoved) {
-            DependencyRemoved other = (DependencyRemoved) obj;
+        if (obj instanceof BackwardDependencyRemoved) {
+            BackwardDependencyRemoved other = (BackwardDependencyRemoved) obj;
             return id.equals(other.id) && dependencyName.equals(other.dependencyName);
         }
         return false;
@@ -47,6 +47,6 @@ public class DependencyRemoved extends NodeEvent implements DependencyEvent {
 
     @Override
     public String toString() {
-        return "DependencyRemoved(id=" + id + ", dependencyName=" + dependencyName + ")";
+        return "BackwardDependencyRemoved(id=" + id + ", dependencyName=" + dependencyName + ")";
     }
 }

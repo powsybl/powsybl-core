@@ -10,11 +10,9 @@ import com.powsybl.afs.*;
 import com.powsybl.afs.ext.base.ProjectCase;
 import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.afs.storage.NodeInfo;
-import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.security.SecurityAnalysisParameters;
 
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -27,9 +25,9 @@ public class SecurityAnalysisRunnerBuilder implements ProjectFileBuilder<Securit
 
     private String name;
 
-    private String casePath;
+    private ProjectFile aCase;
 
-    private String contingencyStorePath;
+    private ProjectFile contingencyStore;
 
     public SecurityAnalysisRunnerBuilder(ProjectFileBuildContext context, SecurityAnalysisParameters parameters) {
         this.context = Objects.requireNonNull(context);
@@ -41,13 +39,13 @@ public class SecurityAnalysisRunnerBuilder implements ProjectFileBuilder<Securit
         return this;
     }
 
-    public SecurityAnalysisRunnerBuilder withCase(String casePath) {
-        this.casePath = Objects.requireNonNull(casePath);
+    public SecurityAnalysisRunnerBuilder withCase(ProjectFile aCase) {
+        this.aCase = Objects.requireNonNull(aCase);
         return this;
     }
 
-    public SecurityAnalysisRunnerBuilder withContingencyStore(String contingencyStorePath) {
-        this.contingencyStorePath = Objects.requireNonNull(contingencyStorePath);
+    public SecurityAnalysisRunnerBuilder withContingencyStore(ProjectFile contingencyStore) {
+        this.contingencyStore = Objects.requireNonNull(contingencyStore);
         return this;
     }
 
@@ -56,30 +54,28 @@ public class SecurityAnalysisRunnerBuilder implements ProjectFileBuilder<Securit
         if (name == null) {
             throw new AfsException("Name is not set");
         }
-        if (casePath == null) {
-            throw new AfsException("Case path is not set");
-        }
-
-        if (context.getStorage().getChildNode(context.getFolderInfo().getId(), name).isPresent()) {
-            throw new AfsException("Parent folder already contains a '" + name + "' node");
-        }
-
-        // check links
-        Project project = new ProjectFolder(new ProjectFileCreationContext(context.getFolderInfo(),
-                                                                           context.getStorage(),
-                                                                           context.getFileSystem())).getProject();
-        Optional<ProjectFile> aCase = project.getRootFolder().getChild(ProjectFile.class, casePath);
-        if (!aCase.isPresent() || !(aCase.get() instanceof ProjectCase)) {
-            throw new AfsException("Invalid case path " + casePath);
-        }
-        Optional<ProjectFile> contingencyStore;
-        if (contingencyStorePath != null) {
-            contingencyStore = project.getRootFolder().getChild(ProjectFile.class, contingencyStorePath);
-            if (!contingencyStore.isPresent() || !(contingencyStore.get() instanceof ContingenciesProvider)) {
-                throw new AfsException("Invalid contingency store path " + contingencyStorePath);
-            }
+        if (aCase == null) {
+            throw new AfsException("Case is not set");
         } else {
-            contingencyStore = Optional.empty();
+            if (!(aCase instanceof ProjectCase)) {
+                throw new AfsException("Case does not implement " + ProjectCase.class.getName());
+            }
+        }
+
+        ProjectFolder folder = new ProjectFolder(new ProjectFileCreationContext(context.getFolderInfo(),
+                                                                                context.getStorage(),
+                                                                                context.getFileSystem()));
+
+        if (folder.getChild(name).isPresent()) {
+            throw new AfsException("Folder '" + folder.getPath() + "' already contains a '" + name + "' node");
+        }
+
+        // check links belong to the same project
+        if (!folder.getProject().getId().equals(aCase.getProject().getId())) {
+            throw new AfsException("Case and folder do not belong to the same project");
+        }
+        if (contingencyStore != null && !folder.getProject().getId().equals(contingencyStore.getProject().getId())) {
+            throw new AfsException("Contingency store and folder do not belong to the same project");
         }
 
         // create project file
@@ -87,10 +83,12 @@ public class SecurityAnalysisRunnerBuilder implements ProjectFileBuilder<Securit
                                                         "", SecurityAnalysisRunner.VERSION, new NodeGenericMetadata());
 
         // create case link
-        context.getStorage().addDependency(info.getId(), SecurityAnalysisRunner.CASE_DEPENDENCY_NAME, aCase.get().getId());
+        context.getStorage().addDependency(info.getId(), SecurityAnalysisRunner.CASE_DEPENDENCY_NAME, aCase.getId());
 
         // create contingency store link
-        contingencyStore.ifPresent(projectFile -> context.getStorage().addDependency(info.getId(), SecurityAnalysisRunner.CONTINGENCY_PROVIDER_DEPENDENCY_NAME, projectFile.getId()));
+        if (contingencyStore != null) {
+            context.getStorage().addDependency(info.getId(), SecurityAnalysisRunner.CONTINGENCY_PROVIDER_DEPENDENCY_NAME, contingencyStore.getId());
+        }
 
         // write parameters using default one
         SecurityAnalysisRunner.writeParameters(context.getStorage(), info, parameters);

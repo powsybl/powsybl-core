@@ -262,7 +262,7 @@ public class ExpressionEvaluator extends DefaultExpressionVisitor<Object, Void> 
 
     private List<String> sortBranches(List<String> branchIds) {
         return branchIds.stream()
-                .map(id -> context.getNetwork().getBranch(id))
+                .map(this::getBranch)
                 .map(branch -> {
                     BranchAndSide branchAndSide1 = new BranchAndSide(branch, Branch.Side.ONE);
                     BranchAndSide branchAndSide2 = new BranchAndSide(branch, Branch.Side.TWO);
@@ -301,12 +301,18 @@ public class ExpressionEvaluator extends DefaultExpressionVisitor<Object, Void> 
     @Override
     public Object visitIsOverloaded(IsOverloadedNode isOverloadedNode, Void arg) {
         float limitReduction = isOverloadedNode.getLimitReduction();
-        for (String branchId : isOverloadedNode.getBranchIds()) {
-            boolean overloaded = context.getNetwork().getBranch(branchId).isOverloaded(limitReduction);
-            if (overloaded) {
-                return true;
-            }
+
+        // Iterate over all the branch Ids to be sure that all the branches exist in the network
+        return isOverloadedNode.getBranchIds().stream()
+                .map(id -> getBranch(id).isOverloaded(limitReduction))
+                .reduce(false, (a, b) -> a || b);
+    }
+
+    private Branch getBranch(String branchId) {
+        Branch branch = context.getNetwork().getBranch(branchId);
+        if (branch == null) {
+            throw new PowsyblException("Branch '" + branchId + "' not found");
         }
-        return false;
+        return branch;
     }
 }

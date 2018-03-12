@@ -14,7 +14,7 @@ import java.util.Optional;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class VirtualCase extends ProjectFile implements ProjectCase, RunnableScript, DependencyListener {
+public class VirtualCase extends ProjectFile implements ProjectCase, RunnableScript {
 
     public static final String PSEUDO_CLASS = "virtualCase";
     public static final int VERSION = 0;
@@ -30,7 +30,6 @@ public class VirtualCase extends ProjectFile implements ProjectCase, RunnableScr
 
     public VirtualCase(ProjectFileCreationContext context) {
         super(context, VERSION, VIRTUAL_CASE_ICON);
-        addDependencyListener(this, this);
     }
 
     public Optional<ProjectCase> getCase() {
@@ -100,8 +99,9 @@ public class VirtualCase extends ProjectFile implements ProjectCase, RunnableScr
     }
 
     @Override
-    public void dependencyChanged() {
+    public void invalidate() {
         invalidateNetworkCache();
+        super.invalidate();
     }
 
     @Override
