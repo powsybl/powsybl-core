@@ -161,15 +161,16 @@ public final class GeneratorsValidation {
             validated = false;
         }
         // if voltageRegulatorOn="true" then
-        // either q is equal to g.getReactiveLimits().getMinQ(p) and V is lower than g.getTargetV()
-        // or q is equal to g.getReactiveLimits().getMaxQ(p) and V is higher than g.getTargetV()
+        // either q is equal to g.getReactiveLimits().getMinQ(p) and V is higher than g.getTargetV()
+        // or q is equal to g.getReactiveLimits().getMaxQ(p) and V is lower than g.getTargetV()
         // or V at the connected bus is equal to g.getTargetV() and the reactive bounds are satisfied
+        float qg = -q;
         if (voltageRegulatorOn
             && (ValidationUtils.areNaN(config, minQ, maxQ, targetV)
-                || ((Math.abs(q + getMinQ(minQ, maxQ)) > config.getThreshold() || (v - targetV) >= config.getThreshold())
-                    && (Math.abs(q + getMaxQ(minQ, maxQ)) > config.getThreshold() || (targetV - v) >= config.getThreshold())
-                    && (Math.abs(v - targetV) > config.getThreshold() || !ValidationUtils.boundedWithin(minQ, maxQ, -q, config.getThreshold()))))) {
-            LOGGER.warn("{} {}: {}: voltage regulator on - Q={} minQ={} maxQ={} - V={} targetV={}", ValidationType.GENERATORS, ValidationUtils.VALIDATION_ERROR, id, q, minQ, maxQ, v, targetV);
+                || ((Math.abs(qg - getMinQ(minQ, maxQ)) > config.getThreshold() || (v - targetV) < config.getThreshold())
+                    && (Math.abs(qg - getMaxQ(minQ, maxQ)) > config.getThreshold() || (targetV - v) < config.getThreshold())
+                    && (!ValidationUtils.boundedWithin(minQ, maxQ, qg, config.getThreshold()) || Math.abs(v - targetV) > config.getThreshold())))) {
+            LOGGER.warn("{} {}: {}: voltage regulator on - Q={} minQ={} maxQ={} - V={} targetV={}", ValidationType.GENERATORS, ValidationUtils.VALIDATION_ERROR, id, qg, minQ, maxQ, v, targetV);
             validated = false;
         }
         return validated;
