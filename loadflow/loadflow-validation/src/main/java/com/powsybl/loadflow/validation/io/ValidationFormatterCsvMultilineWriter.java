@@ -194,7 +194,7 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
             write(twtId, "tapPosition", found, twtData.tapPosition, writeValues, tapPosition);
             write(twtId, "lowTapPosition", found, twtData.lowTapPosition, writeValues, lowTapPosition);
             write(twtId, "highTapPosition", found, twtData.highTapPosition, writeValues, highTapPosition);
-            write(twtId, "targetV", found, twtData.targetV, writeValues, targetV);
+            write(twtId, "tapChangerTargetV", found, twtData.targetV, writeValues, targetV);
             write(twtId, "regulatedSide", found, twtData.regulatedSide.name(), writeValues, regulatedSide.name());
             write(twtId, "v", found, twtData.v, writeValues, v);
             write(twtId, "connected", found, twtData.connected, writeValues, connected);
