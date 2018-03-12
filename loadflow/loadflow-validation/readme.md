@@ -1,0 +1,61 @@
+# Loadflow validation
+
+## Configuration
+
+```
+<loadflow-validation>
+	<threshold>0.1</threshold>
+	<verbose>false</verbose>
+	<load-flow-factory>com.powsybl.loadflow.mock.LoadFlowFactoryMock</load-flow-factory>
+	<table-formatter-factory>com.powsybl.commons.io.table.CsvTableFormatterFactory</table-formatter-factory>
+	<epsilon-x>0.1</epsilon-x>
+	<apply-reactance-correction>false</apply-reactance-correction>
+	<output-writer>CSV_MULTILINE</output-writer>
+	<ok-missing-values>false</ok-missing-values>
+	<no-requirement-if-reactive-bound-inversion>false</no-requirement-if-reactive-bound-inversion>
+	<compare-results>false</compare-results>
+</loadflow-validation>
+```
+
+* *threshold*: margin used for values comparison; default value is 0
+* *verbose*: verbose output, default value is false
+* *load-flow-factory*: load flow factory class; if not defined, the default configuration is used
+* *table-formatter-factory* table formatter factory class; default value is com.powsybl.commons.io.table.CsvTableFormatterFactory
+* *epsilon-x*: value used to correct the reactance in flows validation, used only if apply-reactance-correction is true; default value is 0.1
+* *apply-reactance-correction*: apply reactance correction in flows validation; default value is false
+* *output-writer*: output format [CSV, CSV_MULTILINE], default is CSV_MULTILINE
+* *ok-missing-values*: perform validation check even if some parameters of connected components have NaN values; default value is false (i.e. validation check fails if some parameters of connected components have NaN Values)
+* *no-requirement-if-reactive-bound-inversion*: return validation success if there is a reactive bounds inversion (maxQ < minQ); default is false
+* *compare-results*: print output files with results both before and after the loadflow
+
+## itool command
+
+```
+$ ./itools loadflow-validation --help
+usage: itools [OPTIONS] loadflow-validation --case-file <FILE>
+       [--compare-results] [--help] [--load-flow] --output-folder <FOLDER>
+       [--output-format <VALIDATION_WRITER>] [--types
+       <VALIDATION_TYPE,VALIDATION_TYPE,...>] [--verbose]
+
+Available options are:
+    --config-name <CONFIG_NAME>   Override configuration file name
+    --parallel                    Run command in parallel mode
+
+Available arguments are:
+    --case-file <FILE>                              case file path
+    --compare-results                               print output files with
+                                                    results both before and
+                                                    after the loadflow
+    --help                                          display the help and quit
+    --load-flow                                     run loadflow
+    --output-folder <FOLDER>                        output folder path
+    --output-format <VALIDATION_WRITER>             output format [CSV,
+                                                    CSV_MULTILINE]
+    --types <VALIDATION_TYPE,VALIDATION_TYPE,...>   validation types [FLOWS,
+                                                    GENERATORS, BUSES, SVCS,
+                                                    SHUNTS, TWTS] to run, all of
+                                                    them if the option if not
+                                                    specified
+    --verbose                                       verbose output
+
+```
