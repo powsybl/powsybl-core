@@ -136,7 +136,7 @@ public class RunLoadFlowTool implements Tool {
         if (line.hasOption(OUTPUT_FILE)) {
             outputFile = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_FILE));
             if (!line.hasOption(OUTPUT_FORMAT)) {
-                throw new ParseException("Missing required option: " + OUTPUT_CASE_FORMAT);
+                throw new ParseException("Missing required option: " + OUTPUT_FORMAT);
             }
             format = Format.valueOf(line.getOptionValue(OUTPUT_FORMAT));
         }
