@@ -58,7 +58,11 @@ public class ProjectFolder extends ProjectNode implements FolderBase<ProjectNode
     @Override
     public ProjectFolder createFolder(String name) {
         NodeInfo folderInfo = storage.getChildNode(info.getId(), name)
-                .orElse(storage.createNode(info.getId(), name, PSEUDO_CLASS, "", VERSION, new NodeGenericMetadata()));
+                .orElseGet(() -> {
+                    NodeInfo newFolderInfo = storage.createNode(ProjectFolder.this.info.getId(), name, PSEUDO_CLASS, "", VERSION, new NodeGenericMetadata());
+                    storage.flush();
+                    return newFolderInfo;
+                });
         return new ProjectFolder(new ProjectFileCreationContext(folderInfo, storage, fileSystem));
     }
 
