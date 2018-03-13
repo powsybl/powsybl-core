@@ -7,9 +7,9 @@
 package com.powsybl.ampl.converter;
 
 import java.io.IOException;
+import java.util.List;
 
 import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.util.StringToIntMapper;
 import com.powsybl.iidm.network.Network;
 
@@ -21,5 +21,6 @@ public interface AmplExtensionWriter {
 
     public String getName();
 
-    public void write(int extendedNum, Extension<?> ext, Network network, StringToIntMapper<AmplSubset> mapper, DataSource dataSource, boolean append, AmplExportConfig config) throws IOException;
+    public void write(List<AmplExtension> extensions, Network network, StringToIntMapper<AmplSubset> mapper,
+            DataSource dataSource, boolean append, AmplExportConfig config) throws IOException;
 }

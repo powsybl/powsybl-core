@@ -10,10 +10,10 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.util.StringToIntMapper;
 import com.powsybl.iidm.network.Network;
 
@@ -30,9 +30,13 @@ public class FooExtensionWriter implements AmplExtensionWriter {
     }
 
     @Override
-    public void write(int extended, Extension<?> ext, Network network, StringToIntMapper<AmplSubset> mapper, DataSource dataSource, boolean append, AmplExportConfig config) throws IOException {
+    public void write(List<AmplExtension> extensions, Network network,
+            StringToIntMapper<AmplSubset> mapper, DataSource dataSource, boolean append,
+            AmplExportConfig config) throws IOException {
         try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("foo-extension", "txt", false), StandardCharsets.UTF_8)) {
-            writer.write(extended + " " + ext.getName() + "\n");
+            for (AmplExtension ext : extensions) {
+                writer.write(ext.getExtendedNum() + " " + ext.getExtension().getName() + "\n");
+            }
         }
 
     }
