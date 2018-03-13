@@ -7,6 +7,7 @@
 package com.powsybl.afs.storage;
 
 import com.powsybl.afs.storage.events.*;
+import com.powsybl.commons.util.WeakListenerList;
 import com.powsybl.math.timeseries.DoubleArrayChunk;
 import com.powsybl.math.timeseries.StringArrayChunk;
 import com.powsybl.math.timeseries.TimeSeriesMetadata;
@@ -21,7 +22,7 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class DefaultListenableAppStorage extends ForwardingAppStorage implements ListenableAppStorage {
 
-    private final AppStorageListenerList listeners = new AppStorageListenerList();
+    private final WeakListenerList<AppStorageListener> listeners = new WeakListenerList<>();
 
     private NodeEventList eventList = new NodeEventList();
 
@@ -123,7 +124,7 @@ public class DefaultListenableAppStorage extends ForwardingAppStorage implements
         super.flush();
         lock.lock();
         try {
-            listeners.notify(eventList);
+            listeners.notify(l -> l.onEvents(eventList));
             eventList = new NodeEventList();
         } finally {
             lock.unlock();

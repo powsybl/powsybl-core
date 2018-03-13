@@ -9,8 +9,11 @@ package com.powsybl.afs;
 import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.afs.storage.events.DependencyEvent;
 import com.powsybl.afs.storage.events.NodeEvent;
+import com.powsybl.commons.util.WeakListenerList;
 
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -20,30 +23,28 @@ public class ProjectFile extends ProjectNode {
 
     protected final FileIcon icon;
 
-    private final WeakHashMap<Object, List<ProjectFileListener>> listeners = new WeakHashMap<>();
+    private final WeakListenerList<ProjectFileListener> listeners = new WeakListenerList<>();
 
     protected ProjectFile(ProjectFileCreationContext context, int codeVersion, FileIcon icon) {
         super(context, codeVersion, true);
         this.icon = Objects.requireNonNull(icon);
         storage.addListener(this, eventList -> {
             for (NodeEvent event : eventList.getEvents()) {
-                switch (event.getType()) {
-                    case DEPENDENCY_ADDED:
-                    case DEPENDENCY_REMOVED:
-                        listeners.values().stream()
-                                .flatMap(Collection::stream)
-                                .forEach(listener -> listener.dependencyChanged(((DependencyEvent) event).getDependencyName()));
-                        break;
+                if (event.getId().equals(getId())) {
+                    switch (event.getType()) {
+                        case DEPENDENCY_ADDED:
+                        case DEPENDENCY_REMOVED:
+                            listeners.notify(listener -> listener.dependencyChanged(((DependencyEvent) event).getDependencyName()));
+                            break;
 
-                    case BACKWARD_DEPENDENCY_ADDED:
-                    case BACKWARD_DEPENDENCY_REMOVED:
-                        listeners.values().stream()
-                                .flatMap(Collection::stream)
-                                .forEach(listener -> listener.backwardDependencyChanged(((DependencyEvent) event).getDependencyName()));
-                        break;
+                        case BACKWARD_DEPENDENCY_ADDED:
+                        case BACKWARD_DEPENDENCY_REMOVED:
+                            listeners.notify(listener -> listener.backwardDependencyChanged(((DependencyEvent) event).getDependencyName()));
+                            break;
 
-                    default:
-                        break;
+                        default:
+                            break;
+                    }
                 }
             }
         });
@@ -87,16 +88,12 @@ public class ProjectFile extends ProjectNode {
                 .collect(Collectors.toList());
     }
 
-    public void addListener(Object source, ProjectFileListener listener) {
-        Objects.requireNonNull(source);
-        Objects.requireNonNull(listener);
-        listeners.computeIfAbsent(source, k -> new ArrayList<>()).add(listener);
+    public void addListener(ProjectFileListener listener) {
+        listeners.add(this, listener);
     }
 
-    public void removeListener(Object source, ProjectFileListener listener) {
-        Objects.requireNonNull(source);
-        Objects.requireNonNull(listener);
-        listeners.computeIfAbsent(source, k -> new ArrayList<>()).remove(listener);
+    public void removeListener(ProjectFileListener listener) {
+        listeners.remove(this, listener);
     }
 
     public UUID startTask() {
