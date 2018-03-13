@@ -198,8 +198,8 @@ public class AmplNetworkReaderTest {
 
         for (Bus b : AmplUtil.getBuses(network)) {
             if (b.getId().equals("VLGEN_0")) {
-                assertEquals(b.getAngle(), 20f, 0.0);
-                assertEquals(b.getV(), 180f, 0.0);
+                assertEquals(20f, b.getAngle(), 0.0);
+                assertEquals(180f, b.getV(), 0.0);
             }
         }
     }

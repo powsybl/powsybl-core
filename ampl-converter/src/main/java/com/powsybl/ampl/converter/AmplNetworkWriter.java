@@ -1650,7 +1650,6 @@ public class AmplNetworkWriter {
                 if (conBus != null) {
                     conBusNum = mapper.getInt(AmplSubset.BUS, conBus.getId());
                 }
-                float maxP = lineMap.get(id) != null ? lineMap.get(id).getMaxP() : Float.NaN;
 
                 if (hvdcStation.getHvdcType().equals(HvdcType.LCC)) {
                     LccConverterStation lccStation = (LccConverterStation) hvdcStation;

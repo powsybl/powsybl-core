@@ -288,45 +288,56 @@ public class AmplNetworkReader {
         if (l != null) {
             l.getTerminal1().setP(p1).setQ(q1);
             l.getTerminal2().setP(p2).setQ(q2);
+            return null;
+        }
+
+        TwoWindingsTransformer twt = network.getTwoWindingsTransformer(id);
+        if (twt != null) {
+            twt.getTerminal1().setP(p1).setQ(q1);
+            twt.getTerminal2().setP(p2).setQ(q2);
+            return null;
+        }
+
+        if (readThreeWindingsTransformerBranch(id, p1, q1)) {
+            return null;
+        }
+
+        DanglingLine dl = network.getDanglingLine(id);
+        if (dl != null) {
+            dl.getTerminal().setP(p1).setQ(q1);
         } else {
-            TwoWindingsTransformer twt = network.getTwoWindingsTransformer(id);
-            if (twt != null) {
-                twt.getTerminal1().setP(p1).setQ(q1);
-                twt.getTerminal2().setP(p2).setQ(q2);
-            } else {
-                if (id.endsWith(AmplConstants.LEG1_SUFFIX)) {
-                    ThreeWindingsTransformer tht = network.getThreeWindingsTransformer(id.substring(0, id.indexOf(AmplConstants.LEG1_SUFFIX)));
-                    if (tht != null) {
-                        tht.getLeg1().getTerminal().setP(p1).setQ(q1);
-                    } else {
-                        throw new AmplException("Invalid branch (leg1) id '" + id + "'");
-                    }
-                } else if (id.endsWith(AmplConstants.LEG2_SUFFIX)) {
-                    ThreeWindingsTransformer tht = network.getThreeWindingsTransformer(id.substring(0, id.indexOf(AmplConstants.LEG2_SUFFIX)));
-                    if (tht != null) {
-                        tht.getLeg2().getTerminal().setP(p1).setQ(q1);
-                    } else {
-                        throw new AmplException("Invalid branch (leg2) id '" + id + "'");
-                    }
-                } else if (id.endsWith(AmplConstants.LEG3_SUFFIX)) {
-                    ThreeWindingsTransformer tht = network.getThreeWindingsTransformer(id.substring(0, id.indexOf(AmplConstants.LEG3_SUFFIX)));
-                    if (tht != null) {
-                        tht.getLeg3().getTerminal().setP(p1).setQ(q1);
-                    } else {
-                        throw new AmplException("Invalid branch (leg3) id '" + id + "'");
-                    }
-                } else {
-                    DanglingLine dl = network.getDanglingLine(id);
-                    if (dl != null) {
-                        dl.getTerminal().setP(p1).setQ(q1);
-                    } else {
-                        throw new AmplException("Invalid branch id '" + id + "'");
-                    }
-                }
-            }
+            throw new AmplException("Invalid branch id '" + id + "'");
         }
 
         return null;
+    }
+
+    private boolean readThreeWindingsTransformerBranch(String id, float p, float q) {
+        if (id.endsWith(AmplConstants.LEG1_SUFFIX)) {
+            ThreeWindingsTransformer tht = network.getThreeWindingsTransformer(id.substring(0, id.indexOf(AmplConstants.LEG1_SUFFIX)));
+            if (tht != null) {
+                tht.getLeg1().getTerminal().setP(p).setQ(q);
+            } else {
+                throw new AmplException("Invalid branch (leg1) id '" + id + "'");
+            }
+        } else if (id.endsWith(AmplConstants.LEG2_SUFFIX)) {
+            ThreeWindingsTransformer tht = network.getThreeWindingsTransformer(id.substring(0, id.indexOf(AmplConstants.LEG2_SUFFIX)));
+            if (tht != null) {
+                tht.getLeg2().getTerminal().setP(p).setQ(q);
+            } else {
+                throw new AmplException("Invalid branch (leg2) id '" + id + "'");
+            }
+        } else if (id.endsWith(AmplConstants.LEG3_SUFFIX)) {
+            ThreeWindingsTransformer tht = network.getThreeWindingsTransformer(id.substring(0, id.indexOf(AmplConstants.LEG3_SUFFIX)));
+            if (tht != null) {
+                tht.getLeg3().getTerminal().setP(p).setQ(q);
+            } else {
+                throw new AmplException("Invalid branch (leg3) id '" + id + "'");
+            }
+        } else {
+            return false;
+        }
+        return true;
     }
 
     public AmplNetworkReader readHvdcLines() throws IOException {
