@@ -34,7 +34,7 @@ public class DependencyCache<T> {
         this.projectFile = Objects.requireNonNull(projectFile);
         this.dependencyName = Objects.requireNonNull(dependencyName);
         this.dependencyClass = Objects.requireNonNull(dependencyClass);
-        projectFile.addListener(this, new DefaultProjectFileListener() {
+        projectFile.addListener(new DefaultProjectFileListener() {
             @Override
             public void dependencyChanged(String name) {
                 if (dependencyName.equals(name)) {
