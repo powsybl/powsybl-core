@@ -70,7 +70,7 @@ public abstract class AbstractAppStorageTest {
         storage.flush();
 
         // check event
-        assertEquals(new NodeCreated(rootFolderInfo.getId()), eventStack.take());
+        assertEquals(new NodeCreated(rootFolderInfo.getId(), null), eventStack.take());
 
         assertNotNull(rootFolderInfo);
 
@@ -93,7 +93,7 @@ public abstract class AbstractAppStorageTest {
         storage.flush();
 
         // check event
-        assertEquals(new NodeCreated(testFolderInfo.getId()), eventStack.take());
+        assertEquals(new NodeCreated(testFolderInfo.getId(), rootFolderInfo.getId()), eventStack.take());
 
         // assert parent of test folder is root folder
         assertEquals(rootFolderInfo, storage.getParentNode(testFolderInfo.getId()).orElseThrow(AssertionError::new));
@@ -150,9 +150,9 @@ public abstract class AbstractAppStorageTest {
         storage.flush();
 
         // check events
-        assertEquals(new NodeCreated(testDataInfo.getId()), eventStack.take());
-        assertEquals(new NodeCreated(testData2Info.getId()), eventStack.take());
-        assertEquals(new NodeCreated(testData3Info.getId()), eventStack.take());
+        assertEquals(new NodeCreated(testDataInfo.getId(), testFolderInfo.getId()), eventStack.take());
+        assertEquals(new NodeCreated(testData2Info.getId(), testFolderInfo.getId()), eventStack.take());
+        assertEquals(new NodeCreated(testData3Info.getId(), testFolderInfo.getId()), eventStack.take());
 
         // check info are correctly stored even with metadata
         assertEquals(testData2Info, storage.getNodeInfo(testData2Info.getId()));
@@ -208,7 +208,7 @@ public abstract class AbstractAppStorageTest {
         storage.flush();
 
         // check event
-        assertEquals(new NodeRemoved(testDataInfo.getId()), eventStack.take());
+        assertEquals(new NodeRemoved(testDataInfo.getId(), testFolderInfo.getId()), eventStack.take());
 
         // check test folder children have been correctly updated
         assertEquals(2, storage.getChildNodes(testFolderInfo.getId()).size());

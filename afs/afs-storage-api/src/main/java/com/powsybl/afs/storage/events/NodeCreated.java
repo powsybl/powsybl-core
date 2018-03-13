@@ -9,32 +9,42 @@ package com.powsybl.afs.storage.events;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.Objects;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class NodeCreated extends NodeEvent {
 
+    @JsonProperty("parentId")
+    protected final String parentId;
+
     @JsonCreator
-    public NodeCreated(@JsonProperty("id") String id) {
+    public NodeCreated(@JsonProperty("id") String id, @JsonProperty("parentId") String parentId) {
         super(id, NodeEventType.NODE_CREATED);
+        this.parentId = parentId;
+    }
+
+    public String getParentId() {
+        return parentId;
     }
 
     @Override
     public int hashCode() {
-        return id.hashCode();
+        return Objects.hash(id, parentId);
     }
 
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof NodeCreated) {
             NodeCreated other = (NodeCreated) obj;
-            return id.equals(other.id);
+            return id.equals(other.id) && Objects.equals(parentId, other.parentId);
         }
         return false;
     }
 
     @Override
     public String toString() {
-        return "NodeCreated(id=" + id + ")";
+        return "NodeCreated(id=" + id + ", parentId=" + parentId + ")";
     }
 }
