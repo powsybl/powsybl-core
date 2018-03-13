@@ -373,7 +373,7 @@ public class MapDbAppStorage implements AppStorage {
         checkNodeExists(nodeUuid);
 
         // deleting root node is not allowed
-        if (nodeUuid.equals(rootNodeVar.get().getId())) {
+        if (nodeUuid.toString().equals(rootNodeVar.get().getId())) {
             throw new AfsStorageException("Cannot delete root node");
         }
 
