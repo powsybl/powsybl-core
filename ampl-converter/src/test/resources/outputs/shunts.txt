@@ -1,0 +1,3 @@
+#Shunts
+#"num" "bus" "b (pu)" "Q (MVar)"
+1 1 1.1 30.0000
