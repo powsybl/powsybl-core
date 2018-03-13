@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 
@@ -393,10 +394,11 @@ public class AmplNetworkWriter {
     }
 
     private void exportExtensions() throws IOException {
-        for (String k : extensionMap.keySet()) {
-            AmplExtensionWriter extWriter = AmplExtensionWriters.getWriter(k);
+
+        for (Entry<String, List<AmplExtension>> entry : extensionMap.entrySet()) {
+            AmplExtensionWriter extWriter = AmplExtensionWriters.getWriter(entry.getKey());
             if (extWriter != null) {
-                extWriter.write(extensionMap.get(k), network, mapper, dataSource, append, config);
+                extWriter.write(entry.getValue(), network, mapper, dataSource, append, config);
             }
         }
     }
@@ -1577,7 +1579,6 @@ public class AmplNetworkWriter {
                                                                   new Column(config.getActionType().getLabel()),
                                                                   new Column("id"),
                                                                   new Column(DESCRIPTION))) {
-            List<String> skipped = new ArrayList<>();
             for (HvdcLine hvdcLine : network.getHvdcLines()) {
                 String id = hvdcLine.getId();
                 int num = mapper.getInt(AmplSubset.HVDC_LINE, id);
@@ -1596,10 +1597,20 @@ public class AmplNetworkWriter {
                         .writeCell(hvdcLine.getName());
                 addExtensions(num, hvdcLine);
             }
-            if (!skipped.isEmpty()) {
-                LOGGER.trace("Skip HVDC lines {} because not connected and not connectable", skipped);
-            }
         }
+    }
+
+    private HashMap<String, HvdcLine> getHvdcLinesMap() {
+        HashMap<String, HvdcLine> lineMap = new HashMap();
+        network.getHvdcLines().forEach(line -> {
+            if (line.getConverterStation1() != null) {
+                lineMap.put(line.getConverterStation1().getId(), line);
+            }
+            if (line.getConverterStation2() != null) {
+                lineMap.put(line.getConverterStation2().getId(), line);
+            }
+        });
+        return lineMap;
     }
 
     private void writeLccConverterStations() throws IOException {
@@ -1622,17 +1633,8 @@ public class AmplNetworkWriter {
                                                                   new Column(ACTIVE_POWER),
                                                                   new Column(REACTIVE_POWER))) {
 
-            HashMap<String, HvdcLine> lineMap = new HashMap();
-            network.getHvdcLines().forEach(line -> {
-                if (line.getConverterStation1() != null) {
-                    lineMap.put(line.getConverterStation1().getId(), line);
-                }
-                if (line.getConverterStation2() != null) {
-                    lineMap.put(line.getConverterStation2().getId(), line);
-                }
-            });
+            HashMap<String, HvdcLine> lineMap = getHvdcLinesMap();
 
-            List<String> skipped = new ArrayList<>();
             for (HvdcConverterStation hvdcStation : network.getHvdcConverterStations()) {
                 String id = hvdcStation.getId();
                 Terminal t = hvdcStation.getTerminal();
@@ -1653,8 +1655,6 @@ public class AmplNetworkWriter {
                 if (hvdcStation.getHvdcType().equals(HvdcType.LCC)) {
                     LccConverterStation lccStation = (LccConverterStation) hvdcStation;
                     int vlNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, t.getVoltageLevel().getId());
-                    float minP = -maxP;
-                    float maxQ = getQ(maxP, lccStation.getPowerFactor());
 
                     int num = mapper.getInt(AmplSubset.HVDC_CONVERTER_STATION, lccStation.getId());
 
@@ -1672,9 +1672,6 @@ public class AmplNetworkWriter {
                             .writeCell(t.getQ());
                     addExtensions(num, lccStation);
                 }
-            }
-            if (!skipped.isEmpty()) {
-                LOGGER.trace("Skip HVDC lines {} because not connected and not connectable", skipped);
             }
         }
     }
@@ -1709,17 +1706,8 @@ public class AmplNetworkWriter {
                                                                   new Column(ACTIVE_POWER),
                                                                   new Column(REACTIVE_POWER))) {
 
-            HashMap<String, HvdcLine> lineMap = new HashMap();
-            network.getHvdcLines().forEach(line -> {
-                if (line.getConverterStation1() != null) {
-                    lineMap.put(line.getConverterStation1().getId(), line);
-                }
-                if (line.getConverterStation2() != null) {
-                    lineMap.put(line.getConverterStation2().getId(), line);
-                }
-            });
+            HashMap<String, HvdcLine> lineMap = getHvdcLinesMap();
 
-            List<String> skipped = new ArrayList<>();
             for (HvdcConverterStation hvdcStation : network.getHvdcConverterStations()) {
                 String id = hvdcStation.getId();
                 Terminal t = hvdcStation.getTerminal();
@@ -1770,15 +1758,7 @@ public class AmplNetworkWriter {
                     addExtensions(num, vscStation);
                 }
             }
-            if (!skipped.isEmpty()) {
-                LOGGER.trace("Skip HVDC lines {} because not connected and not connectable", skipped);
-            }
         }
-    }
-
-    private float getQ(float p, float powerFactor) {
-        // Q = - P * sqrt( 1/max(1E-3,min(1,getPowerFactor()))²-1) )
-        return (float) (-p * Math.sqrt(1 / Math.pow(Math.max(0.001, Math.min(1, powerFactor)), 2) - 1));
     }
 
     public void write() throws IOException {

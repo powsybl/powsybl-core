@@ -227,7 +227,6 @@ public class AmplNetworkReader {
         }
         sc.setCurrentSectionCount(Math.max(0, Math.min(sc.getMaximumSectionCount(), Math.round(sc.getbPerSection() / b))));
         Terminal t = sc.getTerminal();
-        //t.setP(0f);
         t.setQ(q);
 
         if (busnum == -1 && t.isConnected()) {
@@ -300,21 +299,21 @@ public class AmplNetworkReader {
                     if (tht != null) {
                         tht.getLeg1().getTerminal().setP(p1).setQ(q1);
                     } else {
-                        throw new AmplException("Invalid branch id '" + id + "'");
+                        throw new AmplException("Invalid branch (leg1) id '" + id + "'");
                     }
                 } else if (id.endsWith(AmplConstants.LEG2_SUFFIX)) {
                     ThreeWindingsTransformer tht = network.getThreeWindingsTransformer(id.substring(0, id.indexOf(AmplConstants.LEG2_SUFFIX)));
                     if (tht != null) {
                         tht.getLeg2().getTerminal().setP(p1).setQ(q1);
                     } else {
-                        throw new AmplException("Invalid branch id '" + id + "'");
+                        throw new AmplException("Invalid branch (leg2) id '" + id + "'");
                     }
                 } else if (id.endsWith(AmplConstants.LEG3_SUFFIX)) {
                     ThreeWindingsTransformer tht = network.getThreeWindingsTransformer(id.substring(0, id.indexOf(AmplConstants.LEG3_SUFFIX)));
                     if (tht != null) {
                         tht.getLeg3().getTerminal().setP(p1).setQ(q1);
                     } else {
-                        throw new AmplException("Invalid branch id '" + id + "'");
+                        throw new AmplException("Invalid branch (leg3) id '" + id + "'");
                     }
                 } else {
                     DanglingLine dl = network.getDanglingLine(id);
@@ -434,7 +433,8 @@ public class AmplNetworkReader {
         List<String> tokens = new ArrayList<>();
         Matcher m = PATTERN.matcher(str);
         while (m.find()) {
-            tokens.add(m.group(1).replace("'", ""));
+            String tok = m.group(1).replace("'", "");
+            tokens.add(tok);
         }
         return tokens;
     }

@@ -18,10 +18,10 @@ import com.powsybl.commons.extensions.Extension;
 public class AmplExtension {
 
     private final int extendedNum;
-    private final Extendable<?> extendable;
+    private final Extendable extendable;
     private final Extension<?> extension;
 
-    public AmplExtension(int extended, Extendable<?> extendable, Extension<?> extension) {
+    public AmplExtension(int extended, Extendable extendable, Extension extension) {
         this.extendedNum = extended;
         this.extendable = Objects.requireNonNull(extendable);
         this.extension = Objects.requireNonNull(extension);
@@ -31,11 +31,11 @@ public class AmplExtension {
         return extendedNum;
     }
 
-    public Extendable<?> getExtendable() {
+    public Extendable getExtendable() {
         return extendable;
     }
 
-    public Extension<?> getExtension() {
+    public Extension getExtension() {
         return extension;
     }
 
