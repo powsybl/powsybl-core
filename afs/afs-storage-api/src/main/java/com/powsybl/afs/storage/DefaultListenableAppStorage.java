@@ -67,9 +67,10 @@ public class DefaultListenableAppStorage extends ForwardingAppStorage implements
     }
 
     @Override
-    public void deleteNode(String nodeId) {
-        super.deleteNode(nodeId);
+    public String deleteNode(String nodeId) {
+        String parentNodeId = super.deleteNode(nodeId);
         addEvent(new NodeRemoved(nodeId));
+        return parentNodeId;
     }
 
     @Override
