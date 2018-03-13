@@ -42,7 +42,7 @@ public class LocalSecurityAnalysisRunningService implements SecurityAnalysisRunn
         ProjectCase aCase = runner.getCase().orElseThrow(() -> new AfsException("Invalid case link"));
         ContingenciesProvider contingencyListProvider = runner.getContingencyListProvider().orElse(new EmptyContingencyListProvider());
         SecurityAnalysisParameters parameters = runner.readParameters();
-        ComputationManager computationManager = runner.getFileSystem().getData().getComputationManager();
+        ComputationManager computationManager = runner.getFileSystem().getData().getLongTimeExecutionComputationManager();
 
         UUID taskId = runner.startTask();
         try {
