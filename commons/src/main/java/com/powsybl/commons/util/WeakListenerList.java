@@ -7,6 +7,7 @@
 package com.powsybl.commons.util;
 
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.BiConsumer;
@@ -26,7 +27,7 @@ public class WeakListenerList<L> {
         Objects.requireNonNull(l);
         lock.lock();
         try {
-            listeners.computeIfAbsent(target, k -> new ArrayList<>()).add(l);
+            listeners.computeIfAbsent(target, k -> new CopyOnWriteArrayList<>()).add(l);
         } finally {
             lock.unlock();
         }
@@ -37,7 +38,7 @@ public class WeakListenerList<L> {
         Objects.requireNonNull(l);
         lock.lock();
         try {
-            listeners.computeIfAbsent(target, k -> new ArrayList<>()).remove(l);
+            listeners.computeIfAbsent(target, k -> new CopyOnWriteArrayList<>()).remove(l);
         } finally {
             lock.unlock();
         }
@@ -55,21 +56,16 @@ public class WeakListenerList<L> {
 
     public void notify(Consumer<L> notifier) {
         Objects.requireNonNull(notifier);
-        lock.lock();
-        try {
-            new ArrayList<>(listeners.values()).stream().flatMap(List::stream).forEach(notifier);
-        } finally {
-            lock.unlock();
-        }
+        notify((o, l) -> notifier.accept(l));
     }
 
     public void notify(BiConsumer<Object, L> notifier) {
         Objects.requireNonNull(notifier);
         lock.lock();
         try {
-            for (Map.Entry<Object, List<L>> e : listeners.entrySet()) {
+            for (Map.Entry<Object, List<L>> e : new HashSet<>(listeners.entrySet())) {
                 Object target = e.getKey();
-                for (L listener : new ArrayList<>(e.getValue())) {
+                for (L listener : e.getValue()) {
                     notifier.accept(target, listener);
                 }
             }
