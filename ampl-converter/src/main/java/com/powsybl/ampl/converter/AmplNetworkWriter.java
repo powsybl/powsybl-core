@@ -1633,10 +1633,7 @@ public class AmplNetworkWriter {
                                                                   new Column(ACTIVE_POWER),
                                                                   new Column(REACTIVE_POWER))) {
 
-            HashMap<String, HvdcLine> lineMap = getHvdcLinesMap();
-
             for (HvdcConverterStation hvdcStation : network.getHvdcConverterStations()) {
-                String id = hvdcStation.getId();
                 Terminal t = hvdcStation.getTerminal();
                 Bus bus = AmplUtil.getBus(t);
                 int busNum = -1;
