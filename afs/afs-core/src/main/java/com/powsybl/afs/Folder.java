@@ -62,7 +62,11 @@ public class Folder extends Node implements FolderBase<Node, Folder> {
     @Override
     public Folder createFolder(String name) {
         NodeInfo folderInfo = storage.getChildNode(info.getId(), name)
-                .orElse(storage.createNode(info.getId(), name, PSEUDO_CLASS, "", VERSION, new NodeGenericMetadata()));
+                .orElseGet(() -> {
+                    NodeInfo newFolderInfo = storage.createNode(info.getId(), name, PSEUDO_CLASS, "", VERSION, new NodeGenericMetadata());
+                    storage.flush();
+                    return newFolderInfo;
+                });
         return new Folder(new FileCreationContext(folderInfo, storage, fileSystem));
     }
 
@@ -70,10 +74,9 @@ public class Folder extends Node implements FolderBase<Node, Folder> {
         NodeInfo projectInfo = storage.getChildNode(info.getId(), name)
                 .orElseGet(() -> {
                     NodeInfo newProjectInfo = storage.createNode(info.getId(), name, Project.PSEUDO_CLASS, "", Project.VERSION, new NodeGenericMetadata());
-
                     // create root project folder
                     storage.createNode(newProjectInfo.getId(), Project.ROOT_FOLDER_NAME, ProjectFolder.PSEUDO_CLASS, "", ProjectFolder.VERSION, new NodeGenericMetadata());
-
+                    storage.flush();
                     return newProjectInfo;
                 });
         return new Project(new FileCreationContext(projectInfo, storage, fileSystem));
