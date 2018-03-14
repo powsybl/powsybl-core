@@ -17,6 +17,9 @@ public final class ValidationUtil {
     private ValidationUtil() {
     }
 
+    /**
+     * @deprecated Use checkActivePowerSetpoint(Validable, float) instead.
+     */
     @Deprecated
     static void checkTargetP(Validable validable, float targetP) {
         checkActivePowerSetpoint(validable, targetP);

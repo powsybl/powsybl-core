@@ -7,31 +7,26 @@
 package com.powsybl.action.simulator.tools;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.action.dsl.DefaultActionDslLoaderObserver;
 import com.powsybl.action.dsl.ActionDb;
 import com.powsybl.action.dsl.ActionDslLoader;
+import com.powsybl.action.dsl.DefaultActionDslLoaderObserver;
 import com.powsybl.action.simulator.ActionSimulator;
-import com.powsybl.action.simulator.loadflow.CaseExporter;
-import com.powsybl.action.simulator.loadflow.LoadFlowActionSimulator;
-import com.powsybl.action.simulator.loadflow.LoadFlowActionSimulatorConfig;
-import com.powsybl.action.simulator.loadflow.LoadFlowActionSimulatorLogPrinter;
-import com.powsybl.action.simulator.loadflow.LoadFlowActionSimulatorObserver;
+import com.powsybl.action.simulator.loadflow.*;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.CompressionFormat;
 import com.powsybl.commons.datasource.DataSourceUtil;
 import com.powsybl.commons.io.table.AsciiTableFormatterFactory;
-import com.powsybl.commons.io.table.CsvTableFormatterFactory;
-import com.powsybl.tools.Command;
-import com.powsybl.tools.CommandLineUtil;
-import com.powsybl.tools.Tool;
-import com.powsybl.tools.ToolRunningContext;
+import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.export.Exporters;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.security.LimitViolationFilter;
 import com.powsybl.security.Security;
-import com.powsybl.security.SecurityAnalysisResult;
+import com.powsybl.security.converter.SecurityAnalysisResultExporters;
+import com.powsybl.tools.Command;
+import com.powsybl.tools.CommandLineUtil;
+import com.powsybl.tools.Tool;
+import com.powsybl.tools.ToolRunningContext;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
@@ -40,8 +35,9 @@ import org.codehaus.groovy.runtime.StackTraceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
-import java.nio.charset.StandardCharsets;
+import java.io.OutputStreamWriter;
+import java.io.PrintStream;
+import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -59,7 +55,8 @@ public class ActionSimulatorTool implements Tool {
     private static final String DSL_FILE = "dsl-file";
     private static final String CONTINGENCIES = "contingencies";
     private static final String VERBOSE = "verbose";
-    private static final String OUTPUT_CSV = "output-csv";
+    private static final String OUTPUT_FILE = "output-file";
+    private static final String OUTPUT_FORMAT = "output-format";
     private static final String OUTPUT_CASE_FOLDER = "output-case-folder";
     private static final String OUTPUT_CASE_FORMAT = "output-case-format";
     private static final String OUTPUT_COMPRESSION_FORMAT = "output-compression-format";
@@ -106,10 +103,15 @@ public class ActionSimulatorTool implements Tool {
                         .desc("verbose mode")
                         .required(false)
                         .build());
-                options.addOption(Option.builder().longOpt(OUTPUT_CSV)
-                        .desc("the CSV output path")
+                options.addOption(Option.builder().longOpt(OUTPUT_FILE)
+                        .desc("the output file path")
                         .hasArg()
                         .argName("FILE")
+                        .build());
+                options.addOption(Option.builder().longOpt(OUTPUT_FORMAT)
+                        .desc("the output file format " + SecurityAnalysisResultExporters.getFormats())
+                        .hasArg()
+                        .argName("FORMAT")
                         .build());
                 options.addOption(Option.builder().longOpt(OUTPUT_CASE_FOLDER)
                         .desc("output case folder path")
@@ -140,27 +142,17 @@ public class ActionSimulatorTool implements Tool {
         return new LoadFlowActionSimulatorLogPrinter(context.getOutputStream(), context.getErrorStream(), verbose);
     }
 
-    private static LoadFlowActionSimulatorObserver createSecurityAnalysisPrinter(Network network, ToolRunningContext context, LoadFlowActionSimulatorConfig config, Path csvFile) {
-        return new AbstractSecurityAnalysisResultBuilder() {
-            @Override
-            public void onFinalStateResult(SecurityAnalysisResult result) {
-                context.getOutputStream().println("Final result");
-                LimitViolationFilter filter = LimitViolationFilter.load();
-                Writer soutWriter = new OutputStreamWriter(context.getOutputStream());
-                AsciiTableFormatterFactory asciiTableFormatterFactory = new AsciiTableFormatterFactory();
-                Security.printPreContingencyViolations(result, network, soutWriter, asciiTableFormatterFactory, filter);
-                Security.printPostContingencyViolations(result, network, soutWriter, asciiTableFormatterFactory, filter, !config.isIgnorePreContingencyViolations());
-                if (csvFile != null) {
-                    try (Writer writer = Files.newBufferedWriter(csvFile, StandardCharsets.UTF_8)) {
-                        CsvTableFormatterFactory csvTableFormatterFactory = new CsvTableFormatterFactory();
-                        Security.printPreContingencyViolations(result, network, writer, csvTableFormatterFactory, filter);
-                        Security.printPostContingencyViolations(result, network, writer, csvTableFormatterFactory, filter, !config.isIgnorePreContingencyViolations());
-                    } catch (IOException e) {
-                        throw new UncheckedIOException(e);
-                    }
+    /**
+     * Creates the observer which will build the result and print it to standard output.
+     */
+    private static SecurityAnalysisResultHandler createResultPrinter(Network network, ToolRunningContext context) {
+        return new SecurityAnalysisResultHandler().add(
+                r -> {
+                    context.getOutputStream().println("Final result");
+                    Writer soutWriter = new OutputStreamWriter(context.getOutputStream());
+                    Security.print(r, network, soutWriter, new AsciiTableFormatterFactory(), TableFormatterConfig.load());
                 }
-            }
-        };
+        );
     }
 
     private static LoadFlowActionSimulatorObserver createCaseExporter(Path outputCaseFolder, String basename, String outputCaseFormat, CompressionFormat compressionFormat) {
@@ -174,7 +166,6 @@ public class ActionSimulatorTool implements Tool {
         List<String> contingencies = line.hasOption(CONTINGENCIES) ? Arrays.stream(line.getOptionValue(CONTINGENCIES).split(",")).collect(Collectors.toList())
                                                                      : Collections.emptyList();
         boolean verbose = line.hasOption(VERBOSE);
-        Path csvFile = line.hasOption(OUTPUT_CSV) ? context.getFileSystem().getPath(line.getOptionValue(OUTPUT_CSV)) : null;
 
         Path outputCaseFolder = null;
         String outputCaseFormat = null;
@@ -208,14 +199,28 @@ public class ActionSimulatorTool implements Tool {
 
             List<LoadFlowActionSimulatorObserver> observers = new ArrayList<>();
             observers.add(createLogPrinter(context, verbose));
-            observers.add(createSecurityAnalysisPrinter(network, context, config, csvFile));
+
+            SecurityAnalysisResultHandler resultPrinter = createResultPrinter(network, context);
+            if (line.hasOption(OUTPUT_FILE)) {
+                if (!line.hasOption(OUTPUT_FORMAT)) {
+                    throw new ParseException("Missing required option: " + OUTPUT_FORMAT);
+                }
+
+                Path outputFile = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_FILE));
+                String format = line.getOptionValue(OUTPUT_FORMAT);
+
+                //Add a handler which will print the result to the output file
+                resultPrinter.add(r -> SecurityAnalysisResultExporters.export(r, outputFile, format));
+            }
+            observers.add(resultPrinter);
+
             if (outputCaseFolder != null) {
                 CompressionFormat compressionFormat = CommandLineUtil.getOptionValue(line, OUTPUT_COMPRESSION_FORMAT, CompressionFormat.class, null);
                 observers.add(createCaseExporter(outputCaseFolder, DataSourceUtil.getBaseName(caseFile), outputCaseFormat, compressionFormat));
             }
 
             // action simulator
-            ActionSimulator actionSimulator = new LoadFlowActionSimulator(network, context.getComputationManager(), config, observers);
+            ActionSimulator actionSimulator = new LoadFlowActionSimulator(network, context.getShortTimeExecutionComputationManager(), config, observers);
             context.getOutputStream().println("Using '" + actionSimulator.getName() + "' rules engine");
 
             // start simulator

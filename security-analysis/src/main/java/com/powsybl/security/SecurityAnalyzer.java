@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, RTE (http://www.rte-france.com)
+ * Copyright (c) 2016-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -14,6 +14,7 @@ import com.powsybl.contingency.ContingenciesProviderFactory;
 import com.powsybl.contingency.EmptyContingencyListProvider;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.StateManager;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 
 import java.io.InputStream;
@@ -24,6 +25,7 @@ import java.util.Set;
 
 /**
  * @author Giovanni Ferrari <giovanni.ferrari@techrain.it>
+ * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
  */
 public class SecurityAnalyzer {
 
@@ -68,15 +70,23 @@ public class SecurityAnalyzer {
     }
 
     public SecurityAnalysisResult analyze(Network network, Path contingenciesFile) {
+        return analyze(network, contingenciesFile, SecurityAnalysisParameters.load());
+    }
+
+    public SecurityAnalysisResult analyze(Network network, Path contingenciesFile, SecurityAnalysisParameters parameters) {
         Objects.requireNonNull(network);
 
         ContingenciesProvider contingenciesProvider = contingenciesFile != null
                 ? contingenciesProviderFactory.create(contingenciesFile) : new EmptyContingencyListProvider();
 
-        return analyze(network, contingenciesProvider);
+        return analyze(network, contingenciesProvider, parameters);
     }
 
     public SecurityAnalysisResult analyze(String filename, InputStream networkData, InputStream contingencies) {
+        return analyze(filename, networkData, contingencies, SecurityAnalysisParameters.load());
+    }
+
+    public SecurityAnalysisResult analyze(String filename, InputStream networkData, InputStream contingencies, SecurityAnalysisParameters parameters) {
         Objects.requireNonNull(networkData);
         Objects.requireNonNull(filename);
 
@@ -88,19 +98,23 @@ public class SecurityAnalyzer {
         ContingenciesProvider contingenciesProvider = contingencies != null
                 ? contingenciesProviderFactory.create(contingencies) : new EmptyContingencyListProvider();
 
-        return analyze(network, contingenciesProvider);
+        return analyze(network, contingenciesProvider, parameters);
     }
 
     public SecurityAnalysisResult analyze(Network network, ContingenciesProvider contingenciesProvider) {
+        return analyze(network, contingenciesProvider, SecurityAnalysisParameters.load());
+    }
+
+    public SecurityAnalysisResult analyze(Network network, ContingenciesProvider contingenciesProvider, SecurityAnalysisParameters parameters) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(contingenciesProvider);
+        Objects.requireNonNull(parameters);
 
         network.getStateManager().allowStateMultiThreadAccess(true);
 
         SecurityAnalysis securityAnalysis = securityAnalysisFactory.create(network, filter, computationManager, priority);
         interceptors.forEach(securityAnalysis::addInterceptor);
 
-        return securityAnalysis.runAsync(contingenciesProvider).join();
+        return securityAnalysis.runAsync(contingenciesProvider, StateManager.INITIAL_STATE_ID, parameters).join();
     }
-
 }

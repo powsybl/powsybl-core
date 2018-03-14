@@ -10,6 +10,8 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.ComponentDefaultConfig;
 import com.powsybl.commons.io.table.*;
+import com.powsybl.loadflow.LoadFlowParameters;
+import com.powsybl.loadflow.json.JsonLoadFlowParameters;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
 import com.powsybl.tools.ToolRunningContext;
@@ -43,6 +45,7 @@ import java.util.Properties;
 public class RunLoadFlowTool implements Tool {
 
     private static final String CASE_FILE = "case-file";
+    private static final String PARAMETERS_FILE = "parameters-file";
     private static final String OUTPUT_FILE = "output-file";
     private static final String OUTPUT_FORMAT = "output-format";
     private static final String SKIP_POSTPROC = "skip-postproc";
@@ -80,6 +83,11 @@ public class RunLoadFlowTool implements Tool {
                         .hasArg()
                         .argName("FILE")
                         .required()
+                        .build());
+                options.addOption(Option.builder().longOpt(PARAMETERS_FILE)
+                        .desc("loadflow parameters as JSON file")
+                        .hasArg()
+                        .argName("FILE")
                         .build());
                 options.addOption(Option.builder().longOpt(OUTPUT_FILE)
                         .desc("loadflow results output path")
@@ -128,7 +136,7 @@ public class RunLoadFlowTool implements Tool {
         if (line.hasOption(OUTPUT_FILE)) {
             outputFile = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_FILE));
             if (!line.hasOption(OUTPUT_FORMAT)) {
-                throw new ParseException("Missing required option: " + OUTPUT_CASE_FORMAT);
+                throw new ParseException("Missing required option: " + OUTPUT_FORMAT);
             }
             format = Format.valueOf(line.getOptionValue(OUTPUT_FORMAT));
         }
@@ -141,12 +149,19 @@ public class RunLoadFlowTool implements Tool {
         }
 
         context.getOutputStream().println("Loading network '" + caseFile + "'");
-        Network network = Importers.loadNetwork(caseFile, context.getComputationManager(), importConfig, null);
+        Network network = Importers.loadNetwork(caseFile, context.getShortTimeExecutionComputationManager(), importConfig, null);
         if (network == null) {
             throw new PowsyblException("Case '" + caseFile + "' not found");
         }
-        LoadFlow loadFlow = defaultConfig.newFactoryImpl(LoadFlowFactory.class).create(network, context.getComputationManager(), 0);
-        LoadFlowResult result = loadFlow.run();
+        LoadFlow loadFlow = defaultConfig.newFactoryImpl(LoadFlowFactory.class).create(network, context.getShortTimeExecutionComputationManager(), 0);
+
+        LoadFlowParameters params = LoadFlowParameters.load();
+        if (line.hasOption(PARAMETERS_FILE)) {
+            Path parametersFile = context.getFileSystem().getPath(line.getOptionValue(PARAMETERS_FILE));
+            JsonLoadFlowParameters.update(params, parametersFile);
+        }
+
+        LoadFlowResult result = loadFlow.run(params);
 
         if (outputFile != null) {
             exportResult(result, context, outputFile, format);

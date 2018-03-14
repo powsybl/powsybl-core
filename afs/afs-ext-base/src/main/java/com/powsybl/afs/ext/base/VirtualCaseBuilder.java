@@ -11,7 +11,6 @@ import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.afs.storage.NodeInfo;
 
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -22,9 +21,9 @@ public class VirtualCaseBuilder implements ProjectFileBuilder<VirtualCase> {
 
     private String name;
 
-    private String casePath;
+    private ProjectFile aCase;
 
-    private String scriptPath;
+    private ModificationScript script;
 
     public VirtualCaseBuilder(ProjectFileBuildContext context) {
         this.context = Objects.requireNonNull(context);
@@ -35,13 +34,13 @@ public class VirtualCaseBuilder implements ProjectFileBuilder<VirtualCase> {
         return this;
     }
 
-    public VirtualCaseBuilder withCase(String casePath) {
-        this.casePath = casePath;
+    public VirtualCaseBuilder withCase(ProjectFile aCase) {
+        this.aCase = Objects.requireNonNull(aCase);
         return this;
     }
 
-    public VirtualCaseBuilder withScript(String scriptPath) {
-        this.scriptPath = scriptPath;
+    public VirtualCaseBuilder withScript(ModificationScript script) {
+        this.script = Objects.requireNonNull(script);
         return this;
     }
 
@@ -51,38 +50,41 @@ public class VirtualCaseBuilder implements ProjectFileBuilder<VirtualCase> {
         if (name == null) {
             throw new AfsException("Name is not set");
         }
-        if (casePath == null) {
-            throw new AfsException("Case path is not set");
+        if (aCase == null) {
+            throw new AfsException("Case is not set");
+        } else {
+            if (!(aCase instanceof ProjectCase)) {
+                throw new AfsException("Case does not implement " + ProjectCase.class.getName());
+            }
         }
-        if (scriptPath == null) {
-            throw new AfsException("Script path is not set");
+        if (script == null) {
+            throw new AfsException("Script is not set");
         }
 
-        if (context.getStorage().getChildNode(context.getFolderInfo().getId(), name).isPresent()) {
-            throw new AfsException("Parent folder already contains a '" + name + "' node");
+        ProjectFolder folder = new ProjectFolder(new ProjectFileCreationContext(context.getFolderInfo(),
+                                                                                context.getStorage(),
+                                                                                context.getFileSystem()));
+
+        if (folder.getChild(name).isPresent()) {
+            throw new AfsException("Folder '" + folder.getPath() + "' already contains a '" + name + "' node");
         }
 
-        // check links
-        Project project = new ProjectFolder(new ProjectFileCreationContext(context.getFolderInfo(),
-                                                                           context.getStorage(),
-                                                                           context.getFileSystem())).getProject();
-        Optional<ProjectFile> aCase = project.getRootFolder().getChild(ProjectFile.class, casePath);
-        if (!aCase.isPresent() || !(aCase.get() instanceof ProjectCase)) {
-            throw new AfsException("Invalid case path " + casePath);
+        // check links belong to same project
+        if (!folder.getProject().getId().equals(aCase.getProject().getId())) {
+            throw new AfsException("Case and folder do not belong to the same project");
         }
-        Optional<ModificationScript> script = project.getRootFolder().getChild(ModificationScript.class, scriptPath);
-        if (!script.isPresent()) {
-            throw new AfsException("Invalid script path " + scriptPath);
+        if (!folder.getProject().getId().equals(script.getProject().getId())) {
+            throw new AfsException("Script and folder do not belong to the same project");
         }
 
         // create project file
         NodeInfo info = context.getStorage().createNode(context.getFolderInfo().getId(), name, VirtualCase.PSEUDO_CLASS, "", VirtualCase.VERSION, new NodeGenericMetadata());
 
         // create case link
-        context.getStorage().addDependency(info.getId(), VirtualCase.CASE_DEPENDENCY_NAME, aCase.get().getId());
+        context.getStorage().addDependency(info.getId(), VirtualCase.CASE_DEPENDENCY_NAME, aCase.getId());
 
         // create script link
-        context.getStorage().addDependency(info.getId(), VirtualCase.SCRIPT_DEPENDENCY_NAME, script.get().getId());
+        context.getStorage().addDependency(info.getId(), VirtualCase.SCRIPT_DEPENDENCY_NAME, script.getId());
 
         context.getStorage().flush();
 

@@ -23,13 +23,17 @@ public class ToolRunningContext {
 
     private final FileSystem fileSystem;
 
-    private final ComputationManager computationManager;
+    private final ComputationManager shortTimeExecutioncomputationManager;
 
-    public ToolRunningContext(PrintStream outputStream, PrintStream errorStream, FileSystem fileSystem, ComputationManager computationManager) {
+    private final ComputationManager longTimeExecutionComputationManager;
+
+    public ToolRunningContext(PrintStream outputStream, PrintStream errorStream, FileSystem fileSystem, ComputationManager shortTimeExecutioncomputationManager,
+                              ComputationManager longTimeExecutionComputationManager) {
         this.outputStream = Objects.requireNonNull(outputStream);
         this.errorStream = Objects.requireNonNull(errorStream);
         this.fileSystem = Objects.requireNonNull(fileSystem);
-        this.computationManager = Objects.requireNonNull(computationManager);
+        this.shortTimeExecutioncomputationManager = Objects.requireNonNull(shortTimeExecutioncomputationManager);
+        this.longTimeExecutionComputationManager = longTimeExecutionComputationManager;
     }
 
     public PrintStream getOutputStream() {
@@ -44,7 +48,19 @@ public class ToolRunningContext {
         return fileSystem;
     }
 
+    /**
+     * @deprecated Use getShortTimeExecutionComputationManager or getLongTimeExecutionComputationManager instead.
+     */
+    @Deprecated
     public ComputationManager getComputationManager() {
-        return computationManager;
+        return getShortTimeExecutionComputationManager();
+    }
+
+    public ComputationManager getShortTimeExecutionComputationManager() {
+        return shortTimeExecutioncomputationManager;
+    }
+
+    public ComputationManager getLongTimeExecutionComputationManager() {
+        return longTimeExecutionComputationManager != null ? longTimeExecutionComputationManager : shortTimeExecutioncomputationManager;
     }
 }

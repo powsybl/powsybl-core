@@ -14,7 +14,7 @@ import java.util.Optional;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class VirtualCase extends ProjectFile implements ProjectCase, RunnableScript, DependencyListener {
+public class VirtualCase extends ProjectFile implements ProjectCase, RunnableScript {
 
     public static final String PSEUDO_CLASS = "virtualCase";
     public static final int VERSION = 0;
@@ -30,7 +30,6 @@ public class VirtualCase extends ProjectFile implements ProjectCase, RunnableScr
 
     public VirtualCase(ProjectFileCreationContext context) {
         super(context, VERSION, VIRTUAL_CASE_ICON);
-        addDependencyListener(this, this);
     }
 
     public Optional<ProjectCase> getCase() {
@@ -43,22 +42,22 @@ public class VirtualCase extends ProjectFile implements ProjectCase, RunnableScr
 
     @Override
     public String queryNetwork(String groovyScript) {
-        return fileSystem.findService(NetworkService.class).queryNetwork(this, groovyScript);
+        return findService(NetworkService.class).queryNetwork(this, groovyScript);
     }
 
     @Override
     public Network getNetwork() {
-        return fileSystem.findService(NetworkService.class).getNetwork(this);
+        return findService(NetworkService.class).getNetwork(this);
     }
 
     @Override
     public ScriptError getScriptError() {
-        return fileSystem.findService(NetworkService.class).getScriptError(this);
+        return findService(NetworkService.class).getScriptError(this);
     }
 
     @Override
     public String getScriptOutput() {
-        return fileSystem.findService(NetworkService.class).getScriptOutput(this);
+        return findService(NetworkService.class).getScriptOutput(this);
     }
 
     static AfsException createScriptLinkIsDeadException() {
@@ -96,12 +95,13 @@ public class VirtualCase extends ProjectFile implements ProjectCase, RunnableScr
     }
 
     private void invalidateNetworkCache() {
-        fileSystem.findService(NetworkService.class).invalidateCache(this);
+        findService(NetworkService.class).invalidateCache(this);
     }
 
     @Override
-    public void dependencyChanged() {
+    public void invalidate() {
         invalidateNetworkCache();
+        super.invalidate();
     }
 
     @Override

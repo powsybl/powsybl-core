@@ -24,13 +24,13 @@ public class Case extends File {
     public static final String PSEUDO_CLASS = "case";
     public static final int VERSION = 0;
 
-    static final String FORMAT = "format";
+    public static final String FORMAT = "format";
 
     private final ImportersLoader importersLoader;
 
     public Case(FileCreationContext context, ImportersLoader importersLoader) {
         super(context, VERSION, CaseIconCache.INSTANCE.get(importersLoader,
-                                                           context.getFileSystem().getData().getComputationManager(),
+                                                           context.getFileSystem().getData().getShortTimeExecutionComputationManager(),
                                                            context.getInfo().getGenericMetadata().getString(FORMAT)));
         this.importersLoader = Objects.requireNonNull(importersLoader);
     }

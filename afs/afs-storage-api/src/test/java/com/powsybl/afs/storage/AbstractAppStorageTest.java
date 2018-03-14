@@ -55,7 +55,7 @@ public abstract class AbstractAppStorageTest {
         } else {
             this.storage = new DefaultListenableAppStorage(storage);
         }
-        this.storage.addListener(this, event -> eventStack.add(event));
+        this.storage.addListener(this, eventList -> eventStack.addAll(eventList.getEvents()));
     }
 
     @After
@@ -172,6 +172,7 @@ public abstract class AbstractAppStorageTest {
 
         // check event
         assertEquals(new DependencyAdded(testDataInfo.getId(), "mylink"), eventStack.take());
+        assertEquals(new BackwardDependencyAdded(testData2Info.getId(), "mylink"), eventStack.take());
 
         // check dependency state
         assertEquals(ImmutableSet.of(new NodeDependency("mylink", testData2Info)), storage.getDependencies(testDataInfo.getId()));
@@ -185,6 +186,7 @@ public abstract class AbstractAppStorageTest {
 
         // check event
         assertEquals(new DependencyAdded(testDataInfo.getId(), "mylink2"), eventStack.take());
+        assertEquals(new BackwardDependencyAdded(testData2Info.getId(), "mylink2"), eventStack.take());
 
         assertEquals(ImmutableSet.of(new NodeDependency("mylink", testData2Info), new NodeDependency("mylink2", testData2Info)), storage.getDependencies(testDataInfo.getId()));
         assertEquals(ImmutableSet.of(testDataInfo), storage.getBackwardDependencies(testData2Info.getId()));
@@ -195,13 +197,14 @@ public abstract class AbstractAppStorageTest {
 
         // check event
         assertEquals(new DependencyRemoved(testDataInfo.getId(), "mylink2"), eventStack.take());
+        assertEquals(new BackwardDependencyRemoved(testData2Info.getId(), "mylink2"), eventStack.take());
 
         assertEquals(ImmutableSet.of(new NodeDependency("mylink", testData2Info)), storage.getDependencies(testDataInfo.getId()));
         assertEquals(ImmutableSet.of(testDataInfo), storage.getBackwardDependencies(testData2Info.getId()));
         assertEquals(ImmutableSet.of(testData2Info), storage.getDependencies(testDataInfo.getId(), "mylink"));
 
         // 8) delete data node
-        storage.deleteNode(testDataInfo.getId());
+        assertEquals(testFolderInfo.getId(), storage.deleteNode(testDataInfo.getId()));
         storage.flush();
 
         // check event
@@ -308,6 +311,7 @@ public abstract class AbstractAppStorageTest {
         assertEquals(new TimeSeriesDataUpdated(testData2Info.getId(), "ts1"), eventStack.take());
 
         // check versions
+        assertEquals(ImmutableSet.of(0), storage.getTimeSeriesDataVersions(testData2Info.getId()));
         assertEquals(ImmutableSet.of(0), storage.getTimeSeriesDataVersions(testData2Info.getId(), "ts1"));
 
         // check double time series data query

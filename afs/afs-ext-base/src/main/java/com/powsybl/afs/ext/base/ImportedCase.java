@@ -39,7 +39,7 @@ public class ImportedCase extends ProjectFile implements ProjectCase {
     public ImportedCase(ProjectFileCreationContext context, ImportersLoader importersLoader) {
         super(context, VERSION, CaseIconCache.INSTANCE.get(
                 importersLoader,
-                context.getFileSystem().getData().getComputationManager(),
+                context.getFileSystem().getData().getShortTimeExecutionComputationManager(),
                 context.getInfo().getGenericMetadata().getString(FORMAT)));
         this.importersLoader = Objects.requireNonNull(importersLoader);
     }
@@ -69,12 +69,12 @@ public class ImportedCase extends ProjectFile implements ProjectCase {
 
     @Override
     public String queryNetwork(String groovyScript) {
-        return fileSystem.findService(NetworkService.class).queryNetwork(this, groovyScript);
+        return findService(NetworkService.class).queryNetwork(this, groovyScript);
     }
 
     @Override
     public Network getNetwork() {
-        return fileSystem.findService(NetworkService.class).getNetwork(this);
+        return findService(NetworkService.class).getNetwork(this);
     }
 
     @Override
@@ -92,6 +92,6 @@ public class ImportedCase extends ProjectFile implements ProjectCase {
         super.delete();
 
         // also clean cache
-        fileSystem.findService(NetworkService.class).invalidateCache(this);
+        findService(NetworkService.class).invalidateCache(this);
     }
 }

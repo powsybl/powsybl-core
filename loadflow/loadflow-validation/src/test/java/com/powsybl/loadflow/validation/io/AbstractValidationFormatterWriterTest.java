@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017, RTE (http://www.rte-france.com)
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -25,6 +25,7 @@ import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
 public abstract class AbstractValidationFormatterWriterTest {
 
     protected final String branchId = "branchId";
+    protected final String otherBranchId = "otherBranchId";
     protected final float p1 = 39.5056f;
     protected final float p1Calc = 39.5058f;
     protected final float q1 = -3.72344f;
@@ -57,6 +58,7 @@ public abstract class AbstractValidationFormatterWriterTest {
     protected final boolean validated = true;
 
     protected final String generatorId = "generatorId";
+    protected final String otherGeneratorId = "otherGeneratorId";
     protected final float p = -39.5056f;
     protected final float q = 3.72344f;
     protected final float v = 380f;
@@ -69,6 +71,7 @@ public abstract class AbstractValidationFormatterWriterTest {
     protected final float maxQ = 0f;
 
     protected final String busId = "busId";
+    protected final String otherBusId = "otherBusId";
     protected final double incomingP = -37.2287f;
     protected final double incomingQ = -174.383f;
     protected final double loadP = 37.2286f;
@@ -83,12 +86,15 @@ public abstract class AbstractValidationFormatterWriterTest {
     protected final double vscCSQ = 0f;
     protected final double lineP = 1982.7713f;
     protected final double lineQ = -441.7662f;
+    protected final double danglingLineP = 0f;
+    protected final double danglingLineQ = 0f;
     protected final double twtP = 0f;
     protected final double twtQ = 0f;
     protected final double tltP = 0f;
     protected final double tltQ = 0f;
 
     protected final String svcId = "svcId";
+    protected final String otherSvcId = "otherSvcId";
     protected final float reactivePowerSetpoint = -3.72344f;
     protected final float voltageSetpoint = 380f;
     protected final RegulationMode regulationMode = RegulationMode.VOLTAGE;
@@ -96,6 +102,7 @@ public abstract class AbstractValidationFormatterWriterTest {
     protected final float bMax = 0f;
 
     protected final String shuntId = "shuntId";
+    protected final String otherShuntId = "otherShuntId";
     protected final float expectedQ = 3.724f;
     protected int currentSectionCount = 0;
     protected int maximumSectionCount = 1;
@@ -105,129 +112,296 @@ public abstract class AbstractValidationFormatterWriterTest {
 
     @Test
     public void testFlows() throws Exception {
-        testFlows(getFlowsContent(), false);
+        testFlows(getFlowsContent(), false, false, branchId, null);
     }
 
     protected abstract String getFlowsContent();
 
     @Test
     public void testFlowsVerbose() throws Exception {
-        testFlows(getFlowsVerboseContent(), true);
+        testFlows(getFlowsVerboseContent(), true, false, branchId, null);
     }
 
     protected abstract String getFlowsVerboseContent();
 
-    protected void testFlows(String flowsContent, boolean verbose) throws IOException {
+    @Test
+    public void testFlowsCompare() throws Exception {
+        testFlows(getFlowsCompareContent(), false, true, branchId, branchId);
+    }
+
+    protected abstract String getFlowsCompareContent();
+
+    @Test
+    public void testFlowsCompareDifferentIds() throws Exception {
+        testFlows(getFlowsCompareDifferentIdsContent(), false, true, branchId, otherBranchId);
+    }
+
+    protected abstract String getFlowsCompareDifferentIdsContent();
+
+    @Test
+    public void testFlowsCompareVerbose() throws Exception {
+        testFlows(getFlowsCompareVerboseContent(), true, true, branchId, branchId);
+    }
+
+    protected abstract String getFlowsCompareVerboseContent();
+
+    @Test
+    public void testFlowsCompareDifferentIdsVerbose() throws Exception {
+        testFlows(getFlowsCompareDifferentIdsVerboseContent(), true, true, branchId, otherBranchId);
+    }
+
+    protected abstract String getFlowsCompareDifferentIdsVerboseContent();
+
+    protected void testFlows(String flowsContent, boolean verbose, boolean compareResults, String branchId1, String branchId2) throws IOException {
         Writer writer = new StringWriter();
         TableFormatterConfig config = new TableFormatterConfig(Locale.getDefault(), ';', "inv", true, true);
-        try (ValidationWriter flowsWriter = getFlowsValidationFormatterCsvWriter(config, writer, verbose)) {
-            flowsWriter.write(branchId, p1, p1Calc, q1, q1Calc, p2, p2Calc, q2, q2Calc, r, x, g1, g2, b1, b2, rho1, rho2,
+        try (ValidationWriter flowsWriter = getFlowsValidationFormatterCsvWriter(config, writer, verbose, compareResults)) {
+            flowsWriter.write(branchId1, p1, p1Calc, q1, q1Calc, p2, p2Calc, q2, q2Calc, r, x, g1, g2, b1, b2, rho1, rho2,
                               alpha1, alpha2, u1, u2, theta1, theta2, z, y, ksi, connected1, connected2, mainComponent1,
                               mainComponent2, validated);
+            flowsWriter.setValidationCompleted();
+            if (compareResults) {
+                flowsWriter.write(branchId2, p1, p1Calc, q1, q1Calc, p2, p2Calc, q2, q2Calc, r, x, g1, g2, b1, b2, rho1, rho2,
+                                  alpha1, alpha2, u1, u2, theta1, theta2, z, y, ksi, connected1, connected2, mainComponent1,
+                                  mainComponent2, validated);
+                flowsWriter.setValidationCompleted();
+            }
             assertEquals(flowsContent, writer.toString().trim());
         }
     }
 
-    protected abstract ValidationWriter getFlowsValidationFormatterCsvWriter(TableFormatterConfig config, Writer writer, boolean verbose);
+    protected abstract ValidationWriter getFlowsValidationFormatterCsvWriter(TableFormatterConfig config, Writer writer, boolean verbose, boolean compareResults);
 
     @Test
     public void testGenerators() throws Exception {
-        testGenerators(getGeneratorsContent(), false);
+        testGenerators(getGeneratorsContent(), false, false, generatorId, null);
     }
 
     protected abstract String getGeneratorsContent();
 
     @Test
     public void testGeneratorsVerbose() throws Exception {
-        testGenerators(getGeneratorsVerboseContent(), true);
+        testGenerators(getGeneratorsVerboseContent(), true, false, generatorId, null);
     }
 
     protected abstract String getGeneratorsVerboseContent();
 
-    protected void testGenerators(String generatorsContent, boolean verbose) throws IOException {
+    @Test
+    public void testGeneratorsCompare() throws Exception {
+        testGenerators(getGeneratorsCompareContent(), false, true, generatorId, generatorId);
+    }
+
+    protected abstract String getGeneratorsCompareContent();
+
+    @Test
+    public void testGeneratorsCompareDifferentIds() throws Exception {
+        testGenerators(getGeneratorsCompareDifferentIdsContent(), false, true, generatorId, otherGeneratorId);
+    }
+
+    protected abstract String getGeneratorsCompareDifferentIdsContent();
+
+    @Test
+    public void testGeneratorsCompareVerbose() throws Exception {
+        testGenerators(getGeneratorsCompareVerboseContent(), true, true, generatorId, generatorId);
+    }
+
+    protected abstract String getGeneratorsCompareVerboseContent();
+
+    @Test
+    public void testGeneratorsCompareDifferentIdsVerbose() throws Exception {
+        testGenerators(getGeneratorsCompareDifferentIdsVerboseContent(), true, true, generatorId, otherGeneratorId);
+    }
+
+    protected abstract String getGeneratorsCompareDifferentIdsVerboseContent();
+
+    protected void testGenerators(String generatorsContent, boolean verbose, boolean compareResults, String generatorId1, String generatorId2) throws IOException {
         Writer writer = new StringWriter();
         TableFormatterConfig config = new TableFormatterConfig(Locale.getDefault(), ';', "inv", true, true);
-        try (ValidationWriter generatorsWriter = getGeneratorsValidationFormatterCsvWriter(config, writer, verbose)) {
-            generatorsWriter.write(generatorId, p, q, v, targetP, targetQ, targetV, connected, voltageRegulatorOn, minQ, maxQ, validated);
+        try (ValidationWriter generatorsWriter = getGeneratorsValidationFormatterCsvWriter(config, writer, verbose, compareResults)) {
+            generatorsWriter.write(generatorId1, p, q, v, targetP, targetQ, targetV, connected, voltageRegulatorOn, minQ, maxQ, validated);
+            generatorsWriter.setValidationCompleted();
+            if (compareResults) {
+                generatorsWriter.write(generatorId2, p, q, v, targetP, targetQ, targetV, connected, voltageRegulatorOn, minQ, maxQ, validated);
+                generatorsWriter.setValidationCompleted();
+            }
             assertEquals(generatorsContent, writer.toString().trim());
         }
     }
 
-    protected abstract ValidationWriter getGeneratorsValidationFormatterCsvWriter(TableFormatterConfig config, Writer writer, boolean verbose);
+    protected abstract ValidationWriter getGeneratorsValidationFormatterCsvWriter(TableFormatterConfig config, Writer writer, boolean verbose, boolean compareResults);
 
     @Test
     public void testBuses() throws Exception {
-        testBuses(getBusesContent(), false);
+        testBuses(getBusesContent(), false, false, busId, null);
     }
 
     protected abstract String getBusesContent();
 
     @Test
     public void testBusesVerbose() throws Exception {
-        testBuses(getBusesVerboseContent(), true);
+        testBuses(getBusesVerboseContent(), true, false, busId, null);
     }
 
     protected abstract String getBusesVerboseContent();
 
-    private void testBuses(String busesContent, boolean verbose) throws IOException {
+    @Test
+    public void testBusesCompare() throws Exception {
+        testBuses(getBusesCompareContent(), false, true, busId,  busId);
+    }
+
+    protected abstract String getBusesCompareContent();
+
+    @Test
+    public void testBusesCompareDifferentIds() throws Exception {
+        testBuses(getBusesCompareDifferentIdsContent(), false, true, busId,  otherBusId);
+    }
+
+    protected abstract String getBusesCompareDifferentIdsContent();
+
+    @Test
+    public void testBusesCompareVerbose() throws Exception {
+        testBuses(getBusesCompareVerboseContent(), true, true, busId,  busId);
+    }
+
+    protected abstract String getBusesCompareVerboseContent();
+
+    @Test
+    public void testBusesCompareDifferentIdsVerbose() throws Exception {
+        testBuses(getBusesCompareDifferentIdsVerboseContent(), true, true, busId,  otherBusId);
+    }
+
+    protected abstract String getBusesCompareDifferentIdsVerboseContent();
+
+    private void testBuses(String busesContent, boolean verbose, boolean compareResults, String busId1, String busId2) throws IOException {
         Writer writer = new StringWriter();
         TableFormatterConfig config = new TableFormatterConfig(Locale.getDefault(), ';', "inv", true, true);
-        try (ValidationWriter busesWriter = getBusesValidationFormatterCsvWriter(config, writer, verbose)) {
-            busesWriter.write(busId, incomingP, incomingQ, loadP, loadQ, genP, genQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ, lineP, lineQ, twtP, twtQ, tltP, tltQ, validated);
+        try (ValidationWriter busesWriter = getBusesValidationFormatterCsvWriter(config, writer, verbose, compareResults)) {
+            busesWriter.write(busId1, incomingP, incomingQ, loadP, loadQ, genP, genQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ, lineP, lineQ, danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, validated);
+            busesWriter.setValidationCompleted();
+            if (compareResults) {
+                busesWriter.write(busId2, incomingP, incomingQ, loadP, loadQ, genP, genQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ, lineP, lineQ, danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, validated);
+                busesWriter.setValidationCompleted();
+            }
             assertEquals(busesContent, writer.toString().trim());
         }
     }
 
-    protected abstract ValidationWriter getBusesValidationFormatterCsvWriter(TableFormatterConfig config, Writer writer, boolean verbose);
+    protected abstract ValidationWriter getBusesValidationFormatterCsvWriter(TableFormatterConfig config, Writer writer, boolean verbose, boolean compareResults);
 
     @Test
     public void testSvcs() throws Exception {
-        testSvcs(getSvcsContent(), false);
+        testSvcs(getSvcsContent(), false, false, svcId, null);
     }
 
     protected abstract String getSvcsContent();
 
     @Test
     public void testSvcsVerbose() throws Exception {
-        testSvcs(getSvcsVerboseContent(), true);
+        testSvcs(getSvcsVerboseContent(), true, false, svcId, null);
     }
 
     protected abstract String getSvcsVerboseContent();
 
-    protected void testSvcs(String svcsContent, boolean verbose) throws IOException {
+    @Test
+    public void testSvcsConpare() throws Exception {
+        testSvcs(getSvcsCompareContent(), false, true, svcId, svcId);
+    }
+
+    protected abstract String getSvcsCompareContent();
+
+    @Test
+    public void testSvcsConpareDifferentIds() throws Exception {
+        testSvcs(getSvcsCompareDifferentIdsContent(), false, true, svcId, otherSvcId);
+    }
+
+    protected abstract String getSvcsCompareDifferentIdsContent();
+
+    @Test
+    public void testSvcsConpareVerbose() throws Exception {
+        testSvcs(getSvcsCompareVerboseContent(), true, true, svcId, svcId);
+    }
+
+    protected abstract String getSvcsCompareVerboseContent();
+
+    @Test
+    public void testSvcsConpareDifferentIdsVerbose() throws Exception {
+        testSvcs(getSvcsCompareDifferentIdsVerboseContent(), true, true, svcId, otherSvcId);
+    }
+
+    protected abstract String getSvcsCompareDifferentIdsVerboseContent();
+
+    protected void testSvcs(String svcsContent, boolean verbose, boolean compareResults, String svcId1, String svcId2) throws IOException {
         Writer writer = new StringWriter();
         TableFormatterConfig config = new TableFormatterConfig(Locale.getDefault(), ';', "inv", true, true);
-        try (ValidationWriter svcsWriter = getSvcsValidationFormatterCsvWriter(config, writer, verbose)) {
-            svcsWriter.write(svcId, p, q, v, reactivePowerSetpoint, voltageSetpoint, verbose, regulationMode, bMin, bMax, validated);
+        try (ValidationWriter svcsWriter = getSvcsValidationFormatterCsvWriter(config, writer, verbose, compareResults)) {
+            svcsWriter.write(svcId1, p, q, v, reactivePowerSetpoint, voltageSetpoint, verbose, regulationMode, bMin, bMax, validated);
+            svcsWriter.setValidationCompleted();
+            if (compareResults) {
+                svcsWriter.write(svcId2, p, q, v, reactivePowerSetpoint, voltageSetpoint, verbose, regulationMode, bMin, bMax, validated);
+                svcsWriter.setValidationCompleted();
+            }
             assertEquals(svcsContent, writer.toString().trim());
         }
     }
 
-    protected abstract ValidationWriter getSvcsValidationFormatterCsvWriter(TableFormatterConfig config, Writer writer, boolean verbose);
+    protected abstract ValidationWriter getSvcsValidationFormatterCsvWriter(TableFormatterConfig config, Writer writer, boolean verbose, boolean compareResults);
 
     @Test
     public void testShunts() throws Exception {
-        testShunts(getShuntsContent(), false);
+        testShunts(getShuntsContent(), false, false, shuntId, null);
     }
 
     protected abstract String getShuntsContent();
 
     @Test
     public void testShuntsVerbose() throws Exception {
-        testShunts(getShuntsVerboseContent(), true);
+        testShunts(getShuntsVerboseContent(), true, false, shuntId,  null);
     }
 
     protected abstract String getShuntsVerboseContent();
 
-    protected void testShunts(String shuntsContent, boolean verbose) throws IOException {
+    @Test
+    public void testShuntsCompare() throws Exception {
+        testShunts(getShuntsCompareContent(), false, true, shuntId, shuntId);
+    }
+
+    protected abstract String getShuntsCompareContent();
+
+    @Test
+    public void testShuntsCompareDifferentIds() throws Exception {
+        testShunts(getShuntsCompareDifferentIdsContent(), false, true, shuntId, otherShuntId);
+    }
+
+    protected abstract String getShuntsCompareDifferentIdsContent();
+
+    @Test
+    public void testShuntsCompareVerbose() throws Exception {
+        testShunts(getShuntsCompareVerboseContent(), true, true, shuntId, shuntId);
+    }
+
+    protected abstract String getShuntsCompareVerboseContent();
+
+    @Test
+    public void testShuntsCompareDifferentIdsVerbose() throws Exception {
+        testShunts(getShuntsCompareDifferentIdsVerboseContent(), true, true, shuntId, otherShuntId);
+    }
+
+    protected abstract String getShuntsCompareDifferentIdsVerboseContent();
+
+    protected void testShunts(String shuntsContent, boolean verbose, boolean compareResults, String shuntId1, String shuntId2) throws IOException {
         Writer writer = new StringWriter();
         TableFormatterConfig config = new TableFormatterConfig(Locale.getDefault(), ';', "inv", true, true);
-        try (ValidationWriter shuntsWriter = getShuntsValidationFormatterCsvWriter(config, writer, verbose)) {
-            shuntsWriter.write(shuntId, q, expectedQ, p, currentSectionCount, maximumSectionCount, bPerSection, v, connected, qMax, nominalV, validated);
+        try (ValidationWriter shuntsWriter = getShuntsValidationFormatterCsvWriter(config, writer, verbose, compareResults)) {
+            shuntsWriter.write(shuntId1, q, expectedQ, p, currentSectionCount, maximumSectionCount, bPerSection, v, connected, qMax, nominalV, validated);
+            shuntsWriter.setValidationCompleted();
+            if (compareResults) {
+                shuntsWriter.write(shuntId2, q, expectedQ, p, currentSectionCount, maximumSectionCount, bPerSection, v, connected, qMax, nominalV, validated);
+                shuntsWriter.setValidationCompleted();
+            }
             assertEquals(shuntsContent, writer.toString().trim());
         }
     }
 
-    protected abstract ValidationWriter getShuntsValidationFormatterCsvWriter(TableFormatterConfig config, Writer writer, boolean verbose);
+    protected abstract ValidationWriter getShuntsValidationFormatterCsvWriter(TableFormatterConfig config, Writer writer, boolean verbose, boolean compareResults);
 
 }

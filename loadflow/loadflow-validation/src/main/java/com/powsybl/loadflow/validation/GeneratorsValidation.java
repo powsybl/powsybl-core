@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017, RTE (http://www.rte-france.com)
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -151,25 +151,26 @@ public final class GeneratorsValidation {
                                                  boolean voltageRegulatorOn, float minQ, float maxQ, ValidationConfig config) {
         boolean validated = true;
         // active power should be equal to setpoint
-        if ((Float.isNaN(targetP) && !config.areOkMissingValues()) || Math.abs(p + targetP) > config.getThreshold()) {
+        if (ValidationUtils.areNaN(config, targetP) || Math.abs(p + targetP) > config.getThreshold()) {
             LOGGER.warn("{} {}: {}: P={} targetP={}", ValidationType.GENERATORS, ValidationUtils.VALIDATION_ERROR, id, p, targetP);
             validated = false;
         }
         // if voltageRegulatorOn="false" then reactive power should be equal to setpoint
-        if (!voltageRegulatorOn && ((Float.isNaN(targetQ) && !config.areOkMissingValues()) || Math.abs(q + targetQ) > config.getThreshold())) {
+        if (!voltageRegulatorOn && (ValidationUtils.areNaN(config, targetQ) || Math.abs(q + targetQ) > config.getThreshold())) {
             LOGGER.warn("{} {}: {}: voltage regulator off - Q={} targetQ={}", ValidationType.GENERATORS, ValidationUtils.VALIDATION_ERROR, id, q, targetQ);
             validated = false;
         }
         // if voltageRegulatorOn="true" then
-        // either q is equal to g.getReactiveLimits().getMinQ(p) and V is lower than g.getTargetV()
-        // or q is equal to g.getReactiveLimits().getMaxQ(p) and V is higher than g.getTargetV()
-        // or V at the connected bus is equal to g.getTargetV()
+        // either q is equal to g.getReactiveLimits().getMinQ(p) and V is higher than g.getTargetV()
+        // or q is equal to g.getReactiveLimits().getMaxQ(p) and V is lower than g.getTargetV()
+        // or V at the connected bus is equal to g.getTargetV() and the reactive bounds are satisfied
+        float qg = -q;
         if (voltageRegulatorOn
-            && (((Float.isNaN(minQ) || Float.isNaN(maxQ) || Float.isNaN(targetV)) && !config.areOkMissingValues())
-                || ((Math.abs(q + getMinQ(minQ, maxQ)) > config.getThreshold() || (v - targetV) >= config.getThreshold())
-                    && (Math.abs(q + getMaxQ(minQ, maxQ)) > config.getThreshold() || (targetV - v) >= config.getThreshold())
-                    && Math.abs(v - targetV) > config.getThreshold()))) {
-            LOGGER.warn("{} {}: {}: voltage regulator on - Q={} minQ={} maxQ={} - V={} targetV={}", ValidationType.GENERATORS, ValidationUtils.VALIDATION_ERROR, id, q, minQ, maxQ, v, targetV);
+            && (ValidationUtils.areNaN(config, minQ, maxQ, targetV)
+                || ((Math.abs(qg - getMinQ(minQ, maxQ)) > config.getThreshold() || (v - targetV) < config.getThreshold())
+                    && (Math.abs(qg - getMaxQ(minQ, maxQ)) > config.getThreshold() || (targetV - v) < config.getThreshold())
+                    && (!ValidationUtils.boundedWithin(minQ, maxQ, qg, config.getThreshold()) || Math.abs(v - targetV) > config.getThreshold())))) {
+            LOGGER.warn("{} {}: {}: voltage regulator on - Q={} minQ={} maxQ={} - V={} targetV={}", ValidationType.GENERATORS, ValidationUtils.VALIDATION_ERROR, id, qg, minQ, maxQ, v, targetV);
             validated = false;
         }
         return validated;

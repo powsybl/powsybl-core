@@ -56,6 +56,6 @@ set options=%options%\logback-itools.xml"
 
 if "%java_xmx%"=="" ( set java_xmx=8G )
 
-"%JAVA_HOME%"\bin\java.exe  -Xmx%java_xmx% -cp %installDir%\share\java\* %options% com.powsybl.computation.local.Main %args%
+"%JAVA_HOME%"\bin\java.exe  -Xmx%java_xmx% -cp %installDir%\share\java\* %options% com.powsybl.tools.Main %args%
 
 endlocal

@@ -14,11 +14,40 @@
 
     <groupId>com.powsybl</groupId>
     <artifactId>powsybl-core</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <name>powsybl - Core</name>
+    <name>powsybl</name>
+    <description>A framework to build power system oriented software</description>
     <url>http://www.powsybl.com</url>
+
+    <licenses>
+        <license>
+            <name>Mozilla Public License, Version 2.0</name>
+            <url>https://www.mozilla.org/en-US/MPL/2.0/</url>
+        </license>
+    </licenses>
+
+    <scm>
+        <connection>scm:git:https://github.com/powsybl/powsybl-core.git</connection>
+        <developerConnection>scm:git:https://github.com/powsybl/powsybl-core.git</developerConnection>
+        <url>https://github.com/powsybl/powsybl-core</url>
+    </scm>
+
+    <developers>
+        <developer>
+            <name>Mathieu BAGUE</name>
+            <email>mathieu.bague@rte-france.com</email>
+            <organization>RTE</organization>
+            <organizationUrl>http://www.rte-france.com</organizationUrl>
+        </developer>
+        <developer>
+            <name>Geoffroy JAMGOTCHIAN</name>
+            <email>geoffroy.jamgotchian@rte-france.com</email>
+            <organization>RTE</organization>
+            <organizationUrl>http://www.rte-france.com</organizationUrl>
+        </developer>
+    </developers>
 
     <modules>
         <module>action</module>
@@ -49,20 +78,23 @@
         <java.version>1.8</java.version>
 
         <maven.antrun.version>1.8</maven.antrun.version>
+        <maven.assembly.version>3.0.0</maven.assembly.version>
         <maven.build-helper.version>3.0.0</maven.build-helper.version>
-        <maven.compiler.version>3.6.0</maven.compiler.version>
-        <maven.findbugs.version>3.0.4</maven.findbugs.version>
-        <maven.javadoc.version>2.10.4</maven.javadoc.version>
-        <maven.jacoco.version>0.7.8</maven.jacoco.version>
         <maven.buildnumber.version>1.4</maven.buildnumber.version>
+        <maven.checkstyle.version>3.0.0</maven.checkstyle.version>
+        <maven.compiler.version>3.6.0</maven.compiler.version>
+        <maven.coveralls.version>4.3.0</maven.coveralls.version>
+        <maven.deploy.version>2.8.2</maven.deploy.version>
+        <maven.findbugs.version>3.0.4</maven.findbugs.version>
+        <maven.gpg.version>1.6</maven.gpg.version>
+        <maven.jacoco.version>0.7.8</maven.jacoco.version>
+        <maven.jar.version>3.0.2</maven.jar.version>
+        <maven.javadoc.version>3.0.0</maven.javadoc.version>
         <maven.shade.version>3.1.0</maven.shade.version>
+        <maven.source.version>3.0.1</maven.source.version>
         <maven.surefire.version>2.19.1</maven.surefire.version>
         <maven.templating.version>1.0.0</maven.templating.version>
-        <maven.jar.version>3.0.2</maven.jar.version>
-        <maven.assembly.version>3.0.0</maven.assembly.version>
-        <maven.license.version>3.0</maven.license.version>
-        <maven.coveralls.version>4.3.0</maven.coveralls.version>
-        <maven.checkstyle.version>3.0.0</maven.checkstyle.version>
+
         <groovyeclipsecompiler.version>2.9.2-01</groovyeclipsecompiler.version>
         <groovyeclipsebatch.version>2.4.3-01</groovyeclipsebatch.version>
 
@@ -105,20 +137,6 @@
         <xmlunit.version>2.3.0</xmlunit.version>
     </properties>
 
-    <licenses>
-        <license>
-            <name>Mozilla Public License, Version 2.0</name>
-            <url>https://www.mozilla.org/en-US/MPL/2.0/</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
-
-    <scm>
-        <connection>scm:git:https://github.com/powsybl/powsybl-core.git</connection>
-        <developerConnection>scm:git:https://github.com/powsybl/powsybl-core.git</developerConnection>
-        <url>https://github.com/powsybl/powsybl-core</url>
-    </scm>
-
     <build>
         <plugins>
             <plugin>
@@ -142,6 +160,11 @@
                         <version>${groovyeclipsebatch.version}</version>
                     </dependency>
                 </dependencies>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven.surefire.version}</version>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -183,56 +206,42 @@
                     <xmlOutput>true</xmlOutput>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>${maven.javadoc.version}</version>
-                <configuration>
-                    <doclet>org.umlgraph.doclet.UmlGraphDoc</doclet>
-                    <docletArtifact>
-                        <groupId>org.umlgraph</groupId>
-                        <artifactId>umlgraph</artifactId>
-                        <version>5.6</version>
-                    </docletArtifact>
-                    <additionalparam>-views -all</additionalparam>
-                    <additionalparam>-Xdoclint:none</additionalparam>
-                    <useStandardDocletOptions>true</useStandardDocletOptions>
-                    <excludePackageNames>cim1*</excludePackageNames>
-                    <docfilessubdirs>true</docfilessubdirs>
-                    <aggregate>true</aggregate>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>com.mycila</groupId>
-                <artifactId>license-maven-plugin</artifactId>
-                <version>${maven.license.version}</version>
-                <configuration>
-                    <header>header.txt</header>
-                    <properties>
-                        <owner>All partners of the iTesla project (http://www.itesla-project.eu/consortium)</owner>
-                        <inceptionYear>2016</inceptionYear>
-                    </properties>
-                    <excludes>
-                        <exclude>**/*.txt</exclude>
-                        <exclude>**/*.md</exclude>
-                        <exclude>src/test/resources/**</exclude>
-                        <exclude>src/main/resources/**</exclude>
-                        <exclude>**/js/libs/**</exclude>
-                        <exclude>**/org/openmodelica/**</exclude>
-                        <exclude>**/Messages.java</exclude>
-                        <exclude>**/actions_contingencies/xml/mapping/**</exclude>
-                    </excludes>
-                    <skipExistingHeaders>true</skipExistingHeaders>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>${maven.surefire.version}</version>
-            </plugin>
         </plugins>
         <pluginManagement>
             <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-assembly-plugin</artifactId>
+                    <version>${maven.assembly.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-deploy-plugin</artifactId>
+                    <version>${maven.deploy.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>${maven.jar.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <version>${maven.javadoc.version}</version>
+                    <configuration>
+                        <doclet>org.umlgraph.doclet.UmlGraphDoc</doclet>
+                        <docletArtifact>
+                            <groupId>org.umlgraph</groupId>
+                            <artifactId>umlgraph</artifactId>
+                            <version>5.6</version>
+                        </docletArtifact>
+                        <additionalOptions>-views -all</additionalOptions>
+                        <additionalOptions>-Xdoclint:none</additionalOptions>
+                        <useStandardDocletOptions>false</useStandardDocletOptions>
+                        <excludePackageNames>cim1*</excludePackageNames>
+                        <docfilessubdirs>true</docfilessubdirs>
+                    </configuration>
+                </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>buildnumber-maven-plugin</artifactId>
@@ -264,28 +273,21 @@
                     </executions>
                 </plugin>
                 <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-jar-plugin</artifactId>
-                    <version>${maven.jar.version}</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-assembly-plugin</artifactId>
-                    <version>${maven.assembly.version}</version>
-                </plugin>
-                <plugin>
                     <groupId>org.eluder.coveralls</groupId>
                     <artifactId>coveralls-maven-plugin</artifactId>
                     <version>${maven.coveralls.version}</version>
                     <configuration>
                         <!-- groovy source roots need to be manually added -->
                         <sourceDirectories>
+                            <sourceDirectory>${project.basedir}/action/action-dsl/src/main/groovy</sourceDirectory>
+                            <sourceDirectory>${project.basedir}/action/action-util/src/main/groovy</sourceDirectory>
                             <sourceDirectory>${project.basedir}/iidm/iidm-api/src/main/groovy</sourceDirectory>
                             <sourceDirectory>${project.basedir}/loadflow/loadflow-api/src/main/groovy</sourceDirectory>
                             <sourceDirectory>${project.basedir}/scripting/src/main/groovy</sourceDirectory>
                         </sourceDirectories>
                         <jacocoReports>
-                            <jacocoReport>${project.basedir}/distribution-core/target/site/jacoco-aggregate/jacoco.xml</jacocoReport>
+                            <jacocoReport>${project.basedir}/distribution-core/target/site/jacoco-aggregate/jacoco.xml
+                            </jacocoReport>
                         </jacocoReports>
                     </configuration>
                 </plugin>
@@ -309,7 +311,7 @@
                             <excludes>
                                 <!-- Exclude CIMv1 generated model -->
                                 <exclude>cim1/**</exclude>
-                                
+
                                 <!-- exclude generated classes -->
                                 <exclude>**/generated/**/*</exclude>
                             </excludes>
@@ -358,6 +360,66 @@
                     </plugin>
                 </plugins>
             </build>
+        </profile>
+        <profile>
+            <id>release</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>${maven.gpg.version}</version>
+                        <executions>
+                            <execution>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>${maven.javadoc.version}</version>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>${maven.source.version}</version>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                    <goal>test-jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+            <distributionManagement>
+                <snapshotRepository>
+                    <id>ossrh</id>
+                    <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+                </snapshotRepository>
+                <repository>
+                    <id>ossrh</id>
+                    <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+                </repository>
+            </distributionManagement>
         </profile>
     </profiles>
 
@@ -514,7 +576,7 @@
                 <version>${logback.version}</version>
                 <scope>runtime</scope>
             </dependency>
-            
+
             <!-- Test dependencies -->
             <dependency>
                 <groupId>com.google.guava</groupId>

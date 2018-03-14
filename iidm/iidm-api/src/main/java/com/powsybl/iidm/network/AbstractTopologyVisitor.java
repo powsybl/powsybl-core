@@ -7,7 +7,8 @@
 package com.powsybl.iidm.network;
 
 /**
- * Use {@link DefaultTopologyVisitor} instead
+ * @deprecated Use {@link DefaultTopologyVisitor} instead.
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @Deprecated

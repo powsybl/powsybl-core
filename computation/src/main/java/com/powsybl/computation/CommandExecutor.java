@@ -9,6 +9,7 @@ package com.powsybl.computation;
 import java.nio.file.Path;
 
 /**
+ * @deprecated Use ExecutionHandler instead.
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -16,12 +17,18 @@ import java.nio.file.Path;
 public interface CommandExecutor extends AutoCloseable {
 
     @Deprecated
-    Path getWorkingDir();
+    default Path getWorkingDir() {
+        throw new UnsupportedOperationException("deprecated");
+    }
 
     @Deprecated
-    void start(CommandExecution execution, ExecutionListener listener) throws Exception;
+    default void start(CommandExecution execution, ExecutionListener listener) throws Exception {
+        throw new UnsupportedOperationException("deprecated");
+    }
 
     @Deprecated
-    ExecutionReport start(CommandExecution execution) throws Exception;
+    default ExecutionReport start(CommandExecution execution) throws Exception {
+        throw new UnsupportedOperationException("deprecated");
+    }
 
 }

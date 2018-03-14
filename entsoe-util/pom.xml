@@ -8,19 +8,19 @@
 
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-core</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>1.1.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>powsybl-entsoe-util</artifactId>
-    <name>ENTSO-E util</name>
-    <description>Utilities for working with ENTSO-E data</description>
+    <name>ENTSO-E utilities</name>
+    <description>A set of utility classes to work with ENTSO-E files (UCTE-DEF, CIMv1, CGMES...)</description>
 
     <dependencies>
         <!-- Compilation dependencies -->

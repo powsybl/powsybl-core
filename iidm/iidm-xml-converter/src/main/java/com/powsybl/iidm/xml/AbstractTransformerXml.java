@@ -51,13 +51,13 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
         context.getWriter().writeEndElement();
     }
 
-    protected static void readRatioTapChanger(TwoWindingsTransformer twt, NetworkXmlReaderContext context) throws XMLStreamException {
+    protected static void readRatioTapChanger(String elementName, RatioTapChangerAdder adder, Terminal terminal, NetworkXmlReaderContext context) throws XMLStreamException {
         int lowTapPosition = XmlUtil.readIntAttribute(context.getReader(), "lowTapPosition");
         int tapPosition = XmlUtil.readIntAttribute(context.getReader(), "tapPosition");
         boolean regulating = XmlUtil.readOptionalBoolAttribute(context.getReader(), "regulating", false);
         boolean loadTapChangingCapabilities = XmlUtil.readBoolAttribute(context.getReader(), "loadTapChangingCapabilities");
         float targetV = XmlUtil.readOptionalFloatAttribute(context.getReader(), "targetV");
-        RatioTapChangerAdder adder = twt.newRatioTapChanger()
+        adder
                 .setLowTapPosition(lowTapPosition)
                 .setTapPosition(tapPosition)
                 .setLoadTapChangingCapabilities(loadTapChangingCapabilities)
@@ -66,13 +66,13 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
             adder.setRegulating(regulating);
         }
         boolean[] hasTerminalRef = new boolean[1];
-        XmlUtil.readUntilEndElement("ratioTapChanger", context.getReader(), () -> {
+        XmlUtil.readUntilEndElement(elementName, context.getReader(), () -> {
             switch (context.getReader().getLocalName()) {
                 case "terminalRef":
                     String id = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "id"));
                     String side = context.getReader().getAttributeValue(null, "side");
                     context.getEndTasks().add(() ->  {
-                        adder.setRegulationTerminal(readTerminalRef(twt.getTerminal1().getVoltageLevel().getSubstation().getNetwork(), id, side));
+                        adder.setRegulationTerminal(readTerminalRef(terminal.getVoltageLevel().getSubstation().getNetwork(), id, side));
                         adder.add();
                     });
                     hasTerminalRef[0] = true;
@@ -100,6 +100,14 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
         if (!hasTerminalRef[0]) {
             adder.add();
         }
+    }
+
+    protected static void readRatioTapChanger(TwoWindingsTransformer twt, NetworkXmlReaderContext context) throws XMLStreamException {
+        readRatioTapChanger("ratioTapChanger", twt.newRatioTapChanger(), twt.getTerminal1(), context);
+    }
+
+    protected static void readRatioTapChanger(int leg, ThreeWindingsTransformer.Leg2or3 twl, NetworkXmlReaderContext context) throws XMLStreamException {
+        readRatioTapChanger("ratioTapChanger" + leg, twl.newRatioTapChanger(), twl.getTerminal(), context);
     }
 
     protected static void writePhaseTapChanger(String name, PhaseTapChanger ptc, NetworkXmlWriterContext context) throws XMLStreamException {

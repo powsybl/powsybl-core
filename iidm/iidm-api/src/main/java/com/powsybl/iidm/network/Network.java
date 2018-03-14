@@ -62,7 +62,9 @@ public interface Network extends Container<Network> {
          * @deprecated use getSwitches() instead.
          */
         @Deprecated
-        Iterable<Switch> getSwitchs();
+        default Iterable<Switch> getSwitchs() {
+            throw new UnsupportedOperationException("deprecated");
+        }
 
         /**
          * Get all switches

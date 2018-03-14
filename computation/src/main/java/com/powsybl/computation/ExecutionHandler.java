@@ -24,8 +24,13 @@ public interface ExecutionHandler<R> {
         onProgress(execution, executionIndex);
     }
 
+    /**
+     * @deprecated Use onExecutionCompletion(CommandExecution, int) instead.
+     */
     @Deprecated
-    void onProgress(CommandExecution execution, int executionIndex);
+    default void onProgress(CommandExecution execution, int executionIndex) {
+        throw new UnsupportedOperationException("deprecated");
+    }
 
     R after(Path workingDir, ExecutionReport report) throws IOException;
 

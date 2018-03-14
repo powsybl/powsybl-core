@@ -30,6 +30,9 @@ public abstract class AbstractExecutionHandler<R> implements ExecutionHandler<R>
     public void onExecutionCompletion(CommandExecution execution, int executionIndex) {
     }
 
+    /**
+     * @deprecated Use onExecutionCompletion(CommandExecution, int) instead.
+     */
     @Override
     @Deprecated
     public void onProgress(CommandExecution execution, int executionIndex) {

@@ -15,12 +15,12 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-core</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>1.1.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>powsybl-math</artifactId>
     <name>Math</name>
-    <description>This is a library that provides mathematical utilities</description>
+    <description>A set of mathematical utilities</description>
 
     <dependencies>
         <!-- Compilation dependencies -->

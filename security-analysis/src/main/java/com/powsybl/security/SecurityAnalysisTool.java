@@ -8,11 +8,14 @@ package com.powsybl.security;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.io.table.AsciiTableFormatterFactory;
+import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.converter.SecurityAnalysisResultExporters;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptors;
+import com.powsybl.security.json.JsonSecurityAnalysisParameters;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
 import com.powsybl.tools.ToolRunningContext;
@@ -24,7 +27,10 @@ import org.apache.commons.cli.ParseException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -34,6 +40,7 @@ import java.util.stream.Collectors;
 public class SecurityAnalysisTool implements Tool {
 
     private static final String CASE_FILE_OPTION = "case-file";
+    private static final String PARAMETERS_FILE = "parameters-file";
     private static final String LIMIT_TYPES_OPTION = "limit-types";
     private static final String OUTPUT_FILE_OPTION = "output-file";
     private static final String OUTPUT_FORMAT_OPTION = "output-format";
@@ -66,6 +73,11 @@ public class SecurityAnalysisTool implements Tool {
                     .hasArg()
                     .argName("FILE")
                     .required()
+                    .build());
+                options.addOption(Option.builder().longOpt(PARAMETERS_FILE)
+                    .desc("loadflow parameters as JSON file")
+                    .hasArg()
+                    .argName("FILE")
                     .build());
                 options.addOption(Option.builder().longOpt(LIMIT_TYPES_OPTION)
                     .desc("limit type filter (all if not set)")
@@ -140,19 +152,25 @@ public class SecurityAnalysisTool implements Tool {
         LimitViolationFilter limitViolationFilter = LimitViolationFilter.load();
         limitViolationFilter.setViolationTypes(limitViolationTypes);
 
-        SecurityAnalyzer analyzer = new SecurityAnalyzer(limitViolationFilter, context.getComputationManager(), 0, interceptors);
-        SecurityAnalysisResult result = analyzer.analyze(network, contingenciesFile);
+        SecurityAnalysisParameters parameters = SecurityAnalysisParameters.load();
+        if (line.hasOption(PARAMETERS_FILE)) {
+            Path parametersFile = context.getFileSystem().getPath(line.getOptionValue(PARAMETERS_FILE));
+            JsonSecurityAnalysisParameters.update(parameters, parametersFile);
+        }
+
+        SecurityAnalyzer analyzer = new SecurityAnalyzer(limitViolationFilter, context.getLongTimeExecutionComputationManager(), 0, interceptors);
+        SecurityAnalysisResult result = analyzer.analyze(network, contingenciesFile, parameters);
 
         if (!result.getPreContingencyResult().isComputationOk()) {
             context.getErrorStream().println("Pre-contingency state divergence");
         } else {
             if (outputFile != null) {
                 context.getOutputStream().println("Writing results to '" + outputFile + "'");
-                SecurityAnalysisResultExporters.export(result, network, outputFile, format);
+                SecurityAnalysisResultExporters.export(result, outputFile, format);
             } else {
                 // To avoid the closing of System.out
                 Writer writer = new OutputStreamWriter(context.getOutputStream());
-                SecurityAnalysisResultExporters.export(result, network, writer, "ASCII");
+                Security.print(result, network, writer, new AsciiTableFormatterFactory(), TableFormatterConfig.load());
             }
         }
     }

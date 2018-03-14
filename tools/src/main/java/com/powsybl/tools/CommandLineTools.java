@@ -63,12 +63,12 @@ public class CommandLineTools {
         Map<String, Collection<Tool>> toolsByTheme = new TreeMap<>(Multimaps.index(allTools, tool -> tool.getCommand().getTheme()).asMap());
         for (Map.Entry<String, Collection<Tool>> entry : toolsByTheme.entrySet()) {
             String theme = entry.getKey();
-            List<Tool> tools = new ArrayList<>(entry.getValue());
-            Collections.sort(tools, Comparator.comparing(t -> t.getCommand().getName()));
             usage.append(theme != null ? theme : "Others").append(":").append(System.lineSeparator());
-            for (Tool tool : tools) {
-                usage.append(String.format("    %-40s %s", tool.getCommand().getName(), tool.getCommand().getDescription())).append(System.lineSeparator());
-            }
+            entry.getValue().stream()
+                .sorted(Comparator.comparing(t -> t.getCommand().getName()))
+                .forEach(tool ->
+                    usage.append(String.format("    %-40s %s", tool.getCommand().getName(), tool.getCommand().getDescription())).append(System.lineSeparator())
+            );
             usage.append(System.lineSeparator());
         }
 
@@ -153,11 +153,13 @@ public class CommandLineTools {
                 printCommandUsage(tool.getCommand().getName(), optionsExt, tool.getCommand().getUsageFooter(), initContext.getErrorStream());
             } else {
                 CommandLine line = parser.parse(optionsExt, Arrays.copyOfRange(args, 1, args.length));
-                try (ComputationManager computationManager = initContext.createComputationManager(line)) {
+                try (ComputationManager shortTimeExecutionComputationManager = initContext.createShortTimeExecutionComputationManager(line);
+                     ComputationManager longRunningTaskComputationManager = initContext.createLongTimeExecutionComputationManager(line)) {
                     tool.run(line, new ToolRunningContext(initContext.getOutputStream(),
                                                           initContext.getErrorStream(),
                                                           initContext.getFileSystem(),
-                                                          computationManager));
+                                                          shortTimeExecutionComputationManager,
+                                                          longRunningTaskComputationManager));
                 }
             }
             return COMMAND_OK_STATUS;

@@ -21,13 +21,27 @@ class BuilderSpec {
         this.builder = builder
     }
 
-    def methodMissing(String name, args) {
-        ["with", "set"].forEach {
-            def setterName = it + name.capitalize();
+    private def testSetters(String name, args) {
+        boolean found = false
+        for (String prefix : ["with", "set"]) {
+            def setterName = prefix + name.capitalize();
             def setter = builder.metaClass.getMetaMethod(setterName, args)
             if (setter) {
                 setter.invoke(builder, args)
+                found = true
+                break
             }
+        }
+        return found
+    }
+
+    def methodMissing(String name, args) {
+        boolean found = testSetters(name, args)
+        if (!found && name.startsWith("_")) { // keyword collision strategy
+            found = testSetters(name.substring(1), args)
+        }
+        if (!found) {
+            throw new AfsException("Setter (method=" + name + ", args=" + args + ") not found")
         }
     }
 }
@@ -136,14 +150,14 @@ class GroovyScripts {
 
         binding.afs = new AfsGroovyFacade(data)
 
-        binding.computationManager = data.getComputationManager()
+        binding.computationManager = data.getShortTimeExecutionComputationManager()
 
         if (out != null) {
             binding.out = out
         }
 
         // load extensions
-        extensions.forEach { it.load(binding, data.getComputationManager()) }
+        extensions.forEach { it.load(binding, data.getShortTimeExecutionComputationManager()) }
 
         GroovyShell shell = new GroovyShell(binding, conf)
         shell.evaluate(codeReader)

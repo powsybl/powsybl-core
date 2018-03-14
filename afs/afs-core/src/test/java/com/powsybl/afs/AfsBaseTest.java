@@ -33,12 +33,12 @@ public class AfsBaseTest {
     private AppData ad;
 
     @Before
-    public void setup() throws IOException {
+    public void setup() {
         storage = MapDbAppStorage.createHeap("mem");
 
         ComputationManager computationManager = Mockito.mock(ComputationManager.class);
         afs = new AppFileSystem("mem", true, storage);
-        ad = new AppData(computationManager, Collections.singletonList(computationManager1 -> Collections.singletonList(afs)),
+        ad = new AppData(computationManager, computationManager, Collections.singletonList(computationManager1 -> Collections.singletonList(afs)),
                 Collections.emptyList(), Collections.singletonList(new FooFileExtension()), Collections.emptyList());
     }
 

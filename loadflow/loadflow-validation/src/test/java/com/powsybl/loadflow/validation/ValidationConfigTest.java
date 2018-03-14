@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017, RTE (http://www.rte-france.com)
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -41,6 +41,7 @@ public class ValidationConfigTest {
     ValidationOutputWriter validationOutputWriter = ValidationOutputWriter.CSV;
     boolean okMissingValues = true;
     boolean noRequirementIfReactiveBoundInversion = true;
+    boolean compareResults = true;
 
     @Before
     public void setUp() {
@@ -60,7 +61,7 @@ public class ValidationConfigTest {
         ValidationConfig config = ValidationConfig.load(platformConfig);
         checkValues(config, ValidationConfig.THRESHOLD_DEFAULT, ValidationConfig.VERBOSE_DEFAULT, loadFlowFactory, ValidationConfig.TABLE_FORMATTER_FACTORY_DEFAULT,
                     ValidationConfig.EPSILON_X_DEFAULT, ValidationConfig.APPLY_REACTANCE_CORRECTION_DEFAULT, ValidationConfig.VALIDATION_OUTPUT_WRITER_DEFAULT,
-                    ValidationConfig.OK_MISSING_VALUES_DEFAULT, ValidationConfig.NO_REQUIREMENT_IF_REACTIVE_BOUND_INVERSION_DEFAULT);
+                    ValidationConfig.OK_MISSING_VALUES_DEFAULT, ValidationConfig.NO_REQUIREMENT_IF_REACTIVE_BOUND_INVERSION_DEFAULT, ValidationConfig.COMPARE_RESULTS_DEFAULT);
     }
 
     @Test
@@ -73,7 +74,7 @@ public class ValidationConfigTest {
         ValidationConfig config = ValidationConfig.load(platformConfig);
         checkValues(config, threshold, verbose, loadFlowFactory, ValidationConfig.TABLE_FORMATTER_FACTORY_DEFAULT, epsilonX, applyReactanceCorrection,
                     ValidationConfig.VALIDATION_OUTPUT_WRITER_DEFAULT, ValidationConfig.OK_MISSING_VALUES_DEFAULT,
-                    ValidationConfig.NO_REQUIREMENT_IF_REACTIVE_BOUND_INVERSION_DEFAULT);
+                    ValidationConfig.NO_REQUIREMENT_IF_REACTIVE_BOUND_INVERSION_DEFAULT, ValidationConfig.COMPARE_RESULTS_DEFAULT);
     }
 
     @Test
@@ -88,9 +89,10 @@ public class ValidationConfigTest {
         moduleConfig.setStringProperty("output-writer", validationOutputWriter.name());
         moduleConfig.setStringProperty("ok-missing-values", Boolean.toString(okMissingValues));
         moduleConfig.setStringProperty("no-requirement-if-reactive-bound-inversion", Boolean.toString(noRequirementIfReactiveBoundInversion));
+        moduleConfig.setStringProperty("compare-results", Boolean.toString(compareResults));
         ValidationConfig config = ValidationConfig.load(platformConfig);
         checkValues(config, threshold, verbose, loadFlowFactory, tableFormatterFactory, epsilonX, applyReactanceCorrection, validationOutputWriter, okMissingValues,
-                    noRequirementIfReactiveBoundInversion);
+                    noRequirementIfReactiveBoundInversion, compareResults);
     }
 
     @Test
@@ -105,13 +107,15 @@ public class ValidationConfigTest {
         config.setValidationOutputWriter(validationOutputWriter);
         config.setOkMissingValues(okMissingValues);
         config.setNoRequirementIfReactiveBoundInversion(noRequirementIfReactiveBoundInversion);
+        config.setCompareResults(compareResults);
         checkValues(config, threshold, verbose, loadFlowFactory, tableFormatterFactory, epsilonX, applyReactanceCorrection, validationOutputWriter, okMissingValues,
-                    noRequirementIfReactiveBoundInversion);
+                    noRequirementIfReactiveBoundInversion, compareResults);
     }
 
     private void checkValues(ValidationConfig config, float threshold, boolean verbose, Class<? extends LoadFlowFactory> loadFlowFactory,
                              Class<? extends TableFormatterFactory> tableFormatterFactory, float epsilonX, boolean applyReactanceCorrection,
-                             ValidationOutputWriter validationOutputWriter, boolean okMissingValues, boolean noRequirementIfReactiveBoundInversion) {
+                             ValidationOutputWriter validationOutputWriter, boolean okMissingValues, boolean noRequirementIfReactiveBoundInversion,
+                             boolean compareResults) {
         assertEquals(threshold, config.getThreshold(), 0f);
         assertEquals(verbose, config.isVerbose());
         assertEquals(loadFlowFactory, config.getLoadFlowFactory());
@@ -121,6 +125,7 @@ public class ValidationConfigTest {
         assertEquals(validationOutputWriter, config.getValidationOutputWriter());
         assertEquals(okMissingValues, config.areOkMissingValues());
         assertEquals(noRequirementIfReactiveBoundInversion, config.isNoRequirementIfReactiveBoundInversion());
+        assertEquals(compareResults, config.isCompareResults());
     }
 
     @Test
@@ -128,35 +133,40 @@ public class ValidationConfigTest {
         try {
             new ValidationConfig(-1, false, loadFlowFactory, ValidationConfig.TABLE_FORMATTER_FACTORY_DEFAULT, 1,
                                  ValidationConfig.APPLY_REACTANCE_CORRECTION_DEFAULT, ValidationOutputWriter.CSV_MULTILINE, new LoadFlowParameters(),
-                                 ValidationConfig.OK_MISSING_VALUES_DEFAULT, ValidationConfig.NO_REQUIREMENT_IF_REACTIVE_BOUND_INVERSION_DEFAULT);
+                                 ValidationConfig.OK_MISSING_VALUES_DEFAULT, ValidationConfig.NO_REQUIREMENT_IF_REACTIVE_BOUND_INVERSION_DEFAULT,
+                                 ValidationConfig.COMPARE_RESULTS_DEFAULT);
             fail();
         } catch (Exception ignored) {
         }
         try {
             new ValidationConfig(1, false, null, ValidationConfig.TABLE_FORMATTER_FACTORY_DEFAULT, 1,
                                  ValidationConfig.APPLY_REACTANCE_CORRECTION_DEFAULT, ValidationOutputWriter.CSV_MULTILINE, new LoadFlowParameters(),
-                                 ValidationConfig.OK_MISSING_VALUES_DEFAULT, ValidationConfig.NO_REQUIREMENT_IF_REACTIVE_BOUND_INVERSION_DEFAULT);
+                                 ValidationConfig.OK_MISSING_VALUES_DEFAULT, ValidationConfig.NO_REQUIREMENT_IF_REACTIVE_BOUND_INVERSION_DEFAULT,
+                                 ValidationConfig.COMPARE_RESULTS_DEFAULT);
             fail();
         } catch (Exception ignored) {
         }
         try {
             new ValidationConfig(1, false, loadFlowFactory, null, ValidationConfig.EPSILON_X_DEFAULT,
                                 ValidationConfig.APPLY_REACTANCE_CORRECTION_DEFAULT, ValidationOutputWriter.CSV_MULTILINE, new LoadFlowParameters(),
-                                ValidationConfig.OK_MISSING_VALUES_DEFAULT, ValidationConfig.NO_REQUIREMENT_IF_REACTIVE_BOUND_INVERSION_DEFAULT);
+                                ValidationConfig.OK_MISSING_VALUES_DEFAULT, ValidationConfig.NO_REQUIREMENT_IF_REACTIVE_BOUND_INVERSION_DEFAULT,
+                                ValidationConfig.COMPARE_RESULTS_DEFAULT);
             fail();
         } catch (Exception ignored) {
         }
         try {
             new ValidationConfig(1, false, loadFlowFactory, ValidationConfig.TABLE_FORMATTER_FACTORY_DEFAULT, -1,
                                  ValidationConfig.APPLY_REACTANCE_CORRECTION_DEFAULT, ValidationOutputWriter.CSV_MULTILINE, new LoadFlowParameters(),
-                                 ValidationConfig.OK_MISSING_VALUES_DEFAULT, ValidationConfig.NO_REQUIREMENT_IF_REACTIVE_BOUND_INVERSION_DEFAULT);
+                                 ValidationConfig.OK_MISSING_VALUES_DEFAULT, ValidationConfig.NO_REQUIREMENT_IF_REACTIVE_BOUND_INVERSION_DEFAULT,
+                                 ValidationConfig.COMPARE_RESULTS_DEFAULT);
             fail();
         } catch (Exception ignored) {
         }
         try {
             new ValidationConfig(1, false, loadFlowFactory, ValidationConfig.TABLE_FORMATTER_FACTORY_DEFAULT, 1,
                                  ValidationConfig.APPLY_REACTANCE_CORRECTION_DEFAULT, null, new LoadFlowParameters(),
-                                 ValidationConfig.OK_MISSING_VALUES_DEFAULT, ValidationConfig.NO_REQUIREMENT_IF_REACTIVE_BOUND_INVERSION_DEFAULT);
+                                 ValidationConfig.OK_MISSING_VALUES_DEFAULT, ValidationConfig.NO_REQUIREMENT_IF_REACTIVE_BOUND_INVERSION_DEFAULT,
+                                 ValidationConfig.COMPARE_RESULTS_DEFAULT);
             fail();
         } catch (Exception ignored) {
         }

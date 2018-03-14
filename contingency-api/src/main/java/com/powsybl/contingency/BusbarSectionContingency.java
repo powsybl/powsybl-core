@@ -36,4 +36,18 @@ public class BusbarSectionContingency implements ContingencyElement {
     public AbstractTrippingTask toTask() {
         return new BusbarSectionTripping(busbarSectionId);
     }
+
+    @Override
+    public int hashCode() {
+        return busbarSectionId.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof BusbarSectionContingency) {
+            BusbarSectionContingency other = (BusbarSectionContingency) obj;
+            return busbarSectionId.equals(other.busbarSectionId);
+        }
+        return false;
+    }
 }

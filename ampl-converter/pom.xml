@@ -14,12 +14,12 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-core</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>1.1.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>powsybl-ampl-converter</artifactId>
-
-    <name>AMPL converter</name>
+    <name>AMPL converter implementation</name>
+    <description>A converter implementation based on CSV-like files</description>
 
     <dependencies>
         <!-- Compilation dependencies -->

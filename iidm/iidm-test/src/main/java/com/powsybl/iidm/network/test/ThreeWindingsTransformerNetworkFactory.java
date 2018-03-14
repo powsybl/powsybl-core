@@ -6,6 +6,8 @@
  */
 package com.powsybl.iidm.network.test;
 
+import org.joda.time.DateTime;
+
 import com.powsybl.iidm.network.*;
 
 /**
@@ -15,6 +17,7 @@ public final class ThreeWindingsTransformerNetworkFactory {
 
     public static Network create() {
         Network network = NetworkFactory.create("three-windings-transformer", "test");
+        network.setCaseDate(DateTime.parse("2018-03-05T13:30:30.486+01:00"));
         Substation substation = network.newSubstation()
             .setId("SUBSTATION")
             .setCountry(Country.FR)

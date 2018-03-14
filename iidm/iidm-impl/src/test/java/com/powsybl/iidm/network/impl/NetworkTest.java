@@ -7,6 +7,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.google.common.collect.Iterables;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
@@ -265,4 +266,34 @@ public class NetworkTest {
         assertEquals(sourceFormat, network.getSourceFormat());
         assertEquals(ContainerType.NETWORK, network.getContainerType());
     }
+
+    @Test
+    public void getSwitchTerminalTest() {
+        Network busViewNetwork = EurostagTutorialExample1Factory.create();
+        VoltageLevel voltageLevel = busViewNetwork.getVoltageLevel("VLGEN");
+        boolean failed = false;
+        try {
+            voltageLevel.getNodeBreakerView().getTerminal1("fictitiousSwitchId");
+        } catch (PowsyblException p) {
+            failed = true;
+        }
+        assertTrue(failed);
+        failed = false;
+        try {
+            voltageLevel.getNodeBreakerView().getTerminal2("fictitiousSwitchId");
+        } catch (PowsyblException p) {
+            failed = true;
+        }
+        assertTrue(failed);
+
+        Network nodeViewNetwork = NetworkTest1Factory.create();
+        voltageLevel = nodeViewNetwork.getVoltageLevel("voltageLevel1");
+        NodeBreakerView topology = voltageLevel.getNodeBreakerView();
+        assertEquals(topology.getTerminal(topology.getNode1("voltageLevel1Breaker1")),
+                     voltageLevel.getNodeBreakerView().getTerminal1("voltageLevel1Breaker1"));
+        assertEquals(topology.getTerminal(topology.getNode2("voltageLevel1Breaker1")),
+                     voltageLevel.getNodeBreakerView().getTerminal2("voltageLevel1Breaker1"));
+
+    }
+
 }

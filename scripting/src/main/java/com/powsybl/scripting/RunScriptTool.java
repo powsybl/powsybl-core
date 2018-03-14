@@ -102,8 +102,13 @@ public class RunScriptTool implements Tool {
         Path file = context.getFileSystem().getPath(line.getOptionValue(FILE));
         Writer writer = new OutputStreamWriter(context.getOutputStream());
         try {
-            try (AppData data = new AppData(context.getComputationManager(), fileSystemProviders,
-                    fileExtensions, projectFileExtensions, serviceExtensions, new LocalTaskMonitor(), () -> new SoutAppLogger(context.getOutputStream()))) {
+            try (AppData data = new AppData(context.getShortTimeExecutionComputationManager(),
+                    context.getLongTimeExecutionComputationManager(), fileSystemProviders,
+                    fileExtensions, projectFileExtensions, serviceExtensions)) {
+                SoutTaskListener listener = new SoutTaskListener(context.getOutputStream());
+                for (AppFileSystem fileSystem : data.getFileSystems()) {
+                    fileSystem.getTaskMonitor().addListener(listener);
+                }
                 if (file.getFileName().toString().endsWith(".groovy")) {
                     try {
                         Binding binding = new Binding();

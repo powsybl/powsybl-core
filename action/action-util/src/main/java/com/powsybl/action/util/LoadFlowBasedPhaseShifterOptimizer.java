@@ -14,6 +14,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowFactory;
+import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.LoadFlowResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +44,7 @@ public class LoadFlowBasedPhaseShifterOptimizer implements PhaseShifterOptimizer
 
     private void runLoadFlow(LoadFlow loadFlow) {
         try {
-            LoadFlowResult result = loadFlow.run();
+            LoadFlowResult result = loadFlow.run(LoadFlowParameters.load());
             if (!result.isOk()) {
                 throw new PowsyblException("Load flow diverged during phase shifter optimization");
             }

@@ -87,8 +87,8 @@ public class ForwardingAppStorage implements AppStorage {
     }
 
     @Override
-    public void deleteNode(String nodeId) {
-        storage.deleteNode(nodeId);
+    public String deleteNode(String nodeId) {
+        return storage.deleteNode(nodeId);
     }
 
     @Override
@@ -129,6 +129,11 @@ public class ForwardingAppStorage implements AppStorage {
     @Override
     public List<TimeSeriesMetadata> getTimeSeriesMetadata(String nodeId, Set<String> timeSeriesNames) {
         return storage.getTimeSeriesMetadata(nodeId, timeSeriesNames);
+    }
+
+    @Override
+    public Set<Integer> getTimeSeriesDataVersions(String nodeId) {
+        return storage.getTimeSeriesDataVersions(nodeId);
     }
 
     @Override

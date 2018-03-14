@@ -10,6 +10,7 @@ import com.powsybl.iidm.network.RatioTapChanger;
 import com.powsybl.iidm.network.Substation;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.ThreeWindingsTransformerAdder;
+import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.LegAdder;
 
 import javax.xml.stream.XMLStreamException;
 
@@ -88,11 +89,60 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
 
     @Override
     protected ThreeWindingsTransformer readRootElementAttributes(ThreeWindingsTransformerAdder adder, NetworkXmlReaderContext context) {
-        throw new AssertionError("TODO"); // FIXME
+        float r1 = XmlUtil.readFloatAttribute(context.getReader(), "r1");
+        float x1 = XmlUtil.readFloatAttribute(context.getReader(), "x1");
+        float g1 = XmlUtil.readFloatAttribute(context.getReader(), "g1");
+        float b1 = XmlUtil.readFloatAttribute(context.getReader(), "b1");
+        float ratedU1 = XmlUtil.readFloatAttribute(context.getReader(), "ratedU1");
+        float r2 = XmlUtil.readFloatAttribute(context.getReader(), "r2");
+        float x2 = XmlUtil.readFloatAttribute(context.getReader(), "x2");
+        float ratedU2 = XmlUtil.readFloatAttribute(context.getReader(), "ratedU2");
+        float r3 = XmlUtil.readFloatAttribute(context.getReader(), "r3");
+        float x3 = XmlUtil.readFloatAttribute(context.getReader(), "x3");
+        float ratedU3 = XmlUtil.readFloatAttribute(context.getReader(), "ratedU3");
+        LegAdder legAdder1 = adder.newLeg1().setR(r1).setX(x1).setG(g1).setB(b1).setRatedU(ratedU1);
+        LegAdder legAdder2 = adder.newLeg2().setR(r2).setX(x2).setRatedU(ratedU2);
+        LegAdder legAdder3 = adder.newLeg3().setR(r3).setX(x3).setRatedU(ratedU3);
+        readNodeOrBus(1, legAdder1, context);
+        readNodeOrBus(2, legAdder2, context);
+        readNodeOrBus(3, legAdder3, context);
+        legAdder1.add();
+        legAdder2.add();
+        legAdder3.add();
+        ThreeWindingsTransformer twt = adder.add();
+        readPQ(1, twt.getLeg1().getTerminal(), context.getReader());
+        readPQ(2, twt.getLeg2().getTerminal(), context.getReader());
+        readPQ(3, twt.getLeg3().getTerminal(), context.getReader());
+        return twt;
     }
 
     @Override
-    protected void readSubElements(ThreeWindingsTransformer identifiable, NetworkXmlReaderContext context) throws XMLStreamException {
-        throw new AssertionError("TODO"); // FIXME
+    protected void readSubElements(ThreeWindingsTransformer tx, NetworkXmlReaderContext context) throws XMLStreamException {
+        readUntilEndRootElement(context.getReader(), () -> {
+            switch (context.getReader().getLocalName()) {
+                case "currentLimits1":
+                    readCurrentLimits(1, tx.getLeg1()::newCurrentLimits, context.getReader());
+                    break;
+
+                case "currentLimits2":
+                    readCurrentLimits(2, tx.getLeg2()::newCurrentLimits, context.getReader());
+                    break;
+
+                case "currentLimits3":
+                    readCurrentLimits(3, tx.getLeg3()::newCurrentLimits, context.getReader());
+                    break;
+
+                case "ratioTapChanger2":
+                    readRatioTapChanger(2, tx.getLeg2(), context);
+                    break;
+
+                case "ratioTapChanger3":
+                    readRatioTapChanger(3, tx.getLeg3(), context);
+                    break;
+
+                default:
+                    super.readSubElements(tx, context);
+            }
+        });
     }
 }

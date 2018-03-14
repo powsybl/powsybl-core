@@ -14,7 +14,7 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class DependencyAdded extends NodeEvent {
+public class DependencyAdded extends NodeEvent implements DependencyEvent {
 
     @JsonProperty("dependencyName")
     private final String dependencyName;
@@ -26,6 +26,7 @@ public class DependencyAdded extends NodeEvent {
         this.dependencyName = Objects.requireNonNull(dependencyName);
     }
 
+    @Override
     public String getDependencyName() {
         return dependencyName;
     }

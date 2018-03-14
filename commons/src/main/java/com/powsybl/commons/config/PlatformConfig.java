@@ -6,15 +6,9 @@
  */
 package com.powsybl.commons.config;
 
-import com.powsybl.commons.exceptions.UncheckedParserConfigurationException;
-import com.powsybl.commons.exceptions.UncheckedSaxException;
 import com.powsybl.commons.io.CacheManager;
 import com.powsybl.commons.io.FileUtil;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
@@ -26,14 +20,17 @@ import java.util.Objects;
  */
 public class PlatformConfig {
 
+    /**
+     * @deprecated Use getDefaultConfigDir() instead.
+     */
     @Deprecated
     public static final Path CONFIG_DIR;
 
+    /**
+     * @deprecated Use getDefaultCacheDir() instead.
+     */
     @Deprecated
     public static final Path CACHE_DIR;
-
-    @Deprecated
-    private static final String CONFIG_NAME;
 
     private static PlatformConfig defaultConfig;
 
@@ -50,8 +47,6 @@ public class PlatformConfig {
     static {
         CONFIG_DIR = FileUtil.createDirectory(getDefaultConfigDir(FileSystems.getDefault()));
 
-        CONFIG_NAME = System.getProperty("itools.config.name");
-
         CACHE_DIR = FileUtil.createDirectory(getDefaultCacheDir(FileSystems.getDefault()));
     }
 
@@ -64,21 +59,10 @@ public class PlatformConfig {
             FileSystem fileSystem = FileSystems.getDefault();
             Path configDir = getDefaultConfigDir(fileSystem);
             Path cacheDir = getDefaultCacheDir(fileSystem);
+            String configName = System.getProperty("itools.config.name", "config");
 
-            String configName = System.getProperty("itools.config.name");
-            if (configName != null) {
-                try {
-                    defaultConfig = new XmlPlatformConfig(fileSystem, configDir, cacheDir, configName);
-                } catch (IOException e) {
-                    throw new UncheckedIOException(e);
-                } catch (SAXException e) {
-                    throw new UncheckedSaxException(e);
-                } catch (ParserConfigurationException e) {
-                    throw new UncheckedParserConfigurationException(e);
-                }
-            } else {
-                defaultConfig = new PropertiesPlatformConfig(fileSystem, configDir, cacheDir);
-            }
+            defaultConfig = XmlPlatformConfig.create(fileSystem, configDir, cacheDir, configName)
+                    .orElseGet(() -> new PropertiesPlatformConfig(fileSystem, configDir, cacheDir));
         }
         return defaultConfig;
     }

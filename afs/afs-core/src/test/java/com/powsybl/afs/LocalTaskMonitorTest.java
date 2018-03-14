@@ -6,16 +6,17 @@
  */
 package com.powsybl.afs;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.testing.EqualsTester;
 import com.powsybl.afs.mapdb.storage.MapDbAppStorage;
 import com.powsybl.afs.storage.AppStorage;
+import com.powsybl.commons.json.JsonUtil;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.io.IOException;
+import java.util.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -32,20 +33,6 @@ public class LocalTaskMonitorTest extends AbstractProjectFileTest {
         return MapDbAppStorage.createHeap("mem");
     }
 
-    private static final class ListenerState {
-        List<ProjectFile> started = new ArrayList<>();
-        List<ProjectFile> stopped = new ArrayList<>();
-        List<ProjectFile> updated = new ArrayList<>();
-        List<String> messages = new ArrayList<>();
-
-        private void reset() {
-            started.clear();
-            stopped.clear();
-            updated.clear();
-            messages.clear();
-        }
-    }
-
     @Test
     public void test() {
         Project test = afs.getRootFolder().createProject("test");
@@ -53,48 +40,134 @@ public class LocalTaskMonitorTest extends AbstractProjectFileTest {
                 .withName("foo")
                 .build();
 
-        TaskMonitor monitor = new LocalTaskMonitor();
-        ListenerState listenerState = new ListenerState();
-        TaskListener listener = new TaskListener() {
-            @Override
-            public void taskStarted(ProjectFile projectFile) {
-                listenerState.started.add(projectFile);
+        try (TaskMonitor monitor = new LocalTaskMonitor()) {
+            Deque<TaskEvent> events = new ArrayDeque<>();
+            TaskListener listener = new TaskListener() {
+                @Override
+                public String getProjectId() {
+                    return test.getId();
+                }
+
+                @Override
+                public void onEvent(TaskEvent event) {
+                    events.add(event);
+                }
+            };
+            monitor.addListener(listener);
+            assertEquals(0L, monitor.takeSnapshot().getRevision());
+            assertTrue(monitor.takeSnapshot().getTasks().isEmpty());
+
+            TaskMonitor.Task task = monitor.startTask(foo);
+            assertEquals("foo", task.getName());
+            assertEquals(1, events.size());
+            assertEquals(new StartTaskEvent(task.getId(), 1L, "foo"), events.pop());
+
+            assertEquals(1L, monitor.takeSnapshot().getRevision());
+            assertEquals(1, monitor.takeSnapshot().getTasks().size());
+            assertEquals(task.getId(), monitor.takeSnapshot().getTasks().get(0).getId());
+            assertEquals(1L, monitor.takeSnapshot().getTasks().get(0).getRevision());
+
+            monitor.updateTaskMessage(task.getId(), "hello");
+            assertEquals(1, events.size());
+            assertEquals(new UpdateTaskMessageEvent(task.getId(), 2L, "hello"), events.pop());
+
+            assertEquals(2L, monitor.takeSnapshot().getRevision());
+            assertEquals(1, monitor.takeSnapshot().getTasks().size());
+            assertEquals(task.getId(), monitor.takeSnapshot().getTasks().get(0).getId());
+            assertEquals("hello", monitor.takeSnapshot().getTasks().get(0).getMessage());
+            assertEquals(2L, monitor.takeSnapshot().getTasks().get(0).getRevision());
+
+            try {
+                monitor.updateTaskMessage(new UUID(0L, 0L), "");
+                fail();
+            } catch (IllegalArgumentException ignored) {
             }
 
-            @Override
-            public void taskStopped(ProjectFile projectFile) {
-                listenerState.stopped.add(projectFile);
+            monitor.stopTask(task.getId());
+            assertEquals(1, events.size());
+            assertEquals(new StopTaskEvent(task.getId(), 3L), events.pop());
+
+            assertEquals(3L, monitor.takeSnapshot().getRevision());
+            assertTrue(monitor.takeSnapshot().getTasks().isEmpty());
+
+            try {
+                monitor.stopTask(new UUID(0L, 0L));
+                fail();
+            } catch (IllegalArgumentException ignored) {
             }
 
-            @Override
-            public void taskMessageUpdated(ProjectFile projectFile, String message) {
-                listenerState.updated.add(projectFile);
-                listenerState.messages.add(message);
-            }
-        };
-        monitor.addListener(listener);
-        assertEquals(0L, monitor.takeSnapshot().getRevision());
-        assertTrue(monitor.takeSnapshot().getTasks().isEmpty());
+            monitor.removeListener(listener);
+        }
+    }
 
-        monitor.startTask(foo);
-        assertTrue(listenerState.started.size() == 1);
-        listenerState.reset();
-        assertEquals(1L, monitor.takeSnapshot().getRevision());
-        assertEquals(Collections.singletonList(new TaskMonitor.Task(foo, 1L)), monitor.takeSnapshot().getTasks());
+    @Test
+    public void startTaskEventTest() throws IOException {
+        TaskEvent event = new StartTaskEvent(new UUID(0L, 0L), 0L, "e1");
+        assertEquals("StartTaskEvent(taskId=00000000-0000-0000-0000-000000000000, revision=0, name=e1)", event.toString());
+        ObjectMapper objectMapper = JsonUtil.createObjectMapper();
+        String json = objectMapper.writerWithDefaultPrettyPrinter()
+                .writeValueAsString(event);
+        String jsonRef = String.join(System.lineSeparator(),
+                "{",
+                "  \"@c\" : \".StartTaskEvent\",",
+                "  \"taskId\" : \"00000000-0000-0000-0000-000000000000\",",
+                "  \"revision\" : 0,",
+                "  \"name\" : \"e1\"",
+                "}");
+        assertEquals(jsonRef, json);
+        TaskEvent event2 = objectMapper.readValue(json, TaskEvent.class);
+        assertEquals(event, event2);
 
-        monitor.updateTaskMessage(foo, "hello");
-        assertTrue(listenerState.updated.size() == 1);
-        assertTrue(listenerState.messages.size() == 1);
-        assertEquals("hello", listenerState.messages.get(0));
-        listenerState.reset();
-        assertEquals(2L, monitor.takeSnapshot().getRevision());
-        assertEquals(Collections.singletonList(new TaskMonitor.Task(foo, "hello", 2L)), monitor.takeSnapshot().getTasks());
+        new EqualsTester()
+                .addEqualityGroup(new StartTaskEvent(new UUID(0L, 0L), 0L, "e1"), new StartTaskEvent(new UUID(0L, 0L), 0L, "e1"))
+                .addEqualityGroup(new StartTaskEvent(new UUID(0L, 1L), 1L, "e2"), new StartTaskEvent(new UUID(0L, 1L), 1L, "e2"))
+                .testEquals();
+    }
 
-        monitor.stopTask(foo);
-        assertTrue(listenerState.stopped.size() == 1);
-        assertEquals(3L, monitor.takeSnapshot().getRevision());
-        assertTrue(monitor.takeSnapshot().getTasks().isEmpty());
+    @Test
+    public void stopTaskEventTest() throws IOException {
+        TaskEvent event = new StopTaskEvent(new UUID(0L, 1L), 1L);
+        assertEquals("StopTaskEvent(taskId=00000000-0000-0000-0000-000000000001, revision=1)", event.toString());
+        ObjectMapper objectMapper = JsonUtil.createObjectMapper();
+        String json = objectMapper.writerWithDefaultPrettyPrinter()
+                .writeValueAsString(event);
+        String jsonRef = String.join(System.lineSeparator(),
+                "{",
+                "  \"@c\" : \".StopTaskEvent\",",
+                "  \"taskId\" : \"00000000-0000-0000-0000-000000000001\",",
+                "  \"revision\" : 1",
+                "}");
+        assertEquals(jsonRef, json);
+        TaskEvent event2 = objectMapper.readValue(json, TaskEvent.class);
+        assertEquals(event, event2);
 
-        monitor.removeListener(listener);
+        new EqualsTester()
+                .addEqualityGroup(new StopTaskEvent(new UUID(0L, 0L), 0L), new StopTaskEvent(new UUID(0L, 0L), 0L))
+                .addEqualityGroup(new StopTaskEvent(new UUID(0L, 1L), 1L), new StopTaskEvent(new UUID(0L, 1L), 1L))
+                .testEquals();
+    }
+
+    @Test
+    public void updateTaskMessageEventTest() throws IOException {
+        TaskEvent event = new UpdateTaskMessageEvent(new UUID(0L, 2L), 2L, "hello");
+        assertEquals("UpdateTaskMessageEvent(taskId=00000000-0000-0000-0000-000000000002, revision=2, message=hello)", event.toString());
+        ObjectMapper objectMapper = JsonUtil.createObjectMapper();
+        String json = objectMapper.writerWithDefaultPrettyPrinter()
+                .writeValueAsString(event);
+        String jsonRef = String.join(System.lineSeparator(),
+                "{",
+                "  \"@c\" : \".UpdateTaskMessageEvent\",",
+                "  \"taskId\" : \"00000000-0000-0000-0000-000000000002\",",
+                "  \"revision\" : 2,",
+                "  \"message\" : \"hello\"",
+                "}");
+        assertEquals(jsonRef, json);
+        TaskEvent event2 = objectMapper.readValue(json, TaskEvent.class);
+        assertEquals(event, event2);
+
+        new EqualsTester()
+                .addEqualityGroup(new UpdateTaskMessageEvent(new UUID(0L, 0L), 0L, "hello"), new UpdateTaskMessageEvent(new UUID(0L, 0L), 0L, "hello"))
+                .addEqualityGroup(new UpdateTaskMessageEvent(new UUID(0L, 1L), 1L, "bye"), new UpdateTaskMessageEvent(new UUID(0L, 1L), 1L, "bye"))
+                .testEquals();
     }
 }

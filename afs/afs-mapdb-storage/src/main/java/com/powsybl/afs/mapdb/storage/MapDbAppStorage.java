@@ -363,13 +363,20 @@ public class MapDbAppStorage implements AppStorage {
     }
 
     @Override
-    public void deleteNode(String nodeId) {
+    public String deleteNode(String nodeId) {
         UUID nodeUuid = checkNodeId(nodeId);
-        deleteNode(nodeUuid);
+        UUID parentNodeUuid = deleteNode(nodeUuid);
+        return parentNodeUuid.toString();
     }
 
-    private void deleteNode(UUID nodeUuid) {
+    private UUID deleteNode(UUID nodeUuid) {
         checkNodeExists(nodeUuid);
+
+        // deleting root node is not allowed
+        if (nodeUuid.toString().equals(rootNodeVar.get().getId())) {
+            throw new AfsStorageException("Cannot delete root node");
+        }
+
         // recursively delete children
         for (UUID childNodeUuid : childNodesMap.get(nodeUuid)) {
             deleteNode(childNodeUuid);
@@ -381,15 +388,15 @@ public class MapDbAppStorage implements AppStorage {
         dataNamesMap.remove(nodeUuid);
         childNodesMap.remove(nodeUuid);
         UUID parentNodeUuid = parentNodeMap.remove(nodeUuid);
-        if (parentNodeUuid != null) {
-            removeFromList(childNodesMap, parentNodeUuid, nodeUuid);
-            childNodeMap.remove(new NamedLink(parentNodeUuid, nodeInfo.getName()));
-        }
+        removeFromList(childNodesMap, parentNodeUuid, nodeUuid);
+        childNodeMap.remove(new NamedLink(parentNodeUuid, nodeInfo.getName()));
+
         for (NamedLink link : dependencyNodesMap.get(nodeUuid)) {
             dependencyNodesByNameMap.remove(new NamedLink(nodeUuid, link.getName()));
             removeFromList(backwardDependencyNodesMap, link.getNodeUuid(), nodeUuid);
         }
         dependencyNodesMap.remove(nodeUuid);
+        return parentNodeUuid;
     }
 
     @Override
@@ -476,6 +483,18 @@ public class MapDbAppStorage implements AppStorage {
             }
         }
         return metadataList;
+    }
+
+    @Override
+    public Set<Integer> getTimeSeriesDataVersions(String nodeId) {
+        UUID nodeUuid = checkNodeId(nodeId);
+        checkNodeExists(nodeUuid);
+        return Stream.concat(doubleTimeSeriesChunksMap.keySet().stream(),
+                stringTimeSeriesChunksMap.keySet().stream())
+                .map(TimeSeriesChunkKey::getTimeSeriesKey)
+                .filter(key -> key.getNodeUuid().equals(nodeUuid))
+                .map(TimeSeriesKey::getVersion)
+                .collect(Collectors.toSet());
     }
 
     @Override
@@ -644,7 +663,7 @@ public class MapDbAppStorage implements AppStorage {
         checkNodeExists(nodeUuid);
         checkNodeExists(toNodeUuid);
         removeFromList(dependencyNodesMap, nodeUuid, new NamedLink(toNodeUuid, name));
-        dependencyNodesByNameMap.remove(new NamedLink(nodeUuid, name), toNodeUuid);
+        removeFromList(dependencyNodesByNameMap, new NamedLink(nodeUuid, name), toNodeUuid);
         removeFromList(backwardDependencyNodesMap, toNodeUuid, nodeUuid);
     }
 
