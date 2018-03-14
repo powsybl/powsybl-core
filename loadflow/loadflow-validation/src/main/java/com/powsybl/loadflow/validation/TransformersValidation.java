@@ -136,8 +136,8 @@ public final class TransformersValidation {
 
         boolean validated = true;
         float error = (v - targetV) / targetV;
-        float upIncrement = getUpIncrement(regulatedSide, rho, rhoPreviousStep, rhoNextStep, tapPosition, highTapPosition);
-        float downIncrement = getDownIncrement(regulatedSide, rho, rhoPreviousStep, rhoNextStep, tapPosition, lowTapPosition);
+        float upIncrement = getUpIncrement(regulatedSide, rho, rhoNextStep, tapPosition, highTapPosition);
+        float downIncrement = getDownIncrement(regulatedSide, rho, rhoPreviousStep, tapPosition, lowTapPosition);
         if (connected && mainComponent) {
             validated = checkTransformerSide(id, regulatedSide, error, upIncrement, downIncrement, tapPosition, lowTapPosition, highTapPosition, config);
         }
@@ -150,8 +150,7 @@ public final class TransformersValidation {
         return validated;
     }
 
-    private static float getUpIncrement(Side regulatedSide, float rho, float rhoPreviousStep, float rhoNextStep,
-                                        int tapPosition, int highTapPosition) {
+    private static float getUpIncrement(Side regulatedSide, float rho, float rhoNextStep, int tapPosition, int highTapPosition) {
         switch (regulatedSide) {
             case ONE:
                 return tapPosition == highTapPosition ? Float.NaN : 1 / rhoNextStep - 1 / rho;
@@ -162,8 +161,7 @@ public final class TransformersValidation {
         }
     }
 
-    private static float getDownIncrement(Side regulatedSide, float rho, float rhoPreviousStep, float rhoNextStep,
-                                          int tapPosition, int lowTapPosition) {
+    private static float getDownIncrement(Side regulatedSide, float rho, float rhoPreviousStep, int tapPosition, int lowTapPosition) {
         switch (regulatedSide) {
             case ONE:
                 return tapPosition == lowTapPosition ? Float.NaN : 1 / rhoPreviousStep - 1 / rho;
