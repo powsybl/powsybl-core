@@ -238,7 +238,6 @@
                         <additionalOptions>-views -all</additionalOptions>
                         <additionalOptions>-Xdoclint:none</additionalOptions>
                         <useStandardDocletOptions>false</useStandardDocletOptions>
-                        <excludePackageNames>cim1*</excludePackageNames>
                         <docfilessubdirs>true</docfilessubdirs>
                     </configuration>
                 </plugin>
