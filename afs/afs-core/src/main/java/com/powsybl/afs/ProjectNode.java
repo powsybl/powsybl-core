@@ -65,10 +65,12 @@ public class ProjectNode extends AbstractNodeBase<ProjectFolder> {
     public void moveTo(ProjectFolder folder) {
         Objects.requireNonNull(folder);
         storage.setParentNode(info.getId(), folder.getId());
+        storage.flush();
     }
 
     public void delete() {
         storage.deleteNode(info.getId());
+        storage.flush();
     }
 
     public List<ProjectFile> getBackwardDependencies() {
@@ -76,6 +78,11 @@ public class ProjectNode extends AbstractNodeBase<ProjectFolder> {
                 .stream()
                 .map(fileSystem::createProjectFile)
                 .collect(Collectors.toList());
+    }
+
+    public void invalidate() {
+        // propagate
+        getBackwardDependencies().forEach(ProjectNode::invalidate);
     }
 
     public AppFileSystem getFileSystem() {

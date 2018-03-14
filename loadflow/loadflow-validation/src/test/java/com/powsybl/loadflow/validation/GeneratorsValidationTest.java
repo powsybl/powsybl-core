@@ -116,12 +116,12 @@ public class GeneratorsValidationTest extends AbstractValidationTest {
         assertTrue(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, Float.NaN, voltageRegulatorOn, minQ, maxQ, strictConfig, NullWriter.NULL_WRITER));
         strictConfig.setOkMissingValues(false);
 
-        // if voltageRegulatorOn="true" then either q is equal to g.getReactiveLimits().getMinQ(p) and v is lower than targetV
+        // if voltageRegulatorOn="true" then either q is equal to g.getReactiveLimits().getMinQ(p) and v is higher than targetV
         q = 10f;
         v = 360f;
-        assertTrue(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, strictConfig, NullWriter.NULL_WRITER));
-        v = 400f;
         assertFalse(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, strictConfig, NullWriter.NULL_WRITER));
+        v = 400f;
+        assertTrue(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, strictConfig, NullWriter.NULL_WRITER));
         q = 5f;
         assertFalse(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, strictConfig, NullWriter.NULL_WRITER));
 
@@ -133,11 +133,11 @@ public class GeneratorsValidationTest extends AbstractValidationTest {
         // the code switches the 2 values to go back to a situation where minQ < maxQ and the normal tests are done
         assertFalse(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, maxQ, minQ, strictConfig, NullWriter.NULL_WRITER));
 
-        // if voltageRegulatorOn="true" then either q is equal to g.getReactiveLimits().getMaxQ(p) and v is higher than targetV
+        // if voltageRegulatorOn="true" then either q is equal to g.getReactiveLimits().getMaxQ(p) and v is lower than targetV
         q = 0f;
-        assertTrue(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, strictConfig, NullWriter.NULL_WRITER));
-        v = 360f;
         assertFalse(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, strictConfig, NullWriter.NULL_WRITER));
+        v = 360f;
+        assertTrue(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, strictConfig, NullWriter.NULL_WRITER));
         q = 5f;
         v = 400f;
         assertFalse(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, strictConfig, NullWriter.NULL_WRITER));

@@ -34,15 +34,26 @@ public class DependencyCache<T> {
         this.projectFile = Objects.requireNonNull(projectFile);
         this.dependencyName = Objects.requireNonNull(dependencyName);
         this.dependencyClass = Objects.requireNonNull(dependencyClass);
-        projectFile.addDependencyListener(this, () -> {
-            lock.lock();
-            try {
-                cache = null;
-                cached = false;
-            } finally {
-                lock.unlock();
+        projectFile.addListener(new DefaultProjectFileListener() {
+            @Override
+            public void dependencyChanged(String name) {
+                if (dependencyName.equals(name)) {
+                    invalidate();
+                }
             }
         });
+    }
+
+    public void invalidate() {
+        lock.lock();
+        try {
+            if (cached) {
+                cache = null;
+                cached = false;
+            }
+        } finally {
+            lock.unlock();
+        }
     }
 
     public Optional<T> getFirst() {
@@ -54,7 +65,7 @@ public class DependencyCache<T> {
         lock.lock();
         try {
             if (!cached) {
-                cache = projectFile.getDependency(dependencyName, dependencyClass);
+                cache = projectFile.getDependencies(dependencyName, dependencyClass);
                 cached = true;
             }
             return cache;

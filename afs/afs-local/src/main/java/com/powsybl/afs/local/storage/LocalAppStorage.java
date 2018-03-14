@@ -261,7 +261,7 @@ public class LocalAppStorage implements AppStorage {
     }
 
     @Override
-    public void deleteNode(String nodeId) {
+    public String deleteNode(String nodeId) {
         throw new AssertionError();
     }
 

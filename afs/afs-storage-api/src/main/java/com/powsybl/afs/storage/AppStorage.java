@@ -43,7 +43,7 @@ public interface AppStorage extends AutoCloseable {
 
     void setParentNode(String nodeId, String newParentNodeId);
 
-    void deleteNode(String nodeId);
+    String deleteNode(String nodeId);
 
     Optional<InputStream> readBinaryData(String nodeId, String name);
 

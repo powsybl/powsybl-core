@@ -87,8 +87,8 @@ public class ForwardingAppStorage implements AppStorage {
     }
 
     @Override
-    public void deleteNode(String nodeId) {
-        storage.deleteNode(nodeId);
+    public String deleteNode(String nodeId) {
+        return storage.deleteNode(nodeId);
     }
 
     @Override
