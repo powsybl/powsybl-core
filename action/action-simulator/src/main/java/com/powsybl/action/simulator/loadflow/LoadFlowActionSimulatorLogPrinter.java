@@ -69,7 +69,7 @@ public class LoadFlowActionSimulatorLogPrinter extends DefaultLoadFlowActionSimu
         }
         if (verbose) {
             if (variables.size() + actions.size() > 0) {
-                Table table = new Table(3, BorderStyle.CLASSIC_WIDE);
+                Table table = new Table(2, BorderStyle.CLASSIC_WIDE);
                 table.addCell("Variable");
                 table.addCell("Value");
                 variables.entrySet().forEach(e -> {

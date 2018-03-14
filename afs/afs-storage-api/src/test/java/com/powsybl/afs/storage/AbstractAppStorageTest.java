@@ -204,7 +204,7 @@ public abstract class AbstractAppStorageTest {
         assertEquals(ImmutableSet.of(testData2Info), storage.getDependencies(testDataInfo.getId(), "mylink"));
 
         // 8) delete data node
-        storage.deleteNode(testDataInfo.getId());
+        assertEquals(testFolderInfo.getId(), storage.deleteNode(testDataInfo.getId()));
         storage.flush();
 
         // check event
