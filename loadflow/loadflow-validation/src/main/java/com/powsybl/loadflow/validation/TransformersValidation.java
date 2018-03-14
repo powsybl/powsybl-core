@@ -26,6 +26,10 @@ import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.loadflow.validation.io.ValidationWriter;
 
 /**
+ * Tries to validate that transformers regulating voltage have been correclty simulated.
+ *
+ * We check that the voltage deviation from the target voltage stays inside a deadband around the target voltage,
+ * taken equal to the maximum possible voltage increase/decrease for a one-tap change.
  *
  * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
  */
@@ -67,7 +71,7 @@ public final class TransformersValidation {
         return network.getTwoWindingsTransformerStream()
                       .filter(TransformersValidation::filterTwt)
                       .sorted(Comparator.comparing(TwoWindingsTransformer::getId))
-                      .map(twt -> checkTransformers(twt, config, twtsWriter))
+                      .map(twt -> checkTransformer(twt, config, twtsWriter))
                       .reduce(Boolean::logicalAnd)
                       .orElse(true);
     }
@@ -76,19 +80,19 @@ public final class TransformersValidation {
         return twt.getRatioTapChanger() != null && twt.getRatioTapChanger().isRegulating();
     }
 
-    public static boolean checkTransformers(TwoWindingsTransformer twt, ValidationConfig config, Writer writer) {
+    public static boolean checkTransformer(TwoWindingsTransformer twt, ValidationConfig config, Writer writer) {
         Objects.requireNonNull(twt);
         Objects.requireNonNull(config);
         Objects.requireNonNull(writer);
 
         try (ValidationWriter twtsWriter = ValidationUtils.createValidationWriter(twt.getId(), config, writer, ValidationType.TWTS)) {
-            return checkTransformers(twt, config, twtsWriter);
+            return checkTransformer(twt, config, twtsWriter);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    public static boolean checkTransformers(TwoWindingsTransformer twt, ValidationConfig config, ValidationWriter twtsWriter) {
+    public static boolean checkTransformer(TwoWindingsTransformer twt, ValidationConfig config, ValidationWriter twtsWriter) {
         Objects.requireNonNull(twt);
         Objects.requireNonNull(config);
         Objects.requireNonNull(twtsWriter);
@@ -108,38 +112,38 @@ public final class TransformersValidation {
         Bus connectableBus = ratioTapChanger.getRegulationTerminal().getBusView().getConnectableBus();
         boolean connectableMainComponent = connectableBus != null ? connectableBus.isInMainConnectedComponent() : false;
         boolean mainComponent = bus != null ? bus.isInMainConnectedComponent() : connectableMainComponent;
-        return checkTransformers(twt.getId(), rho, rhoPreviousStep, rhoNextStep, tapPosition, lowTapPosition, highTapPosition,
+        return checkTransformer(twt.getId(), rho, rhoPreviousStep, rhoNextStep, tapPosition, lowTapPosition, highTapPosition,
                                  targetV, regulatedSide, v, connected, mainComponent, config, twtsWriter);
     }
 
-    public static boolean checkTransformers(String id, float rho, float rhoPreviousStep, float rhoNextStep, int tapPosition,
-                                            int lowTapPosition, int highTapPosition, float targetV, Side regulatedSide, float v,
-                                            boolean connected, boolean mainComponent, ValidationConfig config, Writer writer) {
+    public static boolean checkTransformer(String id, float rho, float rhoPreviousStep, float rhoNextStep, int tapPosition,
+                                           int lowTapPosition, int highTapPosition, float targetV, Side regulatedSide, float v,
+                                           boolean connected, boolean mainComponent, ValidationConfig config, Writer writer) {
         Objects.requireNonNull(id);
         Objects.requireNonNull(config);
         Objects.requireNonNull(writer);
 
         try (ValidationWriter twtsWriter = ValidationUtils.createValidationWriter(id, config, writer, ValidationType.TWTS)) {
-            return checkTransformers(id, rho, rhoPreviousStep, rhoNextStep, tapPosition, lowTapPosition, highTapPosition,
+            return checkTransformer(id, rho, rhoPreviousStep, rhoNextStep, tapPosition, lowTapPosition, highTapPosition,
                                      targetV, regulatedSide, v, connected, mainComponent, config, twtsWriter);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    public static boolean checkTransformers(String id, float rho, float rhoPreviousStep, float rhoNextStep, int tapPosition,
-                                            int lowTapPosition, int highTapPosition, float targetV, Side regulatedSide, float v,
-                                            boolean connected, boolean mainComponent, ValidationConfig config, ValidationWriter twtsWriter) {
+    public static boolean checkTransformer(String id, float rho, float rhoPreviousStep, float rhoNextStep, int tapPosition,
+                                           int lowTapPosition, int highTapPosition, float targetV, Side regulatedSide, float v,
+                                           boolean connected, boolean mainComponent, ValidationConfig config, ValidationWriter twtsWriter) {
         Objects.requireNonNull(id);
         Objects.requireNonNull(config);
         Objects.requireNonNull(twtsWriter);
 
         boolean validated = true;
-        float error = (v - targetV) / targetV;
-        float upIncrement = getUpIncrement(regulatedSide, rho, rhoNextStep, tapPosition, highTapPosition);
-        float downIncrement = getDownIncrement(regulatedSide, rho, rhoPreviousStep, tapPosition, lowTapPosition);
+        float error = v - targetV;
+        float upIncrement = Float.isNaN(rhoNextStep) ? Float.NaN : evaluateVoltage(regulatedSide, v, rho, rhoNextStep) - v;
+        float downIncrement = Float.isNaN(rhoPreviousStep) ? Float.NaN : evaluateVoltage(regulatedSide, v, rho, rhoPreviousStep) - v;
         if (connected && mainComponent) {
-            validated = checkTransformerSide(id, regulatedSide, error, upIncrement, downIncrement, tapPosition, lowTapPosition, highTapPosition, config);
+            validated = checkTransformerSide(id, regulatedSide, error, upIncrement, downIncrement, config);
         }
         try {
             twtsWriter.write(id, error, upIncrement, downIncrement, rho, rhoPreviousStep, rhoNextStep, tapPosition, lowTapPosition,
@@ -150,68 +154,91 @@ public final class TransformersValidation {
         return validated;
     }
 
-    private static float getUpIncrement(Side regulatedSide, float rho, float rhoNextStep, int tapPosition, int highTapPosition) {
+    /**
+     *  Evaluates the voltage value for a transformation ratio different from the current ratio,
+     *  assuming "nothing else changes": voltage on the other side is kept constant,
+     *  voltage decrease through the impedance is kept constant (perfect transformer approximation).
+     */
+    private static float evaluateVoltage(Side regulatedSide, float voltage, float ratio, float nextRatio) {
         switch (regulatedSide) {
             case ONE:
-                return tapPosition == highTapPosition ? Float.NaN : 1 / rhoNextStep - 1 / rho;
+                return voltage * ratio / nextRatio;
             case TWO:
-                return tapPosition == highTapPosition ? Float.NaN : rhoNextStep - rho;
+                return voltage * nextRatio / ratio;
             default:
                 throw new AssertionError("Unexpected Side value: " + regulatedSide);
         }
     }
 
-    private static float getDownIncrement(Side regulatedSide, float rho, float rhoPreviousStep, int tapPosition, int lowTapPosition) {
-        switch (regulatedSide) {
-            case ONE:
-                return tapPosition == lowTapPosition ? Float.NaN : 1 / rhoPreviousStep - 1 / rho;
-            case TWO:
-                return tapPosition == lowTapPosition ? Float.NaN : rhoPreviousStep - rho;
-            default:
-                throw new AssertionError("Unexpected Side value: " + regulatedSide);
-        }
-    }
-
-    private static boolean checkTransformerSide(String id, Side side, float error, float upIncrement, float downIncrement, int tapPosition,
-                                                int lowTapPosition, int highTapPosition, ValidationConfig config) {
+    /**
+     * Checks that the voltage deviation from the target voltage stays inside a deadband around the target voltage,
+     * taken equal to the maximum possible voltage increase/decrease for a one-tap change.
+     */
+    private static boolean checkTransformerSide(String id, Side side, float error, float upIncrement, float downIncrement, ValidationConfig config) {
         boolean validated = true;
-        float maxIncrement = getMaxIncrement(upIncrement, downIncrement, tapPosition, lowTapPosition, highTapPosition);
-        float minIncrement = getMinIncrement(upIncrement, downIncrement, tapPosition, lowTapPosition, highTapPosition);
+        float maxIncrease = getMaxVoltageIncrease(upIncrement, downIncrement);
+        float maxDecrease = getMaxVoltageDecrease(upIncrement, downIncrement);
         if (ValidationUtils.areNaN(config, error)) {
             LOGGER.warn("{} {}: {} side {}: error {}", ValidationType.TWTS, ValidationUtils.VALIDATION_ERROR, id, side, error);
             return false;
         }
-        // Error >= -Max(UpIncrement, DownIncrement) - to be tested only if Max(UpIncrement, DownIncrement) > 0
-        if (maxIncrement > 0 && (error + maxIncrement) < -config.getThreshold()) {
-            LOGGER.warn("{} {}: {} side {}: error {} upIncrement {} downIncrement {}",
+        // if error is negative, i.e if voltage is lower than target, and an increase is possible,
+        // check that voltage is inside the downward deadband, taken equal to the possible increase
+        if (error < 0 && !Float.isNaN(maxIncrease)) {
+            float downDeadband = maxIncrease;
+
+            if (error + downDeadband < -config.getThreshold()) {
+                LOGGER.warn("{} {}: {} side {}: error {} upIncrement {} downIncrement {}",
                         ValidationType.TWTS, ValidationUtils.VALIDATION_ERROR, id, side, error, upIncrement, downIncrement);
-            validated = false;
+                validated = false;
+            }
         }
-        // Error <= -Min(UpIncrement, DownIncrement) - to be tested only if Min(UpIncrement, DownIncrement) < 0
-        if (minIncrement < 0 && (error + minIncrement) > config.getThreshold()) {
-            LOGGER.warn("{} {}: {} side {}: error {} upIncrement {} downIncrement {}",
+
+        // if error is positive, i.e if voltage is higher than target, and a voltage decrease is possible,
+        // check that voltage is inside the upward deadband, taken equal to the possible decrease
+        if (error > 0 && !Float.isNaN(maxDecrease)) {
+            float upDeadband = -maxDecrease;
+
+            if (error - upDeadband > config.getThreshold()) {
+                LOGGER.warn("{} {}: {} side {}: error {} upIncrement {} downIncrement {}",
                         ValidationType.TWTS, ValidationUtils.VALIDATION_ERROR, id, side, error, upIncrement, downIncrement);
-            validated = false;
+                validated = false;
+            }
         }
         return validated;
     }
 
-    private static float getMaxIncrement(float upIncrement, float downIncrement, int tapPosition, int lowTapPosition, int highTapPosition) {
-        if (tapPosition == highTapPosition) {
-            return Math.max(0, downIncrement);
+    /**
+     *  Being given both increments corresponding to taps -1 and +1, returns the maximum voltage increase,
+     *  or NaN if no increase is possible.
+     */
+    private static float getMaxVoltageIncrease(float upIncrement, float downIncrement) {
+
+        if (Float.isNaN(downIncrement) && Float.isNaN(upIncrement)) {
+            return Float.NaN;
         }
-        if (tapPosition == lowTapPosition) {
-            return Math.max(upIncrement, 0);
+        if (Float.isNaN(upIncrement)) {
+            return downIncrement > 0 ? downIncrement : Float.NaN;
+        }
+        if (Float.isNaN(downIncrement)) {
+            return upIncrement > 0 ? upIncrement : Float.NaN;
         }
         return Math.max(upIncrement, downIncrement);
     }
 
-    private static float getMinIncrement(float upIncrement, float downIncrement, int tapPosition, int lowTapPosition, int highTapPosition) {
-        if (tapPosition == highTapPosition) {
-            return Math.min(downIncrement, 0);
+    /**
+     *  Being given both increments corresponding to taps -1 and +1, returns the maximum voltage decrease (as a negative number),
+     *  or NaN if no decrease is possible.
+     */
+    private static float getMaxVoltageDecrease(float upIncrement, float downIncrement) {
+        if (Float.isNaN(downIncrement) && Float.isNaN(upIncrement)) {
+            return Float.NaN;
         }
-        if (tapPosition == lowTapPosition) {
-            return Math.min(upIncrement, 0);
+        if (Float.isNaN(upIncrement)) {
+            return downIncrement < 0 ? downIncrement : Float.NaN;
+        }
+        if (Float.isNaN(downIncrement)) {
+            return upIncrement < 0 ? upIncrement : Float.NaN;
         }
         return Math.min(upIncrement, downIncrement);
     }
