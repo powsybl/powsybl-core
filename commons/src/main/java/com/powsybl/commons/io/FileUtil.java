@@ -66,7 +66,8 @@ public final class FileUtil {
 
         @Override
         public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-            Path targetPath = toPath.resolve(fromPath.relativize(dir));
+            Path relativize = fromPath.relativize(dir);
+            Path targetPath = toPath.resolve(relativize.toString());
             if (!Files.exists(targetPath)) {
                 Files.createDirectory(targetPath);
             }
@@ -74,8 +75,9 @@ public final class FileUtil {
         }
 
         @Override
-        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-            Files.copy(file, toPath.resolve(fromPath.relativize(file)), copyOption);
+        public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) throws IOException {
+            Path relativize = fromPath.relativize(path);
+            Files.copy(path, toPath.resolve(relativize.toString()), copyOption);
             return FileVisitResult.CONTINUE;
         }
     }

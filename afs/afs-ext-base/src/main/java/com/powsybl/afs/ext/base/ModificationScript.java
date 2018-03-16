@@ -26,6 +26,11 @@ public class ModificationScript extends AbstractModificationScript {
         super(context, VERSION, SCRIPT_ICON, SCRIPT_CONTENT);
     }
 
+    @Override
+    public String getScriptLabel() {
+        return null;
+    }
+
     public ScriptType getScriptType() {
         return ScriptType.valueOf(info.getGenericMetadata().getString(SCRIPT_TYPE));
     }
