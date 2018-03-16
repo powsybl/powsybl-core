@@ -90,8 +90,8 @@ public class LocalNetworkService implements NetworkService {
     }
 
     private static ModifiedNetwork loadNetworkFromVirtualCase(VirtualCase virtualCase) {
-        ProjectCase baseCase = virtualCase.getCase()
-                                          .orElseThrow(() -> new AfsException("Case link is dead"));
+        ProjectCase baseCase = (ProjectCase) virtualCase.getCase()
+                                                        .orElseThrow(() -> new AfsException("Case link is dead"));
 
         ModifiedNetwork modifiedNetwork = loadNetworkFromProjectCase(baseCase);
 
