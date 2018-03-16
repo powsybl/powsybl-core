@@ -12,6 +12,14 @@ package com.powsybl.afs.ext.base;
  */
 public interface StorableScript {
 
+    default String getScriptLabel() {
+        return null;
+    }
+
+    default boolean isScriptValid() {
+        return true;
+    }
+
     ScriptType getScriptType();
 
     String readScript();

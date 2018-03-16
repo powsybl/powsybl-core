@@ -33,6 +33,8 @@ public class ImportedCaseBuilder implements ProjectFileBuilder<ImportedCase> {
 
     private final ImportersLoader importersLoader;
 
+    private String name;
+
     private Case aCase;
 
     private final Properties parameters = new Properties();
@@ -40,6 +42,11 @@ public class ImportedCaseBuilder implements ProjectFileBuilder<ImportedCase> {
     public ImportedCaseBuilder(ProjectFileBuildContext context, ImportersLoader importersLoader) {
         this.context = Objects.requireNonNull(context);
         this.importersLoader = Objects.requireNonNull(importersLoader);
+    }
+
+    public ImportedCaseBuilder withName(String name) {
+        this.name = name;
+        return this;
     }
 
     public ImportedCaseBuilder withCase(Case aCase) {
@@ -63,14 +70,14 @@ public class ImportedCaseBuilder implements ProjectFileBuilder<ImportedCase> {
             throw new AfsException("Case is not set");
         }
 
-        String name = aCase.getName();
+        String importedCaseName = this.name != null ? this.name : aCase.getName();
 
-        if (context.getStorage().getChildNode(context.getFolderInfo().getId(), name).isPresent()) {
-            throw new AfsException("Parent folder already contains a '" + name + "' node");
+        if (context.getStorage().getChildNode(context.getFolderInfo().getId(), importedCaseName).isPresent()) {
+            throw new AfsException("Parent folder already contains a '" + importedCaseName + "' node");
         }
 
         // create project file
-        NodeInfo info = context.getStorage().createNode(context.getFolderInfo().getId(), name, ImportedCase.PSEUDO_CLASS, "", ImportedCase.VERSION,
+        NodeInfo info = context.getStorage().createNode(context.getFolderInfo().getId(), importedCaseName, ImportedCase.PSEUDO_CLASS, "", ImportedCase.VERSION,
                 new NodeGenericMetadata().setString(ImportedCase.FORMAT, aCase.getImporter().getFormat()));
 
         // store case data
