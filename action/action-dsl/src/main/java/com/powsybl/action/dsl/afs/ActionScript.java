@@ -19,6 +19,7 @@ import com.powsybl.iidm.network.Network;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.ResourceBundle;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -32,8 +33,15 @@ public class ActionScript extends AbstractModificationScript implements Continge
 
     private static final FileIcon IAL_ICON = new FileIcon("ial", ActionScript.class.getResourceAsStream("/icons/ial16x16.png"));
 
+    private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("lang.ActionScript");
+
     public ActionScript(ProjectFileCreationContext context) {
         super(context, VERSION, IAL_ICON, SCRIPT_CONTENT);
+    }
+
+    @Override
+    public String getScriptLabel() {
+        return RESOURCE_BUNDLE.getString("Actions");
     }
 
     @Override
