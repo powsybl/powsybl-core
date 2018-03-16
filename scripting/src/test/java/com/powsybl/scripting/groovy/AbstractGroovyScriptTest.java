@@ -85,7 +85,7 @@ public abstract class AbstractGroovyScriptTest {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         data.close();
     }
 

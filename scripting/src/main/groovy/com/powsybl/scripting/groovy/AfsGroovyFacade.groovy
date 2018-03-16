@@ -7,7 +7,9 @@
 package com.powsybl.scripting.groovy
 
 import com.powsybl.afs.AppData
-import com.powsybl.afs.Node
+import com.powsybl.afs.Folder
+
+import java.util.stream.Collectors
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -21,7 +23,11 @@ class AfsGroovyFacade {
         this.data = data
     }
 
-    Node getNode(String path) {
-        data.getNode(path).orElse(null)
+    List<String> listFs() {
+        data.getFileSystems().stream().map({fs -> fs.getName()}).collect(Collectors.toList())
+    }
+
+    Folder getRootFolder(String fileSystemName) {
+        data.getFileSystem(fileSystemName).getRootFolder()
     }
 }
