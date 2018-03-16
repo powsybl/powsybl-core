@@ -33,6 +33,8 @@ public class ImportedCaseBuilder implements ProjectFileBuilder<ImportedCase> {
 
     private final ImportersLoader importersLoader;
 
+    private String name;
+
     private Case aCase;
 
     private final Properties parameters = new Properties();
@@ -40,6 +42,11 @@ public class ImportedCaseBuilder implements ProjectFileBuilder<ImportedCase> {
     public ImportedCaseBuilder(ProjectFileBuildContext context, ImportersLoader importersLoader) {
         this.context = Objects.requireNonNull(context);
         this.importersLoader = Objects.requireNonNull(importersLoader);
+    }
+
+    public ImportedCaseBuilder withName(String name) {
+        this.name = name;
+        return this;
     }
 
     public ImportedCaseBuilder withCase(Case aCase) {
@@ -63,7 +70,7 @@ public class ImportedCaseBuilder implements ProjectFileBuilder<ImportedCase> {
             throw new AfsException("Case is not set");
         }
 
-        String name = aCase.getName();
+        String name = this.name != null ? this.name : aCase.getName();
 
         if (context.getStorage().getChildNode(context.getFolderInfo().getId(), name).isPresent()) {
             throw new AfsException("Parent folder already contains a '" + name + "' node");
