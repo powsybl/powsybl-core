@@ -9,6 +9,8 @@ package com.powsybl.afs.ext.base;
 import com.powsybl.afs.*;
 import com.powsybl.iidm.network.Network;
 
+import java.util.Collections;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
@@ -27,7 +29,7 @@ public class VirtualCase extends ProjectFile implements ProjectCase, RunnableScr
     static final String CASE_DEPENDENCY_NAME = "case";
     static final String SCRIPT_DEPENDENCY_NAME = "script";
 
-    private final DependencyCache<ProjectCase> projectCaseDependency = new DependencyCache<>(this, CASE_DEPENDENCY_NAME, ProjectCase.class);
+    private final DependencyCache<ProjectFile> projectCaseDependency = new DependencyCache<>(this, CASE_DEPENDENCY_NAME, ProjectFile.class);
 
     private final DependencyCache<ModificationScript> modificationScriptDependency = new DependencyCache<>(this, SCRIPT_DEPENDENCY_NAME, ModificationScript.class);
 
@@ -35,12 +37,24 @@ public class VirtualCase extends ProjectFile implements ProjectCase, RunnableScr
         super(context, VERSION, VIRTUAL_CASE_ICON);
     }
 
-    public Optional<ProjectCase> getCase() {
+    public Optional<ProjectFile> getCase() {
         return projectCaseDependency.getFirst();
     }
 
     public Optional<ModificationScript> getScript() {
         return modificationScriptDependency.getFirst();
+    }
+
+    public void setCase(ProjectFile aCase) {
+        Objects.requireNonNull(aCase);
+        setDependencies(CASE_DEPENDENCY_NAME, Collections.singletonList(aCase));
+        projectCaseDependency.invalidate();
+    }
+
+    public void setScript(ModificationScript aScript) {
+        Objects.requireNonNull(aScript);
+        setDependencies(SCRIPT_DEPENDENCY_NAME, Collections.singletonList(aScript));
+        modificationScriptDependency.invalidate();
     }
 
     @Override
