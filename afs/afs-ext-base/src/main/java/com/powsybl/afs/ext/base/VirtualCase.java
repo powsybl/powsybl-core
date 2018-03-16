@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.Network;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.ResourceBundle;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -22,6 +23,8 @@ public class VirtualCase extends ProjectFile implements ProjectCase, RunnableScr
     public static final int VERSION = 0;
 
     private static final FileIcon VIRTUAL_CASE_ICON = new FileIcon("virtualCase", VirtualCase.class.getResourceAsStream("/icons/virtualCase16x16.png"));
+
+    private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("lang.VirtualCase");
 
     static final String CASE_DEPENDENCY_NAME = "case";
     static final String SCRIPT_DEPENDENCY_NAME = "script";
@@ -76,6 +79,11 @@ public class VirtualCase extends ProjectFile implements ProjectCase, RunnableScr
 
     static AfsException createScriptLinkIsDeadException() {
         return new AfsException("Script link is dead");
+    }
+
+    @Override
+    public String getScriptLabel() {
+        return RESOURCE_BUNDLE.getString("NetworkModification");
     }
 
     @Override
