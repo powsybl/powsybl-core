@@ -112,6 +112,11 @@ public class ForwardingAppStorage implements AppStorage {
     }
 
     @Override
+    public boolean removeData(String nodeId, String name) {
+        return storage.removeData(nodeId, name);
+    }
+
+    @Override
     public void createTimeSeries(String nodeId, TimeSeriesMetadata metadata) {
         storage.createTimeSeries(nodeId, metadata);
     }
