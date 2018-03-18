@@ -170,6 +170,10 @@ public class MapDbAppStorage implements AppStorage {
         return map;
     }
 
+    private static <K> IllegalArgumentException createKeyNotFoundException(K key) {
+        return new IllegalArgumentException("Key " + key + " not found");
+    }
+
     private static <K, V> Map<K, List<V>> addToList(Map<K, List<V>> map, K key, V value) {
         Objects.requireNonNull(map);
         Objects.requireNonNull(key);
@@ -194,7 +198,7 @@ public class MapDbAppStorage implements AppStorage {
         Objects.requireNonNull(value);
         List<V> values = map.get(key);
         if (values == null) {
-            throw new IllegalArgumentException("Key " + key + " not found");
+            throw createKeyNotFoundException(key);
         }
         List<V> values2 = new ArrayList<>(values);
         boolean removed = values2.remove(value);
@@ -208,7 +212,7 @@ public class MapDbAppStorage implements AppStorage {
         Objects.requireNonNull(value);
         Set<V> values = map.get(key);
         if (values == null) {
-            throw new IllegalArgumentException("Key " + key + " not found");
+            throw createKeyNotFoundException(key);
         }
         Set<V> values2 = new HashSet<>(values);
         boolean removed = values2.remove(value);
