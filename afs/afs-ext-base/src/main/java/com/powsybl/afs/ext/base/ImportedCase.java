@@ -97,9 +97,11 @@ public class ImportedCase extends ProjectFile implements ProjectCase {
 
     @Override
     public void addListener(ProjectCaseListener l) {
+        // nothing to do
     }
 
     @Override
     public void removeListener(ProjectCaseListener l) {
+        // nothing to do
     }
 }
