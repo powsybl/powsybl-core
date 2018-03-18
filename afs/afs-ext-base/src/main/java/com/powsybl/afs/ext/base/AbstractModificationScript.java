@@ -33,17 +33,10 @@ public abstract class AbstractModificationScript extends ProjectFile implements 
                                       String scriptContentName) {
         super(context, codeVersion, icon);
         this.scriptContentName = Objects.requireNonNull(scriptContentName);
-        storage.addListener(this, eventList -> {
-            boolean invalidate = processEvents(eventList.getEvents(), info.getId(), listeners);
-            if (invalidate) {
-                // invalidate backward dependencies
-                invalidate();
-            }
-        });
+        storage.addListener(this, eventList -> processEvents(eventList.getEvents(), info.getId(), listeners));
     }
 
-    private boolean processEvents(List<NodeEvent> events, String nodeId, List<ScriptListener> listeners) {
-        boolean invalidate = false;
+    private void processEvents(List<NodeEvent> events, String nodeId, List<ScriptListener> listeners) {
         for (NodeEvent event : events) {
             if (event.getType() == NodeEventType.NODE_DATA_UPDATED) {
                 NodeDataUpdated dataUpdated = (NodeDataUpdated) event;
@@ -51,11 +44,9 @@ public abstract class AbstractModificationScript extends ProjectFile implements 
                     for (ScriptListener listener : listeners) {
                         listener.scriptUpdated();
                     }
-                    invalidate = true;
                 }
             }
         }
-        return invalidate;
     }
 
     @Override
@@ -77,6 +68,9 @@ public abstract class AbstractModificationScript extends ProjectFile implements 
         }
         storage.updateModificationTime(info.getId());
         storage.flush();
+
+        // invalidate backward dependencies
+        invalidate();
     }
 
     @Override

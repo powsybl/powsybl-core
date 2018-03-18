@@ -41,14 +41,14 @@ public class VirtualCase extends ProjectFile implements ProjectCase, RunnableScr
         return projectCaseDependency.getFirst();
     }
 
-    public Optional<ModificationScript> getScript() {
-        return modificationScriptDependency.getFirst();
-    }
-
     public void setCase(ProjectFile aCase) {
         Objects.requireNonNull(aCase);
         setDependencies(CASE_DEPENDENCY_NAME, Collections.singletonList(aCase));
         projectCaseDependency.invalidate();
+    }
+
+    public Optional<ModificationScript> getScript() {
+        return modificationScriptDependency.getFirst();
     }
 
     public void setScript(ModificationScript aScript) {
@@ -116,21 +116,21 @@ public class VirtualCase extends ProjectFile implements ProjectCase, RunnableScr
                    .removeListener(listener);
     }
 
-    private void invalidateNetworkCache() {
+    @Override
+    public void addListener(ProjectCaseListener l) {
+        findService(NetworkService.class).addListener(this, l);
+    }
+
+    @Override
+    public void removeListener(ProjectCaseListener l) {
+        findService(NetworkService.class).removeListener(this, l);
+    }
+
+    @Override
+    protected void invalidate() {
+        // invalidate network cache
         findService(NetworkService.class).invalidateCache(this);
-    }
 
-    @Override
-    public void invalidate() {
-        invalidateNetworkCache();
         super.invalidate();
-    }
-
-    @Override
-    public void delete() {
-        super.delete();
-
-        // also clean cache
-        invalidateNetworkCache();
     }
 }

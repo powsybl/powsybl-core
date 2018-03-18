@@ -94,4 +94,12 @@ public class ImportedCase extends ProjectFile implements ProjectCase {
         // also clean cache
         findService(NetworkService.class).invalidateCache(this);
     }
+
+    @Override
+    public void addListener(ProjectCaseListener l) {
+    }
+
+    @Override
+    public void removeListener(ProjectCaseListener l) {
+    }
 }
