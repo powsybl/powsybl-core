@@ -23,4 +23,8 @@ public interface NetworkService {
     <T extends ProjectFile & ProjectCase> String getScriptOutput(T projectCase);
 
     <T extends ProjectFile & ProjectCase> void invalidateCache(T projectCase);
+
+    <T extends ProjectFile & ProjectCase> void addListener(T projectCase, ProjectCaseListener listener);
+
+    <T extends ProjectFile & ProjectCase> void removeListener(T projectCase, ProjectCaseListener listener);
 }

@@ -69,6 +69,9 @@ public class ProjectNode extends AbstractNodeBase<ProjectFolder> {
     }
 
     public void delete() {
+        // has to be done before delete!!!
+        invalidate();
+
         storage.deleteNode(info.getId());
         storage.flush();
     }
@@ -80,7 +83,7 @@ public class ProjectNode extends AbstractNodeBase<ProjectFolder> {
                 .collect(Collectors.toList());
     }
 
-    public void invalidate() {
+    protected void invalidate() {
         // propagate
         getBackwardDependencies().forEach(ProjectNode::invalidate);
     }
