@@ -20,4 +20,8 @@ public interface ProjectCase {
     ScriptError getScriptError();
 
     String getScriptOutput();
+
+    void addListener(ProjectCaseListener l);
+
+    void removeListener(ProjectCaseListener l);
 }

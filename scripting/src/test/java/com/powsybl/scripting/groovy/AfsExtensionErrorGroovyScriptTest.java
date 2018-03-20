@@ -28,7 +28,7 @@ public class AfsExtensionErrorGroovyScriptTest extends AbstractGroovyScriptTest 
     @Override
     protected Reader getCodeReader() {
         return new StringReader(String.join(System.lineSeparator(),
-                "project = afs.getNode('mem:/').createProject('test')",
+                "project = afs.getRootFolder('mem').createProject('test')",
                 "bar = project.getRootFolder().barBuilder().build()"
         ));
     }

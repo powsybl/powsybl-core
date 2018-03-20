@@ -59,7 +59,7 @@ public abstract class AbstractAppStorageTest {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         storage.close();
     }
 
@@ -70,7 +70,7 @@ public abstract class AbstractAppStorageTest {
         storage.flush();
 
         // check event
-        assertEquals(new NodeCreated(rootFolderInfo.getId()), eventStack.take());
+        assertEquals(new NodeCreated(rootFolderInfo.getId(), null), eventStack.take());
 
         assertNotNull(rootFolderInfo);
 
@@ -93,7 +93,7 @@ public abstract class AbstractAppStorageTest {
         storage.flush();
 
         // check event
-        assertEquals(new NodeCreated(testFolderInfo.getId()), eventStack.take());
+        assertEquals(new NodeCreated(testFolderInfo.getId(), rootFolderInfo.getId()), eventStack.take());
 
         // assert parent of test folder is root folder
         assertEquals(rootFolderInfo, storage.getParentNode(testFolderInfo.getId()).orElseThrow(AssertionError::new));
@@ -150,9 +150,9 @@ public abstract class AbstractAppStorageTest {
         storage.flush();
 
         // check events
-        assertEquals(new NodeCreated(testDataInfo.getId()), eventStack.take());
-        assertEquals(new NodeCreated(testData2Info.getId()), eventStack.take());
-        assertEquals(new NodeCreated(testData3Info.getId()), eventStack.take());
+        assertEquals(new NodeCreated(testDataInfo.getId(), testFolderInfo.getId()), eventStack.take());
+        assertEquals(new NodeCreated(testData2Info.getId(), testFolderInfo.getId()), eventStack.take());
+        assertEquals(new NodeCreated(testData3Info.getId(), testFolderInfo.getId()), eventStack.take());
 
         // check info are correctly stored even with metadata
         assertEquals(testData2Info, storage.getNodeInfo(testData2Info.getId()));
@@ -180,7 +180,7 @@ public abstract class AbstractAppStorageTest {
         assertEquals(ImmutableSet.of(testData2Info), storage.getDependencies(testDataInfo.getId(), "mylink"));
         assertTrue(storage.getDependencies(testDataInfo.getId(), "mylink2").isEmpty());
 
-        // 7) add then remove a second dependency
+        // 7) add then add a second dependency
         storage.addDependency(testDataInfo.getId(), "mylink2", testData2Info.getId());
         storage.flush();
 
@@ -208,7 +208,7 @@ public abstract class AbstractAppStorageTest {
         storage.flush();
 
         // check event
-        assertEquals(new NodeRemoved(testDataInfo.getId()), eventStack.take());
+        assertEquals(new NodeRemoved(testDataInfo.getId(), testFolderInfo.getId()), eventStack.take());
 
         // check test folder children have been correctly updated
         assertEquals(2, storage.getChildNodes(testFolderInfo.getId()).size());
@@ -367,7 +367,7 @@ public abstract class AbstractAppStorageTest {
     }
 
     @Test
-    public void parentChangeTest() throws IOException, InterruptedException {
+    public void parentChangeTest() throws InterruptedException {
         // create root node and 2 folders
         NodeInfo rootFolderInfo = storage.createRootNodeIfNotExists(storage.getFileSystemName(), FOLDER_PSEUDO_CLASS);
         NodeInfo folder1Info = storage.createNode(rootFolderInfo.getId(), "test1", FOLDER_PSEUDO_CLASS, "", 0, new NodeGenericMetadata());
@@ -401,4 +401,31 @@ public abstract class AbstractAppStorageTest {
         assertTrue(eventStack.isEmpty());
     }
 
+    @Test
+    public void deleteNodeTest() throws InterruptedException {
+        // create root node and 2 folders
+        NodeInfo rootFolderInfo = storage.createRootNodeIfNotExists(storage.getFileSystemName(), FOLDER_PSEUDO_CLASS);
+        NodeInfo folder1Info = storage.createNode(rootFolderInfo.getId(), "test1", FOLDER_PSEUDO_CLASS, "", 0, new NodeGenericMetadata());
+        NodeInfo folder2Info = storage.createNode(rootFolderInfo.getId(), "test2", FOLDER_PSEUDO_CLASS, "", 0, new NodeGenericMetadata());
+        storage.flush();
+
+        eventStack.take();
+        eventStack.take();
+        eventStack.take();
+
+        storage.addDependency(folder1Info.getId(), "dep", folder2Info.getId());
+        storage.addDependency(folder1Info.getId(), "dep2", folder2Info.getId());
+        storage.flush();
+
+        eventStack.take();
+        eventStack.take();
+
+        assertEquals(Collections.singleton(folder2Info), storage.getDependencies(folder1Info.getId(), "dep"));
+        assertEquals(Collections.singleton(folder2Info), storage.getDependencies(folder1Info.getId(), "dep2"));
+
+        storage.deleteNode(folder2Info.getId());
+
+        assertTrue(storage.getDependencies(folder1Info.getId(), "dep").isEmpty());
+        assertTrue(storage.getDependencies(folder1Info.getId(), "dep2").isEmpty());
+    }
 }

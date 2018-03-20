@@ -1,0 +1,22 @@
+#!/bin/bash
+#
+# Copyright (c) 2018, RTE (http://www.rte-france.com)
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#
+
+if [ -z $GROOVY_HOME ]; then
+    echo "GROOVY_HOME is not defined"
+    exit -1
+fi
+
+installBinDir=$(dirname $(readlink -f $0))
+installDir=${installBinDir%/*}
+
+$GROOVY_HOME/bin/groovysh \
+-cp "$installDir/share/java/*" \
+-e ":register com.powsybl.scripting.groovy.InitPowsybl
+:init_powsybl
+import com.powsybl.contingency.*" \
+-q

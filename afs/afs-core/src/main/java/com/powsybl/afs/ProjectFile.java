@@ -88,6 +88,14 @@ public class ProjectFile extends ProjectNode {
                 .collect(Collectors.toList());
     }
 
+    public void removeDependencies(String name) {
+        Objects.requireNonNull(name);
+        for (NodeInfo toNodeInfo : storage.getDependencies(info.getId(), name)) {
+            storage.removeDependency(info.getId(), name, toNodeInfo.getId());
+        }
+        storage.flush();
+    }
+
     public void addListener(ProjectFileListener listener) {
         listeners.add(this, listener);
     }

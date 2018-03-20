@@ -9,6 +9,7 @@ package com.powsybl.afs;
 import com.google.common.collect.ImmutableList;
 import com.powsybl.afs.mapdb.storage.MapDbAppStorage;
 import com.powsybl.afs.storage.AppStorage;
+import com.powsybl.afs.storage.DefaultListenableAppStorage;
 import com.powsybl.computation.ComputationManager;
 import org.junit.After;
 import org.junit.Before;
@@ -16,7 +17,10 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -34,7 +38,7 @@ public class AfsBaseTest {
 
     @Before
     public void setup() {
-        storage = MapDbAppStorage.createHeap("mem");
+        storage = new DefaultListenableAppStorage(MapDbAppStorage.createHeap("mem"));
 
         ComputationManager computationManager = Mockito.mock(ComputationManager.class);
         afs = new AppFileSystem("mem", true, storage);
@@ -99,6 +103,19 @@ public class AfsBaseTest {
         assertTrue(project1.getRootFolder().getChildren().isEmpty());
         assertTrue(project1.getFileSystem() == afs);
 
+        List<String> added = new ArrayList<>();
+        List<String> removed = new ArrayList<>();
+        project1.getRootFolder().addListener(new ProjectFolderListener() {
+            @Override
+            public void childAdded(String nodeId) {
+                added.add(nodeId);
+            }
+
+            @Override
+            public void childRemoved(String nodeId) {
+                removed.add(nodeId);
+            }
+        });
         ProjectFolder dir4 = project1.getRootFolder().createFolder("dir4");
         assertTrue(dir4.isFolder());
         assertEquals("dir4", dir4.getName());
@@ -119,6 +136,9 @@ public class AfsBaseTest {
         assertEquals(ImmutableList.of("dir5", "dir6"), dir6.getPath().toList().subList(1, 3));
         assertEquals("dir5/dir6", dir6.getPath().toString());
         assertEquals("dir6", project1.getRootFolder().getChild("dir5/dir6").orElseThrow(AssertionError::new).getName());
+
+        assertEquals(Arrays.asList(dir4.getId(), dir5.getId()), added);
+        assertEquals(Collections.singletonList(dir4.getId()), removed);
     }
 
     @Test

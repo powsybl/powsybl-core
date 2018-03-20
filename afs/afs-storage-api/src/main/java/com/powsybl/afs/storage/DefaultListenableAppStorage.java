@@ -44,14 +44,14 @@ public class DefaultListenableAppStorage extends ForwardingAppStorage implements
     @Override
     public NodeInfo createRootNodeIfNotExists(String name, String nodePseudoClass) {
         NodeInfo nodeInfo = super.createRootNodeIfNotExists(name, nodePseudoClass);
-        addEvent(new NodeCreated(nodeInfo.getId()));
+        addEvent(new NodeCreated(nodeInfo.getId(), null));
         return nodeInfo;
     }
 
     @Override
     public NodeInfo createNode(String parentNodeId, String name, String nodePseudoClass, String description, int version, NodeGenericMetadata genericMetadata) {
         NodeInfo nodeInfo = super.createNode(parentNodeId, name, nodePseudoClass, description, version, genericMetadata);
-        addEvent(new NodeCreated(nodeInfo.getId()));
+        addEvent(new NodeCreated(nodeInfo.getId(), parentNodeId));
         return nodeInfo;
     }
 
@@ -70,7 +70,7 @@ public class DefaultListenableAppStorage extends ForwardingAppStorage implements
     @Override
     public String deleteNode(String nodeId) {
         String parentNodeId = super.deleteNode(nodeId);
-        addEvent(new NodeRemoved(nodeId));
+        addEvent(new NodeRemoved(nodeId, parentNodeId));
         return parentNodeId;
     }
 

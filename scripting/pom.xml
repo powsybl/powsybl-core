@@ -22,6 +22,10 @@
     <name>Scripting</name>
     <description>A tool to run scripts over IIDM and AFS</description>
 
+    <properties>
+        <jline2.version>2.12</jline2.version>
+    </properties>
+
     <build>
         <plugins>
             <plugin>
@@ -51,8 +55,24 @@
             <artifactId>groovy-all</artifactId>
         </dependency>
         <dependency>
+            <groupId>jline</groupId>
+            <artifactId>jline</artifactId>
+            <version>${jline2.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>junit</artifactId>
+                    <groupId>junit</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
