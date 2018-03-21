@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.Network;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.ResourceBundle;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -22,6 +23,8 @@ public class VirtualCase extends ProjectFile implements ProjectCase, RunnableScr
     public static final int VERSION = 0;
 
     private static final FileIcon VIRTUAL_CASE_ICON = new FileIcon("virtualCase", VirtualCase.class.getResourceAsStream("/icons/virtualCase16x16.png"));
+
+    private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("lang.VirtualCase");
 
     static final String CASE_DEPENDENCY_NAME = "case";
     static final String SCRIPT_DEPENDENCY_NAME = "script";
@@ -38,14 +41,14 @@ public class VirtualCase extends ProjectFile implements ProjectCase, RunnableScr
         return projectCaseDependency.getFirst();
     }
 
-    public Optional<ModificationScript> getScript() {
-        return modificationScriptDependency.getFirst();
-    }
-
     public void setCase(ProjectFile aCase) {
         Objects.requireNonNull(aCase);
         setDependencies(CASE_DEPENDENCY_NAME, Collections.singletonList(aCase));
         projectCaseDependency.invalidate();
+    }
+
+    public Optional<ModificationScript> getScript() {
+        return modificationScriptDependency.getFirst();
     }
 
     public void setScript(ModificationScript aScript) {
@@ -79,6 +82,11 @@ public class VirtualCase extends ProjectFile implements ProjectCase, RunnableScr
     }
 
     @Override
+    public String getScriptLabel() {
+        return RESOURCE_BUNDLE.getString("NetworkModification");
+    }
+
+    @Override
     public ScriptType getScriptType() {
         return getScript().orElseThrow(VirtualCase::createScriptLinkIsDeadException)
                           .getScriptType();
@@ -108,21 +116,21 @@ public class VirtualCase extends ProjectFile implements ProjectCase, RunnableScr
                    .removeListener(listener);
     }
 
-    private void invalidateNetworkCache() {
+    @Override
+    public void addListener(ProjectCaseListener l) {
+        findService(NetworkService.class).addListener(this, l);
+    }
+
+    @Override
+    public void removeListener(ProjectCaseListener l) {
+        findService(NetworkService.class).removeListener(this, l);
+    }
+
+    @Override
+    protected void invalidate() {
+        // invalidate network cache
         findService(NetworkService.class).invalidateCache(this);
-    }
 
-    @Override
-    public void invalidate() {
-        invalidateNetworkCache();
         super.invalidate();
-    }
-
-    @Override
-    public void delete() {
-        super.delete();
-
-        // also clean cache
-        invalidateNetworkCache();
     }
 }

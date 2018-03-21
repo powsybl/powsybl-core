@@ -12,6 +12,7 @@ import com.google.common.util.concurrent.UncheckedExecutionException;
 import com.powsybl.afs.AfsException;
 import com.powsybl.afs.ProjectFile;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.util.WeakListenerList;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
@@ -60,6 +61,8 @@ public class LocalNetworkService implements NetworkService {
     }
 
     private final Cache<String, ModifiedNetwork> networkCache;
+
+    private final WeakListenerList<ProjectCaseListener> listeners = new WeakListenerList<>();
 
     public LocalNetworkService() {
         networkCache = CacheBuilder.newBuilder()
@@ -168,6 +171,19 @@ public class LocalNetworkService implements NetworkService {
     @Override
     public <T extends ProjectFile & ProjectCase> void invalidateCache(T projectCase) {
         Objects.requireNonNull(projectCase);
+
         networkCache.invalidate(projectCase.getId());
+
+        listeners.notify(ProjectCaseListener::networkUpdated);
+    }
+
+    @Override
+    public <T extends ProjectFile & ProjectCase> void addListener(T projectCase, ProjectCaseListener listener) {
+        listeners.add(this, listener);
+    }
+
+    @Override
+    public <T extends ProjectFile & ProjectCase> void removeListener(T projectCase, ProjectCaseListener listener) {
+        listeners.remove(this, listener);
     }
 }

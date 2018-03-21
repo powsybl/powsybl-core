@@ -409,6 +409,21 @@ public class MapDbAppStorage implements AppStorage {
         removeFromList(childNodesMap, parentNodeUuid, nodeUuid);
         childNodeMap.remove(new NamedLink(parentNodeUuid, nodeInfo.getName()));
 
+        // update dependencies of backward dependencies
+        for (UUID otherNodeUuid : backwardDependencyNodesMap.get(nodeUuid)) {
+            List<NamedLink> linksToRemove = new ArrayList<>();
+            for (NamedLink link : dependencyNodesMap.get(otherNodeUuid)) {
+                if (link.getNodeUuid().equals(nodeUuid)) {
+                    linksToRemove.add(link);
+                }
+            }
+            for (NamedLink linkToRemove : linksToRemove) {
+                removeFromList(dependencyNodesMap, otherNodeUuid, linkToRemove);
+                dependencyNodesByNameMap.remove(new NamedLink(otherNodeUuid, linkToRemove.getName()));
+            }
+        }
+
+        // remove dependencies
         for (NamedLink link : dependencyNodesMap.get(nodeUuid)) {
             dependencyNodesByNameMap.remove(new NamedLink(nodeUuid, link.getName()));
             removeFromList(backwardDependencyNodesMap, link.getNodeUuid(), nodeUuid);

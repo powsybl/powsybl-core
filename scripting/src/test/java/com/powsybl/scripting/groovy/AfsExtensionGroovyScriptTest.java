@@ -34,7 +34,7 @@ public class AfsExtensionGroovyScriptTest extends AbstractGroovyScriptTest {
     @Override
     protected Reader getCodeReader() {
         return new StringReader(String.join(System.lineSeparator(),
-                "project = afs.getNode('mem:/').createProject('test')",
+                "project = afs.getRootFolder('mem').createProject('test')",
                 "root = project.getRootFolder()",
                 "",
                 "foo = root.fooBuilder()",
@@ -44,7 +44,7 @@ public class AfsExtensionGroovyScriptTest extends AbstractGroovyScriptTest {
                 "println foo.getName()",
                 "",
                 "foo = root.getFoo(\"foo\")", // try to reload
-                "println foo.getName()",
+                "println foo.get().getName()",
                 "",
                 "foo2 = root.buildFoo {", // groovy idiomatic builder
                 "    name 'foo2'",
