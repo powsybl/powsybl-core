@@ -239,6 +239,16 @@ public abstract class AbstractAppStorageTest {
         assertFalse(storage.dataExists(testData2Info.getId(), "blob2"));
         assertEquals(ImmutableSet.of("blob"), storage.getDataNames(testData2Info.getId()));
 
+        // 10 bis) check data remove
+        assertFalse(storage.removeData(testData2Info.getId(), "blob2"));
+        assertTrue(storage.removeData(testData2Info.getId(), "blob"));
+        storage.flush();
+
+        // check event
+        assertEquals(new NodeDataRemoved(testData2Info.getId(), "blob"), eventStack.take());
+
+        assertTrue(storage.getDataNames(testData2Info.getId()).isEmpty());
+
         // 11) check data source using pattern api
         DataSource ds = new AppStorageDataSource(storage, testData2Info.getId());
         assertEquals("", ds.getBaseName());
