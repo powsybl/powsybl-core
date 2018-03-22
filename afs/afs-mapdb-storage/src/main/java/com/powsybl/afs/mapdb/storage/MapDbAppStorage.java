@@ -170,6 +170,10 @@ public class MapDbAppStorage implements AppStorage {
         return map;
     }
 
+    private static <K> IllegalArgumentException createKeyNotFoundException(K key) {
+        return new IllegalArgumentException("Key " + key + " not found");
+    }
+
     private static <K, V> Map<K, List<V>> addToList(Map<K, List<V>> map, K key, V value) {
         Objects.requireNonNull(map);
         Objects.requireNonNull(key);
@@ -188,18 +192,32 @@ public class MapDbAppStorage implements AppStorage {
         return map;
     }
 
-    private static <K, V> Map<K, List<V>> removeFromList(Map<K, List<V>> map, K key, V value) {
+    private static <K, V> boolean removeFromList(Map<K, List<V>> map, K key, V value) {
         Objects.requireNonNull(map);
         Objects.requireNonNull(key);
         Objects.requireNonNull(value);
         List<V> values = map.get(key);
         if (values == null) {
-            throw new IllegalArgumentException("Key " + key + " not found");
+            throw createKeyNotFoundException(key);
         }
         List<V> values2 = new ArrayList<>(values);
-        values2.remove(value);
+        boolean removed = values2.remove(value);
         map.put(key, values2);
-        return map;
+        return removed;
+    }
+
+    private static <K, V> boolean removeFromSet(Map<K, Set<V>> map, K key, V value) {
+        Objects.requireNonNull(map);
+        Objects.requireNonNull(key);
+        Objects.requireNonNull(value);
+        Set<V> values = map.get(key);
+        if (values == null) {
+            throw createKeyNotFoundException(key);
+        }
+        Set<V> values2 = new HashSet<>(values);
+        boolean removed = values2.remove(value);
+        map.put(key, values2);
+        return removed;
     }
 
     @Override
@@ -451,6 +469,13 @@ public class MapDbAppStorage implements AppStorage {
         UUID nodeUuid = checkNodeId(nodeId);
         checkNodeExists(nodeUuid);
         return dataNamesMap.get(nodeUuid);
+    }
+
+    @Override
+    public boolean removeData(String nodeId, String name) {
+        UUID nodeUuid = checkNodeId(nodeId);
+        Objects.requireNonNull(name);
+        return removeFromSet(dataNamesMap, nodeUuid, name);
     }
 
     @Override
