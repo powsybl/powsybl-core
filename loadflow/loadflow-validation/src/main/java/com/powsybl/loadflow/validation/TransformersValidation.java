@@ -41,7 +41,7 @@ public final class TransformersValidation {
     }
 
     public static boolean checkTransformers(Network network, ValidationConfig config, Path file) throws IOException {
-        Objects.requireNonNull(file);
+        Objects.requireNonNull(network);
         Objects.requireNonNull(config);
         Objects.requireNonNull(file);
 
