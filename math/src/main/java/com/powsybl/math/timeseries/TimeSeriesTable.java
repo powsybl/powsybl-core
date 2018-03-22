@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.DoubleBuffer;
+import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -26,6 +27,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.IntFunction;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.zip.GZIPOutputStream;
@@ -126,6 +128,8 @@ public final class TimeSeriesTable {
 
     private final TimeSeriesIndex tableIndex;
 
+    private final IntFunction<ByteBuffer> byteBufferAllocator;
+
     private final TIntArrayList timeSeriesIndexDoubleOrString = new TIntArrayList(); // global index to typed index
 
     private final TimeSeriesNameMap doubleTimeSeriesNames = new TimeSeriesNameMap();
@@ -146,6 +150,10 @@ public final class TimeSeriesTable {
     private final Lock statsLock = new ReentrantLock();
 
     public TimeSeriesTable(int fromVersion, int toVersion, TimeSeriesIndex tableIndex) {
+        this(fromVersion, toVersion, tableIndex, ByteBuffer::allocateDirect);
+    }
+
+    public TimeSeriesTable(int fromVersion, int toVersion, TimeSeriesIndex tableIndex, IntFunction<ByteBuffer> byteBufferAllocator) {
         TimeSeriesIndex.checkVersion(fromVersion);
         TimeSeriesIndex.checkVersion(toVersion);
         if (toVersion < fromVersion) {
@@ -154,6 +162,26 @@ public final class TimeSeriesTable {
         this.fromVersion = fromVersion;
         this.toVersion = toVersion;
         this.tableIndex = Objects.requireNonNull(tableIndex);
+        this.byteBufferAllocator = Objects.requireNonNull(byteBufferAllocator);
+    }
+
+    public static TimeSeriesTable createDirectMem(int fromVersion, int toVersion, TimeSeriesIndex tableIndex) {
+        return new TimeSeriesTable(fromVersion, toVersion, tableIndex);
+    }
+
+    public static TimeSeriesTable createMem(int fromVersion, int toVersion, TimeSeriesIndex tableIndex) {
+        return new TimeSeriesTable(fromVersion, toVersion, tableIndex, ByteBuffer::allocate);
+    }
+
+    public static TimeSeriesTable createFile(int fromVersion, int toVersion, TimeSeriesIndex tableIndex, RandomAccessFile file) {
+        Objects.requireNonNull(file);
+        return new TimeSeriesTable(fromVersion, toVersion, tableIndex, size -> {
+            try {
+                return file.getChannel().map(FileChannel.MapMode.READ_WRITE, 0, size);
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        });
     }
 
     private void initTable(List<DoubleTimeSeries> doubleTimeSeries, List<StringTimeSeries> stringTimeSeries) {
@@ -224,11 +252,11 @@ public final class TimeSeriesTable {
         return tableIndex;
     }
 
-    private static DoubleBuffer createDoubleBuffer(int size) {
-        return ByteBuffer.allocateDirect(size * Double.BYTES).asDoubleBuffer();
+    private DoubleBuffer createDoubleBuffer(int size) {
+        return byteBufferAllocator.apply(size * Double.BYTES).asDoubleBuffer();
     }
 
-    private static DoubleBuffer createDoubleBuffer(int size, double initialValue) {
+    private DoubleBuffer createDoubleBuffer(int size, double initialValue) {
         DoubleBuffer doubleBuffer = createDoubleBuffer(size);
         for (int i = 0; i < size; i++) {
             doubleBuffer.put(initialValue);
