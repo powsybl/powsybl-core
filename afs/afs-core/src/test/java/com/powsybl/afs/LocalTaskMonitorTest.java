@@ -74,6 +74,13 @@ public class LocalTaskMonitorTest extends AbstractProjectFileTest {
             TaskMonitor.Snapshot snapshotConverted = objectMapper.readValue(snJsonRef, TaskMonitor.Snapshot.class);
             assertEquals(snapshotRef, snapshotConverted);
 
+            // test Snapshot -> json -> Snapshot
+            ObjectMapper objectMapper = JsonUtil.createObjectMapper();
+            TaskMonitor.Snapshot snapshotRef = monitor.takeSnapshot();
+            String snJsonRef = objectMapper.writeValueAsString(snapshotRef);
+            TaskMonitor.Snapshot snapshotConverted = objectMapper.readValue(snJsonRef, TaskMonitor.Snapshot.class);
+            assertEquals(snapshotRef, snapshotConverted);
+
             monitor.updateTaskMessage(task.getId(), "hello");
             assertEquals(1, events.size());
             assertEquals(new UpdateTaskMessageEvent(task.getId(), 2L, "hello"), events.pop());

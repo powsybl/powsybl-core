@@ -475,7 +475,9 @@ public class MapDbAppStorage implements AppStorage {
     public boolean removeData(String nodeId, String name) {
         UUID nodeUuid = checkNodeId(nodeId);
         Objects.requireNonNull(name);
-        return removeFromSet(dataNamesMap, nodeUuid, name);
+        boolean removed = removeFromSet(dataNamesMap, nodeUuid, name);
+        dataMap.remove(new NamedLink(nodeUuid, name));
+        return removed;
     }
 
     @Override
