@@ -248,6 +248,7 @@ public abstract class AbstractAppStorageTest {
         assertEquals(new NodeDataRemoved(testData2Info.getId(), "blob"), eventStack.take());
 
         assertTrue(storage.getDataNames(testData2Info.getId()).isEmpty());
+        assertFalse(storage.readBinaryData(testData2Info.getId(), "blob").isPresent());
 
         // 11) check data source using pattern api
         DataSource ds = new AppStorageDataSource(storage, testData2Info.getId());
