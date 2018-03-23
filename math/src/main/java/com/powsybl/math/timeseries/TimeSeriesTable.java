@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.DoubleBuffer;
-import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -52,7 +51,7 @@ import java.util.zip.GZIPOutputStream;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public final class TimeSeriesTable {
+public class TimeSeriesTable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TimeSeriesTable.class);
 
@@ -173,17 +172,6 @@ public final class TimeSeriesTable {
         return new TimeSeriesTable(fromVersion, toVersion, tableIndex, ByteBuffer::allocate);
     }
 
-    public static TimeSeriesTable createFile(int fromVersion, int toVersion, TimeSeriesIndex tableIndex, RandomAccessFile file) {
-        Objects.requireNonNull(file);
-        return new TimeSeriesTable(fromVersion, toVersion, tableIndex, size -> {
-            try {
-                return file.getChannel().map(FileChannel.MapMode.READ_WRITE, 0, size);
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-        });
-    }
-
     private void initTable(List<DoubleTimeSeries> doubleTimeSeries, List<StringTimeSeries> stringTimeSeries) {
         initLock.lock();
         try {
@@ -220,7 +208,7 @@ public final class TimeSeriesTable {
 
             // allocate string buffer
             int stringBufferSize = versionCount * stringTimeSeriesNames.size() * tableIndex.getPointCount();
-            stringBuffer = new CompactStringBuffer(stringBufferSize);
+            stringBuffer = new CompactStringBuffer(byteBufferAllocator, stringBufferSize);
 
             if (LOGGER.isInfoEnabled()) {
                 LOGGER.info("Allocation of {} for time series table",

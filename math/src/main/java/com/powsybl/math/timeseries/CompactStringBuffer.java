@@ -8,6 +8,7 @@ package com.powsybl.math.timeseries;
 
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
+import java.util.function.IntFunction;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -18,15 +19,11 @@ public class CompactStringBuffer {
 
     private final BiList<String> dict = new BiList<>();
 
-    public CompactStringBuffer(int size) {
-        this.buffer = createIntBuffer(size);
+    public CompactStringBuffer(IntFunction<ByteBuffer> byteBufferAllocator, int size) {
+        this.buffer = byteBufferAllocator.apply(size * Integer.BYTES).asIntBuffer();
         for (int i = 0; i < size; i++) {
             buffer.put(-1);
         }
-    }
-
-    private static IntBuffer createIntBuffer(int size) {
-        return ByteBuffer.allocateDirect(size * Integer.BYTES).asIntBuffer();
     }
 
     public void putString(int index, String value) {

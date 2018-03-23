@@ -15,6 +15,7 @@ import org.junit.Test;
 import org.threeten.extra.Interval;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -38,7 +39,7 @@ public class StringArrayChunkTest {
         assertEquals(6, chunk.getEstimatedSize());
         assertFalse(chunk.isCompressed());
         assertEquals(1d, chunk.getCompressionFactor(), 0d);
-        CompactStringBuffer buffer = new CompactStringBuffer(4);
+        CompactStringBuffer buffer = new CompactStringBuffer(ByteBuffer::allocate, 4);
         chunk.fillBuffer(buffer, 0);
         assertArrayEquals(new String[] {null, "a", "b", "c"}, buffer.toArray());
 
@@ -84,7 +85,7 @@ public class StringArrayChunkTest {
         assertEquals(30d / 36, compressedChunk.getCompressionFactor(), 0d);
         assertArrayEquals(new String[] {"aaa", "bbb", "ccc"}, compressedChunk.getStepValues());
         assertArrayEquals(new int[] {1, 4, 1}, compressedChunk.getStepLengths());
-        CompactStringBuffer buffer = new CompactStringBuffer(7);
+        CompactStringBuffer buffer = new CompactStringBuffer(ByteBuffer::allocate, 7);
         compressedChunk.fillBuffer(buffer, 0);
         assertArrayEquals(new String[] {null, "aaa", "bbb", "bbb", "bbb", "bbb", "ccc"}, buffer.toArray());
         String jsonRef = String.join(System.lineSeparator(),
