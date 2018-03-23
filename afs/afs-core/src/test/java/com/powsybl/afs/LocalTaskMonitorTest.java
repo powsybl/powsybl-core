@@ -54,22 +54,22 @@ public class LocalTaskMonitorTest extends AbstractProjectFileTest {
                 }
             };
             monitor.addListener(listener);
-            assertEquals(0L, monitor.takeSnapshot().getRevision());
-            assertTrue(monitor.takeSnapshot().getTasks().isEmpty());
+            assertEquals(0L, monitor.takeSnapshot(null).getRevision());
+            assertTrue(monitor.takeSnapshot(null).getTasks().isEmpty());
 
             TaskMonitor.Task task = monitor.startTask(foo);
             assertEquals("foo", task.getName());
             assertEquals(1, events.size());
             assertEquals(new StartTaskEvent(task.getId(), 1L, "foo"), events.pop());
 
-            assertEquals(1L, monitor.takeSnapshot().getRevision());
-            assertEquals(1, monitor.takeSnapshot().getTasks().size());
-            assertEquals(task.getId(), monitor.takeSnapshot().getTasks().get(0).getId());
-            assertEquals(1L, monitor.takeSnapshot().getTasks().get(0).getRevision());
+            assertEquals(1L, monitor.takeSnapshot(null).getRevision());
+            assertEquals(1, monitor.takeSnapshot(null).getTasks().size());
+            assertEquals(task.getId(), monitor.takeSnapshot(null).getTasks().get(0).getId());
+            assertEquals(1L, monitor.takeSnapshot(null).getTasks().get(0).getRevision());
 
             // test Snapshot -> json -> Snapshot
             ObjectMapper objectMapper = JsonUtil.createObjectMapper();
-            TaskMonitor.Snapshot snapshotRef = monitor.takeSnapshot();
+            TaskMonitor.Snapshot snapshotRef = monitor.takeSnapshot(null);
             String snJsonRef = objectMapper.writeValueAsString(snapshotRef);
             TaskMonitor.Snapshot snapshotConverted = objectMapper.readValue(snJsonRef, TaskMonitor.Snapshot.class);
             assertEquals(snapshotRef, snapshotConverted);
@@ -78,11 +78,11 @@ public class LocalTaskMonitorTest extends AbstractProjectFileTest {
             assertEquals(1, events.size());
             assertEquals(new UpdateTaskMessageEvent(task.getId(), 2L, "hello"), events.pop());
 
-            assertEquals(2L, monitor.takeSnapshot().getRevision());
-            assertEquals(1, monitor.takeSnapshot().getTasks().size());
-            assertEquals(task.getId(), monitor.takeSnapshot().getTasks().get(0).getId());
-            assertEquals("hello", monitor.takeSnapshot().getTasks().get(0).getMessage());
-            assertEquals(2L, monitor.takeSnapshot().getTasks().get(0).getRevision());
+            assertEquals(2L, monitor.takeSnapshot(null).getRevision());
+            assertEquals(1, monitor.takeSnapshot(null).getTasks().size());
+            assertEquals(task.getId(), monitor.takeSnapshot(null).getTasks().get(0).getId());
+            assertEquals("hello", monitor.takeSnapshot(null).getTasks().get(0).getMessage());
+            assertEquals(2L, monitor.takeSnapshot(null).getTasks().get(0).getRevision());
 
             try {
                 monitor.updateTaskMessage(new UUID(0L, 0L), "");
@@ -94,8 +94,8 @@ public class LocalTaskMonitorTest extends AbstractProjectFileTest {
             assertEquals(1, events.size());
             assertEquals(new StopTaskEvent(task.getId(), 3L), events.pop());
 
-            assertEquals(3L, monitor.takeSnapshot().getRevision());
-            assertTrue(monitor.takeSnapshot().getTasks().isEmpty());
+            assertEquals(3L, monitor.takeSnapshot(null).getRevision());
+            assertTrue(monitor.takeSnapshot(null).getTasks().isEmpty());
 
             try {
                 monitor.stopTask(new UUID(0L, 0L));

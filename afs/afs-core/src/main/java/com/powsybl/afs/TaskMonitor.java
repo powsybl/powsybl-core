@@ -146,7 +146,7 @@ public interface TaskMonitor extends AutoCloseable {
 
     void updateTaskMessage(UUID id, String message);
 
-    Snapshot takeSnapshot();
+    Snapshot takeSnapshot(String projectId);
 
     void addListener(TaskListener listener);
 
