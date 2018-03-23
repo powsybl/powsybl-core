@@ -93,10 +93,13 @@ public class LocalTaskMonitor implements TaskMonitor {
     }
 
     @Override
-    public Snapshot takeSnapshot() {
+    public Snapshot takeSnapshot(String projectId) {
         lock.lock();
         try {
-            return new Snapshot(tasks.values().stream().map(Task::new).collect(Collectors.toList()), revision);
+            return new Snapshot(tasks.values().stream()
+                                              .filter(task -> projectId == null || task.getProjectId().equals(projectId))
+                                              .map(Task::new).collect(Collectors.toList()),
+                                revision);
         } finally {
             lock.unlock();
         }
