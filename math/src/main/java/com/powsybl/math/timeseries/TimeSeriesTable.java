@@ -216,7 +216,7 @@ public final class TimeSeriesTable {
 
             // allocate double buffer
             int doubleBufferSize = versionCount * doubleTimeSeriesNames.size() * tableIndex.getPointCount();
-            doubleBuffer = createDoubleBuffer(doubleBufferSize, Double.NaN);
+            doubleBuffer = createDoubleBuffer(byteBufferAllocator, doubleBufferSize, Double.NaN);
 
             // allocate string buffer
             int stringBufferSize = versionCount * stringTimeSeriesNames.size() * tableIndex.getPointCount();
@@ -252,12 +252,12 @@ public final class TimeSeriesTable {
         return tableIndex;
     }
 
-    private DoubleBuffer createDoubleBuffer(int size) {
+    private static DoubleBuffer createDoubleBuffer(IntFunction<ByteBuffer> byteBufferAllocator, int size) {
         return byteBufferAllocator.apply(size * Double.BYTES).asDoubleBuffer();
     }
 
-    private DoubleBuffer createDoubleBuffer(int size, double initialValue) {
-        DoubleBuffer doubleBuffer = createDoubleBuffer(size);
+    private static DoubleBuffer createDoubleBuffer(IntFunction<ByteBuffer> byteBufferAllocator, int size, double initialValue) {
+        DoubleBuffer doubleBuffer = createDoubleBuffer(byteBufferAllocator, size);
         for (int i = 0; i < size; i++) {
             doubleBuffer.put(initialValue);
         }
