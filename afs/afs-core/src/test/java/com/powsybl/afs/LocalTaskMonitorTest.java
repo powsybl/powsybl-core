@@ -34,7 +34,7 @@ public class LocalTaskMonitorTest extends AbstractProjectFileTest {
     }
 
     @Test
-    public void test() {
+    public void test() throws IOException {
         Project test = afs.getRootFolder().createProject("test");
         FooFile foo = test.getRootFolder().fileBuilder(FooFileBuilder.class)
                 .withName("foo")
@@ -66,6 +66,13 @@ public class LocalTaskMonitorTest extends AbstractProjectFileTest {
             assertEquals(1, monitor.takeSnapshot().getTasks().size());
             assertEquals(task.getId(), monitor.takeSnapshot().getTasks().get(0).getId());
             assertEquals(1L, monitor.takeSnapshot().getTasks().get(0).getRevision());
+
+            // test Snapshot -> json -> Snapshot
+            ObjectMapper objectMapper = JsonUtil.createObjectMapper();
+            TaskMonitor.Snapshot snapshotRef = monitor.takeSnapshot();
+            String snJsonRef = objectMapper.writeValueAsString(snapshotRef);
+            TaskMonitor.Snapshot snapshotConverted = objectMapper.readValue(snJsonRef, TaskMonitor.Snapshot.class);
+            assertEquals(snapshotRef, snapshotConverted);
 
             monitor.updateTaskMessage(task.getId(), "hello");
             assertEquals(1, events.size());
