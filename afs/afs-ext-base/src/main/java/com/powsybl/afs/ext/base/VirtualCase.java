@@ -12,19 +12,16 @@ import com.powsybl.iidm.network.Network;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.ResourceBundle;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class VirtualCase extends ProjectFile implements ProjectCase, RunnableScript {
+public class VirtualCase extends ProjectFile implements ProjectCase {
 
     public static final String PSEUDO_CLASS = "virtualCase";
     public static final int VERSION = 0;
 
     private static final FileIcon VIRTUAL_CASE_ICON = new FileIcon("virtualCase", VirtualCase.class.getResourceAsStream("/icons/virtualCase16x16.png"));
-
-    private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("lang.VirtualCase");
 
     static final String CASE_DEPENDENCY_NAME = "case";
     static final String SCRIPT_DEPENDENCY_NAME = "script";
@@ -67,53 +64,8 @@ public class VirtualCase extends ProjectFile implements ProjectCase, RunnableScr
         return findService(NetworkService.class).getNetwork(this);
     }
 
-    @Override
-    public ScriptError getScriptError() {
-        return findService(NetworkService.class).getScriptError(this);
-    }
-
-    @Override
-    public String getScriptOutput() {
-        return findService(NetworkService.class).getScriptOutput(this);
-    }
-
     static AfsException createScriptLinkIsDeadException() {
         return new AfsException("Script link is dead");
-    }
-
-    @Override
-    public String getScriptLabel() {
-        return RESOURCE_BUNDLE.getString("NetworkModification");
-    }
-
-    @Override
-    public ScriptType getScriptType() {
-        return getScript().orElseThrow(VirtualCase::createScriptLinkIsDeadException)
-                          .getScriptType();
-    }
-
-    @Override
-    public String readScript() {
-        return getScript().orElseThrow(VirtualCase::createScriptLinkIsDeadException)
-                          .readScript();
-    }
-
-    @Override
-    public void writeScript(String content) {
-        getScript().orElseThrow(VirtualCase::createScriptLinkIsDeadException)
-                   .writeScript(content);
-    }
-
-    @Override
-    public void addListener(ScriptListener listener) {
-        getScript().orElseThrow(VirtualCase::createScriptLinkIsDeadException)
-                   .addListener(listener);
-    }
-
-    @Override
-    public void removeListener(ScriptListener listener) {
-        getScript().orElseThrow(VirtualCase::createScriptLinkIsDeadException)
-                   .removeListener(listener);
     }
 
     @Override

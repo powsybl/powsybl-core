@@ -78,16 +78,6 @@ public class ImportedCase extends ProjectFile implements ProjectCase {
     }
 
     @Override
-    public ScriptError getScriptError() {
-        return null;
-    }
-
-    @Override
-    public String getScriptOutput() {
-        return "";
-    }
-
-    @Override
     public void delete() {
         super.delete();
 

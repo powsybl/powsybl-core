@@ -17,10 +17,6 @@ public interface ProjectCase {
 
     Network getNetwork();
 
-    ScriptError getScriptError();
-
-    String getScriptOutput();
-
     void addListener(ProjectCaseListener l);
 
     void removeListener(ProjectCaseListener l);

@@ -16,10 +16,6 @@ public interface StorableScript {
         return null;
     }
 
-    default boolean isScriptValid() {
-        return true;
-    }
-
     ScriptType getScriptType();
 
     String readScript();
