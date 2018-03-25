@@ -8,6 +8,7 @@ package com.powsybl.afs.ext.base;
 
 import com.powsybl.afs.AfsException;
 import com.powsybl.afs.ProjectFile;
+import com.powsybl.commons.PowsyblException;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -19,7 +20,7 @@ import java.util.ResourceBundle;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class ScriptException extends AfsException {
+public class ScriptException extends PowsyblException {
 
     private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("lang/ScriptException");
 

@@ -37,12 +37,10 @@ public class ScriptCache<F extends ProjectFile, V, L> {
 
     private final Function<F, ScriptResult<V>> loader;
 
-    private final BiConsumer<ScriptResult<V>, List<L>> notifier;
-
     public ScriptCache(int maximumSize, int hoursExpiration, Function<F, ScriptResult<V>> loader,
                        BiConsumer<ScriptResult<V>, List<L>> notifier) {
         this.loader = Objects.requireNonNull(loader);
-        this.notifier = Objects.requireNonNull(notifier);
+        Objects.requireNonNull(notifier);
         cache = CacheBuilder.newBuilder()
                 .maximumSize(maximumSize)
                 .expireAfterAccess(hoursExpiration, TimeUnit.HOURS)
