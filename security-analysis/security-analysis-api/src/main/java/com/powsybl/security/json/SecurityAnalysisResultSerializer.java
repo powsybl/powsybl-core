@@ -12,12 +12,9 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.security.LimitViolationFilter;
 import com.powsybl.security.SecurityAnalysisResult;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.Objects;
 
@@ -45,14 +42,6 @@ public class SecurityAnalysisResultSerializer extends StdSerializer<SecurityAnal
         JsonUtil.writeExtensions(result, jsonGenerator, serializerProvider);
 
         jsonGenerator.writeEndObject();
-    }
-
-    /**
-     * @deprecated use write(SecurityAnalysisResult, Writer) instead.
-     */
-    @Deprecated
-    public static void write(SecurityAnalysisResult result, LimitViolationFilter filter, OutputStream outputStream) throws IOException {
-        write(result, new OutputStreamWriter(outputStream));
     }
 
     public static void write(SecurityAnalysisResult result, Writer writer) throws IOException {

@@ -74,20 +74,6 @@ public class SecurityTest {
                                  "action1,,,,,,,,,,",
                                  ",NHV1_NHV2_1,VLHV1,FR,380,CURRENT,Permanent limit,1100.0000,950.0000,150.0000,110.00"),
                      writer.toString().trim());
-
-        // Test deprecated version
-        writer = new StringWriter();
-        try {
-            Security.printPreContingencyViolations(result, writer, formatterFactory, formatterConfig, null);
-        } finally {
-            writer.close();
-        }
-        assertEquals(String.join(System.lineSeparator(),
-                                 "Pre-contingency violations",
-                                 "Action,Equipment,Violation type,Violation name,Value,Limit,Loading rate %",
-                                 "action1,,,,,,",
-                                 ",NHV1_NHV2_1,CURRENT,Permanent limit,1100.0000,950.0000,110.00"),
-                     writer.toString().trim());
     }
 
     @Test
@@ -106,22 +92,6 @@ public class SecurityTest {
                                  ",,,NHV1_NHV2_1,VLHV1,FR,380,CURRENT,Permanent limit,1100.0000,950.0000,150.0000,110.00",
                                  ",,,NHV1_NHV2_2,VLHV1,FR,380,CURRENT,Permanent limit,950.0000,855.0000,95.0000,105.56"),
                      writer.toString().trim());
-
-        // Test deprecated version
-        writer = new StringWriter();
-        try {
-            Security.printPostContingencyViolations(result, writer, formatterFactory, formatterConfig, null, false);
-        } finally {
-            writer.close();
-        }
-        assertEquals(String.join(System.lineSeparator(),
-                                 "Post-contingency limit violations",
-                                 "Contingency,Status,Action,Equipment,Violation type,Violation name,Value,Limit,Loading rate %",
-                                 "contingency1,converge,,,,,,,",
-                                 ",,action2,,,,,,",
-                                 ",,,NHV1_NHV2_1,CURRENT,Permanent limit,1100.0000,950.0000,110.00",
-                                 ",,,NHV1_NHV2_2,CURRENT,Permanent limit,950.0000,855.0000,105.56"),
-                     writer.toString().trim());
     }
 
     @Test
@@ -139,21 +109,6 @@ public class SecurityTest {
                                  ",,action2,,,,,,,,,,",
                                  ",,,NHV1_NHV2_2,VLHV1,FR,380,CURRENT,Permanent limit,950.0000,855.0000,95.0000,105.56"),
                      writer.toString().trim());
-
-        // Test deprecated version
-        writer = new StringWriter();
-        try {
-            Security.printPostContingencyViolations(result, writer, formatterFactory, formatterConfig, null, true);
-        } finally {
-            writer.close();
-        }
-        assertEquals(String.join(System.lineSeparator(),
-                                 "Post-contingency limit violations",
-                                 "Contingency,Status,Action,Equipment,Violation type,Violation name,Value,Limit,Loading rate %",
-                                 "contingency1,converge,,,,,,,",
-                                 ",,action2,,,,,,",
-                                 ",,,NHV1_NHV2_2,CURRENT,Permanent limit,950.0000,855.0000,105.56"),
-                     writer.toString().trim());
     }
 
     @Test
@@ -165,15 +120,6 @@ public class SecurityTest {
                      "| NHV1_NHV2_2   | VLHV1 | FR      |          380 | CURRENT        | Permanent limit |  950.0000 | 855.0000 |          95.0000 |         105.56 |\n" +
                      "+---------------+-------+---------+--------------+----------------+-----------------+-----------+----------+------------------+----------------+",
                      Security.printLimitsViolations(Arrays.asList(line1Violation, line2Violation), network, new LimitViolationFilter(), formatterConfig));
-
-        // Test deprecated version
-        assertEquals("+---------+--------------+---------------+----------------+-----------------+---------+----------+------------------+----------------+\n" +
-                     "| Country | Base voltage | Equipment (2) | Violation type | Violation name  | Value   | Limit    | abs(value-limit) | Loading rate % |\n" +
-                     "+---------+--------------+---------------+----------------+-----------------+---------+----------+------------------+----------------+\n" +
-                     "|         |              | NHV1_NHV2_1   | CURRENT        | Permanent limit | 1100.00 | 950.0000 |         150.0000 |         110.00 |\n" +
-                     "|         |              | NHV1_NHV2_2   | CURRENT        | Permanent limit | 950.000 | 855.0000 |          95.0000 |         105.56 |\n" +
-                     "+---------+--------------+---------------+----------------+-----------------+---------+----------+------------------+----------------+",
-            Security.printLimitsViolations(Arrays.asList(line1Violation, line2Violation), new LimitViolationFilter(), formatterConfig));
     }
 
     @Test

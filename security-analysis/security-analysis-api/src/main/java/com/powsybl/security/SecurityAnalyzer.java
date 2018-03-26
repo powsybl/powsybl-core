@@ -46,14 +46,6 @@ public class SecurityAnalyzer {
 
     private final Set<SecurityAnalysisInterceptor> interceptors;
 
-    /**
-     * @deprecated use SecurityAnalyzer(LimitViolationFilter, ComputationManager, int) instead.
-     */
-    @Deprecated
-    public SecurityAnalyzer(ComputationManager computationManager, int priority) {
-        this(new LimitViolationFilter(), computationManager, priority);
-    }
-
     public SecurityAnalyzer(LimitViolationFilter filter, ComputationManager computationManager, int priority) {
         this(filter, computationManager, priority, Collections.emptySet());
     }

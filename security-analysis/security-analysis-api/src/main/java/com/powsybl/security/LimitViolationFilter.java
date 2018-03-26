@@ -120,18 +120,6 @@ public class LimitViolationFilter {
         return this;
     }
 
-    /**
-     * @deprecated use apply(List<LimitViolation>, Network) instead.
-     */
-    @Deprecated
-    public List<LimitViolation> apply(List<LimitViolation> violations) {
-        return violations.stream()
-                .filter(violation -> accept(violation.getLimitType()))
-                .filter(violation -> accept(violation.getBaseVoltage()))
-                .filter(violation -> accept(violation.getCountry()))
-                .collect(Collectors.toList());
-    }
-
     public List<LimitViolation> apply(List<LimitViolation> violations, Network network) {
         Objects.requireNonNull(violations);
         Objects.requireNonNull(network);

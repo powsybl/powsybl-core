@@ -42,28 +42,4 @@ public class PostContingencyResult {
     public LimitViolationsResult getLimitViolationsResult() {
         return limitViolationsResult;
     }
-
-    /**
-     * @deprecated Use getLimitViolationsResult().isComputationOk() instead.
-     */
-    @Deprecated
-    public boolean isComputationOk() {
-        return limitViolationsResult.isComputationOk();
-    }
-
-    /**
-     * @deprecated Use getLimitViolationsResult().getLimitViolations() instead.
-     */
-    @Deprecated
-    public List<LimitViolation> getLimitViolations() {
-        return limitViolationsResult.getLimitViolations();
-    }
-
-    /**
-     * @deprecated Use getLimitViolationsResult().getActionsTaken() instead.
-     */
-    @Deprecated
-    public List<String> getActionsTaken() {
-        return limitViolationsResult.getActionsTaken();
-    }
 }

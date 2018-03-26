@@ -33,14 +33,14 @@ import com.powsybl.iidm.network.Country;
 public class LimitViolationFilterTest {
 
     private FileSystem fileSystem;
-    private MapModuleConfig moduleConfig;
+
     private InMemoryPlatformConfig platformConfig;
 
     @Before
     public void setUp() throws Exception {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         platformConfig = new InMemoryPlatformConfig(fileSystem);
-        moduleConfig = platformConfig.createModuleConfig("limit-violation-default-filter");
+        MapModuleConfig moduleConfig = platformConfig.createModuleConfig("limit-violation-default-filter");
         moduleConfig.setStringListProperty("violationTypes", Arrays.asList("CURRENT", "LOW_VOLTAGE"));
         moduleConfig.setStringProperty("minBaseVoltage", "150");
         moduleConfig.setStringListProperty("countries", Arrays.asList("FR", "BE"));
@@ -88,8 +88,8 @@ public class LimitViolationFilterTest {
     public void apply() throws Exception {
         Network network = TestingNetworkFactory.create();
 
-        LimitViolation line1Violation = new LimitViolation("LINE1", LimitViolationType.CURRENT, "", 1000f, 1, 1100f, Branch.Side.ONE);
-        LimitViolation line2Violation = new LimitViolation("LINE2", LimitViolationType.CURRENT, "", 900f, 1, 950f, Branch.Side.TWO);
+        LimitViolation line1Violation = new LimitViolation("LINE1", LimitViolationType.CURRENT, "", Integer.MAX_VALUE, 1000f, 1, 1100f, Branch.Side.ONE);
+        LimitViolation line2Violation = new LimitViolation("LINE2", LimitViolationType.CURRENT, "", Integer.MAX_VALUE, 900f, 1, 950f, Branch.Side.TWO);
         LimitViolation vl1Violation = new LimitViolation("VL1", LimitViolationType.HIGH_VOLTAGE, 200f, 1, 250f);
 
         LimitViolationFilter filter = new LimitViolationFilter();

@@ -70,12 +70,6 @@ public class SecurityAnalysisImpl implements SecurityAnalysis {
     }
 
     @Override
-    public CompletableFuture<SecurityAnalysisResult> runAsync(ContingenciesProvider contingenciesProvider, String workingStateId, LoadFlowParameters loadFlowParameters) {
-        SecurityAnalysisParameters securityAnalysisParameters = new SecurityAnalysisParameters().setLoadFlowParameters(loadFlowParameters);
-        return runAsync(contingenciesProvider, workingStateId, securityAnalysisParameters);
-    }
-
-    @Override
     public CompletableFuture<SecurityAnalysisResult> runAsync(ContingenciesProvider contingenciesProvider, String workingStateId, SecurityAnalysisParameters securityAnalysisParameters) {
         Objects.requireNonNull(contingenciesProvider);
         Objects.requireNonNull(workingStateId);
@@ -165,15 +159,4 @@ public class SecurityAnalysisImpl implements SecurityAnalysis {
                         });
                 }, computationManager.getExecutor());
     }
-
-    @Override
-    public CompletableFuture<SecurityAnalysisResult> runAsync(ContingenciesProvider contingenciesProvider, String workingStateId) {
-        return runAsync(contingenciesProvider, workingStateId, SecurityAnalysisParameters.load());
-    }
-
-    @Override
-    public CompletableFuture<SecurityAnalysisResult> runAsync(ContingenciesProvider contingenciesProvider) {
-        return runAsync(contingenciesProvider, StateManager.INITIAL_STATE_ID);
-    }
-
 }

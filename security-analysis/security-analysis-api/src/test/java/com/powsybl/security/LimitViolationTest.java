@@ -16,8 +16,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
@@ -61,16 +59,4 @@ public class LimitViolationTest {
 
         assertEquals(expectedVoltageLevelIds, voltages);
     }
-
-    @Test
-    public void testDeprecated() {
-        LimitViolation violation = new LimitViolation("L1", LimitViolationType.CURRENT, 100.0f, "current", 0.95f, 97.0f, Country.FR, 225.0f);
-        assertEquals(Country.FR, violation.getCountry());
-        assertEquals(225.0f, violation.getBaseVoltage(), 0.0f);
-
-        violation = new LimitViolation("B1", LimitViolationType.HIGH_VOLTAGE, 100.0f, "voltage", 97.0f);
-        assertNull(violation.getCountry());
-        assertTrue(Float.isNaN(violation.getBaseVoltage()));
-    }
-
 }

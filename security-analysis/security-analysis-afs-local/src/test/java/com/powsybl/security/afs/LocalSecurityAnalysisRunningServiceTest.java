@@ -13,6 +13,7 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.*;
+import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 
 import java.util.Collections;
 import java.util.List;
@@ -27,6 +28,18 @@ public class LocalSecurityAnalysisRunningServiceTest extends SecurityAnalysisRun
         @Override
         public SecurityAnalysis create(Network network, ComputationManager computationManager, int priority) {
             return new SecurityAnalysis() {
+
+                @Override
+                public void addInterceptor(SecurityAnalysisInterceptor interceptor) {
+                    // Not implemented
+                }
+
+                @Override
+                public boolean removeInterceptor(SecurityAnalysisInterceptor interceptor) {
+                    // Not implemented
+                    return false;
+                }
+
                 @Override
                 public CompletableFuture<SecurityAnalysisResult> runAsync(ContingenciesProvider contingenciesProvider, String workingStateId, SecurityAnalysisParameters securityAnalysisParameters) {
                     LimitViolationsResult preContingencyResult = new LimitViolationsResult(true, ImmutableList.of(new LimitViolation("s1", LimitViolationType.HIGH_VOLTAGE, 400f, 1f, 440f)));

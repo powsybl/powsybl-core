@@ -31,46 +31,7 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
 
     private final float value;
 
-    private final Country country;
-
-    private final float baseVoltage;
-
     private final Branch.Side side;
-
-    /**
-     * @deprecated use LimitViolation(String, LimitViolationType, String, float, float, float, Branch.Side) instead.
-     */
-    @Deprecated
-    public LimitViolation(String subjectId, LimitViolationType limitType, float limit, String limitName,
-                          float limitReduction, float value, Country country, float baseVoltage) {
-        this.subjectId = Objects.requireNonNull(subjectId);
-        this.limitType = Objects.requireNonNull(limitType);
-        this.limit = limit;
-        this.limitName = limitName;
-        this.acceptableDuration = Integer.MAX_VALUE;
-        this.limitReduction = limitReduction;
-        this.value = value;
-        this.country = country;
-        this.baseVoltage = baseVoltage;
-        this.side = null;
-    }
-
-    /**
-     * @deprecated use LimitViolation(String, LimitViolationType, String, int, float, float, float, Branch.Side) instead.
-     */
-    @Deprecated
-    public LimitViolation(String subjectId, LimitViolationType limitType, float limit, String limitName, float value) {
-        this(subjectId, limitType, limit, limitName, 1, value, null, Float.NaN);
-    }
-
-    /**
-     * @deprecated use LimitViolation(String, LimitViolationType, String, int, float, float, float, Branch.Side) instead.
-     */
-    @Deprecated
-    public LimitViolation(String subjectId, LimitViolationType limitType, String limitName, float limit, float limitReduction,
-                          float value, Branch.Side side) {
-        this(subjectId, limitType, limitName, Integer.MAX_VALUE, limit, limitReduction, value, side);
-    }
 
     public LimitViolation(String subjectId, LimitViolationType limitType, String limitName, int acceptableDuration,
                           float limit, float limitReduction, float value, Branch.Side side) {
@@ -82,8 +43,6 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
         this.limitReduction = limitReduction;
         this.value = value;
         this.side = checkSide(limitType, side);
-        this.country = null;
-        this.baseVoltage = Float.NaN;
     }
 
     public LimitViolation(String subjectId, LimitViolationType limitType, float limit, float limitReduction, float value) {
@@ -120,22 +79,6 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
 
     public Branch.Side getSide() {
         return side;
-    }
-
-    /**
-     * @deprecated Use LimitViolationHelper.getCountry(LimitViolation, Network) instead.
-     */
-    @Deprecated
-    public Country getCountry() {
-        return country;
-    }
-
-    /**
-     * @deprecated Use LimitViolationHelper.getNominalVoltage(LimitViolation, Network) instead.
-     */
-    @Deprecated
-    public float getBaseVoltage() {
-        return baseVoltage;
     }
 
     private static Branch.Side checkSide(LimitViolationType limitType, Branch.Side side) {
