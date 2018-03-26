@@ -53,14 +53,6 @@ public final class Security {
     private Security() {
     }
 
-    private static String getLimitName(int acceptableDuration) {
-        if (acceptableDuration == Integer.MAX_VALUE) {
-            return PERMANENT_LIMIT_NAME;
-        } else {
-            return String.format("Overload %d'", acceptableDuration / 60);
-        }
-    }
-
     private static void checkPermanentLimit(Branch branch, Branch.Side side, float limitReduction, List<LimitViolation> violations) {
         if (branch.checkPermanentLimit(side, limitReduction)) {
             violations.add(new LimitViolation(branch.getId(),
