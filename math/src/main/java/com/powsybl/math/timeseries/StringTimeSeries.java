@@ -6,6 +6,7 @@
  */
 package com.powsybl.math.timeseries;
 
+import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Objects;
 
@@ -49,7 +50,7 @@ public class StringTimeSeries extends AbstractTimeSeries<StringPoint, StringArra
     }
 
     public String[] toArray() {
-        CompactStringBuffer buffer = new CompactStringBuffer(metadata.getIndex().getPointCount());
+        CompactStringBuffer buffer = new CompactStringBuffer(ByteBuffer::allocate, metadata.getIndex().getPointCount());
         chunks.forEach(chunk -> chunk.fillBuffer(buffer, 0));
         return buffer.toArray();
     }
