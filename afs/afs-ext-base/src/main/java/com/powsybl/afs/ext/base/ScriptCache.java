@@ -75,11 +75,13 @@ public class ScriptCache<F extends ProjectFile, V, L> {
 
     public void addListener(F projectFile, L listener) {
         Objects.requireNonNull(projectFile);
+        Objects.requireNonNull(listener);
         getListeners(projectFile.getId()).add(listener);
     }
 
     public void removeListener(F projectFile, L listener) {
         Objects.requireNonNull(projectFile);
+        Objects.requireNonNull(listener);
         getListeners(projectFile.getId()).remove(listener);
     }
 }

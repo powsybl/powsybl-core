@@ -100,7 +100,7 @@ public class ImportedCaseTest extends AbstractProjectFileTest {
         assertTrue(importedCase.getDependencies().isEmpty());
 
         // test network query
-        assertEquals("[\"s1\"]", importedCase.queryNetwork("network.substations.collect { it.id }"));
+        assertEquals("[\"s1\"]", importedCase.queryNetwork(ScriptType.GROOVY, "network.substations.collect { it.id }"));
 
         // try to reload the imported case
         assertEquals(1, folder.getChildren().size());

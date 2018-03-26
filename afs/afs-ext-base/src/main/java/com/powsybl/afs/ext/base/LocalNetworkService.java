@@ -93,13 +93,14 @@ public class LocalNetworkService implements NetworkService {
     }
 
     @Override
-    public <T extends ProjectFile & ProjectCase> String queryNetwork(T projectCase, String groovyScript) {
+    public <T extends ProjectFile & ProjectCase> String queryNetwork(T projectCase, ScriptType scriptType, String scriptContent) {
         Objects.requireNonNull(projectCase);
-        Objects.requireNonNull(groovyScript);
+        Objects.requireNonNull(scriptType);
+        Objects.requireNonNull(scriptContent);
 
         Network network = getNetwork(projectCase);
 
-        ScriptResult<Object> result = ScriptUtils.runScript(network, ScriptType.GROOVY, groovyScript);
+        ScriptResult<Object> result = ScriptUtils.runScript(network, ScriptType.GROOVY, scriptContent);
         if (result.getError() != null) {
             throw new ScriptException(projectCase, result.getError());
         }
