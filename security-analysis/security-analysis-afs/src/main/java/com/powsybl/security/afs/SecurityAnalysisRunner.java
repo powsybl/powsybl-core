@@ -30,7 +30,7 @@ import java.util.Optional;
  */
 public class SecurityAnalysisRunner extends ProjectFile {
 
-    public static final String PSEUDO_CLASS = "securityAnalysisRunner";
+    static final String PSEUDO_CLASS = "securityAnalysisRunner";
 
     static final int VERSION = 0;
     static final String CASE_DEPENDENCY_NAME = "case";
