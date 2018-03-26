@@ -13,13 +13,16 @@ import org.codehaus.groovy.control.messages.Message;
 import org.codehaus.groovy.control.messages.SyntaxErrorMessage;
 import org.codehaus.groovy.syntax.SyntaxException;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class ScriptError {
+public class ScriptError implements Serializable {
+
+    private static final long serialVersionUID = 8116688293120382652L;
 
     private final String message;
     private final int startLine;
