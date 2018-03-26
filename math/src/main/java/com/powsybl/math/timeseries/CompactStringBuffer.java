@@ -22,7 +22,7 @@ public class CompactStringBuffer {
 
     public CompactStringBuffer(IntFunction<ByteBuffer> byteBufferAllocator, int size) {
         Objects.requireNonNull(byteBufferAllocator);
-        if (size <= 0) {
+        if (size < 0) {
             throw new IllegalArgumentException("Invalid buffer size: " + size);
         }
         this.buffer = byteBufferAllocator.apply(size * Integer.BYTES).asIntBuffer();
