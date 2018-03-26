@@ -6,6 +6,8 @@
  */
 package com.powsybl.math.timeseries;
 
+import com.google.common.math.IntMath;
+
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.Objects;
@@ -25,7 +27,7 @@ public class CompactStringBuffer {
         if (size < 0) {
             throw new IllegalArgumentException("Invalid buffer size: " + size);
         }
-        this.buffer = byteBufferAllocator.apply(size * Integer.BYTES).asIntBuffer();
+        this.buffer = byteBufferAllocator.apply(IntMath.checkedMultiply(size, Integer.BYTES)).asIntBuffer();
         for (int i = 0; i < size; i++) {
             buffer.put(-1);
         }
