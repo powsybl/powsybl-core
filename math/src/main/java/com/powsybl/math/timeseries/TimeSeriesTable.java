@@ -7,6 +7,7 @@
 package com.powsybl.math.timeseries;
 
 import com.google.common.base.Stopwatch;
+import com.google.common.math.IntMath;
 import gnu.trove.list.array.TIntArrayList;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -231,6 +232,7 @@ public class TimeSeriesTable {
             stringBuffer = null;
             means = null;
             stdDevs = null;
+            throw e;
         } finally {
             initLock.unlock();
         }
@@ -241,7 +243,7 @@ public class TimeSeriesTable {
     }
 
     private static DoubleBuffer createDoubleBuffer(IntFunction<ByteBuffer> byteBufferAllocator, int size) {
-        return byteBufferAllocator.apply(size * Double.BYTES).asDoubleBuffer();
+        return byteBufferAllocator.apply(IntMath.checkedMultiply(size, Double.BYTES)).asDoubleBuffer();
     }
 
     private static DoubleBuffer createDoubleBuffer(IntFunction<ByteBuffer> byteBufferAllocator, int size, double initialValue) {
