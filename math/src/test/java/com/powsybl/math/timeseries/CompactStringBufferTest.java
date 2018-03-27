@@ -8,6 +8,8 @@ package com.powsybl.math.timeseries;
 
 import org.junit.Test;
 
+import java.nio.ByteBuffer;
+
 import static org.junit.Assert.*;
 
 /**
@@ -17,7 +19,7 @@ public class CompactStringBufferTest {
 
     @Test
     public void test() {
-        CompactStringBuffer buffer = new CompactStringBuffer(4);
+        CompactStringBuffer buffer = new CompactStringBuffer(ByteBuffer::allocate, 4);
         buffer.putString(0, "aaa");
         buffer.putString(1, "aaa");
         buffer.putString(3, "bbb");

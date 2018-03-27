@@ -27,20 +27,24 @@ public interface TaskMonitor extends AutoCloseable {
         private final String name;
 
         @JsonProperty("message")
-        protected String message;
+        private String message;
 
         @JsonProperty("revision")
-        protected long revision;
+        private long revision;
 
-        protected Task(String name, String message, long revision) {
+        @JsonProperty("projectId")
+        private final String projectId;
+
+        @JsonCreator
+        public Task(@JsonProperty("name") String name,
+                    @JsonProperty("message") String message,
+                    @JsonProperty("revision") long revision,
+                    @JsonProperty("projectId") String projectId) {
             id = UUID.randomUUID();
             this.name = Objects.requireNonNull(name);
             this.message = message;
             this.revision = revision;
-        }
-
-        protected Task(String name, long revision) {
-            this(name, null, revision);
+            this.projectId = Objects.requireNonNull(projectId);
         }
 
         protected Task(Task other) {
@@ -49,6 +53,7 @@ public interface TaskMonitor extends AutoCloseable {
             name = other.name;
             message = other.message;
             revision = other.revision;
+            projectId = other.projectId;
         }
 
         public UUID getId() {
@@ -63,8 +68,38 @@ public interface TaskMonitor extends AutoCloseable {
             return message;
         }
 
+        void setMessage(String message) {
+            this.message = message;
+        }
+
         public long getRevision() {
             return revision;
+        }
+
+        void setRevision(long revision) {
+            this.revision = revision;
+        }
+
+        String getProjectId() {
+            return projectId;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(id, name, message, revision, projectId);
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof Task) {
+                Task other = (Task) obj;
+                return id.equals(other.id)
+                        && name.equals(other.name)
+                        && Objects.equals(message, other.message)
+                        && revision == other.revision
+                        && projectId.equals(other.projectId);
+            }
+            return false;
         }
     }
 
@@ -89,6 +124,20 @@ public interface TaskMonitor extends AutoCloseable {
         public long getRevision() {
             return revision;
         }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(tasks, revision);
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof Snapshot) {
+                Snapshot snapshot = (Snapshot) obj;
+                return tasks.equals(snapshot.tasks) && revision == snapshot.revision;
+            }
+            return false;
+        }
     }
 
     Task startTask(ProjectFile projectFile);
@@ -97,7 +146,7 @@ public interface TaskMonitor extends AutoCloseable {
 
     void updateTaskMessage(UUID id, String message);
 
-    Snapshot takeSnapshot();
+    Snapshot takeSnapshot(String projectId);
 
     void addListener(TaskListener listener);
 
