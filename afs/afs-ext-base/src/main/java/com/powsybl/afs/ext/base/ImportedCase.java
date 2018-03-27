@@ -68,8 +68,10 @@ public class ImportedCase extends ProjectFile implements ProjectCase {
     }
 
     @Override
-    public String queryNetwork(String groovyScript) {
-        return findService(NetworkService.class).queryNetwork(this, groovyScript);
+    public String queryNetwork(ScriptType scriptType, String scriptContent) {
+        Objects.requireNonNull(scriptType);
+        Objects.requireNonNull(scriptContent);
+        return findService(NetworkService.class).queryNetwork(this, scriptType, scriptContent);
     }
 
     @Override
@@ -78,20 +80,20 @@ public class ImportedCase extends ProjectFile implements ProjectCase {
     }
 
     @Override
-    public ScriptError getScriptError() {
-        return null;
-    }
-
-    @Override
-    public String getScriptOutput() {
-        return "";
-    }
-
-    @Override
     public void delete() {
         super.delete();
 
         // also clean cache
         findService(NetworkService.class).invalidateCache(this);
+    }
+
+    @Override
+    public void addListener(ProjectCaseListener l) {
+        // nothing to do
+    }
+
+    @Override
+    public void removeListener(ProjectCaseListener l) {
+        // nothing to do
     }
 }

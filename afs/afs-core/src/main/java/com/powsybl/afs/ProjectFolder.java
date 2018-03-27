@@ -8,6 +8,10 @@ package com.powsybl.afs;
 
 import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.afs.storage.NodeInfo;
+import com.powsybl.afs.storage.events.NodeCreated;
+import com.powsybl.afs.storage.events.NodeEvent;
+import com.powsybl.afs.storage.events.NodeRemoved;
+import com.powsybl.commons.util.WeakListenerList;
 
 import java.util.Comparator;
 import java.util.List;
@@ -23,8 +27,30 @@ public class ProjectFolder extends ProjectNode implements FolderBase<ProjectNode
     public static final String PSEUDO_CLASS = "projectFolder";
     public static final int VERSION = 0;
 
+    private final WeakListenerList<ProjectFolderListener> listeners = new WeakListenerList<>();
+
     public ProjectFolder(ProjectFileCreationContext context) {
         super(context, VERSION, true);
+        storage.addListener(this, eventList -> {
+            for (NodeEvent event : eventList.getEvents()) {
+                switch (event.getType()) {
+                    case NODE_CREATED:
+                        if (getId().equals(((NodeCreated) event).getParentId())) {
+                            listeners.notify(listener -> listener.childAdded(event.getId()));
+                        }
+                        break;
+
+                    case NODE_REMOVED:
+                        if (getId().equals(((NodeRemoved) event).getParentId())) {
+                            listeners.notify(listener -> listener.childRemoved(event.getId()));
+                        }
+                        break;
+
+                    default:
+                        break;
+                }
+            }
+        });
     }
 
     @Override
@@ -58,7 +84,11 @@ public class ProjectFolder extends ProjectNode implements FolderBase<ProjectNode
     @Override
     public ProjectFolder createFolder(String name) {
         NodeInfo folderInfo = storage.getChildNode(info.getId(), name)
-                .orElse(storage.createNode(info.getId(), name, PSEUDO_CLASS, "", VERSION, new NodeGenericMetadata()));
+                .orElseGet(() -> {
+                    NodeInfo newFolderInfo = storage.createNode(ProjectFolder.this.info.getId(), name, PSEUDO_CLASS, "", VERSION, new NodeGenericMetadata());
+                    storage.flush();
+                    return newFolderInfo;
+                });
         return new ProjectFolder(new ProjectFileCreationContext(folderInfo, storage, fileSystem));
     }
 
@@ -67,5 +97,17 @@ public class ProjectFolder extends ProjectNode implements FolderBase<ProjectNode
         ProjectFileExtension extension = fileSystem.getData().getProjectFileExtension(clazz);
         ProjectFileBuilder<F> builder = (ProjectFileBuilder<F>) extension.createProjectFileBuilder(new ProjectFileBuildContext(info, storage, fileSystem));
         return (B) builder;
+    }
+
+    public void addListener(ProjectFolderListener listener) {
+        listeners.add(this, listener);
+    }
+
+    public void removeListener(ProjectFolderListener listener) {
+        listeners.remove(this, listener);
+    }
+
+    public void removeAllListeners() {
+        listeners.removeAll(this);
     }
 }

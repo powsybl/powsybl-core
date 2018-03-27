@@ -43,7 +43,7 @@ public interface AppStorage extends AutoCloseable {
 
     void setParentNode(String nodeId, String newParentNodeId);
 
-    void deleteNode(String nodeId);
+    String deleteNode(String nodeId);
 
     Optional<InputStream> readBinaryData(String nodeId, String name);
 
@@ -52,6 +52,8 @@ public interface AppStorage extends AutoCloseable {
     boolean dataExists(String nodeId, String name);
 
     Set<String> getDataNames(String nodeId);
+
+    boolean removeData(String nodeId, String name);
 
     void createTimeSeries(String nodeId, TimeSeriesMetadata metadata);
 

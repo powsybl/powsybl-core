@@ -37,6 +37,7 @@ public class DefaultListenableAppStorageTest {
         AppStorage storage = Mockito.mock(AppStorage.class);
         Mockito.when(storage.createNode(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyInt(), Mockito.any(NodeGenericMetadata.class)))
                 .thenReturn(new NodeInfo("node2", "", "", "", 0, 0, 0, new NodeGenericMetadata()));
+        Mockito.when(storage.deleteNode("node2")).thenReturn("node1");
         Mockito.when(storage.writeBinaryData(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(new ByteArrayOutputStream());
 
@@ -53,11 +54,11 @@ public class DefaultListenableAppStorageTest {
     public void test() throws IOException {
         listenableStorage.createNode("node1", "node2", "file", "", 0, new NodeGenericMetadata());
         listenableStorage.flush();
-        assertEquals(new NodeEventList(new NodeCreated("node2")), lastEventList);
+        assertEquals(new NodeEventList(new NodeCreated("node2", "node1")), lastEventList);
 
-        listenableStorage.deleteNode("node1");
+        listenableStorage.deleteNode("node2");
         listenableStorage.flush();
-        assertEquals(new NodeEventList(new NodeRemoved("node1")), lastEventList);
+        assertEquals(new NodeEventList(new NodeRemoved("node2", "node1")), lastEventList);
 
         try (OutputStream os = listenableStorage.writeBinaryData("node1", "attr")) {
             os.write("hello".getBytes(StandardCharsets.UTF_8));
@@ -65,13 +66,13 @@ public class DefaultListenableAppStorageTest {
         listenableStorage.flush();
         assertEquals(new NodeEventList(new NodeDataUpdated("node1", "attr")), lastEventList);
 
-        listenableStorage.addDependency("node1", "a", "node1");
+        listenableStorage.addDependency("node1", "a", "node2");
         listenableStorage.flush();
-        assertEquals(new NodeEventList(new DependencyAdded("node1", "a")), lastEventList);
+        assertEquals(new NodeEventList(new DependencyAdded("node1", "a"), new BackwardDependencyAdded("node2", "a")), lastEventList);
 
-        listenableStorage.removeDependency("node1", "a", "node1");
+        listenableStorage.removeDependency("node1", "a", "node2");
         listenableStorage.flush();
-        assertEquals(new NodeEventList(new DependencyRemoved("node1", "a")), lastEventList);
+        assertEquals(new NodeEventList(new DependencyRemoved("node1", "a"), new BackwardDependencyRemoved("node2", "a")), lastEventList);
 
         TimeSeriesMetadata metadata = Mockito.mock(TimeSeriesMetadata.class);
         Mockito.when(metadata.getName()).thenReturn("ts1");

@@ -6,9 +6,6 @@
  */
 package com.powsybl.afs;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -19,33 +16,7 @@ import java.util.stream.Collectors;
  */
 public class LocalTaskMonitor implements TaskMonitor {
 
-    public static class ModifiableTask extends Task {
-
-        @JsonProperty("projectId")
-        private final String projectId;
-
-        @JsonCreator
-        public ModifiableTask(@JsonProperty("name") String name,
-                              @JsonProperty("revision") long revision,
-                              @JsonProperty("projectId") String projectId) {
-            super(name, revision);
-            this.projectId = Objects.requireNonNull(projectId);
-        }
-
-        private String getProjectId() {
-            return projectId;
-        }
-
-        private void setMessage(String message) {
-            this.message = message;
-        }
-
-        private void setRevision(long revision) {
-            this.revision = revision;
-        }
-    }
-
-    private final Map<UUID, ModifiableTask> tasks = new HashMap<>();
+    private final Map<UUID, Task> tasks = new HashMap<>();
 
     private long revision = 0L;
 
@@ -60,9 +31,7 @@ public class LocalTaskMonitor implements TaskMonitor {
         try {
             revision++;
             String taskName = projectFile.getPath().toString();
-            ModifiableTask task = new ModifiableTask(taskName,
-                                                     revision,
-                                                     projectFile.getProject().getId());
+            Task task = new Task(taskName, null, revision, projectFile.getProject().getId());
             tasks.put(task.getId(), task);
 
             // notification
@@ -79,7 +48,7 @@ public class LocalTaskMonitor implements TaskMonitor {
         Objects.requireNonNull(id);
         lock.lock();
         try {
-            ModifiableTask task = tasks.remove(id);
+            Task task = tasks.remove(id);
             if (task == null) {
                 throw new IllegalArgumentException("Task '" + id + "' not found");
             }
@@ -93,10 +62,13 @@ public class LocalTaskMonitor implements TaskMonitor {
     }
 
     @Override
-    public Snapshot takeSnapshot() {
+    public Snapshot takeSnapshot(String projectId) {
         lock.lock();
         try {
-            return new Snapshot(tasks.values().stream().map(Task::new).collect(Collectors.toList()), revision);
+            return new Snapshot(tasks.values().stream()
+                                              .filter(task -> projectId == null || task.getProjectId().equals(projectId))
+                                              .map(Task::new).collect(Collectors.toList()),
+                                revision);
         } finally {
             lock.unlock();
         }
@@ -107,7 +79,7 @@ public class LocalTaskMonitor implements TaskMonitor {
         Objects.requireNonNull(id);
         lock.lock();
         try {
-            ModifiableTask task = tasks.get(id);
+            Task task = tasks.get(id);
             if (task == null) {
                 throw new IllegalArgumentException("Task '" + id + "' not found");
             }

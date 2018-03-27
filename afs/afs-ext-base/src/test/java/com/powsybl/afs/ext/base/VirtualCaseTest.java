@@ -10,11 +10,10 @@ import com.google.common.collect.ImmutableList;
 import com.powsybl.afs.*;
 import com.powsybl.afs.mapdb.storage.MapDbAppStorage;
 import com.powsybl.afs.storage.AppStorage;
-import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.afs.storage.NodeGenericMetadata;
+import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.iidm.import_.ImportersLoader;
 import com.powsybl.iidm.import_.ImportersLoaderList;
-import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -61,7 +60,7 @@ public class VirtualCaseTest extends AbstractProjectFileTest {
     }
 
     @Test
-    public void test() throws Exception {
+    public void test() {
         // get case
         Case aCase = (Case) afs.getRootFolder().getChildren().get(0);
 
@@ -86,8 +85,8 @@ public class VirtualCaseTest extends AbstractProjectFileTest {
         // create virtual by applying groovy script on imported case
         try {
             VirtualCase virtualCase = folder.fileBuilder(VirtualCaseBuilder.class)
-                    .withCase("folder/network")
-                    .withScript("folder/script")
+                    .withCase(importedCase)
+                    .withScript(script)
                     .build();
             fail();
         } catch (AfsException ignored) {
@@ -96,7 +95,7 @@ public class VirtualCaseTest extends AbstractProjectFileTest {
         try {
             VirtualCase virtualCase = folder.fileBuilder(VirtualCaseBuilder.class)
                     .withName("network2")
-                    .withScript("folder/script")
+                    .withScript(script)
                     .build();
             fail();
         } catch (AfsException ignored) {
@@ -105,27 +104,7 @@ public class VirtualCaseTest extends AbstractProjectFileTest {
         try {
             VirtualCase virtualCase = folder.fileBuilder(VirtualCaseBuilder.class)
                     .withName("network2")
-                    .withCase("folder/network")
-                    .build();
-            fail();
-        } catch (AfsException ignored) {
-        }
-
-        try {
-            VirtualCase virtualCase = folder.fileBuilder(VirtualCaseBuilder.class)
-                    .withName("network2")
-                    .withCase("folder/???")
-                    .withScript("folder/script")
-                    .build();
-            fail();
-        } catch (AfsException ignored) {
-        }
-
-        try {
-            VirtualCase virtualCase = folder.fileBuilder(VirtualCaseBuilder.class)
-                    .withName("network2")
-                    .withCase("folder/network")
-                    .withScript("folder/???")
+                    .withCase(importedCase)
                     .build();
             fail();
         } catch (AfsException ignored) {
@@ -133,8 +112,8 @@ public class VirtualCaseTest extends AbstractProjectFileTest {
 
         VirtualCase virtualCase = folder.fileBuilder(VirtualCaseBuilder.class)
                 .withName("network2")
-                .withCase("folder/network")
-                .withScript("folder/script")
+                .withCase(importedCase)
+                .withScript(script)
                 .build();
 
         assertEquals("network2", virtualCase.getName());
@@ -145,23 +124,17 @@ public class VirtualCaseTest extends AbstractProjectFileTest {
         assertEquals(1, importedCase.getBackwardDependencies().size());
         assertEquals(1, script.getBackwardDependencies().size());
         assertNotNull(virtualCase.getNetwork());
-        assertNull(virtualCase.getScriptError());
-
-        // check script output
-        assertEquals("hello", virtualCase.getScriptOutput());
 
         // test cache invalidation
         script.writeScript("print 'bye'");
         assertNotNull(virtualCase.getNetwork());
-        assertNull(virtualCase.getScriptError());
-        assertEquals("bye", virtualCase.getScriptOutput());
 
         virtualCase.delete();
         assertTrue(importedCase.getBackwardDependencies().isEmpty());
         assertTrue(script.getBackwardDependencies().isEmpty());
 
         // test script error
-        folder.fileBuilder(ModificationScriptBuilder.class)
+        ModificationScript scriptWithError = folder.fileBuilder(ModificationScriptBuilder.class)
                 .withName("scriptWithError")
                 .withType(ScriptType.GROOVY)
                 .withContent("prin 'hello'")
@@ -169,15 +142,16 @@ public class VirtualCaseTest extends AbstractProjectFileTest {
 
         VirtualCase virtualCaseWithError = folder.fileBuilder(VirtualCaseBuilder.class)
                 .withName("network2")
-                .withCase("folder/network")
-                .withScript("folder/scriptWithError")
+                .withCase(importedCase)
+                .withScript(scriptWithError)
                 .build();
 
-        Network networkWithError = virtualCaseWithError.getNetwork();
-        assertNotNull(networkWithError);
-        assertEquals(0, networkWithError.getSubstationCount());
-        assertNotNull(virtualCaseWithError.getScriptError());
-        assertTrue(virtualCaseWithError.getScriptError().getMessage().contains("No signature of method: test.prin() is applicable"));
-        assertEquals("", virtualCaseWithError.getScriptOutput());
+        try {
+            virtualCaseWithError.getNetwork();
+            fail();
+        } catch (ScriptException e) {
+            assertNotNull(e.getError());
+            assertTrue(e.getError().getMessage().contains("No signature of method: test.prin() is applicable"));
+        }
     }
 }

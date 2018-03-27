@@ -261,7 +261,7 @@ public class LocalAppStorage implements AppStorage {
     }
 
     @Override
-    public void deleteNode(String nodeId) {
+    public String deleteNode(String nodeId) {
         throw new AssertionError();
     }
 
@@ -295,6 +295,11 @@ public class LocalAppStorage implements AppStorage {
     @Override
     public Set<String> getDataNames(String nodeId) {
         return getFile(nodeId).getDataNames();
+    }
+
+    @Override
+    public boolean removeData(String nodeId, String name) {
+        throw new AssertionError();
     }
 
     @Override

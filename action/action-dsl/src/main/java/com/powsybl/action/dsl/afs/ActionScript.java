@@ -6,33 +6,25 @@
  */
 package com.powsybl.action.dsl.afs;
 
-import com.google.common.io.ByteStreams;
-import com.google.common.io.CharStreams;
 import com.powsybl.action.dsl.ActionDb;
 import com.powsybl.action.dsl.ActionDslLoader;
 import com.powsybl.afs.FileIcon;
-import com.powsybl.afs.ProjectFile;
 import com.powsybl.afs.ProjectFileCreationContext;
-import com.powsybl.afs.ext.base.ScriptListener;
+import com.powsybl.afs.ext.base.AbstractModificationScript;
 import com.powsybl.afs.ext.base.ScriptType;
-import com.powsybl.afs.ext.base.StorableScript;
-import com.powsybl.afs.storage.events.NodeDataUpdated;
-import com.powsybl.afs.storage.events.NodeEvent;
-import com.powsybl.afs.storage.events.NodeEventType;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
 
-import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.ResourceBundle;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class ActionScript extends ProjectFile implements StorableScript, ContingenciesProvider {
+public class ActionScript extends AbstractModificationScript implements ContingenciesProvider {
 
     public static final String PSEUDO_CLASS = "actionScript";
     public static final int VERSION = 0;
@@ -41,62 +33,20 @@ public class ActionScript extends ProjectFile implements StorableScript, Conting
 
     private static final FileIcon IAL_ICON = new FileIcon("ial", ActionScript.class.getResourceAsStream("/icons/ial16x16.png"));
 
-    private final List<ScriptListener> listeners = new ArrayList<>();
+    private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("lang.ActionScript");
 
     public ActionScript(ProjectFileCreationContext context) {
-        super(context, VERSION, IAL_ICON);
-        storage.addListener(this, eventList -> {
-            for (NodeEvent event : eventList.getEvents()) {
-                if (event.getType() == NodeEventType.NODE_DATA_UPDATED) {
-                    NodeDataUpdated dataUpdated = (NodeDataUpdated) event;
-                    if (dataUpdated.getId().equals(info.getId()) && SCRIPT_CONTENT.equals(dataUpdated.getDataName())) {
-                        for (ScriptListener listener : listeners) {
-                            listener.scriptUpdated();
-                        }
-                    }
-                }
-            }
-        });
+        super(context, VERSION, IAL_ICON, SCRIPT_CONTENT);
+    }
+
+    @Override
+    public String getScriptLabel() {
+        return RESOURCE_BUNDLE.getString("Actions");
     }
 
     @Override
     public ScriptType getScriptType() {
         return ScriptType.GROOVY;
-    }
-
-    @Override
-    public String readScript() {
-        try (InputStream is = storage.readBinaryData(info.getId(), SCRIPT_CONTENT)
-                                     .orElseThrow(AssertionError::new)) {
-            return new String(ByteStreams.toByteArray(is), StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    @Override
-    public void writeScript(String content) {
-        try (Reader reader = new StringReader(content);
-             Writer writer = new OutputStreamWriter(storage.writeBinaryData(info.getId(), SCRIPT_CONTENT), StandardCharsets.UTF_8)) {
-            CharStreams.copy(reader, writer);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-        storage.updateModificationTime(info.getId());
-        storage.flush();
-        notifyDependencyListeners();
-    }
-
-    @Override
-    public void addListener(ScriptListener listener) {
-        Objects.requireNonNull(listener);
-        listeners.add(listener);
-    }
-
-    @Override
-    public void removeListener(ScriptListener listener) {
-        Objects.requireNonNull(listener);
-        listeners.remove(listener);
     }
 
     public ActionDb load(Network network) {

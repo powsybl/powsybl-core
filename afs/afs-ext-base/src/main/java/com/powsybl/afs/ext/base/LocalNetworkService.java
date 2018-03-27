@@ -6,15 +6,11 @@
  */
 package com.powsybl.afs.ext.base;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.util.concurrent.UncheckedExecutionException;
 import com.powsybl.afs.AfsException;
 import com.powsybl.afs.ProjectFile;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.NetworkFactory;
 import groovy.json.JsonOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,8 +18,6 @@ import org.slf4j.LoggerFactory;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.UUID;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -32,71 +26,52 @@ public class LocalNetworkService implements NetworkService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LocalNetworkService.class);
 
-    private static final class ModifiedNetwork {
-
-        private final Network network;
-
-        private final ScriptError scriptError;
-
-        private final String scriptOutput;
-
-        private ModifiedNetwork(Network network, ScriptError scriptError, String scriptOutput) {
-            this.network = Objects.requireNonNull(network);
-            this.scriptError = scriptError;
-            this.scriptOutput = Objects.requireNonNull(scriptOutput);
-        }
-
-        private Network getNetwork() {
-            return network;
-        }
-
-        private ScriptError getScriptError() {
-            return scriptError;
-        }
-
-        private String getScriptOutput() {
-            return scriptOutput;
-        }
-    }
-
-    private final Cache<String, ModifiedNetwork> networkCache;
+    private final ScriptCache<ProjectFile, Network, ProjectCaseListener> cache;
 
     public LocalNetworkService() {
-        networkCache = CacheBuilder.newBuilder()
-                .maximumSize(50)
-                .expireAfterAccess(1, TimeUnit.HOURS)
-                .removalListener(notification -> LOGGER.info("Network of project case {} removed ({})", notification.getKey(), notification.getCause()))
-                .build();
+        cache = new ScriptCache<>(50, 1, projectFile -> {
+            UUID taskId = projectFile.startTask();
+            try {
+                projectFile.createLogger(taskId).log("Loading network...");
+                return loadNetworkFromProjectCase((ProjectCase) projectFile);
+            } finally {
+                projectFile.stopTask(taskId);
+            }
+        }, (result, listeners) -> {
+            for (ProjectCaseListener listener : listeners) {
+                listener.networkUpdated();
+            }
+        });
     }
 
-    private static ModifiedNetwork loadNetworkFromImportedCase(ImportedCase importedCase) {
+    private static ScriptResult<Network> loadNetworkFromImportedCase(ImportedCase importedCase) {
         LOGGER.info("Loading network of project case {}", importedCase.getId());
 
         Importer importer = importedCase.getImporter();
         ReadOnlyDataSource dataSource = importedCase.getDataSource();
         Properties parameters = importedCase.getParameters();
         Network network = importer.importData(dataSource, parameters);
-        return new ModifiedNetwork(network, null, "");
+        return ScriptResult.of(network);
     }
 
-    private static ModifiedNetwork applyScript(Network network, String previousScriptOutput, ModificationScript script) {
-        ScriptResult result = ScriptUtils.runScript(network, script.getScriptType(), script.readScript());
+    private static ScriptResult<Network> applyScript(Network network, String previousScriptOutput, ModificationScript script) {
+        ScriptResult<Object> result = ScriptUtils.runScript(network, script.getScriptType(), script.readScript());
         if (result.getError() == null) {
-            return new ModifiedNetwork(network, null, previousScriptOutput + result.getOutput());
+            return new ScriptResult<>(network, previousScriptOutput + result.getOutput(), null);
         } else {
             // return an empty network
-            return new ModifiedNetwork(NetworkFactory.create("error", ""), result.getError(), result.getOutput());
+            return new ScriptResult<>(null, result.getOutput(), result.getError());
         }
     }
 
-    private static ModifiedNetwork loadNetworkFromVirtualCase(VirtualCase virtualCase) {
-        ProjectCase baseCase = virtualCase.getCase()
-                                          .orElseThrow(() -> new AfsException("Case link is dead"));
+    private static ScriptResult<Network> loadNetworkFromVirtualCase(VirtualCase virtualCase) {
+        ProjectCase baseCase = (ProjectCase) virtualCase.getCase()
+                                                        .orElseThrow(() -> new AfsException("Case link is dead"));
 
-        ModifiedNetwork modifiedNetwork = loadNetworkFromProjectCase(baseCase);
+        ScriptResult<Network> network = loadNetworkFromProjectCase(baseCase);
 
-        if (modifiedNetwork.getScriptError() != null) {
-            return modifiedNetwork;
+        if (network.getError() != null) {
+            return network;
         }
 
         ModificationScript script = virtualCase.getScript()
@@ -104,10 +79,10 @@ public class LocalNetworkService implements NetworkService {
 
         LOGGER.info("Applying script to network of project case {}", virtualCase.getId());
 
-        return applyScript(modifiedNetwork.getNetwork(), modifiedNetwork.getScriptOutput(), script);
+        return applyScript(network.getValue(), network.getOutput(), script);
     }
 
-    private static ModifiedNetwork loadNetworkFromProjectCase(ProjectCase projectCase) {
+    private static ScriptResult<Network> loadNetworkFromProjectCase(ProjectCase projectCase) {
         if (projectCase instanceof ImportedCase) {
             return loadNetworkFromImportedCase((ImportedCase) projectCase);
         } else if (projectCase instanceof VirtualCase) {
@@ -117,57 +92,38 @@ public class LocalNetworkService implements NetworkService {
         }
     }
 
-    private <T extends ProjectFile & ProjectCase> ModifiedNetwork loadNetwork(T projectCase) {
-        Objects.requireNonNull(projectCase);
-        try {
-            return networkCache.get(projectCase.getId(), () -> {
-                UUID taskId = projectCase.startTask();
-                try {
-                    projectCase.createLogger(taskId).log("Loading network...");
-                    return loadNetworkFromProjectCase(projectCase);
-                } finally {
-                    projectCase.stopTask(taskId);
-                }
-            });
-        } catch (ExecutionException e) {
-            throw new UncheckedExecutionException(e);
-        }
-    }
-
     @Override
-    public <T extends ProjectFile & ProjectCase> String queryNetwork(T projectCase, String groovyScript) {
+    public <T extends ProjectFile & ProjectCase> String queryNetwork(T projectCase, ScriptType scriptType, String scriptContent) {
         Objects.requireNonNull(projectCase);
-        Objects.requireNonNull(groovyScript);
-        ScriptResult result = ScriptUtils.runScript(getNetwork(projectCase), ScriptType.GROOVY, groovyScript);
-        String json = null;
-        if (result.getError() == null) {
-            if (result.getValue() != null) {
-                json = JsonOutput.toJson(result.getValue());
-            }
-        } else {
-            LOGGER.error("Network query error {}", result.getError());
+        Objects.requireNonNull(scriptType);
+        Objects.requireNonNull(scriptContent);
+
+        Network network = getNetwork(projectCase);
+
+        ScriptResult<Object> result = ScriptUtils.runScript(network, ScriptType.GROOVY, scriptContent);
+        if (result.getError() != null) {
+            throw new ScriptException(projectCase, result.getError());
         }
-        return json;
+        return JsonOutput.toJson(result.getValue());
     }
 
     @Override
     public <T extends ProjectFile & ProjectCase> Network getNetwork(T projectCase) {
-        return loadNetwork(projectCase).getNetwork();
-    }
-
-    @Override
-    public <T extends ProjectFile & ProjectCase> ScriptError getScriptError(T projectCase) {
-        return loadNetwork(projectCase).getScriptError();
-    }
-
-    @Override
-    public <T extends ProjectFile & ProjectCase> String getScriptOutput(T projectCase) {
-        return loadNetwork(projectCase).getScriptOutput();
+        return cache.get(projectCase).getValueOrThrowIfError(projectCase);
     }
 
     @Override
     public <T extends ProjectFile & ProjectCase> void invalidateCache(T projectCase) {
-        Objects.requireNonNull(projectCase);
-        networkCache.invalidate(projectCase.getId());
+        cache.invalidate(projectCase);
+    }
+
+    @Override
+    public <T extends ProjectFile & ProjectCase> void addListener(T projectCase, ProjectCaseListener listener) {
+        cache.addListener(projectCase, listener);
+    }
+
+    @Override
+    public <T extends ProjectFile & ProjectCase> void removeListener(T projectCase, ProjectCaseListener listener) {
+        cache.removeListener(projectCase, listener);
     }
 }

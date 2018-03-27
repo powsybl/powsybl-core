@@ -7,6 +7,7 @@
 package com.powsybl.afs.storage;
 
 import com.powsybl.afs.storage.events.*;
+import com.powsybl.commons.util.WeakListenerList;
 import com.powsybl.math.timeseries.DoubleArrayChunk;
 import com.powsybl.math.timeseries.StringArrayChunk;
 import com.powsybl.math.timeseries.TimeSeriesMetadata;
@@ -21,7 +22,7 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class DefaultListenableAppStorage extends ForwardingAppStorage implements ListenableAppStorage {
 
-    private final AppStorageListenerList listeners = new AppStorageListenerList();
+    private final WeakListenerList<AppStorageListener> listeners = new WeakListenerList<>();
 
     private NodeEventList eventList = new NodeEventList();
 
@@ -43,14 +44,14 @@ public class DefaultListenableAppStorage extends ForwardingAppStorage implements
     @Override
     public NodeInfo createRootNodeIfNotExists(String name, String nodePseudoClass) {
         NodeInfo nodeInfo = super.createRootNodeIfNotExists(name, nodePseudoClass);
-        addEvent(new NodeCreated(nodeInfo.getId()));
+        addEvent(new NodeCreated(nodeInfo.getId(), null));
         return nodeInfo;
     }
 
     @Override
     public NodeInfo createNode(String parentNodeId, String name, String nodePseudoClass, String description, int version, NodeGenericMetadata genericMetadata) {
         NodeInfo nodeInfo = super.createNode(parentNodeId, name, nodePseudoClass, description, version, genericMetadata);
-        addEvent(new NodeCreated(nodeInfo.getId()));
+        addEvent(new NodeCreated(nodeInfo.getId(), parentNodeId));
         return nodeInfo;
     }
 
@@ -67,9 +68,10 @@ public class DefaultListenableAppStorage extends ForwardingAppStorage implements
     }
 
     @Override
-    public void deleteNode(String nodeId) {
-        super.deleteNode(nodeId);
-        addEvent(new NodeRemoved(nodeId));
+    public String deleteNode(String nodeId) {
+        String parentNodeId = super.deleteNode(nodeId);
+        addEvent(new NodeRemoved(nodeId, parentNodeId));
+        return parentNodeId;
     }
 
     @Override
@@ -77,6 +79,15 @@ public class DefaultListenableAppStorage extends ForwardingAppStorage implements
         OutputStream os = super.writeBinaryData(nodeId, name);
         addEvent(new NodeDataUpdated(nodeId, name));
         return os;
+    }
+
+    @Override
+    public boolean removeData(String nodeId, String name) {
+        boolean removed = super.removeData(nodeId, name);
+        if (removed) {
+            addEvent(new NodeDataRemoved(nodeId, name));
+        }
+        return removed;
     }
 
     @Override
@@ -107,12 +118,14 @@ public class DefaultListenableAppStorage extends ForwardingAppStorage implements
     public void addDependency(String nodeId, String name, String toNodeId) {
         super.addDependency(nodeId, name, toNodeId);
         addEvent(new DependencyAdded(nodeId, name));
+        addEvent(new BackwardDependencyAdded(toNodeId, name));
     }
 
     @Override
     public void removeDependency(String nodeId, String name, String toNodeId) {
         super.removeDependency(nodeId, name, toNodeId);
         addEvent(new DependencyRemoved(nodeId, name));
+        addEvent(new BackwardDependencyRemoved(toNodeId, name));
     }
 
     @Override
@@ -120,7 +133,7 @@ public class DefaultListenableAppStorage extends ForwardingAppStorage implements
         super.flush();
         lock.lock();
         try {
-            listeners.notify(eventList);
+            listeners.notify(l -> l.onEvents(eventList));
             eventList = new NodeEventList();
         } finally {
             lock.unlock();

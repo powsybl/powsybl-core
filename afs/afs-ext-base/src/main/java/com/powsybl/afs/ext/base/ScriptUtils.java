@@ -27,7 +27,7 @@ public final class ScriptUtils {
     private ScriptUtils() {
     }
 
-    private static ScriptResult runGroovyScript(Network network, Reader reader) {
+    private static ScriptResult<Object> runGroovyScript(Network network, Reader reader) {
         String output = "";
         ScriptError error = null;
         Object value = null;
@@ -49,10 +49,10 @@ public final class ScriptUtils {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-        return new ScriptResult(output, error, value);
+        return new ScriptResult<>(value, output, error);
     }
 
-    static ScriptResult runScript(Network network, ScriptType scriptType, String scriptContent) {
+    static ScriptResult<Object> runScript(Network network, ScriptType scriptType, String scriptContent) {
         try (Reader reader = new StringReader(scriptContent)) {
             if (scriptType == ScriptType.GROOVY) {
                 return runGroovyScript(network, reader);

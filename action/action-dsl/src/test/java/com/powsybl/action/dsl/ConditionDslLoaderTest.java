@@ -7,6 +7,7 @@
 package com.powsybl.action.dsl;
 
 import com.powsybl.action.dsl.ast.*;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
@@ -112,7 +113,6 @@ public class ConditionDslLoaderTest {
         evalAndAssert(false, "contingencyOccurred()");
         loadAndAssert("mostLoaded([NHV1_NHV2_1, NHV1_NHV2_2])", "mostLoaded(['NHV1_NHV2_1','NHV1_NHV2_2'])");
         loadAndAssert("isOverloaded([NHV1_NHV2_1, NHV1_NHV2_2])", "isOverloaded(['NHV1_NHV2_1','NHV1_NHV2_2'])");
-
     }
 
     @Test
@@ -166,6 +166,12 @@ public class ConditionDslLoaderTest {
         line1.getTerminal1().setP(400.0f).setQ(150.0f); // i = 649.06
         evalAndAssert(true, "isOverloaded(['NHV1_NHV2_1','NHV1_NHV2_2'], 1)");
 
+        try {
+            evalAndAssert(false, "isOverloaded(['NHV1_NHV2_1','NHV1_NHV2_2', 'UNKNOWN'])");
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Branch 'UNKNOWN' not found", e.getMessage());
+        }
     }
 
     private void addCurrentLimitsOnLine1() {
@@ -345,6 +351,14 @@ public class ConditionDslLoaderTest {
         line2.getTerminal2().setP(410).setQ(100); // line2.i2 = 641
         evalAndAssert(1, "loadingRank('NHV1_NHV2_1', ['NHV1_NHV2_1', 'NHV1_NHV2_2'])");
         evalAndAssert(2, "loadingRank('NHV1_NHV2_2', ['NHV1_NHV2_1', 'NHV1_NHV2_2'])");
+
+        // handle unknown branch
+        try {
+            evalAndAssert(null, "loadingRank('NHV1_NHV2_2', ['NHV1_NHV2_1', 'NHV1_NHV2_2', 'UNKNOWN'])");
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Branch 'UNKNOWN' not found", e.getMessage());
+        }
     }
 
     @Test
@@ -380,6 +394,14 @@ public class ConditionDslLoaderTest {
         // combine with loadingRank
         evalAndAssert(1, "loadingRank(mostLoaded(['NHV1_NHV2_1', 'NHV1_NHV2_2']), ['NHV1_NHV2_1', 'NHV1_NHV2_2'])");
         evalAndAssert(1, "loadingRank('NHV1_NHV2_1', [mostLoaded(['NHV1_NHV2_1', 'NHV1_NHV2_2']), 'NHV1_NHV2_2'])");
+
+        // handle unknown branch
+        try {
+            evalAndAssert(null, "mostLoaded(['NHV1_NHV2_1', 'UNKNOWN'])");
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Branch 'UNKNOWN' not found", e.getMessage());
+        }
     }
 
     @Test

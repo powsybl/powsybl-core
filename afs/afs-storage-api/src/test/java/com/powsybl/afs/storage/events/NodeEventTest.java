@@ -45,6 +45,22 @@ public class NodeEventTest {
     }
 
     @Test
+    public void backwardDependencyAddedTest() throws IOException {
+        BackwardDependencyAdded added = new BackwardDependencyAdded("a", "b");
+        assertEquals("a", added.getId());
+        assertEquals(NodeEventType.BACKWARD_DEPENDENCY_ADDED, added.getType());
+        assertEquals("b", added.getDependencyName());
+
+        BackwardDependencyAdded added2 = objectMapper.readValue(objectMapper.writeValueAsString(added), BackwardDependencyAdded.class);
+        assertEquals(added, added2);
+
+        new EqualsTester()
+                .addEqualityGroup(new BackwardDependencyAdded("a", "b"), new BackwardDependencyAdded("a", "b"))
+                .addEqualityGroup(new BackwardDependencyAdded("c", "d"), new BackwardDependencyAdded("c", "d"))
+                .testEquals();
+    }
+
+    @Test
     public void dependencyRemovedTest() throws IOException {
         DependencyRemoved removed = new DependencyRemoved("a", "b");
         assertEquals("a", removed.getId());
@@ -61,17 +77,34 @@ public class NodeEventTest {
     }
 
     @Test
+    public void backwardDependencyRemovedTest() throws IOException {
+        BackwardDependencyRemoved removed = new BackwardDependencyRemoved("a", "b");
+        assertEquals("a", removed.getId());
+        assertEquals(NodeEventType.BACKWARD_DEPENDENCY_REMOVED, removed.getType());
+        assertEquals("b", removed.getDependencyName());
+
+        BackwardDependencyRemoved removed2 = objectMapper.readValue(objectMapper.writeValueAsString(removed), BackwardDependencyRemoved.class);
+        assertEquals(removed, removed2);
+
+        new EqualsTester()
+                .addEqualityGroup(new BackwardDependencyRemoved("a", "b"), new BackwardDependencyRemoved("a", "b"))
+                .addEqualityGroup(new BackwardDependencyRemoved("c", "d"), new BackwardDependencyRemoved("c", "d"))
+                .testEquals();
+    }
+
+    @Test
     public void nodeCreatedTest() throws IOException {
-        NodeCreated created = new NodeCreated("a");
+        NodeCreated created = new NodeCreated("a", "b");
         assertEquals("a", created.getId());
+        assertEquals("b", created.getParentId());
         assertEquals(NodeEventType.NODE_CREATED, created.getType());
 
         NodeCreated created2 = objectMapper.readValue(objectMapper.writeValueAsString(created), NodeCreated.class);
         assertEquals(created, created2);
 
         new EqualsTester()
-                .addEqualityGroup(new NodeCreated("a"), new NodeCreated("a"))
-                .addEqualityGroup(new NodeCreated("b"), new NodeCreated("b"))
+                .addEqualityGroup(new NodeCreated("a", "b"), new NodeCreated("a", "b"))
+                .addEqualityGroup(new NodeCreated("b", null), new NodeCreated("b", null))
                 .testEquals();
     }
 
@@ -109,16 +142,17 @@ public class NodeEventTest {
 
     @Test
     public void nodeRemovedTest() throws IOException {
-        NodeRemoved removed = new NodeRemoved("a");
+        NodeRemoved removed = new NodeRemoved("a", "b");
         assertEquals("a", removed.getId());
+        assertEquals("b", removed.getParentId());
         assertEquals(NodeEventType.NODE_REMOVED, removed.getType());
 
         NodeRemoved removed2 = objectMapper.readValue(objectMapper.writeValueAsString(removed), NodeRemoved.class);
         assertEquals(removed, removed2);
 
         new EqualsTester()
-                .addEqualityGroup(new NodeRemoved("a"), new NodeRemoved("a"))
-                .addEqualityGroup(new NodeRemoved("b"), new NodeRemoved("b"))
+                .addEqualityGroup(new NodeRemoved("a", "b"), new NodeRemoved("a", "b"))
+                .addEqualityGroup(new NodeRemoved("b", "c"), new NodeRemoved("b", "c"))
                 .testEquals();
     }
 
@@ -187,8 +221,8 @@ public class NodeEventTest {
 
     @Test
     public void eventListTest() throws IOException {
-        NodeEventList eventList = new NodeEventList(new NodeCreated("a"), new NodeRemoved("b"));
-        assertEquals("[NodeCreated(id=a), NodeRemoved(id=b)]", eventList.toString());
+        NodeEventList eventList = new NodeEventList(new NodeCreated("a", "c"), new NodeRemoved("b", "d"));
+        assertEquals("[NodeCreated(id=a, parentId=c), NodeRemoved(id=b, parentId=d)]", eventList.toString());
 
         NodeEventList eventList2 = objectMapper.readValue(objectMapper.writeValueAsString(eventList), NodeEventList.class);
         assertEquals(eventList, eventList2);

@@ -87,8 +87,8 @@ public class ForwardingAppStorage implements AppStorage {
     }
 
     @Override
-    public void deleteNode(String nodeId) {
-        storage.deleteNode(nodeId);
+    public String deleteNode(String nodeId) {
+        return storage.deleteNode(nodeId);
     }
 
     @Override
@@ -109,6 +109,11 @@ public class ForwardingAppStorage implements AppStorage {
     @Override
     public Set<String> getDataNames(String nodeId) {
         return storage.getDataNames(nodeId);
+    }
+
+    @Override
+    public boolean removeData(String nodeId, String name) {
+        return storage.removeData(nodeId, name);
     }
 
     @Override
