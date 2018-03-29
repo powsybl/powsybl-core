@@ -9,6 +9,7 @@ package com.powsybl.loadflow.validation.io;
 import java.io.IOException;
 
 import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
+import com.powsybl.iidm.network.TwoTerminalsConnectable.Side;
 
 /**
  *
@@ -25,14 +26,18 @@ public interface ValidationWriter extends AutoCloseable {
                boolean connected, boolean voltageRegulatorOn, float minQ, float maxQ, boolean validated) throws IOException;
 
     void write(String busId, double incomingP, double incomingQ, double loadP, double loadQ, double genP, double genQ,
-               double shuntP, double shuntQ, double svcP, double svcQ, double vscCSP, double vscCSQ, double lineP, double lineQ, double danglingLineP, double danglingLineQ,
-               double twtP, double twtQ, double tltP, double tltQ, boolean validated) throws IOException;
+               double shuntP, double shuntQ, double svcP, double svcQ, double vscCSP, double vscCSQ, double lineP, double lineQ,
+               double danglingLineP, double danglingLineQ, double twtP, double twtQ, double tltP, double tltQ, boolean validated) throws IOException;
 
     void write(String svcId, float p, float q, float v, float reactivePowerSetpoint, float voltageSetpoint,
                boolean connected, RegulationMode regulationMode, float bMin, float bMax, boolean validated) throws IOException;
 
     void write(String shuntId, float q, float expectedQ, float p, int currentSectionCount, int maximumSectionCount, float bPerSection,
                float v, boolean connected, float qMax, float nominalV, boolean validated) throws IOException;
+
+    void write(String twtId, float error, float upIncrement, float downIncrement, float rho, float rhoPreviousStep, float rhoNextStep,
+               int tapPosition, int lowTapPosition, int highTapPosition, float targetV, Side regulatedSide, float v, boolean connected,
+               boolean mainComponent, boolean validated) throws IOException;
 
     void setValidationCompleted();
 
