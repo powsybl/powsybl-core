@@ -686,4 +686,123 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
         return new ValidationFormatterCsvMultilineWriter("test", CsvTableFormatterFactory.class, config, writer, verbose, ValidationType.SHUNTS, compareResults);
     }
 
+    @Override
+    protected String getTwtsContent() {
+        return String.join(System.lineSeparator(),
+                           "test " + ValidationType.TWTS + " check",
+                           String.join(";", "id", "characteristic", "value"),
+                           String.join(";", twtId, "error", String.format(Locale.getDefault(), "%g", error)),
+                           String.join(";", twtId, "upIncrement", String.format(Locale.getDefault(), "%g", upIncrement)),
+                           String.join(";", twtId, "downIncrement", String.format(Locale.getDefault(), "%g", downIncrement)));
+    }
+
+    @Override
+    protected String getTwtsVerboseContent() {
+        return String.join(System.lineSeparator(),
+                           "test " + ValidationType.TWTS + " check",
+                           String.join(";", "id", "characteristic", "value"),
+                           String.join(";", twtId, "error", String.format(Locale.getDefault(), "%g", error)),
+                           String.join(";", twtId, "upIncrement", String.format(Locale.getDefault(), "%g", upIncrement)),
+                           String.join(";", twtId, "downIncrement", String.format(Locale.getDefault(), "%g", downIncrement)),
+                           String.join(";", twtId, "rho", String.format(Locale.getDefault(), "%g", rho)),
+                           String.join(";", twtId, "rhoPreviousStep", String.format(Locale.getDefault(), "%g", rhoPreviousStep)),
+                           String.join(";", twtId, "rhoNextStep", String.format(Locale.getDefault(), "%g", rhoNextStep)),
+                           String.join(";", twtId, "tapPosition", Integer.toString(tapPosition)),
+                           String.join(";", twtId, "lowTapPosition", Integer.toString(lowTapPosition)),
+                           String.join(";", twtId, "highTapPosition", Integer.toString(highTapPosition)),
+                           String.join(";", twtId, "tapChangerTargetV", String.format(Locale.getDefault(), "%g", twtTargetV)),
+                           String.join(";", twtId, "regulatedSide", regulatedSide.name()),
+                           String.join(";", twtId, "v", String.format(Locale.getDefault(), "%g", twtV)),
+                           String.join(";", twtId, "connected", Boolean.toString(connected)),
+                           String.join(";", twtId, "mainComponent", Boolean.toString(mainComponent)),
+                           String.join(";", twtId, AbstractValidationFormatterWriter.VALIDATION, AbstractValidationFormatterWriter.SUCCESS));
+    }
+
+    @Override
+    protected String getTwtsCompareContent() {
+        return String.join(System.lineSeparator(),
+                           "test " + ValidationType.TWTS + " check",
+                           String.join(";", "id", "characteristic", "value", "value" + AbstractValidationFormatterWriter.POST_LF_SUFFIX),
+                           String.join(";", twtId, "error", String.format(Locale.getDefault(), "%g", error), String.format(Locale.getDefault(), "%g", error)),
+                           String.join(";", twtId, "upIncrement", String.format(Locale.getDefault(), "%g", upIncrement), String.format(Locale.getDefault(), "%g", upIncrement)),
+                           String.join(";", twtId, "downIncrement", String.format(Locale.getDefault(), "%g", downIncrement), String.format(Locale.getDefault(), "%g", downIncrement)));
+    }
+
+    @Override
+    protected String getTwtsCompareDifferentIdsContent() {
+        return String.join(System.lineSeparator(),
+                           "test " + ValidationType.TWTS + " check",
+                           String.join(";", "id", "characteristic", "value", "value" + AbstractValidationFormatterWriter.POST_LF_SUFFIX),
+                           String.join(";", otherTwtId, "error", "", String.format(Locale.getDefault(), "%g", error)),
+                           String.join(";", otherTwtId, "upIncrement", "", String.format(Locale.getDefault(), "%g", upIncrement)),
+                           String.join(";", otherTwtId, "downIncrement", "", String.format(Locale.getDefault(), "%g", downIncrement)),
+                           String.join(";", twtId, "error", String.format(Locale.getDefault(), "%g", error), ""),
+                           String.join(";", twtId, "upIncrement", String.format(Locale.getDefault(), "%g", upIncrement), ""),
+                           String.join(";", twtId, "downIncrement", String.format(Locale.getDefault(), "%g", downIncrement), ""));
+    }
+
+    @Override
+    protected String getTwtsCompareVerboseContent() {
+        return String.join(System.lineSeparator(),
+                           "test " + ValidationType.TWTS + " check",
+                           String.join(";", "id", "characteristic", "value", "value" + AbstractValidationFormatterWriter.POST_LF_SUFFIX),
+                           String.join(";", twtId, "error", String.format(Locale.getDefault(), "%g", error), String.format(Locale.getDefault(), "%g", error)),
+                           String.join(";", twtId, "upIncrement", String.format(Locale.getDefault(), "%g", upIncrement), String.format(Locale.getDefault(), "%g", upIncrement)),
+                           String.join(";", twtId, "downIncrement", String.format(Locale.getDefault(), "%g", downIncrement), String.format(Locale.getDefault(), "%g", downIncrement)),
+                           String.join(";", twtId, "rho", String.format(Locale.getDefault(), "%g", rho), String.format(Locale.getDefault(), "%g", rho)),
+                           String.join(";", twtId, "rhoPreviousStep", String.format(Locale.getDefault(), "%g", rhoPreviousStep), String.format(Locale.getDefault(), "%g", rhoPreviousStep)),
+                           String.join(";", twtId, "rhoNextStep", String.format(Locale.getDefault(), "%g", rhoNextStep), String.format(Locale.getDefault(), "%g", rhoNextStep)),
+                           String.join(";", twtId, "tapPosition", Integer.toString(tapPosition), Integer.toString(tapPosition)),
+                           String.join(";", twtId, "lowTapPosition", Integer.toString(lowTapPosition), Integer.toString(lowTapPosition)),
+                           String.join(";", twtId, "highTapPosition", Integer.toString(highTapPosition), Integer.toString(highTapPosition)),
+                           String.join(";", twtId, "tapChangerTargetV", String.format(Locale.getDefault(), "%g", twtTargetV), String.format(Locale.getDefault(), "%g", twtTargetV)),
+                           String.join(";", twtId, "regulatedSide", regulatedSide.name(), regulatedSide.name()),
+                           String.join(";", twtId, "v", String.format(Locale.getDefault(), "%g", twtV), String.format(Locale.getDefault(), "%g", twtV)),
+                           String.join(";", twtId, "connected", Boolean.toString(connected), Boolean.toString(connected)),
+                           String.join(";", twtId, "mainComponent", Boolean.toString(mainComponent), Boolean.toString(mainComponent)),
+                           String.join(";", twtId, AbstractValidationFormatterWriter.VALIDATION, AbstractValidationFormatterWriter.SUCCESS, AbstractValidationFormatterWriter.SUCCESS));
+    }
+
+    @Override
+    protected String getTwtsCompareDifferentIdsVerboseContent() {
+        return String.join(System.lineSeparator(),
+                           "test " + ValidationType.TWTS + " check",
+                           String.join(";", "id", "characteristic", "value", "value" + AbstractValidationFormatterWriter.POST_LF_SUFFIX),
+                           String.join(";", otherTwtId, "error", "", String.format(Locale.getDefault(), "%g", error)),
+                           String.join(";", otherTwtId, "upIncrement", "", String.format(Locale.getDefault(), "%g", upIncrement)),
+                           String.join(";", otherTwtId, "downIncrement", "", String.format(Locale.getDefault(), "%g", downIncrement)),
+                           String.join(";", otherTwtId, "rho", "", String.format(Locale.getDefault(), "%g", rho)),
+                           String.join(";", otherTwtId, "rhoPreviousStep", "", String.format(Locale.getDefault(), "%g", rhoPreviousStep)),
+                           String.join(";", otherTwtId, "rhoNextStep", "", String.format(Locale.getDefault(), "%g", rhoNextStep)),
+                           String.join(";", otherTwtId, "tapPosition", "", Integer.toString(tapPosition)),
+                           String.join(";", otherTwtId, "lowTapPosition", "", Integer.toString(lowTapPosition)),
+                           String.join(";", otherTwtId, "highTapPosition", "", Integer.toString(highTapPosition)),
+                           String.join(";", otherTwtId, "tapChangerTargetV", "", String.format(Locale.getDefault(), "%g", twtTargetV)),
+                           String.join(";", otherTwtId, "regulatedSide", "", regulatedSide.name()),
+                           String.join(";", otherTwtId, "v", "", String.format(Locale.getDefault(), "%g", twtV)),
+                           String.join(";", otherTwtId, "connected", "", Boolean.toString(connected)),
+                           String.join(";", otherTwtId, "mainComponent", "", Boolean.toString(mainComponent)),
+                           String.join(";", otherTwtId, AbstractValidationFormatterWriter.VALIDATION, "", AbstractValidationFormatterWriter.SUCCESS),
+                           String.join(";", twtId, "error", String.format(Locale.getDefault(), "%g", error), ""),
+                           String.join(";", twtId, "upIncrement", String.format(Locale.getDefault(), "%g", upIncrement), ""),
+                           String.join(";", twtId, "downIncrement", String.format(Locale.getDefault(), "%g", downIncrement), ""),
+                           String.join(";", twtId, "rho", String.format(Locale.getDefault(), "%g", rho), ""),
+                           String.join(";", twtId, "rhoPreviousStep", String.format(Locale.getDefault(), "%g", rhoPreviousStep), ""),
+                           String.join(";", twtId, "rhoNextStep", String.format(Locale.getDefault(), "%g", rhoNextStep), ""),
+                           String.join(";", twtId, "tapPosition", Integer.toString(tapPosition), ""),
+                           String.join(";", twtId, "lowTapPosition", Integer.toString(lowTapPosition), ""),
+                           String.join(";", twtId, "highTapPosition", Integer.toString(highTapPosition), ""),
+                           String.join(";", twtId, "tapChangerTargetV", String.format(Locale.getDefault(), "%g", twtTargetV), ""),
+                           String.join(";", twtId, "regulatedSide", regulatedSide.name(), ""),
+                           String.join(";", twtId, "v", String.format(Locale.getDefault(), "%g", twtV), ""),
+                           String.join(";", twtId, "connected", Boolean.toString(connected), ""),
+                           String.join(";", twtId, "mainComponent", Boolean.toString(mainComponent), ""),
+                           String.join(";", twtId, AbstractValidationFormatterWriter.VALIDATION, AbstractValidationFormatterWriter.SUCCESS, ""));
+    }
+
+    @Override
+    protected ValidationWriter getTwtsValidationFormatterCsvWriter(TableFormatterConfig config, Writer writer, boolean verbose, boolean compareResults) {
+        return new ValidationFormatterCsvMultilineWriter("test", CsvTableFormatterFactory.class, config, writer, verbose, ValidationType.TWTS, compareResults);
+    }
+
 }

@@ -807,4 +807,142 @@ public class ValidationFormatterCsvWriterTest extends AbstractValidationFormatte
         return new ValidationFormatterCsvWriter("test", CsvTableFormatterFactory.class, config, writer, verbose, ValidationType.SHUNTS, compareResults);
     }
 
+    @Override
+    protected String getTwtsContent() {
+        return String.join(System.lineSeparator(),
+                           "test " + ValidationType.TWTS + " check",
+                           String.join(";", "id", "error", "upIncrement", "downIncrement"),
+                           String.join(";", twtId,
+                                       String.format(Locale.getDefault(), "%g", error), String.format(Locale.getDefault(), "%g", upIncrement),
+                                       String.format(Locale.getDefault(), "%g", downIncrement)));
+    }
+
+    @Override
+    protected String getTwtsVerboseContent() {
+        return String.join(System.lineSeparator(),
+                "test " + ValidationType.TWTS + " check",
+                String.join(";", "id", "error", "upIncrement", "downIncrement", "rho", "rhoPreviousStep", "rhoNextStep", "tapPosition", "lowTapPosition",
+                            "highTapPosition", "tapChangerTargetV", "regulatedSide", "v", "connected", "mainComponent", AbstractValidationFormatterWriter.VALIDATION),
+                String.join(";", twtId,
+                            String.format(Locale.getDefault(), "%g", error), String.format(Locale.getDefault(), "%g", upIncrement),
+                            String.format(Locale.getDefault(), "%g", downIncrement), String.format(Locale.getDefault(), "%g", rho),
+                            String.format(Locale.getDefault(), "%g", rhoPreviousStep), String.format(Locale.getDefault(), "%g", rhoNextStep),
+                            Integer.toString(tapPosition), Integer.toString(lowTapPosition), Integer.toString(highTapPosition),
+                            String.format(Locale.getDefault(), "%g", twtTargetV), regulatedSide.name(), String.format(Locale.getDefault(), "%g", twtV),
+                            Boolean.toString(connected), Boolean.toString(mainComponent), AbstractValidationFormatterWriter.SUCCESS));
+    }
+
+    @Override
+    protected String getTwtsCompareContent() {
+        return String.join(System.lineSeparator(),
+                           "test " + ValidationType.TWTS + " check",
+                           String.join(";", "id", "error", "upIncrement", "downIncrement",
+                                       "error" + AbstractValidationFormatterWriter.POST_LF_SUFFIX,
+                                       "upIncrement" + AbstractValidationFormatterWriter.POST_LF_SUFFIX,
+                                       "downIncrement" + AbstractValidationFormatterWriter.POST_LF_SUFFIX),
+                           String.join(";", twtId,
+                                       String.format(Locale.getDefault(), "%g", error), String.format(Locale.getDefault(), "%g", upIncrement),
+                                       String.format(Locale.getDefault(), "%g", downIncrement),
+                                       String.format(Locale.getDefault(), "%g", error), String.format(Locale.getDefault(), "%g", upIncrement),
+                                       String.format(Locale.getDefault(), "%g", downIncrement)));
+    }
+
+    @Override
+    protected String getTwtsCompareDifferentIdsContent() {
+        return String.join(System.lineSeparator(),
+                           "test " + ValidationType.TWTS + " check",
+                           String.join(";", "id", "error", "upIncrement", "downIncrement",
+                                       "error" + AbstractValidationFormatterWriter.POST_LF_SUFFIX,
+                                       "upIncrement" + AbstractValidationFormatterWriter.POST_LF_SUFFIX,
+                                       "downIncrement" + AbstractValidationFormatterWriter.POST_LF_SUFFIX),
+                           String.join(";", otherTwtId,
+                                       "", "", "",
+                                       String.format(Locale.getDefault(), "%g", error), String.format(Locale.getDefault(), "%g", upIncrement),
+                                       String.format(Locale.getDefault(), "%g", downIncrement)),
+                           String.join(";", twtId,
+                                       String.format(Locale.getDefault(), "%g", error), String.format(Locale.getDefault(), "%g", upIncrement),
+                                       String.format(Locale.getDefault(), "%g", downIncrement),
+                                       "", "", ""));
+    }
+
+    @Override
+    protected String getTwtsCompareVerboseContent() {
+        return String.join(System.lineSeparator(),
+                "test " + ValidationType.TWTS + " check",
+                String.join(";", "id", "error", "upIncrement", "downIncrement", "rho", "rhoPreviousStep", "rhoNextStep", "tapPosition", "lowTapPosition",
+                            "highTapPosition", "tapChangerTargetV", "regulatedSide", "v", "connected", "mainComponent", AbstractValidationFormatterWriter.VALIDATION,
+                            "error" + AbstractValidationFormatterWriter.POST_LF_SUFFIX,
+                            "upIncrement" + AbstractValidationFormatterWriter.POST_LF_SUFFIX,
+                            "downIncrement" + AbstractValidationFormatterWriter.POST_LF_SUFFIX,
+                            "rho" + AbstractValidationFormatterWriter.POST_LF_SUFFIX,
+                            "rhoPreviousStep" + AbstractValidationFormatterWriter.POST_LF_SUFFIX,
+                            "rhoNextStep" + AbstractValidationFormatterWriter.POST_LF_SUFFIX,
+                            "tapPosition" + AbstractValidationFormatterWriter.POST_LF_SUFFIX,
+                            "lowTapPosition" + AbstractValidationFormatterWriter.POST_LF_SUFFIX,
+                            "highTapPosition" + AbstractValidationFormatterWriter.POST_LF_SUFFIX,
+                            "tapChangerTargetV" + AbstractValidationFormatterWriter.POST_LF_SUFFIX,
+                            "regulatedSide" + AbstractValidationFormatterWriter.POST_LF_SUFFIX,
+                            "v" + AbstractValidationFormatterWriter.POST_LF_SUFFIX,
+                            "connected" + AbstractValidationFormatterWriter.POST_LF_SUFFIX,
+                            "mainComponent" + AbstractValidationFormatterWriter.POST_LF_SUFFIX,
+                            AbstractValidationFormatterWriter.VALIDATION + AbstractValidationFormatterWriter.POST_LF_SUFFIX),
+                String.join(";", twtId,
+                            String.format(Locale.getDefault(), "%g", error), String.format(Locale.getDefault(), "%g", upIncrement),
+                            String.format(Locale.getDefault(), "%g", downIncrement), String.format(Locale.getDefault(), "%g", rho),
+                            String.format(Locale.getDefault(), "%g", rhoPreviousStep), String.format(Locale.getDefault(), "%g", rhoNextStep),
+                            Integer.toString(tapPosition), Integer.toString(lowTapPosition), Integer.toString(highTapPosition),
+                            String.format(Locale.getDefault(), "%g", twtTargetV), regulatedSide.name(), String.format(Locale.getDefault(), "%g", twtV),
+                            Boolean.toString(connected), Boolean.toString(mainComponent), AbstractValidationFormatterWriter.SUCCESS,
+                            String.format(Locale.getDefault(), "%g", error), String.format(Locale.getDefault(), "%g", upIncrement),
+                            String.format(Locale.getDefault(), "%g", downIncrement), String.format(Locale.getDefault(), "%g", rho),
+                            String.format(Locale.getDefault(), "%g", rhoPreviousStep), String.format(Locale.getDefault(), "%g", rhoNextStep),
+                            Integer.toString(tapPosition), Integer.toString(lowTapPosition), Integer.toString(highTapPosition),
+                            String.format(Locale.getDefault(), "%g", twtTargetV), regulatedSide.name(), String.format(Locale.getDefault(), "%g", twtV),
+                            Boolean.toString(connected), Boolean.toString(mainComponent), AbstractValidationFormatterWriter.SUCCESS));
+    }
+
+    @Override
+    protected String getTwtsCompareDifferentIdsVerboseContent() {
+        return String.join(System.lineSeparator(),
+                "test " + ValidationType.TWTS + " check",
+                String.join(";", "id", "error", "upIncrement", "downIncrement", "rho", "rhoPreviousStep", "rhoNextStep", "tapPosition", "lowTapPosition",
+                            "highTapPosition", "tapChangerTargetV", "regulatedSide", "v", "connected", "mainComponent", AbstractValidationFormatterWriter.VALIDATION,
+                            "error" + AbstractValidationFormatterWriter.POST_LF_SUFFIX,
+                            "upIncrement" + AbstractValidationFormatterWriter.POST_LF_SUFFIX,
+                            "downIncrement" + AbstractValidationFormatterWriter.POST_LF_SUFFIX,
+                            "rho" + AbstractValidationFormatterWriter.POST_LF_SUFFIX,
+                            "rhoPreviousStep" + AbstractValidationFormatterWriter.POST_LF_SUFFIX,
+                            "rhoNextStep" + AbstractValidationFormatterWriter.POST_LF_SUFFIX,
+                            "tapPosition" + AbstractValidationFormatterWriter.POST_LF_SUFFIX,
+                            "lowTapPosition" + AbstractValidationFormatterWriter.POST_LF_SUFFIX,
+                            "highTapPosition" + AbstractValidationFormatterWriter.POST_LF_SUFFIX,
+                            "tapChangerTargetV" + AbstractValidationFormatterWriter.POST_LF_SUFFIX,
+                            "regulatedSide" + AbstractValidationFormatterWriter.POST_LF_SUFFIX,
+                            "v" + AbstractValidationFormatterWriter.POST_LF_SUFFIX,
+                            "connected" + AbstractValidationFormatterWriter.POST_LF_SUFFIX,
+                            "mainComponent" + AbstractValidationFormatterWriter.POST_LF_SUFFIX,
+                            AbstractValidationFormatterWriter.VALIDATION + AbstractValidationFormatterWriter.POST_LF_SUFFIX),
+                String.join(";", otherTwtId,
+                            "", "", "", "", "", "", "", "", "", "", "", "", "", "", "",
+                            String.format(Locale.getDefault(), "%g", error), String.format(Locale.getDefault(), "%g", upIncrement),
+                            String.format(Locale.getDefault(), "%g", downIncrement), String.format(Locale.getDefault(), "%g", rho),
+                            String.format(Locale.getDefault(), "%g", rhoPreviousStep), String.format(Locale.getDefault(), "%g", rhoNextStep),
+                            Integer.toString(tapPosition), Integer.toString(lowTapPosition), Integer.toString(highTapPosition),
+                            String.format(Locale.getDefault(), "%g", twtTargetV), regulatedSide.name(), String.format(Locale.getDefault(), "%g", twtV),
+                            Boolean.toString(connected), Boolean.toString(mainComponent), AbstractValidationFormatterWriter.SUCCESS),
+                String.join(";", twtId,
+                            String.format(Locale.getDefault(), "%g", error), String.format(Locale.getDefault(), "%g", upIncrement),
+                            String.format(Locale.getDefault(), "%g", downIncrement), String.format(Locale.getDefault(), "%g", rho),
+                            String.format(Locale.getDefault(), "%g", rhoPreviousStep), String.format(Locale.getDefault(), "%g", rhoNextStep),
+                            Integer.toString(tapPosition), Integer.toString(lowTapPosition), Integer.toString(highTapPosition),
+                            String.format(Locale.getDefault(), "%g", twtTargetV), regulatedSide.name(), String.format(Locale.getDefault(), "%g", twtV),
+                            Boolean.toString(connected), Boolean.toString(mainComponent), AbstractValidationFormatterWriter.SUCCESS,
+                            "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""));
+    }
+
+    @Override
+    protected ValidationWriter getTwtsValidationFormatterCsvWriter(TableFormatterConfig config, Writer writer, boolean verbose, boolean compareResults) {
+        return new ValidationFormatterCsvWriter("test", CsvTableFormatterFactory.class, config, writer, verbose, ValidationType.TWTS, compareResults);
+    }
+
 }
