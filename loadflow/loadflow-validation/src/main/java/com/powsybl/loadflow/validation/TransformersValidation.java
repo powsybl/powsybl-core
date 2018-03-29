@@ -105,12 +105,19 @@ public final class TransformersValidation {
         float rhoPreviousStep = tapPosition == lowTapPosition ? Float.NaN : ratioTapChanger.getStep(tapPosition - 1).getRho();
         float rhoNextStep = tapPosition == highTapPosition ? Float.NaN : ratioTapChanger.getStep(tapPosition + 1).getRho();
         float targetV = ratioTapChanger.getTargetV();
-        Side regulatedSide = twt.getTerminal1().equals(ratioTapChanger.getRegulationTerminal()) ? Side.ONE : Side.TWO;
+        Side regulatedSide;
+        if (twt.getTerminal1().equals(ratioTapChanger.getRegulationTerminal())) {
+            regulatedSide = Side.ONE;
+        } else if (twt.getTerminal2().equals(ratioTapChanger.getRegulationTerminal())) {
+            regulatedSide = Side.TWO;
+        } else {
+            throw new AssertionError("Unexpected regulation terminal (side 1 or 2 of transformer is expected)");
+        }
         Bus bus = ratioTapChanger.getRegulationTerminal().getBusView().getBus();
         float v = bus != null ? bus.getV() : Float.NaN;
-        boolean connected = bus != null ? true : false;
+        boolean connected = bus != null;
         Bus connectableBus = ratioTapChanger.getRegulationTerminal().getBusView().getConnectableBus();
-        boolean connectableMainComponent = connectableBus != null ? connectableBus.isInMainConnectedComponent() : false;
+        boolean connectableMainComponent = connectableBus != null && connectableBus.isInMainConnectedComponent();
         boolean mainComponent = bus != null ? bus.isInMainConnectedComponent() : connectableMainComponent;
         return checkTransformer(twt.getId(), rho, rhoPreviousStep, rhoNextStep, tapPosition, lowTapPosition, highTapPosition,
                                  targetV, regulatedSide, v, connected, mainComponent, config, twtsWriter);
