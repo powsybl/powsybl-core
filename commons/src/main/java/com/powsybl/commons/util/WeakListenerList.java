@@ -36,7 +36,7 @@ public class WeakListenerList<L> {
         Objects.requireNonNull(l);
         lock.lock();
         try {
-            listeners.put(l, null);
+            listeners.put(l, new Object());
         } finally {
             lock.unlock();
         }
