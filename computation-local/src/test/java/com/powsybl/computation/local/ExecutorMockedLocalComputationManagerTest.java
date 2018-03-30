@@ -24,7 +24,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -46,7 +45,7 @@ public class ExecutorMockedLocalComputationManagerTest {
     }
 
     @Test
-    public void testWorkingDir() throws IOException, InterruptedException {
+    public void testWorkingDirWithDebugMode() throws IOException, InterruptedException {
         try (LocalComputationManager mgr = new LocalComputationManager(localDir)) {
             Whitebox.setInternalState(mgr, "localCommandExecutor", localCommandExecutor);
 
@@ -58,13 +57,22 @@ public class ExecutorMockedLocalComputationManagerTest {
             completableFuture.join();
             assertEquals(2, Files.list(localDir).count());
             assertTrue(Files.list(localDir).anyMatch(p -> p.getFileName().toString().startsWith("unitTest")));
+        }
 
+        assertEquals(1, Files.list(localDir).count());
+        assertTrue(Files.list(localDir).allMatch(p -> p.getFileName().toString().startsWith("unitTest")));
+    }
+
+    @Test
+    public void testWorkingDirWithNonDebugMode() throws IOException, InterruptedException {
+        try (LocalComputationManager mgr = new LocalComputationManager(localDir)) {
+            Whitebox.setInternalState(mgr, "localCommandExecutor", localCommandExecutor);
             ExecutionEnvironment nonDebugEnv = new ExecutionEnvironment(Collections.EMPTY_MAP, "unitTest_", false);
             CompletableFuture<String> anotherFuture = mgr.execute(nonDebugEnv, mock(ExecutionHandler.class));
             anotherFuture.join();
-            TimeUnit.MILLISECONDS.sleep(500);
-            assertEquals(2, Files.list(localDir).count());
         }
+
+        assertEquals(0, Files.list(localDir).count());
     }
 
     @Test
@@ -75,14 +83,12 @@ public class ExecutorMockedLocalComputationManagerTest {
             doAnswer(new Answer() {
                 @Override
                 public Integer answer(InvocationOnMock invocation) throws Throwable {
-                    TimeUnit.MILLISECONDS.sleep(500);
                     return 42;
                 }
             }).when(localCommandExecutor).execute(any(), any(), any(), any(), any(), any());
 
             ExecutionEnvironment environment = new ExecutionEnvironment(Collections.EMPTY_MAP, "unitTest_", true);
             CompletableFuture execute = mgr.execute(environment, mock(ExecutionHandler.class));
-            TimeUnit.MILLISECONDS.sleep(200);
             execute.cancel(true);
             verify(localCommandExecutor, times(1)).stop(any());
         }
