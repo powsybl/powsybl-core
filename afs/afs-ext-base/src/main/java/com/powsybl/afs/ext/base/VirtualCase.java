@@ -58,12 +58,17 @@ public class VirtualCase extends ProjectFile implements ProjectCase {
     public String queryNetwork(ScriptType scriptType, String scriptContent) {
         Objects.requireNonNull(scriptType);
         Objects.requireNonNull(scriptContent);
-        return findService(NetworkService.class).queryNetwork(this, scriptType, scriptContent);
+        return findService(NetworkCacheService.class).queryNetwork(this, scriptType, scriptContent);
     }
 
     @Override
     public Network getNetwork() {
-        return findService(NetworkService.class).getNetwork(this);
+        return findService(NetworkCacheService.class).getNetwork(this);
+    }
+
+    @Override
+    public void invalidateNetworkCache() {
+        findService(NetworkCacheService.class).invalidateCache(this);
     }
 
     static AfsException createScriptLinkIsDeadException() {
@@ -72,18 +77,18 @@ public class VirtualCase extends ProjectFile implements ProjectCase {
 
     @Override
     public void addListener(ProjectCaseListener l) {
-        findService(NetworkService.class).addListener(this, l);
+        findService(NetworkCacheService.class).addListener(this, l);
     }
 
     @Override
     public void removeListener(ProjectCaseListener l) {
-        findService(NetworkService.class).removeListener(this, l);
+        findService(NetworkCacheService.class).removeListener(this, l);
     }
 
     @Override
     protected void invalidate() {
         // invalidate network cache
-        findService(NetworkService.class).invalidateCache(this);
+        findService(NetworkCacheService.class).invalidateCache(this);
 
         super.invalidate();
     }

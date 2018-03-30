@@ -71,12 +71,17 @@ public class ImportedCase extends ProjectFile implements ProjectCase {
     public String queryNetwork(ScriptType scriptType, String scriptContent) {
         Objects.requireNonNull(scriptType);
         Objects.requireNonNull(scriptContent);
-        return findService(NetworkService.class).queryNetwork(this, scriptType, scriptContent);
+        return findService(NetworkCacheService.class).queryNetwork(this, scriptType, scriptContent);
     }
 
     @Override
     public Network getNetwork() {
-        return findService(NetworkService.class).getNetwork(this);
+        return findService(NetworkCacheService.class).getNetwork(this);
+    }
+
+    @Override
+    public void invalidateNetworkCache() {
+        findService(NetworkCacheService.class).invalidateCache(this);
     }
 
     @Override
@@ -84,7 +89,7 @@ public class ImportedCase extends ProjectFile implements ProjectCase {
         super.delete();
 
         // also clean cache
-        findService(NetworkService.class).invalidateCache(this);
+        invalidateNetworkCache();
     }
 
     @Override
