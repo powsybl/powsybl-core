@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -88,13 +89,13 @@ public class AmplNetworkReader {
 
     private Void readGenerator(String[] tokens) {
         int num = Integer.parseInt(tokens[0]);
-        int busNum = tokens[1] != null ? Integer.parseInt(tokens[1]) : -1;
+        int busNum = Integer.parseInt(tokens[1]);
         boolean vregul = Boolean.parseBoolean(tokens[2]);
-        float targetV = Float.parseFloat(tokens[3]);
-        float targetP = Float.parseFloat(tokens[4]);
-        float targetQ = Float.parseFloat(tokens[5]);
-        float p = Float.parseFloat(tokens[6]);
-        float q = Float.parseFloat(tokens[7]);
+        float targetV = readFloat(tokens[3]);
+        float targetP = readFloat(tokens[4]);
+        float targetQ = readFloat(tokens[5]);
+        float p = readFloat(tokens[6]);
+        float q = readFloat(tokens[7]);
         String id = mapper.getId(AmplSubset.GENERATOR, num);
         Generator g = network.getGenerator(id);
         if (g == null) {
@@ -110,12 +111,11 @@ public class AmplNetworkReader {
         t.setP(p).setQ(q);
 
         if (busNum == -1) {
-            if (t.isConnected()) {
-                t.disconnect();
-            }
+            t.disconnect();
         } else {
             String busId = mapper.getId(AmplSubset.BUS, busNum);
-            if (t.getConnectable().getId().equals(busId)) {
+            Bus connectable = AmplUtil.getConnectableBus(t);
+            if (connectable != null && connectable.getId().equals(busId)) {
                 t.connect();
             }
         }
@@ -130,10 +130,10 @@ public class AmplNetworkReader {
 
     private Void readLoad(String[] tokens) {
         int num = Integer.parseInt(tokens[0]);
-        float p = Float.parseFloat(tokens[1]);
-        float q = Float.parseFloat(tokens[2]);
-        float p0 = Float.parseFloat(tokens[3]);
-        float q0 = Float.parseFloat(tokens[4]);
+        float p = readFloat(tokens[1]);
+        float q = readFloat(tokens[2]);
+        float p0 = readFloat(tokens[3]);
+        float q0 = readFloat(tokens[4]);
         String id = mapper.getId(AmplSubset.LOAD, num);
         Load l = network.getLoad(id);
         if (l != null) {
@@ -209,31 +209,34 @@ public class AmplNetworkReader {
     }
 
     public AmplNetworkReader readShunts() throws IOException {
-        read("_shunts", 4, this::readShunt);
+        read("_shunts", 5, this::readShunt);
 
         return this;
     }
 
     private Void readShunt(String[] tokens) {
         int num = Integer.parseInt(tokens[0]);
-        int busnum = tokens[1] != null ? Integer.parseInt(tokens[1]) : -1;
-        float b = Float.parseFloat(tokens[2]);
-        float q = Float.parseFloat(tokens[3]);
+        int busNum = Integer.parseInt(tokens[1]);
+        float b = readFloat(tokens[2]);
+        float q = readFloat(tokens[3]);
+        int sections = Integer.parseInt(tokens[4]);
 
         String id = mapper.getId(AmplSubset.SHUNT, num);
         ShuntCompensator sc = network.getShunt(id);
         if (sc == null) {
             throw new AmplException("Invalid shunt compensator id '" + id + "'");
         }
+        sc.setMaximumSectionCount(sections < 1 ? 1 : sections + 1);
         sc.setCurrentSectionCount(Math.max(0, Math.min(sc.getMaximumSectionCount(), Math.round(sc.getbPerSection() / b))));
         Terminal t = sc.getTerminal();
         t.setQ(q);
 
-        if (busnum == -1 && t.isConnected()) {
+        if (busNum == -1) {
             t.disconnect();
         } else {
-            String busId = mapper.getId(AmplSubset.BUS, busnum);
-            if (t.getConnectable().getId().equals(busId)) {
+            String busId = mapper.getId(AmplSubset.BUS, busNum);
+            Bus connectable = AmplUtil.getConnectableBus(t);
+            if (connectable != null && connectable.getId().equals(busId)) {
                 t.connect();
             }
         }
@@ -248,21 +251,18 @@ public class AmplNetworkReader {
 
     private Void readBus(String[] tokens) {
         int num = Integer.parseInt(tokens[0]);
-        float v = Float.parseFloat(tokens[1]);
-        float theta = Float.parseFloat(tokens[2]);
+        float v = readFloat(tokens[1]);
+        double theta = readDouble(tokens[2]);
 
         String id = mapper.getId(AmplSubset.BUS, num);
-        boolean notFound = true;
-        for (Bus b : AmplUtil.getBuses(network)) {
-            if (b.getId().equals(id)) {
-                b.setV(v);
-                b.setAngle(theta);
-                notFound = false;
-                break;
-            }
-        }
 
-        if (notFound) {
+        Optional<Bus> bx = network.getVoltageLevelStream().map(vl -> vl.getBusView().getBus(id)).filter(Objects::nonNull).findFirst();
+
+        if (bx.isPresent()) {
+            Bus b = bx.get();
+            b.setV(v * b.getVoltageLevel().getNominalV());
+            b.setAngle((float) Math.toDegrees(theta));
+        } else {
             throw new AmplException("Invalid bus id '" + id + "'");
         }
 
@@ -277,24 +277,17 @@ public class AmplNetworkReader {
 
     private Void readBranch(String[] tokens) {
         int num = Integer.parseInt(tokens[0]);
-        float p1 = Float.parseFloat(tokens[1]);
-        float p2 = Float.parseFloat(tokens[2]);
-        float q1 = Float.parseFloat(tokens[3]);
-        float q2 = Float.parseFloat(tokens[4]);
+        float p1 = readFloat(tokens[1]);
+        float p2 = readFloat(tokens[2]);
+        float q1 = readFloat(tokens[3]);
+        float q2 = readFloat(tokens[4]);
 
         String id = mapper.getId(AmplSubset.BRANCH, num);
 
-        Line l = network.getLine(id);
-        if (l != null) {
-            l.getTerminal1().setP(p1).setQ(q1);
-            l.getTerminal2().setP(p2).setQ(q2);
-            return null;
-        }
-
-        TwoWindingsTransformer twt = network.getTwoWindingsTransformer(id);
-        if (twt != null) {
-            twt.getTerminal1().setP(p1).setQ(q1);
-            twt.getTerminal2().setP(p2).setQ(q2);
+        Branch br = network.getBranch(id);
+        if (br != null) {
+            br.getTerminal1().setP(p1).setQ(q1);
+            br.getTerminal2().setP(p2).setQ(q2);
             return null;
         }
 
@@ -348,8 +341,8 @@ public class AmplNetworkReader {
 
     private Void readHvdcLine(String[] tokens) {
         int num = Integer.parseInt(tokens[0]);
-        String converterMode = tokens[1];
-        float targetP = Float.parseFloat(tokens[2]);
+        String converterMode = tokens[1].replace("\"", "");
+        float targetP = readFloat(tokens[2]);
 
         String id = mapper.getId(AmplSubset.HVDC_LINE, num);
 
@@ -373,10 +366,10 @@ public class AmplNetworkReader {
 
     private Void readSvc(String[] tokens) {
         int num = Integer.parseInt(tokens[0]);
-        int busNum = tokens[1] != null ? Integer.parseInt(tokens[1]) : -1;
+        int busNum = Integer.parseInt(tokens[1]);
         boolean vregul = Boolean.parseBoolean(tokens[2]);
-        float targetV = Float.parseFloat(tokens[3]);
-        float q = Float.parseFloat(tokens[4]);
+        float targetV = readFloat(tokens[3]);
+        float q = readFloat(tokens[4]);
 
         String id = mapper.getId(AmplSubset.STATIC_VAR_COMPENSATOR, num);
         StaticVarCompensator svc = network.getStaticVarCompensator(id);
@@ -397,15 +390,16 @@ public class AmplNetworkReader {
 
 
         Terminal t = svc.getTerminal();
-        t.setP(0).setQ(q);
+        t.setP(Float.NaN).setQ(q);
 
         svc.setVoltageSetPoint(targetV);
 
-        if (busNum == -1 && t.isConnected()) {
+        if (busNum == -1) {
             t.disconnect();
         } else {
             String busId = mapper.getId(AmplSubset.BUS, busNum);
-            if (t.getConnectable().getId().equals(busId)) {
+            Bus connectable = AmplUtil.getConnectableBus(t);
+            if (connectable != null && connectable.getId().equals(busId)) {
                 t.connect();
             }
         }
@@ -448,5 +442,14 @@ public class AmplNetworkReader {
             tokens.add(tok);
         }
         return tokens;
+    }
+
+    private float readFloat(String f) {
+        float res = Float.parseFloat(f);
+        return res != AmplConstants.INVALID_FLOAT_VALUE ? res : Float.NaN;
+    }
+
+    private double readDouble(String d) {
+        return Float.parseFloat(d) != AmplConstants.INVALID_FLOAT_VALUE ? Double.parseDouble(d) : Double.NaN;
     }
 }

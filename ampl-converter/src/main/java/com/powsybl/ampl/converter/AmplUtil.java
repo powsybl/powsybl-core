@@ -27,8 +27,18 @@ public final class AmplUtil {
         return t.getBusView().getBus();
     }
 
+    public static int getBusNum(StringToIntMapper<AmplSubset> mapper, Terminal t) {
+        Bus bus = getBus(t);
+        return bus == null ? -1 : mapper.getInt(AmplSubset.BUS, bus.getId());
+    }
+
     public static Bus getConnectableBus(Terminal t) {
         return t.getBusView().getConnectableBus();
+    }
+
+    public static int getConnectableBusNum(StringToIntMapper<AmplSubset> mapper, Terminal t) {
+        Bus bus = getConnectableBus(t);
+        return bus == null ? -1 : mapper.getInt(AmplSubset.BUS, bus.getId());
     }
 
     private static void createLimitsIds(StringToIntMapper<AmplSubset> mapper, CurrentLimits limits, String branchId, String sideId) {

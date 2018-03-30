@@ -24,9 +24,12 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
@@ -98,6 +101,7 @@ public class AmplNetworkReaderTest {
         testHvdc(network, reader);
         testShunts(network, reader);
     }
+
     @Test
     public void readSvc() throws IOException {
         Network network = SvcTestCaseFactory.create();
@@ -188,20 +192,27 @@ public class AmplNetworkReaderTest {
     }
 
     private void testBuses(Network network, AmplNetworkReader reader) throws IOException {
-        for (Bus b : AmplUtil.getBuses(network)) {
-            if (b.getId().equals("VLGEN_0")) {
-                assertTrue(Float.isNaN(b.getAngle()));
-                assertTrue(Float.isNaN(b.getV()));
-            }
+
+        Optional<Bus> bx = network.getVoltageLevelStream().map(vl -> vl.getBusView().getBus("VLGEN_0")).filter(Objects::nonNull).findFirst();
+        if (bx.isPresent()) {
+            Bus b = bx.get();
+            assertTrue(Float.isNaN(b.getAngle()));
+            assertTrue(Float.isNaN(b.getV()));
+        } else {
+            fail("Bus not found");
         }
+
         reader.readBuses();
 
-        for (Bus b : AmplUtil.getBuses(network)) {
-            if (b.getId().equals("VLGEN_0")) {
-                assertEquals(20f, b.getAngle(), 0.0);
-                assertEquals(180f, b.getV(), 0.0);
-            }
+        Optional<Bus> bx2 = network.getVoltageLevelStream().map(vl -> vl.getBusView().getBus("VLGEN_0")).filter(Objects::nonNull).findFirst();
+        if (bx2.isPresent()) {
+            Bus b = bx2.get();
+            assertEquals((float) Math.toDegrees(2d), b.getAngle(), 0.0);
+            assertEquals(180f * b.getVoltageLevel().getNominalV(), b.getV(), 0.0);
+        } else {
+            fail("Bus not found");
         }
+
     }
 
     private void testBranches(Network network, AmplNetworkReader reader) throws IOException {
@@ -302,7 +313,8 @@ public class AmplNetworkReaderTest {
         assertEquals(RegulationMode.REACTIVE_POWER, sv2.getRegulationMode());
         assertEquals(400f, sv2.getVoltageSetPoint(), 0.0);
         assertEquals(-30f, sv2.getReactivePowerSetPoint(), 0.0);
-        assertEquals(0f, sv2.getTerminal().getP(), 0.0);
+        assertTrue(Float.isNaN(sv2.getTerminal().getP()));
         assertEquals(30f, sv2.getTerminal().getQ(), 0.0);
     }
+
 }

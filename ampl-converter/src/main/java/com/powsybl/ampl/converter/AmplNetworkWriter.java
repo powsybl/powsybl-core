@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
@@ -90,7 +91,7 @@ public class AmplNetworkWriter {
 
     private final StringToIntMapper<AmplSubset> mapper; // id mapper
 
-    private final HashMap<String, List<AmplExtension>> extensionMap;
+    private final Map<String, List<AmplExtension>> extensionMap;
 
     private final AmplExportConfig config;
 
@@ -117,7 +118,7 @@ public class AmplNetworkWriter {
         this.append = append;
         this.mapper = Objects.requireNonNull(mapper);
         this.config = Objects.requireNonNull(config);
-        extensionMap = new HashMap();
+        extensionMap = new HashMap<>();
     }
 
     public AmplNetworkWriter(Network network, DataSource dataSource, StringToIntMapper<AmplSubset> mapper,
@@ -258,7 +259,7 @@ public class AmplNetworkWriter {
                          .writeCell(vl1.getSubstation().getCountry().toString())
                          .writeCell(vlId)
                          .writeCell("");
-                addExtensions(num, vl1);
+                addExtensions(num, twt);
             }
             // voltage level associated to dangling lines middle bus
             for (DanglingLine dl : network.getDanglingLines()) {
@@ -279,7 +280,7 @@ public class AmplNetworkWriter {
                          .writeCell(vl.getSubstation().getCountry().toString())
                          .writeCell(dl.getId() + "_voltageLevel")
                          .writeCell("");
-                addExtensions(num, vl);
+                addExtensions(num, dl);
             }
             if (config.isExportXNodes()) {
                 for (Line l : network.getLines()) {
@@ -366,7 +367,7 @@ public class AmplNetworkWriter {
                 int vlNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, vl.getId());
                 float nomV = vl.getNominalV();
                 float v = b.getV() / nomV;
-                float theta = (float) Math.toRadians(b.getAngle());
+                double theta = Math.toRadians(b.getAngle());
                 formatter.writeCell(num)
                     .writeCell(vlNum)
                     .writeCell(ccNum)
@@ -384,10 +385,8 @@ public class AmplNetworkWriter {
 
     private <E> void addExtensions(int extendedNum, Extendable<E> extendable) {
         for (Extension<E> ext : extendable.getExtensions()) {
-            List<AmplExtension> extList = extensionMap.get(ext.getName());
-            if (extList == null) {
-                extList = new ArrayList();
-            }
+            extensionMap.computeIfAbsent(ext.getName(), k -> new ArrayList<AmplExtension>());
+            List<AmplExtension> extList = extensionMap.computeIfAbsent(ext.getName(), k -> new ArrayList<AmplExtension>());
             extList.add(new AmplExtension(extendedNum, extendable, ext));
             extensionMap.put(ext.getName(), extList);
         }
@@ -1360,18 +1359,10 @@ public class AmplNetworkWriter {
                 int num = mapper.getInt(AmplSubset.STATIC_VAR_COMPENSATOR, id);
 
                 Terminal t = svc.getTerminal();
-                Bus bus = AmplUtil.getBus(t);
-                int busNum = -1;
-                if (bus != null) {
-                    busNum = mapper.getInt(AmplSubset.BUS, bus.getId());
-                }
 
-                int conBusNum = -1;
+                int busNum = AmplUtil.getBusNum(mapper, t);
 
-                Bus conBus = AmplUtil.getConnectableBus(t);
-                if (conBus != null) {
-                    conBusNum = mapper.getInt(AmplSubset.BUS, conBus.getId());
-                }
+                int conBusNum = AmplUtil.getConnectableBusNum(mapper, t);
 
                 float vlSet = svc.getVoltageSetPoint();
                 float vb = t.getVoltageLevel().getNominalV();
@@ -1601,7 +1592,7 @@ public class AmplNetworkWriter {
     }
 
     private HashMap<String, HvdcLine> getHvdcLinesMap() {
-        HashMap<String, HvdcLine> lineMap = new HashMap();
+        HashMap<String, HvdcLine> lineMap = new HashMap<>();
         network.getHvdcLines().forEach(line -> {
             if (line.getConverterStation1() != null) {
                 lineMap.put(line.getConverterStation1().getId(), line);
@@ -1634,21 +1625,11 @@ public class AmplNetworkWriter {
                                                                   new Column(REACTIVE_POWER))) {
 
             for (HvdcConverterStation hvdcStation : network.getHvdcConverterStations()) {
-                Terminal t = hvdcStation.getTerminal();
-                Bus bus = AmplUtil.getBus(t);
-                int busNum = -1;
-                if (bus != null) {
-                    busNum = mapper.getInt(AmplSubset.BUS, bus.getId());
-                }
-
-                int conBusNum = -1;
-
-                Bus conBus = AmplUtil.getConnectableBus(t);
-                if (conBus != null) {
-                    conBusNum = mapper.getInt(AmplSubset.BUS, conBus.getId());
-                }
-
                 if (hvdcStation.getHvdcType().equals(HvdcType.LCC)) {
+                    Terminal t = hvdcStation.getTerminal();
+                    int busNum = AmplUtil.getBusNum(mapper, t);
+                    int conBusNum = AmplUtil.getConnectableBusNum(mapper, t);
+
                     LccConverterStation lccStation = (LccConverterStation) hvdcStation;
                     int vlNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, t.getVoltageLevel().getId());
 
@@ -1705,23 +1686,14 @@ public class AmplNetworkWriter {
             HashMap<String, HvdcLine> lineMap = getHvdcLinesMap();
 
             for (HvdcConverterStation hvdcStation : network.getHvdcConverterStations()) {
-                String id = hvdcStation.getId();
-                Terminal t = hvdcStation.getTerminal();
-                Bus bus = AmplUtil.getBus(t);
-                int busNum = -1;
-                if (bus != null) {
-                    busNum = mapper.getInt(AmplSubset.BUS, bus.getId());
-                }
-
-                int conBusNum = -1;
-
-                Bus conBus = AmplUtil.getConnectableBus(t);
-                if (conBus != null) {
-                    conBusNum = mapper.getInt(AmplSubset.BUS, conBus.getId());
-                }
-                float maxP = lineMap.get(id) != null ? lineMap.get(id).getMaxP() : Float.NaN;
-
                 if (hvdcStation.getHvdcType().equals(HvdcType.VSC)) {
+                    String id = hvdcStation.getId();
+                    Terminal t = hvdcStation.getTerminal();
+                    int busNum = AmplUtil.getBusNum(mapper, t);
+                    int conBusNum = AmplUtil.getConnectableBusNum(mapper, t);
+
+                    float maxP = lineMap.get(id) != null ? lineMap.get(id).getMaxP() : Float.NaN;
+
                     VscConverterStation vscStation = (VscConverterStation) hvdcStation;
                     int vlNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, t.getVoltageLevel().getId());
                     float vlSet = vscStation.getVoltageSetpoint();
