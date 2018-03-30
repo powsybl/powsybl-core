@@ -8,6 +8,9 @@ package com.powsybl.commons.util;
 
 import org.junit.Test;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -21,29 +24,19 @@ public class WeakListenerListTest {
     @Test
     public void concurrencyIssueTest() {
         // 2 adds using a different target object
-        Object target1 = new Object();
-        Object target2 = new Object();
         WeakListenerList<TestListener> listeners = new WeakListenerList<>();
-        listeners.add(target1, () -> listeners.add(target2, () -> {
-        }));
+        TestListener l = () -> {
+            TestListener l2 = () -> {
+            };
+            listeners.add(l2);
+        };
+        listeners.add(l);
 
         // check there is no more java.util.ConcurrentModificationException coming from
         // the WeakHashMap
         listeners.notify(TestListener::onTest);
-        listeners.notify((target, testListener) -> testListener.onTest());
-    }
 
-    @Test
-    public void concurrencyIssueTest2() {
-        // 2 adds using same target object
-        Object target1 = new Object();
-        WeakListenerList<TestListener> listeners = new WeakListenerList<>();
-        listeners.add(target1, () -> listeners.add(target1, () -> {
-        }));
-
-        // check there is no more java.util.ConcurrentModificationException coming from
-        // the ArrayList
-        listeners.notify(TestListener::onTest);
-        listeners.notify((target, testListener) -> testListener.onTest());
+        assertTrue(listeners.remove(l));
+        assertFalse(listeners.remove(l));
     }
 }

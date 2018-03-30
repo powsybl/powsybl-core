@@ -16,6 +16,7 @@ import com.powsybl.commons.io.table.Column;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.commons.io.table.TableFormatterFactory;
 import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
+import com.powsybl.iidm.network.TwoTerminalsConnectable.Side;
 import com.powsybl.loadflow.validation.ValidationType;
 
 /**
@@ -179,6 +180,29 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
         }
     }
 
+    @Override
+    protected void write(String twtId, float error, float upIncrement, float downIncrement, float rho, float rhoPreviousStep, float rhoNextStep,
+                         int tapPosition, int lowTapPosition, int highTapPosition, float targetV, Side regulatedSide, float v, boolean connected,
+                         boolean mainComponent, boolean validated, TransformerData twtData, boolean found, boolean writeValues) throws IOException {
+        write(twtId, "error", found, twtData.error, writeValues, error);
+        write(twtId, "upIncrement", found, twtData.upIncrement, writeValues, upIncrement);
+        write(twtId, "downIncrement", found, twtData.downIncrement, writeValues, downIncrement);
+        if (verbose) {
+            write(twtId, "rho", found, twtData.rho, writeValues, rho);
+            write(twtId, "rhoPreviousStep", found, twtData.rhoPreviousStep, writeValues, rhoPreviousStep);
+            write(twtId, "rhoNextStep", found, twtData.rhoNextStep, writeValues, rhoNextStep);
+            write(twtId, "tapPosition", found, twtData.tapPosition, writeValues, tapPosition);
+            write(twtId, "lowTapPosition", found, twtData.lowTapPosition, writeValues, lowTapPosition);
+            write(twtId, "highTapPosition", found, twtData.highTapPosition, writeValues, highTapPosition);
+            write(twtId, "tapChangerTargetV", found, twtData.targetV, writeValues, targetV);
+            write(twtId, "regulatedSide", found, twtData.regulatedSide.name(), writeValues, regulatedSide.name());
+            write(twtId, "v", found, twtData.v, writeValues, v);
+            write(twtId, "connected", found, twtData.connected, writeValues, connected);
+            write(twtId, "mainComponent", found, twtData.mainComponent, writeValues, mainComponent);
+            write(twtId, VALIDATION, found, getValidated(twtData.validated), writeValues, getValidated(validated));
+        }
+    }
+
     private void write(String id, String label, boolean writeFirst, float first, boolean writeSecond, float second) throws IOException {
         formatter.writeCell(id).writeCell(label);
         if (compareResults) {
@@ -218,4 +242,5 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
         }
         formatter = writeSecond ? formatter.writeCell(second) : formatter.writeEmptyCell();
     }
+
 }

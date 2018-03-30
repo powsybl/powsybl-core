@@ -32,6 +32,8 @@ public class DefaultListenableAppStorageTest {
 
     private NodeEventList lastEventList;
 
+    private AppStorageListener l = eventList -> lastEventList = eventList;
+
     @Before
     public void setUp() {
         AppStorage storage = Mockito.mock(AppStorage.class);
@@ -42,12 +44,12 @@ public class DefaultListenableAppStorageTest {
                 .thenReturn(new ByteArrayOutputStream());
 
         listenableStorage = new DefaultListenableAppStorage(storage);
-        listenableStorage.addListener(this, eventList -> lastEventList = eventList);
+        listenableStorage.addListener(l);
     }
 
     @After
     public void tearDown() {
-        listenableStorage.removeListeners(this);
+        listenableStorage.removeListeners();
     }
 
     @Test

@@ -17,6 +17,7 @@ import org.junit.Test;
 
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
+import com.powsybl.iidm.network.TwoTerminalsConnectable.Side;
 
 /**
  *
@@ -109,6 +110,22 @@ public abstract class AbstractValidationFormatterWriterTest {
     protected float bPerSection = -0.16f;
     protected float qMax = -144.4f;
     protected final float nominalV = 380f;
+
+    protected final String twtId = "twtId";
+    protected final String otherTwtId = "otherTwtId";
+    protected final float error = 0.000243738f;
+    protected final float upIncrement = 0.00944448f;
+    protected final float downIncrement = -0.00834519f;
+    protected final float rho = 1.034f;
+    protected final float rhoPreviousStep = 1.043f;
+    protected final float rhoNextStep = 1.024f;
+    protected final int tapPosition = 8;
+    protected final int lowTapPosition = 0;
+    protected final int highTapPosition = 30;
+    protected final float twtTargetV = 92.7781f;
+    protected final Side regulatedSide = Side.ONE;
+    protected final float twtV = 92.8007f;
+    protected final boolean mainComponent = true;
 
     @Test
     public void testFlows() throws Exception {
@@ -403,5 +420,65 @@ public abstract class AbstractValidationFormatterWriterTest {
     }
 
     protected abstract ValidationWriter getShuntsValidationFormatterCsvWriter(TableFormatterConfig config, Writer writer, boolean verbose, boolean compareResults);
+
+    @Test
+    public void testTwts() throws Exception {
+        testTwts(getTwtsContent(), false, false, twtId, null);
+    }
+
+    protected abstract String getTwtsContent();
+
+    @Test
+    public void testTwtsVerbose() throws Exception {
+        testTwts(getTwtsVerboseContent(), true, false, twtId, null);
+    }
+
+    protected abstract String getTwtsVerboseContent();
+
+    @Test
+    public void testTwtsCompare() throws Exception {
+        testTwts(getTwtsCompareContent(), false, true, twtId, twtId);
+    }
+
+    protected abstract String getTwtsCompareContent();
+
+    @Test
+    public void testTwtsCompareDifferentIds() throws Exception {
+        testTwts(getTwtsCompareDifferentIdsContent(), false, true, twtId, otherTwtId);
+    }
+
+    protected abstract String getTwtsCompareDifferentIdsContent();
+
+    @Test
+    public void testTwtsCompareVerbose() throws Exception {
+        testTwts(getTwtsCompareVerboseContent(), true, true, twtId, twtId);
+    }
+
+    protected abstract String getTwtsCompareVerboseContent();
+
+    @Test
+    public void testTwtsCompareDifferentIdsVerbose() throws Exception {
+        testTwts(getTwtsCompareDifferentIdsVerboseContent(), true, true, twtId, otherTwtId);
+    }
+
+    protected abstract String getTwtsCompareDifferentIdsVerboseContent();
+
+    protected void testTwts(String twtsContent, boolean verbose, boolean compareResults, String twtId1, String twtId2) throws IOException {
+        Writer writer = new StringWriter();
+        TableFormatterConfig config = new TableFormatterConfig(Locale.getDefault(), ';', "inv", true, true);
+        try (ValidationWriter twtsWriter = getTwtsValidationFormatterCsvWriter(config, writer, verbose, compareResults)) {
+            twtsWriter.write(twtId1, error, upIncrement, downIncrement, rho, rhoPreviousStep, rhoNextStep, tapPosition,
+                             lowTapPosition, highTapPosition, twtTargetV, regulatedSide, twtV, connected, mainComponent, validated);
+            twtsWriter.setValidationCompleted();
+            if (compareResults) {
+                twtsWriter.write(twtId2, error, upIncrement, downIncrement, rho, rhoPreviousStep, rhoNextStep, tapPosition,
+                                 lowTapPosition, highTapPosition, twtTargetV, regulatedSide, twtV, connected, mainComponent, validated);
+                twtsWriter.setValidationCompleted();
+            }
+            assertEquals(twtsContent, writer.toString().trim());
+        }
+    }
+
+    protected abstract ValidationWriter getTwtsValidationFormatterCsvWriter(TableFormatterConfig config, Writer writer, boolean verbose, boolean compareResults);
 
 }
