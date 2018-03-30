@@ -22,13 +22,13 @@ import java.util.UUID;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class LocalNetworkService implements NetworkService {
+public class LocalNetworkCacheService implements NetworkCacheService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(LocalNetworkService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LocalNetworkCacheService.class);
 
     private final ScriptCache<ProjectFile, Network, ProjectCaseListener> cache;
 
-    public LocalNetworkService() {
+    public LocalNetworkCacheService() {
         cache = new ScriptCache<>(50, 1, projectFile -> {
             UUID taskId = projectFile.startTask();
             try {
