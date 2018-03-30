@@ -8,6 +8,7 @@ package com.powsybl.afs;
 
 import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.afs.storage.NodeInfo;
+import com.powsybl.afs.storage.events.AppStorageListener;
 import com.powsybl.afs.storage.events.NodeCreated;
 import com.powsybl.afs.storage.events.NodeEvent;
 import com.powsybl.afs.storage.events.NodeRemoved;
@@ -29,28 +30,30 @@ public class ProjectFolder extends ProjectNode implements FolderBase<ProjectNode
 
     private final WeakListenerList<ProjectFolderListener> listeners = new WeakListenerList<>();
 
+    private final AppStorageListener l = eventList -> {
+        for (NodeEvent event : eventList.getEvents()) {
+            switch (event.getType()) {
+                case NODE_CREATED:
+                    if (getId().equals(((NodeCreated) event).getParentId())) {
+                        listeners.notify(listener -> listener.childAdded(event.getId()));
+                    }
+                    break;
+
+                case NODE_REMOVED:
+                    if (getId().equals(((NodeRemoved) event).getParentId())) {
+                        listeners.notify(listener -> listener.childRemoved(event.getId()));
+                    }
+                    break;
+
+                default:
+                    break;
+            }
+        }
+    };
+
     public ProjectFolder(ProjectFileCreationContext context) {
         super(context, VERSION, true);
-        storage.addListener(this, eventList -> {
-            for (NodeEvent event : eventList.getEvents()) {
-                switch (event.getType()) {
-                    case NODE_CREATED:
-                        if (getId().equals(((NodeCreated) event).getParentId())) {
-                            listeners.notify(listener -> listener.childAdded(event.getId()));
-                        }
-                        break;
-
-                    case NODE_REMOVED:
-                        if (getId().equals(((NodeRemoved) event).getParentId())) {
-                            listeners.notify(listener -> listener.childRemoved(event.getId()));
-                        }
-                        break;
-
-                    default:
-                        break;
-                }
-            }
-        });
+        storage.addListener(l);
     }
 
     @Override
@@ -100,14 +103,14 @@ public class ProjectFolder extends ProjectNode implements FolderBase<ProjectNode
     }
 
     public void addListener(ProjectFolderListener listener) {
-        listeners.add(this, listener);
+        listeners.add(listener);
     }
 
     public void removeListener(ProjectFolderListener listener) {
-        listeners.remove(this, listener);
+        listeners.remove(listener);
     }
 
     public void removeAllListeners() {
-        listeners.removeAll(this);
+        listeners.removeAll();
     }
 }

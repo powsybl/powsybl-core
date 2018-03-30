@@ -13,7 +13,7 @@ import com.powsybl.afs.storage.events.AppStorageListener;
  */
 public interface ListenableAppStorage extends AppStorage {
 
-    void addListener(Object target, AppStorageListener l);
+    void addListener(AppStorageListener l);
 
-    void removeListeners(Object target);
+    void removeListeners();
 }
