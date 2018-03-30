@@ -147,6 +147,11 @@ public class DefaultListenableAppStorage extends ForwardingAppStorage implements
     }
 
     @Override
+    public void removeListener(AppStorageListener l) {
+        listeners.remove(l);
+    }
+
+    @Override
     public void removeListeners() {
         listeners.removeAll();
     }
