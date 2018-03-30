@@ -9,9 +9,7 @@ package com.powsybl.commons.util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.WeakHashMap;
+import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
@@ -68,6 +66,15 @@ public class WeakListenerList<L> {
             for (L listener : new HashSet<>(listeners.keySet())) {
                 notifier.accept(listener);
             }
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    public List<L> toList() {
+        lock.lock();
+        try {
+            return new ArrayList<>(listeners.keySet());
         } finally {
             lock.unlock();
         }

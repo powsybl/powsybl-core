@@ -15,5 +15,7 @@ public interface ListenableAppStorage extends AppStorage {
 
     void addListener(AppStorageListener l);
 
+    void removeListener(AppStorageListener l);
+
     void removeListeners();
 }
