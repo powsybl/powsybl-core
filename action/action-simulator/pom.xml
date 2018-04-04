@@ -79,7 +79,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-security-analysis</artifactId>
+            <artifactId>powsybl-security-analysis-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

@@ -53,6 +53,8 @@ public interface AppStorage extends AutoCloseable {
 
     Set<String> getDataNames(String nodeId);
 
+    boolean removeData(String nodeId, String name);
+
     void createTimeSeries(String nodeId, TimeSeriesMetadata metadata);
 
     Set<String> getTimeSeriesNames(String nodeId);

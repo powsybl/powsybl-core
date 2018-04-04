@@ -24,6 +24,15 @@ public class DependencyCache<T> {
 
     private final Class<T> dependencyClass;
 
+    private final ProjectFileListener l = new DefaultProjectFileListener() {
+        @Override
+        public void dependencyChanged(String name) {
+            if (dependencyName.equals(name)) {
+                invalidate();
+            }
+        }
+    };
+
     private List<T> cache;
 
     private boolean cached = false;
@@ -34,14 +43,7 @@ public class DependencyCache<T> {
         this.projectFile = Objects.requireNonNull(projectFile);
         this.dependencyName = Objects.requireNonNull(dependencyName);
         this.dependencyClass = Objects.requireNonNull(dependencyClass);
-        projectFile.addListener(new DefaultProjectFileListener() {
-            @Override
-            public void dependencyChanged(String name) {
-                if (dependencyName.equals(name)) {
-                    invalidate();
-                }
-            }
-        });
+        projectFile.addListener(l);
     }
 
     public void invalidate() {

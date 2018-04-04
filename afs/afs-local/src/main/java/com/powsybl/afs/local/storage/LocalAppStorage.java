@@ -298,6 +298,11 @@ public class LocalAppStorage implements AppStorage {
     }
 
     @Override
+    public boolean removeData(String nodeId, String name) {
+        throw new AssertionError();
+    }
+
+    @Override
     public void createTimeSeries(String nodeId, TimeSeriesMetadata metadata) {
         throw new AssertionError();
     }

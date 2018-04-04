@@ -36,11 +36,15 @@ public abstract class AbstractGroovyScriptTest {
         }
 
         @Override
-        public void addListener(Object target, AppStorageListener l) {
+        public void addListener(AppStorageListener l) {
         }
 
         @Override
-        public void removeListeners(Object target) {
+        public void removeListener(AppStorageListener l) {
+        }
+
+        @Override
+        public void removeListeners() {
         }
     }
 
@@ -85,7 +89,7 @@ public abstract class AbstractGroovyScriptTest {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         data.close();
     }
 

@@ -12,19 +12,16 @@ import com.powsybl.iidm.network.Network;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.ResourceBundle;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class VirtualCase extends ProjectFile implements ProjectCase, RunnableScript {
+public class VirtualCase extends ProjectFile implements ProjectCase {
 
     public static final String PSEUDO_CLASS = "virtualCase";
     public static final int VERSION = 0;
 
     private static final FileIcon VIRTUAL_CASE_ICON = new FileIcon("virtualCase", VirtualCase.class.getResourceAsStream("/icons/virtualCase16x16.png"));
-
-    private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("lang.VirtualCase");
 
     static final String CASE_DEPENDENCY_NAME = "case";
     static final String SCRIPT_DEPENDENCY_NAME = "script";
@@ -41,14 +38,14 @@ public class VirtualCase extends ProjectFile implements ProjectCase, RunnableScr
         return projectCaseDependency.getFirst();
     }
 
-    public Optional<ModificationScript> getScript() {
-        return modificationScriptDependency.getFirst();
-    }
-
     public void setCase(ProjectFile aCase) {
         Objects.requireNonNull(aCase);
         setDependencies(CASE_DEPENDENCY_NAME, Collections.singletonList(aCase));
         projectCaseDependency.invalidate();
+    }
+
+    public Optional<ModificationScript> getScript() {
+        return modificationScriptDependency.getFirst();
     }
 
     public void setScript(ModificationScript aScript) {
@@ -58,23 +55,20 @@ public class VirtualCase extends ProjectFile implements ProjectCase, RunnableScr
     }
 
     @Override
-    public String queryNetwork(String groovyScript) {
-        return findService(NetworkService.class).queryNetwork(this, groovyScript);
+    public String queryNetwork(ScriptType scriptType, String scriptContent) {
+        Objects.requireNonNull(scriptType);
+        Objects.requireNonNull(scriptContent);
+        return findService(NetworkCacheService.class).queryNetwork(this, scriptType, scriptContent);
     }
 
     @Override
     public Network getNetwork() {
-        return findService(NetworkService.class).getNetwork(this);
+        return findService(NetworkCacheService.class).getNetwork(this);
     }
 
     @Override
-    public ScriptError getScriptError() {
-        return findService(NetworkService.class).getScriptError(this);
-    }
-
-    @Override
-    public String getScriptOutput() {
-        return findService(NetworkService.class).getScriptOutput(this);
+    public void invalidateNetworkCache() {
+        findService(NetworkCacheService.class).invalidateCache(this);
     }
 
     static AfsException createScriptLinkIsDeadException() {
@@ -82,55 +76,20 @@ public class VirtualCase extends ProjectFile implements ProjectCase, RunnableScr
     }
 
     @Override
-    public String getScriptLabel() {
-        return RESOURCE_BUNDLE.getString("NetworkModification");
+    public void addListener(ProjectCaseListener l) {
+        findService(NetworkCacheService.class).addListener(this, l);
     }
 
     @Override
-    public ScriptType getScriptType() {
-        return getScript().orElseThrow(VirtualCase::createScriptLinkIsDeadException)
-                          .getScriptType();
+    public void removeListener(ProjectCaseListener l) {
+        findService(NetworkCacheService.class).removeListener(this, l);
     }
 
     @Override
-    public String readScript() {
-        return getScript().orElseThrow(VirtualCase::createScriptLinkIsDeadException)
-                          .readScript();
-    }
+    protected void invalidate() {
+        // invalidate network cache
+        findService(NetworkCacheService.class).invalidateCache(this);
 
-    @Override
-    public void writeScript(String content) {
-        getScript().orElseThrow(VirtualCase::createScriptLinkIsDeadException)
-                   .writeScript(content);
-    }
-
-    @Override
-    public void addListener(ScriptListener listener) {
-        getScript().orElseThrow(VirtualCase::createScriptLinkIsDeadException)
-                   .addListener(listener);
-    }
-
-    @Override
-    public void removeListener(ScriptListener listener) {
-        getScript().orElseThrow(VirtualCase::createScriptLinkIsDeadException)
-                   .removeListener(listener);
-    }
-
-    private void invalidateNetworkCache() {
-        findService(NetworkService.class).invalidateCache(this);
-    }
-
-    @Override
-    public void invalidate() {
-        invalidateNetworkCache();
         super.invalidate();
-    }
-
-    @Override
-    public void delete() {
-        super.delete();
-
-        // also clean cache
-        invalidateNetworkCache();
     }
 }

@@ -22,7 +22,8 @@ public enum ValidationType {
     GENERATORS("generators.csv"),
     BUSES("buses.csv"),
     SVCS("svcs.csv"),
-    SHUNTS("shunts.csv");
+    SHUNTS("shunts.csv"),
+    TWTS("twt.csv");
 
     private final String file;
 
@@ -45,6 +46,8 @@ public enum ValidationType {
                 return StaticVarCompensatorsValidation.checkSVCs(network, config, folder.resolve(file));
             case SHUNTS:
                 return ShuntCompensatorsValidation.checkShunts(network, config, folder.resolve(file));
+            case TWTS:
+                return TransformersValidation.checkTransformers(network, config, folder.resolve(file));
             default:
                 throw new AssertionError("Unexpected ValidationType value: " + this);
         }
@@ -65,6 +68,8 @@ public enum ValidationType {
                 return StaticVarCompensatorsValidation.checkSVCs(network, config, validationWriter);
             case SHUNTS:
                 return ShuntCompensatorsValidation.checkShunts(network, config, validationWriter);
+            case TWTS:
+                return TransformersValidation.checkTransformers(network, config, validationWriter);
             default:
                 throw new AssertionError("Unexpected ValidationType value: " + this);
         }

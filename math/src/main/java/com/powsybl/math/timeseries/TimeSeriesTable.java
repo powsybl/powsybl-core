@@ -7,6 +7,7 @@
 package com.powsybl.math.timeseries;
 
 import com.google.common.base.Stopwatch;
+import com.google.common.math.IntMath;
 import gnu.trove.list.array.TIntArrayList;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -26,6 +27,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.IntFunction;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.zip.GZIPOutputStream;
@@ -50,7 +52,7 @@ import java.util.zip.GZIPOutputStream;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public final class TimeSeriesTable {
+public class TimeSeriesTable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TimeSeriesTable.class);
 
@@ -126,6 +128,8 @@ public final class TimeSeriesTable {
 
     private final TimeSeriesIndex tableIndex;
 
+    private final IntFunction<ByteBuffer> byteBufferAllocator;
+
     private final TIntArrayList timeSeriesIndexDoubleOrString = new TIntArrayList(); // global index to typed index
 
     private final TimeSeriesNameMap doubleTimeSeriesNames = new TimeSeriesNameMap();
@@ -146,6 +150,10 @@ public final class TimeSeriesTable {
     private final Lock statsLock = new ReentrantLock();
 
     public TimeSeriesTable(int fromVersion, int toVersion, TimeSeriesIndex tableIndex) {
+        this(fromVersion, toVersion, tableIndex, ByteBuffer::allocateDirect);
+    }
+
+    public TimeSeriesTable(int fromVersion, int toVersion, TimeSeriesIndex tableIndex, IntFunction<ByteBuffer> byteBufferAllocator) {
         TimeSeriesIndex.checkVersion(fromVersion);
         TimeSeriesIndex.checkVersion(toVersion);
         if (toVersion < fromVersion) {
@@ -154,6 +162,15 @@ public final class TimeSeriesTable {
         this.fromVersion = fromVersion;
         this.toVersion = toVersion;
         this.tableIndex = Objects.requireNonNull(tableIndex);
+        this.byteBufferAllocator = Objects.requireNonNull(byteBufferAllocator);
+    }
+
+    public static TimeSeriesTable createDirectMem(int fromVersion, int toVersion, TimeSeriesIndex tableIndex) {
+        return new TimeSeriesTable(fromVersion, toVersion, tableIndex);
+    }
+
+    public static TimeSeriesTable createMem(int fromVersion, int toVersion, TimeSeriesIndex tableIndex) {
+        return new TimeSeriesTable(fromVersion, toVersion, tableIndex, ByteBuffer::allocate);
     }
 
     private void initTable(List<DoubleTimeSeries> doubleTimeSeries, List<StringTimeSeries> stringTimeSeries) {
@@ -188,11 +205,11 @@ public final class TimeSeriesTable {
 
             // allocate double buffer
             int doubleBufferSize = versionCount * doubleTimeSeriesNames.size() * tableIndex.getPointCount();
-            doubleBuffer = createDoubleBuffer(doubleBufferSize, Double.NaN);
+            doubleBuffer = createDoubleBuffer(byteBufferAllocator, doubleBufferSize, Double.NaN);
 
             // allocate string buffer
             int stringBufferSize = versionCount * stringTimeSeriesNames.size() * tableIndex.getPointCount();
-            stringBuffer = new CompactStringBuffer(stringBufferSize);
+            stringBuffer = new CompactStringBuffer(byteBufferAllocator, stringBufferSize);
 
             if (LOGGER.isInfoEnabled()) {
                 LOGGER.info("Allocation of {} for time series table",
@@ -215,6 +232,7 @@ public final class TimeSeriesTable {
             stringBuffer = null;
             means = null;
             stdDevs = null;
+            throw e;
         } finally {
             initLock.unlock();
         }
@@ -224,12 +242,12 @@ public final class TimeSeriesTable {
         return tableIndex;
     }
 
-    private static DoubleBuffer createDoubleBuffer(int size) {
-        return ByteBuffer.allocateDirect(size * Double.BYTES).asDoubleBuffer();
+    private static DoubleBuffer createDoubleBuffer(IntFunction<ByteBuffer> byteBufferAllocator, int size) {
+        return byteBufferAllocator.apply(IntMath.checkedMultiply(size, Double.BYTES)).asDoubleBuffer();
     }
 
-    private static DoubleBuffer createDoubleBuffer(int size, double initialValue) {
-        DoubleBuffer doubleBuffer = createDoubleBuffer(size);
+    private static DoubleBuffer createDoubleBuffer(IntFunction<ByteBuffer> byteBufferAllocator, int size, double initialValue) {
+        DoubleBuffer doubleBuffer = createDoubleBuffer(byteBufferAllocator, size);
         for (int i = 0; i < size; i++) {
             doubleBuffer.put(initialValue);
         }

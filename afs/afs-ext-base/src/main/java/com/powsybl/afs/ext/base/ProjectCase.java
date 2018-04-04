@@ -13,11 +13,13 @@ import com.powsybl.iidm.network.Network;
  */
 public interface ProjectCase {
 
-    String queryNetwork(String groovyScript);
+    String queryNetwork(ScriptType scriptType, String scriptContent);
 
     Network getNetwork();
 
-    ScriptError getScriptError();
+    void invalidateNetworkCache();
 
-    String getScriptOutput();
+    void addListener(ProjectCaseListener l);
+
+    void removeListener(ProjectCaseListener l);
 }

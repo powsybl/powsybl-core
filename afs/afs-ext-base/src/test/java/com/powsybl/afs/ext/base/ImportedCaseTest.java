@@ -49,7 +49,7 @@ public class ImportedCaseTest extends AbstractProjectFileTest {
 
     @Override
     protected List<ServiceExtension> getServiceExtensions() {
-        return ImmutableList.of(new LocalNetworkServiceExtension());
+        return ImmutableList.of(new LocalNetworkCacheServiceExtension());
     }
 
     @Before
@@ -97,12 +97,10 @@ public class ImportedCaseTest extends AbstractProjectFileTest {
         assertFalse(importedCase.isFolder());
         assertNotNull(importedCase.getIcon());
         assertNotNull(importedCase.getNetwork());
-        assertNull(importedCase.getScriptError());
-        assertEquals("", importedCase.getScriptOutput());
         assertTrue(importedCase.getDependencies().isEmpty());
 
         // test network query
-        assertEquals("[\"s1\"]", importedCase.queryNetwork("network.substations.collect { it.id }"));
+        assertEquals("[\"s1\"]", importedCase.queryNetwork(ScriptType.GROOVY, "network.substations.collect { it.id }"));
 
         // try to reload the imported case
         assertEquals(1, folder.getChildren().size());

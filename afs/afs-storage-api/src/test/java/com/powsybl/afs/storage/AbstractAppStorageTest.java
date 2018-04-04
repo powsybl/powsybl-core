@@ -43,6 +43,8 @@ public abstract class AbstractAppStorageTest {
 
     private BlockingQueue<NodeEvent> eventStack;
 
+    private AppStorageListener l = eventList -> eventStack.addAll(eventList.getEvents());
+
     protected abstract AppStorage createStorage();
 
     @Before
@@ -55,11 +57,11 @@ public abstract class AbstractAppStorageTest {
         } else {
             this.storage = new DefaultListenableAppStorage(storage);
         }
-        this.storage.addListener(this, eventList -> eventStack.addAll(eventList.getEvents()));
+        this.storage.addListener(l);
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         storage.close();
     }
 
@@ -180,7 +182,7 @@ public abstract class AbstractAppStorageTest {
         assertEquals(ImmutableSet.of(testData2Info), storage.getDependencies(testDataInfo.getId(), "mylink"));
         assertTrue(storage.getDependencies(testDataInfo.getId(), "mylink2").isEmpty());
 
-        // 7) add then remove a second dependency
+        // 7) add then add a second dependency
         storage.addDependency(testDataInfo.getId(), "mylink2", testData2Info.getId());
         storage.flush();
 
@@ -238,6 +240,17 @@ public abstract class AbstractAppStorageTest {
         assertTrue(storage.dataExists(testData2Info.getId(), "blob"));
         assertFalse(storage.dataExists(testData2Info.getId(), "blob2"));
         assertEquals(ImmutableSet.of("blob"), storage.getDataNames(testData2Info.getId()));
+
+        // 10 bis) check data remove
+        assertFalse(storage.removeData(testData2Info.getId(), "blob2"));
+        assertTrue(storage.removeData(testData2Info.getId(), "blob"));
+        storage.flush();
+
+        // check event
+        assertEquals(new NodeDataRemoved(testData2Info.getId(), "blob"), eventStack.take());
+
+        assertTrue(storage.getDataNames(testData2Info.getId()).isEmpty());
+        assertFalse(storage.readBinaryData(testData2Info.getId(), "blob").isPresent());
 
         // 11) check data source using pattern api
         DataSource ds = new AppStorageDataSource(storage, testData2Info.getId());
@@ -367,7 +380,7 @@ public abstract class AbstractAppStorageTest {
     }
 
     @Test
-    public void parentChangeTest() throws IOException, InterruptedException {
+    public void parentChangeTest() throws InterruptedException {
         // create root node and 2 folders
         NodeInfo rootFolderInfo = storage.createRootNodeIfNotExists(storage.getFileSystemName(), FOLDER_PSEUDO_CLASS);
         NodeInfo folder1Info = storage.createNode(rootFolderInfo.getId(), "test1", FOLDER_PSEUDO_CLASS, "", 0, new NodeGenericMetadata());
@@ -401,4 +414,31 @@ public abstract class AbstractAppStorageTest {
         assertTrue(eventStack.isEmpty());
     }
 
+    @Test
+    public void deleteNodeTest() throws InterruptedException {
+        // create root node and 2 folders
+        NodeInfo rootFolderInfo = storage.createRootNodeIfNotExists(storage.getFileSystemName(), FOLDER_PSEUDO_CLASS);
+        NodeInfo folder1Info = storage.createNode(rootFolderInfo.getId(), "test1", FOLDER_PSEUDO_CLASS, "", 0, new NodeGenericMetadata());
+        NodeInfo folder2Info = storage.createNode(rootFolderInfo.getId(), "test2", FOLDER_PSEUDO_CLASS, "", 0, new NodeGenericMetadata());
+        storage.flush();
+
+        eventStack.take();
+        eventStack.take();
+        eventStack.take();
+
+        storage.addDependency(folder1Info.getId(), "dep", folder2Info.getId());
+        storage.addDependency(folder1Info.getId(), "dep2", folder2Info.getId());
+        storage.flush();
+
+        eventStack.take();
+        eventStack.take();
+
+        assertEquals(Collections.singleton(folder2Info), storage.getDependencies(folder1Info.getId(), "dep"));
+        assertEquals(Collections.singleton(folder2Info), storage.getDependencies(folder1Info.getId(), "dep2"));
+
+        storage.deleteNode(folder2Info.getId());
+
+        assertTrue(storage.getDependencies(folder1Info.getId(), "dep").isEmpty());
+        assertTrue(storage.getDependencies(folder1Info.getId(), "dep2").isEmpty());
+    }
 }

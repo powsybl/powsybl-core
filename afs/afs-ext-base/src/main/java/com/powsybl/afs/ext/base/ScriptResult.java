@@ -6,24 +6,45 @@
  */
 package com.powsybl.afs.ext.base;
 
+import com.powsybl.afs.ProjectFile;
+
 import java.util.Objects;
 
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class ScriptResult {
+public class ScriptResult<T> {
+
+    private final T value;
 
     private final String output;
 
     private final ScriptError error;
 
-    private final Object value;
+    public ScriptResult(T value) {
+        this(value, "", null);
+    }
 
-    public ScriptResult(String output, ScriptError error, Object value) {
+    public ScriptResult(T value, String output, ScriptError error) {
+        this.value = value;
         this.output = Objects.requireNonNull(output);
         this.error = error;
-        this.value = value;
+    }
+
+    public static <T> ScriptResult<T> of(T value) {
+        return new ScriptResult<>(value);
+    }
+
+    public T getValue() {
+        return value;
+    }
+
+    public T getValueOrThrowIfError(ProjectFile projectFile) {
+        if (error == null) {
+            return value;
+        }
+        throw new ScriptException(projectFile, error);
     }
 
     public String getOutput() {
@@ -32,10 +53,6 @@ public class ScriptResult {
 
     public ScriptError getError() {
         return error;
-    }
-
-    public Object getValue() {
-        return value;
     }
 
     @Override

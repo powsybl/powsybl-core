@@ -14,7 +14,6 @@ import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.iidm.import_.ImportersLoader;
 import com.powsybl.iidm.import_.ImportersLoaderList;
-import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -49,7 +48,7 @@ public class VirtualCaseTest extends AbstractProjectFileTest {
 
     @Override
     protected List<ServiceExtension> getServiceExtensions() {
-        return ImmutableList.of(new LocalNetworkServiceExtension());
+        return ImmutableList.of(new LocalNetworkCacheServiceExtension());
     }
 
     @Before
@@ -125,16 +124,10 @@ public class VirtualCaseTest extends AbstractProjectFileTest {
         assertEquals(1, importedCase.getBackwardDependencies().size());
         assertEquals(1, script.getBackwardDependencies().size());
         assertNotNull(virtualCase.getNetwork());
-        assertNull(virtualCase.getScriptError());
-
-        // check script output
-        assertEquals("hello", virtualCase.getScriptOutput());
 
         // test cache invalidation
         script.writeScript("print 'bye'");
         assertNotNull(virtualCase.getNetwork());
-        assertNull(virtualCase.getScriptError());
-        assertEquals("bye", virtualCase.getScriptOutput());
 
         virtualCase.delete();
         assertTrue(importedCase.getBackwardDependencies().isEmpty());
@@ -153,11 +146,12 @@ public class VirtualCaseTest extends AbstractProjectFileTest {
                 .withScript(scriptWithError)
                 .build();
 
-        Network networkWithError = virtualCaseWithError.getNetwork();
-        assertNotNull(networkWithError);
-        assertEquals(0, networkWithError.getSubstationCount());
-        assertNotNull(virtualCaseWithError.getScriptError());
-        assertTrue(virtualCaseWithError.getScriptError().getMessage().contains("No signature of method: test.prin() is applicable"));
-        assertEquals("", virtualCaseWithError.getScriptOutput());
+        try {
+            virtualCaseWithError.getNetwork();
+            fail();
+        } catch (ScriptException e) {
+            assertNotNull(e.getError());
+            assertTrue(e.getError().getMessage().contains("No signature of method: test.prin() is applicable"));
+        }
     }
 }

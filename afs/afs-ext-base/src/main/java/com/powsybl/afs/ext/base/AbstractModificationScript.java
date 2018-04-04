@@ -10,6 +10,7 @@ import com.google.common.io.CharStreams;
 import com.powsybl.afs.FileIcon;
 import com.powsybl.afs.ProjectFile;
 import com.powsybl.afs.ProjectFileCreationContext;
+import com.powsybl.afs.storage.events.AppStorageListener;
 import com.powsybl.afs.storage.events.NodeDataUpdated;
 import com.powsybl.afs.storage.events.NodeEvent;
 import com.powsybl.afs.storage.events.NodeEventType;
@@ -29,21 +30,16 @@ public abstract class AbstractModificationScript extends ProjectFile implements 
 
     private final List<ScriptListener> listeners = new ArrayList<>();
 
+    private final AppStorageListener l = eventList -> processEvents(eventList.getEvents(), info.getId(), listeners);
+
     public AbstractModificationScript(ProjectFileCreationContext context, int codeVersion, FileIcon icon,
                                       String scriptContentName) {
         super(context, codeVersion, icon);
         this.scriptContentName = Objects.requireNonNull(scriptContentName);
-        storage.addListener(this, eventList -> {
-            boolean invalidate = processEvents(eventList.getEvents(), info.getId(), listeners);
-            if (invalidate) {
-                // invalidate backward dependencies
-                invalidate();
-            }
-        });
+        storage.addListener(l);
     }
 
-    private boolean processEvents(List<NodeEvent> events, String nodeId, List<ScriptListener> listeners) {
-        boolean invalidate = false;
+    private void processEvents(List<NodeEvent> events, String nodeId, List<ScriptListener> listeners) {
         for (NodeEvent event : events) {
             if (event.getType() == NodeEventType.NODE_DATA_UPDATED) {
                 NodeDataUpdated dataUpdated = (NodeDataUpdated) event;
@@ -51,11 +47,9 @@ public abstract class AbstractModificationScript extends ProjectFile implements 
                     for (ScriptListener listener : listeners) {
                         listener.scriptUpdated();
                     }
-                    invalidate = true;
                 }
             }
         }
-        return invalidate;
     }
 
     @Override
@@ -77,6 +71,9 @@ public abstract class AbstractModificationScript extends ProjectFile implements 
         }
         storage.updateModificationTime(info.getId());
         storage.flush();
+
+        // invalidate backward dependencies
+        invalidate();
     }
 
     @Override

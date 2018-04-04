@@ -17,6 +17,7 @@ import com.powsybl.commons.io.table.TableFormatter;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.commons.io.table.TableFormatterFactory;
 import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
+import com.powsybl.iidm.network.TwoTerminalsConnectable.Side;
 import com.powsybl.loadflow.validation.ValidationType;
 
 /**
@@ -56,6 +57,8 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                 return getSvcColumns();
             case SHUNTS:
                 return getShuntColumns();
+            case TWTS:
+                return getTwtColumns();
             default:
                 throw new AssertionError("Unexpected ValidationType value: " + validationType);
         }
@@ -307,6 +310,52 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
         return shuntColumns;
     }
 
+    private Column[] getTwtColumns() {
+        Column[] twtColumns = new Column[] {
+            new Column("id"),
+            new Column("error"),
+            new Column("upIncrement"),
+            new Column("downIncrement")
+        };
+        if (verbose) {
+            twtColumns = ArrayUtils.addAll(twtColumns,
+                                           new Column("rho"),
+                                           new Column("rhoPreviousStep"),
+                                           new Column("rhoNextStep"),
+                                           new Column("tapPosition"),
+                                           new Column("lowTapPosition"),
+                                           new Column("highTapPosition"),
+                                           new Column("tapChangerTargetV"),
+                                           new Column("regulatedSide"),
+                                           new Column("v"),
+                                           new Column("connected"),
+                                           new Column("mainComponent"),
+                                           new Column(VALIDATION));
+        }
+        if (compareResults) {
+            twtColumns = ArrayUtils.addAll(twtColumns,
+                                           new Column("error" + POST_LF_SUFFIX),
+                                           new Column("upIncrement" + POST_LF_SUFFIX),
+                                           new Column("downIncrement" + POST_LF_SUFFIX));
+            if (verbose) {
+                twtColumns = ArrayUtils.addAll(twtColumns,
+                                               new Column("rho" + POST_LF_SUFFIX),
+                                               new Column("rhoPreviousStep" + POST_LF_SUFFIX),
+                                               new Column("rhoNextStep" + POST_LF_SUFFIX),
+                                               new Column("tapPosition" + POST_LF_SUFFIX),
+                                               new Column("lowTapPosition" + POST_LF_SUFFIX),
+                                               new Column("highTapPosition" + POST_LF_SUFFIX),
+                                               new Column("tapChangerTargetV" + POST_LF_SUFFIX),
+                                               new Column("regulatedSide" + POST_LF_SUFFIX),
+                                               new Column("v" + POST_LF_SUFFIX),
+                                               new Column("connected" + POST_LF_SUFFIX),
+                                               new Column("mainComponent" + POST_LF_SUFFIX),
+                                               new Column(VALIDATION + POST_LF_SUFFIX));
+            }
+        }
+        return twtColumns;
+    }
+
     @Override
     protected void write(String branchId, double p1, double p1Calc, double q1, double q1Calc, double p2, double p2Calc, double q2, double q2Calc,
                          double r, double x, double g1, double g2, double b1, double b2, double rho1, double rho2, double alpha1, double alpha2,
@@ -522,6 +571,49 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                                  .writeCell(nominalV)
                                  .writeCell(getValidated(validated)) :
                         formatter.writeEmptyCells(9);
+        }
+        return formatter;
+    }
+
+    @Override
+    protected void write(String twtId, float error, float upIncrement, float downIncrement, float rho, float rhoPreviousStep, float rhoNextStep,
+                         int tapPosition, int lowTapPosition, int highTapPosition, float targetV, Side regulatedSide, float v, boolean connected,
+                         boolean mainComponent, boolean validated, TransformerData twtData, boolean found, boolean writeValues) throws IOException {
+        formatter.writeCell(twtId);
+        if (compareResults) {
+            formatter = found ?
+                        write(found, twtData.error, twtData.upIncrement, twtData.downIncrement, twtData.rho, twtData.rhoPreviousStep, twtData.rhoNextStep,
+                              twtData.tapPosition, twtData.lowTapPosition, twtData.highTapPosition, twtData.targetV, twtData.regulatedSide, twtData.v,
+                              twtData.connected, twtData.mainComponent, twtData.validated) :
+                        write(found, Float.NaN, Float.NaN, Float.NaN, Float.NaN, Float.NaN, Float.NaN, -1, -1, -1, Float.NaN, Side.ONE, Float.NaN, false, false, false);
+        }
+        write(writeValues, error, upIncrement, downIncrement, rho, rhoPreviousStep, rhoNextStep, tapPosition, lowTapPosition, highTapPosition, targetV,
+              regulatedSide, v, connected, mainComponent, validated);
+    }
+
+    private TableFormatter write(boolean writeValues, float error, float upIncrement, float downIncrement, float rho, float rhoPreviousStep, float rhoNextStep,
+                                 int tapPosition, int lowTapPosition, int highTapPosition, float targetV, Side regulatedSide, float v, boolean connected,
+                                 boolean mainComponent, boolean validated) throws IOException {
+        formatter = writeValues ?
+                    formatter.writeCell(error)
+                             .writeCell(upIncrement)
+                             .writeCell(downIncrement) :
+                    formatter.writeEmptyCells(3);
+        if (verbose) {
+            formatter = writeValues ?
+                        formatter.writeCell(rho)
+                                 .writeCell(rhoPreviousStep)
+                                 .writeCell(rhoNextStep)
+                                 .writeCell(tapPosition)
+                                 .writeCell(lowTapPosition)
+                                 .writeCell(highTapPosition)
+                                 .writeCell(targetV)
+                                 .writeCell(regulatedSide.name())
+                                 .writeCell(v)
+                                 .writeCell(connected)
+                                 .writeCell(mainComponent)
+                                 .writeCell(getValidated(validated)) :
+                        formatter.writeEmptyCells(12);
         }
         return formatter;
     }
