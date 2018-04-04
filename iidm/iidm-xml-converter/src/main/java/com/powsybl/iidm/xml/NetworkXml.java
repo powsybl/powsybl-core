@@ -11,7 +11,9 @@ import com.google.common.base.Suppliers;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedSaxException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
-import com.powsybl.commons.extensions.*;
+import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.extensions.ExtensionProviders;
+import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.iidm.network.*;
 import javanet.staxutils.IndentingXMLStreamWriter;
 import org.joda.time.DateTime;
@@ -31,6 +33,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ForkJoinPool;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -470,6 +474,30 @@ public final class NetworkXml implements XmlConstants {
      * @return the copy of the network
      */
     public static Network copy(Network network) {
-        return gunzip(gzip(network));
+        return copy(network, ForkJoinPool.commonPool());
+    }
+
+    public static Network copy(Network network, ExecutorService executor) {
+        Objects.requireNonNull(network);
+        Objects.requireNonNull(executor);
+        PipedOutputStream pos = new PipedOutputStream();
+        executor.execute(() -> {
+            try {
+                write(network, pos);
+            } catch (Exception t) {
+                LOGGER.error(t.toString(), t);
+            } finally {
+                try {
+                    pos.close();
+                } catch (IOException e) {
+                    LOGGER.error(e.toString(), e);
+                }
+            }
+        });
+        try (InputStream is = new PipedInputStream(pos)) {
+            return read(is);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 }
