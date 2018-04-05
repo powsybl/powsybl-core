@@ -103,47 +103,46 @@ public class AmplNetworkReader {
         }
 
         g.setVoltageRegulatorOn(vregul);
-        g.setTargetV(targetV);
+
         g.setTargetP(targetP);
         g.setTargetQ(targetQ);
 
         Terminal t = g.getTerminal();
         t.setP(p).setQ(q);
 
-        if (busNum == -1) {
-            t.disconnect();
-        } else {
-            String busId = mapper.getId(AmplSubset.BUS, busNum);
-            Bus connectable = AmplUtil.getConnectableBus(t);
-            if (connectable != null && connectable.getId().equals(busId)) {
-                t.connect();
-            }
-        }
+        float vb = t.getVoltageLevel().getNominalV();
+        g.setTargetV(targetV * vb);
+
+        busConnection(t, busNum);
+
         return null;
     }
 
     public AmplNetworkReader readLoads() throws IOException {
-        read("_loads", 5, this::readLoad);
+        read("_loads", 6, this::readLoad);
 
         return this;
     }
 
     private Void readLoad(String[] tokens) {
         int num = Integer.parseInt(tokens[0]);
-        float p = readFloat(tokens[1]);
-        float q = readFloat(tokens[2]);
-        float p0 = readFloat(tokens[3]);
-        float q0 = readFloat(tokens[4]);
+        int busNum = Integer.parseInt(tokens[1]);
+        float p = readFloat(tokens[2]);
+        float q = readFloat(tokens[3]);
+        float p0 = readFloat(tokens[4]);
+        float q0 = readFloat(tokens[5]);
         String id = mapper.getId(AmplSubset.LOAD, num);
         Load l = network.getLoad(id);
         if (l != null) {
             l.setP0(p0).setQ0(q0);
             l.getTerminal().setP(p).setQ(q);
+            busConnection(l.getTerminal(), busNum);
         } else {
             DanglingLine dl = network.getDanglingLine(id);
             if (dl != null) {
                 dl.setP0(p0).setQ0(q0);
                 dl.getTerminal().setP(p).setQ(q);
+                busConnection(dl.getTerminal(), busNum);
             } else {
                 throw new AmplException("Invalid load id '" + id + "'");
             }
@@ -226,20 +225,13 @@ public class AmplNetworkReader {
         if (sc == null) {
             throw new AmplException("Invalid shunt compensator id '" + id + "'");
         }
-        sc.setMaximumSectionCount(sections < 1 ? 1 : sections + 1);
-        sc.setCurrentSectionCount(Math.max(0, Math.min(sc.getMaximumSectionCount(), Math.round(sc.getbPerSection() / b))));
+
+        sc.setCurrentSectionCount(Math.max(0, Math.min(sc.getMaximumSectionCount(), sections)));
         Terminal t = sc.getTerminal();
         t.setQ(q);
 
-        if (busNum == -1) {
-            t.disconnect();
-        } else {
-            String busId = mapper.getId(AmplSubset.BUS, busNum);
-            Bus connectable = AmplUtil.getConnectableBus(t);
-            if (connectable != null && connectable.getId().equals(busId)) {
-                t.connect();
-            }
-        }
+        busConnection(t, busNum);
+
         return null;
     }
 
@@ -270,17 +262,19 @@ public class AmplNetworkReader {
     }
 
     public AmplNetworkReader readBranches() throws IOException {
-        read("_branches", 5, this::readBranch);
+        read("_branches", 7, this::readBranch);
 
         return this;
     }
 
     private Void readBranch(String[] tokens) {
         int num = Integer.parseInt(tokens[0]);
-        float p1 = readFloat(tokens[1]);
-        float p2 = readFloat(tokens[2]);
-        float q1 = readFloat(tokens[3]);
-        float q2 = readFloat(tokens[4]);
+        int busNum = Integer.parseInt(tokens[1]);
+        int busNum2 = Integer.parseInt(tokens[2]);
+        float p1 = readFloat(tokens[3]);
+        float p2 = readFloat(tokens[4]);
+        float q1 = readFloat(tokens[5]);
+        float q2 = readFloat(tokens[6]);
 
         String id = mapper.getId(AmplSubset.BRANCH, num);
 
@@ -288,16 +282,19 @@ public class AmplNetworkReader {
         if (br != null) {
             br.getTerminal1().setP(p1).setQ(q1);
             br.getTerminal2().setP(p2).setQ(q2);
+            busConnection(br.getTerminal1(), busNum);
+            busConnection(br.getTerminal2(), busNum2);
             return null;
         }
 
-        if (readThreeWindingsTransformerBranch(id, p1, q1)) {
+        if (readThreeWindingsTransformerBranch(id, p1, q1, busNum)) {
             return null;
         }
 
         DanglingLine dl = network.getDanglingLine(id);
         if (dl != null) {
             dl.getTerminal().setP(p1).setQ(q1);
+            busConnection(dl.getTerminal(), busNum);
         } else {
             throw new AmplException("Invalid branch id '" + id + "'");
         }
@@ -305,11 +302,12 @@ public class AmplNetworkReader {
         return null;
     }
 
-    private boolean readThreeWindingsTransformerBranch(String id, float p, float q) {
+    private boolean readThreeWindingsTransformerBranch(String id, float p, float q, int busNum) {
         if (id.endsWith(AmplConstants.LEG1_SUFFIX)) {
             ThreeWindingsTransformer tht = network.getThreeWindingsTransformer(id.substring(0, id.indexOf(AmplConstants.LEG1_SUFFIX)));
             if (tht != null) {
                 tht.getLeg1().getTerminal().setP(p).setQ(q);
+                busConnection(tht.getLeg1().getTerminal(), busNum);
             } else {
                 throw new AmplException("Invalid branch (leg1) id '" + id + "'");
             }
@@ -317,6 +315,7 @@ public class AmplNetworkReader {
             ThreeWindingsTransformer tht = network.getThreeWindingsTransformer(id.substring(0, id.indexOf(AmplConstants.LEG2_SUFFIX)));
             if (tht != null) {
                 tht.getLeg2().getTerminal().setP(p).setQ(q);
+                busConnection(tht.getLeg1().getTerminal(), busNum);
             } else {
                 throw new AmplException("Invalid branch (leg2) id '" + id + "'");
             }
@@ -324,6 +323,7 @@ public class AmplNetworkReader {
             ThreeWindingsTransformer tht = network.getThreeWindingsTransformer(id.substring(0, id.indexOf(AmplConstants.LEG3_SUFFIX)));
             if (tht != null) {
                 tht.getLeg3().getTerminal().setP(p).setQ(q);
+                busConnection(tht.getLeg1().getTerminal(), busNum);
             } else {
                 throw new AmplException("Invalid branch (leg3) id '" + id + "'");
             }
@@ -394,15 +394,59 @@ public class AmplNetworkReader {
 
         svc.setVoltageSetPoint(targetV);
 
-        if (busNum == -1) {
-            t.disconnect();
-        } else {
-            String busId = mapper.getId(AmplSubset.BUS, busNum);
-            Bus connectable = AmplUtil.getConnectableBus(t);
-            if (connectable != null && connectable.getId().equals(busId)) {
-                t.connect();
-            }
-        }
+        busConnection(t, busNum);
+
+        return null;
+    }
+
+    public AmplNetworkReader readLccConverterStations() throws IOException {
+        read("_lcc", 4, this::readLcc);
+
+        return this;
+    }
+
+    private Void readLcc(String[] tokens) {
+        int num = Integer.parseInt(tokens[0]);
+        int busNum = Integer.parseInt(tokens[1]);
+        float p = readFloat(tokens[2]);
+        float q = readFloat(tokens[3]);
+
+        String id = mapper.getId(AmplSubset.LCC_CONVERTER_STATION, num);
+        LccConverterStation lcc = network.getLccConverterStation(id);
+        lcc.getTerminal().setP(p).setQ(q);
+        busConnection(lcc.getTerminal(), busNum);
+
+        return null;
+    }
+
+    public AmplNetworkReader readVscConverterStations() throws IOException {
+        read("_vsc", 7, this::readVsc);
+
+        return this;
+    }
+
+    private Void readVsc(String[] tokens) {
+        int num = Integer.parseInt(tokens[0]);
+        int busNum = Integer.parseInt(tokens[1]);
+        boolean vregul = Boolean.parseBoolean(tokens[2]);
+        float targetV = readFloat(tokens[3]);
+        float targetQ = readFloat(tokens[4]);
+        float p = readFloat(tokens[5]);
+        float q = readFloat(tokens[6]);
+
+        String id = mapper.getId(AmplSubset.VSC_CONVERTER_STATION, num);
+        VscConverterStation vsc = network.getVscConverterStation(id);
+        Terminal t = vsc.getTerminal();
+        t.setP(p).setQ(q);
+
+
+        vsc.setReactivePowerSetpoint(targetQ);
+        vsc.setVoltageRegulatorOn(vregul);
+
+        float vb = t.getVoltageLevel().getNominalV();
+        vsc.setVoltageSetpoint(targetV * vb);
+
+        busConnection(t, busNum);
 
         return null;
     }
@@ -434,6 +478,18 @@ public class AmplNetworkReader {
         return this;
     }
 
+    private void busConnection(Terminal t, int busNum) {
+        if (busNum == -1) {
+            t.disconnect();
+        } else {
+            String busId = mapper.getId(AmplSubset.BUS, busNum);
+            Bus connectable = AmplUtil.getConnectableBus(t);
+            if (connectable != null && connectable.getId().equals(busId)) {
+                t.connect();
+            }
+        }
+    }
+
     private static List<String> parseExceptIfBetweenQuotes(String str) {
         List<String> tokens = new ArrayList<>();
         Matcher m = PATTERN.matcher(str);
@@ -452,4 +508,5 @@ public class AmplNetworkReader {
     private double readDouble(String d) {
         return Float.parseFloat(d) != AmplConstants.INVALID_FLOAT_VALUE ? Double.parseDouble(d) : Double.NaN;
     }
+
 }

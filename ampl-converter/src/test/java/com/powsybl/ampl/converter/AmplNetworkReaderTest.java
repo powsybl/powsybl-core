@@ -96,11 +96,23 @@ public class AmplNetworkReaderTest {
         MemDataSource memDataSource = new MemDataSource();
         importData(memDataSource, "_hvdc", "outputs/hvdc.txt");
         importData(memDataSource, "_shunts", "outputs/shunts.txt");
+        importData(memDataSource, "_lcc", "outputs/lcc.txt");
 
         AmplNetworkReader reader = new AmplNetworkReader(memDataSource, network, mapper);
         testHvdc(network, reader);
         testShunts(network, reader);
+        testLcc(network, reader);
+
+        Network network2 = HvdcTestNetwork.createVsc();
+        StringToIntMapper<AmplSubset> mapper2 = AmplUtil.createMapper(network2);
+
+        MemDataSource memDataSource2 = new MemDataSource();
+        importData(memDataSource2, "_vsc", "outputs/vsc.txt");
+        AmplNetworkReader reader2 = new AmplNetworkReader(memDataSource2, network2, mapper2);
+        testVsc(network2, reader2);
+
     }
+
 
     @Test
     public void readSvc() throws IOException {
@@ -126,7 +138,7 @@ public class AmplNetworkReaderTest {
 
         reader.readGenerators();
 
-        assertEquals(voltageLevel.getNominalV(), generator.getTargetV(), 0.0f);
+        assertEquals(voltageLevel.getNominalV() * 1.01000f, generator.getTargetV(), 0.0f);
         assertEquals(300.0f, generator.getTargetP(), 0.0f);
         assertEquals(300.0f, generator.getTerminal().getP(), 0.0f);
         assertEquals(150.0f, generator.getTargetQ(), 0.0f);
@@ -286,6 +298,35 @@ public class AmplNetworkReaderTest {
         HvdcLine hl2 = network.getHvdcLine("L");
         assertEquals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, hl2.getConvertersMode());
         assertEquals(300f, hl2.getActivePowerSetpoint(), 0.0);
+    }
+
+    private void testLcc(Network network, AmplNetworkReader reader) throws IOException {
+        LccConverterStation lc = network.getLccConverterStation("C1");
+        assertEquals(100f, lc.getTerminal().getP(), 0.0);
+        assertEquals(50f, lc.getTerminal().getQ(), 0.0);
+
+        reader.readLccConverterStations();
+
+        assertEquals(200f, lc.getTerminal().getP(), 0.0);
+        assertEquals(75f, lc.getTerminal().getQ(), 0.0);
+
+    }
+
+    private void testVsc(Network network, AmplNetworkReader reader) throws IOException {
+        VscConverterStation vc = network.getVscConverterStation("C1");
+        assertEquals(100f, vc.getTerminal().getP(), 0.0);
+        assertEquals(50f, vc.getTerminal().getQ(), 0.0);
+        assertTrue(vc.isVoltageRegulatorOn());
+        assertTrue(Float.isNaN(vc.getReactivePowerSetpoint()));
+        assertEquals(405f, vc.getVoltageSetpoint(), 0.0);
+
+        reader.readVscConverterStations();
+
+        assertEquals(200f, vc.getTerminal().getP(), 0.0);
+        assertEquals(75f, vc.getTerminal().getQ(), 0.0);
+        assertTrue(vc.isVoltageRegulatorOn());
+        assertEquals(30f, vc.getReactivePowerSetpoint(), 0.0);
+        assertEquals(vc.getTerminal().getVoltageLevel().getNominalV() * 1.01000f, vc.getVoltageSetpoint(), 0.0);
     }
 
     private void testShunts(Network network, AmplNetworkReader reader) throws IOException {
