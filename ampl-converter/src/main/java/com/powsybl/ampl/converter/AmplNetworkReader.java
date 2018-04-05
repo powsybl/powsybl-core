@@ -216,7 +216,7 @@ public class AmplNetworkReader {
     private Void readShunt(String[] tokens) {
         int num = Integer.parseInt(tokens[0]);
         int busNum = Integer.parseInt(tokens[1]);
-        float b = readFloat(tokens[2]);
+        //float b = readFloat(tokens[2]);
         float q = readFloat(tokens[3]);
         int sections = Integer.parseInt(tokens[4]);
 
