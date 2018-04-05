@@ -1275,7 +1275,8 @@ public class AmplNetworkWriter {
                                                                   new Column("id"),
                                                                   new Column(DESCRIPTION),
                                                                   new Column(ACTIVE_POWER),
-                                                                  new Column(REACTIVE_POWER))) {
+                                                                  new Column(REACTIVE_POWER),
+                                                                  new Column("sections count"))) {
             List<String> skipped = new ArrayList<>();
             for (ShuntCompensator sc : network.getShunts()) {
                 Terminal t = sc.getTerminal();
@@ -1322,7 +1323,8 @@ public class AmplNetworkWriter {
                          .writeCell(id)
                          .writeCell(sc.getName())
                          .writeCell(t.getP())
-                         .writeCell(t.getQ());
+                         .writeCell(t.getQ())
+                         .writeCell(sc.getCurrentSectionCount());
                 addExtensions(num, sc);
             }
             if (!skipped.isEmpty()) {
@@ -1573,10 +1575,12 @@ public class AmplNetworkWriter {
             for (HvdcLine hvdcLine : network.getHvdcLines()) {
                 String id = hvdcLine.getId();
                 int num = mapper.getInt(AmplSubset.HVDC_LINE, id);
+                HvdcType type = hvdcLine.getConverterStation1().getHvdcType();
+                AmplSubset subset = type.equals(HvdcType.VSC) ? AmplSubset.VSC_CONVERTER_STATION : AmplSubset.LCC_CONVERTER_STATION;
                 formatter.writeCell(num)
-                        .writeCell(hvdcLine.getConverterStation1().getHvdcType().equals(HvdcType.VSC) ? 1 : 2)
-                        .writeCell(mapper.getInt(AmplSubset.HVDC_CONVERTER_STATION, hvdcLine.getConverterStation1().getId()))
-                        .writeCell(mapper.getInt(AmplSubset.HVDC_CONVERTER_STATION, hvdcLine.getConverterStation2().getId()))
+                        .writeCell(type.equals(HvdcType.VSC) ? 1 : 2)
+                        .writeCell(mapper.getInt(subset, hvdcLine.getConverterStation1().getId()))
+                        .writeCell(mapper.getInt(subset, hvdcLine.getConverterStation2().getId()))
                         .writeCell(hvdcLine.getR())
                         .writeCell(hvdcLine.getNominalV())
                         .writeCell(hvdcLine.getConvertersMode().name())
@@ -1633,7 +1637,7 @@ public class AmplNetworkWriter {
                     LccConverterStation lccStation = (LccConverterStation) hvdcStation;
                     int vlNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, t.getVoltageLevel().getId());
 
-                    int num = mapper.getInt(AmplSubset.HVDC_CONVERTER_STATION, lccStation.getId());
+                    int num = mapper.getInt(AmplSubset.LCC_CONVERTER_STATION, lccStation.getId());
 
                     formatter.writeCell(num)
                             .writeCell(busNum)
@@ -1700,7 +1704,7 @@ public class AmplNetworkWriter {
                     float vb = t.getVoltageLevel().getNominalV();
                     float minP = -maxP;
 
-                    int num = mapper.getInt(AmplSubset.HVDC_CONVERTER_STATION, vscStation.getId());
+                    int num = mapper.getInt(AmplSubset.VSC_CONVERTER_STATION, vscStation.getId());
                     formatter.writeCell(num)
                             .writeCell(busNum)
                             .writeCell(conBusNum != -1 ? conBusNum : busNum)

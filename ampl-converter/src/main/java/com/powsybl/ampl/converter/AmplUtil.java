@@ -9,6 +9,7 @@ package com.powsybl.ampl.converter;
 
 import com.powsybl.commons.util.StringToIntMapper;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.HvdcConverterStation.HvdcType;
 
 /**
  *
@@ -97,7 +98,9 @@ public final class AmplUtil {
         network.getHvdcLineStream().forEach(hvdc -> mapper.newInt(AmplSubset.HVDC_LINE, hvdc.getId()));
 
         // HvdcConverterStations
-        network.getHvdcConverterStations().forEach(conv -> mapper.newInt(AmplSubset.HVDC_CONVERTER_STATION,  conv.getId()));
+        network.getHvdcConverterStations().forEach(conv ->
+                mapper.newInt(conv.getHvdcType().equals(HvdcType.VSC) ? AmplSubset.VSC_CONVERTER_STATION : AmplSubset.LCC_CONVERTER_STATION,  conv.getId()));
+
     }
 
     private static void fillLines(StringToIntMapper<AmplSubset> mapper, Network network) {
