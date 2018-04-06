@@ -49,7 +49,7 @@ public class ImportedCaseTest extends AbstractProjectFileTest {
 
     @Override
     protected List<ServiceExtension> getServiceExtensions() {
-        return ImmutableList.of(new LocalNetworkServiceExtension());
+        return ImmutableList.of(new LocalNetworkCacheServiceExtension());
     }
 
     @Before
