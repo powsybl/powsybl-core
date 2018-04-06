@@ -21,6 +21,8 @@ import java.util.stream.Collectors;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.codehaus.groovy.control.CompilationFailedException;
+import org.codehaus.groovy.control.CompilerConfiguration;
 
 import com.google.auto.service.AutoService;
 import com.google.common.collect.Sets;
@@ -34,6 +36,9 @@ import com.powsybl.loadflow.validation.io.ValidationWriter;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
 import com.powsybl.tools.ToolRunningContext;
+
+import groovy.lang.Binding;
+import groovy.lang.GroovyShell;
 
 /**
  *
@@ -49,6 +54,7 @@ public class ValidationTool implements Tool {
     private static final String OUTPUT_FORMAT = "output-format";
     private static final String TYPES = "types";
     private static final String COMPARE_RESULTS = "compare-results";
+    private static final String GROOVY_SCRIPT = "groovy-script";
 
     private static final Command COMMAND = new Command() {
 
@@ -101,6 +107,11 @@ public class ValidationTool implements Tool {
             options.addOption(Option.builder().longOpt(COMPARE_RESULTS)
                     .desc("print output files with results both before and after the loadflow")
                     .build());
+            options.addOption(Option.builder().longOpt(GROOVY_SCRIPT)
+                    .desc("groovy script to run before validation")
+                    .hasArg()
+                    .argName("FILE")
+                    .build());
             return options;
         }
 
@@ -144,6 +155,9 @@ public class ValidationTool implements Tool {
         if (network == null) {
             throw new PowsyblException("Case " + caseFile + " not found");
         }
+        if (line.hasOption(GROOVY_SCRIPT)) {
+            runGroovyScript(Paths.get(line.getOptionValue(GROOVY_SCRIPT)), network, context);
+        }
         try (ValidationWriters validationWriters = new ValidationWriters(network.getId(), validationTypes, outputFolder, config)) {
             if (config.isCompareResults()) {
                 context.getOutputStream().println("Running pre-loadflow validation on network " + network.getId());
@@ -163,6 +177,24 @@ public class ValidationTool implements Tool {
                 context.getOutputStream().println("Running post-loadflow validation on network " + network.getId());
             }
             runValidation(network, config, validationTypes, validationWriters, context);
+        }
+    }
+
+    private void runGroovyScript(Path script, Network network, ToolRunningContext context) {
+        if (Files.exists(script)) {
+            context.getOutputStream().println("Running Groovy script " + script + " on network " + network.getId());
+            CompilerConfiguration conf = new CompilerConfiguration();
+            Binding binding = new Binding();
+            binding.setVariable("network", network);
+            binding.setVariable("computationManager", context.getShortTimeExecutionComputationManager());
+            GroovyShell shell = new GroovyShell(binding, conf);
+            try {
+                shell.evaluate(script.toFile());
+            } catch (CompilationFailedException | IOException e) {
+                throw new PowsyblException("Error running Groovy script " + script + " on network " + network.getId() + ": " + e.getMessage());
+            }
+        } else {
+            throw new PowsyblException("Groovy script " + script + " does not exist");
         }
     }
 
