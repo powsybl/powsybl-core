@@ -85,7 +85,7 @@ public final class JsonUtil {
     }
 
     public static <T> T parseJson(Path file, Function<JsonParser, T> function) {
-        Objects.requireNonNull(false);
+        Objects.requireNonNull(file);
         try (BufferedReader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
             return parseJson(reader, function);
         } catch (IOException e) {
