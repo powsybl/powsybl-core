@@ -50,7 +50,8 @@ public class ResultsCompletionLoadFlow implements LoadFlow {
 
     @Override
     public LoadFlowResult run(LoadFlowParameters parameters) throws Exception {
-        LOGGER.info("Running {}", getName());
+        Objects.requireNonNull(parameters);
+        LOGGER.info("Running {} on network {}, state {}", getName(), network.getId(), network.getStateManager().getWorkingStateId());
 
         LOGGER.info("LoadFlowParameters=" + parameters.toString());
         ResultsCompletionLoadFlowParametersExtension resultsCompletionLfParameters = parameters.getExtension(ResultsCompletionLoadFlowParametersExtension.class);
@@ -108,6 +109,7 @@ public class ResultsCompletionLoadFlow implements LoadFlow {
     @Override
     public CompletableFuture<LoadFlowResult> runAsync(String workingStateId, LoadFlowParameters parameters) {
         try {
+            network.getStateManager().setWorkingState(workingStateId);
             return CompletableFuture.completedFuture(run(parameters));
         } catch (Exception e) {
             throw new PowsyblException(e);

@@ -6,16 +6,7 @@
  */
 package com.powsybl.loadflow;
 
-import static org.junit.Assert.assertEquals;
-
-import java.util.stream.Stream;
-
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
-import org.mockito.Mockito;
-
-import com.powsybl.iidm.network.Network;
 
 /**
  *
@@ -25,34 +16,14 @@ public class ResultsCompletionLoadFlowTest extends AbstractResultsCompletionLoad
 
     @Test
     public void run() throws Exception {
-        Mockito.when(lineTerminal1.getP()).thenReturn(Float.NaN);
-        Mockito.when(lineTerminal1.getQ()).thenReturn(Float.NaN);
-        Mockito.when(twtTerminal1.getP()).thenReturn(Float.NaN);
-        Mockito.when(twtTerminal1.getQ()).thenReturn(Float.NaN);
-
-        Network network = Mockito.mock(Network.class);
-        Mockito.when(network.getId()).thenReturn("network");
-        Mockito.when(network.getLineStream()).thenAnswer(dummy -> Stream.of(line));
-        Mockito.when(network.getTwoWindingsTransformerStream()).thenAnswer(dummy -> Stream.of(transformer));
+        setNanValues();
 
         LoadFlowParameters parameters = new LoadFlowParameters();
         ResultsCompletionLoadFlowParametersExtension parametersExtension = new ResultsCompletionLoadFlowParametersExtension();
         parameters.addExtension(ResultsCompletionLoadFlowParametersExtension.class, parametersExtension);
         new ResultsCompletionLoadFlow(network).run(parameters);
 
-        ArgumentCaptor<Float> setterCaptor = ArgumentCaptor.forClass(Float.class);
-        Mockito.verify(lineTerminal1, Mockito.times(1)).setP(setterCaptor.capture());
-        assertEquals(lineP1, setterCaptor.getValue(), 0001f);
-        Mockito.verify(lineTerminal1, Mockito.times(1)).setQ(setterCaptor.capture());
-        assertEquals(lineQ1, setterCaptor.getValue(), 0001f);
-        Mockito.verify(lineTerminal2, Mockito.times(0)).setP(Matchers.anyFloat());
-        Mockito.verify(lineTerminal2, Mockito.times(0)).setQ(Matchers.anyFloat());
-        Mockito.verify(twtTerminal1, Mockito.times(1)).setP(setterCaptor.capture());
-        assertEquals(twtP1, setterCaptor.getValue(), 0001f);
-        Mockito.verify(twtTerminal1, Mockito.times(1)).setQ(setterCaptor.capture());
-        assertEquals(twtQ1, setterCaptor.getValue(), 0001f);
-        Mockito.verify(twtTerminal2, Mockito.times(0)).setP(Matchers.anyFloat());
-        Mockito.verify(twtTerminal2, Mockito.times(0)).setQ(Matchers.anyFloat());
+        checkResultsCompletion();
     }
 
 }

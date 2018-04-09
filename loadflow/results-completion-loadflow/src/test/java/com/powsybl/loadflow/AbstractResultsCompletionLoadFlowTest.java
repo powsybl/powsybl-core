@@ -6,13 +6,21 @@
  */
 package com.powsybl.loadflow;
 
+import static org.junit.Assert.assertEquals;
+
+import java.util.stream.Stream;
+
 import org.junit.Before;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
 import org.mockito.Mockito;
 
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.RatioTapChanger;
 import com.powsybl.iidm.network.RatioTapChangerStep;
+import com.powsybl.iidm.network.StateManager;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.Terminal.BusView;
 import com.powsybl.iidm.network.TwoTerminalsConnectable.Side;
@@ -41,6 +49,8 @@ public abstract class AbstractResultsCompletionLoadFlowTest {
     protected Terminal twtTerminal1;
     protected Terminal twtTerminal2;
     protected TwoWindingsTransformer transformer;
+
+    protected Network network;
 
     @Before
     public void setUp() {
@@ -137,6 +147,37 @@ public abstract class AbstractResultsCompletionLoadFlowTest {
         Mockito.when(transformer.getRatioTapChanger()).thenReturn(ratioTapChanger);
         Mockito.when(transformer.getRatedU1()).thenReturn(380f);
         Mockito.when(transformer.getRatedU2()).thenReturn(380f);
+
+        StateManager stateManager = Mockito.mock(StateManager.class);
+        Mockito.when(stateManager.getWorkingStateId()).thenReturn(StateManager.INITIAL_STATE_ID);
+
+        network = Mockito.mock(Network.class);
+        Mockito.when(network.getId()).thenReturn("network");
+        Mockito.when(network.getStateManager()).thenReturn(stateManager);
+        Mockito.when(network.getLineStream()).thenAnswer(dummy -> Stream.of(line));
+        Mockito.when(network.getTwoWindingsTransformerStream()).thenAnswer(dummy -> Stream.of(transformer));
     }
 
+    protected void setNanValues() {
+        Mockito.when(lineTerminal1.getP()).thenReturn(Float.NaN);
+        Mockito.when(lineTerminal1.getQ()).thenReturn(Float.NaN);
+        Mockito.when(twtTerminal1.getP()).thenReturn(Float.NaN);
+        Mockito.when(twtTerminal1.getQ()).thenReturn(Float.NaN);
+    }
+
+    protected void checkResultsCompletion() {
+        ArgumentCaptor<Float> setterCaptor = ArgumentCaptor.forClass(Float.class);
+        Mockito.verify(lineTerminal1, Mockito.times(1)).setP(setterCaptor.capture());
+        assertEquals(lineP1, setterCaptor.getValue(), 0001f);
+        Mockito.verify(lineTerminal1, Mockito.times(1)).setQ(setterCaptor.capture());
+        assertEquals(lineQ1, setterCaptor.getValue(), 0001f);
+        Mockito.verify(lineTerminal2, Mockito.times(0)).setP(Matchers.anyFloat());
+        Mockito.verify(lineTerminal2, Mockito.times(0)).setQ(Matchers.anyFloat());
+        Mockito.verify(twtTerminal1, Mockito.times(1)).setP(setterCaptor.capture());
+        assertEquals(twtP1, setterCaptor.getValue(), 0001f);
+        Mockito.verify(twtTerminal1, Mockito.times(1)).setQ(setterCaptor.capture());
+        assertEquals(twtQ1, setterCaptor.getValue(), 0001f);
+        Mockito.verify(twtTerminal2, Mockito.times(0)).setP(Matchers.anyFloat());
+        Mockito.verify(twtTerminal2, Mockito.times(0)).setQ(Matchers.anyFloat());
+    }
 }
