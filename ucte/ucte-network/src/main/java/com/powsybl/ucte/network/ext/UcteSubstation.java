@@ -35,7 +35,7 @@ public class UcteSubstation {
         return voltageLevels;
     }
 
-    public Iterable<UcteNodeCode> getNodes() {
+    public List<UcteNodeCode> getNodes() {
         return voltageLevels.stream()
                 .flatMap(vl -> vl.getNodes().stream())
                 .collect(Collectors.toList());
