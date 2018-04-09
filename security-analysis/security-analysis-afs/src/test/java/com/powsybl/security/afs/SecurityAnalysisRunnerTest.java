@@ -131,7 +131,7 @@ public class SecurityAnalysisRunnerTest extends AbstractProjectFileTest {
     @Override
     protected List<ServiceExtension> getServiceExtensions() {
         return ImmutableList.of(new SecurityAnalysisServiceExtensionMock(),
-                new LocalNetworkServiceExtension());
+                new LocalNetworkCacheServiceExtension());
     }
 
     @Before

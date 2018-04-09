@@ -10,6 +10,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.util.concurrent.UncheckedExecutionException;
 import com.powsybl.afs.ProjectFile;
+import com.powsybl.commons.util.WeakListenerList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
@@ -33,7 +33,7 @@ public class ScriptCache<F extends ProjectFile, V, L> {
 
     private final Cache<String, ScriptResult<V>> cache;
 
-    private final Map<String, List<L>> listeners = new ConcurrentHashMap<>();
+    private final Map<String, WeakListenerList<L>> listeners = new ConcurrentHashMap<>();
 
     private final Function<F, ScriptResult<V>> loader;
 
@@ -50,7 +50,7 @@ public class ScriptCache<F extends ProjectFile, V, L> {
                     LOGGER.info("Project file {} cache removed ({})", projectFileId, notification.getCause());
 
                     // notification
-                    notifier.accept((ScriptResult<V>) notification.getValue(), getListeners(projectFileId));
+                    notifier.accept((ScriptResult<V>) notification.getValue(), getListeners(projectFileId).toList());
                 })
                 .build();
     }
@@ -69,8 +69,8 @@ public class ScriptCache<F extends ProjectFile, V, L> {
         cache.invalidate(projectFile.getId());
     }
 
-    private List<L> getListeners(String projectFileId) {
-        return listeners.computeIfAbsent(projectFileId, s -> new CopyOnWriteArrayList<>());
+    private WeakListenerList<L> getListeners(String projectFileId) {
+        return listeners.computeIfAbsent(projectFileId, s -> new WeakListenerList<>());
     }
 
     public void addListener(F projectFile, L listener) {

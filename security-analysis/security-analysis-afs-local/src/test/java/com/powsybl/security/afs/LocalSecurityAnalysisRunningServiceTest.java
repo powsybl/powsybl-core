@@ -8,7 +8,7 @@ package com.powsybl.security.afs;
 
 import com.google.common.collect.ImmutableList;
 import com.powsybl.afs.ServiceExtension;
-import com.powsybl.afs.ext.base.LocalNetworkServiceExtension;
+import com.powsybl.afs.ext.base.LocalNetworkCacheServiceExtension;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.iidm.network.Network;
@@ -53,6 +53,6 @@ public class LocalSecurityAnalysisRunningServiceTest extends SecurityAnalysisRun
     @Override
     protected List<ServiceExtension> getServiceExtensions() {
         return ImmutableList.of(new LocalSecurityAnalysisRunningServiceExtension(new SecurityAnalysisFactoryMock()),
-                new LocalNetworkServiceExtension());
+                new LocalNetworkCacheServiceExtension());
     }
 }

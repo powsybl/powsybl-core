@@ -43,6 +43,8 @@ public abstract class AbstractAppStorageTest {
 
     private BlockingQueue<NodeEvent> eventStack;
 
+    private AppStorageListener l = eventList -> eventStack.addAll(eventList.getEvents());
+
     protected abstract AppStorage createStorage();
 
     @Before
@@ -55,7 +57,7 @@ public abstract class AbstractAppStorageTest {
         } else {
             this.storage = new DefaultListenableAppStorage(storage);
         }
-        this.storage.addListener(this, eventList -> eventStack.addAll(eventList.getEvents()));
+        this.storage.addListener(l);
     }
 
     @After

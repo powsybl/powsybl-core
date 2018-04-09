@@ -10,6 +10,7 @@ import com.google.common.io.CharStreams;
 import com.powsybl.afs.FileIcon;
 import com.powsybl.afs.ProjectFile;
 import com.powsybl.afs.ProjectFileCreationContext;
+import com.powsybl.afs.storage.events.AppStorageListener;
 import com.powsybl.afs.storage.events.NodeDataUpdated;
 import com.powsybl.afs.storage.events.NodeEvent;
 import com.powsybl.afs.storage.events.NodeEventType;
@@ -29,11 +30,13 @@ public abstract class AbstractModificationScript extends ProjectFile implements 
 
     private final List<ScriptListener> listeners = new ArrayList<>();
 
+    private final AppStorageListener l = eventList -> processEvents(eventList.getEvents(), info.getId(), listeners);
+
     public AbstractModificationScript(ProjectFileCreationContext context, int codeVersion, FileIcon icon,
                                       String scriptContentName) {
         super(context, codeVersion, icon);
         this.scriptContentName = Objects.requireNonNull(scriptContentName);
-        storage.addListener(this, eventList -> processEvents(eventList.getEvents(), info.getId(), listeners));
+        storage.addListener(l);
     }
 
     private void processEvents(List<NodeEvent> events, String nodeId, List<ScriptListener> listeners) {

@@ -13,15 +13,15 @@ import com.powsybl.afs.ServiceExtension;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @AutoService(ServiceExtension.class)
-public class LocalNetworkServiceExtension implements ServiceExtension<NetworkService> {
+public class LocalNetworkCacheServiceExtension implements ServiceExtension<NetworkCacheService> {
 
     @Override
-    public ServiceKey<NetworkService> getServiceKey() {
-        return new ServiceKey<>(NetworkService.class, false);
+    public ServiceKey<NetworkCacheService> getServiceKey() {
+        return new ServiceKey<>(NetworkCacheService.class, false);
     }
 
     @Override
-    public NetworkService createService() {
-        return new LocalNetworkService();
+    public NetworkCacheService createService() {
+        return new LocalNetworkCacheService();
     }
 }

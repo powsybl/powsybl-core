@@ -105,7 +105,7 @@ public class AfsBaseTest {
 
         List<String> added = new ArrayList<>();
         List<String> removed = new ArrayList<>();
-        project1.getRootFolder().addListener(new ProjectFolderListener() {
+        ProjectFolderListener l = new ProjectFolderListener() {
             @Override
             public void childAdded(String nodeId) {
                 added.add(nodeId);
@@ -115,7 +115,8 @@ public class AfsBaseTest {
             public void childRemoved(String nodeId) {
                 removed.add(nodeId);
             }
-        });
+        };
+        project1.getRootFolder().addListener(l);
         ProjectFolder dir4 = project1.getRootFolder().createFolder("dir4");
         assertTrue(dir4.isFolder());
         assertEquals("dir4", dir4.getName());

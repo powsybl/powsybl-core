@@ -6,49 +6,54 @@
  */
 package com.powsybl.commons.util;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.*;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class WeakListenerList<L> {
 
-    private final WeakHashMap<Object, List<L>> listeners = new WeakHashMap<>();
+    private static final Logger LOGGER = LoggerFactory.getLogger(WeakListenerList.class);
+
+    private final WeakHashMap<L, Object> listeners = new WeakHashMap<>();
 
     private final Lock lock = new ReentrantLock();
 
-    public void add(Object target, L l) {
-        Objects.requireNonNull(target);
+    public int size() {
+        return listeners.size();
+    }
+
+    public void add(L l) {
         Objects.requireNonNull(l);
         lock.lock();
         try {
-            listeners.computeIfAbsent(target, k -> new CopyOnWriteArrayList<>()).add(l);
+            listeners.put(l, new Object());
         } finally {
             lock.unlock();
         }
     }
 
-    public void remove(Object target, L l) {
-        Objects.requireNonNull(target);
+    public boolean remove(L l) {
         Objects.requireNonNull(l);
         lock.lock();
         try {
-            listeners.computeIfAbsent(target, k -> new CopyOnWriteArrayList<>()).remove(l);
+            return listeners.remove(l) != null;
         } finally {
             lock.unlock();
         }
     }
 
-    public void removeAll(Object target) {
-        Objects.requireNonNull(target);
+    public void removeAll() {
         lock.lock();
         try {
-            listeners.remove(target);
+            listeners.clear();
         } finally {
             lock.unlock();
         }
@@ -56,18 +61,38 @@ public class WeakListenerList<L> {
 
     public void notify(Consumer<L> notifier) {
         Objects.requireNonNull(notifier);
-        notify((o, l) -> notifier.accept(l));
-    }
-
-    public void notify(BiConsumer<Object, L> notifier) {
-        Objects.requireNonNull(notifier);
         lock.lock();
         try {
-            for (Map.Entry<Object, List<L>> e : new HashSet<>(listeners.entrySet())) {
-                Object target = e.getKey();
-                for (L listener : e.getValue()) {
-                    notifier.accept(target, listener);
-                }
+            for (L listener : new HashSet<>(listeners.keySet())) {
+                notifier.accept(listener);
+            }
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    public List<L> toList() {
+        lock.lock();
+        try {
+            return new ArrayList<>(listeners.keySet());
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    public void log() {
+        lock.lock();
+        try {
+            if (LOGGER.isTraceEnabled()) {
+                LOGGER.trace("Weak listener list status:{}{}",
+                        System.lineSeparator(),
+                        new HashSet<>(listeners.keySet())
+                                .stream()
+                                .collect(Collectors.groupingBy(L::getClass))
+                                .entrySet()
+                                .stream()
+                                .map(e -> e.getKey().getSimpleName() + ": " + e.getValue().size())
+                                .collect(Collectors.joining(System.lineSeparator())));
             }
         } finally {
             lock.unlock();
