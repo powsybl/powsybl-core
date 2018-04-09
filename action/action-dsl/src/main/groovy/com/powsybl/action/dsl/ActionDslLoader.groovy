@@ -36,6 +36,7 @@ class ActionDslLoader extends DslLoader {
         String description
         ExpressionNode when
         String[] apply
+        String[] trydo
         int life = 1
 
         void description(String description) {
@@ -57,9 +58,22 @@ class ActionDslLoader extends DslLoader {
             this.apply = apply
         }
 
+        void trydo(String[] trydo) {
+            assert trydo != null && trydo.length > 0
+            this.trydo = trydo
+        }
+
         void life(int life) {
             assert life > 0
             this.life = life
+        }
+
+        boolean isActionEmpty() {
+            return isEmpty(apply) && isEmpty(trydo)
+        }
+
+        private boolean isEmpty(String[] arr) {
+            return arr == null || arr.length == 0;
         }
     }
 
@@ -160,10 +174,14 @@ class ActionDslLoader extends DslLoader {
                 if (!ruleSpec.when) {
                     throw new ActionDslException("'when' field is not set")
                 }
-                if (ruleSpec.apply.length == 0) {
-                    throw new ActionDslException("'apply' field is empty")
+                if (ruleSpec.isActionEmpty()) {
+                    throw new ActionDslException("'apply' and 'trydo' field are empty")
                 }
-                Rule rule = new Rule(id, new ExpressionCondition(ruleSpec.when), ruleSpec.life, ruleSpec.apply)
+                List<String> actions = ruleSpec.apply == null ? Collections.emptyList() : ruleSpec.apply;
+                List<String> trydo = ruleSpec.trydo == null ? Collections.emptyList() : ruleSpec.trydo;
+
+                Rule rule = new Rule(id, new ExpressionCondition(ruleSpec.when), ruleSpec.life,
+                        actions, trydo)
                 if (ruleSpec.description) {
                     rule.setDescription(ruleSpec.description)
                 }

@@ -7,6 +7,7 @@
 package com.powsybl.action.dsl;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -25,7 +26,17 @@ public class Rule {
 
     private final List<String> actions;
 
+    private final List<String> trydoActions;
+
+    public Rule(String id, Condition condition, int life, String... actions) {
+        this(id, condition, life, Arrays.asList(actions), Collections.EMPTY_LIST);
+    }
+
     public Rule(String id, Condition condition, int life, List<String> actions) {
+        this(id, condition, life, actions, Collections.EMPTY_LIST);
+    }
+
+    public Rule(String id, Condition condition, int life, List<String> actions, List<String> trydoActions) {
         if (life < 0) {
             throw new IllegalArgumentException("Invalid life value, has to be >= 0");
         }
@@ -33,10 +44,7 @@ public class Rule {
         this.condition = Objects.requireNonNull(condition);
         this.life = life;
         this.actions = Objects.requireNonNull(actions);
-    }
-
-    public Rule(String id, Condition condition, int life, String... actions) {
-        this(id, condition, life, Arrays.asList(actions));
+        this.trydoActions = Objects.requireNonNull(trydoActions);
     }
 
     public String getId() {
@@ -61,5 +69,13 @@ public class Rule {
 
     public List<String> getActions() {
         return actions;
+    }
+
+    public List<String> getTrydoActions() {
+        return trydoActions;
+    }
+
+    public boolean containsTrydo() {
+        return !trydoActions.isEmpty();
     }
 }

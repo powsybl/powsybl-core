@@ -9,8 +9,7 @@ package com.powsybl.action.simulator.loadflow;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.contingency.Contingency;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -27,6 +26,8 @@ public class RunningContext {
     private final TimeLine timeLine;
 
     private final Map<String, AtomicInteger> rulesMatchCount = new HashMap<>();
+
+    private final Set<String> trydoActions = new HashSet<>();
 
     public RunningContext(Network network, Contingency contingency) {
         this.network = network;
@@ -68,5 +69,13 @@ public class RunningContext {
 
     public void incrementRuleMatchCount(String ruleId) {
         getRuleMatchCountInternal(ruleId).incrementAndGet();
+    }
+
+    public void addTriedActions(Set<String> actionIds) {
+        trydoActions.addAll(actionIds);
+    }
+
+    public Set<String> getTrydoActions() {
+        return Collections.unmodifiableSet(trydoActions);
     }
 }
