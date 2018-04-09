@@ -22,6 +22,7 @@ import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.Terminal.BusView;
+import com.powsybl.loadflow.validation.io.ValidationWriter;
 
 /**
  *
@@ -163,5 +164,8 @@ public class StaticVarCompensatorsValidationTest extends AbstractValidationTest 
         Mockito.when(network.getStaticVarCompensatorStream()).thenAnswer(dummy -> Stream.of(svc));
 
         assertTrue(StaticVarCompensatorsValidation.checkSVCs(network, looseConfig, NullWriter.NULL_WRITER));
+
+        ValidationWriter validationWriter = ValidationUtils.createValidationWriter(network.getId(), looseConfig, NullWriter.NULL_WRITER, ValidationType.SVCS);
+        assertTrue(ValidationType.SVCS.check(network, looseConfig, validationWriter));
     }
 }

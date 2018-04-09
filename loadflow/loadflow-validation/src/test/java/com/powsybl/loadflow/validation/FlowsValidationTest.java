@@ -6,19 +6,27 @@
  */
 package com.powsybl.loadflow.validation;
 
-import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.Terminal.BusView;
-import com.powsybl.loadflow.LoadFlowParameters;
-import com.powsybl.loadflow.mock.LoadFlowFactoryMock;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+import java.util.stream.Stream;
+
 import org.apache.commons.io.output.NullWriter;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.util.stream.Stream;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.RatioTapChanger;
+import com.powsybl.iidm.network.RatioTapChangerStep;
+import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.Terminal.BusView;
+import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.loadflow.LoadFlowParameters;
+import com.powsybl.loadflow.mock.LoadFlowFactoryMock;
+import com.powsybl.loadflow.validation.io.ValidationWriter;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -237,6 +245,9 @@ public class FlowsValidationTest extends AbstractValidationTest {
 
         assertTrue(FlowsValidation.checkFlows(network, looseConfig, NullWriter.NULL_WRITER));
         assertFalse(FlowsValidation.checkFlows(network, strictConfig, NullWriter.NULL_WRITER));
+
+        ValidationWriter validationWriter = ValidationUtils.createValidationWriter(network.getId(), looseConfig, NullWriter.NULL_WRITER, ValidationType.FLOWS);
+        assertTrue(ValidationType.FLOWS.check(network, looseConfig, validationWriter));
     }
 
 }
