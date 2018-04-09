@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017, RTE (http://www.rte-france.com)
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -22,6 +22,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.Terminal.BusView;
+import com.powsybl.loadflow.validation.io.ValidationWriter;
 import com.powsybl.iidm.network.VoltageLevel;
 
 /**
@@ -118,5 +119,8 @@ public class ShuntCompensatorsValidationTest extends AbstractValidationTest {
         Mockito.when(network.getShuntStream()).thenAnswer(dummy -> Stream.of(shunt));
 
         assertTrue(ShuntCompensatorsValidation.checkShunts(network, strictConfig, NullWriter.NULL_WRITER));
+
+        ValidationWriter validationWriter = ValidationUtils.createValidationWriter(network.getId(), strictConfig, NullWriter.NULL_WRITER, ValidationType.SHUNTS);
+        assertTrue(ValidationType.SHUNTS.check(network, strictConfig, validationWriter));
     }
 }
