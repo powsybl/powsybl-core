@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017, RTE (http://www.rte-france.com)
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -17,14 +17,15 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensator;
-import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.Terminal.BusView;
+import com.powsybl.loadflow.validation.io.ValidationWriter;
 
 /**
  *
@@ -147,6 +148,9 @@ public class BusesValidationTest extends AbstractValidationTest {
 
         assertTrue(BusesValidation.checkBuses(network, looseConfig, NullWriter.NULL_WRITER));
         assertFalse(BusesValidation.checkBuses(network, strictConfig, NullWriter.NULL_WRITER));
+
+        ValidationWriter validationWriter = ValidationUtils.createValidationWriter(network.getId(), looseConfig, NullWriter.NULL_WRITER, ValidationType.BUSES);
+        assertTrue(ValidationType.BUSES.check(network, looseConfig, validationWriter));
     }
 
 }
