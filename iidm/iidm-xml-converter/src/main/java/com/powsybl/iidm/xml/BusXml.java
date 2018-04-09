@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.xml;
 
+import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.BusAdder;
 import com.powsybl.iidm.network.VoltageLevel;

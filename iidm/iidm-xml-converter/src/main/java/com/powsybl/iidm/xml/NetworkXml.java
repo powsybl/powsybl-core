@@ -14,6 +14,7 @@ import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
+import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.*;
 import javanet.staxutils.IndentingXMLStreamWriter;
 import org.joda.time.DateTime;
