@@ -181,7 +181,7 @@ public class ValidationTool implements Tool {
     }
 
     private void runGroovyScript(Path script, Network network, ToolRunningContext context) {
-        if (Files.exists(script)) {
+        if (script.toFile().exists()) {
             context.getOutputStream().println("Running Groovy script " + script + " on network " + network.getId());
             CompilerConfiguration conf = new CompilerConfiguration();
             Binding binding = new Binding();
