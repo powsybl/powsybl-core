@@ -36,7 +36,11 @@ public interface LoadFlowActionSimulatorObserver {
 
     void beforeAction(RunningContext runningContext, String actionId);
 
+    void beforeTrydo(RunningContext runningContext, String actionId);
+
     void afterAction(RunningContext runningContext, String actionId);
+
+    void afterTrydo(RunningContext runningContext, String actionId);
 
     void noMoreViolations(RunningContext runningContext);
 

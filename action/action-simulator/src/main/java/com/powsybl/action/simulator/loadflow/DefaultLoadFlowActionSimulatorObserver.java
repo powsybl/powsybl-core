@@ -67,7 +67,17 @@ public class DefaultLoadFlowActionSimulatorObserver implements LoadFlowActionSim
     }
 
     @Override
+    public void beforeTrydo(RunningContext runningContext, String actionId) {
+        // empty default implementation
+    }
+
+    @Override
     public void afterAction(RunningContext runningContext, String actionId) {
+        // empty default implementation
+    }
+
+    @Override
+    public void afterTrydo(RunningContext runningContext, String actionId) {
         // empty default implementation
     }
 
