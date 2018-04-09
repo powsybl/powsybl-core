@@ -349,6 +349,55 @@ public class UcteImporter implements Importer {
         }
     }
 
+    private static void createCouplerFromLowImpedanceLine(Network network, UcteLine ucteLine,
+                                                          UcteNodeCode nodeCode1, UcteNodeCode nodeCode2,
+                                                          UcteVoltageLevel ucteVoltageLevel1, UcteVoltageLevel ucteVoltageLevel2,
+                                                          boolean connected, double z) {
+        LOGGER.info("Create coupler '{}' from low impedance line ({})", ucteLine.getId(), z);
+
+        if (ucteVoltageLevel1 != ucteVoltageLevel2) {
+            throw new UcteException("Nodes coupled with a low impedance line are expected to be in the same voltage level");
+        }
+        VoltageLevel voltageLevel = network.getVoltageLevel(ucteVoltageLevel1.getName());
+        voltageLevel.getBusBreakerView().newSwitch()
+                .setId(ucteLine.getId().toString())
+                .setBus1(nodeCode1.toString())
+                .setBus2(nodeCode2.toString())
+                .setOpen(!connected)
+                .add();
+    }
+
+    private static void createStandardLine(Network network, UcteLine ucteLine, UcteNodeCode nodeCode1, UcteNodeCode nodeCode2,
+                                           UcteVoltageLevel ucteVoltageLevel1, UcteVoltageLevel ucteVoltageLevel2,
+                                           boolean connected) {
+        LOGGER.trace("Create line '{}'", ucteLine.getId());
+
+        Line l = network.newLine()
+                .setId(ucteLine.getId().toString())
+                .setVoltageLevel1(ucteVoltageLevel1.getName())
+                .setVoltageLevel2(ucteVoltageLevel2.getName())
+                .setBus1(connected ? nodeCode1.toString() : null)
+                .setBus2(connected ? nodeCode2.toString() : null)
+                .setConnectableBus1(nodeCode1.toString())
+                .setConnectableBus2(nodeCode2.toString())
+                .setR(ucteLine.getResistance())
+                .setX(ucteLine.getReactance())
+                .setG1(0f)
+                .setG2(0f)
+                .setB1(getSusceptance(ucteLine) / 2)
+                .setB2(getSusceptance(ucteLine) / 2)
+                .add();
+        if (ucteLine.getCurrentLimit() != null) {
+            int currentLimit = ucteLine.getCurrentLimit();
+            l.newCurrentLimits1()
+                    .setPermanentLimit(currentLimit)
+                    .add();
+            l.newCurrentLimits2()
+                    .setPermanentLimit(currentLimit)
+                    .add();
+        }
+    }
+
     private static void createLine(UcteNetworkExt ucteNetwork, Network network,
                                    UcteLine ucteLine,
                                    UcteNodeCode nodeCode1, UcteNodeCode nodeCode2,
@@ -362,50 +411,13 @@ public class UcteImporter implements Importer {
                 && nodeCode1.getUcteCountryCode() != UcteCountryCode.XX
                 && nodeCode2.getUcteCountryCode() != UcteCountryCode.XX) {
 
-            LOGGER.info("Create coupler '{}' from low impedance line ({})", ucteLine.getId(), z);
-
-            if (ucteVoltageLevel1 != ucteVoltageLevel2) {
-                throw new UcteException("Nodes coupled with a low impedance line are expected to be in the same voltage level");
-            }
-            VoltageLevel voltageLevel = network.getVoltageLevel(ucteVoltageLevel1.getName());
-            voltageLevel.getBusBreakerView().newSwitch()
-                    .setId(ucteLine.getId().toString())
-                    .setBus1(nodeCode1.toString())
-                    .setBus2(nodeCode2.toString())
-                    .setOpen(!connected)
-                    .add();
-
+            createCouplerFromLowImpedanceLine(network, ucteLine, nodeCode1, nodeCode2, ucteVoltageLevel1, ucteVoltageLevel2, connected, z);
         } else {
 
             if (nodeCode1.getUcteCountryCode() != UcteCountryCode.XX
                     && nodeCode2.getUcteCountryCode() != UcteCountryCode.XX) {
 
-                LOGGER.trace("Create line '{}'", ucteLine.getId());
-
-                Line l = network.newLine()
-                        .setId(ucteLine.getId().toString())
-                        .setVoltageLevel1(ucteVoltageLevel1.getName())
-                        .setVoltageLevel2(ucteVoltageLevel2.getName())
-                        .setBus1(connected ? nodeCode1.toString() : null)
-                        .setBus2(connected ? nodeCode2.toString() : null)
-                        .setConnectableBus1(nodeCode1.toString())
-                        .setConnectableBus2(nodeCode2.toString())
-                        .setR(ucteLine.getResistance())
-                        .setX(ucteLine.getReactance())
-                        .setG1(0f)
-                        .setG2(0f)
-                        .setB1(getSusceptance(ucteLine) / 2)
-                        .setB2(getSusceptance(ucteLine) / 2)
-                        .add();
-                if (ucteLine.getCurrentLimit() != null) {
-                    int currentLimit = ucteLine.getCurrentLimit();
-                    l.newCurrentLimits1()
-                            .setPermanentLimit(currentLimit)
-                            .add();
-                    l.newCurrentLimits2()
-                            .setPermanentLimit(currentLimit)
-                            .add();
-                }
+                createStandardLine(network, ucteLine, nodeCode1, nodeCode2, ucteVoltageLevel1, ucteVoltageLevel2, connected);
 
             } else if (nodeCode1.getUcteCountryCode() == UcteCountryCode.XX
                     && nodeCode2.getUcteCountryCode() != UcteCountryCode.XX) {
