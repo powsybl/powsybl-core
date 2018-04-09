@@ -15,14 +15,14 @@ import static org.junit.Assert.*;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class EntsoeCountryTest {
+public class EntsoeAreaTest {
 
     @Test
     public void test() {
         Substation substation = Mockito.mock(Substation.class);
-        EntsoeCountry country = new EntsoeCountry(substation, EntsoeGeographicalCode.D1);
+        EntsoeArea country = new EntsoeArea(substation, EntsoeGeographicalCode.D1);
 
-        assertEquals("entsoeCountry", country.getName());
+        assertEquals("entsoeArea", country.getName());
         assertSame(substation, country.getExtendable());
 
         assertEquals(EntsoeGeographicalCode.D1, country.getCode());

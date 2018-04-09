@@ -13,7 +13,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.entsoe.util.EntsoeCountry;
+import com.powsybl.entsoe.util.EntsoeArea;
 import com.powsybl.entsoe.util.EntsoeFileName;
 import com.powsybl.entsoe.util.MergedXnode;
 import com.powsybl.entsoe.util.Xnode;
@@ -96,7 +96,7 @@ public class UcteImporter implements Importer {
                     .setCountry(Country.valueOf(firstUcteNodeCode.getUcteCountryCode().name()))
                 .add();
             if (ucteFileName.getGeographicalCode() != null) {
-                substation.addExtension(EntsoeCountry.class, new EntsoeCountry(substation, ucteFileName.getGeographicalCode()));
+                substation.addExtension(EntsoeArea.class, new EntsoeArea(substation, ucteFileName.getGeographicalCode()));
             }
 
             for (UcteVoltageLevel ucteVoltageLevel : ucteSubstation.getVoltageLevels()) {

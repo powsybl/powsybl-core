@@ -14,20 +14,20 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class EntsoeCountry extends AbstractExtension<Substation> {
+public class EntsoeArea extends AbstractExtension<Substation> {
 
     private final Substation substation;
 
     private EntsoeGeographicalCode code;
 
-    public EntsoeCountry(Substation substation, EntsoeGeographicalCode code) {
+    public EntsoeArea(Substation substation, EntsoeGeographicalCode code) {
         this.substation = Objects.requireNonNull(substation);
         this.code = Objects.requireNonNull(code);
     }
 
     @Override
     public String getName() {
-        return "entsoeCountry";
+        return "entsoeArea";
     }
 
     @Override
@@ -39,7 +39,7 @@ public class EntsoeCountry extends AbstractExtension<Substation> {
         return code;
     }
 
-    public EntsoeCountry setCode(EntsoeGeographicalCode code) {
+    public EntsoeArea setCode(EntsoeGeographicalCode code) {
         this.code = Objects.requireNonNull(code);
         return this;
     }

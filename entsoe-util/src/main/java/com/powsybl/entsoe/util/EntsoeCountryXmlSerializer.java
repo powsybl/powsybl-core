@@ -20,11 +20,11 @@ import java.io.InputStream;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @AutoService(ExtensionXmlSerializer.class)
-public class EntsoeCountryXmlSerializer implements ExtensionXmlSerializer<Substation, EntsoeCountry> {
+public class EntsoeCountryXmlSerializer implements ExtensionXmlSerializer<Substation, EntsoeArea> {
 
     @Override
     public String getExtensionName() {
-        return "entsoeCountry";
+        return "entsoeArea";
     }
 
     @Override
@@ -33,8 +33,8 @@ public class EntsoeCountryXmlSerializer implements ExtensionXmlSerializer<Substa
     }
 
     @Override
-    public Class<EntsoeCountry> getExtensionClass() {
-        return EntsoeCountry.class;
+    public Class<EntsoeArea> getExtensionClass() {
+        return EntsoeArea.class;
     }
 
     @Override
@@ -44,12 +44,12 @@ public class EntsoeCountryXmlSerializer implements ExtensionXmlSerializer<Substa
 
     @Override
     public InputStream getXsdAsStream() {
-        return getClass().getResourceAsStream("/xsd/entsoeCountry.xsd");
+        return getClass().getResourceAsStream("/xsd/entsoeArea.xsd");
     }
 
     @Override
     public String getNamespaceUri() {
-        return "http://www.itesla_project.eu/schema/iidm/ext/entsoe_country/1_0";
+        return "http://www.itesla_project.eu/schema/iidm/ext/entsoe_area/1_0";
     }
 
     @Override
@@ -58,13 +58,13 @@ public class EntsoeCountryXmlSerializer implements ExtensionXmlSerializer<Substa
     }
 
     @Override
-    public void write(EntsoeCountry country, XmlWriterContext context) throws XMLStreamException {
-        context.getWriter().writeCharacters(country.getCode().name());
+    public void write(EntsoeArea area, XmlWriterContext context) throws XMLStreamException {
+        context.getWriter().writeCharacters(area.getCode().name());
     }
 
     @Override
-    public EntsoeCountry read(Substation substation, XmlReaderContext context) throws XMLStreamException {
+    public EntsoeArea read(Substation substation, XmlReaderContext context) throws XMLStreamException {
         EntsoeGeographicalCode code = EntsoeGeographicalCode.valueOf(XmlUtil.readUntilEndElement(getExtensionName(), context.getReader(), null));
-        return new EntsoeCountry(substation, code);
+        return new EntsoeArea(substation, code);
     }
 }
