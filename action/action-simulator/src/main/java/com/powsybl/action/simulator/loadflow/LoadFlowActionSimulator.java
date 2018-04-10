@@ -304,9 +304,11 @@ public class LoadFlowActionSimulator implements ActionSimulator {
                                     LOGGER.info("Loadflow with try {} works already", action.getId());
                                 } else {
                                     LOGGER.info("Loadflow with try {} exits with violations", action.getId());
+                                    observers.forEach(o -> o.violationsAfterTry(action.getId(), violationsInTry));
                                 }
                             } else {
                                 LOGGER.info("Loadflow with try {} diverged", action.getId());
+                                observers.forEach(o -> o.divergedAfterTry(action.getId()));
                             }
                         }));
         context.addTriedActions(trydoActions);

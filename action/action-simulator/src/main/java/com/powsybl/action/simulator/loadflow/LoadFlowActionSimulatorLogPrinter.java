@@ -91,6 +91,11 @@ public class LoadFlowActionSimulatorLogPrinter extends DefaultLoadFlowActionSimu
     }
 
     @Override
+    public void beforeTrydo(RunningContext runningContext, String actionId) {
+        out.println("        Trying action '" + actionId + "'");
+    }
+
+    @Override
     public void noMoreViolations(RunningContext runningContext) {
         out.println("        No more violation");
     }

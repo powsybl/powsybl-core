@@ -82,6 +82,16 @@ public class DefaultLoadFlowActionSimulatorObserver implements LoadFlowActionSim
     }
 
     @Override
+    public void violationsAfterTry(String actionId, List<LimitViolation> violations) {
+        // empty default implementation
+    }
+
+    @Override
+    public void divergedAfterTry(String actionId) {
+        // empty default implementation
+    }
+
+    @Override
     public void noMoreViolations(RunningContext runningContext) {
         // empty default implementation
     }

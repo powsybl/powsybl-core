@@ -42,6 +42,10 @@ public interface LoadFlowActionSimulatorObserver {
 
     void afterTrydo(RunningContext runningContext, String actionId);
 
+    void violationsAfterTry(String actionId, List<LimitViolation> violations);
+
+    void divergedAfterTry(String actionId);
+
     void noMoreViolations(RunningContext runningContext);
 
     void violationsAnymoreAndNoRulesMatch(RunningContext runningContext);
