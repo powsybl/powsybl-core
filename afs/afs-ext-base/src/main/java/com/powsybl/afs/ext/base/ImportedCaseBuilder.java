@@ -13,6 +13,8 @@ import com.powsybl.afs.ProjectFileCreationContext;
 import com.powsybl.afs.storage.AppStorageDataSource;
 import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.afs.storage.NodeInfo;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.import_.ImportersLoader;
 
 import java.io.IOException;
@@ -37,6 +39,10 @@ public class ImportedCaseBuilder implements ProjectFileBuilder<ImportedCase> {
 
     private Case aCase;
 
+    private ReadOnlyDataSource dataSource;
+
+    private String format;
+
     private final Properties parameters = new Properties();
 
     public ImportedCaseBuilder(ProjectFileBuildContext context, ImportersLoader importersLoader) {
@@ -54,6 +60,16 @@ public class ImportedCaseBuilder implements ProjectFileBuilder<ImportedCase> {
         return this;
     }
 
+    public ImportedCaseBuilder withDataSource(ReadOnlyDataSource dataSource) {
+        this.dataSource = Objects.requireNonNull(dataSource);
+        return this;
+    }
+
+    public ImportedCaseBuilder withFormat(String format) {
+        this.format = Objects.requireNonNull(format);
+        return this;
+    }
+
     public ImportedCaseBuilder withParameter(String name, String value) {
         parameters.put(Objects.requireNonNull(name), Objects.requireNonNull(value));
         return this;
@@ -66,11 +82,25 @@ public class ImportedCaseBuilder implements ProjectFileBuilder<ImportedCase> {
 
     @Override
     public ImportedCase build() {
-        if (aCase == null) {
-            throw new AfsException("Case is not set");
+        if (aCase == null && dataSource == null) {
+            throw new AfsException("Case and dataSource are not set");
+        }
+
+        if (aCase != null && dataSource != null) {
+            throw new AfsException("Case and dataSource are set");
+        }
+
+        if (dataSource != null && this.name == null) {
+            throw new AfsException("Name is not set");
+        }
+
+        if (dataSource != null && this.format == null) {
+            throw new AfsException("Format is not set");
         }
 
         String importedCaseName = this.name != null ? this.name : aCase.getName();
+
+        String importedFormat = this.dataSource != null ? format : aCase.getImporter().getFormat();
 
         if (context.getStorage().getChildNode(context.getFolderInfo().getId(), importedCaseName).isPresent()) {
             throw new AfsException("Parent folder already contains a '" + importedCaseName + "' node");
@@ -78,10 +108,14 @@ public class ImportedCaseBuilder implements ProjectFileBuilder<ImportedCase> {
 
         // create project file
         NodeInfo info = context.getStorage().createNode(context.getFolderInfo().getId(), importedCaseName, ImportedCase.PSEUDO_CLASS, "", ImportedCase.VERSION,
-                new NodeGenericMetadata().setString(ImportedCase.FORMAT, aCase.getImporter().getFormat()));
+                new NodeGenericMetadata().setString(ImportedCase.FORMAT, importedFormat));
 
         // store case data
-        aCase.getImporter().copy(aCase.getDataSource(), new AppStorageDataSource(context.getStorage(), info.getId()));
+        if (aCase != null) {
+            aCase.getImporter().copy(aCase.getDataSource(), new AppStorageDataSource(context.getStorage(), info.getId()));
+        } else if (dataSource != null) {
+            Importers.getImporter(importedFormat).copy(dataSource, new AppStorageDataSource(context.getStorage(), info.getId()));
+        }
 
         // store parameters
         try (Writer writer = new OutputStreamWriter(context.getStorage().writeBinaryData(info.getId(), ImportedCase.PARAMETERS), StandardCharsets.UTF_8)) {
