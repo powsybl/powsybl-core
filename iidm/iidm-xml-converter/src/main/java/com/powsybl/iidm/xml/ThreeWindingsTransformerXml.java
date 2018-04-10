@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.xml;
 
+import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.RatioTapChanger;
 import com.powsybl.iidm.network.Substation;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;

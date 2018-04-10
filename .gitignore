@@ -36,9 +36,9 @@
 /loadflow/target/
 /math/target/
 /security-analysis/target/
-/security-analysis/security-analysis/target/
 /security-analysis/security-analysis-afs/target/
-/security-analysis/security-analysis-local/target/
+/security-analysis/security-analysis-afs-local/target/
+/security-analysis/security-analysis-api/target/
 /simulation-api/target/
 /scripting/target/
 /tools/target/

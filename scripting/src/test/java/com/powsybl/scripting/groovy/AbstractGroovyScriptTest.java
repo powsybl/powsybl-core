@@ -40,6 +40,10 @@ public abstract class AbstractGroovyScriptTest {
         }
 
         @Override
+        public void removeListener(AppStorageListener l) {
+        }
+
+        @Override
         public void removeListeners() {
         }
     }

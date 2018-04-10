@@ -17,6 +17,8 @@ public interface ProjectCase {
 
     Network getNetwork();
 
+    void invalidateNetworkCache();
+
     void addListener(ProjectCaseListener l);
 
     void removeListener(ProjectCaseListener l);
