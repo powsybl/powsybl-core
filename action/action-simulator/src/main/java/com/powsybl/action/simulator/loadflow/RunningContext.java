@@ -91,4 +91,8 @@ public class RunningContext {
         workedTrydo = actionId;
         trydoWorks = true;
     }
+
+    public String getWorkedTrydoId() {
+        return workedTrydo;
+    }
 }
