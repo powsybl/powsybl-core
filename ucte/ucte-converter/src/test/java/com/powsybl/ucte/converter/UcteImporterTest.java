@@ -41,14 +41,14 @@ public class UcteImporterTest {
 
     @Test
     public void xnodeMergingIssueTest() {
-        ReadOnlyMemDataSource dataSource = DataSourceUtil.createReadOnlyMemDataSource("xnode_merging.uct", getClass().getResourceAsStream("/xnode_merging.uct"));
+        ReadOnlyMemDataSource dataSource = DataSourceUtil.createReadOnlyMemDataSource("mergedXnodeIssue.uct", getClass().getResourceAsStream("/mergedXnodeIssue.uct"));
         Network network = new UcteImporter().importData(dataSource, null);
 
         assertEquals(2, network.getVoltageLevelCount());
-        assertEquals(0, network.getDanglingLineCount());
+        assertEquals(1, network.getDanglingLineCount());
         assertEquals(1, network.getLineCount());
         Line l = network.getLineStream().findFirst().orElseThrow(AssertionError::new);
-        assertEquals("FFFFFF11 XXXXXX11 1 + XXXXXX11 BBBBBB11 1", l.getId());
+        assertEquals("ESNODE11 XXNODE11 1 + FRNODE11 XXNODE11 1", l.getId());
         MergedXnode mergedXnode = l.getExtension(MergedXnode.class);
         assertNotNull(mergedXnode);
     }

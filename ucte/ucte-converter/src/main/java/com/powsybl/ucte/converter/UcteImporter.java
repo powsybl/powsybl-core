@@ -13,7 +13,6 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.entsoe.util.EntsoeCountry;
 import com.powsybl.entsoe.util.EntsoeFileName;
 import com.powsybl.entsoe.util.MergedXnode;
 import com.powsybl.entsoe.util.Xnode;
@@ -77,7 +76,7 @@ public class UcteImporter implements Importer {
         return b;
     }
 
-    private static void createBuses(UcteNetworkExt ucteNetwork, Network network, EntsoeFileName ucteFileName) {
+    private static void createBuses(UcteNetworkExt ucteNetwork, Network network) {
         for (UcteSubstation ucteSubstation : ucteNetwork.getSubstations()) {
 
             // skip substations with only one Xnode
@@ -95,9 +94,6 @@ public class UcteImporter implements Importer {
                     .setId(ucteSubstation.getName())
                     .setCountry(Country.valueOf(firstUcteNodeCode.getUcteCountryCode().name()))
                 .add();
-            if (ucteFileName.getGeographicalCode() != null) {
-                substation.addExtension(EntsoeCountry.class, new EntsoeCountry(substation, ucteFileName.getGeographicalCode()));
-            }
 
             for (UcteVoltageLevel ucteVoltageLevel : ucteSubstation.getVoltageLevels()) {
                 UcteVoltageLevelCode ucteVoltageLevelCode = ucteVoltageLevel.getNodes().iterator().next().getVoltageLevelCode();
@@ -847,7 +843,7 @@ public class UcteImporter implements Importer {
                 network.setCaseDate(ucteFileName.getDate());
                 network.setForecastDistance(ucteFileName.getForecastDistance());
 
-                createBuses(ucteNetwork, network, ucteFileName);
+                createBuses(ucteNetwork, network);
                 createLines(ucteNetwork, network);
                 createTransformers(ucteNetwork, network, ucteFileName);
 
