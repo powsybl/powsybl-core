@@ -76,6 +76,33 @@ public class UcteImporter implements Importer {
         return b;
     }
 
+    private static void createBuses(UcteNetworkExt ucteNetwork, UcteVoltageLevel ucteVoltageLevel, VoltageLevel voltageLevel) {
+        for (UcteNodeCode ucteNodeCode : ucteVoltageLevel.getNodes()) {
+            UcteNode ucteNode = ucteNetwork.getNode(ucteNodeCode);
+
+            // skip Xnodes
+            if (ucteNode.getCode().getUcteCountryCode() == UcteCountryCode.XX) {
+                continue;
+            }
+
+            if (LOGGER.isTraceEnabled()) {
+                LOGGER.trace("Create bus '{}'", ucteNodeCode.toString());
+            }
+
+            Bus bus = voltageLevel.getBusBreakerView().newBus()
+                    .setId(ucteNodeCode.toString())
+                    .add();
+
+            if (isValueValid(ucteNode.getActiveLoad()) || isValueValid(ucteNode.getReactiveLoad())) {
+                createLoad(ucteNode, voltageLevel, bus);
+            }
+
+            if (ucteNode.isGenerator()) {
+                createGenerator(ucteNode, voltageLevel, bus);
+            }
+        }
+    }
+
     private static void createBuses(UcteNetworkExt ucteNetwork, Network network) {
         for (UcteSubstation ucteSubstation : ucteNetwork.getSubstations()) {
 
@@ -106,30 +133,7 @@ public class UcteImporter implements Importer {
                         .setTopologyKind(TopologyKind.BUS_BREAKER)
                     .add();
 
-                for (UcteNodeCode ucteNodeCode : ucteVoltageLevel.getNodes()) {
-                    UcteNode ucteNode = ucteNetwork.getNode(ucteNodeCode);
-
-                    // skip Xnodes
-                    if (ucteNode.getCode().getUcteCountryCode() == UcteCountryCode.XX) {
-                        continue;
-                    }
-
-                    if (LOGGER.isTraceEnabled()) {
-                        LOGGER.trace("Create bus '{}'", ucteNodeCode.toString());
-                    }
-
-                    Bus bus = voltageLevel.getBusBreakerView().newBus()
-                            .setId(ucteNodeCode.toString())
-                        .add();
-
-                    if (isValueValid(ucteNode.getActiveLoad()) || isValueValid(ucteNode.getReactiveLoad())) {
-                        createLoad(ucteNode, voltageLevel, bus);
-                    }
-
-                    if (ucteNode.isGenerator()) {
-                        createGenerator(ucteNode, voltageLevel, bus);
-                    }
-                }
+                createBuses(ucteNetwork, ucteVoltageLevel, voltageLevel);
             }
         }
     }
