@@ -11,6 +11,8 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Iterables;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.entsoe.util.EntsoeCountry;
+import com.powsybl.entsoe.util.EntsoeFileName;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.network.*;
 import com.powsybl.ucte.network.*;
@@ -18,7 +20,6 @@ import com.powsybl.ucte.network.ext.UcteNetworkExt;
 import com.powsybl.ucte.network.ext.UcteSubstation;
 import com.powsybl.ucte.network.ext.UcteVoltageLevel;
 import com.powsybl.ucte.network.io.UcteReader;
-import com.powsybl.entsoe.util.EntsoeFileName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -85,6 +86,9 @@ public class UcteImporter implements Importer {
                     .setId(ucteSubstation.getName())
                     .setCountry(Country.valueOf(firstUcteNodeCode.getUcteCountryCode().name()))
                 .add();
+            if (ucteFileName.getGeographicalCode() != null) {
+                substation.addExtension(EntsoeCountry.class, new EntsoeCountry(substation, ucteFileName.getGeographicalCode()));
+            }
 
             for (UcteVoltageLevel ucteVoltageLevel : ucteSubstation.getVoltageLevels()) {
                 UcteVoltageLevelCode ucteVoltageLevelCode = ucteVoltageLevel.getNodes().iterator().next().getVoltageLevelCode();
