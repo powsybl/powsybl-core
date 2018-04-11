@@ -242,6 +242,7 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
             new Column("p"),
             new Column("q"),
             new Column("v"),
+            new Column(NOMINAL_V),
             new Column("reactivePowerSetpoint"),
             new Column("voltageSetpoint")
         };
@@ -258,6 +259,7 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                                            new Column("p" + POST_LF_SUFFIX),
                                            new Column("q" + POST_LF_SUFFIX),
                                            new Column("v" + POST_LF_SUFFIX),
+                                           new Column(NOMINAL_V + POST_LF_SUFFIX),
                                            new Column("reactivePowerSetpoint" + POST_LF_SUFFIX),
                                            new Column("voltageSetpoint" + POST_LF_SUFFIX));
             if (verbose) {
@@ -287,7 +289,7 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                                              new Column("v"),
                                              new Column(CONNECTED),
                                              new Column("qMax"),
-                                             new Column("nominalV"),
+                                             new Column(NOMINAL_V),
                                              new Column(VALIDATION));
         }
         if (compareResults) {
@@ -303,7 +305,7 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                                                  new Column("v" + POST_LF_SUFFIX),
                                                  new Column(CONNECTED + POST_LF_SUFFIX),
                                                  new Column("qMax" + POST_LF_SUFFIX),
-                                                 new Column("nominalV" + POST_LF_SUFFIX),
+                                                 new Column(NOMINAL_V + POST_LF_SUFFIX),
                                                  new Column(VALIDATION + POST_LF_SUFFIX));
             }
         }
@@ -506,28 +508,29 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
     }
 
     @Override
-    protected void write(String svcId, float p, float q, float v, float reactivePowerSetpoint, float voltageSetpoint,
+    protected void write(String svcId, float p, float q, float v, float nominalV, float reactivePowerSetpoint, float voltageSetpoint,
                          boolean connected, RegulationMode regulationMode, float bMin, float bMax, boolean validated,
                          SvcData svcData, boolean found, boolean writeValues) throws IOException {
         formatter.writeCell(svcId);
         if (compareResults) {
             formatter = found ?
-                        write(found, svcData.p, svcData.q, svcData.v, svcData.reactivePowerSetpoint, svcData.voltageSetpoint,
+                        write(found, svcData.p, svcData.q, svcData.v, svcData.nominalV, svcData.reactivePowerSetpoint, svcData.voltageSetpoint,
                               svcData.connected, svcData.regulationMode, svcData.bMin, svcData.bMax, svcData.validated) :
-                        write(found, Float.NaN, Float.NaN, Float.NaN, Float.NaN, Float.NaN, false, null, Float.NaN, Float.NaN, false);
+                        write(found, Float.NaN, Float.NaN, Float.NaN, Float.NaN, Float.NaN, Float.NaN, false, null, Float.NaN, Float.NaN, false);
         }
-        formatter = write(writeValues, p, q, v, reactivePowerSetpoint, voltageSetpoint, connected, regulationMode, bMin, bMax, validated);
+        formatter = write(writeValues, p, q, v, nominalV, reactivePowerSetpoint, voltageSetpoint, connected, regulationMode, bMin, bMax, validated);
     }
 
-    private TableFormatter write(boolean writeValues, float p, float q, float v, float reactivePowerSetpoint, float voltageSetpoint,
+    private TableFormatter write(boolean writeValues, float p, float q, float v, float nominalV, float reactivePowerSetpoint, float voltageSetpoint,
                                  boolean connected, RegulationMode regulationMode, float bMin, float bMax, boolean validated) throws IOException {
         formatter = writeValues ?
                     formatter.writeCell(-p)
                              .writeCell(-q)
                              .writeCell(v)
+                             .writeCell(nominalV)
                              .writeCell(reactivePowerSetpoint)
                              .writeCell(voltageSetpoint) :
-                    formatter.writeEmptyCells(5);
+                    formatter.writeEmptyCells(6);
         if (verbose) {
             formatter = writeValues ?
                         formatter.writeCell(connected)
