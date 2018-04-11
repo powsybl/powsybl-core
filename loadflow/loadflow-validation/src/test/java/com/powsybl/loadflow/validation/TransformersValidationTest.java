@@ -23,6 +23,7 @@ import com.powsybl.iidm.network.RatioTapChangerStep;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.Terminal.BusView;
 import com.powsybl.iidm.network.TwoTerminalsConnectable.Side;
+import com.powsybl.loadflow.validation.io.ValidationWriter;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 
 /**
@@ -119,6 +120,9 @@ public class TransformersValidationTest extends AbstractValidationTest {
         Mockito.when(network.getId()).thenReturn("network");
         Mockito.when(network.getTwoWindingsTransformerStream()).thenAnswer(dummy -> Stream.of(transformer));
         assertTrue(TransformersValidation.checkTransformers(network, strictConfig, NullWriter.NULL_WRITER));
+
+        ValidationWriter validationWriter = ValidationUtils.createValidationWriter(network.getId(), strictConfig, NullWriter.NULL_WRITER, ValidationType.TWTS);
+        assertTrue(ValidationType.TWTS.check(network, strictConfig, validationWriter));
     }
 
 }
