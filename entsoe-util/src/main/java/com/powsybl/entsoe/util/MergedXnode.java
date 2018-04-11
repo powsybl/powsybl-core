@@ -36,10 +36,10 @@ public class MergedXnode extends AbstractExtension<Line> {
         this.line = Objects.requireNonNull(line);
         this.rdp = checkDividerPosition(rdp);
         this.xdp = checkDividerPosition(xdp);
-        this.xnodeP1 = xnodeP1;
-        this.xnodeQ1 = xnodeQ1;
-        this.xnodeP2 = xnodeP2;
-        this.xnodeQ2 = xnodeQ2;
+        this.xnodeP1 = checkPowerFlow(xnodeP1);
+        this.xnodeQ1 = checkPowerFlow(xnodeQ1);
+        this.xnodeP2 = checkPowerFlow(xnodeP2);
+        this.xnodeQ2 = checkPowerFlow(xnodeQ2);
         this.code = Objects.requireNonNull(code);
     }
 
@@ -48,6 +48,13 @@ public class MergedXnode extends AbstractExtension<Line> {
             throw new IllegalArgumentException("Invalid divider postion: " + dp);
         }
         return dp;
+    }
+
+    static float checkPowerFlow(float value) {
+        if (Float.isNaN(value)) {
+            throw new IllegalArgumentException("powser flow is invalid");
+        }
+        return value;
     }
 
     @Override
@@ -83,7 +90,7 @@ public class MergedXnode extends AbstractExtension<Line> {
     }
 
     public MergedXnode setXnodeP1(float xNodeP1) {
-        this.xnodeP1 = xNodeP1;
+        this.xnodeP1 = checkPowerFlow(xNodeP1);
         return this;
     }
 
@@ -92,7 +99,7 @@ public class MergedXnode extends AbstractExtension<Line> {
     }
 
     public MergedXnode setXnodeQ1(float xNodeQ1) {
-        this.xnodeQ1 = xNodeQ1;
+        this.xnodeQ1 = checkPowerFlow(xNodeQ1);
         return this;
     }
 
@@ -101,7 +108,7 @@ public class MergedXnode extends AbstractExtension<Line> {
     }
 
     public MergedXnode setXnodeP2(float xNodeP2) {
-        this.xnodeP2 = xNodeP2;
+        this.xnodeP2 = checkPowerFlow(xNodeP2);
         return this;
     }
 
@@ -110,7 +117,7 @@ public class MergedXnode extends AbstractExtension<Line> {
     }
 
     public MergedXnode setXnodeQ2(float xNodeQ2) {
-        this.xnodeQ2 = xNodeQ2;
+        this.xnodeQ2 = checkPowerFlow(xNodeQ2);
         return this;
     }
 
