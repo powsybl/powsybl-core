@@ -311,8 +311,8 @@ public class LoadFlowActionSimulator implements ActionSimulator {
                                     observers.forEach(o -> o.noMoreViolationsAfterTry(context, action.getId()));
                                     observers.forEach(o -> o.beforeApplyTrydo(context, action.getId()));
                                     action.run(context.getNetwork(), computationManager);
-                                    observers.forEach(o -> o.afterApplyTrydo(context, action.getId()));
                                     context.setWorkedTrydoId(action.getId());
+                                    observers.forEach(o -> o.afterApplyTrydo(context, action.getId()));
                                     return;
                                 } else {
                                     LOGGER.info("Loadflow with try {} exits with violations", action.getId());
