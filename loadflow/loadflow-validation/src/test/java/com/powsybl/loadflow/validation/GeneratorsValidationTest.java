@@ -22,6 +22,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ReactiveLimits;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.Terminal.BusView;
+import com.powsybl.loadflow.validation.io.ValidationWriter;
 
 /**
  *
@@ -196,5 +197,8 @@ public class GeneratorsValidationTest extends AbstractValidationTest {
         Mockito.when(network.getGeneratorStream()).thenAnswer(dummy -> Stream.of(generator, generator1));
 
         assertTrue(GeneratorsValidation.checkGenerators(network, looseConfig, NullWriter.NULL_WRITER));
+
+        ValidationWriter validationWriter = ValidationUtils.createValidationWriter(network.getId(), looseConfig, NullWriter.NULL_WRITER, ValidationType.GENERATORS);
+        assertTrue(ValidationType.GENERATORS.check(network, looseConfig, validationWriter));
     }
 }

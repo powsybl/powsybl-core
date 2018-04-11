@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.Network;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface NetworkService {
+public interface NetworkCacheService {
 
     <T extends ProjectFile & ProjectCase> Network getNetwork(T projectCase);
 
