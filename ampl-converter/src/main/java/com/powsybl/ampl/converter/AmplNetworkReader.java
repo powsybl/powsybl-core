@@ -23,10 +23,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -43,11 +43,13 @@ public class AmplNetworkReader {
     private final Network network;
 
     private final StringToIntMapper<AmplSubset> mapper;
+    private final Map<String, Bus> buses;
 
     public AmplNetworkReader(DataSource dataSource, Network network, StringToIntMapper<AmplSubset> mapper) {
         this.dataSource = dataSource;
         this.network = network;
         this.mapper = mapper;
+        this.buses = network.getBusView().getBusStream().collect(Collectors.toMap(b -> b.getId(), Function.identity()));
     }
 
     private static AmplException createWrongNumberOfColumnException(int expected, int actual) {
@@ -247,13 +249,11 @@ public class AmplNetworkReader {
         double theta = readDouble(tokens[2]);
 
         String id = mapper.getId(AmplSubset.BUS, num);
+        Bus bus = buses.get(id);
 
-        Optional<Bus> bx = network.getVoltageLevelStream().map(vl -> vl.getBusView().getBus(id)).filter(Objects::nonNull).findFirst();
-
-        if (bx.isPresent()) {
-            Bus b = bx.get();
-            b.setV(v * b.getVoltageLevel().getNominalV());
-            b.setAngle((float) Math.toDegrees(theta));
+        if (bus != null) {
+            bus.setV(v * bus.getVoltageLevel().getNominalV());
+            bus.setAngle((float) Math.toDegrees(theta));
         } else {
             throw new AmplException("Invalid bus id '" + id + "'");
         }
