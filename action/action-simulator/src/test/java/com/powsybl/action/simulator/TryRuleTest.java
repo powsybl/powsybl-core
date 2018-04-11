@@ -6,17 +6,12 @@
  */
 package com.powsybl.action.simulator;
 
-import com.powsybl.action.dsl.Rule;
 import com.powsybl.action.simulator.loadflow.LoadFlowActionSimulatorObserver;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 import org.junit.Test;
 import org.mockito.Mockito;
-
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.times;
@@ -60,15 +55,4 @@ public class TryRuleTest extends AbstractLoadFlowRulesEngineTest {
         return this.obs;
     }
 
-    @Test
-    public void testRule() {
-        Collection<Rule> rules = actionDb.getRules();
-        List<String> expectedTrydoList = Arrays.asList("action1", "action2");
-        List<String> expectedActionList = Arrays.asList("action3");
-        rules.forEach(r -> {
-            assertEquals("rule1", r.getId());
-            assertEquals(expectedActionList, r.getActions());
-            assertEquals(expectedTrydoList, r.getTrydoActions());
-        });
-    }
 }

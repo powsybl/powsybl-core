@@ -10,9 +10,13 @@ contingency('contingency1') {
 
 rule('rule1') {
     when !contingencyOccurred('contingency1')
-    trydo 'action1','action2'
     life 3
     apply 'action3'
+}
+
+rule('rule2') {
+    when !contingencyOccurred('contingency1')
+    trydo 'action1','action2'
 }
 
 action('action1') {
