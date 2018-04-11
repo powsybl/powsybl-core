@@ -488,6 +488,7 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
                            String.join(";", svcId, "p", String.format(Locale.getDefault(), "%g", -p)),
                            String.join(";", svcId, "q", String.format(Locale.getDefault(), "%g", -q)),
                            String.join(";", svcId, "v", String.format(Locale.getDefault(), "%g", v)),
+                           String.join(";", svcId, AbstractValidationFormatterWriter.NOMINAL_V, String.format(Locale.getDefault(), "%g", nominalV)),
                            String.join(";", svcId, "reactivePowerSetpoint", String.format(Locale.getDefault(), "%g", reactivePowerSetpoint)),
                            String.join(";", svcId, "voltageSetpoint", String.format(Locale.getDefault(), "%g", voltageSetpoint)));
     }
@@ -500,6 +501,7 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
                            String.join(";", svcId, "p", String.format(Locale.getDefault(), "%g", -p)),
                            String.join(";", svcId, "q", String.format(Locale.getDefault(), "%g", -q)),
                            String.join(";", svcId, "v", String.format(Locale.getDefault(), "%g", v)),
+                           String.join(";", svcId, AbstractValidationFormatterWriter.NOMINAL_V, String.format(Locale.getDefault(), "%g", nominalV)),
                            String.join(";", svcId, "reactivePowerSetpoint", String.format(Locale.getDefault(), "%g", reactivePowerSetpoint)),
                            String.join(";", svcId, "voltageSetpoint", String.format(Locale.getDefault(), "%g", voltageSetpoint)),
                            String.join(";", svcId, AbstractValidationFormatterWriter.CONNECTED, Boolean.toString(connected)),
@@ -517,6 +519,7 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
                            String.join(";", svcId, "p", String.format(Locale.getDefault(), "%g", -p), String.format(Locale.getDefault(), "%g", -p)),
                            String.join(";", svcId, "q", String.format(Locale.getDefault(), "%g", -q), String.format(Locale.getDefault(), "%g", -q)),
                            String.join(";", svcId, "v", String.format(Locale.getDefault(), "%g", v), String.format(Locale.getDefault(), "%g", v)),
+                           String.join(";", svcId, AbstractValidationFormatterWriter.NOMINAL_V, String.format(Locale.getDefault(), "%g", nominalV), String.format(Locale.getDefault(), "%g", nominalV)),
                            String.join(";", svcId, "reactivePowerSetpoint", String.format(Locale.getDefault(), "%g", reactivePowerSetpoint), String.format(Locale.getDefault(), "%g", reactivePowerSetpoint)),
                            String.join(";", svcId, "voltageSetpoint", String.format(Locale.getDefault(), "%g", voltageSetpoint), String.format(Locale.getDefault(), "%g", voltageSetpoint)));
     }
@@ -529,11 +532,13 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
                            String.join(";", otherSvcId, "p", "", String.format(Locale.getDefault(), "%g", -p)),
                            String.join(";", otherSvcId, "q", "", String.format(Locale.getDefault(), "%g", -q)),
                            String.join(";", otherSvcId, "v", "", String.format(Locale.getDefault(), "%g", v)),
+                           String.join(";", otherSvcId, AbstractValidationFormatterWriter.NOMINAL_V, "", String.format(Locale.getDefault(), "%g", nominalV)),
                            String.join(";", otherSvcId, "reactivePowerSetpoint", "", String.format(Locale.getDefault(), "%g", reactivePowerSetpoint)),
                            String.join(";", otherSvcId, "voltageSetpoint", "", String.format(Locale.getDefault(), "%g", voltageSetpoint)),
                            String.join(";", svcId, "p", String.format(Locale.getDefault(), "%g", -p), ""),
                            String.join(";", svcId, "q", String.format(Locale.getDefault(), "%g", -q), ""),
                            String.join(";", svcId, "v", String.format(Locale.getDefault(), "%g", v), ""),
+                           String.join(";", svcId, AbstractValidationFormatterWriter.NOMINAL_V, String.format(Locale.getDefault(), "%g", nominalV), ""),
                            String.join(";", svcId, "reactivePowerSetpoint", String.format(Locale.getDefault(), "%g", reactivePowerSetpoint), ""),
                            String.join(";", svcId, "voltageSetpoint", String.format(Locale.getDefault(), "%g", voltageSetpoint), ""));
     }
@@ -546,6 +551,7 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
                            String.join(";", svcId, "p", String.format(Locale.getDefault(), "%g", -p), String.format(Locale.getDefault(), "%g", -p)),
                            String.join(";", svcId, "q", String.format(Locale.getDefault(), "%g", -q), String.format(Locale.getDefault(), "%g", -q)),
                            String.join(";", svcId, "v", String.format(Locale.getDefault(), "%g", v), String.format(Locale.getDefault(), "%g", v)),
+                           String.join(";", svcId, AbstractValidationFormatterWriter.NOMINAL_V, String.format(Locale.getDefault(), "%g", nominalV), String.format(Locale.getDefault(), "%g", nominalV)),
                            String.join(";", svcId, "reactivePowerSetpoint", String.format(Locale.getDefault(), "%g", reactivePowerSetpoint), String.format(Locale.getDefault(), "%g", reactivePowerSetpoint)),
                            String.join(";", svcId, "voltageSetpoint", String.format(Locale.getDefault(), "%g", voltageSetpoint), String.format(Locale.getDefault(), "%g", voltageSetpoint)),
                            String.join(";", svcId, AbstractValidationFormatterWriter.CONNECTED, Boolean.toString(connected), Boolean.toString(connected)),
@@ -563,6 +569,7 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
                            String.join(";", otherSvcId, "p", "", String.format(Locale.getDefault(), "%g", -p)),
                            String.join(";", otherSvcId, "q", "", String.format(Locale.getDefault(), "%g", -q)),
                            String.join(";", otherSvcId, "v", "", String.format(Locale.getDefault(), "%g", v)),
+                           String.join(";", otherSvcId, AbstractValidationFormatterWriter.NOMINAL_V, "", String.format(Locale.getDefault(), "%g", nominalV)),
                            String.join(";", otherSvcId, "reactivePowerSetpoint", "", String.format(Locale.getDefault(), "%g", reactivePowerSetpoint)),
                            String.join(";", otherSvcId, "voltageSetpoint", "", String.format(Locale.getDefault(), "%g", voltageSetpoint)),
                            String.join(";", otherSvcId, AbstractValidationFormatterWriter.CONNECTED, "", Boolean.toString(connected)),
@@ -573,6 +580,7 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
                            String.join(";", svcId, "p", String.format(Locale.getDefault(), "%g", -p), ""),
                            String.join(";", svcId, "q", String.format(Locale.getDefault(), "%g", -q), ""),
                            String.join(";", svcId, "v", String.format(Locale.getDefault(), "%g", v), ""),
+                           String.join(";", svcId, AbstractValidationFormatterWriter.NOMINAL_V, String.format(Locale.getDefault(), "%g", nominalV), ""),
                            String.join(";", svcId, "reactivePowerSetpoint", String.format(Locale.getDefault(), "%g", reactivePowerSetpoint), ""),
                            String.join(";", svcId, "voltageSetpoint", String.format(Locale.getDefault(), "%g", voltageSetpoint), ""),
                            String.join(";", svcId, AbstractValidationFormatterWriter.CONNECTED, Boolean.toString(connected), ""),
@@ -610,7 +618,7 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
                            String.join(";", shuntId, "v", String.format(Locale.getDefault(), "%g", v)),
                            String.join(";", shuntId, AbstractValidationFormatterWriter.CONNECTED, Boolean.toString(connected)),
                            String.join(";", shuntId, "qMax", String.format(Locale.getDefault(), "%g", qMax)),
-                           String.join(";", shuntId, "nominalV", String.format(Locale.getDefault(), "%g", nominalV)),
+                           String.join(";", shuntId, AbstractValidationFormatterWriter.NOMINAL_V, String.format(Locale.getDefault(), "%g", nominalV)),
                            String.join(";", shuntId, AbstractValidationFormatterWriter.VALIDATION, AbstractValidationFormatterWriter.SUCCESS));
     }
 
@@ -648,7 +656,7 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
                            String.join(";", shuntId, "v", String.format(Locale.getDefault(), "%g", v), String.format(Locale.getDefault(), "%g", v)),
                            String.join(";", shuntId, AbstractValidationFormatterWriter.CONNECTED, Boolean.toString(connected), Boolean.toString(connected)),
                            String.join(";", shuntId, "qMax", String.format(Locale.getDefault(), "%g", qMax), String.format(Locale.getDefault(), "%g", qMax)),
-                           String.join(";", shuntId, "nominalV", String.format(Locale.getDefault(), "%g", nominalV), String.format(Locale.getDefault(), "%g", nominalV)),
+                           String.join(";", shuntId, AbstractValidationFormatterWriter.NOMINAL_V, String.format(Locale.getDefault(), "%g", nominalV), String.format(Locale.getDefault(), "%g", nominalV)),
                            String.join(";", shuntId, AbstractValidationFormatterWriter.VALIDATION, AbstractValidationFormatterWriter.SUCCESS, AbstractValidationFormatterWriter.SUCCESS));
     }
 
@@ -666,7 +674,7 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
                            String.join(";", otherShuntId, "v", "", String.format(Locale.getDefault(), "%g", v)),
                            String.join(";", otherShuntId, AbstractValidationFormatterWriter.CONNECTED, "", Boolean.toString(connected)),
                            String.join(";", otherShuntId, "qMax", "", String.format(Locale.getDefault(), "%g", qMax)),
-                           String.join(";", otherShuntId, "nominalV", "", String.format(Locale.getDefault(), "%g", nominalV)),
+                           String.join(";", otherShuntId, AbstractValidationFormatterWriter.NOMINAL_V, "", String.format(Locale.getDefault(), "%g", nominalV)),
                            String.join(";", otherShuntId, AbstractValidationFormatterWriter.VALIDATION, "", AbstractValidationFormatterWriter.SUCCESS),
                            String.join(";", shuntId, "q", String.format(Locale.getDefault(), "%g", q), ""),
                            String.join(";", shuntId, "expectedQ", String.format(Locale.getDefault(), "%g", expectedQ), ""),
@@ -677,7 +685,7 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
                            String.join(";", shuntId, "v", String.format(Locale.getDefault(), "%g", v), ""),
                            String.join(";", shuntId, AbstractValidationFormatterWriter.CONNECTED, Boolean.toString(connected), ""),
                            String.join(";", shuntId, "qMax", String.format(Locale.getDefault(), "%g", qMax), ""),
-                           String.join(";", shuntId, "nominalV", String.format(Locale.getDefault(), "%g", nominalV), ""),
+                           String.join(";", shuntId, AbstractValidationFormatterWriter.NOMINAL_V, String.format(Locale.getDefault(), "%g", nominalV), ""),
                            String.join(";", shuntId, AbstractValidationFormatterWriter.VALIDATION, AbstractValidationFormatterWriter.SUCCESS, ""));
     }
 

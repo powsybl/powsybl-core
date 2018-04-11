@@ -28,6 +28,7 @@ $> cd openmpi-1.8.3
 $> ./configure --prefix=<INSTALL_DIR> --enable-mpi-thread-multiple
 $> make install
 $> export PATH=$PATH:<INSTALL_DIR>/bin
+$> export LD_LIBRARY_PATH=<INSTALL_DIR>/lib:$LD_LIBRARY_PATH
 ```
 
 ### zlib (required)
