@@ -24,6 +24,9 @@ import java.util.Properties;
 @AutoService(Exporter.class)
 public class AmplExporter implements Exporter {
 
+    public static final String EXPORT_RATIOTAPCHANGER_VT_PROPERTY = "iidm.export.ampl.exportRatioTapChangerVoltageTarget";
+    public static final String SPECIFIC_COMPATIBILITY_PROPERTY = "iidm.export.ampl.specificCompatibility";
+
     @Override
     public String getFormat() {
         return "AMPL";
@@ -39,7 +42,13 @@ public class AmplExporter implements Exporter {
         Objects.requireNonNull(network);
         Objects.requireNonNull(dataSource);
         try {
-            new AmplNetworkWriter(network, dataSource, new AmplExportConfig(AmplExportConfig.ExportScope.ALL, false, AmplExportConfig.ExportActionType.CURATIVE))
+            boolean exportRatioTapChangerVoltageTarget = false;
+            boolean specificCompatibility = false;
+            if (parameters != null) {
+                exportRatioTapChangerVoltageTarget = Boolean.valueOf(parameters.getProperty(EXPORT_RATIOTAPCHANGER_VT_PROPERTY, "false"));
+                specificCompatibility = Boolean.valueOf(parameters.getProperty(SPECIFIC_COMPATIBILITY_PROPERTY, "false"));
+            }
+            new AmplNetworkWriter(network, dataSource, new AmplExportConfig(AmplExportConfig.ExportScope.ALL, false, AmplExportConfig.ExportActionType.CURATIVE, exportRatioTapChangerVoltageTarget, specificCompatibility))
                     .write();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
