@@ -26,25 +26,32 @@ public class Rule {
 
     private final List<String> actions;
 
-    private final List<String> trydoActions;
+    private final RuleType type;
 
     public Rule(String id, Condition condition, int life, String... actions) {
-        this(id, condition, life, Arrays.asList(actions), Collections.EMPTY_LIST);
+        this(id, condition, life, Arrays.asList(actions));
     }
 
     public Rule(String id, Condition condition, int life, List<String> actions) {
-        this(id, condition, life, actions, Collections.EMPTY_LIST);
+        this(id, condition, life, RuleType.APPLY, actions);
     }
 
-    public Rule(String id, Condition condition, int life, List<String> actions, List<String> trydoActions) {
+    public Rule(String id, Condition condition, int life, RuleType type, String... actions) {
+        this(id, condition, life, type, Arrays.asList(actions));
+    }
+
+    public Rule(String id, Condition condition, int life, RuleType type, List<String> actions) {
         if (life < 0) {
             throw new IllegalArgumentException("Invalid life value, has to be >= 0");
         }
         this.id = Objects.requireNonNull(id);
         this.condition = Objects.requireNonNull(condition);
+        this.type = Objects.requireNonNull(type);
+        if (type.equals(RuleType.TRYDO) && life != 1) {
+            throw new IllegalArgumentException("Invalid life value, has to be 1 in trydo rule.");
+        }
         this.life = life;
         this.actions = Objects.requireNonNull(actions);
-        this.trydoActions = Objects.requireNonNull(trydoActions);
     }
 
     public String getId() {
@@ -68,14 +75,10 @@ public class Rule {
     }
 
     public List<String> getActions() {
-        return actions;
+        return Collections.unmodifiableList(actions);
     }
 
-    public List<String> getTrydoActions() {
-        return trydoActions;
-    }
-
-    public boolean containsTrydo() {
-        return !trydoActions.isEmpty();
+    public RuleType getType() {
+        return type;
     }
 }

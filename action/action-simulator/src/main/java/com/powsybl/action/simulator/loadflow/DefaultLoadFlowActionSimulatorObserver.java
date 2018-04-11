@@ -97,6 +97,21 @@ public class DefaultLoadFlowActionSimulatorObserver implements LoadFlowActionSim
     }
 
     @Override
+    public void noMoreViolationsAfterTry(RunningContext runningContext, String actionId) {
+        // empty default implementation
+    }
+
+    @Override
+    public void beforeApplyTrydo(RunningContext runningContext, String actionId) {
+        // empty default implementation
+    }
+
+    @Override
+    public void afterApplyTrydo(RunningContext runningContext, String actionId) {
+        // empty default implementation
+    }
+
+    @Override
     public void violationsAnymoreAndNoRulesMatch(RunningContext runningContext) {
         // empty default implementation
     }

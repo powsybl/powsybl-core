@@ -68,12 +68,12 @@ class ActionDslLoader extends DslLoader {
             this.life = life
         }
 
-        boolean isActionEmpty() {
-            return isEmpty(apply) && isEmpty(trydo)
+        boolean hasApplyActions() {
+            return apply != null && apply.length > 0;
         }
 
-        private boolean isEmpty(String[] arr) {
-            return arr == null || arr.length == 0;
+        boolean hasTrydoActions() {
+            return trydo != null && trydo.length > 0;
         }
     }
 
@@ -172,16 +172,24 @@ class ActionDslLoader extends DslLoader {
                 cloned.delegate = ruleSpec
                 cloned()
                 if (!ruleSpec.when) {
-                    throw new ActionDslException("'when' field is not set")
+                    throw new ActionDslException("'when' field is not set in rule '" + id + "'")
                 }
-                if (ruleSpec.isActionEmpty()) {
-                    throw new ActionDslException("'apply' and 'trydo' field are empty")
-                }
-                List<String> actions = ruleSpec.apply == null ? Collections.emptyList() : ruleSpec.apply;
-                List<String> trydo = ruleSpec.trydo == null ? Collections.emptyList() : ruleSpec.trydo;
 
-                Rule rule = new Rule(id, new ExpressionCondition(ruleSpec.when), ruleSpec.life,
-                        actions, trydo)
+                if (ruleSpec.hasApplyActions() && ruleSpec.hasTrydoActions()) {
+                    throw new ActionDslException("type of apply/trydo actions are both found in rule '" + id + "'");
+                }
+                List<String> actions;
+                RuleType type;
+                if (ruleSpec.hasTrydoActions()) {
+                    actions = ruleSpec.trydo
+                    type = RuleType.TRYDO;
+                } else {
+                    actions = ruleSpec.apply
+                    type = RuleType.APPLY;
+                }
+
+                Rule rule = new Rule(id, new ExpressionCondition(ruleSpec.when), ruleSpec.life, type,
+                        actions)
                 if (ruleSpec.description) {
                     rule.setDescription(ruleSpec.description)
                 }

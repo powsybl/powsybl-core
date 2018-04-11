@@ -48,6 +48,12 @@ public interface LoadFlowActionSimulatorObserver {
 
     void noMoreViolations(RunningContext runningContext);
 
+    void noMoreViolationsAfterTry(RunningContext runningContext, String actionId);
+
+    void beforeApplyTrydo(RunningContext runningContext, String actionId);
+
+    void afterApplyTrydo(RunningContext runningContext, String actionId);
+
     void violationsAnymoreAndNoRulesMatch(RunningContext runningContext);
 
     void afterPostContingencyAnalysis();
