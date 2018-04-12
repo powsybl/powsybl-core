@@ -351,10 +351,10 @@ public abstract class AbstractValidationFormatterWriterTest {
         Writer writer = new StringWriter();
         TableFormatterConfig config = new TableFormatterConfig(Locale.getDefault(), ';', "inv", true, true);
         try (ValidationWriter svcsWriter = getSvcsValidationFormatterCsvWriter(config, writer, verbose, compareResults)) {
-            svcsWriter.write(svcId1, p, q, v, reactivePowerSetpoint, voltageSetpoint, verbose, regulationMode, bMin, bMax, validated);
+            svcsWriter.write(svcId1, p, q, v, nominalV, reactivePowerSetpoint, voltageSetpoint, verbose, regulationMode, bMin, bMax, validated);
             svcsWriter.setValidationCompleted();
             if (compareResults) {
-                svcsWriter.write(svcId2, p, q, v, reactivePowerSetpoint, voltageSetpoint, verbose, regulationMode, bMin, bMax, validated);
+                svcsWriter.write(svcId2, p, q, v, nominalV, reactivePowerSetpoint, voltageSetpoint, verbose, regulationMode, bMin, bMax, validated);
                 svcsWriter.setValidationCompleted();
             }
             assertEquals(svcsContent, writer.toString().trim());

@@ -1,0 +1,3 @@
+#Shunts
+#"num" "bus" "v regul" "targetV (pu)" "Q (MVar)"
+1 1 false 400.000 30.0000
