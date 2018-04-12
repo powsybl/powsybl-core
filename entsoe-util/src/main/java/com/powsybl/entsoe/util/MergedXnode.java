@@ -50,9 +50,9 @@ public class MergedXnode extends AbstractExtension<Line> {
         return dp;
     }
 
-    static float checkPowerFlow(float value) {
+    private static float checkPowerFlow(float value) {
         if (Float.isNaN(value)) {
-            throw new IllegalArgumentException("powser flow is invalid");
+            throw new IllegalArgumentException("Power flow is invalid");
         }
         return value;
     }

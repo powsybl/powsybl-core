@@ -61,10 +61,10 @@ public class MergedXnodeXmlSerializer implements ExtensionXmlSerializer<Line, Me
     public void write(MergedXnode xnode, XmlWriterContext context) throws XMLStreamException {
         XmlUtil.writeFloat("rdp", xnode.getRdp(), context.getWriter());
         XmlUtil.writeFloat("xdp", xnode.getXdp(), context.getWriter());
-        XmlUtil.writeOptionalFloat("xnodeP1", xnode.getXnodeP1(), Float.NaN, context.getWriter());
-        XmlUtil.writeOptionalFloat("xnodeQ1", xnode.getXnodeQ1(), Float.NaN, context.getWriter());
-        XmlUtil.writeOptionalFloat("xnodeP2", xnode.getXnodeP2(), Float.NaN, context.getWriter());
-        XmlUtil.writeOptionalFloat("xnodeQ2", xnode.getXnodeQ2(), Float.NaN, context.getWriter());
+        XmlUtil.writeFloat("xnodeP1", xnode.getXnodeP1(), context.getWriter());
+        XmlUtil.writeFloat("xnodeQ1", xnode.getXnodeQ1(), context.getWriter());
+        XmlUtil.writeFloat("xnodeP2", xnode.getXnodeP2(), context.getWriter());
+        XmlUtil.writeFloat("xnodeQ2", xnode.getXnodeQ2(), context.getWriter());
         context.getWriter().writeAttribute("code", xnode.getCode());
     }
 
@@ -72,10 +72,10 @@ public class MergedXnodeXmlSerializer implements ExtensionXmlSerializer<Line, Me
     public MergedXnode read(Line line, XmlReaderContext context) {
         float rdp = XmlUtil.readFloatAttribute(context.getReader(), "rdp");
         float xdp = XmlUtil.readFloatAttribute(context.getReader(), "xdp");
-        float xnodeP1 = XmlUtil.readOptionalFloatAttribute(context.getReader(), "xnodeP1", Float.NaN);
-        float xnodeQ1 = XmlUtil.readOptionalFloatAttribute(context.getReader(), "xnodeQ1", Float.NaN);
-        float xnodeP2 = XmlUtil.readOptionalFloatAttribute(context.getReader(), "xnodeP2", Float.NaN);
-        float xnodeQ2 = XmlUtil.readOptionalFloatAttribute(context.getReader(), "xnodeQ2", Float.NaN);
+        float xnodeP1 = XmlUtil.readFloatAttribute(context.getReader(), "xnodeP1");
+        float xnodeQ1 = XmlUtil.readFloatAttribute(context.getReader(), "xnodeQ1");
+        float xnodeP2 = XmlUtil.readFloatAttribute(context.getReader(), "xnodeP2");
+        float xnodeQ2 = XmlUtil.readFloatAttribute(context.getReader(), "xnodeQ2");
         String code = context.getReader().getAttributeValue(null, "code");
         return new MergedXnode(line, rdp, xdp, xnodeP1, xnodeQ1, xnodeP2, xnodeQ2, code);
     }
