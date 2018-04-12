@@ -31,7 +31,7 @@ public class TryRuleTest extends AbstractLoadFlowRulesEngineTest {
 
     @Override
     protected String getDslFile() {
-        return "/try-rule.groovy";
+        return "/rule-with-test.groovy";
     }
 
     @Test
@@ -46,7 +46,7 @@ public class TryRuleTest extends AbstractLoadFlowRulesEngineTest {
         assertEquals(loadP0, load.getP0(), 0.0);
 
         // once for action1, once for action2
-        verify(obs, times(2)).beforeTrydo(Mockito.any(), Mockito.any());
+        verify(obs, times(2)).beforeTest(Mockito.any(), Mockito.any());
     }
 
     @Override

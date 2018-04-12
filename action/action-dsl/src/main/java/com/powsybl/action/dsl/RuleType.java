@@ -2,5 +2,5 @@ package com.powsybl.action.dsl;
 
 public enum  RuleType {
     APPLY,
-    TRYDO;
+    TEST;
 }

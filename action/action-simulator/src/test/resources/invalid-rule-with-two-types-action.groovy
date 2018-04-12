@@ -8,6 +8,6 @@
 rule('invalid') {
     when true
     apply 'action1'
-    trydo 'tryme'
+    test 'tryme'
 }
 

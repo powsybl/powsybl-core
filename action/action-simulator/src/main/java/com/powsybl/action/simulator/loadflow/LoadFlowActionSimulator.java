@@ -150,14 +150,14 @@ public class LoadFlowActionSimulator implements ActionSimulator {
             LOGGER.info("Violations: \n{}", Security.printLimitsViolations(violations, network, NO_FILTER));
             observers.forEach(o -> o.loadFlowConverged(context, violations));
 
-            trydo(actionDb, context);
-            if (context.isTrydoWorks()) {
+            runTests(actionDb, context);
+            if (context.isTestWorks()) {
                 return true;
             }
 
             Set<String> actionsTaken = new HashSet<>();
             for (Rule rule : actionDb.getRules()) {
-                if (rule.getType().equals(RuleType.TRYDO)) {
+                if (rule.getType().equals(RuleType.TEST)) {
                     continue;
                 }
                 RuleEvaluationStatus status;
@@ -253,9 +253,9 @@ public class LoadFlowActionSimulator implements ActionSimulator {
         }
     }
 
-    private void trydo(ActionDb actionDb, RunningContext context) {
-        // trydo actions
-        Set<String> trydoActions = new HashSet<>(context.getTriedTrydos());
+    private void runTests(ActionDb actionDb, RunningContext context) {
+        // test actions
+        Set<String> testedActions = new HashSet<>(context.getTestedActions());
         EvaluationContext evalContext = new EvaluationContext() {
             @Override
             public Network getNetwork() {
@@ -274,7 +274,7 @@ public class LoadFlowActionSimulator implements ActionSimulator {
         };
 
         List<Rule> activedRules = actionDb.getRules().stream()
-                .filter(rule -> rule.getType().equals(RuleType.TRYDO))
+                .filter(rule -> rule.getType().equals(RuleType.TEST))
                 .filter(rule -> {
                     ExpressionNode conditionExpr = ((ExpressionCondition) rule.getCondition()).getNode();
                     return ExpressionEvaluator.evaluate(conditionExpr, evalContext).equals(Boolean.TRUE);
@@ -286,32 +286,32 @@ public class LoadFlowActionSimulator implements ActionSimulator {
                 .map(Rule::getActions)
                 .forEach(list -> list.stream()
                         .map(actionDb::getAction)
-                        .filter(action -> !trydoActions.contains(action.getId()))
+                        .filter(action -> !testedActions.contains(action.getId()))
                         .forEach(action -> {
                             Network networkForTry = NetworkXml.gunzip(contextNetwork);
-                            LOGGER.info("Try {} ", action.getId());
+                            LOGGER.info("TEST {} ", action.getId());
                             action.run(networkForTry, computationManager);
                             LoadFlowFactory loadFlowFactory = newLoadFlowFactory();
                             LoadFlow tryLoadFlow = loadFlowFactory.create(networkForTry, computationManager, 0);
-                            LoadFlowResult trydoResult = null;
+                            LoadFlowResult testResult = null;
                             try {
-                                observers.stream().forEach(o -> o.beforeTrydo(context, action.getId()));
-                                trydoResult = tryLoadFlow.run(LoadFlowParameters.load());
-                                observers.stream().forEach(o -> o.afterTrydo(context, action.getId()));
-                                trydoActions.add(action.getId());
+                                observers.stream().forEach(o -> o.beforeTest(context, action.getId()));
+                                testResult = tryLoadFlow.run(LoadFlowParameters.load());
+                                observers.stream().forEach(o -> o.afterTest(context, action.getId()));
+                                testedActions.add(action.getId());
                             } catch (Exception e) {
                                 throw new PowsyblException(e);
                             }
-                            if (trydoResult.isOk()) {
+                            if (testResult.isOk()) {
                                 List<LimitViolation> violationsInTry =
                                         LIMIT_VIOLATION_FILTER.apply(Security.checkLimits(networkForTry, 1), networkForTry);
                                 if (violationsInTry.isEmpty()) {
                                     LOGGER.info("Loadflow with try {} works already", action.getId());
                                     observers.forEach(o -> o.noMoreViolationsAfterTry(context, action.getId()));
-                                    observers.forEach(o -> o.beforeApplyTrydo(context, action.getId()));
+                                    observers.forEach(o -> o.beforeApplyTest(context, action.getId()));
                                     action.run(context.getNetwork(), computationManager);
-                                    context.setWorkedTrydoId(action.getId());
-                                    observers.forEach(o -> o.afterApplyTrydo(context, action.getId()));
+                                    context.setWorkedTest(action.getId());
+                                    observers.forEach(o -> o.afterApplyTest(context, action.getId()));
                                     return;
                                 } else {
                                     LOGGER.info("Loadflow with try {} exits with violations", action.getId());
@@ -322,7 +322,7 @@ public class LoadFlowActionSimulator implements ActionSimulator {
                                 observers.forEach(o -> o.divergedAfterTry(action.getId()));
                             }
                         }));
-        context.addTriedActions(trydoActions);
+        context.addTestedActions(testedActions);
         return;
     }
 

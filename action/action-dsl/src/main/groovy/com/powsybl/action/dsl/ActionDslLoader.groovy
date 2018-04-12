@@ -36,7 +36,7 @@ class ActionDslLoader extends DslLoader {
         String description
         ExpressionNode when
         String[] apply
-        String[] trydo
+        String[] test
         int life = 1
 
         void description(String description) {
@@ -58,9 +58,9 @@ class ActionDslLoader extends DslLoader {
             this.apply = apply
         }
 
-        void trydo(String[] trydo) {
-            assert trydo != null && trydo.length > 0
-            this.trydo = trydo
+        void test(String[] test) {
+            assert test != null && test.length > 0
+            this.test = test
         }
 
         void life(int life) {
@@ -72,8 +72,8 @@ class ActionDslLoader extends DslLoader {
             return apply != null && apply.length > 0;
         }
 
-        boolean hasTrydoActions() {
-            return trydo != null && trydo.length > 0;
+        boolean hasTestActions() {
+            return test != null && test.length > 0;
         }
     }
 
@@ -175,14 +175,14 @@ class ActionDslLoader extends DslLoader {
                     throw new ActionDslException("'when' field is not set in rule '" + id + "'")
                 }
 
-                if (ruleSpec.hasApplyActions() && ruleSpec.hasTrydoActions()) {
-                    throw new ActionDslException("type of apply/trydo actions are both found in rule '" + id + "'");
+                if (ruleSpec.hasApplyActions() && ruleSpec.hasTestActions()) {
+                    throw new ActionDslException("type of apply/test actions are both found in rule '" + id + "'");
                 }
                 List<String> actions;
                 RuleType type;
-                if (ruleSpec.hasTrydoActions()) {
-                    actions = ruleSpec.trydo
-                    type = RuleType.TRYDO;
+                if (ruleSpec.hasTestActions()) {
+                    actions = ruleSpec.test
+                    type = RuleType.TEST;
                 } else {
                     actions = ruleSpec.apply
                     type = RuleType.APPLY;

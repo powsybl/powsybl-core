@@ -16,7 +16,7 @@ rule('rule1') {
 
 rule('rule2') {
     when !contingencyOccurred('contingency1')
-    trydo 'action1','action2'
+    test 'action1','action2'
 }
 
 action('action1') {
