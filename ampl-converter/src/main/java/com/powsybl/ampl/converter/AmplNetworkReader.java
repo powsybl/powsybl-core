@@ -9,6 +9,9 @@ package com.powsybl.ampl.converter;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.util.StringToIntMapper;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.HvdcLine.ConvertersMode;
+import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,6 +26,7 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -39,11 +43,13 @@ public class AmplNetworkReader {
     private final Network network;
 
     private final StringToIntMapper<AmplSubset> mapper;
+    private final Map<String, Bus> buses;
 
     public AmplNetworkReader(DataSource dataSource, Network network, StringToIntMapper<AmplSubset> mapper) {
         this.dataSource = dataSource;
         this.network = network;
         this.mapper = mapper;
+        this.buses = network.getBusView().getBusStream().collect(Collectors.toMap(b -> b.getId(), Function.identity()));
     }
 
     private static AmplException createWrongNumberOfColumnException(int expected, int actual) {
@@ -78,60 +84,67 @@ public class AmplNetworkReader {
             g.setTargetV(g.getTerminal().getVoltageLevel().getNominalV());
         }
 
-        read("_generators", 4, this::readGenerator);
+        read("_generators", 8, this::readGenerator);
 
         return this;
     }
 
     private Void readGenerator(String[] tokens) {
         int num = Integer.parseInt(tokens[0]);
-        float v = Float.parseFloat(tokens[1]);
-        float p = Float.parseFloat(tokens[2]);
-        float q = Float.parseFloat(tokens[3]);
+        int busNum = Integer.parseInt(tokens[1]);
+        boolean vregul = Boolean.parseBoolean(tokens[2]);
+        float targetV = readFloat(tokens[3]);
+        float targetP = readFloat(tokens[4]);
+        float targetQ = readFloat(tokens[5]);
+        float p = readFloat(tokens[6]);
+        float q = readFloat(tokens[7]);
         String id = mapper.getId(AmplSubset.GENERATOR, num);
         Generator g = network.getGenerator(id);
         if (g == null) {
             throw new AmplException("Invalid generator id '" + id + "'");
         }
+
+        g.setVoltageRegulatorOn(vregul);
+
+        g.setTargetP(targetP);
+        g.setTargetQ(targetQ);
+
         Terminal t = g.getTerminal();
+        t.setP(p).setQ(q);
+
         float vb = t.getVoltageLevel().getNominalV();
-        g.setTargetV(v * vb);
-        g.setTargetP(p);
-        g.setTargetQ(q);
-        g.getTerminal().setP(-p).setQ(-q);
-        if (t.isConnected()) {
-            if (p == 0 && q == 0) {
-                t.disconnect();
-            }
-        } else {
-            if (p != 0 || q != 0) {
-                t.connect();
-            }
-        }
+        g.setTargetV(targetV * vb);
+
+        busConnection(t, busNum);
 
         return null;
     }
 
     public AmplNetworkReader readLoads() throws IOException {
-        read("_loads", 3, this::readLoad);
+        read("_loads", 6, this::readLoad);
 
         return this;
     }
 
     private Void readLoad(String[] tokens) {
         int num = Integer.parseInt(tokens[0]);
-        float pAfterCurtailment = Float.parseFloat(tokens[1]);
-        float qAfterCurtailment = Float.parseFloat(tokens[2]);
+        int busNum = Integer.parseInt(tokens[1]);
+        float p = readFloat(tokens[2]);
+        float q = readFloat(tokens[3]);
+        float p0 = readFloat(tokens[4]);
+        float q0 = readFloat(tokens[5]);
         String id = mapper.getId(AmplSubset.LOAD, num);
         Load l = network.getLoad(id);
         if (l != null) {
-            l.setP0(pAfterCurtailment).setQ0(qAfterCurtailment);
-            l.getTerminal().setP(pAfterCurtailment).setQ(qAfterCurtailment);
+            l.setP0(p0).setQ0(q0);
+            l.getTerminal().setP(p).setQ(q);
+            busConnection(l.getTerminal(), busNum);
         } else {
             DanglingLine dl = network.getDanglingLine(id);
             if (dl != null) {
-                dl.setP0(pAfterCurtailment).setQ0(qAfterCurtailment);
-                dl.getTerminal().setP(pAfterCurtailment).setQ(qAfterCurtailment);
+                dl.setP0(p0).setQ0(q0);
+                dl.getTerminal().setP(p).setQ(q);
+                busConnection(dl.getTerminal(), busNum);
             } else {
                 throw new AmplException("Invalid load id '" + id + "'");
             }
@@ -151,7 +164,7 @@ public class AmplNetworkReader {
         int tap = Integer.parseInt(tokens[1]);
         String id = mapper.getId(AmplSubset.RATIO_TAP_CHANGER, num);
         if (id.endsWith(AmplConstants.LEG2_SUFFIX) || id.endsWith(AmplConstants.LEG3_SUFFIX)) {
-            ThreeWindingsTransformer twt = network.getThreeWindingsTransformer(id.substring(0, id.length() - 3));
+            ThreeWindingsTransformer twt = network.getThreeWindingsTransformer(id.substring(0, id.indexOf(AmplConstants.LEG2_SUFFIX)));
             if (twt == null) {
                 throw new AmplException("Invalid three windings transformer id '" + id + "'");
             }
@@ -197,41 +210,245 @@ public class AmplNetworkReader {
     }
 
     public AmplNetworkReader readShunts() throws IOException {
-        read("_shunts", 2, this::readShunt);
+        read("_shunts", 5, this::readShunt);
 
         return this;
     }
 
     private Void readShunt(String[] tokens) {
         int num = Integer.parseInt(tokens[0]);
-        int sections = Integer.parseInt(tokens[1]);
+        int busNum = Integer.parseInt(tokens[1]);
+
+        float q = readFloat(tokens[3]);
+        int sections = Integer.parseInt(tokens[4]);
+
         String id = mapper.getId(AmplSubset.SHUNT, num);
         ShuntCompensator sc = network.getShunt(id);
         if (sc == null) {
             throw new AmplException("Invalid shunt compensator id '" + id + "'");
         }
-        sc.setCurrentSectionCount(sc.getbPerSection() > 0 ? sections : sc.getMaximumSectionCount() - sections);
+
+        sc.setCurrentSectionCount(Math.max(0, Math.min(sc.getMaximumSectionCount(), sections)));
         Terminal t = sc.getTerminal();
-        if (t.isConnected()) {
-            if (sc.getCurrentSectionCount() == 0) {
-                t.disconnect();
-            }
+        t.setQ(q);
+
+        busConnection(t, busNum);
+
+        return null;
+    }
+
+    public AmplNetworkReader readBuses() throws IOException {
+        read("_buses", 3, this::readBus);
+
+        return this;
+    }
+
+    private Void readBus(String[] tokens) {
+        int num = Integer.parseInt(tokens[0]);
+        float v = readFloat(tokens[1]);
+        double theta = readDouble(tokens[2]);
+
+        String id = mapper.getId(AmplSubset.BUS, num);
+        Bus bus = buses.get(id);
+
+        if (bus != null) {
+            bus.setV(v * bus.getVoltageLevel().getNominalV());
+            bus.setAngle((float) Math.toDegrees(theta));
         } else {
-            if (sc.getCurrentSectionCount() > 0) {
-                t.connect();
-            }
+            throw new AmplException("Invalid bus id '" + id + "'");
         }
 
         return null;
     }
 
-    private static List<String> parseExceptIfBetweenQuotes(String str) {
-        List<String> tokens = new ArrayList<>();
-        Matcher m = PATTERN.matcher(str);
-        while (m.find()) {
-            tokens.add(m.group(1).replace("'", ""));
+    public AmplNetworkReader readBranches() throws IOException {
+        read("_branches", 7, this::readBranch);
+
+        return this;
+    }
+
+    private Void readBranch(String[] tokens) {
+        int num = Integer.parseInt(tokens[0]);
+        int busNum = Integer.parseInt(tokens[1]);
+        int busNum2 = Integer.parseInt(tokens[2]);
+        float p1 = readFloat(tokens[3]);
+        float p2 = readFloat(tokens[4]);
+        float q1 = readFloat(tokens[5]);
+        float q2 = readFloat(tokens[6]);
+
+        String id = mapper.getId(AmplSubset.BRANCH, num);
+
+        Branch br = network.getBranch(id);
+        if (br != null) {
+            br.getTerminal1().setP(p1).setQ(q1);
+            br.getTerminal2().setP(p2).setQ(q2);
+            busConnection(br.getTerminal1(), busNum);
+            busConnection(br.getTerminal2(), busNum2);
+            return null;
         }
-        return tokens;
+
+        if (readThreeWindingsTransformerBranch(id, p1, q1, busNum)) {
+            return null;
+        }
+
+        DanglingLine dl = network.getDanglingLine(id);
+        if (dl != null) {
+            dl.getTerminal().setP(p1).setQ(q1);
+            busConnection(dl.getTerminal(), busNum);
+        } else {
+            throw new AmplException("Invalid branch id '" + id + "'");
+        }
+
+        return null;
+    }
+
+    private boolean readThreeWindingsTransformerBranch(String id, float p, float q, int busNum) {
+        if (id.endsWith(AmplConstants.LEG1_SUFFIX)) {
+            ThreeWindingsTransformer tht = network.getThreeWindingsTransformer(id.substring(0, id.indexOf(AmplConstants.LEG1_SUFFIX)));
+            if (tht != null) {
+                tht.getLeg1().getTerminal().setP(p).setQ(q);
+                busConnection(tht.getLeg1().getTerminal(), busNum);
+            } else {
+                throw new AmplException("Invalid branch (leg1) id '" + id + "'");
+            }
+        } else if (id.endsWith(AmplConstants.LEG2_SUFFIX)) {
+            ThreeWindingsTransformer tht = network.getThreeWindingsTransformer(id.substring(0, id.indexOf(AmplConstants.LEG2_SUFFIX)));
+            if (tht != null) {
+                tht.getLeg2().getTerminal().setP(p).setQ(q);
+                busConnection(tht.getLeg1().getTerminal(), busNum);
+            } else {
+                throw new AmplException("Invalid branch (leg2) id '" + id + "'");
+            }
+        } else if (id.endsWith(AmplConstants.LEG3_SUFFIX)) {
+            ThreeWindingsTransformer tht = network.getThreeWindingsTransformer(id.substring(0, id.indexOf(AmplConstants.LEG3_SUFFIX)));
+            if (tht != null) {
+                tht.getLeg3().getTerminal().setP(p).setQ(q);
+                busConnection(tht.getLeg1().getTerminal(), busNum);
+            } else {
+                throw new AmplException("Invalid branch (leg3) id '" + id + "'");
+            }
+        } else {
+            return false;
+        }
+        return true;
+    }
+
+    public AmplNetworkReader readHvdcLines() throws IOException {
+        read("_hvdc", 3, this::readHvdcLine);
+
+        return this;
+    }
+
+    private Void readHvdcLine(String[] tokens) {
+        int num = Integer.parseInt(tokens[0]);
+        String converterMode = tokens[1].replace("\"", "");
+        float targetP = readFloat(tokens[2]);
+
+        String id = mapper.getId(AmplSubset.HVDC_LINE, num);
+
+        HvdcLine hl = network.getHvdcLine(id);
+
+        if (hl == null) {
+            throw new AmplException("Invalid HvdcLine id '" + id + "'");
+        }
+        hl.setConvertersMode(ConvertersMode.valueOf(converterMode));
+        hl.setActivePowerSetpoint(targetP);
+
+        return null;
+    }
+
+
+    public AmplNetworkReader readStaticVarcompensator() throws IOException {
+        read("_svc", 5, this::readSvc);
+
+        return this;
+    }
+
+    private Void readSvc(String[] tokens) {
+        int num = Integer.parseInt(tokens[0]);
+        int busNum = Integer.parseInt(tokens[1]);
+        boolean vregul = Boolean.parseBoolean(tokens[2]);
+        float targetV = readFloat(tokens[3]);
+        float q = readFloat(tokens[4]);
+
+        String id = mapper.getId(AmplSubset.STATIC_VAR_COMPENSATOR, num);
+        StaticVarCompensator svc = network.getStaticVarCompensator(id);
+        if (svc == null) {
+            throw new AmplException("Invalid StaticVarCompensator id '" + id + "'");
+        }
+
+        if (vregul) {
+            svc.setRegulationMode(RegulationMode.VOLTAGE);
+        } else {
+            if (q == 0) {
+                svc.setRegulationMode(RegulationMode.OFF);
+            } else {
+                svc.setReactivePowerSetPoint(-q);
+                svc.setRegulationMode(RegulationMode.REACTIVE_POWER);
+            }
+        }
+
+
+        Terminal t = svc.getTerminal();
+        t.setP(Float.NaN).setQ(q);
+
+        svc.setVoltageSetPoint(targetV);
+
+        busConnection(t, busNum);
+
+        return null;
+    }
+
+    public AmplNetworkReader readLccConverterStations() throws IOException {
+        read("_lcc", 4, this::readLcc);
+
+        return this;
+    }
+
+    private Void readLcc(String[] tokens) {
+        int num = Integer.parseInt(tokens[0]);
+        int busNum = Integer.parseInt(tokens[1]);
+        float p = readFloat(tokens[2]);
+        float q = readFloat(tokens[3]);
+
+        String id = mapper.getId(AmplSubset.LCC_CONVERTER_STATION, num);
+        LccConverterStation lcc = network.getLccConverterStation(id);
+        lcc.getTerminal().setP(p).setQ(q);
+        busConnection(lcc.getTerminal(), busNum);
+
+        return null;
+    }
+
+    public AmplNetworkReader readVscConverterStations() throws IOException {
+        read("_vsc", 7, this::readVsc);
+
+        return this;
+    }
+
+    private Void readVsc(String[] tokens) {
+        int num = Integer.parseInt(tokens[0]);
+        int busNum = Integer.parseInt(tokens[1]);
+        boolean vregul = Boolean.parseBoolean(tokens[2]);
+        float targetV = readFloat(tokens[3]);
+        float targetQ = readFloat(tokens[4]);
+        float p = readFloat(tokens[5]);
+        float q = readFloat(tokens[6]);
+
+        String id = mapper.getId(AmplSubset.VSC_CONVERTER_STATION, num);
+        VscConverterStation vsc = network.getVscConverterStation(id);
+        Terminal t = vsc.getTerminal();
+        t.setP(p).setQ(q);
+
+
+        vsc.setReactivePowerSetpoint(targetQ);
+        vsc.setVoltageRegulatorOn(vregul);
+
+        float vb = t.getVoltageLevel().getNominalV();
+        vsc.setVoltageSetpoint(targetV * vb);
+
+        busConnection(t, busNum);
+
+        return null;
     }
 
     public AmplNetworkReader readMetrics(Map<String, String> metrics) throws IOException {
@@ -260,4 +477,36 @@ public class AmplNetworkReader {
         }
         return this;
     }
+
+    private void busConnection(Terminal t, int busNum) {
+        if (busNum == -1) {
+            t.disconnect();
+        } else {
+            String busId = mapper.getId(AmplSubset.BUS, busNum);
+            Bus connectable = AmplUtil.getConnectableBus(t);
+            if (connectable != null && connectable.getId().equals(busId)) {
+                t.connect();
+            }
+        }
+    }
+
+    private static List<String> parseExceptIfBetweenQuotes(String str) {
+        List<String> tokens = new ArrayList<>();
+        Matcher m = PATTERN.matcher(str);
+        while (m.find()) {
+            String tok = m.group(1).replace("'", "");
+            tokens.add(tok);
+        }
+        return tokens;
+    }
+
+    private float readFloat(String f) {
+        float res = Float.parseFloat(f);
+        return res != AmplConstants.INVALID_FLOAT_VALUE ? res : Float.NaN;
+    }
+
+    private double readDouble(String d) {
+        return Float.parseFloat(d) != AmplConstants.INVALID_FLOAT_VALUE ? Double.parseDouble(d) : Double.NaN;
+    }
+
 }
