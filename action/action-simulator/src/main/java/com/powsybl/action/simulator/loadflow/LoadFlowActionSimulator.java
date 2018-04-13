@@ -284,19 +284,19 @@ public class LoadFlowActionSimulator implements ActionSimulator {
         byte[] contextNetwork = NetworkXml.gzip(context.getNetwork());
         activedRules.stream()
                 .map(Rule::getActions)
-                .forEach(list -> list.stream()
+                .anyMatch(list -> list.stream()
                         .map(actionDb::getAction)
                         .filter(action -> !testedActions.contains(action.getId()))
-                        .forEach(action -> {
+                        .anyMatch(action -> {
                             Network networkForTry = NetworkXml.gunzip(contextNetwork);
                             LOGGER.info("TEST {} ", action.getId());
                             action.run(networkForTry, computationManager);
                             LoadFlowFactory loadFlowFactory = newLoadFlowFactory();
-                            LoadFlow tryLoadFlow = loadFlowFactory.create(networkForTry, computationManager, 0);
+                            LoadFlow testLoadFlow = loadFlowFactory.create(networkForTry, computationManager, 0);
                             LoadFlowResult testResult = null;
                             try {
                                 observers.stream().forEach(o -> o.beforeTest(context, action.getId()));
-                                testResult = tryLoadFlow.run(LoadFlowParameters.load());
+                                testResult = testLoadFlow.run(LoadFlowParameters.load());
                                 observers.stream().forEach(o -> o.afterTest(context, action.getId()));
                                 testedActions.add(action.getId());
                             } catch (Exception e) {
@@ -306,20 +306,22 @@ public class LoadFlowActionSimulator implements ActionSimulator {
                                 List<LimitViolation> violationsInTry =
                                         LIMIT_VIOLATION_FILTER.apply(Security.checkLimits(networkForTry, 1), networkForTry);
                                 if (violationsInTry.isEmpty()) {
-                                    LOGGER.info("Loadflow with try {} works already", action.getId());
+                                    LOGGER.info("Loadflow with test {} works already", action.getId());
                                     observers.forEach(o -> o.noMoreViolationsAfterTest(context, action.getId()));
                                     observers.forEach(o -> o.beforeApplyTest(context, action.getId()));
                                     action.run(context.getNetwork(), computationManager);
                                     context.setWorkedTest(action.getId());
                                     observers.forEach(o -> o.afterApplyTest(context, action.getId()));
-                                    return;
+                                    return true;
                                 } else {
-                                    LOGGER.info("Loadflow with try {} exits with violations", action.getId());
+                                    LOGGER.info("Loadflow with test {} exits with violations", action.getId());
                                     observers.forEach(o -> o.violationsAfterTest(action.getId(), violationsInTry));
+                                    return false;
                                 }
                             } else {
-                                LOGGER.info("Loadflow with try {} diverged", action.getId());
+                                LOGGER.info("Loadflow with test {} diverged", action.getId());
                                 observers.forEach(o -> o.divergedAfterTest(action.getId()));
+                                return false;
                             }
                         }));
         context.addTestedActions(testedActions);
