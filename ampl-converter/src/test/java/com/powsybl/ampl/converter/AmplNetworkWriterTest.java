@@ -9,8 +9,10 @@ package com.powsybl.ampl.converter;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.MemDataSource;
+import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.*;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -62,7 +64,9 @@ public class AmplNetworkWriterTest extends AbstractConverterTest {
         MemDataSource dataSource = new MemDataSource();
         export(network, dataSource);
 
-        assertEqualsToRef(dataSource, "_network_hvdc", "inputs/lcc-test-case.txt");
+        assertEqualsToRef(dataSource, "_network_hvdc", "inputs/hvdc-lcc-test-case.txt");
+        assertEqualsToRef(dataSource, "_network_lcc_converter_stations", "inputs/lcc-test-case.txt");
+
     }
 
     @Test
@@ -107,7 +111,9 @@ public class AmplNetworkWriterTest extends AbstractConverterTest {
         MemDataSource dataSource = new MemDataSource();
         export(network, dataSource);
 
-        assertEqualsToRef(dataSource, "_network_hvdc", "inputs/vsc-test-case.txt");
+        assertEqualsToRef(dataSource, "_network_hvdc", "inputs/hvdc-vsc-test-case.txt");
+        assertEqualsToRef(dataSource, "_network_vsc_converter_stations", "inputs/vsc-test-case.txt");
+
     }
 
     @Test
@@ -132,6 +138,17 @@ public class AmplNetworkWriterTest extends AbstractConverterTest {
         assertEqualsToRef(dataSource, "_network_limits", "inputs/dangling-line-limits.txt");
         assertEqualsToRef(dataSource, "_network_loads", "inputs/dangling-line-loads.txt");
         assertEqualsToRef(dataSource, "_network_substations", "inputs/dangling-line-substations.txt");
+    }
+
+    @Test
+    public void writeExtensions() throws IOException {
+        Network network = HvdcTestNetwork.createLcc();
+        HvdcLine l = network.getHvdcLine("L");
+        l.addExtension(FooExtension.class, new FooExtension());
+        MemDataSource dataSource = new MemDataSource();
+        export(network, dataSource);
+
+        assertEqualsToRef(dataSource, "foo-extension", "inputs/foo-extension.txt");
     }
 
     private static void export(Network network, DataSource dataSource) {

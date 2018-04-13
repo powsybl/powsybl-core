@@ -145,12 +145,13 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
     }
 
     @Override
-    protected void write(String svcId, float p, float q, float v, float reactivePowerSetpoint, float voltageSetpoint,
+    protected void write(String svcId, float p, float q, float v, float nominalV, float reactivePowerSetpoint, float voltageSetpoint,
                          boolean connected, RegulationMode regulationMode, float bMin, float bMax, boolean validated,
                          SvcData svcData, boolean found, boolean writeValues) throws IOException {
         write(svcId, "p", found, -svcData.p, writeValues, -p);
         write(svcId, "q", found, -svcData.q, writeValues, -q);
         write(svcId, "v", found, svcData.v, writeValues, v);
+        write(svcId, NOMINAL_V, found, svcData.nominalV, writeValues, nominalV);
         write(svcId, "reactivePowerSetpoint", found, svcData.reactivePowerSetpoint, writeValues, reactivePowerSetpoint);
         write(svcId, "voltageSetpoint", found, svcData.voltageSetpoint, writeValues, voltageSetpoint);
         if (verbose) {
@@ -175,7 +176,7 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
             write(shuntId, "v", found, shuntData.v, writeValues, v);
             write(shuntId, CONNECTED, found, shuntData.connected, writeValues, connected);
             write(shuntId, "qMax", found, shuntData.qMax, writeValues, qMax);
-            write(shuntId, "nominalV", found, shuntData.nominalV, writeValues, nominalV);
+            write(shuntId, NOMINAL_V, found, shuntData.nominalV, writeValues, nominalV);
             write(shuntId, VALIDATION, found, getValidated(shuntData.validated), writeValues, getValidated(validated));
         }
     }

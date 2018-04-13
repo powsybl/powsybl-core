@@ -9,6 +9,7 @@ package com.powsybl.ampl.converter;
 
 import com.powsybl.commons.util.StringToIntMapper;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.HvdcConverterStation.HvdcType;
 
 /**
  *
@@ -27,8 +28,18 @@ public final class AmplUtil {
         return t.getBusView().getBus();
     }
 
+    public static int getBusNum(StringToIntMapper<AmplSubset> mapper, Terminal t) {
+        Bus bus = getBus(t);
+        return bus == null ? -1 : mapper.getInt(AmplSubset.BUS, bus.getId());
+    }
+
     public static Bus getConnectableBus(Terminal t) {
         return t.getBusView().getConnectableBus();
+    }
+
+    public static int getConnectableBusNum(StringToIntMapper<AmplSubset> mapper, Terminal t) {
+        Bus bus = getConnectableBus(t);
+        return bus == null ? -1 : mapper.getInt(AmplSubset.BUS, bus.getId());
     }
 
     private static void createLimitsIds(StringToIntMapper<AmplSubset> mapper, CurrentLimits limits, String branchId, String sideId) {
@@ -85,6 +96,11 @@ public final class AmplUtil {
 
         // HVDC lines
         network.getHvdcLineStream().forEach(hvdc -> mapper.newInt(AmplSubset.HVDC_LINE, hvdc.getId()));
+
+        // HvdcConverterStations
+        network.getHvdcConverterStations().forEach(conv ->
+                mapper.newInt(conv.getHvdcType().equals(HvdcType.VSC) ? AmplSubset.VSC_CONVERTER_STATION : AmplSubset.LCC_CONVERTER_STATION,  conv.getId()));
+
     }
 
     private static void fillLines(StringToIntMapper<AmplSubset> mapper, Network network) {
