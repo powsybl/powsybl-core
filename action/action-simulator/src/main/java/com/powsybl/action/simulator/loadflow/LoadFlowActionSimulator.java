@@ -307,7 +307,7 @@ public class LoadFlowActionSimulator implements ActionSimulator {
                                         LIMIT_VIOLATION_FILTER.apply(Security.checkLimits(networkForTry, 1), networkForTry);
                                 if (violationsInTry.isEmpty()) {
                                     LOGGER.info("Loadflow with try {} works already", action.getId());
-                                    observers.forEach(o -> o.noMoreViolationsAfterTry(context, action.getId()));
+                                    observers.forEach(o -> o.noMoreViolationsAfterTest(context, action.getId()));
                                     observers.forEach(o -> o.beforeApplyTest(context, action.getId()));
                                     action.run(context.getNetwork(), computationManager);
                                     context.setWorkedTest(action.getId());
@@ -315,11 +315,11 @@ public class LoadFlowActionSimulator implements ActionSimulator {
                                     return;
                                 } else {
                                     LOGGER.info("Loadflow with try {} exits with violations", action.getId());
-                                    observers.forEach(o -> o.violationsAfterTry(action.getId(), violationsInTry));
+                                    observers.forEach(o -> o.violationsAfterTest(action.getId(), violationsInTry));
                                 }
                             } else {
                                 LOGGER.info("Loadflow with try {} diverged", action.getId());
-                                observers.forEach(o -> o.divergedAfterTry(action.getId()));
+                                observers.forEach(o -> o.divergedAfterTest(action.getId()));
                             }
                         }));
         context.addTestedActions(testedActions);
