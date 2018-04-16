@@ -17,7 +17,7 @@ import static org.junit.Assert.assertNotNull;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian@rte-france.com>
  */
-public class EntsoeCountryXmlSerializerTest extends AbstractConverterTest {
+public class EntsoeAreaXmlSerializerTest extends AbstractConverterTest {
 
     private static Network createTestNetwork() {
         Network network = NetworkFactory.create("test", "test");
@@ -35,16 +35,16 @@ public class EntsoeCountryXmlSerializerTest extends AbstractConverterTest {
 
         // extends substation
         Substation s = network.getSubstation("S");
-        EntsoeCountry country = new EntsoeCountry(s, EntsoeGeographicalCode.BE);
-        s.addExtension(EntsoeCountry.class, country);
+        EntsoeArea country = new EntsoeArea(s, EntsoeGeographicalCode.BE);
+        s.addExtension(EntsoeArea.class, country);
 
         Network network2 = roundTripXmlTest(network,
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
-                "/entsoeCountryRef.xml");
+                "/entsoeAreaRef.xml");
 
         Substation s2 = network2.getSubstation("S");
-        EntsoeCountry country2 = s2.getExtension(EntsoeCountry.class);
+        EntsoeArea country2 = s2.getExtension(EntsoeArea.class);
         assertNotNull(country2);
         assertEquals(country.getCode(), country2.getCode());
     }

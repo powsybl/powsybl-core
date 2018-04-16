@@ -15,25 +15,25 @@ import static org.junit.Assert.*;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class EntsoeCountryTest {
+public class EntsoeAreaTest {
 
     @Test
     public void test() {
         Substation substation = Mockito.mock(Substation.class);
-        EntsoeCountry country = new EntsoeCountry(substation, EntsoeGeographicalCode.D1);
+        EntsoeArea area = new EntsoeArea(substation, EntsoeGeographicalCode.D1);
 
-        assertEquals("entsoeCountry", country.getName());
-        assertSame(substation, country.getExtendable());
+        assertEquals("entsoeArea", area.getName());
+        assertSame(substation, area.getExtendable());
 
-        assertEquals(EntsoeGeographicalCode.D1, country.getCode());
+        assertEquals(EntsoeGeographicalCode.D1, area.getCode());
 
         try {
-            country.setCode(null);
+            area.setCode(null);
             fail();
         } catch (NullPointerException ignored) {
         }
 
-        country.setCode(EntsoeGeographicalCode.FR);
-        assertEquals(EntsoeGeographicalCode.FR, country.getCode());
+        area.setCode(EntsoeGeographicalCode.FR);
+        assertEquals(EntsoeGeographicalCode.FR, area.getCode());
     }
 }
