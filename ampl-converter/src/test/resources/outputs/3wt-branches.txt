@@ -1,0 +1,5 @@
+#Branches
+#"num" "bus1" "bus2" "p1 (MW)" "p2 (MW)" "q1 (MVar)" "q2 (MVar)"
+1 -1 -1 -101.000 NaN -111.000 NaN
+2 -1 -1 -102.000 NaN -112.000 NaN
+3 -1 -1 -103.000 -NaN -113.000 NaN
