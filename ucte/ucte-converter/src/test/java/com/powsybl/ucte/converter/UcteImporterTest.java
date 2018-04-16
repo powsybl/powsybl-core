@@ -59,7 +59,7 @@ public class UcteImporterTest {
         assertNull(ext);
 
         //Check that for a "D-node" starting with "DE", no extension is added
-        ext = network.getSubstation("DJA_KA").getExtension(EntsoeArea.class);
+        ext = network.getSubstation("DEA_KA").getExtension(EntsoeArea.class);
         assertNull(ext);
     }
 
