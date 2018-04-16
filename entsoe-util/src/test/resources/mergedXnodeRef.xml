@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<iidm:network xmlns:iidm="http://www.itesla_project.eu/schema/iidm/1_0" xmlns:mxn="http://www.itesla_project.eu/schema/iidm/ext/merged_xnode/1_0" id="test" caseDate="2016-06-27T12:27:58.535+02:00" forecastDistance="0" sourceFormat="test">
+    <iidm:substation id="S1" country="FR">
+        <iidm:voltageLevel id="VL1" nominalV="400.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="B1"/>
+            </iidm:busBreakerTopology>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="S2" country="FR">
+        <iidm:voltageLevel id="VL2" nominalV="400.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="B2"/>
+            </iidm:busBreakerTopology>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:line id="L" r="1.0" x="1.0" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="B1" connectableBus1="B1" voltageLevelId1="VL1" bus2="B2" connectableBus2="B2" voltageLevelId2="VL2"/>
+    <iidm:extension id="L">
+        <mxn:mergedXnode rdp="0.5" xdp="0.5" xnodeP1="1.0" xnodeQ1="2.0" xnodeP2="3.0" xnodeQ2="4.0" code="XXXXXX11"/>
+    </iidm:extension>
+</iidm:network>

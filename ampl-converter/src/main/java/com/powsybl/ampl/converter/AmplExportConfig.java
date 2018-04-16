@@ -9,6 +9,9 @@ package com.powsybl.ampl.converter;
 
 import java.util.Objects;
 
+import com.powsybl.ampl.converter.AmplExportConfig.ExportActionType;
+import com.powsybl.ampl.converter.AmplExportConfig.ExportScope;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -44,15 +47,18 @@ public class AmplExportConfig {
 
     private boolean exportRatioTapChangerVoltageTarget;
 
+    private boolean specificCompatibility;
+
     public AmplExportConfig(ExportScope exportScope, boolean exportXNodes, ExportActionType actionType) {
-        this(exportScope, exportXNodes, actionType, false);
+        this(exportScope, exportXNodes, actionType, false, false);
     }
 
-    public AmplExportConfig(ExportScope exportScope, boolean exportXNodes, ExportActionType actionType, boolean exportRatioTapChangerVoltageTarget) {
+    public AmplExportConfig(ExportScope exportScope, boolean exportXNodes, ExportActionType actionType, boolean exportRatioTapChangerVoltageTarget, boolean specificCompatibility) {
         this.exportScope = Objects.requireNonNull(exportScope);
         this.exportXNodes = exportXNodes;
         this.actionType = Objects.requireNonNull(actionType);
         this.exportRatioTapChangerVoltageTarget = exportRatioTapChangerVoltageTarget;
+        this.specificCompatibility = specificCompatibility;
     }
 
     public ExportScope getExportScope() {
@@ -89,6 +95,14 @@ public class AmplExportConfig {
     public AmplExportConfig setExportRatioTapChangerVoltageTarget(boolean exportRatioTapChangerVoltageTarget) {
         this.exportRatioTapChangerVoltageTarget = exportRatioTapChangerVoltageTarget;
         return this;
+    }
+
+    public boolean isSpecificCompatibility() {
+        return specificCompatibility;
+    }
+
+    public void setSpecificCompatibility(boolean specificCompatibility) {
+        this.specificCompatibility = specificCompatibility;
     }
 
 }
