@@ -1,0 +1,12 @@
+##C 2007.05.01
+Test case for german region import in PowSyBl core package
+##N
+##ZBE
+BAVLGM11 AVLGM1_1     0 0        0.00000 0.00000 0.00000 0.00000
+##ZDE
+D4NEUR11 NEUROTT      0 0        0.00000 0.00000 0.00000 0.00000
+DJA_KA11 DE-DK        0 0        0.00000 0.00000 0.00000 0.00000
+DEA_KA11 DE-DK        0 0        0.00000 0.00000 0.00000 0.00000
+##L
+##T
+##R
