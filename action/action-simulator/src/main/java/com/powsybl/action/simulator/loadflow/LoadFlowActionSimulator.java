@@ -46,23 +46,26 @@ public class LoadFlowActionSimulator implements ActionSimulator {
 
     private final LoadFlowActionSimulatorConfig config;
 
+    private final boolean applyIfWorks;
+
     private final List<LoadFlowActionSimulatorObserver> observers;
 
     public LoadFlowActionSimulator(Network network, ComputationManager computationManager) {
-        this(network, computationManager, LoadFlowActionSimulatorConfig.load(), Collections.emptyList());
+        this(network, computationManager, LoadFlowActionSimulatorConfig.load(), false, Collections.emptyList());
     }
 
     public LoadFlowActionSimulator(Network network, ComputationManager computationManager, LoadFlowActionSimulatorConfig config,
-                                   LoadFlowActionSimulatorObserver... observers) {
-        this(network, computationManager, config, Arrays.asList(observers));
+                                   boolean applyIfWorks, LoadFlowActionSimulatorObserver... observers) {
+        this(network, computationManager, config, applyIfWorks, Arrays.asList(observers));
     }
 
     public LoadFlowActionSimulator(Network network, ComputationManager computationManager, LoadFlowActionSimulatorConfig config,
-                                   List<LoadFlowActionSimulatorObserver> observers) {
+                                   boolean applyIfWorks, List<LoadFlowActionSimulatorObserver> observers) {
         this.network = Objects.requireNonNull(network);
         this.computationManager = Objects.requireNonNull(computationManager);
         this.config = Objects.requireNonNull(config);
         this.observers = Objects.requireNonNull(observers);
+        this.applyIfWorks = Objects.requireNonNull(applyIfWorks);
     }
 
     @Override
@@ -151,7 +154,7 @@ public class LoadFlowActionSimulator implements ActionSimulator {
             observers.forEach(o -> o.loadFlowConverged(context, violations));
 
             runTests(actionDb, context);
-            if (context.isTestWorks()) {
+            if (context.isTestWorks() && applyIfWorks) {
                 return true;
             }
 
@@ -255,7 +258,6 @@ public class LoadFlowActionSimulator implements ActionSimulator {
 
     private void runTests(ActionDb actionDb, RunningContext context) {
         // test actions
-        Set<String> testedActions = new HashSet<>(context.getTestedActions());
         EvaluationContext evalContext = new EvaluationContext() {
             @Override
             public Network getNetwork() {
@@ -280,52 +282,59 @@ public class LoadFlowActionSimulator implements ActionSimulator {
                     return ExpressionEvaluator.evaluate(conditionExpr, evalContext).equals(Boolean.TRUE);
                 })
                 .collect(Collectors.toList());
-
+        List<String> testActionIds = activedRules.stream()
+                                .flatMap(r -> r.getActions().stream())
+                                .distinct()
+                                .filter(id -> !context.isTested(id))
+                                .collect(Collectors.toList());
         byte[] contextNetwork = NetworkXml.gzip(context.getNetwork());
-        activedRules.stream()
-                .map(Rule::getActions)
-                .anyMatch(list -> list.stream()
-                        .map(actionDb::getAction)
-                        .filter(action -> !testedActions.contains(action.getId()))
-                        .anyMatch(action -> {
-                            Network networkForTry = NetworkXml.gunzip(contextNetwork);
-                            LOGGER.info("TEST {} ", action.getId());
-                            action.run(networkForTry, computationManager);
-                            LoadFlowFactory loadFlowFactory = newLoadFlowFactory();
-                            LoadFlow testLoadFlow = loadFlowFactory.create(networkForTry, computationManager, 0);
-                            LoadFlowResult testResult = null;
-                            try {
-                                observers.stream().forEach(o -> o.beforeTest(context, action.getId()));
-                                testResult = testLoadFlow.run(LoadFlowParameters.load());
-                                observers.stream().forEach(o -> o.afterTest(context, action.getId()));
-                                testedActions.add(action.getId());
-                            } catch (Exception e) {
-                                throw new PowsyblException(e);
-                            }
-                            if (testResult.isOk()) {
-                                List<LimitViolation> violationsInTry =
-                                        LIMIT_VIOLATION_FILTER.apply(Security.checkLimits(networkForTry, 1), networkForTry);
-                                if (violationsInTry.isEmpty()) {
-                                    LOGGER.info("Loadflow with test {} works already", action.getId());
-                                    observers.forEach(o -> o.noMoreViolationsAfterTest(context, action.getId()));
-                                    observers.forEach(o -> o.beforeApplyTest(context, action.getId()));
-                                    action.run(context.getNetwork(), computationManager);
-                                    context.setWorkedTest(action.getId());
-                                    observers.forEach(o -> o.afterApplyTest(context, action.getId()));
-                                    return true;
-                                } else {
-                                    LOGGER.info("Loadflow with test {} exits with violations", action.getId());
-                                    observers.forEach(o -> o.violationsAfterTest(action.getId(), violationsInTry));
-                                    return false;
-                                }
-                            } else {
-                                LOGGER.info("Loadflow with test {} diverged", action.getId());
-                                observers.forEach(o -> o.divergedAfterTest(action.getId()));
-                                return false;
-                            }
-                        }));
-        context.addTestedActions(testedActions);
-        return;
+
+        for (String actionId : testActionIds) {
+            Action action = actionDb.getAction(actionId);
+            Network networkForTry = NetworkXml.gunzip(contextNetwork);
+            LoadFlowResult testResult = runTest(context, networkForTry, action);
+            context.addTested(actionId);
+            if (testResult.isOk()) {
+                List<LimitViolation> violationsInTry =
+                        LIMIT_VIOLATION_FILTER.apply(Security.checkLimits(networkForTry, 1), networkForTry);
+                if (violationsInTry.isEmpty()) {
+                    context.addWorkedTest(action.getId());
+                    if (applyIfWorks) {
+                        LOGGER.info("Loadflow with test {} works already and exists", action.getId());
+                        observers.forEach(o -> o.noMoreViolationsAfterTest(context, action.getId()));
+                        observers.forEach(o -> o.beforeApplyTest(context, action.getId()));
+                        action.run(context.getNetwork(), computationManager);
+                        observers.forEach(o -> o.afterApplyTest(context, action.getId()));
+                        return;
+                    } else {
+                        LOGGER.info("Loadflow with test {} works already and continues", action.getId());
+                        observers.forEach(o -> o.noMoreViolationsAfterTest(context, action.getId()));
+                    }
+                } else {
+                    LOGGER.info("Loadflow with test {} exits with violations", action.getId());
+                    observers.forEach(o -> o.violationsAfterTest(action.getId(), violationsInTry));
+                }
+            } else {
+                LOGGER.info("Loadflow with test {} diverged", action.getId());
+                observers.forEach(o -> o.divergedAfterTest(action.getId()));
+            }
+        }
     }
 
+    private LoadFlowResult runTest(RunningContext context, Network networkForTry, Action action) {
+        String actionId = action.getId();
+        LOGGER.info("TEST {} ", actionId);
+        action.run(networkForTry, computationManager);
+        LoadFlowFactory loadFlowFactory = newLoadFlowFactory();
+        LoadFlow testLoadFlow = loadFlowFactory.create(networkForTry, computationManager, 0);
+        LoadFlowResult testResult = null;
+        try {
+            observers.stream().forEach(o -> o.beforeTest(context, actionId));
+            testResult = testLoadFlow.run(LoadFlowParameters.load());
+            observers.stream().forEach(o -> o.afterTest(context, actionId));
+        } catch (Exception e) {
+            throw new PowsyblException(e);
+        }
+        return testResult;
+    }
 }

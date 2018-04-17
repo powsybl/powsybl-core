@@ -29,9 +29,7 @@ public class RunningContext {
 
     private final Set<String> testedActionsIds = new HashSet<>();
 
-    private boolean testWorks = false;
-
-    private String workedTest;
+    private List<String> workedTests = new ArrayList<>();
 
     public RunningContext(Network network, Contingency contingency) {
         this.network = network;
@@ -75,24 +73,23 @@ public class RunningContext {
         getRuleMatchCountInternal(ruleId).incrementAndGet();
     }
 
-    public void addTestedActions(Set<String> actionIds) {
-        testedActionsIds.addAll(actionIds);
-    }
-
-    public Set<String> getTestedActions() {
-        return Collections.unmodifiableSet(testedActionsIds);
-    }
-
     public boolean isTestWorks() {
-        return testWorks;
+        return !workedTests.isEmpty();
     }
 
-    public void setWorkedTest(String actionId) {
-        workedTest = actionId;
-        testWorks = true;
+    public void addWorkedTest(String actionId) {
+        workedTests.add(actionId);
     }
 
-    public String getWorkedTest() {
-        return workedTest;
+    public List<String> getWorkedTests() {
+        return Collections.unmodifiableList(workedTests);
+    }
+
+    public boolean isTested(String actionId) {
+        return testedActionsIds.contains(actionId);
+    }
+
+    public void addTested(String actionId) {
+        testedActionsIds.add(actionId);
     }
 }
