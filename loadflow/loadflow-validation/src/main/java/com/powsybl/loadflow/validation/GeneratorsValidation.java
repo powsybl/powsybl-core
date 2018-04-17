@@ -91,38 +91,37 @@ public final class GeneratorsValidation {
         boolean voltageRegulatorOn = gen.isVoltageRegulatorOn();
         float minQ = gen.getReactiveLimits().getMinQ(targetP);
         float maxQ = gen.getReactiveLimits().getMaxQ(targetP);
-        if (bus != null && !Float.isNaN(bus.getV())) {
-            float v = bus.getV();
-            return checkGenerators(gen.getId(), p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, config, generatorsWriter);
-        }
-        try {
-            generatorsWriter.write(gen.getId(), p, q, Float.NaN, targetP, targetQ, targetV, gen.getTerminal().isConnected(), voltageRegulatorOn, minQ, maxQ, true);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-        return true;
+        float v = bus != null ? bus.getV() : Float.NaN;
+        boolean connected = bus != null;
+        Bus connectableBus = gen.getTerminal().getBusView().getConnectableBus();
+        boolean connectableMainComponent = connectableBus != null && connectableBus.isInMainConnectedComponent();
+        boolean mainComponent = bus != null ? bus.isInMainConnectedComponent() : connectableMainComponent;
+        return checkGenerators(gen.getId(), p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, connected, mainComponent, config, generatorsWriter);
     }
 
     public static boolean checkGenerators(String id, float p, float q, float v, float targetP, float targetQ, float targetV,
-                                          boolean voltageRegulatorOn, float minQ, float maxQ, ValidationConfig config, Writer writer) {
+                                          boolean voltageRegulatorOn, float minQ, float maxQ, boolean connected, boolean mainComponent,
+                                          ValidationConfig config, Writer writer) {
         Objects.requireNonNull(id);
         Objects.requireNonNull(config);
         Objects.requireNonNull(writer);
 
         try (ValidationWriter generatorsWriter = ValidationUtils.createValidationWriter(id, config, writer, ValidationType.GENERATORS)) {
-            return checkGenerators(id, p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, config, generatorsWriter);
+            return checkGenerators(id, p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, connected, mainComponent, config, generatorsWriter);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
     public static boolean checkGenerators(String id, float p, float q, float v, float targetP, float targetQ, float targetV,
-                                          boolean voltageRegulatorOn, float minQ, float maxQ, ValidationConfig config, ValidationWriter generatorsWriter) {
+                                          boolean voltageRegulatorOn, float minQ, float maxQ, boolean connected, boolean mainComponent,
+                                          ValidationConfig config, ValidationWriter generatorsWriter) {
         Objects.requireNonNull(id);
         Objects.requireNonNull(config);
         Objects.requireNonNull(generatorsWriter);
         boolean validated = true;
-        try {
+
+        if (connected && ValidationUtils.checkMainComponent(config, mainComponent)) {
             if (Float.isNaN(p) || Float.isNaN(q)) {
                 validated = checkGeneratorsNaNValues(id, p, q, targetP, targetQ);
             } else if (maxQ < minQ && config.isNoRequirementIfReactiveBoundInversion()) { // when maxQ < minQ if noRequirementIfReactiveBoundInversion return true
@@ -130,7 +129,9 @@ public final class GeneratorsValidation {
             } else {
                 validated = checkGeneratorsValues(id, p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, config);
             }
-            generatorsWriter.write(id, p, q, v, targetP, targetQ, targetV, true, voltageRegulatorOn, minQ, maxQ, validated);
+        }
+        try {
+            generatorsWriter.write(id, p, q, v, targetP, targetQ, targetV, connected, voltageRegulatorOn, minQ, maxQ, mainComponent, validated);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

@@ -149,7 +149,7 @@ public final class TransformersValidation {
         float error = v - targetV;
         float upIncrement = Float.isNaN(rhoNextStep) ? Float.NaN : evaluateVoltage(regulatedSide, v, rho, rhoNextStep) - v;
         float downIncrement = Float.isNaN(rhoPreviousStep) ? Float.NaN : evaluateVoltage(regulatedSide, v, rho, rhoPreviousStep) - v;
-        if (connected && mainComponent) {
+        if (connected && ValidationUtils.checkMainComponent(config, mainComponent)) {
             validated = checkTransformerSide(id, regulatedSide, error, upIncrement, downIncrement, config);
         }
         try {
