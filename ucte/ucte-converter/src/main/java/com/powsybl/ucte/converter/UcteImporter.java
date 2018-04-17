@@ -7,15 +7,14 @@
 package com.powsybl.ucte.converter;
 
 import com.google.auto.service.AutoService;
+import com.google.common.base.Enums;
 import com.google.common.base.Joiner;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.entsoe.util.EntsoeFileName;
-import com.powsybl.entsoe.util.MergedXnode;
-import com.powsybl.entsoe.util.Xnode;
+import com.powsybl.entsoe.util.*;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.network.*;
 import com.powsybl.ucte.network.*;
@@ -76,6 +75,20 @@ public class UcteImporter implements Importer {
         return b;
     }
 
+    /**
+     * If the substation has a more specific geographical information than just its country,
+     * returns the corresponding geographical code, otherwise null.
+     */
+    private static EntsoeGeographicalCode getRegionalGeographicalCode(Substation substation) {
+        //Currently only DE has subregions
+        if (substation.getCountry() != Country.DE) {
+            return null;
+        }
+        EntsoeGeographicalCode res = Enums.getIfPresent(EntsoeGeographicalCode.class, substation.getName().substring(0, 2)).orNull();
+        //handle case where a D-node would start with DE ...
+        return res == EntsoeGeographicalCode.DE ? null : res;
+    }
+
     private static void createBuses(UcteNetworkExt ucteNetwork, UcteVoltageLevel ucteVoltageLevel, VoltageLevel voltageLevel) {
         for (UcteNodeCode ucteNodeCode : ucteVoltageLevel.getNodes()) {
             UcteNode ucteNode = ucteNetwork.getNode(ucteNodeCode);
@@ -121,6 +134,11 @@ public class UcteImporter implements Importer {
                     .setId(ucteSubstation.getName())
                     .setCountry(Country.valueOf(firstUcteNodeCode.getUcteCountryCode().name()))
                 .add();
+
+            EntsoeGeographicalCode regionalCode = getRegionalGeographicalCode(substation);
+            if (regionalCode != null) {
+                substation.addExtension(EntsoeArea.class, new EntsoeArea(substation, regionalCode));
+            }
 
             for (UcteVoltageLevel ucteVoltageLevel : ucteSubstation.getVoltageLevels()) {
                 UcteVoltageLevelCode ucteVoltageLevelCode = ucteVoltageLevel.getNodes().iterator().next().getVoltageLevelCode();
