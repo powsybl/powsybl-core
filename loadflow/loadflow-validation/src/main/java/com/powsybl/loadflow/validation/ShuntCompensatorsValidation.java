@@ -83,7 +83,6 @@ public final class ShuntCompensatorsValidation {
         Objects.requireNonNull(config);
         Objects.requireNonNull(shuntsWriter);
 
-        boolean validated = true;
         float p = shunt.getTerminal().getP();
         float q = shunt.getTerminal().getQ();
         int currentSectionCount = shunt.getCurrentSectionCount();
@@ -119,7 +118,7 @@ public final class ShuntCompensatorsValidation {
                                       ValidationWriter shuntsWriter) {
         boolean validated = true;
 
-        if (!connected & !Float.isNaN(q) && q != 0) { // if the shunt is disconnected then either “q” is not defined or “q” is 0
+        if (!connected && !Float.isNaN(q) && q != 0) { // if the shunt is disconnected then either “q” is not defined or “q” is 0
             LOGGER.warn("{} {}: {}: disconnected shunt Q {}", ValidationType.SHUNTS, ValidationUtils.VALIDATION_ERROR, id, q);
             validated = false;
         }
