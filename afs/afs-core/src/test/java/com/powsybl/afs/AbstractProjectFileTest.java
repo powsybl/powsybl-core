@@ -14,6 +14,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.mockito.Mockito;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
@@ -45,7 +46,7 @@ public abstract class AbstractProjectFileTest {
     }
 
     @Before
-    public void setup() {
+    public void setup() throws IOException {
         network = Mockito.mock(Network.class);
         Substation s = Mockito.mock(Substation.class);
         Mockito.when(s.getId()).thenReturn("s1");
@@ -61,7 +62,7 @@ public abstract class AbstractProjectFileTest {
     }
 
     @After
-    public void tearDown() {
+    public void tearDown() throws IOException {
         storage.close();
     }
 }
