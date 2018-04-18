@@ -291,19 +291,22 @@ public class LoadFlowActionSimulator implements ActionSimulator {
 
         for (String actionId : testActionIds) {
             Action action = actionDb.getAction(actionId);
-            Network networkForTry = NetworkXml.gunzip(contextNetwork);
-            LoadFlowResult testResult = runTest(context, networkForTry, action);
+            Network networkForTest = NetworkXml.gunzip(contextNetwork);
+            LoadFlowResult testResult = runTest(context, networkForTest, action);
             context.addTested(actionId);
             if (testResult.isOk()) {
-                List<LimitViolation> violationsInTry =
-                        LIMIT_VIOLATION_FILTER.apply(Security.checkLimits(networkForTry, 1), networkForTry);
-                if (violationsInTry.isEmpty()) {
+                List<LimitViolation> violationsInTest =
+                        LIMIT_VIOLATION_FILTER.apply(Security.checkLimits(networkForTest, 1), networkForTest);
+                if (violationsInTest.isEmpty()) {
                     context.addWorkedTest(action.getId());
                     if (applyIfWorks) {
                         LOGGER.info("Loadflow with test {} works already and exists", action.getId());
                         observers.forEach(o -> o.noMoreViolationsAfterTest(context, action.getId()));
                         observers.forEach(o -> o.beforeApplyTest(context, action.getId()));
                         action.run(context.getNetwork(), computationManager);
+                        context.getTimeLine().getActions().add(actionId);
+                        observers.forEach(o -> o.loadFlowConverged(context, violationsInTest));
+                        observers.forEach(o -> o.noMoreViolations(context));
                         observers.forEach(o -> o.afterApplyTest(context, action.getId()));
                         return;
                     } else {
@@ -312,7 +315,7 @@ public class LoadFlowActionSimulator implements ActionSimulator {
                     }
                 } else {
                     LOGGER.info("Loadflow with test {} exits with violations", action.getId());
-                    observers.forEach(o -> o.violationsAfterTest(action.getId(), violationsInTry));
+                    observers.forEach(o -> o.violationsAfterTest(action.getId(), violationsInTest));
                 }
             } else {
                 LOGGER.info("Loadflow with test {} diverged", action.getId());

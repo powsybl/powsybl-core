@@ -29,7 +29,7 @@ public class RunningContext {
 
     private final Set<String> testedActionsIds = new HashSet<>();
 
-    private List<String> workedTests = new ArrayList<>();
+    private final List<String> workedTests = new ArrayList<>();
 
     public RunningContext(Network network, Contingency contingency) {
         this.network = network;
