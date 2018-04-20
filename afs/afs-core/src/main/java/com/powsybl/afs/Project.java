@@ -8,8 +8,6 @@ package com.powsybl.afs;
 
 import com.powsybl.afs.storage.NodeInfo;
 
-import java.util.ResourceBundle;
-
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -20,12 +18,8 @@ public class Project extends File {
 
     public static final String ROOT_FOLDER_NAME = "root";
 
-    private static final String PROJECT_LABEL = ResourceBundle.getBundle("lang.Project").getString("Project");
-
-    private static final FileIcon PROJECT_ICON = new FileIcon(PROJECT_LABEL, Project.class.getResourceAsStream("/icons/project16x16.png"));
-
     public Project(FileCreationContext context) {
-        super(context, VERSION, PROJECT_ICON);
+        super(context, VERSION);
     }
 
     public ProjectFolder getRootFolder() {

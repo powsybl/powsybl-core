@@ -51,11 +51,6 @@ public class UcteImporter implements Importer {
     }
 
     @Override
-    public InputStream get16x16Icon() {
-        return UcteImporter.class.getResourceAsStream("/icons/ucte16x16.png");
-    }
-
-    @Override
     public String getComment() {
         return "UCTE-DEF";
     }

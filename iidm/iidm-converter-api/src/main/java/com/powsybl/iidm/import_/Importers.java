@@ -159,11 +159,6 @@ public final class Importers {
         }
 
         @Override
-        public InputStream get16x16Icon() {
-            return importer.get16x16Icon();
-        }
-
-        @Override
         public List<Parameter> getParameters() {
             return importer.getParameters();
         }

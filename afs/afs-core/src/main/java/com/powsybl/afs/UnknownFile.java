@@ -11,9 +11,7 @@ package com.powsybl.afs;
  */
 public class UnknownFile extends File {
 
-    static final FileIcon GHOST_ICON = new FileIcon("ghost", UnknownFile.class.getResourceAsStream("/icons/ghost16x16.png"));
-
     UnknownFile(FileCreationContext context) {
-        super(context, context.getInfo().getVersion(), GHOST_ICON);
+        super(context, context.getInfo().getVersion());
     }
 }

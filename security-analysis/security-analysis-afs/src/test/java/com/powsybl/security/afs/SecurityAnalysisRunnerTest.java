@@ -31,8 +31,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
@@ -83,11 +81,6 @@ public class SecurityAnalysisRunnerTest extends AbstractProjectFileTest {
         @Override
         public String getComment() {
             return "";
-        }
-
-        @Override
-        public InputStream get16x16Icon() {
-            return new ByteArrayInputStream(new byte[] {});
         }
 
         @Override
