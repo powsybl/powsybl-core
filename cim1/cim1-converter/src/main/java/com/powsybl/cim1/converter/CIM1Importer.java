@@ -82,11 +82,6 @@ public class CIM1Importer implements Importer, CIM1Constants {
     }
 
     @Override
-    public InputStream get16x16Icon() {
-        return CIM1Importer.class.getResourceAsStream("/icons/entsoe16x16.png");
-    }
-
-    @Override
     public List<Parameter> getParameters() {
         return PARAMETERS;
     }

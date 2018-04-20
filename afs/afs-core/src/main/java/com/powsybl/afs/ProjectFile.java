@@ -22,8 +22,6 @@ import java.util.stream.Collectors;
  */
 public class ProjectFile extends ProjectNode {
 
-    protected final FileIcon icon;
-
     private final WeakListenerList<ProjectFileListener> listeners = new WeakListenerList<>();
 
     private final AppStorageListener l = eventList -> {
@@ -47,19 +45,14 @@ public class ProjectFile extends ProjectNode {
         }
     };
 
-    protected ProjectFile(ProjectFileCreationContext context, int codeVersion, FileIcon icon) {
+    protected ProjectFile(ProjectFileCreationContext context, int codeVersion) {
         super(context, codeVersion, true);
-        this.icon = Objects.requireNonNull(icon);
         storage.addListener(l);
     }
 
     @Override
     public boolean isFolder() {
         return false;
-    }
-
-    public FileIcon getIcon() {
-        return icon;
     }
 
     public List<ProjectDependency<ProjectNode>> getDependencies() {
