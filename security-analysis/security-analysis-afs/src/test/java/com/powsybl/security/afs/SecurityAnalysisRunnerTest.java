@@ -21,6 +21,7 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.afs.ContingencyStore;
 import com.powsybl.contingency.afs.ContingencyStoreBuilder;
 import com.powsybl.contingency.afs.ContingencyStoreExtension;
+import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.import_.ImportersLoader;
 import com.powsybl.iidm.import_.ImportersLoaderList;
@@ -31,6 +32,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
@@ -116,7 +118,7 @@ public class SecurityAnalysisRunnerTest extends AbstractProjectFileTest {
 
     @Override
     protected List<ProjectFileExtension> getProjectFileExtensions() {
-        return ImmutableList.of(new ImportedCaseExtension(importersLoader),
+        return ImmutableList.of(new ImportedCaseExtension(importersLoader, new ImportConfig()),
                                 new ContingencyStoreExtension(),
                                 new SecurityAnalysisRunnerExtension(new SecurityAnalysisParameters()));
     }
@@ -128,7 +130,7 @@ public class SecurityAnalysisRunnerTest extends AbstractProjectFileTest {
     }
 
     @Before
-    public void setup() {
+    public void setup() throws IOException {
         super.setup();
 
         // create network.net

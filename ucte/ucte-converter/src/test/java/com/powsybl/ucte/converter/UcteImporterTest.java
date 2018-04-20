@@ -8,14 +8,15 @@ package com.powsybl.ucte.converter;
 
 import com.powsybl.commons.datasource.DataSourceUtil;
 import com.powsybl.commons.datasource.ReadOnlyMemDataSource;
+import com.powsybl.entsoe.util.EntsoeArea;
+import com.powsybl.entsoe.util.EntsoeGeographicalCode;
 import com.powsybl.entsoe.util.MergedXnode;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 /**
  * @author Sebastien Murgey <sebastien.murgey at rte-france.com>
@@ -37,6 +38,29 @@ public class UcteImporterTest {
         assertEquals(1, network.getSubstation("EHORTA").getVoltageLevelStream().count());
         assertEquals(Country.BE, network.getSubstation("BHORTA").getCountry());
         assertEquals(1, network.getSubstation("BHORTA").getVoltageLevelStream().count());
+    }
+
+    @Test
+    public void germanTsosImport() throws Exception {
+        ReadOnlyMemDataSource dataSource = DataSourceUtil.createReadOnlyMemDataSource("germanTsos.uct", getClass().getResourceAsStream("/germanTsos.uct"));
+        Network network = new UcteImporter().importData(dataSource, null);
+
+        //Check D4 is correctly parsed
+        EntsoeArea ext = network.getSubstation("D4NEUR").getExtension(EntsoeArea.class);
+        assertNotNull(ext);
+        assertEquals(EntsoeGeographicalCode.D4, ext.getCode());
+
+        //Check that for other countries, no extension is added
+        ext = network.getSubstation("BAVLGM").getExtension(EntsoeArea.class);
+        assertNull(ext);
+
+        //Check that for "D-nodes", no extension is added
+        ext = network.getSubstation("DJA_KA").getExtension(EntsoeArea.class);
+        assertNull(ext);
+
+        //Check that for a "D-node" starting with "DE", no extension is added
+        ext = network.getSubstation("DEA_KA").getExtension(EntsoeArea.class);
+        assertNull(ext);
     }
 
     @Test

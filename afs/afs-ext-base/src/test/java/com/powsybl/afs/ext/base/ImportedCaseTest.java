@@ -8,16 +8,23 @@ package com.powsybl.afs.ext.base;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
 import com.powsybl.afs.*;
 import com.powsybl.afs.mapdb.storage.MapDbAppStorage;
 import com.powsybl.afs.storage.AppStorage;
-import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.afs.storage.NodeGenericMetadata;
+import com.powsybl.afs.storage.NodeInfo;
+import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.ImportersLoader;
 import com.powsybl.iidm.import_.ImportersLoaderList;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.IOException;
+import java.nio.file.FileSystem;
+import java.nio.file.Files;
 import java.util.Collections;
 import java.util.List;
 
@@ -27,6 +34,8 @@ import static org.junit.Assert.*;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class ImportedCaseTest extends AbstractProjectFileTest {
+
+    private FileSystem fileSystem;
 
     @Override
     protected AppStorage createStorage() {
@@ -44,7 +53,7 @@ public class ImportedCaseTest extends AbstractProjectFileTest {
 
     @Override
     protected List<ProjectFileExtension> getProjectFileExtensions() {
-        return ImmutableList.of(new ImportedCaseExtension(createImportersLoader()));
+        return ImmutableList.of(new ImportedCaseExtension(createImportersLoader(), new ImportConfig()));
     }
 
     @Override
@@ -52,12 +61,24 @@ public class ImportedCaseTest extends AbstractProjectFileTest {
         return ImmutableList.of(new LocalNetworkCacheServiceExtension());
     }
 
+    @Override
     @Before
-    public void setup() {
+    public void setup() throws IOException {
         super.setup();
         NodeInfo rootFolderInfo = storage.createRootNodeIfNotExists("root", Folder.PSEUDO_CLASS);
-        NodeInfo caseInfo = storage.createNode(rootFolderInfo.getId(), "network", Case.PSEUDO_CLASS, "Test format", Case.VERSION,
+        storage.createNode(rootFolderInfo.getId(), "network", Case.PSEUDO_CLASS, "Test format", Case.VERSION,
                 new NodeGenericMetadata().setString("format", TestImporter.FORMAT));
+
+        fileSystem = Jimfs.newFileSystem(Configuration.unix());
+        Files.createFile(fileSystem.getPath("/work/network.tst"));
+    }
+
+    @Override
+    @After
+    public void tearDown() throws IOException {
+        fileSystem.close();
+
+        super.tearDown();
     }
 
     @Test
@@ -119,5 +140,31 @@ public class ImportedCaseTest extends AbstractProjectFileTest {
             projectNode.getName();
         } catch (Exception ignored) {
         }
+    }
+
+    @Test
+    public void testFile() {
+        Folder root = afs.getRootFolder();
+
+        // create project
+        Project project = root.createProject("project");
+        assertNotNull(project);
+
+        // create project folder
+        ProjectFolder folder = project.getRootFolder().createFolder("folder");
+        assertTrue(folder.getChildren().isEmpty());
+
+        ImportedCase importedCase = folder.fileBuilder(ImportedCaseBuilder.class)
+                .withFile(fileSystem.getPath("/work/network.tst"))
+                .withName("test")
+                .build();
+        assertNotNull(importedCase);
+        assertEquals("test", importedCase.getName());
+
+        ImportedCase importedCase2 = folder.fileBuilder(ImportedCaseBuilder.class)
+                .withFile(fileSystem.getPath("/work/network.tst"))
+                .build();
+        assertNotNull(importedCase2);
+        assertEquals("network", importedCase2.getName());
     }
 }

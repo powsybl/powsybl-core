@@ -20,7 +20,7 @@ import static org.junit.Assert.fail;
 public class ActionDbTest {
 
     @Test
-    public void testContigencies() {
+    public void testContingencies() {
         Contingency contingency = Mockito.mock(Contingency.class);
         Mockito.when(contingency.getId()).thenReturn("id");
 
