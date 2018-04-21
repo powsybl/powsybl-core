@@ -10,6 +10,7 @@ import com.powsybl.afs.ext.base.Case;
 import com.powsybl.afs.storage.AppStorageDataSource;
 import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.commons.datasource.DataSourceUtil;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.math.timeseries.DoubleTimeSeries;
@@ -41,7 +42,7 @@ public class LocalCase implements LocalFile {
 
     @Override
     public String getName() {
-        return file.getFileName().toString();
+        return DataSourceUtil.getBaseName(file);
     }
 
     @Override
