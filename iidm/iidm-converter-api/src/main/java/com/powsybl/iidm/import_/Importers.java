@@ -424,13 +424,12 @@ public final class Importers {
     }
 
     public static void loadNetworks(Path dir, boolean parallel, ComputationManager computationManager, ImportConfig config, Consumer<Network> consumer) throws IOException, InterruptedException, ExecutionException {
-        loadNetworks(dir, parallel, LocalComputationManager.getDefault(), CONFIG.get(), consumer, null);
+        loadNetworks(dir, parallel, computationManager, config, consumer, null);
     }
 
     public static void loadNetworks(Path dir, boolean parallel, Consumer<Network> consumer) throws IOException, InterruptedException, ExecutionException {
         loadNetworks(dir, parallel, LocalComputationManager.getDefault(), CONFIG.get(), consumer);
     }
-
 
     public static void loadNetworks(Path dir, boolean parallel, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener) throws IOException, InterruptedException, ExecutionException {
         loadNetworks(dir, parallel, LocalComputationManager.getDefault(), CONFIG.get(), consumer, listener);
