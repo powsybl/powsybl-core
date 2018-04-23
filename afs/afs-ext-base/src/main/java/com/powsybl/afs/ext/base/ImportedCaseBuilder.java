@@ -6,7 +6,6 @@
  */
 package com.powsybl.afs.ext.base;
 
-import com.google.common.io.Files;
 import com.powsybl.afs.AfsException;
 import com.powsybl.afs.ProjectFileBuildContext;
 import com.powsybl.afs.ProjectFileBuilder;
@@ -14,6 +13,7 @@ import com.powsybl.afs.ProjectFileCreationContext;
 import com.powsybl.afs.storage.AppStorageDataSource;
 import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.afs.storage.NodeInfo;
+import com.powsybl.commons.datasource.DataSourceUtil;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.Importer;
@@ -73,7 +73,7 @@ public class ImportedCaseBuilder implements ProjectFileBuilder<ImportedCase> {
     public ImportedCaseBuilder withFile(Path file) {
         withDatasource(Importers.createDataSource(file));
         if (name == null) {
-            name = Files.getNameWithoutExtension(file.getFileName().toString());
+            name = DataSourceUtil.getBaseName(file);
         }
         return this;
     }
