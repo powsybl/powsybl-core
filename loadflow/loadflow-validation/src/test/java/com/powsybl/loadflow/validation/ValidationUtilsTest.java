@@ -62,11 +62,11 @@ public class ValidationUtilsTest extends AbstractValidationTest {
 
     @Test
     public void isMainComponent() {
-        assertTrue(ValidationUtils.checkMainComponent(looseConfig, true));
-        assertFalse(ValidationUtils.checkMainComponent(looseConfig, false));
+        assertTrue(ValidationUtils.isMainComponent(looseConfig, true));
+        assertFalse(ValidationUtils.isMainComponent(looseConfig, false));
 
-        looseConfig.setCheckMainComponent(false);
-        assertTrue(ValidationUtils.checkMainComponent(looseConfig, true));
-        assertTrue(ValidationUtils.checkMainComponent(looseConfig, false));
+        looseConfig.setCheckMainComponentOnly(false);
+        assertTrue(ValidationUtils.isMainComponent(looseConfig, true));
+        assertTrue(ValidationUtils.isMainComponent(looseConfig, false));
     }
 }

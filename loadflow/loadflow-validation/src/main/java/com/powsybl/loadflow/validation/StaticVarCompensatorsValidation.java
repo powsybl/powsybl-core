@@ -122,7 +122,7 @@ public final class StaticVarCompensatorsValidation {
         Objects.requireNonNull(svcsWriter);
         boolean validated = true;
 
-        if (connected && ValidationUtils.checkMainComponent(config, mainComponent)) {
+        if (connected && ValidationUtils.isMainComponent(config, mainComponent)) {
             if (Float.isNaN(p) || Float.isNaN(q)) {
                 validated = checkSVCsNaNValues(id, p, q, reactivePowerSetpoint);
             } else {

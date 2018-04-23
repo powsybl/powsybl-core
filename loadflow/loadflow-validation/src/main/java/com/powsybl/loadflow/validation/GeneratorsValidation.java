@@ -121,7 +121,7 @@ public final class GeneratorsValidation {
         Objects.requireNonNull(generatorsWriter);
         boolean validated = true;
 
-        if (connected && ValidationUtils.checkMainComponent(config, mainComponent)) {
+        if (connected && ValidationUtils.isMainComponent(config, mainComponent)) {
             if (Float.isNaN(p) || Float.isNaN(q)) {
                 validated = checkGeneratorsNaNValues(id, p, q, targetP, targetQ);
             } else if (maxQ < minQ && config.isNoRequirementIfReactiveBoundInversion()) { // when maxQ < minQ if noRequirementIfReactiveBoundInversion return true

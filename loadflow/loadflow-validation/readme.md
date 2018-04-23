@@ -21,7 +21,7 @@ You may configure the following properties in your platform configuration file.
 	<ok-missing-values>false</ok-missing-values>
 	<no-requirement-if-reactive-bound-inversion>false</no-requirement-if-reactive-bound-inversion>
 	<compare-results>false</compare-results>
-	<check-main-component>true</check-main-component>
+	<check-main-component-only>true</check-main-component-only>
 </loadflow-validation>
 ```
 
@@ -35,7 +35,7 @@ You may configure the following properties in your platform configuration file.
 * *ok-missing-values*: perform validation check even if some parameters of connected components have NaN values; default value is false (i.e. validation check fails if some parameters of connected components have NaN Values)
 * *no-requirement-if-reactive-bound-inversion*: return validation success if there is a reactive bounds inversion (maxQ < minQ); default is false
 * *compare-results*: print output files with results both before and after the loadflow
-* *check-main-component*: validate only the equipment in the main connected component
+* *check-main-component-only*: validate only the equipment in the main connected component
 
 ## itools command
 

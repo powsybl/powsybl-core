@@ -124,7 +124,7 @@ public final class ShuntCompensatorsValidation {
         }
         // “q” = - bPerSection * currentSectionCount * v^2
         float expectedQ = -bPerSection * currentSectionCount * v * v;
-        if (connected && ValidationUtils.checkMainComponent(config, mainComponent)) {
+        if (connected && ValidationUtils.isMainComponent(config, mainComponent)) {
             // “p” is always NaN
             if (!Float.isNaN(p)) {
                 LOGGER.warn("{} {}: {}: P={}", ValidationType.SHUNTS, ValidationUtils.VALIDATION_ERROR, id, p);

@@ -81,10 +81,10 @@ public final class FlowsValidation {
         if (!connected2) {
             validated &= checkDisconnectedTerminal(id, "2", p2, p2Calc, q2, q2Calc, config);
         }
-        if (connected1 && ValidationUtils.checkMainComponent(config, mainComponent1)) {
+        if (connected1 && ValidationUtils.isMainComponent(config, mainComponent1)) {
             validated &= checkConnectedTerminal(id, "1", p1, p1Calc, q1, q1Calc, config);
         }
-        if (connected2 && ValidationUtils.checkMainComponent(config, mainComponent2)) {
+        if (connected2 && ValidationUtils.isMainComponent(config, mainComponent2)) {
             validated &= checkConnectedTerminal(id, "2", p2, p2Calc, q2, q2Calc, config);
         }
         try {

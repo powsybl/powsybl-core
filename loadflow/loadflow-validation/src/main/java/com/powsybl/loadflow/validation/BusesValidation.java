@@ -155,7 +155,7 @@ public final class BusesValidation {
 
         double incomingP = genP + shuntP + svcP + vscCSP + lineP + danglingLineP + twtP + tltP;
         double incomingQ = genQ + shuntQ + svcQ + vscCSQ + lineQ + danglingLineQ + twtQ + tltQ;
-        if (ValidationUtils.checkMainComponent(config, mainComponent)) {
+        if (ValidationUtils.isMainComponent(config, mainComponent)) {
             if (ValidationUtils.areNaN(config, incomingP, loadP) || Math.abs(incomingP + loadP) > config.getThreshold()) {
                 LOGGER.warn("{} {}: {} P {} {}", ValidationType.BUSES, ValidationUtils.VALIDATION_ERROR, id, incomingP, loadP);
                 validated = false;

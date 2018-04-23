@@ -31,7 +31,7 @@ public class ValidationConfig {
     public static final boolean OK_MISSING_VALUES_DEFAULT = false;
     public static final boolean NO_REQUIREMENT_IF_REACTIVE_BOUND_INVERSION_DEFAULT = false;
     public static final boolean COMPARE_RESULTS_DEFAULT = false;
-    public static final boolean CHECK_MAIN_COMPONENT_DEFAULT = true;
+    public static final boolean CHECK_MAIN_COMPONENT_ONLY_DEFAULT = true;
 
     private float threshold;
     private boolean verbose;
@@ -44,7 +44,7 @@ public class ValidationConfig {
     private boolean okMissingValues;
     private boolean noRequirementIfReactiveBoundInversion;
     private boolean compareResults;
-    private boolean checkMainComponent;
+    private boolean checkMainComponentOnly;
 
     public static ValidationConfig load() {
         return load(PlatformConfig.defaultConfig());
@@ -62,7 +62,7 @@ public class ValidationConfig {
         boolean okMissingValues = OK_MISSING_VALUES_DEFAULT;
         boolean noRequirementIfReactiveBoundInversion = NO_REQUIREMENT_IF_REACTIVE_BOUND_INVERSION_DEFAULT;
         boolean compareResults = COMPARE_RESULTS_DEFAULT;
-        boolean checkMainComponent = CHECK_MAIN_COMPONENT_DEFAULT;
+        boolean checkMainComponentOnly = CHECK_MAIN_COMPONENT_ONLY_DEFAULT;
         LoadFlowParameters loadFlowParameter = LoadFlowParameters.load(platformConfig);
         if (platformConfig.moduleExists("loadflow-validation")) {
             ModuleConfig config = platformConfig.getModuleConfig("loadflow-validation");
@@ -78,16 +78,16 @@ public class ValidationConfig {
             okMissingValues = config.getBooleanProperty("ok-missing-values", OK_MISSING_VALUES_DEFAULT);
             noRequirementIfReactiveBoundInversion = config.getBooleanProperty("no-requirement-if-reactive-bound-inversion", NO_REQUIREMENT_IF_REACTIVE_BOUND_INVERSION_DEFAULT);
             compareResults = config.getBooleanProperty("compare-results", COMPARE_RESULTS_DEFAULT);
-            checkMainComponent = config.getBooleanProperty("check-main-component", CHECK_MAIN_COMPONENT_DEFAULT);
+            checkMainComponentOnly = config.getBooleanProperty("check-main-component-only", CHECK_MAIN_COMPONENT_ONLY_DEFAULT);
         }
         return new ValidationConfig(threshold, verbose, loadFlowFactory, tableFormatterFactory, epsilonX, applyReactanceCorrection, validationOutputWriter, loadFlowParameter,
-                                    okMissingValues, noRequirementIfReactiveBoundInversion, compareResults, checkMainComponent);
+                                    okMissingValues, noRequirementIfReactiveBoundInversion, compareResults, checkMainComponentOnly);
     }
 
     public ValidationConfig(float threshold, boolean verbose, Class<? extends LoadFlowFactory> loadFlowFactory,
                             Class<? extends TableFormatterFactory> tableFormatterFactory, float epsilonX,
                             boolean applyReactanceCorrection, ValidationOutputWriter validationOutputWriter, LoadFlowParameters loadFlowParameters,
-                            boolean okMissingValues, boolean noRequirementIfReactiveBoundInversion, boolean compareResults, boolean checkMainComponent) {
+                            boolean okMissingValues, boolean noRequirementIfReactiveBoundInversion, boolean compareResults, boolean checkMainComponentOnly) {
         if (threshold < 0) {
             throw new IllegalArgumentException("Negative values for threshold not permitted");
         }
@@ -105,7 +105,7 @@ public class ValidationConfig {
         this.okMissingValues = okMissingValues;
         this.noRequirementIfReactiveBoundInversion = noRequirementIfReactiveBoundInversion;
         this.compareResults = compareResults;
-        this.checkMainComponent = checkMainComponent;
+        this.checkMainComponentOnly = checkMainComponentOnly;
     }
 
     public float getThreshold() {
@@ -152,8 +152,8 @@ public class ValidationConfig {
         return compareResults;
     }
 
-    public boolean isCheckMainComponent() {
-        return checkMainComponent;
+    public boolean isCheckMainComponentOnly() {
+        return checkMainComponentOnly;
     }
 
     public void setThreshold(float threshold) {
@@ -200,8 +200,8 @@ public class ValidationConfig {
         this.compareResults = compareResults;
     }
 
-    public void setCheckMainComponent(boolean checkMainComponent) {
-        this.checkMainComponent = checkMainComponent;
+    public void setCheckMainComponentOnly(boolean checkMainComponentOnly) {
+        this.checkMainComponentOnly = checkMainComponentOnly;
     }
 
     @Override
@@ -218,7 +218,7 @@ public class ValidationConfig {
                 ", okMissingValues=" + okMissingValues +
                 ", noRequirementIfReactiveBoundInversion=" + noRequirementIfReactiveBoundInversion +
                 ", compareResults=" + compareResults +
-                ", checkMainComponent=" + checkMainComponent +
+                ", checkMainComponentOnly=" + checkMainComponentOnly +
                 "]";
     }
 }
