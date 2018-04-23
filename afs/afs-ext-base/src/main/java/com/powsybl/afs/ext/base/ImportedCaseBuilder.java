@@ -13,6 +13,11 @@ import com.powsybl.afs.ProjectFileCreationContext;
 import com.powsybl.afs.storage.AppStorageDataSource;
 import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.afs.storage.NodeInfo;
+import com.powsybl.commons.datasource.DataSourceUtil;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.iidm.import_.ImportConfig;
+import com.powsybl.iidm.import_.Importer;
+import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.import_.ImportersLoader;
 
 import java.io.IOException;
@@ -20,6 +25,7 @@ import java.io.OutputStreamWriter;
 import java.io.UncheckedIOException;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
@@ -33,15 +39,20 @@ public class ImportedCaseBuilder implements ProjectFileBuilder<ImportedCase> {
 
     private final ImportersLoader importersLoader;
 
+    private final ImportConfig importConfig;
+
     private String name;
 
-    private Case aCase;
+    private ReadOnlyDataSource dataSource;
+
+    private Importer importer;
 
     private final Properties parameters = new Properties();
 
-    public ImportedCaseBuilder(ProjectFileBuildContext context, ImportersLoader importersLoader) {
+    public ImportedCaseBuilder(ProjectFileBuildContext context, ImportersLoader importersLoader, ImportConfig importConfig) {
         this.context = Objects.requireNonNull(context);
         this.importersLoader = Objects.requireNonNull(importersLoader);
+        this.importConfig = Objects.requireNonNull(importConfig);
     }
 
     public ImportedCaseBuilder withName(String name) {
@@ -50,7 +61,30 @@ public class ImportedCaseBuilder implements ProjectFileBuilder<ImportedCase> {
     }
 
     public ImportedCaseBuilder withCase(Case aCase) {
-        this.aCase = Objects.requireNonNull(aCase);
+        Objects.requireNonNull(aCase);
+        if (name == null) {
+            name = aCase.getName();
+        }
+        dataSource = aCase.getDataSource();
+        importer = aCase.getImporter();
+        return this;
+    }
+
+    public ImportedCaseBuilder withFile(Path file) {
+        withDatasource(Importers.createDataSource(file));
+        if (name == null) {
+            name = DataSourceUtil.getBaseName(file);
+        }
+        return this;
+    }
+
+    public ImportedCaseBuilder withDatasource(ReadOnlyDataSource dataSource) {
+        Objects.requireNonNull(dataSource);
+        importer = Importers.findImporter(dataSource, importersLoader, context.getFileSystem().getData().getShortTimeExecutionComputationManager(), importConfig);
+        if (importer == null) {
+            throw new AfsException("No importer found for this data source");
+        }
+        this.dataSource = dataSource;
         return this;
     }
 
@@ -66,22 +100,23 @@ public class ImportedCaseBuilder implements ProjectFileBuilder<ImportedCase> {
 
     @Override
     public ImportedCase build() {
-        if (aCase == null) {
-            throw new AfsException("Case is not set");
+        if (dataSource == null) {
+            throw new AfsException("Case or data source is not set");
+        }
+        if (name == null) {
+            throw new AfsException("Name is not set (mandatory when importing directly from a data source)");
         }
 
-        String importedCaseName = this.name != null ? this.name : aCase.getName();
-
-        if (context.getStorage().getChildNode(context.getFolderInfo().getId(), importedCaseName).isPresent()) {
-            throw new AfsException("Parent folder already contains a '" + importedCaseName + "' node");
+        if (context.getStorage().getChildNode(context.getFolderInfo().getId(), name).isPresent()) {
+            throw new AfsException("Parent folder already contains a '" + name + "' node");
         }
 
         // create project file
-        NodeInfo info = context.getStorage().createNode(context.getFolderInfo().getId(), importedCaseName, ImportedCase.PSEUDO_CLASS, "", ImportedCase.VERSION,
-                new NodeGenericMetadata().setString(ImportedCase.FORMAT, aCase.getImporter().getFormat()));
+        NodeInfo info = context.getStorage().createNode(context.getFolderInfo().getId(), name, ImportedCase.PSEUDO_CLASS, "", ImportedCase.VERSION,
+                new NodeGenericMetadata().setString(ImportedCase.FORMAT, importer.getFormat()));
 
         // store case data
-        aCase.getImporter().copy(aCase.getDataSource(), new AppStorageDataSource(context.getStorage(), info.getId()));
+        importer.copy(dataSource, new AppStorageDataSource(context.getStorage(), info.getId()));
 
         // store parameters
         try (Writer writer = new OutputStreamWriter(context.getStorage().writeBinaryData(info.getId(), ImportedCase.PARAMETERS), StandardCharsets.UTF_8)) {
