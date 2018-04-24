@@ -109,7 +109,9 @@ public final class BusesValidation {
         double twtQ = bus.getTwoWindingTransformerStream().map(twt -> getBranchTerminal(twt, bus)).mapToDouble(Terminal::getQ).sum();
         double tltP = bus.getThreeWindingTransformerStream().map(tlt -> getThreeWindingTransformerTerminal(tlt, bus)).mapToDouble(Terminal::getP).sum();
         double tltQ = bus.getThreeWindingTransformerStream().map(tlt -> getThreeWindingTransformerTerminal(tlt, bus)).mapToDouble(Terminal::getQ).sum();
-        return checkBuses(bus.getId(), loadP, loadQ, genP, genQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ, lineP, lineQ, danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, config, busesWriter);
+        boolean mainComponent = bus.isInMainConnectedComponent();
+        return checkBuses(bus.getId(), loadP, loadQ, genP, genQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ, lineP, lineQ,
+                          danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, mainComponent, config, busesWriter);
     }
 
     private static Terminal getBranchTerminal(Branch branch, Bus bus) {
@@ -132,13 +134,14 @@ public final class BusesValidation {
 
     public static boolean checkBuses(String id, double loadP, double loadQ, double genP, double genQ, double shuntP, double shuntQ,
                                      double svcP, double svcQ, double vscCSP, double vscCSQ, double lineP, double lineQ, double danglingLineP, double danglingLineQ,
-                                     double twtP, double twtQ, double tltP, double tltQ, ValidationConfig config, Writer writer) {
+                                     double twtP, double twtQ, double tltP, double tltQ, boolean mainComponent, ValidationConfig config, Writer writer) {
         Objects.requireNonNull(id);
         Objects.requireNonNull(config);
         Objects.requireNonNull(writer);
 
         try (ValidationWriter busesWriter = ValidationUtils.createValidationWriter(id, config, writer, ValidationType.BUSES)) {
-            return checkBuses(id, loadP, loadQ, genP, genQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ, lineP, lineQ, danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, config, busesWriter);
+            return checkBuses(id, loadP, loadQ, genP, genQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ, lineP, lineQ,
+                              danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, mainComponent, config, busesWriter);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -146,12 +149,13 @@ public final class BusesValidation {
 
     public static boolean checkBuses(String id, double loadP, double loadQ, double genP, double genQ, double shuntP, double shuntQ,
                                      double svcP, double svcQ, double vscCSP, double vscCSQ, double lineP, double lineQ, double danglingLineP, double danglingLineQ,
-                                     double twtP, double twtQ, double tltP, double tltQ, ValidationConfig config, ValidationWriter busesWriter) {
+                                     double twtP, double twtQ, double tltP, double tltQ, boolean mainComponent, ValidationConfig config, ValidationWriter busesWriter) {
         Objects.requireNonNull(id);
         boolean validated = true;
-        try {
-            double incomingP = genP + shuntP + svcP + vscCSP + lineP + danglingLineP + twtP + tltP;
-            double incomingQ = genQ + shuntQ + svcQ + vscCSQ + lineQ + danglingLineQ + twtQ + tltQ;
+
+        double incomingP = genP + shuntP + svcP + vscCSP + lineP + danglingLineP + twtP + tltP;
+        double incomingQ = genQ + shuntQ + svcQ + vscCSQ + lineQ + danglingLineQ + twtQ + tltQ;
+        if (ValidationUtils.isMainComponent(config, mainComponent)) {
             if (ValidationUtils.areNaN(config, incomingP, loadP) || Math.abs(incomingP + loadP) > config.getThreshold()) {
                 LOGGER.warn("{} {}: {} P {} {}", ValidationType.BUSES, ValidationUtils.VALIDATION_ERROR, id, incomingP, loadP);
                 validated = false;
@@ -160,7 +164,10 @@ public final class BusesValidation {
                 LOGGER.warn("{} {}: {} Q {} {}", ValidationType.BUSES, ValidationUtils.VALIDATION_ERROR, id, incomingQ, loadQ);
                 validated = false;
             }
-            busesWriter.write(id, incomingP, incomingQ, loadP, loadQ, genP, genQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ, lineP, lineQ, danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, validated);
+        }
+        try {
+            busesWriter.write(id, incomingP, incomingQ, loadP, loadQ, genP, genQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
+                              lineP, lineQ, danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, mainComponent, validated);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

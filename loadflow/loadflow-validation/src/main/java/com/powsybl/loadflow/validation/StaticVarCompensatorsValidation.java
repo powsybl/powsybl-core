@@ -92,44 +92,45 @@ public final class StaticVarCompensatorsValidation {
         float bMin = svc.getBmin();
         float bMax = svc.getBmax();
         float nominalV = svc.getTerminal().getVoltageLevel().getNominalV();
-        if (bus != null && !Float.isNaN(bus.getV())) {
-            float v = bus.getV();
-            return checkSVCs(svc.getId(), p, q, v, nominalV, reactivePowerSetpoint, voltageSetpoint, regulationMode, bMin, bMax, config, svcsWriter);
-        }
-        try {
-            svcsWriter.write(svc.getId(), p, q, Float.NaN, nominalV, reactivePowerSetpoint, voltageSetpoint, svc.getTerminal().isConnected(), regulationMode, bMin, bMax, true);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-        return true;
+        float v = bus != null ? bus.getV() : Float.NaN;
+        boolean connected = bus != null;
+        Bus connectableBus = svc.getTerminal().getBusView().getConnectableBus();
+        boolean connectableMainComponent = connectableBus != null && connectableBus.isInMainConnectedComponent();
+        boolean mainComponent = bus != null ? bus.isInMainConnectedComponent() : connectableMainComponent;
+        return checkSVCs(svc.getId(), p, q, v, nominalV, reactivePowerSetpoint, voltageSetpoint, regulationMode, bMin, bMax, connected, mainComponent, config, svcsWriter);
     }
 
     public static boolean checkSVCs(String id, float p, float q, float v, float nominalV, float reactivePowerSetpoint, float voltageSetpoint,
-                                    RegulationMode regulationMode, float bMin, float bMax, ValidationConfig config, Writer writer) {
+                                    RegulationMode regulationMode, float bMin, float bMax, boolean connected, boolean mainComponent,
+                                    ValidationConfig config, Writer writer) {
         Objects.requireNonNull(id);
         Objects.requireNonNull(config);
         Objects.requireNonNull(writer);
 
         try (ValidationWriter svcsWriter = ValidationUtils.createValidationWriter(id, config, writer, ValidationType.SVCS)) {
-            return checkSVCs(id, p, q, v, nominalV, reactivePowerSetpoint, voltageSetpoint, regulationMode, bMin, bMax, config, svcsWriter);
+            return checkSVCs(id, p, q, v, nominalV, reactivePowerSetpoint, voltageSetpoint, regulationMode, bMin, bMax, connected, mainComponent, config, svcsWriter);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
     public static boolean checkSVCs(String id, float p, float q, float v, float nominalV, float reactivePowerSetpoint, float voltageSetpoint,
-                                    RegulationMode regulationMode, float bMin, float bMax, ValidationConfig config, ValidationWriter svcsWriter) {
+                                    RegulationMode regulationMode, float bMin, float bMax, boolean connected, boolean mainComponent,
+                                    ValidationConfig config, ValidationWriter svcsWriter) {
         Objects.requireNonNull(id);
         Objects.requireNonNull(config);
         Objects.requireNonNull(svcsWriter);
         boolean validated = true;
-        try {
+
+        if (connected && ValidationUtils.isMainComponent(config, mainComponent)) {
             if (Float.isNaN(p) || Float.isNaN(q)) {
                 validated = checkSVCsNaNValues(id, p, q, reactivePowerSetpoint);
             } else {
                 validated = checkSVCsValues(id, p, q, v, nominalV, reactivePowerSetpoint, voltageSetpoint, regulationMode, bMin, bMax, config);
             }
-            svcsWriter.write(id, p, q, v, nominalV, reactivePowerSetpoint, voltageSetpoint, true, regulationMode, bMin, bMax, validated);
+        }
+        try {
+            svcsWriter.write(id, p, q, v, nominalV, reactivePowerSetpoint, voltageSetpoint, connected, regulationMode, bMin, bMax, mainComponent, validated);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

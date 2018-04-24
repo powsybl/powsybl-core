@@ -95,10 +95,10 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                                             new Column("z"),
                                             new Column("y"),
                                             new Column("ksi"),
-                                            new Column("connected1"),
-                                            new Column("connected2"),
-                                            new Column("mainComponent1"),
-                                            new Column("mainComponent2"),
+                                            new Column(CONNECTED + "1"),
+                                            new Column(CONNECTED + "2"),
+                                            new Column(MAIN_COMPONENT + "1"),
+                                            new Column(MAIN_COMPONENT + "2"),
                                             new Column(VALIDATION));
         }
         if (compareResults) {
@@ -130,10 +130,10 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                                                 new Column("z" + POST_LF_SUFFIX),
                                                 new Column("y" + POST_LF_SUFFIX),
                                                 new Column("ksi" + POST_LF_SUFFIX),
-                                                new Column("connected1" + POST_LF_SUFFIX),
-                                                new Column("connected2" + POST_LF_SUFFIX),
-                                                new Column("mainComponent1" + POST_LF_SUFFIX),
-                                                new Column("mainComponent2" + POST_LF_SUFFIX),
+                                                new Column(CONNECTED + "1" + POST_LF_SUFFIX),
+                                                new Column(CONNECTED + "2" + POST_LF_SUFFIX),
+                                                new Column(MAIN_COMPONENT + "1" + POST_LF_SUFFIX),
+                                                new Column(MAIN_COMPONENT + "2" + POST_LF_SUFFIX),
                                                 new Column(VALIDATION + POST_LF_SUFFIX));
             }
         }
@@ -156,6 +156,7 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                                                  new Column("voltageRegulatorOn"),
                                                  new Column("minQ"),
                                                  new Column("maxQ"),
+                                                 new Column(MAIN_COMPONENT),
                                                  new Column(VALIDATION));
         }
         if (compareResults) {
@@ -172,6 +173,7 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                                                      new Column("voltageRegulatorOn" + POST_LF_SUFFIX),
                                                      new Column("minQ" + POST_LF_SUFFIX),
                                                      new Column("maxQ" + POST_LF_SUFFIX),
+                                                     new Column(MAIN_COMPONENT + POST_LF_SUFFIX),
                                                      new Column(VALIDATION + POST_LF_SUFFIX));
             }
         }
@@ -204,6 +206,7 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                                            new Column("twtQ"),
                                            new Column("tltP"),
                                            new Column("tltQ"),
+                                           new Column(MAIN_COMPONENT),
                                            new Column(VALIDATION));
         }
         if (compareResults) {
@@ -230,6 +233,7 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                                                new Column("twtQ" + POST_LF_SUFFIX),
                                                new Column("tltP" + POST_LF_SUFFIX),
                                                new Column("tltQ" + POST_LF_SUFFIX),
+                                               new Column(MAIN_COMPONENT + POST_LF_SUFFIX),
                                                new Column(VALIDATION + POST_LF_SUFFIX));
             }
         }
@@ -252,6 +256,7 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                                            new Column("regulationMode"),
                                            new Column("bMin"),
                                            new Column("bMax"),
+                                           new Column(MAIN_COMPONENT),
                                            new Column(VALIDATION));
         }
         if (compareResults) {
@@ -268,6 +273,7 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                                                new Column("regulationMode" + POST_LF_SUFFIX),
                                                new Column("bMin" + POST_LF_SUFFIX),
                                                new Column("bMax" + POST_LF_SUFFIX),
+                                               new Column(MAIN_COMPONENT + POST_LF_SUFFIX),
                                                new Column(VALIDATION + POST_LF_SUFFIX));
             }
         }
@@ -290,6 +296,7 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                                              new Column(CONNECTED),
                                              new Column("qMax"),
                                              new Column(NOMINAL_V),
+                                             new Column(MAIN_COMPONENT),
                                              new Column(VALIDATION));
         }
         if (compareResults) {
@@ -306,6 +313,7 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                                                  new Column(CONNECTED + POST_LF_SUFFIX),
                                                  new Column("qMax" + POST_LF_SUFFIX),
                                                  new Column(NOMINAL_V + POST_LF_SUFFIX),
+                                                 new Column(MAIN_COMPONENT + POST_LF_SUFFIX),
                                                  new Column(VALIDATION + POST_LF_SUFFIX));
             }
         }
@@ -330,8 +338,8 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                                            new Column("tapChangerTargetV"),
                                            new Column("regulatedSide"),
                                            new Column("v"),
-                                           new Column("connected"),
-                                           new Column("mainComponent"),
+                                           new Column(CONNECTED),
+                                           new Column(MAIN_COMPONENT),
                                            new Column(VALIDATION));
         }
         if (compareResults) {
@@ -350,8 +358,8 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                                                new Column("tapChangerTargetV" + POST_LF_SUFFIX),
                                                new Column("regulatedSide" + POST_LF_SUFFIX),
                                                new Column("v" + POST_LF_SUFFIX),
-                                               new Column("connected" + POST_LF_SUFFIX),
-                                               new Column("mainComponent" + POST_LF_SUFFIX),
+                                               new Column(CONNECTED + POST_LF_SUFFIX),
+                                               new Column(MAIN_COMPONENT + POST_LF_SUFFIX),
                                                new Column(VALIDATION + POST_LF_SUFFIX));
             }
         }
@@ -423,20 +431,21 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
 
     @Override
     protected void write(String generatorId, float p, float q, float v, float targetP, float targetQ, float targetV,
-                         boolean connected, boolean voltageRegulatorOn, float minQ, float maxQ, boolean validated,
-                         GeneratorData generatorData, boolean found, boolean writeValues) throws IOException {
+                         boolean connected, boolean voltageRegulatorOn, float minQ, float maxQ,  boolean mainComponent,
+                         boolean validated, GeneratorData generatorData, boolean found, boolean writeValues) throws IOException {
         formatter.writeCell(generatorId);
         if (compareResults) {
             formatter = found ?
                         write(found, generatorData.p, generatorData.q, generatorData.v, generatorData.targetP, generatorData.targetQ, generatorData.targetV,
-                              generatorData.connected, generatorData.voltageRegulatorOn, generatorData.minQ, generatorData.maxQ, generatorData.validated) :
-                        write(found, Float.NaN, Float.NaN, Float.NaN, Float.NaN, Float.NaN, Float.NaN, false, false, Float.NaN, Float.NaN, false);
+                              generatorData.connected, generatorData.voltageRegulatorOn, generatorData.minQ, generatorData.maxQ, generatorData.mainComponent,
+                              generatorData.validated) :
+                        write(found, Float.NaN, Float.NaN, Float.NaN, Float.NaN, Float.NaN, Float.NaN, false, false, Float.NaN, Float.NaN, false, false);
         }
-        formatter = write(writeValues, p, q, v, targetP, targetQ, targetV, connected, voltageRegulatorOn, minQ, maxQ, validated);
+        formatter = write(writeValues, p, q, v, targetP, targetQ, targetV, connected, voltageRegulatorOn, minQ, maxQ, mainComponent, validated);
     }
 
     private TableFormatter write(boolean writeValues, float p, float q, float v, float targetP, float targetQ, float targetV, boolean connected,
-                                 boolean voltageRegulatorOn, float minQ, float maxQ, boolean validated) throws IOException {
+                                 boolean voltageRegulatorOn, float minQ, float maxQ, boolean mainComponent, boolean validated) throws IOException {
         formatter = writeValues ?
                     formatter.writeCell(-p)
                              .writeCell(-q)
@@ -451,32 +460,37 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                                  .writeCell(voltageRegulatorOn)
                                  .writeCell(minQ)
                                  .writeCell(maxQ)
+                                 .writeCell(mainComponent)
                                  .writeCell(getValidated(validated)) :
-                        formatter.writeEmptyCells(5);
+                        formatter.writeEmptyCells(6);
         }
         return formatter;
     }
 
     @Override
     protected void write(String busId, double incomingP, double incomingQ, double loadP, double loadQ, double genP, double genQ, double shuntP, double shuntQ,
-                         double svcP, double svcQ, double vscCSP, double vscCSQ, double lineP, double lineQ, double danglingLineP, double danglingLineQ, double twtP, double twtQ, double tltP, double tltQ,
-                         boolean validated, BusData busData, boolean found, boolean writeValues) throws IOException {
+                         double svcP, double svcQ, double vscCSP, double vscCSQ, double lineP, double lineQ, double danglingLineP, double danglingLineQ,
+                         double twtP, double twtQ, double tltP, double tltQ, boolean mainComponent, boolean validated, BusData busData, boolean found,
+                         boolean writeValues) throws IOException {
         formatter.writeCell(busId);
         if (compareResults) {
             formatter = found ?
                         write(found, busData.incomingP, busData.incomingQ, busData.loadP, busData.loadQ, busData.genP, busData.genQ,
                               busData.shuntP, busData.shuntQ, busData.svcP, busData.svcQ, busData.vscCSP, busData.vscCSQ,
-                              busData.lineP, busData.lineQ, busData.danglingLineP, busData.danglingLineQ, busData.twtP, busData.twtQ, busData.tltP, busData.tltQ, busData.validated) :
+                              busData.lineP, busData.lineQ, busData.danglingLineP, busData.danglingLineQ, busData.twtP, busData.twtQ,
+                              busData.tltP, busData.tltQ, busData.mainComponent, busData.validated) :
                         write(found, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
-                              Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false);
+                              Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
+                              Double.NaN, false, false);
         }
-        formatter = write(writeValues, incomingP, incomingQ, loadP, loadQ, genP, genQ, shuntP, shuntQ,
-                          svcP, svcQ, vscCSP, vscCSQ, lineP, lineQ, danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, validated);
+        formatter = write(writeValues, incomingP, incomingQ, loadP, loadQ, genP, genQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
+                          lineP, lineQ, danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, mainComponent, validated);
     }
 
     private TableFormatter write(boolean writeValues, double incomingP, double incomingQ, double loadP, double loadQ, double genP, double genQ,
-                                 double shuntP, double shuntQ, double svcP, double svcQ, double vscCSP, double vscCSQ, double lineP, double lineQ, double danglingLineP, double danglingLineQ,
-                                 double twtP, double twtQ, double tltP, double tltQ, boolean validated) throws IOException {
+                                 double shuntP, double shuntQ, double svcP, double svcQ, double vscCSP, double vscCSQ, double lineP, double lineQ,
+                                 double danglingLineP, double danglingLineQ, double twtP, double twtQ, double tltP, double tltQ, boolean mainComponent,
+                                 boolean validated) throws IOException {
         formatter = writeValues ?
                     formatter.writeCell(incomingP)
                              .writeCell(incomingQ)
@@ -501,28 +515,29 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                                  .writeCell(twtQ)
                                  .writeCell(tltP)
                                  .writeCell(tltQ)
+                                 .writeCell(mainComponent)
                                  .writeCell(getValidated(validated)) :
-                        formatter.writeEmptyCells(17);
+                        formatter.writeEmptyCells(18);
         }
         return formatter;
     }
 
     @Override
     protected void write(String svcId, float p, float q, float v, float nominalV, float reactivePowerSetpoint, float voltageSetpoint,
-                         boolean connected, RegulationMode regulationMode, float bMin, float bMax, boolean validated,
+                         boolean connected, RegulationMode regulationMode, float bMin, float bMax, boolean mainComponent, boolean validated,
                          SvcData svcData, boolean found, boolean writeValues) throws IOException {
         formatter.writeCell(svcId);
         if (compareResults) {
             formatter = found ?
                         write(found, svcData.p, svcData.q, svcData.v, svcData.nominalV, svcData.reactivePowerSetpoint, svcData.voltageSetpoint,
-                              svcData.connected, svcData.regulationMode, svcData.bMin, svcData.bMax, svcData.validated) :
-                        write(found, Float.NaN, Float.NaN, Float.NaN, Float.NaN, Float.NaN, Float.NaN, false, null, Float.NaN, Float.NaN, false);
+                              svcData.connected, svcData.regulationMode, svcData.bMin, svcData.bMax, svcData.mainComponent, svcData.validated) :
+                        write(found, Float.NaN, Float.NaN, Float.NaN, Float.NaN, Float.NaN, Float.NaN, false, null, Float.NaN, Float.NaN, false, false);
         }
-        formatter = write(writeValues, p, q, v, nominalV, reactivePowerSetpoint, voltageSetpoint, connected, regulationMode, bMin, bMax, validated);
+        formatter = write(writeValues, p, q, v, nominalV, reactivePowerSetpoint, voltageSetpoint, connected, regulationMode, bMin, bMax, mainComponent, validated);
     }
 
     private TableFormatter write(boolean writeValues, float p, float q, float v, float nominalV, float reactivePowerSetpoint, float voltageSetpoint,
-                                 boolean connected, RegulationMode regulationMode, float bMin, float bMax, boolean validated) throws IOException {
+                                 boolean connected, RegulationMode regulationMode, float bMin, float bMax, boolean mainComponent, boolean validated) throws IOException {
         formatter = writeValues ?
                     formatter.writeCell(-p)
                              .writeCell(-q)
@@ -537,27 +552,28 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                                  .writeCell(regulationMode.name())
                                  .writeCell(bMin)
                                  .writeCell(bMax)
+                                 .writeCell(mainComponent)
                                  .writeCell(getValidated(validated)) :
-                        formatter.writeEmptyCells(5);
+                        formatter.writeEmptyCells(6);
         }
         return formatter;
     }
 
     protected void write(String shuntId, float q, float expectedQ, float p, int currentSectionCount, int maximumSectionCount,
-                         float bPerSection, float v, boolean connected, float qMax, float nominalV, boolean validated,
-                         ShuntData shuntData, boolean found, boolean writeValues) throws IOException {
+                         float bPerSection, float v, boolean connected, float qMax, float nominalV, boolean mainComponent,
+                         boolean validated, ShuntData shuntData, boolean found, boolean writeValues) throws IOException {
         formatter.writeCell(shuntId);
         if (compareResults) {
             formatter = found ?
                         write(found, shuntData.q, shuntData.expectedQ, shuntData.p, shuntData.currentSectionCount, shuntData.maximumSectionCount,
-                              shuntData.bPerSection, shuntData.v, shuntData.connected, shuntData.qMax, shuntData.nominalV, shuntData.validated) :
-                        write(found, Float.NaN, Float.NaN, Float.NaN, -1, -1, Float.NaN, Float.NaN, false, Float.NaN, Float.NaN, false);
+                              shuntData.bPerSection, shuntData.v, shuntData.connected, shuntData.qMax, shuntData.nominalV, shuntData.mainComponent, shuntData.validated) :
+                        write(found, Float.NaN, Float.NaN, Float.NaN, -1, -1, Float.NaN, Float.NaN, false, Float.NaN, Float.NaN, false, false);
         }
-        write(writeValues, q, expectedQ, p, currentSectionCount, maximumSectionCount, bPerSection, v, connected, qMax, nominalV, validated);
+        write(writeValues, q, expectedQ, p, currentSectionCount, maximumSectionCount, bPerSection, v, connected, qMax, nominalV, mainComponent, validated);
     }
 
     private TableFormatter write(boolean writeValues, float q, float expectedQ, float p, int currentSectionCount, int maximumSectionCount,
-                                 float bPerSection, float v, boolean connected, float qMax, float nominalV, boolean validated) throws IOException {
+                                 float bPerSection, float v, boolean connected, float qMax, float nominalV, boolean mainComponent, boolean validated) throws IOException {
         formatter = writeValues ?
                     formatter.writeCell(q)
                              .writeCell(expectedQ) :
@@ -572,8 +588,9 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                                  .writeCell(connected)
                                  .writeCell(qMax)
                                  .writeCell(nominalV)
+                                 .writeCell(mainComponent)
                                  .writeCell(getValidated(validated)) :
-                        formatter.writeEmptyCells(9);
+                        formatter.writeEmptyCells(10);
         }
         return formatter;
     }
