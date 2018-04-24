@@ -330,14 +330,13 @@ public class LoadFlowActionSimulator implements ActionSimulator {
         action.run(networkForTry, computationManager);
         LoadFlowFactory loadFlowFactory = newLoadFlowFactory();
         LoadFlow testLoadFlow = loadFlowFactory.create(networkForTry, computationManager, 0);
-        LoadFlowResult testResult = null;
         try {
             observers.stream().forEach(o -> o.beforeTest(context, actionId));
-            testResult = testLoadFlow.run(LoadFlowParameters.load());
+            LoadFlowResult testResult = testLoadFlow.run(LoadFlowParameters.load());
             observers.stream().forEach(o -> o.afterTest(context, actionId));
+            return testResult;
         } catch (Exception e) {
             throw new PowsyblException(e);
         }
-        return testResult;
     }
 }
