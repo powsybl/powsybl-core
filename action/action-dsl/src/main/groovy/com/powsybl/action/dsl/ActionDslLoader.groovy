@@ -176,8 +176,13 @@ class ActionDslLoader extends DslLoader {
                 }
 
                 if (ruleSpec.hasApplyActions() && ruleSpec.hasTestActions()) {
-                    throw new ActionDslException("type of apply/test actions are both found in rule '" + id + "'");
+                    throw new ActionDslException("apply/test actions are both found in rule '" + id + "'");
                 }
+
+                if (!ruleSpec.hasApplyActions() && !ruleSpec.hasTestActions()) {
+                    throw new ActionDslException("neither apply nor test actions are found in rule '" + id + "'");
+                }
+
                 List<String> actions;
                 RuleType type;
                 if (ruleSpec.hasTestActions()) {

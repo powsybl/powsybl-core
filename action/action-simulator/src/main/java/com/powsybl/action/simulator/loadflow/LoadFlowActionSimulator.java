@@ -65,7 +65,7 @@ public class LoadFlowActionSimulator implements ActionSimulator {
         this.computationManager = Objects.requireNonNull(computationManager);
         this.config = Objects.requireNonNull(config);
         this.observers = Objects.requireNonNull(observers);
-        this.applyIfWorks = Objects.requireNonNull(applyIfWorks);
+        this.applyIfWorks = applyIfWorks;
     }
 
     @Override
@@ -300,7 +300,7 @@ public class LoadFlowActionSimulator implements ActionSimulator {
                 if (violationsInTest.isEmpty()) {
                     context.addWorkedTest(action.getId());
                     if (applyIfWorks) {
-                        LOGGER.info("Loadflow with test {} works already and exists", action.getId());
+                        LOGGER.info("Loadflow with test '{}' works already and exits simulation", action.getId());
                         observers.forEach(o -> o.noMoreViolationsAfterTest(context, action.getId()));
                         observers.forEach(o -> o.beforeApplyTest(context, action.getId()));
                         action.run(context.getNetwork(), computationManager);
@@ -310,15 +310,15 @@ public class LoadFlowActionSimulator implements ActionSimulator {
                         observers.forEach(o -> o.afterApplyTest(context, action.getId()));
                         return;
                     } else {
-                        LOGGER.info("Loadflow with test {} works already and continues", action.getId());
+                        LOGGER.info("Loadflow with test '{}' works already and continues simulation", action.getId());
                         observers.forEach(o -> o.noMoreViolationsAfterTest(context, action.getId()));
                     }
                 } else {
-                    LOGGER.info("Loadflow with test {} exits with violations", action.getId());
+                    LOGGER.info("Loadflow with test '{}' exits with violations", action.getId());
                     observers.forEach(o -> o.violationsAfterTest(action.getId(), violationsInTest));
                 }
             } else {
-                LOGGER.info("Loadflow with test {} diverged", action.getId());
+                LOGGER.info("Loadflow with test '{}' diverged", action.getId());
                 observers.forEach(o -> o.divergedAfterTest(action.getId()));
             }
         }
@@ -326,7 +326,7 @@ public class LoadFlowActionSimulator implements ActionSimulator {
 
     private LoadFlowResult runTest(RunningContext context, Network networkForTry, Action action) {
         String actionId = action.getId();
-        LOGGER.info("TEST {} ", actionId);
+        LOGGER.info("Test action '{}'", actionId);
         action.run(networkForTry, computationManager);
         LoadFlowFactory loadFlowFactory = newLoadFlowFactory();
         LoadFlow testLoadFlow = loadFlowFactory.create(networkForTry, computationManager, 0);

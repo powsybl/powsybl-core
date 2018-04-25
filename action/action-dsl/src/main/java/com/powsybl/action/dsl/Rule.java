@@ -48,7 +48,7 @@ public class Rule {
         this.condition = Objects.requireNonNull(condition);
         this.type = Objects.requireNonNull(type);
         if (type.equals(RuleType.TEST) && life != 1) {
-            throw new IllegalArgumentException("Invalid life value, has to be 1 in trydo rule.");
+            throw new IllegalArgumentException("Invalid life value, has to be 1 in test rule.");
         }
         this.life = life;
         this.actions = Objects.requireNonNull(actions);

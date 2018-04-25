@@ -101,7 +101,7 @@ public class ActionSimulatorTool implements Tool {
                         .argName("CONTINGENCY1,CONTINGENCY2,...")
                         .build());
                 options.addOption(Option.builder().longOpt(APPLY_IF_WORKS)
-                        .desc("apply and exists if one test works")
+                        .desc("apply and exits if one test works")
                         .required(false)
                         .build());
                 options.addOption(Option.builder().longOpt(VERBOSE)
