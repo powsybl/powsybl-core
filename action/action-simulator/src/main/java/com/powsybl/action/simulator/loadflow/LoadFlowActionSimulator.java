@@ -46,7 +46,7 @@ public class LoadFlowActionSimulator implements ActionSimulator {
 
     private final LoadFlowActionSimulatorConfig config;
 
-    private final boolean applyIfWorks;
+    private final boolean applyIfSolvedViolations;
 
     private final List<LoadFlowActionSimulatorObserver> observers;
 
@@ -55,17 +55,17 @@ public class LoadFlowActionSimulator implements ActionSimulator {
     }
 
     public LoadFlowActionSimulator(Network network, ComputationManager computationManager, LoadFlowActionSimulatorConfig config,
-                                   boolean applyIfWorks, LoadFlowActionSimulatorObserver... observers) {
-        this(network, computationManager, config, applyIfWorks, Arrays.asList(observers));
+                                   boolean applyIfSolvedViolations, LoadFlowActionSimulatorObserver... observers) {
+        this(network, computationManager, config, applyIfSolvedViolations, Arrays.asList(observers));
     }
 
     public LoadFlowActionSimulator(Network network, ComputationManager computationManager, LoadFlowActionSimulatorConfig config,
-                                   boolean applyIfWorks, List<LoadFlowActionSimulatorObserver> observers) {
+                                   boolean applyIfSolvedViolations, List<LoadFlowActionSimulatorObserver> observers) {
         this.network = Objects.requireNonNull(network);
         this.computationManager = Objects.requireNonNull(computationManager);
         this.config = Objects.requireNonNull(config);
         this.observers = Objects.requireNonNull(observers);
-        this.applyIfWorks = applyIfWorks;
+        this.applyIfSolvedViolations = applyIfSolvedViolations;
     }
 
     @Override
@@ -142,19 +142,18 @@ public class LoadFlowActionSimulator implements ActionSimulator {
         }
         if (result.isOk()) {
             List<LimitViolation> violations = LIMIT_VIOLATION_FILTER.apply(Security.checkLimits(context.getNetwork(), 1), context.getNetwork());
+            observers.forEach(o -> o.loadFlowConverged(context, violations));
             // no more violations => work complete
             if (violations.isEmpty()) {
-                observers.forEach(o -> o.loadFlowConverged(context, violations));
                 LOGGER.info("No more violation");
                 observers.forEach(o -> o.noMoreViolations(context));
                 return true;
             }
 
             LOGGER.info("Violations: \n{}", Security.printLimitsViolations(violations, network, NO_FILTER));
-            observers.forEach(o -> o.loadFlowConverged(context, violations));
 
             runTests(actionDb, context);
-            if (context.isTestWorks() && applyIfWorks) {
+            if (context.isTestWorks() && applyIfSolvedViolations) {
                 return true;
             }
 
@@ -299,7 +298,7 @@ public class LoadFlowActionSimulator implements ActionSimulator {
                         LIMIT_VIOLATION_FILTER.apply(Security.checkLimits(networkForTest, 1), networkForTest);
                 if (violationsInTest.isEmpty()) {
                     context.addWorkedTest(action.getId());
-                    if (applyIfWorks) {
+                    if (applyIfSolvedViolations) {
                         LOGGER.info("Loadflow with test '{}' works already and exits simulation", action.getId());
                         observers.forEach(o -> o.noMoreViolationsAfterTest(context, action.getId()));
                         observers.forEach(o -> o.beforeApplyTest(context, action.getId()));

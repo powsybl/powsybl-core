@@ -31,7 +31,7 @@ public class ActionSimulatorToolTest extends AbstractToolTest {
         assertOption(command.getOptions(), "case-file", true, true);
         assertOption(command.getOptions(), "dsl-file", true, true);
         assertOption(command.getOptions(), "contingencies", false, true);
-        assertOption(command.getOptions(), "apply-if-works", false, false);
+        assertOption(command.getOptions(), "apply-if-solved-violations", false, false);
         assertOption(command.getOptions(), "verbose", false, false);
         assertOption(command.getOptions(), "output-file", false, true);
         assertOption(command.getOptions(), "output-format", false, true);
