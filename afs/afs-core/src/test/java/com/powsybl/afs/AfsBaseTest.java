@@ -16,7 +16,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -47,12 +46,12 @@ public class AfsBaseTest {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         storage.close();
     }
 
     @Test
-    public void baseTest() throws IOException {
+    public void baseTest() {
         assertSame(afs, ad.getFileSystem("mem"));
         assertNull(ad.getFileSystem("???"));
         assertEquals(Collections.singletonList("mem"), ad.getRemotelyAccessibleFileSystemNames());
@@ -115,34 +114,35 @@ public class AfsBaseTest {
                 removed.add(nodeId);
             }
         };
-        project1.getRootFolder().addListener(l);
-        ProjectFolder dir4 = project1.getRootFolder().createFolder("dir4");
+        ProjectFolder rootFolder = project1.getRootFolder();
+        rootFolder.addListener(l);
+        ProjectFolder dir4 = rootFolder.createFolder("dir4");
         assertTrue(dir4.isFolder());
         assertEquals("dir4", dir4.getName());
         assertNotNull(dir4.getParent());
         assertTrue(dir4.getChildren().isEmpty());
-        assertEquals(1, project1.getRootFolder().getChildren().size());
+        assertEquals(1, rootFolder.getChildren().size());
 
         dir4.delete();
-        assertTrue(project1.getRootFolder().getChildren().isEmpty());
+        assertTrue(rootFolder.getChildren().isEmpty());
         try {
             dir4.getChildren();
             fail();
         } catch (Exception ignored) {
         }
 
-        ProjectFolder dir5 = project1.getRootFolder().createFolder("dir5");
+        ProjectFolder dir5 = rootFolder.createFolder("dir5");
         ProjectFolder dir6 = dir5.createFolder("dir6");
         assertEquals(ImmutableList.of("dir5", "dir6"), dir6.getPath().toList().subList(1, 3));
         assertEquals("dir5/dir6", dir6.getPath().toString());
-        assertEquals("dir6", project1.getRootFolder().getChild("dir5/dir6").orElseThrow(AssertionError::new).getName());
+        assertEquals("dir6", rootFolder.getChild("dir5/dir6").orElseThrow(AssertionError::new).getName());
 
         assertEquals(Arrays.asList(dir4.getId(), dir5.getId()), added);
         assertEquals(Collections.singletonList(dir4.getId()), removed);
     }
 
     @Test
-    public void moveToTest() throws IOException {
+    public void moveToTest() {
         Project project = afs.getRootFolder().createProject("test");
         ProjectFolder test1 = project.getRootFolder().createFolder("test1");
         ProjectFolder test2 = project.getRootFolder().createFolder("test2");
