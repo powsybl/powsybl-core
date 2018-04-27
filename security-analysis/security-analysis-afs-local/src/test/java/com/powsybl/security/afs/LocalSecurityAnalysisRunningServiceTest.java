@@ -52,7 +52,7 @@ public class LocalSecurityAnalysisRunningServiceTest extends SecurityAnalysisRun
 
     @Override
     protected List<ServiceExtension> getServiceExtensions() {
-        return ImmutableList.of(new LocalSecurityAnalysisRunningServiceExtension(new SecurityAnalysisFactoryMock()),
+        return ImmutableList.of(new LocalSecurityAnalysisRunningServiceExtension(SecurityAnalysisFactoryMock::new),
                 new LocalNetworkCacheServiceExtension());
     }
 }
