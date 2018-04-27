@@ -6,7 +6,10 @@
  */
 package com.powsybl.afs.ext.base;
 
-import com.powsybl.afs.*;
+import com.powsybl.afs.AfsException;
+import com.powsybl.afs.DependencyCache;
+import com.powsybl.afs.ProjectFile;
+import com.powsybl.afs.ProjectFileCreationContext;
 import com.powsybl.iidm.network.Network;
 
 import java.util.Collections;
@@ -21,8 +24,6 @@ public class VirtualCase extends ProjectFile implements ProjectCase {
     public static final String PSEUDO_CLASS = "virtualCase";
     public static final int VERSION = 0;
 
-    private static final FileIcon VIRTUAL_CASE_ICON = new FileIcon("virtualCase", VirtualCase.class.getResourceAsStream("/icons/virtualCase16x16.png"));
-
     static final String CASE_DEPENDENCY_NAME = "case";
     static final String SCRIPT_DEPENDENCY_NAME = "script";
 
@@ -31,7 +32,7 @@ public class VirtualCase extends ProjectFile implements ProjectCase {
     private final DependencyCache<ModificationScript> modificationScriptDependency = new DependencyCache<>(this, SCRIPT_DEPENDENCY_NAME, ModificationScript.class);
 
     public VirtualCase(ProjectFileCreationContext context) {
-        super(context, VERSION, VIRTUAL_CASE_ICON);
+        super(context, VERSION);
     }
 
     public Optional<ProjectFile> getCase() {

@@ -97,11 +97,10 @@ public class AfsBaseTest {
         assertNotNull(project1);
         assertEquals("project1", project1.getName());
         assertEquals("test project", project1.getDescription());
-        assertNotNull(project1.getIcon());
         assertNotNull(project1.getParent());
         assertEquals("mem:/dir1/dir2", project1.getParent().orElseThrow(AssertionError::new).getPath().toString());
         assertTrue(project1.getRootFolder().getChildren().isEmpty());
-        assertTrue(project1.getFileSystem() == afs);
+        assertSame(project1.getFileSystem(), afs);
 
         List<String> added = new ArrayList<>();
         List<String> removed = new ArrayList<>();

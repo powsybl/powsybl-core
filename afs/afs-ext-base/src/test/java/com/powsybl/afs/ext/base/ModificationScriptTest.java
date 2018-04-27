@@ -73,7 +73,6 @@ public class ModificationScriptTest extends AbstractProjectFileTest {
                 .build();
         assertNotNull(script);
         assertEquals("script", script.getName());
-        assertNotNull(script.getIcon());
         assertFalse(script.isFolder());
         assertTrue(script.getDependencies().isEmpty());
         assertEquals("println 'hello'", script.readScript());

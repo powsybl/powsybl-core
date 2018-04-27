@@ -7,7 +7,6 @@
 package com.powsybl.security.afs;
 
 import com.powsybl.afs.DependencyCache;
-import com.powsybl.afs.FileIcon;
 import com.powsybl.afs.ProjectFile;
 import com.powsybl.afs.ProjectFileCreationContext;
 import com.powsybl.afs.ext.base.ProjectCase;
@@ -39,14 +38,12 @@ public class SecurityAnalysisRunner extends ProjectFile {
     private static final String PARAMETERS_JSON_NAME = "parametersJson";
     private static final String RESULT_JSON_NAME = "resultJson";
 
-    private static final FileIcon LOCK_ICON = new FileIcon("lock", SecurityAnalysisRunner.class.getResourceAsStream("/icons/lock16x16.png"));
-
     private final DependencyCache<ProjectCase> caseDependency = new DependencyCache<>(this, CASE_DEPENDENCY_NAME, ProjectCase.class);
 
     private final DependencyCache<ContingenciesProvider> contingencyListProviderDependency = new DependencyCache<>(this, CONTINGENCY_PROVIDER_DEPENDENCY_NAME, ContingenciesProvider.class);
 
     public SecurityAnalysisRunner(ProjectFileCreationContext context) {
-        super(context, VERSION, LOCK_ICON);
+        super(context, VERSION);
     }
 
     public Optional<ProjectCase> getCase() {

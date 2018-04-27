@@ -8,7 +8,6 @@ package com.powsybl.action.dsl.afs;
 
 import com.powsybl.action.dsl.ActionDb;
 import com.powsybl.action.dsl.ActionDslLoader;
-import com.powsybl.afs.FileIcon;
 import com.powsybl.afs.ProjectFileCreationContext;
 import com.powsybl.afs.ext.base.AbstractModificationScript;
 import com.powsybl.afs.ext.base.ScriptType;
@@ -31,12 +30,10 @@ public class ActionScript extends AbstractModificationScript implements Continge
 
     static final String SCRIPT_CONTENT = "scriptContent";
 
-    private static final FileIcon IAL_ICON = new FileIcon("ial", ActionScript.class.getResourceAsStream("/icons/ial16x16.png"));
-
     private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("lang.ActionScript");
 
     public ActionScript(ProjectFileCreationContext context) {
-        super(context, VERSION, IAL_ICON, SCRIPT_CONTENT);
+        super(context, VERSION, SCRIPT_CONTENT);
     }
 
     @Override
