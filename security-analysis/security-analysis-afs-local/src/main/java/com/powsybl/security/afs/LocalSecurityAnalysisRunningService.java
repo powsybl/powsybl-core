@@ -6,6 +6,8 @@
  */
 package com.powsybl.security.afs;
 
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import com.powsybl.afs.AfsException;
 import com.powsybl.afs.AppLogger;
 import com.powsybl.afs.ext.base.ProjectCase;
@@ -29,10 +31,10 @@ public class LocalSecurityAnalysisRunningService implements SecurityAnalysisRunn
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LocalSecurityAnalysisRunningService.class);
 
-    private final SecurityAnalysisFactory factory;
+    private final Supplier<SecurityAnalysisFactory> factorySupplier;
 
-    public LocalSecurityAnalysisRunningService(SecurityAnalysisFactory factory) {
-        this.factory = Objects.requireNonNull(factory);
+    public LocalSecurityAnalysisRunningService(Supplier<SecurityAnalysisFactory> factorySupplier) {
+        this.factorySupplier = Suppliers.memoize(Objects.requireNonNull(factorySupplier));
     }
 
     @Override
@@ -52,7 +54,7 @@ public class LocalSecurityAnalysisRunningService implements SecurityAnalysisRunn
             Network network = aCase.getNetwork();
 
             logger.log("Running security analysis...");
-            SecurityAnalysis securityAnalysis = factory.create(network, computationManager, 0);
+            SecurityAnalysis securityAnalysis = factorySupplier.get().create(network, computationManager, 0);
             securityAnalysis.runAsync(contingencyListProvider, network.getStateManager().getWorkingStateId(), parameters)
                     .handleAsync((result, throwable) -> {
                         if (throwable == null) {
