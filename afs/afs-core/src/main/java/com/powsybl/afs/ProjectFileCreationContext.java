@@ -18,8 +18,8 @@ public class ProjectFileCreationContext extends ProjectFileContext {
 
     private final NodeInfo info;
 
-    public ProjectFileCreationContext(NodeInfo info, ListenableAppStorage storage, AppFileSystem fileSystem) {
-        super(storage, fileSystem);
+    public ProjectFileCreationContext(NodeInfo info, ListenableAppStorage storage, Project project) {
+        super(storage, project);
         this.info = Objects.requireNonNull(info);
     }
 
