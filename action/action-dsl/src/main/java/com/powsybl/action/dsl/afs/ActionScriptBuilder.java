@@ -71,6 +71,6 @@ public class ActionScriptBuilder implements ProjectFileBuilder<ActionScript> {
 
         context.getStorage().flush();
 
-        return new ActionScript(new ProjectFileCreationContext(info, context.getStorage(), context.getFileSystem()));
+        return new ActionScript(new ProjectFileCreationContext(info, context.getStorage(), context.getProject()));
     }
 }

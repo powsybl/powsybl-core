@@ -6,8 +6,6 @@
  */
 package com.powsybl.afs;
 
-import com.powsybl.afs.storage.NodeInfo;
-
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -18,13 +16,13 @@ import java.util.stream.Collectors;
  */
 public class ProjectNode extends AbstractNodeBase<ProjectFolder> {
 
-    protected final AppFileSystem fileSystem;
+    protected final Project project;
 
     protected final boolean folder;
 
     protected ProjectNode(ProjectFileCreationContext context, int codeVersion, boolean folder) {
         super(context.getInfo(), context.getStorage(), codeVersion);
-        this.fileSystem = Objects.requireNonNull(context.getFileSystem());
+        this.project = Objects.requireNonNull(context.getProject());
         this.folder = folder;
     }
 
@@ -37,7 +35,7 @@ public class ProjectNode extends AbstractNodeBase<ProjectFolder> {
     public Optional<ProjectFolder> getParent() {
         return storage.getParentNode(info.getId())
                 .filter(parentInfo -> ProjectFolder.PSEUDO_CLASS.equals(parentInfo.getPseudoClass()))
-                .map(parentInfo -> new ProjectFolder(new ProjectFileCreationContext(parentInfo, storage, fileSystem)));
+                .map(parentInfo -> new ProjectFolder(new ProjectFileCreationContext(parentInfo, storage, project)));
     }
 
     private static boolean pathStop(ProjectNode projectNode) {
@@ -54,12 +52,7 @@ public class ProjectNode extends AbstractNodeBase<ProjectFolder> {
     }
 
     public Project getProject() {
-        // walk the node hierarchy until finding a project node
-        NodeInfo parentInfo = storage.getParentNode(info.getId()).orElseThrow(AssertionError::new);
-        while (!Project.PSEUDO_CLASS.equals(parentInfo.getPseudoClass())) {
-            parentInfo = storage.getParentNode(parentInfo.getId()).orElseThrow(AssertionError::new);
-        }
-        return new Project(new FileCreationContext(parentInfo, storage, fileSystem));
+        return project;
     }
 
     public void moveTo(ProjectFolder folder) {
@@ -79,7 +72,7 @@ public class ProjectNode extends AbstractNodeBase<ProjectFolder> {
     public List<ProjectFile> getBackwardDependencies() {
         return storage.getBackwardDependencies(info.getId())
                 .stream()
-                .map(fileSystem::createProjectFile)
+                .map(project::createProjectFile)
                 .collect(Collectors.toList());
     }
 
@@ -89,6 +82,6 @@ public class ProjectNode extends AbstractNodeBase<ProjectFolder> {
     }
 
     public AppFileSystem getFileSystem() {
-        return fileSystem;
+        return project.getFileSystem();
     }
 }
