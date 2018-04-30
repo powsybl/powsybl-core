@@ -6,7 +6,6 @@
  */
 package com.powsybl.afs.ext.base;
 
-import com.powsybl.afs.FileIcon;
 import com.powsybl.afs.ProjectFileCreationContext;
 
 /**
@@ -20,10 +19,8 @@ public class ModificationScript extends AbstractModificationScript {
     static final String SCRIPT_TYPE = "scriptType";
     static final String SCRIPT_CONTENT = "scriptContent";
 
-    private static final FileIcon SCRIPT_ICON = new FileIcon("script", ModificationScript.class.getResourceAsStream("/icons/script16x16.png"));
-
     public ModificationScript(ProjectFileCreationContext context) {
-        super(context, VERSION, SCRIPT_ICON, SCRIPT_CONTENT);
+        super(context, VERSION, SCRIPT_CONTENT);
     }
 
     @Override

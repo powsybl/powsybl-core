@@ -6,21 +6,12 @@
  */
 package com.powsybl.afs;
 
-import java.util.Objects;
-
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class File extends Node {
 
-    protected final FileIcon icon;
-
-    public File(FileCreationContext context, int codeVersion, FileIcon icon) {
+    public File(FileCreationContext context, int codeVersion) {
         super(context, codeVersion, false);
-        this.icon = Objects.requireNonNull(icon);
-    }
-
-    public FileIcon getIcon() {
-        return icon;
     }
 }

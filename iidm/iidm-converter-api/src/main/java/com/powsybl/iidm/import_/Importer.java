@@ -11,7 +11,6 @@ import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.parameters.Parameter;
 
-import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
@@ -35,14 +34,6 @@ public interface Importer {
      * Get a unique identifier of the format.
      */
     String getFormat();
-
-    /**
-     * Get an <code>InputStream</code> on a 16*16 pixels icon.
-     * @return a 16*16 pixels icon
-     */
-    default InputStream get16x16Icon() {
-        return null;
-    }
 
     /**
      * Get a description of import parameters

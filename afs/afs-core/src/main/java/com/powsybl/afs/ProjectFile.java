@@ -22,8 +22,6 @@ import java.util.stream.Collectors;
  */
 public class ProjectFile extends ProjectNode {
 
-    protected final FileIcon icon;
-
     private final WeakListenerList<ProjectFileListener> listeners = new WeakListenerList<>();
 
     private final AppStorageListener l = eventList -> {
@@ -47,9 +45,8 @@ public class ProjectFile extends ProjectNode {
         }
     };
 
-    protected ProjectFile(ProjectFileCreationContext context, int codeVersion, FileIcon icon) {
+    protected ProjectFile(ProjectFileCreationContext context, int codeVersion) {
         super(context, codeVersion, true);
-        this.icon = Objects.requireNonNull(icon);
         storage.addListener(l);
     }
 
@@ -58,14 +55,10 @@ public class ProjectFile extends ProjectNode {
         return false;
     }
 
-    public FileIcon getIcon() {
-        return icon;
-    }
-
     public List<ProjectDependency<ProjectNode>> getDependencies() {
         return storage.getDependencies(info.getId())
                 .stream()
-                .map(dependency -> new ProjectDependency<>(dependency.getName(), fileSystem.createProjectNode(dependency.getNodeInfo())))
+                .map(dependency -> new ProjectDependency<>(dependency.getName(), project.createProjectNode(dependency.getNodeInfo())))
                 .collect(Collectors.toList());
     }
 
@@ -85,7 +78,7 @@ public class ProjectFile extends ProjectNode {
         Objects.requireNonNull(name);
         Objects.requireNonNull(nodeClass);
         return storage.getDependencies(info.getId(), name).stream()
-                .map(fileSystem::createProjectNode)
+                .map(project::createProjectNode)
                 .filter(dependencyNode -> nodeClass.isAssignableFrom(dependencyNode.getClass()))
                 .map(nodeClass::cast)
                 .collect(Collectors.toList());
@@ -108,18 +101,18 @@ public class ProjectFile extends ProjectNode {
     }
 
     public UUID startTask() {
-        return fileSystem.getTaskMonitor().startTask(this).getId();
+        return project.getFileSystem().getTaskMonitor().startTask(this).getId();
     }
 
     public AppLogger createLogger(UUID taskId) {
-        return new TaskMonitorLogger(fileSystem.getTaskMonitor(), taskId);
+        return new TaskMonitorLogger(project.getFileSystem().getTaskMonitor(), taskId);
     }
 
     public void stopTask(UUID id) {
-        fileSystem.getTaskMonitor().stopTask(id);
+        project.getFileSystem().getTaskMonitor().stopTask(id);
     }
 
     public <U> U findService(Class<U> serviceClass) {
-        return fileSystem.getData().findService(serviceClass, storage.isRemote());
+        return project.getFileSystem().getData().findService(serviceClass, storage.isRemote());
     }
 }

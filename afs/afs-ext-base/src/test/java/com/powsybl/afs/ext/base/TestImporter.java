@@ -14,9 +14,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.parameters.Parameter;
 import com.powsybl.iidm.parameters.ParameterType;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.util.List;
 import java.util.Objects;
@@ -44,11 +42,6 @@ public class TestImporter implements Importer {
     @Override
     public String getComment() {
         return "Test format";
-    }
-
-    @Override
-    public InputStream get16x16Icon() {
-        return new ByteArrayInputStream(new byte[16 * 16]);
     }
 
     @Override

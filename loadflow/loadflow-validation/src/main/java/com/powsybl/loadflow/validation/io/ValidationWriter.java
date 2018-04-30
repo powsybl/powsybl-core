@@ -22,18 +22,19 @@ public interface ValidationWriter extends AutoCloseable {
                double u1, double u2, double theta1, double theta2, double z, double y, double ksi, boolean connected1, boolean connected2,
                boolean mainComponent1, boolean mainComponent2, boolean validated) throws IOException;
 
-    void write(String generatorId, float p, float q, float v, float targetP, float targetQ, float targetV,
-               boolean connected, boolean voltageRegulatorOn, float minQ, float maxQ, boolean validated) throws IOException;
+    void write(String generatorId, float p, float q, float v, float targetP, float targetQ, float targetV, boolean connected,
+               boolean voltageRegulatorOn, float minQ, float maxQ, boolean mainComponent, boolean validated) throws IOException;
 
     void write(String busId, double incomingP, double incomingQ, double loadP, double loadQ, double genP, double genQ,
                double shuntP, double shuntQ, double svcP, double svcQ, double vscCSP, double vscCSQ, double lineP, double lineQ,
-               double danglingLineP, double danglingLineQ, double twtP, double twtQ, double tltP, double tltQ, boolean validated) throws IOException;
+               double danglingLineP, double danglingLineQ, double twtP, double twtQ, double tltP, double tltQ, boolean mainComponent,
+               boolean validated) throws IOException;
 
-    void write(String svcId, float p, float q, float v, float reactivePowerSetpoint, float voltageSetpoint,
-               boolean connected, RegulationMode regulationMode, float bMin, float bMax, boolean validated) throws IOException;
+    void write(String svcId, float p, float q, float v, float nominalV, float reactivePowerSetpoint, float voltageSetpoint,
+               boolean connected, RegulationMode regulationMode, float bMin, float bMax, boolean mainComponent, boolean validated) throws IOException;
 
     void write(String shuntId, float q, float expectedQ, float p, int currentSectionCount, int maximumSectionCount, float bPerSection,
-               float v, boolean connected, float qMax, float nominalV, boolean validated) throws IOException;
+               float v, boolean connected, float qMax, float nominalV, boolean mainComponent, boolean validated) throws IOException;
 
     void write(String twtId, float error, float upIncrement, float downIncrement, float rho, float rhoPreviousStep, float rhoNextStep,
                int tapPosition, int lowTapPosition, int highTapPosition, float targetV, Side regulatedSide, float v, boolean connected,

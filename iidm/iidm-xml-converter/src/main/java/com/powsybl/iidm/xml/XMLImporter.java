@@ -63,11 +63,6 @@ public class XMLImporter implements Importer, XmlConstants {
     }
 
     @Override
-    public InputStream get16x16Icon() {
-        return XMLImporter.class.getResourceAsStream("/icons/iidm16x16.png");
-    }
-
-    @Override
     public List<Parameter> getParameters() {
         return Collections.singletonList(THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND);
     }

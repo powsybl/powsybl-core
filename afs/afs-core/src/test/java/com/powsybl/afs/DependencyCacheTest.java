@@ -12,7 +12,6 @@ import com.powsybl.afs.storage.AppStorage;
 import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.afs.storage.NodeInfo;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import java.util.Collections;
 import java.util.List;
@@ -28,7 +27,7 @@ public class DependencyCacheTest extends AbstractProjectFileTest {
     class Tic extends ProjectFile {
 
         Tic(ProjectFileCreationContext context) {
-            super(context, 0, Mockito.mock(FileIcon.class));
+            super(context, 0);
         }
     }
 
@@ -50,7 +49,7 @@ public class DependencyCacheTest extends AbstractProjectFileTest {
         @Override
         public Tic build() {
             NodeInfo info = context.getStorage().createNode(context.getFolderInfo().getId(), name, "TIC", "", 0, new NodeGenericMetadata());
-            return new Tic(new ProjectFileCreationContext(info, context.getStorage(), context.getFileSystem()));
+            return new Tic(new ProjectFileCreationContext(info, context.getStorage(), context.getProject()));
         }
     }
 
@@ -89,7 +88,7 @@ public class DependencyCacheTest extends AbstractProjectFileTest {
         private final DependencyCache<ProjectFile> cache = new DependencyCache<>(this, DEP_NAME, ProjectFile.class);
 
         Tac(ProjectFileCreationContext context) {
-            super(context, 0, Mockito.mock(FileIcon.class));
+            super(context, 0);
         }
 
         ProjectFile getTicDependency() {
@@ -113,7 +112,7 @@ public class DependencyCacheTest extends AbstractProjectFileTest {
         @Override
         public Tac build() {
             NodeInfo info = context.getStorage().createNode(context.getFolderInfo().getId(), "tac", "TAC", "", 0, new NodeGenericMetadata());
-            return new Tac(new ProjectFileCreationContext(info, context.getStorage(), context.getFileSystem()));
+            return new Tac(new ProjectFileCreationContext(info, context.getStorage(), context.getProject()));
         }
     }
 

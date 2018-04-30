@@ -81,6 +81,6 @@ public class ModificationScriptBuilder implements ProjectFileBuilder<Modificatio
 
         context.getStorage().flush();
 
-        return new ModificationScript(new ProjectFileCreationContext(info, context.getStorage(), context.getFileSystem()));
+        return new ModificationScript(new ProjectFileCreationContext(info, context.getStorage(), context.getProject()));
     }
 }
