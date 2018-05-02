@@ -17,18 +17,18 @@ public class ProjectFileContext {
 
     private final ListenableAppStorage storage;
 
-    private final AppFileSystem fileSystem;
+    private final Project project;
 
-    protected ProjectFileContext(ListenableAppStorage storage, AppFileSystem fileSystem) {
+    protected ProjectFileContext(ListenableAppStorage storage, Project project) {
         this.storage = Objects.requireNonNull(storage);
-        this.fileSystem = Objects.requireNonNull(fileSystem);
+        this.project = Objects.requireNonNull(project);
     }
 
     public ListenableAppStorage getStorage() {
         return storage;
     }
 
-    public AppFileSystem getFileSystem() {
-        return fileSystem;
+    public Project getProject() {
+        return project;
     }
 }
