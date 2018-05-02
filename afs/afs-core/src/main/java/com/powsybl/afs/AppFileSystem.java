@@ -103,7 +103,7 @@ public class AppFileSystem implements AutoCloseable {
         ProjectFile projectFile = project.createProjectFile(projectFileInfo);
 
         // check file is the right type
-        if (clazz.isAssignableFrom(projectFile.getClass())) {
+        if (!clazz.isAssignableFrom(projectFile.getClass())) {
             throw new AfsException("Project file '" + projectFileId + "' is not a " + clazz.getName()
                     + " instance (" + projectFile.getClass() + ")");
         }
