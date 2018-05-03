@@ -89,6 +89,8 @@ public final class GeneratorsValidation {
         float targetQ = gen.getTargetQ();
         float targetV = gen.getTargetV();
         boolean voltageRegulatorOn = gen.isVoltageRegulatorOn();
+        float minP = gen.getMinP();
+        float maxP = gen.getMaxP();
         float minQ = gen.getReactiveLimits().getMinQ(targetP);
         float maxQ = gen.getReactiveLimits().getMaxQ(targetP);
         float v = bus != null ? bus.getV() : Float.NaN;
@@ -96,26 +98,26 @@ public final class GeneratorsValidation {
         Bus connectableBus = gen.getTerminal().getBusView().getConnectableBus();
         boolean connectableMainComponent = connectableBus != null && connectableBus.isInMainConnectedComponent();
         boolean mainComponent = bus != null ? bus.isInMainConnectedComponent() : connectableMainComponent;
-        return checkGenerators(gen.getId(), p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, connected, mainComponent, config, generatorsWriter);
+        return checkGenerators(gen.getId(), p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minP, maxP, minQ, maxQ, connected, mainComponent, config, generatorsWriter);
     }
 
     public static boolean checkGenerators(String id, float p, float q, float v, float targetP, float targetQ, float targetV,
-                                          boolean voltageRegulatorOn, float minQ, float maxQ, boolean connected, boolean mainComponent,
-                                          ValidationConfig config, Writer writer) {
+                                          boolean voltageRegulatorOn, float minP, float maxP, float minQ, float maxQ, boolean connected,
+                                          boolean mainComponent, ValidationConfig config, Writer writer) {
         Objects.requireNonNull(id);
         Objects.requireNonNull(config);
         Objects.requireNonNull(writer);
 
         try (ValidationWriter generatorsWriter = ValidationUtils.createValidationWriter(id, config, writer, ValidationType.GENERATORS)) {
-            return checkGenerators(id, p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, connected, mainComponent, config, generatorsWriter);
+            return checkGenerators(id, p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minP, maxP, minQ, maxQ, connected, mainComponent, config, generatorsWriter);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
     public static boolean checkGenerators(String id, float p, float q, float v, float targetP, float targetQ, float targetV,
-                                          boolean voltageRegulatorOn, float minQ, float maxQ, boolean connected, boolean mainComponent,
-                                          ValidationConfig config, ValidationWriter generatorsWriter) {
+                                          boolean voltageRegulatorOn, float minP, float maxP, float minQ, float maxQ, boolean connected,
+                                          boolean mainComponent, ValidationConfig config, ValidationWriter generatorsWriter) {
         Objects.requireNonNull(id);
         Objects.requireNonNull(config);
         Objects.requireNonNull(generatorsWriter);
@@ -124,14 +126,16 @@ public final class GeneratorsValidation {
         if (connected && ValidationUtils.isMainComponent(config, mainComponent)) {
             if (Float.isNaN(p) || Float.isNaN(q)) {
                 validated = checkGeneratorsNaNValues(id, p, q, targetP, targetQ);
-            } else if (maxQ < minQ && config.isNoRequirementIfReactiveBoundInversion()) { // when maxQ < minQ if noRequirementIfReactiveBoundInversion return true
+            } else if (checkReactiveBoundInversion(minQ, maxQ, config)) { // when maxQ < minQ if noRequirementIfReactiveBoundInversion return true
+                validated = true;
+            } else if (checkSetPointOutsidePowerBounds(targetP, minP, maxP, config)) { // when targetP < minP or targetP > maxP if noRequirementIfSetPointOutsidePowerBounds return true
                 validated = true;
             } else {
                 validated = checkGeneratorsValues(id, p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, config);
             }
         }
         try {
-            generatorsWriter.write(id, p, q, v, targetP, targetQ, targetV, connected, voltageRegulatorOn, minQ, maxQ, mainComponent, validated);
+            generatorsWriter.write(id, p, q, v, targetP, targetQ, targetV, connected, voltageRegulatorOn, minP, maxP, minQ, maxQ, mainComponent, validated);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -183,6 +187,14 @@ public final class GeneratorsValidation {
 
     private static float getMinQ(float minQ, float maxQ) {
         return maxQ < minQ ? maxQ : minQ;
+    }
+
+    private static boolean checkReactiveBoundInversion(float minQ, float maxQ, ValidationConfig config) {
+        return maxQ < minQ - config.getThreshold() && config.isNoRequirementIfReactiveBoundInversion();
+    }
+
+    private static boolean checkSetPointOutsidePowerBounds(float targetP, float minP, float maxP, ValidationConfig config) {
+        return (targetP < minP - config.getThreshold() || targetP > maxP + config.getThreshold()) && config.isNoRequirementIfSetPointOutsidePowerBounds();
     }
 
 }
