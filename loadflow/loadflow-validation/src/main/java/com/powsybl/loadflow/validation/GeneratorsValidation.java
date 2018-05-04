@@ -128,7 +128,7 @@ public final class GeneratorsValidation {
                 validated = checkGeneratorsNaNValues(id, p, q, targetP, targetQ);
             } else if (checkReactiveBoundInversion(minQ, maxQ, config)) { // when maxQ < minQ if noRequirementIfReactiveBoundInversion return true
                 validated = true;
-            } else if (checkSetPointOutsidePowerBounds(targetP, minP, maxP, config)) { // when targetP < minP or targetP > maxP if noRequirementIfSetPointOutsidePowerBounds return true
+            } else if (checkSetpointOutsidePowerBounds(targetP, minP, maxP, config)) { // when targetP < minP or targetP > maxP if noRequirementIfSetpointOutsidePowerBounds return true
                 validated = true;
             } else {
                 validated = checkGeneratorsValues(id, p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, config);
@@ -193,8 +193,8 @@ public final class GeneratorsValidation {
         return maxQ < minQ - config.getThreshold() && config.isNoRequirementIfReactiveBoundInversion();
     }
 
-    private static boolean checkSetPointOutsidePowerBounds(float targetP, float minP, float maxP, ValidationConfig config) {
-        return (targetP < minP - config.getThreshold() || targetP > maxP + config.getThreshold()) && config.isNoRequirementIfSetPointOutsidePowerBounds();
+    private static boolean checkSetpointOutsidePowerBounds(float targetP, float minP, float maxP, ValidationConfig config) {
+        return (targetP < minP - config.getThreshold() || targetP > maxP + config.getThreshold()) && config.isNoRequirementIfSetpointOutsidePowerBounds();
     }
 
 }

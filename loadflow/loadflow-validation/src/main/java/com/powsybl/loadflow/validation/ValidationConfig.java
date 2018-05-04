@@ -46,7 +46,7 @@ public class ValidationConfig {
     private boolean noRequirementIfReactiveBoundInversion;
     private boolean compareResults;
     private boolean checkMainComponentOnly;
-    private boolean noRequirementIfSetPointOutsidePowerBounds;
+    private boolean noRequirementIfSetpointOutsidePowerBounds;
 
     public static ValidationConfig load() {
         return load(PlatformConfig.defaultConfig());
@@ -65,7 +65,7 @@ public class ValidationConfig {
         boolean noRequirementIfReactiveBoundInversion = NO_REQUIREMENT_IF_REACTIVE_BOUND_INVERSION_DEFAULT;
         boolean compareResults = COMPARE_RESULTS_DEFAULT;
         boolean checkMainComponentOnly = CHECK_MAIN_COMPONENT_ONLY_DEFAULT;
-        boolean noRequirementIfSetPointOutsidePowerBounds = NO_REQUIREMENT_IF_SETPOINT_OUTSIDE_POWERS_BOUNDS;
+        boolean noRequirementIfSetpointOutsidePowerBounds = NO_REQUIREMENT_IF_SETPOINT_OUTSIDE_POWERS_BOUNDS;
         LoadFlowParameters loadFlowParameter = LoadFlowParameters.load(platformConfig);
         if (platformConfig.moduleExists("loadflow-validation")) {
             ModuleConfig config = platformConfig.getModuleConfig("loadflow-validation");
@@ -82,17 +82,17 @@ public class ValidationConfig {
             noRequirementIfReactiveBoundInversion = config.getBooleanProperty("no-requirement-if-reactive-bound-inversion", NO_REQUIREMENT_IF_REACTIVE_BOUND_INVERSION_DEFAULT);
             compareResults = config.getBooleanProperty("compare-results", COMPARE_RESULTS_DEFAULT);
             checkMainComponentOnly = config.getBooleanProperty("check-main-component-only", CHECK_MAIN_COMPONENT_ONLY_DEFAULT);
-            noRequirementIfSetPointOutsidePowerBounds = config.getBooleanProperty("no-requirement-if-setpoint-outside-power-bounds", NO_REQUIREMENT_IF_SETPOINT_OUTSIDE_POWERS_BOUNDS);
+            noRequirementIfSetpointOutsidePowerBounds = config.getBooleanProperty("no-requirement-if-setpoint-outside-power-bounds", NO_REQUIREMENT_IF_SETPOINT_OUTSIDE_POWERS_BOUNDS);
         }
         return new ValidationConfig(threshold, verbose, loadFlowFactory, tableFormatterFactory, epsilonX, applyReactanceCorrection, validationOutputWriter, loadFlowParameter,
-                                    okMissingValues, noRequirementIfReactiveBoundInversion, compareResults, checkMainComponentOnly, noRequirementIfSetPointOutsidePowerBounds);
+                                    okMissingValues, noRequirementIfReactiveBoundInversion, compareResults, checkMainComponentOnly, noRequirementIfSetpointOutsidePowerBounds);
     }
 
     public ValidationConfig(float threshold, boolean verbose, Class<? extends LoadFlowFactory> loadFlowFactory,
                             Class<? extends TableFormatterFactory> tableFormatterFactory, float epsilonX,
                             boolean applyReactanceCorrection, ValidationOutputWriter validationOutputWriter, LoadFlowParameters loadFlowParameters,
                             boolean okMissingValues, boolean noRequirementIfReactiveBoundInversion, boolean compareResults, boolean checkMainComponentOnly,
-                            boolean noRequirementIfSetPointOutsidePowerBounds) {
+                            boolean noRequirementIfSetpointOutsidePowerBounds) {
         if (threshold < 0) {
             throw new IllegalArgumentException("Negative values for threshold not permitted");
         }
@@ -111,7 +111,7 @@ public class ValidationConfig {
         this.noRequirementIfReactiveBoundInversion = noRequirementIfReactiveBoundInversion;
         this.compareResults = compareResults;
         this.checkMainComponentOnly = checkMainComponentOnly;
-        this.noRequirementIfSetPointOutsidePowerBounds = noRequirementIfSetPointOutsidePowerBounds;
+        this.noRequirementIfSetpointOutsidePowerBounds = noRequirementIfSetpointOutsidePowerBounds;
     }
 
     public float getThreshold() {
@@ -162,8 +162,8 @@ public class ValidationConfig {
         return checkMainComponentOnly;
     }
 
-    public boolean isNoRequirementIfSetPointOutsidePowerBounds() {
-        return noRequirementIfSetPointOutsidePowerBounds;
+    public boolean isNoRequirementIfSetpointOutsidePowerBounds() {
+        return noRequirementIfSetpointOutsidePowerBounds;
     }
 
     public void setThreshold(float threshold) {
@@ -214,8 +214,8 @@ public class ValidationConfig {
         this.checkMainComponentOnly = checkMainComponentOnly;
     }
 
-    public void setNoRequirementIfSetPointOutsidePowerBounds(boolean noRequirementIfSetPointOutsidePowerBounds) {
-        this.noRequirementIfSetPointOutsidePowerBounds = noRequirementIfSetPointOutsidePowerBounds;
+    public void setNoRequirementIfSetpointOutsidePowerBounds(boolean noRequirementIfSetpointOutsidePowerBounds) {
+        this.noRequirementIfSetpointOutsidePowerBounds = noRequirementIfSetpointOutsidePowerBounds;
     }
 
     @Override
@@ -233,7 +233,7 @@ public class ValidationConfig {
                 ", noRequirementIfReactiveBoundInversion=" + noRequirementIfReactiveBoundInversion +
                 ", compareResults=" + compareResults +
                 ", checkMainComponentOnly=" + checkMainComponentOnly +
-                ", noRequirementIfSetPointOutsidePowerBounds=" + noRequirementIfSetPointOutsidePowerBounds +
+                ", noRequirementIfSetpointOutsidePowerBounds=" + noRequirementIfSetpointOutsidePowerBounds +
                 "]";
     }
 

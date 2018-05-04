@@ -43,7 +43,7 @@ public class ValidationConfigTest {
     boolean noRequirementIfReactiveBoundInversion = true;
     boolean compareResults = true;
     boolean checkMainComponentOnly = false;
-    boolean noRequirementIfSetPointOutsidePowerBounds = true;
+    boolean noRequirementIfSetpointOutsidePowerBounds = true;
 
     @Before
     public void setUp() {
@@ -95,10 +95,10 @@ public class ValidationConfigTest {
         moduleConfig.setStringProperty("no-requirement-if-reactive-bound-inversion", Boolean.toString(noRequirementIfReactiveBoundInversion));
         moduleConfig.setStringProperty("compare-results", Boolean.toString(compareResults));
         moduleConfig.setStringProperty("check-main-component-only", Boolean.toString(checkMainComponentOnly));
-        moduleConfig.setStringProperty("no-requirement-if-setpoint-outside-power-bounds", Boolean.toString(noRequirementIfSetPointOutsidePowerBounds));
+        moduleConfig.setStringProperty("no-requirement-if-setpoint-outside-power-bounds", Boolean.toString(noRequirementIfSetpointOutsidePowerBounds));
         ValidationConfig config = ValidationConfig.load(platformConfig);
         checkValues(config, threshold, verbose, loadFlowFactory, tableFormatterFactory, epsilonX, applyReactanceCorrection, validationOutputWriter, okMissingValues,
-                    noRequirementIfReactiveBoundInversion, compareResults, checkMainComponentOnly, noRequirementIfSetPointOutsidePowerBounds);
+                    noRequirementIfReactiveBoundInversion, compareResults, checkMainComponentOnly, noRequirementIfSetpointOutsidePowerBounds);
     }
 
     @Test
@@ -115,15 +115,15 @@ public class ValidationConfigTest {
         config.setNoRequirementIfReactiveBoundInversion(noRequirementIfReactiveBoundInversion);
         config.setCompareResults(compareResults);
         config.setCheckMainComponentOnly(checkMainComponentOnly);
-        config.setNoRequirementIfSetPointOutsidePowerBounds(noRequirementIfSetPointOutsidePowerBounds);
+        config.setNoRequirementIfSetpointOutsidePowerBounds(noRequirementIfSetpointOutsidePowerBounds);
         checkValues(config, threshold, verbose, loadFlowFactory, tableFormatterFactory, epsilonX, applyReactanceCorrection, validationOutputWriter, okMissingValues,
-                    noRequirementIfReactiveBoundInversion, compareResults, checkMainComponentOnly, noRequirementIfSetPointOutsidePowerBounds);
+                    noRequirementIfReactiveBoundInversion, compareResults, checkMainComponentOnly, noRequirementIfSetpointOutsidePowerBounds);
     }
 
     private void checkValues(ValidationConfig config, float threshold, boolean verbose, Class<? extends LoadFlowFactory> loadFlowFactory,
                              Class<? extends TableFormatterFactory> tableFormatterFactory, float epsilonX, boolean applyReactanceCorrection,
                              ValidationOutputWriter validationOutputWriter, boolean okMissingValues, boolean noRequirementIfReactiveBoundInversion,
-                             boolean compareResults, boolean checkMainComponentOnly, boolean noRequirementIfSetPointOutsidePowerBounds) {
+                             boolean compareResults, boolean checkMainComponentOnly, boolean noRequirementIfSetpointOutsidePowerBounds) {
         assertEquals(threshold, config.getThreshold(), 0f);
         assertEquals(verbose, config.isVerbose());
         assertEquals(loadFlowFactory, config.getLoadFlowFactory());
@@ -135,7 +135,7 @@ public class ValidationConfigTest {
         assertEquals(noRequirementIfReactiveBoundInversion, config.isNoRequirementIfReactiveBoundInversion());
         assertEquals(compareResults, config.isCompareResults());
         assertEquals(checkMainComponentOnly, config.isCheckMainComponentOnly());
-        assertEquals(noRequirementIfSetPointOutsidePowerBounds, config.isNoRequirementIfSetPointOutsidePowerBounds());
+        assertEquals(noRequirementIfSetpointOutsidePowerBounds, config.isNoRequirementIfSetpointOutsidePowerBounds());
     }
 
     @Test
