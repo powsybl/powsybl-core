@@ -5,8 +5,15 @@ REM License, v. 2.0. If a copy of the MPL was not distributed with this
 REM file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 if "%JAVA_HOME%" == "" (
-  echo JAVA_HOME is not defined >&2 
-  exit -1
+  where /Q java.exe
+  if %errorlevel% == 0 (
+    JAVA_BIN=java.exe
+  ) else (
+    echo "Unable to find java" >&2
+    exit -1
+  )
+) else (
+  JAVA_BIN=%JAVA_HOME%\bin\java.exe
 )
 
 setlocal EnableDelayedExpansion
@@ -56,6 +63,6 @@ set options=%options%\logback-itools.xml"
 
 if "%java_xmx%"=="" ( set java_xmx=8G )
 
-"%JAVA_HOME%"\bin\java.exe  -Xmx%java_xmx% -cp %installDir%\share\java\* %options% com.powsybl.tools.Main %args%
+"%JAVA_BIN%" -Xmx%java_xmx% -cp %installDir%\share\java\* %options% com.powsybl.tools.Main %args%
 
 endlocal
