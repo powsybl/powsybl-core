@@ -60,7 +60,7 @@ public class ProjectFolder extends ProjectNode implements FolderBase<ProjectNode
     public List<ProjectNode> getChildren() {
         return storage.getChildNodes(info.getId())
                 .stream()
-                .map(fileSystem::createProjectNode)
+                .map(project::createProjectNode)
                 .sorted(Comparator.comparing(ProjectNode::getName))
                 .collect(Collectors.toList());
     }
@@ -68,7 +68,7 @@ public class ProjectFolder extends ProjectNode implements FolderBase<ProjectNode
     @Override
     public Optional<ProjectNode> getChild(String name, String... more) {
         NodeInfo childInfo = getChildInfo(name, more);
-        return Optional.ofNullable(childInfo).map(fileSystem::createProjectNode);
+        return Optional.ofNullable(childInfo).map(project::createProjectNode);
     }
 
     @Override
@@ -92,14 +92,13 @@ public class ProjectFolder extends ProjectNode implements FolderBase<ProjectNode
                     storage.flush();
                     return newFolderInfo;
                 });
-        return new ProjectFolder(new ProjectFileCreationContext(folderInfo, storage, fileSystem));
+        return new ProjectFolder(new ProjectFileCreationContext(folderInfo, storage, project));
     }
 
     public <F extends ProjectFile, B extends ProjectFileBuilder<F>> B fileBuilder(Class<B> clazz) {
         Objects.requireNonNull(clazz);
-        ProjectFileExtension extension = fileSystem.getData().getProjectFileExtension(clazz);
-        ProjectFileBuilder<F> builder = (ProjectFileBuilder<F>) extension.createProjectFileBuilder(new ProjectFileBuildContext(info, storage, fileSystem));
-        return (B) builder;
+        ProjectFileExtension extension = project.getFileSystem().getData().getProjectFileExtension(clazz);
+        return (B) extension.createProjectFileBuilder(new ProjectFileBuildContext(info, storage, project));
     }
 
     public void addListener(ProjectFolderListener listener) {

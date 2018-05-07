@@ -64,7 +64,7 @@ public class SecurityAnalysisRunnerBuilder implements ProjectFileBuilder<Securit
 
         ProjectFolder folder = new ProjectFolder(new ProjectFileCreationContext(context.getFolderInfo(),
                                                                                 context.getStorage(),
-                                                                                context.getFileSystem()));
+                                                                                context.getProject()));
 
         if (folder.getChild(name).isPresent()) {
             throw new AfsException("Folder '" + folder.getPath() + "' already contains a '" + name + "' node");
@@ -95,6 +95,6 @@ public class SecurityAnalysisRunnerBuilder implements ProjectFileBuilder<Securit
 
         context.getStorage().flush();
 
-        return new SecurityAnalysisRunner(new ProjectFileCreationContext(info, context.getStorage(), context.getFileSystem()));
+        return new SecurityAnalysisRunner(new ProjectFileCreationContext(info, context.getStorage(), context.getProject()));
     }
 }

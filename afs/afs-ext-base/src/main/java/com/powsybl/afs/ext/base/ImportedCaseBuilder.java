@@ -80,7 +80,7 @@ public class ImportedCaseBuilder implements ProjectFileBuilder<ImportedCase> {
 
     public ImportedCaseBuilder withDatasource(ReadOnlyDataSource dataSource) {
         Objects.requireNonNull(dataSource);
-        importer = Importers.findImporter(dataSource, importersLoader, context.getFileSystem().getData().getShortTimeExecutionComputationManager(), importConfig);
+        importer = Importers.findImporter(dataSource, importersLoader, context.getProject().getFileSystem().getData().getShortTimeExecutionComputationManager(), importConfig);
         if (importer == null) {
             throw new AfsException("No importer found for this data source");
         }
@@ -127,7 +127,7 @@ public class ImportedCaseBuilder implements ProjectFileBuilder<ImportedCase> {
 
         context.getStorage().flush();
 
-        return new ImportedCase(new ProjectFileCreationContext(info, context.getStorage(), context.getFileSystem()),
+        return new ImportedCase(new ProjectFileCreationContext(info, context.getStorage(), context.getProject()),
                                 importersLoader);
     }
 }

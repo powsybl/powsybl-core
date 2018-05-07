@@ -49,6 +49,6 @@ public class ContingencyStoreBuilder implements ProjectFileBuilder<ContingencySt
 
         context.getStorage().flush();
 
-        return new ContingencyStore(new ProjectFileCreationContext(info, context.getStorage(), context.getFileSystem()));
+        return new ContingencyStore(new ProjectFileCreationContext(info, context.getStorage(), context.getProject()));
     }
 }
