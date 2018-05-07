@@ -53,9 +53,9 @@ public class ResultsCompletionLoadFlow implements LoadFlow {
         Objects.requireNonNull(parameters);
         LOGGER.info("Running {} on network {}, state {}", getName(), network.getId(), network.getStateManager().getWorkingStateId());
 
-        LOGGER.info("LoadFlowParameters={}", parameters.toString());
+        LOGGER.info("LoadFlowParameters={}", parameters);
         ResultsCompletionLoadFlowParametersExtension resultsCompletionLfParameters = parameters.getExtension(ResultsCompletionLoadFlowParametersExtension.class);
-        LOGGER.info("ResultsCompletionLoadFlowParameters={}", resultsCompletionLfParameters.toString());
+        LOGGER.info("ResultsCompletionLoadFlowParameters={}", resultsCompletionLfParameters);
 
         network.getLineStream().forEach(line -> {
             BranchData lineData = new BranchData(line,
