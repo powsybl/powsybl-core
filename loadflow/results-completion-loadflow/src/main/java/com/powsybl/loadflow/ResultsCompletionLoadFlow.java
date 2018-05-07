@@ -40,7 +40,7 @@ public class ResultsCompletionLoadFlow implements LoadFlow {
 
     @Override
     public String getVersion() {
-        return null;
+        return "1.0.0";
     }
 
     @Override
