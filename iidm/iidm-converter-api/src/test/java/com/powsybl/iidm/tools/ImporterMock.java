@@ -13,7 +13,6 @@ import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.parameters.Parameter;
 
-import java.io.InputStream;
 import java.util.List;
 import java.util.Properties;
 
@@ -26,17 +25,11 @@ import static org.junit.Assert.assertEquals;
 public class ImporterMock implements Importer {
 
     public ImporterMock() {
-
     }
 
     @Override
     public String getFormat() {
         return "IN";
-    }
-
-    @Override
-    public InputStream get16x16Icon() {
-        return null;
     }
 
     @Override

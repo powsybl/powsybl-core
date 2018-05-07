@@ -235,10 +235,10 @@ public abstract class AbstractValidationFormatterWriterTest {
         Writer writer = new StringWriter();
         TableFormatterConfig config = new TableFormatterConfig(Locale.getDefault(), ';', "inv", true, true);
         try (ValidationWriter generatorsWriter = getGeneratorsValidationFormatterCsvWriter(config, writer, verbose, compareResults)) {
-            generatorsWriter.write(generatorId1, p, q, v, targetP, targetQ, targetV, connected, voltageRegulatorOn, minQ, maxQ, validated);
+            generatorsWriter.write(generatorId1, p, q, v, targetP, targetQ, targetV, connected, voltageRegulatorOn, minQ, maxQ, mainComponent, validated);
             generatorsWriter.setValidationCompleted();
             if (compareResults) {
-                generatorsWriter.write(generatorId2, p, q, v, targetP, targetQ, targetV, connected, voltageRegulatorOn, minQ, maxQ, validated);
+                generatorsWriter.write(generatorId2, p, q, v, targetP, targetQ, targetV, connected, voltageRegulatorOn, minQ, maxQ, mainComponent, validated);
                 generatorsWriter.setValidationCompleted();
             }
             assertEquals(generatorsContent, writer.toString().trim());
@@ -293,10 +293,12 @@ public abstract class AbstractValidationFormatterWriterTest {
         Writer writer = new StringWriter();
         TableFormatterConfig config = new TableFormatterConfig(Locale.getDefault(), ';', "inv", true, true);
         try (ValidationWriter busesWriter = getBusesValidationFormatterCsvWriter(config, writer, verbose, compareResults)) {
-            busesWriter.write(busId1, incomingP, incomingQ, loadP, loadQ, genP, genQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ, lineP, lineQ, danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, validated);
+            busesWriter.write(busId1, incomingP, incomingQ, loadP, loadQ, genP, genQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
+                              lineP, lineQ, danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, mainComponent, validated);
             busesWriter.setValidationCompleted();
             if (compareResults) {
-                busesWriter.write(busId2, incomingP, incomingQ, loadP, loadQ, genP, genQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ, lineP, lineQ, danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, validated);
+                busesWriter.write(busId2, incomingP, incomingQ, loadP, loadQ, genP, genQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
+                                  lineP, lineQ, danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, mainComponent, validated);
                 busesWriter.setValidationCompleted();
             }
             assertEquals(busesContent, writer.toString().trim());
@@ -351,10 +353,10 @@ public abstract class AbstractValidationFormatterWriterTest {
         Writer writer = new StringWriter();
         TableFormatterConfig config = new TableFormatterConfig(Locale.getDefault(), ';', "inv", true, true);
         try (ValidationWriter svcsWriter = getSvcsValidationFormatterCsvWriter(config, writer, verbose, compareResults)) {
-            svcsWriter.write(svcId1, p, q, v, reactivePowerSetpoint, voltageSetpoint, verbose, regulationMode, bMin, bMax, validated);
+            svcsWriter.write(svcId1, p, q, v, nominalV, reactivePowerSetpoint, voltageSetpoint, verbose, regulationMode, bMin, bMax, mainComponent, validated);
             svcsWriter.setValidationCompleted();
             if (compareResults) {
-                svcsWriter.write(svcId2, p, q, v, reactivePowerSetpoint, voltageSetpoint, verbose, regulationMode, bMin, bMax, validated);
+                svcsWriter.write(svcId2, p, q, v, nominalV, reactivePowerSetpoint, voltageSetpoint, verbose, regulationMode, bMin, bMax, mainComponent, validated);
                 svcsWriter.setValidationCompleted();
             }
             assertEquals(svcsContent, writer.toString().trim());
@@ -409,10 +411,10 @@ public abstract class AbstractValidationFormatterWriterTest {
         Writer writer = new StringWriter();
         TableFormatterConfig config = new TableFormatterConfig(Locale.getDefault(), ';', "inv", true, true);
         try (ValidationWriter shuntsWriter = getShuntsValidationFormatterCsvWriter(config, writer, verbose, compareResults)) {
-            shuntsWriter.write(shuntId1, q, expectedQ, p, currentSectionCount, maximumSectionCount, bPerSection, v, connected, qMax, nominalV, validated);
+            shuntsWriter.write(shuntId1, q, expectedQ, p, currentSectionCount, maximumSectionCount, bPerSection, v, connected, qMax, nominalV, mainComponent, validated);
             shuntsWriter.setValidationCompleted();
             if (compareResults) {
-                shuntsWriter.write(shuntId2, q, expectedQ, p, currentSectionCount, maximumSectionCount, bPerSection, v, connected, qMax, nominalV, validated);
+                shuntsWriter.write(shuntId2, q, expectedQ, p, currentSectionCount, maximumSectionCount, bPerSection, v, connected, qMax, nominalV, mainComponent, validated);
                 shuntsWriter.setValidationCompleted();
             }
             assertEquals(shuntsContent, writer.toString().trim());

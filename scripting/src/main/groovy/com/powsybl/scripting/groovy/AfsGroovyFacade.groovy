@@ -23,7 +23,7 @@ class AfsGroovyFacade {
         this.data = data
     }
 
-    List<String> listFs() {
+    List<String> getFileSystemNames() {
         data.getFileSystems().stream().map({fs -> fs.getName()}).collect(Collectors.toList())
     }
 

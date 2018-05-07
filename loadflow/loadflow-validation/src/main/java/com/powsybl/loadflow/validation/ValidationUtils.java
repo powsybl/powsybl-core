@@ -80,4 +80,9 @@ public final class ValidationUtils {
         return value + margin >= lowerBound && value - margin <= upperBound;
     }
 
+    public static boolean isMainComponent(ValidationConfig config, boolean mainComponent) {
+        Objects.requireNonNull(config);
+        return config.isCheckMainComponentOnly() ? mainComponent : true;
+    }
+
 }

@@ -1,0 +1,3 @@
+#Hvdc lines
+#"num" "convertersMode" "targetP (MW)"
+1 SIDE_1_RECTIFIER_SIDE_2_INVERTER 300.000

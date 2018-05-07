@@ -83,7 +83,6 @@ public final class ShuntCompensatorsValidation {
         Objects.requireNonNull(config);
         Objects.requireNonNull(shuntsWriter);
 
-        boolean validated = true;
         float p = shunt.getTerminal().getP();
         float q = shunt.getTerminal().getQ();
         int currentSectionCount = shunt.getCurrentSectionCount();
@@ -92,50 +91,52 @@ public final class ShuntCompensatorsValidation {
         float nominalV = shunt.getTerminal().getVoltageLevel().getNominalV();
         float qMax = bPerSection * maximumSectionCount * nominalV * nominalV;
         Bus bus = shunt.getTerminal().getBusView().getBus();
-        if (bus != null && !Float.isNaN(bus.getV())) {
-            float v = bus.getV();
-            return checkShunts(shunt.getId(), p, q, currentSectionCount, maximumSectionCount, bPerSection, v, qMax, nominalV, config, shuntsWriter);
-        } else if (!Float.isNaN(q) && q != 0) { // if the shunt is disconnected then either “q” is not defined or “q” is 0
-            LOGGER.warn("{} {}: {}: disconnected shunt Q {}", ValidationType.SHUNTS, ValidationUtils.VALIDATION_ERROR, shunt.getId(), q);
-            validated = false;
-        }
-        try {
-            shuntsWriter.write(shunt.getId(), q, Float.NaN, p, currentSectionCount, maximumSectionCount, bPerSection, Float.NaN, shunt.getTerminal().isConnected(), qMax, nominalV, validated);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-        return validated;
+        float v = bus != null ? bus.getV() : Float.NaN;
+        boolean connected = bus != null;
+        Bus connectableBus = shunt.getTerminal().getBusView().getConnectableBus();
+        boolean connectableMainComponent = connectableBus != null && connectableBus.isInMainConnectedComponent();
+        boolean mainComponent = bus != null ? bus.isInMainConnectedComponent() : connectableMainComponent;
+        return checkShunts(shunt.getId(), p, q, currentSectionCount, maximumSectionCount, bPerSection, v, qMax, nominalV, connected, mainComponent, config, shuntsWriter);
     }
 
     public static boolean checkShunts(String id, float p, float q, int currentSectionCount, int maximumSectionCount, float bPerSection,
-                                      float v, float qMax, float nominalV, ValidationConfig config, Writer writer) {
+                                      float v, float qMax, float nominalV, boolean connected, boolean mainComponent, ValidationConfig config,
+                                      Writer writer) {
         Objects.requireNonNull(id);
         Objects.requireNonNull(config);
         Objects.requireNonNull(writer);
 
         try (ValidationWriter shuntsWriter = ValidationUtils.createValidationWriter(id, config, writer, ValidationType.SHUNTS)) {
-            return checkShunts(id, p, q, currentSectionCount, maximumSectionCount, bPerSection, v, qMax, nominalV, config, shuntsWriter);
+            return checkShunts(id, p, q, currentSectionCount, maximumSectionCount, bPerSection, v, qMax, nominalV, connected, mainComponent, config, shuntsWriter);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
     public static boolean checkShunts(String id, float p, float q, int currentSectionCount, int maximumSectionCount, float bPerSection,
-                                      float v, float qMax, float nominalV, ValidationConfig config, ValidationWriter shuntsWriter) {
+                                      float v, float qMax, float nominalV, boolean connected, boolean mainComponent, ValidationConfig config,
+                                      ValidationWriter shuntsWriter) {
         boolean validated = true;
-        // “p” is always NaN
-        if (!Float.isNaN(p)) {
-            LOGGER.warn("{} {}: {}: P={}", ValidationType.SHUNTS, ValidationUtils.VALIDATION_ERROR, id, p);
+
+        if (!connected && !Float.isNaN(q) && q != 0) { // if the shunt is disconnected then either “q” is not defined or “q” is 0
+            LOGGER.warn("{} {}: {}: disconnected shunt Q {}", ValidationType.SHUNTS, ValidationUtils.VALIDATION_ERROR, id, q);
             validated = false;
         }
         // “q” = - bPerSection * currentSectionCount * v^2
         float expectedQ = -bPerSection * currentSectionCount * v * v;
-        if (ValidationUtils.areNaN(config, q, expectedQ) || Math.abs(q - expectedQ) > config.getThreshold()) {
-            LOGGER.warn("{} {}: {}:  Q {} {}", ValidationType.SHUNTS, ValidationUtils.VALIDATION_ERROR, id, q, expectedQ);
-            validated = false;
+        if (connected && ValidationUtils.isMainComponent(config, mainComponent)) {
+            // “p” is always NaN
+            if (!Float.isNaN(p)) {
+                LOGGER.warn("{} {}: {}: P={}", ValidationType.SHUNTS, ValidationUtils.VALIDATION_ERROR, id, p);
+                validated = false;
+            }
+            if (ValidationUtils.areNaN(config, q, expectedQ) || Math.abs(q - expectedQ) > config.getThreshold()) {
+                LOGGER.warn("{} {}: {}:  Q {} {}", ValidationType.SHUNTS, ValidationUtils.VALIDATION_ERROR, id, q, expectedQ);
+                validated = false;
+            }
         }
         try {
-            shuntsWriter.write(id, q, expectedQ, p, currentSectionCount, maximumSectionCount, bPerSection, v, true, qMax, nominalV, validated);
+            shuntsWriter.write(id, q, expectedQ, p, currentSectionCount, maximumSectionCount, bPerSection, v, connected, qMax, nominalV, mainComponent, validated);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

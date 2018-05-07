@@ -22,6 +22,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ReactiveLimits;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.Terminal.BusView;
+import com.powsybl.loadflow.validation.io.ValidationWriter;
 
 /**
  *
@@ -38,6 +39,8 @@ public class GeneratorsValidationTest extends AbstractValidationTest {
     private boolean voltageRegulatorOn = true;
     private final float minQ = -10f;
     private final float maxQ = 0f;
+    private final boolean connected = true;
+    private boolean mainComponent = true;
 
     private BusView genBusView;
     private Terminal genTerminal;
@@ -47,9 +50,11 @@ public class GeneratorsValidationTest extends AbstractValidationTest {
     public void setUp() {
         Bus genBus = Mockito.mock(Bus.class);
         Mockito.when(genBus.getV()).thenReturn(v);
+        Mockito.when(genBus.isInMainConnectedComponent()).thenReturn(mainComponent);
 
         genBusView = Mockito.mock(BusView.class);
         Mockito.when(genBusView.getBus()).thenReturn(genBus);
+        Mockito.when(genBusView.getConnectableBus()).thenReturn(genBus);
 
         genTerminal = Mockito.mock(Terminal.class);
         Mockito.when(genTerminal.getP()).thenReturn(p);
@@ -72,84 +77,88 @@ public class GeneratorsValidationTest extends AbstractValidationTest {
     @Test
     public void checkGeneratorsValues() {
         // active power should be equal to setpoint
-        assertTrue(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, strictConfig, NullWriter.NULL_WRITER));
+        assertTrue(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
         p = -39.8f;
-        assertFalse(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, strictConfig, NullWriter.NULL_WRITER));
+        assertFalse(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
         p = -39.5056f;
-        assertTrue(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, strictConfig, NullWriter.NULL_WRITER));
+        assertTrue(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
         // check with NaN values
-        assertFalse(GeneratorsValidation.checkGenerators("test", p, q, v, Float.NaN, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, strictConfig, NullWriter.NULL_WRITER));
+        assertFalse(GeneratorsValidation.checkGenerators("test", p, q, v, Float.NaN, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
         strictConfig.setOkMissingValues(true);
-        assertTrue(GeneratorsValidation.checkGenerators("test", p, q, v, Float.NaN, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, strictConfig, NullWriter.NULL_WRITER));
+        assertTrue(GeneratorsValidation.checkGenerators("test", p, q, v, Float.NaN, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
         strictConfig.setOkMissingValues(false);
 
         //  if voltageRegulatorOn="false" then reactive power should be equal to setpoint
         voltageRegulatorOn = false;
-        assertTrue(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, strictConfig, NullWriter.NULL_WRITER));
+        assertTrue(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
         q = 3.7f;
-        assertFalse(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, strictConfig, NullWriter.NULL_WRITER));
-        assertTrue(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, looseConfig, NullWriter.NULL_WRITER));
+        assertFalse(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
+        assertTrue(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, connected, mainComponent, looseConfig, NullWriter.NULL_WRITER));
         // check with NaN values
-        assertFalse(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, Float.NaN, targetV, voltageRegulatorOn, minQ, maxQ, looseConfig, NullWriter.NULL_WRITER));
+        assertFalse(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, Float.NaN, targetV, voltageRegulatorOn, minQ, maxQ, connected, mainComponent, looseConfig, NullWriter.NULL_WRITER));
         looseConfig.setOkMissingValues(true);
-        assertTrue(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, Float.NaN, targetV, voltageRegulatorOn, minQ, maxQ, looseConfig, NullWriter.NULL_WRITER));
+        assertTrue(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, Float.NaN, targetV, voltageRegulatorOn, minQ, maxQ, connected, mainComponent, looseConfig, NullWriter.NULL_WRITER));
         looseConfig.setOkMissingValues(false);
 
         // if voltageRegulatorOn="true" then either V at the connected bus is equal to g.getTargetV() and the reactive bounds are satisfied
         voltageRegulatorOn = true;
-        assertTrue(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, strictConfig, NullWriter.NULL_WRITER));
+        assertTrue(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
         v = 400f;
-        assertFalse(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, strictConfig, NullWriter.NULL_WRITER));
+        assertFalse(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
         v = 380f;
         q = 11f;
-        assertFalse(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, strictConfig, NullWriter.NULL_WRITER));
+        assertFalse(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
+        // check main component
+        mainComponent = false;
+        assertTrue(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
+        mainComponent = true;
         q = 3.7f;
 
         // check with NaN values
         v = 380f;
-        assertFalse(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, Float.NaN, maxQ, strictConfig, NullWriter.NULL_WRITER));
-        assertFalse(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, Float.NaN, strictConfig, NullWriter.NULL_WRITER));
-        assertFalse(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, Float.NaN, voltageRegulatorOn, minQ, maxQ, strictConfig, NullWriter.NULL_WRITER));
+        assertFalse(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, Float.NaN, maxQ, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
+        assertFalse(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, Float.NaN, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
+        assertFalse(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, Float.NaN, voltageRegulatorOn, minQ, maxQ, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
         strictConfig.setOkMissingValues(true);
-        assertTrue(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, Float.NaN, maxQ, strictConfig, NullWriter.NULL_WRITER));
-        assertTrue(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, Float.NaN, strictConfig, NullWriter.NULL_WRITER));
-        assertTrue(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, Float.NaN, voltageRegulatorOn, minQ, maxQ, strictConfig, NullWriter.NULL_WRITER));
+        assertTrue(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, Float.NaN, maxQ, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
+        assertTrue(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, Float.NaN, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
+        assertTrue(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, Float.NaN, voltageRegulatorOn, minQ, maxQ, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
         strictConfig.setOkMissingValues(false);
 
         // if voltageRegulatorOn="true" then either q is equal to g.getReactiveLimits().getMinQ(p) and v is higher than targetV
         q = 10f;
         v = 360f;
-        assertFalse(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, strictConfig, NullWriter.NULL_WRITER));
+        assertFalse(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
         v = 400f;
-        assertTrue(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, strictConfig, NullWriter.NULL_WRITER));
+        assertTrue(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
         q = 5f;
-        assertFalse(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, strictConfig, NullWriter.NULL_WRITER));
+        assertFalse(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
 
         // when maxQ < minQ
         strictConfig.setNoRequirementIfReactiveBoundInversion(true);
         // if noRequirementIfReactiveBoundInversion return true
-        assertTrue(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, maxQ, minQ, strictConfig, NullWriter.NULL_WRITER));
+        assertTrue(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, maxQ, minQ, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
         strictConfig.setNoRequirementIfReactiveBoundInversion(false);
         // the code switches the 2 values to go back to a situation where minQ < maxQ and the normal tests are done
-        assertFalse(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, maxQ, minQ, strictConfig, NullWriter.NULL_WRITER));
+        assertFalse(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, maxQ, minQ, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
 
         // if voltageRegulatorOn="true" then either q is equal to g.getReactiveLimits().getMaxQ(p) and v is lower than targetV
         q = 0f;
-        assertFalse(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, strictConfig, NullWriter.NULL_WRITER));
+        assertFalse(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
         v = 360f;
-        assertTrue(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, strictConfig, NullWriter.NULL_WRITER));
+        assertTrue(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
         q = 5f;
         v = 400f;
-        assertFalse(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, strictConfig, NullWriter.NULL_WRITER));
+        assertFalse(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
 
         // a validation error should be detected if there is both a voltage and a target but no p or q
         v = 380f;
         p = Float.NaN;
         q = Float.NaN;
-        assertFalse(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, strictConfig, NullWriter.NULL_WRITER));
+        assertFalse(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
         targetP = 0f;
         targetQ = 0f;
-        assertTrue(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, strictConfig, NullWriter.NULL_WRITER));
+        assertTrue(GeneratorsValidation.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
     }
 
     @Test
@@ -168,9 +177,11 @@ public class GeneratorsValidationTest extends AbstractValidationTest {
     public void checkNetworkGenerators() {
         Bus genBus1 = Mockito.mock(Bus.class);
         Mockito.when(genBus1.getV()).thenReturn(v);
+        Mockito.when(genBus1.isInMainConnectedComponent()).thenReturn(mainComponent);
 
         BusView genBusView1 = Mockito.mock(BusView.class);
         Mockito.when(genBusView1.getBus()).thenReturn(genBus1);
+        Mockito.when(genBusView1.getConnectableBus()).thenReturn(genBus1);
 
         Terminal genTerminal1 = Mockito.mock(Terminal.class);
         Mockito.when(genTerminal1.getP()).thenReturn(p);
@@ -196,5 +207,8 @@ public class GeneratorsValidationTest extends AbstractValidationTest {
         Mockito.when(network.getGeneratorStream()).thenAnswer(dummy -> Stream.of(generator, generator1));
 
         assertTrue(GeneratorsValidation.checkGenerators(network, looseConfig, NullWriter.NULL_WRITER));
+
+        ValidationWriter validationWriter = ValidationUtils.createValidationWriter(network.getId(), looseConfig, NullWriter.NULL_WRITER, ValidationType.GENERATORS);
+        assertTrue(ValidationType.GENERATORS.check(network, looseConfig, validationWriter));
     }
 }

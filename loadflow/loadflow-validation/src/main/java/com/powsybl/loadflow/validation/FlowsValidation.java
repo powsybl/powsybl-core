@@ -57,37 +57,37 @@ public final class FlowsValidation {
         Objects.requireNonNull(config);
         Objects.requireNonNull(flowsWriter);
         boolean validated = true;
+
+        double fixedX = x;
+        if (Math.abs(fixedX) < config.getEpsilonX() && config.applyReactanceCorrection()) {
+            LOGGER.info("x {} -> {}", fixedX, config.getEpsilonX());
+            fixedX = config.getEpsilonX();
+        }
+        double z = Math.hypot(r, fixedX);
+        double y = 1 / z;
+        double ksi = Math.atan2(r, fixedX);
+        double computedU1 = computeU(connected1, connected2, u1, u2, rho1, rho2, g1, b1, y, ksi);
+        double computedU2 = computeU(connected2, connected1, u2, u1, rho2, rho1, g2, b2, y, ksi);
+        double computedTheta1 = computeTheta(connected1, connected2, theta1, theta2, alpha1, alpha2, computedU1, computedU2, rho1, rho2, g1, b1, y, ksi);
+        double computedTheta2 = computeTheta(connected2, connected1, theta2, theta1, alpha2, alpha1, computedU2, computedU1, rho2, rho1, g2, b2, y, ksi);
+        double p1Calc = connected1 ? rho1 * rho2 * computedU1 * computedU2 * y * Math.sin(computedTheta1 - computedTheta2 - ksi + alpha1 - alpha2) + rho1 * rho1 * computedU1 * computedU1 * (y * Math.sin(ksi) + g1) : Float.NaN;
+        double q1Calc = connected1 ? -rho1 * rho2 * computedU1 * computedU2 * y * Math.cos(computedTheta1 - computedTheta2 - ksi + alpha1 - alpha2) + rho1 * rho1 * computedU1 * computedU1 * (y * Math.cos(ksi) - b1) : Float.NaN;
+        double p2Calc = connected2 ? rho2 * rho1 * computedU2 * computedU1 * y * Math.sin(computedTheta2 - computedTheta1 - ksi + alpha2 - alpha1) + rho2 * rho2 * computedU2 * computedU2 * (y * Math.sin(ksi) + g2) : Float.NaN;
+        double q2Calc = connected2 ? -rho2 * rho1 * computedU2 * computedU1 * y * Math.cos(computedTheta2 - computedTheta1 - ksi + alpha2 - alpha1) + rho2 * rho2 * computedU2 * computedU2 * (y * Math.cos(ksi) - b2) : Float.NaN;
+
+        if (!connected1) {
+            validated &= checkDisconnectedTerminal(id, "1", p1, p1Calc, q1, q1Calc, config);
+        }
+        if (!connected2) {
+            validated &= checkDisconnectedTerminal(id, "2", p2, p2Calc, q2, q2Calc, config);
+        }
+        if (connected1 && ValidationUtils.isMainComponent(config, mainComponent1)) {
+            validated &= checkConnectedTerminal(id, "1", p1, p1Calc, q1, q1Calc, config);
+        }
+        if (connected2 && ValidationUtils.isMainComponent(config, mainComponent2)) {
+            validated &= checkConnectedTerminal(id, "2", p2, p2Calc, q2, q2Calc, config);
+        }
         try {
-            double fixedX = x;
-            if (Math.abs(fixedX) < config.getEpsilonX() && config.applyReactanceCorrection()) {
-                LOGGER.info("x {} -> {}", fixedX, config.getEpsilonX());
-                fixedX = config.getEpsilonX();
-            }
-            double z = Math.hypot(r, fixedX);
-            double y = 1 / z;
-            double ksi = Math.atan2(r, fixedX);
-            double computedU1 = computeU(connected1, connected2, u1, u2, rho1, rho2, g1, b1, y, ksi);
-            double computedU2 = computeU(connected2, connected1, u2, u1, rho2, rho1, g2, b2, y, ksi);
-            double computedTheta1 = computeTheta(connected1, connected2, theta1, theta2, alpha1, alpha2, computedU1, computedU2, rho1, rho2, g1, b1, y, ksi);
-            double computedTheta2 = computeTheta(connected2, connected1, theta2, theta1, alpha2, alpha1, computedU2, computedU1, rho2, rho1, g2, b2, y, ksi);
-            double p1Calc = connected1 ? rho1 * rho2 * computedU1 * computedU2 * y * Math.sin(computedTheta1 - computedTheta2 - ksi + alpha1 - alpha2) + rho1 * rho1 * computedU1 * computedU1 * (y * Math.sin(ksi) + g1) : Float.NaN;
-            double q1Calc = connected1 ? -rho1 * rho2 * computedU1 * computedU2 * y * Math.cos(computedTheta1 - computedTheta2 - ksi + alpha1 - alpha2) + rho1 * rho1 * computedU1 * computedU1 * (y * Math.cos(ksi) - b1) : Float.NaN;
-            double p2Calc = connected2 ? rho2 * rho1 * computedU2 * computedU1 * y * Math.sin(computedTheta2 - computedTheta1 - ksi + alpha2 - alpha1) + rho2 * rho2 * computedU2 * computedU2 * (y * Math.sin(ksi) + g2) : Float.NaN;
-            double q2Calc = connected2 ? -rho2 * rho1 * computedU2 * computedU1 * y * Math.cos(computedTheta2 - computedTheta1 - ksi + alpha2 - alpha1) + rho2 * rho2 * computedU2 * computedU2 * (y * Math.cos(ksi) - b2) : Float.NaN;
-
-            if (!connected1) {
-                validated &= checkDisconnectedTerminal(id, "1", p1, p1Calc, q1, q1Calc, config);
-            }
-            if (!connected2) {
-                validated &= checkDisconnectedTerminal(id, "2", p2, p2Calc, q2, q2Calc, config);
-            }
-            if (connected1 && mainComponent1) {
-                validated &= checkConnectedTerminal(id, "1", p1, p1Calc, q1, q1Calc, config);
-            }
-            if (connected2 && mainComponent2) {
-                validated &= checkConnectedTerminal(id, "2", p2, p2Calc, q2, q2Calc, config);
-            }
-
             flowsWriter.write(id, p1, p1Calc, q1, q1Calc, p2, p2Calc, q2, q2Calc, r, x, g1, g2, b1, b2, rho1, rho2, alpha1, alpha2, u1, u2, theta1, theta2, z, y, ksi,
                               connected1, connected2, mainComponent1, mainComponent2, validated);
         } catch (IOException e) {

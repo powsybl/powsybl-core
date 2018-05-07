@@ -8,7 +8,6 @@ package com.powsybl.contingency.afs;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.powsybl.afs.FileIcon;
 import com.powsybl.afs.ProjectFile;
 import com.powsybl.afs.ProjectFileCreationContext;
 import com.powsybl.contingency.ContingenciesProvider;
@@ -33,13 +32,12 @@ public class ContingencyStore extends ProjectFile implements ContingenciesProvid
     public static final String PSEUDO_CLASS = "contingencyStore";
     static final int VERSION = 0;
     static final String CONTINGENCY_LIST_JSON_NAME = "contingencyListJson";
-    private static final FileIcon BOLT_ICON = new FileIcon("bolt", ContingencyStore.class.getResourceAsStream("/icons/bolt16x16.png"));
 
     private final ObjectMapper objectMapper = new ObjectMapper()
             .registerModule(new ContingencyJsonModule());
 
     protected ContingencyStore(ProjectFileCreationContext context) {
-        super(context, VERSION, BOLT_ICON);
+        super(context, VERSION);
     }
 
     public void write(Contingency... contingencies) {

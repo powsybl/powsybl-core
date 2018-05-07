@@ -63,7 +63,7 @@ public class VirtualCaseBuilder implements ProjectFileBuilder<VirtualCase> {
 
         ProjectFolder folder = new ProjectFolder(new ProjectFileCreationContext(context.getFolderInfo(),
                                                                                 context.getStorage(),
-                                                                                context.getFileSystem()));
+                                                                                context.getProject()));
 
         if (folder.getChild(name).isPresent()) {
             throw new AfsException("Folder '" + folder.getPath() + "' already contains a '" + name + "' node");
@@ -88,6 +88,6 @@ public class VirtualCaseBuilder implements ProjectFileBuilder<VirtualCase> {
 
         context.getStorage().flush();
 
-        return new VirtualCase(new ProjectFileCreationContext(info, context.getStorage(), context.getFileSystem()));
+        return new VirtualCase(new ProjectFileCreationContext(info, context.getStorage(), context.getProject()));
     }
 }

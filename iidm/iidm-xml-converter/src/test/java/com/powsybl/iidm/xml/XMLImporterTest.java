@@ -104,11 +104,6 @@ public class XMLImporterTest {
     }
 
     @Test
-    public void get16x16Icon() throws Exception {
-        assertNotNull(importer.get16x16Icon());
-    }
-
-    @Test
     public void getParameters() throws Exception {
         assertEquals(1, importer.getParameters().size());
         assertEquals("throwExceptionIfExtensionNotFound", importer.getParameters().get(0).getName());

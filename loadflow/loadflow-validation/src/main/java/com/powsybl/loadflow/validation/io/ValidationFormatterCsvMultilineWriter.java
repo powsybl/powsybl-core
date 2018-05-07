@@ -87,17 +87,17 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
             write(branchId, "z", found, flowData.z, writeValues, z);
             write(branchId, "y", found, flowData.y, writeValues, y);
             write(branchId, "ksi", found, flowData.ksi, writeValues, ksi);
-            write(branchId, "connected1", found, flowData.connected1, writeValues, connected1);
-            write(branchId, "connected2", found, flowData.connected2, writeValues, connected2);
-            write(branchId, "mainComponent1", found, flowData.mainComponent1, writeValues, mainComponent1);
-            write(branchId, "mainComponent2", found, flowData.mainComponent2, writeValues, mainComponent2);
+            write(branchId, CONNECTED + "1", found, flowData.connected1, writeValues, connected1);
+            write(branchId, CONNECTED + "2", found, flowData.connected2, writeValues, connected2);
+            write(branchId, MAIN_COMPONENT + "1", found, flowData.mainComponent1, writeValues, mainComponent1);
+            write(branchId, MAIN_COMPONENT + "2", found, flowData.mainComponent2, writeValues, mainComponent2);
             write(branchId, VALIDATION, found, getValidated(flowData.validated), writeValues, getValidated(validated));
         }
     }
 
     @Override
     protected void write(String generatorId, float p, float q, float v, float targetP, float targetQ, float targetV,
-            boolean connected, boolean voltageRegulatorOn, float minQ, float maxQ, boolean validated,
+            boolean connected, boolean voltageRegulatorOn, float minQ, float maxQ, boolean mainComponent, boolean validated,
             GeneratorData generatorData, boolean found, boolean writeValues) throws IOException {
         write(generatorId, "p", found, -generatorData.p, writeValues, -p);
         write(generatorId, "q", found, -generatorData.q, writeValues, -q);
@@ -110,15 +110,16 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
             write(generatorId, "voltageRegulatorOn", found, generatorData.voltageRegulatorOn, writeValues, voltageRegulatorOn);
             write(generatorId, "minQ", found, generatorData.minQ, writeValues, minQ);
             write(generatorId, "maxQ", found, generatorData.maxQ, writeValues, maxQ);
+            write(generatorId, MAIN_COMPONENT, found, generatorData.mainComponent, writeValues, mainComponent);
             write(generatorId, VALIDATION, found, getValidated(generatorData.validated), writeValues, getValidated(validated));
         }
     }
 
     @Override
     protected void write(String busId, double incomingP, double incomingQ, double loadP, double loadQ, double genP, double genQ,
-                         double shuntP, double shuntQ, double svcP, double svcQ, double vscCSP, double vscCSQ, double lineP, double lineQ, double danglingLineP, double danglingLineQ,
-                         double twtP, double twtQ, double tltP, double tltQ, boolean validated, BusData busData, boolean found,
-                         boolean writeValues) throws IOException {
+                         double shuntP, double shuntQ, double svcP, double svcQ, double vscCSP, double vscCSQ, double lineP, double lineQ,
+                         double danglingLineP, double danglingLineQ, double twtP, double twtQ, double tltP, double tltQ, boolean validated,
+                         boolean mainComponent, BusData busData, boolean found, boolean writeValues) throws IOException {
         write(busId, "incomingP", found, busData.incomingP, writeValues, incomingP);
         write(busId, "incomingQ", found, busData.incomingQ, writeValues, incomingQ);
         write(busId, "loadP", found, busData.loadP, writeValues, loadP);
@@ -140,17 +141,19 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
             write(busId, "twtQ", found, busData.twtQ, writeValues, twtQ);
             write(busId, "tltP", found, busData.tltP, writeValues, tltP);
             write(busId, "tltQ", found, busData.tltQ, writeValues, tltQ);
+            write(busId, MAIN_COMPONENT, found, busData.mainComponent, writeValues, mainComponent);
             write(busId, VALIDATION, found, getValidated(busData.validated), writeValues, getValidated(validated));
         }
     }
 
     @Override
-    protected void write(String svcId, float p, float q, float v, float reactivePowerSetpoint, float voltageSetpoint,
-                         boolean connected, RegulationMode regulationMode, float bMin, float bMax, boolean validated,
+    protected void write(String svcId, float p, float q, float v, float nominalV, float reactivePowerSetpoint, float voltageSetpoint,
+                         boolean connected, RegulationMode regulationMode, float bMin, float bMax, boolean mainComponent, boolean validated,
                          SvcData svcData, boolean found, boolean writeValues) throws IOException {
         write(svcId, "p", found, -svcData.p, writeValues, -p);
         write(svcId, "q", found, -svcData.q, writeValues, -q);
         write(svcId, "v", found, svcData.v, writeValues, v);
+        write(svcId, NOMINAL_V, found, svcData.nominalV, writeValues, nominalV);
         write(svcId, "reactivePowerSetpoint", found, svcData.reactivePowerSetpoint, writeValues, reactivePowerSetpoint);
         write(svcId, "voltageSetpoint", found, svcData.voltageSetpoint, writeValues, voltageSetpoint);
         if (verbose) {
@@ -158,13 +161,14 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
             write(svcId, "regulationMode", found, svcData.regulationMode.name(), writeValues, regulationMode.name());
             write(svcId, "bMin", found, svcData.bMin, writeValues, bMin);
             write(svcId, "bMax", found, svcData.bMax, writeValues, bMax);
+            write(svcId, MAIN_COMPONENT, found, svcData.mainComponent, writeValues, mainComponent);
             write(svcId, VALIDATION, found, getValidated(svcData.validated), writeValues, getValidated(validated));
         }
     }
 
     protected void write(String shuntId, float q, float expectedQ, float p, int currentSectionCount, int maximumSectionCount,
-                         float bPerSection, float v, boolean connected, float qMax, float nominalV, boolean validated,
-                         ShuntData shuntData, boolean found, boolean writeValues) throws IOException {
+                         float bPerSection, float v, boolean connected, float qMax, float nominalV, boolean mainComponent,
+                         boolean validated, ShuntData shuntData, boolean found, boolean writeValues) throws IOException {
         write(shuntId, "q", found, shuntData.q, writeValues, q);
         write(shuntId, "expectedQ", found, shuntData.expectedQ, writeValues, expectedQ);
         if (verbose) {
@@ -175,7 +179,8 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
             write(shuntId, "v", found, shuntData.v, writeValues, v);
             write(shuntId, CONNECTED, found, shuntData.connected, writeValues, connected);
             write(shuntId, "qMax", found, shuntData.qMax, writeValues, qMax);
-            write(shuntId, "nominalV", found, shuntData.nominalV, writeValues, nominalV);
+            write(shuntId, NOMINAL_V, found, shuntData.nominalV, writeValues, nominalV);
+            write(shuntId, MAIN_COMPONENT, found, shuntData.mainComponent, writeValues, mainComponent);
             write(shuntId, VALIDATION, found, getValidated(shuntData.validated), writeValues, getValidated(validated));
         }
     }
@@ -197,8 +202,8 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
             write(twtId, "tapChangerTargetV", found, twtData.targetV, writeValues, targetV);
             write(twtId, "regulatedSide", found, twtData.regulatedSide.name(), writeValues, regulatedSide.name());
             write(twtId, "v", found, twtData.v, writeValues, v);
-            write(twtId, "connected", found, twtData.connected, writeValues, connected);
-            write(twtId, "mainComponent", found, twtData.mainComponent, writeValues, mainComponent);
+            write(twtId, CONNECTED, found, twtData.connected, writeValues, connected);
+            write(twtId, MAIN_COMPONENT, found, twtData.mainComponent, writeValues, mainComponent);
             write(twtId, VALIDATION, found, getValidated(twtData.validated), writeValues, getValidated(validated));
         }
     }

@@ -6,7 +6,10 @@
  */
 package com.powsybl.afs;
 
-import com.powsybl.afs.storage.*;
+import com.powsybl.afs.storage.AppStorage;
+import com.powsybl.afs.storage.DefaultListenableAppStorage;
+import com.powsybl.afs.storage.ListenableAppStorage;
+import com.powsybl.afs.storage.NodeInfo;
 
 import java.util.Objects;
 
@@ -59,7 +62,7 @@ public class AppFileSystem implements AutoCloseable {
         return new Folder(new FileCreationContext(rootNodeInfo, storage, this));
     }
 
-    public Node findNode(NodeInfo nodeInfo) {
+    public Node createNode(NodeInfo nodeInfo) {
         Objects.requireNonNull(nodeInfo);
         Objects.requireNonNull(data);
         FileCreationContext context = new FileCreationContext(nodeInfo, storage, this);
@@ -77,31 +80,35 @@ public class AppFileSystem implements AutoCloseable {
         }
     }
 
-    public <T extends ProjectFile> T findProjectFile(String nodeId, Class<T> clazz) {
-        Objects.requireNonNull(nodeId);
+    public <T extends ProjectFile> T findProjectFile(String projectFileId, Class<T> clazz) {
+        Objects.requireNonNull(projectFileId);
         Objects.requireNonNull(clazz);
-        NodeInfo nodeInfo = storage.getNodeInfo(nodeId);
-        ProjectFile projectFile = createProjectFile(nodeInfo);
-        return clazz.isAssignableFrom(projectFile.getClass()) ? (T) projectFile : null;
-    }
 
-    ProjectNode createProjectNode(NodeInfo nodeInfo) {
-        if (ProjectFolder.PSEUDO_CLASS.equals(nodeInfo.getPseudoClass())) {
-            return new ProjectFolder(new ProjectFileCreationContext(nodeInfo, storage, this));
-        } else {
-            return createProjectFile(nodeInfo);
-        }
-    }
+        // get file info
+        NodeInfo projectFileInfo = storage.getNodeInfo(projectFileId);
 
-    ProjectFile createProjectFile(NodeInfo nodeInfo) {
-        Objects.requireNonNull(data);
-        ProjectFileCreationContext context = new ProjectFileCreationContext(nodeInfo, storage, this);
-        ProjectFileExtension extension = data.getProjectFileExtensionByPseudoClass(nodeInfo.getPseudoClass());
-        if (extension != null) {
-            return extension.createProjectFile(context);
-        } else {
-            return new UnknownProjectFile(context);
+        // walk the node hierarchy until finding a project
+        NodeInfo parentInfo = storage.getParentNode(projectFileInfo.getId()).orElse(null);
+        while (parentInfo != null && !Project.PSEUDO_CLASS.equals(parentInfo.getPseudoClass())) {
+            parentInfo = storage.getParentNode(parentInfo.getId()).orElse(null);
         }
+        if (parentInfo == null) {
+            throw new AfsException("Node '" + projectFileId + "' is probably not a project file, parent project has not been found");
+        }
+
+        // create the project
+        Project project = new Project(new FileCreationContext(parentInfo, storage, this));
+
+        // then create the file
+        ProjectFile projectFile = project.createProjectFile(projectFileInfo);
+
+        // check file is the right type
+        if (!clazz.isAssignableFrom(projectFile.getClass())) {
+            throw new AfsException("Project file '" + projectFileId + "' is not a " + clazz.getName()
+                    + " instance (" + projectFile.getClass() + ")");
+        }
+
+        return (T) projectFile;
     }
 
     public TaskMonitor getTaskMonitor() {

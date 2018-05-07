@@ -60,4 +60,13 @@ public class ValidationUtilsTest extends AbstractValidationTest {
         assertFalse(ValidationUtils.boundedWithin(0f, Float.NaN, -5f, 0f));
     }
 
+    @Test
+    public void isMainComponent() {
+        assertTrue(ValidationUtils.isMainComponent(looseConfig, true));
+        assertFalse(ValidationUtils.isMainComponent(looseConfig, false));
+
+        looseConfig.setCheckMainComponentOnly(false);
+        assertTrue(ValidationUtils.isMainComponent(looseConfig, true));
+        assertTrue(ValidationUtils.isMainComponent(looseConfig, false));
+    }
 }

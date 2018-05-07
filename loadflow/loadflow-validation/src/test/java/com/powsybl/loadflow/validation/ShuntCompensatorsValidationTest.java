@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017, RTE (http://www.rte-france.com)
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -22,6 +22,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.Terminal.BusView;
+import com.powsybl.loadflow.validation.io.ValidationWriter;
 import com.powsybl.iidm.network.VoltageLevel;
 
 /**
@@ -38,6 +39,8 @@ public class ShuntCompensatorsValidationTest extends AbstractValidationTest {
     private final float v = 405.14175f;
     private final float qMax = -150f;
     private final float nominalV = 380f;
+    private final boolean connected = true;
+    private boolean mainComponent = true;
 
     private ShuntCompensator shunt;
     private Terminal shuntTerminal;
@@ -47,9 +50,11 @@ public class ShuntCompensatorsValidationTest extends AbstractValidationTest {
     public void setUp() {
         Bus shuntBus = Mockito.mock(Bus.class);
         Mockito.when(shuntBus.getV()).thenReturn(v);
+        Mockito.when(shuntBus.isInMainConnectedComponent()).thenReturn(mainComponent);
 
         shuntBusView = Mockito.mock(BusView.class);
         Mockito.when(shuntBusView.getBus()).thenReturn(shuntBus);
+        Mockito.when(shuntBusView.getConnectableBus()).thenReturn(shuntBus);
 
         VoltageLevel shuntVoltageLevel = Mockito.mock(VoltageLevel.class);
         Mockito.when(shuntVoltageLevel.getNominalV()).thenReturn(nominalV);
@@ -75,26 +80,30 @@ public class ShuntCompensatorsValidationTest extends AbstractValidationTest {
     @Test
     public void checkShuntsValues() {
         // “p” is always NaN
-        assertTrue(ShuntCompensatorsValidation.checkShunts("test", p, q, currentSectionCount, maximumSectionCount, bPerSection, v, qMax, nominalV, strictConfig, NullWriter.NULL_WRITER));
+        assertTrue(ShuntCompensatorsValidation.checkShunts("test", p, q, currentSectionCount, maximumSectionCount, bPerSection, v, qMax, nominalV, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
         p = 1f;
-        assertFalse(ShuntCompensatorsValidation.checkShunts("test", p, q, currentSectionCount, maximumSectionCount, bPerSection, v, qMax, nominalV,  strictConfig, NullWriter.NULL_WRITER));
+        assertFalse(ShuntCompensatorsValidation.checkShunts("test", p, q, currentSectionCount, maximumSectionCount, bPerSection, v, qMax, nominalV, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
         p = Float.NaN;
 
         // “q” = - bPerSection * currentSectionCount * v^2
-        assertTrue(ShuntCompensatorsValidation.checkShunts("test", p, q, currentSectionCount, maximumSectionCount, bPerSection, v, qMax, nominalV,  strictConfig, NullWriter.NULL_WRITER));
+        assertTrue(ShuntCompensatorsValidation.checkShunts("test", p, q, currentSectionCount, maximumSectionCount, bPerSection, v, qMax, nominalV, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
         q = 170.52f;
-        assertFalse(ShuntCompensatorsValidation.checkShunts("test", p, q, currentSectionCount, maximumSectionCount, bPerSection, v, qMax, nominalV,  strictConfig, NullWriter.NULL_WRITER));
-        assertTrue(ShuntCompensatorsValidation.checkShunts("test", p, q, currentSectionCount, maximumSectionCount, bPerSection, v, qMax, nominalV,  looseConfig, NullWriter.NULL_WRITER));
+        assertFalse(ShuntCompensatorsValidation.checkShunts("test", p, q, currentSectionCount, maximumSectionCount, bPerSection, v, qMax, nominalV, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
+        assertTrue(ShuntCompensatorsValidation.checkShunts("test", p, q, currentSectionCount, maximumSectionCount, bPerSection, v, qMax, nominalV, connected, mainComponent, looseConfig, NullWriter.NULL_WRITER));
         q = 171.52f;
-        assertFalse(ShuntCompensatorsValidation.checkShunts("test", p, q, currentSectionCount, maximumSectionCount, bPerSection, v, qMax, nominalV,  looseConfig, NullWriter.NULL_WRITER));
+        assertFalse(ShuntCompensatorsValidation.checkShunts("test", p, q, currentSectionCount, maximumSectionCount, bPerSection, v, qMax, nominalV, connected, mainComponent, looseConfig, NullWriter.NULL_WRITER));
+        // check main component
+        mainComponent = false;
+        assertTrue(ShuntCompensatorsValidation.checkShunts("test", p, q, currentSectionCount, maximumSectionCount, bPerSection, v, qMax, nominalV, connected, mainComponent, looseConfig, NullWriter.NULL_WRITER));
+        mainComponent = true;
         q = 170.50537f;
 
         // check with NaN values
-        assertFalse(ShuntCompensatorsValidation.checkShunts("test", p, q, currentSectionCount, maximumSectionCount, Float.NaN, v, qMax, nominalV,  strictConfig, NullWriter.NULL_WRITER));
-        assertFalse(ShuntCompensatorsValidation.checkShunts("test", p, q, currentSectionCount, maximumSectionCount, bPerSection, Float.NaN, qMax, nominalV,  strictConfig, NullWriter.NULL_WRITER));
+        assertFalse(ShuntCompensatorsValidation.checkShunts("test", p, q, currentSectionCount, maximumSectionCount, Float.NaN, v, qMax, nominalV, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
+        assertFalse(ShuntCompensatorsValidation.checkShunts("test", p, q, currentSectionCount, maximumSectionCount, bPerSection, Float.NaN, qMax, nominalV, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
         strictConfig.setOkMissingValues(true);
-        assertTrue(ShuntCompensatorsValidation.checkShunts("test", p, q, currentSectionCount, maximumSectionCount, Float.NaN, v, qMax, nominalV,  strictConfig, NullWriter.NULL_WRITER));
-        assertTrue(ShuntCompensatorsValidation.checkShunts("test", p, q, currentSectionCount, maximumSectionCount, bPerSection, Float.NaN, qMax, nominalV,  strictConfig, NullWriter.NULL_WRITER));
+        assertTrue(ShuntCompensatorsValidation.checkShunts("test", p, q, currentSectionCount, maximumSectionCount, Float.NaN, v, qMax, nominalV, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
+        assertTrue(ShuntCompensatorsValidation.checkShunts("test", p, q, currentSectionCount, maximumSectionCount, bPerSection, Float.NaN, qMax, nominalV, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
     }
 
     @Test
@@ -118,5 +127,8 @@ public class ShuntCompensatorsValidationTest extends AbstractValidationTest {
         Mockito.when(network.getShuntStream()).thenAnswer(dummy -> Stream.of(shunt));
 
         assertTrue(ShuntCompensatorsValidation.checkShunts(network, strictConfig, NullWriter.NULL_WRITER));
+
+        ValidationWriter validationWriter = ValidationUtils.createValidationWriter(network.getId(), strictConfig, NullWriter.NULL_WRITER, ValidationType.SHUNTS);
+        assertTrue(ValidationType.SHUNTS.check(network, strictConfig, validationWriter));
     }
 }

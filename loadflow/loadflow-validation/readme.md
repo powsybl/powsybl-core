@@ -21,6 +21,7 @@ You may configure the following properties in your platform configuration file.
 	<ok-missing-values>false</ok-missing-values>
 	<no-requirement-if-reactive-bound-inversion>false</no-requirement-if-reactive-bound-inversion>
 	<compare-results>false</compare-results>
+	<check-main-component-only>true</check-main-component-only>
 </loadflow-validation>
 ```
 
@@ -34,6 +35,7 @@ You may configure the following properties in your platform configuration file.
 * *ok-missing-values*: perform validation check even if some parameters of connected components have NaN values; default value is false (i.e. validation check fails if some parameters of connected components have NaN Values)
 * *no-requirement-if-reactive-bound-inversion*: return validation success if there is a reactive bounds inversion (maxQ < minQ); default is false
 * *compare-results*: print output files with results both before and after the loadflow
+* *check-main-component-only*: validate only the equipment in the main connected component
 
 ## itools command
 
@@ -42,8 +44,8 @@ You can find below the help of the tool, as returned by the "--help" option.
 ```
 $ ./itools loadflow-validation --help
 usage: itools [OPTIONS] loadflow-validation --case-file <FILE>
-       [--compare-results] [--help] [--load-flow] --output-folder <FOLDER>
-       [--output-format <VALIDATION_WRITER>] [--types
+       [--compare-results] [--groovy-script <FILE>] [--help] [--load-flow]
+       --output-folder <FOLDER> [--output-format <VALIDATION_WRITER>] [--types
        <VALIDATION_TYPE,VALIDATION_TYPE,...>] [--verbose]
 
 Available options are:
@@ -55,6 +57,8 @@ Available arguments are:
     --compare-results                               print output files with
                                                     results both before and
                                                     after the loadflow
+    --groovy-script <FILE>                          groovy script to run before
+                                                    validation                                                    
     --help                                          display the help and quit
     --load-flow                                     run loadflow
     --output-folder <FOLDER>                        output folder path
