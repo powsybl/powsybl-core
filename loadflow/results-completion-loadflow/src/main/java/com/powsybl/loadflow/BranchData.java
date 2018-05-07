@@ -50,8 +50,6 @@ public class BranchData {
 
     private double computedU1;
     private double computedU2;
-    private double computedTheta1;
-    private double computedTheta2;
     private double computedP1;
     private double computedQ1;
     private double computedP2;
@@ -176,21 +174,21 @@ public class BranchData {
     }
 
     private double getRho1(TwoWindingsTransformer twt) {
-        double rho1 = twt.getRatedU2() / twt.getRatedU1();
+        double rho = twt.getRatedU2() / twt.getRatedU1();
         if (twt.getRatioTapChanger() != null) {
-            rho1 *= twt.getRatioTapChanger().getCurrentStep().getRho();
+            rho *= twt.getRatioTapChanger().getCurrentStep().getRho();
         }
         if (twt.getPhaseTapChanger() != null) {
-            rho1 *= twt.getPhaseTapChanger().getCurrentStep().getRho();
+            rho *= twt.getPhaseTapChanger().getCurrentStep().getRho();
         }
-        return rho1;
+        return rho;
     }
 
     private void computeValues() {
         computedU1 = connected1 || !connected2 ? u1 : computeU(u2, rho1, rho2, g1, b1);
         computedU2 = connected2 || !connected1 ? u2 : computeU(u1, rho2, rho1, g2, b2);
-        computedTheta1 = connected1 || !connected2 ? theta1 : computeTheta(theta2, alpha1, alpha2, computedU1, computedU2, rho1, rho2, g1, b1);
-        computedTheta2 = connected2 || !connected1 ? theta2 : computeTheta(theta1, alpha2, alpha1, computedU2, computedU1, rho2, rho1, g2, b2);
+        double computedTheta1 = connected1 || !connected2 ? theta1 : computeTheta(theta2, alpha1, alpha2, computedU1, computedU2, rho1, rho2, g1, b1);
+        double computedTheta2 = connected2 || !connected1 ? theta2 : computeTheta(theta1, alpha2, alpha1, computedU2, computedU1, rho2, rho1, g2, b2);
         computedP1 = connected1 ? computeP(computedTheta1, computedTheta2, alpha1, alpha2, rho1, computedU1, g1) : Float.NaN;
         computedQ1 = connected1 ? computeQ(computedTheta1, computedTheta2, alpha1, alpha2, rho1, computedU1, b1) : Float.NaN;
         computedP2 = connected2 ? computeP(computedTheta2, computedTheta1, alpha2, alpha1, rho2, computedU2, g2) : Float.NaN;
