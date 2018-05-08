@@ -154,6 +154,8 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
             generatorColumns = ArrayUtils.addAll(generatorColumns,
                                                  new Column(CONNECTED),
                                                  new Column("voltageRegulatorOn"),
+                                                 new Column("minP"),
+                                                 new Column("maxP"),
                                                  new Column("minQ"),
                                                  new Column("maxQ"),
                                                  new Column(MAIN_COMPONENT),
@@ -171,6 +173,8 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                 generatorColumns = ArrayUtils.addAll(generatorColumns,
                                                      new Column(CONNECTED + POST_LF_SUFFIX),
                                                      new Column("voltageRegulatorOn" + POST_LF_SUFFIX),
+                                                     new Column("minP" + POST_LF_SUFFIX),
+                                                     new Column("maxP" + POST_LF_SUFFIX),
                                                      new Column("minQ" + POST_LF_SUFFIX),
                                                      new Column("maxQ" + POST_LF_SUFFIX),
                                                      new Column(MAIN_COMPONENT + POST_LF_SUFFIX),
@@ -431,21 +435,21 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
 
     @Override
     protected void write(String generatorId, float p, float q, float v, float targetP, float targetQ, float targetV,
-                         boolean connected, boolean voltageRegulatorOn, float minQ, float maxQ,  boolean mainComponent,
+                         boolean connected, boolean voltageRegulatorOn, float minP, float maxP, float minQ, float maxQ,  boolean mainComponent,
                          boolean validated, GeneratorData generatorData, boolean found, boolean writeValues) throws IOException {
         formatter.writeCell(generatorId);
         if (compareResults) {
             formatter = found ?
                         write(found, generatorData.p, generatorData.q, generatorData.v, generatorData.targetP, generatorData.targetQ, generatorData.targetV,
-                              generatorData.connected, generatorData.voltageRegulatorOn, generatorData.minQ, generatorData.maxQ, generatorData.mainComponent,
-                              generatorData.validated) :
-                        write(found, Float.NaN, Float.NaN, Float.NaN, Float.NaN, Float.NaN, Float.NaN, false, false, Float.NaN, Float.NaN, false, false);
+                              generatorData.connected, generatorData.voltageRegulatorOn, generatorData.minP, generatorData.maxP, generatorData.minQ,
+                              generatorData.maxQ, generatorData.mainComponent, generatorData.validated) :
+                        write(found, Float.NaN, Float.NaN, Float.NaN, Float.NaN, Float.NaN, Float.NaN, false, false, Float.NaN, Float.NaN, Float.NaN, Float.NaN, false, false);
         }
-        formatter = write(writeValues, p, q, v, targetP, targetQ, targetV, connected, voltageRegulatorOn, minQ, maxQ, mainComponent, validated);
+        formatter = write(writeValues, p, q, v, targetP, targetQ, targetV, connected, voltageRegulatorOn, minP, maxP, minQ, maxQ, mainComponent, validated);
     }
 
     private TableFormatter write(boolean writeValues, float p, float q, float v, float targetP, float targetQ, float targetV, boolean connected,
-                                 boolean voltageRegulatorOn, float minQ, float maxQ, boolean mainComponent, boolean validated) throws IOException {
+                                 boolean voltageRegulatorOn, float minP, float maxP, float minQ, float maxQ, boolean mainComponent, boolean validated) throws IOException {
         formatter = writeValues ?
                     formatter.writeCell(-p)
                              .writeCell(-q)
@@ -458,11 +462,13 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
             formatter = writeValues ?
                         formatter.writeCell(connected)
                                  .writeCell(voltageRegulatorOn)
+                                 .writeCell(minP)
+                                 .writeCell(maxP)
                                  .writeCell(minQ)
                                  .writeCell(maxQ)
                                  .writeCell(mainComponent)
                                  .writeCell(getValidated(validated)) :
-                        formatter.writeEmptyCells(6);
+                        formatter.writeEmptyCells(8);
         }
         return formatter;
     }
@@ -637,4 +643,5 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
         }
         return formatter;
     }
+
 }

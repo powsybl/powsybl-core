@@ -97,8 +97,8 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
 
     @Override
     protected void write(String generatorId, float p, float q, float v, float targetP, float targetQ, float targetV,
-            boolean connected, boolean voltageRegulatorOn, float minQ, float maxQ, boolean mainComponent, boolean validated,
-            GeneratorData generatorData, boolean found, boolean writeValues) throws IOException {
+            boolean connected, boolean voltageRegulatorOn, float minP, float maxP, float minQ, float maxQ, boolean mainComponent,
+            boolean validated, GeneratorData generatorData, boolean found, boolean writeValues) throws IOException {
         write(generatorId, "p", found, -generatorData.p, writeValues, -p);
         write(generatorId, "q", found, -generatorData.q, writeValues, -q);
         write(generatorId, "v", found, generatorData.v, writeValues, v);
@@ -108,6 +108,8 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
         if (verbose) {
             write(generatorId, CONNECTED, found, generatorData.connected, writeValues, connected);
             write(generatorId, "voltageRegulatorOn", found, generatorData.voltageRegulatorOn, writeValues, voltageRegulatorOn);
+            write(generatorId, "minP", found, generatorData.minP, writeValues, minP);
+            write(generatorId, "maxP", found, generatorData.maxP, writeValues, maxP);
             write(generatorId, "minQ", found, generatorData.minQ, writeValues, minQ);
             write(generatorId, "maxQ", found, generatorData.maxQ, writeValues, maxQ);
             write(generatorId, MAIN_COMPONENT, found, generatorData.mainComponent, writeValues, mainComponent);
