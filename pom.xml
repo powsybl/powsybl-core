@@ -129,6 +129,7 @@
         <protobuf.version>2.5.0</protobuf.version>
         <sirocco.version>1.0</sirocco.version>
         <slf4j.version>1.7.22</slf4j.version>
+        <snakeyaml.version>1.21</snakeyaml.version>
         <staxutils.version>20070216</staxutils.version>
         <supercsv.version>2.4.0</supercsv.version>
         <threeten.version>1.0</threeten.version>
@@ -566,6 +567,11 @@
                 <groupId>org.threeten</groupId>
                 <artifactId>threeten-extra</artifactId>
                 <version>${threeten.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.yaml</groupId>
+                <artifactId>snakeyaml</artifactId>
+                <version>${snakeyaml.version}</version>
             </dependency>
 
             <!-- Runtime dependencies -->

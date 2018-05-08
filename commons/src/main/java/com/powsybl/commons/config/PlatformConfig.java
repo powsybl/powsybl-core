@@ -61,8 +61,9 @@ public class PlatformConfig {
             Path cacheDir = getDefaultCacheDir(fileSystem);
             String configName = System.getProperty("itools.config.name", "config");
 
-            defaultConfig = XmlPlatformConfig.create(fileSystem, configDir, cacheDir, configName)
-                    .orElseGet(() -> new PropertiesPlatformConfig(fileSystem, configDir, cacheDir));
+            defaultConfig = YamlPlatformConfig.create(fileSystem, configDir, cacheDir, configName)
+                    .orElseGet(() -> XmlPlatformConfig.create(fileSystem, configDir, cacheDir, configName)
+                            .orElseGet(() -> new PropertiesPlatformConfig(fileSystem, configDir, cacheDir)));
         }
         return defaultConfig;
     }

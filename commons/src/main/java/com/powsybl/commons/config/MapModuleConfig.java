@@ -6,7 +6,6 @@
  */
 package com.powsybl.commons.config;
 
-import com.google.common.base.Joiner;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedClassNotFoundException;
 import org.joda.time.DateTime;
@@ -64,41 +63,70 @@ public class MapModuleConfig implements ModuleConfig {
         return str.replace("$HOME", System.getProperty("user.home"));
     }
 
+    private static PowsyblException createPropertyNotSetException(String name) {
+        return new PowsyblException("Property " + name + " is not set");
+    }
+
+    private static PowsyblException createUnexpectedPropertyTypeException(Object value) {
+        return new PowsyblException("Unexpected property value type: " + value.getClass().getName());
+    }
+
+    public Optional<String> getOptionalStringProperty(String name) {
+        Objects.requireNonNull(name);
+        Object value = properties.get(name);
+        if (value == null) {
+            return Optional.empty();
+        }
+        if (!(value instanceof String)) {
+            throw createUnexpectedPropertyTypeException(value);
+        }
+        return Optional.of((String) value).map(MapModuleConfig::substitureEnvVar);
+    }
+
     @Override
     public String getStringProperty(String name) {
-        String value = (String) properties.get(name);
-        if (value == null || value.trim().isEmpty()) {
-            throw new PowsyblException("Property " + name + " is not set");
-        }
-        return substitureEnvVar(value);
+        return getOptionalStringProperty(name).orElseThrow(() -> createPropertyNotSetException(name));
     }
 
     @Override
     public String getStringProperty(String name, String defaultValue) {
-        Object value = properties.get(name);
-        return substitureEnvVar(value == null ? defaultValue : (String) value);
+        return getOptionalStringProperty(name).orElse(defaultValue);
     }
 
     public void setStringProperty(String name, String value) {
         properties.put(Objects.requireNonNull(name), Objects.requireNonNull(value));
     }
 
+    public Optional<List<String>> getOptionalStringListProperty(String name) {
+        Objects.requireNonNull(name);
+        Object value = properties.get(name);
+        if (value == null) {
+            return Optional.empty();
+        } else {
+            if (value instanceof String) {
+                return Optional.of(new ArrayList<>(Arrays.asList((substitureEnvVar((String) value)).split("[:,]"))));
+            } else if (value instanceof List) {
+                return Optional.of(((List<String>) value).stream().map(MapModuleConfig::substitureEnvVar).collect(Collectors.toList()));
+            } else {
+                throw createUnexpectedPropertyTypeException(value);
+            }
+        }
+    }
+
     @Override
     public List<String> getStringListProperty(String name) {
-        return new ArrayList<>(Arrays.asList(getStringProperty(name).split("[:,]")));
+        return getOptionalStringListProperty(name).orElseThrow(() -> createPropertyNotSetException(name));
     }
 
     @Override
     public List<String> getStringListProperty(String name, List<String> defaultValue) {
-        String str = getStringProperty(name, null);
-        if (str == null) {
-            return defaultValue;
-        }
-        return str.isEmpty() ? Collections.emptyList() : new ArrayList<>(Arrays.asList(str.split("[:,]")));
+        return getOptionalStringListProperty(name).orElse(defaultValue);
     }
 
-    public void setStringListProperty(String name, List<String> stringList) {
-        properties.put(name, Joiner.on(",").join(stringList).toString());
+    public void setStringListProperty(String name, List<String> value) {
+        Objects.requireNonNull(name);
+        Objects.requireNonNull(value);
+        properties.put(name, value);
     }
 
     @Override
@@ -127,73 +155,117 @@ public class MapModuleConfig implements ModuleConfig {
     }
 
     @Override
+    public Optional<Integer> getOptionalIntegerProperty(String name) {
+        Objects.requireNonNull(name);
+        Object value = properties.get(name);
+        if (value == null) {
+            return Optional.empty();
+        }
+        if (value instanceof Integer) {
+            return Optional.of((Integer) value);
+        } else if (value instanceof String) {
+            return Optional.of(Integer.parseInt((String) value));
+        } else {
+            throw createUnexpectedPropertyTypeException(value);
+        }
+    }
+
+    @Override
     public int getIntProperty(String name) {
-        return Integer.parseInt(getStringProperty(name));
+        return getOptionalIntegerProperty(name).orElseThrow(() -> createPropertyNotSetException(name));
     }
 
     @Override
     public Integer getOptionalIntProperty(String name) {
-        String value = getStringProperty(name, null);
-        return value != null ? Integer.parseInt(value) : null;
-    }
-
-    @Override
-    public Optional<Integer> getOptionalIntegerProperty(String name) {
-        String value = getStringProperty(name, null);
-        return Optional.ofNullable(value != null ? Integer.parseInt(value) : null);
+        return getOptionalIntegerProperty(name).orElse(null);
     }
 
     @Override
     public int getIntProperty(String name, int defaultValue) {
-        return Integer.parseInt(getStringProperty(name, Integer.toString(defaultValue)));
-    }
-
-    @Override
-    public float getFloatProperty(String name) {
-        return Float.parseFloat(getStringProperty(name));
-    }
-
-    @Override
-    public float getFloatProperty(String name, float defaultValue) {
-        return Float.parseFloat(getStringProperty(name, Float.toString(defaultValue)));
+        return getOptionalIntegerProperty(name).orElse(defaultValue);
     }
 
     @Override
     public Optional<Float> getOptionalFloatProperty(String name) {
-        String value = getStringProperty(name, null);
-        return Optional.ofNullable(value != null ? Float.parseFloat(value) : null);
+        Objects.requireNonNull(name);
+        Object value = properties.get(name);
+        if (value == null) {
+            return Optional.empty();
+        }
+        if (value instanceof Number) {
+            return Optional.of(((Number) value).floatValue());
+        } else if (value instanceof String) {
+            return Optional.of(Float.parseFloat((String) value));
+        } else {
+            throw createUnexpectedPropertyTypeException(value);
+        }
+    }
+
+    @Override
+    public float getFloatProperty(String name) {
+        return getOptionalFloatProperty(name).orElseThrow(() -> createPropertyNotSetException(name));
+    }
+
+    @Override
+    public float getFloatProperty(String name, float defaultValue) {
+        return getOptionalFloatProperty(name).orElse(defaultValue);
+    }
+
+    @Override
+    public OptionalDouble getOptionalDoubleProperty(String name) {
+        Objects.requireNonNull(name);
+        Object value = properties.get(name);
+        if (value == null) {
+            return OptionalDouble.empty();
+        }
+        if (value instanceof Number) {
+            return OptionalDouble.of(((Number) value).doubleValue());
+        } else if (value instanceof String) {
+            return OptionalDouble.of(Double.parseDouble((String) value));
+        } else {
+            throw createUnexpectedPropertyTypeException(value);
+        }
     }
 
     @Override
     public double getDoubleProperty(String name) {
-        return Double.parseDouble(getStringProperty(name));
+        return getOptionalDoubleProperty(name).orElseThrow(() -> createPropertyNotSetException(name));
     }
 
     @Override
     public double getDoubleProperty(String name, double defaultValue) {
-        return Double.parseDouble(getStringProperty(name, Double.toString(defaultValue)));
-    }
-
-    @Override
-    public boolean getBooleanProperty(String name) {
-        return Boolean.parseBoolean(getStringProperty(name));
-    }
-
-    @Override
-    public boolean getBooleanProperty(String name, boolean defaultValue) {
-        return Boolean.parseBoolean(getStringProperty(name, Boolean.toString(defaultValue)));
-    }
-
-    @Override
-    public Boolean getOptinalBooleanProperty(String name) {
-        String value = getStringProperty(name, null);
-        return value != null ? Boolean.parseBoolean(value) : null;
+        return getOptionalDoubleProperty(name).orElse(defaultValue);
     }
 
     @Override
     public Optional<Boolean> getOptionalBooleanProperty(String name) {
-        String value = getStringProperty(name, null);
-        return Optional.ofNullable(value != null ? Boolean.parseBoolean(value) : null);
+        Objects.requireNonNull(name);
+        Object value = properties.get(name);
+        if (value == null) {
+            return Optional.empty();
+        }
+        if (value instanceof Boolean) {
+            return Optional.of((Boolean) value);
+        } else if (value instanceof String) {
+            return Optional.of(Boolean.parseBoolean((String) value));
+        } else {
+            throw createUnexpectedPropertyTypeException(value);
+        }
+    }
+
+    @Override
+    public boolean getBooleanProperty(String name) {
+        return getOptionalBooleanProperty(name).orElseThrow(() -> createPropertyNotSetException(name));
+    }
+
+    @Override
+    public boolean getBooleanProperty(String name, boolean defaultValue) {
+        return getOptionalBooleanProperty(name).orElse(defaultValue);
+    }
+
+    @Override
+    public Boolean getOptinalBooleanProperty(String name) {
+        return getOptionalBooleanProperty(name).orElse(null);
     }
 
     @Override
@@ -250,8 +322,24 @@ public class MapModuleConfig implements ModuleConfig {
     }
 
     @Override
+    public Optional<DateTime> getOptionalDateTimeProperty(String name) {
+        Objects.requireNonNull(name);
+        Object value = properties.get(name);
+        if (value == null) {
+            return Optional.empty();
+        }
+        if (value instanceof Date) {
+            return Optional.of(new DateTime(value));
+        } else if (value instanceof String) {
+            return Optional.of(DateTime.parse((String) value));
+        } else {
+            throw createUnexpectedPropertyTypeException(value);
+        }
+    }
+
+    @Override
     public DateTime getDateTimeProperty(String name) {
-        return DateTime.parse(getStringProperty(name));
+        return getOptionalDateTimeProperty(name).orElseThrow(() -> createPropertyNotSetException(name));
     }
 
     @Override
