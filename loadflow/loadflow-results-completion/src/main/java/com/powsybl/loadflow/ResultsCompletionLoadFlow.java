@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.Version;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.TwoTerminalsConnectable.Side;
@@ -27,7 +28,7 @@ public class ResultsCompletionLoadFlow implements LoadFlow {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ResultsCompletionLoadFlow.class);
 
-    Network network;
+    private final Network network;
 
     public ResultsCompletionLoadFlow(Network network) {
         this.network = Objects.requireNonNull(network);
@@ -40,12 +41,7 @@ public class ResultsCompletionLoadFlow implements LoadFlow {
 
     @Override
     public String getVersion() {
-        return "1.0.0";
-    }
-
-    @Override
-    public LoadFlowResult run() throws Exception {
-        return run(LoadFlowParameters.load());
+        return Version.VERSION.toString();
     }
 
     @Override

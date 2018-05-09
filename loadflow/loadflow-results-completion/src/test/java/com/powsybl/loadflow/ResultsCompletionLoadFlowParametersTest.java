@@ -27,8 +27,8 @@ import com.powsybl.commons.config.MapModuleConfig;
  */
 public class ResultsCompletionLoadFlowParametersTest {
 
-    InMemoryPlatformConfig platformConfig;
-    FileSystem fileSystem;
+    private InMemoryPlatformConfig platformConfig;
+    private FileSystem fileSystem;
 
     @Before
     public void setUp() {
