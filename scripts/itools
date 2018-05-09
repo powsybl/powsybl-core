@@ -7,8 +7,13 @@
 #
 
 if [ -z $JAVA_HOME ]; then
-    echo "JAVA_HOME is not defined" >&2
-    exit -1
+    JAVA_BIN=`which java 2> /dev/null`
+    if [ $? -ne 0 ]; then
+        echo "Unable to find java" >&2
+        exit -1
+    fi
+else
+    JAVA_BIN=$JAVA_HOME/bin/java
 fi
 
 installBinDir=$(dirname $(readlink -f $0))
@@ -49,7 +54,7 @@ if $parallel ; then
     echo "running itools in parallel mode using $mpi_tasks tasks on hosts $mpi_hosts"
     mpirun -np $mpi_tasks -map-by node -host $mpi_hosts $mpirun_options -oversubscribe tools-mpi-task.sh "${args[@]}"
 else
-    $JAVA_HOME/bin/java \
+    $JAVA_BIN \
 -Xmx$java_xmx \
 -cp "$installDir/share/java/*" \
 $options \
