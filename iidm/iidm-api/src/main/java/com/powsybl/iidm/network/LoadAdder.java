@@ -28,9 +28,9 @@ public interface LoadAdder extends InjectionAdder<LoadAdder> {
 
     LoadAdder setLoadType(LoadType loadType);
 
-    LoadAdder setP0(float p0);
+    LoadAdder setP0(double p0);
 
-    LoadAdder setQ0(float q0);
+    LoadAdder setQ0(double q0);
 
     Load add();
 

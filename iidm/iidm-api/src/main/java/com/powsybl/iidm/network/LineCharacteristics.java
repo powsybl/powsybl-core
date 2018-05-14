@@ -14,61 +14,61 @@ public interface LineCharacteristics<T> {
     /**
      * Get the series resistance in &#937;.
      */
-    float getR();
+    double getR();
 
     /**
      * Set the series resistance in &#937;.
      */
-    T setR(float r);
+    T setR(double r);
 
     /**
      * Get the series reactance in &#937;.
      */
-    float getX();
+    double getX();
 
     /**
      * Set the series reactance in &#937;.
      */
-    T setX(float x);
+    T setX(double x);
 
     /**
      * Get the first side shunt conductance in S.
      */
-    float getG1();
+    double getG1();
 
     /**
      * Set the first side shunt conductance in S.
      */
-    T setG1(float g1);
+    T setG1(double g1);
 
     /**
      * Get the second side shunt conductance in S.
      */
-    float getG2();
+    double getG2();
 
     /**
      * Set the second side shunt conductance in S.
      */
-    T setG2(float g2);
+    T setG2(double g2);
 
     /**
      * Get the first side shunt susceptance in S.
      */
-    float getB1();
+    double getB1();
 
     /**
      * Set the first side shunt susceptance in S.
      */
-    T setB1(float b1);
+    T setB1(double b1);
 
     /**
      * Get the second side shunt susceptance in S.
      */
-    float getB2();
+    double getB2();
 
     /**
      * Set the second side shunt susceptance in S.
      */
-    T setB2(float b2);
+    T setB2(double b2);
 
 }

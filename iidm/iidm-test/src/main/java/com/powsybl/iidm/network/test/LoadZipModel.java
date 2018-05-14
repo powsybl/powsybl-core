@@ -18,15 +18,15 @@ import com.powsybl.iidm.network.Load;
  */
 public class LoadZipModel extends AbstractExtension<Load> {
 
-    float v0;
-    float a1;
-    float a2;
-    float a3;
-    float a4;
-    float a5;
-    float a6;
+    double v0;
+    double a1;
+    double a2;
+    double a3;
+    double a4;
+    double a5;
+    double a6;
 
-    public LoadZipModel(Load load, float a1, float a2, float a3, float a4, float a5, float a6, float v0) {
+    public LoadZipModel(Load load, double a1, double a2, double a3, double a4, double a5, double a6, double v0) {
         super(load);
         this.a1 = a1;
         this.a2 = a2;
@@ -37,55 +37,55 @@ public class LoadZipModel extends AbstractExtension<Load> {
         this.v0 = v0;
     }
 
-    public float getV0() {
+    public double getV0() {
         return v0;
     }
 
-    public void setV0(float v0) {
+    public void setV0(double v0) {
         this.v0 = v0;
     }
 
-    public float getA1() {
+    public double getA1() {
         return a1;
     }
 
-    public void setA1(float a1) {
+    public void setA1(double a1) {
         this.a1 = a1;
     }
 
-    public float getA2() {
+    public double getA2() {
         return a2;
     }
 
-    public void setA2(float a2) {
+    public void setA2(double a2) {
         this.a2 = a2;
     }
 
-    public float getA3() {
+    public double getA3() {
         return a3;
     }
 
-    public void setA3(float a3) {
+    public void setA3(double a3) {
         this.a3 = a3;
     }
 
-    public float getA4() {
+    public double getA4() {
         return a4;
     }
 
-    public void setA4(float a4) {
+    public void setA4(double a4) {
         this.a4 = a4;
     }
 
-    public float getA5() {
+    public double getA5() {
         return a5;
     }
 
-    public void setA5(float a5) {
+    public void setA5(double a5) {
         this.a5 = a5;
     }
 
-    public float getA6() {
+    public double getA6() {
         return a6;
     }
 

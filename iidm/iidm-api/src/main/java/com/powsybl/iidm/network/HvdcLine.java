@@ -46,53 +46,53 @@ public interface HvdcLine extends Identifiable<HvdcLine> {
      * Get resistance (in &#937;) of the line.
      * @return the resistance of the line
      */
-    float getR();
+    double getR();
 
     /**
      * Set the resistance (in &#937;) of the line.
      * @param r the resistance of the line
      * @return the HVDC line itself to allow method chaining
      */
-    HvdcLine setR(float r);
+    HvdcLine setR(double r);
 
     /**
      * Get the nominal voltage (in Kv).
      * @return the nominal voltage.
      */
-    float getNominalV();
+    double getNominalV();
 
     /**
      * Set the nominal voltage.
      * @param nominalV the nominal voltage.
      * @return the HVDC line itself to allow method chaining
      */
-    HvdcLine setNominalV(float nominalV);
+    HvdcLine setNominalV(double nominalV);
 
     /**
      * Get the active power setpoint (in MW).
      * @return the active power setpoint
      */
-    float getActivePowerSetpoint();
+    double getActivePowerSetpoint();
 
     /**
      * Set the active power setpoint (in MW).
      * @param activePowerSetpoint the active power setpoint
      * @return the HVDC line itself to allow method chaining
      */
-    HvdcLine setActivePowerSetpoint(float activePowerSetpoint);
+    HvdcLine setActivePowerSetpoint(double activePowerSetpoint);
 
     /**
      * Get the maximum active power (in MW).
      * @return the maximum active power
      */
-    float getMaxP();
+    double getMaxP();
 
     /**
      * Set the maximum active power (in MW).
      * @param maxP the maximum active power
      * @return the HVDC line itself to allow method chaining
      */
-    HvdcLine setMaxP(float maxP);
+    HvdcLine setMaxP(double maxP);
 
     /**
      * Get the HVDC converter station connected on side 1.

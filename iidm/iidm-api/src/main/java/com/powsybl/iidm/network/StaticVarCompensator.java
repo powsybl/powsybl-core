@@ -23,27 +23,27 @@ public interface StaticVarCompensator extends Injection<StaticVarCompensator> {
      * Get the minimum susceptance in S.
      * @return the minimum susceptance
      */
-    float getBmin();
+    double getBmin();
 
     /**
      * Set the minimum susceptance in S.
      * @param bMin minimum susceptance
      * @return this to allow method chaining
      */
-    StaticVarCompensator setBmin(float bMin);
+    StaticVarCompensator setBmin(double bMin);
 
     /**
      * Get the maximum susceptance in S.
      * @return the maximum susceptance
      */
-    float getBmax();
+    double getBmax();
 
     /**
      * Set the maximum susceptance in S.
      * @param bMax the maximum susceptance
      * @return this to allow method chaining
      */
-    StaticVarCompensator setBmax(float bMax);
+    StaticVarCompensator setBmax(double bMax);
 
     /**
      * <p>Get the voltage set point in Kv.</p>
@@ -51,7 +51,7 @@ public interface StaticVarCompensator extends Injection<StaticVarCompensator> {
      * <p>Depends on the working state.</p>
      * @return the voltage set point
      */
-    float getVoltageSetPoint();
+    double getVoltageSetPoint();
 
     /**
      * <p>Set the voltage set point in Kv.</p>
@@ -60,7 +60,7 @@ public interface StaticVarCompensator extends Injection<StaticVarCompensator> {
      * @param voltageSetPoint the voltage set point
      * @return this to allow method chaining
      */
-    StaticVarCompensator setVoltageSetPoint(float voltageSetPoint);
+    StaticVarCompensator setVoltageSetPoint(double voltageSetPoint);
 
     /**
      * <p>Get the reactive power set point in KV.</p>
@@ -68,7 +68,7 @@ public interface StaticVarCompensator extends Injection<StaticVarCompensator> {
      * <p>Depends on the working state.</p>
      * @return the reactive power set point
      */
-    float getReactivePowerSetPoint();
+    double getReactivePowerSetPoint();
 
     /**
      * <p>Set the reactive power set point in KV.</p>
@@ -77,7 +77,7 @@ public interface StaticVarCompensator extends Injection<StaticVarCompensator> {
      * @param reactivePowerSetPoint the reactive power set point
      * @return this to allow method chaining
      */
-    StaticVarCompensator setReactivePowerSetPoint(float reactivePowerSetPoint);
+    StaticVarCompensator setReactivePowerSetPoint(double reactivePowerSetPoint);
 
     /**
      * <p>Get the regulating mode.</p>

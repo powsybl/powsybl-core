@@ -90,22 +90,22 @@ public final class Networks {
 
             private List<String> connectedLoads = new ArrayList<>();
             private List<String> disconnectedLoads = new ArrayList<>();
-            private float connectedLoadVolume = 0f;
-            private float disconnectedLoadVolume = 0f;
+            private double connectedLoadVolume = 0f;
+            private double disconnectedLoadVolume = 0f;
 
-            private float connectedMaxGeneration = 0f;
-            private float disconnectedMaxGeneration = 0f;
-            private float connectedGeneration = 0f;
-            private float disconnectedGeneration = 0f;
+            private double connectedMaxGeneration = 0f;
+            private double disconnectedMaxGeneration = 0f;
+            private double connectedGeneration = 0f;
+            private double disconnectedGeneration = 0f;
             private List<String> connectedGenerators = new ArrayList<>();
             private List<String> disconnectedGenerators = new ArrayList<>();
 
             private List<String> connectedShunts = new ArrayList<>();
             private List<String> disconnectedShunts = new ArrayList<>();
-            private float connectedShuntPositiveVolume = 0f;
-            private float disconnectedShuntPositiveVolume = 0f;
-            private float connectedShuntNegativeVolume = 0f;
-            private float disconnectedShuntNegativeVolume = 0f;
+            private double connectedShuntPositiveVolume = 0f;
+            private double disconnectedShuntPositiveVolume = 0f;
+            private double connectedShuntNegativeVolume = 0f;
+            private double disconnectedShuntNegativeVolume = 0f;
         }
 
         ConnectedPower balanceMainCC = new ConnectedPower();
@@ -234,37 +234,37 @@ public final class Networks {
         table.addCell(Integer.toString(balanceOtherCC.connectedLoads.size()));
         table.addCell(Integer.toString(balanceOtherCC.disconnectedLoads.size()));
         table.addCell("Load (MW)");
-        table.addCell(Float.toString(balanceMainCC.connectedLoadVolume));
-        table.addCell(Float.toString(balanceMainCC.disconnectedLoadVolume));
-        table.addCell(Float.toString(balanceOtherCC.connectedLoadVolume));
-        table.addCell(Float.toString(balanceOtherCC.disconnectedLoadVolume));
+        table.addCell(Double.toString(balanceMainCC.connectedLoadVolume));
+        table.addCell(Double.toString(balanceMainCC.disconnectedLoadVolume));
+        table.addCell(Double.toString(balanceOtherCC.connectedLoadVolume));
+        table.addCell(Double.toString(balanceOtherCC.disconnectedLoadVolume));
         table.addCell("Generator count");
         table.addCell(Integer.toString(balanceMainCC.connectedGenerators.size()));
         table.addCell(Integer.toString(balanceMainCC.disconnectedGenerators.size()));
         table.addCell(Integer.toString(balanceOtherCC.connectedGenerators.size()));
         table.addCell(Integer.toString(balanceOtherCC.disconnectedGenerators.size()));
         table.addCell("Max generation (MW)");
-        table.addCell(Float.toString(balanceMainCC.connectedMaxGeneration));
-        table.addCell(Float.toString(balanceMainCC.disconnectedMaxGeneration));
-        table.addCell(Float.toString(balanceOtherCC.connectedMaxGeneration));
-        table.addCell(Float.toString(balanceOtherCC.disconnectedMaxGeneration));
+        table.addCell(Double.toString(balanceMainCC.connectedMaxGeneration));
+        table.addCell(Double.toString(balanceMainCC.disconnectedMaxGeneration));
+        table.addCell(Double.toString(balanceOtherCC.connectedMaxGeneration));
+        table.addCell(Double.toString(balanceOtherCC.disconnectedMaxGeneration));
         table.addCell("Generation (MW)");
-        table.addCell(Float.toString(balanceMainCC.connectedGeneration));
-        table.addCell(Float.toString(balanceMainCC.disconnectedGeneration));
-        table.addCell(Float.toString(balanceOtherCC.connectedGeneration));
-        table.addCell(Float.toString(balanceOtherCC.disconnectedGeneration));
+        table.addCell(Double.toString(balanceMainCC.connectedGeneration));
+        table.addCell(Double.toString(balanceMainCC.disconnectedGeneration));
+        table.addCell(Double.toString(balanceOtherCC.connectedGeneration));
+        table.addCell(Double.toString(balanceOtherCC.disconnectedGeneration));
         table.addCell("Shunt at nom V (MVar)");
-        table.addCell(Float.toString(balanceMainCC.connectedShuntPositiveVolume) + " " +
-                Float.toString(balanceMainCC.connectedShuntNegativeVolume) +
+        table.addCell(Double.toString(balanceMainCC.connectedShuntPositiveVolume) + " " +
+                Double.toString(balanceMainCC.connectedShuntNegativeVolume) +
                 " (" + Integer.toString(balanceMainCC.connectedShunts.size()) + ")");
-        table.addCell(Float.toString(balanceMainCC.disconnectedShuntPositiveVolume) + " " +
-                Float.toString(balanceMainCC.disconnectedShuntNegativeVolume) +
+        table.addCell(Double.toString(balanceMainCC.disconnectedShuntPositiveVolume) + " " +
+                Double.toString(balanceMainCC.disconnectedShuntNegativeVolume) +
                 " (" + Integer.toString(balanceMainCC.disconnectedShunts.size()) + ")");
-        table.addCell(Float.toString(balanceOtherCC.connectedShuntPositiveVolume) + " " +
-                Float.toString(balanceOtherCC.connectedShuntNegativeVolume) +
+        table.addCell(Double.toString(balanceOtherCC.connectedShuntPositiveVolume) + " " +
+                Double.toString(balanceOtherCC.connectedShuntNegativeVolume) +
                 " (" + Integer.toString(balanceOtherCC.connectedShunts.size()) + ")");
-        table.addCell(Float.toString(balanceOtherCC.disconnectedShuntPositiveVolume) + " " +
-                Float.toString(balanceOtherCC.disconnectedShuntNegativeVolume) +
+        table.addCell(Double.toString(balanceOtherCC.disconnectedShuntPositiveVolume) + " " +
+                Double.toString(balanceOtherCC.disconnectedShuntNegativeVolume) +
                 " (" + Integer.toString(balanceOtherCC.disconnectedShunts.size()) + ")");
 
         if (logger.isDebugEnabled()) {
@@ -291,9 +291,9 @@ public final class Networks {
 
     public static void printGeneratorsSetpointDiff(Network network, Logger logger) {
         for (Generator g : network.getGenerators()) {
-            float dp = Math.abs(g.getTerminal().getP() + g.getTargetP());
-            float dq = Math.abs(g.getTerminal().getQ() + g.getTargetQ());
-            float dv = Math.abs(g.getTerminal().getBusBreakerView().getConnectableBus().getV() - g.getTargetV());
+            double dp = Math.abs(g.getTerminal().getP() + g.getTargetP());
+            double dq = Math.abs(g.getTerminal().getQ() + g.getTargetQ());
+            double dv = Math.abs(g.getTerminal().getBusBreakerView().getConnectableBus().getV() - g.getTargetV());
             if (dp > 1 || dq > 5 || dv > 0.1) {
                 logger.warn("Generator {}: ({}, {}, {}) ({}, {}, {}) -> ({}, {}, {})", g.getId(),
                         dp, dq, dv,

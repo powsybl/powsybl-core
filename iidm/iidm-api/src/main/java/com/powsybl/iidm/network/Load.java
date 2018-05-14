@@ -27,27 +27,27 @@ public interface Load extends Injection<Load> {
      * <p>Depends on the working state.
      * @see StateManager
      */
-    float getP0();
+    double getP0();
 
     /**
      * Set the constant active power in MW.
      * <p>Depends on the working state.
      * @see StateManager
      */
-    Load setP0(float p0);
+    Load setP0(double p0);
 
     /**
      * Get the constant reactive power in MVar.
      * <p>Depends on the working state.
      * @see StateManager
      */
-    float getQ0();
+    double getQ0();
 
     /**
      * Set the constant reactive power in MVar.
      * <p>Depends on the working state.
      * @see StateManager
      */
-    Load setQ0(float q0);
+    Load setQ0(double q0);
 
 }

@@ -20,22 +20,22 @@ public interface TieLine extends Line {
         /**
          * Get Xnode active power consumption in MW.
          */
-        float getXnodeP();
+        double getXnodeP();
 
         /**
          * Set Xnode active power consumption in MW.
          */
-        HalfLine setXnodeP(float p);
+        HalfLine setXnodeP(double p);
 
         /**
          * Get Xnode reactive power consumption in MVar.
          */
-        float getXnodeQ();
+        double getXnodeQ();
 
         /**
          * Set Xnode reactive power consumption in MVar.
          */
-        HalfLine setXnodeQ(float q);
+        HalfLine setXnodeQ(double q);
 
     }
 

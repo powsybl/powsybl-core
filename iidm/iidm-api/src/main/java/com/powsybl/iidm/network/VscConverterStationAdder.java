@@ -16,9 +16,9 @@ public interface VscConverterStationAdder extends HvdcConverterStationAdder<VscC
 
     VscConverterStationAdder setVoltageRegulatorOn(boolean voltageRegulatorOn);
 
-    VscConverterStationAdder setVoltageSetpoint(float voltageSetpoint);
+    VscConverterStationAdder setVoltageSetpoint(double voltageSetpoint);
 
-    VscConverterStationAdder setReactivePowerSetpoint(float reactivePowerSetpoint);
+    VscConverterStationAdder setReactivePowerSetpoint(double reactivePowerSetpoint);
 
     VscConverterStation add();
 }

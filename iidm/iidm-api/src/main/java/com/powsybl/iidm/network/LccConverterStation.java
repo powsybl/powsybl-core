@@ -18,12 +18,12 @@ public interface LccConverterStation extends HvdcConverterStation<LccConverterSt
      * Get power factor (ratio of the active power and the apparent power)
      * @return the power factor.
      */
-    float getPowerFactor();
+    double getPowerFactor();
 
     /**
      * Set the power factor. Has to be greater that zero.
      * @param powerFactor the new power factor
      * @return the converter itself to allow method chaining
      */
-    LccConverterStation setPowerFactor(float powerFactor);
+    LccConverterStation setPowerFactor(double powerFactor);
 }

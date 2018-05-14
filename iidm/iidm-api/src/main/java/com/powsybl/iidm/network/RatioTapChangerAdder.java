@@ -14,15 +14,15 @@ public interface RatioTapChangerAdder {
 
     public interface StepAdder {
 
-        StepAdder setRho(float rho);
+        StepAdder setRho(double rho);
 
-        StepAdder setR(float r);
+        StepAdder setR(double r);
 
-        StepAdder setX(float x);
+        StepAdder setX(double x);
 
-        StepAdder setG(float g);
+        StepAdder setG(double g);
 
-        StepAdder setB(float b);
+        StepAdder setB(double b);
 
         RatioTapChangerAdder endStep();
     }
@@ -35,7 +35,7 @@ public interface RatioTapChangerAdder {
 
     RatioTapChangerAdder setRegulating(boolean regulating);
 
-    RatioTapChangerAdder setTargetV(float targetV);
+    RatioTapChangerAdder setTargetV(double targetV);
 
     RatioTapChangerAdder setRegulationTerminal(Terminal regulationTerminal);
 

@@ -675,33 +675,33 @@ public interface VoltageLevel extends Container<VoltageLevel> {
     /**
      * Get the nominal voltage in KV.
      */
-    float getNominalV();
+    double getNominalV();
 
-    VoltageLevel setNominalV(float nominalV);
+    VoltageLevel setNominalV(double nominalV);
 
     /**
      * Get the low voltage limit in KV.
      * @return the low voltage limit or NaN if undefined
      */
-    float getLowVoltageLimit();
+    double getLowVoltageLimit();
 
     /**
      * Set the low voltage limit in KV.
      * @param lowVoltageLimit the low voltage limit in KV
      */
-    VoltageLevel setLowVoltageLimit(float lowVoltageLimit);
+    VoltageLevel setLowVoltageLimit(double lowVoltageLimit);
 
     /**
      * Get the high voltage limit in KV.
      * @return the high voltage limit or NaN if undefined
      */
-    float getHighVoltageLimit();
+    double getHighVoltageLimit();
 
     /**
      * Set the high voltage limit in KV.
      * @param highVoltageLimit the high voltage limit in KV
      */
-    VoltageLevel setHighVoltageLimit(float highVoltageLimit);
+    VoltageLevel setHighVoltageLimit(double highVoltageLimit);
 
     /**
      * Get an equipment connected to this substation voltage level.

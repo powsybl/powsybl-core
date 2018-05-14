@@ -13,6 +13,6 @@ package com.powsybl.iidm.network;
  */
 public interface HvdcConverterStationAdder<T extends HvdcConverterStationAdder> extends InjectionAdder<T> {
 
-    T setLossFactor(float lossFactor);
+    T setLossFactor(double lossFactor);
 
 }

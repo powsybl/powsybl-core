@@ -12,9 +12,9 @@ package com.powsybl.iidm.network;
  */
 public interface MinMaxReactiveLimitsAdder {
 
-    MinMaxReactiveLimitsAdder setMinQ(float minQ);
+    MinMaxReactiveLimitsAdder setMinQ(double minQ);
 
-    MinMaxReactiveLimitsAdder setMaxQ(float maxQ);
+    MinMaxReactiveLimitsAdder setMaxQ(double maxQ);
 
     MinMaxReactiveLimits add();
 

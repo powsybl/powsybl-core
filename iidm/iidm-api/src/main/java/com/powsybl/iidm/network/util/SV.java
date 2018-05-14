@@ -20,78 +20,78 @@ import org.apache.commons.math3.complex.ComplexUtils;
  */
 public class SV {
 
-    public static float getRatio(TwoWindingsTransformer twt) {
-        float rho = twt.getRatedU2() / twt.getRatedU1();
+    public static double getRatio(TwoWindingsTransformer twt) {
+        double rho = twt.getRatedU2() / twt.getRatedU1();
         if (twt.getRatioTapChanger() != null) {
             rho *= twt.getRatioTapChanger().getCurrentStep().getRho();
         }
         return rho;
     }
 
-    public static float getR(TwoWindingsTransformer twt) {
-        float r = twt.getR();
+    public static double getR(TwoWindingsTransformer twt) {
+        double r = twt.getR();
         if (twt.getRatioTapChanger() != null) {
             r *= 1 + twt.getRatioTapChanger().getCurrentStep().getR() / 100;
         }
         return r;
     }
 
-    public static float getX(TwoWindingsTransformer twt) {
-        float x = twt.getX();
+    public static double getX(TwoWindingsTransformer twt) {
+        double x = twt.getX();
         if (twt.getRatioTapChanger() != null) {
             x *= 1 + twt.getRatioTapChanger().getCurrentStep().getX() / 100;
         }
         return x;
     }
 
-    public static float getG(TwoWindingsTransformer twt) {
-        float g = twt.getG();
+    public static double getG(TwoWindingsTransformer twt) {
+        double g = twt.getG();
         if (twt.getRatioTapChanger() != null) {
             g *= 1 + twt.getRatioTapChanger().getCurrentStep().getG() / 100;
         }
         return g;
     }
 
-    public static float getB(TwoWindingsTransformer twt) {
-        float b = twt.getB();
+    public static double getB(TwoWindingsTransformer twt) {
+        double b = twt.getB();
         if (twt.getRatioTapChanger() != null) {
             b *= 1 + twt.getRatioTapChanger().getCurrentStep().getB() / 100;
         }
         return b;
     }
 
-    float p;
+    double p;
 
-    float q;
+    double q;
 
-    float u;
+    double u;
 
-    float a;
+    double a;
 
-    public SV(float p, float q, float u, float a) {
+    public SV(double p, double q, double u, double a) {
         this.p = p;
         this.q = q;
         this.u = u;
         this.a = a;
     }
 
-    public float getP() {
+    public double getP() {
         return p;
     }
 
-    public float getQ() {
+    public double getQ() {
         return q;
     }
 
-    public float getU() {
+    public double getU() {
         return u;
     }
 
-    public float getA() {
+    public double getA() {
         return a;
     }
 
-    public SV otherSide(float r, float x, float g, float b, float ratio) {
+    public SV otherSide(double r, double x, double g, double b, double ratio) {
         Complex z = new Complex(r, x); // z=r+jx
         Complex y = new Complex(g, b); // y=g+jb
         Complex s1 = new Complex(p, q); // s1=p1+jq1
@@ -106,7 +106,7 @@ public class SV {
         Complex s2 = v2.multiply(3).multiply(i2.conjugate()); // s2=3*v2*conj(i2)
 
         Complex u2 = v2.multiply(Math.sqrt(3f));
-        return new SV((float) -s2.getReal(), (float) -s2.getImaginary(), (float) u2.abs(), (float) Math.toDegrees(u2.getArgument()));
+        return new SV(-s2.getReal(), -s2.getImaginary(), u2.abs(), Math.toDegrees(u2.getArgument()));
     }
 
     public SV otherSide(TwoWindingsTransformer twt) {

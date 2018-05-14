@@ -28,9 +28,9 @@ public interface GeneratorAdder extends InjectionAdder<GeneratorAdder> {
 
     GeneratorAdder setEnergySource(EnergySource energySource);
 
-    GeneratorAdder setMaxP(float maxP);
+    GeneratorAdder setMaxP(double maxP);
 
-    GeneratorAdder setMinP(float minP);
+    GeneratorAdder setMinP(double minP);
 
     GeneratorAdder setVoltageRegulatorOn(boolean voltageRegulatorOn);
 
@@ -39,13 +39,13 @@ public interface GeneratorAdder extends InjectionAdder<GeneratorAdder> {
      */
     GeneratorAdder setRegulatingTerminal(Terminal regulatingTerminal);
 
-    GeneratorAdder setTargetP(float targetP);
+    GeneratorAdder setTargetP(double targetP);
 
-    GeneratorAdder setTargetQ(float targetQ);
+    GeneratorAdder setTargetQ(double targetQ);
 
-    GeneratorAdder setTargetV(float targetV);
+    GeneratorAdder setTargetV(double targetV);
 
-    GeneratorAdder setRatedS(float ratedS);
+    GeneratorAdder setRatedS(double ratedS);
 
     Generator add();
 }

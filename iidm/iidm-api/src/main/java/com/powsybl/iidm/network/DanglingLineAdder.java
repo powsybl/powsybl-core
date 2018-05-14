@@ -26,17 +26,17 @@ package com.powsybl.iidm.network;
  */
 public interface DanglingLineAdder extends InjectionAdder<DanglingLineAdder> {
 
-    DanglingLineAdder setP0(float p0);
+    DanglingLineAdder setP0(double p0);
 
-    DanglingLineAdder setQ0(float q0);
+    DanglingLineAdder setQ0(double q0);
 
-    DanglingLineAdder setR(float r);
+    DanglingLineAdder setR(double r);
 
-    DanglingLineAdder setX(float x);
+    DanglingLineAdder setX(double x);
 
-    DanglingLineAdder setG(float g);
+    DanglingLineAdder setG(double g);
 
-    DanglingLineAdder setB(float b);
+    DanglingLineAdder setB(double b);
 
     DanglingLineAdder setUcteXnodeCode(String ucteXnodeCode);
 

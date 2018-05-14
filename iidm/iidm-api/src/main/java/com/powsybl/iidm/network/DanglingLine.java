@@ -29,68 +29,68 @@ public interface DanglingLine extends Injection<DanglingLine> {
      * <p>Depends on the working state.
      * @see StateManager
      */
-    float getP0();
+    double getP0();
 
     /**
      * Set the constant active power in MW.
      * <p>Depends on the working state.
      * @see StateManager
      */
-    DanglingLine setP0(float p0);
+    DanglingLine setP0(double p0);
 
     /**
      * Get the constant reactive power in MW.
      * <p>Depends on the working state.
      * @see StateManager
      */
-    float getQ0();
+    double getQ0();
 
     /**
      * Set the constant reactive power in MW.
      * <p>Depends on the working state.
      * @see StateManager
      */
-    DanglingLine setQ0(float q0);
+    DanglingLine setQ0(double q0);
 
     /**
      * Get the series resistance in &#937;.
      */
-    float getR();
+    double getR();
 
     /**
      * Set the series resistance in &#937;.
      */
-    DanglingLine setR(float r);
+    DanglingLine setR(double r);
 
     /**
      * Get the series reactance in &#937;.
      */
-    float getX();
+    double getX();
 
     /**
      * Set the series reactance in &#937;.
      */
-    DanglingLine setX(float x);
+    DanglingLine setX(double x);
 
     /**
      * Get the shunt conductance in S.
      */
-    float getG();
+    double getG();
 
     /**
      * Set the shunt conductance in S.
      */
-    DanglingLine setG(float g);
+    DanglingLine setG(double g);
 
     /**
      * Get the shunt susceptance in S.
      */
-    float getB();
+    double getB();
 
     /**
      * Set the shunt susceptance in S.
      */
-    DanglingLine setB(float b);
+    DanglingLine setB(double b);
 
     /**
      * Get the UCTE Xnode code corresponding to this dangling line in the case
