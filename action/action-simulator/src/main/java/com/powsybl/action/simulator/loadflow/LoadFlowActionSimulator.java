@@ -123,6 +123,151 @@ public class LoadFlowActionSimulator implements ActionSimulator {
         }
     }
 
+    private static final class RuleContext {
+
+        private final RuleEvaluationStatus status;
+        private final Map<String, Object> variables;
+        private final Map<String, Boolean> actions;
+
+        private RuleContext(RuleEvaluationStatus status, Map<String, Object> variables, Map<String, Boolean> actions) {
+            this.status = Objects.requireNonNull(status);
+            this.variables = Objects.requireNonNull(variables);
+            this.actions = Objects.requireNonNull(actions);
+        }
+
+        private RuleEvaluationStatus getStatus() {
+            return status;
+        }
+
+        private Map<String, Object> getVariables() {
+            return variables;
+        }
+
+        private Map<String, Boolean> getActions() {
+            return actions;
+        }
+    }
+
+    private RuleContext evaluateRule(Rule rule, RunningContext context) {
+        if (rule.getCondition().getType() != ConditionType.EXPRESSION) {
+            throw new AssertionError("TODO");
+        }
+        ExpressionNode conditionExpr = ((ExpressionCondition) rule.getCondition()).getNode();
+        EvaluationContext evalContext = new EvaluationContext() {
+            @Override
+            public Network getNetwork() {
+                return context.getNetwork();
+            }
+
+            @Override
+            public Contingency getContingency() {
+                return context.getContingency();
+            }
+
+            @Override
+            public boolean isActionTaken(String actionId) {
+                return context.getTimeLine().actionTaken(actionId);
+            }
+        };
+        boolean ok = ExpressionEvaluator.evaluate(conditionExpr, evalContext).equals(Boolean.TRUE);
+
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Evaluating {} to {}", ExpressionPrinter.toString(conditionExpr), Boolean.toString(ok));
+        }
+
+        Map<String, Object> variables = ExpressionVariableLister.list(conditionExpr).stream()
+                .collect(Collectors.toMap(ExpressionPrinter::toString,
+                    n -> ExpressionEvaluator.evaluate(n, evalContext),
+                    (v1, v2) -> v1,
+                    TreeMap::new));
+
+        LOGGER.debug("Variables values: {}", variables);
+
+        RuleEvaluationStatus status;
+        if (ok) {
+            status = RuleEvaluationStatus.TRUE;
+            context.incrementRuleMatchCount(rule.getId());
+        } else {
+            status = RuleEvaluationStatus.FALSE;
+        }
+
+        Map<String, Boolean> actions = ExpressionActionTakenLister.list(conditionExpr).stream()
+                .collect(Collectors.toMap(s -> s,
+                    s -> context.getTimeLine().actionTaken(s),
+                    (s1, s2) -> s1,
+                    TreeMap::new));
+
+        return new RuleContext(status, variables, actions);
+    }
+
+    private void applyActions(ActionDb actionDb, RunningContext context, Rule rule, Set<String> actionsTaken) {
+        for (String actionId : rule.getActions()) {
+            Action action = actionDb.getAction(actionId);
+
+            // apply action
+            LOGGER.info("Apply action '{}'", action.getId());
+            observers.forEach(o -> o.beforeAction(context, actionId));
+
+            action.run(context.getNetwork(), computationManager);
+
+            observers.forEach(o -> o.afterAction(context, actionId));
+            actionsTaken.add(actionId);
+        }
+    }
+
+    private boolean checkViolations(ActionDb actionDb, RunningContext context) {
+        List<LimitViolation> violations = LIMIT_VIOLATION_FILTER.apply(Security.checkLimits(context.getNetwork(), 1), context.getNetwork());
+        observers.forEach(o -> o.loadFlowConverged(context, violations));
+        // no more violations => work complete
+        if (violations.isEmpty()) {
+            LOGGER.info("No more violation");
+            observers.forEach(o -> o.noMoreViolations(context));
+            return true;
+        }
+
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("Violations: \n{}", Security.printLimitsViolations(violations, network, NO_FILTER));
+        }
+
+        runTests(actionDb, context);
+        if (context.isTestWorks() && applyIfSolvedViolations) {
+            return true;
+        }
+
+        Set<String> actionsTaken = new HashSet<>();
+        for (Rule rule : actionDb.getRules()) {
+            if (rule.getType().equals(RuleType.TEST)) {
+                continue;
+            }
+            RuleContext ruleContext;
+            if (context.getRuleMatchCount(rule.getId()) >= rule.getLife()) {
+                ruleContext = new RuleContext(RuleEvaluationStatus.DEAD, Collections.emptyMap(), Collections.emptyMap());
+            } else {
+                ruleContext = evaluateRule(rule, context);
+            }
+
+            observers.forEach(o -> o.ruleChecked(context, rule, ruleContext.getStatus(), ruleContext.getVariables(), ruleContext.getActions()));
+
+            if (ruleContext.getStatus() == RuleEvaluationStatus.TRUE) {
+                applyActions(actionDb, context, rule, actionsTaken);
+            }
+        }
+
+        // record the action in the time line
+        context.getTimeLine().getActions().addAll(actionsTaken);
+
+        observers.forEach(o -> o.roundEnd(context));
+
+        if (!actionsTaken.isEmpty()) {
+            context.setRound(context.getRound() + 1);
+            return next(actionDb, context);
+        } else {
+            LOGGER.info("Still some violations and no rule match");
+            observers.forEach(o -> o.violationsAnymoreAndNoRulesMatch(context));
+            return false;
+        }
+    }
+
     private boolean next(ActionDb actionDb, RunningContext context) {
         if (context.getRound() >= config.getMaxIterations()) {
             return false;
@@ -141,117 +286,7 @@ public class LoadFlowActionSimulator implements ActionSimulator {
             throw new PowsyblException(e);
         }
         if (result.isOk()) {
-            List<LimitViolation> violations = LIMIT_VIOLATION_FILTER.apply(Security.checkLimits(context.getNetwork(), 1), context.getNetwork());
-            observers.forEach(o -> o.loadFlowConverged(context, violations));
-            // no more violations => work complete
-            if (violations.isEmpty()) {
-                LOGGER.info("No more violation");
-                observers.forEach(o -> o.noMoreViolations(context));
-                return true;
-            }
-
-            if (LOGGER.isInfoEnabled()) {
-                LOGGER.info("Violations: \n{}", Security.printLimitsViolations(violations, network, NO_FILTER));
-            }
-
-            runTests(actionDb, context);
-            if (context.isTestWorks() && applyIfSolvedViolations) {
-                return true;
-            }
-
-            Set<String> actionsTaken = new HashSet<>();
-            for (Rule rule : actionDb.getRules()) {
-                if (rule.getType().equals(RuleType.TEST)) {
-                    continue;
-                }
-                RuleEvaluationStatus status;
-                final Map<String, Object> variables;
-                final Map<String, Boolean> actions;
-                if (context.getRuleMatchCount(rule.getId()) >= rule.getLife()) {
-                    status = RuleEvaluationStatus.DEAD;
-                    variables = Collections.emptyMap();
-                    actions = Collections.emptyMap();
-                } else {
-                    // re-evaluate the condition
-                    if (rule.getCondition().getType() != ConditionType.EXPRESSION) {
-                        throw new AssertionError("TODO");
-                    }
-                    ExpressionNode conditionExpr = ((ExpressionCondition) rule.getCondition()).getNode();
-                    EvaluationContext evalContext = new EvaluationContext() {
-                        @Override
-                        public Network getNetwork() {
-                            return context.getNetwork();
-                        }
-
-                        @Override
-                        public Contingency getContingency() {
-                            return context.getContingency();
-                        }
-
-                        @Override
-                        public boolean isActionTaken(String actionId) {
-                            return context.getTimeLine().actionTaken(actionId);
-                        }
-                    };
-                    boolean ok = ExpressionEvaluator.evaluate(conditionExpr, evalContext).equals(Boolean.TRUE);
-
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("Evaluating {} to {}", ExpressionPrinter.toString(conditionExpr), Boolean.toString(ok));
-                    }
-
-                    variables = ExpressionVariableLister.list(conditionExpr).stream()
-                        .collect(Collectors.toMap(ExpressionPrinter::toString,
-                            n -> ExpressionEvaluator.evaluate(n, evalContext),
-                            (v1, v2) -> v1,
-                            TreeMap::new));
-
-                    LOGGER.debug("Variables values: {}", variables);
-
-                    if (ok) {
-                        status = RuleEvaluationStatus.TRUE;
-                        context.incrementRuleMatchCount(rule.getId());
-                    } else {
-                        status = RuleEvaluationStatus.FALSE;
-                    }
-
-                    actions = ExpressionActionTakenLister.list(conditionExpr).stream()
-                        .collect(Collectors.toMap(s -> s,
-                            s -> context.getTimeLine().actionTaken(s),
-                            (s1, s2) -> s1,
-                            TreeMap::new));
-                }
-
-                observers.forEach(o -> o.ruleChecked(context, rule, status, variables, actions));
-
-                if (status == RuleEvaluationStatus.TRUE) {
-                    for (String actionId : rule.getActions()) {
-                        Action action = actionDb.getAction(actionId);
-
-                        // apply action
-                        LOGGER.info("Apply action '{}'", action.getId());
-                        observers.forEach(o -> o.beforeAction(context, actionId));
-
-                        action.run(context.getNetwork(), computationManager);
-
-                        observers.forEach(o -> o.afterAction(context, actionId));
-                        actionsTaken.add(actionId);
-                    }
-                }
-            }
-
-            // record the action in the time line
-            context.getTimeLine().getActions().addAll(actionsTaken);
-
-            observers.forEach(o -> o.roundEnd(context));
-
-            if (!actionsTaken.isEmpty()) {
-                context.setRound(context.getRound() + 1);
-                return next(actionDb, context);
-            } else {
-                LOGGER.info("Still some violations and no rule match");
-                observers.forEach(o -> o.violationsAnymoreAndNoRulesMatch(context));
-                return false;
-            }
+            return checkViolations(actionDb, context);
         } else {
             LOGGER.warn("Loadflow diverged: {}", result.getMetrics());
             observers.forEach(o -> o.loadFlowDiverged(context));
