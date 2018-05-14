@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<iidm:network xmlns:iidm="http://www.itesla_project.eu/schema/iidm/1_0" xmlns:ea="http://www.itesla_project.eu/schema/iidm/ext/entsoe_area/1_0" id="test" caseDate="2016-06-27T12:27:58.535+02:00" forecastDistance="0" sourceFormat="test">
+    <iidm:substation id="S" country="FR"></iidm:substation>
+    <iidm:extension id="S">
+        <ea:entsoeArea>BE</ea:entsoeArea>
+    </iidm:extension>
+</iidm:network>

@@ -171,7 +171,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Mult
 
     @Override
     public Set<Country> getCountries() {
-        return getSubstationStream().map(Substation::getCountry).collect(Collectors.toSet());
+        return getSubstationStream().map(Substation::getCountry).collect(Collectors.toCollection(() -> EnumSet.noneOf(Country.class)));
     }
 
     @Override

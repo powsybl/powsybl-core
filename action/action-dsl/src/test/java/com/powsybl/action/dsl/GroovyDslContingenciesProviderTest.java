@@ -73,6 +73,24 @@ public class GroovyDslContingenciesProviderTest {
         assertEquals("NHV1_NHV2_1", element.getId());
     }
 
+    @Test
+    public void testOrder() throws IOException {
+        try (Writer writer = Files.newBufferedWriter(dslFile, StandardCharsets.UTF_8)) {
+            writer.write(String.join(System.lineSeparator(),
+                    "contingency('c1') {",
+                    "    equipments 'NHV1_NHV2_1'",
+                    "}",
+                    "contingency('c2') {",
+                    "    equipments 'NHV1_NHV2_2'",
+                    "}"));
+        }
+        List<Contingency> contingencies = new GroovyDslContingenciesProvider(dslFile)
+                .getContingencies(network);
+        assertEquals(2, contingencies.size());
+        assertEquals("c1", contingencies.get(0).getId());
+        assertEquals("c2", contingencies.get(1).getId());
+    }
+
 
     private static Set<String> getContingenciesNames(List<Contingency> contingencies) {
         return contingencies.stream().map(Contingency::getId).collect(Collectors.toSet());

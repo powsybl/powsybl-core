@@ -29,7 +29,9 @@ public enum AmplSubset implements IntCounter {
     CURATIVE_ACTION(1),
     PREVENTIVE_ACTION(1),
     STATIC_VAR_COMPENSATOR(1),
-    HVDC_LINE(1);
+    HVDC_LINE(1),
+    LCC_CONVERTER_STATION(1),
+    VSC_CONVERTER_STATION(1);
 
     private final int initialValue;
 

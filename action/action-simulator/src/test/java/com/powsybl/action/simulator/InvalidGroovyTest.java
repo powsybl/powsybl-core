@@ -29,6 +29,12 @@ public class InvalidGroovyTest {
         new ActionDslLoader(getDslFile("/invalid-rule-with-two-types-action.groovy")).load(Mockito.mock(Network.class));
     }
 
+    @Test
+    public void invalidMissingActions() {
+        exception.expect(ActionDslException.class);
+        new ActionDslLoader(getDslFile("/invalid-rule-without-actions.groovy")).load(Mockito.mock(Network.class));
+    }
+
     private GroovyCodeSource getDslFile(String path) {
         return new GroovyCodeSource(new InputStreamReader(getClass().getResourceAsStream(path)), "test", GroovyShell.DEFAULT_CODE_BASE);
     }

@@ -8,6 +8,7 @@ package com.powsybl.afs;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.tools.Command;
+import com.powsybl.tools.CommandLineTools;
 import com.powsybl.tools.Tool;
 import com.powsybl.tools.ToolRunningContext;
 import org.apache.commons.cli.CommandLine;
@@ -96,7 +97,8 @@ public class AppFileSystemTool implements Tool {
                 String path = line.getOptionValue(LS);
                 runLs(context, appData, path);
             } else {
-                throw new AfsException("Undefined sub command");
+                Command command = getCommand();
+                CommandLineTools.printCommandUsage(command.getName(), command.getOptions(), command.getUsageFooter(), context.getErrorStream());
             }
         }
     }

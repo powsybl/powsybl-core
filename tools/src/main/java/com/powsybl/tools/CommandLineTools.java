@@ -104,7 +104,7 @@ public class CommandLineTools {
         return optionsWithHelp;
     }
 
-    private void printCommandUsage(String name, Options options, String usageFooter, PrintStream err) {
+    public static void printCommandUsage(String name, Options options, String usageFooter, PrintStream err) {
         HelpFormatter formatter = new HelpFormatter();
         PrintWriter writer = new PrintWriter(err);
 

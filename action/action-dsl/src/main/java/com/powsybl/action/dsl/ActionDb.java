@@ -9,21 +9,18 @@ package com.powsybl.action.dsl;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.contingency.Contingency;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class ActionDb {
 
-    private final Map<String, Contingency> contingencies = new HashMap<>();
+    private final Map<String, Contingency> contingencies = new LinkedHashMap<>();
 
-    private final Map<String, Rule> rules = new HashMap<>();
+    private final Map<String, Rule> rules = new LinkedHashMap<>();
 
-    private final Map<String, Action> actions = new HashMap<>();
+    private final Map<String, Action> actions = new LinkedHashMap<>();
 
     public void addContingency(Contingency contingency) {
         Objects.requireNonNull(contingency);

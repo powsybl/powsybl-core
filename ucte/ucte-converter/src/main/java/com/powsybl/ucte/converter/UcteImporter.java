@@ -7,10 +7,14 @@
 package com.powsybl.ucte.converter;
 
 import com.google.auto.service.AutoService;
+import com.google.common.base.Enums;
 import com.google.common.base.Joiner;
-import com.google.common.collect.Iterables;
-import com.powsybl.commons.PowsyblException;
+import com.google.common.base.Stopwatch;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Sets;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.entsoe.util.*;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.network.*;
 import com.powsybl.ucte.network.*;
@@ -18,12 +22,14 @@ import com.powsybl.ucte.network.ext.UcteNetworkExt;
 import com.powsybl.ucte.network.ext.UcteSubstation;
 import com.powsybl.ucte.network.ext.UcteVoltageLevel;
 import com.powsybl.ucte.network.io.UcteReader;
-import com.powsybl.entsoe.util.EntsoeFileName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.util.Iterator;
 import java.util.Properties;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  *
@@ -41,11 +47,6 @@ public class UcteImporter implements Importer {
     @Override
     public String getFormat() {
         return "UCTE";
-    }
-
-    @Override
-    public InputStream get16x16Icon() {
-        return UcteImporter.class.getResourceAsStream("/icons/ucte16x16.png");
     }
 
     @Override
@@ -69,12 +70,55 @@ public class UcteImporter implements Importer {
         return b;
     }
 
-    private static void createBuses(UcteNetworkExt ucteNetwork, Network network, EntsoeFileName ucteFileName) {
+    /**
+     * If the substation has a more specific geographical information than just its country,
+     * returns the corresponding geographical code, otherwise null.
+     */
+    private static EntsoeGeographicalCode getRegionalGeographicalCode(Substation substation) {
+        //Currently only DE has subregions
+        if (substation.getCountry() != Country.DE) {
+            return null;
+        }
+        EntsoeGeographicalCode res = Enums.getIfPresent(EntsoeGeographicalCode.class, substation.getName().substring(0, 2)).orNull();
+        //handle case where a D-node would start with DE ...
+        return res == EntsoeGeographicalCode.DE ? null : res;
+    }
+
+    private static void createBuses(UcteNetworkExt ucteNetwork, UcteVoltageLevel ucteVoltageLevel, VoltageLevel voltageLevel) {
+        for (UcteNodeCode ucteNodeCode : ucteVoltageLevel.getNodes()) {
+            UcteNode ucteNode = ucteNetwork.getNode(ucteNodeCode);
+
+            // skip Xnodes
+            if (ucteNode.getCode().getUcteCountryCode() == UcteCountryCode.XX) {
+                continue;
+            }
+
+            if (LOGGER.isTraceEnabled()) {
+                LOGGER.trace("Create bus '{}'", ucteNodeCode.toString());
+            }
+
+            Bus bus = voltageLevel.getBusBreakerView().newBus()
+                    .setId(ucteNodeCode.toString())
+                    .add();
+
+            if (isValueValid(ucteNode.getActiveLoad()) || isValueValid(ucteNode.getReactiveLoad())) {
+                createLoad(ucteNode, voltageLevel, bus);
+            }
+
+            if (ucteNode.isGenerator()) {
+                createGenerator(ucteNode, voltageLevel, bus);
+            }
+        }
+    }
+
+    private static void createBuses(UcteNetworkExt ucteNetwork, Network network) {
         for (UcteSubstation ucteSubstation : ucteNetwork.getSubstations()) {
 
             // skip substations with only one Xnode
-            UcteNodeCode firstUcteNodeCode = Iterables.find(ucteSubstation.getNodes(),
-                code -> code.getUcteCountryCode() != UcteCountryCode.XX, null);
+            UcteNodeCode firstUcteNodeCode = ucteSubstation.getNodes().stream()
+                    .filter(code -> code.getUcteCountryCode() != UcteCountryCode.XX)
+                    .findFirst()
+                    .orElse(null);
             if (firstUcteNodeCode == null) {
                 continue;
             }
@@ -85,6 +129,11 @@ public class UcteImporter implements Importer {
                     .setId(ucteSubstation.getName())
                     .setCountry(Country.valueOf(firstUcteNodeCode.getUcteCountryCode().name()))
                 .add();
+
+            EntsoeGeographicalCode regionalCode = getRegionalGeographicalCode(substation);
+            if (regionalCode != null) {
+                substation.addExtension(EntsoeArea.class, new EntsoeArea(substation, regionalCode));
+            }
 
             for (UcteVoltageLevel ucteVoltageLevel : ucteSubstation.getVoltageLevels()) {
                 UcteVoltageLevelCode ucteVoltageLevelCode = ucteVoltageLevel.getNodes().iterator().next().getVoltageLevelCode();
@@ -97,28 +146,7 @@ public class UcteImporter implements Importer {
                         .setTopologyKind(TopologyKind.BUS_BREAKER)
                     .add();
 
-                for (UcteNodeCode ucteNodeCode : ucteVoltageLevel.getNodes()) {
-                    UcteNode ucteNode = ucteNetwork.getNode(ucteNodeCode);
-
-                    // skip Xnodes
-                    if (ucteNode.getCode().getUcteCountryCode() == UcteCountryCode.XX) {
-                        continue;
-                    }
-
-                    LOGGER.trace("Create bus '{}'", ucteNodeCode.toString());
-
-                    Bus bus = voltageLevel.getBusBreakerView().newBus()
-                            .setId(ucteNodeCode.toString())
-                        .add();
-
-                    if (isValueValid(ucteNode.getActiveLoad()) || isValueValid(ucteNode.getReactiveLoad())) {
-                        createLoad(ucteNode, voltageLevel, bus);
-                    }
-
-                    if (ucteNode.isGenerator()) {
-                        createGenerator(ucteNode, voltageLevel, bus);
-                    }
-                }
+                createBuses(ucteNetwork, ucteVoltageLevel, voltageLevel);
             }
         }
     }
@@ -236,7 +264,7 @@ public class UcteImporter implements Importer {
         }
 
         // create small impedance dangling line connected to the YNODE
-        xNodeVoltageLevel.newDanglingLine()
+        DanglingLine xNodeDanglingLine = xNodeVoltageLevel.newDanglingLine()
                 .setId(xNodeName + yNodeName)
                 .setBus(yNodeName)
                 .setConnectableBus(yNodeName)
@@ -248,6 +276,7 @@ public class UcteImporter implements Importer {
                 .setQ0(q0)
                 .setUcteXnodeCode(ucteXnode.getCode().toString())
             .add();
+        xNodeDanglingLine.addExtension(Xnode.class, new Xnode(xNodeDanglingLine, ucteXnode.getCode().toString()));
 
         // create coupler between YNODE and other node
         xNodeVoltageLevel.getBusBreakerView().newSwitch()
@@ -258,7 +287,7 @@ public class UcteImporter implements Importer {
             .add();
     }
 
-    private static void createDanglingLine(UcteNetworkExt ucteNetwork, UcteLine ucteLine, boolean connected,
+    private static void createDanglingLine(UcteLine ucteLine, boolean connected,
                                            UcteNode xnode, UcteNodeCode nodeCode, UcteVoltageLevel ucteVoltageLevel,
                                            Network network) {
 
@@ -292,12 +321,135 @@ public class UcteImporter implements Importer {
                 .setQ0(q0)
                 .setUcteXnodeCode(xnode.getCode().toString())
                 .add();
+        dl.addExtension(Xnode.class, new Xnode(dl, xnode.getCode().toString()));
+
         if (ucteLine.getCurrentLimit() != null) {
             dl.newCurrentLimits()
                     .setPermanentLimit(ucteLine.getCurrentLimit())
                     .add();
         }
+    }
 
+    private static void createCoupler(UcteNetworkExt ucteNetwork, Network network,
+                                      UcteLine ucteLine,
+                                      UcteNodeCode nodeCode1, UcteNodeCode nodeCode2,
+                                      UcteVoltageLevel ucteVoltageLevel1, UcteVoltageLevel ucteVoltageLevel2) {
+        LOGGER.trace("Create coupler '{}'", ucteLine.getId());
+
+        if (ucteVoltageLevel1 != ucteVoltageLevel2) {
+            throw new UcteException("Coupler between two different voltage levels");
+        }
+
+        if (nodeCode1.getUcteCountryCode() == UcteCountryCode.XX &&
+                nodeCode2.getUcteCountryCode() != UcteCountryCode.XX) {
+            // coupler connected to a XNODE
+            createXnodeCoupler(ucteNetwork, ucteLine, nodeCode1, ucteVoltageLevel1, nodeCode2, network);
+
+        } else if (nodeCode2.getUcteCountryCode() == UcteCountryCode.XX &&
+                nodeCode1.getUcteCountryCode() != UcteCountryCode.XX) {
+            // coupler connected to a XNODE
+            createXnodeCoupler(ucteNetwork, ucteLine, nodeCode2, ucteVoltageLevel2, nodeCode1, network);
+
+        } else {
+            // standard coupler
+            VoltageLevel voltageLevel = network.getVoltageLevel(ucteVoltageLevel1.getName());
+            voltageLevel.getBusBreakerView().newSwitch()
+                    .setId(ucteLine.getId().toString())
+                    .setBus1(nodeCode1.toString())
+                    .setBus2(nodeCode2.toString())
+                    .setOpen(ucteLine.getStatus() == UcteElementStatus.BUSBAR_COUPLER_OUT_OF_OPERATION)
+                    .add();
+        }
+    }
+
+    private static void createCouplerFromLowImpedanceLine(Network network, UcteLine ucteLine,
+                                                          UcteNodeCode nodeCode1, UcteNodeCode nodeCode2,
+                                                          UcteVoltageLevel ucteVoltageLevel1, UcteVoltageLevel ucteVoltageLevel2,
+                                                          boolean connected, double z) {
+        LOGGER.info("Create coupler '{}' from low impedance line ({})", ucteLine.getId(), z);
+
+        if (ucteVoltageLevel1 != ucteVoltageLevel2) {
+            throw new UcteException("Nodes coupled with a low impedance line are expected to be in the same voltage level");
+        }
+        VoltageLevel voltageLevel = network.getVoltageLevel(ucteVoltageLevel1.getName());
+        voltageLevel.getBusBreakerView().newSwitch()
+                .setId(ucteLine.getId().toString())
+                .setBus1(nodeCode1.toString())
+                .setBus2(nodeCode2.toString())
+                .setOpen(!connected)
+                .add();
+    }
+
+    private static void createStandardLine(Network network, UcteLine ucteLine, UcteNodeCode nodeCode1, UcteNodeCode nodeCode2,
+                                           UcteVoltageLevel ucteVoltageLevel1, UcteVoltageLevel ucteVoltageLevel2,
+                                           boolean connected) {
+        LOGGER.trace("Create line '{}'", ucteLine.getId());
+
+        Line l = network.newLine()
+                .setId(ucteLine.getId().toString())
+                .setVoltageLevel1(ucteVoltageLevel1.getName())
+                .setVoltageLevel2(ucteVoltageLevel2.getName())
+                .setBus1(connected ? nodeCode1.toString() : null)
+                .setBus2(connected ? nodeCode2.toString() : null)
+                .setConnectableBus1(nodeCode1.toString())
+                .setConnectableBus2(nodeCode2.toString())
+                .setR(ucteLine.getResistance())
+                .setX(ucteLine.getReactance())
+                .setG1(0f)
+                .setG2(0f)
+                .setB1(getSusceptance(ucteLine) / 2)
+                .setB2(getSusceptance(ucteLine) / 2)
+                .add();
+        if (ucteLine.getCurrentLimit() != null) {
+            int currentLimit = ucteLine.getCurrentLimit();
+            l.newCurrentLimits1()
+                    .setPermanentLimit(currentLimit)
+                    .add();
+            l.newCurrentLimits2()
+                    .setPermanentLimit(currentLimit)
+                    .add();
+        }
+    }
+
+    private static void createLine(UcteNetworkExt ucteNetwork, Network network,
+                                   UcteLine ucteLine,
+                                   UcteNodeCode nodeCode1, UcteNodeCode nodeCode2,
+                                   UcteVoltageLevel ucteVoltageLevel1, UcteVoltageLevel ucteVoltageLevel2) {
+        boolean connected = ucteLine.getStatus() == UcteElementStatus.REAL_ELEMENT_IN_OPERATION
+                || ucteLine.getStatus() == UcteElementStatus.EQUIVALENT_ELEMENT_IN_OPERATION;
+
+        double z = Math.hypot(ucteLine.getResistance(), ucteLine.getReactance());
+
+        if (z < LINE_MIN_Z
+                && nodeCode1.getUcteCountryCode() != UcteCountryCode.XX
+                && nodeCode2.getUcteCountryCode() != UcteCountryCode.XX) {
+
+            createCouplerFromLowImpedanceLine(network, ucteLine, nodeCode1, nodeCode2, ucteVoltageLevel1, ucteVoltageLevel2, connected, z);
+        } else {
+
+            if (nodeCode1.getUcteCountryCode() != UcteCountryCode.XX
+                    && nodeCode2.getUcteCountryCode() != UcteCountryCode.XX) {
+
+                createStandardLine(network, ucteLine, nodeCode1, nodeCode2, ucteVoltageLevel1, ucteVoltageLevel2, connected);
+
+            } else if (nodeCode1.getUcteCountryCode() == UcteCountryCode.XX
+                    && nodeCode2.getUcteCountryCode() != UcteCountryCode.XX) {
+
+                UcteNode xnode = ucteNetwork.getNode(nodeCode1);
+
+                createDanglingLine(ucteLine, connected, xnode, nodeCode2, ucteVoltageLevel2, network);
+
+            } else if (nodeCode1.getUcteCountryCode() != UcteCountryCode.XX
+                    && nodeCode2.getUcteCountryCode() == UcteCountryCode.XX) {
+
+                UcteNode xnode = ucteNetwork.getNode(nodeCode2);
+
+                createDanglingLine(ucteLine, connected, xnode, nodeCode1, ucteVoltageLevel1, network);
+
+            } else {
+                throw new UcteException("Line between 2 Xnodes");
+            }
+        }
     }
 
     private static void createLines(UcteNetworkExt ucteNetwork, Network network) {
@@ -309,118 +461,16 @@ public class UcteImporter implements Importer {
 
             switch (ucteLine.getStatus()) {
                 case BUSBAR_COUPLER_IN_OPERATION:
-                case BUSBAR_COUPLER_OUT_OF_OPERATION: {
-
-                    LOGGER.trace("Create coupler '{}'", ucteLine.getId());
-
-                    if (ucteVoltageLevel1 != ucteVoltageLevel2) {
-                        throw new PowsyblException("Coupler between two different voltage levels");
-                    }
-
-                    if (nodeCode1.getUcteCountryCode() == UcteCountryCode.XX &&
-                        nodeCode2.getUcteCountryCode() != UcteCountryCode.XX) {
-                        // coupler connected to a XNODE
-                        createXnodeCoupler(ucteNetwork, ucteLine, nodeCode1, ucteVoltageLevel1, nodeCode2, network);
-
-                    } else if (nodeCode2.getUcteCountryCode() == UcteCountryCode.XX &&
-                               nodeCode1.getUcteCountryCode() != UcteCountryCode.XX) {
-                        // coupler connected to a XNODE
-                        createXnodeCoupler(ucteNetwork, ucteLine, nodeCode2, ucteVoltageLevel2, nodeCode1, network);
-
-                    } else {
-                         // standard coupler
-                        VoltageLevel voltageLevel = network.getVoltageLevel(ucteVoltageLevel1.getName());
-                        voltageLevel.getBusBreakerView().newSwitch()
-                                .setId(ucteLine.getId().toString())
-                                .setBus1(nodeCode1.toString())
-                                .setBus2(nodeCode2.toString())
-                                .setOpen(ucteLine.getStatus() == UcteElementStatus.BUSBAR_COUPLER_OUT_OF_OPERATION)
-                                .add();
-                    }
-
+                case BUSBAR_COUPLER_OUT_OF_OPERATION:
+                    createCoupler(ucteNetwork, network, ucteLine, nodeCode1, nodeCode2, ucteVoltageLevel1, ucteVoltageLevel2);
                     break;
-                }
 
                 case REAL_ELEMENT_IN_OPERATION:
                 case REAL_ELEMENT_OUT_OF_OPERATION:
                 case EQUIVALENT_ELEMENT_IN_OPERATION:
-                case EQUIVALENT_ELEMENT_OUT_OF_OPERATION: {
-
-                    boolean connected = ucteLine.getStatus() == UcteElementStatus.REAL_ELEMENT_IN_OPERATION
-                            || ucteLine.getStatus() == UcteElementStatus.EQUIVALENT_ELEMENT_IN_OPERATION;
-
-                    double z = Math.hypot(ucteLine.getResistance(), ucteLine.getReactance());
-
-                    if (z < LINE_MIN_Z
-                            && nodeCode1.getUcteCountryCode() != UcteCountryCode.XX
-                            && nodeCode2.getUcteCountryCode() != UcteCountryCode.XX) {
-
-                        LOGGER.info("Create coupler '{}' from low impedance line ({})", ucteLine.getId(), z);
-
-                        if (ucteVoltageLevel1 != ucteVoltageLevel2) {
-                            throw new PowsyblException("Nodes coupled with a low impedance line are expected to be in the same voltage level");
-                        }
-                        VoltageLevel voltageLevel = network.getVoltageLevel(ucteVoltageLevel1.getName());
-                        voltageLevel.getBusBreakerView().newSwitch()
-                                .setId(ucteLine.getId().toString())
-                                .setBus1(nodeCode1.toString())
-                                .setBus2(nodeCode2.toString())
-                                .setOpen(!connected)
-                            .add();
-
-                    } else {
-
-                        if (nodeCode1.getUcteCountryCode() != UcteCountryCode.XX
-                                && nodeCode2.getUcteCountryCode() != UcteCountryCode.XX) {
-
-                            LOGGER.trace("Create line '{}'", ucteLine.getId());
-
-                            Line l = network.newLine()
-                                    .setId(ucteLine.getId().toString())
-                                    .setVoltageLevel1(ucteVoltageLevel1.getName())
-                                    .setVoltageLevel2(ucteVoltageLevel2.getName())
-                                    .setBus1(connected ? nodeCode1.toString() : null)
-                                    .setBus2(connected ? nodeCode2.toString() : null)
-                                    .setConnectableBus1(nodeCode1.toString())
-                                    .setConnectableBus2(nodeCode2.toString())
-                                    .setR(ucteLine.getResistance())
-                                    .setX(ucteLine.getReactance())
-                                    .setG1(0f)
-                                    .setG2(0f)
-                                    .setB1(getSusceptance(ucteLine) / 2)
-                                    .setB2(getSusceptance(ucteLine) / 2)
-                                .add();
-                            if (ucteLine.getCurrentLimit() != null) {
-                                int currentLimit = ucteLine.getCurrentLimit();
-                                l.newCurrentLimits1()
-                                        .setPermanentLimit(currentLimit)
-                                    .add();
-                                l.newCurrentLimits2()
-                                        .setPermanentLimit(currentLimit)
-                                    .add();
-                            }
-
-                        } else if (nodeCode1.getUcteCountryCode() == UcteCountryCode.XX
-                                && nodeCode2.getUcteCountryCode() != UcteCountryCode.XX) {
-
-                            UcteNode xnode = ucteNetwork.getNode(nodeCode1);
-
-                            createDanglingLine(ucteNetwork, ucteLine, connected, xnode, nodeCode2, ucteVoltageLevel2, network);
-
-                        } else if (nodeCode1.getUcteCountryCode() != UcteCountryCode.XX
-                                && nodeCode2.getUcteCountryCode() == UcteCountryCode.XX) {
-
-                            UcteNode xnode = ucteNetwork.getNode(nodeCode2);
-
-                            createDanglingLine(ucteNetwork, ucteLine, connected, xnode, nodeCode1, ucteVoltageLevel1, network);
-
-                        } else {
-                            throw new PowsyblException("Line between 2 Xnodes");
-                        }
-                    }
-
+                case EQUIVALENT_ELEMENT_OUT_OF_OPERATION:
+                    createLine(ucteNetwork, network, ucteLine, nodeCode1, nodeCode2, ucteVoltageLevel1, ucteVoltageLevel2);
                     break;
-                }
 
                 default:
                     throw new AssertionError("Unexpected UcteElementStatus value: " + ucteLine.getStatus());
@@ -534,7 +584,7 @@ public class UcteImporter implements Importer {
         }
 
         // create a small impedance dangling line connected to the YNODE
-        yVoltageLevel.newDanglingLine()
+        DanglingLine yDanglingLine = yVoltageLevel.newDanglingLine()
                 .setId(xNodeName + " " + yNodeName)
                 .setBus(yNodeName)
                 .setConnectableBus(yNodeName)
@@ -546,6 +596,7 @@ public class UcteImporter implements Importer {
                 .setQ0(q0)
                 .setUcteXnodeCode(ucteXnode.getCode().toString())
             .add();
+        yDanglingLine.addExtension(Xnode.class, new Xnode(yDanglingLine, ucteXnode.getCode().toString()));
 
         String voltageLevelId1;
         String voltageLevelId2;
@@ -581,6 +632,25 @@ public class UcteImporter implements Importer {
             .add();
     }
 
+    private static boolean isConnected(UcteTransformer ucteTransfo) {
+        boolean connected;
+        switch (ucteTransfo.getStatus()) {
+            case REAL_ELEMENT_IN_OPERATION:
+            case EQUIVALENT_ELEMENT_IN_OPERATION:
+                connected = true;
+                break;
+
+            case REAL_ELEMENT_OUT_OF_OPERATION:
+            case EQUIVALENT_ELEMENT_OUT_OF_OPERATION:
+                connected = false;
+                break;
+
+            default:
+                throw new AssertionError("Unexpected UcteElementStatus value: " + ucteTransfo.getStatus());
+        }
+        return connected;
+    }
+
     private static void createTransformers(UcteNetworkExt ucteNetwork, Network network, EntsoeFileName ucteFileName) {
         for (UcteTransformer ucteTransfo : ucteNetwork.getTransformers()) {
             UcteNodeCode nodeCode1 = ucteTransfo.getId().getNodeCode1();
@@ -592,21 +662,7 @@ public class UcteImporter implements Importer {
 
             LOGGER.trace("Create transformer '{}'", ucteTransfo.getId());
 
-            boolean connected;
-            switch (ucteTransfo.getStatus()) {
-                case REAL_ELEMENT_IN_OPERATION:
-                case EQUIVALENT_ELEMENT_IN_OPERATION:
-                    connected = true;
-                    break;
-
-                case REAL_ELEMENT_OUT_OF_OPERATION:
-                case EQUIVALENT_ELEMENT_OUT_OF_OPERATION:
-                    connected = false;
-                    break;
-
-                default:
-                    throw new AssertionError("Unexpected UcteElementStatus value: " + ucteTransfo.getStatus());
-            }
+            boolean connected = isConnected(ucteTransfo);
 
             TwoWindingsTransformer transformer;
 
@@ -682,16 +738,119 @@ public class UcteImporter implements Importer {
         }
     }
 
+    private static String getBusId(Bus bus) {
+        return bus != null ? bus.getId() : null;
+    }
+
+    private static DanglingLine getMatchingDanglingLine(DanglingLine dl1, Multimap<String, DanglingLine> danglingLinesByXnodeCode) {
+        DanglingLine dl2 = null;
+        String otherXnodeCode = dl1.getExtension(Xnode.class).getCode();
+        Iterator<DanglingLine> it = danglingLinesByXnodeCode.get(otherXnodeCode).iterator();
+        DanglingLine first = it.next();
+        if (it.hasNext()) {
+            DanglingLine second = it.next();
+            if (dl1 == first) {
+                dl2 = second;
+            } else if (dl1 == second) {
+                dl2 = first;
+            } else {
+                throw new AssertionError("Inconsistent XNODE index");
+            }
+            if (it.hasNext()) {
+                throw new UcteException("More that 2 dangling lines have the same XNODE " + dl1.getUcteXnodeCode());
+            }
+        }
+        return dl2;
+    }
+
+    private void mergeXnodeDanglingLines(Network network) {
+        Multimap<String, DanglingLine> danglingLinesByXnodeCode = HashMultimap.create();
+        for (DanglingLine dl : network.getDanglingLines()) {
+            danglingLinesByXnodeCode.put(dl.getExtension(Xnode.class).getCode(), dl);
+        }
+
+        Set<DanglingLine> danglingLinesToProcess = Sets.newHashSet(network.getDanglingLines());
+        while (!danglingLinesToProcess.isEmpty()) {
+            DanglingLine dl1 = danglingLinesToProcess.iterator().next();
+            DanglingLine dl2 = getMatchingDanglingLine(dl1, danglingLinesByXnodeCode);
+
+            if (dl2 != null) {
+                // lexical sort to always end up with same merge line id
+                String mergeLineId = dl1.getId().compareTo(dl2.getId()) < 0 ? dl1.getId() + " + " + dl2.getId()
+                                                                            : dl2.getId() + " + " + dl1.getId();
+
+                // create XNODE merge extension
+                float rdp = dl1.getR() / (dl1.getR() + dl2.getR());
+                float xdp = dl1.getX() / (dl1.getX() + dl2.getX());
+                float xnodeP1 = dl1.getP0();
+                float xnodeQ1 = dl1.getQ0();
+                float xnodeP2 = dl2.getP0();
+                float xnodeQ2 = dl2.getQ0();
+                String xnodeCode = dl1.getExtension(Xnode.class).getCode();
+
+                TieLine mergeLine = network.newTieLine()
+                        .setId(mergeLineId)
+                        .setVoltageLevel1(dl1.getTerminal().getVoltageLevel().getId())
+                        .setConnectableBus1(getBusId(dl1.getTerminal().getBusBreakerView().getConnectableBus()))
+                        .setBus1(getBusId(dl1.getTerminal().getBusBreakerView().getBus()))
+                        .setVoltageLevel2(dl2.getTerminal().getVoltageLevel().getId())
+                        .setConnectableBus2(getBusId(dl2.getTerminal().getBusBreakerView().getConnectableBus()))
+                        .setBus2(getBusId(dl2.getTerminal().getBusBreakerView().getBus()))
+                        .line1()
+                            .setId(dl1.getId())
+                            .setR(dl1.getR())
+                            .setX(dl1.getX())
+                            .setG1(dl1.getG())
+                            .setG2(0f)
+                            .setB1(dl1.getB())
+                            .setB2(0f)
+                            .setXnodeP(xnodeP1)
+                            .setXnodeQ(xnodeQ1)
+                        .line2()
+                            .setId(dl2.getId())
+                            .setR(dl2.getR())
+                            .setX(dl2.getX())
+                            .setG1(0f)
+                            .setG2(dl2.getG())
+                            .setB1(0f)
+                            .setB2(dl2.getB())
+                            .setXnodeP(xnodeP2)
+                            .setXnodeQ(xnodeQ2)
+                        .setUcteXnodeCode(xnodeCode)
+                        .add();
+
+                if (dl1.getCurrentLimits() != null) {
+                    mergeLine.newCurrentLimits1()
+                            .setPermanentLimit(dl1.getCurrentLimits().getPermanentLimit());
+                }
+                if (dl2.getCurrentLimits() != null) {
+                    mergeLine.newCurrentLimits2()
+                            .setPermanentLimit(dl2.getCurrentLimits().getPermanentLimit());
+                }
+
+                mergeLine.addExtension(MergedXnode.class, new MergedXnode(mergeLine, rdp, xdp, xnodeP1, xnodeQ1, xnodeP2, xnodeQ2, xnodeCode));
+
+                dl1.remove();
+                dl2.remove();
+
+                danglingLinesToProcess.remove(dl2);
+            }
+            danglingLinesToProcess.remove(dl1);
+        }
+    }
+
     @Override
     public Network importData(ReadOnlyDataSource dataSource, Properties parameters) {
         try {
             String ext = findExtension(dataSource);
             if (ext == null) {
-                throw new PowsyblException("File " + dataSource.getBaseName()
+                throw new UcteException("File " + dataSource.getBaseName()
                         + "." + Joiner.on("|").join(EXTENSIONS) + " not found");
             }
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, ext)))) {
-                long start = System.currentTimeMillis();
+
+                Stopwatch stopwatch = Stopwatch.createStarted();
+
                 UcteNetworkExt ucteNetwork = new UcteNetworkExt(new UcteReader().read(reader), LINE_MIN_Z);
                 String fileName = dataSource.getBaseName();
 
@@ -701,10 +860,15 @@ public class UcteImporter implements Importer {
                 network.setCaseDate(ucteFileName.getDate());
                 network.setForecastDistance(ucteFileName.getForecastDistance());
 
-                createBuses(ucteNetwork, network, ucteFileName);
+                createBuses(ucteNetwork, network);
                 createLines(ucteNetwork, network);
                 createTransformers(ucteNetwork, network, ucteFileName);
-                LOGGER.debug("UCTE import done in {} ms", System.currentTimeMillis() - start);
+
+                mergeXnodeDanglingLines(network);
+
+                stopwatch.stop();
+                LOGGER.debug("UCTE import done in {} ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
+
                 return network;
             }
         } catch (IOException e) {

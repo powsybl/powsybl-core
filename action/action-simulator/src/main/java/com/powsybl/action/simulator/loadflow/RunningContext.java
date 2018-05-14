@@ -27,11 +27,9 @@ public class RunningContext {
 
     private final Map<String, AtomicInteger> rulesMatchCount = new HashMap<>();
 
-    private final Set<String> triedTrydos = new HashSet<>();
+    private final Set<String> testedActionsIds = new HashSet<>();
 
-    private boolean trydoWorks = false;
-
-    private String workedTrydo;
+    private final List<String> workedTests = new ArrayList<>();
 
     public RunningContext(Network network, Contingency contingency) {
         this.network = network;
@@ -75,24 +73,23 @@ public class RunningContext {
         getRuleMatchCountInternal(ruleId).incrementAndGet();
     }
 
-    public void addTriedActions(Set<String> actionIds) {
-        triedTrydos.addAll(actionIds);
+    public boolean isTestWorks() {
+        return !workedTests.isEmpty();
     }
 
-    public Set<String> getTriedTrydos() {
-        return Collections.unmodifiableSet(triedTrydos);
+    public void addWorkedTest(String actionId) {
+        workedTests.add(actionId);
     }
 
-    public boolean isTrydoWorks() {
-        return trydoWorks;
+    public List<String> getWorkedTests() {
+        return Collections.unmodifiableList(workedTests);
     }
 
-    public void setWorkedTrydoId(String actionId) {
-        workedTrydo = actionId;
-        trydoWorks = true;
+    public boolean isTested(String actionId) {
+        return testedActionsIds.contains(actionId);
     }
 
-    public String getWorkedTrydoId() {
-        return workedTrydo;
+    public void addTested(String actionId) {
+        testedActionsIds.add(actionId);
     }
 }

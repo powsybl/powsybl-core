@@ -62,12 +62,17 @@ public abstract class AbstractLoadFlowRulesEngineTest {
         LoadFlowActionSimulatorObserver observer = createObserver();
         GroovyCodeSource src = new GroovyCodeSource(new InputStreamReader(getClass().getResourceAsStream(getDslFile())), "test", GroovyShell.DEFAULT_CODE_BASE);
         actionDb = new ActionDslLoader(src).load(network);
-        engine = new LoadFlowActionSimulator(network, computationManager, new LoadFlowActionSimulatorConfig(LoadFlowFactory.class, 3, false), observer) {
+        engine = new LoadFlowActionSimulator(network, computationManager, new LoadFlowActionSimulatorConfig(LoadFlowFactory.class, 3, false),
+                applyIfWorks(), observer) {
             @Override
             protected LoadFlowFactory newLoadFlowFactory() {
                 return loadFlowFactory;
             }
         };
+    }
+
+    protected boolean applyIfWorks() {
+        return true;
     }
 
     @After

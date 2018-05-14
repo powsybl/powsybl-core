@@ -159,11 +159,6 @@ public final class Importers {
         }
 
         @Override
-        public InputStream get16x16Icon() {
-            return importer.get16x16Icon();
-        }
-
-        @Override
         public List<Parameter> getParameters() {
             return importer.getParameters();
         }
@@ -385,16 +380,28 @@ public final class Importers {
         return createDataSource(file);
     }
 
+    public static Importer findImporter(ReadOnlyDataSource dataSource, ComputationManager computationManager) {
+        return findImporter(dataSource, LOADER, computationManager, CONFIG.get());
+    }
+
+    public static Importer findImporter(ReadOnlyDataSource dataSource, ImportersLoader loader, ComputationManager computationManager, ImportConfig config) {
+        for (Importer importer : Importers.list(loader, computationManager, config)) {
+            if (importer.exists(dataSource)) {
+                return importer;
+            }
+        }
+        return null;
+    }
+
     public static Network loadNetwork(Path file, ComputationManager computationManager, ImportConfig config, Properties parameters) {
         return loadNetwork(file, computationManager, config, parameters, LOADER);
     }
 
     public static Network loadNetwork(Path file, ComputationManager computationManager, ImportConfig config, Properties parameters, ImportersLoader loader) {
         ReadOnlyDataSource dataSource = createDataSource(file);
-        for (Importer importer : Importers.list(loader, computationManager, config)) {
-            if (importer.exists(dataSource)) {
-                return importer.importData(dataSource, parameters);
-            }
+        Importer importer = findImporter(dataSource, loader, computationManager, config);
+        if (importer != null) {
+            return importer.importData(dataSource, parameters);
         }
         return null;
     }
@@ -417,13 +424,12 @@ public final class Importers {
     }
 
     public static void loadNetworks(Path dir, boolean parallel, ComputationManager computationManager, ImportConfig config, Consumer<Network> consumer) throws IOException, InterruptedException, ExecutionException {
-        loadNetworks(dir, parallel, LocalComputationManager.getDefault(), CONFIG.get(), consumer, null);
+        loadNetworks(dir, parallel, computationManager, config, consumer, null);
     }
 
     public static void loadNetworks(Path dir, boolean parallel, Consumer<Network> consumer) throws IOException, InterruptedException, ExecutionException {
         loadNetworks(dir, parallel, LocalComputationManager.getDefault(), CONFIG.get(), consumer);
     }
-
 
     public static void loadNetworks(Path dir, boolean parallel, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener) throws IOException, InterruptedException, ExecutionException {
         loadNetworks(dir, parallel, LocalComputationManager.getDefault(), CONFIG.get(), consumer, listener);
@@ -439,10 +445,9 @@ public final class Importers {
 
     public static Network loadNetwork(String filename, InputStream data, ComputationManager computationManager, ImportConfig config, Properties parameters, ImportersLoader loader) {
         ReadOnlyMemDataSource dataSource = DataSourceUtil.createReadOnlyMemDataSource(filename, data);
-        for (Importer importer : Importers.list(loader, computationManager, config)) {
-            if (importer.exists(dataSource)) {
-                return importer.importData(dataSource, parameters);
-            }
+        Importer importer = findImporter(dataSource, loader, computationManager, config);
+        if (importer != null) {
+            return importer.importData(dataSource, parameters);
         }
         return null;
     }
