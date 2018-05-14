@@ -8,6 +8,7 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.ReactiveCapabilityCurve;
 import com.powsybl.iidm.network.ReactiveLimitsKind;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -21,38 +22,38 @@ class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
 
     static class PointImpl implements Point {
 
-        private float p;
+        private double p;
 
-        private float minQ;
+        private double minQ;
 
-        private float maxQ;
+        private double maxQ;
 
-        PointImpl(float p, float minQ, float maxQ) {
+        PointImpl(double p, double minQ, double maxQ) {
             this.p = p;
             this.minQ = minQ;
             this.maxQ = maxQ;
         }
 
         @Override
-        public float getP() {
+        public double getP() {
             return p;
         }
 
         @Override
-        public float getMinQ() {
+        public double getMinQ() {
             return minQ;
         }
 
         @Override
-        public float getMaxQ() {
+        public double getMaxQ() {
             return maxQ;
         }
 
     }
 
-    private final TreeMap<Float, Point> points;
+    private final TreeMap<Double, Point> points;
 
-    ReactiveCapabilityCurveImpl(TreeMap<Float, Point> points) {
+    ReactiveCapabilityCurveImpl(TreeMap<Double, Point> points) {
         assert points.size() >= 2;
         this.points = points;
     }
@@ -68,12 +69,12 @@ class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
     }
 
     @Override
-    public float getMinP() {
+    public double getMinP() {
         return points.firstKey();
     }
 
     @Override
-    public float getMaxP() {
+    public double getMaxP() {
         return points.lastKey();
     }
 
@@ -83,15 +84,15 @@ class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
     }
 
     @Override
-    public float getMinQ(float p) {
+    public double getMinQ(double p) {
         assert points.size() >= 2;
 
         Point pt = points.get(p);
         if  (pt != null) {
             return pt.getMinQ();
         } else {
-            Map.Entry<Float, Point> e1 = points.floorEntry(p);
-            Map.Entry<Float, Point> e2 = points.ceilingEntry(p);
+            Map.Entry<Double, Point> e1 = points.floorEntry(p);
+            Map.Entry<Double, Point> e2 = points.ceilingEntry(p);
             if (e1 == null && e2 != null) {
                 return e2.getValue().getMinQ();
             } else if (e1 != null && e2 == null) {
@@ -107,15 +108,15 @@ class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
     }
 
     @Override
-    public float getMaxQ(float p) {
+    public double getMaxQ(double p) {
         assert points.size() >= 2;
 
         Point pt = points.get(p);
         if  (pt != null) {
             return pt.getMaxQ();
         } else {
-            Map.Entry<Float, Point> e1 = points.floorEntry(p);
-            Map.Entry<Float, Point> e2 = points.ceilingEntry(p);
+            Map.Entry<Double, Point> e1 = points.floorEntry(p);
+            Map.Entry<Double, Point> e2 = points.ceilingEntry(p);
             if (e1 == null && e2 != null) {
                 return e2.getValue().getMaxQ();
             } else if (e1 != null && e2 == null) {

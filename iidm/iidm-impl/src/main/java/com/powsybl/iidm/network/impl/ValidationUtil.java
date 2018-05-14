@@ -18,46 +18,46 @@ public final class ValidationUtil {
     }
 
     /**
-     * @deprecated Use checkActivePowerSetpoint(Validable, float) instead.
+     * @deprecated Use checkActivePowerSetpoint(Validable, double) instead.
      */
     @Deprecated
-    static void checkTargetP(Validable validable, float targetP) {
+    static void checkTargetP(Validable validable, double targetP) {
         checkActivePowerSetpoint(validable, targetP);
     }
 
-    static void checkActivePowerSetpoint(Validable validable, float activePowerSetpoint) {
-        if (Float.isNaN(activePowerSetpoint)) {
+    static void checkActivePowerSetpoint(Validable validable, double activePowerSetpoint) {
+        if (Double.isNaN(activePowerSetpoint)) {
             throw new ValidationException(validable, "invalid value (" + activePowerSetpoint
                     + ") for active power setpoint");
         }
     }
 
-    static void checkActiveLimits(Validable validable, float minP, float maxP) {
+    static void checkActiveLimits(Validable validable, double minP, double maxP) {
         if (minP > maxP) {
             throw new ValidationException(validable,
                     "invalid active limits [" + minP + ", " + maxP + "]");
         }
     }
 
-    static void checkVoltageControl(Validable validable, Boolean voltageRegulatorOn, float voltageSetpoint, float reactivePowerSetpoint) {
+    static void checkVoltageControl(Validable validable, Boolean voltageRegulatorOn, double voltageSetpoint, double reactivePowerSetpoint) {
         if (voltageRegulatorOn == null) {
             throw new ValidationException(validable, "voltage regulator status is not set");
         }
         if (voltageRegulatorOn) {
-            if (Float.isNaN(voltageSetpoint) || voltageSetpoint <= 0) {
+            if (Double.isNaN(voltageSetpoint) || voltageSetpoint <= 0) {
                 throw new ValidationException(validable,
                         "invalid value (" + voltageSetpoint + ") for voltage setpoint (voltage regulator is on)");
             }
         } else {
-            if (Float.isNaN(reactivePowerSetpoint)) {
+            if (Double.isNaN(reactivePowerSetpoint)) {
                 throw new ValidationException(validable, "invalid value (" + reactivePowerSetpoint
                         + ") for reactive power setpoint (voltage regulator is off)");
             }
         }
     }
 
-    static void checkRatedS(Validable validable, float ratedS) {
-        if (!Float.isNaN(ratedS) && ratedS <= 0) {
+    static void checkRatedS(Validable validable, double ratedS) {
+        if (!Double.isNaN(ratedS) && ratedS <= 0) {
             throw new ValidationException(validable, "Invalid value of rated S " + ratedS);
         }
     }
@@ -68,15 +68,15 @@ public final class ValidationUtil {
         }
     }
 
-    static void checkMinP(Validable validable, float minP) {
-        if (Float.isNaN(minP)) {
+    static void checkMinP(Validable validable, double minP) {
+        if (Double.isNaN(minP)) {
             throw new ValidationException(validable, "invalid value (" + minP
                     + ") for minimum P");
         }
     }
 
-    static void checkMaxP(Validable validable, float maxP) {
-        if (Float.isNaN(maxP)) {
+    static void checkMaxP(Validable validable, double maxP) {
+        if (Double.isNaN(maxP)) {
             throw new ValidationException(validable, "invalid value (" + maxP
                     + ") for maximum P");
         }
@@ -95,62 +95,62 @@ public final class ValidationUtil {
         }
     }
 
-    static void checkP0(Validable validable, float p0) {
-        if (Float.isNaN(p0)) {
+    static void checkP0(Validable validable, double p0) {
+        if (Double.isNaN(p0)) {
             throw new ValidationException(validable, "p0 is invalid");
         }
     }
 
-    static void checkQ0(Validable validable, float q0) {
-        if (Float.isNaN(q0)) {
+    static void checkQ0(Validable validable, double q0) {
+        if (Double.isNaN(q0)) {
             throw new ValidationException(validable, "q0 is invalid");
         }
     }
 
-    static void checkR(Validable validable, float r) {
-        if (Float.isNaN(r)) {
+    static void checkR(Validable validable, double r) {
+        if (Double.isNaN(r)) {
             throw new ValidationException(validable, "r is invalid");
         }
     }
 
-    static void checkX(Validable validable, float x) {
-        if (Float.isNaN(x)) {
+    static void checkX(Validable validable, double x) {
+        if (Double.isNaN(x)) {
             throw new ValidationException(validable, "x is invalid");
         }
     }
 
-    static void checkG1(Validable validable, float g1) {
-        if (Float.isNaN(g1)) {
+    static void checkG1(Validable validable, double g1) {
+        if (Double.isNaN(g1)) {
             throw new ValidationException(validable, "g1 is invalid");
         }
     }
 
-    static void checkG2(Validable validable, float g2) {
-        if (Float.isNaN(g2)) {
+    static void checkG2(Validable validable, double g2) {
+        if (Double.isNaN(g2)) {
             throw new ValidationException(validable, "g2 is invalid");
         }
     }
 
-    static void checkB1(Validable validable, float b1) {
-        if (Float.isNaN(b1)) {
+    static void checkB1(Validable validable, double b1) {
+        if (Double.isNaN(b1)) {
             throw new ValidationException(validable, "b1 is invalid");
         }
     }
 
-    static void checkB2(Validable validable, float b2) {
-        if (Float.isNaN(b2)) {
+    static void checkB2(Validable validable, double b2) {
+        if (Double.isNaN(b2)) {
             throw new ValidationException(validable, "b2 is invalid");
         }
     }
 
-    static void checkG(Validable validable, float g) {
-        if (Float.isNaN(g)) {
+    static void checkG(Validable validable, double g) {
+        if (Double.isNaN(g)) {
             throw new ValidationException(validable, "g is invalid");
         }
     }
 
-    static void checkB(Validable validable, float b) {
-        if (Float.isNaN(b)) {
+    static void checkB(Validable validable, double b) {
+        if (Double.isNaN(b)) {
             throw new ValidationException(validable, "b is invalid");
         }
     }
@@ -161,13 +161,13 @@ public final class ValidationUtil {
         }
     }
 
-    static void checkNominalV(Validable validable, float nominalV) {
-        if (Float.isNaN(nominalV) || nominalV <= 0) {
+    static void checkNominalV(Validable validable, double nominalV) {
+        if (Double.isNaN(nominalV) || nominalV <= 0) {
             throw new ValidationException(validable, "nominal voltage is invalid");
         }
     }
 
-    static void checkVoltageLimits(Validable validable, float lowVoltageLimit, float highVoltageLimit) {
+    static void checkVoltageLimits(Validable validable, double lowVoltageLimit, double highVoltageLimit) {
         if (lowVoltageLimit < 0) {
             throw new ValidationException(validable, "low voltage limit is < 0");
         }
@@ -198,8 +198,8 @@ public final class ValidationUtil {
         }
     }
 
-    static void checkbPerSection(Validable validable, float bPerSection) {
-        if (Float.isNaN(bPerSection)) {
+    static void checkbPerSection(Validable validable, double bPerSection) {
+        if (Double.isNaN(bPerSection)) {
             throw new ValidationException(validable, "susceptance per section is invalid");
         }
         if (bPerSection == 0) {
@@ -226,32 +226,32 @@ public final class ValidationUtil {
         }
     }
 
-    static void checkRatedU1(Validable validable, float ratedU1) {
-        if (Float.isNaN(ratedU1)) {
+    static void checkRatedU1(Validable validable, double ratedU1) {
+        if (Double.isNaN(ratedU1)) {
             throw new ValidationException(validable, "rated U1 is invalid");
         }
     }
 
-    static void checkRatedU2(Validable validable, float ratedU2) {
-        if (Float.isNaN(ratedU2)) {
+    static void checkRatedU2(Validable validable, double ratedU2) {
+        if (Double.isNaN(ratedU2)) {
             throw new ValidationException(validable, "rated U2 is invalid");
         }
     }
 
-    static void checkSvcRegulator(Validable validable, float voltageSetpoint, float reactivePowerSetpoint, StaticVarCompensator.RegulationMode regulationMode) {
+    static void checkSvcRegulator(Validable validable, double voltageSetpoint, double reactivePowerSetpoint, StaticVarCompensator.RegulationMode regulationMode) {
         if (regulationMode == null) {
             throw new ValidationException(validable, "Regulation mode is invalid");
         }
         switch (regulationMode) {
             case VOLTAGE:
-                if (Float.isNaN(voltageSetpoint)) {
+                if (Double.isNaN(voltageSetpoint)) {
                     throw new ValidationException(validable, "invalid value (" + voltageSetpoint
                             + ") for voltage setpoint");
                 }
                 break;
 
             case REACTIVE_POWER:
-                if (Float.isNaN(reactivePowerSetpoint)) {
+                if (Double.isNaN(reactivePowerSetpoint)) {
                     throw new ValidationException(validable, "invalid value (" + reactivePowerSetpoint
                             + ") for reactive power setpoint");
                 }
@@ -267,23 +267,23 @@ public final class ValidationUtil {
 
     }
 
-    static void checkBmin(Validable validable, float bMin) {
-        if (Float.isNaN(bMin)) {
+    static void checkBmin(Validable validable, double bMin) {
+        if (Double.isNaN(bMin)) {
             throw new ValidationException(validable, "bmin is invalid");
         }
     }
 
-    static void checkBmax(Validable validable, float bMax) {
-        if (Float.isNaN(bMax)) {
+    static void checkBmax(Validable validable, double bMax) {
+        if (Double.isNaN(bMax)) {
             throw new ValidationException(validable, "bmax is invalid");
         }
     }
 
     static void checkRatioTapChangerRegulation(Validable validable, boolean loadTapChangingCapabilities, boolean regulating,
-                                               Terminal regulationTerminal, float targetV, Network network) {
+                                               Terminal regulationTerminal, double targetV, Network network) {
         if (loadTapChangingCapabilities) {
             if (regulating) {
-                if (Float.isNaN(targetV)) {
+                if (Double.isNaN(targetV)) {
                     throw new ValidationException(validable,
                             "a target voltage has to be set for a regulating ratio tap changer");
                 }
@@ -302,12 +302,12 @@ public final class ValidationUtil {
     }
 
     static void checkPhaseTapChangerRegulation(Validable validable, PhaseTapChanger.RegulationMode regulationMode,
-                                               float regulationValue, boolean regulating, Terminal regulationTerminal,
+                                               double regulationValue, boolean regulating, Terminal regulationTerminal,
                                                Network network) {
         if (regulationMode == null) {
             throw new ValidationException(validable, "phase regulation mode is not set");
         }
-        if (regulationMode != PhaseTapChanger.RegulationMode.FIXED_TAP && Float.isNaN(regulationValue)) {
+        if (regulationMode != PhaseTapChanger.RegulationMode.FIXED_TAP && Double.isNaN(regulationValue)) {
             throw new ValidationException(validable, "phase regulation is on and threshold/setpoint value is not set");
         }
         if (regulationMode != PhaseTapChanger.RegulationMode.FIXED_TAP && regulationTerminal == null) {
@@ -327,8 +327,8 @@ public final class ValidationUtil {
         }
     }
 
-    static void checkPowerFactor(Validable validable, float powerFactor) {
-        if (Float.isNaN(powerFactor)) {
+    static void checkPowerFactor(Validable validable, double powerFactor) {
+        if (Double.isNaN(powerFactor)) {
             throw new ValidationException(validable, "power factor is invalid");
         }
     }
@@ -339,14 +339,14 @@ public final class ValidationUtil {
         }
     }
 
-    static void checkPermanentLimit(Validable validable, float permanentLimit) {
+    static void checkPermanentLimit(Validable validable, double permanentLimit) {
         if (permanentLimit <= 0) {
             throw new ValidationException(validable, "permanent limit must be > 0");
         }
     }
 
-    static void checkLossFactor(Validable validable, float lossFactor) {
-        if (Float.isNaN(lossFactor)) {
+    static void checkLossFactor(Validable validable, double lossFactor) {
+        if (Double.isNaN(lossFactor)) {
             throw new ValidationException(validable, "loss factor is invalid");
         } else if (lossFactor < 0) {
             throw new ValidationException(validable, "loss factor must be >= 0");

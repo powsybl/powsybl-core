@@ -16,7 +16,7 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
 
     private final VoltageLevelExt voltageLevel;
 
-    private float bPerSection;
+    private double bPerSection;
 
     private int maximumSectionCount;
 
@@ -37,7 +37,7 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
     }
 
     @Override
-    public ShuntCompensatorAdder setbPerSection(float bPerSection) {
+    public ShuntCompensatorAdder setbPerSection(double bPerSection) {
         this.bPerSection = bPerSection;
         return this;
     }

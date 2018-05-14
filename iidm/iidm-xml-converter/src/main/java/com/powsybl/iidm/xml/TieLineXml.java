@@ -38,14 +38,14 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
         if (halfLine.getName() != null) {
             context.getWriter().writeAttribute("name_" + side, context.getAnonymizer().anonymizeString(halfLine.getName()));
         }
-        XmlUtil.writeFloat("r_" + side, halfLine.getR(), context.getWriter());
-        XmlUtil.writeFloat("x_" + side, halfLine.getX(), context.getWriter());
-        XmlUtil.writeFloat("g1_" + side, halfLine.getG1(), context.getWriter());
-        XmlUtil.writeFloat("b1_" + side, halfLine.getB1(), context.getWriter());
-        XmlUtil.writeFloat("g2_" + side, halfLine.getG2(), context.getWriter());
-        XmlUtil.writeFloat("b2_" + side, halfLine.getB2(), context.getWriter());
-        XmlUtil.writeFloat("xnodeP_" + side, halfLine.getXnodeP(), context.getWriter());
-        XmlUtil.writeFloat("xnodeQ_" + side, halfLine.getXnodeQ(), context.getWriter());
+        XmlUtil.writeDouble("r_" + side, halfLine.getR(), context.getWriter());
+        XmlUtil.writeDouble("x_" + side, halfLine.getX(), context.getWriter());
+        XmlUtil.writeDouble("g1_" + side, halfLine.getG1(), context.getWriter());
+        XmlUtil.writeDouble("b1_" + side, halfLine.getB1(), context.getWriter());
+        XmlUtil.writeDouble("g2_" + side, halfLine.getG2(), context.getWriter());
+        XmlUtil.writeDouble("b2_" + side, halfLine.getB2(), context.getWriter());
+        XmlUtil.writeDouble("xnodeP_" + side, halfLine.getXnodeP(), context.getWriter());
+        XmlUtil.writeDouble("xnodeQ_" + side, halfLine.getXnodeQ(), context.getWriter());
     }
 
     @Override
@@ -79,14 +79,14 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
     private static void readHalf(TieLineAdder adder, NetworkXmlReaderContext context, int side) {
         String id = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "id_" + side));
         String name = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "name_" + side));
-        float r = XmlUtil.readFloatAttribute(context.getReader(), "r_" + side);
-        float x = XmlUtil.readFloatAttribute(context.getReader(), "x_" + side);
-        float g1 = XmlUtil.readFloatAttribute(context.getReader(), "g1_" + side);
-        float b1 = XmlUtil.readFloatAttribute(context.getReader(), "b1_" + side);
-        float g2 = XmlUtil.readFloatAttribute(context.getReader(), "g2_" + side);
-        float b2 = XmlUtil.readFloatAttribute(context.getReader(), "b2_" + side);
-        float xnodeP = XmlUtil.readFloatAttribute(context.getReader(), "xnodeP_" + side);
-        float xnodeQ = XmlUtil.readFloatAttribute(context.getReader(), "xnodeQ_" + side);
+        double r = XmlUtil.readDoubleAttribute(context.getReader(), "r_" + side);
+        double x = XmlUtil.readDoubleAttribute(context.getReader(), "x_" + side);
+        double g1 = XmlUtil.readDoubleAttribute(context.getReader(), "g1_" + side);
+        double b1 = XmlUtil.readDoubleAttribute(context.getReader(), "b1_" + side);
+        double g2 = XmlUtil.readDoubleAttribute(context.getReader(), "g2_" + side);
+        double b2 = XmlUtil.readDoubleAttribute(context.getReader(), "b2_" + side);
+        double xnodeP = XmlUtil.readDoubleAttribute(context.getReader(), "xnodeP_" + side);
+        double xnodeQ = XmlUtil.readDoubleAttribute(context.getReader(), "xnodeQ_" + side);
         adder.setId(id)
                 .setName(name)
                 .setR(r)

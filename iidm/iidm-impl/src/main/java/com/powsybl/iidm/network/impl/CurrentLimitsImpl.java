@@ -17,7 +17,7 @@ import java.util.TreeMap;
  */
 public class CurrentLimitsImpl implements CurrentLimits {
 
-    private float permanentLimit;
+    private double permanentLimit;
 
     private final TreeMap<Integer, TemporaryLimit> temporaryLimits;
 
@@ -27,13 +27,13 @@ public class CurrentLimitsImpl implements CurrentLimits {
 
         private final String name;
 
-        private final float value;
+        private final double value;
 
         private final int acceptableDuration;
 
         private boolean fictitious;
 
-        TemporaryLimitImpl(String name, float value, int acceptableDuration, boolean fictitious) {
+        TemporaryLimitImpl(String name, double value, int acceptableDuration, boolean fictitious) {
             this.name = Objects.requireNonNull(name);
             this.value = value;
             this.acceptableDuration = acceptableDuration;
@@ -46,7 +46,7 @@ public class CurrentLimitsImpl implements CurrentLimits {
         }
 
         @Override
-        public float getValue() {
+        public double getValue() {
             return value;
         }
 
@@ -61,19 +61,19 @@ public class CurrentLimitsImpl implements CurrentLimits {
         }
     }
 
-    CurrentLimitsImpl(float permanentLimit, TreeMap<Integer, TemporaryLimit> temporaryLimits, CurrentLimitsOwner<?> owner) {
+    CurrentLimitsImpl(double permanentLimit, TreeMap<Integer, TemporaryLimit> temporaryLimits, CurrentLimitsOwner<?> owner) {
         this.permanentLimit = permanentLimit;
         this.temporaryLimits = Objects.requireNonNull(temporaryLimits);
         this.owner = Objects.requireNonNull(owner);
     }
 
     @Override
-    public float getPermanentLimit() {
+    public double getPermanentLimit() {
         return permanentLimit;
     }
 
     @Override
-    public CurrentLimitsImpl setPermanentLimit(float permanentLimit) {
+    public CurrentLimitsImpl setPermanentLimit(double permanentLimit) {
         ValidationUtil.checkPermanentLimit(owner, permanentLimit);
         this.permanentLimit = permanentLimit;
         return this;
@@ -90,8 +90,8 @@ public class CurrentLimitsImpl implements CurrentLimits {
     }
 
     @Override
-    public float getTemporaryLimitValue(int acceptableDuration) {
+    public double getTemporaryLimitValue(int acceptableDuration) {
         TemporaryLimit tl = getTemporaryLimit(acceptableDuration);
-        return tl != null ? tl.getValue() : Float.NaN;
+        return tl != null ? tl.getValue() : Double.NaN;
     }
 }

@@ -19,11 +19,11 @@ import javax.xml.stream.XMLStreamWriter;
 abstract class AbstractTransformerXml<T extends Connectable, A extends IdentifiableAdder<A>> extends AbstractConnectableXml<T, A, Substation> {
 
     protected static void writeTapChangerStep(TapChangerStep<?> tcs, XMLStreamWriter writer) throws XMLStreamException {
-        XmlUtil.writeFloat("r", tcs.getR(), writer);
-        XmlUtil.writeFloat("x", tcs.getX(), writer);
-        XmlUtil.writeFloat("g", tcs.getG(), writer);
-        XmlUtil.writeFloat("b", tcs.getB(), writer);
-        XmlUtil.writeFloat("rho", tcs.getRho(), writer);
+        XmlUtil.writeDouble("r", tcs.getR(), writer);
+        XmlUtil.writeDouble("x", tcs.getX(), writer);
+        XmlUtil.writeDouble("g", tcs.getG(), writer);
+        XmlUtil.writeDouble("b", tcs.getB(), writer);
+        XmlUtil.writeDouble("rho", tcs.getRho(), writer);
     }
 
     protected static void writeTapChanger(TapChanger<?, ?> tc, XMLStreamWriter writer) throws XMLStreamException {
@@ -38,8 +38,8 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
         if (rtc.hasLoadTapChangingCapabilities() || rtc.isRegulating()) {
             context.getWriter().writeAttribute("regulating", Boolean.toString(rtc.isRegulating()));
         }
-        if (rtc.hasLoadTapChangingCapabilities() || !Float.isNaN(rtc.getTargetV())) {
-            XmlUtil.writeFloat("targetV", rtc.getTargetV(), context.getWriter());
+        if (rtc.hasLoadTapChangingCapabilities() || !Double.isNaN(rtc.getTargetV())) {
+            XmlUtil.writeDouble("targetV", rtc.getTargetV(), context.getWriter());
         }
         if (rtc.hasLoadTapChangingCapabilities() || rtc.getRegulationTerminal() != null) {
             writeTerminalRef(rtc.getRegulationTerminal(), context, "terminalRef");
@@ -57,9 +57,8 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
         int tapPosition = XmlUtil.readIntAttribute(context.getReader(), "tapPosition");
         boolean regulating = XmlUtil.readOptionalBoolAttribute(context.getReader(), "regulating", false);
         boolean loadTapChangingCapabilities = XmlUtil.readBoolAttribute(context.getReader(), "loadTapChangingCapabilities");
-        float targetV = XmlUtil.readOptionalFloatAttribute(context.getReader(), "targetV");
-        adder
-                .setLowTapPosition(lowTapPosition)
+        double targetV = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "targetV");
+        adder.setLowTapPosition(lowTapPosition)
                 .setTapPosition(tapPosition)
                 .setLoadTapChangingCapabilities(loadTapChangingCapabilities)
                 .setTargetV(targetV);
@@ -80,11 +79,11 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
                     break;
 
                 case "step":
-                    float r = XmlUtil.readFloatAttribute(context.getReader(), "r");
-                    float x = XmlUtil.readFloatAttribute(context.getReader(), "x");
-                    float g = XmlUtil.readFloatAttribute(context.getReader(), "g");
-                    float b = XmlUtil.readFloatAttribute(context.getReader(), "b");
-                    float rho = XmlUtil.readFloatAttribute(context.getReader(), "rho");
+                    double r = XmlUtil.readDoubleAttribute(context.getReader(), "r");
+                    double x = XmlUtil.readDoubleAttribute(context.getReader(), "x");
+                    double g = XmlUtil.readDoubleAttribute(context.getReader(), "g");
+                    double b = XmlUtil.readDoubleAttribute(context.getReader(), "b");
+                    double rho = XmlUtil.readDoubleAttribute(context.getReader(), "rho");
                     adder.beginStep()
                             .setR(r)
                             .setX(x)
@@ -115,8 +114,8 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
         context.getWriter().writeStartElement(IIDM_URI, name);
         writeTapChanger(ptc, context.getWriter());
         context.getWriter().writeAttribute("regulationMode", ptc.getRegulationMode().name());
-        if (ptc.getRegulationMode() != PhaseTapChanger.RegulationMode.FIXED_TAP || !Float.isNaN(ptc.getRegulationValue())) {
-            XmlUtil.writeFloat("regulationValue", ptc.getRegulationValue(), context.getWriter());
+        if (ptc.getRegulationMode() != PhaseTapChanger.RegulationMode.FIXED_TAP || !Double.isNaN(ptc.getRegulationValue())) {
+            XmlUtil.writeDouble("regulationValue", ptc.getRegulationValue(), context.getWriter());
         }
         if (ptc.getRegulationMode() != PhaseTapChanger.RegulationMode.FIXED_TAP || ptc.isRegulating()) {
             context.getWriter().writeAttribute("regulating", Boolean.toString(ptc.isRegulating()));
@@ -128,7 +127,7 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
             PhaseTapChangerStep ptcs = ptc.getStep(p);
             context.getWriter().writeEmptyElement(IIDM_URI, "step");
             writeTapChangerStep(ptcs, context.getWriter());
-            XmlUtil.writeFloat("alpha", ptcs.getAlpha(), context.getWriter());
+            XmlUtil.writeDouble("alpha", ptcs.getAlpha(), context.getWriter());
         }
         context.getWriter().writeEndElement();
     }
@@ -137,7 +136,7 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
         int lowTapPosition = XmlUtil.readIntAttribute(context.getReader(), "lowTapPosition");
         int tapPosition = XmlUtil.readIntAttribute(context.getReader(), "tapPosition");
         PhaseTapChanger.RegulationMode regulationMode = PhaseTapChanger.RegulationMode.valueOf(context.getReader().getAttributeValue(null, "regulationMode"));
-        float regulationValue = XmlUtil.readOptionalFloatAttribute(context.getReader(), "regulationValue");
+        double regulationValue = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "regulationValue");
         boolean regulating = XmlUtil.readOptionalBoolAttribute(context.getReader(), "regulating", false);
         PhaseTapChangerAdder adder = twt.newPhaseTapChanger()
                 .setLowTapPosition(lowTapPosition)
@@ -159,12 +158,12 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
                     break;
 
                 case "step":
-                    float r = XmlUtil.readFloatAttribute(context.getReader(), "r");
-                    float x = XmlUtil.readFloatAttribute(context.getReader(), "x");
-                    float g = XmlUtil.readFloatAttribute(context.getReader(), "g");
-                    float b = XmlUtil.readFloatAttribute(context.getReader(), "b");
-                    float rho = XmlUtil.readFloatAttribute(context.getReader(), "rho");
-                    float alpha = XmlUtil.readFloatAttribute(context.getReader(), "alpha");
+                    double r = XmlUtil.readDoubleAttribute(context.getReader(), "r");
+                    double x = XmlUtil.readDoubleAttribute(context.getReader(), "x");
+                    double g = XmlUtil.readDoubleAttribute(context.getReader(), "g");
+                    double b = XmlUtil.readDoubleAttribute(context.getReader(), "b");
+                    double rho = XmlUtil.readDoubleAttribute(context.getReader(), "rho");
+                    double alpha = XmlUtil.readDoubleAttribute(context.getReader(), "alpha");
                     adder.beginStep()
                             .setR(r)
                             .setX(x)

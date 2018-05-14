@@ -38,25 +38,25 @@ public class BusTest {
                                                     .setId("lcc")
                                                     .setName("lcc")
                                                     .setBus("bus1")
-                                                    .setLossFactor(0.011f)
-                                                    .setPowerFactor(0.5f)
+                                                    .setLossFactor(0.011)
+                                                    .setPowerFactor(0.5)
                                                     .setConnectableBus("bus1")
                                                 .add();
         VscConverterStation vscConverterStation = voltageLevel.newVscConverterStation()
                                                     .setId("vsc")
                                                     .setName("vsc")
                                                     .setBus("bus1")
-                                                    .setLossFactor(0.011f)
+                                                    .setLossFactor(0.011)
                                                     .setVoltageRegulatorOn(false)
-                                                    .setReactivePowerSetpoint(1.0f)
+                                                    .setReactivePowerSetpoint(1.0)
                                                     .setConnectableBus("bus1")
                                                 .add();
         assertEquals(HvdcConverterStation.HvdcType.LCC, lccConverterStation.getHvdcType());
         assertEquals(HvdcConverterStation.HvdcType.VSC, vscConverterStation.getHvdcType());
-        float p1 = 1.0f;
-        float q1 = 2.0f;
-        float p2 = 10.0f;
-        float q2 = 20.0f;
+        double p1 = 1.0;
+        double q1 = 2.0;
+        double p2 = 10.0;
+        double q2 = 20.0;
         lccConverterStation.getTerminal().setP(p1);
         lccConverterStation.getTerminal().setQ(q1);
         vscConverterStation.getTerminal().setP(p2);
@@ -64,16 +64,16 @@ public class BusTest {
 
         assertSame(voltageLevel, bus.getVoltageLevel());
         try {
-            bus.setV(-1.0f);
+            bus.setV(-1.0);
             fail();
         } catch (ValidationException ignored) {
         }
-        bus.setV(200.0f);
-        assertEquals(200.0f, bus.getV(), 0.0f);
-        bus.setAngle(30.0f);
-        assertEquals(30.0f, bus.getAngle(), 0.0f);
+        bus.setV(200.0);
+        assertEquals(200.0, bus.getV(), 0.0);
+        bus.setAngle(30.0);
+        assertEquals(30.0, bus.getAngle(), 0.0);
 
-        assertEquals(p1 + p2, bus.getP(), 0.0f);
-        assertEquals(q1 + q2, bus.getQ(), 0.0f);
+        assertEquals(p1 + p2, bus.getP(), 0.0);
+        assertEquals(q1 + q2, bus.getQ(), 0.0);
     }
 }

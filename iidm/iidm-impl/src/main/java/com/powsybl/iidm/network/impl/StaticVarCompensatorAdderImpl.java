@@ -18,13 +18,13 @@ class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<StaticVarComp
 
     private final VoltageLevelExt vl;
 
-    private float bMin = Float.NaN;
+    private double bMin = Double.NaN;
 
-    private float bMax = Float.NaN;
+    private double bMax = Double.NaN;
 
-    private float voltageSetPoint = Float.NaN;
+    private double voltageSetPoint = Double.NaN;
 
-    private float reactivePowerSetPoint = Float.NaN;
+    private double reactivePowerSetPoint = Double.NaN;
 
     private StaticVarCompensator.RegulationMode regulationMode;
 
@@ -43,25 +43,25 @@ class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<StaticVarComp
     }
 
     @Override
-    public StaticVarCompensatorAdderImpl setBmin(float bMin) {
+    public StaticVarCompensatorAdderImpl setBmin(double bMin) {
         this.bMin = bMin;
         return this;
     }
 
     @Override
-    public StaticVarCompensatorAdderImpl setBmax(float bMax) {
+    public StaticVarCompensatorAdderImpl setBmax(double bMax) {
         this.bMax = bMax;
         return this;
     }
 
     @Override
-    public StaticVarCompensatorAdderImpl setVoltageSetPoint(float voltageSetPoint) {
+    public StaticVarCompensatorAdderImpl setVoltageSetPoint(double voltageSetPoint) {
         this.voltageSetPoint = voltageSetPoint;
         return this;
     }
 
     @Override
-    public StaticVarCompensatorAdderImpl setReactivePowerSetPoint(float reactivePowerSetPoint) {
+    public StaticVarCompensatorAdderImpl setReactivePowerSetPoint(double reactivePowerSetPoint) {
         this.reactivePowerSetPoint = reactivePowerSetPoint;
         return this;
     }

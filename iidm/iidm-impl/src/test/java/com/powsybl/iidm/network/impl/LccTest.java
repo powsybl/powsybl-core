@@ -43,27 +43,27 @@ public class LccTest {
         assertNotNull(cs2);
         assertEquals(1, network.getVoltageLevel("VL1").getLccConverterStationCount());
         assertEquals(1, network.getVoltageLevel("VL2").getLccConverterStationCount());
-        assertEquals(0.011f, cs1.getLossFactor(), 0.0f);
-        assertEquals(0.011f, cs2.getLossFactor(), 0.0f);
-        cs1.setLossFactor(0.022f);
-        assertEquals(0.022f, cs1.getLossFactor(), 0.0f);
-        assertEquals(0.5f, cs1.getPowerFactor(), 0.0f);
-        assertEquals(0.6f, cs2.getPowerFactor(), 0.0f);
-        cs1.setPowerFactor(0.6f);
-        assertEquals(0.6f, cs1.getPowerFactor(), 0.0f);
+        assertEquals(0.011, cs1.getLossFactor(), 0.0);
+        assertEquals(0.011, cs2.getLossFactor(), 0.0);
+        cs1.setLossFactor(0.022);
+        assertEquals(0.022, cs1.getLossFactor(), 0.0);
+        assertEquals(0.5, cs1.getPowerFactor(), 0.0);
+        assertEquals(0.6, cs2.getPowerFactor(), 0.0);
+        cs1.setPowerFactor(0.6);
+        assertEquals(0.6, cs1.getPowerFactor(), 0.0);
         assertEquals(2, network.getVoltageLevel("VL1").getShuntCount());
         assertEquals(2, network.getVoltageLevel("VL2").getShuntCount());
-        assertEquals(1e-5f, network.getShunt("C1_Filter1").getCurrentB(), 0.0f);
+        assertEquals(1e-5, network.getShunt("C1_Filter1").getCurrentB(), 0.0);
         assertTrue(network.getShunt("C1_Filter1").getTerminal().isConnected());
-        assertEquals(0.0f, network.getShunt("C1_Filter2").getCurrentB(), 0.0f);
-        assertEquals(2e-5f, network.getShunt("C1_Filter2").getMaximumB(), 0.0f);
+        assertEquals(0.0, network.getShunt("C1_Filter2").getCurrentB(), 0.0);
+        assertEquals(2e-5, network.getShunt("C1_Filter2").getMaximumB(), 0.0);
         assertFalse(network.getShunt("C1_Filter2").getTerminal().isConnected());
         assertEquals(1, network.getHvdcLineCount());
         HvdcLine l = network.getHvdcLine("L");
         assertNotNull(l);
-        assertEquals(1.0f, l.getR(), 0.0f);
+        assertEquals(1.0, l.getR(), 0.0);
         assertEquals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER, l.getConvertersMode());
-        assertEquals(300f, l.getMaxP(), 0.0f);
+        assertEquals(300.0, l.getMaxP(), 0.0);
         assertEquals(cs1, l.getConverterStation1());
         assertEquals(cs2, l.getConverterStation2());
 
@@ -85,20 +85,20 @@ public class LccTest {
     public void invalidLossFactor() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("loss factor is invalid");
-        cs1.setLossFactor(Float.NaN);
+        cs1.setLossFactor(Double.NaN);
     }
 
     @Test
     public void invalidNegativeLossFactor() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("loss factor must be >= 0");
-        cs1.setLossFactor(-1.0f);
+        cs1.setLossFactor(-1.0);
     }
 
     @Test
     public void invalidPowerFactor() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("power factor is invalid");
-        cs1.setPowerFactor(Float.NaN);
+        cs1.setPowerFactor(Double.NaN);
     }
 }

@@ -20,7 +20,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     private final Ref<? extends MultiStateObject> network;
 
     /* susceptance per section */
-    private float bPerSection;
+    private double bPerSection;
 
     /* the maximum number of section */
     private int maximumSectionCount;
@@ -31,7 +31,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     private final TIntArrayList currentSectionCount;
 
     ShuntCompensatorImpl(Ref<? extends MultiStateObject> network,
-                         String id, String name, float bPerSection, int maximumSectionCount,
+                         String id, String name, double bPerSection, int maximumSectionCount,
                          int currentSectionCount) {
         super(id, name);
         this.network = network;
@@ -55,14 +55,14 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     }
 
     @Override
-    public float getbPerSection() {
+    public double getbPerSection() {
         return bPerSection;
     }
 
     @Override
-    public ShuntCompensatorImpl setbPerSection(float bPerSection) {
+    public ShuntCompensatorImpl setbPerSection(double bPerSection) {
         ValidationUtil.checkbPerSection(this, bPerSection);
-        float oldValue = this.bPerSection;
+        double oldValue = this.bPerSection;
         this.bPerSection = bPerSection;
         notifyUpdate("bPerSection", oldValue, bPerSection);
         return this;
@@ -96,12 +96,12 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     }
 
     @Override
-    public float getCurrentB() {
+    public double getCurrentB() {
         return bPerSection * getCurrentSectionCount();
     }
 
     @Override
-    public float getMaximumB() {
+    public double getMaximumB() {
         return bPerSection * maximumSectionCount;
     }
 

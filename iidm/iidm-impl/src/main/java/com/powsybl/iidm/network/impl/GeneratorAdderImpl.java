@@ -20,21 +20,21 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
 
     private EnergySource energySource = EnergySource.OTHER;
 
-    private float minP = Float.NaN;
+    private double minP = Double.NaN;
 
-    private float maxP = Float.NaN;
+    private double maxP = Double.NaN;
 
     private TerminalExt regulatingTerminal;
 
     private Boolean voltageRegulatorOn;
 
-    private float targetP = Float.NaN;
+    private double targetP = Double.NaN;
 
-    private float targetQ = Float.NaN;
+    private double targetQ = Double.NaN;
 
-    private float targetV = Float.NaN;
+    private double targetV = Double.NaN;
 
-    private float ratedS = Float.NaN;
+    private double ratedS = Double.NaN;
 
     GeneratorAdderImpl(VoltageLevelExt voltageLevel) {
         this.voltageLevel = voltageLevel;
@@ -57,13 +57,13 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
     }
 
     @Override
-    public GeneratorAdderImpl setMaxP(float maxP) {
+    public GeneratorAdderImpl setMaxP(double maxP) {
         this.maxP = maxP;
         return this;
     }
 
     @Override
-    public GeneratorAdderImpl setMinP(float minP) {
+    public GeneratorAdderImpl setMinP(double minP) {
         this.minP = minP;
         return this;
     }
@@ -81,25 +81,25 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
     }
 
     @Override
-    public GeneratorAdderImpl setTargetP(float targetP) {
+    public GeneratorAdderImpl setTargetP(double targetP) {
         this.targetP = targetP;
         return this;
     }
 
     @Override
-    public GeneratorAdderImpl setTargetQ(float targetQ) {
+    public GeneratorAdderImpl setTargetQ(double targetQ) {
         this.targetQ = targetQ;
         return this;
     }
 
     @Override
-    public GeneratorAdderImpl setTargetV(float targetV) {
+    public GeneratorAdderImpl setTargetV(double targetV) {
         this.targetV = targetV;
         return this;
     }
 
     @Override
-    public GeneratorAdder setRatedS(float ratedS) {
+    public GeneratorAdder setRatedS(double ratedS) {
         this.ratedS = ratedS;
         return this;
     }

@@ -9,7 +9,7 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.iidm.network.ReactiveLimits;
 import com.powsybl.iidm.network.VscConverterStation;
 import com.powsybl.iidm.network.impl.util.Ref;
-import gnu.trove.list.array.TFloatArrayList;
+import gnu.trove.list.array.TDoubleArrayList;
 
 import java.util.BitSet;
 
@@ -25,21 +25,21 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
 
     private final BitSet voltageRegulatorOn;
 
-    private final TFloatArrayList reactivePowerSetpoint;
+    private final TDoubleArrayList reactivePowerSetpoint;
 
-    private final TFloatArrayList voltageSetpoint;
+    private final TDoubleArrayList voltageSetpoint;
 
-    VscConverterStationImpl(String id, String name, float lossFactor, Ref<? extends MultiStateObject> ref,
-                            boolean voltageRegulatorOn, float reactivePowerSetpoint, float voltageSetpoint) {
+    VscConverterStationImpl(String id, String name, double lossFactor, Ref<? extends MultiStateObject> ref,
+                            boolean voltageRegulatorOn, double reactivePowerSetpoint, double voltageSetpoint) {
         super(id, name, lossFactor);
         int stateArraySize = ref.get().getStateManager().getStateArraySize();
         this.voltageRegulatorOn = new BitSet(stateArraySize);
-        this.reactivePowerSetpoint = new TFloatArrayList(stateArraySize);
-        this.voltageSetpoint = new TFloatArrayList(stateArraySize);
+        this.reactivePowerSetpoint = new TDoubleArrayList(stateArraySize);
+        this.voltageSetpoint = new TDoubleArrayList(stateArraySize);
         this.voltageRegulatorOn.set(0, stateArraySize, voltageRegulatorOn);
         this.reactivePowerSetpoint.fill(0, stateArraySize, reactivePowerSetpoint);
         this.voltageSetpoint.fill(0, stateArraySize, voltageSetpoint);
-        this.reactiveLimits = new MinMaxReactiveLimitsImpl(-Float.MAX_VALUE, Float.MAX_VALUE);
+        this.reactiveLimits = new MinMaxReactiveLimitsImpl(-Double.MAX_VALUE, Double.MAX_VALUE);
     }
 
     @Override
@@ -68,29 +68,29 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
     }
 
     @Override
-    public float getVoltageSetpoint() {
+    public double getVoltageSetpoint() {
         return this.voltageSetpoint.get(getNetwork().getStateIndex());
     }
 
     @Override
-    public VscConverterStationImpl setVoltageSetpoint(float voltageSetpoint) {
+    public VscConverterStationImpl setVoltageSetpoint(double voltageSetpoint) {
         int stateIndex = getNetwork().getStateIndex();
         ValidationUtil.checkVoltageControl(this, voltageRegulatorOn.get(stateIndex), voltageSetpoint, reactivePowerSetpoint.get(stateIndex));
-        float oldValue = this.voltageSetpoint.set(stateIndex, voltageSetpoint);
+        double oldValue = this.voltageSetpoint.set(stateIndex, voltageSetpoint);
         notifyUpdate("voltageSetpoint", oldValue, voltageSetpoint);
         return this;
     }
 
     @Override
-    public float getReactivePowerSetpoint() {
+    public double getReactivePowerSetpoint() {
         return reactivePowerSetpoint.get(getNetwork().getStateIndex());
     }
 
     @Override
-    public VscConverterStationImpl setReactivePowerSetpoint(float reactivePowerSetpoint) {
+    public VscConverterStationImpl setReactivePowerSetpoint(double reactivePowerSetpoint) {
         int stateIndex = getNetwork().getStateIndex();
         ValidationUtil.checkVoltageControl(this, voltageRegulatorOn.get(stateIndex), voltageSetpoint.get(stateIndex), reactivePowerSetpoint);
-        float oldValue = this.reactivePowerSetpoint.set(stateIndex, reactivePowerSetpoint);
+        double oldValue = this.reactivePowerSetpoint.set(stateIndex, reactivePowerSetpoint);
         notifyUpdate("reactivePowerSetpoint", oldValue, reactivePowerSetpoint);
         return this;
     }

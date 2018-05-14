@@ -36,14 +36,14 @@ public class LoadTest {
     @Test
     public void testSetterGetter() {
         Load load = network.getLoad("CE");
-        load.setP0(-1.0f);
-        assertEquals(-1.0f, load.getP0(), 0.0f);
-        load.setQ0(-2.0f);
-        assertEquals(-2.0f, load.getQ0(), 0.0f);
-        load.setP0(1.0f);
-        assertEquals(1.0f, load.getP0(), 0.0f);
-        load.setQ0(0.0f);
-        assertEquals(0.0f, load.getQ0(), 0.0f);
+        load.setP0(-1.0);
+        assertEquals(-1.0, load.getP0(), 0.0);
+        load.setQ0(-2.0);
+        assertEquals(-2.0, load.getQ0(), 0.0);
+        load.setP0(1.0);
+        assertEquals(1.0, load.getP0(), 0.0);
+        load.setQ0(0.0);
+        assertEquals(0.0, load.getQ0(), 0.0);
         load.setLoadType(LoadType.AUXILIARY);
         assertEquals(LoadType.AUXILIARY, load.getLoadType());
     }
@@ -52,27 +52,27 @@ public class LoadTest {
     public void invalidP0() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("p0 is invalid");
-        createLoad("invalid", Float.NaN, 1.0f);
+        createLoad("invalid", Double.NaN, 1.0);
     }
 
     @Test
     public void invalidQ0() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("q0 is invalid");
-        createLoad("invalid", 20.0f, Float.NaN);
+        createLoad("invalid", 20.0, Double.NaN);
     }
 
     @Test
     public void duplicateEquipment() {
         voltageLevel.newLoad()
                         .setId("duplicate")
-                        .setP0(2.0f)
-                        .setQ0(1.0f)
+                        .setP0(2.0)
+                        .setQ0(1.0)
                         .setNode(1)
                     .add();
         thrown.expect(PowsyblException.class);
         thrown.expectMessage("with the id 'duplicate'");
-        createLoad("duplicate", 2.0f, 1.0f);
+        createLoad("duplicate", 2.0, 1.0);
     }
 
     @Test
@@ -80,27 +80,27 @@ public class LoadTest {
         // "C" id of voltageLevel
         thrown.expect(PowsyblException.class);
         thrown.expectMessage("with the id 'C'");
-        createLoad("C", 2.0f, 1.0f);
+        createLoad("C", 2.0, 1.0);
     }
 
     @Test
     public void testAdder() {
         Load load = voltageLevel.newLoad()
                         .setId("testAdder")
-                        .setP0(2.0f)
-                        .setQ0(1.0f)
+                        .setP0(2.0)
+                        .setQ0(1.0)
                         .setLoadType(LoadType.AUXILIARY)
                         .setNode(1)
                     .add();
-        assertEquals(2.0f, load.getP0(), 0.0f);
-        assertEquals(1.0f, load.getQ0(), 0.0f);
+        assertEquals(2.0, load.getP0(), 0.0);
+        assertEquals(1.0, load.getQ0(), 0.0);
         assertEquals("testAdder", load.getId());
         assertEquals(LoadType.AUXILIARY, load.getLoadType());
     }
 
     @Test
     public void testRemove() {
-        createLoad("toRemove", 2.0f, 1.0f);
+        createLoad("toRemove", 2.0, 1.0);
         Load load = network.getLoad("toRemove");
         int loadCount = network.getLoadCount();
         assertNotNull(load);
@@ -113,18 +113,18 @@ public class LoadTest {
     @Test
     public void testSetterGetterInMultiStates() {
         StateManager stateManager = network.getStateManager();
-        createLoad("testMultiState", 0.6f, 0.7f);
+        createLoad("testMultiState", 0.6d, 0.7d);
         Load load = network.getLoad("testMultiState");
         List<String> statesToAdd = Arrays.asList("s1", "s2", "s3", "s4");
         stateManager.cloneState(StateManager.INITIAL_STATE_ID, statesToAdd);
 
         stateManager.setWorkingState("s4");
         // check values cloned by extend
-        assertEquals(0.6f, load.getP0(), 0.0f);
-        assertEquals(0.7f, load.getQ0(), 0.0f);
+        assertEquals(0.6d, load.getP0(), 0.0);
+        assertEquals(0.7d, load.getQ0(), 0.0);
         // change values in s4
-        load.setP0(3.0f);
-        load.setQ0(2.0f);
+        load.setP0(3.0);
+        load.setQ0(2.0);
 
         // remove s2
         stateManager.removeState("s2");
@@ -132,12 +132,12 @@ public class LoadTest {
         stateManager.cloneState("s4", "s2b");
         stateManager.setWorkingState("s2b");
         // check values cloned by allocate
-        assertEquals(3.0f, load.getP0(), 0.0f);
-        assertEquals(2.0f, load.getQ0(), 0.0f);
+        assertEquals(3.0, load.getP0(), 0.0);
+        assertEquals(2.0, load.getQ0(), 0.0);
         // recheck initial state value
         stateManager.setWorkingState(StateManager.INITIAL_STATE_ID);
-        assertEquals(0.6f, load.getP0(), 0.0f);
-        assertEquals(0.7f, load.getQ0(), 0.0f);
+        assertEquals(0.6, load.getP0(), 0.0);
+        assertEquals(0.7, load.getQ0(), 0.0);
 
         // remove working state s4
         stateManager.setWorkingState("s4");
@@ -149,7 +149,7 @@ public class LoadTest {
         }
     }
 
-    private void createLoad(String id, float p0, float q0) {
+    private void createLoad(String id, double p0, double q0) {
         voltageLevel.newLoad()
                         .setId(id)
                         .setP0(p0)

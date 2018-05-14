@@ -517,7 +517,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
     }
 
     NodeBreakerVoltageLevel(String id, String name, SubstationImpl substation,
-                           float nominalV, float lowVoltageLimit, float highVoltageLimit) {
+                            double nominalV, double lowVoltageLimit, double highVoltageLimit) {
         super(id, name, substation, nominalV, lowVoltageLimit, highVoltageLimit);
         states = new StateArray<>(substation.getNetwork().getRef(), StateImpl::new);
     }

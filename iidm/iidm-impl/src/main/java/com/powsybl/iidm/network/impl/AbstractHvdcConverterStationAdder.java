@@ -13,7 +13,7 @@ public abstract class AbstractHvdcConverterStationAdder<T extends AbstractHvdcCo
 
     private final VoltageLevelExt voltageLevel;
 
-    private float lossFactor = Float.NaN;
+    private double lossFactor = Double.NaN;
 
     AbstractHvdcConverterStationAdder(VoltageLevelExt voltageLevel) {
         this.voltageLevel = voltageLevel;
@@ -28,11 +28,11 @@ public abstract class AbstractHvdcConverterStationAdder<T extends AbstractHvdcCo
         return voltageLevel;
     }
 
-    public float getLossFactor() {
+    public double getLossFactor() {
         return lossFactor;
     }
 
-    public T setLossFactor(float lossFactor) {
+    public T setLossFactor(double lossFactor) {
         this.lossFactor = lossFactor;
         return (T) this;
     }

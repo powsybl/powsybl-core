@@ -8,7 +8,7 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.RatioTapChanger;
 import com.powsybl.iidm.network.Terminal;
-import gnu.trove.list.array.TFloatArrayList;
+import gnu.trove.list.array.TDoubleArrayList;
 import java.util.List;
 
 /**
@@ -21,15 +21,15 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
 
     // attributes depending on the state
 
-    private final TFloatArrayList targetV;
+    private final TDoubleArrayList targetV;
 
     RatioTapChangerImpl(RatioTapChangerParent parent, int lowTapPosition,
                         List<RatioTapChangerStepImpl> steps, TerminalExt regulationTerminal, boolean loadTapChangingCapabilities,
-                        int tapPosition, boolean regulating, float targetV) {
+                        int tapPosition, boolean regulating, double targetV) {
         super(parent.getNetwork().getRef(), parent, lowTapPosition, steps, regulationTerminal, tapPosition, regulating);
         this.loadTapChangingCapabilities = loadTapChangingCapabilities;
         int stateArraySize = network.get().getStateManager().getStateArraySize();
-        this.targetV = new TFloatArrayList(stateArraySize);
+        this.targetV = new TDoubleArrayList(stateArraySize);
         for (int i = 0; i < stateArraySize; i++) {
             this.targetV.add(targetV);
         }
@@ -52,12 +52,12 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
     }
 
     @Override
-    public float getTargetV() {
+    public double getTargetV() {
         return targetV.get(network.get().getStateIndex());
     }
 
     @Override
-    public RatioTapChangerImpl setTargetV(float targetV) {
+    public RatioTapChangerImpl setTargetV(double targetV) {
         ValidationUtil.checkRatioTapChangerRegulation(parent, loadTapChangingCapabilities, isRegulating(), regulationTerminal, targetV, getNetwork());
         this.targetV.set(network.get().getStateIndex(), targetV);
         return this;

@@ -815,14 +815,14 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Mult
             class HalfLineMerge {
                 String id;
                 String name;
-                float r;
-                float x;
-                float g1;
-                float g2;
-                float b1;
-                float b2;
-                float xnodeP;
-                float xnodeQ;
+                double r;
+                double x;
+                double g1;
+                double g2;
+                double b1;
+                double b2;
+                double xnodeP;
+                double xnodeQ;
             }
 
             final HalfLineMerge half1 = new HalfLineMerge();
@@ -830,10 +830,10 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Mult
 
             CurrentLimits limits1;
             CurrentLimits limits2;
-            float p1;
-            float q1;
-            float p2;
-            float q2;
+            double p1;
+            double q1;
+            double p2;
+            double q2;
 
             Country country1;
             Country country2;

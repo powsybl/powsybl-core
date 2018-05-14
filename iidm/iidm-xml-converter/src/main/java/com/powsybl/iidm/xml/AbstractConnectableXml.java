@@ -131,30 +131,26 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
     }
 
     protected static void writePQ(Integer index, Terminal t, XMLStreamWriter writer) throws XMLStreamException {
-        if (!Float.isNaN(t.getP())) {
-            XmlUtil.writeFloat("p" + indexToString(index), t.getP(), writer);
-        }
-        if (!Float.isNaN(t.getQ())) {
-            XmlUtil.writeFloat("q" + indexToString(index), t.getQ(), writer);
-        }
+        XmlUtil.writeOptionalDouble("p" + indexToString(index), t.getP(), Double.NaN, writer);
+        XmlUtil.writeOptionalDouble("q" + indexToString(index), t.getQ(), Double.NaN, writer);
     }
 
     protected static void readPQ(Integer index, Terminal t, XMLStreamReader reader) {
-        float p = XmlUtil.readOptionalFloatAttribute(reader, "p" + indexToString(index));
-        float q = XmlUtil.readOptionalFloatAttribute(reader, "q" + indexToString(index));
+        double p = XmlUtil.readOptionalDoubleAttribute(reader, "p" + indexToString(index));
+        double q = XmlUtil.readOptionalDoubleAttribute(reader, "q" + indexToString(index));
         t.setP(p)
             .setQ(q);
     }
 
     public static void readCurrentLimits(Integer index, Supplier<CurrentLimitsAdder> currentLimitOwner, XMLStreamReader reader) throws XMLStreamException {
         CurrentLimitsAdder adder = currentLimitOwner.get();
-        float permanentLimit = XmlUtil.readOptionalFloatAttribute(reader, "permanentLimit");
+        double permanentLimit = XmlUtil.readOptionalDoubleAttribute(reader, "permanentLimit");
         adder.setPermanentLimit(permanentLimit);
         XmlUtil.readUntilEndElement(CURRENT_LIMITS + indexToString(index), reader, () -> {
             if ("temporaryLimit".equals(reader.getLocalName())) {
                 String name = reader.getAttributeValue(null, "name");
                 int acceptableDuration = XmlUtil.readOptionalIntegerAttribute(reader, "acceptableDuration", Integer.MAX_VALUE);
-                float value = XmlUtil.readOptionalFloatAttribute(reader, "value", Float.MAX_VALUE);
+                double value = XmlUtil.readOptionalDoubleAttribute(reader, "value", Double.MAX_VALUE);
                 boolean fictitious = XmlUtil.readOptionalBoolAttribute(reader, "fictitious", false);
                 adder.beginTemporaryLimit()
                     .setName(name)
@@ -172,19 +168,19 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
     }
 
     public static void writeCurrentLimits(Integer index, CurrentLimits limits, XMLStreamWriter writer, String nsUri) throws XMLStreamException {
-        if (!Float.isNaN(limits.getPermanentLimit())
+        if (!Double.isNaN(limits.getPermanentLimit())
             || !limits.getTemporaryLimits().isEmpty()) {
             if (limits.getTemporaryLimits().isEmpty()) {
                 writer.writeEmptyElement(nsUri, CURRENT_LIMITS + indexToString(index));
             } else {
                 writer.writeStartElement(nsUri, CURRENT_LIMITS + indexToString(index));
             }
-            XmlUtil.writeFloat("permanentLimit", limits.getPermanentLimit(), writer);
+            XmlUtil.writeDouble("permanentLimit", limits.getPermanentLimit(), writer);
             for (CurrentLimits.TemporaryLimit tl : limits.getTemporaryLimits()) {
                 writer.writeEmptyElement(IIDM_URI, "temporaryLimit");
                 writer.writeAttribute("name", tl.getName());
                 XmlUtil.writeOptionalInt("acceptableDuration", tl.getAcceptableDuration(), Integer.MAX_VALUE, writer);
-                XmlUtil.writeOptionalFloat("value", tl.getValue(), Float.MAX_VALUE, writer);
+                XmlUtil.writeOptionalDouble("value", tl.getValue(), Double.MAX_VALUE, writer);
                 XmlUtil.writeOptionalBoolean("fictitious", tl.isFictitious(), false, writer);
             }
             if (!limits.getTemporaryLimits().isEmpty()) {

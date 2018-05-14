@@ -40,25 +40,25 @@ public class ShuntCompensatorTest {
                                             .setId("shunt")
                                             .setName("shuntName")
                                             .setConnectableBus("busA")
-                                            .setbPerSection(5.0f)
+                                            .setbPerSection(5.0)
                                             .setCurrentSectionCount(6)
                                             .setMaximumSectionCount(10)
                                         .add();
         assertEquals(ConnectableType.SHUNT_COMPENSATOR, shuntCompensator.getType());
         assertEquals("shuntName", shuntCompensator.getName());
         assertEquals("shunt", shuntCompensator.getId());
-        assertEquals(5.0f, shuntCompensator.getbPerSection(), 0.0f);
+        assertEquals(5.0, shuntCompensator.getbPerSection(), 0.0);
         assertEquals(6, shuntCompensator.getCurrentSectionCount());
         assertEquals(10, shuntCompensator.getMaximumSectionCount());
 
         // setter getter
         try {
-            shuntCompensator.setbPerSection(0.0f);
+            shuntCompensator.setbPerSection(0.0);
             fail();
         } catch (ValidationException ignored) {
         }
-        shuntCompensator.setbPerSection(1.0f);
-        assertEquals(1.0f, shuntCompensator.getbPerSection(), 0.0f);
+        shuntCompensator.setbPerSection(1.0);
+        assertEquals(1.0, shuntCompensator.getbPerSection(), 0.0);
 
         try {
             shuntCompensator.setCurrentSectionCount(-1);
@@ -94,27 +94,27 @@ public class ShuntCompensatorTest {
     public void invalidbPerSection() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("susceptance per section is invalid");
-        createShunt("invalid", "invalid", Float.NaN, 5, 10);
+        createShunt("invalid", "invalid", Double.NaN, 5, 10);
     }
 
     @Test
     public void invalidZerobPerSection() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("susceptance per section is equal to zero");
-        createShunt("invalid", "invalid", 0.0f, 5, 10);
+        createShunt("invalid", "invalid", 0.0, 5, 10);
     }
 
     @Test
     public void invalidNegativeMaxPerSection() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("should be greater than 0");
-        createShunt("invalid", "invalid", 2.0f, 0, -1);
+        createShunt("invalid", "invalid", 2.0, 0, -1);
     }
 
     @Test
     public void testSetterGetterInMultiStates() {
         StateManager stateManager = network.getStateManager();
-        createShunt("testMultiState", "testMultiState", 2.0f, 5, 10);
+        createShunt("testMultiState", "testMultiState", 2.0, 5, 10);
         ShuntCompensator shunt = network.getShunt("testMultiState");
         List<String> statesToAdd = Arrays.asList("s1", "s2", "s3", "s4");
         stateManager.cloneState(StateManager.INITIAL_STATE_ID, statesToAdd);
@@ -122,7 +122,7 @@ public class ShuntCompensatorTest {
         stateManager.setWorkingState("s4");
         // check values cloned by extend
         assertEquals(5, shunt.getCurrentSectionCount());
-        assertEquals(10.0f, shunt.getCurrentB(), 0.0f); // 2*5
+        assertEquals(10.0, shunt.getCurrentB(), 0.0); // 2*5
         // change values in s4
         shunt.setCurrentSectionCount(4);
 
@@ -133,12 +133,12 @@ public class ShuntCompensatorTest {
         stateManager.setWorkingState("s2b");
         // check values cloned by allocate
         assertEquals(4, shunt.getCurrentSectionCount());
-        assertEquals(8.0f, shunt.getCurrentB(), 0.0f); // 2*4
+        assertEquals(8.0, shunt.getCurrentB(), 0.0); // 2*4
 
         // recheck initial state value
         stateManager.setWorkingState(StateManager.INITIAL_STATE_ID);
         assertEquals(5, shunt.getCurrentSectionCount());
-        assertEquals(10.0f, shunt.getCurrentB(), 0.0f); // 2*5
+        assertEquals(10.0, shunt.getCurrentB(), 0.0); // 2*5
 
         // remove working state s4
         stateManager.setWorkingState("s4");
@@ -150,7 +150,7 @@ public class ShuntCompensatorTest {
         }
     }
 
-    private void createShunt(String id, String name, float bPerSection, int currentSectionCount, int maxSectionCount) {
+    private void createShunt(String id, String name, double bPerSection, int currentSectionCount, int maxSectionCount) {
         voltageLevel.newShunt()
                     .setId(id)
                     .setName(name)

@@ -15,20 +15,20 @@ import com.powsybl.iidm.network.PhaseTapChangerStep;
 class PhaseTapChangerStepImpl extends TapChangerStepImpl<PhaseTapChangerStepImpl>
                               implements PhaseTapChangerStep {
 
-    private float alpha;
+    private double alpha;
 
-    PhaseTapChangerStepImpl(float alpha, float rho, float r, float x, float g, float b) {
+    PhaseTapChangerStepImpl(double alpha, double rho, double r, double x, double g, double b) {
         super(rho, r, x, g, b);
         this.alpha = alpha;
     }
 
     @Override
-    public float getAlpha() {
+    public double getAlpha() {
         return alpha;
     }
 
     @Override
-    public PhaseTapChangerStep setAlpha(float alpha) {
+    public PhaseTapChangerStep setAlpha(double alpha) {
         this.alpha = alpha;
         return this;
     }

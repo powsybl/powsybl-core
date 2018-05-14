@@ -37,8 +37,8 @@ class BusbarSectionXml extends AbstractIdentifiableXml<BusbarSection, BusbarSect
     @Override
     protected void writeRootElementAttributes(BusbarSection bs, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
         XmlUtil.writeInt("node", bs.getTerminal().getNodeBreakerView().getNode(), context.getWriter());
-        XmlUtil.writeFloat("v", bs.getV(), context.getWriter());
-        XmlUtil.writeFloat("angle", bs.getAngle(), context.getWriter());
+        XmlUtil.writeDouble("v", bs.getV(), context.getWriter());
+        XmlUtil.writeDouble("angle", bs.getAngle(), context.getWriter());
     }
 
     @Override
@@ -49,8 +49,8 @@ class BusbarSectionXml extends AbstractIdentifiableXml<BusbarSection, BusbarSect
     @Override
     protected BusbarSection readRootElementAttributes(BusbarSectionAdder adder, NetworkXmlReaderContext context) {
         int node = XmlUtil.readIntAttribute(context.getReader(), "node");
-        float v = XmlUtil.readOptionalFloatAttribute(context.getReader(), "v");
-        float angle = XmlUtil.readOptionalFloatAttribute(context.getReader(), "angle");
+        double v = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "v");
+        double angle = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "angle");
         BusbarSection bbs = adder.setNode(node)
                 .add();
         context.getEndTasks().add(() -> {

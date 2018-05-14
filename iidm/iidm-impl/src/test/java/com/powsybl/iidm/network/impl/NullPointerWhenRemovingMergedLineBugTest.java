@@ -24,7 +24,7 @@ public class NullPointerWhenRemovingMergedLineBugTest {
                 .add();
         VoltageLevel vl1 = s1.newVoltageLevel()
                 .setId("vl1")
-                .setNominalV(380f)
+                .setNominalV(380)
                 .setTopologyKind(TopologyKind.BUS_BREAKER)
                 .add();
         vl1.getBusBreakerView().newBus()
@@ -34,12 +34,12 @@ public class NullPointerWhenRemovingMergedLineBugTest {
                 .setId("dl1")
                 .setConnectableBus("b1")
                 .setBus("b1")
-                .setP0(0f)
-                .setQ0(0f)
-                .setR(1f)
-                .setX(1f)
-                .setG(0f)
-                .setB(0f)
+                .setP0(0)
+                .setQ0(0)
+                .setR(1)
+                .setX(1)
+                .setG(0)
+                .setB(0)
                 .setUcteXnodeCode("XNODE")
                 .add();
         Network n2 = NetworkFactory.create("n2", "test");
@@ -49,7 +49,7 @@ public class NullPointerWhenRemovingMergedLineBugTest {
                 .add();
         VoltageLevel vl2 = s2.newVoltageLevel()
                 .setId("vl2")
-                .setNominalV(380f)
+                .setNominalV(380)
                 .setTopologyKind(TopologyKind.BUS_BREAKER)
                 .add();
         vl2.getBusBreakerView().newBus()
@@ -59,12 +59,12 @@ public class NullPointerWhenRemovingMergedLineBugTest {
                 .setId("dl2")
                 .setConnectableBus("b2")
                 .setBus("b2")
-                .setP0(0f)
-                .setQ0(0f)
-                .setR(1f)
-                .setX(1f)
-                .setG(0f)
-                .setB(0f)
+                .setP0(0)
+                .setQ0(0)
+                .setR(1)
+                .setX(1)
+                .setG(0)
+                .setB(0)
                 .setUcteXnodeCode("XNODE")
                 .add();
         Assert.assertTrue(n1.getLineCount() == 0);

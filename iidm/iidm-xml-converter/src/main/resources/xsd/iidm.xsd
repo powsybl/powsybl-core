@@ -92,10 +92,10 @@
                         <xs:element name="lccConverterStation" type="iidm:LccConverterStation"/>
                     </xs:choice>
                 </xs:sequence>
-                <xs:attribute name="nominalV" use="required" type="xs:float"/>
+                <xs:attribute name="nominalV" use="required" type="xs:double"/>
                 <xs:attribute name="topologyKind" use="required" type="iidm:TopologyKind"/>
-                <xs:attribute name="lowVoltageLimit" use="optional" type="xs:float"/>
-                <xs:attribute name="highVoltageLimit" use="optional" type="xs:float"/>
+                <xs:attribute name="lowVoltageLimit" use="optional" type="xs:double"/>
+                <xs:attribute name="highVoltageLimit" use="optional" type="xs:double"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -115,8 +115,8 @@
     <xs:complexType name="Bus">
         <xs:complexContent>
             <xs:extension base="iidm:Identifiable">
-                <xs:attribute name="v" use="optional" type="xs:float"/>
-                <xs:attribute name="angle" use="optional" type="xs:float"/>
+                <xs:attribute name="v" use="optional" type="xs:double"/>
+                <xs:attribute name="angle" use="optional" type="xs:double"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -124,8 +124,8 @@
         <xs:complexContent>
             <xs:extension base="iidm:Identifiable">
                 <xs:attribute name="node" use="required" type="xs:int"/>
-                <xs:attribute name="v" use="optional" type="xs:float"/>
-                <xs:attribute name="angle" use="optional" type="xs:float"/>
+                <xs:attribute name="v" use="optional" type="xs:double"/>
+                <xs:attribute name="angle" use="optional" type="xs:double"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -163,9 +163,9 @@
         </xs:complexContent>
     </xs:complexType>
     <xs:complexType name="Point">
-        <xs:attribute name="p" use="required" type="xs:float"/>
-        <xs:attribute name="minQ" use="required" type="xs:float"/>
-        <xs:attribute name="maxQ" use="required" type="xs:float"/>
+        <xs:attribute name="p" use="required" type="xs:double"/>
+        <xs:attribute name="minQ" use="required" type="xs:double"/>
+        <xs:attribute name="maxQ" use="required" type="xs:double"/>
     </xs:complexType>
     <xs:complexType name="ReactiveCapabilityCurve">
         <xs:sequence>
@@ -173,8 +173,8 @@
         </xs:sequence>
     </xs:complexType>
     <xs:complexType name="MinMaxReactiveLimits">
-        <xs:attribute name="minQ" use="required" type="xs:float"/>
-        <xs:attribute name="maxQ" use="required" type="xs:float"/>
+        <xs:attribute name="minQ" use="required" type="xs:double"/>
+        <xs:attribute name="maxQ" use="required" type="xs:double"/>
     </xs:complexType>
     <xs:simpleType name="EnergySource">
         <xs:restriction base="xs:string">
@@ -192,8 +192,8 @@
                 <xs:attribute name="node" use="optional" type="xs:int"/>
                 <xs:attribute name="bus" use="optional" type="iidm:nonEmptyString"/>
                 <xs:attribute name="connectableBus" use="optional" type="iidm:nonEmptyString"/>
-                <xs:attribute name="p" use="optional" type="xs:float"/>
-                <xs:attribute name="q" use="optional" type="xs:float"/>
+                <xs:attribute name="p" use="optional" type="xs:double"/>
+                <xs:attribute name="q" use="optional" type="xs:double"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -208,13 +208,13 @@
                     </xs:choice>
                 </xs:sequence>
                 <xs:attribute name="energySource" use="required" type="iidm:EnergySource"/>
-                <xs:attribute name="maxP" use="required" type="xs:float"/>
-                <xs:attribute name="minP" use="required" type="xs:float"/>
-                <xs:attribute name="ratedS" use="optional" type="xs:float"/>
+                <xs:attribute name="maxP" use="required" type="xs:double"/>
+                <xs:attribute name="minP" use="required" type="xs:double"/>
+                <xs:attribute name="ratedS" use="optional" type="xs:double"/>
                 <xs:attribute name="voltageRegulatorOn" use="required" type="xs:boolean"/>
-                <xs:attribute name="targetP" use="required" type="xs:float"/>
-                <xs:attribute name="targetQ" use="optional" type="xs:float"/>
-                <xs:attribute name="targetV" use="optional" type="xs:float"/>
+                <xs:attribute name="targetP" use="required" type="xs:double"/>
+                <xs:attribute name="targetQ" use="optional" type="xs:double"/>
+                <xs:attribute name="targetV" use="optional" type="xs:double"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -228,8 +228,8 @@
     <xs:complexType name="Load">
         <xs:complexContent>
             <xs:extension base="iidm:Injection">
-                <xs:attribute name="p0" use="required" type="xs:float"/>
-                <xs:attribute name="q0" use="required" type="xs:float"/>
+                <xs:attribute name="p0" use="required" type="xs:double"/>
+                <xs:attribute name="q0" use="required" type="xs:double"/>
                 <xs:attribute name="loadType" use="optional" type="iidm:LoadType"/>
             </xs:extension>
         </xs:complexContent>
@@ -237,7 +237,7 @@
     <xs:complexType name="ShuntCompensator">
         <xs:complexContent>
             <xs:extension base="iidm:Injection">
-                <xs:attribute name="bPerSection" use="required" type="xs:float"/>
+                <xs:attribute name="bPerSection" use="required" type="xs:double"/>
                 <xs:attribute name="maximumSectionCount" use="required" type="xs:int"/>
                 <xs:attribute name="currentSectionCount" use="required" type="xs:int"/>
             </xs:extension>
@@ -249,12 +249,12 @@
                 <xs:complexType>
                     <xs:attribute name="name" use="required" type="iidm:nonEmptyString"/>
                     <xs:attribute name="acceptableDuration" use="optional" type="xs:int"/>
-                    <xs:attribute name="value" use="optional" type="xs:float"/>
+                    <xs:attribute name="value" use="optional" type="xs:double"/>
                     <xs:attribute name="fictitious" use="optional" type="xs:boolean" default="false"/>
                 </xs:complexType>
             </xs:element>
         </xs:sequence>
-        <xs:attribute name="permanentLimit" use="optional" type="xs:float"/>
+        <xs:attribute name="permanentLimit" use="optional" type="xs:double"/>
     </xs:complexType>
     <xs:complexType name="DanglingLine">
         <xs:complexContent>
@@ -262,12 +262,12 @@
                 <xs:sequence>
                     <xs:element name="currentLimits" type="iidm:CurrentLimit" minOccurs="0"/>
                 </xs:sequence>
-                <xs:attribute name="p0" use="required" type="xs:float"/>
-                <xs:attribute name="q0" use="required" type="xs:float"/>
-                <xs:attribute name="r" use="required" type="xs:float"/>
-                <xs:attribute name="x" use="required" type="xs:float"/>
-                <xs:attribute name="g" use="required" type="xs:float"/>
-                <xs:attribute name="b" use="required" type="xs:float"/>
+                <xs:attribute name="p0" use="required" type="xs:double"/>
+                <xs:attribute name="q0" use="required" type="xs:double"/>
+                <xs:attribute name="r" use="required" type="xs:double"/>
+                <xs:attribute name="x" use="required" type="xs:double"/>
+                <xs:attribute name="g" use="required" type="xs:double"/>
+                <xs:attribute name="b" use="required" type="xs:double"/>
                 <xs:attribute name="ucteXnodeCode" use="optional" type="iidm:nonEmptyString"/>
             </xs:extension>
         </xs:complexContent>
@@ -282,10 +282,10 @@
     <xs:complexType name="StaticVarCompensator">
         <xs:complexContent>
             <xs:extension base="iidm:Injection">
-                <xs:attribute name="bMin" use="required" type="xs:float"/>
-                <xs:attribute name="bMax" use="required" type="xs:float"/>
-                <xs:attribute name="voltageSetPoint" use="optional" type="xs:float"/>
-                <xs:attribute name="reactivePowerSetPoint" use="optional" type="xs:float"/>
+                <xs:attribute name="bMin" use="required" type="xs:double"/>
+                <xs:attribute name="bMax" use="required" type="xs:double"/>
+                <xs:attribute name="voltageSetPoint" use="optional" type="xs:double"/>
+                <xs:attribute name="reactivePowerSetPoint" use="optional" type="xs:double"/>
                 <xs:attribute name="regulationMode" use="required" type="iidm:StaticVarCompensatorRegulationMode"/>
             </xs:extension>
         </xs:complexContent>
@@ -301,10 +301,10 @@
                 <xs:attribute name="bus2" use="optional" type="iidm:nonEmptyString"/>
                 <xs:attribute name="connectableBus2" use="optional" type="iidm:nonEmptyString"/>
                 <xs:attribute name="voltageLevelId2" use="required" type="iidm:nonEmptyString"/>
-                <xs:attribute name="p1" use="optional" type="xs:float"/>
-                <xs:attribute name="q1" use="optional" type="xs:float"/>
-                <xs:attribute name="p2" use="optional" type="xs:float"/>
-                <xs:attribute name="q2" use="optional" type="xs:float"/>
+                <xs:attribute name="p1" use="optional" type="xs:double"/>
+                <xs:attribute name="q1" use="optional" type="xs:double"/>
+                <xs:attribute name="p2" use="optional" type="xs:double"/>
+                <xs:attribute name="q2" use="optional" type="xs:double"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -317,12 +317,12 @@
                     <xs:element name="currentLimits1" type="iidm:CurrentLimit" minOccurs="0"/>
                     <xs:element name="currentLimits2" type="iidm:CurrentLimit" minOccurs="0"/>
                 </xs:sequence>
-                <xs:attribute name="r" use="required" type="xs:float"/>
-                <xs:attribute name="x" use="required" type="xs:float"/>
-                <xs:attribute name="g" use="required" type="xs:float"/>
-                <xs:attribute name="b" use="required" type="xs:float"/>
-                <xs:attribute name="ratedU1" use="required" type="xs:float"/>
-                <xs:attribute name="ratedU2" use="required" type="xs:float"/>
+                <xs:attribute name="r" use="required" type="xs:double"/>
+                <xs:attribute name="x" use="required" type="xs:double"/>
+                <xs:attribute name="g" use="required" type="xs:double"/>
+                <xs:attribute name="b" use="required" type="xs:double"/>
+                <xs:attribute name="ratedU1" use="required" type="xs:double"/>
+                <xs:attribute name="ratedU2" use="required" type="xs:double"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -336,17 +336,17 @@
                     <xs:element name="currentLimits2" type="iidm:CurrentLimit" minOccurs="0"/>
                     <xs:element name="currentLimits3" type="iidm:CurrentLimit" minOccurs="0"/>
                 </xs:sequence>
-                <xs:attribute name="ratedU1" use="required" type="xs:float"/>
-                <xs:attribute name="ratedU2" use="required" type="xs:float"/>
-                <xs:attribute name="ratedU3" use="required" type="xs:float"/>
-                <xs:attribute name="r1" use="required" type="xs:float"/>
-                <xs:attribute name="r2" use="required" type="xs:float"/>
-                <xs:attribute name="r3" use="required" type="xs:float"/>
-                <xs:attribute name="x1" use="required" type="xs:float"/>
-                <xs:attribute name="x2" use="required" type="xs:float"/>
-                <xs:attribute name="x3" use="required" type="xs:float"/>
-                <xs:attribute name="g1" use="required" type="xs:float"/>
-                <xs:attribute name="b1" use="required" type="xs:float"/>
+                <xs:attribute name="ratedU1" use="required" type="xs:double"/>
+                <xs:attribute name="ratedU2" use="required" type="xs:double"/>
+                <xs:attribute name="ratedU3" use="required" type="xs:double"/>
+                <xs:attribute name="r1" use="required" type="xs:double"/>
+                <xs:attribute name="r2" use="required" type="xs:double"/>
+                <xs:attribute name="r3" use="required" type="xs:double"/>
+                <xs:attribute name="x1" use="required" type="xs:double"/>
+                <xs:attribute name="x2" use="required" type="xs:double"/>
+                <xs:attribute name="x3" use="required" type="xs:double"/>
+                <xs:attribute name="g1" use="required" type="xs:double"/>
+                <xs:attribute name="b1" use="required" type="xs:double"/>
                 <xs:attribute name="node1" use="optional" type="xs:int"/>
                 <xs:attribute name="bus1" use="optional" type="iidm:nonEmptyString"/>
                 <xs:attribute name="voltageLevelId1" use="required" type="iidm:nonEmptyString"/>
@@ -359,12 +359,12 @@
                 <xs:attribute name="bus3" use="optional" type="iidm:nonEmptyString"/>
                 <xs:attribute name="connectableBus3" use="optional" type="iidm:nonEmptyString"/>
                 <xs:attribute name="voltageLevelId3" use="required" type="iidm:nonEmptyString"/>
-                <xs:attribute name="p1" use="optional" type="xs:float"/>
-                <xs:attribute name="q1" use="optional" type="xs:float"/>
-                <xs:attribute name="p2" use="optional" type="xs:float"/>
-                <xs:attribute name="q2" use="optional" type="xs:float"/>
-                <xs:attribute name="p3" use="optional" type="xs:float"/>
-                <xs:attribute name="q3" use="optional" type="xs:float"/>
+                <xs:attribute name="p1" use="optional" type="xs:double"/>
+                <xs:attribute name="q1" use="optional" type="xs:double"/>
+                <xs:attribute name="p2" use="optional" type="xs:double"/>
+                <xs:attribute name="q2" use="optional" type="xs:double"/>
+                <xs:attribute name="p3" use="optional" type="xs:double"/>
+                <xs:attribute name="q3" use="optional" type="xs:double"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -380,19 +380,19 @@
         <xs:attribute name="side" use="optional" type="iidm:Side"/>
     </xs:complexType>
     <xs:complexType name="RatioTapChangerStep">
-        <xs:attribute name="rho" use="required" type="xs:float"/>
-        <xs:attribute name="r" use="required" type="xs:float"/>
-        <xs:attribute name="x" use="required" type="xs:float"/>
-        <xs:attribute name="g" use="required" type="xs:float"/>
-        <xs:attribute name="b" use="required" type="xs:float"/>
+        <xs:attribute name="rho" use="required" type="xs:double"/>
+        <xs:attribute name="r" use="required" type="xs:double"/>
+        <xs:attribute name="x" use="required" type="xs:double"/>
+        <xs:attribute name="g" use="required" type="xs:double"/>
+        <xs:attribute name="b" use="required" type="xs:double"/>
     </xs:complexType>
     <xs:complexType name="PhaseTapChangerStep">
-        <xs:attribute name="rho" use="required" type="xs:float"/>
-        <xs:attribute name="alpha" use="required" type="xs:float"/>
-        <xs:attribute name="r" use="required" type="xs:float"/>
-        <xs:attribute name="x" use="required" type="xs:float"/>
-        <xs:attribute name="g" use="required" type="xs:float"/>
-        <xs:attribute name="b" use="required" type="xs:float"/>
+        <xs:attribute name="rho" use="required" type="xs:double"/>
+        <xs:attribute name="alpha" use="required" type="xs:double"/>
+        <xs:attribute name="r" use="required" type="xs:double"/>
+        <xs:attribute name="x" use="required" type="xs:double"/>
+        <xs:attribute name="g" use="required" type="xs:double"/>
+        <xs:attribute name="b" use="required" type="xs:double"/>
     </xs:complexType>
     <xs:complexType name="RatioTapChanger">
         <xs:sequence>
@@ -403,7 +403,7 @@
         <xs:attribute name="tapPosition" use="required" type="xs:int"/>
         <xs:attribute name="loadTapChangingCapabilities" use="required" type="xs:boolean"/>
         <xs:attribute name="regulating" use="optional" type="xs:boolean"/>
-        <xs:attribute name="targetV" use="optional" type="xs:float"/>
+        <xs:attribute name="targetV" use="optional" type="xs:double"/>
     </xs:complexType>
     <xs:simpleType name="PhaseRegulationMode">
         <xs:restriction base="xs:string">
@@ -420,7 +420,7 @@
         <xs:attribute name="lowTapPosition" use="required" type="xs:int"/>
         <xs:attribute name="tapPosition" use="required" type="xs:int"/>
         <xs:attribute name="regulationMode" use="required" type="iidm:PhaseRegulationMode"/>
-        <xs:attribute name="regulationValue" use="optional" type="xs:float"/>
+        <xs:attribute name="regulationValue" use="optional" type="xs:double"/>
         <xs:attribute name="regulating" use="optional" type="xs:boolean"/>
     </xs:complexType>
     <xs:complexType name="Line">
@@ -430,12 +430,12 @@
                     <xs:element name="currentLimits1" type="iidm:CurrentLimit" minOccurs="0"/>
                     <xs:element name="currentLimits2" type="iidm:CurrentLimit" minOccurs="0"/>
                 </xs:sequence>
-                <xs:attribute name="r" use="required" type="xs:float"/>
-                <xs:attribute name="x" use="required" type="xs:float"/>
-                <xs:attribute name="g1" use="required" type="xs:float"/>
-                <xs:attribute name="g2" use="required" type="xs:float"/>
-                <xs:attribute name="b1" use="required" type="xs:float"/>
-                <xs:attribute name="b2" use="required" type="xs:float"/>
+                <xs:attribute name="r" use="required" type="xs:double"/>
+                <xs:attribute name="x" use="required" type="xs:double"/>
+                <xs:attribute name="g1" use="required" type="xs:double"/>
+                <xs:attribute name="g2" use="required" type="xs:double"/>
+                <xs:attribute name="b1" use="required" type="xs:double"/>
+                <xs:attribute name="b2" use="required" type="xs:double"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -449,24 +449,24 @@
                 <xs:attribute name="ucteXnodeCode" use="optional" type="iidm:nonEmptyString"/>
                 <xs:attribute name="id_1" use="required" type="iidm:nonEmptyString"/>
                 <xs:attribute name="name_1" use="optional" type="xs:string"/>
-                <xs:attribute name="r_1" use="required" type="xs:float"/>
-                <xs:attribute name="x_1" use="required" type="xs:float"/>
-                <xs:attribute name="g1_1" use="required" type="xs:float"/>
-                <xs:attribute name="g2_1" use="required" type="xs:float"/>
-                <xs:attribute name="b1_1" use="required" type="xs:float"/>
-                <xs:attribute name="b2_1" use="required" type="xs:float"/>
-                <xs:attribute name="xnodeP_1" use="required" type="xs:float"/>
-                <xs:attribute name="xnodeQ_1" use="required" type="xs:float"/>
+                <xs:attribute name="r_1" use="required" type="xs:double"/>
+                <xs:attribute name="x_1" use="required" type="xs:double"/>
+                <xs:attribute name="g1_1" use="required" type="xs:double"/>
+                <xs:attribute name="g2_1" use="required" type="xs:double"/>
+                <xs:attribute name="b1_1" use="required" type="xs:double"/>
+                <xs:attribute name="b2_1" use="required" type="xs:double"/>
+                <xs:attribute name="xnodeP_1" use="required" type="xs:double"/>
+                <xs:attribute name="xnodeQ_1" use="required" type="xs:double"/>
                 <xs:attribute name="id_2" use="required" type="iidm:nonEmptyString"/>
                 <xs:attribute name="name_2" use="optional" type="xs:string"/>
-                <xs:attribute name="r_2" use="required" type="xs:float"/>
-                <xs:attribute name="x_2" use="required" type="xs:float"/>
-                <xs:attribute name="g1_2" use="required" type="xs:float"/>
-                <xs:attribute name="g2_2" use="required" type="xs:float"/>
-                <xs:attribute name="b1_2" use="required" type="xs:float"/>
-                <xs:attribute name="b2_2" use="required" type="xs:float"/>
-                <xs:attribute name="xnodeP_2" use="required" type="xs:float"/>
-                <xs:attribute name="xnodeQ_2" use="required" type="xs:float"/>
+                <xs:attribute name="r_2" use="required" type="xs:double"/>
+                <xs:attribute name="x_2" use="required" type="xs:double"/>
+                <xs:attribute name="g1_2" use="required" type="xs:double"/>
+                <xs:attribute name="g2_2" use="required" type="xs:double"/>
+                <xs:attribute name="b1_2" use="required" type="xs:double"/>
+                <xs:attribute name="b2_2" use="required" type="xs:double"/>
+                <xs:attribute name="xnodeP_2" use="required" type="xs:double"/>
+                <xs:attribute name="xnodeQ_2" use="required" type="xs:double"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -479,7 +479,7 @@
     <xs:complexType name="HvdcConverterStation">
         <xs:complexContent>
             <xs:extension base="iidm:Injection">
-                <xs:attribute name="lossFactor" use="required" type="xs:float"/>
+                <xs:attribute name="lossFactor" use="required" type="xs:double"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -491,25 +491,25 @@
                     <xs:element name="minMaxReactiveLimits" type="iidm:MinMaxReactiveLimits"/>
                 </xs:choice>
                 <xs:attribute name="voltageRegulatorOn" use="required" type="xs:boolean"/>
-                <xs:attribute name="voltageSetpoint" use="optional" type="xs:float"/>
-                <xs:attribute name="reactivePowerSetpoint" use="optional" type="xs:float"/>
+                <xs:attribute name="voltageSetpoint" use="optional" type="xs:double"/>
+                <xs:attribute name="reactivePowerSetpoint" use="optional" type="xs:double"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
     <xs:complexType name="LccConverterStation">
         <xs:complexContent>
             <xs:extension base="iidm:HvdcConverterStation">
-                <xs:attribute name="powerFactor" use="required" type="xs:float"/>
+                <xs:attribute name="powerFactor" use="required" type="xs:double"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
     <xs:complexType name="HvdcLine">
         <xs:complexContent>
             <xs:extension base="iidm:Identifiable">
-                <xs:attribute name="r" use="required" type="xs:float"/>
-                <xs:attribute name="nominalV" use="required" type="xs:float"/>
-                <xs:attribute name="activePowerSetpoint" use="required" type="xs:float"/>
-                <xs:attribute name="maxP" use="required" type="xs:float"/>
+                <xs:attribute name="r" use="required" type="xs:double"/>
+                <xs:attribute name="nominalV" use="required" type="xs:double"/>
+                <xs:attribute name="activePowerSetpoint" use="required" type="xs:double"/>
+                <xs:attribute name="maxP" use="required" type="xs:double"/>
                 <xs:attribute name="convertersMode" use="required" type="iidm:ConvertersMode"/>
                 <xs:attribute name="converterStation1" use="required" type="iidm:nonEmptyString"/>
                 <xs:attribute name="converterStation2" use="required" type="iidm:nonEmptyString"/>
