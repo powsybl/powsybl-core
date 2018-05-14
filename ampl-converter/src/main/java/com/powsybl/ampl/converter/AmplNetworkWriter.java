@@ -385,7 +385,6 @@ public class AmplNetworkWriter {
 
     private <E> void addExtensions(int extendedNum, Extendable<E> extendable) {
         for (Extension<E> ext : extendable.getExtensions()) {
-            extensionMap.computeIfAbsent(ext.getName(), k -> new ArrayList<AmplExtension>());
             List<AmplExtension> extList = extensionMap.computeIfAbsent(ext.getName(), k -> new ArrayList<AmplExtension>());
             extList.add(new AmplExtension(extendedNum, extendable, ext));
             extensionMap.put(ext.getName(), extList);

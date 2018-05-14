@@ -54,6 +54,7 @@ public class ActionSimulatorTool implements Tool {
     private static final String CASE_FILE = "case-file";
     private static final String DSL_FILE = "dsl-file";
     private static final String CONTINGENCIES = "contingencies";
+    private static final String APPLY_IF_SOLVED_VIOLATIONS = "apply-if-solved-violations";
     private static final String VERBOSE = "verbose";
     private static final String OUTPUT_FILE = "output-file";
     private static final String OUTPUT_FORMAT = "output-format";
@@ -98,6 +99,10 @@ public class ActionSimulatorTool implements Tool {
                         .desc("contingencies to test")
                         .hasArg()
                         .argName("CONTINGENCY1,CONTINGENCY2,...")
+                        .build());
+                options.addOption(Option.builder().longOpt(APPLY_IF_SOLVED_VIOLATIONS)
+                        .desc("apply the first tested action which solves all violations")
+                        .required(false)
                         .build());
                 options.addOption(Option.builder().longOpt(VERBOSE)
                         .desc("verbose mode")
@@ -220,7 +225,8 @@ public class ActionSimulatorTool implements Tool {
             }
 
             // action simulator
-            ActionSimulator actionSimulator = new LoadFlowActionSimulator(network, context.getShortTimeExecutionComputationManager(), config, observers);
+            ActionSimulator actionSimulator = new LoadFlowActionSimulator(network, context.getShortTimeExecutionComputationManager(),
+                    config, line.hasOption(APPLY_IF_SOLVED_VIOLATIONS), observers);
             context.getOutputStream().println("Using '" + actionSimulator.getName() + "' rules engine");
 
             // start simulator
