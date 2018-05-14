@@ -72,6 +72,10 @@ public class MapModuleConfig implements ModuleConfig {
                 + " for property " + name + ", " + Arrays.toString(expectedTypes) + " is expected ");
     }
 
+    private static PowsyblException createPropertyIsNotException(String name, String what, Exception e) {
+        throw new PowsyblException("Property " + name + " is not " + what, e);
+    }
+
     public Optional<String> getOptionalStringProperty(String name) {
         Objects.requireNonNull(name);
         Object value = properties.get(name);
@@ -168,7 +172,7 @@ public class MapModuleConfig implements ModuleConfig {
             try {
                 return Optional.of(Integer.parseInt((String) value));
             } catch (NumberFormatException e) {
-                throw new PowsyblException("Property " + name + " is not an integer", e);
+                throw createPropertyIsNotException(name, "an integer", e);
             }
         } else {
             throw createUnexpectedPropertyTypeException(name, value.getClass(), new Class[] {String.class, Integer.class});
@@ -203,7 +207,7 @@ public class MapModuleConfig implements ModuleConfig {
             try {
                 return Optional.of(Float.parseFloat((String) value));
             } catch (NumberFormatException e) {
-                throw new PowsyblException("Property " + name + " is not a float", e);
+                throw createPropertyIsNotException(name, "a float", e);
             }
         } else {
             throw createUnexpectedPropertyTypeException(name, value.getClass(), new Class[] {Number.class, String.class});
@@ -233,7 +237,7 @@ public class MapModuleConfig implements ModuleConfig {
             try {
                 return OptionalDouble.of(Double.parseDouble((String) value));
             } catch (NumberFormatException e) {
-                throw new PowsyblException("Property " + name + " is not an double", e);
+                throw createPropertyIsNotException(name, "a double", e);
             }
         } else {
             throw createUnexpectedPropertyTypeException(name, value.getClass(), new Class[] {Number.class, String.class});
@@ -347,7 +351,7 @@ public class MapModuleConfig implements ModuleConfig {
             try {
                 return Optional.of(DateTime.parse((String) value));
             } catch (IllegalArgumentException e) {
-                throw new PowsyblException("Property " + name + " is not an ISO date time", e);
+                throw createPropertyIsNotException(name, "an ISO date time", e);
             }
         } else {
             throw createUnexpectedPropertyTypeException(name, value.getClass(), new Class[] {Date.class, String.class});
