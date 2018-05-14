@@ -150,7 +150,9 @@ public class LoadFlowActionSimulator implements ActionSimulator {
                 return true;
             }
 
-            LOGGER.info("Violations: \n{}", Security.printLimitsViolations(violations, network, NO_FILTER));
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("Violations: \n{}", Security.printLimitsViolations(violations, network, NO_FILTER));
+            }
 
             runTests(actionDb, context);
             if (context.isTestWorks() && applyIfSolvedViolations) {
@@ -193,7 +195,9 @@ public class LoadFlowActionSimulator implements ActionSimulator {
                     };
                     boolean ok = ExpressionEvaluator.evaluate(conditionExpr, evalContext).equals(Boolean.TRUE);
 
-                    LOGGER.debug("Evaluating {} to {}", ExpressionPrinter.toString(conditionExpr), Boolean.toString(ok));
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Evaluating {} to {}", ExpressionPrinter.toString(conditionExpr), Boolean.toString(ok));
+                    }
 
                     variables = ExpressionVariableLister.list(conditionExpr).stream()
                         .collect(Collectors.toMap(ExpressionPrinter::toString,
