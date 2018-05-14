@@ -215,9 +215,6 @@ public final class FlowsValidation {
         Objects.requireNonNull(config);
         Objects.requireNonNull(flowsWriter);
 
-        if (twt.getRatioTapChanger() != null && twt.getPhaseTapChanger() != null) {
-            throw new AssertionError();
-        }
         float p1 = twt.getTerminal1().getP();
         float q1 = twt.getTerminal1().getQ();
         float p2 = twt.getTerminal2().getP();
