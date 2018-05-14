@@ -22,6 +22,7 @@ You may configure the following properties in your platform configuration file.
 	<no-requirement-if-reactive-bound-inversion>false</no-requirement-if-reactive-bound-inversion>
 	<compare-results>false</compare-results>
 	<check-main-component-only>true</check-main-component-only>
+	<no-requirement-if-setpoint-outside-power-bounds>false</no-requirement-if-setpoint-outside-power-bounds>
 </loadflow-validation>
 ```
 
@@ -35,7 +36,8 @@ You may configure the following properties in your platform configuration file.
 * *ok-missing-values*: perform validation check even if some parameters of connected components have NaN values; default value is false (i.e. validation check fails if some parameters of connected components have NaN Values)
 * *no-requirement-if-reactive-bound-inversion*: return validation success if there is a reactive bounds inversion (maxQ < minQ); default is false
 * *compare-results*: print output files with results both before and after the loadflow
-* *check-main-component-only*: validate only the equipment in the main connected component
+* *check-main-component-only*: validate only the equipment in the main connected component, default is true
+* *no-requirement-if-setpoint-outside-power-bounds*: return validation success if the set point is outside the active power bounds (targetP < minP or targetP > maxP); default is false
 
 ## itools command
 
@@ -58,7 +60,7 @@ Available arguments are:
                                                     results both before and
                                                     after the loadflow
     --groovy-script <FILE>                          groovy script to run before
-                                                    validation                                                    
+                                                    validation
     --help                                          display the help and quit
     --load-flow                                     run loadflow
     --output-folder <FOLDER>                        output folder path
