@@ -67,27 +67,30 @@ public class LoadFlowActionSimulatorLogPrinter extends DefaultLoadFlowActionSimu
         if (verbose || status == RuleEvaluationStatus.TRUE) {
             out.println("        Rule '" + rule.getId() + "' evaluated to " + status);
         }
-        if (verbose) {
-            if (variables.size() + actions.size() > 0) {
-                Table table = new Table(2, BorderStyle.CLASSIC_WIDE);
-                table.addCell("Variable");
-                table.addCell("Value");
-                variables.entrySet().forEach(e -> {
-                    table.addCell(e.getKey());
-                    table.addCell(Objects.toString(e.getValue()));
-                });
-                actions.entrySet().forEach(e -> {
-                    table.addCell(e.getKey() + ".actionTaken");
-                    table.addCell(e.getValue().toString());
-                });
-                out.println(table.render());
-            }
+        if (verbose &&  (variables.size() + actions.size() > 0)) {
+            Table table = new Table(2, BorderStyle.CLASSIC_WIDE);
+            table.addCell("Variable");
+            table.addCell("Value");
+            variables.forEach((key, value) -> {
+                table.addCell(key);
+                table.addCell(Objects.toString(value));
+            });
+            actions.forEach((key, value) -> {
+                table.addCell(key + ".actionTaken");
+                table.addCell(value.toString());
+            });
+            out.println(table.render());
         }
     }
 
     @Override
     public void beforeAction(RunningContext runningContext, String actionId) {
         out.println("        Applying action '" + actionId + "'");
+    }
+
+    @Override
+    public void beforeTest(RunningContext runningContext, String actionId) {
+        out.println("        Testing action '" + actionId + "'");
     }
 
     @Override
