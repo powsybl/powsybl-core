@@ -98,11 +98,11 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
                                   boolean mainComponent1, boolean mainComponent2, boolean validated, FlowData flowData, boolean found, boolean writeValues) throws IOException;
 
     @Override
-    public void write(String generatorId, float p, float q, float v, float targetP, float targetQ, float targetV, boolean connected,
-                      boolean voltageRegulatorOn, float minP, float maxP, float minQ, float maxQ, boolean mainComponent, boolean validated) throws IOException {
+    public void write(String generatorId, double p, double q, double v, double targetP, double targetQ, double targetV, boolean connected,
+                      boolean voltageRegulatorOn, double minP, double maxP, double minQ, double maxQ, boolean mainComponent, boolean validated) throws IOException {
         Objects.requireNonNull(generatorId);
-        GeneratorData emptyGeneratorData = new GeneratorData(generatorId, Float.NaN, Float.NaN, Float.NaN, Float.NaN, Float.NaN, Float.NaN,
-                                                             false, false, Float.NaN, Float.NaN, Float.NaN, Float.NaN, false, false);
+        GeneratorData emptyGeneratorData = new GeneratorData(generatorId, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
+                                                             false, false, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, false);
         if (compareResults) {
             if (preLoadflowValidationCompleted) {
                 boolean found = generatorsData.containsKey(generatorId);
@@ -120,8 +120,8 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
         }
     }
 
-    protected abstract void write(String generatorId, float p, float q, float v, float targetP, float targetQ, float targetV,
-                                  boolean connected, boolean voltageRegulatorOn, float minP, float maxP, float minQ, float maxQ, boolean mainComponent,
+    protected abstract void write(String generatorId, double p, double q, double v, double targetP, double targetQ, double targetV,
+                                  boolean connected, boolean voltageRegulatorOn, double minP, double maxP, double minQ, double maxQ, boolean mainComponent,
                                   boolean validated, GeneratorData generatorData, boolean found, boolean writeValues) throws IOException;
 
     @Override
@@ -156,10 +156,10 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
                                   boolean validated, BusData busData, boolean found, boolean writeValues) throws IOException;
 
     @Override
-    public void write(String svcId, float p, float q, float v, float nominalV, float reactivePowerSetpoint, float voltageSetpoint,
-                      boolean connected, RegulationMode regulationMode, float bMin, float bMax, boolean mainComponent, boolean validated) throws IOException {
+    public void write(String svcId, double p, double q, double v, double nominalV, double reactivePowerSetpoint, double voltageSetpoint,
+                      boolean connected, RegulationMode regulationMode, double bMin, double bMax, boolean mainComponent, boolean validated) throws IOException {
         Objects.requireNonNull(svcId);
-        SvcData emptySvcData = new SvcData(svcId, Float.NaN, Float.NaN, Float.NaN, Float.NaN, Float.NaN, Float.NaN, false, RegulationMode.OFF, Float.NaN, Float.NaN, false, false);
+        SvcData emptySvcData = new SvcData(svcId, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, RegulationMode.OFF, Double.NaN, Double.NaN, false, false);
         if (compareResults) {
             if (preLoadflowValidationCompleted) {
                 boolean found = svcsData.containsKey(svcId);
@@ -174,15 +174,15 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
         }
     }
 
-    protected abstract void write(String svcId, float p, float q, float v, float nominalV, float reactivePowerSetpoint, float voltageSetpoint,
-                                  boolean connected, RegulationMode regulationMode, float bMin, float bMax, boolean mainComponent, boolean validated,
+    protected abstract void write(String svcId, double p, double q, double v, double nominalV, double reactivePowerSetpoint, double voltageSetpoint,
+                                  boolean connected, RegulationMode regulationMode, double bMin, double bMax, boolean mainComponent, boolean validated,
                                   SvcData svcData, boolean found, boolean writeValues) throws IOException;
 
     @Override
-    public void write(String shuntId, float q, float expectedQ, float p, int currentSectionCount, int maximumSectionCount,
-                      float bPerSection, float v, boolean connected, float qMax, float nominalV, boolean mainComponent, boolean validated) throws IOException {
+    public void write(String shuntId, double q, double expectedQ, double p, int currentSectionCount, int maximumSectionCount,
+                      double bPerSection, double v, boolean connected, double qMax, double nominalV, boolean mainComponent, boolean validated) throws IOException {
         Objects.requireNonNull(shuntId);
-        ShuntData emptyShuntData = new ShuntData(shuntId, Float.NaN, Float.NaN, Float.NaN, -1, -1, Float.NaN, Float.NaN, false, Float.NaN, Float.NaN, false, false);
+        ShuntData emptyShuntData = new ShuntData(shuntId, Double.NaN, Double.NaN, Double.NaN, -1, -1, Double.NaN, Double.NaN, false, Double.NaN, Double.NaN, false, false);
         if (compareResults) {
             if (preLoadflowValidationCompleted) {
                 boolean found = shuntsData.containsKey(shuntId);
@@ -199,17 +199,17 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
         }
     }
 
-    protected abstract void write(String shuntId, float q, float expectedQ, float p, int currentSectionCount, int maximumSectionCount,
-                                  float bPerSection, float v, boolean connected, float qMax, float nominalV, boolean mainComponent,
+    protected abstract void write(String shuntId, double q, double expectedQ, double p, int currentSectionCount, int maximumSectionCount,
+                                  double bPerSection, double v, boolean connected, double qMax, double nominalV, boolean mainComponent,
                                   boolean validated, ShuntData shuntData, boolean found, boolean writeValues) throws IOException;
 
     @Override
-    public void write(String twtId, float error, float upIncrement, float downIncrement, float rho, float rhoPreviousStep, float rhoNextStep,
-                      int tapPosition, int lowTapPosition, int highTapPosition, float targetV, Side regulatedSide, float v, boolean connected,
+    public void write(String twtId, double error, double upIncrement, double downIncrement, double rho, double rhoPreviousStep, double rhoNextStep,
+                      int tapPosition, int lowTapPosition, int highTapPosition, double targetV, Side regulatedSide, double v, boolean connected,
                       boolean mainComponent, boolean validated) throws IOException {
         Objects.requireNonNull(twtId);
-        TransformerData emptyTwtData = new TransformerData(twtId, Float.NaN, Float.NaN, Float.NaN, Float.NaN, Float.NaN,
-                                                           Float.NaN, -1, -1, -1, Float.NaN, Side.ONE, Float.NaN, false, false, false);
+        TransformerData emptyTwtData = new TransformerData(twtId, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
+                                                           Double.NaN, -1, -1, -1, Double.NaN, Side.ONE, Double.NaN, false, false, false);
         if (compareResults) {
             if (preLoadflowValidationCompleted) {
                 boolean found = twtsData.containsKey(twtId);
@@ -227,8 +227,8 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
         }
     }
 
-    protected abstract void write(String twtId, float error, float upIncrement, float downIncrement, float rho, float rhoPreviousStep, float rhoNextStep,
-                                  int tapPosition, int lowTapPosition, int highTapPosition, float targetV, Side regulatedSide, float v, boolean connected,
+    protected abstract void write(String twtId, double error, double upIncrement, double downIncrement, double rho, double rhoPreviousStep, double rhoNextStep,
+                                  int tapPosition, int lowTapPosition, int highTapPosition, double targetV, Side regulatedSide, double v, boolean connected,
                                   boolean mainComponent, boolean validated, TransformerData twtData, boolean found, boolean writeValues) throws IOException;
 
     @Override
@@ -276,8 +276,8 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
     private void writeGeneratorsData() {
         generatorsData.values().forEach(generatorData -> {
             try {
-                write(generatorData.generatorId, Float.NaN, Float.NaN, Float.NaN, Float.NaN, Float.NaN,
-                      Float.NaN, false, false, Float.NaN, Float.NaN, Float.NaN, Float.NaN, false, false,
+                write(generatorData.generatorId, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
+                      Double.NaN, false, false, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, false,
                       generatorData, true, false);
             } catch (IOException e) {
                 LOGGER.error("Error writing data of generator {}: {}", generatorData.generatorId, e.getMessage());
@@ -300,8 +300,8 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
     private void writeSvcsData() {
         svcsData.values().forEach(svcData -> {
             try {
-                write(svcData.svcId, Float.NaN, Float.NaN, Float.NaN, Float.NaN, Float.NaN, Float.NaN,
-                      false, RegulationMode.OFF, Float.NaN, Float.NaN, false, false, svcData, true, false);
+                write(svcData.svcId, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
+                      false, RegulationMode.OFF, Double.NaN, Double.NaN, false, false, svcData, true, false);
             } catch (IOException e) {
                 LOGGER.error("Error writing data of svc {}: {}", svcData.svcId, e.getMessage());
             }
@@ -311,8 +311,8 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
     private void writeShuntsData() {
         shuntsData.values().forEach(shuntData -> {
             try {
-                write(shuntData.shuntId, Float.NaN, Float.NaN, Float.NaN, -1, -1, Float.NaN,
-                      Float.NaN, false, Float.NaN, Float.NaN, false, false, shuntData, true, false);
+                write(shuntData.shuntId, Double.NaN, Double.NaN, Double.NaN, -1, -1, Double.NaN,
+                      Double.NaN, false, Double.NaN, Double.NaN, false, false, shuntData, true, false);
             } catch (IOException e) {
                 LOGGER.error("Error writing data of shunt {}: {}", shuntData.shuntId, e.getMessage());
             }
@@ -322,8 +322,8 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
     private void writeTwtsData() {
         twtsData.values().forEach(twtData -> {
             try {
-                write(twtData.twtId, Float.NaN, Float.NaN, Float.NaN, Float.NaN, Float.NaN, Float.NaN,
-                      -1, -1, -1, Float.NaN, Side.ONE, Float.NaN, false, false, false, twtData, true, false);
+                write(twtData.twtId, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
+                      -1, -1, -1, Double.NaN, Side.ONE, Double.NaN, false, false, false, twtData, true, false);
             } catch (IOException e) {
                 LOGGER.error("Error writing data of twt {}: {}", twtData.twtId, e.getMessage());
             }
@@ -410,23 +410,23 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
 
     class GeneratorData {
         final String generatorId;
-        final float p;
-        final float q;
-        final float v;
-        final float targetP;
-        final float targetQ;
-        final float targetV;
+        final double p;
+        final double q;
+        final double v;
+        final double targetP;
+        final double targetQ;
+        final double targetV;
         final boolean connected;
         final boolean voltageRegulatorOn;
-        final float minP;
-        final float maxP;
-        final float minQ;
-        final float maxQ;
+        final double minP;
+        final double maxP;
+        final double minQ;
+        final double maxQ;
         final boolean mainComponent;
         final boolean validated;
 
-        GeneratorData(String generatorId, float p, float q, float v, float targetP, float targetQ, float targetV,
-                      boolean connected, boolean voltageRegulatorOn, float minP, float maxP, float minQ, float maxQ,
+        GeneratorData(String generatorId, double p, double q, double v, double targetP, double targetQ, double targetV,
+                      boolean connected, boolean voltageRegulatorOn, double minP, double maxP, double minQ, double maxQ,
                       boolean mainComponent, boolean validated) {
             this.generatorId = Objects.requireNonNull(generatorId);
             this.p = p;
@@ -507,21 +507,21 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
     class SvcData {
 
         final String svcId;
-        final float p;
-        final float q;
-        final float v;
-        final float nominalV;
-        final float reactivePowerSetpoint;
-        final float voltageSetpoint;
+        final double p;
+        final double q;
+        final double v;
+        final double nominalV;
+        final double reactivePowerSetpoint;
+        final double voltageSetpoint;
         final boolean connected;
         final RegulationMode regulationMode;
-        final float bMin;
-        final float bMax;
+        final double bMin;
+        final double bMax;
         final boolean mainComponent;
         final boolean validated;
 
-        SvcData(String svcId, float p, float q, float v, float nominalV, float reactivePowerSetpoint, float voltageSetpoint,
-                boolean connected, RegulationMode regulationMode, float bMin, float bMax, boolean mainComponent, boolean validated) {
+        SvcData(String svcId, double p, double q, double v, double nominalV, double reactivePowerSetpoint, double voltageSetpoint,
+                boolean connected, RegulationMode regulationMode, double bMin, double bMax, boolean mainComponent, boolean validated) {
             this.svcId = Objects.requireNonNull(svcId);
             this.p = p;
             this.q = q;
@@ -542,21 +542,21 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
     class ShuntData {
 
         final String shuntId;
-        final float q;
-        final float expectedQ;
-        final float p;
+        final double q;
+        final double expectedQ;
+        final double p;
         final int currentSectionCount;
         final int maximumSectionCount;
-        final float bPerSection;
-        final float v;
+        final double bPerSection;
+        final double v;
         final boolean connected;
-        final float qMax;
-        final float nominalV;
+        final double qMax;
+        final double nominalV;
         final boolean mainComponent;
         final boolean validated;
 
-        ShuntData(String shuntId, float q, float expectedQ, float p, int currentSectionCount, int maximumSectionCount,
-                  float bPerSection, float v, boolean connected, float qMax, float nominalV, boolean mainComponent, boolean validated) {
+        ShuntData(String shuntId, double q, double expectedQ, double p, int currentSectionCount, int maximumSectionCount,
+                  double bPerSection, double v, boolean connected, double qMax, double nominalV, boolean mainComponent, boolean validated) {
             this.shuntId = Objects.requireNonNull(shuntId);
             this.q = q;
             this.expectedQ = expectedQ;
@@ -576,25 +576,25 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
 
     class TransformerData {
         final String twtId;
-        final float error;
-        final float upIncrement;
-        final float downIncrement;
-        final float rho;
-        final float rhoPreviousStep;
-        final float rhoNextStep;
+        final double error;
+        final double upIncrement;
+        final double downIncrement;
+        final double rho;
+        final double rhoPreviousStep;
+        final double rhoNextStep;
         final int tapPosition;
         final int lowTapPosition;
         final int highTapPosition;
-        final float targetV;
+        final double targetV;
         final Side regulatedSide;
-        final float v;
+        final double v;
         final boolean connected;
         final boolean mainComponent;
         final boolean validated;
 
-        TransformerData(String twtId, float error, float upIncrement, float downIncrement, float rho, float rhoPreviousStep,
-                        float rhoNextStep, int tapPosition, int lowTapPosition, int highTapPosition, float targetV, Side regulatedSide,
-                        float v, boolean connected, boolean mainComponent, boolean validated) {
+        TransformerData(String twtId, double error, double upIncrement, double downIncrement, double rho, double rhoPreviousStep,
+                        double rhoNextStep, int tapPosition, int lowTapPosition, int highTapPosition, double targetV, Side regulatedSide,
+                        double v, boolean connected, boolean mainComponent, boolean validated) {
             this.twtId = twtId;
             this.error = error;
             this.upIncrement = upIncrement;

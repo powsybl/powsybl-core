@@ -101,10 +101,10 @@ public final class TransformersValidation {
         int tapPosition = ratioTapChanger.getTapPosition();
         int lowTapPosition = ratioTapChanger.getLowTapPosition();
         int highTapPosition = ratioTapChanger.getHighTapPosition();
-        float rho = ratioTapChanger.getCurrentStep().getRho();
-        float rhoPreviousStep = tapPosition == lowTapPosition ? Float.NaN : ratioTapChanger.getStep(tapPosition - 1).getRho();
-        float rhoNextStep = tapPosition == highTapPosition ? Float.NaN : ratioTapChanger.getStep(tapPosition + 1).getRho();
-        float targetV = ratioTapChanger.getTargetV();
+        double rho = ratioTapChanger.getCurrentStep().getRho();
+        double rhoPreviousStep = tapPosition == lowTapPosition ? Double.NaN : ratioTapChanger.getStep(tapPosition - 1).getRho();
+        double rhoNextStep = tapPosition == highTapPosition ? Double.NaN : ratioTapChanger.getStep(tapPosition + 1).getRho();
+        double targetV = ratioTapChanger.getTargetV();
         Side regulatedSide;
         if (twt.getTerminal1().equals(ratioTapChanger.getRegulationTerminal())) {
             regulatedSide = Side.ONE;
@@ -114,7 +114,7 @@ public final class TransformersValidation {
             throw new AssertionError("Unexpected regulation terminal (side 1 or 2 of transformer is expected)");
         }
         Bus bus = ratioTapChanger.getRegulationTerminal().getBusView().getBus();
-        float v = bus != null ? bus.getV() : Float.NaN;
+        double v = bus != null ? bus.getV() : Double.NaN;
         boolean connected = bus != null;
         Bus connectableBus = ratioTapChanger.getRegulationTerminal().getBusView().getConnectableBus();
         boolean connectableMainComponent = connectableBus != null && connectableBus.isInMainConnectedComponent();
@@ -123,8 +123,8 @@ public final class TransformersValidation {
                                  targetV, regulatedSide, v, connected, mainComponent, config, twtsWriter);
     }
 
-    public static boolean checkTransformer(String id, float rho, float rhoPreviousStep, float rhoNextStep, int tapPosition,
-                                           int lowTapPosition, int highTapPosition, float targetV, Side regulatedSide, float v,
+    public static boolean checkTransformer(String id, double rho, double rhoPreviousStep, double rhoNextStep, int tapPosition,
+                                           int lowTapPosition, int highTapPosition, double targetV, Side regulatedSide, double v,
                                            boolean connected, boolean mainComponent, ValidationConfig config, Writer writer) {
         Objects.requireNonNull(id);
         Objects.requireNonNull(config);
@@ -138,17 +138,17 @@ public final class TransformersValidation {
         }
     }
 
-    public static boolean checkTransformer(String id, float rho, float rhoPreviousStep, float rhoNextStep, int tapPosition,
-                                           int lowTapPosition, int highTapPosition, float targetV, Side regulatedSide, float v,
+    public static boolean checkTransformer(String id, double rho, double rhoPreviousStep, double rhoNextStep, int tapPosition,
+                                           int lowTapPosition, int highTapPosition, double targetV, Side regulatedSide, double v,
                                            boolean connected, boolean mainComponent, ValidationConfig config, ValidationWriter twtsWriter) {
         Objects.requireNonNull(id);
         Objects.requireNonNull(config);
         Objects.requireNonNull(twtsWriter);
 
         boolean validated = true;
-        float error = v - targetV;
-        float upIncrement = Float.isNaN(rhoNextStep) ? Float.NaN : evaluateVoltage(regulatedSide, v, rho, rhoNextStep) - v;
-        float downIncrement = Float.isNaN(rhoPreviousStep) ? Float.NaN : evaluateVoltage(regulatedSide, v, rho, rhoPreviousStep) - v;
+        double error = v - targetV;
+        double upIncrement = Double.isNaN(rhoNextStep) ? Double.NaN : evaluateVoltage(regulatedSide, v, rho, rhoNextStep) - v;
+        double downIncrement = Double.isNaN(rhoPreviousStep) ? Double.NaN : evaluateVoltage(regulatedSide, v, rho, rhoPreviousStep) - v;
         if (connected && ValidationUtils.isMainComponent(config, mainComponent)) {
             validated = checkTransformerSide(id, regulatedSide, error, upIncrement, downIncrement, config);
         }
@@ -166,7 +166,7 @@ public final class TransformersValidation {
      *  assuming "nothing else changes": voltage on the other side is kept constant,
      *  voltage decrease through the impedance is kept constant (perfect transformer approximation).
      */
-    private static float evaluateVoltage(Side regulatedSide, float voltage, float ratio, float nextRatio) {
+    private static double evaluateVoltage(Side regulatedSide, double voltage, double ratio, double nextRatio) {
         switch (regulatedSide) {
             case ONE:
                 return voltage * ratio / nextRatio;
@@ -181,18 +181,18 @@ public final class TransformersValidation {
      * Checks that the voltage deviation from the target voltage stays inside a deadband around the target voltage,
      * taken equal to the maximum possible voltage increase/decrease for a one-tap change.
      */
-    private static boolean checkTransformerSide(String id, Side side, float error, float upIncrement, float downIncrement, ValidationConfig config) {
+    private static boolean checkTransformerSide(String id, Side side, double error, double upIncrement, double downIncrement, ValidationConfig config) {
         boolean validated = true;
-        float maxIncrease = getMaxVoltageIncrease(upIncrement, downIncrement);
-        float maxDecrease = getMaxVoltageDecrease(upIncrement, downIncrement);
+        double maxIncrease = getMaxVoltageIncrease(upIncrement, downIncrement);
+        double maxDecrease = getMaxVoltageDecrease(upIncrement, downIncrement);
         if (ValidationUtils.areNaN(config, error)) {
             LOGGER.warn("{} {}: {} side {}: error {}", ValidationType.TWTS, ValidationUtils.VALIDATION_ERROR, id, side, error);
             return false;
         }
         // if error is negative, i.e if voltage is lower than target, and an increase is possible,
         // check that voltage is inside the downward deadband, taken equal to the possible increase
-        if (error < 0 && !Float.isNaN(maxIncrease)) {
-            float downDeadband = maxIncrease;
+        if (error < 0 && !Double.isNaN(maxIncrease)) {
+            double downDeadband = maxIncrease;
 
             if (error + downDeadband < -config.getThreshold()) {
                 LOGGER.warn("{} {}: {} side {}: error {} upIncrement {} downIncrement {}",
@@ -203,8 +203,8 @@ public final class TransformersValidation {
 
         // if error is positive, i.e if voltage is higher than target, and a voltage decrease is possible,
         // check that voltage is inside the upward deadband, taken equal to the possible decrease
-        if (error > 0 && !Float.isNaN(maxDecrease)) {
-            float upDeadband = -maxDecrease;
+        if (error > 0 && !Double.isNaN(maxDecrease)) {
+            double upDeadband = -maxDecrease;
 
             if (error - upDeadband > config.getThreshold()) {
                 LOGGER.warn("{} {}: {} side {}: error {} upIncrement {} downIncrement {}",
@@ -219,16 +219,16 @@ public final class TransformersValidation {
      *  Being given both increments corresponding to taps -1 and +1, returns the maximum voltage increase,
      *  or NaN if no increase is possible.
      */
-    private static float getMaxVoltageIncrease(float upIncrement, float downIncrement) {
+    private static double getMaxVoltageIncrease(double upIncrement, double downIncrement) {
 
-        if (Float.isNaN(downIncrement) && Float.isNaN(upIncrement)) {
-            return Float.NaN;
+        if (Double.isNaN(downIncrement) && Double.isNaN(upIncrement)) {
+            return Double.NaN;
         }
-        if (Float.isNaN(upIncrement)) {
-            return downIncrement > 0 ? downIncrement : Float.NaN;
+        if (Double.isNaN(upIncrement)) {
+            return downIncrement > 0 ? downIncrement : Double.NaN;
         }
-        if (Float.isNaN(downIncrement)) {
-            return upIncrement > 0 ? upIncrement : Float.NaN;
+        if (Double.isNaN(downIncrement)) {
+            return upIncrement > 0 ? upIncrement : Double.NaN;
         }
         return Math.max(upIncrement, downIncrement);
     }
@@ -237,15 +237,15 @@ public final class TransformersValidation {
      *  Being given both increments corresponding to taps -1 and +1, returns the maximum voltage decrease (as a negative number),
      *  or NaN if no decrease is possible.
      */
-    private static float getMaxVoltageDecrease(float upIncrement, float downIncrement) {
-        if (Float.isNaN(downIncrement) && Float.isNaN(upIncrement)) {
-            return Float.NaN;
+    private static double getMaxVoltageDecrease(double upIncrement, double downIncrement) {
+        if (Double.isNaN(downIncrement) && Double.isNaN(upIncrement)) {
+            return Double.NaN;
         }
-        if (Float.isNaN(upIncrement)) {
-            return downIncrement < 0 ? downIncrement : Float.NaN;
+        if (Double.isNaN(upIncrement)) {
+            return downIncrement < 0 ? downIncrement : Double.NaN;
         }
-        if (Float.isNaN(downIncrement)) {
-            return upIncrement < 0 ? upIncrement : Float.NaN;
+        if (Double.isNaN(downIncrement)) {
+            return upIncrement < 0 ? upIncrement : Double.NaN;
         }
         return Math.min(upIncrement, downIncrement);
     }

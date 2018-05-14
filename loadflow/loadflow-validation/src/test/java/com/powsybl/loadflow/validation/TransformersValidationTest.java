@@ -32,17 +32,17 @@ import com.powsybl.iidm.network.TwoWindingsTransformer;
  */
 public class TransformersValidationTest extends AbstractValidationTest {
 
-    private final float rho = 1.034f;
-    private final float rhoPreviousStep = 1.043f;
-    private final float rhoNextStep = 1.024f;
+    private final double rho = 1.034;
+    private final double rhoPreviousStep = 1.043;
+    private final double rhoNextStep = 1.024;
     private final int tapPosition = 8;
     private final int lowTapPosition = 0;
     private final int highTapPosition = 30;
-    private final float targetV = 92.7781f;
+    private final double targetV = 92.7781;
     private final Side regulatedSide = Side.ONE;
-    private final float v = 92.8007f;
-    private final float lowV = 88.13f;;
-    private final float highV = 97.342f;
+    private final double v = 92.8007;
+    private final double lowV = 88.13;;
+    private final double highV = 97.342;
     private final boolean connected = true;
     private final boolean mainComponent = true;
 

@@ -36,7 +36,7 @@ public final class FlowsValidation {
     }
 
     public static boolean checkFlows(String id, double r, double x, double rho1, double rho2, double u1, double u2, double theta1, double theta2, double alpha1,
-                                     double alpha2, double g1, double g2, double b1, double b2, float p1, float q1, float p2, float q2, boolean connected1,
+                                     double alpha2, double g1, double g2, double b1, double b2, double p1, double q1, double p2, double q2, boolean connected1,
                                      boolean connected2, boolean mainComponent1, boolean mainComponent2, ValidationConfig config, Writer writer) {
         Objects.requireNonNull(id);
         Objects.requireNonNull(config);
@@ -51,7 +51,7 @@ public final class FlowsValidation {
     }
 
     public static boolean checkFlows(String id, double r, double x, double rho1, double rho2, double u1, double u2, double theta1, double theta2, double alpha1,
-                                      double alpha2, double g1, double g2, double b1, double b2, float p1, float q1, float p2, float q2, boolean connected1,
+                                      double alpha2, double g1, double g2, double b1, double b2, double p1, double q1, double p2, double q2, boolean connected1,
                                       boolean connected2, boolean mainComponent1, boolean mainComponent2, ValidationConfig config, ValidationWriter flowsWriter) {
         Objects.requireNonNull(id);
         Objects.requireNonNull(config);
@@ -70,10 +70,10 @@ public final class FlowsValidation {
         double computedU2 = computeU(connected2, connected1, u2, u1, rho2, rho1, g2, b2, y, ksi);
         double computedTheta1 = computeTheta(connected1, connected2, theta1, theta2, alpha1, alpha2, computedU1, computedU2, rho1, rho2, g1, b1, y, ksi);
         double computedTheta2 = computeTheta(connected2, connected1, theta2, theta1, alpha2, alpha1, computedU2, computedU1, rho2, rho1, g2, b2, y, ksi);
-        double p1Calc = connected1 ? rho1 * rho2 * computedU1 * computedU2 * y * Math.sin(computedTheta1 - computedTheta2 - ksi + alpha1 - alpha2) + rho1 * rho1 * computedU1 * computedU1 * (y * Math.sin(ksi) + g1) : Float.NaN;
-        double q1Calc = connected1 ? -rho1 * rho2 * computedU1 * computedU2 * y * Math.cos(computedTheta1 - computedTheta2 - ksi + alpha1 - alpha2) + rho1 * rho1 * computedU1 * computedU1 * (y * Math.cos(ksi) - b1) : Float.NaN;
-        double p2Calc = connected2 ? rho2 * rho1 * computedU2 * computedU1 * y * Math.sin(computedTheta2 - computedTheta1 - ksi + alpha2 - alpha1) + rho2 * rho2 * computedU2 * computedU2 * (y * Math.sin(ksi) + g2) : Float.NaN;
-        double q2Calc = connected2 ? -rho2 * rho1 * computedU2 * computedU1 * y * Math.cos(computedTheta2 - computedTheta1 - ksi + alpha2 - alpha1) + rho2 * rho2 * computedU2 * computedU2 * (y * Math.cos(ksi) - b2) : Float.NaN;
+        double p1Calc = connected1 ? rho1 * rho2 * computedU1 * computedU2 * y * Math.sin(computedTheta1 - computedTheta2 - ksi + alpha1 - alpha2) + rho1 * rho1 * computedU1 * computedU1 * (y * Math.sin(ksi) + g1) : Double.NaN;
+        double q1Calc = connected1 ? -rho1 * rho2 * computedU1 * computedU2 * y * Math.cos(computedTheta1 - computedTheta2 - ksi + alpha1 - alpha2) + rho1 * rho1 * computedU1 * computedU1 * (y * Math.cos(ksi) - b1) : Double.NaN;
+        double p2Calc = connected2 ? rho2 * rho1 * computedU2 * computedU1 * y * Math.sin(computedTheta2 - computedTheta1 - ksi + alpha2 - alpha1) + rho2 * rho2 * computedU2 * computedU2 * (y * Math.sin(ksi) + g2) : Double.NaN;
+        double q2Calc = connected2 ? -rho2 * rho1 * computedU2 * computedU1 * y * Math.cos(computedTheta2 - computedTheta1 - ksi + alpha2 - alpha1) + rho2 * rho2 * computedU2 * computedU2 * (y * Math.cos(ksi) - b2) : Double.NaN;
 
         if (!connected1) {
             validated &= checkDisconnectedTerminal(id, "1", p1, p1Calc, q1, q1Calc, config);
@@ -123,20 +123,20 @@ public final class FlowsValidation {
         return Math.atan(-z1 / z2) + phi + (cosTheatMinusPhi < 0 ? Math.PI : 0);
     }
 
-    private static boolean checkDisconnectedTerminal(String id, String terminalNumber, float p, double pCalc, float q, double qCalc, ValidationConfig config) {
+    private static boolean checkDisconnectedTerminal(String id, String terminalNumber, double p, double pCalc, double q, double qCalc, ValidationConfig config) {
         boolean validated = true;
-        if (!Float.isNaN(p) && Math.abs(p) > config.getThreshold()) {
+        if (!Double.isNaN(p) && Math.abs(p) > config.getThreshold()) {
             LOGGER.warn("{} {}: {} disconnected P{} {} {}", ValidationType.FLOWS, ValidationUtils.VALIDATION_ERROR, id, terminalNumber, p, pCalc);
             validated = false;
         }
-        if (!Float.isNaN(q) && Math.abs(q) > config.getThreshold()) {
+        if (!Double.isNaN(q) && Math.abs(q) > config.getThreshold()) {
             LOGGER.warn("{} {}: {} disconnected Q{} {} {}", ValidationType.FLOWS, ValidationUtils.VALIDATION_ERROR, id, terminalNumber, q, qCalc);
             validated = false;
         }
         return validated;
     }
 
-    private static boolean checkConnectedTerminal(String id, String terminalNumber, float p, double pCalc, float q, double qCalc, ValidationConfig config) {
+    private static boolean checkConnectedTerminal(String id, String terminalNumber, double p, double pCalc, double q, double qCalc, ValidationConfig config) {
         boolean validated = true;
         if (ValidationUtils.areNaN(config, pCalc) || Math.abs(p - pCalc) > config.getThreshold()) {
             LOGGER.warn("{} {}: {} P{} {} {}", ValidationType.FLOWS, ValidationUtils.VALIDATION_ERROR, id, terminalNumber, p, pCalc);
@@ -166,22 +166,22 @@ public final class FlowsValidation {
         Objects.requireNonNull(config);
         Objects.requireNonNull(flowsWriter);
 
-        float p1 = l.getTerminal1().getP();
-        float q1 = l.getTerminal1().getQ();
-        float p2 = l.getTerminal2().getP();
-        float q2 = l.getTerminal2().getQ();
+        double p1 = l.getTerminal1().getP();
+        double q1 = l.getTerminal1().getQ();
+        double p2 = l.getTerminal2().getP();
+        double q2 = l.getTerminal2().getQ();
         Bus bus1 = l.getTerminal1().getBusView().getBus();
         Bus bus2 = l.getTerminal2().getBusView().getBus();
         double r = l.getR();
         double x = l.getX();
-        double rho1 = 1f;
-        double rho2 = 1f;
+        double rho1 = 1.0;
+        double rho2 = 1.0;
         double u1 = bus1 != null ? bus1.getV() : Double.NaN;
         double u2 = bus2 != null ? bus2.getV() : Double.NaN;
         double theta1 = bus1 != null ? Math.toRadians(bus1.getAngle()) : Double.NaN;
         double theta2 = bus2 != null ? Math.toRadians(bus2.getAngle()) : Double.NaN;
-        double alpha1 = 0f;
-        double alpha2 = 0f;
+        double alpha1 = 0.0;
+        double alpha2 = 0.0;
         double g1 = l.getG1();
         double g2 = l.getG2();
         double b1 = l.getB1();
@@ -215,26 +215,26 @@ public final class FlowsValidation {
         Objects.requireNonNull(config);
         Objects.requireNonNull(flowsWriter);
 
-        float p1 = twt.getTerminal1().getP();
-        float q1 = twt.getTerminal1().getQ();
-        float p2 = twt.getTerminal2().getP();
-        float q2 = twt.getTerminal2().getQ();
+        double p1 = twt.getTerminal1().getP();
+        double q1 = twt.getTerminal1().getQ();
+        double p2 = twt.getTerminal2().getP();
+        double q2 = twt.getTerminal2().getQ();
         Bus bus1 = twt.getTerminal1().getBusView().getBus();
         Bus bus2 = twt.getTerminal2().getBusView().getBus();
-        float r = (float) getR(twt);
-        float x = (float) getX(twt);
+        double r = getR(twt);
+        double x = getX(twt);
         double g1 = getG1(twt, config);
-        double g2 = config.getLoadFlowParameters().isSpecificCompatibility() ? twt.getG() / 2 : 0f;
+        double g2 = config.getLoadFlowParameters().isSpecificCompatibility() ? twt.getG() / 2 : 0.0;
         double b1 = getB1(twt, config);
-        double b2 = config.getLoadFlowParameters().isSpecificCompatibility() ? twt.getB() / 2 : 0f;
+        double b2 = config.getLoadFlowParameters().isSpecificCompatibility() ? twt.getB() / 2 : 0.0;
         double rho1 = getRho1(twt);
-        double rho2 = 1f;
+        double rho2 = 1.0;
         double u1 = bus1 != null ? bus1.getV() : Double.NaN;
         double u2 = bus2 != null ? bus2.getV() : Double.NaN;
         double theta1 = bus1 != null ? Math.toRadians(bus1.getAngle()) : Double.NaN;
         double theta2 = bus2 != null ? Math.toRadians(bus2.getAngle()) : Double.NaN;
-        double alpha1 = twt.getPhaseTapChanger() != null ? Math.toRadians(twt.getPhaseTapChanger().getCurrentStep().getAlpha()) : 0f;
-        double alpha2 = 0f;
+        double alpha1 = twt.getPhaseTapChanger() != null ? Math.toRadians(twt.getPhaseTapChanger().getCurrentStep().getAlpha()) : 0.0;
+        double alpha2 = 0.0;
         boolean connected1 = bus1 != null ? true : false;
         boolean connected2 = bus2 != null ? true : false;
         Bus connectableBus1 = twt.getTerminal1().getBusView().getConnectableBus();
@@ -247,7 +247,7 @@ public final class FlowsValidation {
                           mainComponent1, mainComponent2, config, flowsWriter);
     }
 
-    private static double getValue(float initialValue, float rtcStepValue, float ptcStepValue) {
+    private static double getValue(double initialValue, double rtcStepValue, double ptcStepValue) {
         return initialValue * (1 + rtcStepValue / 100) * (1 + ptcStepValue / 100);
     }
 

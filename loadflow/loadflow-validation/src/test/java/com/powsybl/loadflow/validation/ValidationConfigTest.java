@@ -33,10 +33,10 @@ public class ValidationConfigTest {
     InMemoryPlatformConfig platformConfig;
     FileSystem fileSystem;
     Class<? extends LoadFlowFactory> loadFlowFactory = LoadFlowFactoryMock.class;
-    float threshold = 0.1f;
+    double threshold = 0.1;
     boolean verbose = true;
     Class<? extends TableFormatterFactory> tableFormatterFactory = AsciiTableFormatterFactory.class;
-    float epsilonX = 0.1f;
+    double epsilonX = 0.1;
     boolean applyReactanceCorrection = true;
     ValidationOutputWriter validationOutputWriter = ValidationOutputWriter.CSV;
     boolean okMissingValues = true;
@@ -70,9 +70,9 @@ public class ValidationConfigTest {
     @Test
     public void checkIncompleteConfig() throws Exception {
         MapModuleConfig moduleConfig = platformConfig.createModuleConfig("loadflow-validation");
-        moduleConfig.setStringProperty("threshold", Float.toString(threshold));
+        moduleConfig.setStringProperty("threshold", Double.toString(threshold));
         moduleConfig.setStringProperty("verbose", Boolean.toString(verbose));
-        moduleConfig.setStringProperty("epsilon-x", Float.toString(epsilonX));
+        moduleConfig.setStringProperty("epsilon-x", Double.toString(epsilonX));
         moduleConfig.setStringProperty("apply-reactance-correction", Boolean.toString(applyReactanceCorrection));
         ValidationConfig config = ValidationConfig.load(platformConfig);
         checkValues(config, threshold, verbose, loadFlowFactory, ValidationConfig.TABLE_FORMATTER_FACTORY_DEFAULT, epsilonX, applyReactanceCorrection,
@@ -84,11 +84,11 @@ public class ValidationConfigTest {
     @Test
     public void checkCompleteConfig() throws Exception {
         MapModuleConfig moduleConfig = platformConfig.createModuleConfig("loadflow-validation");
-        moduleConfig.setStringProperty("threshold", Float.toString(threshold));
+        moduleConfig.setStringProperty("threshold", Double.toString(threshold));
         moduleConfig.setStringProperty("verbose", Boolean.toString(verbose));
         moduleConfig.setStringProperty("load-flow-factory", loadFlowFactory.getCanonicalName());
         moduleConfig.setStringProperty("table-formatter-factory", tableFormatterFactory.getCanonicalName());
-        moduleConfig.setStringProperty("epsilon-x", Float.toString(epsilonX));
+        moduleConfig.setStringProperty("epsilon-x", Double.toString(epsilonX));
         moduleConfig.setStringProperty("apply-reactance-correction", Boolean.toString(applyReactanceCorrection));
         moduleConfig.setStringProperty("output-writer", validationOutputWriter.name());
         moduleConfig.setStringProperty("ok-missing-values", Boolean.toString(okMissingValues));
@@ -120,15 +120,15 @@ public class ValidationConfigTest {
                     noRequirementIfReactiveBoundInversion, compareResults, checkMainComponentOnly, noRequirementIfSetpointOutsidePowerBounds);
     }
 
-    private void checkValues(ValidationConfig config, float threshold, boolean verbose, Class<? extends LoadFlowFactory> loadFlowFactory,
-                             Class<? extends TableFormatterFactory> tableFormatterFactory, float epsilonX, boolean applyReactanceCorrection,
+    private void checkValues(ValidationConfig config, double threshold, boolean verbose, Class<? extends LoadFlowFactory> loadFlowFactory,
+                             Class<? extends TableFormatterFactory> tableFormatterFactory, double epsilonX, boolean applyReactanceCorrection,
                              ValidationOutputWriter validationOutputWriter, boolean okMissingValues, boolean noRequirementIfReactiveBoundInversion,
                              boolean compareResults, boolean checkMainComponentOnly, boolean noRequirementIfSetpointOutsidePowerBounds) {
-        assertEquals(threshold, config.getThreshold(), 0f);
+        assertEquals(threshold, config.getThreshold(), 0.0);
         assertEquals(verbose, config.isVerbose());
         assertEquals(loadFlowFactory, config.getLoadFlowFactory());
         assertEquals(tableFormatterFactory, config.getTableFormatterFactory());
-        assertEquals(epsilonX, config.getEpsilonX(), 0f);
+        assertEquals(epsilonX, config.getEpsilonX(), 0.0);
         assertEquals(applyReactanceCorrection, config.applyReactanceCorrection());
         assertEquals(validationOutputWriter, config.getValidationOutputWriter());
         assertEquals(okMissingValues, config.areOkMissingValues());
