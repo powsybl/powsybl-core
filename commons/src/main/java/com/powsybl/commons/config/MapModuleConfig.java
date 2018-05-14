@@ -67,8 +67,9 @@ public class MapModuleConfig implements ModuleConfig {
         return new PowsyblException("Property " + name + " is not set");
     }
 
-    private static PowsyblException createUnexpectedPropertyTypeException(Object value) {
-        return new PowsyblException("Unexpected property value type: " + value.getClass().getName());
+    private static PowsyblException createUnexpectedPropertyTypeException(String name, Class<?> type, Class<?>[] expectedTypes) {
+        return new PowsyblException("Unexpected value type " + type.getName()
+                + " for property " + name + ", " + Arrays.toString(expectedTypes) + " is expected ");
     }
 
     public Optional<String> getOptionalStringProperty(String name) {
@@ -78,7 +79,7 @@ public class MapModuleConfig implements ModuleConfig {
             return Optional.empty();
         }
         if (!(value instanceof String)) {
-            throw createUnexpectedPropertyTypeException(value);
+            throw createUnexpectedPropertyTypeException(name, value.getClass(), new Class[] {String.class});
         }
         return Optional.of((String) value).map(MapModuleConfig::substitureEnvVar);
     }
@@ -104,11 +105,11 @@ public class MapModuleConfig implements ModuleConfig {
             return Optional.empty();
         } else {
             if (value instanceof String) {
-                return Optional.of(new ArrayList<>(Arrays.asList((substitureEnvVar((String) value)).split("[:,]"))));
+                return Optional.of(Arrays.asList((substitureEnvVar((String) value)).split("[:,]")));
             } else if (value instanceof List) {
                 return Optional.of(((List<String>) value).stream().map(MapModuleConfig::substitureEnvVar).collect(Collectors.toList()));
             } else {
-                throw createUnexpectedPropertyTypeException(value);
+                throw createUnexpectedPropertyTypeException(name, value.getClass(), new Class[] {String.class, List.class});
             }
         }
     }
@@ -164,9 +165,13 @@ public class MapModuleConfig implements ModuleConfig {
         if (value instanceof Integer) {
             return Optional.of((Integer) value);
         } else if (value instanceof String) {
-            return Optional.of(Integer.parseInt((String) value));
+            try {
+                return Optional.of(Integer.parseInt((String) value));
+            } catch (NumberFormatException e) {
+                throw new PowsyblException("Property " + name + " is not an integer", e);
+            }
         } else {
-            throw createUnexpectedPropertyTypeException(value);
+            throw createUnexpectedPropertyTypeException(name, value.getClass(), new Class[] {String.class, Integer.class});
         }
     }
 
@@ -195,9 +200,13 @@ public class MapModuleConfig implements ModuleConfig {
         if (value instanceof Number) {
             return Optional.of(((Number) value).floatValue());
         } else if (value instanceof String) {
-            return Optional.of(Float.parseFloat((String) value));
+            try {
+                return Optional.of(Float.parseFloat((String) value));
+            } catch (NumberFormatException e) {
+                throw new PowsyblException("Property " + name + " is not a float", e);
+            }
         } else {
-            throw createUnexpectedPropertyTypeException(value);
+            throw createUnexpectedPropertyTypeException(name, value.getClass(), new Class[] {Number.class, String.class});
         }
     }
 
@@ -221,9 +230,13 @@ public class MapModuleConfig implements ModuleConfig {
         if (value instanceof Number) {
             return OptionalDouble.of(((Number) value).doubleValue());
         } else if (value instanceof String) {
-            return OptionalDouble.of(Double.parseDouble((String) value));
+            try {
+                return OptionalDouble.of(Double.parseDouble((String) value));
+            } catch (NumberFormatException e) {
+                throw new PowsyblException("Property " + name + " is not an double", e);
+            }
         } else {
-            throw createUnexpectedPropertyTypeException(value);
+            throw createUnexpectedPropertyTypeException(name, value.getClass(), new Class[] {Number.class, String.class});
         }
     }
 
@@ -249,7 +262,7 @@ public class MapModuleConfig implements ModuleConfig {
         } else if (value instanceof String) {
             return Optional.of(Boolean.parseBoolean((String) value));
         } else {
-            throw createUnexpectedPropertyTypeException(value);
+            throw createUnexpectedPropertyTypeException(name, value.getClass(), new Class[] {Boolean.class, String.class});
         }
     }
 
@@ -331,9 +344,13 @@ public class MapModuleConfig implements ModuleConfig {
         if (value instanceof Date) {
             return Optional.of(new DateTime(value));
         } else if (value instanceof String) {
-            return Optional.of(DateTime.parse((String) value));
+            try {
+                return Optional.of(DateTime.parse((String) value));
+            } catch (IllegalArgumentException e) {
+                throw new PowsyblException("Property " + name + " is not an ISO date time", e);
+            }
         } else {
-            throw createUnexpectedPropertyTypeException(value);
+            throw createUnexpectedPropertyTypeException(name, value.getClass(), new Class[] {Date.class, String.class});
         }
     }
 
