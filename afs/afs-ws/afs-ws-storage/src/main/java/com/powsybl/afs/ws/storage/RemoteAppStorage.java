@@ -51,9 +51,10 @@ public class RemoteAppStorage implements AppStorage {
 
     private static final int BUFFER_MAXIMUM_CHANGE = 1000;
     private static final long BUFFER_MAXIMUM_SIZE = Math.round(Math.pow(2, 20)); // 1Mo
-    public static final String FILE_SYSTEM_NAME = "fileSystemName";
-    public static final String NODE_ID = "nodeId";
-    public static final String VERSION = "version";
+    private static final String FILE_SYSTEM_NAME = "fileSystemName";
+    private static final String NODE_ID = "nodeId";
+    private static final String VERSION = "version";
+    private static final String NODE_DATA_PATH = "fileSystems/{fileSystemName}/nodes/{nodeId}/data/{name}";
 
     private final Client client;
 
@@ -423,7 +424,7 @@ public class RemoteAppStorage implements AppStorage {
 
         LOGGER.debug("readBinaryData(fileSystemName={}, nodeId={}, name={})", fileSystemName, nodeId, name);
 
-        Response response = webTarget.path("fileSystems/{fileSystemName}/nodes/{nodeId}/data/{name}")
+        Response response = webTarget.path(NODE_DATA_PATH)
                 .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
                 .resolveTemplate(NODE_ID, nodeId)
                 .resolveTemplate("name", name)
@@ -451,7 +452,7 @@ public class RemoteAppStorage implements AppStorage {
 
         LOGGER.debug("writeBinaryData(fileSystemName={}, nodeId={}, name={})", fileSystemName, nodeId, name);
 
-        AsyncInvoker asyncInvoker = webTarget.path("fileSystems/{fileSystemName}/nodes/{nodeId}/data/{name}")
+        AsyncInvoker asyncInvoker = webTarget.path(NODE_DATA_PATH)
                 .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
                 .resolveTemplate(NODE_ID, nodeId)
                 .resolveTemplate("name", name)
@@ -471,7 +472,7 @@ public class RemoteAppStorage implements AppStorage {
 
         LOGGER.debug("dataExists(fileSystemName={}, nodeId={}, name={})", fileSystemName, nodeId, name);
 
-        Response response = webTarget.path("fileSystems/{fileSystemName}/nodes/{nodeId}/data/{name}")
+        Response response = webTarget.path(NODE_DATA_PATH)
                 .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
                 .resolveTemplate(NODE_ID, nodeId)
                 .resolveTemplate("name", name)
@@ -512,7 +513,7 @@ public class RemoteAppStorage implements AppStorage {
 
         LOGGER.debug("removeData(fileSystemName={}, nodeId={}, name={})", fileSystemName, nodeId, name);
 
-        Response response = webTarget.path("fileSystems/{fileSystemName}/nodes/{nodeId}/data/{name}")
+        Response response = webTarget.path(NODE_DATA_PATH)
                 .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
                 .resolveTemplate(NODE_ID, nodeId)
                 .resolveTemplate("name", name)

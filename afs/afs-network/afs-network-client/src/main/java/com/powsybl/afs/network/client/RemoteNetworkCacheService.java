@@ -38,6 +38,9 @@ import static com.powsybl.afs.ws.client.utils.ClientUtils.readEntityIfOk;
 class RemoteNetworkCacheService implements NetworkCacheService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RemoteNetworkCacheService.class);
+    private static final String FILE_SYSTEM_NAME = "fileSystemName";
+    private static final String NODE_ID = "nodeId";
+    private static final String NODE_PATH = "fileSystems/{fileSystemName}/nodes/{nodeId}";
 
     private final Supplier<RemoteNetworkCacheServiceConfig> configSupplier;
 
@@ -62,9 +65,9 @@ class RemoteNetworkCacheService implements NetworkCacheService {
         try {
             WebTarget webTarget = createWebTarget(client, configSupplier.get().getRestUri());
 
-            Response response = webTarget.path("fileSystems/{fileSystemName}/nodes/{nodeId}")
-                    .resolveTemplate("fileSystemName", projectCase.getFileSystem().getName())
-                    .resolveTemplate("nodeId", projectCase.getId())
+            Response response = webTarget.path(NODE_PATH)
+                    .resolveTemplate(FILE_SYSTEM_NAME, projectCase.getFileSystem().getName())
+                    .resolveTemplate(NODE_ID, projectCase.getId())
                     .request(MediaType.APPLICATION_XML)
                     .get();
             try (InputStream is = readEntityIfOk(response, InputStream.class)) {
@@ -92,9 +95,9 @@ class RemoteNetworkCacheService implements NetworkCacheService {
         try {
             WebTarget webTarget = createWebTarget(client, configSupplier.get().getRestUri());
 
-            Response response = webTarget.path("fileSystems/{fileSystemName}/nodes/{nodeId}")
-                    .resolveTemplate("fileSystemName", projectCase.getFileSystem().getName())
-                    .resolveTemplate("nodeId", projectCase.getId())
+            Response response = webTarget.path(NODE_PATH)
+                    .resolveTemplate(FILE_SYSTEM_NAME, projectCase.getFileSystem().getName())
+                    .resolveTemplate(NODE_ID, projectCase.getId())
                     .queryParam("scriptType", scriptType.name())
                     .request(MediaType.TEXT_PLAIN)
                     .post(Entity.text(scriptContent));
@@ -119,9 +122,9 @@ class RemoteNetworkCacheService implements NetworkCacheService {
         try {
             WebTarget webTarget = createWebTarget(client, configSupplier.get().getRestUri());
 
-            Response response = webTarget.path("fileSystems/{fileSystemName}/nodes/{nodeId}")
-                    .resolveTemplate("fileSystemName", projectCase.getFileSystem().getName())
-                    .resolveTemplate("nodeId", projectCase.getId())
+            Response response = webTarget.path(NODE_PATH)
+                    .resolveTemplate(FILE_SYSTEM_NAME, projectCase.getFileSystem().getName())
+                    .resolveTemplate(NODE_ID, projectCase.getId())
                     .request()
                     .delete();
             try {
