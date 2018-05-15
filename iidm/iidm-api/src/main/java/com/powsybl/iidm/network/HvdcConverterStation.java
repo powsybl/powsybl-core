@@ -33,12 +33,12 @@ public interface HvdcConverterStation<T extends HvdcConverterStation<T>> extends
      * Get the loss factor.
      * @return the loss factor.
      */
-    double getLossFactor();
+    float getLossFactor();
 
     /**
      * Set the loss factor
      * @param lossFactor the loss factor
      * @return this station
      */
-    T setLossFactor(double lossFactor);
+    T setLossFactor(float lossFactor);
 }

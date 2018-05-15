@@ -16,9 +16,9 @@ class LccConverterStationImpl extends AbstractHvdcConverterStation<LccConverterS
 
     static final String TYPE_DESCRIPTION = "lccConverterStation";
 
-    private double powerFactor;
+    private float powerFactor;
 
-    LccConverterStationImpl(String id, String name, double lossFactor, double powerFactor) {
+    LccConverterStationImpl(String id, String name, float lossFactor, float powerFactor) {
         super(id, name, lossFactor);
         this.powerFactor = powerFactor;
     }
@@ -34,14 +34,14 @@ class LccConverterStationImpl extends AbstractHvdcConverterStation<LccConverterS
     }
 
     @Override
-    public double getPowerFactor() {
+    public float getPowerFactor() {
         return powerFactor;
     }
 
     @Override
-    public LccConverterStation setPowerFactor(double powerFactor) {
+    public LccConverterStation setPowerFactor(float powerFactor) {
         ValidationUtil.checkPowerFactor(this, powerFactor);
-        double oldValue = this.powerFactor;
+        float oldValue = this.powerFactor;
         this.powerFactor = powerFactor;
         notifyUpdate("powerFactor", oldValue, powerFactor);
         return this;

@@ -29,7 +29,7 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
 
     private final TDoubleArrayList voltageSetpoint;
 
-    VscConverterStationImpl(String id, String name, double lossFactor, Ref<? extends MultiStateObject> ref,
+    VscConverterStationImpl(String id, String name, float lossFactor, Ref<? extends MultiStateObject> ref,
                             boolean voltageRegulatorOn, double reactivePowerSetpoint, double voltageSetpoint) {
         super(id, name, lossFactor);
         int stateArraySize = ref.get().getStateManager().getStateArraySize();

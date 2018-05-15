@@ -15,7 +15,7 @@ import com.powsybl.iidm.network.LccConverterStationAdder;
  */
 class LccConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<LccConverterStationAdderImpl> implements LccConverterStationAdder {
 
-    private double powerFactor = Double.NaN;
+    private float powerFactor = Float.NaN;
 
     LccConverterStationAdderImpl(VoltageLevelExt voltageLevel) {
         super(voltageLevel);
@@ -27,7 +27,7 @@ class LccConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<Lcc
     }
 
     @Override
-    public LccConverterStationAdder setPowerFactor(double powerFactor) {
+    public LccConverterStationAdder setPowerFactor(float powerFactor) {
         this.powerFactor = powerFactor;
         return this;
     }

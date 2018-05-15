@@ -327,8 +327,8 @@ public final class ValidationUtil {
         }
     }
 
-    static void checkPowerFactor(Validable validable, double powerFactor) {
-        if (Double.isNaN(powerFactor)) {
+    static void checkPowerFactor(Validable validable, float powerFactor) {
+        if (Float.isNaN(powerFactor)) {
             throw new ValidationException(validable, "power factor is invalid");
         }
     }
@@ -345,7 +345,7 @@ public final class ValidationUtil {
         }
     }
 
-    static void checkLossFactor(Validable validable, double lossFactor) {
+    static void checkLossFactor(Validable validable, float lossFactor) {
         if (Double.isNaN(lossFactor)) {
             throw new ValidationException(validable, "loss factor is invalid");
         } else if (lossFactor < 0) {

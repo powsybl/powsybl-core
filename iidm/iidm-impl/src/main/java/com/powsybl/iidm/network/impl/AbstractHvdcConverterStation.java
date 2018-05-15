@@ -15,9 +15,9 @@ import com.powsybl.iidm.network.HvdcConverterStation;
  */
 abstract class AbstractHvdcConverterStation<T extends HvdcConverterStation<T>> extends AbstractConnectable<T> implements HvdcConverterStation<T> {
 
-    private double lossFactor = Double.NaN;
+    private float lossFactor = Float.NaN;
 
-    AbstractHvdcConverterStation(String id, String name, double lossFactor) {
+    AbstractHvdcConverterStation(String id, String name, float lossFactor) {
         super(id, name);
         this.lossFactor = lossFactor;
     }
@@ -33,14 +33,14 @@ abstract class AbstractHvdcConverterStation<T extends HvdcConverterStation<T>> e
     }
 
     @Override
-    public double getLossFactor() {
+    public float getLossFactor() {
         return lossFactor;
     }
 
     @Override
-    public T setLossFactor(double lossFactor) {
+    public T setLossFactor(float lossFactor) {
         ValidationUtil.checkLossFactor(this, lossFactor);
-        double oldValue = this.lossFactor;
+        float oldValue = this.lossFactor;
         this.lossFactor = lossFactor;
         notifyUpdate("lossFactor", oldValue, lossFactor);
         return (T) this;

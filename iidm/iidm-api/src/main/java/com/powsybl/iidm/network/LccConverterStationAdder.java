@@ -14,7 +14,7 @@ package com.powsybl.iidm.network;
  */
 public interface LccConverterStationAdder extends HvdcConverterStationAdder<LccConverterStationAdder> {
 
-    LccConverterStationAdder setPowerFactor(double powerFactor);
+    LccConverterStationAdder setPowerFactor(float powerFactor);
 
     LccConverterStation add();
 }

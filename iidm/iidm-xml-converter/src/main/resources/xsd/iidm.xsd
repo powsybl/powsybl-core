@@ -479,7 +479,7 @@
     <xs:complexType name="HvdcConverterStation">
         <xs:complexContent>
             <xs:extension base="iidm:Injection">
-                <xs:attribute name="lossFactor" use="required" type="xs:double"/>
+                <xs:attribute name="lossFactor" use="required" type="xs:float"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -499,7 +499,7 @@
     <xs:complexType name="LccConverterStation">
         <xs:complexContent>
             <xs:extension base="iidm:HvdcConverterStation">
-                <xs:attribute name="powerFactor" use="required" type="xs:double"/>
+                <xs:attribute name="powerFactor" use="required" type="xs:float"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
