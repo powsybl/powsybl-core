@@ -44,9 +44,11 @@ public class JacksonDecoder<T> implements Decoder.Text<T> {
 
     @Override
     public void init(EndpointConfig endpointConfig) {
+        // nothing to do
     }
 
     @Override
     public void destroy() {
+        // nothing to do
     }
 }

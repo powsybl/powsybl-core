@@ -6,12 +6,10 @@
  */
 package com.powsybl.afs.ws.client;
 
+import com.powsybl.afs.ws.storage.RemoteAppStorage;
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.exceptions.UncheckedUriSyntaxException;
-import com.powsybl.afs.ws.storage.RemoteAppStorage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -24,8 +22,6 @@ import java.util.Objects;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class RemoteAppFileSystemConfig {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(RemoteAppFileSystemConfig.class);
 
     private final URI url;
     private final String fileSystemName;

@@ -32,9 +32,11 @@ public class JacksonEncoder<T> implements Encoder.Text<T> {
 
     @Override
     public void init(EndpointConfig config) {
+        // nothing to do
     }
 
     @Override
     public void destroy() {
+        // nothing to do
     }
 }

@@ -51,6 +51,9 @@ public class RemoteAppStorage implements AppStorage {
 
     private static final int BUFFER_MAXIMUM_CHANGE = 1000;
     private static final long BUFFER_MAXIMUM_SIZE = Math.round(Math.pow(2, 20)); // 1Mo
+    public static final String FILE_SYSTEM_NAME = "fileSystemName";
+    public static final String NODE_ID = "nodeId";
+    public static final String VERSION = "version";
 
     private final Client client;
 
@@ -80,7 +83,7 @@ public class RemoteAppStorage implements AppStorage {
             LOGGER.debug("flush(fileSystemName={}, size={})", fileSystemName, changeSet.getChanges().size());
 
             Response response = webTarget.path("fileSystems/{fileSystemName}/flush")
-                    .resolveTemplate("fileSystemName", fileSystemName)
+                    .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
                     .request()
                     .header(HttpHeaders.AUTHORIZATION, token)
                     .header(HttpHeaders.CONTENT_ENCODING, "gzip")
@@ -155,7 +158,7 @@ public class RemoteAppStorage implements AppStorage {
                 fileSystemName, name, nodePseudoClass);
 
         Response response = webTarget.path("fileSystems/{fileSystemName}/rootNode")
-                .resolveTemplate("fileSystemName", fileSystemName)
+                .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
                 .queryParam("nodeName", name)
                 .queryParam("nodePseudoClass", nodePseudoClass)
                 .request(MediaType.APPLICATION_JSON)
@@ -175,8 +178,8 @@ public class RemoteAppStorage implements AppStorage {
         LOGGER.debug("isWritable(fileSystemName={}, nodeId={})", fileSystemName, nodeId);
 
         Response response = webTarget.path("fileSystems/{fileSystemName}/nodes/{nodeId}/writable")
-                .resolveTemplate("fileSystemName", fileSystemName)
-                .resolveTemplate("nodeId", nodeId)
+                .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
+                .resolveTemplate(NODE_ID, nodeId)
                 .request(MediaType.TEXT_PLAIN)
                 .header(HttpHeaders.AUTHORIZATION, token)
                 .get();
@@ -198,8 +201,8 @@ public class RemoteAppStorage implements AppStorage {
         LOGGER.debug("setDescription(fileSystemName={}, nodeId={}, description={})", fileSystemName, nodeId, description);
 
         Response response = webTarget.path("fileSystems/{fileSystemName}/nodes/{nodeId}/description")
-                .resolveTemplate("fileSystemName", fileSystemName)
-                .resolveTemplate("nodeId", nodeId)
+                .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
+                .resolveTemplate(NODE_ID, nodeId)
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, token)
                 .header(HttpHeaders.CONTENT_ENCODING, "gzip")
@@ -222,8 +225,8 @@ public class RemoteAppStorage implements AppStorage {
         LOGGER.debug("updateModificationTime(fileSystemName={}, nodeId={})", fileSystemName, nodeId);
 
         Response response = webTarget.path("fileSystems/{fileSystemName}/nodes/{nodeId}/modificationTime")
-                .resolveTemplate("fileSystemName", fileSystemName)
-                .resolveTemplate("nodeId", nodeId)
+                .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
+                .resolveTemplate(NODE_ID, nodeId)
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, token)
                 .header(HttpHeaders.CONTENT_ENCODING, "gzip")
@@ -252,12 +255,12 @@ public class RemoteAppStorage implements AppStorage {
                 fileSystemName, parentNodeId, name, nodePseudoClass, description, version, genericMetadata);
 
         Response response = webTarget.path("fileSystems/{fileSystemName}/nodes/{nodeId}/children/{childName}")
-                .resolveTemplate("fileSystemName", fileSystemName)
-                .resolveTemplate("nodeId", parentNodeId)
+                .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
+                .resolveTemplate(NODE_ID, parentNodeId)
                 .resolveTemplate("childName", name)
                 .queryParam("nodePseudoClass", nodePseudoClass)
                 .queryParam("description", description)
-                .queryParam("version", version)
+                .queryParam(VERSION, version)
                 .request(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, token)
                 .header(HttpHeaders.CONTENT_ENCODING, "gzip")
@@ -277,8 +280,8 @@ public class RemoteAppStorage implements AppStorage {
         LOGGER.debug("getChildNodes(fileSystemName={}, nodeId={})", fileSystemName, nodeId);
 
         Response response = webTarget.path("fileSystems/{fileSystemName}/nodes/{nodeId}/children")
-                .resolveTemplate("fileSystemName", fileSystemName)
-                .resolveTemplate("nodeId", nodeId)
+                .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
+                .resolveTemplate(NODE_ID, nodeId)
                 .request(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, token)
                 .get();
@@ -298,8 +301,8 @@ public class RemoteAppStorage implements AppStorage {
         LOGGER.debug("getChildNode(fileSystemName={}, nodeId={}, name={})", fileSystemName, nodeId, name);
 
         Response response = webTarget.path("fileSystems/{fileSystemName}/nodes/{nodeId}/children/{childName}")
-                .resolveTemplate("fileSystemName", fileSystemName)
-                .resolveTemplate("nodeId", nodeId)
+                .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
+                .resolveTemplate(NODE_ID, nodeId)
                 .resolveTemplate("childName", name)
                 .request(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, token)
@@ -318,8 +321,8 @@ public class RemoteAppStorage implements AppStorage {
         LOGGER.debug("getParentNode(fileSystemName={}, nodeId={})", fileSystemName, nodeId);
 
         Response response = webTarget.path("fileSystems/{fileSystemName}/nodes/{nodeId}/parent")
-                .resolveTemplate("fileSystemName", fileSystemName)
-                .resolveTemplate("nodeId", nodeId)
+                .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
+                .resolveTemplate(NODE_ID, nodeId)
                 .request(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, token)
                 .get();
@@ -341,8 +344,8 @@ public class RemoteAppStorage implements AppStorage {
         LOGGER.debug("setParentNode(fileSystemName={}, nodeId={}, newParentNodeId={})", fileSystemName, nodeId, newParentNodeId);
 
         Response response = webTarget.path("fileSystems/{fileSystemName}/nodes/{nodeId}/parent")
-                .resolveTemplate("fileSystemName", fileSystemName)
-                .resolveTemplate("nodeId", nodeId)
+                .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
+                .resolveTemplate(NODE_ID, nodeId)
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, token)
                 .header(HttpHeaders.CONTENT_ENCODING, "gzip")
@@ -365,8 +368,8 @@ public class RemoteAppStorage implements AppStorage {
         LOGGER.debug("deleteNode(fileSystemName={}, nodeId={})", fileSystemName, nodeId);
 
         Response response = webTarget.path("fileSystems/{fileSystemName}/nodes/{nodeId}")
-                .resolveTemplate("fileSystemName", fileSystemName)
-                .resolveTemplate("nodeId", nodeId)
+                .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
+                .resolveTemplate(NODE_ID, nodeId)
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, token)
                 .delete();
@@ -421,8 +424,8 @@ public class RemoteAppStorage implements AppStorage {
         LOGGER.debug("readBinaryData(fileSystemName={}, nodeId={}, name={})", fileSystemName, nodeId, name);
 
         Response response = webTarget.path("fileSystems/{fileSystemName}/nodes/{nodeId}/data/{name}")
-                .resolveTemplate("fileSystemName", fileSystemName)
-                .resolveTemplate("nodeId", nodeId)
+                .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
+                .resolveTemplate(NODE_ID, nodeId)
                 .resolveTemplate("name", name)
                 .request(MediaType.APPLICATION_OCTET_STREAM)
                 .header(HttpHeaders.AUTHORIZATION, token)
@@ -449,8 +452,8 @@ public class RemoteAppStorage implements AppStorage {
         LOGGER.debug("writeBinaryData(fileSystemName={}, nodeId={}, name={})", fileSystemName, nodeId, name);
 
         AsyncInvoker asyncInvoker = webTarget.path("fileSystems/{fileSystemName}/nodes/{nodeId}/data/{name}")
-                .resolveTemplate("fileSystemName", fileSystemName)
-                .resolveTemplate("nodeId", nodeId)
+                .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
+                .resolveTemplate(NODE_ID, nodeId)
                 .resolveTemplate("name", name)
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, token)
@@ -469,8 +472,8 @@ public class RemoteAppStorage implements AppStorage {
         LOGGER.debug("dataExists(fileSystemName={}, nodeId={}, name={})", fileSystemName, nodeId, name);
 
         Response response = webTarget.path("fileSystems/{fileSystemName}/nodes/{nodeId}/data/{name}")
-                .resolveTemplate("fileSystemName", fileSystemName)
-                .resolveTemplate("nodeId", nodeId)
+                .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
+                .resolveTemplate(NODE_ID, nodeId)
                 .resolveTemplate("name", name)
                 .request(MediaType.TEXT_PLAIN)
                 .header(HttpHeaders.AUTHORIZATION, token)
@@ -489,8 +492,8 @@ public class RemoteAppStorage implements AppStorage {
         LOGGER.debug("getDataNames(fileSystemName={}, nodeId={})", fileSystemName, nodeId);
 
         Response response = webTarget.path("fileSystems/{fileSystemName}/nodes/{nodeId}/data")
-                .resolveTemplate("fileSystemName", fileSystemName)
-                .resolveTemplate("nodeId", nodeId)
+                .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
+                .resolveTemplate(NODE_ID, nodeId)
                 .request(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, token)
                 .get();
@@ -510,8 +513,8 @@ public class RemoteAppStorage implements AppStorage {
         LOGGER.debug("removeData(fileSystemName={}, nodeId={}, name={})", fileSystemName, nodeId, name);
 
         Response response = webTarget.path("fileSystems/{fileSystemName}/nodes/{nodeId}/data/{name}")
-                .resolveTemplate("fileSystemName", fileSystemName)
-                .resolveTemplate("nodeId", nodeId)
+                .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
+                .resolveTemplate(NODE_ID, nodeId)
                 .resolveTemplate("name", name)
                 .request(MediaType.TEXT_PLAIN)
                 .delete();
@@ -534,8 +537,8 @@ public class RemoteAppStorage implements AppStorage {
         LOGGER.debug("addDependency(fileSystemName={}, nodeId={}, name={}, toNodeId={})", fileSystemName, nodeId, name, toNodeId);
 
         Response response = webTarget.path("fileSystems/{fileSystemName}/nodes/{nodeId}/dependencies/{name}/{toNodeId}")
-                .resolveTemplate("fileSystemName", fileSystemName)
-                .resolveTemplate("nodeId", nodeId)
+                .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
+                .resolveTemplate(NODE_ID, nodeId)
                 .resolveTemplate("name", name)
                 .resolveTemplate("toNodeId", toNodeId)
                 .request()
@@ -558,8 +561,8 @@ public class RemoteAppStorage implements AppStorage {
         LOGGER.debug("getDependencies(fileSystemName={}, nodeId={}, name={})", fileSystemName, nodeId, name);
 
         Response response = webTarget.path("fileSystems/{fileSystemName}/nodes/{nodeId}/dependencies/{name}")
-                .resolveTemplate("fileSystemName", fileSystemName)
-                .resolveTemplate("nodeId", nodeId)
+                .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
+                .resolveTemplate(NODE_ID, nodeId)
                 .resolveTemplate("name", name)
                 .request(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, token)
@@ -579,8 +582,8 @@ public class RemoteAppStorage implements AppStorage {
         LOGGER.debug("getDependencies(fileSystemName={}, nodeId={})", fileSystemName, nodeId);
 
         Response response = webTarget.path("fileSystems/{fileSystemName}/nodes/{nodeId}/dependencies")
-                .resolveTemplate("fileSystemName", fileSystemName)
-                .resolveTemplate("nodeId", nodeId)
+                .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
+                .resolveTemplate(NODE_ID, nodeId)
                 .request(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, token)
                 .get();
@@ -599,8 +602,8 @@ public class RemoteAppStorage implements AppStorage {
         LOGGER.debug("getBackwardDependencies(fileSystemName={}, nodeId={})", fileSystemName, nodeId);
 
         Response response = webTarget.path("fileSystems/{fileSystemName}/nodes/{nodeId}/backwardDependencies")
-                .resolveTemplate("fileSystemName", fileSystemName)
-                .resolveTemplate("nodeId", nodeId)
+                .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
+                .resolveTemplate(NODE_ID, nodeId)
                 .request(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, token)
                 .get();
@@ -624,8 +627,8 @@ public class RemoteAppStorage implements AppStorage {
         LOGGER.debug("removeDependency(fileSystemName={}, nodeId={}, name={}, toNodeId={})", fileSystemName, nodeId, name, toNodeId);
 
         Response response = webTarget.path("fileSystems/{fileSystemName}/nodes/{nodeId}/dependencies/{name}/{toNodeId}")
-                .resolveTemplate("fileSystemName", fileSystemName)
-                .resolveTemplate("nodeId", nodeId)
+                .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
+                .resolveTemplate(NODE_ID, nodeId)
                 .resolveTemplate("name", name)
                 .resolveTemplate("toNodeId", toNodeId)
                 .request()
@@ -655,8 +658,8 @@ public class RemoteAppStorage implements AppStorage {
         LOGGER.debug("getTimeSeriesNames(fileSystemName={}, nodeId={})", fileSystemName, nodeId);
 
         Response response = webTarget.path("fileSystems/{fileSystemName}/nodes/{nodeId}/timeSeries/name")
-                .resolveTemplate("fileSystemName", fileSystemName)
-                .resolveTemplate("nodeId", nodeId)
+                .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
+                .resolveTemplate(NODE_ID, nodeId)
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, token)
                 .get();
@@ -676,8 +679,8 @@ public class RemoteAppStorage implements AppStorage {
         LOGGER.debug("timeSeriesExists(fileSystemName={}, nodeId={}, timeSeriesName={})", fileSystemName, nodeId, timeSeriesName);
 
         Response response = webTarget.path("fileSystems/{fileSystemName}/nodes/{nodeId}/timeSeries/{timeSeriesName}")
-                .resolveTemplate("fileSystemName", fileSystemName)
-                .resolveTemplate("nodeId", nodeId)
+                .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
+                .resolveTemplate(NODE_ID, nodeId)
                 .resolveTemplate("timeSeriesName", timeSeriesName)
                 .request(MediaType.TEXT_PLAIN_TYPE)
                 .header(HttpHeaders.AUTHORIZATION, token)
@@ -699,8 +702,8 @@ public class RemoteAppStorage implements AppStorage {
         }
 
         Response response = webTarget.path("fileSystems/{fileSystemName}/nodes/{nodeId}/timeSeries/metadata")
-                .resolveTemplate("fileSystemName", fileSystemName)
-                .resolveTemplate("nodeId", nodeId)
+                .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
+                .resolveTemplate(NODE_ID, nodeId)
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, token)
                 .post(Entity.json(timeSeriesNames));
@@ -719,8 +722,8 @@ public class RemoteAppStorage implements AppStorage {
         LOGGER.debug("getTimeSeriesDataVersions(fileSystemName={}, nodeId={})", fileSystemName, nodeId);
 
         Response response = webTarget.path("fileSystems/{fileSystemName}/nodes/{nodeId}/timeSeries/versions")
-                .resolveTemplate("fileSystemName", fileSystemName)
-                .resolveTemplate("nodeId", nodeId)
+                .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
+                .resolveTemplate(NODE_ID, nodeId)
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, token)
                 .get();
@@ -740,8 +743,8 @@ public class RemoteAppStorage implements AppStorage {
         LOGGER.debug("getTimeSeriesDataVersions(fileSystemName={}, nodeId={}, timeSeriesNames={})", fileSystemName, nodeId, timeSeriesName);
 
         Response response = webTarget.path("fileSystems/{fileSystemName}/nodes/{nodeId}/timeSeries/{timeSeriesName}/versions")
-                .resolveTemplate("fileSystemName", fileSystemName)
-                .resolveTemplate("nodeId", nodeId)
+                .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
+                .resolveTemplate(NODE_ID, nodeId)
                 .resolveTemplate("timeSeriesName", timeSeriesName)
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, token)
@@ -781,9 +784,9 @@ public class RemoteAppStorage implements AppStorage {
         }
 
         Response response = webTarget.path("fileSystems/{fileSystemName}/nodes/{nodeId}/timeSeries/double/{version}")
-                .resolveTemplate("fileSystemName", fileSystemName)
-                .resolveTemplate("nodeId", nodeId)
-                .resolveTemplate("version", version)
+                .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
+                .resolveTemplate(NODE_ID, nodeId)
+                .resolveTemplate(VERSION, version)
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, token)
                 .post(Entity.json(timeSeriesNames));
@@ -822,9 +825,9 @@ public class RemoteAppStorage implements AppStorage {
         }
 
         Response response = webTarget.path("fileSystems/{fileSystemName}/nodes/{nodeId}/timeSeries/string/{version}")
-                .resolveTemplate("fileSystemName", fileSystemName)
-                .resolveTemplate("nodeId", nodeId)
-                .resolveTemplate("version", version)
+                .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
+                .resolveTemplate(NODE_ID, nodeId)
+                .resolveTemplate(VERSION, version)
                 .request()
                 .post(Entity.json(timeSeriesNames));
         try {
@@ -845,8 +848,8 @@ public class RemoteAppStorage implements AppStorage {
         LOGGER.debug("clearTimeSeries(fileSystemName={}, nodeId={})", fileSystemName, nodeId);
 
         Response response = webTarget.path("fileSystems/{fileSystemName}/nodes/{nodeId}/timeSeries")
-                .resolveTemplate("fileSystemName", fileSystemName)
-                .resolveTemplate("nodeId", nodeId)
+                .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
+                .resolveTemplate(NODE_ID, nodeId)
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, token)
                 .delete();
@@ -864,8 +867,8 @@ public class RemoteAppStorage implements AppStorage {
         LOGGER.debug("getNodeInfo(fileSystemName={}, nodeId={})", fileSystemName, nodeId);
 
         Response response = webTarget.path("fileSystems/{fileSystemName}/nodes/{nodeId}")
-                .resolveTemplate("fileSystemName", fileSystemName)
-                .resolveTemplate("nodeId", nodeId)
+                .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
+                .resolveTemplate(NODE_ID, nodeId)
                 .request(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, token)
                 .get();

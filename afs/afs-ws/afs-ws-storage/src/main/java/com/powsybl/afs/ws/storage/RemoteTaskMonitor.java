@@ -44,6 +44,7 @@ import static com.powsybl.afs.ws.storage.RemoteListenableAppStorage.getWebSocket
 public class RemoteTaskMonitor implements TaskMonitor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RemoteTaskMonitor.class);
+    public static final String FILE_SYSTEM_NAME = "fileSystemName";
 
     private final String fileSystemName;
 
@@ -72,7 +73,7 @@ public class RemoteTaskMonitor implements TaskMonitor {
         LOGGER.debug("startTask(fileSystemName={}, projectFile={})", fileSystemName, projectFile.getId());
 
         Response response = webTarget.path("fileSystems/{fileSystemName}/tasks")
-                .resolveTemplate("fileSystemName", fileSystemName)
+                .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
                 .queryParam("projectFileId", projectFile.getId())
                 .request(MediaType.APPLICATION_JSON)
                 .put(Entity.text(""));
@@ -88,7 +89,7 @@ public class RemoteTaskMonitor implements TaskMonitor {
         LOGGER.debug("stopTask(fileSystemName={}, id={})", fileSystemName, id);
 
         Response response = webTarget.path("fileSystems/{fileSystemName}/tasks/{taskId}")
-                .resolveTemplate("fileSystemName", fileSystemName)
+                .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
                 .resolveTemplate("taskId", id)
                 .request()
                 .delete();
@@ -104,7 +105,7 @@ public class RemoteTaskMonitor implements TaskMonitor {
         LOGGER.debug("updateTaskMessage(fileSystemName={}, id={})", fileSystemName, id);
 
         Response response = webTarget.path("fileSystems/{fileSystemName}/tasks/{taskId}")
-                .resolveTemplate("fileSystemName", fileSystemName)
+                .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
                 .resolveTemplate("taskId", id)
                 .request()
                 .post(Entity.text(message));
@@ -120,7 +121,7 @@ public class RemoteTaskMonitor implements TaskMonitor {
         LOGGER.debug("takeSnapshot(fileSystemName={}, projectId={})", fileSystemName, projectId);
 
         Response response = webTarget.path("fileSystems/{fileSystemName}/tasks")
-                .resolveTemplate("fileSystemName", fileSystemName)
+                .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
                 .queryParam("projectId", projectId)
                 .request(MediaType.APPLICATION_JSON)
                 .get();
