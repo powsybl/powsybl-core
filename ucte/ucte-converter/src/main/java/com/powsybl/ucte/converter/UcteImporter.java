@@ -780,12 +780,12 @@ public class UcteImporter implements Importer {
                                                                             : dl2.getId() + " + " + dl1.getId();
 
                 // create XNODE merge extension
-                float rdp = dl1.getR() / (dl1.getR() + dl2.getR());
-                float xdp = dl1.getX() / (dl1.getX() + dl2.getX());
-                float xnodeP1 = dl1.getP0();
-                float xnodeQ1 = dl1.getQ0();
-                float xnodeP2 = dl2.getP0();
-                float xnodeQ2 = dl2.getQ0();
+                float rdp = (float) (dl1.getR() / (dl1.getR() + dl2.getR()));
+                float xdp = (float) (dl1.getX() / (dl1.getX() + dl2.getX()));
+                double xnodeP1 = dl1.getP0();
+                double xnodeQ1 = dl1.getQ0();
+                double xnodeP2 = dl2.getP0();
+                double xnodeQ2 = dl2.getQ0();
                 String xnodeCode = dl1.getExtension(Xnode.class).getCode();
 
                 TieLine mergeLine = network.newTieLine()
@@ -801,18 +801,18 @@ public class UcteImporter implements Importer {
                             .setR(dl1.getR())
                             .setX(dl1.getX())
                             .setG1(dl1.getG())
-                            .setG2(0f)
+                            .setG2(0.0)
                             .setB1(dl1.getB())
-                            .setB2(0f)
+                            .setB2(0.0)
                             .setXnodeP(xnodeP1)
                             .setXnodeQ(xnodeQ1)
                         .line2()
                             .setId(dl2.getId())
                             .setR(dl2.getR())
                             .setX(dl2.getX())
-                            .setG1(0f)
+                            .setG1(0.0)
                             .setG2(dl2.getG())
-                            .setB1(0f)
+                            .setB1(0.0)
                             .setB2(dl2.getB())
                             .setXnodeP(xnodeP2)
                             .setXnodeQ(xnodeQ2)

@@ -523,7 +523,7 @@ class CIM1Converter implements CIM1Constants {
             float rho = rhoList.get(i);
             float x;
             if (xStepRangeIsInconsistent || alphaMax == 0) {
-                x = transfo.getX();
+                x = (float) transfo.getX();
             } else {
                 switch (ptc.getPhaseTapChangerType()) {
                     case asymmetrical:
@@ -1106,7 +1106,7 @@ class CIM1Converter implements CIM1Constants {
                 voltageRegulatorOn = true;
                 targetV = rc.getTargetValue();
                 if (targetV == 0) {
-                    targetV = voltageLevel.getNominalV();
+                    targetV = (float) voltageLevel.getNominalV();
                     synchronousMachinesRegulatingVoltageWithZeroTargetVoltage.add(namingStrategy.getId(sm));
                 }
             } else if (rc.getMode() == cim1.model.RegulatingControlModeKind.reactivePower) {
