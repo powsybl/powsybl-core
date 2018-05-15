@@ -45,7 +45,7 @@ import static org.junit.Assert.*;
 public class SecurityAnalysisRunnerTest extends AbstractProjectFileTest {
 
     private static SecurityAnalysisResult createResult() {
-        LimitViolationsResult preContingencyResult = new LimitViolationsResult(true, ImmutableList.of(new LimitViolation("s1", LimitViolationType.HIGH_VOLTAGE, 400f, 1f, 440f)));
+        LimitViolationsResult preContingencyResult = new LimitViolationsResult(true, ImmutableList.of(new LimitViolation("s1", LimitViolationType.HIGH_VOLTAGE, 400.0, 1f, 440.0)));
         return new SecurityAnalysisResult(preContingencyResult, Collections.emptyList());
     }
 

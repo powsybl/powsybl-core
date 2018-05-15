@@ -55,14 +55,14 @@ public class LimitViolationFilterTest {
     public void load() throws Exception {
         LimitViolationFilter filter = LimitViolationFilter.load(platformConfig);
         assertEquals(EnumSet.of(LimitViolationType.CURRENT, LimitViolationType.LOW_VOLTAGE), filter.getViolationTypes());
-        assertEquals(150f, filter.getMinBaseVoltage(), 0f);
+        assertEquals(150.0, filter.getMinBaseVoltage(), 0.0);
         assertEquals(EnumSet.of(Country.FR, Country.BE), filter.getCountries());
         filter.setViolationTypes(EnumSet.of(LimitViolationType.HIGH_VOLTAGE));
         assertEquals(EnumSet.of(LimitViolationType.HIGH_VOLTAGE), filter.getViolationTypes());
-        filter.setMinBaseVoltage(225f);
+        filter.setMinBaseVoltage(225.0);
         filter.setCountries(EnumSet.of(Country.FR));
         assertEquals(EnumSet.of(Country.FR), filter.getCountries());
-        assertEquals(225f, filter.getMinBaseVoltage(), 0f);
+        assertEquals(225.0, filter.getMinBaseVoltage(), 0.0);
         filter.setViolationTypes(null);
         assertEquals(LimitViolationType.values().length, filter.getViolationTypes().size());
         filter.setCountries(null);
@@ -73,7 +73,7 @@ public class LimitViolationFilterTest {
         } catch (Exception ignored) {
         }
         try {
-            filter.setMinBaseVoltage(-3f);
+            filter.setMinBaseVoltage(-3.0);
             fail();
         } catch (Exception ignored) {
         }
@@ -88,9 +88,9 @@ public class LimitViolationFilterTest {
     public void apply() throws Exception {
         Network network = TestingNetworkFactory.create();
 
-        LimitViolation line1Violation = new LimitViolation("LINE1", LimitViolationType.CURRENT, "", Integer.MAX_VALUE, 1000f, 1, 1100f, Branch.Side.ONE);
-        LimitViolation line2Violation = new LimitViolation("LINE2", LimitViolationType.CURRENT, "", Integer.MAX_VALUE, 900f, 1, 950f, Branch.Side.TWO);
-        LimitViolation vl1Violation = new LimitViolation("VL1", LimitViolationType.HIGH_VOLTAGE, 200f, 1, 250f);
+        LimitViolation line1Violation = new LimitViolation("LINE1", LimitViolationType.CURRENT, "", Integer.MAX_VALUE, 1000.0, 1, 1100.0, Branch.Side.ONE);
+        LimitViolation line2Violation = new LimitViolation("LINE2", LimitViolationType.CURRENT, "", Integer.MAX_VALUE, 900.0, 1, 950.0, Branch.Side.TWO);
+        LimitViolation vl1Violation = new LimitViolation("VL1", LimitViolationType.HIGH_VOLTAGE, 200.0, 1, 250.0);
 
         LimitViolationFilter filter = new LimitViolationFilter();
         List<LimitViolation> filteredViolations = filter.apply(Arrays.asList(line1Violation, line2Violation, vl1Violation), network);
@@ -99,31 +99,31 @@ public class LimitViolationFilterTest {
         filter = new LimitViolationFilter();
         filter.setViolationTypes(EnumSet.of(LimitViolationType.HIGH_VOLTAGE));
         filteredViolations = filter.apply(Arrays.asList(line1Violation, line2Violation, vl1Violation), network);
-        checkFilteredViolations(filteredViolations, network, "VL1", LimitViolationType.HIGH_VOLTAGE, 220f, Country.FR, "VL1");
+        checkFilteredViolations(filteredViolations, network, "VL1", LimitViolationType.HIGH_VOLTAGE, 220.0, Country.FR, "VL1");
 
         filter = new LimitViolationFilter();
-        filter.setMinBaseVoltage(300f);
+        filter.setMinBaseVoltage(300.0);
         filteredViolations = filter.apply(Arrays.asList(line1Violation, line2Violation, vl1Violation), network);
-        checkFilteredViolations(filteredViolations, network, "LINE1", LimitViolationType.CURRENT, 380f, Country.FR, "VL2");
+        checkFilteredViolations(filteredViolations, network, "LINE1", LimitViolationType.CURRENT, 380.0, Country.FR, "VL2");
 
         filter = new LimitViolationFilter();
         filter.setCountries(EnumSet.of(Country.BE));
         filteredViolations = filter.apply(Arrays.asList(line1Violation, line2Violation, vl1Violation), network);
-        checkFilteredViolations(filteredViolations, network, "LINE2", LimitViolationType.CURRENT, 220f, Country.BE, "VL3");
+        checkFilteredViolations(filteredViolations, network, "LINE2", LimitViolationType.CURRENT, 220.0, Country.BE, "VL3");
 
-        filter = new LimitViolationFilter(EnumSet.of(LimitViolationType.CURRENT), 300f, EnumSet.of(Country.FR));
+        filter = new LimitViolationFilter(EnumSet.of(LimitViolationType.CURRENT), 300.0, EnumSet.of(Country.FR));
         filteredViolations = filter.apply(Arrays.asList(line1Violation, line2Violation, vl1Violation), network);
-        checkFilteredViolations(filteredViolations, network, "LINE1", LimitViolationType.CURRENT, 380f, Country.FR, "VL2");
+        checkFilteredViolations(filteredViolations, network, "LINE1", LimitViolationType.CURRENT, 380.0, Country.FR, "VL2");
     }
 
     private void checkFilteredViolations(List<LimitViolation> filteredViolations, Network network, String equipmentId, LimitViolationType violationType,
-                                         float baseVoltage, Country country, String voltageLevelId) {
+                                         double baseVoltage, Country country, String voltageLevelId) {
         assertEquals(1, filteredViolations.size());
 
         LimitViolation violation = filteredViolations.get(0);
         assertEquals(equipmentId, violation.getSubjectId());
         assertEquals(violationType, violation.getLimitType());
-        assertEquals(baseVoltage, LimitViolationHelper.getNominalVoltage(violation, network), 0f);
+        assertEquals(baseVoltage, LimitViolationHelper.getNominalVoltage(violation, network), 0.0);
         assertEquals(country, LimitViolationHelper.getCountry(violation, network));
         assertEquals(voltageLevelId, LimitViolationHelper.getVoltageLevelId(violation, network));
     }
