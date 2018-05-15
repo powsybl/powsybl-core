@@ -15,6 +15,7 @@ import java.util.List;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.util.StringToIntMapper;
+import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
 
 /**
@@ -34,7 +35,7 @@ public class FooExtensionWriter implements AmplExtensionWriter {
             StringToIntMapper<AmplSubset> mapper, DataSource dataSource, boolean append,
             AmplExportConfig config) throws IOException {
         try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("foo-extension", "txt", false), StandardCharsets.UTF_8)) {
-            for (AmplExtension ext : extensions) {
+            for (AmplExtension<FooExtension, HvdcLine> ext : extensions) {
                 writer.write(ext.getExtendedNum() + " " + ext.getExtension().getName() + "\n");
             }
         }
