@@ -36,6 +36,7 @@ class ActionDslLoader extends DslLoader {
         String description
         ExpressionNode when
         String[] apply
+        String[] test
         int life = 1
 
         void description(String description) {
@@ -57,9 +58,22 @@ class ActionDslLoader extends DslLoader {
             this.apply = apply
         }
 
+        void test(String[] test) {
+            assert test != null && test.length > 0
+            this.test = test
+        }
+
         void life(int life) {
             assert life > 0
             this.life = life
+        }
+
+        boolean hasApplyActions() {
+            return apply != null && apply.length > 0;
+        }
+
+        boolean hasTestActions() {
+            return test != null && test.length > 0;
         }
     }
 
@@ -158,12 +172,29 @@ class ActionDslLoader extends DslLoader {
                 cloned.delegate = ruleSpec
                 cloned()
                 if (!ruleSpec.when) {
-                    throw new ActionDslException("'when' field is not set")
+                    throw new ActionDslException("'when' field is not set in rule '" + id + "'")
                 }
-                if (ruleSpec.apply.length == 0) {
-                    throw new ActionDslException("'apply' field is empty")
+
+                if (ruleSpec.hasApplyActions() && ruleSpec.hasTestActions()) {
+                    throw new ActionDslException("apply/test actions are both found in rule '" + id + "'");
                 }
-                Rule rule = new Rule(id, new ExpressionCondition(ruleSpec.when), ruleSpec.life, ruleSpec.apply)
+
+                if (!ruleSpec.hasApplyActions() && !ruleSpec.hasTestActions()) {
+                    throw new ActionDslException("neither apply nor test actions are found in rule '" + id + "'");
+                }
+
+                List<String> actions;
+                RuleType type;
+                if (ruleSpec.hasTestActions()) {
+                    actions = ruleSpec.test
+                    type = RuleType.TEST;
+                } else {
+                    actions = ruleSpec.apply
+                    type = RuleType.APPLY;
+                }
+
+                Rule rule = new Rule(id, new ExpressionCondition(ruleSpec.when), ruleSpec.life, type,
+                        actions)
                 if (ruleSpec.description) {
                     rule.setDescription(ruleSpec.description)
                 }
