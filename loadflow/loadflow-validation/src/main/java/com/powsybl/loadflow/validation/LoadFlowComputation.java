@@ -37,14 +37,18 @@ public class LoadFlowComputation implements CandidateComputation {
      * Returns the loadflow factory configured in "loadflow-validation" module,
      * or else the default platform loadflow factory.
      */
-    private static LoadFlowFactory getLoadFlowFactory() throws IllegalAccessException, InstantiationException {
+    private static LoadFlowFactory getLoadFlowFactory() {
 
         PlatformConfig platformConfig = PlatformConfig.defaultConfig();
 
         if (platformConfig.moduleExists("loadflow-validation")) {
             ModuleConfig config = platformConfig.getModuleConfig("loadflow-validation");
             if (config.hasProperty("load-flow-factory")) {
-                return config.getClassProperty("load-flow-factory", LoadFlowFactory.class).newInstance();
+                try {
+                    return config.getClassProperty("load-flow-factory", LoadFlowFactory.class).newInstance();
+                } catch (InstantiationException | IllegalAccessException e) {
+                    throw new PowsyblException("Could not instantiate load flow factory.", e);
+                }
             }
         }
 
@@ -52,7 +56,7 @@ public class LoadFlowComputation implements CandidateComputation {
     }
 
     @Override
-    public void run(Network network, ComputationManager computationManager) throws Exception {
+    public void run(Network network, ComputationManager computationManager) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(computationManager);
 

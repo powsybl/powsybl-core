@@ -31,6 +31,6 @@ public interface CandidateComputation {
     /**
      * A computation carried out on the {@param network}.
      */
-    void run(Network network, ComputationManager computationManager) throws Exception;
+    void run(Network network, ComputationManager computationManager);
 
 }
