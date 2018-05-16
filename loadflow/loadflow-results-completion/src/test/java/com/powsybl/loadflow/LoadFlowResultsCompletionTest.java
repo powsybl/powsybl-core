@@ -12,16 +12,15 @@ import org.junit.Test;
  *
  * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
  */
-public class ResultsCompletionLoadFlowTest extends AbstractResultsCompletionLoadFlowTest {
+public class LoadFlowResultsCompletionTest extends AbstractLoadFlowResultsCompletionTest {
 
     @Test
     public void run() throws Exception {
         setNanValues();
 
-        LoadFlowParameters parameters = new LoadFlowParameters();
-        ResultsCompletionLoadFlowParametersExtension parametersExtension = new ResultsCompletionLoadFlowParametersExtension();
-        parameters.addExtension(ResultsCompletionLoadFlowParametersExtension.class, parametersExtension);
-        new ResultsCompletionLoadFlow(network).run(parameters);
+        LoadFlowResultsCompletionParameters parameters = new LoadFlowResultsCompletionParameters();
+        LoadFlowParameters lfParameters = new LoadFlowParameters();
+        new LoadFlowResultsCompletion(parameters, lfParameters).run(network, null);
 
         checkResultsCompletion();
     }

@@ -22,21 +22,23 @@ import com.powsybl.iidm.network.Network;
  * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
  */
 @AutoService(ImportPostProcessor.class)
-public class ResultsCompletionLoadFlowPostProcessor implements ImportPostProcessor {
+public class LoadFlowResultsCompletionPostProcessor implements ImportPostProcessor {
 
-    public static final String NAME = "resultsCompletionLf";
+    public static final String NAME = "loadflowResultsCompletion";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ResultsCompletionLoadFlowPostProcessor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LoadFlowResultsCompletionPostProcessor.class);
 
-    private final LoadFlowParameters parameters;
+    private final LoadFlowResultsCompletionParameters parameters;
+    private final LoadFlowParameters lfParameters;
 
-    public ResultsCompletionLoadFlowPostProcessor() {
+    public LoadFlowResultsCompletionPostProcessor() {
         this(PlatformConfig.defaultConfig());
     }
 
-    public ResultsCompletionLoadFlowPostProcessor(PlatformConfig platformConfig) {
+    public LoadFlowResultsCompletionPostProcessor(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
-        parameters = LoadFlowParameters.load(platformConfig);
+        parameters = LoadFlowResultsCompletionParameters.load(platformConfig);
+        lfParameters = LoadFlowParameters.load(platformConfig);
     }
 
     @Override
@@ -48,7 +50,7 @@ public class ResultsCompletionLoadFlowPostProcessor implements ImportPostProcess
     public void process(Network network, ComputationManager computationManager) throws Exception {
         Objects.requireNonNull(network);
         LOGGER.info("Execute {} post processor on network {}", getName(), network.getId());
-        new ResultsCompletionLoadFlow(network).run(parameters);
+        new LoadFlowResultsCompletion(parameters, lfParameters).run(network, computationManager);
     }
 
 }

@@ -14,7 +14,7 @@ import org.junit.Test;
  *
  * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
  */
-public class BranchDataTest extends AbstractResultsCompletionLoadFlowTest {
+public class BranchDataTest extends AbstractLoadFlowResultsCompletionTest {
 
     @Test
     public void testLine() {

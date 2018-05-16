@@ -22,7 +22,7 @@ import com.powsybl.commons.config.InMemoryPlatformConfig;
  *
  * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
  */
-public class ResultsCompletionLoadFlowPostProcessorTest extends AbstractResultsCompletionLoadFlowTest {
+public class LoadFlowResultsCompletionPostProcessorTest extends AbstractLoadFlowResultsCompletionTest {
 
     InMemoryPlatformConfig platformConfig;
     FileSystem fileSystem;
@@ -43,8 +43,8 @@ public class ResultsCompletionLoadFlowPostProcessorTest extends AbstractResultsC
     public void process() throws Exception {
         setNanValues();
 
-        ResultsCompletionLoadFlowPostProcessor processor = new ResultsCompletionLoadFlowPostProcessor(platformConfig);
-        assertEquals(ResultsCompletionLoadFlowPostProcessor.NAME, processor.getName());
+        LoadFlowResultsCompletionPostProcessor processor = new LoadFlowResultsCompletionPostProcessor();
+        assertEquals(LoadFlowResultsCompletionPostProcessor.NAME, processor.getName());
         processor.process(network, null);
 
         checkResultsCompletion();

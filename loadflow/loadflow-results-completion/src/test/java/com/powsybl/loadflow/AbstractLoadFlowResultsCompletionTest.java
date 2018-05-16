@@ -30,7 +30,7 @@ import com.powsybl.iidm.network.TwoWindingsTransformer;
  *
  * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
  */
-public abstract class AbstractResultsCompletionLoadFlowTest {
+public abstract class AbstractLoadFlowResultsCompletionTest {
 
     protected String lineId = "line";
     protected float lineP1 = -42.0512f;
