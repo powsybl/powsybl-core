@@ -17,7 +17,7 @@ import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.afs.storage.buffer.*;
 import com.powsybl.math.timeseries.*;
-import com.rte_france.imagrid.afs.ws.server.utils.AppDataBean;
+import com.powsybl.afs.ws.server.utils.AppDataBean;
 import com.powsybl.afs.ws.utils.AfsRestApi;
 import com.powsybl.afs.ws.utils.gzip.Compress;
 import io.swagger.annotations.*;

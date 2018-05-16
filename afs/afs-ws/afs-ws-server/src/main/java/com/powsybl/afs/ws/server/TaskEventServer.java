@@ -9,7 +9,7 @@ package com.powsybl.afs.ws.server;
 import com.powsybl.afs.AppFileSystem;
 import com.powsybl.afs.TaskEvent;
 import com.powsybl.afs.TaskListener;
-import com.rte_france.imagrid.afs.ws.server.utils.AppDataBean;
+import com.powsybl.afs.ws.server.utils.AppDataBean;
 import com.powsybl.afs.ws.utils.AfsRestApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

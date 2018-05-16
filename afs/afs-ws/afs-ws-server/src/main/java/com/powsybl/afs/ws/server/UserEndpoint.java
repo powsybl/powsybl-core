@@ -6,7 +6,7 @@
  */
 package com.powsybl.afs.ws.server;
 
-import com.rte_france.imagrid.afs.ws.server.utils.UserAuthenticator;
+import com.powsybl.afs.ws.server.utils.UserAuthenticator;
 import io.jsonwebtoken.CompressionCodecs;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;

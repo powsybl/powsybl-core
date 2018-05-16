@@ -11,7 +11,7 @@ import com.powsybl.afs.ext.base.ProjectCase;
 import com.powsybl.afs.ext.base.ScriptType;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.xml.NetworkXml;
-import com.rte_france.imagrid.afs.ws.server.utils.AppDataBean;
+import com.powsybl.afs.ws.server.utils.AppDataBean;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;

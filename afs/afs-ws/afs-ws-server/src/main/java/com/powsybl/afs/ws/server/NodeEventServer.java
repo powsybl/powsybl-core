@@ -8,7 +8,7 @@ package com.powsybl.afs.ws.server;
 
 import com.powsybl.afs.storage.ListenableAppStorage;
 import com.powsybl.afs.storage.events.AppStorageListener;
-import com.rte_france.imagrid.afs.ws.server.utils.AppDataBean;
+import com.powsybl.afs.ws.server.utils.AppDataBean;
 import com.powsybl.afs.ws.utils.AfsRestApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
