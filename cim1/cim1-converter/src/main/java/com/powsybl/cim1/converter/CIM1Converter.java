@@ -541,10 +541,10 @@ class CIM1Converter implements CIM1Constants {
             ptca.beginStep()
                     .setAlpha((float) Math.toDegrees(alpha))
                     .setRho(rho)
-                    .setR(0f)
+                    .setR(0)
                     .setX((x - transfo.getX()) / transfo.getX() * 100)
-                    .setG(0f)
-                    .setB(0f)
+                    .setG(0)
+                    .setB(0)
                 .endStep();
         }
 
@@ -600,10 +600,10 @@ class CIM1Converter implements CIM1Constants {
             float rho = rtcSide1 ? 1 / (1 + n * du) : (1 + n * du);
             rtca.beginStep()
                     .setRho(rho)
-                    .setR(0f)
-                    .setX(0f)
-                    .setG(0f)
-                    .setB(0f)
+                    .setR(0)
+                    .setX(0)
+                    .setG(0)
+                    .setB(0)
                 .endStep();
         }
 
@@ -1188,12 +1188,12 @@ class CIM1Converter implements CIM1Constants {
                     .setConnectableBus1(namingStrategy.getId(tn1))
                     .setBus2(t2.isConnected() ? namingStrategy.getId(tn2) : null)
                     .setConnectableBus2(namingStrategy.getId(tn2))
-                    .setR(0.05f)
-                    .setX(0.05f)
-                    .setG1(0f)
-                    .setB1(0f)
-                    .setG2(0f)
-                    .setB2(0f)
+                    .setR(0.05)
+                    .setX(0.05)
+                    .setG1(0)
+                    .setB1(0)
+                    .setG2(0)
+                    .setB2(0)
                     .add();
             addTerminalMapping(tn1, line.getTerminal1());
             addTerminalMapping(tn2, line.getTerminal2());
