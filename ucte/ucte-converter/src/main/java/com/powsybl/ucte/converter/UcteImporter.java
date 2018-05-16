@@ -280,6 +280,7 @@ public class UcteImporter implements Importer {
 
         // create coupler between YNODE and other node
         xNodeVoltageLevel.getBusBreakerView().newSwitch()
+                .setEnsureIdUnicity(true)
                 .setId(ucteLine.getId().toString())
                 .setBus1(yNodeName)
                 .setBus2(ucteOtherNodeCode.toString())
@@ -354,6 +355,7 @@ public class UcteImporter implements Importer {
             // standard coupler
             VoltageLevel voltageLevel = network.getVoltageLevel(ucteVoltageLevel1.getName());
             voltageLevel.getBusBreakerView().newSwitch()
+                    .setEnsureIdUnicity(true)
                     .setId(ucteLine.getId().toString())
                     .setBus1(nodeCode1.toString())
                     .setBus2(nodeCode2.toString())
@@ -373,6 +375,7 @@ public class UcteImporter implements Importer {
         }
         VoltageLevel voltageLevel = network.getVoltageLevel(ucteVoltageLevel1.getName());
         voltageLevel.getBusBreakerView().newSwitch()
+                .setEnsureIdUnicity(true)
                 .setId(ucteLine.getId().toString())
                 .setBus1(nodeCode1.toString())
                 .setBus2(nodeCode2.toString())
@@ -386,6 +389,7 @@ public class UcteImporter implements Importer {
         LOGGER.trace("Create line '{}'", ucteLine.getId());
 
         Line l = network.newLine()
+                .setEnsureIdUnicity(true)
                 .setId(ucteLine.getId().toString())
                 .setVoltageLevel1(ucteVoltageLevel1.getName())
                 .setVoltageLevel2(ucteVoltageLevel2.getName())
@@ -616,6 +620,7 @@ public class UcteImporter implements Importer {
 
         // create a transformer connected to the YNODE and other node
         return substation.newTwoWindingsTransformer()
+                .setEnsureIdUnicity(true)
                 .setId(ucteTransfo.getId().toString())
                 .setVoltageLevel1(voltageLevelId1)
                 .setVoltageLevel2(voltageLevelId2)
@@ -679,6 +684,7 @@ public class UcteImporter implements Importer {
             } else {
                 // standard transformer
                 transformer = substation.newTwoWindingsTransformer()
+                        .setEnsureIdUnicity(true)
                         .setId(ucteTransfo.getId().toString())
                         .setVoltageLevel1(ucteVoltageLevel2.getName())
                         .setVoltageLevel2(ucteVoltageLevel1.getName())
