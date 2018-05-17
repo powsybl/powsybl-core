@@ -151,7 +151,13 @@ public final class NetworkXml implements XmlConstants {
     }
 
     private static void writeExtensions(Network n, NetworkXmlWriterContext context) throws XMLStreamException {
+
         for (Identifiable<?> identifiable : n.getIdentifiables()) {
+
+            if (!context.isExportedEquipment(identifiable)) {
+                continue;
+            }
+
             Collection<? extends Extension<? extends Identifiable<?>>> extensions = identifiable.getExtensions();
             if (!extensions.isEmpty()) {
                 context.getWriter().writeStartElement(IIDM_URI, EXTENSION_ELEMENT_NAME);
