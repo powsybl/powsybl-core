@@ -36,9 +36,23 @@ public interface LoadFlowActionSimulatorObserver {
 
     void beforeAction(RunningContext runningContext, String actionId);
 
+    void beforeTest(RunningContext runningContext, String actionId);
+
     void afterAction(RunningContext runningContext, String actionId);
 
+    void afterTest(RunningContext runningContext, String actionId);
+
+    void violationsAfterTest(String actionId, List<LimitViolation> violations);
+
+    void divergedAfterTest(String actionId);
+
     void noMoreViolations(RunningContext runningContext);
+
+    void noMoreViolationsAfterTest(RunningContext runningContext, String actionId);
+
+    void beforeApplyTest(RunningContext runningContext, String actionId);
+
+    void afterApplyTest(RunningContext runningContext, String actionId);
 
     void violationsAnymoreAndNoRulesMatch(RunningContext runningContext);
 

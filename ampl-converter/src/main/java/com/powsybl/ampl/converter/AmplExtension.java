@@ -15,13 +15,13 @@ import com.powsybl.commons.extensions.Extension;
 *
 * @author Ferrari Giovanni <giovanni.ferrari@techrain.eu>
 */
-public class AmplExtension {
+public class AmplExtension<A extends Extension<B>, B> {
 
     private final int extendedNum;
-    private final Extendable extendable;
-    private final Extension<?> extension;
+    private final Extendable<B> extendable;
+    private final A extension;
 
-    public AmplExtension(int extended, Extendable extendable, Extension extension) {
+    public AmplExtension(int extended, Extendable<B> extendable, A extension) {
         this.extendedNum = extended;
         this.extendable = Objects.requireNonNull(extendable);
         this.extension = Objects.requireNonNull(extension);
@@ -31,11 +31,11 @@ public class AmplExtension {
         return extendedNum;
     }
 
-    public Extendable getExtendable() {
+    public Extendable<B> getExtendable() {
         return extendable;
     }
 
-    public Extension getExtension() {
+    public A getExtension() {
         return extension;
     }
 
