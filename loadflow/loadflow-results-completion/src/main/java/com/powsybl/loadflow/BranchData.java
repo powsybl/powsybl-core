@@ -88,10 +88,10 @@ public class BranchData {
         p2 = line.getTerminal2().getP();
         q2 = line.getTerminal2().getQ();
 
-        connected1 = bus1 != null ? true : false;
-        connected2 = bus2 != null ? true : false;
-        boolean connectableMainComponent1 = connectableBus1 != null ? connectableBus1.isInMainConnectedComponent() : false;
-        boolean connectableMainComponent2 = connectableBus2 != null ? connectableBus2.isInMainConnectedComponent() : false;
+        connected1 = bus1 != null;
+        connected2 = bus2 != null;
+        boolean connectableMainComponent1 = connectableBus1 != null && connectableBus1.isInMainConnectedComponent();
+        boolean connectableMainComponent2 = connectableBus2 != null && connectableBus2.isInMainConnectedComponent();
         mainComponent1 = bus1 != null ? bus1.isInMainConnectedComponent() : connectableMainComponent1;
         mainComponent2 = bus2 != null ? bus2.isInMainConnectedComponent() : connectableMainComponent2;
 
@@ -131,10 +131,10 @@ public class BranchData {
         p2 = twt.getTerminal2().getP();
         q2 = twt.getTerminal2().getQ();
 
-        connected1 = bus1 != null ? true : false;
-        connected2 = bus2 != null ? true : false;
-        boolean connectableMainComponent1 = connectableBus1 != null ? connectableBus1.isInMainConnectedComponent() : false;
-        boolean connectableMainComponent2 = connectableBus2 != null ? connectableBus2.isInMainConnectedComponent() : false;
+        connected1 = bus1 != null;
+        connected2 = bus2 != null;
+        boolean connectableMainComponent1 = connectableBus1 != null && connectableBus1.isInMainConnectedComponent();
+        boolean connectableMainComponent2 = connectableBus2 != null && connectableBus2.isInMainConnectedComponent();
         mainComponent1 = bus1 != null ? bus1.isInMainConnectedComponent() : connectableMainComponent1;
         mainComponent2 = bus2 != null ? bus2.isInMainConnectedComponent() : connectableMainComponent2;
 
