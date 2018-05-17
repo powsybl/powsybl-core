@@ -36,7 +36,7 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
     protected static final String VALIDATION = "validation";
     protected static final String CONNECTED = "connected";
     protected static final String MAIN_COMPONENT = "mainComponent";
-    protected static final String POST_LF_SUFFIX = "_postLF";
+    protected static final String POST_COMPUTATION_SUFFIX = "_postComp";
     protected static final String NOMINAL_V = "nominalV";
 
     protected ValidationType validationType;
