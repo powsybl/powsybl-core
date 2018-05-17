@@ -25,7 +25,10 @@ import com.powsybl.ucte.network.io.UcteReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UncheckedIOException;
 import java.util.Iterator;
 import java.util.Properties;
 import java.util.Set;
@@ -94,7 +97,7 @@ public class UcteImporter implements Importer {
             }
 
             if (LOGGER.isTraceEnabled()) {
-                LOGGER.trace("Create bus '{}'", ucteNodeCode.toString());
+                LOGGER.trace("Create bus '{}'", ucteNodeCode);
             }
 
             Bus bus = voltageLevel.getBusBreakerView().newBus()
@@ -656,6 +659,18 @@ public class UcteImporter implements Importer {
         return connected;
     }
 
+    private static void addTapChangers(UcteNetworkExt ucteNetwork, UcteTransformer ucteTransfo, TwoWindingsTransformer transformer) {
+        UcteRegulation ucteRegulation = ucteNetwork.getRegulation(ucteTransfo.getId());
+        if (ucteRegulation != null) {
+            if (ucteRegulation.getPhaseRegulation() != null) {
+                createRatioTapChanger(ucteRegulation.getPhaseRegulation(), transformer);
+            }
+            if (ucteRegulation.getAngleRegulation() != null) {
+                createPhaseTapChanger(ucteRegulation.getAngleRegulation(), transformer);
+            }
+        }
+    }
+
     private static void createTransformers(UcteNetworkExt ucteNetwork, Network network, EntsoeFileName ucteFileName) {
         for (UcteTransformer ucteTransfo : ucteNetwork.getTransformers()) {
             UcteNodeCode nodeCode1 = ucteTransfo.getId().getNodeCode1();
@@ -708,15 +723,7 @@ public class UcteImporter implements Importer {
                     .add();
             }
 
-            UcteRegulation ucteRegulation = ucteNetwork.getRegulation(ucteTransfo.getId());
-            if (ucteRegulation != null) {
-                if (ucteRegulation.getPhaseRegulation() != null) {
-                    createRatioTapChanger(ucteRegulation.getPhaseRegulation(), transformer);
-                }
-                if (ucteRegulation.getAngleRegulation() != null) {
-                    createPhaseTapChanger(ucteRegulation.getAngleRegulation(), transformer);
-                }
-            }
+            addTapChangers(ucteNetwork, ucteTransfo, transformer);
         }
     }
 
