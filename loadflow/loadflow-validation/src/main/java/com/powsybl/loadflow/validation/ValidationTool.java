@@ -55,6 +55,7 @@ public class ValidationTool implements Tool {
     private static final String TYPES = "types";
     private static final String COMPARE_RESULTS = "compare-results";
     private static final String GROOVY_SCRIPT = "groovy-script";
+    private static final String RUN_COMPUTATION = "run-computation";
 
     private static final Command COMMAND = new Command() {
 
@@ -90,6 +91,12 @@ public class ValidationTool implements Tool {
                     .build());
             options.addOption(Option.builder().longOpt(LOAD_FLOW)
                     .desc("run loadflow")
+                    .build());
+            options.addOption(Option.builder().longOpt(RUN_COMPUTATION)
+                    .desc("run a computation on the network before validation, available computations are : "
+                            + Arrays.toString(CandidateComputations.getComputationsNames().toArray()))
+                    .hasArg()
+                    .argName("COMPUTATION")
                     .build());
             options.addOption(Option.builder().longOpt(VERBOSE)
                     .desc("verbose output")
@@ -175,7 +182,19 @@ public class ValidationTool implements Tool {
                         })
                         .join();
                 context.getOutputStream().println("Running post-loadflow validation on network " + network.getId());
+
+            } else if (line.hasOption(RUN_COMPUTATION)) {
+                String computationName = line.getOptionValue(RUN_COMPUTATION);
+                CandidateComputation computation = CandidateComputations.getComputation(computationName)
+                        .orElseThrow(() -> new IllegalArgumentException("Unknown computation type : " + computationName));
+
+                context.getOutputStream().format("Running computation '%s' on network '%s'", computationName, network.getId()).println();
+
+                computation.run(network, context.getShortTimeExecutionComputationManager());
+
+                context.getOutputStream().println("Running post-computation validation on network " + network.getId());
             }
+
             runValidation(network, config, validationTypes, validationWriters, context);
         }
     }
