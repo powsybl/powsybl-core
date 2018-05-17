@@ -43,7 +43,7 @@ public class LoadFlowResultsCompletionPostProcessorTest extends AbstractLoadFlow
     public void process() throws Exception {
         setNanValues();
 
-        LoadFlowResultsCompletionPostProcessor processor = new LoadFlowResultsCompletionPostProcessor();
+        LoadFlowResultsCompletionPostProcessor processor = new LoadFlowResultsCompletionPostProcessor(platformConfig);
         assertEquals(LoadFlowResultsCompletionPostProcessor.NAME, processor.getName());
         processor.process(network, null);
 

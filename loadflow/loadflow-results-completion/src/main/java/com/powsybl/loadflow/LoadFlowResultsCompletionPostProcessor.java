@@ -25,7 +25,6 @@ import com.powsybl.iidm.network.Network;
 public class LoadFlowResultsCompletionPostProcessor implements ImportPostProcessor {
 
     public static final String NAME = "loadflowResultsCompletion";
-
     private static final Logger LOGGER = LoggerFactory.getLogger(LoadFlowResultsCompletionPostProcessor.class);
 
     private final LoadFlowResultsCompletionParameters parameters;

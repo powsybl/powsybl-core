@@ -6,7 +6,11 @@
  */
 package com.powsybl.loadflow;
 
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
+
+import com.powsybl.loadflow.validation.CandidateComputation;
 
 /**
  *
@@ -20,7 +24,9 @@ public class LoadFlowResultsCompletionTest extends AbstractLoadFlowResultsComple
 
         LoadFlowResultsCompletionParameters parameters = new LoadFlowResultsCompletionParameters();
         LoadFlowParameters lfParameters = new LoadFlowParameters();
-        new LoadFlowResultsCompletion(parameters, lfParameters).run(network, null);
+        CandidateComputation computation = new LoadFlowResultsCompletion(parameters, lfParameters);
+        assertEquals(LoadFlowResultsCompletion.NAME, computation.getName());
+        computation.run(network, null);
 
         checkResultsCompletion();
     }

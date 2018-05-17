@@ -11,17 +11,21 @@ import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.TwoTerminalsConnectable.Side;
+import com.powsybl.loadflow.validation.CandidateComputation;
 
 /**
  *
  * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
  */
-public class LoadFlowResultsCompletion {
+@AutoService(CandidateComputation.class)
+public class LoadFlowResultsCompletion  implements CandidateComputation {
 
+    public static final String NAME = "loadflowResultsCompletion";
     private static final Logger LOGGER = LoggerFactory.getLogger(LoadFlowResultsCompletion.class);
 
     private final LoadFlowResultsCompletionParameters parameters;
@@ -36,10 +40,12 @@ public class LoadFlowResultsCompletion {
         this(LoadFlowResultsCompletionParameters.load(), LoadFlowParameters.load());
     }
 
+    @Override
     public String getName() {
-        return "loadflowResultsCompletion";
+        return NAME;
     }
 
+    @Override
     public void run(Network network, ComputationManager computationManager) {
         Objects.requireNonNull(network);
         LOGGER.info("Running {} on network {}, state {}", getName(), network.getId(), network.getStateManager().getWorkingStateId());
