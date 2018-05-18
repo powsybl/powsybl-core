@@ -309,26 +309,8 @@ public final class NetworkXml implements XmlConstants {
                         if (identifiable == null) {
                             throw new PowsyblException("Identifiable " + id2 + " not found");
                         }
-                        XmlUtil.readUntilEndElement(EXTENSION_ELEMENT_NAME, reader, new XmlUtil.XmlEventHandler() {
 
-                            private boolean topLevel = true;
-
-                            @Override
-                            public void onStartElement() throws XMLStreamException {
-                                if (topLevel) {
-                                    String extensionName = reader.getLocalName();
-                                    ExtensionXmlSerializer extensionXmlSerializer = EXTENSIONS_SUPPLIER.get().findProvider(extensionName);
-                                    if (extensionXmlSerializer != null) {
-                                        Extension<? extends Identifiable<?>> extension = extensionXmlSerializer.read(identifiable, context);
-                                        identifiable.addExtension(extensionXmlSerializer.getExtensionClass(), extension);
-                                        topLevel = true;
-                                    } else {
-                                        extensionNamesNotFound.add(extensionName);
-                                        topLevel = false;
-                                    }
-                                }
-                            }
-                        });
+                        readExtensions(identifiable, context, extensionNamesNotFound);
                         break;
 
                     default:
@@ -363,6 +345,31 @@ public final class NetworkXml implements XmlConstants {
     public static Network validateAndRead(Path xmlFile) {
         validateWithExtensions(xmlFile);
         return read(xmlFile);
+    }
+
+    private static void readExtensions(Identifiable identifiable, NetworkXmlReaderContext context,
+                                       Set<String> extensionNamesNotFound) throws XMLStreamException {
+
+        XmlUtil.readUntilEndElement(EXTENSION_ELEMENT_NAME, context.getReader(), new XmlUtil.XmlEventHandler() {
+
+            private boolean topLevel = true;
+
+            @Override
+            public void onStartElement() throws XMLStreamException {
+                if (topLevel) {
+                    String extensionName = context.getReader().getLocalName();
+                    ExtensionXmlSerializer extensionXmlSerializer = EXTENSIONS_SUPPLIER.get().findProvider(extensionName);
+                    if (extensionXmlSerializer != null) {
+                        Extension<? extends Identifiable<?>> extension = extensionXmlSerializer.read(identifiable, context);
+                        identifiable.addExtension(extensionXmlSerializer.getExtensionClass(), extension);
+                        topLevel = true;
+                    } else {
+                        extensionNamesNotFound.add(extensionName);
+                        topLevel = false;
+                    }
+                }
+            }
+        });
     }
 
     public static void update(Network network, InputStream is) {
