@@ -189,7 +189,7 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
                 boolean found = shuntsData.containsKey(shuntId);
                 ShuntData shuntData = found ? shuntsData.get(shuntId) : emptyShuntData;
                 write(shuntId, q, expectedQ, p, currentSectionCount, maximumSectionCount,
-                      bPerSection, v, connected, qMax, nominalV, validated, mainComponent, shuntData, found, true);
+                      bPerSection, v, connected, qMax, nominalV, mainComponent, validated, shuntData, found, true);
                 shuntsData.remove(shuntId);
             } else {
                 shuntsData.put(shuntId, new ShuntData(shuntId, q, expectedQ, p, currentSectionCount, maximumSectionCount,
