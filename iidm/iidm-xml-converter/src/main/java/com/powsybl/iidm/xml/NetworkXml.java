@@ -150,35 +150,37 @@ public final class NetworkXml implements XmlConstants {
         }
     }
 
+
+    private static void writeExtension(Extension<? extends Identifiable<?>> extension, NetworkXmlWriterContext context) throws XMLStreamException {
+
+        XMLStreamWriter writer = context.getWriter();
+
+        ExtensionXmlSerializer extensionXmlSerializer = EXTENSIONS_SUPPLIER.get().findProviderOrThrowException(extension.getName());
+        if (extensionXmlSerializer.hasSubElements()) {
+            writer.writeStartElement(extensionXmlSerializer.getNamespaceUri(), extension.getName());
+        } else {
+            writer.writeEmptyElement(extensionXmlSerializer.getNamespaceUri(), extension.getName());
+        }
+        extensionXmlSerializer.write(extension, context);
+        if (extensionXmlSerializer.hasSubElements()) {
+            writer.writeEndElement();
+        }
+    }
+
     private static void writeExtensions(Network n, NetworkXmlWriterContext context) throws XMLStreamException {
 
         for (Identifiable<?> identifiable : n.getIdentifiables()) {
 
-            if (!context.isExportedEquipment(identifiable)) {
+            Collection<? extends Extension<? extends Identifiable<?>>> extensions = identifiable.getExtensions();
+            if (!context.isExportedEquipment(identifiable) || extensions.isEmpty()) {
                 continue;
             }
-
-            Collection<? extends Extension<? extends Identifiable<?>>> extensions = identifiable.getExtensions();
-            if (!extensions.isEmpty()) {
-                context.getWriter().writeStartElement(IIDM_URI, EXTENSION_ELEMENT_NAME);
-                context.getWriter().writeAttribute("id", context.getAnonymizer().anonymizeString(identifiable.getId()));
-
-                for (Extension<? extends Identifiable<?>> extension : identifiable.getExtensions()) {
-                    ExtensionXmlSerializer extensionXmlSerializer = EXTENSIONS_SUPPLIER.get().findProviderOrThrowException(extension.getName());
-                    if (extensionXmlSerializer.hasSubElements()) {
-                        context.getWriter().writeStartElement(extensionXmlSerializer.getNamespaceUri(), extension.getName());
-                    } else {
-                        context.getWriter().writeEmptyElement(extensionXmlSerializer.getNamespaceUri(), extension.getName());
-                    }
-                    extensionXmlSerializer.write(extension, context);
-                    if (extensionXmlSerializer.hasSubElements()) {
-                        context.getWriter().writeEndElement();
-                    }
-                }
-
-                context.getWriter().writeEndElement();
+            context.getWriter().writeStartElement(IIDM_URI, EXTENSION_ELEMENT_NAME);
+            context.getWriter().writeAttribute("id", context.getAnonymizer().anonymizeString(identifiable.getId()));
+            for (Extension<? extends Identifiable<?>> extension : identifiable.getExtensions()) {
+                writeExtension(extension, context);
             }
-
+            context.getWriter().writeEndElement();
         }
     }
 
