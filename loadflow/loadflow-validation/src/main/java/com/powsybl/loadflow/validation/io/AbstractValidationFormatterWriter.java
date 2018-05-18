@@ -42,6 +42,7 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
     protected ValidationType validationType;
     protected boolean compareResults;
     protected TableFormatter formatter;
+    protected String invalidString;
     protected boolean preLoadflowValidationCompleted = false;
     protected Map<String, BusData> busesData = new HashMap<>();
     protected Map<String, GeneratorData> generatorsData = new HashMap<>();
