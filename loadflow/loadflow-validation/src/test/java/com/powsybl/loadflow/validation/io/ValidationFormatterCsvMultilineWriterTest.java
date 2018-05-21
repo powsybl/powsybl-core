@@ -837,4 +837,26 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
         return new ValidationFormatterCsvMultilineWriter("test", CsvTableFormatterFactory.class, config, writer, verbose, ValidationType.TWTS, compareResults);
     }
 
+    @Override
+    protected String getTwtsMissingSideContent() {
+        return String.join(System.lineSeparator(),
+                           "test " + ValidationType.TWTS + " check",
+                           String.join(";", "id", "characteristic", "value"),
+                           String.join(";", twtId, "error", "inv"),
+                           String.join(";", twtId, "upIncrement", "inv"),
+                           String.join(";", twtId, "downIncrement", "inv"),
+                           String.join(";", twtId, "rho", String.format(Locale.getDefault(), "%g", rho)),
+                           String.join(";", twtId, "rhoPreviousStep", String.format(Locale.getDefault(), "%g", rhoPreviousStep)),
+                           String.join(";", twtId, "rhoNextStep", String.format(Locale.getDefault(), "%g", rhoNextStep)),
+                           String.join(";", twtId, "tapPosition", Integer.toString(tapPosition)),
+                           String.join(";", twtId, "lowTapPosition", Integer.toString(lowTapPosition)),
+                           String.join(";", twtId, "highTapPosition", Integer.toString(highTapPosition)),
+                           String.join(";", twtId, "tapChangerTargetV", String.format(Locale.getDefault(), "%g", twtTargetV)),
+                           String.join(";", twtId, "regulatedSide", "inv"),
+                           String.join(";", twtId, "v", "inv"),
+                           String.join(";", twtId, AbstractValidationFormatterWriter.CONNECTED, Boolean.toString(false)),
+                           String.join(";", twtId, AbstractValidationFormatterWriter.MAIN_COMPONENT, Boolean.toString(false)),
+                           String.join(";", twtId, AbstractValidationFormatterWriter.VALIDATION, AbstractValidationFormatterWriter.SUCCESS));
+    }
+
 }

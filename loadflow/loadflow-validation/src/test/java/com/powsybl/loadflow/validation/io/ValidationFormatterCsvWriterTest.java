@@ -999,4 +999,19 @@ public class ValidationFormatterCsvWriterTest extends AbstractValidationFormatte
         return new ValidationFormatterCsvWriter("test", CsvTableFormatterFactory.class, config, writer, verbose, ValidationType.TWTS, compareResults);
     }
 
+    @Override
+    protected String getTwtsMissingSideContent() {
+        return String.join(System.lineSeparator(),
+                "test " + ValidationType.TWTS + " check",
+                String.join(";", "id", "error", "upIncrement", "downIncrement", "rho", "rhoPreviousStep", "rhoNextStep", "tapPosition", "lowTapPosition",
+                            "highTapPosition", "tapChangerTargetV", "regulatedSide", "v", AbstractValidationFormatterWriter.CONNECTED,
+                            AbstractValidationFormatterWriter.MAIN_COMPONENT, AbstractValidationFormatterWriter.VALIDATION),
+                String.join(";", twtId,
+                            "inv", "inv", "inv", String.format(Locale.getDefault(), "%g", rho),
+                            String.format(Locale.getDefault(), "%g", rhoPreviousStep), String.format(Locale.getDefault(), "%g", rhoNextStep),
+                            Integer.toString(tapPosition), Integer.toString(lowTapPosition), Integer.toString(highTapPosition),
+                            String.format(Locale.getDefault(), "%g", twtTargetV), "inv", "inv",
+                            Boolean.toString(false), Boolean.toString(false), AbstractValidationFormatterWriter.SUCCESS));
+    }
+
 }

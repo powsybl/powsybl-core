@@ -38,6 +38,7 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
         this.validationType = Objects.requireNonNull(validationType);
         this.compareResults = compareResults;
         formatter = createTableFormatter(id, formatterFactoryClass, formatterConfig, writer, validationType);
+        this.invalidString = formatterConfig.getInvalidString();
     }
 
     public ValidationFormatterCsvWriter(String id, Class<? extends TableFormatterFactory> formatterFactoryClass,
@@ -634,7 +635,7 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                                  .writeCell(lowTapPosition)
                                  .writeCell(highTapPosition)
                                  .writeCell(targetV)
-                                 .writeCell(regulatedSide.name())
+                                 .writeCell(regulatedSide != null ? regulatedSide.name() : invalidString)
                                  .writeCell(v)
                                  .writeCell(connected)
                                  .writeCell(mainComponent)
