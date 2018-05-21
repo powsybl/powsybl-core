@@ -18,6 +18,7 @@ import java.util.EnumMap;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.google.common.base.Preconditions;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
@@ -167,10 +168,14 @@ public class ValidationTool implements Tool {
         }
         try (ValidationWriters validationWriters = new ValidationWriters(network.getId(), validationTypes, outputFolder, config)) {
             if (config.isCompareResults()) {
+                Preconditions.checkArgument(line.hasOption(LOAD_FLOW) || line.hasOption(RUN_COMPUTATION),
+                        "Results comparison requires to run a computation (options --loadflow or --run-computation).");
+
                 context.getOutputStream().println("Running pre-loadflow validation on network " + network.getId());
                 runValidation(network, config, validationTypes, validationWriters, context);
             }
-            if (line.hasOption(LOAD_FLOW) || config.isCompareResults()) {
+
+            if (line.hasOption(LOAD_FLOW)) {
                 context.getOutputStream().println("Running loadflow on network " + network.getId());
                 LoadFlowParameters parameters = LoadFlowParameters.load();
                 LoadFlow loadFlow = config.getLoadFlowFactory().newInstance().create(network, context.getShortTimeExecutionComputationManager(), 0);
