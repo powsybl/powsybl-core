@@ -51,7 +51,7 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
             new Column("value")
         };
         if (compareResults) {
-            columns = ArrayUtils.add(columns, new Column("value" + POST_LF_SUFFIX));
+            columns = ArrayUtils.add(columns, new Column("value" + POST_COMPUTATION_SUFFIX));
         }
         return columns;
     }
