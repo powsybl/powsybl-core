@@ -18,6 +18,7 @@ import java.util.EnumMap;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.google.common.base.Preconditions;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
@@ -55,6 +56,7 @@ public class ValidationTool implements Tool {
     private static final String TYPES = "types";
     private static final String COMPARE_RESULTS = "compare-results";
     private static final String GROOVY_SCRIPT = "groovy-script";
+    private static final String RUN_COMPUTATION = "run-computation";
 
     private static final Command COMMAND = new Command() {
 
@@ -90,6 +92,12 @@ public class ValidationTool implements Tool {
                     .build());
             options.addOption(Option.builder().longOpt(LOAD_FLOW)
                     .desc("run loadflow")
+                    .build());
+            options.addOption(Option.builder().longOpt(RUN_COMPUTATION)
+                    .desc("run a computation on the network before validation, available computations are : "
+                            + Arrays.toString(CandidateComputations.getComputationsNames().toArray()))
+                    .hasArg()
+                    .argName("COMPUTATION")
                     .build());
             options.addOption(Option.builder().longOpt(VERBOSE)
                     .desc("verbose output")
@@ -160,10 +168,14 @@ public class ValidationTool implements Tool {
         }
         try (ValidationWriters validationWriters = new ValidationWriters(network.getId(), validationTypes, outputFolder, config)) {
             if (config.isCompareResults()) {
+                Preconditions.checkArgument(line.hasOption(LOAD_FLOW) || line.hasOption(RUN_COMPUTATION),
+                        "Results comparison requires to run a computation (options --loadflow or --run-computation).");
+
                 context.getOutputStream().println("Running pre-loadflow validation on network " + network.getId());
                 runValidation(network, config, validationTypes, validationWriters, context);
             }
-            if (line.hasOption(LOAD_FLOW) || config.isCompareResults()) {
+
+            if (line.hasOption(LOAD_FLOW)) {
                 context.getOutputStream().println("Running loadflow on network " + network.getId());
                 LoadFlowParameters parameters = LoadFlowParameters.load();
                 LoadFlow loadFlow = config.getLoadFlowFactory().newInstance().create(network, context.getShortTimeExecutionComputationManager(), 0);
@@ -175,7 +187,19 @@ public class ValidationTool implements Tool {
                         })
                         .join();
                 context.getOutputStream().println("Running post-loadflow validation on network " + network.getId());
+
+            } else if (line.hasOption(RUN_COMPUTATION)) {
+                String computationName = line.getOptionValue(RUN_COMPUTATION);
+                CandidateComputation computation = CandidateComputations.getComputation(computationName)
+                        .orElseThrow(() -> new IllegalArgumentException("Unknown computation type : " + computationName));
+
+                context.getOutputStream().format("Running computation '%s' on network '%s'", computationName, network.getId()).println();
+
+                computation.run(network, context.getShortTimeExecutionComputationManager());
+
+                context.getOutputStream().println("Running post-computation validation on network " + network.getId());
             }
+
             runValidation(network, config, validationTypes, validationWriters, context);
         }
     }

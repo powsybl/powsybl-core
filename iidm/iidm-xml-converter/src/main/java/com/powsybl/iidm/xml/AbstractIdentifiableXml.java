@@ -55,6 +55,8 @@ abstract class AbstractIdentifiableXml<T extends Identifiable, A extends Identif
         if (hasSubElements || identifiable.hasProperty()) {
             context.getWriter().writeEndElement();
         }
+
+        context.addExportedEquipment(identifiable);
     }
 
     protected void readUntilEndRootElement(XMLStreamReader reader, XmlUtil.XmlEventHandler eventHandler) throws XMLStreamException {

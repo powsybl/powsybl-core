@@ -7,8 +7,12 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.xml.XmlWriterContext;
+import com.powsybl.iidm.network.Identifiable;
 
 import javax.xml.stream.XMLStreamWriter;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -18,12 +22,15 @@ public class NetworkXmlWriterContext extends XmlContext implements XmlWriterCont
     private final XMLStreamWriter writer;
     private final XMLExportOptions options;
     private final BusFilter filter;
+    private final Set<Identifiable> exportedEquipments;
 
     NetworkXmlWriterContext(Anonymizer anonymizer, XMLStreamWriter writer, XMLExportOptions options, BusFilter filter) {
         super(anonymizer);
         this.writer = writer;
         this.options = options;
         this.filter = filter;
+
+        this.exportedEquipments = new HashSet<>();
     }
 
     @Override
@@ -37,5 +44,17 @@ public class NetworkXmlWriterContext extends XmlContext implements XmlWriterCont
 
     public BusFilter getFilter() {
         return filter;
+    }
+
+    public Set<Identifiable> getExportedEquipments() {
+        return Collections.unmodifiableSet(exportedEquipments);
+    }
+
+    public void addExportedEquipment(Identifiable<?> equipment) {
+        exportedEquipments.add(equipment);
+    }
+
+    public boolean isExportedEquipment(Identifiable<?> equipment) {
+        return exportedEquipments.contains(equipment);
     }
 }

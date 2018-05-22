@@ -72,17 +72,19 @@ public class ZipFileDataSource implements DataSource {
         return exists(DataSourceUtil.getFileName(baseName, suffix, ext));
     }
 
-    private static boolean entryExists(Path zipFilePath, String fileName) throws IOException {
+    private static boolean entryExists(Path zipFilePath, String fileName) {
         if (Files.exists(zipFilePath)) {
             try (ZipFile zipFile = new ZipFile(zipFilePath)) {
                 return zipFile.entry(fileName) != null;
+            } catch (IOException e) {
+                return false;
             }
         }
         return false;
     }
 
     @Override
-    public boolean exists(String fileName) throws IOException {
+    public boolean exists(String fileName) {
         Objects.requireNonNull(fileName);
         Path zipFilePath = getZipFilePath();
         return entryExists(zipFilePath, fileName);
