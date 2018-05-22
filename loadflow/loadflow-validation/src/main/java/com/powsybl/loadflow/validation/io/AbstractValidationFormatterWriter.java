@@ -36,12 +36,13 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
     protected static final String VALIDATION = "validation";
     protected static final String CONNECTED = "connected";
     protected static final String MAIN_COMPONENT = "mainComponent";
-    protected static final String POST_LF_SUFFIX = "_postLF";
+    protected static final String POST_COMPUTATION_SUFFIX = "_postComp";
     protected static final String NOMINAL_V = "nominalV";
 
     protected ValidationType validationType;
     protected boolean compareResults;
     protected TableFormatter formatter;
+    protected String invalidString;
     protected boolean preLoadflowValidationCompleted = false;
     protected Map<String, BusData> busesData = new HashMap<>();
     protected Map<String, GeneratorData> generatorsData = new HashMap<>();
@@ -188,7 +189,7 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
                 boolean found = shuntsData.containsKey(shuntId);
                 ShuntData shuntData = found ? shuntsData.get(shuntId) : emptyShuntData;
                 write(shuntId, q, expectedQ, p, currentSectionCount, maximumSectionCount,
-                      bPerSection, v, connected, qMax, nominalV, validated, mainComponent, shuntData, found, true);
+                      bPerSection, v, connected, qMax, nominalV, mainComponent, validated, shuntData, found, true);
                 shuntsData.remove(shuntId);
             } else {
                 shuntsData.put(shuntId, new ShuntData(shuntId, q, expectedQ, p, currentSectionCount, maximumSectionCount,
