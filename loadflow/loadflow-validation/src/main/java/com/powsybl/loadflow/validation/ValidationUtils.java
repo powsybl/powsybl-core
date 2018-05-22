@@ -20,6 +20,7 @@ import com.powsybl.loadflow.validation.io.ValidationWriterFactory;
 public final class ValidationUtils {
 
     public static final String VALIDATION_ERROR = "validation error";
+    public static final String VALIDATION_WARNING = "validation warning";
 
     private ValidationUtils() {
     }

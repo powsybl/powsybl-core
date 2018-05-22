@@ -150,29 +150,37 @@ public final class NetworkXml implements XmlConstants {
         }
     }
 
+
+    private static void writeExtension(Extension<? extends Identifiable<?>> extension, NetworkXmlWriterContext context) throws XMLStreamException {
+
+        XMLStreamWriter writer = context.getWriter();
+
+        ExtensionXmlSerializer extensionXmlSerializer = EXTENSIONS_SUPPLIER.get().findProviderOrThrowException(extension.getName());
+        if (extensionXmlSerializer.hasSubElements()) {
+            writer.writeStartElement(extensionXmlSerializer.getNamespaceUri(), extension.getName());
+        } else {
+            writer.writeEmptyElement(extensionXmlSerializer.getNamespaceUri(), extension.getName());
+        }
+        extensionXmlSerializer.write(extension, context);
+        if (extensionXmlSerializer.hasSubElements()) {
+            writer.writeEndElement();
+        }
+    }
+
     private static void writeExtensions(Network n, NetworkXmlWriterContext context) throws XMLStreamException {
+
         for (Identifiable<?> identifiable : n.getIdentifiables()) {
+
             Collection<? extends Extension<? extends Identifiable<?>>> extensions = identifiable.getExtensions();
-            if (!extensions.isEmpty()) {
-                context.getWriter().writeStartElement(IIDM_URI, EXTENSION_ELEMENT_NAME);
-                context.getWriter().writeAttribute("id", context.getAnonymizer().anonymizeString(identifiable.getId()));
-
-                for (Extension<? extends Identifiable<?>> extension : identifiable.getExtensions()) {
-                    ExtensionXmlSerializer extensionXmlSerializer = EXTENSIONS_SUPPLIER.get().findProviderOrThrowException(extension.getName());
-                    if (extensionXmlSerializer.hasSubElements()) {
-                        context.getWriter().writeStartElement(extensionXmlSerializer.getNamespaceUri(), extension.getName());
-                    } else {
-                        context.getWriter().writeEmptyElement(extensionXmlSerializer.getNamespaceUri(), extension.getName());
-                    }
-                    extensionXmlSerializer.write(extension, context);
-                    if (extensionXmlSerializer.hasSubElements()) {
-                        context.getWriter().writeEndElement();
-                    }
-                }
-
-                context.getWriter().writeEndElement();
+            if (!context.isExportedEquipment(identifiable) || extensions.isEmpty()) {
+                continue;
             }
-
+            context.getWriter().writeStartElement(IIDM_URI, EXTENSION_ELEMENT_NAME);
+            context.getWriter().writeAttribute("id", context.getAnonymizer().anonymizeString(identifiable.getId()));
+            for (Extension<? extends Identifiable<?>> extension : identifiable.getExtensions()) {
+                writeExtension(extension, context);
+            }
+            context.getWriter().writeEndElement();
         }
     }
 
@@ -301,26 +309,8 @@ public final class NetworkXml implements XmlConstants {
                         if (identifiable == null) {
                             throw new PowsyblException("Identifiable " + id2 + " not found");
                         }
-                        XmlUtil.readUntilEndElement(EXTENSION_ELEMENT_NAME, reader, new XmlUtil.XmlEventHandler() {
 
-                            private boolean topLevel = true;
-
-                            @Override
-                            public void onStartElement() throws XMLStreamException {
-                                if (topLevel) {
-                                    String extensionName = reader.getLocalName();
-                                    ExtensionXmlSerializer extensionXmlSerializer = EXTENSIONS_SUPPLIER.get().findProvider(extensionName);
-                                    if (extensionXmlSerializer != null) {
-                                        Extension<? extends Identifiable<?>> extension = extensionXmlSerializer.read(identifiable, context);
-                                        identifiable.addExtension(extensionXmlSerializer.getExtensionClass(), extension);
-                                        topLevel = true;
-                                    } else {
-                                        extensionNamesNotFound.add(extensionName);
-                                        topLevel = false;
-                                    }
-                                }
-                            }
-                        });
+                        readExtensions(identifiable, context, extensionNamesNotFound);
                         break;
 
                     default:
@@ -355,6 +345,31 @@ public final class NetworkXml implements XmlConstants {
     public static Network validateAndRead(Path xmlFile) {
         validateWithExtensions(xmlFile);
         return read(xmlFile);
+    }
+
+    private static void readExtensions(Identifiable identifiable, NetworkXmlReaderContext context,
+                                       Set<String> extensionNamesNotFound) throws XMLStreamException {
+
+        XmlUtil.readUntilEndElement(EXTENSION_ELEMENT_NAME, context.getReader(), new XmlUtil.XmlEventHandler() {
+
+            private boolean topLevel = true;
+
+            @Override
+            public void onStartElement() throws XMLStreamException {
+                if (topLevel) {
+                    String extensionName = context.getReader().getLocalName();
+                    ExtensionXmlSerializer extensionXmlSerializer = EXTENSIONS_SUPPLIER.get().findProvider(extensionName);
+                    if (extensionXmlSerializer != null) {
+                        Extension<? extends Identifiable<?>> extension = extensionXmlSerializer.read(identifiable, context);
+                        identifiable.addExtension(extensionXmlSerializer.getExtensionClass(), extension);
+                        topLevel = true;
+                    } else {
+                        extensionNamesNotFound.add(extensionName);
+                        topLevel = false;
+                    }
+                }
+            }
+        });
     }
 
     public static void update(Network network, InputStream is) {

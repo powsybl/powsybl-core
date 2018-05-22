@@ -20,7 +20,7 @@ import java.util.function.Consumer;
  */
 public class SecurityAnalysisResultHandler extends AbstractSecurityAnalysisResultBuilder {
 
-    private final List<Consumer<SecurityAnalysisResult> > handlers = new ArrayList<>();
+    private final List<Consumer<SecurityAnalysisResult>> handlers = new ArrayList<>();
 
     public SecurityAnalysisResultHandler add(Consumer<SecurityAnalysisResult> handler) {
         handlers.add(handler);

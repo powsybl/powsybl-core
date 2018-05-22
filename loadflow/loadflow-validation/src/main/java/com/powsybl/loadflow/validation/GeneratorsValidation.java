@@ -174,7 +174,7 @@ public final class GeneratorsValidation {
             && (ValidationUtils.areNaN(config, minQ, maxQ, targetV)
                 || (v > targetV + config.getThreshold() && Math.abs(qGen - getMinQ(minQ, maxQ)) > config.getThreshold())
                 || (v < targetV - config.getThreshold() && Math.abs(qGen - getMaxQ(minQ, maxQ)) > config.getThreshold())
-                || (Math.abs(v - targetV) < config.getThreshold()) && !ValidationUtils.boundedWithin(minQ, maxQ, qGen, config.getThreshold()))) {
+                || (Math.abs(v - targetV) <= config.getThreshold()) && !ValidationUtils.boundedWithin(minQ, maxQ, qGen, config.getThreshold()))) {
             LOGGER.warn("{} {}: {}: voltage regulator on - Q={} minQ={} maxQ={} - V={} targetV={}", ValidationType.GENERATORS, ValidationUtils.VALIDATION_ERROR, id, qGen, minQ, maxQ, v, targetV);
             validated = false;
         }

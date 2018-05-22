@@ -38,6 +38,7 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
         this.validationType = Objects.requireNonNull(validationType);
         this.compareResults = compareResults;
         formatter = createTableFormatter(id, formatterFactoryClass, formatterConfig, writer, validationType);
+        this.invalidString = formatterConfig.getInvalidString();
     }
 
     public ValidationFormatterCsvWriter(String id, Class<? extends TableFormatterFactory> formatterFactoryClass,
@@ -103,38 +104,38 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
         }
         if (compareResults) {
             flowColumns = ArrayUtils.addAll(flowColumns,
-                                            new Column("network_p1" + POST_LF_SUFFIX),
-                                            new Column("expected_p1" + POST_LF_SUFFIX),
-                                            new Column("network_q1" + POST_LF_SUFFIX),
-                                            new Column("expected_q1" + POST_LF_SUFFIX),
-                                            new Column("network_p2" + POST_LF_SUFFIX),
-                                            new Column("expected_p2" + POST_LF_SUFFIX),
-                                            new Column("network_q2" + POST_LF_SUFFIX),
-                                            new Column("expected_q2" + POST_LF_SUFFIX));
+                                            new Column("network_p1" + POST_COMPUTATION_SUFFIX),
+                                            new Column("expected_p1" + POST_COMPUTATION_SUFFIX),
+                                            new Column("network_q1" + POST_COMPUTATION_SUFFIX),
+                                            new Column("expected_q1" + POST_COMPUTATION_SUFFIX),
+                                            new Column("network_p2" + POST_COMPUTATION_SUFFIX),
+                                            new Column("expected_p2" + POST_COMPUTATION_SUFFIX),
+                                            new Column("network_q2" + POST_COMPUTATION_SUFFIX),
+                                            new Column("expected_q2" + POST_COMPUTATION_SUFFIX));
             if (verbose) {
                 flowColumns = ArrayUtils.addAll(flowColumns,
-                                                new Column("r" + POST_LF_SUFFIX),
-                                                new Column("x" + POST_LF_SUFFIX),
-                                                new Column("g1" + POST_LF_SUFFIX),
-                                                new Column("g2" + POST_LF_SUFFIX),
-                                                new Column("b1" + POST_LF_SUFFIX),
-                                                new Column("b2" + POST_LF_SUFFIX),
-                                                new Column("rho1" + POST_LF_SUFFIX),
-                                                new Column("rho2" + POST_LF_SUFFIX),
-                                                new Column("alpha1" + POST_LF_SUFFIX),
-                                                new Column("alpha2" + POST_LF_SUFFIX),
-                                                new Column("u1" + POST_LF_SUFFIX),
-                                                new Column("u2" + POST_LF_SUFFIX),
-                                                new Column("theta1" + POST_LF_SUFFIX),
-                                                new Column("theta2" + POST_LF_SUFFIX),
-                                                new Column("z" + POST_LF_SUFFIX),
-                                                new Column("y" + POST_LF_SUFFIX),
-                                                new Column("ksi" + POST_LF_SUFFIX),
-                                                new Column(CONNECTED + "1" + POST_LF_SUFFIX),
-                                                new Column(CONNECTED + "2" + POST_LF_SUFFIX),
-                                                new Column(MAIN_COMPONENT + "1" + POST_LF_SUFFIX),
-                                                new Column(MAIN_COMPONENT + "2" + POST_LF_SUFFIX),
-                                                new Column(VALIDATION + POST_LF_SUFFIX));
+                                                new Column("r" + POST_COMPUTATION_SUFFIX),
+                                                new Column("x" + POST_COMPUTATION_SUFFIX),
+                                                new Column("g1" + POST_COMPUTATION_SUFFIX),
+                                                new Column("g2" + POST_COMPUTATION_SUFFIX),
+                                                new Column("b1" + POST_COMPUTATION_SUFFIX),
+                                                new Column("b2" + POST_COMPUTATION_SUFFIX),
+                                                new Column("rho1" + POST_COMPUTATION_SUFFIX),
+                                                new Column("rho2" + POST_COMPUTATION_SUFFIX),
+                                                new Column("alpha1" + POST_COMPUTATION_SUFFIX),
+                                                new Column("alpha2" + POST_COMPUTATION_SUFFIX),
+                                                new Column("u1" + POST_COMPUTATION_SUFFIX),
+                                                new Column("u2" + POST_COMPUTATION_SUFFIX),
+                                                new Column("theta1" + POST_COMPUTATION_SUFFIX),
+                                                new Column("theta2" + POST_COMPUTATION_SUFFIX),
+                                                new Column("z" + POST_COMPUTATION_SUFFIX),
+                                                new Column("y" + POST_COMPUTATION_SUFFIX),
+                                                new Column("ksi" + POST_COMPUTATION_SUFFIX),
+                                                new Column(CONNECTED + "1" + POST_COMPUTATION_SUFFIX),
+                                                new Column(CONNECTED + "2" + POST_COMPUTATION_SUFFIX),
+                                                new Column(MAIN_COMPONENT + "1" + POST_COMPUTATION_SUFFIX),
+                                                new Column(MAIN_COMPONENT + "2" + POST_COMPUTATION_SUFFIX),
+                                                new Column(VALIDATION + POST_COMPUTATION_SUFFIX));
             }
         }
         return flowColumns;
@@ -163,22 +164,22 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
         }
         if (compareResults) {
             generatorColumns = ArrayUtils.addAll(generatorColumns,
-                                                 new Column("p" + POST_LF_SUFFIX),
-                                                 new Column("q" + POST_LF_SUFFIX),
-                                                 new Column("v" + POST_LF_SUFFIX),
-                                                 new Column("targetP" + POST_LF_SUFFIX),
-                                                 new Column("targetQ" + POST_LF_SUFFIX),
-                                                 new Column("targetV" + POST_LF_SUFFIX));
+                                                 new Column("p" + POST_COMPUTATION_SUFFIX),
+                                                 new Column("q" + POST_COMPUTATION_SUFFIX),
+                                                 new Column("v" + POST_COMPUTATION_SUFFIX),
+                                                 new Column("targetP" + POST_COMPUTATION_SUFFIX),
+                                                 new Column("targetQ" + POST_COMPUTATION_SUFFIX),
+                                                 new Column("targetV" + POST_COMPUTATION_SUFFIX));
             if (verbose) {
                 generatorColumns = ArrayUtils.addAll(generatorColumns,
-                                                     new Column(CONNECTED + POST_LF_SUFFIX),
-                                                     new Column("voltageRegulatorOn" + POST_LF_SUFFIX),
-                                                     new Column("minP" + POST_LF_SUFFIX),
-                                                     new Column("maxP" + POST_LF_SUFFIX),
-                                                     new Column("minQ" + POST_LF_SUFFIX),
-                                                     new Column("maxQ" + POST_LF_SUFFIX),
-                                                     new Column(MAIN_COMPONENT + POST_LF_SUFFIX),
-                                                     new Column(VALIDATION + POST_LF_SUFFIX));
+                                                     new Column(CONNECTED + POST_COMPUTATION_SUFFIX),
+                                                     new Column("voltageRegulatorOn" + POST_COMPUTATION_SUFFIX),
+                                                     new Column("minP" + POST_COMPUTATION_SUFFIX),
+                                                     new Column("maxP" + POST_COMPUTATION_SUFFIX),
+                                                     new Column("minQ" + POST_COMPUTATION_SUFFIX),
+                                                     new Column("maxQ" + POST_COMPUTATION_SUFFIX),
+                                                     new Column(MAIN_COMPONENT + POST_COMPUTATION_SUFFIX),
+                                                     new Column(VALIDATION + POST_COMPUTATION_SUFFIX));
             }
         }
         return generatorColumns;
@@ -215,30 +216,30 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
         }
         if (compareResults) {
             busColumns = ArrayUtils.addAll(busColumns,
-                                           new Column("incomingP" + POST_LF_SUFFIX),
-                                           new Column("incomingQ" + POST_LF_SUFFIX),
-                                           new Column("loadP" + POST_LF_SUFFIX),
-                                           new Column("loadQ" + POST_LF_SUFFIX));
+                                           new Column("incomingP" + POST_COMPUTATION_SUFFIX),
+                                           new Column("incomingQ" + POST_COMPUTATION_SUFFIX),
+                                           new Column("loadP" + POST_COMPUTATION_SUFFIX),
+                                           new Column("loadQ" + POST_COMPUTATION_SUFFIX));
             if (verbose) {
                 busColumns = ArrayUtils.addAll(busColumns,
-                                               new Column("genP" + POST_LF_SUFFIX),
-                                               new Column("genQ" + POST_LF_SUFFIX),
-                                               new Column("shuntP" + POST_LF_SUFFIX),
-                                               new Column("shuntQ" + POST_LF_SUFFIX),
-                                               new Column("svcP" + POST_LF_SUFFIX),
-                                               new Column("svcQ" + POST_LF_SUFFIX),
-                                               new Column("vscCSP" + POST_LF_SUFFIX),
-                                               new Column("vscCSQ" + POST_LF_SUFFIX),
-                                               new Column("lineP" + POST_LF_SUFFIX),
-                                               new Column("lineQ" + POST_LF_SUFFIX),
-                                               new Column("danglingLineP" + POST_LF_SUFFIX),
-                                               new Column("danglingLineQ" + POST_LF_SUFFIX),
-                                               new Column("twtP" + POST_LF_SUFFIX),
-                                               new Column("twtQ" + POST_LF_SUFFIX),
-                                               new Column("tltP" + POST_LF_SUFFIX),
-                                               new Column("tltQ" + POST_LF_SUFFIX),
-                                               new Column(MAIN_COMPONENT + POST_LF_SUFFIX),
-                                               new Column(VALIDATION + POST_LF_SUFFIX));
+                                               new Column("genP" + POST_COMPUTATION_SUFFIX),
+                                               new Column("genQ" + POST_COMPUTATION_SUFFIX),
+                                               new Column("shuntP" + POST_COMPUTATION_SUFFIX),
+                                               new Column("shuntQ" + POST_COMPUTATION_SUFFIX),
+                                               new Column("svcP" + POST_COMPUTATION_SUFFIX),
+                                               new Column("svcQ" + POST_COMPUTATION_SUFFIX),
+                                               new Column("vscCSP" + POST_COMPUTATION_SUFFIX),
+                                               new Column("vscCSQ" + POST_COMPUTATION_SUFFIX),
+                                               new Column("lineP" + POST_COMPUTATION_SUFFIX),
+                                               new Column("lineQ" + POST_COMPUTATION_SUFFIX),
+                                               new Column("danglingLineP" + POST_COMPUTATION_SUFFIX),
+                                               new Column("danglingLineQ" + POST_COMPUTATION_SUFFIX),
+                                               new Column("twtP" + POST_COMPUTATION_SUFFIX),
+                                               new Column("twtQ" + POST_COMPUTATION_SUFFIX),
+                                               new Column("tltP" + POST_COMPUTATION_SUFFIX),
+                                               new Column("tltQ" + POST_COMPUTATION_SUFFIX),
+                                               new Column(MAIN_COMPONENT + POST_COMPUTATION_SUFFIX),
+                                               new Column(VALIDATION + POST_COMPUTATION_SUFFIX));
             }
         }
         return busColumns;
@@ -265,20 +266,20 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
         }
         if (compareResults) {
             svcColumns = ArrayUtils.addAll(svcColumns,
-                                           new Column("p" + POST_LF_SUFFIX),
-                                           new Column("q" + POST_LF_SUFFIX),
-                                           new Column("v" + POST_LF_SUFFIX),
-                                           new Column(NOMINAL_V + POST_LF_SUFFIX),
-                                           new Column("reactivePowerSetpoint" + POST_LF_SUFFIX),
-                                           new Column("voltageSetpoint" + POST_LF_SUFFIX));
+                                           new Column("p" + POST_COMPUTATION_SUFFIX),
+                                           new Column("q" + POST_COMPUTATION_SUFFIX),
+                                           new Column("v" + POST_COMPUTATION_SUFFIX),
+                                           new Column(NOMINAL_V + POST_COMPUTATION_SUFFIX),
+                                           new Column("reactivePowerSetpoint" + POST_COMPUTATION_SUFFIX),
+                                           new Column("voltageSetpoint" + POST_COMPUTATION_SUFFIX));
             if (verbose) {
                 svcColumns = ArrayUtils.addAll(svcColumns,
-                                               new Column(CONNECTED + POST_LF_SUFFIX),
-                                               new Column("regulationMode" + POST_LF_SUFFIX),
-                                               new Column("bMin" + POST_LF_SUFFIX),
-                                               new Column("bMax" + POST_LF_SUFFIX),
-                                               new Column(MAIN_COMPONENT + POST_LF_SUFFIX),
-                                               new Column(VALIDATION + POST_LF_SUFFIX));
+                                               new Column(CONNECTED + POST_COMPUTATION_SUFFIX),
+                                               new Column("regulationMode" + POST_COMPUTATION_SUFFIX),
+                                               new Column("bMin" + POST_COMPUTATION_SUFFIX),
+                                               new Column("bMax" + POST_COMPUTATION_SUFFIX),
+                                               new Column(MAIN_COMPONENT + POST_COMPUTATION_SUFFIX),
+                                               new Column(VALIDATION + POST_COMPUTATION_SUFFIX));
             }
         }
         return svcColumns;
@@ -305,20 +306,20 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
         }
         if (compareResults) {
             shuntColumns = ArrayUtils.addAll(shuntColumns,
-                                             new Column("q" + POST_LF_SUFFIX),
-                                             new Column("expectedQ" + POST_LF_SUFFIX));
+                                             new Column("q" + POST_COMPUTATION_SUFFIX),
+                                             new Column("expectedQ" + POST_COMPUTATION_SUFFIX));
             if (verbose) {
                 shuntColumns = ArrayUtils.addAll(shuntColumns,
-                                                 new Column("p" + POST_LF_SUFFIX),
-                                                 new Column("currentSectionCount" + POST_LF_SUFFIX),
-                                                 new Column("maximumSectionCount" + POST_LF_SUFFIX),
-                                                 new Column("bPerSection" + POST_LF_SUFFIX),
-                                                 new Column("v" + POST_LF_SUFFIX),
-                                                 new Column(CONNECTED + POST_LF_SUFFIX),
-                                                 new Column("qMax" + POST_LF_SUFFIX),
-                                                 new Column(NOMINAL_V + POST_LF_SUFFIX),
-                                                 new Column(MAIN_COMPONENT + POST_LF_SUFFIX),
-                                                 new Column(VALIDATION + POST_LF_SUFFIX));
+                                                 new Column("p" + POST_COMPUTATION_SUFFIX),
+                                                 new Column("currentSectionCount" + POST_COMPUTATION_SUFFIX),
+                                                 new Column("maximumSectionCount" + POST_COMPUTATION_SUFFIX),
+                                                 new Column("bPerSection" + POST_COMPUTATION_SUFFIX),
+                                                 new Column("v" + POST_COMPUTATION_SUFFIX),
+                                                 new Column(CONNECTED + POST_COMPUTATION_SUFFIX),
+                                                 new Column("qMax" + POST_COMPUTATION_SUFFIX),
+                                                 new Column(NOMINAL_V + POST_COMPUTATION_SUFFIX),
+                                                 new Column(MAIN_COMPONENT + POST_COMPUTATION_SUFFIX),
+                                                 new Column(VALIDATION + POST_COMPUTATION_SUFFIX));
             }
         }
         return shuntColumns;
@@ -348,23 +349,23 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
         }
         if (compareResults) {
             twtColumns = ArrayUtils.addAll(twtColumns,
-                                           new Column("error" + POST_LF_SUFFIX),
-                                           new Column("upIncrement" + POST_LF_SUFFIX),
-                                           new Column("downIncrement" + POST_LF_SUFFIX));
+                                           new Column("error" + POST_COMPUTATION_SUFFIX),
+                                           new Column("upIncrement" + POST_COMPUTATION_SUFFIX),
+                                           new Column("downIncrement" + POST_COMPUTATION_SUFFIX));
             if (verbose) {
                 twtColumns = ArrayUtils.addAll(twtColumns,
-                                               new Column("rho" + POST_LF_SUFFIX),
-                                               new Column("rhoPreviousStep" + POST_LF_SUFFIX),
-                                               new Column("rhoNextStep" + POST_LF_SUFFIX),
-                                               new Column("tapPosition" + POST_LF_SUFFIX),
-                                               new Column("lowTapPosition" + POST_LF_SUFFIX),
-                                               new Column("highTapPosition" + POST_LF_SUFFIX),
-                                               new Column("tapChangerTargetV" + POST_LF_SUFFIX),
-                                               new Column("regulatedSide" + POST_LF_SUFFIX),
-                                               new Column("v" + POST_LF_SUFFIX),
-                                               new Column(CONNECTED + POST_LF_SUFFIX),
-                                               new Column(MAIN_COMPONENT + POST_LF_SUFFIX),
-                                               new Column(VALIDATION + POST_LF_SUFFIX));
+                                               new Column("rho" + POST_COMPUTATION_SUFFIX),
+                                               new Column("rhoPreviousStep" + POST_COMPUTATION_SUFFIX),
+                                               new Column("rhoNextStep" + POST_COMPUTATION_SUFFIX),
+                                               new Column("tapPosition" + POST_COMPUTATION_SUFFIX),
+                                               new Column("lowTapPosition" + POST_COMPUTATION_SUFFIX),
+                                               new Column("highTapPosition" + POST_COMPUTATION_SUFFIX),
+                                               new Column("tapChangerTargetV" + POST_COMPUTATION_SUFFIX),
+                                               new Column("regulatedSide" + POST_COMPUTATION_SUFFIX),
+                                               new Column("v" + POST_COMPUTATION_SUFFIX),
+                                               new Column(CONNECTED + POST_COMPUTATION_SUFFIX),
+                                               new Column(MAIN_COMPONENT + POST_COMPUTATION_SUFFIX),
+                                               new Column(VALIDATION + POST_COMPUTATION_SUFFIX));
             }
         }
         return twtColumns;
@@ -634,7 +635,7 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                                  .writeCell(lowTapPosition)
                                  .writeCell(highTapPosition)
                                  .writeCell(targetV)
-                                 .writeCell(regulatedSide.name())
+                                 .writeCell(regulatedSide != null ? regulatedSide.name() : invalidString)
                                  .writeCell(v)
                                  .writeCell(connected)
                                  .writeCell(mainComponent)

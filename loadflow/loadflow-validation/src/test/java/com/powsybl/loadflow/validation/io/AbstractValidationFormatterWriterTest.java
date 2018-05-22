@@ -485,4 +485,17 @@ public abstract class AbstractValidationFormatterWriterTest {
 
     protected abstract ValidationWriter getTwtsValidationFormatterCsvWriter(TableFormatterConfig config, Writer writer, boolean verbose, boolean compareResults);
 
+    @Test
+    public void testTwtsMissingSide() throws Exception {
+        Writer writer = new StringWriter();
+        TableFormatterConfig config = new TableFormatterConfig(Locale.getDefault(), ';', "inv", true, true);
+        try (ValidationWriter twtsWriter = getTwtsValidationFormatterCsvWriter(config, writer, true, false)) {
+            twtsWriter.write(twtId, Float.NaN, Float.NaN, Float.NaN, rho, rhoPreviousStep, rhoNextStep, tapPosition,
+                             lowTapPosition, highTapPosition, twtTargetV, null, Float.NaN, false, false, true);
+            assertEquals(getTwtsMissingSideContent(), writer.toString().trim());
+        }
+    }
+
+    protected abstract String getTwtsMissingSideContent();
+
 }

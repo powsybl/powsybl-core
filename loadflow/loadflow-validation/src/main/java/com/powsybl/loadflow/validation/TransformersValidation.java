@@ -111,7 +111,15 @@ public final class TransformersValidation {
         } else if (twt.getTerminal2().equals(ratioTapChanger.getRegulationTerminal())) {
             regulatedSide = Side.TWO;
         } else {
-            throw new AssertionError("Unexpected regulation terminal (side 1 or 2 of transformer is expected)");
+            LOGGER.warn("{} {}: {}: Unexpected regulation terminal (side 1 or 2 of transformer is expected), skipping validation",
+                        ValidationType.TWTS, ValidationUtils.VALIDATION_WARNING, twt.getId());
+            try {
+                twtsWriter.write(twt.getId(), Float.NaN, Float.NaN, Float.NaN, rho, rhoPreviousStep, rhoNextStep, tapPosition, lowTapPosition,
+                                 highTapPosition, targetV, null, Float.NaN, false, false, true);
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+            return true;
         }
         Bus bus = ratioTapChanger.getRegulationTerminal().getBusView().getBus();
         double v = bus != null ? bus.getV() : Double.NaN;
