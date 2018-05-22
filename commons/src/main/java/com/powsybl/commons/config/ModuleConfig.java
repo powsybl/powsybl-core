@@ -9,6 +9,7 @@ package com.powsybl.commons.config;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
+import java.util.OptionalDouble;
 import java.util.Set;
 
 import org.joda.time.DateTime;
@@ -54,11 +55,13 @@ public interface ModuleConfig {
 
     int getIntProperty(String name, int defaultValue);
 
+    Optional<Float> getOptionalFloatProperty(String name);
+
     float getFloatProperty(String name);
 
     float getFloatProperty(String name, float defaultValue);
 
-    Optional<Float> getOptionalFloatProperty(String name);
+    OptionalDouble getOptionalDoubleProperty(String name);
 
     double getDoubleProperty(String name);
 
@@ -87,6 +90,8 @@ public interface ModuleConfig {
     <T> Class<? extends T> getClassProperty(String name, Class<T> subClass);
 
     <T> Class<? extends T> getClassProperty(String name, Class<T> subClass, Class<? extends T> defaultValue);
+
+    Optional<DateTime> getOptionalDateTimeProperty(String name);
 
     DateTime getDateTimeProperty(String name);
 
