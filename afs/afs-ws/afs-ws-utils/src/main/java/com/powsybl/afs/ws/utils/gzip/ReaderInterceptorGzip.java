@@ -33,11 +33,9 @@ public class ReaderInterceptorGzip implements ReaderInterceptor {
         final InputStream inputStream = interceptorContext.getInputStream();
 
         if (encoding == null || !encoding.contains("gzip")) {
-            LOGGER.trace("Compression: NOT GZIP");
             interceptorContext.setInputStream(inputStream);
             return interceptorContext.proceed();
         } else {
-            LOGGER.trace("Compression: read from GZIPStream");
             interceptorContext.setInputStream(new GZIPInputStream(new InputStream() {
                 @Override
                 public int read() throws IOException {

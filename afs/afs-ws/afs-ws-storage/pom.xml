@@ -19,6 +19,7 @@
 
     <artifactId>powsybl-afs-ws-storage</artifactId>
     <name>AFS WS storage</name>
+    <description>AFS WS storage</description>
 
     <dependencies>
         <!-- compile dependencies -->
@@ -29,19 +30,16 @@
         </dependency>
 
         <dependency>
-            <groupId>org.jboss.resteasy</groupId>
-            <artifactId>resteasy-client</artifactId>
-            <version>${resteasy.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.glassfish.tyrus</groupId>
             <artifactId>tyrus-client</artifactId>
-            <version>${tyrus.version}</version>
         </dependency>
         <dependency>
             <groupId>org.glassfish.tyrus</groupId>
             <artifactId>tyrus-container-jdk-client</artifactId>
-            <version>${tyrus.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.resteasy</groupId>
+            <artifactId>resteasy-client</artifactId>
         </dependency>
 
         <dependency>

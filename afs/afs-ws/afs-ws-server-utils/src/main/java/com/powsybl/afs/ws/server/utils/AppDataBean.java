@@ -50,6 +50,7 @@ public class AppDataBean {
 
     public AppFileSystem getFileSystem(String name) {
         Objects.requireNonNull(appData);
+        Objects.requireNonNull(name);
         AppFileSystem fileSystem = appData.getFileSystem(name);
         if (fileSystem == null) {
             throw new WebApplicationException("App file system '" + name + "' not found", Response.Status.NOT_FOUND);
@@ -58,7 +59,6 @@ public class AppDataBean {
     }
 
     public <T extends ProjectFile> T getProjectFile(String fileSystemName, String nodeId, Class<T> clazz) {
-        Objects.requireNonNull(fileSystemName);
         Objects.requireNonNull(nodeId);
         Objects.requireNonNull(clazz);
         AppFileSystem fileSystem = getFileSystem(fileSystemName);

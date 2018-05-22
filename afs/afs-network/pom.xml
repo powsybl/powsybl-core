@@ -20,6 +20,7 @@
 
     <artifactId>powsybl-afs-network</artifactId>
     <name>Network cache AFS</name>
+    <description>Network cache AFS</description>
     <packaging>pom</packaging>
 
     <modules>

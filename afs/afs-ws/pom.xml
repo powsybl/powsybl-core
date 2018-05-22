@@ -20,6 +20,7 @@
 
     <artifactId>powsybl-afs-ws</artifactId>
     <name>AFS WS</name>
+    <description>AFS WS</description>
     <packaging>pom</packaging>
 
     <modules>

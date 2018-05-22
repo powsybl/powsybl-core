@@ -13,4 +13,5 @@ import javax.ws.rs.ext.Provider;
  */
 @Provider
 @Compress
-public class WriterInterceptorGzip extends WriterInterceptorGzipCli { }
+public class WriterInterceptorGzip extends WriterInterceptorGzipCli {
+}

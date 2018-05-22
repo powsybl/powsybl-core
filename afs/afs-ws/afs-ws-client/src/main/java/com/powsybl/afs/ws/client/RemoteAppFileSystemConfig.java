@@ -39,21 +39,22 @@ public class RemoteAppFileSystemConfig {
         List<RemoteAppFileSystemConfig> configs = new ArrayList<>();
         ModuleConfig moduleConfig = platformConfig.getModuleConfigIfExists("rest-app-file-system");
         if (moduleConfig != null) {
-            addConfig(moduleConfig, configs, "");
+            addConfig(moduleConfig, configs, null);
 
             int maxAdditionalDriveCount = moduleConfig.getIntProperty("max-additional-url-count", 0);
             for (int i = 0; i < maxAdditionalDriveCount; i++) {
-                addConfig(moduleConfig, configs, "-" + i);
+                addConfig(moduleConfig, configs, i);
             }
         }
         return configs;
     }
 
-    private static void addConfig(ModuleConfig moduleConfig, List<RemoteAppFileSystemConfig> configs, String pos) {
-        if (moduleConfig.hasProperty("url-address" + pos)) {
+    private static void addConfig(ModuleConfig moduleConfig, List<RemoteAppFileSystemConfig> configs, Integer num) {
+        String suffix = num != null ? "- " + num : "";
+        if (moduleConfig.hasProperty("url-address" + suffix)) {
             URI url;
             try {
-                url = new URI(moduleConfig.getStringProperty("url-address" + pos));
+                url = new URI(moduleConfig.getStringProperty("url-address" + suffix));
             } catch (URISyntaxException e) {
                 throw new UncheckedUriSyntaxException(e);
             }

@@ -20,6 +20,7 @@
 
     <artifactId>powsybl-afs-network-client</artifactId>
     <name>Network cache AFS client</name>
+    <description>Network cache AFS client</description>
 
     <dependencies>
         <dependency>

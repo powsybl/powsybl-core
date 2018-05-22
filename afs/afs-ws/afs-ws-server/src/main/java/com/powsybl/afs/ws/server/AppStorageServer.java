@@ -365,7 +365,7 @@ public class AppStorageServer {
                                                     stringAddition.getTimeSeriesName(), stringAddition.getChunks());
                     break;
                 default:
-                    throw new AssertionError();
+                    throw new AssertionError("Unknown change type " + change.getType());
             }
         }
 

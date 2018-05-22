@@ -20,6 +20,7 @@
 
     <artifactId>powsybl-afs-ws-client-utils</artifactId>
     <name>AFS WS client side utilities</name>
+    <description>AFS WS client side utilities</description>
 
     <dependencies>
         <dependency>

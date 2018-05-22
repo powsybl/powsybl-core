@@ -28,8 +28,15 @@ public abstract class AbstractRemoteServiceConfig<T extends AbstractRemoteServic
     protected AbstractRemoteServiceConfig(String hostName, String appName, int port, boolean secure) {
         this.hostName = Objects.requireNonNull(hostName);
         this.appName = Objects.requireNonNull(appName);
-        this.port = port;
+        this.port = checkPort(port);
         this.secure = secure;
+    }
+
+    private static int checkPort(int port) {
+        if (port <= 0) {
+            throw new IllegalArgumentException("Invalid port: " + port);
+        }
+        return port;
     }
 
     public String getHostName() {
@@ -55,7 +62,7 @@ public abstract class AbstractRemoteServiceConfig<T extends AbstractRemoteServic
     }
 
     public T setPort(int port) {
-        this.port = port;
+        this.port = checkPort(port);
         return (T) this;
     }
 

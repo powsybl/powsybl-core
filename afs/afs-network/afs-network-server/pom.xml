@@ -20,6 +20,7 @@
 
     <artifactId>powsybl-afs-network-server</artifactId>
     <name>Network cache AFS server</name>
+    <description>Network cache AFS server</description>
 
     <build>
         <finalName>${project.artifactId}</finalName>

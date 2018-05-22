@@ -20,13 +20,13 @@
 
     <artifactId>powsybl-afs-ws-server-utils</artifactId>
     <name>AFS WS server side utilities</name>
+    <description>AFS WS server side utilities</description>
 
     <dependencies>
         <!-- Compile dependencies -->
         <dependency>
             <groupId>javax</groupId>
             <artifactId>javaee-api</artifactId>
-            <version>${javaeeapi.version}</version>
             <scope>provided</scope>
         </dependency>
 

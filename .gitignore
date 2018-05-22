@@ -10,6 +10,9 @@
 /afs/afs-local/target/
 /afs/afs-mapdb/target/
 /afs/afs-mapdb-storage/target/
+/afs/afs-network/afs-network-client/target/
+/afs/afs-network/afs-network-server/target/
+/afs/afs-network/target/
 /afs/afs-storage-api/target/
 /afs/afs-ws/afs-ws-client/target/
 /afs/afs-ws/afs-ws-client-utils/target/
@@ -18,9 +21,6 @@
 /afs/afs-ws/afs-ws-storage/target/
 /afs/afs-ws/afs-ws-utils/target/
 /afs/afs-ws/target/
-/afs/afs-network/afs-network-client/target/
-/afs/afs-network/afs-network-server/target/
-/afs/afs-network/target/
 /ampl-converter/target/
 /cim-anonymiser/target/
 /cim1/cim1-converter/target/

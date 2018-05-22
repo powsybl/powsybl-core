@@ -6,6 +6,7 @@
  */
 package com.powsybl.afs.ws.server;
 
+import com.powsybl.afs.ws.utils.AfsRestApi;
 import io.swagger.jaxrs.config.BeanConfig;
 import io.swagger.models.Info;
 
@@ -25,7 +26,7 @@ public class AppStorageApplication extends Application {
         beanConfig.setScan();
         beanConfig.setInfo(new Info()
                 .title("AFS storage API")
-                .version("1.0")
+                .version(AfsRestApi.VERSION)
                 .description("This is the documentation of AFS storage REST API"));
     }
 }
