@@ -6,9 +6,9 @@
  */
 package com.powsybl.loadflow;
 
-import static org.junit.Assert.assertEquals;
-
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  *
@@ -19,19 +19,19 @@ public class BranchDataTest extends AbstractLoadFlowResultsCompletionTest {
     @Test
     public void testLine() {
         BranchData lineData = new BranchData(line, 0.1f, false);
-        assertEquals(lineP1, lineData.getComputedP1(), 0.0001f);
-        assertEquals(lineQ1, lineData.getComputedQ1(), 0.0001f);
-        assertEquals(lineP2, lineData.getComputedP2(), 0.0001f);
-        assertEquals(lineQ2, lineData.getComputedQ2(), 0.0001f);
+        assertEquals(lineP1, lineData.getComputedP1(), 0.0001);
+        assertEquals(lineQ1, lineData.getComputedQ1(), 0.0001);
+        assertEquals(lineP2, lineData.getComputedP2(), 0.0001);
+        assertEquals(lineQ2, lineData.getComputedQ2(), 0.0001);
     }
 
     @Test
     public void testTransformer() {
         BranchData twtData = new BranchData(transformer, 0.1f, false, true);
-        assertEquals(twtP1, twtData.getComputedP1(), 0.0001f);
-        assertEquals(twtQ1, twtData.getComputedQ1(), 0.0001f);
-        assertEquals(twtP2, twtData.getComputedP2(), 0.0001f);
-        assertEquals(twtQ2, twtData.getComputedQ2(), 0.0001f);
+        assertEquals(twtP1, twtData.getComputedP1(), 0.0001);
+        assertEquals(twtQ1, twtData.getComputedQ1(), 0.0001);
+        assertEquals(twtP2, twtData.getComputedP2(), 0.0001);
+        assertEquals(twtQ2, twtData.getComputedQ2(), 0.0001);
     }
 
 }
