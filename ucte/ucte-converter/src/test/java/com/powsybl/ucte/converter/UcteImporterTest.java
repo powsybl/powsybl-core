@@ -76,4 +76,14 @@ public class UcteImporterTest {
         MergedXnode mergedXnode = l.getExtension(MergedXnode.class);
         assertNotNull(mergedXnode);
     }
+
+    @Test
+    public void lineAndTransformerSameId() {
+        ReadOnlyMemDataSource dataSource = DataSourceUtil.createReadOnlyMemDataSource("sameId.uct", getClass().getResourceAsStream("/sameId.uct"));
+        Network network = new UcteImporter().importData(dataSource, null);
+
+        assertEquals(0, network.getLineCount());
+        assertEquals(1, network.getTwoWindingsTransformerCount());
+        assertEquals(1, network.getSwitchStream().count());
+    }
 }

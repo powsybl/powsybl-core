@@ -25,6 +25,7 @@
 
     <modules>
         <module>loadflow-api</module>
+        <module>loadflow-results-completion</module>
         <module>loadflow-validation</module>
     </modules>
 

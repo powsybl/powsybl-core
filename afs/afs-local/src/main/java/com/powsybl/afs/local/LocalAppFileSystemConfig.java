@@ -49,6 +49,10 @@ public class LocalAppFileSystemConfig extends AbstractAppFileSystemConfig<LocalA
                     configs.add(new LocalAppFileSystemConfig(driveName, remotelyAccessible, rootDir));
                 }
             }
+        } else {
+            for (Path rootDir : platformConfig.getFileSystem().getRootDirectories()) {
+                configs.add(new LocalAppFileSystemConfig(rootDir.toString(), false, rootDir));
+            }
         }
         return configs;
     }

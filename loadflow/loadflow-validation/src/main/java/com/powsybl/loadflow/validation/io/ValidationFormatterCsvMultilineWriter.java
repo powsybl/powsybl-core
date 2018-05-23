@@ -37,6 +37,7 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
         this.validationType = Objects.requireNonNull(validationType);
         this.compareResults = compareResults;
         formatter = createTableFormatter(id, formatterFactoryClass, formatterConfig, writer, validationType);
+        this.invalidString = formatterConfig.getInvalidString();
     }
 
     public ValidationFormatterCsvMultilineWriter(String id, Class<? extends TableFormatterFactory> formatterFactoryClass,
@@ -51,7 +52,7 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
             new Column("value")
         };
         if (compareResults) {
-            columns = ArrayUtils.add(columns, new Column("value" + POST_LF_SUFFIX));
+            columns = ArrayUtils.add(columns, new Column("value" + POST_COMPUTATION_SUFFIX));
         }
         return columns;
     }
@@ -202,7 +203,7 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
             write(twtId, "lowTapPosition", found, twtData.lowTapPosition, writeValues, lowTapPosition);
             write(twtId, "highTapPosition", found, twtData.highTapPosition, writeValues, highTapPosition);
             write(twtId, "tapChangerTargetV", found, twtData.targetV, writeValues, targetV);
-            write(twtId, "regulatedSide", found, twtData.regulatedSide.name(), writeValues, regulatedSide.name());
+            write(twtId, "regulatedSide", found, twtData.regulatedSide != null ? twtData.regulatedSide.name() : invalidString, writeValues, regulatedSide != null ? regulatedSide.name() : invalidString);
             write(twtId, "v", found, twtData.v, writeValues, v);
             write(twtId, CONNECTED, found, twtData.connected, writeValues, connected);
             write(twtId, MAIN_COMPONENT, found, twtData.mainComponent, writeValues, mainComponent);
