@@ -109,7 +109,12 @@ public class MapModuleConfig implements ModuleConfig {
             return Optional.empty();
         } else {
             if (value instanceof String) {
-                return Optional.of(Arrays.asList((substitureEnvVar((String) value)).split("[:,]")));
+                String trimmedString = ((String) value).trim();
+                if (trimmedString.isEmpty()) {
+                    return Optional.of(Collections.emptyList());
+                } else {
+                    return Optional.of(Arrays.asList((substitureEnvVar(trimmedString)).split("[:,]")));
+                }
             } else if (value instanceof List) {
                 return Optional.of(((List<String>) value).stream().map(MapModuleConfig::substitureEnvVar).collect(Collectors.toList()));
             } else {
