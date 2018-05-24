@@ -16,6 +16,7 @@ import com.powsybl.afs.storage.NodeDependency;
 import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.afs.storage.buffer.*;
+import com.powsybl.afs.ws.server.utils.JwtTokenNeeded;
 import com.powsybl.math.timeseries.*;
 import com.powsybl.afs.ws.server.utils.AppDataBean;
 import com.powsybl.afs.ws.utils.AfsRestApi;
@@ -47,7 +48,7 @@ import java.util.UUID;
 @ApplicationScoped
 @Path(AfsRestApi.RESOURCE_ROOT + "/" + AfsRestApi.VERSION)
 @Api(value = "/afs", tags = "afs")
-//@JwtTokenNeeded
+@JwtTokenNeeded
 public class AppStorageServer {
 
     @Inject

@@ -6,6 +6,10 @@
  */
 package com.powsybl.afs.ws.client.utils;
 
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
+import com.powsybl.commons.config.ModuleConfig;
+import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.exceptions.UncheckedUriSyntaxException;
 
 import java.net.URI;
@@ -15,21 +19,37 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public abstract class AbstractRemoteServiceConfig<T extends AbstractRemoteServiceConfig<T>> {
+public class RemoteServiceConfig {
 
-    protected String hostName;
+    public static Supplier<RemoteServiceConfig> INSTANCE = Suppliers.memoize(RemoteServiceConfig::load);
 
-    protected String appName;
+    private String hostName;
 
-    protected int port;
+    private String appName;
 
-    protected boolean secure;
+    private int port;
 
-    protected AbstractRemoteServiceConfig(String hostName, String appName, int port, boolean secure) {
+    private boolean secure;
+
+    public RemoteServiceConfig(String hostName, String appName, int port, boolean secure) {
         this.hostName = Objects.requireNonNull(hostName);
         this.appName = Objects.requireNonNull(appName);
         this.port = checkPort(port);
         this.secure = secure;
+    }
+
+    public static RemoteServiceConfig load() {
+        return load(PlatformConfig.defaultConfig());
+    }
+
+    public static RemoteServiceConfig load(PlatformConfig platformConfig) {
+        Objects.requireNonNull(platformConfig);
+        ModuleConfig moduleConfig = platformConfig.getModuleConfig("remote-service");
+        String hostName = moduleConfig.getStringProperty("host-name");
+        String appName = moduleConfig.getStringProperty("app-name");
+        int port = moduleConfig.getIntProperty("port", 443);
+        boolean secure = moduleConfig.getBooleanProperty("secure", true);
+        return new RemoteServiceConfig(hostName, appName, port, secure);
     }
 
     private static int checkPort(int port) {
@@ -43,36 +63,36 @@ public abstract class AbstractRemoteServiceConfig<T extends AbstractRemoteServic
         return hostName;
     }
 
-    public T setHostName(String hostName) {
+    public RemoteServiceConfig setHostName(String hostName) {
         this.hostName = Objects.requireNonNull(hostName);
-        return (T) this;
+        return this;
     }
 
     public String getAppName() {
         return appName;
     }
 
-    public T setAppName(String appName) {
+    public RemoteServiceConfig setAppName(String appName) {
         this.appName = Objects.requireNonNull(appName);
-        return (T) this;
+        return this;
     }
 
     public int getPort() {
         return port;
     }
 
-    public T setPort(int port) {
+    public RemoteServiceConfig setPort(int port) {
         this.port = checkPort(port);
-        return (T) this;
+        return this;
     }
 
     public boolean isSecure() {
         return secure;
     }
 
-    public T setSecure(boolean secure) {
+    public RemoteServiceConfig setSecure(boolean secure) {
         this.secure = secure;
-        return (T) this;
+        return this;
     }
 
     public URI getRestUri() {

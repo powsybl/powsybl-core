@@ -66,7 +66,7 @@ public class SecurityAnalysisRunnerTest extends AbstractProjectFileTest {
         }
 
         @Override
-        public SecurityAnalysisRunningService createService() {
+        public SecurityAnalysisRunningService createService(ServiceCreationContext context) {
             return new SecurityAnalysisServiceMock();
         }
     }

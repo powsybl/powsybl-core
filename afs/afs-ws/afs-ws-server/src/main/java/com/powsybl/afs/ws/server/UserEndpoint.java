@@ -6,7 +6,9 @@
  */
 package com.powsybl.afs.ws.server;
 
+import com.powsybl.afs.ws.server.utils.KeyGenerator;
 import com.powsybl.afs.ws.server.utils.UserAuthenticator;
+import com.powsybl.afs.ws.utils.UserProfile;
 import io.jsonwebtoken.CompressionCodecs;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -29,8 +31,6 @@ import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
  * @author Ali Tahanout <ali.tahanout at rte-france.com>
  */
 @Path("/users")
-@Produces(APPLICATION_JSON)
-@Consumes(APPLICATION_JSON)
 public class UserEndpoint {
 
     @Context
@@ -45,12 +45,13 @@ public class UserEndpoint {
     @POST
     @Path("/login")
     @Consumes(APPLICATION_FORM_URLENCODED)
+    @Produces(APPLICATION_JSON)
     public Response authenticateUser(@FormParam("login") String login, @FormParam("password") String password) {
         try {
-            authenticator.check(login, password);
+            UserProfile profile = authenticator.check(login, password);
             String token = issueToken(login);
-            return Response.ok().header(AUTHORIZATION, "Bearer " + token).build();
-        } catch (Exception e) {
+            return Response.ok().header(AUTHORIZATION, "Bearer " + token).entity(profile).build();
+        } catch (SecurityException e) {
             return Response.status(UNAUTHORIZED).build();
         }
     }

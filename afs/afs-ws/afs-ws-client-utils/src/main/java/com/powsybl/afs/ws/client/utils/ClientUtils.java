@@ -7,13 +7,20 @@
 package com.powsybl.afs.ws.client.utils;
 
 import com.powsybl.afs.storage.AfsStorageException;
+import com.powsybl.afs.ws.utils.JsonProvider;
+import com.powsybl.afs.ws.utils.UserProfile;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.client.Client;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Form;
 import javax.ws.rs.core.GenericType;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
+import java.net.URI;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -98,6 +105,36 @@ public final class ClientUtils {
             throw createServerErrorException(response);
         } else {
             throw createUnexpectedResponseStatus(status);
+        }
+    }
+
+    public static UserSession authenticate(URI baseUri, String login, String password) {
+        Objects.requireNonNull(baseUri);
+        Objects.requireNonNull(login);
+        Objects.requireNonNull(password);
+
+        Client client = ClientUtils.createClient()
+                .register(new JsonProvider());
+        try {
+            Form form = new Form()
+                    .param("login", login)
+                    .param("password", password);
+
+            Response response = client.target(baseUri)
+                    .path("rest")
+                    .path("users")
+                    .path("login")
+                    .request()
+                    .post(Entity.form(form));
+            try {
+                UserProfile profile = readEntityIfOk(response, UserProfile.class);
+                String token = response.getHeaderString(HttpHeaders.AUTHORIZATION);
+                return new UserSession(profile, token);
+            } finally {
+                response.close();
+            }
+        } finally {
+            client.close();
         }
     }
 

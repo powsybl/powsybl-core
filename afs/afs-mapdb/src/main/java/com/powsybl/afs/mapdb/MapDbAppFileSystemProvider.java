@@ -9,8 +9,8 @@ package com.powsybl.afs.mapdb;
 import com.google.auto.service.AutoService;
 import com.powsybl.afs.AppFileSystem;
 import com.powsybl.afs.AppFileSystemProvider;
+import com.powsybl.afs.AppFileSystemProviderContext;
 import com.powsybl.afs.mapdb.storage.MapDbAppStorage;
-import com.powsybl.computation.ComputationManager;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -39,7 +39,7 @@ public class MapDbAppFileSystemProvider implements AppFileSystemProvider {
     }
 
     @Override
-    public List<AppFileSystem> getFileSystems(ComputationManager computationManager) {
+    public List<AppFileSystem> getFileSystems(AppFileSystemProviderContext context) {
         return configs.stream()
                 .map(config ->  {
                     MapDbAppStorage storage = storageProvider.apply(config.getDriveName(), config.getDbFile());

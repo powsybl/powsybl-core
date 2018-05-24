@@ -7,14 +7,19 @@
 package com.powsybl.afs.ws.client;
 
 import com.google.auto.service.AutoService;
+import com.google.common.base.Supplier;
 import com.powsybl.afs.AppFileSystem;
 import com.powsybl.afs.AppFileSystemProvider;
-import com.powsybl.computation.ComputationManager;
-import com.powsybl.afs.ws.storage.RemoteTaskMonitor;
+import com.powsybl.afs.AppFileSystemProviderContext;
+import com.powsybl.afs.ws.client.utils.RemoteServiceConfig;
 import com.powsybl.afs.ws.storage.RemoteAppStorage;
 import com.powsybl.afs.ws.storage.RemoteListenableAppStorage;
+import com.powsybl.afs.ws.storage.RemoteTaskMonitor;
 
+import java.net.URI;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -24,21 +29,30 @@ import java.util.stream.Collectors;
 @AutoService(AppFileSystemProvider.class)
 public class RemoteAppFileSystemProvider implements AppFileSystemProvider {
 
-    private final List<RemoteAppFileSystemConfig> configs;
+    private final Supplier<RemoteServiceConfig> config;
 
     public RemoteAppFileSystemProvider() {
-        this.configs = RemoteAppFileSystemConfig.load();
+        this(RemoteServiceConfig.INSTANCE);
+    }
+
+    public RemoteAppFileSystemProvider(Supplier<RemoteServiceConfig> config) {
+        this.config = Objects.requireNonNull(config);
     }
 
     @Override
-    public List<AppFileSystem> getFileSystems(ComputationManager computationManager) {
-        return configs.stream()
-                .map(config ->  {
-                    RemoteAppStorage storage = new RemoteAppStorage(config.getFileSystemName(), config.getUrl());
-                    RemoteListenableAppStorage listenableStorage = new RemoteListenableAppStorage(storage, config.getUrl());
-                    RemoteTaskMonitor taskMonitor = new RemoteTaskMonitor(config.getFileSystemName(), config.getUrl());
-                    return new AppFileSystem(config.getFileSystemName(), true, listenableStorage, taskMonitor);
-                })
-                .collect(Collectors.toList());
+    public List<AppFileSystem> getFileSystems(AppFileSystemProviderContext context) {
+        if (context.getToken() == null) {
+            return Collections.emptyList();
+        } else {
+            URI uri = config.get().getRestUri();
+            return RemoteAppStorage.getFileSystemNames(uri, context.getToken()).stream()
+                    .map(fileSystemName -> {
+                        RemoteAppStorage storage = new RemoteAppStorage(fileSystemName, uri, context.getToken());
+                        RemoteListenableAppStorage listenableStorage = new RemoteListenableAppStorage(storage, uri);
+                        RemoteTaskMonitor taskMonitor = new RemoteTaskMonitor(fileSystemName, uri, context.getToken());
+                        return new AppFileSystem(fileSystemName, true, listenableStorage, taskMonitor);
+                    })
+                    .collect(Collectors.toList());
+        }
     }
 }

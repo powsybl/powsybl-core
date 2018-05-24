@@ -24,6 +24,10 @@ public class AppData implements AutoCloseable {
 
     private final Map<String, AppFileSystem> fileSystems = new HashMap<>();
 
+    private final List<AppFileSystemProvider> fileSystemProviders;
+
+    private final List<ServiceExtension> serviceExtensions;
+
     private final Map<Class<? extends File>, FileExtension> fileExtensions = new HashMap<>();
 
     private final Map<String, FileExtension> fileExtensionsByPseudoClass = new HashMap<>();
@@ -35,6 +39,8 @@ public class AppData implements AutoCloseable {
     private final Set<Class<? extends ProjectFile>> projectFileClasses = new HashSet<>();
 
     private final Map<ServiceExtension.ServiceKey, Object> services = new HashMap<>();
+
+    private SecurityTokenProvider tokenProvider = () -> null;
 
     public AppData(ComputationManager shortTimeExecutionComputationManager, ComputationManager longTimeExecutionComputationManager) {
         this(shortTimeExecutionComputationManager, longTimeExecutionComputationManager,
@@ -55,11 +61,8 @@ public class AppData implements AutoCloseable {
         Objects.requireNonNull(projectFileExtensions);
         this.shortTimeExecutionComputationManager = Objects.requireNonNull(shortTimeExecutionComputationManager);
         this.longTimeExecutionComputationManager = longTimeExecutionComputationManager;
-        for (AppFileSystemProvider provider : fileSystemProviders) {
-            for (AppFileSystem fileSystem : provider.getFileSystems(shortTimeExecutionComputationManager)) {
-                addFileSystem(fileSystem);
-            }
-        }
+        this.fileSystemProviders = Objects.requireNonNull(fileSystemProviders);
+        this.serviceExtensions = Objects.requireNonNull(serviceExtensions);
         for (FileExtension extension : fileExtensions) {
             this.fileExtensions.put(extension.getFileClass(), extension);
             this.fileExtensionsByPseudoClass.put(extension.getFilePseudoClass(), extension);
@@ -70,9 +73,8 @@ public class AppData implements AutoCloseable {
             this.projectFileExtensionsByPseudoClass.put(extension.getProjectFilePseudoClass(), extension);
             this.projectFileClasses.add(extension.getProjectFileClass());
         }
-        for (ServiceExtension extension : serviceExtensions) {
-            this.services.put(extension.getServiceKey(), extension.createService());
-        }
+        updateFileSystems();
+        updateServices();
     }
 
     private static List<AppFileSystemProvider> getDefaultFileSystemProviders() {
@@ -91,6 +93,24 @@ public class AppData implements AutoCloseable {
         return new ServiceLoaderCache<>(ServiceExtension.class).getServices();
     }
 
+    private void updateFileSystems() {
+        fileSystems.clear();
+        AppFileSystemProviderContext context = new AppFileSystemProviderContext(shortTimeExecutionComputationManager, tokenProvider.getToken());
+        for (AppFileSystemProvider provider : fileSystemProviders) {
+            for (AppFileSystem fileSystem : provider.getFileSystems(context)) {
+                addFileSystem(fileSystem);
+            }
+        }
+    }
+
+    private void updateServices() {
+        services.clear();
+        ServiceCreationContext context = new ServiceCreationContext(tokenProvider.getToken());
+        for (ServiceExtension extension : serviceExtensions) {
+            services.put(extension.getServiceKey(), extension.createService(context));
+        }
+    }
+
     public void addFileSystem(AppFileSystem fileSystem) {
         Objects.requireNonNull(fileSystem);
         if (fileSystems.containsKey(fileSystem.getName())) {
@@ -107,6 +127,12 @@ public class AppData implements AutoCloseable {
     public AppFileSystem getFileSystem(String name) {
         Objects.requireNonNull(name);
         return fileSystems.get(name);
+    }
+
+    public void setTokenProvider(SecurityTokenProvider tokenProvider) {
+        this.tokenProvider = Objects.requireNonNull(tokenProvider);
+        updateFileSystems();
+        updateServices();
     }
 
     private static String[] more(String[] path) {

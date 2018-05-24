@@ -6,8 +6,6 @@
  */
 package com.powsybl.afs;
 
-import com.powsybl.computation.ComputationManager;
-
 import java.util.List;
 
 /**
@@ -15,5 +13,5 @@ import java.util.List;
  */
 public interface AppFileSystemProvider {
 
-    List<AppFileSystem> getFileSystems(ComputationManager computationManager);
+    List<AppFileSystem> getFileSystems(AppFileSystemProviderContext context);
 }

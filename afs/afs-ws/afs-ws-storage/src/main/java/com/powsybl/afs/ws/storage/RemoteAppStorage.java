@@ -13,15 +13,15 @@ import com.powsybl.afs.storage.NodeDependency;
 import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.afs.storage.buffer.StorageChangeBuffer;
-import com.powsybl.commons.exceptions.UncheckedInterruptedException;
-import com.powsybl.commons.io.ForwardingInputStream;
-import com.powsybl.commons.io.ForwardingOutputStream;
-import com.powsybl.math.timeseries.*;
 import com.powsybl.afs.ws.client.utils.ClientUtils;
 import com.powsybl.afs.ws.utils.AfsRestApi;
 import com.powsybl.afs.ws.utils.JsonProvider;
 import com.powsybl.afs.ws.utils.gzip.ReaderInterceptorGzip;
 import com.powsybl.afs.ws.utils.gzip.WriterInterceptorGzipCli;
+import com.powsybl.commons.exceptions.UncheckedInterruptedException;
+import com.powsybl.commons.io.ForwardingInputStream;
+import com.powsybl.commons.io.ForwardingOutputStream;
+import com.powsybl.math.timeseries.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -98,17 +98,6 @@ public class RemoteAppStorage implements AppStorage {
         }, BUFFER_MAXIMUM_CHANGE, BUFFER_MAXIMUM_SIZE);
     }
 
-    public static String createToken(URI baseUri, String login, String password) {
-        Form form = new Form();
-        form.param("login", login);
-        form.param("password", password);
-        Response response = createClient()
-                .target(baseUri).path("users").path("login")
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .post(Entity.entity(form, MediaType.APPLICATION_FORM_URLENCODED_TYPE));
-        return response.getHeaderString(HttpHeaders.AUTHORIZATION);
-    }
-
     static Client createClient() {
         return ClientUtils.createClient()
                 .register(new JsonProvider());
@@ -131,12 +120,13 @@ public class RemoteAppStorage implements AppStorage {
         return true;
     }
 
-    public static List<String> getFileSystemNames(URI baseUri) {
+    public static List<String> getFileSystemNames(URI baseUri, String token) {
         Client client = createClient();
         try {
             Response response = getWebTarget(client, baseUri)
                     .path("fileSystems")
                     .request(MediaType.APPLICATION_JSON)
+                    .header(HttpHeaders.AUTHORIZATION, token)
                     .get();
             try {
                 List<String> fileSystemNames = response.readEntity(new GenericType<List<String>>() {
@@ -518,6 +508,7 @@ public class RemoteAppStorage implements AppStorage {
                 .resolveTemplate(NODE_ID, nodeId)
                 .resolveTemplate("name", name)
                 .request(MediaType.TEXT_PLAIN)
+                .header(HttpHeaders.AUTHORIZATION, token)
                 .delete();
         try {
             return readEntityIfOk(response, Boolean.class);
@@ -830,6 +821,7 @@ public class RemoteAppStorage implements AppStorage {
                 .resolveTemplate(NODE_ID, nodeId)
                 .resolveTemplate(VERSION, version)
                 .request()
+                .header(HttpHeaders.AUTHORIZATION, token)
                 .post(Entity.json(timeSeriesNames));
         try {
             return readEntityIfOk(response, new GenericType<List<StringTimeSeries>>() {

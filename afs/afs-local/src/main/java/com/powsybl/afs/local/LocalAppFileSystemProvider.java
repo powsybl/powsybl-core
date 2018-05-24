@@ -9,10 +9,10 @@ package com.powsybl.afs.local;
 import com.google.auto.service.AutoService;
 import com.powsybl.afs.AppFileSystem;
 import com.powsybl.afs.AppFileSystemProvider;
+import com.powsybl.afs.AppFileSystemProviderContext;
 import com.powsybl.afs.local.storage.LocalFileScanner;
 import com.powsybl.afs.local.storage.LocalFolderScanner;
 import com.powsybl.commons.util.ServiceLoaderCache;
-import com.powsybl.computation.ComputationManager;
 
 import java.util.List;
 import java.util.Objects;
@@ -43,9 +43,9 @@ public class LocalAppFileSystemProvider implements AppFileSystemProvider {
     }
 
     @Override
-    public List<AppFileSystem> getFileSystems(ComputationManager computationManager) {
+    public List<AppFileSystem> getFileSystems(AppFileSystemProviderContext context) {
         return configs.stream()
-                .map(config -> new LocalAppFileSystem(config, fileScanners, folderScanners, computationManager))
+                .map(config -> new LocalAppFileSystem(config, fileScanners, folderScanners, context.getComputationManager()))
                 .collect(Collectors.toList());
     }
 }
