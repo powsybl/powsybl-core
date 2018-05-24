@@ -116,7 +116,7 @@ public class ImportedCaseBuilder implements ProjectFileBuilder<ImportedCase> {
                 new NodeGenericMetadata().setString(ImportedCase.FORMAT, importer.getFormat()));
 
         // store case data
-        importer.copy(dataSource, new AppStorageDataSource(context.getStorage(), info.getId()));
+        importer.copy(dataSource, new AppStorageDataSource(context.getStorage(), info.getId(), info.getName()));
 
         // store parameters
         try (Writer writer = new OutputStreamWriter(context.getStorage().writeBinaryData(info.getId(), ImportedCase.PARAMETERS), StandardCharsets.UTF_8)) {
