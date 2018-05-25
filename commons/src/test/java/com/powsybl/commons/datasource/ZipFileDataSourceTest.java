@@ -6,6 +6,13 @@
  */
 package com.powsybl.commons.datasource;
 
+import org.junit.Test;
+
+import java.io.IOException;
+import java.nio.file.Files;
+
+import static org.junit.Assert.assertFalse;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -19,5 +26,11 @@ public class ZipFileDataSourceTest extends AbstractDataSourceTest {
     @Override
     protected DataSource createDataSource() {
         return new ZipFileDataSource(testDir, getBaseName());
+    }
+
+    @Test
+    public void fakeZipTest() throws IOException {
+        Files.createFile(testDir.resolve("fake.zip"));
+        assertFalse(new ZipFileDataSource(testDir, "fake").exists("e"));
     }
 }

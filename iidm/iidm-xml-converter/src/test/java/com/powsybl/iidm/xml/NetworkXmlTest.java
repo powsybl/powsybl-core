@@ -6,14 +6,25 @@
  */
 package com.powsybl.iidm.xml;
 
+import com.google.auto.service.AutoService;
 import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.extensions.ExtensionXmlSerializer;
+import com.powsybl.commons.xml.XmlReaderContext;
+import com.powsybl.commons.xml.XmlWriterContext;
+import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TopologyLevel;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.network.test.BusbarSectionExt;
+import com.powsybl.iidm.network.test.NetworkTest1Factory;
 import org.joda.time.DateTime;
 import org.junit.Test;
+
+import javax.xml.stream.XMLStreamException;
+
 import static org.junit.Assert.*;
 
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -54,4 +65,86 @@ public class NetworkXmlTest extends AbstractConverterTest {
         NetworkXml.write(network2, file2);
         assertArrayEquals(Files.readAllBytes(file1), Files.readAllBytes(file2));
     }
+
+
+    @AutoService(ExtensionXmlSerializer.class)
+    public static class BusbarSectionExtXmlSerializer implements ExtensionXmlSerializer<BusbarSection, BusbarSectionExt> {
+
+        @Override
+        public String getExtensionName() {
+            return "busbarSectionExt";
+        }
+
+        @Override
+        public String getCategoryName() {
+            return "network";
+        }
+
+        @Override
+        public Class<? super BusbarSectionExt> getExtensionClass() {
+            return BusbarSectionExt.class;
+        }
+
+        @Override
+        public boolean hasSubElements() {
+            return false;
+        }
+
+        @Override
+        public InputStream getXsdAsStream() {
+            return getClass().getResourceAsStream("/xsd/busbarSectionExt.xsd");
+        }
+
+        @Override
+        public String getNamespaceUri() {
+            return "http://www.itesla_project.eu/schema/iidm/ext/busbarSectionExt/1_0";
+        }
+
+        @Override
+        public String getNamespacePrefix() {
+            return "bbse";
+        }
+
+        @Override
+        public void write(BusbarSectionExt busbarSectionExt, XmlWriterContext context) throws XMLStreamException {
+        }
+
+        @Override
+        public BusbarSectionExt read(BusbarSection busbarSection, XmlReaderContext context) {
+            return new BusbarSectionExt(busbarSection);
+        }
+    }
+
+    private static Network writeAndRead(Network network, XMLExportOptions options) throws IOException {
+        try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+            NetworkXml.write(network, options, os);
+
+            try (InputStream is = new ByteArrayInputStream(os.toByteArray())) {
+                return NetworkXml.read(is);
+            }
+        }
+    }
+
+    @Test
+    public void busBreakerExtensions() throws IOException {
+        Network network = NetworkTest1Factory.create();
+        BusbarSection bb = network.getBusbarSection("voltageLevel1BusbarSection1");
+        bb.addExtension(BusbarSectionExt.class, new BusbarSectionExt(bb));
+
+        //Re-import in node breaker
+        Network nodeBreakerNetwork = writeAndRead(network, new XMLExportOptions());
+
+        assertNotSame(network, nodeBreakerNetwork);
+
+        //Check that busbar and its extension is still here
+        BusbarSection bb2 = nodeBreakerNetwork.getBusbarSection("voltageLevel1BusbarSection1");
+        assertEquals(1, bb2.getExtensions().size());
+        assertNotNull(bb2.getExtension(BusbarSectionExt.class));
+
+        //Re-import in bus breaker
+        //Check that network is correctly imported, and busbar and its extension are not here any more
+        Network busBreakerNetwork = writeAndRead(network, new XMLExportOptions().setTopologyLevel(TopologyLevel.BUS_BREAKER));
+        assertNull(busBreakerNetwork.getBusbarSection("voltageLevel1BusbarSection1"));
+    }
+
 }

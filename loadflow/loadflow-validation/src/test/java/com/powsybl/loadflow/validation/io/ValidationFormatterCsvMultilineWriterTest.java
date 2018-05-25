@@ -75,7 +75,7 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
     protected String getFlowsCompareContent() {
         return String.join(System.lineSeparator(),
                            "test " + ValidationType.FLOWS + " check",
-                           String.join(";", "id", "characteristic", "value", "value" + AbstractValidationFormatterWriter.POST_LF_SUFFIX),
+                           String.join(";", "id", "characteristic", "value", "value" + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX),
                            String.join(";", branchId, "network_p1", String.format(Locale.getDefault(), "%g", p1), String.format(Locale.getDefault(), "%g", p1)),
                            String.join(";", branchId, "expected_p1", String.format(Locale.getDefault(), "%g", p1Calc), String.format(Locale.getDefault(), "%g", p1Calc)),
                            String.join(";", branchId, "network_q1", String.format(Locale.getDefault(), "%g", q1), String.format(Locale.getDefault(), "%g", q1)),
@@ -90,7 +90,7 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
     protected String getFlowsCompareDifferentIdsContent() {
         return String.join(System.lineSeparator(),
                            "test " + ValidationType.FLOWS + " check",
-                           String.join(";", "id", "characteristic", "value", "value" + AbstractValidationFormatterWriter.POST_LF_SUFFIX),
+                           String.join(";", "id", "characteristic", "value", "value" + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX),
                            String.join(";", otherBranchId, "network_p1", "", String.format(Locale.getDefault(), "%g", p1)),
                            String.join(";", otherBranchId, "expected_p1", "", String.format(Locale.getDefault(), "%g", p1Calc)),
                            String.join(";", otherBranchId, "network_q1", "", String.format(Locale.getDefault(), "%g", q1)),
@@ -113,7 +113,7 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
     protected String getFlowsCompareVerboseContent() {
         return String.join(System.lineSeparator(),
                            "test " + ValidationType.FLOWS + " check",
-                           String.join(";", "id", "characteristic", "value", "value" + AbstractValidationFormatterWriter.POST_LF_SUFFIX),
+                           String.join(";", "id", "characteristic", "value", "value" + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX),
                            String.join(";", branchId, "network_p1", String.format(Locale.getDefault(), "%g", p1), String.format(Locale.getDefault(), "%g", p1)),
                            String.join(";", branchId, "expected_p1", String.format(Locale.getDefault(), "%g", p1Calc), String.format(Locale.getDefault(), "%g", p1Calc)),
                            String.join(";", branchId, "network_q1", String.format(Locale.getDefault(), "%g", q1), String.format(Locale.getDefault(), "%g", q1)),
@@ -150,7 +150,7 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
     protected String getFlowsCompareDifferentIdsVerboseContent() {
         return String.join(System.lineSeparator(),
                            "test " + ValidationType.FLOWS + " check",
-                           String.join(";", "id", "characteristic", "value", "value" + AbstractValidationFormatterWriter.POST_LF_SUFFIX),
+                           String.join(";", "id", "characteristic", "value", "value" + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX),
                            String.join(";", otherBranchId, "network_p1", "", String.format(Locale.getDefault(), "%g", p1)),
                            String.join(";", otherBranchId, "expected_p1", "", String.format(Locale.getDefault(), "%g", p1Calc)),
                            String.join(";", otherBranchId, "network_q1", "", String.format(Locale.getDefault(), "%g", q1)),
@@ -256,7 +256,7 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
     protected String getGeneratorsCompareContent() {
         return String.join(System.lineSeparator(),
                            "test " + ValidationType.GENERATORS + " check",
-                           String.join(";", "id", "characteristic", "value", "value" + AbstractValidationFormatterWriter.POST_LF_SUFFIX),
+                           String.join(";", "id", "characteristic", "value", "value" + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX),
                            String.join(";", generatorId, "p", String.format(Locale.getDefault(), "%g", -p), String.format(Locale.getDefault(), "%g", -p)),
                            String.join(";", generatorId, "q", String.format(Locale.getDefault(), "%g", -q), String.format(Locale.getDefault(), "%g", -q)),
                            String.join(";", generatorId, "v", String.format(Locale.getDefault(), "%g", v), String.format(Locale.getDefault(), "%g", v)),
@@ -269,7 +269,7 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
     protected String getGeneratorsCompareDifferentIdsContent() {
         return String.join(System.lineSeparator(),
                            "test " + ValidationType.GENERATORS + " check",
-                           String.join(";", "id", "characteristic", "value", "value" + AbstractValidationFormatterWriter.POST_LF_SUFFIX),
+                           String.join(";", "id", "characteristic", "value", "value" + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX),
                            String.join(";", otherGeneratorId, "p", "", String.format(Locale.getDefault(), "%g", -p)),
                            String.join(";", otherGeneratorId, "q", "", String.format(Locale.getDefault(), "%g", -q)),
                            String.join(";", otherGeneratorId, "v", "", String.format(Locale.getDefault(), "%g", v)),
@@ -288,7 +288,7 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
     protected String getGeneratorsCompareVerboseContent() {
         return String.join(System.lineSeparator(),
                            "test " + ValidationType.GENERATORS + " check",
-                           String.join(";", "id", "characteristic", "value", "value" + AbstractValidationFormatterWriter.POST_LF_SUFFIX),
+                           String.join(";", "id", "characteristic", "value", "value" + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX),
                            String.join(";", generatorId, "p", String.format(Locale.getDefault(), "%g", -p), String.format(Locale.getDefault(), "%g", -p)),
                            String.join(";", generatorId, "q", String.format(Locale.getDefault(), "%g", -q), String.format(Locale.getDefault(), "%g", -q)),
                            String.join(";", generatorId, "v", String.format(Locale.getDefault(), "%g", v), String.format(Locale.getDefault(), "%g", v)),
@@ -309,7 +309,7 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
     protected String getGeneratorsCompareDifferentIdsVerboseContent() {
         return String.join(System.lineSeparator(),
                            "test " + ValidationType.GENERATORS + " check",
-                           String.join(";", "id", "characteristic", "value", "value" + AbstractValidationFormatterWriter.POST_LF_SUFFIX),
+                           String.join(";", "id", "characteristic", "value", "value" + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX),
                            String.join(";", otherGeneratorId, "p", "", String.format(Locale.getDefault(), "%g", -p)),
                            String.join(";", otherGeneratorId, "q", "", String.format(Locale.getDefault(), "%g", -q)),
                            String.join(";", otherGeneratorId, "v", "", String.format(Locale.getDefault(), "%g", v)),
@@ -389,7 +389,7 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
     protected String getBusesCompareContent() {
         return String.join(System.lineSeparator(),
                            "test " + ValidationType.BUSES + " check",
-                           String.join(";", "id", "characteristic", "value", "value" + AbstractValidationFormatterWriter.POST_LF_SUFFIX),
+                           String.join(";", "id", "characteristic", "value", "value" + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX),
                            String.join(";", busId, "incomingP", String.format(Locale.getDefault(), "%g", incomingP), String.format(Locale.getDefault(), "%g", incomingP)),
                            String.join(";", busId, "incomingQ", String.format(Locale.getDefault(), "%g", incomingQ), String.format(Locale.getDefault(), "%g", incomingQ)),
                            String.join(";", busId, "loadP", String.format(Locale.getDefault(), "%g", loadP), String.format(Locale.getDefault(), "%g", loadP)),
@@ -400,7 +400,7 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
     protected String getBusesCompareDifferentIdsContent() {
         return String.join(System.lineSeparator(),
                            "test " + ValidationType.BUSES + " check",
-                           String.join(";", "id", "characteristic", "value", "value" + AbstractValidationFormatterWriter.POST_LF_SUFFIX),
+                           String.join(";", "id", "characteristic", "value", "value" + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX),
                            String.join(";", otherBusId, "incomingP", "", String.format(Locale.getDefault(), "%g", incomingP)),
                            String.join(";", otherBusId, "incomingQ", "", String.format(Locale.getDefault(), "%g", incomingQ)),
                            String.join(";", otherBusId, "loadP", "", String.format(Locale.getDefault(), "%g", loadP)),
@@ -415,7 +415,7 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
     protected String getBusesCompareVerboseContent() {
         return String.join(System.lineSeparator(),
                            "test " + ValidationType.BUSES + " check",
-                           String.join(";", "id", "characteristic", "value", "value" + AbstractValidationFormatterWriter.POST_LF_SUFFIX),
+                           String.join(";", "id", "characteristic", "value", "value" + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX),
                            String.join(";", busId, "incomingP", String.format(Locale.getDefault(), "%g", incomingP), String.format(Locale.getDefault(), "%g", incomingP)),
                            String.join(";", busId, "incomingQ", String.format(Locale.getDefault(), "%g", incomingQ), String.format(Locale.getDefault(), "%g", incomingQ)),
                            String.join(";", busId, "loadP", String.format(Locale.getDefault(), "%g", loadP), String.format(Locale.getDefault(), "%g", loadP)),
@@ -444,7 +444,7 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
     protected String getBusesCompareDifferentIdsVerboseContent() {
         return String.join(System.lineSeparator(),
                            "test " + ValidationType.BUSES + " check",
-                           String.join(";", "id", "characteristic", "value", "value" + AbstractValidationFormatterWriter.POST_LF_SUFFIX),
+                           String.join(";", "id", "characteristic", "value", "value" + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX),
                            String.join(";", otherBusId, "incomingP", "", String.format(Locale.getDefault(), "%g", incomingP)),
                            String.join(";", otherBusId, "incomingQ", "", String.format(Locale.getDefault(), "%g", incomingQ)),
                            String.join(";", otherBusId, "loadP", "", String.format(Locale.getDefault(), "%g", loadP)),
@@ -532,7 +532,7 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
     protected String getSvcsCompareContent() {
         return String.join(System.lineSeparator(),
                            "test " + ValidationType.SVCS + " check",
-                           String.join(";", "id", "characteristic", "value", "value" + AbstractValidationFormatterWriter.POST_LF_SUFFIX),
+                           String.join(";", "id", "characteristic", "value", "value" + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX),
                            String.join(";", svcId, "p", String.format(Locale.getDefault(), "%g", -p), String.format(Locale.getDefault(), "%g", -p)),
                            String.join(";", svcId, "q", String.format(Locale.getDefault(), "%g", -q), String.format(Locale.getDefault(), "%g", -q)),
                            String.join(";", svcId, "v", String.format(Locale.getDefault(), "%g", v), String.format(Locale.getDefault(), "%g", v)),
@@ -545,7 +545,7 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
     protected String getSvcsCompareDifferentIdsContent() {
         return String.join(System.lineSeparator(),
                            "test " + ValidationType.SVCS + " check",
-                           String.join(";", "id", "characteristic", "value", "value" + AbstractValidationFormatterWriter.POST_LF_SUFFIX),
+                           String.join(";", "id", "characteristic", "value", "value" + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX),
                            String.join(";", otherSvcId, "p", "", String.format(Locale.getDefault(), "%g", -p)),
                            String.join(";", otherSvcId, "q", "", String.format(Locale.getDefault(), "%g", -q)),
                            String.join(";", otherSvcId, "v", "", String.format(Locale.getDefault(), "%g", v)),
@@ -564,7 +564,7 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
     protected String getSvcsCompareVerboseContent() {
         return String.join(System.lineSeparator(),
                            "test " + ValidationType.SVCS + " check",
-                           String.join(";", "id", "characteristic", "value", "value" + AbstractValidationFormatterWriter.POST_LF_SUFFIX),
+                           String.join(";", "id", "characteristic", "value", "value" + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX),
                            String.join(";", svcId, "p", String.format(Locale.getDefault(), "%g", -p), String.format(Locale.getDefault(), "%g", -p)),
                            String.join(";", svcId, "q", String.format(Locale.getDefault(), "%g", -q), String.format(Locale.getDefault(), "%g", -q)),
                            String.join(";", svcId, "v", String.format(Locale.getDefault(), "%g", v), String.format(Locale.getDefault(), "%g", v)),
@@ -583,7 +583,7 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
     protected String getSvcsCompareDifferentIdsVerboseContent() {
         return String.join(System.lineSeparator(),
                            "test " + ValidationType.SVCS + " check",
-                           String.join(";", "id", "characteristic", "value", "value" + AbstractValidationFormatterWriter.POST_LF_SUFFIX),
+                           String.join(";", "id", "characteristic", "value", "value" + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX),
                            String.join(";", otherSvcId, "p", "", String.format(Locale.getDefault(), "%g", -p)),
                            String.join(";", otherSvcId, "q", "", String.format(Locale.getDefault(), "%g", -q)),
                            String.join(";", otherSvcId, "v", "", String.format(Locale.getDefault(), "%g", v)),
@@ -647,7 +647,7 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
     protected String getShuntsCompareContent() {
         return String.join(System.lineSeparator(),
                            "test " + ValidationType.SHUNTS + " check",
-                           String.join(";", "id", "characteristic", "value", "value" + AbstractValidationFormatterWriter.POST_LF_SUFFIX),
+                           String.join(";", "id", "characteristic", "value", "value" + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX),
                            String.join(";", shuntId, "q", String.format(Locale.getDefault(), "%g", q), String.format(Locale.getDefault(), "%g", q)),
                            String.join(";", shuntId, "expectedQ", String.format(Locale.getDefault(), "%g", expectedQ), String.format(Locale.getDefault(), "%g", expectedQ)));
     }
@@ -656,7 +656,7 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
     protected String getShuntsCompareDifferentIdsContent() {
         return String.join(System.lineSeparator(),
                            "test " + ValidationType.SHUNTS + " check",
-                           String.join(";", "id", "characteristic", "value", "value" + AbstractValidationFormatterWriter.POST_LF_SUFFIX),
+                           String.join(";", "id", "characteristic", "value", "value" + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX),
                            String.join(";", otherShuntId, "q", "", String.format(Locale.getDefault(), "%g", q)),
                            String.join(";", otherShuntId, "expectedQ", "", String.format(Locale.getDefault(), "%g", expectedQ)),
                            String.join(";", shuntId, "q", String.format(Locale.getDefault(), "%g", q), ""),
@@ -667,7 +667,7 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
     protected String getShuntsCompareVerboseContent() {
         return String.join(System.lineSeparator(),
                            "test " + ValidationType.SHUNTS + " check",
-                           String.join(";", "id", "characteristic", "value", "value" + AbstractValidationFormatterWriter.POST_LF_SUFFIX),
+                           String.join(";", "id", "characteristic", "value", "value" + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX),
                            String.join(";", shuntId, "q", String.format(Locale.getDefault(), "%g", q), String.format(Locale.getDefault(), "%g", q)),
                            String.join(";", shuntId, "expectedQ", String.format(Locale.getDefault(), "%g", expectedQ), String.format(Locale.getDefault(), "%g", expectedQ)),
                            String.join(";", shuntId, "p", String.format(Locale.getDefault(), "%g", p), String.format(Locale.getDefault(), "%g", p)),
@@ -686,7 +686,7 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
     protected String getShuntsCompareDifferentIdsVerboseContent() {
         return String.join(System.lineSeparator(),
                            "test " + ValidationType.SHUNTS + " check",
-                           String.join(";", "id", "characteristic", "value", "value" + AbstractValidationFormatterWriter.POST_LF_SUFFIX),
+                           String.join(";", "id", "characteristic", "value", "value" + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX),
                            String.join(";", otherShuntId, "q", "", String.format(Locale.getDefault(), "%g", q)),
                            String.join(";", otherShuntId, "expectedQ", "", String.format(Locale.getDefault(), "%g", expectedQ)),
                            String.join(";", otherShuntId, "p", "", String.format(Locale.getDefault(), "%g", p)),
@@ -754,7 +754,7 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
     protected String getTwtsCompareContent() {
         return String.join(System.lineSeparator(),
                            "test " + ValidationType.TWTS + " check",
-                           String.join(";", "id", "characteristic", "value", "value" + AbstractValidationFormatterWriter.POST_LF_SUFFIX),
+                           String.join(";", "id", "characteristic", "value", "value" + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX),
                            String.join(";", twtId, "error", String.format(Locale.getDefault(), "%g", error), String.format(Locale.getDefault(), "%g", error)),
                            String.join(";", twtId, "upIncrement", String.format(Locale.getDefault(), "%g", upIncrement), String.format(Locale.getDefault(), "%g", upIncrement)),
                            String.join(";", twtId, "downIncrement", String.format(Locale.getDefault(), "%g", downIncrement), String.format(Locale.getDefault(), "%g", downIncrement)));
@@ -764,7 +764,7 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
     protected String getTwtsCompareDifferentIdsContent() {
         return String.join(System.lineSeparator(),
                            "test " + ValidationType.TWTS + " check",
-                           String.join(";", "id", "characteristic", "value", "value" + AbstractValidationFormatterWriter.POST_LF_SUFFIX),
+                           String.join(";", "id", "characteristic", "value", "value" + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX),
                            String.join(";", otherTwtId, "error", "", String.format(Locale.getDefault(), "%g", error)),
                            String.join(";", otherTwtId, "upIncrement", "", String.format(Locale.getDefault(), "%g", upIncrement)),
                            String.join(";", otherTwtId, "downIncrement", "", String.format(Locale.getDefault(), "%g", downIncrement)),
@@ -777,7 +777,7 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
     protected String getTwtsCompareVerboseContent() {
         return String.join(System.lineSeparator(),
                            "test " + ValidationType.TWTS + " check",
-                           String.join(";", "id", "characteristic", "value", "value" + AbstractValidationFormatterWriter.POST_LF_SUFFIX),
+                           String.join(";", "id", "characteristic", "value", "value" + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX),
                            String.join(";", twtId, "error", String.format(Locale.getDefault(), "%g", error), String.format(Locale.getDefault(), "%g", error)),
                            String.join(";", twtId, "upIncrement", String.format(Locale.getDefault(), "%g", upIncrement), String.format(Locale.getDefault(), "%g", upIncrement)),
                            String.join(";", twtId, "downIncrement", String.format(Locale.getDefault(), "%g", downIncrement), String.format(Locale.getDefault(), "%g", downIncrement)),
@@ -799,7 +799,7 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
     protected String getTwtsCompareDifferentIdsVerboseContent() {
         return String.join(System.lineSeparator(),
                            "test " + ValidationType.TWTS + " check",
-                           String.join(";", "id", "characteristic", "value", "value" + AbstractValidationFormatterWriter.POST_LF_SUFFIX),
+                           String.join(";", "id", "characteristic", "value", "value" + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX),
                            String.join(";", otherTwtId, "error", "", String.format(Locale.getDefault(), "%g", error)),
                            String.join(";", otherTwtId, "upIncrement", "", String.format(Locale.getDefault(), "%g", upIncrement)),
                            String.join(";", otherTwtId, "downIncrement", "", String.format(Locale.getDefault(), "%g", downIncrement)),
@@ -835,6 +835,28 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
     @Override
     protected ValidationWriter getTwtsValidationFormatterCsvWriter(TableFormatterConfig config, Writer writer, boolean verbose, boolean compareResults) {
         return new ValidationFormatterCsvMultilineWriter("test", CsvTableFormatterFactory.class, config, writer, verbose, ValidationType.TWTS, compareResults);
+    }
+
+    @Override
+    protected String getTwtsMissingSideContent() {
+        return String.join(System.lineSeparator(),
+                           "test " + ValidationType.TWTS + " check",
+                           String.join(";", "id", "characteristic", "value"),
+                           String.join(";", twtId, "error", "inv"),
+                           String.join(";", twtId, "upIncrement", "inv"),
+                           String.join(";", twtId, "downIncrement", "inv"),
+                           String.join(";", twtId, "rho", String.format(Locale.getDefault(), "%g", rho)),
+                           String.join(";", twtId, "rhoPreviousStep", String.format(Locale.getDefault(), "%g", rhoPreviousStep)),
+                           String.join(";", twtId, "rhoNextStep", String.format(Locale.getDefault(), "%g", rhoNextStep)),
+                           String.join(";", twtId, "tapPosition", Integer.toString(tapPosition)),
+                           String.join(";", twtId, "lowTapPosition", Integer.toString(lowTapPosition)),
+                           String.join(";", twtId, "highTapPosition", Integer.toString(highTapPosition)),
+                           String.join(";", twtId, "tapChangerTargetV", String.format(Locale.getDefault(), "%g", twtTargetV)),
+                           String.join(";", twtId, "regulatedSide", "inv"),
+                           String.join(";", twtId, "v", "inv"),
+                           String.join(";", twtId, AbstractValidationFormatterWriter.CONNECTED, Boolean.toString(false)),
+                           String.join(";", twtId, AbstractValidationFormatterWriter.MAIN_COMPONENT, Boolean.toString(false)),
+                           String.join(";", twtId, AbstractValidationFormatterWriter.VALIDATION, AbstractValidationFormatterWriter.SUCCESS));
     }
 
 }

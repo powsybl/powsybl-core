@@ -13,6 +13,8 @@ import com.google.common.base.Stopwatch;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
+import com.google.common.io.ByteStreams;
+import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.entsoe.util.*;
 import com.powsybl.iidm.import_.Importer;
@@ -27,6 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -94,7 +97,7 @@ public class UcteImporter implements Importer {
             }
 
             if (LOGGER.isTraceEnabled()) {
-                LOGGER.trace("Create bus '{}'", ucteNodeCode.toString());
+                LOGGER.trace("Create bus '{}'", ucteNodeCode);
             }
 
             Bus bus = voltageLevel.getBusBreakerView().newBus()
@@ -280,6 +283,7 @@ public class UcteImporter implements Importer {
 
         // create coupler between YNODE and other node
         xNodeVoltageLevel.getBusBreakerView().newSwitch()
+                .setEnsureIdUnicity(true)
                 .setId(ucteLine.getId().toString())
                 .setBus1(yNodeName)
                 .setBus2(ucteOtherNodeCode.toString())
@@ -354,6 +358,7 @@ public class UcteImporter implements Importer {
             // standard coupler
             VoltageLevel voltageLevel = network.getVoltageLevel(ucteVoltageLevel1.getName());
             voltageLevel.getBusBreakerView().newSwitch()
+                    .setEnsureIdUnicity(true)
                     .setId(ucteLine.getId().toString())
                     .setBus1(nodeCode1.toString())
                     .setBus2(nodeCode2.toString())
@@ -373,6 +378,7 @@ public class UcteImporter implements Importer {
         }
         VoltageLevel voltageLevel = network.getVoltageLevel(ucteVoltageLevel1.getName());
         voltageLevel.getBusBreakerView().newSwitch()
+                .setEnsureIdUnicity(true)
                 .setId(ucteLine.getId().toString())
                 .setBus1(nodeCode1.toString())
                 .setBus2(nodeCode2.toString())
@@ -386,6 +392,7 @@ public class UcteImporter implements Importer {
         LOGGER.trace("Create line '{}'", ucteLine.getId());
 
         Line l = network.newLine()
+                .setEnsureIdUnicity(true)
                 .setId(ucteLine.getId().toString())
                 .setVoltageLevel1(ucteVoltageLevel1.getName())
                 .setVoltageLevel2(ucteVoltageLevel2.getName())
@@ -616,6 +623,7 @@ public class UcteImporter implements Importer {
 
         // create a transformer connected to the YNODE and other node
         return substation.newTwoWindingsTransformer()
+                .setEnsureIdUnicity(true)
                 .setId(ucteTransfo.getId().toString())
                 .setVoltageLevel1(voltageLevelId1)
                 .setVoltageLevel2(voltageLevelId2)
@@ -651,6 +659,18 @@ public class UcteImporter implements Importer {
         return connected;
     }
 
+    private static void addTapChangers(UcteNetworkExt ucteNetwork, UcteTransformer ucteTransfo, TwoWindingsTransformer transformer) {
+        UcteRegulation ucteRegulation = ucteNetwork.getRegulation(ucteTransfo.getId());
+        if (ucteRegulation != null) {
+            if (ucteRegulation.getPhaseRegulation() != null) {
+                createRatioTapChanger(ucteRegulation.getPhaseRegulation(), transformer);
+            }
+            if (ucteRegulation.getAngleRegulation() != null) {
+                createPhaseTapChanger(ucteRegulation.getAngleRegulation(), transformer);
+            }
+        }
+    }
+
     private static void createTransformers(UcteNetworkExt ucteNetwork, Network network, EntsoeFileName ucteFileName) {
         for (UcteTransformer ucteTransfo : ucteNetwork.getTransformers()) {
             UcteNodeCode nodeCode1 = ucteTransfo.getId().getNodeCode1();
@@ -679,6 +699,7 @@ public class UcteImporter implements Importer {
             } else {
                 // standard transformer
                 transformer = substation.newTwoWindingsTransformer()
+                        .setEnsureIdUnicity(true)
                         .setId(ucteTransfo.getId().toString())
                         .setVoltageLevel1(ucteVoltageLevel2.getName())
                         .setVoltageLevel2(ucteVoltageLevel1.getName())
@@ -702,23 +723,19 @@ public class UcteImporter implements Importer {
                     .add();
             }
 
-            UcteRegulation ucteRegulation = ucteNetwork.getRegulation(ucteTransfo.getId());
-            if (ucteRegulation != null) {
-                if (ucteRegulation.getPhaseRegulation() != null) {
-                    createRatioTapChanger(ucteRegulation.getPhaseRegulation(), transformer);
-                }
-                if (ucteRegulation.getAngleRegulation() != null) {
-                    createPhaseTapChanger(ucteRegulation.getAngleRegulation(), transformer);
-                }
-            }
+            addTapChangers(ucteNetwork, ucteTransfo, transformer);
         }
     }
 
-    private String findExtension(ReadOnlyDataSource dataSource) throws IOException {
+    private String findExtension(ReadOnlyDataSource dataSource, boolean throwException) throws IOException {
         for (String ext : EXTENSIONS) {
             if (dataSource.exists(null, ext)) {
                 return ext;
             }
+        }
+        if (throwException) {
+            throw new UcteException("File " + dataSource.getBaseName()
+                    + "." + Joiner.on("|").join(EXTENSIONS) + " not found");
         }
         return null;
     }
@@ -726,7 +743,7 @@ public class UcteImporter implements Importer {
     @Override
     public boolean exists(ReadOnlyDataSource dataSource) {
         try {
-            String ext = findExtension(dataSource);
+            String ext = findExtension(dataSource, false);
             if (ext != null) {
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, ext)))) {
                     return new UcteReader().checkHeader(reader);
@@ -840,13 +857,24 @@ public class UcteImporter implements Importer {
     }
 
     @Override
+    public void copy(ReadOnlyDataSource fromDataSource, DataSource toDataSource) {
+        Objects.requireNonNull(fromDataSource);
+        Objects.requireNonNull(toDataSource);
+        try {
+            String ext = findExtension(fromDataSource, true);
+            try (InputStream is = fromDataSource.newInputStream(null, ext);
+                 OutputStream os = toDataSource.newOutputStream(null, ext, false)) {
+                ByteStreams.copy(is, os);
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
     public Network importData(ReadOnlyDataSource dataSource, Properties parameters) {
         try {
-            String ext = findExtension(dataSource);
-            if (ext == null) {
-                throw new UcteException("File " + dataSource.getBaseName()
-                        + "." + Joiner.on("|").join(EXTENSIONS) + " not found");
-            }
+            String ext = findExtension(dataSource, true);
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, ext)))) {
 
                 Stopwatch stopwatch = Stopwatch.createStarted();

@@ -268,8 +268,8 @@ public abstract class AbstractAppStorageTest {
         assertFalse(storage.readBinaryData(testData2Info.getId(), "blob").isPresent());
 
         // 11) check data source using pattern api
-        DataSource ds = new AppStorageDataSource(storage, testData2Info.getId());
-        assertEquals("", ds.getBaseName());
+        DataSource ds = new AppStorageDataSource(storage, testData2Info.getId(), testData2Info.getName());
+        assertEquals(testData2Info.getName(), ds.getBaseName());
         assertFalse(ds.exists(null, "ext"));
         try (OutputStream os = ds.newOutputStream(null, "ext", false)) {
             os.write("word1".getBytes(StandardCharsets.UTF_8));

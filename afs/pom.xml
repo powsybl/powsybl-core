@@ -29,8 +29,9 @@
         <module>afs-local</module>
         <module>afs-mapdb</module>
         <module>afs-mapdb-storage</module>
+        <module>afs-network</module>
         <module>afs-storage-api</module>
+        <module>afs-ws</module>
     </modules>
 
 </project>
-
