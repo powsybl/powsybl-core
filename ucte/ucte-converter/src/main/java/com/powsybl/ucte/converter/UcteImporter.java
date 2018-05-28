@@ -13,6 +13,8 @@ import com.google.common.base.Stopwatch;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
+import com.google.common.io.ByteStreams;
+import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.entsoe.util.*;
 import com.powsybl.iidm.import_.Importer;
@@ -25,11 +27,9 @@ import com.powsybl.ucte.network.io.UcteReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.UncheckedIOException;
+import java.io.*;
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -727,11 +727,15 @@ public class UcteImporter implements Importer {
         }
     }
 
-    private String findExtension(ReadOnlyDataSource dataSource) throws IOException {
+    private String findExtension(ReadOnlyDataSource dataSource, boolean throwException) throws IOException {
         for (String ext : EXTENSIONS) {
             if (dataSource.exists(null, ext)) {
                 return ext;
             }
+        }
+        if (throwException) {
+            throw new UcteException("File " + dataSource.getBaseName()
+                    + "." + Joiner.on("|").join(EXTENSIONS) + " not found");
         }
         return null;
     }
@@ -739,7 +743,7 @@ public class UcteImporter implements Importer {
     @Override
     public boolean exists(ReadOnlyDataSource dataSource) {
         try {
-            String ext = findExtension(dataSource);
+            String ext = findExtension(dataSource, false);
             if (ext != null) {
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, ext)))) {
                     return new UcteReader().checkHeader(reader);
@@ -853,13 +857,24 @@ public class UcteImporter implements Importer {
     }
 
     @Override
+    public void copy(ReadOnlyDataSource fromDataSource, DataSource toDataSource) {
+        Objects.requireNonNull(fromDataSource);
+        Objects.requireNonNull(toDataSource);
+        try {
+            String ext = findExtension(fromDataSource, true);
+            try (InputStream is = fromDataSource.newInputStream(null, ext);
+                 OutputStream os = toDataSource.newOutputStream(null, ext, false)) {
+                ByteStreams.copy(is, os);
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
     public Network importData(ReadOnlyDataSource dataSource, Properties parameters) {
         try {
-            String ext = findExtension(dataSource);
-            if (ext == null) {
-                throw new UcteException("File " + dataSource.getBaseName()
-                        + "." + Joiner.on("|").join(EXTENSIONS) + " not found");
-            }
+            String ext = findExtension(dataSource, true);
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, ext)))) {
 
                 Stopwatch stopwatch = Stopwatch.createStarted();

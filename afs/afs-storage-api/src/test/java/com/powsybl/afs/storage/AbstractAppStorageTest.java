@@ -26,6 +26,7 @@ import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -268,8 +269,8 @@ public abstract class AbstractAppStorageTest {
         assertFalse(storage.readBinaryData(testData2Info.getId(), "blob").isPresent());
 
         // 11) check data source using pattern api
-        DataSource ds = new AppStorageDataSource(storage, testData2Info.getId());
-        assertEquals("", ds.getBaseName());
+        DataSource ds = new AppStorageDataSource(storage, testData2Info.getId(), testData2Info.getName());
+        assertEquals(testData2Info.getName(), ds.getBaseName());
         assertFalse(ds.exists(null, "ext"));
         try (OutputStream os = ds.newOutputStream(null, "ext", false)) {
             os.write("word1".getBytes(StandardCharsets.UTF_8));
@@ -343,11 +344,12 @@ public abstract class AbstractAppStorageTest {
         assertEquals(ImmutableSet.of(0), storage.getTimeSeriesDataVersions(testData2Info.getId(), "ts1"));
 
         // check double time series data query
-        List<DoubleTimeSeries> doubleTimeSeries = storage.getDoubleTimeSeries(testData2Info.getId(), Sets.newHashSet("ts1"), 0);
-        assertEquals(1, doubleTimeSeries.size());
-        DoubleTimeSeries ts1 = doubleTimeSeries.get(0);
-        assertArrayEquals(new double[] {Double.NaN, Double.NaN, 1d, 2d, Double.NaN, 3d}, ts1.toArray(), 0d);
-        assertTrue(storage.getDoubleTimeSeries(testData3Info.getId(), Sets.newHashSet("ts1"), 0).isEmpty());
+        Map<String, List<DoubleArrayChunk>> doubleTimeSeriesData = storage.getDoubleTimeSeriesData(testData2Info.getId(), Sets.newHashSet("ts1"), 0);
+        assertEquals(1, doubleTimeSeriesData.size());
+        assertEquals(Arrays.asList(new UncompressedDoubleArrayChunk(2, new double[] {1d, 2d}),
+                                   new UncompressedDoubleArrayChunk(5, new double[] {3d})),
+                     doubleTimeSeriesData.get("ts1"));
+        assertTrue(storage.getDoubleTimeSeriesData(testData3Info.getId(), Sets.newHashSet("ts1"), 0).isEmpty());
 
         // 15) create a second string time series
         TimeSeriesMetadata metadata2 = new TimeSeriesMetadata("ts2",
@@ -375,10 +377,11 @@ public abstract class AbstractAppStorageTest {
         assertEventStack(new TimeSeriesDataUpdated(testData2Info.getId(), "ts2"));
 
         // check string time series data query
-        List<StringTimeSeries> stringTimeSeries = storage.getStringTimeSeries(testData2Info.getId(), Sets.newHashSet("ts2"), 0);
-        assertEquals(1, stringTimeSeries.size());
-        StringTimeSeries ts2 = stringTimeSeries.get(0);
-        assertArrayEquals(new String[] {null, null, "a", "b", null, "c"}, ts2.toArray());
+        Map<String, List<StringArrayChunk>> stringTimeSeriesData = storage.getStringTimeSeriesData(testData2Info.getId(), Sets.newHashSet("ts2"), 0);
+        assertEquals(1, stringTimeSeriesData.size());
+        assertEquals(Arrays.asList(new UncompressedStringArrayChunk(2, new String[] {"a", "b"}),
+                                   new UncompressedStringArrayChunk(5, new String[] {"c"})),
+                     stringTimeSeriesData.get("ts2"));
 
         // 17) clear time series
         storage.clearTimeSeries(testData2Info.getId());

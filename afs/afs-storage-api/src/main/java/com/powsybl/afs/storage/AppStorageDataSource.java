@@ -120,18 +120,21 @@ public class AppStorageDataSource implements DataSource {
 
     private final String nodeId;
 
-    public AppStorageDataSource(AppStorage storage, String nodeId) {
+    private final String nodeName;
+
+    public AppStorageDataSource(AppStorage storage, String nodeId, String nodeName) {
         this.storage = Objects.requireNonNull(storage);
         this.nodeId = Objects.requireNonNull(nodeId);
+        this.nodeName = Objects.requireNonNull(nodeName);
     }
 
     @Override
     public String getBaseName() {
-        return "";
+        return nodeName;
     }
 
     @Override
-    public OutputStream newOutputStream(final String suffix, final String ext, boolean append) throws IOException {
+    public OutputStream newOutputStream(final String suffix, final String ext, boolean append) {
         if (append) {
             throw new UnsupportedOperationException("Append mode not supported");
         }
@@ -139,7 +142,7 @@ public class AppStorageDataSource implements DataSource {
     }
 
     @Override
-    public OutputStream newOutputStream(String fileName, boolean append) throws IOException {
+    public OutputStream newOutputStream(String fileName, boolean append) {
         Objects.requireNonNull(fileName);
         if (append) {
             throw new UnsupportedOperationException("Append mode not supported");
@@ -153,7 +156,7 @@ public class AppStorageDataSource implements DataSource {
     }
 
     @Override
-    public boolean exists(String fileName) throws IOException {
+    public boolean exists(String fileName) {
         return storage.dataExists(nodeId, new FileName(fileName).toString());
     }
 
