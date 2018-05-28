@@ -67,6 +67,10 @@ public class NetworkTest {
         assertTrue(Iterables.size(topology1.getBusbarSections()) == 2);
         assertTrue(topology1.getBusbarSectionCount() == 2);
 
+        assertEquals(2, Iterables.size(network.getBusbarSections()));
+        assertEquals(2, network.getBusbarSectionCount());
+        assertEquals(2, network.getBusbarSectionStream().count());
+
         BusbarSection voltageLevel1BusbarSection1 = topology1.getBusbarSection("voltageLevel1BusbarSection1");
         assertTrue(voltageLevel1BusbarSection1 != null);
         assertTrue(voltageLevel1BusbarSection1.getId().equals("voltageLevel1BusbarSection1"));
@@ -77,6 +81,8 @@ public class NetworkTest {
         assertTrue(Iterables.size(topology1.getSwitches()) == 5);
         assertTrue(topology1.getSwitchCount() == 5);
 
+        assertEquals(5, Iterables.size(network.getSwitches()));
+        assertEquals(5, network.getSwitchCount());
         assertEquals(5, network.getSwitchStream().count());
 
         Switch voltageLevel1Breaker1 = topology1.getSwitch("voltageLevel1Breaker1");
