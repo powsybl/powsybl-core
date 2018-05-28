@@ -21,7 +21,6 @@ import java.io.*;
 import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentMap;
-import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -574,25 +573,21 @@ public class MapDbAppStorage implements AppStorage {
         return chunks;
     }
 
-    private <P extends AbstractPoint, C extends ArrayChunk<P, C>, T extends TimeSeries<P, T>>
-        List<T> getTimeSeries(String nodeId, Set<String> timeSeriesNames, int version,
-                              ConcurrentMap<TimeSeriesChunkKey, C> map, BiFunction<TimeSeriesMetadata, List<C>, T> constr) {
+    private <P extends AbstractPoint, C extends ArrayChunk<P, C>>
+        Map<String, List<C>> getTimeSeriesData(String nodeId, Set<String> timeSeriesNames, int version, ConcurrentMap<TimeSeriesChunkKey, C> map) {
         UUID nodeUuid = checkNodeId(nodeId);
         Objects.requireNonNull(timeSeriesNames);
         TimeSeriesIndex.checkVersion(version);
         Objects.requireNonNull(map);
-        Objects.requireNonNull(constr);
-        List<T> timeSeriesList = new ArrayList<>();
+        Map<String, List<C>> timeSeriesData = new HashMap<>();
         for (String timeSeriesName : timeSeriesNames) {
             TimeSeriesMetadata metadata = timeSeriesMetadataMap.get(new NamedLink(nodeUuid, timeSeriesName));
             if (metadata != null) {
                 List<C> chunks = getChunks(nodeUuid, version, timeSeriesName, metadata, map);
-                if (!chunks.isEmpty()) {
-                    timeSeriesList.add(constr.apply(metadata, chunks));
-                }
+                timeSeriesData.put(timeSeriesName, chunks);
             }
         }
-        return timeSeriesList;
+        return timeSeriesData;
     }
 
     private <P extends AbstractPoint, C extends ArrayChunk<P, C>> void addTimeSeriesData(String nodeId,
@@ -620,8 +615,8 @@ public class MapDbAppStorage implements AppStorage {
     }
 
     @Override
-    public List<DoubleTimeSeries> getDoubleTimeSeries(String nodeId, Set<String> timeSeriesNames, int version) {
-        return getTimeSeries(nodeId, timeSeriesNames, version, doubleTimeSeriesChunksMap, StoredDoubleTimeSeries::new);
+    public Map<String, List<DoubleArrayChunk>> getDoubleTimeSeriesData(String nodeId, Set<String> timeSeriesNames, int version) {
+        return getTimeSeriesData(nodeId, timeSeriesNames, version, doubleTimeSeriesChunksMap);
     }
 
     @Override
@@ -630,8 +625,8 @@ public class MapDbAppStorage implements AppStorage {
     }
 
     @Override
-    public List<StringTimeSeries> getStringTimeSeries(String nodeId, Set<String> timeSeriesNames, int version) {
-        return getTimeSeries(nodeId, timeSeriesNames, version, stringTimeSeriesChunksMap, StringTimeSeries::new);
+    public Map<String, List<StringArrayChunk>> getStringTimeSeriesData(String nodeId, Set<String> timeSeriesNames, int version) {
+        return getTimeSeriesData(nodeId, timeSeriesNames, version, stringTimeSeriesChunksMap);
     }
 
     @Override
