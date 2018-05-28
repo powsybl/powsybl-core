@@ -424,10 +424,23 @@ public interface Network extends Container<Network> {
     Switch getSwitch(String id);
 
     /**
-     * Get all switches
-     * return all switches
+     * Get all switches.
+     * @return all switches
+     */
+    Iterable<Switch> getSwitches();
+
+    /**
+     * Get all switches.
+     * @return all switches
      */
     Stream<Switch> getSwitchStream();
+
+    /**
+     * Get the switch count.
+     *
+     * @return the switch count
+     */
+    int getSwitchCount();
 
     /**
      * Get a busbar section from its id.
@@ -435,6 +448,24 @@ public interface Network extends Container<Network> {
      * @return the busbar section
      */
     BusbarSection getBusbarSection(String id);
+
+    /**
+     * Get all busbar sections.
+     * @return all busbar sections
+     */
+    Iterable<BusbarSection> getBusbarSections();
+
+    /**
+     * Get all busbar sections.
+     * @return all busbar sections
+     */
+    Stream<BusbarSection> getBusbarSectionStream();
+
+    /**
+     * Get the busbar section count.
+     * @return the busbar section count.
+     */
+    int getBusbarSectionCount();
 
     /**
      * Get all HVDC converter stations.
@@ -522,7 +553,6 @@ public interface Network extends Container<Network> {
      * @return all HVDC lines
      */
     Stream<HvdcLine> getHvdcLineStream();
-
 
     /**
      * Get HVDC lines count.
