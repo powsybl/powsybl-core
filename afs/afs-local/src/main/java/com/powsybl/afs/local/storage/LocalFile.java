@@ -7,12 +7,11 @@
 package com.powsybl.afs.local.storage;
 
 import com.powsybl.afs.storage.NodeGenericMetadata;
-import com.powsybl.math.timeseries.DoubleTimeSeries;
-import com.powsybl.math.timeseries.StringTimeSeries;
-import com.powsybl.math.timeseries.TimeSeriesMetadata;
+import com.powsybl.math.timeseries.*;
 
 import java.io.InputStream;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -44,8 +43,8 @@ public interface LocalFile extends LocalNode {
 
     Set<Integer> getTimeSeriesDataVersions(String timeSeriesName);
 
-    List<DoubleTimeSeries> getDoubleTimeSeries(Set<String> timeSeriesNames, int version);
+    Map<String, List<DoubleArrayChunk>> getDoubleTimeSeriesData(Set<String> timeSeriesNames, int version);
 
-    List<StringTimeSeries> getStringTimeSeries(Set<String> timeSeriesNames, int version);
+    Map<String, List<StringArrayChunk>> getStringTimeSeriesData(Set<String> timeSeriesNames, int version);
 
 }

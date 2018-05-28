@@ -11,6 +11,7 @@ import com.powsybl.math.timeseries.*;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -67,11 +68,11 @@ public interface AppStorage extends AutoCloseable {
 
     Set<Integer> getTimeSeriesDataVersions(String nodeId, String timeSeriesName);
 
-    List<DoubleTimeSeries> getDoubleTimeSeries(String nodeId, Set<String> timeSeriesNames, int version);
+    Map<String, List<DoubleArrayChunk>> getDoubleTimeSeriesData(String nodeId, Set<String> timeSeriesNames, int version);
 
     void addDoubleTimeSeriesData(String nodeId, int version, String timeSeriesName, List<DoubleArrayChunk> chunks);
 
-    List<StringTimeSeries> getStringTimeSeries(String nodeId, Set<String> timeSeriesNames, int version);
+    Map<String, List<StringArrayChunk>> getStringTimeSeriesData(String nodeId, Set<String> timeSeriesNames, int version);
 
     void addStringTimeSeriesData(String nodeId, int version, String timeSeriesName, List<StringArrayChunk> chunks);
 
