@@ -7,8 +7,9 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
-import org.junit.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -67,13 +68,13 @@ public class NullPointerWhenRemovingMergedLineBugTest {
                 .setB(0)
                 .setUcteXnodeCode("XNODE")
                 .add();
-        Assert.assertTrue(n1.getLineCount() == 0);
-        Assert.assertTrue(n1.getDanglingLineCount() == 1);
-        Assert.assertTrue(n2.getLineCount() == 0);
-        Assert.assertTrue(n2.getDanglingLineCount() == 1);
+        assertEquals(0, n1.getLineCount());
+        assertEquals(1, n1.getDanglingLineCount());
+        assertEquals(0, n2.getLineCount());
+        assertEquals(1, n2.getDanglingLineCount());
         n1.merge(n2);
-        Assert.assertTrue(n1.getLineCount() == 1);
-        Assert.assertTrue(n1.getDanglingLineCount() == 0);
+        assertEquals(1, n1.getLineCount());
+        assertEquals(0, n1.getDanglingLineCount());
         n1.getLine("dl1 + dl2").remove();
         for (Bus b : n1.getBusBreakerView().getBuses()) {
             // throws an exception if bug already present

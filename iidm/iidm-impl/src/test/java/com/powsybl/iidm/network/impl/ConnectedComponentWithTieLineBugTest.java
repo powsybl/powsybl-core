@@ -7,8 +7,9 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
-import org.junit.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -89,7 +90,7 @@ public class ConnectedComponentWithTieLineBugTest {
                 .setXnodeQ(0.0)
                 .setUcteXnodeCode("XNODE")
                 .add();
-        Assert.assertTrue(b1.getConnectedComponent().getNum() == 0);
-        Assert.assertTrue(b2.getConnectedComponent().getNum() == 0);
+        assertEquals(0, b1.getConnectedComponent().getNum());
+        assertEquals(0, b2.getConnectedComponent().getNum());
     }
 }

@@ -10,8 +10,8 @@ import com.google.common.collect.Iterables;
 import com.powsybl.iidm.network.*;
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -88,11 +88,11 @@ public class SwitchOpenCloseNodeBreakerTopoTest {
         Network network = createNetwork();
         VoltageLevel vl = network.getVoltageLevel("VL");
         assertNotNull(vl);
-        assertTrue(Iterables.size(vl.getBusView().getBuses()) == 2);
+        assertEquals(2, Iterables.size(vl.getBusView().getBuses()));
         Switch s = vl.getNodeBreakerView().getSwitch("B1");
         s.setOpen(false);
-        assertTrue(Iterables.size(vl.getBusView().getBuses()) == 1);
+        assertEquals(1, Iterables.size(vl.getBusView().getBuses()));
         s.setOpen(true);
-        assertTrue(Iterables.size(vl.getBusView().getBuses()) == 2);
+        assertEquals(2, Iterables.size(vl.getBusView().getBuses()));
     }
 }

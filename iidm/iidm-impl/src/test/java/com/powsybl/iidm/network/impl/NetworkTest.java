@@ -15,7 +15,9 @@ import com.powsybl.iidm.network.test.HvdcTestNetwork;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
 import com.powsybl.iidm.network.test.SvcTestCaseFactory;
 import org.joda.time.DateTime;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -25,13 +27,16 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static junit.framework.TestCase.assertSame;
+import static org.junit.Assert.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class NetworkTest {
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
     public NetworkTest() {
     }
@@ -39,102 +44,102 @@ public class NetworkTest {
     @Test
     public void testNetwork1() {
         Network network = NetworkTest1Factory.create();
-        assertTrue(Iterables.size(network.getCountries()) == 1);
-        assertTrue(network.getCountryCount() == 1);
+        assertEquals(1, Iterables.size(network.getCountries()));
+        assertEquals(1, network.getCountryCount());
         Country country1 = network.getCountries().iterator().next();
 
-        assertTrue(Iterables.size(network.getSubstations()) == 1);
-        assertTrue(network.getSubstationCount() == 1);
+        assertEquals(1, Iterables.size(network.getSubstations()));
+        assertEquals(1, network.getSubstationCount());
 
         Substation substation1 = network.getSubstation("substation1");
-        assertTrue(substation1 != null);
-        assertTrue(substation1.getId().equals("substation1"));
-        assertTrue(substation1.getCountry() == country1);
-        assertTrue(substation1.getGeographicalTags().size() == 1);
+        assertNotNull(substation1);
+        assertEquals("substation1", substation1.getId());
+        assertSame(country1, substation1.getCountry());
+        assertEquals(1, substation1.getGeographicalTags().size());
         assertTrue(substation1.getGeographicalTags().contains("region1"));
-        assertTrue(Iterables.size(network.getVoltageLevels()) == 1);
-        assertTrue(network.getVoltageLevelCount() == 1);
+        assertEquals(1, Iterables.size(network.getVoltageLevels()));
+        assertEquals(1, network.getVoltageLevelCount());
 
         VoltageLevel voltageLevel1 = network.getVoltageLevel("voltageLevel1");
-        assertTrue(voltageLevel1 != null);
-        assertTrue(voltageLevel1.getId().equals("voltageLevel1"));
-        assertTrue(voltageLevel1.getNominalV() == 400);
-        assertTrue(voltageLevel1.getSubstation() == substation1);
-        assertTrue(voltageLevel1.getTopologyKind() == TopologyKind.NODE_BREAKER);
+        assertNotNull(voltageLevel1);
+        assertEquals("voltageLevel1", voltageLevel1.getId());
+        assertEquals(400.0, voltageLevel1.getNominalV(), 0.0);
+        assertSame(substation1, voltageLevel1.getSubstation());
+        assertSame(TopologyKind.NODE_BREAKER, voltageLevel1.getTopologyKind());
 
         NodeBreakerView topology1 = voltageLevel1.getNodeBreakerView();
-        assertTrue(topology1.getNodeCount() == 10);
-        assertTrue(Iterables.size(topology1.getBusbarSections()) == 2);
-        assertTrue(topology1.getBusbarSectionCount() == 2);
+        assertEquals(10, topology1.getNodeCount());
+        assertEquals(2, Iterables.size(topology1.getBusbarSections()));
+        assertEquals(2, topology1.getBusbarSectionCount());
 
         BusbarSection voltageLevel1BusbarSection1 = topology1.getBusbarSection("voltageLevel1BusbarSection1");
-        assertTrue(voltageLevel1BusbarSection1 != null);
-        assertTrue(voltageLevel1BusbarSection1.getId().equals("voltageLevel1BusbarSection1"));
+        assertNotNull(voltageLevel1BusbarSection1);
+        assertEquals("voltageLevel1BusbarSection1", voltageLevel1BusbarSection1.getId());
 
         BusbarSection voltageLevel1BusbarSection2 = topology1.getBusbarSection("voltageLevel1BusbarSection2");
-        assertTrue(voltageLevel1BusbarSection2 != null);
-        assertTrue(voltageLevel1BusbarSection2.getId().equals("voltageLevel1BusbarSection2"));
-        assertTrue(Iterables.size(topology1.getSwitches()) == 5);
-        assertTrue(topology1.getSwitchCount() == 5);
+        assertNotNull(voltageLevel1BusbarSection2);
+        assertEquals("voltageLevel1BusbarSection2", voltageLevel1BusbarSection2.getId());
+        assertEquals(5, Iterables.size(topology1.getSwitches()));
+        assertEquals(5, topology1.getSwitchCount());
 
         assertEquals(5, network.getSwitchStream().count());
 
         Switch voltageLevel1Breaker1 = topology1.getSwitch("voltageLevel1Breaker1");
-        assertTrue(voltageLevel1Breaker1 != null);
-        assertTrue(voltageLevel1Breaker1.getId().equals("voltageLevel1Breaker1"));
-        assertTrue(!voltageLevel1Breaker1.isOpen());
+        assertNotNull(voltageLevel1Breaker1);
+        assertEquals("voltageLevel1Breaker1", voltageLevel1Breaker1.getId());
+        assertFalse(voltageLevel1Breaker1.isOpen());
         assertTrue(voltageLevel1Breaker1.isRetained());
-        assertTrue(voltageLevel1Breaker1.getKind() == SwitchKind.BREAKER);
-        assertTrue(topology1.getNode1(voltageLevel1Breaker1.getId()) == voltageLevel1BusbarSection1.getTerminal().getNodeBreakerView().getNode());
-        assertTrue(topology1.getNode2(voltageLevel1Breaker1.getId()) == voltageLevel1BusbarSection2.getTerminal().getNodeBreakerView().getNode());
-        assertTrue(Iterables.size(voltageLevel1.getLoads()) == 1);
-        assertTrue(voltageLevel1.getLoadCount() == 1);
+        assertSame(SwitchKind.BREAKER, voltageLevel1Breaker1.getKind());
+        assertSame(voltageLevel1BusbarSection1.getTerminal().getNodeBreakerView().getNode(), topology1.getNode1(voltageLevel1Breaker1.getId()));
+        assertSame(voltageLevel1BusbarSection2.getTerminal().getNodeBreakerView().getNode(), topology1.getNode2(voltageLevel1Breaker1.getId()));
+        assertEquals(1, Iterables.size(voltageLevel1.getLoads()));
+        assertEquals(1, voltageLevel1.getLoadCount());
 
         Load load1 = network.getLoad("load1");
-        assertTrue(load1 != null);
-        assertTrue(load1.getId().equals("load1"));
-        assertTrue(load1.getTerminal().getNodeBreakerView().getNode() == 2);
-        assertTrue(load1.getP0() == 10);
-        assertTrue(load1.getQ0() == 3);
+        assertNotNull(load1);
+        assertEquals("load1", load1.getId());
+        assertEquals(2, load1.getTerminal().getNodeBreakerView().getNode());
+        assertEquals(10.0, load1.getP0(), 0.0);
+        assertEquals(3.0, load1.getQ0(), 0.0);
 
         Generator generator1 = network.getGenerator("generator1");
-        assertTrue(generator1 != null);
-        assertTrue(generator1.getId().equals("generator1"));
-        assertTrue(generator1.getTerminal().getNodeBreakerView().getNode() == 5);
-        assertTrue(generator1.getMinP() == 200);
-        assertTrue(generator1.getMaxP() == 900);
-        assertTrue(generator1.getEnergySource() == EnergySource.NUCLEAR);
+        assertNotNull(generator1);
+        assertEquals("generator1", generator1.getId());
+        assertEquals(5, generator1.getTerminal().getNodeBreakerView().getNode());
+        assertEquals(200.0, generator1.getMinP(), 0.0);
+        assertEquals(900.0, generator1.getMaxP(), 0.0);
+        assertSame(EnergySource.NUCLEAR, generator1.getEnergySource());
         assertTrue(generator1.isVoltageRegulatorOn());
-        assertTrue(generator1.getTargetP() == 900);
-        assertTrue(generator1.getTargetV() == 380);
+        assertEquals(900.0, generator1.getTargetP(), 0.0);
+        assertEquals(380.0, generator1.getTargetV(), 0.0);
         ReactiveCapabilityCurve rcc1 = generator1.getReactiveLimits(ReactiveCapabilityCurve.class);
-        assertTrue(rcc1.getPointCount() == 2);
-        assertTrue(rcc1.getMaxQ(500) == 500);
-        assertTrue(rcc1.getMinQ(500) == 300);
+        assertEquals(2, rcc1.getPointCount());
+        assertEquals(500.0, rcc1.getMaxQ(500), 0.0);
+        assertEquals(300.0, rcc1.getMinQ(500), 0.0);
 
-        assertTrue(Iterables.size(voltageLevel1.getBusBreakerView().getBuses()) == 2);
+        assertEquals(2, Iterables.size(voltageLevel1.getBusBreakerView().getBuses()));
         Bus busCalc1 = voltageLevel1BusbarSection1.getTerminal().getBusBreakerView().getBus();
         Bus busCalc2 = voltageLevel1BusbarSection2.getTerminal().getBusBreakerView().getBus();
-        assertTrue(load1.getTerminal().getBusBreakerView().getBus() == busCalc1);
-        assertTrue(generator1.getTerminal().getBusBreakerView().getBus() == busCalc2);
-        assertTrue(busCalc1.getConnectedComponent().getNum() == 0);
-        assertTrue(busCalc2.getConnectedComponent().getNum() == 0);
+        assertSame(busCalc1, load1.getTerminal().getBusBreakerView().getBus());
+        assertSame(busCalc2, generator1.getTerminal().getBusBreakerView().getBus());
+        assertEquals(0, busCalc1.getConnectedComponent().getNum());
+        assertEquals(0, busCalc2.getConnectedComponent().getNum());
 
-        assertTrue(Iterables.size(voltageLevel1.getBusView().getBuses()) == 1);
+        assertEquals(1, Iterables.size(voltageLevel1.getBusView().getBuses()));
         Bus busCalc = voltageLevel1BusbarSection1.getTerminal().getBusView().getBus();
-        assertTrue(busCalc == voltageLevel1BusbarSection2.getTerminal().getBusView().getBus());
-        assertTrue(load1.getTerminal().getBusView().getBus() == busCalc);
-        assertTrue(generator1.getTerminal().getBusView().getBus() == busCalc);
-        assertTrue(busCalc.getConnectedComponent().getNum() == 0);
+        assertSame(busCalc, voltageLevel1BusbarSection2.getTerminal().getBusView().getBus());
+        assertSame(busCalc, load1.getTerminal().getBusView().getBus());
+        assertSame(busCalc, generator1.getTerminal().getBusView().getBus());
+        assertEquals(0, busCalc.getConnectedComponent().getNum());
     }
 
     @Test
     public void testVoltageLevelGetConnectable() {
         Network n = EurostagTutorialExample1Factory.create();
-        assertTrue(n.getVoltageLevel("VLLOAD").getConnectable("LOAD", Load.class) != null);
-        assertTrue(n.getVoltageLevel("VLLOAD").getConnectable("NHV2_NLOAD", Branch.class) != null);
-        assertTrue(n.getVoltageLevel("VLGEN").getConnectable("LOAD", Load.class) == null);
-        assertTrue(n.getVoltageLevel("VLGEN").getConnectable("NHV2_NLOAD", Branch.class) == null);
+        assertNotNull(n.getVoltageLevel("VLLOAD").getConnectable("LOAD", Load.class));
+        assertNotNull(n.getVoltageLevel("VLLOAD").getConnectable("NHV2_NLOAD", Branch.class));
+        assertNull(n.getVoltageLevel("VLGEN").getConnectable("LOAD", Load.class));
+        assertNull(n.getVoltageLevel("VLGEN").getConnectable("NHV2_NLOAD", Branch.class));
     }
 
     @Test
@@ -271,20 +276,6 @@ public class NetworkTest {
     public void getSwitchTerminalTest() {
         Network busViewNetwork = EurostagTutorialExample1Factory.create();
         VoltageLevel voltageLevel = busViewNetwork.getVoltageLevel("VLGEN");
-        boolean failed = false;
-        try {
-            voltageLevel.getNodeBreakerView().getTerminal1("fictitiousSwitchId");
-        } catch (PowsyblException p) {
-            failed = true;
-        }
-        assertTrue(failed);
-        failed = false;
-        try {
-            voltageLevel.getNodeBreakerView().getTerminal2("fictitiousSwitchId");
-        } catch (PowsyblException p) {
-            failed = true;
-        }
-        assertTrue(failed);
 
         Network nodeViewNetwork = NetworkTest1Factory.create();
         voltageLevel = nodeViewNetwork.getVoltageLevel("voltageLevel1");
@@ -293,7 +284,24 @@ public class NetworkTest {
                      voltageLevel.getNodeBreakerView().getTerminal1("voltageLevel1Breaker1"));
         assertEquals(topology.getTerminal(topology.getNode2("voltageLevel1Breaker1")),
                      voltageLevel.getNodeBreakerView().getTerminal2("voltageLevel1Breaker1"));
+    }
 
+    @Test
+    public void testExceptionGetSwitchTerminal1() {
+        Network busViewNetwork = EurostagTutorialExample1Factory.create();
+        VoltageLevel voltageLevel = busViewNetwork.getVoltageLevel("VLGEN");
+        thrown.expect(PowsyblException.class);
+        thrown.expectMessage("Not supported in a bus breaker topology");
+        voltageLevel.getNodeBreakerView().getTerminal1("fictitiousSwitchId");
+    }
+
+    @Test
+    public void testExceptionGetSwitchTerminal2() {
+        Network busViewNetwork = EurostagTutorialExample1Factory.create();
+        VoltageLevel voltageLevel = busViewNetwork.getVoltageLevel("VLGEN");
+        thrown.expect(PowsyblException.class);
+        thrown.expectMessage("Not supported in a bus breaker topology");
+        voltageLevel.getNodeBreakerView().getTerminal2("fictitiousSwitchId");
     }
 
 }
