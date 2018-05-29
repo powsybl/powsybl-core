@@ -203,7 +203,7 @@ public class ZipFileDataSource implements DataSource {
     public String[] listNames(String regex) throws IOException {
         // Consider only files in the given folder, do not go into folders
         Pattern p = Pattern.compile(regex);
-        List<String> files = new ArrayList<String>();
+        List<String> files = new ArrayList<>();
         Path zipFilePath = getZipFilePath();
         try (ZipFile zipFile = new ZipFile(zipFilePath)) {
             Enumeration<? extends ZipEntry> e = zipFile.entries();
