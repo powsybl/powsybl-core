@@ -15,6 +15,8 @@ import java.io.UncheckedIOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * @author Giovanni Ferrari <giovanni.ferrari@techrain.it>
@@ -82,5 +84,14 @@ public class ReadOnlyMemDataSource implements ReadOnlyDataSource {
             throw new IOException(fileName + " does not exist");
         }
         return new ByteArrayInputStream(ba);
+    }
+
+    @Override
+    public String[] listNames(String regex) throws IOException {
+        Pattern p = Pattern.compile(regex);
+        return data.keySet().stream()
+                .filter(name -> p.matcher(name).matches())
+                .collect(Collectors.toList())
+                .toArray(new String[0]);
     }
 }

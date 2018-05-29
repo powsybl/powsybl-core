@@ -6,13 +6,15 @@
  */
 package com.powsybl.afs.storage;
 
-import com.powsybl.commons.datasource.DataSource;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.util.Objects;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import com.powsybl.commons.datasource.DataSource;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -170,5 +172,14 @@ public class AppStorageDataSource implements DataSource {
     public InputStream newInputStream(String fileName) throws IOException {
         return storage.readBinaryData(nodeId, new FileName(fileName).toString())
                 .orElseThrow(() -> new IOException(fileName + " does not exist"));
+    }
+
+    @Override
+    public String[] listNames(String regex) throws IOException {
+        Pattern p = Pattern.compile(regex);
+        return storage.getDataNames(nodeId).stream()
+                .filter(name -> p.matcher(name).matches())
+                .collect(Collectors.toList())
+                .toArray(new String[0]);
     }
 }

@@ -23,4 +23,6 @@ public interface ReadOnlyDataSource {
     InputStream newInputStream(String suffix, String ext) throws IOException;
 
     InputStream newInputStream(String fileName) throws IOException;
+
+    String[] listNames(String regex) throws IOException;
 }

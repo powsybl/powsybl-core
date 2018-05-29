@@ -12,6 +12,9 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -89,5 +92,23 @@ public class FileDataSource implements DataSource {
         Path path = getPath(fileName);
         InputStream is = getCompressedInputStream(Files.newInputStream(path));
         return observer != null ? new ObservableInputStream(is, path.toString(), observer) : is;
+    }
+
+    @Override
+    public String[] listNames(String regex) throws IOException {
+        // Consider only files in the given folder, do not go into folders
+        Pattern p = Pattern.compile(regex);
+        int maxDepth = 1;
+        try (Stream<Path> paths = Files.walk(directory, maxDepth)) {
+            return paths
+                    .filter(Files::isRegularFile)
+                    .map(Path::getFileName)
+                    .map(Path::toString)
+                    // Return names after removing the compression extension
+                    .map(name -> name.replace(getCompressionExt(),  ""))
+                    .filter(s -> p.matcher(s).matches())
+                    .collect(Collectors.toList())
+                    .toArray(new String[0]);
+        }
     }
 }

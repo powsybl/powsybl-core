@@ -21,6 +21,9 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Enumeration;
 import java.util.Objects;
+import java.util.regex.Pattern;
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -194,5 +197,23 @@ public class ZipFileDataSource implements DataSource {
     @Override
     public OutputStream newOutputStream(String suffix, String ext, boolean append) throws IOException {
         return newOutputStream(DataSourceUtil.getFileName(baseName, suffix, ext), append);
+    }
+
+    @Override
+    public String[] listNames(String regex) throws IOException {
+        // Consider only files in the given folder, do not go into folders
+        Pattern p = Pattern.compile(regex);
+        List<String> files = new ArrayList<String>();
+        Path zipFilePath = getZipFilePath();
+        try (ZipFile zipFile = new ZipFile(zipFilePath)) {
+            Enumeration<? extends ZipEntry> e = zipFile.entries();
+            while (e.hasMoreElements()) {
+                ZipEntry zipEntry = e.nextElement();
+                if (!zipEntry.isDirectory() && p.matcher(zipEntry.getName()).matches()) {
+                    files.add(zipEntry.getName());
+                }
+            }
+        }
+        return files.toArray(new String[0]);
     }
 }

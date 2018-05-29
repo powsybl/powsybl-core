@@ -75,4 +75,9 @@ public class GenericReadOnlyDataSource implements ReadOnlyDataSource {
         }
         throw new IOException(fileName + " not found");
     }
+
+    @Override
+    public String[] listNames(String regex) throws IOException {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 }
