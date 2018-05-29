@@ -42,6 +42,7 @@
 /iidm/iidm-util/target/
 /iidm/iidm-xml-converter/target/
 /loadflow/loadflow-api/target/
+/loadflow/loadflow-results-completion/target/
 /loadflow/loadflow-validation/target/
 /loadflow/target/
 /math/target/
