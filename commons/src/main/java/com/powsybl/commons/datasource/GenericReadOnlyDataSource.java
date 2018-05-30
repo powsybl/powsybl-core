@@ -10,6 +10,7 @@ package com.powsybl.commons.datasource;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
+import java.util.Set;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -77,7 +78,7 @@ public class GenericReadOnlyDataSource implements ReadOnlyDataSource {
     }
 
     @Override
-    public String[] listNames(String regex) throws IOException {
+    public Set<String> listNames(String regex) throws IOException {
         throw new UnsupportedOperationException("Not implemented");
     }
 }

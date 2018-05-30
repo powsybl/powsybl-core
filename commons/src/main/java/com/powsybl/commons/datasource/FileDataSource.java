@@ -12,6 +12,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
+import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -95,7 +96,7 @@ public class FileDataSource implements DataSource {
     }
 
     @Override
-    public String[] listNames(String regex) throws IOException {
+    public Set<String> listNames(String regex) throws IOException {
         // Consider only files in the given folder, do not go into folders
         Pattern p = Pattern.compile(regex);
         int maxDepth = 1;
@@ -107,8 +108,7 @@ public class FileDataSource implements DataSource {
                     // Return names after removing the compression extension
                     .map(name -> name.replace(getCompressionExt(),  ""))
                     .filter(s -> p.matcher(s).matches())
-                    .collect(Collectors.toList())
-                    .toArray(new String[0]);
+                    .collect(Collectors.toSet());
         }
     }
 }

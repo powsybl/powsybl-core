@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.util.Objects;
+import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -175,11 +176,10 @@ public class AppStorageDataSource implements DataSource {
     }
 
     @Override
-    public String[] listNames(String regex) throws IOException {
+    public Set<String> listNames(String regex) throws IOException {
         Pattern p = Pattern.compile(regex);
         return storage.getDataNames(nodeId).stream()
                 .filter(name -> p.matcher(name).matches())
-                .collect(Collectors.toList())
-                .toArray(new String[0]);
+                .collect(Collectors.toSet());
     }
 }

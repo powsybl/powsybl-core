@@ -6,13 +6,6 @@
  */
 package com.powsybl.commons.datasource;
 
-import com.google.common.io.ByteStreams;
-import com.powsybl.commons.io.ForwardingInputStream;
-import com.powsybl.commons.io.ForwardingOutputStream;
-import net.java.truevfs.comp.zip.ZipEntry;
-import net.java.truevfs.comp.zip.ZipFile;
-import net.java.truevfs.comp.zip.ZipOutputStream;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -20,10 +13,18 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 import java.util.regex.Pattern;
-import java.util.List;
-import java.util.ArrayList;
+
+import com.google.common.io.ByteStreams;
+import com.powsybl.commons.io.ForwardingInputStream;
+import com.powsybl.commons.io.ForwardingOutputStream;
+
+import net.java.truevfs.comp.zip.ZipEntry;
+import net.java.truevfs.comp.zip.ZipFile;
+import net.java.truevfs.comp.zip.ZipOutputStream;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -200,20 +201,20 @@ public class ZipFileDataSource implements DataSource {
     }
 
     @Override
-    public String[] listNames(String regex) throws IOException {
+    public Set<String> listNames(String regex) throws IOException {
         // Consider only files in the given folder, do not go into folders
         Pattern p = Pattern.compile(regex);
-        List<String> files = new ArrayList<>();
+        Set<String> names = new HashSet<>();
         Path zipFilePath = getZipFilePath();
         try (ZipFile zipFile = new ZipFile(zipFilePath)) {
             Enumeration<? extends ZipEntry> e = zipFile.entries();
             while (e.hasMoreElements()) {
                 ZipEntry zipEntry = e.nextElement();
                 if (!zipEntry.isDirectory() && p.matcher(zipEntry.getName()).matches()) {
-                    files.add(zipEntry.getName());
+                    names.add(zipEntry.getName());
                 }
             }
         }
-        return files.toArray(new String[0]);
+        return names;
     }
 }

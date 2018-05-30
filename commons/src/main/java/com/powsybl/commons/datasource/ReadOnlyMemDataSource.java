@@ -15,6 +15,7 @@ import java.io.UncheckedIOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -87,11 +88,10 @@ public class ReadOnlyMemDataSource implements ReadOnlyDataSource {
     }
 
     @Override
-    public String[] listNames(String regex) throws IOException {
+    public Set<String> listNames(String regex) throws IOException {
         Pattern p = Pattern.compile(regex);
         return data.keySet().stream()
                 .filter(name -> p.matcher(name).matches())
-                .collect(Collectors.toList())
-                .toArray(new String[0]);
+                .collect(Collectors.toSet());
     }
 }

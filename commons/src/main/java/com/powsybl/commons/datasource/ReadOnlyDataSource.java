@@ -8,6 +8,7 @@ package com.powsybl.commons.datasource;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Set;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian@rte-france.com>
@@ -24,5 +25,5 @@ public interface ReadOnlyDataSource {
 
     InputStream newInputStream(String fileName) throws IOException;
 
-    String[] listNames(String regex) throws IOException;
+    Set<String> listNames(String regex) throws IOException;
 }
