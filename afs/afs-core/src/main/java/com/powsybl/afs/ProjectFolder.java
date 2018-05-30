@@ -21,6 +21,11 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
+ * A folder in a {@link Project} tree.
+ *
+ * <p>
+ * Project folders may have children project folders or files, and provides methods to create new children.
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class ProjectFolder extends ProjectNode implements FolderBase<ProjectNode, ProjectFolder> {
@@ -56,6 +61,9 @@ public class ProjectFolder extends ProjectNode implements FolderBase<ProjectNode
         storage.addListener(l);
     }
 
+    /**
+     * Gets the list of children nodes of this project folder.
+     */
     @Override
     public List<ProjectNode> getChildren() {
         return storage.getChildNodes(info.getId())
@@ -65,12 +73,18 @@ public class ProjectFolder extends ProjectNode implements FolderBase<ProjectNode
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Gets the child node at path "name/name2/..." relative to this folder, or empty if it does not exist.
+     */
     @Override
     public Optional<ProjectNode> getChild(String name, String... more) {
         NodeInfo childInfo = getChildInfo(name, more);
         return Optional.ofNullable(childInfo).map(project::createProjectNode);
     }
 
+    /**
+     * Gets the child node of class T at path "name/name2/..." relative to this folder, in a typesafe way, or empty if it does not exist.
+     */
     @Override
     public <T extends ProjectNode> Optional<T> getChild(Class<T> clazz, String name, String... more) {
         Objects.requireNonNull(clazz);
@@ -79,11 +93,17 @@ public class ProjectFolder extends ProjectNode implements FolderBase<ProjectNode
                 .map(clazz::cast);
     }
 
+    /**
+     * Gets the folder at path "name/name2/..." relative to this folder, or empty if it does not exist.
+     */
     @Override
     public Optional<ProjectFolder> getFolder(String name, String... more) {
         return getChild(ProjectFolder.class, name, more);
     }
 
+    /**
+     * Creates a subfolder of this folder. If a folder with same name already exists, returns the existing folder.
+     */
     @Override
     public ProjectFolder createFolder(String name) {
         NodeInfo folderInfo = storage.getChildNode(info.getId(), name)
@@ -95,6 +115,9 @@ public class ProjectFolder extends ProjectNode implements FolderBase<ProjectNode
         return new ProjectFolder(new ProjectFileCreationContext(folderInfo, storage, project));
     }
 
+    /**
+     * Gets a project file builder for type B, to build a new project file in this folder.
+     */
     public <F extends ProjectFile, B extends ProjectFileBuilder<F>> B fileBuilder(Class<B> clazz) {
         Objects.requireNonNull(clazz);
         ProjectFileExtension extension = project.getFileSystem().getData().getProjectFileExtension(clazz);

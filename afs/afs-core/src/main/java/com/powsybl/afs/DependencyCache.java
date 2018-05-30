@@ -13,6 +13,10 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
+ * Allows to request and cache dependencies of a project file to one or several other project nodes.
+ * The request is defined by a dependency name, and by the type of the "target" nodes.
+ * <p>
+ * The objects are cached when retrieved, and will not be fetched again until invalidation of the cache.
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -46,6 +50,9 @@ public class DependencyCache<T> {
         projectFile.addListener(l);
     }
 
+    /**
+     * Invalidates the cache: dependencies will be fetched again on next request.
+     */
     public void invalidate() {
         lock.lock();
         try {
@@ -58,11 +65,19 @@ public class DependencyCache<T> {
         }
     }
 
+    /**
+     * Gets the first dependency of the project file which matches the specified dependency name and class.
+     * Result is cached, and will not be fetched again until the cache is invalidated.
+     */
     public Optional<T> getFirst() {
         List<T> all = getAll();
         return all.isEmpty() ? Optional.empty() : Optional.of(all.get(0));
     }
 
+    /**
+     * Gets all the dependencies of the project file which match the specified dependency name and class.
+     * Result is cached, and will not be fetched again until the cache is invalidated.
+     */
     public List<T> getAll() {
         lock.lock();
         try {

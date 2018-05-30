@@ -31,6 +31,8 @@ import java.util.Objects;
 import java.util.Properties;
 
 /**
+ * Builder for the project file {@link ImportedCase}.
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class ImportedCaseBuilder implements ProjectFileBuilder<ImportedCase> {

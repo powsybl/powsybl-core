@@ -16,6 +16,8 @@ import java.util.Objects;
 import java.util.Optional;
 
 /**
+ * Base class for all node objects stored in an AFS tree.
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public abstract class AbstractNodeBase<F> {
@@ -34,6 +36,9 @@ public abstract class AbstractNodeBase<F> {
 
     public abstract Optional<F> getParent();
 
+    /**
+     * An ID uniquely identifying this node in the file system tree.
+     */
     public String getId() {
         return info.getId();
     }
