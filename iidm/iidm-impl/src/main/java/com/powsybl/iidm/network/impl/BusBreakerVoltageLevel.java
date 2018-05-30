@@ -561,6 +561,11 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
             return calculatedBusTopology.getMergedBus(id, false);
         }
 
+        @Override
+        public Bus getMergedBus(String configuredBusId) {
+            ConfiguredBus b = (ConfiguredBus) busBreakerView.getBus(configuredBusId);
+            return calculatedBusTopology.getMergedBus(b);
+        }
     };
 
     @Override

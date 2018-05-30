@@ -726,6 +726,12 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             return states.get().calculatedBusTopology.getBus(id, false);
         }
 
+        @Override
+        public Bus getMergedBus(String busBarId) {
+            NodeTerminal nt = (NodeTerminal) nodeBreakerView.getBusbarSection(busBarId).getTerminal();
+            int node = nt.getNode();
+            return states.get().calculatedBusTopology.getBus(node);
+        }
     };
 
     @Override
