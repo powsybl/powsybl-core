@@ -241,9 +241,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
                         String mergedBusId = BusBreakerVoltageLevel.this.id + "_" + busNum++;
                         MergedBus mergedBus = new MergedBus(mergedBusId, busSet);
                         mergedBuses.put(mergedBus.getId(), mergedBus);
-                        for (ConfiguredBus bus : busSet) {
-                            mapping.put(bus, mergedBus);
-                        }
+                        busSet.forEach(bus -> mapping.put(bus, mergedBus));
                     }
                 }
             }
@@ -295,14 +293,10 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         private StateImpl() {
         }
 
-        private StateImpl(StateImpl other) {
-        }
-
         @Override
         public StateImpl copy() {
-            return new StateImpl(this);
+            return new StateImpl();
         }
-
     }
 
     protected final StateArray<StateImpl> states;
@@ -771,13 +765,10 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
             // then check we can traverse terminal connected to same bus
             int v = getVertex(terminal.getConnectableBusId(), true);
             ConfiguredBus bus = graph.getVertexObject(v);
-            for (BusTerminal otherTerminal : bus.getTerminals()) {
-                if (otherTerminal != terminal) {
-                    if (traverser.traverse(otherTerminal, otherTerminal.isConnected())) {
-                        addNextTerminals(otherTerminal, nextTerminals);
-                    }
-                }
-            }
+            bus.getTerminals().stream()
+                    .filter(t -> t != terminal)
+                    .filter(t -> traverser.traverse(t, t.isConnected()))
+                    .forEach(t -> addNextTerminals(t, nextTerminals));
 
             // then go through other buses of the substation
             graph.traverse(v, (v1, e, v2) -> {
@@ -790,19 +781,16 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
 
                             addNextTerminals(otherTerminal, nextTerminals);
                             return TraverseResult.CONTINUE;
-                        } else {
-                            return TraverseResult.TERMINATE;
                         }
+
+                        return TraverseResult.TERMINATE;
                     }
                     return TraverseResult.CONTINUE;
-                } else {
-                    return TraverseResult.TERMINATE;
                 }
+                return TraverseResult.TERMINATE;
             });
 
-            for (TerminalExt nextTerminal : nextTerminals) {
-                nextTerminal.traverse(traverser, traversedTerminals);
-            }
+            nextTerminals.forEach(t -> t.traverse(traverser, traversedTerminals));
         }
     }
 
