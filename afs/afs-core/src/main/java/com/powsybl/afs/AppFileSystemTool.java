@@ -16,6 +16,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionGroup;
 import org.apache.commons.cli.Options;
 
+import java.nio.file.Path;
 import java.util.Optional;
 
 /**
@@ -25,6 +26,8 @@ import java.util.Optional;
 public class AppFileSystemTool implements Tool {
 
     public static final String LS = "ls";
+    public static final String ARCHIVE = "archive";
+    public static final String OUTPUT_DIR = "output-dir";
 
     protected AppData createAppData(ToolRunningContext context) {
         return new AppData(context.getShortTimeExecutionComputationManager(),
@@ -52,15 +55,28 @@ public class AppFileSystemTool implements Tool {
             @Override
             public Options getOptions() {
                 Options options = new Options();
-                OptionGroup optionGroup = new OptionGroup();
-                optionGroup.addOption(Option.builder()
+                OptionGroup topLevelOptions = new OptionGroup();
+                topLevelOptions.addOption(Option.builder()
                         .longOpt(LS)
                         .desc("list files")
                         .hasArg()
                         .optionalArg(true)
                         .argName("PATH")
                         .build());
-                options.addOptionGroup(optionGroup);
+                topLevelOptions.addOption(Option.builder()
+                        .longOpt(ARCHIVE)
+                        .desc("archive file system")
+                        .hasArg()
+                        .optionalArg(true)
+                        .argName("FILE_SYSTEM_NAME")
+                        .build());
+                options.addOptionGroup(topLevelOptions);
+                options.addOption(Option.builder()
+                        .longOpt(OUTPUT_DIR)
+                        .desc("output directory")
+                        .hasArg()
+                        .argName("DIR")
+                        .build());
                 return options;
             }
 
@@ -92,14 +108,27 @@ public class AppFileSystemTool implements Tool {
 
     @Override
     public void run(CommandLine line, ToolRunningContext context) {
-        try (AppData appData = createAppData(context)) {
-            if (line.hasOption(LS)) {
+        if (line.hasOption(LS)) {
+            try (AppData appData = createAppData(context)) {
                 String path = line.getOptionValue(LS);
                 runLs(context, appData, path);
-            } else {
-                Command command = getCommand();
-                CommandLineTools.printCommandUsage(command.getName(), command.getOptions(), command.getUsageFooter(), context.getErrorStream());
             }
+        } else if (line.hasOption(ARCHIVE)) {
+            if (!line.hasOption(OUTPUT_DIR)) {
+                throw new AfsException("output-dir option is missing");
+            }
+            try (AppData appData = createAppData(context)) {
+                String fileSystemName = line.getOptionValue(ARCHIVE);
+                AppFileSystem fs = appData.getFileSystem(fileSystemName);
+                if (fs == null) {
+                    throw new  AfsException("File system '" + fileSystemName + "' not found");
+                }
+                Path outputDir = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_DIR));
+                fs.archive(outputDir);
+            }
+        } else {
+            Command command = getCommand();
+            CommandLineTools.printCommandUsage(command.getName(), command.getOptions(), command.getUsageFooter(), context.getErrorStream());
         }
     }
 }

@@ -37,8 +37,8 @@ import static org.junit.Assert.*;
  */
 public abstract class AbstractAppStorageTest {
 
-    private static final String FOLDER_PSEUDO_CLASS = "folder";
-    private static final String DATA_FILE_CLASS = "data";
+    static final String FOLDER_PSEUDO_CLASS = "folder";
+    static final String DATA_FILE_CLASS = "data";
 
     private ListenableAppStorage storage;
 
