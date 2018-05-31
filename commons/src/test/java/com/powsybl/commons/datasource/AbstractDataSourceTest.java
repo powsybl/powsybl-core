@@ -6,12 +6,10 @@
  */
 package com.powsybl.commons.datasource;
 
-import com.google.common.io.ByteStreams;
-import com.google.common.jimfs.Configuration;
-import com.google.common.jimfs.Jimfs;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,7 +19,13 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static org.junit.Assert.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import com.google.common.io.ByteStreams;
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -85,6 +89,17 @@ public abstract class AbstractDataSourceTest {
         // check files exists
         assertTrue(dataSource.exists(suffix, ext));
         assertTrue(dataSource.exists("dummy.txt"));
+
+        // check all listed names exist and we can read them
+        for (String name : dataSource.listNames(".*")) {
+            assertTrue(dataSource.exists(name));
+            try (InputStream is = dataSource.newInputStream(name)) {
+                // Ok, some content is available
+            }
+            catch (IOException x) {
+                fail(name);
+            }
+        }
 
         // check content is ok
         try (InputStream is = dataSource.newInputStream(suffix, ext)) {
