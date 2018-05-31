@@ -1343,8 +1343,8 @@ public class AmplNetworkWriter {
                                                                   new Column("bus"),
                                                                   new Column(CON_BUS),
                                                                   new Column(SUBSTATION),
-                                                                  new Column("minB (S)"),
-                                                                  new Column("maxB (S)"),
+                                                                  new Column("minB (pu)"),
+                                                                  new Column("maxB (pu)"),
                                                                   new Column(V_REGUL),
                                                                   new Column(TARGET_V),
                                                                   new Column(FAULT),
@@ -1367,14 +1367,15 @@ public class AmplNetworkWriter {
 
                 double vlSet = svc.getVoltageSetPoint();
                 double vb = t.getVoltageLevel().getNominalV();
+                double zb = vb * vb / AmplConstants.SB; //Base impedance
 
                 int vlNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, t.getVoltageLevel().getId());
                 formatter.writeCell(num)
                         .writeCell(busNum)
                         .writeCell(conBusNum)
                         .writeCell(vlNum)
-                        .writeCell(svc.getBmin())
-                        .writeCell(svc.getBmax())
+                        .writeCell((float) (svc.getBmin() * zb))
+                        .writeCell((float) (svc.getBmax() * zb))
                         .writeCell(svc.getRegulationMode().equals(RegulationMode.VOLTAGE))
                         .writeCell((float) (vlSet / vb))
                         .writeCell(faultNum)
