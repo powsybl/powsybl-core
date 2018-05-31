@@ -1,3 +1,3 @@
 #Static VAR compensators (svcTestCase/InitialState)
-#"num" "bus" "con. bus" "substation" "minB (S)" "maxB (S)" "v regul." "targetV (pu)" "fault" "curative" "id" "description" "P (MW)" "Q (MVar)"
-1 2 2 2 0.000200000 0.000800000 true 1.02632 0 0 "SVC2" "SVC2" -99999.0 -99999.0
+#"num" "bus" "con. bus" "substation" "minB (pu)" "maxB (pu)" "v regul." "targetV (pu)" "fault" "curative" "id" "description" "P (MW)" "Q (MVar)"
+1 2 2 2 0.288800 1.15520 true 1.02632 0 0 "SVC2" "SVC2" -99999.0 -99999.0
