@@ -227,8 +227,8 @@ public class AmplNetworkWriter {
             for (VoltageLevel vl : network.getVoltageLevels()) {
                 int num = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, vl.getId());
                 double nomV = vl.getNominalV();
-                float minV = (float) (vl.getLowVoltageLimit() / nomV);
-                float maxV = (float) (vl.getHighVoltageLimit() / nomV);
+                double minV = vl.getLowVoltageLimit() / nomV;
+                double maxV = vl.getHighVoltageLimit() / nomV;
                 formatter.writeCell(num)
                          .writeCell("")
                          .writeCell(0)
@@ -267,8 +267,8 @@ public class AmplNetworkWriter {
                 int num = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, vlId);
                 VoltageLevel vl = dl.getTerminal().getVoltageLevel();
                 double nomV = vl.getNominalV();
-                float minV = (float) (vl.getLowVoltageLimit() / nomV);
-                float maxV = (float) (vl.getHighVoltageLimit() / nomV);
+                double minV = vl.getLowVoltageLimit() / nomV;
+                double maxV = vl.getHighVoltageLimit() / nomV;
                 formatter.writeCell(num)
                          .writeCell("")
                          .writeCell(0)
@@ -366,7 +366,7 @@ public class AmplNetworkWriter {
                 int num = mapper.getInt(AmplSubset.BUS, id);
                 int vlNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, vl.getId());
                 double nomV = vl.getNominalV();
-                float v = (float) (b.getV() / nomV);
+                double v = b.getV() / nomV;
                 double theta = Math.toRadians(b.getAngle());
                 formatter.writeCell(num)
                     .writeCell(vlNum)
@@ -439,7 +439,7 @@ public class AmplNetworkWriter {
                 int middleVlNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, middleVlId);
                 SV sv = new SV(t.getP(), t.getQ(), b != null ? b.getV() : Double.NaN, b != null ? b.getAngle() : Double.NaN).otherSide(dl);
                 double nomV = t.getVoltageLevel().getNominalV();
-                float v = (float) (sv.getU() / nomV);
+                double v = sv.getU() / nomV;
                 double theta = Math.toRadians(sv.getA());
                 formatter.writeCell(middleBusNum)
                     .writeCell(middleVlNum)
@@ -583,12 +583,12 @@ public class AmplNetworkWriter {
                     .writeCell(-1)
                     .writeCell(vl1Num)
                     .writeCell(xNodeVoltageLevelNum)
-                    .writeCell((float) (tl.getHalf1().getR() / zb))
-                    .writeCell((float) (tl.getHalf1().getX() / zb))
-                    .writeCell((float) (tl.getHalf1().getG1() * zb))
-                    .writeCell((float) (tl.getHalf1().getG2() * zb))
-                    .writeCell((float) (tl.getHalf1().getB1() * zb))
-                    .writeCell((float) (tl.getHalf1().getB2() * zb))
+                    .writeCell(tl.getHalf1().getR() / zb)
+                    .writeCell(tl.getHalf1().getX() / zb)
+                    .writeCell(tl.getHalf1().getG1() * zb)
+                    .writeCell(tl.getHalf1().getG2() * zb)
+                    .writeCell(tl.getHalf1().getB1() * zb)
+                    .writeCell(tl.getHalf1().getB2() * zb)
                     .writeCell(1f) // constant ratio
                     .writeCell(-1) // no ratio tap changer
                     .writeCell(-1) // no phase tap changer
@@ -609,12 +609,12 @@ public class AmplNetworkWriter {
                     .writeCell(-1)
                     .writeCell(xNodeVoltageLevelNum)
                     .writeCell(vl2Num)
-                    .writeCell((float) (tl.getHalf2().getR() / zb))
-                    .writeCell((float) (tl.getHalf2().getX() / zb))
-                    .writeCell((float) (tl.getHalf2().getG1() * zb))
-                    .writeCell((float) (tl.getHalf2().getG2() * zb))
-                    .writeCell((float) (tl.getHalf2().getB1() * zb))
-                    .writeCell((float) (tl.getHalf2().getB2() * zb))
+                    .writeCell(tl.getHalf2().getR() / zb)
+                    .writeCell(tl.getHalf2().getX() / zb)
+                    .writeCell(tl.getHalf2().getG1() * zb)
+                    .writeCell(tl.getHalf2().getG2() * zb)
+                    .writeCell(tl.getHalf2().getB1() * zb)
+                    .writeCell(tl.getHalf2().getB2() * zb)
                     .writeCell(1f) // constant ratio
                     .writeCell(-1) // no ratio tap changer
                     .writeCell(-1) // no phase tap changer
@@ -636,12 +636,12 @@ public class AmplNetworkWriter {
                     .writeCell(-1)
                     .writeCell(vl1Num)
                     .writeCell(vl2Num)
-                    .writeCell((float) (l.getR() / zb))
-                    .writeCell((float) (l.getX() / zb))
-                    .writeCell((float) (l.getG1() * zb))
-                    .writeCell((float) (l.getG2() * zb))
-                    .writeCell((float) (l.getB1() * zb))
-                    .writeCell((float) (l.getB2() * zb))
+                    .writeCell(l.getR() / zb)
+                    .writeCell(l.getX() / zb)
+                    .writeCell(l.getG1() * zb)
+                    .writeCell(l.getG2() * zb)
+                    .writeCell(l.getB1() * zb)
+                    .writeCell(l.getB2() * zb)
                     .writeCell(1f) // constant ratio
                     .writeCell(-1) // no ratio tap changer
                     .writeCell(-1) // no phase tap changer
@@ -720,13 +720,13 @@ public class AmplNetworkWriter {
                 .writeCell(-1)
                 .writeCell(vl1Num)
                 .writeCell(vl2Num)
-                .writeCell((float) r)
-                .writeCell((float) x)
-                .writeCell((float) g1)
-                .writeCell((float) g2)
-                .writeCell((float) b1)
-                .writeCell((float) b2)
-                .writeCell((float) ratio)
+                .writeCell(r)
+                .writeCell(x)
+                .writeCell(g1)
+                .writeCell(g2)
+                .writeCell(b1)
+                .writeCell(b2)
+                .writeCell(ratio)
                 .writeCell(rtcNum)
                 .writeCell(ptcNum)
                 .writeCell(t1.getP())
@@ -810,12 +810,12 @@ public class AmplNetworkWriter {
                     .writeCell(num3wt)
                     .writeCell(middleVlNum)
                     .writeCell(vl1Num)
-                    .writeCell((float) r1)
-                    .writeCell((float) x1)
-                    .writeCell((float) g1)
-                    .writeCell(0f)
-                    .writeCell((float) b1)
-                    .writeCell(0f)
+                    .writeCell(r1)
+                    .writeCell(x1)
+                    .writeCell(g1)
+                    .writeCell(0.0)
+                    .writeCell(b1)
+                    .writeCell(0.0)
                     .writeCell(1f) // ratio is one at primary leg
                     .writeCell(-1)
                     .writeCell(-1)
@@ -839,13 +839,13 @@ public class AmplNetworkWriter {
                     .writeCell(num3wt)
                     .writeCell(vl2Num)
                     .writeCell(middleVlNum)
-                    .writeCell((float) r2)
-                    .writeCell((float) x2)
-                    .writeCell(0f)
-                    .writeCell(0f)
-                    .writeCell(0f)
-                    .writeCell(0f)
-                    .writeCell((float) ratio2)
+                    .writeCell(r2)
+                    .writeCell(x2)
+                    .writeCell(0.0)
+                    .writeCell(0.0)
+                    .writeCell(0.0)
+                    .writeCell(0.0)
+                    .writeCell(ratio2)
                     .writeCell(rtc2Num)
                     .writeCell(-1)
                     .writeCell(t2.getP())
@@ -868,13 +868,13 @@ public class AmplNetworkWriter {
                     .writeCell(num3wt)
                     .writeCell(vl3Num)
                     .writeCell(middleVlNum)
-                    .writeCell((float) r3)
-                    .writeCell((float) x3)
-                    .writeCell(0f)
-                    .writeCell(0f)
-                    .writeCell(0f)
-                    .writeCell(0f)
-                    .writeCell((float) ratio3)
+                    .writeCell(r3)
+                    .writeCell(x3)
+                    .writeCell(0.0)
+                    .writeCell(0.0)
+                    .writeCell(0.0)
+                    .writeCell(0.0)
+                    .writeCell(ratio3)
                     .writeCell(rtc3Num)
                     .writeCell(-1)
                     .writeCell(t3.getP())
@@ -926,12 +926,12 @@ public class AmplNetworkWriter {
                 .writeCell(-1)
                 .writeCell(vl1Num)
                 .writeCell(middleVlNum)
-                .writeCell((float) (dl.getR() / zb))
-                .writeCell((float) (dl.getX() / zb))
-                .writeCell((float) (dl.getG() / 2 * zb))
-                .writeCell((float) (dl.getG() / 2 * zb))
-                .writeCell((float) (dl.getB() / 2 * zb))
-                .writeCell((float) (dl.getB() / 2 * zb))
+                .writeCell(dl.getR() / zb)
+                .writeCell(dl.getX() / zb)
+                .writeCell(dl.getG() / 2 * zb)
+                .writeCell(dl.getG() / 2 * zb)
+                .writeCell(dl.getB() / 2 * zb)
+                .writeCell(dl.getB() / 2 * zb)
                 .writeCell(1f)  // constant ratio
                 .writeCell(-1) // no ratio tap changer
                 .writeCell(-1) // no phase tap changer
@@ -1035,7 +1035,7 @@ public class AmplNetworkWriter {
             formatter.writeCell(num)
                 .writeCell(position - rtc.getLowTapPosition() + 1)
                 .writeCell(step.getRho())
-                .writeCell((float) x)
+                .writeCell(x)
                 .writeCell(0.0)
                 .writeCell(faultNum)
                 .writeCell(actionNum);
@@ -1051,7 +1051,7 @@ public class AmplNetworkWriter {
             formatter.writeCell(num)
                 .writeCell(position - ptc.getLowTapPosition() + 1)
                 .writeCell(step.getRho())
-                .writeCell((float) x)
+                .writeCell(x)
                 .writeCell(Math.toRadians(step.getAlpha()))
                 .writeCell(faultNum)
                 .writeCell(actionNum);
@@ -1313,10 +1313,10 @@ public class AmplNetworkWriter {
                          .writeCell(busNum)
                          .writeCell(conBusNum != -1 ? conBusNum : busNum)
                          .writeCell(vlNum)
-                         .writeCell((float) minB)
-                         .writeCell((float) maxB)
+                         .writeCell(minB)
+                         .writeCell(maxB)
                          .writeCell(points)
-                         .writeCell((float) b)
+                         .writeCell(b)
                          .writeCell(faultNum)
                          .writeCell(actionNum)
                          .writeCell(id)
@@ -1374,10 +1374,10 @@ public class AmplNetworkWriter {
                         .writeCell(busNum)
                         .writeCell(conBusNum)
                         .writeCell(vlNum)
-                        .writeCell((float) (svc.getBmin() * zb))
-                        .writeCell((float) (svc.getBmax() * zb))
+                        .writeCell(svc.getBmin() * zb)
+                        .writeCell(svc.getBmax() * zb)
                         .writeCell(svc.getRegulationMode().equals(RegulationMode.VOLTAGE))
-                        .writeCell((float) (vlSet / vb))
+                        .writeCell(vlSet / vb)
                         .writeCell(faultNum)
                         .writeCell(actionNum)
                         .writeCell(id)
@@ -1459,7 +1459,7 @@ public class AmplNetworkWriter {
                          .writeCell(g.getReactiveLimits().getMaxQ(maxP))
                          .writeCell(g.getReactiveLimits().getMaxQ(minP))
                          .writeCell(g.isVoltageRegulatorOn())
-                         .writeCell((float) (g.getTargetV() / vb))
+                         .writeCell(g.getTargetV() / vb)
                          .writeCell(g.getTargetP())
                          .writeCell(g.getTargetQ())
                          .writeCell(faultNum)
@@ -1718,7 +1718,7 @@ public class AmplNetworkWriter {
                             .writeCell(vscStation.getReactiveLimits().getMaxQ(0))
                             .writeCell(vscStation.getReactiveLimits().getMaxQ(minP))
                             .writeCell(vscStation.isVoltageRegulatorOn())
-                            .writeCell((float) (vlSet / vb))
+                            .writeCell(vlSet / vb)
                             .writeCell(vscStation.getReactivePowerSetpoint())
                             .writeCell(vscStation.getLossFactor())
                             .writeCell(faultNum)
