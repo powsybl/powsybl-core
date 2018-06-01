@@ -6,6 +6,7 @@
  */
 package com.powsybl.afs.storage;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
@@ -21,6 +22,9 @@ import org.threeten.extra.Interval;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.UncheckedIOException;
+import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Arrays;
@@ -29,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 
@@ -175,7 +180,7 @@ public abstract class AbstractAppStorageTest {
         // check info are correctly stored even with metadata
         assertEquals(testData2Info, storage.getNodeInfo(testData2Info.getId()));
 
-        // check test folder has 2 children
+        // check test folder has 3 children
         assertEquals(3, storage.getChildNodes(testFolderInfo.getId()).size());
 
         // check data nodes initial dependency state
@@ -183,6 +188,42 @@ public abstract class AbstractAppStorageTest {
         assertTrue(storage.getDependencies(testData2Info.getId()).isEmpty());
         assertTrue(storage.getBackwardDependencies(testDataInfo.getId()).isEmpty());
         assertTrue(storage.getBackwardDependencies(testData2Info.getId()).isEmpty());
+
+        // 5b) create named data items in test folder
+        DataSource ds1 = new AppStorageDataSource(storage, testFolderInfo.getId(), testFolderInfo.getName());
+        try (Writer writer = new OutputStreamWriter(storage.writeBinaryData(testFolderInfo.getId(), "testData1"), StandardCharsets.UTF_8)) {
+            writer.write("Content for testData1");
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+        try (Writer writer = new OutputStreamWriter(storage.writeBinaryData(testFolderInfo.getId(), "testData2"), StandardCharsets.UTF_8)) {
+            writer.write("Content for testData2");
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+        try (Writer writer = new OutputStreamWriter(storage.writeBinaryData(testFolderInfo.getId(), "dataTest3"), StandardCharsets.UTF_8)) {
+            writer.write("Content for dataTest3");
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+        storage.flush();
+
+        // check events
+        assertEventStack(new NodeDataUpdated(testFolderInfo.getId(), "testData1"),
+                new NodeDataUpdated(testFolderInfo.getId(), "testData2"),
+                new NodeDataUpdated(testFolderInfo.getId(), "dataTest3"));
+
+        // check data names
+        assertEquals(ImmutableSet.of("testData2", "testData1", "dataTest3"), storage.getDataNames(testFolderInfo.getId()));
+
+        // check data names seen from data source
+        assertEquals(ImmutableSet.of("testData2", "testData1"), ds1.listNames("^testD.*"));
+
+        // check children names (not data names)
+        List<String> expectedChildrenNames = ImmutableList.of("data", "data2", "data3");
+        List<String> actualChildrenNames = storage.getChildNodes(testFolderInfo.getId()).stream()
+                .map(n -> n.getName()).collect(Collectors.toList());
+        assertEquals(expectedChildrenNames, actualChildrenNames);
 
         // 6) create a dependency between data node and data node 2
         storage.addDependency(testDataInfo.getId(), "mylink", testData2Info.getId());
