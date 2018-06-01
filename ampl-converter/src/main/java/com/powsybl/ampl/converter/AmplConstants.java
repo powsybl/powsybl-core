@@ -21,6 +21,9 @@ public final class AmplConstants {
 
     public static final Locale LOCALE = Locale.US;
 
+    /**
+     * Base power for computations = 100 MVA.
+     */
     public static final float SB = 100f;
 
     public static final String LEG1_SUFFIX = "_leg1";
