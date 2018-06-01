@@ -641,6 +641,15 @@ public interface VoltageLevel extends Container<VoltageLevel> {
          */
         Bus getBus(String id);
 
+        /**
+         * Get the merged bus that includes the given configured bus or Busbar section.
+         *<p>
+         * Depends on the working state.
+         * @param configuredBusId The id of the configured bus or busbar section.
+         * @return the merged bus or <code>null</code> if not found
+         * @see StateManager
+         */
+        Bus getMergedBus(String configuredBusId);
     }
 
     /**
