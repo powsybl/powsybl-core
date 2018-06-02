@@ -6,11 +6,9 @@
  */
 package com.powsybl.afs.storage;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import com.powsybl.afs.storage.json.AppStorageJsonModule;
 import com.powsybl.math.timeseries.RegularTimeSeriesIndex;
 import com.powsybl.math.timeseries.TimeSeriesDataType;
 import com.powsybl.math.timeseries.TimeSeriesMetadata;
@@ -28,9 +26,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -42,11 +37,14 @@ public abstract class AbstractAppStorageArchiveTest {
 
     private AppStorage storage;
 
+    private AppStorage storage2;
+
     private FileSystem fileSystem;
 
     @Before
     public void setUp() {
         storage = createStorage();
+        storage2 = createStorage();
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
     }
 
@@ -54,15 +52,10 @@ public abstract class AbstractAppStorageArchiveTest {
     public void tearDown() throws IOException {
         fileSystem.close();
         storage.close();
+        storage2.close();
     }
 
     protected abstract AppStorage createStorage();
-
-    private static List<Path> getChildPath(Path dir) throws IOException {
-        try (Stream<Path> stream = Files.list(dir)) {
-            return stream.collect(Collectors.toList());
-        }
-    }
 
     @Test
     public void archive() throws IOException  {
@@ -95,26 +88,17 @@ public abstract class AbstractAppStorageArchiveTest {
 
         // archive
         Path workDir = fileSystem.getPath("/work");
-        new AppStorageArchive(storage)
-                .archive(rootFolderInfo.getId(), workDir);
+        new AppStorageArchive(storage).archive(rootFolderInfo.getId(), workDir);
 
-        ObjectMapper mapper = new ObjectMapper()
-                .registerModule(new AppStorageJsonModule());
+        Path rootPath = workDir.resolve(rootFolderInfo.getId());
+        assertTrue(Files.exists(rootPath));
 
-        assertEquals(1, getChildPath(workDir).size());
-        Path rootPath = getChildPath(workDir).get(0);
-        assertEquals(rootFolderInfo.getId(), rootPath.getFileName().toString());
-        assertEquals(2, getChildPath(rootPath).size());
-        assertTrue(Files.exists(rootPath.resolve("children")));
-        assertTrue(Files.exists(rootPath.resolve("info.json")));
-        assertEquals(rootFolderInfo, mapper.readValue(Files.readAllBytes(rootPath.resolve("info.json")), NodeInfo.class));
-        assertEquals(2, getChildPath(rootPath.resolve("children")).size());
-        Path folder1Path = rootPath.resolve("children").resolve(folder1Info.getId());
-        assertTrue(Files.exists(folder1Path));
-        assertEquals(folder1Info, mapper.readValue(Files.readAllBytes(folder1Path.resolve("info.json")), NodeInfo.class));
-        Path folder2Path = rootPath.resolve("children").resolve(folder2Info.getId());
-        assertTrue(Files.exists(folder2Path));
-        assertEquals(folder2Info, mapper.readValue(Files.readAllBytes(folder2Path.resolve("info.json")), NodeInfo.class));
+        // unarchive to the second storage
+        new AppStorageArchive(storage2).unarchive(rootPath);
+
+        // check we have same data in storage and storage2
+        NodeInfo rootFolderInfo2 = storage2.createRootNodeIfNotExists(storage.getFileSystemName(), AbstractAppStorageTest.FOLDER_PSEUDO_CLASS);
+        assertEquals(2, storage2.getChildNodes(rootFolderInfo2.getId()).size());
 
     }
 }
