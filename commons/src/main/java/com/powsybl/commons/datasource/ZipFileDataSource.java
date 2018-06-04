@@ -6,13 +6,6 @@
  */
 package com.powsybl.commons.datasource;
 
-import com.google.common.io.ByteStreams;
-import com.powsybl.commons.io.ForwardingInputStream;
-import com.powsybl.commons.io.ForwardingOutputStream;
-import net.java.truevfs.comp.zip.ZipEntry;
-import net.java.truevfs.comp.zip.ZipFile;
-import net.java.truevfs.comp.zip.ZipOutputStream;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -20,7 +13,18 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
+import java.util.regex.Pattern;
+
+import com.google.common.io.ByteStreams;
+import com.powsybl.commons.io.ForwardingInputStream;
+import com.powsybl.commons.io.ForwardingOutputStream;
+
+import net.java.truevfs.comp.zip.ZipEntry;
+import net.java.truevfs.comp.zip.ZipFile;
+import net.java.truevfs.comp.zip.ZipOutputStream;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -194,5 +198,23 @@ public class ZipFileDataSource implements DataSource {
     @Override
     public OutputStream newOutputStream(String suffix, String ext, boolean append) throws IOException {
         return newOutputStream(DataSourceUtil.getFileName(baseName, suffix, ext), append);
+    }
+
+    @Override
+    public Set<String> listNames(String regex) throws IOException {
+        // Consider only files in the given folder, do not go into folders
+        Pattern p = Pattern.compile(regex);
+        Set<String> names = new HashSet<>();
+        Path zipFilePath = getZipFilePath();
+        try (ZipFile zipFile = new ZipFile(zipFilePath)) {
+            Enumeration<? extends ZipEntry> e = zipFile.entries();
+            while (e.hasMoreElements()) {
+                ZipEntry zipEntry = e.nextElement();
+                if (!zipEntry.isDirectory() && p.matcher(zipEntry.getName()).matches()) {
+                    names.add(zipEntry.getName());
+                }
+            }
+        }
+        return names;
     }
 }
