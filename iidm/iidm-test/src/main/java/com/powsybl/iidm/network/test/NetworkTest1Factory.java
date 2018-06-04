@@ -6,17 +6,7 @@
  */
 package com.powsybl.iidm.network.test;
 
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Switch;
-import com.powsybl.iidm.network.TopologyKind;
-import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.Substation;
-import com.powsybl.iidm.network.NetworkFactory;
-import com.powsybl.iidm.network.BusbarSection;
-import com.powsybl.iidm.network.VoltageLevel;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.EnergySource;
+import com.powsybl.iidm.network.*;
 
 /**
  *
@@ -50,7 +40,7 @@ public final class NetworkTest1Factory {
                 .setId("voltageLevel1BusbarSection2")
                 .setNode(1)
                 .add();
-        Switch voltageLevel1Breaker1 = topology1.newBreaker()
+        topology1.newBreaker()
                 .setId("voltageLevel1Breaker1")
                 .setRetained(true)
                 .setOpen(false)
@@ -63,13 +53,13 @@ public final class NetworkTest1Factory {
                 .setP0(10)
                 .setQ0(3)
                 .add();
-        Switch load1Disconnector1 = topology1.newDisconnector()
+        topology1.newDisconnector()
                 .setId("load1Disconnector1")
                 .setOpen(false)
                 .setNode1(load1.getTerminal().getNodeBreakerView().getNode())
                 .setNode2(3)
                 .add();
-        Switch load1Breaker1 = topology1.newDisconnector()
+        topology1.newDisconnector()
                 .setId("load1Breaker1")
                 .setOpen(false)
                 .setNode1(3)
@@ -89,13 +79,13 @@ public final class NetworkTest1Factory {
                 .beginPoint().setP(200.0).setMinQ(300.0).setMaxQ(500.0).endPoint()
                 .beginPoint().setP(900.0).setMinQ(300.0).setMaxQ(500.0).endPoint()
                 .add();
-        Switch generator1Disconnector1 = topology1.newDisconnector()
+        topology1.newDisconnector()
                 .setId("generator1Disconnector1")
                 .setOpen(false)
                 .setNode1(generator1.getTerminal().getNodeBreakerView().getNode())
                 .setNode2(6)
                 .add();
-        Switch generator1Breaker1 = topology1.newDisconnector()
+        topology1.newDisconnector()
                 .setId("generator1Breaker1")
                 .setOpen(false)
                 .setNode1(6)

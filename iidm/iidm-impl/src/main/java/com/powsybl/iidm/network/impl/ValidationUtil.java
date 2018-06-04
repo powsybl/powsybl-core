@@ -14,6 +14,9 @@ import org.joda.time.DateTime;
  */
 public final class ValidationUtil {
 
+
+    private static final String INVALID_VALUE = "invalid value (";
+
     private ValidationUtil() {
     }
 
@@ -27,7 +30,7 @@ public final class ValidationUtil {
 
     static void checkActivePowerSetpoint(Validable validable, double activePowerSetpoint) {
         if (Double.isNaN(activePowerSetpoint)) {
-            throw new ValidationException(validable, "invalid value (" + activePowerSetpoint
+            throw new ValidationException(validable, INVALID_VALUE + activePowerSetpoint
                     + ") for active power setpoint");
         }
     }
@@ -46,11 +49,11 @@ public final class ValidationUtil {
         if (voltageRegulatorOn) {
             if (Double.isNaN(voltageSetpoint) || voltageSetpoint <= 0) {
                 throw new ValidationException(validable,
-                        "invalid value (" + voltageSetpoint + ") for voltage setpoint (voltage regulator is on)");
+                        INVALID_VALUE + voltageSetpoint + ") for voltage setpoint (voltage regulator is on)");
             }
         } else {
             if (Double.isNaN(reactivePowerSetpoint)) {
-                throw new ValidationException(validable, "invalid value (" + reactivePowerSetpoint
+                throw new ValidationException(validable, INVALID_VALUE + reactivePowerSetpoint
                         + ") for reactive power setpoint (voltage regulator is off)");
             }
         }
@@ -70,14 +73,14 @@ public final class ValidationUtil {
 
     static void checkMinP(Validable validable, double minP) {
         if (Double.isNaN(minP)) {
-            throw new ValidationException(validable, "invalid value (" + minP
+            throw new ValidationException(validable, INVALID_VALUE + minP
                     + ") for minimum P");
         }
     }
 
     static void checkMaxP(Validable validable, double maxP) {
         if (Double.isNaN(maxP)) {
-            throw new ValidationException(validable, "invalid value (" + maxP
+            throw new ValidationException(validable, INVALID_VALUE + maxP
                     + ") for maximum P");
         }
     }
@@ -245,14 +248,14 @@ public final class ValidationUtil {
         switch (regulationMode) {
             case VOLTAGE:
                 if (Double.isNaN(voltageSetpoint)) {
-                    throw new ValidationException(validable, "invalid value (" + voltageSetpoint
+                    throw new ValidationException(validable, INVALID_VALUE + voltageSetpoint
                             + ") for voltage setpoint");
                 }
                 break;
 
             case REACTIVE_POWER:
                 if (Double.isNaN(reactivePowerSetpoint)) {
-                    throw new ValidationException(validable, "invalid value (" + reactivePowerSetpoint
+                    throw new ValidationException(validable, INVALID_VALUE + reactivePowerSetpoint
                             + ") for reactive power setpoint");
                 }
                 break;
@@ -281,22 +284,20 @@ public final class ValidationUtil {
 
     static void checkRatioTapChangerRegulation(Validable validable, boolean loadTapChangingCapabilities, boolean regulating,
                                                Terminal regulationTerminal, double targetV, Network network) {
-        if (loadTapChangingCapabilities) {
-            if (regulating) {
-                if (Double.isNaN(targetV)) {
-                    throw new ValidationException(validable,
-                            "a target voltage has to be set for a regulating ratio tap changer");
-                }
-                if (targetV <= 0) {
-                    throw new ValidationException(validable, "bad target voltage " + targetV);
-                }
-                if (regulationTerminal == null) {
-                    throw new ValidationException(validable,
-                            "a regulation terminal has to be set for a regulating ratio tap changer");
-                }
-                if (regulationTerminal.getVoltageLevel().getSubstation().getNetwork() != network) {
-                    throw new ValidationException(validable, "regulation terminal is not part of the network");
-                }
+        if (loadTapChangingCapabilities && regulating) {
+            if (Double.isNaN(targetV)) {
+                throw new ValidationException(validable,
+                        "a target voltage has to be set for a regulating ratio tap changer");
+            }
+            if (targetV <= 0) {
+                throw new ValidationException(validable, "bad target voltage " + targetV);
+            }
+            if (regulationTerminal == null) {
+                throw new ValidationException(validable,
+                        "a regulation terminal has to be set for a regulating ratio tap changer");
+            }
+            if (regulationTerminal.getVoltageLevel().getSubstation().getNetwork() != network) {
+                throw new ValidationException(validable, "regulation terminal is not part of the network");
             }
         }
     }
