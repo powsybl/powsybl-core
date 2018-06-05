@@ -287,6 +287,7 @@ public class AppStorageArchive {
         Path timeSeriesDir = nodeDir.resolve("time-series");
         if (Files.exists(timeSeriesDir)) {
             Set<String> timeSeriesNames = new HashSet<>();
+            int[] chunkCount = new int[1];
             try (Stream<Path> stream = Files.list(timeSeriesDir)) {
                 stream.forEach(timeSeriesNameDir -> {
                     String timeSeriesName = timeSeriesNameDir.getFileName().toString();
@@ -309,12 +310,14 @@ public class AppStorageArchive {
                                         case DOUBLE:
                                             List<DoubleArrayChunk> doubleChunks = mapper.readerFor(new TypeReference<List<DoubleArrayChunk>>() {
                                             }).readValue(reader);
+                                            chunkCount[0] += doubleChunks.size();
                                             storage.addDoubleTimeSeriesData(newNodeInfo.getId(), version, timeSeriesName, doubleChunks);
                                             break;
 
                                         case STRING:
                                             List<StringArrayChunk> stringChunks = mapper.readerFor(new TypeReference<List<StringArrayChunk>>() {
                                             }).readValue(reader);
+                                            chunkCount[0] += stringChunks.size();
                                             storage.addStringTimeSeriesData(newNodeInfo.getId(), version, timeSeriesName, stringChunks);
                                             break;
 
@@ -329,7 +332,7 @@ public class AppStorageArchive {
                     }
                 });
             }
-            LOGGER.info("   {} time series read", timeSeriesNames.size());
+            LOGGER.info("   {} time series read ({} chunks)", timeSeriesNames.size(), chunkCount[0]);
         }
     }
 
@@ -366,6 +369,8 @@ public class AppStorageArchive {
         readData(newNodeInfo, nodeDir);
 
         readTimeSeries(newNodeInfo, nodeDir);
+
+        storage.flush();
 
         unarchiveChildren(newNodeInfo, nodeDir, context);
     }
