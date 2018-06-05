@@ -277,6 +277,16 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
         if (tokens.length < 2 || !"Time".equals(tokens[0]) || !"Version".equals(tokens[1])) {
             throw new TimeSeriesException("Bad CSV header, should be \nTime" + separatorStr + "Version" + separatorStr + "...");
         }
+        List<String> duplicates = new ArrayList<>();
+        Set<String> namesWithoutDuplicates = new HashSet<>();
+        for (int i = 0; i < tokens.length; i++) {
+            if (!namesWithoutDuplicates.add(tokens[i])) {
+                duplicates.add(tokens[i]);
+            }
+        }
+        if (!duplicates.isEmpty()) {
+            throw new TimeSeriesException("Bad CSV header, there are duplicates in time series names " + duplicates);
+        }
         List<String> names = Arrays.asList(tokens).subList(2, tokens.length);
         return new CsvParsingContext(names);
     }
