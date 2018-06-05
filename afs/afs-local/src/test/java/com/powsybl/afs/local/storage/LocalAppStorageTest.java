@@ -90,7 +90,7 @@ public class LocalAppStorageTest {
         assertEquals(Case.PSEUDO_CLASS, case1.get().getPseudoClass());
         assertEquals("TEST", case1.get().getGenericMetadata().getString("format"));
         assertEquals("Test format", case1.get().getDescription());
-        DataSource ds = new AppStorageDataSource(storage, case1.get().getId());
+        DataSource ds = new AppStorageDataSource(storage, case1.get().getId(), case1.get().getName());
         assertNotNull(ds);
     }
 }

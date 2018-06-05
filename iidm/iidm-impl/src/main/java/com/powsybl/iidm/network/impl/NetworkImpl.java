@@ -437,13 +437,38 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Mult
     }
 
     @Override
+    public Iterable<Switch> getSwitches() {
+        return Collections.unmodifiableCollection(objectStore.getAll(SwitchImpl.class));
+    }
+
+    @Override
     public Stream<Switch> getSwitchStream() {
         return objectStore.getAll(SwitchImpl.class).stream().map(Function.identity());
     }
 
     @Override
+    public int getSwitchCount() {
+        return objectStore.getAll(SwitchImpl.class).size();
+    }
+
+    @Override
     public BusbarSection getBusbarSection(String id) {
         return objectStore.get(id, BusbarSectionImpl.class);
+    }
+
+    @Override
+    public Iterable<BusbarSection> getBusbarSections() {
+        return Collections.unmodifiableCollection(objectStore.getAll(BusbarSectionImpl.class));
+    }
+
+    @Override
+    public Stream<BusbarSection> getBusbarSectionStream() {
+        return objectStore.getAll(BusbarSectionImpl.class).stream().map(Function.identity());
+    }
+
+    @Override
+    public int getBusbarSectionCount() {
+        return objectStore.getAll(BusbarSectionImpl.class).size();
     }
 
     @Override

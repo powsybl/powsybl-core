@@ -6,13 +6,16 @@
  */
 package com.powsybl.afs.storage;
 
-import com.powsybl.commons.datasource.DataSource;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.util.Objects;
+import java.util.Set;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import com.powsybl.commons.datasource.DataSource;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -120,18 +123,21 @@ public class AppStorageDataSource implements DataSource {
 
     private final String nodeId;
 
-    public AppStorageDataSource(AppStorage storage, String nodeId) {
+    private final String nodeName;
+
+    public AppStorageDataSource(AppStorage storage, String nodeId, String nodeName) {
         this.storage = Objects.requireNonNull(storage);
         this.nodeId = Objects.requireNonNull(nodeId);
+        this.nodeName = Objects.requireNonNull(nodeName);
     }
 
     @Override
     public String getBaseName() {
-        return "";
+        return nodeName;
     }
 
     @Override
-    public OutputStream newOutputStream(final String suffix, final String ext, boolean append) throws IOException {
+    public OutputStream newOutputStream(final String suffix, final String ext, boolean append) {
         if (append) {
             throw new UnsupportedOperationException("Append mode not supported");
         }
@@ -139,7 +145,7 @@ public class AppStorageDataSource implements DataSource {
     }
 
     @Override
-    public OutputStream newOutputStream(String fileName, boolean append) throws IOException {
+    public OutputStream newOutputStream(String fileName, boolean append) {
         Objects.requireNonNull(fileName);
         if (append) {
             throw new UnsupportedOperationException("Append mode not supported");
@@ -153,7 +159,7 @@ public class AppStorageDataSource implements DataSource {
     }
 
     @Override
-    public boolean exists(String fileName) throws IOException {
+    public boolean exists(String fileName) {
         return storage.dataExists(nodeId, new FileName(fileName).toString());
     }
 
@@ -167,5 +173,13 @@ public class AppStorageDataSource implements DataSource {
     public InputStream newInputStream(String fileName) throws IOException {
         return storage.readBinaryData(nodeId, new FileName(fileName).toString())
                 .orElseThrow(() -> new IOException(fileName + " does not exist"));
+    }
+
+    @Override
+    public Set<String> listNames(String regex) throws IOException {
+        Pattern p = Pattern.compile(regex);
+        return storage.getDataNames(nodeId).stream()
+                .filter(name -> p.matcher(name).matches())
+                .collect(Collectors.toSet());
     }
 }

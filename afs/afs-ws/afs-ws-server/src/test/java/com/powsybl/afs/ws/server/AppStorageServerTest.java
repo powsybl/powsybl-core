@@ -48,8 +48,8 @@ public class AppStorageServerTest extends AbstractAppStorageTest {
                                .withClassPathResolution(true)
                                .loadPomFromFile("pom.xml")
                                .importRuntimeDependencies()
-                               .resolve("org.mockito:mockito-all:1.10.19",
-                                        "com.powsybl:powsybl-afs-mapdb:1.1.0-SNAPSHOT")
+                               .resolve("org.mockito:mockito-all",
+                                        "com.powsybl:powsybl-afs-mapdb")
                                .withTransitivity()
                                .asFile();
 

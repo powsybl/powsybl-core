@@ -6,6 +6,7 @@
  */
 package com.powsybl.afs.storage;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
@@ -21,13 +22,18 @@ import org.threeten.extra.Interval;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.UncheckedIOException;
+import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 
@@ -174,7 +180,7 @@ public abstract class AbstractAppStorageTest {
         // check info are correctly stored even with metadata
         assertEquals(testData2Info, storage.getNodeInfo(testData2Info.getId()));
 
-        // check test folder has 2 children
+        // check test folder has 3 children
         assertEquals(3, storage.getChildNodes(testFolderInfo.getId()).size());
 
         // check data nodes initial dependency state
@@ -182,6 +188,42 @@ public abstract class AbstractAppStorageTest {
         assertTrue(storage.getDependencies(testData2Info.getId()).isEmpty());
         assertTrue(storage.getBackwardDependencies(testDataInfo.getId()).isEmpty());
         assertTrue(storage.getBackwardDependencies(testData2Info.getId()).isEmpty());
+
+        // 5b) create named data items in test folder
+        DataSource ds1 = new AppStorageDataSource(storage, testFolderInfo.getId(), testFolderInfo.getName());
+        try (Writer writer = new OutputStreamWriter(storage.writeBinaryData(testFolderInfo.getId(), "testData1"), StandardCharsets.UTF_8)) {
+            writer.write("Content for testData1");
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+        try (Writer writer = new OutputStreamWriter(storage.writeBinaryData(testFolderInfo.getId(), "testData2"), StandardCharsets.UTF_8)) {
+            writer.write("Content for testData2");
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+        try (Writer writer = new OutputStreamWriter(storage.writeBinaryData(testFolderInfo.getId(), "dataTest3"), StandardCharsets.UTF_8)) {
+            writer.write("Content for dataTest3");
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+        storage.flush();
+
+        // check events
+        assertEventStack(new NodeDataUpdated(testFolderInfo.getId(), "testData1"),
+                new NodeDataUpdated(testFolderInfo.getId(), "testData2"),
+                new NodeDataUpdated(testFolderInfo.getId(), "dataTest3"));
+
+        // check data names
+        assertEquals(ImmutableSet.of("testData2", "testData1", "dataTest3"), storage.getDataNames(testFolderInfo.getId()));
+
+        // check data names seen from data source
+        assertEquals(ImmutableSet.of("testData2", "testData1"), ds1.listNames("^testD.*"));
+
+        // check children names (not data names)
+        List<String> expectedChildrenNames = ImmutableList.of("data", "data2", "data3");
+        List<String> actualChildrenNames = storage.getChildNodes(testFolderInfo.getId()).stream()
+                .map(n -> n.getName()).collect(Collectors.toList());
+        assertEquals(expectedChildrenNames, actualChildrenNames);
 
         // 6) create a dependency between data node and data node 2
         storage.addDependency(testDataInfo.getId(), "mylink", testData2Info.getId());
@@ -268,8 +310,8 @@ public abstract class AbstractAppStorageTest {
         assertFalse(storage.readBinaryData(testData2Info.getId(), "blob").isPresent());
 
         // 11) check data source using pattern api
-        DataSource ds = new AppStorageDataSource(storage, testData2Info.getId());
-        assertEquals("", ds.getBaseName());
+        DataSource ds = new AppStorageDataSource(storage, testData2Info.getId(), testData2Info.getName());
+        assertEquals(testData2Info.getName(), ds.getBaseName());
         assertFalse(ds.exists(null, "ext"));
         try (OutputStream os = ds.newOutputStream(null, "ext", false)) {
             os.write("word1".getBytes(StandardCharsets.UTF_8));
@@ -343,11 +385,12 @@ public abstract class AbstractAppStorageTest {
         assertEquals(ImmutableSet.of(0), storage.getTimeSeriesDataVersions(testData2Info.getId(), "ts1"));
 
         // check double time series data query
-        List<DoubleTimeSeries> doubleTimeSeries = storage.getDoubleTimeSeries(testData2Info.getId(), Sets.newHashSet("ts1"), 0);
-        assertEquals(1, doubleTimeSeries.size());
-        DoubleTimeSeries ts1 = doubleTimeSeries.get(0);
-        assertArrayEquals(new double[] {Double.NaN, Double.NaN, 1d, 2d, Double.NaN, 3d}, ts1.toArray(), 0d);
-        assertTrue(storage.getDoubleTimeSeries(testData3Info.getId(), Sets.newHashSet("ts1"), 0).isEmpty());
+        Map<String, List<DoubleArrayChunk>> doubleTimeSeriesData = storage.getDoubleTimeSeriesData(testData2Info.getId(), Sets.newHashSet("ts1"), 0);
+        assertEquals(1, doubleTimeSeriesData.size());
+        assertEquals(Arrays.asList(new UncompressedDoubleArrayChunk(2, new double[] {1d, 2d}),
+                                   new UncompressedDoubleArrayChunk(5, new double[] {3d})),
+                     doubleTimeSeriesData.get("ts1"));
+        assertTrue(storage.getDoubleTimeSeriesData(testData3Info.getId(), Sets.newHashSet("ts1"), 0).isEmpty());
 
         // 15) create a second string time series
         TimeSeriesMetadata metadata2 = new TimeSeriesMetadata("ts2",
@@ -375,10 +418,11 @@ public abstract class AbstractAppStorageTest {
         assertEventStack(new TimeSeriesDataUpdated(testData2Info.getId(), "ts2"));
 
         // check string time series data query
-        List<StringTimeSeries> stringTimeSeries = storage.getStringTimeSeries(testData2Info.getId(), Sets.newHashSet("ts2"), 0);
-        assertEquals(1, stringTimeSeries.size());
-        StringTimeSeries ts2 = stringTimeSeries.get(0);
-        assertArrayEquals(new String[] {null, null, "a", "b", null, "c"}, ts2.toArray());
+        Map<String, List<StringArrayChunk>> stringTimeSeriesData = storage.getStringTimeSeriesData(testData2Info.getId(), Sets.newHashSet("ts2"), 0);
+        assertEquals(1, stringTimeSeriesData.size());
+        assertEquals(Arrays.asList(new UncompressedStringArrayChunk(2, new String[] {"a", "b"}),
+                                   new UncompressedStringArrayChunk(5, new String[] {"c"})),
+                     stringTimeSeriesData.get("ts2"));
 
         // 17) clear time series
         storage.clearTimeSeries(testData2Info.getId());

@@ -38,7 +38,7 @@ public class Case extends File {
     }
 
     public ReadOnlyDataSource getDataSource() {
-        return new AppStorageDataSource(storage, info.getId());
+        return new AppStorageDataSource(storage, info.getId(), info.getName());
     }
 
     public Importer getImporter() {

@@ -21,7 +21,10 @@ import com.powsybl.afs.ws.utils.gzip.WriterInterceptorGzipCli;
 import com.powsybl.commons.exceptions.UncheckedInterruptedException;
 import com.powsybl.commons.io.ForwardingInputStream;
 import com.powsybl.commons.io.ForwardingOutputStream;
-import com.powsybl.math.timeseries.*;
+import com.powsybl.math.timeseries.DoubleArrayChunk;
+import com.powsybl.math.timeseries.StringArrayChunk;
+import com.powsybl.math.timeseries.TimeSeriesIndex;
+import com.powsybl.math.timeseries.TimeSeriesMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,10 +35,7 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.*;
 import java.io.*;
 import java.net.URI;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -765,13 +765,13 @@ public class RemoteAppStorage implements AppStorage {
     }
 
     @Override
-    public List<DoubleTimeSeries> getDoubleTimeSeries(String nodeId, Set<String> timeSeriesNames, int version) {
+    public Map<String, List<DoubleArrayChunk>> getDoubleTimeSeriesData(String nodeId, Set<String> timeSeriesNames, int version) {
         Objects.requireNonNull(nodeId);
         Objects.requireNonNull(timeSeriesNames);
         TimeSeriesIndex.checkVersion(version);
 
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("getDoubleTimeSeries(fileSystemName={}, nodeId={}, timeSeriesNames={}, version={})",
+            LOGGER.debug("getDoubleTimeSeriesData(fileSystemName={}, nodeId={}, timeSeriesNames={}, version={})",
                     fileSystemName, nodeId, timeSeriesNames, version);
         }
 
@@ -783,7 +783,7 @@ public class RemoteAppStorage implements AppStorage {
                 .header(HttpHeaders.AUTHORIZATION, token)
                 .post(Entity.json(timeSeriesNames));
         try {
-            return readEntityIfOk(response, new GenericType<List<DoubleTimeSeries>>() {
+            return readEntityIfOk(response, new GenericType<Map<String, List<DoubleArrayChunk>>>() {
             });
         } finally {
             response.close();
@@ -806,13 +806,13 @@ public class RemoteAppStorage implements AppStorage {
     }
 
     @Override
-    public List<StringTimeSeries> getStringTimeSeries(String nodeId, Set<String> timeSeriesNames, int version) {
+    public Map<String, List<StringArrayChunk>> getStringTimeSeriesData(String nodeId, Set<String> timeSeriesNames, int version) {
         Objects.requireNonNull(nodeId);
         Objects.requireNonNull(timeSeriesNames);
         TimeSeriesIndex.checkVersion(version);
 
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("getStringTimeSeries(fileSystemName={}, nodeId={}, timeSeriesNames={}, version={})",
+            LOGGER.debug("getStringTimeSeriesData(fileSystemName={}, nodeId={}, timeSeriesNames={}, version={})",
                     fileSystemName, nodeId, timeSeriesNames, version);
         }
 
@@ -824,7 +824,7 @@ public class RemoteAppStorage implements AppStorage {
                 .header(HttpHeaders.AUTHORIZATION, token)
                 .post(Entity.json(timeSeriesNames));
         try {
-            return readEntityIfOk(response, new GenericType<List<StringTimeSeries>>() {
+            return readEntityIfOk(response, new GenericType<Map<String, List<StringArrayChunk>>>() {
             });
         } finally {
             response.close();

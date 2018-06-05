@@ -21,6 +21,9 @@ import com.powsybl.math.timeseries.*;
 import com.powsybl.afs.ws.server.utils.AppDataBean;
 import com.powsybl.afs.ws.utils.AfsRestApi;
 import com.powsybl.afs.ws.utils.gzip.Compress;
+import com.powsybl.math.timeseries.DoubleArrayChunk;
+import com.powsybl.math.timeseries.StringArrayChunk;
+import com.powsybl.math.timeseries.TimeSeriesMetadata;
 import io.swagger.annotations.*;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -35,10 +38,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * @author Ali Tahanout <ali.tahanout at rte-france.com>
@@ -475,13 +475,16 @@ public class AppStorageServer {
     @Compress
     @ApiOperation (value = "", response = List.class)
     @ApiResponses (value = {@ApiResponse(code = 200, message = ""), @ApiResponse(code = 404, message = ""), @ApiResponse(code = 500, message = "Error")})
-    public Response getDoubleTimeSeries(@ApiParam(value = "File system name") @PathParam("fileSystemName") String fileSystemName,
-                                        @ApiParam(value = "Node ID") @PathParam("nodeId") String nodeId,
-                                        @ApiParam(value = "Version") @PathParam("version") int version,
-                                        @ApiParam(value = "Set time series names") Set<String> timeSeriesNames) {
+    public Response getDoubleTimeSeriesData(@ApiParam(value = "File system name") @PathParam("fileSystemName") String fileSystemName,
+                                            @ApiParam(value = "Node ID") @PathParam("nodeId") String nodeId,
+                                            @ApiParam(value = "Version") @PathParam("version") int version,
+                                            @ApiParam(value = "Set time series names") Set<String> timeSeriesNames) {
         AppStorage storage = appDataBean.getStorage(fileSystemName);
-        List<DoubleTimeSeries> doubleTimeSeriesList = storage.getDoubleTimeSeries(nodeId, timeSeriesNames, version);
-        return Response.ok().header(HttpHeaders.CONTENT_ENCODING, "gzip").entity(doubleTimeSeriesList).build();
+        Map<String, List<DoubleArrayChunk>> timeSeriesData = storage.getDoubleTimeSeriesData(nodeId, timeSeriesNames, version);
+        return Response.ok()
+                .header(HttpHeaders.CONTENT_ENCODING, "gzip")
+                .entity(timeSeriesData)
+                .build();
     }
 
     @POST
@@ -506,13 +509,16 @@ public class AppStorageServer {
     @Compress
     @ApiOperation (value = "", response = List.class)
     @ApiResponses (value = {@ApiResponse(code = 200, message = ""), @ApiResponse(code = 404, message = ""), @ApiResponse(code = 500, message = "Error")})
-    public Response getStringTimeSeries(@ApiParam(value = "File system name") @PathParam("fileSystemName") String fileSystemName,
-                                        @ApiParam(value = "Node ID") @PathParam("nodeId") String nodeId,
-                                        @ApiParam(value = "Version") @PathParam("version") int version,
-                                        @ApiParam(value = "Set time series names") Set<String> timeSeriesNames) {
+    public Response getStringTimeSeriesData(@ApiParam(value = "File system name") @PathParam("fileSystemName") String fileSystemName,
+                                            @ApiParam(value = "Node ID") @PathParam("nodeId") String nodeId,
+                                            @ApiParam(value = "Version") @PathParam("version") int version,
+                                            @ApiParam(value = "Set time series names") Set<String> timeSeriesNames) {
         AppStorage storage = appDataBean.getStorage(fileSystemName);
-        List<StringTimeSeries> stringTimeSeriesList = storage.getStringTimeSeries(nodeId, timeSeriesNames, version);
-        return Response.ok().header(HttpHeaders.CONTENT_ENCODING, "gzip").entity(stringTimeSeriesList).build();
+        Map<String, List<StringArrayChunk>> timeSeriesData = storage.getStringTimeSeriesData(nodeId, timeSeriesNames, version);
+        return Response.ok()
+                .header(HttpHeaders.CONTENT_ENCODING, "gzip")
+                .entity(timeSeriesData)
+                .build();
     }
 
     @DELETE
