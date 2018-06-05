@@ -27,7 +27,8 @@ public class AppFileSystemTool implements Tool {
 
     public static final String LS = "ls";
     public static final String ARCHIVE = "archive";
-    public static final String OUTPUT_DIR = "output-dir";
+    public static final String UNARCHIVE = "unarchive";
+    public static final String DIR = "dir";
 
     protected AppData createAppData(ToolRunningContext context) {
         return new AppData(context.getShortTimeExecutionComputationManager(),
@@ -70,10 +71,17 @@ public class AppFileSystemTool implements Tool {
                         .optionalArg(true)
                         .argName("FILE_SYSTEM_NAME")
                         .build());
+                topLevelOptions.addOption(Option.builder()
+                        .longOpt(UNARCHIVE)
+                        .desc("unarchive file system")
+                        .hasArg()
+                        .optionalArg(true)
+                        .argName("FILE_SYSTEM_NAME")
+                        .build());
                 options.addOptionGroup(topLevelOptions);
                 options.addOption(Option.builder()
-                        .longOpt(OUTPUT_DIR)
-                        .desc("output directory")
+                        .longOpt(DIR)
+                        .desc("directory")
                         .hasArg()
                         .argName("DIR")
                         .build());
@@ -87,45 +95,66 @@ public class AppFileSystemTool implements Tool {
         };
     }
 
-    private void runLs(ToolRunningContext context, AppData appData, String path) {
-        if (path == null) {
-            for (AppFileSystem afs : appData.getFileSystems()) {
-                context.getOutputStream().println(afs.getName());
-            }
-        } else {
-            Optional<Node> node = appData.getNode(path);
-            if (node.isPresent()) {
-                if (node.get().isFolder()) {
-                    ((Folder) node.get()).getChildren().forEach(child -> context.getOutputStream().println(child.getName()));
-                } else {
-                    context.getErrorStream().println("'" + path + "' is not a folder");
+    private void runLs(CommandLine line, ToolRunningContext context) {
+        try (AppData appData = createAppData(context)) {
+            String path = line.getOptionValue(LS);
+            if (path == null) {
+                for (AppFileSystem afs : appData.getFileSystems()) {
+                    context.getOutputStream().println(afs.getName());
                 }
             } else {
-                context.getErrorStream().println("'" + path + "' does not exist");
+                Optional<Node> node = appData.getNode(path);
+                if (node.isPresent()) {
+                    if (node.get().isFolder()) {
+                        ((Folder) node.get()).getChildren().forEach(child -> context.getOutputStream().println(child.getName()));
+                    } else {
+                        context.getErrorStream().println("'" + path + "' is not a folder");
+                    }
+                } else {
+                    context.getErrorStream().println("'" + path + "' does not exist");
+                }
             }
+        }
+    }
+
+    private void runUnarchive(CommandLine line, ToolRunningContext context) {
+        if (!line.hasOption(DIR)) {
+            throw new AfsException("dir option is missing");
+        }
+        try (AppData appData = createAppData(context)) {
+            String fileSystemName = line.getOptionValue(UNARCHIVE);
+            AppFileSystem fs = appData.getFileSystem(fileSystemName);
+            if (fs == null) {
+                throw new  AfsException("File system '" + fileSystemName + "' not found");
+            }
+            Path dir = context.getFileSystem().getPath(line.getOptionValue(DIR));
+            fs.getRootFolder().unarchive(dir);
+        }
+    }
+
+    private void runArchive(CommandLine line, ToolRunningContext context) {
+        if (!line.hasOption(DIR)) {
+            throw new AfsException("dir option is missing");
+        }
+        try (AppData appData = createAppData(context)) {
+            String fileSystemName = line.getOptionValue(ARCHIVE);
+            AppFileSystem fs = appData.getFileSystem(fileSystemName);
+            if (fs == null) {
+                throw new  AfsException("File system '" + fileSystemName + "' not found");
+            }
+            Path dir = context.getFileSystem().getPath(line.getOptionValue(DIR));
+            fs.getRootFolder().archive(dir);
         }
     }
 
     @Override
     public void run(CommandLine line, ToolRunningContext context) {
         if (line.hasOption(LS)) {
-            try (AppData appData = createAppData(context)) {
-                String path = line.getOptionValue(LS);
-                runLs(context, appData, path);
-            }
+            runLs(line, context);
         } else if (line.hasOption(ARCHIVE)) {
-            if (!line.hasOption(OUTPUT_DIR)) {
-                throw new AfsException("output-dir option is missing");
-            }
-            try (AppData appData = createAppData(context)) {
-                String fileSystemName = line.getOptionValue(ARCHIVE);
-                AppFileSystem fs = appData.getFileSystem(fileSystemName);
-                if (fs == null) {
-                    throw new  AfsException("File system '" + fileSystemName + "' not found");
-                }
-                Path outputDir = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_DIR));
-                fs.archive(outputDir);
-            }
+            runArchive(line, context);
+        } else if (line.hasOption(UNARCHIVE)) {
+            runUnarchive(line, context);
         } else {
             Command command = getCommand();
             CommandLineTools.printCommandUsage(command.getName(), command.getOptions(), command.getUsageFooter(), context.getErrorStream());

@@ -6,11 +6,11 @@
  */
 package com.powsybl.afs;
 
-import com.powsybl.afs.storage.*;
+import com.powsybl.afs.storage.AppStorage;
+import com.powsybl.afs.storage.DefaultListenableAppStorage;
+import com.powsybl.afs.storage.ListenableAppStorage;
+import com.powsybl.afs.storage.NodeInfo;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.nio.file.Path;
 import java.util.Objects;
 
 /**
@@ -121,15 +121,6 @@ public class AppFileSystem implements AutoCloseable {
 
     void setData(AppData data) {
         this.data = Objects.requireNonNull(data);
-    }
-
-    public void archive(Path dir) {
-        Objects.requireNonNull(dir);
-        try {
-            new AppStorageArchive(storage).archive(rootNodeInfo, dir);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
     }
 
     @Override

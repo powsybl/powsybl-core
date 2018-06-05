@@ -85,6 +85,15 @@ public class AppStorageArchive {
             return idMapping;
         }
 
+        public String getIdMapping(String nodeId) {
+            // if node id belongs to the archive, map dependency to new id otherwise map to old id because
+            String newToNodeId = idMapping.get(nodeId);
+            if (newToNodeId != null) {
+                return newToNodeId;
+            }
+            return nodeId;
+        }
+
         public Map<String, List<ArchiveDependency>> getDependencies() {
             return dependencies;
         }
@@ -185,7 +194,7 @@ public class AppStorageArchive {
         }
     }
 
-    private void writeChildren(NodeInfo nodeInfo, Path nodeDir) throws IOException {
+    public void archiveChildren(NodeInfo nodeInfo, Path nodeDir) throws IOException {
         List<NodeInfo> childNodeInfos = storage.getChildNodes(nodeInfo.getId());
         if (!childNodeInfos.isEmpty()) {
             Path childrenDir = nodeDir.resolve("children");
@@ -223,7 +232,7 @@ public class AppStorageArchive {
 
         writeTimeSeries(nodeInfo, nodeDir);
 
-        writeChildren(nodeInfo, nodeDir);
+        archiveChildren(nodeInfo, nodeDir);
     }
 
     private NodeInfo readNodeInfo(NodeInfo parentNodeInfo, Path nodeDir, UnarchiveContext context) throws IOException {
@@ -231,12 +240,8 @@ public class AppStorageArchive {
         NodeInfo newNodeInfo;
         try (Reader reader = Files.newBufferedReader(nodeDir.resolve("info.json"), StandardCharsets.UTF_8)) {
             nodeInfo = mapper.readerFor(NodeInfo.class).readValue(reader);
-            if (parentNodeInfo == null) {
-                newNodeInfo = storage.createRootNodeIfNotExists(nodeInfo.getName(), nodeInfo.getPseudoClass());
-            } else {
-                newNodeInfo = storage.createNode(parentNodeInfo.getId(), nodeInfo.getName(), nodeInfo.getPseudoClass(), nodeInfo.getDescription(),
+            newNodeInfo = storage.createNode(context.getIdMapping(parentNodeInfo.getId()), nodeInfo.getName(), nodeInfo.getPseudoClass(), nodeInfo.getDescription(),
                         nodeInfo.getVersion(), nodeInfo.getGenericMetadata());
-            }
             context.getIdMapping().put(nodeInfo.getId(), newNodeInfo.getId());
         }
 
@@ -328,7 +333,17 @@ public class AppStorageArchive {
         }
     }
 
-    private void readChildren(NodeInfo parentNodeInfo, Path nodeDir, UnarchiveContext context) throws IOException {
+    public void unarchiveChildren(NodeInfo parentNodeInfo, Path nodeDir) {
+        try {
+            UnarchiveContext context = new UnarchiveContext();
+            unarchiveChildren(parentNodeInfo, nodeDir, context);
+            resolveDependencies(context);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public void unarchiveChildren(NodeInfo parentNodeInfo, Path nodeDir, UnarchiveContext context) throws IOException {
         Path childrenDir = nodeDir.resolve("children");
         if (Files.exists(childrenDir)) {
             try (Stream<Path> stream = Files.list(childrenDir)) {
@@ -344,7 +359,7 @@ public class AppStorageArchive {
     }
 
     private void unarchive(NodeInfo parentNodeInfo, Path nodeDir, UnarchiveContext context) throws IOException {
-        NodeInfo newNodeInfo =  readNodeInfo(parentNodeInfo, nodeDir, context);
+        NodeInfo newNodeInfo = readNodeInfo(parentNodeInfo, nodeDir, context);
 
         context.getDependencies().put(newNodeInfo.getId(), readDependencies(nodeDir));
 
@@ -352,19 +367,14 @@ public class AppStorageArchive {
 
         readTimeSeries(newNodeInfo, nodeDir);
 
-        readChildren(newNodeInfo, nodeDir, context);
+        unarchiveChildren(newNodeInfo, nodeDir, context);
     }
 
     private void resolveDependencies(UnarchiveContext context) {
         for (Map.Entry<String, List<ArchiveDependency>> e : context.getDependencies().entrySet()) {
             String newNodeId = e.getKey();
             for (ArchiveDependency dependency : e.getValue()) {
-                // if node id belongs to the archive, map dependency to new id otherwise map to old id because
-                String newToNodeId = context.getIdMapping().get(dependency.getNodeId());
-                if (newToNodeId == null) {
-                    newToNodeId = dependency.getNodeId();
-                }
-                storage.addDependency(newNodeId, dependency.getName(), newToNodeId);
+                storage.addDependency(newNodeId, dependency.getName(), context.getIdMapping(dependency.getNodeId()));
             }
         }
     }
