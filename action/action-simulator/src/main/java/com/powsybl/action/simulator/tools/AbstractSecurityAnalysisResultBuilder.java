@@ -9,7 +9,11 @@ package com.powsybl.action.simulator.tools;
 import com.powsybl.action.simulator.loadflow.DefaultLoadFlowActionSimulatorObserver;
 import com.powsybl.action.simulator.loadflow.RunningContext;
 import com.powsybl.contingency.Contingency;
-import com.powsybl.security.*;
+import com.powsybl.security.LimitViolation;
+import com.powsybl.security.LimitViolationsResult;
+import com.powsybl.security.PostContingencyResult;
+import com.powsybl.security.SecurityAnalysisResult;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -27,6 +31,8 @@ public abstract class AbstractSecurityAnalysisResultBuilder extends DefaultLoadF
     private final Map<String, List<String>> postContingencyActions = new HashMap<>();
 
     private boolean precontingency;
+
+    private SecurityAnalysisResult result;
 
     @Override
     public void beforePreContingencyAnalysis(RunningContext runningContext) {
@@ -80,9 +86,14 @@ public abstract class AbstractSecurityAnalysisResultBuilder extends DefaultLoadF
 
     @Override
     public void afterPostContingencyAnalysis() {
-        onFinalStateResult(new SecurityAnalysisResult(preContingencyResult,
-                                                      postContingencyResults.entrySet().stream().map(Map.Entry::getValue).collect(Collectors.toList())));
+        result = new SecurityAnalysisResult(preContingencyResult,
+                postContingencyResults.entrySet().stream().map(Map.Entry::getValue).collect(Collectors.toList()));
+        onFinalStateResult(result);
     }
 
     public abstract void onFinalStateResult(SecurityAnalysisResult result);
+
+    public SecurityAnalysisResult build() {
+        return result;
+    }
 }

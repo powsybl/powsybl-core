@@ -48,7 +48,7 @@ public class LoadFlowActionSimulator implements ActionSimulator {
 
     private final boolean applyIfSolvedViolations;
 
-    private final List<LoadFlowActionSimulatorObserver> observers;
+    protected final List<LoadFlowActionSimulatorObserver> observers;
 
     public LoadFlowActionSimulator(Network network, ComputationManager computationManager) {
         this(network, computationManager, LoadFlowActionSimulatorConfig.load(), false, Collections.emptyList());
@@ -376,5 +376,9 @@ public class LoadFlowActionSimulator implements ActionSimulator {
         } catch (Exception e) {
             throw new PowsyblException(e);
         }
+    }
+
+    protected ComputationManager getComputationManager() {
+        return computationManager;
     }
 }

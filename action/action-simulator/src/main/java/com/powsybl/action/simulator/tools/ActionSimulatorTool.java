@@ -12,6 +12,9 @@ import com.powsybl.action.dsl.ActionDslLoader;
 import com.powsybl.action.dsl.DefaultActionDslLoaderObserver;
 import com.powsybl.action.simulator.ActionSimulator;
 import com.powsybl.action.simulator.loadflow.*;
+import com.powsybl.action.simulator.parallel.Filtration;
+import com.powsybl.action.simulator.parallel.LocalLoadFlowActionSimulator;
+import com.powsybl.action.simulator.parallel.ParallelLoadFlowActionSimulator;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.CompressionFormat;
 import com.powsybl.commons.datasource.DataSourceUtil;
@@ -47,20 +50,9 @@ import java.util.stream.Collectors;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @AutoService(Tool.class)
-public class ActionSimulatorTool implements Tool {
+public class ActionSimulatorTool implements Tool, ActionSimulatorToolConstants {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ActionSimulatorTool.class);
-
-    private static final String CASE_FILE = "case-file";
-    private static final String DSL_FILE = "dsl-file";
-    private static final String CONTINGENCIES = "contingencies";
-    private static final String APPLY_IF_SOLVED_VIOLATIONS = "apply-if-solved-violations";
-    private static final String VERBOSE = "verbose";
-    private static final String OUTPUT_FILE = "output-file";
-    private static final String OUTPUT_FORMAT = "output-format";
-    private static final String OUTPUT_CASE_FOLDER = "output-case-folder";
-    private static final String OUTPUT_CASE_FORMAT = "output-case-format";
-    private static final String OUTPUT_COMPRESSION_FORMAT = "output-compression-format";
 
     @Override
     public Command getCommand() {
@@ -133,6 +125,16 @@ public class ActionSimulatorTool implements Tool {
                         .hasArg()
                         .argName("COMPRESSION_FORMAT")
                         .build());
+                options.addOption(Option.builder().longOpt(PARALLEL)
+                        .desc("parallizer into Y parts")
+                        .hasArg()
+                        .argName("NUMBER")
+                        .build());
+                options.addOption(Option.builder().longOpt(SUB_CONTINGENCIES)
+                        .desc("fitration")
+                        .hasArg()
+                        .argName("X/Y")
+                        .build());
                 return options;
             }
 
@@ -171,6 +173,7 @@ public class ActionSimulatorTool implements Tool {
         List<String> contingencies = line.hasOption(CONTINGENCIES) ? Arrays.stream(line.getOptionValue(CONTINGENCIES).split(",")).collect(Collectors.toList())
                                                                      : Collections.emptyList();
         boolean verbose = line.hasOption(VERBOSE);
+        boolean applyIfSolved = line.hasOption(APPLY_IF_SOLVED_VIOLATIONS);
 
         Path outputCaseFolder = null;
         String outputCaseFormat = null;
@@ -225,8 +228,18 @@ public class ActionSimulatorTool implements Tool {
             }
 
             // action simulator
-            ActionSimulator actionSimulator = new LoadFlowActionSimulator(network, context.getShortTimeExecutionComputationManager(),
-                    config, line.hasOption(APPLY_IF_SOLVED_VIOLATIONS), observers);
+            ActionSimulator actionSimulator = null;
+            if (line.hasOption(PARALLEL)) {
+                checkOptionsInParallel(line);
+                int para = Integer.parseInt(line.getOptionValue(PARALLEL));
+                actionSimulator = new ParallelLoadFlowActionSimulator(network, context, para, line, config, applyIfSolved, observers);
+            } else if (line.hasOption(SUB_CONTINGENCIES)) {
+                String filtreOpt = line.getOptionValue(SUB_CONTINGENCIES);
+                Filtration filtration = new Filtration(filtreOpt);
+                actionSimulator = new LocalLoadFlowActionSimulator(network, filtration, config, applyIfSolved, observers);
+            } else {
+                actionSimulator = new LoadFlowActionSimulator(network, context.getShortTimeExecutionComputationManager(), config, applyIfSolved, observers);
+            }
             context.getOutputStream().println("Using '" + actionSimulator.getName() + "' rules engine");
 
             // start simulator
@@ -236,6 +249,17 @@ public class ActionSimulatorTool implements Tool {
             LOGGER.trace(e.toString(), e); // to avoid user screen pollution...
             Throwable rootCause = StackTraceUtils.sanitizeRootCause(e);
             rootCause.printStackTrace(context.getErrorStream());
+        }
+    }
+
+    private void checkOptionsInParallel(CommandLine line) {
+        if (line.hasOption(OUTPUT_CASE_FOLDER)
+                || line.hasOption(OUTPUT_CASE_FORMAT)
+                || line.hasOption(OUTPUT_COMPRESSION_FORMAT)) {
+            throw new IllegalArgumentException("Not supported in parallel mode yet.");
+        }
+        if (!line.hasOption(OUTPUT_FILE)) {
+            throw new IllegalArgumentException("Missing OUTPUT-FILE in parallel mode.");
         }
     }
 
