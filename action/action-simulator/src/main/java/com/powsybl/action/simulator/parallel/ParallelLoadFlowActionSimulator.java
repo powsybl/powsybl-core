@@ -10,7 +10,6 @@ import com.powsybl.action.dsl.ActionDb;
 import com.powsybl.action.simulator.loadflow.LoadFlowActionSimulator;
 import com.powsybl.action.simulator.loadflow.LoadFlowActionSimulatorConfig;
 import com.powsybl.action.simulator.loadflow.LoadFlowActionSimulatorObserver;
-import com.powsybl.action.simulator.tools.ActionSimulatorToolConstants;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.computation.*;
 import com.powsybl.iidm.network.Network;
@@ -28,7 +27,9 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
-public class ParallelLoadFlowActionSimulator extends LoadFlowActionSimulator implements ActionSimulatorToolConstants {
+import static com.powsybl.action.simulator.tools.ActionSimulatorToolConstants.*;
+
+public class ParallelLoadFlowActionSimulator extends LoadFlowActionSimulator {
 
     private static final String ITOOLS_PRG = "itools";
 

@@ -46,11 +46,13 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.powsybl.action.simulator.tools.ActionSimulatorToolConstants.*;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @AutoService(Tool.class)
-public class ActionSimulatorTool implements Tool, ActionSimulatorToolConstants {
+public class ActionSimulatorTool implements Tool {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ActionSimulatorTool.class);
 
