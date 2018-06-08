@@ -48,7 +48,7 @@ public class LoadFlowActionSimulator implements ActionSimulator {
 
     private final boolean applyIfSolvedViolations;
 
-    protected final List<LoadFlowActionSimulatorObserver> observers;
+    private final List<LoadFlowActionSimulatorObserver> observers;
 
     public LoadFlowActionSimulator(Network network, ComputationManager computationManager) {
         this(network, computationManager, LoadFlowActionSimulatorConfig.load(), false, Collections.emptyList());

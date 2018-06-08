@@ -48,7 +48,7 @@ public class ParallelLoadFlowActionSimulator extends LoadFlowActionSimulator imp
 
     public ParallelLoadFlowActionSimulator(Network network, ToolRunningContext context, int para, CommandLine commandLine,
                                            LoadFlowActionSimulatorConfig config, boolean applyIfSolved, List<LoadFlowActionSimulatorObserver> observers) {
-        super(network, context.getShortTimeExecutionComputationManager(), config, applyIfSolved, observers);
+        super(network, context.getLongTimeExecutionComputationManager(), config, applyIfSolved, observers);
         this.para = para;
         this.commandLine = Objects.requireNonNull(commandLine);
     }
