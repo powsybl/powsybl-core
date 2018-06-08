@@ -65,29 +65,72 @@
             <artifactId>powsybl-afs-core</artifactId>
             <version>${project.version}</version>
         </dependency>
+
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-afs-ext-base</artifactId>
             <version>${project.version}</version>
         </dependency>
+
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-afs-local</artifactId>
             <version>${project.version}</version>
         </dependency>
+
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-afs-mapdb</artifactId>
             <version>${project.version}</version>
         </dependency>
+
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-afs-mapdb-storage</artifactId>
             <version>${project.version}</version>
         </dependency>
+
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-afs-storage-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-afs-ws-client</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-afs-ws-client-utils</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-afs-ws-server</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-afs-ws-server-utils</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-afs-ws-storage</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-afs-ws-utils</artifactId>
             <version>${project.version}</version>
         </dependency>
 
