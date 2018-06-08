@@ -16,7 +16,7 @@ package com.powsybl.afs;
  * {@link com.google.auto.service.AutoService} annotation.
  *
  * <p>
- * The instance needs to define the new class, a name identying that class ("pseudo class"),
+ * The instance needs to define the new class, a name identifying that class ("pseudo class"),
  * and to provide a builder object to create an actual instance of the new class. For instance:
  *
  * <pre>
