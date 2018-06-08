@@ -101,8 +101,9 @@ public class AmplExportConfig {
         return specificCompatibility;
     }
 
-    public void setSpecificCompatibility(boolean specificCompatibility) {
+    public AmplExportConfig setSpecificCompatibility(boolean specificCompatibility) {
         this.specificCompatibility = specificCompatibility;
+        return this;
     }
 
 }
