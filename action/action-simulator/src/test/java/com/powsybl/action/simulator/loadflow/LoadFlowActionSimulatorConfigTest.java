@@ -57,6 +57,7 @@ public class LoadFlowActionSimulatorConfigTest {
             assertTrue(config.isIgnorePreContingencyViolations());
             config.setIgnorePreContingencyViolations(false);
             assertFalse(config.isIgnorePreContingencyViolations());
+            assertFalse(config.isDebug());
         }
     }
 }

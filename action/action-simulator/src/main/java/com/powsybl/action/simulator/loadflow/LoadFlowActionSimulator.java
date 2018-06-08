@@ -44,7 +44,7 @@ public class LoadFlowActionSimulator implements ActionSimulator {
 
     private final ComputationManager computationManager;
 
-    private final LoadFlowActionSimulatorConfig config;
+    protected final LoadFlowActionSimulatorConfig config;
 
     private final boolean applyIfSolvedViolations;
 

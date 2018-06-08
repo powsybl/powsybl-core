@@ -61,7 +61,7 @@ public class ParallelLoadFlowActionSimulator extends LoadFlowActionSimulator imp
     @Override
     public void start(ActionDb actionDb, List<String> contingencyIds) {
         ComputationManager manager = super.getComputationManager();
-        ExecutionEnvironment itoolsEnvironment = new ExecutionEnvironment(Collections.emptyMap(), "subTask_", true);
+        ExecutionEnvironment itoolsEnvironment = new ExecutionEnvironment(Collections.emptyMap(), "subTask_", config.isDebug());
         int realPara = contingencyIds.size() > this.para ? this.para : contingencyIds.size();
         List<CompletableFuture<SecurityAnalysisResult>> results = new ArrayList<>();
         for (int i = 1; i <= realPara; i++) {
