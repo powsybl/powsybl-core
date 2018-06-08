@@ -125,10 +125,16 @@ public class AppData implements AutoCloseable {
         fileSystems.put(fileSystem.getName(), fileSystem);
     }
 
+    /**
+     * The list of available file systems.
+     */
     public Collection<AppFileSystem> getFileSystems() {
         return fileSystems.values();
     }
 
+    /**
+     * Gets a file system by its {@code name}.
+     */
     public AppFileSystem getFileSystem(String name) {
         Objects.requireNonNull(name);
         return fileSystems.get(name);
@@ -202,6 +208,9 @@ public class AppData implements AutoCloseable {
         return longTimeExecutionComputationManager != null ? longTimeExecutionComputationManager : shortTimeExecutionComputationManager;
     }
 
+    /**
+     * Gets the list of remotely accessible file systems. Should not be used by the AFS API users.
+     */
     public List<String> getRemotelyAccessibleFileSystemNames() {
         return fileSystems.entrySet().stream()
                 .map(Map.Entry::getValue)
@@ -210,11 +219,21 @@ public class AppData implements AutoCloseable {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Gets low level storage interface for remotely accessible file systems. Should not be used by the AFS API users.
+     */
     public ListenableAppStorage getRemotelyAccessibleStorage(String fileSystemName) {
         AppFileSystem afs = fileSystems.get(fileSystemName);
         return afs != null ? afs.getStorage() : null;
     }
 
+    /**
+     * Gets a registered service of type U. To register a service, see {@link ServiceExtension}.
+     *
+     * @param serviceClass  the requested service type
+     * @param remoteStorage if {@code true}, tries to get a remote implementation first.
+     * @throws AfsException if no service implementation is found.
+     */
     <U> U findService(Class<U> serviceClass, boolean remoteStorage) {
         U service = null;
         if (remoteStorage) {
@@ -229,6 +248,9 @@ public class AppData implements AutoCloseable {
         return service;
     }
 
+    /**
+     * Closes any resources used by underlying file systems.
+     */
     @Override
     public void close() {
         getFileSystems().forEach(AppFileSystem::close);
