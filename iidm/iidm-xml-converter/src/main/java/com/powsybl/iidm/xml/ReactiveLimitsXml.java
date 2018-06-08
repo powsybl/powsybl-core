@@ -28,7 +28,7 @@ public class ReactiveLimitsXml implements XmlConstants {
 
     public void write(ReactiveLimitsHolder holder, NetworkXmlWriterContext context) throws XMLStreamException {
         switch (holder.getReactiveLimits().getKind()) {
-            case CURVE: {
+            case CURVE:
                 ReactiveCapabilityCurve curve = holder.getReactiveLimits(ReactiveCapabilityCurve.class);
                 context.getWriter().writeStartElement(IIDM_URI, REACTIVE_CAPABILITY_CURVE);
                 for (ReactiveCapabilityCurve.Point point : curve.getPoints()) {
@@ -38,16 +38,14 @@ public class ReactiveLimitsXml implements XmlConstants {
                     XmlUtil.writeDouble(MAX_Q, point.getMaxQ(), context.getWriter());
                 }
                 context.getWriter().writeEndElement();
-            }
-            break;
+                break;
 
-            case MIN_MAX: {
+            case MIN_MAX:
                 MinMaxReactiveLimits limits = holder.getReactiveLimits(MinMaxReactiveLimits.class);
                 context.getWriter().writeEmptyElement(IIDM_URI, MIN_MAX_REACTIVE_LIMITS);
                 XmlUtil.writeDouble(MIN_Q, limits.getMinQ(), context.getWriter());
                 XmlUtil.writeDouble(MAX_Q, limits.getMaxQ(), context.getWriter());
-            }
-            break;
+                break;
 
             default:
                 throw new AssertionError();

@@ -90,22 +90,22 @@ public final class Networks {
 
             private List<String> connectedLoads = new ArrayList<>();
             private List<String> disconnectedLoads = new ArrayList<>();
-            private double connectedLoadVolume = 0f;
-            private double disconnectedLoadVolume = 0f;
+            private double connectedLoadVolume = 0.0;
+            private double disconnectedLoadVolume = 0.0;
 
-            private double connectedMaxGeneration = 0f;
-            private double disconnectedMaxGeneration = 0f;
-            private double connectedGeneration = 0f;
-            private double disconnectedGeneration = 0f;
+            private double connectedMaxGeneration = 0.0;
+            private double disconnectedMaxGeneration = 0.0;
+            private double connectedGeneration = 0.0;
+            private double disconnectedGeneration = 0.0;
             private List<String> connectedGenerators = new ArrayList<>();
             private List<String> disconnectedGenerators = new ArrayList<>();
 
             private List<String> connectedShunts = new ArrayList<>();
             private List<String> disconnectedShunts = new ArrayList<>();
-            private double connectedShuntPositiveVolume = 0f;
-            private double disconnectedShuntPositiveVolume = 0f;
-            private double connectedShuntNegativeVolume = 0f;
-            private double disconnectedShuntNegativeVolume = 0f;
+            private double connectedShuntPositiveVolume = 0.0;
+            private double disconnectedShuntPositiveVolume = 0.0;
+            private double connectedShuntNegativeVolume = 0.0;
+            private double disconnectedShuntNegativeVolume = 0.0;
         }
 
         ConnectedPower balanceMainCC = new ConnectedPower();

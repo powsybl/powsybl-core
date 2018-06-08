@@ -19,7 +19,7 @@ public final class Double2Float {
             return Float.MAX_VALUE * (d > 0 ? 1 : -1);
         }
         if (Math.abs(d) > Float.MAX_VALUE) {
-            throw new IllegalArgumentException("Can not casting " + d + " to float");
+            throw new IllegalArgumentException("Can't casting " + d + " to float");
         }
         return (float) d;
     }

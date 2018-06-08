@@ -11,7 +11,6 @@ import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
@@ -81,12 +80,8 @@ class GeneratorScalable extends AbstractScalable {
                     Bus bus = t.getBusView().getBus();
                     if (bus != null) {
                         // set voltage setpoint to the same as other generators connected to the bus
-                        double targetV = Double.NaN;
+                        double targetV = bus.getGeneratorStream().findFirst().map(Generator::getTargetV).orElse(Double.NaN);
 
-                        Iterator<Generator> iterator = bus.getGenerators().iterator();
-                        if (iterator.hasNext()) {
-                            targetV = iterator.next().getTargetV();
-                        }
                         // if no other generator connected to the bus, set voltage setpoint to network voltage
                         if (Double.isNaN(targetV) && !Double.isNaN(bus.getV())) {
                             g.setTargetV(bus.getV());

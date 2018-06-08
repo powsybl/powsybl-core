@@ -37,7 +37,7 @@ public class ScalableTest {
                 .setId("vl1")
                 .setNominalV(380.0)
                 .setLowVoltageLimit(0.8 * 380.0)
-                .setHighVoltageLimit(0.8 * 380.0)
+                .setHighVoltageLimit(1.2 * 380.0)
                 .setTopologyKind(TopologyKind.BUS_BREAKER)
                 .add();
         vl.getBusBreakerView().newBus()
