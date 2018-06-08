@@ -22,12 +22,11 @@
     <description>AFS WS client</description>
 
     <dependencies>
-        <!-- Compile dependencies -->
+        <!-- Compilation dependencies -->
         <dependency>
             <groupId>com.google.auto.service</groupId>
             <artifactId>auto-service</artifactId>
         </dependency>
-
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-afs-core</artifactId>
