@@ -8,11 +8,11 @@
  *
  *     <p>
  *     The way data is actually stored is implementation-dependent,
- *     and is defined through the implementation of the {@link com.powsybl.afs.storage.AppStorage} interface.
+ *     and is defined through the implementation of the {@linkplain com.powsybl.afs.storage.AppStorage AppStorage} interface.
  *
  *     <p>
- *     The entry point of AFS is the {@linkplain com.powsybl.afs.AppData} object.
- *     It contains a list of {@link com.powsybl.afs.AppFileSystem}.
+ *     The entry point of AFS is the {@linkplain com.powsybl.afs.AppData AppData} object.
+ *     It contains a list of {@linkplain com.powsybl.afs.AppFileSystem AppFileSystem}s.
  *
  *     <p>
  *     The structure of an AFS looks like:
@@ -40,8 +40,8 @@
  *     </pre>
  *
  *     <p>
- *     You may add your own types of files and project files through and extension mechanism, see {@link com.powsybl.afs.FileExtension}
- *     and {@link com.powsybl.afs.ProjectFileExtension}.
+ *     You may add your own types of files and project files through and extension mechanism, see {@linkplain com.powsybl.afs.FileExtension FileExtension}
+ *     and {@linkplain com.powsybl.afs.ProjectFileExtension ProjectFileExtension}.
  *
  *
  *     @auhor Sylvain Leclerc <sylvain.leclerc@rte-france.com>
