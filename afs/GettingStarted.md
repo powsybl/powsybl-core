@@ -31,9 +31,9 @@ Below, you will learn:
  - how to **use** the AFS API in your application
  - how you can **extend** and customize AFS for your needs
 
-## 1- Using AFS
+# 1- Using AFS
 
-#### Using AFS in your java application
+### Using AFS in your java application
 
 In order to use AFS in your application, you will first need to add some dependencies to your project:
  - `powsybl-afs-core` to use the core API in your code
@@ -87,7 +87,7 @@ my-first-fs
     +--my-first-project
 ```
 
-#### Using AFS from groovy scripts
+### Using AFS from groovy scripts
 
 Your configured AFS is also accessible from groovy. This comes in 2 flavours, either with an interactive console using the powsybl shell `powsyblsh`:
 ```bash
@@ -111,7 +111,8 @@ myFirstProject = afs.getRootFolder("my-first-fs")
                     .createProject("my-first-project");
 ```
 
-#### Using actual business objects
+
+### Using actual business objects
 
 All this is fine, but the primary goal of AFS is to manage your **business objects**, which we have not seen so far.
 
@@ -171,7 +172,7 @@ Network network = myImportedCase.getNetwork();
 ```
 
 
-#### Using a remote file system
+### Using a remote file system
 
 Powsybl provides a special implementation of application file system storage which forwards calls, through a REST API, to a remote AFS server. The server may use any storage implementation itself, for example the mapdb implementation.
 
@@ -195,21 +196,21 @@ This allows for great flexibility in the deployment of your application, for ins
 **Note:**
 The underlying REST API is documented at http://my-afs-server:8080/my-server-app/rest/swagger
 
-#### Listeners
+### Listeners
 
 TO BE COMPLETED
 
-#### Services
+### Services
 
 TO BE COMPLETED
 
-#### Dependencies
+### Dependencies
 
 TO BE COMPLETED
 
-## 2- Extending AFS for your needs
+# 2- Extending AFS for your needs
 
-#### 2.1 Adding your own file types
+### 2.1 Adding your own file types
 
 Powsybl-core already comes with a number of project file types:
  - Imported cases and virtual cases
@@ -323,6 +324,6 @@ myFooFile.runSomeCoolComputation()
 ```
 
 
-#### 2.2 Adding your own storage implementation
+### 2.2 Adding your own storage implementation
 
 TODO
