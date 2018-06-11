@@ -7,6 +7,10 @@
 package com.powsybl.afs;
 
 /**
+ *
+ * A file in an {@link AppFileSystem} object. New types of files may be added through
+ * the extension mechanism (see {@link FileExtension}).
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class File extends Node {

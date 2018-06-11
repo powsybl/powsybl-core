@@ -18,6 +18,9 @@ import java.util.stream.Collectors;
 import com.powsybl.commons.datasource.DataSource;
 
 /**
+ * A datasource corresponding to a data blob stored in the file system.
+ * A data blob is associated to a node and a name identifying it among data blobs of this node.
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class AppStorageDataSource implements DataSource {

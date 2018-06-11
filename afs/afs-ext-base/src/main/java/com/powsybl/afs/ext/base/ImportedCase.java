@@ -24,7 +24,10 @@ import java.util.Objects;
 import java.util.Properties;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ *  A type of {@code ProjectFile} which represents a {@link Network} imported to the project,
+ *  and provides methods to get the {@code Network} object or query it with a script.
+ *
+ *  @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class ImportedCase extends ProjectFile implements ProjectCase {
 

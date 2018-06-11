@@ -7,6 +7,8 @@
 package com.powsybl.afs;
 
 /**
+ * Represents a file object of an unknown type (for instance when trying to read a file of type unknown to your instance of AFS).
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class UnknownFile extends File {
