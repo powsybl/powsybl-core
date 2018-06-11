@@ -28,8 +28,8 @@ The structure of an AFS looks like:
 where each "project file" may represent a business object, for instance a network or a list of contingencies, or even a computation.
 
 Below, you will learn:
- - how to **use** the AFS API in your application
- - how you can **extend** and customize AFS for your needs
+ - to **use** the AFS API in your application
+ - to **extend** and customize AFS for your needs
 
 # 1- Using AFS
 
@@ -57,13 +57,20 @@ For instance, if you use maven, in the dependencies section:
 </dependency>
 ```
 
-By default, powsybl will load application file system depending on your platform configuration (file *${HOME}/.itools/config.xml*). To tell AFS where it should store its data, you will need to configure your mapdb file system:
+By default, powsybl will load application file system depending on your platform configuration (file *${HOME}/.itools/config.yml*). To tell AFS where it should store its data, you will need to configure your mapdb file system:
+```yml
+mapdb-app-file-system:
+  drive-name : my-first-fs
+  db-file : /path/to/my/mapdb/file
+```
+or in XML:
 ```xml
 <mapdb-app-file-system>
   <drive-name>my-first-fs</drive-name>
   <db-file>/path/to/my/mapdb/file</db-file>
 </mapdb-app-file-system>
 ```
+
 Here, we have defined a mapdb based file system, which will be named *my-first-fs* in your application, and stored in the file */path/to/my/mapdb/file*.
 
 Now, from your application, you will be able to interact with that file system. For example, you can create directories and projects:
@@ -162,7 +169,7 @@ Of course, you can later retrieve your imported case from another execution or f
 //From another application:
 ImportedCase importedCase = appData.getFileSystem("my-first-fs")
                                    .getRootFolder()
-                                   .getChild(Project.class, "my-first-folder/my-first-project/").get()
+                                   .getChild(Project.class, "my-first-folder/my-first-project").get()
                                    .getRootFolder().getChild("my-imported-case")
                                    .orElseThrow(() -> new RuntimeException("Not found"));
 
@@ -178,15 +185,20 @@ Powsybl provides a special implementation of application file system storage whi
 
 That feature makes it easy to store data on a remote server.
 
-In order to use it you will need to :
+In order to use it you will need to:
  - package in a war and deploy `powsybl-afs-ws-server` in a JEE server, like Wildfly
- - configure app file systems in the server powsybl configuration file, for instance defining a mapdb file system as above
+ - configure app file systems in the server powsybl configuration file, for instance defining a mapdb file system as above. You will need to add support for remote acces by setting the additional `remotely-accessible` parameter to true:
+ ```yml
+  mapdb-app-file-system:
+    drive-name : my-first-fs
+    db-file : /path/to/my/mapdb/file
+    remotely-accessible: true
+ ```
  - add `powsybl-afs-ws-client` to the runtime dependencies of your client application
  - configure in the powsybl configuration of your application the following rest file system:
-```xml
-<rest-app-file-system>
-  <url-address>http://my-afs-server:8080/my-server-app</url-address>
-</rest-app-file-system>
+```yml
+  rest-app-file-system:
+    url-address: http://my-afs-server:8080/my-server-app
 ```
 
 Now all file systems defined in the server configurations will be transparently accessible from your client application, without changing any of your code!
@@ -293,6 +305,7 @@ public class FooFileExtension implements ProjectFileExtension<FooFile, FooFileBu
         return FooFile.class;
     }
 
+    //Define the name of this type for AFS
     @Override
     public String getProjectFilePseudoClass() {
         return "foo";
@@ -314,6 +327,8 @@ public class FooFileExtension implements ProjectFileExtension<FooFile, FooFileBu
     }
 }
 ```
+Notice the definition of a "pseudo class" name, which is the name of the type of this project file as known by the AFS storage.
+
 
 And that's it! You will now be able to use this new type of project file as any other.
 For instance, to create one in groovy:
