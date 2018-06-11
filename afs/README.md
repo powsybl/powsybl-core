@@ -271,7 +271,7 @@ class FooFileBuilder implements ProjectFileBuilder<FooFile> {
     @Override
     public FooFile build() {
         if (name == null) {
-            throw new IllegalStateException("name is not set");
+            throw new IllegalArgumentException("name is not set");
         }
         String pseudoClass = "foo";
 
@@ -279,7 +279,7 @@ class FooFileBuilder implements ProjectFileBuilder<FooFile> {
         NodeInfo info = context.getStorage().createNode(context.getFolderInfo().getId(), name, pseudoClass, "", 0, new NodeGenericMetadata());
 
         //Possibly, write data to storage
-        try (OutputStream os = storage.writeBinaryData(info.getId(), "my_data")) {
+        try (OutputStream os = context.getStorage().writeBinaryData(info.getId(), "my_data")) {
             os.write(...);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -287,6 +287,9 @@ class FooFileBuilder implements ProjectFileBuilder<FooFile> {
 
         //Possibly, add dependencies to other nodes
         context.getStorage().addDependency(info.getId(), "my_dependency", dependencyNodeId);
+
+        //Flush modifications
+        context.getStorage().flush();
 
         //Return new object
         return new FooFile(new ProjectFileCreationContext(info,
