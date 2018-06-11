@@ -53,7 +53,7 @@ public class RemoteListenableAppStorage extends ForwardingAppStorage implements 
 
     static URI getWebSocketUri(URI restUri) {
         try {
-            return new URI("ws", restUri.getUserInfo(), restUri.getHost(), restUri.getPort(), restUri.getPath(), restUri.getQuery(), null);
+            return new URI("wss", restUri.getUserInfo(), restUri.getHost(), restUri.getPort(), restUri.getPath(), restUri.getQuery(), null);
         } catch (URISyntaxException e) {
             throw new UncheckedUriSyntaxException(e);
         }
