@@ -144,7 +144,7 @@ public class ValidationTool implements Tool {
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
         Path caseFile = Paths.get(line.getOptionValue(CASE_FILE));
         Path outputFolder = Paths.get(line.getOptionValue(OUTPUT_FOLDER));
-        if (!Files.exists(outputFolder)) {
+        if (!outputFolder.toFile().exists()) {
             Files.createDirectories(outputFolder);
         }
         ValidationConfig config = ValidationConfig.load();
@@ -165,11 +165,7 @@ public class ValidationTool implements Tool {
                                     .map(ValidationType::valueOf)
                                     .collect(Collectors.toSet());
         }
-        context.getOutputStream().println("Loading case " + caseFile);
-        Network network = Importers.loadNetwork(caseFile);
-        if (network == null) {
-            throw new PowsyblException("Case " + caseFile + " not found");
-        }
+        Network network = loadNetwork(caseFile, context);
         if (line.hasOption(GROOVY_SCRIPT)) {
             runGroovyScript(Paths.get(line.getOptionValue(GROOVY_SCRIPT)), network, context);
         }
@@ -183,27 +179,10 @@ public class ValidationTool implements Tool {
             }
 
             if (line.hasOption(LOAD_FLOW)) {
-                context.getOutputStream().println("Running loadflow on network " + network.getId());
-                LoadFlowParameters parameters = LoadFlowParameters.load();
-                LoadFlow loadFlow = config.getLoadFlowFactory().newInstance().create(network, context.getShortTimeExecutionComputationManager(), 0);
-                loadFlow.runAsync(StateManager.INITIAL_STATE_ID, parameters)
-                        .thenAccept(loadFlowResult -> {
-                            if (!loadFlowResult.isOk()) {
-                                throw new PowsyblException("Loadflow on network " + network.getId() + " does not converge");
-                            }
-                        })
-                        .join();
+                runLoadflow(network, config, context);
                 context.getOutputStream().println("Running post-loadflow validation on network " + network.getId());
-
             } else if (line.hasOption(RUN_COMPUTATION)) {
-                String computationName = line.getOptionValue(RUN_COMPUTATION);
-                CandidateComputation computation = CandidateComputations.getComputation(computationName)
-                        .orElseThrow(() -> new IllegalArgumentException("Unknown computation type : " + computationName));
-
-                context.getOutputStream().format("Running computation '%s' on network '%s'", computationName, network.getId()).println();
-
-                computation.run(network, context.getShortTimeExecutionComputationManager());
-
+                runComputation(line.getOptionValue(RUN_COMPUTATION), network, context);
                 context.getOutputStream().println("Running post-computation validation on network " + network.getId());
             }
 
@@ -213,14 +192,20 @@ public class ValidationTool implements Tool {
                 Preconditions.checkArgument(line.hasOption(COMPARE_CASE_FILE),
                         "Basecases comparison requires to provide a second basecase (option --" + COMPARE_CASE_FILE + ").");
                 Path compareCaseFile = Paths.get(line.getOptionValue(COMPARE_CASE_FILE));
-                Network compareNetwork = Importers.loadNetwork(compareCaseFile);
-                if (compareNetwork == null) {
-                    throw new PowsyblException("Case to compare " + compareCaseFile + " not found");
-                }
+                Network compareNetwork = loadNetwork(compareCaseFile, context);
                 context.getOutputStream().println("Running validation on network " + compareNetwork.getId() + " to compare");
                 runValidation(compareNetwork, config, validationTypes, validationWriters, context);
             }
         }
+    }
+
+    private Network loadNetwork(Path caseFile, ToolRunningContext context) {
+        context.getOutputStream().println("Loading case " + caseFile);
+        Network network = Importers.loadNetwork(caseFile);
+        if (network == null) {
+            throw new PowsyblException("Case " + caseFile + " not found");
+        }
+        return network;
     }
 
     private void runGroovyScript(Path script, Network network, ToolRunningContext context) {
@@ -248,6 +233,26 @@ public class ValidationTool implements Tool {
                                               + " - result: " + (validationType.check(network, config, validationWriter.getWriter(validationType)) ? "success" : "fail"));
             validationWriter.getWriter(validationType).setValidationCompleted();
         });
+    }
+
+    private void runLoadflow(Network network, ValidationConfig config, ToolRunningContext context) throws InstantiationException, IllegalAccessException {
+        context.getOutputStream().println("Running loadflow on network " + network.getId());
+        LoadFlowParameters parameters = LoadFlowParameters.load();
+        LoadFlow loadFlow = config.getLoadFlowFactory().newInstance().create(network, context.getShortTimeExecutionComputationManager(), 0);
+        loadFlow.runAsync(StateManager.INITIAL_STATE_ID, parameters)
+                .thenAccept(loadFlowResult -> {
+                    if (!loadFlowResult.isOk()) {
+                        throw new PowsyblException("Loadflow on network " + network.getId() + " does not converge");
+                    }
+                })
+                .join();
+    }
+
+    private void runComputation(String computationName, Network network, ToolRunningContext context) {
+        CandidateComputation computation = CandidateComputations.getComputation(computationName)
+                .orElseThrow(() -> new IllegalArgumentException("Unknown computation type : " + computationName));
+        context.getOutputStream().format("Running computation '%s' on network '%s'", computationName, network.getId()).println();
+        computation.run(network, context.getShortTimeExecutionComputationManager());
     }
 
     enum ComparisonType {
