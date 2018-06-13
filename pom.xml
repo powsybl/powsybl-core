@@ -78,7 +78,6 @@
 
         <java.version>1.8</java.version>
 
-	<maven.specificproject>-repas</maven.specificproject>
         <maven.antrun.version>1.8</maven.antrun.version>
         <maven.assembly.version>3.1.0</maven.assembly.version>
         <maven.build-helper.version>3.0.0</maven.build-helper.version>
