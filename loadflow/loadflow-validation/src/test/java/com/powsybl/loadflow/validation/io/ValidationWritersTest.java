@@ -43,8 +43,8 @@ public class ValidationWritersTest {
     private final Set<ValidationType> usedValidationTypes = Sets.immutableEnumSet(ValidationType.BUSES, ValidationType.FLOWS, ValidationType.GENERATORS);
     private final Set<ValidationType> unusedValidationTypes = Sets.immutableEnumSet(ValidationType.SHUNTS, ValidationType.SVCS, ValidationType.TWTS);
 
-    FileSystem fileSystem;
-    ValidationWriters validationWriters;
+    private FileSystem fileSystem;
+    private ValidationWriters validationWriters;
 
     @Before
     public void setUp() throws IOException {

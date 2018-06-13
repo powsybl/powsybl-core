@@ -144,7 +144,7 @@ public class ValidationTool implements Tool {
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
         Path caseFile = Paths.get(line.getOptionValue(CASE_FILE));
         Path outputFolder = Paths.get(line.getOptionValue(OUTPUT_FOLDER));
-        if (!outputFolder.toFile().exists()) {
+        if (!Files.exists(outputFolder)) {
             Files.createDirectories(outputFolder);
         }
         ValidationConfig config = ValidationConfig.load();
@@ -209,7 +209,7 @@ public class ValidationTool implements Tool {
     }
 
     private void runGroovyScript(Path script, Network network, ToolRunningContext context) {
-        if (script.toFile().exists()) {
+        if (Files.exists(script)) {
             context.getOutputStream().println("Running Groovy script " + script + " on network " + network.getId());
             CompilerConfiguration conf = new CompilerConfiguration();
             Binding binding = new Binding();
@@ -267,7 +267,7 @@ public class ValidationTool implements Tool {
 
         @Override
         public String toString() {
-            return this.name() + "(" + this.description + ")";
+            return this.name() + " (" + this.description + ")";
         }
 
     }
