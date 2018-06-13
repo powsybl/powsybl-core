@@ -13,7 +13,7 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-afs</artifactId>
-        <version>1.1.0repas-SNAPSHOT</version>
+        <version>repas-SNAPSHOT</version>
     </parent>
 
     <artifactId>powsybl-afs-ws</artifactId>
