@@ -96,7 +96,7 @@ public class AmplNetworkReaderTest {
         MemDataSource memDataSource = new MemDataSource();
         importData(memDataSource, "_hvdc", "outputs/hvdc.txt");
         importData(memDataSource, "_shunts", "outputs/shunts.txt");
-        importData(memDataSource, "_lcc", "outputs/lcc.txt");
+        importData(memDataSource, "_lcc_converter_stations", "outputs/lcc.txt");
 
         AmplNetworkReader reader = new AmplNetworkReader(memDataSource, network, mapper);
         testHvdc(network, reader);
@@ -107,7 +107,7 @@ public class AmplNetworkReaderTest {
         StringToIntMapper<AmplSubset> mapper2 = AmplUtil.createMapper(network2);
 
         MemDataSource memDataSource2 = new MemDataSource();
-        importData(memDataSource2, "_vsc", "outputs/vsc.txt");
+        importData(memDataSource2, "_vsc_converter_stations", "outputs/vsc.txt");
         AmplNetworkReader reader2 = new AmplNetworkReader(memDataSource2, network2, mapper2);
         testVsc(network2, reader2);
 
@@ -120,7 +120,7 @@ public class AmplNetworkReaderTest {
         StringToIntMapper<AmplSubset> mapper = AmplUtil.createMapper(network);
 
         MemDataSource memDataSource = new MemDataSource();
-        importData(memDataSource, "_svc", "outputs/svc.txt");
+        importData(memDataSource, "_static_var_compensators", "outputs/svc.txt");
 
         AmplNetworkReader reader = new AmplNetworkReader(memDataSource, network, mapper);
         testSvc(network, reader);

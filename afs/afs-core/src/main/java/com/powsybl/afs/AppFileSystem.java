@@ -15,6 +15,21 @@ import java.util.Objects;
 
 /**
  *
+ * An AppFileSystem instance is a tree of {@link Node} objects, starting with its root folder.
+ * <p>
+ * {@link Node} objects may be {@link Folder}s or {@link File}, or any new file type added
+ * by the user through the extension mechanism (see {@link FileExtension}).
+ * An application may have several instances of {@link AppFileSystem}, each one with a unique name.
+ * They are accessed through the parent {@link AppData} instance.
+ *
+ * <p>
+ * The AppFileSystem is backed by an {@link AppStorage} implementation, which is in charge of maintaining
+ * the state of data of the AppFileSystem. The implementation may bring additional functionalities:
+ * in-memory storage, database storage, remote storage, ...
+ *
+ * <p>
+ * Users of an AppFileSystem should not need to interact directly with the underlying {@link AppStorage}.
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class AppFileSystem implements AutoCloseable {
@@ -62,6 +77,9 @@ public class AppFileSystem implements AutoCloseable {
         return new Folder(new FileCreationContext(rootNodeInfo, storage, this));
     }
 
+    /**
+     * Creates a new Node in this file system. This is a low level method, and should seldom be used by the AFS API users.
+     */
     public Node createNode(NodeInfo nodeInfo) {
         Objects.requireNonNull(nodeInfo);
         Objects.requireNonNull(data);
@@ -80,6 +98,9 @@ public class AppFileSystem implements AutoCloseable {
         }
     }
 
+    /**
+     * Get a project file by its ID.
+     */
     public <T extends ProjectFile> T findProjectFile(String projectFileId, Class<T> clazz) {
         Objects.requireNonNull(projectFileId);
         Objects.requireNonNull(clazz);

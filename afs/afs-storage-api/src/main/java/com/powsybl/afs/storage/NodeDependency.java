@@ -9,6 +9,8 @@ package com.powsybl.afs.storage;
 import java.util.Objects;
 
 /**
+ * Represents a named dependency to a node in the tree.
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class NodeDependency {

@@ -14,6 +14,31 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
+ * An instance of AppData is the root of an application file system.
+ *
+ * Usually, an application will only have one instance of AppData.
+ * It is the first entrypoint of AFS, through which you can access to individual {@link AppFileSystem} objects.
+ *
+ * <pre>
+ *   //Get AppData instance.
+ *   AppData appData = ...
+ *
+ *   //Print file system names to console
+ *   appData.getFileSystems().stream().map(AppFileSystem::getName).forEach(System.out::println);
+ *
+ *   //Get file system with name "fs1"
+ *   AppFileSystem fs1 = appData.getFileSystem("fs1");
+ *
+ *   //Get root folder of "fs1"
+ *   Folder root = fs1.getRootFolder();
+ *
+ *   //Get the node of type Project at /folder1/folder2/my_project, if it exists.
+ *   Optional&lt;Project&gt; project = root.getChild(Project.class, "folder1", "folder2", "my_project");
+ *
+ *   ...
+ *
+ * </pre>
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class AppData implements AutoCloseable {
@@ -100,10 +125,16 @@ public class AppData implements AutoCloseable {
         fileSystems.put(fileSystem.getName(), fileSystem);
     }
 
+    /**
+     * The list of available file systems.
+     */
     public Collection<AppFileSystem> getFileSystems() {
         return fileSystems.values();
     }
 
+    /**
+     * Gets a file system by its {@code name}.
+     */
     public AppFileSystem getFileSystem(String name) {
         Objects.requireNonNull(name);
         return fileSystems.get(name);
@@ -177,6 +208,9 @@ public class AppData implements AutoCloseable {
         return longTimeExecutionComputationManager != null ? longTimeExecutionComputationManager : shortTimeExecutionComputationManager;
     }
 
+    /**
+     * Gets the list of remotely accessible file systems. Should not be used by the AFS API users.
+     */
     public List<String> getRemotelyAccessibleFileSystemNames() {
         return fileSystems.entrySet().stream()
                 .map(Map.Entry::getValue)
@@ -185,11 +219,21 @@ public class AppData implements AutoCloseable {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Gets low level storage interface for remotely accessible file systems. Should not be used by the AFS API users.
+     */
     public ListenableAppStorage getRemotelyAccessibleStorage(String fileSystemName) {
         AppFileSystem afs = fileSystems.get(fileSystemName);
         return afs != null ? afs.getStorage() : null;
     }
 
+    /**
+     * Gets a registered service of type U. To register a service, see {@link ServiceExtension}.
+     *
+     * @param serviceClass  the requested service type
+     * @param remoteStorage if {@code true}, tries to get a remote implementation first.
+     * @throws AfsException if no service implementation is found.
+     */
     <U> U findService(Class<U> serviceClass, boolean remoteStorage) {
         U service = null;
         if (remoteStorage) {
@@ -204,6 +248,9 @@ public class AppData implements AutoCloseable {
         return service;
     }
 
+    /**
+     * Closes any resources used by underlying file systems.
+     */
     @Override
     public void close() {
         getFileSystems().forEach(AppFileSystem::close);
