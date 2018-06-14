@@ -6,6 +6,8 @@
  */
 package com.powsybl.afs.storage;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -44,32 +46,24 @@ public class AppStorageArchive {
 
     private static class ArchiveDependency {
 
-        private String nodeId;
+        @JsonProperty("nodeId")
+        private final String nodeId;
 
-        private String name;
+        @JsonProperty("name")
+        private final String name;
 
-        public ArchiveDependency() {
-        }
-
-        public ArchiveDependency(String nodeId, String name) {
-            this.nodeId = nodeId;
-            this.name = name;
+        @JsonCreator
+        public ArchiveDependency(@JsonProperty("nodeId") String nodeId, @JsonProperty("name") String name) {
+            this.nodeId = Objects.requireNonNull(nodeId);
+            this.name = Objects.requireNonNull(name);
         }
 
         public String getNodeId() {
             return nodeId;
         }
 
-        public void setNodeId(String nodeId) {
-            this.nodeId = nodeId;
-        }
-
         public String getName() {
             return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
         }
 
         @Override
@@ -200,6 +194,8 @@ public class AppStorageArchive {
     }
 
     public void archiveChildren(NodeInfo nodeInfo, Path nodeDir) throws IOException {
+        Objects.requireNonNull(nodeInfo);
+        Objects.requireNonNull(nodeDir);
         List<NodeInfo> childNodeInfos = storage.getChildNodes(nodeInfo.getId());
         if (!childNodeInfos.isEmpty()) {
             Path childrenDir = nodeDir.resolve("children");
@@ -223,6 +219,7 @@ public class AppStorageArchive {
 
     public void archive(NodeInfo nodeInfo, Path parentDir) throws IOException {
         Objects.requireNonNull(nodeInfo);
+        Objects.requireNonNull(parentDir);
 
         LOGGER.info("Archiving node {} ({})", nodeInfo.getId(), nodeInfo.getName());
 
@@ -343,6 +340,8 @@ public class AppStorageArchive {
     }
 
     public void unarchiveChildren(NodeInfo parentNodeInfo, Path nodeDir) {
+        Objects.requireNonNull(parentNodeInfo);
+        Objects.requireNonNull(nodeDir);
         try {
             UnarchiveContext context = new UnarchiveContext();
             unarchiveChildren(parentNodeInfo, nodeDir, context);
@@ -353,6 +352,9 @@ public class AppStorageArchive {
     }
 
     public void unarchiveChildren(NodeInfo parentNodeInfo, Path nodeDir, UnarchiveContext context) throws IOException {
+        Objects.requireNonNull(parentNodeInfo);
+        Objects.requireNonNull(nodeDir);
+        Objects.requireNonNull(context);
         Path childrenDir = nodeDir.resolve("children");
         if (Files.exists(childrenDir)) {
             try (Stream<Path> stream = Files.list(childrenDir)) {

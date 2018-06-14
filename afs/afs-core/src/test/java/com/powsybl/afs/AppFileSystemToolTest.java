@@ -55,6 +55,8 @@ public class AppFileSystemToolTest extends AbstractToolTest {
         Command command = tool.getCommand();
         assertCommand(command, "afs", 4, 0);
         assertOption(command.getOptions(), "ls", false, true);
+        assertOption(command.getOptions(), "archive", false, true);
+        assertOption(command.getOptions(), "unarchive", false, true);
         assertEquals("Application file system", command.getTheme());
         assertEquals("application file system command line tool", command.getDescription());
         assertNull(command.getUsageFooter());
