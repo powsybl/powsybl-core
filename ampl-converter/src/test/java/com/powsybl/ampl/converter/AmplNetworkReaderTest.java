@@ -352,9 +352,8 @@ public class AmplNetworkReaderTest {
 
         StaticVarCompensator sv2 = network.getStaticVarCompensator("SVC2");
         assertEquals(RegulationMode.REACTIVE_POWER, sv2.getRegulationMode());
-        assertEquals(40f * sv.getTerminal().getVoltageLevel().getNominalV(), sv2.getVoltageSetPoint(), 0.0);
+        assertEquals(1.080000f * sv.getTerminal().getVoltageLevel().getNominalV(), sv2.getVoltageSetPoint(), 0.0);
         assertEquals(-30f, sv2.getReactivePowerSetPoint(), 0.0);
-        assertEquals(0f, sv2.getTerminal().getP(), 0.0);
         assertEquals(30f, sv2.getTerminal().getQ(), 0.0);
     }
 
