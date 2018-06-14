@@ -11,6 +11,9 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
+ *
+ * Metadata about a particular node. This is a low level object, should seldom be used by AFS API users.
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class NodeGenericMetadata {

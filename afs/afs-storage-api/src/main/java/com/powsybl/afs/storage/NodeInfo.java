@@ -9,6 +9,8 @@ package com.powsybl.afs.storage;
 import java.util.Objects;
 
 /**
+ * Low level information about a node in an AFS tree. Should seldom be used by AFS API users.
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class NodeInfo {
@@ -41,6 +43,9 @@ public class NodeInfo {
         this.genericMetadata = Objects.requireNonNull(genericMetadata);
     }
 
+    /**
+     * Returns the ID of this node, uniquely identifying it in the file system.
+     */
     public String getId() {
         return id;
     }
