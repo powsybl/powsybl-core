@@ -70,7 +70,7 @@ public abstract class AbstractAppStorageArchiveTest {
             os.write("hello".getBytes(StandardCharsets.UTF_8));
         }
 
-        TimeSeriesMetadata metadata1 = new TimeSeriesMetadata("ts1",
+        TimeSeriesMetadata metadata1 = new TimeSeriesMetadata("ts1 hello",
                                                               TimeSeriesDataType.DOUBLE,
                                                               ImmutableMap.of("var1", "value1"),
                                                               RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T01:15:00Z"),
@@ -78,7 +78,7 @@ public abstract class AbstractAppStorageArchiveTest {
         storage.createTimeSeries(file1Info.getId(), metadata1);
         List<DoubleArrayChunk> chunks = Arrays.asList(new UncompressedDoubleArrayChunk(2, new double[]{1d, 2d}),
                                                       new UncompressedDoubleArrayChunk(5, new double[]{3d}));
-        storage.addDoubleTimeSeriesData(file1Info.getId(), 0, "ts1", chunks);
+        storage.addDoubleTimeSeriesData(file1Info.getId(), 0, "ts1 hello", chunks);
 
         NodeInfo folder2Info = storage.createNode(rootFolderInfo.getId(), "folder2", AbstractAppStorageTest.FOLDER_PSEUDO_CLASS, "", 0, new NodeGenericMetadata());
         NodeInfo file2Info = storage.createNode(folder2Info.getId(), "file2", AbstractAppStorageTest.DATA_FILE_CLASS, "", 0, new NodeGenericMetadata()
@@ -125,12 +125,12 @@ public abstract class AbstractAppStorageArchiveTest {
         try (InputStream is = storage2.readBinaryData(newFile1Info.getId(), "data1").orElseThrow(AssertionError::new)) {
             assertArrayEquals("hello".getBytes(StandardCharsets.UTF_8), ByteStreams.toByteArray(is));
         }
-        assertEquals(Sets.newHashSet("ts1"), storage2.getTimeSeriesNames(newFile1Info.getId()));
-        assertEquals(Collections.singletonList(metadata1), storage2.getTimeSeriesMetadata(newFile1Info.getId(), Sets.newHashSet("ts1")));
-        assertTrue(storage2.getStringTimeSeriesData(newFile1Info.getId(), Sets.newHashSet("ts1"), 0).isEmpty());
-        Map<String, List<DoubleArrayChunk>> data = storage2.getDoubleTimeSeriesData(newFile1Info.getId(), Sets.newHashSet("ts1"), 0);
+        assertEquals(Sets.newHashSet("ts1 hello"), storage2.getTimeSeriesNames(newFile1Info.getId()));
+        assertEquals(Collections.singletonList(metadata1), storage2.getTimeSeriesMetadata(newFile1Info.getId(), Sets.newHashSet("ts1 hello")));
+        assertTrue(storage2.getStringTimeSeriesData(newFile1Info.getId(), Sets.newHashSet("ts1 hello"), 0).isEmpty());
+        Map<String, List<DoubleArrayChunk>> data = storage2.getDoubleTimeSeriesData(newFile1Info.getId(), Sets.newHashSet("ts1 hello"), 0);
         assertEquals(1, data.size());
-        assertEquals(chunks, data.get("ts1"));
+        assertEquals(chunks, data.get("ts1 hello"));
         NodeInfo newFile2Info = storage2.getChildNode(newFolder2Info.getId(), "file2").orElse(null);
         assertNotNull(newFile2Info);
         assertEquals("file2", newFile2Info.getName());

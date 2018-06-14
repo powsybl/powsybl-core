@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
@@ -29,6 +30,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -37,7 +40,7 @@ public class AppStorageArchive {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AppStorageArchive.class);
 
-    private static final Pattern CHUNKS_PATTERN = Pattern.compile("chunks-(\\d*).json");
+    private static final Pattern CHUNKS_PATTERN = Pattern.compile("chunks-(\\d*).json.gz");
 
     private static class ArchiveDependency {
 
@@ -143,8 +146,10 @@ public class AppStorageArchive {
         Files.createDirectory(dataDir);
 
         for (String dataName : dataNames) {
-            try (InputStream is = storage.readBinaryData(nodeInfo.getId(), dataName).orElseThrow(AssertionError::new)) {
-                Files.copy(is, dataDir.resolve(dataName));
+            Path dataFileName = dataDir.resolve(URLEncoder.encode(dataName, StandardCharsets.UTF_8.name()) + ".gz");
+            try (InputStream is = storage.readBinaryData(nodeInfo.getId(), dataName).orElseThrow(AssertionError::new);
+                 OutputStream os = new GZIPOutputStream(Files.newOutputStream(dataFileName))) {
+                ByteStreams.copy(is, os);
             }
         }
     }
@@ -175,15 +180,15 @@ public class AppStorageArchive {
                 switch (metadata.getDataType()) {
                     case DOUBLE:
                         List<DoubleArrayChunk> doubleChunks = storage.getDoubleTimeSeriesData(nodeInfo.getId(), Collections.singleton(metadata.getName()), version).get(metadata.getName());
-                        try (OutputStream os = Files.newOutputStream(timeSeriesNameDir.resolve("chunks-" + version + ".json"))) {
-                            objectWriter.writeValue(os, doubleChunks);
+                        try (Writer writer = new OutputStreamWriter(new GZIPOutputStream(Files.newOutputStream(timeSeriesNameDir.resolve("chunks-" + version + ".json.gz"))), StandardCharsets.UTF_8)) {
+                            objectWriter.writeValue(writer, doubleChunks);
                         }
                         break;
 
                     case STRING:
                         List<StringArrayChunk> stringChunks = storage.getStringTimeSeriesData(nodeInfo.getId(), Collections.singleton(metadata.getName()), version).get(metadata.getName());
-                        try (OutputStream os = Files.newOutputStream(timeSeriesNameDir.resolve("chunks-" + version + ".json"))) {
-                            objectWriter.writeValue(os, stringChunks);
+                        try (Writer writer = new OutputStreamWriter(new GZIPOutputStream(Files.newOutputStream(timeSeriesNameDir.resolve("chunks-" + version + ".json.gz"))), StandardCharsets.UTF_8)) {
+                            objectWriter.writeValue(writer, stringChunks);
                         }
                         break;
 
@@ -267,10 +272,11 @@ public class AppStorageArchive {
             Set<String> dataNames = new HashSet<>();
             try (Stream<Path> stream = Files.list(dataDir)) {
                 stream.forEach(dataFile -> {
-                    String dataName = dataFile.getFileName().toString();
-                    dataNames.add(dataName);
                     try {
-                        try (InputStream is = Files.newInputStream(dataFile);
+                        String dataFileName = dataFile.getFileName().toString();
+                        String dataName = URLDecoder.decode(dataFileName.substring(0, dataFileName.length() - 3), StandardCharsets.UTF_8.name());
+                        dataNames.add(dataName);
+                        try (InputStream is = new GZIPInputStream(Files.newInputStream(dataFile));
                              OutputStream os = storage.writeBinaryData(newNodeInfo.getId(), dataName)) {
                             ByteStreams.copy(is, os);
                         }
@@ -290,22 +296,22 @@ public class AppStorageArchive {
             int[] chunkCount = new int[1];
             try (Stream<Path> stream = Files.list(timeSeriesDir)) {
                 stream.forEach(timeSeriesNameDir -> {
-                    String timeSeriesName = timeSeriesNameDir.getFileName().toString();
-                    timeSeriesNames.add(timeSeriesName);
                     try {
+                        String timeSeriesName = URLDecoder.decode(timeSeriesNameDir.getFileName().toString(), StandardCharsets.UTF_8.name());
+                        timeSeriesNames.add(timeSeriesName);
                         TimeSeriesMetadata metadata;
                         try (Reader reader = Files.newBufferedReader(timeSeriesNameDir.resolve("metadata.json"), StandardCharsets.UTF_8)) {
                             metadata = mapper.readerFor(TimeSeriesMetadata.class).readValue(reader);
                             storage.createTimeSeries(newNodeInfo.getId(), metadata);
                         }
-                        try (DirectoryStream<Path> chunksStream = Files.newDirectoryStream(timeSeriesNameDir, "chunks-*.json")) {
+                        try (DirectoryStream<Path> chunksStream = Files.newDirectoryStream(timeSeriesNameDir, "chunks-*.json.gz")) {
                             for (Path chunksFile : chunksStream) {
                                 Matcher matcher = CHUNKS_PATTERN.matcher(chunksFile.getFileName().toString());
                                 if (!matcher.matches()) {
                                     throw new AssertionError("Invalid chunks file pattern");
                                 }
                                 int version = Integer.parseInt(matcher.group(1));
-                                try (Reader reader = Files.newBufferedReader(chunksFile, StandardCharsets.UTF_8)) {
+                                try (Reader reader = new InputStreamReader(new GZIPInputStream(Files.newInputStream(chunksFile)), StandardCharsets.UTF_8)) {
                                     switch (metadata.getDataType()) {
                                         case DOUBLE:
                                             List<DoubleArrayChunk> doubleChunks = mapper.readerFor(new TypeReference<List<DoubleArrayChunk>>() {
