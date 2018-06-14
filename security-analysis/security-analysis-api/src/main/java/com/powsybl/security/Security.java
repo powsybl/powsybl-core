@@ -317,8 +317,8 @@ public final class Security {
         return violation.getLimit() * violation.getLimitReduction();
     }
 
-    private static float getViolationRate(LimitViolation violation) {
-        return (float) (Math.abs(violation.getValue()) / violation.getLimit() * 100.0f);
+    private static double getViolationRate(LimitViolation violation) {
+        return Math.abs(violation.getValue()) / violation.getLimit() * 100.0;
     }
 
     private static NumberFormat getFormatter(Locale locale, int minimumFractionDigits, int maximumFractionDigits) {
