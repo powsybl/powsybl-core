@@ -13,7 +13,7 @@ import java.util.Objects;
  */
 public class NetworkComponentNode implements NetworkNode {
 
-    enum ComponentType {
+    public enum ComponentType {
         LINE,
         BRANCH,
         TRANSFORMER,
