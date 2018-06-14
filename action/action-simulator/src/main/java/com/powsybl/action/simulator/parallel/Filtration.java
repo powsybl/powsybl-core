@@ -15,8 +15,8 @@ public class Filtration {
 
     private static final Pattern PATTERN = Pattern.compile("\\d+/\\d+");
 
-    private final Integer x;
-    private final Integer y;
+    private final int x;
+    private final int y;
 
     public Filtration(String filtration) {
         Objects.requireNonNull(filtration);

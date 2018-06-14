@@ -8,11 +8,13 @@ package com.powsybl.security;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Objects;
 
 public final class SecurityAnalysisResultMerger {
 
     public static SecurityAnalysisResult merge(SecurityAnalysisResult[] results) {
         //If one of the subtasks has failed, return a failed result
+        Objects.requireNonNull(results);
         for (SecurityAnalysisResult subResult : results) {
             if (!subResult.getPreContingencyResult().isComputationOk()) {
                 return computationFailed();
