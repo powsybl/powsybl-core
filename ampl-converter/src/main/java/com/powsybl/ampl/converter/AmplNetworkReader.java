@@ -390,9 +390,9 @@ public class AmplNetworkReader {
 
 
         Terminal t = svc.getTerminal();
-        t.setP(Float.NaN).setQ(q);
-
-        svc.setVoltageSetPoint(targetV);
+        t.setQ(q);
+        float nominalV = t.getVoltageLevel().getNominalV();
+        svc.setVoltageSetPoint(targetV * nominalV);
 
         busConnection(t, busNum);
 
