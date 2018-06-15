@@ -6,9 +6,13 @@
  */
 package com.powsybl.afs;
 
+import com.powsybl.afs.storage.AppStorageArchive;
 import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.afs.storage.NodeInfo;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -103,5 +107,18 @@ public class Folder extends Node implements FolderBase<Node, Folder> {
                     return newProjectInfo;
                 });
         return new Project(new FileCreationContext(projectInfo, storage, fileSystem));
+    }
+
+    public void archive(Path dir) {
+        Objects.requireNonNull(dir);
+        try {
+            new AppStorageArchive(storage).archiveChildren(info, dir);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public void unarchive(Path dir) {
+        new AppStorageArchive(storage).unarchiveChildren(info, dir);
     }
 }

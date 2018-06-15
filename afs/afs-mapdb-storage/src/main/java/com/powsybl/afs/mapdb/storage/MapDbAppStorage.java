@@ -582,7 +582,9 @@ public class MapDbAppStorage implements AppStorage {
         Map<String, List<C>> timeSeriesData = new HashMap<>();
         for (String timeSeriesName : timeSeriesNames) {
             TimeSeriesMetadata metadata = timeSeriesMetadataMap.get(new NamedLink(nodeUuid, timeSeriesName));
-            if (metadata != null) {
+            if (metadata != null &&
+                    ((metadata.getDataType() == TimeSeriesDataType.DOUBLE && map == doubleTimeSeriesChunksMap)
+                        || (metadata.getDataType() == TimeSeriesDataType.STRING && map == stringTimeSeriesChunksMap))) {
                 List<C> chunks = getChunks(nodeUuid, version, timeSeriesName, metadata, map);
                 timeSeriesData.put(timeSeriesName, chunks);
             }
