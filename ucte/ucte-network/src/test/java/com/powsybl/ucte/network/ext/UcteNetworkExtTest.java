@@ -25,8 +25,8 @@ public class UcteNetworkExtTest extends UcteNetworkImplTest {
     private void testNetwork(UcteNetworkExt network) {
         super.testNetwork(network);
 
-        UcteNodeCode code1 = new UcteNodeCode(UcteCountryCode.XX, "AAAAA", UcteVoltageLevelCode.LV_380, '1');
-        UcteNodeCode code2 = new UcteNodeCode(UcteCountryCode.XX, "BBBBB", UcteVoltageLevelCode.LV_220, '1');
+        UcteNodeCode code1 = new UcteNodeCode(UcteCountryCode.XX, "AAAAA", UcteVoltageLevelCode.VL_380, '1');
+        UcteNodeCode code2 = new UcteNodeCode(UcteCountryCode.XX, "BBBBB", UcteVoltageLevelCode.VL_220, '1');
 
         assertEquals(2, network.getSubstations().size());
         assertEquals(network.getVoltageLevel(code1).getSubstation(), network.getVoltageLevel(code2).getSubstation());
