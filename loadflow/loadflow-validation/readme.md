@@ -35,7 +35,7 @@ You may configure the following properties in your platform configuration file.
 * *output-writer*: output format [CSV, CSV_MULTILINE], default is CSV_MULTILINE
 * *ok-missing-values*: perform validation check even if some parameters of connected components have NaN values; default value is false (i.e. validation check fails if some parameters of connected components have NaN Values)
 * *no-requirement-if-reactive-bound-inversion*: return validation success if there is a reactive bounds inversion (maxQ < minQ); default is false
-* *compare-results*: print output files with results both before and after the loadflow
+* *compare-results*: compare results of two validations, printing output files with results of both ones
 * *check-main-component-only*: validate only the equipment in the main connected component, default is true
 * *no-requirement-if-setpoint-outside-power-bounds*: return validation success if the set point is outside the active power bounds (targetP < minP or targetP > maxP); default is false
 
@@ -46,9 +46,10 @@ You can find below the help of the tool, as returned by the "--help" option.
 ```
 $ ./itools loadflow-validation --help
 usage: itools [OPTIONS] loadflow-validation --case-file <FILE>
-       [--compare-results] [--groovy-script <FILE>] [--help] [--load-flow]
-       --output-folder <FOLDER> [--output-format <VALIDATION_WRITER>] [--types
-       <VALIDATION_TYPE,VALIDATION_TYPE,...>] [--verbose]
+       [--compare-case-file <FILE>] [--compare-results <COMPARISON_TYPE>]
+       [--groovy-script <FILE>] [--help] [--load-flow] --output-folder <FOLDER>
+       [--output-format <VALIDATION_WRITER>] [--run-computation <COMPUTATION>]
+       [--types <VALIDATION_TYPE,VALIDATION_TYPE,...>] [--verbose]
 
 Available options are:
     --config-name <CONFIG_NAME>   Override configuration file name
@@ -56,9 +57,19 @@ Available options are:
 
 Available arguments are:
     --case-file <FILE>                              case file path
-    --compare-results                               print output files with
-                                                    results both before and
-                                                    after the loadflow
+    --compare-case-file <FILE>                      path to the case file to
+                                                    compare
+    --compare-results <COMPARISON_TYPE>             compare results of two
+                                                    validations, printing output
+                                                    files with results of both
+                                                    ones. Available comparisons
+                                                    are [COMPUTATION(compare the
+                                                    validation of a basecase
+                                                    before and after the
+                                                    computation),
+                                                    BASECASE(compare the
+                                                    validation of two
+                                                    basecases)]
     --groovy-script <FILE>                          groovy script to run before
                                                     validation
     --help                                          display the help and quit
@@ -66,11 +77,17 @@ Available arguments are:
     --output-folder <FOLDER>                        output folder path
     --output-format <VALIDATION_WRITER>             output format [CSV,
                                                     CSV_MULTILINE]
+    --run-computation <COMPUTATION>                 run a computation on the
+                                                    network before validation,
+                                                    available computations are
+                                                    [loadflow,
+                                                    loadflowResultsCompletion]
     --types <VALIDATION_TYPE,VALIDATION_TYPE,...>   validation types [FLOWS,
                                                     GENERATORS, BUSES, SVCS,
                                                     SHUNTS, TWTS] to run, all of
                                                     them if the option if not
                                                     specified
     --verbose                                       verbose output
+
 
 ```
