@@ -49,6 +49,8 @@ public class XMLImporter implements Importer, XmlConstants {
 
     private final ParameterDefaultValueConfig defaultValueConfig;
 
+    private static final String SUFFIX_MAPPING = "_mapping";
+
     public XMLImporter() {
         this(PlatformConfig.defaultConfig());
     }
@@ -135,9 +137,9 @@ public class XMLImporter implements Importer, XmlConstants {
                 ByteStreams.copy(is, os);
             }
             // and also anonymization file if exists
-            if (fromDataSource.exists("_mapping", "csv")) {
-                try (InputStream is = fromDataSource.newInputStream("_mapping", "csv");
-                     OutputStream os = toDataSource.newOutputStream("_mapping", "csv", false)) {
+            if (fromDataSource.exists(SUFFIX_MAPPING, "csv")) {
+                try (InputStream is = fromDataSource.newInputStream(SUFFIX_MAPPING, "csv");
+                     OutputStream os = toDataSource.newOutputStream(SUFFIX_MAPPING, "csv", false)) {
                     ByteStreams.copy(is, os);
                 }
             }
@@ -159,9 +161,9 @@ public class XMLImporter implements Importer, XmlConstants {
             }
             boolean throwExceptionIfExtensionNotFound = (Boolean) Importers.readParameter(getFormat(), parameters, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND, defaultValueConfig);
             Anonymizer anonymizer = null;
-            if (dataSource.exists("_mapping", "csv")) {
+            if (dataSource.exists(SUFFIX_MAPPING, "csv")) {
                 anonymizer = new SimpleAnonymizer();
-                try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream("_mapping", "csv"), StandardCharsets.UTF_8))) {
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(SUFFIX_MAPPING, "csv"), StandardCharsets.UTF_8))) {
                     anonymizer.read(reader);
                 }
             }
