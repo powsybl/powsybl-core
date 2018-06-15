@@ -18,8 +18,8 @@ import static org.junit.Assert.assertEquals;
 public class UcteLineTest extends AbstractUcteElementTest {
 
     private UcteElementId createElementId() {
-        UcteNodeCode node1 = new UcteNodeCode(UcteCountryCode.FR, "AAAAA", UcteVoltageLevelCode._380, 'A');
-        UcteNodeCode node2 = new UcteNodeCode(UcteCountryCode.BE, "BBBBB", UcteVoltageLevelCode._380, 'B');
+        UcteNodeCode node1 = new UcteNodeCode(UcteCountryCode.FR, "AAAAA", UcteVoltageLevelCode.LV_380, 'A');
+        UcteNodeCode node2 = new UcteNodeCode(UcteCountryCode.BE, "BBBBB", UcteVoltageLevelCode.LV_380, 'B');
         return new UcteElementId(node1, node2, '1');
     }
 

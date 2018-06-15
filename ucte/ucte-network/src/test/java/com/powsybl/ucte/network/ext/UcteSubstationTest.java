@@ -22,7 +22,7 @@ public class UcteSubstationTest {
 
     @Test
     public void test() {
-        UcteNodeCode node = new UcteNodeCode(UcteCountryCode.FR, "AAAAA", UcteVoltageLevelCode._380, '1');
+        UcteNodeCode node = new UcteNodeCode(UcteCountryCode.FR, "AAAAA", UcteVoltageLevelCode.LV_380, '1');
         UcteSubstation s1 = new UcteSubstation("S1", Collections.emptyList());
         UcteVoltageLevel vl = new UcteVoltageLevel("VL", s1, Collections.singletonList(node));
         UcteSubstation s2 = new UcteSubstation("S2", Collections.singletonList(vl));

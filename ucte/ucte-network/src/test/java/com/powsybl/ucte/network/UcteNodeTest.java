@@ -17,12 +17,12 @@ public class UcteNodeTest {
 
     @Test
     public void test() {
-        UcteNodeCode code1 = new UcteNodeCode(UcteCountryCode.FR, "AAAAA", UcteVoltageLevelCode._380, '1');
+        UcteNodeCode code1 = new UcteNodeCode(UcteCountryCode.FR, "AAAAA", UcteVoltageLevelCode.LV_380, '1');
         UcteNode node = new UcteNode(code1, "name", UcteNodeStatus.REAL, UcteNodeTypeCode.UT,
                 1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f, 9.0f, 10.0f, 11.0f, 12.0f, 13.0f, UctePowerPlantType.C);
 
         assertEquals(code1, node.getCode());
-        UcteNodeCode code2 = new UcteNodeCode(UcteCountryCode.BE, "BBBBB", UcteVoltageLevelCode._220, '2');
+        UcteNodeCode code2 = new UcteNodeCode(UcteCountryCode.BE, "BBBBB", UcteVoltageLevelCode.LV_220, '2');
         node.setCode(code2);
         assertEquals(code2, node.getCode());
 
@@ -102,7 +102,7 @@ public class UcteNodeTest {
     }
 
     private UcteNode createNode() {
-        UcteNodeCode code = new UcteNodeCode(UcteCountryCode.FR, "AAAAA", UcteVoltageLevelCode._380, '1');
+        UcteNodeCode code = new UcteNodeCode(UcteCountryCode.FR, "AAAAA", UcteVoltageLevelCode.LV_380, '1');
         return new UcteNode(code, null, UcteNodeStatus.REAL, UcteNodeTypeCode.PQ,
                 Float.NaN, Float.NaN, Float.NaN, Float.NaN, Float.NaN, Float.NaN, Float.NaN, Float.NaN,
                 Float.NaN, Float.NaN, Float.NaN, Float.NaN, Float.NaN, null);

@@ -19,19 +19,19 @@ public final class UcteNetworkFactory {
     public static UcteNetwork createNetwork(Supplier<UcteNetwork> factory) {
         UcteNetwork network = factory.get();
 
-        UcteNodeCode code1 = new UcteNodeCode(UcteCountryCode.XX, "AAAAA", UcteVoltageLevelCode._380, '1');
+        UcteNodeCode code1 = new UcteNodeCode(UcteCountryCode.XX, "AAAAA", UcteVoltageLevelCode.LV_380, '1');
         UcteNode node1 = new UcteNode(code1, null, UcteNodeStatus.REAL, UcteNodeTypeCode.PU, 400.0f,
                 Float.NaN, Float.NaN, 1000.0f, Float.NaN, 9999.0f, -9999.0f, 9999.0f, -9999.0f,
                 Float.NaN, Float.NaN, Float.NaN, Float.NaN, UctePowerPlantType.C);
         network.addNode(node1);
 
-        UcteNodeCode code2 = new UcteNodeCode(UcteCountryCode.XX, "BBBBB", UcteVoltageLevelCode._220, '1');
+        UcteNodeCode code2 = new UcteNodeCode(UcteCountryCode.XX, "BBBBB", UcteVoltageLevelCode.LV_220, '1');
         UcteNode node2 = new UcteNode(code2, null, UcteNodeStatus.REAL, UcteNodeTypeCode.PQ, Float.NaN,
                 Float.NaN, Float.NaN, Float.NaN, Float.NaN, Float.NaN, Float.NaN, Float.NaN, Float.NaN,
                 Float.NaN, Float.NaN, Float.NaN, Float.NaN, null);
         network.addNode(node2);
 
-        UcteNodeCode code3 = new UcteNodeCode(UcteCountryCode.XX, "CCCCC", UcteVoltageLevelCode._220, '1');
+        UcteNodeCode code3 = new UcteNodeCode(UcteCountryCode.XX, "CCCCC", UcteVoltageLevelCode.LV_220, '1');
         UcteNode node3 = new UcteNode(code3, null, UcteNodeStatus.REAL, UcteNodeTypeCode.PQ, Float.NaN,
                 500.0f, 350.f, Float.NaN, Float.NaN, Float.NaN, Float.NaN, Float.NaN, Float.NaN,
                 Float.NaN, Float.NaN, Float.NaN, Float.NaN, null);
