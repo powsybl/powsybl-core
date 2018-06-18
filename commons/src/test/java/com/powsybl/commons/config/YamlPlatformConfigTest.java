@@ -54,6 +54,7 @@ public class YamlPlatformConfigTest {
                         "        - E2",
                         "        - E3",
                         "    i: 3",
+                        "    l: 444444444",
                         "    f: 3.3",
                         "    b: true",
                         "    p: /work/a",
@@ -75,6 +76,7 @@ public class YamlPlatformConfigTest {
             assertEquals(Arrays.asList("a", "b", "c"), module1.getStringListProperty("sl"));
             assertEquals(EnumSet.of(E.E1, E.E2, E.E3), module1.getEnumSetProperty("el", E.class));
             assertEquals(3, module1.getIntProperty("i"));
+            assertEquals(444444444L, module1.getLongProperty("l"));
             assertEquals(3.3f, module1.getFloatProperty("f"), 0f);
             assertEquals(3.3, module1.getDoubleProperty("f"), 0);
             assertTrue(module1.getBooleanProperty("b"));
