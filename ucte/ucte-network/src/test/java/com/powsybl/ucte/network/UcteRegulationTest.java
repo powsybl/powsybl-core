@@ -16,8 +16,8 @@ import static org.junit.Assert.*;
 public class UcteRegulationTest {
 
     private UcteElementId createElementId() {
-        UcteNodeCode node1 = new UcteNodeCode(UcteCountryCode.FR, "AAAAA", UcteVoltageLevelCode._380, 'A');
-        UcteNodeCode node2 = new UcteNodeCode(UcteCountryCode.BE, "BBBBB", UcteVoltageLevelCode._220, 'B');
+        UcteNodeCode node1 = new UcteNodeCode(UcteCountryCode.FR, "AAAAA", UcteVoltageLevelCode.VL_380, 'A');
+        UcteNodeCode node2 = new UcteNodeCode(UcteCountryCode.BE, "BBBBB", UcteVoltageLevelCode.VL_220, 'B');
         return new UcteElementId(node1, node2, '1');
     }
 
