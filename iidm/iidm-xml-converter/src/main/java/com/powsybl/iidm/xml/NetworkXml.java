@@ -40,11 +40,13 @@ import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
+import static com.powsybl.iidm.xml.IidmXmlConstants.*;
+
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public final class NetworkXml implements XmlConstants {
+public final class NetworkXml {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NetworkXml.class);
 

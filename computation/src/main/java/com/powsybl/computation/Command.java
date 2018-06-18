@@ -14,6 +14,10 @@ import java.util.List;
  */
 public interface Command {
 
+    /**
+     * @deprecated Use {@link CommandConstants.EXECUTION_NUMBER_PATTERN} instead
+     */
+    @Deprecated
     String EXECUTION_NUMBER_PATTERN = "${EXEC_NUM}";
 
     String getId();

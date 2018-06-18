@@ -205,7 +205,7 @@ public class GeneratorTest {
                 30.0f, 40.0f, true, 2.0f);
         Generator generator = network.getGenerator("testMultiState");
         List<String> statesToAdd = Arrays.asList("s1", "s2", "s3", "s4");
-        stateManager.cloneState(StateManager.INITIAL_STATE_ID, statesToAdd);
+        stateManager.cloneState(StateManagerConstants.INITIAL_STATE_ID, statesToAdd);
 
         stateManager.setWorkingState("s4");
         // check values cloned by extend
@@ -231,7 +231,7 @@ public class GeneratorTest {
         assertEquals(9.3f, generator.getTargetV(), 0.0f);
 
         // recheck initial state value
-        stateManager.setWorkingState(StateManager.INITIAL_STATE_ID);
+        stateManager.setWorkingState(StateManagerConstants.INITIAL_STATE_ID);
         assertTrue(generator.isVoltageRegulatorOn());
         assertEquals(30.0f, generator.getTargetP(), 0.0f);
         assertEquals(40.0f, generator.getTargetQ(), 0.0f);

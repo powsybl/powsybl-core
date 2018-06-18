@@ -6,25 +6,17 @@
  */
 package com.powsybl.loadflow;
 
-import static org.junit.Assert.assertEquals;
-
-import java.util.stream.Stream;
-
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Terminal.BusView;
+import com.powsybl.iidm.network.TwoTerminalsConnectable.Side;
 import org.junit.Before;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
 
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.RatioTapChanger;
-import com.powsybl.iidm.network.RatioTapChangerStep;
-import com.powsybl.iidm.network.StateManager;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.Terminal.BusView;
-import com.powsybl.iidm.network.TwoTerminalsConnectable.Side;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
+import java.util.stream.Stream;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  *
@@ -149,7 +141,7 @@ public abstract class AbstractLoadFlowResultsCompletionTest {
         Mockito.when(transformer.getRatedU2()).thenReturn(380f);
 
         StateManager stateManager = Mockito.mock(StateManager.class);
-        Mockito.when(stateManager.getWorkingStateId()).thenReturn(StateManager.INITIAL_STATE_ID);
+        Mockito.when(stateManager.getWorkingStateId()).thenReturn(StateManagerConstants.INITIAL_STATE_ID);
 
         network = Mockito.mock(Network.class);
         Mockito.when(network.getId()).thenReturn("network");

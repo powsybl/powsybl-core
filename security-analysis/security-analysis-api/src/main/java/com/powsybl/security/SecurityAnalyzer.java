@@ -14,7 +14,7 @@ import com.powsybl.contingency.ContingenciesProviderFactory;
 import com.powsybl.contingency.EmptyContingencyListProvider;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.StateManager;
+import com.powsybl.iidm.network.StateManagerConstants;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 
 import java.io.InputStream;
@@ -107,6 +107,6 @@ public class SecurityAnalyzer {
         SecurityAnalysis securityAnalysis = securityAnalysisFactory.create(network, filter, computationManager, priority);
         interceptors.forEach(securityAnalysis::addInterceptor);
 
-        return securityAnalysis.runAsync(contingenciesProvider, StateManager.INITIAL_STATE_ID, parameters).join();
+        return securityAnalysis.runAsync(contingenciesProvider, StateManagerConstants.INITIAL_STATE_ID, parameters).join();
     }
 }
