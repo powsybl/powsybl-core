@@ -7,10 +7,7 @@
 package com.powsybl.commons.config;
 
 import java.nio.file.Path;
-import java.util.List;
-import java.util.Optional;
-import java.util.OptionalDouble;
-import java.util.Set;
+import java.util.*;
 
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
@@ -54,6 +51,12 @@ public interface ModuleConfig {
     Optional<Integer> getOptionalIntegerProperty(String name);
 
     int getIntProperty(String name, int defaultValue);
+
+    OptionalLong getOptionalLongProperty(String name);
+
+    long getLongProperty(String name);
+
+    long getLongProperty(String name, long defaultValue);
 
     Optional<Float> getOptionalFloatProperty(String name);
 
