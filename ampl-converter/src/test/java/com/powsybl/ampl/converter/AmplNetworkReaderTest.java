@@ -96,7 +96,7 @@ public class AmplNetworkReaderTest {
         MemDataSource memDataSource = new MemDataSource();
         importData(memDataSource, "_hvdc", "outputs/hvdc.txt");
         importData(memDataSource, "_shunts", "outputs/shunts.txt");
-        importData(memDataSource, "_lcc", "outputs/lcc.txt");
+        importData(memDataSource, "_lcc_converter_stations", "outputs/lcc.txt");
 
         AmplNetworkReader reader = new AmplNetworkReader(memDataSource, network, mapper);
         testHvdc(network, reader);
@@ -107,7 +107,7 @@ public class AmplNetworkReaderTest {
         StringToIntMapper<AmplSubset> mapper2 = AmplUtil.createMapper(network2);
 
         MemDataSource memDataSource2 = new MemDataSource();
-        importData(memDataSource2, "_vsc", "outputs/vsc.txt");
+        importData(memDataSource2, "_vsc_converter_stations", "outputs/vsc.txt");
         AmplNetworkReader reader2 = new AmplNetworkReader(memDataSource2, network2, mapper2);
         testVsc(network2, reader2);
 
@@ -120,7 +120,7 @@ public class AmplNetworkReaderTest {
         StringToIntMapper<AmplSubset> mapper = AmplUtil.createMapper(network);
 
         MemDataSource memDataSource = new MemDataSource();
-        importData(memDataSource, "_svc", "outputs/svc.txt");
+        importData(memDataSource, "_static_var_compensators", "outputs/svc.txt");
 
         AmplNetworkReader reader = new AmplNetworkReader(memDataSource, network, mapper);
         testSvc(network, reader);
@@ -326,7 +326,7 @@ public class AmplNetworkReaderTest {
         assertEquals(75f, vc.getTerminal().getQ(), 0.0);
         assertTrue(vc.isVoltageRegulatorOn());
         assertEquals(30f, vc.getReactivePowerSetpoint(), 0.0);
-        assertEquals(vc.getTerminal().getVoltageLevel().getNominalV() * 1.01000f, vc.getVoltageSetpoint(), 0.0);
+        assertEquals(400f * 1.01000f, vc.getVoltageSetpoint(), 0.0);
     }
 
     private void testShunts(Network network, AmplNetworkReader reader) throws IOException {
@@ -352,9 +352,8 @@ public class AmplNetworkReaderTest {
 
         StaticVarCompensator sv2 = network.getStaticVarCompensator("SVC2");
         assertEquals(RegulationMode.REACTIVE_POWER, sv2.getRegulationMode());
-        assertEquals(400f, sv2.getVoltageSetPoint(), 0.0);
+        assertEquals(1.080000f * sv.getTerminal().getVoltageLevel().getNominalV(), sv2.getVoltageSetPoint(), 0.0);
         assertEquals(-30f, sv2.getReactivePowerSetPoint(), 0.0);
-        assertTrue(Float.isNaN(sv2.getTerminal().getP()));
         assertEquals(30f, sv2.getTerminal().getQ(), 0.0);
     }
 

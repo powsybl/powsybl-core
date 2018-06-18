@@ -10,6 +10,8 @@ import com.powsybl.afs.ProjectFile;
 import com.powsybl.iidm.network.Network;
 
 /**
+ * Provides caching capabilities for loaded {@code Network} objects.
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public interface NetworkCacheService {

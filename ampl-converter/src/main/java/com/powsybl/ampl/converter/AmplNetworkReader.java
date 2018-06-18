@@ -359,7 +359,7 @@ public class AmplNetworkReader {
 
 
     public AmplNetworkReader readStaticVarcompensator() throws IOException {
-        read("_svc", 5, this::readSvc);
+        read("_static_var_compensators", 5, this::readSvc);
 
         return this;
     }
@@ -390,9 +390,9 @@ public class AmplNetworkReader {
 
 
         Terminal t = svc.getTerminal();
-        t.setP(Float.NaN).setQ(q);
-
-        svc.setVoltageSetPoint(targetV);
+        t.setQ(q);
+        float nominalV = t.getVoltageLevel().getNominalV();
+        svc.setVoltageSetPoint(targetV * nominalV);
 
         busConnection(t, busNum);
 
@@ -400,7 +400,7 @@ public class AmplNetworkReader {
     }
 
     public AmplNetworkReader readLccConverterStations() throws IOException {
-        read("_lcc", 4, this::readLcc);
+        read("_lcc_converter_stations", 4, this::readLcc);
 
         return this;
     }
@@ -420,7 +420,7 @@ public class AmplNetworkReader {
     }
 
     public AmplNetworkReader readVscConverterStations() throws IOException {
-        read("_vsc", 7, this::readVsc);
+        read("_vsc_converter_stations", 7, this::readVsc);
 
         return this;
     }

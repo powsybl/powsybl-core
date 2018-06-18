@@ -17,6 +17,8 @@ import com.powsybl.iidm.import_.ImportersServiceLoader;
 import java.util.Objects;
 
 /**
+ * Defines the new type of project file {@link ImportedCase}.
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @AutoService(ProjectFileExtension.class)

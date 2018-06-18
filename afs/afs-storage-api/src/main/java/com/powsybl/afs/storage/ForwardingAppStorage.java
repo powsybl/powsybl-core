@@ -15,6 +15,8 @@ import java.io.OutputStream;
 import java.util.*;
 
 /**
+ * A storage implementation which simply delegates calls to another underlying AppStorage implementation.
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class ForwardingAppStorage implements AppStorage {
