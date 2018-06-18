@@ -12,6 +12,7 @@ import com.google.common.collect.HashBiMap;
 import com.google.common.primitives.Ints;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.StateManager;
+import com.powsybl.iidm.network.StateManagerConstants;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,7 +50,7 @@ class StateManagerImpl implements StateManager {
         this.stateContext = new MultiStateContext(INITIAL_STATE_INDEX);
         this.objectStore = objectStore;
         // the network has always a zero index initial state
-        id2index.put(INITIAL_STATE_ID, INITIAL_STATE_INDEX);
+        id2index.put(StateManagerConstants.INITIAL_STATE_ID, INITIAL_STATE_INDEX);
         stateArraySize = INITIAL_STATE_INDEX + 1;
     }
 
@@ -168,7 +169,7 @@ class StateManagerImpl implements StateManager {
     public void removeState(String stateId) {
         stateLock.lock();
         try {
-            if (INITIAL_STATE_ID.equals(stateId)) {
+            if (StateManagerConstants.INITIAL_STATE_ID.equals(stateId)) {
                 throw new PowsyblException("Removing initial state is forbidden");
             }
             int index = getStateIndex(stateId);

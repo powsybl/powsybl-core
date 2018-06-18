@@ -24,7 +24,7 @@ public class StringFileNameTest {
 
     @Test
     public void test2() {
-        StringFileName fileName = new StringFileName("file-" + Command.EXECUTION_NUMBER_PATTERN);
+        StringFileName fileName = new StringFileName("file-" + CommandConstants.EXECUTION_NUMBER_PATTERN);
         assertEquals("file-0", fileName.getName(0));
         assertEquals("file-*", fileName.getName(-1));
         assertTrue(fileName.dependsOnExecutionNumber());

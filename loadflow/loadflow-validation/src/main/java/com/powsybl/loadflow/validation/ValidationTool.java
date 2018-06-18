@@ -6,6 +6,27 @@
  */
 package com.powsybl.loadflow.validation;
 
+import com.google.auto.service.AutoService;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Sets;
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.import_.Importers;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.StateManagerConstants;
+import com.powsybl.loadflow.LoadFlow;
+import com.powsybl.loadflow.LoadFlowParameters;
+import com.powsybl.loadflow.validation.io.ValidationWriters;
+import com.powsybl.tools.Command;
+import com.powsybl.tools.Tool;
+import com.powsybl.tools.ToolRunningContext;
+import groovy.lang.Binding;
+import groovy.lang.GroovyShell;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.codehaus.groovy.control.CompilationFailedException;
+import org.codehaus.groovy.control.CompilerConfiguration;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -14,29 +35,6 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
-import org.codehaus.groovy.control.CompilationFailedException;
-import org.codehaus.groovy.control.CompilerConfiguration;
-
-import com.google.auto.service.AutoService;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Sets;
-import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.import_.Importers;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.StateManager;
-import com.powsybl.loadflow.LoadFlow;
-import com.powsybl.loadflow.LoadFlowParameters;
-import com.powsybl.loadflow.validation.io.ValidationWriters;
-import com.powsybl.tools.Command;
-import com.powsybl.tools.Tool;
-import com.powsybl.tools.ToolRunningContext;
-
-import groovy.lang.Binding;
-import groovy.lang.GroovyShell;
 
 /**
  *
@@ -239,7 +237,7 @@ public class ValidationTool implements Tool {
         context.getOutputStream().println("Running loadflow on network " + network.getId());
         LoadFlowParameters parameters = LoadFlowParameters.load();
         LoadFlow loadFlow = config.getLoadFlowFactory().newInstance().create(network, context.getShortTimeExecutionComputationManager(), 0);
-        loadFlow.runAsync(StateManager.INITIAL_STATE_ID, parameters)
+        loadFlow.runAsync(StateManagerConstants.INITIAL_STATE_ID, parameters)
                 .thenAccept(loadFlowResult -> {
                     if (!loadFlowResult.isOk()) {
                         throw new PowsyblException("Loadflow on network " + network.getId() + " does not converge");

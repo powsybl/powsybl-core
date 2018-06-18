@@ -116,7 +116,7 @@ public class LoadTest {
         createLoad("testMultiState", 0.6f, 0.7f);
         Load load = network.getLoad("testMultiState");
         List<String> statesToAdd = Arrays.asList("s1", "s2", "s3", "s4");
-        stateManager.cloneState(StateManager.INITIAL_STATE_ID, statesToAdd);
+        stateManager.cloneState(StateManagerConstants.INITIAL_STATE_ID, statesToAdd);
 
         stateManager.setWorkingState("s4");
         // check values cloned by extend
@@ -135,7 +135,7 @@ public class LoadTest {
         assertEquals(3.0f, load.getP0(), 0.0f);
         assertEquals(2.0f, load.getQ0(), 0.0f);
         // recheck initial state value
-        stateManager.setWorkingState(StateManager.INITIAL_STATE_ID);
+        stateManager.setWorkingState(StateManagerConstants.INITIAL_STATE_ID);
         assertEquals(0.6f, load.getP0(), 0.0f);
         assertEquals(0.7f, load.getQ0(), 0.0f);
 

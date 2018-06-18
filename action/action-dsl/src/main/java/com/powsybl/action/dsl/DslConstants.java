@@ -11,6 +11,11 @@ package com.powsybl.action.dsl;
  */
 public interface DslConstants {
 
+
+    /**
+     * @deprecated Use {@link GroovyDslConstants.SCRIPT_IS_RUNNING} instead
+     */
+    @Deprecated
     String SCRIPT_IS_RUNNING = "scriptIsRunning";
 
 }
