@@ -4,12 +4,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.action.simulator.parallel;
+package com.powsybl.action.simulator.loadflow;
 
 import com.powsybl.action.dsl.ActionDb;
-import com.powsybl.action.simulator.loadflow.LoadFlowActionSimulator;
-import com.powsybl.action.simulator.loadflow.LoadFlowActionSimulatorConfig;
-import com.powsybl.action.simulator.loadflow.LoadFlowActionSimulatorObserver;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.computation.*;
 import com.powsybl.iidm.network.Network;
@@ -33,24 +30,24 @@ public class ParallelLoadFlowActionSimulator extends LoadFlowActionSimulator {
 
     private static final String ITOOLS_PRG = "itools";
 
-    private final int para;
+    private final int ntasks;
     private final CommandLine commandLine;
 
     private static final String SUB_TASK_ID = "sas"; // sub_action_simulator
 
-    public ParallelLoadFlowActionSimulator(Network network, ToolRunningContext context, int para, CommandLine commandLine) {
-        this(network, context, para, commandLine, LoadFlowActionSimulatorConfig.load(), false, Collections.emptyList());
+    public ParallelLoadFlowActionSimulator(Network network, ToolRunningContext context, int ntasks, CommandLine commandLine) {
+        this(network, context, ntasks, commandLine, LoadFlowActionSimulatorConfig.load(), false, Collections.emptyList());
     }
 
-    public ParallelLoadFlowActionSimulator(Network network, ToolRunningContext context, int para, CommandLine commandLine,
+    public ParallelLoadFlowActionSimulator(Network network, ToolRunningContext context, int ntasks, CommandLine commandLine,
                                            LoadFlowActionSimulatorConfig config, boolean applyIfSolved, LoadFlowActionSimulatorObserver... observers) {
-        this(network, context, para, commandLine, config, applyIfSolved, Arrays.asList(observers));
+        this(network, context, ntasks, commandLine, config, applyIfSolved, Arrays.asList(observers));
     }
 
-    public ParallelLoadFlowActionSimulator(Network network, ToolRunningContext context, int para, CommandLine commandLine,
+    public ParallelLoadFlowActionSimulator(Network network, ToolRunningContext context, int ntasks, CommandLine commandLine,
                                            LoadFlowActionSimulatorConfig config, boolean applyIfSolved, List<LoadFlowActionSimulatorObserver> observers) {
         super(network, context.getLongTimeExecutionComputationManager(), config, applyIfSolved, observers);
-        this.para = para;
+        this.ntasks = ntasks;
         this.commandLine = Objects.requireNonNull(commandLine);
     }
 
@@ -63,11 +60,11 @@ public class ParallelLoadFlowActionSimulator extends LoadFlowActionSimulator {
     public void start(ActionDb actionDb, List<String> contingencyIds) {
         ComputationManager manager = super.getComputationManager();
         ExecutionEnvironment itoolsEnvironment = new ExecutionEnvironment(Collections.emptyMap(), "subTask_", config.isDebug());
-        int realPara = contingencyIds.size() > this.para ? this.para : contingencyIds.size();
+        int atMostTasks = contingencyIds.size() > this.ntasks ? this.ntasks : contingencyIds.size();
         List<CompletableFuture<SecurityAnalysisResult>> results = new ArrayList<>();
-        for (int i = 1; i <= realPara; i++) {
+        for (int i = 1; i <= atMostTasks; i++) {
             CompletableFuture<SecurityAnalysisResult> future = manager.execute(itoolsEnvironment,
-                    new SubTaskHandler(i, realPara));
+                    new SubTaskHandler(i, atMostTasks));
             results.add(future);
         }
         CompletableFuture.allOf(results.stream().toArray(CompletableFuture[]::new)).join();
@@ -146,8 +143,8 @@ public class ParallelLoadFlowActionSimulator extends LoadFlowActionSimulator {
             args.add(dslFileOpt);
 
 
-            String filtrationOpt = toOption(SUB_CONTINGENCIES, index + "/" + total);
-            args.add(filtrationOpt);
+            String partitionOpt = toOption(PARTITION, index + "/" + total);
+            args.add(partitionOpt);
 
             if (commandLine.hasOption(OUTPUT_FILE)) {
                 Path fileName = Paths.get(commandLine.getOptionValue(OUTPUT_FILE)).getFileName();

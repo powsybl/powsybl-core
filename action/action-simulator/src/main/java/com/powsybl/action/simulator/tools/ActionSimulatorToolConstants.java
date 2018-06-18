@@ -18,8 +18,8 @@ public final class ActionSimulatorToolConstants {
     public static final String OUTPUT_CASE_FOLDER = "output-case-folder";
     public static final String OUTPUT_CASE_FORMAT = "output-case-format";
     public static final String OUTPUT_COMPRESSION_FORMAT = "output-compression-format";
-    public static final String PARALLEL = "parallel";
-    public static final String SUB_CONTINGENCIES = "filter";
+    public static final String NTASKS = "ntasks";
+    public static final String PARTITION = "partition";
 
     private ActionSimulatorToolConstants() {
     }

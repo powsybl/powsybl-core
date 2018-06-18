@@ -12,9 +12,9 @@ import com.powsybl.action.dsl.ActionDslLoader;
 import com.powsybl.action.dsl.DefaultActionDslLoaderObserver;
 import com.powsybl.action.simulator.ActionSimulator;
 import com.powsybl.action.simulator.loadflow.*;
-import com.powsybl.action.simulator.parallel.Filtration;
-import com.powsybl.action.simulator.parallel.LocalLoadFlowActionSimulator;
-import com.powsybl.action.simulator.parallel.ParallelLoadFlowActionSimulator;
+import com.powsybl.computation.Partition;
+import com.powsybl.action.simulator.loadflow.LocalLoadFlowActionSimulator;
+import com.powsybl.action.simulator.loadflow.ParallelLoadFlowActionSimulator;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.CompressionFormat;
 import com.powsybl.commons.datasource.DataSourceUtil;
@@ -127,15 +127,15 @@ public class ActionSimulatorTool implements Tool {
                         .hasArg()
                         .argName("COMPRESSION_FORMAT")
                         .build());
-                options.addOption(Option.builder().longOpt(PARALLEL)
-                        .desc("parallizer into Y parts")
+                options.addOption(Option.builder().longOpt(NTASKS)
+                        .desc("parallizer into n tasks")
                         .hasArg()
-                        .argName("NUMBER")
+                        .argName("NTASKS")
                         .build());
-                options.addOption(Option.builder().longOpt(SUB_CONTINGENCIES)
-                        .desc("fitration")
+                options.addOption(Option.builder().longOpt(PARTITION)
+                        .desc("partition")
                         .hasArg()
-                        .argName("X/Y")
+                        .argName("PARTITION")
                         .build());
                 return options;
             }
@@ -231,14 +231,14 @@ public class ActionSimulatorTool implements Tool {
 
             // action simulator
             ActionSimulator actionSimulator = null;
-            if (line.hasOption(PARALLEL)) {
+            if (line.hasOption(NTASKS)) {
                 checkOptionsInParallel(line);
-                int para = Integer.parseInt(line.getOptionValue(PARALLEL));
-                actionSimulator = new ParallelLoadFlowActionSimulator(network, context, para, line, config, applyIfSolved, observers);
-            } else if (line.hasOption(SUB_CONTINGENCIES)) {
-                String filtreOpt = line.getOptionValue(SUB_CONTINGENCIES);
-                Filtration filtration = new Filtration(filtreOpt);
-                actionSimulator = new LocalLoadFlowActionSimulator(network, filtration, config, applyIfSolved, observers);
+                int ntasks = Integer.parseInt(line.getOptionValue(NTASKS));
+                actionSimulator = new ParallelLoadFlowActionSimulator(network, context, ntasks, line, config, applyIfSolved, observers);
+            } else if (line.hasOption(PARTITION)) {
+                String partitionOpt = line.getOptionValue(PARTITION);
+                Partition partition = new Partition(partitionOpt);
+                actionSimulator = new LocalLoadFlowActionSimulator(network, partition, config, applyIfSolved, observers);
             } else {
                 actionSimulator = new LoadFlowActionSimulator(network, context.getShortTimeExecutionComputationManager(), config, applyIfSolved, observers);
             }
