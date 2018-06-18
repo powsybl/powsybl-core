@@ -775,17 +775,17 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
                 SwitchImpl aSwitch = graph.getEdgeObject(e);
                 ConfiguredBus otherBus = graph.getVertexObject(v2);
                 if (traverser.traverse(aSwitch)) {
-                    for (BusTerminal otherTerminal : otherBus.getTerminals()) {
-                        if (traverser.traverse(otherTerminal, otherTerminal.isConnected())) {
-                            traversedTerminals.add(otherTerminal);
-
-                            addNextTerminals(otherTerminal, nextTerminals);
-                            return TraverseResult.CONTINUE;
-                        }
-
-                        return TraverseResult.TERMINATE;
+                    if (otherBus.getTerminalCount() == 0) {
+                        return TraverseResult.CONTINUE;
                     }
-                    return TraverseResult.CONTINUE;
+
+                    BusTerminal otherTerminal = otherBus.getTerminals().get(0);
+                    if (traverser.traverse(otherTerminal, otherTerminal.isConnected())) {
+                        traversedTerminals.add(otherTerminal);
+
+                        addNextTerminals(otherTerminal, nextTerminals);
+                        return TraverseResult.CONTINUE;
+                    }
                 }
                 return TraverseResult.TERMINATE;
             });
