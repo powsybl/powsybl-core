@@ -326,7 +326,7 @@ public class AmplNetworkReaderTest {
         assertEquals(75, vc.getTerminal().getQ(), 0.0);
         assertTrue(vc.isVoltageRegulatorOn());
         assertEquals(30, vc.getReactivePowerSetpoint(), 0.0);
-        assertEquals(vc.getTerminal().getVoltageLevel().getNominalV() * 1.01000, vc.getVoltageSetpoint(), 0.0);
+        assertEquals(400 * 1.01000, vc.getVoltageSetpoint(), 0.0);
     }
 
     private void testShunts(Network network, AmplNetworkReader reader) throws IOException {
@@ -352,9 +352,8 @@ public class AmplNetworkReaderTest {
 
         StaticVarCompensator sv2 = network.getStaticVarCompensator("SVC2");
         assertEquals(RegulationMode.REACTIVE_POWER, sv2.getRegulationMode());
-        assertEquals(400.0, sv2.getVoltageSetPoint(), 0.0);
+        assertEquals(1.080000 * sv.getTerminal().getVoltageLevel().getNominalV(), sv2.getVoltageSetPoint(), 0.0);
         assertEquals(-30.0, sv2.getReactivePowerSetPoint(), 0.0);
-        assertTrue(Double.isNaN(sv2.getTerminal().getP()));
         assertEquals(30.0, sv2.getTerminal().getQ(), 0.0);
     }
 
