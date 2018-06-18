@@ -19,8 +19,8 @@ public final class Colors {
     }
 
     public static String[] generateColorScale(int n) {
-        if (n <= 0) {
-            throw new IllegalArgumentException("Color scale size has to be stricly positive");
+        if (n < 0) {
+            throw new IllegalArgumentException("Color scale size must be positive");
         }
         String[] colors = new String[n];
         Random random = new Random();

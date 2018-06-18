@@ -11,6 +11,11 @@ import com.powsybl.afs.storage.NodeInfo;
 import java.util.Objects;
 
 /**
+ * A project is a special type of file in the file system, which represents workspace to carry out a study or computations.
+ *
+ * <p>
+ * A project will have its own tree of project folders and project files, with possible dependencies between files.
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class Project extends File {
@@ -24,6 +29,9 @@ public class Project extends File {
         super(context, VERSION);
     }
 
+    /**
+     * Get the root folder of this project.
+     */
     public ProjectFolder getRootFolder() {
         NodeInfo rootFolderInfo = storage.getChildNode(info.getId(), ROOT_FOLDER_NAME).orElseThrow(AssertionError::new);
         return new ProjectFolder(new ProjectFileCreationContext(rootFolderInfo, storage, this));

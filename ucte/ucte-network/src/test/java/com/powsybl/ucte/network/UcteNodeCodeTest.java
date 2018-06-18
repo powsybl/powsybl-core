@@ -18,7 +18,7 @@ public class UcteNodeCodeTest {
 
     @Test
     public void test() {
-        UcteNodeCode node = new UcteNodeCode(UcteCountryCode.FR, "SUBST", UcteVoltageLevelCode._380, '1');
+        UcteNodeCode node = new UcteNodeCode(UcteCountryCode.FR, "SUBST", UcteVoltageLevelCode.VL_380, '1');
         assertEquals("FSUBST11", node.toString());
 
         assertEquals(UcteCountryCode.FR, node.getUcteCountryCode());
@@ -29,9 +29,9 @@ public class UcteNodeCodeTest {
         node.setGeographicalSpot("subst");
         assertEquals("subst", node.getGeographicalSpot());
 
-        assertEquals(UcteVoltageLevelCode._380, node.getVoltageLevelCode());
-        node.setVoltageLevelCode(UcteVoltageLevelCode._220);
-        assertEquals(UcteVoltageLevelCode._220, node.getVoltageLevelCode());
+        assertEquals(UcteVoltageLevelCode.VL_380, node.getVoltageLevelCode());
+        node.setVoltageLevelCode(UcteVoltageLevelCode.VL_220);
+        assertEquals(UcteVoltageLevelCode.VL_220, node.getVoltageLevelCode());
 
         assertEquals(Character.valueOf('1'), node.getBusbar());
         node.setBusbar('A');
@@ -44,8 +44,8 @@ public class UcteNodeCodeTest {
 
     @Test
     public void testEquals() {
-        UcteNodeCode node1 = new UcteNodeCode(UcteCountryCode.FR, "SUBST", UcteVoltageLevelCode._380, '1');
-        UcteNodeCode node2 = new UcteNodeCode(UcteCountryCode.FR, "SUBST", UcteVoltageLevelCode._380, '1');
+        UcteNodeCode node1 = new UcteNodeCode(UcteCountryCode.FR, "SUBST", UcteVoltageLevelCode.VL_380, '1');
+        UcteNodeCode node2 = new UcteNodeCode(UcteCountryCode.FR, "SUBST", UcteVoltageLevelCode.VL_380, '1');
 
         assertFalse(node1.equals(null));
 
