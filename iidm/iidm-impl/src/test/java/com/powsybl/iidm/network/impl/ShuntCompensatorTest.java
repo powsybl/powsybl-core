@@ -117,7 +117,7 @@ public class ShuntCompensatorTest {
         createShunt("testMultiState", "testMultiState", 2.0, 5, 10);
         ShuntCompensator shunt = network.getShunt("testMultiState");
         List<String> statesToAdd = Arrays.asList("s1", "s2", "s3", "s4");
-        stateManager.cloneState(StateManager.INITIAL_STATE_ID, statesToAdd);
+        stateManager.cloneState(StateManagerConstants.INITIAL_STATE_ID, statesToAdd);
 
         stateManager.setWorkingState("s4");
         // check values cloned by extend
@@ -136,7 +136,7 @@ public class ShuntCompensatorTest {
         assertEquals(8.0, shunt.getCurrentB(), 0.0); // 2*4
 
         // recheck initial state value
-        stateManager.setWorkingState(StateManager.INITIAL_STATE_ID);
+        stateManager.setWorkingState(StateManagerConstants.INITIAL_STATE_ID);
         assertEquals(5, shunt.getCurrentSectionCount());
         assertEquals(10.0, shunt.getCurrentB(), 0.0); // 2*5
 

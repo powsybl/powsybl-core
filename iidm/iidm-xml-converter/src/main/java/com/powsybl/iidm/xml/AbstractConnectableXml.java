@@ -16,6 +16,7 @@ import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 import java.util.function.Supplier;
 
+import static com.powsybl.iidm.xml.IidmXmlConstants.IIDM_URI;
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>

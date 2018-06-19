@@ -30,14 +30,14 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> {
 
     public boolean isInMainConnectedComponent() {
         Component cc = getConnectedComponent();
-        return cc != null && cc.getNum() == Component.MAIN_NUM;
+        return cc != null && cc.getNum() == ComponentConstants.MAIN_NUM;
     }
 
     protected abstract Component getSynchronousComponent();
 
     public boolean isInMainSynchronousComponent() {
         Component sc = getSynchronousComponent();
-        return sc != null && sc.getNum() == Component.MAIN_NUM;
+        return sc != null && sc.getNum() == ComponentConstants.MAIN_NUM;
     }
 
     public VoltageLevel getVoltageLevel() {

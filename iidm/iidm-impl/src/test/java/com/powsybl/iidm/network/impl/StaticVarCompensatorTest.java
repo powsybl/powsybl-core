@@ -6,10 +6,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.StateManager;
-import com.powsybl.iidm.network.StaticVarCompensator;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.SvcTestCaseFactory;
 import org.junit.After;
 import org.junit.Before;
@@ -111,7 +108,7 @@ public class StaticVarCompensatorTest {
         createSvc("testMultiState");
         StaticVarCompensator svc = network.getStaticVarCompensator("testMultiState");
         List<String> statesToAdd = Arrays.asList("s1", "s2", "s3", "s4");
-        stateManager.cloneState(StateManager.INITIAL_STATE_ID, statesToAdd);
+        stateManager.cloneState(StateManagerConstants.INITIAL_STATE_ID, statesToAdd);
 
         stateManager.setWorkingState("s4");
         // check values cloned by extend
@@ -134,7 +131,7 @@ public class StaticVarCompensatorTest {
         assertEquals(440.0, svc.getVoltageSetPoint(), 0.0);
 
         // recheck initial state value
-        stateManager.setWorkingState(StateManager.INITIAL_STATE_ID);
+        stateManager.setWorkingState(StateManagerConstants.INITIAL_STATE_ID);
         assertEquals(1.0, svc.getReactivePowerSetPoint(), 0.0);
         assertEquals(StaticVarCompensator.RegulationMode.VOLTAGE, svc.getRegulationMode());
         assertEquals(390.0, svc.getVoltageSetPoint(), 0.0);

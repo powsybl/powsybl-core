@@ -8,9 +8,9 @@ package com.powsybl.security;
 
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.ContingenciesProvider;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.StateManager;
 import com.powsybl.contingency.Contingency;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.StateManagerConstants;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowFactory;
 import com.powsybl.loadflow.LoadFlowParameters;
@@ -115,7 +115,7 @@ public class SecurityAnalysisImpl implements SecurityAnalysis {
                                     .supplyAsync(new Supplier<Void>() {
                                         @Override
                                         public Void get() {
-                                            network.getStateManager().cloneState(StateManager.INITIAL_STATE_ID, postContStateId);
+                                            network.getStateManager().cloneState(StateManagerConstants.INITIAL_STATE_ID, postContStateId);
                                             network.getStateManager().setWorkingState(postContStateId);
 
                                             // apply the contingency on the network

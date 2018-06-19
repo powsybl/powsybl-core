@@ -171,7 +171,7 @@ public class TapChangerTest {
         RatioTapChanger ratioTapChangerInLeg3 = leg3.getRatioTapChanger();
 
         List<String> statesToAdd = Arrays.asList("s1", "s2", "s3", "s4");
-        stateManager.cloneState(StateManager.INITIAL_STATE_ID, statesToAdd);
+        stateManager.cloneState(StateManagerConstants.INITIAL_STATE_ID, statesToAdd);
 
         stateManager.setWorkingState("s4");
         // check values cloned by extend
@@ -222,7 +222,7 @@ public class TapChangerTest {
         assertEquals(13.5, ratioTapChangerInLeg3.getTargetV(), 0.0);
 
         // recheck initial state value
-        stateManager.setWorkingState(StateManager.INITIAL_STATE_ID);
+        stateManager.setWorkingState(StateManagerConstants.INITIAL_STATE_ID);
         assertEquals(1, phaseTapChanger.getTapPosition());
         assertTrue(phaseTapChanger.isRegulating());
         assertEquals(1.0, phaseTapChanger.getRegulationValue(), 0.0);

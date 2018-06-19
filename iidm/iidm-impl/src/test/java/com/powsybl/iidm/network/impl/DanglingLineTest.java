@@ -183,7 +183,7 @@ public class DanglingLineTest {
         createDanglingLine("testMultiState", "testMultiState", 1.0, 1.1, 2.2, 1.0, 1.0, 1.2, "code");
         DanglingLine danglingLine = network.getDanglingLine("testMultiState");
         List<String> statesToAdd = Arrays.asList("s1", "s2", "s3", "s4");
-        stateManager.cloneState(StateManager.INITIAL_STATE_ID, statesToAdd);
+        stateManager.cloneState(StateManagerConstants.INITIAL_STATE_ID, statesToAdd);
 
         stateManager.setWorkingState("s4");
         // check values cloned by extend
@@ -202,7 +202,7 @@ public class DanglingLineTest {
         assertEquals(3.0, danglingLine.getP0(), 0.0);
         assertEquals(2.0, danglingLine.getQ0(), 0.0);
         // recheck initial state value
-        stateManager.setWorkingState(StateManager.INITIAL_STATE_ID);
+        stateManager.setWorkingState(StateManagerConstants.INITIAL_STATE_ID);
         assertEquals(1.0, danglingLine.getP0(), 0.0);
         assertEquals(1.2, danglingLine.getQ0(), 0.0);
 

@@ -6,27 +6,16 @@
  */
 package com.powsybl.action.dsl
 
-import com.powsybl.action.dsl.ast.ArithmeticBinaryOperator
-import com.powsybl.action.dsl.ast.ComparisonOperator
-import com.powsybl.action.dsl.ast.ExpressionHelper
-import com.powsybl.action.dsl.ast.ExpressionNode
-import com.powsybl.action.dsl.ast.LogicalBinaryOperator
-import com.powsybl.action.dsl.ast.NetworkComponentNode
-import com.powsybl.action.dsl.ast.NetworkNode
-import com.powsybl.iidm.network.Branch
-import com.powsybl.iidm.network.Generator
-import com.powsybl.iidm.network.Identifiable
-import com.powsybl.iidm.network.Line
-import com.powsybl.iidm.network.Load
-import com.powsybl.iidm.network.Network
-import com.powsybl.iidm.network.Switch
-import com.powsybl.iidm.network.TwoWindingsTransformer
+import com.powsybl.action.dsl.ast.*
+import com.powsybl.iidm.network.*
 import org.codehaus.groovy.control.CompilationFailedException
+
+import static com.powsybl.action.dsl.GroovyDslConstants.SCRIPT_IS_RUNNING
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class ConditionDslLoader extends DslLoader implements DslConstants {
+class ConditionDslLoader extends DslLoader {
 
     ConditionDslLoader(GroovyCodeSource dslSrc) {
         super(dslSrc)

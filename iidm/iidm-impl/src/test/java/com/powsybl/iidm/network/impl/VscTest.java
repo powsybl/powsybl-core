@@ -104,7 +104,7 @@ public class VscTest {
     public void testSetterGetterInMultiStates() {
         StateManager stateManager = network.getStateManager();
         List<String> statesToAdd = Arrays.asList("s1", "s2", "s3", "s4");
-        stateManager.cloneState(StateManager.INITIAL_STATE_ID, statesToAdd);
+        stateManager.cloneState(StateManagerConstants.INITIAL_STATE_ID, statesToAdd);
 
         stateManager.setWorkingState("s4");
         // check values cloned by extend
@@ -127,7 +127,7 @@ public class VscTest {
         assertEquals(10.0, cs1.getVoltageSetpoint(), 0.0);
 
         // recheck initial state value
-        stateManager.setWorkingState(StateManager.INITIAL_STATE_ID);
+        stateManager.setWorkingState(StateManagerConstants.INITIAL_STATE_ID);
         assertTrue(cs1.isVoltageRegulatorOn());
         assertTrue(Double.isNaN(cs1.getReactivePowerSetpoint()));
         assertEquals(405.0, cs1.getVoltageSetpoint(), 0.0);

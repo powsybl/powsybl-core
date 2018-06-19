@@ -10,7 +10,7 @@ import com.google.common.collect.Sets;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.StateManager;
+import com.powsybl.iidm.network.StateManagerConstants;
 import org.junit.Test;
 
 import java.util.Collections;
@@ -18,8 +18,7 @@ import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  *
@@ -94,7 +93,7 @@ public class StateManagerImplTest {
         StateManagerImpl stateManager = new StateManagerImpl(objectStore);
         // initial state test
         assertEquals(1, stateManager.getStateArraySize());
-        assertEquals(Collections.singleton(StateManager.INITIAL_STATE_ID), stateManager.getStateIds());
+        assertEquals(Collections.singleton(StateManagerConstants.INITIAL_STATE_ID), stateManager.getStateIds());
         assertEquals(Collections.singleton(0), stateManager.getStateIndexes());
         try {
             stateManager.setWorkingState("UnknownState");
@@ -107,46 +106,46 @@ public class StateManagerImplTest {
         } catch (PowsyblException ignored) {
         }
         try {
-            stateManager.removeState(StateManager.INITIAL_STATE_ID);
+            stateManager.removeState(StateManagerConstants.INITIAL_STATE_ID);
             fail();
         } catch (PowsyblException ignored) {
         }
         // cloning test
-        stateManager.cloneState(StateManager.INITIAL_STATE_ID, "ClonedState1");
+        stateManager.cloneState(StateManagerConstants.INITIAL_STATE_ID, "ClonedState1");
         assertEquals(2, stateManager.getStateArraySize());
-        assertEquals(Sets.newHashSet(StateManager.INITIAL_STATE_ID, "ClonedState1"), stateManager.getStateIds());
+        assertEquals(Sets.newHashSet(StateManagerConstants.INITIAL_STATE_ID, "ClonedState1"), stateManager.getStateIds());
         assertEquals(Sets.newHashSet(0, 1), stateManager.getStateIndexes());
         assertEquals(Collections.singleton(0), identifiable1.extended);
         // second cloning test
         stateManager.cloneState("ClonedState1", "ClonedState2");
         assertEquals(3, stateManager.getStateArraySize());
-        assertEquals(Sets.newHashSet(StateManager.INITIAL_STATE_ID, "ClonedState1", "ClonedState2"), stateManager.getStateIds());
+        assertEquals(Sets.newHashSet(StateManagerConstants.INITIAL_STATE_ID, "ClonedState1", "ClonedState2"), stateManager.getStateIds());
         assertEquals(Sets.newHashSet(0, 1, 2), stateManager.getStateIndexes());
-        assertEquals(StateManager.INITIAL_STATE_ID, stateManager.getWorkingStateId());
+        assertEquals(StateManagerConstants.INITIAL_STATE_ID, stateManager.getWorkingStateId());
         stateManager.setWorkingState("ClonedState1");
         assertEquals("ClonedState1", stateManager.getWorkingStateId());
         // "middle" state removing test
         stateManager.removeState("ClonedState1");
         try {
-            assertEquals(StateManager.INITIAL_STATE_ID, stateManager.getWorkingStateId()); // because state is not set
+            assertEquals(StateManagerConstants.INITIAL_STATE_ID, stateManager.getWorkingStateId()); // because state is not set
             fail();
         } catch (Exception ignored) {
         }
         assertEquals(3, stateManager.getStateArraySize());
-        assertEquals(Sets.newHashSet(StateManager.INITIAL_STATE_ID, "ClonedState2"), stateManager.getStateIds());
+        assertEquals(Sets.newHashSet(StateManagerConstants.INITIAL_STATE_ID, "ClonedState2"), stateManager.getStateIds());
         assertEquals(Sets.newHashSet(0, 2), stateManager.getStateIndexes());
         assertEquals(Collections.singleton(1), identifiable1.deleted);
         // state array index recycling test
         stateManager.cloneState("ClonedState2", "ClonedState3");
         assertEquals(3, stateManager.getStateArraySize());
-        assertEquals(Sets.newHashSet(StateManager.INITIAL_STATE_ID, "ClonedState2", "ClonedState3"), stateManager.getStateIds());
+        assertEquals(Sets.newHashSet(StateManagerConstants.INITIAL_STATE_ID, "ClonedState2", "ClonedState3"), stateManager.getStateIds());
         assertEquals(Sets.newHashSet(0, 1, 2), stateManager.getStateIndexes());
         // state array reduction test
         stateManager.removeState("ClonedState3");
         assertEquals(3, stateManager.getStateArraySize());
         stateManager.removeState("ClonedState2");
         assertEquals(1, stateManager.getStateArraySize());
-        assertEquals(Collections.singleton(StateManager.INITIAL_STATE_ID), stateManager.getStateIds());
+        assertEquals(Collections.singleton(StateManagerConstants.INITIAL_STATE_ID), stateManager.getStateIds());
         assertEquals(Collections.singleton(0), stateManager.getStateIndexes());
         assertEquals(2, identifiable1.reducedCount);
     }

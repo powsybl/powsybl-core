@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.impl.util;
 import com.powsybl.commons.concurrent.CleanableExecutors;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.StateManager;
+import com.powsybl.iidm.network.StateManagerConstants;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.Test;
 
@@ -29,11 +30,11 @@ public class MultiStateNetworkThreadCleanerTest {
         Network network = EurostagTutorialExample1Factory.create();
         StateManager manager = network.getStateManager();
         manager.allowStateMultiThreadAccess(true);
-        assertEquals(StateManager.INITIAL_STATE_ID, manager.getWorkingStateId());
+        assertEquals(StateManagerConstants.INITIAL_STATE_ID, manager.getWorkingStateId());
         ExecutorService service = CleanableExecutors.newFixedThreadPool("TEST_POOL", 1, Collections.singleton(new MultiStateNetworkThreadCleaner()));
         Thread[] threads = new Thread[1];
         service.submit(() -> {
-            manager.setWorkingState(StateManager.INITIAL_STATE_ID);
+            manager.setWorkingState(StateManagerConstants.INITIAL_STATE_ID);
             threads[0] = Thread.currentThread();
         }).get();
         service.submit(() -> {

@@ -141,7 +141,7 @@ public abstract class AbstractLoadFlowResultsCompletionTest {
         Mockito.when(transformer.getRatedU2()).thenReturn(380.0);
 
         StateManager stateManager = Mockito.mock(StateManager.class);
-        Mockito.when(stateManager.getWorkingStateId()).thenReturn(StateManager.INITIAL_STATE_ID);
+        Mockito.when(stateManager.getWorkingStateId()).thenReturn(StateManagerConstants.INITIAL_STATE_ID);
 
         network = Mockito.mock(Network.class);
         Mockito.when(network.getId()).thenReturn("network");

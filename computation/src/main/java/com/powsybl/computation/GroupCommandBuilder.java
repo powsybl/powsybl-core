@@ -43,7 +43,7 @@ public class GroupCommandBuilder extends AbstractCommandBuilder<GroupCommandBuil
         public SubCommandBuilder args(List<String> args) {
             Objects.requireNonNull(args);
             this.args = executionNumber -> args.stream()
-                                               .map(arg -> arg.replace(Command.EXECUTION_NUMBER_PATTERN, executionNumber.toString()))
+                                               .map(arg -> arg.replace(CommandConstants.EXECUTION_NUMBER_PATTERN, executionNumber.toString()))
                                                .collect(Collectors.toList());
             return this;
         }
