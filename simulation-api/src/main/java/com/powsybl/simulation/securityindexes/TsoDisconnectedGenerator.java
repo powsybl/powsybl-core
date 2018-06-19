@@ -14,6 +14,7 @@ import javax.xml.stream.XMLStreamWriter;
 import javax.xml.stream.events.XMLEvent;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -23,6 +24,8 @@ public class TsoDisconnectedGenerator extends AbstractSecurityIndex {
     static final String XML_NAME = "tso-disconnected-generator";
 
     private static final float GENERATION_LOST_THRESHOLD = 0;
+
+    private static final String ELEM_GENERATOR = "generator";
 
     private final Map<String, Float> disconnectedGenerators;
 
@@ -38,14 +41,14 @@ public class TsoDisconnectedGenerator extends AbstractSecurityIndex {
                     break;
 
                 case XMLEvent.START_ELEMENT:
-                    if ("generator".equals(xmlsr.getLocalName())) {
+                    if (Objects.equals(ELEM_GENERATOR, xmlsr.getLocalName())) {
                         id = xmlsr.getAttributeValue(null, "id");
                     }
                     break;
 
                 case XMLEvent.END_ELEMENT:
                     switch (xmlsr.getLocalName()) {
-                        case "generator":
+                        case ELEM_GENERATOR:
                             if (id == null) {
                                 throw new AssertionError();
                             }
@@ -89,7 +92,7 @@ public class TsoDisconnectedGenerator extends AbstractSecurityIndex {
         for (Map.Entry<String, Float> e : disconnectedGenerators.entrySet()) {
             String id = e.getKey();
             float p = e.getValue();
-            xmlWriter.writeStartElement("generator");
+            xmlWriter.writeStartElement(ELEM_GENERATOR);
             xmlWriter.writeAttribute("id", id);
             xmlWriter.writeCharacters(Float.toString(p));
             xmlWriter.writeEndElement();
