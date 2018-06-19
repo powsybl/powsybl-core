@@ -146,7 +146,7 @@ public class CsvMpiStatistics implements MpiStatistics {
                 switch (key) {
                     case COMMON_FILE_TRANSFER_KEY: {
                         if (tokens.length != 4) {
-                            throw new PowsyblException("Incorrect " + COMMON_FILE_TRANSFER_KEY + " line '" + line + "'");
+                            throw createIncorrectLineException(COMMON_FILE_TRANSFER_KEY, line);
                         }
                         String fileName = tokens[1];
                         long size = Long.parseLong(tokens[2]);
@@ -156,7 +156,7 @@ public class CsvMpiStatistics implements MpiStatistics {
                     }
                     case JOB_START_KEY: {
                         if (tokens.length != 3 && tokens.length != 4) {
-                            throw new PowsyblException("Incorrect " + JOB_START_KEY + " line '" + line + "'");
+                            throw createIncorrectLineException(JOB_START_KEY, line);
                         }
                         int jobId = Integer.parseInt(tokens[1]);
                         String commandId = tokens[2];
@@ -169,7 +169,7 @@ public class CsvMpiStatistics implements MpiStatistics {
                     }
                     case JOB_END_KEY: {
                         if (tokens.length != 2) {
-                            throw new PowsyblException("Incorrect " + JOB_END_KEY + " line '" + line + "'");
+                            throw createIncorrectLineException(JOB_END_KEY, line);
                         }
                         int jobId = Integer.parseInt(tokens[1]);
                         jobs.remove(jobId);
@@ -177,7 +177,7 @@ public class CsvMpiStatistics implements MpiStatistics {
                     }
                     case TASK_START_KEY: {
                         if (tokens.length != 8) {
-                            throw new PowsyblException("Incorrect " + TASK_START_KEY + " line '" + line + "'");
+                            throw createIncorrectLineException(TASK_START_KEY, line);
                         }
                         int taskId = Integer.parseInt(tokens[1]);
                         int jobId = Integer.parseInt(tokens[2]);
@@ -191,7 +191,7 @@ public class CsvMpiStatistics implements MpiStatistics {
                     }
                     case TASK_END_KEY: {
                         if (tokens.length != 8) {
-                            throw new PowsyblException("Incorrect " + TASK_END_KEY + " line '" + line + "'");
+                            throw createIncorrectLineException(TASK_END_KEY, line);
                         }
                         int taskId = Integer.parseInt(tokens[1]);
                         TaskExecution task = tasks.get(taskId);
@@ -216,6 +216,10 @@ public class CsvMpiStatistics implements MpiStatistics {
                         throw new PowsyblException("Unknown key " + key);
                 }
             }
+        }
+
+        private static PowsyblException createIncorrectLineException(String key, String line) {
+            return new PowsyblException("Incorrect " + key + " line '" + line + "'");
         }
 
         @Override
@@ -422,7 +426,7 @@ public class CsvMpiStatistics implements MpiStatistics {
 
         Path commonFilesTransferCsv = dbDir.resolve("common-files-transfer.csv");
 
-        LOGGER.info("Writing {}", commonFilesTransferCsv);
+        logWritingPath(commonFilesTransferCsv);
 
         try (BufferedWriter commonFilesTransferWriter = Files.newBufferedWriter(commonFilesTransferCsv, StandardCharsets.UTF_8)) {
             commonFilesTransferWriter.write("File name" + CSV_SEPARATOR + "File size (bytes)" + CSV_SEPARATOR + "Transfer duration (ms)");
@@ -445,6 +449,10 @@ public class CsvMpiStatistics implements MpiStatistics {
         }
     }
 
+    private static void logWritingPath(Path path) {
+        LOGGER.info("Writing {}", path);
+    }
+
     public static void exportTaskCount(Path dbDir, String dbName) throws IOException {
         Objects.requireNonNull(dbDir);
         Objects.requireNonNull(dbName);
@@ -457,7 +465,7 @@ public class CsvMpiStatistics implements MpiStatistics {
         }
 
         Path tasksCountCsv = dbDir.resolve("tasks-count.csv");
-        LOGGER.info("Writing {}", tasksCountCsv);
+        logWritingPath(tasksCountCsv);
 
         final Map<String, CommandStats> tasksPerCommandId = new HashMap<>();
         try (StatisticsReader reader = new StatisticsReader(csv)) {
@@ -498,7 +506,7 @@ public class CsvMpiStatistics implements MpiStatistics {
         Path csv = dbDir.resolve(dbName + ".csv");
 
         Path busyCoresCsv = dbDir.resolve("busy-cores.csv");
-        LOGGER.info("Writing {}", busyCoresCsv);
+        logWritingPath(busyCoresCsv);
 
         final DateTime[] min = new DateTime[1];
         final DateTime[] max = new DateTime[1];
@@ -562,7 +570,7 @@ public class CsvMpiStatistics implements MpiStatistics {
         Path csv = dbDir.resolve(dbName + ".csv");
 
         Path workingDataSizeCsv = dbDir.resolve("working-data-size.csv");
-        LOGGER.info("Writing {}", workingDataSizeCsv);
+        logWritingPath(workingDataSizeCsv);
 
         final Map<String, AtomicLong> workingDataSizePerSlave = new HashMap<>();
         final long[] totalWorkingDataSize = new long[1];

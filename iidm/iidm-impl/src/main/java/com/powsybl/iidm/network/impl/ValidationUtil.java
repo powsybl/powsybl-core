@@ -25,10 +25,18 @@ public final class ValidationUtil {
         checkActivePowerSetpoint(validable, targetP);
     }
 
+    private static ValidationException createInvalidValueException(Validable validable, float value, String valueName) {
+        return createInvalidValueException(validable, value, valueName, null);
+    }
+
+    private static ValidationException createInvalidValueException(Validable validable, float value, String valueName, String reason) {
+        String r = reason == null ? "" : " (" + reason + ")";
+        return new ValidationException(validable, "invalid value (" + value + ") for " + valueName + r);
+    }
+
     static void checkActivePowerSetpoint(Validable validable, float activePowerSetpoint) {
         if (Float.isNaN(activePowerSetpoint)) {
-            throw new ValidationException(validable, "invalid value (" + activePowerSetpoint
-                    + ") for active power setpoint");
+            throw createInvalidValueException(validable, activePowerSetpoint, "active power setpoint");
         }
     }
 
@@ -45,13 +53,11 @@ public final class ValidationUtil {
         }
         if (voltageRegulatorOn) {
             if (Float.isNaN(voltageSetpoint) || voltageSetpoint <= 0) {
-                throw new ValidationException(validable,
-                        "invalid value (" + voltageSetpoint + ") for voltage setpoint (voltage regulator is on)");
+                throw createInvalidValueException(validable, voltageSetpoint, "voltage setpoint", "voltage regulator is on");
             }
         } else {
             if (Float.isNaN(reactivePowerSetpoint)) {
-                throw new ValidationException(validable, "invalid value (" + reactivePowerSetpoint
-                        + ") for reactive power setpoint (voltage regulator is off)");
+                throw createInvalidValueException(validable, reactivePowerSetpoint, "reactive power setpoint", "voltage regulator is off");
             }
         }
     }
@@ -70,15 +76,13 @@ public final class ValidationUtil {
 
     static void checkMinP(Validable validable, float minP) {
         if (Float.isNaN(minP)) {
-            throw new ValidationException(validable, "invalid value (" + minP
-                    + ") for minimum P");
+            throw createInvalidValueException(validable, minP, "minimum P");
         }
     }
 
     static void checkMaxP(Validable validable, float maxP) {
         if (Float.isNaN(maxP)) {
-            throw new ValidationException(validable, "invalid value (" + maxP
-                    + ") for maximum P");
+            throw createInvalidValueException(validable, maxP, "maximum P");
         }
     }
 
@@ -245,15 +249,13 @@ public final class ValidationUtil {
         switch (regulationMode) {
             case VOLTAGE:
                 if (Float.isNaN(voltageSetpoint)) {
-                    throw new ValidationException(validable, "invalid value (" + voltageSetpoint
-                            + ") for voltage setpoint");
+                    throw createInvalidValueException(validable, voltageSetpoint, "voltage setpoint");
                 }
                 break;
 
             case REACTIVE_POWER:
                 if (Float.isNaN(reactivePowerSetpoint)) {
-                    throw new ValidationException(validable, "invalid value (" + reactivePowerSetpoint
-                            + ") for reactive power setpoint");
+                    throw createInvalidValueException(validable, reactivePowerSetpoint, "reactive power setpoint");
                 }
                 break;
 
