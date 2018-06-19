@@ -40,6 +40,12 @@ import com.powsybl.loadflow.validation.ValidationType;
  */
 public class CIM1ConverterRatioTapChangerSide2FixTest {
 
+    private static final Logger LOG = LoggerFactory.getLogger(CIM1ConverterRatioTapChangerSide2FixTest.class);
+
+    private FileSystem fileSystem;
+    private DataSource dataSource;
+    private CIM1Importer importer;
+
     @Before
     public void setUp() throws IOException {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
@@ -69,8 +75,7 @@ public class CIM1ConverterRatioTapChangerSide2FixTest {
         computeMissingFlows(network, loadFlowParameters);
         ValidationConfig config = createValidationConfig(loadFlowParameters);
 
-        Path working = fileSystem.getPath("temp-validation");
-        Files.createDirectories(working);
+        Path working = Files.createDirectories(fileSystem.getPath("temp-validation"));
         boolean rb = ValidationType.BUSES.check(network, config, working);
         LOG.info("Bus balance validation for tx-from-microBE-adapted is [{}]", rb);
         assertTrue(rb);
@@ -98,16 +103,8 @@ public class CIM1ConverterRatioTapChangerSide2FixTest {
     private void computeMissingFlows(Network network, LoadFlowParameters loadFlowParameters) {
         float epsilonX = 0f;
         boolean applyXCorrection = false;
-        LoadFlowResultsCompletionParameters p;
-        p = new LoadFlowResultsCompletionParameters(epsilonX, applyXCorrection);
+        LoadFlowResultsCompletionParameters p = new LoadFlowResultsCompletionParameters(epsilonX, applyXCorrection);
         LoadFlowResultsCompletion lf = new LoadFlowResultsCompletion(p, loadFlowParameters);
         lf.run(network, null);
     }
-
-    private FileSystem          fileSystem;
-    private DataSource          dataSource;
-    private CIM1Importer        importer;
-
-    private static final Logger LOG = LoggerFactory
-            .getLogger(CIM1ConverterRatioTapChangerSide2FixTest.class);
 }
