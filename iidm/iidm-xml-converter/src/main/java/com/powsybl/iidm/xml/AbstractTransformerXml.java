@@ -21,8 +21,8 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
     private static final String ATTR_LOW_TAP_POSITION = "lowTapPosition";
     private static final String ATTR_TAP_POSITION = "tapPosition";
     private static final String ATTR_REGULATING = "regulating";
-    private static final String ELE_TERMINAL_REF = "terminalRef";
-    private static final String ELE_STEP = "step";
+    private static final String ELEM_TERMINAL_REF = "terminalRef";
+    private static final String ELEM_STEP = "step";
 
 
     protected static void writeTapChangerStep(TapChangerStep<?> tcs, XMLStreamWriter writer) throws XMLStreamException {
@@ -49,11 +49,11 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
             XmlUtil.writeFloat("targetV", rtc.getTargetV(), context.getWriter());
         }
         if (rtc.hasLoadTapChangingCapabilities() || rtc.getRegulationTerminal() != null) {
-            writeTerminalRef(rtc.getRegulationTerminal(), context, ELE_TERMINAL_REF);
+            writeTerminalRef(rtc.getRegulationTerminal(), context, ELEM_TERMINAL_REF);
         }
         for (int p = rtc.getLowTapPosition(); p <= rtc.getHighTapPosition(); p++) {
             RatioTapChangerStep rtcs = rtc.getStep(p);
-            context.getWriter().writeEmptyElement(IIDM_URI, ELE_STEP);
+            context.getWriter().writeEmptyElement(IIDM_URI, ELEM_STEP);
             writeTapChangerStep(rtcs, context.getWriter());
         }
         context.getWriter().writeEndElement();
@@ -76,7 +76,7 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
         boolean[] hasTerminalRef = new boolean[1];
         XmlUtil.readUntilEndElement(elementName, context.getReader(), () -> {
             switch (context.getReader().getLocalName()) {
-                case ELE_TERMINAL_REF:
+                case ELEM_TERMINAL_REF:
                     String id = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "id"));
                     String side = context.getReader().getAttributeValue(null, "side");
                     context.getEndTasks().add(() ->  {
@@ -86,7 +86,7 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
                     hasTerminalRef[0] = true;
                     break;
 
-                case ELE_STEP:
+                case ELEM_STEP:
                     float r = XmlUtil.readFloatAttribute(context.getReader(), "r");
                     float x = XmlUtil.readFloatAttribute(context.getReader(), "x");
                     float g = XmlUtil.readFloatAttribute(context.getReader(), "g");
@@ -129,11 +129,11 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
             context.getWriter().writeAttribute(ATTR_REGULATING, Boolean.toString(ptc.isRegulating()));
         }
         if (ptc.getRegulationMode() != PhaseTapChanger.RegulationMode.FIXED_TAP || ptc.getRegulationTerminal() != null) {
-            writeTerminalRef(ptc.getRegulationTerminal(), context, ELE_TERMINAL_REF);
+            writeTerminalRef(ptc.getRegulationTerminal(), context, ELEM_TERMINAL_REF);
         }
         for (int p = ptc.getLowTapPosition(); p <= ptc.getHighTapPosition(); p++) {
             PhaseTapChangerStep ptcs = ptc.getStep(p);
-            context.getWriter().writeEmptyElement(IIDM_URI, ELE_STEP);
+            context.getWriter().writeEmptyElement(IIDM_URI, ELEM_STEP);
             writeTapChangerStep(ptcs, context.getWriter());
             XmlUtil.writeFloat("alpha", ptcs.getAlpha(), context.getWriter());
         }
@@ -155,7 +155,7 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
         boolean[] hasTerminalRef = new boolean[1];
         XmlUtil.readUntilEndElement("phaseTapChanger", context.getReader(), () -> {
             switch (context.getReader().getLocalName()) {
-                case ELE_TERMINAL_REF:
+                case ELEM_TERMINAL_REF:
                     String id = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "id"));
                     String side = context.getReader().getAttributeValue(null, "side");
                     context.getEndTasks().add(() ->  {
@@ -165,7 +165,7 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
                     hasTerminalRef[0] = true;
                     break;
 
-                case ELE_STEP:
+                case ELEM_STEP:
                     float r = XmlUtil.readFloatAttribute(context.getReader(), "r");
                     float x = XmlUtil.readFloatAttribute(context.getReader(), "x");
                     float g = XmlUtil.readFloatAttribute(context.getReader(), "g");

@@ -146,7 +146,7 @@ public class CsvMpiStatistics implements MpiStatistics {
                 switch (key) {
                     case COMMON_FILE_TRANSFER_KEY: {
                         if (tokens.length != 4) {
-                            throw incorrectLineException(COMMON_FILE_TRANSFER_KEY, line);
+                            throw createIncorrectLineException(COMMON_FILE_TRANSFER_KEY, line);
                         }
                         String fileName = tokens[1];
                         long size = Long.parseLong(tokens[2]);
@@ -156,7 +156,7 @@ public class CsvMpiStatistics implements MpiStatistics {
                     }
                     case JOB_START_KEY: {
                         if (tokens.length != 3 && tokens.length != 4) {
-                            throw incorrectLineException(JOB_START_KEY, line);
+                            throw createIncorrectLineException(JOB_START_KEY, line);
                         }
                         int jobId = Integer.parseInt(tokens[1]);
                         String commandId = tokens[2];
@@ -169,7 +169,7 @@ public class CsvMpiStatistics implements MpiStatistics {
                     }
                     case JOB_END_KEY: {
                         if (tokens.length != 2) {
-                            throw incorrectLineException(JOB_END_KEY, line);
+                            throw createIncorrectLineException(JOB_END_KEY, line);
                         }
                         int jobId = Integer.parseInt(tokens[1]);
                         jobs.remove(jobId);
@@ -177,7 +177,7 @@ public class CsvMpiStatistics implements MpiStatistics {
                     }
                     case TASK_START_KEY: {
                         if (tokens.length != 8) {
-                            throw incorrectLineException(TASK_START_KEY, line);
+                            throw createIncorrectLineException(TASK_START_KEY, line);
                         }
                         int taskId = Integer.parseInt(tokens[1]);
                         int jobId = Integer.parseInt(tokens[2]);
@@ -191,7 +191,7 @@ public class CsvMpiStatistics implements MpiStatistics {
                     }
                     case TASK_END_KEY: {
                         if (tokens.length != 8) {
-                            throw incorrectLineException(TASK_END_KEY, line);
+                            throw createIncorrectLineException(TASK_END_KEY, line);
                         }
                         int taskId = Integer.parseInt(tokens[1]);
                         TaskExecution task = tasks.get(taskId);
@@ -218,7 +218,7 @@ public class CsvMpiStatistics implements MpiStatistics {
             }
         }
 
-        private PowsyblException incorrectLineException(String key, String line) {
+        private static PowsyblException createIncorrectLineException(String key, String line) {
             return new PowsyblException("Incorrect " + key + " line '" + line + "'");
         }
 
