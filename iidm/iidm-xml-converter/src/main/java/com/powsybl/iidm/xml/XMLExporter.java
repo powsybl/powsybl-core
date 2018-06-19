@@ -19,6 +19,8 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 
+import static com.powsybl.iidm.xml.IidmXmlConstants.*;
+
 /**
  * XML export of an IIDM model.<p>
  * <table border="1">
@@ -51,7 +53,7 @@ import java.util.Properties;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @AutoService(Exporter.class)
-public class XMLExporter implements Exporter, XmlConstants {
+public class XMLExporter implements Exporter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(XMLExporter.class);
 

@@ -18,7 +18,7 @@ import java.util.stream.Stream;
  * <p>To create a new network, use {@link NetworkFactory}.
  *
  * <p>The network is initially created with one state identified by
- * <code>StateManager.INITIAL_STATE_ID</code>. {@link StateManager} is
+ * <code>StateManagerConstants.INITIAL_STATE_ID</code>. {@link StateManager} is
  * responsible for state management and is accessible from the network thanks
  * to {@link #getStateManager()}.
  *

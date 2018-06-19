@@ -13,7 +13,7 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.tasks.ModificationTask;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.StateManager;
+import com.powsybl.iidm.network.StateManagerConstants;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.loadflow.LoadFlowFactory;
 import com.powsybl.loadflow.mock.LoadFlowFactoryMock;
@@ -84,7 +84,7 @@ public class SecurityAnalysisTest {
         securityAnalysis.addInterceptor(new SecurityAnalysisInterceptorMock());
         securityAnalysis.addInterceptor(new CurrentLimitViolationInterceptor());
 
-        SecurityAnalysisResult result = securityAnalysis.runAsync(contingenciesProvider, StateManager.INITIAL_STATE_ID, new SecurityAnalysisParameters()).join();
+        SecurityAnalysisResult result = securityAnalysis.runAsync(contingenciesProvider, StateManagerConstants.INITIAL_STATE_ID, new SecurityAnalysisParameters()).join();
 
         assertTrue(result.getPreContingencyResult().isComputationOk());
         assertEquals(0, result.getPreContingencyResult().getLimitViolations().size());

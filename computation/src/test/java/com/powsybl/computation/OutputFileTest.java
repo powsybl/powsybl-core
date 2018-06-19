@@ -27,7 +27,7 @@ public class OutputFileTest {
 
     @Test
     public void test2() {
-        OutputFile file = new OutputFile("test" + Command.EXECUTION_NUMBER_PATTERN);
+        OutputFile file = new OutputFile("test" + CommandConstants.EXECUTION_NUMBER_PATTERN);
         assertEquals("test1", file.getName(1));
         assertTrue(file.dependsOnExecutionNumber());
         assertNull(file.getPostProcessor());
