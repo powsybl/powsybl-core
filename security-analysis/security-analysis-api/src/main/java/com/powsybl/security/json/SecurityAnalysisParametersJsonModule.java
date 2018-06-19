@@ -12,7 +12,7 @@ import com.powsybl.security.SecurityAnalysisParameters;
 /**
  * @author Sylvain Leclerc <sylvain.leclerc@rte-france.com>
  */
-class SecurityAnalysisParametersJsonModule extends SimpleModule {
+public class SecurityAnalysisParametersJsonModule extends SimpleModule {
 
     public SecurityAnalysisParametersJsonModule() {
         addDeserializer(SecurityAnalysisParameters.class, new SecurityAnalysisParametersDeserializer());
