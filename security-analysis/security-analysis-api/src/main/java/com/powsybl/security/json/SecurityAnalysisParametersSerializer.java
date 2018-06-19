@@ -18,7 +18,7 @@ import java.io.IOException;
 /**
  * @author Sylvain Leclerc <sylvain.leclerc@rte-france.com>
  */
-class SecurityAnalysisParametersSerializer extends StdSerializer<SecurityAnalysisParameters> {
+public class SecurityAnalysisParametersSerializer extends StdSerializer<SecurityAnalysisParameters> {
 
     SecurityAnalysisParametersSerializer() {
         super(SecurityAnalysisParameters.class);
