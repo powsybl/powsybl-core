@@ -30,7 +30,7 @@
 	<cim:SvVoltage.TopologicalNode rdf:resource="#_SLACK_TN"/>
 	<cim:SvVoltage.v>115.5</cim:SvVoltage.v>
 </cim:SvVoltage>
-<cim:SvTapStep rdf:ID="#_BE-TR2_3_RTC_STEP">
+<cim:SvTapStep rdf:ID="_BE-TR2_3_RTC_STEP">
 	<cim:SvTapStep.continuousPosition>18</cim:SvTapStep.continuousPosition>
 	<cim:SvTapStep.TapChanger rdf:resource="#_BE-TR2_3_RTC"/>
 </cim:SvTapStep>
