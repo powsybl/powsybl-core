@@ -14,10 +14,12 @@ import com.powsybl.iidm.network.ReactiveLimitsHolder;
 
 import javax.xml.stream.XMLStreamException;
 
+import static com.powsybl.iidm.xml.IidmXmlConstants.IIDM_URI;
+
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public class ReactiveLimitsXml implements XmlConstants {
+public class ReactiveLimitsXml {
 
     static final ReactiveLimitsXml INSTANCE = new ReactiveLimitsXml();
 

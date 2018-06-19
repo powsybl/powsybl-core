@@ -10,6 +10,8 @@ import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Objects;
@@ -18,6 +20,8 @@ import java.util.Objects;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 class GeneratorScalable extends AbstractScalable {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(GeneratorScalable.class);
 
     private final String id;
 

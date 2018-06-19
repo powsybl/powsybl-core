@@ -15,6 +15,10 @@ import java.util.stream.Stream;
  */
 public interface Component {
 
+    /**
+     * @deprecated Use {@link ComponentConstants.MAIN_NUM} instead
+     */
+    @Deprecated
     int MAIN_NUM = 0;
 
     /**

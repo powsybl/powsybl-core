@@ -27,7 +27,7 @@ public class InputFileTest {
 
     @Test
     public void test2() {
-        InputFile file = new InputFile("test" + Command.EXECUTION_NUMBER_PATTERN);
+        InputFile file = new InputFile("test" + CommandConstants.EXECUTION_NUMBER_PATTERN);
         assertEquals("test1", file.getName(1));
         assertTrue(file.dependsOnExecutionNumber());
         assertNull(file.getPreProcessor());

@@ -18,8 +18,9 @@ import java.util.List;
 public interface StateManager {
 
     /**
-     * A constant for the id of the initial state (the one created by default)
+     * @deprecated Use {@link StateManagerConstants.INITIAL_STATE_ID} instead
      */
+    @Deprecated
     public static final String INITIAL_STATE_ID = "InitialState";
 
     /**

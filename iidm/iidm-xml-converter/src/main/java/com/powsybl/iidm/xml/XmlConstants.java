@@ -12,9 +12,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
+ * @deprecated Use {@link IidmXmlConstants} instead
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
+@Deprecated
 public interface XmlConstants {
 
     String INDENT = "    ";

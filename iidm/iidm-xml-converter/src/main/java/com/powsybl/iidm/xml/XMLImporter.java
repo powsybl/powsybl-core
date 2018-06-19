@@ -30,13 +30,19 @@ import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.events.XMLEvent;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Properties;
+
+import static com.powsybl.iidm.xml.IidmXmlConstants.IIDM_URI;
+import static com.powsybl.iidm.xml.IidmXmlConstants.VERSION;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @AutoService(Importer.class)
-public class XMLImporter implements Importer, XmlConstants {
+public class XMLImporter implements Importer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(XMLImporter.class);
 

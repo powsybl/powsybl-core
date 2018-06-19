@@ -88,7 +88,7 @@
         <maven.deploy.version>2.8.2</maven.deploy.version>
         <maven.findbugs.version>3.0.4</maven.findbugs.version>
         <maven.gpg.version>1.6</maven.gpg.version>
-        <maven.jacoco.version>0.7.8</maven.jacoco.version>
+        <maven.jacoco.version>0.8.1</maven.jacoco.version>
         <maven.jar.version>3.0.2</maven.jar.version>
         <maven.javadoc.version>3.0.0</maven.javadoc.version>
         <maven.shade.version>3.1.0</maven.shade.version>
@@ -102,6 +102,7 @@
         <sonar.jacoco.reportPaths>
             ../target/jacoco-merge.exec,
             ../../target/jacoco-merge.exec
+            ../../../target/jacoco-merge.exec
         </sonar.jacoco.reportPaths>
         <sonar.exclusions>
             **/cim1/**/*, **/generated/**/*
@@ -301,8 +302,7 @@
                             <sourceDirectory>${project.basedir}/scripting/src/main/groovy</sourceDirectory>
                         </sourceDirectories>
                         <jacocoReports>
-                            <jacocoReport>${project.basedir}/distribution-core/target/site/jacoco-aggregate/jacoco.xml
-                            </jacocoReport>
+                            <jacocoReport>${project.basedir}/distribution-core/target/site/jacoco-aggregate/jacoco.xml</jacocoReport>
                         </jacocoReports>
                     </configuration>
                 </plugin>

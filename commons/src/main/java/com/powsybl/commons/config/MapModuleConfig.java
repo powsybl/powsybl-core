@@ -200,6 +200,38 @@ public class MapModuleConfig implements ModuleConfig {
     }
 
     @Override
+    public OptionalLong getOptionalLongProperty(String name) {
+        Objects.requireNonNull(name);
+        Object value = properties.get(name);
+        if (value == null) {
+            return OptionalLong.empty();
+        }
+        if (value instanceof Long) {
+            return OptionalLong.of((Long) value);
+        } else if (value instanceof Integer) {
+            return OptionalLong.of((Integer) value);
+        } else if (value instanceof String) {
+            try {
+                return OptionalLong.of(Long.parseLong((String) value));
+            } catch (NumberFormatException e) {
+                throw createPropertyIsNotException(name, "a long", e);
+            }
+        } else {
+            throw createUnexpectedPropertyTypeException(name, value.getClass(), new Class[] {String.class, Long.class, Integer.class});
+        }
+    }
+
+    @Override
+    public long getLongProperty(String name) {
+        return getOptionalLongProperty(name).orElseThrow(() -> createPropertyNotSetException(name));
+    }
+
+    @Override
+    public long getLongProperty(String name, long defaultValue) {
+        return getOptionalLongProperty(name).orElse(defaultValue);
+    }
+
+    @Override
     public Optional<Float> getOptionalFloatProperty(String name) {
         Objects.requireNonNull(name);
         Object value = properties.get(name);
