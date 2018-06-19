@@ -104,9 +104,7 @@ public class MultiCriteriaVoltageStabilityIndex2 extends AbstractSecurityIndex {
                             break;
 
                         case TAG_BUS:
-                            if (state == null) {
-                                throw new IllegalStateException("state is null");
-                            }
+                            Objects.requireNonNull(state, "state is null");
 
                             switch (state) {
                                 case ONE:

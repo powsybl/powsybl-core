@@ -17,10 +17,7 @@ import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.UncheckedIOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -203,109 +200,131 @@ public class LocalComputationManager implements ComputationManager {
             Command command = commandExecution.getCommand();
 
             for (int executionIndex = 0; executionIndex < commandExecution.getExecutionCount(); executionIndex++) {
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("Executing command {} in working directory {}",
-                            command.toString(executionIndex), workingDir);
-                }
+                logExecutingCommand(workingDir, command, executionIndex);
 
-                // pre-processing
-                for (InputFile file : command.getInputFiles()) {
-                    String fileName = file.getName(executionIndex);
-
-                    // first check if the file exists in the working directory
-                    Path path = workingDir.resolve(fileName);
-                    if (!Files.exists(path)) {
-                        // if not check if the file exists in the common directory
-                        path = commonDir.toPath().resolve(fileName);
-                        if (!Files.exists(path)) {
-                            throw new PowsyblException("Input file '" + fileName + "' not found in the working and common directory");
-                        }
-                        if (file.getPreProcessor() == null) {
-                            Files.copy(path, workingDir.resolve(path.getFileName()));
-                        }
-                    }
-                    if (file.getPreProcessor() != null) {
-                        switch (file.getPreProcessor()) {
-                            case FILE_GUNZIP:
-                                // gunzip the file
-                                try (InputStream is = new GZIPInputStream(Files.newInputStream(path));
-                                     OutputStream os = Files.newOutputStream(workingDir.resolve(fileName.substring(0, fileName.length() - 3)))) {
-                                    ByteStreams.copy(is, os);
-                                }
-                                break;
-                            case ARCHIVE_UNZIP:
-                                // extract the archive
-                                try (ZipFile zipFile = new ZipFile(path)) {
-                                    for (ZipEntry ze : Collections.list(zipFile.entries())) {
-                                        Files.copy(zipFile.getInputStream(ze.getName()), workingDir.resolve(ze.getName()), REPLACE_EXISTING);
-                                    }
-                                }
-                                break;
-
-                            default:
-                                throw new AssertionError("Unexpected FilePreProcessor value: " + file.getPreProcessor());
-                        }
-                    }
-                }
-
-                int exitValue = 0;
-                Path outFile = workingDir.resolve(command.getId() + "_" + executionIndex + ".out");
-                Path errFile = workingDir.resolve(command.getId() + "_" + executionIndex + ".err");
-                Map<String, String> executionVariables = CommandExecution.getExecutionVariables(variables, commandExecution);
-                switch (command.getType()) {
-                    case SIMPLE:
-                        SimpleCommand simpleCmd = (SimpleCommand) command;
-                        exitValue = localCommandExecutor.execute(simpleCmd.getProgram(),
-                                simpleCmd.getArgs(executionIndex),
-                                outFile,
-                                errFile,
-                                workingDir,
-                                executionVariables);
-                        break;
-                    case GROUP:
-                        for (GroupCommand.SubCommand subCmd : ((GroupCommand) command).getSubCommands()) {
-                            exitValue = localCommandExecutor.execute(subCmd.getProgram(),
-                                    subCmd.getArgs(executionIndex),
-                                    outFile,
-                                    errFile,
-                                    workingDir,
-                                    executionVariables);
-                            if (exitValue != 0) {
-                                break;
-                            }
-                        }
-                        break;
-                    default:
-                        throw new AssertionError("Unexpected CommandType value: " + command.getType());
-                }
-
-                if (exitValue != 0) {
-                    errors.add(new ExecutionError(command, executionIndex, exitValue));
-                } else {
-                    // post processing
-                    for (OutputFile file : command.getOutputFiles()) {
-                        String fileName = file.getName(executionIndex);
-                        Path path = workingDir.resolve(fileName);
-                        if (file.getPostProcessor() != null && Files.isRegularFile(path)) {
-                            if (file.getPostProcessor() == FilePostProcessor.FILE_GZIP) { // gzip the file
-                                try (InputStream is = Files.newInputStream(path);
-                                     OutputStream os = new GZIPOutputStream(Files.newOutputStream(workingDir.resolve(fileName + ".gz")))) {
-                                    ByteStreams.copy(is, os);
-                                }
-
-                            } else {
-                                throw new AssertionError("Unexpected FilePostProcessor value: " + file.getPostProcessor());
-                            }
-                        }
-                    }
-                }
-
-                if (monitor != null) {
-                    monitor.onProgress(commandExecution, executionIndex);
-                }
+                preProcess(workingDir, command, executionIndex);
+                int exitValue = process(workingDir, commandExecution, executionIndex, variables);
+                postProcess(workingDir, commandExecution, executionIndex, exitValue, errors, monitor);
             }
         }
         return new ExecutionReport(errors);
+    }
+
+    private void logExecutingCommand(Path workingDir, Command command, int executionIndex) {
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Executing command {} in working directory {}",
+                    command.toString(executionIndex), workingDir);
+        }
+    }
+
+    private void preProcess(Path workingDir, Command command, int executionIndex) throws IOException {
+        // pre-processing
+        for (InputFile file : command.getInputFiles()) {
+            String fileName = file.getName(executionIndex);
+
+            Path path = checkInputFileExistsInWorkingAndCommons(workingDir, fileName, file);
+            if (file.getPreProcessor() != null) {
+                switch (file.getPreProcessor()) {
+                    case FILE_GUNZIP:
+                        // gunzip the file
+                        try (InputStream is = new GZIPInputStream(Files.newInputStream(path));
+                             OutputStream os = Files.newOutputStream(workingDir.resolve(fileName.substring(0, fileName.length() - 3)))) {
+                            ByteStreams.copy(is, os);
+                        }
+                        break;
+                    case ARCHIVE_UNZIP:
+                        // extract the archive
+                        try (ZipFile zipFile = new ZipFile(path)) {
+                            for (ZipEntry ze : Collections.list(zipFile.entries())) {
+                                Files.copy(zipFile.getInputStream(ze.getName()), workingDir.resolve(ze.getName()), REPLACE_EXISTING);
+                            }
+                        }
+                        break;
+
+                    default:
+                        throw new AssertionError("Unexpected FilePreProcessor value: " + file.getPreProcessor());
+                }
+            }
+        }
+    }
+
+    private int process(Path workingDir, CommandExecution commandExecution, int executionIndex, Map<String, String> variables) throws IOException, InterruptedException {
+        Command command = commandExecution.getCommand();
+        int exitValue = 0;
+        Path outFile = workingDir.resolve(command.getId() + "_" + executionIndex + ".out");
+        Path errFile = workingDir.resolve(command.getId() + "_" + executionIndex + ".err");
+        Map<String, String> executionVariables = CommandExecution.getExecutionVariables(variables, commandExecution);
+        switch (command.getType()) {
+            case SIMPLE:
+                SimpleCommand simpleCmd = (SimpleCommand) command;
+                exitValue = localCommandExecutor.execute(simpleCmd.getProgram(),
+                        simpleCmd.getArgs(executionIndex),
+                        outFile,
+                        errFile,
+                        workingDir,
+                        executionVariables);
+                break;
+            case GROUP:
+                for (GroupCommand.SubCommand subCmd : ((GroupCommand) command).getSubCommands()) {
+                    exitValue = localCommandExecutor.execute(subCmd.getProgram(),
+                            subCmd.getArgs(executionIndex),
+                            outFile,
+                            errFile,
+                            workingDir,
+                            executionVariables);
+                    if (exitValue != 0) {
+                        break;
+                    }
+                }
+                break;
+            default:
+                throw new AssertionError("Unexpected CommandType value: " + command.getType());
+        }
+        return exitValue;
+    }
+
+    private void postProcess(Path workingDir, CommandExecution commandExecution, int executionIndex, int exitValue, List<ExecutionError> errors, ExecutionMonitor monitor) throws IOException {
+        Command command = commandExecution.getCommand();
+        if (exitValue != 0) {
+            errors.add(new ExecutionError(command, executionIndex, exitValue));
+        } else {
+            // post processing
+            for (OutputFile file : command.getOutputFiles()) {
+                String fileName = file.getName(executionIndex);
+                Path path = workingDir.resolve(fileName);
+                if (file.getPostProcessor() != null && Files.isRegularFile(path)) {
+                    if (file.getPostProcessor() == FilePostProcessor.FILE_GZIP) { // gzip the file
+                        try (InputStream is = Files.newInputStream(path);
+                             OutputStream os = new GZIPOutputStream(Files.newOutputStream(workingDir.resolve(fileName + ".gz")))) {
+                            ByteStreams.copy(is, os);
+                        }
+
+                    } else {
+                        throw new AssertionError("Unexpected FilePostProcessor value: " + file.getPostProcessor());
+                    }
+                }
+            }
+        }
+
+        if (monitor != null) {
+            monitor.onProgress(commandExecution, executionIndex);
+        }
+    }
+
+    private Path checkInputFileExistsInWorkingAndCommons(Path workingDir, String fileName, InputFile file) throws IOException {
+        // first check if the file exists in the working directory
+        Path path = workingDir.resolve(fileName);
+        if (!Files.exists(path)) {
+            // if not check if the file exists in the common directory
+            path = commonDir.toPath().resolve(fileName);
+            if (!Files.exists(path)) {
+                throw new PowsyblException("Input file '" + fileName + "' not found in the working and common directory");
+            }
+            if (file.getPreProcessor() == null) {
+                Files.copy(path, workingDir.resolve(path.getFileName()));
+            }
+        }
+        return path;
     }
 
     private void enter() throws InterruptedException {
