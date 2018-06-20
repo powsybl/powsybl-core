@@ -4,17 +4,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.afs.ws.storage;
+package com.powsybl.computation;
 
-import org.junit.Test;
+public final class CommandConstants {
 
-/**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
- */
-public class CodeCoverageTest {
+    public static final String EXECUTION_NUMBER_PATTERN = "${EXEC_NUM}";
 
-    @Test
-    public void testNothing() {
-        // TODO: remove this class once a real test has been added
+    private CommandConstants() {
     }
 }

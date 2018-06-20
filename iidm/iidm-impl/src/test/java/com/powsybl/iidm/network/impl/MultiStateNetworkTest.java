@@ -30,12 +30,12 @@ public class MultiStateNetworkTest {
     public void singleThreadTest() {
         Network network = EurostagTutorialExample1Factory.create();
         final StateManager manager = network.getStateManager();
-        manager.cloneState(StateManager.INITIAL_STATE_ID, "SecondState");
+        manager.cloneState(StateManagerConstants.INITIAL_STATE_ID, "SecondState");
         manager.setWorkingState("SecondState");
         final Generator generator = network.getGenerator("GEN");
         generator.setVoltageRegulatorOn(false);
         assertTrue(!generator.isVoltageRegulatorOn());
-        manager.setWorkingState(StateManager.INITIAL_STATE_ID);
+        manager.setWorkingState(StateManagerConstants.INITIAL_STATE_ID);
         assertTrue(generator.isVoltageRegulatorOn());
     }
 
@@ -45,11 +45,11 @@ public class MultiStateNetworkTest {
         final StateManager manager = network.getStateManager();
         manager.allowStateMultiThreadAccess(true);
 
-        manager.cloneState(StateManager.INITIAL_STATE_ID, "SecondState");
+        manager.cloneState(StateManagerConstants.INITIAL_STATE_ID, "SecondState");
 
         final Generator generator = network.getGenerator("GEN");
 
-        manager.setWorkingState(StateManager.INITIAL_STATE_ID);
+        manager.setWorkingState(StateManagerConstants.INITIAL_STATE_ID);
         generator.setVoltageRegulatorOn(true);
 
         manager.setWorkingState("SecondState");
@@ -61,7 +61,7 @@ public class MultiStateNetworkTest {
         ExecutorService service = Executors.newFixedThreadPool(2);
         service.invokeAll(Arrays.asList(
             () -> {
-                manager.setWorkingState(StateManager.INITIAL_STATE_ID);
+                manager.setWorkingState(StateManagerConstants.INITIAL_STATE_ID);
                 latch.countDown();
                 latch.await();
                 voltageRegulatorOnInitialState[0] = generator.isVoltageRegulatorOn();
@@ -85,7 +85,7 @@ public class MultiStateNetworkTest {
     public void multiStateTopologyTest() throws InterruptedException {
         Network network = EurostagTutorialExample1Factory.create();
         StateManager manager = network.getStateManager();
-        manager.cloneState(StateManager.INITIAL_STATE_ID, "NEW_STATE");
+        manager.cloneState(StateManagerConstants.INITIAL_STATE_ID, "NEW_STATE");
         VoltageLevel vlload = network.getVoltageLevel("VLLOAD");
         Bus nload = vlload.getBusBreakerView().getBus("NLOAD");
         Load newLoad = vlload.newLoad()
@@ -102,7 +102,7 @@ public class MultiStateNetworkTest {
         assertTrue(newLoad.getTerminal().getBusBreakerView().getBus() == null);
         assertTrue(Iterables.size(vlload.getLoads()) == 2);
         assertTrue(Iterables.size(nload.getLoads()) == 1);
-        manager.setWorkingState(StateManager.INITIAL_STATE_ID);
+        manager.setWorkingState(StateManagerConstants.INITIAL_STATE_ID);
         assertTrue(newLoad.getTerminal().getBusBreakerView().getBus() != null);
         assertTrue(Iterables.size(vlload.getLoads()) == 2);
         assertTrue(Iterables.size(nload.getLoads()) == 2);
@@ -113,7 +113,7 @@ public class MultiStateNetworkTest {
         Network network = EurostagTutorialExample1Factory.create();
         StateManager manager = network.getStateManager();
         manager.allowStateMultiThreadAccess(true);
-        assertTrue(manager.getWorkingStateId().equals(StateManager.INITIAL_STATE_ID));
+        assertTrue(manager.getWorkingStateId().equals(StateManagerConstants.INITIAL_STATE_ID));
         ExecutorService service = Executors.newSingleThreadExecutor();
         service.submit(() -> {
             try {
@@ -131,11 +131,11 @@ public class MultiStateNetworkTest {
         Network network = EurostagTutorialExample1Factory.create();
         StateManager manager = network.getStateManager();
         manager.allowStateMultiThreadAccess(true);
-        assertTrue(manager.getWorkingStateId().equals(StateManager.INITIAL_STATE_ID));
+        assertTrue(manager.getWorkingStateId().equals(StateManagerConstants.INITIAL_STATE_ID));
         ExecutorService service = Executors.newSingleThreadExecutor();
         service.submit(() -> {
             try {
-                manager.setWorkingState(StateManager.INITIAL_STATE_ID);
+                manager.setWorkingState(StateManagerConstants.INITIAL_STATE_ID);
                 network.getGenerator("GEN").getTargetP();
             } catch (Exception e) {
                 fail();

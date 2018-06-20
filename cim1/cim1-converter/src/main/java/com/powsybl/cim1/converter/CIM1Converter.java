@@ -594,16 +594,32 @@ class CIM1Converter implements CIM1Constants {
                 .setLowTapPosition(lowStep)
                 .setTapPosition(position);
 
+        if (LOGGER.isDebugEnabled() && !rtcSide1) {
+            LOGGER.debug("RTC at side 2 deviation {}", rtc.getId());
+        }
         for (int step = lowStep; step <= highStep; step++) {
             int n = step - neutralStep;
             float du = rtc.getStepVoltageIncrement() / 100;
             float rho = rtcSide1 ? 1 / (1 + n * du) : (1 + n * du);
+
+            // Impedance/admittance deviation is required when ratio tap changer is defined at side 2
+            float dz = 0;
+            float dy = 0;
+            if (!rtcSide1) {
+                float rho2 = rho * rho;
+                dz = (rho2 - 1) * 100;
+                dy = (1 / rho2 - 1) * 100;
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug(String.format("RTC at side 2 deviation: %4d  %12.8f  %12.8f  %12.8f", step, n * du, dz, dy));
+                }
+            }
+
             rtca.beginStep()
                     .setRho(rho)
-                    .setR(0f)
-                    .setX(0f)
-                    .setG(0f)
-                    .setB(0f)
+                    .setR(dz)
+                    .setX(dz)
+                    .setG(dy)
+                    .setB(dy)
                 .endStep();
         }
 
