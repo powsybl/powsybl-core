@@ -14,9 +14,6 @@ import org.joda.time.DateTime;
  */
 public final class ValidationUtil {
 
-
-    private static final String INVALID_VALUE = "invalid value (";
-
     private ValidationUtil() {
     }
 
@@ -28,10 +25,18 @@ public final class ValidationUtil {
         checkActivePowerSetpoint(validable, targetP);
     }
 
+    private static ValidationException createInvalidValueException(Validable validable, double value, String valueName) {
+        return createInvalidValueException(validable, value, valueName, null);
+    }
+
+    private static ValidationException createInvalidValueException(Validable validable, double value, String valueName, String reason) {
+        String r = reason == null ? "" : " (" + reason + ")";
+        return new ValidationException(validable, "invalid value (" + value + ") for " + valueName + r);
+    }
+
     static void checkActivePowerSetpoint(Validable validable, double activePowerSetpoint) {
         if (Double.isNaN(activePowerSetpoint)) {
-            throw new ValidationException(validable, INVALID_VALUE + activePowerSetpoint
-                    + ") for active power setpoint");
+            throw createInvalidValueException(validable, activePowerSetpoint, "active power setpoint");
         }
     }
 
@@ -48,13 +53,11 @@ public final class ValidationUtil {
         }
         if (voltageRegulatorOn) {
             if (Double.isNaN(voltageSetpoint) || voltageSetpoint <= 0) {
-                throw new ValidationException(validable,
-                        INVALID_VALUE + voltageSetpoint + ") for voltage setpoint (voltage regulator is on)");
+                throw createInvalidValueException(validable, voltageSetpoint, "voltage setpoint", "voltage regulator is on");
             }
         } else {
             if (Double.isNaN(reactivePowerSetpoint)) {
-                throw new ValidationException(validable, INVALID_VALUE + reactivePowerSetpoint
-                        + ") for reactive power setpoint (voltage regulator is off)");
+                throw createInvalidValueException(validable, reactivePowerSetpoint, "reactive power setpoint", "voltage regulator is off");
             }
         }
     }
@@ -73,15 +76,13 @@ public final class ValidationUtil {
 
     static void checkMinP(Validable validable, double minP) {
         if (Double.isNaN(minP)) {
-            throw new ValidationException(validable, INVALID_VALUE + minP
-                    + ") for minimum P");
+            throw createInvalidValueException(validable, minP, "minimum P");
         }
     }
 
     static void checkMaxP(Validable validable, double maxP) {
         if (Double.isNaN(maxP)) {
-            throw new ValidationException(validable, INVALID_VALUE + maxP
-                    + ") for maximum P");
+            throw createInvalidValueException(validable, maxP, "maximum P");
         }
     }
 
@@ -248,15 +249,13 @@ public final class ValidationUtil {
         switch (regulationMode) {
             case VOLTAGE:
                 if (Double.isNaN(voltageSetpoint)) {
-                    throw new ValidationException(validable, INVALID_VALUE + voltageSetpoint
-                            + ") for voltage setpoint");
+                    throw createInvalidValueException(validable, voltageSetpoint, "voltage setpoint");
                 }
                 break;
 
             case REACTIVE_POWER:
                 if (Double.isNaN(reactivePowerSetpoint)) {
-                    throw new ValidationException(validable, INVALID_VALUE + reactivePowerSetpoint
-                            + ") for reactive power setpoint");
+                    throw createInvalidValueException(validable, reactivePowerSetpoint, "reactive power setpoint");
                 }
                 break;
 
@@ -328,8 +327,8 @@ public final class ValidationUtil {
         }
     }
 
-    static void checkPowerFactor(Validable validable, float powerFactor) {
-        if (Float.isNaN(powerFactor)) {
+    static void checkPowerFactor(Validable validable, double powerFactor) {
+        if (Double.isNaN(powerFactor)) {
             throw new ValidationException(validable, "power factor is invalid");
         }
     }

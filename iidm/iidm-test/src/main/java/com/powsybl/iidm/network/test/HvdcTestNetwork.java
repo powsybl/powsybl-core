@@ -15,6 +15,9 @@ import org.joda.time.DateTime;
  */
 public final class HvdcTestNetwork {
 
+    private static final String DISCONNECTOR_NAME = "Disconnector";
+    private static final String BREAKER_NAME = "Breaker";
+
     private HvdcTestNetwork() {
     }
 
@@ -50,7 +53,7 @@ public final class HvdcTestNetwork {
                 .add();
         vl2.getNodeBreakerView().newDisconnector()
                 .setId("DISC_BBS1_BK1")
-                .setName("Disconnector")
+                .setName(DISCONNECTOR_NAME)
                 .setNode1(0)
                 .setNode2(1)
                 .setOpen(false)
@@ -58,7 +61,7 @@ public final class HvdcTestNetwork {
                 .add();
         vl2.getNodeBreakerView().newBreaker()
                 .setId("BK1")
-                .setName("Breaker")
+                .setName(BREAKER_NAME)
                 .setNode1(1)
                 .setNode2(2)
                 .setOpen(false)
@@ -164,7 +167,7 @@ public final class HvdcTestNetwork {
         vl2.getNodeBreakerView().setNodeCount(7);
         vl2.getNodeBreakerView().newDisconnector()
                 .setId("DISC_BBS1_BK2")
-                .setName("Disconnector")
+                .setName(DISCONNECTOR_NAME)
                 .setNode1(0)
                 .setNode2(3)
                 .setOpen(false)
@@ -172,7 +175,7 @@ public final class HvdcTestNetwork {
                 .add();
         vl2.getNodeBreakerView().newBreaker()
                 .setId("BK2")
-                .setName("Breaker")
+                .setName(BREAKER_NAME)
                 .setNode1(3)
                 .setNode2(4)
                 .setOpen(false)
@@ -180,7 +183,7 @@ public final class HvdcTestNetwork {
                 .add();
         vl2.getNodeBreakerView().newDisconnector()
                 .setId("DISC_BBS1_BK3")
-                .setName("Disconnector")
+                .setName(DISCONNECTOR_NAME)
                 .setNode1(0)
                 .setNode2(5)
                 .setOpen(false)
@@ -188,7 +191,7 @@ public final class HvdcTestNetwork {
                 .add();
         vl2.getNodeBreakerView().newBreaker()
                 .setId("BK3")
-                .setName("Breaker")
+                .setName(BREAKER_NAME)
                 .setNode1(5)
                 .setNode2(6)
                 .setOpen(false)
