@@ -233,8 +233,7 @@ public class ActionSimulatorTool implements Tool {
             ActionSimulator actionSimulator = null;
             if (line.hasOption(NTASKS)) {
                 checkOptionsInParallel(line);
-                int ntasks = Integer.parseInt(line.getOptionValue(NTASKS));
-                actionSimulator = new ParallelLoadFlowActionSimulator(network, context, ntasks, line, config, applyIfSolved, observers);
+                actionSimulator = new ParallelLoadFlowActionSimulator(network, context, line, config, applyIfSolved, observers);
             } else if (line.hasOption(PARTITION)) {
                 String partitionOpt = line.getOptionValue(PARTITION);
                 Partition partition = new Partition(partitionOpt);

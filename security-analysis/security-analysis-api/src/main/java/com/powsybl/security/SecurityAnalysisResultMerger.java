@@ -6,35 +6,33 @@
  */
 package com.powsybl.security;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Objects;
 
 public final class SecurityAnalysisResultMerger {
 
+    private static final LimitViolationsResult FAILED_N_STATE_RESULT = new LimitViolationsResult(false, Collections.emptyList());
+    public static final SecurityAnalysisResult FAILED_SECURITY_ANALYSIS_RESULT = new SecurityAnalysisResult(FAILED_N_STATE_RESULT, Collections.emptyList());
+
     public static SecurityAnalysisResult merge(SecurityAnalysisResult[] results) {
         //If one of the subtasks has failed, return a failed result
         Objects.requireNonNull(results);
         for (SecurityAnalysisResult subResult : results) {
             if (!subResult.getPreContingencyResult().isComputationOk()) {
-                return computationFailed();
+                return FAILED_SECURITY_ANALYSIS_RESULT;
             }
         }
 
         //Else, actually merge results
-        final SecurityAnalysisResult res = results[0];
+        final SecurityAnalysisResult res = new SecurityAnalysisResult(
+                                results[0].getPreContingencyResult(), new ArrayList<>(results[0].getPostContingencyResults()))
+                                .setNetworkMetadata(results[0].getNetworkMetadata());
         if (results.length > 1) {
             Arrays.stream(results, 1, results.length).forEach(r -> res.getPostContingencyResults().addAll(r.getPostContingencyResults()));
         }
         return res;
-    }
-
-    private static LimitViolationsResult nStateFailed() {
-        return new LimitViolationsResult(false, Collections.emptyList());
-    }
-
-    private static SecurityAnalysisResult computationFailed() {
-        return new SecurityAnalysisResult(nStateFailed(), Collections.emptyList());
     }
 
     private SecurityAnalysisResultMerger() {

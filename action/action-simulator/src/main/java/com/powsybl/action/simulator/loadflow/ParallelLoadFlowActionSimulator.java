@@ -35,25 +35,25 @@ public class ParallelLoadFlowActionSimulator extends LoadFlowActionSimulator {
 
     private static final String SUB_TASK_ID = "sas"; // sub_action_simulator
 
-    public ParallelLoadFlowActionSimulator(Network network, ToolRunningContext context, int ntasks, CommandLine commandLine) {
-        this(network, context, ntasks, commandLine, LoadFlowActionSimulatorConfig.load(), false, Collections.emptyList());
+    public ParallelLoadFlowActionSimulator(Network network, ToolRunningContext context, CommandLine commandLine) {
+        this(network, context, commandLine, LoadFlowActionSimulatorConfig.load(), false, Collections.emptyList());
     }
 
-    public ParallelLoadFlowActionSimulator(Network network, ToolRunningContext context, int ntasks, CommandLine commandLine,
+    public ParallelLoadFlowActionSimulator(Network network, ToolRunningContext context, CommandLine commandLine,
                                            LoadFlowActionSimulatorConfig config, boolean applyIfSolved, LoadFlowActionSimulatorObserver... observers) {
-        this(network, context, ntasks, commandLine, config, applyIfSolved, Arrays.asList(observers));
+        this(network, context, commandLine, config, applyIfSolved, Arrays.asList(observers));
     }
 
-    public ParallelLoadFlowActionSimulator(Network network, ToolRunningContext context, int ntasks, CommandLine commandLine,
+    public ParallelLoadFlowActionSimulator(Network network, ToolRunningContext context, CommandLine commandLine,
                                            LoadFlowActionSimulatorConfig config, boolean applyIfSolved, List<LoadFlowActionSimulatorObserver> observers) {
         super(network, context.getLongTimeExecutionComputationManager(), config, applyIfSolved, observers);
-        this.ntasks = ntasks;
         this.commandLine = Objects.requireNonNull(commandLine);
+        this.ntasks = Integer.parseInt(commandLine.getOptionValue(NTASKS));
     }
 
     @Override
     public String getName() {
-        return "parallel loadflow actionsimulator";
+        return "parallel loadflow action-simulator";
     }
 
     @Override

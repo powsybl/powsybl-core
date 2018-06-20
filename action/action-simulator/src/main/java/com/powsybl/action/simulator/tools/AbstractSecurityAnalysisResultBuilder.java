@@ -32,8 +32,6 @@ public abstract class AbstractSecurityAnalysisResultBuilder extends DefaultLoadF
 
     private boolean precontingency;
 
-    private SecurityAnalysisResult result;
-
     @Override
     public void beforePreContingencyAnalysis(RunningContext runningContext) {
         precontingency = true;
@@ -86,14 +84,9 @@ public abstract class AbstractSecurityAnalysisResultBuilder extends DefaultLoadF
 
     @Override
     public void afterPostContingencyAnalysis() {
-        result = new SecurityAnalysisResult(preContingencyResult,
-                postContingencyResults.entrySet().stream().map(Map.Entry::getValue).collect(Collectors.toList()));
-        onFinalStateResult(result);
+        onFinalStateResult(new SecurityAnalysisResult(preContingencyResult,
+                                                      postContingencyResults.entrySet().stream().map(Map.Entry::getValue).collect(Collectors.toList())));
     }
 
     public abstract void onFinalStateResult(SecurityAnalysisResult result);
-
-    public SecurityAnalysisResult build() {
-        return result;
-    }
 }
