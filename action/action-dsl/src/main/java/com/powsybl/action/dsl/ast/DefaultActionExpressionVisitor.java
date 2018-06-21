@@ -54,4 +54,9 @@ public class DefaultActionExpressionVisitor<R, A> extends DefaultExpressionVisit
     public R visitIsOverloaded(IsOverloadedNode isOverloadedNode, A arg) {
         return null;
     }
+
+    @Override
+    public R visitAllOverloaded(AllOverloadedNode allOverloadedNode, A arg) {
+        return null;
+    }
 }
