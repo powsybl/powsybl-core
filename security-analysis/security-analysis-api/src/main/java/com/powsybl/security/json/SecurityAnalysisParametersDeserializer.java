@@ -22,7 +22,7 @@ import java.util.List;
 /**
  * @author Sylvain Leclerc <sylvain.leclerc@rte-france.com>
  */
-class SecurityAnalysisParametersDeserializer extends StdDeserializer<SecurityAnalysisParameters> {
+public class SecurityAnalysisParametersDeserializer extends StdDeserializer<SecurityAnalysisParameters> {
 
     SecurityAnalysisParametersDeserializer() {
         super(SecurityAnalysisParameters.class);
