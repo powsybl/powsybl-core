@@ -35,13 +35,13 @@ public class MinMaxReactiveLimitsTest {
     public void testAdder() {
         // adder
         MinMaxReactiveLimits minMaxReactiveLimits = generator.newMinMaxReactiveLimits()
-                                                        .setMaxQ(100.0f)
-                                                        .setMinQ(10.0f)
+                                                        .setMaxQ(100.0)
+                                                        .setMinQ(10.0)
                                                     .add();
-        assertEquals(100.0f, minMaxReactiveLimits.getMaxQ(), 0.0f);
-        assertEquals(100.0f, minMaxReactiveLimits.getMaxQ(1.0f), 0.0f);
-        assertEquals(10.0f, minMaxReactiveLimits.getMinQ(), 0.0f);
-        assertEquals(10.0f, minMaxReactiveLimits.getMinQ(1.0f), 0.0f);
+        assertEquals(100.0, minMaxReactiveLimits.getMaxQ(), 0.0);
+        assertEquals(100.0, minMaxReactiveLimits.getMaxQ(1.0), 0.0);
+        assertEquals(10.0, minMaxReactiveLimits.getMinQ(), 0.0);
+        assertEquals(10.0, minMaxReactiveLimits.getMinQ(1.0), 0.0);
         assertEquals(ReactiveLimitsKind.MIN_MAX, minMaxReactiveLimits.getKind());
     }
 
@@ -49,24 +49,24 @@ public class MinMaxReactiveLimitsTest {
     public void invalidMinQ() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("minimum reactive power is not set");
-        addMinMaxReactiveLimits(Float.NaN, 100.0f);
+        addMinMaxReactiveLimits(Double.NaN, 100.0);
     }
 
     @Test
     public void invalidMaxQ() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("maximum reactive power is not set");
-        addMinMaxReactiveLimits(10.0f, Float.NaN);
+        addMinMaxReactiveLimits(10.0, Double.NaN);
     }
 
     @Test
     public void invalidMinQBiggerThenMaxQ() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("maximum reactive power is expected to be greater than or equal to minimum reactive power");
-        addMinMaxReactiveLimits(2.0f, 1.0f);
+        addMinMaxReactiveLimits(2.0, 1.0);
     }
 
-    private void addMinMaxReactiveLimits(float minQ, float maxQ) {
+    private void addMinMaxReactiveLimits(double minQ, double maxQ) {
         generator.newMinMaxReactiveLimits()
                 .setMaxQ(maxQ)
                 .setMinQ(minQ)

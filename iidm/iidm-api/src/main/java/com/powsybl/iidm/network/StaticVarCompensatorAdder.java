@@ -11,13 +11,13 @@ package com.powsybl.iidm.network;
  */
 public interface StaticVarCompensatorAdder extends InjectionAdder<StaticVarCompensatorAdder> {
 
-    StaticVarCompensatorAdder setBmin(float bMin);
+    StaticVarCompensatorAdder setBmin(double bMin);
 
-    StaticVarCompensatorAdder setBmax(float bMax);
+    StaticVarCompensatorAdder setBmax(double bMax);
 
-    StaticVarCompensatorAdder setVoltageSetPoint(float voltageSetPoint);
+    StaticVarCompensatorAdder setVoltageSetPoint(double voltageSetPoint);
 
-    StaticVarCompensatorAdder setReactivePowerSetPoint(float reactivePowerSetPoint);
+    StaticVarCompensatorAdder setReactivePowerSetPoint(double reactivePowerSetPoint);
 
     StaticVarCompensatorAdder setRegulationMode(StaticVarCompensator.RegulationMode regulationMode);
 

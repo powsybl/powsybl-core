@@ -17,8 +17,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  *
@@ -34,7 +33,7 @@ public class MultiStateNetworkTest {
         manager.setWorkingState("SecondState");
         final Generator generator = network.getGenerator("GEN");
         generator.setVoltageRegulatorOn(false);
-        assertTrue(!generator.isVoltageRegulatorOn());
+        assertFalse(generator.isVoltageRegulatorOn());
         manager.setWorkingState(StateManagerConstants.INITIAL_STATE_ID);
         assertTrue(generator.isVoltageRegulatorOn());
     }
@@ -78,7 +77,7 @@ public class MultiStateNetworkTest {
         service.shutdown();
         service.awaitTermination(1, TimeUnit.MINUTES);
         assertTrue(voltageRegulatorOnInitialState[0]);
-        assertTrue(!voltageRegulatorOnSecondState[0]);
+        assertFalse(voltageRegulatorOnSecondState[0]);
     }
 
     @Test
@@ -96,16 +95,16 @@ public class MultiStateNetworkTest {
                 .setConnectableBus("NLOAD")
             .add();
         manager.setWorkingState("NEW_STATE");
-        assertTrue(newLoad.getTerminal().getBusBreakerView().getBus() != null);
-        assertTrue(Iterables.size(nload.getLoads()) == 2);
+        assertNotNull(newLoad.getTerminal().getBusBreakerView().getBus());
+        assertEquals(2, Iterables.size(nload.getLoads()));
         newLoad.getTerminal().disconnect();
-        assertTrue(newLoad.getTerminal().getBusBreakerView().getBus() == null);
-        assertTrue(Iterables.size(vlload.getLoads()) == 2);
-        assertTrue(Iterables.size(nload.getLoads()) == 1);
+        assertNull(newLoad.getTerminal().getBusBreakerView().getBus());
+        assertEquals(2, Iterables.size(vlload.getLoads()));
+        assertEquals(1, Iterables.size(nload.getLoads()));
         manager.setWorkingState(StateManagerConstants.INITIAL_STATE_ID);
-        assertTrue(newLoad.getTerminal().getBusBreakerView().getBus() != null);
-        assertTrue(Iterables.size(vlload.getLoads()) == 2);
-        assertTrue(Iterables.size(nload.getLoads()) == 2);
+        assertNotNull(newLoad.getTerminal().getBusBreakerView().getBus());
+        assertEquals(2, Iterables.size(vlload.getLoads()));
+        assertEquals(2, Iterables.size(nload.getLoads()));
     }
 
     @Test
@@ -113,7 +112,7 @@ public class MultiStateNetworkTest {
         Network network = EurostagTutorialExample1Factory.create();
         StateManager manager = network.getStateManager();
         manager.allowStateMultiThreadAccess(true);
-        assertTrue(manager.getWorkingStateId().equals(StateManagerConstants.INITIAL_STATE_ID));
+        assertEquals(StateManagerConstants.INITIAL_STATE_ID, manager.getWorkingStateId());
         ExecutorService service = Executors.newSingleThreadExecutor();
         service.submit(() -> {
             try {
@@ -131,7 +130,7 @@ public class MultiStateNetworkTest {
         Network network = EurostagTutorialExample1Factory.create();
         StateManager manager = network.getStateManager();
         manager.allowStateMultiThreadAccess(true);
-        assertTrue(manager.getWorkingStateId().equals(StateManagerConstants.INITIAL_STATE_ID));
+        assertEquals(StateManagerConstants.INITIAL_STATE_ID, manager.getWorkingStateId());
         ExecutorService service = Executors.newSingleThreadExecutor();
         service.submit(() -> {
             try {

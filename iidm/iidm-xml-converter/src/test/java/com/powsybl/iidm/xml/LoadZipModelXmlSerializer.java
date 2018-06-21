@@ -60,24 +60,24 @@ public class LoadZipModelXmlSerializer implements ExtensionXmlSerializer<Load, L
 
     @Override
     public void write(LoadZipModel zipModel, XmlWriterContext context) throws XMLStreamException {
-        XmlUtil.writeFloat("a1", zipModel.getA1(), context.getWriter());
-        XmlUtil.writeFloat("a2", zipModel.getA2(), context.getWriter());
-        XmlUtil.writeFloat("a3", zipModel.getA3(), context.getWriter());
-        XmlUtil.writeFloat("a4", zipModel.getA4(), context.getWriter());
-        XmlUtil.writeFloat("a5", zipModel.getA5(), context.getWriter());
-        XmlUtil.writeFloat("a6", zipModel.getA6(), context.getWriter());
-        XmlUtil.writeFloat("v0", zipModel.getV0(), context.getWriter());
+        XmlUtil.writeDouble("a1", zipModel.getA1(), context.getWriter());
+        XmlUtil.writeDouble("a2", zipModel.getA2(), context.getWriter());
+        XmlUtil.writeDouble("a3", zipModel.getA3(), context.getWriter());
+        XmlUtil.writeDouble("a4", zipModel.getA4(), context.getWriter());
+        XmlUtil.writeDouble("a5", zipModel.getA5(), context.getWriter());
+        XmlUtil.writeDouble("a6", zipModel.getA6(), context.getWriter());
+        XmlUtil.writeDouble("v0", zipModel.getV0(), context.getWriter());
     }
 
     @Override
     public LoadZipModel read(Load load, XmlReaderContext context) {
-        float a1 = XmlUtil.readFloatAttribute(context.getReader(), "a1");
-        float a2 = XmlUtil.readFloatAttribute(context.getReader(), "a2");
-        float a3 = XmlUtil.readFloatAttribute(context.getReader(), "a3");
-        float a4 = XmlUtil.readFloatAttribute(context.getReader(), "a4");
-        float a5 = XmlUtil.readFloatAttribute(context.getReader(), "a5");
-        float a6 = XmlUtil.readFloatAttribute(context.getReader(), "a6");
-        float v0 = XmlUtil.readFloatAttribute(context.getReader(), "v0");
+        double a1 = XmlUtil.readDoubleAttribute(context.getReader(), "a1");
+        double a2 = XmlUtil.readDoubleAttribute(context.getReader(), "a2");
+        double a3 = XmlUtil.readDoubleAttribute(context.getReader(), "a3");
+        double a4 = XmlUtil.readDoubleAttribute(context.getReader(), "a4");
+        double a5 = XmlUtil.readDoubleAttribute(context.getReader(), "a5");
+        double a6 = XmlUtil.readDoubleAttribute(context.getReader(), "a6");
+        double v0 = XmlUtil.readDoubleAttribute(context.getReader(), "v0");
         return new LoadZipModel(load, a1, a2, a3, a4, a5, a6, v0);
     }
 }

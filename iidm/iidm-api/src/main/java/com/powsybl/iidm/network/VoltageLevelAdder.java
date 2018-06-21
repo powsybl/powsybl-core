@@ -12,11 +12,11 @@ package com.powsybl.iidm.network;
  */
 public interface VoltageLevelAdder extends IdentifiableAdder<VoltageLevelAdder> {
 
-    VoltageLevelAdder setNominalV(float nominalV);
+    VoltageLevelAdder setNominalV(double nominalV);
 
-    VoltageLevelAdder setLowVoltageLimit(float lowVoltageLimit);
+    VoltageLevelAdder setLowVoltageLimit(double lowVoltageLimit);
 
-    VoltageLevelAdder setHighVoltageLimit(float highVoltageLimit);
+    VoltageLevelAdder setHighVoltageLimit(double highVoltageLimit);
 
     VoltageLevelAdder setTopologyKind(String topologyKind);
 

@@ -40,9 +40,9 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
         LimitViolationType limitType = null;
         String limitName = null;
         int acceptableDuration = Integer.MAX_VALUE;
-        float limit = Float.NaN;
+        double limit = Double.NaN;
         float limitReduction = Float.NaN;
-        float value = Float.NaN;
+        double value = Double.NaN;
         Branch.Side side = null;
 
         List<Extension<LimitViolation>> extensions = Collections.emptyList();
@@ -69,7 +69,7 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
 
                 case "limit":
                     parser.nextToken();
-                    limit = parser.readValueAs(Float.class);
+                    limit = parser.readValueAs(Double.class);
                     break;
 
                 case "limitReduction":
@@ -79,7 +79,7 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
 
                 case "value":
                     parser.nextToken();
-                    value = parser.readValueAs(Float.class);
+                    value = parser.readValueAs(Double.class);
                     break;
 
                 case "side":

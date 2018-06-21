@@ -28,22 +28,22 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder {
     /**
      * Get the maximal active power in MW.
      */
-    float getMaxP();
+    double getMaxP();
 
     /**
      * Set the maximal active power in MW.
      */
-    Generator setMaxP(float maxP);
+    Generator setMaxP(double maxP);
 
     /**
      * Get the minimal active power in MW.
      */
-    float getMinP();
+    double getMinP();
 
     /**
      * Set the minimal active power in MW.
      */
-    Generator setMinP(float minP);
+    Generator setMinP(double minP);
 
     /**
      * Get the voltage regulator status.
@@ -75,7 +75,7 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder {
      * Depends on the working state.
      * @see StateManager
      */
-    float getTargetV();
+    double getTargetV();
 
     /**
      * Set the voltage target in kV.
@@ -83,7 +83,7 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder {
      * Depends on the working state.
      * @see StateManager
      */
-    Generator setTargetV(float targetV);
+    Generator setTargetV(double targetV);
 
     /**
      * Get the active power target in MW.
@@ -91,7 +91,7 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder {
      * Depends on the working state.
      * @see StateManager
      */
-    float getTargetP();
+    double getTargetP();
 
     /**
      * Set the active power target in MW.
@@ -99,7 +99,7 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder {
      * Depends on the working state.
      * @see StateManager
      */
-    Generator setTargetP(float targetP);
+    Generator setTargetP(double targetP);
 
     /**
      * Get the reactive power target in MVAR.
@@ -107,7 +107,7 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder {
      * Depends on the working state.
      * @see StateManager
      */
-    float getTargetQ();
+    double getTargetQ();
 
     /**
      * Set the reactive power target in MVAR.
@@ -115,13 +115,13 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder {
      * Depends on the working state.
      * @see StateManager
      */
-    Generator setTargetQ(float targetQ);
+    Generator setTargetQ(double targetQ);
 
     /**
      * Get the rated nominal power in MVA.
      * @return the rated nominal power in MVA or NaN if not defined
      */
-    float getRatedS();
+    double getRatedS();
 
-    Generator setRatedS(float ratedS);
+    Generator setRatedS(double ratedS);
 }

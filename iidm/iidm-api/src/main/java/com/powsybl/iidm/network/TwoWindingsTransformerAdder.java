@@ -12,17 +12,17 @@ package com.powsybl.iidm.network;
  */
 public interface TwoWindingsTransformerAdder extends BranchAdder<TwoWindingsTransformerAdder> {
 
-    TwoWindingsTransformerAdder setR(float r);
+    TwoWindingsTransformerAdder setR(double r);
 
-    TwoWindingsTransformerAdder setX(float x);
+    TwoWindingsTransformerAdder setX(double x);
 
-    TwoWindingsTransformerAdder setB(float b);
+    TwoWindingsTransformerAdder setB(double b);
 
-    TwoWindingsTransformerAdder setG(float g);
+    TwoWindingsTransformerAdder setG(double g);
 
-    TwoWindingsTransformerAdder setRatedU1(float ratedU1);
+    TwoWindingsTransformerAdder setRatedU1(double ratedU1);
 
-    TwoWindingsTransformerAdder setRatedU2(float ratedU2);
+    TwoWindingsTransformerAdder setRatedU2(double ratedU2);
 
     TwoWindingsTransformer add();
 

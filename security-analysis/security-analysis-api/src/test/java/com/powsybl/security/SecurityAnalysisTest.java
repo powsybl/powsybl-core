@@ -39,17 +39,17 @@ public class SecurityAnalysisTest {
     @Test
     public void run() {
         Network network = EurostagTutorialExample1Factory.create();
-        ((Bus) network.getIdentifiable("NHV1")).setV(380f);
-        ((Bus) network.getIdentifiable("NHV2")).setV(380f);
-        network.getLine("NHV1_NHV2_1").getTerminal1().setP(560f).setQ(550f);
-        network.getLine("NHV1_NHV2_1").getTerminal2().setP(560f).setQ(550f);
-        network.getLine("NHV1_NHV2_1").newCurrentLimits1().setPermanentLimit(1500f).add();
+        ((Bus) network.getIdentifiable("NHV1")).setV(380.0);
+        ((Bus) network.getIdentifiable("NHV2")).setV(380.0);
+        network.getLine("NHV1_NHV2_1").getTerminal1().setP(560.0).setQ(550.0);
+        network.getLine("NHV1_NHV2_1").getTerminal2().setP(560.0).setQ(550.0);
+        network.getLine("NHV1_NHV2_1").newCurrentLimits1().setPermanentLimit(1500.0).add();
         network.getLine("NHV1_NHV2_1").newCurrentLimits2()
-            .setPermanentLimit(1200f)
+            .setPermanentLimit(1200.0)
             .beginTemporaryLimit()
                 .setName("10'")
                 .setAcceptableDuration(10 * 60)
-                .setValue(1300)
+                .setValue(1300.0)
             .endTemporaryLimit()
             .add();
 
@@ -73,7 +73,7 @@ public class SecurityAnalysisTest {
             public void modify(Network network, ComputationManager computationManager) {
                 network.getLine("NHV1_NHV2_2").getTerminal1().disconnect();
                 network.getLine("NHV1_NHV2_2").getTerminal2().disconnect();
-                network.getLine("NHV1_NHV2_1").getTerminal2().setP(600f);
+                network.getLine("NHV1_NHV2_1").getTerminal2().setP(600.0);
             }
         });
         Mockito.when(contingenciesProvider.getContingencies(network)).thenReturn(Collections.singletonList(contingency));
@@ -97,11 +97,11 @@ public class SecurityAnalysisTest {
 
         ActivePowerExtension extension1 = violation.getExtension(ActivePowerExtension.class);
         assertNotNull(extension1);
-        assertEquals(560.0f, extension1.getPreContingencyValue(), 0.0f);
-        assertEquals(600.0f, extension1.getPostContingencyValue(), 0.0f);
+        assertEquals(560.0, extension1.getPreContingencyValue(), 0.0);
+        assertEquals(600.0, extension1.getPostContingencyValue(), 0.0);
 
         CurrentExtension extension2 = violation.getExtension(CurrentExtension.class);
         assertNotNull(extension2);
-        assertEquals(1192.5631f, extension2.getPreContingencyValue(), 0.0f);
+        assertEquals(1192.5631358010583, extension2.getPreContingencyValue(), 0.0);
     }
 }

@@ -35,9 +35,9 @@ public class ReactiveLimitsXml {
                 context.getWriter().writeStartElement(IIDM_URI, ELEM_REACTIVE_CAPABILITY_CURVE);
                 for (ReactiveCapabilityCurve.Point point : curve.getPoints()) {
                     context.getWriter().writeEmptyElement(IIDM_URI, "point");
-                    XmlUtil.writeFloat("p", point.getP(), context.getWriter());
-                    XmlUtil.writeFloat(ATTR_MIN_Q, point.getMinQ(), context.getWriter());
-                    XmlUtil.writeFloat(ATTR_MAX_Q, point.getMaxQ(), context.getWriter());
+                    XmlUtil.writeDouble("p", point.getP(), context.getWriter());
+                    XmlUtil.writeDouble(ATTR_MIN_Q, point.getMinQ(), context.getWriter());
+                    XmlUtil.writeDouble(ATTR_MAX_Q, point.getMaxQ(), context.getWriter());
                 }
                 context.getWriter().writeEndElement();
                 break;
@@ -45,8 +45,8 @@ public class ReactiveLimitsXml {
             case MIN_MAX:
                 MinMaxReactiveLimits limits = holder.getReactiveLimits(MinMaxReactiveLimits.class);
                 context.getWriter().writeEmptyElement(IIDM_URI, ELEM_MIN_MAX_REACTIVE_LIMITS);
-                XmlUtil.writeFloat(ATTR_MIN_Q, limits.getMinQ(), context.getWriter());
-                XmlUtil.writeFloat(ATTR_MAX_Q, limits.getMaxQ(), context.getWriter());
+                XmlUtil.writeDouble(ATTR_MIN_Q, limits.getMinQ(), context.getWriter());
+                XmlUtil.writeDouble(ATTR_MAX_Q, limits.getMaxQ(), context.getWriter());
                 break;
 
             default:
@@ -60,9 +60,9 @@ public class ReactiveLimitsXml {
                 ReactiveCapabilityCurveAdder curveAdder = holder.newReactiveCapabilityCurve();
                 XmlUtil.readUntilEndElement(ELEM_REACTIVE_CAPABILITY_CURVE, context.getReader(), () -> {
                     if (context.getReader().getLocalName().equals("point")) {
-                        float p = XmlUtil.readFloatAttribute(context.getReader(), "p");
-                        float minQ = XmlUtil.readFloatAttribute(context.getReader(), ATTR_MIN_Q);
-                        float maxQ = XmlUtil.readFloatAttribute(context.getReader(), ATTR_MAX_Q);
+                        double p = XmlUtil.readDoubleAttribute(context.getReader(), "p");
+                        double minQ = XmlUtil.readDoubleAttribute(context.getReader(), ATTR_MIN_Q);
+                        double maxQ = XmlUtil.readDoubleAttribute(context.getReader(), ATTR_MAX_Q);
                         curveAdder.beginPoint()
                                 .setP(p)
                                 .setMinQ(minQ)
@@ -74,8 +74,8 @@ public class ReactiveLimitsXml {
                 break;
 
             case ELEM_MIN_MAX_REACTIVE_LIMITS:
-                float min = XmlUtil.readFloatAttribute(context.getReader(), ATTR_MIN_Q);
-                float max = XmlUtil.readFloatAttribute(context.getReader(), ATTR_MAX_Q);
+                double min = XmlUtil.readDoubleAttribute(context.getReader(), ATTR_MIN_Q);
+                double max = XmlUtil.readDoubleAttribute(context.getReader(), ATTR_MAX_Q);
                 holder.newMinMaxReactiveLimits()
                         .setMinQ(min)
                         .setMaxQ(max)

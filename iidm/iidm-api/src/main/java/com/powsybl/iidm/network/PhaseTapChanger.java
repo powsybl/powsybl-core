@@ -40,7 +40,7 @@ public interface PhaseTapChanger extends TapChanger<PhaseTapChanger, PhaseTapCha
      * Depends on the working state.
      * @see StateManager
      */
-    float getRegulationValue();
+    double getRegulationValue();
 
     /**
      * Set the regulation value.
@@ -48,6 +48,6 @@ public interface PhaseTapChanger extends TapChanger<PhaseTapChanger, PhaseTapCha
      * Depends on the working state.
      * @see StateManager
      */
-    PhaseTapChanger setRegulationValue(float regulationValue);
+    PhaseTapChanger setRegulationValue(double regulationValue);
 
 }

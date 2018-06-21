@@ -35,13 +35,13 @@ class GeneratorXml extends AbstractConnectableXml<Generator, GeneratorAdder, Vol
     @Override
     protected void writeRootElementAttributes(Generator g, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
         context.getWriter().writeAttribute("energySource", g.getEnergySource().name());
-        XmlUtil.writeFloat("minP", g.getMinP(), context.getWriter());
-        XmlUtil.writeFloat("maxP", g.getMaxP(), context.getWriter());
-        XmlUtil.writeFloat("ratedS", g.getRatedS(), context.getWriter());
+        XmlUtil.writeDouble("minP", g.getMinP(), context.getWriter());
+        XmlUtil.writeDouble("maxP", g.getMaxP(), context.getWriter());
+        XmlUtil.writeDouble("ratedS", g.getRatedS(), context.getWriter());
         context.getWriter().writeAttribute("voltageRegulatorOn", Boolean.toString(g.isVoltageRegulatorOn()));
-        XmlUtil.writeFloat("targetP", g.getTargetP(), context.getWriter());
-        XmlUtil.writeFloat("targetV", g.getTargetV(), context.getWriter());
-        XmlUtil.writeFloat("targetQ", g.getTargetQ(), context.getWriter());
+        XmlUtil.writeDouble("targetP", g.getTargetP(), context.getWriter());
+        XmlUtil.writeDouble("targetV", g.getTargetV(), context.getWriter());
+        XmlUtil.writeDouble("targetQ", g.getTargetQ(), context.getWriter());
         writeNodeOrBus(null, g.getTerminal(), context);
         writePQ(null, g.getTerminal(), context.getWriter());
     }
@@ -64,13 +64,13 @@ class GeneratorXml extends AbstractConnectableXml<Generator, GeneratorAdder, Vol
     @Override
     protected Generator readRootElementAttributes(GeneratorAdder adder, NetworkXmlReaderContext context) {
         EnergySource energySource = EnergySource.valueOf(context.getReader().getAttributeValue(null, "energySource"));
-        float minP = XmlUtil.readFloatAttribute(context.getReader(), "minP");
-        float maxP = XmlUtil.readFloatAttribute(context.getReader(), "maxP");
-        float ratedS = XmlUtil.readOptionalFloatAttribute(context.getReader(), "ratedS");
+        double minP = XmlUtil.readDoubleAttribute(context.getReader(), "minP");
+        double maxP = XmlUtil.readDoubleAttribute(context.getReader(), "maxP");
+        double ratedS = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "ratedS");
         boolean voltageRegulatorOn = XmlUtil.readBoolAttribute(context.getReader(), "voltageRegulatorOn");
-        float targetP = XmlUtil.readFloatAttribute(context.getReader(), "targetP");
-        float targetV = XmlUtil.readOptionalFloatAttribute(context.getReader(), "targetV");
-        float targetQ = XmlUtil.readOptionalFloatAttribute(context.getReader(), "targetQ");
+        double targetP = XmlUtil.readDoubleAttribute(context.getReader(), "targetP");
+        double targetV = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "targetV");
+        double targetQ = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "targetQ");
         readNodeOrBus(adder, context);
         Generator g = adder.setEnergySource(energySource)
                 .setMinP(minP)

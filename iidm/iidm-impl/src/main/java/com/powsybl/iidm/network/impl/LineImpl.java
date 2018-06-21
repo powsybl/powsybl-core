@@ -15,19 +15,19 @@ import com.powsybl.iidm.network.Line;
  */
 class LineImpl extends AbstractBranch<Line> implements Line {
 
-    private float r;
+    private double r;
 
-    private float x;
+    private double x;
 
-    private float g1;
+    private double g1;
 
-    private float b1;
+    private double b1;
 
-    private float g2;
+    private double g2;
 
-    private float b2;
+    private double b2;
 
-    LineImpl(String id, String name, float r, float x, float g1, float b1, float g2, float b2) {
+    LineImpl(String id, String name, double r, double x, double g1, double b1, double g2, double b2) {
         super(id, name);
         this.r = r;
         this.x = x;
@@ -43,84 +43,84 @@ class LineImpl extends AbstractBranch<Line> implements Line {
     }
 
     @Override
-    public float getR() {
+    public double getR() {
         return r;
     }
 
     @Override
-    public LineImpl setR(float r) {
+    public LineImpl setR(double r) {
         ValidationUtil.checkR(this, r);
-        float oldValue = this.r;
+        double oldValue = this.r;
         this.r = r;
         notifyUpdate("r", oldValue, r);
         return this;
     }
 
     @Override
-    public float getX() {
+    public double getX() {
         return x;
     }
 
     @Override
-    public LineImpl setX(float x) {
+    public LineImpl setX(double x) {
         ValidationUtil.checkX(this, x);
-        float oldValue = this.x;
+        double oldValue = this.x;
         this.x = x;
         notifyUpdate("x", oldValue, x);
         return this;
     }
 
     @Override
-    public float getG1() {
+    public double getG1() {
         return g1;
     }
 
     @Override
-    public LineImpl setG1(float g1) {
+    public LineImpl setG1(double g1) {
         ValidationUtil.checkG1(this, g1);
-        float oldValue = this.g1;
+        double oldValue = this.g1;
         this.g1 = g1;
         notifyUpdate("g1", oldValue, g1);
         return this;
     }
 
     @Override
-    public float getB1() {
+    public double getB1() {
         return b1;
     }
 
     @Override
-    public LineImpl setB1(float b1) {
+    public LineImpl setB1(double b1) {
         ValidationUtil.checkB1(this, b1);
-        float oldValue = this.b1;
+        double oldValue = this.b1;
         this.b1 = b1;
         notifyUpdate("b1", oldValue, b1);
         return this;
     }
 
     @Override
-    public float getG2() {
+    public double getG2() {
         return g2;
     }
 
     @Override
-    public LineImpl setG2(float g2) {
+    public LineImpl setG2(double g2) {
         ValidationUtil.checkG2(this, g2);
-        float oldValue = this.g2;
+        double oldValue = this.g2;
         this.g2 = g2;
         notifyUpdate("g2", oldValue, g2);
         return this;
     }
 
     @Override
-    public float getB2() {
+    public double getB2() {
         return b2;
     }
 
     @Override
-    public LineImpl setB2(float b2) {
+    public LineImpl setB2(double b2) {
         ValidationUtil.checkB2(this, b2);
-        float oldValue = this.b2;
+        double oldValue = this.b2;
         this.b2 = b2;
         notifyUpdate("b2", oldValue, b2);
         return this;

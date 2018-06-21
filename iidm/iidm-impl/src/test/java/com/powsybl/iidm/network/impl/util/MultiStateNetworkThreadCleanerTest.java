@@ -17,8 +17,7 @@ import java.util.Collections;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  *
@@ -31,7 +30,7 @@ public class MultiStateNetworkThreadCleanerTest {
         Network network = EurostagTutorialExample1Factory.create();
         StateManager manager = network.getStateManager();
         manager.allowStateMultiThreadAccess(true);
-        assertTrue(manager.getWorkingStateId().equals(StateManagerConstants.INITIAL_STATE_ID));
+        assertEquals(StateManagerConstants.INITIAL_STATE_ID, manager.getWorkingStateId());
         ExecutorService service = CleanableExecutors.newFixedThreadPool("TEST_POOL", 1, Collections.singleton(new MultiStateNetworkThreadCleaner()));
         Thread[] threads = new Thread[1];
         service.submit(() -> {
@@ -39,7 +38,7 @@ public class MultiStateNetworkThreadCleanerTest {
             threads[0] = Thread.currentThread();
         }).get();
         service.submit(() -> {
-            assertTrue(threads[0] == Thread.currentThread()); // just one thread in the pool
+            assertSame(Thread.currentThread(), threads[0]); // just one thread in the pool
             try {
                 // current working state should not be set even if it is the same thread than previously
                 network.getGenerator("GEN").getTargetP();

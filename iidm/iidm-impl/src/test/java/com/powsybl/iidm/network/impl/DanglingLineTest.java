@@ -37,9 +37,9 @@ public class DanglingLineTest {
         voltageLevel = substation.newVoltageLevel()
                                     .setId("vl")
                                     .setName("vl")
-                                    .setNominalV(440.0f)
-                                    .setHighVoltageLimit(400.0f)
-                                    .setLowVoltageLimit(200.0f)
+                                    .setNominalV(440.0)
+                                    .setHighVoltageLimit(400.0)
+                                    .setLowVoltageLimit(200.0)
                                     .setTopologyKind(TopologyKind.BUS_BREAKER)
                                 .add();
         voltageLevel.getBusBreakerView().newBus()
@@ -50,12 +50,12 @@ public class DanglingLineTest {
 
     @Test
     public void baseTests() {
-        float r = 10.0f;
-        float x = 20.0f;
-        float g = 30.0f;
-        float b = 40.0f;
-        float p0 = 50.0f;
-        float q0 = 60.0f;
+        double r = 10.0;
+        double x = 20.0;
+        double g = 30.0;
+        double b = 40.0;
+        double p0 = 50.0;
+        double q0 = 60.0;
         String id = "danglingId";
         String name = "danlingName";
         String ucteXnodeCode = "code";
@@ -75,40 +75,40 @@ public class DanglingLineTest {
         DanglingLine danglingLine = network.getDanglingLine(id);
         // adder
         assertEquals(ConnectableType.DANGLING_LINE, danglingLine.getType());
-        assertEquals(r, danglingLine.getR(), 0.0f);
-        assertEquals(x, danglingLine.getX(), 0.0f);
-        assertEquals(g, danglingLine.getG(), 0.0f);
-        assertEquals(b, danglingLine.getB(), 0.0f);
-        assertEquals(p0, danglingLine.getP0(), 0.0f);
-        assertEquals(q0, danglingLine.getQ0(), 0.0f);
+        assertEquals(r, danglingLine.getR(), 0.0);
+        assertEquals(x, danglingLine.getX(), 0.0);
+        assertEquals(g, danglingLine.getG(), 0.0);
+        assertEquals(b, danglingLine.getB(), 0.0);
+        assertEquals(p0, danglingLine.getP0(), 0.0);
+        assertEquals(q0, danglingLine.getQ0(), 0.0);
         assertEquals(id, danglingLine.getId());
         assertEquals(name, danglingLine.getName());
         assertEquals(ucteXnodeCode, danglingLine.getUcteXnodeCode());
 
         // setter getter
-        float r2 = 11.0f;
-        float x2 = 21.0f;
-        float g2 = 31.0f;
-        float b2 = 41.0f;
-        float p02 = 51.0f;
-        float q02 = 61.0f;
+        double r2 = 11.0;
+        double x2 = 21.0;
+        double g2 = 31.0;
+        double b2 = 41.0;
+        double p02 = 51.0;
+        double q02 = 61.0;
         danglingLine.setR(r2);
-        assertEquals(r2, danglingLine.getR(), 0.0f);
+        assertEquals(r2, danglingLine.getR(), 0.0);
         danglingLine.setX(x2);
-        assertEquals(x2, danglingLine.getX(), 0.0f);
+        assertEquals(x2, danglingLine.getX(), 0.0);
         danglingLine.setG(g2);
-        assertEquals(g2, danglingLine.getG(), 0.0f);
+        assertEquals(g2, danglingLine.getG(), 0.0);
         danglingLine.setB(b2);
-        assertEquals(b2, danglingLine.getB(), 0.0f);
+        assertEquals(b2, danglingLine.getB(), 0.0);
         danglingLine.setP0(p02);
-        assertEquals(p02, danglingLine.getP0(), 0.0f);
+        assertEquals(p02, danglingLine.getP0(), 0.0);
         danglingLine.setQ0(q02);
-        assertEquals(q02, danglingLine.getQ0(), 0.0f);
+        assertEquals(q02, danglingLine.getQ0(), 0.0);
 
         danglingLine.newCurrentLimits()
-                        .setPermanentLimit(100.0f)
+                        .setPermanentLimit(100.0)
                     .add();
-        assertEquals(100.0f, danglingLine.getCurrentLimits().getPermanentLimit(), 0.0f);
+        assertEquals(100.0, danglingLine.getCurrentLimits().getPermanentLimit(), 0.0);
 
         Bus bus = voltageLevel.getBusBreakerView().getBus("bus_vl");
         Bus terminal = danglingLine.getTerminal().getBusBreakerView().getBus();
@@ -119,55 +119,55 @@ public class DanglingLineTest {
     public void testInvalidR() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("r is invalid");
-        createDanglingLine("invalid", "invalid", Float.NaN, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, "code");
+        createDanglingLine("invalid", "invalid", Double.NaN, 1.0, 1.0, 1.0, 1.0, 1.0, "code");
     }
 
     @Test
     public void testInvalidX() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("x is invalid");
-        createDanglingLine("invalid", "invalid", 1.0f, Float.NaN, 1.0f, 1.0f, 1.0f, 1.0f, "code");
+        createDanglingLine("invalid", "invalid", 1.0, Double.NaN, 1.0, 1.0, 1.0, 1.0, "code");
     }
 
     @Test
     public void testInvalidG() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("g is invalid");
-        createDanglingLine("invalid", "invalid", 1.0f, 1.0f, Float.NaN, 1.0f, 1.0f, 1.0f, "code");
+        createDanglingLine("invalid", "invalid", 1.0, 1.0, Double.NaN, 1.0, 1.0, 1.0, "code");
     }
 
     @Test
     public void testInvalidB() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("b is invalid");
-        createDanglingLine("invalid", "invalid", 1.0f, 1.0f, 1.0f, Float.NaN, 1.0f, 1.0f, "code");
+        createDanglingLine("invalid", "invalid", 1.0, 1.0, 1.0, Double.NaN, 1.0, 1.0, "code");
     }
 
     @Test
     public void testInvalidP0() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("p0 is invalid");
-        createDanglingLine("invalid", "invalid", 1.0f, 1.0f, 1.0f, 1.0f, Float.NaN, 1.0f, "code");
+        createDanglingLine("invalid", "invalid", 1.0, 1.0, 1.0, 1.0, Double.NaN, 1.0, "code");
     }
 
     @Test
     public void testInvalidQ0() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("q0 is invalid");
-        createDanglingLine("invalid", "invalid", 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, Float.NaN, "code");
+        createDanglingLine("invalid", "invalid", 1.0, 1.0, 1.0, 1.0, 1.0, Double.NaN, "code");
     }
 
     @Test
     public void duplicateDanglingLine() {
-        createDanglingLine("duplicate", "duplicate", 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, "code");
+        createDanglingLine("duplicate", "duplicate", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, "code");
         assertNotNull(network.getDanglingLine("duplicate"));
         thrown.expect(PowsyblException.class);
-        createDanglingLine("duplicate", "duplicate", 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, "code");
+        createDanglingLine("duplicate", "duplicate", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, "code");
     }
 
     @Test
     public void testRemove() {
-        createDanglingLine("toRemove", "toRemove", 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, "code");
+        createDanglingLine("toRemove", "toRemove", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, "code");
         DanglingLine danglingLine = network.getDanglingLine("toRemove");
         int count = network.getDanglingLineCount();
         assertNotNull(danglingLine);
@@ -180,18 +180,18 @@ public class DanglingLineTest {
     @Test
     public void testSetterGetterInMultiStates() {
         StateManager stateManager = network.getStateManager();
-        createDanglingLine("testMultiState", "testMultiState", 1.0f, 1.1f, 2.2f, 1.0f, 1.0f, 1.2f, "code");
+        createDanglingLine("testMultiState", "testMultiState", 1.0, 1.1, 2.2, 1.0, 1.0, 1.2, "code");
         DanglingLine danglingLine = network.getDanglingLine("testMultiState");
         List<String> statesToAdd = Arrays.asList("s1", "s2", "s3", "s4");
         stateManager.cloneState(StateManagerConstants.INITIAL_STATE_ID, statesToAdd);
 
         stateManager.setWorkingState("s4");
         // check values cloned by extend
-        assertEquals(1.0f, danglingLine.getP0(), 0.0f);
-        assertEquals(1.2f, danglingLine.getQ0(), 0.0f);
+        assertEquals(1.0, danglingLine.getP0(), 0.0);
+        assertEquals(1.2, danglingLine.getQ0(), 0.0);
         // change values in s4
-        danglingLine.setP0(3.0f);
-        danglingLine.setQ0(2.0f);
+        danglingLine.setP0(3.0);
+        danglingLine.setQ0(2.0);
 
         // remove s2
         stateManager.removeState("s2");
@@ -199,12 +199,12 @@ public class DanglingLineTest {
         stateManager.cloneState("s4", "s2b");
         stateManager.setWorkingState("s2b");
         // check values cloned by allocate
-        assertEquals(3.0f, danglingLine.getP0(), 0.0f);
-        assertEquals(2.0f, danglingLine.getQ0(), 0.0f);
+        assertEquals(3.0, danglingLine.getP0(), 0.0);
+        assertEquals(2.0, danglingLine.getQ0(), 0.0);
         // recheck initial state value
         stateManager.setWorkingState(StateManagerConstants.INITIAL_STATE_ID);
-        assertEquals(1.0f, danglingLine.getP0(), 0.0f);
-        assertEquals(1.2f, danglingLine.getQ0(), 0.0f);
+        assertEquals(1.0, danglingLine.getP0(), 0.0);
+        assertEquals(1.2, danglingLine.getQ0(), 0.0);
 
         // remove working state s4
         stateManager.setWorkingState("s4");
@@ -216,8 +216,8 @@ public class DanglingLineTest {
         }
     }
 
-    private void createDanglingLine(String id, String name, float r, float x, float g, float b,
-                                    float p0, float q0, String ucteCode) {
+    private void createDanglingLine(String id, String name, double r, double x, double g, double b,
+                                    double p0, double q0, String ucteCode) {
         voltageLevel.newDanglingLine()
                         .setId(id)
                         .setName(name)

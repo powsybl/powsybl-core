@@ -36,7 +36,7 @@ public final class SvcTestCaseFactory {
                 .add();
         VoltageLevel vl1 = s1.newVoltageLevel()
                 .setId("VL1")
-                .setNominalV(380f)
+                .setNominalV(380)
                 .setTopologyKind(TopologyKind.BUS_BREAKER)
                 .add();
         vl1.getBusBreakerView().newBus()
@@ -47,10 +47,10 @@ public final class SvcTestCaseFactory {
                 .setConnectableBus("B1")
                 .setBus("B1")
                 .setVoltageRegulatorOn(true)
-                .setTargetP(100f)
-                .setTargetV(400f)
-                .setMinP(50)
-                .setMaxP(150)
+                .setTargetP(100.0)
+                .setTargetV(400.0)
+                .setMinP(50.0)
+                .setMaxP(150.0)
                 .add();
         Substation s2 = network.newSubstation()
                 .setId("S2")
@@ -58,7 +58,7 @@ public final class SvcTestCaseFactory {
                 .add();
         VoltageLevel vl2 = s2.newVoltageLevel()
                 .setId("VL2")
-                .setNominalV(380f)
+                .setNominalV(380)
                 .setTopologyKind(TopologyKind.BUS_BREAKER)
                 .add();
         vl2.getBusBreakerView().newBus()
@@ -68,17 +68,17 @@ public final class SvcTestCaseFactory {
                 .setId("L2")
                 .setConnectableBus("B2")
                 .setBus("B2")
-                .setP0(100f)
-                .setQ0(50f)
+                .setP0(100.0)
+                .setQ0(50.0)
                 .add();
         vl2.newStaticVarCompensator()
                 .setId("SVC2")
                 .setConnectableBus("B2")
                 .setBus("B2")
-                .setBmin(0.0002f)
-                .setBmax(0.0008f)
+                .setBmin(0.0002)
+                .setBmax(0.0008)
                 .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
-                .setVoltageSetPoint(390f)
+                .setVoltageSetPoint(390)
                 .add();
         network.newLine()
                 .setId("L1")
@@ -88,12 +88,12 @@ public final class SvcTestCaseFactory {
                 .setVoltageLevel2("VL2")
                 .setConnectableBus2("B2")
                 .setBus2("B2")
-                .setR(4f)
-                .setX(200f)
-                .setG1(0f)
-                .setB1(0f)
-                .setG2(0f)
-                .setB2(0f)
+                .setR(4.0)
+                .setX(200.0)
+                .setG1(0.0)
+                .setB1(0.0)
+                .setG2(0.0)
+                .setB2(0.0)
                 .add();
         return network;
     }

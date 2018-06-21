@@ -7,8 +7,9 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
-import org.junit.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -24,7 +25,7 @@ public class NullPointerWhenRemovingMergedLineBugTest {
                 .add();
         VoltageLevel vl1 = s1.newVoltageLevel()
                 .setId("vl1")
-                .setNominalV(380f)
+                .setNominalV(380)
                 .setTopologyKind(TopologyKind.BUS_BREAKER)
                 .add();
         vl1.getBusBreakerView().newBus()
@@ -34,12 +35,12 @@ public class NullPointerWhenRemovingMergedLineBugTest {
                 .setId("dl1")
                 .setConnectableBus("b1")
                 .setBus("b1")
-                .setP0(0f)
-                .setQ0(0f)
-                .setR(1f)
-                .setX(1f)
-                .setG(0f)
-                .setB(0f)
+                .setP0(0)
+                .setQ0(0)
+                .setR(1)
+                .setX(1)
+                .setG(0)
+                .setB(0)
                 .setUcteXnodeCode("XNODE")
                 .add();
         Network n2 = NetworkFactory.create("n2", "test");
@@ -49,7 +50,7 @@ public class NullPointerWhenRemovingMergedLineBugTest {
                 .add();
         VoltageLevel vl2 = s2.newVoltageLevel()
                 .setId("vl2")
-                .setNominalV(380f)
+                .setNominalV(380)
                 .setTopologyKind(TopologyKind.BUS_BREAKER)
                 .add();
         vl2.getBusBreakerView().newBus()
@@ -59,21 +60,21 @@ public class NullPointerWhenRemovingMergedLineBugTest {
                 .setId("dl2")
                 .setConnectableBus("b2")
                 .setBus("b2")
-                .setP0(0f)
-                .setQ0(0f)
-                .setR(1f)
-                .setX(1f)
-                .setG(0f)
-                .setB(0f)
+                .setP0(0)
+                .setQ0(0)
+                .setR(1)
+                .setX(1)
+                .setG(0)
+                .setB(0)
                 .setUcteXnodeCode("XNODE")
                 .add();
-        Assert.assertTrue(n1.getLineCount() == 0);
-        Assert.assertTrue(n1.getDanglingLineCount() == 1);
-        Assert.assertTrue(n2.getLineCount() == 0);
-        Assert.assertTrue(n2.getDanglingLineCount() == 1);
+        assertEquals(0, n1.getLineCount());
+        assertEquals(1, n1.getDanglingLineCount());
+        assertEquals(0, n2.getLineCount());
+        assertEquals(1, n2.getDanglingLineCount());
         n1.merge(n2);
-        Assert.assertTrue(n1.getLineCount() == 1);
-        Assert.assertTrue(n1.getDanglingLineCount() == 0);
+        assertEquals(1, n1.getLineCount());
+        assertEquals(0, n1.getDanglingLineCount());
         n1.getLine("dl1 + dl2").remove();
         for (Bus b : n1.getBusBreakerView().getBuses()) {
             // throws an exception if bug already present

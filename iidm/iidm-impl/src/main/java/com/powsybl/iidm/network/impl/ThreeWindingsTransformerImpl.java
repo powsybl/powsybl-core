@@ -20,15 +20,15 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
 
         protected ThreeWindingsTransformerImpl transformer;
 
-        private float r;
+        private double r;
 
-        private float x;
+        private double x;
 
-        private float ratedU;
+        private double ratedU;
 
         private CurrentLimits limits;
 
-        AbstractLegBase(float r, float x, float ratedU) {
+        AbstractLegBase(double r, double x, double ratedU) {
             this.r = r;
             this.x = x;
             this.ratedU = ratedU;
@@ -42,36 +42,36 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
             return transformer.terminals.get(0);
         }
 
-        public float getR() {
+        public double getR() {
             return r;
         }
 
-        public T setR(float r) {
-            if (Float.isNaN(r)) {
+        public T setR(double r) {
+            if (Double.isNaN(r)) {
                 throw new ValidationException(this, "r is invalid");
             }
             this.r = r;
             return (T) this;
         }
 
-        public float getX() {
+        public double getX() {
             return x;
         }
 
-        public T setX(float x) {
-            if (Float.isNaN(x)) {
+        public T setX(double x) {
+            if (Double.isNaN(x)) {
                 throw new ValidationException(this, "x is invalid");
             }
             this.x = x;
             return (T) this;
         }
 
-        public float getRatedU() {
+        public double getRatedU() {
             return ratedU;
         }
 
-        public T setRatedU(float ratedU) {
-            if (Float.isNaN(ratedU)) {
+        public T setRatedU(double ratedU) {
+            if (Double.isNaN(ratedU)) {
                 throw new ValidationException(this, "rated U is invalid");
             }
             this.ratedU = ratedU;
@@ -106,24 +106,24 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
 
     static class Leg1Impl extends AbstractLegBase<Leg1Impl> implements Leg1 {
 
-        private float g;
+        private double g;
 
-        private float b;
+        private double b;
 
-        Leg1Impl(float r, float x, float g, float b, float ratedU) {
+        Leg1Impl(double r, double x, double g, double b, double ratedU) {
             super(r, x, ratedU);
             this.g = g;
             this.b = b;
         }
 
         @Override
-        public float getG() {
+        public double getG() {
             return g;
         }
 
         @Override
-        public Leg1Impl setG(float g) {
-            if (Float.isNaN(g)) {
+        public Leg1Impl setG(double g) {
+            if (Double.isNaN(g)) {
                 throw new ValidationException(this, "g is invalid");
             }
             this.g = g;
@@ -131,13 +131,13 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
         }
 
         @Override
-        public float getB() {
+        public double getB() {
             return b;
         }
 
         @Override
-        public Leg1Impl setB(float b) {
-            if (Float.isNaN(b)) {
+        public Leg1Impl setB(double b) {
+            if (Double.isNaN(b)) {
                 throw new ValidationException(this, "b is invalid");
             }
             this.b = b;
@@ -165,7 +165,7 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
 
         private RatioTapChangerImpl ratioTapChanger;
 
-        AbstractLeg2or3(float r, float x, float ratedU) {
+        AbstractLeg2or3(double r, double x, double ratedU) {
             super(r, x, ratedU);
         }
 
@@ -191,7 +191,7 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
 
     static class Leg2Impl extends AbstractLeg2or3<Leg2Impl> implements Leg2or3 {
 
-        Leg2Impl(float r, float x, float ratedU) {
+        Leg2Impl(double r, double x, double ratedU) {
             super(r, x, ratedU);
         }
 
@@ -219,7 +219,7 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
 
     static class Leg3Impl extends AbstractLeg2or3<Leg3Impl> implements Leg2or3 {
 
-        Leg3Impl(float r, float x, float ratedU) {
+        Leg3Impl(double r, double x, double ratedU) {
             super(r, x, ratedU);
         }
 

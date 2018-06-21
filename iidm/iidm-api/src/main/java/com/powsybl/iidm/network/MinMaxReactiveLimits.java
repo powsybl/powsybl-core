@@ -14,8 +14,8 @@ package com.powsybl.iidm.network;
  */
 public interface MinMaxReactiveLimits extends ReactiveLimits {
 
-    float getMinQ();
+    double getMinQ();
 
-    float getMaxQ();
+    double getMaxQ();
 
 }

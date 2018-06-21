@@ -18,17 +18,17 @@ class TwoWindingsTransformerImpl extends AbstractBranch<TwoWindingsTransformer> 
 
     private final SubstationImpl substation;
 
-    private float r;
+    private double r;
 
-    private float x;
+    private double x;
 
-    private float g;
+    private double g;
 
-    private float b;
+    private double b;
 
-    private float ratedU1;
+    private double ratedU1;
 
-    private float ratedU2;
+    private double ratedU2;
 
     private RatioTapChangerImpl ratioTapChanger;
 
@@ -36,7 +36,7 @@ class TwoWindingsTransformerImpl extends AbstractBranch<TwoWindingsTransformer> 
 
     TwoWindingsTransformerImpl(String id, String name,
             SubstationImpl substation,
-            float r, float x, float g, float b, float ratedU1, float ratedU2) {
+            double r, double x, double g, double b, double ratedU1, double ratedU2) {
         super(id, name);
         this.substation = substation;
         this.r = r;
@@ -58,84 +58,84 @@ class TwoWindingsTransformerImpl extends AbstractBranch<TwoWindingsTransformer> 
     }
 
     @Override
-    public float getR() {
+    public double getR() {
         return r;
     }
 
     @Override
-    public TwoWindingsTransformerImpl setR(float r) {
+    public TwoWindingsTransformerImpl setR(double r) {
         ValidationUtil.checkR(this, r);
-        float oldValue = this.r;
+        double oldValue = this.r;
         this.r = r;
         notifyUpdate("r", oldValue, r);
         return this;
     }
 
     @Override
-    public float getX() {
+    public double getX() {
         return x;
     }
 
     @Override
-    public TwoWindingsTransformerImpl setX(float x) {
+    public TwoWindingsTransformerImpl setX(double x) {
         ValidationUtil.checkX(this, x);
-        float oldValue = this.x;
+        double oldValue = this.x;
         this.x = x;
         notifyUpdate("x", oldValue, x);
         return this;
     }
 
     @Override
-    public float getG() {
+    public double getG() {
         return g;
     }
 
     @Override
-    public TwoWindingsTransformerImpl setG(float g) {
+    public TwoWindingsTransformerImpl setG(double g) {
         ValidationUtil.checkG(this, g);
-        float oldValue = this.g;
+        double oldValue = this.g;
         this.g = g;
         notifyUpdate("g", oldValue, g);
         return this;
     }
 
     @Override
-    public float getB() {
+    public double getB() {
         return b;
     }
 
     @Override
-    public TwoWindingsTransformerImpl setB(float b) {
+    public TwoWindingsTransformerImpl setB(double b) {
         ValidationUtil.checkB(this, b);
-        float oldValue = this.b;
+        double oldValue = this.b;
         this.b = b;
         notifyUpdate("b", oldValue, b);
         return this;
     }
 
     @Override
-    public float getRatedU1() {
+    public double getRatedU1() {
         return ratedU1;
     }
 
     @Override
-    public TwoWindingsTransformerImpl setRatedU1(float ratedU1) {
+    public TwoWindingsTransformerImpl setRatedU1(double ratedU1) {
         ValidationUtil.checkRatedU1(this, ratedU1);
-        float oldValue = this.ratedU1;
+        double oldValue = this.ratedU1;
         this.ratedU1 = ratedU1;
         notifyUpdate("ratedU1", oldValue, ratedU1);
         return this;
     }
 
     @Override
-    public float getRatedU2() {
+    public double getRatedU2() {
         return ratedU2;
     }
 
     @Override
-    public TwoWindingsTransformerImpl setRatedU2(float ratedU2) {
+    public TwoWindingsTransformerImpl setRatedU2(double ratedU2) {
         ValidationUtil.checkRatedU2(this, ratedU2);
-        float oldValue = this.ratedU2;
+        double oldValue = this.ratedU2;
         this.ratedU2 = ratedU2;
         notifyUpdate("ratedU2", oldValue, ratedU2);
         return this;

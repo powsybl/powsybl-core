@@ -181,25 +181,25 @@ public class ExpressionEvaluator extends DefaultExpressionVisitor<Object, Void> 
             return side;
         }
 
-        private static int compare(float value1, float value2) {
-            if (Float.isNaN(value1) && Float.isNaN(value2)) {
+        private static int compare(double value1, double value2) {
+            if (Double.isNaN(value1) && Double.isNaN(value2)) {
                 return 0;
-            } else if (Float.isNaN(value1) && !Float.isNaN(value2)) {
+            } else if (Double.isNaN(value1) && !Double.isNaN(value2)) {
                 return -1;
-            } else if (!Float.isNaN(value1) && Float.isNaN(value2)) {
+            } else if (!Double.isNaN(value1) && Double.isNaN(value2)) {
                 return 1;
             } else {
-                return Float.compare(value1, value2);
+                return Double.compare(value1, value2);
             }
         }
 
         private static int compare(BranchAndSide branchAndSide1, BranchAndSide branchAndSide2) {
             Branch.Overload overload1 = branchAndSide1.getBranch().checkTemporaryLimits(branchAndSide1.getSide());
             Branch.Overload overload2 = branchAndSide2.getBranch().checkTemporaryLimits(branchAndSide2.getSide());
-            float i1 = branchAndSide1.getBranch().getTerminal(branchAndSide1.getSide()).getI();
-            float i2 = branchAndSide2.getBranch().getTerminal(branchAndSide2.getSide()).getI();
-            float permanentLimit1 = getPermanentLimit(branchAndSide1.getBranch(), branchAndSide1.getSide());
-            float permanentLimit2 = getPermanentLimit(branchAndSide2.getBranch(), branchAndSide2.getSide());
+            double i1 = branchAndSide1.getBranch().getTerminal(branchAndSide1.getSide()).getI();
+            double i2 = branchAndSide2.getBranch().getTerminal(branchAndSide2.getSide()).getI();
+            double permanentLimit1 = getPermanentLimit(branchAndSide1.getBranch(), branchAndSide1.getSide());
+            double permanentLimit2 = getPermanentLimit(branchAndSide2.getBranch(), branchAndSide2.getSide());
             int c;
             if (overload1 == null) {
                 if (overload2 == null) {
@@ -252,11 +252,11 @@ public class ExpressionEvaluator extends DefaultExpressionVisitor<Object, Void> 
     /**
      * TODO: to move to IIDM
      */
-    private static float getPermanentLimit(Branch branch, Branch.Side side) {
+    private static double getPermanentLimit(Branch branch, Branch.Side side) {
         Objects.requireNonNull(branch);
         Objects.requireNonNull(side);
-        float permanentLimit1 = branch.getCurrentLimits1() != null ? branch.getCurrentLimits1().getPermanentLimit() : Float.NaN;
-        float permanentLimit2 = branch.getCurrentLimits2() != null ? branch.getCurrentLimits2().getPermanentLimit() : Float.NaN;
+        double permanentLimit1 = branch.getCurrentLimits1() != null ? branch.getCurrentLimits1().getPermanentLimit() : Double.NaN;
+        double permanentLimit2 = branch.getCurrentLimits2() != null ? branch.getCurrentLimits2().getPermanentLimit() : Double.NaN;
         return side == Branch.Side.ONE ? permanentLimit1 : permanentLimit2;
     }
 

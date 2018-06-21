@@ -435,8 +435,8 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
     }
 
     @Override
-    protected void write(String generatorId, float p, float q, float v, float targetP, float targetQ, float targetV,
-                         boolean connected, boolean voltageRegulatorOn, float minP, float maxP, float minQ, float maxQ,  boolean mainComponent,
+    protected void write(String generatorId, double p, double q, double v, double targetP, double targetQ, double targetV,
+                         boolean connected, boolean voltageRegulatorOn, double minP, double maxP, double minQ, double maxQ,  boolean mainComponent,
                          boolean validated, GeneratorData generatorData, boolean found, boolean writeValues) throws IOException {
         formatter.writeCell(generatorId);
         if (compareResults) {
@@ -444,13 +444,13 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                         write(found, generatorData.p, generatorData.q, generatorData.v, generatorData.targetP, generatorData.targetQ, generatorData.targetV,
                               generatorData.connected, generatorData.voltageRegulatorOn, generatorData.minP, generatorData.maxP, generatorData.minQ,
                               generatorData.maxQ, generatorData.mainComponent, generatorData.validated) :
-                        write(found, Float.NaN, Float.NaN, Float.NaN, Float.NaN, Float.NaN, Float.NaN, false, false, Float.NaN, Float.NaN, Float.NaN, Float.NaN, false, false);
+                        write(found, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, false, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, false);
         }
         formatter = write(writeValues, p, q, v, targetP, targetQ, targetV, connected, voltageRegulatorOn, minP, maxP, minQ, maxQ, mainComponent, validated);
     }
 
-    private TableFormatter write(boolean writeValues, float p, float q, float v, float targetP, float targetQ, float targetV, boolean connected,
-                                 boolean voltageRegulatorOn, float minP, float maxP, float minQ, float maxQ, boolean mainComponent, boolean validated) throws IOException {
+    private TableFormatter write(boolean writeValues, double p, double q, double v, double targetP, double targetQ, double targetV, boolean connected,
+                                 boolean voltageRegulatorOn, double minP, double maxP, double minQ, double maxQ, boolean mainComponent, boolean validated) throws IOException {
         formatter = writeValues ?
                     formatter.writeCell(-p)
                              .writeCell(-q)
@@ -530,21 +530,21 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
     }
 
     @Override
-    protected void write(String svcId, float p, float q, float v, float nominalV, float reactivePowerSetpoint, float voltageSetpoint,
-                         boolean connected, RegulationMode regulationMode, float bMin, float bMax, boolean mainComponent, boolean validated,
+    protected void write(String svcId, double p, double q, double v, double nominalV, double reactivePowerSetpoint, double voltageSetpoint,
+                         boolean connected, RegulationMode regulationMode, double bMin, double bMax, boolean mainComponent, boolean validated,
                          SvcData svcData, boolean found, boolean writeValues) throws IOException {
         formatter.writeCell(svcId);
         if (compareResults) {
             formatter = found ?
                         write(found, svcData.p, svcData.q, svcData.v, svcData.nominalV, svcData.reactivePowerSetpoint, svcData.voltageSetpoint,
                               svcData.connected, svcData.regulationMode, svcData.bMin, svcData.bMax, svcData.mainComponent, svcData.validated) :
-                        write(found, Float.NaN, Float.NaN, Float.NaN, Float.NaN, Float.NaN, Float.NaN, false, null, Float.NaN, Float.NaN, false, false);
+                        write(found, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, null, Double.NaN, Double.NaN, false, false);
         }
         formatter = write(writeValues, p, q, v, nominalV, reactivePowerSetpoint, voltageSetpoint, connected, regulationMode, bMin, bMax, mainComponent, validated);
     }
 
-    private TableFormatter write(boolean writeValues, float p, float q, float v, float nominalV, float reactivePowerSetpoint, float voltageSetpoint,
-                                 boolean connected, RegulationMode regulationMode, float bMin, float bMax, boolean mainComponent, boolean validated) throws IOException {
+    private TableFormatter write(boolean writeValues, double p, double q, double v, double nominalV, double reactivePowerSetpoint, double voltageSetpoint,
+                                 boolean connected, RegulationMode regulationMode, double bMin, double bMax, boolean mainComponent, boolean validated) throws IOException {
         formatter = writeValues ?
                     formatter.writeCell(-p)
                              .writeCell(-q)
@@ -566,21 +566,21 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
         return formatter;
     }
 
-    protected void write(String shuntId, float q, float expectedQ, float p, int currentSectionCount, int maximumSectionCount,
-                         float bPerSection, float v, boolean connected, float qMax, float nominalV, boolean mainComponent,
+    protected void write(String shuntId, double q, double expectedQ, double p, int currentSectionCount, int maximumSectionCount,
+                         double bPerSection, double v, boolean connected, double qMax, double nominalV, boolean mainComponent,
                          boolean validated, ShuntData shuntData, boolean found, boolean writeValues) throws IOException {
         formatter.writeCell(shuntId);
         if (compareResults) {
             formatter = found ?
                         write(found, shuntData.q, shuntData.expectedQ, shuntData.p, shuntData.currentSectionCount, shuntData.maximumSectionCount,
                               shuntData.bPerSection, shuntData.v, shuntData.connected, shuntData.qMax, shuntData.nominalV, shuntData.mainComponent, shuntData.validated) :
-                        write(found, Float.NaN, Float.NaN, Float.NaN, -1, -1, Float.NaN, Float.NaN, false, Float.NaN, Float.NaN, false, false);
+                        write(found, Double.NaN, Double.NaN, Double.NaN, -1, -1, Double.NaN, Double.NaN, false, Double.NaN, Double.NaN, false, false);
         }
         write(writeValues, q, expectedQ, p, currentSectionCount, maximumSectionCount, bPerSection, v, connected, qMax, nominalV, mainComponent, validated);
     }
 
-    private TableFormatter write(boolean writeValues, float q, float expectedQ, float p, int currentSectionCount, int maximumSectionCount,
-                                 float bPerSection, float v, boolean connected, float qMax, float nominalV, boolean mainComponent, boolean validated) throws IOException {
+    private TableFormatter write(boolean writeValues, double q, double expectedQ, double p, int currentSectionCount, int maximumSectionCount,
+                                 double bPerSection, double v, boolean connected, double qMax, double nominalV, boolean mainComponent, boolean validated) throws IOException {
         formatter = writeValues ?
                     formatter.writeCell(q)
                              .writeCell(expectedQ) :
@@ -603,8 +603,8 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
     }
 
     @Override
-    protected void write(String twtId, float error, float upIncrement, float downIncrement, float rho, float rhoPreviousStep, float rhoNextStep,
-                         int tapPosition, int lowTapPosition, int highTapPosition, float targetV, Side regulatedSide, float v, boolean connected,
+    protected void write(String twtId, double error, double upIncrement, double downIncrement, double rho, double rhoPreviousStep, double rhoNextStep,
+                         int tapPosition, int lowTapPosition, int highTapPosition, double targetV, Side regulatedSide, double v, boolean connected,
                          boolean mainComponent, boolean validated, TransformerData twtData, boolean found, boolean writeValues) throws IOException {
         formatter.writeCell(twtId);
         if (compareResults) {
@@ -612,14 +612,14 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                         write(found, twtData.error, twtData.upIncrement, twtData.downIncrement, twtData.rho, twtData.rhoPreviousStep, twtData.rhoNextStep,
                               twtData.tapPosition, twtData.lowTapPosition, twtData.highTapPosition, twtData.targetV, twtData.regulatedSide, twtData.v,
                               twtData.connected, twtData.mainComponent, twtData.validated) :
-                        write(found, Float.NaN, Float.NaN, Float.NaN, Float.NaN, Float.NaN, Float.NaN, -1, -1, -1, Float.NaN, Side.ONE, Float.NaN, false, false, false);
+                        write(found, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, -1, -1, -1, Double.NaN, Side.ONE, Double.NaN, false, false, false);
         }
         write(writeValues, error, upIncrement, downIncrement, rho, rhoPreviousStep, rhoNextStep, tapPosition, lowTapPosition, highTapPosition, targetV,
               regulatedSide, v, connected, mainComponent, validated);
     }
 
-    private TableFormatter write(boolean writeValues, float error, float upIncrement, float downIncrement, float rho, float rhoPreviousStep, float rhoNextStep,
-                                 int tapPosition, int lowTapPosition, int highTapPosition, float targetV, Side regulatedSide, float v, boolean connected,
+    private TableFormatter write(boolean writeValues, double error, double upIncrement, double downIncrement, double rho, double rhoPreviousStep, double rhoNextStep,
+                                 int tapPosition, int lowTapPosition, int highTapPosition, double targetV, Side regulatedSide, double v, boolean connected,
                                  boolean mainComponent, boolean validated) throws IOException {
         formatter = writeValues ?
                     formatter.writeCell(error)

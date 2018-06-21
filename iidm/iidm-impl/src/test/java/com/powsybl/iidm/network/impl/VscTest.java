@@ -45,25 +45,25 @@ public class VscTest {
         cs1.setLossFactor(0.022f);
         assertEquals(0.022f, cs1.getLossFactor(), 0.0f);
         assertTrue(cs1.isVoltageRegulatorOn());
-        assertEquals(405f, cs1.getVoltageSetpoint(), 0.0f);
-        cs1.setVoltageSetpoint(406f);
-        assertEquals(406f, cs1.getVoltageSetpoint(), 0.0f);
-        assertTrue(Float.isNaN(cs1.getReactivePowerSetpoint()));
+        assertEquals(405.0, cs1.getVoltageSetpoint(), 0.0);
+        cs1.setVoltageSetpoint(406.0);
+        assertEquals(406.0, cs1.getVoltageSetpoint(), 0.0);
+        assertTrue(Double.isNaN(cs1.getReactivePowerSetpoint()));
         assertEquals(0.011f, cs2.getLossFactor(), 0.0f);
         assertFalse(cs2.isVoltageRegulatorOn());
-        assertEquals(123f, cs2.getReactivePowerSetpoint(), 0.0f);
-        cs2.setReactivePowerSetpoint(124f);
-        assertEquals(124f, cs2.getReactivePowerSetpoint(), 0.0f);
-        assertTrue(Float.isNaN(cs2.getVoltageSetpoint()));
-        cs2.setVoltageSetpoint(405f);
+        assertEquals(123.0, cs2.getReactivePowerSetpoint(), 0.0);
+        cs2.setReactivePowerSetpoint(124.0);
+        assertEquals(124.0, cs2.getReactivePowerSetpoint(), 0.0);
+        assertTrue(Double.isNaN(cs2.getVoltageSetpoint()));
+        cs2.setVoltageSetpoint(405);
         cs2.setVoltageRegulatorOn(true);
         assertTrue(cs2.isVoltageRegulatorOn());
         assertEquals(1, network.getHvdcLineCount());
         HvdcLine l = network.getHvdcLine("L");
         assertNotNull(l);
-        assertEquals(1f, l.getR(), 0.0f);
+        assertEquals(1.0, l.getR(), 0.0);
         assertEquals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER, l.getConvertersMode());
-        assertEquals(300f, l.getMaxP(), 0.0f);
+        assertEquals(300.0, l.getMaxP(), 0.0);
         assertEquals(cs1, l.getConverterStation1());
         assertEquals(cs2, l.getConverterStation2());
         assertTrue(l.getConverterStation1().getTerminal().getBusView().getBus().isInMainConnectedComponent());
@@ -88,10 +88,10 @@ public class VscTest {
     @Test
     public void testReactiveLimits() {
         cs1.newMinMaxReactiveLimits()
-                .setMinQ(10.0f)
-                .setMaxQ(100.0f)
+                .setMinQ(10.0)
+                .setMaxQ(100.0)
             .add();
-        assertEquals(100.0f, cs1.getReactiveLimits().getMaxQ(2.0f), 0.0f);
+        assertEquals(100.0, cs1.getReactiveLimits().getMaxQ(2.0), 0.0);
         try {
             cs1.getReactiveLimits(ReactiveCapabilityCurveImpl.class);
             fail();
@@ -109,12 +109,12 @@ public class VscTest {
         stateManager.setWorkingState("s4");
         // check values cloned by extend
         assertTrue(cs1.isVoltageRegulatorOn());
-        assertTrue(Float.isNaN(cs1.getReactivePowerSetpoint()));
-        assertEquals(405f, cs1.getVoltageSetpoint(), 0.0f);
+        assertTrue(Double.isNaN(cs1.getReactivePowerSetpoint()));
+        assertEquals(405.0, cs1.getVoltageSetpoint(), 0.0);
         // change values in s4
-        cs1.setReactivePowerSetpoint(1.0f);
+        cs1.setReactivePowerSetpoint(1.0);
         cs1.setVoltageRegulatorOn(false);
-        cs1.setVoltageSetpoint(10.0f);
+        cs1.setVoltageSetpoint(10.0);
 
         // remove s2
         stateManager.removeState("s2");
@@ -123,14 +123,14 @@ public class VscTest {
         stateManager.setWorkingState("s2b");
         // check values cloned by allocate
         assertFalse(cs1.isVoltageRegulatorOn());
-        assertEquals(1.0f, cs1.getReactivePowerSetpoint(), 0.0f);
-        assertEquals(10.0f, cs1.getVoltageSetpoint(), 0.0f);
+        assertEquals(1.0, cs1.getReactivePowerSetpoint(), 0.0);
+        assertEquals(10.0, cs1.getVoltageSetpoint(), 0.0);
 
         // recheck initial state value
         stateManager.setWorkingState(StateManagerConstants.INITIAL_STATE_ID);
         assertTrue(cs1.isVoltageRegulatorOn());
-        assertTrue(Float.isNaN(cs1.getReactivePowerSetpoint()));
-        assertEquals(405f, cs1.getVoltageSetpoint(), 0.0f);
+        assertTrue(Double.isNaN(cs1.getReactivePowerSetpoint()));
+        assertEquals(405.0, cs1.getVoltageSetpoint(), 0.0);
 
         // remove working state s4
         stateManager.setWorkingState("s4");

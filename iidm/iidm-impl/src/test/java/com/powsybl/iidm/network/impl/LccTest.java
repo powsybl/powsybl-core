@@ -53,17 +53,17 @@ public class LccTest {
         assertEquals(0.6f, cs1.getPowerFactor(), 0.0f);
         assertEquals(2, network.getVoltageLevel("VL1").getShuntCount());
         assertEquals(2, network.getVoltageLevel("VL2").getShuntCount());
-        assertEquals(1e-5f, network.getShunt("C1_Filter1").getCurrentB(), 0.0f);
+        assertEquals(1e-5, network.getShunt("C1_Filter1").getCurrentB(), 0.0);
         assertTrue(network.getShunt("C1_Filter1").getTerminal().isConnected());
-        assertEquals(0.0f, network.getShunt("C1_Filter2").getCurrentB(), 0.0f);
-        assertEquals(2e-5f, network.getShunt("C1_Filter2").getMaximumB(), 0.0f);
+        assertEquals(0.0, network.getShunt("C1_Filter2").getCurrentB(), 0.0);
+        assertEquals(2e-5, network.getShunt("C1_Filter2").getMaximumB(), 0.0);
         assertFalse(network.getShunt("C1_Filter2").getTerminal().isConnected());
         assertEquals(1, network.getHvdcLineCount());
         HvdcLine l = network.getHvdcLine("L");
         assertNotNull(l);
-        assertEquals(1.0f, l.getR(), 0.0f);
+        assertEquals(1.0, l.getR(), 0.0);
         assertEquals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER, l.getConvertersMode());
-        assertEquals(300f, l.getMaxP(), 0.0f);
+        assertEquals(300.0, l.getMaxP(), 0.0);
         assertEquals(cs1, l.getConverterStation1());
         assertEquals(cs2, l.getConverterStation2());
 

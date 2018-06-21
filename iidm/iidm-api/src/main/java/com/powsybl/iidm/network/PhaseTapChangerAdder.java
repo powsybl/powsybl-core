@@ -14,17 +14,17 @@ public interface PhaseTapChangerAdder {
 
     interface StepAdder {
 
-        StepAdder setAlpha(float alpha);
+        StepAdder setAlpha(double alpha);
 
-        StepAdder setRho(float rho);
+        StepAdder setRho(double rho);
 
-        StepAdder setR(float r);
+        StepAdder setR(double r);
 
-        StepAdder setX(float x);
+        StepAdder setX(double x);
 
-        StepAdder setG(float g);
+        StepAdder setG(double g);
 
-        StepAdder setB(float b);
+        StepAdder setB(double b);
 
         PhaseTapChangerAdder endStep();
     }
@@ -37,7 +37,7 @@ public interface PhaseTapChangerAdder {
 
     PhaseTapChangerAdder setRegulationMode(PhaseTapChanger.RegulationMode regulationMode);
 
-    PhaseTapChangerAdder setRegulationValue(float regulationValue);
+    PhaseTapChangerAdder setRegulationValue(double regulationValue);
 
     PhaseTapChangerAdder setRegulationTerminal(Terminal regulationTerminal);
 

@@ -9,7 +9,7 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.iidm.network.Component;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.impl.util.Ref;
-import gnu.trove.list.array.TFloatArrayList;
+import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.list.array.TIntArrayList;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,9 +27,9 @@ class ConfiguredBusImpl extends AbstractBus implements ConfiguredBus, Stateful {
 
     private final ArrayList<List<BusTerminal>> terminals;
 
-    private final TFloatArrayList v;
+    private final TDoubleArrayList v;
 
-    private final TFloatArrayList angle;
+    private final TDoubleArrayList angle;
 
     private final TIntArrayList connectedComponentNumber;
 
@@ -40,14 +40,14 @@ class ConfiguredBusImpl extends AbstractBus implements ConfiguredBus, Stateful {
         network = voltageLevel.getNetwork().getRef();
         int stateArraySize = network.get().getStateManager().getStateArraySize();
         terminals = new ArrayList<>(stateArraySize);
-        v = new TFloatArrayList(stateArraySize);
-        angle = new TFloatArrayList(stateArraySize);
+        v = new TDoubleArrayList(stateArraySize);
+        angle = new TDoubleArrayList(stateArraySize);
         connectedComponentNumber = new TIntArrayList(stateArraySize);
         synchronousComponentNumber = new TIntArrayList(stateArraySize);
         for (int i = 0; i < stateArraySize; i++) {
             terminals.add(new ArrayList<>());
-            v.add(Float.NaN);
-            angle.add(Float.NaN);
+            v.add(Double.NaN);
+            angle.add(Double.NaN);
             connectedComponentNumber.add(-1);
             synchronousComponentNumber.add(-1);
         }
@@ -95,28 +95,28 @@ class ConfiguredBusImpl extends AbstractBus implements ConfiguredBus, Stateful {
     }
 
     @Override
-    public float getV() {
+    public double getV() {
         return v.get(network.get().getStateIndex());
     }
 
     @Override
-    public BusExt setV(float v) {
+    public BusExt setV(double v) {
         if (v < 0) {
             throw new ValidationException(this, "voltage cannot be < 0");
         }
-        float oldValue = this.v.set(network.get().getStateIndex(), v);
+        double oldValue = this.v.set(network.get().getStateIndex(), v);
         notifyUpdate("v", oldValue, v);
         return this;
     }
 
     @Override
-    public float getAngle() {
+    public double getAngle() {
         return angle.get(network.get().getStateIndex());
     }
 
     @Override
-    public BusExt setAngle(float angle) {
-        float oldValue = this.angle.set(network.get().getStateIndex(), angle);
+    public BusExt setAngle(double angle) {
+        double oldValue = this.angle.set(network.get().getStateIndex(), angle);
         notifyUpdate("angle", oldValue, angle);
         return this;
     }

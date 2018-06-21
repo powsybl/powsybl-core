@@ -35,8 +35,8 @@ class BusXml extends AbstractIdentifiableXml<Bus, BusAdder, VoltageLevel> {
 
     @Override
     protected void writeRootElementAttributes(Bus b, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        XmlUtil.writeFloat("v", b.getV(), context.getWriter());
-        XmlUtil.writeFloat("angle", b.getAngle(), context.getWriter());
+        XmlUtil.writeDouble("v", b.getV(), context.getWriter());
+        XmlUtil.writeDouble("angle", b.getAngle(), context.getWriter());
     }
 
     @Override
@@ -51,8 +51,8 @@ class BusXml extends AbstractIdentifiableXml<Bus, BusAdder, VoltageLevel> {
 
     @Override
     protected Bus readRootElementAttributes(BusAdder adder, NetworkXmlReaderContext context) {
-        float v = XmlUtil.readOptionalFloatAttribute(context.getReader(), "v");
-        float angle = XmlUtil.readOptionalFloatAttribute(context.getReader(), "angle");
+        double v = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "v");
+        double angle = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "angle");
         Bus b = adder.add();
         b.setV(v);
         b.setAngle(angle);

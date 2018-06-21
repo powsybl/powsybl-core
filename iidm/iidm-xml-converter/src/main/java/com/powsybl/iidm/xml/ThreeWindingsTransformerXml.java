@@ -41,17 +41,17 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
 
     @Override
     protected void writeRootElementAttributes(ThreeWindingsTransformer twt, Substation s, NetworkXmlWriterContext context) throws XMLStreamException {
-        XmlUtil.writeFloat("r1", twt.getLeg1().getR(), context.getWriter());
-        XmlUtil.writeFloat("x1", twt.getLeg1().getX(), context.getWriter());
-        XmlUtil.writeFloat("g1", twt.getLeg1().getG(), context.getWriter());
-        XmlUtil.writeFloat("b1", twt.getLeg1().getB(), context.getWriter());
-        XmlUtil.writeFloat("ratedU1", twt.getLeg1().getRatedU(), context.getWriter());
-        XmlUtil.writeFloat("r2", twt.getLeg2().getR(), context.getWriter());
-        XmlUtil.writeFloat("x2", twt.getLeg2().getX(), context.getWriter());
-        XmlUtil.writeFloat("ratedU2", twt.getLeg2().getRatedU(), context.getWriter());
-        XmlUtil.writeFloat("r3", twt.getLeg3().getR(), context.getWriter());
-        XmlUtil.writeFloat("x3", twt.getLeg3().getX(), context.getWriter());
-        XmlUtil.writeFloat("ratedU3", twt.getLeg3().getRatedU(), context.getWriter());
+        XmlUtil.writeDouble("r1", twt.getLeg1().getR(), context.getWriter());
+        XmlUtil.writeDouble("x1", twt.getLeg1().getX(), context.getWriter());
+        XmlUtil.writeDouble("g1", twt.getLeg1().getG(), context.getWriter());
+        XmlUtil.writeDouble("b1", twt.getLeg1().getB(), context.getWriter());
+        XmlUtil.writeDouble("ratedU1", twt.getLeg1().getRatedU(), context.getWriter());
+        XmlUtil.writeDouble("r2", twt.getLeg2().getR(), context.getWriter());
+        XmlUtil.writeDouble("x2", twt.getLeg2().getX(), context.getWriter());
+        XmlUtil.writeDouble("ratedU2", twt.getLeg2().getRatedU(), context.getWriter());
+        XmlUtil.writeDouble("r3", twt.getLeg3().getR(), context.getWriter());
+        XmlUtil.writeDouble("x3", twt.getLeg3().getX(), context.getWriter());
+        XmlUtil.writeDouble("ratedU3", twt.getLeg3().getRatedU(), context.getWriter());
         writeNodeOrBus(1, twt.getLeg1().getTerminal(), context);
         writeNodeOrBus(2, twt.getLeg2().getTerminal(), context);
         writeNodeOrBus(3, twt.getLeg3().getTerminal(), context);
@@ -90,17 +90,17 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
 
     @Override
     protected ThreeWindingsTransformer readRootElementAttributes(ThreeWindingsTransformerAdder adder, NetworkXmlReaderContext context) {
-        float r1 = XmlUtil.readFloatAttribute(context.getReader(), "r1");
-        float x1 = XmlUtil.readFloatAttribute(context.getReader(), "x1");
-        float g1 = XmlUtil.readFloatAttribute(context.getReader(), "g1");
-        float b1 = XmlUtil.readFloatAttribute(context.getReader(), "b1");
-        float ratedU1 = XmlUtil.readFloatAttribute(context.getReader(), "ratedU1");
-        float r2 = XmlUtil.readFloatAttribute(context.getReader(), "r2");
-        float x2 = XmlUtil.readFloatAttribute(context.getReader(), "x2");
-        float ratedU2 = XmlUtil.readFloatAttribute(context.getReader(), "ratedU2");
-        float r3 = XmlUtil.readFloatAttribute(context.getReader(), "r3");
-        float x3 = XmlUtil.readFloatAttribute(context.getReader(), "x3");
-        float ratedU3 = XmlUtil.readFloatAttribute(context.getReader(), "ratedU3");
+        double r1 = XmlUtil.readDoubleAttribute(context.getReader(), "r1");
+        double x1 = XmlUtil.readDoubleAttribute(context.getReader(), "x1");
+        double g1 = XmlUtil.readDoubleAttribute(context.getReader(), "g1");
+        double b1 = XmlUtil.readDoubleAttribute(context.getReader(), "b1");
+        double ratedU1 = XmlUtil.readDoubleAttribute(context.getReader(), "ratedU1");
+        double r2 = XmlUtil.readDoubleAttribute(context.getReader(), "r2");
+        double x2 = XmlUtil.readDoubleAttribute(context.getReader(), "x2");
+        double ratedU2 = XmlUtil.readDoubleAttribute(context.getReader(), "ratedU2");
+        double r3 = XmlUtil.readDoubleAttribute(context.getReader(), "r3");
+        double x3 = XmlUtil.readDoubleAttribute(context.getReader(), "x3");
+        double ratedU3 = XmlUtil.readDoubleAttribute(context.getReader(), "ratedU3");
         LegAdder legAdder1 = adder.newLeg1().setR(r1).setX(x1).setG(g1).setB(b1).setRatedU(ratedU1);
         LegAdder legAdder2 = adder.newLeg2().setR(r2).setX(x2).setRatedU(ratedU2);
         LegAdder legAdder3 = adder.newLeg3().setR(r3).setX(x3).setRatedU(ratedU3);

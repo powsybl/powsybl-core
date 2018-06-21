@@ -10,7 +10,7 @@ import com.powsybl.iidm.network.CurrentLimitsAdder;
 import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.impl.util.Ref;
-import gnu.trove.list.array.TFloatArrayList;
+import gnu.trove.list.array.TDoubleArrayList;
 
 /**
  *
@@ -20,13 +20,13 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
     private final Ref<? extends MultiStateObject> network;
 
-    private float r;
+    private double r;
 
-    private float x;
+    private double x;
 
-    private float g;
+    private double g;
 
-    private float b;
+    private double b;
 
     private String ucteXnodeCode;
 
@@ -34,16 +34,16 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
     // attributes depending on the state
 
-    private final TFloatArrayList p0;
+    private final TDoubleArrayList p0;
 
-    private final TFloatArrayList q0;
+    private final TDoubleArrayList q0;
 
-    DanglingLineImpl(Ref<? extends MultiStateObject> network, String id, String name, float p0, float q0, float r, float x, float g, float b, String ucteXnodeCode) {
+    DanglingLineImpl(Ref<? extends MultiStateObject> network, String id, String name, double p0, double q0, double r, double x, double g, double b, String ucteXnodeCode) {
         super(id, name);
         this.network = network;
         int stateArraySize = network.get().getStateManager().getStateArraySize();
-        this.p0 = new TFloatArrayList(stateArraySize);
-        this.q0 = new TFloatArrayList(stateArraySize);
+        this.p0 = new TDoubleArrayList(stateArraySize);
+        this.q0 = new TDoubleArrayList(stateArraySize);
         for (int i = 0; i < stateArraySize; i++) {
             this.p0.add(p0);
             this.q0.add(q0);
@@ -71,82 +71,82 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
     }
 
     @Override
-    public float getP0() {
+    public double getP0() {
         return p0.get(network.get().getStateIndex());
     }
 
     @Override
-    public DanglingLineImpl setP0(float p0) {
+    public DanglingLineImpl setP0(double p0) {
         ValidationUtil.checkP0(this, p0);
-        float oldValue = this.p0.set(network.get().getStateIndex(), p0);
+        double oldValue = this.p0.set(network.get().getStateIndex(), p0);
         notifyUpdate("p0", oldValue, p0);
         return this;
     }
 
     @Override
-    public float getQ0() {
+    public double getQ0() {
         return q0.get(network.get().getStateIndex());
     }
 
     @Override
-    public DanglingLineImpl setQ0(float q0) {
+    public DanglingLineImpl setQ0(double q0) {
         ValidationUtil.checkQ0(this, q0);
-        float oldValue = this.q0.set(network.get().getStateIndex(), q0);
+        double oldValue = this.q0.set(network.get().getStateIndex(), q0);
         notifyUpdate("q0", oldValue, q0);
         return this;
     }
 
     @Override
-    public float getR() {
+    public double getR() {
         return r;
     }
 
     @Override
-    public DanglingLineImpl setR(float r) {
+    public DanglingLineImpl setR(double r) {
         ValidationUtil.checkR(this, r);
-        float oldValue = this.r;
+        double oldValue = this.r;
         this.r = r;
         notifyUpdate("r", oldValue, r);
         return this;
     }
 
     @Override
-    public float getX() {
+    public double getX() {
         return x;
     }
 
     @Override
-    public DanglingLineImpl setX(float x) {
+    public DanglingLineImpl setX(double x) {
         ValidationUtil.checkX(this, x);
-        float oldValue = this.x;
+        double oldValue = this.x;
         this.x = x;
         notifyUpdate("x", oldValue, x);
         return this;
     }
 
     @Override
-    public float getG() {
+    public double getG() {
         return g;
     }
 
     @Override
-    public DanglingLineImpl setG(float g) {
+    public DanglingLineImpl setG(double g) {
         ValidationUtil.checkG(this, g);
-        float oldValue = this.g;
+        double oldValue = this.g;
         this.g = g;
         notifyUpdate("g", oldValue, g);
         return this;
     }
 
     @Override
-    public float getB() {
+    public double getB() {
         return b;
     }
 
     @Override
-    public DanglingLineImpl setB(float b) {
+    public DanglingLineImpl setB(double b) {
         ValidationUtil.checkB(this, b);
-        float oldValue = this.b;
+        double oldValue = this.b;
         this.b = b;
         notifyUpdate("b", oldValue, b);
         return this;

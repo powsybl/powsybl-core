@@ -16,9 +16,9 @@ public class CurrentExtension implements Extension<LimitViolation> {
 
     private LimitViolation limitViolation;
 
-    private final float preContingencyValue;
+    private final double preContingencyValue;
 
-    public CurrentExtension(float value) {
+    public CurrentExtension(double value) {
         this.preContingencyValue = checkValue(value);
     }
 
@@ -37,12 +37,12 @@ public class CurrentExtension implements Extension<LimitViolation> {
         this.limitViolation = limitViolation;
     }
 
-    public float getPreContingencyValue() {
+    public double getPreContingencyValue() {
         return preContingencyValue;
     }
 
-    private static float checkValue(float value) {
-        if (Float.isNaN(value)) {
+    private static double checkValue(double value) {
+        if (Double.isNaN(value)) {
             throw new IllegalArgumentException("Value is undefined");
         }
 

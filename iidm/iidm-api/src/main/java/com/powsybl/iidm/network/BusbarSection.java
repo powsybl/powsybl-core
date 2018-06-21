@@ -14,7 +14,7 @@ package com.powsybl.iidm.network;
  */
 public interface BusbarSection extends Injection<BusbarSection> {
 
-    float getV();
+    double getV();
 
-    float getAngle();
+    double getAngle();
 }

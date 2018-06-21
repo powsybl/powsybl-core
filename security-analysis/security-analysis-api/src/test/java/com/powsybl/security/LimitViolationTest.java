@@ -40,8 +40,8 @@ public class LimitViolationTest {
     public void testNominalVoltages() {
         List<LimitViolation> violations = Security.checkLimits(network);
 
-        List<Float> expectedVoltages = Arrays.asList(380.0f, 380.0f, 380.0f, 380.0f, 380.0f);
-        List<Float> voltages = violations.stream()
+        List<Double> expectedVoltages = Arrays.asList(380.0, 380.0, 380.0, 380.0, 380.0);
+        List<Double> voltages = violations.stream()
             .map(v -> LimitViolationHelper.getNominalVoltage(v, network))
             .collect(Collectors.toList());
 

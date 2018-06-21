@@ -43,7 +43,7 @@ public class ActivePowerExtensionSerializer implements ExtensionJsonSerializer<L
     @Override
     public void serialize(ActivePowerExtension extension, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
-        if (!Float.isNaN(extension.getPostContingencyValue())) {
+        if (!Double.isNaN(extension.getPostContingencyValue())) {
             jsonGenerator.writeNumberField("preContingencyValue", extension.getPreContingencyValue());
             jsonGenerator.writeNumberField("postContingencyValue", extension.getPostContingencyValue());
         } else {
@@ -54,26 +54,26 @@ public class ActivePowerExtensionSerializer implements ExtensionJsonSerializer<L
 
     @Override
     public ActivePowerExtension deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
-        float value = Float.NaN;
-        float preContingencyValue = Float.NaN;
-        float postContingencyValue = Float.NaN;
+        double value = Double.NaN;
+        double preContingencyValue = Double.NaN;
+        double postContingencyValue = Double.NaN;
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             if (parser.getCurrentName().equals("value")) {
                 parser.nextToken();
-                value = parser.readValueAs(Float.class);
+                value = parser.readValueAs(Double.class);
             } else if (parser.getCurrentName().equals("preContingencyValue")) {
                 parser.nextToken();
-                preContingencyValue = parser.readValueAs(Float.class);
+                preContingencyValue = parser.readValueAs(Double.class);
             } else if (parser.getCurrentName().equals("postContingencyValue")) {
                 parser.nextToken();
-                postContingencyValue = parser.readValueAs(Float.class);
+                postContingencyValue = parser.readValueAs(Double.class);
             } else {
                 throw new PowsyblException("Unexpected field: " + parser.getCurrentName());
             }
         }
 
-        if (!Float.isNaN(value)) {
+        if (!Double.isNaN(value)) {
             return new ActivePowerExtension(value);
         } else {
             return new ActivePowerExtension(preContingencyValue, postContingencyValue);

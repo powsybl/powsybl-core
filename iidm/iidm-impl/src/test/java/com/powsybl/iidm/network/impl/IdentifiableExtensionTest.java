@@ -40,10 +40,10 @@ public class IdentifiableExtensionTest {
         assertTrue(load.getExtensions().isEmpty());
         LoadZipModel zipModel = new LoadZipModel(load, 1, 2, 3, 4, 5, 6, 380);
         load.addExtension(LoadZipModel.class, zipModel);
-        assertTrue(zipModel != null);
-        assertTrue(load.getExtension(LoadZipModel.class) == zipModel);
-        assertTrue(load.getExtension(LoadFooModel.class) == null);
-        assertTrue(load.getExtensions().size() == 1);
+        assertNotNull(zipModel);
+        assertSame(zipModel, load.getExtension(LoadZipModel.class));
+        assertNull(load.getExtension(LoadFooModel.class));
+        assertEquals(1, load.getExtensions().size());
         assertArrayEquals(load.getExtensions().toArray(new Extension[0]), new Extension[] {zipModel});
     }
 }

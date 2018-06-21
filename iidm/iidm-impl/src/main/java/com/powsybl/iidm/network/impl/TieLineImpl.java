@@ -17,14 +17,14 @@ class TieLineImpl extends LineImpl implements TieLine {
 
         String id;
         String name;
-        float xnodeP = Float.NaN;
-        float xnodeQ = Float.NaN;
-        float r = Float.NaN;
-        float x = Float.NaN;
-        float g1 = Float.NaN;
-        float g2 = Float.NaN;
-        float b1 = Float.NaN;
-        float b2 = Float.NaN;
+        double xnodeP = Double.NaN;
+        double xnodeQ = Double.NaN;
+        double r = Double.NaN;
+        double x = Double.NaN;
+        double g1 = Double.NaN;
+        double g2 = Double.NaN;
+        double b1 = Double.NaN;
+        double b2 = Double.NaN;
 
         @Override
         public String getId() {
@@ -45,89 +45,89 @@ class TieLineImpl extends LineImpl implements TieLine {
         }
 
         @Override
-        public float getXnodeP() {
+        public double getXnodeP() {
             return xnodeP;
         }
 
         @Override
-        public HalfLineImpl setXnodeP(float xnodeP) {
+        public HalfLineImpl setXnodeP(double xnodeP) {
             this.xnodeP = xnodeP;
             return this;
         }
 
         @Override
-        public float getXnodeQ() {
+        public double getXnodeQ() {
             return xnodeQ;
         }
 
         @Override
-        public HalfLineImpl setXnodeQ(float xnodeQ) {
+        public HalfLineImpl setXnodeQ(double xnodeQ) {
             this.xnodeQ = xnodeQ;
             return this;
         }
 
         @Override
-        public float getR() {
+        public double getR() {
             return r;
         }
 
         @Override
-        public HalfLineImpl setR(float r) {
+        public HalfLineImpl setR(double r) {
             this.r = r;
             return this;
         }
 
         @Override
-        public float getX() {
+        public double getX() {
             return x;
         }
 
         @Override
-        public HalfLineImpl setX(float x) {
+        public HalfLineImpl setX(double x) {
             this.x = x;
             return this;
         }
 
         @Override
-        public float getG1() {
+        public double getG1() {
             return g1;
         }
 
         @Override
-        public HalfLineImpl setG1(float g1) {
+        public HalfLineImpl setG1(double g1) {
             this.g1 = g1;
             return this;
         }
 
         @Override
-        public float getG2() {
+        public double getG2() {
             return g2;
         }
 
         @Override
-        public HalfLineImpl setG2(float g2) {
+        public HalfLineImpl setG2(double g2) {
             this.g2 = g2;
             return this;
         }
 
         @Override
-        public float getB1() {
+        public double getB1() {
             return b1;
         }
 
         @Override
-        public HalfLineImpl setB1(float b1) {
+        public HalfLineImpl setB1(double b1) {
             this.b1 = b1;
             return this;
         }
 
         @Override
-        public float getB2() {
+        public double getB2() {
             return b2;
         }
 
         @Override
-        public HalfLineImpl setB2(float b2) {
+        public HalfLineImpl setB2(double b2) {
             this.b2 = b2;
             return this;
         }
@@ -140,7 +140,7 @@ class TieLineImpl extends LineImpl implements TieLine {
     private final HalfLineImpl half2;
 
     TieLineImpl(String id, String name, String ucteXnodeCode, HalfLineImpl half1, HalfLineImpl half2) {
-        super(id, name, Float.NaN, Float.NaN, Float.NaN, Float.NaN, Float.NaN, Float.NaN);
+        super(id, name, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
         this.ucteXnodeCode = ucteXnodeCode;
         this.half1 = half1;
         this.half2 = half2;
@@ -167,7 +167,7 @@ class TieLineImpl extends LineImpl implements TieLine {
     }
 
     @Override
-    public float getR() {
+    public double getR() {
         return half1.getR() + half2.getR();
     }
 
@@ -176,57 +176,57 @@ class TieLineImpl extends LineImpl implements TieLine {
     }
 
     @Override
-    public LineImpl setR(float r) {
+    public LineImpl setR(double r) {
         throw createNotSupportedForTieLines();
     }
 
     @Override
-    public float getX() {
+    public double getX() {
         return half1.getX() + half2.getX();
     }
 
     @Override
-    public LineImpl setX(float x) {
+    public LineImpl setX(double x) {
         throw createNotSupportedForTieLines();
     }
 
     @Override
-    public float getG1() {
+    public double getG1() {
         return half1.getG1() + half2.getG1();
     }
 
     @Override
-    public LineImpl setG1(float g1) {
+    public LineImpl setG1(double g1) {
         throw createNotSupportedForTieLines();
     }
 
     @Override
-    public float getB1() {
+    public double getB1() {
         return half1.getB1() + half2.getB1();
     }
 
     @Override
-    public LineImpl setB1(float b1) {
+    public LineImpl setB1(double b1) {
         throw createNotSupportedForTieLines();
     }
 
     @Override
-    public float getG2() {
+    public double getG2() {
         return half1.getG2() + half2.getG2();
     }
 
     @Override
-    public LineImpl setG2(float g2) {
+    public LineImpl setG2(double g2) {
         throw createNotSupportedForTieLines();
     }
 
     @Override
-    public float getB2() {
+    public double getB2() {
         return half1.getB2() + half2.getB2();
     }
 
     @Override
-    public LineImpl setB2(float b2) {
+    public LineImpl setB2(double b2) {
         throw createNotSupportedForTieLines();
     }
 }

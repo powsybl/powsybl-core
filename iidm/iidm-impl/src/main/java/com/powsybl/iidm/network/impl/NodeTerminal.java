@@ -9,7 +9,7 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.impl.util.Ref;
-import gnu.trove.list.array.TFloatArrayList;
+import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.list.array.TIntArrayList;
 
 import java.util.Set;
@@ -25,9 +25,9 @@ class NodeTerminal extends AbstractTerminal {
 
     // attributes depending on the state
 
-    protected final TFloatArrayList v;
+    protected final TDoubleArrayList v;
 
-    protected final TFloatArrayList angle;
+    protected final TDoubleArrayList angle;
 
     protected final TIntArrayList connectedComponentNumber;
 
@@ -78,13 +78,13 @@ class NodeTerminal extends AbstractTerminal {
         super(network);
         this.node = node;
         int stateArraySize = network.get().getStateManager().getStateArraySize();
-        v = new TFloatArrayList(stateArraySize);
-        angle = new TFloatArrayList(stateArraySize);
+        v = new TDoubleArrayList(stateArraySize);
+        angle = new TDoubleArrayList(stateArraySize);
         connectedComponentNumber = new TIntArrayList(stateArraySize);
         synchronousComponentNumber = new TIntArrayList(stateArraySize);
         for (int i = 0; i < stateArraySize; i++) {
-            v.add(Float.NaN);
-            angle.add(Float.NaN);
+            v.add(Double.NaN);
+            angle.add(Double.NaN);
             connectedComponentNumber.add(0);
             synchronousComponentNumber.add(0);
         }
@@ -95,22 +95,22 @@ class NodeTerminal extends AbstractTerminal {
     }
 
     @Override
-    protected float getV() {
+    protected double getV() {
         return v.get(network.get().getStateIndex());
     }
 
-    void setV(float v) {
+    void setV(double v) {
         if (v < 0) {
             throw new ValidationException(connectable, "voltage cannot be < 0");
         }
         this.v.set(network.get().getStateIndex(), v);
     }
 
-    float getAngle() {
+    double getAngle() {
         return angle.get(network.get().getStateIndex());
     }
 
-    void setAngle(float angle) {
+    void setAngle(double angle) {
         this.angle.set(network.get().getStateIndex(), angle);
     }
 

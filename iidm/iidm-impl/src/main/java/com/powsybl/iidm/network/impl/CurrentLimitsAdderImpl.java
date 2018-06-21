@@ -31,7 +31,7 @@ public class CurrentLimitsAdderImpl<S, O extends CurrentLimitsOwner<S>> implemen
 
     private final O owner;
 
-    private float permanentLimit = Float.NaN;
+    private double permanentLimit = Double.NaN;
 
     private final TreeMap<Integer, TemporaryLimit> temporaryLimits = new TreeMap<>(ACCEPTABLE_DURATION_COMPARATOR);
 
@@ -39,7 +39,7 @@ public class CurrentLimitsAdderImpl<S, O extends CurrentLimitsOwner<S>> implemen
 
         private String name;
 
-        private float value = Float.NaN;
+        private double value = Double.NaN;
 
         private Integer acceptableDuration;
 
@@ -52,7 +52,7 @@ public class CurrentLimitsAdderImpl<S, O extends CurrentLimitsOwner<S>> implemen
         }
 
         @Override
-        public TemporaryLimitAdder setValue(float value) {
+        public TemporaryLimitAdder setValue(double value) {
             this.value = value;
             return this;
         }
@@ -71,7 +71,7 @@ public class CurrentLimitsAdderImpl<S, O extends CurrentLimitsOwner<S>> implemen
 
         @Override
         public CurrentLimitsAdder endTemporaryLimit() {
-            if (Float.isNaN(value)) {
+            if (Double.isNaN(value)) {
                 throw new ValidationException(owner, "temporary limit value is not set");
             }
             if (value <= 0) {
@@ -98,7 +98,7 @@ public class CurrentLimitsAdderImpl<S, O extends CurrentLimitsOwner<S>> implemen
     }
 
     @Override
-    public CurrentLimitsAdder setPermanentLimit(float limit) {
+    public CurrentLimitsAdder setPermanentLimit(double limit) {
         this.permanentLimit = limit;
         return this;
     }
@@ -110,12 +110,12 @@ public class CurrentLimitsAdderImpl<S, O extends CurrentLimitsOwner<S>> implemen
 
     private void checkTemporaryLimits() {
         // check temporary limits are consistents with permanent
-        float previousLimit = Float.NaN;
+        double previousLimit = Double.NaN;
         for (TemporaryLimit tl : temporaryLimits.values()) { // iterate in ascending order
             if (tl.getValue() <= permanentLimit) {
                 LOGGER.debug("{}, temporary limit should be greather than permanent limit", owner.getMessageHeader());
             }
-            if (Float.isNaN(previousLimit)) {
+            if (Double.isNaN(previousLimit)) {
                 previousLimit = tl.getValue();
             } else {
                 if (tl.getValue() <= previousLimit) {

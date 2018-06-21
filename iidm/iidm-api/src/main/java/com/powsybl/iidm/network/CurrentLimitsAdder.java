@@ -16,7 +16,7 @@ public interface CurrentLimitsAdder {
 
         TemporaryLimitAdder setName(String name);
 
-        TemporaryLimitAdder setValue(float value);
+        TemporaryLimitAdder setValue(double value);
 
         TemporaryLimitAdder setAcceptableDuration(int duration);
 
@@ -25,7 +25,7 @@ public interface CurrentLimitsAdder {
         CurrentLimitsAdder endTemporaryLimit();
     }
 
-    CurrentLimitsAdder setPermanentLimit(float limit);
+    CurrentLimitsAdder setPermanentLimit(double limit);
 
     TemporaryLimitAdder beginTemporaryLimit();
 

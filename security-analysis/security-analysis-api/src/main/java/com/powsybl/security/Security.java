@@ -116,15 +116,15 @@ public final class Security {
         checkCurrentLimits(network.getLines(), currentLimitTypes, limitReduction, violations);
         checkCurrentLimits(network.getTwoWindingsTransformers(), currentLimitTypes, limitReduction, violations);
         for (VoltageLevel vl : network.getVoltageLevels()) {
-            if (!Float.isNaN(vl.getLowVoltageLimit())) {
+            if (!Double.isNaN(vl.getLowVoltageLimit())) {
                 vl.getBusView().getBusStream()
-                        .filter(b -> !Float.isNaN(b.getV()))
+                        .filter(b -> !Double.isNaN(b.getV()))
                         .filter(b -> b.getV() < vl.getLowVoltageLimit())
                         .forEach(b -> violations.add(new LimitViolation(vl.getId(), LimitViolationType.LOW_VOLTAGE, vl.getLowVoltageLimit(), 1, b.getV())));
             }
-            if (!Float.isNaN(vl.getHighVoltageLimit())) {
+            if (!Double.isNaN(vl.getHighVoltageLimit())) {
                 vl.getBusView().getBusStream()
-                        .filter(b -> !Float.isNaN(b.getV()))
+                        .filter(b -> !Double.isNaN(b.getV()))
                         .filter(b -> b.getV() > vl.getHighVoltageLimit())
                         .forEach(b -> violations.add(new LimitViolation(vl.getId(), LimitViolationType.HIGH_VOLTAGE, vl.getLowVoltageLimit(), 1, b.getV())));
             }
@@ -204,14 +204,14 @@ public final class Security {
                          .writeCell(violation.getValue())
                          .writeCell(getViolationLimit(violation))
                          .writeCell(getAbsValueLimit(violation))
-                         .writeCell(getViolationValue(violation));
+                         .writeCell(getViolationRate(violation));
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
         };
     }
 
-    private static float getAbsValueLimit(LimitViolation violation) {
+    private static double getAbsValueLimit(LimitViolation violation) {
         return Math.abs(violation.getValue() - violation.getLimit() * violation.getLimitReduction());
     }
 
@@ -292,7 +292,7 @@ public final class Security {
                         .writeCell(violation.getValue())
                         .writeCell(getViolationLimit(violation))
                         .writeCell(getAbsValueLimit(violation))
-                        .writeCell(getViolationValue(violation));
+                        .writeCell(getViolationRate(violation));
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
@@ -313,12 +313,12 @@ public final class Security {
         }
     }
 
-    private static float getViolationLimit(LimitViolation violation) {
+    private static double getViolationLimit(LimitViolation violation) {
         return violation.getLimit() * violation.getLimitReduction();
     }
 
-    private static float getViolationValue(LimitViolation violation) {
-        return Math.abs(violation.getValue()) / violation.getLimit() * 100f;
+    private static double getViolationRate(LimitViolation violation) {
+        return Math.abs(violation.getValue()) / violation.getLimit() * 100.0;
     }
 
     private static NumberFormat getFormatter(Locale locale, int minimumFractionDigits, int maximumFractionDigits) {
@@ -336,9 +336,9 @@ public final class Security {
 
         private final String id;
         private final LimitViolationType limitType;
-        private final float limit;
+        private final double limit;
 
-        public LimitViolationKey(String id, LimitViolationType limitType, float limit) {
+        public LimitViolationKey(String id, LimitViolationType limitType, double limit) {
             this.id = Objects.requireNonNull(id);
             this.limitType = Objects.requireNonNull(limitType);
             this.limit = limit;
@@ -515,7 +515,7 @@ public final class Security {
                         .writeCell(violation.getValue())
                         .writeCell(getViolationLimit(violation))
                         .writeCell(getAbsValueLimit(violation))
-                        .writeCell(getViolationValue(violation));
+                        .writeCell(getViolationRate(violation));
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }

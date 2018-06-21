@@ -46,18 +46,18 @@ public class ValidationUtilsTest extends AbstractValidationTest {
 
     @Test
     public void boundedWithin() {
-        assertTrue(ValidationUtils.boundedWithin(0f, 10f, 5f, 0f));
-        assertFalse(ValidationUtils.boundedWithin(0f, 10f, -5f, 0f));
-        assertFalse(ValidationUtils.boundedWithin(0f, 10f, 15f, 0f));
+        assertTrue(ValidationUtils.boundedWithin(0.0, 10.0, 5.0, 0.0));
+        assertFalse(ValidationUtils.boundedWithin(0.0, 10.0, -5.0, 0.0));
+        assertFalse(ValidationUtils.boundedWithin(0.0, 10.0, 15.0, 0.0));
 
-        assertFalse(ValidationUtils.boundedWithin(0f, 10f, Float.NaN, 0f));
-        assertFalse(ValidationUtils.boundedWithin(Float.NaN, Float.NaN, 5f, 0f));
+        assertFalse(ValidationUtils.boundedWithin(0.0, 10.0, Double.NaN, 0.0));
+        assertFalse(ValidationUtils.boundedWithin(Double.NaN, Double.NaN, 5.0, 0.0));
 
-        assertTrue(ValidationUtils.boundedWithin(Float.NaN, 10f, 5f, 0f));
-        assertFalse(ValidationUtils.boundedWithin(Float.NaN, 10f, 15f, 0f));
+        assertTrue(ValidationUtils.boundedWithin(Double.NaN, 10.0, 5.0, 0.0));
+        assertFalse(ValidationUtils.boundedWithin(Double.NaN, 10.0, 15.0, 0.0));
 
-        assertTrue(ValidationUtils.boundedWithin(0f, Float.NaN, 5f, 0f));
-        assertFalse(ValidationUtils.boundedWithin(0f, Float.NaN, -5f, 0f));
+        assertTrue(ValidationUtils.boundedWithin(0.0, Double.NaN, 5.0, 0.0));
+        assertFalse(ValidationUtils.boundedWithin(0.0, Double.NaN, -5.0, 0.0));
     }
 
     @Test

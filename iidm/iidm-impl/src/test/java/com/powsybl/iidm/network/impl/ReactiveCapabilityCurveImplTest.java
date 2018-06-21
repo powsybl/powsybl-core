@@ -8,10 +8,11 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.ReactiveCapabilityCurve.Point;
 import com.powsybl.iidm.network.impl.ReactiveCapabilityCurveImpl.PointImpl;
-import java.util.TreeMap;
-import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.TreeMap;
+
+import static org.junit.Assert.assertEquals;
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -19,7 +20,7 @@ import org.junit.Test;
 public class ReactiveCapabilityCurveImplTest {
 
     private ReactiveCapabilityCurveImpl createCurve(Point... points) {
-        TreeMap<Float, Point> map = new TreeMap<>();
+        TreeMap<Double, Point> map = new TreeMap<>();
         for (Point pt : points) {
             map.put(pt.getP(), pt);
         }
@@ -28,25 +29,25 @@ public class ReactiveCapabilityCurveImplTest {
 
     @Test
     public void testInterpolation() {
-        ReactiveCapabilityCurveImpl curve = createCurve(new PointImpl(100, 200, 300),
-                                                        new PointImpl(200, 300, 400));
+        ReactiveCapabilityCurveImpl curve = createCurve(new PointImpl(100.0, 200.0, 300.0),
+                                                        new PointImpl(200.0, 300.0, 400.0));
         // bounds test
-        Assert.assertTrue(curve.getMinQ(100) == 200f);
-        Assert.assertTrue(curve.getMaxQ(100) == 300f);
-        Assert.assertTrue(curve.getMinQ(200) == 300f);
-        Assert.assertTrue(curve.getMaxQ(200) == 400f);
+        assertEquals(200.0, curve.getMinQ(100.0), 0.0);
+        assertEquals(300.0, curve.getMaxQ(100.0), 0.0);
+        assertEquals(300.0, curve.getMinQ(200.0), 0.0);
+        assertEquals(400.0, curve.getMaxQ(200.0), 0.0);
 
         // interpolation test
-        Assert.assertTrue(curve.getMinQ(150) == 250f);
-        Assert.assertTrue(curve.getMaxQ(150) == 350f);
-        Assert.assertTrue(curve.getMinQ(110) == 210f);
-        Assert.assertTrue(curve.getMaxQ(110) == 310f);
+        assertEquals(250.0, curve.getMinQ(150.0), 0.0);
+        assertEquals(350.0, curve.getMaxQ(150.0), 0.0);
+        assertEquals(210.0, curve.getMinQ(110.0), 0.0);
+        assertEquals(310.0, curve.getMaxQ(110.0), 0.0);
 
         // out of bounds test
-        Assert.assertTrue(curve.getMinQ(0) == 200f);
-        Assert.assertTrue(curve.getMaxQ(0) == 300f);
-        Assert.assertTrue(curve.getMinQ(1000) == 300f);
-        Assert.assertTrue(curve.getMaxQ(1000) == 400f);
+        assertEquals(200.0, curve.getMinQ(0.0), 0.0);
+        assertEquals(300.0, curve.getMaxQ(0.0), 0.0);
+        assertEquals(300.0, curve.getMinQ(1000.0), 0.0);
+        assertEquals(400.0, curve.getMaxQ(1000.0), 0.0);
     }
 
 }

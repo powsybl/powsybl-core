@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 public class LimitViolationFilter {
 
     private static final Set<LimitViolationType> DEFAULT_VIOLATION_TYPES = EnumSet.allOf(LimitViolationType.class);
-    private static final float DEFAULT_MIN_BASE_VOLTAGE = 0f;
+    private static final double DEFAULT_MIN_BASE_VOLTAGE = 0.0;
     private static final Set<Country> DEFAULT_COUNTRIES = EnumSet.allOf(Country.class);
 
     private static Set<LimitViolationType> checkViolationTypes(Set<LimitViolationType> violationTypes) {
@@ -37,8 +37,8 @@ public class LimitViolationFilter {
         }
     }
 
-    private static float checkMinBaseVoltage(float minBaseVoltage) {
-        if (Float.isNaN(minBaseVoltage) || minBaseVoltage < 0) {
+    private static double checkMinBaseVoltage(double minBaseVoltage) {
+        if (Double.isNaN(minBaseVoltage) || minBaseVoltage < 0) {
             throw new IllegalArgumentException("Bad min base voltage filter " + minBaseVoltage);
         }
         return minBaseVoltage;
@@ -63,7 +63,7 @@ public class LimitViolationFilter {
         ModuleConfig moduleConfig = platformConfig.getModuleConfigIfExists("limit-violation-default-filter");
         if (moduleConfig != null) {
             filter.setViolationTypes(moduleConfig.getEnumSetProperty("violationTypes", LimitViolationType.class, DEFAULT_VIOLATION_TYPES));
-            filter.setMinBaseVoltage(moduleConfig.getFloatProperty("minBaseVoltage", DEFAULT_MIN_BASE_VOLTAGE));
+            filter.setMinBaseVoltage(moduleConfig.getDoubleProperty("minBaseVoltage", DEFAULT_MIN_BASE_VOLTAGE));
             filter.setCountries(moduleConfig.getEnumSetProperty("countries", Country.class, DEFAULT_COUNTRIES));
         }
         return filter;
@@ -71,7 +71,7 @@ public class LimitViolationFilter {
 
     private Set<LimitViolationType> violationTypes;
 
-    private float minBaseVoltage;
+    private double minBaseVoltage;
 
     private Set<Country> countries;
 
@@ -83,11 +83,11 @@ public class LimitViolationFilter {
         this(DEFAULT_VIOLATION_TYPES, DEFAULT_MIN_BASE_VOLTAGE, DEFAULT_COUNTRIES);
     }
 
-    public LimitViolationFilter(Set<LimitViolationType> violationTypes, float minBaseVoltage) {
+    public LimitViolationFilter(Set<LimitViolationType> violationTypes, double minBaseVoltage) {
         this(violationTypes, minBaseVoltage, DEFAULT_COUNTRIES);
     }
 
-    public LimitViolationFilter(Set<LimitViolationType> violationTypes, float minBaseVoltage, Set<Country> countries) {
+    public LimitViolationFilter(Set<LimitViolationType> violationTypes, double minBaseVoltage, Set<Country> countries) {
         this.violationTypes = checkViolationTypes(violationTypes);
         this.minBaseVoltage = checkMinBaseVoltage(minBaseVoltage);
         this.countries = checkCountries(countries);
@@ -102,11 +102,11 @@ public class LimitViolationFilter {
         return this;
     }
 
-    public float getMinBaseVoltage() {
+    public double getMinBaseVoltage() {
         return minBaseVoltage;
     }
 
-    public LimitViolationFilter setMinBaseVoltage(float minBaseVoltage) {
+    public LimitViolationFilter setMinBaseVoltage(double minBaseVoltage) {
         this.minBaseVoltage = checkMinBaseVoltage(minBaseVoltage);
         return this;
     }
@@ -135,8 +135,8 @@ public class LimitViolationFilter {
         return (country == null) || countries.contains(country);
     }
 
-    private boolean accept(float baseVoltage) {
-        return Float.isNaN(baseVoltage) || baseVoltage >= minBaseVoltage;
+    private boolean accept(double baseVoltage) {
+        return Double.isNaN(baseVoltage) || baseVoltage >= minBaseVoltage;
     }
 
     private boolean accept(LimitViolationType limitViolationType) {
