@@ -6,21 +6,8 @@
  */
 package com.powsybl.action.dsl
 
-import com.powsybl.action.dsl.ast.ArithmeticBinaryOperator
-import com.powsybl.action.dsl.ast.ComparisonOperator
-import com.powsybl.action.dsl.ast.ExpressionHelper
-import com.powsybl.action.dsl.ast.ExpressionNode
-import com.powsybl.action.dsl.ast.LogicalBinaryOperator
-import com.powsybl.action.dsl.ast.NetworkComponentNode
-import com.powsybl.action.dsl.ast.NetworkNode
-import com.powsybl.iidm.network.Branch
-import com.powsybl.iidm.network.Generator
-import com.powsybl.iidm.network.Identifiable
-import com.powsybl.iidm.network.Line
-import com.powsybl.iidm.network.Load
-import com.powsybl.iidm.network.Network
-import com.powsybl.iidm.network.Switch
-import com.powsybl.iidm.network.TwoWindingsTransformer
+import com.powsybl.action.dsl.ast.*
+import com.powsybl.iidm.network.*
 import org.codehaus.groovy.control.CompilationFailedException
 
 /**
@@ -153,8 +140,13 @@ class ConditionDslLoader extends DslLoader implements DslConstants {
             ExpressionHelper.newMostLoaded(branchIds)
         }
 
-        binding.isOverloaded = {branchIds, limitReduction = 1 as float ->
+        binding.isOverloaded = { branchIds, limitReduction = 1 as float ->
             ExpressionHelper.newIsOverloadedNode(branchIds, limitReduction)
+        }
+
+
+        binding.allOverloaded = { branchIds, limitReduction = 1 as float ->
+            ExpressionHelper.newAllOverloadedNode(branchIds, limitReduction)
         }
 
         NetworkNode.metaClass.propertyMissing = { String name ->
@@ -317,13 +309,13 @@ class ConditionDslLoader extends DslLoader implements DslConstants {
     private static ExpressionNode createExpressionNode(Object value) {
         if (value instanceof ExpressionNode) {
             value
-        } else if (value instanceof Integer){
+        } else if (value instanceof Integer) {
             ExpressionHelper.newIntegerLiteral(value)
-        } else if (value instanceof Float){
+        } else if (value instanceof Float) {
             ExpressionHelper.newFloatLiteral(value)
-        } else if (value instanceof Double){
+        } else if (value instanceof Double) {
             ExpressionHelper.newDoubleLiteral(value)
-        } else if (value instanceof BigDecimal){
+        } else if (value instanceof BigDecimal) {
             ExpressionHelper.newBigDecimalLiteral(value)
         } else if (value instanceof Boolean) {
             ExpressionHelper.newBooleanLiteral(value)

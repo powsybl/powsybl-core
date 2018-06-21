@@ -113,6 +113,7 @@ public class ConditionDslLoaderTest {
         evalAndAssert(false, "contingencyOccurred()");
         loadAndAssert("mostLoaded([NHV1_NHV2_1, NHV1_NHV2_2])", "mostLoaded(['NHV1_NHV2_1','NHV1_NHV2_2'])");
         loadAndAssert("isOverloaded([NHV1_NHV2_1, NHV1_NHV2_2])", "isOverloaded(['NHV1_NHV2_1','NHV1_NHV2_2'])");
+        loadAndAssert("allOverloaded([NHV1_NHV2_1, NHV1_NHV2_2])", "allOverloaded(['NHV1_NHV2_1','NHV1_NHV2_2'])");
     }
 
     @Test
@@ -173,6 +174,39 @@ public class ConditionDslLoaderTest {
             assertEquals("Branch 'UNKNOWN' not found", e.getMessage());
         }
     }
+
+    @Test
+    public void testAllOverloadedNode() throws IOException {
+        // Both lines are not overloaded
+        line1.getTerminal1().setP(100.0f).setQ(50.0f);
+        line2.getTerminal1().setP(100.0f).setQ(50.0f);
+        evalAndAssert(false, "allOverloaded(['NHV1_NHV2_1','NHV1_NHV2_2'])");
+
+        // Only line1 is overloaded
+        line1.getTerminal1().setP(600.0f).setQ(300.0f); // i = 1019.2061
+        float current1 = line1.getTerminal1().getI();
+        line1.newCurrentLimits1().setPermanentLimit(current1 - 100).add();
+        evalAndAssert(false, "allOverloaded(['NHV1_NHV2_1','NHV1_NHV2_2'])");
+
+        // Both lines are overloaded
+        line2.getTerminal1().setP(600.0f).setQ(300.0f); // i = 1019.2061
+        float current2 = line2.getTerminal1().getI();
+        line2.newCurrentLimits1().setPermanentLimit(current2 - 100).add();
+        evalAndAssert(true, "allOverloaded(['NHV1_NHV2_1','NHV1_NHV2_2'])");
+
+        // Only line2 is overloaded
+        line1.getTerminal1().setP(400.0f).setQ(150.0f); // i = 649.06
+        evalAndAssert(false, "allOverloaded(['NHV1_NHV2_1','NHV1_NHV2_2'])");
+
+        // Unknown branch
+        try {
+            evalAndAssert(false, "allOverloaded(['NHV1_NHV2_1','NHV1_NHV2_2', 'UNKNOWN'])");
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Branch 'UNKNOWN' not found", e.getMessage());
+        }
+    }
+
 
     private void addCurrentLimitsOnLine1() {
         line1.newCurrentLimits1()
