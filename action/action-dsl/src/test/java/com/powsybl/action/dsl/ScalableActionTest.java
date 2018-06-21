@@ -37,32 +37,32 @@ public class ScalableActionTest {
     public void testGeneratorScalableStack() {
         ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/scalable.groovy"))).load(network);
         Action action = actionDb.getAction("actionScale"); // scale to 15000
-        assertEquals(607.0f, g1.getTargetP(), 0.0f);
-        assertEquals(9999.99f, g1.getMaxP(), 0.0f);
+        assertEquals(607.0, g1.getTargetP(), 0.0);
+        assertEquals(9999.99, g1.getMaxP(), 0.0);
         action.run(network, null);
-        assertEquals(9999.99f, g1.getTargetP(), 0.0f);
+        assertEquals(9999.99, g1.getTargetP(), 0.0);
     }
 
     @Test
     public void testCompatible() {
         ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/scalable.groovy"))).load(network);
         Action action = actionDb.getAction("testCompatible"); // scale to 15000
-        assertEquals(607.0f, g1.getTargetP(), 0.0f);
-        assertEquals(9999.99f, g1.getMaxP(), 0.0f);
+        assertEquals(607.0, g1.getTargetP(), 0.0);
+        assertEquals(9999.99, g1.getMaxP(), 0.0);
         action.run(network, null);
-        assertEquals(9999.99f, g1.getTargetP(), 0.0f);
+        assertEquals(9999.99, g1.getTargetP(), 0.0);
     }
 
     @Test
     public void testGeneratorScalableProportional() {
         ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/scalable.groovy"))).load(network);
         Action action = actionDb.getAction("testProportional"); // scale to 15000
-        assertEquals(607.0f, g1.getTargetP(), 0.0f);
-        assertEquals(9999.99f, g1.getMaxP(), 0.0f);
+        assertEquals(607.0, g1.getTargetP(), 0.0);
+        assertEquals(9999.99, g1.getMaxP(), 0.0);
         action.run(network, null);
-        assertEquals(7500.0f, g1.getTargetP(), 0.0f);
-        assertEquals(3000.0f, g2.getTargetP(), 0.0f);
-        assertEquals(4500.0f, g3.getTargetP(), 0.0f);
+        assertEquals(7500.0, g1.getTargetP(), 0.0);
+        assertEquals(3000.0, g2.getTargetP(), 0.0);
+        assertEquals(4500.0, g3.getTargetP(), 0.0);
     }
 
     private void addTwoMoreGensInNetwork() {
@@ -71,23 +71,23 @@ public class ScalableActionTest {
                 .setId("GEN2")
                 .setBus("NGEN")
                 .setConnectableBus("NGEN")
-                .setMinP(-9999.99f)
-                .setMaxP(9999.99f)
+                .setMinP(-9999.99)
+                .setMaxP(9999.99)
                 .setVoltageRegulatorOn(true)
-                .setTargetV(24.5f)
-                .setTargetP(607f)
-                .setTargetQ(301f)
+                .setTargetV(24.5)
+                .setTargetP(607.0)
+                .setTargetQ(301.0)
             .add();
         Generator generator3 = vlgen.newGenerator()
                 .setId("GEN3")
                 .setBus("NGEN")
                 .setConnectableBus("NGEN")
-                .setMinP(-9999.99f)
-                .setMaxP(9999.99f)
+                .setMinP(-9999.99)
+                .setMaxP(9999.99)
                 .setVoltageRegulatorOn(true)
-                .setTargetV(24.5f)
-                .setTargetP(607f)
-                .setTargetQ(301f)
+                .setTargetV(24.5)
+                .setTargetP(607.0)
+                .setTargetQ(301.0)
             .add();
     }
 }

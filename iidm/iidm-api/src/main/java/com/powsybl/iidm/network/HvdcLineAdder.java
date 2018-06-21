@@ -14,15 +14,15 @@ package com.powsybl.iidm.network;
  */
 public interface HvdcLineAdder extends IdentifiableAdder<HvdcLineAdder> {
 
-    HvdcLineAdder setR(float r);
+    HvdcLineAdder setR(double r);
 
     HvdcLineAdder setConvertersMode(HvdcLine.ConvertersMode convertersMode);
 
-    HvdcLineAdder setNominalV(float nominalV);
+    HvdcLineAdder setNominalV(double nominalV);
 
-    HvdcLineAdder setActivePowerSetpoint(float activePowerSetpoint);
+    HvdcLineAdder setActivePowerSetpoint(double activePowerSetpoint);
 
-    HvdcLineAdder setMaxP(float maxP);
+    HvdcLineAdder setMaxP(double maxP);
 
     HvdcLineAdder setConverterStationId1(String converterStationId1);
 

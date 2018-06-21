@@ -16,8 +16,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  *
@@ -41,10 +40,10 @@ public class NetworkRemoveTest {
     public void removeLineTest() {
         String id = "NHV1_NHV2_1";
         Line l = network.getLine(id);
-        assertTrue(network.getLineCount() == 2);
+        assertEquals(2, network.getLineCount());
         l.remove();
-        assertTrue(network.getLineCount() == 1);
-        assertTrue(network.getLine(id) == null);
+        assertEquals(1, network.getLineCount());
+        assertNull(network.getLine(id));
     }
 
     @Test
@@ -54,10 +53,10 @@ public class NetworkRemoveTest {
                 .setId("NEW_BUS")
                 .add();
         Load l = network.getLoad("LOAD");
-        assertTrue(l.getTerminal().getBusBreakerView().getBus().getId().equals("NLOAD"));
+        assertEquals("NLOAD", l.getTerminal().getBusBreakerView().getBus().getId());
         assertTrue(l.getTerminal().isConnected());
         l.getTerminal().getBusBreakerView().setConnectableBus("NEW_BUS");
-        assertTrue(l.getTerminal().getBusBreakerView().getBus().getId().equals("NEW_BUS"));
+        assertEquals("NEW_BUS", l.getTerminal().getBusBreakerView().getBus().getId());
         assertTrue(l.getTerminal().isConnected());
     }
 
@@ -82,8 +81,8 @@ public class NetworkRemoveTest {
         network.getLoad("LOAD").remove();
         network.getTwoWindingsTransformer("NHV2_NLOAD").remove();
         vl.getBusBreakerView().removeAllBuses();
-        assertTrue(Iterables.size(vl.getBusBreakerView().getBuses()) == 0);
-        assertTrue(Iterables.size(vl.getBusBreakerView().getSwitches()) == 0);
+        assertEquals(0, Iterables.size(vl.getBusBreakerView().getBuses()));
+        assertEquals(0, Iterables.size(vl.getBusBreakerView().getSwitches()));
     }
 
     @Test
@@ -102,7 +101,7 @@ public class NetworkRemoveTest {
         network.getTwoWindingsTransformer("NHV2_NLOAD").remove();
         VoltageLevel vl = network.getVoltageLevel("VLLOAD");
         vl.getBusBreakerView().removeBus("NLOAD");
-        assertTrue(Iterables.size(vl.getBusBreakerView().getBuses()) == 0);
+        assertEquals(0, Iterables.size(vl.getBusBreakerView().getBuses()));
     }
 
     @Test

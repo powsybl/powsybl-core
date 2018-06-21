@@ -36,12 +36,12 @@ class TwoWindingsTransformerXml extends AbstractTransformerXml<TwoWindingsTransf
 
     @Override
     protected void writeRootElementAttributes(TwoWindingsTransformer twt, Substation s, NetworkXmlWriterContext context) throws XMLStreamException {
-        XmlUtil.writeFloat("r", twt.getR(), context.getWriter());
-        XmlUtil.writeFloat("x", twt.getX(), context.getWriter());
-        XmlUtil.writeFloat("g", twt.getG(), context.getWriter());
-        XmlUtil.writeFloat("b", twt.getB(), context.getWriter());
-        XmlUtil.writeFloat("ratedU1", twt.getRatedU1(), context.getWriter());
-        XmlUtil.writeFloat("ratedU2", twt.getRatedU2(), context.getWriter());
+        XmlUtil.writeDouble("r", twt.getR(), context.getWriter());
+        XmlUtil.writeDouble("x", twt.getX(), context.getWriter());
+        XmlUtil.writeDouble("g", twt.getG(), context.getWriter());
+        XmlUtil.writeDouble("b", twt.getB(), context.getWriter());
+        XmlUtil.writeDouble("ratedU1", twt.getRatedU1(), context.getWriter());
+        XmlUtil.writeDouble("ratedU2", twt.getRatedU2(), context.getWriter());
         writeNodeOrBus(1, twt.getTerminal1(), context);
         writeNodeOrBus(2, twt.getTerminal2(), context);
         if (context.getOptions().isWithBranchSV()) {
@@ -75,12 +75,12 @@ class TwoWindingsTransformerXml extends AbstractTransformerXml<TwoWindingsTransf
 
     @Override
     protected TwoWindingsTransformer readRootElementAttributes(TwoWindingsTransformerAdder adder, NetworkXmlReaderContext context) {
-        float r = XmlUtil.readFloatAttribute(context.getReader(), "r");
-        float x = XmlUtil.readFloatAttribute(context.getReader(), "x");
-        float g = XmlUtil.readFloatAttribute(context.getReader(), "g");
-        float b = XmlUtil.readFloatAttribute(context.getReader(), "b");
-        float ratedU1 = XmlUtil.readFloatAttribute(context.getReader(), "ratedU1");
-        float ratedU2 = XmlUtil.readFloatAttribute(context.getReader(), "ratedU2");
+        double r = XmlUtil.readDoubleAttribute(context.getReader(), "r");
+        double x = XmlUtil.readDoubleAttribute(context.getReader(), "x");
+        double g = XmlUtil.readDoubleAttribute(context.getReader(), "g");
+        double b = XmlUtil.readDoubleAttribute(context.getReader(), "b");
+        double ratedU1 = XmlUtil.readDoubleAttribute(context.getReader(), "ratedU1");
+        double ratedU2 = XmlUtil.readDoubleAttribute(context.getReader(), "ratedU2");
         adder.setR(r)
                 .setX(x)
                 .setG(g)

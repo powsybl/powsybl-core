@@ -68,14 +68,14 @@ public final class ValidationUtils {
         return areNaN;
     }
 
-    public static boolean boundedWithin(float lowerBound, float upperBound, float value, float margin) {
-        if (Float.isNaN(value) || (Float.isNaN(lowerBound) && Float.isNaN(upperBound))) {
+    public static boolean boundedWithin(double lowerBound, double upperBound, double value, double margin) {
+        if (Double.isNaN(value) || (Double.isNaN(lowerBound) && Double.isNaN(upperBound))) {
             return false;
         }
-        if (Float.isNaN(lowerBound)) {
+        if (Double.isNaN(lowerBound)) {
             return value - margin <= upperBound;
         }
-        if (Float.isNaN(upperBound)) {
+        if (Double.isNaN(upperBound)) {
             return value + margin >= lowerBound;
         }
         return value + margin >= lowerBound && value - margin <= upperBound;

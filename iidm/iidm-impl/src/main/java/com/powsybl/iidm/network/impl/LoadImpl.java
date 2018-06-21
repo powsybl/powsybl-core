@@ -10,7 +10,7 @@ import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.LoadType;
 import com.powsybl.iidm.network.impl.util.Ref;
-import gnu.trove.list.array.TFloatArrayList;
+import gnu.trove.list.array.TDoubleArrayList;
 
 /**
  *
@@ -24,18 +24,18 @@ class LoadImpl extends AbstractConnectable<Load> implements Load {
 
     // attributes depending on the state
 
-    private final TFloatArrayList p0;
+    private final TDoubleArrayList p0;
 
-    private final TFloatArrayList q0;
+    private final TDoubleArrayList q0;
 
     LoadImpl(Ref<? extends MultiStateObject> network,
-             String id, String name, LoadType loadType, float p0, float q0) {
+             String id, String name, LoadType loadType, double p0, double q0) {
         super(id, name);
         this.network = network;
         this.loadType = loadType;
         int stateArraySize = network.get().getStateManager().getStateArraySize();
-        this.p0 = new TFloatArrayList(stateArraySize);
-        this.q0 = new TFloatArrayList(stateArraySize);
+        this.p0 = new TDoubleArrayList(stateArraySize);
+        this.q0 = new TDoubleArrayList(stateArraySize);
         for (int i = 0; i < stateArraySize; i++) {
             this.p0.add(p0);
             this.q0.add(q0);
@@ -72,27 +72,27 @@ class LoadImpl extends AbstractConnectable<Load> implements Load {
     }
 
     @Override
-    public float getP0() {
+    public double getP0() {
         return p0.get(network.get().getStateIndex());
     }
 
     @Override
-    public LoadImpl setP0(float p0) {
+    public LoadImpl setP0(double p0) {
         ValidationUtil.checkP0(this, p0);
-        float oldValue = this.p0.set(network.get().getStateIndex(), p0);
+        double oldValue = this.p0.set(network.get().getStateIndex(), p0);
         notifyUpdate("p0", oldValue, p0);
         return this;
     }
 
     @Override
-    public float getQ0() {
+    public double getQ0() {
         return q0.get(network.get().getStateIndex());
     }
 
     @Override
-    public LoadImpl setQ0(float q0) {
+    public LoadImpl setQ0(double q0) {
         ValidationUtil.checkQ0(this, q0);
-        float oldValue = this.q0.set(network.get().getStateIndex(), q0);
+        double oldValue = this.q0.set(network.get().getStateIndex(), q0);
         notifyUpdate("q0", oldValue, q0);
         return this;
     }

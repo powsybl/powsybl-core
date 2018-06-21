@@ -167,10 +167,10 @@ abstract class AbstractBranch<I extends Connectable<I>> extends AbstractConnecta
     }
 
     private static boolean checkPermanentLimit(Terminal terminal, CurrentLimits limits, float limitReduction) {
-        float i = terminal.getI();
+        double i = terminal.getI();
         return limits != null &&
-            !Float.isNaN(limits.getPermanentLimit()) &&
-            !Float.isNaN(i) &&
+            !Double.isNaN(limits.getPermanentLimit()) &&
+            !Double.isNaN(i) &&
             (i >= limits.getPermanentLimit() * limitReduction);
     }
 
@@ -180,9 +180,9 @@ abstract class AbstractBranch<I extends Connectable<I>> extends AbstractConnecta
 
         private final String previousLimitName;
 
-        private final float previousLimit;
+        private final double previousLimit;
 
-        private OverloadImpl(CurrentLimits.TemporaryLimit temporaryLimit, String previousLimitName, float previousLimit) {
+        private OverloadImpl(CurrentLimits.TemporaryLimit temporaryLimit, String previousLimitName, double previousLimit) {
             this.temporaryLimit = Objects.requireNonNull(temporaryLimit);
             this.previousLimitName = previousLimitName;
             this.previousLimit = previousLimit;
@@ -199,7 +199,7 @@ abstract class AbstractBranch<I extends Connectable<I>> extends AbstractConnecta
         }
 
         @Override
-        public float getPreviousLimit() {
+        public double getPreviousLimit() {
             return previousLimit;
         }
     }
@@ -240,10 +240,10 @@ abstract class AbstractBranch<I extends Connectable<I>> extends AbstractConnecta
 
     private static OverloadImpl checkTemporaryLimits(TerminalExt t, CurrentLimits limits, float limitReduction) {
         Objects.requireNonNull(t);
-        float i = t.getI();
-        if (limits != null && !Float.isNaN(limits.getPermanentLimit()) && !Float.isNaN(i)) {
+        double i = t.getI();
+        if (limits != null && !Double.isNaN(limits.getPermanentLimit()) && !Double.isNaN(i)) {
             String previousLimitName = null;
-            float previousLimit = limits.getPermanentLimit();
+            double previousLimit = limits.getPermanentLimit();
             for (CurrentLimits.TemporaryLimit tl : limits.getTemporaryLimits()) { // iterate in ascending order
                 if (i >= previousLimit * limitReduction && i < tl.getValue() * limitReduction) {
                     return new OverloadImpl(tl, previousLimitName, previousLimit);

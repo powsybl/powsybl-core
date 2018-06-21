@@ -21,14 +21,14 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
 
     private final SubstationImpl substation;
 
-    private float nominalV;
+    private double nominalV;
 
-    private float lowVoltageLimit;
+    private double lowVoltageLimit;
 
-    private float highVoltageLimit;
+    private double highVoltageLimit;
 
     AbstractVoltageLevel(String id, String name, SubstationImpl substation,
-                         float nominalV, float lowVoltageLimit, float highVoltageLimit) {
+                         double nominalV, double lowVoltageLimit, double highVoltageLimit) {
         super(id, name);
         this.substation = substation;
         this.nominalV = nominalV;
@@ -56,42 +56,42 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
     }
 
     @Override
-    public float getNominalV() {
+    public double getNominalV() {
         return nominalV;
     }
 
     @Override
-    public VoltageLevelExt setNominalV(float nominalV) {
+    public VoltageLevelExt setNominalV(double nominalV) {
         ValidationUtil.checkNominalV(this, nominalV);
-        float oldValue = this.nominalV;
+        double oldValue = this.nominalV;
         this.nominalV = nominalV;
         notifyUpdate("nominalV", oldValue, nominalV);
         return this;
     }
 
     @Override
-    public float getLowVoltageLimit() {
+    public double getLowVoltageLimit() {
         return lowVoltageLimit;
     }
 
     @Override
-    public VoltageLevel setLowVoltageLimit(float lowVoltageLimit) {
+    public VoltageLevel setLowVoltageLimit(double lowVoltageLimit) {
         ValidationUtil.checkVoltageLimits(this, lowVoltageLimit, highVoltageLimit);
-        float oldValue = this.lowVoltageLimit;
+        double oldValue = this.lowVoltageLimit;
         this.lowVoltageLimit = lowVoltageLimit;
         notifyUpdate("lowVoltageLimit", oldValue, lowVoltageLimit);
         return this;
     }
 
     @Override
-    public float getHighVoltageLimit() {
+    public double getHighVoltageLimit() {
         return highVoltageLimit;
     }
 
     @Override
-    public VoltageLevel setHighVoltageLimit(float highVoltageLimit) {
+    public VoltageLevel setHighVoltageLimit(double highVoltageLimit) {
         ValidationUtil.checkVoltageLimits(this, lowVoltageLimit, highVoltageLimit);
-        float oldValue = this.highVoltageLimit;
+        double oldValue = this.highVoltageLimit;
         this.highVoltageLimit = highVoltageLimit;
         notifyUpdate("highVoltageLimit", oldValue, highVoltageLimit);
         return this;

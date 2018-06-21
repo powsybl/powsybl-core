@@ -7,8 +7,9 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
-import org.junit.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -24,7 +25,7 @@ public class ConnectedComponentWithTieLineBugTest {
                 .add();
         VoltageLevel vl1 = s1.newVoltageLevel()
                 .setId("vl1")
-                .setNominalV(380f)
+                .setNominalV(380.0)
                 .setTopologyKind(TopologyKind.BUS_BREAKER)
                 .add();
         Bus b1 = vl1.getBusBreakerView().newBus()
@@ -34,11 +35,11 @@ public class ConnectedComponentWithTieLineBugTest {
                 .setId("g1")
                 .setBus("b1")
                 .setConnectableBus("b1")
-                .setTargetP(100f)
-                .setTargetV(400f)
+                .setTargetP(100.0)
+                .setTargetV(400.0)
                 .setVoltageRegulatorOn(true)
-                .setMinP(50f)
-                .setMaxP(150f)
+                .setMinP(50.0)
+                .setMaxP(150.0)
                 .add();
         Substation s2 = n.newSubstation()
                 .setId("s2")
@@ -46,7 +47,7 @@ public class ConnectedComponentWithTieLineBugTest {
                 .add();
         VoltageLevel vl2 = s2.newVoltageLevel()
                 .setId("vl2")
-                .setNominalV(380f)
+                .setNominalV(380.0)
                 .setTopologyKind(TopologyKind.BUS_BREAKER)
                 .add();
         Bus b2 = vl2.getBusBreakerView().newBus()
@@ -56,8 +57,8 @@ public class ConnectedComponentWithTieLineBugTest {
                 .setId("ld1")
                 .setConnectableBus("b2")
                 .setBus("b2")
-                .setP0(0)
-                .setQ0(0)
+                .setP0(0.0)
+                .setQ0(0.0)
                 .add();
         n.newTieLine()
                 .setId("l1 + l2")
@@ -69,27 +70,27 @@ public class ConnectedComponentWithTieLineBugTest {
                 .setBus2("b2")
                 .line1()
                 .setId("l1")
-                .setR(1f)
-                .setX(1f)
-                .setG1(0f)
-                .setG2(0f)
-                .setB1(0f)
-                .setB2(0f)
-                .setXnodeP(0)
-                .setXnodeQ(0)
+                .setR(1.0)
+                .setX(1.0)
+                .setG1(0.0)
+                .setG2(0.0)
+                .setB1(0.0)
+                .setB2(0.0)
+                .setXnodeP(0.0)
+                .setXnodeQ(0.0)
                 .line2()
                 .setId("l2")
-                .setR(1f)
-                .setX(1f)
-                .setG1(0f)
-                .setG2(0f)
-                .setB1(0f)
-                .setB2(0f)
-                .setXnodeP(0)
-                .setXnodeQ(0)
+                .setR(1.0)
+                .setX(1.0)
+                .setG1(0.0)
+                .setG2(0.0)
+                .setB1(0.0)
+                .setB2(0.0)
+                .setXnodeP(0.0)
+                .setXnodeQ(0.0)
                 .setUcteXnodeCode("XNODE")
                 .add();
-        Assert.assertTrue(b1.getConnectedComponent().getNum() == 0);
-        Assert.assertTrue(b2.getConnectedComponent().getNum() == 0);
+        assertEquals(0, b1.getConnectedComponent().getNum());
+        assertEquals(0, b2.getConnectedComponent().getNum());
     }
 }

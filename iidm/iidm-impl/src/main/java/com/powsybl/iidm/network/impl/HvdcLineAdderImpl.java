@@ -21,15 +21,15 @@ public class HvdcLineAdderImpl extends AbstractIdentifiableAdder<HvdcLineAdderIm
 
     private final Ref<NetworkImpl> networkRef;
 
-    private float r = Float.NaN;
+    private double r = Double.NaN;
 
     private HvdcLine.ConvertersMode convertersMode;
 
-    private float nominalV = Float.NaN;
+    private double nominalV = Double.NaN;
 
-    private float activePowerSetpoint = Float.NaN;
+    private double activePowerSetpoint = Double.NaN;
 
-    private float maxP = Float.NaN;
+    private double maxP = Double.NaN;
 
     private String converterStationId1;
 
@@ -50,7 +50,7 @@ public class HvdcLineAdderImpl extends AbstractIdentifiableAdder<HvdcLineAdderIm
     }
 
     @Override
-    public HvdcLineAdder setR(float r) {
+    public HvdcLineAdder setR(double r) {
         this.r = r;
         return this;
     }
@@ -62,19 +62,19 @@ public class HvdcLineAdderImpl extends AbstractIdentifiableAdder<HvdcLineAdderIm
     }
 
     @Override
-    public HvdcLineAdder setNominalV(float nominalV) {
+    public HvdcLineAdder setNominalV(double nominalV) {
         this.nominalV = nominalV;
         return this;
     }
 
     @Override
-    public HvdcLineAdder setActivePowerSetpoint(float activePowerSetpoint) {
+    public HvdcLineAdder setActivePowerSetpoint(double activePowerSetpoint) {
         this.activePowerSetpoint = activePowerSetpoint;
         return this;
     }
 
     @Override
-    public HvdcLineAdder setMaxP(float maxP) {
+    public HvdcLineAdder setMaxP(double maxP) {
         this.maxP = maxP;
         return this;
     }

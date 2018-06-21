@@ -93,11 +93,11 @@ public class AmplNetworkReader {
         int num = Integer.parseInt(tokens[0]);
         int busNum = Integer.parseInt(tokens[1]);
         boolean vregul = Boolean.parseBoolean(tokens[2]);
-        float targetV = readFloat(tokens[3]);
-        float targetP = readFloat(tokens[4]);
-        float targetQ = readFloat(tokens[5]);
-        float p = readFloat(tokens[6]);
-        float q = readFloat(tokens[7]);
+        double targetV = readDouble(tokens[3]);
+        double targetP = readDouble(tokens[4]);
+        double targetQ = readDouble(tokens[5]);
+        double p = readDouble(tokens[6]);
+        double q = readDouble(tokens[7]);
         String id = mapper.getId(AmplSubset.GENERATOR, num);
         Generator g = network.getGenerator(id);
         if (g == null) {
@@ -112,7 +112,7 @@ public class AmplNetworkReader {
         Terminal t = g.getTerminal();
         t.setP(p).setQ(q);
 
-        float vb = t.getVoltageLevel().getNominalV();
+        double vb = t.getVoltageLevel().getNominalV();
         g.setTargetV(targetV * vb);
 
         busConnection(t, busNum);
@@ -129,10 +129,10 @@ public class AmplNetworkReader {
     private Void readLoad(String[] tokens) {
         int num = Integer.parseInt(tokens[0]);
         int busNum = Integer.parseInt(tokens[1]);
-        float p = readFloat(tokens[2]);
-        float q = readFloat(tokens[3]);
-        float p0 = readFloat(tokens[4]);
-        float q0 = readFloat(tokens[5]);
+        double p = readDouble(tokens[2]);
+        double q = readDouble(tokens[3]);
+        double p0 = readDouble(tokens[4]);
+        double q0 = readDouble(tokens[5]);
         String id = mapper.getId(AmplSubset.LOAD, num);
         Load l = network.getLoad(id);
         if (l != null) {
@@ -219,7 +219,7 @@ public class AmplNetworkReader {
         int num = Integer.parseInt(tokens[0]);
         int busNum = Integer.parseInt(tokens[1]);
 
-        float q = readFloat(tokens[3]);
+        double q = readDouble(tokens[3]);
         int sections = Integer.parseInt(tokens[4]);
 
         String id = mapper.getId(AmplSubset.SHUNT, num);
@@ -245,7 +245,7 @@ public class AmplNetworkReader {
 
     private Void readBus(String[] tokens) {
         int num = Integer.parseInt(tokens[0]);
-        float v = readFloat(tokens[1]);
+        double v = readDouble(tokens[1]);
         double theta = readDouble(tokens[2]);
 
         String id = mapper.getId(AmplSubset.BUS, num);
@@ -253,7 +253,7 @@ public class AmplNetworkReader {
 
         if (bus != null) {
             bus.setV(v * bus.getVoltageLevel().getNominalV());
-            bus.setAngle((float) Math.toDegrees(theta));
+            bus.setAngle(Math.toDegrees(theta));
         } else {
             throw new AmplException("Invalid bus id '" + id + "'");
         }
@@ -271,10 +271,10 @@ public class AmplNetworkReader {
         int num = Integer.parseInt(tokens[0]);
         int busNum = Integer.parseInt(tokens[1]);
         int busNum2 = Integer.parseInt(tokens[2]);
-        float p1 = readFloat(tokens[3]);
-        float p2 = readFloat(tokens[4]);
-        float q1 = readFloat(tokens[5]);
-        float q2 = readFloat(tokens[6]);
+        double p1 = readDouble(tokens[3]);
+        double p2 = readDouble(tokens[4]);
+        double q1 = readDouble(tokens[5]);
+        double q2 = readDouble(tokens[6]);
 
         String id = mapper.getId(AmplSubset.BRANCH, num);
 
@@ -302,7 +302,7 @@ public class AmplNetworkReader {
         return null;
     }
 
-    private boolean readThreeWindingsTransformerBranch(String id, float p, float q, int busNum) {
+    private boolean readThreeWindingsTransformerBranch(String id, double p, double q, int busNum) {
         if (id.endsWith(AmplConstants.LEG1_SUFFIX)) {
             ThreeWindingsTransformer tht = network.getThreeWindingsTransformer(id.substring(0, id.indexOf(AmplConstants.LEG1_SUFFIX)));
             if (tht != null) {
@@ -342,7 +342,7 @@ public class AmplNetworkReader {
     private Void readHvdcLine(String[] tokens) {
         int num = Integer.parseInt(tokens[0]);
         String converterMode = tokens[1].replace("\"", "");
-        float targetP = readFloat(tokens[2]);
+        double targetP = readDouble(tokens[2]);
 
         String id = mapper.getId(AmplSubset.HVDC_LINE, num);
 
@@ -368,8 +368,8 @@ public class AmplNetworkReader {
         int num = Integer.parseInt(tokens[0]);
         int busNum = Integer.parseInt(tokens[1]);
         boolean vregul = Boolean.parseBoolean(tokens[2]);
-        float targetV = readFloat(tokens[3]);
-        float q = readFloat(tokens[4]);
+        double targetV = readDouble(tokens[3]);
+        double q = readDouble(tokens[4]);
 
         String id = mapper.getId(AmplSubset.STATIC_VAR_COMPENSATOR, num);
         StaticVarCompensator svc = network.getStaticVarCompensator(id);
@@ -391,7 +391,7 @@ public class AmplNetworkReader {
 
         Terminal t = svc.getTerminal();
         t.setQ(q);
-        float nominalV = t.getVoltageLevel().getNominalV();
+        double nominalV = t.getVoltageLevel().getNominalV();
         svc.setVoltageSetPoint(targetV * nominalV);
 
         busConnection(t, busNum);
@@ -408,8 +408,8 @@ public class AmplNetworkReader {
     private Void readLcc(String[] tokens) {
         int num = Integer.parseInt(tokens[0]);
         int busNum = Integer.parseInt(tokens[1]);
-        float p = readFloat(tokens[2]);
-        float q = readFloat(tokens[3]);
+        double p = readDouble(tokens[2]);
+        double q = readDouble(tokens[3]);
 
         String id = mapper.getId(AmplSubset.LCC_CONVERTER_STATION, num);
         LccConverterStation lcc = network.getLccConverterStation(id);
@@ -429,10 +429,10 @@ public class AmplNetworkReader {
         int num = Integer.parseInt(tokens[0]);
         int busNum = Integer.parseInt(tokens[1]);
         boolean vregul = Boolean.parseBoolean(tokens[2]);
-        float targetV = readFloat(tokens[3]);
-        float targetQ = readFloat(tokens[4]);
-        float p = readFloat(tokens[5]);
-        float q = readFloat(tokens[6]);
+        double targetV = readDouble(tokens[3]);
+        double targetQ = readDouble(tokens[4]);
+        double p = readDouble(tokens[5]);
+        double q = readDouble(tokens[6]);
 
         String id = mapper.getId(AmplSubset.VSC_CONVERTER_STATION, num);
         VscConverterStation vsc = network.getVscConverterStation(id);
@@ -443,7 +443,7 @@ public class AmplNetworkReader {
         vsc.setReactivePowerSetpoint(targetQ);
         vsc.setVoltageRegulatorOn(vregul);
 
-        float vb = t.getVoltageLevel().getNominalV();
+        double vb = t.getVoltageLevel().getNominalV();
         vsc.setVoltageSetpoint(targetV * vb);
 
         busConnection(t, busNum);

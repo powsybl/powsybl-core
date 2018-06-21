@@ -35,12 +35,12 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
 
     @Override
     protected void writeRootElementAttributes(DanglingLine dl, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        XmlUtil.writeFloat("p0", dl.getP0(), context.getWriter());
-        XmlUtil.writeFloat("q0", dl.getQ0(), context.getWriter());
-        XmlUtil.writeFloat("r", dl.getR(), context.getWriter());
-        XmlUtil.writeFloat("x", dl.getX(), context.getWriter());
-        XmlUtil.writeFloat("g", dl.getG(), context.getWriter());
-        XmlUtil.writeFloat("b", dl.getB(), context.getWriter());
+        XmlUtil.writeDouble("p0", dl.getP0(), context.getWriter());
+        XmlUtil.writeDouble("q0", dl.getQ0(), context.getWriter());
+        XmlUtil.writeDouble("r", dl.getR(), context.getWriter());
+        XmlUtil.writeDouble("x", dl.getX(), context.getWriter());
+        XmlUtil.writeDouble("g", dl.getG(), context.getWriter());
+        XmlUtil.writeDouble("b", dl.getB(), context.getWriter());
         if (dl.getUcteXnodeCode() != null) {
             context.getWriter().writeAttribute("ucteXnodeCode", dl.getUcteXnodeCode());
         }
@@ -62,12 +62,12 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
 
     @Override
     protected DanglingLine readRootElementAttributes(DanglingLineAdder adder, NetworkXmlReaderContext context) {
-        float p0 = XmlUtil.readFloatAttribute(context.getReader(), "p0");
-        float q0 = XmlUtil.readFloatAttribute(context.getReader(), "q0");
-        float r = XmlUtil.readFloatAttribute(context.getReader(), "r");
-        float x = XmlUtil.readFloatAttribute(context.getReader(), "x");
-        float g = XmlUtil.readFloatAttribute(context.getReader(), "g");
-        float b = XmlUtil.readFloatAttribute(context.getReader(), "b");
+        double p0 = XmlUtil.readDoubleAttribute(context.getReader(), "p0");
+        double q0 = XmlUtil.readDoubleAttribute(context.getReader(), "q0");
+        double r = XmlUtil.readDoubleAttribute(context.getReader(), "r");
+        double x = XmlUtil.readDoubleAttribute(context.getReader(), "x");
+        double g = XmlUtil.readDoubleAttribute(context.getReader(), "g");
+        double b = XmlUtil.readDoubleAttribute(context.getReader(), "b");
         String ucteXnodeCode = context.getReader().getAttributeValue(null, "ucteXnodeCode");
         readNodeOrBus(adder, context);
         DanglingLine dl = adder.setP0(p0)

@@ -24,10 +24,10 @@ abstract class AbstractCompoundScalable extends AbstractScalable {
     }
 
     @Override
-    public float initialValue(Network n) {
+    public double initialValue(Network n) {
         Objects.requireNonNull(n);
 
-        float value = 0;
+        double value = 0;
         for (Scalable scalable : scalables) {
             value += scalable.initialValue(n);
         }
@@ -42,10 +42,10 @@ abstract class AbstractCompoundScalable extends AbstractScalable {
     }
 
     @Override
-    public float maximumValue(Network n) {
+    public double maximumValue(Network n) {
         Objects.requireNonNull(n);
 
-        float value = 0;
+        double value = 0;
         for (Scalable scalable : scalables) {
             value += scalable.maximumValue(n);
         }

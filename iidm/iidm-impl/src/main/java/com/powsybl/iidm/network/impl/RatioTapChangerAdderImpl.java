@@ -30,67 +30,67 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
 
     private boolean regulating = false;
 
-    private float targetV = Float.NaN;
+    private double targetV = Double.NaN;
 
     private TerminalExt regulationTerminal;
 
     class StepAdderImpl implements StepAdder {
 
-        private float rho = Float.NaN;
+        private double rho = Double.NaN;
 
-        private float r = Float.NaN;
+        private double r = Double.NaN;
 
-        private float x = Float.NaN;
+        private double x = Double.NaN;
 
-        private float g = Float.NaN;
+        private double g = Double.NaN;
 
-        private float b = Float.NaN;
+        private double b = Double.NaN;
 
         @Override
-        public StepAdder setRho(float rho) {
+        public StepAdder setRho(double rho) {
             this.rho = rho;
             return this;
         }
 
         @Override
-        public StepAdder setR(float r) {
+        public StepAdder setR(double r) {
             this.r = r;
             return this;
         }
 
         @Override
-        public StepAdder setX(float x) {
+        public StepAdder setX(double x) {
             this.x = x;
             return this;
         }
 
         @Override
-        public StepAdder setG(float g) {
+        public StepAdder setG(double g) {
             this.g = g;
             return this;
         }
 
         @Override
-        public StepAdder setB(float b) {
+        public StepAdder setB(double b) {
             this.b = b;
             return this;
         }
 
         @Override
         public RatioTapChangerAdder endStep() {
-            if (Float.isNaN(rho)) {
+            if (Double.isNaN(rho)) {
                 throw new ValidationException(parent, "step rho is not set");
             }
-            if (Float.isNaN(r)) {
+            if (Double.isNaN(r)) {
                 throw new ValidationException(parent, "step r is not set");
             }
-            if (Float.isNaN(x)) {
+            if (Double.isNaN(x)) {
                 throw new ValidationException(parent, "step x is not set");
             }
-            if (Float.isNaN(g)) {
+            if (Double.isNaN(g)) {
                 throw new ValidationException(parent, "step g is not set");
             }
-            if (Float.isNaN(b)) {
+            if (Double.isNaN(b)) {
                 throw new ValidationException(parent, "step b is not set");
             }
             RatioTapChangerStepImpl step = new RatioTapChangerStepImpl(rho, r, x, g, b);
@@ -133,7 +133,7 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
     }
 
     @Override
-    public RatioTapChangerAdder setTargetV(float targetV) {
+    public RatioTapChangerAdder setTargetV(double targetV) {
         this.targetV = targetV;
         return this;
     }

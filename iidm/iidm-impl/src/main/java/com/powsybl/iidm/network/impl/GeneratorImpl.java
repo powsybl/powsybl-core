@@ -8,7 +8,7 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.util.Ref;
-import gnu.trove.list.array.TFloatArrayList;
+import gnu.trove.list.array.TDoubleArrayList;
 
 import java.util.BitSet;
 
@@ -20,11 +20,11 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
 
     private EnergySource energySource;
 
-    private float minP;
+    private double minP;
 
-    private float maxP;
+    private double maxP;
 
-    private float ratedS;
+    private double ratedS;
 
     private ReactiveLimits reactiveLimits;
 
@@ -34,30 +34,30 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
 
     private final BitSet voltageRegulatorOn;
 
-    private final TFloatArrayList targetP;
+    private final TDoubleArrayList targetP;
 
-    private final TFloatArrayList targetQ;
+    private final TDoubleArrayList targetQ;
 
-    private final TFloatArrayList targetV;
+    private final TDoubleArrayList targetV;
 
     GeneratorImpl(Ref<? extends MultiStateObject> ref,
                   String id, String name, EnergySource energySource,
-                  float minP, float maxP,
+                  double minP, double maxP,
                   boolean voltageRegulatorOn, TerminalExt regulatingTerminal,
-                  float targetP, float targetQ, float targetV,
-                  float ratedS) {
+                  double targetP, double targetQ, double targetV,
+                  double ratedS) {
         super(id, name);
         this.energySource = energySource;
         this.minP = minP;
         this.maxP = maxP;
-        reactiveLimits = new MinMaxReactiveLimitsImpl(-Float.MAX_VALUE, Float.MAX_VALUE);
+        reactiveLimits = new MinMaxReactiveLimitsImpl(-Double.MAX_VALUE, Double.MAX_VALUE);
         this.regulatingTerminal = regulatingTerminal;
         this.ratedS = ratedS;
         int stateArraySize = ref.get().getStateManager().getStateArraySize();
         this.voltageRegulatorOn = new BitSet(stateArraySize);
-        this.targetP = new TFloatArrayList(stateArraySize);
-        this.targetQ = new TFloatArrayList(stateArraySize);
-        this.targetV = new TFloatArrayList(stateArraySize);
+        this.targetP = new TDoubleArrayList(stateArraySize);
+        this.targetQ = new TDoubleArrayList(stateArraySize);
+        this.targetV = new TDoubleArrayList(stateArraySize);
         this.voltageRegulatorOn.set(0, stateArraySize, voltageRegulatorOn);
         for (int i = 0; i < stateArraySize; i++) {
             this.targetP.add(targetP);
@@ -91,30 +91,30 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
     }
 
     @Override
-    public float getMaxP() {
+    public double getMaxP() {
         return maxP;
     }
 
     @Override
-    public GeneratorImpl setMaxP(float maxP) {
+    public GeneratorImpl setMaxP(double maxP) {
         ValidationUtil.checkMaxP(this, maxP);
         ValidationUtil.checkActiveLimits(this, minP, maxP);
-        float oldValue = this.maxP;
+        double oldValue = this.maxP;
         this.maxP = maxP;
         notifyUpdate("maxP", oldValue, maxP);
         return this;
     }
 
     @Override
-    public float getMinP() {
+    public double getMinP() {
         return minP;
     }
 
     @Override
-    public GeneratorImpl setMinP(float minP) {
+    public GeneratorImpl setMinP(double minP) {
         ValidationUtil.checkMinP(this, minP);
         ValidationUtil.checkActiveLimits(this, minP, maxP);
-        float oldValue = this.minP;
+        double oldValue = this.minP;
         this.minP = minP;
         notifyUpdate("minP", oldValue, minP);
         return this;
@@ -148,55 +148,55 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
     }
 
     @Override
-    public float getTargetP() {
+    public double getTargetP() {
         return targetP.get(getNetwork().getStateIndex());
     }
 
     @Override
-    public GeneratorImpl setTargetP(float targetP) {
+    public GeneratorImpl setTargetP(double targetP) {
         ValidationUtil.checkActivePowerSetpoint(this, targetP);
-        float oldValue = this.targetP.set(getNetwork().getStateIndex(), targetP);
+        double oldValue = this.targetP.set(getNetwork().getStateIndex(), targetP);
         notifyUpdate("targetP", oldValue, targetP);
         return this;
     }
 
     @Override
-    public float getTargetQ() {
+    public double getTargetQ() {
         return targetQ.get(getNetwork().getStateIndex());
     }
 
     @Override
-    public GeneratorImpl setTargetQ(float targetQ) {
+    public GeneratorImpl setTargetQ(double targetQ) {
         int stateIndex = getNetwork().getStateIndex();
         ValidationUtil.checkVoltageControl(this, voltageRegulatorOn.get(stateIndex), targetV.get(stateIndex), targetQ);
-        float oldValue = this.targetQ.set(stateIndex, targetQ);
+        double oldValue = this.targetQ.set(stateIndex, targetQ);
         notifyUpdate("targetQ", oldValue, targetQ);
         return this;
     }
 
     @Override
-    public float getTargetV() {
+    public double getTargetV() {
         return this.targetV.get(getNetwork().getStateIndex());
     }
 
     @Override
-    public GeneratorImpl setTargetV(float targetV) {
+    public GeneratorImpl setTargetV(double targetV) {
         int stateIndex = getNetwork().getStateIndex();
         ValidationUtil.checkVoltageControl(this, voltageRegulatorOn.get(stateIndex), targetV, targetQ.get(stateIndex));
-        float oldValue = this.targetV.set(stateIndex, targetV);
+        double oldValue = this.targetV.set(stateIndex, targetV);
         notifyUpdate("targetV", oldValue, targetV);
         return this;
     }
 
     @Override
-    public float getRatedS() {
+    public double getRatedS() {
         return ratedS;
     }
 
     @Override
-    public GeneratorImpl setRatedS(float ratedS) {
+    public GeneratorImpl setRatedS(double ratedS) {
         ValidationUtil.checkRatedS(this, ratedS);
-        float oldValue = this.ratedS;
+        double oldValue = this.ratedS;
         this.ratedS = ratedS;
         notifyUpdate("ratedS", oldValue, ratedS);
         return this;

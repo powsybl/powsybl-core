@@ -18,11 +18,11 @@ class VoltageLevelAdderImpl extends AbstractIdentifiableAdder<VoltageLevelAdderI
 
     private final SubstationImpl substation;
 
-    private float nominalV = Float.NaN;
+    private double nominalV = Double.NaN;
 
-    private float lowVoltageLimit = Float.NaN;
+    private double lowVoltageLimit = Double.NaN;
 
-    private float highVoltageLimit = Float.NaN;
+    private double highVoltageLimit = Double.NaN;
 
     private TopologyKind topologyKind;
 
@@ -41,19 +41,19 @@ class VoltageLevelAdderImpl extends AbstractIdentifiableAdder<VoltageLevelAdderI
     }
 
     @Override
-    public VoltageLevelAdder setNominalV(float nominalV) {
+    public VoltageLevelAdder setNominalV(double nominalV) {
         this.nominalV = nominalV;
         return this;
     }
 
     @Override
-    public VoltageLevelAdder setLowVoltageLimit(float lowVoltageLimit) {
+    public VoltageLevelAdder setLowVoltageLimit(double lowVoltageLimit) {
         this.lowVoltageLimit = lowVoltageLimit;
         return this;
     }
 
     @Override
-    public VoltageLevelAdder setHighVoltageLimit(float highVoltageLimit) {
+    public VoltageLevelAdder setHighVoltageLimit(double highVoltageLimit) {
         this.highVoltageLimit = highVoltageLimit;
         return this;
     }

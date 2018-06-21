@@ -42,7 +42,7 @@ public class LocalSecurityAnalysisRunningServiceTest extends SecurityAnalysisRun
 
                 @Override
                 public CompletableFuture<SecurityAnalysisResult> runAsync(ContingenciesProvider contingenciesProvider, String workingStateId, SecurityAnalysisParameters securityAnalysisParameters) {
-                    LimitViolationsResult preContingencyResult = new LimitViolationsResult(true, ImmutableList.of(new LimitViolation("s1", LimitViolationType.HIGH_VOLTAGE, 400f, 1f, 440f)));
+                    LimitViolationsResult preContingencyResult = new LimitViolationsResult(true, ImmutableList.of(new LimitViolation("s1", LimitViolationType.HIGH_VOLTAGE, 400.0, 1f, 440.0)));
                     SecurityAnalysisResult result = new SecurityAnalysisResult(preContingencyResult, Collections.emptyList());
                     return CompletableFuture.completedFuture(result);
                 }

@@ -83,15 +83,15 @@ public final class ShuntCompensatorsValidation {
         Objects.requireNonNull(config);
         Objects.requireNonNull(shuntsWriter);
 
-        float p = shunt.getTerminal().getP();
-        float q = shunt.getTerminal().getQ();
+        double p = shunt.getTerminal().getP();
+        double q = shunt.getTerminal().getQ();
         int currentSectionCount = shunt.getCurrentSectionCount();
         int maximumSectionCount = shunt.getMaximumSectionCount();
-        float bPerSection = shunt.getbPerSection();
-        float nominalV = shunt.getTerminal().getVoltageLevel().getNominalV();
-        float qMax = bPerSection * maximumSectionCount * nominalV * nominalV;
+        double bPerSection = shunt.getbPerSection();
+        double nominalV = shunt.getTerminal().getVoltageLevel().getNominalV();
+        double qMax = bPerSection * maximumSectionCount * nominalV * nominalV;
         Bus bus = shunt.getTerminal().getBusView().getBus();
-        float v = bus != null ? bus.getV() : Float.NaN;
+        double v = bus != null ? bus.getV() : Double.NaN;
         boolean connected = bus != null;
         Bus connectableBus = shunt.getTerminal().getBusView().getConnectableBus();
         boolean connectableMainComponent = connectableBus != null && connectableBus.isInMainConnectedComponent();
@@ -99,8 +99,8 @@ public final class ShuntCompensatorsValidation {
         return checkShunts(shunt.getId(), p, q, currentSectionCount, maximumSectionCount, bPerSection, v, qMax, nominalV, connected, mainComponent, config, shuntsWriter);
     }
 
-    public static boolean checkShunts(String id, float p, float q, int currentSectionCount, int maximumSectionCount, float bPerSection,
-                                      float v, float qMax, float nominalV, boolean connected, boolean mainComponent, ValidationConfig config,
+    public static boolean checkShunts(String id, double p, double q, int currentSectionCount, int maximumSectionCount, double bPerSection,
+                                      double v, double qMax, double nominalV, boolean connected, boolean mainComponent, ValidationConfig config,
                                       Writer writer) {
         Objects.requireNonNull(id);
         Objects.requireNonNull(config);
@@ -113,20 +113,20 @@ public final class ShuntCompensatorsValidation {
         }
     }
 
-    public static boolean checkShunts(String id, float p, float q, int currentSectionCount, int maximumSectionCount, float bPerSection,
-                                      float v, float qMax, float nominalV, boolean connected, boolean mainComponent, ValidationConfig config,
+    public static boolean checkShunts(String id, double p, double q, int currentSectionCount, int maximumSectionCount, double bPerSection,
+                                      double v, double qMax, double nominalV, boolean connected, boolean mainComponent, ValidationConfig config,
                                       ValidationWriter shuntsWriter) {
         boolean validated = true;
 
-        if (!connected && !Float.isNaN(q) && q != 0) { // if the shunt is disconnected then either “q” is not defined or “q” is 0
+        if (!connected && !Double.isNaN(q) && q != 0) { // if the shunt is disconnected then either “q” is not defined or “q” is 0
             LOGGER.warn("{} {}: {}: disconnected shunt Q {}", ValidationType.SHUNTS, ValidationUtils.VALIDATION_ERROR, id, q);
             validated = false;
         }
         // “q” = - bPerSection * currentSectionCount * v^2
-        float expectedQ = -bPerSection * currentSectionCount * v * v;
+        double expectedQ = -bPerSection * currentSectionCount * v * v;
         if (connected && ValidationUtils.isMainComponent(config, mainComponent)) {
             // “p” is always NaN
-            if (!Float.isNaN(p)) {
+            if (!Double.isNaN(p)) {
                 LOGGER.warn("{} {}: {}: P={}", ValidationType.SHUNTS, ValidationUtils.VALIDATION_ERROR, id, p);
                 validated = false;
             }

@@ -144,15 +144,15 @@ public class ConditionDslLoaderTest {
 
     @Test
     public void testIsOverloadedNode() throws IOException {
-        line1.getTerminal1().setP(100.0f).setQ(50.0f);
+        line1.getTerminal1().setP(100.0).setQ(50.0);
         evalAndAssert(false, "isOverloaded(['NHV1_NHV2_1','NHV1_NHV2_2'])");
 
-        line1.newCurrentLimits1().setPermanentLimit(0.00001f).add();
+        line1.newCurrentLimits1().setPermanentLimit(0.00001).add();
         assertNotNull(line1.getCurrentLimits1());
         evalAndAssert(true, "isOverloaded(['NHV1_NHV2_1','NHV1_NHV2_2'])");
 
-        line1.getTerminal1().setP(600.0f).setQ(300.0f); // i = 1019.2061
-        float current = line1.getTerminal1().getI();
+        line1.getTerminal1().setP(600.0).setQ(300.0); // i = 1019.2061
+        double current = line1.getTerminal1().getI();
         line1.newCurrentLimits1().setPermanentLimit(current - 100).add();
         evalAndAssert(true, "isOverloaded(['NHV1_NHV2_1','NHV1_NHV2_2'])");
         evalAndAssert(true, "isOverloaded(['NHV1_NHV2_1','NHV1_NHV2_2'], 0.05)");
@@ -163,7 +163,7 @@ public class ConditionDslLoaderTest {
         evalAndAssert(true, "isOverloaded(['NHV1_NHV2_1','NHV1_NHV2_2'], 0.1)");
 
         addCurrentLimitsOnLine1();
-        line1.getTerminal1().setP(400.0f).setQ(150.0f); // i = 649.06
+        line1.getTerminal1().setP(400.0).setQ(150.0); // i = 649.06
         evalAndAssert(true, "isOverloaded(['NHV1_NHV2_1','NHV1_NHV2_2'], 1)");
 
         try {
@@ -208,11 +208,11 @@ public class ConditionDslLoaderTest {
                 .add();
 
         // IIDM method call
-        evalAndAssert(800f, "line('NHV1_NHV2_1').currentLimits1.getTemporaryLimitValue(1200)");
+        evalAndAssert(800.0, "line('NHV1_NHV2_1').currentLimits1.getTemporaryLimitValue(1200)");
         evalAndAssert(false, "line('NHV1_NHV2_1').overloaded");
 
-        evalAndAssert(800f, "branch('NHV1_NHV2_1').currentLimits1.getTemporaryLimitValue(1200)");
-        evalAndAssert(0f, "branch('NHV2_NLOAD').g");
+        evalAndAssert(800.0, "branch('NHV1_NHV2_1').currentLimits1.getTemporaryLimitValue(1200)");
+        evalAndAssert(0.0, "branch('NHV2_NLOAD').g");
     }
 
     @Test

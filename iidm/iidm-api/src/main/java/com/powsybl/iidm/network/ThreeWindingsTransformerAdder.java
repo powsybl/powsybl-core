@@ -22,20 +22,20 @@ public interface ThreeWindingsTransformerAdder extends IdentifiableAdder<ThreeWi
 
         L setConnectableBus(String connectableBus);
 
-        L setR(float r);
+        L setR(double r);
 
-        L setX(float x);
+        L setX(double x);
 
-        L setRatedU(float ratedU);
+        L setRatedU(double ratedU);
 
         ThreeWindingsTransformerAdder add();
     }
 
     public interface Leg1Adder extends LegAdder<Leg1Adder> {
 
-        Leg1Adder setG(float g);
+        Leg1Adder setG(double g);
 
-        Leg1Adder setB(float b);
+        Leg1Adder setB(double b);
 
     }
 

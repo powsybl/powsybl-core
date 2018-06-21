@@ -49,12 +49,12 @@ public class CurrentExtensionSerializer implements ExtensionJsonSerializer<Limit
 
     @Override
     public CurrentExtension deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
-        float value = Float.NaN;
+        double value = Double.NaN;
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             if (parser.getCurrentName().equals("preContingencyValue")) {
                 parser.nextToken();
-                value = parser.readValueAs(Float.class);
+                value = parser.readValueAs(Double.class);
             } else {
                 throw new PowsyblException("Unexpected field: " + parser.getCurrentName());
             }

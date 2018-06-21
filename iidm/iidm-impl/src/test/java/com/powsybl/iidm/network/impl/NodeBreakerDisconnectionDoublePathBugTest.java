@@ -23,7 +23,7 @@ public class NodeBreakerDisconnectionDoublePathBugTest {
                 .add();
         VoltageLevel vl = s.newVoltageLevel()
                 .setId("VL")
-                .setNominalV(400f)
+                .setNominalV(400.0)
                 .setTopologyKind(TopologyKind.NODE_BREAKER)
                 .add();
         vl.getNodeBreakerView().setNodeCount(10);

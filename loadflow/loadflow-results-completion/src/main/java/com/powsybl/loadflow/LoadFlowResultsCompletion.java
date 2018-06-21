@@ -6,17 +6,16 @@
  */
 package com.powsybl.loadflow;
 
-import java.util.Objects;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.TwoTerminalsConnectable.Side;
 import com.powsybl.loadflow.validation.CandidateComputation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Objects;
 
 /**
  *
@@ -73,13 +72,13 @@ public class LoadFlowResultsCompletion  implements CandidateComputation {
 
     private void completeTerminalData(Terminal terminal, Side side, BranchData branchData) {
         if (terminal.isConnected() && terminal.getBusView().getBus().isInMainConnectedComponent()) {
-            if (Float.isNaN(terminal.getP())) {
+            if (Double.isNaN(terminal.getP())) {
                 LOGGER.debug("Branch {}, Side {}: setting p = {}", branchData.getId(), side, branchData.getComputedP(side));
-                terminal.setP((float) branchData.getComputedP(side));
+                terminal.setP(branchData.getComputedP(side));
             }
-            if (Float.isNaN(terminal.getQ())) {
+            if (Double.isNaN(terminal.getQ())) {
                 LOGGER.debug("Branch {}, Side {}: setting q = {}", branchData.getId(), side, branchData.getComputedQ(side));
-                terminal.setQ((float) branchData.getComputedQ(side));
+                terminal.setQ(branchData.getComputedQ(side));
             }
         }
     }

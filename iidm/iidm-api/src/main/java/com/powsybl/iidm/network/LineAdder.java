@@ -25,17 +25,17 @@ package com.powsybl.iidm.network;
  */
 public interface LineAdder extends BranchAdder<LineAdder> {
 
-    LineAdder setR(float r);
+    LineAdder setR(double r);
 
-    LineAdder setX(float x);
+    LineAdder setX(double x);
 
-    LineAdder setG1(float g1);
+    LineAdder setG1(double g1);
 
-    LineAdder setB1(float b1);
+    LineAdder setB1(double b1);
 
-    LineAdder setG2(float g2);
+    LineAdder setG2(double g2);
 
-    LineAdder setB2(float b2);
+    LineAdder setB2(double b2);
 
     Line add();
 

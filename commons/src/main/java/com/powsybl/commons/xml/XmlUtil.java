@@ -55,6 +55,18 @@ public final class XmlUtil {
         }
     }
 
+    public static void writeDouble(String name, double value, XMLStreamWriter writer) throws XMLStreamException {
+        if (!Double.isNaN(value)) {
+            writer.writeAttribute(name, Double.toString(value));
+        }
+    }
+
+    public static void writeOptionalDouble(String name, double value, double absentValue, XMLStreamWriter writer) throws XMLStreamException {
+        if (!Double.isNaN(value) && value != absentValue) {
+            writer.writeAttribute(name, Double.toString(value));
+        }
+    }
+
     public static void writeFloat(String name, float value, XMLStreamWriter writer) throws XMLStreamException {
         if (!Float.isNaN(value)) {
             writer.writeAttribute(name, Float.toString(value));
@@ -88,6 +100,19 @@ public final class XmlUtil {
     public static boolean readOptionalBoolAttribute(XMLStreamReader reader, String attributeName, boolean defaultValue) {
         String attributeValue = reader.getAttributeValue(null, attributeName);
         return attributeValue != null ? Boolean.valueOf(attributeValue) : defaultValue;
+    }
+
+    public static double readDoubleAttribute(XMLStreamReader reader, String attributeName) {
+        return Double.valueOf(reader.getAttributeValue(null, attributeName));
+    }
+
+    public static double readOptionalDoubleAttribute(XMLStreamReader reader, String attributeName) {
+        return readOptionalDoubleAttribute(reader, attributeName, Double.NaN);
+    }
+
+    public static double readOptionalDoubleAttribute(XMLStreamReader reader, String attributeName, double defaultValue) {
+        String attributeValue = reader.getAttributeValue(null, attributeName);
+        return attributeValue != null ? Double.valueOf(attributeValue) : defaultValue;
     }
 
     public static Integer readOptionalIntegerAttribute(XMLStreamReader reader, String attributeName) {

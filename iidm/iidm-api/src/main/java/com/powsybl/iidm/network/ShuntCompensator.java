@@ -55,7 +55,7 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
     /**
      * Get the susceptance per section in S.
      */
-    float getbPerSection();
+    double getbPerSection();
 
     /**
      * Set the susceptance per section in S.
@@ -63,12 +63,12 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
      * @param bPerSection the susceptance per section
      * @return the shunt compensator to chain method calls.
      */
-    ShuntCompensator setbPerSection(float bPerSection);
+    ShuntCompensator setbPerSection(double bPerSection);
 
     /**
      * Get the susceptance for the maximum section count.
      */
-    float getMaximumB();
+    double getMaximumB();
 
     /**
      * Get the susceptance for the current section counts.
@@ -76,6 +76,6 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
      * Depends on the working state.
      * @see StateManager
      */
-    float getCurrentB();
+    double getCurrentB();
 
 }

@@ -19,9 +19,9 @@ class LoadAdderImpl extends AbstractInjectionAdder<LoadAdderImpl> implements Loa
 
     private LoadType loadType = LoadType.UNDEFINED;
 
-    private float p0 = Float.NaN;
+    private double p0 = Double.NaN;
 
-    private float q0 = Float.NaN;
+    private double q0 = Double.NaN;
 
     LoadAdderImpl(VoltageLevelExt voltageLevel) {
         this.voltageLevel = voltageLevel;
@@ -44,13 +44,13 @@ class LoadAdderImpl extends AbstractInjectionAdder<LoadAdderImpl> implements Loa
     }
 
     @Override
-    public LoadAdderImpl setP0(float p0) {
+    public LoadAdderImpl setP0(double p0) {
         this.p0 = p0;
         return this;
     }
 
     @Override
-    public LoadAdderImpl setQ0(float q0) {
+    public LoadAdderImpl setQ0(double q0) {
         this.q0 = q0;
         return this;
     }

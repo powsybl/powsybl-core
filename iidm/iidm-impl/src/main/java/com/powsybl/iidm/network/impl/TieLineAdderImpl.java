@@ -83,49 +83,49 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
     }
 
     @Override
-    public TieLineAdderImpl setR(float r) {
+    public TieLineAdderImpl setR(double r) {
         getActiveHalf().setR(r);
         return this;
     }
 
     @Override
-    public TieLineAdderImpl setX(float x) {
+    public TieLineAdderImpl setX(double x) {
         getActiveHalf().setX(x);
         return this;
     }
 
     @Override
-    public TieLineAdderImpl setG1(float g1) {
+    public TieLineAdderImpl setG1(double g1) {
         getActiveHalf().setG1(g1);
         return this;
     }
 
     @Override
-    public TieLineAdderImpl setG2(float g2) {
+    public TieLineAdderImpl setG2(double g2) {
         getActiveHalf().setG2(g2);
         return this;
     }
 
     @Override
-    public TieLineAdderImpl setB1(float b1) {
+    public TieLineAdderImpl setB1(double b1) {
         getActiveHalf().setB1(b1);
         return this;
     }
 
     @Override
-    public TieLineAdderImpl setB2(float b2) {
+    public TieLineAdderImpl setB2(double b2) {
         getActiveHalf().setB2(b2);
         return this;
     }
 
     @Override
-    public TieLineAdderImpl setXnodeP(float xnodeP) {
+    public TieLineAdderImpl setXnodeP(double xnodeP) {
         getActiveHalf().setXnodeP(xnodeP);
         return this;
     }
 
     @Override
-    public TieLineAdderImpl setXnodeQ(float xnodeQ) {
+    public TieLineAdderImpl setXnodeQ(double xnodeQ) {
         getActiveHalf().setXnodeQ(xnodeQ);
         return this;
     }
@@ -134,28 +134,28 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
         if (half.id == null) {
             throw new ValidationException(this, "id is not set for half line " + num);
         }
-        if (Float.isNaN(half.r)) {
+        if (Double.isNaN(half.r)) {
             throw new ValidationException(this, "r is not set for half line " + num);
         }
-        if (Float.isNaN(half.x)) {
+        if (Double.isNaN(half.x)) {
             throw new ValidationException(this, "x is not set for half line " + num);
         }
-        if (Float.isNaN(half.g1)) {
+        if (Double.isNaN(half.g1)) {
             throw new ValidationException(this, "g1 is not set for half line " + num);
         }
-        if (Float.isNaN(half.b1)) {
+        if (Double.isNaN(half.b1)) {
             throw new ValidationException(this, "b1 is not set for half line " + num);
         }
-        if (Float.isNaN(half.g2)) {
+        if (Double.isNaN(half.g2)) {
             throw new ValidationException(this, "g2 is not set for half line " + num);
         }
-        if (Float.isNaN(half.b2)) {
+        if (Double.isNaN(half.b2)) {
             throw new ValidationException(this, "b2 is not set for half line " + num);
         }
-        if (Float.isNaN(half.xnodeP)) {
+        if (Double.isNaN(half.xnodeP)) {
             throw new ValidationException(this, "xnodeP is not set for half line " + num);
         }
-        if (Float.isNaN(half.xnodeQ)) {
+        if (Double.isNaN(half.xnodeQ)) {
             throw new ValidationException(this, "xnodeQ is not set for half line " + num);
         }
     }

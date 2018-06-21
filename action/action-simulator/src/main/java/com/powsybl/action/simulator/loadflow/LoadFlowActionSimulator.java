@@ -37,7 +37,7 @@ public class LoadFlowActionSimulator implements ActionSimulator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LoadFlowActionSimulator.class);
 
-    public static final LimitViolationFilter LIMIT_VIOLATION_FILTER = new LimitViolationFilter(EnumSet.of(LimitViolationType.CURRENT), 0f);
+    public static final LimitViolationFilter LIMIT_VIOLATION_FILTER = new LimitViolationFilter(EnumSet.of(LimitViolationType.CURRENT), 0.0);
     public static final LimitViolationFilter NO_FILTER = new LimitViolationFilter();
 
     private final Network network;

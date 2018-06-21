@@ -33,24 +33,24 @@ import com.powsybl.loadflow.validation.io.ValidationWriter;
  */
 public class BusesValidationTest extends AbstractValidationTest {
 
-    private final double loadP = 37.2786f;
-    private final double loadQ = 174.38244f;
-    private final double genP = -2020f;
+    private final double loadP = 37.2786;
+    private final double loadQ = 174.38244;
+    private final double genP = -2020;
     private final double genQ = 91.54;
-    private final double shuntP = 0f;
-    private final double shuntQ = 175.8437f;
-    private final double svcP = 0f;
-    private final double svcQ = 0f;
-    private final double vscCSP = 0f;
-    private final double vscCSQ = 0f;
-    private final double lineP = 1982.7713f;
-    private final double lineQ = -441.7662f;
-    private final double danglingLineP = 0f;
-    private final double danglingLineQ = 0f;
-    private final double twtP = 0f;
-    private final double twtQ = 0f;
-    private final double tltP = 0f;
-    private final double tltQ = 0f;
+    private final double shuntP = 0.0;
+    private final double shuntQ = 175.8437;
+    private final double svcP = 0.0;
+    private final double svcQ = 0.0;
+    private final double vscCSP = 0.0;
+    private final double vscCSQ = 0.0;
+    private final double lineP = 1982.7713;
+    private final double lineQ = -441.7662;
+    private final double danglingLineP = 0.0;
+    private final double danglingLineQ = 0.0;
+    private final double twtP = 0.0;
+    private final double twtQ = 0.0;
+    private final double tltP = 0.0;
+    private final double tltQ = 0.0;
     private boolean mainComponent = true;
 
     private Bus bus;
@@ -58,20 +58,20 @@ public class BusesValidationTest extends AbstractValidationTest {
     @Before
     public void setUp() {
         Terminal loadTerminal = Mockito.mock(Terminal.class);
-        Mockito.when(loadTerminal.getP()).thenReturn((float) loadP);
-        Mockito.when(loadTerminal.getQ()).thenReturn((float) loadQ);
+        Mockito.when(loadTerminal.getP()).thenReturn(loadP);
+        Mockito.when(loadTerminal.getQ()).thenReturn(loadQ);
         Load load = Mockito.mock(Load.class);
         Mockito.when(load.getTerminal()).thenReturn(loadTerminal);
 
         Terminal genTerminal = Mockito.mock(Terminal.class);
-        Mockito.when(genTerminal.getP()).thenReturn((float) genP);
-        Mockito.when(genTerminal.getQ()).thenReturn((float) genQ);
+        Mockito.when(genTerminal.getP()).thenReturn(genP);
+        Mockito.when(genTerminal.getQ()).thenReturn(genQ);
         Generator gen = Mockito.mock(Generator.class);
         Mockito.when(gen.getTerminal()).thenReturn(genTerminal);
 
         Terminal shauntTerminal = Mockito.mock(Terminal.class);
-        Mockito.when(shauntTerminal.getP()).thenReturn((float) shuntP);
-        Mockito.when(shauntTerminal.getQ()).thenReturn((float) shuntQ);
+        Mockito.when(shauntTerminal.getP()).thenReturn(shuntP);
+        Mockito.when(shauntTerminal.getQ()).thenReturn(shuntQ);
         ShuntCompensator shunt = Mockito.mock(ShuntCompensator.class);
         Mockito.when(shunt.getTerminal()).thenReturn(shauntTerminal);
 
@@ -80,8 +80,8 @@ public class BusesValidationTest extends AbstractValidationTest {
         BusView lineBusView = Mockito.mock(BusView.class);
         Mockito.when(lineBusView.getBus()).thenReturn(lineBus);
         Terminal lineTerminal = Mockito.mock(Terminal.class);
-        Mockito.when(lineTerminal.getP()).thenReturn((float) lineP);
-        Mockito.when(lineTerminal.getQ()).thenReturn((float) lineQ);
+        Mockito.when(lineTerminal.getP()).thenReturn(lineP);
+        Mockito.when(lineTerminal.getQ()).thenReturn(lineQ);
         Mockito.when(lineTerminal.isConnected()).thenReturn(true);
         Mockito.when(lineTerminal.getBusView()).thenReturn(lineBusView);
         Line line = Mockito.mock(Line.class);
@@ -92,8 +92,8 @@ public class BusesValidationTest extends AbstractValidationTest {
         BusView danglingLineBusView = Mockito.mock(BusView.class);
         Mockito.when(danglingLineBusView.getBus()).thenReturn(danglingLineBus);
         Terminal danglingLineTerminal = Mockito.mock(Terminal.class);
-        Mockito.when(danglingLineTerminal.getP()).thenReturn((float) danglingLineP);
-        Mockito.when(danglingLineTerminal.getQ()).thenReturn((float) danglingLineQ);
+        Mockito.when(danglingLineTerminal.getP()).thenReturn(danglingLineP);
+        Mockito.when(danglingLineTerminal.getQ()).thenReturn(danglingLineQ);
         Mockito.when(danglingLineTerminal.isConnected()).thenReturn(true);
         Mockito.when(danglingLineTerminal.getBusView()).thenReturn(danglingLineBusView);
         DanglingLine danglingLine = Mockito.mock(DanglingLine.class);
@@ -119,7 +119,7 @@ public class BusesValidationTest extends AbstractValidationTest {
                                               lineP, lineQ, danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, mainComponent, looseConfig, NullWriter.NULL_WRITER));
         assertFalse(BusesValidation.checkBuses("test", loadP, loadQ, genP, genQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
                                                lineP, lineQ, danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, mainComponent, strictConfig, NullWriter.NULL_WRITER));
-        assertFalse(BusesValidation.checkBuses("test", loadP, 174.4932f, genP, genQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
+        assertFalse(BusesValidation.checkBuses("test", loadP, 174.4932, genP, genQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
                                                lineP, lineQ, danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, mainComponent, looseConfig, NullWriter.NULL_WRITER));
         // check NaN values
         assertFalse(BusesValidation.checkBuses("test", Double.NaN, loadQ, genP, genQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,

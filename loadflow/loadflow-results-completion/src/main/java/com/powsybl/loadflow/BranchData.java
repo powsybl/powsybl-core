@@ -6,12 +6,12 @@
  */
 package com.powsybl.loadflow;
 
-import java.util.Objects;
-
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.TwoTerminalsConnectable.Side;
+import com.powsybl.iidm.network.TwoWindingsTransformer;
+
+import java.util.Objects;
 
 /**
  *
@@ -38,10 +38,10 @@ public class BranchData {
     private final double g2;
     private final double b1;
     private final double b2;
-    private final float p1;
-    private final float q1;
-    private final float p2;
-    private final float q2;
+    private final double p1;
+    private final double q1;
+    private final double p2;
+    private final double q2;
 
     private final boolean connected1;
     private final boolean connected2;
@@ -108,8 +108,8 @@ public class BranchData {
         Bus connectableBus1 = twt.getTerminal1().getBusView().getConnectableBus();
         Bus connectableBus2 = twt.getTerminal2().getBusView().getConnectableBus();
 
-        r = (float) getR(twt);
-        x = (float) getX(twt);
+        r = getR(twt);
+        x = getX(twt);
         double fixedX = getFixedX(x, epsilonX, applyReactanceCorrection);
         z = Math.hypot(r, fixedX);
         y = 1 / z;
@@ -145,7 +145,7 @@ public class BranchData {
         return Math.abs(x) < epsilonX && applyReactanceCorrection ? epsilonX : x;
     }
 
-    private double getValue(float initialValue, float rtcStepValue, float ptcStepValue) {
+    private double getValue(double initialValue, double rtcStepValue, double ptcStepValue) {
         return initialValue * (1 + rtcStepValue / 100) * (1 + ptcStepValue / 100);
     }
 
@@ -189,10 +189,10 @@ public class BranchData {
         computedU2 = connected2 || !connected1 ? u2 : computeU(u1, rho2, rho1, g2, b2);
         double computedTheta1 = connected1 || !connected2 ? theta1 : computeTheta(theta2, alpha1, alpha2, computedU1, computedU2, rho1, rho2, g1, b1);
         double computedTheta2 = connected2 || !connected1 ? theta2 : computeTheta(theta1, alpha2, alpha1, computedU2, computedU1, rho2, rho1, g2, b2);
-        computedP1 = connected1 ? computeP(computedTheta1, computedTheta2, alpha1, alpha2, rho1, computedU1, g1) : Float.NaN;
-        computedQ1 = connected1 ? computeQ(computedTheta1, computedTheta2, alpha1, alpha2, rho1, computedU1, b1) : Float.NaN;
-        computedP2 = connected2 ? computeP(computedTheta2, computedTheta1, alpha2, alpha1, rho2, computedU2, g2) : Float.NaN;
-        computedQ2 = connected2 ? computeQ(computedTheta2, computedTheta1, alpha2, alpha1, rho2, computedU2, b2) : Float.NaN;
+        computedP1 = connected1 ? computeP(computedTheta1, computedTheta2, alpha1, alpha2, rho1, computedU1, g1) : Double.NaN;
+        computedQ1 = connected1 ? computeQ(computedTheta1, computedTheta2, alpha1, alpha2, rho1, computedU1, b1) : Double.NaN;
+        computedP2 = connected2 ? computeP(computedTheta2, computedTheta1, alpha2, alpha1, rho2, computedU2, g2) : Double.NaN;
+        computedQ2 = connected2 ? computeQ(computedTheta2, computedTheta1, alpha2, alpha1, rho2, computedU2, b2) : Double.NaN;
     }
 
     private double computeU(double otherU, double rho, double otherRho, double g, double b) {
@@ -306,19 +306,19 @@ public class BranchData {
         return mainComponent2;
     }
 
-    public float getP1() {
+    public double getP1() {
         return p1;
     }
 
-    public float getQ1() {
+    public double getQ1() {
         return q1;
     }
 
-    public float getP2() {
+    public double getP2() {
         return p2;
     }
 
-    public float getQ2() {
+    public double getQ2() {
         return q2;
     }
 

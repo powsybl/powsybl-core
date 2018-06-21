@@ -19,14 +19,14 @@ public interface LccFilter {
      * Get filter susceptance (&#937;).
      * @return
      */
-    float getB();
+    double getB();
 
     /**
      * Set filter susceptance (&#937;).
      * @param b filter susceptance;
      * @return the filter itself to allow method chaining
      */
-    LccFilter setB(float b);
+    LccFilter setB(double b);
 
     /**
      * Check the filter is connected.

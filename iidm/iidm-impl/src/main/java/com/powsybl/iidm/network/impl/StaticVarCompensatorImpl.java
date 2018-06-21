@@ -10,7 +10,7 @@ import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.impl.util.Ref;
-import gnu.trove.list.array.TFloatArrayList;
+import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.list.array.TIntArrayList;
 
 /**
@@ -20,26 +20,26 @@ class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompensator>
 
     static final String TYPE_DESCRIPTION = "staticVarCompensator";
 
-    private float bMin;
+    private double bMin;
 
-    private float bMax;
+    private double bMax;
 
     // attributes depending on the state
 
-    private final TFloatArrayList voltageSetPoint;
+    private final TDoubleArrayList voltageSetPoint;
 
-    private final TFloatArrayList reactivePowerSetPoint;
+    private final TDoubleArrayList reactivePowerSetPoint;
 
     private final TIntArrayList regulationMode;
 
-    StaticVarCompensatorImpl(String id, String name, float bMin, float bMax, float voltageSetPoint, float reactivePowerSetPoint,
+    StaticVarCompensatorImpl(String id, String name, double bMin, double bMax, double voltageSetPoint, double reactivePowerSetPoint,
                              RegulationMode regulationMode, Ref<? extends MultiStateObject> ref) {
         super(id, name);
         this.bMin = bMin;
         this.bMax = bMax;
         int stateArraySize = ref.get().getStateManager().getStateArraySize();
-        this.voltageSetPoint = new TFloatArrayList(stateArraySize);
-        this.reactivePowerSetPoint = new TFloatArrayList(stateArraySize);
+        this.voltageSetPoint = new TDoubleArrayList(stateArraySize);
+        this.reactivePowerSetPoint = new TDoubleArrayList(stateArraySize);
         this.regulationMode = new TIntArrayList(stateArraySize);
         for (int i = 0; i < stateArraySize; i++) {
             this.voltageSetPoint.add(voltageSetPoint);
@@ -64,51 +64,51 @@ class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompensator>
     }
 
     @Override
-    public float getBmin() {
+    public double getBmin() {
         return bMin;
     }
 
     @Override
-    public StaticVarCompensatorImpl setBmin(float bMin) {
+    public StaticVarCompensatorImpl setBmin(double bMin) {
         ValidationUtil.checkBmin(this, bMin);
         this.bMin = bMin;
         return this;
     }
 
     @Override
-    public float getBmax() {
+    public double getBmax() {
         return bMax;
     }
 
     @Override
-    public StaticVarCompensatorImpl setBmax(float bMax) {
+    public StaticVarCompensatorImpl setBmax(double bMax) {
         ValidationUtil.checkBmax(this, bMax);
         this.bMax = bMax;
         return this;
     }
 
     @Override
-    public float getVoltageSetPoint() {
+    public double getVoltageSetPoint() {
         return voltageSetPoint.get(getNetwork().getStateIndex());
     }
 
     @Override
-    public StaticVarCompensatorImpl setVoltageSetPoint(float voltageSetPoint) {
+    public StaticVarCompensatorImpl setVoltageSetPoint(double voltageSetPoint) {
         ValidationUtil.checkSvcRegulator(this, voltageSetPoint, getReactivePowerSetPoint(), getRegulationMode());
-        float oldValue = this.voltageSetPoint.set(getNetwork().getStateIndex(), voltageSetPoint);
+        double oldValue = this.voltageSetPoint.set(getNetwork().getStateIndex(), voltageSetPoint);
         notifyUpdate("voltageSetPoint", oldValue, voltageSetPoint);
         return this;
     }
 
     @Override
-    public float getReactivePowerSetPoint() {
+    public double getReactivePowerSetPoint() {
         return reactivePowerSetPoint.get(getNetwork().getStateIndex());
     }
 
     @Override
-    public StaticVarCompensatorImpl setReactivePowerSetPoint(float reactivePowerSetPoint) {
+    public StaticVarCompensatorImpl setReactivePowerSetPoint(double reactivePowerSetPoint) {
         ValidationUtil.checkSvcRegulator(this, getVoltageSetPoint(), reactivePowerSetPoint, getRegulationMode());
-        float oldValue = this.reactivePowerSetPoint.set(getNetwork().getStateIndex(), reactivePowerSetPoint);
+        double oldValue = this.reactivePowerSetPoint.set(getNetwork().getStateIndex(), reactivePowerSetPoint);
         notifyUpdate("reactivePowerSetPoint", oldValue, reactivePowerSetPoint);
         return this;
     }

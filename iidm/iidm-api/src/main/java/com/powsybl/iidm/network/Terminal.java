@@ -99,7 +99,7 @@ public interface Terminal {
      * Depends on the working state.
      * @see StateManager
      */
-    float getP();
+    double getP();
 
     /**
      * Set the active power in MW injected at the terminal.
@@ -107,7 +107,7 @@ public interface Terminal {
      * Depends on the working state.
      * @see StateManager
      */
-    Terminal setP(float p);
+    Terminal setP(double p);
 
     /**
      * Get the reactive power in MVAR injected at the terminal.
@@ -115,7 +115,7 @@ public interface Terminal {
      * Depends on the working state.
      * @see StateManager
      */
-    float getQ();
+    double getQ();
 
     /**
      * Set the reactive power in MVAR injected at the terminal.
@@ -123,14 +123,14 @@ public interface Terminal {
      * Depends on the working state.
      * @see StateManager
      */
-    Terminal setQ(float q);
+    Terminal setQ(double q);
 
     /**
      * Get the current in A at the terminal.
      * <p>Depends on the working state.
      * @see StateManager
      */
-    float getI();
+    double getI();
 
     /**
      * Try to connect the terminal.

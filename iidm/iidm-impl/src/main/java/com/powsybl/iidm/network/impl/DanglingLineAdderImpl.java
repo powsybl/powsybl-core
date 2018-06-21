@@ -16,17 +16,17 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
 
     private final VoltageLevelExt voltageLevel;
 
-    private float p0 = Float.NaN;
+    private double p0 = Double.NaN;
 
-    private float q0 = Float.NaN;
+    private double q0 = Double.NaN;
 
-    private float r = Float.NaN;
+    private double r = Double.NaN;
 
-    private float x = Float.NaN;
+    private double x = Double.NaN;
 
-    private float g = Float.NaN;
+    private double g = Double.NaN;
 
-    private float b = Float.NaN;
+    private double b = Double.NaN;
 
     private String ucteXnodeCode;
 
@@ -45,37 +45,37 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
     }
 
     @Override
-    public DanglingLineAdderImpl setP0(float p0) {
+    public DanglingLineAdderImpl setP0(double p0) {
         this.p0 = p0;
         return this;
     }
 
     @Override
-    public DanglingLineAdderImpl setQ0(float q0) {
+    public DanglingLineAdderImpl setQ0(double q0) {
         this.q0 = q0;
         return this;
     }
 
     @Override
-    public DanglingLineAdderImpl setR(float r) {
+    public DanglingLineAdderImpl setR(double r) {
         this.r = r;
         return this;
     }
 
     @Override
-    public DanglingLineAdderImpl setX(float x) {
+    public DanglingLineAdderImpl setX(double x) {
         this.x = x;
         return this;
     }
 
     @Override
-    public DanglingLineAdderImpl setG(float g) {
+    public DanglingLineAdderImpl setG(double g) {
         this.g = g;
         return this;
     }
 
     @Override
-    public DanglingLineAdderImpl setB(float b) {
+    public DanglingLineAdderImpl setB(double b) {
         this.b = b;
         return this;
     }

@@ -36,12 +36,12 @@ public class TapChangerTest {
         twt = substation.newTwoWindingsTransformer()
                                 .setId("twt")
                                 .setName("twt_name")
-                                .setR(1.0f)
-                                .setX(2.0f)
-                                .setG(3.0f)
-                                .setB(4.0f)
-                                .setRatedU1(5.0f)
-                                .setRatedU2(6.0f)
+                                .setR(1.0)
+                                .setX(2.0)
+                                .setG(3.0)
+                                .setB(4.0)
+                                .setRatedU1(5.0)
+                                .setRatedU2(6.0)
                                 .setVoltageLevel1("vl1")
                                 .setVoltageLevel2("vl2")
                                 .setConnectableBus1("busA")
@@ -58,23 +58,23 @@ public class TapChangerTest {
                                                 .setLowTapPosition(0)
                                                 .setRegulating(true)
                                                 .setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL)
-                                                .setRegulationValue(10.0f)
+                                                .setRegulationValue(10.0)
                                                 .setRegulationTerminal(terminal)
                                                 .beginStep()
-                                                    .setR(1.0f)
-                                                    .setX(2.0f)
-                                                    .setG(3.0f)
-                                                    .setB(4.0f)
-                                                    .setAlpha(5.0f)
-                                                    .setRho(6.0f)
+                                                    .setR(1.0)
+                                                    .setX(2.0)
+                                                    .setG(3.0)
+                                                    .setB(4.0)
+                                                    .setAlpha(5.0)
+                                                    .setRho(6.0)
                                                 .endStep()
                                                 .beginStep()
-                                                    .setR(1.0f)
-                                                    .setX(2.0f)
-                                                    .setG(3.0f)
-                                                    .setB(4.0f)
-                                                    .setAlpha(5.0f)
-                                                    .setRho(6.0f)
+                                                    .setR(1.0)
+                                                    .setX(2.0)
+                                                    .setG(3.0)
+                                                    .setB(4.0)
+                                                    .setAlpha(5.0)
+                                                    .setRho(6.0)
                                                 .endStep()
                                             .add();
         assertEquals(2, phaseTapChanger.getStepCount());
@@ -83,14 +83,14 @@ public class TapChangerTest {
         assertTrue(phaseTapChanger.isRegulating());
         assertEquals(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, phaseTapChanger.getRegulationMode());
         assertEquals(terminal, phaseTapChanger.getRegulationTerminal());
-        assertEquals(10.0f, phaseTapChanger.getRegulationValue(), 0.0f);
+        assertEquals(10.0, phaseTapChanger.getRegulationValue(), 0.0);
 
         // setter getter
         phaseTapChanger.setTapPosition(0);
         assertEquals(0, phaseTapChanger.getTapPosition());
         assertSame(phaseTapChanger.getCurrentStep(), phaseTapChanger.getStep(0));
-        phaseTapChanger.setRegulationValue(5.0f);
-        assertEquals(5.0f, phaseTapChanger.getRegulationValue(), 0.0f);
+        phaseTapChanger.setRegulationValue(5.0);
+        assertEquals(5.0, phaseTapChanger.getRegulationValue(), 0.0);
         phaseTapChanger.setRegulating(false);
         assertFalse(phaseTapChanger.isRegulating());
         phaseTapChanger.setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP);
@@ -120,7 +120,7 @@ public class TapChangerTest {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("incorrect tap position");
         createPhaseTapChangerWith2Steps(3, 0, false,
-                PhaseTapChanger.RegulationMode.FIXED_TAP, 1.0f, terminal);
+                PhaseTapChanger.RegulationMode.FIXED_TAP, 1.0, terminal);
     }
 
     @Test
@@ -128,7 +128,7 @@ public class TapChangerTest {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("phase regulation mode is not set");
         createPhaseTapChangerWith2Steps(1, 0, true,
-                null, 1.0f, terminal);
+                null, 1.0, terminal);
     }
 
     @Test
@@ -136,7 +136,7 @@ public class TapChangerTest {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("phase regulation is on and threshold/setpoint value is not set");
         createPhaseTapChangerWith2Steps(1, 0, true,
-                PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, Float.NaN, terminal);
+                PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, Double.NaN, terminal);
     }
 
     @Test
@@ -144,7 +144,7 @@ public class TapChangerTest {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("phase regulation is on and regulated terminal is not set");
         createPhaseTapChangerWith2Steps(1, 0, true,
-                PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, 1.0f, null);
+                PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, 1.0, null);
     }
 
     @Test
@@ -152,15 +152,15 @@ public class TapChangerTest {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("phase regulation cannot be on if mode is FIXED");
         createPhaseTapChangerWith2Steps(1, 0, true,
-                PhaseTapChanger.RegulationMode.FIXED_TAP, 1.0f, terminal);
+                PhaseTapChanger.RegulationMode.FIXED_TAP, 1.0, terminal);
     }
 
     @Test
     public void testTapChangerSetterGetterInMultiStates() {
         StateManager stateManager = network.getStateManager();
         createPhaseTapChangerWith2Steps(1, 0, true,
-                PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, 1.0f, terminal);
-        createRatioTapChangerWith3Steps(0, 1, true, true, 10.0f, terminal);
+                PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, 1.0, terminal);
+        createRatioTapChangerWith3Steps(0, 1, true, true, 10.0, terminal);
         createThreeWindingTransformer();
         ThreeWindingsTransformer threeWindingsTransformer = network.getThreeWindingsTransformer("twt2");
         ThreeWindingsTransformer.Leg2or3 leg2 = threeWindingsTransformer.getLeg2();
@@ -177,30 +177,30 @@ public class TapChangerTest {
         // check values cloned by extend
         assertEquals(1, phaseTapChanger.getTapPosition());
         assertTrue(phaseTapChanger.isRegulating());
-        assertEquals(1.0f, phaseTapChanger.getRegulationValue(), 0.0f);
+        assertEquals(1.0, phaseTapChanger.getRegulationValue(), 0.0);
         assertEquals(1, ratioTapChanger.getTapPosition());
         assertTrue(ratioTapChanger.isRegulating());
-        assertEquals(10.0f, ratioTapChanger.getTargetV(), 0.0f);
+        assertEquals(10.0, ratioTapChanger.getTargetV(), 0.0);
         assertEquals(1, ratioTapChangerInLeg2.getTapPosition());
         assertTrue(ratioTapChangerInLeg2.isRegulating());
-        assertEquals(10.0f, ratioTapChangerInLeg2.getTargetV(), 0.0f);
+        assertEquals(10.0, ratioTapChangerInLeg2.getTargetV(), 0.0);
         assertEquals(3, ratioTapChangerInLeg3.getTapPosition());
         assertTrue(ratioTapChangerInLeg3.isRegulating());
-        assertEquals(11.0f, ratioTapChangerInLeg3.getTargetV(), 0.0f);
+        assertEquals(11.0, ratioTapChangerInLeg3.getTargetV(), 0.0);
 
         // change values in s4
         phaseTapChanger.setTapPosition(0);
         phaseTapChanger.setRegulating(false);
-        phaseTapChanger.setRegulationValue(9.9f);
+        phaseTapChanger.setRegulationValue(9.9);
         ratioTapChanger.setTapPosition(0);
         ratioTapChanger.setRegulating(false);
-        ratioTapChanger.setTargetV(3.5f);
+        ratioTapChanger.setTargetV(3.5);
         ratioTapChangerInLeg2.setTapPosition(2);
         ratioTapChangerInLeg2.setRegulating(false);
-        ratioTapChangerInLeg2.setTargetV(31.5f);
+        ratioTapChangerInLeg2.setTargetV(31.5);
         ratioTapChangerInLeg3.setTapPosition(4);
         ratioTapChangerInLeg3.setRegulating(false);
-        ratioTapChangerInLeg3.setTargetV(13.5f);
+        ratioTapChangerInLeg3.setTargetV(13.5);
 
         // remove s2
         stateManager.removeState("s2");
@@ -210,31 +210,31 @@ public class TapChangerTest {
         // check values cloned by allocate
         assertEquals(0, phaseTapChanger.getTapPosition());
         assertFalse(phaseTapChanger.isRegulating());
-        assertEquals(9.9f, phaseTapChanger.getRegulationValue(), 0.0f);
+        assertEquals(9.9, phaseTapChanger.getRegulationValue(), 0.0);
         assertEquals(0, ratioTapChanger.getTapPosition());
         assertFalse(ratioTapChanger.isRegulating());
-        assertEquals(3.5f, ratioTapChanger.getTargetV(), 0.0f);
+        assertEquals(3.5, ratioTapChanger.getTargetV(), 0.0);
         assertEquals(2, ratioTapChangerInLeg2.getTapPosition());
         assertFalse(ratioTapChangerInLeg2.isRegulating());
-        assertEquals(31.5f, ratioTapChangerInLeg2.getTargetV(), 0.0f);
+        assertEquals(31.5, ratioTapChangerInLeg2.getTargetV(), 0.0);
         assertEquals(4, ratioTapChangerInLeg3.getTapPosition());
         assertFalse(ratioTapChangerInLeg3.isRegulating());
-        assertEquals(13.5f, ratioTapChangerInLeg3.getTargetV(), 0.0f);
+        assertEquals(13.5, ratioTapChangerInLeg3.getTargetV(), 0.0);
 
         // recheck initial state value
         stateManager.setWorkingState(StateManagerConstants.INITIAL_STATE_ID);
         assertEquals(1, phaseTapChanger.getTapPosition());
         assertTrue(phaseTapChanger.isRegulating());
-        assertEquals(1.0f, phaseTapChanger.getRegulationValue(), 0.0f);
+        assertEquals(1.0, phaseTapChanger.getRegulationValue(), 0.0);
         assertEquals(1, ratioTapChanger.getTapPosition());
         assertTrue(ratioTapChanger.isRegulating());
-        assertEquals(10.0f, ratioTapChanger.getTargetV(), 0.0f);
+        assertEquals(10.0, ratioTapChanger.getTargetV(), 0.0);
         assertEquals(1, ratioTapChangerInLeg2.getTapPosition());
         assertTrue(ratioTapChangerInLeg2.isRegulating());
-        assertEquals(10.0f, ratioTapChangerInLeg2.getTargetV(), 0.0f);
+        assertEquals(10.0, ratioTapChangerInLeg2.getTargetV(), 0.0);
         assertEquals(3, ratioTapChangerInLeg3.getTapPosition());
         assertTrue(ratioTapChangerInLeg3.isRegulating());
-        assertEquals(11.0f, ratioTapChangerInLeg3.getTargetV(), 0.0f);
+        assertEquals(11.0, ratioTapChangerInLeg3.getTargetV(), 0.0);
 
         // remove working state s4
         stateManager.setWorkingState("s4");
@@ -254,7 +254,7 @@ public class TapChangerTest {
     }
 
     private void createPhaseTapChangerWith2Steps(int tapPosition, int lowTap, boolean isRegulating,
-                                                PhaseTapChanger.RegulationMode mode, float value, Terminal terminal) {
+                                                PhaseTapChanger.RegulationMode mode, double value, Terminal terminal) {
         twt.newPhaseTapChanger()
                 .setTapPosition(tapPosition)
                 .setLowTapPosition(lowTap)
@@ -263,20 +263,20 @@ public class TapChangerTest {
                 .setRegulationValue(value)
                 .setRegulationTerminal(terminal)
                 .beginStep()
-                    .setR(1.0f)
-                    .setX(2.0f)
-                    .setG(3.0f)
-                    .setB(4.0f)
-                    .setAlpha(5.0f)
-                    .setRho(6.0f)
+                    .setR(1.0)
+                    .setX(2.0)
+                    .setG(3.0)
+                    .setB(4.0)
+                    .setAlpha(5.0)
+                    .setRho(6.0)
                 .endStep()
                 .beginStep()
-                    .setR(1.0f)
-                    .setX(2.0f)
-                    .setG(3.0f)
-                    .setB(4.0f)
-                    .setAlpha(5.0f)
-                    .setRho(6.0f)
+                    .setR(1.0)
+                    .setX(2.0)
+                    .setG(3.0)
+                    .setB(4.0)
+                    .setAlpha(5.0)
+                    .setRho(6.0)
                 .endStep()
             .add();
     }
@@ -290,7 +290,7 @@ public class TapChangerTest {
                 .setLowTapPosition(0)
                 .setRegulating(true)
                 .setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL)
-                .setRegulationValue(10.0f)
+                .setRegulationValue(10.0)
                 .setRegulationTerminal(terminal)
             .add();
     }
@@ -303,43 +303,43 @@ public class TapChangerTest {
                                                 .setTapPosition(1)
                                                 .setLoadTapChangingCapabilities(false)
                                                 .setRegulating(true)
-                                                .setTargetV(220.0f)
+                                                .setTargetV(220.0)
                                                 .setRegulationTerminal(twt.getTerminal1())
                                                 .beginStep()
-                                                    .setR(39.78473f)
-                                                    .setX(39.784725f)
-                                                    .setG(0.0f)
-                                                    .setB(0.0f)
-                                                    .setRho(1.0f)
+                                                    .setR(39.78473)
+                                                    .setX(39.784725)
+                                                    .setG(0.0)
+                                                    .setB(0.0)
+                                                    .setRho(1.0)
                                                 .endStep()
                                                 .beginStep()
-                                                    .setR(39.78474f)
-                                                    .setX(39.784726f)
-                                                    .setG(0.0f)
-                                                    .setB(0.0f)
-                                                    .setRho(1.0f)
+                                                    .setR(39.78474)
+                                                    .setX(39.784726)
+                                                    .setG(0.0)
+                                                    .setB(0.0)
+                                                    .setRho(1.0)
                                                 .endStep()
                                                 .beginStep()
-                                                    .setR(39.78475f)
-                                                    .setX(39.784727f)
-                                                    .setG(0.0f)
-                                                    .setB(0.0f)
-                                                    .setRho(1.0f)
+                                                    .setR(39.78475)
+                                                    .setX(39.784727)
+                                                    .setG(0.0)
+                                                    .setB(0.0)
+                                                    .setRho(1.0)
                                                 .endStep()
                                             .add();
         assertEquals(0, ratioTapChanger.getLowTapPosition());
         assertEquals(1, ratioTapChanger.getTapPosition());
         assertFalse(ratioTapChanger.hasLoadTapChangingCapabilities());
         ratioTapChanger.setRegulating(true);
-        assertEquals(220.0f, ratioTapChanger.getTargetV(), 0.0f);
+        assertEquals(220.0, ratioTapChanger.getTargetV(), 0.0);
         assertSame(twt.getTerminal1(), ratioTapChanger.getRegulationTerminal());
         assertEquals(3, ratioTapChanger.getStepCount());
 
         // setter getter
         ratioTapChanger.setTapPosition(2);
         assertEquals(2, ratioTapChanger.getTapPosition());
-        ratioTapChanger.setTargetV(110.0f);
-        assertEquals(110.0f, ratioTapChanger.getTargetV(), 0.0f);
+        ratioTapChanger.setTargetV(110.0);
+        assertEquals(110.0, ratioTapChanger.getTargetV(), 0.0);
         ratioTapChanger.setRegulating(false);
         assertFalse(ratioTapChanger.isRegulating());
         ratioTapChanger.setRegulationTerminal(twt.getTerminal2());
@@ -347,21 +347,21 @@ public class TapChangerTest {
 
         // ratio tap changer step setter/getter
         RatioTapChangerStep step = ratioTapChanger.getStep(0);
-        float stepR = 10.0f;
-        float stepX = 20.0f;
-        float stepG = 30.0f;
-        float stepB = 40.0f;
-        float stepRho = 50.0f;
+        double stepR = 10.0;
+        double stepX = 20.0;
+        double stepG = 30.0;
+        double stepB = 40.0;
+        double stepRho = 50.0;
         step.setR(stepR);
-        assertEquals(stepR, step.getR(), 0.0f);
+        assertEquals(stepR, step.getR(), 0.0);
         step.setX(stepX);
-        assertEquals(stepX, step.getX(), 0.0f);
+        assertEquals(stepX, step.getX(), 0.0);
         step.setG(stepG);
-        assertEquals(stepG, step.getG(), 0.0f);
+        assertEquals(stepG, step.getG(), 0.0);
         step.setB(stepB);
-        assertEquals(stepB, step.getB(), 0.0f);
+        assertEquals(stepB, step.getB(), 0.0);
         step.setRho(stepRho);
-        assertEquals(stepRho, step.getRho(), 0.0f);
+        assertEquals(stepRho, step.getRho(), 0.0);
 
         // remove
         ratioTapChanger.remove();
@@ -377,7 +377,7 @@ public class TapChangerTest {
                 .setTapPosition(1)
                 .setLoadTapChangingCapabilities(false)
                 .setRegulating(true)
-                .setTargetV(220.0f)
+                .setTargetV(220.0)
                 .setRegulationTerminal(twt.getTerminal1())
             .add();
     }
@@ -386,32 +386,32 @@ public class TapChangerTest {
     public void invalidTapPosition() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("incorrect tap position");
-        createRatioTapChangerWith3Steps(0, 4, true, false, 10.0f, terminal);
+        createRatioTapChangerWith3Steps(0, 4, true, false, 10.0, terminal);
     }
 
     @Test
     public void invalidTargetV() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("a target voltage has to be set for a regulating ratio tap changer");
-        createRatioTapChangerWith3Steps(0, 1, true, true, Float.NaN, terminal);
+        createRatioTapChangerWith3Steps(0, 1, true, true, Double.NaN, terminal);
     }
 
     @Test
     public void negativeTargetV() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("bad target voltage");
-        createRatioTapChangerWith3Steps(0, 1, true, true, -10.0f, terminal);
+        createRatioTapChangerWith3Steps(0, 1, true, true, -10.0, terminal);
     }
 
     @Test
     public void nullRegulatingTerminal() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("a regulation terminal has to be set for a regulating ratio tap changer");
-        createRatioTapChangerWith3Steps(0, 1, true, true, 10.0f, null);
+        createRatioTapChangerWith3Steps(0, 1, true, true, 10.0, null);
     }
 
     private void createRatioTapChangerWith3Steps(int low, int tap, boolean load, boolean regulating,
-                                                 float targetV, Terminal terminal) {
+                                                 double targetV, Terminal terminal) {
         twt.newRatioTapChanger()
                 .setLowTapPosition(low)
                 .setTapPosition(tap)
@@ -420,25 +420,25 @@ public class TapChangerTest {
                 .setTargetV(targetV)
                 .setRegulationTerminal(terminal)
                 .beginStep()
-                    .setR(39.78473f)
-                    .setX(39.784725f)
-                    .setG(0.0f)
-                    .setB(0.0f)
-                    .setRho(1.0f)
+                    .setR(39.78473)
+                    .setX(39.784725)
+                    .setG(0.0)
+                    .setB(0.0)
+                    .setRho(1.0)
                 .endStep()
                 .beginStep()
-                    .setR(39.78474f)
-                    .setX(39.784726f)
-                    .setG(0.0f)
-                    .setB(0.0f)
-                    .setRho(1.0f)
+                    .setR(39.78474)
+                    .setX(39.784726)
+                    .setG(0.0)
+                    .setB(0.0)
+                    .setRho(1.0)
                 .endStep()
                 .beginStep()
-                    .setR(39.78475f)
-                    .setX(39.784727f)
-                    .setG(0.0f)
-                    .setB(0.0f)
-                    .setRho(1.0f)
+                    .setR(39.78475)
+                    .setX(39.784727)
+                    .setG(0.0)
+                    .setB(0.0)
+                    .setRho(1.0)
                 .endStep()
             .add();
     }
@@ -448,26 +448,26 @@ public class TapChangerTest {
                 .setId("twt2")
                 .setName("twtName")
                 .newLeg1()
-                    .setR(1.3f)
-                    .setX(1.4f)
-                    .setG(1.6f)
-                    .setB(1.7f)
-                    .setRatedU(1.1f)
+                    .setR(1.3)
+                    .setX(1.4)
+                    .setG(1.6)
+                    .setB(1.7)
+                    .setRatedU(1.1)
                     .setVoltageLevel("vl1")
                     .setConnectableBus("busA")
                     .setBus("busA")
                 .add()
                 .newLeg2()
-                    .setR(2.03f)
-                    .setX(2.04f)
-                    .setRatedU(2.05f)
+                    .setR(2.03)
+                    .setX(2.04)
+                    .setRatedU(2.05)
                     .setVoltageLevel("vl2")
                     .setConnectableBus("busB")
                     .add()
                 .newLeg3()
-                    .setR(3.3f)
-                    .setX(3.4f)
-                    .setRatedU(3.5f)
+                    .setR(3.3)
+                    .setX(3.4)
+                    .setRatedU(3.5)
                     .setVoltageLevel("vl2")
                     .setConnectableBus("busB")
                 .add()
@@ -476,61 +476,61 @@ public class TapChangerTest {
         ThreeWindingsTransformer.Leg2or3 leg2 = threeWindingsTransformer.getLeg2();
         ThreeWindingsTransformer.Leg2or3 leg3 = threeWindingsTransformer.getLeg3();
         leg2.newRatioTapChanger()
-                .setTargetV(10.0f)
+                .setTargetV(10.0)
                 .setLoadTapChangingCapabilities(false)
                 .setLowTapPosition(0)
                 .setTapPosition(1)
                 .setRegulating(true)
                 .setRegulationTerminal(threeWindingsTransformer.getTerminal(ThreeWindingsTransformer.Side.TWO))
                 .beginStep()
-                    .setR(39.78473f)
-                    .setX(39.784725f)
-                    .setG(0.0f)
-                    .setB(0.0f)
-                    .setRho(1.0f)
+                    .setR(39.78473)
+                    .setX(39.784725)
+                    .setG(0.0)
+                    .setB(0.0)
+                    .setRho(1.0)
                 .endStep()
                 .beginStep()
-                    .setR(39.78474f)
-                    .setX(39.784726f)
-                    .setG(0.0f)
-                    .setB(0.0f)
-                    .setRho(1.0f)
+                    .setR(39.78474)
+                    .setX(39.784726)
+                    .setG(0.0)
+                    .setB(0.0)
+                    .setRho(1.0)
                 .endStep()
                 .beginStep()
-                    .setR(39.78475f)
-                    .setX(39.784727f)
-                    .setG(0.0f)
-                    .setB(0.0f)
-                    .setRho(1.0f)
+                    .setR(39.78475)
+                    .setX(39.784727)
+                    .setG(0.0)
+                    .setB(0.0)
+                    .setRho(1.0)
                 .endStep()
                 .add();
         leg3.newRatioTapChanger()
-                .setTargetV(11.0f)
+                .setTargetV(11.0)
                 .setLoadTapChangingCapabilities(false)
                 .setLowTapPosition(2)
                 .setTapPosition(3)
                 .setRegulating(true)
                 .setRegulationTerminal(threeWindingsTransformer.getTerminal(ThreeWindingsTransformer.Side.TWO))
                 .beginStep()
-                    .setR(39.78473f)
-                    .setX(39.784725f)
-                    .setG(0.0f)
-                    .setB(0.0f)
-                    .setRho(1.0f)
+                    .setR(39.78473)
+                    .setX(39.784725)
+                    .setG(0.0)
+                    .setB(0.0)
+                    .setRho(1.0)
                 .endStep()
                 .beginStep()
-                    .setR(39.78474f)
-                    .setX(39.784726f)
-                    .setG(0.0f)
-                    .setB(0.0f)
-                    .setRho(1.0f)
+                    .setR(39.78474)
+                    .setX(39.784726)
+                    .setG(0.0)
+                    .setB(0.0)
+                    .setRho(1.0)
                 .endStep()
                 .beginStep()
-                    .setR(39.78475f)
-                    .setX(39.784727f)
-                    .setG(0.0f)
-                    .setB(0.0f)
-                    .setRho(1.0f)
+                    .setR(39.78475)
+                    .setX(39.784727)
+                    .setG(0.0)
+                    .setB(0.0)
+                    .setRho(1.0)
                 .endStep()
                 .add();
     }

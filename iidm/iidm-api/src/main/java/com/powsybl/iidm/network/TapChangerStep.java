@@ -15,51 +15,51 @@ public interface TapChangerStep<TCS extends TapChangerStep> {
     /**
      * Get the voltage ratio in per unit.
      */
-    float getRho();
+    double getRho();
 
     /**
      * Set the voltage ratio in per unit.
      */
-    TCS setRho(float rho);
+    TCS setRho(double rho);
 
     /**
      * Get the resistance deviation in percent of nominal value.
      */
-    float getR();
+    double getR();
 
     /**
      * Set the resistance deviation in percent of nominal value.
      */
-    TCS setR(float r);
+    TCS setR(double r);
 
     /**
      * Get the reactance deviation in percent of nominal value.
      */
-    float getX();
+    double getX();
 
     /**
      * Set the reactance deviation in percent of nominal value.
      */
-    TCS setX(float x);
+    TCS setX(double x);
 
     /**
      * Get the susceptance deviation in percent of nominal value.
      */
-    float getB();
+    double getB();
 
     /**
      * Set the susceptance deviation in percent of nominal value.
      */
-    TCS setB(float b);
+    TCS setB(double b);
 
     /**
      * Get the conductance deviation in percent of nominal value.
      */
-    float getG();
+    double getG();
 
     /**
      * Set the conductance deviation in percent of nominal value.
      */
-    TCS setG(float g);
+    TCS setG(double g);
 
 }

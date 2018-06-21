@@ -30,8 +30,8 @@ public class WhenConditionWithBooleanTest extends AbstractLoadFlowRulesEngineTes
     @Test
     public void test() {
         Load load = network.getLoad("LOAD");
-        assertEquals(600.0f, load.getP0(), 0.0f);
+        assertEquals(600.0, load.getP0(), 0.0);
         engine.start(actionDb);
-        assertEquals(601.0f, load.getP0(), 0.0f);
+        assertEquals(601.0, load.getP0(), 0.0);
     }
 }

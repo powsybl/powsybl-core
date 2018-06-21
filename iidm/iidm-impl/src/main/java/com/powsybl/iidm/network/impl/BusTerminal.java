@@ -113,8 +113,8 @@ class BusTerminal extends AbstractTerminal {
     }
 
     @Override
-    protected float getV() {
-        return busBreakerView.getBus() != null ? busBreakerView.getBus().getV() : Float.NaN;
+    protected double getV() {
+        return busBreakerView.getBus() != null ? busBreakerView.getBus().getV() : Double.NaN;
     }
 
     @Override

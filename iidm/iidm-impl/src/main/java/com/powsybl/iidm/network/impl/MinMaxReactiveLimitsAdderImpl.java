@@ -17,32 +17,32 @@ class MinMaxReactiveLimitsAdderImpl<OWNER extends ReactiveLimitsOwner & Validabl
 
     private final OWNER owner;
 
-    private float minQ = Float.NaN;
+    private double minQ = Double.NaN;
 
-    private float maxQ = Float.NaN;
+    private double maxQ = Double.NaN;
 
     MinMaxReactiveLimitsAdderImpl(OWNER owner) {
         this.owner = owner;
     }
 
     @Override
-    public MinMaxReactiveLimitsAdder setMinQ(float minQ) {
+    public MinMaxReactiveLimitsAdder setMinQ(double minQ) {
         this.minQ = minQ;
         return this;
     }
 
     @Override
-    public MinMaxReactiveLimitsAdder setMaxQ(float maxQ) {
+    public MinMaxReactiveLimitsAdder setMaxQ(double maxQ) {
         this.maxQ = maxQ;
         return this;
     }
 
     @Override
     public MinMaxReactiveLimits add() {
-        if (Float.isNaN(minQ)) {
+        if (Double.isNaN(minQ)) {
             throw new ValidationException(owner, "minimum reactive power is not set");
         }
-        if (Float.isNaN(maxQ)) {
+        if (Double.isNaN(maxQ)) {
             throw new ValidationException(owner, "maximum reactive power is not set");
         }
         if (maxQ < minQ) {

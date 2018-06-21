@@ -16,16 +16,16 @@ public class ActivePowerExtension implements Extension<LimitViolation> {
 
     private LimitViolation limitViolation;
 
-    private final float preContingencyValue;
+    private final double preContingencyValue;
 
-    private final float postContingencyValue;
+    private final double postContingencyValue;
 
-    public ActivePowerExtension(float preContingencyValue) {
+    public ActivePowerExtension(double preContingencyValue) {
         this.preContingencyValue = checkValue(preContingencyValue);
-        this.postContingencyValue = Float.NaN;
+        this.postContingencyValue = Double.NaN;
     }
 
-    public ActivePowerExtension(float preContingencyValue, float postContingencyValue) {
+    public ActivePowerExtension(double preContingencyValue, double postContingencyValue) {
         this.preContingencyValue = checkValue(preContingencyValue);
         this.postContingencyValue = checkValue(postContingencyValue);
     }
@@ -45,16 +45,16 @@ public class ActivePowerExtension implements Extension<LimitViolation> {
         this.limitViolation = limitViolation;
     }
 
-    public float getPreContingencyValue() {
+    public double getPreContingencyValue() {
         return preContingencyValue;
     }
 
-    public float getPostContingencyValue() {
+    public double getPostContingencyValue() {
         return postContingencyValue;
     }
 
-    private static float checkValue(float value) {
-        if (Float.isNaN(value)) {
+    private static double checkValue(double value) {
+        if (Double.isNaN(value)) {
             throw new IllegalArgumentException("Value is undefined");
         }
 

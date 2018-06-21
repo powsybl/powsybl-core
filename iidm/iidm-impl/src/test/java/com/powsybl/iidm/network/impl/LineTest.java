@@ -38,12 +38,12 @@ public class LineTest {
         Line acLine = network.newLine()
             .setId("line")
             .setName("lineName")
-            .setR(1.0f)
-            .setX(2.0f)
-            .setG1(3.0f)
-            .setG2(3.5f)
-            .setB1(4.0f)
-            .setB2(4.5f)
+            .setR(1.0)
+            .setX(2.0)
+            .setG1(3.0)
+            .setG2(3.5)
+            .setB1(4.0)
+            .setB2(4.5)
             .setVoltageLevel1("vl1")
             .setVoltageLevel2("vl2")
             .setBus1("busA")
@@ -53,12 +53,12 @@ public class LineTest {
             .add();
         assertEquals("line", acLine.getId());
         assertEquals("lineName", acLine.getName());
-        assertEquals(1.0f, acLine.getR(), 0.0f);
-        assertEquals(2.0f, acLine.getX(), 0.0f);
-        assertEquals(3.0f, acLine.getG1(), 0.0f);
-        assertEquals(3.5f, acLine.getG2(), 0.0f);
-        assertEquals(4.0f, acLine.getB1(), 0.0f);
-        assertEquals(4.5f, acLine.getB2(), 0.0f);
+        assertEquals(1.0, acLine.getR(), 0.0);
+        assertEquals(2.0, acLine.getX(), 0.0);
+        assertEquals(3.0, acLine.getG1(), 0.0);
+        assertEquals(3.5, acLine.getG2(), 0.0);
+        assertEquals(4.0, acLine.getB1(), 0.0);
+        assertEquals(4.5, acLine.getB2(), 0.0);
 
         Bus busA = voltageLevelA.getBusBreakerView().getBus("busA");
         Bus busB = voltageLevelB.getBusBreakerView().getBus("busB");
@@ -73,24 +73,24 @@ public class LineTest {
         assertEquals(ConnectableType.LINE, acLine.getType());
 
         // setter getter
-        float r = 10.0f;
-        float x = 20.0f;
-        float g1 = 30.0f;
-        float g2 = 35.0f;
-        float b1 = 40.0f;
-        float b2 = 45.0f;
+        double r = 10.0;
+        double x = 20.0;
+        double g1 = 30.0;
+        double g2 = 35.0;
+        double b1 = 40.0;
+        double b2 = 45.0;
         acLine.setR(r);
-        assertEquals(r, acLine.getR(), 0.0f);
+        assertEquals(r, acLine.getR(), 0.0);
         acLine.setX(x);
-        assertEquals(x, acLine.getX(), 0.0f);
+        assertEquals(x, acLine.getX(), 0.0);
         acLine.setG1(g1);
-        assertEquals(g1, acLine.getG1(), 0.0f);
+        assertEquals(g1, acLine.getG1(), 0.0);
         acLine.setG2(g2);
-        assertEquals(g2, acLine.getG2(), 0.0f);
+        assertEquals(g2, acLine.getG2(), 0.0);
         acLine.setB1(b1);
-        assertEquals(b1, acLine.getB1(), 0.0f);
+        assertEquals(b1, acLine.getB1(), 0.0);
         acLine.setB2(b2);
-        assertEquals(b2, acLine.getB2(), 0.0f);
+        assertEquals(b2, acLine.getB2(), 0.0);
         assertFalse(acLine.isTieLine());
 
         CurrentLimits currentLimits1 = acLine.newCurrentLimits1()
@@ -116,9 +116,9 @@ public class LineTest {
 
         // add power on line
         Terminal terminal1 = acLine.getTerminal1();
-        terminal1.setP(1.0f);
-        terminal1.setQ((float) Math.sqrt(2.0f));
-        busA.setV(1.0f);
+        terminal1.setP(1.0);
+        terminal1.setQ(Math.sqrt(2.0));
+        busA.setV(1.0);
         // i1 = 1000
         assertTrue(acLine.checkPermanentLimit(TwoTerminalsConnectable.Side.ONE, 0.9f));
         assertTrue(acLine.checkPermanentLimit(TwoTerminalsConnectable.Side.ONE));
@@ -127,9 +127,9 @@ public class LineTest {
         assertNotNull(acLine.checkTemporaryLimits(TwoTerminalsConnectable.Side.ONE));
 
         Terminal terminal2 = acLine.getTerminal2();
-        terminal2.setP(1.0f);
-        terminal2.setQ((float) Math.sqrt(2.0f));
-        busB.setV(1.0e3f);
+        terminal2.setP(1.0);
+        terminal2.setQ(Math.sqrt(2.0));
+        busB.setV(1.0e3);
         // i2 = 1
         assertFalse(acLine.checkPermanentLimit(TwoTerminalsConnectable.Side.TWO, 0.9f));
         assertFalse(acLine.checkPermanentLimit(TwoTerminalsConnectable.Side.TWO));
@@ -142,54 +142,54 @@ public class LineTest {
     public void invalidR() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("r is invalid");
-        createLineBetweenVoltageAB("invalid", "invalid", Float.NaN, 2.0f, 3.0f, 3.5f, 4.0f, 4.5f);
+        createLineBetweenVoltageAB("invalid", "invalid", Double.NaN, 2.0, 3.0, 3.5, 4.0, 4.5);
     }
 
     @Test
     public void invalidX() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("x is invalid");
-        createLineBetweenVoltageAB("invalid", "invalid", 1.0f, Float.NaN, 3.0f, 3.5f, 4.0f, 4.5f);
+        createLineBetweenVoltageAB("invalid", "invalid", 1.0, Double.NaN, 3.0, 3.5, 4.0, 4.5);
     }
 
     @Test
     public void invalidG1() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("g1 is invalid");
-        createLineBetweenVoltageAB("invalid", "invalid", 1.0f, 2.0f, Float.NaN, 3.5f, 4.0f, 4.5f);
+        createLineBetweenVoltageAB("invalid", "invalid", 1.0, 2.0, Double.NaN, 3.5, 4.0, 4.5);
     }
 
     @Test
     public void invalidG2() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("g2 is invalid");
-        createLineBetweenVoltageAB("invalid", "invalid", 1.0f, 2.0f, 3.0f, Float.NaN, 4.0f, 4.5f);
+        createLineBetweenVoltageAB("invalid", "invalid", 1.0, 2.0, 3.0, Double.NaN, 4.0, 4.5);
     }
 
     @Test
     public void invalidB1() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("b1 is invalid");
-        createLineBetweenVoltageAB("invalid", "invalid", 1.0f, 2.0f, 3.0f, 3.5f, Float.NaN, 4.5f);
+        createLineBetweenVoltageAB("invalid", "invalid", 1.0, 2.0, 3.0, 3.5, Double.NaN, 4.5);
     }
 
     @Test
     public void invalidB2() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("b2 is invalid");
-        createLineBetweenVoltageAB("invalid", "invalid", 1.0f, 2.0f, 3.0f, 3.5f, 4.0f, Float.NaN);
+        createLineBetweenVoltageAB("invalid", "invalid", 1.0, 2.0, 3.0, 3.5, 4.0, Double.NaN);
     }
 
     @Test
     public void duplicateAcLine() {
-        createLineBetweenVoltageAB("duplicate", "duplicate", 1.0f, 2.0f, 3.0f, 3.5f, 4.0f, 4.5f);
+        createLineBetweenVoltageAB("duplicate", "duplicate", 1.0, 2.0, 3.0, 3.5, 4.0, 4.5);
         thrown.expect(PowsyblException.class);
-        createLineBetweenVoltageAB("duplicate", "duplicate", 1.0f, 2.0f, 3.0f, 3.5f, 4.0f, 4.5f);
+        createLineBetweenVoltageAB("duplicate", "duplicate", 1.0, 2.0, 3.0, 3.5, 4.0, 4.5);
     }
 
     @Test
     public void testRemoveAcLine() {
-        createLineBetweenVoltageAB("toRemove", "toRemove", 1.0f, 2.0f, 3.0f, 3.5f, 4.0f, 4.5f);
+        createLineBetweenVoltageAB("toRemove", "toRemove", 1.0, 2.0, 3.0, 3.5, 4.0, 4.5);
         Line line = network.getLine("toRemove");
         assertNotNull(line);
         int count = network.getLineCount();
@@ -201,20 +201,20 @@ public class LineTest {
 
     @Test
     public void testTieLineAdder() {
-        float r = 10.0f;
-        float r2 = 1.0f;
-        float x = 20.0f;
-        float x2 = 2.0f;
-        float hl1g1 = 30.0f;
-        float hl1g2 = 35.0f;
-        float hl1b1 = 40.0f;
-        float hl1b2 = 45.0f;
-        float hl2g1 = 130.0f;
-        float hl2g2 = 135.0f;
-        float hl2b1 = 140.0f;
-        float hl2b2 = 145.0f;
-        float xnodeP = 50.0f;
-        float xnodeQ = 60.0f;
+        double r = 10.0;
+        double r2 = 1.0;
+        double x = 20.0;
+        double x2 = 2.0;
+        double hl1g1 = 30.0;
+        double hl1g2 = 35.0;
+        double hl1b1 = 40.0;
+        double hl1b2 = 45.0;
+        double hl2g1 = 130.0;
+        double hl2g2 = 135.0;
+        double hl2b1 = 140.0;
+        double hl2b2 = 145.0;
+        double xnodeP = 50.0;
+        double xnodeQ = 60.0;
 
         // adder
         TieLine tieLine = network.newTieLine().setId("testTie")
@@ -253,148 +253,148 @@ public class LineTest {
         assertEquals("ucte", tieLine.getUcteXnodeCode());
         assertEquals("half1_name", tieLine.getHalf1().getName());
         assertEquals("hl2", tieLine.getHalf2().getId());
-        assertEquals(r + r2, tieLine.getR(), 0.0f);
-        assertEquals(x + x2, tieLine.getX(), 0.0f);
-        assertEquals(hl1g1 + hl2g1, tieLine.getG1(), 0.0f);
-        assertEquals(hl1g2 + hl2g2, tieLine.getG2(), 0.0f);
-        assertEquals(hl1b1 + hl2b1, tieLine.getB1(), 0.0f);
-        assertEquals(hl1b2 + hl2b2, tieLine.getB2(), 0.0f);
+        assertEquals(r + r2, tieLine.getR(), 0.0);
+        assertEquals(x + x2, tieLine.getX(), 0.0);
+        assertEquals(hl1g1 + hl2g1, tieLine.getG1(), 0.0);
+        assertEquals(hl1g2 + hl2g2, tieLine.getG2(), 0.0);
+        assertEquals(hl1b1 + hl2b1, tieLine.getB1(), 0.0);
+        assertEquals(hl1b2 + hl2b2, tieLine.getB2(), 0.0);
 
         // invalid set line characteristics on tieLine
         try {
-            tieLine.setR(1.0f);
+            tieLine.setR(1.0);
             fail();
         } catch (ValidationException ignored) {
         }
 
         try {
-            tieLine.setX(1.0f);
+            tieLine.setX(1.0);
             fail();
         } catch (ValidationException ignored) {
         }
 
         try {
-            tieLine.setB1(1.0f);
+            tieLine.setB1(1.0);
             fail();
         } catch (ValidationException ignored) {
         }
 
         try {
-            tieLine.setB2(1.0f);
+            tieLine.setB2(1.0);
             fail();
         } catch (ValidationException ignored) {
         }
 
         try {
-            tieLine.setG1(1.0f);
+            tieLine.setG1(1.0);
             fail();
         } catch (ValidationException ignored) {
         }
 
         try {
-            tieLine.setG2(1.0f);
+            tieLine.setG2(1.0);
             fail();
         } catch (ValidationException ignored) {
         }
 
         TieLineImpl.HalfLine half1 = tieLine.getHalf1();
-        assertEquals(xnodeP, half1.getXnodeP(), 0.0f);
-        assertEquals(xnodeQ, half1.getXnodeQ(), 0.0f);
+        assertEquals(xnodeP, half1.getXnodeP(), 0.0);
+        assertEquals(xnodeQ, half1.getXnodeQ(), 0.0);
     }
 
     @Test
     public void invalidHalfLineCharacteristicsR() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("r is not set for half line");
-        createTieLineWithHalfline2ByDefault("invalid", "invalid", "invalid", Float.NaN, 2.0f,
-            3.0f, 3.5f, 4.0f, 4.5f, 5.0f, 6.0f, "code");
+        createTieLineWithHalfline2ByDefault("invalid", "invalid", "invalid", Double.NaN, 2.0,
+            3.0, 3.5, 4.0, 4.5, 5.0, 6.0, "code");
     }
 
     @Test
     public void invalidHalfLineCharacteristicsX() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("x is not set for half line");
-        createTieLineWithHalfline2ByDefault("invalid", "invalid", "invalid", 1.0f, Float.NaN,
-            3.0f, 3.5f, 4.0f, 4.5f, 5.0f, 6.0f, "code");
+        createTieLineWithHalfline2ByDefault("invalid", "invalid", "invalid", 1.0, Double.NaN,
+            3.0, 3.5, 4.0, 4.5, 5.0, 6.0, "code");
     }
 
     @Test
     public void invalidHalfLineCharacteristicsG1() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("g1 is not set for half line");
-        createTieLineWithHalfline2ByDefault("invalid", "invalid", "invalid", 1.0f, 2.0f,
-            Float.NaN, 3.5f, 4.0f, 4.5f, 5.0f, 6.0f, "code");
+        createTieLineWithHalfline2ByDefault("invalid", "invalid", "invalid", 1.0, 2.0,
+            Double.NaN, 3.5, 4.0, 4.5, 5.0, 6.0, "code");
     }
 
     @Test
     public void invalidHalfLineCharacteristicsG2() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("g2 is not set for half line");
-        createTieLineWithHalfline2ByDefault("invalid", "invalid", "invalid", 1.0f, 2.0f,
-            3.0f, Float.NaN, 4.0f, 4.5f, 5.0f, 6.0f, "code");
+        createTieLineWithHalfline2ByDefault("invalid", "invalid", "invalid", 1.0, 2.0,
+            3.0, Double.NaN, 4.0, 4.5, 5.0, 6.0, "code");
     }
 
     @Test
     public void invalidHalfLineCharacteristicsB1() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("b1 is not set for half line");
-        createTieLineWithHalfline2ByDefault("invalid", "invalid", "invalid", 1.0f, 2.0f,
-            3.0f, 3.5f, Float.NaN, 4.5f, 5.0f, 6.0f, "code");
+        createTieLineWithHalfline2ByDefault("invalid", "invalid", "invalid", 1.0, 2.0,
+            3.0, 3.5, Double.NaN, 4.5, 5.0, 6.0, "code");
     }
 
     @Test
     public void invalidHalfLineCharacteristicsB2() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("b2 is not set for half line");
-        createTieLineWithHalfline2ByDefault("invalid", "invalid", "invalid", 1.0f, 2.0f,
-            3.0f, 3.5f, 4.0f, Float.NaN, 5.0f, 6.0f, "code");
+        createTieLineWithHalfline2ByDefault("invalid", "invalid", "invalid", 1.0, 2.0,
+            3.0, 3.5, 4.0, Double.NaN, 5.0, 6.0, "code");
     }
 
     @Test
     public void invalidHalfLineCharacteristicsP() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("xnodeP is not set for half line");
-        createTieLineWithHalfline2ByDefault("invalid", "invalid", "invalid", 1.0f, 2.0f,
-            3.0f, 3.5f, 4.0f, 4.5f, Float.NaN, 6.0f, "code");
+        createTieLineWithHalfline2ByDefault("invalid", "invalid", "invalid", 1.0, 2.0,
+            3.0, 3.5, 4.0, 4.5, Double.NaN, 6.0, "code");
     }
 
     @Test
     public void invalidHalfLineCharacteristicsQ() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("xnodeQ is not set for half line");
-        createTieLineWithHalfline2ByDefault("invalid", "invalid", "invalid", 1.0f, 2.0f,
-            3.0f, 3.5f, 4.0f, 4.5f, 5.0f, Float.NaN, "code");
+        createTieLineWithHalfline2ByDefault("invalid", "invalid", "invalid", 1.0, 2.0,
+            3.0, 3.5, 4.0, 4.5, 5.0, Double.NaN, "code");
     }
 
     @Test
     public void halfLineIdNull() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("id is not set for half line");
-        createTieLineWithHalfline2ByDefault("invalid", "invalid", null, 1.0f, 2.0f,
-            3.0f, 3.5f, 4.0f, 4.5f, 5.0f, 6.0f, "code");
+        createTieLineWithHalfline2ByDefault("invalid", "invalid", null, 1.0, 2.0,
+            3.0, 3.5, 4.0, 4.5, 5.0, 6.0, "code");
     }
 
     @Test
     public void uctecodeNull() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("ucteXnodeCode is not set");
-        createTieLineWithHalfline2ByDefault("invalid", "invalid", "invalid", 1.0f, 2.0f,
-            3.0f, 3.5f, 4.0f, 4.5f, 5.0f, 6.0f, null);
+        createTieLineWithHalfline2ByDefault("invalid", "invalid", "invalid", 1.0, 2.0,
+            3.0, 3.5, 4.0, 4.5, 5.0, 6.0, null);
     }
 
     @Test
     public void duplicate() {
-        createTieLineWithHalfline2ByDefault("duplicate", "duplicate", "id1", 1.0f, 2.0f,
-            3.0f, 3.5f, 4.0f, 4.5f, 5.0f, 6.0f, "duplicate");
+        createTieLineWithHalfline2ByDefault("duplicate", "duplicate", "id1", 1.0, 2.0,
+            3.0, 3.5, 4.0, 4.5, 5.0, 6.0, "duplicate");
         thrown.expect(PowsyblException.class);
-        createTieLineWithHalfline2ByDefault("duplicate", "duplicate", "id1", 1.0f, 2.0f,
-            3.0f, 3.5f, 4.0f, 4.5f, 5.0f, 6.0f, "duplicate");
+        createTieLineWithHalfline2ByDefault("duplicate", "duplicate", "id1", 1.0, 2.0,
+            3.0, 3.5, 4.0, 4.5, 5.0, 6.0, "duplicate");
     }
 
     @Test
     public void testRemove() {
-        createTieLineWithHalfline2ByDefault("toRemove", "toRemove", "id1", 1.0f, 2.0f,
-            3.0f, 3.5f, 4.0f, 4.5f, 5.0f, 6.0f, "toRemove");
+        createTieLineWithHalfline2ByDefault("toRemove", "toRemove", "id1", 1.0, 2.0,
+            3.0, 3.5, 4.0, 4.5, 5.0, 6.0, "toRemove");
         Line line = network.getLine("toRemove");
         assertNotNull(line);
         assertTrue(line.isTieLine());
@@ -405,8 +405,8 @@ public class LineTest {
         assertEquals(count - 1, network.getLineCount());
     }
 
-    private void createLineBetweenVoltageAB(String id, String name, float r, float x,
-                                            float g1, float g2, float b1, float b2) {
+    private void createLineBetweenVoltageAB(String id, String name, double r, double x,
+                                            double g1, double g2, double b1, double b2) {
         network.newLine()
             .setId(id)
             .setName(name)
@@ -425,9 +425,9 @@ public class LineTest {
             .add();
     }
 
-    private void createTieLineWithHalfline2ByDefault(String id, String name, String halfLineId, float r, float x,
-                                                     float g1, float g2, float b1, float b2,
-                                                     float xnodeP, float xnodeQ, String code) {
+    private void createTieLineWithHalfline2ByDefault(String id, String name, String halfLineId, double r, double x,
+                                                     double g1, double g2, double b1, double b2,
+                                                     double xnodeP, double xnodeQ, String code) {
         network.newTieLine()
             .setId(id)
             .setName(name)
@@ -445,14 +445,14 @@ public class LineTest {
             .line2()
             .setId("hl2")
             .setName("half2_name")
-            .setR(1.0f)
-            .setX(2.0f)
-            .setB1(3.0f)
-            .setB2(3.5f)
-            .setG1(4.0f)
-            .setG2(4.5f)
-            .setXnodeP(5.0f)
-            .setXnodeQ(6.0f)
+            .setR(1.0)
+            .setX(2.0)
+            .setB1(3.0)
+            .setB2(3.5)
+            .setG1(4.0)
+            .setG2(4.5)
+            .setXnodeP(5.0)
+            .setXnodeQ(6.0)
             .setVoltageLevel1("vl1")
             .setBus1("busA")
             .setConnectableBus1("busA")

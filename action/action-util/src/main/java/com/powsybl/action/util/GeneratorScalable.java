@@ -30,11 +30,11 @@ class GeneratorScalable extends AbstractScalable {
     }
 
     @Override
-    public float initialValue(Network n) {
+    public double initialValue(Network n) {
         Objects.requireNonNull(n);
 
         Generator g = n.getGenerator(id);
-        return g != null && !Float.isNaN(g.getTerminal().getP()) ? g.getTerminal().getP() : 0;
+        return g != null && !Double.isNaN(g.getTerminal().getP()) ? g.getTerminal().getP() : 0;
     }
 
     @Override
@@ -43,12 +43,12 @@ class GeneratorScalable extends AbstractScalable {
 
         Generator g = n.getGenerator(id);
         if (g != null) {
-            g.setTargetP(0f);
+            g.setTargetP(0);
         }
     }
 
     @Override
-    public float maximumValue(Network n) {
+    public double maximumValue(Network n) {
         Objects.requireNonNull(n);
 
         Generator g = n.getGenerator(id);
@@ -71,11 +71,11 @@ class GeneratorScalable extends AbstractScalable {
     }
 
     @Override
-    public float scale(Network n, float asked) {
+    public double scale(Network n, double asked) {
         Objects.requireNonNull(n);
 
         Generator g = n.getGenerator(id);
-        float done = 0;
+        double done = 0;
         if (g != null) {
             Terminal t = g.getTerminal();
             if (!t.isConnected()) {
@@ -84,13 +84,10 @@ class GeneratorScalable extends AbstractScalable {
                     Bus bus = t.getBusView().getBus();
                     if (bus != null) {
                         // set voltage setpoint to the same as other generators connected to the bus
-                        float targetV = Float.NaN;
-                        for (Generator g2 : bus.getGenerators()) {
-                            targetV = g2.getTargetV();
-                            break;
-                        }
+                        double targetV = bus.getGeneratorStream().findFirst().map(Generator::getTargetV).orElse(Double.NaN);
+
                         // if no other generator connected to the bus, set voltage setpoint to network voltage
-                        if (Float.isNaN(targetV) && !Float.isNaN(bus.getV())) {
+                        if (Double.isNaN(targetV) && !Double.isNaN(bus.getV())) {
                             g.setTargetV(bus.getV());
                         }
                     }
@@ -98,7 +95,7 @@ class GeneratorScalable extends AbstractScalable {
                 LOGGER.info("Connecting {}", g.getId());
             }
             done = Math.min(asked, g.getMaxP() - g.getTargetP());
-            float oldTargetP = g.getTargetP();
+            double oldTargetP = g.getTargetP();
             g.setTargetP(g.getTargetP() + done);
             LOGGER.info("Change active power setpoint of {} from {} to {} (pmax={})",
                     g.getId(), oldTargetP, g.getTargetP(), g.getMaxP());

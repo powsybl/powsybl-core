@@ -25,19 +25,19 @@ import static org.junit.Assert.assertEquals;
 public abstract class AbstractLoadFlowResultsCompletionTest {
 
     protected String lineId = "line";
-    protected float lineP1 = -42.0512f;
-    protected float lineQ1 = -19.5162f;
-    protected float lineP2 = 42.0685f;
-    protected float lineQ2 = 18.8653f;
+    protected double lineP1 = -42.051187;
+    protected double lineQ1 = -19.516002;
+    protected double lineP2 = 42.0684589;
+    protected double lineQ2 = 18.8650876;
     protected Terminal lineTerminal1;
     protected Terminal lineTerminal2;
     protected Line line;
 
     protected String twtId = "twt";
-    protected float twtP1 = 436.5483f;
-    protected float twtQ1 = 43.472f;
-    protected float twtP2 = -436.4086f;
-    protected float twtQ2 = 11.8373f;
+    protected double twtP1 = 436.548434;
+    protected double twtQ1 = 43.472170;
+    protected double twtP2 = -436.4087165;
+    protected double twtQ2 = 11.837290;
     protected Terminal twtTerminal1;
     protected Terminal twtTerminal2;
     protected TwoWindingsTransformer transformer;
@@ -47,13 +47,13 @@ public abstract class AbstractLoadFlowResultsCompletionTest {
     @Before
     public void setUp() {
         Bus lineBus1 = Mockito.mock(Bus.class);
-        Mockito.when(lineBus1.getV()).thenReturn(225.105f);
-        Mockito.when(lineBus1.getAngle()).thenReturn((float) Math.toDegrees(0.0765428f));
+        Mockito.when(lineBus1.getV()).thenReturn(225.105);
+        Mockito.when(lineBus1.getAngle()).thenReturn(Math.toDegrees(0.0765428));
         Mockito.when(lineBus1.isInMainConnectedComponent()).thenReturn(true);
 
         Bus lineBus2 = Mockito.mock(Bus.class);
-        Mockito.when(lineBus2.getV()).thenReturn(225.392f);
-        Mockito.when(lineBus2.getAngle()).thenReturn((float) Math.toDegrees(0.0784353f));
+        Mockito.when(lineBus2.getV()).thenReturn(225.392);
+        Mockito.when(lineBus2.getAngle()).thenReturn(Math.toDegrees(0.0784353));
         Mockito.when(lineBus2.isInMainConnectedComponent()).thenReturn(true);
 
         BusView lineBusView1 = Mockito.mock(BusView.class);
@@ -80,22 +80,22 @@ public abstract class AbstractLoadFlowResultsCompletionTest {
         Mockito.when(line.getTerminal2()).thenReturn(lineTerminal2);
         Mockito.when(line.getTerminal(Side.ONE)).thenReturn(lineTerminal1);
         Mockito.when(line.getTerminal(Side.TWO)).thenReturn(lineTerminal2);
-        Mockito.when(line.getR()).thenReturn(0.409999f);
-        Mockito.when(line.getX()).thenReturn(2.47000f);
-        Mockito.when(line.getG1()).thenReturn(0f);
-        Mockito.when(line.getG2()).thenReturn(0f);
-        Mockito.when(line.getB1()).thenReturn(7.44000e-06f);
-        Mockito.when(line.getB2()).thenReturn(7.44000e-06f);
+        Mockito.when(line.getR()).thenReturn(0.409999);
+        Mockito.when(line.getX()).thenReturn(2.47000);
+        Mockito.when(line.getG1()).thenReturn(0.0);
+        Mockito.when(line.getG2()).thenReturn(0.0);
+        Mockito.when(line.getB1()).thenReturn(7.44000e-06);
+        Mockito.when(line.getB2()).thenReturn(7.44000e-06);
 
 
         Bus twtBus1 = Mockito.mock(Bus.class);
-        Mockito.when(twtBus1.getV()).thenReturn(408.266f);
-        Mockito.when(twtBus1.getAngle()).thenReturn((float) Math.toDegrees(-0.1662f));
+        Mockito.when(twtBus1.getV()).thenReturn(408.266);
+        Mockito.when(twtBus1.getAngle()).thenReturn(Math.toDegrees(-0.1662));
         Mockito.when(twtBus1.isInMainConnectedComponent()).thenReturn(true);
 
         Bus twtBus2 = Mockito.mock(Bus.class);
-        Mockito.when(twtBus2.getV()).thenReturn(406.276f);
-        Mockito.when(twtBus2.getAngle()).thenReturn((float) Math.toDegrees(-0.292572f));
+        Mockito.when(twtBus2.getV()).thenReturn(406.276);
+        Mockito.when(twtBus2.getAngle()).thenReturn(Math.toDegrees(-0.292572));
         Mockito.when(twtBus2.isInMainConnectedComponent()).thenReturn(true);
 
         BusView twtBusView1 = Mockito.mock(BusView.class);
@@ -117,11 +117,11 @@ public abstract class AbstractLoadFlowResultsCompletionTest {
         Mockito.when(twtTerminal2.getBusView()).thenReturn(twtBusView2);
 
         RatioTapChangerStep step = Mockito.mock(RatioTapChangerStep.class);
-        Mockito.when(step.getR()).thenReturn(0f);
-        Mockito.when(step.getX()).thenReturn(0f);
-        Mockito.when(step.getG()).thenReturn(0f);
-        Mockito.when(step.getB()).thenReturn(0f);
-        Mockito.when(step.getRho()).thenReturn(1f);
+        Mockito.when(step.getR()).thenReturn(0.0);
+        Mockito.when(step.getX()).thenReturn(0.0);
+        Mockito.when(step.getG()).thenReturn(0.0);
+        Mockito.when(step.getB()).thenReturn(0.0);
+        Mockito.when(step.getRho()).thenReturn(1.0);
 
         RatioTapChanger ratioTapChanger = Mockito.mock(RatioTapChanger.class);
         Mockito.when(ratioTapChanger.getCurrentStep()).thenReturn(step);
@@ -132,13 +132,13 @@ public abstract class AbstractLoadFlowResultsCompletionTest {
         Mockito.when(transformer.getTerminal2()).thenReturn(twtTerminal2);
         Mockito.when(transformer.getTerminal(Side.ONE)).thenReturn(twtTerminal1);
         Mockito.when(transformer.getTerminal(Side.TWO)).thenReturn(twtTerminal2);
-        Mockito.when(transformer.getR()).thenReturn(0.121f);
-        Mockito.when(transformer.getX()).thenReturn(47.9f);
-        Mockito.when(transformer.getG()).thenReturn(0f);
-        Mockito.when(transformer.getB()).thenReturn(0f);
+        Mockito.when(transformer.getR()).thenReturn(0.121);
+        Mockito.when(transformer.getX()).thenReturn(47.9);
+        Mockito.when(transformer.getG()).thenReturn(0.0);
+        Mockito.when(transformer.getB()).thenReturn(0.0);
         Mockito.when(transformer.getRatioTapChanger()).thenReturn(ratioTapChanger);
-        Mockito.when(transformer.getRatedU1()).thenReturn(380f);
-        Mockito.when(transformer.getRatedU2()).thenReturn(380f);
+        Mockito.when(transformer.getRatedU1()).thenReturn(380.0);
+        Mockito.when(transformer.getRatedU2()).thenReturn(380.0);
 
         StateManager stateManager = Mockito.mock(StateManager.class);
         Mockito.when(stateManager.getWorkingStateId()).thenReturn(StateManagerConstants.INITIAL_STATE_ID);
@@ -151,25 +151,25 @@ public abstract class AbstractLoadFlowResultsCompletionTest {
     }
 
     protected void setNanValues() {
-        Mockito.when(lineTerminal1.getP()).thenReturn(Float.NaN);
-        Mockito.when(lineTerminal1.getQ()).thenReturn(Float.NaN);
-        Mockito.when(twtTerminal1.getP()).thenReturn(Float.NaN);
-        Mockito.when(twtTerminal1.getQ()).thenReturn(Float.NaN);
+        Mockito.when(lineTerminal1.getP()).thenReturn(Double.NaN);
+        Mockito.when(lineTerminal1.getQ()).thenReturn(Double.NaN);
+        Mockito.when(twtTerminal1.getP()).thenReturn(Double.NaN);
+        Mockito.when(twtTerminal1.getQ()).thenReturn(Double.NaN);
     }
 
     protected void checkResultsCompletion() {
-        ArgumentCaptor<Float> setterCaptor = ArgumentCaptor.forClass(Float.class);
+        ArgumentCaptor<Double> setterCaptor = ArgumentCaptor.forClass(Double.class);
         Mockito.verify(lineTerminal1, Mockito.times(1)).setP(setterCaptor.capture());
-        assertEquals(lineP1, setterCaptor.getValue(), 0001f);
+        assertEquals(lineP1, setterCaptor.getValue(), 0.0001);
         Mockito.verify(lineTerminal1, Mockito.times(1)).setQ(setterCaptor.capture());
-        assertEquals(lineQ1, setterCaptor.getValue(), 0001f);
-        Mockito.verify(lineTerminal2, Mockito.times(0)).setP(Matchers.anyFloat());
-        Mockito.verify(lineTerminal2, Mockito.times(0)).setQ(Matchers.anyFloat());
+        assertEquals(lineQ1, setterCaptor.getValue(), 0.0001);
+        Mockito.verify(lineTerminal2, Mockito.times(0)).setP(Matchers.anyDouble());
+        Mockito.verify(lineTerminal2, Mockito.times(0)).setQ(Matchers.anyDouble());
         Mockito.verify(twtTerminal1, Mockito.times(1)).setP(setterCaptor.capture());
-        assertEquals(twtP1, setterCaptor.getValue(), 0001f);
+        assertEquals(twtP1, setterCaptor.getValue(), 0.0001);
         Mockito.verify(twtTerminal1, Mockito.times(1)).setQ(setterCaptor.capture());
-        assertEquals(twtQ1, setterCaptor.getValue(), 0001f);
-        Mockito.verify(twtTerminal2, Mockito.times(0)).setP(Matchers.anyFloat());
-        Mockito.verify(twtTerminal2, Mockito.times(0)).setQ(Matchers.anyFloat());
+        assertEquals(twtQ1, setterCaptor.getValue(), 0.0001);
+        Mockito.verify(twtTerminal2, Mockito.times(0)).setP(Matchers.anyDouble());
+        Mockito.verify(twtTerminal2, Mockito.times(0)).setQ(Matchers.anyDouble());
     }
 }
