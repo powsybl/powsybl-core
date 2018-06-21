@@ -12,5 +12,4 @@ package com.powsybl.action.dsl.ast;
 public interface ExpressionNode {
 
     <R, A> R accept(ExpressionVisitor<R, A> visitor, A arg);
-
 }

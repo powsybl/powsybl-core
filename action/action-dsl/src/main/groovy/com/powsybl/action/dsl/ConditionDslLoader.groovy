@@ -142,8 +142,13 @@ class ConditionDslLoader extends DslLoader {
             ExpressionHelper.newMostLoaded(branchIds)
         }
 
-        binding.isOverloaded = {branchIds, limitReduction = 1 as float ->
+        binding.isOverloaded = { branchIds, limitReduction = 1 as float ->
             ExpressionHelper.newIsOverloadedNode(branchIds, limitReduction)
+        }
+
+
+        binding.allOverloaded = { branchIds, limitReduction = 1 as float ->
+            ExpressionHelper.newAllOverloadedNode(branchIds, limitReduction)
         }
 
         NetworkNode.metaClass.propertyMissing = { String name ->
@@ -306,13 +311,13 @@ class ConditionDslLoader extends DslLoader {
     private static ExpressionNode createExpressionNode(Object value) {
         if (value instanceof ExpressionNode) {
             value
-        } else if (value instanceof Integer){
+        } else if (value instanceof Integer) {
             ExpressionHelper.newIntegerLiteral(value)
-        } else if (value instanceof Float){
+        } else if (value instanceof Float) {
             ExpressionHelper.newFloatLiteral(value)
-        } else if (value instanceof Double){
+        } else if (value instanceof Double) {
             ExpressionHelper.newDoubleLiteral(value)
-        } else if (value instanceof BigDecimal){
+        } else if (value instanceof BigDecimal) {
             ExpressionHelper.newBigDecimalLiteral(value)
         } else if (value instanceof Boolean) {
             ExpressionHelper.newBooleanLiteral(value)
