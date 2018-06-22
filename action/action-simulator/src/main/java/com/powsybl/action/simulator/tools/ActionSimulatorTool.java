@@ -177,9 +177,10 @@ public class ActionSimulatorTool implements Tool {
         boolean verbose = line.hasOption(VERBOSE);
         boolean applyIfSolved = line.hasOption(APPLY_IF_SOLVED_VIOLATIONS);
 
+        // check options
         Path outputCaseFolder = null;
         String outputCaseFormat = null;
-        if (line.hasOption(OUTPUT_CASE_FOLDER)) {
+        if (!line.hasOption(NTASKS) && line.hasOption(OUTPUT_CASE_FOLDER)) {
             outputCaseFolder = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_CASE_FOLDER));
             outputCaseFormat = line.getOptionValue(OUTPUT_CASE_FORMAT);
             if (!line.hasOption(OUTPUT_CASE_FORMAT)) {
@@ -187,6 +188,10 @@ public class ActionSimulatorTool implements Tool {
             } else if (!outputCaseFolder.toFile().exists()) {
                 Files.createDirectories(outputCaseFolder);
             }
+        }
+
+        if (line.hasOption(NTASKS)) {
+            checkOptionsInParallel(line);
         }
 
         // load network
@@ -232,7 +237,6 @@ public class ActionSimulatorTool implements Tool {
             // action simulator
             ActionSimulator actionSimulator = null;
             if (line.hasOption(NTASKS)) {
-                checkOptionsInParallel(line);
                 actionSimulator = new ParallelLoadFlowActionSimulator(network, context, line, config, applyIfSolved, observers);
             } else if (line.hasOption(PARTITION)) {
                 String partitionOpt = line.getOptionValue(PARTITION);
@@ -260,7 +264,7 @@ public class ActionSimulatorTool implements Tool {
             throw new IllegalArgumentException("Not supported in parallel mode yet.");
         }
         if (!line.hasOption(OUTPUT_FILE)) {
-            throw new IllegalArgumentException("Missing OUTPUT-FILE in parallel mode.");
+            throw new IllegalArgumentException("Missing required option: output-file in parallel mode");
         }
     }
 
