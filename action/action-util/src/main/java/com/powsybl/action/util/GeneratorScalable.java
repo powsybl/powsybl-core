@@ -79,7 +79,7 @@ class GeneratorScalable extends AbstractScalable {
         if (g != null) {
             Terminal t = g.getTerminal();
             if (!t.isConnected()) {
-                connectGenertor(g);
+                connectGenerator(g);
             }
             done = Math.min(asked, g.getMaxP() - g.getTargetP());
             double oldTargetP = g.getTargetP();
@@ -92,7 +92,7 @@ class GeneratorScalable extends AbstractScalable {
         return done;
     }
 
-    private void connectGenertor(Generator g) {
+    private void connectGenerator(Generator g) {
         Terminal t = g.getTerminal();
         t.connect();
         if (g.isVoltageRegulatorOn()) {
