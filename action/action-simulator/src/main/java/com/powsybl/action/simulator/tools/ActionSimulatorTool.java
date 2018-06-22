@@ -12,14 +12,12 @@ import com.powsybl.action.dsl.ActionDslLoader;
 import com.powsybl.action.dsl.DefaultActionDslLoaderObserver;
 import com.powsybl.action.simulator.ActionSimulator;
 import com.powsybl.action.simulator.loadflow.*;
-import com.powsybl.computation.Partition;
-import com.powsybl.action.simulator.loadflow.LocalLoadFlowActionSimulator;
-import com.powsybl.action.simulator.loadflow.ParallelLoadFlowActionSimulator;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.CompressionFormat;
 import com.powsybl.commons.datasource.DataSourceUtil;
 import com.powsybl.commons.io.table.AsciiTableFormatterFactory;
 import com.powsybl.commons.io.table.TableFormatterConfig;
+import com.powsybl.computation.Partition;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.export.Exporters;
 import com.powsybl.iidm.import_.Importers;
@@ -38,6 +36,7 @@ import org.codehaus.groovy.runtime.StackTraceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.io.Writer;
@@ -235,16 +234,8 @@ public class ActionSimulatorTool implements Tool {
             }
 
             // action simulator
-            ActionSimulator actionSimulator = null;
-            if (line.hasOption(NTASKS)) {
-                actionSimulator = new ParallelLoadFlowActionSimulator(network, context, line, config, applyIfSolved, observers);
-            } else if (line.hasOption(PARTITION)) {
-                String partitionOpt = line.getOptionValue(PARTITION);
-                Partition partition = new Partition(partitionOpt);
-                actionSimulator = new LocalLoadFlowActionSimulator(network, partition, config, applyIfSolved, observers);
-            } else {
-                actionSimulator = new LoadFlowActionSimulator(network, context.getShortTimeExecutionComputationManager(), config, applyIfSolved, observers);
-            }
+            ActionSimulator actionSimulator = createActionSimulator(network, context, line, config, applyIfSolved, observers);
+
             context.getOutputStream().println("Using '" + actionSimulator.getName() + "' rules engine");
 
             // start simulator
@@ -255,6 +246,21 @@ public class ActionSimulatorTool implements Tool {
             Throwable rootCause = StackTraceUtils.sanitizeRootCause(e);
             rootCause.printStackTrace(context.getErrorStream());
         }
+    }
+
+    private ActionSimulator createActionSimulator(Network network, ToolRunningContext context, CommandLine line,
+                                                  LoadFlowActionSimulatorConfig config, boolean applyIfSolved, List<LoadFlowActionSimulatorObserver> observers) throws IOException {
+        ActionSimulator actionSimulator = null;
+        if (line.hasOption(NTASKS)) {
+            actionSimulator = new ParallelLoadFlowActionSimulator(network, context, line, config, applyIfSolved, observers);
+        } else if (line.hasOption(PARTITION)) {
+            String partitionOpt = line.getOptionValue(PARTITION);
+            Partition partition = new Partition(partitionOpt);
+            actionSimulator = new LocalLoadFlowActionSimulator(network, partition, config, applyIfSolved, observers);
+        } else {
+            actionSimulator = new LoadFlowActionSimulator(network, context.getShortTimeExecutionComputationManager(), config, applyIfSolved, observers);
+        }
+        return actionSimulator;
     }
 
     private void checkOptionsInParallel(CommandLine line) {
