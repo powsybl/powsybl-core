@@ -34,12 +34,12 @@ public class XnodeXmlSerializerTest extends AbstractConverterTest {
         vl.newDanglingLine()
                 .setId("DL")
                 .setBus("B")
-                .setR(1f)
-                .setX(1f)
-                .setG(0f)
-                .setB(0f)
-                .setP0(0f)
-                .setQ0(0f)
+                .setR(1.0)
+                .setX(1.0)
+                .setG(0.0)
+                .setB(0.0)
+                .setP0(0.0)
+                .setQ0(0.0)
                 .add();
         return network;
     }

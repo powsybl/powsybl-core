@@ -26,7 +26,7 @@ package com.powsybl.iidm.network;
  */
 public interface ShuntCompensatorAdder extends InjectionAdder<ShuntCompensatorAdder> {
 
-    ShuntCompensatorAdder setbPerSection(float bPerSection);
+    ShuntCompensatorAdder setbPerSection(double bPerSection);
 
     ShuntCompensatorAdder setMaximumSectionCount(int maximumSectionCount);
 

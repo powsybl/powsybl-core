@@ -38,8 +38,8 @@ public class AlternatifTest extends AbstractLoadFlowRulesEngineTest {
     public void test() {
         Generator generator = network.getGenerator("GEN");
         Load load = network.getLoad("LOAD");
-        float targetP = generator.getTargetP();
-        float loadP0 = load.getP0();
+        double targetP = generator.getTargetP();
+        double loadP0 = load.getP0();
 
         engine.start(actionDb, "contingency1"); // life = 3
         assertEquals(targetP + 3.0, generator.getTargetP(), 0.0);

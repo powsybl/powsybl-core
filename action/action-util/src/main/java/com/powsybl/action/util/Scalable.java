@@ -8,10 +8,10 @@ package com.powsybl.action.util;
 
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -19,13 +19,11 @@ import java.util.stream.Collectors;
  */
 public interface Scalable {
 
-    Logger LOGGER = LoggerFactory.getLogger(Scalable.class);
-
-    float initialValue(Network n);
+    double initialValue(Network n);
 
     void reset(Network n);
 
-    float maximumValue(Network n);
+    double maximumValue(Network n);
 
     void listGenerators(Network n, List<Generator> generators, List<String> notFoundGenerators);
 
@@ -33,7 +31,7 @@ public interface Scalable {
 
     List<Generator> listGenerators(Network n);
 
-    float scale(Network n, float asked);
+    double scale(Network n, double asked);
 
     static GeneratorScalable gen(String id) {
         return new GeneratorScalable(id);

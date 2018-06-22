@@ -19,7 +19,7 @@ public interface RatioTapChanger extends TapChanger<RatioTapChanger, RatioTapCha
      * Depends on the working state.
      * @see StateManager
      */
-    float getTargetV();
+    double getTargetV();
 
     /**
      * Set the target voltage in kV.
@@ -27,7 +27,7 @@ public interface RatioTapChanger extends TapChanger<RatioTapChanger, RatioTapCha
      * Depends on the working state.
      * @see StateManager
      */
-    RatioTapChanger setTargetV(float targetV);
+    RatioTapChanger setTargetV(double targetV);
 
     /**
      * Get the load tap changing capabilities status.

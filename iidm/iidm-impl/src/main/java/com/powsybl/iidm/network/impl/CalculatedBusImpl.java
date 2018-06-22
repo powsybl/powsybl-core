@@ -78,7 +78,7 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     }
 
     @Override
-    public BusExt setV(float v) {
+    public BusExt setV(double v) {
         checkValidity();
         for (NodeTerminal terminal : terminals) {
             terminal.setV(v);
@@ -87,16 +87,16 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     }
 
     @Override
-    public float getV() {
+    public double getV() {
         checkValidity();
         if (terminals.isEmpty()) {
-            return Float.NaN;
+            return Double.NaN;
         }
         return terminals.get(0).getV();
     }
 
     @Override
-    public BusExt setAngle(float angle) {
+    public BusExt setAngle(double angle) {
         checkValidity();
         for (NodeTerminal terminal : terminals) {
             terminal.setAngle(angle);
@@ -105,22 +105,22 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     }
 
     @Override
-    public float getAngle() {
+    public double getAngle() {
         checkValidity();
         if (terminals.isEmpty()) {
-            return Float.NaN;
+            return Double.NaN;
         }
         return terminals.get(0).getAngle();
     }
 
     @Override
-    public float getP() {
+    public double getP() {
         checkValidity();
         return super.getP();
     }
 
     @Override
-    public float getQ() {
+    public double getQ() {
         checkValidity();
         return super.getQ();
     }

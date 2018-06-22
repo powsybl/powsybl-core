@@ -8,7 +8,7 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.impl.util.Ref;
-import gnu.trove.list.array.TFloatArrayList;
+import gnu.trove.list.array.TDoubleArrayList;
 
 import java.util.BitSet;
 import java.util.Objects;
@@ -21,17 +21,17 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine, S
 
     static final String TYPE_DESCRIPTION = "hvdcLine";
 
-    private float r;
+    private double r;
 
-    private float nominalV;
+    private double nominalV;
 
-    private float maxP;
+    private double maxP;
 
     // attributes depending on the state
 
     private final BitSet convertersMode;
 
-    private final TFloatArrayList activePowerSetpoint;
+    private final TDoubleArrayList activePowerSetpoint;
 
     //
 
@@ -41,7 +41,7 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine, S
 
     private final Ref<NetworkImpl> networkRef;
 
-    HvdcLineImpl(String id, String name, float r, float nominalV, float maxP, ConvertersMode convertersMode, float activePowerSetpoint,
+    HvdcLineImpl(String id, String name, double r, double nominalV, double maxP, ConvertersMode convertersMode, double activePowerSetpoint,
                  AbstractHvdcConverterStation<?> converterStation1, AbstractHvdcConverterStation<?> converterStation2,
                  Ref<NetworkImpl> networkRef) {
         super(id, name);
@@ -51,7 +51,7 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine, S
         int stateArraySize = networkRef.get().getStateManager().getStateArraySize();
         this.convertersMode = new BitSet(stateArraySize);
         this.convertersMode.set(0, stateArraySize, convertersMode == ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER);
-        this.activePowerSetpoint = new TFloatArrayList(stateArraySize);
+        this.activePowerSetpoint = new TDoubleArrayList(stateArraySize);
         this.activePowerSetpoint.fill(0, stateArraySize, activePowerSetpoint);
         this.converterStation1 = converterStation1;
         this.converterStation2 = converterStation2;
@@ -91,56 +91,56 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine, S
     }
 
     @Override
-    public float getR() {
+    public double getR() {
         return r;
     }
 
     @Override
-    public HvdcLineImpl setR(float r) {
+    public HvdcLineImpl setR(double r) {
         ValidationUtil.checkR(this, r);
-        float oldValue = this.r;
+        double oldValue = this.r;
         this.r = r;
         notifyUpdate("r", oldValue, r);
         return this;
     }
 
     @Override
-    public float getNominalV() {
+    public double getNominalV() {
         return nominalV;
     }
 
     @Override
-    public HvdcLineImpl setNominalV(float nominalV) {
+    public HvdcLineImpl setNominalV(double nominalV) {
         ValidationUtil.checkNominalV(this, nominalV);
-        float oldValue = this.nominalV;
+        double oldValue = this.nominalV;
         this.nominalV = nominalV;
         notifyUpdate("nominalV", oldValue, nominalV);
         return this;
     }
 
     @Override
-    public float getMaxP() {
+    public double getMaxP() {
         return maxP;
     }
 
     @Override
-    public HvdcLineImpl setMaxP(float maxP) {
+    public HvdcLineImpl setMaxP(double maxP) {
         ValidationUtil.checkMaxP(this, maxP);
-        float oldValue = this.maxP;
+        double oldValue = this.maxP;
         this.maxP = maxP;
         notifyUpdate("maxP", oldValue, maxP);
         return this;
     }
 
     @Override
-    public float getActivePowerSetpoint() {
+    public double getActivePowerSetpoint() {
         return activePowerSetpoint.get(getNetwork().getStateIndex());
     }
 
     @Override
-    public HvdcLineImpl setActivePowerSetpoint(float activePowerSetpoint) {
+    public HvdcLineImpl setActivePowerSetpoint(double activePowerSetpoint) {
         ValidationUtil.checkActivePowerSetpoint(this, activePowerSetpoint);
-        float oldValue = this.activePowerSetpoint.set(getNetwork().getStateIndex(), activePowerSetpoint);
+        double oldValue = this.activePowerSetpoint.set(getNetwork().getStateIndex(), activePowerSetpoint);
         notifyUpdate("activePowerSetpoint", oldValue, activePowerSetpoint);
         return this;
     }

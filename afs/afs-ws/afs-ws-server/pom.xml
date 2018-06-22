@@ -8,7 +8,7 @@
 
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -23,13 +23,14 @@
 
     <dependencies>
         <!-- Provided dependencies -->
+        <!-- TODO(mathbagu): move this dependency between compilation and test dependencies -->
         <dependency>
             <groupId>javax</groupId>
             <artifactId>javaee-api</artifactId>
             <scope>provided</scope>
         </dependency>
 
-        <!-- Compile dependencies -->
+        <!-- Compilation dependencies -->
         <dependency>
             <groupId>io.swagger</groupId>
             <artifactId>swagger-jaxrs</artifactId>
@@ -40,6 +41,7 @@
             <artifactId>powsybl-afs-core</artifactId>
             <version>${project.version}</version>
         </dependency>
+
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-afs-ws-server-utils</artifactId>
@@ -58,22 +60,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.wildfly.arquillian</groupId>
-            <artifactId>wildfly-arquillian-container-embedded</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.jboss.arquillian.junit</groupId>
             <artifactId>arquillian-junit-container</artifactId>
             <scope>test</scope>
@@ -81,6 +67,21 @@
         <dependency>
             <groupId>org.jboss.shrinkwrap.resolver</groupId>
             <artifactId>shrinkwrap-resolver-impl-maven</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.wildfly.arquillian</groupId>
+            <artifactId>wildfly-arquillian-container-embedded</artifactId>
             <scope>test</scope>
         </dependency>
 
@@ -139,15 +140,14 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <argLine>-Djboss.socket.binding.port-offset=1000</argLine>
                     <reuseForks>false</reuseForks>
                     <systemPropertyVariables>
                         <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
+                        <jboss.socket.binding.port-offset>1000</jboss.socket.binding.port-offset>
                     </systemPropertyVariables>
                     <redirectTestOutputToFile>false</redirectTestOutputToFile>
                 </configuration>
             </plugin>
         </plugins>
     </build>
-
 </project>

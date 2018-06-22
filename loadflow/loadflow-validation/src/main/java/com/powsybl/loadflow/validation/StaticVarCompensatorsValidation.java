@@ -83,16 +83,16 @@ public final class StaticVarCompensatorsValidation {
         Objects.requireNonNull(svc);
         Objects.requireNonNull(config);
         Objects.requireNonNull(svcsWriter);
-        float p = svc.getTerminal().getP();
-        float q = svc.getTerminal().getQ();
+        double p = svc.getTerminal().getP();
+        double q = svc.getTerminal().getQ();
         Bus bus = svc.getTerminal().getBusView().getBus();
-        float reactivePowerSetpoint = svc.getReactivePowerSetPoint();
-        float voltageSetpoint = svc.getVoltageSetPoint();
+        double reactivePowerSetpoint = svc.getReactivePowerSetPoint();
+        double voltageSetpoint = svc.getVoltageSetPoint();
         RegulationMode regulationMode = svc.getRegulationMode();
-        float bMin = svc.getBmin();
-        float bMax = svc.getBmax();
-        float nominalV = svc.getTerminal().getVoltageLevel().getNominalV();
-        float v = bus != null ? bus.getV() : Float.NaN;
+        double bMin = svc.getBmin();
+        double bMax = svc.getBmax();
+        double nominalV = svc.getTerminal().getVoltageLevel().getNominalV();
+        double v = bus != null ? bus.getV() : Double.NaN;
         boolean connected = bus != null;
         Bus connectableBus = svc.getTerminal().getBusView().getConnectableBus();
         boolean connectableMainComponent = connectableBus != null && connectableBus.isInMainConnectedComponent();
@@ -100,8 +100,8 @@ public final class StaticVarCompensatorsValidation {
         return checkSVCs(svc.getId(), p, q, v, nominalV, reactivePowerSetpoint, voltageSetpoint, regulationMode, bMin, bMax, connected, mainComponent, config, svcsWriter);
     }
 
-    public static boolean checkSVCs(String id, float p, float q, float v, float nominalV, float reactivePowerSetpoint, float voltageSetpoint,
-                                    RegulationMode regulationMode, float bMin, float bMax, boolean connected, boolean mainComponent,
+    public static boolean checkSVCs(String id, double p, double q, double v, double nominalV, double reactivePowerSetpoint, double voltageSetpoint,
+                                    RegulationMode regulationMode, double bMin, double bMax, boolean connected, boolean mainComponent,
                                     ValidationConfig config, Writer writer) {
         Objects.requireNonNull(id);
         Objects.requireNonNull(config);
@@ -114,8 +114,8 @@ public final class StaticVarCompensatorsValidation {
         }
     }
 
-    public static boolean checkSVCs(String id, float p, float q, float v, float nominalV, float reactivePowerSetpoint, float voltageSetpoint,
-                                    RegulationMode regulationMode, float bMin, float bMax, boolean connected, boolean mainComponent,
+    public static boolean checkSVCs(String id, double p, double q, double v, double nominalV, double reactivePowerSetpoint, double voltageSetpoint,
+                                    RegulationMode regulationMode, double bMin, double bMax, boolean connected, boolean mainComponent,
                                     ValidationConfig config, ValidationWriter svcsWriter) {
         Objects.requireNonNull(id);
         Objects.requireNonNull(config);
@@ -123,7 +123,7 @@ public final class StaticVarCompensatorsValidation {
         boolean validated = true;
 
         if (connected && ValidationUtils.isMainComponent(config, mainComponent)) {
-            if (Float.isNaN(p) || Float.isNaN(q)) {
+            if (Double.isNaN(p) || Double.isNaN(q)) {
                 validated = checkSVCsNaNValues(id, p, q, reactivePowerSetpoint);
             } else {
                 validated = checkSVCsValues(id, p, q, v, nominalV, reactivePowerSetpoint, voltageSetpoint, regulationMode, bMin, bMax, config);
@@ -137,17 +137,17 @@ public final class StaticVarCompensatorsValidation {
         return validated;
     }
 
-    private static boolean checkSVCsNaNValues(String id, float p, float q, float reactivePowerSetpoint) {
+    private static boolean checkSVCsNaNValues(String id, double p, double q, double reactivePowerSetpoint) {
         // a validation error should be detected if there is a setpoint but no p or q
-        if (!Float.isNaN(reactivePowerSetpoint) && reactivePowerSetpoint != 0) {
+        if (!Double.isNaN(reactivePowerSetpoint) && reactivePowerSetpoint != 0) {
             LOGGER.warn("{} {}: {}: P={} Q={} reactivePowerSetpoint={}", ValidationType.SVCS, ValidationUtils.VALIDATION_ERROR, id, p, q, reactivePowerSetpoint);
             return false;
         }
         return true;
     }
 
-    private static boolean checkSVCsValues(String id, float p, float q, float v, float nominalV, float reactivePowerSetpoint, float voltageSetpoint,
-                                           RegulationMode regulationMode, float bMin, float bMax, ValidationConfig config) {
+    private static boolean checkSVCsValues(String id, double p, double q, double v, double nominalV, double reactivePowerSetpoint, double voltageSetpoint,
+                                           RegulationMode regulationMode, double bMin, double bMax, ValidationConfig config) {
         boolean validated = true;
         // active power should be equal to 0
         if (Math.abs(p) > config.getThreshold()) {
@@ -155,9 +155,9 @@ public final class StaticVarCompensatorsValidation {
             validated = false;
         }
         // for the computation of Qmin and Qmax use either the nominal voltage or the voltage of the  bus (depending on the SpecificCompatibility loadflow parameter)
-        float vAux = config.getLoadFlowParameters().isSpecificCompatibility() ? nominalV : v;
-        float qMin = bMin * vAux * vAux;
-        float qMax = bMax * vAux * vAux;
+        double vAux = config.getLoadFlowParameters().isSpecificCompatibility() ? nominalV : v;
+        double qMin = bMin * vAux * vAux;
+        double qMax = bMax * vAux * vAux;
         // if regulationMode = REACTIVE_POWER
         // if the setpoint is in [Qmin=bMin*V*V, Qmax=bMax*V*V] then reactive power should be equal to setpoint
         // if the setpoint is outside [Qmin=bMin*V*V, Qmax=bMax*V*V] then the reactive power is equal to the nearest bound
@@ -171,7 +171,7 @@ public final class StaticVarCompensatorsValidation {
         // either q is equal to Qmax = bMax * V * V and V is lower than voltageSetpoint
         // or q is equal to Qmin = bMin * V * V and V is higher than voltageSetpoint
         // or V at the connected bus is equal to voltageSetpoint and q is bounded within [-Qmax=bMax*V*V, -Qmin=bMin*V*V]
-        float qSvc = -q;
+        double qSvc = -q;
         if (regulationMode == RegulationMode.VOLTAGE
             && (ValidationUtils.areNaN(config, qMin, qMax, v, voltageSetpoint)
                 || (v < voltageSetpoint - config.getThreshold() && Math.abs(qSvc - qMax) > config.getThreshold())
@@ -188,20 +188,20 @@ public final class StaticVarCompensatorsValidation {
         return validated;
     }
 
-    private static float closestBound(float bound1, float bound2, float value) {
-        if (Float.isNaN(value)) {
-            return Float.NaN;
+    private static double closestBound(double bound1, double bound2, double value) {
+        if (Double.isNaN(value)) {
+            return Double.NaN;
         }
-        if (Float.isNaN(bound1)) {
+        if (Double.isNaN(bound1)) {
             return bound2;
         }
-        if (Float.isNaN(bound2)) {
+        if (Double.isNaN(bound2)) {
             return bound1;
         }
         return Math.abs(value - bound1) < Math.abs(value - bound2) ? bound1 : bound2;
     }
 
-    private static float getReactivePowerSetpoint(float reactivePowerSetpoint, float qMin, float qMax, ValidationConfig config) {
+    private static double getReactivePowerSetpoint(double reactivePowerSetpoint, double qMin, double qMax, ValidationConfig config) {
         return ValidationUtils.boundedWithin(qMin, qMax, reactivePowerSetpoint, config.getThreshold())
                ? reactivePowerSetpoint
                : closestBound(qMin, qMax, reactivePowerSetpoint);

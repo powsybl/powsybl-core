@@ -45,35 +45,35 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
          * Get the nominal series resistance specified in ohm at the voltage of
          * the leg.
          */
-        float getR();
+        double getR();
 
         /**
          * Set the nominal series resistance specified in ohm at the voltage of
          * the leg.
          */
-        L setR(float r);
+        L setR(double r);
 
         /**
          * Get the nominal series reactance specified in ohm at the voltage of
          * the leg.
          */
-        float getX();
+        double getX();
 
         /**
          * Set the nominal series reactance specified in ohm at the voltage of
          * the leg.
          */
-        L setX(float x);
+        L setX(double x);
 
         /**
          * Get the rated voltage in kV.
          */
-        float getRatedU();
+        double getRatedU();
 
         /**
          * Set the rated voltage in kV.
          */
-        L setRatedU(float ratedU);
+        L setRatedU(double ratedU);
 
         CurrentLimits getCurrentLimits();
 
@@ -90,25 +90,25 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
          * Get the nominal magnetizing conductance specified in S at the voltage
          * of the leg.
          */
-        float getG();
+        double getG();
 
         /**
          * Set the nominal magnetizing conductance specified in S at the voltage
          * of the leg.
          */
-        Leg1 setG(float g);
+        Leg1 setG(double g);
 
         /**
          * Get the nominal magnetizing susceptance specified in S at the voltage
          * of the leg.
          */
-        float getB();
+        double getB();
 
         /**
          * Set the nominal magnetizing susceptance specified in S at the voltage
          * of the leg.
          */
-        Leg1 setB(float b);
+        Leg1 setB(double b);
 
     }
 

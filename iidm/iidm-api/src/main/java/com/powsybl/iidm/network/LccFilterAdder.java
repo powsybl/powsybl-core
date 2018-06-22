@@ -12,7 +12,7 @@ package com.powsybl.iidm.network;
  */
 public interface LccFilterAdder {
 
-    LccFilterAdder setB(float b);
+    LccFilterAdder setB(double b);
 
     LccFilterAdder setConnected(boolean connected);
 

@@ -15,22 +15,22 @@ import com.powsybl.iidm.network.ReactiveLimitsKind;
  */
 class MinMaxReactiveLimitsImpl implements MinMaxReactiveLimits {
 
-    private final float minQ;
+    private final double minQ;
 
-    private final float maxQ;
+    private final double maxQ;
 
-    MinMaxReactiveLimitsImpl(float minQ, float maxQ) {
+    MinMaxReactiveLimitsImpl(double minQ, double maxQ) {
         this.minQ = minQ;
         this.maxQ = maxQ;
     }
 
     @Override
-    public float getMinQ() {
+    public double getMinQ() {
         return minQ;
     }
 
     @Override
-    public float getMaxQ() {
+    public double getMaxQ() {
         return maxQ;
     }
 
@@ -40,12 +40,12 @@ class MinMaxReactiveLimitsImpl implements MinMaxReactiveLimits {
     }
 
     @Override
-    public float getMinQ(float p) {
+    public double getMinQ(double p) {
         return minQ;
     }
 
     @Override
-    public float getMaxQ(float p) {
+    public double getMaxQ(double p) {
         return maxQ;
     }
 

@@ -37,8 +37,8 @@ class VscConverterStationXml extends AbstractConnectableXml<VscConverterStation,
     protected void writeRootElementAttributes(VscConverterStation cs, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
         context.getWriter().writeAttribute("voltageRegulatorOn", Boolean.toString(cs.isVoltageRegulatorOn()));
         XmlUtil.writeFloat("lossFactor", cs.getLossFactor(), context.getWriter());
-        XmlUtil.writeFloat("voltageSetpoint", cs.getVoltageSetpoint(), context.getWriter());
-        XmlUtil.writeFloat("reactivePowerSetpoint", cs.getReactivePowerSetpoint(), context.getWriter());
+        XmlUtil.writeDouble("voltageSetpoint", cs.getVoltageSetpoint(), context.getWriter());
+        XmlUtil.writeDouble("reactivePowerSetpoint", cs.getReactivePowerSetpoint(), context.getWriter());
         writeNodeOrBus(null, cs.getTerminal(), context);
         writePQ(null, cs.getTerminal(), context.getWriter());
     }
@@ -57,8 +57,8 @@ class VscConverterStationXml extends AbstractConnectableXml<VscConverterStation,
     protected VscConverterStation readRootElementAttributes(VscConverterStationAdder adder, NetworkXmlReaderContext context) {
         boolean voltageRegulatorOn = XmlUtil.readBoolAttribute(context.getReader(), "voltageRegulatorOn");
         float lossFactor = XmlUtil.readFloatAttribute(context.getReader(), "lossFactor");
-        float voltageSetpoint = XmlUtil.readOptionalFloatAttribute(context.getReader(), "voltageSetpoint");
-        float reactivePowerSetpoint = XmlUtil.readOptionalFloatAttribute(context.getReader(), "reactivePowerSetpoint");
+        double voltageSetpoint = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "voltageSetpoint");
+        double reactivePowerSetpoint = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "reactivePowerSetpoint");
         readNodeOrBus(adder, context);
         VscConverterStation cs = adder
                 .setLossFactor(lossFactor)

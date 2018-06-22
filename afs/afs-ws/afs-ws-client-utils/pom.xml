@@ -23,12 +23,7 @@
     <description>AFS WS client side utilities</description>
 
     <dependencies>
-        <dependency>
-            <groupId>javax</groupId>
-            <artifactId>javaee-api</artifactId>
-            <version>${javaeeapi.version}</version>
-            <scope>provided</scope>
-        </dependency>
+        <!-- Compilation dependencies -->
         <dependency>
             <groupId>org.jboss.resteasy</groupId>
             <artifactId>resteasy-client</artifactId>
@@ -48,6 +43,13 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-afs-ws-utils</artifactId>
             <version>${project.version}</version>
+        </dependency>
+
+        <!-- Provided dependencies -->
+        <dependency>
+            <groupId>javax</groupId>
+            <artifactId>javaee-api</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <!-- Test dependencies -->

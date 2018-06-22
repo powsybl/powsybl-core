@@ -94,18 +94,18 @@ class MergedBus extends AbstractIdentifiable<Bus> implements CalculatedBus {
     }
 
     @Override
-    public float getV() {
+    public double getV() {
         checkValidity();
         for (Bus b : buses) {
-            if (!Float.isNaN(b.getV())) {
+            if (!Double.isNaN(b.getV())) {
                 return b.getV();
             }
         }
-        return Float.NaN;
+        return Double.NaN;
     }
 
     @Override
-    public BusExt setV(float v) {
+    public BusExt setV(double v) {
         checkValidity();
         for (ConfiguredBus bus : buses) {
             bus.setV(v);
@@ -114,18 +114,18 @@ class MergedBus extends AbstractIdentifiable<Bus> implements CalculatedBus {
     }
 
     @Override
-    public float getAngle() {
+    public double getAngle() {
         checkValidity();
         for (Bus b : buses) {
-            if (!Float.isNaN(b.getAngle())) {
+            if (!Double.isNaN(b.getAngle())) {
                 return b.getAngle();
             }
         }
-        return Float.NaN;
+        return Double.NaN;
     }
 
     @Override
-    public BusExt setAngle(float angle) {
+    public BusExt setAngle(double angle) {
         checkValidity();
         for (ConfiguredBus bus : buses) {
             bus.setAngle(angle);
@@ -134,9 +134,9 @@ class MergedBus extends AbstractIdentifiable<Bus> implements CalculatedBus {
     }
 
     @Override
-    public float getP() {
+    public double getP() {
         checkValidity();
-        float p = 0;
+        double p = 0;
         for (Bus b : buses) {
             p += b.getP();
         }
@@ -144,9 +144,9 @@ class MergedBus extends AbstractIdentifiable<Bus> implements CalculatedBus {
     }
 
     @Override
-    public float getQ() {
+    public double getQ() {
         checkValidity();
-        float q = 0;
+        double q = 0;
         for (Bus b : buses) {
             q += b.getQ();
         }

@@ -24,7 +24,7 @@ public class SwitchSetRetainedTest {
                 .add();
         VoltageLevel vl = s.newVoltageLevel()
                 .setId("VL")
-                .setNominalV(400f)
+                .setNominalV(400.0)
                 .setTopologyKind(TopologyKind.NODE_BREAKER)
                 .add();
         vl.getNodeBreakerView().setNodeCount(10);
@@ -57,7 +57,7 @@ public class SwitchSetRetainedTest {
 
         StateManager stateManager = network.getStateManager();
         stateManager.allowStateMultiThreadAccess(true);
-        stateManager.cloneState(StateManager.INITIAL_STATE_ID, "backup");
+        stateManager.cloneState(StateManagerConstants.INITIAL_STATE_ID, "backup");
 
         assertTrue(b1.isRetained());
         assertEquals(2, Iterables.size(vl.getBusBreakerView().getBuses()));

@@ -7,7 +7,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.StateManager;
+import com.powsybl.iidm.network.StateManagerConstants;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.Assert;
 import org.junit.Test;
@@ -25,7 +25,7 @@ public class ExceptionIsThrownWhenRemoveStateAndWorkingStateIsNotSetTest {
     public void test() throws Exception {
         Network network = EurostagTutorialExample1Factory.create();
         network.getStateManager().allowStateMultiThreadAccess(true);
-        network.getStateManager().cloneState(StateManager.INITIAL_STATE_ID, "s");
+        network.getStateManager().cloneState(StateManagerConstants.INITIAL_STATE_ID, "s");
         ExecutorService executorService = Executors.newSingleThreadExecutor();
         boolean[] exceptionThrown = new boolean[1];
         exceptionThrown[0] = false;

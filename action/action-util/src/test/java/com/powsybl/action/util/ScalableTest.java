@@ -35,9 +35,9 @@ public class ScalableTest {
                 .add();
         VoltageLevel vl = s.newVoltageLevel()
                 .setId("vl1")
-                .setNominalV(380.0f)
-                .setLowVoltageLimit(0.8f * 380.0f)
-                .setHighVoltageLimit(0.8f * 380.0f)
+                .setNominalV(380.0)
+                .setLowVoltageLimit(0.8 * 380.0)
+                .setHighVoltageLimit(1.2 * 380.0)
                 .setTopologyKind(TopologyKind.BUS_BREAKER)
                 .add();
         vl.getBusBreakerView().newBus()
@@ -47,30 +47,30 @@ public class ScalableTest {
                 .setId("g1")
                 .setBus("bus1")
                 .setConnectableBus("bus1")
-                .setMinP(0.0f)
-                .setMaxP(100.0f)
-                .setTargetP(0.0f)
+                .setMinP(0.0)
+                .setMaxP(100.0)
+                .setTargetP(0.0)
                 .setVoltageRegulatorOn(false)
-                .setTargetQ(0.0f)
+                .setTargetQ(0.0)
                 .add();
         vl.newGenerator()
                 .setId("g2")
                 .setBus("bus1")
                 .setConnectableBus("bus1")
-                .setMinP(0.0f)
-                .setMaxP(100.0f)
-                .setTargetP(0.0f)
+                .setMinP(0.0)
+                .setMaxP(100.0)
+                .setTargetP(0.0)
                 .setVoltageRegulatorOn(false)
-                .setTargetQ(0.0f)
+                .setTargetQ(0.0)
                 .add();
         vl.newGenerator()
                 .setId("g3")
                 .setConnectableBus("bus1")
-                .setMinP(0.0f)
-                .setMaxP(100.0f)
-                .setTargetP(0.0f)
+                .setMinP(0.0)
+                .setMaxP(100.0)
+                .setTargetP(0.0)
                 .setVoltageRegulatorOn(true)
-                .setTargetV(1.0f)
+                .setTargetV(1.0)
                 .add();
 
         return network;
@@ -91,43 +91,43 @@ public class ScalableTest {
 
     @Test
     public void testProportionalScalable() {
-        float done = Scalable.proportional(Arrays.asList(70.f, 30.f), Arrays.asList(g1, g2)).scale(network, 100.0f);
-        assertEquals(100.0f, done, 0.0f);
-        assertEquals(70.0f, network.getGenerator("g1").getTargetP(), 1e-5f);
-        assertEquals(30.0f, network.getGenerator("g2").getTargetP(), 1e-5f);
+        double done = Scalable.proportional(Arrays.asList(70.f, 30.f), Arrays.asList(g1, g2)).scale(network, 100.0);
+        assertEquals(100.0, done, 0.0);
+        assertEquals(70.0, network.getGenerator("g1").getTargetP(), 1e-5);
+        assertEquals(30.0, network.getGenerator("g2").getTargetP(), 1e-5);
 
         reset();
 
-        done = Scalable.proportional(100.0f, g1).scale(network, 100.0f);
-        assertEquals(100.0f, done, 0.0f);
-        assertEquals(100.0f, network.getGenerator("g1").getTargetP(), 1e-5f);
-        assertEquals(0.0f, network.getGenerator("g2").getTargetP(), 1e-5f);
+        done = Scalable.proportional(100.0f, g1).scale(network, 100.0);
+        assertEquals(100.0, done, 0.0);
+        assertEquals(100.0, network.getGenerator("g1").getTargetP(), 1e-5);
+        assertEquals(0.0, network.getGenerator("g2").getTargetP(), 1e-5);
 
         reset();
 
-        done = Scalable.proportional(75.0f, g1, 25.0f, g2).scale(network, 100.0f);
-        assertEquals(100.0f, done, 0.0f);
-        assertEquals(75.0f, network.getGenerator("g1").getTargetP(), 1e-5f);
-        assertEquals(25.0f, network.getGenerator("g2").getTargetP(), 1e-5f);
+        done = Scalable.proportional(75.0f, g1, 25.0f, g2).scale(network, 100.0);
+        assertEquals(100.0, done, 0.0);
+        assertEquals(75.0, network.getGenerator("g1").getTargetP(), 1e-5);
+        assertEquals(25.0, network.getGenerator("g2").getTargetP(), 1e-5);
 
         reset();
 
-        done = Scalable.proportional(50.0f, g1, 25.0f, g1, 25.0f, g2).scale(network, 100.0f);
-        assertEquals(100.0f, done, 0.0f);
-        assertEquals(75.0f, network.getGenerator("g1").getTargetP(), 1e-5f);
-        assertEquals(25.0f, network.getGenerator("g2").getTargetP(), 1e-5f);
+        done = Scalable.proportional(50.0f, g1, 25.0f, g1, 25.0f, g2).scale(network, 100.0);
+        assertEquals(100.0, done, 0.0);
+        assertEquals(75.0, network.getGenerator("g1").getTargetP(), 1e-5);
+        assertEquals(25.0, network.getGenerator("g2").getTargetP(), 1e-5);
 
         reset();
 
-        done = Scalable.proportional(25.0f, g1, 25.0f, g1, 25.0f, g1, 25.0f, g1).scale(network, 100.0f);
-        assertEquals(100.0f, done, 0.0f);
-        assertEquals(100.0f, network.getGenerator("g1").getTargetP(), 0.0f);
+        done = Scalable.proportional(25.0f, g1, 25.0f, g1, 25.0f, g1, 25.0f, g1).scale(network, 100.0);
+        assertEquals(100.0, done, 0.0);
+        assertEquals(100.0, network.getGenerator("g1").getTargetP(), 0.0);
 
         reset();
 
-        done = Scalable.proportional(20.0f, g1, 20.0f, g1, 20.0f, g1, 20.0f, g1, 20.0f, g1).scale(network, 100.0f);
-        assertEquals(100.0f, done, 0.0f);
-        assertEquals(100.0f, network.getGenerator("g1").getTargetP(), 0.0f);
+        done = Scalable.proportional(20.0f, g1, 20.0f, g1, 20.0f, g1, 20.0f, g1, 20.0f, g1).scale(network, 100.0);
+        assertEquals(100.0, done, 0.0);
+        assertEquals(100.0, network.getGenerator("g1").getTargetP(), 0.0);
 
         testInvalidProportionalScalable(Collections.singletonList(100.0f), Collections.emptyList());
         testInvalidProportionalScalable(Collections.emptyList(), Collections.emptyList());
@@ -145,31 +145,31 @@ public class ScalableTest {
     public void testStackScalable() {
         Scalable scalable = Scalable.stack(g1, g2);
 
-        float done = scalable.scale(network, 150.0f);
-        assertEquals(150.0f, done, 0.0f);
-        assertEquals(100.0f, network.getGenerator("g1").getTargetP(), 0.0f);
-        assertEquals(50.0f, network.getGenerator("g2").getTargetP(), 0.0f);
+        double done = scalable.scale(network, 150.0);
+        assertEquals(150.0, done, 0.0);
+        assertEquals(100.0, network.getGenerator("g1").getTargetP(), 0.0);
+        assertEquals(50.0, network.getGenerator("g2").getTargetP(), 0.0);
 
-        done = scalable.scale(network, 100.f);
-        assertEquals(50.0f, done, 0.0f);
-        assertEquals(100.0f, network.getGenerator("g1").getTargetP(), 0.0f);
-        assertEquals(100.0f, network.getGenerator("g2").getTargetP(), 0.0f);
+        done = scalable.scale(network, 100.0);
+        assertEquals(50.0, done, 0.0);
+        assertEquals(100.0, network.getGenerator("g1").getTargetP(), 0.0);
+        assertEquals(100.0, network.getGenerator("g2").getTargetP(), 0.0);
     }
 
     @Test
     public void testInitialValue() {
-        assertEquals(0.0f, g1.initialValue(network), 0.0f);
+        assertEquals(0.0, g1.initialValue(network), 0.0);
 
         Scalable scalable = Scalable.stack(g1, g2);
-        assertEquals(0.0f, scalable.initialValue(network), 0.0f);
+        assertEquals(0.0, scalable.initialValue(network), 0.0);
     }
 
     @Test
     public void testMaximumValue() {
-        assertEquals(100.0f, g1.maximumValue(network), 0.0f);
+        assertEquals(100.0, g1.maximumValue(network), 0.0);
 
         Scalable scalable = Scalable.stack(g1, g2);
-        assertEquals(200.0f, scalable.maximumValue(network), 0.0f);
+        assertEquals(200.0, scalable.maximumValue(network), 0.0);
     }
 
     @Test
@@ -207,10 +207,10 @@ public class ScalableTest {
 
     @Test
     public void testDisconnectedGenerator() {
-        g3.scale(network, 100.0f);
+        g3.scale(network, 100.0);
 
         assertTrue(network.getGenerator("g3").getTerminal().isConnected());
         assertEquals(100.0, network.getGenerator("g3").getTargetP(), 0.0);
-        assertEquals(1.0f, network.getGenerator("g3").getTargetV(), 0.0f);
+        assertEquals(1.0, network.getGenerator("g3").getTargetV(), 0.0);
     }
 }

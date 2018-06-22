@@ -97,8 +97,8 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
     }
 
     @Override
-    protected void write(String generatorId, float p, float q, float v, float targetP, float targetQ, float targetV,
-            boolean connected, boolean voltageRegulatorOn, float minP, float maxP, float minQ, float maxQ, boolean mainComponent,
+    protected void write(String generatorId, double p, double q, double v, double targetP, double targetQ, double targetV,
+            boolean connected, boolean voltageRegulatorOn, double minP, double maxP, double minQ, double maxQ, boolean mainComponent,
             boolean validated, GeneratorData generatorData, boolean found, boolean writeValues) throws IOException {
         write(generatorId, "p", found, -generatorData.p, writeValues, -p);
         write(generatorId, "q", found, -generatorData.q, writeValues, -q);
@@ -150,8 +150,8 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
     }
 
     @Override
-    protected void write(String svcId, float p, float q, float v, float nominalV, float reactivePowerSetpoint, float voltageSetpoint,
-                         boolean connected, RegulationMode regulationMode, float bMin, float bMax, boolean mainComponent, boolean validated,
+    protected void write(String svcId, double p, double q, double v, double nominalV, double reactivePowerSetpoint, double voltageSetpoint,
+                         boolean connected, RegulationMode regulationMode, double bMin, double bMax, boolean mainComponent, boolean validated,
                          SvcData svcData, boolean found, boolean writeValues) throws IOException {
         write(svcId, "p", found, -svcData.p, writeValues, -p);
         write(svcId, "q", found, -svcData.q, writeValues, -q);
@@ -169,8 +169,8 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
         }
     }
 
-    protected void write(String shuntId, float q, float expectedQ, float p, int currentSectionCount, int maximumSectionCount,
-                         float bPerSection, float v, boolean connected, float qMax, float nominalV, boolean mainComponent,
+    protected void write(String shuntId, double q, double expectedQ, double p, int currentSectionCount, int maximumSectionCount,
+                         double bPerSection, double v, boolean connected, double qMax, double nominalV, boolean mainComponent,
                          boolean validated, ShuntData shuntData, boolean found, boolean writeValues) throws IOException {
         write(shuntId, "q", found, shuntData.q, writeValues, q);
         write(shuntId, "expectedQ", found, shuntData.expectedQ, writeValues, expectedQ);
@@ -189,8 +189,8 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
     }
 
     @Override
-    protected void write(String twtId, float error, float upIncrement, float downIncrement, float rho, float rhoPreviousStep, float rhoNextStep,
-                         int tapPosition, int lowTapPosition, int highTapPosition, float targetV, Side regulatedSide, float v, boolean connected,
+    protected void write(String twtId, double error, double upIncrement, double downIncrement, double rho, double rhoPreviousStep, double rhoNextStep,
+                         int tapPosition, int lowTapPosition, int highTapPosition, double targetV, Side regulatedSide, double v, boolean connected,
                          boolean mainComponent, boolean validated, TransformerData twtData, boolean found, boolean writeValues) throws IOException {
         write(twtId, "error", found, twtData.error, writeValues, error);
         write(twtId, "upIncrement", found, twtData.upIncrement, writeValues, upIncrement);

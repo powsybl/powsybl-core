@@ -20,17 +20,17 @@ public class MergedXnodeTest {
     @Test
     public void test() {
         Line line = Mockito.mock(Line.class);
-        MergedXnode xnode = new MergedXnode(line, 0.5f, 0.5f, 1f, 2f, 3f, 4f, "XXXXXX11");
+        MergedXnode xnode = new MergedXnode(line, 0.5f, 0.5f, 1.0, 2.0, 3.0, 4.0, "XXXXXX11");
 
         assertEquals("mergedXnode", xnode.getName());
         assertSame(line, xnode.getExtendable());
 
         assertEquals(0.5f, xnode.getRdp(), 0f);
         assertEquals(0.5f, xnode.getXdp(), 0f);
-        assertEquals(1f, xnode.getXnodeP1(), 0f);
-        assertEquals(2f, xnode.getXnodeQ1(), 0f);
-        assertEquals(3f, xnode.getXnodeP2(), 0f);
-        assertEquals(4f, xnode.getXnodeQ2(), 0f);
+        assertEquals(1.0, xnode.getXnodeP1(), 0.0);
+        assertEquals(2.0, xnode.getXnodeQ1(), 0.0);
+        assertEquals(3.0, xnode.getXnodeP2(), 0.0);
+        assertEquals(4.0, xnode.getXnodeQ2(), 0.0);
         assertEquals("XXXXXX11", xnode.getCode());
 
         try {
@@ -51,18 +51,18 @@ public class MergedXnodeTest {
 
         xnode.setRdp(0.6f);
         xnode.setXdp(0.6f);
-        xnode.setXnodeP1(10f);
-        xnode.setXnodeQ1(11f);
-        xnode.setXnodeP2(12f);
-        xnode.setXnodeQ2(13f);
+        xnode.setXnodeP1(10.0);
+        xnode.setXnodeQ1(11.0);
+        xnode.setXnodeP2(12.0);
+        xnode.setXnodeQ2(13.0);
         xnode.setCode("XXXXXX21");
 
         assertEquals(0.6f, xnode.getRdp(), 0f);
         assertEquals(0.6f, xnode.getXdp(), 0f);
-        assertEquals(10f, xnode.getXnodeP1(), 0f);
-        assertEquals(11f, xnode.getXnodeQ1(), 0f);
-        assertEquals(12f, xnode.getXnodeP2(), 0f);
-        assertEquals(13f, xnode.getXnodeQ2(), 0f);
+        assertEquals(10.0, xnode.getXnodeP1(), 0.0);
+        assertEquals(11.0, xnode.getXnodeQ1(), 0.0);
+        assertEquals(12.0, xnode.getXnodeP2(), 0.0);
+        assertEquals(13.0, xnode.getXnodeQ2(), 0.0);
         assertEquals("XXXXXX21", xnode.getCode());
     }
 }

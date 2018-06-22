@@ -12,17 +12,17 @@ package com.powsybl.iidm.network.impl;
  */
 class TapChangerStepImpl<S extends TapChangerStepImpl<S>> {
 
-    private float rho;
+    private double rho;
 
-    private float r;
+    private double r;
 
-    private float x;
+    private double x;
 
-    private float g;
+    private double g;
 
-    private float b;
+    private double b;
 
-    protected TapChangerStepImpl(float rho, float r, float x, float g, float b) {
+    protected TapChangerStepImpl(double rho, double r, double x, double g, double b) {
         this.rho = rho;
         this.r = r;
         this.x = x;
@@ -30,47 +30,47 @@ class TapChangerStepImpl<S extends TapChangerStepImpl<S>> {
         this.b = b;
     }
 
-    public float getRho() {
+    public double getRho() {
         return rho;
     }
 
-    public S setRho(float rho) {
+    public S setRho(double rho) {
         this.rho = rho;
         return (S) this;
     }
 
-    public float getR() {
+    public double getR() {
         return r;
     }
 
-    public S setR(float r) {
+    public S setR(double r) {
         this.r = r;
         return (S) this;
     }
 
-    public float getX() {
+    public double getX() {
         return x;
     }
 
-    public S setX(float x) {
+    public S setX(double x) {
         this.x = x;
         return (S) this;
     }
 
-    public float getB() {
+    public double getB() {
         return b;
     }
 
-    public S setB(float b) {
+    public S setB(double b) {
         this.b = b;
         return (S) this;
     }
 
-    public float getG() {
+    public double getG() {
         return g;
     }
 
-    public S setG(float g) {
+    public S setG(double g) {
         this.g = g;
         return (S) this;
     }

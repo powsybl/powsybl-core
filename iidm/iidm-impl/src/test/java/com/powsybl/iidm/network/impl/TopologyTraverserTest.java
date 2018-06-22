@@ -27,7 +27,7 @@ public class TopologyTraverserTest {
                 .add();
         VoltageLevel vl1 = s1.newVoltageLevel()
                 .setId("VL1")
-                .setNominalV(400f)
+                .setNominalV(400.0)
                 .setTopologyKind(TopologyKind.NODE_BREAKER)
                 .add();
         vl1.getNodeBreakerView().setNodeCount(4);
@@ -38,10 +38,10 @@ public class TopologyTraverserTest {
         vl1.newGenerator()
                 .setId("G")
                 .setNode(1)
-                .setMaxP(100)
-                .setMinP(50)
-                .setTargetP(100)
-                .setTargetV(400)
+                .setMaxP(100.0)
+                .setMinP(50.0)
+                .setTargetP(100.0)
+                .setTargetV(400.0)
                 .setVoltageRegulatorOn(true)
                 .add();
         vl1.getNodeBreakerView().newDisconnector()
@@ -69,7 +69,7 @@ public class TopologyTraverserTest {
                 .add();
         VoltageLevel vl2 = s2.newVoltageLevel()
                 .setId("VL2")
-                .setNominalV(400f)
+                .setNominalV(400.0)
                 .setTopologyKind(TopologyKind.NODE_BREAKER)
                 .add();
         vl2.getNodeBreakerView().setNodeCount(5);
@@ -107,12 +107,12 @@ public class TopologyTraverserTest {
                 .setNode1(3)
                 .setVoltageLevel2("VL2")
                 .setNode2(3)
-                .setR(1)
-                .setX(1)
-                .setG1(0)
-                .setB1(0)
-                .setG2(0)
-                .setB2(0)
+                .setR(1.0)
+                .setX(1.0)
+                .setG1(0.0)
+                .setB1(0.0)
+                .setG2(0.0)
+                .setB2(0.0)
                 .add();
         return network;
     }
@@ -125,7 +125,7 @@ public class TopologyTraverserTest {
                 .add();
         VoltageLevel vl3 = s3.newVoltageLevel()
                 .setId("VL3")
-                .setNominalV(400f)
+                .setNominalV(400.0)
                 .setTopologyKind(TopologyKind.BUS_BREAKER)
                 .add();
         vl3.getBusBreakerView().newBus()
@@ -135,8 +135,8 @@ public class TopologyTraverserTest {
                 .setId("LD2")
                 .setConnectableBus("B1")
                 .setBus("B1")
-                .setP0(1)
-                .setQ0(1)
+                .setP0(1.0)
+                .setQ0(1.0)
                 .add();
         network.getVoltageLevel("VL2").getNodeBreakerView().newBreaker()
                 .setId("BR5")
@@ -151,12 +151,12 @@ public class TopologyTraverserTest {
                 .setVoltageLevel2("VL3")
                 .setConnectableBus2("B1")
                 .setBus2("B1")
-                .setR(1)
-                .setX(1)
-                .setG1(0)
-                .setB1(0)
-                .setG2(0)
-                .setB2(0)
+                .setR(1.0)
+                .setX(1.0)
+                .setG1(0.0)
+                .setB1(0.0)
+                .setG2(0.0)
+                .setB2(0.0)
                 .add();
         return network;
     }

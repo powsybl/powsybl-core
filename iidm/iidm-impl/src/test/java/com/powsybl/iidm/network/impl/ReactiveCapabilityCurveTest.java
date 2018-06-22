@@ -36,27 +36,27 @@ public class ReactiveCapabilityCurveTest {
     public void testAdder() {
         ReactiveCapabilityCurve reactiveCapabilityCurve = generator.newReactiveCapabilityCurve()
                     .beginPoint()
-                        .setP(1.0f)
-                        .setMaxQ(5.0f)
-                        .setMinQ(1.0f)
+                        .setP(1.0)
+                        .setMaxQ(5.0)
+                        .setMinQ(1.0)
                     .endPoint()
                     .beginPoint()
-                        .setP(2.0f)
-                        .setMaxQ(10.0f)
-                        .setMinQ(2.0f)
+                        .setP(2.0)
+                        .setMaxQ(10.0)
+                        .setMinQ(2.0)
                     .endPoint()
                     .beginPoint()
-                        .setP(100.0f)
-                        .setMaxQ(10.0f)
-                        .setMinQ(2.0f)
+                        .setP(100.0)
+                        .setMaxQ(10.0)
+                        .setMinQ(2.0)
                     .endPoint()
                 .add();
         assertEquals(ReactiveLimitsKind.CURVE, reactiveCapabilityCurve.getKind());
-        assertEquals(100.0f, reactiveCapabilityCurve.getMaxP(), 0.0f);
-        assertEquals(1.0f, reactiveCapabilityCurve.getMinP(), 0.0f);
+        assertEquals(100.0, reactiveCapabilityCurve.getMaxP(), 0.0);
+        assertEquals(1.0, reactiveCapabilityCurve.getMinP(), 0.0);
         assertEquals(3, reactiveCapabilityCurve.getPoints().size());
-        assertEquals(5.0f, reactiveCapabilityCurve.getMaxQ(1.0f), 0.0f);
-        assertEquals(2.0f, reactiveCapabilityCurve.getMinQ(2.0f), 0.0f);
+        assertEquals(5.0, reactiveCapabilityCurve.getMaxQ(1.0), 0.0);
+        assertEquals(2.0, reactiveCapabilityCurve.getMinQ(2.0), 0.0);
     }
 
     @Test
@@ -65,9 +65,9 @@ public class ReactiveCapabilityCurveTest {
         thrown.expectMessage("should have at least two points");
         generator.newReactiveCapabilityCurve()
                     .beginPoint()
-                        .setP(1.0f)
-                        .setMaxQ(5.0f)
-                        .setMinQ(1.0f)
+                        .setP(1.0)
+                        .setMaxQ(5.0)
+                        .setMinQ(1.0)
                     .endPoint()
                 .add();
     }
@@ -78,14 +78,14 @@ public class ReactiveCapabilityCurveTest {
         thrown.expectMessage("a point already exists for active power");
         generator.newReactiveCapabilityCurve()
                     .beginPoint()
-                        .setP(1.0f)
-                        .setMaxQ(5.0f)
-                        .setMinQ(1.0f)
+                        .setP(1.0)
+                        .setMaxQ(5.0)
+                        .setMinQ(1.0)
                     .endPoint()
                     .beginPoint()
-                        .setP(1.0f)
-                        .setMaxQ(5.0f)
-                        .setMinQ(1.0f)
+                        .setP(1.0)
+                        .setMaxQ(5.0)
+                        .setMinQ(1.0)
                     .endPoint()
                 .add();
     }
@@ -96,9 +96,9 @@ public class ReactiveCapabilityCurveTest {
         thrown.expectMessage("P is not set");
         generator.newReactiveCapabilityCurve()
                     .beginPoint()
-                        .setP(Float.NaN)
-                        .setMaxQ(5.0f)
-                        .setMinQ(1.0f)
+                        .setP(Double.NaN)
+                        .setMaxQ(5.0)
+                        .setMinQ(1.0)
                     .endPoint()
                 .add();
     }
@@ -109,9 +109,9 @@ public class ReactiveCapabilityCurveTest {
         thrown.expectMessage("max Q is not set");
         generator.newReactiveCapabilityCurve()
                     .beginPoint()
-                        .setP(1.0f)
-                        .setMaxQ(Float.NaN)
-                        .setMinQ(1.0f)
+                        .setP(1.0)
+                        .setMaxQ(Double.NaN)
+                        .setMinQ(1.0)
                     .endPoint()
                 .add();
     }
@@ -122,9 +122,9 @@ public class ReactiveCapabilityCurveTest {
         thrown.expectMessage("min Q is not set");
         generator.newReactiveCapabilityCurve()
                     .beginPoint()
-                        .setP(1.0f)
-                        .setMaxQ(5.0f)
-                        .setMinQ(Float.NaN)
+                        .setP(1.0)
+                        .setMaxQ(5.0)
+                        .setMinQ(Double.NaN)
                     .endPoint()
                 .add();
     }
@@ -136,9 +136,9 @@ public class ReactiveCapabilityCurveTest {
         thrown.expectMessage("maximum reactive power is expected to be greater than or equal to minimum reactive power");
         generator.newReactiveCapabilityCurve()
                     .beginPoint()
-                        .setP(1.0f)
-                        .setMaxQ(5.0f)
-                        .setMinQ(50.0f)
+                        .setP(1.0)
+                        .setMaxQ(5.0)
+                        .setMinQ(50.0)
                     .endPoint()
                 .add();
     }

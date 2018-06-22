@@ -11,21 +11,21 @@ package com.powsybl.iidm.network;
  */
 public interface TieLineAdder extends BranchAdder<TieLineAdder> {
 
-    TieLineAdder setR(float r);
+    TieLineAdder setR(double r);
 
-    TieLineAdder setX(float x);
+    TieLineAdder setX(double x);
 
-    TieLineAdder setG1(float g1);
+    TieLineAdder setG1(double g1);
 
-    TieLineAdder setB1(float b1);
+    TieLineAdder setB1(double b1);
 
-    TieLineAdder setG2(float g2);
+    TieLineAdder setG2(double g2);
 
-    TieLineAdder setB2(float b2);
+    TieLineAdder setB2(double b2);
 
-    TieLineAdder setXnodeP(float xnodeP);
+    TieLineAdder setXnodeP(double xnodeP);
 
-    TieLineAdder setXnodeQ(float xnodeQ);
+    TieLineAdder setXnodeQ(double xnodeQ);
 
     TieLineAdder setUcteXnodeCode(String ucteXnodeCode);
 

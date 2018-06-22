@@ -8,17 +8,18 @@ package com.powsybl.action.dsl.task
 
 import com.google.auto.service.AutoService
 import com.powsybl.action.dsl.ActionDslException
-import com.powsybl.action.dsl.DslConstants
 import com.powsybl.action.dsl.spi.DslTaskExtension
 import com.powsybl.computation.ComputationManager
 import com.powsybl.contingency.tasks.ModificationTask
 import com.powsybl.iidm.network.Network
 
+import static com.powsybl.action.dsl.GroovyDslConstants.SCRIPT_IS_RUNNING
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @AutoService(DslTaskExtension.class)
-class ScriptDslTaskExtension implements DslTaskExtension, DslConstants {
+class ScriptDslTaskExtension implements DslTaskExtension {
     @Override
     void addToSpec(MetaClass tasksSpecMetaClass, List<ModificationTask> tasks, Binding binding) {
         tasksSpecMetaClass.script = { Closure<Void> closure ->

@@ -67,19 +67,19 @@ public class FlowsValidationTest extends AbstractValidationTest {
 
     @Before
     public void setUp() {
-        float p1 = 39.5056f;
-        float q1 = -3.72344f;
-        float p2 = -39.5122f;
-        float q2 = 3.7746f;
+        double p1 = 39.5056;
+        double q1 = -3.72344;
+        double p2 = -39.5122;
+        double q2 = 3.7746;
 
         bus1 = Mockito.mock(Bus.class);
-        Mockito.when(bus1.getV()).thenReturn((float) u1);
-        Mockito.when(bus1.getAngle()).thenReturn((float) Math.toDegrees(theta1));
+        Mockito.when(bus1.getV()).thenReturn(u1);
+        Mockito.when(bus1.getAngle()).thenReturn(Math.toDegrees(theta1));
         Mockito.when(bus1.isInMainConnectedComponent()).thenReturn(true);
 
         bus2 = Mockito.mock(Bus.class);
-        Mockito.when(bus2.getV()).thenReturn((float) u1);
-        Mockito.when(bus2.getAngle()).thenReturn((float) Math.toDegrees(theta2));
+        Mockito.when(bus2.getV()).thenReturn(u1);
+        Mockito.when(bus2.getAngle()).thenReturn(Math.toDegrees(theta2));
         Mockito.when(bus2.isInMainConnectedComponent()).thenReturn(true);
 
         BusView busView1 = Mockito.mock(BusView.class);
@@ -102,19 +102,19 @@ public class FlowsValidationTest extends AbstractValidationTest {
         Mockito.when(line1.getId()).thenReturn("line1");
         Mockito.when(line1.getTerminal1()).thenReturn(terminal1);
         Mockito.when(line1.getTerminal2()).thenReturn(terminal2);
-        Mockito.when(line1.getR()).thenReturn((float) r);
-        Mockito.when(line1.getX()).thenReturn((float) x);
-        Mockito.when(line1.getG1()).thenReturn((float) g1);
-        Mockito.when(line1.getG2()).thenReturn((float) g2);
-        Mockito.when(line1.getB1()).thenReturn((float) b1);
-        Mockito.when(line1.getB2()).thenReturn((float) b2);
+        Mockito.when(line1.getR()).thenReturn(r);
+        Mockito.when(line1.getX()).thenReturn(x);
+        Mockito.when(line1.getG1()).thenReturn(g1);
+        Mockito.when(line1.getG2()).thenReturn(g2);
+        Mockito.when(line1.getB1()).thenReturn(b1);
+        Mockito.when(line1.getB2()).thenReturn(b2);
 
         RatioTapChangerStep step = Mockito.mock(RatioTapChangerStep.class);
-        Mockito.when(step.getR()).thenReturn((float) r);
-        Mockito.when(step.getX()).thenReturn((float) x);
-        Mockito.when(step.getG()).thenReturn((float) g1);
-        Mockito.when(step.getB()).thenReturn((float) b1);
-        Mockito.when(step.getRho()).thenReturn((float) rho2);
+        Mockito.when(step.getR()).thenReturn(r);
+        Mockito.when(step.getX()).thenReturn(x);
+        Mockito.when(step.getG()).thenReturn(g1);
+        Mockito.when(step.getB()).thenReturn(b1);
+        Mockito.when(step.getRho()).thenReturn(rho2);
 
         ratioTapChanger = Mockito.mock(RatioTapChanger.class);
         Mockito.when(ratioTapChanger.getCurrentStep()).thenReturn(step);
@@ -123,20 +123,20 @@ public class FlowsValidationTest extends AbstractValidationTest {
         Mockito.when(transformer1.getId()).thenReturn("transformer1");
         Mockito.when(transformer1.getTerminal1()).thenReturn(terminal1);
         Mockito.when(transformer1.getTerminal2()).thenReturn(terminal2);
-        Mockito.when(transformer1.getR()).thenReturn((float) (r * (1 - r / 100)));
-        Mockito.when(transformer1.getX()).thenReturn((float) (x * (1 - x / 100)));
-        Mockito.when(transformer1.getG()).thenReturn((float) (g1 * (1 - g1 / 100)));
-        Mockito.when(transformer1.getB()).thenReturn((float) (b1 * 2 * (1 - b1 / 100)));
+        Mockito.when(transformer1.getR()).thenReturn(r * (1 - r / 100));
+        Mockito.when(transformer1.getX()).thenReturn(x * (1 - x / 100));
+        Mockito.when(transformer1.getG()).thenReturn(g1 * (1 - g1 / 100));
+        Mockito.when(transformer1.getB()).thenReturn(b1 * 2 * (1 - b1 / 100));
         Mockito.when(transformer1.getRatioTapChanger()).thenReturn(ratioTapChanger);
-        Mockito.when(transformer1.getRatedU1()).thenReturn((float) ratedU1);
-        Mockito.when(transformer1.getRatedU2()).thenReturn((float) ratedU2);
+        Mockito.when(transformer1.getRatedU1()).thenReturn(ratedU1);
+        Mockito.when(transformer1.getRatedU2()).thenReturn(ratedU2);
 
-        looseConfigSpecificCompatibility = new ValidationConfig(0.1f, true, LoadFlowFactoryMock.class, ValidationConfig.TABLE_FORMATTER_FACTORY_DEFAULT,
+        looseConfigSpecificCompatibility = new ValidationConfig(0.1, true, LoadFlowFactoryMock.class, ValidationConfig.TABLE_FORMATTER_FACTORY_DEFAULT,
                 ValidationConfig.EPSILON_X_DEFAULT, ValidationConfig.APPLY_REACTANCE_CORRECTION_DEFAULT,
                 ValidationOutputWriter.CSV_MULTILINE, new LoadFlowParameters().setSpecificCompatibility(true), ValidationConfig.OK_MISSING_VALUES_DEFAULT,
                 ValidationConfig.NO_REQUIREMENT_IF_REACTIVE_BOUND_INVERSION_DEFAULT, ValidationConfig.COMPARE_RESULTS_DEFAULT, ValidationConfig.CHECK_MAIN_COMPONENT_ONLY_DEFAULT,
                 ValidationConfig.NO_REQUIREMENT_IF_SETPOINT_OUTSIDE_POWERS_BOUNDS);
-        strictConfigSpecificCompatibility = new ValidationConfig(0.01f, false, LoadFlowFactoryMock.class, ValidationConfig.TABLE_FORMATTER_FACTORY_DEFAULT,
+        strictConfigSpecificCompatibility = new ValidationConfig(0.01, false, LoadFlowFactoryMock.class, ValidationConfig.TABLE_FORMATTER_FACTORY_DEFAULT,
                 ValidationConfig.EPSILON_X_DEFAULT, ValidationConfig.APPLY_REACTANCE_CORRECTION_DEFAULT,
                 ValidationOutputWriter.CSV_MULTILINE, new LoadFlowParameters().setSpecificCompatibility(true), ValidationConfig.OK_MISSING_VALUES_DEFAULT,
                 ValidationConfig.NO_REQUIREMENT_IF_REACTIVE_BOUND_INVERSION_DEFAULT, ValidationConfig.COMPARE_RESULTS_DEFAULT, ValidationConfig.CHECK_MAIN_COMPONENT_ONLY_DEFAULT,
@@ -145,10 +145,10 @@ public class FlowsValidationTest extends AbstractValidationTest {
 
     @Test
     public void checkFlows() {
-        float p1 = 40.0744f;
-        float q1 = 2.3124743f;
-        float p2 = -40.073254f;
-        float q2 = -2.3003194f;
+        double p1 = 40.0744;
+        double q1 = 2.3124743;
+        double p2 = -40.073254;
+        double q2 = -2.3003194;
 
         assertTrue(FlowsValidation.checkFlows("test", r, x, rho1, rho2, u1, u2, theta1, theta2, alpha1, alpha2, g1, g2, b1, b2, p1, q1, p2, q2, connected1, connected2,
                                               mainComponent1, mainComponent2, looseConfig, NullWriter.NULL_WRITER));
@@ -166,9 +166,9 @@ public class FlowsValidationTest extends AbstractValidationTest {
                                                mainComponent1, mainComponent2, strictConfig, NullWriter.NULL_WRITER));
 
         // check disconnected on one end
-        assertTrue(FlowsValidation.checkFlows("test", r, x, rho1, rho2, Float.NaN, u2, Float.NaN, theta2, alpha1, alpha2, g1, g2, b1, b2, Float.NaN, Float.NaN, 0f, 0f, false, connected2,
+        assertTrue(FlowsValidation.checkFlows("test", r, x, rho1, rho2, Float.NaN, u2, Float.NaN, theta2, alpha1, alpha2, g1, g2, b1, b2, Float.NaN, Float.NaN, 0.0, 0.0, false, connected2,
                                             mainComponent1, mainComponent2, looseConfig, NullWriter.NULL_WRITER));
-        assertFalse(FlowsValidation.checkFlows("test", r, x, rho1, rho2, Float.NaN, u2, Float.NaN, theta2, alpha1, alpha2, g1, g2, b1, b2, Float.NaN, Float.NaN, 0.2f, 0f, false, connected2,
+        assertFalse(FlowsValidation.checkFlows("test", r, x, rho1, rho2, Float.NaN, u2, Float.NaN, theta2, alpha1, alpha2, g1, g2, b1, b2, Float.NaN, Float.NaN, 0.2, 0.0, false, connected2,
                                                mainComponent1, mainComponent2, looseConfig, NullWriter.NULL_WRITER));
 
         // check disconnected on both end
@@ -218,24 +218,24 @@ public class FlowsValidationTest extends AbstractValidationTest {
         Mockito.when(line2.getId()).thenReturn("line2");
         Mockito.when(line2.getTerminal1()).thenReturn(terminal1);
         Mockito.when(line2.getTerminal2()).thenReturn(terminal2);
-        Mockito.when(line2.getR()).thenReturn((float) r);
-        Mockito.when(line2.getX()).thenReturn((float) x);
-        Mockito.when(line2.getG1()).thenReturn((float) g1);
-        Mockito.when(line2.getG2()).thenReturn((float) g2);
-        Mockito.when(line2.getB1()).thenReturn((float) b1);
-        Mockito.when(line2.getB2()).thenReturn((float) b2);
+        Mockito.when(line2.getR()).thenReturn(r);
+        Mockito.when(line2.getX()).thenReturn(x);
+        Mockito.when(line2.getG1()).thenReturn(g1);
+        Mockito.when(line2.getG2()).thenReturn(g2);
+        Mockito.when(line2.getB1()).thenReturn(b1);
+        Mockito.when(line2.getB2()).thenReturn(b2);
 
         TwoWindingsTransformer transformer2 = Mockito.mock(TwoWindingsTransformer.class);
         Mockito.when(transformer2.getId()).thenReturn("transformer2");
         Mockito.when(transformer2.getTerminal1()).thenReturn(terminal1);
         Mockito.when(transformer2.getTerminal2()).thenReturn(terminal2);
-        Mockito.when(transformer2.getR()).thenReturn((float) (r * (1 - r / 100)));
-        Mockito.when(transformer2.getX()).thenReturn((float) (x * (1 - x / 100)));
-        Mockito.when(transformer2.getG()).thenReturn((float) (g1 * (1 - g1 / 100)));
-        Mockito.when(transformer2.getB()).thenReturn((float) (b1 * 2 * (1 - b1 / 100)));
+        Mockito.when(transformer2.getR()).thenReturn(r * (1 - r / 100));
+        Mockito.when(transformer2.getX()).thenReturn(x * (1 - x / 100));
+        Mockito.when(transformer2.getG()).thenReturn(g1 * (1 - g1 / 100));
+        Mockito.when(transformer2.getB()).thenReturn(b1 * 2 * (1 - b1 / 100));
         Mockito.when(transformer2.getRatioTapChanger()).thenReturn(ratioTapChanger);
-        Mockito.when(transformer2.getRatedU1()).thenReturn((float) ratedU1);
-        Mockito.when(transformer2.getRatedU2()).thenReturn((float) ratedU2);
+        Mockito.when(transformer2.getRatedU1()).thenReturn(ratedU1);
+        Mockito.when(transformer2.getRatedU2()).thenReturn(ratedU2);
 
         assertTrue(FlowsValidation.checkFlows(transformer2, looseConfig, NullWriter.NULL_WRITER));
         assertFalse(FlowsValidation.checkFlows(transformer2, strictConfig, NullWriter.NULL_WRITER));

@@ -21,7 +21,7 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
 
     private final LimitViolationType limitType;
 
-    private final float limit;
+    private final double limit;
 
     private final String limitName;
 
@@ -29,12 +29,12 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
 
     private final float limitReduction;
 
-    private final float value;
+    private final double value;
 
     private final Branch.Side side;
 
     public LimitViolation(String subjectId, LimitViolationType limitType, String limitName, int acceptableDuration,
-                          float limit, float limitReduction, float value, Branch.Side side) {
+                          double limit, float limitReduction, double value, Branch.Side side) {
         this.subjectId = Objects.requireNonNull(subjectId);
         this.limitType = Objects.requireNonNull(limitType);
         this.limitName = limitName;
@@ -45,7 +45,7 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
         this.side = checkSide(limitType, side);
     }
 
-    public LimitViolation(String subjectId, LimitViolationType limitType, float limit, float limitReduction, float value) {
+    public LimitViolation(String subjectId, LimitViolationType limitType, double limit, float limitReduction, double value) {
         this(subjectId, limitType, null, Integer.MAX_VALUE, limit, limitReduction, value, null);
     }
 
@@ -57,7 +57,7 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
         return limitType;
     }
 
-    public float getLimit() {
+    public double getLimit() {
         return limit;
     }
 
@@ -73,7 +73,7 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
         return limitReduction;
     }
 
-    public float getValue() {
+    public double getValue() {
         return value;
     }
 

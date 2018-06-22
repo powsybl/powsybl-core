@@ -35,12 +35,12 @@ class BusbarSectionImpl extends AbstractConnectable<BusbarSection> implements Bu
     }
 
     @Override
-    public float getV() {
+    public double getV() {
         return ((NodeTerminal) getTerminal()).getV();
     }
 
     @Override
-    public float getAngle() {
+    public double getAngle() {
         return ((NodeTerminal) getTerminal()).getAngle();
     }
 }

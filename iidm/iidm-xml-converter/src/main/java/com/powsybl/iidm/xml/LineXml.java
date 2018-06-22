@@ -35,12 +35,12 @@ class LineXml extends AbstractConnectableXml<Line, LineAdder, Network> {
 
     @Override
     protected void writeRootElementAttributes(Line l, Network n, NetworkXmlWriterContext context) throws XMLStreamException {
-        XmlUtil.writeFloat("r", l.getR(), context.getWriter());
-        XmlUtil.writeFloat("x", l.getX(), context.getWriter());
-        XmlUtil.writeFloat("g1", l.getG1(), context.getWriter());
-        XmlUtil.writeFloat("b1", l.getB1(), context.getWriter());
-        XmlUtil.writeFloat("g2", l.getG2(), context.getWriter());
-        XmlUtil.writeFloat("b2", l.getB2(), context.getWriter());
+        XmlUtil.writeDouble("r", l.getR(), context.getWriter());
+        XmlUtil.writeDouble("x", l.getX(), context.getWriter());
+        XmlUtil.writeDouble("g1", l.getG1(), context.getWriter());
+        XmlUtil.writeDouble("b1", l.getB1(), context.getWriter());
+        XmlUtil.writeDouble("g2", l.getG2(), context.getWriter());
+        XmlUtil.writeDouble("b2", l.getB2(), context.getWriter());
         writeNodeOrBus(1, l.getTerminal1(), context);
         writeNodeOrBus(2, l.getTerminal2(), context);
         if (context.getOptions().isWithBranchSV()) {
@@ -66,12 +66,12 @@ class LineXml extends AbstractConnectableXml<Line, LineAdder, Network> {
 
     @Override
     protected Line readRootElementAttributes(LineAdder adder, NetworkXmlReaderContext context) {
-        float r = XmlUtil.readFloatAttribute(context.getReader(), "r");
-        float x = XmlUtil.readFloatAttribute(context.getReader(), "x");
-        float g1 = XmlUtil.readFloatAttribute(context.getReader(), "g1");
-        float b1 = XmlUtil.readFloatAttribute(context.getReader(), "b1");
-        float g2 = XmlUtil.readFloatAttribute(context.getReader(), "g2");
-        float b2 = XmlUtil.readFloatAttribute(context.getReader(), "b2");
+        double r = XmlUtil.readDoubleAttribute(context.getReader(), "r");
+        double x = XmlUtil.readDoubleAttribute(context.getReader(), "x");
+        double g1 = XmlUtil.readDoubleAttribute(context.getReader(), "g1");
+        double b1 = XmlUtil.readDoubleAttribute(context.getReader(), "b1");
+        double g2 = XmlUtil.readDoubleAttribute(context.getReader(), "g2");
+        double b2 = XmlUtil.readDoubleAttribute(context.getReader(), "b2");
         adder.setR(r)
                 .setX(x)
                 .setG1(g1)

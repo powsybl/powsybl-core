@@ -31,14 +31,14 @@ import com.powsybl.iidm.network.VoltageLevel;
  */
 public class ShuntCompensatorsValidationTest extends AbstractValidationTest {
 
-    private float q = 170.50537f;
-    private float p = Float.NaN;
+    private double q = 170.50537;
+    private double p = Float.NaN;
     private int currentSectionCount = 1;
     private final int maximumSectionCount = 1;
-    private final float bPerSection = -0.0010387811f;
-    private final float v = 405.14175f;
-    private final float qMax = -150f;
-    private final float nominalV = 380f;
+    private final double bPerSection = -0.0010387811;
+    private final double v = 405.14175;
+    private final double qMax = -150;
+    private final double nominalV = 380;
     private final boolean connected = true;
     private boolean mainComponent = true;
 
@@ -73,7 +73,7 @@ public class ShuntCompensatorsValidationTest extends AbstractValidationTest {
         Mockito.when(shunt.getbPerSection()).thenReturn(bPerSection);
 
         Properties shuntProperties = new Properties();
-        shuntProperties.put("qMax", Float.toString(qMax));
+        shuntProperties.put("qMax", Double.toString(qMax));
         Mockito.when(shunt.getProperties()).thenReturn(shuntProperties);
     }
 
@@ -81,22 +81,22 @@ public class ShuntCompensatorsValidationTest extends AbstractValidationTest {
     public void checkShuntsValues() {
         // “p” is always NaN
         assertTrue(ShuntCompensatorsValidation.checkShunts("test", p, q, currentSectionCount, maximumSectionCount, bPerSection, v, qMax, nominalV, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
-        p = 1f;
+        p = 1;
         assertFalse(ShuntCompensatorsValidation.checkShunts("test", p, q, currentSectionCount, maximumSectionCount, bPerSection, v, qMax, nominalV, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
         p = Float.NaN;
 
         // “q” = - bPerSection * currentSectionCount * v^2
         assertTrue(ShuntCompensatorsValidation.checkShunts("test", p, q, currentSectionCount, maximumSectionCount, bPerSection, v, qMax, nominalV, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
-        q = 170.52f;
+        q = 170.52;
         assertFalse(ShuntCompensatorsValidation.checkShunts("test", p, q, currentSectionCount, maximumSectionCount, bPerSection, v, qMax, nominalV, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
         assertTrue(ShuntCompensatorsValidation.checkShunts("test", p, q, currentSectionCount, maximumSectionCount, bPerSection, v, qMax, nominalV, connected, mainComponent, looseConfig, NullWriter.NULL_WRITER));
-        q = 171.52f;
+        q = 171.52;
         assertFalse(ShuntCompensatorsValidation.checkShunts("test", p, q, currentSectionCount, maximumSectionCount, bPerSection, v, qMax, nominalV, connected, mainComponent, looseConfig, NullWriter.NULL_WRITER));
         // check main component
         mainComponent = false;
         assertTrue(ShuntCompensatorsValidation.checkShunts("test", p, q, currentSectionCount, maximumSectionCount, bPerSection, v, qMax, nominalV, connected, mainComponent, looseConfig, NullWriter.NULL_WRITER));
         mainComponent = true;
-        q = 170.50537f;
+        q = 170.50537;
 
         // check with NaN values
         assertFalse(ShuntCompensatorsValidation.checkShunts("test", p, q, currentSectionCount, maximumSectionCount, Float.NaN, v, qMax, nominalV, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
@@ -110,13 +110,13 @@ public class ShuntCompensatorsValidationTest extends AbstractValidationTest {
     public void checkShunts() {
         // “q” = - bPerSection * currentSectionCount * v^2
         assertTrue(ShuntCompensatorsValidation.checkShunts(shunt, strictConfig, NullWriter.NULL_WRITER));
-        Mockito.when(shuntTerminal.getQ()).thenReturn(171.52f);
+        Mockito.when(shuntTerminal.getQ()).thenReturn(171.52);
         assertFalse(ShuntCompensatorsValidation.checkShunts(shunt, strictConfig, NullWriter.NULL_WRITER));
 
         // if the shunt is disconnected then either “q” is not defined or “q” is 0
         Mockito.when(shuntBusView.getBus()).thenReturn(null);
         assertFalse(ShuntCompensatorsValidation.checkShunts(shunt, strictConfig, NullWriter.NULL_WRITER));
-        Mockito.when(shuntTerminal.getQ()).thenReturn(Float.NaN);
+        Mockito.when(shuntTerminal.getQ()).thenReturn(Double.NaN);
         assertTrue(ShuntCompensatorsValidation.checkShunts(shunt, strictConfig, NullWriter.NULL_WRITER));
     }
 

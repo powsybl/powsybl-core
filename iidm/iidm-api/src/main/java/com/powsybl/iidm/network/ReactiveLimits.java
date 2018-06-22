@@ -20,13 +20,13 @@ public interface ReactiveLimits {
      *
      * @param p the active power
      */
-    float getMinQ(float p);
+    double getMinQ(double p);
 
     /**
      * Get the reactive power maximum value at a given active power value.
      *
      * @param p the active power
      */
-    float getMaxQ(float p);
+    double getMaxQ(double p);
 
 }

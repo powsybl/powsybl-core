@@ -31,15 +31,15 @@ import com.powsybl.loadflow.validation.io.ValidationWriter;
  */
 public class StaticVarCompensatorsValidationTest extends AbstractValidationTest {
 
-    private float p = 0;
-    private float q = 3.72344f;
-    private float v = 380f;
-    private float nominalV = 380f;
-    private float reactivePowerSetpoint = -3.72344f;
-    private final float voltageSetpoint = 380f;
+    private double p = 0;
+    private double q = 3.72344;
+    private double v = 380;
+    private double nominalV = 380;
+    private double reactivePowerSetpoint = -3.72344;
+    private final double voltageSetpoint = 380;
     private RegulationMode regulationMode = RegulationMode.REACTIVE_POWER;
-    private final float bMin = -.01f;
-    private final float bMax = .1f;
+    private final double bMin = -.01;
+    private final double bMax = .1;
     private final boolean connected = true;
     private boolean mainComponent = true;
 
@@ -80,9 +80,9 @@ public class StaticVarCompensatorsValidationTest extends AbstractValidationTest 
     public void checkSvcsValues() {
         // active power should be equal to 0
         assertTrue(StaticVarCompensatorsValidation.checkSVCs("test", p, q, v, nominalV, reactivePowerSetpoint, voltageSetpoint, regulationMode, bMin, bMax, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
-        p = -39.8f;
+        p = -39.8;
         assertFalse(StaticVarCompensatorsValidation.checkSVCs("test", p, q, v, nominalV, reactivePowerSetpoint, voltageSetpoint, regulationMode, bMin, bMax, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
-        p = -0.01f;
+        p = -0.01;
         assertTrue(StaticVarCompensatorsValidation.checkSVCs("test", p, q, v, nominalV, reactivePowerSetpoint, voltageSetpoint, regulationMode, bMin, bMax, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
 
         // if regulationMode = OFF then reactive power should be equal to 0
@@ -92,7 +92,7 @@ public class StaticVarCompensatorsValidationTest extends AbstractValidationTest 
         //  if regulationMode = REACTIVE_POWER if the setpoint is in [Qmin=bMin*V*V, Qmax=bMax*V*V] then then reactive power should be equal to setpoint
         regulationMode = RegulationMode.REACTIVE_POWER;
         assertTrue(StaticVarCompensatorsValidation.checkSVCs("test", p, q, v, nominalV, reactivePowerSetpoint, voltageSetpoint, regulationMode, bMin, bMax, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
-        q = 3.7f;
+        q = 3.7;
         assertFalse(StaticVarCompensatorsValidation.checkSVCs("test", p, q, v, nominalV, reactivePowerSetpoint, voltageSetpoint, regulationMode, bMin, bMax, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
         assertTrue(StaticVarCompensatorsValidation.checkSVCs("test", p, q, v, nominalV, reactivePowerSetpoint, voltageSetpoint, regulationMode, bMin, bMax, connected, mainComponent, looseConfig, NullWriter.NULL_WRITER));
 
@@ -105,24 +105,24 @@ public class StaticVarCompensatorsValidationTest extends AbstractValidationTest 
         looseConfig.setOkMissingValues(false);
 
         // if regulationMode = REACTIVE_POWER if the setpoint is outside [Qmin=bMin*V*V, Qmax=bMax*V*V] then the reactive power is equal to the nearest bound
-        reactivePowerSetpoint = -1500f;
+        reactivePowerSetpoint = -1500;
         assertFalse(StaticVarCompensatorsValidation.checkSVCs("test", p, q, v, nominalV, reactivePowerSetpoint, voltageSetpoint, regulationMode, bMin, bMax, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
-        q = 1444f;
+        q = 1444;
         assertTrue(StaticVarCompensatorsValidation.checkSVCs("test", p, q, v, nominalV, reactivePowerSetpoint, voltageSetpoint, regulationMode, bMin, bMax, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
-        reactivePowerSetpoint = -3.72344f;
-        q = 3.7f;
+        reactivePowerSetpoint = -3.72344;
+        q = 3.7;
 
         // if regulationMode = VOLTAGE then either V at the connected bus is equal to voltageSetpoint and q is bounded within [-Qmax=bMax*V*V, -Qmin=bMin*V*V]
         regulationMode = RegulationMode.VOLTAGE;
         assertTrue(StaticVarCompensatorsValidation.checkSVCs("test", p, q, v, nominalV, reactivePowerSetpoint, voltageSetpoint, regulationMode, bMin, bMax, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
-        v = 400f;
+        v = 400;
         assertFalse(StaticVarCompensatorsValidation.checkSVCs("test", p, q, v, nominalV, reactivePowerSetpoint, voltageSetpoint, regulationMode, bMin, bMax, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
-        v = 380f;
-        q = 1445f;
+        v = 380;
+        q = 1445;
         assertFalse(StaticVarCompensatorsValidation.checkSVCs("test", p, q, v, nominalV, reactivePowerSetpoint, voltageSetpoint, regulationMode, bMin, bMax, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
 
         // check with NaN values
-        q = 3.7f;
+        q = 3.7;
         assertFalse(StaticVarCompensatorsValidation.checkSVCs("test", p, q, v, nominalV, reactivePowerSetpoint, voltageSetpoint, regulationMode, Float.NaN, bMax, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
         assertFalse(StaticVarCompensatorsValidation.checkSVCs("test", p, q, v, nominalV, reactivePowerSetpoint, voltageSetpoint, regulationMode, bMin, Float.NaN, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
         assertFalse(StaticVarCompensatorsValidation.checkSVCs("test", p, q, v, nominalV, reactivePowerSetpoint, Float.NaN, regulationMode, bMin, bMax, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
@@ -133,21 +133,21 @@ public class StaticVarCompensatorsValidationTest extends AbstractValidationTest 
         strictConfig.setOkMissingValues(false);
 
         // if regulationMode = VOLTAGE then either q is equal to bMax * V * V and V is lower than voltageSetpoint
-        q = -12960f;
-        v = 360f;
-        nominalV = 360f;
+        q = -12960;
+        v = 360;
+        nominalV = 360;
         assertTrue(StaticVarCompensatorsValidation.checkSVCs("test", p, q, v, nominalV, reactivePowerSetpoint, voltageSetpoint, regulationMode, bMin, bMax, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
-        v = 340f;
-        nominalV = 340f;
+        v = 340;
+        nominalV = 340;
         assertFalse(StaticVarCompensatorsValidation.checkSVCs("test", p, q, v, nominalV, reactivePowerSetpoint, voltageSetpoint, regulationMode, bMin, bMax, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
 
         // if regulationMode = VOLTAGE then either q is equal to bMin * V * V and V is higher than voltageSetpoint
-        q = 1600f;
-        v = 400f;
-        nominalV = 400f;
+        q = 1600;
+        v = 400;
+        nominalV = 400;
         assertTrue(StaticVarCompensatorsValidation.checkSVCs("test", p, q, v, nominalV, reactivePowerSetpoint, voltageSetpoint, regulationMode, bMin, bMax, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
-        v = 420f;
-        nominalV = 420f;
+        v = 420;
+        nominalV = 420;
         assertFalse(StaticVarCompensatorsValidation.checkSVCs("test", p, q, v, nominalV, reactivePowerSetpoint, voltageSetpoint, regulationMode, bMin, bMax, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
         // check main component
         mainComponent = false;
@@ -155,12 +155,12 @@ public class StaticVarCompensatorsValidationTest extends AbstractValidationTest 
         mainComponent = true;
 
         // a validation error should be detected if there is both a voltage and a target but no p or q
-        v = 380f;
-        nominalV = 380f;
+        v = 380;
+        nominalV = 380;
         p = Float.NaN;
         q = Float.NaN;
         assertFalse(StaticVarCompensatorsValidation.checkSVCs("test", p, q, v, nominalV, reactivePowerSetpoint, voltageSetpoint, regulationMode, bMin, bMax, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
-        reactivePowerSetpoint = 0f;
+        reactivePowerSetpoint = 0;
         assertTrue(StaticVarCompensatorsValidation.checkSVCs("test", p, q, v, nominalV, reactivePowerSetpoint, voltageSetpoint, regulationMode, bMin, bMax, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
     }
 
@@ -168,7 +168,7 @@ public class StaticVarCompensatorsValidationTest extends AbstractValidationTest 
     public void checkSvcs() {
         // active power should be equal to 0
         assertTrue(StaticVarCompensatorsValidation.checkSVCs(svc, strictConfig, NullWriter.NULL_WRITER));
-        Mockito.when(svcTerminal.getP()).thenReturn(-39.8f);
+        Mockito.when(svcTerminal.getP()).thenReturn(-39.8);
         assertFalse(StaticVarCompensatorsValidation.checkSVCs(svc, strictConfig, NullWriter.NULL_WRITER));
 
         // the unit is disconnected

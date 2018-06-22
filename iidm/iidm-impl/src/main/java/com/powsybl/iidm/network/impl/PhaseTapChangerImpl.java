@@ -8,7 +8,7 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.Terminal;
-import gnu.trove.list.array.TFloatArrayList;
+import gnu.trove.list.array.TDoubleArrayList;
 
 import java.util.List;
 
@@ -23,15 +23,15 @@ class PhaseTapChangerImpl extends AbstractTapChanger<TwoWindingsTransformerImpl,
 
     // attributes depending on the state
 
-    private final TFloatArrayList regulationValue;
+    private final TDoubleArrayList regulationValue;
 
     PhaseTapChangerImpl(TwoWindingsTransformerImpl parent, int lowTapPosition,
                         List<PhaseTapChangerStepImpl> steps, TerminalExt regulationTerminal,
-                        int tapPosition, boolean regulating, RegulationMode regulationMode, float regulationValue) {
+                        int tapPosition, boolean regulating, RegulationMode regulationMode, double regulationValue) {
         super(parent.getNetwork().getRef(), parent, lowTapPosition, steps, regulationTerminal, tapPosition, regulating);
         int stateArraySize = network.get().getStateManager().getStateArraySize();
         this.regulationMode = regulationMode;
-        this.regulationValue = new TFloatArrayList(stateArraySize);
+        this.regulationValue = new TDoubleArrayList(stateArraySize);
         for (int i = 0; i < stateArraySize; i++) {
             this.regulationValue.add(regulationValue);
         }
@@ -55,12 +55,12 @@ class PhaseTapChangerImpl extends AbstractTapChanger<TwoWindingsTransformerImpl,
     }
 
     @Override
-    public float getRegulationValue() {
+    public double getRegulationValue() {
         return regulationValue.get(network.get().getStateIndex());
     }
 
     @Override
-    public PhaseTapChangerImpl setRegulationValue(float regulationValue) {
+    public PhaseTapChangerImpl setRegulationValue(double regulationValue) {
         ValidationUtil.checkPhaseTapChangerRegulation(parent, regulationMode, regulationValue, isRegulating(), getRegulationTerminal(), getNetwork());
         this.regulationValue.set(network.get().getStateIndex(), regulationValue);
         return this;

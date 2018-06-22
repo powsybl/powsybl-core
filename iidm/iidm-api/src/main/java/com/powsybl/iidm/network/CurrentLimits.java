@@ -47,7 +47,7 @@ public interface CurrentLimits {
          * Get the temporary limit value in A.
          * @return the temporary limit value in A
          */
-        float getValue();
+        double getValue();
 
         /**
          * Get the acceptable duration of the limit in second.
@@ -67,14 +67,14 @@ public interface CurrentLimits {
      * Get the permanent limit in A.
      * @return the permanent limit in A.
      */
-    float getPermanentLimit();
+    double getPermanentLimit();
 
     /**
      * Set the permanent limit in A.
      * @param permanentLimit the permanent limit in A
      * @return itself for method chaining
      */
-    CurrentLimits setPermanentLimit(float permanentLimit);
+    CurrentLimits setPermanentLimit(double permanentLimit);
 
     /**
      * Get a list of temporary limits ordered by descending duration.
@@ -96,5 +96,5 @@ public interface CurrentLimits {
      * @param acceptableDuration acceptable duration in second
      * @return the temporary limit value or NaN if there is no temporary limit for this acceptable duration
      */
-    float getTemporaryLimitValue(int acceptableDuration);
+    double getTemporaryLimitValue(int acceptableDuration);
 }

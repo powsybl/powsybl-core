@@ -22,13 +22,7 @@
     <description>AFS WS storage</description>
 
     <dependencies>
-        <!-- compile dependencies -->
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-afs-core</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
+        <!-- Compilation dependencies -->
         <dependency>
             <groupId>org.glassfish.tyrus</groupId>
             <artifactId>tyrus-client</artifactId>
@@ -41,7 +35,11 @@
             <groupId>org.jboss.resteasy</groupId>
             <artifactId>resteasy-client</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-afs-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-afs-ws-client-utils</artifactId>
@@ -51,6 +49,18 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-afs-ws-utils</artifactId>
             <version>${project.version}</version>
+        </dependency>
+
+        <!-- Test dependencies -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

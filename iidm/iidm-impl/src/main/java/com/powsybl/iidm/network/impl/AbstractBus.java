@@ -30,14 +30,14 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> {
 
     public boolean isInMainConnectedComponent() {
         Component cc = getConnectedComponent();
-        return cc != null && cc.getNum() == Component.MAIN_NUM;
+        return cc != null && cc.getNum() == ComponentConstants.MAIN_NUM;
     }
 
     protected abstract Component getSynchronousComponent();
 
     public boolean isInMainSynchronousComponent() {
         Component sc = getSynchronousComponent();
-        return sc != null && sc.getNum() == Component.MAIN_NUM;
+        return sc != null && sc.getNum() == ComponentConstants.MAIN_NUM;
     }
 
     public VoltageLevel getVoltageLevel() {
@@ -52,11 +52,11 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> {
 
     public abstract Collection<? extends TerminalExt> getTerminals();
 
-    public float getP() {
+    public double getP() {
         if (getConnectedTerminalCount() == 0) {
-            return Float.NaN;
+            return Double.NaN;
         }
-        float p = 0;
+        double p = 0;
         for (TerminalExt terminal : getConnectedTerminals()) {
             AbstractConnectable connectable = terminal.getConnectable();
             switch (connectable.getType()) {
@@ -72,7 +72,7 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> {
                 case GENERATOR:
                 case LOAD:
                 case HVDC_CONVERTER_STATION:
-                    if (!Float.isNaN(terminal.getP())) {
+                    if (!Double.isNaN(terminal.getP())) {
                         p += terminal.getP();
                     }
                     break;
@@ -83,11 +83,11 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> {
         return p;
     }
 
-    public float getQ() {
+    public double getQ() {
         if (getConnectedTerminalCount() == 0) {
-            return Float.NaN;
+            return Double.NaN;
         }
-        float q = 0;
+        double q = 0;
         for (TerminalExt terminal : getConnectedTerminals()) {
             AbstractConnectable connectable = terminal.getConnectable();
             switch (connectable.getType()) {
@@ -103,7 +103,7 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> {
                 case SHUNT_COMPENSATOR:
                 case STATIC_VAR_COMPENSATOR:
                 case HVDC_CONVERTER_STATION:
-                    if (!Float.isNaN(terminal.getQ())) {
+                    if (!Double.isNaN(terminal.getQ())) {
                         q += terminal.getQ();
                     }
                     break;

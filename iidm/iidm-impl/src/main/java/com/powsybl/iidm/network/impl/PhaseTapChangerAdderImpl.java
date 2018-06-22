@@ -28,7 +28,7 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
 
     private PhaseTapChanger.RegulationMode regulationMode = PhaseTapChanger.RegulationMode.FIXED_TAP;
 
-    private float regulationValue = Float.NaN;
+    private double regulationValue = Double.NaN;
 
     private boolean regulating = false;
 
@@ -36,72 +36,72 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
 
     class StepAdderImpl implements StepAdder {
 
-        private float alpha = Float.NaN;
+        private double alpha = Double.NaN;
 
-        private float rho = Float.NaN;
+        private double rho = Double.NaN;
 
-        private float r = Float.NaN;
+        private double r = Double.NaN;
 
-        private float x = Float.NaN;
+        private double x = Double.NaN;
 
-        private float g = Float.NaN;
+        private double g = Double.NaN;
 
-        private float b = Float.NaN;
+        private double b = Double.NaN;
 
         @Override
-        public StepAdder setAlpha(float alpha) {
+        public StepAdder setAlpha(double alpha) {
             this.alpha = alpha;
             return this;
         }
 
         @Override
-        public StepAdder setRho(float rho) {
+        public StepAdder setRho(double rho) {
             this.rho = rho;
             return this;
         }
 
         @Override
-        public StepAdder setR(float r) {
+        public StepAdder setR(double r) {
             this.r = r;
             return this;
         }
 
         @Override
-        public StepAdder setX(float x) {
+        public StepAdder setX(double x) {
             this.x = x;
             return this;
         }
 
         @Override
-        public StepAdder setG(float g) {
+        public StepAdder setG(double g) {
             this.g = g;
             return this;
         }
 
         @Override
-        public StepAdder setB(float b) {
+        public StepAdder setB(double b) {
             this.b = b;
             return this;
         }
 
         @Override
         public PhaseTapChangerAdder endStep() {
-            if (Float.isNaN(alpha)) {
+            if (Double.isNaN(alpha)) {
                 throw new ValidationException(transformer, "step alpha is not set");
             }
-            if (Float.isNaN(rho)) {
+            if (Double.isNaN(rho)) {
                 throw new ValidationException(transformer, "step rho is not set");
             }
-            if (Float.isNaN(r)) {
+            if (Double.isNaN(r)) {
                 throw new ValidationException(transformer, "step r is not set");
             }
-            if (Float.isNaN(x)) {
+            if (Double.isNaN(x)) {
                 throw new ValidationException(transformer, "step x is not set");
             }
-            if (Float.isNaN(g)) {
+            if (Double.isNaN(g)) {
                 throw new ValidationException(transformer, "step g is not set");
             }
-            if (Float.isNaN(b)) {
+            if (Double.isNaN(b)) {
                 throw new ValidationException(transformer, "step b is not set");
             }
             PhaseTapChangerStepImpl step = new PhaseTapChangerStepImpl(alpha, rho, r, x, g, b);
@@ -138,7 +138,7 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
     }
 
     @Override
-    public PhaseTapChangerAdder setRegulationValue(float regulationValue) {
+    public PhaseTapChangerAdder setRegulationValue(double regulationValue) {
         this.regulationValue = regulationValue;
         return this;
     }

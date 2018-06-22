@@ -16,17 +16,17 @@ class LineAdderImpl extends AbstractBranchAdder<LineAdderImpl> implements LineAd
 
     private final NetworkImpl network;
 
-    private float r = Float.NaN;
+    private double r = Double.NaN;
 
-    private float x = Float.NaN;
+    private double x = Double.NaN;
 
-    private float g1 = Float.NaN;
+    private double g1 = Double.NaN;
 
-    private float b1 = Float.NaN;
+    private double b1 = Double.NaN;
 
-    private float g2 = Float.NaN;
+    private double g2 = Double.NaN;
 
-    private float b2 = Float.NaN;
+    private double b2 = Double.NaN;
 
     LineAdderImpl(NetworkImpl network) {
         this.network = network;
@@ -43,37 +43,37 @@ class LineAdderImpl extends AbstractBranchAdder<LineAdderImpl> implements LineAd
     }
 
     @Override
-    public LineAdderImpl setR(float r) {
+    public LineAdderImpl setR(double r) {
         this.r = r;
         return this;
     }
 
     @Override
-    public LineAdderImpl setX(float x) {
+    public LineAdderImpl setX(double x) {
         this.x = x;
         return this;
     }
 
     @Override
-    public LineAdderImpl setG1(float g1) {
+    public LineAdderImpl setG1(double g1) {
         this.g1 = g1;
         return this;
     }
 
     @Override
-    public LineAdderImpl setB1(float b1) {
+    public LineAdderImpl setB1(double b1) {
         this.b1 = b1;
         return this;
     }
 
     @Override
-    public LineAdderImpl setG2(float g2) {
+    public LineAdderImpl setG2(double g2) {
         this.g2 = g2;
         return this;
     }
 
     @Override
-    public LineAdderImpl setB2(float b2) {
+    public LineAdderImpl setB2(double b2) {
         this.b2 = b2;
         return this;
     }

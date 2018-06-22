@@ -20,43 +20,43 @@ class ReactiveCapabilityCurveAdderImpl<OWNER extends ReactiveLimitsOwner & Valid
 
     private final OWNER owner;
 
-    private final TreeMap<Float, ReactiveCapabilityCurve.Point> points = new TreeMap<>();
+    private final TreeMap<Double, ReactiveCapabilityCurve.Point> points = new TreeMap<>();
 
     private class PointAdderImpl implements PointAdder {
 
-        private float p = Float.NaN;
+        private double p = Double.NaN;
 
-        private float minQ = Float.NaN;
+        private double minQ = Double.NaN;
 
-        private float maxQ = Float.NaN;
+        private double maxQ = Double.NaN;
 
         @Override
-        public PointAdder setP(float p) {
+        public PointAdder setP(double p) {
             this.p = p;
             return this;
         }
 
         @Override
-        public PointAdder setMinQ(float minQ) {
+        public PointAdder setMinQ(double minQ) {
             this.minQ = minQ;
             return this;
         }
 
         @Override
-        public PointAdder setMaxQ(float maxQ) {
+        public PointAdder setMaxQ(double maxQ) {
             this.maxQ = maxQ;
             return this;
         }
 
         @Override
         public ReactiveCapabilityCurveAdder endPoint() {
-            if (Float.isNaN(p)) {
+            if (Double.isNaN(p)) {
                 throw new ValidationException(owner, "P is not set");
             }
-            if (Float.isNaN(minQ)) {
+            if (Double.isNaN(minQ)) {
                 throw new ValidationException(owner, "min Q is not set");
             }
-            if (Float.isNaN(maxQ)) {
+            if (Double.isNaN(maxQ)) {
                 throw new ValidationException(owner, "max Q is not set");
             }
             if (points.containsKey(p)) {

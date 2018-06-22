@@ -53,11 +53,11 @@ public class LoadFlowBasedPhaseShifterOptimizer implements PhaseShifterOptimizer
         }
     }
 
-    private static float getI(TwoWindingsTransformer phaseShifter) {
+    private static double getI(TwoWindingsTransformer phaseShifter) {
         return phaseShifter.getTerminal1().getI();
     }
 
-    private static float getLimit(TwoWindingsTransformer phaseShifter) {
+    private static double getLimit(TwoWindingsTransformer phaseShifter) {
         return phaseShifter.getCurrentLimits1().getPermanentLimit();
     }
 
@@ -86,8 +86,8 @@ public class LoadFlowBasedPhaseShifterOptimizer implements PhaseShifterOptimizer
                 throw new PowsyblException("Phase shifter already overloaded");
             }
             int tapPosInc = 1; // start by incrementing tap +1
-            float i;
-            float limit = getLimit(phaseShifter);
+            double i;
+            double limit = getLimit(phaseShifter);
             int tapPos = phaseShifter.getPhaseTapChanger().getTapPosition();
             int maxTap = phaseShifter.getPhaseTapChanger().getHighTapPosition();
 

@@ -51,7 +51,7 @@ public final class LimitViolationHelper {
         return voltageLevel.getId();
     }
 
-    public static float getNominalVoltage(LimitViolation limitViolation, Network network) {
+    public static double getNominalVoltage(LimitViolation limitViolation, Network network) {
         VoltageLevel voltageLevel = getVoltageLevel(limitViolation, network);
 
         return voltageLevel.getNominalV();

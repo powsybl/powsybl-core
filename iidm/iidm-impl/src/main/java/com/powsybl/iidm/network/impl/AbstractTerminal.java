@@ -9,7 +9,7 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.impl.util.Ref;
-import gnu.trove.list.array.TFloatArrayList;
+import gnu.trove.list.array.TDoubleArrayList;
 
 /**
  *
@@ -27,18 +27,18 @@ abstract class AbstractTerminal implements TerminalExt {
 
     // attributes depending on the state
 
-    protected final TFloatArrayList p;
+    protected final TDoubleArrayList p;
 
-    protected final TFloatArrayList q;
+    protected final TDoubleArrayList q;
 
     AbstractTerminal(Ref<? extends MultiStateObject> network) {
         this.network = network;
         int stateArraySize = network.get().getStateManager().getStateArraySize();
-        p = new TFloatArrayList(stateArraySize);
-        q = new TFloatArrayList(stateArraySize);
+        p = new TDoubleArrayList(stateArraySize);
+        q = new TDoubleArrayList(stateArraySize);
         for (int i = 0; i < stateArraySize; i++) {
-            p.add(Float.NaN);
-            q.add(Float.NaN);
+            p.add(Double.NaN);
+            q.add(Double.NaN);
         }
     }
 
@@ -68,48 +68,48 @@ abstract class AbstractTerminal implements TerminalExt {
     }
 
     @Override
-    public float getP() {
+    public double getP() {
         return p.get(network.get().getStateIndex());
     }
 
     @Override
-    public Terminal setP(float p) {
+    public Terminal setP(double p) {
         if (connectable.getType() == ConnectableType.BUSBAR_SECTION) {
             throw new ValidationException(connectable, "cannot set active power on a busbar section");
         }
-        if (!Float.isNaN(p) && connectable.getType() == ConnectableType.SHUNT_COMPENSATOR) {
+        if (!Double.isNaN(p) && connectable.getType() == ConnectableType.SHUNT_COMPENSATOR) {
             throw new ValidationException(connectable, "cannot set active power on a shunt compensator");
         }
-        float oldValue = this.p.set(network.get().getStateIndex(), p);
+        double oldValue = this.p.set(network.get().getStateIndex(), p);
         getConnectable().notifyUpdate("p" + (num != -1 ? num : ""), oldValue, p);
         return this;
     }
 
     @Override
-    public float getQ() {
+    public double getQ() {
         return q.get(network.get().getStateIndex());
     }
 
     @Override
-    public Terminal setQ(float q) {
+    public Terminal setQ(double q) {
         if (connectable.getType() == ConnectableType.BUSBAR_SECTION) {
             throw new ValidationException(connectable, "cannot set reactive power on a busbar section");
         }
-        float oldValue = this.q.set(network.get().getStateIndex(), q);
+        double oldValue = this.q.set(network.get().getStateIndex(), q);
         getConnectable().notifyUpdate("q" + (num != -1 ? num : ""), oldValue, q);
         return this;
     }
 
-    protected abstract float getV();
+    protected abstract double getV();
 
     @Override
-    public float getI() {
+    public double getI() {
         if (connectable.getType() == ConnectableType.BUSBAR_SECTION) {
             return 0;
         }
         int stateIndex = network.get().getStateIndex();
-        return (float) (Math.hypot(p.get(stateIndex), q.get(stateIndex))
-                / (Math.sqrt(3.) * getV() / 1000));
+        return Math.hypot(p.get(stateIndex), q.get(stateIndex))
+                / (Math.sqrt(3.) * getV() / 1000);
     }
 
     @Override

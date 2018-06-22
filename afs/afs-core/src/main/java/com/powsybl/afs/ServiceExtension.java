@@ -9,6 +9,14 @@ package com.powsybl.afs;
 import java.util.Objects;
 
 /**
+ *
+ * Registers a new implementation for service of type &lt;U&gt;, to be retrieved with {@link AppData#findService}.
+ *
+ * <p>
+ * A service is identified by its interface type and by a "remote" boolean.
+ * Therefore you may only have one local and one remote implementation of the same service registered with your AFS.
+ *
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public interface ServiceExtension<U> {
@@ -52,7 +60,13 @@ public interface ServiceExtension<U> {
         }
     }
 
+    /**
+     * Key identifying the service in AFS.
+     */
     ServiceKey<U> getServiceKey();
 
+    /**
+     * Creates the service instance.
+     */
     U createService(ServiceCreationContext context);
 }

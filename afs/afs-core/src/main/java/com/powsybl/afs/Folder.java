@@ -6,9 +6,13 @@
  */
 package com.powsybl.afs;
 
+import com.powsybl.afs.storage.AppStorageArchive;
 import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.afs.storage.NodeInfo;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -16,6 +20,11 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
+ * A folder in an {@link AppFileSystem} tree.
+ *
+ * <p>
+ * Folders may have children folders or files, and provides methods to create new children.
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class Folder extends Node implements FolderBase<Node, Folder> {
@@ -31,6 +40,9 @@ public class Folder extends Node implements FolderBase<Node, Folder> {
         return storage.isWritable(info.getId());
     }
 
+    /**
+     * Get the children nodes of this folder.
+     */
     @Override
     public List<Node> getChildren() {
         return storage.getChildNodes(info.getId())
@@ -40,12 +52,18 @@ public class Folder extends Node implements FolderBase<Node, Folder> {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Gets the child node at path "name/name2/..." relative to this folder, or empty if it does not exist.
+     */
     @Override
     public Optional<Node> getChild(String name, String... more) {
         NodeInfo childInfo = getChildInfo(name, more);
         return Optional.ofNullable(childInfo).map(fileSystem::createNode);
     }
 
+    /**
+     * Gets the child node of class T at path "name/name2/..." relative to this folder, in a typesafe way, or empty if it does not exist.
+     */
     @Override
     public <T extends Node> Optional<T> getChild(Class<T> clazz, String name, String... more) {
         Objects.requireNonNull(clazz);
@@ -54,11 +72,17 @@ public class Folder extends Node implements FolderBase<Node, Folder> {
                 .map(clazz::cast);
     }
 
+    /**
+     * Gets the folder at path "name/name2/..." relative to this folder, or empty if it does not exist.
+     */
     @Override
     public Optional<Folder> getFolder(String name, String... more) {
         return getChild(Folder.class, name, more);
     }
 
+    /**
+     * Creates a subfolder of this folder. If a folder with same name already exists, returns the existing folder.
+     */
     @Override
     public Folder createFolder(String name) {
         NodeInfo folderInfo = storage.getChildNode(info.getId(), name)
@@ -70,6 +94,9 @@ public class Folder extends Node implements FolderBase<Node, Folder> {
         return new Folder(new FileCreationContext(folderInfo, storage, fileSystem));
     }
 
+    /**
+     * Creates a new {@link Project} in this folder. If a project with same name already exists, returns the existing project.
+     */
     public Project createProject(String name) {
         NodeInfo projectInfo = storage.getChildNode(info.getId(), name)
                 .orElseGet(() -> {
@@ -80,5 +107,18 @@ public class Folder extends Node implements FolderBase<Node, Folder> {
                     return newProjectInfo;
                 });
         return new Project(new FileCreationContext(projectInfo, storage, fileSystem));
+    }
+
+    public void archive(Path dir) {
+        Objects.requireNonNull(dir);
+        try {
+            new AppStorageArchive(storage).archiveChildren(info, dir);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public void unarchive(Path dir) {
+        new AppStorageArchive(storage).unarchiveChildren(info, dir);
     }
 }

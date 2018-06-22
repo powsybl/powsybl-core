@@ -17,17 +17,17 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
 
     private final SubstationImpl substation;
 
-    private float r = Float.NaN;
+    private double r = Double.NaN;
 
-    private float x = Float.NaN;
+    private double x = Double.NaN;
 
-    private float g = Float.NaN;
+    private double g = Double.NaN;
 
-    private float b = Float.NaN;
+    private double b = Double.NaN;
 
-    private float ratedU1 = Float.NaN;
+    private double ratedU1 = Double.NaN;
 
-    private float ratedU2 = Float.NaN;
+    private double ratedU2 = Double.NaN;
 
     TwoWindingsTransformerAdderImpl(SubstationImpl substation) {
         this.substation = substation;
@@ -44,37 +44,37 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
     }
 
     @Override
-    public TwoWindingsTransformerAdder setR(float r) {
+    public TwoWindingsTransformerAdder setR(double r) {
         this.r = r;
         return this;
     }
 
     @Override
-    public TwoWindingsTransformerAdder setX(float x) {
+    public TwoWindingsTransformerAdder setX(double x) {
         this.x = x;
         return this;
     }
 
     @Override
-    public TwoWindingsTransformerAdder setB(float b) {
+    public TwoWindingsTransformerAdder setB(double b) {
         this.b = b;
         return this;
     }
 
     @Override
-    public TwoWindingsTransformerAdder setG(float g) {
+    public TwoWindingsTransformerAdder setG(double g) {
         this.g = g;
         return this;
     }
 
     @Override
-    public TwoWindingsTransformerAdder setRatedU1(float ratedU1) {
+    public TwoWindingsTransformerAdder setRatedU1(double ratedU1) {
         this.ratedU1 = ratedU1;
         return this;
     }
 
     @Override
-    public TwoWindingsTransformerAdder setRatedU2(float ratedU2) {
+    public TwoWindingsTransformerAdder setRatedU2(double ratedU2) {
         this.ratedU2 = ratedU2;
         return this;
     }

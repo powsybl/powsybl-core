@@ -16,9 +16,9 @@ class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<Vsc
 
     private Boolean voltageRegulatorOn;
 
-    private float reactivePowerSetpoint = Float.NaN;
+    private double reactivePowerSetpoint = Double.NaN;
 
-    private float voltageSetpoint = Float.NaN;
+    private double voltageSetpoint = Double.NaN;
 
     VscConverterStationAdderImpl(VoltageLevelExt voltageLevel) {
         super(voltageLevel);
@@ -36,13 +36,13 @@ class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<Vsc
     }
 
     @Override
-    public VscConverterStationAdderImpl setVoltageSetpoint(float voltageSetpoint) {
+    public VscConverterStationAdderImpl setVoltageSetpoint(double voltageSetpoint) {
         this.voltageSetpoint = voltageSetpoint;
         return this;
     }
 
     @Override
-    public VscConverterStationAdderImpl setReactivePowerSetpoint(float reactivePowerSetpoint) {
+    public VscConverterStationAdderImpl setReactivePowerSetpoint(double reactivePowerSetpoint) {
         this.reactivePowerSetpoint = reactivePowerSetpoint;
         return this;
     }

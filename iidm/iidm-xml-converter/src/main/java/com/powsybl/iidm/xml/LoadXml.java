@@ -37,8 +37,8 @@ class LoadXml extends AbstractConnectableXml<Load, LoadAdder, VoltageLevel> {
     @Override
     protected void writeRootElementAttributes(Load l, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
         context.getWriter().writeAttribute("loadType", l.getLoadType().name());
-        XmlUtil.writeFloat("p0", l.getP0(), context.getWriter());
-        XmlUtil.writeFloat("q0", l.getQ0(), context.getWriter());
+        XmlUtil.writeDouble("p0", l.getP0(), context.getWriter());
+        XmlUtil.writeDouble("q0", l.getQ0(), context.getWriter());
         writeNodeOrBus(null, l.getTerminal(), context);
         writePQ(null, l.getTerminal(), context.getWriter());
     }
@@ -52,8 +52,8 @@ class LoadXml extends AbstractConnectableXml<Load, LoadAdder, VoltageLevel> {
     protected Load readRootElementAttributes(LoadAdder adder, NetworkXmlReaderContext context) {
         String loadTypeStr = context.getReader().getAttributeValue(null, "loadType");
         LoadType loadType = loadTypeStr == null ? LoadType.UNDEFINED : LoadType.valueOf(loadTypeStr);
-        float p0 = XmlUtil.readFloatAttribute(context.getReader(), "p0");
-        float q0 = XmlUtil.readFloatAttribute(context.getReader(), "q0");
+        double p0 = XmlUtil.readDoubleAttribute(context.getReader(), "p0");
+        double q0 = XmlUtil.readDoubleAttribute(context.getReader(), "q0");
         readNodeOrBus(adder, context);
         Load l = adder.setLoadType(loadType)
                 .setP0(p0)

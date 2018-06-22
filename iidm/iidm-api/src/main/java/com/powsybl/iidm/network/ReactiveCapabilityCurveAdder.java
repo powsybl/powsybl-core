@@ -14,11 +14,11 @@ public interface ReactiveCapabilityCurveAdder {
 
     interface PointAdder {
 
-        PointAdder setP(float p);
+        PointAdder setP(double p);
 
-        PointAdder setMinQ(float minQ);
+        PointAdder setMinQ(double minQ);
 
-        PointAdder setMaxQ(float maxQ);
+        PointAdder setMaxQ(double maxQ);
 
         ReactiveCapabilityCurveAdder endPoint();
     }

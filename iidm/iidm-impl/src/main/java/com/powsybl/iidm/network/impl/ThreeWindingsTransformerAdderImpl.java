@@ -27,11 +27,11 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
 
         protected String connectableBus;
 
-        protected float r = Float.NaN;
+        protected double r = Double.NaN;
 
-        protected float x = Float.NaN;
+        protected double x = Double.NaN;
 
-        protected float ratedU = Float.NaN;
+        protected double ratedU = Double.NaN;
 
         public L setVoltageLevel(String voltageLevelId) {
             this.voltageLevelId = voltageLevelId;
@@ -53,29 +53,29 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
             return (L) this;
         }
 
-        public L setR(float r) {
+        public L setR(double r) {
             this.r = r;
             return (L) this;
         }
 
-        public L setX(float x) {
+        public L setX(double x) {
             this.x = x;
             return (L) this;
         }
 
-        public L setRatedU(float ratedU) {
+        public L setRatedU(double ratedU) {
             this.ratedU = ratedU;
             return (L) this;
         }
 
         protected void checkParams() {
-            if (Float.isNaN(r)) {
+            if (Double.isNaN(r)) {
                 throw new ValidationException(this, "r is not set");
             }
-            if (Float.isNaN(x)) {
+            if (Double.isNaN(x)) {
                 throw new ValidationException(this, "x is not set");
             }
-            if (Float.isNaN(ratedU)) {
+            if (Double.isNaN(ratedU)) {
                 throw new ValidationException(this, "rated u is not set");
             }
         }
@@ -108,18 +108,18 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
 
     class Leg1AdderImpl extends AbstractLegBaseAdder<Leg1AdderImpl> implements Leg1Adder {
 
-        protected float g = Float.NaN;
+        protected double g = Double.NaN;
 
-        protected float b = Float.NaN;
+        protected double b = Double.NaN;
 
         @Override
-        public Leg1AdderImpl setG(float g) {
+        public Leg1AdderImpl setG(double g) {
             this.g = g;
             return this;
         }
 
         @Override
-        public Leg1AdderImpl setB(float b) {
+        public Leg1AdderImpl setB(double b) {
             this.b = b;
             return this;
         }
@@ -127,10 +127,10 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
         @Override
         protected void checkParams() {
             super.checkParams();
-            if (Float.isNaN(g)) {
+            if (Double.isNaN(g)) {
                 throw new ValidationException(this, "g is not set");
             }
-            if (Float.isNaN(b)) {
+            if (Double.isNaN(b)) {
                 throw new ValidationException(this, "b is not set");
             }
         }

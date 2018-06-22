@@ -405,18 +405,18 @@ class CIM1Converter implements CIM1Constants {
         }
     }
 
-    private static float getStepXforAsymmetrical(float xStepMin, float xStepMax,
-                                                 float alpha, float alphaMax, float theta) {
+    private static double getStepXforAsymmetrical(double xStepMin, double xStepMax,
+                                                 double alpha, double alphaMax, double theta) {
         double numer = Math.sin(theta) - Math.tan(alphaMax) * Math.cos(theta);
         double denom = Math.sin(theta) - Math.tan(alpha) * Math.cos(theta);
         return xStepMin + (xStepMax - xStepMin)
-                * (float) Math.pow(Math.tan(alpha) / Math.tan(alphaMax) * numer / denom, 2);
+                * Math.pow(Math.tan(alpha) / Math.tan(alphaMax) * numer / denom, 2);
     }
 
-    private static float getStepXforSymmetrical(float xStepMin, float xStepMax,
-                                                 float alpha, float alphaMax) {
+    private static double getStepXforSymmetrical(double xStepMin, double xStepMax,
+                                                double alpha, double alphaMax) {
         return xStepMin + (xStepMax - xStepMin)
-                * (float) Math.pow(Math.sin(alpha / 2) / Math.sin(alphaMax / 2), 2);
+                * Math.pow(Math.sin(alpha / 2) / Math.sin(alphaMax / 2), 2);
     }
 
     private void createPhaseTapChanger(cim1.model.PhaseTapChanger ptc, cim1.model.Terminal t1, cim1.model.Terminal t2,
@@ -516,12 +516,12 @@ class CIM1Converter implements CIM1Constants {
                 throw new AssertionError("Unexpected PhaseTapChangerKind value: " + ptc.getPhaseTapChangerType());
         }
 
-        float alphaMax = (float) alphaList.stream().mapToDouble(Float::doubleValue).max().getAsDouble();
+        double alphaMax = alphaList.stream().mapToDouble(Float::doubleValue).max().getAsDouble();
 
         for (int i = 0; i < alphaList.size(); i++) {
-            float alpha = alphaList.get(i);
-            float rho = rhoList.get(i);
-            float x;
+            double alpha = (double) alphaList.get(i);
+            double rho = (double) rhoList.get(i);
+            double x;
             if (xStepRangeIsInconsistent || alphaMax == 0) {
                 x = transfo.getX();
             } else {
@@ -539,12 +539,12 @@ class CIM1Converter implements CIM1Constants {
                 }
             }
             ptca.beginStep()
-                    .setAlpha((float) Math.toDegrees(alpha))
+                    .setAlpha(Math.toDegrees(alpha))
                     .setRho(rho)
-                    .setR(0f)
+                    .setR(0)
                     .setX((x - transfo.getX()) / transfo.getX() * 100)
-                    .setG(0f)
-                    .setB(0f)
+                    .setG(0)
+                    .setB(0)
                 .endStep();
         }
 
@@ -594,16 +594,32 @@ class CIM1Converter implements CIM1Constants {
                 .setLowTapPosition(lowStep)
                 .setTapPosition(position);
 
+        if (LOGGER.isDebugEnabled() && !rtcSide1) {
+            LOGGER.debug("RTC at side 2 deviation {}", rtc.getId());
+        }
         for (int step = lowStep; step <= highStep; step++) {
             int n = step - neutralStep;
             float du = rtc.getStepVoltageIncrement() / 100;
-            float rho = rtcSide1 ? 1 / (1 + n * du) : (1 + n * du);
+            double rho = rtcSide1 ? 1 / (1 + n * du) : (1 + n * du);
+
+            // Impedance/admittance deviation is required when ratio tap changer is defined at side 2
+            double dz = 0;
+            double dy = 0;
+            if (!rtcSide1) {
+                double rho2 = rho * rho;
+                dz = (rho2 - 1) * 100;
+                dy = (1 / rho2 - 1) * 100;
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug(String.format("RTC at side 2 deviation: %4d  %12.8f  %12.8f  %12.8f", step, n * du, dz, dy));
+                }
+            }
+
             rtca.beginStep()
                     .setRho(rho)
-                    .setR(0f)
-                    .setX(0f)
-                    .setG(0f)
-                    .setB(0f)
+                    .setR(dz)
+                    .setX(dz)
+                    .setG(dy)
+                    .setB(dy)
                 .endStep();
         }
 
@@ -1098,7 +1114,7 @@ class CIM1Converter implements CIM1Constants {
         boolean voltageRegulatorOn = false;
         float targetP = -p;
         float targetQ = -q;
-        float targetV = Float.NaN;
+        double targetV = Double.NaN;
         Terminal regulatingTerminal = null;
         cim1.model.RegulatingControl rc = sm.getRegulatingControl();
         if (rc != null) {
@@ -1188,12 +1204,12 @@ class CIM1Converter implements CIM1Constants {
                     .setConnectableBus1(namingStrategy.getId(tn1))
                     .setBus2(t2.isConnected() ? namingStrategy.getId(tn2) : null)
                     .setConnectableBus2(namingStrategy.getId(tn2))
-                    .setR(0.05f)
-                    .setX(0.05f)
-                    .setG1(0f)
-                    .setB1(0f)
-                    .setG2(0f)
-                    .setB2(0f)
+                    .setR(0.05)
+                    .setX(0.05)
+                    .setG1(0)
+                    .setB1(0)
+                    .setG2(0)
+                    .setB2(0)
                     .add();
             addTerminalMapping(tn1, line.getTerminal1());
             addTerminalMapping(tn2, line.getTerminal2());

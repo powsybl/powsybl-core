@@ -23,7 +23,14 @@
     <description>AFS WS server side utilities</description>
 
     <dependencies>
-        <!-- Compile dependencies -->
+        <!-- Compilation dependencies -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-afs-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- Provided dependencies -->
         <dependency>
             <groupId>javax</groupId>
             <artifactId>javaee-api</artifactId>
@@ -34,10 +41,11 @@
             <artifactId>jjwt</artifactId>
         </dependency>
 
+        <!-- Test dependencies -->
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-afs-core</artifactId>
-            <version>${project.version}</version>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>

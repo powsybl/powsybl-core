@@ -15,6 +15,8 @@ import com.powsybl.iidm.import_.ImportersServiceLoader;
 import java.util.Objects;
 
 /**
+ * Defines the new type of file {@link Case}.
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @AutoService(FileExtension.class)

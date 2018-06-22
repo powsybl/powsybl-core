@@ -41,61 +41,61 @@ public class VoltageLevelTest {
                                                 .setTopologyKind(TopologyKind.BUS_BREAKER)
                                                 .setId("bbVL")
                                                 .setName("bbVL_name")
-                                                .setNominalV(200.0f)
-                                                .setLowVoltageLimit(100.0f)
-                                                .setHighVoltageLimit(200.0f)
+                                                .setNominalV(200.0)
+                                                .setLowVoltageLimit(100.0)
+                                                .setHighVoltageLimit(200.0)
                                             .add();
-        assertEquals(200.0f, voltageLevel.getNominalV(), 0.0f);
-        assertEquals(100.0f, voltageLevel.getLowVoltageLimit(), 0.0f);
-        assertEquals(200.0f, voltageLevel.getHighVoltageLimit(), 0.0f);
+        assertEquals(200.0, voltageLevel.getNominalV(), 0.0);
+        assertEquals(100.0, voltageLevel.getLowVoltageLimit(), 0.0);
+        assertEquals(200.0, voltageLevel.getHighVoltageLimit(), 0.0);
         assertEquals(ContainerType.VOLTAGE_LEVEL, voltageLevel.getContainerType());
         assertSame(substation, voltageLevel.getSubstation());
 
         // setter getter
-        voltageLevel.setHighVoltageLimit(300.0f);
-        assertEquals(300.0f, voltageLevel.getHighVoltageLimit(), 0.0f);
-        voltageLevel.setLowVoltageLimit(200.0f);
-        assertEquals(200.0f, voltageLevel.getLowVoltageLimit(), 0.0f);
-        voltageLevel.setNominalV(500.0f);
-        assertEquals(500.0f, voltageLevel.getNominalV(), 0.0f);
+        voltageLevel.setHighVoltageLimit(300.0);
+        assertEquals(300.0, voltageLevel.getHighVoltageLimit(), 0.0);
+        voltageLevel.setLowVoltageLimit(200.0);
+        assertEquals(200.0, voltageLevel.getLowVoltageLimit(), 0.0);
+        voltageLevel.setNominalV(500.0);
+        assertEquals(500.0, voltageLevel.getNominalV(), 0.0);
     }
 
     @Test
     public void invalidNominalV() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("nominal voltage is invalid");
-        createVoltageLevel("invalid", "invalid", -100.0f, 1.0f, 2.0f);
+        createVoltageLevel("invalid", "invalid", -100.0, 1.0, 2.0);
     }
 
     @Test
     public void invalidLowVoltageLimit() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("low voltage limit is < 0");
-        createVoltageLevel("invalid", "invalid", 100.0f, -1.0f, 2.0f);
+        createVoltageLevel("invalid", "invalid", 100.0, -1.0, 2.0);
     }
 
     @Test
     public void invalidHighVoltageLimit() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("high voltage limit is < 0");
-        createVoltageLevel("invalid", "invalid", 100.0f, 1.0f, -2.0f);
+        createVoltageLevel("invalid", "invalid", 100.0, 1.0, -2.0);
     }
 
     @Test
     public void inconsistentVoltageLimitRange() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("Inconsistent voltage limit range");
-        createVoltageLevel("invalid", "invalid", 100.0f, 2.0f, 1.0f);
+        createVoltageLevel("invalid", "invalid", 100.0, 2.0, 1.0);
     }
 
     @Test
     public void duplicateVoltageLevel() {
-        createVoltageLevel("duplicate", "duplicate", 100.0f, 2.0f, 10.0f);
+        createVoltageLevel("duplicate", "duplicate", 100.0, 2.0, 10.0);
         thrown.expect(PowsyblException.class);
-        createVoltageLevel("duplicate", "duplicate", 100.0f, 2.0f, 10.0f);
+        createVoltageLevel("duplicate", "duplicate", 100.0, 2.0, 10.0);
     }
 
-    private void createVoltageLevel(String id, String name, float v, float low, float high) {
+    private void createVoltageLevel(String id, String name, double v, double low, double high) {
         substation.newVoltageLevel()
                     .setId(id)
                     .setName(name)

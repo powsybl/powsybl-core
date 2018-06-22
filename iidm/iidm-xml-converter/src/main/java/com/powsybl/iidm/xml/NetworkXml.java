@@ -40,11 +40,13 @@ import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
+import static com.powsybl.iidm.xml.IidmXmlConstants.*;
+
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public final class NetworkXml implements XmlConstants {
+public final class NetworkXml {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NetworkXml.class);
 
@@ -438,29 +440,29 @@ public final class NetworkXml implements XmlConstants {
 
     private static void updateBus(XMLStreamReader reader, VoltageLevel[] vl) {
         String id = reader.getAttributeValue(null, "id");
-        float v = XmlUtil.readFloatAttribute(reader, "v");
-        float angle = XmlUtil.readFloatAttribute(reader, "angle");
+        double v = XmlUtil.readDoubleAttribute(reader, "v");
+        double angle = XmlUtil.readDoubleAttribute(reader, "angle");
         Bus b = vl[0].getBusBreakerView().getBus(id);
         if (b == null) {
             b = vl[0].getBusView().getBus(id);
         }
-        b.setV(v > 0 ? v : Float.NaN).setAngle(angle);
+        b.setV(v > 0 ? v : Double.NaN).setAngle(angle);
     }
 
     private static void updateInjection(XMLStreamReader reader, Network network) {
         String id = reader.getAttributeValue(null, "id");
-        float p = XmlUtil.readOptionalFloatAttribute(reader, "p");
-        float q = XmlUtil.readOptionalFloatAttribute(reader, "q");
+        double p = XmlUtil.readOptionalDoubleAttribute(reader, "p");
+        double q = XmlUtil.readOptionalDoubleAttribute(reader, "q");
         Injection inj = (Injection) network.getIdentifiable(id);
         inj.getTerminal().setP(p).setQ(q);
     }
 
     private static void updateBranch(XMLStreamReader reader, Network network) {
         String id = reader.getAttributeValue(null, "id");
-        float p1 = XmlUtil.readOptionalFloatAttribute(reader, "p1");
-        float q1 = XmlUtil.readOptionalFloatAttribute(reader, "q1");
-        float p2 = XmlUtil.readOptionalFloatAttribute(reader, "p2");
-        float q2 = XmlUtil.readOptionalFloatAttribute(reader, "q2");
+        double p1 = XmlUtil.readOptionalDoubleAttribute(reader, "p1");
+        double q1 = XmlUtil.readOptionalDoubleAttribute(reader, "q1");
+        double p2 = XmlUtil.readOptionalDoubleAttribute(reader, "p2");
+        double q2 = XmlUtil.readOptionalDoubleAttribute(reader, "q2");
         Branch branch = (Branch) network.getIdentifiable(id);
         branch.getTerminal1().setP(p1).setQ(q1);
         branch.getTerminal2().setP(p2).setQ(q2);

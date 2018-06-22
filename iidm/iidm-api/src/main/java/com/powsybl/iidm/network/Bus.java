@@ -26,32 +26,32 @@ public interface Bus extends Identifiable<Bus> {
     /**
      * Get the voltage magnitude of the bus in kV.
      */
-    float getV();
+    double getV();
 
     /**
      * Set the voltage magnituge of the bus in kV.
      */
-    Bus setV(float v);
+    Bus setV(double v);
 
     /**
      * Get the voltage angle of the bus in degree.
      */
-    float getAngle();
+    double getAngle();
 
     /**
      * Set the voltage angle of the bus in degree.
      */
-    Bus setAngle(float angle);
+    Bus setAngle(double angle);
 
     /**
      * Get the active power in MW injected by equipments connected to the bus.
      */
-    float getP();
+    double getP();
 
     /**
      * Get the reactive power in MVAR injected by equiments connected to the bus.
      */
-    float getQ();
+    double getQ();
 
     /**
      * Get the connected component that the bus is part of.

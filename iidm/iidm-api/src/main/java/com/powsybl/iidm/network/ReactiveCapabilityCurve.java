@@ -42,11 +42,11 @@ public interface ReactiveCapabilityCurve extends ReactiveLimits {
      */
     public interface Point {
 
-        float getP();
+        double getP();
 
-        float getMinQ();
+        double getMinQ();
 
-        float getMaxQ();
+        double getMaxQ();
     }
 
     /**
@@ -62,11 +62,11 @@ public interface ReactiveCapabilityCurve extends ReactiveLimits {
     /**
      * Get the active power minimum value of the curve.
      */
-    float getMinP();
+    double getMinP();
 
     /**
      * Get the active power maximim value of the curve.
      */
-    float getMaxP();
+    double getMaxP();
 
 }

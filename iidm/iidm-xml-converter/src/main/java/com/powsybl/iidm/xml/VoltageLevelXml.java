@@ -11,6 +11,8 @@ import com.powsybl.iidm.network.*;
 
 import javax.xml.stream.XMLStreamException;
 
+import static com.powsybl.iidm.xml.IidmXmlConstants.IIDM_URI;
+
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -37,9 +39,9 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
 
     @Override
     protected void writeRootElementAttributes(VoltageLevel vl, Substation s, NetworkXmlWriterContext context) throws XMLStreamException {
-        XmlUtil.writeFloat("nominalV", vl.getNominalV(), context.getWriter());
-        XmlUtil.writeFloat("lowVoltageLimit", vl.getLowVoltageLimit(), context.getWriter());
-        XmlUtil.writeFloat("highVoltageLimit", vl.getHighVoltageLimit(), context.getWriter());
+        XmlUtil.writeDouble("nominalV", vl.getNominalV(), context.getWriter());
+        XmlUtil.writeDouble("lowVoltageLimit", vl.getLowVoltageLimit(), context.getWriter());
+        XmlUtil.writeDouble("highVoltageLimit", vl.getHighVoltageLimit(), context.getWriter());
 
         TopologyLevel topologyLevel = TopologyLevel.min(vl.getTopologyKind(), context.getOptions().getTopologyLevel());
         context.getWriter().writeAttribute("topologyKind", topologyLevel.getTopologyKind().name());
@@ -186,9 +188,9 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
 
     @Override
     protected VoltageLevel readRootElementAttributes(VoltageLevelAdder adder, NetworkXmlReaderContext context) {
-        float nominalV = XmlUtil.readFloatAttribute(context.getReader(), "nominalV");
-        float lowVoltageLimit = XmlUtil.readOptionalFloatAttribute(context.getReader(), "lowVoltageLimit");
-        float highVoltageLimit = XmlUtil.readOptionalFloatAttribute(context.getReader(), "highVoltageLimit");
+        double nominalV = XmlUtil.readDoubleAttribute(context.getReader(), "nominalV");
+        double lowVoltageLimit = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "lowVoltageLimit");
+        double highVoltageLimit = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "highVoltageLimit");
         TopologyKind topologyKind = TopologyKind.valueOf(context.getReader().getAttributeValue(null, "topologyKind"));
         return adder
             .setNominalV(nominalV)

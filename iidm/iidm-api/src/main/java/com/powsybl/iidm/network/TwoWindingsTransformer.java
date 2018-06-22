@@ -56,68 +56,68 @@ public interface TwoWindingsTransformer extends Branch<TwoWindingsTransformer>, 
      * Get the nominal series resistance specified in &#937; at the secondary
      * voltage side.
      */
-    float getR();
+    double getR();
 
     /**
      * Set the nominal series resistance specified in &#937; at the secondary
      * voltage side.
      */
-    TwoWindingsTransformer setR(float r);
+    TwoWindingsTransformer setR(double r);
 
     /**
      * Get the nominal series reactance specified in &#937; at the secondary
      * voltage side.
      */
-    float getX();
+    double getX();
 
     /**
      * Set the nominal series reactance specified in &#937; at the secondary
      * voltage side.
      */
-    TwoWindingsTransformer setX(float x);
+    TwoWindingsTransformer setX(double x);
 
     /**
      * Get the nominal magnetizing conductance specified in S at the secondary
      * voltage side.
      */
-    float getG();
+    double getG();
 
     /**
      * Set the nominal magnetizing conductance specified in S at the secondary
      * voltage side.
      */
-    TwoWindingsTransformer setG(float g);
+    TwoWindingsTransformer setG(double g);
 
     /**
      * Get the nominal magnetizing susceptance specified in S at the secondary
      * voltage side.
      */
-    float getB();
+    double getB();
 
     /**
      * Set the nominal magnetizing susceptance specified in S at the secondary
      * voltage side.
      */
-    TwoWindingsTransformer setB(float b);
+    TwoWindingsTransformer setB(double b);
 
     /**
      * Get the primary winding rated voltage in kV.
      */
-    float getRatedU1();
+    double getRatedU1();
 
     /**
      * Set the secondary winding rated voltage in kV.
      */
-    TwoWindingsTransformer setRatedU1(float ratedU1);
+    TwoWindingsTransformer setRatedU1(double ratedU1);
 
     /**
      * Get the secondary winding rated voltage in kV.
      */
-    float getRatedU2();
+    double getRatedU2();
 
     /**
      * Set the secondary winding rated voltage in kV.
      */
-    TwoWindingsTransformer setRatedU2(float ratedU2);
+    TwoWindingsTransformer setRatedU2(double ratedU2);
 
 }

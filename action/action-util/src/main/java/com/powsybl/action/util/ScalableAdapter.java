@@ -33,7 +33,7 @@ class ScalableAdapter extends AbstractScalable {
     }
 
     @Override
-    public float initialValue(Network n) {
+    public double initialValue(Network n) {
         return getScalable(n).initialValue(n);
     }
 
@@ -43,7 +43,7 @@ class ScalableAdapter extends AbstractScalable {
     }
 
     @Override
-    public float maximumValue(Network n) {
+    public double maximumValue(Network n) {
         return getScalable(n).maximumValue(n);
     }
 
@@ -53,7 +53,7 @@ class ScalableAdapter extends AbstractScalable {
     }
 
     @Override
-    public float scale(Network n, float asked) {
+    public double scale(Network n, double asked) {
         return getScalable(n).scale(n, asked);
     }
 }

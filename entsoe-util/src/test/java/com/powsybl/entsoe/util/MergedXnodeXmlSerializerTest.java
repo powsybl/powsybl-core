@@ -49,12 +49,12 @@ public class MergedXnodeXmlSerializerTest extends AbstractConverterTest {
                 .setBus1("B1")
                 .setVoltageLevel2("VL2")
                 .setBus2("B2")
-                .setR(1f)
-                .setX(1f)
-                .setG1(0f)
-                .setG2(0f)
-                .setB1(0f)
-                .setB2(0f)
+                .setR(1.0)
+                .setX(1.0)
+                .setG1(0.0)
+                .setG2(0.0)
+                .setB1(0.0)
+                .setB2(0.0)
                 .add();
         return network;
     }
@@ -65,7 +65,7 @@ public class MergedXnodeXmlSerializerTest extends AbstractConverterTest {
 
         // extends line
         Line line = network.getLine("L");
-        MergedXnode xnode = new MergedXnode(line, 0.5f, 0.5f, 1f, 2f, 3f, 4f, "XXXXXX11");
+        MergedXnode xnode = new MergedXnode(line, 0.5f, 0.5f, 1.0, 2.0, 3.0, 4.0, "XXXXXX11");
         line.addExtension(MergedXnode.class, xnode);
 
         Network network2 = roundTripXmlTest(network,
@@ -78,10 +78,10 @@ public class MergedXnodeXmlSerializerTest extends AbstractConverterTest {
         assertNotNull(xnode2);
         assertEquals(xnode.getRdp(), xnode2.getRdp(), 0f);
         assertEquals(xnode.getXdp(), xnode2.getXdp(), 0f);
-        assertEquals(xnode.getXnodeP1(), xnode2.getXnodeP1(), 0f);
-        assertEquals(xnode.getXnodeQ1(), xnode2.getXnodeQ1(), 0f);
-        assertEquals(xnode.getXnodeP2(), xnode2.getXnodeP2(), 0f);
-        assertEquals(xnode.getXnodeQ2(), xnode2.getXnodeQ2(), 0f);
+        assertEquals(xnode.getXnodeP1(), xnode2.getXnodeP1(), 0.0);
+        assertEquals(xnode.getXnodeQ1(), xnode2.getXnodeQ1(), 0.0);
+        assertEquals(xnode.getXnodeP2(), xnode2.getXnodeP2(), 0.0);
+        assertEquals(xnode.getXnodeQ2(), xnode2.getXnodeQ2(), 0.0);
         assertEquals(xnode.getCode(), xnode2.getCode());
     }
 }
