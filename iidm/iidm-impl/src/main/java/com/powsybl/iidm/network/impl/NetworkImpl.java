@@ -789,7 +789,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Mult
         return "Network";
     }
 
-    private void setId(String id) {
+    private void setIdEraseName(String id) {
         objectStore.remove(this);
         this.id = id;
         name = null; // reset the name
@@ -1024,7 +1024,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Mult
         }
 
         // change the network id
-        setId(getId() + " + " + otherNetwork.getId());
+        setIdEraseName(getId() + " + " + otherNetwork.getId());
 
         LOGGER.info("Merging of {} done in {} ms", id, System.currentTimeMillis() - start);
     }
