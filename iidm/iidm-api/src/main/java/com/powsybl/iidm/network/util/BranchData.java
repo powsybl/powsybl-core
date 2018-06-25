@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.loadflow;
+package com.powsybl.iidm.network.util;
 
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Line;
@@ -55,7 +55,47 @@ public class BranchData {
     private double computedP2;
     private double computedQ2;
 
-    public BranchData(Line line, float epsilonX, boolean applyReactanceCorrection) {
+    public BranchData(String id,
+            double r, double x,
+            double rho1, double rho2,
+            double u1, double u2, double theta1, double theta2,
+            double alpha1, double alpha2,
+            double g1, double g2, double b1, double b2,
+            double p1, double q1, double p2, double q2,
+            boolean connected1, boolean connected2,
+            boolean mainComponent1, boolean mainComponent2,
+            double epsilonX, boolean applyReactanceCorrection) {
+        this.id = id;
+        this.r = r;
+        this.x = x;
+        double fixedX = getFixedX(x, epsilonX, applyReactanceCorrection);
+        z = Math.hypot(r, fixedX);
+        y = 1 / z;
+        ksi = Math.atan2(r, fixedX);
+        this.rho1 = rho1;
+        this.rho2 = rho2;
+        this.u1 = u1;
+        this.u2 = u2;
+        this.theta1 = theta1;
+        this.theta2 = theta2;
+        this.alpha1 = alpha1;
+        this.alpha2 = alpha2;
+        this.g1 = g1;
+        this.g2 = g2;
+        this.b1 = b1;
+        this.b2 = b2;
+        this.p1 = p1;
+        this.q1 = q1;
+        this.p2 = p2;
+        this.q2 = q2;
+        this.connected1 = connected1;
+        this.connected2 = connected2;
+        this.mainComponent1 = mainComponent1;
+        this.mainComponent2 = mainComponent2;
+        computeValues();
+    }
+
+    public BranchData(Line line, double epsilonX, boolean applyReactanceCorrection) {
         Objects.requireNonNull(line);
 
         id = line.getId();
@@ -98,7 +138,7 @@ public class BranchData {
         computeValues();
     }
 
-    public BranchData(TwoWindingsTransformer twt, float epsilonX, boolean applyReactanceCorrection, boolean specificCompatibility) {
+    public BranchData(TwoWindingsTransformer twt, double epsilonX, boolean applyReactanceCorrection, boolean specificCompatibility) {
         Objects.requireNonNull(twt);
 
         id = twt.getId();
@@ -141,7 +181,7 @@ public class BranchData {
         computeValues();
     }
 
-    private double getFixedX(double x, float epsilonX, boolean applyReactanceCorrection) {
+    private double getFixedX(double x, double epsilonX, boolean applyReactanceCorrection) {
         return Math.abs(x) < epsilonX && applyReactanceCorrection ? epsilonX : x;
     }
 

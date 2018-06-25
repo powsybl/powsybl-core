@@ -9,6 +9,7 @@ package com.powsybl.loadflow.validation;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.io.PrintWriter;
 import java.util.stream.Stream;
 
 import org.apache.commons.io.output.NullWriter;
@@ -24,6 +25,7 @@ import com.powsybl.iidm.network.RatioTapChangerStep;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.Terminal.BusView;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.iidm.network.util.BranchData;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.mock.LoadFlowFactoryMock;
 import com.powsybl.loadflow.validation.io.ValidationWriter;
@@ -150,41 +152,41 @@ public class FlowsValidationTest extends AbstractValidationTest {
         double p2 = -40.073254;
         double q2 = -2.3003194;
 
-        assertTrue(FlowsValidation.checkFlows("test", r, x, rho1, rho2, u1, u2, theta1, theta2, alpha1, alpha2, g1, g2, b1, b2, p1, q1, p2, q2, connected1, connected2,
-                                              mainComponent1, mainComponent2, looseConfig, NullWriter.NULL_WRITER));
-        assertFalse(FlowsValidation.checkFlows("test", r, x, rho1, rho2, u1, u2, theta1, theta2, alpha1, alpha2, g1, g2, b1, b2, p1, q1, p2, q2, connected1, connected2,
-                                               mainComponent1, mainComponent2, strictConfig, NullWriter.NULL_WRITER));
+        assertTrue(FlowsValidation.checkFlows(new BranchData("test", r, x, rho1, rho2, u1, u2, theta1, theta2, alpha1, alpha2, g1, g2, b1, b2, p1, q1, p2, q2, connected1, connected2,
+                                              mainComponent1, mainComponent2, looseConfig.getEpsilonX(), looseConfig.applyReactanceCorrection()), looseConfig, NullWriter.NULL_WRITER));
+        assertFalse(FlowsValidation.checkFlows(new BranchData("test", r, x, rho1, rho2, u1, u2, theta1, theta2, alpha1, alpha2, g1, g2, b1, b2, p1, q1, p2, q2, connected1, connected2,
+                                               mainComponent1, mainComponent2, strictConfig.getEpsilonX(), strictConfig.applyReactanceCorrection()), strictConfig, NullWriter.NULL_WRITER));
 
         double r = 0.04 / (rho2 * rho2);
         double x = 0.423 / (rho2 * rho2);
         double rho1 = 1 / rho2;
         double rho2 = 1;
 
-        assertTrue(FlowsValidation.checkFlows("test", r, x, rho1, rho2, u1, u2, theta1, theta2, alpha1, alpha2, g1, g2, b1, b2, p1, q1, p2, q2, connected1, connected2,
-                                              mainComponent1, mainComponent2, looseConfig, NullWriter.NULL_WRITER));
-        assertFalse(FlowsValidation.checkFlows("test", r, x, rho1, rho2, u1, u2, theta1, theta2, alpha1, alpha2, g1, g2, b1, b2, p1, q1, p2, q2, connected1, connected2,
-                                               mainComponent1, mainComponent2, strictConfig, NullWriter.NULL_WRITER));
+        assertTrue(FlowsValidation.checkFlows(new BranchData("test", r, x, rho1, rho2, u1, u2, theta1, theta2, alpha1, alpha2, g1, g2, b1, b2, p1, q1, p2, q2, connected1, connected2,
+                                              mainComponent1, mainComponent2, looseConfig.getEpsilonX(), looseConfig.applyReactanceCorrection()), looseConfig, NullWriter.NULL_WRITER));
+        assertFalse(FlowsValidation.checkFlows(new BranchData("test", r, x, rho1, rho2, u1, u2, theta1, theta2, alpha1, alpha2, g1, g2, b1, b2, p1, q1, p2, q2, connected1, connected2,
+                                               mainComponent1, mainComponent2, strictConfig.getEpsilonX(), strictConfig.applyReactanceCorrection()), strictConfig, NullWriter.NULL_WRITER));
 
         // check disconnected on one end
-        assertTrue(FlowsValidation.checkFlows("test", r, x, rho1, rho2, Float.NaN, u2, Float.NaN, theta2, alpha1, alpha2, g1, g2, b1, b2, Float.NaN, Float.NaN, 0.0, 0.0, false, connected2,
-                                            mainComponent1, mainComponent2, looseConfig, NullWriter.NULL_WRITER));
-        assertFalse(FlowsValidation.checkFlows("test", r, x, rho1, rho2, Float.NaN, u2, Float.NaN, theta2, alpha1, alpha2, g1, g2, b1, b2, Float.NaN, Float.NaN, 0.2, 0.0, false, connected2,
-                                               mainComponent1, mainComponent2, looseConfig, NullWriter.NULL_WRITER));
+        assertTrue(FlowsValidation.checkFlows(new BranchData("test", r, x, rho1, rho2, Double.NaN, u2, Double.NaN, theta2, alpha1, alpha2, g1, g2, b1, b2, Double.NaN, Double.NaN, 0f, 0f, false, connected2,
+                                            mainComponent1, mainComponent2, looseConfig.getEpsilonX(), looseConfig.applyReactanceCorrection()), looseConfig, new PrintWriter(System.err)));
+        assertFalse(FlowsValidation.checkFlows(new BranchData("test", r, x, rho1, rho2, Double.NaN, u2, Double.NaN, theta2, alpha1, alpha2, g1, g2, b1, b2, Double.NaN, Double.NaN, 0.2f, 0f, false, connected2,
+                                               mainComponent1, mainComponent2, looseConfig.getEpsilonX(), looseConfig.applyReactanceCorrection()), looseConfig, NullWriter.NULL_WRITER));
 
         // check disconnected on both end
-        assertTrue(FlowsValidation.checkFlows("test", r, x, rho1, rho2, Float.NaN, Float.NaN, Float.NaN, Float.NaN, alpha1, alpha2, g1, g2, b1, b2, Float.NaN, Float.NaN, Float.NaN, Float.NaN,
-                                              false, false, mainComponent1, mainComponent2, looseConfig, NullWriter.NULL_WRITER));
-        assertFalse(FlowsValidation.checkFlows("test", r, x, rho1, rho2, Float.NaN, Float.NaN, Float.NaN, Float.NaN, alpha1, alpha2, g1, g2, b1, b2, p1, q2, Float.NaN, Float.NaN,
-                                              false, false, mainComponent1, mainComponent2, looseConfig, NullWriter.NULL_WRITER));
-        assertFalse(FlowsValidation.checkFlows("test", r, x, rho1, rho2, Float.NaN, Float.NaN, Float.NaN, Float.NaN, alpha1, alpha2, g1, g2, b1, b2, Float.NaN, Float.NaN, p2, q2,
-                                              false, false, mainComponent1, mainComponent2, looseConfig, NullWriter.NULL_WRITER));
+        assertTrue(FlowsValidation.checkFlows(new BranchData("test", r, x, rho1, rho2, Double.NaN, Double.NaN, Double.NaN, Double.NaN, alpha1, alpha2, g1, g2, b1, b2, Float.NaN, Float.NaN, Float.NaN, Float.NaN,
+                                              false, false, mainComponent1, mainComponent2, looseConfig.getEpsilonX(), looseConfig.applyReactanceCorrection()), looseConfig, NullWriter.NULL_WRITER));
+        assertFalse(FlowsValidation.checkFlows(new BranchData("test", r, x, rho1, rho2, Double.NaN, Double.NaN, Double.NaN, Double.NaN, alpha1, alpha2, g1, g2, b1, b2, p1, q2, Double.NaN, Double.NaN,
+                                              false, false, mainComponent1, mainComponent2, looseConfig.getEpsilonX(), looseConfig.applyReactanceCorrection()), looseConfig, NullWriter.NULL_WRITER));
+        assertFalse(FlowsValidation.checkFlows(new BranchData("test", r, x, rho1, rho2, Double.NaN, Double.NaN, Double.NaN, Double.NaN, alpha1, alpha2, g1, g2, b1, b2, Double.NaN, Double.NaN, p2, q2,
+                                              false, false, mainComponent1, mainComponent2, looseConfig.getEpsilonX(), looseConfig.applyReactanceCorrection()), looseConfig, NullWriter.NULL_WRITER));
 
         // check with NaN values
-        assertFalse(FlowsValidation.checkFlows("test", r, x, Double.NaN, rho2, u1, u2, theta1, theta2, alpha1, alpha2, g1, g2, b1, b2, p1, q1, p2, q2, connected1, connected2,
-                                               mainComponent1, mainComponent2, looseConfig, NullWriter.NULL_WRITER));
+        assertFalse(FlowsValidation.checkFlows(new BranchData("test", r, x, Double.NaN, rho2, u1, u2, theta1, theta2, alpha1, alpha2, g1, g2, b1, b2, p1, q1, p2, q2, connected1, connected2,
+                                               mainComponent1, mainComponent2, looseConfig.getEpsilonX(), looseConfig.applyReactanceCorrection()), looseConfig, NullWriter.NULL_WRITER));
         looseConfig.setOkMissingValues(true);
-        assertTrue(FlowsValidation.checkFlows("test", r, x, Double.NaN, rho2, u1, u2, theta1, theta2, alpha1, alpha2, g1, g2, b1, b2, p1, q1, p2, q2, connected1, connected2,
-                                              mainComponent1, mainComponent2, looseConfig, NullWriter.NULL_WRITER));
+        assertTrue(FlowsValidation.checkFlows(new BranchData("test", r, x, Double.NaN, rho2, u1, u2, theta1, theta2, alpha1, alpha2, g1, g2, b1, b2, p1, q1, p2, q2, connected1, connected2,
+                                              mainComponent1, mainComponent2, looseConfig.getEpsilonX(), looseConfig.applyReactanceCorrection()), looseConfig, NullWriter.NULL_WRITER));
         looseConfig.setOkMissingValues(false);
     }
 
@@ -251,5 +253,4 @@ public class FlowsValidationTest extends AbstractValidationTest {
         ValidationWriter validationWriter = ValidationUtils.createValidationWriter(network.getId(), looseConfig, NullWriter.NULL_WRITER, ValidationType.FLOWS);
         assertTrue(ValidationType.FLOWS.check(network, looseConfig, validationWriter));
     }
-
 }
