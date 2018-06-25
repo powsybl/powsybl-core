@@ -832,7 +832,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Mult
                 dl1byXnodeCode.put(dl1.getUcteXnodeCode(), dl1);
             }
         }
-        List<LineMerge> lines = new ArrayList<>();
+        List<MergedLine> lines = new ArrayList<>();
         for (DanglingLine dl2 : Lists.newArrayList(other.getDanglingLines())) {
             DanglingLine dl1 = getDanglingLineByTheOther(dl2, dl1byXnodeCode);
             mergeDanglingLines(lines, dl1, dl2);
@@ -847,7 +847,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Mult
         // fix network back reference of the other network objects
         otherNetwork.ref.setRef(ref);
 
-        Multimap<Boundary, LineMerge> mergedLineByBoundary = HashMultimap.create();
+        Multimap<Boundary, MergedLine> mergedLineByBoundary = HashMultimap.create();
         replaceDanglingLineByLine(lines, mergedLineByBoundary);
 
         if (!lines.isEmpty()) {
@@ -885,9 +885,9 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Mult
         return dl1;
     }
 
-    private void mergeDanglingLines(List<LineMerge> lines, DanglingLine dl1, DanglingLine dl2) {
+    private void mergeDanglingLines(List<MergedLine> lines, DanglingLine dl1, DanglingLine dl2) {
         if (dl1 != null) {
-            LineMerge l = new LineMerge();
+            MergedLine l = new MergedLine();
             l.id = dl1.getId().compareTo(dl2.getId()) < 0 ? dl1.getId() + " + " + dl2.getId() : dl2.getId() + " + " + dl1.getId();
             Terminal t1 = dl1.getTerminal();
             Terminal t2 = dl2.getTerminal();
@@ -950,60 +950,60 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Mult
         }
     }
 
-    private void replaceDanglingLineByLine(List<LineMerge> lines, Multimap<Boundary, LineMerge> mergedLineByBoundary) {
-        for (LineMerge lm : lines) {
+    private void replaceDanglingLineByLine(List<MergedLine> lines, Multimap<Boundary, MergedLine> mergedLineByBoundary) {
+        for (MergedLine mergedLine : lines) {
             LOGGER.debug("Replacing dangling line couple '{}' (xnode={}, country1={}, country2={}) by a line",
-                    lm.id, lm.xnode, lm.country1, lm.country2);
+                    mergedLine.id, mergedLine.xnode, mergedLine.country1, mergedLine.country2);
             TieLineAdderImpl la = newTieLine()
-                    .setId(lm.id)
-                    .setVoltageLevel1(lm.voltageLevel1)
-                    .setVoltageLevel2(lm.voltageLevel2)
-                    .line1().setId(lm.half1.id)
-                            .setName(lm.half1.name)
-                            .setR(lm.half1.r)
-                            .setX(lm.half1.x)
-                            .setG1(lm.half1.g1)
-                            .setG2(lm.half1.g2)
-                            .setB1(lm.half1.b1)
-                            .setB2(lm.half1.b2)
-                            .setXnodeP(lm.half1.xnodeP)
-                            .setXnodeQ(lm.half1.xnodeQ)
-                    .line2().setId(lm.half2.id)
-                            .setName(lm.half2.name)
-                            .setR(lm.half2.r)
-                            .setX(lm.half2.x)
-                            .setG1(lm.half2.g1)
-                            .setG2(lm.half2.g2)
-                            .setB1(lm.half2.b1)
-                            .setB2(lm.half2.b2)
-                            .setXnodeP(lm.half2.xnodeP)
-                            .setXnodeQ(lm.half2.xnodeQ)
-                    .setUcteXnodeCode(lm.xnode);
-            if (lm.bus1 != null) {
-                la.setBus1(lm.bus1);
+                    .setId(mergedLine.id)
+                    .setVoltageLevel1(mergedLine.voltageLevel1)
+                    .setVoltageLevel2(mergedLine.voltageLevel2)
+                    .line1().setId(mergedLine.half1.id)
+                            .setName(mergedLine.half1.name)
+                            .setR(mergedLine.half1.r)
+                            .setX(mergedLine.half1.x)
+                            .setG1(mergedLine.half1.g1)
+                            .setG2(mergedLine.half1.g2)
+                            .setB1(mergedLine.half1.b1)
+                            .setB2(mergedLine.half1.b2)
+                            .setXnodeP(mergedLine.half1.xnodeP)
+                            .setXnodeQ(mergedLine.half1.xnodeQ)
+                    .line2().setId(mergedLine.half2.id)
+                            .setName(mergedLine.half2.name)
+                            .setR(mergedLine.half2.r)
+                            .setX(mergedLine.half2.x)
+                            .setG1(mergedLine.half2.g1)
+                            .setG2(mergedLine.half2.g2)
+                            .setB1(mergedLine.half2.b1)
+                            .setB2(mergedLine.half2.b2)
+                            .setXnodeP(mergedLine.half2.xnodeP)
+                            .setXnodeQ(mergedLine.half2.xnodeQ)
+                    .setUcteXnodeCode(mergedLine.xnode);
+            if (mergedLine.bus1 != null) {
+                la.setBus1(mergedLine.bus1);
             }
-            la.setConnectableBus1(lm.connectableBus1);
-            if (lm.bus2 != null) {
-                la.setBus2(lm.bus2);
+            la.setConnectableBus1(mergedLine.connectableBus1);
+            if (mergedLine.bus2 != null) {
+                la.setBus2(mergedLine.bus2);
             }
-            la.setConnectableBus2(lm.connectableBus2);
-            if (lm.node1 != null) {
-                la.setNode1(lm.node1);
+            la.setConnectableBus2(mergedLine.connectableBus2);
+            if (mergedLine.node1 != null) {
+                la.setNode1(mergedLine.node1);
             }
-            if (lm.node2 != null) {
-                la.setNode2(lm.node2);
+            if (mergedLine.node2 != null) {
+                la.setNode2(mergedLine.node2);
             }
             TieLineImpl l = la.add();
-            l.setCurrentLimits(Side.ONE, (CurrentLimitsImpl) lm.limits1);
-            l.setCurrentLimits(Side.TWO, (CurrentLimitsImpl) lm.limits2);
-            l.getTerminal1().setP(lm.p1).setQ(lm.q1);
-            l.getTerminal2().setP(lm.p2).setQ(lm.q2);
+            l.setCurrentLimits(Side.ONE, (CurrentLimitsImpl) mergedLine.limits1);
+            l.setCurrentLimits(Side.TWO, (CurrentLimitsImpl) mergedLine.limits2);
+            l.getTerminal1().setP(mergedLine.p1).setQ(mergedLine.q1);
+            l.getTerminal2().setP(mergedLine.p2).setQ(mergedLine.q2);
 
-            mergedLineByBoundary.put(new Boundary(lm.country1, lm.country2), lm);
+            mergedLineByBoundary.put(new Boundary(mergedLine.country1, mergedLine.country2), mergedLine);
         }
     }
 
-    class LineMerge {
+    class MergedLine {
         String id;
         String voltageLevel1;
         String voltageLevel2;
@@ -1015,7 +1015,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Mult
         Integer node1;
         Integer node2;
 
-        class HalfLineMerge {
+        class HalfMergedLine {
             String id;
             String name;
             double r;
@@ -1028,8 +1028,8 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Mult
             double xnodeQ;
         }
 
-        final HalfLineMerge half1 = new HalfLineMerge();
-        final HalfLineMerge half2 = new HalfLineMerge();
+        final HalfMergedLine half1 = new HalfMergedLine();
+        final HalfMergedLine half2 = new HalfMergedLine();
 
         CurrentLimits limits1;
         CurrentLimits limits2;

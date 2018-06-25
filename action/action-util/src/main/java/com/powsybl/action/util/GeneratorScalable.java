@@ -92,7 +92,7 @@ class GeneratorScalable extends AbstractScalable {
         return done;
     }
 
-    private void connectGenerator(Generator g) {
+    private static void connectGenerator(Generator g) {
         Terminal t = g.getTerminal();
         t.connect();
         if (g.isVoltageRegulatorOn()) {

@@ -369,20 +369,15 @@ public class CsvMpiStatistics implements MpiStatistics {
                     @Override
                     public void onTaskEnd(StatisticsReader.TaskExecution task, StatisticsReader.JobExecution job) {
                         try {
-                            String taskDuration = Optional.ofNullable(task.taskDuration)
-                                    .flatMap(v -> Optional.of(v.toString())).orElse("");
+                            String taskDuration = Objects.toString(task.taskDuration, "");
                             String commandsDuration = "";
                             if (task.commandsDuration != null) {
                                 commandsDuration = blankJoiner.join(task.commandsDuration);
                             }
-                            String dataTransferDuration = Optional.ofNullable(task.dataTransferDuration)
-                                    .flatMap(v -> Optional.of(v.toString())).orElse("");
-                            String outputMessageSize = Optional.ofNullable(task.outputMessageSize)
-                                    .flatMap(v -> Optional.of(v.toString())).orElse("");
-                            String workingDataSize = Optional.ofNullable(task.workingDataSize)
-                                    .flatMap(v -> Optional.of(v.toString())).orElse("");
-                            String exitCode = Optional.ofNullable(task.exitCode)
-                                    .flatMap(v -> Optional.of(v.toString())).orElse("");
+                            String dataTransferDuration = Objects.toString(task.dataTransferDuration, "");
+                            String outputMessageSize = Objects.toString(task.outputMessageSize, "");
+                            String workingDataSize = Objects.toString(task.workingDataSize, "");
+                            String exitCode = Objects.toString(task.exitCode, "");
                             writer.write(task.taskId + CSV_SEPARATOR +
                                          task.jobId + CSV_SEPARATOR +
                                          task.taskIndex + CSV_SEPARATOR +
