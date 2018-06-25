@@ -7,6 +7,7 @@
 package com.powsybl.action.simulator.loadflow;
 
 import com.powsybl.action.dsl.ActionDb;
+import com.powsybl.action.simulator.tools.ActionSimulatorToolConstants;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.tools.ToolRunningContext;
@@ -23,26 +24,27 @@ import static org.mockito.Mockito.*;
 
 public class ParallelLoadFlowActionSimulatorTest {
 
-    ToolRunningContext context;
-    ComputationManager computationManager;
-    ParallelLoadFlowActionSimulator parallelLoadFlowActionSimulator;
+    private ComputationManager computationManager;
 
-    ActionDb actionDb;
-    List<String> contingencies;
+    private ParallelLoadFlowActionSimulator parallelLoadFlowActionSimulator;
+
+    private ActionDb actionDb;
+
+    private List<String> contingencies;
 
     @Before
     public void setup() {
         Network network = mock(Network.class);
         computationManager = mock(ComputationManager.class);
-        context = mock(ToolRunningContext.class);
+        ToolRunningContext context = mock(ToolRunningContext.class);
         when(context.getLongTimeExecutionComputationManager()).thenReturn(computationManager);
 
         CommandLine commandLine = mock(CommandLine.class);
-        when(commandLine.getOptionValue("ntasks")).thenReturn("7");
+        when(commandLine.getOptionValue(ActionSimulatorToolConstants.TASKS)).thenReturn("7");
 
         LoadFlowActionSimulatorConfig config = mock(LoadFlowActionSimulatorConfig.class);
 
-        parallelLoadFlowActionSimulator = new ParallelLoadFlowActionSimulator(network, context, commandLine, config, false, Collections.EMPTY_LIST);
+        parallelLoadFlowActionSimulator = new ParallelLoadFlowActionSimulator(network, context, commandLine, config, false, Collections.emptyList());
 
         actionDb = mock(ActionDb.class);
         contingencies = mock(List.class);

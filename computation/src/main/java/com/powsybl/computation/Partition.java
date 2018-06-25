@@ -11,14 +11,19 @@ import com.powsybl.commons.PowsyblException;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
+/**
+ * @author Yichen Tang <yichen.tang at rte-france.com>
+ * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ */
 public class Partition {
 
     private static final Pattern PATTERN = Pattern.compile("\\d+/\\d+");
 
-    private final int indexOfPartition;
-    private final int ntasks;
+    private final int taskIndex;
 
-    public Partition(String partition) {
+    private final int taskCount;
+
+    public static Partition parse(String partition) {
         Objects.requireNonNull(partition);
 
         boolean valid = PATTERN.matcher(partition).find();
@@ -27,27 +32,43 @@ public class Partition {
         }
 
         String[] split = partition.split("/");
-        indexOfPartition = Integer.valueOf(split[0]);
-        ntasks = Integer.valueOf(split[1]);
+        int taskIndex = Integer.parseInt(split[0]);
+        int taskCount = Integer.parseInt(split[1]);
 
-        if (indexOfPartition > ntasks || indexOfPartition < 1 || ntasks < 1) {
-            throw new PowsyblException(partition + " is not valid");
+        return new Partition(taskIndex, taskCount);
+    }
+
+    public Partition(int taskIndex, int taskCount) {
+        if (taskIndex > taskCount || taskIndex < 1) {
+            throw new PowsyblException(toString(taskIndex, taskCount) + " is not valid");
         }
+
+        this.taskIndex = taskIndex;
+        this.taskCount = taskCount;
     }
 
     public int startIndex(int size) {
         checkSize(size);
-        return (indexOfPartition - 1) * size / ntasks;
+        return (taskIndex - 1) * size / taskCount;
     }
 
     public int endIndex(int size) {
         checkSize(size);
-        return indexOfPartition * size / ntasks;
+        return taskIndex * size / taskCount;
     }
 
     private void checkSize(int size) {
-        if (size < ntasks) {
-            throw new PowsyblException("size is smaller than ntasks");
+        if (size < taskCount) {
+            throw new PowsyblException("Data size must be greater than task count");
         }
+    }
+
+    @Override
+    public String toString() {
+        return toString(taskIndex, taskCount);
+    }
+
+    private static String toString(int taskIndex, int taskCount) {
+        return Integer.toString(taskIndex) + "/" + taskCount;
     }
 }

@@ -11,6 +11,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Objects;
 
+/**
+ * @author Yichen Tang <yichen.tang at rte-france.com>
+ */
 public final class SecurityAnalysisResultMerger {
 
     private static final LimitViolationsResult FAILED_N_STATE_RESULT = new LimitViolationsResult(false, Collections.emptyList());

@@ -44,7 +44,7 @@ public class LoadFlowActionSimulator implements ActionSimulator {
 
     private final ComputationManager computationManager;
 
-    protected final LoadFlowActionSimulatorConfig config;
+    private final LoadFlowActionSimulatorConfig config;
 
     private final boolean applyIfSolvedViolations;
 
@@ -71,6 +71,14 @@ public class LoadFlowActionSimulator implements ActionSimulator {
     @Override
     public String getName() {
         return "loadflow";
+    }
+
+    ComputationManager getComputationManager() {
+        return computationManager;
+    }
+
+    LoadFlowActionSimulatorConfig getConfig() {
+        return config;
     }
 
     @Override
@@ -369,16 +377,12 @@ public class LoadFlowActionSimulator implements ActionSimulator {
         LoadFlowFactory loadFlowFactory = newLoadFlowFactory();
         LoadFlow testLoadFlow = loadFlowFactory.create(networkForTry, computationManager, 0);
         try {
-            observers.stream().forEach(o -> o.beforeTest(context, actionId));
+            observers.forEach(o -> o.beforeTest(context, actionId));
             LoadFlowResult testResult = testLoadFlow.run(LoadFlowParameters.load());
-            observers.stream().forEach(o -> o.afterTest(context, actionId));
+            observers.forEach(o -> o.afterTest(context, actionId));
             return testResult;
         } catch (Exception e) {
             throw new PowsyblException(e);
         }
-    }
-
-    protected ComputationManager getComputationManager() {
-        return computationManager;
     }
 }

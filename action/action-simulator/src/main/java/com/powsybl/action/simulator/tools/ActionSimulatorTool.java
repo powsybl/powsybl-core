@@ -126,15 +126,15 @@ public class ActionSimulatorTool implements Tool {
                         .hasArg()
                         .argName("COMPRESSION_FORMAT")
                         .build());
-                options.addOption(Option.builder().longOpt(NTASKS)
-                        .desc("parallizer into n tasks")
+                options.addOption(Option.builder().longOpt(TASKS)
+                        .desc("number of tasks used for parallelization")
                         .hasArg()
                         .argName("NTASKS")
                         .build());
-                options.addOption(Option.builder().longOpt(PARTITION)
-                        .desc("partition")
+                options.addOption(Option.builder().longOpt(TASK)
+                        .desc("task identifier (task-index/task-count)")
                         .hasArg()
-                        .argName("PARTITION")
+                        .argName("TASKID")
                         .build());
                 return options;
             }
@@ -179,7 +179,7 @@ public class ActionSimulatorTool implements Tool {
         // check options
         Path outputCaseFolder = null;
         String outputCaseFormat = null;
-        if (!line.hasOption(NTASKS) && line.hasOption(OUTPUT_CASE_FOLDER)) {
+        if (!line.hasOption(TASKS) && line.hasOption(OUTPUT_CASE_FOLDER)) {
             outputCaseFolder = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_CASE_FOLDER));
             outputCaseFormat = line.getOptionValue(OUTPUT_CASE_FORMAT);
             if (!line.hasOption(OUTPUT_CASE_FORMAT)) {
@@ -189,7 +189,7 @@ public class ActionSimulatorTool implements Tool {
             }
         }
 
-        if (line.hasOption(NTASKS)) {
+        if (line.hasOption(TASKS)) {
             checkOptionsInParallel(line);
         }
 
@@ -251,11 +251,10 @@ public class ActionSimulatorTool implements Tool {
     private ActionSimulator createActionSimulator(Network network, ToolRunningContext context, CommandLine line,
                                                   LoadFlowActionSimulatorConfig config, boolean applyIfSolved, List<LoadFlowActionSimulatorObserver> observers) throws IOException {
         ActionSimulator actionSimulator = null;
-        if (line.hasOption(NTASKS)) {
+        if (line.hasOption(TASKS)) {
             actionSimulator = new ParallelLoadFlowActionSimulator(network, context, line, config, applyIfSolved, observers);
-        } else if (line.hasOption(PARTITION)) {
-            String partitionOpt = line.getOptionValue(PARTITION);
-            Partition partition = new Partition(partitionOpt);
+        } else if (line.hasOption(TASK)) {
+            Partition partition = Partition.parse(line.getOptionValue(TASK));
             actionSimulator = new LocalLoadFlowActionSimulator(network, partition, config, applyIfSolved, observers);
         } else {
             actionSimulator = new LoadFlowActionSimulator(network, context.getShortTimeExecutionComputationManager(), config, applyIfSolved, observers);

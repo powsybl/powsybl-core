@@ -26,11 +26,15 @@ import java.util.concurrent.CompletableFuture;
 
 import static com.powsybl.action.simulator.tools.ActionSimulatorToolConstants.*;
 
+/**
+ * @author Yichen Tang <yichen.tang at rte-france.com>
+ */
 public class ParallelLoadFlowActionSimulator extends LoadFlowActionSimulator {
 
     private static final String ITOOLS_PRG = "itools";
 
-    private final int ntasks;
+    private final int taskCount;
+
     private final CommandLine commandLine;
 
     private static final String SUB_TASK_ID = "sas"; // sub_action_simulator
@@ -48,7 +52,7 @@ public class ParallelLoadFlowActionSimulator extends LoadFlowActionSimulator {
                                            LoadFlowActionSimulatorConfig config, boolean applyIfSolved, List<LoadFlowActionSimulatorObserver> observers) {
         super(network, context.getLongTimeExecutionComputationManager(), config, applyIfSolved, observers);
         this.commandLine = Objects.requireNonNull(commandLine);
-        this.ntasks = Integer.parseInt(commandLine.getOptionValue(NTASKS));
+        this.taskCount = Integer.parseInt(commandLine.getOptionValue(TASKS));
     }
 
     @Override
@@ -58,16 +62,18 @@ public class ParallelLoadFlowActionSimulator extends LoadFlowActionSimulator {
 
     @Override
     public void start(ActionDb actionDb, List<String> contingencyIds) {
-        ComputationManager manager = super.getComputationManager();
-        ExecutionEnvironment itoolsEnvironment = new ExecutionEnvironment(Collections.emptyMap(), "subTask_", config.isDebug());
-        int atMostTasks = contingencyIds.size() > this.ntasks ? this.ntasks : contingencyIds.size();
+        ComputationManager manager = getComputationManager();
+        ExecutionEnvironment itoolsEnvironment = new ExecutionEnvironment(Collections.emptyMap(), "subTask_", getConfig().isDebug());
+
+        int atMostTasks = Integer.min(taskCount, contingencyIds.size());
         List<CompletableFuture<SecurityAnalysisResult>> results = new ArrayList<>();
         for (int i = 1; i <= atMostTasks; i++) {
             CompletableFuture<SecurityAnalysisResult> future = manager.execute(itoolsEnvironment,
-                    new SubTaskHandler(i, atMostTasks));
+                    new SubTaskHandler(new Partition(i, atMostTasks)));
             results.add(future);
         }
-        CompletableFuture.allOf(results.stream().toArray(CompletableFuture[]::new)).join();
+        CompletableFuture.allOf(results.toArray(new CompletableFuture[0])).join();
+
         // merge results and re-print to output-file
         SecurityAnalysisResult[] securityAnalysisResults = new SecurityAnalysisResult[results.size()];
         try {
@@ -89,12 +95,10 @@ public class ParallelLoadFlowActionSimulator extends LoadFlowActionSimulator {
 
     private class SubTaskHandler extends AbstractExecutionHandler<SecurityAnalysisResult> {
 
-        private final Integer index;
-        private final Integer total;
+        private final Partition partition;
 
-        SubTaskHandler(Integer x, Integer y) {
-            index = Objects.requireNonNull(x);
-            total = Objects.requireNonNull(y);
+        SubTaskHandler(Partition partition) {
+            this.partition = Objects.requireNonNull(partition);
         }
 
         @Override
@@ -109,7 +113,7 @@ public class ParallelLoadFlowActionSimulator extends LoadFlowActionSimulator {
         }
 
         @Override
-        public SecurityAnalysisResult after(Path workingDir, ExecutionReport report) throws IOException {
+        public SecurityAnalysisResult after(Path workingDir, ExecutionReport report) {
             Path fileName = Paths.get(commandLine.getOptionValue(OUTPUT_FILE)).getFileName();
             Path outputFile = workingDir.resolve(fileName);
             return SecurityAnalysisResultDeserializer.read(outputFile);
@@ -142,8 +146,7 @@ public class ParallelLoadFlowActionSimulator extends LoadFlowActionSimulator {
             String dslFileOpt = toOption(DSL_FILE, dslFile.toAbsolutePath().toString());
             args.add(dslFileOpt);
 
-
-            String partitionOpt = toOption(PARTITION, index + "/" + total);
+            String partitionOpt = toOption(TASK, partition.toString());
             args.add(partitionOpt);
 
             if (commandLine.hasOption(OUTPUT_FILE)) {
@@ -167,8 +170,7 @@ public class ParallelLoadFlowActionSimulator extends LoadFlowActionSimulator {
         }
 
         private String toOption(String opt, String value) {
-            StringBuilder sb = new StringBuilder().append("--").append(opt).append("=").append(value);
-            return sb.toString();
+            return "--" + opt + "=" + value;
         }
     }
 }

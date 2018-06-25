@@ -16,6 +16,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * @author Yichen Tang <yichen.tang at rte-france.com>
+ */
 public class LocalLoadFlowActionSimulator extends LoadFlowActionSimulator {
 
     private final Partition partition;

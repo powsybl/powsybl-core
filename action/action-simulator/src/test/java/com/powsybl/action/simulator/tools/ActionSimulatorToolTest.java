@@ -1,12 +1,11 @@
 /**
- * Copyright (c) 2017, RTE (http://www.rte-france.com)
+ * Copyright (c) 2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 package com.powsybl.action.simulator.tools;
 
-import com.powsybl.computation.ComputationManager;
 import com.powsybl.tools.AbstractToolTest;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
@@ -31,10 +30,11 @@ public class ActionSimulatorToolTest extends AbstractToolTest {
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
-    ComputationManager computationManager;
-    ToolRunningContext runningContext;
-    CommandLine commandLine;
-    ActionSimulatorTool tool = new ActionSimulatorTool();
+    private ToolRunningContext runningContext;
+
+    private CommandLine commandLine;
+
+    private final ActionSimulatorTool tool = new ActionSimulatorTool();
 
     @Override
     protected Iterable<Tool> getTools() {
@@ -43,7 +43,7 @@ public class ActionSimulatorToolTest extends AbstractToolTest {
 
     @Override
     public void assertCommand() {
-        tool = new ActionSimulatorTool();
+        ActionSimulatorTool tool = new ActionSimulatorTool();
         Command command = tool.getCommand();
 
         assertCommand(command, "action-simulator", 12, 2);
@@ -57,14 +57,12 @@ public class ActionSimulatorToolTest extends AbstractToolTest {
         assertOption(command.getOptions(), "output-case-folder", false, true);
         assertOption(command.getOptions(), "output-case-format", false, true);
         assertOption(command.getOptions(), "output-compression-format", false, true);
-        assertOption(command.getOptions(), "ntasks", false, true);
-        assertOption(command.getOptions(), "partition", false, true);
-
+        assertOption(command.getOptions(), "task-count", false, true);
+        assertOption(command.getOptions(), "task", false, true);
     }
 
     @Before
-    public void mockup() throws Exception {
-        computationManager = mock(ComputationManager.class);
+    public void mockup() {
         runningContext = mock(ToolRunningContext.class);
         when(runningContext.getFileSystem()).thenReturn(fileSystem);
 
@@ -85,7 +83,7 @@ public class ActionSimulatorToolTest extends AbstractToolTest {
 
     @Test
     public void missingOutputFileInParallelMode() throws Exception {
-        when(commandLine.hasOption("ntasks")).thenReturn(true);
+        when(commandLine.hasOption("task-count")).thenReturn(true);
         when(commandLine.hasOption("output-file")).thenReturn(false);
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("Missing required option: output-file in parallel mode");
@@ -94,7 +92,7 @@ public class ActionSimulatorToolTest extends AbstractToolTest {
 
     @Test
     public void notsupportOptionsInParallelMode() throws Exception {
-        when(commandLine.hasOption("ntasks")).thenReturn(true);
+        when(commandLine.hasOption("task-count")).thenReturn(true);
         when(commandLine.hasOption("output-file")).thenReturn(true);
         when(commandLine.hasOption("output-case-folder")).thenReturn(true);
         thrown.expect(IllegalArgumentException.class);

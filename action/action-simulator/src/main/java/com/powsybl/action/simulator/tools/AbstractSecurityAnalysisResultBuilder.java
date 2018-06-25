@@ -9,11 +9,7 @@ package com.powsybl.action.simulator.tools;
 import com.powsybl.action.simulator.loadflow.DefaultLoadFlowActionSimulatorObserver;
 import com.powsybl.action.simulator.loadflow.RunningContext;
 import com.powsybl.contingency.Contingency;
-import com.powsybl.security.LimitViolation;
-import com.powsybl.security.LimitViolationsResult;
-import com.powsybl.security.PostContingencyResult;
-import com.powsybl.security.SecurityAnalysisResult;
-
+import com.powsybl.security.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -61,9 +57,9 @@ public abstract class AbstractSecurityAnalysisResultBuilder extends DefaultLoadF
         } else {
             Objects.requireNonNull(runningContext.getContingency());
             postContingencyResults.put(runningContext.getContingency().getId(), new PostContingencyResult(runningContext.getContingency(),
-                                                                                      true,
-                                                                                      violations,
-                                                                                      getPostContingencyActions(runningContext.getContingency())));
+                    true,
+                    violations,
+                    getPostContingencyActions(runningContext.getContingency())));
         }
     }
 
@@ -85,7 +81,7 @@ public abstract class AbstractSecurityAnalysisResultBuilder extends DefaultLoadF
     @Override
     public void afterPostContingencyAnalysis() {
         onFinalStateResult(new SecurityAnalysisResult(preContingencyResult,
-                                                      postContingencyResults.entrySet().stream().map(Map.Entry::getValue).collect(Collectors.toList())));
+                postContingencyResults.entrySet().stream().map(Map.Entry::getValue).collect(Collectors.toList())));
     }
 
     public abstract void onFinalStateResult(SecurityAnalysisResult result);

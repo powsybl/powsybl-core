@@ -17,16 +17,19 @@ import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
 
+/**
+ * @author Yichen Tang <yichen.tang at rte-france.com>
+ */
 public class SecurityAnalysisResultMergerTest {
 
-    SecurityAnalysisResult result1;
-    SecurityAnalysisResult result2;
-    SecurityAnalysisResult failedResult;
+    private SecurityAnalysisResult result1;
+    private SecurityAnalysisResult result2;
+    private SecurityAnalysisResult failedResult;
 
-    LimitViolationsResult preContingencyResult;
-    LimitViolationsResult failedPreContingencyResult;
-    PostContingencyResult postContingencyResult;
-    PostContingencyResult postContingencyResult2;
+    private LimitViolationsResult preContingencyResult;
+    private LimitViolationsResult failedPreContingencyResult;
+    private PostContingencyResult postContingencyResult;
+    private PostContingencyResult postContingencyResult2;
 
     @Before
     public void setup() {
