@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensator;
@@ -88,19 +87,6 @@ public final class BusesValidation {
         }
     }
 
-    private static void p(String eqt, Identifiable id, Terminal t) {
-        if (LOGGER.isWarnEnabled()) {
-            LOGGER.warn(
-                    String.format("    %-5s  %10.4f  %10.4f  %s", eqt, t.getP(), t.getQ(), id.getId()));
-        }
-    }
-
-    private static void p(String cat, double p, double q) {
-        if (LOGGER.isWarnEnabled()) {
-            LOGGER.warn(String.format("    %-5s  %10.4f  %10.4f", cat, p, q));
-        }
-    }
-
     public static boolean checkBuses(Bus bus, ValidationConfig config, ValidationWriter busesWriter) {
         Objects.requireNonNull(bus);
         Objects.requireNonNull(config);
@@ -124,32 +110,8 @@ public final class BusesValidation {
         double tltP = bus.getThreeWindingTransformerStream().map(tlt -> getThreeWindingTransformerTerminal(tlt, bus)).mapToDouble(Terminal::getP).sum();
         double tltQ = bus.getThreeWindingTransformerStream().map(tlt -> getThreeWindingTransformerTerminal(tlt, bus)).mapToDouble(Terminal::getQ).sum();
         boolean mainComponent = bus.isInMainConnectedComponent();
-        boolean r = checkBuses(bus.getId(), loadP, loadQ, genP, genQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ, lineP, lineQ,
+        return checkBuses(bus.getId(), loadP, loadQ, genP, genQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ, lineP, lineQ,
                           danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, mainComponent, config, busesWriter);
-        String ref = "";
-        if (bus.getVoltageLevel() != null) {
-            ref = bus.getVoltageLevel().getName() + ref;
-            if (bus.getVoltageLevel().getSubstation() != null) {
-                ref = bus.getVoltageLevel().getSubstation().getName() + " " + ref;
-            }
-        }
-        if (!r || ref.contains("PP_Brussels")) {
-            LOGGER.warn("Details of {} bus {}", ref, bus.getId());
-            bus.getLoadStream().forEach(l -> p("load", l, l.getTerminal()));
-            bus.getGeneratorStream().forEach(g -> p("gen", g, g.getTerminal()));
-            bus.getLineStream().forEach(l -> p("line", l, getBranchTerminal(l, bus)));
-            bus.getTwoWindingTransformerStream().forEach(t -> p("2wtx", t, getBranchTerminal(t, bus)));
-            bus.getDanglingLineStream().forEach(d -> p("dngl", d, d.getTerminal()));
-            bus.getShuntStream().forEach(s -> p("shunt", s, s.getTerminal()));
-            bus.getThreeWindingTransformerStream().forEach(t -> p("3wtx", t, getThreeWindingTransformerTerminal(t, bus)));
-
-            double incomingP = genP + shuntP + svcP + vscCSP + lineP + danglingLineP + twtP + tltP;
-            double incomingQ = genQ + shuntQ + svcQ + vscCSQ + lineQ + danglingLineQ + twtQ + tltQ;
-            double sump = Math.abs(incomingP + loadP);
-            double sumq = Math.abs(incomingQ + loadQ);
-            p("SUM", sump, sumq);
-        }
-        return r;
     }
 
     private static Terminal getBranchTerminal(Branch branch, Bus bus) {
@@ -195,19 +157,11 @@ public final class BusesValidation {
         double incomingQ = genQ + shuntQ + svcQ + vscCSQ + lineQ + danglingLineQ + twtQ + tltQ;
         if (ValidationUtils.isMainComponent(config, mainComponent)) {
             if (ValidationUtils.areNaN(config, incomingP, loadP) || Math.abs(incomingP + loadP) > config.getThreshold()) {
-                LOGGER.warn("{} {}: {} P   {}   {} {}", ValidationType.BUSES,
-                        ValidationUtils.VALIDATION_ERROR, id,
-                        String.format("%6.2f", Math.abs(incomingP + loadP)),
-                        String.format("%6.2f", incomingP),
-                        String.format("%6.2f", loadP));
+                LOGGER.warn("{} {}: {} P {} {}", ValidationType.BUSES, ValidationUtils.VALIDATION_ERROR, id, incomingP, loadP);                
                 validated = false;
             }
-            if (ValidationUtils.areNaN(config, incomingQ, loadQ) || Math.abs(incomingQ + loadQ) > config.getThreshold()) {
-                LOGGER.warn("{} {}: {} Q   {}   {} {}", ValidationType.BUSES,
-                        ValidationUtils.VALIDATION_ERROR, id,
-                        String.format("%6.2f", Math.abs(incomingQ + loadQ)),
-                        String.format("%6.2f", incomingQ),
-                        String.format("%6.2f", loadQ));
+            if (ValidationUtils.areNaN(config, incomingQ, loadQ) || Math.abs(incomingQ + loadQ) > config.getThreshold()) {               
+                LOGGER.warn("{} {}: {} Q {} {}", ValidationType.BUSES, ValidationUtils.VALIDATION_ERROR, id, incomingQ, loadQ);
                 validated = false;
             }
         }
