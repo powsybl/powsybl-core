@@ -93,7 +93,7 @@ public class ConversionTool implements Tool {
             public Options getOptions() {
                 Options options = new Options();
                 options.addOption(Option.builder().longOpt(INPUT_FILE)
-                        .desc("the input file")
+                        .desc("the input file. " + ImportConfig.postProcessorsInfo())
                         .hasArg()
                         .argName("INPUT_FILE")
                         .required()
@@ -111,7 +111,7 @@ public class ConversionTool implements Tool {
                         .required()
                         .build());
                 options.addOption(Option.builder().longOpt(IMPORT_PARAMETERS)
-                        .desc("the importer configuation file")
+                        .desc("the importer configuration file")
                         .hasArg()
                         .argName("IMPORT_PARAMETERS")
                         .build());

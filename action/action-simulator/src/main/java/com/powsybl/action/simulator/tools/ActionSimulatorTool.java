@@ -20,6 +20,7 @@ import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.computation.Partition;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.export.Exporters;
+import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.Security;
@@ -77,7 +78,7 @@ public class ActionSimulatorTool implements Tool {
             public Options getOptions() {
                 Options options = new Options();
                 options.addOption(Option.builder().longOpt(CASE_FILE)
-                        .desc("the case path")
+                        .desc("the case path. " + ImportConfig.postProcessorsInfo())
                         .hasArg()
                         .argName("FILE")
                         .required()

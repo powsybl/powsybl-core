@@ -79,7 +79,7 @@ public class RunLoadFlowTool implements Tool {
             public Options getOptions() {
                 Options options = new Options();
                 options.addOption(Option.builder().longOpt(CASE_FILE)
-                        .desc("the case path")
+                        .desc("the case path. " + ImportConfig.postProcessorsInfo())
                         .hasArg()
                         .argName("FILE")
                         .required()

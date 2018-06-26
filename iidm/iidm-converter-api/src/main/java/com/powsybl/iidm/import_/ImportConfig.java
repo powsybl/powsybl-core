@@ -60,4 +60,13 @@ public class ImportConfig {
         return "{postProcessors=" + postProcessors
                 + "}";
     }
+
+    public static String postProcessorsInfo() {
+        return postProcessorsInfo(ImportConfig.load());
+    }
+
+    public static String postProcessorsInfo(ImportConfig importConfig) {
+        Objects.requireNonNull(importConfig);
+        return "Configured importers' post-processors list: " + importConfig.getPostProcessors() + ". To change it, set the property postProcessors, import section of the configuration, to a list of the available names: " + Importers.getPostProcessorNames();
+    }
 }

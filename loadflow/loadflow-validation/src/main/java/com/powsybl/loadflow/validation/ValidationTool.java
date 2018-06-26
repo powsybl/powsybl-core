@@ -10,6 +10,7 @@ import com.google.auto.service.AutoService;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.StateManagerConstants;
@@ -75,7 +76,7 @@ public class ValidationTool implements Tool {
         public Options getOptions() {
             Options options = new Options();
             options.addOption(Option.builder().longOpt(CASE_FILE)
-                    .desc("case file path")
+                    .desc("case file path. " + ImportConfig.postProcessorsInfo())
                     .hasArg()
                     .argName("FILE")
                     .required()
