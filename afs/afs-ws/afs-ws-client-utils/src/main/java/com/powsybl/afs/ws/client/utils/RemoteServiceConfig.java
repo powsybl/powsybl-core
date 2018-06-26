@@ -21,7 +21,7 @@ import java.util.Objects;
  */
 public class RemoteServiceConfig {
 
-    public static Supplier<RemoteServiceConfig> INSTANCE = Suppliers.memoize(RemoteServiceConfig::load);
+    public static final Supplier<RemoteServiceConfig> INSTANCE = Suppliers.memoize(RemoteServiceConfig::load);
 
     private String hostName;
 
