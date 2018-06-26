@@ -17,6 +17,7 @@ import com.powsybl.commons.datasource.CompressionFormat;
 import com.powsybl.commons.datasource.DataSourceUtil;
 import com.powsybl.commons.io.table.AsciiTableFormatterFactory;
 import com.powsybl.commons.io.table.TableFormatterConfig;
+import com.powsybl.computation.Partition;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.export.Exporters;
 import com.powsybl.iidm.import_.Importers;
@@ -35,6 +36,7 @@ import org.codehaus.groovy.runtime.StackTraceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.io.Writer;
@@ -43,6 +45,8 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.powsybl.action.simulator.tools.ActionSimulatorToolConstants.*;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -50,17 +54,6 @@ import java.util.stream.Collectors;
 public class ActionSimulatorTool implements Tool {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ActionSimulatorTool.class);
-
-    private static final String CASE_FILE = "case-file";
-    private static final String DSL_FILE = "dsl-file";
-    private static final String CONTINGENCIES = "contingencies";
-    private static final String APPLY_IF_SOLVED_VIOLATIONS = "apply-if-solved-violations";
-    private static final String VERBOSE = "verbose";
-    private static final String OUTPUT_FILE = "output-file";
-    private static final String OUTPUT_FORMAT = "output-format";
-    private static final String OUTPUT_CASE_FOLDER = "output-case-folder";
-    private static final String OUTPUT_CASE_FORMAT = "output-case-format";
-    private static final String OUTPUT_COMPRESSION_FORMAT = "output-compression-format";
 
     @Override
     public Command getCommand() {
@@ -133,6 +126,16 @@ public class ActionSimulatorTool implements Tool {
                         .hasArg()
                         .argName("COMPRESSION_FORMAT")
                         .build());
+                options.addOption(Option.builder().longOpt(TASKS)
+                        .desc("number of tasks used for parallelization")
+                        .hasArg()
+                        .argName("NTASKS")
+                        .build());
+                options.addOption(Option.builder().longOpt(TASK)
+                        .desc("task identifier (task-index/task-count)")
+                        .hasArg()
+                        .argName("TASKID")
+                        .build());
                 return options;
             }
 
@@ -171,10 +174,12 @@ public class ActionSimulatorTool implements Tool {
         List<String> contingencies = line.hasOption(CONTINGENCIES) ? Arrays.stream(line.getOptionValue(CONTINGENCIES).split(",")).collect(Collectors.toList())
                                                                      : Collections.emptyList();
         boolean verbose = line.hasOption(VERBOSE);
+        boolean applyIfSolved = line.hasOption(APPLY_IF_SOLVED_VIOLATIONS);
 
+        // check options
         Path outputCaseFolder = null;
         String outputCaseFormat = null;
-        if (line.hasOption(OUTPUT_CASE_FOLDER)) {
+        if (!line.hasOption(TASKS) && line.hasOption(OUTPUT_CASE_FOLDER)) {
             outputCaseFolder = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_CASE_FOLDER));
             outputCaseFormat = line.getOptionValue(OUTPUT_CASE_FORMAT);
             if (!line.hasOption(OUTPUT_CASE_FORMAT)) {
@@ -182,6 +187,10 @@ public class ActionSimulatorTool implements Tool {
             } else if (!outputCaseFolder.toFile().exists()) {
                 Files.createDirectories(outputCaseFolder);
             }
+        }
+
+        if (line.hasOption(TASKS)) {
+            checkOptionsInParallel(line);
         }
 
         // load network
@@ -225,8 +234,8 @@ public class ActionSimulatorTool implements Tool {
             }
 
             // action simulator
-            ActionSimulator actionSimulator = new LoadFlowActionSimulator(network, context.getShortTimeExecutionComputationManager(),
-                    config, line.hasOption(APPLY_IF_SOLVED_VIOLATIONS), observers);
+            ActionSimulator actionSimulator = createActionSimulator(network, context, line, config, applyIfSolved, observers);
+
             context.getOutputStream().println("Using '" + actionSimulator.getName() + "' rules engine");
 
             // start simulator
@@ -236,6 +245,31 @@ public class ActionSimulatorTool implements Tool {
             LOGGER.trace(e.toString(), e); // to avoid user screen pollution...
             Throwable rootCause = StackTraceUtils.sanitizeRootCause(e);
             rootCause.printStackTrace(context.getErrorStream());
+        }
+    }
+
+    private ActionSimulator createActionSimulator(Network network, ToolRunningContext context, CommandLine line,
+                                                  LoadFlowActionSimulatorConfig config, boolean applyIfSolved, List<LoadFlowActionSimulatorObserver> observers) throws IOException {
+        ActionSimulator actionSimulator = null;
+        if (line.hasOption(TASKS)) {
+            actionSimulator = new ParallelLoadFlowActionSimulator(network, context, line, config, applyIfSolved, observers);
+        } else if (line.hasOption(TASK)) {
+            Partition partition = Partition.parse(line.getOptionValue(TASK));
+            actionSimulator = new LocalLoadFlowActionSimulator(network, partition, config, applyIfSolved, observers);
+        } else {
+            actionSimulator = new LoadFlowActionSimulator(network, context.getShortTimeExecutionComputationManager(), config, applyIfSolved, observers);
+        }
+        return actionSimulator;
+    }
+
+    private void checkOptionsInParallel(CommandLine line) {
+        if (line.hasOption(OUTPUT_CASE_FOLDER)
+                || line.hasOption(OUTPUT_CASE_FORMAT)
+                || line.hasOption(OUTPUT_COMPRESSION_FORMAT)) {
+            throw new IllegalArgumentException("Not supported in parallel mode yet.");
+        }
+        if (!line.hasOption(OUTPUT_FILE)) {
+            throw new IllegalArgumentException("Missing required option: output-file in parallel mode");
         }
     }
 
