@@ -73,6 +73,14 @@ public class LoadFlowActionSimulator implements ActionSimulator {
         return "loadflow";
     }
 
+    ComputationManager getComputationManager() {
+        return computationManager;
+    }
+
+    LoadFlowActionSimulatorConfig getConfig() {
+        return config;
+    }
+
     @Override
     public void start(ActionDb actionDb, String... contingencyIds) {
         start(actionDb, Arrays.asList(contingencyIds));
@@ -369,9 +377,9 @@ public class LoadFlowActionSimulator implements ActionSimulator {
         LoadFlowFactory loadFlowFactory = newLoadFlowFactory();
         LoadFlow testLoadFlow = loadFlowFactory.create(networkForTry, computationManager, 0);
         try {
-            observers.stream().forEach(o -> o.beforeTest(context, actionId));
+            observers.forEach(o -> o.beforeTest(context, actionId));
             LoadFlowResult testResult = testLoadFlow.run(LoadFlowParameters.load());
-            observers.stream().forEach(o -> o.afterTest(context, actionId));
+            observers.forEach(o -> o.afterTest(context, actionId));
             return testResult;
         } catch (Exception e) {
             throw new PowsyblException(e);

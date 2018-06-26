@@ -123,6 +123,14 @@ public class UcteNetworkExt implements UcteNetwork {
         }
 
         // in the same substation...
+        addEdgeBetweenSameGeographicalSpotNodes(network, graph);
+        addEdgeBetweenTransformers(network, graph);
+        addEdgeForCouplerOrLowImpedanceLine(network, graph);
+
+        return graph;
+    }
+
+    private void addEdgeBetweenSameGeographicalSpotNodes(UcteNetwork network, UndirectedGraph<UcteNodeCode, Object> graph) {
         // ...nodes with same geographical spot
         Multimap<String, UcteNode> nodesByGeographicalSpot = Multimaps.index(network.getNodes(), node -> node.getCode().getUcteCountryCode() + node.getCode().getGeographicalSpot());
         for (Map.Entry<String, Collection<UcteNode>> entry : nodesByGeographicalSpot.asMap().entrySet()) {
@@ -134,14 +142,18 @@ public class UcteNetworkExt implements UcteNetwork {
                 }
             }
         }
+    }
 
+    private void addEdgeBetweenTransformers(UcteNetwork network, UndirectedGraph<UcteNodeCode, Object> graph) {
         // ...nodes connected by a transformer
         for (UcteTransformer tfo : network.getTransformers()) {
             UcteNodeCode nodeCode1 = tfo.getId().getNodeCode1();
             UcteNodeCode nodeCode2 = tfo.getId().getNodeCode2();
             graph.addEdge(nodeCode1, nodeCode2);
         }
+    }
 
+    private void addEdgeForCouplerOrLowImpedanceLine(UcteNetwork network, UndirectedGraph<UcteNodeCode, Object> graph) {
         // ...nodes connected by a coupler or by a low impedance line
         for (UcteLine l : network.getLines()) {
             UcteNodeCode nodeCode1 = l.getId().getNodeCode1();
@@ -156,13 +168,19 @@ public class UcteNetworkExt implements UcteNetwork {
                 }
             }
         }
-
-        return graph;
     }
 
     private void invalidateSubstations() {
         substations = null;
         node2voltageLevel = null;
+    }
+
+    private int compareVoltageLevelThenBusbar(UcteNodeCode nodeCode1, UcteNodeCode nodeCode2) {
+        int c = Integer.compare(nodeCode2.getVoltageLevelCode().getVoltageLevel(), nodeCode1.getVoltageLevelCode().getVoltageLevel());
+        if (c == 0) {
+            c = nodeCode2.getBusbar().compareTo(nodeCode1.getBusbar());
+        }
+        return c;
     }
 
     private void updateSubstation() {
@@ -183,11 +201,7 @@ public class UcteNetworkExt implements UcteNetwork {
                                     nodeCode2.getUcteCountryCode() == UcteCountryCode.XX) {
                                 return -1;
                             } else {
-                                int c = Integer.compare(nodeCode2.getVoltageLevelCode().getVoltageLevel(), nodeCode1.getVoltageLevelCode().getVoltageLevel());
-                                if (c == 0) {
-                                    c = nodeCode2.getBusbar().compareTo(nodeCode1.getBusbar());
-                                }
-                                return c;
+                                return compareVoltageLevelThenBusbar(nodeCode1, nodeCode2);
                             }
                         })
                         .findFirst()
@@ -209,9 +223,7 @@ public class UcteNetworkExt implements UcteNetwork {
                     String voltageLevelName = mainNode.getUcteCountryCode().getUcteCode() + mainNode.getGeographicalSpot() + vlc.ordinal();
                     UcteVoltageLevel voltageLevel = new UcteVoltageLevel(voltageLevelName, substation, voltageLevelNodes);
                     voltageLevels.add(voltageLevel);
-                    for (UcteNodeCode voltageLevelNode : voltageLevelNodes) {
-                        node2voltageLevel.put(voltageLevelNode, voltageLevel);
-                    }
+                    voltageLevelNodes.forEach(voltageLevelNode -> node2voltageLevel.put(voltageLevelNode, voltageLevel));
 
                     LOGGER.trace("Define voltage level {} as a group of {} nodes", voltageLevelName, voltageLevelNodes);
                 }

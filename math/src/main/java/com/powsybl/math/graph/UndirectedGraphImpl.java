@@ -431,13 +431,9 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
                 encountered2 = encountered;
             }
             if (v == v2) {
-                if (findAllPaths(e, v1, pathComplete, pathCanceled, path2, encountered2, paths)) {
-                    continue;
-                }
+                findAllPaths(e, v1, pathComplete, pathCanceled, path2, encountered2, paths);
             } else if (v == v1) {
-                if (findAllPaths(e, v2, pathComplete, pathCanceled, path2, encountered2, paths)) {
-                    continue;
-                }
+                findAllPaths(e, v2, pathComplete, pathCanceled, path2, encountered2, paths);
             } else {
                 throw new AssertionError();
             }

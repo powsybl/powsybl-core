@@ -79,20 +79,7 @@ class GeneratorScalable extends AbstractScalable {
         if (g != null) {
             Terminal t = g.getTerminal();
             if (!t.isConnected()) {
-                t.connect();
-                if (g.isVoltageRegulatorOn()) {
-                    Bus bus = t.getBusView().getBus();
-                    if (bus != null) {
-                        // set voltage setpoint to the same as other generators connected to the bus
-                        double targetV = bus.getGeneratorStream().findFirst().map(Generator::getTargetV).orElse(Double.NaN);
-
-                        // if no other generator connected to the bus, set voltage setpoint to network voltage
-                        if (Double.isNaN(targetV) && !Double.isNaN(bus.getV())) {
-                            g.setTargetV(bus.getV());
-                        }
-                    }
-                }
-                LOGGER.info("Connecting {}", g.getId());
+                connectGenerator(g);
             }
             done = Math.min(asked, g.getMaxP() - g.getTargetP());
             double oldTargetP = g.getTargetP();
@@ -103,5 +90,22 @@ class GeneratorScalable extends AbstractScalable {
             LOGGER.warn("Generator {} not found", id);
         }
         return done;
+    }
+
+    private static void connectGenerator(Generator g) {
+        Terminal t = g.getTerminal();
+        t.connect();
+        if (g.isVoltageRegulatorOn()) {
+            Bus bus = t.getBusView().getBus();
+            if (bus != null) {
+                // set voltage setpoint to the same as other generators connected to the bus
+                double targetV = bus.getGeneratorStream().findFirst().map(Generator::getTargetV).orElse(Double.NaN);
+                // if no other generator connected to the bus, set voltage setpoint to network voltage
+                if (Double.isNaN(targetV) && !Double.isNaN(bus.getV())) {
+                    g.setTargetV(bus.getV());
+                }
+            }
+        }
+        LOGGER.info("Connecting {}", g.getId());
     }
 }

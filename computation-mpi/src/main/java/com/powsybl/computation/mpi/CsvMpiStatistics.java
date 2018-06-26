@@ -145,9 +145,7 @@ public class CsvMpiStatistics implements MpiStatistics {
                 String key = tokens[0];
                 switch (key) {
                     case COMMON_FILE_TRANSFER_KEY: {
-                        if (tokens.length != 4) {
-                            throw createIncorrectLineException(COMMON_FILE_TRANSFER_KEY, line);
-                        }
+                        checkTokenSize(4, tokens.length, line, key);
                         String fileName = tokens[1];
                         long size = Long.parseLong(tokens[2]);
                         long duration = Long.parseLong(tokens[3]);
@@ -155,9 +153,7 @@ public class CsvMpiStatistics implements MpiStatistics {
                         break;
                     }
                     case JOB_START_KEY: {
-                        if (tokens.length != 3 && tokens.length != 4) {
-                            throw createIncorrectLineException(JOB_START_KEY, line);
-                        }
+                        checkTokenSize(3, 4, tokens.length, line, key);
                         int jobId = Integer.parseInt(tokens[1]);
                         String commandId = tokens[2];
                         Map<String, String> tags = null;
@@ -168,17 +164,13 @@ public class CsvMpiStatistics implements MpiStatistics {
                         break;
                     }
                     case JOB_END_KEY: {
-                        if (tokens.length != 2) {
-                            throw createIncorrectLineException(JOB_END_KEY, line);
-                        }
+                        checkTokenSize(2, tokens.length, line, key);
                         int jobId = Integer.parseInt(tokens[1]);
                         jobs.remove(jobId);
                         break;
                     }
                     case TASK_START_KEY: {
-                        if (tokens.length != 8) {
-                            throw createIncorrectLineException(TASK_START_KEY, line);
-                        }
+                        checkTokenSize(8, tokens.length, line, key);
                         int taskId = Integer.parseInt(tokens[1]);
                         int jobId = Integer.parseInt(tokens[2]);
                         int taskIndex = Integer.parseInt(tokens[3]);
@@ -190,9 +182,7 @@ public class CsvMpiStatistics implements MpiStatistics {
                         break;
                     }
                     case TASK_END_KEY: {
-                        if (tokens.length != 8) {
-                            throw createIncorrectLineException(TASK_END_KEY, line);
-                        }
+                        checkTokenSize(8, tokens.length, line, key);
                         int taskId = Integer.parseInt(tokens[1]);
                         TaskExecution task = tasks.get(taskId);
                         task.taskDuration = Long.parseLong(tokens[2]);
@@ -220,6 +210,18 @@ public class CsvMpiStatistics implements MpiStatistics {
 
         private static PowsyblException createIncorrectLineException(String key, String line) {
             return new PowsyblException("Incorrect " + key + " line '" + line + "'");
+        }
+
+        private static void checkTokenSize(int expected, int actual, String line, String key) {
+            if (actual != expected) {
+                createIncorrectLineException(key, line);
+            }
+        }
+
+        private static void checkTokenSize(int expected1, int expected2, int actual, String line, String key) {
+            if (actual != expected1 && actual != expected2) {
+                createIncorrectLineException(key, line);
+            }
         }
 
         @Override
@@ -367,30 +369,15 @@ public class CsvMpiStatistics implements MpiStatistics {
                     @Override
                     public void onTaskEnd(StatisticsReader.TaskExecution task, StatisticsReader.JobExecution job) {
                         try {
-                            String taskDuration = "";
-                            if (task.taskDuration != null) {
-                                taskDuration = task.taskDuration.toString();
-                            }
+                            String taskDuration = Objects.toString(task.taskDuration, "");
                             String commandsDuration = "";
                             if (task.commandsDuration != null) {
                                 commandsDuration = blankJoiner.join(task.commandsDuration);
                             }
-                            String dataTransferDuration = "";
-                            if (task.dataTransferDuration != null) {
-                                dataTransferDuration = task.dataTransferDuration.toString();
-                            }
-                            String outputMessageSize = "";
-                            if (task.outputMessageSize != null) {
-                                outputMessageSize = task.outputMessageSize.toString();
-                            }
-                            String workingDataSize = "";
-                            if (task.workingDataSize != null) {
-                                workingDataSize = task.workingDataSize.toString();
-                            }
-                            String exitCode = "";
-                            if (task.exitCode != null) {
-                                exitCode = task.exitCode.toString();
-                            }
+                            String dataTransferDuration = Objects.toString(task.dataTransferDuration, "");
+                            String outputMessageSize = Objects.toString(task.outputMessageSize, "");
+                            String workingDataSize = Objects.toString(task.workingDataSize, "");
+                            String exitCode = Objects.toString(task.exitCode, "");
                             writer.write(task.taskId + CSV_SEPARATOR +
                                          task.jobId + CSV_SEPARATOR +
                                          task.taskIndex + CSV_SEPARATOR +

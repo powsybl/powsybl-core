@@ -73,23 +73,17 @@ public class MultiCriteriaVoltageStabilityIndex extends AbstractSecurityIndex {
                 case XMLEvent.END_ELEMENT:
                     switch (xmlsr.getLocalName()) {
                         case TAG_LOCKED_TAP_CHANGER_LOAD:
-                            if (id == null) {
-                                throw new AssertionError();
-                            }
+                            assertIdNonNull(id);
                             lockedTapChangerLoads.put(id, Float.parseFloat(text));
                             id = null;
                             break;
                         case TAG_STOPPED_TAP_CHANGER_LOAD:
-                            if (id == null) {
-                                throw new AssertionError();
-                            }
+                            assertIdNonNull(id);
                             stoppedTapChangerLoads.put(id, Float.parseFloat(text));
                             id = null;
                             break;
                         case TAG_UNDER_VOLTAGE_AUTOMATON_GENERATOR:
-                            if (id == null) {
-                                throw new AssertionError();
-                            }
+                            assertIdNonNull(id);
                             underVoltageAutomatonGenerators.put(id, Float.parseFloat(text));
                             id = null;
                             break;
@@ -109,6 +103,12 @@ public class MultiCriteriaVoltageStabilityIndex extends AbstractSecurityIndex {
             }
         }
         throw new AssertionError("Should not happen");
+    }
+
+    private static void assertIdNonNull(String id) {
+        if (id == null) {
+            throw new AssertionError();
+        }
     }
 
     public MultiCriteriaVoltageStabilityIndex(String contingencyId, Map<String, Float> lockedTapChangerLoads,

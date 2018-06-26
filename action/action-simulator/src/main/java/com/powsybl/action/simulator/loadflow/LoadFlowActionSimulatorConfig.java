@@ -28,7 +28,8 @@ public class LoadFlowActionSimulatorConfig {
         Class<? extends LoadFlowFactory> loadFlowFactoryClass = config.getClassProperty("load-flow-factory", LoadFlowFactory.class);
         int maxIterations = config.getIntProperty("max-iterations");
         boolean ignorePreContingencyViolations = config.getBooleanProperty("ignore-pre-contingency-violations", false);
-        return new LoadFlowActionSimulatorConfig(loadFlowFactoryClass, maxIterations, ignorePreContingencyViolations);
+        boolean debug = config.getBooleanProperty("debug", false);
+        return new LoadFlowActionSimulatorConfig(loadFlowFactoryClass, maxIterations, ignorePreContingencyViolations, debug);
     }
 
     private Class<? extends LoadFlowFactory> loadFlowFactoryClass;
@@ -37,10 +38,14 @@ public class LoadFlowActionSimulatorConfig {
 
     private boolean ignorePreContingencyViolations;
 
-    public LoadFlowActionSimulatorConfig(Class<? extends LoadFlowFactory> loadFlowFactoryClass, int maxIterations, boolean ignorePreContingencyViolations) {
+    private boolean debug;
+
+    public LoadFlowActionSimulatorConfig(Class<? extends LoadFlowFactory> loadFlowFactoryClass, int maxIterations, boolean ignorePreContingencyViolations,
+                                         boolean debug) {
         this.loadFlowFactoryClass = Objects.requireNonNull(loadFlowFactoryClass);
         this.maxIterations = maxIterations;
         this.ignorePreContingencyViolations = ignorePreContingencyViolations;
+        this.debug = debug;
     }
 
     public Class<? extends LoadFlowFactory> getLoadFlowFactoryClass() {
@@ -65,5 +70,13 @@ public class LoadFlowActionSimulatorConfig {
 
     public void setIgnorePreContingencyViolations(boolean ignorePreContingencyViolations) {
         this.ignorePreContingencyViolations = ignorePreContingencyViolations;
+    }
+
+    public boolean isDebug() {
+        return debug;
+    }
+
+    public void setDebug(boolean debug) {
+        this.debug = debug;
     }
 }
