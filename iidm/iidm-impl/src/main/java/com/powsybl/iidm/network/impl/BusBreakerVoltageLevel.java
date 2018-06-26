@@ -208,7 +208,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
                         throw new AssertionError();
                 }
             }
-            return Networks.isBusValid(feederCount, branchCount);
+            return Networks.isBusValid(branchCount);
         }
 
         private void updateCache() {

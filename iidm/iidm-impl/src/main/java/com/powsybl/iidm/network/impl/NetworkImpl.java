@@ -825,45 +825,6 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Mult
             }
         }
 
-        class LineMerge {
-            String id;
-            String voltageLevel1;
-            String voltageLevel2;
-            String xnode;
-            String bus1;
-            String bus2;
-            String connectableBus1;
-            String connectableBus2;
-            Integer node1;
-            Integer node2;
-
-            class HalfLineMerge {
-                String id;
-                String name;
-                double r;
-                double x;
-                double g1;
-                double g2;
-                double b1;
-                double b2;
-                double xnodeP;
-                double xnodeQ;
-            }
-
-            final HalfLineMerge half1 = new HalfLineMerge();
-            final HalfLineMerge half2 = new HalfLineMerge();
-
-            CurrentLimits limits1;
-            CurrentLimits limits2;
-            double p1;
-            double q1;
-            double p2;
-            double q2;
-
-            Country country1;
-            Country country2;
-        }
-
         // try to find dangling lines couples
         Map<String, DanglingLine> dl1byXnodeCode = new HashMap<>();
         for (DanglingLine dl1 : getDanglingLines()) {
@@ -871,85 +832,10 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Mult
                 dl1byXnodeCode.put(dl1.getUcteXnodeCode(), dl1);
             }
         }
-        List<LineMerge> lines = new ArrayList<>();
+        List<MergedLine> lines = new ArrayList<>();
         for (DanglingLine dl2 : Lists.newArrayList(other.getDanglingLines())) {
-            DanglingLine dl1 = getDanglingLine(dl2.getId());
-            if (dl1 == null) {
-                // mapping by ucte xnode code
-                if (dl2.getUcteXnodeCode() != null) {
-                    dl1 = dl1byXnodeCode.get(dl2.getUcteXnodeCode());
-                }
-            } else {
-                // mapping by id
-                if (dl1.getUcteXnodeCode() != null && dl2.getUcteXnodeCode() != null
-                        && !dl1.getUcteXnodeCode().equals(dl2.getUcteXnodeCode())) {
-                    throw new PowsyblException("Dangling line couple " + dl1.getId()
-                            + " have inconsistent Xnodes (" + dl1.getUcteXnodeCode()
-                            + "!=" + dl2.getUcteXnodeCode() + ")");
-                }
-            }
-            if (dl1 != null) {
-                LineMerge l = new LineMerge();
-                l.id = dl1.getId().compareTo(dl2.getId()) < 0 ? dl1.getId() + " + " + dl2.getId() : dl2.getId() + " + " + dl1.getId();
-                Terminal t1 = dl1.getTerminal();
-                Terminal t2 = dl2.getTerminal();
-                VoltageLevel vl1 = t1.getVoltageLevel();
-                VoltageLevel vl2 = t2.getVoltageLevel();
-                l.voltageLevel1 = vl1.getId();
-                l.voltageLevel2 = vl2.getId();
-                l.xnode = dl1.getUcteXnodeCode();
-                l.half1.id = dl1.getId();
-                l.half1.name = dl1.getName();
-                l.half1.r = dl1.getR();
-                l.half1.x = dl1.getX();
-                l.half1.g1 = dl1.getG();
-                l.half1.g2 = 0;
-                l.half1.b1 = dl1.getB();
-                l.half1.b2 = 0;
-                l.half1.xnodeP = dl1.getP0();
-                l.half1.xnodeQ = dl1.getQ0();
-                l.half2.id = dl2.getId();
-                l.half2.name = dl2.getName();
-                l.half2.r = dl2.getR();
-                l.half2.x = dl2.getX();
-                l.half2.g1 = dl2.getG();
-                l.half2.g2 = 0;
-                l.half2.b1 = dl2.getB();
-                l.half2.b2 = 0;
-                l.half2.xnodeP = dl2.getP0();
-                l.half2.xnodeQ = dl2.getQ0();
-                l.limits1 = dl1.getCurrentLimits();
-                l.limits2 = dl2.getCurrentLimits();
-                if (t1.getVoltageLevel().getTopologyKind() == TopologyKind.BUS_BREAKER) {
-                    Bus b1 = t1.getBusBreakerView().getBus();
-                    if (b1 != null) {
-                        l.bus1 = b1.getId();
-                    }
-                    l.connectableBus1 = t1.getBusBreakerView().getConnectableBus().getId();
-                } else {
-                    l.node1 = t1.getNodeBreakerView().getNode();
-                }
-                if (t2.getVoltageLevel().getTopologyKind() == TopologyKind.BUS_BREAKER) {
-                    Bus b2 = t2.getBusBreakerView().getBus();
-                    if (b2 != null) {
-                        l.bus2 = b2.getId();
-                    }
-                    l.connectableBus2 = t2.getBusBreakerView().getConnectableBus().getId();
-                } else {
-                    l.node2 = t2.getNodeBreakerView().getNode();
-                }
-                l.p1 = t1.getP();
-                l.q1 = t1.getQ();
-                l.p2 = t2.getP();
-                l.q2 = t2.getQ();
-                l.country1 = vl1.getSubstation().getCountry();
-                l.country2 = vl2.getSubstation().getCountry();
-                lines.add(l);
-
-                // remove the 2 dangling lines
-                dl1.remove();
-                dl2.remove();
-            }
+            DanglingLine dl1 = getDanglingLineByTheOther(dl2, dl1byXnodeCode);
+            mergeDanglingLines(lines, dl1, dl2);
         }
 
         // do not forget to remove the other network from its store!!!
@@ -961,57 +847,8 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Mult
         // fix network back reference of the other network objects
         otherNetwork.ref.setRef(ref);
 
-        Multimap<Boundary, LineMerge> mergedLineByBoundary = HashMultimap.create();
-        for (LineMerge lm : lines) {
-            LOGGER.debug("Replacing dangling line couple '{}' (xnode={}, country1={}, country2={}) by a line",
-                    lm.id, lm.xnode, lm.country1, lm.country2);
-            TieLineAdderImpl la = newTieLine()
-                    .setId(lm.id)
-                    .setVoltageLevel1(lm.voltageLevel1)
-                    .setVoltageLevel2(lm.voltageLevel2)
-                    .line1().setId(lm.half1.id)
-                            .setName(lm.half1.name)
-                            .setR(lm.half1.r)
-                            .setX(lm.half1.x)
-                            .setG1(lm.half1.g1)
-                            .setG2(lm.half1.g2)
-                            .setB1(lm.half1.b1)
-                            .setB2(lm.half1.b2)
-                            .setXnodeP(lm.half1.xnodeP)
-                            .setXnodeQ(lm.half1.xnodeQ)
-                    .line2().setId(lm.half2.id)
-                            .setName(lm.half2.name)
-                            .setR(lm.half2.r)
-                            .setX(lm.half2.x)
-                            .setG1(lm.half2.g1)
-                            .setG2(lm.half2.g2)
-                            .setB1(lm.half2.b1)
-                            .setB2(lm.half2.b2)
-                            .setXnodeP(lm.half2.xnodeP)
-                            .setXnodeQ(lm.half2.xnodeQ)
-                    .setUcteXnodeCode(lm.xnode);
-            if (lm.bus1 != null) {
-                la.setBus1(lm.bus1);
-            }
-            la.setConnectableBus1(lm.connectableBus1);
-            if (lm.bus2 != null) {
-                la.setBus2(lm.bus2);
-            }
-            la.setConnectableBus2(lm.connectableBus2);
-            if (lm.node1 != null) {
-                la.setNode1(lm.node1);
-            }
-            if (lm.node2 != null) {
-                la.setNode2(lm.node2);
-            }
-            TieLineImpl l = la.add();
-            l.setCurrentLimits(Side.ONE, (CurrentLimitsImpl) lm.limits1);
-            l.setCurrentLimits(Side.TWO, (CurrentLimitsImpl) lm.limits2);
-            l.getTerminal1().setP(lm.p1).setQ(lm.q1);
-            l.getTerminal2().setP(lm.p2).setQ(lm.q2);
-
-            mergedLineByBoundary.put(new Boundary(lm.country1, lm.country2), lm);
-        }
+        Multimap<Boundary, MergedLine> mergedLineByBoundary = HashMultimap.create();
+        replaceDanglingLineByLine(lines, mergedLineByBoundary);
 
         if (!lines.isEmpty()) {
             LOGGER.info("{} dangling line couples have been replaced by a line: {}", lines.size(),
@@ -1027,6 +864,182 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Mult
         setIdEraseName(getId() + " + " + otherNetwork.getId());
 
         LOGGER.info("Merging of {} done in {} ms", id, System.currentTimeMillis() - start);
+    }
+
+    private DanglingLine getDanglingLineByTheOther(DanglingLine dl2, Map<String, DanglingLine> dl1byXnodeCode) {
+        DanglingLine dl1 = getDanglingLine(dl2.getId());
+        if (dl1 == null) {
+            // mapping by ucte xnode code
+            if (dl2.getUcteXnodeCode() != null) {
+                dl1 = dl1byXnodeCode.get(dl2.getUcteXnodeCode());
+            }
+        } else {
+            // mapping by id
+            if (dl1.getUcteXnodeCode() != null && dl2.getUcteXnodeCode() != null
+                    && !dl1.getUcteXnodeCode().equals(dl2.getUcteXnodeCode())) {
+                throw new PowsyblException("Dangling line couple " + dl1.getId()
+                        + " have inconsistent Xnodes (" + dl1.getUcteXnodeCode()
+                        + "!=" + dl2.getUcteXnodeCode() + ")");
+            }
+        }
+        return dl1;
+    }
+
+    private void mergeDanglingLines(List<MergedLine> lines, DanglingLine dl1, DanglingLine dl2) {
+        if (dl1 != null) {
+            MergedLine l = new MergedLine();
+            l.id = dl1.getId().compareTo(dl2.getId()) < 0 ? dl1.getId() + " + " + dl2.getId() : dl2.getId() + " + " + dl1.getId();
+            Terminal t1 = dl1.getTerminal();
+            Terminal t2 = dl2.getTerminal();
+            VoltageLevel vl1 = t1.getVoltageLevel();
+            VoltageLevel vl2 = t2.getVoltageLevel();
+            l.voltageLevel1 = vl1.getId();
+            l.voltageLevel2 = vl2.getId();
+            l.xnode = dl1.getUcteXnodeCode();
+            l.half1.id = dl1.getId();
+            l.half1.name = dl1.getName();
+            l.half1.r = dl1.getR();
+            l.half1.x = dl1.getX();
+            l.half1.g1 = dl1.getG();
+            l.half1.g2 = 0;
+            l.half1.b1 = dl1.getB();
+            l.half1.b2 = 0;
+            l.half1.xnodeP = dl1.getP0();
+            l.half1.xnodeQ = dl1.getQ0();
+            l.half2.id = dl2.getId();
+            l.half2.name = dl2.getName();
+            l.half2.r = dl2.getR();
+            l.half2.x = dl2.getX();
+            l.half2.g1 = dl2.getG();
+            l.half2.g2 = 0;
+            l.half2.b1 = dl2.getB();
+            l.half2.b2 = 0;
+            l.half2.xnodeP = dl2.getP0();
+            l.half2.xnodeQ = dl2.getQ0();
+            l.limits1 = dl1.getCurrentLimits();
+            l.limits2 = dl2.getCurrentLimits();
+            if (t1.getVoltageLevel().getTopologyKind() == TopologyKind.BUS_BREAKER) {
+                Bus b1 = t1.getBusBreakerView().getBus();
+                if (b1 != null) {
+                    l.bus1 = b1.getId();
+                }
+                l.connectableBus1 = t1.getBusBreakerView().getConnectableBus().getId();
+            } else {
+                l.node1 = t1.getNodeBreakerView().getNode();
+            }
+            if (t2.getVoltageLevel().getTopologyKind() == TopologyKind.BUS_BREAKER) {
+                Bus b2 = t2.getBusBreakerView().getBus();
+                if (b2 != null) {
+                    l.bus2 = b2.getId();
+                }
+                l.connectableBus2 = t2.getBusBreakerView().getConnectableBus().getId();
+            } else {
+                l.node2 = t2.getNodeBreakerView().getNode();
+            }
+            l.p1 = t1.getP();
+            l.q1 = t1.getQ();
+            l.p2 = t2.getP();
+            l.q2 = t2.getQ();
+            l.country1 = vl1.getSubstation().getCountry();
+            l.country2 = vl2.getSubstation().getCountry();
+            lines.add(l);
+
+            // remove the 2 dangling lines
+            dl1.remove();
+            dl2.remove();
+        }
+    }
+
+    private void replaceDanglingLineByLine(List<MergedLine> lines, Multimap<Boundary, MergedLine> mergedLineByBoundary) {
+        for (MergedLine mergedLine : lines) {
+            LOGGER.debug("Replacing dangling line couple '{}' (xnode={}, country1={}, country2={}) by a line",
+                    mergedLine.id, mergedLine.xnode, mergedLine.country1, mergedLine.country2);
+            TieLineAdderImpl la = newTieLine()
+                    .setId(mergedLine.id)
+                    .setVoltageLevel1(mergedLine.voltageLevel1)
+                    .setVoltageLevel2(mergedLine.voltageLevel2)
+                    .line1().setId(mergedLine.half1.id)
+                            .setName(mergedLine.half1.name)
+                            .setR(mergedLine.half1.r)
+                            .setX(mergedLine.half1.x)
+                            .setG1(mergedLine.half1.g1)
+                            .setG2(mergedLine.half1.g2)
+                            .setB1(mergedLine.half1.b1)
+                            .setB2(mergedLine.half1.b2)
+                            .setXnodeP(mergedLine.half1.xnodeP)
+                            .setXnodeQ(mergedLine.half1.xnodeQ)
+                    .line2().setId(mergedLine.half2.id)
+                            .setName(mergedLine.half2.name)
+                            .setR(mergedLine.half2.r)
+                            .setX(mergedLine.half2.x)
+                            .setG1(mergedLine.half2.g1)
+                            .setG2(mergedLine.half2.g2)
+                            .setB1(mergedLine.half2.b1)
+                            .setB2(mergedLine.half2.b2)
+                            .setXnodeP(mergedLine.half2.xnodeP)
+                            .setXnodeQ(mergedLine.half2.xnodeQ)
+                    .setUcteXnodeCode(mergedLine.xnode);
+            if (mergedLine.bus1 != null) {
+                la.setBus1(mergedLine.bus1);
+            }
+            la.setConnectableBus1(mergedLine.connectableBus1);
+            if (mergedLine.bus2 != null) {
+                la.setBus2(mergedLine.bus2);
+            }
+            la.setConnectableBus2(mergedLine.connectableBus2);
+            if (mergedLine.node1 != null) {
+                la.setNode1(mergedLine.node1);
+            }
+            if (mergedLine.node2 != null) {
+                la.setNode2(mergedLine.node2);
+            }
+            TieLineImpl l = la.add();
+            l.setCurrentLimits(Side.ONE, (CurrentLimitsImpl) mergedLine.limits1);
+            l.setCurrentLimits(Side.TWO, (CurrentLimitsImpl) mergedLine.limits2);
+            l.getTerminal1().setP(mergedLine.p1).setQ(mergedLine.q1);
+            l.getTerminal2().setP(mergedLine.p2).setQ(mergedLine.q2);
+
+            mergedLineByBoundary.put(new Boundary(mergedLine.country1, mergedLine.country2), mergedLine);
+        }
+    }
+
+    class MergedLine {
+        String id;
+        String voltageLevel1;
+        String voltageLevel2;
+        String xnode;
+        String bus1;
+        String bus2;
+        String connectableBus1;
+        String connectableBus2;
+        Integer node1;
+        Integer node2;
+
+        class HalfMergedLine {
+            String id;
+            String name;
+            double r;
+            double x;
+            double g1;
+            double g2;
+            double b1;
+            double b2;
+            double xnodeP;
+            double xnodeQ;
+        }
+
+        final HalfMergedLine half1 = new HalfMergedLine();
+        final HalfMergedLine half2 = new HalfMergedLine();
+
+        CurrentLimits limits1;
+        CurrentLimits limits2;
+        double p1;
+        double q1;
+        double p2;
+        double q2;
+
+        Country country1;
+        Country country2;
     }
 
     @Override
