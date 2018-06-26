@@ -29,9 +29,7 @@ class CorePool {
     }
 
     synchronized List<Core> borrowCores(int n, Set<Integer> preferedRanks) {
-        if (n > cores.size()) {
-            throw new IllegalArgumentException("Not enough cores");
-        }
+        checkCores(n);
         List<Core> borrowedCores = new ArrayList<>(n);
         if (preferedRanks != null && !preferedRanks.isEmpty()) {
             END: for (int preferedRank : preferedRanks) {
@@ -53,6 +51,12 @@ class CorePool {
             coresPerRank.remove(borrowedCore.rank, borrowedCore);
         }
         return borrowedCores;
+    }
+
+    private void checkCores(int n) {
+        if (n > cores.size()) {
+            throw new IllegalArgumentException("Not enough cores");
+        }
     }
 
     synchronized void returnCore(Core borrowedCore) {

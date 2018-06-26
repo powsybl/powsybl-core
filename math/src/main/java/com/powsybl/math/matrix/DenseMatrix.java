@@ -188,21 +188,9 @@ public class DenseMatrix extends AbstractMatrix {
 
     @Override
     public void print(PrintStream out, List<String> rowNames, List<String> columnNames) {
-        int rowNamesWidth = 0;
-        if (rowNames != null) {
-            for (String rowName : rowNames) {
-                rowNamesWidth = Math.max(rowNamesWidth, rowName.length());
-            }
-        }
-        int[] width = new int[getN()];
-        for (int i = 0; i < getM(); i++) {
-            for (int j = 0; j < getN(); j++) {
-                width[j] = Math.max(width[j], Double.toString(getValue(i, j)).length());
-                if (columnNames != null) {
-                    width[j] = Math.max(width[j], columnNames.get(j).length());
-                }
-            }
-        }
+        int rowNamesWidth = getMaxWidthAmongRowNames(rowNames);
+
+        int[] width = getMaxWidthForEachColumn(columnNames);
 
         if (columnNames != null) {
             if (rowNames != null) {
@@ -222,6 +210,29 @@ public class DenseMatrix extends AbstractMatrix {
             }
             out.println();
         }
+    }
+
+    private int getMaxWidthAmongRowNames(List<String> rowNames) {
+        int rowNamesWidth = 0;
+        if (rowNames != null) {
+            for (String rowName : rowNames) {
+                rowNamesWidth = Math.max(rowNamesWidth, rowName.length());
+            }
+        }
+        return rowNamesWidth;
+    }
+
+    private int[] getMaxWidthForEachColumn(List<String> columnNames) {
+        int[] width = new int[getN()];
+        for (int i = 0; i < getM(); i++) {
+            for (int j = 0; j < getN(); j++) {
+                width[j] = Math.max(width[j], Double.toString(getValue(i, j)).length());
+                if (columnNames != null) {
+                    width[j] = Math.max(width[j], columnNames.get(j).length());
+                }
+            }
+        }
+        return width;
     }
 
     @Override

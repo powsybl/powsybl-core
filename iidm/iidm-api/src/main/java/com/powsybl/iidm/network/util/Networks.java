@@ -49,7 +49,7 @@ public final class Networks {
     private Networks() {
     }
 
-    public static boolean isBusValid(int feederCount, int branchCount) {
+    public static boolean isBusValid(int branchCount) {
         return branchCount >= 1;
     }
 
@@ -83,34 +83,46 @@ public final class Networks {
         }
     }
 
+    static class ConnectedPower {
+        private int busCount = 0;
+
+        private List<String> connectedLoads = new ArrayList<>();
+        private List<String> disconnectedLoads = new ArrayList<>();
+        private double connectedLoadVolume = 0.0;
+        private double disconnectedLoadVolume = 0.0;
+
+        private double connectedMaxGeneration = 0.0;
+        private double disconnectedMaxGeneration = 0.0;
+        private double connectedGeneration = 0.0;
+        private double disconnectedGeneration = 0.0;
+        private List<String> connectedGenerators = new ArrayList<>();
+        private List<String> disconnectedGenerators = new ArrayList<>();
+
+        private List<String> connectedShunts = new ArrayList<>();
+        private List<String> disconnectedShunts = new ArrayList<>();
+        private double connectedShuntPositiveVolume = 0.0;
+        private double disconnectedShuntPositiveVolume = 0.0;
+        private double connectedShuntNegativeVolume = 0.0;
+        private double disconnectedShuntNegativeVolume = 0.0;
+    }
+
     public static void printBalanceSummary(String title, Network network, Logger logger) {
-
-        class ConnectedPower {
-            private int busCount = 0;
-
-            private List<String> connectedLoads = new ArrayList<>();
-            private List<String> disconnectedLoads = new ArrayList<>();
-            private double connectedLoadVolume = 0.0;
-            private double disconnectedLoadVolume = 0.0;
-
-            private double connectedMaxGeneration = 0.0;
-            private double disconnectedMaxGeneration = 0.0;
-            private double connectedGeneration = 0.0;
-            private double disconnectedGeneration = 0.0;
-            private List<String> connectedGenerators = new ArrayList<>();
-            private List<String> disconnectedGenerators = new ArrayList<>();
-
-            private List<String> connectedShunts = new ArrayList<>();
-            private List<String> disconnectedShunts = new ArrayList<>();
-            private double connectedShuntPositiveVolume = 0.0;
-            private double disconnectedShuntPositiveVolume = 0.0;
-            private double connectedShuntNegativeVolume = 0.0;
-            private double disconnectedShuntNegativeVolume = 0.0;
-        }
 
         ConnectedPower balanceMainCC = new ConnectedPower();
         ConnectedPower balanceOtherCC = new ConnectedPower();
 
+        addBuses(network, balanceMainCC, balanceOtherCC);
+        addLoads(network, balanceMainCC, balanceOtherCC);
+        addDanglingLines(network, balanceMainCC, balanceOtherCC);
+        addGenerators(network, balanceMainCC, balanceOtherCC);
+        addShuntCompensators(network, balanceMainCC, balanceOtherCC);
+
+        Table table = writeInTable(balanceMainCC, balanceOtherCC);
+
+        logOtherCC(logger, title, table, balanceOtherCC);
+    }
+
+    private static void addBuses(Network network, ConnectedPower balanceMainCC, ConnectedPower balanceOtherCC) {
         for (Bus b : network.getBusBreakerView().getBuses()) {
             if (b.isInMainConnectedComponent()) {
                 balanceMainCC.busCount++;
@@ -118,7 +130,9 @@ public final class Networks {
                 balanceOtherCC.busCount++;
             }
         }
+    }
 
+    private static void addLoads(Network network, ConnectedPower balanceMainCC, ConnectedPower balanceOtherCC) {
         for (Load l : network.getLoads()) {
             Terminal.BusBreakerView view = l.getTerminal().getBusBreakerView();
             if (view.getBus() != null) {
@@ -139,6 +153,9 @@ public final class Networks {
                 }
             }
         }
+    }
+
+    private static void addDanglingLines(Network network, ConnectedPower balanceMainCC, ConnectedPower balanceOtherCC) {
         for (DanglingLine dl : network.getDanglingLines()) {
             Terminal.BusBreakerView view = dl.getTerminal().getBusBreakerView();
             if (view.getBus() != null) {
@@ -159,6 +176,9 @@ public final class Networks {
                 }
             }
         }
+    }
+
+    private static void addGenerators(Network network, ConnectedPower balanceMainCC, ConnectedPower balanceOtherCC) {
         for (Generator g : network.getGenerators()) {
             Terminal.BusBreakerView view = g.getTerminal().getBusBreakerView();
             if (view.getBus() != null) {
@@ -183,43 +203,58 @@ public final class Networks {
                 }
             }
         }
+    }
+
+    private static void addShuntCompensators(Network network, ConnectedPower balanceMainCC, ConnectedPower balanceOtherCC) {
         for (ShuntCompensator sc : network.getShunts()) {
             Terminal.BusBreakerView view = sc.getTerminal().getBusBreakerView();
             double q = sc.getCurrentB() * Math.pow(sc.getTerminal().getVoltageLevel().getNominalV(), 2);
             if (view.getBus() != null) {
-                if (view.getBus().isInMainConnectedComponent()) {
-                    if (q > 0) {
-                        balanceMainCC.connectedShuntPositiveVolume += q;
-                    } else {
-                        balanceMainCC.connectedShuntNegativeVolume += q;
-                    }
-                    balanceMainCC.connectedShunts.add(sc.getId());
-                } else {
-                    if (q > 0) {
-                        balanceOtherCC.connectedShuntPositiveVolume += q;
-                    } else {
-                        balanceOtherCC.connectedShuntNegativeVolume += q;
-                    }
-                    balanceOtherCC.connectedShunts.add(sc.getId());
-                }
+                addConnectedShunt(view, q, sc.getId(), balanceMainCC, balanceOtherCC);
             } else {
-                if (view.getConnectableBus().isInMainConnectedComponent()) {
-                    if (q > 0) {
-                        balanceMainCC.disconnectedShuntPositiveVolume += q;
-                    } else {
-                        balanceMainCC.disconnectedShuntNegativeVolume += q;
-                    }
-                    balanceMainCC.disconnectedShunts.add(sc.getId());
-                } else {
-                    if (q > 0) {
-                        balanceOtherCC.disconnectedShuntPositiveVolume += q;
-                    } else {
-                        balanceOtherCC.disconnectedShuntNegativeVolume += q;
-                    }
-                    balanceOtherCC.disconnectedShunts.add(sc.getId());
-                }
+                addDisonnectedShunt(view, q, sc.getId(), balanceMainCC, balanceOtherCC);
             }
         }
+    }
+
+    private static void addConnectedShunt(Terminal.BusBreakerView view, double q, String shuntId, ConnectedPower balanceMainCC, ConnectedPower balanceOtherCC) {
+        if (view.getBus().isInMainConnectedComponent()) {
+            if (q > 0) {
+                balanceMainCC.connectedShuntPositiveVolume += q;
+            } else {
+                balanceMainCC.connectedShuntNegativeVolume += q;
+            }
+            balanceMainCC.connectedShunts.add(shuntId);
+        } else {
+            if (q > 0) {
+                balanceOtherCC.connectedShuntPositiveVolume += q;
+            } else {
+                balanceOtherCC.connectedShuntNegativeVolume += q;
+            }
+            balanceOtherCC.connectedShunts.add(shuntId);
+        }
+    }
+
+    private static void addDisonnectedShunt(Terminal.BusBreakerView view, double q, String shuntId, ConnectedPower balanceMainCC, ConnectedPower balanceOtherCC) {
+        if (view.getConnectableBus().isInMainConnectedComponent()) {
+            if (q > 0) {
+                balanceMainCC.disconnectedShuntPositiveVolume += q;
+            } else {
+                balanceMainCC.disconnectedShuntNegativeVolume += q;
+            }
+            balanceMainCC.disconnectedShunts.add(shuntId);
+        } else {
+            if (q > 0) {
+                balanceOtherCC.disconnectedShuntPositiveVolume += q;
+            } else {
+                balanceOtherCC.disconnectedShuntNegativeVolume += q;
+            }
+            balanceOtherCC.disconnectedShunts.add(shuntId);
+        }
+    }
+
+
+    private static Table writeInTable(ConnectedPower balanceMainCC, ConnectedPower balanceOtherCC) {
         Table table = new Table(5, BorderStyle.CLASSIC_WIDE);
         table.addCell("");
         table.addCell("Main CC connected/disconnected", 2);
@@ -266,7 +301,10 @@ public final class Networks {
         table.addCell(Double.toString(balanceOtherCC.disconnectedShuntPositiveVolume) + " " +
                 Double.toString(balanceOtherCC.disconnectedShuntNegativeVolume) +
                 " (" + Integer.toString(balanceOtherCC.disconnectedShunts.size()) + ")");
+        return table;
+    }
 
+    private static void logOtherCC(Logger logger, String title, Table table, ConnectedPower balanceOtherCC) {
         if (logger.isDebugEnabled()) {
             logger.debug("Active balance at step '{}':\n{}", title, table.render());
         }

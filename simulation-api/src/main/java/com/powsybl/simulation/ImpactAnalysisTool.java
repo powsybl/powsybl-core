@@ -247,49 +247,58 @@ public class ImpactAnalysisTool implements Tool {
         SimulatorFactory simulatorFactory = defaultConfig.newFactoryImpl(SimulatorFactory.class);
 
         if (Files.isRegularFile(caseFile)) {
-
-            context.getOutputStream().println("loading case " + caseFile + "...");
-            // load the network
-            Network network = Importers.loadNetwork(caseFile);
-            if (network == null) {
-                throw new PowsyblException("Case '" + caseFile + "' not found");
-            }
-            network.getStateManager().allowStateMultiThreadAccess(true);
-
-            Multimap<String, SecurityIndex> securityIndexesPerContingency
-                    = runImpactAnalysis(network, contingencyIds, context.getShortTimeExecutionComputationManager(),
-                    simulatorFactory, contingenciesProvider, context.getOutputStream());
-
-            if (securityIndexesPerContingency != null) {
-                if (outputCsvFile == null) {
-                    prettyPrint(securityIndexesPerContingency, context.getOutputStream());
-                } else {
-                    writeCsv(securityIndexesPerContingency, outputCsvFile);
-                }
-            }
+            runSingleAnalysis(context, caseFile, outputCsvFile, contingencyIds, contingenciesProvider, simulatorFactory);
         } else if (Files.isDirectory(caseFile)) {
-            if (outputCsvFile == null) {
-                throw new PowsyblException("In case of multiple impact analyses, only output to csv file is supported");
-            }
-            Map<String, Map<SecurityIndexId, SecurityIndex>> securityIndexesPerCase = new LinkedHashMap<>();
-            Importers.loadNetworks(caseFile, false, network -> {
-                try {
-                    Multimap<String, SecurityIndex> securityIndexesPerContingency
-                            = runImpactAnalysis(network, contingencyIds, context.getShortTimeExecutionComputationManager(),
-                            simulatorFactory, contingenciesProvider, context.getOutputStream());
-                    if (securityIndexesPerContingency == null) {
-                        securityIndexesPerCase.put(network.getId(), null);
-                    } else {
-                        Map<SecurityIndexId, SecurityIndex> securityIndexesPerId = securityIndexesPerContingency.values().stream().collect(Collectors.toMap(SecurityIndex::getId, e -> e));
-                        securityIndexesPerCase.put(network.getId(), securityIndexesPerId);
-                    }
-                } catch (Exception e) {
-                    LOGGER.error(e.toString(), e);
-                }
-            }, dataSource -> context.getOutputStream().println("loading case " + dataSource.getBaseName() + "..."));
-
-            writeCsv(securityIndexesPerCase, outputCsvFile);
+            runMultipleAnalyses(context, caseFile, outputCsvFile, contingencyIds, contingenciesProvider, simulatorFactory);
         }
+    }
+
+    private void runSingleAnalysis(ToolRunningContext context, Path caseFile, Path outputCsvFile, Set<String> contingencyIds, ContingenciesProvider contingenciesProvider,
+                                   SimulatorFactory simulatorFactory) throws Exception {
+        context.getOutputStream().println("loading case " + caseFile + "...");
+        // load the network
+        Network network = Importers.loadNetwork(caseFile);
+        if (network == null) {
+            throw new PowsyblException("Case '" + caseFile + "' not found");
+        }
+        network.getStateManager().allowStateMultiThreadAccess(true);
+
+        Multimap<String, SecurityIndex> securityIndexesPerContingency
+                = runImpactAnalysis(network, contingencyIds, context.getShortTimeExecutionComputationManager(),
+                simulatorFactory, contingenciesProvider, context.getOutputStream());
+
+        if (securityIndexesPerContingency != null) {
+            if (outputCsvFile == null) {
+                prettyPrint(securityIndexesPerContingency, context.getOutputStream());
+            } else {
+                writeCsv(securityIndexesPerContingency, outputCsvFile);
+            }
+        }
+    }
+
+    private void runMultipleAnalyses(ToolRunningContext context, Path caseFile, Path outputCsvFile, Set<String> contingencyIds, ContingenciesProvider contingenciesProvider,
+                                     SimulatorFactory simulatorFactory) throws Exception {
+        if (outputCsvFile == null) {
+            throw new PowsyblException("In case of multiple impact analyses, only output to csv file is supported");
+        }
+        Map<String, Map<SecurityIndexId, SecurityIndex>> securityIndexesPerCase = new LinkedHashMap<>();
+        Importers.loadNetworks(caseFile, false, network -> {
+            try {
+                Multimap<String, SecurityIndex> securityIndexesPerContingency
+                        = runImpactAnalysis(network, contingencyIds, context.getShortTimeExecutionComputationManager(),
+                        simulatorFactory, contingenciesProvider, context.getOutputStream());
+                if (securityIndexesPerContingency == null) {
+                    securityIndexesPerCase.put(network.getId(), null);
+                } else {
+                    Map<SecurityIndexId, SecurityIndex> securityIndexesPerId = securityIndexesPerContingency.values().stream().collect(Collectors.toMap(SecurityIndex::getId, e -> e));
+                    securityIndexesPerCase.put(network.getId(), securityIndexesPerId);
+                }
+            } catch (Exception e) {
+                LOGGER.error(e.toString(), e);
+            }
+        }, dataSource -> context.getOutputStream().println("loading case " + dataSource.getBaseName() + "..."));
+
+        writeCsv(securityIndexesPerCase, outputCsvFile);
     }
 
 }
