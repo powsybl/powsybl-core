@@ -17,7 +17,7 @@ public class UserSession {
 
     private UserProfile profile;
 
-    private String token;
+    private final String token;
 
     public UserSession(UserProfile profile, String token) {
         this.profile = Objects.requireNonNull(profile);

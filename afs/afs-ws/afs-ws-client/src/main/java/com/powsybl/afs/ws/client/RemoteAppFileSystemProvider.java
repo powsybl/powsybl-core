@@ -29,22 +29,25 @@ import java.util.stream.Collectors;
 @AutoService(AppFileSystemProvider.class)
 public class RemoteAppFileSystemProvider implements AppFileSystemProvider {
 
-    private final Supplier<RemoteServiceConfig> config;
+    private final Supplier<RemoteServiceConfig> configSupplier;
 
     public RemoteAppFileSystemProvider() {
         this(RemoteServiceConfig.INSTANCE);
     }
 
-    public RemoteAppFileSystemProvider(Supplier<RemoteServiceConfig> config) {
-        this.config = Objects.requireNonNull(config);
+    public RemoteAppFileSystemProvider(Supplier<RemoteServiceConfig> configSupplier) {
+        this.configSupplier = Objects.requireNonNull(configSupplier);
     }
 
     @Override
     public List<AppFileSystem> getFileSystems(AppFileSystemProviderContext context) {
+        Objects.requireNonNull(context);
         if (context.getToken() == null) {
             return Collections.emptyList();
         } else {
-            URI uri = config.get().getRestUri();
+            RemoteServiceConfig config = configSupplier.get();
+            Objects.requireNonNull(config);
+            URI uri = config.getRestUri();
             return RemoteAppStorage.getFileSystemNames(uri, context.getToken()).stream()
                     .map(fileSystemName -> {
                         RemoteAppStorage storage = new RemoteAppStorage(fileSystemName, uri, context.getToken());

@@ -20,5 +20,9 @@ public class RemoteServiceConfigTest {
         RemoteServiceConfig config = new RemoteServiceConfig("host", "test", 443, true);
         assertEquals("https://host:443/test", config.getRestUri().toString());
         assertEquals("wss://host:443/test", config.getWsUri().toString());
+
+        RemoteServiceConfig config2 = new RemoteServiceConfig("host", "test", 80, false);
+        assertEquals("http://host:80/test", config2.getRestUri().toString());
+        assertEquals("ws://host:80/test", config2.getWsUri().toString());
     }
 }

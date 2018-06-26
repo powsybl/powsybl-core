@@ -11,7 +11,7 @@ package com.powsybl.afs;
  */
 public class ServiceCreationContext {
 
-    private String token;
+    private final String token;
 
     public ServiceCreationContext(String token) {
         this.token = token;

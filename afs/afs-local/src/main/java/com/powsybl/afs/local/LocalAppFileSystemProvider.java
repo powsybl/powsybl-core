@@ -44,6 +44,7 @@ public class LocalAppFileSystemProvider implements AppFileSystemProvider {
 
     @Override
     public List<AppFileSystem> getFileSystems(AppFileSystemProviderContext context) {
+        Objects.requireNonNull(context);
         return configs.stream()
                 .map(config -> new LocalAppFileSystem(config, fileScanners, folderScanners, context.getComputationManager()))
                 .collect(Collectors.toList());

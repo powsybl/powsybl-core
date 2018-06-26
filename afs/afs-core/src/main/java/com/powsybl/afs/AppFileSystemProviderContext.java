@@ -17,7 +17,7 @@ public class AppFileSystemProviderContext {
 
     private final ComputationManager computationManager;
 
-    private String token;
+    private final String token;
 
     public AppFileSystemProviderContext(ComputationManager computationManager, String token) {
         this.computationManager = Objects.requireNonNull(computationManager);

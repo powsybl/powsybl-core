@@ -46,7 +46,7 @@ class RemoteNetworkCacheService implements NetworkCacheService {
 
     private final Supplier<RemoteServiceConfig> configSupplier;
 
-    private String token;
+    private final String token;
 
     RemoteNetworkCacheService(Supplier<RemoteServiceConfig> configSupplier, String token) {
         this.configSupplier = Objects.requireNonNull(configSupplier);
