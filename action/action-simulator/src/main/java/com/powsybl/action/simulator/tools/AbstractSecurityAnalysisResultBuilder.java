@@ -57,9 +57,9 @@ public abstract class AbstractSecurityAnalysisResultBuilder extends DefaultLoadF
         } else {
             Objects.requireNonNull(runningContext.getContingency());
             postContingencyResults.put(runningContext.getContingency().getId(), new PostContingencyResult(runningContext.getContingency(),
-                                                                                      true,
-                                                                                      violations,
-                                                                                      getPostContingencyActions(runningContext.getContingency())));
+                    true,
+                    violations,
+                    getPostContingencyActions(runningContext.getContingency())));
         }
     }
 
@@ -81,7 +81,7 @@ public abstract class AbstractSecurityAnalysisResultBuilder extends DefaultLoadF
     @Override
     public void afterPostContingencyAnalysis() {
         onFinalStateResult(new SecurityAnalysisResult(preContingencyResult,
-                                                      postContingencyResults.entrySet().stream().map(Map.Entry::getValue).collect(Collectors.toList())));
+                postContingencyResults.entrySet().stream().map(Map.Entry::getValue).collect(Collectors.toList())));
     }
 
     public abstract void onFinalStateResult(SecurityAnalysisResult result);
