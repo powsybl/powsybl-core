@@ -257,6 +257,7 @@ public class AppData implements AutoCloseable {
      * Gets low level storage interface for remotely accessible file systems. Should not be used by the AFS API users.
      */
     public ListenableAppStorage getRemotelyAccessibleStorage(String fileSystemName) {
+        Objects.requireNonNull(fileSystemName);
         loadFileSystems();
         AppFileSystem afs = fileSystems.get(fileSystemName);
         return afs != null ? afs.getStorage() : null;

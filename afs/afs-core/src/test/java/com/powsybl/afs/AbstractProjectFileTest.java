@@ -59,6 +59,7 @@ public abstract class AbstractProjectFileTest {
                          getFileExtensions(),
                          getProjectFileExtensions(),
                          getServiceExtensions());
+        afs.setData(ad);
     }
 
     @After
