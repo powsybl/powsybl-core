@@ -568,6 +568,11 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
     }
 
     @Override
+    public Iterable<Switch> getSwitches() {
+        return getBusBreakerView().getSwitches();
+    }
+
+    @Override
     public TopologyKind getTopologyKind() {
         return TopologyKind.BUS_BREAKER;
     }
