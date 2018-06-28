@@ -66,6 +66,8 @@ public class RemoteAppStorage implements AppStorage {
 
     private String token;
 
+    private boolean closed = false;
+
     public RemoteAppStorage(String fileSystemName, URI baseUri) {
         this(fileSystemName, baseUri, "");
     }
@@ -878,7 +880,14 @@ public class RemoteAppStorage implements AppStorage {
     }
 
     @Override
+    public boolean isClosed() {
+        return closed;
+    }
+
+    @Override
     public void close() {
+        flush();
+        closed = true;
         client.close();
     }
 }

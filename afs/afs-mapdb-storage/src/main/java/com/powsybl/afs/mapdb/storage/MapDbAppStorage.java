@@ -712,6 +712,11 @@ public class MapDbAppStorage implements AppStorage {
     }
 
     @Override
+    public boolean isClosed() {
+        return db.isClosed();
+    }
+
+    @Override
     public void close() {
         db.commit();
         db.close();

@@ -144,6 +144,10 @@ public class AppFileSystem implements AutoCloseable {
         this.data = Objects.requireNonNull(data);
     }
 
+    public boolean isClosed() {
+        return storage.isClosed();
+    }
+
     @Override
     public void close() {
         storage.close();

@@ -168,6 +168,12 @@ public class AppData implements AutoCloseable {
 
     public void setTokenProvider(SecurityTokenProvider tokenProvider) {
         this.tokenProvider = Objects.requireNonNull(tokenProvider);
+        // clean loaded file systems and services
+        if (fileSystems != null) {
+            for (AppFileSystem fileSystem : fileSystems.values()) {
+                fileSystem.close();
+            }
+        }
         fileSystems = null;
         services = null;
     }

@@ -193,6 +193,11 @@ public interface AppStorage extends AutoCloseable {
     void flush();
 
     /**
+     * Check if storage is closed.
+     */
+    boolean isClosed();
+
+    /**
      * Closes any resource associated with this storage.
      */
     @Override
