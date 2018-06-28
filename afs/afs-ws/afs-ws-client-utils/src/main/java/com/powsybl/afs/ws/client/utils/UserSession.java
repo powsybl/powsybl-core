@@ -21,7 +21,7 @@ public class UserSession {
 
     public UserSession(UserProfile profile, String token) {
         this.profile = Objects.requireNonNull(profile);
-        this.token = Objects.requireNonNull(token);
+        this.token = token;
     }
 
     public UserProfile getProfile() {
