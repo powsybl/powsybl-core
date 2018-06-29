@@ -28,6 +28,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.IntFunction;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.zip.GZIPOutputStream;
@@ -385,18 +386,23 @@ public class TimeSeriesTable {
     }
 
     private void updateStatistics(int version, int timeSeriesNum) {
+        if (timeSeriesNum == 7326) {
+            System.out.println("toto");
+        }
         int statisticsIndex = getStatisticsIndex(version, timeSeriesNum);
         if (Double.isNaN(means[statisticsIndex]) || Double.isNaN(stdDevs[statisticsIndex])) {
             int timeSeriesOffset = getTimeSeriesOffset(version, timeSeriesNum);
 
             double sum = 0;
+            int nbPoints = 0;
             for (int point = 0; point < tableIndex.getPointCount(); point++) {
                 double value = doubleBuffer.get(timeSeriesOffset + point);
                 if (!Double.isNaN(value)) {
                     sum += value;
+                    nbPoints++;
                 }
             }
-            double mean = sum / tableIndex.getPointCount();
+            double mean = sum / nbPoints;
             means[statisticsIndex] = mean;
 
             double stdDev = 0;
@@ -406,7 +412,7 @@ public class TimeSeriesTable {
                     stdDev += (value - mean) * (value - mean);
                 }
             }
-            stdDev = Math.sqrt(stdDev / (tableIndex.getPointCount() - 1));
+            stdDev = Math.sqrt(stdDev / (nbPoints - 1));
             stdDevs[statisticsIndex] = stdDev;
         }
     }
@@ -438,6 +444,34 @@ public class TimeSeriesTable {
     public double getStdDev(int version, int timeSeriesNum) {
         return getStatistics(version, timeSeriesNum, stdDevs);
     }
+
+    /**
+     * Returns the number of values matching the predicate within the time-series
+     * */
+    public int getNumberOfDoubleValues(int version, int timeSeriesNum, Predicate<Double> predicate) {
+        int timeSeriesOffset = getTimeSeriesOffset(version, timeSeriesNum);
+        int counter = 0;
+        for (int point = 0; point < tableIndex.getPointCount(); point++) {
+            double value = doubleBuffer.get(timeSeriesOffset + point);
+            if (!Double.isNaN(value) && predicate.test(value)) {
+                counter++;
+            }
+        }
+        return counter;
+    }
+
+    public int getNumberOfStringValues(int version, int timeSeriesNum, Predicate<String> predicate) {
+        int timeSeriesOffset = getTimeSeriesOffset(version, timeSeriesNum);
+        int counter = 0;
+        for (int point = 0; point < tableIndex.getPointCount(); point++) {
+            String value = stringBuffer.getString(timeSeriesOffset + point);
+            if (!Objects.isNull(value) && predicate.test(value)) {
+                counter++;
+            }
+        }
+        return counter;
+    }
+
 
     public List<Correlation> findMostCorrelatedTimeSeries(String timeSeriesName, int version) {
         return findMostCorrelatedTimeSeries(timeSeriesName, version, 10);
