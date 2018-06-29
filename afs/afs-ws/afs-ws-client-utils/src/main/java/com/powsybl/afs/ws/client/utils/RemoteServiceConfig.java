@@ -47,8 +47,8 @@ public class RemoteServiceConfig {
         ModuleConfig moduleConfig = platformConfig.getModuleConfig("remote-service");
         String hostName = moduleConfig.getStringProperty("host-name");
         String appName = moduleConfig.getStringProperty("app-name");
-        int port = moduleConfig.getIntProperty("port", 443);
         boolean secure = moduleConfig.getBooleanProperty("secure", true);
+        int port = moduleConfig.getIntProperty("port", secure ? 443 : 80);
         return new RemoteServiceConfig(hostName, appName, port, secure);
     }
 

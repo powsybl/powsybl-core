@@ -166,14 +166,16 @@ public class AppData implements AutoCloseable {
         return fileSystems.get(name);
     }
 
+    private void closeFileSystems() {
+        if (fileSystems != null) {
+            fileSystems.values().forEach(AppFileSystem::close);
+        }
+    }
+
     public void setTokenProvider(SecurityTokenProvider tokenProvider) {
         this.tokenProvider = Objects.requireNonNull(tokenProvider);
         // clean loaded file systems and services
-        if (fileSystems != null) {
-            for (AppFileSystem fileSystem : fileSystems.values()) {
-                fileSystem.close();
-            }
-        }
+        closeFileSystems();
         fileSystems = null;
         services = null;
     }
@@ -296,8 +298,6 @@ public class AppData implements AutoCloseable {
      */
     @Override
     public void close() {
-        if (fileSystems != null) {
-            fileSystems.values().forEach(AppFileSystem::close);
-        }
+        closeFileSystems();
     }
 }
