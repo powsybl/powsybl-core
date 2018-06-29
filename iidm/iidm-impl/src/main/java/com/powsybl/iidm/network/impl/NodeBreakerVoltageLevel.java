@@ -822,6 +822,11 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
     }
 
     @Override
+    public Iterable<Switch> getSwitches() {
+        return getNodeBreakerView().getSwitches();
+    }
+
+    @Override
     public TopologyKind getTopologyKind() {
         return TopologyKind.NODE_BREAKER;
     }
