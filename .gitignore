@@ -50,6 +50,7 @@
 /security-analysis/security-analysis-afs/target/
 /security-analysis/security-analysis-afs-local/target/
 /security-analysis/security-analysis-api/target/
+/sensitivity-api/target/
 /simulation-api/target/
 /scripting/target/
 /tools/target/

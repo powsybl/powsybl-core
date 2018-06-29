@@ -67,6 +67,7 @@
         <module>math</module>
         <module>scripting</module>
         <module>security-analysis</module>
+        <module>sensitivity-api</module>
         <module>simulation-api</module>
         <module>tools</module>
         <module>ucte</module>
