@@ -9,6 +9,8 @@ package com.powsybl.afs.ws.server;
 import com.powsybl.afs.ws.server.utils.KeyGenerator;
 import com.powsybl.afs.ws.server.utils.UserAuthenticator;
 import com.powsybl.afs.ws.utils.UserProfile;
+import com.powsybl.commons.config.ModuleConfig;
+import com.powsybl.commons.config.PlatformConfig;
 import io.jsonwebtoken.CompressionCodecs;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -33,6 +35,8 @@ import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
 @Path("/users")
 public class UserEndpoint {
 
+    private static final long DEFAULT_TOKEN_VALIDITY = 3600L; // minutes
+
     @Context
     private UriInfo uriInfo;
 
@@ -41,6 +45,19 @@ public class UserEndpoint {
 
     @Inject
     private UserAuthenticator authenticator;
+
+    private long tokenValidity = DEFAULT_TOKEN_VALIDITY;
+
+    public UserEndpoint() {
+        this(PlatformConfig.defaultConfig());
+    }
+
+    public UserEndpoint(PlatformConfig platformConfig) {
+        ModuleConfig securityConfig = platformConfig.getModuleConfigIfExists("security");
+        if (securityConfig != null) {
+            securityConfig.getOptionalLongProperty("token-validity").ifPresent(value -> tokenValidity = value);
+        }
+    }
 
     @POST
     @Path("/login")
@@ -65,7 +82,7 @@ public class UserEndpoint {
                 .setSubject(login)
                 .setIssuer(uriInfo.getAbsolutePath().toString())
                 .setIssuedAt(Date.from(now.toInstant()))
-                .setExpiration(Date.from(now.plusMinutes(60L).toInstant()))
+                .setExpiration(Date.from(now.plusMinutes(tokenValidity).toInstant()))
                 .compact();
     }
 }
