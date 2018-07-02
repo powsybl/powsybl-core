@@ -57,6 +57,13 @@ public final class SensitivityComputationResultExporters {
         return null;
     }
 
+    /**
+     * Export sensitivity computation results in specified format and output path
+     *
+     * @param result The results to be exported
+     * @param path The export path
+     * @param format The export format
+     */
     public static void export(SensitivityComputationResults result, Path path, String format) {
         Objects.requireNonNull(path);
 
@@ -67,6 +74,13 @@ public final class SensitivityComputationResultExporters {
         }
     }
 
+    /**
+     * Export sensitivity computation results in specified format and writer
+     *
+     * @param result The results to be exported
+     * @param writer The export writer
+     * @param format The export format
+     */
     public static void export(SensitivityComputationResults result, Writer writer, String format) {
         SensitivityComputationResultExporter exporter = getExporter(format);
         if (exporter == null) {

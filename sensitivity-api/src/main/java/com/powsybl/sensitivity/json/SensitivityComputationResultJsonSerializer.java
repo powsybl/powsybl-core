@@ -16,8 +16,19 @@ import java.io.Reader;
 import java.io.Writer;
 import java.util.Objects;
 
+/**
+ * JSON Serialization utility class for sensitivity computation results
+ *
+ * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
+ */
 public final class SensitivityComputationResultJsonSerializer {
 
+    /**
+     * Read sensitivity computation results in JSON format from reader
+     * @param reader The reader to read from
+     * @return The sensitivity computation results created
+     * @throws IOException
+     */
     public static SensitivityComputationResults read(Reader reader) throws IOException {
         Objects.requireNonNull(reader);
 
@@ -25,6 +36,12 @@ public final class SensitivityComputationResultJsonSerializer {
         return objectReader.readValue(reader);
     }
 
+    /**
+     * Write sensitivity computation results in JSON format to writer
+     * @param result The sensitivity computation results to export
+     * @param writer The writer to write to
+     * @throws IOException
+     */
     public static void write(SensitivityComputationResults result, Writer writer) throws IOException {
         Objects.requireNonNull(result);
         Objects.requireNonNull(writer);

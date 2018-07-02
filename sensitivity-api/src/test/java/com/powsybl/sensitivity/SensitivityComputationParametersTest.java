@@ -13,8 +13,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 /**
  * @author Sebastien Murgey <sebastien.murgey at rte-france.com>
@@ -36,9 +35,9 @@ public class SensitivityComputationParametersTest {
         parameters.addExtension(DummyExtension.class, dummyExtension);
 
         assertEquals(1, parameters.getExtensions().size());
-        assertEquals(true, parameters.getExtensions().contains(dummyExtension));
-        assertEquals(true, parameters.getExtensionByName(DUMMY_EXTENSION_NAME) instanceof DummyExtension);
-        assertEquals(true, parameters.getExtension(DummyExtension.class) instanceof DummyExtension);
+        assertTrue(parameters.getExtensions().contains(dummyExtension));
+        assertTrue(parameters.getExtensionByName(DUMMY_EXTENSION_NAME) instanceof DummyExtension);
+        assertTrue(parameters.getExtension(DummyExtension.class) instanceof DummyExtension);
     }
 
     @Test
@@ -46,9 +45,9 @@ public class SensitivityComputationParametersTest {
         SensitivityComputationParameters parameters = new SensitivityComputationParameters();
 
         assertEquals(0, parameters.getExtensions().size());
-        assertEquals(false, parameters.getExtensions().contains(new DummyExtension()));
-        assertEquals(false, parameters.getExtensionByName(DUMMY_EXTENSION_NAME) instanceof DummyExtension);
-        assertEquals(false, parameters.getExtension(DummyExtension.class) instanceof DummyExtension);
+        assertFalse(parameters.getExtensions().contains(new DummyExtension()));
+        assertFalse(parameters.getExtensionByName(DUMMY_EXTENSION_NAME) instanceof DummyExtension);
+        assertFalse(parameters.getExtension(DummyExtension.class) instanceof DummyExtension);
     }
 
     @Test
@@ -56,7 +55,7 @@ public class SensitivityComputationParametersTest {
         SensitivityComputationParameters parameters = SensitivityComputationParameters.load(config);
 
         assertEquals(1, parameters.getExtensions().size());
-        assertEquals(true, parameters.getExtensionByName(DUMMY_EXTENSION_NAME) instanceof DummyExtension);
+        assertTrue(parameters.getExtensionByName(DUMMY_EXTENSION_NAME) instanceof DummyExtension);
         assertNotNull(parameters.getExtension(DummyExtension.class));
     }
 

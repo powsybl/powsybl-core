@@ -128,9 +128,10 @@ public class SensitivityComputationTool implements Tool {
         SensitivityComputation sensitivityComputation = defaultConfig.newFactoryImpl(SensitivityComputationFactory.class).create(network, context.getShortTimeExecutionComputationManager(), 0);
 
         SensitivityComputationParameters params = SensitivityComputationParameters.load();
+        String workingStateId = network.getStateManager().getWorkingStateId();
         SensitivityFactorsProviderFactory factorsProviderFactory = defaultConfig.newFactoryImpl(SensitivityFactorsProviderFactory.class);
         SensitivityFactorsProvider factorsProvider = factorsProviderFactory.create(sensitivityFactorsFile);
-        SensitivityComputationResults result = sensitivityComputation.run(factorsProvider, params);
+        SensitivityComputationResults result = sensitivityComputation.run(factorsProvider, workingStateId, params).join();
 
 
         if (!result.isOk()) {

@@ -9,7 +9,6 @@ package com.powsybl.sensitivity;
 import com.powsybl.commons.Versionable;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 /**
  * Sensitivity computation interface
@@ -29,28 +28,6 @@ import java.util.concurrent.ExecutionException;
  */
 public interface SensitivityComputation extends Versionable {
     /**
-     * Run a synchronous sensitivity computation job using given parameters and input provider
-     *
-     * @param factorsProvider sensitivity factors provider for the computation
-     * @param sensiParameters sensitivity computation parameters
-     * @return the sensitivity computation results
-     * @throws ExecutionException in case of issue during computation
-     * @throws InterruptedException in case of interruption during computation
-     */
-    SensitivityComputationResults run(SensitivityFactorsProvider factorsProvider, SensitivityComputationParameters sensiParameters) throws ExecutionException, InterruptedException;
-
-    /**
-     * Run a synchronous sensitivity computation job using given input provider and default
-     * parameters?
-     *
-     * @param factorsProvider sensitivity factors provider for the computation
-     * @return the sensitivity computation results
-     * @throws ExecutionException in case of issue during computation
-     * @throws InterruptedException in case of interruption during computation
-     */
-    SensitivityComputationResults run(SensitivityFactorsProvider factorsProvider) throws ExecutionException, InterruptedException;
-
-    /**
      * Run an asynchronous sensitivity computation job using given parameters and input provider
      *
      * @param factorsProvider sensitivity factors provider for the computation
@@ -58,6 +35,6 @@ public interface SensitivityComputation extends Versionable {
      * @param sensiParameters sensitivity computation parameters
      * @return the sensitivity computation results
      */
-    CompletableFuture<SensitivityComputationResults> runAsync(SensitivityFactorsProvider factorsProvider, String workingStateId, SensitivityComputationParameters sensiParameters);
+    CompletableFuture<SensitivityComputationResults> run(SensitivityFactorsProvider factorsProvider, String workingStateId, SensitivityComputationParameters sensiParameters);
 
 }
