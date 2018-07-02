@@ -8,6 +8,8 @@ package com.powsybl.afs.ws.server;
 
 import com.powsybl.afs.storage.AbstractAppStorageTest;
 import com.powsybl.afs.storage.ListenableAppStorage;
+import com.powsybl.afs.ws.client.utils.ClientUtils;
+import com.powsybl.afs.ws.client.utils.UserSession;
 import com.powsybl.afs.ws.storage.RemoteAppStorage;
 import com.powsybl.afs.ws.storage.RemoteListenableAppStorage;
 import com.powsybl.commons.exceptions.UncheckedUriSyntaxException;
@@ -42,6 +44,8 @@ public class AppStorageServerTest extends AbstractAppStorageTest {
     @ArquillianResource
     private URL baseUrl;
 
+    private UserSession userSession;
+
     @Deployment
     public static WebArchive createTestArchive() {
         File[] filesLib = Maven.configureResolver()
@@ -70,15 +74,21 @@ public class AppStorageServerTest extends AbstractAppStorageTest {
     }
 
     @Override
+    public void setUp() throws Exception {
+        userSession = ClientUtils.authenticate(getRestUri(), "", "");
+        super.setUp();
+    }
+
+    @Override
     protected ListenableAppStorage createStorage() {
         URI restUri = getRestUri();
-        RemoteAppStorage storage = new RemoteAppStorage(AppDataBeanMock.TEST_FS_NAME, restUri);
+        RemoteAppStorage storage = new RemoteAppStorage(AppDataBeanMock.TEST_FS_NAME, restUri, userSession.getToken());
         return new RemoteListenableAppStorage(storage, restUri);
     }
 
     @Test
     public void getFileSystemNamesTest() {
-        List<String> fileSystemNames = RemoteAppStorage.getFileSystemNames(getRestUri());
+        List<String> fileSystemNames = RemoteAppStorage.getFileSystemNames(getRestUri(), userSession.getToken());
         assertEquals(Collections.singletonList(AppDataBeanMock.TEST_FS_NAME), fileSystemNames);
     }
 }

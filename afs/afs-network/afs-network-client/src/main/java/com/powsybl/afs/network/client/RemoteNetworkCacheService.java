@@ -12,15 +12,17 @@ import com.powsybl.afs.ext.base.NetworkCacheService;
 import com.powsybl.afs.ext.base.ProjectCase;
 import com.powsybl.afs.ext.base.ProjectCaseListener;
 import com.powsybl.afs.ext.base.ScriptType;
+import com.powsybl.afs.ws.client.utils.ClientUtils;
+import com.powsybl.afs.ws.client.utils.RemoteServiceConfig;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.xml.NetworkXml;
-import com.powsybl.afs.ws.client.utils.ClientUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
@@ -42,10 +44,13 @@ class RemoteNetworkCacheService implements NetworkCacheService {
     private static final String NODE_ID = "nodeId";
     private static final String NODE_PATH = "fileSystems/{fileSystemName}/nodes/{nodeId}";
 
-    private final Supplier<RemoteNetworkCacheServiceConfig> configSupplier;
+    private final Supplier<RemoteServiceConfig> configSupplier;
 
-    RemoteNetworkCacheService(Supplier<RemoteNetworkCacheServiceConfig> configSupplier) {
+    private final String token;
+
+    RemoteNetworkCacheService(Supplier<RemoteServiceConfig> configSupplier, String token) {
         this.configSupplier = Objects.requireNonNull(configSupplier);
+        this.token = token;
     }
 
     private static WebTarget createWebTarget(Client client, URI baseUri) {
@@ -69,6 +74,7 @@ class RemoteNetworkCacheService implements NetworkCacheService {
                     .resolveTemplate(FILE_SYSTEM_NAME, projectCase.getFileSystem().getName())
                     .resolveTemplate(NODE_ID, projectCase.getId())
                     .request(MediaType.APPLICATION_XML)
+                    .header(HttpHeaders.AUTHORIZATION, token)
                     .get();
             try (InputStream is = readEntityIfOk(response, InputStream.class)) {
                 return NetworkXml.read(is);
@@ -100,6 +106,7 @@ class RemoteNetworkCacheService implements NetworkCacheService {
                     .resolveTemplate(NODE_ID, projectCase.getId())
                     .queryParam("scriptType", scriptType.name())
                     .request(MediaType.TEXT_PLAIN)
+                    .header(HttpHeaders.AUTHORIZATION, token)
                     .post(Entity.text(scriptContent));
             try {
                 return readEntityIfOk(response, String.class);
@@ -126,6 +133,7 @@ class RemoteNetworkCacheService implements NetworkCacheService {
                     .resolveTemplate(FILE_SYSTEM_NAME, projectCase.getFileSystem().getName())
                     .resolveTemplate(NODE_ID, projectCase.getId())
                     .request()
+                    .header(HttpHeaders.AUTHORIZATION, token)
                     .delete();
             try {
                 checkOk(response);

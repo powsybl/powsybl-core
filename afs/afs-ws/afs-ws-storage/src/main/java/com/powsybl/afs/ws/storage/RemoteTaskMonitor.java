@@ -23,6 +23,7 @@ import javax.websocket.WebSocketContainer;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
@@ -50,15 +51,18 @@ public class RemoteTaskMonitor implements TaskMonitor {
 
     private final URI restUri;
 
+    private final String token;
+
     private final Map<TaskListener, Session> sessions = new HashMap<>();
 
     private final Client client;
 
     private final WebTarget webTarget;
 
-    public RemoteTaskMonitor(String fileSystemName, URI restUri) {
+    public RemoteTaskMonitor(String fileSystemName, URI restUri, String token) {
         this.fileSystemName = Objects.requireNonNull(fileSystemName);
         this.restUri = Objects.requireNonNull(restUri);
+        this.token = Objects.requireNonNull(token);
 
         client = ClientUtils.createClient()
                 .register(new JsonProvider());
@@ -76,6 +80,7 @@ public class RemoteTaskMonitor implements TaskMonitor {
                 .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
                 .queryParam("projectFileId", projectFile.getId())
                 .request(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, token)
                 .put(Entity.text(""));
         try {
             return readEntityIfOk(response, TaskMonitor.Task.class);
@@ -92,6 +97,7 @@ public class RemoteTaskMonitor implements TaskMonitor {
                 .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
                 .resolveTemplate("taskId", id)
                 .request()
+                .header(HttpHeaders.AUTHORIZATION, token)
                 .delete();
         try {
             checkOk(response);
@@ -108,6 +114,7 @@ public class RemoteTaskMonitor implements TaskMonitor {
                 .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
                 .resolveTemplate("taskId", id)
                 .request()
+                .header(HttpHeaders.AUTHORIZATION, token)
                 .post(Entity.text(message));
         try {
             checkOk(response);
@@ -124,6 +131,7 @@ public class RemoteTaskMonitor implements TaskMonitor {
                 .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
                 .queryParam("projectId", projectId)
                 .request(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, token)
                 .get();
         try {
             return readEntityIfOk(response, Snapshot.class);

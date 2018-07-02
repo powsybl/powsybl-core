@@ -397,6 +397,11 @@ public class LocalAppStorage implements AppStorage {
     }
 
     @Override
+    public boolean isClosed() {
+        return false;
+    }
+
+    @Override
     public void close() {
         // nothing to close
     }

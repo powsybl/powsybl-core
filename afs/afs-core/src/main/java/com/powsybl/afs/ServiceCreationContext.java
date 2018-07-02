@@ -4,18 +4,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.afs.ws.server;
-
-import com.powsybl.afs.ws.server.utils.UserAuthenticator;
-import com.powsybl.afs.ws.utils.UserProfile;
+package com.powsybl.afs;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class UserAuthenticatorMock implements UserAuthenticator {
+public class ServiceCreationContext {
 
-    @Override
-    public UserProfile check(String login, String password) {
-        return new UserProfile("bat", "man");
+    private final String token;
+
+    public ServiceCreationContext(String token) {
+        this.token = token;
+    }
+
+    public String getToken() {
+        return token;
     }
 }
