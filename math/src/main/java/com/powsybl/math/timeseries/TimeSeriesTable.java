@@ -385,30 +385,34 @@ public class TimeSeriesTable {
     }
 
     private void updateStatistics(int version, int timeSeriesNum) {
+
         int statisticsIndex = getStatisticsIndex(version, timeSeriesNum);
-        if (Double.isNaN(means[statisticsIndex]) || Double.isNaN(stdDevs[statisticsIndex])) {
-            int timeSeriesOffset = getTimeSeriesOffset(version, timeSeriesNum);
-
-            double sum = 0;
-            for (int point = 0; point < tableIndex.getPointCount(); point++) {
-                double value = doubleBuffer.get(timeSeriesOffset + point);
-                if (!Double.isNaN(value)) {
-                    sum += value;
-                }
-            }
-            double mean = sum / tableIndex.getPointCount();
-            means[statisticsIndex] = mean;
-
-            double stdDev = 0;
-            for (int point = 0; point < tableIndex.getPointCount(); point++) {
-                double value = doubleBuffer.get(timeSeriesOffset + point);
-                if (!Double.isNaN(value)) {
-                    stdDev += (value - mean) * (value - mean);
-                }
-            }
-            stdDev = Math.sqrt(stdDev / (tableIndex.getPointCount() - 1));
-            stdDevs[statisticsIndex] = stdDev;
+        if (!Double.isNaN(means[statisticsIndex]) && !Double.isNaN(stdDevs[statisticsIndex])) {
+            return;
         }
+        int timeSeriesOffset = getTimeSeriesOffset(version, timeSeriesNum);
+
+        double sum = 0;
+        int nbPoints = 0;
+        for (int point = 0; point < tableIndex.getPointCount(); point++) {
+            double value = doubleBuffer.get(timeSeriesOffset + point);
+            if (!Double.isNaN(value)) {
+                sum += value;
+                nbPoints++;
+            }
+        }
+        double mean = nbPoints > 0 ? sum / nbPoints : 0;
+        means[statisticsIndex] = mean;
+
+        double stdDev = 0;
+        for (int point = 0; point < tableIndex.getPointCount(); point++) {
+            double value = doubleBuffer.get(timeSeriesOffset + point);
+            if (!Double.isNaN(value)) {
+                stdDev += (value - mean) * (value - mean);
+            }
+        }
+        stdDev = nbPoints > 1 ? Math.sqrt(stdDev / (nbPoints - 1)) : 0;
+        stdDevs[statisticsIndex] = stdDev;
     }
 
     private void updateStatistics(int version) {
