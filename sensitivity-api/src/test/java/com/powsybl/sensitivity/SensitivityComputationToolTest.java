@@ -21,13 +21,12 @@ public class SensitivityComputationToolTest extends AbstractToolTest {
 
     private static final String COMMAND_NAME = "sensitivity-computation";
 
-    private SensitivityComputationTool tool;
+    private final SensitivityComputationTool tool = new SensitivityComputationTool();
 
     @Override
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        tool = new SensitivityComputationTool();
         createFile("test.uct", "");
         createFile("test.csv", "");
     }
