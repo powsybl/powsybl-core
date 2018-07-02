@@ -795,6 +795,11 @@ public interface VoltageLevel extends Container<VoltageLevel> {
     Stream<Load> getLoadStream();
 
     /**
+     * Get switches.
+     */
+    Iterable<Switch> getSwitches();
+
+    /**
      * Get load count.
      */
     int getLoadCount();
