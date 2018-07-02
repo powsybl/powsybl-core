@@ -23,6 +23,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
 
+/**
+ * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
+ */
 public class JsonSensitivityComputationResultExporterTest extends AbstractConverterTest {
 
     private static SensitivityComputationResults create() throws IOException {

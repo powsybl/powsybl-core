@@ -10,6 +10,9 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
+/**
+ * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
+ */
 public class SensitivityComputationResultExportersTest {
 
     @Test
