@@ -6,10 +6,12 @@
  */
 package com.powsybl.afs.ws.server.utils;
 
+import com.powsybl.afs.ws.utils.UserProfile;
+
 /**
  * @author Ali Tahanout <ali.tahanout at rte-france.com>
  */
 public interface UserAuthenticator {
 
-    void check(String login, String password);
+    UserProfile check(String login, String password);
 }

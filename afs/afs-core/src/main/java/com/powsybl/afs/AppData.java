@@ -47,7 +47,11 @@ public class AppData implements AutoCloseable {
 
     private final ComputationManager longTimeExecutionComputationManager;
 
-    private final Map<String, AppFileSystem> fileSystems = new HashMap<>();
+    private Map<String, AppFileSystem> fileSystems;
+
+    private final List<AppFileSystemProvider> fileSystemProviders;
+
+    private final List<ServiceExtension> serviceExtensions;
 
     private final Map<Class<? extends File>, FileExtension> fileExtensions = new HashMap<>();
 
@@ -59,7 +63,9 @@ public class AppData implements AutoCloseable {
 
     private final Set<Class<? extends ProjectFile>> projectFileClasses = new HashSet<>();
 
-    private final Map<ServiceExtension.ServiceKey, Object> services = new HashMap<>();
+    private Map<ServiceExtension.ServiceKey, Object> services;
+
+    private SecurityTokenProvider tokenProvider = () -> null;
 
     public AppData(ComputationManager shortTimeExecutionComputationManager, ComputationManager longTimeExecutionComputationManager) {
         this(shortTimeExecutionComputationManager, longTimeExecutionComputationManager,
@@ -80,11 +86,8 @@ public class AppData implements AutoCloseable {
         Objects.requireNonNull(projectFileExtensions);
         this.shortTimeExecutionComputationManager = Objects.requireNonNull(shortTimeExecutionComputationManager);
         this.longTimeExecutionComputationManager = longTimeExecutionComputationManager;
-        for (AppFileSystemProvider provider : fileSystemProviders) {
-            for (AppFileSystem fileSystem : provider.getFileSystems(shortTimeExecutionComputationManager)) {
-                addFileSystem(fileSystem);
-            }
-        }
+        this.fileSystemProviders = Objects.requireNonNull(fileSystemProviders);
+        this.serviceExtensions = Objects.requireNonNull(serviceExtensions);
         for (FileExtension extension : fileExtensions) {
             this.fileExtensions.put(extension.getFileClass(), extension);
             this.fileExtensionsByPseudoClass.put(extension.getFilePseudoClass(), extension);
@@ -94,9 +97,6 @@ public class AppData implements AutoCloseable {
             this.projectFileExtensions.put(extension.getProjectFileBuilderClass(), extension);
             this.projectFileExtensionsByPseudoClass.put(extension.getProjectFilePseudoClass(), extension);
             this.projectFileClasses.add(extension.getProjectFileClass());
-        }
-        for (ServiceExtension extension : serviceExtensions) {
-            this.services.put(extension.getServiceKey(), extension.createService());
         }
     }
 
@@ -116,8 +116,32 @@ public class AppData implements AutoCloseable {
         return new ServiceLoaderCache<>(ServiceExtension.class).getServices();
     }
 
+    private void loadFileSystems() {
+        if (fileSystems == null) {
+            fileSystems = new HashMap<>();
+            AppFileSystemProviderContext context = new AppFileSystemProviderContext(shortTimeExecutionComputationManager, tokenProvider.getToken());
+            for (AppFileSystemProvider provider : fileSystemProviders) {
+                for (AppFileSystem fileSystem : provider.getFileSystems(context)) {
+                    fileSystem.setData(this);
+                    fileSystems.put(fileSystem.getName(), fileSystem);
+                }
+            }
+        }
+    }
+
+    private void loadServices() {
+        if (services == null) {
+            services = new HashMap<>();
+            ServiceCreationContext context = new ServiceCreationContext(tokenProvider.getToken());
+            for (ServiceExtension extension : serviceExtensions) {
+                services.put(extension.getServiceKey(), extension.createService(context));
+            }
+        }
+    }
+
     public void addFileSystem(AppFileSystem fileSystem) {
         Objects.requireNonNull(fileSystem);
+        loadFileSystems();
         if (fileSystems.containsKey(fileSystem.getName())) {
             throw new AfsException("A file system with the same name '" + fileSystem.getName() + "' already exists");
         }
@@ -129,6 +153,7 @@ public class AppData implements AutoCloseable {
      * The list of available file systems.
      */
     public Collection<AppFileSystem> getFileSystems() {
+        loadFileSystems();
         return fileSystems.values();
     }
 
@@ -137,7 +162,22 @@ public class AppData implements AutoCloseable {
      */
     public AppFileSystem getFileSystem(String name) {
         Objects.requireNonNull(name);
+        loadFileSystems();
         return fileSystems.get(name);
+    }
+
+    private void closeFileSystems() {
+        if (fileSystems != null) {
+            fileSystems.values().forEach(AppFileSystem::close);
+        }
+    }
+
+    public void setTokenProvider(SecurityTokenProvider tokenProvider) {
+        this.tokenProvider = Objects.requireNonNull(tokenProvider);
+        // clean loaded file systems and services
+        closeFileSystems();
+        fileSystems = null;
+        services = null;
     }
 
     private static String[] more(String[] path) {
@@ -146,6 +186,7 @@ public class AppData implements AutoCloseable {
 
     public Optional<Node> getNode(String pathStr) {
         Objects.requireNonNull(pathStr);
+        loadFileSystems();
         String[] path = pathStr.split(AppFileSystem.FS_SEPARATOR + AppFileSystem.PATH_SEPARATOR);
         if (path.length == 0) { // wrong file system name
             return Optional.empty();
@@ -212,6 +253,7 @@ public class AppData implements AutoCloseable {
      * Gets the list of remotely accessible file systems. Should not be used by the AFS API users.
      */
     public List<String> getRemotelyAccessibleFileSystemNames() {
+        loadFileSystems();
         return fileSystems.entrySet().stream()
                 .map(Map.Entry::getValue)
                 .filter(AppFileSystem::isRemotelyAccessible)
@@ -223,6 +265,8 @@ public class AppData implements AutoCloseable {
      * Gets low level storage interface for remotely accessible file systems. Should not be used by the AFS API users.
      */
     public ListenableAppStorage getRemotelyAccessibleStorage(String fileSystemName) {
+        Objects.requireNonNull(fileSystemName);
+        loadFileSystems();
         AppFileSystem afs = fileSystems.get(fileSystemName);
         return afs != null ? afs.getStorage() : null;
     }
@@ -235,6 +279,7 @@ public class AppData implements AutoCloseable {
      * @throws AfsException if no service implementation is found.
      */
     <U> U findService(Class<U> serviceClass, boolean remoteStorage) {
+        loadServices();
         U service = null;
         if (remoteStorage) {
             service = (U) services.get(new ServiceExtension.ServiceKey<>(serviceClass, true));
@@ -253,6 +298,6 @@ public class AppData implements AutoCloseable {
      */
     @Override
     public void close() {
-        getFileSystems().forEach(AppFileSystem::close);
+        closeFileSystems();
     }
 }

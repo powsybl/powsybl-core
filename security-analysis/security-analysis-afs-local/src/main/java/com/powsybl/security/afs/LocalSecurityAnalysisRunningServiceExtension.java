@@ -8,6 +8,7 @@ package com.powsybl.security.afs;
 
 import com.google.auto.service.AutoService;
 import com.google.common.base.Supplier;
+import com.powsybl.afs.ServiceCreationContext;
 import com.powsybl.afs.ServiceExtension;
 import com.powsybl.commons.config.ComponentDefaultConfig;
 import com.powsybl.security.SecurityAnalysisFactory;
@@ -37,7 +38,7 @@ public class LocalSecurityAnalysisRunningServiceExtension implements ServiceExte
     }
 
     @Override
-    public SecurityAnalysisRunningService createService() {
+    public SecurityAnalysisRunningService createService(ServiceCreationContext context) {
         return new LocalSecurityAnalysisRunningService(factorySupplier);
     }
 }

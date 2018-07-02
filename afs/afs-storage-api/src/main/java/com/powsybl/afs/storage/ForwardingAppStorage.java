@@ -203,6 +203,11 @@ public class ForwardingAppStorage implements AppStorage {
     }
 
     @Override
+    public boolean isClosed() {
+        return storage.isClosed();
+    }
+
+    @Override
     public void close() {
         storage.close();
     }

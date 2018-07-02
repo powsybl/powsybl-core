@@ -7,6 +7,7 @@
 package com.powsybl.afs.ext.base;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.afs.ServiceCreationContext;
 import com.powsybl.afs.ServiceExtension;
 
 /**
@@ -21,7 +22,7 @@ public class LocalNetworkCacheServiceExtension implements ServiceExtension<Netwo
     }
 
     @Override
-    public NetworkCacheService createService() {
+    public NetworkCacheService createService(ServiceCreationContext context) {
         return new LocalNetworkCacheService();
     }
 }

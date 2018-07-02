@@ -66,6 +66,8 @@ public class RemoteAppStorage implements AppStorage {
 
     private String token;
 
+    private boolean closed = false;
+
     public RemoteAppStorage(String fileSystemName, URI baseUri) {
         this(fileSystemName, baseUri, "");
     }
@@ -98,17 +100,6 @@ public class RemoteAppStorage implements AppStorage {
         }, BUFFER_MAXIMUM_CHANGE, BUFFER_MAXIMUM_SIZE);
     }
 
-    public static String createToken(URI baseUri, String login, String password) {
-        Form form = new Form();
-        form.param("login", login);
-        form.param("password", password);
-        Response response = createClient()
-                .target(baseUri).path("users").path("login")
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .post(Entity.entity(form, MediaType.APPLICATION_FORM_URLENCODED_TYPE));
-        return response.getHeaderString(HttpHeaders.AUTHORIZATION);
-    }
-
     static Client createClient() {
         return ClientUtils.createClient()
                 .register(new JsonProvider());
@@ -131,12 +122,13 @@ public class RemoteAppStorage implements AppStorage {
         return true;
     }
 
-    public static List<String> getFileSystemNames(URI baseUri) {
+    public static List<String> getFileSystemNames(URI baseUri, String token) {
         Client client = createClient();
         try {
             Response response = getWebTarget(client, baseUri)
                     .path("fileSystems")
                     .request(MediaType.APPLICATION_JSON)
+                    .header(HttpHeaders.AUTHORIZATION, token)
                     .get();
             try {
                 List<String> fileSystemNames = response.readEntity(new GenericType<List<String>>() {
@@ -518,6 +510,7 @@ public class RemoteAppStorage implements AppStorage {
                 .resolveTemplate(NODE_ID, nodeId)
                 .resolveTemplate("name", name)
                 .request(MediaType.TEXT_PLAIN)
+                .header(HttpHeaders.AUTHORIZATION, token)
                 .delete();
         try {
             return readEntityIfOk(response, Boolean.class);
@@ -830,6 +823,7 @@ public class RemoteAppStorage implements AppStorage {
                 .resolveTemplate(NODE_ID, nodeId)
                 .resolveTemplate(VERSION, version)
                 .request()
+                .header(HttpHeaders.AUTHORIZATION, token)
                 .post(Entity.json(timeSeriesNames));
         try {
             return readEntityIfOk(response, new GenericType<Map<String, List<StringArrayChunk>>>() {
@@ -886,7 +880,14 @@ public class RemoteAppStorage implements AppStorage {
     }
 
     @Override
+    public boolean isClosed() {
+        return closed;
+    }
+
+    @Override
     public void close() {
+        flush();
+        closed = true;
         client.close();
     }
 }

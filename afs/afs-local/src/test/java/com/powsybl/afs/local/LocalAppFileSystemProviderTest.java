@@ -9,6 +9,7 @@ package com.powsybl.afs.local;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.afs.AppFileSystem;
+import com.powsybl.afs.AppFileSystemProviderContext;
 import com.powsybl.afs.local.storage.LocalCaseScanner;
 import com.powsybl.afs.local.storage.LocalFileScanner;
 import com.powsybl.computation.ComputationManager;
@@ -53,7 +54,7 @@ public class LocalAppFileSystemProviderTest {
         List<AppFileSystem> fileSystems = new LocalAppFileSystemProvider(Collections.singletonList(config),
                                                                          Collections.singletonList(extension),
                                                                          Collections.emptyList())
-                .getFileSystems(computationManager);
+                .getFileSystems(new AppFileSystemProviderContext(computationManager, null));
         assertEquals(1, fileSystems.size());
         assertTrue(fileSystems.get(0) instanceof LocalAppFileSystem);
         assertEquals("drive", fileSystems.get(0).getName());

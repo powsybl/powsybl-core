@@ -68,5 +68,5 @@ public interface ServiceExtension<U> {
     /**
      * Creates the service instance.
      */
-    U createService();
+    U createService(ServiceCreationContext context);
 }
