@@ -26,8 +26,8 @@ public class SensitivityComputationToolTest extends AbstractToolTest {
     @Override
     @Before
     public void setUp() throws Exception {
-        tool = new SensitivityComputationTool();
         super.setUp();
+        tool = new SensitivityComputationTool();
         createFile("test.uct", "");
         createFile("test.csv", "");
     }

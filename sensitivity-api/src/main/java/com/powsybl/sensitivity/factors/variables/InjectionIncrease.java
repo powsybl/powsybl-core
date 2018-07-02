@@ -18,6 +18,7 @@ import java.util.Objects;
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 public class InjectionIncrease extends SensitivityVariable {
+
     @JsonProperty("injectionId")
     private final String injectionId;
     /**

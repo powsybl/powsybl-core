@@ -22,12 +22,15 @@ import static org.junit.Assert.assertEquals;
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 public class LinearGlskTest {
+
     private static final String VARIABLE_ID = "Variable ID";
     private static final String VARIABLE_NAME = "Variable name";
+
     @Rule
     public ExpectedException exception = ExpectedException.none();
 
     private Map<String, Float> glskMap;
+
     @Before
     public void setUp() {
         glskMap = new HashMap<>();

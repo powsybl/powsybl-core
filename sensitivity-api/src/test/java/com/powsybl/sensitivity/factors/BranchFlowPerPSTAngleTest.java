@@ -18,6 +18,7 @@ import static org.junit.Assert.assertSame;
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 public class BranchFlowPerPSTAngleTest {
+
     private BranchFlow branchFlow;
     private PhaseTapChangerAngle pstAngle;
     private BranchFlowPerPSTAngle factor;

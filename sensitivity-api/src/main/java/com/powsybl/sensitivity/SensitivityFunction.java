@@ -19,6 +19,7 @@ import java.util.Objects;
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
 public class SensitivityFunction {
+
     @JsonProperty("id")
     private final String id;
 

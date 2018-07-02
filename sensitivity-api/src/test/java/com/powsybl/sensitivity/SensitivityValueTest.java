@@ -17,6 +17,7 @@ import static org.junit.Assert.*;
  * @author Sebastien Murgey <sebastien.murgey at rte-france.com>
  */
 public class SensitivityValueTest {
+
     private static final double EPSILON_COMPARISON = 1e-5;
 
     @Rule

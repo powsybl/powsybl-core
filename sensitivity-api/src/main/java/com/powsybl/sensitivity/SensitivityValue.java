@@ -19,6 +19,7 @@ import java.util.Objects;
  * @see SensitivityFactor
  */
 public class SensitivityValue {
+
     @JsonProperty("factor")
     private final SensitivityFactor sensitivityFactor;
 

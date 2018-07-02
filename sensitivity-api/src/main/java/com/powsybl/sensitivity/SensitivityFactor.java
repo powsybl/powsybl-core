@@ -23,6 +23,7 @@ import java.util.Objects;
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
 public class SensitivityFactor<F extends SensitivityFunction, V extends SensitivityVariable> {
+
     @JsonProperty("function")
     private final F sensitivityFunction;
 

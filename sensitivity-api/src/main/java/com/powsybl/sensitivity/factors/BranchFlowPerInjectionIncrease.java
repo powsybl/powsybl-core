@@ -13,6 +13,7 @@ import com.powsybl.sensitivity.factors.functions.BranchFlow;
 import com.powsybl.sensitivity.factors.variables.InjectionIncrease;
 
 public class BranchFlowPerInjectionIncrease extends SensitivityFactor<BranchFlow, InjectionIncrease> {
+
     /**
      * Sensitivity factor standard implementation constructor.
      *

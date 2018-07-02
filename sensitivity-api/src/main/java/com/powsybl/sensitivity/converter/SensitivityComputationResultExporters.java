@@ -27,9 +27,6 @@ import java.util.ServiceLoader;
  */
 public final class SensitivityComputationResultExporters {
 
-    private SensitivityComputationResultExporters() {
-    }
-
     /**
      * Get all supported formats.
      *
@@ -77,5 +74,8 @@ public final class SensitivityComputationResultExporters {
         }
 
         exporter.export(result, writer);
+    }
+
+    private SensitivityComputationResultExporters() {
     }
 }

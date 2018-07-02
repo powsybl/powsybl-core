@@ -19,6 +19,7 @@ import java.util.Objects;
  * @see SensitivityVariable
  */
 public class PhaseTapChangerAngle extends SensitivityVariable {
+
     @JsonProperty("phaseTapChangerId")
     private final String phaseTapChangerHolderId;
 

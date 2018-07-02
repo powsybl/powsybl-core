@@ -16,9 +16,11 @@ import static org.junit.Assert.*;
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 public class PhaseTapChangerAngleTest {
+
     private static final String VARIABLE_ID = "Variable ID";
     private static final String VARIABLE_NAME = "Variable name";
     private static final String PHASE_TAP_CHANGER_HOLDER_ID = "Phase tap changer holder ID";
+
     @Rule
     public ExpectedException exception = ExpectedException.none();
 

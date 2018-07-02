@@ -17,8 +17,6 @@ import java.io.Writer;
 import java.util.Objects;
 
 public final class SensitivityComputationResultJsonSerializer {
-    private SensitivityComputationResultJsonSerializer() {
-    }
 
     public static SensitivityComputationResults read(Reader reader) throws IOException {
         Objects.requireNonNull(reader);
@@ -33,5 +31,8 @@ public final class SensitivityComputationResultJsonSerializer {
 
         ObjectWriter objectWriter = JsonUtil.createObjectMapper().writerWithDefaultPrettyPrinter();
         objectWriter.writeValue(writer, result);
+    }
+
+    private SensitivityComputationResultJsonSerializer() {
     }
 }

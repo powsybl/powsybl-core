@@ -19,6 +19,7 @@ import static org.junit.Assert.assertEquals;
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 public class BranchFlowPerInjectionIncreaseTest {
+
     @Rule
     public ExpectedException exception = ExpectedException.none();
 

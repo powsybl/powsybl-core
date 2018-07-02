@@ -18,6 +18,7 @@ import java.util.Objects;
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 public class BranchFlow extends SensitivityFunction {
+
     @JsonProperty("branchId")
     private final String branchId;
 

@@ -20,6 +20,7 @@ import com.powsybl.sensitivity.factors.variables.PhaseTapChangerAngle;
  * @see PhaseTapChangerAngle
  */
 public class BranchFlowPerPSTAngle extends SensitivityFactor<BranchFlow, PhaseTapChangerAngle> {
+
     /**
      * Constructor
      *

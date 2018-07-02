@@ -16,6 +16,7 @@ import static org.junit.Assert.assertEquals;
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 public class InjectionIncreaseTest {
+
     private static final String VARIABLE_ID = "Variable ID";
     private static final String VARIABLE_NAME = "Variable name";
     private static final String INJECTION_ID = "Injection ID";

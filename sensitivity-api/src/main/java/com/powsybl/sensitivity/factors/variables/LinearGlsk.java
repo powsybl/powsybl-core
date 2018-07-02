@@ -24,6 +24,7 @@ import java.util.Objects;
  * of each injection.
  */
 public class LinearGlsk extends SensitivityVariable {
+
     @JsonProperty("glskMap")
     private final Map<String, Float> glskMap;
 

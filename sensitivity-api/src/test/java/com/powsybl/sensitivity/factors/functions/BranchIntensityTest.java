@@ -16,9 +16,11 @@ import static org.junit.Assert.*;
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 public class BranchIntensityTest {
+
     private static final String FUNCTION_ID = "Function ID";
     private static final String FUNCTION_NAME = "Function name";
     private static final String BRANCH_ID = "Branch ID";
+
     @Rule
     public ExpectedException exception = ExpectedException.none();
 

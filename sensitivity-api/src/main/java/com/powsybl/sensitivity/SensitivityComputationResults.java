@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
  * @see SensitivityValue
  */
 public class SensitivityComputationResults {
+
     @JsonProperty("ok")
     private final boolean ok;
 

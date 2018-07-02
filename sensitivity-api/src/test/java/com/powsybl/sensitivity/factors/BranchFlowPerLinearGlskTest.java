@@ -21,6 +21,7 @@ import static org.junit.Assert.assertSame;
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 public class BranchFlowPerLinearGlskTest {
+
     private BranchFlow branchFlow;
     private LinearGlsk glsk;
     private BranchFlowPerLinearGlsk factor;

@@ -21,6 +21,7 @@ import java.io.Writer;
  */
 @AutoService(SensitivityComputationResultExporter.class)
 public class JsonSensitivityComputationResultExporter implements SensitivityComputationResultExporter {
+
     @Override
     public String getFormat() {
         return "JSON";
