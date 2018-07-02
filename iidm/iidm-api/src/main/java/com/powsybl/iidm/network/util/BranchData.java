@@ -251,11 +251,11 @@ public class BranchData {
     }
 
     private double computeP(double theta, double otherTheta, double alpha, double otherAlpha, double rho, double u, double g) {
-        return rho1 * rho2 * computedU1 * computedU2 * y * Math.sin(theta - otherTheta - ksi + alpha - otherAlpha) + rho * rho * u * u * (y * Math.sin(ksi) + g);
+        return rho1 * rho2 * computedU1 * computedU2 * y * Math.sin(theta - otherTheta - ksi - alpha + otherAlpha) + rho * rho * u * u * (y * Math.sin(ksi) + g);
     }
 
     private double computeQ(double theta, double otherTheta, double alpha, double otherAlpha, double rho, double u, double b) {
-        return -rho1 * rho2 * computedU1 * computedU2 * y * Math.cos(theta - otherTheta - ksi + alpha - otherAlpha) + rho * rho * u * u * (y * Math.cos(ksi) - b);
+        return -rho1 * rho2 * computedU1 * computedU2 * y * Math.cos(theta - otherTheta - ksi - alpha + otherAlpha) + rho * rho * u * u * (y * Math.cos(ksi) - b);
     }
 
     public String getId() {
