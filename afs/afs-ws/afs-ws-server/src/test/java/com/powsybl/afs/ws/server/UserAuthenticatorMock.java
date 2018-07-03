@@ -7,6 +7,7 @@
 package com.powsybl.afs.ws.server;
 
 import com.powsybl.afs.ws.server.utils.UserAuthenticator;
+import com.powsybl.afs.ws.utils.UserProfile;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -14,7 +15,7 @@ import com.powsybl.afs.ws.server.utils.UserAuthenticator;
 public class UserAuthenticatorMock implements UserAuthenticator {
 
     @Override
-    public void check(String login, String password) {
+    public UserProfile check(String login, String password) {
+        return new UserProfile("bat", "man");
     }
-
 }

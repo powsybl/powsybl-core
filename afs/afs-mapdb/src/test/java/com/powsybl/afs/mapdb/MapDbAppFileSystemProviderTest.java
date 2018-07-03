@@ -9,6 +9,7 @@ package com.powsybl.afs.mapdb;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.afs.AppFileSystem;
+import com.powsybl.afs.AppFileSystemProviderContext;
 import com.powsybl.afs.mapdb.storage.MapDbAppStorage;
 import com.powsybl.computation.ComputationManager;
 import org.junit.After;
@@ -52,7 +53,7 @@ public class MapDbAppFileSystemProviderTest {
         MapDbAppFileSystemConfig config = new MapDbAppFileSystemConfig("drive", true, dbFile);
         List<AppFileSystem> fileSystems = new MapDbAppFileSystemProvider(Collections.singletonList(config),
             (name, file) -> MapDbAppStorage.createHeap(name))
-                .getFileSystems(computationManager);
+                .getFileSystems(new AppFileSystemProviderContext(computationManager, null));
         assertEquals(1, fileSystems.size());
         assertTrue(fileSystems.get(0) instanceof MapDbAppFileSystem);
         assertEquals("drive", fileSystems.get(0).getName());
