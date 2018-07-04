@@ -50,7 +50,7 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
         if (rtc.hasLoadTapChangingCapabilities() || !Double.isNaN(rtc.getTargetV())) {
             XmlUtil.writeDouble("targetV", rtc.getTargetV(), context.getWriter());
         }
-        if (rtc.hasLoadTapChangingCapabilities() || rtc.getRegulationTerminal() != null) {
+        if ((rtc.hasLoadTapChangingCapabilities() && rtc.isRegulating()) || rtc.getRegulationTerminal() != null) {
             writeTerminalRef(rtc.getRegulationTerminal(), context, ELEM_TERMINAL_REF);
         }
         for (int p = rtc.getLowTapPosition(); p <= rtc.getHighTapPosition(); p++) {
