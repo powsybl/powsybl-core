@@ -20,9 +20,9 @@ import com.powsybl.scripting.groovy.GroovyScriptExtension
 @AutoService(GroovyScriptExtension.class)
 class LoadFlowGroovyScriptExtension implements GroovyScriptExtension {
 
-    private final Supplier<LoadFlowFactory> loadFlowFactorySupplier;
+    private final Supplier<LoadFlowFactory> loadFlowFactorySupplier
 
-    private final LoadFlowParameters parameters;
+    private final LoadFlowParameters parameters
 
     private LoadFlowGroovyScriptExtension(Supplier<LoadFlowFactory> loadFlowFactorySupplier, LoadFlowParameters parameters) {
         assert loadFlowFactorySupplier
@@ -40,15 +40,15 @@ class LoadFlowGroovyScriptExtension implements GroovyScriptExtension {
 
     LoadFlowGroovyScriptExtension() {
         this(Suppliers.memoize({ ComponentDefaultConfig.load().newFactoryImpl(LoadFlowFactory.class) }),
-             LoadFlowParameters.load());
+             LoadFlowParameters.load())
     }
 
     @Override
     void load(Binding binding, ComputationManager computationManager) {
         binding.loadFlow = { Network network, LoadFlowParameters parameters = this.parameters ->
             LoadFlowFactory loadFlowFactory = loadFlowFactorySupplier.get()
-            LoadFlow loadFlow = loadFlowFactory.create(network, computationManager, 0);
-            loadFlow.run(parameters)
+            LoadFlow loadFlow = loadFlowFactory.create(network, computationManager, 0)
+            loadFlow.run(network.getStateManager().getWorkingStateId(), parameters).join()
         }
     }
 }

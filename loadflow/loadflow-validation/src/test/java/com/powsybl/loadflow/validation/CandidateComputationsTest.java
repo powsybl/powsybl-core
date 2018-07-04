@@ -109,17 +109,6 @@ public class CandidateComputationsTest {
             return new LoadFlow() {
 
                 @Override
-                public LoadFlowResult run(LoadFlowParameters parameters) throws Exception {
-                    return null;
-                }
-
-                @Override
-                public CompletableFuture<LoadFlowResult> runAsync(String workingStateId, LoadFlowParameters parameters) {
-                    network.getGenerator("GEN").getTerminal().setP(92f);
-                    return CompletableFuture.completedFuture(new LoadFlowResultImpl(true, Collections.emptyMap(), ""));
-                }
-
-                @Override
                 public String getName() {
                     return "loadflow-mock";
                 }
@@ -128,13 +117,19 @@ public class CandidateComputationsTest {
                 public String getVersion() {
                     return null;
                 }
+
+                @Override
+                public CompletableFuture<LoadFlowResult> run(String workingStateId, LoadFlowParameters parameters) {
+                    network.getGenerator("GEN").getTerminal().setP(92f);
+                    return CompletableFuture.completedFuture(new LoadFlowResultImpl(true, Collections.emptyMap(), ""));
+                }
             };
         }
     }
 
 
     @Test
-    public void runLoadFlowMock() throws Exception {
+    public void runLoadFlowMock() {
 
         platformConfig.createModuleConfig("loadflow-validation").setClassProperty("load-flow-factory", LoadFlowFactoryMock.class);
 

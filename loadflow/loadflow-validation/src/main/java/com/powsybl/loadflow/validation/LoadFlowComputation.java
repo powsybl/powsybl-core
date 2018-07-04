@@ -62,7 +62,7 @@ public class LoadFlowComputation implements CandidateComputation {
 
         LoadFlowParameters parameters = LoadFlowParameters.load();
         LoadFlow loadFlow = getLoadFlowFactory().create(network, computationManager, 0);
-        loadFlow.runAsync(StateManagerConstants.INITIAL_STATE_ID, parameters)
+        loadFlow.run(StateManagerConstants.INITIAL_STATE_ID, parameters)
                 .thenAccept(loadFlowResult -> {
                     if (!loadFlowResult.isOk()) {
                         throw new PowsyblException("Loadflow on network " + network.getId() + " does not converge");

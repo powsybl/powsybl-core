@@ -161,7 +161,7 @@ public class RunLoadFlowTool implements Tool {
             JsonLoadFlowParameters.update(params, parametersFile);
         }
 
-        LoadFlowResult result = loadFlow.run(params);
+        LoadFlowResult result = loadFlow.run(network.getStateManager().getWorkingStateId(), params).join();
 
         if (outputFile != null) {
             exportResult(result, context, outputFile, format);
