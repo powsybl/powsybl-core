@@ -87,6 +87,7 @@
         <maven.coveralls.version>4.3.0</maven.coveralls.version>
         <maven.dependency.version>3.1.1</maven.dependency.version>
         <maven.deploy.version>2.8.2</maven.deploy.version>
+        <maven.enforcer.version>3.0.0-M2</maven.enforcer.version>
         <maven.findbugs.version>3.0.5</maven.findbugs.version>
         <maven.gpg.version>1.6</maven.gpg.version>
         <maven.jacoco.version>0.8.1</maven.jacoco.version>
@@ -370,6 +371,25 @@
                                     <failsOnError>true</failsOnError>
                                     <excludes>**/generated/**/*,cim1/**</excludes>
                                     <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-enforcer-plugin</artifactId>
+                        <version>${maven.enforcer.version}</version>
+                        <executions>
+                            <execution>
+                                <phase>validate</phase>
+                                <goals>
+                                    <goal>enforce</goal>
+                                </goals>
+                                <configuration>
+                                    <fail>false</fail>
+                                    <rules>
+                                        <dependencyConvergence/>
+                                    </rules>
                                 </configuration>
                             </execution>
                         </executions>
