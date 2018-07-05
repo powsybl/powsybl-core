@@ -50,7 +50,7 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
         if (rtc.hasLoadTapChangingCapabilities() || !Double.isNaN(rtc.getTargetV())) {
             XmlUtil.writeDouble("targetV", rtc.getTargetV(), context.getWriter());
         }
-        if ((rtc.hasLoadTapChangingCapabilities() && rtc.isRegulating()) || rtc.getRegulationTerminal() != null) {
+        if (rtc.getRegulationTerminal() != null) {
             writeTerminalRef(rtc.getRegulationTerminal(), context, ELEM_TERMINAL_REF);
         }
         for (int p = rtc.getLowTapPosition(); p <= rtc.getHighTapPosition(); p++) {
@@ -129,7 +129,7 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
         if (ptc.getRegulationMode() != PhaseTapChanger.RegulationMode.FIXED_TAP || ptc.isRegulating()) {
             context.getWriter().writeAttribute(ATTR_REGULATING, Boolean.toString(ptc.isRegulating()));
         }
-        if (ptc.getRegulationMode() != PhaseTapChanger.RegulationMode.FIXED_TAP || ptc.getRegulationTerminal() != null) {
+        if (ptc.getRegulationTerminal() != null) {
             writeTerminalRef(ptc.getRegulationTerminal(), context, ELEM_TERMINAL_REF);
         }
         for (int p = ptc.getLowTapPosition(); p <= ptc.getHighTapPosition(); p++) {
