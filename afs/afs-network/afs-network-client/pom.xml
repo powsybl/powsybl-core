@@ -23,6 +23,7 @@
     <description>Network cache AFS client</description>
 
     <dependencies>
+        <!-- Compilation dependencies -->
         <dependency>
             <groupId>org.glassfish.tyrus</groupId>
             <artifactId>tyrus-client</artifactId>
@@ -49,6 +50,14 @@
             <artifactId>powsybl-afs-ws-utils</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <!-- Test dependencies -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
 </project>
