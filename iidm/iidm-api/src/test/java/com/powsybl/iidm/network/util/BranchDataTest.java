@@ -96,8 +96,8 @@ public class BranchDataTest {
         // At end2 (generator, slack bus) the mismatch should be small
         // generator injection in P and Q are provided with low precision
         // (P with 10e-2, Q with 10e-4)
-        LOG.info("");
-        LOG.info("Balance at ends of parallel branches " + pline.getId() + ", " + ppst.getId());
+        LOG.debug("");
+        LOG.debug("Balance at ends of parallel branches " + pline.getId() + ", " + ppst.getId());
         Flow line1 = flow(pline, Side.ONE);
         Flow line2 = flow(pline, Side.TWO);
         Flow pst1 = flow(ppst, Side.ONE);
@@ -129,9 +129,9 @@ public class BranchDataTest {
         BranchData pline = piModelFlows(line);
         BranchData ppst = piModelFlows(pst);
 
-        LOG.info("");
-        LOG.info("Balance at ends of parallel branches " + pline.getId() + ", " + ppst.getId());
-        LOG.info("After moving phase shifter to side 1");
+        LOG.debug("");
+        LOG.debug("Balance at ends of parallel branches " + pline.getId() + ", " + ppst.getId());
+        LOG.debug("After moving phase shifter to side 1");
         Flow line1 = flow(pline, Side.ONE);
         Flow line2 = flow(pline, Side.TWO);
         Flow pst1 = flow(ppst, Side.ONE);
@@ -142,15 +142,15 @@ public class BranchDataTest {
 
     private void checkTestCase(BranchTestCase t) {
         BranchData b = piModelFlows(t);
-        LOG.info("");
-        LOG.info("Results for " + b.getId());
-        LOG.info(String.format("   end1 computed = %14.6f  %14.6f",
+        LOG.debug("");
+        LOG.debug("Results for " + b.getId());
+        LOG.debug(String.format("   end1 computed = %14.6f  %14.6f",
                 b.getComputedP1(),
                 b.getComputedQ1()));
-        LOG.info(String.format("   end1 expected = %14.6f  %14.6f",
+        LOG.debug(String.format("   end1 expected = %14.6f  %14.6f",
                 t.expectedFlow1.p,
                 t.expectedFlow1.q));
-        LOG.info(String.format("   end1 diff     = %14.6f  %14.6f",
+        LOG.debug(String.format("   end1 diff     = %14.6f  %14.6f",
                 Math.abs(t.expectedFlow1.p - b.getComputedP1()),
                 Math.abs(t.expectedFlow1.q - b.getComputedQ1())));
         assertEquals(t.expectedFlow1.p, b.getComputedP1(), t.config.tolerance);
@@ -211,12 +211,12 @@ public class BranchDataTest {
     }
 
     private void logBusBalance(String title, Flow... flows) {
-        LOG.info(title);
+        LOG.debug(title);
         for (Flow f : flows) {
-            LOG.info(String.format("    %12.6f  %12.6f  %s", f.p, f.q, f.id));
+            LOG.debug(String.format("    %12.6f  %12.6f  %s", f.p, f.q, f.id));
         }
         Flow sum = sum(flows);
-        LOG.info(String.format("    %12.6f  %12.6f  %s", sum.p, sum.q, sum.id));
+        LOG.debug(String.format("    %12.6f  %12.6f  %s", sum.p, sum.q, sum.id));
     }
 
     private Flow sum(Flow... flows) {
