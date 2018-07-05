@@ -27,7 +27,7 @@
     </build>
 
     <dependencies>
-        <!-- Compile dependencies -->
+        <!-- Compilation dependencies -->
         <dependency>
             <groupId>javax</groupId>
             <artifactId>javaee-api</artifactId>
@@ -44,6 +44,13 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-afs-ws-server-utils</artifactId>
             <version>${project.version}</version>
+        </dependency>
+
+        <!-- Test dependencies -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
