@@ -24,7 +24,7 @@
     <!-- include scripts, log configurations and binaries, if available -->
     <fileSets>
         <fileSet>
-            <directory>${project.basedir}/../scripts</directory>
+            <directory>${project.basedir}/../itools-plugin/src/main/resources</directory>
             <outputDirectory>bin</outputDirectory>
             <includes>
                 <include>*</include>

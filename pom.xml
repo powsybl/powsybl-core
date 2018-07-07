@@ -63,6 +63,7 @@
         <module>distribution-core</module>
         <module>entsoe-util</module>
         <module>iidm</module>
+        <module>itools-plugin</module>
         <module>loadflow</module>
         <module>math</module>
         <module>scripting</module>
