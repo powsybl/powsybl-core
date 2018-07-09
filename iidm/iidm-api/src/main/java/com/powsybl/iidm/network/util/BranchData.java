@@ -6,12 +6,15 @@
  */
 package com.powsybl.iidm.network.util;
 
+import java.util.Objects;
+
+import org.apache.commons.math3.complex.Complex;
+import org.apache.commons.math3.complex.ComplexUtils;
+
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.TwoTerminalsConnectable.Side;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
-
-import java.util.Objects;
 
 /**
  *
@@ -23,6 +26,9 @@ public class BranchData {
 
     private final double r;
     private final double x;
+    // If we use complex numbers for the calculation of branch flows
+    // we do not need to compute z, y, ksi
+    // these attributes could be removed
     private final double z;
     private final double y;
     private final double ksi;
@@ -227,37 +233,55 @@ public class BranchData {
     }
 
     private void computeValues() {
-        computedU1 = connected1 || !connected2 ? u1 : computeU(u2, rho1, rho2, g1, b1);
-        computedU2 = connected2 || !connected1 ? u2 : computeU(u1, rho2, rho1, g2, b2);
-        computedTheta1 = connected1 || !connected2 ? theta1 : computeTheta(theta2, alpha1, alpha2, computedU1, computedU2, rho1, rho2, g1, b1);
-        computedTheta2 = connected2 || !connected1 ? theta2 : computeTheta(theta1, alpha2, alpha1, computedU2, computedU1, rho2, rho1, g2, b2);
-        computedP1 = connected1 ? computeP(computedTheta1, computedTheta2, alpha1, alpha2, rho1, computedU1, g1) : Double.NaN;
-        computedQ1 = connected1 ? computeQ(computedTheta1, computedTheta2, alpha1, alpha2, rho1, computedU1, b1) : Double.NaN;
-        computedP2 = connected2 ? computeP(computedTheta2, computedTheta1, alpha2, alpha1, rho2, computedU2, g2) : Double.NaN;
-        computedQ2 = connected2 ? computeQ(computedTheta2, computedTheta1, alpha2, alpha1, rho2, computedU2, b2) : Double.NaN;
-    }
+        Complex ytr = new Complex(r, x).reciprocal();
+        Complex y1 = new Complex(g1, b1);
+        Complex y2 = new Complex(g2, b2);
+        Complex a1 = ComplexUtils.polar2Complex(1 / rho1, -alpha1);
+        Complex a2 = ComplexUtils.polar2Complex(1 / rho2, -alpha2);
+        Complex a1cc = a1.conjugate();
+        Complex a2cc = a2.conjugate();
 
-    private double computeU(double otherU, double rho, double otherRho, double g, double b) {
-        double z1 = y * Math.sin(ksi) + g;
-        double z2 = y * Math.cos(ksi) - b;
-        return 1 / Math.sqrt(z1 * z1 + z2 * z2) * (otherRho / rho) * y * otherU;
-    }
+        // If one of the ends is disconnected,
+        // compute the voltage at the disconnected end
+        if (connected1 || !connected2) {
+            computedU1 = u1;
+            computedTheta1 = theta1;
+        } else {
+            Complex v2 = ComplexUtils.polar2Complex(u2, theta2);
+            Complex v1 = v2.multiply(ytr.divide(a1cc.multiply(a2)).multiply(a1cc.multiply(a1).divide(ytr.add(y1))));
+            computedU1 = v1.abs();
+            computedTheta1 = v1.getArgument();
+        }
+        if (connected2 || !connected1) {
+            computedU2 = u2;
+            computedTheta2 = theta2;
+        } else {
+            Complex v1 = ComplexUtils.polar2Complex(u1, theta1);
+            Complex v2 = v1.multiply(ytr.divide(a2cc.multiply(a1)).multiply(a2cc.multiply(a2).divide(ytr.add(y2))));
+            computedU2 = v2.abs();
+            computedTheta2 = v2.getArgument();
+        }
 
-    private double computeTheta(double otherTheta, double alpha, double otherAlpha, double u, double otherU,
-                                double rho, double otherRho, double g, double b) {
-        double z1 = y * Math.sin(ksi) + g;
-        double z2 = y * Math.cos(ksi) - b;
-        double phi = -(-otherTheta - ksi + alpha - otherAlpha);
-        double cosThetaMinusPhi = rho / otherRho * u / otherU * (Math.cos(ksi) - b / y);
-        return Math.atan(-z1 / z2) + phi + (cosThetaMinusPhi < 0 ? Math.PI : 0);
-    }
+        Complex v1 = ComplexUtils.polar2Complex(computedU1, computedTheta1);
+        Complex v2 = ComplexUtils.polar2Complex(computedU2, computedTheta2);
 
-    private double computeP(double theta, double otherTheta, double alpha, double otherAlpha, double rho, double u, double g) {
-        return rho1 * rho2 * computedU1 * computedU2 * y * Math.sin(theta - otherTheta - ksi + alpha - otherAlpha) + rho * rho * u * u * (y * Math.sin(ksi) + g);
-    }
+        // Optimization: .divide(a1.multiply(a1.conjugate())) == .multiply(rho1 * rho1)
+        Complex y11 = ytr.add(y1).multiply(rho1 * rho1);
+        Complex y12 = ytr.negate().divide(a1cc.multiply(a2));
+        // Optimization: .divide(a2.multiply(a2.conjugate())) == .multiply(rho2 * rho2)
+        Complex y22 = ytr.add(y2).multiply(rho2 * rho2);
+        Complex y21 = ytr.negate().divide(a1.multiply(a2cc));
 
-    private double computeQ(double theta, double otherTheta, double alpha, double otherAlpha, double rho, double u, double b) {
-        return -rho1 * rho2 * computedU1 * computedU2 * y * Math.cos(theta - otherTheta - ksi + alpha - otherAlpha) + rho * rho * u * u * (y * Math.cos(ksi) - b);
+        Complex i12 = y11.multiply(v1).add(y12.multiply(v2));
+        Complex i21 = y22.multiply(v2).add(y21.multiply(v1));
+
+        Complex s1 = i12.conjugate().multiply(v1);
+        Complex s2 = i21.conjugate().multiply(v2);
+
+        computedP1 = connected1 ? s1.getReal() : Double.NaN;
+        computedQ1 = connected1 ? s1.getImaginary() : Double.NaN;
+        computedP2 = connected2 ? s2.getReal() : Double.NaN;
+        computedQ2 = connected2 ? s2.getImaginary() : Double.NaN;
     }
 
     public String getId() {
