@@ -23,8 +23,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.mockito.Mockito;
 
-import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -46,7 +46,7 @@ public abstract class AbstractLoadFlowRulesEngineTest {
     protected abstract String getDslFile();
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         network = createNetwork();
         ComputationManager computationManager = Mockito.mock(ComputationManager.class);
         LoadFlow loadFlow = Mockito.mock(LoadFlow.class);
@@ -57,8 +57,8 @@ public abstract class AbstractLoadFlowRulesEngineTest {
         Mockito.when(loadFlowResult.isOk())
                 .thenReturn(true);
         Mockito.when(loadFlow.getName()).thenReturn("load flow mock");
-        Mockito.when(loadFlow.run(Mockito.any()))
-                .thenReturn(loadFlowResult);
+        Mockito.when(loadFlow.run(Mockito.anyString(), Mockito.any()))
+                .thenReturn(CompletableFuture.completedFuture(loadFlowResult));
         LoadFlowActionSimulatorObserver observer = createObserver();
         GroovyCodeSource src = new GroovyCodeSource(new InputStreamReader(getClass().getResourceAsStream(getDslFile())), "test", GroovyShell.DEFAULT_CODE_BASE);
         actionDb = new ActionDslLoader(src).load(network);
@@ -76,7 +76,7 @@ public abstract class AbstractLoadFlowRulesEngineTest {
     }
 
     @After
-    public void tearDown() throws IOException {
+    public void tearDown() {
     }
 
 }

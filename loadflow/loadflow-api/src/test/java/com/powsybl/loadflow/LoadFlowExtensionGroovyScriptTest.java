@@ -7,6 +7,8 @@
 package com.powsybl.loadflow;
 
 import com.powsybl.computation.ComputationManager;
+import com.powsybl.iidm.network.StateManager;
+import com.powsybl.iidm.network.StateManagerConstants;
 import com.powsybl.scripting.groovy.AbstractGroovyScriptTest;
 import com.powsybl.scripting.groovy.GroovyScriptExtension;
 import com.powsybl.iidm.network.Network;
@@ -17,6 +19,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -36,16 +39,23 @@ public class LoadFlowExtensionGroovyScriptTest extends AbstractGroovyScriptTest 
         Mockito.when(result.isOk())
                 .thenReturn(true);
         LoadFlow loadFlow = Mockito.mock(LoadFlow.class);
-        Mockito.when(loadFlow.run(Mockito.any()))
-                .thenReturn(result);
+        Mockito.when(loadFlow.run(Mockito.anyString(), Mockito.any()))
+                .thenReturn(CompletableFuture.completedFuture(result));
         loadFlowFactory = Mockito.mock(LoadFlowFactory.class);
         Mockito.when(loadFlowFactory.create(Mockito.any(Network.class), Mockito.any(ComputationManager.class), Mockito.anyInt()))
                 .thenReturn(loadFlow);
+
+        // create state manager
+        StateManager stateManager = Mockito.mock(StateManager.class);
+        Mockito.when(stateManager.getWorkingStateId())
+                .thenReturn(StateManagerConstants.INITIAL_STATE_ID);
 
         // create network mock
         fooNetwork = Mockito.mock(Network.class);
         Mockito.when(fooNetwork.getId())
                 .thenReturn("test");
+        Mockito.when(fooNetwork.getStateManager())
+                .thenReturn(stateManager);
     }
 
     @Override

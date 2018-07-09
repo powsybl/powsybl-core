@@ -6,15 +6,14 @@
  */
 package com.powsybl.loadflow.mock;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.LoadFlowResult;
+import com.powsybl.loadflow.LoadFlowResultImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -22,6 +21,7 @@ import java.util.concurrent.CompletableFuture;
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
 class LoadFlowMock implements LoadFlow {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(LoadFlowMock.class);
 
     @Override
@@ -35,39 +35,9 @@ class LoadFlowMock implements LoadFlow {
     }
 
     @Override
-    public LoadFlowResult run() throws Exception {
-        return run(null);
-    }
-
-    @Override
-    public LoadFlowResult run(LoadFlowParameters parameters) throws Exception {
+    public CompletableFuture<LoadFlowResult> run(String workingStateId, LoadFlowParameters parameters) {
         LOGGER.warn("Running loadflow mock");
 
-        return new LoadFlowResult() {
-
-            @Override
-            public boolean isOk() {
-                return true;
-            }
-
-            @Override
-            public Map<String, String> getMetrics() {
-                return Collections.emptyMap();
-            }
-
-            @Override
-            public String getLogs() {
-                return "";
-            }
-        };
+        return CompletableFuture.completedFuture(new LoadFlowResultImpl(true, Collections.emptyMap(), ""));
     }
-
-    @Override
-    public CompletableFuture<LoadFlowResult> runAsync(String workingStateId, LoadFlowParameters parameters) {
-        try {
-            return CompletableFuture.completedFuture(run(parameters));
-        } catch (Exception e) {
-            throw new PowsyblException(e);
-        }
-    }
-};
+}

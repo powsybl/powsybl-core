@@ -6,6 +6,7 @@
  */
 package com.powsybl.loadflow;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.Versionable;
 
 import java.util.concurrent.CompletableFuture;
@@ -16,7 +17,13 @@ import java.util.concurrent.CompletableFuture;
  */
 public interface LoadFlow extends Versionable {
 
-    LoadFlowResult run(LoadFlowParameters parameters) throws Exception;
+    /**
+     * @deprecated Use CompletableFuture<LoadFlowResult> run(String workingStateId, LoadFlow
+     */
+    @Deprecated
+    default LoadFlowResult run(LoadFlowParameters parameters) throws Exception {
+        throw new UnsupportedOperationException("deprecated");
+    }
 
     /**
      * @deprecated Use LoadFlowResult run(LoadFlowParameters parameters) instead
@@ -26,8 +33,19 @@ public interface LoadFlow extends Versionable {
         throw new UnsupportedOperationException("deprecated");
     }
 
+    /**
+     * @deprecated Use CompletableFuture<LoadFlowResult> run(String workingStateId, LoadFlow
+     */
+    @Deprecated
     default CompletableFuture<LoadFlowResult> runAsync(String workingStateId, LoadFlowParameters parameters) {
-        throw new UnsupportedOperationException();
+        return run(workingStateId, parameters);
     }
 
+    default CompletableFuture<LoadFlowResult> run(String workingStateId, LoadFlowParameters parameters) {
+        try {
+            return CompletableFuture.completedFuture(run(parameters));
+        } catch (Exception e) {
+            throw new PowsyblException(e);
+        }
+    }
 }

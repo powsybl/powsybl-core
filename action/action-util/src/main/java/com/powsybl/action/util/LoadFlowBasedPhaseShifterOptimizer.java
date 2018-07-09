@@ -42,9 +42,9 @@ public class LoadFlowBasedPhaseShifterOptimizer implements PhaseShifterOptimizer
         this(computationManager, LoadFlowBasedPhaseShifterOptimizerConfig.load());
     }
 
-    private void runLoadFlow(LoadFlow loadFlow) {
+    private void runLoadFlow(LoadFlow loadFlow, String workingStateId) {
         try {
-            LoadFlowResult result = loadFlow.run(LoadFlowParameters.load());
+            LoadFlowResult result = loadFlow.run(workingStateId, LoadFlowParameters.load()).join();
             if (!result.isOk()) {
                 throw new PowsyblException("Load flow diverged during phase shifter optimization");
             }
@@ -81,7 +81,7 @@ public class LoadFlowBasedPhaseShifterOptimizer implements PhaseShifterOptimizer
             network.getStateManager().setWorkingState(tmpStateId);
             LoadFlowFactory loadFlowFactory = config.getLoadFlowFactoryClass().newInstance();
             LoadFlow loadFlow = loadFlowFactory.create(network, computationManager, 0);
-            runLoadFlow(loadFlow);
+            runLoadFlow(loadFlow, tmpStateId);
             if (phaseShifter.getTerminal1().getI() >= phaseShifter.getCurrentLimits1().getPermanentLimit()) {
                 throw new PowsyblException("Phase shifter already overloaded");
             }
@@ -98,7 +98,7 @@ public class LoadFlowBasedPhaseShifterOptimizer implements PhaseShifterOptimizer
                 phaseShifter.getPhaseTapChanger().setTapPosition(tapPos);
 
                 // run load flow
-                runLoadFlow(loadFlow);
+                runLoadFlow(loadFlow, tmpStateId);
 
                 // wrong direction, negate the increment
                 if (getI(phaseShifter) < i) {
@@ -116,7 +116,7 @@ public class LoadFlowBasedPhaseShifterOptimizer implements PhaseShifterOptimizer
                 phaseShifter.getPhaseTapChanger().setTapPosition(optimalTap);
 
                 // just to be sure, check that with the previous tap, phase shifter is not overloaded...
-                runLoadFlow(loadFlow);
+                runLoadFlow(loadFlow, tmpStateId);
                 // check there phase shifter is not overloaded
                 if (getI(phaseShifter) >= limit) {
                     throw new AssertionError("Phase shifter should not be overload");

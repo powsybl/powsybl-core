@@ -87,7 +87,7 @@ public class SecurityAnalysisImpl implements SecurityAnalysis {
         // start post contingency LF from pre-contingency state variables
         LoadFlowParameters postContParameters = loadFlowParameters.copy().setVoltageInitMode(LoadFlowParameters.VoltageInitMode.PREVIOUS_VALUES);
 
-        return loadFlow.runAsync(workingStateId, loadFlowParameters) // run base load flow
+        return loadFlow.run(workingStateId, loadFlowParameters) // run base load flow
                 .thenComposeAsync(loadFlowResult -> {
                     network.getStateManager().setWorkingState(workingStateId);
 
@@ -124,7 +124,7 @@ public class SecurityAnalysisImpl implements SecurityAnalysis {
                                             return null;
                                         }
                                     }, computationManager.getExecutor())
-                                    .thenComposeAsync(aVoid -> loadFlow.runAsync(postContStateId, postContParameters), computationManager.getExecutor())
+                                    .thenComposeAsync(aVoid -> loadFlow.run(postContStateId, postContParameters), computationManager.getExecutor())
                                     .handleAsync(new BiFunction<LoadFlowResult, Throwable, Void>() {
                                         @Override
                                         public Void apply(LoadFlowResult loadFlowResult, Throwable throwable) {
