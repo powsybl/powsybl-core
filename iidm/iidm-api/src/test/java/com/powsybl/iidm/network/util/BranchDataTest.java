@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.TwoTerminalsConnectable.Side;
 public class BranchDataTest {
 
     // Some tests for a transmission line disconnected at one end
-    
+
     @Test
     public void testDanglingLine() {
         BranchTestCase t = lineEnd2Disconnected();
@@ -111,7 +111,7 @@ public class BranchDataTest {
     }
 
     // Test cases related to ENTSO-E CASv2.0 test configuration ENTSOE_LoadFlowExplicit
-    // There are two parallel branches between a generator and a load bus: 
+    // There are two parallel branches between a generator and a load bus:
     // a transmission line and a phase shift transformer
 
     @Test
