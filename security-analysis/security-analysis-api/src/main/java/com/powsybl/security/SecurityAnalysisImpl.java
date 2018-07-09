@@ -14,15 +14,12 @@ import com.powsybl.iidm.network.StateManagerConstants;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowFactory;
 import com.powsybl.loadflow.LoadFlowParameters;
-import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.interceptors.CurrentLimitViolationInterceptor;
 import com.powsybl.security.interceptors.RunningContext;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.BiFunction;
-import java.util.function.Supplier;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -70,10 +67,10 @@ public class SecurityAnalysisImpl implements SecurityAnalysis {
     }
 
     @Override
-    public CompletableFuture<SecurityAnalysisResult> runAsync(ContingenciesProvider contingenciesProvider, String workingStateId, SecurityAnalysisParameters securityAnalysisParameters) {
-        Objects.requireNonNull(contingenciesProvider);
+    public CompletableFuture<SecurityAnalysisResult> run(String workingStateId, SecurityAnalysisParameters securityAnalysisParameters, ContingenciesProvider contingenciesProvider) {
         Objects.requireNonNull(workingStateId);
         Objects.requireNonNull(securityAnalysisParameters);
+        Objects.requireNonNull(contingenciesProvider);
 
         LoadFlowParameters loadFlowParameters = securityAnalysisParameters.getLoadFlowParameters();
 
@@ -112,34 +109,27 @@ public class SecurityAnalysisImpl implements SecurityAnalysis {
 
                             // run one loadflow per contingency
                             futures[i] = CompletableFuture
-                                    .supplyAsync(new Supplier<Void>() {
-                                        @Override
-                                        public Void get() {
-                                            network.getStateManager().cloneState(StateManagerConstants.INITIAL_STATE_ID, postContStateId);
-                                            network.getStateManager().setWorkingState(postContStateId);
+                                    .supplyAsync(() -> {
+                                        network.getStateManager().cloneState(StateManagerConstants.INITIAL_STATE_ID, postContStateId);
+                                        network.getStateManager().setWorkingState(postContStateId);
 
-                                            // apply the contingency on the network
-                                            contingency.toTask().modify(network, computationManager);
+                                        // apply the contingency on the network
+                                        contingency.toTask().modify(network, computationManager);
 
-                                            return null;
-                                        }
+                                        return null;
                                     }, computationManager.getExecutor())
                                     .thenComposeAsync(aVoid -> loadFlow.run(postContStateId, postContParameters), computationManager.getExecutor())
-                                    .handleAsync(new BiFunction<LoadFlowResult, Throwable, Void>() {
-                                        @Override
-                                        public Void apply(LoadFlowResult loadFlowResult, Throwable throwable) {
-                                            network.getStateManager().setWorkingState(postContStateId);
+                                    .handleAsync((lfResult, throwable) -> {
+                                        network.getStateManager().setWorkingState(postContStateId);
 
-                                            PostContingencyResult postContingencyResult =
-                                                new PostContingencyResult(contingency, loadFlowResult.isOk(), checkLimits(network));
-                                            postContingencyResults.add(postContingencyResult);
+                                        PostContingencyResult postContingencyResult = new PostContingencyResult(contingency, lfResult.isOk(), checkLimits(network));
+                                        postContingencyResults.add(postContingencyResult);
 
-                                            interceptors.forEach(o -> o.onPostContingencyResult(context, postContingencyResult));
+                                        interceptors.forEach(o -> o.onPostContingencyResult(context, postContingencyResult));
 
-                                            network.getStateManager().removeState(postContStateId);
+                                        network.getStateManager().removeState(postContStateId);
 
-                                            return null;
-                                        }
+                                        return null;
                                     }, computationManager.getExecutor());
                         }
                     } else {

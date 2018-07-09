@@ -14,7 +14,6 @@ import com.powsybl.contingency.ContingenciesProviderFactory;
 import com.powsybl.contingency.EmptyContingencyListProvider;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.StateManagerConstants;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 
 import java.io.InputStream;
@@ -28,11 +27,6 @@ import java.util.Set;
  * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
  */
 public class SecurityAnalyzer {
-
-    public enum Format {
-        CSV,
-        JSON
-    }
 
     private final LimitViolationFilter filter;
 
@@ -107,6 +101,6 @@ public class SecurityAnalyzer {
         SecurityAnalysis securityAnalysis = securityAnalysisFactory.create(network, filter, computationManager, priority);
         interceptors.forEach(securityAnalysis::addInterceptor);
 
-        return securityAnalysis.runAsync(contingenciesProvider, StateManagerConstants.INITIAL_STATE_ID, parameters).join();
+        return securityAnalysis.run(network.getStateManager().getWorkingStateId(), parameters, contingenciesProvider).join();
     }
 }
