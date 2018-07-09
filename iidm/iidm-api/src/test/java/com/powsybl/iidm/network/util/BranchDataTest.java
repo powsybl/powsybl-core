@@ -226,7 +226,7 @@ public class BranchDataTest {
         t.branch.end2.tap.alpha = Math.toRadians(-3.77605);
         return t;
     };
-    
+
     // Voltage and angle for bus 1 have been taken from Excel documentation
     // with much more precision that the one found in SV data files
     private double cas2EntsoeLoadFLowExplicitU1() {
@@ -236,7 +236,7 @@ public class BranchDataTest {
     private double cas2EntsoeLoadFLowExplicitTheta1() {
         return -2.717121983205;
     }
-    
+
     private Flow cas2EntsoeLoadFlowExplicitLoad() {
         Flow f = new Flow();
         f.id = "Load";
