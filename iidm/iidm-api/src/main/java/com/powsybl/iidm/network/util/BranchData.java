@@ -50,6 +50,8 @@ public class BranchData {
 
     private double computedU1;
     private double computedU2;
+    private double computedTheta1;
+    private double computedTheta2;
     private double computedP1;
     private double computedQ1;
     private double computedP2;
@@ -227,8 +229,8 @@ public class BranchData {
     private void computeValues() {
         computedU1 = connected1 || !connected2 ? u1 : computeU(u2, rho1, rho2, g1, b1);
         computedU2 = connected2 || !connected1 ? u2 : computeU(u1, rho2, rho1, g2, b2);
-        double computedTheta1 = connected1 || !connected2 ? theta1 : computeTheta(theta2, alpha1, alpha2, computedU1, computedU2, rho1, rho2, g1, b1);
-        double computedTheta2 = connected2 || !connected1 ? theta2 : computeTheta(theta1, alpha2, alpha1, computedU2, computedU1, rho2, rho1, g2, b2);
+        computedTheta1 = connected1 || !connected2 ? theta1 : computeTheta(theta2, alpha1, alpha2, computedU1, computedU2, rho1, rho2, g1, b1);
+        computedTheta2 = connected2 || !connected1 ? theta2 : computeTheta(theta1, alpha2, alpha1, computedU2, computedU1, rho2, rho1, g2, b2);
         computedP1 = connected1 ? computeP(computedTheta1, computedTheta2, alpha1, alpha2, rho1, computedU1, g1) : Double.NaN;
         computedQ1 = connected1 ? computeQ(computedTheta1, computedTheta2, alpha1, alpha2, rho1, computedU1, b1) : Double.NaN;
         computedP2 = connected2 ? computeP(computedTheta2, computedTheta1, alpha2, alpha1, rho2, computedU2, g2) : Double.NaN;
@@ -360,6 +362,22 @@ public class BranchData {
 
     public double getQ2() {
         return q2;
+    }
+
+    public double getComputedU1() {
+        return computedU1;
+    }
+
+    public double getComputedTheta1() {
+        return computedTheta1;
+    }
+
+    public double getComputedU2() {
+        return computedU2;
+    }
+
+    public double getComputedTheta2() {
+        return computedTheta2;
     }
 
     public double getComputedP1() {
