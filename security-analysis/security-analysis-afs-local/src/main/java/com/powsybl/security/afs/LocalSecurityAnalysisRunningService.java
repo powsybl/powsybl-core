@@ -55,7 +55,7 @@ public class LocalSecurityAnalysisRunningService implements SecurityAnalysisRunn
 
             logger.log("Running security analysis...");
             SecurityAnalysis securityAnalysis = factorySupplier.get().create(network, computationManager, 0);
-            securityAnalysis.runAsync(contingencyListProvider, network.getStateManager().getWorkingStateId(), parameters)
+            securityAnalysis.run(network.getStateManager().getWorkingStateId(), parameters, contingencyListProvider)
                     .handleAsync((result, throwable) -> {
                         if (throwable == null) {
                             logger.log("Security analysis complete, storing results...");

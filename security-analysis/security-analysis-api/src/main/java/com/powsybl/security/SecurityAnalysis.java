@@ -21,6 +21,16 @@ public interface SecurityAnalysis {
 
     boolean removeInterceptor(SecurityAnalysisInterceptor interceptor);
 
-    CompletableFuture<SecurityAnalysisResult> runAsync(ContingenciesProvider contingenciesProvider, String workingStateId, SecurityAnalysisParameters securityAnalysisParameters);
+    /**
+     * @deprecated Use CompletableFuture<SecurityAnalysis> run(ContingencyProvider contingenciesProvider, String workingStateId, SecurityAnalysisParameters parameters) instead.
+     */
+    @Deprecated
+    default CompletableFuture<SecurityAnalysisResult> runAsync(ContingenciesProvider contingenciesProvider, String workingStateId, SecurityAnalysisParameters securityAnalysisParameters) {
+        throw new UnsupportedOperationException("deprecated");
+    }
+
+    default CompletableFuture<SecurityAnalysisResult> run(String workingStateId, SecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider) {
+        return runAsync(contingenciesProvider, workingStateId, parameters);
+    }
 
 }
