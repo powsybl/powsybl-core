@@ -9,6 +9,8 @@ package com.powsybl.afs.ws.server.utils;
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 
+import java.util.Objects;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -29,6 +31,7 @@ public class SecurityConfig {
     }
 
     public static SecurityConfig load(PlatformConfig platformConfig) {
+        Objects.requireNonNull(platformConfig);
         long tokenValidity = DEFAULT_TOKEN_VALIDITY;
         boolean skipTokenValidityCheck = DEFAULT_SKIP_TOKEN_VALIDITY_CHECK;
         ModuleConfig securityConfig = platformConfig.getModuleConfigIfExists("security");
