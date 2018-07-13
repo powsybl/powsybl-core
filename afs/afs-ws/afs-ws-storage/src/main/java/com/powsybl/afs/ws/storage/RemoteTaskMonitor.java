@@ -62,7 +62,7 @@ public class RemoteTaskMonitor implements TaskMonitor {
     public RemoteTaskMonitor(String fileSystemName, URI restUri, String token) {
         this.fileSystemName = Objects.requireNonNull(fileSystemName);
         this.restUri = Objects.requireNonNull(restUri);
-        this.token = Objects.requireNonNull(token);
+        this.token = token;
 
         client = ClientUtils.createClient()
                 .register(new JsonProvider());
