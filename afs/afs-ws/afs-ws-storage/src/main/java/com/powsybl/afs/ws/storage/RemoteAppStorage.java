@@ -74,7 +74,7 @@ public class RemoteAppStorage implements AppStorage {
 
     public RemoteAppStorage(String fileSystemName, URI baseUri, String token) {
         this.fileSystemName = Objects.requireNonNull(fileSystemName);
-        this.token = Objects.requireNonNull(token);
+        this.token = token;
 
         client = createClient();
 

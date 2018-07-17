@@ -6,6 +6,10 @@
  */
 package com.powsybl.security;
 
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
+import com.powsybl.commons.config.InMemoryPlatformConfig;
+import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.BranchContingency;
 import com.powsybl.contingency.ContingenciesProvider;
@@ -21,9 +25,13 @@ import com.powsybl.security.extensions.ActivePowerExtension;
 import com.powsybl.security.extensions.CurrentExtension;
 import com.powsybl.security.interceptors.CurrentLimitViolationInterceptor;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptorMock;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.io.IOException;
+import java.nio.file.FileSystem;
 import java.util.Collections;
 import java.util.concurrent.Executor;
 
@@ -35,6 +43,21 @@ import static org.junit.Assert.*;
  * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
  */
 public class SecurityAnalysisTest {
+
+    private FileSystem fileSystem;
+
+    private PlatformConfig platformConfig;
+
+    @Before
+    public void setUp() {
+        fileSystem = Jimfs.newFileSystem(Configuration.unix());
+        platformConfig = new InMemoryPlatformConfig(fileSystem);
+    }
+
+    @After
+    public void tearDown() throws IOException {
+        fileSystem.close();
+    }
 
     @Test
     public void run() {
@@ -54,12 +77,7 @@ public class SecurityAnalysisTest {
             .add();
 
         ComputationManager computationManager = Mockito.mock(ComputationManager.class);
-        Executor executor = new Executor() {
-            @Override
-            public void execute(Runnable r) {
-                r.run();
-            }
-        };
+        Executor executor = Runnable::run;
         Mockito.when(computationManager.getExecutor()).thenReturn(executor);
 
         LoadFlowFactory loadflowFactory = new LoadFlowFactoryMock();
@@ -84,7 +102,7 @@ public class SecurityAnalysisTest {
         securityAnalysis.addInterceptor(new SecurityAnalysisInterceptorMock());
         securityAnalysis.addInterceptor(new CurrentLimitViolationInterceptor());
 
-        SecurityAnalysisResult result = securityAnalysis.runAsync(contingenciesProvider, StateManagerConstants.INITIAL_STATE_ID, new SecurityAnalysisParameters()).join();
+        SecurityAnalysisResult result = securityAnalysis.run(StateManagerConstants.INITIAL_STATE_ID, SecurityAnalysisParameters.load(platformConfig), contingenciesProvider).join();
 
         assertTrue(result.getPreContingencyResult().isComputationOk());
         assertEquals(0, result.getPreContingencyResult().getLimitViolations().size());

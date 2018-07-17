@@ -15,7 +15,10 @@ import com.powsybl.afs.ws.client.utils.RemoteServiceConfig;
 import com.powsybl.afs.ws.storage.RemoteAppStorage;
 import com.powsybl.afs.ws.storage.RemoteListenableAppStorage;
 import com.powsybl.afs.ws.storage.RemoteTaskMonitor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.ProcessingException;
 import java.net.URI;
 import java.util.Collections;
 import java.util.List;
@@ -28,6 +31,8 @@ import java.util.stream.Collectors;
  */
 @AutoService(AppFileSystemProvider.class)
 public class RemoteAppFileSystemProvider implements AppFileSystemProvider {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(RemoteAppFileSystemProvider.class);
 
     private final Supplier<RemoteServiceConfig> configSupplier;
 
@@ -42,12 +47,10 @@ public class RemoteAppFileSystemProvider implements AppFileSystemProvider {
     @Override
     public List<AppFileSystem> getFileSystems(AppFileSystemProviderContext context) {
         Objects.requireNonNull(context);
-        if (context.getToken() == null) {
-            return Collections.emptyList();
-        } else {
-            RemoteServiceConfig config = configSupplier.get();
-            Objects.requireNonNull(config);
-            URI uri = config.getRestUri();
+        RemoteServiceConfig config = configSupplier.get();
+        Objects.requireNonNull(config);
+        URI uri = config.getRestUri();
+        try {
             return RemoteAppStorage.getFileSystemNames(uri, context.getToken()).stream()
                     .map(fileSystemName -> {
                         RemoteAppStorage storage = new RemoteAppStorage(fileSystemName, uri, context.getToken());
@@ -56,6 +59,9 @@ public class RemoteAppFileSystemProvider implements AppFileSystemProvider {
                         return new AppFileSystem(fileSystemName, true, listenableStorage, taskMonitor);
                     })
                     .collect(Collectors.toList());
+        } catch (ProcessingException e) {
+            LOGGER.warn(e.toString());
+            return Collections.emptyList();
         }
     }
 }

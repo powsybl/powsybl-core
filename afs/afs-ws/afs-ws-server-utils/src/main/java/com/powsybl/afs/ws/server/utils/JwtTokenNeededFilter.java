@@ -6,6 +6,7 @@
  */
 package com.powsybl.afs.ws.server.utils;
 
+import com.powsybl.commons.config.PlatformConfig;
 import io.jsonwebtoken.Jwts;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,8 +35,22 @@ public class JwtTokenNeededFilter implements ContainerRequestFilter {
     @Inject
     private KeyGenerator keyGenerator;
 
+    private boolean skipTokenValidityCheck;
+
+    public JwtTokenNeededFilter() {
+        this(PlatformConfig.defaultConfig());
+    }
+
+    public JwtTokenNeededFilter(PlatformConfig platformConfig) {
+        skipTokenValidityCheck = SecurityConfig.load(platformConfig).isSkipTokenValidityCheck();
+    }
+
     @Override
     public void filter(ContainerRequestContext requestContext) {
+        if (skipTokenValidityCheck) {
+            return;
+        }
+
         // Get the HTTP Authorization header from the request
         String authorizationHeader = requestContext.getHeaderString(HttpHeaders.AUTHORIZATION);
         LOGGER.trace("#### authorizationHeader : {}", authorizationHeader);
