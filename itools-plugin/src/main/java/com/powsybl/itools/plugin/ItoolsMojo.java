@@ -33,7 +33,7 @@ import java.util.zip.ZipOutputStream;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-@Mojo(name = "package-zip", requiresDependencyCollection = ResolutionScope.COMPILE_PLUS_RUNTIME, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
+@Mojo(name = "bundle-zip", requiresDependencyCollection = ResolutionScope.COMPILE_PLUS_RUNTIME, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
 public class ItoolsMojo extends AbstractMojo {
 
     @Parameter(readonly = true, defaultValue = "${project}")

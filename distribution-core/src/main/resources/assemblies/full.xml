@@ -27,12 +27,14 @@
             <directory>${project.basedir}/../itools-plugin/src/main/resources</directory>
             <outputDirectory>bin</outputDirectory>
             <includes>
-                <include>*</include>
+                <include>itools*</include>
+                <include>powsyblsh</include>
+                <include>tools-mpi-task.sh</include>
             </includes>
             <fileMode>0755</fileMode>
         </fileSet>
         <fileSet>
-            <directory>${project.basedir}/../config</directory>
+            <directory>${project.basedir}/../itools-plugin/src/main/resources</directory>
             <outputDirectory>etc</outputDirectory>
             <includes>
                 <include>logback*.xml</include>
