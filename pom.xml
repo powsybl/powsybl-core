@@ -98,6 +98,9 @@
         <maven.source.version>3.0.1</maven.source.version>
         <maven.surefire.version>2.22.0</maven.surefire.version>
         <maven.templating.version>1.0.0</maven.templating.version>
+        <maven.plugin.version>3.5.2</maven.plugin.version>
+        <maven.plugin.annotations.version>3.5.2</maven.plugin.annotations.version>
+        <maven.core.version>3.3.9</maven.core.version>
 
         <groovyeclipsecompiler.version>2.9.2-01</groovyeclipsecompiler.version>
         <groovyeclipsebatch.version>2.4.3-01</groovyeclipsebatch.version>
