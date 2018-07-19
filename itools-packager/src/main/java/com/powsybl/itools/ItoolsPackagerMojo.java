@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.itools.plugin;
+package com.powsybl.itools;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.AbstractMojo;
@@ -33,14 +33,17 @@ import java.util.zip.ZipOutputStream;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-@Mojo(name = "bundle-zip", requiresDependencyCollection = ResolutionScope.COMPILE_PLUS_RUNTIME, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
-public class ItoolsMojo extends AbstractMojo {
+@Mojo(name = "package-zip", requiresDependencyCollection = ResolutionScope.COMPILE_PLUS_RUNTIME, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
+public class ItoolsPackagerMojo extends AbstractMojo {
 
     @Parameter(readonly = true, defaultValue = "${project}")
     private MavenProject project;
 
     @Parameter
-    private String bundleName;
+    private String packageName;
+
+    @Parameter
+    private String archiveName;
 
     @Parameter(defaultValue = "8G")
     private String javaXmx;
@@ -48,7 +51,7 @@ public class ItoolsMojo extends AbstractMojo {
     @Parameter(defaultValue = "config")
     private String configName;
 
-    @Parameter(defaultValue = "3")
+    @Parameter(defaultValue = "2")
     private Integer mpiTasks;
 
     @Parameter
@@ -141,26 +144,26 @@ public class ItoolsMojo extends AbstractMojo {
     @Override
     public void execute() {
         try {
-            String bundleNameNotNull = bundleName != null ? bundleName : project.getBuild().getFinalName();
+            String packageNameNotNull = packageName != null ? packageName : project.getBuild().getFinalName();
             Path targetDir = Paths.get(project.getBuild().getDirectory());
-            Path bundleDir = targetDir.resolve(bundleName);
+            Path packageDir = targetDir.resolve(packageNameNotNull);
 
             // copy jars
-            Path javaDir = bundleDir.resolve("share").resolve("java");
+            Path javaDir = packageDir.resolve("share").resolve("java");
             Files.createDirectories(javaDir);
             for (Artifact artifact : project.getArtifacts()) {
                 Path jar = artifact.getFile().toPath();
-                getLog().info("Add jar " + jar + " to bundle");
+                getLog().info("Add jar " + jar + " to package");
                 Files.copy(jar, javaDir.resolve(jar.getFileName()), StandardCopyOption.REPLACE_EXISTING);
             }
 
             // create bin directory and add scripts
-            Path binDir = bundleDir.resolve("bin");
+            Path binDir = packageDir.resolve("bin");
             Files.createDirectories(binDir);
             for (String script : Arrays.asList("itools", "itools.bat", "powsyblsh")) {
-                getLog().info("Add script " + script + " to bundle");
+                getLog().info("Add script " + script + " to package");
                 Path file = binDir.resolve(script);
-                Files.copy(ItoolsMojo.class.getResourceAsStream("/" + script), file, StandardCopyOption.REPLACE_EXISTING);
+                Files.copy(ItoolsPackagerMojo.class.getResourceAsStream("/" + script), file, StandardCopyOption.REPLACE_EXISTING);
                 FileStore fileStore = Files.getFileStore(file);
                 if (fileStore.supportsFileAttributeView(PosixFileAttributeView.class)) {
                     Set<PosixFilePermission> perms = EnumSet.of(PosixFilePermission.OWNER_READ,
@@ -174,21 +177,22 @@ public class ItoolsMojo extends AbstractMojo {
             copyFiles(copyToBin, binDir);
 
             // create etc directory
-            Path etcDir = bundleDir.resolve("etc");
+            Path etcDir = packageDir.resolve("etc");
             Files.createDirectories(etcDir);
-            Files.copy(ItoolsMojo.class.getResourceAsStream("/logback-itools.xml"), etcDir.resolve("logback-itools.xml"), StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(ItoolsPackagerMojo.class.getResourceAsStream("/logback-itools.xml"), etcDir.resolve("logback-itools.xml"), StandardCopyOption.REPLACE_EXISTING);
             try (BufferedWriter writer = Files.newBufferedWriter(etcDir.resolve("itools.conf"), StandardCharsets.UTF_8)) {
                 writeItoolsConf(writer);
             }
             copyFiles(copyToEtc, etcDir);
 
             // create lib dir
-            Path libDir = bundleDir.resolve("lib");
+            Path libDir = packageDir.resolve("lib");
             Files.createDirectories(libDir);
             copyFiles(copyToLib, libDir);
 
-            getLog().info("Zip bundle");
-            zip(bundleDir, targetDir.resolve(bundleNameNotNull + ".zip"));
+            getLog().info("Zip package");
+            String archiveNameNotNull = archiveName != null ? archiveName : packageNameNotNull;
+            zip(packageDir, targetDir.resolve(archiveNameNotNull + ".zip"));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

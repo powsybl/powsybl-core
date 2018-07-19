@@ -321,18 +321,18 @@
         <plugins>
             <plugin>
                 <groupId>com.powsybl</groupId>
-                <artifactId>powsybl-itools-maven-plugin</artifactId>
+                <artifactId>powsybl-itools-packager-maven-plugin</artifactId>
                 <version>${project.version}</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
                         <goals>
-                            <goal>bundle-zip</goal>
+                            <goal>package-zip</goal>
                         </goals>
                     </execution>
                 </executions>
                 <configuration>
-                    <bundleName>powsybl</bundleName>
+                    <packageName>powsybl</packageName>
                     <javaXmx>8G</javaXmx>
                     <copyToBin>
                         <files>
