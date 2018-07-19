@@ -19,6 +19,7 @@
 
     <artifactId>powsybl-itools-maven-plugin</artifactId>
     <name>iTools Maven plugin</name>
+    <description>iTools Maven plugin</description>
     <packaging>maven-plugin</packaging>
 
     <build>
