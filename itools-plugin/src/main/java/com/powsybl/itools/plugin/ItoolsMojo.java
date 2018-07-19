@@ -90,11 +90,16 @@ public class ItoolsMojo extends AbstractMojo {
     private void copyFiles(CopyTo copyTo, Path destDir) {
         if (copyTo != null) {
             for (File file : copyTo.getFiles()) {
-                getLog().info("Copy file " + file + " to " + destDir);
-                try {
-                    Files.copy(file.toPath(), destDir.resolve(file.getName()), StandardCopyOption.REPLACE_EXISTING);
-                } catch (IOException e) {
-                    throw new UncheckedIOException(e);
+                Path path = file.toPath();
+                if (Files.exists(path)) {
+                    getLog().info("Copy file " + path + " to " + destDir);
+                    try {
+                        Files.copy(path, destDir.resolve(path.getFileName().toString()), StandardCopyOption.REPLACE_EXISTING);
+                    } catch (IOException e) {
+                        throw new UncheckedIOException(e);
+                    }
+                } else {
+                    getLog().warn("File " + path + " not found");
                 }
             }
         }
