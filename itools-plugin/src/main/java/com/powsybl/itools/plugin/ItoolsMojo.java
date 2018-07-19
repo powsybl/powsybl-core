@@ -25,6 +25,7 @@ import java.nio.file.attribute.PosixFilePermission;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -43,6 +44,15 @@ public class ItoolsMojo extends AbstractMojo {
 
     @Parameter(defaultValue = "8G")
     private String javaXmx;
+
+    @Parameter(defaultValue = "config")
+    private String configName;
+
+    @Parameter(defaultValue = "3")
+    private Integer mpiTasks;
+
+    @Parameter
+    private String[] mpiHosts;
 
     public static class CopyTo {
 
@@ -110,14 +120,21 @@ public class ItoolsMojo extends AbstractMojo {
         writer.newLine();
         writer.write("#itools_config_dir=");
         writer.newLine();
-        writer.write("itools_config_name=config");
+        writer.write("itools_config_name=");
+        writer.write(configName);
         writer.newLine();
         writer.write("java_xmx=");
         writer.write(javaXmx);
         writer.newLine();
-        writer.write("mpi_tasks=3");
+        writer.write("mpi_tasks=");
+        writer.write(Integer.toString(mpiTasks));
         writer.newLine();
-        writer.write("mpi_hosts=localhost");
+        writer.write("mpi_hosts=");
+        if (mpiHosts == null) {
+            writer.write("localhost");
+        } else {
+            writer.write(Arrays.stream(mpiHosts).collect(Collectors.joining(",")));
+        }
         writer.newLine();
     }
 
