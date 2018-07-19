@@ -321,7 +321,7 @@
         <plugins>
             <plugin>
                 <groupId>com.powsybl</groupId>
-                <artifactId>powsybl-itools-plugin</artifactId>
+                <artifactId>powsybl-itools-maven-plugin</artifactId>
                 <version>${project.version}</version>
                 <executions>
                     <execution>

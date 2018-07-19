@@ -17,7 +17,7 @@
         <version>1.2.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>powsybl-itools-plugin</artifactId>
+    <artifactId>powsybl-itools-maven-plugin</artifactId>
     <name>iTools Maven plugin</name>
     <packaging>maven-plugin</packaging>
 
