@@ -335,13 +335,20 @@
                     <bundleName>powsybl</bundleName>
                     <javaXmx>8G</javaXmx>
                     <copyToBin>
-                        <param>${project.basedir}/../build/bin</param>
+                        <files>
+                            <file>${project.basedir}/../build/bin/slave</file>
+                        </files>
                     </copyToBin>
                     <copyToLib>
-                        <param>${project.basedir}/../build/lib/*.so</param>
+                        <files>
+                            <file>${project.basedir}/../build/lib/libmaster.so</file>
+                            <file>${project.basedir}/../build/lib/libmathjni.so</file>
+                        </files>
                     </copyToLib>
                     <copyToEtc>
-                        <param>${project.basedir}/../iidm/iidm-xml-converter/src/main/resources/xsd/iidm.xsd</param>
+                        <files>
+                            <file>${project.basedir}/../iidm/iidm-xml-converter/src/main/resources/xsd/iidm.xsd</file>
+                        </files>
                     </copyToEtc>
                 </configuration>
             </plugin>

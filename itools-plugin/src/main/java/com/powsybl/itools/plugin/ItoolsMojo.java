@@ -20,8 +20,11 @@ import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.PosixFileAttributeView;
 import java.nio.file.attribute.PosixFilePermission;
-import java.util.*;
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -41,14 +44,27 @@ public class ItoolsMojo extends AbstractMojo {
     @Parameter(defaultValue = "8G")
     private String javaXmx;
 
-    @Parameter
-    private File[] copyToBin;
+    public static class CopyTo {
+
+        private File[] files;
+
+        public File[] getFiles() {
+            return files;
+        }
+
+        public void setFiles(File[] files) {
+            this.files = files;
+        }
+    }
 
     @Parameter
-    private File[] copyToLib;
+    private CopyTo copyToBin;
 
     @Parameter
-    private File[] copyToEtc;
+    private CopyTo copyToLib;
+
+    @Parameter
+    private CopyTo copyToEtc;
 
     private static void zip(Path folder, Path zipFilePath) throws IOException {
         try (ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(zipFilePath))) {
@@ -71,42 +87,14 @@ public class ItoolsMojo extends AbstractMojo {
         }
     }
 
-    private static List<Path> listFiles(Path path) {
-        List<Path> matchingFiles = new ArrayList<>();
-        if (Files.isRegularFile(path)) {
-            matchingFiles.add(path);
-        } else if (Files.isDirectory(path)) {
-            try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(path)) {
-                for (Path file : directoryStream) {
-                    matchingFiles.add(file);
-                }
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-        } else {
-            Path parent = path.getParent();
-            if (parent != null && Files.isDirectory(parent)) {
-                try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(parent, path.getFileName().toString())) {
-                    for (Path file : directoryStream) {
-                        matchingFiles.add(file);
-                    }
+    private void copyFiles(CopyTo copyTo, Path destDir) {
+        if (copyTo != null) {
+            for (File file : copyTo.getFiles()) {
+                getLog().info("Copy file " + file + " to " + destDir);
+                try {
+                    Files.copy(file.toPath(), destDir.resolve(file.getName()), StandardCopyOption.REPLACE_EXISTING);
                 } catch (IOException e) {
                     throw new UncheckedIOException(e);
-                }
-            }
-        }
-        return matchingFiles;
-    }
-
-    private static void copyMatchingFiles(File[] paths, Path destDir) {
-        if (paths != null) {
-            for (File path : paths) {
-                for (Path file : listFiles(path.toPath())) {
-                    try {
-                        Files.copy(file, destDir.resolve(file.getFileName().toString()), StandardCopyOption.REPLACE_EXISTING);
-                    } catch (IOException e) {
-                        throw new UncheckedIOException(e);
-                    }
                 }
             }
         }
@@ -151,14 +139,19 @@ public class ItoolsMojo extends AbstractMojo {
                 getLog().info("Add script " + script + " to bundle");
                 Path file = binDir.resolve(script);
                 Files.copy(ItoolsMojo.class.getResourceAsStream("/" + script), file, StandardCopyOption.REPLACE_EXISTING);
-                Set<PosixFilePermission> perms = EnumSet.of(PosixFilePermission.OWNER_READ,
-                                                            PosixFilePermission.OWNER_WRITE,
-                                                            PosixFilePermission.OWNER_EXECUTE,
-                                                            PosixFilePermission.GROUP_READ,
-                                                            PosixFilePermission.GROUP_EXECUTE);
-                Files.setPosixFilePermissions(file, perms);
+                FileStore fileStore = Files.getFileStore(file);
+                if (fileStore.supportsFileAttributeView(PosixFileAttributeView.class)) {
+                    Set<PosixFilePermission> perms = EnumSet.of(PosixFilePermission.OWNER_READ,
+                                                                PosixFilePermission.OWNER_WRITE,
+                                                                PosixFilePermission.OWNER_EXECUTE,
+                                                                PosixFilePermission.GROUP_READ,
+                                                                PosixFilePermission.GROUP_EXECUTE);
+                    Files.setPosixFilePermissions(file, perms);
+                } else {
+                    throw new AssertionError("Permissions change error");
+                }
             }
-            copyMatchingFiles(copyToBin, binDir);
+            copyFiles(copyToBin, binDir);
 
             // create etc directory
             Path etcDir = bundleDir.resolve("etc");
@@ -167,12 +160,12 @@ public class ItoolsMojo extends AbstractMojo {
             try (BufferedWriter writer = Files.newBufferedWriter(etcDir.resolve("itools.conf"), StandardCharsets.UTF_8)) {
                 writeItoolsConf(writer);
             }
-            copyMatchingFiles(copyToEtc, etcDir);
+            copyFiles(copyToEtc, etcDir);
 
             // create lib dir
             Path libDir = bundleDir.resolve("lib");
             Files.createDirectories(libDir);
-            copyMatchingFiles(copyToLib, libDir);
+            copyFiles(copyToLib, libDir);
 
             getLog().info("Zip bundle");
             zip(bundleDir, targetDir.resolve(bundleNameNotNull + ".zip"));
