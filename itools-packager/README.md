@@ -1,6 +1,6 @@
 itools packager 
 ---------------
-This Maven plugin can be used to generate an itools package using the following layout:
+This Maven plugin can be used to generate an itools package with the following layout:
 ```bash
 <package-name>
     bin
