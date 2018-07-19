@@ -147,8 +147,6 @@ public class ItoolsMojo extends AbstractMojo {
                                                                 PosixFilePermission.GROUP_READ,
                                                                 PosixFilePermission.GROUP_EXECUTE);
                     Files.setPosixFilePermissions(file, perms);
-                } else {
-                    throw new AssertionError("Permissions change error");
                 }
             }
             copyFiles(copyToBin, binDir);
