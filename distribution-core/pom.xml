@@ -320,21 +320,30 @@
     <build>
         <plugins>
             <plugin>
-                <artifactId>maven-assembly-plugin</artifactId>
+                <groupId>com.powsybl</groupId>
+                <artifactId>powsybl-itools-plugin</artifactId>
+                <version>${project.version}</version>
                 <executions>
                     <execution>
-                        <id>distro-assembly</id>
                         <phase>package</phase>
                         <goals>
-                            <goal>single</goal>
+                            <goal>bundle-zip</goal>
                         </goals>
-                        <configuration>
-                            <descriptors>
-                                <descriptor>src/main/resources/assemblies/full.xml</descriptor>
-                            </descriptors>
-                        </configuration>
                     </execution>
                 </executions>
+                <configuration>
+                    <bundleName>powsybl</bundleName>
+                    <javaXmx>8G</javaXmx>
+                    <copyToBin>
+                        <param>${project.basedir}/../build/bin</param>
+                    </copyToBin>
+                    <copyToLib>
+                        <param>${project.basedir}/../build/lib/*.so</param>
+                    </copyToLib>
+                    <copyToEtc>
+                        <param>${project.basedir}/../iidm/iidm-xml-converter/src/main/resources/xsd/iidm.xsd</param>
+                    </copyToEtc>
+                </configuration>
             </plugin>
         </plugins>
     </build>

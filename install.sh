@@ -11,9 +11,6 @@ sourceDir=$(dirname $(readlink -f $0))
 ## install default settings
 ###############################################################################
 powsybl_prefix=$HOME/powsybl
-powsybl_package_version=`mvn -U -f "$sourceDir/pom.xml" org.apache.maven.plugins:maven-help-plugin:evaluate -Dexpression=project.version | grep -v "Download" | grep -v "\["`
-powsybl_package_name=powsybl-core-$powsybl_package_version
-powsybl_package_type=zip
 
 thirdparty_build=true
 thirdparty_prefix=$HOME/powsybl_thirdparty
@@ -24,7 +21,6 @@ thirdparty_packs=$HOME/powsybl_packs
 powsybl_clean=false
 powsybl_compile=false
 powsybl_docs=false
-powsybl_package=false
 powsybl_install=false
 thirdparty_clean=false
 
@@ -98,7 +94,6 @@ writeEmptyLine() {
 writeSettings() {
     writeComment " -- Global options --"
     writeSetting "powsybl_prefix" ${powsybl_prefix}
-    writeSetting "powsybl_package_type" ${powsybl_package_type}
 
     writeEmptyLine
 
@@ -193,45 +188,6 @@ powsybl_java()
     fi
 }
 
-## Package
-###############################################################################
-powsybl_package()
-{
-    if [ $powsybl_package = true ]; then
-        echo "** Packaging"
-
-        case "$powsybl_package_type" in
-            zip)
-                [ -f "${powsybl_package_name}.zip" ] && rm -f "${powsybl_package_name}.zip"
-                $(cd "$sourceDir/distribution-core/target/powsybl-distribution-core-${powsybl_package_version}-full" && zip -rq "$sourceDir/${powsybl_package_name}.zip" "powsybl")
-                zip -qT "${powsybl_package_name}.zip" > /dev/null 2>&1 || exit $?
-                ;;
-
-            tar)
-                [ -f "${powsybl_package_name}.tar" ] && rm -f "${powsybl_package_name}.tar"
-                tar -cf "${powsybl_package_name}.tar" -C "$sourceDir/distribution-core/target/powsybl-distribution-core-${powsybl_package_version}-full" . || exit $?
-                ;;
-
-            tar.gz | tgz)
-                [ -f "${powsybl_package_name}.tar.gz" ] && rm -f "${powsybl_package_name}.tar.gz"
-                [ -f "${powsybl_package_name}.tgz" ] && rm -f "${powsybl_package_name}.tgz"
-                tar -czf "${powsybl_package_name}.tar.gz" -C "$sourceDir/distribution-core/target/powsybl-distribution-core-${powsybl_package_version}-full" . || exit $?
-                ;;
-
-            tar.bz2 | tbz)
-                [ -f "${powsybl_package_name}.tar.bz2" ] && rm -f "${powsybl_package_name}.tar.bz2"
-                [ -f "${powsybl_package_name}.tbz" ] && rm -f "${powsybl_package_name}.tbz"
-                tar -cjf "${powsybl_package_name}.tar.bz2" -C "$sourceDir/distribution-core/target/powsybl-distribution-core-${powsybl_package_version}-full" . || exit $?
-                ;;
-
-            *)
-                echo "Invalid package format: zip, tar, tar.gz, tar.bz2 are supported."
-                exit 1;
-                ;;
-        esac
-    fi
-}
-
 ## Install
 ###############################################################################
 powsybl_install()
@@ -241,19 +197,7 @@ powsybl_install()
 
         echo "**** Copying files"
         mkdir -p "$powsybl_prefix" || exit $?
-        cp -Rp "$sourceDir/distribution-core/target/powsybl-distribution-core-${powsybl_package_version}-full/powsybl"/* "$powsybl_prefix" || exit $?
-
-        if [ ! -f "$powsybl_prefix/etc/itools.conf" ]; then
-            echo "**** Copying configuration files"
-            mkdir -p "$powsybl_prefix/etc" || exit $?
-
-            echo "#itools_cache_dir=" >> "$powsybl_prefix/etc/itools.conf"
-            echo "#itools_config_dir=" >> "$powsybl_prefix/etc/itools.conf"
-            echo "itools_config_name=config" >> "$powsybl_prefix/etc/itools.conf"
-            echo "#java_xmx=8G" >> "$powsybl_prefix/etc/itools.conf"
-            echo "mpi_tasks=3" >> "$powsybl_prefix/etc/itools.conf"
-            echo "mpi_hosts=localhost" >> "$powsybl_prefix/etc/itools.conf"
-        fi
+        cp -Rp "$sourceDir/distribution-core/target/powsybl"/* "$powsybl_prefix" || exit $?
     fi
 }
 
@@ -268,7 +212,6 @@ while true; do
     case "$1" in
         # Options
         --prefix) powsybl_prefix=$2 ; shift 2 ;;
-        --package-type) powsybl_package_type=$2 ; shift 2 ;;
 
         # Third-party options
         --with-thirdparty) thirdparty_build=true ; shift ;;
@@ -292,7 +235,6 @@ if [ $# -ne 0 ]; then
             clean-thirdparty) thirdparty_clean=true ; thirdparty_build=true ;;
             compile) powsybl_compile=true ;;
             docs) powsybl_docs=true ;;
-            package) powsybl_package=true ; powsybl_compile=true ;;
             install) powsybl_install=true ; powsybl_compile=true ;;
             help) usage; exit 0 ;;
             *) usage ; exit 1 ;;
@@ -314,9 +256,6 @@ powsybl_cpp
 
 # Build Java modules
 powsybl_java
-
-# Package
-powsybl_package
 
 # Install
 powsybl_install
