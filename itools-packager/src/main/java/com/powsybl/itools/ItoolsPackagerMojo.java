@@ -6,6 +6,8 @@
  */
 package com.powsybl.itools;
 
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -26,8 +28,6 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 /**
  *
@@ -79,21 +79,27 @@ public class ItoolsPackagerMojo extends AbstractMojo {
     @Parameter
     private CopyTo copyToEtc;
 
-    private static void zip(Path folder, Path zipFilePath) throws IOException {
-        try (ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(zipFilePath))) {
-            Files.walkFileTree(folder, new SimpleFileVisitor<Path>() {
+    private static void zip(Path dir, Path baseDir, Path zipFilePath) throws IOException {
+        try (ZipArchiveOutputStream zos = new ZipArchiveOutputStream(Files.newOutputStream(zipFilePath))) {
+            Files.walkFileTree(dir, new SimpleFileVisitor<Path>() {
                 @Override
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                    zos.putNextEntry(new ZipEntry(folder.relativize(file).toString()));
+                    ZipArchiveEntry entry = new ZipArchiveEntry(baseDir.relativize(file).toString());
+                    if (Files.isExecutable(file)) {
+                        entry.setUnixMode(0100770);
+                    } else {
+                        entry.setUnixMode(0100660);
+                    }
+                    zos.putArchiveEntry(entry);
                     Files.copy(file, zos);
-                    zos.closeEntry();
+                    zos.closeArchiveEntry();
                     return FileVisitResult.CONTINUE;
                 }
 
                 @Override
                 public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-                    zos.putNextEntry(new ZipEntry(folder.relativize(dir).toString() + "/"));
-                    zos.closeEntry();
+                    zos.putArchiveEntry(new ZipArchiveEntry(baseDir.relativize(dir).toString() + "/"));
+                    zos.closeArchiveEntry();
                     return FileVisitResult.CONTINUE;
                 }
             });
@@ -160,7 +166,7 @@ public class ItoolsPackagerMojo extends AbstractMojo {
             // create bin directory and add scripts
             Path binDir = packageDir.resolve("bin");
             Files.createDirectories(binDir);
-            for (String script : Arrays.asList("itools", "itools.bat", "powsyblsh")) {
+            for (String script : Arrays.asList("itools", "itools.bat", "powsyblsh", "tools-mpi-task.sh")) {
                 getLog().info("Add script " + script + " to package");
                 Path file = binDir.resolve(script);
                 Files.copy(ItoolsPackagerMojo.class.getResourceAsStream("/" + script), file, StandardCopyOption.REPLACE_EXISTING);
@@ -192,7 +198,7 @@ public class ItoolsPackagerMojo extends AbstractMojo {
 
             getLog().info("Zip package");
             String archiveNameNotNull = archiveName != null ? archiveName : packageNameNotNull;
-            zip(packageDir, targetDir.resolve(archiveNameNotNull + ".zip"));
+            zip(packageDir, targetDir, targetDir.resolve(archiveNameNotNull + ".zip"));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
