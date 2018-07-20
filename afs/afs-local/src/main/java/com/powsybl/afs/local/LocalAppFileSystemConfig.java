@@ -51,7 +51,9 @@ public class LocalAppFileSystemConfig extends AbstractAppFileSystemConfig<LocalA
             }
         } else {
             for (Path rootDir : platformConfig.getFileSystem().getRootDirectories()) {
-                configs.add(new LocalAppFileSystemConfig(rootDir.toString(), false, rootDir));
+                if (Files.isDirectory(rootDir)) {
+                    configs.add(new LocalAppFileSystemConfig(rootDir.toString(), false, rootDir));
+                }
             }
         }
         return configs;
