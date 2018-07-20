@@ -83,7 +83,7 @@ public class LocalAppStorage implements AppStorage {
 
     private LocalFolder scanFolder(Path path, boolean useCache) {
         LocalFolder folder = null;
-        if (Files.isReadable(path)) {
+        if (Files.isReadable(path) && Files.isExecutable(path)) {
             if (useCache && folderCache.containsKey(path)) {
                 folder = folderCache.get(path);
             } else {
