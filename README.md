@@ -47,9 +47,9 @@ In order to build the project, you need:
 Root privileges are required to install these packages (used to build some external modules, e.g. Boost):  
 ```
 $> sudo yum group install "Development Tools" 
-$> sudo yum install git cmake icu tar wget bzip2-devel zlib-devel
-
+$> sudo yum install cmake icu tar wget bzip2-devel zlib-devel
 ```
+Note that *sudo yum group install "Development Tools"* installs a set of predefined CentOS development tools, including gcc, g++, git.
 
 ### OpenMPI (required)
 In order to use the MPI based computation layer, you need to compile and install the OpenMPI library.
