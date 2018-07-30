@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017, RTE (http://www.rte-france.com)
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -101,5 +101,10 @@ public class LoadFlowActionSimulatorLogPrinter extends DefaultLoadFlowActionSimu
     @Override
     public void violationsAnymoreAndNoRulesMatch(RunningContext runningContext) {
         err.println("        Still some violations and no rule match...");
+    }
+
+    @Override
+    public void maxIterationsReached(RunningContext runningContext) {
+        out.println("        Max number of iterations reached");
     }
 }

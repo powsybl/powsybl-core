@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017, RTE (http://www.rte-france.com)
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -136,6 +136,10 @@ public class ActionSimulatorTool implements Tool {
                         .hasArg()
                         .argName("TASKID")
                         .build());
+                options.addOption(Option.builder().longOpt(EXPORT_EACH_ROUND)
+                        .desc("export each round")
+                        .required(false)
+                        .build());
                 return options;
             }
 
@@ -163,8 +167,8 @@ public class ActionSimulatorTool implements Tool {
         );
     }
 
-    private static LoadFlowActionSimulatorObserver createCaseExporter(Path outputCaseFolder, String basename, String outputCaseFormat, CompressionFormat compressionFormat) {
-        return new CaseExporter(outputCaseFolder, basename, outputCaseFormat, compressionFormat);
+    private static LoadFlowActionSimulatorObserver createCaseExporter(Path outputCaseFolder, String basename, String outputCaseFormat, CompressionFormat compressionFormat, boolean exportEachRound) {
+        return new CaseExporter(outputCaseFolder, basename, outputCaseFormat, compressionFormat, exportEachRound);
     }
 
     @Override
@@ -175,6 +179,7 @@ public class ActionSimulatorTool implements Tool {
                                                                      : Collections.emptyList();
         boolean verbose = line.hasOption(VERBOSE);
         boolean applyIfSolved = line.hasOption(APPLY_IF_SOLVED_VIOLATIONS);
+        boolean exportEachRound = line.hasOption(EXPORT_EACH_ROUND);
 
         // check options
         Path outputCaseFolder = null;
@@ -230,7 +235,7 @@ public class ActionSimulatorTool implements Tool {
 
             if (outputCaseFolder != null) {
                 CompressionFormat compressionFormat = CommandLineUtil.getOptionValue(line, OUTPUT_COMPRESSION_FORMAT, CompressionFormat.class, null);
-                observers.add(createCaseExporter(outputCaseFolder, DataSourceUtil.getBaseName(caseFile), outputCaseFormat, compressionFormat));
+                observers.add(createCaseExporter(outputCaseFolder, DataSourceUtil.getBaseName(caseFile), outputCaseFormat, compressionFormat, exportEachRound));
             }
 
             // action simulator

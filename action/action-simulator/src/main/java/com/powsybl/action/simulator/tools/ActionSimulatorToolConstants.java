@@ -20,6 +20,7 @@ public final class ActionSimulatorToolConstants {
     public static final String OUTPUT_COMPRESSION_FORMAT = "output-compression-format";
     public static final String TASKS = "task-count";
     public static final String TASK = "task";
+    public static final String EXPORT_EACH_ROUND = "export-each-round";
 
     private ActionSimulatorToolConstants() {
     }

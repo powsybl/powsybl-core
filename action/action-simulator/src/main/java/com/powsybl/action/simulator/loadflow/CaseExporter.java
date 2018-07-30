@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017, RTE (http://www.rte-france.com)
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -35,11 +35,14 @@ public class CaseExporter extends DefaultLoadFlowActionSimulatorObserver {
 
     private final CompressionFormat compressionFormat;
 
-    public CaseExporter(Path outputCaseFolder, String basename, String outputCaseFormat, CompressionFormat compressionFormat) {
+    private final boolean exportEachRound;
+
+    public CaseExporter(Path outputCaseFolder, String basename, String outputCaseFormat, CompressionFormat compressionFormat, boolean exportEachRound) {
         this.outputCaseFolder = Objects.requireNonNull(outputCaseFolder);
         this.basename = Objects.requireNonNull(basename);
         this.outputCaseFormat = Objects.requireNonNull(outputCaseFormat);
         this.compressionFormat = compressionFormat;
+        this.exportEachRound = exportEachRound;
     }
 
     @Override
@@ -49,7 +52,9 @@ public class CaseExporter extends DefaultLoadFlowActionSimulatorObserver {
 
     @Override
     public void loadFlowConverged(RunningContext runningContext, List<LimitViolation> violations) {
-        exportNetwork(runningContext.getContingency(), runningContext.getNetwork(), runningContext.getRound());
+        if (exportEachRound) {
+            exportNetwork(runningContext.getContingency(), runningContext.getNetwork(), runningContext.getRound());
+        }
     }
 
     private void exportNetwork(Contingency contingency, Network network, int round) {
@@ -69,4 +74,26 @@ public class CaseExporter extends DefaultLoadFlowActionSimulatorObserver {
             .append(round)
             .toString();
     }
+
+    @Override
+    public void noMoreViolations(RunningContext runningContext) {
+        if (!exportEachRound) {
+            exportNetwork(runningContext.getContingency(), runningContext.getNetwork(), runningContext.getRound());
+        }
+    }
+
+    @Override
+    public void violationsAnymoreAndNoRulesMatch(RunningContext runningContext) {
+        if (!exportEachRound) {
+            exportNetwork(runningContext.getContingency(), runningContext.getNetwork(), runningContext.getRound());
+        }
+    }
+
+    @Override
+    public void maxIterationsReached(RunningContext runningContext) {
+        if (!exportEachRound) {
+            exportNetwork(runningContext.getContingency(), runningContext.getNetwork(), runningContext.getRound());
+        }
+    }
+
 }
