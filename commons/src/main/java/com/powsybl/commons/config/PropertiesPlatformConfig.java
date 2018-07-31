@@ -29,14 +29,6 @@ public class PropertiesPlatformConfig extends PlatformConfig {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PropertiesPlatformConfig.class);
 
-    /**
-     * @deprecated Use PropertiesPlatformConfig(FileSystem, Path, Path) instead.
-     */
-    @Deprecated
-    public PropertiesPlatformConfig(Path configDir, FileSystem fileSystem) {
-        this(fileSystem, configDir, getDefaultCacheDir(fileSystem));
-    }
-
     public PropertiesPlatformConfig(FileSystem fileSystem, Path configDir, Path cacheDir) {
         super(fileSystem, configDir, cacheDir, new ModuleConfigContainer() {
 

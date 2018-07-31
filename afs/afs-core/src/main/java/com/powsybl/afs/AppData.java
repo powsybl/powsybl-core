@@ -233,14 +233,6 @@ public class AppData implements AutoCloseable {
         return projectFileExtensionsByPseudoClass.get(projectFilePseudoClass);
     }
 
-    /**
-     * @deprecated Use getShortTimeExecutionComputationManager instead
-     */
-    @Deprecated
-    public ComputationManager getComputationManager() {
-        return getShortTimeExecutionComputationManager();
-    }
-
     public ComputationManager getShortTimeExecutionComputationManager() {
         return shortTimeExecutionComputationManager;
     }

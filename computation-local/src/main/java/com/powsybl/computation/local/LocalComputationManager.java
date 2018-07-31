@@ -136,56 +136,6 @@ public class LocalComputationManager implements ComputationManager {
         return Files.newOutputStream(commonDir.toPath().resolve(fileName));
     }
 
-    @Override
-    public CommandExecutor newCommandExecutor(Map<String, String> env, String workingDirPrefix, boolean debug) throws Exception {
-        Objects.requireNonNull(env);
-        Objects.requireNonNull(workingDirPrefix);
-
-        return new CommandExecutor() {
-            private final WorkingDirectory workingDir = new WorkingDirectory(config.getLocalDir(), workingDirPrefix, debug);
-
-            @Override
-            public Path getWorkingDir() {
-                return workingDir.toPath();
-            }
-
-            @Override
-            public void start(CommandExecution execution, ExecutionListener listener) throws Exception {
-                enter();
-                try {
-                    if (listener != null) {
-                        listener.onExecutionStart(0, execution.getExecutionCount() - 1);
-                    }
-                    ExecutionReport report = execute(workingDir.toPath(), Collections.singletonList(execution), env, (execution1, executionIndex) -> {
-                        if (listener != null) {
-                            listener.onExecutionCompletion(executionIndex);
-                        }
-                    });
-                    if (listener != null) {
-                        listener.onEnd(report);
-                    }
-                } finally {
-                    exit();
-                }
-            }
-
-            @Override
-            public ExecutionReport start(CommandExecution execution) throws Exception {
-                enter();
-                try {
-                    return execute(workingDir.toPath(), Collections.singletonList(execution), env, null);
-                } finally {
-                    exit();
-                }
-            }
-
-            @Override
-            public void close() throws Exception {
-                workingDir.close();
-            }
-        };
-    }
-
     private interface ExecutionMonitor {
 
         void onProgress(CommandExecution execution, int executionIndex);
@@ -351,7 +301,7 @@ public class LocalComputationManager implements ComputationManager {
                     ExecutionReport report = null;
                     enter();
                     try {
-                        report = execute(workingDir.toPath(), commandExecutionList, environment.getVariables(), handler::onProgress);
+                        report = execute(workingDir.toPath(), commandExecutionList, environment.getVariables(), handler::onExecutionCompletion);
                     } finally {
                         exit();
                     }

@@ -18,10 +18,10 @@ import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.powsybl.iidm.network.Branch.Side;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.RatioTapChanger;
-import com.powsybl.iidm.network.TwoTerminalsConnectable.Side;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.loadflow.validation.io.ValidationWriter;
 

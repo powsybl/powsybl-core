@@ -8,9 +8,9 @@ package com.powsybl.loadflow;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
+import com.powsybl.iidm.network.Branch.Side;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.TwoTerminalsConnectable.Side;
 import com.powsybl.iidm.network.util.BranchData;
 import com.powsybl.loadflow.validation.CandidateComputation;
 import org.slf4j.Logger;

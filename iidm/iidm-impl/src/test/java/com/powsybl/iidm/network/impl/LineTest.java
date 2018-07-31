@@ -66,8 +66,8 @@ public class LineTest {
         assertSame(busB, acLine.getTerminal2().getBusBreakerView().getBus());
         assertSame(busA, acLine.getTerminal("vl1").getBusBreakerView().getConnectableBus());
         assertSame(busB, acLine.getTerminal("vl2").getBusBreakerView().getConnectableBus());
-        assertSame(busA, acLine.getTerminal(TwoTerminalsConnectable.Side.ONE).getBusBreakerView().getConnectableBus());
-        assertSame(busB, acLine.getTerminal(TwoTerminalsConnectable.Side.TWO).getBusBreakerView().getConnectableBus());
+        assertSame(busA, acLine.getTerminal(Branch.Side.ONE).getBusBreakerView().getConnectableBus());
+        assertSame(busB, acLine.getTerminal(Branch.Side.TWO).getBusBreakerView().getConnectableBus());
 
         assertFalse(acLine.isTieLine());
         assertEquals(ConnectableType.LINE, acLine.getType());
@@ -120,22 +120,22 @@ public class LineTest {
         terminal1.setQ(Math.sqrt(2.0));
         busA.setV(1.0);
         // i1 = 1000
-        assertTrue(acLine.checkPermanentLimit(TwoTerminalsConnectable.Side.ONE, 0.9f));
-        assertTrue(acLine.checkPermanentLimit(TwoTerminalsConnectable.Side.ONE));
+        assertTrue(acLine.checkPermanentLimit(Branch.Side.ONE, 0.9f));
+        assertTrue(acLine.checkPermanentLimit(Branch.Side.ONE));
         assertTrue(acLine.checkPermanentLimit1());
-        assertNotNull(acLine.checkTemporaryLimits(TwoTerminalsConnectable.Side.ONE, 0.9f));
-        assertNotNull(acLine.checkTemporaryLimits(TwoTerminalsConnectable.Side.ONE));
+        assertNotNull(acLine.checkTemporaryLimits(Branch.Side.ONE, 0.9f));
+        assertNotNull(acLine.checkTemporaryLimits(Branch.Side.ONE));
 
         Terminal terminal2 = acLine.getTerminal2();
         terminal2.setP(1.0);
         terminal2.setQ(Math.sqrt(2.0));
         busB.setV(1.0e3);
         // i2 = 1
-        assertFalse(acLine.checkPermanentLimit(TwoTerminalsConnectable.Side.TWO, 0.9f));
-        assertFalse(acLine.checkPermanentLimit(TwoTerminalsConnectable.Side.TWO));
+        assertFalse(acLine.checkPermanentLimit(Branch.Side.TWO, 0.9f));
+        assertFalse(acLine.checkPermanentLimit(Branch.Side.TWO));
         assertFalse(acLine.checkPermanentLimit2());
-        assertNull(acLine.checkTemporaryLimits(TwoTerminalsConnectable.Side.TWO, 0.9f));
-        assertNull(acLine.checkTemporaryLimits(TwoTerminalsConnectable.Side.TWO));
+        assertNull(acLine.checkTemporaryLimits(Branch.Side.TWO, 0.9f));
+        assertNull(acLine.checkTemporaryLimits(Branch.Side.TWO));
     }
 
     @Test

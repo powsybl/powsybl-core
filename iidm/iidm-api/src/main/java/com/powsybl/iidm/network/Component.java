@@ -16,12 +16,6 @@ import java.util.stream.Stream;
 public interface Component {
 
     /**
-     * @deprecated Use {@link ComponentConstants.MAIN_NUM} instead
-     */
-    @Deprecated
-    int MAIN_NUM = 0;
-
-    /**
      * Get the number of the component.
      * <p>
      * The biggest one has the number zero and the smallest has the highest number.

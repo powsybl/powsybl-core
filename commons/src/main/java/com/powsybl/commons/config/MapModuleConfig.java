@@ -190,11 +190,6 @@ public class MapModuleConfig implements ModuleConfig {
     }
 
     @Override
-    public Integer getOptionalIntProperty(String name) {
-        return getOptionalIntegerProperty(name).orElse(null);
-    }
-
-    @Override
     public int getIntProperty(String name, int defaultValue) {
         return getOptionalIntegerProperty(name).orElse(defaultValue);
     }
@@ -315,11 +310,6 @@ public class MapModuleConfig implements ModuleConfig {
     @Override
     public boolean getBooleanProperty(String name, boolean defaultValue) {
         return getOptionalBooleanProperty(name).orElse(defaultValue);
-    }
-
-    @Override
-    public Boolean getOptinalBooleanProperty(String name) {
-        return getOptionalBooleanProperty(name).orElse(null);
     }
 
     @Override
