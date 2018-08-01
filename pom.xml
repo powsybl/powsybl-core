@@ -7,7 +7,9 @@
     file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.powsybl</groupId>
@@ -148,7 +150,7 @@
         <swaggerjaxrs.version>1.5.16</swaggerjaxrs.version>
         <threeten.version>1.0</threeten.version>
         <trove4j.version>3.0.3</trove4j.version>
-        <truevfs.version>0.11.1</truevfs.version>
+        <truevfs.version>0.12.0</truevfs.version>
         <tyrus.version>1.13.1</tyrus.version>
         <wildfly.dist.version>11.0.0.Final</wildfly.dist.version>
         <wildflyarquilliancontainerembedded.version>2.1.0.Final</wildflyarquilliancontainerembedded.version>
