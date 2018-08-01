@@ -231,18 +231,18 @@ public class ExpressionPrinter extends DefaultExpressionVisitor<Void, Void> {
     @Override
     public Void visitMostLoaded(MostLoadedNode node, Void arg) {
         out.print("mostLoaded(");
-        out.print("[");
-        out.print(String.join(", ", node.getBranchIds()));
-        out.print("])");
+        out.print("['");
+        out.print(String.join("', '", node.getBranchIds()));
+        out.print("'])");
         return null;
     }
 
     @Override
     public Void visitIsOverloaded(IsOverloadedNode node, Void arg) {
         out.print("isOverloaded(");
-        out.print("[");
-        out.print(String.join(", ", node.getBranchIds()));
-        out.print("])");
+        out.print("['");
+        out.print(String.join("', '", node.getBranchIds()));
+        out.print("'])");
         return null;
     }
 
@@ -250,9 +250,9 @@ public class ExpressionPrinter extends DefaultExpressionVisitor<Void, Void> {
     @Override
     public Void visitAllOverloaded(AllOverloadedNode node, Void arg) {
         out.print("allOverloaded(");
-        out.print("[");
-        out.print(String.join(", ", node.getBranchIds()));
-        out.print("])");
+        out.print("['");
+        out.print(String.join("', '", node.getBranchIds()));
+        out.print("'])");
         return null;
     }
 
