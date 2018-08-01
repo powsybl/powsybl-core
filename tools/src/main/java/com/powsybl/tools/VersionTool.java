@@ -7,7 +7,6 @@
 package com.powsybl.tools;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.commons.Version;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 
@@ -56,6 +55,6 @@ public class VersionTool implements Tool {
 
     @Override
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
-        context.getOutputStream().println(Version.VERSION);
+        Version.list().forEach(version -> context.getOutputStream().println(version));
     }
 }
