@@ -35,6 +35,7 @@ public class PropertiesPlatformConfigTest {
     public void test() throws IOException {
         try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
             Path cfgDir = Files.createDirectory(fileSystem.getPath("config"));
+            Path cacheDir = Files.createDirectory(fileSystem.getPath("cache"));
             Properties prop1 = new Properties();
             prop1.setProperty("s", "hello");
             prop1.setProperty("i", Integer.toString(3));
@@ -54,7 +55,7 @@ public class PropertiesPlatformConfigTest {
             try (Writer w = Files.newBufferedWriter(cfgDir.resolve("mod.properties"), StandardCharsets.UTF_8)) {
                 prop1.store(w, null);
             }
-            PropertiesPlatformConfig propsConfig = new PropertiesPlatformConfig(cfgDir, fileSystem);
+            PropertiesPlatformConfig propsConfig = new PropertiesPlatformConfig(fileSystem, cfgDir, cacheDir);
             ModuleConfig modConfig = propsConfig.getModuleConfig("mod");
 
             //  string tests
@@ -73,7 +74,6 @@ public class PropertiesPlatformConfigTest {
                 fail();
             } catch (Exception ignored) {
             }
-            assertNull(modConfig.getOptionalIntProperty("i2"));
             assertFalse(modConfig.getOptionalIntegerProperty("i2").isPresent());
             assertEquals(4, modConfig.getIntProperty("i2", 4));
 
@@ -96,7 +96,6 @@ public class PropertiesPlatformConfigTest {
                 fail();
             } catch (Exception ignored) {
             }
-            assertNull(modConfig.getOptinalBooleanProperty("b2"));
             assertFalse(modConfig.getOptionalBooleanProperty("b2").isPresent());
             assertTrue(modConfig.getBooleanProperty("b2", true));
 

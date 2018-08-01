@@ -9,7 +9,6 @@ package com.powsybl.computation;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Path;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
@@ -22,14 +21,6 @@ public interface ComputationManager extends AutoCloseable {
     String getVersion();
 
     OutputStream newCommonFile(String fileName) throws IOException;
-
-    /**
-     * @deprecated Use execute(ExecutionEnvironment, ExecutionHandler<R>) instead.
-     */
-    @Deprecated
-    default CommandExecutor newCommandExecutor(Map<String, String> env, String workingDirPrefix, boolean debug) throws Exception {
-        throw new UnsupportedOperationException("deprecated");
-    }
 
     <R> CompletableFuture<R> execute(ExecutionEnvironment environment, ExecutionHandler<R> handler);
 

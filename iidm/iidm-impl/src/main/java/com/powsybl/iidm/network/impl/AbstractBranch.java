@@ -8,7 +8,7 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.TwoTerminalsConnectable.Side;
+import com.powsybl.iidm.network.Branch.Side;
 
 import java.util.Objects;
 

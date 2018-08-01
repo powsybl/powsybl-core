@@ -7,8 +7,8 @@
 package com.powsybl.loadflow;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Branch.Side;
 import com.powsybl.iidm.network.Terminal.BusView;
-import com.powsybl.iidm.network.TwoTerminalsConnectable.Side;
 import org.junit.Before;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;

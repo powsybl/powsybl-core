@@ -20,18 +20,6 @@ import java.util.Objects;
  */
 public class PlatformConfig {
 
-    /**
-     * @deprecated Use getDefaultConfigDir() instead.
-     */
-    @Deprecated
-    public static final Path CONFIG_DIR;
-
-    /**
-     * @deprecated Use getDefaultCacheDir() instead.
-     */
-    @Deprecated
-    public static final Path CACHE_DIR;
-
     private static PlatformConfig defaultConfig;
 
     private static CacheManager defaultCacheManager;
@@ -43,12 +31,6 @@ public class PlatformConfig {
     protected final Path cacheDir;
 
     protected final ModuleConfigContainer container;
-
-    static {
-        CONFIG_DIR = FileUtil.createDirectory(getDefaultConfigDir(FileSystems.getDefault()));
-
-        CACHE_DIR = FileUtil.createDirectory(getDefaultCacheDir(FileSystems.getDefault()));
-    }
 
     public static synchronized void setDefaultConfig(PlatformConfig defaultConfig) {
         PlatformConfig.defaultConfig = defaultConfig;
@@ -74,7 +56,7 @@ public class PlatformConfig {
 
     public static synchronized CacheManager defaultCacheManager() {
         if (defaultCacheManager == null) {
-            defaultCacheManager = new CacheManager(CACHE_DIR);
+            defaultCacheManager = new CacheManager(defaultConfig().cacheDir);
         }
         return defaultCacheManager;
     }

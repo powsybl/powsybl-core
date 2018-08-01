@@ -26,15 +26,5 @@ public interface Tool {
      * @param context tool execution context
      * @throws Exception if the command fails
      */
-    default void run(CommandLine line, ToolRunningContext context) throws Exception {
-        run(line);
-    }
-
-    /**
-     * @deprecated Use run(CommandLine, ToolRunningContext) instead.
-     */
-    @Deprecated
-    default void run(CommandLine line) throws Exception {
-    }
-
+    void run(CommandLine line, ToolRunningContext context) throws Exception;
 }
