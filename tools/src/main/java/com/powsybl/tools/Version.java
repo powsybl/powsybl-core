@@ -6,6 +6,7 @@
  */
 package com.powsybl.tools;
 
+import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.io.table.AsciiTableFormatter;
 import com.powsybl.commons.io.table.Column;
 import com.powsybl.commons.io.table.TableFormatter;
@@ -28,26 +29,30 @@ public interface Version {
     }
 
     static String getTableString() {
+        return getTableString(PlatformConfig.defaultConfig());
+    }
+
+    static String getTableString(PlatformConfig platformConfig) {
         try (StringWriter writer = new StringWriter()) {
-             try (TableFormatter formatter = new AsciiTableFormatter(writer,
-                                                                     "Powsybl versions", TableFormatterConfig.load(),
-                                                                     new Column("Repository name"),
-                                                                     new Column("Maven project version"),
-                                                                     new Column("Git branch"),
-                                                                     new Column("Git version"),
-                                                                     new Column("Build timestamp"))) {
-                 list().forEach(version -> {
-                     try {
-                         formatter.writeCell(version.getRepositoryName())
+            try (TableFormatter formatter = new AsciiTableFormatter(writer,
+                                                                    "Powsybl versions", TableFormatterConfig.load(platformConfig),
+                                                                    new Column("Repository name"),
+                                                                    new Column("Maven project version"),
+                                                                    new Column("Git branch"),
+                                                                    new Column("Git version"),
+                                                                    new Column("Build timestamp"))) {
+                list().forEach(version -> {
+                    try {
+                        formatter.writeCell(version.getRepositoryName())
                                  .writeCell(version.getMavenProjectVersion())
                                  .writeCell(version.getGitBranch())
                                  .writeCell(version.getGitVersion())
                                  .writeCell(new DateTime(version.getBuildTimestamp()).toString());
-                     } catch (IOException e) {
-                         throw new UncheckedIOException(e);
-                     }
-                 });
-             }
+                    } catch (IOException e) {
+                        throw new UncheckedIOException(e);
+                    }
+                });
+            }
             return writer.toString();
         } catch (IOException e) {
             throw new UncheckedIOException(e);

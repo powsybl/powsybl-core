@@ -17,12 +17,12 @@ public class VersionToolTest extends AbstractToolTest {
 
     @Override
     protected Iterable<Tool> getTools() {
-        return Collections.singleton(new VersionTool());
+        return Collections.singleton(new VersionTool(platformConfig));
     }
 
     @Override
     public void assertCommand() {
-        VersionTool tool = new VersionTool();
+        VersionTool tool = new VersionTool(platformConfig);
         assertCommand(tool.getCommand(), "version", 0, 0);
     }
 
@@ -31,7 +31,7 @@ public class VersionToolTest extends AbstractToolTest {
         assertCommand(new String[] {}, CommandLineTools.COMMAND_NOT_FOUND_STATUS, "",
                 "Available commands are:" + System.lineSeparator() +
                 System.lineSeparator());
-        assertCommand(new String[] {"version"}, CommandLineTools.COMMAND_OK_STATUS, new PowsyblCoreVersion() + System.lineSeparator(), "");
+        assertCommand(new String[] {"version"}, CommandLineTools.COMMAND_OK_STATUS, Version.getTableString(platformConfig) + System.lineSeparator(), "");
     }
 
 }

@@ -7,8 +7,11 @@
 package com.powsybl.tools;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.config.PlatformConfig;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
+
+import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -48,6 +51,16 @@ public class VersionTool implements Tool {
         }
     };
 
+    private final PlatformConfig platformConfig;
+
+    public VersionTool() {
+        this(PlatformConfig.defaultConfig());
+    }
+
+    public VersionTool(PlatformConfig platformConfig) {
+        this.platformConfig = Objects.requireNonNull(platformConfig);
+    }
+
     @Override
     public Command getCommand() {
         return COMMAND;
@@ -55,6 +68,6 @@ public class VersionTool implements Tool {
 
     @Override
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
-        Version.list().forEach(version -> context.getOutputStream().println(version));
+        context.getOutputStream().println(Version.getTableString(platformConfig));
     }
 }
