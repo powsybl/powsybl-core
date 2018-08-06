@@ -13,5 +13,12 @@ addons:
         github_token:
             secure: ${GITHUB_TOKEN}
 
+before_install:
+    - echo $GPG_SECRET_KEYS | base64 --decode | $GPG_EXECUTABLE --import
+    - echo $GPG_OWNERTRUST | base64 --decode | $GPG_EXECUTABLE --import-ownertrust
+
 script:
-- mvn clean verify -Pjacoco coveralls:report sonar:sonar
+- mvn --settings travis-maven.xml clean verify -Pjacoco coveralls:report sonar:sonar
+
+after_success:
+  - [[ ${TRAVIS_PULL_REQUEST} == 'false' ]] && [[ ${TRAVIS_TAG} == '' ]] && mvn deploy -DskipTests --settings travis-maven.xml
