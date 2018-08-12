@@ -6,11 +6,11 @@
  */
 package com.powsybl.commons.config;
 
-import java.nio.file.Path;
-import java.util.*;
-
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
+
+import java.nio.file.Path;
+import java.util.*;
 
 /**
  *
@@ -72,7 +72,11 @@ public interface ModuleConfig {
 
     Path getPathProperty(String name, Path defaultValue);
 
+    Optional<Path> getOptionalPathProperty(String name);
+
     List<Path> getPathListProperty(String name);
+
+    Optional<List<Path>> getOptionalPathListProperty(String name);
 
     <T> Class<? extends T> getClassProperty(String name, Class<T> subClass);
 

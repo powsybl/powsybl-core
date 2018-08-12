@@ -323,18 +323,27 @@ public class MapModuleConfig implements ModuleConfig {
         return value != null ? fs.getPath(value) : null;
     }
 
+    @Override
+    public Optional<Path> getOptionalPathProperty(String name) {
+        return Optional.ofNullable(getPathProperty(name, null));
+    }
+
     public void setPathProperty(String name, Path path) {
         properties.put(name, path.toAbsolutePath().toString());
     }
 
+    private List<Path> toPath(List<String> strings) {
+        return strings.stream().map(fs::getPath).collect(Collectors.toList());
+    }
+
     @Override
     public List<Path> getPathListProperty(String name) {
-        List<String> strings = getStringListProperty(name);
-        List<Path> paths = new ArrayList<>(strings.size());
-        for (String s : strings) {
-            paths.add(fs.getPath(s));
-        }
-        return paths;
+        return toPath(getStringListProperty(name));
+    }
+
+    @Override
+    public Optional<List<Path>> getOptionalPathListProperty(String name) {
+        return getOptionalStringListProperty(name).map(this::toPath);
     }
 
     @Override
