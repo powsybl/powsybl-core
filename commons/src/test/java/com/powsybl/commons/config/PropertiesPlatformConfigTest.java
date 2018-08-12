@@ -146,6 +146,7 @@ public class PropertiesPlatformConfigTest {
                 fail();
             } catch (Exception ignored) {
             }
+            assertFalse(modConfig.getOptionalPathProperty("p2").isPresent());
             assertEquals(Arrays.asList(p, p2), modConfig.getPathListProperty("pl"));
             assertEquals(Arrays.asList(p, p2), modConfig.getPathListProperty("pl2"));
             try {
@@ -153,6 +154,7 @@ public class PropertiesPlatformConfigTest {
                 fail();
             } catch (Exception ignored) {
             }
+            assertFalse(modConfig.getOptionalPathListProperty("pf3").isPresent());
 
             assertEquals(Sets.newHashSet("p", "b", "c", "s", "d", "e", "el", "pl2", "sl2", "sl1", "i", "l", "pl"), modConfig.getPropertyNames());
             assertTrue(modConfig.hasProperty("p"));
