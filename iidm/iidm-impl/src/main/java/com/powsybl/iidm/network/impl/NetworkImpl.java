@@ -11,7 +11,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.math.graph.GraphUtil;
 import com.powsybl.math.graph.GraphUtil.ConnectedComponentsComputationResult;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.TwoTerminalsConnectable.Side;
+import com.powsybl.iidm.network.Branch.Side;
 import com.powsybl.iidm.network.impl.util.RefChain;
 import com.powsybl.iidm.network.impl.util.RefObj;
 import gnu.trove.list.array.TIntArrayList;
@@ -57,11 +57,6 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Mult
         @Override
         public Stream<Bus> getBusStream() {
             return getVoltageLevelStream().flatMap(vl -> vl.getBusBreakerView().getBusStream());
-        }
-
-        @Override
-        public Iterable<Switch> getSwitchs() {
-            return getSwitches();
         }
 
         @Override

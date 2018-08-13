@@ -7,7 +7,6 @@
 package com.powsybl.computation.mpi;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.io.FileUtil;
 import com.powsybl.commons.io.WorkingDirectory;
 import com.powsybl.computation.*;
 import org.slf4j.Logger;
@@ -17,16 +16,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.*;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  *
@@ -93,7 +87,7 @@ public class MpiComputationManager implements ComputationManager {
     }
 
     @Override
-    public OutputStream newCommonFile(final String fileName) throws IOException {
+    public OutputStream newCommonFile(final String fileName) {
         // transfer the common file in fixed size chunks
         return new OutputStream() {
 
@@ -109,7 +103,7 @@ public class MpiComputationManager implements ComputationManager {
             }
 
             @Override
-            public void write(int b) throws IOException {
+            public void write(int b) {
                 buffer.write(b);
                 checkSize(false);
             }
@@ -121,7 +115,7 @@ public class MpiComputationManager implements ComputationManager {
             }
 
             @Override
-            public void write(byte[] b, int off, int len) throws IOException {
+            public void write(byte[] b, int off, int len) {
                 buffer.write(b, off, len);
                 checkSize(false);
             }
@@ -140,89 +134,6 @@ public class MpiComputationManager implements ComputationManager {
     }
 
     @Override
-    public CommandExecutor newCommandExecutor(Map<String, String> env, String workingDirPrefix, boolean debug) throws Exception {
-        Objects.requireNonNull(env);
-        Objects.requireNonNull(workingDirPrefix);
-        Path workingDir = Files.createTempDirectory(localDir, workingDirPrefix);
-        return new CommandExecutor() {
-            @Override
-            public Path getWorkingDir() {
-                return workingDir;
-            }
-
-            @Override
-            public void start(CommandExecution execution, ExecutionListener listener) throws Exception {
-                Objects.requireNonNull(execution);
-                final int[] startCounter = new int[1];
-                final Lock startLock = new ReentrantLock();
-                final Condition zero = startLock.newCondition();
-                scheduler.execute(execution, workingDir, env, new ExecutionListener() {
-
-                    @Override
-                    public void onExecutionStart(int fromExecutionIndex, int toExecutionIndex) {
-                        if (listener != null) {
-                            listener.onExecutionStart(fromExecutionIndex, toExecutionIndex);
-                        }
-                    }
-
-                    @Override
-                    public void onExecutionCompletion(int executionIndex) {
-                        if (listener != null) {
-                            listener.onExecutionCompletion(executionIndex);
-                        }
-                    }
-
-                    @Override
-                    public void onEnd(ExecutionReport report) {
-                        startLock.lock();
-                        try {
-                            startCounter[0]--;
-                            if (startCounter[0] == 0) {
-                                zero.signal();
-                            }
-                        } finally {
-                            startLock.unlock();
-                        }
-                        if (listener != null) {
-                            listener.onEnd(report);
-                        }
-                    }
-
-                });
-                startLock.lock();
-                try {
-                    startCounter[0]++;
-                } finally {
-                    startLock.unlock();
-                }
-            }
-
-            @Override
-            public ExecutionReport start(CommandExecution execution) throws Exception {
-                final CountDownLatch latch = new CountDownLatch(1);
-                final ExecutionReport[] reports = new ExecutionReport[1];
-                start(execution, new DefaultExecutionListener() {
-
-                    @Override
-                    public void onEnd(ExecutionReport report) {
-                        reports[0] = report;
-                        latch.countDown();
-                    }
-                });
-                latch.await();
-                return reports[0];
-            }
-
-            @Override
-            public void close() throws Exception {
-                if (!debug) {
-                    FileUtil.removeDir(workingDir);
-                }
-            }
-        };
-    }
-
-    @Override
     public <R> CompletableFuture<R> execute(final ExecutionEnvironment environment,
                                             final ExecutionHandler<R> handler) {
         Objects.requireNonNull(environment);
@@ -230,11 +141,11 @@ public class MpiComputationManager implements ComputationManager {
 
         class AsyncContext {
 
-            WorkingDirectory workingDir;
+            private WorkingDirectory workingDir;
 
-            List<CommandExecution> parametersList;
+            private List<CommandExecution> parametersList;
 
-            ExecutionReport report;
+            private ExecutionReport report;
 
         }
 

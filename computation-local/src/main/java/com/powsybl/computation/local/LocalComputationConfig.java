@@ -6,12 +6,17 @@
  */
 package com.powsybl.computation.local;
 
+import com.powsybl.commons.config.ConfigurationException;
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 
+import java.nio.file.FileSystem;
+import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -20,7 +25,7 @@ public class LocalComputationConfig {
 
     private static final String CONFIG_MODULE_NAME = "computation-local";
 
-    private static final Path DEFAULT_LOCAL_DIR = Paths.get(System.getProperty("java.io.tmpdir"));
+    static final String DEFAULT_LOCAL_DIR = System.getProperty("java.io.tmpdir");
 
     private static final int DEFAULT_AVAILABLE_CORE = 1;
 
@@ -32,15 +37,37 @@ public class LocalComputationConfig {
         return load(PlatformConfig.defaultConfig());
     }
 
+    private static Path getDefaultLocalDir(FileSystem fileSystem) {
+        return fileSystem.getPath(DEFAULT_LOCAL_DIR);
+    }
+
+    private static Optional<Path> getTmpDir(ModuleConfig config, String name) {
+        return config.getOptionalPathListProperty(name)
+                .map(paths -> {
+                    if (paths.isEmpty()) {
+                        throw new ConfigurationException("Empty tmp dir list");
+                    }
+                    List<Path> checkedPaths = paths.stream().filter(Files::exists).collect(Collectors.toList());
+                    if (checkedPaths.isEmpty()) {
+                        throw new ConfigurationException("None of the tmp dir path of the list exist");
+                    }
+                    return checkedPaths.get(0);
+                });
+    }
+
     public static LocalComputationConfig load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
 
-        Path localDir = DEFAULT_LOCAL_DIR;
+        Path localDir = getDefaultLocalDir(platformConfig.getFileSystem());
         int availableCore = DEFAULT_AVAILABLE_CORE;
         if (platformConfig.moduleExists(CONFIG_MODULE_NAME)) {
             ModuleConfig config = platformConfig.getModuleConfig(CONFIG_MODULE_NAME);
-            localDir = config.getPathProperty("tmpDir", DEFAULT_LOCAL_DIR);
-            availableCore = config.getIntProperty("availableCore", DEFAULT_AVAILABLE_CORE);
+            localDir = getTmpDir(config, "tmpDir")
+                           .orElseGet(() -> getTmpDir(config, "tmp-dir")
+                                                .orElseGet(() -> getDefaultLocalDir(platformConfig.getFileSystem())));
+            availableCore = config.getOptionalIntegerProperty("availableCore")
+                                  .orElseGet(() -> config.getOptionalIntegerProperty("available-core")
+                                                         .orElse(DEFAULT_AVAILABLE_CORE));
         }
         if (availableCore <= 0) {
             availableCore = Runtime.getRuntime().availableProcessors();

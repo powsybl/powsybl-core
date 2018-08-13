@@ -13,6 +13,10 @@ import com.powsybl.commons.PowsyblException;
  */
 public class ConfigurationException extends PowsyblException {
 
+    public ConfigurationException(String msg) {
+        super(msg);
+    }
+
     public ConfigurationException(Throwable throwable) {
         super(throwable);
     }

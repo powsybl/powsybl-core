@@ -14,15 +14,5 @@ import com.powsybl.iidm.network.Network;
  */
 public interface ModificationTask {
 
-    /**
-     * @deprecated Use modify(Network, ComputationManager) instead.
-     */
-    @Deprecated
-    default void modify(Network network) {
-        modify(network, null);
-    }
-
-    default void modify(Network network, ComputationManager computationManager) {
-        modify(network);
-    }
+    void modify(Network network, ComputationManager computationManager);
 }

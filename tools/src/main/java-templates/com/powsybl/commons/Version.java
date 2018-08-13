@@ -16,9 +16,10 @@ import java.util.Map;
 import org.joda.time.DateTime;
 
 /**
- *
+ * @deprecated Use {@link com.powsybl.tools.Version} instead.
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
+@Deprecated
 public class Version {
 
     public static final Version VERSION = new Version();

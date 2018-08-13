@@ -16,8 +16,8 @@ import com.powsybl.commons.io.table.Column;
 import com.powsybl.commons.io.table.TableFormatter;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.commons.io.table.TableFormatterFactory;
+import com.powsybl.iidm.network.Branch.Side;
 import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
-import com.powsybl.iidm.network.TwoTerminalsConnectable.Side;
 import com.powsybl.loadflow.validation.ValidationType;
 
 /**

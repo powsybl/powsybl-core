@@ -57,16 +57,6 @@ public interface Network extends Container<Network> {
         Stream<Bus> getBusStream();
 
         /**
-         * Get all switches.
-         *
-         * @deprecated use getSwitches() instead.
-         */
-        @Deprecated
-        default Iterable<Switch> getSwitchs() {
-            throw new UnsupportedOperationException("deprecated");
-        }
-
-        /**
          * Get all switches
          */
         Iterable<Switch> getSwitches();

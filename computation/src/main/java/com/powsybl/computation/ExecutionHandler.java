@@ -20,17 +20,7 @@ public interface ExecutionHandler<R> {
 
     void onExecutionStart(CommandExecution execution, int executionIndex);
 
-    default void onExecutionCompletion(CommandExecution execution, int executionIndex) {
-        onProgress(execution, executionIndex);
-    }
-
-    /**
-     * @deprecated Use onExecutionCompletion(CommandExecution, int) instead.
-     */
-    @Deprecated
-    default void onProgress(CommandExecution execution, int executionIndex) {
-        throw new UnsupportedOperationException("deprecated");
-    }
+    void onExecutionCompletion(CommandExecution execution, int executionIndex);
 
     R after(Path workingDir, ExecutionReport report) throws IOException;
 

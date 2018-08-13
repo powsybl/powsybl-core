@@ -16,13 +16,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import com.powsybl.iidm.network.Branch.Side;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.RatioTapChanger;
 import com.powsybl.iidm.network.RatioTapChangerStep;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.Terminal.BusView;
-import com.powsybl.iidm.network.TwoTerminalsConnectable.Side;
 import com.powsybl.loadflow.validation.io.ValidationWriter;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 
