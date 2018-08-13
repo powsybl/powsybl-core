@@ -40,7 +40,7 @@ public class ParallelLoadFlowActionSimulatorTest {
         when(context.getLongTimeExecutionComputationManager()).thenReturn(computationManager);
 
         CommandLine commandLine = mock(CommandLine.class);
-        when(commandLine.getOptionValue(ActionSimulatorToolConstants.TASKS)).thenReturn("7");
+        when(commandLine.getOptionValue(ActionSimulatorToolConstants.TASK_COUNT)).thenReturn("7");
 
         LoadFlowActionSimulatorConfig config = mock(LoadFlowActionSimulatorConfig.class);
 

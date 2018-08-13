@@ -35,7 +35,7 @@ public class TableFormatterConfig {
         return load(PlatformConfig.defaultConfig());
     }
 
-    static TableFormatterConfig load(PlatformConfig platformConfig) {
+    public static TableFormatterConfig load(PlatformConfig platformConfig) {
         String language = DEFAULT_LANGUAGE;
         String separator = Character.toString(DEFAULT_CSV_SEPARATOR);
         String invalidString = DEFAULT_INVALID_STRING;

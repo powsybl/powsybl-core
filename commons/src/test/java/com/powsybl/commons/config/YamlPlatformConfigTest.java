@@ -20,6 +20,7 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.EnumSet;
 
 import static org.junit.Assert.*;
@@ -71,8 +72,10 @@ public class YamlPlatformConfigTest {
             PlatformConfig config = YamlPlatformConfig.create(fileSystem, cfgDir, cacheDir, "config")
                     .orElseThrow(AssertionError::new);
             assertNull(config.getModuleConfigIfExists("module2"));
+            assertFalse(config.getOptionalModuleConfig("module2").isPresent());
             ModuleConfig module1 = config.getModuleConfig("module1");
             assertEquals("a", module1.getStringProperty("s"));
+            assertEquals(Collections.singletonList("a"), module1.getStringListProperty("s"));
             assertEquals(Arrays.asList("a", "b", "c"), module1.getStringListProperty("sl"));
             assertEquals(EnumSet.of(E.E1, E.E2, E.E3), module1.getEnumSetProperty("el", E.class));
             assertEquals(3, module1.getIntProperty("i"));

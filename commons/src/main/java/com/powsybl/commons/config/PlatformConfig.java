@@ -13,6 +13,7 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  *
@@ -94,6 +95,10 @@ public class PlatformConfig {
 
     public ModuleConfig getModuleConfigIfExists(String name) {
         return container.getModuleConfigIfExists(name);
+    }
+
+    public Optional<ModuleConfig> getOptionalModuleConfig(String name) {
+        return Optional.ofNullable(container.getModuleConfigIfExists(name));
     }
 
     static Path getDefaultConfigDir(FileSystem fileSystem) {
