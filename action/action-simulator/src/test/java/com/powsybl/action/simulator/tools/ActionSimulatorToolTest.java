@@ -59,7 +59,7 @@ public class ActionSimulatorToolTest extends AbstractToolTest {
         assertOption(command.getOptions(), "output-compression-format", false, true);
         assertOption(command.getOptions(), "task-count", false, true);
         assertOption(command.getOptions(), "task", false, true);
-        assertOption(command.getOptions(), "export-each-round", false, false);
+        assertOption(command.getOptions(), "export-after-each-round", false, false);
     }
 
     @Before

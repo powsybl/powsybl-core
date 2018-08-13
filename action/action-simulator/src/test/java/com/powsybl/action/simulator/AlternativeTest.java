@@ -17,9 +17,9 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-public class AlternatifTest extends AbstractLoadFlowRulesEngineTest {
+public class AlternativeTest extends AbstractLoadFlowRulesEngineTest {
 
-    LoadFlowActionSimulatorObserver obs;
+    private final LoadFlowActionSimulatorObserver obs = Mockito.mock(LoadFlowActionSimulatorObserver.class);
 
     @Override
     protected Network createNetwork() {
@@ -51,8 +51,7 @@ public class AlternatifTest extends AbstractLoadFlowRulesEngineTest {
 
     @Override
     protected LoadFlowActionSimulatorObserver createObserver() {
-        this.obs = Mockito.mock(LoadFlowActionSimulatorObserver.class);
-        return this.obs;
+        return obs;
     }
 
 }

@@ -11,14 +11,12 @@ import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.DataSourceUtil;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.export.Exporters;
-import com.powsybl.iidm.network.Network;
 import com.powsybl.security.LimitViolation;
 
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
-
 
 /**
  * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
@@ -47,52 +45,48 @@ public class CaseExporter extends DefaultLoadFlowActionSimulatorObserver {
 
     @Override
     public void loadFlowDiverged(RunningContext runningContext) {
-        exportNetwork(runningContext.getContingency(), runningContext.getNetwork(), runningContext.getRound());
+        exportNetwork(runningContext);
     }
 
     @Override
     public void loadFlowConverged(RunningContext runningContext, List<LimitViolation> violations) {
         if (exportEachRound) {
-            exportNetwork(runningContext.getContingency(), runningContext.getNetwork(), runningContext.getRound());
+            exportNetwork(runningContext);
         }
     }
 
-    private void exportNetwork(Contingency contingency, Network network, int round) {
-        DataSource dataSource = DataSourceUtil.createDataSource(outputCaseFolder, getBasename(contingency, round), compressionFormat, null);
-        Exporters.export(outputCaseFormat, network, new Properties(), dataSource);
+    private void exportNetwork(RunningContext context) {
+        DataSource dataSource = DataSourceUtil.createDataSource(outputCaseFolder, getBasename(context.getContingency(), context.getRound()), compressionFormat, null);
+        Exporters.export(outputCaseFormat, context.getNetwork(), new Properties(), dataSource);
     }
 
     /**
      * Return the basename of the case file based on the initial basename, the contingency Id and the round
      */
-    private final String getBasename(Contingency contingency, int round) {
-        return new StringBuilder()
-            .append(basename)
-            .append("-")
-            .append((contingency == null) ? "N" : contingency.getId())
-            .append("-R")
-            .append(round)
-            .toString();
+    private String getBasename(Contingency contingency, int round) {
+        String stateId = (contingency == null) ? "N" : contingency.getId();
+
+        return basename + "-" + stateId + "-R" + round;
     }
 
     @Override
     public void noMoreViolations(RunningContext runningContext) {
         if (!exportEachRound) {
-            exportNetwork(runningContext.getContingency(), runningContext.getNetwork(), runningContext.getRound());
+            exportNetwork(runningContext);
         }
     }
 
     @Override
     public void violationsAnymoreAndNoRulesMatch(RunningContext runningContext) {
         if (!exportEachRound) {
-            exportNetwork(runningContext.getContingency(), runningContext.getNetwork(), runningContext.getRound());
+            exportNetwork(runningContext);
         }
     }
 
     @Override
     public void maxIterationsReached(RunningContext runningContext) {
         if (!exportEachRound) {
-            exportNetwork(runningContext.getContingency(), runningContext.getNetwork(), runningContext.getRound());
+            exportNetwork(runningContext);
         }
     }
 

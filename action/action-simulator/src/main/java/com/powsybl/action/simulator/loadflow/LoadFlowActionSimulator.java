@@ -37,8 +37,9 @@ public class LoadFlowActionSimulator implements ActionSimulator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LoadFlowActionSimulator.class);
 
-    public static final LimitViolationFilter LIMIT_VIOLATION_FILTER = new LimitViolationFilter(EnumSet.of(LimitViolationType.CURRENT), 0.0);
-    public static final LimitViolationFilter NO_FILTER = new LimitViolationFilter();
+    static final LimitViolationFilter LIMIT_VIOLATION_FILTER = new LimitViolationFilter(EnumSet.of(LimitViolationType.CURRENT), 0.0);
+
+    static final LimitViolationFilter NO_FILTER = new LimitViolationFilter();
 
     private final Network network;
 
@@ -238,7 +239,7 @@ public class LoadFlowActionSimulator implements ActionSimulator {
         }
 
         if (context.getRound() + 1 == config.getMaxIterations()) {
-            LOGGER.info("Max number of iterations rached");
+            LOGGER.info("Max number of iterations reached");
             observers.forEach(o -> o.maxIterationsReached(context));
             return false;
         }

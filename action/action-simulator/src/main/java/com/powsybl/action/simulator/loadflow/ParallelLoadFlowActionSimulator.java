@@ -52,7 +52,7 @@ public class ParallelLoadFlowActionSimulator extends LoadFlowActionSimulator {
                                            LoadFlowActionSimulatorConfig config, boolean applyIfSolved, List<LoadFlowActionSimulatorObserver> observers) {
         super(network, context.getLongTimeExecutionComputationManager(), config, applyIfSolved, observers);
         this.commandLine = Objects.requireNonNull(commandLine);
-        this.taskCount = Integer.parseInt(commandLine.getOptionValue(TASKS));
+        this.taskCount = Integer.parseInt(commandLine.getOptionValue(TASK_COUNT));
     }
 
     @Override

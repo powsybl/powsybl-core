@@ -126,7 +126,7 @@ public class ActionSimulatorTool implements Tool {
                         .hasArg()
                         .argName("COMPRESSION_FORMAT")
                         .build());
-                options.addOption(Option.builder().longOpt(TASKS)
+                options.addOption(Option.builder().longOpt(TASK_COUNT)
                         .desc("number of tasks used for parallelization")
                         .hasArg()
                         .argName("NTASKS")
@@ -136,8 +136,8 @@ public class ActionSimulatorTool implements Tool {
                         .hasArg()
                         .argName("TASKID")
                         .build());
-                options.addOption(Option.builder().longOpt(EXPORT_EACH_ROUND)
-                        .desc("export each round")
+                options.addOption(Option.builder().longOpt(EXPORT_AFTER_EACH_ROUND)
+                        .desc("export case after each round")
                         .required(false)
                         .build());
                 return options;
@@ -179,12 +179,11 @@ public class ActionSimulatorTool implements Tool {
                                                                      : Collections.emptyList();
         boolean verbose = line.hasOption(VERBOSE);
         boolean applyIfSolved = line.hasOption(APPLY_IF_SOLVED_VIOLATIONS);
-        boolean exportEachRound = line.hasOption(EXPORT_EACH_ROUND);
 
         // check options
         Path outputCaseFolder = null;
         String outputCaseFormat = null;
-        if (!line.hasOption(TASKS) && line.hasOption(OUTPUT_CASE_FOLDER)) {
+        if (!line.hasOption(TASK_COUNT) && line.hasOption(OUTPUT_CASE_FOLDER)) {
             outputCaseFolder = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_CASE_FOLDER));
             outputCaseFormat = line.getOptionValue(OUTPUT_CASE_FORMAT);
             if (!line.hasOption(OUTPUT_CASE_FORMAT)) {
@@ -194,7 +193,7 @@ public class ActionSimulatorTool implements Tool {
             }
         }
 
-        if (line.hasOption(TASKS)) {
+        if (line.hasOption(TASK_COUNT)) {
             checkOptionsInParallel(line);
         }
 
@@ -234,6 +233,8 @@ public class ActionSimulatorTool implements Tool {
             observers.add(resultPrinter);
 
             if (outputCaseFolder != null) {
+                boolean exportEachRound = line.hasOption(EXPORT_AFTER_EACH_ROUND);
+
                 CompressionFormat compressionFormat = CommandLineUtil.getOptionValue(line, OUTPUT_COMPRESSION_FORMAT, CompressionFormat.class, null);
                 observers.add(createCaseExporter(outputCaseFolder, DataSourceUtil.getBaseName(caseFile), outputCaseFormat, compressionFormat, exportEachRound));
             }
@@ -255,8 +256,8 @@ public class ActionSimulatorTool implements Tool {
 
     private ActionSimulator createActionSimulator(Network network, ToolRunningContext context, CommandLine line,
                                                   LoadFlowActionSimulatorConfig config, boolean applyIfSolved, List<LoadFlowActionSimulatorObserver> observers) throws IOException {
-        ActionSimulator actionSimulator = null;
-        if (line.hasOption(TASKS)) {
+        ActionSimulator actionSimulator;
+        if (line.hasOption(TASK_COUNT)) {
             actionSimulator = new ParallelLoadFlowActionSimulator(network, context, line, config, applyIfSolved, observers);
         } else if (line.hasOption(TASK)) {
             Partition partition = Partition.parse(line.getOptionValue(TASK));
@@ -284,7 +285,7 @@ public class ActionSimulatorTool implements Tool {
 
         private final boolean verbose;
 
-        public ActionDslLoaderObserver(PrintStream outputStream, boolean verbose) {
+        ActionDslLoaderObserver(PrintStream outputStream, boolean verbose) {
             this.outputStream = Objects.requireNonNull(outputStream);
             this.verbose = verbose;
         }
