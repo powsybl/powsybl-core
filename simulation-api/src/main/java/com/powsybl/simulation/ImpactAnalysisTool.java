@@ -12,6 +12,7 @@ import com.google.common.collect.Multimaps;
 import com.google.common.collect.Sets;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.ComponentDefaultConfig;
+import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
 import com.powsybl.tools.ToolRunningContext;
@@ -77,7 +78,7 @@ public class ImpactAnalysisTool implements Tool {
             public Options getOptions() {
                 Options options = new Options();
                 options.addOption(Option.builder().longOpt(CASE_FILE)
-                        .desc("the case path")
+                        .desc("the case path. " + ImportConfig.postProcessorsInfo())
                         .hasArg()
                         .argName("FILE")
                         .required()

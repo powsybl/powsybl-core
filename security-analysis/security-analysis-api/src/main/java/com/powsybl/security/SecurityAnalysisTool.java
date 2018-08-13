@@ -10,6 +10,7 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.table.AsciiTableFormatterFactory;
 import com.powsybl.commons.io.table.TableFormatterConfig;
+import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.converter.SecurityAnalysisResultExporters;
@@ -69,7 +70,7 @@ public class SecurityAnalysisTool implements Tool {
             public Options getOptions() {
                 Options options = new Options();
                 options.addOption(Option.builder().longOpt(CASE_FILE_OPTION)
-                    .desc("the case path")
+                    .desc("the case path. " + ImportConfig.postProcessorsInfo())
                     .hasArg()
                     .argName("FILE")
                     .required()
