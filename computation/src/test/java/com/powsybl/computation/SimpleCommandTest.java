@@ -50,6 +50,19 @@ public class SimpleCommandTest {
         assertEquals(ImmutableList.of("arg1", "file1"), cmd1.getArgs(1));
     }
 
+    @Test
+    public void testInhomogeneousArgs() {
+        SimpleCommand cmd1 = new SimpleCommandBuilder()
+                .id("cmd1")
+                .program("prg1")
+                .args("literal_arg_1", "literal_arg_2")
+                .arg("literal_arg_3")
+                .arg(i -> "instantiated_arg_" + i)
+                .build();
+
+        assertEquals(ImmutableList.of("literal_arg_1", "literal_arg_2", "literal_arg_3", "instantiated_arg_4"), cmd1.getArgs(4));
+    }
+
     @Test(expected = RuntimeException.class)
     public void testErrorTimeout() {
         new SimpleCommandBuilder()
