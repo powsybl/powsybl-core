@@ -23,6 +23,7 @@ import java.net.URI;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -34,33 +35,37 @@ public class RemoteAppFileSystemProvider implements AppFileSystemProvider {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RemoteAppFileSystemProvider.class);
 
-    private final Supplier<RemoteServiceConfig> configSupplier;
+    private final Supplier<Optional<RemoteServiceConfig>> configSupplier;
 
     public RemoteAppFileSystemProvider() {
-        this(RemoteServiceConfig.INSTANCE);
+        this(RemoteServiceConfig::load2);
     }
 
-    public RemoteAppFileSystemProvider(Supplier<RemoteServiceConfig> configSupplier) {
+    public RemoteAppFileSystemProvider(Supplier<Optional<RemoteServiceConfig>> configSupplier) {
         this.configSupplier = Objects.requireNonNull(configSupplier);
     }
 
     @Override
     public List<AppFileSystem> getFileSystems(AppFileSystemProviderContext context) {
         Objects.requireNonNull(context);
-        RemoteServiceConfig config = configSupplier.get();
-        Objects.requireNonNull(config);
-        URI uri = config.getRestUri();
-        try {
-            return RemoteAppStorage.getFileSystemNames(uri, context.getToken()).stream()
-                    .map(fileSystemName -> {
-                        RemoteAppStorage storage = new RemoteAppStorage(fileSystemName, uri, context.getToken());
-                        RemoteListenableAppStorage listenableStorage = new RemoteListenableAppStorage(storage, uri);
-                        RemoteTaskMonitor taskMonitor = new RemoteTaskMonitor(fileSystemName, uri, context.getToken());
-                        return new AppFileSystem(fileSystemName, true, listenableStorage, taskMonitor);
-                    })
-                    .collect(Collectors.toList());
-        } catch (ProcessingException e) {
-            LOGGER.warn(e.toString());
+        Optional<RemoteServiceConfig> config = configSupplier.get();
+        if (config.isPresent()) {
+            URI uri = config.get().getRestUri();
+            try {
+                return RemoteAppStorage.getFileSystemNames(uri, context.getToken()).stream()
+                        .map(fileSystemName -> {
+                            RemoteAppStorage storage = new RemoteAppStorage(fileSystemName, uri, context.getToken());
+                            RemoteListenableAppStorage listenableStorage = new RemoteListenableAppStorage(storage, uri);
+                            RemoteTaskMonitor taskMonitor = new RemoteTaskMonitor(fileSystemName, uri, context.getToken());
+                            return new AppFileSystem(fileSystemName, true, listenableStorage, taskMonitor);
+                        })
+                        .collect(Collectors.toList());
+            } catch (ProcessingException e) {
+                LOGGER.warn(e.toString());
+                return Collections.emptyList();
+            }
+        } else {
+            LOGGER.warn("Remote service config is missing");
             return Collections.emptyList();
         }
     }
