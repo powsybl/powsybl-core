@@ -82,6 +82,14 @@ public class LoadFlowActionSimulator implements ActionSimulator {
         return config;
     }
 
+    protected Network getNetwork() {
+        return network;
+    }
+
+    protected boolean isApplyIfSolvedViolations() {
+        return applyIfSolvedViolations;
+    }
+
     @Override
     public void start(ActionDb actionDb, String... contingencyIds) {
         start(actionDb, Arrays.asList(contingencyIds));
