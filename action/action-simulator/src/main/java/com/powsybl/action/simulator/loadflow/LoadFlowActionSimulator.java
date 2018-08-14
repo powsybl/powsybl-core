@@ -336,6 +336,11 @@ public class LoadFlowActionSimulator implements ActionSimulator {
                                 .distinct()
                                 .filter(id -> !context.isTested(id))
                                 .collect(Collectors.toList());
+
+        if (testActionIds.isEmpty()) {
+            return;
+        }
+
         byte[] contextNetwork = NetworkXml.gzip(context.getNetwork());
 
         for (String actionId : testActionIds) {
