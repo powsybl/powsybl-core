@@ -107,7 +107,6 @@ public class ParallelLoadFlowActionSimulator extends LoadFlowActionSimulator {
                     .program(ITOOLS_PRG)
                     .id(SUB_TASK_ID)
                     .build();
-            LOGGER.debug("Submitting command: {}", subItoolsCmd.toString(1));
             return Collections.singletonList(new CommandExecution(subItoolsCmd, actualTaskCount, 1));
         }
 
@@ -123,6 +122,10 @@ public class ParallelLoadFlowActionSimulator extends LoadFlowActionSimulator {
                 results.add(SecurityAnalysisResultDeserializer.read(taskResultFile));
             }
             return SecurityAnalysisResultMerger.merge(results);
+        }
+
+        private String getOutputFileName(int taskNumber) {
+            return "task_" + taskNumber + "_result.json";
         }
 
         private SimpleCommandBuilder buildCommand(Path workingDir) throws IOException {
@@ -143,7 +146,7 @@ public class ParallelLoadFlowActionSimulator extends LoadFlowActionSimulator {
                 .addOption(CASE_FILE, networkDest.toString())
                 .addOption(DSL_FILE, dslFileDest.toString())
                 .addOption(TASK, i -> new Partition(i + 1, actualTaskCount).toString())
-                .addOption(OUTPUT_FILE, i -> getOutputFileName(i))
+                .addOption(OUTPUT_FILE, this::getOutputFileName)
                 .addOption(OUTPUT_FORMAT, "JSON")
                 .addFlag(APPLY_IF_SOLVED_VIOLATIONS, isApplyIfSolvedViolations());
 
@@ -193,9 +196,5 @@ public class ParallelLoadFlowActionSimulator extends LoadFlowActionSimulator {
             super.arg(arg);
             return this;
         }
-    }
-
-    private static String getOutputFileName(int taskNumber) {
-        return "task_" + taskNumber + "_result.json";
     }
 }
