@@ -30,9 +30,7 @@ public class LazyCreatedComputationManager implements ComputationManager {
     private synchronized ComputationManager getComputationManager() {
         if (delegate == null) {
             delegate = factory.create();
-            if (delegate == null) {
-                throw new NullPointerException("Computation manager factory returned null");
-            }
+            Objects.requireNonNull(delegate, "Computation manager factory returned null");
         }
         return delegate;
     }
