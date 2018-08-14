@@ -10,19 +10,20 @@ import com.powsybl.action.dsl.ActionDb;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.computation.*;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.xml.NetworkXml;
 import com.powsybl.security.SecurityAnalysisResult;
 import com.powsybl.security.SecurityAnalysisResultMerger;
-import com.powsybl.security.converter.SecurityAnalysisResultExporters;
 import com.powsybl.security.json.SecurityAnalysisResultDeserializer;
-import com.powsybl.tools.ToolRunningContext;
-import org.apache.commons.cli.CommandLine;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 import static com.powsybl.action.simulator.tools.ActionSimulatorToolConstants.*;
 
@@ -31,28 +32,31 @@ import static com.powsybl.action.simulator.tools.ActionSimulatorToolConstants.*;
  */
 public class ParallelLoadFlowActionSimulator extends LoadFlowActionSimulator {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ParallelLoadFlowActionSimulator.class);
+
     private static final String ITOOLS_PRG = "itools";
 
     private final int taskCount;
-
-    private final CommandLine commandLine;
+    private final Path dslFile;
+    private final List<Consumer<SecurityAnalysisResult>> resultHandlers;
 
     private static final String SUB_TASK_ID = "sas"; // sub_action_simulator
 
-    public ParallelLoadFlowActionSimulator(Network network, ToolRunningContext context, CommandLine commandLine) {
-        this(network, context, commandLine, LoadFlowActionSimulatorConfig.load(), false, Collections.emptyList());
+    public ParallelLoadFlowActionSimulator(Network network, Path dslFile, ComputationManager cm, int taskCount) {
+        this(network, dslFile, cm, taskCount, LoadFlowActionSimulatorConfig.load(), false, Collections.emptyList());
     }
 
-    public ParallelLoadFlowActionSimulator(Network network, ToolRunningContext context, CommandLine commandLine,
-                                           LoadFlowActionSimulatorConfig config, boolean applyIfSolved, LoadFlowActionSimulatorObserver... observers) {
-        this(network, context, commandLine, config, applyIfSolved, Arrays.asList(observers));
+    public ParallelLoadFlowActionSimulator(Network network, Path dslFile, ComputationManager cm, int taskCount, LoadFlowActionSimulatorConfig config,
+                                           boolean applyIfSolved, Consumer<SecurityAnalysisResult>... resultHandlers) {
+        this(network, dslFile, cm, taskCount, config, applyIfSolved, Arrays.asList(resultHandlers));
     }
 
-    public ParallelLoadFlowActionSimulator(Network network, ToolRunningContext context, CommandLine commandLine,
-                                           LoadFlowActionSimulatorConfig config, boolean applyIfSolved, List<LoadFlowActionSimulatorObserver> observers) {
-        super(network, context.getLongTimeExecutionComputationManager(), config, applyIfSolved, observers);
-        this.commandLine = Objects.requireNonNull(commandLine);
-        this.taskCount = Integer.parseInt(commandLine.getOptionValue(TASK_COUNT));
+    public ParallelLoadFlowActionSimulator(Network network, Path dslFile, ComputationManager cm, int taskCount, LoadFlowActionSimulatorConfig config,
+                                           boolean applyIfSolved, List<Consumer<SecurityAnalysisResult>> resultHandlers) {
+        super(network, cm, config, applyIfSolved);
+        this.dslFile = Objects.requireNonNull(dslFile);
+        this.taskCount = taskCount;
+        this.resultHandlers = resultHandlers;
     }
 
     @Override
@@ -62,30 +66,20 @@ public class ParallelLoadFlowActionSimulator extends LoadFlowActionSimulator {
 
     @Override
     public void start(ActionDb actionDb, List<String> contingencyIds) {
+
+        LOGGER.debug("Starting parallel action simulator.");
+
         ComputationManager manager = getComputationManager();
         ExecutionEnvironment itoolsEnvironment = new ExecutionEnvironment(Collections.emptyMap(), "subTask_", getConfig().isDebug());
 
-        int atMostTasks = Integer.min(taskCount, contingencyIds.size());
-        List<CompletableFuture<SecurityAnalysisResult>> results = new ArrayList<>();
-        for (int i = 1; i <= atMostTasks; i++) {
-            CompletableFuture<SecurityAnalysisResult> future = manager.execute(itoolsEnvironment,
-                    new SubTaskHandler(new Partition(i, atMostTasks)));
-            results.add(future);
-        }
-        CompletableFuture.allOf(results.toArray(new CompletableFuture[0])).join();
-
-        // merge results and re-print to output-file
-        SecurityAnalysisResult[] securityAnalysisResults = new SecurityAnalysisResult[results.size()];
+        int actualTaskCount = Math.min(taskCount, contingencyIds.size());
+        CompletableFuture<SecurityAnalysisResult> future = manager.execute(itoolsEnvironment, new SubTaskHandler(actualTaskCount));
         try {
-            for (int i = 0; i < results.size(); i++) {
-                securityAnalysisResults[i] = results.get(i).get();
-            }
+            SecurityAnalysisResult result = future.get();
+            resultHandlers.forEach(h -> h.accept(result));
         } catch (Exception e) {
             throw new PowsyblException(e);
         }
-
-        SecurityAnalysisResult securityAnalysisResult = SecurityAnalysisResultMerger.merge(securityAnalysisResults);
-        SecurityAnalysisResultExporters.export(securityAnalysisResult, Paths.get(commandLine.getOptionValue(OUTPUT_FILE)), commandLine.getOptionValue(OUTPUT_FORMAT));
     }
 
     @Override
@@ -93,84 +87,114 @@ public class ParallelLoadFlowActionSimulator extends LoadFlowActionSimulator {
         start(actionDb, Arrays.asList(contingencyIds));
     }
 
+    /**
+     * Execution handler for sub-tasks.
+     * copies network and groovy file to working directory,
+     * then launches one itools command for each subtask.
+     * Finally, reads and merge results.
+     */
     private class SubTaskHandler extends AbstractExecutionHandler<SecurityAnalysisResult> {
 
-        private final Partition partition;
+        private final int actualTaskCount;
 
-        SubTaskHandler(Partition partition) {
-            this.partition = Objects.requireNonNull(partition);
+        SubTaskHandler(int actualTaskCount) {
+            this.actualTaskCount = actualTaskCount;
         }
 
         @Override
         public List<CommandExecution> before(Path workingDir) throws IOException {
-            List<String> args = rebuildSubProgramArgs(workingDir);
-            SimpleCommand subItoolsCmd = new SimpleCommandBuilder()
+            SimpleCommand subItoolsCmd = buildCommand(workingDir)
                     .program(ITOOLS_PRG)
                     .id(SUB_TASK_ID)
-                    .args(args)
                     .build();
-            return Collections.singletonList(new CommandExecution(subItoolsCmd, 1, 1));
+            return Collections.singletonList(new CommandExecution(subItoolsCmd, actualTaskCount, 1));
+        }
+
+        /**
+         * Reads result files and merge them.
+         */
+        @Override
+        public SecurityAnalysisResult after(Path workingDir, ExecutionReport report) {
+            LOGGER.debug("End of command execution in {}. ", workingDir);
+            List<SecurityAnalysisResult> results = new ArrayList<>();
+            for (int taskNum = 0; taskNum < actualTaskCount; taskNum++) {
+                Path taskResultFile = workingDir.resolve(getOutputFileName(taskNum));
+                results.add(SecurityAnalysisResultDeserializer.read(taskResultFile));
+            }
+            return SecurityAnalysisResultMerger.merge(results);
+        }
+
+        private String getOutputFileName(int taskNumber) {
+            return "task_" + taskNumber + "_result.json";
+        }
+
+        private SimpleCommandBuilder buildCommand(Path workingDir) throws IOException {
+
+            OptionCommandBuilder builder = new OptionCommandBuilder();
+
+            // copy input files to slave workingDir
+            Path networkDest = workingDir.resolve("network.xiidm");
+            LOGGER.debug("Copying network to file {}", networkDest);
+            NetworkXml.write(getNetwork(), networkDest);
+
+            Path dslFileDest = workingDir.resolve("action-script.groovy");
+            LOGGER.debug("Copying action file from {} to {}", dslFile, dslFileDest);
+            Files.copy(dslFile, dslFileDest);
+
+            builder
+                .arg("action-simulator")
+                .addOption(CASE_FILE, networkDest.toString())
+                .addOption(DSL_FILE, dslFileDest.toString())
+                .addOption(TASK, i -> new Partition(i + 1, actualTaskCount).toString())
+                .addOption(OUTPUT_FILE, this::getOutputFileName)
+                .addOption(OUTPUT_FORMAT, "JSON")
+                .addFlag(APPLY_IF_SOLVED_VIOLATIONS, isApplyIfSolvedViolations());
+
+            return builder;
+        }
+    }
+
+    /**
+     * Simple command builder with additional methods to easily add options as "--opt=value"
+     */
+    protected static class OptionCommandBuilder extends SimpleCommandBuilder {
+
+        /**
+         * Adds a literal option.
+         */
+        public OptionCommandBuilder addFlag(String flagName, boolean flagValue) {
+            if (flagValue) {
+                arg("--" + flagName);
+            }
+            return this;
+        }
+
+        /**
+         * Adds a literal option.
+         */
+        public OptionCommandBuilder addOption(String opt, String value) {
+            arg("--" + opt + "=" + value);
+            return this;
+        }
+
+        /**
+         * Adds an option dependent on the execution count
+         */
+        public OptionCommandBuilder addOption(String opt, Function<Integer, String> fn) {
+            arg(i -> "--" + opt + "=" + fn.apply(i));
+            return this;
         }
 
         @Override
-        public SecurityAnalysisResult after(Path workingDir, ExecutionReport report) {
-            Path fileName = Paths.get(commandLine.getOptionValue(OUTPUT_FILE)).getFileName();
-            Path outputFile = workingDir.resolve(fileName);
-            return SecurityAnalysisResultDeserializer.read(outputFile);
+        public OptionCommandBuilder arg(String arg) {
+            super.arg(arg);
+            return this;
         }
 
-        private void addRequiredArgs(List<String> list, String optName) {
-            if (commandLine.hasOption(optName)) {
-                String optValue = toOption(optName, commandLine.getOptionValue(optName));
-                list.add(optValue);
-            } else {
-                throw new IllegalArgumentException("Missing option[" + optName + "]");
-            }
-        }
-
-        private void addArgs(List<String> list, String optName) {
-            if (commandLine.hasOption(optName)) {
-                String optValue = toOption(optName, commandLine.getOptionValue(optName));
-                list.add(optValue);
-            }
-        }
-
-        private List<String> rebuildSubProgramArgs(Path workingDir) throws IOException {
-            List<String> args = new ArrayList<>(); // subtask command args
-            args.add("action-simulator");
-            // copy input files to slave workingDir
-            Path caseFile = copyFromOptionValueToWorkingDir(CASE_FILE, workingDir);
-            String caseFileOpt = toOption(CASE_FILE, caseFile.toAbsolutePath().toString());
-            args.add(caseFileOpt);
-            Path dslFile = copyFromOptionValueToWorkingDir(DSL_FILE, workingDir);
-            String dslFileOpt = toOption(DSL_FILE, dslFile.toAbsolutePath().toString());
-            args.add(dslFileOpt);
-
-            String partitionOpt = toOption(TASK, partition.toString());
-            args.add(partitionOpt);
-
-            if (commandLine.hasOption(OUTPUT_FILE)) {
-                Path fileName = Paths.get(commandLine.getOptionValue(OUTPUT_FILE)).getFileName();
-                String tmpFolderOpt = toOption(OUTPUT_FILE, workingDir.resolve(fileName).toAbsolutePath().toString());
-                args.add(tmpFolderOpt);
-            }
-
-            addRequiredArgs(args, OUTPUT_FORMAT);
-
-            addArgs(args, APPLY_IF_SOLVED_VIOLATIONS);
-
-            return args;
-        }
-
-        private Path copyFromOptionValueToWorkingDir(String opt, Path workingDir) throws IOException {
-            Path source = Paths.get(commandLine.getOptionValue(opt));
-            String name = source.getFileName().toString();
-            Path dest = workingDir.resolve(name);
-            return Files.copy(source, dest);
-        }
-
-        private String toOption(String opt, String value) {
-            return "--" + opt + "=" + value;
+        @Override
+        public SimpleCommandBuilder arg(Function<Integer, String> arg) {
+            super.arg(arg);
+            return this;
         }
     }
 }

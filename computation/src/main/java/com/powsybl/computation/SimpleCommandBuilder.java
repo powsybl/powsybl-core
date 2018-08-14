@@ -8,10 +8,7 @@ package com.powsybl.computation;
 
 import com.powsybl.commons.PowsyblException;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -48,6 +45,23 @@ public class SimpleCommandBuilder extends AbstractCommandBuilder<SimpleCommandBu
     public SimpleCommandBuilder args(String... args) {
         Objects.requireNonNull(args);
         args(Arrays.asList(args));
+        return this;
+    }
+
+    public SimpleCommandBuilder arg(String arg) {
+        Objects.requireNonNull(args);
+        arg(i -> arg);
+        return this;
+    }
+
+    public SimpleCommandBuilder arg(Function<Integer, String> arg) {
+        Objects.requireNonNull(arg);
+        Function<Integer, List<String> > previous = args;
+        args = i -> {
+            List<String> r = new ArrayList<>(previous.apply(i));
+            r.add(arg.apply(i));
+            return r;
+        };
         return this;
     }
 

@@ -6,10 +6,7 @@
  */
 package com.powsybl.security;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author Yichen Tang <yichen.tang at rte-france.com>
@@ -36,6 +33,11 @@ public final class SecurityAnalysisResultMerger {
             Arrays.stream(results, 1, results.length).forEach(r -> res.getPostContingencyResults().addAll(r.getPostContingencyResults()));
         }
         return res;
+    }
+
+    public static SecurityAnalysisResult merge(Collection<SecurityAnalysisResult> results) {
+        Objects.requireNonNull(results);
+        return merge(results.toArray(new SecurityAnalysisResult[results.size()]));
     }
 
     private SecurityAnalysisResultMerger() {
