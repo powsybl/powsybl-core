@@ -70,7 +70,7 @@ public class DefaultComputationManagerConfig {
 
     public ComputationManager createShortTimeExecutionComputationManager() {
         try {
-            return shortTimeExecutionComputationManagerFactoryClass.newInstance().create();
+            return new LazyCreatedComputationManager(shortTimeExecutionComputationManagerFactoryClass.newInstance());
         } catch (InstantiationException e) {
             throw new UncheckedInstantiationException(e);
         } catch (IllegalAccessException e) {
@@ -81,7 +81,7 @@ public class DefaultComputationManagerConfig {
     public ComputationManager createLongTimeExecutionComputationManager() {
         if (longTimeExecutionComputationManagerFactoryClass != null) {
             try {
-                return longTimeExecutionComputationManagerFactoryClass.newInstance().create();
+                return new LazyCreatedComputationManager(longTimeExecutionComputationManagerFactoryClass.newInstance());
             } catch (InstantiationException e) {
                 throw new UncheckedInstantiationException(e);
             } catch (IllegalAccessException e) {
