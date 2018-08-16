@@ -14,6 +14,7 @@ import com.powsybl.afs.ext.base.NetworkCacheService;
 import com.powsybl.afs.ws.client.utils.RemoteServiceConfig;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -21,13 +22,13 @@ import java.util.Objects;
 @AutoService(ServiceExtension.class)
 public class RemoteNetworkCacheServiceExtension implements ServiceExtension<NetworkCacheService> {
 
-    private final Supplier<RemoteServiceConfig> configSupplier;
+    private final Supplier<Optional<RemoteServiceConfig>> configSupplier;
 
     public RemoteNetworkCacheServiceExtension() {
-        this(RemoteServiceConfig.INSTANCE);
+        this(RemoteServiceConfig::load);
     }
 
-    public RemoteNetworkCacheServiceExtension(Supplier<RemoteServiceConfig> configSupplier) {
+    public RemoteNetworkCacheServiceExtension(Supplier<Optional<RemoteServiceConfig>> configSupplier) {
         this.configSupplier = Objects.requireNonNull(configSupplier);
     }
 
@@ -37,7 +38,7 @@ public class RemoteNetworkCacheServiceExtension implements ServiceExtension<Netw
     }
 
     @Override
-    public RemoteNetworkCacheService createService(ServiceCreationContext context) {
+    public NetworkCacheService createService(ServiceCreationContext context) {
         return new RemoteNetworkCacheService(configSupplier, context.getToken());
     }
 }
