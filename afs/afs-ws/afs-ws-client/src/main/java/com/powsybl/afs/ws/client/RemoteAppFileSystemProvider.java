@@ -38,7 +38,7 @@ public class RemoteAppFileSystemProvider implements AppFileSystemProvider {
     private final Supplier<Optional<RemoteServiceConfig>> configSupplier;
 
     public RemoteAppFileSystemProvider() {
-        this(RemoteServiceConfig::load2);
+        this(RemoteServiceConfig::load);
     }
 
     public RemoteAppFileSystemProvider(Supplier<Optional<RemoteServiceConfig>> configSupplier) {

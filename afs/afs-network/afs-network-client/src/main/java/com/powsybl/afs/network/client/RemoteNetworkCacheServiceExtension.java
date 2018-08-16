@@ -25,7 +25,7 @@ public class RemoteNetworkCacheServiceExtension implements ServiceExtension<Netw
     private final Supplier<Optional<RemoteServiceConfig>> configSupplier;
 
     public RemoteNetworkCacheServiceExtension() {
-        this(RemoteServiceConfig::load2);
+        this(RemoteServiceConfig::load);
     }
 
     public RemoteNetworkCacheServiceExtension(Supplier<Optional<RemoteServiceConfig>> configSupplier) {

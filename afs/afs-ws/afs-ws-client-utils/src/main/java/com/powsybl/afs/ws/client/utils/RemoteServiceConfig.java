@@ -6,9 +6,6 @@
  */
 package com.powsybl.afs.ws.client.utils;
 
-import com.google.common.base.Supplier;
-import com.google.common.base.Suppliers;
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.exceptions.UncheckedUriSyntaxException;
 
@@ -21,12 +18,6 @@ import java.util.Optional;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class RemoteServiceConfig {
-
-    /**
-     * @deprecated Use {@link #load2()} instead
-     */
-    @Deprecated
-    public static final Supplier<RemoteServiceConfig> INSTANCE = Suppliers.memoize(RemoteServiceConfig::load);
 
     private String hostName;
 
@@ -43,28 +34,11 @@ public class RemoteServiceConfig {
         this.secure = secure;
     }
 
-    /**
-     * @deprecated Use {@link #load2()} instead
-     */
-    @Deprecated
-    public static RemoteServiceConfig load() {
+    public static Optional<RemoteServiceConfig> load() {
         return load(PlatformConfig.defaultConfig());
     }
 
-    /**
-     * @deprecated Use {@link #load2(PlatformConfig)} instead
-     */
-    @Deprecated
-    public static RemoteServiceConfig load(PlatformConfig platformConfig) {
-        Objects.requireNonNull(platformConfig);
-        return load2(platformConfig).orElseThrow(() -> new PowsyblException("Remote service config is missing"));
-    }
-
-    public static Optional<RemoteServiceConfig> load2() {
-        return load2(PlatformConfig.defaultConfig());
-    }
-
-    public static Optional<RemoteServiceConfig> load2(PlatformConfig platformConfig) {
+    public static Optional<RemoteServiceConfig> load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
         return platformConfig.getOptionalModuleConfig("remote-service").map(moduleConfig -> {
             String hostName = moduleConfig.getStringProperty("host-name");
