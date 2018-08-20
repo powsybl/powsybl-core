@@ -28,11 +28,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
 
-
 /**
  * Provides methods to read and write sensitivity computation parameters from and to JSON.
  *
- * @author Sebastien Murgey <sebastien.murgey@rte-france.com>
+ * @author Sebastien Murgey <sebastien.murgey at rte-france.com>
  */
 public final class JsonSensitivityComputationParameters {
 
@@ -54,9 +53,6 @@ public final class JsonSensitivityComputationParameters {
      */
     public static ExtensionProviders<ExtensionSerializer> getExtensionSerializers() {
         return SUPPLIER.get();
-    }
-
-    private JsonSensitivityComputationParameters() {
     }
 
     /**
@@ -90,6 +86,9 @@ public final class JsonSensitivityComputationParameters {
      * Updates parameters by reading the content of a JSON stream.
      */
     public static SensitivityComputationParameters update(SensitivityComputationParameters parameters, InputStream jsonStream) {
+        Objects.requireNonNull(parameters);
+        Objects.requireNonNull(jsonStream);
+
         try {
             ObjectMapper objectMapper = createObjectMapper();
             return objectMapper.readerForUpdating(parameters).readValue(jsonStream);
@@ -115,6 +114,9 @@ public final class JsonSensitivityComputationParameters {
      * Writes parameters as JSON to an output stream.
      */
     public static void write(SensitivityComputationParameters parameters, OutputStream outputStream) {
+        Objects.requireNonNull(parameters);
+        Objects.requireNonNull(outputStream);
+
         try {
             ObjectMapper objectMapper = createObjectMapper();
             ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
@@ -148,5 +150,8 @@ public final class JsonSensitivityComputationParameters {
     private static ObjectMapper createObjectMapper() {
         return JsonUtil.createObjectMapper()
                 .registerModule(new SensitivityComputationParametersJsonModule());
+    }
+
+    private JsonSensitivityComputationParameters() {
     }
 }

@@ -21,6 +21,7 @@ import java.io.IOException;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Sebastien Murgey <sebastien.murgey@rte-france.com>
@@ -46,11 +47,11 @@ public class JsonSensitivityComputationParametersTest extends AbstractConverterT
         parameters.getLoadFlowParameters().setSpecificCompatibility(true);
         JsonSensitivityComputationParameters.update(parameters, getClass().getResourceAsStream("/SensitivityComputationParametersIncomplete.json"));
 
-        assertEquals(true, parameters.getLoadFlowParameters().isSpecificCompatibility());
+        assertTrue(parameters.getLoadFlowParameters().isSpecificCompatibility());
     }
 
     @Test
-    public void readExtension() throws IOException {
+    public void readExtension() {
         SensitivityComputationParameters parameters = JsonSensitivityComputationParameters.read(getClass().getResourceAsStream("/SensitivityComputationParametersWithExtension.json"));
         assertEquals(1, parameters.getExtensions().size());
         assertNotNull(parameters.getExtension(DummyExtension.class));
@@ -58,7 +59,7 @@ public class JsonSensitivityComputationParametersTest extends AbstractConverterT
     }
 
     @Test
-    public void readError() throws IOException {
+    public void readError() {
         try {
             JsonSensitivityComputationParameters.read(getClass().getResourceAsStream("/SensitivityComputationParametersWithExtension.json"));
             Assert.fail();
@@ -67,10 +68,6 @@ public class JsonSensitivityComputationParametersTest extends AbstractConverterT
     }
 
     static class DummyExtension extends AbstractExtension<SensitivityComputationParameters> {
-
-        DummyExtension() {
-            super();
-        }
 
         @Override
         public String getName() {
@@ -88,7 +85,7 @@ public class JsonSensitivityComputationParametersTest extends AbstractConverterT
         }
 
         @Override
-        public DummyExtension deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+        public DummyExtension deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) {
             return new DummyExtension();
         }
 
