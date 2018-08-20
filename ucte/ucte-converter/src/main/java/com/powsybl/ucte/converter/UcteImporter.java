@@ -47,6 +47,8 @@ public class UcteImporter implements Importer {
 
     private static final String[] EXTENSIONS = {"uct", "UCT"};
 
+    private static final String ELEMENT_NAME_PROPERTY_KEY = "elementName";
+
     @Override
     public String getFormat() {
         return "UCTE";
@@ -279,6 +281,11 @@ public class UcteImporter implements Importer {
                 .setQ0(q0)
                 .setUcteXnodeCode(ucteXnode.getCode().toString())
             .add();
+
+        if (ucteLine.getElementName() != null) {
+            xNodeDanglingLine.getProperties().setProperty(ELEMENT_NAME_PROPERTY_KEY, ucteLine.getElementName());
+        }
+
         xNodeDanglingLine.addExtension(Xnode.class, new Xnode(xNodeDanglingLine, ucteXnode.getCode().toString()));
 
         // create coupler between YNODE and other node
@@ -332,6 +339,10 @@ public class UcteImporter implements Importer {
                     .setPermanentLimit(ucteLine.getCurrentLimit())
                     .add();
         }
+
+        if (ucteLine.getElementName() != null) {
+            dl.getProperties().setProperty(ELEMENT_NAME_PROPERTY_KEY, ucteLine.getElementName());
+        }
     }
 
     private static void createCoupler(UcteNetworkExt ucteNetwork, Network network,
@@ -357,13 +368,17 @@ public class UcteImporter implements Importer {
         } else {
             // standard coupler
             VoltageLevel voltageLevel = network.getVoltageLevel(ucteVoltageLevel1.getName());
-            voltageLevel.getBusBreakerView().newSwitch()
+            Switch couplerSwitch = voltageLevel.getBusBreakerView().newSwitch()
                     .setEnsureIdUnicity(true)
                     .setId(ucteLine.getId().toString())
                     .setBus1(nodeCode1.toString())
                     .setBus2(nodeCode2.toString())
                     .setOpen(ucteLine.getStatus() == UcteElementStatus.BUSBAR_COUPLER_OUT_OF_OPERATION)
                     .add();
+
+            if (ucteLine.getElementName() != null) {
+                couplerSwitch.getProperties().setProperty(ELEMENT_NAME_PROPERTY_KEY, ucteLine.getElementName());
+            }
         }
     }
 
@@ -377,13 +392,18 @@ public class UcteImporter implements Importer {
             throw new UcteException("Nodes coupled with a low impedance line are expected to be in the same voltage level");
         }
         VoltageLevel voltageLevel = network.getVoltageLevel(ucteVoltageLevel1.getName());
-        voltageLevel.getBusBreakerView().newSwitch()
+        Switch couplerSwitch = voltageLevel.getBusBreakerView().newSwitch()
                 .setEnsureIdUnicity(true)
                 .setId(ucteLine.getId().toString())
                 .setBus1(nodeCode1.toString())
                 .setBus2(nodeCode2.toString())
                 .setOpen(!connected)
                 .add();
+
+        if (ucteLine.getElementName() != null) {
+            couplerSwitch.getProperties().setProperty(ELEMENT_NAME_PROPERTY_KEY, ucteLine.getElementName());
+        }
+
     }
 
     private static void createStandardLine(Network network, UcteLine ucteLine, UcteNodeCode nodeCode1, UcteNodeCode nodeCode2,
@@ -407,6 +427,11 @@ public class UcteImporter implements Importer {
                 .setB1(getSusceptance(ucteLine) / 2)
                 .setB2(getSusceptance(ucteLine) / 2)
                 .add();
+
+        if (ucteLine.getElementName() != null) {
+            l.getProperties().setProperty(ELEMENT_NAME_PROPERTY_KEY, ucteLine.getElementName());
+        }
+
         if (ucteLine.getCurrentLimit() != null) {
             int currentLimit = ucteLine.getCurrentLimit();
             l.newCurrentLimits1()
@@ -622,7 +647,7 @@ public class UcteImporter implements Importer {
         }
 
         // create a transformer connected to the YNODE and other node
-        return substation.newTwoWindingsTransformer()
+        TwoWindingsTransformer twt = substation.newTwoWindingsTransformer()
                 .setEnsureIdUnicity(true)
                 .setId(ucteTransfo.getId().toString())
                 .setVoltageLevel1(voltageLevelId1)
@@ -638,6 +663,12 @@ public class UcteImporter implements Importer {
                 .setG(getConductance(ucteTransfo))
                 .setB(getSusceptance(ucteTransfo))
             .add();
+
+        if (ucteTransfo.getElementName() != null) {
+            twt.getProperties().setProperty(ELEMENT_NAME_PROPERTY_KEY, ucteTransfo.getElementName());
+        }
+
+        return twt;
     }
 
     private static boolean isConnected(UcteTransformer ucteTransfo) {
@@ -714,6 +745,10 @@ public class UcteImporter implements Importer {
                         .setG(getConductance(ucteTransfo))
                         .setB(getSusceptance(ucteTransfo))
                     .add();
+
+                if (ucteTransfo.getElementName() != null) {
+                    transformer.getProperties().setProperty(ELEMENT_NAME_PROPERTY_KEY, ucteTransfo.getElementName());
+                }
             }
 
             if (ucteTransfo.getCurrentLimit() != null) {
@@ -836,6 +871,15 @@ public class UcteImporter implements Importer {
                         .setUcteXnodeCode(xnodeCode)
                         .add();
 
+                if (dl1.getProperties().containsKey(ELEMENT_NAME_PROPERTY_KEY)) {
+                    mergeLine.getProperties().setProperty(ELEMENT_NAME_PROPERTY_KEY + "_1", dl1.getProperties().getProperty(ELEMENT_NAME_PROPERTY_KEY));
+                }
+
+                if (dl2.getProperties().containsKey(ELEMENT_NAME_PROPERTY_KEY)) {
+                    mergeLine.getProperties().setProperty(ELEMENT_NAME_PROPERTY_KEY + "_2", dl2.getProperties().getProperty(ELEMENT_NAME_PROPERTY_KEY));
+                }
+
+
                 if (dl1.getCurrentLimits() != null) {
                     mergeLine.newCurrentLimits1()
                             .setPermanentLimit(dl1.getCurrentLimits().getPermanentLimit());
@@ -905,3 +949,4 @@ public class UcteImporter implements Importer {
     }
 
 }
+
