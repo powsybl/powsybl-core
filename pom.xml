@@ -105,7 +105,7 @@
 
         <sonar.jacoco.reportPaths>
             ../target/jacoco-merge.exec,
-            ../../target/jacoco-merge.exec
+            ../../target/jacoco-merge.exec,
             ../../../target/jacoco-merge.exec
         </sonar.jacoco.reportPaths>
         <sonar.exclusions>
