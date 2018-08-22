@@ -282,9 +282,7 @@ public class UcteImporter implements Importer {
                 .setUcteXnodeCode(ucteXnode.getCode().toString())
                 .add();
 
-        if (ucteLine.getElementName() != null) {
-            xNodeDanglingLine.getProperties().setProperty(ELEMENT_NAME_PROPERTY_KEY, ucteLine.getElementName());
-        }
+        addElementNameProperty(ucteLine, xNodeDanglingLine);
 
         xNodeDanglingLine.addExtension(Xnode.class, new Xnode(xNodeDanglingLine, ucteXnode.getCode().toString()));
 
@@ -340,9 +338,7 @@ public class UcteImporter implements Importer {
                     .add();
         }
 
-        if (ucteLine.getElementName() != null) {
-            dl.getProperties().setProperty(ELEMENT_NAME_PROPERTY_KEY, ucteLine.getElementName());
-        }
+        addElementNameProperty(ucteLine, dl);
     }
 
     private static void createCoupler(UcteNetworkExt ucteNetwork, Network network,
@@ -376,9 +372,7 @@ public class UcteImporter implements Importer {
                     .setOpen(ucteLine.getStatus() == UcteElementStatus.BUSBAR_COUPLER_OUT_OF_OPERATION)
                     .add();
 
-            if (ucteLine.getElementName() != null) {
-                couplerSwitch.getProperties().setProperty(ELEMENT_NAME_PROPERTY_KEY, ucteLine.getElementName());
-            }
+            addElementNameProperty(ucteLine, couplerSwitch);
         }
     }
 
@@ -400,10 +394,7 @@ public class UcteImporter implements Importer {
                 .setOpen(!connected)
                 .add();
 
-        if (ucteLine.getElementName() != null) {
-            couplerSwitch.getProperties().setProperty(ELEMENT_NAME_PROPERTY_KEY, ucteLine.getElementName());
-        }
-
+        addElementNameProperty(ucteLine, couplerSwitch);
     }
 
     private static void createStandardLine(Network network, UcteLine ucteLine, UcteNodeCode nodeCode1, UcteNodeCode nodeCode2,
@@ -428,9 +419,7 @@ public class UcteImporter implements Importer {
                 .setB2(getSusceptance(ucteLine) / 2)
                 .add();
 
-        if (ucteLine.getElementName() != null) {
-            l.getProperties().setProperty(ELEMENT_NAME_PROPERTY_KEY, ucteLine.getElementName());
-        }
+        addElementNameProperty(ucteLine, l);
 
         if (ucteLine.getCurrentLimit() != null) {
             int currentLimit = ucteLine.getCurrentLimit();
@@ -750,17 +739,9 @@ public class UcteImporter implements Importer {
                         .add();
             }
 
-            setElementNameTransformer(ucteTransfo, transformer);
+            addElementNameProperty(ucteTransfo, transformer);
             addTapChangers(ucteNetwork, ucteTransfo, transformer);
 
-        }
-
-    }
-
-    public static void setElementNameTransformer(UcteTransformer ucteTransfo, TwoWindingsTransformer transformer) {
-
-        if (ucteTransfo.getElementName() != null) {
-            transformer.getProperties().setProperty(ELEMENT_NAME_PROPERTY_KEY, ucteTransfo.getElementName());
         }
 
     }
@@ -874,7 +855,7 @@ public class UcteImporter implements Importer {
                         .setUcteXnodeCode(xnodeCode)
                         .add();
 
-                mergeLine = mergeElementName(mergeLine, dl1, dl2);
+                addElementNameProperty(mergeLine, dl1, dl2);
 
 
                 if (dl1.getCurrentLimits() != null) {
@@ -897,16 +878,26 @@ public class UcteImporter implements Importer {
         }
     }
 
-    public TieLine mergeElementName(TieLine mergeLine, DanglingLine dl1, DanglingLine dl2) {
+    private static void addElementNameProperty(TieLine tieLine, DanglingLine dl1, DanglingLine dl2) {
         if (dl1.getProperties().containsKey(ELEMENT_NAME_PROPERTY_KEY)) {
-            mergeLine.getProperties().setProperty(ELEMENT_NAME_PROPERTY_KEY + "_1", dl1.getProperties().getProperty(ELEMENT_NAME_PROPERTY_KEY));
+            tieLine.getProperties().setProperty(ELEMENT_NAME_PROPERTY_KEY + "_1", dl1.getProperties().getProperty(ELEMENT_NAME_PROPERTY_KEY));
         }
 
         if (dl2.getProperties().containsKey(ELEMENT_NAME_PROPERTY_KEY)) {
-            mergeLine.getProperties().setProperty(ELEMENT_NAME_PROPERTY_KEY + "_2", dl2.getProperties().getProperty(ELEMENT_NAME_PROPERTY_KEY));
+            tieLine.getProperties().setProperty(ELEMENT_NAME_PROPERTY_KEY + "_2", dl2.getProperties().getProperty(ELEMENT_NAME_PROPERTY_KEY));
         }
+    }
 
-        return mergeLine;
+    private static void addElementNameProperty(UcteLine ucteLine, Identifiable identifiable) {
+        if (ucteLine.getElementName() != null) {
+            identifiable.getProperties().setProperty(ELEMENT_NAME_PROPERTY_KEY, ucteLine.getElementName());
+        }
+    }
+
+    private static void addElementNameProperty(UcteTransformer ucteTransfo, Identifiable identifiable) {
+        if (ucteTransfo.getElementName() != null) {
+            identifiable.getProperties().setProperty(ELEMENT_NAME_PROPERTY_KEY, ucteTransfo.getElementName());
+        }
     }
 
     @Override
