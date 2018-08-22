@@ -6,9 +6,9 @@
  */
 package com.powsybl.afs.storage.buffer;
 
-import com.powsybl.math.timeseries.AbstractPoint;
-import com.powsybl.math.timeseries.ArrayChunk;
-import com.powsybl.math.timeseries.TimeSeriesIndex;
+import com.powsybl.timeseries.AbstractPoint;
+import com.powsybl.timeseries.ArrayChunk;
+import com.powsybl.timeseries.TimeSeriesIndex;
 
 import java.util.List;
 import java.util.Objects;
