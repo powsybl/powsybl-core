@@ -70,6 +70,7 @@
         <module>security-analysis</module>
         <module>sensitivity-api</module>
         <module>simulation-api</module>
+        <module>time-series</module>
         <module>tools</module>
         <module>ucte</module>
     </modules>
