@@ -133,7 +133,7 @@ public class UcteImporter implements Importer {
             Substation substation = network.newSubstation()
                     .setId(ucteSubstation.getName())
                     .setCountry(Country.valueOf(firstUcteNodeCode.getUcteCountryCode().name()))
-                .add();
+                    .add();
 
             EntsoeGeographicalCode regionalCode = getRegionalGeographicalCode(substation);
             if (regionalCode != null) {
@@ -149,7 +149,7 @@ public class UcteImporter implements Importer {
                         .setId(ucteVoltageLevel.getName())
                         .setNominalV(ucteVoltageLevelCode.getVoltageLevel())
                         .setTopologyKind(TopologyKind.BUS_BREAKER)
-                    .add();
+                        .add();
 
                 createBuses(ucteNetwork, ucteVoltageLevel, voltageLevel);
             }
@@ -180,7 +180,7 @@ public class UcteImporter implements Importer {
                 .setConnectableBus(bus.getId())
                 .setP0(p0)
                 .setQ0(q0)
-            .add();
+                .add();
     }
 
     private static void createGenerator(UcteNode ucteNode, VoltageLevel voltageLevel, Bus bus) {
@@ -225,11 +225,11 @@ public class UcteImporter implements Importer {
                 .setTargetP(-ucteNode.getActivePowerGeneration())
                 .setTargetQ(-ucteNode.getReactivePowerGeneration())
                 .setTargetV(ucteNode.getVoltageReference())
-            .add();
+                .add();
         generator.newMinMaxReactiveLimits()
                 .setMinQ(-ucteNode.getMinimumPermissibleReactivePowerGeneration())
                 .setMaxQ(-ucteNode.getMaximumPermissibleReactivePowerGeneration())
-            .add();
+                .add();
     }
 
     private static void createXnodeCoupler(UcteNetworkExt ucteNetwork, UcteLine ucteLine,
@@ -245,8 +245,8 @@ public class UcteImporter implements Importer {
 
         // create YNODE
         xNodeVoltageLevel.getBusBreakerView().newBus()
-                 .setId(yNodeName)
-             .add();
+                .setId(yNodeName)
+                .add();
 
         UcteNode ucteXnode = ucteNetwork.getNode(ucteXnodeCode);
 
@@ -280,7 +280,7 @@ public class UcteImporter implements Importer {
                 .setP0(p0)
                 .setQ0(q0)
                 .setUcteXnodeCode(ucteXnode.getCode().toString())
-            .add();
+                .add();
 
         if (ucteLine.getElementName() != null) {
             xNodeDanglingLine.getProperties().setProperty(ELEMENT_NAME_PROPERTY_KEY, ucteLine.getElementName());
@@ -295,7 +295,7 @@ public class UcteImporter implements Importer {
                 .setBus1(yNodeName)
                 .setBus2(ucteOtherNodeCode.toString())
                 .setOpen(ucteLine.getStatus() == UcteElementStatus.BUSBAR_COUPLER_OUT_OF_OPERATION)
-            .add();
+                .add();
     }
 
     private static void createDanglingLine(UcteLine ucteLine, boolean connected,
@@ -532,7 +532,7 @@ public class UcteImporter implements Importer {
                     .setX(0f)
                     .setG(0f)
                     .setB(0f)
-                .endStep();
+                    .endStep();
         }
         rtca.add();
     }
@@ -572,7 +572,7 @@ public class UcteImporter implements Importer {
                     .setX(0f)
                     .setG(0f)
                     .setB(0f)
-                .endStep();
+                    .endStep();
         }
         ptca.add();
     }
@@ -589,11 +589,11 @@ public class UcteImporter implements Importer {
                 .setId(yNodeName + "_VL")
                 .setNominalV(xNodeCode.getVoltageLevelCode().getVoltageLevel()) // nominal voltage of the XNODE
                 .setTopologyKind(TopologyKind.BUS_BREAKER)
-            .add();
+                .add();
 
         yVoltageLevel.getBusBreakerView().newBus()
                 .setId(yNodeName)
-            .add();
+                .add();
 
         UcteNode ucteXnode = ucteNetwork.getNode(xNodeCode);
 
@@ -627,7 +627,7 @@ public class UcteImporter implements Importer {
                 .setP0(p0)
                 .setQ0(q0)
                 .setUcteXnodeCode(ucteXnode.getCode().toString())
-            .add();
+                .add();
         yDanglingLine.addExtension(Xnode.class, new Xnode(yDanglingLine, ucteXnode.getCode().toString()));
 
         String voltageLevelId1;
@@ -647,7 +647,7 @@ public class UcteImporter implements Importer {
         }
 
         // create a transformer connected to the YNODE and other node
-        TwoWindingsTransformer twt = substation.newTwoWindingsTransformer()
+        return substation.newTwoWindingsTransformer()
                 .setEnsureIdUnicity(true)
                 .setId(ucteTransfo.getId().toString())
                 .setVoltageLevel1(voltageLevelId1)
@@ -662,13 +662,8 @@ public class UcteImporter implements Importer {
                 .setX(ucteTransfo.getReactance())
                 .setG(getConductance(ucteTransfo))
                 .setB(getSusceptance(ucteTransfo))
-            .add();
+                .add();
 
-        if (ucteTransfo.getElementName() != null) {
-            twt.getProperties().setProperty(ELEMENT_NAME_PROPERTY_KEY, ucteTransfo.getElementName());
-        }
-
-        return twt;
     }
 
     private static boolean isConnected(UcteTransformer ucteTransfo) {
@@ -718,12 +713,12 @@ public class UcteImporter implements Importer {
             TwoWindingsTransformer transformer;
 
             if (nodeCode1.getUcteCountryCode() == UcteCountryCode.XX &&
-                nodeCode2.getUcteCountryCode() != UcteCountryCode.XX) {
+                    nodeCode2.getUcteCountryCode() != UcteCountryCode.XX) {
                 // transformer connected to XNODE
                 transformer = createXnodeTransfo(ucteNetwork, ucteTransfo, connected, nodeCode1, nodeCode2, ucteVoltageLevel2, substation, ucteFileName);
 
             } else if (nodeCode2.getUcteCountryCode() == UcteCountryCode.XX &&
-                       nodeCode1.getUcteCountryCode() != UcteCountryCode.XX) {
+                    nodeCode1.getUcteCountryCode() != UcteCountryCode.XX) {
                 // transformer connected to XNODE
                 transformer = createXnodeTransfo(ucteNetwork, ucteTransfo, connected, nodeCode2, nodeCode1, ucteVoltageLevel1, substation, ucteFileName);
 
@@ -744,22 +739,30 @@ public class UcteImporter implements Importer {
                         .setX(ucteTransfo.getReactance())
                         .setG(getConductance(ucteTransfo))
                         .setB(getSusceptance(ucteTransfo))
-                    .add();
+                        .add();
 
-                if (ucteTransfo.getElementName() != null) {
-                    transformer.getProperties().setProperty(ELEMENT_NAME_PROPERTY_KEY, ucteTransfo.getElementName());
-                }
             }
 
             if (ucteTransfo.getCurrentLimit() != null) {
                 int currentLimit = ucteTransfo.getCurrentLimit();
                 transformer.newCurrentLimits2()
                         .setPermanentLimit(currentLimit)
-                    .add();
+                        .add();
             }
 
+            setElementNameTransformer(ucteTransfo, transformer);
             addTapChangers(ucteNetwork, ucteTransfo, transformer);
+
         }
+
+    }
+
+    public static void setElementNameTransformer(UcteTransformer ucteTransfo, TwoWindingsTransformer transformer) {
+
+        if (ucteTransfo.getElementName() != null) {
+            transformer.getProperties().setProperty(ELEMENT_NAME_PROPERTY_KEY, ucteTransfo.getElementName());
+        }
+
     }
 
     private String findExtension(ReadOnlyDataSource dataSource, boolean throwException) throws IOException {
@@ -829,7 +832,7 @@ public class UcteImporter implements Importer {
             if (dl2 != null) {
                 // lexical sort to always end up with same merge line id
                 String mergeLineId = dl1.getId().compareTo(dl2.getId()) < 0 ? dl1.getId() + " + " + dl2.getId()
-                                                                            : dl2.getId() + " + " + dl1.getId();
+                        : dl2.getId() + " + " + dl1.getId();
 
                 // create XNODE merge extension
                 float rdp = (float) (dl1.getR() / (dl1.getR() + dl2.getR()));
@@ -849,35 +852,29 @@ public class UcteImporter implements Importer {
                         .setConnectableBus2(getBusId(dl2.getTerminal().getBusBreakerView().getConnectableBus()))
                         .setBus2(getBusId(dl2.getTerminal().getBusBreakerView().getBus()))
                         .line1()
-                            .setId(dl1.getId())
-                            .setR(dl1.getR())
-                            .setX(dl1.getX())
-                            .setG1(dl1.getG())
-                            .setG2(0.0)
-                            .setB1(dl1.getB())
-                            .setB2(0.0)
-                            .setXnodeP(xnodeP1)
-                            .setXnodeQ(xnodeQ1)
+                        .setId(dl1.getId())
+                        .setR(dl1.getR())
+                        .setX(dl1.getX())
+                        .setG1(dl1.getG())
+                        .setG2(0.0)
+                        .setB1(dl1.getB())
+                        .setB2(0.0)
+                        .setXnodeP(xnodeP1)
+                        .setXnodeQ(xnodeQ1)
                         .line2()
-                            .setId(dl2.getId())
-                            .setR(dl2.getR())
-                            .setX(dl2.getX())
-                            .setG1(0.0)
-                            .setG2(dl2.getG())
-                            .setB1(0.0)
-                            .setB2(dl2.getB())
-                            .setXnodeP(xnodeP2)
-                            .setXnodeQ(xnodeQ2)
+                        .setId(dl2.getId())
+                        .setR(dl2.getR())
+                        .setX(dl2.getX())
+                        .setG1(0.0)
+                        .setG2(dl2.getG())
+                        .setB1(0.0)
+                        .setB2(dl2.getB())
+                        .setXnodeP(xnodeP2)
+                        .setXnodeQ(xnodeQ2)
                         .setUcteXnodeCode(xnodeCode)
                         .add();
 
-                if (dl1.getProperties().containsKey(ELEMENT_NAME_PROPERTY_KEY)) {
-                    mergeLine.getProperties().setProperty(ELEMENT_NAME_PROPERTY_KEY + "_1", dl1.getProperties().getProperty(ELEMENT_NAME_PROPERTY_KEY));
-                }
-
-                if (dl2.getProperties().containsKey(ELEMENT_NAME_PROPERTY_KEY)) {
-                    mergeLine.getProperties().setProperty(ELEMENT_NAME_PROPERTY_KEY + "_2", dl2.getProperties().getProperty(ELEMENT_NAME_PROPERTY_KEY));
-                }
+                mergeLine = mergeElementName(mergeLine, dl1, dl2);
 
 
                 if (dl1.getCurrentLimits() != null) {
@@ -898,6 +895,18 @@ public class UcteImporter implements Importer {
             }
             danglingLinesToProcess.remove(dl1);
         }
+    }
+
+    public TieLine mergeElementName(TieLine mergeLine, DanglingLine dl1, DanglingLine dl2) {
+        if (dl1.getProperties().containsKey(ELEMENT_NAME_PROPERTY_KEY)) {
+            mergeLine.getProperties().setProperty(ELEMENT_NAME_PROPERTY_KEY + "_1", dl1.getProperties().getProperty(ELEMENT_NAME_PROPERTY_KEY));
+        }
+
+        if (dl2.getProperties().containsKey(ELEMENT_NAME_PROPERTY_KEY)) {
+            mergeLine.getProperties().setProperty(ELEMENT_NAME_PROPERTY_KEY + "_2", dl2.getProperties().getProperty(ELEMENT_NAME_PROPERTY_KEY));
+        }
+
+        return mergeLine;
     }
 
     @Override
@@ -949,4 +958,3 @@ public class UcteImporter implements Importer {
     }
 
 }
-
