@@ -6,8 +6,8 @@
  */
 package com.powsybl.afs.mapdb.storage;
 
-import com.powsybl.math.timeseries.RegularTimeSeriesIndex;
-import com.powsybl.math.timeseries.TimeSeriesIndex;
+import com.powsybl.timeseries.RegularTimeSeriesIndex;
+import com.powsybl.timeseries.TimeSeriesIndex;
 import org.mapdb.DataInput2;
 import org.mapdb.DataOutput2;
 import org.mapdb.Serializer;
