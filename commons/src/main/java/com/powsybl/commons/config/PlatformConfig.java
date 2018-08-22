@@ -13,24 +13,13 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class PlatformConfig {
-
-    /**
-     * @deprecated Use getDefaultConfigDir() instead.
-     */
-    @Deprecated
-    public static final Path CONFIG_DIR;
-
-    /**
-     * @deprecated Use getDefaultCacheDir() instead.
-     */
-    @Deprecated
-    public static final Path CACHE_DIR;
 
     private static PlatformConfig defaultConfig;
 
@@ -43,12 +32,6 @@ public class PlatformConfig {
     protected final Path cacheDir;
 
     protected final ModuleConfigContainer container;
-
-    static {
-        CONFIG_DIR = FileUtil.createDirectory(getDefaultConfigDir(FileSystems.getDefault()));
-
-        CACHE_DIR = FileUtil.createDirectory(getDefaultCacheDir(FileSystems.getDefault()));
-    }
 
     public static synchronized void setDefaultConfig(PlatformConfig defaultConfig) {
         PlatformConfig.defaultConfig = defaultConfig;
@@ -74,7 +57,7 @@ public class PlatformConfig {
 
     public static synchronized CacheManager defaultCacheManager() {
         if (defaultCacheManager == null) {
-            defaultCacheManager = new CacheManager(CACHE_DIR);
+            defaultCacheManager = new CacheManager(defaultConfig().cacheDir);
         }
         return defaultCacheManager;
     }
@@ -112,6 +95,10 @@ public class PlatformConfig {
 
     public ModuleConfig getModuleConfigIfExists(String name) {
         return container.getModuleConfigIfExists(name);
+    }
+
+    public Optional<ModuleConfig> getOptionalModuleConfig(String name) {
+        return Optional.ofNullable(container.getModuleConfigIfExists(name));
     }
 
     static Path getDefaultConfigDir(FileSystem fileSystem) {

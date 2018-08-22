@@ -47,7 +47,7 @@ public class TapChangerTest {
                                 .setConnectableBus1("busA")
                                 .setConnectableBus2("busB")
                             .add();
-        terminal = twt.getTerminal(TwoTerminalsConnectable.Side.ONE);
+        terminal = twt.getTerminal(Branch.Side.ONE);
     }
 
     @Test

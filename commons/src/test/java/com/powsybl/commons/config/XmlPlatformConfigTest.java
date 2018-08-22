@@ -46,7 +46,7 @@ public class XmlPlatformConfigTest {
             try (Writer w = Files.newBufferedWriter(cfgDir.resolve("mod2.properties"), StandardCharsets.UTF_8)) {
                 prop2.store(w, null);
             }
-            PropertiesPlatformConfig propsConfig = new PropertiesPlatformConfig(cfgDir, fileSystem);
+            PropertiesPlatformConfig propsConfig = new PropertiesPlatformConfig(fileSystem, cfgDir, cacheDir);
             assertEquals("hello", propsConfig.getModuleConfig("mod1").getStringProperty("a"));
             assertEquals("bye", propsConfig.getModuleConfig("mod1").getStringProperty("b"));
             assertEquals("thanks", propsConfig.getModuleConfig("mod2").getStringProperty("c"));

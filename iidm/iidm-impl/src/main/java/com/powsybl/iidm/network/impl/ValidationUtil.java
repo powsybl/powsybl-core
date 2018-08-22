@@ -17,14 +17,6 @@ public final class ValidationUtil {
     private ValidationUtil() {
     }
 
-    /**
-     * @deprecated Use checkActivePowerSetpoint(Validable, double) instead.
-     */
-    @Deprecated
-    static void checkTargetP(Validable validable, double targetP) {
-        checkActivePowerSetpoint(validable, targetP);
-    }
-
     private static ValidationException createInvalidValueException(Validable validable, double value, String valueName) {
         return createInvalidValueException(validable, value, valueName, null);
     }

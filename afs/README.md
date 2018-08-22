@@ -197,8 +197,11 @@ In order to use it you will need to:
  - add `powsybl-afs-ws-client` to the runtime dependencies of your client application
  - configure in the powsybl configuration of your application the following rest file system:
 ```yml
-  rest-app-file-system:
-    url-address: http://my-afs-server:8080/my-server-app
+  remote-service:
+    host-name: my-afs-server
+    app-name: my-server-app
+    port: 8080
+    secure: false
 ```
 
 Now all file systems defined in the server configurations will be transparently accessible from your client application, without changing any of your code!

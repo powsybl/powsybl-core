@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017, RTE (http://www.rte-france.com)
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -37,8 +37,9 @@ public class LoadFlowActionSimulator implements ActionSimulator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LoadFlowActionSimulator.class);
 
-    public static final LimitViolationFilter LIMIT_VIOLATION_FILTER = new LimitViolationFilter(EnumSet.of(LimitViolationType.CURRENT), 0.0);
-    public static final LimitViolationFilter NO_FILTER = new LimitViolationFilter();
+    static final LimitViolationFilter LIMIT_VIOLATION_FILTER = new LimitViolationFilter(EnumSet.of(LimitViolationType.CURRENT), 0.0);
+
+    static final LimitViolationFilter NO_FILTER = new LimitViolationFilter();
 
     private final Network network;
 
@@ -79,6 +80,14 @@ public class LoadFlowActionSimulator implements ActionSimulator {
 
     LoadFlowActionSimulatorConfig getConfig() {
         return config;
+    }
+
+    protected Network getNetwork() {
+        return network;
+    }
+
+    protected boolean isApplyIfSolvedViolations() {
+        return applyIfSolvedViolations;
     }
 
     @Override
@@ -237,6 +246,12 @@ public class LoadFlowActionSimulator implements ActionSimulator {
             LOGGER.info("Violations: \n{}", Security.printLimitsViolations(violations, network, NO_FILTER));
         }
 
+        if (context.getRound() + 1 == config.getMaxIterations()) {
+            LOGGER.info("Max number of iterations reached");
+            observers.forEach(o -> o.maxIterationsReached(context));
+            return false;
+        }
+
         runTests(actionDb, context);
         if (context.isTestWorks() && applyIfSolvedViolations) {
             return true;
@@ -277,10 +292,6 @@ public class LoadFlowActionSimulator implements ActionSimulator {
     }
 
     private boolean next(ActionDb actionDb, RunningContext context) {
-        if (context.getRound() >= config.getMaxIterations()) {
-            return false;
-        }
-
         observers.forEach(o -> o.roundBegin(context));
 
         LoadFlowFactory loadFlowFactory = newLoadFlowFactory();
@@ -333,6 +344,11 @@ public class LoadFlowActionSimulator implements ActionSimulator {
                                 .distinct()
                                 .filter(id -> !context.isTested(id))
                                 .collect(Collectors.toList());
+
+        if (testActionIds.isEmpty()) {
+            return;
+        }
+
         byte[] contextNetwork = NetworkXml.gzip(context.getNetwork());
 
         for (String actionId : testActionIds) {

@@ -17,9 +17,9 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-public class AlternatifTest extends AbstractLoadFlowRulesEngineTest {
+public class AlternativeTest extends AbstractLoadFlowRulesEngineTest {
 
-    LoadFlowActionSimulatorObserver obs;
+    private final LoadFlowActionSimulatorObserver obs = Mockito.mock(LoadFlowActionSimulatorObserver.class);
 
     @Override
     protected Network createNetwork() {
@@ -42,7 +42,7 @@ public class AlternatifTest extends AbstractLoadFlowRulesEngineTest {
         double loadP0 = load.getP0();
 
         engine.start(actionDb, "contingency1"); // life = 3
-        assertEquals(targetP + 3.0, generator.getTargetP(), 0.0);
+        assertEquals(targetP + 2.0, generator.getTargetP(), 0.0);
         assertEquals(loadP0, load.getP0(), 0.0);
 
         // once for action1, once for action2
@@ -51,8 +51,7 @@ public class AlternatifTest extends AbstractLoadFlowRulesEngineTest {
 
     @Override
     protected LoadFlowActionSimulatorObserver createObserver() {
-        this.obs = Mockito.mock(LoadFlowActionSimulatorObserver.class);
-        return this.obs;
+        return obs;
     }
 
 }

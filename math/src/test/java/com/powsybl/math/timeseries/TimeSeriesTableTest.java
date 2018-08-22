@@ -13,6 +13,7 @@ import java.time.ZoneId;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -50,7 +51,7 @@ public class TimeSeriesTableTest {
         assertEquals(6, table.getDoubleValue(1, 1, 1), 0);
         assertEquals(7, table.getDoubleValue(1, 1, 2), 0);
         assertEquals(8, table.getDoubleValue(1, 1, 3), 0);
-        assertEquals(null, table.getStringValue(1, 2, 0));
+        assertNull(table.getStringValue(1, 2, 0));
         assertEquals("a", table.getStringValue(1, 2, 1));
         assertEquals("b", table.getStringValue(1, 2, 2));
         assertEquals("c", table.getStringValue(1, 2, 3));
@@ -71,5 +72,9 @@ public class TimeSeriesTableTest {
                                  "1970-01-01T00:00:00.002Z;1;3.0;7.0;b",
                                  "1970-01-01T00:00:00.003Z;1;4.0;8.0;c") + System.lineSeparator(),
                      table.toCsvString(';', ZoneId.of("UTC")));
+
+        // test empty table CSV export
+        String emptyCsv = new TimeSeriesTable(0, 0, InfiniteTimeSeriesIndex.INSTANCE).toCsvString(';', ZoneId.of("UTC"));
+        assertEquals("Time;Version" + System.lineSeparator(), emptyCsv);
     }
 }

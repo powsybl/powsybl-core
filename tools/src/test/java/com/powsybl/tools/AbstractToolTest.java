@@ -8,6 +8,7 @@ package com.powsybl.tools;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
+import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.computation.ComputationManager;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -38,11 +39,14 @@ public abstract class AbstractToolTest {
 
     protected FileSystem fileSystem;
 
+    protected InMemoryPlatformConfig platformConfig;
+
     private CommandLineTools tools;
 
     @Before
     public void setUp() throws Exception {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
+        platformConfig = new InMemoryPlatformConfig(fileSystem);
         tools = new CommandLineTools(getTools());
     }
 

@@ -16,8 +16,8 @@ import java.util.Locale;
 import org.junit.Test;
 
 import com.powsybl.commons.io.table.TableFormatterConfig;
+import com.powsybl.iidm.network.Branch.Side;
 import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
-import com.powsybl.iidm.network.TwoTerminalsConnectable.Side;
 
 /**
  *

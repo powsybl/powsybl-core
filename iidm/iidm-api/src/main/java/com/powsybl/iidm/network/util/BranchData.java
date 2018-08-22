@@ -11,9 +11,9 @@ import java.util.Objects;
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexUtils;
 
+import com.powsybl.iidm.network.Branch.Side;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.TwoTerminalsConnectable.Side;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 
 /**

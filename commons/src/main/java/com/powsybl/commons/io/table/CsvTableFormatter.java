@@ -19,18 +19,11 @@ public class CsvTableFormatter extends AbstractTableFormatter {
 
     protected final String title;
 
-    /**
-     * @deprecated Use config.getCsvSeparator() instead
-     */
-    @Deprecated
-    protected final char separator;
-
     protected boolean headerDone = false;
 
     public CsvTableFormatter(Writer writer, String title, TableFormatterConfig config, Column... columns) {
         super(writer, config, columns);
         this.title = Objects.requireNonNull(title);
-        this.separator = config.getCsvSeparator();
         this.headerDone = !config.getPrintHeader();
     }
 

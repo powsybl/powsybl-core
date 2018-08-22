@@ -6,11 +6,11 @@
  */
 package com.powsybl.commons.config;
 
-import java.nio.file.Path;
-import java.util.*;
-
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
+
+import java.nio.file.Path;
+import java.util.*;
 
 /**
  *
@@ -40,14 +40,6 @@ public interface ModuleConfig {
 
     int getIntProperty(String name);
 
-    /**
-     * @deprecated Use getOptionalIntegerProperty(String) instead.
-     */
-    @Deprecated
-    default Integer getOptionalIntProperty(String name) {
-        throw new UnsupportedOperationException("deprecated");
-    }
-
     Optional<Integer> getOptionalIntegerProperty(String name);
 
     int getIntProperty(String name, int defaultValue);
@@ -74,21 +66,17 @@ public interface ModuleConfig {
 
     boolean getBooleanProperty(String name, boolean defaultValue);
 
-    /**
-     * @deprecated Use getOptionalBooleanProperty(String) instead.
-     */
-    @Deprecated
-    default Boolean getOptinalBooleanProperty(String name) {
-        throw new UnsupportedOperationException("deprecated");
-    }
-
     Optional<Boolean> getOptionalBooleanProperty(String name);
 
     Path getPathProperty(String name);
 
     Path getPathProperty(String name, Path defaultValue);
 
+    Optional<Path> getOptionalPathProperty(String name);
+
     List<Path> getPathListProperty(String name);
+
+    Optional<List<Path>> getOptionalPathListProperty(String name);
 
     <T> Class<? extends T> getClassProperty(String name, Class<T> subClass);
 

@@ -557,9 +557,11 @@ public class TimeSeriesTable {
         writer.write("Time");
         writer.write(config.separator);
         writer.write("Version");
-        for (TimeSeriesMetadata metadata : timeSeriesMetadata) {
-            writer.write(config.separator);
-            writer.write(metadata.getName());
+        if (timeSeriesMetadata != null) {
+            for (TimeSeriesMetadata metadata : timeSeriesMetadata) {
+                writer.write(config.separator);
+                writer.write(metadata.getName());
+            }
         }
         writer.write(System.lineSeparator());
     }
@@ -651,20 +653,22 @@ public class TimeSeriesTable {
 
             writeHeader(writer, config);
 
-            // read time series in the doubleBuffer per 10 points chunk to avoid cache missed and improve performances
-            CsvCache cache = new CsvCache();
+            if (timeSeriesMetadata != null) {
+                // read time series in the doubleBuffer per 10 points chunk to avoid cache missed and improve performances
+                CsvCache cache = new CsvCache();
 
-            // write data
-            for (int version = fromVersion; version <= toVersion; version++) {
-                for (int point = 0; point < tableIndex.getPointCount(); point += CsvCache.CACHE_SIZE) {
+                // write data
+                for (int version = fromVersion; version <= toVersion; version++) {
+                    for (int point = 0; point < tableIndex.getPointCount(); point += CsvCache.CACHE_SIZE) {
 
-                    int cachedPoints = Math.min(CsvCache.CACHE_SIZE, tableIndex.getPointCount() - point);
+                        int cachedPoints = Math.min(CsvCache.CACHE_SIZE, tableIndex.getPointCount() - point);
 
-                    // copy from doubleBuffer to cache
-                    fillCache(point, cache, cachedPoints, version);
+                        // copy from doubleBuffer to cache
+                        fillCache(point, cache, cachedPoints, version);
 
-                    // then write cache to CSV
-                    dumpCache(writer, config, point, cache, cachedPoints, version);
+                        // then write cache to CSV
+                        dumpCache(writer, config, point, cache, cachedPoints, version);
+                    }
                 }
             }
         } catch (IOException e) {

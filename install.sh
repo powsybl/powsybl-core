@@ -43,7 +43,6 @@ usage() {
     echo "  clean                    Clean modules"
     echo "  clean-thirdparty         Clean the thirdparty libraries"
     echo "  compile                  Compile modules"
-    echo "  package                  Compile modules and create a distributable package"
     echo "  install                  Compile modules and install it (default target)"
     echo "  help                     Display this help"
     echo "  docs                     Generate the documentation (Doxygen/Javadoc)"
@@ -51,7 +50,6 @@ usage() {
     echo "Options:"
     echo "  --help                   Display this help"
     echo "  --prefix                 Set the installation directory (default is $HOME/powsybl)"
-    echo "  --package-type           Set the package format. The supported formats are zip, tar, tar.gz and tar.bz2 (default is zip)"
     echo ""
     echo "Thirdparty options:"
     echo "  --with-thirdparty        Enable the compilation of thirdparty libraries (default)"
@@ -203,7 +201,7 @@ powsybl_install()
 
 ## Parse command line
 ###############################################################################
-powsybl_options="prefix:,package-type:"
+powsybl_options="prefix:"
 thirdparty_options="with-thirdparty,without-thirdparty,thirdparty-prefix:,thirdparty-download,thirdparty-packs:"
 
 opts=`getopt -o '' --long "help,$powsybl_options,$thirdparty_options" -n 'install.sh' -- "$@"`

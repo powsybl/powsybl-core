@@ -12,7 +12,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.powsybl.iidm.network.TwoTerminalsConnectable.Side;
+import com.powsybl.iidm.network.Branch.Side;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

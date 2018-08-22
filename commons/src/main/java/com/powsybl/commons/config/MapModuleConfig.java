@@ -190,11 +190,6 @@ public class MapModuleConfig implements ModuleConfig {
     }
 
     @Override
-    public Integer getOptionalIntProperty(String name) {
-        return getOptionalIntegerProperty(name).orElse(null);
-    }
-
-    @Override
     public int getIntProperty(String name, int defaultValue) {
         return getOptionalIntegerProperty(name).orElse(defaultValue);
     }
@@ -318,11 +313,6 @@ public class MapModuleConfig implements ModuleConfig {
     }
 
     @Override
-    public Boolean getOptinalBooleanProperty(String name) {
-        return getOptionalBooleanProperty(name).orElse(null);
-    }
-
-    @Override
     public Path getPathProperty(String name) {
         return fs.getPath(getStringProperty(name));
     }
@@ -333,18 +323,27 @@ public class MapModuleConfig implements ModuleConfig {
         return value != null ? fs.getPath(value) : null;
     }
 
+    @Override
+    public Optional<Path> getOptionalPathProperty(String name) {
+        return Optional.ofNullable(getPathProperty(name, null));
+    }
+
     public void setPathProperty(String name, Path path) {
         properties.put(name, path.toAbsolutePath().toString());
     }
 
+    private List<Path> toPath(List<String> strings) {
+        return strings.stream().map(fs::getPath).collect(Collectors.toList());
+    }
+
     @Override
     public List<Path> getPathListProperty(String name) {
-        List<String> strings = getStringListProperty(name);
-        List<Path> paths = new ArrayList<>(strings.size());
-        for (String s : strings) {
-            paths.add(fs.getPath(s));
-        }
-        return paths;
+        return toPath(getStringListProperty(name));
+    }
+
+    @Override
+    public Optional<List<Path>> getOptionalPathListProperty(String name) {
+        return getOptionalStringListProperty(name).map(this::toPath);
     }
 
     @Override
