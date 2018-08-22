@@ -6,9 +6,9 @@
  */
 package com.powsybl.afs.mapdb.storage;
 
-import com.powsybl.math.timeseries.CompressedDoubleArrayChunk;
-import com.powsybl.math.timeseries.DoubleArrayChunk;
-import com.powsybl.math.timeseries.UncompressedDoubleArrayChunk;
+import com.powsybl.timeseries.CompressedDoubleArrayChunk;
+import com.powsybl.timeseries.DoubleArrayChunk;
+import com.powsybl.timeseries.UncompressedDoubleArrayChunk;
 import org.mapdb.DataInput2;
 import org.mapdb.DataOutput2;
 import org.mapdb.Serializer;

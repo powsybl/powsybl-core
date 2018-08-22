@@ -17,13 +17,13 @@ import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.afs.storage.buffer.*;
 import com.powsybl.afs.ws.server.utils.JwtTokenNeeded;
-import com.powsybl.math.timeseries.*;
+import com.powsybl.timeseries.*;
 import com.powsybl.afs.ws.server.utils.AppDataBean;
 import com.powsybl.afs.ws.utils.AfsRestApi;
 import com.powsybl.afs.ws.utils.gzip.Compress;
-import com.powsybl.math.timeseries.DoubleArrayChunk;
-import com.powsybl.math.timeseries.StringArrayChunk;
-import com.powsybl.math.timeseries.TimeSeriesMetadata;
+import com.powsybl.timeseries.DoubleArrayChunk;
+import com.powsybl.timeseries.StringArrayChunk;
+import com.powsybl.timeseries.TimeSeriesMetadata;
 import io.swagger.annotations.*;
 
 import javax.enterprise.context.ApplicationScoped;

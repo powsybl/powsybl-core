@@ -47,7 +47,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-math</artifactId>
+            <artifactId>powsybl-time-series-api</artifactId>
             <version>${project.version}</version>
         </dependency>
 

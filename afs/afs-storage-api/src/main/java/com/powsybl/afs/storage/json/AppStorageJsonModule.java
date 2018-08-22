@@ -9,7 +9,7 @@ package com.powsybl.afs.storage.json;
 import com.powsybl.afs.storage.NodeDependency;
 import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.afs.storage.NodeInfo;
-import com.powsybl.math.timeseries.json.TimeSeriesJsonModule;
+import com.powsybl.timeseries.json.TimeSeriesJsonModule;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>

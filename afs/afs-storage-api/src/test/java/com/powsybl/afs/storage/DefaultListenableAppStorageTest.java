@@ -7,9 +7,9 @@
 package com.powsybl.afs.storage;
 
 import com.powsybl.afs.storage.events.*;
-import com.powsybl.math.timeseries.DoubleArrayChunk;
-import com.powsybl.math.timeseries.StringArrayChunk;
-import com.powsybl.math.timeseries.TimeSeriesMetadata;
+import com.powsybl.timeseries.DoubleArrayChunk;
+import com.powsybl.timeseries.StringArrayChunk;
+import com.powsybl.timeseries.TimeSeriesMetadata;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

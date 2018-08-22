@@ -8,8 +8,8 @@ package com.powsybl.afs.storage.buffer;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.powsybl.math.timeseries.DoubleArrayChunk;
-import com.powsybl.math.timeseries.DoublePoint;
+import com.powsybl.timeseries.DoubleArrayChunk;
+import com.powsybl.timeseries.DoublePoint;
 
 import java.util.List;
 
