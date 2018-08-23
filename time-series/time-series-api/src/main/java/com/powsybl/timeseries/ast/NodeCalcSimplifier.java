@@ -19,10 +19,4 @@ public class NodeCalcSimplifier extends NodeCalcModifier<Void> {
         NodeCalc simplifiedNodeCalc =  nodeCalc.accept(new NodeCalcSimplifier(), null);
         return simplifiedNodeCalc != null ? simplifiedNodeCalc : nodeCalc;
     }
-
-    @Override
-    public NodeCalc visit(BinaryOperation nodeCalc, Void arg) {
-        System.out.println(nodeCalc.getOperator() + " " + nodeCalc.getLeft() + " " + nodeCalc.getRight());
-        return super.visit(nodeCalc, arg);
-    }
 }
