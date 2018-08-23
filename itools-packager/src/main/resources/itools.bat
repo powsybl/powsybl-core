@@ -7,13 +7,13 @@ REM file, You can obtain one at http://mozilla.org/MPL/2.0/.
 if "%JAVA_HOME%" == "" (
   where /Q java.exe
   if %errorlevel% == 0 (
-    JAVA_BIN=java.exe
+    set JAVA_BIN=java.exe
   ) else (
     echo "Unable to find java" >&2
     exit -1
   )
 ) else (
-  JAVA_BIN=%JAVA_HOME%\bin\java.exe
+  set JAVA_BIN=%JAVA_HOME%\bin\java.exe
 )
 
 setlocal EnableDelayedExpansion
