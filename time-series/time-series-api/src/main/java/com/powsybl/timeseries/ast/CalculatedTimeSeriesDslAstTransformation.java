@@ -6,65 +6,23 @@
  */
 package com.powsybl.timeseries.ast;
 
-import groovy.inspect.swingui.AstNodeToScriptVisitor;
+import com.powsybl.commons.ast.AbstractAstTransformation;
 import org.codehaus.groovy.ast.ASTNode;
 import org.codehaus.groovy.ast.ClassCodeExpressionTransformer;
-import org.codehaus.groovy.ast.MethodNode;
-import org.codehaus.groovy.ast.ModuleNode;
 import org.codehaus.groovy.ast.expr.*;
-import org.codehaus.groovy.ast.stmt.BlockStatement;
 import org.codehaus.groovy.control.SourceUnit;
-import org.codehaus.groovy.transform.ASTTransformation;
 import org.codehaus.groovy.transform.GroovyASTTransformation;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.io.StringWriter;
-import java.io.UncheckedIOException;
-import java.util.List;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @GroovyASTTransformation
-public class CalculatedTimeSeriesDslAstTransformation implements ASTTransformation {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(CalculatedTimeSeriesDslAstTransformation.class);
+public class CalculatedTimeSeriesDslAstTransformation extends AbstractAstTransformation {
 
     private static final boolean DEBUG = false;
 
-    private static void printAST(BlockStatement blockStatement) {
-        try (StringWriter writer = new StringWriter()) {
-            blockStatement.visit(new AstNodeToScriptVisitor(writer));
-            writer.flush();
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug(writer.toString());
-            }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
     public void visit(ASTNode[] nodes, SourceUnit sourceUnit) {
-        LOGGER.trace("Apply AST transformation");
-        ModuleNode ast = sourceUnit.getAST();
-        BlockStatement blockStatement = ast.getStatementBlock();
-
-        if (DEBUG) {
-            printAST(blockStatement);
-        }
-
-        List<MethodNode> methods = ast.getMethods();
-        for (MethodNode methodNode : methods) {
-            methodNode.getCode().visit(new CustomClassCodeExpressionTransformer(sourceUnit));
-        }
-
-        blockStatement.visit(new CustomClassCodeExpressionTransformer(sourceUnit));
-
-        if (DEBUG) {
-            printAST(blockStatement);
-        }
+        visit(nodes, sourceUnit, new CustomClassCodeExpressionTransformer(sourceUnit), DEBUG);
     }
 
     class CustomClassCodeExpressionTransformer extends ClassCodeExpressionTransformer {

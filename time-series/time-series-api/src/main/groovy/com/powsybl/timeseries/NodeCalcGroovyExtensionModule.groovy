@@ -38,7 +38,7 @@ class NodeCalcGroovyExtensionModule {
             case "!=":
                 return self != value
             default:
-                throw new AssertionError()
+                throw new AssertionError("Unexpected operator: " + op)
         }
     }
 
@@ -57,7 +57,7 @@ class NodeCalcGroovyExtensionModule {
             case "!=":
                 return BinaryOperation.notEquals(left, right)
             default:
-                throw new AssertionError()
+                throw new AssertionError("Unexpected operator: " + op)
         }
     }
 
@@ -207,7 +207,7 @@ class NodeCalcGroovyExtensionModule {
         BinaryOperation.multiply(self, value)
     }
 
-    // multiply
+    // divide
     static NodeCalc div(NodeCalc self, BigDecimal value) {
         BinaryOperation.div(self, new BigDecimalNodeCalc(value))
     }

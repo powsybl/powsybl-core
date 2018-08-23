@@ -28,6 +28,8 @@ class CalculatedTimeSeriesDslLoader {
 
     public static final String SCRIPT_NAME = "script"
 
+    protected final GroovyCodeSource dslSrc
+
     static class TimeSeriesGroovyObject {
 
         private final ReadOnlyTimeSeriesStore store
@@ -83,8 +85,6 @@ class CalculatedTimeSeriesDslLoader {
             store.getTimeSeriesNames(new TimeSeriesFilter())
         }
     }
-
-    protected final GroovyCodeSource dslSrc
 
     CalculatedTimeSeriesDslLoader(String script) {
         this.dslSrc = new GroovyCodeSource(script, SCRIPT_NAME, GroovyShell.DEFAULT_CODE_BASE)

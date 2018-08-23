@@ -52,7 +52,7 @@ public class NodeCalcEvaluator implements NodeCalcVisitor<Double, DoubleMultiPoi
             case GREATER_THAN_OR_EQUALS_TO: return leftValue >= rightValue ? 1d : 0d;
             case EQUALS: return leftValue == rightValue ? 1d : 0d;
             case NOT_EQUALS: return leftValue != rightValue ? 1d : 0d;
-            default: throw new AssertionError();
+            default: throw new AssertionError("Unexpected operator value: " + nodeCalc.getOperator());
         }
     }
 
@@ -63,7 +63,7 @@ public class NodeCalcEvaluator implements NodeCalcVisitor<Double, DoubleMultiPoi
             case ABS: return Math.abs(childValue);
             case NEGATIVE: return -childValue;
             case POSITIVE: return childValue;
-            default: throw new AssertionError();
+            default: throw new AssertionError("Unexpected operator value: " + nodeCalc.getOperator());
         }
     }
 

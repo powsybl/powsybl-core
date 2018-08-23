@@ -9,7 +9,6 @@ package com.powsybl.timeseries.ast;
 import java.util.Objects;
 
 /**
- *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class NodeCalcSimplifier extends NodeCalcModifier<Void> {

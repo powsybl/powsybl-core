@@ -23,10 +23,10 @@ public class NodeCalcToJson {
 
     @Test
     public void test() {
-        NodeCalc node = abs(div(plus(new TimeNodeCalc(integer(11)),
+        NodeCalc node = abs(div(plus(new TimeNodeCalc(createInteger(11)),
                                      createFloat(3.14f)),
                                 multiply(createDouble(2.4566),
-                                         greaterThan(bigDecimal(BigDecimal.TEN),
+                                         greaterThan(createBigDecimal(BigDecimal.TEN),
                                                      new MinNodeCalc(new MaxNodeCalc(new TimeSeriesNameNodeCalc("ts"),
                                                                                      10),
                                                                      20)))));

@@ -23,7 +23,7 @@ public class DoubleNodeCalc implements LiteralNodeCalc {
 
     public static final NodeCalc ONE = new DoubleNodeCalc(1d);
 
-    private double value;
+    private final double value;
 
     public DoubleNodeCalc(double value) {
         this.value = value;

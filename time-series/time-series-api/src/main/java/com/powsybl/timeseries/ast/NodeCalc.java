@@ -37,15 +37,7 @@ public interface NodeCalc {
 
     static String toJson(NodeCalc node) {
         Objects.requireNonNull(node);
-        return JsonUtil.toJson(generator -> {
-            try {
-                generator.writeStartObject();
-                node.writeJson(generator);
-                generator.writeEndObject();
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-        });
+        return JsonUtil.toJson(generator -> writeJson(node, generator));
     }
 
     static NodeCalc parseJson(String json) {
@@ -70,7 +62,7 @@ public interface NodeCalc {
     }
 
     static TimeSeriesException createUnexpectedToken(JsonToken token) {
-        return new TimeSeriesException("Unexpected JSON token " + token);
+        return new TimeSeriesException("Unexpected JSON token: " + token);
     }
 
     static NodeCalc parseJson(JsonParser parser, JsonToken token) throws IOException {

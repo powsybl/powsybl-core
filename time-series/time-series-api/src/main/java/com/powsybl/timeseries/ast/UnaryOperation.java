@@ -30,12 +30,12 @@ public class UnaryOperation implements NodeCalc {
             this.str = Objects.requireNonNull(str);
         }
 
-        private final String str;
-
         @Override
         public String toString() {
             return str;
         }
+
+        private final String str;
     }
 
     public static UnaryOperation abs(NodeCalc child) {

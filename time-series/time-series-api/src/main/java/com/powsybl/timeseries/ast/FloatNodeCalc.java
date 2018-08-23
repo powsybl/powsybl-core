@@ -21,7 +21,7 @@ public class FloatNodeCalc implements LiteralNodeCalc {
 
     static final String NAME = "float";
 
-    private float value;
+    private final float value;
 
     public FloatNodeCalc(float value) {
         this.value = value;

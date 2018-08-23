@@ -22,7 +22,7 @@ public class BigDecimalNodeCalc implements LiteralNodeCalc {
 
     static final String NAME = "bigDecimal";
 
-    private BigDecimal value;
+    private final BigDecimal value;
 
     public BigDecimalNodeCalc(BigDecimal value) {
         this.value = Objects.requireNonNull(value);

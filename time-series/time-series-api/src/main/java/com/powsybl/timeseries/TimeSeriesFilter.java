@@ -7,12 +7,11 @@
 package com.powsybl.timeseries;
 
 /**
- *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class TimeSeriesFilter {
 
-    boolean includeDependencies = true;
+    private boolean includeDependencies = true;
 
     public boolean isIncludeDependencies() {
         return includeDependencies;

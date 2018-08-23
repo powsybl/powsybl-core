@@ -15,7 +15,7 @@ public interface LiteralNodeCalc extends NodeCalc {
 
     double toDouble();
 
-    static IntegerNodeCalc integer(int value) {
+    static IntegerNodeCalc createInteger(int value) {
         return new IntegerNodeCalc(value);
     }
 
@@ -27,7 +27,7 @@ public interface LiteralNodeCalc extends NodeCalc {
         return new DoubleNodeCalc(value);
     }
 
-    static BigDecimalNodeCalc bigDecimal(BigDecimal value) {
+    static BigDecimalNodeCalc createBigDecimal(BigDecimal value) {
         return new BigDecimalNodeCalc(value);
     }
 }

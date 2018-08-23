@@ -21,7 +21,7 @@ public class IntegerNodeCalc implements LiteralNodeCalc {
 
     static final String NAME = "integer";
 
-    private int value;
+    private final int value;
 
     public IntegerNodeCalc(int value) {
         this.value = value;
