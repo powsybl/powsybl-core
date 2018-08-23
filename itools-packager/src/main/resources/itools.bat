@@ -29,19 +29,19 @@ for /f "delims=" %%x in (%installDir%\etc\itools.conf) do (
 set args=
 set parallel=false
 :continue
-if "%1"=="" ( goto done ) else ( 
-  if "%1" == "--config-name" ( 
-    set itools_config_name=%2 
+if "%1"=="" ( goto done ) else (
+  if "%1" == "--config-name" (
+    set itools_config_name=%2
     shift
-  ) else ( 
-    if "%1" == "--parallel" ( 
+  ) else (
+    if "%1" == "--parallel" (
       set parallel=true
       shift
-      echo WARNING : '--parallel' option not currently supported on Windows 
-    ) else ( 
-        set args=%args% %1 %2 
+      echo WARNING : '--parallel' option not currently supported on Windows
+    ) else (
+        set args=%args% %1 %2
         shift
-      ) 
+      )
   )
   shift
   goto continue
@@ -50,13 +50,14 @@ if "%1"=="" ( goto done ) else (
 
 set options=
 if not "%itools_cache_dir%" == "" ( set options=-Ditools.cache.dir="%itools_cache_dir%" )
-if not "%itools_config_dir%" == "" ( set options=%options% -Ditools.config.dir="%itools_config_dir%" )
+if "%itools_config_dir%" == "" ( set itools_config_dir=%HOMEDRIVE%%HOMEPATH%\.itools)
+set options=%options% -Ditools.config.dir="%itools_config_dir%"
 if not "%itools_config_name%" == "" ( set options=%options% -Ditools.config.name=%itools_config_name%)
 
 set options=%options% -Dlogback.configurationFile="
-if exist %itools_config_dir%\logback-itools.xml ( 
+if exist %itools_config_dir%\logback-itools.xml (
   set options=%options%%itools_config_dir%
-) else ( 
+) else (
   set options=%options%%installDir%\etc
 )
 set options=%options%\logback-itools.xml"
