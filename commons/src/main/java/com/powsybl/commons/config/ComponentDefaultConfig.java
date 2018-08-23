@@ -31,13 +31,13 @@ public interface ComponentDefaultConfig {
         /**
          * Lazily intialized config from the default platform config.
          */
-        private static ComponentDefaultConfig DEFAULT_CONFIG;
+        private static ComponentDefaultConfig defaultConfig;
 
         private static synchronized ComponentDefaultConfig getDefaultConfig() {
-            if (DEFAULT_CONFIG == null) {
-                DEFAULT_CONFIG = ComponentDefaultConfig.load(PlatformConfig.defaultConfig());
+            if (defaultConfig == null) {
+                defaultConfig = ComponentDefaultConfig.load(PlatformConfig.defaultConfig());
             }
-            return DEFAULT_CONFIG;
+            return defaultConfig;
         }
 
         private final ModuleConfig config;

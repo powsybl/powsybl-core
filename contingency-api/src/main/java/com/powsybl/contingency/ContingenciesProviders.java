@@ -13,7 +13,7 @@ import com.powsybl.commons.config.ComponentDefaultConfig;
  */
 public final class ContingenciesProviders {
 
-    private static ContingenciesProvider EMPTY_PROVIDER = new EmptyContingencyListProvider();
+    private static ContingenciesProvider emptyProvider = new EmptyContingencyListProvider();
 
 
     private ContingenciesProviders() {
@@ -30,7 +30,7 @@ public final class ContingenciesProviders {
      * Returns an empty list provider.
      */
     public static ContingenciesProvider emptyProvider() {
-        return EMPTY_PROVIDER;
+        return emptyProvider;
     }
 
 }
