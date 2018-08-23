@@ -66,7 +66,10 @@ public class LazyCreatedComputationManager implements ComputationManager {
     }
 
     @Override
-    public void close() {
-        getComputationManager().close();
+    public synchronized void close() {
+        //Close the underlying delegate only if it has been initialized.
+        if (delegate != null) {
+            delegate.close();
+        }
     }
 }
