@@ -53,6 +53,8 @@
 /sensitivity-api/target/
 /simulation-api/target/
 /scripting/target/
+/time-series/target/
+/time-series/time-series-api/target/
 /tools/target/
 /target/
 /ucte/ucte-converter/target/
