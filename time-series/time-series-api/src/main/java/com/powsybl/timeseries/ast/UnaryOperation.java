@@ -85,28 +85,36 @@ public class UnaryOperation implements NodeCalc {
         generator.writeEndObject();
     }
 
+    static class ParsingContext {
+        NodeCalc child;
+        Operator operator;
+    }
+
+    static void parseFieldName(JsonParser parser, JsonToken token, ParsingContext context) throws IOException {
+        String fieldName = parser.getCurrentName();
+        if ("op".equals(fieldName)) {
+            context.operator = Operator.valueOf(parser.nextTextValue());
+        } else {
+            if (context.child != null) {
+                throw new TimeSeriesException("Only 1 operand expected for an unary operation");
+            }
+            context.child = NodeCalc.parseJson(parser, token);
+        }
+    }
+
     static NodeCalc parseJson(JsonParser parser) throws IOException {
-        NodeCalc child = null;
-        Operator operator = null;
+        ParsingContext context = new ParsingContext();
         JsonToken token;
         while ((token = parser.nextToken()) != null) {
             if (token == JsonToken.START_OBJECT) {
                 // skip
             } else if (token == JsonToken.END_OBJECT) {
-                if (child == null || operator == null) {
+                if (context.child == null || context.operator == null) {
                     throw new TimeSeriesException("Invalid unary operation node calc JSON");
                 }
-                return new UnaryOperation(child, operator);
+                return new UnaryOperation(context.child, context.operator);
             } else if (token == JsonToken.FIELD_NAME) {
-                String fieldName = parser.getCurrentName();
-                if ("op".equals(fieldName)) {
-                    operator = Operator.valueOf(parser.nextTextValue());
-                } else {
-                    if (child != null) {
-                        throw new TimeSeriesException("Only 1 operand expected for an unary operation");
-                    }
-                    child = NodeCalc.parseJson(parser, token);
-                }
+                parseFieldName(parser, token, context);
             } else {
                 throw NodeCalc.createUnexpectedToken(token);
             }

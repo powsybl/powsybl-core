@@ -9,7 +9,6 @@ package com.powsybl.timeseries.ast;
 import java.util.Objects;
 
 /**
- * TODO
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */

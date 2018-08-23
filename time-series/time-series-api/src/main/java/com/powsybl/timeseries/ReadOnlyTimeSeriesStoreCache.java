@@ -9,6 +9,9 @@ package com.powsybl.timeseries;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ */
 public class ReadOnlyTimeSeriesStoreCache implements ReadOnlyTimeSeriesStore {
 
     private final Map<String, DoubleTimeSeries> doubleTimeSeriesMap;
@@ -45,14 +48,18 @@ public class ReadOnlyTimeSeriesStoreCache implements ReadOnlyTimeSeriesStore {
         return getDoubleTimeSeries(timeSeriesNames, 1).stream().map(TimeSeries::getMetadata).collect(Collectors.toList());
     }
 
+    private static UnsupportedOperationException createNotImplementedException() {
+        return new UnsupportedOperationException("Not implemented");
+    }
+
     @Override
     public Set<Integer> getTimeSeriesDataVersions() {
-        throw new UnsupportedOperationException("Not implemented");
+        throw createNotImplementedException();
     }
 
     @Override
     public Set<Integer> getTimeSeriesDataVersions(String timeSeriesName) {
-        throw new UnsupportedOperationException("Not implemented");
+        throw createNotImplementedException();
     }
 
     @Override
@@ -71,21 +78,21 @@ public class ReadOnlyTimeSeriesStoreCache implements ReadOnlyTimeSeriesStore {
 
     @Override
     public StringTimeSeries getStringTimeSeries(String timeSeriesName, int version) {
-        throw new UnsupportedOperationException("Not implemented");
+        throw createNotImplementedException();
     }
 
     @Override
     public List<StringTimeSeries> getStringTimeSeries(Set<String> timeSeriesNames, int version) {
-        throw new UnsupportedOperationException("Not implemented");
+        throw createNotImplementedException();
     }
 
     @Override
     public void addListener(TimeSeriesStoreListener listener) {
-        throw new UnsupportedOperationException("Not implemented");
+        throw createNotImplementedException();
     }
 
     @Override
     public void removeListener(TimeSeriesStoreListener listener) {
-        throw new UnsupportedOperationException("Not implemented");
+        throw createNotImplementedException();
     }
 }

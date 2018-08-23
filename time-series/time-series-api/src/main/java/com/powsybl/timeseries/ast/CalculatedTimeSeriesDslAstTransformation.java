@@ -20,8 +20,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
+import java.io.StringWriter;
+import java.io.UncheckedIOException;
 import java.util.List;
 
 /**
@@ -35,12 +35,14 @@ public class CalculatedTimeSeriesDslAstTransformation implements ASTTransformati
     private static final boolean DEBUG = false;
 
     private static void printAST(BlockStatement blockStatement) {
-        Writer writer = new OutputStreamWriter(System.out);
-        blockStatement.visit(new AstNodeToScriptVisitor(writer));
-        try {
+        try (StringWriter writer = new StringWriter()) {
+            blockStatement.visit(new AstNodeToScriptVisitor(writer));
             writer.flush();
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug(writer.toString());
+            }
         } catch (IOException e) {
-            LOGGER.error(e.toString(), e);
+            throw new UncheckedIOException(e);
         }
     }
 

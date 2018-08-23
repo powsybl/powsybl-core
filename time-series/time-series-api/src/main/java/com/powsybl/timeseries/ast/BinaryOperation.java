@@ -138,6 +138,21 @@ public class BinaryOperation implements NodeCalc {
         Operator operator;
     }
 
+    static void parseFieldName(JsonParser parser, JsonToken token, ParsingContext context) throws IOException {
+        String fieldName = parser.getCurrentName();
+        if ("op".equals(fieldName)) {
+            context.operator = Operator.valueOf(parser.nextTextValue());
+        } else {
+            if (context.left == null) {
+                context.left = NodeCalc.parseJson(parser, token);
+            } else if (context.right == null) {
+                context.right = NodeCalc.parseJson(parser, token);
+            } else {
+                throw new TimeSeriesException("2 operands expected for a binary operation");
+            }
+        }
+    }
+
     static NodeCalc parseJson(JsonParser parser) throws IOException {
         ParsingContext context = new ParsingContext();
         JsonToken token;
@@ -150,18 +165,7 @@ public class BinaryOperation implements NodeCalc {
                 }
                 return new BinaryOperation(context.left, context.right, context.operator);
             } else if (token == JsonToken.FIELD_NAME) {
-                String fieldName = parser.getCurrentName();
-                if ("op".equals(fieldName)) {
-                    context.operator = Operator.valueOf(parser.nextTextValue());
-                } else {
-                    if (context.left == null) {
-                        context.left = NodeCalc.parseJson(parser, token);
-                    } else if (context.right == null) {
-                        context.right = NodeCalc.parseJson(parser, token);
-                    } else {
-                        throw new TimeSeriesException("2 operands expected for a binary operation");
-                    }
-                }
+                parseFieldName(parser, token, context);
             } else {
                 throw NodeCalc.createUnexpectedToken(token);
             }

@@ -307,6 +307,7 @@
                             <sourceDirectory>${project.basedir}/iidm/iidm-api/src/main/groovy</sourceDirectory>
                             <sourceDirectory>${project.basedir}/loadflow/loadflow-api/src/main/groovy</sourceDirectory>
                             <sourceDirectory>${project.basedir}/scripting/src/main/groovy</sourceDirectory>
+                            <sourceDirectory>${project.basedir}/time-series/time-series-api/src/main/groovy</sourceDirectory>
                         </sourceDirectories>
                         <jacocoReports>
                             <jacocoReport>${project.basedir}/distribution-core/target/site/jacoco-aggregate/jacoco.xml</jacocoReport>

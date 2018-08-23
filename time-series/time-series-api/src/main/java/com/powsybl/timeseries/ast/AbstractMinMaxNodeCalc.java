@@ -52,6 +52,20 @@ public abstract class AbstractMinMaxNodeCalc implements NodeCalc {
         double value = Double.NaN;
     }
 
+    static void parseFieldName(JsonParser parser, JsonToken token, ParsingContext context) throws IOException {
+        String fieldName = parser.getCurrentName();
+        if ("value".equals(fieldName)) {
+            parser.nextValue();
+            context.value = parser.getValueAsDouble();
+        } else {
+            if (context.child == null) {
+                context.child = NodeCalc.parseJson(parser, token);
+            } else {
+                throw new TimeSeriesException("Only 1 operand expected for a min/max");
+            }
+        }
+    }
+
     protected static ParsingContext parseJson2(JsonParser parser) throws IOException {
         ParsingContext context = new ParsingContext();
         JsonToken token;
@@ -63,18 +77,8 @@ public abstract class AbstractMinMaxNodeCalc implements NodeCalc {
                     throw new TimeSeriesException("Invalid min/max node calc JSON");
                 }
                 return context;
-            } else  if (token == JsonToken.FIELD_NAME) {
-                String fieldName = parser.getCurrentName();
-                if ("value".equals(fieldName)) {
-                    parser.nextValue();
-                    context.value = parser.getValueAsDouble();
-                } else {
-                    if (context.child == null) {
-                        context.child = NodeCalc.parseJson(parser, token);
-                    } else {
-                        throw new TimeSeriesException("Only 1 operand expected for a min/max");
-                    }
-                }
+            } else if (token == JsonToken.FIELD_NAME) {
+                parseFieldName(parser, token, context);
             } else {
                 throw NodeCalc.createUnexpectedToken(token);
             }
