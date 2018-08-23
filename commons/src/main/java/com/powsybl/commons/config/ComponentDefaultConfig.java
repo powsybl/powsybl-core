@@ -19,7 +19,7 @@ import java.util.Objects;
 public interface ComponentDefaultConfig {
 
     static ComponentDefaultConfig load() {
-        return load(PlatformConfig.defaultConfig());
+        return Impl.getDefaultConfig();
     }
 
     static ComponentDefaultConfig load(PlatformConfig platformConfig) {
@@ -27,6 +27,18 @@ public interface ComponentDefaultConfig {
     }
 
     class Impl implements ComponentDefaultConfig {
+
+        /**
+         * Lazily intialized config from the default platform config.
+         */
+        private static ComponentDefaultConfig DEFAULT_CONFIG;
+
+        private static synchronized ComponentDefaultConfig getDefaultConfig() {
+            if (DEFAULT_CONFIG == null) {
+                DEFAULT_CONFIG = ComponentDefaultConfig.load(PlatformConfig.defaultConfig());
+            }
+            return DEFAULT_CONFIG;
+        }
 
         private final ModuleConfig config;
 
