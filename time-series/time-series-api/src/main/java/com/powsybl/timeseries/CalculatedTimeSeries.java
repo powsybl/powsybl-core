@@ -33,16 +33,17 @@ public class CalculatedTimeSeries implements DoubleTimeSeries {
     public CalculatedTimeSeries(String name, NodeCalc nodeCalc, ReadOnlyTimeSeriesStore timeSeriesStore, int version) {
         this.nodeCalc = Objects.requireNonNull(nodeCalc);
         Objects.requireNonNull(timeSeriesStore);
-        metadata = getMetadata(name, nodeCalc, timeSeriesStore);
 
-        Set<String> timeSeriesNames = TimeSeriesNames.list(nodeCalc);
+        NodeCalc simplifiedNodeCalc = NodeCalcSimplifier.simplify(nodeCalc);
+
+        metadata = getMetadata(name, simplifiedNodeCalc, timeSeriesStore);
+
+        Set<String> timeSeriesNames = TimeSeriesNames.list(simplifiedNodeCalc);
         if (timeSeriesNames.isEmpty()) {
             timeSeriesList = Collections.emptyList();
         } else {
             timeSeriesList = timeSeriesStore.getDoubleTimeSeries(timeSeriesNames, version);
         }
-
-        NodeCalc simplifiedNodeCalc = NodeCalcSimplifier.simplify(nodeCalc);
 
         Map<String, Integer> timeSeriesNums = IntStream.range(0, timeSeriesList.size())
                 .boxed()
