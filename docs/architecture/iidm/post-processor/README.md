@@ -6,7 +6,7 @@ The import post processors mechanism can also be used to create new post process
   
 In this tutorial you are going to see how to work with import post processors, learning:
  - How to use import post processors
- - [How to create a new import post processor](extend-postprocessor.md)
+ - [How to create a new import post processor](../../../tutorials/iidm/howto-extend-postprocessor.md)
 
 ## How to use import post processors  
 An import post processor, if properly configured, is run on a network, after the import of the network itself. The goal of a post processor is to work on the imported network, possibly changing data.   
@@ -17,7 +17,7 @@ The list of post processors currently implemented and available in powsybl-core 
 - [loadflowResultsCompletion](loadflowResultsCompletion.md)
 
 The powsybl-core platform reads from the configuration all the post processors to run, and, just after a network is imported (e.g. when you run an itools command that import a network), calls the post processors.    
-the import post processors to run are defined in powsybl's [configuration file](../configuration/configuration.md).  
+the import post processors to run are defined in powsybl's [configuration file](../../../configuration/configuration.md).  
 
 ```xml
 <import>

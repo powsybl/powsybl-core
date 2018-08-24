@@ -1,4 +1,4 @@
-# powsybl-core  architecture
+# powsybl-core architecture
 
 Powsybl-core is designed in a modular approach, to allow other projects to extend its features or to modify the default behaviours.
 

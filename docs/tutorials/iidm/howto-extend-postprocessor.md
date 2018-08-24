@@ -7,7 +7,7 @@ In order to create a new post processor:
 3. Compile your project, add the jar to your powsybl installation, and add the new post processor to the configuration file.
 
 In the following sections we will see how, following these steps, you can implement a new post processor for increasing the active power of all loads of an imported network.  
-A sample maven project implementing this post processor can be found [here](../samples/increase-active-power-postprocessor).  
+A sample maven project implementing this post processor can be found [here](../../samples/increase-active-power-postprocessor).  
 
 ## Maven dependencies
   
@@ -97,7 +97,7 @@ $> mvn install
 The generated jar will be located under the target folder of your project.  
 Copy the generated jar to `<POWSYBL_HOME>/share/java/` folder (you might need to copy in this directory other dependencies jars, specific to your new post processor).  
   
-In order to make the powsybl platform call your new post processor after network import, it's necessary to update the [configuration file](../configuration/configuration.md).  
+In order to make the powsybl platform call your new post processor after network import, it's necessary to update the [configuration file](../../configuration/configuration.md).  
 Add the NAME specified for your processor to the `postProcessors` tag of the `import` section. In our example will be `increaseActivePower`
 
 ```xml
@@ -106,7 +106,7 @@ Add the NAME specified for your processor to the `postProcessors` tag of the `im
 </import>
 ```
   
-In order to execute the new post processor run a command that involve a network import, for instance [run the loadflow command](../tools/loadflow.md):
+In order to execute the new post processor run a command that involve a network import, for instance [run the loadflow command](../../tools/loadflow.md):
 ```bash
 $> cd <POWSYBL_HOME>/bin
 $> ./itools loadflow --case-file NetworkfileName
