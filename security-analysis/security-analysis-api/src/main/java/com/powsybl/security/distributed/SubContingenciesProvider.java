@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+ * Copyright (c) 2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -23,7 +23,7 @@ import java.util.Objects;
  * an instance of this provider will return the 5 first contingencies for the partition 1/2,
  * or the 5 next for the partition 2/2.
  *
- * @author Sylvain Leclerc <sylvain.leclerc@rte-france.com>
+ * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
  */
 public class SubContingenciesProvider implements ContingenciesProvider {
 

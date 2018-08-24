@@ -17,6 +17,8 @@ import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.converter.SecurityAnalysisResultExporters;
 import com.powsybl.security.distributed.DistributedSecurityAnalysis;
+import com.powsybl.security.distributed.ExternalSecurityAnalysis;
+import com.powsybl.security.distributed.ExternalSecurityAnalysisConfig;
 import com.powsybl.security.distributed.SubContingenciesProvider;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptors;
@@ -50,6 +52,7 @@ public class SecurityAnalysisTool implements Tool {
     private static final String WITH_EXTENSIONS_OPTION = "with-extensions";
     private static final String TASK = "task";
     private static final String TASK_COUNT = "task-count";
+    private static final String EXTERNAL = "external";
 
     @Override
     public Command getCommand() {
@@ -118,6 +121,9 @@ public class SecurityAnalysisTool implements Tool {
                         .hasArg()
                         .argName("TASKID")
                         .build());
+                options.addOption(Option.builder().longOpt(EXTERNAL)
+                        .desc("external execution")
+                        .build());
                 return options;
             }
 
@@ -175,9 +181,12 @@ public class SecurityAnalysisTool implements Tool {
         ContingenciesProvider contingenciesProvider = contingenciesFile != null ?
             ContingenciesProviders.newDefaultFactory().create(contingenciesFile) : ContingenciesProviders.emptyProvider();
 
+        ComputationManager computationManager = context.getLongTimeExecutionComputationManager();
+
         if (line.hasOption(TASK)) {
             Partition partition = Partition.parse(line.getOptionValue(TASK));
             contingenciesProvider = new SubContingenciesProvider(contingenciesProvider, partition);
+            computationManager = context.getShortTimeExecutionComputationManager();
         }
 
         SecurityAnalysisParameters parameters = SecurityAnalysisParameters.load();
@@ -186,12 +195,16 @@ public class SecurityAnalysisTool implements Tool {
             JsonSecurityAnalysisParameters.update(parameters, parametersFile);
         }
 
-        ComputationManager computationManager = context.getLongTimeExecutionComputationManager();
 
         SecurityAnalysis securityAnalysis;
-        if (line.hasOption(TASK_COUNT)) {
+        if (line.hasOption(EXTERNAL)) {
+            Integer taskCount = getOptionValue(line, TASK_COUNT).map(Integer::parseInt).orElse(null);
+            ExternalSecurityAnalysisConfig config = ExternalSecurityAnalysisConfig.load();
+            securityAnalysis = new ExternalSecurityAnalysis(config, network, computationManager, extensions, taskCount);
+        } else if (line.hasOption(TASK_COUNT)) {
             int taskCount = Integer.parseInt(line.getOptionValue(TASK_COUNT));
-            securityAnalysis = new DistributedSecurityAnalysis(network, computationManager, extensions, taskCount);
+            ExternalSecurityAnalysisConfig config = ExternalSecurityAnalysisConfig.load();
+            securityAnalysis = new DistributedSecurityAnalysis(config, network, computationManager, extensions, taskCount);
         } else {
             securityAnalysis = SecurityAnalysisFactories.newDefaultFactory()
                     .create(network, limitViolationFilter, computationManager, 0);
