@@ -1,9 +1,9 @@
 # powsybl logger
 
-Powsybl's itool command is configured to use [logback](https://logback.qos.ch/) for logging. 
-The default logging configuration file is `<POWSYBL_HOME>/etc/logback-itools.xml
+Powsybl's iTools command is configured to use [logback](https://logback.qos.ch/) for logging. 
+The default logging configuration file is `<POWSYBL_HOME>/etc/logback-itools.xml`
 
-```
+```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
@@ -24,9 +24,7 @@ The default logging configuration file is `<POWSYBL_HOME>/etc/logback-itools.xml
         <appender-ref ref="STDOUT" />
     </root>
 </configuration>
-
 ```
 
- 
-You can edit the default configuration, for example to modify the debugging level or to make it write to a specific file;
+You can edit the default configuration, for example to modify the debugging level or to make it write to a specific file.
 Please refer to the  [logback manual](https://logback.qos.ch/manual/index.html) for the available logging options.

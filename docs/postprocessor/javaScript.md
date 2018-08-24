@@ -4,7 +4,7 @@ The javaScript import post processor (`com.powsybl.iidm.import_.JavaScriptPostPr
   
 In order to run this post processor after the import of a network, add `javaScript` to the list of post processors to be run, in the `postProcessors` tag of the `import` section, in your [configuration file](../configuration/configuration.md)  
 
-```
+```xml
 <import>
     <postProcessors>javaScript</postProcessors>
 </import>
@@ -12,7 +12,7 @@ In order to run this post processor after the import of a network, add `javaScri
 
 The JavaScript to be run by the post processor can be configured in the [configuration file](../configuration/configuration.md), in the `script` tag of the `javaScriptPostProcessor` section.
 
-```
+```xml
 <javaScriptPostProcessor>
     <script>$HOME/script.js</script>
 </javaScriptPostProcessor>   

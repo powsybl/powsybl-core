@@ -14,7 +14,7 @@ A sample maven project implementing this post processor can be found [here](../s
 After creating the Maven project, you need to add the necessary dependencies to your pom.xml file.  
 Maven dependencies required for implementing a new post processor are the following:  
 
-```
+```xml
 <dependency>
     <groupId>com.google.auto.service</groupId>
     <artifactId>auto-service</artifactId>
@@ -25,8 +25,8 @@ Maven dependencies required for implementing a new post processor are the follow
     <artifactId>powsybl-iidm-converter-api</artifactId>
     <version>${project.version}</version>
 </dependency>
-
 ```
+
 In your project you also need to add the other dependencies required by your post processor business logic implementation.  
 
 ## Implement the ImportPostProcessor interface
@@ -34,7 +34,7 @@ In your project you also need to add the other dependencies required by your pos
 For creating a new post processor, you need to implement the `com.powsybl.iidm.import_ImportPostProcessor` interface.  
 Following is a sample class, where you will put the code to increase loads active power of the network.
 
-```
+```java
 @AutoService(ImportPostProcessor.class)
 public class IncreaseActivePowerPostProcessor implements ImportPostProcessor {
 
@@ -56,7 +56,7 @@ The methods of the `ImportPostProcessor` interface to override in your class are
  - `getName` method, that returns the processor's name
  - `process` method, that  executes the processing on the imported network
 
-```
+```java
     public static final String NAME = "increaseActivePower";
     private static final Logger LOGGER = LoggerFactory.getLogger(IncreaseActivePowerPostProcessor.class);
 
@@ -83,13 +83,13 @@ The `process` method is in charge of executing your processing, implementing you
 The `network` parameter provides access to the imported network (see `com.powsybl.iidm.network.Network` class), you can work on it using the IIDM API. In the sample code we use it to get the list of all network loads (`network.getLoads()`).  
 The `computationManager` parameter provides you access to the computation platform. It can be used to distribute the computation (e.g. if you need to run a loadflow on the imported network, or some other kind of heavy computation).  
 The rest of the code in our sample class increases of 1% the active power of each load, using the IIDM API, and log old and updated values. For the logging we use the `org.slf4j.Logger` class.
- 
+
 
 ## Update your installation with the new import post processor
 
 Run the following command to create your project jar:
 
-```
+```bash
 $> cd <PROJECT_HOME>
 $> mvn install
 ```
@@ -100,15 +100,14 @@ Copy the generated jar to `<POWSYBL_HOME>/share/java/` folder (you might need to
 In order to make the powsybl platform call your new post processor after network import, it's necessary to update the [configuration file](../configuration/configuration.md).  
 Add the NAME specified for your processor to the `postProcessors` tag of the `import` section. In our example will be `increaseActivePower`
 
-```
+```xml
 <import>
     <postProcessors>increaseActivePower</postProcessors>
 </import>
 ```
   
-In order to execute the new post processor run a command that involve a network import, for instance [run the loadflow command](../loadflow/loadflow-command.md):
-
-```
+In order to execute the new post processor run a command that involve a network import, for instance [run the loadflow command](../tools/loadflow.md):
+```bash
 $> cd <POWSYBL_HOME>/bin
 $> ./itools loadflow --case-file NetworkfileName
 ```

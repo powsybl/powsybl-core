@@ -5,7 +5,7 @@ Powsybl-core implements a highly modular configuration mechanism.
 Being `<POWSYBL_HOME>` the powsybl root installation directory, file `<POWSYBL_HOME>`/etc/itools.conf declares the actual configuration files' parent folders and names. 
 
 `<POWSYBL_HOME>/etc/itools.conf` example:
-```
+```properties
 # configuration's file parent directory
 itools_config_dir=<CONFIG_DIR>
 # configuration's file basename
@@ -16,8 +16,8 @@ itools_cache_dir=<CACHE_DIR>
 
 If `<POWSYBL_HOME>/etc/itools.conf` does not exist, or some properties are not defined, the default values are:
 
-| property |default value |
-| ------ | ------ |
+| property | default value |
+| -------- | ------------- |
 | itools_config_dir | `$HOME/.itools`|
 | itools_config_name | `config` |
 | itools_cache_dir | `$HOME/.cache/itools` |

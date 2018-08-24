@@ -12,7 +12,7 @@ Platform configuration is divided in different sections. Each section includes a
 Example (same configuration) for the three, different, file formats:
 
 ## YAML
-```
+```yaml
 componentDefaultConfig:
     ContingenciesProviderFactory: com.powsybl.action.dsl.GroovyDslContingenciesProviderFactory
     SecurityAnalysisFactory: com.powsybl.security.SecurityAnalysisFactoryImpl
@@ -22,9 +22,8 @@ import:
     postProcessors:
 ```
 
-
 ## XML
-```
+```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <config>
 <componentDefaultConfig>
@@ -37,8 +36,9 @@ import:
     <postProcessors></postProcessors>
   </import>
 
-</config
+</config>
 ```
+
 ## Properties
 
 ### componentDefaultConfig.properties 

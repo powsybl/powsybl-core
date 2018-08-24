@@ -19,7 +19,7 @@ The list of post processors currently implemented and available in powsybl-core 
 The powsybl-core platform reads from the configuration all the post processors to run, and, just after a network is imported (e.g. when you run an itools command that import a network), calls the post processors.    
 the import post processors to run are defined in powsybl's [configuration file](../configuration/configuration.md).  
 
-```
+```xml
 <import>
     <postProcessors>groovyScript,javaScript</postProcessors>
 </import>

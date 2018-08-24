@@ -4,7 +4,7 @@ The groovyScript import post processor (`com.powsybl.iidm.import_.GroovyScriptPo
   
 In order to run this post processor after the import of a network, add `groovyScript` to the list of post processors to be run, in the `postProcessors` tag of the `import` section, in your [configuration file](../configuration/configuration.md)  
 
-```
+```xml
 <import>
     <postProcessors>groovyScript</postProcessors>
 </import>
@@ -12,7 +12,7 @@ In order to run this post processor after the import of a network, add `groovySc
 
 The Groovy script to be run by the post processor can be configured in the [configuration file](../configuration/configuration.md), in the `script` tag of the `groovy-post-processor` section
 
-```
+```xml
 <groovy-post-processor>
     <script>$HOME/script.groovy</script>
 </groovy-post-processor>   

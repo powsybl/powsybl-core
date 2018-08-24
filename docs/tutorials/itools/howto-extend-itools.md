@@ -6,7 +6,7 @@ In order to create a new itools command:
 3. Compile your project and add the jar to your powsybl installation.
 
 In the following sections we will see how, following these steps, you can implement a new itools command to display how many lines are there in a network.  
-A sample maven project implementing this command can be found [here](../samples/count-lines-tool).  
+A sample maven project implementing this command can be found [here](../../samples/count-lines-tool).  
 
 ## Maven dependencies
   
@@ -104,7 +104,7 @@ The methods of the `Tools` interface to override in your class are:
     }
 ```
 
-The `getCommand` method returns a class implementing the `com.powsybl.tools.Command` interface. This interface declares your command, defining name, description and theme (the theme is used to group the commands, see [itools description](README.md); already available values, in powsybl-core, are: *application file system, computation, data conversion, MBI statistics*, but you can also define new themes). Our samples class defines name (`count-network-lines`), description (`Count network lines`) and theme (`Network`, a new theme) of the new command for counting network lines.  
+The `getCommand` method returns a class implementing the `com.powsybl.tools.Command` interface. This interface declares your command, defining name, description and theme (the theme is used to group the commands, see [itools description](../../tools/README.md); already available values, in powsybl-core, are: *application file system, computation, data conversion, MBI statistics*, but you can also define new themes). Our samples class defines name (`count-network-lines`), description (`Count network lines`) and theme (`Network`, a new theme) of the new command for counting network lines.  
 The `Command` class also defines your command options (input parameters), if they are required and/or they need an argument (see `org.apache.commons.cli.Options` and `org.apache.commons.cli.Option` classes). The only option defined in our sample class, `case-file`, allows the user to specify the network file to analyze. The option is required (`.required()`) and has an argument, the input case file (`.hasArg().argName("FILE")`).  
 
 ```

@@ -10,7 +10,7 @@ Please see `com.powsybl.iidm.network.util.BranchData` class for more details.
   
 In order to run this post processor after the import of a network, add `loadflowResultsCompletion` to the list of post processors to be run, in the `postProcessors` tag of the `import` section, in your [configuration file](../configuration/configuration.md)  
 
-```
+```xml
 <import>
     <postProcessors>loadflowResultsCompletion</postProcessors>
 </import>
@@ -18,7 +18,7 @@ In order to run this post processor after the import of a network, add `loadflow
 
 Some parameters of the post processor can be configured in the [configuration file](../configuration/configuration.md), in the `loadflow-results-completion-parameters` section
 
-```
+```xml
 <loadflow-results-completion-parameters>
     <epsilon-x>0.1</epsilon-x>
     <apply-reactance-correction>false</apply-reactance-correction>
