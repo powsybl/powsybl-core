@@ -22,7 +22,7 @@ public class CalculatedTimeSeriesDslAstTransformation extends AbstractAstTransfo
     private static final boolean DEBUG = false;
 
     public void visit(ASTNode[] nodes, SourceUnit sourceUnit) {
-        visit(nodes, sourceUnit, new CustomClassCodeExpressionTransformer(sourceUnit), DEBUG);
+        visit(sourceUnit, new CustomClassCodeExpressionTransformer(sourceUnit), DEBUG);
     }
 
     class CustomClassCodeExpressionTransformer extends ClassCodeExpressionTransformer {

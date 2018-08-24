@@ -32,7 +32,7 @@ public class TimeNodeCalc implements NodeCalc {
     }
 
     public void setChild(NodeCalc child) {
-        this.child = child;
+        this.child = Objects.requireNonNull(child);
     }
 
     @Override

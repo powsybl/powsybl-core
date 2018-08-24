@@ -7,7 +7,6 @@
 package com.powsybl.commons.ast;
 
 import groovy.inspect.swingui.AstNodeToScriptVisitor;
-import org.codehaus.groovy.ast.ASTNode;
 import org.codehaus.groovy.ast.ClassCodeExpressionTransformer;
 import org.codehaus.groovy.ast.MethodNode;
 import org.codehaus.groovy.ast.ModuleNode;
@@ -27,7 +26,7 @@ import java.util.List;
  */
 public abstract class AbstractAstTransformation implements ASTTransformation {
 
-    protected static Logger LOGGER = LoggerFactory.getLogger(AbstractAstTransformation.class);
+    protected static final Logger LOGGER = LoggerFactory.getLogger(AbstractAstTransformation.class);
 
     private static void printAST(BlockStatement blockStatement) {
         try (StringWriter writer = new StringWriter()) {
@@ -41,7 +40,7 @@ public abstract class AbstractAstTransformation implements ASTTransformation {
         }
     }
 
-    protected void visit(ASTNode[] nodes, SourceUnit sourceUnit, ClassCodeExpressionTransformer transformer, boolean debug) {
+    protected void visit(SourceUnit sourceUnit, ClassCodeExpressionTransformer transformer, boolean debug) {
         LOGGER.trace("Apply AST transformation");
         ModuleNode ast = sourceUnit.getAST();
         BlockStatement blockStatement = ast.getStatementBlock();

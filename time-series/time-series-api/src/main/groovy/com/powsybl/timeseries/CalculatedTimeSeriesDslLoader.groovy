@@ -66,18 +66,26 @@ class CalculatedTimeSeriesDslLoader {
         }
 
         void putAt(String name, NodeCalc node) {
+            assert name != null
+            assert node != null
             nodes.put(name, node)
         }
 
         void putAt(String name, Integer integer) {
+            assert name != null
+            assert integer != null
             nodes.put(name, new IntegerNodeCalc(integer))
         }
 
         void putAt(String name, Float aFloat) {
+            assert name != null
+            assert aFloat != null
             nodes.put(name, new FloatNodeCalc(aFloat))
         }
 
         void putAt(String name, Double aDouble) {
+            assert name != null
+            assert aDouble != null
             nodes.put(name, new DoubleNodeCalc(aDouble))
         }
 

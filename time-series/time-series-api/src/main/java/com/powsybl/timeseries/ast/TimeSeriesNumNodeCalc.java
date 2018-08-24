@@ -17,6 +17,9 @@ public class TimeSeriesNumNodeCalc implements NodeCalc {
     private final int timeSeriesNum;
 
     public TimeSeriesNumNodeCalc(int timeSeriesNum) {
+        if (timeSeriesNum <  0) {
+            throw new IllegalArgumentException("time series num cannot be negative");
+        }
         this.timeSeriesNum = timeSeriesNum;
     }
 

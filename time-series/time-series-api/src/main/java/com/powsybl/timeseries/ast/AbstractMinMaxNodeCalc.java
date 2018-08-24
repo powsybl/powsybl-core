@@ -33,7 +33,7 @@ public abstract class AbstractMinMaxNodeCalc implements NodeCalc {
     }
 
     public void setChild(NodeCalc child) {
-        this.child = child;
+        this.child = Objects.requireNonNull(child);
     }
 
     protected abstract String getJsonName();
