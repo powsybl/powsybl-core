@@ -44,7 +44,7 @@
  *     and {@linkplain com.powsybl.afs.ProjectFileExtension ProjectFileExtension}.
  *
  *
- *     @auhor Sylvain Leclerc <sylvain.leclerc@rte-france.com>
+ *     @auhor Sylvain Leclerc <sylvain.leclerc at rte-france.com>
  *
  */
 package com.powsybl.afs;

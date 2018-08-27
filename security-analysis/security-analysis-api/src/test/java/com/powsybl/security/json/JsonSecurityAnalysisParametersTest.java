@@ -17,7 +17,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
- * @author Sylvain Leclerc <sylvain.leclerc@rte-france.com>
+ * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
  */
 public class JsonSecurityAnalysisParametersTest extends AbstractConverterTest {
 
