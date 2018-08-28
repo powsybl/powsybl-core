@@ -23,7 +23,6 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 import static com.powsybl.action.simulator.tools.ActionSimulatorToolConstants.*;
 
@@ -130,7 +129,7 @@ public class ParallelLoadFlowActionSimulator extends LoadFlowActionSimulator {
 
         private SimpleCommandBuilder buildCommand(Path workingDir) throws IOException {
 
-            OptionCommandBuilder builder = new OptionCommandBuilder();
+            SimpleCommandBuilder builder = new SimpleCommandBuilder();
 
             // copy input files to slave workingDir
             Path networkDest = workingDir.resolve("network.xiidm");
@@ -143,58 +142,14 @@ public class ParallelLoadFlowActionSimulator extends LoadFlowActionSimulator {
 
             builder
                 .arg("action-simulator")
-                .addOption(CASE_FILE, networkDest.toString())
-                .addOption(DSL_FILE, dslFileDest.toString())
-                .addOption(TASK, i -> new Partition(i + 1, actualTaskCount).toString())
-                .addOption(OUTPUT_FILE, this::getOutputFileName)
-                .addOption(OUTPUT_FORMAT, "JSON")
-                .addFlag(APPLY_IF_SOLVED_VIOLATIONS, isApplyIfSolvedViolations());
+                .option(CASE_FILE, networkDest.toString())
+                .option(DSL_FILE, dslFileDest.toString())
+                .option(TASK, i -> new Partition(i + 1, actualTaskCount).toString())
+                .option(OUTPUT_FILE, this::getOutputFileName)
+                .option(OUTPUT_FORMAT, "JSON")
+                .flag(APPLY_IF_SOLVED_VIOLATIONS, isApplyIfSolvedViolations());
 
             return builder;
-        }
-    }
-
-    /**
-     * Simple command builder with additional methods to easily add options as "--opt=value"
-     */
-    protected static class OptionCommandBuilder extends SimpleCommandBuilder {
-
-        /**
-         * Adds a literal option.
-         */
-        public OptionCommandBuilder addFlag(String flagName, boolean flagValue) {
-            if (flagValue) {
-                arg("--" + flagName);
-            }
-            return this;
-        }
-
-        /**
-         * Adds a literal option.
-         */
-        public OptionCommandBuilder addOption(String opt, String value) {
-            arg("--" + opt + "=" + value);
-            return this;
-        }
-
-        /**
-         * Adds an option dependent on the execution count
-         */
-        public OptionCommandBuilder addOption(String opt, Function<Integer, String> fn) {
-            arg(i -> "--" + opt + "=" + fn.apply(i));
-            return this;
-        }
-
-        @Override
-        public OptionCommandBuilder arg(String arg) {
-            super.arg(arg);
-            return this;
-        }
-
-        @Override
-        public SimpleCommandBuilder arg(Function<Integer, String> arg) {
-            super.arg(arg);
-            return this;
         }
     }
 }

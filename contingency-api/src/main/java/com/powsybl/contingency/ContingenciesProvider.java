@@ -17,4 +17,8 @@ public interface ContingenciesProvider {
 
     List<Contingency> getContingencies(Network network);
 
+    default String asScript() {
+        throw new UnsupportedOperationException("Serialization not supported for contingencies provider of type " + this.getClass().getName());
+    }
+
 }
