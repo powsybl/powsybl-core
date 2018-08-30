@@ -7,9 +7,7 @@
 package com.powsybl.action.simulator.tools;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.action.dsl.ActionDb;
-import com.powsybl.action.dsl.ActionDslLoader;
-import com.powsybl.action.dsl.DefaultActionDslLoaderObserver;
+import com.powsybl.action.dsl.*;
 import com.powsybl.action.simulator.ActionSimulator;
 import com.powsybl.action.simulator.loadflow.*;
 import com.powsybl.commons.PowsyblException;
@@ -29,6 +27,7 @@ import com.powsybl.tools.Command;
 import com.powsybl.tools.CommandLineUtil;
 import com.powsybl.tools.Tool;
 import com.powsybl.tools.ToolRunningContext;
+import com.sun.xml.internal.bind.api.impl.NameConverter;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
@@ -41,6 +40,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -249,12 +249,26 @@ public class ActionSimulatorTool implements Tool {
 
             // action simulator
             LOGGER.debug("Creating action simulator.");
-            ActionSimulator actionSimulator = createActionSimulator(network, dslFile, context, line, config, applyIfSolved, observers, resultHandlers);
+            if (line.hasOption(TASK_COUNT)) {
 
-            context.getOutputStream().println("Using '" + actionSimulator.getName() + "' rules engine");
+                context.getOutputStream().println("Using parallel load flow action simulator rules engine");
 
-            // start simulator
-            actionSimulator.start(actionDb, contingencies);
+                int taskCount = Integer.parseInt(line.getOptionValue(TASK_COUNT));
+                ParallelLoadFlowActionSimulator actionSimulator = new ParallelLoadFlowActionSimulator(network,
+                        context.getLongTimeExecutionComputationManager(), taskCount, config, applyIfSolved, resultHandlers);
+
+                String dsl = new String(Files.readAllBytes(dslFile), StandardCharsets.UTF_8);
+                actionSimulator.run(dsl, contingencies);
+            } else {
+
+                ActionSimulator actionSimulator = createActionSimulator(network, context, line, config, applyIfSolved, observers, resultHandlers);
+
+                context.getOutputStream().println("Using '" + actionSimulator.getName() + "' rules engine");
+
+                // start simulator
+                actionSimulator.start(actionDb, contingencies);
+            }
+
 
         } catch (Exception e) {
             LOGGER.trace(e.toString(), e); // to avoid user screen pollution...
@@ -265,24 +279,18 @@ public class ActionSimulatorTool implements Tool {
 
 
 
-    private ActionSimulator createActionSimulator(Network network, Path dslFile, ToolRunningContext context, CommandLine line,
+    private ActionSimulator createActionSimulator(Network network, ToolRunningContext context, CommandLine line,
                                                   LoadFlowActionSimulatorConfig config, boolean applyIfSolved,
                                                   List<LoadFlowActionSimulatorObserver> observers,
                                                   List<Consumer<SecurityAnalysisResult>> resultHandlers) throws IOException {
         ActionSimulator actionSimulator;
-        if (line.hasOption(TASK_COUNT)) {
-            int taskCount = Integer.parseInt(line.getOptionValue(TASK_COUNT));
-            actionSimulator = new ParallelLoadFlowActionSimulator(network, dslFile,
-                    context.getLongTimeExecutionComputationManager(), taskCount, config, applyIfSolved, resultHandlers);
+        //Add an observer which will create the result and handle it
+        observers.add(new SecurityAnalysisResultHandler(resultHandlers));
+        if (line.hasOption(TASK)) {
+            Partition partition = Partition.parse(line.getOptionValue(TASK));
+            actionSimulator = new LocalLoadFlowActionSimulator(network, partition, config, applyIfSolved, observers);
         } else {
-            //Add an observer which will create the result and handle it
-            observers.add(new SecurityAnalysisResultHandler(resultHandlers));
-            if (line.hasOption(TASK)) {
-                Partition partition = Partition.parse(line.getOptionValue(TASK));
-                actionSimulator = new LocalLoadFlowActionSimulator(network, partition, config, applyIfSolved, observers);
-            } else {
-                actionSimulator = new LoadFlowActionSimulator(network, context.getShortTimeExecutionComputationManager(), config, applyIfSolved, observers);
-            }
+            actionSimulator = new LoadFlowActionSimulator(network, context.getShortTimeExecutionComputationManager(), config, applyIfSolved, observers);
         }
         return actionSimulator;
     }
