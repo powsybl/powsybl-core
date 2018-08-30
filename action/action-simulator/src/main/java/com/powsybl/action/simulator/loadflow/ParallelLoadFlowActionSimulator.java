@@ -80,7 +80,7 @@ public class ParallelLoadFlowActionSimulator {
         ExecutionEnvironment itoolsEnvironment = new ExecutionEnvironment(Collections.emptyMap(), "subTask_", config.isDebug());
 
         int actualTaskCount = Math.min(taskCount, contingencyIds.size());
-        CompletableFuture<SecurityAnalysisResult> future = computationManager.execute(itoolsEnvironment, new SubTaskHandler(actualTaskCount, script));
+        CompletableFuture<SecurityAnalysisResult> future = computationManager.execute(itoolsEnvironment, new SubTaskHandler(actualTaskCount, script, contingencyIds));
         try {
             SecurityAnalysisResult result = future.get();
             resultHandlers.forEach(h -> h.accept(result));
@@ -95,16 +95,17 @@ public class ParallelLoadFlowActionSimulator {
      * then launches one itools command for each subtask.
      * Finally, reads and merge results.
      */
-    private class SubTaskHandler extends AbstractExecutionHandler<SecurityAnalysisResult> {
+    private final class SubTaskHandler extends AbstractExecutionHandler<SecurityAnalysisResult> {
 
 
         private final int actualTaskCount;
         private final String script;
-        List<String> contingencyIds;
+        private final List<String> contingencyIds;
 
-        private SubTaskHandler(int actualTaskCount, String script) {
+        private SubTaskHandler(int actualTaskCount, String script, List<String> contingencyIds) {
             this.actualTaskCount = actualTaskCount;
             this.script = script;
+            this.contingencyIds = contingencyIds;
         }
 
         @Override
@@ -155,6 +156,10 @@ public class ParallelLoadFlowActionSimulator {
                 .option(OUTPUT_FILE, this::getOutputFileName)
                 .option(OUTPUT_FORMAT, "JSON")
                 .flag(APPLY_IF_SOLVED_VIOLATIONS, applyIfSolved);
+
+            if (!contingencyIds.isEmpty()) {
+                builder.option(CONTINGENCIES, String.join(",", contingencyIds));
+            }
 
             return builder;
         }

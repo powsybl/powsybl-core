@@ -7,7 +7,9 @@
 package com.powsybl.action.simulator.tools;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.action.dsl.*;
+import com.powsybl.action.dsl.ActionDb;
+import com.powsybl.action.dsl.ActionDslLoader;
+import com.powsybl.action.dsl.DefaultActionDslLoaderObserver;
 import com.powsybl.action.simulator.ActionSimulator;
 import com.powsybl.action.simulator.loadflow.*;
 import com.powsybl.commons.PowsyblException;
@@ -27,7 +29,6 @@ import com.powsybl.tools.Command;
 import com.powsybl.tools.CommandLineUtil;
 import com.powsybl.tools.Tool;
 import com.powsybl.tools.ToolRunningContext;
-import com.sun.xml.internal.bind.api.impl.NameConverter;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
