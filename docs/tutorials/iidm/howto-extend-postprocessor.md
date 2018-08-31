@@ -6,8 +6,7 @@ In order to create a new post processor:
 2. Implement the `com.powsybl.iidm.import_.ImportPostProcessor` interface. 
 3. Compile your project, add the jar to your powsybl installation, and add the new post processor to the configuration file.
 
-In the following sections we will see how, following these steps, you can implement a new post processor for increasing the active power of all loads of an imported network.  
-A sample maven project implementing this post processor can be found [here](../../samples/increase-active-power-postprocessor).  
+In the following sections we will see how, following these steps, you can implemen
 
 ## Maven dependencies
   
