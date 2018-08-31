@@ -26,5 +26,6 @@ The default logging configuration file is `<POWSYBL_HOME>/etc/logback-itools.xml
 </configuration>
 ```
 
-You can edit the default configuration, for example to modify the debugging level or to make it write to a specific file.
+
+You can edit the default configuration, for example to modify the default logging level (default is ERROR, you might want to set it to DEBUG, to have more details) or to make it write to a specific file.
 Please refer to the  [logback manual](https://logback.qos.ch/manual/index.html) for the available logging options.

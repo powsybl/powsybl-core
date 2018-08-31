@@ -2,7 +2,7 @@
 
 Powsybl-core implements a highly modular configuration mechanism. 
 
-Being `<POWSYBL_HOME>` the powsybl root installation directory, file `<POWSYBL_HOME>`/etc/itools.conf declares the actual configuration files' parent folders and names. 
+Being [\<POWSYBL_HOME\>](directoryList.md) the powsybl root installation directory,  `<POWSYBL_HOME>`/etc/itools.conf declares the actual configuration files' parent folders and names. 
 
 `<POWSYBL_HOME>/etc/itools.conf` example:
 ```properties
