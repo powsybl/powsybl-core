@@ -41,7 +41,8 @@ for ((i=0; i<${#args[@]}; i++)); do
 done
 
 [ -n "$itools_cache_dir" ] && options+="-Ditools.cache.dir=$itools_cache_dir"
-[ -n "$itools_config_dir" ] && options+=" -Ditools.config.dir=$itools_config_dir"
+[ -n "$itools_config_dir" ] || itools_config_dir="${HOME}/.itools"
+options+=" -Ditools.config.dir=$itools_config_dir"
 [ -n "$itools_config_name" ] && options+=" -Ditools.config.name=$itools_config_name"
 options+=" -Dlogback.configurationFile="
 [ -f "$itools_config_dir/logback-itools.xml" ] && options+="$itools_config_dir" || options+="$installDir/etc"

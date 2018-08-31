@@ -7,7 +7,7 @@
 package com.powsybl.afs.local.storage;
 
 import com.powsybl.afs.storage.NodeGenericMetadata;
-import com.powsybl.math.timeseries.*;
+import com.powsybl.timeseries.*;
 
 import java.io.InputStream;
 import java.util.List;

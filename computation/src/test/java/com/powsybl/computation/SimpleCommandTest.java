@@ -63,6 +63,21 @@ public class SimpleCommandTest {
         assertEquals(ImmutableList.of("literal_arg_1", "literal_arg_2", "literal_arg_3", "instantiated_arg_4"), cmd1.getArgs(4));
     }
 
+    @Test
+    public void testOptions() {
+        SimpleCommand cmd1 = new SimpleCommandBuilder()
+                .id("cmd1")
+                .program("prg1")
+                .option("opt1", "val1")
+                .option("opt2", i -> "val2-" + i)
+                .flag("flag1", false)
+                .flag("flag2", true)
+                .build();
+
+        assertEquals(ImmutableList.of("--opt1=val1", "--opt2=val2-3", "--flag2"), cmd1.getArgs(3));
+    }
+
+
     @Test(expected = RuntimeException.class)
     public void testErrorTimeout() {
         new SimpleCommandBuilder()

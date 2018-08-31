@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 /**
  * Provides higher level methods to manipulate node-breaker topology graph.
  *
- * @author Sylvain Leclerc <sylvain.leclerc@rte-france.com>
+ * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
  */
 public final class NodeBreakerTopology {
 

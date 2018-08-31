@@ -47,6 +47,8 @@ public class UcteImporter implements Importer {
 
     private static final String[] EXTENSIONS = {"uct", "UCT"};
 
+    private static final String ELEMENT_NAME_PROPERTY_KEY = "elementName";
+
     @Override
     public String getFormat() {
         return "UCTE";
@@ -131,7 +133,7 @@ public class UcteImporter implements Importer {
             Substation substation = network.newSubstation()
                     .setId(ucteSubstation.getName())
                     .setCountry(Country.valueOf(firstUcteNodeCode.getUcteCountryCode().name()))
-                .add();
+                    .add();
 
             EntsoeGeographicalCode regionalCode = getRegionalGeographicalCode(substation);
             if (regionalCode != null) {
@@ -147,7 +149,7 @@ public class UcteImporter implements Importer {
                         .setId(ucteVoltageLevel.getName())
                         .setNominalV(ucteVoltageLevelCode.getVoltageLevel())
                         .setTopologyKind(TopologyKind.BUS_BREAKER)
-                    .add();
+                        .add();
 
                 createBuses(ucteNetwork, ucteVoltageLevel, voltageLevel);
             }
@@ -178,7 +180,7 @@ public class UcteImporter implements Importer {
                 .setConnectableBus(bus.getId())
                 .setP0(p0)
                 .setQ0(q0)
-            .add();
+                .add();
     }
 
     private static void createGenerator(UcteNode ucteNode, VoltageLevel voltageLevel, Bus bus) {
@@ -223,11 +225,11 @@ public class UcteImporter implements Importer {
                 .setTargetP(-ucteNode.getActivePowerGeneration())
                 .setTargetQ(-ucteNode.getReactivePowerGeneration())
                 .setTargetV(ucteNode.getVoltageReference())
-            .add();
+                .add();
         generator.newMinMaxReactiveLimits()
                 .setMinQ(-ucteNode.getMinimumPermissibleReactivePowerGeneration())
                 .setMaxQ(-ucteNode.getMaximumPermissibleReactivePowerGeneration())
-            .add();
+                .add();
     }
 
     private static void createXnodeCoupler(UcteNetworkExt ucteNetwork, UcteLine ucteLine,
@@ -243,8 +245,8 @@ public class UcteImporter implements Importer {
 
         // create YNODE
         xNodeVoltageLevel.getBusBreakerView().newBus()
-                 .setId(yNodeName)
-             .add();
+                .setId(yNodeName)
+                .add();
 
         UcteNode ucteXnode = ucteNetwork.getNode(ucteXnodeCode);
 
@@ -278,7 +280,10 @@ public class UcteImporter implements Importer {
                 .setP0(p0)
                 .setQ0(q0)
                 .setUcteXnodeCode(ucteXnode.getCode().toString())
-            .add();
+                .add();
+
+        addElementNameProperty(ucteLine, xNodeDanglingLine);
+
         xNodeDanglingLine.addExtension(Xnode.class, new Xnode(xNodeDanglingLine, ucteXnode.getCode().toString()));
 
         // create coupler between YNODE and other node
@@ -288,7 +293,7 @@ public class UcteImporter implements Importer {
                 .setBus1(yNodeName)
                 .setBus2(ucteOtherNodeCode.toString())
                 .setOpen(ucteLine.getStatus() == UcteElementStatus.BUSBAR_COUPLER_OUT_OF_OPERATION)
-            .add();
+                .add();
     }
 
     private static void createDanglingLine(UcteLine ucteLine, boolean connected,
@@ -332,6 +337,8 @@ public class UcteImporter implements Importer {
                     .setPermanentLimit(ucteLine.getCurrentLimit())
                     .add();
         }
+
+        addElementNameProperty(ucteLine, dl);
     }
 
     private static void createCoupler(UcteNetworkExt ucteNetwork, Network network,
@@ -357,13 +364,15 @@ public class UcteImporter implements Importer {
         } else {
             // standard coupler
             VoltageLevel voltageLevel = network.getVoltageLevel(ucteVoltageLevel1.getName());
-            voltageLevel.getBusBreakerView().newSwitch()
+            Switch couplerSwitch = voltageLevel.getBusBreakerView().newSwitch()
                     .setEnsureIdUnicity(true)
                     .setId(ucteLine.getId().toString())
                     .setBus1(nodeCode1.toString())
                     .setBus2(nodeCode2.toString())
                     .setOpen(ucteLine.getStatus() == UcteElementStatus.BUSBAR_COUPLER_OUT_OF_OPERATION)
                     .add();
+
+            addElementNameProperty(ucteLine, couplerSwitch);
         }
     }
 
@@ -377,13 +386,15 @@ public class UcteImporter implements Importer {
             throw new UcteException("Nodes coupled with a low impedance line are expected to be in the same voltage level");
         }
         VoltageLevel voltageLevel = network.getVoltageLevel(ucteVoltageLevel1.getName());
-        voltageLevel.getBusBreakerView().newSwitch()
+        Switch couplerSwitch = voltageLevel.getBusBreakerView().newSwitch()
                 .setEnsureIdUnicity(true)
                 .setId(ucteLine.getId().toString())
                 .setBus1(nodeCode1.toString())
                 .setBus2(nodeCode2.toString())
                 .setOpen(!connected)
                 .add();
+
+        addElementNameProperty(ucteLine, couplerSwitch);
     }
 
     private static void createStandardLine(Network network, UcteLine ucteLine, UcteNodeCode nodeCode1, UcteNodeCode nodeCode2,
@@ -407,6 +418,9 @@ public class UcteImporter implements Importer {
                 .setB1(getSusceptance(ucteLine) / 2)
                 .setB2(getSusceptance(ucteLine) / 2)
                 .add();
+
+        addElementNameProperty(ucteLine, l);
+
         if (ucteLine.getCurrentLimit() != null) {
             int currentLimit = ucteLine.getCurrentLimit();
             l.newCurrentLimits1()
@@ -507,7 +521,7 @@ public class UcteImporter implements Importer {
                     .setX(0f)
                     .setG(0f)
                     .setB(0f)
-                .endStep();
+                    .endStep();
         }
         rtca.add();
     }
@@ -547,7 +561,7 @@ public class UcteImporter implements Importer {
                     .setX(0f)
                     .setG(0f)
                     .setB(0f)
-                .endStep();
+                    .endStep();
         }
         ptca.add();
     }
@@ -564,11 +578,11 @@ public class UcteImporter implements Importer {
                 .setId(yNodeName + "_VL")
                 .setNominalV(xNodeCode.getVoltageLevelCode().getVoltageLevel()) // nominal voltage of the XNODE
                 .setTopologyKind(TopologyKind.BUS_BREAKER)
-            .add();
+                .add();
 
         yVoltageLevel.getBusBreakerView().newBus()
                 .setId(yNodeName)
-            .add();
+                .add();
 
         UcteNode ucteXnode = ucteNetwork.getNode(xNodeCode);
 
@@ -602,7 +616,7 @@ public class UcteImporter implements Importer {
                 .setP0(p0)
                 .setQ0(q0)
                 .setUcteXnodeCode(ucteXnode.getCode().toString())
-            .add();
+                .add();
         yDanglingLine.addExtension(Xnode.class, new Xnode(yDanglingLine, ucteXnode.getCode().toString()));
 
         String voltageLevelId1;
@@ -637,7 +651,8 @@ public class UcteImporter implements Importer {
                 .setX(ucteTransfo.getReactance())
                 .setG(getConductance(ucteTransfo))
                 .setB(getSusceptance(ucteTransfo))
-            .add();
+                .add();
+
     }
 
     private static boolean isConnected(UcteTransformer ucteTransfo) {
@@ -687,12 +702,12 @@ public class UcteImporter implements Importer {
             TwoWindingsTransformer transformer;
 
             if (nodeCode1.getUcteCountryCode() == UcteCountryCode.XX &&
-                nodeCode2.getUcteCountryCode() != UcteCountryCode.XX) {
+                    nodeCode2.getUcteCountryCode() != UcteCountryCode.XX) {
                 // transformer connected to XNODE
                 transformer = createXnodeTransfo(ucteNetwork, ucteTransfo, connected, nodeCode1, nodeCode2, ucteVoltageLevel2, substation, ucteFileName);
 
             } else if (nodeCode2.getUcteCountryCode() == UcteCountryCode.XX &&
-                       nodeCode1.getUcteCountryCode() != UcteCountryCode.XX) {
+                    nodeCode1.getUcteCountryCode() != UcteCountryCode.XX) {
                 // transformer connected to XNODE
                 transformer = createXnodeTransfo(ucteNetwork, ucteTransfo, connected, nodeCode2, nodeCode1, ucteVoltageLevel1, substation, ucteFileName);
 
@@ -713,18 +728,22 @@ public class UcteImporter implements Importer {
                         .setX(ucteTransfo.getReactance())
                         .setG(getConductance(ucteTransfo))
                         .setB(getSusceptance(ucteTransfo))
-                    .add();
+                        .add();
+
             }
 
             if (ucteTransfo.getCurrentLimit() != null) {
                 int currentLimit = ucteTransfo.getCurrentLimit();
                 transformer.newCurrentLimits2()
                         .setPermanentLimit(currentLimit)
-                    .add();
+                        .add();
             }
 
+            addElementNameProperty(ucteTransfo, transformer);
             addTapChangers(ucteNetwork, ucteTransfo, transformer);
+
         }
+
     }
 
     private String findExtension(ReadOnlyDataSource dataSource, boolean throwException) throws IOException {
@@ -794,7 +813,7 @@ public class UcteImporter implements Importer {
             if (dl2 != null) {
                 // lexical sort to always end up with same merge line id
                 String mergeLineId = dl1.getId().compareTo(dl2.getId()) < 0 ? dl1.getId() + " + " + dl2.getId()
-                                                                            : dl2.getId() + " + " + dl1.getId();
+                        : dl2.getId() + " + " + dl1.getId();
 
                 // create XNODE merge extension
                 float rdp = (float) (dl1.getR() / (dl1.getR() + dl2.getR()));
@@ -814,27 +833,30 @@ public class UcteImporter implements Importer {
                         .setConnectableBus2(getBusId(dl2.getTerminal().getBusBreakerView().getConnectableBus()))
                         .setBus2(getBusId(dl2.getTerminal().getBusBreakerView().getBus()))
                         .line1()
-                            .setId(dl1.getId())
-                            .setR(dl1.getR())
-                            .setX(dl1.getX())
-                            .setG1(dl1.getG())
-                            .setG2(0.0)
-                            .setB1(dl1.getB())
-                            .setB2(0.0)
-                            .setXnodeP(xnodeP1)
-                            .setXnodeQ(xnodeQ1)
+                        .setId(dl1.getId())
+                        .setR(dl1.getR())
+                        .setX(dl1.getX())
+                        .setG1(dl1.getG())
+                        .setG2(0.0)
+                        .setB1(dl1.getB())
+                        .setB2(0.0)
+                        .setXnodeP(xnodeP1)
+                        .setXnodeQ(xnodeQ1)
                         .line2()
-                            .setId(dl2.getId())
-                            .setR(dl2.getR())
-                            .setX(dl2.getX())
-                            .setG1(0.0)
-                            .setG2(dl2.getG())
-                            .setB1(0.0)
-                            .setB2(dl2.getB())
-                            .setXnodeP(xnodeP2)
-                            .setXnodeQ(xnodeQ2)
+                        .setId(dl2.getId())
+                        .setR(dl2.getR())
+                        .setX(dl2.getX())
+                        .setG1(0.0)
+                        .setG2(dl2.getG())
+                        .setB1(0.0)
+                        .setB2(dl2.getB())
+                        .setXnodeP(xnodeP2)
+                        .setXnodeQ(xnodeQ2)
                         .setUcteXnodeCode(xnodeCode)
                         .add();
+
+                addElementNameProperty(mergeLine, dl1, dl2);
+
 
                 if (dl1.getCurrentLimits() != null) {
                     mergeLine.newCurrentLimits1()
@@ -853,6 +875,28 @@ public class UcteImporter implements Importer {
                 danglingLinesToProcess.remove(dl2);
             }
             danglingLinesToProcess.remove(dl1);
+        }
+    }
+
+    private static void addElementNameProperty(TieLine tieLine, DanglingLine dl1, DanglingLine dl2) {
+        if (dl1.getProperties().containsKey(ELEMENT_NAME_PROPERTY_KEY)) {
+            tieLine.getProperties().setProperty(ELEMENT_NAME_PROPERTY_KEY + "_1", dl1.getProperties().getProperty(ELEMENT_NAME_PROPERTY_KEY));
+        }
+
+        if (dl2.getProperties().containsKey(ELEMENT_NAME_PROPERTY_KEY)) {
+            tieLine.getProperties().setProperty(ELEMENT_NAME_PROPERTY_KEY + "_2", dl2.getProperties().getProperty(ELEMENT_NAME_PROPERTY_KEY));
+        }
+    }
+
+    private static void addElementNameProperty(UcteLine ucteLine, Identifiable identifiable) {
+        if (ucteLine.getElementName() != null) {
+            identifiable.getProperties().setProperty(ELEMENT_NAME_PROPERTY_KEY, ucteLine.getElementName());
+        }
+    }
+
+    private static void addElementNameProperty(UcteTransformer ucteTransfo, Identifiable identifiable) {
+        if (ucteTransfo.getElementName() != null) {
+            identifiable.getProperties().setProperty(ELEMENT_NAME_PROPERTY_KEY, ucteTransfo.getElementName());
         }
     }
 

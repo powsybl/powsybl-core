@@ -8,7 +8,7 @@ package com.powsybl.afs.storage.buffer;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.powsybl.math.timeseries.TimeSeriesMetadata;
+import com.powsybl.timeseries.TimeSeriesMetadata;
 
 import java.util.Objects;
 

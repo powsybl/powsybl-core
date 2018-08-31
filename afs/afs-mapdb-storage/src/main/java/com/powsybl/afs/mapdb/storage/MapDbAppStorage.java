@@ -10,7 +10,7 @@ import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.powsybl.afs.storage.*;
-import com.powsybl.math.timeseries.*;
+import com.powsybl.timeseries.*;
 import org.apache.commons.lang3.SystemUtils;
 import org.mapdb.Atomic;
 import org.mapdb.DB;

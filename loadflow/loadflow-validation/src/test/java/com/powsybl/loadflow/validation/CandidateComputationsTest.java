@@ -30,7 +30,7 @@ import java.util.function.Supplier;
 import static org.junit.Assert.*;
 
 /**
- * @author Sylvain Leclerc <sylvain.leclerc@rte-france.com>
+ * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
  */
 public class CandidateComputationsTest {
 

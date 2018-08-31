@@ -15,7 +15,7 @@ import com.powsybl.loadflow.LoadFlowParameters;
 import java.io.IOException;
 
 /**
- * @author Sylvain Leclerc <sylvain.leclerc@rte-france.com>
+ * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
  */
 class LoadFlowParametersSerializer extends StdSerializer<LoadFlowParameters> {
 

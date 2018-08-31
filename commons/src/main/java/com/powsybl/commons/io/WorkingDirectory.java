@@ -28,6 +28,10 @@ public class WorkingDirectory implements AutoCloseable {
         return path;
     }
 
+    public boolean isDebug() {
+        return debug;
+    }
+
     @Override
     public void close() throws IOException {
         if (!debug) {

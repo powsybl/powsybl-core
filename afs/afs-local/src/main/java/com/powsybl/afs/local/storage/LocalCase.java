@@ -13,9 +13,9 @@ import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.DataSourceUtil;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.import_.Importers;
-import com.powsybl.math.timeseries.DoubleArrayChunk;
-import com.powsybl.math.timeseries.StringArrayChunk;
-import com.powsybl.math.timeseries.TimeSeriesMetadata;
+import com.powsybl.timeseries.DoubleArrayChunk;
+import com.powsybl.timeseries.StringArrayChunk;
+import com.powsybl.timeseries.TimeSeriesMetadata;
 
 import java.io.IOException;
 import java.io.InputStream;
