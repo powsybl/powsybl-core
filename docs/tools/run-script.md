@@ -4,11 +4,13 @@ itools `run-script` command allows you to run scripts (only Groovy is supported,
 
 ## Running run-script command 
 Following is an example of how to use the `run-script` command.    
-  
+
+In this tutorial the installation directory and the sources directories are supposed to be, respectively, the default $HOME/powsybl, and $HOME/powsybl-core.
+
 To show the command help, with its specific parameters and descriptions, enter: 
 
-```
-$> cd <POWSYBL_HOME>/bin
+```shell
+$> cd $HOME/powsybl/bin
 $> ./itools run-script --help
 usage: itools [OPTIONS] run-script --file <FILE> [--help]
 
@@ -24,7 +26,7 @@ Available arguments are:
 In order to run the `run-script` command, you have to provide as input the required argument: 
 - `file`: Groovy script to run  
   
-Create, in `<POWSYBL_HOME>/bin` folder, a custom Groovy script, `helloworld.groovy`, with the following content:
+Create into the `tmp` folder a custom Groovy script: `helloworld.groovy`, with the following content:
 
 ```
 println('Hello world, this is a Groovy script!')
@@ -32,12 +34,13 @@ println('Hello world, this is a Groovy script!')
     
 Run itools `run-script` command, using the helloworld.groovy script as argument:
 
-```
-$>  ./itools run-script --file helloworld.groovy 
+```shell
+$> cd $HOME/powsybl/bin
+$>  ./itools run-script --file /tmp/helloworld.groovy 
 ```
 
 The following line will be printed in your screen:
 
-```
+```shell
 Hello world, this is a Groovy script!
 ```

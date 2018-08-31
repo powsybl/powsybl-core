@@ -10,7 +10,7 @@ Following is an example of how to use the `convert-network` command.
   
 To show the command help, with its specific parameters and descriptions, enter: 
 
-```
+```shell
 $> cd <POWSYBL_HOME>/bin
 $>  ./itools  convert-network --help
 usage: itools [OPTIONS] convert-network [-E <property=value>]
@@ -49,7 +49,7 @@ In order to run the `convert-network` command, you have to provide at least the 
 In the following example, we will see how to convert an UCTE network model to XIIDM format.  
 Please change the parameters in the command below to reflect your development/installation scenario.
 
-```
+```shell
 $> cd <POWSYBL_HOME>/bin
 $>  ./itools convert-network --input-file $HOME/case-file.uct  --output-format XIIDM --output-file $HOME/case-file.xiidm
 ```

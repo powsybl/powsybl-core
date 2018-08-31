@@ -1,17 +1,24 @@
-﻿# iTools
+﻿# iTools: the powsybl command line tool.
 
-Powsybl, via the iTools script mechanism, provides a common way to interact with powsybl features using the command line.
- 
-Among predefined commands, exposing some of the framework's functionalities: convert-network, run-script, loadflow.
+The **itools** script mechanism provides a common way to interact with powsybl, using the command line.
 
-Powsybl iTools module is designed and provides the necessary APIs to [extend](../tutorials/itools/howto-extend-itools.md) the set of available commands with new ones.
-
-In this tutorial you are going to see how to use itools, the powsybl command line tool.
-  
-In the following sections `<POWSYBL_HOME>` represents powsybl's root installation folder.  
+Here below it is described how to use **itools** and what are the framework's functionalities currently exposed through it (e.g. *convert-network*, *loadflow*, *run-script*, etc. )  
 
 ## How to use itools
-Executing `itools` without parameters will show you the help, with the available commands list: 
+
+`itools` commands are structured as shown below:
+
+```
+itools command-name [--argument1-name argument1-value --argument2-name argument2-value ...]
+```
+
+Not all commands have arguments. The arguments can be mandatory or optional.
+Depending on the command and how the arguments are set, its output can be written to files, to the standard output or both.
+
+Executing `itools` without parameters will show you a list of the available commands with a short description for each command.
+
+*Note:* In the following sections [\<POWSYBL_HOME\>](../configuration/directoryList.md) represents powsybl's root installation folder.  
+ 
 ```bash
 $> cd <POWSYBL_HOME>/bin
 $> ./itools
@@ -43,4 +50,12 @@ The list of commands currently implemented and available in powsybl-core is:
 | Script | [run-script](run-script.md) | Run a script (only Groovy is supported, so far) |
 
 Commands in the list are classified in *themes*, to help identifying their purpose.  
-If your powsybl installation includes new and different implementations of itools commands, the list shown by itools will be updated accordingly. 
+*Note:* If your powsybl installation includes new and different implementations of itools commands, the list shown by itools will be updated accordingly. 
+
+Executing `itools command-name --help` will list all the arguments available for the specific command-name. 
+
+
+## How to add new itools commands
+
+Powsybl iTools module is designed to be extensible and provides the necessary APIs to [add new commands](../tutorials/itools/howto-extend-itools.md) to the available list.
+
