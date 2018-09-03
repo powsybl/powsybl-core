@@ -94,7 +94,7 @@ public class SimulationDetailedParameters {
          */
         @Deprecated
         public Double getShortCircuitDuration() {
-            return sideOneShortCircuitDuration;
+            return getSideOneShortCircuitDuration();
         }
 
         public Double getSideOneShortCircuitDuration() {

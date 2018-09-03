@@ -165,7 +165,7 @@ public class SimulationParameters {
      */
     @Deprecated
     public double getBranchFaultShortCircuitDuration() {
-        return branchSideOneFaultShortCircuitDuration;
+        return getBranchSideOneFaultShortCircuitDuration();
     }
 
     public double getBranchSideOneFaultShortCircuitDuration() {
