@@ -34,6 +34,7 @@ import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
@@ -140,11 +141,11 @@ public class DistributedSecurityAnalysisTest {
     @Test
     public void testConfig() {
         ExternalSecurityAnalysisConfig config = new ExternalSecurityAnalysisConfig();
-        assertEquals(false, config.isDebug());
+        assertFalse(config.isDebug());
         assertEquals("itools", config.getItoolsCommand());
 
         config = new ExternalSecurityAnalysisConfig(true, "/path/to/itools");
-        assertEquals(true, config.isDebug());
+        assertTrue(config.isDebug());
         assertEquals("/path/to/itools", config.getItoolsCommand());
 
         assertThatNullPointerException().isThrownBy(() -> new ExternalSecurityAnalysisConfig(true, null));
