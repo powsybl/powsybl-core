@@ -6,7 +6,7 @@
  */
 package com.powsybl.afs.storage;
 
-import com.powsybl.math.timeseries.*;
+import com.powsybl.timeseries.*;
 
 import java.io.InputStream;
 import java.io.OutputStream;

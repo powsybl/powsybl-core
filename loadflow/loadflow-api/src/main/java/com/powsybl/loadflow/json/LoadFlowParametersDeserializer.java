@@ -20,7 +20,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * @author Sylvain Leclerc <sylvain.leclerc@rte-france.com>
+ * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
  */
 class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowParameters> {
 

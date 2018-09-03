@@ -82,6 +82,14 @@ public class LoadFlowActionSimulator implements ActionSimulator {
         return config;
     }
 
+    protected Network getNetwork() {
+        return network;
+    }
+
+    protected boolean isApplyIfSolvedViolations() {
+        return applyIfSolvedViolations;
+    }
+
     @Override
     public void start(ActionDb actionDb, String... contingencyIds) {
         start(actionDb, Arrays.asList(contingencyIds));
@@ -336,6 +344,11 @@ public class LoadFlowActionSimulator implements ActionSimulator {
                                 .distinct()
                                 .filter(id -> !context.isTested(id))
                                 .collect(Collectors.toList());
+
+        if (testActionIds.isEmpty()) {
+            return;
+        }
+
         byte[] contextNetwork = NetworkXml.gzip(context.getNetwork());
 
         for (String actionId : testActionIds) {

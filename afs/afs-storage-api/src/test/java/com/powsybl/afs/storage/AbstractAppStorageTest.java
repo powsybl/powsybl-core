@@ -13,7 +13,7 @@ import com.google.common.collect.Sets;
 import com.google.common.io.ByteStreams;
 import com.powsybl.afs.storage.events.*;
 import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.math.timeseries.*;
+import com.powsybl.timeseries.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

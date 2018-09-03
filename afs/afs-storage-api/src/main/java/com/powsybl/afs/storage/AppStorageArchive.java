@@ -14,9 +14,9 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.google.common.io.ByteStreams;
 import com.powsybl.afs.storage.json.AppStorageJsonModule;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.math.timeseries.DoubleArrayChunk;
-import com.powsybl.math.timeseries.StringArrayChunk;
-import com.powsybl.math.timeseries.TimeSeriesMetadata;
+import com.powsybl.timeseries.DoubleArrayChunk;
+import com.powsybl.timeseries.StringArrayChunk;
+import com.powsybl.timeseries.TimeSeriesMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

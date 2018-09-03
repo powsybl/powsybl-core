@@ -6,10 +6,10 @@
  */
 package com.powsybl.afs.storage.buffer;
 
-import com.powsybl.math.timeseries.InfiniteTimeSeriesIndex;
-import com.powsybl.math.timeseries.TimeSeriesDataType;
-import com.powsybl.math.timeseries.TimeSeriesMetadata;
-import com.powsybl.math.timeseries.UncompressedDoubleArrayChunk;
+import com.powsybl.timeseries.InfiniteTimeSeriesIndex;
+import com.powsybl.timeseries.TimeSeriesDataType;
+import com.powsybl.timeseries.TimeSeriesMetadata;
+import com.powsybl.timeseries.UncompressedDoubleArrayChunk;
 import org.junit.Test;
 
 import java.util.Collections;

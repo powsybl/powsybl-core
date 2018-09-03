@@ -48,7 +48,7 @@ public class Folder extends Node implements FolderBase<Node, Folder> {
         return storage.getChildNodes(info.getId())
                 .stream()
                 .map(fileSystem::createNode)
-                .sorted(Comparator.comparing(Node::getName))
+                .sorted(Comparator.comparing(Node::getName, String.CASE_INSENSITIVE_ORDER))
                 .collect(Collectors.toList());
     }
 
