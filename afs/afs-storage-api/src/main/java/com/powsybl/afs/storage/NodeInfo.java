@@ -17,7 +17,7 @@ public class NodeInfo {
 
     private final String id;
 
-    private final String name;
+    private String name;
 
     private final String pseudoClass;
 
@@ -52,6 +52,10 @@ public class NodeInfo {
 
     public String getName() {
         return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getPseudoClass() {
