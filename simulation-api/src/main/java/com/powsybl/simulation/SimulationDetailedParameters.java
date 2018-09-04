@@ -81,6 +81,27 @@ public class SimulationDetailedParameters {
             this.shortCircuitSide = shortCircuitSide;
         }
 
+        /**
+         * @deprecated
+         */
+        public Branch(String id, Double sideOneShortCircuitDuration, Double sideTwoShortCircuitDuration, Double shortCircuitDuration, Double shortCircuitDistance, String shortCircuitSide) {
+            this.id = Objects.requireNonNull(id);
+            if ((sideOneShortCircuitDuration != null) && (sideTwoShortCircuitDuration != null)) {
+                this.sideOneShortCircuitDuration = sideOneShortCircuitDuration;
+                this.sideTwoShortCircuitDuration = sideTwoShortCircuitDuration;
+            } else {
+                if (shortCircuitDuration != null) {
+                    this.sideOneShortCircuitDuration = shortCircuitDuration;
+                    this.sideTwoShortCircuitDuration = shortCircuitDuration;
+                } else {
+                    this.sideOneShortCircuitDuration = null;
+                    this.sideTwoShortCircuitDuration = null;
+                }
+            }
+            this.shortCircuitDistance = shortCircuitDistance;
+            this.shortCircuitSide = shortCircuitSide;
+        }
+
         public String getId() {
             return id;
         }
@@ -167,26 +188,12 @@ public class SimulationDetailedParameters {
                                 break;
                             case "branch":
                                 Objects.requireNonNull(contingency);
-
-                                String sideOneShortCircuitDurationAttribute = xmlsr.getAttributeValue(null, "sideOneShortCircuitDuration");
-                                String sideTwoShortCircuitDurationAttribute = xmlsr.getAttributeValue(null, "sideOneShortCircuitDuration");
-                                String shortCircuitDurationAttribute = xmlsr.getAttributeValue(null, "shortCircuitDuration");
-                                Double sideOneShortCircuitDuration = null;
-                                Double sideTwoShortCircuitDuration = null;
-                                if ((sideOneShortCircuitDurationAttribute != null) && (sideTwoShortCircuitDurationAttribute != null)) {
-                                    sideOneShortCircuitDuration = parseDoubleIfNotNull(sideOneShortCircuitDurationAttribute);
-                                    sideTwoShortCircuitDuration = parseDoubleIfNotNull(sideTwoShortCircuitDurationAttribute);
-                                } else {
-                                    if (shortCircuitDurationAttribute != null) {
-                                        sideOneShortCircuitDuration = parseDoubleIfNotNull(shortCircuitDurationAttribute);
-                                        sideTwoShortCircuitDuration = sideOneShortCircuitDuration;
-                                    }
-                                }
                                 Branch branch = new Branch(xmlsr.getAttributeValue(null, "id"),
-                                                           sideOneShortCircuitDuration,
-                                                           sideTwoShortCircuitDuration,
-                                                           parseDoubleIfNotNull(xmlsr.getAttributeValue(null, "shortCircuitDistance")),
-                                                           xmlsr.getAttributeValue(null, "shortCircuitSide"));
+                                        parseDoubleIfNotNull(xmlsr.getAttributeValue(null, "sideOneShortCircuitDuration")),
+                                        parseDoubleIfNotNull(xmlsr.getAttributeValue(null, "sideTwoShortCircuitDuration")),
+                                        parseDoubleIfNotNull(xmlsr.getAttributeValue(null, "shortCircuitDuration")),
+                                        parseDoubleIfNotNull(xmlsr.getAttributeValue(null, "shortCircuitDistance")),
+                                        xmlsr.getAttributeValue(null, "shortCircuitSide"));
                                 contingency.getBranches().put(branch.getId(), branch);
                                 break;
                             case "generator":
