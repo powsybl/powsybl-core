@@ -82,8 +82,9 @@ public class SimulationDetailedParameters {
         }
 
         /**
-         * @deprecated
+         * @deprecated Use {@link #Branch(String, Double, Double, Double, String) } instead.
          */
+        @Deprecated
         public Branch(String id, Double sideOneShortCircuitDuration, Double sideTwoShortCircuitDuration, Double shortCircuitDuration, Double shortCircuitDistance, String shortCircuitSide) {
             this.id = Objects.requireNonNull(id);
             if ((sideOneShortCircuitDuration != null) && (sideTwoShortCircuitDuration != null)) {
