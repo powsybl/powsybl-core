@@ -13,8 +13,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 /**
  * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
@@ -35,9 +34,9 @@ public class SecurityAnalysisParametersTest {
         parameters.addExtension(DummyExtension.class, dummyExtension);
 
         assertEquals(1, parameters.getExtensions().size());
-        assertEquals(true, parameters.getExtensions().contains(dummyExtension));
-        assertEquals(true, parameters.getExtensionByName("dummyExtension") instanceof DummyExtension);
-        assertEquals(true, parameters.getExtension(DummyExtension.class) instanceof DummyExtension);
+        assertTrue(parameters.getExtensions().contains(dummyExtension));
+        assertTrue(parameters.getExtensionByName("dummyExtension") instanceof DummyExtension);
+        assertTrue(parameters.getExtension(DummyExtension.class) instanceof DummyExtension);
     }
 
     @Test
@@ -45,9 +44,9 @@ public class SecurityAnalysisParametersTest {
         SecurityAnalysisParameters parameters = new SecurityAnalysisParameters();
 
         assertEquals(0, parameters.getExtensions().size());
-        assertEquals(false, parameters.getExtensions().contains(new DummyExtension()));
-        assertEquals(false, parameters.getExtensionByName("dummyExtension") instanceof DummyExtension);
-        assertEquals(false, parameters.getExtension(DummyExtension.class) instanceof DummyExtension);
+        assertFalse(parameters.getExtensions().contains(new DummyExtension()));
+        assertFalse(parameters.getExtensionByName("dummyExtension") instanceof DummyExtension);
+        assertFalse(parameters.getExtension(DummyExtension.class) instanceof DummyExtension);
     }
 
     @Test
@@ -55,7 +54,7 @@ public class SecurityAnalysisParametersTest {
         SecurityAnalysisParameters parameters = SecurityAnalysisParameters.load(config);
 
         assertEquals(1, parameters.getExtensions().size());
-        assertEquals(true, parameters.getExtensionByName("dummyExtension") instanceof DummyExtension);
+        assertTrue(parameters.getExtensionByName("dummyExtension") instanceof DummyExtension);
         assertNotNull(parameters.getExtension(DummyExtension.class));
     }
 
