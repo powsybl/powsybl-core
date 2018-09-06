@@ -15,6 +15,7 @@ import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
@@ -40,7 +41,7 @@ public class JsonSecurityAnalysisParametersTest extends AbstractConverterTest {
         parameters.getLoadFlowParameters().setSpecificCompatibility(true);
         JsonSecurityAnalysisParameters.update(parameters, getClass().getResourceAsStream("/SecurityAnalysisParametersIncomplete.json"));
 
-        assertEquals(true, parameters.getLoadFlowParameters().isSpecificCompatibility());
+        assertTrue(parameters.getLoadFlowParameters().isSpecificCompatibility());
     }
 
     @Test

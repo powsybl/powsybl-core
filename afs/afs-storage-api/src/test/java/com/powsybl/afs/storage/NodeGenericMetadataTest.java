@@ -11,6 +11,7 @@ import com.google.common.testing.EqualsTester;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 /**
@@ -34,7 +35,7 @@ public class NodeGenericMetadataTest {
         assertEquals(ImmutableMap.of("d1", 0d), metadata.getDoubles());
         assertEquals(1, metadata.getInt("i1"));
         assertEquals(ImmutableMap.of("i1", 1), metadata.getInts());
-        assertEquals(true, metadata.getBoolean("b1"));
+        assertTrue(metadata.getBoolean("b1"));
         assertEquals(ImmutableMap.of("b1", true), metadata.getBooleans());
 
         // check metadata not found
