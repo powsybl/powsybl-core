@@ -1,5 +1,5 @@
-# Extending itools for your needs
-itools is designed to be easily extended with new commands, that would be added to the set of available commands, providing users with new command line functionalities.  
+# Tutorial - Howto extend itools
+itools script mechanism is designed to be easily extended with new commands, that would be added to the set of available commands, providing users with new command line functionalities.  
 In order to create a new itools command:
 1. Create a new maven project and add all the required dependencies.
 2. Implement the `com.powsybl.tools.Tools` interface. 

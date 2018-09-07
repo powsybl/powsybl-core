@@ -39,8 +39,8 @@ load-flow-action-simulator:
   </componentDefaultConfig>
   <load-flow-action-simulator>
     <load-flow-factory>com.powsybl.loadflow.mock.LoadFlowFactoryMock</load-flow-factory>
-    <max-iterations>50</max-iterations>
-    <ignore-pre-contingency-violations>true</ignore-pre-contingency-violations>
+    <max-iterations>4</max-iterations>
+    <ignore-pre-contingency-violations>false</ignore-pre-contingency-violations>
   </load-flow-action-simulator>
 </config>
 ```
@@ -98,13 +98,8 @@ In order to run the `action-simulator` command, you must provide at least two re
 - `dsl-file`: a file with your power system simulation scenario: rules, actions and/or contingencies, expressed in [**iAL**](../architecture/ial/README.md), the **i**Tesla **A**ction **L**anguage, a groovy based DSL (**D**omain **S**pecific **L**anguage).
 
 
-```shell
-$> cd <POWSYBL_HOME>/bin
-$> ./itools action-simulator --case-file networkFileName --dsl-file actionsDSL.groovy.
-```
-
 ## Example 
-Following this example you can learn how to apply load-shedding corrective actions, when two lines are overloaded.  
+In the following example we will see how to simulate  load-shedding corrective actions, when two lines are overloaded.  
 
 Contingencies, rules and and action must be define in a DSL grovvy file - `contingencies_actions_DSL.groovy` -  as showed in the following:
 
@@ -150,7 +145,7 @@ Run itools command:
    $> ./itools action-simulator --case-file <POWSYBL_SAMPLES>/resources/eurostag-example.xiidm --dsl-file <POWSYBL_SAMPLES>/resources/contingencies_actions_DSL.groovy
 ```
 
-The results printed on standard output will be:
+The results printed on standard output will be the results of pre and post contingencies analysis.
 
 **Note:** To get the results in this table, powsybl was configured to use a real loadflow engine (RTE's Hades2LF, ref. [Hades2LF](http://www.rte.itesla-pst.org/)) 
 

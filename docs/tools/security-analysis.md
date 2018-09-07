@@ -1,6 +1,6 @@
 # iTools security-analysis command
 
-itools `security-analysis` command, allows you test pre and post contingencies violation, on imported network from a case file.
+itools `security-analysis` command allows you test *pre* and *post* contingencies security status of an imported network, from a case file.
 
 In the following sections we refer to installation and sample directories as:
 
@@ -10,11 +10,12 @@ In the following sections we refer to installation and sample directories as:
 
 
 ## Configuration for running security-analysis command
-The configuration  is defined in [powsybl configuration file](../configuration/configuration.md).
+The configuration is defined in [powsybl configuration file](../configuration/configuration.md).
 
-Here is an example of a configuration to start a security analysis for 'mock' loadflow implementation(an implementation that does nothing on the network).  Contingencies are defined in a DSL Groovy format.
+Here is an example of a configuration to start a security analysis for 'mock' loadflow implementation(an implementation that does nothing on the network).  
+Contingencies are defined in a DSL Groovy format.
 
-Note that different loadflow implementations might require specific configurations, in additional dedicated config file's sections.
+Note that different loadflow implementations might require specific configurations in additional dedicated config file's sections.
 
 ## YAML version
 ```yaml
@@ -50,7 +51,6 @@ load-flow-action-simulator:
 ```
 
 ## Running security-analysis command 
-Following is an example of how to use the `security-analysis` command, and run it.  
 To show the command help, with its specific parameters and descriptions, enter: 
 
 ```shell
@@ -85,15 +85,14 @@ In order to run the `security-analysis` command, you should provide at least one
 
 
 ## Example
-In the following example, we will see how to run security analysis without contingencies.
+In the following example we will see how to run security analysis to detect only pre-contingency violation, for a given network.
 
 ```shell
 $> cd <POWSYBL_HOME>/bin
 $> ./itools security-analysis --case-file <POWSYBL_SOURCES>/ucte/ucte-network/src/test/resources/20170322_1844_SN3_FR2.uct
 
 ```
-The security analisys will detect only pre-contingency violation.
-The results printed on standard output will be:
+The analysis results will be printed to the standard output: 
 
 ```shell
 Loading network '<POWSYBL_SOURCES>/ucte/ucte-network/src/test/resources/20170322_1844_SN3_FR2.uct'
@@ -106,9 +105,10 @@ Pre-contingency violations:
 
 ```
 
-In the following example, we will see how to run security analysis with contingencies, using optional argument `--contingencies-file`
+In the following example, we will see how to run security-analysis to identify the post-contingency security status of given network.
 
-Define your contingencies using a DSL groovy file, `contingencies_dsl.groovy`,  as showed in the following example:
+To test this scenario we need to list contingencies in a file, expressed in [**iAL**](../architecture/ial/README.md), the **i**Tesla **A**ction **L**anguage, a groovy based DSL (**D**omain **S**pecific **L**anguage).
+Following is a sample `contingencies_dsl.groovy`, with two contingencies:
 
 ```java
     contingency('HV_line_1') {
@@ -119,16 +119,15 @@ Define your contingencies using a DSL groovy file, `contingencies_dsl.groovy`,  
         equipments 'NHV1_NHV2_2'
     }
  ```
-
-Run itools security-analysis command, using optional argument:'contingencies-file':
+Contingencies_dsl.groovy file, must be declared in the itools security-analysis command line as an additional argument 'contingencies-file':
 
 ```shell
 	$> cd <POWSYBL_HOME>/bin
 	$>./itools security-analysis  --case-file <POWSYBL_SAMPLES>/resources/eurostag_example.xiidm --contingencies-file <POWSYBL_SAMPLES>/resources//contingencies_dsl.groovy
 ```
 
-The security analisys will detect  pre-contingency and post-contingecies violation.
-The log will list:
+
+The analysis' results, printed to the standard output: 
 
 ```shell
 Loading network '<POWSYBL_SAMPLES>/resources/eurostag_example.xiidm'

@@ -1,12 +1,12 @@
 ﻿# How to create a new import post processor
-Implementing an import post processor allows the execution of custom operations on imported network data.
+ImportPostProcessor is an interface which allows to process a loaded network.
 
 In order to create a new post processor:
 1. Create a new maven project and add all the required dependencies.
 2. Implement the `com.powsybl.iidm.import_.ImportPostProcessor` interface. 
 3. Compile your project, add the jar to your powsybl installation, and add the new post processor to the configuration file.
 
-In the following sections we will see how, following these steps, you can implemen
+In the following sections we will see how, following these steps, its possible to increase loads active power of an imported network.
 
 ## Maven dependencies
   
@@ -93,17 +93,20 @@ $> cd <PROJECT_HOME>
 $> mvn install
 ```
 
-The generated jar will be located under the target folder of your project.  
+The generated jar will be located under the target folder of your project:
 Copy the generated jar to `<POWSYBL_HOME>/share/java/` folder (you might need to copy in this directory other dependencies jars, specific to your new post processor).  
   
-In order to make the powsybl platform call your new post processor after network import, it's necessary to update the [configuration file](../../configuration/configuration.md).  
-Add the NAME specified for your processor to the `postProcessors` tag of the `import` section. In our example will be `increaseActivePower`
+In order to enable the post processor on powsybl platform, you must declare its name in the [configuration file](../../configuration/configuration.md):
+add the NAME specified for your processor to the `postProcessors` tag of the `import` section. In our example it will be `increaseActivePower`
 
 ```xml
 <import>
     <postProcessors>increaseActivePower</postProcessors>
 </import>
 ```
+
+In the example above, there is just one post processor enabled. More processors names can be specified in the `postProcessors` tag, as a comma separated list (ref. [post-processors](../../architecture/iidm/post-processor/README.md))
+
   
 In order to execute the new post processor run a command that involve a network import, for instance [run the loadflow command](../../tools/loadflow.md):
 ```bash
