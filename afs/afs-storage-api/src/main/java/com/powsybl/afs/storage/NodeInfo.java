@@ -55,7 +55,7 @@ public class NodeInfo {
     }
 
     public void setName(String name) {
-        this.name = name;
+        this.name = Objects.requireNonNull(name);
     }
 
     public String getPseudoClass() {
