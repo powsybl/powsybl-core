@@ -80,7 +80,7 @@ $> git clone https://github.com/powsybl/powsybl-core.git
 ```
 Note: git clone creates a directory powsybl-core. After cloning, you may switch to and build a specific branch RELEASE_BRANCH by
 ```
-$> cd powsyble-core
+$> cd powsybl-core
 $> git checkout RELEASE_BRANCH
 ```
 
