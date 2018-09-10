@@ -29,6 +29,13 @@ public class Project extends File {
         super(context, VERSION);
     }
 
+    public void delete() {
+        // has to be done before delete!!!
+        //invalidate();
+        storage.deleteNode(info.getId());
+        storage.flush();
+    }
+
     /**
      * Get the root folder of this project.
      */

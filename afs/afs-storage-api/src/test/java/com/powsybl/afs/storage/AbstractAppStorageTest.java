@@ -492,25 +492,13 @@ public abstract class AbstractAppStorageTest {
         storage.flush();
         assertEquals(newName, folder5Info.getName());
 
-       /* NodeInfo folder6Info = storage.createNode(rootFolderInfo.getId(), "test6", FOLDER_PSEUDO_CLASS, "", 0, new NodeGenericMetadata());
+        NodeInfo folder6Info = storage.createNode(rootFolderInfo.getId(), "test6", FOLDER_PSEUDO_CLASS, "", 0, new NodeGenericMetadata());
         try {
             folder6Info.setName(null);
             fail();
         } catch (NullPointerException ignored) {
         }
-        assertNull(folder6Info.getName());
-*/
 
     }
 
-    @Test(expected = NullPointerException.class)
-    public void testNodeInfo() {
-        NodeInfo rootFolderInfo = storage.createRootNodeIfNotExists(storage.getFileSystemName(), FOLDER_PSEUDO_CLASS);
-        storage.flush();
-
-        NodeInfo folder6Info = storage.createNode(rootFolderInfo.getId(), "test6", FOLDER_PSEUDO_CLASS, "", 0, new NodeGenericMetadata());
-        folder6Info.setName(null);
-        fail();
-        assertNull(folder6Info.getName());
-    }
 }
