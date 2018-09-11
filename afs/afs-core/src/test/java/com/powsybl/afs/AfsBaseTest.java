@@ -16,15 +16,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.Assert.*;
 
 /**
- *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class AfsBaseTest {
@@ -102,6 +98,15 @@ public class AfsBaseTest {
         assertTrue(project1.getRootFolder().getChildren().isEmpty());
         assertSame(project1.getFileSystem(), afs);
 
+        Project project2 = dir2.createProject("project2");
+        project2.rename("project22");
+        assertEquals("project22", project2.getName());
+
+        Folder dir41 = dir2.createFolder("dir41");
+        Project project3 = dir41.createProject("project3");
+        project3.delete();
+        assertTrue(dir41.getChildren().isEmpty());
+
         List<String> added = new ArrayList<>();
         List<String> removed = new ArrayList<>();
         ProjectFolderListener l = new ProjectFolderListener() {
@@ -140,6 +145,10 @@ public class AfsBaseTest {
 
         assertEquals(Arrays.asList(dir4.getId(), dir5.getId()), added);
         assertEquals(Collections.singletonList(dir4.getId()), removed);
+
+        ProjectFolder dir7 = rootFolder.createFolder("dir7");
+        dir7.rename("dir77");
+        assertEquals("dir77", dir7.getName());
     }
 
     @Test

@@ -30,11 +30,15 @@ public class Project extends File {
     }
 
     public void delete() {
-        // has to be done before delete!!!
-        //invalidate();
         storage.deleteNode(info.getId());
         storage.flush();
     }
+
+    public void rename(String name) {
+        storage.renameNode(info.getId(), name);
+        storage.flush();
+    }
+
 
     /**
      * Get the root folder of this project.
