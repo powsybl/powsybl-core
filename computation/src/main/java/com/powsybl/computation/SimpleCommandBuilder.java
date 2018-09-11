@@ -65,6 +65,39 @@ public class SimpleCommandBuilder extends AbstractCommandBuilder<SimpleCommandBu
         return this;
     }
 
+    /**
+     * Adds a flag if {@param flagValue} is true.
+     */
+    public SimpleCommandBuilder flag(String flagName, boolean flagValue) {
+        Objects.requireNonNull(flagName);
+
+        if (flagValue) {
+            arg("--" + flagName);
+        }
+        return this;
+    }
+
+    /**
+     * Adds an option "--opt=value".
+     */
+    public SimpleCommandBuilder option(String opt, String value) {
+        Objects.requireNonNull(opt);
+        Objects.requireNonNull(value);
+
+        arg("--" + opt + "=" + value);
+        return this;
+    }
+
+    /**
+     * Adds an option dependent on the execution count.
+     */
+    public SimpleCommandBuilder option(String opt, Function<Integer, String> fn) {
+        Objects.requireNonNull(opt);
+        Objects.requireNonNull(fn);
+        arg(i -> "--" + opt + "=" + fn.apply(i));
+        return this;
+    }
+
     public SimpleCommandBuilder timeout(int timeout) {
         this.timeout = timeout;
         if (timeout < -1 || timeout == 0) {

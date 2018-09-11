@@ -6,7 +6,7 @@
  */
 package com.powsybl.action.simulator.loadflow;
 
-import com.powsybl.action.dsl.ActionDb;
+import com.google.common.collect.ImmutableList;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.computation.*;
 import com.powsybl.iidm.network.Network;
@@ -18,62 +18,69 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 import static com.powsybl.action.simulator.tools.ActionSimulatorToolConstants.*;
 
 /**
+ * Runs a load flow action simulator through calls to itools action-simulator command,
+ * submitted to the computation manager.
+ *
  * @author Yichen Tang <yichen.tang at rte-france.com>
  */
-public class ParallelLoadFlowActionSimulator extends LoadFlowActionSimulator {
+public class ParallelLoadFlowActionSimulator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ParallelLoadFlowActionSimulator.class);
 
     private static final String ITOOLS_PRG = "itools";
 
+    private final ComputationManager computationManager;
+    private final Network network;
+    private final LoadFlowActionSimulatorConfig config;
+    private final boolean applyIfSolved;
     private final int taskCount;
-    private final Path dslFile;
     private final List<Consumer<SecurityAnalysisResult>> resultHandlers;
 
     private static final String SUB_TASK_ID = "sas"; // sub_action_simulator
 
-    public ParallelLoadFlowActionSimulator(Network network, Path dslFile, ComputationManager cm, int taskCount) {
-        this(network, dslFile, cm, taskCount, LoadFlowActionSimulatorConfig.load(), false, Collections.emptyList());
+    public ParallelLoadFlowActionSimulator(Network network, ComputationManager cm, int taskCount) {
+        this(network, cm, taskCount, LoadFlowActionSimulatorConfig.load(), false, Collections.emptyList());
     }
 
-    public ParallelLoadFlowActionSimulator(Network network, Path dslFile, ComputationManager cm, int taskCount, LoadFlowActionSimulatorConfig config,
+    public ParallelLoadFlowActionSimulator(Network network, ComputationManager cm, int taskCount, LoadFlowActionSimulatorConfig config,
                                            boolean applyIfSolved, Consumer<SecurityAnalysisResult>... resultHandlers) {
-        this(network, dslFile, cm, taskCount, config, applyIfSolved, Arrays.asList(resultHandlers));
+        this(network, cm, taskCount, config, applyIfSolved, Arrays.asList(resultHandlers));
     }
 
-    public ParallelLoadFlowActionSimulator(Network network, Path dslFile, ComputationManager cm, int taskCount, LoadFlowActionSimulatorConfig config,
+    public ParallelLoadFlowActionSimulator(Network network, ComputationManager cm, int taskCount, LoadFlowActionSimulatorConfig config,
                                            boolean applyIfSolved, List<Consumer<SecurityAnalysisResult>> resultHandlers) {
-        super(network, cm, config, applyIfSolved);
-        this.dslFile = Objects.requireNonNull(dslFile);
+        this.network = Objects.requireNonNull(network);
+        this.computationManager = Objects.requireNonNull(cm);
+        this.config = Objects.requireNonNull(config);
+        this.applyIfSolved = applyIfSolved;
         this.taskCount = taskCount;
-        this.resultHandlers = resultHandlers;
+        this.resultHandlers = ImmutableList.copyOf(Objects.requireNonNull(resultHandlers));
     }
 
-    @Override
-    public String getName() {
-        return "parallel loadflow action-simulator";
-    }
-
-    @Override
-    public void start(ActionDb actionDb, List<String> contingencyIds) {
-
+    /**
+     * Runs a load flow action simulator through calls to itools action-simulator command,
+     * submitted to the computation manager.
+     *
+     * @param script the content of the groovy DSL script representing contingencies and actions.
+     *
+     */
+    public void run(String script, List<String> contingencyIds) {
         LOGGER.debug("Starting parallel action simulator.");
 
-        ComputationManager manager = getComputationManager();
-        ExecutionEnvironment itoolsEnvironment = new ExecutionEnvironment(Collections.emptyMap(), "subTask_", getConfig().isDebug());
+        ExecutionEnvironment itoolsEnvironment = new ExecutionEnvironment(Collections.emptyMap(), "subTask_", config.isDebug());
 
         int actualTaskCount = Math.min(taskCount, contingencyIds.size());
-        CompletableFuture<SecurityAnalysisResult> future = manager.execute(itoolsEnvironment, new SubTaskHandler(actualTaskCount));
+        CompletableFuture<SecurityAnalysisResult> future = computationManager.execute(itoolsEnvironment, new SubTaskHandler(actualTaskCount, script, contingencyIds));
         try {
             SecurityAnalysisResult result = future.get();
             resultHandlers.forEach(h -> h.accept(result));
@@ -82,23 +89,23 @@ public class ParallelLoadFlowActionSimulator extends LoadFlowActionSimulator {
         }
     }
 
-    @Override
-    public void start(ActionDb actionDb, String... contingencyIds) {
-        start(actionDb, Arrays.asList(contingencyIds));
-    }
-
     /**
      * Execution handler for sub-tasks.
      * copies network and groovy file to working directory,
      * then launches one itools command for each subtask.
      * Finally, reads and merge results.
      */
-    private class SubTaskHandler extends AbstractExecutionHandler<SecurityAnalysisResult> {
+    private final class SubTaskHandler extends AbstractExecutionHandler<SecurityAnalysisResult> {
+
 
         private final int actualTaskCount;
+        private final String script;
+        private final List<String> contingencyIds;
 
-        SubTaskHandler(int actualTaskCount) {
+        private SubTaskHandler(int actualTaskCount, String script, List<String> contingencyIds) {
             this.actualTaskCount = actualTaskCount;
+            this.script = script;
+            this.contingencyIds = contingencyIds;
         }
 
         @Override
@@ -130,71 +137,31 @@ public class ParallelLoadFlowActionSimulator extends LoadFlowActionSimulator {
 
         private SimpleCommandBuilder buildCommand(Path workingDir) throws IOException {
 
-            OptionCommandBuilder builder = new OptionCommandBuilder();
+            SimpleCommandBuilder builder = new SimpleCommandBuilder();
 
             // copy input files to slave workingDir
             Path networkDest = workingDir.resolve("network.xiidm");
             LOGGER.debug("Copying network to file {}", networkDest);
-            NetworkXml.write(getNetwork(), networkDest);
+            NetworkXml.write(network, networkDest);
 
-            Path dslFileDest = workingDir.resolve("action-script.groovy");
-            LOGGER.debug("Copying action file from {} to {}", dslFile, dslFileDest);
-            Files.copy(dslFile, dslFileDest);
+            Path dslFileDest = workingDir.resolve("strategy.groovy");
+            LOGGER.debug("Copying strategy file to {}", dslFileDest);
+            Files.write(dslFileDest, script.getBytes(StandardCharsets.UTF_8));
 
             builder
                 .arg("action-simulator")
-                .addOption(CASE_FILE, networkDest.toString())
-                .addOption(DSL_FILE, dslFileDest.toString())
-                .addOption(TASK, i -> new Partition(i + 1, actualTaskCount).toString())
-                .addOption(OUTPUT_FILE, this::getOutputFileName)
-                .addOption(OUTPUT_FORMAT, "JSON")
-                .addFlag(APPLY_IF_SOLVED_VIOLATIONS, isApplyIfSolvedViolations());
+                .option(CASE_FILE, networkDest.toString())
+                .option(DSL_FILE, dslFileDest.toString())
+                .option(TASK, i -> new Partition(i + 1, actualTaskCount).toString())
+                .option(OUTPUT_FILE, this::getOutputFileName)
+                .option(OUTPUT_FORMAT, "JSON")
+                .flag(APPLY_IF_SOLVED_VIOLATIONS, applyIfSolved);
+
+            if (!contingencyIds.isEmpty()) {
+                builder.option(CONTINGENCIES, String.join(",", contingencyIds));
+            }
 
             return builder;
-        }
-    }
-
-    /**
-     * Simple command builder with additional methods to easily add options as "--opt=value"
-     */
-    protected static class OptionCommandBuilder extends SimpleCommandBuilder {
-
-        /**
-         * Adds a literal option.
-         */
-        public OptionCommandBuilder addFlag(String flagName, boolean flagValue) {
-            if (flagValue) {
-                arg("--" + flagName);
-            }
-            return this;
-        }
-
-        /**
-         * Adds a literal option.
-         */
-        public OptionCommandBuilder addOption(String opt, String value) {
-            arg("--" + opt + "=" + value);
-            return this;
-        }
-
-        /**
-         * Adds an option dependent on the execution count
-         */
-        public OptionCommandBuilder addOption(String opt, Function<Integer, String> fn) {
-            arg(i -> "--" + opt + "=" + fn.apply(i));
-            return this;
-        }
-
-        @Override
-        public OptionCommandBuilder arg(String arg) {
-            super.arg(arg);
-            return this;
-        }
-
-        @Override
-        public SimpleCommandBuilder arg(Function<Integer, String> arg) {
-            super.arg(arg);
-            return this;
         }
     }
 }

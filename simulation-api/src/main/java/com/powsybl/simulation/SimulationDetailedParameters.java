@@ -1,5 +1,6 @@
 /**
  * Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+ * Copyright (c) 2018, RTE (http://www.rte-france.com) *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -67,13 +68,37 @@ public class SimulationDetailedParameters {
     public static class Branch {
 
         private final String id;
-        private final Double shortCircuitDuration;
+        private final Double sideOneShortCircuitDuration;
+        private final Double sideTwoShortCircuitDuration;
         private final Double shortCircuitDistance;
         private final String shortCircuitSide;
 
-        public Branch(String id, Double shortCircuitDuration, Double shortCircuitDistance, String shortCircuitSide) {
+        public Branch(String id, Double sideOneShortCircuitDuration, Double sideTwoShortCircuitDuration, Double shortCircuitDistance, String shortCircuitSide) {
             this.id = Objects.requireNonNull(id);
-            this.shortCircuitDuration = shortCircuitDuration;
+            this.sideOneShortCircuitDuration = sideOneShortCircuitDuration;
+            this.sideTwoShortCircuitDuration = sideTwoShortCircuitDuration;
+            this.shortCircuitDistance = shortCircuitDistance;
+            this.shortCircuitSide = shortCircuitSide;
+        }
+
+        /**
+         * @deprecated Use {@link #Branch(String, Double, Double, Double, String) } instead.
+         */
+        @Deprecated
+        public Branch(String id, Double sideOneShortCircuitDuration, Double sideTwoShortCircuitDuration, Double shortCircuitDuration, Double shortCircuitDistance, String shortCircuitSide) {
+            this.id = Objects.requireNonNull(id);
+            if ((sideOneShortCircuitDuration != null) && (sideTwoShortCircuitDuration != null)) {
+                this.sideOneShortCircuitDuration = sideOneShortCircuitDuration;
+                this.sideTwoShortCircuitDuration = sideTwoShortCircuitDuration;
+            } else {
+                if (shortCircuitDuration != null) {
+                    this.sideOneShortCircuitDuration = shortCircuitDuration;
+                    this.sideTwoShortCircuitDuration = shortCircuitDuration;
+                } else {
+                    this.sideOneShortCircuitDuration = null;
+                    this.sideTwoShortCircuitDuration = null;
+                }
+            }
             this.shortCircuitDistance = shortCircuitDistance;
             this.shortCircuitSide = shortCircuitSide;
         }
@@ -86,8 +111,20 @@ public class SimulationDetailedParameters {
             return shortCircuitDistance;
         }
 
+        /**
+         * @deprecated Use {@link #getSideOneShortCircuitDuration} and {@link #getSideTwoShortCircuitDuration} instead.
+         */
+        @Deprecated
         public Double getShortCircuitDuration() {
-            return shortCircuitDuration;
+            return getSideOneShortCircuitDuration();
+        }
+
+        public Double getSideOneShortCircuitDuration() {
+            return sideOneShortCircuitDuration;
+        }
+
+        public Double getSideTwoShortCircuitDuration() {
+            return sideTwoShortCircuitDuration;
         }
 
         public String getShortCircuitSide() {
@@ -153,9 +190,11 @@ public class SimulationDetailedParameters {
                             case "branch":
                                 Objects.requireNonNull(contingency);
                                 Branch branch = new Branch(xmlsr.getAttributeValue(null, "id"),
-                                                           parseDoubleIfNotNull(xmlsr.getAttributeValue(null, "shortCircuitDuration")),
-                                                           parseDoubleIfNotNull(xmlsr.getAttributeValue(null, "shortCircuitDistance")),
-                                                           xmlsr.getAttributeValue(null, "shortCircuitSide"));
+                                        parseDoubleIfNotNull(xmlsr.getAttributeValue(null, "sideOneShortCircuitDuration")),
+                                        parseDoubleIfNotNull(xmlsr.getAttributeValue(null, "sideTwoShortCircuitDuration")),
+                                        parseDoubleIfNotNull(xmlsr.getAttributeValue(null, "shortCircuitDuration")),
+                                        parseDoubleIfNotNull(xmlsr.getAttributeValue(null, "shortCircuitDistance")),
+                                        xmlsr.getAttributeValue(null, "shortCircuitSide"));
                                 contingency.getBranches().put(branch.getId(), branch);
                                 break;
                             case "generator":
@@ -164,6 +203,9 @@ public class SimulationDetailedParameters {
                                                                     parseDoubleIfNotNull(xmlsr.getAttributeValue(null, "shortCircuitDuration")));
                                 contingency.getGenerators().put(generator.getId(), generator);
                                 break;
+                            case "simulationDetailedParameters":
+                                break;
+
                             default:
                                 throw new AssertionError("Unexpected element: " + xmlsr.getLocalName());
                         }
@@ -177,6 +219,7 @@ public class SimulationDetailedParameters {
 
                             case "branch":
                             case "generator":
+                            case "simulationDetailedParameters":
                                 // nothing to do
                                 break;
 

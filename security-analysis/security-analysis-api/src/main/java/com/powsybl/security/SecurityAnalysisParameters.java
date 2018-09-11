@@ -22,7 +22,7 @@ import java.util.Objects;
  * Extensions may be added, for instance for implementation-specific parameters.
  *
  * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
- * @author Sylvain LECLERC <sylvain.leclerc@rte-france.com>
+ * @author Sylvain LECLERC <sylvain.leclerc at rte-france.com>
  */
 public class SecurityAnalysisParameters extends AbstractExtendable<SecurityAnalysisParameters> {
 

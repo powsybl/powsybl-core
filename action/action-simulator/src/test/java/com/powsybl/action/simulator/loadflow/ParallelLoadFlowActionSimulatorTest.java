@@ -6,17 +6,14 @@
  */
 package com.powsybl.action.simulator.loadflow;
 
-import com.powsybl.action.dsl.ActionDb;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
@@ -25,8 +22,6 @@ public class ParallelLoadFlowActionSimulatorTest {
     private ComputationManager computationManager;
 
     private ParallelLoadFlowActionSimulator parallelLoadFlowActionSimulator;
-
-    private ActionDb actionDb;
 
     private List<String> contingencies;
 
@@ -37,18 +32,18 @@ public class ParallelLoadFlowActionSimulatorTest {
 
         LoadFlowActionSimulatorConfig config = mock(LoadFlowActionSimulatorConfig.class);
 
-        parallelLoadFlowActionSimulator = new ParallelLoadFlowActionSimulator(network, Paths.get("actions.groovy"), computationManager, 7, config, false, Collections.emptyList());
+        parallelLoadFlowActionSimulator = new ParallelLoadFlowActionSimulator(network, computationManager, 7, config, false, Collections.emptyList());
 
-        actionDb = mock(ActionDb.class);
         contingencies = mock(List.class);
     }
 
     @Test
     public void test() {
-        assertEquals("parallel loadflow action-simulator", parallelLoadFlowActionSimulator.getName());
         when(contingencies.size()).thenReturn(11);
+
+        String script = "";
         try {
-            parallelLoadFlowActionSimulator.start(actionDb, contingencies);
+            parallelLoadFlowActionSimulator.run(script, contingencies);
         } catch (Exception e) {
             // do nothing
         }
@@ -56,10 +51,12 @@ public class ParallelLoadFlowActionSimulatorTest {
     }
 
     @Test
-    public void testContingenySizeSmallerThanTasks() {
+    public void testContingencySizeSmallerThanTasks() {
         when(contingencies.size()).thenReturn(3);
+
+        String script = "";
         try {
-            parallelLoadFlowActionSimulator.start(actionDb, contingencies);
+            parallelLoadFlowActionSimulator.run(script, contingencies);
         } catch (Exception e) {
             // do nothing
         }
