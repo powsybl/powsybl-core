@@ -96,6 +96,7 @@ public class ForwardingAppStorage implements AppStorage {
     public void renameNode(String nodeId, String name) {
         storage.renameNode(nodeId, name);
     }
+
     @Override
     public Optional<InputStream> readBinaryData(String nodeId, String name) {
         return storage.readBinaryData(nodeId, name);

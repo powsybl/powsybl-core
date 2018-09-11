@@ -231,6 +231,7 @@ public class RemoteAppStorage implements AppStorage {
             response.close();
         }
     }
+
     @Override
     public void updateModificationTime(String nodeId) {
         Objects.requireNonNull(nodeId);

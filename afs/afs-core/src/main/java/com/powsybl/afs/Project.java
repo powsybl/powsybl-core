@@ -30,8 +30,6 @@ public class Project extends File {
     }
 
     public void delete() {
-        // has to be done before delete!!!
-        //invalidate();
         storage.deleteNode(info.getId());
         storage.flush();
     }
