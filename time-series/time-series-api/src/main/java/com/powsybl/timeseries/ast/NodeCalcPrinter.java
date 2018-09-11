@@ -71,6 +71,6 @@ public class NodeCalcPrinter implements NodeCalcVisitor<String, Void> {
 
     @Override
     public String visit(TimeSeriesNumNodeCalc nodeCalc, Void arg) {
-        return "timeSeries['" + nodeCalc.getTimeSeriesNum() + "']";
+        return "timeSeries[" + nodeCalc.getTimeSeriesNum() + "]";
     }
 }
