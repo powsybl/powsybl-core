@@ -29,21 +29,21 @@ After creating the Maven project, you need to add the necessary framework's depe
 ```xml
  <dependencies>
        	<dependency>
-			<groupId>com.google.auto.service</groupId>
-			<artifactId>auto-service</artifactId>
-			<version>1.0-rc2</version>
-		</dependency>
-		<dependency>
-			<groupId>com.powsybl</groupId>
-			<artifactId>powsybl-iidm-converter-api</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.powsybl</groupId>
-			<artifactId>powsybl-iidm-impl</artifactId>
-			<version>${project.version}</version>	
-		</dependency>		
-	</dependencies>
+		<groupId>com.google.auto.service</groupId>
+		<artifactId>auto-service</artifactId>
+		<version>1.0-rc2</version>
+	</dependency>
+	<dependency>
+		<groupId>com.powsybl</groupId>
+		<artifactId>powsybl-iidm-converter-api</artifactId>
+		<version>${project.version}</version>
+	</dependency>
+	<dependency>
+		<groupId>com.powsybl</groupId>
+		<artifactId>powsybl-iidm-impl</artifactId>
+		<version>${project.version}</version>	
+	</dependency>		
+</dependencies>
 ```
 
 Any specific dependencies required by your importer business logic implementation must be declared in this section, too.  
@@ -51,7 +51,7 @@ E.g. in our sample implementation we use `javacsv` library, so we have to add a 
  
 ```xml
 <dependency>
-    <groupId>net.sourceforge.javacsv</groupId>
+	<groupId>net.sourceforge.javacsv</groupId>
 	<artifactId>javacsv</artifactId>
 	<version>2.0</version>
 </dependency>
