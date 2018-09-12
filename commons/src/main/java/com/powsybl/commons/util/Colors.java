@@ -6,6 +6,7 @@
  */
 package com.powsybl.commons.util;
 
+import java.security.SecureRandom;
 import java.util.Random;
 
 /**
@@ -15,7 +16,7 @@ public final class Colors {
 
     private static final double GOLDEN_RATIO_CONJUGATE = 0.618033988749895;
 
-    private static final Random RANDOM = new Random();
+    private static final Random RANDOM = new SecureRandom();
 
     private Colors() {
     }
