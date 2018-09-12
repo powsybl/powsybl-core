@@ -91,12 +91,12 @@ public class CIM1ImporterTest {
 
     @Test
     public void exists() {
-        assertEquals(true, importer.exists(fdsMerged));
-        assertEquals(true, importer.exists(fdsUnzippedMerged));
-        assertEquals(true, importer.exists(zdsMerged));
-        assertEquals(true, importer.exists(fdsSplit));
-        assertEquals(true, importer.exists(fdsUnzippedSplit));
-        assertEquals(true, importer.exists(zdsSplit));
+        assertTrue(importer.exists(fdsMerged));
+        assertTrue(importer.exists(fdsUnzippedMerged));
+        assertTrue(importer.exists(zdsMerged));
+        assertTrue(importer.exists(fdsSplit));
+        assertTrue(importer.exists(fdsUnzippedSplit));
+        assertTrue(importer.exists(zdsSplit));
     }
 
     @Test
