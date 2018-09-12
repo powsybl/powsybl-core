@@ -27,7 +27,7 @@ The file contains two lines, as showed in the following table:
 After creating the Maven project, you need to add the necessary framework's dependencies to your pom.xml file.  
 
 ```xml
- <dependencies>
+<dependencies>
        	<dependency>
 		<groupId>com.google.auto.service</groupId>
 		<artifactId>auto-service</artifactId>
@@ -67,27 +67,25 @@ Here is an empty class *template* where you will put all the `CSV` related reade
 @AutoService(Importer.class)
 public class CsvImporter implements Importer {
 
-  @Override
-	public String getFormat() {
-	    return null;
-	}
-
+    @Override
+    public String getFormat() {
+    	return null;
+    }
 	
-	@Override
-	public String getComment() {
-		return null;
-	}
+    @Override
+    public String getComment() {
+    	return null;
+    }
 
-	@Override
-	public boolean exists(ReadOnlyDataSource dataSource) {
-		return false;
-	}
-
+    @Override
+    public boolean exists(ReadOnlyDataSource dataSource) {
+    	return false;
+    }
 	
-	@Override
-	public Network importData(ReadOnlyDataSource dataSource, Properties parameters) {
-	    return null;
-	}
+    @Override
+    public Network importData(ReadOnlyDataSource dataSource, Properties parameters) {
+    	return null;
+    }
 }
 ```
 
@@ -105,12 +103,11 @@ For instance in this class, we are loading network lines data from a CSV file.
 ```java
 @AutoService(Importer.class)
 public class CsvLinesImporter implements Importer {
-	
-	private static final Logger LOGGER = LoggerFactory.getLogger(CsvImporter.class);
 
-	private static final String EXTENSION = "csv";
-	
-   
+    private static final Logger LOGGER = LoggerFactory.getLogger(CsvImporter.class);
+
+    private static final String EXTENSION = "csv";	
+
     @Override
     public String getFormat() {
     	return "CSV";
@@ -124,7 +121,7 @@ public class CsvLinesImporter implements Importer {
     @Override
     public boolean exists(ReadOnlyDataSource datasource) {
         try {
-        	return datasource.exists(null, EXTENSION );
+            return datasource.exists(null, EXTENSION );
         } catch (IOException e) {
             e.printStackTrace();
             LOGGER.error(e.toString(), e);
@@ -140,8 +137,7 @@ public class CsvLinesImporter implements Importer {
         try {
             CsvReader reader = new CsvReader(data.newInputStream(null,EXTENSION), Charset.defaultCharset());
             reader.readHeaders();
-            while(reader.readRecord())
-            {
+            while(reader.readRecord()) {
                 String id = reader.get("LineId");   
                 LOGGER.info("import lineID {} ",id);
                 Substation s1 = getSubStation(reader.get("SubStationId1"), network, Country.FR);
