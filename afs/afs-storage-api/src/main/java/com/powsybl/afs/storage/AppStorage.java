@@ -80,10 +80,9 @@ public interface AppStorage extends AutoCloseable {
     String deleteNode(String nodeId);
 
     /**
-     * Rename the node
+     * Rename the node with ID {@code nodeId}
      */
     default void renameNode(String nodeId, String name) {
-
     }
 
     /**
