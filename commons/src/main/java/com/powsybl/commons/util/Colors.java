@@ -15,6 +15,8 @@ public final class Colors {
 
     private static final double GOLDEN_RATIO_CONJUGATE = 0.618033988749895;
 
+    private static final Random RANDOM = new Random();
+
     private Colors() {
     }
 
@@ -23,9 +25,8 @@ public final class Colors {
             throw new IllegalArgumentException("Color scale size must be positive");
         }
         String[] colors = new String[n];
-        Random random = new Random();
         for (int i = 0; i < n; i++) {
-            double h = random.nextDouble();
+            double h = RANDOM.nextDouble();
             h += GOLDEN_RATIO_CONJUGATE;
             h %= 1;
             long[] rgb = hsvToRgb(h, 0.5, 0.95);
